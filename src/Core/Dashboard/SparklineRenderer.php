@@ -32,11 +32,11 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class SparklineRenderer
-{
-    private const DEFAULT_WIDTH   = 200;
-    private const DEFAULT_HEIGHT  = 60;
-    private const VERTICAL_PAD    = 4; // px top/bottom inner padding to prevent clip
+final class SparklineRenderer {
+
+    private const DEFAULT_WIDTH  = 200;
+    private const DEFAULT_HEIGHT = 60;
+    private const VERTICAL_PAD   = 4; // px top/bottom inner padding to prevent clip
 
     /**
      * Render a sparkline SVG string from an array of float data points.
@@ -65,9 +65,9 @@ final class SparklineRenderer
         $max_val = max($points);
         $range   = $max_val - $min_val;
 
-        $pad        = self::VERTICAL_PAD;
-        $draw_h     = $height - ($pad * 2);
-        $x_step     = $count > 1 ? ($width / ($count - 1)) : 0.0;
+        $pad    = self::VERTICAL_PAD;
+        $draw_h = $height - ( $pad * 2 );
+        $x_step = $count > 1 ? ( $width / ( $count - 1 ) ) : 0.0;
 
         $svg_points = array();
 
@@ -79,7 +79,7 @@ final class SparklineRenderer
                 // All values equal or all zero → flat baseline at bottom.
                 $y = $height - $pad;
             } else {
-                $y = round($pad + $draw_h - (($val - $min_val) / $range) * $draw_h, 2);
+                $y = round($pad + $draw_h - ( ( $val - $min_val ) / $range ) * $draw_h, 2);
             }
 
             $svg_points[] = "{$x},{$y}";

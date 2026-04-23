@@ -20,8 +20,8 @@ use MHMRentiva\Layout\Config\ContractRules;
  * @package MHMRentiva\Layout
  * @since 4.15.0
  */
-final class TokenMapper
-{
+final class TokenMapper {
+
     /**
      * Maps manifest tokens to a CSS inline style string.
      *
@@ -57,14 +57,14 @@ final class TokenMapper
      */
     private function resolve_token_value(array $tokens, string $path)
     {
-        $keys = explode('.', $path);
+        $keys    = explode('.', $path);
         $current = $tokens;
 
         foreach ($keys as $key) {
-            if (! isset($current[$key])) {
+            if (! isset($current[ $key ])) {
                 return null;
             }
-            $current = $current[$key];
+            $current = $current[ $key ];
         }
 
         return $current;

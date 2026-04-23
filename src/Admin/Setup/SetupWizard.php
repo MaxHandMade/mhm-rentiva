@@ -14,8 +14,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
 
-final class SetupWizard
-{
+final class SetupWizard {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -26,16 +26,16 @@ final class SetupWizard
 
 	public static function register(): void
 	{
-		add_action('admin_init', array(self::class, 'maybe_redirect'));
-		add_action('admin_notices', array(self::class, 'show_permalink_notice'));
+		add_action('admin_init', array( self::class, 'maybe_redirect' ));
+		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
 
-		add_action('admin_post_mhm_rentiva_setup_save_license', array(self::class, 'handle_save_license'));
-		add_action('admin_post_mhm_rentiva_setup_create_pages', array(self::class, 'handle_create_pages'));
-		add_action('admin_post_mhm_rentiva_setup_save_email', array(self::class, 'handle_save_email'));
-		add_action('admin_post_mhm_rentiva_setup_save_frontend', array(self::class, 'handle_save_frontend'));
-		add_action('admin_post_mhm_rentiva_setup_finish', array(self::class, 'handle_finish'));
-		add_action('admin_post_mhm_rentiva_setup_skip', array(self::class, 'handle_skip'));
-		add_action('admin_post_mhm_rentiva_dismiss_permalink_notice', array(self::class, 'handle_dismiss_permalink_notice'));
+		add_action('admin_post_mhm_rentiva_setup_save_license', array( self::class, 'handle_save_license' ));
+		add_action('admin_post_mhm_rentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
+		add_action('admin_post_mhm_rentiva_setup_save_email', array( self::class, 'handle_save_email' ));
+		add_action('admin_post_mhm_rentiva_setup_save_frontend', array( self::class, 'handle_save_frontend' ));
+		add_action('admin_post_mhm_rentiva_setup_finish', array( self::class, 'handle_finish' ));
+		add_action('admin_post_mhm_rentiva_setup_skip', array( self::class, 'handle_skip' ));
+		add_action('admin_post_mhm_rentiva_dismiss_permalink_notice', array( self::class, 'handle_dismiss_permalink_notice' ));
 	}
 
 	public static function register_menu(): void
@@ -46,7 +46,7 @@ final class SetupWizard
 			__('Setup Wizard', 'mhm-rentiva'),
 			'manage_options',
 			self::PAGE_SLUG,
-			array(self::class, 'render_page')
+			array( self::class, 'render_page' )
 		);
 	}
 
@@ -85,7 +85,7 @@ final class SetupWizard
 
 		$title = sprintf(
 			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',
-			esc_html((string) get_admin_page_title()),
+			esc_html( (string) get_admin_page_title()),
 			esc_html(MHM_RENTIVA_VERSION),
 			\MHMRentiva\Admin\Licensing\Mode::isPro() ? 'pro' : 'lite',
 			\MHMRentiva\Admin\Licensing\Mode::isPro() ? esc_html__('Pro', 'mhm-rentiva') : esc_html__('Lite', 'mhm-rentiva')
@@ -97,7 +97,7 @@ final class SetupWizard
 		echo '<p>' . esc_html__('Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu.', 'mhm-rentiva') . '</p>';
 
 		self::render_step_navigation($steps, $current_step);
-?>
+		?>
 		<div class="mhm-setup-step">
 			<?php
 			switch ($current_step) {
@@ -127,7 +127,7 @@ final class SetupWizard
 			?>
 		</div>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function render_step_navigation(array $steps, string $current_step): void
@@ -155,7 +155,7 @@ final class SetupWizard
 	private static function render_step_system(): void
 	{
 		$checks = self::get_system_checks();
-	?>
+		?>
 		<h2><?php esc_html_e('Step 1: System Requirements', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing.', 'mhm-rentiva'); ?></p>
 		<table class="widefat striped mhm-system-table">
@@ -189,26 +189,26 @@ final class SetupWizard
 			<a class="button button-large align-left" href="<?php echo esc_url(self::skip_url()); ?>"><?php esc_html_e('Skip wizard', 'mhm-rentiva'); ?></a>
 			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('license')); ?>"><?php esc_html_e('Continue to License', 'mhm-rentiva'); ?></a>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function render_step_license(array $license): void
 	{
-		$license_key   = (string) ($license['key'] ?? '');
-		$is_active     = (bool) ($license['is_active'] ?? false);
-		$activation_id = (string) ($license['activation_id'] ?? '');
+		$license_key   = (string) ( $license['key'] ?? '' );
+		$is_active     = (bool) ( $license['is_active'] ?? false );
+		$activation_id = (string) ( $license['activation_id'] ?? '' );
 		$expires_at    = $license['expires_at'] ?? null;
 		$plan          = $license['plan'] ?: __('Unknown', 'mhm-rentiva');
 		$status        = $license['status'] ?? 'inactive';
 		$license_page  = admin_url('admin.php?page=mhm-rentiva-license');
-		$dev_env       = (bool) ($license['is_dev_env'] ?? false);
-		$dev_disabled  = (bool) ($license['dev_mode_disabled'] ?? false);
+		$dev_env       = (bool) ( $license['is_dev_env'] ?? false );
+		$dev_disabled  = (bool) ( $license['dev_mode_disabled'] ?? false );
 		$dev_allowed   = $dev_env && ! $dev_disabled;
 		// A "real" license requires an activation ID from the server; dev mode
 		// alone is not enough. Show the purchase CTA whenever this is missing.
 		$has_real_license = $license_key !== '' && $status === 'active' && $activation_id !== '';
 
-	?>
+		?>
 		<h2><?php esc_html_e('Step 2: License Activation', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more).', 'mhm-rentiva'); ?></p>
 
@@ -333,13 +333,13 @@ final class SetupWizard
 				?>
 			</p>
 		<?php endif; ?>
-	<?php
+		<?php
 	}
 
 	private static function render_step_pages(): void
 	{
 		$required_pages = self::get_required_pages();
-	?>
+		?>
 		<h2><?php esc_html_e('Step 3: Required Pages', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones.', 'mhm-rentiva'); ?></p>
 		<table class="widefat striped">
@@ -391,7 +391,7 @@ final class SetupWizard
 			<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('license')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('email')); ?>"><?php esc_html_e('Continue to Email', 'mhm-rentiva'); ?></a>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function render_step_email(): void
@@ -404,7 +404,7 @@ final class SetupWizard
 		$send_enabled  = SettingsCore::get('mhm_rentiva_email_send_enabled', '1');
 		$auto_enabled  = SettingsCore::get('mhm_rentiva_email_auto_send', '1');
 		$log_enabled   = SettingsCore::get('mhm_rentiva_email_log_enabled', '1');
-	?>
+		?>
 		<h2><?php esc_html_e('Step 4: Email & Notifications', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Configure the sender information and enable automatic notifications for bookings.', 'mhm-rentiva'); ?></p>
 
@@ -466,7 +466,7 @@ final class SetupWizard
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
 			</div>
 		</form>
-	<?php
+		<?php
 	}
 
 	private static function render_step_frontend(): void
@@ -501,7 +501,7 @@ final class SetupWizard
 		$max_days          = (int) SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30);
 		$show_features     = SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
 		$show_availability = SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1');
-	?>
+		?>
 		<h2><?php esc_html_e('Step 5: Frontend & Display', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -514,7 +514,7 @@ final class SetupWizard
 						<?php if ($is_woocommerce_currency) : ?>
 							<p class="description">
 								<strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong>
-								<?php echo esc_html($currencies[$currency] ?? $currency); ?>
+								<?php echo esc_html($currencies[ $currency ] ?? $currency); ?>
 							</p>
 							<p class="description">
 								<?php
@@ -542,7 +542,7 @@ final class SetupWizard
 						<?php if ($is_woocommerce_currency) : ?>
 							<?php
 							$wc_pos    = get_option('woocommerce_currency_pos');
-							$pos_label = $positions[$wc_pos] ?? $wc_pos;
+							$pos_label = $positions[ $wc_pos ] ?? $wc_pos;
 							?>
 							<p class="description">
 								<strong><?php esc_html_e('Managed by WooCommerce:', 'mhm-rentiva'); ?></strong>
@@ -593,16 +593,16 @@ final class SetupWizard
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Save & Continue', 'mhm-rentiva'); ?></button>
 			</div>
 		</form>
-	<?php
+		<?php
 	}
 
 	private static function render_step_demo(): void
 	{
-		$is_active  = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
+		$is_active     = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
 		$seed_steps    = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_seed_steps();
 		$cleanup_steps = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_cleanup_steps();
 		$nonce         = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_nonce();
-	?>
+		?>
 		<h2><?php esc_html_e( 'Demo Data', 'mhm-rentiva' ); ?></h2>
 		<p><?php esc_html_e( 'Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data.', 'mhm-rentiva' ); ?></p>
 
@@ -722,14 +722,14 @@ final class SetupWizard
 			<a class="button button-secondary button-large align-left" href="<?php echo esc_url( self::step_url( 'frontend' ) ); ?>">&larr; <?php esc_html_e( 'Back', 'mhm-rentiva' ); ?></a>
 			<a class="button button-primary button-large" href="<?php echo esc_url( self::step_url( 'summary' ) ); ?>"><?php esc_html_e( 'Continue to Summary', 'mhm-rentiva' ); ?></a>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function render_step_summary(): void
 	{
 		$steps     = self::get_steps();
 		$completed = get_option(self::OPTION_COMPLETED, '0') === '1';
-	?>
+		?>
 		<h2><?php esc_html_e('Final Step: Summary & Tests', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Review the checklist below and run a quick booking to confirm everything is ready.', 'mhm-rentiva'); ?></p>
 		<table class="widefat striped">
@@ -765,7 +765,7 @@ final class SetupWizard
 		$is_plain_permalink  = empty($permalink_structure);
 
 		if ($is_plain_permalink || $permalink_structure === '') :
-		?>
+			?>
 			<div class="notice notice-warning inline" style="margin: 20px 0;">
 				<p>
 					<strong><?php esc_html_e('⚠️ Important: Permalink Settings', 'mhm-rentiva'); ?></strong><br>
@@ -796,7 +796,7 @@ final class SetupWizard
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Complete Setup', 'mhm-rentiva'); ?></button>
 			</div>
 		</form>
-	<?php
+		<?php
 	}
 
 	public static function handle_save_license(): void
@@ -808,7 +808,7 @@ final class SetupWizard
 		$key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
 
 		if (empty($key)) {
-			wp_safe_redirect(self::step_url('license', array('error' => 'empty_key')));
+			wp_safe_redirect(self::step_url('license', array( 'error' => 'empty_key' )));
 			exit;
 		}
 
@@ -845,7 +845,7 @@ final class SetupWizard
 		} else {
 			// Fallback: just save the key if LicenseManager is not available
 			update_option('mhm_rentiva_license_key', $key);
-			wp_safe_redirect(self::step_url('pages', array('updated' => '1')));
+			wp_safe_redirect(self::step_url('pages', array( 'updated' => '1' )));
 			exit;
 		}
 	}
@@ -868,7 +868,7 @@ final class SetupWizard
 			}
 		}
 
-		wp_safe_redirect(self::step_url('pages', array('created' => (string) $created)));
+		wp_safe_redirect(self::step_url('pages', array( 'created' => (string) $created )));
 		exit;
 	}
 
@@ -890,7 +890,7 @@ final class SetupWizard
 		$settings['mhm_rentiva_email_log_enabled']  = isset($_POST['log_enabled']) ? '1' : '0';
 		update_option('mhm_rentiva_settings', $settings);
 
-		wp_safe_redirect(self::step_url('frontend', array('saved' => '1')));
+		wp_safe_redirect(self::step_url('frontend', array( 'saved' => '1' )));
 		exit;
 	}
 
@@ -908,7 +908,7 @@ final class SetupWizard
 			$settings['mhm_rentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
 		} else {
 			$currency_position                         = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
-			$allowed_positions                         = array('left', 'left_space', 'right', 'right_space');
+			$allowed_positions                         = array( 'left', 'left_space', 'right', 'right_space' );
 			$settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
 		}
 
@@ -918,14 +918,14 @@ final class SetupWizard
 
 		$settings['mhm_rentiva_default_rental_days']     = (string) max(1, min(30, $default_days));
 		$settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
-		$settings['mhm_rentiva_vehicle_max_rental_days'] = (string) max((int) $settings['mhm_rentiva_vehicle_min_rental_days'], min(365, $max_days));
+		$settings['mhm_rentiva_vehicle_max_rental_days'] = (string) max( (int) $settings['mhm_rentiva_vehicle_min_rental_days'], min(365, $max_days));
 
 		$settings['mhm_rentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
 		$settings['mhm_rentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
 
 		update_option('mhm_rentiva_settings', $settings);
 
-		wp_safe_redirect(self::step_url('summary', array('saved' => '1')));
+		wp_safe_redirect(self::step_url('summary', array( 'saved' => '1' )));
 		exit;
 	}
 
@@ -1020,7 +1020,7 @@ final class SetupWizard
 		}
 
 		$permalink_url = admin_url('options-permalink.php');
-	?>
+		?>
 		<div class="notice notice-warning is-dismissible">
 			<p>
 				<strong><?php esc_html_e('⚠️ Important: Permalink Settings Required', 'mhm-rentiva'); ?></strong>
@@ -1037,7 +1037,7 @@ final class SetupWizard
 				</a>
 			</p>
 		</div>
-	<?php
+		<?php
 	}
 
 	private static function is_wizard_page(): bool
@@ -1075,7 +1075,7 @@ final class SetupWizard
 			return $default;
 		}
 
-		return sanitize_text_field((string) $raw);
+		return sanitize_text_field( (string) $raw);
 	}
 
 	private static function get_key(string $key, string $default = ''): string
@@ -1091,7 +1091,7 @@ final class SetupWizard
 			return $default;
 		}
 
-		return sanitize_text_field((string) $raw);
+		return sanitize_text_field( (string) $raw);
 	}
 
 	private static function post_int(string $key, int $default = 0): int
@@ -1202,7 +1202,7 @@ final class SetupWizard
 			return;
 		}
 		$printed = true;
-	?>
+		?>
 		<style>
 			.mhm-setup-steps {
 				display: flex;
@@ -1332,7 +1332,7 @@ final class SetupWizard
 				margin-top: 4px;
 			}
 		</style>
-<?php
+		<?php
 	}
 
 	private static function get_system_checks(): array
@@ -1379,7 +1379,7 @@ final class SetupWizard
 				'label'    => __('PHP Memory Limit', 'mhm-rentiva'),
 				'current'  => $memory_mb >= 9999 ? __('Unlimited', 'mhm-rentiva') : sprintf('%d MB', $memory_mb),
 				'expected' => __('256 MB recommended', 'mhm-rentiva'),
-				'status'   => $memory_mb >= 256 ? 'ok' : ($memory_mb >= 128 ? 'warning' : 'fail'),
+				'status'   => $memory_mb >= 256 ? 'ok' : ( $memory_mb >= 128 ? 'warning' : 'fail' ),
 				'message'  => $memory_mb >= 256 ? '' : sprintf(
 					/* translators: %s: link to wp-config.php documentation */
 					__('Add %s to your wp-config.php file to increase memory.', 'mhm-rentiva'),
@@ -1397,7 +1397,7 @@ final class SetupWizard
 			'message'  => $max_execution >= 60 || $max_execution === 0 ? '' : __('Increase max_execution_time to 60 seconds for large imports.', 'mhm-rentiva'),
 		);
 
-		$https    = is_ssl() || (defined('FORCE_SSL_ADMIN') && constant('FORCE_SSL_ADMIN'));
+		$https    = is_ssl() || ( defined('FORCE_SSL_ADMIN') && constant('FORCE_SSL_ADMIN') );
 		$checks[] = array(
 			'label'    => __('HTTPS / SSL', 'mhm-rentiva'),
 			'current'  => $https ? __('Enabled', 'mhm-rentiva') : __('Not detected', 'mhm-rentiva'),
@@ -1453,7 +1453,7 @@ final class SetupWizard
 			'warning' => __('Warning', 'mhm-rentiva'),
 			'fail'    => __('Required', 'mhm-rentiva'),
 		);
-		$text   = $labels[$status] ?? __('Unknown', 'mhm-rentiva');
+		$text   = $labels[ $status ] ?? __('Unknown', 'mhm-rentiva');
 
 		return sprintf(
 			'<span class="mhm-status mhm-status-%1$s">%2$s</span>',
@@ -1529,7 +1529,7 @@ final class SetupWizard
 			return 0;
 		}
 
-		$last = strtoupper(substr($size, -1));
+		$last  = strtoupper(substr($size, -1));
 		$value = (int) $size;
 
 		switch ($last) {
@@ -1605,7 +1605,7 @@ final class SetupWizard
 
 	private static function is_smtp_layer_detected(): bool
 	{
-		$hooks = array('phpmailer_init', 'wp_mail', 'pre_wp_mail');
+		$hooks = array( 'phpmailer_init', 'wp_mail', 'pre_wp_mail' );
 		foreach ($hooks as $hook) {
 			if (has_filter($hook)) {
 				return true;

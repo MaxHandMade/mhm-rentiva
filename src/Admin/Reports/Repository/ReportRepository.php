@@ -398,16 +398,16 @@ class ReportRepository {
 		$wpdb->suppress_errors();
 
 		// Resolve locations table name (new name takes priority over legacy name)
-		$new_loc_table  = $wpdb->prefix . 'rentiva_transfer_locations';
-		$old_loc_table  = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
-		$locations_table = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_loc_table ) ) === $new_loc_table )
+		$new_loc_table          = $wpdb->prefix . 'rentiva_transfer_locations';
+		$old_loc_table          = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+		$locations_table        = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_loc_table ) ) === $new_loc_table )
 			? $new_loc_table
 			: $old_loc_table;
 		$locations_table_exists = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $locations_table ) ) === $locations_table );
 
 		$location_select = $locations_table_exists
-			? ", loc_origin.name as origin, loc_dest.name as destination, loc_veh.name as vehicle_location"
-			: ", NULL as origin, NULL as destination, NULL as vehicle_location";
+			? ', loc_origin.name as origin, loc_dest.name as destination, loc_veh.name as vehicle_location'
+			: ', NULL as origin, NULL as destination, NULL as vehicle_location';
 
 		$location_joins = $locations_table_exists
 			? "LEFT JOIN {$locations_table} loc_origin ON pm_transfer.meta_value = loc_origin.id

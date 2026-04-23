@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Metric aggregating lifetime absolute payout values strictly parsing explicit cleared withdrawals scaling positively natively protecting presentation rules dynamically.
  */
-final class TotalPaidOutMetric implements MetricInterface
-{
+final class TotalPaidOutMetric implements MetricInterface {
+
     public function key(): string
     {
         return 'total_paid_out';

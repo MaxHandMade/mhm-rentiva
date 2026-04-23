@@ -21,8 +21,8 @@ use MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox;
  *
  * @since 4.24.0
  */
-final class VendorCancellationDateBlocker
-{
+final class VendorCancellationDateBlocker {
+
 	/** How long vendor-cancelled dates remain blocked (days). */
 	public const BLOCK_DURATION_DAYS = 30;
 
@@ -41,7 +41,7 @@ final class VendorCancellationDateBlocker
 	 */
 	public static function register(): void
 	{
-		add_action('mhm_rentiva_booking_cancelled', array(self::class, 'maybe_block_dates'), 30, 3);
+		add_action('mhm_rentiva_booking_cancelled', array( self::class, 'maybe_block_dates' ), 30, 3);
 	}
 
 	/**

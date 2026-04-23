@@ -21,27 +21,27 @@ use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 
-final class EmailTemplates
-{
+final class EmailTemplates {
+
 
 
 
 	public static function register(): void
 	{
 		// Menu registration is now done centrally in Menu.php
-		add_action('admin_post_mhm_rentiva_email_preview', array(self::class, 'handle_preview'));
-		add_action('admin_post_mhm_rentiva_email_send_test', array(self::class, 'handle_send'));
+		add_action('admin_post_mhm_rentiva_email_preview', array( self::class, 'handle_preview' ));
+		add_action('admin_post_mhm_rentiva_email_send_test', array( self::class, 'handle_send' ));
 
 		// Admin AJAX for emails
 		\MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler::register();
 
 		// Email templates form processing
-		add_action('admin_post_mhm_rentiva_save_email_templates', array(self::class, 'handle_save_templates'));
+		add_action('admin_post_mhm_rentiva_save_email_templates', array( self::class, 'handle_save_templates' ));
 
 		// Add hooks for email templates page
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
-		add_action('admin_notices', array(self::class, 'add_email_stats_cards'));
-		add_action('admin_notices', array(self::class, 'show_save_notice'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
+		add_action('admin_notices', array( self::class, 'add_email_stats_cards' ));
+		add_action('admin_notices', array( self::class, 'show_save_notice' ));
 	}
 
 
@@ -71,7 +71,7 @@ final class EmailTemplates
 		);
 
 		$current_type = self::get_key('type', 'booking_notifications');
-		if (! isset($email_types[$current_type])) {
+		if (! isset($email_types[ $current_type ])) {
 			$current_type = 'booking_notifications';
 		}
 
@@ -198,14 +198,14 @@ final class EmailTemplates
 		);
 
 		$current_type = self::get_key('type', 'booking_notifications');
-		if (! isset($email_types[$current_type])) {
+		if (! isset($email_types[ $current_type ])) {
 			$current_type = 'booking_notifications';
 		}
 
 		$email_settings_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email');
 
 		// Unified Header
-?>
+		?>
 		<div class="mhm-settings-tab-header">
 			<div class="mhm-settings-title-group">
 				<h2><?php esc_html_e('Notification Templates', 'mhm-rentiva'); ?></h2>
@@ -231,7 +231,7 @@ final class EmailTemplates
 			$current_parent_tab = self::get_key('tab', 'email-templates');
 
 			foreach ($email_types as $type => $label) {
-				$active = ($current_type === $type) ? ' nav-tab-active' : '';
+				$active = ( $current_type === $type ) ? ' nav-tab-active' : '';
 				$url    = add_query_arg(
 					array(
 						'page' => 'mhm-rentiva-settings',
@@ -262,7 +262,7 @@ final class EmailTemplates
 			}
 			?>
 		</div>
-	<?php
+		<?php
 	}
 
 	public static function handle_preview(): void
@@ -284,8 +284,8 @@ final class EmailTemplates
 		}
 		$ctx = self::build_context($key, $bid);
 		$ok  = Mailer::send($key, $to, $ctx);
-		$ref = remove_query_arg(array('mhm_sent', 'mhm_err'), wp_get_referer() ?: admin_url('options-general.php?page=mhm-rentiva-email-templates'));
-		$url = add_query_arg($ok ? array('mhm_sent' => '1') : array('mhm_err' => '1'), $ref);
+		$ref = remove_query_arg(array( 'mhm_sent', 'mhm_err' ), wp_get_referer() ?: admin_url('options-general.php?page=mhm-rentiva-email-templates'));
+		$url = add_query_arg($ok ? array( 'mhm_sent' => '1' ) : array( 'mhm_err' => '1' ), $ref);
 		wp_safe_redirect($url);
 		exit;
 	}
@@ -401,50 +401,50 @@ final class EmailTemplates
 	private static function save_vendor_emails(): void
 	{
 		$fields = array(
-			'mhm_rentiva_vendor_approved_subject'                  => 'text',
-			'mhm_rentiva_vendor_approved_body'                     => 'html',
-			'mhm_rentiva_vendor_rejected_subject'                  => 'text',
-			'mhm_rentiva_vendor_rejected_body'                     => 'html',
-			'mhm_rentiva_vendor_suspended_subject'                 => 'text',
-			'mhm_rentiva_vendor_suspended_body'                    => 'html',
-			'mhm_rentiva_vendor_application_received_subject'      => 'text',
-			'mhm_rentiva_vendor_application_received_body'         => 'html',
-			'mhm_rentiva_vendor_application_new_admin_subject'     => 'text',
-			'mhm_rentiva_vendor_application_new_admin_body'        => 'html',
-			'mhm_rentiva_vehicle_approved_subject'                 => 'text',
-			'mhm_rentiva_vehicle_approved_body'                    => 'html',
-			'mhm_rentiva_vehicle_rejected_subject'                 => 'text',
-			'mhm_rentiva_vehicle_rejected_body'                    => 'html',
-			'mhm_rentiva_vehicle_submitted_admin_subject'          => 'text',
-			'mhm_rentiva_vehicle_submitted_admin_body'             => 'html',
-			'mhm_rentiva_vehicle_rereview_admin_subject'           => 'text',
-			'mhm_rentiva_vehicle_rereview_admin_body'              => 'html',
-			'mhm_rentiva_vehicle_activated_subject'                => 'text',
-			'mhm_rentiva_vehicle_activated_body'                   => 'html',
-			'mhm_rentiva_vehicle_paused_subject'                   => 'text',
-			'mhm_rentiva_vehicle_paused_body'                      => 'html',
-			'mhm_rentiva_vehicle_resumed_subject'                  => 'text',
-			'mhm_rentiva_vehicle_resumed_body'                     => 'html',
-			'mhm_rentiva_vehicle_expired_subject'                  => 'text',
-			'mhm_rentiva_vehicle_expired_body'                     => 'html',
-			'mhm_rentiva_vehicle_withdrawn_subject'                => 'text',
-			'mhm_rentiva_vehicle_withdrawn_body'                   => 'html',
-			'mhm_rentiva_vehicle_renewed_subject'                  => 'text',
-			'mhm_rentiva_vehicle_renewed_body'                     => 'html',
-			'mhm_rentiva_vehicle_relisted_subject'                 => 'text',
-			'mhm_rentiva_vehicle_relisted_body'                    => 'html',
-			'mhm_rentiva_vehicle_expiry_warning_first_subject'     => 'text',
-			'mhm_rentiva_vehicle_expiry_warning_first_body'        => 'html',
-			'mhm_rentiva_vehicle_expiry_warning_second_subject'    => 'text',
-			'mhm_rentiva_vehicle_expiry_warning_second_body'       => 'html',
-			'mhm_rentiva_payout_approved_subject'                  => 'text',
-			'mhm_rentiva_payout_approved_body'                     => 'html',
-			'mhm_rentiva_payout_rejected_subject'                  => 'text',
-			'mhm_rentiva_payout_rejected_body'                     => 'html',
-			'mhm_rentiva_iban_change_approved_subject'             => 'text',
-			'mhm_rentiva_iban_change_approved_body'                => 'html',
-			'mhm_rentiva_iban_change_rejected_subject'             => 'text',
-			'mhm_rentiva_iban_change_rejected_body'                => 'html',
+			'mhm_rentiva_vendor_approved_subject'          => 'text',
+			'mhm_rentiva_vendor_approved_body'             => 'html',
+			'mhm_rentiva_vendor_rejected_subject'          => 'text',
+			'mhm_rentiva_vendor_rejected_body'             => 'html',
+			'mhm_rentiva_vendor_suspended_subject'         => 'text',
+			'mhm_rentiva_vendor_suspended_body'            => 'html',
+			'mhm_rentiva_vendor_application_received_subject' => 'text',
+			'mhm_rentiva_vendor_application_received_body' => 'html',
+			'mhm_rentiva_vendor_application_new_admin_subject' => 'text',
+			'mhm_rentiva_vendor_application_new_admin_body' => 'html',
+			'mhm_rentiva_vehicle_approved_subject'         => 'text',
+			'mhm_rentiva_vehicle_approved_body'            => 'html',
+			'mhm_rentiva_vehicle_rejected_subject'         => 'text',
+			'mhm_rentiva_vehicle_rejected_body'            => 'html',
+			'mhm_rentiva_vehicle_submitted_admin_subject'  => 'text',
+			'mhm_rentiva_vehicle_submitted_admin_body'     => 'html',
+			'mhm_rentiva_vehicle_rereview_admin_subject'   => 'text',
+			'mhm_rentiva_vehicle_rereview_admin_body'      => 'html',
+			'mhm_rentiva_vehicle_activated_subject'        => 'text',
+			'mhm_rentiva_vehicle_activated_body'           => 'html',
+			'mhm_rentiva_vehicle_paused_subject'           => 'text',
+			'mhm_rentiva_vehicle_paused_body'              => 'html',
+			'mhm_rentiva_vehicle_resumed_subject'          => 'text',
+			'mhm_rentiva_vehicle_resumed_body'             => 'html',
+			'mhm_rentiva_vehicle_expired_subject'          => 'text',
+			'mhm_rentiva_vehicle_expired_body'             => 'html',
+			'mhm_rentiva_vehicle_withdrawn_subject'        => 'text',
+			'mhm_rentiva_vehicle_withdrawn_body'           => 'html',
+			'mhm_rentiva_vehicle_renewed_subject'          => 'text',
+			'mhm_rentiva_vehicle_renewed_body'             => 'html',
+			'mhm_rentiva_vehicle_relisted_subject'         => 'text',
+			'mhm_rentiva_vehicle_relisted_body'            => 'html',
+			'mhm_rentiva_vehicle_expiry_warning_first_subject' => 'text',
+			'mhm_rentiva_vehicle_expiry_warning_first_body' => 'html',
+			'mhm_rentiva_vehicle_expiry_warning_second_subject' => 'text',
+			'mhm_rentiva_vehicle_expiry_warning_second_body' => 'html',
+			'mhm_rentiva_payout_approved_subject'          => 'text',
+			'mhm_rentiva_payout_approved_body'             => 'html',
+			'mhm_rentiva_payout_rejected_subject'          => 'text',
+			'mhm_rentiva_payout_rejected_body'             => 'html',
+			'mhm_rentiva_iban_change_approved_subject'     => 'text',
+			'mhm_rentiva_iban_change_approved_body'        => 'html',
+			'mhm_rentiva_iban_change_rejected_subject'     => 'text',
+			'mhm_rentiva_iban_change_rejected_body'        => 'html',
 		);
 
 		self::save_email_fields($fields);
@@ -461,7 +461,7 @@ final class EmailTemplates
 
 		foreach ($fields as $field_name => $field_type) {
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_save_templates() before this method is called.
-			if (! isset($post_vars[$field_name])) {
+			if (! isset($post_vars[ $field_name ])) {
 				if ($field_type === 'checkbox') {
 					update_option($field_name, '0');
 				}
@@ -470,7 +470,7 @@ final class EmailTemplates
 
 			// Unslash the value before processing
 			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key is from trusted internal config and value is sanitized below.
-			$value = wp_unslash($post_vars[$field_name]);
+			$value = wp_unslash($post_vars[ $field_name ]);
 
 			// Null check
 			if ($value === null) {
@@ -482,16 +482,16 @@ final class EmailTemplates
 					update_option($field_name, '1');
 					break;
 				case 'text':
-					update_option($field_name, sanitize_text_field((string) ($value ?: '')));
+					update_option($field_name, sanitize_text_field( (string) ( $value ?: '' )));
 					break;
 				case 'email':
-					update_option($field_name, sanitize_email((string) ($value ?: '')));
+					update_option($field_name, sanitize_email( (string) ( $value ?: '' )));
 					break;
 				case 'html':
 					update_option($field_name, wp_kses_post($value ?: ''));
 					break;
 				default:
-					update_option($field_name, sanitize_text_field((string) ($value ?: '')));
+					update_option($field_name, sanitize_text_field( (string) ( $value ?: '' )));
 					break;
 			}
 		}
@@ -516,7 +516,7 @@ final class EmailTemplates
 					'currency' => (string) get_post_meta($booking_id, '_mhm_payment_currency', true) ?: 'TRY',
 				),
 				// Helper for direct access
-				'total_price' => number_format_i18n((int) get_post_meta($booking_id, '_mhm_payment_amount', true) / 100, 2),
+				'total_price' => number_format_i18n( (int) get_post_meta($booking_id, '_mhm_payment_amount', true) / 100, 2),
 			);
 			$ctx['customer'] = array(
 				'email' => (string) get_post_meta($booking_id, '_mhm_contact_email', true),
@@ -538,7 +538,7 @@ final class EmailTemplates
 			$symbol = CurrencyHelper::get_currency_symbol($cur);
 
 			$ctx['amount'] = number_format_i18n($amount_kurus / 100, 2) . ' ' . $symbol;
-			$ctx['status'] = (string) ($ctx['booking']['payment']['status'] ?? '');
+			$ctx['status'] = (string) ( $ctx['booking']['payment']['status'] ?? '' );
 			$ctx['reason'] = '';
 		}
 		return $ctx;
@@ -639,7 +639,7 @@ final class EmailTemplates
 			wp_enqueue_script(
 				'mhm-email-templates',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
-				array('jquery'),
+				array( 'jquery' ),
 				\MHM_RENTIVA_VERSION,
 				true
 			);
@@ -678,7 +678,7 @@ final class EmailTemplates
 
 		$stats = self::get_email_stats();
 
-	?>
+		?>
 		<div class="mhm-stats-cards">
 			<div class="stats-grid">
 				<!-- Total Templates -->
@@ -738,7 +738,7 @@ final class EmailTemplates
 				</div>
 			</div>
 		</div>
-<?php
+		<?php
 	}
 
 	/**
@@ -777,7 +777,7 @@ final class EmailTemplates
 		$success_rate = '95%';
 
 		// Active percentage
-		$active_percentage = $total_templates > 0 ? round(($active_templates / $total_templates) * 100) : 0;
+		$active_percentage = $total_templates > 0 ? round(( $active_templates / $total_templates ) * 100) : 0;
 
 		return array(
 			'total_templates'   => $total_templates,
@@ -836,11 +836,11 @@ final class EmailTemplates
 	private static function get_text(string $key, string $default = ''): string
 	{
 		$get_vars = $GLOBALS['_GET'] ?? array();
-		if (! isset($get_vars[$key])) {
+		if (! isset($get_vars[ $key ])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $get_vars[$key]));
+		return sanitize_text_field(wp_unslash( (string) $get_vars[ $key ]));
 	}
 
 	private static function get_key(string $key, string $default = ''): string
@@ -852,11 +852,11 @@ final class EmailTemplates
 	private static function post_text(string $key, string $default = ''): string
 	{
 		$post_vars = $GLOBALS['_POST'] ?? array();
-		if (! isset($post_vars[$key])) {
+		if (! isset($post_vars[ $key ])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash((string) $post_vars[$key]));
+		return sanitize_text_field(wp_unslash( (string) $post_vars[ $key ]));
 	}
 
 	private static function post_key(string $key, string $default = ''): string

@@ -39,8 +39,8 @@ use Exception;
  *
  * @since 3.0.1
  */
-final class VehiclesList extends AbstractShortcode
-{
+final class VehiclesList extends AbstractShortcode {
+
 
 	/**
 	 * Static cache for booking URL within the same request.
@@ -66,7 +66,7 @@ final class VehiclesList extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -90,7 +90,7 @@ final class VehiclesList extends AbstractShortcode
 		// Clean up
 		$text = strip_shortcodes($text);
 		$text = wp_strip_all_tags($text);
-		$text = str_replace(array("\r", "\n"), ' ', $text);
+		$text = str_replace(array( "\r", "\n" ), ' ', $text);
 
 		// Limit to ~160 chars (approx 25 words or strict char limit)
 		// User requested 120-160 chars.
@@ -178,8 +178,8 @@ final class VehiclesList extends AbstractShortcode
 		);
 
 		foreach ($map as $camel => $snake) {
-			if (isset($atts[$camel])) {
-				$atts[$snake] = $atts[$camel];
+			if (isset($atts[ $camel ])) {
+				$atts[ $snake ] = $atts[ $camel ];
 			}
 		}
 
@@ -228,7 +228,7 @@ final class VehiclesList extends AbstractShortcode
 		}
 
 		// Featured filter
-		if (($atts['featured'] ?? '0') === '1') {
+		if (( $atts['featured'] ?? '0' ) === '1') {
 			$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_featured_meta_query();
 		}
 
@@ -277,8 +277,8 @@ final class VehiclesList extends AbstractShortcode
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
+		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
 		// Rating functions moved to VehicleRatingForm
 		// add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
 		// add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
@@ -305,7 +305,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	protected static function get_css_dependencies(): array
 	{
-		return array('mhm-css-variables', 'mhm-vehicle-card-css');
+		return array( 'mhm-css-variables', 'mhm-vehicle-card-css' );
 	}
 
 	/**
@@ -313,7 +313,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	public static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-vehicle-interactions');
+		return array( 'jquery', 'mhm-vehicle-interactions' );
 	}
 
 	// ... (skipping to next method)
@@ -334,9 +334,9 @@ final class VehiclesList extends AbstractShortcode
 		}
 
 		// Prepare Image Data
-		$image_url    = self::get_vehicle_image($vehicle_id, $atts['image_size'] ?? 'large');
+		$image_url      = self::get_vehicle_image($vehicle_id, $atts['image_size'] ?? 'large');
 		$image_thumb_id = (int) get_post_thumbnail_id($vehicle_id);
-		$image_data = array(
+		$image_data     = array(
 			'url' => $image_url,
 			'alt' => get_the_title($vehicle_id),
 			'id'  => $image_thumb_id,
@@ -357,33 +357,33 @@ final class VehiclesList extends AbstractShortcode
 		if ($location_map === null) {
 			$location_map = array();
 			foreach (\MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental') as $loc) {
-				$location_map[(int) $loc->id] = (string) $loc->name;
+				$location_map[ (int) $loc->id ] = (string) $loc->name;
 			}
 		}
 		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
-		$vehicle_location_name = $location_map[$vehicle_location_id] ?? '';
+		$vehicle_location_name = $location_map[ $vehicle_location_id ] ?? '';
 		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
 		if ('' === $vehicle_location_name) {
 			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);
 		}
 
 		return array(
-			'id'           => $vehicle_id,
-			'title'        => get_the_title($vehicle_id) ?: '',
-			'excerpt'      => self::get_safe_excerpt($vehicle_id),
-			'permalink'    => get_permalink($vehicle_id) ?: '',
-			'image'        => $image_data, // Standardized key
-			'image_url'    => $image_url, // Keep for backward compatibility if needed locally
-			'price'        => self::get_vehicle_price($vehicle_id),
-			'features'     => $features,
-			'category'     => $category_data, // Standardized key
-			'brand'        => $brand,
-			'booking_url'  => self::get_booking_url(),
-			'rating'       => self::get_vehicle_rating($vehicle_id),
-			'availability' => self::check_vehicle_availability($vehicle_id),
-			'badge'        => self::get_vehicle_badge($vehicle_id),
-			'is_featured'  => get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true) === '1',
-			'is_favorite'  => self::is_favorite($vehicle_id),
+			'id'            => $vehicle_id,
+			'title'         => get_the_title($vehicle_id) ?: '',
+			'excerpt'       => self::get_safe_excerpt($vehicle_id),
+			'permalink'     => get_permalink($vehicle_id) ?: '',
+			'image'         => $image_data, // Standardized key
+			'image_url'     => $image_url, // Keep for backward compatibility if needed locally
+			'price'         => self::get_vehicle_price($vehicle_id),
+			'features'      => $features,
+			'category'      => $category_data, // Standardized key
+			'brand'         => $brand,
+			'booking_url'   => self::get_booking_url(),
+			'rating'        => self::get_vehicle_rating($vehicle_id),
+			'availability'  => self::check_vehicle_availability($vehicle_id),
+			'badge'         => self::get_vehicle_badge($vehicle_id),
+			'is_featured'   => get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true) === '1',
+			'is_favorite'   => self::is_favorite($vehicle_id),
 			'price_format'  => $atts['price_format'] ?? 'daily',
 			'location_name' => $vehicle_location_name,
 			'location_id'   => $vehicle_location_id,
@@ -547,7 +547,7 @@ final class VehiclesList extends AbstractShortcode
 	{
 		switch ($icon) {
 			case 'heart-filled':
-				return \MHMRentiva\Helpers\Icons::get('heart', array('fill' => 'currentColor'));
+				return \MHMRentiva\Helpers\Icons::get('heart', array( 'fill' => 'currentColor' ));
 			default:
 				return \MHMRentiva\Helpers\Icons::get($icon);
 		}
@@ -584,7 +584,7 @@ final class VehiclesList extends AbstractShortcode
 			$status = 'active'; // Final Production Fallback
 		}
 
-		$is_available = ($status === 'active');
+		$is_available = ( $status === 'active' );
 
 		return array(
 			'is_available' => $is_available,
@@ -614,7 +614,7 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	private static function get_wrapper_class(array $atts): string
 	{
-		$classes = array('rv-vehicles-list');
+		$classes = array( 'rv-vehicles-list' );
 
 		if (! empty($atts['class'])) {
 			$classes[] = sanitize_html_class($atts['class']);
@@ -702,7 +702,7 @@ final class VehiclesList extends AbstractShortcode
 		if (class_exists(FavoritesService::class)) {
 			FavoritesService::ajax_toggle_favorite();
 		} else {
-			wp_send_json_error(array('message' => 'Service not available'));
+			wp_send_json_error(array( 'message' => 'Service not available' ));
 		}
 	}
 
@@ -718,8 +718,8 @@ final class VehiclesList extends AbstractShortcode
 	 */
 	protected static function register_ajax_handlers(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array(self::class, 'ajax_toggle_favorite'));
+		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
 	}
 
 	/**

@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-class PayoutContext
-{
+class PayoutContext {
+
     /** @var int */
     public int $payout_id;
 

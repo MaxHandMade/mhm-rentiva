@@ -22,8 +22,8 @@ use MHMRentiva\Core\Tenancy\TenantResolver;
  * @since 4.23.0
  * @updated 4.23.0 Added multi-tenant policy support.
  */
-final class CoolingPolicyManager
-{
+final class CoolingPolicyManager {
+
     /**
      * Current policy version for forensic tracing.
      */
@@ -53,7 +53,7 @@ final class CoolingPolicyManager
         $minutes = self::get_cooling_minutes($risk_level, $tenant);
 
         // Strict UTC arithmetic: time() is always epoch UTC, gmdate formats it.
-        $release_timestamp = time() + ($minutes * 60);
+        $release_timestamp = time() + ( $minutes * 60 );
 
         return gmdate('Y-m-d H:i:s', $release_timestamp);
     }
@@ -89,7 +89,7 @@ final class CoolingPolicyManager
 
         // V1.8 HARDENING: Validate hook return values
         // Rules: Must be integer, positive, and max 10080 minutes (7 days)
-        $minutes = $policy_map[$risk_level] ?? $policy_map['medium'] ?? self::DEFAULT_POLICY_MAP['medium'];
+        $minutes = $policy_map[ $risk_level ] ?? $policy_map['medium'] ?? self::DEFAULT_POLICY_MAP['medium'];
 
         if (! is_int($minutes) || $minutes < 0 || $minutes > 10080) {
             // Log violation but keep engine running with default to prevent lockout
@@ -97,14 +97,14 @@ final class CoolingPolicyManager
                 \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
                     'Invalid cooling policy override detected. Falling back to default.',
                     [
-                        'tenant_id' => $tenant->get_id(),
+                        'tenant_id'      => $tenant->get_id(),
                         'provided_value' => $minutes,
-                        'risk_level' => $risk_level
+                        'risk_level'     => $risk_level,
                     ],
                     'payout_governance'
                 );
             }
-            return self::DEFAULT_POLICY_MAP[$risk_level] ?? self::DEFAULT_POLICY_MAP['medium'];
+            return self::DEFAULT_POLICY_MAP[ $risk_level ] ?? self::DEFAULT_POLICY_MAP['medium'];
         }
 
         return (int) $minutes;

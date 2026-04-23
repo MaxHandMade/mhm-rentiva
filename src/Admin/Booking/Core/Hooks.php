@@ -15,20 +15,20 @@ use MHMRentiva\Admin\Booking\Helpers\Cache;
 
 
 
-final class Hooks
-{
+final class Hooks {
+
 
 	public static function register(): void
 	{
 		// Cache invalidation hooks
-		add_action('mhm_rentiva_booking_created', array(self::class, 'invalidate_availability_cache'), 10, 1);
-		add_action('mhm_rentiva_booking_status_changed', array(self::class, 'invalidate_availability_cache'), 10, 1);
+		add_action('mhm_rentiva_booking_created', array( self::class, 'invalidate_availability_cache' ), 10, 1);
+		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'invalidate_availability_cache' ), 10, 1);
 
 		// License limit checks
-		add_action('mhm_rentiva_before_booking_create', array(self::class, 'check_license_limits'), 10, 2);
+		add_action('mhm_rentiva_before_booking_create', array( self::class, 'check_license_limits' ), 10, 2);
 
 		// Status automation hooks
-		add_action('mhm_rentiva_booking_status_changed', array(self::class, 'handle_status_automation'), 10, 3);
+		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'handle_status_automation' ), 10, 3);
 	}
 
 	/**

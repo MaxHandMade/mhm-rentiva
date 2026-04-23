@@ -17,12 +17,12 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 1.4.1
  */
-class QueryHelper
-{
+class QueryHelper {
+
 
     /**
      * Generates a NOT EXISTS subquery for vehicle availability.
-     * 
+     *
      * @param string $pickup_date Y-m-d format
      * @param string $return_date Y-m-d format
      * @return string SQL fragment
@@ -34,7 +34,7 @@ class QueryHelper
         // Guard: empty dates must skip availability filtering entirely.
         // strtotime('' . ' 00:00:00') silently returns today's timestamp instead of false.
         if ('' === $pickup_date || '' === $return_date) {
-            return "";
+            return '';
         }
 
         // Convert to timestamps for comparison (consistent with existing logic)
@@ -42,7 +42,7 @@ class QueryHelper
         $end_ts   = strtotime($return_date . ' 23:59:59');
 
         if (!$start_ts || !$end_ts) {
-            return "";
+            return '';
         }
 
         /**
@@ -93,20 +93,20 @@ class QueryHelper
         $ids = is_array($location_ids) ? array_filter(array_map('intval', $location_ids)) : ( $location_ids > 0 ? array( $location_ids ) : array() );
 
         if (empty($ids)) {
-            return "";
+            return '';
         }
 
         $loc_meta_key   = MetaKeys::VEHICLE_LOCATION_ID;
         $vendor_loc_key = MetaKeys::VENDOR_LOCATION_ID;
         $global_default = (int) SettingsCore::get('mhm_rentiva_default_rental_location', 0);
 
-        $in_clause = implode(', ', array_fill(0, count($ids), '%d'));
+        $in_clause    = implode(', ', array_fill(0, count($ids), '%d'));
         $prepare_args = array_merge(
-            array($loc_meta_key),
+            array( $loc_meta_key ),
             $ids,
-            array($loc_meta_key, $vendor_loc_key),
+            array( $loc_meta_key, $vendor_loc_key ),
             $ids,
-            array($vendor_loc_key, $global_default),
+            array( $vendor_loc_key, $global_default ),
             $ids
         );
 

@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.20.x
  */
-final class DatepickerAssets
-{
+final class DatepickerAssets {
+
     /**
      * Enqueue datepicker dependencies, custom styles, and init script.
      */
@@ -32,7 +32,7 @@ final class DatepickerAssets
         wp_enqueue_style(
             'mhm-rentiva-datepicker-custom',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-            array('mhm-css-variables'),
+            array( 'mhm-css-variables' ),
             MHM_RENTIVA_VERSION
         );
 
@@ -40,7 +40,7 @@ final class DatepickerAssets
         wp_enqueue_script(
             'mhm-datepicker-init',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/core/datepicker-init.js',
-            array('jquery', 'jquery-ui-datepicker'),
+            array( 'jquery', 'jquery-ui-datepicker' ),
             MHM_RENTIVA_VERSION,
             true
         );
@@ -58,9 +58,9 @@ final class DatepickerAssets
     private static function get_localized_options(): array
     {
         return array(
-            'closeText'    => __('Close', 'mhm-rentiva'),
-            'currentText'  => __('Today', 'mhm-rentiva'),
-            'monthNames'   => array(
+            'closeText'   => __('Close', 'mhm-rentiva'),
+            'currentText' => __('Today', 'mhm-rentiva'),
+            'monthNames'  => array(
                 __('January', 'mhm-rentiva'),
                 __('February', 'mhm-rentiva'),
                 __('March', 'mhm-rentiva'),
@@ -74,7 +74,7 @@ final class DatepickerAssets
                 __('November', 'mhm-rentiva'),
                 __('December', 'mhm-rentiva'),
             ),
-            'dayNamesMin'  => array(
+            'dayNamesMin' => array(
                 __('Su', 'mhm-rentiva'),
                 __('Mo', 'mhm-rentiva'),
                 __('Tu', 'mhm-rentiva'),
@@ -83,8 +83,8 @@ final class DatepickerAssets
                 __('Fr', 'mhm-rentiva'),
                 __('Sa', 'mhm-rentiva'),
             ),
-            'firstDay'     => 1,
-            'isRTL'        => is_rtl(),
+            'firstDay'    => 1,
+            'isRTL'       => is_rtl(),
         );
     }
 }

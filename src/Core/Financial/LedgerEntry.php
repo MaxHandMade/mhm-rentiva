@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  * @since 4.20.0
  * @since 4.21.0 Added policy_id and policy_version_hash for Commission Policy Versioning.
  */
-final class LedgerEntry
-{
+final class LedgerEntry {
+
     private string $transaction_uuid;
     private int $vendor_id;
     private ?int $booking_id;

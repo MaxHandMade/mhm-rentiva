@@ -18,8 +18,8 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
  *
  * @since 4.22.0
  */
-class ExportSignatureService
-{
+class ExportSignatureService {
+
     /**
      * Reads a file, hashes it via SHA-256 (in Hex), and signs the Hex Hash using the active Private Key.
      *

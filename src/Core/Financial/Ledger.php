@@ -13,13 +13,13 @@ use MHMRentiva\Core\Tenancy\TenantResolver;
 
 /**
  * Pure Domain Layer representing the financial ledger.
- * This 
+ * This
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
 class interacts exclusively with the immutable append-only mhm_rentiva_ledger table.
  * It strictly prohibits UPDATE or DELETE statements.
  */
-final class Ledger
-{
+final class Ledger {
+
     /**
      * Insert a new entry into the ledger ensuring append-only constraints.
      * Entry is scoped to the currently resolved TenantContext.
@@ -32,7 +32,7 @@ final class Ledger
     {
         global $wpdb;
 
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = TenantResolver::resolve()->get_id();
 
         // 1. SaaS Control Plane Guard (Quota & Status)
@@ -122,7 +122,7 @@ final class Ledger
     public static function get_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
@@ -150,7 +150,7 @@ final class Ledger
     public static function get_pending_balance(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
@@ -181,7 +181,7 @@ final class Ledger
     public static function get_total_earned(int $vendor_id, ?int $tenant_id = null): float
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary for live financial totals.
@@ -212,11 +212,11 @@ final class Ledger
     public static function get_entries(int $vendor_id, array $filters = array(), int $limit = 20, int $offset = 0, ?int $tenant_id = null): array
     {
         global $wpdb;
-        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = self::ensure_tenant_id($tenant_id);
 
-        $where_clauses = array('tenant_id = %d', 'vendor_id = %d');
-        $args          = array($tenant_id, $vendor_id);
+        $where_clauses = array( 'tenant_id = %d', 'vendor_id = %d' );
+        $args          = array( $tenant_id, $vendor_id );
 
         if (! empty($filters['status']) && is_string($filters['status'])) {
             $where_clauses[] = 'status = %s';

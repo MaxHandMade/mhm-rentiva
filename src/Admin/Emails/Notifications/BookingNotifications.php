@@ -133,7 +133,7 @@ final class BookingNotifications {
 
 		// Include cancellation reason when booking is cancelled
 		if ( $new_status === 'cancelled' ) {
-			$cancellation_data                        = get_post_meta( $booking_id, '_mhm_cancellation_data', true );
+			$cancellation_data                         = get_post_meta( $booking_id, '_mhm_cancellation_data', true );
 			$additional_context['cancellation_reason'] = is_array( $cancellation_data ) ? ( $cancellation_data['cancellation_reason'] ?? '' ) : '';
 		}
 

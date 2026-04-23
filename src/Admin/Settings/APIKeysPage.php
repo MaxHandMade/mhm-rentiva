@@ -24,8 +24,8 @@ use MHMRentiva\Admin\REST\Settings\RESTSettings;
  * @package MHMRentiva\Admin\Settings
  * @since 4.0.0
  */
-final class APIKeysPage
-{
+final class APIKeysPage {
+
 
 
 	/**
@@ -60,7 +60,7 @@ final class APIKeysPage
 		);
 
 		foreach ($actions as $action) {
-			add_action("wp_ajax_mhm_{$action}", array(self::class, 'handle_request'));
+			add_action("wp_ajax_mhm_{$action}", array( self::class, 'handle_request' ));
 		}
 	}
 
@@ -74,9 +74,9 @@ final class APIKeysPage
 		// 1. Security Check (Compatibility with rest-api-keys.js using 'nonce' or 'security' param)
 		$nonce_value = '';
 		if (isset($_REQUEST['nonce'])) {
-			$nonce_value = sanitize_text_field(wp_unslash((string) $_REQUEST['nonce']));
+			$nonce_value = sanitize_text_field(wp_unslash( (string) $_REQUEST['nonce']));
 		} elseif (isset($_REQUEST['security'])) {
-			$nonce_value = sanitize_text_field(wp_unslash((string) $_REQUEST['security']));
+			$nonce_value = sanitize_text_field(wp_unslash( (string) $_REQUEST['security']));
 		}
 		if (! wp_verify_nonce($nonce_value, self::ACTION_NONCE)) {
 			wp_send_json_error(
@@ -114,7 +114,7 @@ final class APIKeysPage
 			if (str_contains($e_class, 'WPAjaxDie') || str_contains($e_class, 'WPDie')) {
 				throw $e;
 			}
-			wp_send_json_error(array('message' => esc_html($e->getMessage())));
+			wp_send_json_error(array( 'message' => esc_html($e->getMessage()) ));
 		}
 	}
 
@@ -125,7 +125,7 @@ final class APIKeysPage
 	{
 		$name        = self::post_text('name');
 		$permissions = self::post_array('permissions');
-		$permissions = ! empty($permissions) ? array_map('sanitize_text_field', $permissions) : array('read');
+		$permissions = ! empty($permissions) ? array_map('sanitize_text_field', $permissions) : array( 'read' );
 		$expires_at  = self::post_int('expires_at');
 		$expires_at  = $expires_at > 0 ? $expires_at : null;
 
@@ -177,7 +177,7 @@ final class APIKeysPage
 			throw new \Exception(esc_html__('Failed to revoke API key.', 'mhm-rentiva'));
 		}
 
-		wp_send_json_success(array('message' => esc_html__('API key revoked successfully.', 'mhm-rentiva')));
+		wp_send_json_success(array( 'message' => esc_html__('API key revoked successfully.', 'mhm-rentiva') ));
 	}
 
 	/**
@@ -195,7 +195,7 @@ final class APIKeysPage
 			throw new \Exception(esc_html__('Failed to delete API key.', 'mhm-rentiva'));
 		}
 
-		wp_send_json_success(array('message' => esc_html__('API key deleted successfully.', 'mhm-rentiva')));
+		wp_send_json_success(array( 'message' => esc_html__('API key deleted successfully.', 'mhm-rentiva') ));
 	}
 
 	/**
@@ -241,12 +241,12 @@ final class APIKeysPage
 	private static function post_text(string $key, string $fallback = ''): string
 	{
 		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		if (! isset($post[$key])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
+		if (! isset($post[ $key ])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 			return $fallback;
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		return sanitize_text_field(wp_unslash((string) $post[$key]));
+		return sanitize_text_field(wp_unslash( (string) $post[ $key ]));
 	}
 
 	/**
@@ -266,11 +266,11 @@ final class APIKeysPage
 	private static function post_array(string $key): array
 	{
 		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		if (! isset($post[$key]) || ! is_array($post[$key])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
+		if (! isset($post[ $key ]) || ! is_array($post[ $key ])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
 			return array();
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in handle_request(); array items are sanitized by caller.
-		return wp_unslash($post[$key]);
+		return wp_unslash($post[ $key ]);
 	}
 }

@@ -7,15 +7,15 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-final class Menu
-{
+final class Menu {
+
 	public static function register(): void
 	{
-		add_action('admin_menu', array(self::class, 'add_menu'), 5); // Priority 5 to run earliest
+		add_action('admin_menu', array( self::class, 'add_menu' ), 5); // Priority 5 to run earliest
 
 		// Parent menu fix - Keep menu open when editing Vehicle and Booking
-		add_filter('parent_file', array(self::class, 'fix_parent_file'));
-		add_filter('submenu_file', array(self::class, 'fix_submenu_file'));
+		add_filter('parent_file', array( self::class, 'fix_parent_file' ));
+		add_filter('submenu_file', array( self::class, 'fix_submenu_file' ));
 
 		// Register page hooks (Internal registration logic, without add_submenu_page)
 		\MHMRentiva\Admin\Customers\CustomersPage::register();
@@ -29,7 +29,7 @@ final class Menu
 			__('MHM Rentiva', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva',
-			array(new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render'),
+			array( new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render' ),
 			'dashicons-car',
 			6
 		);
@@ -41,7 +41,7 @@ final class Menu
 			__('Dashboard', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-dashboard',
-			array(new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render')
+			array( new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render' )
 		);
 
 		// 2. Vehicles Group
@@ -67,7 +67,7 @@ final class Menu
 			__('Vehicle Settings', 'mhm-rentiva'),
 			'manage_options',
 			'vehicle-settings',
-			array(new \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings(), 'render_settings_page')
+			array( new \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings(), 'render_settings_page' )
 		);
 
 		// 3. Bookings
@@ -86,7 +86,7 @@ final class Menu
 			__('Locations', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-transfer-locations',
-			array(new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_locations_page')
+			array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_locations_page' )
 		);
 
 		add_submenu_page(
@@ -95,7 +95,7 @@ final class Menu
 			__('Transfer Routes', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-transfer-routes',
-			array(new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_routes_page')
+			array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_routes_page' )
 		);
 
 		// 5. Additional Services (Addons)
@@ -114,7 +114,7 @@ final class Menu
 			__('Customers', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-customers',
-			array(new \MHMRentiva\Admin\Customers\CustomersPage(), 'render')
+			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);
 
 		// 7. Reports (Pro feature)
@@ -125,7 +125,7 @@ final class Menu
 				__('Reports', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-reports',
-				array(new \MHMRentiva\Admin\Reports\Reports(), 'render_page')
+				array( new \MHMRentiva\Admin\Reports\Reports(), 'render_page' )
 			);
 		}
 
@@ -137,7 +137,7 @@ final class Menu
 				__('Messages', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-messages',
-				array(new \MHMRentiva\Admin\Messages\Core\Messages(), 'render_messages_page')
+				array( new \MHMRentiva\Admin\Messages\Core\Messages(), 'render_messages_page' )
 			);
 		}
 
@@ -149,7 +149,7 @@ final class Menu
 				__('Export', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-export',
-				array(new \MHMRentiva\Admin\Utilities\Export\Export(), 'render_export_page')
+				array( new \MHMRentiva\Admin\Utilities\Export\Export(), 'render_export_page' )
 			);
 		}
 
@@ -160,7 +160,7 @@ final class Menu
 			__('Settings', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-settings',
-			array(self::class, 'render_settings_page')
+			array( self::class, 'render_settings_page' )
 		);
 
 		// 11. Shortcode Pages (Administrative/Frontend Utility)
@@ -171,7 +171,7 @@ final class Menu
 				__('Shortcode Pages', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-shortcode-pages',
-				array(\MHMRentiva\Admin\Settings\ShortcodePages::register(), 'render_page')
+				array( \MHMRentiva\Admin\Settings\ShortcodePages::register(), 'render_page' )
 			);
 		}
 
@@ -183,7 +183,7 @@ final class Menu
 				__('Setup Wizard', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-setup',
-				array(new \MHMRentiva\Admin\Setup\SetupWizard(), 'render_page')
+				array( new \MHMRentiva\Admin\Setup\SetupWizard(), 'render_page' )
 			);
 		}
 
@@ -195,7 +195,7 @@ final class Menu
 				__('About', 'mhm-rentiva'),
 				'manage_options',
 				'mhm-rentiva-about',
-				array(new \MHMRentiva\Admin\About\About(), 'render_page')
+				array( new \MHMRentiva\Admin\About\About(), 'render_page' )
 			);
 		}
 
@@ -206,7 +206,7 @@ final class Menu
 			__('License', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-license',
-			array(new \MHMRentiva\Admin\Licensing\LicenseAdmin(), 'render_page')
+			array( new \MHMRentiva\Admin\Licensing\LicenseAdmin(), 'render_page' )
 		);
 
 		// Remove WordPress's automatically created "MHM Rentiva" submenu
@@ -259,17 +259,17 @@ final class Menu
 		}
 
 		// When in Vehicle post type editor, make "Vehicles" active
-		if ($current_screen->post_type === 'vehicle' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
+		if ($current_screen->post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			return 'edit.php?post_type=vehicle';
 		}
 
 		// When in Vehicle addon editor, make "Additional Services" active
-		if ($current_screen->post_type === 'vehicle_addon' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
+		if ($current_screen->post_type === 'vehicle_addon' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			return 'edit.php?post_type=vehicle_addon';
 		}
 
 		// When in Booking editor, make "Bookings" active
-		if ($current_screen->post_type === 'vehicle_booking' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
+		if ($current_screen->post_type === 'vehicle_booking' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			return 'edit.php?post_type=vehicle_booking';
 		}
 

@@ -14,8 +14,8 @@ use MHMRentiva\Core\Services\TrendService;
 /**
  * Customer total bookings metric.
  */
-final class TotalBookingsMetric implements MetricInterface
-{
+final class TotalBookingsMetric implements MetricInterface {
+
 	public function key(): string
 	{
 		return 'total_bookings';
@@ -27,7 +27,11 @@ final class TotalBookingsMetric implements MetricInterface
 
 		$userId = TrendService::resolve_customer_user_id_from_args($args);
 		if ($userId <= 0) {
-			return array('total' => 0, 'current' => 0, 'previous' => 0);
+			return array(
+				'total'    => 0,
+				'current'  => 0,
+				'previous' => 0,
+			);
 		}
 
 		return array(

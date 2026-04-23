@@ -48,12 +48,16 @@ $allow_guest_comments = $comments_settings['approval']['allow_guest_comments'] ?
 
 // Login check - according to settings
 $is_logged_in         = is_user_logged_in();
-$can_comment          = $is_logged_in || (! $require_login && $allow_guest_comments);
+$can_comment          = $is_logged_in || ( ! $require_login && $allow_guest_comments );
 $current_user_rating  = $user_rating ? floatval($user_rating['rating']) : 0;
 $current_user_comment = $user_rating ? $user_rating['comment'] : '';
 
 // Premium rating distribution (5 / 4 / 3) for summary bars.
-$rating_distribution = array(5 => 0, 4 => 0, 3 => 0);
+$rating_distribution = array(
+	5 => 0,
+	4 => 0,
+	3 => 0,
+);
 $rating_total        = max(0, intval($vehicle_rating['count'] ?? 0));
 if ($vehicle_id > 0) {
 	global $wpdb;
@@ -74,8 +78,8 @@ if ($vehicle_id > 0) {
 	if (is_array($rows)) {
 		foreach ($rows as $row) {
 			$key = intval($row->rating_value ?? 0);
-			if (isset($rating_distribution[$key])) {
-				$rating_distribution[$key] = intval($row->total ?? 0);
+			if (isset($rating_distribution[ $key ])) {
+				$rating_distribution[ $key ] = intval($row->total ?? 0);
 			}
 		}
 	}
@@ -83,7 +87,7 @@ if ($vehicle_id > 0) {
 
 // Get settings for character limits
 $full_comments_settings = \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_settings();
-$display_settings = array_merge(
+$display_settings       = array_merge(
 	$full_comments_settings['display'] ?? array(),
 	$full_comments_settings['limits'] ?? array()
 );
@@ -112,20 +116,20 @@ $allowed_rating_svg_tags = array(
 
 // Debug: Check user rating information
 if (defined('WP_DEBUG') && WP_DEBUG) {
-	echo '<!-- Debug: User rating data: ' . esc_html((string) wp_json_encode($user_rating)) . ' -->';
+	echo '<!-- Debug: User rating data: ' . esc_html( (string) wp_json_encode($user_rating)) . ' -->';
 }
 
 ?>
 
-<div class="rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr((string) microtime(true)); ?>">
+<div class="rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
 
 	<!-- Current Rating Display -->
 	<div class="rv-rating-display">
 		<div class="rv-rating-summary">
 			<div class="rv-rating-summary-left">
-				<div class="rv-rating-average"><?php echo esc_html(number_format((float) ($vehicle_rating['average'] ?? 0), 1)); ?></div>
+				<div class="rv-rating-average"><?php echo esc_html(number_format( (float) ( $vehicle_rating['average'] ?? 0 ), 1)); ?></div>
 				<div class="rv-rating-stars">
-					<?php echo wp_kses((string) ($vehicle_rating['stars'] ?? ''), $allowed_rating_svg_tags); ?>
+					<?php echo wp_kses( (string) ( $vehicle_rating['stars'] ?? '' ), $allowed_rating_svg_tags); ?>
 				</div>
 				<div class="rv-rating-total-label">
 					<?php
@@ -136,17 +140,17 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 			</div>
 			<div class="rv-rating-summary-right">
-				<?php foreach (array(5, 4, 3) as $score) : ?>
+				<?php foreach (array( 5, 4, 3 ) as $score) : ?>
 					<?php
-					$score_count = intval($rating_distribution[$score] ?? 0);
-					$percent = $rating_total > 0 ? (int) round(($score_count / $rating_total) * 100) : 0;
+					$score_count = intval($rating_distribution[ $score ] ?? 0);
+					$percent     = $rating_total > 0 ? (int) round(( $score_count / $rating_total ) * 100) : 0;
 					?>
 					<div class="rv-rating-dist-row">
-						<span class="rv-rating-dist-label"><?php echo esc_html((string) $score); ?></span>
+						<span class="rv-rating-dist-label"><?php echo esc_html( (string) $score); ?></span>
 						<div class="rv-rating-dist-track" aria-hidden="true">
-							<span class="rv-rating-dist-fill" style="width: <?php echo esc_attr((string) $percent); ?>%;"></span>
+							<span class="rv-rating-dist-fill" style="width: <?php echo esc_attr( (string) $percent); ?>%;"></span>
 						</div>
-						<span class="rv-rating-dist-percent"><?php echo esc_html((string) $percent); ?>%</span>
+						<span class="rv-rating-dist-percent"><?php echo esc_html( (string) $percent); ?>%</span>
 					</div>
 				<?php endforeach; ?>
 			</div>
@@ -165,7 +169,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			array(
 				'post_id'                   => $vehicle_id,
 				// 'type'                      => 'review', // REMOVED: Allow all comment types (reviews + standard comments)
-				'status'                    => array('approve', 'pending'), // Both approved and pending comments
+				'status'                    => array( 'approve', 'pending' ), // Both approved and pending comments
 				'number'                    => \MHMRentiva\Admin\Settings\Comments\CommentsSettings::get_comments_per_page(),
 				'orderby'                   => 'comment_date',
 				'order'                     => 'DESC',
@@ -177,13 +181,13 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 
 		// Debug: Check comment count
 		if (defined('WP_DEBUG') && WP_DEBUG) {
-			echo '<!-- Debug: Found ' . esc_html((string) count($comments)) . ' approved comments for vehicle ' . esc_html((string) $vehicle_id) . ' -->';
+			echo '<!-- Debug: Found ' . esc_html( (string) count($comments)) . ' approved comments for vehicle ' . esc_html( (string) $vehicle_id) . ' -->';
 		}
 
 		if (! empty($comments)) :
 			// Batch fetch verified review IDs (single query, no N+1)
-			$verified_ids = \MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::get_verified_comment_ids_for_vehicle((int) $vehicle_id);
-		?>
+			$verified_ids = \MHMRentiva\Admin\Vehicle\Helpers\VerifiedReviewHelper::get_verified_comment_ids_for_vehicle( (int) $vehicle_id);
+			?>
 			<div class="rv-reviews-section">
 				<h4 class="rv-reviews-title"><?php echo esc_html__('Reviews', 'mhm-rentiva'); ?></h4>
 				<div class="rv-reviews-list">
@@ -203,7 +207,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 						// Get author name with fallback
 						$full_name = $comment->comment_author;
 						if (empty($full_name) && $comment->user_id) {
-							$user = get_userdata($comment->user_id);
+							$user      = get_userdata($comment->user_id);
 							$full_name = $user ? $user->display_name : '';
 						}
 						if (empty($full_name)) {
@@ -213,39 +217,49 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 						// Privacy: Mask the author name (e.g., "John Doe" -> "John D.")
 						$name_parts = explode(' ', trim($full_name));
 						if (count($name_parts) > 1) {
-							$first_name = $name_parts[0];
+							$first_name   = $name_parts[0];
 							$last_initial = mb_substr(end($name_parts), 0, 1, 'UTF-8') . '.';
-							$masked_name = $first_name . ' ' . $last_initial;
+							$masked_name  = $first_name . ' ' . $last_initial;
 						} else {
 							$masked_name = $full_name;
 						}
-					?>
+						?>
 						<div class="rv-review-item" data-comment-id="<?php echo esc_attr($comment->comment_ID); ?>">
 							<div class="rv-review-header">
 								<div class="rv-review-author">
 									<?php if ($display_settings['show_avatars'] ?? true) : ?>
 										<div class="rv-review-avatar">
-											<img src="<?php echo esc_url(get_avatar_url($comment->comment_author_email, ['size' => 48])); ?>" alt="<?php echo esc_attr($masked_name); ?>" width="48" height="48" loading="lazy" />
+											<img src="<?php echo esc_url(get_avatar_url($comment->comment_author_email, [ 'size' => 48 ])); ?>" alt="<?php echo esc_attr($masked_name); ?>" width="48" height="48" loading="lazy" />
 										</div>
 									<?php endif; ?>
 									<div class="rv-review-author-info">
 										<span class="rv-review-author-name"><?php echo esc_html($masked_name); ?></span>
-										<?php if (in_array((int) $comment->comment_ID, $verified_ids, true)) : ?>
+										<?php if (in_array( (int) $comment->comment_ID, $verified_ids, true)) : ?>
 											<span class="mhm-review-badge mhm-review-badge--verified">
-												<?php Icons::render('check', ['width' => '12', 'height' => '12']); ?>
+												<?php
+                                                Icons::render('check', [
+													'width'  => '12',
+													'height' => '12',
+												]);
+												?>
 												<?php echo esc_html__('Verified Rental', 'mhm-rentiva'); ?>
 											</span>
 										<?php endif; ?>
 										<span class="rv-review-date"><?php echo esc_html(human_time_diff(strtotime($comment->comment_date)) . ' ' . esc_html__('ago', 'mhm-rentiva')); ?></span>
-										<?php if (($display_settings['show_ratings'] ?? true) && $rating) : ?>
+										<?php if (( $display_settings['show_ratings'] ?? true ) && $rating) : ?>
 											<div class="rv-review-rating">
-												<?php for ($i = 1; $i <= 5; $i++) :
+												<?php
+                                                for ($i = 1; $i <= 5; $i++) :
 													$star_fill = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
-												?>
+													?>
 													<span class="rv-star <?php echo $i <= (int) $rating ? 'active' : ''; ?>">
 														<?php
 														$star_color = $i <= (int) $rating ? '#fbbf24' : '#d1d5db';
-														Icons::render('star', ['width' => '14', 'height' => '14', 'style' => "fill: $star_color; color: $star_color;"]);
+														Icons::render('star', [
+															'width' => '14',
+															'height' => '14',
+															'style' => "fill: $star_color; color: $star_color;",
+														]);
 														?>
 													</span>
 												<?php endfor; ?>
@@ -254,7 +268,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 									</div>
 								</div>
 								<?php
-								$show_actions = $is_current_user && (($display_settings['allow_editing'] ?? true) || ($display_settings['allow_deletion'] ?? true));
+								$show_actions = $is_current_user && ( ( $display_settings['allow_editing'] ?? true ) || ( $display_settings['allow_deletion'] ?? true ) );
 								?>
 								<?php if ($show_actions) : ?>
 									<div class="rv-review-actions">
@@ -326,7 +340,13 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 								<?php checked($current_user_rating, $i); ?>>
 							<label for="rating-<?php echo esc_attr($vehicle_id); ?>-<?php echo (int) $i; ?>"
 								class="rv-star-input">
-								<?php Icons::render('star', ['width' => '24', 'height' => '24', 'class' => 'rv-star-icon']); ?>
+								<?php
+                                Icons::render('star', [
+									'width'  => '24',
+									'height' => '24',
+									'class'  => 'rv-star-icon',
+								]);
+								?>
 							</label>
 						<?php endfor; ?>
 					</div>
@@ -343,10 +363,12 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 						data-max-length="<?php echo esc_attr($display_settings['comment_length_max'] ?? 1000); ?>"><?php echo esc_textarea($current_user_comment); ?></textarea>
 					<div class="rv-char-counter">
 						<span class="rv-char-current">0</span> / <span class="rv-char-max"><?php echo esc_html($display_settings['comment_length_max'] ?? 1000); ?></span>
-						<span class="rv-char-min-notice">(<?php
+						<span class="rv-char-min-notice">(
+                        <?php
 															/* translators: %d: Minimum character length */
 															echo esc_html(sprintf(__('min %d', 'mhm-rentiva'), $display_settings['comment_length_min'] ?? 5));
-															?>)</span>
+						?>
+                                                            )</span>
 					</div>
 				</div>
 
@@ -370,7 +392,12 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 		<div class="rv-rating-login-notice">
 			<div class="rv-login-required">
 				<div class="rv-login-icon">
-					<?php Icons::render('users', ['width' => '24', 'height' => '24']); ?>
+					<?php
+                    Icons::render('users', [
+						'width'  => '24',
+						'height' => '24',
+					]);
+					?>
 				</div>
 				<h4><?php echo esc_html__('Login Required', 'mhm-rentiva'); ?></h4>
 				<p><?php echo esc_html__('You must be logged in to submit a rating and review.', 'mhm-rentiva'); ?></p>

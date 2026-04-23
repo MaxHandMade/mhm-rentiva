@@ -23,8 +23,8 @@ use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
  *
  * Usage: [rentiva_vehicle_comparison vehicle_ids="123,456,789" show_features="all" max_vehicles="4"]
  */
-final class VehicleComparison extends AbstractShortcode
-{
+final class VehicleComparison extends AbstractShortcode {
+
 
 
 
@@ -87,7 +87,7 @@ final class VehicleComparison extends AbstractShortcode
 		self::localize_script(self::get_asset_handle());
 
 		// Add inline script for configuration (WordPress way)
-		add_action('wp_footer', array(self::class, 'add_configuration_script'));
+		add_action('wp_footer', array( self::class, 'add_configuration_script' ));
 	}
 
 	protected static function get_asset_handle(): string
@@ -165,14 +165,14 @@ final class VehicleComparison extends AbstractShortcode
 		try {
 			// Security check
 			if (! check_ajax_referer('mhm_rentiva_vehicle_comparison_nonce', 'nonce', false)) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
 
 			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 			if ($vehicle_id <= 0) {
-				wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
 			}
 
 			// Use Service
@@ -180,14 +180,14 @@ final class VehicleComparison extends AbstractShortcode
 				try {
 					\MHMRentiva\Admin\Services\CompareService::add($vehicle_id);
 				} catch (\Exception $e) {
-					wp_send_json_error(array('message' => $e->getMessage()));
+					wp_send_json_error(array( 'message' => $e->getMessage() ));
 				}
 			}
 
 			// Get vehicle data
 			$vehicle_data = self::get_vehicle_data($vehicle_id);
 			if (! $vehicle_data) {
-				wp_send_json_error(array('message' => __('Vehicle not found.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Vehicle not found.', 'mhm-rentiva') ));
 			}
 
 			wp_send_json_success(
@@ -197,7 +197,7 @@ final class VehicleComparison extends AbstractShortcode
 				)
 			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred while adding vehicle.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('An error occurred while adding vehicle.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -211,14 +211,14 @@ final class VehicleComparison extends AbstractShortcode
 		try {
 			// Security check
 			if (! check_ajax_referer('mhm_rentiva_vehicle_comparison_nonce', 'nonce', false)) {
-				wp_send_json_error(array('message' => __('Security check failed.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
 
 			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
 
 			if ($vehicle_id <= 0) {
-				wp_send_json_error(array('message' => __('Invalid vehicle ID.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
 			}
 
 			// Use Service
@@ -233,7 +233,7 @@ final class VehicleComparison extends AbstractShortcode
 				)
 			);
 		} catch (\Exception $e) {
-			wp_send_json_error(array('message' => __('An error occurred while removing vehicle.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('An error occurred while removing vehicle.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -287,14 +287,14 @@ final class VehicleComparison extends AbstractShortcode
 		// 1. Add fields that are in our preferred sort order
 		foreach ($field_order as $field_key) {
 			if (in_array($field_key, $all_selected_keys, true)) {
-				$features[$field_key] = self::get_feature_label($field_key);
+				$features[ $field_key ] = self::get_feature_label($field_key);
 			}
 		}
 
 		// 2. Add remaining fields (custom fields, taxonomies, etc.)
 		foreach ($all_selected_keys as $field_key) {
-			if (! isset($features[$field_key])) {
-				$features[$field_key] = self::get_feature_label($field_key);
+			if (! isset($features[ $field_key ])) {
+				$features[ $field_key ] = self::get_feature_label($field_key);
 			}
 		}
 
@@ -319,8 +319,8 @@ final class VehicleComparison extends AbstractShortcode
 		if (class_exists('\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper')) {
 			$available_map = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_available_fields_map();
 			foreach ($available_map as $type => $group_fields) {
-				if (isset($group_fields[$feature_key]['label'])) {
-					return $group_fields[$feature_key]['label'];
+				if (isset($group_fields[ $feature_key ]['label'])) {
+					return $group_fields[ $feature_key ]['label'];
 				}
 			}
 		}
@@ -372,7 +372,7 @@ final class VehicleComparison extends AbstractShortcode
 			'navigation'       => __('Navigation', 'mhm-rentiva'),
 		);
 
-		return $labels[$normalized_key] ?? ucfirst(str_replace('_', ' ', $normalized_key));
+		return $labels[ $normalized_key ] ?? ucfirst(str_replace('_', ' ', $normalized_key));
 	}
 
 	/**
@@ -559,7 +559,7 @@ final class VehicleComparison extends AbstractShortcode
 				}
 			}
 
-			$data['features'][$key] = self::normalize_value($value);
+			$data['features'][ $key ] = self::normalize_value($value);
 		}
 
 		return $data;
@@ -609,10 +609,10 @@ final class VehicleComparison extends AbstractShortcode
 		}
 
 		// Boolean-like strings (common in WP meta)
-		if (in_array($value, array('1', 'yes', 'true', 'on'), true)) {
+		if (in_array($value, array( '1', 'yes', 'true', 'on' ), true)) {
 			return '✓';
 		}
-		if (in_array($value, array('0', 'no', 'false', 'off'), true)) {
+		if (in_array($value, array( '0', 'no', 'false', 'off' ), true)) {
 			return '✗';
 		}
 

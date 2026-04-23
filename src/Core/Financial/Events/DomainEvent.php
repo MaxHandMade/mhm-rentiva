@@ -9,11 +9,11 @@ if (!defined('ABSPATH')) {
 
 /**
  * Empty interface for domain events.
- * 
+ *
  * @since 4.21.0
  */
-interface DomainEvent
-{
+interface DomainEvent {
+
     /**
      * Get the descriptive name of the event.
      */

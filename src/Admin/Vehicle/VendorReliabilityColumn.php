@@ -13,17 +13,17 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.24.0
  */
-final class VendorReliabilityColumn
-{
+final class VendorReliabilityColumn {
+
 	/**
 	 * Register the column hooks.
 	 */
 	public static function register(): void
 	{
-		add_filter('manage_users_columns', array(self::class, 'add_column'));
-		add_filter('manage_users_custom_column', array(self::class, 'render_column'), 10, 3);
-		add_filter('manage_users_sortable_columns', array(self::class, 'sortable_column'));
-		add_action('pre_get_users', array(self::class, 'sort_by_score'));
+		add_filter('manage_users_columns', array( self::class, 'add_column' ));
+		add_filter('manage_users_custom_column', array( self::class, 'render_column' ), 10, 3);
+		add_filter('manage_users_sortable_columns', array( self::class, 'sortable_column' ));
+		add_action('pre_get_users', array( self::class, 'sort_by_score' ));
 	}
 
 	/**

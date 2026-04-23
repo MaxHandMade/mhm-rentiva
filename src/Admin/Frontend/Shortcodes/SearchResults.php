@@ -86,7 +86,7 @@ final class SearchResults extends AbstractShortcode {
 			return array();
 		}
 
-		$raw = wp_unslash($get[ $key ]);
+		$raw    = wp_unslash($get[ $key ]);
 		$values = is_array($raw) ? $raw : array( $raw );
 
 		return array_filter(array_map('intval', $values));
@@ -122,7 +122,7 @@ final class SearchResults extends AbstractShortcode {
 			return array();
 		}
 
-		$raw = wp_unslash($post[ $key ]);
+		$raw    = wp_unslash($post[ $key ]);
 		$values = is_array($raw) ? $raw : array( $raw );
 
 		return array_filter(array_map('intval', $values));
@@ -335,24 +335,24 @@ final class SearchResults extends AbstractShortcode {
 	private static function get_search_params_from_url(): array
 	{
 		return array(
-			'keyword'      => self::get_text('keyword'),
-			'pickup_date'  => self::get_text('pickup_date'),
-			'return_date'  => self::get_text('return_date'),
+			'keyword'         => self::get_text('keyword'),
+			'pickup_date'     => self::get_text('pickup_date'),
+			'return_date'     => self::get_text('return_date'),
 			// Legacy support
-			'start_date'   => self::get_text('start_date', self::get_text('pickup_date')),
-			'end_date'     => self::get_text('end_date', self::get_text('return_date')),
-			'min_price'    => self::get_int('min_price'),
-			'max_price'    => self::get_int('max_price'),
-			'fuel_type'    => self::get_text('fuel_type'),
-			'transmission' => self::get_text('transmission'),
-			'seats'        => self::get_text('seats'),
-			'brand'        => self::get_text('brand'),
-			'year_min'     => self::get_int('year_min'),
-			'year_max'     => self::get_int('year_max'),
-			'mileage_max'  => self::get_int('mileage_max'),
-			'category'     => self::get_text('category'),
-			'sort'         => self::get_text('sort', 'relevance'),
-			'page'         => self::get_int('page', 1),
+			'start_date'      => self::get_text('start_date', self::get_text('pickup_date')),
+			'end_date'        => self::get_text('end_date', self::get_text('return_date')),
+			'min_price'       => self::get_int('min_price'),
+			'max_price'       => self::get_int('max_price'),
+			'fuel_type'       => self::get_text('fuel_type'),
+			'transmission'    => self::get_text('transmission'),
+			'seats'           => self::get_text('seats'),
+			'brand'           => self::get_text('brand'),
+			'year_min'        => self::get_int('year_min'),
+			'year_max'        => self::get_int('year_max'),
+			'mileage_max'     => self::get_int('mileage_max'),
+			'category'        => self::get_text('category'),
+			'sort'            => self::get_text('sort', 'relevance'),
+			'page'            => self::get_int('page', 1),
 			'pickup_location' => self::get_int_array('pickup_location'),
 		);
 	}
@@ -821,18 +821,18 @@ final class SearchResults extends AbstractShortcode {
 		try {
 			// Get filters from POST parameters
 			$search_params = array(
-				'keyword'      => self::post_text('keyword'),
-				'pickup_date'  => self::post_text('pickup_date'),
-				'return_date'  => self::post_text('return_date'),
-				'min_price'    => self::post_int('min_price'),
-				'max_price'    => self::post_int('max_price'),
-				'fuel_type'    => self::post_text_or_array('fuel_type'),
-				'transmission' => self::post_text_or_array('transmission'),
-				'seats'        => self::post_text_or_array('seats'),
-				'brand'        => self::post_text_or_array('brand'),
-				'year_min'     => self::post_int('year_min'),
-				'year_max'     => self::post_int('year_max'),
-				'mileage_max'  => self::post_int('mileage_max'),
+				'keyword'         => self::post_text('keyword'),
+				'pickup_date'     => self::post_text('pickup_date'),
+				'return_date'     => self::post_text('return_date'),
+				'min_price'       => self::post_int('min_price'),
+				'max_price'       => self::post_int('max_price'),
+				'fuel_type'       => self::post_text_or_array('fuel_type'),
+				'transmission'    => self::post_text_or_array('transmission'),
+				'seats'           => self::post_text_or_array('seats'),
+				'brand'           => self::post_text_or_array('brand'),
+				'year_min'        => self::post_int('year_min'),
+				'year_max'        => self::post_int('year_max'),
+				'mileage_max'     => self::post_int('mileage_max'),
 				'sort'            => self::post_text('sort', 'relevance'),
 				'page'            => self::post_int('page', 1),
 				'pickup_location' => self::post_int_array('pickup_location'),

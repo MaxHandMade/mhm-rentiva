@@ -15,8 +15,8 @@ use MHMRentiva\Core\Services\Metrics\MetricRegistry;
 /**
  * Generic trend engine for dashboard metrics.
  */
-final class TrendService
-{
+final class TrendService {
+
 	private const BOOKING_POST_TYPE = 'vehicle_booking';
 	private const MESSAGE_POST_TYPE = 'mhm_message';
 
@@ -30,7 +30,7 @@ final class TrendService
 	 */
 	public static function get_trend(string $metric, string $context = 'customer', array $args = array()): array
 	{
-		$metric = sanitize_key($metric);
+		$metric  = sanitize_key($metric);
 		$context = sanitize_key($context);
 		$subject = self::resolve_subject_key($metric, $args);
 
@@ -52,7 +52,7 @@ final class TrendService
 	 */
 	public static function get_total_booking_trend_for_user(int $user_id): array
 	{
-		return self::get_trend('total_bookings', 'customer', array('user_id' => $user_id));
+		return self::get_trend('total_bookings', 'customer', array( 'user_id' => $user_id ));
 	}
 
 	/**
@@ -62,7 +62,7 @@ final class TrendService
 	 */
 	public static function get_upcoming_pickups_trend_for_user(int $user_id): array
 	{
-		return self::get_trend('upcoming_pickups', 'customer', array('user_id' => $user_id));
+		return self::get_trend('upcoming_pickups', 'customer', array( 'user_id' => $user_id ));
 	}
 
 	/**
@@ -72,7 +72,7 @@ final class TrendService
 	 */
 	public static function get_unread_messages_trend_for_user(string $email): array
 	{
-		return self::get_trend('unread_messages', 'customer', array('email' => $email));
+		return self::get_trend('unread_messages', 'customer', array( 'email' => $email ));
 	}
 
 
@@ -85,8 +85,8 @@ final class TrendService
 	 */
 	private static function calculate_trend(string $metric, string $context, array $args): array
 	{
-		$now = (int) current_time('timestamp');
-		$current_period_start = (int) strtotime('-7 days', $now);
+		$now                   = (int) current_time('timestamp');
+		$current_period_start  = (int) strtotime('-7 days', $now);
 		$previous_period_start = (int) strtotime('-14 days', $now);
 
 		$resolved = self::resolve_metric_totals($metric, $context, $args, $current_period_start, $now, $previous_period_start);
@@ -94,9 +94,9 @@ final class TrendService
 			return self::empty_trend();
 		}
 
-		$total = (int) ($resolved['total'] ?? 0);
-		$current = (int) ($resolved['current'] ?? 0);
-		$previous = (int) ($resolved['previous'] ?? 0);
+		$total    = (int) ( $resolved['total'] ?? 0 );
+		$current  = (int) ( $resolved['current'] ?? 0 );
+		$previous = (int) ( $resolved['previous'] ?? 0 );
 
 		$math_result = TrendMath::calculate_trend_from_totals($current, $previous);
 
@@ -117,7 +117,11 @@ final class TrendService
 	{
 		$handler = MetricRegistry::get($metric);
 		if (! $handler) {
-			return array('total' => 0, 'current' => 0, 'previous' => 0);
+			return array(
+				'total'    => 0,
+				'current'  => 0,
+				'previous' => 0,
+			);
 		}
 
 		return $handler->resolve($context, $args, $current_start, $now, $previous_start);
@@ -145,12 +149,12 @@ final class TrendService
 	public static function resolve_customer_email_from_args(array $args): string
 	{
 		if (isset($args['email'])) {
-			return sanitize_email((string) $args['email']);
+			return sanitize_email( (string) $args['email']);
 		}
 
 		$user = wp_get_current_user();
 		if ($user instanceof \WP_User) {
-			return sanitize_email((string) $user->user_email);
+			return sanitize_email( (string) $user->user_email);
 		}
 
 		return '';
@@ -243,8 +247,8 @@ final class TrendService
 	 */
 	public static function count_user_pickups_between(int $user_id, string $start_date, string $end_date): int
 	{
-		$excluded_statuses = array('cancelled', 'completed', 'refunded');
-		$query = new \WP_Query(
+		$excluded_statuses = array( 'cancelled', 'completed', 'refunded' );
+		$query             = new \WP_Query(
 			array(
 				'post_type'      => self::BOOKING_POST_TYPE,
 				'post_status'    => 'publish',
@@ -260,7 +264,7 @@ final class TrendService
 			)
 		);
 
-		$count = 0;
+		$count       = 0;
 		$booking_ids = is_array($query->posts) ? $query->posts : array();
 
 		foreach ($booking_ids as $booking_id) {
@@ -269,7 +273,7 @@ final class TrendService
 				continue;
 			}
 
-			$status = sanitize_key((string) get_post_meta($booking_id, '_mhm_status', true));
+			$status = sanitize_key( (string) get_post_meta($booking_id, '_mhm_status', true));
 			if (in_array($status, $excluded_statuses, true)) {
 				continue;
 			}
@@ -301,7 +305,7 @@ final class TrendService
 
 			$pickup_day = wp_date('Y-m-d', $pickup_timestamp);
 			if ($pickup_day >= $start_date && $pickup_day <= $end_date) {
-				$count++;
+				++$count;
 			}
 		}
 

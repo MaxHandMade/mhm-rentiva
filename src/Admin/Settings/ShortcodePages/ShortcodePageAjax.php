@@ -18,8 +18,8 @@ use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 /**
  * Shortcode Page AJAX Handlers
  */
-final class ShortcodePageAjax
-{
+final class ShortcodePageAjax {
+
 
 
 
@@ -33,18 +33,18 @@ final class ShortcodePageAjax
 	public function clear_cache(): void
 	{
 		if (! check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_CLEAR_CACHE, 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('You do not have permission.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('You do not have permission.', 'mhm-rentiva') ));
 		}
 
 		try {
 			ShortcodeUrlManager::clear_cache();
-			wp_send_json_success(array('message' => esc_html__('Cache cleared successfully.', 'mhm-rentiva')));
+			wp_send_json_success(array( 'message' => esc_html__('Cache cleared successfully.', 'mhm-rentiva') ));
 		} catch (\Throwable $e) {
-			wp_send_json_error(array('message' => esc_html__('Error while clearing cache: ', 'mhm-rentiva') . esc_html($e->getMessage())));
+			wp_send_json_error(array( 'message' => esc_html__('Error while clearing cache: ', 'mhm-rentiva') . esc_html($e->getMessage()) ));
 		}
 	}
 
@@ -54,18 +54,18 @@ final class ShortcodePageAjax
 	public function create_page(): void
 	{
 		if (! check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_CREATE_PAGE, 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva') ));
 		}
 
 		// Apply wp_unslash before sanitization as per WP standards
 		$shortcode = sanitize_text_field(wp_unslash($_POST['shortcode'] ?? ''));
 
 		if (empty($shortcode)) {
-			wp_send_json_error(array('message' => esc_html__('Shortcode not specified.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Shortcode not specified.', 'mhm-rentiva') ));
 		}
 
 		$page_id = $this->actions->create_page($shortcode);
@@ -83,7 +83,7 @@ final class ShortcodePageAjax
 			);
 		}
 
-		wp_send_json_error(array('message' => esc_html__('Error occurred while creating page.', 'mhm-rentiva')));
+		wp_send_json_error(array( 'message' => esc_html__('Error occurred while creating page.', 'mhm-rentiva') ));
 	}
 
 	/**
@@ -92,18 +92,18 @@ final class ShortcodePageAjax
 	public function delete_page(): void
 	{
 		if (! check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_DELETE_PAGE, 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva') ));
 		}
 
 		// Apply wp_unslash and absint
 		$page_id = absint(wp_unslash($_POST['page_id'] ?? 0));
 
 		if ($page_id <= 0) {
-			wp_send_json_error(array('message' => esc_html__('Invalid page ID.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Invalid page ID.', 'mhm-rentiva') ));
 		}
 
 		if ($this->actions->delete_page($page_id)) {
@@ -115,7 +115,7 @@ final class ShortcodePageAjax
 			);
 		}
 
-		wp_send_json_error(array('message' => esc_html__('Error occurred while removing page.', 'mhm-rentiva')));
+		wp_send_json_error(array( 'message' => esc_html__('Error occurred while removing page.', 'mhm-rentiva') ));
 	}
 
 	/**
@@ -124,11 +124,11 @@ final class ShortcodePageAjax
 	public function debug_search(): void
 	{
 		if (! check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_DEBUG_SEARCH, 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva') ));
 		}
 
 		global $wpdb;
@@ -167,7 +167,7 @@ final class ShortcodePageAjax
 					'title'           => esc_html($page->post_title),
 					'shortcodes'      => $found,
 					'url'             => esc_url(get_permalink($page->ID)),
-					'content_preview' => esc_html(mb_substr(wp_strip_all_tags((string) $page->post_content), 0, 200)) . '...',
+					'content_preview' => esc_html(mb_substr(wp_strip_all_tags( (string) $page->post_content), 0, 200)) . '...',
 				);
 			}
 		}
@@ -187,11 +187,11 @@ final class ShortcodePageAjax
 	public function reset_pages(): void
 	{
 		if (! check_ajax_referer(\MHMRentiva\Admin\Settings\ShortcodePages::ACTION_RESET_PAGES, 'nonce', false)) {
-			wp_send_json_error(array('message' => __('Invalid security nonce.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
 		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array('message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('You do not have permission for this action.', 'mhm-rentiva') ));
 		}
 
 		if ($this->actions->reset_pages()) {
@@ -202,6 +202,6 @@ final class ShortcodePageAjax
 			);
 		}
 
-		wp_send_json_error(array('message' => esc_html__('Error occurred while resetting pages.', 'mhm-rentiva')));
+		wp_send_json_error(array( 'message' => esc_html__('Error occurred while resetting pages.', 'mhm-rentiva') ));
 	}
 }

@@ -18,8 +18,8 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
  *
  * @since 4.24.0
  */
-final class ReliabilityScoreJob
-{
+final class ReliabilityScoreJob {
+
 	public const EVENT = 'mhm_rentiva_reliability_score_event';
 
 	/**
@@ -27,8 +27,8 @@ final class ReliabilityScoreJob
 	 */
 	public static function register(): void
 	{
-		add_action('init', array(self::class, 'maybe_schedule'), 100);
-		add_action(self::EVENT, array(self::class, 'run'));
+		add_action('init', array( self::class, 'maybe_schedule' ), 100);
+		add_action(self::EVENT, array( self::class, 'run' ));
 	}
 
 	/**
@@ -58,14 +58,14 @@ final class ReliabilityScoreJob
 		$updated = 0;
 
 		foreach ($vendors as $vendor_id) {
-			ReliabilityScoreCalculator::update((int) $vendor_id, 'cron');
+			ReliabilityScoreCalculator::update( (int) $vendor_id, 'cron');
 			++$updated;
 		}
 
 		if ($updated > 0 && class_exists(AdvancedLogger::class)) {
 			AdvancedLogger::info(
 				"Reliability score cron: recalculated {$updated} vendor score(s).",
-				array('count' => $updated),
+				array( 'count' => $updated ),
 				'system'
 			);
 		}

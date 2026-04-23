@@ -12,14 +12,14 @@ if (! defined('ABSPATH')) {
  *
  * Catches 500 errors in REST API and returns proper error messages
  */
-final class ErrorHandler
-{
+final class ErrorHandler {
+
 
 
 	public static function register(): void
 	{
-		add_action('rest_api_init', array(self::class, 'register_error_handlers'));
-		add_filter('rest_pre_serve_request', array(self::class, 'handle_rest_errors'), 10, 4);
+		add_action('rest_api_init', array( self::class, 'register_error_handlers' ));
+		add_filter('rest_pre_serve_request', array( self::class, 'handle_rest_errors' ), 10, 4);
 	}
 
 	/**
@@ -28,11 +28,11 @@ final class ErrorHandler
 	public static function register_error_handlers(): void
 	{
 		// Special error handling for vehicle post type
-		add_filter('rest_prepare_vehicle', array(self::class, 'prepare_vehicle_response'), 10, 3);
+		add_filter('rest_prepare_vehicle', array( self::class, 'prepare_vehicle_response' ), 10, 3);
 
 		// General REST API error handling
-		add_filter('rest_request_before_callbacks', array(self::class, 'before_rest_callbacks'), 10, 3);
-		add_filter('rest_request_after_callbacks', array(self::class, 'after_rest_callbacks'), 10, 3);
+		add_filter('rest_request_before_callbacks', array( self::class, 'before_rest_callbacks' ), 10, 3);
+		add_filter('rest_request_after_callbacks', array( self::class, 'after_rest_callbacks' ), 10, 3);
 	}
 
 	/**
@@ -75,7 +75,7 @@ final class ErrorHandler
 				return new \WP_Error(
 					'vehicle_post_type_not_found',
 					__('Vehicle post type is not registered', 'mhm-rentiva'),
-					array('status' => 500)
+					array( 'status' => 500 )
 				);
 			}
 		}
@@ -97,7 +97,7 @@ final class ErrorHandler
 				return new \WP_Error(
 					'vehicle_api_error',
 					__('Vehicle API is temporarily unavailable. Please try again later.', 'mhm-rentiva'),
-					array('status' => 503)
+					array( 'status' => 503 )
 				);
 			}
 
@@ -105,7 +105,7 @@ final class ErrorHandler
 				return new \WP_Error(
 					'settings_api_error',
 					__('Settings API is temporarily unavailable.', 'mhm-rentiva'),
-					array('status' => 503)
+					array( 'status' => 503 )
 				);
 			}
 		}

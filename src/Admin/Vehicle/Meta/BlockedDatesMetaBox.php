@@ -146,7 +146,7 @@ final class BlockedDatesMetaBox {
 		$raw_notes_str = isset( $_POST[ self::META_KEY_NOTES ] )
 			? wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON payload is sanitized after decoding per note value.
 			: '{}';
-		$notes_raw = json_decode( $raw_notes_str, true );
+		$notes_raw     = json_decode( $raw_notes_str, true );
 		if ( is_array( $notes_raw ) ) {
 			foreach ( $notes_raw as $d => $note ) {
 				$d = sanitize_text_field( (string) $d );
@@ -285,9 +285,9 @@ final class BlockedDatesMetaBox {
 		) );
 
 		foreach ( $vehicles as $vid ) {
-			$vid            = (int) $vid;
-			$existing       = self::get_blocked_dates( $vid );
-			$updated        = array_values( array_diff( $existing, $dates_to_remove ) );
+			$vid      = (int) $vid;
+			$existing = self::get_blocked_dates( $vid );
+			$updated  = array_values( array_diff( $existing, $dates_to_remove ) );
 			update_post_meta( $vid, self::META_KEY, wp_json_encode( $updated ) );
 
 			// Also remove notes for deleted dates
@@ -399,13 +399,13 @@ final class BlockedDatesMetaBox {
 			true
 		);
 		wp_localize_script( 'mhm-blocked-dates', 'mhmBlockedDatesL10n', array(
-			'confirmApply'  => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
-			'confirmRemove' => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
+			'confirmApply'    => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
+			'confirmRemove'   => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
 			/* translators: %d: number of vehicles */
-			'appliedTo'     => __( 'Applied to %d vehicles.', 'mhm-rentiva' ),
+			'appliedTo'       => __( 'Applied to %d vehicles.', 'mhm-rentiva' ),
 			/* translators: %d: number of vehicles */
-			'removedFrom'   => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
-			'error'         => __( 'An error occurred.', 'mhm-rentiva' ),
+			'removedFrom'     => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
+			'error'           => __( 'An error occurred.', 'mhm-rentiva' ),
 			'notePlaceholder' => __( 'Add note... (optional)', 'mhm-rentiva' ),
 		) );
 	}

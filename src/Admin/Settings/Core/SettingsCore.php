@@ -19,8 +19,8 @@ if (! defined('ABSPATH')) {
  *
  * @package MHMRentiva\Admin\Settings\Core
  */
-final class SettingsCore
-{
+final class SettingsCore {
+
 
 
 
@@ -37,25 +37,25 @@ final class SettingsCore
 	public static function register(): void
 	{
 		// Enqueue admin assets
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_assets'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		// Dark Mode Logic
-		add_action('admin_head', array(self::class, 'inject_dark_mode_styles'));
-		add_action('wp_head', array(self::class, 'inject_dark_mode_styles'));
-		add_filter('body_class', array(self::class, 'add_dark_mode_body_class'));
+		add_action('admin_head', array( self::class, 'inject_dark_mode_styles' ));
+		add_action('wp_head', array( self::class, 'inject_dark_mode_styles' ));
+		add_filter('body_class', array( self::class, 'add_dark_mode_body_class' ));
 
 		// AJAX Handlers
-		add_action('wp_ajax_mhm_save_dark_mode', array(self::class, 'ajax_save_dark_mode'));
-		add_action('wp_ajax_mhm_run_settings_tests', array(self::class, 'ajax_run_settings_tests'));
+		add_action('wp_ajax_mhm_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
+		add_action('wp_ajax_mhm_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
 
 		// Service Initializers (Delegated to specialized managers)
-		add_action('init', array(self::class, 'initialize_services'));
+		add_action('init', array( self::class, 'initialize_services' ));
 
 		// Core Registration
-		add_action('admin_init', array(self::class, 'init_settings_registration'));
+		add_action('admin_init', array( self::class, 'init_settings_registration' ));
 
 		// Performance: Flush rewrite rules only when necessary
-		add_action('update_option_' . self::OPTION_NAME, array(self::class, 'handle_rewrite_flushing'), 10, 3);
+		add_action('update_option_' . self::OPTION_NAME, array( self::class, 'handle_rewrite_flushing' ), 10, 3);
 	}
 
 	/**
@@ -84,7 +84,7 @@ final class SettingsCore
 			self::OPTION_NAME,
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize'),
+				'sanitize_callback' => array( \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize' ),
 				'default'           => self::get_defaults(),
 				'show_in_rest'      => false,
 			)
@@ -95,7 +95,7 @@ final class SettingsCore
 			'mhm_rentiva_dark_mode',
 			array(
 				'type'              => 'string',
-				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_dark_mode_option'),
+				'sanitize_callback' => array( \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_dark_mode_option' ),
 				'default'           => 'auto',
 				'show_in_rest'      => false,
 			)
@@ -106,7 +106,7 @@ final class SettingsCore
 			'mhm_rentiva_addon_settings',
 			array(
 				'type'              => 'array',
-				'sanitize_callback' => array(\MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_addon_settings_option'),
+				'sanitize_callback' => array( \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_addon_settings_option' ),
 				'default'           => \MHMRentiva\Admin\Addons\AddonSettings::defaults(),
 				'show_in_rest'      => false,
 			)
@@ -185,22 +185,22 @@ final class SettingsCore
 		$defaults = self::get_defaults();
 
 		if (array_key_exists($key, $settings)) {
-			$value = $settings[$key];
+			$value = $settings[ $key ];
 
 			// Handle empty strings or specific numeric fallbacks
-			if ('' === $value || (null === $value)) {
-				return $defaults[$key] ?? $default;
+			if ('' === $value || ( null === $value )) {
+				return $defaults[ $key ] ?? $default;
 			}
 
 			return $value;
 		}
 
 		// Final safety fallback: If not in DB and not in defaults
-		$val = $defaults[$key] ?? $default;
+		$val = $defaults[ $key ] ?? $default;
 
 		// If still null/empty and looks like a boolean/checkbox field, force '0'
 		if (null === $val || '' === $val) {
-			$boolean_indicators = array('_enabled', '_protection', '_active', 'is_', '_enabled_');
+			$boolean_indicators = array( '_enabled', '_protection', '_active', 'is_', '_enabled_' );
 			foreach ($boolean_indicators as $indicator) {
 				if (str_contains($key, $indicator)) {
 					return '0';
@@ -217,7 +217,7 @@ final class SettingsCore
 	public static function set(string $key, mixed $value): bool
 	{
 		$settings         = self::get_all();
-		$settings[$key] = $value;
+		$settings[ $key ] = $value;
 		return update_option(self::OPTION_NAME, $settings);
 	}
 
@@ -228,7 +228,7 @@ final class SettingsCore
 	{
 		$settings = self::get_all();
 		if (array_key_exists($key, $settings)) {
-			unset($settings[$key]);
+			unset($settings[ $key ]);
 			return update_option(self::OPTION_NAME, $settings);
 		}
 		return true;
@@ -343,12 +343,12 @@ final class SettingsCore
 
 		$sanitized_settings = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize(
 			array(
-				'current_active_tab' => 'general',
+				'current_active_tab'    => 'general',
 				'mhm_rentiva_dark_mode' => $raw_mode,
 			)
 		);
 
-		$mode = (string)($sanitized_settings['mhm_rentiva_dark_mode'] ?? 'auto');
+		$mode = (string) ( $sanitized_settings['mhm_rentiva_dark_mode'] ?? 'auto' );
 
 		// 1. Update standalone option (for quick frontend access)
 		update_option('mhm_rentiva_dark_mode', $mode);
@@ -356,7 +356,7 @@ final class SettingsCore
 		// 2. Sync with Main Settings Array (so the Settings Form reflects the change)
 		update_option(self::OPTION_NAME, $sanitized_settings);
 
-		wp_send_json_success(array('message' => __('Settings updated', 'mhm-rentiva')));
+		wp_send_json_success(array( 'message' => __('Settings updated', 'mhm-rentiva') ));
 	}
 
 	/**
@@ -395,7 +395,7 @@ final class SettingsCore
 
 		$changed = false;
 		foreach ($slug_keys as $key) {
-			if (($old_value[$key] ?? '') !== ($new_value[$key] ?? '')) {
+			if (( $old_value[ $key ] ?? '' ) !== ( $new_value[ $key ] ?? '' )) {
 				$changed = true;
 				break;
 			}
@@ -434,7 +434,7 @@ final class SettingsCore
 		wp_enqueue_script(
 			'mhm-rentiva-dark-mode',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
-			array('jquery'),
+			array( 'jquery' ),
 			\MHM_RENTIVA_VERSION,
 			true
 		);
@@ -455,10 +455,10 @@ final class SettingsCore
 	 */
 	private static function setup_rate_limiting_hooks(): void
 	{
-		$actions = array('mhm_booking_request', 'mhm_payment_request');
+		$actions = array( 'mhm_booking_request', 'mhm_payment_request' );
 		foreach ($actions as $action) {
-			add_action("wp_ajax_{$action}", array(self::class, 'enforce_rate_limit'), 1);
-			add_action("wp_ajax_nopriv_{$action}", array(self::class, 'enforce_rate_limit'), 1);
+			add_action("wp_ajax_{$action}", array( self::class, 'enforce_rate_limit' ), 1);
+			add_action("wp_ajax_nopriv_{$action}", array( self::class, 'enforce_rate_limit' ), 1);
 		}
 	}
 

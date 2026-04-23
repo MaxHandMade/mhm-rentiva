@@ -26,8 +26,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class StructuredLogger
-{
+final class StructuredLogger {
+
     public const LEVEL_DEBUG   = 'debug';
     public const LEVEL_INFO    = 'info';
     public const LEVEL_WARNING = 'warning';
@@ -137,7 +137,7 @@ final class StructuredLogger
         }
 
         // Production: only warning and above.
-        return (self::LEVEL_WEIGHTS[$level] ?? 0) >= self::LEVEL_WEIGHTS[self::LEVEL_WARNING];
+        return ( self::LEVEL_WEIGHTS[ $level ] ?? 0 ) >= self::LEVEL_WEIGHTS[ self::LEVEL_WARNING ];
     }
 
     /**

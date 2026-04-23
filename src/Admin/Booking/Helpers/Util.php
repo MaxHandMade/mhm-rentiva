@@ -16,8 +16,8 @@ if (! defined('ABSPATH')) {
 
 
 
-final class Util
-{
+final class Util {
+
 
 
 	/**
@@ -47,7 +47,7 @@ final class Util
 			}
 
 			// ⭐ GLOBAL FIX: Use WordPress timezone for interpretation
-			$tz = wp_timezone();
+			$tz         = wp_timezone();
 			$pickup_dt  = new \DateTime($pickup_date . ' ' . $pickup_time, $tz);
 			$dropoff_dt = new \DateTime($dropoff_date . ' ' . $dropoff_time, $tz);
 
@@ -166,7 +166,7 @@ final class Util
 
 			// Sat (6) or Sun (0)
 			if (6 === $day_of_week || 0 === $day_of_week) {
-				$total += ($price_per_day * $multiplier);
+				$total += ( $price_per_day * $multiplier );
 			} else {
 				$total += $price_per_day;
 			}
@@ -187,12 +187,12 @@ final class Util
 		global $wpdb;
 
 		// ⭐ TIMEZONE SYNC: Ensure MySQL and PHP are using the same timezone offset
-		$gmt_offset = (float) get_option('gmt_offset');
-		$offset_string = ($gmt_offset >= 0 ? '+' : '-') . sprintf('%02d:%02d', abs((int)$gmt_offset), abs(($gmt_offset - (int)$gmt_offset) * 60));
-		$wpdb->query($wpdb->prepare("SET time_zone = %s", $offset_string));
+		$gmt_offset    = (float) get_option('gmt_offset');
+		$offset_string = ( $gmt_offset >= 0 ? '+' : '-' ) . sprintf('%02d:%02d', abs( (int) $gmt_offset), abs(( $gmt_offset - (int) $gmt_offset ) * 60));
+		$wpdb->query($wpdb->prepare('SET time_zone = %s', $offset_string));
 
 		$current_time_local = current_time('mysql');
-		$current_time_gmt = current_time('mysql', 1);
+		$current_time_gmt   = current_time('mysql', 1);
 
 		// ⭐ Get buffer time (default 60 minutes) and convert to seconds
 		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
@@ -271,9 +271,9 @@ final class Util
 
 		// BUFFER TIME
 		// ⭐ TIMEZONE SYNC
-		$gmt_offset = (float) get_option('gmt_offset');
-		$offset_string = ($gmt_offset >= 0 ? '+' : '-') . sprintf('%02d:%02d', abs((int)$gmt_offset), abs(($gmt_offset - (int)$gmt_offset) * 60));
-		$wpdb->query($wpdb->prepare("SET time_zone = %s", $offset_string));
+		$gmt_offset    = (float) get_option('gmt_offset');
+		$offset_string = ( $gmt_offset >= 0 ? '+' : '-' ) . sprintf('%02d:%02d', abs( (int) $gmt_offset), abs(( $gmt_offset - (int) $gmt_offset ) * 60));
+		$wpdb->query($wpdb->prepare('SET time_zone = %s', $offset_string));
 
 		$current_time_gmt = current_time('mysql', 1);
 
@@ -500,7 +500,7 @@ final class Util
 		$original_location = '';
 
 		// Check for vehicle category taxonomy
-		$vehicle_categories = wp_get_post_terms($original_vehicle_id, 'vehicle_category', array('fields' => 'ids'));
+		$vehicle_categories = wp_get_post_terms($original_vehicle_id, 'vehicle_category', array( 'fields' => 'ids' ));
 		if (! empty($vehicle_categories) && ! is_wp_error($vehicle_categories)) {
 			$original_category = $vehicle_categories[0];
 		}
@@ -509,7 +509,7 @@ final class Util
 		$original_location = get_post_meta($original_vehicle_id, '_mhm_rentiva_location', true);
 		if (empty($original_location)) {
 			// Try taxonomy
-			$vehicle_locations = wp_get_post_terms($original_vehicle_id, 'vehicle_location', array('fields' => 'ids'));
+			$vehicle_locations = wp_get_post_terms($original_vehicle_id, 'vehicle_location', array( 'fields' => 'ids' ));
 			if (! empty($vehicle_locations) && ! is_wp_error($vehicle_locations)) {
 				$original_location = $vehicle_locations[0];
 			}
@@ -537,7 +537,7 @@ final class Util
 			),
 		);
 
-		// We will prioritize same-category vehicles via calculate_vehicle_similarity later 
+		// We will prioritize same-category vehicles via calculate_vehicle_similarity later
 		// instead of hard-filtering here, to avoid returning empty suggestions.
 
 		// ⭐ Filter by location if original vehicle has a location
@@ -595,7 +595,7 @@ final class Util
 			$ids_placeholder = implode(',', array_fill(0, count($vehicle_ids), '%d'));
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Dynamic placeholder list is built from integer-only vehicle IDs.
 			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholders are generated from integer-only vehicle IDs.
-			$meta_results    = $wpdb->get_results(
+			$meta_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT post_id, meta_key, meta_value
                  FROM {$wpdb->postmeta}
@@ -610,7 +610,7 @@ final class Util
 
 			// Organize meta
 			foreach ($meta_results as $meta) {
-				$vehicle_meta[$meta['post_id']][$meta['meta_key']] = $meta['meta_value'];
+				$vehicle_meta[ $meta['post_id'] ][ $meta['meta_key'] ] = $meta['meta_value'];
 			}
 		}
 
@@ -620,11 +620,11 @@ final class Util
 
 			if (! $has_overlap) {
 				// ⚡ Optimized: reuse batch meta result
-				$price_per_day = (float) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_price_per_day'] ?? 0);
+				$price_per_day = (float) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_price_per_day'] ?? 0 );
 				$total_price   = $price_per_day * $days;
 
 				// Extract vehicle features from batch results
-				$features_raw = $vehicle_meta[$vehicle->ID]['_mhm_rentiva_features'] ?? '';
+				$features_raw = $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_features'] ?? '';
 				$features     = array();
 
 				if (is_array($features_raw)) {
@@ -639,7 +639,7 @@ final class Util
 				$vehicle_category = '';
 				$vehicle_location = '';
 
-				$vehicle_categories = wp_get_post_terms($vehicle->ID, 'vehicle_category', array('fields' => 'ids'));
+				$vehicle_categories = wp_get_post_terms($vehicle->ID, 'vehicle_category', array( 'fields' => 'ids' ));
 				if (! empty($vehicle_categories) && ! is_wp_error($vehicle_categories)) {
 					$vehicle_category = $vehicle_categories[0];
 				}
@@ -648,7 +648,7 @@ final class Util
 				if (! empty($vehicle_location_meta)) {
 					$vehicle_location = $vehicle_location_meta;
 				} else {
-					$vehicle_locations = wp_get_post_terms($vehicle->ID, 'vehicle_location', array('fields' => 'ids'));
+					$vehicle_locations = wp_get_post_terms($vehicle->ID, 'vehicle_location', array( 'fields' => 'ids' ));
 					if (! empty($vehicle_locations) && ! is_wp_error($vehicle_locations)) {
 						$vehicle_location = $vehicle_locations[0];
 					}
@@ -674,9 +674,9 @@ final class Util
 					'total_price'      => $total_price,
 					'days'             => $days,
 					'features'         => $features,
-					'seats'            => (string) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_seats'] ?? ''),
-					'transmission'     => (string) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_transmission'] ?? ''),
-					'fuel_type'        => (string) ($vehicle_meta[$vehicle->ID]['_mhm_rentiva_fuel_type'] ?? ''),
+					'seats'            => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_seats'] ?? '' ),
+					'transmission'     => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_transmission'] ?? '' ),
+					'fuel_type'        => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_fuel_type'] ?? '' ),
 					'similarity_score' => $similarity_score,
 					'image'            => get_the_post_thumbnail_url($vehicle->ID, 'medium'),
 					'currency_symbol'  => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
@@ -715,13 +715,13 @@ final class Util
 
 		// Price similarity (30% - reduced from 40%)
 		$price_diff  = abs($original_price - $alternative_price);
-		$price_score = max(0, 30 - ($price_diff / max($original_price, 1) * 30));
+		$price_score = max(0, 30 - ( $price_diff / max($original_price, 1) * 30 ));
 		$score      += $price_score;
 
 		// Feature similarity (40% - reduced from 60%)
 		if (! empty($original_features) && ! empty($alternative_features)) {
 			$common_features = array_intersect($original_features, $alternative_features);
-			$feature_score   = (count($common_features) / max(count($original_features), 1)) * 40;
+			$feature_score   = ( count($common_features) / max(count($original_features), 1) ) * 40;
 			$score          += $feature_score;
 		} else {
 			$score += 20; // Default score (reduced from 30)

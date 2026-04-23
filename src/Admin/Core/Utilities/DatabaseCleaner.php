@@ -1132,7 +1132,7 @@ final class DatabaseCleaner {
 		foreach ( $backup_tables as $table_name ) {
 			// Get table info
 			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Backup table names are discovered from database and treated as trusted maintenance identifiers.
-			$row_count  = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}`" );
+			$row_count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}`" );
 			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Backup table names are discovered from database and treated as trusted maintenance identifiers.
 			$table_size = $wpdb->get_var(
 				"

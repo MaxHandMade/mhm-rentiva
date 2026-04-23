@@ -28,8 +28,8 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
  *
  * Creates the database structure when the plugin is first installed
  */
-final class DatabaseInitialization
-{
+final class DatabaseInitialization {
+
 
 
 
@@ -96,7 +96,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => 'DEPRECATED: Vehicle availability status. Use _mhm_vehicle_status instead.',
@@ -110,7 +110,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => 'Vehicle status (active/inactive)',
@@ -138,7 +138,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle brand', 'mhm-rentiva'),
@@ -151,7 +151,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle model', 'mhm-rentiva'),
@@ -177,7 +177,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle color', 'mhm-rentiva'),
@@ -216,7 +216,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Transmission type (manual/auto)', 'mhm-rentiva'),
@@ -229,7 +229,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Fuel type (petrol/diesel/hybrid/electric)', 'mhm-rentiva'),
@@ -268,7 +268,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('License plate', 'mhm-rentiva'),
@@ -295,7 +295,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle features', 'mhm-rentiva'),
@@ -308,7 +308,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle equipment', 'mhm-rentiva'),
@@ -321,7 +321,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_gallery_images'),
+				'sanitize_callback' => array( self::class, 'sanitize_gallery_images' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Vehicle gallery images', 'mhm-rentiva'),
@@ -381,7 +381,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking status', 'mhm-rentiva'),
@@ -394,7 +394,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking type', 'mhm-rentiva'),
@@ -407,7 +407,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking creation method', 'mhm-rentiva'),
@@ -433,7 +433,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking creation date', 'mhm-rentiva'),
@@ -447,7 +447,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Start date', 'mhm-rentiva'),
@@ -460,7 +460,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Start time', 'mhm-rentiva'),
@@ -486,7 +486,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('End date', 'mhm-rentiva'),
@@ -499,7 +499,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('End time', 'mhm-rentiva'),
@@ -525,7 +525,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Pickup date', 'mhm-rentiva'),
@@ -538,7 +538,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Pickup time', 'mhm-rentiva'),
@@ -551,7 +551,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Drop-off date', 'mhm-rentiva'),
@@ -564,7 +564,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Drop-off time', 'mhm-rentiva'),
@@ -622,7 +622,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Customer full name', 'mhm-rentiva'),
@@ -635,7 +635,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Customer first name', 'mhm-rentiva'),
@@ -648,7 +648,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Customer last name', 'mhm-rentiva'),
@@ -674,7 +674,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Customer phone', 'mhm-rentiva'),
@@ -693,7 +693,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment method', 'mhm-rentiva'),
@@ -706,7 +706,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment gateway', 'mhm-rentiva'),
@@ -719,7 +719,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment type', 'mhm-rentiva'),
@@ -732,7 +732,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment status', 'mhm-rentiva'),
@@ -745,7 +745,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment deadline', 'mhm-rentiva'),
@@ -758,7 +758,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Payment display text', 'mhm-rentiva'),
@@ -797,7 +797,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Deposit type', 'mhm-rentiva'),
@@ -823,7 +823,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Selected additional services', 'mhm-rentiva'),
@@ -842,7 +842,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Receipt status', 'mhm-rentiva'),
@@ -868,7 +868,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Receipt upload date', 'mhm-rentiva'),
@@ -900,7 +900,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Shortcode information', 'mhm-rentiva'),
@@ -913,7 +913,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Automatically created', 'mhm-rentiva'),
@@ -926,7 +926,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking history', 'mhm-rentiva'),
@@ -939,7 +939,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking logs', 'mhm-rentiva'),
@@ -952,7 +952,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Cancellation deadline', 'mhm-rentiva'),
@@ -965,7 +965,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Cancellation policy', 'mhm-rentiva'),
@@ -978,7 +978,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'string',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Booking reference number', 'mhm-rentiva'),
@@ -1004,7 +1004,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Removed details', 'mhm-rentiva'),
@@ -1017,7 +1017,7 @@ final class DatabaseInitialization
 			array(
 				'type'              => 'array',
 				'single'            => true,
-				'sanitize_callback' => array(self::class, 'sanitize_array_meta'),
+				'sanitize_callback' => array( self::class, 'sanitize_array_meta' ),
 				'auth_callback'     => '__return_true',
 				'show_in_rest'      => true,
 				'description'       => __('Custom details', 'mhm-rentiva'),
@@ -1069,7 +1069,7 @@ final class DatabaseInitialization
 	{
 		// Ensure custom schedules are registered before scheduling
 		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
-			add_filter('cron_schedules', array('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel', 'schedules'), 1);
+			add_filter('cron_schedules', array( '\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel', 'schedules' ), 1);
 		}
 
 		// Auto cancel cron job

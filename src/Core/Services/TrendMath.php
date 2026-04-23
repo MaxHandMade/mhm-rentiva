@@ -11,8 +11,8 @@ if (! defined('ABSPATH')) {
  * Pure mathematical calculations for metrics.
  * Extracted to allow fast, I/O-free Unit Testing without WordPress dependencies.
  */
-final class TrendMath
-{
+final class TrendMath {
+
     /**
      * Calculates the percentage trend and determines direction from raw totals.
      *
@@ -26,7 +26,7 @@ final class TrendMath
         $direction = 'neutral';
 
         if ($previous > 0) {
-            $trend = (($current - $previous) / $previous) * 100;
+            $trend = ( ( $current - $previous ) / $previous ) * 100;
         } elseif ($current > 0) {
             $trend = 100;
         }

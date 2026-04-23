@@ -13,16 +13,16 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;
 use WP_Query;
 
-final class AutoComplete
-{
+final class AutoComplete {
+
 	public const EVENT    = 'mhm_rentiva_auto_complete_event';
 	public const SCHEDULE = 'mhm_rentiva_15min';
 
 	public static function register(): void
 	{
-		add_filter('cron_schedules', array(self::class, 'schedules'), 1);
-		add_action('init', array(self::class, 'maybe_schedule'), 101);
-		add_action(self::EVENT, array(self::class, 'run'));
+		add_filter('cron_schedules', array( self::class, 'schedules' ), 1);
+		add_action('init', array( self::class, 'maybe_schedule' ), 101);
+		add_action(self::EVENT, array( self::class, 'run' ));
 	}
 
 	public static function schedules(array $schedules): array
@@ -39,10 +39,10 @@ final class AutoComplete
 
 	public static function maybe_schedule(): void
 	{
-		add_filter('cron_schedules', array(self::class, 'schedules'), 1);
+		add_filter('cron_schedules', array( self::class, 'schedules' ), 1);
 		$schedules = wp_get_schedules();
 
-		if (! isset($schedules[self::SCHEDULE])) {
+		if (! isset($schedules[ self::SCHEDULE ])) {
 			return;
 		}
 
@@ -75,7 +75,7 @@ final class AutoComplete
 					'relation' => 'AND',
 					array(
 						'key'     => '_mhm_status',
-						'value'   => array('confirmed', 'in_progress'),
+						'value'   => array( 'confirmed', 'in_progress' ),
 						'compare' => 'IN',
 					),
 					array(
@@ -120,7 +120,7 @@ final class AutoComplete
 				if (class_exists(AdvancedLogger::class)) {
 					AdvancedLogger::info(
 						"Booking #$bid auto-completed (rental end date passed).",
-						array('booking_id' => $bid),
+						array( 'booking_id' => $bid ),
 						'system'
 					);
 				}
@@ -138,7 +138,7 @@ final class AutoComplete
 	{
 		$schedules = wp_get_schedules();
 
-		if (! isset($schedules[self::SCHEDULE])) {
+		if (! isset($schedules[ self::SCHEDULE ])) {
 			return;
 		}
 
@@ -148,19 +148,19 @@ final class AutoComplete
 		}
 
 		foreach ($cron as $timestamp => $cronhooks) {
-			if (isset($cronhooks[self::EVENT])) {
-				unset($cron[$timestamp][self::EVENT]);
-				if (empty($cron[$timestamp])) {
-					unset($cron[$timestamp]);
+			if (isset($cronhooks[ self::EVENT ])) {
+				unset($cron[ $timestamp ][ self::EVENT ]);
+				if (empty($cron[ $timestamp ])) {
+					unset($cron[ $timestamp ]);
 				}
 			}
 		}
 
-		$interval  = $schedules[self::SCHEDULE]['interval'];
+		$interval  = $schedules[ self::SCHEDULE ]['interval'];
 		$timestamp = time() + $interval;
 		$key       = md5(serialize(array()));
 
-		$cron[$timestamp][self::EVENT][$key] = array(
+		$cron[ $timestamp ][ self::EVENT ][ $key ] = array(
 			'schedule' => self::SCHEDULE,
 			'args'     => array(),
 			'interval' => $interval,

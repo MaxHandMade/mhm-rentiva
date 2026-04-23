@@ -18,15 +18,15 @@ if (! defined('ABSPATH')) {
  * @since 4.24.0 Redesigned with mhm-vendor-form classes; removed service-areas; added account_holder & tax_office.
  */
 
-$current_user_id = (int) ($dashboard['user']->ID ?? get_current_user_id());
+$current_user_id = (int) ( $dashboard['user']->ID ?? get_current_user_id() );
 
-$form_error = '';
+$form_error   = '';
 $form_success = '';
 
 // Handle settings form submission.
 if (
     isset($_POST['mhm_vendor_settings_nonce']) &&
-    wp_verify_nonce(sanitize_text_field(wp_unslash((string) $_POST['mhm_vendor_settings_nonce'])), 'mhm_vendor_settings_' . $current_user_id)
+    wp_verify_nonce(sanitize_text_field(wp_unslash( (string) $_POST['mhm_vendor_settings_nonce'])), 'mhm_vendor_settings_' . $current_user_id)
 ) {
     // 1. Process basic profile information (instantly updated)
     // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
@@ -51,7 +51,7 @@ if (
     $current_raw_iban       = VendorApplicationManager::decrypt_iban($current_encrypted_iban);
 
     // Remove empty spaces from newly submitted IBAN to compare accurately
-    $new_iban_sanitized = str_replace(' ', '', strtoupper($new_iban));
+    $new_iban_sanitized     = str_replace(' ', '', strtoupper($new_iban));
     $current_iban_sanitized = str_replace(' ', '', strtoupper($current_raw_iban));
 
     if ($new_iban_sanitized !== '' && $new_iban_sanitized !== $current_iban_sanitized) {
@@ -64,15 +64,16 @@ if (
             // Add a log entry for auditing
             \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
                 sprintf('Vendor #%d requested IBAN change.', $current_user_id),
-                array('vendor' => $current_user_id, 'action' => 'iban_change_request')
+                array(
+					'vendor' => $current_user_id,
+					'action' => 'iban_change_request',
+				)
             );
         } else {
             $form_error = __('Settings updated, but IBAN encryption failed. Please try saving again.', 'mhm-rentiva');
         }
-    } else {
-        if ($form_error === '') {
+    } elseif ($form_error === '') {
             $form_success = __('Settings updated successfully.', 'mhm-rentiva');
-        }
     }
 }
 
@@ -84,7 +85,7 @@ $account_holder = (string) get_user_meta($current_user_id, '_rentiva_vendor_acco
 $tax_office     = (string) get_user_meta($current_user_id, '_rentiva_vendor_tax_office', true);
 $tax_number     = (string) get_user_meta($current_user_id, '_rentiva_vendor_tax_number', true);
 
-$raw_iban   = VendorApplicationManager::decrypt_iban((string) get_user_meta($current_user_id, '_rentiva_vendor_iban', true));
+$raw_iban = VendorApplicationManager::decrypt_iban( (string) get_user_meta($current_user_id, '_rentiva_vendor_iban', true));
 
 $pending_iban_status = (string) get_user_meta($current_user_id, '_rentiva_iban_change_status', true);
 $has_pending_iban    = $pending_iban_status === 'pending';
@@ -133,7 +134,7 @@ $bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
 
             <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
                 <label for="vendor_bio"><?php esc_html_e('Short Bio', 'mhm-rentiva'); ?></label>
-                <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr((string) $bio_max); ?>"><?php echo esc_textarea($bio); ?></textarea>
+                <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr( (string) $bio_max); ?>"><?php echo esc_textarea($bio); ?></textarea>
                 <small><?php echo esc_html(sprintf(__('Max %d characters', 'mhm-rentiva'), $bio_max)); ?></small>
             </div>
         </div>

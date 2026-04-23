@@ -19,12 +19,12 @@ if (! defined('ABSPATH')) {
 }
 
 // Data Preparation & Defaults
-$atts           = $atts ?? array();
-$vehicles       = $vehicles ?? array();
-$has_vehicles   = $has_vehicles ?? false;
-$layout_class   = $layout_class ?? 'rv-vehicles-list';
-$columns_class  = $columns_class ?? 'rv-vehicles-list--columns-1';
-$wrapper_class  = $wrapper_class ?? '';
+$atts          = $atts ?? array();
+$vehicles      = $vehicles ?? array();
+$has_vehicles  = $has_vehicles ?? false;
+$layout_class  = $layout_class ?? 'rv-vehicles-list';
+$columns_class = $columns_class ?? 'rv-vehicles-list--columns-1';
+$wrapper_class = $wrapper_class ?? '';
 ?>
 
 <div class="rv-vehicles-list-container <?php echo esc_attr($wrapper_class); ?>">

@@ -25,8 +25,8 @@ if (! defined('ABSPATH')) {
  *
  * Manages the admin settings interface and loads templates.
  */
-final class SettingsView
-{
+final class SettingsView {
+
 
 
 	/**

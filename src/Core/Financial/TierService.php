@@ -29,8 +29,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class TierService
-{
+final class TierService {
+
     /**
      * Tier thresholds and their corresponding commission rate discounts (in percentage points).
      * Configured via WordPress options for admin flexibility.
@@ -42,9 +42,18 @@ final class TierService
      *   30000+ TRY                           → 6% reduction
      */
     private const DEFAULT_TIERS = array(
-        array('threshold' => 30000.0, 'discount' => 6.0),
-        array('threshold' => 15000.0, 'discount' => 4.0),
-        array('threshold' => 5000.0,  'discount' => 2.0),
+        array(
+			'threshold' => 30000.0,
+			'discount'  => 6.0,
+		),
+        array(
+			'threshold' => 15000.0,
+			'discount'  => 4.0,
+		),
+        array(
+			'threshold' => 5000.0,
+			'discount'  => 2.0,
+		),
     );
 
     /**
@@ -108,12 +117,12 @@ final class TierService
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Tier resolution intentionally reads live ledger data.
         $sum = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount)
+                'SELECT SUM(amount)
 				FROM %i
 				WHERE vendor_id = %d
 				AND status = %s
 				AND type IN (%s, %s)
-				AND created_at >= %s",
+				AND created_at >= %s',
                 $table,
                 $vendor_id,
                 'cleared',

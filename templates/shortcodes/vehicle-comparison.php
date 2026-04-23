@@ -28,14 +28,14 @@ $show_add_vehicle = $show_add_vehicle ?? false;
 
 
 // Layout settings
-$layout       = $atts['layout'] ?? 'table';
-$show_prices  = ($atts['show_prices'] ?? true) === '1' || ($atts['show_prices'] ?? true) === true;
+$layout               = $atts['layout'] ?? 'table';
+$show_prices          = ( $atts['show_prices'] ?? true ) === '1' || ( $atts['show_prices'] ?? true ) === true;
 $show_booking_buttons = in_array(
-	strtolower((string) ($atts['show_booking_buttons'] ?? ($atts['show_book_button'] ?? '1'))),
-	array('1', 'true', 'yes', 'on'),
+	strtolower( (string) ( $atts['show_booking_buttons'] ?? ( $atts['show_book_button'] ?? '1' ) )),
+	array( '1', 'true', 'yes', 'on' ),
 	true
 );
-$custom_class = trim($atts['class'] ?? '');
+$custom_class         = trim($atts['class'] ?? '');
 
 ?>
 
@@ -106,16 +106,16 @@ $custom_class = trim($atts['class'] ?? '');
 												<?php endif; ?>
 											</div>
 											<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
-												<?php Icons::render('remove', ['class' => 'rv-icon-remove']); ?>
+												<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
 											</button>
 
 											<div class="rv-vehicle-status-container">
 												<?php
-												$is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+												$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 												$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
 
 												if (! $is_available) :
-												?>
+													?>
 													<span class="rv-badge rv-badge--unavailable">
 														<?php echo esc_html($status_text); ?>
 													</span>
@@ -124,7 +124,7 @@ $custom_class = trim($atts['class'] ?? '');
 
 											<h4><?php echo esc_html($vehicle['title']); ?></h4>
 											<?php
-											$is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+											$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 											$btn_style    = 'display: inline-block !important; color: white !important; padding: 8px 16px !important; border-radius: 6px !important; text-decoration: none !important; font-size: 13px !important; font-weight: 600 !important; margin-top: 5px !important; margin-bottom: 10px !important; text-align: center !important; width: 100% !important; max-width: 140px !important;';
 											$btn_class    = 'rv-book-now-btn';
 											$btn_href     = esc_url($vehicle['permalink']);
@@ -146,9 +146,9 @@ $custom_class = trim($atts['class'] ?? '');
 											<?php
 											$price = $vehicle['features']['price_per_day'] ?? 0;
 											if ($show_prices && $price > 0) :
-											?>
+												?>
 												<div class="mhm-comparison-price" style="text-align: center; font-weight: bold; font-size: 1.1em; color: #2ecc71; margin-top: 10px;">
-													<?php echo esc_html(CurrencyHelper::format_price((float) $price, 0)); ?>
+													<?php echo esc_html(CurrencyHelper::format_price( (float) $price, 0)); ?>
 													<span class="price-suffix" style="font-size: 0.9em; color: #7f8c8d; font-weight: normal;">
 														/ <?php echo esc_html__('day', 'mhm-rentiva'); ?>
 													</span>
@@ -171,12 +171,12 @@ $custom_class = trim($atts['class'] ?? '');
 									<?php foreach ($vehicles as $vehicle) : ?>
 										<td class="rv-feature-value" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 											<?php
-											$value = $vehicle['features'][$feature_key] ?? 'â€“';
+											$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
 											// Defense-in-depth: ensure value is always a string
 											if (is_array($value)) {
 												$value = implode(', ', array_filter(array_map('strval', $value)));
 											}
-											echo '<span class="rv-feature-text">' . esc_html((string) $value) . '</span>';
+											echo '<span class="rv-feature-text">' . esc_html( (string) $value) . '</span>';
 											?>
 										</td>
 									<?php endforeach; ?>
@@ -202,10 +202,10 @@ $custom_class = trim($atts['class'] ?? '');
 									<h4 class="rv-mobile-title"><?php echo esc_html($vehicle['title']); ?></h4>
 
 									<?php
-									$is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+									$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 									$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
 									if (! $is_available) :
-									?>
+										?>
 										<span class="rv-badge rv-badge--unavailable" style="margin-bottom: 5px;">
 											<?php echo esc_html($status_text); ?>
 										</span>
@@ -214,9 +214,9 @@ $custom_class = trim($atts['class'] ?? '');
 									<?php
 									$price = $vehicle['features']['price_per_day'] ?? 0;
 									if ($show_prices && $price > 0) :
-									?>
+										?>
 										<div class="rv-mobile-price">
-											<?php echo esc_html(CurrencyHelper::format_price((float) $price, 0)); ?>
+											<?php echo esc_html(CurrencyHelper::format_price( (float) $price, 0)); ?>
 											<span class="rv-period">/ <?php echo esc_html__('day', 'mhm-rentiva'); ?></span>
 										</div>
 									<?php endif; ?>
@@ -232,7 +232,12 @@ $custom_class = trim($atts['class'] ?? '');
 
 							<button type="button" class="rv-mobile-accordion-toggle" onclick="this.parentElement.classList.toggle('active');">
 								<span><?php echo esc_html__('Show Features', 'mhm-rentiva'); ?></span>
-								<?php Icons::render('chevron-down', ['class' => 'rv-icon-chevron-down', 'style' => 'transition: transform 0.3s ease;']); ?>
+								<?php
+                                Icons::render('chevron-down', [
+									'class' => 'rv-icon-chevron-down',
+									'style' => 'transition: transform 0.3s ease;',
+								]);
+								?>
 							</button>
 
 							<div class="rv-mobile-accordion-content">
@@ -247,11 +252,11 @@ $custom_class = trim($atts['class'] ?? '');
 											<span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
 											<span class="rv-mobile-value">
 												<?php
-												$value = $vehicle['features'][$feature_key] ?? 'â€“';
+												$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
 												if (is_array($value)) {
 													$value = implode(', ', array_filter(array_map('strval', $value)));
 												}
-												echo esc_html((string) $value);
+												echo esc_html( (string) $value);
 												?>
 											</span>
 										</div>
@@ -293,14 +298,14 @@ $custom_class = trim($atts['class'] ?? '');
 								<?php endif; ?>
 								<h4><?php echo esc_html($vehicle['title']); ?></h4>
 								<button type="button" class="rv-remove-vehicle" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>" aria-label="<?php echo esc_attr__('Remove vehicle', 'mhm-rentiva'); ?>">
-									<?php Icons::render('remove', ['class' => 'rv-icon-remove']); ?>
+									<?php Icons::render('remove', [ 'class' => 'rv-icon-remove' ]); ?>
 								</button>
 								<?php
-								$is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+								$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 								$status_text  = $vehicle['availability']['text'] ?? __('Unavailable', 'mhm-rentiva');
 
 								if (! $is_available) :
-								?>
+									?>
 									<div style="width: 100%; text-align: center; margin-top: 5px;">
 										<span class="rv-badge rv-badge--unavailable" style="display: inline-block;">
 											<?php echo esc_html($status_text); ?>
@@ -315,19 +320,19 @@ $custom_class = trim($atts['class'] ?? '');
 										<span class="rv-feature-label"><?php echo esc_html($feature_label); ?>:</span>
 										<span class="rv-feature-value">
 											<?php
-											$value = $vehicle['features'][$feature_key] ?? 'â€“';
+											$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
 											if (is_array($value)) {
 												$value = implode(', ', array_filter(array_map('strval', $value)));
 											}
 
 											if ($feature_key === 'price_per_day' && $show_prices) {
 												if ($value > 0) {
-													echo '<span class="rv-price">' . esc_html(CurrencyHelper::format_price((float) $value, 0)) . '</span>';
+													echo '<span class="rv-price">' . esc_html(CurrencyHelper::format_price( (float) $value, 0)) . '</span>';
 												} else {
 													echo '<span class="rv-no-price">-</span>';
 												}
 											} else {
-												echo '<span class="rv-feature-text">' . esc_html((string) $value) . '</span>';
+												echo '<span class="rv-feature-text">' . esc_html( (string) $value) . '</span>';
 											}
 											?>
 										</span>
@@ -337,7 +342,7 @@ $custom_class = trim($atts['class'] ?? '');
 
 							<div class="rv-card-actions">
 								<?php
-								$is_available = $vehicle['availability']['is_available'] ?? ($vehicle['meta']['available'] ?? true);
+								$is_available = $vehicle['availability']['is_available'] ?? ( $vehicle['meta']['available'] ?? true );
 								$btn_class    = 'rv-book-now-btn';
 								$btn_href     = esc_url($vehicle['permalink']);
 								$btn_attrs    = '';
@@ -364,7 +369,14 @@ $custom_class = trim($atts['class'] ?? '');
 		<!-- Threshold/Empty State Message -->
 		<div class="rv-comparison-empty-state" style="text-align: center; padding: 60px 20px; background: #fff; border-radius: 12px; border: 2px dashed #e0e0e0; margin: 40px auto; max-width: 600px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
 			<div class="rv-empty-icon" style="margin-bottom: 20px;">
-				<?php Icons::render('table', ['class' => 'rv-icon-empty', 'width' => '64', 'height' => '64', 'style' => 'margin: 0 auto; display: block; stroke: #ddd; stroke-width: 1.5;']); ?>
+				<?php
+                Icons::render('table', [
+					'class'  => 'rv-icon-empty',
+					'width'  => '64',
+					'height' => '64',
+					'style'  => 'margin: 0 auto; display: block; stroke: #ddd; stroke-width: 1.5;',
+				]);
+				?>
 			</div>
 			<h4 style="margin-bottom: 12px; font-size: 1.4em; color: #333;"><?php echo esc_html__('Comparison list is ready!', 'mhm-rentiva'); ?></h4>
 			<p style="color: #666; font-size: 1.1em; line-height: 1.6;"><?php echo esc_html__('Please add at least 2 vehicles to see the detailed comparison table.', 'mhm-rentiva'); ?></p>

@@ -16,8 +16,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Core\Attribute
  * @since 4.11.0
  */
-final class CanonicalAttributeMapper
-{
+final class CanonicalAttributeMapper {
+
 
 
 
@@ -39,25 +39,25 @@ final class CanonicalAttributeMapper
             $canonical_key = KeyNormalizer::normalize($raw_key, $schema);
 
             // Strict mode: Drop unknown
-            if ($strict && ! isset($schema[$canonical_key])) {
+            if ($strict && ! isset($schema[ $canonical_key ])) {
                 self::log_unknown($tag, $raw_key);
                 continue;
             }
 
             // If verified canonical key exists in schema, transform it
-            if (isset($schema[$canonical_key])) {
-                $config                   = $schema[$canonical_key];
-                $mapped[$canonical_key] = Transformers::transform($value, $config['type'] ?? 'string', $config);
+            if (isset($schema[ $canonical_key ])) {
+                $config                   = $schema[ $canonical_key ];
+                $mapped[ $canonical_key ] = Transformers::transform($value, $config['type'] ?? 'string', $config);
             } else {
                 // Passthrough for non-strict or fallback (though generally strict should be on)
-                $mapped[$canonical_key] = $value;
+                $mapped[ $canonical_key ] = $value;
             }
         }
 
         // 2. Apply defaults for missing keys
         foreach ($schema as $canonical_key => $config) {
-            if (! isset($mapped[$canonical_key]) && isset($config['default'])) {
-                $mapped[$canonical_key] = $config['default'];
+            if (! isset($mapped[ $canonical_key ]) && isset($config['default'])) {
+                $mapped[ $canonical_key ] = $config['default'];
             }
         }
 

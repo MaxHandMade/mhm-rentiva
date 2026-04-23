@@ -18,8 +18,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class SessionManager
-{
+final class SessionManager {
+
 
 	/**
 	 * Default session timeout in hours
@@ -31,9 +31,9 @@ final class SessionManager
 	 */
 	public static function init(): void
 	{
-		add_action('init', array(self::class, 'check_session_timeout'));
-		add_action('wp_login', array(self::class, 'set_session_timeout'), 10, 2);
-		add_action('wp_logout', array(self::class, 'clear_session_timeout'));
+		add_action('init', array( self::class, 'check_session_timeout' ));
+		add_action('wp_login', array( self::class, 'set_session_timeout' ), 10, 2);
+		add_action('wp_logout', array( self::class, 'clear_session_timeout' ));
 	}
 
 	/**
@@ -62,7 +62,7 @@ final class SessionManager
 		}
 
 		// Check if session has expired
-		if ((time() - (int) $last_activity) > $timeout_seconds) {
+		if (( time() - (int) $last_activity ) > $timeout_seconds) {
 			// Session expired, log out user
 			wp_logout();
 
@@ -131,7 +131,7 @@ final class SessionManager
 		$elapsed   = time() - (int) $last_activity;
 		$remaining = $timeout_seconds - $elapsed;
 
-		return max(0, (int) ($remaining / 60)); // Return remaining minutes
+		return max(0, (int) ( $remaining / 60 )); // Return remaining minutes
 	}
 
 	/**

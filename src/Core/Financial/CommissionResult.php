@@ -14,8 +14,8 @@ if (! defined('ABSPATH')) {
  * @since 4.21.0 Extended with policy_id, policy_version_hash, and applied_source
  *               for full Policy Versioning and Analytics support.
  */
-final class CommissionResult
-{
+final class CommissionResult {
+
     /**
      * Constants declaring the layer of the hierarchy that resolved the final rate.
      * Used by Analytics to audit and aggregate breakdown metrics per tier.

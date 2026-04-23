@@ -74,7 +74,7 @@ $unique_id             = uniqid('rv_contact_');
 							<?php echo esc_html__('Phone', 'mhm-rentiva'); ?>
 							<?php
 							if ($type === 'booking') :
-							?>
+								?>
 								<span class="rv-required">*</span><?php endif; ?>
 						</label>
 						<input type="tel" id="rv-contact-phone-<?php echo esc_attr($unique_id); ?>" name="phone" class="rv-form-input"

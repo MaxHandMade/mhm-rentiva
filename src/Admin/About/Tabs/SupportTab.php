@@ -23,8 +23,8 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 /**
  * Support tab
  */
-final class SupportTab extends AbstractTab
-{
+final class SupportTab extends AbstractTab {
+
 
 
 	protected static function get_tab_id(): string
@@ -55,12 +55,12 @@ final class SupportTab extends AbstractTab
 			'sections'    => array(
 				array(
 					'type'          => 'custom',
-					'custom_render' => array(self::class, 'render_support_cards'),
+					'custom_render' => array( self::class, 'render_support_cards' ),
 				),
 				array(
 					'type'          => 'custom',
 					'title'         => __('Version History', 'mhm-rentiva'),
-					'custom_render' => array(self::class, 'render_changelog'),
+					'custom_render' => array( self::class, 'render_changelog' ),
 				),
 			),
 		);
@@ -84,21 +84,21 @@ final class SupportTab extends AbstractTab
 			Helpers::render_external_link(
 				'https://maxhandmade.github.io/mhm-rentiva-docs/',
 				esc_html__('User Guide', 'mhm-rentiva'),
-				array('class' => 'button button-secondary')
+				array( 'class' => 'button button-secondary' )
 			)
 		);
 		echo wp_kses_post(
 			Helpers::render_external_link(
 				'https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api/',
 				esc_html__('API Documentation', 'mhm-rentiva'),
-				array('class' => 'button button-secondary')
+				array( 'class' => 'button button-secondary' )
 			)
 		);
 		echo wp_kses_post(
 			Helpers::render_external_link(
 				'https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA',
 				esc_html__('Video Tutorials', 'mhm-rentiva'),
-				array('class' => 'button button-secondary')
+				array( 'class' => 'button button-secondary' )
 			)
 		);
 		echo '</div>';
@@ -115,7 +115,7 @@ final class SupportTab extends AbstractTab
 			Helpers::render_external_link(
 				'https://wpalemi.com/support/',
 				esc_html__('Contact Form', 'mhm-rentiva'),
-				array('class' => 'button button-primary')
+				array( 'class' => 'button button-primary' )
 			)
 		);
 
@@ -124,7 +124,7 @@ final class SupportTab extends AbstractTab
 				Helpers::render_external_link(
 					'mailto:' . $support_email,
 					esc_html__('Priority Support', 'mhm-rentiva'),
-					array('class' => 'button button-secondary')
+					array( 'class' => 'button button-secondary' )
 				)
 			);
 		}
@@ -146,7 +146,7 @@ final class SupportTab extends AbstractTab
 			Helpers::render_external_link(
 				'https://wordpress.org/support/plugin/mhm-rentiva',
 				esc_html__('WordPress Support Forum', 'mhm-rentiva'),
-				array('class' => 'button button-secondary dashicons-before dashicons-wordpress')
+				array( 'class' => 'button button-secondary dashicons-before dashicons-wordpress' )
 			)
 		);
 		echo '</div>';
@@ -172,7 +172,7 @@ final class SupportTab extends AbstractTab
 				echo '<strong>v' . esc_html($release['version']) . '</strong>';
 				echo '<span class="release-date">' . esc_html($release['date']) . '</span>';
 
-				if (('current' === ($release['type'] ?? ''))) {
+				if (( 'current' === ( $release['type'] ?? '' ) )) {
 					echo '<span class="current-badge">' . esc_html__('Current Version', 'mhm-rentiva') . '</span>';
 				}
 
@@ -224,7 +224,7 @@ final class SupportTab extends AbstractTab
 		$changelog = json_decode(file_get_contents($changelog_file), true);
 
 		if (json_last_error() !== JSON_ERROR_NONE) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Changelog JSON Error', array('error' => json_last_error_msg()));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Changelog JSON Error', array( 'error' => json_last_error_msg() ));
 			return self::get_default_changelog();
 		}
 

@@ -83,7 +83,13 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 
 										<!-- Quote Icon -->
 										<div class="rv-quote-icon" aria-hidden="true">
-											<?php Icons::render('quote', array( 'width' => '32px', 'height' => '32px', 'class' => 'rv-icon rv-icon-quote-deco' )); ?>
+											<?php
+                                            Icons::render('quote', array(
+												'width'  => '32px',
+												'height' => '32px',
+												'class'  => 'rv-icon rv-icon-quote-deco',
+											));
+											?>
 										</div>
 
 										<!-- Rating -->
@@ -91,7 +97,12 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 											<div class="rv-testimonial-rating">
 												<?php for ($i = 1; $i <= 5; $i++) : ?>
 													<span class="rv-star <?php echo $i <= $testimonial['rating'] ? 'filled' : 'empty'; ?>">
-														<?php Icons::render('star', array( 'width' => '15px', 'height' => '15px' )); ?>
+														<?php
+                                                        Icons::render('star', array(
+															'width'  => '15px',
+															'height' => '15px',
+														));
+														?>
 													</span>
 												<?php endfor; ?>
 											</div>
@@ -107,7 +118,7 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 												<div class="rv-author-avatar">
 													<?php
-													$avatar_url = $get_avatar_url((string) ($testimonial['customer_email'] ?? ''));
+													$avatar_url = $get_avatar_url( (string) ( $testimonial['customer_email'] ?? '' ));
 													if (! empty($avatar_url)) :
 														?>
 														<img src="<?php echo esc_url($avatar_url); ?>"
@@ -115,17 +126,17 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 															width="40" height="40" loading="lazy" />
 													<?php else : ?>
 														<span class="rv-avatar-placeholder">
-															<?php echo esc_html(mb_strtoupper(mb_substr((string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
+															<?php echo esc_html(mb_strtoupper(mb_substr( (string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
 														</span>
 													<?php endif; ?>
 												</div>
 												<div class="rv-author-info">
-													<span class="rv-author-name"><?php echo esc_html($format_name((string) $testimonial['customer_name'])); ?></span>
+													<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
 													<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>
 														<span class="rv-author-title"><?php echo esc_html($testimonial['vehicle_name']); ?></span>
 													<?php endif; ?>
 													<?php if ($show_date) : ?>
-														<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime((string) $testimonial['date']))); ?></span>
+														<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime( (string) $testimonial['date']))); ?></span>
 													<?php endif; ?>
 												</div>
 											<?php endif; ?>
@@ -166,7 +177,13 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 
 								<!-- Quote Icon -->
 								<div class="rv-quote-icon" aria-hidden="true">
-									<?php Icons::render('quote', array( 'width' => '32px', 'height' => '32px', 'class' => 'rv-icon rv-icon-quote-deco' )); ?>
+									<?php
+                                    Icons::render('quote', array(
+										'width'  => '32px',
+										'height' => '32px',
+										'class'  => 'rv-icon rv-icon-quote-deco',
+									));
+									?>
 								</div>
 
 								<!-- Rating -->
@@ -174,7 +191,12 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 									<div class="rv-testimonial-rating">
 										<?php for ($i = 1; $i <= 5; $i++) : ?>
 											<span class="rv-star <?php echo $i <= $testimonial['rating'] ? 'filled' : 'empty'; ?>">
-												<?php Icons::render('star', array( 'width' => '15px', 'height' => '15px' )); ?>
+												<?php
+                                                Icons::render('star', array(
+													'width'  => '15px',
+													'height' => '15px',
+												));
+												?>
 											</span>
 										<?php endfor; ?>
 									</div>
@@ -190,7 +212,7 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 										<div class="rv-author-avatar">
 											<?php
-											$avatar_url = $get_avatar_url((string) ($testimonial['customer_email'] ?? ''));
+											$avatar_url = $get_avatar_url( (string) ( $testimonial['customer_email'] ?? '' ));
 											if (! empty($avatar_url)) :
 												?>
 												<img src="<?php echo esc_url($avatar_url); ?>"
@@ -198,17 +220,17 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 													width="40" height="40" loading="lazy" />
 											<?php else : ?>
 												<span class="rv-avatar-placeholder">
-													<?php echo esc_html(mb_strtoupper(mb_substr((string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
+													<?php echo esc_html(mb_strtoupper(mb_substr( (string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
 												</span>
 											<?php endif; ?>
 										</div>
 										<div class="rv-author-info">
-											<span class="rv-author-name"><?php echo esc_html($format_name((string) $testimonial['customer_name'])); ?></span>
+											<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
 											<?php if ($show_vehicle && ! empty($testimonial['vehicle_name'])) : ?>
 												<span class="rv-author-title"><?php echo esc_html($testimonial['vehicle_name']); ?></span>
 											<?php endif; ?>
 											<?php if ($show_date) : ?>
-												<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime((string) $testimonial['date']))); ?></span>
+												<span class="rv-author-date"><?php echo esc_html(date_i18n(get_option('date_format', 'd.m.Y'), strtotime( (string) $testimonial['date']))); ?></span>
 											<?php endif; ?>
 										</div>
 									<?php endif; ?>
@@ -238,7 +260,12 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 		<!-- No Testimonials -->
 		<div class="rv-no-testimonials">
 			<div class="rv-no-testimonials-icon">
-				<?php Icons::render('quote', array( 'width' => '48px', 'height' => '48px' )); ?>
+				<?php
+                Icons::render('quote', array(
+					'width'  => '48px',
+					'height' => '48px',
+				));
+				?>
 			</div>
 			<h4><?php echo esc_html__('No Reviews Yet', 'mhm-rentiva'); ?></h4>
 			<p><?php echo esc_html__('Be the first to leave a review!', 'mhm-rentiva'); ?></p>

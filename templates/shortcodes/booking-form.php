@@ -50,9 +50,9 @@ $class                 = $atts['class'] ?? '';
 $redirect_url          = $atts['redirect_url'] ?? '';
 
 // Location pre-fill variables
-$pickup_location_id   = (int) ($pickup_location_id ?? 0);
-$pickup_location_name = (string) ($pickup_location_name ?? '');
-$prefill_pickup_time  = (string) ($prefill_pickup_time ?? '');
+$pickup_location_id   = (int) ( $pickup_location_id ?? 0 );
+$pickup_location_name = (string) ( $pickup_location_name ?? '' );
+$prefill_pickup_time  = (string) ( $prefill_pickup_time ?? '' );
 
 // â­ Get user data from controller (pre-processed)
 $user_data    = $user_data ?? array();
@@ -62,11 +62,11 @@ $user_email   = $user_data['user_email'] ?? '';
 $user_phone   = $user_data['user_phone'] ?? '';
 
 // Get customer settings from controller
-$customer_settings     = $customer_settings ?? array();
-$registration_required = $customer_settings['registration_required'] ?? '0';
-$phone_required        = $customer_settings['phone_required'] ?? '0';
-$terms_required        = $customer_settings['terms_required'] ?? '0';
-$terms_text            = $customer_settings['terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
+$customer_settings       = $customer_settings ?? array();
+$registration_required   = $customer_settings['registration_required'] ?? '0';
+$phone_required          = $customer_settings['phone_required'] ?? '0';
+$terms_required          = $customer_settings['terms_required'] ?? '0';
+$terms_text              = $customer_settings['terms_text'] ?? __('I accept the terms of use and privacy policy.', 'mhm-rentiva');
 $has_preselected_vehicle = ! empty($selected_vehicle['id']);
 
 // Generate unique ID for this form instance to prevent collisions
@@ -78,13 +78,13 @@ $unique_id = uniqid('rv_booking_');
 	data-redirect-url="<?php echo esc_attr($redirect_url); ?>"
 	<?php
 	if (! empty($selected_vehicle['id'])) :
-	?>
+		?>
 	data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>" <?php endif; ?>>
 
 	<div class="rv-booking-form">
 		<form class="rv-booking-form-content rv-checkout-layout" id="rv-booking-form-<?php echo esc_attr($unique_id); ?>" method="post" onsubmit="return false;">
 			<?php if ($pickup_location_id > 0) : ?>
-				<input type="hidden" name="pickup_location_id" value="<?php echo esc_attr((string) $pickup_location_id); ?>">
+				<input type="hidden" name="pickup_location_id" value="<?php echo esc_attr( (string) $pickup_location_id); ?>">
 			<?php endif; ?>
 
 				<!-- Left Column: Vehicle Summary -->
@@ -148,7 +148,7 @@ $unique_id = uniqid('rv_booking_');
 										data-image="<?php echo esc_attr($vehicle['featured_image']); ?>"
 										data-features="<?php echo esc_attr(wp_json_encode($vehicle['features'] ?? [])); ?>">
 										<?php echo esc_html($vehicle['title']); ?>
-										(<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price((float) $vehicle['price_per_day'], 0)); ?><?php echo esc_html__('/day', 'mhm-rentiva'); ?>)
+										(<?php echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $vehicle['price_per_day'], 0)); ?><?php echo esc_html__('/day', 'mhm-rentiva'); ?>)
 									</option>
 								<?php endforeach; ?>
 							</select>
@@ -386,7 +386,7 @@ $unique_id = uniqid('rv_booking_');
 								$last_name = implode(' ', array_slice($parts, 1));
 							}
 						}
-					?>
+						?>
 						<input type="hidden" id="customer_first_name" name="customer_first_name" class="rv-customer-first-name" value="<?php echo esc_attr($first_name); ?>">
 						<input type="hidden" id="customer_last_name" name="customer_last_name" class="rv-customer-last-name" value="<?php echo esc_attr($last_name); ?>">
 						<input type="hidden" id="customer_email" name="customer_email" class="rv-customer-email" value="<?php echo esc_attr($user_email); ?>">
@@ -437,5 +437,3 @@ $unique_id = uniqid('rv_booking_');
 // Payment status handling is done via JavaScript in the external file
 // Data is passed via wp_localize_script in BookingForm::enqueue_assets()
 ?>
-
-

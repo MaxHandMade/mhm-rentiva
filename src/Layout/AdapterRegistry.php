@@ -19,8 +19,8 @@ use MHMRentiva\Layout\Adapters\BaseAdapter;
  * @package MHMRentiva\Layout
  * @since 4.14.0
  */
-final class AdapterRegistry
-{
+final class AdapterRegistry {
+
 
     /**
      * @var array Registry of type => adapter_class
@@ -36,7 +36,7 @@ final class AdapterRegistry
     public static function register(string $type, string $class_name): void
     {
         if (is_subclass_of($class_name, BaseAdapter::class)) {
-            self::$registry[$type] = $class_name;
+            self::$registry[ $type ] = $class_name;
         }
     }
 
@@ -48,11 +48,11 @@ final class AdapterRegistry
      */
     public static function get_adapter(string $type): ?BaseAdapter
     {
-        if (! isset(self::$registry[$type])) {
+        if (! isset(self::$registry[ $type ])) {
             return null;
         }
 
-        $class = self::$registry[$type];
+        $class = self::$registry[ $type ];
         return new $class();
     }
 

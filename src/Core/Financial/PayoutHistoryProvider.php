@@ -25,8 +25,8 @@ use MHMRentiva\Admin\PostTypes\Payouts\PostType;
  *
  * @since 4.21.0
  */
-final class PayoutHistoryProvider
-{
+final class PayoutHistoryProvider {
+
     /**
      * Get payout history for a vendor.
      *
@@ -43,7 +43,7 @@ final class PayoutHistoryProvider
         $posts = get_posts(array(
             'post_type'      => PostType::POST_TYPE,
             'author'         => $vendor_id,
-            'post_status'    => array('pending', 'publish', 'trash'),
+            'post_status'    => array( 'pending', 'publish', 'trash' ),
             'posts_per_page' => $limit,
             'orderby'        => 'date',
             'order'          => 'DESC',

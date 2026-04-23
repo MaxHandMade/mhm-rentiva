@@ -16,8 +16,8 @@ use MHMRentiva\Core\Financial\AnalyticsService;
  *
  * @since 4.21.0
  */
-final class VendorRevenue30dMetric implements MetricInterface
-{
+final class VendorRevenue30dMetric implements MetricInterface {
+
     public function key(): string
     {
         return 'vendor_revenue_30d';
@@ -31,7 +31,10 @@ final class VendorRevenue30dMetric implements MetricInterface
     public function resolve(string $context, array $args, int $currentStart, int $now, int $previousStart): array
     {
         if ($context !== 'vendor' || empty($args['vendor_id'])) {
-            return array('current' => 0.0, 'previous' => 0.0);
+            return array(
+				'current'  => 0.0,
+				'previous' => 0.0,
+			);
         }
 
         $vendor_id = (int) $args['vendor_id'];
@@ -39,7 +42,7 @@ final class VendorRevenue30dMetric implements MetricInterface
         // Non-overlapping 30d windows:
         // current:  [now - 30d, now)
         // previous: [now - 60d, now - 30d)
-        $thirty_days = 30 * DAY_IN_SECONDS;
+        $thirty_days    = 30 * DAY_IN_SECONDS;
         $current_start  = $now - $thirty_days;
         $previous_start = $current_start - $thirty_days;
 

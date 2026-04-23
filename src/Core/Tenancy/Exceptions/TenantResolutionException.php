@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-class TenantResolutionException extends \RuntimeException
-{
+class TenantResolutionException extends \RuntimeException {
+
     public static function not_found(string $reason = ''): self
     {
         $message = 'Failed to resolve a valid TenantContext.';

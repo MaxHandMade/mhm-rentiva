@@ -20,8 +20,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
  *
  * Manages repeated meta query patterns centrally
  */
-final class MetaQueryHelper
-{
+final class MetaQueryHelper {
+
 	/**
 	 * Check if migration fallback is active (DEV MODE ONLY)
 	 *
@@ -30,7 +30,7 @@ final class MetaQueryHelper
 	public static function is_migration_fallback_active(): bool
 	{
 		// Active if WP_DEBUG is on OR explicitly enabled via constant.
-		return (defined('WP_DEBUG') && WP_DEBUG) || defined('MHM_RENTIVA_MIGRATION_FALLBACK');
+		return ( defined('WP_DEBUG') && WP_DEBUG ) || defined('MHM_RENTIVA_MIGRATION_FALLBACK');
 	}
 
 	/**
@@ -46,7 +46,7 @@ final class MetaQueryHelper
 	 */
 	private static function normalize_operator(string $operator): string
 	{
-		$allowed = array('=', '!=', '>', '<', '>=', '<=', 'LIKE');
+		$allowed = array( '=', '!=', '>', '<', '>=', '<=', 'LIKE' );
 		$clean   = strtoupper(trim($operator));
 
 		return in_array($clean, $allowed, true) ? $clean : '=';
@@ -230,14 +230,14 @@ final class MetaQueryHelper
 	public static function build_meta_in(string $alias, array $values): string
 	{
 		global $wpdb;
-		$safe_alias = self::sanitize_alias($alias);
+		$safe_alias   = self::sanitize_alias($alias);
 		$placeholders = implode(',', array_fill(0, count($values), '%s'));
 		$args         = array_merge(
-			array("{$safe_alias}.meta_value IN ({$placeholders})"), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias and generated placeholders are controlled.
+			array( "{$safe_alias}.meta_value IN ({$placeholders})" ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias and generated placeholders are controlled.
 			array_values($values)
 		);
 
-		return (string) call_user_func_array(array($wpdb, 'prepare'), $args);
+		return (string) call_user_func_array(array( $wpdb, 'prepare' ), $args);
 	}
 
 	/**
@@ -268,7 +268,7 @@ final class MetaQueryHelper
 		return array(
 			'key'     => MetaKeys::VEHICLE_STATUS,
 			'value'   => $value,
-			'compare' => (is_array($value) && $compare === '=') ? 'IN' : $compare,
+			'compare' => ( is_array($value) && $compare === '=' ) ? 'IN' : $compare,
 		);
 	}
 
