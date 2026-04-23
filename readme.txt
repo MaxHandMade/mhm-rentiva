@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.27.2
+Stable tag:        4.27.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.27.3 =
+* **Fix:** v4.27.2's attempt to de-duplicate the Lite "Additional Services limit" admin notice was incomplete; on production sites the notice still rendered twice. Root cause (confirmed on the live DOM): the custom page header inside `add_addon_page_title()` emitted its own `<hr class="wp-header-end">` marker, and WordPress core also emits one for the built-in post-type list heading. WP's `wp-admin/js/common.js` relocator calls `$( 'hr.wp-header-end' ).before( $notice )` — jQuery's `.before()` clones its argument for every matched target except the last, so the single notice got duplicated to one copy per marker. Fix: `AdminHelperTrait::render_admin_header()` now accepts a `$skip_wp_header_end` parameter; `AddonMenu::add_addon_page_title()` passes `true` on the addon list screen so only WordPress's own marker remains in the DOM. Verified in the production browser after deploy — notice now renders exactly once.
 
 = 4.27.2 =
 * **Fix (critical, fresh install):** Running the Settings → Settings Testing "Run All Diagnostics" page even once could leak test payloads into the live settings. On a fresh install this showed up as Brand Name = "1", Cancellation Deadline = 1, Payment Deadline = 1, and other Text / Email / URL fields set to "1". Root cause: the diagnostic harness flipped empty strings to "1" to force a "changed" save, fed that through the real sanitizer (which rewrites every field of the targeted tab, not just the tested keys), and then restored only the keys explicitly under test. Collateral writes to other tab fields survived. **Fix:** the harness now snapshots and restores the entire `mhm_rentiva_settings` option so the test is truly read-only, and a one-time migration (`migrate_clean_test_pollution`) clears the `"1"` / `"0"` pollution fingerprint from Text / Email / URL / currency fields on upgrade. Numeric and user custom values are left alone.
