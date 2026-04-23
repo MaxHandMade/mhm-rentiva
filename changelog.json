@@ -1,5 +1,15 @@
 [
     {
+        "version": "4.27.1",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "Fix (i18n hotfix): Vehicle Settings admin page was showing stale (often Turkish) labels on sites whose locale had changed or whose database had been restored from a different-locale site. Legacy builds persisted translated field labels into wp_options, where they outranked live __() calls on every render. Auto-save removed; a one-time migration clears the leaked mhm_vehicle_details, mhm_vehicle_features, and mhm_vehicle_equipment entries so rendering falls back to the canonical English-source → current-locale path. User-added custom fields (Add Custom) untouched; 'Edit Names' overrides on built-in defaults must be re-applied once after upgrade.",
+            "Tests: four regression tests in tests/Migration/LocaleLeakLabelsMigrationTest.php covering persisted-label cleanup, idempotency after a legitimate rename, fresh-install flag seeding, and custom-field preservation."
+        ],
+        "notice": "v4.27.1 — i18n hotfix: Vehicle Settings labels no longer stick in the language of the first install."
+    },
+    {
         "version": "4.27.0",
         "date": "2026-04-23",
         "type": "minor",

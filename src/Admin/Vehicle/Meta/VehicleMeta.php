@@ -433,6 +433,46 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * One-time migration introduced in v4.27.1.
+	 *
+	 * Earlier builds persisted the output of {@see self::get_default_details()},
+	 * {@see self::get_default_features()}, and {@see self::get_default_equipment()}
+	 * — arrays of {@see __()} strings — into the `mhm_vehicle_{details,features,
+	 * equipment}` options on first admin load. The saved translations then took
+	 * precedence over live `__()` calls on every later render, so a site whose
+	 * locale changed (or whose database was restored from a different-locale
+	 * site) would show stale labels in the Vehicle Settings UI.
+	 *
+	 * This migration clears those three options so the canonical rendering path
+	 * (English source → current-locale translation from the .mo/.l10n.php file
+	 * → optional user override) works as intended. User custom fields live in
+	 * `mhm_custom_{details,features,equipment}` and are untouched.
+	 *
+	 * A user who had manually renamed a built-in default (e.g. "Daily Price" →
+	 * "Rental Rate") via the "Edit Names" control will need to re-apply that
+	 * rename once. The trade-off is acceptable because those overrides are rare
+	 * while the locale-leakage bug affected every install.
+	 *
+	 * Idempotent via the `mhm_rentiva_v4271_labels_migrated` flag option.
+	 */
+	public static function migrate_remove_auto_populated_labels(): void
+	{
+		$flag = 'mhm_rentiva_v4271_labels_migrated';
+		if (get_option($flag)) {
+			return;
+		}
+
+		foreach (array( 'mhm_vehicle_details', 'mhm_vehicle_features', 'mhm_vehicle_equipment' ) as $option_key) {
+			$stored = get_option($option_key, null);
+			if (is_array($stored) && ! empty($stored)) {
+				delete_option($option_key);
+			}
+		}
+
+		update_option($flag, '1', true);
+	}
+
+	/**
 	 * Default details
 	 */
 	private static function get_default_details(): array
@@ -1125,24 +1165,32 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Check and update default options
+	 * Check and update default options.
+	 *
+	 * IMPORTANT — i18n correctness: we must NOT persist the result of
+	 * {@see self::get_default_details()} etc. into wp_options, because those
+	 * arrays contain {@see __()} output that is resolved against the current
+	 * site locale. Persisting them freezes the translation into the database,
+	 * which then wins over live `__()` calls on later page loads after a
+	 * locale switch, a language-pack update, or a cross-locale DB restore.
+	 *
+	 * Canonical rule:
+	 *   - `mhm_vehicle_{details,features,equipment}` holds ONLY user-renamed
+	 *     overrides (Edit Names + Add Custom on the Vehicle Settings page).
+	 *   - The full list of labels is composed at render time by
+	 *     {@see VehicleSettings::get_all_available_*()}, which already starts
+	 *     from `get_default_*()` and overlays the stored overrides on top.
+	 *
+	 * What this method still guarantees:
+	 *   - `mhm_selected_{details,features,equipment}` is seeded on fresh
+	 *     installs with all keys enabled (these arrays are plain KEY lists, no
+	 *     translatable strings — safe to persist).
 	 */
 	private static function ensure_default_options(array &$available_details, array &$available_features, array &$available_equipment): void
 	{
 		$default_details   = self::get_default_details();
 		$default_features  = self::get_default_features();
 		$default_equipment = self::get_default_equipment();
-
-		// Ensure core option sets exist (fresh installs may not have them yet)
-		if (get_option('mhm_vehicle_details', array()) === array()) {
-			update_option('mhm_vehicle_details', $default_details);
-		}
-		if (get_option('mhm_vehicle_features', array()) === array()) {
-			update_option('mhm_vehicle_features', $default_features);
-		}
-		if (get_option('mhm_vehicle_equipment', array()) === array()) {
-			update_option('mhm_vehicle_equipment', $default_equipment);
-		}
 
 		// Ensure selected keys are populated; otherwise fall back to defaults
 		$selected_details = (array) get_option('mhm_selected_details', array());
