@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.26.7
+Stable tag:        4.27.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,19 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.27.0 =
+* **Release readiness:** WordPress.org submission pass — the entire release-scope codebase (plugin bootstrap, `src/`, `templates/`, block entry points) is now zero-error, zero-warning under the project's strict PHPCS ruleset, and zero-error under Plugin Check (PCP) with only three trivial "unexpected markdown file" warnings that the release ZIP already excludes.
+* **Fix:** Turkish Lira currency normalization no longer silently overwrote two `"TRY"` alias entries in `CurrencyHelper`; duplicate array keys removed.
+* **Fix:** Search Results localization had a duplicate `error` entry — the longer "An error occurred, please try again" message was being overwritten by a shorter label. The redundant key is gone.
+* **Fix:** WooCommerce cart bridge no longer contains an unreachable duplicate `return;` after the `wc_get_order` failure check.
+* **Fix:** Cron maintenance sweeps (`AutoCancel`, `AutoComplete`) no longer swallow per-booking exceptions silently — failures are now logged via `error_log` while the sweep continues processing the remaining queue.
+* **i18n:** Added 24 missing `translators:` comments above `sprintf`/`_n`/`__` calls containing placeholders — translators now have context for every dynamic string in the admin panel, vendor dashboard, and vehicle lifecycle messages.
+* **i18n:** Added strict types declaration to two block-folder placeholder files.
+* **Build:** `json_encode()` replaced with `wp_json_encode()` across CLI commands, REST helpers, reports, exports, notifications, and GDPR tooling.
+* **Build:** Added `phpcompatibility/phpcompatibility-wp` as a dev dependency and re-enabled the `PHPCompatibilityWP` ruleset with `testVersion=8.1-` to match the `Requires PHP` header.
+* **Build:** Added `phpcs:release` / `phpcbf:release` / `plugin-check:release` composer scripts for reproducible release validation.
+* **Build:** Excluded local `*fixer*.php` dev tools and the `.worktrees/` folder from the release ZIP via `.distignore`.
 
 = 4.26.7 =
 * **Chore:** All product and support URLs migrated from maxhandmade.com to wpalemi.com.
