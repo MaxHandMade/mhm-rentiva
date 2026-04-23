@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.27.0",
+        "date": "2026-04-23",
+        "type": "minor",
+        "changes": [
+            "🎯 YAYIN HAZIRLIĞI: Eklentinin tüm dağıtılan kod alanı (bootstrap dosyası, src/, templates/, block giriş dosyaları) artık katı PHPCS kuralında sıfır hata - sıfır uyarı ve Plugin Check (PCP) karşısında sıfır hata seviyesinde. PHPUnit sonuçları 728/728 - sıfır regresyon.",
+            "🔧 DÜZELTME: Türk Lirası para birimi normalizasyonunda CurrencyHelper içinde sessizce birbirini ezen iki yinelenen 'TRY' takma adı girdisi vardı; kaldırıldı.",
+            "🔧 DÜZELTME: Arama Sonuçları yerelleştirmesinde yinelenen 'error' anahtarı vardı — uzun 'Bir hata oluştu, lütfen tekrar deneyin' mesajı kısa bir etiket tarafından üzerine yazılıyordu. Yinelenen kaldırıldı.",
+            "🔧 DÜZELTME: WooCommerce sepet köprüsünde wc_get_order başarısızlık kontrolünden sonra erişilemeyen yinelenen 'return;' ifadesi kaldırıldı.",
+            "🔧 DÜZELTME: Cron bakım taramaları (AutoCancel, AutoComplete) artık rezervasyon başına istisnaları sessizce yutmuyor — hatalar error_log üzerinden kaydediliyor, tarama kalan kuyruğu işlemeye devam ediyor.",
+            "🌍 i18n: Admin paneli, bayi paneli ve araç yaşam döngüsü mesajlarındaki yer tutucu içeren 24 adet sprintf / _n / __ çağrısına 'translators:' açıklama satırları eklendi.",
+            "🌍 i18n: İki block klasörü placeholder dosyasına strict types tanımlaması eklendi.",
+            "🏗️ ALTYAPI: CLI komutları, REST yardımcıları, raporlar, dışa aktarmalar, bildirimler ve GDPR araçlarında json_encode() wp_json_encode() ile değiştirildi.",
+            "🏗️ ALTYAPI: phpcompatibility/phpcompatibility-wp geliştirme bağımlılığı olarak eklendi ve PHPCompatibilityWP kuralı testVersion=8.1- ile yeniden etkinleştirildi (eklentinin 'Requires PHP: 8.1' başlığıyla eşleşiyor).",
+            "🏗️ ALTYAPI: phpcs:release / phpcbf:release / plugin-check:release composer script'leri eklendi — tekrar edilebilir yayın doğrulaması için.",
+            "🏗️ ALTYAPI: Yerel *fixer*.php geliştirici araçları ve .worktrees/ klasörü .distignore üzerinden yayın ZIP'inden dışlandı."
+        ],
+        "notice": "v4.27.0 — WordPress.org gönderimine hazırlık: sıfır PHPCS hatası, sıfır PCP hatası, gerçek defekt temizliği (para birimi takma adı, i18n yinelenen anahtar, cron tarama günlüğü, eksik çevirmen açıklamaları)."
+    },
+    {
         "version": "4.26.7",
         "date": "2026-04-20",
         "type": "patch",
