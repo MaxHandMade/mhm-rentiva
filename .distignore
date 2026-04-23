@@ -52,6 +52,13 @@ generate-clean-pot.php
 update-pot-ultimate.php
 debug_schema.php
 
+# Local dev-only fixers (already gitignored via *fixer*.php in .gitignore)
+*Fixer*.php
+*fixer*.php
+
+# Git worktrees folder — isolated branch checkouts for local dev only
+.worktrees/
+
 # Configs
 phpcs.xml
 phpcs.xml.dist
