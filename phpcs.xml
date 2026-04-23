@@ -97,12 +97,13 @@
 		</properties>
 	</rule>
 
-	<!-- 
+	<!--
     =============================================================================
-    PHP COMPATIBILITY (REMOVED - Not installed in env)
+    PHP COMPATIBILITY
     =============================================================================
+    Plugin header declares "Requires PHP: 8.1" so we test the 8.1+ range.
     -->
-	<!-- <rule ref="PHPCompatibility"/> -->
-	<!-- <config name="testVersion" value="7.4-"/> -->
+	<config name="testVersion" value="8.1-"/>
+	<rule ref="PHPCompatibilityWP"/>
 
 </ruleset>
