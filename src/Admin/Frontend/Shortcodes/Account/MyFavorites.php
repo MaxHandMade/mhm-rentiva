@@ -19,8 +19,8 @@ use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
  * Displays the current user's favorite vehicles.
  * [rentiva_my_favorites]
  */
-class MyFavorites extends AbstractShortcode
-{
+class MyFavorites extends AbstractShortcode {
+
 
 	public const SHORTCODE = 'rentiva_my_favorites';
 
@@ -38,22 +38,22 @@ class MyFavorites extends AbstractShortcode
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'             => '12',
-			'columns'           => '3',
-			'orderby'           => 'date',
-			'order'             => 'DESC',
-			'show_image'        => '1',
-			'show_title'        => '1',
-			'show_price'        => '1',
-			'show_features'     => '1',
-			'show_rating'       => '1',
+			'limit'                => '12',
+			'columns'              => '3',
+			'orderby'              => 'date',
+			'order'                => 'DESC',
+			'show_image'           => '1',
+			'show_title'           => '1',
+			'show_price'           => '1',
+			'show_features'        => '1',
+			'show_rating'          => '1',
 			'show_booking_button'  => '1',
 			'show_favorite_button' => '1',
-			'show_badges'       => '1',
-			'layout'            => 'grid',
-			'show_remove_button' => '1',
-			'show_added_date'    => '0',
-			'no_results_text'    => __('You have no favorite vehicles yet.', 'mhm-rentiva'),
+			'show_badges'          => '1',
+			'layout'               => 'grid',
+			'show_remove_button'   => '1',
+			'show_added_date'      => '0',
+			'no_results_text'      => __('You have no favorite vehicles yet.', 'mhm-rentiva'),
 		);
 	}
 
@@ -66,14 +66,12 @@ class MyFavorites extends AbstractShortcode
 
 		$vehicles = array();
 
-		if (empty($favorite_ids)) {
-			// No favorites
-		} else {
+		if (! empty($favorite_ids)) {
 			// 2. Query Vehicles
 			$args = array(
 				'post_type'      => PT_Vehicle::POST_TYPE,
 				'post_status'    => 'publish',
-				'posts_per_page' => (int) ($atts['limit'] ?? 12),
+				'posts_per_page' => (int) ( $atts['limit'] ?? 12 ),
 				'post__in'       => $favorite_ids,
 				'orderby'        => 'post__in', // Keep order or use atts?
 			);
@@ -96,7 +94,7 @@ class MyFavorites extends AbstractShortcode
 			}
 		}
 
-		$layout_class = (($atts['layout'] ?? 'grid') === 'masonry') ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
+		$layout_class = ( ( $atts['layout'] ?? 'grid' ) === 'masonry' ) ? 'rv-vehicles-masonry' : 'rv-vehicles-grid';
 
 		// Override 'no_vehicles' message if needed via template logic or pass it specifically
 		// But vehicles-grid.php usually has generic "No vehicles found".
@@ -109,24 +107,24 @@ class MyFavorites extends AbstractShortcode
 			'total_vehicles'  => count($vehicles),
 			'has_vehicles'    => ! empty($vehicles),
 			'layout_class'    => $layout_class,
-			'columns_class'   => $layout_class . '--columns-' . ($atts['columns'] ?? 3),
-			'wrapper_class'   => 'mhm-my-favorites-container rv-my-favorites-wrapper ' . ($atts['class'] ?? ''),
+			'columns_class'   => $layout_class . '--columns-' . ( $atts['columns'] ?? 3 ),
+			'wrapper_class'   => 'mhm-my-favorites-container rv-my-favorites-wrapper ' . ( $atts['class'] ?? '' ),
 			'no_results_text' => $atts['no_results_text'] ?? __('You have no favorite vehicles yet.', 'mhm-rentiva'),
 		);
 	}
 
 	protected static function get_css_files(array $atts = array()): array
 	{
-		return array('assets/css/frontend/vehicles-grid.css');
+		return array( 'assets/css/frontend/vehicles-grid.css' );
 	}
 
 	protected static function get_js_files(array $atts = array()): array
 	{
-		return array('assets/js/frontend/vehicles-grid.js');
+		return array( 'assets/js/frontend/vehicles-grid.js' );
 	}
 
 	protected static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-vehicle-interactions');
+		return array( 'jquery', 'mhm-vehicle-interactions' );
 	}
 }
