@@ -225,10 +225,13 @@ final class LicenseManager {
 		$resp = $this->request(
 			'/licenses/activate',
 			array(
-				'license_key' => $key,
-				'site_hash'   => $this->siteHash(),
-				'site_url'    => home_url(),
-				'is_staging'  => $this->isStaging(),
+				'license_key'  => $key,
+				'site_hash'    => $this->siteHash(),
+				'site_url'     => home_url(),
+				'is_staging'   => $this->isStaging(),
+				// Identifies this plugin to mhm-license-server v1.8.0+ which
+				// enforces per-product license binding server-side.
+				'product_slug' => 'mhm-rentiva',
 			)
 		);
 		if (is_wp_error($resp)) {
@@ -305,8 +308,9 @@ final class LicenseManager {
 		$resp = $this->request(
 			'/licenses/validate',
 			array(
-				'license_key' => $key,
-				'site_hash'   => $this->siteHash(),
+				'license_key'  => $key,
+				'site_hash'    => $this->siteHash(),
+				'product_slug' => 'mhm-rentiva',
 			)
 		);
 		if (is_wp_error($resp)) {

@@ -416,7 +416,14 @@ final class Plugin {
 		add_action('wp_ajax_mhm_delete_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_delete_api_key' ));
 		add_action('wp_ajax_mhm_list_endpoints', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_endpoints' ));
 
-		// Add Documentation button to standard WP pages
+		// Add Documentation button to standard WP list screens that don't ship
+		// their own custom header.
+		//
+		// `vehicle_addon` is intentionally excluded: its AddonMenu screen renders
+		// a custom `render_admin_header()` that already exposes a Documentation
+		// button (plus the Add New CTA). Keeping it in this list produced two
+		// Documentation buttons on the Additional Services page — one from the
+		// header, one floated right by this hook.
 		add_action(
 			'all_admin_notices',
 			function () {
@@ -428,7 +435,6 @@ final class Plugin {
 				$mhm_pages = array(
 					'vehicle',
 					'vehicle_booking',
-					'vehicle_addon',
 				);
 
 				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {

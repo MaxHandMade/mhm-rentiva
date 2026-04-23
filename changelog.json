@@ -1,5 +1,15 @@
 [
     {
+        "version": "4.27.5",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "Security: License client participates in per-product license binding introduced by mhm-license-server v1.8.0+. Requires the matching server version.",
+            "UI: The Additional Services list screen rendered two Documentation buttons. Root cause: the custom AddonMenu header already exposes a Documentation button, while a global Plugin.php all_admin_notices hook was also float-right'ing a docs link on every plugin post-type list (vehicle, vehicle_booking, vehicle_addon). vehicle_addon removed from the global hook list; the custom header button is the single source now."
+        ],
+        "notice": "v4.27.5 — licensing compatibility with server v1.8.0 + Additional Services duplicate Documentation button fix."
+    },
+    {
         "version": "4.27.4",
         "date": "2026-04-23",
         "type": "patch",
