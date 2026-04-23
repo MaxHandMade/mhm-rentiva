@@ -1,0 +1,12 @@
+FILE: .github
+[{"line":0,"column":0,"type":"WARNING","code":"github_directory","message":"GitHub workflow directory \".github\" detected. This directory should not be included in production plugins.","docs":""}]
+
+FILE: README-tr.md
+[{"line":0,"column":0,"type":"WARNING","code":"unexpected_markdown_file","message":"Unexpected markdown file \"README-tr.md\" detected in plugin root. Only specific markdown files are expected in production plugins.","docs":""}]
+
+FILE: SHORTCODES.md
+[{"line":0,"column":0,"type":"WARNING","code":"unexpected_markdown_file","message":"Unexpected markdown file \"SHORTCODES.md\" detected in plugin root. Only specific markdown files are expected in production plugins.","docs":""}]
+
+FILE: mhm-rentiva.php
+[{"line":0,"column":0,"type":"WARNING","code":"textdomain_mismatch","message":"The \"Text Domain\" header in the plugin file does not match the slug. Found \"mhm-rentiva\", expected \"mhm-rentiva-wpcs\".","docs":"https:\/\/developer.wordpress.org\/plugins\/internationalization\/how-to-internationalize-your-plugin\/"},{"line":0,"column":0,"type":"WARNING","code":"trademarked_term","message":"The plugin slug includes a restricted term. Your plugin slug - \"mhm-rentiva-wpcs\" - contains the restricted term \"wp\" which cannot be used at all in your plugin slug.","docs":""}]
+
