@@ -19,8 +19,8 @@ use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 /**
  * Native user dashboard shortcode for the Panel page.
  */
-final class UserDashboard
-{
+final class UserDashboard {
+
 	/**
 	 * Register hooks required by the dashboard shortcode.
 	 */
@@ -28,9 +28,9 @@ final class UserDashboard
 	{
 		MetricCacheManager::boot();
 		\MHMRentiva\Core\Dashboard\AnalyticsController::register();
-		add_action('template_redirect', array(self::class, 'guard_panel_access'));
-		add_action('wp_enqueue_scripts', array(self::class, 'enqueue_assets'));
-		add_filter('body_class', array(self::class, 'add_body_class'));
+		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
+		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		add_filter('body_class', array( self::class, 'add_body_class' ));
 	}
 
 	/**
@@ -40,6 +40,8 @@ final class UserDashboard
 	 */
 	public static function render(array $atts = array()): string
 	{
+		unset($atts);
+
 		$type = DashboardContext::resolve();
 
 		if ('guest' === $type) {
@@ -47,7 +49,7 @@ final class UserDashboard
 		}
 
 		$current_user = wp_get_current_user();
-		$data = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
+		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
 		if ('vendor' === $type) {
 			return VendorDashboard::render($data);
@@ -121,16 +123,16 @@ final class UserDashboard
 	 */
 	private static function build_template_data(string $context, int $user_id, string $user_email): array
 	{
-		$active_tab   = self::resolve_tab();
-		$dashboard_url = self::get_dashboard_url();
-		$current_user = wp_get_current_user();
+		$active_tab     = self::resolve_tab();
+		$dashboard_url  = self::get_dashboard_url();
+		$current_user   = wp_get_current_user();
 		$dashboard_data = DashboardDataProvider::build($context, $user_id, $user_email);
 
 		$base_data = array(
-			'context'                => $context,
-			'active_tab'             => $active_tab,
-			'dashboard_url'          => $dashboard_url,
-			'user'                   => $current_user,
+			'context'       => $context,
+			'active_tab'    => $active_tab,
+			'dashboard_url' => $dashboard_url,
+			'user'          => $current_user,
 		);
 
 		return array_merge($base_data, $dashboard_data);
@@ -141,11 +143,11 @@ final class UserDashboard
 	 */
 	private static function resolve_tab(): string
 	{
-		$requested_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash((string) $_GET['tab'])) : 'overview'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab state.
-		$context = DashboardContext::resolve();
-		$allowed_tabs = array_keys(DashboardNavigation::get_items($context));
+		$requested_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash( (string) $_GET['tab'])) : 'overview'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab state.
+		$context       = DashboardContext::resolve();
+		$allowed_tabs  = array_keys(DashboardNavigation::get_items($context));
 		if ($allowed_tabs === array()) {
-			$allowed_tabs = array('overview');
+			$allowed_tabs = array( 'overview' );
 		}
 		if (! in_array($requested_tab, $allowed_tabs, true)) {
 			$requested_tab = 'overview';
@@ -197,7 +199,7 @@ final class UserDashboard
 		wp_enqueue_style(
 			'mhm-rentiva-user-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
-			array('flatpickr'),
+			array( 'flatpickr' ),
 			MHM_RENTIVA_VERSION
 		);
 
@@ -208,6 +210,7 @@ final class UserDashboard
 			MHM_RENTIVA_VERSION
 		);
 
+		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
 		wp_enqueue_style('select2', null); // WC registers this
 		wp_enqueue_script('selectWoo');     // WC registers this
 
@@ -222,7 +225,7 @@ final class UserDashboard
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			array('flatpickr', 'jquery'),
+			array( 'flatpickr', 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
@@ -232,10 +235,10 @@ final class UserDashboard
 			'nonce'          => wp_create_nonce('mhm_rentiva_vendor_nonce'),
 			'lifecycleNonce' => wp_create_nonce('mhm_rentiva_vehicle_lifecycle'),
 			'i18n'           => array(
-				'loading'        => __('Loading...', 'mhm-rentiva'),
-				'error'          => __('Error fetching analytics data.', 'mhm-rentiva'),
+				'loading'         => __('Loading...', 'mhm-rentiva'),
+				'error'           => __('Error fetching analytics data.', 'mhm-rentiva'),
 				'confirmWithdraw' => __('Are you sure you want to withdraw this vehicle? A penalty may apply.', 'mhm-rentiva'),
-				'confirmRelist'  => __('Relist this vehicle for operator review?', 'mhm-rentiva'),
+				'confirmRelist'   => __('Relist this vehicle for operator review?', 'mhm-rentiva'),
 			),
 		));
 	}
