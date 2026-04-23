@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.27.1
+Stable tag:        4.27.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,12 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.27.2 =
+* **Fix (critical, fresh install):** Running the Settings → Settings Testing "Run All Diagnostics" page even once could leak test payloads into the live settings. On a fresh install this showed up as Brand Name = "1", Cancellation Deadline = 1, Payment Deadline = 1, and other Text / Email / URL fields set to "1". Root cause: the diagnostic harness flipped empty strings to "1" to force a "changed" save, fed that through the real sanitizer (which rewrites every field of the targeted tab, not just the tested keys), and then restored only the keys explicitly under test. Collateral writes to other tab fields survived. **Fix:** the harness now snapshots and restores the entire `mhm_rentiva_settings` option so the test is truly read-only, and a one-time migration (`migrate_clean_test_pollution`) clears the `"1"` / `"0"` pollution fingerprint from Text / Email / URL / currency fields on upgrade. Numeric and user custom values are left alone.
+* **Fix:** The Additional Services admin page rendered the Lite-tier limit notice twice — once above the stats cards and once below — because it was emitted inside a nested `<div class="wrap">` that confused WordPress's core notice-relocator JS. The notice is now emitted by a dedicated `admin_notices` callback at priority 20, so WordPress places it exactly once.
+* **Fix:** Settings Testing "Defaults Set" check no longer flags phantom settings that were never registered anywhere (`mhm_rentiva_timezone`, `mhm_rentiva_db_auto_optimize`, `mhm_rentiva_wp_optimization_enabled`, `mhm_rentiva_my_account_url`). Cascading "Email Address Valid" / "Email Validation Works" failures caused by the underlying pollution also clear once the migration runs.
+* **Tests:** Five regression tests in `tests/Migration/SettingsTestPollutionMigrationTest.php` — pollution removal on text/email/URL/currency, preservation of legitimate user values, numeric fields untouched, idempotency across legitimate post-migration edits, fresh-install flag seeding.
 
 = 4.27.1 =
 * **Fix (i18n hotfix):** Vehicle Settings admin page was showing stale (often Turkish) labels on sites whose locale had changed or whose database had been restored from a different-locale site. Legacy builds persisted translated field labels into `wp_options`, where they then outranked live `__()` calls on every render. This release stops the auto-save and ships a one-time migration that clears the leaked `mhm_vehicle_details`, `mhm_vehicle_features`, and `mhm_vehicle_equipment` entries so rendering falls back to the canonical English-source → current-locale translation path. User custom fields (Add Custom) are untouched; if you renamed a built-in default via "Edit Names" you will need to re-apply that rename once. Added four regression tests.

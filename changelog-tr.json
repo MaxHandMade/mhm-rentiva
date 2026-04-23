@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.27.2",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME (kritik, taze kurulum): Ayarlar → Settings Testing sayfasında 'Run All Diagnostics' butonuna bir kez basmak bile test değerlerini canlı ayarlara sızdırıyordu. Taze kurulumlarda Marka Adı = '1', İptal Süresi = 1, Ödeme Süresi = 1 şeklinde görünüyordu ve diğer Metin/E-posta/URL alanları '1'e dönüşüyordu. Kök neden: diagnostic harness, 'değişiklik algılanmış save' tetiklemek için boş stringleri '1'e çeviriyor, bunu gerçek sanitizer'a veriyordu (sanitizer hedef sekmedeki TÜM alanları yeniden yazıyor, sadece test edilen keyleri değil), sonra SADECE test edilen keyleri eski haline getiriyordu. Diğer tab alanlarındaki collateral yazımlar DB'de kalıyordu. Düzeltme: harness artık mhm_rentiva_settings option'ının TAMAMINI snapshot alıp tamamını geri yüklüyor; upgrade sırasında migrate_clean_test_pollution tek seferlik migrasyon '1'/'0' kirlilik imzasını Metin/E-posta/URL/Para birimi alanlarından temizliyor.",
+            "🔧 DÜZELTME: Ek Hizmetler admin sayfası Lite limit uyarısını iki kez gösteriyordu — stats kartlarının üstünde ve altında. Sebep: notice, iç içe geçmiş <div class='wrap'> bloğunun içinde emit ediliyor, WordPress core notice-relocator JS'i kafa karıştırıyordu. Notice artık admin_notices'a priority 20'li ayrı bir callback ile kayıtlı; WordPress tam olarak bir kez yerleştiriyor.",
+            "🔧 DÜZELTME: Settings Testing 'Defaults Set' kontrolü artık hiçbir yerde kayıtlı olmayan phantom ayarları (mhm_rentiva_timezone, mhm_rentiva_db_auto_optimize, mhm_rentiva_wp_optimization_enabled, mhm_rentiva_my_account_url) bayraklamıyor. Altta yatan kirlilik migrasyonu çalıştıktan sonra Email Address Valid ve Email Validation Works FAIL'leri de kendiliğinden geçer.",
+            "🧪 TEST: tests/Migration/SettingsTestPollutionMigrationTest.php içinde 5 regresyon testi — metin/e-posta/URL/para birimi temizleme, meşru kullanıcı değeri koruma, sayısal alanlara dokunmama, meşru post-migration düzenleme sonrası idempotency, taze kurulum flag seeding."
+        ],
+        "notice": "v4.27.2 — kritik taze-kurulum hotfix: Settings Testing artık canlı ayarları '1' değerleriyle kirletmiyor; ikinci ekstra hizmet limit uyarısı kaldırıldı."
+    },
+    {
         "version": "4.27.1",
         "date": "2026-04-23",
         "type": "patch",
