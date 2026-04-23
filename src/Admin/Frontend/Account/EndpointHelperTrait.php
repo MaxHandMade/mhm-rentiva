@@ -83,7 +83,7 @@ trait EndpointHelperTrait {
 			return sanitize_title( $fallback_default ?? $key );
 		}
 
-		$default = $fallback_default ?: $config['default'];
+		$default = ! empty($fallback_default) ? $fallback_default : $config['default'];
 
 		// 2. PRIORITY: Physical Page
 		if ( ! empty( $config['shortcode'] ) && class_exists( \MHMRentiva\Admin\Core\ShortcodeUrlManager::class ) ) {
