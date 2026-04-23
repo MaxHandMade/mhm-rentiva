@@ -622,7 +622,7 @@ final class SettingsTester {
 		$all_settings    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
 		$original_values = array();
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test harness captures/restores raw globals to simulate form submissions.
-		$original_post   = $_POST ?? array();
+		$original_post = $_POST ?? array();
 
 		// Store original values from main settings array
 		foreach ( $settings as $key => $value ) {
@@ -940,17 +940,17 @@ final class SettingsTester {
 	 */
 	private static function get_category_label( string $category ): string {
 		$labels = array(
-			'general'         => __( 'General', 'mhm-rentiva' ),
-			'vehicle'         => __( 'Vehicle', 'mhm-rentiva' ),
-			'booking'         => __( 'Booking', 'mhm-rentiva' ),
-			'customer'        => __( 'Customer', 'mhm-rentiva' ),
-			'payment'         => __( 'Payment', 'mhm-rentiva' ),
-			'email'           => __( 'Email', 'mhm-rentiva' ),
-			'system'          => __( 'System', 'mhm-rentiva' ),
-			'frontend'        => __( 'Frontend', 'mhm-rentiva' ),
-			'notification'    => __( 'Notification', 'mhm-rentiva' ),
-			'security'        => __( 'Security', 'mhm-rentiva' ),
-			'transfer'        => __( 'Transfer', 'mhm-rentiva' ),
+			'general'                         => __( 'General', 'mhm-rentiva' ),
+			'vehicle'                         => __( 'Vehicle', 'mhm-rentiva' ),
+			'booking'                         => __( 'Booking', 'mhm-rentiva' ),
+			'customer'                        => __( 'Customer', 'mhm-rentiva' ),
+			'payment'                         => __( 'Payment', 'mhm-rentiva' ),
+			'email'                           => __( 'Email', 'mhm-rentiva' ),
+			'system'                          => __( 'System', 'mhm-rentiva' ),
+			'frontend'                        => __( 'Frontend', 'mhm-rentiva' ),
+			'notification'                    => __( 'Notification', 'mhm-rentiva' ),
+			'security'                        => __( 'Security', 'mhm-rentiva' ),
+			'transfer'                        => __( 'Transfer', 'mhm-rentiva' ),
 			'dark_mode'                       => __( 'Dark mode', 'mhm-rentiva' ),
 			'rate_limiting'                   => __( 'Rate limiting', 'mhm-rentiva' ),
 			'form_validation'                 => __( 'Form validation', 'mhm-rentiva' ),

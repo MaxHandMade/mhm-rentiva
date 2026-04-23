@@ -14,8 +14,8 @@ use MHMRentiva\Core\Financial\Ledger;
 /**
  * Executes historical dashboard revenue aggregations referencing immutable Ledger ledgers.
  */
-final class Revenue7dMetric implements MetricInterface
-{
+final class Revenue7dMetric implements MetricInterface {
+
 	public function key(): string
 	{
 		return 'revenue_7d';

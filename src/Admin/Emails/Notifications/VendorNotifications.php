@@ -21,8 +21,8 @@ use MHMRentiva\Admin\Licensing\Mode;
  *
  * @since 4.22.0
  */
-final class VendorNotifications
-{
+final class VendorNotifications {
+
 
 	/**
 	 * Register hooks and extend the email registry.
@@ -33,31 +33,31 @@ final class VendorNotifications
 			return;
 		}
 
-		add_filter('mhm_rentiva_email_registry', array(self::class, 'add_templates'));
+		add_filter('mhm_rentiva_email_registry', array( self::class, 'add_templates' ));
 
-		add_action('mhm_rentiva_vendor_approved', array(self::class, 'on_vendor_approved'), 10, 2);
-		add_action('mhm_rentiva_vendor_rejected', array(self::class, 'on_vendor_rejected'), 10, 3);
-		add_action('mhm_rentiva_vehicle_approved', array(self::class, 'on_vehicle_approved'), 10, 2);
-		add_action('mhm_rentiva_vehicle_rejected', array(self::class, 'on_vehicle_rejected'), 10, 3);
-		add_action('mhm_rentiva_vendor_application_submitted', array(self::class, 'on_application_submitted'), 10, 1);
-		add_action('mhm_rentiva_vendor_suspended', array(self::class, 'on_vendor_suspended'), 10, 1);
+		add_action('mhm_rentiva_vendor_approved', array( self::class, 'on_vendor_approved' ), 10, 2);
+		add_action('mhm_rentiva_vendor_rejected', array( self::class, 'on_vendor_rejected' ), 10, 3);
+		add_action('mhm_rentiva_vehicle_approved', array( self::class, 'on_vehicle_approved' ), 10, 2);
+		add_action('mhm_rentiva_vehicle_rejected', array( self::class, 'on_vehicle_rejected' ), 10, 3);
+		add_action('mhm_rentiva_vendor_application_submitted', array( self::class, 'on_application_submitted' ), 10, 1);
+		add_action('mhm_rentiva_vendor_suspended', array( self::class, 'on_vendor_suspended' ), 10, 1);
 
 		// Admin notifications for vendor vehicle activities
-		add_action('mhm_rentiva_vendor_vehicle_submitted', array(self::class, 'on_vehicle_submitted'), 10, 2);
-		add_action('mhm_rentiva_vehicle_needs_rereview', array(self::class, 'on_vehicle_needs_rereview'), 10, 1);
+		add_action('mhm_rentiva_vendor_vehicle_submitted', array( self::class, 'on_vehicle_submitted' ), 10, 2);
+		add_action('mhm_rentiva_vehicle_needs_rereview', array( self::class, 'on_vehicle_needs_rereview' ), 10, 1);
 
 		// Vehicle lifecycle notifications
-		add_action('mhm_rentiva_vehicle_lifecycle_changed', array(self::class, 'on_lifecycle_changed'), 10, 3);
-		add_action('mhm_rentiva_vehicle_expiry_warning_first', array(self::class, 'on_expiry_warning_first'), 10, 4);
-		add_action('mhm_rentiva_vehicle_expiry_warning_second', array(self::class, 'on_expiry_warning_second'), 10, 4);
-		add_action('mhm_rentiva_vehicle_renewed', array(self::class, 'on_vehicle_renewed'), 10, 1);
-		add_action('mhm_rentiva_vehicle_relist', array(self::class, 'on_vehicle_relisted'), 10, 2);
+		add_action('mhm_rentiva_vehicle_lifecycle_changed', array( self::class, 'on_lifecycle_changed' ), 10, 3);
+		add_action('mhm_rentiva_vehicle_expiry_warning_first', array( self::class, 'on_expiry_warning_first' ), 10, 4);
+		add_action('mhm_rentiva_vehicle_expiry_warning_second', array( self::class, 'on_expiry_warning_second' ), 10, 4);
+		add_action('mhm_rentiva_vehicle_renewed', array( self::class, 'on_vehicle_renewed' ), 10, 1);
+		add_action('mhm_rentiva_vehicle_relist', array( self::class, 'on_vehicle_relisted' ), 10, 2);
 
 		// Financial notifications
-		add_action('mhm_rentiva_payout_approved', array(self::class, 'on_payout_approved'), 10, 3);
-		add_action('mhm_rentiva_payout_rejected', array(self::class, 'on_payout_rejected'), 10, 4);
-		add_action('mhm_rentiva_iban_change_approved', array(self::class, 'on_iban_change_approved'), 10, 1);
-		add_action('mhm_rentiva_iban_change_rejected', array(self::class, 'on_iban_change_rejected'), 10, 1);
+		add_action('mhm_rentiva_payout_approved', array( self::class, 'on_payout_approved' ), 10, 3);
+		add_action('mhm_rentiva_payout_rejected', array( self::class, 'on_payout_rejected' ), 10, 4);
+		add_action('mhm_rentiva_iban_change_approved', array( self::class, 'on_iban_change_approved' ), 10, 1);
+		add_action('mhm_rentiva_iban_change_rejected', array( self::class, 'on_iban_change_rejected' ), 10, 1);
 	}
 
 	/**
@@ -68,15 +68,15 @@ final class VendorNotifications
 	 */
 	public static function add_templates(array $registry): array
 	{
-		$registry['vendor_approved'] = array(
+		$registry['vendor_approved']              = array(
 			'subject' => __('Welcome! Your vendor account is approved — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-approved',
 		);
-		$registry['vendor_rejected'] = array(
+		$registry['vendor_rejected']              = array(
 			'subject' => __('Your vendor application — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-rejected',
 		);
-		$registry['vendor_application_received'] = array(
+		$registry['vendor_application_received']  = array(
 			'subject' => __('We received your application — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-application-received',
 		);
@@ -84,65 +84,65 @@ final class VendorNotifications
 			'subject' => __('[Admin] New vendor application from {{vendor.name}} — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-application-new-admin',
 		);
-		$registry['vehicle_approved'] = array(
+		$registry['vehicle_approved']             = array(
 			'subject' => __('Your vehicle is live! — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-approved',
 		);
-		$registry['vehicle_rejected'] = array(
+		$registry['vehicle_rejected']             = array(
 			'subject' => __('Your vehicle listing — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-rejected',
 		);
-		$registry['payout_approved'] = array(
+		$registry['payout_approved']              = array(
 			'subject' => __('Payout approved — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'payout-approved',
 		);
-		$registry['payout_rejected'] = array(
+		$registry['payout_rejected']              = array(
 			'subject' => __('Payout request update — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'payout-rejected',
 		);
-		$registry['iban_change_approved'] = array(
+		$registry['iban_change_approved']         = array(
 			'subject' => __('IBAN change approved — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'iban-change-approved',
 		);
-		$registry['iban_change_rejected'] = array(
+		$registry['iban_change_rejected']         = array(
 			'subject' => __('IBAN change update — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'iban-change-rejected',
 		);
-		$registry['vendor_suspended'] = array(
+		$registry['vendor_suspended']             = array(
 			'subject' => __('Your vendor account has been suspended — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vendor-suspended',
 		);
-		$registry['vehicle_submitted_admin'] = array(
+		$registry['vehicle_submitted_admin']      = array(
 			'subject' => __('[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-submitted-admin',
 		);
-		$registry['vehicle_rereview_admin'] = array(
+		$registry['vehicle_rereview_admin']       = array(
 			'subject' => __('[Admin] Vehicle edited — re-review needed — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-rereview-admin',
 		);
 
 		// Vehicle Lifecycle Templates
-		$registry['vehicle_activated'] = array(
+		$registry['vehicle_activated']             = array(
 			'subject' => __('Your listing is now live! — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-activated',
 		);
-		$registry['vehicle_paused'] = array(
+		$registry['vehicle_paused']                = array(
 			'subject' => __('Vehicle paused — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-paused',
 		);
-		$registry['vehicle_resumed'] = array(
+		$registry['vehicle_resumed']               = array(
 			'subject' => __('Vehicle resumed — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-resumed',
 		);
-		$registry['vehicle_withdrawn'] = array(
+		$registry['vehicle_withdrawn']             = array(
 			'subject' => __('Vehicle withdrawn — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-withdrawn',
 		);
-		$registry['vehicle_expired'] = array(
+		$registry['vehicle_expired']               = array(
 			'subject' => __('Your listing has expired — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-expired',
 		);
-		$registry['vehicle_expiry_warning_first'] = array(
+		$registry['vehicle_expiry_warning_first']  = array(
 			'subject' => __('Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-expiry-warning',
 		);
@@ -150,11 +150,11 @@ final class VendorNotifications
 			'subject' => __('Urgent: Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-expiry-warning',
 		);
-		$registry['vehicle_renewed'] = array(
+		$registry['vehicle_renewed']               = array(
 			'subject' => __('Listing renewed — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-renewed',
 		);
-		$registry['vehicle_relisted'] = array(
+		$registry['vehicle_relisted']              = array(
 			'subject' => __('Vehicle submitted for review — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'vehicle-relisted',
 		);
@@ -215,8 +215,8 @@ final class VendorNotifications
 			return;
 		}
 
-		$ctx                          = self::build_vendor_context($user);
-		$ctx['rejection']['reason']   = $reason;
+		$ctx                        = self::build_vendor_context($user);
+		$ctx['rejection']['reason'] = $reason;
 
 		Mailer::send('vendor_rejected', $user->user_email, $ctx);
 	}
@@ -314,7 +314,7 @@ final class VendorNotifications
 	private static function format_amount(float $amount): string
 	{
 		if (function_exists('wc_price')) {
-			return wp_strip_all_tags((string) wc_price($amount));
+			return wp_strip_all_tags( (string) wc_price($amount));
 		}
 		$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₺';
 		return $symbol . number_format(abs($amount), 2, '.', ',');
@@ -337,10 +337,10 @@ final class VendorNotifications
 			return;
 		}
 
-		$vehicle     = get_post($vehicle_id);
-		$ctx         = self::build_vendor_context($user);
+		$vehicle        = get_post($vehicle_id);
+		$ctx            = self::build_vendor_context($user);
 		$ctx['vehicle'] = array(
-			'title'    => $vehicle ? (string) $vehicle->post_title : '',
+			'title'     => $vehicle ? (string) $vehicle->post_title : '',
 			'admin_url' => admin_url('post.php?post=' . $vehicle_id . '&action=edit'),
 		);
 
@@ -360,12 +360,12 @@ final class VendorNotifications
 			return;
 		}
 
-		$user = get_userdata((int) $vehicle->post_author);
+		$user = get_userdata( (int) $vehicle->post_author);
 		if (! $user) {
 			return;
 		}
 
-		$ctx         = self::build_vendor_context($user);
+		$ctx            = self::build_vendor_context($user);
 		$ctx['vehicle'] = array(
 			'title'     => (string) $vehicle->post_title,
 			'admin_url' => admin_url('post.php?post=' . $vehicle_id . '&action=edit'),
@@ -393,7 +393,7 @@ final class VendorNotifications
 			return;
 		}
 
-		$ctx = self::build_vendor_context($user);
+		$ctx           = self::build_vendor_context($user);
 		$ctx['payout'] = array(
 			'id'               => $payout_id,
 			'amount'           => $amount,
@@ -418,8 +418,8 @@ final class VendorNotifications
 			return;
 		}
 
-		$ctx = self::build_vendor_context($user);
-		$ctx['payout'] = array(
+		$ctx              = self::build_vendor_context($user);
+		$ctx['payout']    = array(
 			'id'               => $payout_id,
 			'amount'           => $amount,
 			'amount_formatted' => self::format_amount($amount),
@@ -486,7 +486,7 @@ final class VendorNotifications
 		$vehicle = get_post($vehicle_id);
 		$ctx     = self::build_vendor_context($user);
 
-		$ctx['vehicle'] = array(
+		$ctx['vehicle']   = array(
 			'title' => $vehicle ? (string) $vehicle->post_title : '',
 			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
 			'id'    => $vehicle_id,
@@ -509,23 +509,23 @@ final class VendorNotifications
 			return;
 		}
 
-		if (isset($template_map[$new_status])) {
+		if (isset($template_map[ $new_status ])) {
 			// Add penalty info for withdrawal.
 			if ($new_status === 'withdrawn') {
-				$penalty = \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+				$penalty                               = \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
 				$ctx['lifecycle']['penalty']           = $penalty;
-				$ctx['lifecycle']['penalty_formatted']  = self::format_amount($penalty);
-				$ctx['lifecycle']['cooldown_days']      = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::withdrawal_cooldown_days();
+				$ctx['lifecycle']['penalty_formatted'] = self::format_amount($penalty);
+				$ctx['lifecycle']['cooldown_days']     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::withdrawal_cooldown_days();
 			}
 
 			// Add expiry info for activation.
 			if ($new_status === 'active') {
-				$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
-				$ctx['lifecycle']['expires_at']   = $expires ?: '';
+				$expires                           = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
+				$ctx['lifecycle']['expires_at']    = $expires ?: '';
 				$ctx['lifecycle']['duration_days'] = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::listing_duration_days();
 			}
 
-			Mailer::send($template_map[$new_status], $user->user_email, $ctx);
+			Mailer::send($template_map[ $new_status ], $user->user_email, $ctx);
 		}
 	}
 
@@ -577,9 +577,9 @@ final class VendorNotifications
 			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
 		);
 
-		$expires = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
+		$expires          = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
 		$ctx['lifecycle'] = array(
-			'expires_at'   => $expires ?: '',
+			'expires_at'    => $expires ?: '',
 			'duration_days' => \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::listing_duration_days(),
 		);
 
@@ -633,7 +633,7 @@ final class VendorNotifications
 			'url'   => $vehicle ? (string) get_permalink($vehicle_id) : '',
 		);
 
-		$days_remaining = max(0, (int) ceil((strtotime($expires_at) - time()) / DAY_IN_SECONDS));
+		$days_remaining   = max(0, (int) ceil(( strtotime($expires_at) - time() ) / DAY_IN_SECONDS));
 		$ctx['lifecycle'] = array(
 			'expires_at'     => $expires_at,
 			'days_remaining' => $days_remaining,

@@ -25,8 +25,8 @@ use WP_Query;
  *
  * @since 4.24.0
  */
-final class ListingExpiryWarningJob
-{
+final class ListingExpiryWarningJob {
+
 	public const EVENT = 'mhm_rentiva_listing_expiry_warning_event';
 
 	/**
@@ -34,8 +34,8 @@ final class ListingExpiryWarningJob
 	 */
 	public static function register(): void
 	{
-		add_action('init', array(self::class, 'maybe_schedule'), 100);
-		add_action(self::EVENT, array(self::class, 'run'));
+		add_action('init', array( self::class, 'maybe_schedule' ), 100);
+		add_action(self::EVENT, array( self::class, 'run' ));
 	}
 
 	/**
@@ -144,7 +144,10 @@ final class ListingExpiryWarningJob
 		if ($warned_count > 0 && class_exists(AdvancedLogger::class)) {
 			AdvancedLogger::info(
 				"Expiry warning cron ({$days_before}-day): notified {$warned_count} vendor(s).",
-				array('threshold' => $days_before, 'count' => $warned_count),
+				array(
+					'threshold' => $days_before,
+					'count'     => $warned_count,
+				),
 				'system'
 			);
 		}

@@ -20,8 +20,8 @@ use MHMRentiva\Admin\REST\Settings\RESTSettings;
  *
  * Protects API endpoints against brute force attacks
  */
-final class RateLimiter
-{
+final class RateLimiter {
+
 
 
 	/**
@@ -30,8 +30,8 @@ final class RateLimiter
 	private static function get_rate_limits(): array
 	{
 		$settings      = RESTSettings::get_rate_limit_settings();
-		$default_limit = (int) ($settings['default_limit'] ?? 60);
-		$strict_limit  = (int) ($settings['strict_limit'] ?? 10);
+		$default_limit = (int) ( $settings['default_limit'] ?? 60 );
+		$strict_limit  = (int) ( $settings['strict_limit'] ?? 10 );
 
 		return array(
 			'general'            => array(
@@ -84,7 +84,7 @@ final class RateLimiter
 		}
 
 		$rate_limits = self::get_rate_limits();
-		$limits      = $rate_limits[$action] ?? $rate_limits['general'];
+		$limits      = $rate_limits[ $action ] ?? $rate_limits['general'];
 
 		// Check for each timeframe
 		$checks = array(
@@ -172,7 +172,7 @@ final class RateLimiter
 	public static function getStats(string $identifier, string $action = 'general'): array
 	{
 		$rate_limits = self::get_rate_limits();
-		$limits      = $rate_limits[$action] ?? $rate_limits['general'];
+		$limits      = $rate_limits[ $action ] ?? $rate_limits['general'];
 
 		return array(
 			'minute' => array(
@@ -199,7 +199,7 @@ final class RateLimiter
 	 */
 	public static function clear(string $identifier, string $action = 'general'): bool
 	{
-		$timeframes = array('minute', 'hour', 'day');
+		$timeframes = array( 'minute', 'hour', 'day' );
 		$success    = true;
 
 		foreach ($timeframes as $timeframe) {
@@ -222,7 +222,7 @@ final class RateLimiter
 	 */
 	public static function reset(string $identifier, string $action = 'general', int $duration_seconds = 3600): bool
 	{
-		$timeframes = array('minute', 'hour', 'day');
+		$timeframes = array( 'minute', 'hour', 'day' );
 		$success    = true;
 
 		foreach ($timeframes as $timeframe) {
@@ -254,10 +254,10 @@ final class RateLimiter
 		);
 
 		foreach ($ip_headers as $header) {
-			if (! empty($_SERVER[$header])) {
-				$header_value = sanitize_text_field(wp_unslash((string) $_SERVER[$header]));
+			if (! empty($_SERVER[ $header ])) {
+				$header_value = sanitize_text_field(wp_unslash( (string) $_SERVER[ $header ]));
 				$ips          = explode(',', $header_value);
-				$ip  = trim($ips[0]);
+				$ip           = trim($ips[0]);
 
 				if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
 					return $ip;
@@ -265,7 +265,7 @@ final class RateLimiter
 			}
 		}
 
-		$remote_addr = sanitize_text_field(wp_unslash((string) ($_SERVER['REMOTE_ADDR'] ?? '')));
+		$remote_addr = sanitize_text_field(wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' )));
 		return '' !== $remote_addr ? $remote_addr : '0.0.0.0';
 	}
 
@@ -311,15 +311,15 @@ final class RateLimiter
 
 		header("X-RateLimit-Limit-Minute: {$stats['minute']['limit']}");
 		header('X-RateLimit-Remaining-Minute: ' . max(0, $stats['minute']['limit'] - $stats['minute']['current']));
-		header('X-RateLimit-Reset-Minute: ' . (time() + MINUTE_IN_SECONDS));
+		header('X-RateLimit-Reset-Minute: ' . ( time() + MINUTE_IN_SECONDS ));
 
 		header("X-RateLimit-Limit-Hour: {$stats['hour']['limit']}");
 		header('X-RateLimit-Remaining-Hour: ' . max(0, $stats['hour']['limit'] - $stats['hour']['current']));
-		header('X-RateLimit-Reset-Hour: ' . (time() + HOUR_IN_SECONDS));
+		header('X-RateLimit-Reset-Hour: ' . ( time() + HOUR_IN_SECONDS ));
 
 		header("X-RateLimit-Limit-Day: {$stats['day']['limit']}");
 		header('X-RateLimit-Remaining-Day: ' . max(0, $stats['day']['limit'] - $stats['day']['current']));
-		header('X-RateLimit-Reset-Day: ' . (time() + DAY_IN_SECONDS));
+		header('X-RateLimit-Reset-Day: ' . ( time() + DAY_IN_SECONDS ));
 	}
 
 	/**
@@ -331,7 +331,7 @@ final class RateLimiter
 	public static function getConfig(string $action = 'general'): array
 	{
 		$rate_limits = self::get_rate_limits();
-		return $rate_limits[$action] ?? $rate_limits['general'];
+		return $rate_limits[ $action ] ?? $rate_limits['general'];
 	}
 
 	/**
@@ -344,7 +344,7 @@ final class RateLimiter
 	public static function updateConfig(string $action, array $config): bool
 	{
 		$rate_limits = self::get_rate_limits();
-		if (! isset($rate_limits[$action])) {
+		if (! isset($rate_limits[ $action ])) {
 			return false;
 		}
 
@@ -385,15 +385,15 @@ final class RateLimiter
 				$timeframe       = $parts[3];
 				$identifier_hash = $parts[4];
 
-				if (! isset($stats['actions'][$action])) {
-					$stats['actions'][$action] = array();
+				if (! isset($stats['actions'][ $action ])) {
+					$stats['actions'][ $action ] = array();
 				}
 
-				if (! isset($stats['actions'][$action][$timeframe])) {
-					$stats['actions'][$action][$timeframe] = 0;
+				if (! isset($stats['actions'][ $action ][ $timeframe ])) {
+					$stats['actions'][ $action ][ $timeframe ] = 0;
 				}
 
-				++$stats['actions'][$action][$timeframe];
+				++$stats['actions'][ $action ][ $timeframe ];
 			}
 		}
 

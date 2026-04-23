@@ -14,8 +14,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-interface RiskScoringEngineInterface
-{
+interface RiskScoringEngineInterface {
+
     /**
      * Calculates the risk score and level based on the provided payout context.
      *

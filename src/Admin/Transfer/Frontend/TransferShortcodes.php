@@ -273,7 +273,7 @@ final class TransferShortcodes extends AbstractShortcode {
 		$columns = isset($_POST['columns']) ? absint($_POST['columns']) : 2;
 
 		ob_start();
-		echo '<div class="mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--' . esc_attr($layout) . '" data-columns="' . esc_attr((string) $columns) . '" style="--columns: ' . esc_attr((string) $columns) . ';">';
+		echo '<div class="mhm-transfer-results-page mhm-transfer-results rv-transfer-results rv-unified-search-results rv-transfer-results--' . esc_attr($layout) . '" data-columns="' . esc_attr( (string) $columns) . '" style="--columns: ' . esc_attr( (string) $columns) . ';">';
 		echo '<div class="mhm-transfer-results__grid">';
 
 		// Display attributes: consistent with TransferResults::get_default_attributes() defaults.

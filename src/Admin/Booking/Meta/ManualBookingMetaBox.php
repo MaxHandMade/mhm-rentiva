@@ -21,8 +21,8 @@ use MHMRentiva\Admin\Booking\Core\Status;
  *
  * Admin can add booking manually
  */
-final class ManualBookingMetaBox extends AbstractMetaBox
-{
+final class ManualBookingMetaBox extends AbstractMetaBox {
+
 
 
 
@@ -35,7 +35,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field(wp_unslash((string) $value));
+		return sanitize_text_field(wp_unslash( (string) $value));
 	}
 
 	protected static function get_post_type(): string
@@ -78,17 +78,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 	public static function register(): void
 	{
 		// Show meta box only when creating new booking
-		add_action('add_meta_boxes', array(self::class, 'add_meta_boxes'));
+		add_action('add_meta_boxes', array( self::class, 'add_meta_boxes' ));
 
 		// Hide WordPress default post fields
-		add_action('add_meta_boxes', array(self::class, 'remove_default_meta_boxes'), 999);
+		add_action('add_meta_boxes', array( self::class, 'remove_default_meta_boxes' ), 999);
 
 		// Scripts ve styles
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_calculate_manual_booking', array(self::class, 'ajax_calculate_price'));
-		add_action('wp_ajax_mhm_rentiva_create_manual_booking', array(self::class, 'ajax_create_booking'));
+		add_action('wp_ajax_mhm_rentiva_calculate_manual_booking', array( self::class, 'ajax_calculate_price' ));
+		add_action('wp_ajax_mhm_rentiva_create_manual_booking', array( self::class, 'ajax_create_booking' ));
 	}
 
 	/**
@@ -150,7 +150,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		add_meta_box(
 			self::get_meta_box_id(),
 			self::get_title(),
-			array(self::class, 'render'),
+			array( self::class, 'render' ),
 			self::get_post_type(),
 			self::get_context(),
 			self::get_priority()
@@ -173,7 +173,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 			wp_enqueue_script(
 				'mhm-manual-booking-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
-				array('jquery'),
+				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -491,7 +491,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 	{
 		// Nonce check
 		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_manual_booking_nonce')) {
-			wp_send_json_error(array('message' => esc_html__('Security check failed.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -500,21 +500,21 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		}
 
 		$vehicle_id   = isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0;
-		$pickup_date  = isset($_POST['pickup_date']) ? sanitize_text_field(wp_unslash((string) $_POST['pickup_date'])) : '';
-		$pickup_time  = isset($_POST['pickup_time']) ? sanitize_text_field(wp_unslash((string) $_POST['pickup_time'])) : '';
-		$dropoff_date = isset($_POST['dropoff_date']) ? sanitize_text_field(wp_unslash((string) $_POST['dropoff_date'])) : '';
-		$dropoff_time = isset($_POST['dropoff_time']) ? sanitize_text_field(wp_unslash((string) $_POST['dropoff_time'])) : '';
-		$payment_type = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash((string) $_POST['payment_type'])) : 'deposit';
+		$pickup_date  = isset($_POST['pickup_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['pickup_date'])) : '';
+		$pickup_time  = isset($_POST['pickup_time']) ? sanitize_text_field(wp_unslash( (string) $_POST['pickup_time'])) : '';
+		$dropoff_date = isset($_POST['dropoff_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['dropoff_date'])) : '';
+		$dropoff_time = isset($_POST['dropoff_time']) ? sanitize_text_field(wp_unslash( (string) $_POST['dropoff_time'])) : '';
+		$payment_type = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_type'])) : 'deposit';
 
 		if (! $vehicle_id || ! $pickup_date || ! $dropoff_date) {
-			wp_send_json_error(array('message' => esc_html__('Required fields are missing.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Required fields are missing.', 'mhm-rentiva') ));
 		}
 
 		// Date/time parse
 		$datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (is_wp_error($datetime_result)) {
-			wp_send_json_error(array('message' => $datetime_result->get_error_message()));
+			wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
 		}
 
 		$start_ts = $datetime_result['start_ts'];
@@ -525,7 +525,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (! $availability['ok']) {
-			wp_send_json_error(array('message' => $availability['message']));
+			wp_send_json_error(array( 'message' => $availability['message'] ));
 		}
 
 		// Additional services calculation (daily)
@@ -543,7 +543,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
 
 		if (! $deposit_result['success']) {
-			wp_send_json_error(array('message' => esc_html__('Price could not be calculated.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
 		}
 
 		wp_send_json_success(
@@ -569,7 +569,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 	{
 		// Nonce check
 		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_manual_booking_nonce')) {
-			wp_send_json_error(array('message' => esc_html__('Security check failed.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
 		if ( ! current_user_can( 'edit_posts' ) ) {
@@ -579,19 +579,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
 		// Input validation
 		$vehicle_id     = isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0;
-		$customer_id    = isset($_POST['customer_id']) ? sanitize_text_field(wp_unslash((string) $_POST['customer_id'])) : '';
-		$pickup_date    = isset($_POST['pickup_date']) ? sanitize_text_field(wp_unslash((string) $_POST['pickup_date'])) : '';
-		$pickup_time    = isset($_POST['pickup_time']) ? sanitize_text_field(wp_unslash((string) $_POST['pickup_time'])) : '';
-		$dropoff_date   = isset($_POST['dropoff_date']) ? sanitize_text_field(wp_unslash((string) $_POST['dropoff_date'])) : '';
-		$dropoff_time   = isset($_POST['dropoff_time']) ? sanitize_text_field(wp_unslash((string) $_POST['dropoff_time'])) : '';
+		$customer_id    = isset($_POST['customer_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_id'])) : '';
+		$pickup_date    = isset($_POST['pickup_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['pickup_date'])) : '';
+		$pickup_time    = isset($_POST['pickup_time']) ? sanitize_text_field(wp_unslash( (string) $_POST['pickup_time'])) : '';
+		$dropoff_date   = isset($_POST['dropoff_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['dropoff_date'])) : '';
+		$dropoff_time   = isset($_POST['dropoff_time']) ? sanitize_text_field(wp_unslash( (string) $_POST['dropoff_time'])) : '';
 		$guests         = max(1, isset($_POST['guests']) ? absint(wp_unslash($_POST['guests'])) : 1);
-		$payment_type   = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash((string) $_POST['payment_type'])) : 'deposit';
-		$payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash((string) $_POST['payment_method'])) : 'woocommerce';
-		$status         = isset($_POST['status']) ? sanitize_text_field(wp_unslash((string) $_POST['status'])) : 'confirmed';
-		$notes          = isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash((string) $_POST['notes'])) : '';
+		$payment_type   = isset($_POST['payment_type']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_type'])) : 'deposit';
+		$payment_method = isset($_POST['payment_method']) ? sanitize_text_field(wp_unslash( (string) $_POST['payment_method'])) : 'woocommerce';
+		$status         = isset($_POST['status']) ? sanitize_text_field(wp_unslash( (string) $_POST['status'])) : 'confirmed';
+		$notes          = isset($_POST['notes']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['notes'])) : '';
 
 		if (! $vehicle_id || ! $customer_id || ! $pickup_date || ! $dropoff_date) {
-			wp_send_json_error(array('message' => esc_html__('Required fields are missing.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Required fields are missing.', 'mhm-rentiva') ));
 		}
 
 		// Customer processing
@@ -604,19 +604,19 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 
 		if ($customer_id === 'new_customer') {
 			// Create new customer
-			$customer_first_name = isset($_POST['new_customer_first_name']) ? sanitize_text_field(wp_unslash((string) $_POST['new_customer_first_name'])) : '';
-			$customer_last_name  = isset($_POST['new_customer_last_name']) ? sanitize_text_field(wp_unslash((string) $_POST['new_customer_last_name'])) : '';
+			$customer_first_name = isset($_POST['new_customer_first_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_first_name'])) : '';
+			$customer_last_name  = isset($_POST['new_customer_last_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_last_name'])) : '';
 			$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
-			$customer_email      = isset($_POST['new_customer_email']) ? sanitize_email(wp_unslash((string) $_POST['new_customer_email'])) : '';
-			$customer_phone      = isset($_POST['new_customer_phone']) ? sanitize_text_field(wp_unslash((string) $_POST['new_customer_phone'])) : '';
+			$customer_email      = isset($_POST['new_customer_email']) ? sanitize_email(wp_unslash( (string) $_POST['new_customer_email'])) : '';
+			$customer_phone      = isset($_POST['new_customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_phone'])) : '';
 
 			if (! $customer_first_name || ! $customer_last_name || ! $customer_email || ! $customer_phone) {
-				wp_send_json_error(array('message' => esc_html__('New customer information is missing.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('New customer information is missing.', 'mhm-rentiva') ));
 			}
 
 			// Email check
 			if (email_exists($customer_email)) {
-				wp_send_json_error(array('message' => esc_html__('This email address is already registered.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('This email address is already registered.', 'mhm-rentiva') ));
 			}
 
 			// Generate username from first name + last name
@@ -640,7 +640,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 			// Create new user
 			$user_id = wp_create_user($username, wp_generate_password(12, true, true), $customer_email);
 			if (is_wp_error($user_id)) {
-				wp_send_json_error(array('message' => $user_id->get_error_message()));
+				wp_send_json_error(array( 'message' => $user_id->get_error_message() ));
 			}
 
 			// Determine safe default role (same as normal booking form)
@@ -677,9 +677,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 			$customer = get_userdata($user_id);
 		} else {
 			// Existing customer
-			$customer = get_userdata((int) $customer_id);
+			$customer = get_userdata( (int) $customer_id);
 			if (! $customer) {
-				wp_send_json_error(array('message' => esc_html__('Customer not found.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('Customer not found.', 'mhm-rentiva') ));
 			}
 
 			// Get existing customer information
@@ -694,7 +694,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$datetime_result = Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (is_wp_error($datetime_result)) {
-			wp_send_json_error(array('message' => $datetime_result->get_error_message()));
+			wp_send_json_error(array( 'message' => $datetime_result->get_error_message() ));
 		}
 
 		$start_ts = $datetime_result['start_ts'];
@@ -705,7 +705,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$availability = Util::check_availability($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
 
 		if (! $availability['ok']) {
-			wp_send_json_error(array('message' => $availability['message']));
+			wp_send_json_error(array( 'message' => $availability['message'] ));
 		}
 
 		// Add-ons calculation (same as BookingForm.php)
@@ -730,7 +730,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$deposit_result = DepositCalculator::calculate_booking_deposit($vehicle_id, $days, $payment_type, $selected_addons, $start_ts);
 
 		if (! $deposit_result['success']) {
-			wp_send_json_error(array('message' => esc_html__('Price could not be calculated.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Price could not be calculated.', 'mhm-rentiva') ));
 		}
 
 		// Create booking
@@ -738,7 +738,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 			'post_type'    => 'vehicle_booking',
 			'post_status'  => 'publish',
 			/* translators: %s: vehicle title */
-			'post_title'   => sprintf(__('Manual Booking - %s', 'mhm-rentiva'), get_the_title((int) $vehicle_id)),
+			'post_title'   => sprintf(__('Manual Booking - %s', 'mhm-rentiva'), get_the_title( (int) $vehicle_id)),
 			'post_content' => $notes,
 			'meta_input'   => array(
 				'_mhm_vehicle_id'            => $vehicle_id,
@@ -781,7 +781,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox
 		$booking_id = wp_insert_post($booking_data);
 
 		if (is_wp_error($booking_id)) {
-			wp_send_json_error(array('message' => esc_html__('Booking could not be created.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Booking could not be created.', 'mhm-rentiva') ));
 		}
 
 		// Save manual booking type

@@ -34,33 +34,33 @@ final class VendorMarketplaceSettings {
 	public static function get_default_settings(): array {
 		return array(
 			// Listing & Duration
-			'vendor_listing_duration_days'        => 90,
-			'vendor_expiry_warning_first_days'    => 10,
-			'vendor_expiry_warning_second_days'   => 3,
-			'vendor_expiry_grace_days'            => 7,
-			'vendor_withdrawal_cooldown_days'     => 7,
-			'vendor_max_pauses_per_month'         => 2,
-			'vendor_max_pause_duration_days'      => 30,
+			'vendor_listing_duration_days'         => 90,
+			'vendor_expiry_warning_first_days'     => 10,
+			'vendor_expiry_warning_second_days'    => 3,
+			'vendor_expiry_grace_days'             => 7,
+			'vendor_withdrawal_cooldown_days'      => 7,
+			'vendor_max_pauses_per_month'          => 2,
+			'vendor_max_pause_duration_days'       => 30,
 
 			// Penalty
-			'vendor_penalty_tier2_rate'           => 10,
-			'vendor_penalty_tier3_rate'           => 25,
+			'vendor_penalty_tier2_rate'            => 10,
+			'vendor_penalty_tier3_rate'            => 25,
 			'vendor_penalty_rolling_window_months' => 12,
 
 			// Anti-Gaming
-			'vendor_anti_gaming_block_days'       => 30,
+			'vendor_anti_gaming_block_days'        => 30,
 
 			// Reliability Score
-			'vendor_score_cancel_penalty'         => 5,
-			'vendor_score_withdrawal_penalty'     => 10,
-			'vendor_score_pause_penalty'          => 2,
-			'vendor_score_completion_bonus'       => 5,
-			'vendor_score_max_completion_bonus'   => 20,
+			'vendor_score_cancel_penalty'          => 5,
+			'vendor_score_withdrawal_penalty'      => 10,
+			'vendor_score_pause_penalty'           => 2,
+			'vendor_score_completion_bonus'        => 5,
+			'vendor_score_max_completion_bonus'    => 20,
 
 			// Listing Fee
-			'mhm_rentiva_listing_fee_enabled'    => false,
-			'mhm_rentiva_listing_fee_model'      => 'one_time',
-			'mhm_rentiva_listing_fee_amount'     => 0.0,
+			'mhm_rentiva_listing_fee_enabled'      => false,
+			'mhm_rentiva_listing_fee_model'        => 'one_time',
+			'mhm_rentiva_listing_fee_amount'       => 0.0,
 		);
 	}
 

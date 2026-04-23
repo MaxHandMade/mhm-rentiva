@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
 
 
 
-final class Status
-{
+final class Status {
+
 
 	// Basic statuses
 	public const DRAFT           = 'draft';
@@ -62,18 +62,18 @@ final class Status
 		}
 
 		$allowed_transitions = array(
-			self::DRAFT           => array(self::PENDING_PAYMENT, self::CANCELLED),
-			self::PENDING_PAYMENT => array(self::CONFIRMED, self::CANCELLED), // Payment made or time expired
-			self::PENDING         => array(self::CONFIRMED, self::COMPLETED, self::CANCELLED), // ✅ Allow direct completion
-			self::CONFIRMED       => array(self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW, self::PENDING), // ✅ Allow revert to pending
-			self::IN_PROGRESS     => array(self::COMPLETED, self::CANCELLED),
-			self::COMPLETED       => array(self::REFUNDED),
-			self::CANCELLED       => array(self::PENDING_PAYMENT, self::CONFIRMED, self::PENDING), // Re-booking
+			self::DRAFT           => array( self::PENDING_PAYMENT, self::CANCELLED ),
+			self::PENDING_PAYMENT => array( self::CONFIRMED, self::CANCELLED ), // Payment made or time expired
+			self::PENDING         => array( self::CONFIRMED, self::COMPLETED, self::CANCELLED ), // ✅ Allow direct completion
+			self::CONFIRMED       => array( self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW, self::PENDING ), // ✅ Allow revert to pending
+			self::IN_PROGRESS     => array( self::COMPLETED, self::CANCELLED ),
+			self::COMPLETED       => array( self::REFUNDED ),
+			self::CANCELLED       => array( self::PENDING_PAYMENT, self::CONFIRMED, self::PENDING ), // Re-booking
 			self::REFUNDED        => array(), // Final status
-			self::NO_SHOW         => array(self::CANCELLED), // Can be cancelled
+			self::NO_SHOW         => array( self::CANCELLED ), // Can be cancelled
 		);
 
-		return isset($allowed_transitions[$from]) && in_array($to, $allowed_transitions[$from], true);
+		return isset($allowed_transitions[ $from ]) && in_array($to, $allowed_transitions[ $from ], true);
 	}
 
 	public static function update_status(int $booking_id, string $new_status, int $actor_user_id = 0): bool
@@ -117,7 +117,7 @@ final class Status
 			self::NO_SHOW         => __('No Show', 'mhm-rentiva'),
 		);
 
-		return $labels[$status] ?? $status;
+		return $labels[ $status ] ?? $status;
 	}
 
 	public static function get_color(string $status): string
@@ -134,6 +134,6 @@ final class Status
 			self::NO_SHOW         => '#dc3545',
 		);
 
-		return $colors[$status] ?? '#6c757d';
+		return $colors[ $status ] ?? '#6c757d';
 	}
 }

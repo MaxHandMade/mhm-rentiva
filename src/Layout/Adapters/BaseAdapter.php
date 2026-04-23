@@ -19,8 +19,8 @@ use MHMRentiva\Core\Attribute\CanonicalAttributeMapper;
  * @package MHMRentiva\Layout\Adapters
  * @since 4.14.0
  */
-abstract class BaseAdapter
-{
+abstract class BaseAdapter {
+
 
     /**
      * Renders the component to WordPress markup (Shortcode or Block).
@@ -55,7 +55,7 @@ abstract class BaseAdapter
     {
         $string = '[' . $tag;
         foreach ($atts as $key => $val) {
-            $string .= sprintf(' %s="%s"', esc_attr($key), esc_attr((string) $val));
+            $string .= sprintf(' %s="%s"', esc_attr($key), esc_attr( (string) $val));
         }
         $string .= ']';
         return $string;

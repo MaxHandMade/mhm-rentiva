@@ -19,15 +19,15 @@ use MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator;
 
 use MHMRentiva\Admin\Core\Helpers\Sanitizer;
 
-final class Handler
-{
+final class Handler {
+
 
 
 
 	public static function register(): void
 	{
-		add_action('admin_post_mhm_rentiva_booking', array(self::class, 'handle'));
-		add_action('admin_post_nopriv_mhm_rentiva_booking', array(self::class, 'handle'));
+		add_action('admin_post_mhm_rentiva_booking', array( self::class, 'handle' ));
+		add_action('admin_post_nopriv_mhm_rentiva_booking', array( self::class, 'handle' ));
 	}
 
 	public static function handle(): void
@@ -40,7 +40,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_PERMISSION,
 				'access_denied',
-				array('reason' => 'invalid_nonce')
+				array( 'reason' => 'invalid_nonce' )
 			);
 			self::redirect_error('invalid_nonce', $error_message);
 			return;
@@ -72,7 +72,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_VALIDATION,
 				'required_field',
-				array('field' => 'vehicle_id')
+				array( 'field' => 'vehicle_id' )
 			);
 			self::redirect_error('invalid_input', $error_message);
 			return;
@@ -83,7 +83,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_VALIDATION,
 				'invalid_payment_type',
-				array('payment_type' => $payment_type)
+				array( 'payment_type' => $payment_type )
 			);
 			self::redirect_error('invalid_payment_type', $error_message);
 			return;
@@ -93,7 +93,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_VALIDATION,
 				'invalid_payment_method',
-				array('payment_method' => $payment_method)
+				array( 'payment_method' => $payment_method )
 			);
 			self::redirect_error('invalid_payment_method', $error_message);
 			return;
@@ -104,7 +104,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_VEHICLE,
 				'vehicle_not_found',
-				array('vehicle_id' => $vehicle_id)
+				array( 'vehicle_id' => $vehicle_id )
 			);
 			self::redirect_error('vehicle_not_found', $error_message);
 			return;
@@ -150,7 +150,7 @@ final class Handler
 				$error_message = UXHelper::get_user_friendly_error(
 					UXHelper::ERROR_TYPE_SYSTEM,
 					'database_error',
-					array('operation' => 'booking_creation')
+					array( 'operation' => 'booking_creation' )
 				);
 				self::redirect_error('creation_failed', $error_message);
 				return;
@@ -177,7 +177,7 @@ final class Handler
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_BOOKING,
 				'booking_failed',
-				array('error_details' => $e->getMessage())
+				array( 'error_details' => $e->getMessage() )
 			);
 
 			// Redirect with user-friendly error
@@ -188,11 +188,11 @@ final class Handler
 
 	private static function get_client_ip(): string
 	{
-		$ip_keys = array('HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR');
+		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
 		foreach ($ip_keys as $key) {
-			if (isset($_SERVER[$key])) {
+			if (isset($_SERVER[ $key ])) {
 				// Sanitize the IP value properly
-				$ip_raw = sanitize_text_field(wp_unslash($_SERVER[$key]));
+				$ip_raw = sanitize_text_field(wp_unslash($_SERVER[ $key ]));
 				foreach (explode(',', $ip_raw) as $ip) {
 					$ip = trim($ip);
 					if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false) {
@@ -210,7 +210,7 @@ final class Handler
 		// Check for custom thank you page from settings
 		$thank_you_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_thank_you_page', '');
 		if (! empty($thank_you_page) && is_numeric($thank_you_page)) {
-			$thank_you_url = get_permalink((int) $thank_you_page);
+			$thank_you_url = get_permalink( (int) $thank_you_page);
 			if ($thank_you_url) {
 				wp_safe_redirect(add_query_arg('booking_id', $booking_id, $thank_you_url));
 				exit;
@@ -219,7 +219,10 @@ final class Handler
 
 		// Fallback: redirect to referer or home with booking status params
 		$referer = wp_get_referer() ?: home_url();
-		wp_safe_redirect(add_query_arg(array('booking' => 'ok', 'bid' => $booking_id), $referer));
+		wp_safe_redirect(add_query_arg(array(
+			'booking' => 'ok',
+			'bid'     => $booking_id,
+		), $referer));
 		exit;
 	}
 
@@ -272,7 +275,7 @@ final class Handler
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_SYSTEM,
 						'deposit_calculation_failed',
-						array('error' => $deposit_result['error'])
+						array( 'error' => $deposit_result['error'] )
 					);
 					throw new \Exception(esc_html($error_message));
 				}
@@ -309,7 +312,7 @@ final class Handler
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_SYSTEM,
 						'database_error',
-						array('operation' => 'booking_creation')
+						array( 'operation' => 'booking_creation' )
 					);
 					throw new \Exception(esc_html($error_message));
 				}
@@ -349,7 +352,7 @@ final class Handler
 					// ⭐ Payment deadline from settings (default: 30 minutes)
 					// This ensures auto-cancellation works for all bookings
 					'_mhm_payment_deadline'      => self::get_payment_deadline(),
-					'_mhm_pickup_location_id'    => (int) ($booking_data['pickup_location_id'] ?? 0),
+					'_mhm_pickup_location_id'    => (int) ( $booking_data['pickup_location_id'] ?? 0 ),
 				);
 
 				foreach ($meta_fields as $key => $value) {
@@ -368,7 +371,10 @@ final class Handler
 				if (empty($payment_deadline)) {
 					$deadline = self::get_payment_deadline();
 					update_post_meta($booking_id, '_mhm_payment_deadline', $deadline);
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Payment deadline was missing for booking', array('booking_id' => $booking_id, 'deadline' => $deadline));
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Payment deadline was missing for booking', array(
+						'booking_id' => $booking_id,
+						'deadline'   => $deadline,
+					));
 				}
 
 				// ✅ CACHE OPTIMIZATION - Centralized cache clearing

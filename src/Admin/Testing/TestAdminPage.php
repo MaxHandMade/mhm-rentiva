@@ -19,8 +19,8 @@ use MHMRentiva\Admin\Testing\IntegrationTest;
 /**
  * ✅ 4. STAGE - Test Admin Page
  */
-final class TestAdminPage
-{
+final class TestAdminPage {
+
 
 
 	/**
@@ -28,9 +28,9 @@ final class TestAdminPage
 	 */
 	public static function register(): void
 	{
-		add_action('admin_menu', array(self::class, 'add_menu_page'));
-		add_action('admin_post_mhm_run_tests', array(self::class, 'handle_run_tests'));
-		add_action('admin_post_mhm_download_test_report', array(self::class, 'handle_download_report'));
+		add_action('admin_menu', array( self::class, 'add_menu_page' ));
+		add_action('admin_post_mhm_run_tests', array( self::class, 'handle_run_tests' ));
+		add_action('admin_post_mhm_download_test_report', array( self::class, 'handle_download_report' ));
 	}
 
 	/**
@@ -44,7 +44,7 @@ final class TestAdminPage
 			__('🧪 Test Suite', 'mhm-rentiva'),
 			'manage_options',
 			'mhm-rentiva-tests',
-			array(self::class, 'render_page')
+			array( self::class, 'render_page' )
 		);
 	}
 
@@ -61,7 +61,7 @@ final class TestAdminPage
 		// Get test results (if available)
 		$test_results = get_transient('mhm_rentiva_test_results');
 
-?>
+		?>
 		<div class="wrap mhm-test-page">
 			<h1>🧪 <?php esc_html_e('MHM Rentiva Test Suite', 'mhm-rentiva'); ?></h1>
 
@@ -148,7 +148,7 @@ final class TestAdminPage
 				</div>
 			<?php endif; ?>
 		</div>
-<?php
+		<?php
 	}
 
 	/**
@@ -167,7 +167,7 @@ final class TestAdminPage
 		$selected_suites = isset($_POST['test_suites']) ? array_map('sanitize_key', wp_unslash($_POST['test_suites'])) : array();
 
 		if (empty($selected_suites)) {
-			$selected_suites = array('activation', 'security', 'functional', 'performance', 'integration');
+			$selected_suites = array( 'activation', 'security', 'functional', 'performance', 'integration' );
 		}
 
 		// Run tests
@@ -235,7 +235,7 @@ final class TestAdminPage
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified above.
 		$format = isset($_GET['format']) ? sanitize_key(wp_unslash($_GET['format'])) : 'html';
 
-		if (! in_array($format, array('html', 'json'), true)) {
+		if (! in_array($format, array( 'html', 'json' ), true)) {
 			wp_die(esc_html__('Invalid format.', 'mhm-rentiva'));
 		}
 

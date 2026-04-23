@@ -11,13 +11,13 @@ use WP_Error;
 
 
 
-final class LicenseManager
-{
+final class LicenseManager {
 
 
-	public const OPTION         = 'mhm_rentiva_license';
-	public const CRON_HOOK      = 'mhm_rentiva_license_daily';
-	public const CHECKIN_HOOK   = 'mhm_rentiva_instance_checkin';
+
+	public const OPTION            = 'mhm_rentiva_license';
+	public const CRON_HOOK         = 'mhm_rentiva_license_daily';
+	public const CHECKIN_HOOK      = 'mhm_rentiva_instance_checkin';
 	private const CHECKIN_INTERVAL = 'weekly';
 
 	private static ?self $instance = null;
@@ -37,11 +37,11 @@ final class LicenseManager
 	 */
 	public function register(): void
 	{
-		add_action('admin_init', array($this, 'maybeHandleActions'));
-		add_action(self::CRON_HOOK, array($this, 'cronValidate'));
-		add_action(self::CHECKIN_HOOK, array($this, 'cronInstanceCheckin'));
+		add_action('admin_init', array( $this, 'maybeHandleActions' ));
+		add_action(self::CRON_HOOK, array( $this, 'cronValidate' ));
+		add_action(self::CHECKIN_HOOK, array( $this, 'cronInstanceCheckin' ));
 
-		add_filter('cron_schedules', array($this, 'registerCronSchedules'));
+		add_filter('cron_schedules', array( $this, 'registerCronSchedules' ));
 
 		if (! wp_next_scheduled(self::CRON_HOOK)) {
 			wp_schedule_event(time() + 3600, 'daily', self::CRON_HOOK);
@@ -51,7 +51,7 @@ final class LicenseManager
 			wp_schedule_event(time() + 7200, self::CHECKIN_INTERVAL, self::CHECKIN_HOOK);
 		}
 
-		add_action('admin_notices', array($this, 'adminNotices'));
+		add_action('admin_notices', array( $this, 'adminNotices' ));
 	}
 
 	/**
@@ -134,7 +134,7 @@ final class LicenseManager
 	public function getKey(): string
 	{
 		$o = $this->get();
-		return (string) ($o['key'] ?? '');
+		return (string) ( $o['key'] ?? '' );
 	}
 
 	/**
@@ -167,7 +167,7 @@ final class LicenseManager
 		}
 
 		// Check local license data — cron keeps this up to date
-		if (($o['status'] ?? '') !== 'active') {
+		if (( $o['status'] ?? '' ) !== 'active') {
 			return false;
 		}
 
@@ -197,16 +197,16 @@ final class LicenseManager
 		if ($action === 'activate') {
 			$key = isset( $_POST['mhm_license_key'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_license_key'] ) ) : '';
 			$res = $this->activate($key);
-			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License activated.', 'mhm-rentiva'), ! ($res instanceof WP_Error));
+			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License activated.', 'mhm-rentiva'), ! ( $res instanceof WP_Error ));
 		} elseif ($action === 'deactivate') {
 			$res = $this->deactivate();
-			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License deactivated.', 'mhm-rentiva'), ! ($res instanceof WP_Error));
+			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License deactivated.', 'mhm-rentiva'), ! ( $res instanceof WP_Error ));
 		} elseif ($action === 'validate') {
 			$res = $this->validate();
-			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License validated.', 'mhm-rentiva'), ! ($res instanceof WP_Error));
+			$this->flash($res instanceof WP_Error ? $res->get_error_message() : __('License validated.', 'mhm-rentiva'), ! ( $res instanceof WP_Error ));
 		}
 
-		wp_safe_redirect(remove_query_arg(array('mhm_notice')));
+		wp_safe_redirect(remove_query_arg(array( 'mhm_notice' )));
 		exit;
 	}
 
@@ -280,7 +280,7 @@ final class LicenseManager
 			// If server request fails, log but still clear local data
 			if (is_wp_error($result)) {
 				// Log error but continue with local deactivation
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('License deactivation server request failed', array('error' => $result->get_error_message()));
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('License deactivation server request failed', array( 'error' => $result->get_error_message() ));
 			}
 		}
 
@@ -339,9 +339,9 @@ final class LicenseManager
 			return false;
 		}
 
-		$o['status']        = $resp['status'] ?? ($o['status'] ?? 'inactive');
-		$o['plan']          = $resp['plan'] ?? ($o['plan'] ?? null);
-		$o['expires_at']    = isset($resp['expires_at']) ? (int) $resp['expires_at'] : ($o['expires_at'] ?? null);
+		$o['status']        = $resp['status'] ?? ( $o['status'] ?? 'inactive' );
+		$o['plan']          = $resp['plan'] ?? ( $o['plan'] ?? null );
+		$o['expires_at']    = isset($resp['expires_at']) ? (int) $resp['expires_at'] : ( $o['expires_at'] ?? null );
 		$o['last_check_at'] = time();
 
 		// If Grace Mode is active, save it. Otherwise, remove it.
@@ -397,7 +397,7 @@ final class LicenseManager
 			'headers'   => array(
 				'Content-Type' => 'application/json',
 				'Accept'       => 'application/json',
-				'User-Agent'   => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+				'User-Agent'   => 'MHM-Rentiva/' . ( defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev' ),
 			),
 			'body'      => $body,
 			'timeout'   => 10,
@@ -437,7 +437,7 @@ final class LicenseManager
 			$env_type = wp_get_environment_type();
 
 			// Local/Development environments use local API (if defined)
-			if (in_array($env_type, array('local', 'development'), true)) {
+			if (in_array($env_type, array( 'local', 'development' ), true)) {
 				$env_api_local = $this->getEnvValue( 'MHM_RENTIVA_LICENSE_API_LOCAL' );
 				if ( '' !== $env_api_local ) {
 					return $env_api_local;
@@ -483,7 +483,7 @@ final class LicenseManager
 		// Always verify SSL in production
 		if (function_exists('wp_get_environment_type')) {
 			$env_type = wp_get_environment_type();
-			if (in_array($env_type, array('production', 'staging'), true)) {
+			if (in_array($env_type, array( 'production', 'staging' ), true)) {
 				return true;
 			}
 		}
@@ -520,8 +520,8 @@ final class LicenseManager
 	 */
 	private function request(string $path, array $body)
 	{
-		$base = $this->getApiBaseUrl();
-		$url  = rtrim($base, '/') . $path;
+		$base     = $this->getApiBaseUrl();
+		$url      = rtrim($base, '/') . $path;
 		$raw_body = wp_json_encode(
 			$body,
 			JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
@@ -532,11 +532,11 @@ final class LicenseManager
 		}
 
 		// Prepare request arguments with environment-aware settings
-		$args = array(
+		$args            = array(
 			'headers'   => array(
 				'Content-Type'  => 'application/json',
 				'Accept'        => 'application/json',
-				'User-Agent'    => 'MHM-Rentiva/' . (defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev'),
+				'User-Agent'    => 'MHM-Rentiva/' . ( defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'dev' ),
 				'X-Environment' => $this->getEnvironmentType(),
 			),
 			'timeout'   => 15, // 15 seconds timeout to prevent frontend lag
@@ -553,10 +553,10 @@ final class LicenseManager
 			// If we are validating and connection fails
 			if (strpos($path, '/validate') !== false) {
 				$o             = $this->get();
-				$last_check    = (int) ($o['last_check_at'] ?? 0);
+				$last_check    = (int) ( $o['last_check_at'] ?? 0 );
 				$seven_days    = 7 * DAY_IN_SECONDS;
 				$time_diff     = time() - $last_check;
-				$is_was_active = (isset($o['status']) && $o['status'] === 'active') || (isset($o['activation_id']) && ! empty($o['activation_id']));
+				$is_was_active = ( isset($o['status']) && $o['status'] === 'active' ) || ( isset($o['activation_id']) && ! empty($o['activation_id']) );
 
 				// If it was active and last successful check was less than 7 days ago
 				if ($is_was_active && $time_diff < $seven_days) {
@@ -627,10 +627,10 @@ final class LicenseManager
 			return $headers;
 		}
 
-		$timestamp = (string) time();
+		$timestamp      = (string) time();
 		$canonical_path = $this->canonicalLicensePath($path);
-		$message = $this->buildLicenseCanonicalMessage('POST', $canonical_path, $timestamp, $raw_body);
-		$signature = hash_hmac('sha256', $message, $credentials['hmac_secret']);
+		$message        = $this->buildLicenseCanonicalMessage('POST', $canonical_path, $timestamp, $raw_body);
+		$signature      = hash_hmac('sha256', $message, $credentials['hmac_secret']);
 
 		$headers['X-MHM-API-KEY']   = $credentials['api_key'];
 		$headers['X-MHM-TIMESTAMP'] = $timestamp;
@@ -679,17 +679,17 @@ final class LicenseManager
 	 */
 	private function resolveLicenseApiCredentials(): array
 	{
-		$api_key = '';
+		$api_key     = '';
 		$hmac_secret = '';
 
 		if (defined('MHM_RENTIVA_LICENSE_API_KEY')) {
-			$api_key = trim((string) constant('MHM_RENTIVA_LICENSE_API_KEY'));
+			$api_key = trim( (string) constant('MHM_RENTIVA_LICENSE_API_KEY'));
 		} else {
 			$api_key = $this->getEnvValue('MHM_RENTIVA_LICENSE_API_KEY');
 		}
 
 		if (defined('MHM_RENTIVA_LICENSE_HMAC_SECRET')) {
-			$hmac_secret = trim((string) constant('MHM_RENTIVA_LICENSE_HMAC_SECRET'));
+			$hmac_secret = trim( (string) constant('MHM_RENTIVA_LICENSE_HMAC_SECRET'));
 		} else {
 			$hmac_secret = $this->getEnvValue('MHM_RENTIVA_LICENSE_HMAC_SECRET');
 		}
@@ -722,7 +722,7 @@ final class LicenseManager
 	private function isStaging(): bool
 	{
 		$host = wp_parse_url(home_url(), PHP_URL_HOST) ?: '';
-		foreach (array('.local', '.test', '.dev', '.staging', 'localhost') as $p) {
+		foreach (array( '.local', '.test', '.dev', '.staging', 'localhost' ) as $p) {
 			if ($host === $p || str_ends_with($host, $p)) {
 				return true;
 			}
@@ -739,10 +739,10 @@ final class LicenseManager
 	{
 		// 1. Host check (localhost, .local, .dev, .test, .staging)
 		$host        = wp_parse_url(home_url(), PHP_URL_HOST) ?: '';
-		$dev_domains = array('.local', '.test', '.dev', '.staging');
+		$dev_domains = array( '.local', '.test', '.dev', '.staging' );
 
 		// localhost check
-		if (in_array($host, array('localhost', '127.0.0.1', '::1'), true)) {
+		if (in_array($host, array( 'localhost', '127.0.0.1', '::1' ), true)) {
 			return true;
 		}
 
@@ -754,7 +754,7 @@ final class LicenseManager
 		}
 
 		// 2. Local servers like XAMPP, WAMP, MAMP (only with localhost)
-		if (in_array($host, array('localhost', '127.0.0.1'), true)) {
+		if (in_array($host, array( 'localhost', '127.0.0.1' ), true)) {
 			$server_software = sanitize_text_field( wp_unslash( (string) ( $_SERVER['SERVER_SOFTWARE'] ?? '' ) ) );
 			if (
 				stripos($server_software, 'xampp') !== false ||
@@ -767,22 +767,22 @@ final class LicenseManager
 		}
 
 		// 3. Port check (only with localhost)
-		if (in_array($host, array('localhost', '127.0.0.1'), true)) {
+		if (in_array($host, array( 'localhost', '127.0.0.1' ), true)) {
 			$port = wp_parse_url(home_url(), PHP_URL_PORT);
-			if (in_array($port, array('8080', '8081', '3000', '3001', '8000', '8001'), true)) {
+			if (in_array($port, array( '8080', '8081', '3000', '3001', '8000', '8001' ), true)) {
 				return true;
 			}
 		}
 
 		// 4. WordPress debug mode (only with localhost)
-		if (in_array($host, array('localhost', '127.0.0.1'), true) && defined('WP_DEBUG') && WP_DEBUG) {
+		if (in_array($host, array( 'localhost', '127.0.0.1' ), true) && defined('WP_DEBUG') && WP_DEBUG) {
 			return true;
 		}
 
 		// 5. WordPress development environment (only with localhost)
 		if (
-			in_array($host, array('localhost', '127.0.0.1'), true) &&
-			defined('WP_ENV') && in_array(constant('WP_ENV'), array('development', 'dev', 'local'), true)
+			in_array($host, array( 'localhost', '127.0.0.1' ), true) &&
+			defined('WP_ENV') && in_array(constant('WP_ENV'), array( 'development', 'dev', 'local' ), true)
 		) {
 			return true;
 		}
@@ -799,7 +799,7 @@ final class LicenseManager
 	private function flash(string $msg, bool $ok): void
 	{
 		$key = $ok ? 'success' : 'error';
-		set_transient('mhm_license_notice', array($key, $msg), 60);
+		set_transient('mhm_license_notice', array( $key, $msg ), 60);
 	}
 
 	/**
@@ -818,7 +818,7 @@ final class LicenseManager
 		}
 
 		$o = $this->get();
-		if (($o['status'] ?? '') === 'active' && ! empty($o['expires_at']) && ((int) $o['expires_at'] - time()) < 14 * DAY_IN_SECONDS) {
+		if (( $o['status'] ?? '' ) === 'active' && ! empty($o['expires_at']) && ( (int) $o['expires_at'] - time() ) < 14 * DAY_IN_SECONDS) {
 			echo '<div class="notice notice-warning"><p>' . esc_html__('Your Rentiva license will expire soon. Please renew for Pro features and updates.', 'mhm-rentiva') . '</p></div>';
 		}
 

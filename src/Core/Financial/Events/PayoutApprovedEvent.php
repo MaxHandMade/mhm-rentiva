@@ -13,8 +13,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class PayoutApprovedEvent implements DomainEvent
-{
+final class PayoutApprovedEvent implements DomainEvent {
+
     private int $payout_id;
     private string $tx_uuid;
 

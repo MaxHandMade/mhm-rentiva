@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-final class TenantContext
-{
+final class TenantContext {
+
     /**
      * @param int    $tenant_id         The WordPress site/blog ID for this tenant.
      * @param string $tenant_key        Unique string identifier (e.g., slug) for the tenant.

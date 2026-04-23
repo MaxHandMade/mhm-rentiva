@@ -27,8 +27,8 @@ use MHMRentiva\Core\Financial\AnalyticsService;
  *
  * @since 4.21.0
  */
-final class AnalyticsDashboardDataProvider
-{
+final class AnalyticsDashboardDataProvider {
+
     /**
      * Build analytics data for a vendor.
      *
@@ -45,9 +45,9 @@ final class AnalyticsDashboardDataProvider
         $thirty_days = 30 * DAY_IN_SECONDS;
         $seven_days  = 7  * DAY_IN_SECONDS;
 
-        $from_30d        = $now_ts - $thirty_days;
-        $from_30d_prev   = $from_30d - $thirty_days;
-        $from_7d         = $now_ts - $seven_days;
+        $from_30d      = $now_ts - $thirty_days;
+        $from_30d_prev = $from_30d - $thirty_days;
+        $from_7d       = $now_ts - $seven_days;
 
         $metrics = array(
             'revenue_30d'       => AnalyticsService::get_revenue_period($vendor_id, $from_30d, $now_ts),
@@ -64,7 +64,7 @@ final class AnalyticsDashboardDataProvider
 
     /**
      * Build top vehicles list by revenue within window.
-     * 
+     *
      * @return array<int, array<string, mixed>>
      */
     private static function build_top_vehicles(int $vendor_id, int $from_ts, int $to_ts): array
@@ -86,7 +86,7 @@ final class AnalyticsDashboardDataProvider
 
             if ($perf['revenue_period'] > 0 || $perf['cancellation_count'] > 0 || $perf['occupancy_rate'] > 0) {
                 // Determine 7-day sparkline for this specific vehicle
-                $sparkline = AnalyticsService::get_sparkline_data($vendor_id, $to_ts - (7 * DAY_IN_SECONDS), $to_ts, 7, $vid);
+                $sparkline = AnalyticsService::get_sparkline_data($vendor_id, $to_ts - ( 7 * DAY_IN_SECONDS ), $to_ts, 7, $vid);
 
                 $vehicles[] = array(
                     'vehicle_id'         => $vid,

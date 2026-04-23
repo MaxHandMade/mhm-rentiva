@@ -85,7 +85,7 @@ final class DepositManagementAjax {
 		update_post_meta( $booking_id, '_mhm_payment_status', 'paid' );
 
 		// If rental end date has already passed, mark as completed; otherwise confirmed
-		$dropoff      = get_post_meta( $booking_id, '_mhm_dropoff_date', true )
+		$dropoff       = get_post_meta( $booking_id, '_mhm_dropoff_date', true )
 			?: get_post_meta( $booking_id, '_mhm_end_date', true );
 		$target_status = ( $dropoff && strtotime( $dropoff ) < time() ) ? 'completed' : 'confirmed';
 		Status::update_status( $booking_id, $target_status, get_current_user_id() );

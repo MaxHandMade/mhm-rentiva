@@ -17,16 +17,16 @@ use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 /**
  * Event-Driven boundary parsing WooCommerce semantics and executing immutable Ledger append transactions.
  */
-final class CommissionBridge
-{
+final class CommissionBridge {
+
     /**
      * Boot and bind WooCommerce hooks.
      */
     public static function boot(): void
     {
-        add_action('woocommerce_payment_complete', array(self::class, 'on_payment_complete'));
-        add_action('woocommerce_order_status_completed', array(self::class, 'on_order_completed'));
-        add_action('woocommerce_order_refunded', array(self::class, 'on_order_refunded'), 10, 2);
+        add_action('woocommerce_payment_complete', array( self::class, 'on_payment_complete' ));
+        add_action('woocommerce_order_status_completed', array( self::class, 'on_order_completed' ));
+        add_action('woocommerce_order_refunded', array( self::class, 'on_order_refunded' ), 10, 2);
     }
 
     public static function on_payment_complete(int $order_id): void
@@ -98,7 +98,7 @@ final class CommissionBridge
 
         // Push to cache manager forcing instant dashboard refresh
         if (class_exists(MetricCacheManager::class)) {
-            MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+            MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
             $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
             if ($vehicle_id > 0) {
                 MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
@@ -170,7 +170,7 @@ final class CommissionBridge
         }
 
         if (class_exists(MetricCacheManager::class)) {
-            MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+            MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
             $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
             if ($vehicle_id > 0) {
                 MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);

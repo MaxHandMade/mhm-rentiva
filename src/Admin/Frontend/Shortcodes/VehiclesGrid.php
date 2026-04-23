@@ -55,34 +55,34 @@ class VehiclesGrid extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'                  => '12',
-			'columns'                => '2', // 2, 3, 4
-			'orderby'                => 'title', // title, date, price, featured
-			'order'                  => 'ASC', // ASC, DESC
-			'category'               => '', // Vehicle category
-			'featured'               => '0', // 0: all, 1: featured only
-			'show_image'             => '1',
-			'show_title'             => '1',
-			'show_price'             => '1',
-			'show_features'          => '1',
-			'show_rating'            => '1',
-			'show_booking_button'    => '1',
-			'show_favorite_button'   => '1',
-			'show_category'          => '1',
-			'show_brand'             => '0',
-			'show_badges'            => '1',
-			'show_description'       => '0',
-			'show_availability'      => '0',
-			'show_compare_button'    => '1',
-			'enable_lazy_load'       => '1',
-			'image_size'             => 'large',
-			'view_all_url'           => '',
-			'view_all_text'          => '',
-			'class'                  => '',
-			'custom_css_class'       => '',
-			'min_rating'             => '',
-			'min_reviews'            => '',
-			'layout'                 => 'grid', // grid, masonry
+			'limit'                => '12',
+			'columns'              => '2', // 2, 3, 4
+			'orderby'              => 'title', // title, date, price, featured
+			'order'                => 'ASC', // ASC, DESC
+			'category'             => '', // Vehicle category
+			'featured'             => '0', // 0: all, 1: featured only
+			'show_image'           => '1',
+			'show_title'           => '1',
+			'show_price'           => '1',
+			'show_features'        => '1',
+			'show_rating'          => '1',
+			'show_booking_button'  => '1',
+			'show_favorite_button' => '1',
+			'show_category'        => '1',
+			'show_brand'           => '0',
+			'show_badges'          => '1',
+			'show_description'     => '0',
+			'show_availability'    => '0',
+			'show_compare_button'  => '1',
+			'enable_lazy_load'     => '1',
+			'image_size'           => 'large',
+			'view_all_url'         => '',
+			'view_all_text'        => '',
+			'class'                => '',
+			'custom_css_class'     => '',
+			'min_rating'           => '',
+			'min_reviews'          => '',
+			'layout'               => 'grid', // grid, masonry
 		);
 	}
 
@@ -96,15 +96,36 @@ class VehiclesGrid extends AbstractShortcode {
 		// Map Gutenberg block sortBy/sortOrder → shortcode orderby/order.
 		if ( ! empty( $atts['sort_by'] ) ) {
 			$sort_map = array(
-				'newest'      => array( 'orderby' => 'date',         'order' => 'DESC' ),
-				'price'       => array( 'orderby' => 'price',        'order' => strtoupper( $atts['sort_order'] ?? 'asc' ) ),
-				'title'       => array( 'orderby' => 'title',        'order' => strtoupper( $atts['sort_order'] ?? 'asc' ) ),
-				'popularity'  => array( 'orderby' => 'comment_count', 'order' => 'DESC' ),
-				'rating'      => array( 'orderby' => 'rating',       'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
-				'rating_count' => array( 'orderby' => 'rating_count', 'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
-				'confidence'  => array( 'orderby' => 'confidence',   'order' => strtoupper( $atts['sort_order'] ?? 'desc' ) ),
+				'newest'       => array(
+					'orderby' => 'date',
+					'order'   => 'DESC',
+				),
+				'price'        => array(
+					'orderby' => 'price',
+					'order'   => strtoupper( $atts['sort_order'] ?? 'asc' ),
+				),
+				'title'        => array(
+					'orderby' => 'title',
+					'order'   => strtoupper( $atts['sort_order'] ?? 'asc' ),
+				),
+				'popularity'   => array(
+					'orderby' => 'comment_count',
+					'order'   => 'DESC',
+				),
+				'rating'       => array(
+					'orderby' => 'rating',
+					'order'   => strtoupper( $atts['sort_order'] ?? 'desc' ),
+				),
+				'rating_count' => array(
+					'orderby' => 'rating_count',
+					'order'   => strtoupper( $atts['sort_order'] ?? 'desc' ),
+				),
+				'confidence'   => array(
+					'orderby' => 'confidence',
+					'order'   => strtoupper( $atts['sort_order'] ?? 'desc' ),
+				),
 			);
-			$mapping = $sort_map[ $atts['sort_by'] ] ?? null;
+			$mapping  = $sort_map[ $atts['sort_by'] ] ?? null;
 			if ( $mapping ) {
 				$atts['orderby'] = $mapping['orderby'];
 				$atts['order']   = $mapping['order'];
@@ -258,11 +279,11 @@ class VehiclesGrid extends AbstractShortcode {
 		if ($location_map === null) {
 			$location_map = array();
 			foreach (\MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental') as $loc) {
-				$location_map[(int) $loc->id] = (string) $loc->name;
+				$location_map[ (int) $loc->id ] = (string) $loc->name;
 			}
 		}
 		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
-		$vehicle_location_name = $location_map[$vehicle_location_id] ?? '';
+		$vehicle_location_name = $location_map[ $vehicle_location_id ] ?? '';
 		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
 		if ('' === $vehicle_location_name) {
 			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);

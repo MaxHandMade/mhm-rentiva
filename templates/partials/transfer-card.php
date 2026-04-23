@@ -21,16 +21,16 @@ if (! isset($format_price) || ! is_callable($format_price)) {
 	};
 }
 
-$vehicle_id  = $item['id'] ?? 0;
+$vehicle_id    = $item['id'] ?? 0;
 $vehicle_title = $item['title'] ?? '';
-$image_url   = $item['image'] ?? '';
-$price       = (float) ( $item['price'] ?? 0 );
-$currency    = $item['currency'] ?? '';
-$category    = $item['category'] ?? '';
-$max_pax     = $item['max_pax'] ?? '';
-$luggage_cap = $item['luggage_capacity'] ?? '';
-$duration    = $item['duration'] ?? '';
-$distance    = $item['distance'] ?? '';
+$image_url     = $item['image'] ?? '';
+$price         = (float) ( $item['price'] ?? 0 );
+$currency      = $item['currency'] ?? '';
+$category      = $item['category'] ?? '';
+$max_pax       = $item['max_pax'] ?? '';
+$luggage_cap   = $item['luggage_capacity'] ?? '';
+$duration      = $item['duration'] ?? '';
+$distance      = $item['distance'] ?? '';
 
 $show_title           = $atts['show_title'] ?? true;
 $show_price           = $atts['show_price'] ?? true;
@@ -124,25 +124,45 @@ $card_class = 'mhm-transfer-card mhm-transfer-card--' . esc_attr($layout);
 			<div class="mhm-transfer-card__meta">
 				<?php if ($max_pax && $show_passenger_count) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Max Passengers', 'mhm-rentiva'); ?>">
-						<?php Icons::render('users', array( 'width' => '14', 'height' => '14' )); ?>
+						<?php
+                        Icons::render('users', array(
+							'width'  => '14',
+							'height' => '14',
+						));
+						?>
 						<span><?php echo esc_html( (string) $max_pax); ?> <?php esc_html_e('Pax', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ($luggage_cap && $show_luggage_info) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Luggage Capacity', 'mhm-rentiva'); ?>">
-						<?php Icons::render('portfolio', array( 'width' => '14', 'height' => '14' )); ?>
+						<?php
+                        Icons::render('portfolio', array(
+							'width'  => '14',
+							'height' => '14',
+						));
+						?>
 						<span><?php echo esc_html( (string) $luggage_cap); ?> <?php esc_html_e('Luggage', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>
 				<?php if ($distance && $show_route_info) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Distance', 'mhm-rentiva'); ?>">
-						<?php Icons::render('location', array( 'width' => '14', 'height' => '14' )); ?>
+						<?php
+                        Icons::render('location', array(
+							'width'  => '14',
+							'height' => '14',
+						));
+						?>
 						<span><?php echo esc_html( (string) $distance); ?> km</span>
 					</div>
 				<?php endif; ?>
 				<?php if ($duration && $show_vehicle_details) : ?>
 					<div class="mhm-transfer-card__meta-item" title="<?php esc_attr_e('Duration', 'mhm-rentiva'); ?>">
-						<?php Icons::render('clock', array( 'width' => '14', 'height' => '14' )); ?>
+						<?php
+                        Icons::render('clock', array(
+							'width'  => '14',
+							'height' => '14',
+						));
+						?>
 						<span><?php echo esc_html( (string) $duration); ?> <?php esc_html_e('min', 'mhm-rentiva'); ?></span>
 					</div>
 				<?php endif; ?>

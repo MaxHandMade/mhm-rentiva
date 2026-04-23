@@ -21,8 +21,8 @@ $tier2_pct    = (int) round(PenaltyCalculator::TIER_2_RATE * 100);
 $tier3_pct    = (int) round(PenaltyCalculator::TIER_3_RATE * 100);
 
 // Score as percentage for the progress ring (circumference ≈ 251.2 for r=40).
-$circumference  = 251.2;
-$stroke_offset  = $circumference - ($score / 100) * $circumference;
+$circumference = 251.2;
+$stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 ?>
 
 <div class="mhm-vendor-reliability">
@@ -53,14 +53,14 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 					stroke="<?php echo esc_attr($score_color); ?>"
 					stroke-width="8"
 					stroke-linecap="round"
-					stroke-dasharray="<?php echo esc_attr((string) $circumference); ?>"
+					stroke-dasharray="<?php echo esc_attr( (string) $circumference); ?>"
 					stroke-dashoffset="<?php echo esc_attr(number_format($stroke_offset, 2, '.', '')); ?>"
 					transform="rotate(-90 50 50)"
 				/>
 			</svg>
 			<div class="mhm-vendor-reliability__ring-inner">
 				<span class="mhm-vendor-reliability__ring-score" style="color:<?php echo esc_attr($score_color); ?>">
-					<?php echo esc_html((string) $score); ?>
+					<?php echo esc_html( (string) $score); ?>
 				</span>
 				<span class="mhm-vendor-reliability__ring-max"><?php esc_html_e('/ 100', 'mhm-rentiva'); ?></span>
 			</div>
@@ -81,10 +81,26 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 			<div class="mhm-vendor-reliability__tiers">
 				<?php
 				$tiers = array(
-					array( 'min' => 90, 'label' => __('Excellent', 'mhm-rentiva'), 'color' => '#28a745' ),
-					array( 'min' => 70, 'label' => __('Good', 'mhm-rentiva'),      'color' => '#17a2b8' ),
-					array( 'min' => 50, 'label' => __('Fair', 'mhm-rentiva'),      'color' => '#ffc107' ),
-					array( 'min' => 0,  'label' => __('Poor', 'mhm-rentiva'),      'color' => '#dc3545' ),
+					array(
+						'min'   => 90,
+						'label' => __('Excellent', 'mhm-rentiva'),
+						'color' => '#28a745',
+					),
+					array(
+						'min'   => 70,
+						'label' => __('Good', 'mhm-rentiva'),
+						'color' => '#17a2b8',
+					),
+					array(
+						'min'   => 50,
+						'label' => __('Fair', 'mhm-rentiva'),
+						'color' => '#ffc107',
+					),
+					array(
+						'min'   => 0,
+						'label' => __('Poor', 'mhm-rentiva'),
+						'color' => '#dc3545',
+					),
 				);
 
 				foreach ($tiers as $tier) :
@@ -95,7 +111,7 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 					);
 					// Simplify: active = label matches score_label.
 					$is_active = ( $score_label === $tier['label'] );
-				?>
+					?>
 					<div class="mhm-vendor-reliability__tier <?php echo $is_active ? 'is-active' : ''; ?>" style="<?php echo $is_active ? 'border-color:' . esc_attr($tier['color']) . ';background:' . esc_attr($tier['color']) . '15' : ''; ?>">
 						<span class="mhm-vendor-reliability__tier-dot" style="background:<?php echo esc_attr($tier['color']); ?>"></span>
 						<span class="mhm-vendor-reliability__tier-label"><?php echo esc_html($tier['label']); ?></span>
@@ -147,7 +163,7 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 							<strong class="is-green">
 								<?php
 								/* translators: %d: points per completed booking */
-								echo esc_html( sprintf( __( '+%d pts each (max +%d)', 'mhm-rentiva' ), $complete_pts, $max_bonus ) );
+								echo esc_html( sprintf( __( '+%1$d pts each (max +%2$d)', 'mhm-rentiva' ), $complete_pts, $max_bonus ) );
 								?>
 							</strong>
 						</td>
@@ -350,21 +366,22 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 						</tr>
 					</thead>
 					<tbody>
-						<?php foreach ($history as $entry) :
-							$event_type    = sanitize_key((string) ($entry['event_type'] ?? 'cron'));
-							$event_label   = $event_labels[$event_type] ?? ucfirst($event_type);
-							$vehicle_title = (string) ($entry['vehicle_title'] ?? '');
-							$vehicle_id_e  = (int) ($entry['vehicle_id'] ?? 0);
-							$delta         = (int) ($entry['delta'] ?? 0);
-							$score_after   = (int) ($entry['score_after'] ?? 0);
-							$ts            = (string) ($entry['ts'] ?? '');
+						<?php
+                        foreach ($history as $entry) :
+							$event_type    = sanitize_key( (string) ( $entry['event_type'] ?? 'cron' ));
+							$event_label   = $event_labels[ $event_type ] ?? ucfirst($event_type);
+							$vehicle_title = (string) ( $entry['vehicle_title'] ?? '' );
+							$vehicle_id_e  = (int) ( $entry['vehicle_id'] ?? 0 );
+							$delta         = (int) ( $entry['delta'] ?? 0 );
+							$score_after   = (int) ( $entry['score_after'] ?? 0 );
+							$ts            = (string) ( $entry['ts'] ?? '' );
 							$date_fmt      = $ts ? date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($ts)) : '—';
 
 							$is_positive = $delta > 0;
 							$is_negative = $delta < 0;
 							$delta_class = $is_positive ? 'is-green' : ( $is_negative ? 'is-red' : 'is-neutral' );
 							$delta_sign  = $is_positive ? '+' : '';
-						?>
+							?>
 							<tr>
 								<td class="mhm-vendor-reliability__history-date"><?php echo esc_html($date_fmt); ?></td>
 								<td>
@@ -385,7 +402,7 @@ $stroke_offset  = $circumference - ($score / 100) * $circumference;
 									</strong>
 								</td>
 								<td class="mhm-vendor-reliability__history-score">
-									<?php echo esc_html((string) $score_after); ?>
+									<?php echo esc_html( (string) $score_after); ?>
 								</td>
 							</tr>
 						<?php endforeach; ?>

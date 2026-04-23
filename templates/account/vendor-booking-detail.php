@@ -36,25 +36,25 @@ if ($service_type === '' && $origin_id > 0) {
 	$service_type = 'transfer';
 }
 $transfer_flag = (string) get_post_meta($booking_id, '_mhm_is_transfer', true);
-if ($service_type === '' && in_array($transfer_flag, array('1', 'yes', 'true'), true)) {
+if ($service_type === '' && in_array($transfer_flag, array( '1', 'yes', 'true' ), true)) {
 	$service_type = 'transfer';
 }
 if ($service_type === '') {
 	$service_type = 'rental';
 }
-$is_transfer = ($service_type === 'transfer');
+$is_transfer = ( $service_type === 'transfer' );
 
-$status       = (string) get_post_meta($booking_id, '_mhm_status', true);
-$total_price  = (float) get_post_meta($booking_id, '_mhm_total_price', true);
+$status         = (string) get_post_meta($booking_id, '_mhm_status', true);
+$total_price    = (float) get_post_meta($booking_id, '_mhm_total_price', true);
 $payment_status = (string) get_post_meta($booking_id, '_mhm_payment_status', true);
 
 $customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo($booking_id);
-$customer_name  = trim(($customer_info['first_name'] ?? '') . ' ' . ($customer_info['last_name'] ?? ''));
+$customer_name = trim(( $customer_info['first_name'] ?? '' ) . ' ' . ( $customer_info['last_name'] ?? '' ));
 if ($customer_name === '') {
-	$customer_name = (string) ($customer_info['name'] ?? '');
+	$customer_name = (string) ( $customer_info['name'] ?? '' );
 }
-$customer_email = (string) ($customer_info['email'] ?? '');
-$customer_phone = (string) ($customer_info['phone'] ?? '');
+$customer_email = (string) ( $customer_info['email'] ?? '' );
+$customer_phone = (string) ( $customer_info['phone'] ?? '' );
 
 $origin_location      = null;
 $destination_location = null;
@@ -78,7 +78,7 @@ if ($is_transfer) {
 $currency_symbol = (string) apply_filters('mhm_rentiva/currency_symbol', '₺');
 $display_id      = function_exists('mhm_rentiva_get_display_id') ? mhm_rentiva_get_display_id($booking_id) : (string) $booking_id;
 
-$status_labels = array(
+$status_labels  = array(
 	'pending'     => __('Pending', 'mhm-rentiva'),
 	'confirmed'   => __('Confirmed', 'mhm-rentiva'),
 	'in_progress' => __('In Progress', 'mhm-rentiva'),
@@ -99,7 +99,7 @@ $format_dt = static function (string $date, string $time = '') {
 	if ($date === '') {
 		return '-';
 	}
-	$ts = strtotime($date . ($time !== '' ? ' ' . $time : ''));
+	$ts = strtotime($date . ( $time !== '' ? ' ' . $time : '' ));
 	if ($ts === false) {
 		return esc_html($date);
 	}
@@ -123,12 +123,12 @@ $format_dt = static function (string $date, string $time = '') {
 						<?php esc_html_e('Car Rental', 'mhm-rentiva'); ?>
 					<?php endif; ?>
 				</span>
-				<?php printf(esc_html__('Reservation #%s', 'mhm-rentiva'), esc_html((string) $display_id)); ?>
+				<?php printf(esc_html__('Reservation #%s', 'mhm-rentiva'), esc_html( (string) $display_id)); ?>
 			</h2>
 			<p class="mhm-vendor-booking-detail__subtitle"><?php echo esc_html($vehicle_title); ?></p>
 		</div>
 		<span class="mhm-vendor-booking-detail__status is-<?php echo esc_attr(sanitize_key($status)); ?>">
-			<?php echo esc_html($status_labels[$status] ?? ucfirst((string) $status)); ?>
+			<?php echo esc_html($status_labels[ $status ] ?? ucfirst( (string) $status)); ?>
 		</span>
 	</div>
 
@@ -142,13 +142,19 @@ $format_dt = static function (string $date, string $time = '') {
 				<dd>
 					<?php if ($customer_email !== '') : ?>
 						<a href="mailto:<?php echo esc_attr($customer_email); ?>"><?php echo esc_html($customer_email); ?></a>
-					<?php else : ?>-<?php endif; ?>
+						<?php
+                    else :
+						?>
+                        -<?php endif; ?>
 				</dd>
 				<dt><?php esc_html_e('Phone', 'mhm-rentiva'); ?></dt>
 				<dd>
 					<?php if ($customer_phone !== '') : ?>
 						<a href="tel:<?php echo esc_attr(preg_replace('/[^0-9+]/', '', $customer_phone)); ?>"><?php echo esc_html($customer_phone); ?></a>
-					<?php else : ?>-<?php endif; ?>
+						<?php
+                    else :
+						?>
+                        -<?php endif; ?>
 				</dd>
 			</dl>
 		</section>
@@ -157,7 +163,7 @@ $format_dt = static function (string $date, string $time = '') {
 			<h3><?php esc_html_e('Reservation Details', 'mhm-rentiva'); ?></h3>
 			<dl class="mhm-vendor-booking-detail__dl">
 				<dt><?php esc_html_e('Reservation No', 'mhm-rentiva'); ?></dt>
-				<dd>#<?php echo esc_html((string) $display_id); ?></dd>
+				<dd>#<?php echo esc_html( (string) $display_id); ?></dd>
 				<dt><?php esc_html_e('Service Type', 'mhm-rentiva'); ?></dt>
 				<dd><?php echo $is_transfer ? esc_html__('Transfer', 'mhm-rentiva') : esc_html__('Car Rental', 'mhm-rentiva'); ?></dd>
 				<dt><?php esc_html_e('Vehicle', 'mhm-rentiva'); ?></dt>
@@ -169,7 +175,7 @@ $format_dt = static function (string $date, string $time = '') {
 				<dt><?php esc_html_e('Total Amount', 'mhm-rentiva'); ?></dt>
 				<dd class="mhm-vendor-booking-detail__amount"><?php echo esc_html($currency_symbol . number_format($total_price, 2)); ?></dd>
 				<dt><?php esc_html_e('Payment Status', 'mhm-rentiva'); ?></dt>
-				<dd><?php echo esc_html($payment_labels[$payment_status] ?? ucfirst((string) $payment_status)); ?></dd>
+				<dd><?php echo esc_html($payment_labels[ $payment_status ] ?? ucfirst( (string) $payment_status)); ?></dd>
 			</dl>
 		</section>
 	</div>

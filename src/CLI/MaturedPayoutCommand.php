@@ -18,8 +18,8 @@ use WP_CLI_Command;
  *
  * @since 4.23.0
  */
-final class MaturedPayoutCommand extends \WP_CLI_Command
-{
+final class MaturedPayoutCommand extends \WP_CLI_Command {
+
     /**
      * Executes all matured time-locked payouts.
      *

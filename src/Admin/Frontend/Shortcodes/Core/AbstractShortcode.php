@@ -24,8 +24,8 @@ use Exception;
  * Enhanced common structure and methods for all shortcode classes.
  * Prevents code repetition, improves performance and ensures consistency.
  */
-abstract class AbstractShortcode
-{
+abstract class AbstractShortcode {
+
 
 
 	// Shortcode cache
@@ -88,13 +88,13 @@ abstract class AbstractShortcode
 		$tag = static::get_shortcode_tag();
 
 		// Cache check (additional security)
-		if (isset(self::$shortcode_cache[$tag])) {
+		if (isset(self::$shortcode_cache[ $tag ])) {
 			return;
 		}
 
 		// NOTE: add_shortcode is handled by ShortcodeServiceProvider centrally.
 		// This method only handles class-internal hooks and AJAX handlers.
-		self::$shortcode_cache[$tag] = true;
+		self::$shortcode_cache[ $tag ] = true;
 		static::register_ajax_handlers();
 		static::register_hooks();
 	}
@@ -112,7 +112,6 @@ abstract class AbstractShortcode
 
 		try {
 			$tag = static::get_shortcode_tag();
-
 
 			// 1. Attribute normalization
 			// Canonical payloads come from BlockRegistry/CAM and must not be truncated by shortcode_atts.
@@ -145,12 +144,12 @@ abstract class AbstractShortcode
 			}
 
 			// Core WordPress WPAutoP protection:
-			// Strip newlines and tabs from the final shortcode output to prevent 
+			// Strip newlines and tabs from the final shortcode output to prevent
 			// wpautop() from injecting <br> or <p> tags into grid/flex layouts when
 			// the block editor evaluates patterns.
 			// CRITICAL: This MUST happen BEFORE caching, so that the cached HTML
 			// is already clean. Otherwise, cache hits bypass this stripping.
-			$html = str_replace(array("\r\n", "\r", "\n", "\t"), '', $html);
+			$html = str_replace(array( "\r\n", "\r", "\n", "\t" ), '', $html);
 
 			// Performance: Cache HTML (now stores the already-minified output)
 			static::cache_html($cache_key, $html);
@@ -184,7 +183,7 @@ abstract class AbstractShortcode
 	{
 		$tag = static::get_shortcode_tag();
 
-		if (isset(self::$enqueued_assets[$tag])) {
+		if (isset(self::$enqueued_assets[ $tag ])) {
 			return;
 		}
 
@@ -201,7 +200,7 @@ abstract class AbstractShortcode
 			static::enqueue_assets($atts);
 		}
 
-		self::$enqueued_assets[$tag] = true;
+		self::$enqueued_assets[ $tag ] = true;
 	}
 
 	/**
@@ -240,7 +239,7 @@ abstract class AbstractShortcode
 		foreach ($css_files as $handle => $css_file) {
 			if (static::asset_exists($css_file)) {
 				// Use key as handle if it's a string, otherwise generate one
-				$final_handle = is_string($handle) ? $handle : ((count($css_files) === 1) ? $base_handle : $base_handle . '-' . $i);
+				$final_handle = is_string($handle) ? $handle : ( ( count($css_files) === 1 ) ? $base_handle : $base_handle . '-' . $i );
 
 				wp_enqueue_style(
 					$final_handle,
@@ -249,7 +248,7 @@ abstract class AbstractShortcode
 					static::get_asset_version($css_file)
 				);
 			}
-			$i++;
+			++$i;
 		}
 	}
 
@@ -268,7 +267,7 @@ abstract class AbstractShortcode
 		foreach ($js_files as $handle => $js_file) {
 			if (static::asset_exists($js_file)) {
 				// Use key as handle if it's a string, otherwise generate one
-				$final_handle = is_string($handle) ? $handle : ((count($js_files) === 1) ? $base_handle : $base_handle . '-' . $i);
+				$final_handle = is_string($handle) ? $handle : ( ( count($js_files) === 1 ) ? $base_handle : $base_handle . '-' . $i );
 
 				wp_enqueue_script(
 					$final_handle,
@@ -283,7 +282,7 @@ abstract class AbstractShortcode
 					static::localize_script($final_handle);
 				}
 			}
-			$i++;
+			++$i;
 		}
 	}
 
@@ -340,7 +339,7 @@ abstract class AbstractShortcode
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-rentiva-toast');
+		return array( 'jquery', 'mhm-rentiva-toast' );
 	}
 
 	/**
@@ -417,7 +416,7 @@ abstract class AbstractShortcode
 	protected static function get_script_object_name(): string
 	{
 		$tag       = static::get_shortcode_tag();
-		$clean_tag = str_replace(array('rentiva_', '_'), array('', ''), $tag);
+		$clean_tag = str_replace(array( 'rentiva_', '_' ), array( '', '' ), $tag);
 		return 'mhmRentiva' . ucfirst($clean_tag);
 	}
 
@@ -627,20 +626,20 @@ abstract class AbstractShortcode
 		foreach ($data as $key => $value) {
 			// Move null check to the beginning
 			if ($value === null) {
-				$sanitized[$key] = '';
+				$sanitized[ $key ] = '';
 				continue;
 			}
 
 			if (is_array($value)) {
-				$sanitized[$key] = static::sanitize_form_data($value);
+				$sanitized[ $key ] = static::sanitize_form_data($value);
 			} elseif (is_email($value ?: '')) {
-				$sanitized[$key] = sanitize_email((string) ($value ?: ''));
+				$sanitized[ $key ] = sanitize_email( (string) ( $value ?: '' ));
 			} elseif (is_numeric($value)) {
-				$sanitized[$key] = is_float($value) ? floatval($value) : intval($value);
+				$sanitized[ $key ] = is_float($value) ? floatval($value) : intval($value);
 			} elseif (is_string($value)) {
-				$sanitized[$key] = sanitize_text_field((string) $value);
+				$sanitized[ $key ] = sanitize_text_field( (string) $value);
 			} else {
-				$sanitized[$key] = $value;
+				$sanitized[ $key ] = $value;
 			}
 		}
 
@@ -698,8 +697,8 @@ abstract class AbstractShortcode
 			'shortcode_tag' => $shortcode_tag,
 			'usage_count'   => (int) $usage_count,
 			'template_path' => static::get_template_path(),
-			'css_files'     => array_filter(static::get_css_files(), array(static::class, 'asset_exists')),
-			'js_files'      => array_filter(static::get_js_files(), array(static::class, 'asset_exists')),
+			'css_files'     => array_filter(static::get_css_files(), array( static::class, 'asset_exists' )),
+			'js_files'      => array_filter(static::get_js_files(), array( static::class, 'asset_exists' )),
 			'cache_enabled' => static::is_caching_enabled(),
 			'cache_ttl'     => static::get_cache_ttl(),
 		);
@@ -719,7 +718,7 @@ abstract class AbstractShortcode
 		}
 
 		// Cache tracking cleanup
-		unset(self::$shortcode_cache[$tag]);
-		unset(self::$enqueued_assets[$tag]);
+		unset(self::$shortcode_cache[ $tag ]);
+		unset(self::$enqueued_assets[ $tag ]);
 	}
 }

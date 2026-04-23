@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-class DeterministicRiskEngine implements RiskScoringEngineInterface
-{
+class DeterministicRiskEngine implements RiskScoringEngineInterface {
+
     private float $high_amount_threshold;
     private int $new_vendor_days;
     private int $high_refund_ratio_pct;
@@ -40,13 +40,13 @@ class DeterministicRiskEngine implements RiskScoringEngineInterface
 
         // 1. Amount Threshold Rule
         if ($context->payout_amount > $this->high_amount_threshold) {
-            $score += 30;
+            $score    += 30;
             $reasons[] = sprintf('Payout amount exceeds threshold (%.2f > %.2f)', $context->payout_amount, $this->high_amount_threshold);
         }
 
         // 2. Vendor Age Rule
         if ($context->vendor_age_days < $this->new_vendor_days) {
-            $score += 20;
+            $score    += 20;
             $reasons[] = sprintf('Vendor age is below trusted threshold (%d < %d days)', $context->vendor_age_days, $this->new_vendor_days);
         }
 
@@ -55,12 +55,12 @@ class DeterministicRiskEngine implements RiskScoringEngineInterface
         if ($total_payouts > 0) {
             $refund_ratio = intdiv($context->total_refunded_payouts * 100, $total_payouts);
             if ($refund_ratio > $this->high_refund_ratio_pct) {
-                $score += 40;
+                $score    += 40;
                 $reasons[] = sprintf('Historical refund ratio is abnormally high (%d%% > %d%%)', $refund_ratio, $this->high_refund_ratio_pct);
             }
         } elseif ($context->total_completed_payouts === 0 && $context->total_refunded_payouts === 0) {
             // No history yet
-            $score += 10;
+            $score    += 10;
             $reasons[] = 'No historical payout data available';
         }
 

@@ -14,8 +14,8 @@ if (! defined('ABSPATH')) {
  * Returns a city/province list based on the WooCommerce store's base country.
  * Falls back to Turkey's 81 provinces when WooCommerce is unavailable.
  */
-final class CityHelper
-{
+final class CityHelper {
+
 	/**
 	 * Returns an array of city/province names for the store's base country.
 	 *
@@ -33,18 +33,87 @@ final class CityHelper
 
 		// Fallback: Turkey 81 provinces (alphabetical)
 		return array(
-			'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara',
-			'Antalya', 'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman',
-			'Bayburt', 'Bilecik', 'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa',
-			'Çanakkale', 'Çankırı', 'Çorum', 'Denizli', 'Diyarbakır', 'Düzce', 'Edirne',
-			'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir', 'Gaziantep', 'Giresun',
-			'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul', 'İzmir',
-			'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri',
-			'Kilis', 'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya',
-			'Kütahya', 'Malatya', 'Manisa', 'Mardin', 'Mersin', 'Muğla', 'Muş',
-			'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize', 'Sakarya', 'Samsun',
-			'Siirt', 'Sinop', 'Sivas', 'Şanlıurfa', 'Şırnak', 'Tekirdağ', 'Tokat',
-			'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak',
+			'Adana',
+			'Adıyaman',
+			'Afyonkarahisar',
+			'Ağrı',
+			'Aksaray',
+			'Amasya',
+			'Ankara',
+			'Antalya',
+			'Ardahan',
+			'Artvin',
+			'Aydın',
+			'Balıkesir',
+			'Bartın',
+			'Batman',
+			'Bayburt',
+			'Bilecik',
+			'Bingöl',
+			'Bitlis',
+			'Bolu',
+			'Burdur',
+			'Bursa',
+			'Çanakkale',
+			'Çankırı',
+			'Çorum',
+			'Denizli',
+			'Diyarbakır',
+			'Düzce',
+			'Edirne',
+			'Elazığ',
+			'Erzincan',
+			'Erzurum',
+			'Eskişehir',
+			'Gaziantep',
+			'Giresun',
+			'Gümüşhane',
+			'Hakkari',
+			'Hatay',
+			'Iğdır',
+			'Isparta',
+			'İstanbul',
+			'İzmir',
+			'Kahramanmaraş',
+			'Karabük',
+			'Karaman',
+			'Kars',
+			'Kastamonu',
+			'Kayseri',
+			'Kilis',
+			'Kırıkkale',
+			'Kırklareli',
+			'Kırşehir',
+			'Kocaeli',
+			'Konya',
+			'Kütahya',
+			'Malatya',
+			'Manisa',
+			'Mardin',
+			'Mersin',
+			'Muğla',
+			'Muş',
+			'Nevşehir',
+			'Niğde',
+			'Ordu',
+			'Osmaniye',
+			'Rize',
+			'Sakarya',
+			'Samsun',
+			'Siirt',
+			'Sinop',
+			'Sivas',
+			'Şanlıurfa',
+			'Şırnak',
+			'Tekirdağ',
+			'Tokat',
+			'Trabzon',
+			'Tunceli',
+			'Uşak',
+			'Van',
+			'Yalova',
+			'Yozgat',
+			'Zonguldak',
 		);
 	}
 
@@ -85,11 +154,11 @@ final class CityHelper
 			if ($value === true) {
 				$extra .= ' ' . esc_attr($key);
 			} else {
-				$extra .= ' ' . esc_attr($key) . '="' . esc_attr((string) $value) . '"';
+				$extra .= ' ' . esc_attr($key) . '="' . esc_attr( (string) $value) . '"';
 			}
 		}
 
-		$html = '<select name="' . esc_attr($name) . '" id="' . esc_attr($id) . '" class="mhm-city-select"' . $extra . '>';
+		$html  = '<select name="' . esc_attr($name) . '" id="' . esc_attr($id) . '" class="mhm-city-select"' . $extra . '>';
 		$html .= '<option value="">' . esc_html__('Select a city...', 'mhm-rentiva') . '</option>';
 		foreach ($cities as $city) {
 			$html .= '<option value="' . esc_attr($city) . '"'

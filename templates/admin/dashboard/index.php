@@ -19,14 +19,15 @@ $stats = $args['stats'] ?? array();
 ?>
 
 <div class="wrap mhm-rentiva-dashboard">
-	<?php echo $args['header_html'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	<?php
+    echo $args['header_html'] ?? ''; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	?>
 
 
 	<div class="mhm-dashboard-content">
 		<?php
 		// Fixed: Statistics Cards (Not draggable as per user request)
-		\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/stats-cards', array('args' => array('metrics' => $stats['metrics'] ?? array())));
+		\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/stats-cards', array( 'args' => array( 'metrics' => $stats['metrics'] ?? array() ) ));
 
 		// Draggable Widgets Container
 		echo '<div id="mhm-dashboard-widgets" class="mhm-sortable-container">';
@@ -49,16 +50,16 @@ $stats = $args['stats'] ?? array();
 
 			switch ($widget_slug) {
 				case 'transfer-widget':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/transfer-widget', array('args' => array('transfer_stats' => $stats['transfer_stats'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/transfer-widget', array( 'args' => array( 'transfer_stats' => $stats['transfer_stats'] ?? array() ) ));
 					break;
 				case 'quick-actions':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/quick-actions', array('args' => array('pending_messages' => (int) ( $stats['message_stats']['pending'] ?? 0 ))));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/quick-actions', array( 'args' => array( 'pending_messages' => (int) ( $stats['message_stats']['pending'] ?? 0 ) ) ));
 					break;
 				case 'customer-stats':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/customer-stats', array('args' => array('customer_stats' => $stats['customer_stats'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/customer-stats', array( 'args' => array( 'customer_stats' => $stats['customer_stats'] ?? array() ) ));
 					break;
 				case 'vehicle-status':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/vehicle-status', array('args' => array('vehicle_stats' => $stats['vehicle_stats'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/vehicle-status', array( 'args' => array( 'vehicle_stats' => $stats['vehicle_stats'] ?? array() ) ));
 					break;
 				case 'messages-widget':
 					\MHMRentiva\Admin\Core\Utilities\Templates::load(
@@ -86,16 +87,16 @@ $stats = $args['stats'] ?? array();
 					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/upcoming-operations');
 					break;
 				case 'revenue-chart':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/revenue-chart', array('args' => array('revenue_data' => $stats['revenue_data'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/revenue-chart', array( 'args' => array( 'revenue_data' => $stats['revenue_data'] ?? array() ) ));
 					break;
 				case 'notifications-widget':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/notifications-widget', array('args' => array('notifications' => $stats['notifications'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/notifications-widget', array( 'args' => array( 'notifications' => $stats['notifications'] ?? array() ) ));
 					break;
 				case 'deposit-stats':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/deposit-stats', array('args' => array('deposit_stats' => $stats['deposit_stats'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/deposit-stats', array( 'args' => array( 'deposit_stats' => $stats['deposit_stats'] ?? array() ) ));
 					break;
 				case 'pending-payments':
-					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/pending-payments', array('args' => array('payments' => $stats['pending_payments'] ?? array())));
+					\MHMRentiva\Admin\Core\Utilities\Templates::load('admin/dashboard/pending-payments', array( 'args' => array( 'payments' => $stats['pending_payments'] ?? array() ) ));
 					break;
 			}
 			echo '</div>';

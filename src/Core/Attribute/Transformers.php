@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Core\Attribute
  * @since 4.11.0
  */
-final class Transformers
-{
+final class Transformers {
+
 
     /**
      * Transforms a value based on the specified type.
@@ -52,7 +52,7 @@ final class Transformers
 
             case 'string':
             default:
-                return is_scalar($value) ? sanitize_text_field((string) $value) : ($config['default'] ?? '');
+                return is_scalar($value) ? sanitize_text_field( (string) $value) : ( $config['default'] ?? '' );
         }
     }
 
@@ -64,7 +64,7 @@ final class Transformers
         if (is_bool($value)) {
             return $value ? '1' : '0';
         }
-        if (in_array($value, [1, '1', 'true', 'yes', 'on'], true)) {
+        if (in_array($value, [ 1, '1', 'true', 'yes', 'on' ], true)) {
             return '1';
         }
         if ('default' === $value) {
@@ -109,7 +109,7 @@ final class Transformers
     private static function to_date($value, array $config): string
     {
         if (empty($value)) {
-            return (string) ($config['default'] ?? '');
+            return (string) ( $config['default'] ?? '' );
         }
 
         $d = \DateTime::createFromFormat('Y-m-d', (string) $value);
@@ -119,10 +119,10 @@ final class Transformers
 
         // Try to parse other formats and normalize to Y-m-d
         try {
-            $d = new \DateTime((string) $value);
+            $d = new \DateTime( (string) $value);
             return $d->format('Y-m-d');
         } catch (\Exception $e) {
-            return (string) ($config['default'] ?? '');
+            return (string) ( $config['default'] ?? '' );
         }
     }
 
@@ -135,7 +135,7 @@ final class Transformers
             return '';
         }
 
-        $ids = is_array($value) ? $value : explode(',', (string) $value);
+        $ids       = is_array($value) ? $value : explode(',', (string) $value);
         $clean_ids = array_filter(array_map('absint', $ids));
 
         return implode(',', array_unique($clean_ids));
@@ -146,7 +146,7 @@ final class Transformers
      */
     private static function to_url($value): string
     {
-        return esc_url_raw((string) $value);
+        return esc_url_raw( (string) $value);
     }
 
     /**
@@ -155,9 +155,9 @@ final class Transformers
     private static function to_enum($value, array $config): string
     {
         $allowed = $config['values'] ?? [];
-        if (in_array((string) $value, $allowed, true)) {
+        if (in_array( (string) $value, $allowed, true)) {
             return (string) $value;
         }
-        return (string) ($config['default'] ?? ($allowed[0] ?? ''));
+        return (string) ( $config['default'] ?? ( $allowed[0] ?? '' ) );
     }
 }

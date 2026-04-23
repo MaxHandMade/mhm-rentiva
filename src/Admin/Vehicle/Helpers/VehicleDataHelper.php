@@ -15,8 +15,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
  * Centralized helper for retrieving vehicle data, handling legacy meta keys,
  * and ensuring consistency across the plugin.
  */
-class VehicleDataHelper
-{
+class VehicleDataHelper {
+
 
 
 	/**
@@ -72,7 +72,7 @@ class VehicleDataHelper
 		}
 
 		if (\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
-			$keys = array('_year', 'year');
+			$keys = array( '_year', 'year' );
 			foreach ($keys as $key) {
 				$val = get_post_meta($vehicle_id, $key, true);
 				if (! empty($val)) {
@@ -92,7 +92,7 @@ class VehicleDataHelper
 	 */
 	public static function get_mileage(int $vehicle_id): string
 	{
-		$keys = array(MetaKeys::VEHICLE_MILEAGE, '_mileage', 'mileage');
+		$keys = array( MetaKeys::VEHICLE_MILEAGE, '_mileage', 'mileage' );
 		foreach ($keys as $key) {
 			$val = get_post_meta($vehicle_id, $key, true);
 			if (! empty($val)) {
@@ -116,7 +116,7 @@ class VehicleDataHelper
 		}
 
 		if (\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
-			$keys = array('_seats', 'seats');
+			$keys = array( '_seats', 'seats' );
 			foreach ($keys as $key) {
 				$val = get_post_meta($vehicle_id, $key, true);
 				if (! empty($val)) {
@@ -162,18 +162,18 @@ class VehicleDataHelper
 			}
 
 			$mapping = array(
-				'yes'      => 'active',
-				'no'       => 'inactive',
-				'1'        => 'active',
-				'active'   => 'active',
-				'0'        => 'inactive',
-				'inactive' => 'inactive',
-				'passive'  => 'inactive',
+				'yes'         => 'active',
+				'no'          => 'inactive',
+				'1'           => 'active',
+				'active'      => 'active',
+				'0'           => 'inactive',
+				'inactive'    => 'inactive',
+				'passive'     => 'inactive',
 				'maintenance' => 'maintenance',
 			);
 
-			if (isset($mapping[$old])) {
-				return $mapping[$old];
+			if (isset($mapping[ $old ])) {
+				return $mapping[ $old ];
 			}
 		}
 
@@ -190,7 +190,7 @@ class VehicleDataHelper
 			'inactive'    => __('Inactive', 'mhm-rentiva'),
 			'maintenance' => __('Maintenance', 'mhm-rentiva'),
 		);
-		return $labels[$status] ?? ucfirst($status);
+		return $labels[ $status ] ?? ucfirst($status);
 	}
 	/**
 	 * Get fuel type label
@@ -209,7 +209,7 @@ class VehicleDataHelper
 			'hybrid'   => __('Hybrid', 'mhm-rentiva'),
 		);
 
-		return $types[$key] ?? $key;
+		return $types[ $key ] ?? $key;
 	}
 
 	/**
@@ -226,6 +226,6 @@ class VehicleDataHelper
 			'semi_auto' => __('Semi-Automatic', 'mhm-rentiva'),
 		);
 
-		return $types[$key] ?? $key;
+		return $types[ $key ] ?? $key;
 	}
 }

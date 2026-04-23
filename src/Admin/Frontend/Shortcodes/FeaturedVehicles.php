@@ -25,8 +25,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Vehicle\PostType\Vehicle as PT_Vehicle;
 use WP_Query;
 
-final class FeaturedVehicles extends AbstractShortcode
-{
+final class FeaturedVehicles extends AbstractShortcode {
+
 
 	public const SHORTCODE = 'rentiva_featured_vehicles';
 
@@ -55,19 +55,19 @@ final class FeaturedVehicles extends AbstractShortcode
 			$layout = 'slider';
 		}
 
-		$tag        = static::get_shortcode_tag();
+		$tag        = self::get_shortcode_tag();
 		$layout_key = $tag . ':' . $layout;
 
-		if (! isset(self::$enqueued_layouts[$tag])) {
+		if (! isset(self::$enqueued_layouts[ $tag ])) {
 			// First render: delegate to parent for base assets (notifications, etc.).
 			parent::enqueue_assets_once($atts);
-			self::$enqueued_layouts[$tag] = true;
-		} elseif (! isset(self::$enqueued_layouts[$layout_key])) {
+			self::$enqueued_layouts[ $tag ] = true;
+		} elseif (! isset(self::$enqueued_layouts[ $layout_key ])) {
 			// New layout variant: enqueue only its layout-specific assets.
-			static::enqueue_assets($atts);
+			self::enqueue_assets($atts);
 		}
 
-		self::$enqueued_layouts[$layout_key] = true;
+		self::$enqueued_layouts[ $layout_key ] = true;
 	}
 
 	/**
@@ -129,9 +129,9 @@ final class FeaturedVehicles extends AbstractShortcode
 		$args = array(
 			'post_type'      => PT_Vehicle::POST_TYPE,
 			'post_status'    => 'publish',
-			'posts_per_page' => (int) ($atts['limit'] ?? 6),
-			'orderby'        => sanitize_key((string) ($atts['orderby'] ?? 'date')),
-			'order'          => sanitize_key((string) ($atts['order'] ?? 'DESC')),
+			'posts_per_page' => (int) ( $atts['limit'] ?? 6 ),
+			'orderby'        => sanitize_key( (string) ( $atts['orderby'] ?? 'date' )),
+			'order'          => sanitize_key( (string) ( $atts['order'] ?? 'DESC' )),
 			'fields'         => 'ids', // Only need IDs
 		);
 
@@ -155,7 +155,7 @@ final class FeaturedVehicles extends AbstractShortcode
 				array(
 					'taxonomy' => 'vehicle_category',
 					'field'    => 'slug',
-					'terms'    => sanitize_text_field((string) $atts['category']),
+					'terms'    => sanitize_text_field( (string) $atts['category']),
 				),
 			);
 		}
@@ -177,11 +177,11 @@ final class FeaturedVehicles extends AbstractShortcode
 			),
 		);
 
-		$cache_key = 'featured_' . md5(wp_json_encode($args));
+		$cache_key   = 'featured_' . md5(wp_json_encode($args));
 		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
 		if (false === $vehicle_ids) {
-			$query = new WP_Query($args);
+			$query       = new WP_Query($args);
 			$vehicle_ids = $query->posts;
 
 			if (! empty($vehicle_ids)) {
@@ -199,7 +199,7 @@ final class FeaturedVehicles extends AbstractShortcode
 		$standardized_vehicles = array();
 		if (! empty($vehicle_ids)) {
 			foreach ($vehicle_ids as $v_id) {
-				$standardized_vehicles[] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode((int) $v_id, $atts);
+				$standardized_vehicles[] = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_data_for_shortcode( (int) $v_id, $atts);
 			}
 		}
 
@@ -231,7 +231,7 @@ final class FeaturedVehicles extends AbstractShortcode
 
 	protected static function get_css_dependencies(): array
 	{
-		return array('mhm-vehicle-card-css');
+		return array( 'mhm-vehicle-card-css' );
 	}
 
 	protected static function get_js_files(array $atts = array()): array
@@ -247,7 +247,7 @@ final class FeaturedVehicles extends AbstractShortcode
 
 	protected static function get_js_dependencies(): array
 	{
-		return array('jquery', 'mhm-vehicle-interactions', 'mhm-swiper');
+		return array( 'jquery', 'mhm-vehicle-interactions', 'mhm-swiper' );
 	}
 
 	protected static function get_js_config(): array

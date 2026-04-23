@@ -21,8 +21,8 @@ use WP_Error;
  * @package MHMRentiva\Layout
  * @since 4.14.0
  */
-final class CompositionBuilder
-{
+final class CompositionBuilder {
+
     /**
      * Builds the final post content markup from blueprint composition.
      *
@@ -32,8 +32,8 @@ final class CompositionBuilder
      */
     public function build(array $manifest, array $page)
     {
-        $markup = '';
-        $composition = $page['composition'] ?? [];
+        $markup         = '';
+        $composition    = $page['composition'] ?? [];
         $components_map = $manifest['components'] ?? [];
 
         foreach ($composition as $instance) {
@@ -41,7 +41,7 @@ final class CompositionBuilder
             $instance_id  = $instance['instance_id'] ?? '';
             $attributes   = $instance['attributes'] ?? [];
 
-            $component_config = $components_map[$component_id] ?? null;
+            $component_config = $components_map[ $component_id ] ?? null;
             if (! $component_config) {
                 return new WP_Error(
                     'mhm_rentiva_unknown_component',
@@ -82,7 +82,7 @@ final class CompositionBuilder
         }
 
         // 5. Apply Design Tokens (Phase 2)
-        $tokens = $manifest['tokens'] ?? [];
+        $tokens       = $manifest['tokens'] ?? [];
         $token_mapper = new TokenMapper();
         $token_styles = $token_mapper->map_to_style_string($tokens);
 

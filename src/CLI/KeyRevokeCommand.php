@@ -14,27 +14,27 @@ use WP_CLI_Command;
 
 /**
  * CLI Command for revoking Cryptographic Keys.
- * 
+ *
  * @since 4.22.0
  */
-class KeyRevokeCommand extends WP_CLI_Command
-{
+class KeyRevokeCommand extends WP_CLI_Command {
+
 
     /**
      * Revokes a specific key by UUID.
-     * 
+     *
      * ## OPTIONS
-     * 
+     *
      * <key_uuid>
      * : The UUID of the key to revoke.
-     * 
+     *
      * --reason=<reason>
      * : The reason for revocation.
-     * 
+     *
      * ## EXAMPLES
-     * 
+     *
      *     wp mhm key:revoke key_abc123 --reason="Key Compromised"
-     * 
+     *
      * @param array $args
      * @param array $assoc_args
      */
@@ -49,7 +49,7 @@ class KeyRevokeCommand extends WP_CLI_Command
 
         try {
             $repository = new KeyRegistryRepository();
-            $key = $repository->get_key_by_uuid($uuid);
+            $key        = $repository->get_key_by_uuid($uuid);
 
             if (!$key) {
                 WP_CLI::error(sprintf('Key with UUID %s not found in registry.', $uuid), true);

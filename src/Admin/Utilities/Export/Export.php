@@ -14,8 +14,8 @@ use WP_Query;
 
 
 
-final class Export
-{
+final class Export {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -28,7 +28,7 @@ final class Export
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
@@ -37,10 +37,10 @@ final class Export
 	private static function get_text(string $key, string $default = ''): string
 	{
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only filter persistence for admin UI.
-		if (! isset($_GET[$key])) {
+		if (! isset($_GET[ $key ])) {
 			return $default;
 		}
-		$value = sanitize_text_field(wp_unslash((string) $_GET[$key]));
+		$value = sanitize_text_field(wp_unslash( (string) $_GET[ $key ]));
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		return $value;
 	}
@@ -51,10 +51,10 @@ final class Export
 	private static function post_text(string $key, string $default = ''): string
 	{
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in caller methods.
-		if (! isset($_POST[$key])) {
+		if (! isset($_POST[ $key ])) {
 			return $default;
 		}
-		$value = sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		$value = sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		return $value;
 	}
@@ -65,10 +65,10 @@ final class Export
 	private static function post_float(string $key, float $default = 0.0): float
 	{
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is handled in caller methods.
-		if (! isset($_POST[$key])) {
+		if (! isset($_POST[ $key ])) {
 			return $default;
 		}
-		$value = (float) sanitize_text_field(wp_unslash((string) $_POST[$key]));
+		$value = (float) sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
 		// phpcs:enable WordPress.Security.NonceVerification.Missing
 		return $value;
 	}
@@ -76,19 +76,19 @@ final class Export
 	public static function register(): void
 	{
 		// Export handler
-		add_action('admin_post_mhm_rentiva_export', array(self::class, 'handle_export'));
+		add_action('admin_post_mhm_rentiva_export', array( self::class, 'handle_export' ));
 		// AJAX handler for apply filters
-		add_action('wp_ajax_mhm_rentiva_apply_export_filters', array(self::class, 'handle_apply_filters'));
+		add_action('wp_ajax_mhm_rentiva_apply_export_filters', array( self::class, 'handle_apply_filters' ));
 		// AJAX handler for delete export
-		add_action('wp_ajax_mhm_rentiva_delete_export', array(self::class, 'handle_delete_export'));
+		add_action('wp_ajax_mhm_rentiva_delete_export', array( self::class, 'handle_delete_export' ));
 		// AJAX handler for get export details
-		add_action('wp_ajax_mhm_rentiva_get_export_details', array(self::class, 'handle_get_export_details'));
+		add_action('wp_ajax_mhm_rentiva_get_export_details', array( self::class, 'handle_get_export_details' ));
 		// CSS and JS loading is now handled by AssetManager
 	}
 
 	public static function render_filters(string $post_type): void
 	{
-		if (! in_array($post_type, array('vehicle_booking', LogPostType::TYPE), true)) {
+		if (! in_array($post_type, array( 'vehicle_booking', LogPostType::TYPE ), true)) {
 			return;
 		}
 		if (! current_user_can('export') && ! current_user_can('manage_options') && ! current_user_can('edit_posts')) {
@@ -121,8 +121,8 @@ final class Export
 		echo '<label>' . esc_html__('End Date', 'mhm-rentiva') . '<br /><input type="date" name="mhm_to" value="' . esc_attr($date_to) . '" /></label>';
 
 		// Gateway
-		$allowedGateways = class_exists(Mode::class) ? Mode::allowedGateways() : array('offline');
-		$gws             = array_merge(array(''), $allowedGateways, array('system', 'portal')); // system and portal are always available
+		$allowedGateways = class_exists(Mode::class) ? Mode::allowedGateways() : array( 'offline' );
+		$gws             = array_merge(array( '' ), $allowedGateways, array( 'system', 'portal' )); // system and portal are always available
 		echo '<label>' . esc_html__('Payment Method', 'mhm-rentiva') . '<br /><select name="mhm_gateway">';
 		foreach ($gws as $g) {
 			echo '<option value="' . esc_attr($g) . '"' . selected($gateway, $g, false) . '>' . esc_html($g === '' ? __('Any', 'mhm-rentiva') : strtoupper($g)) . '</option>';
@@ -131,20 +131,20 @@ final class Export
 
 		// Status
 		if ($post_type === 'vehicle_booking') {
-			$bkStatuses = array('', 'pending', 'confirmed', 'cancelled', 'completed', 'expired');
+			$bkStatuses = array( '', 'pending', 'confirmed', 'cancelled', 'completed', 'expired' );
 			echo '<label>' . esc_html__('Booking Status', 'mhm-rentiva') . '<br /><select name="mhm_status">';
 			foreach ($bkStatuses as $s) {
 				echo '<option value="' . esc_attr($s) . '"' . selected($status, $s, false) . '>' . esc_html($s === '' ? __('Any', 'mhm-rentiva') : $s) . '</option>';
 			}
 			echo '</select></label>';
-			$payStatuses = array('', 'unpaid', 'paid', 'failed', 'pending', 'processing', 'unknown', 'pending_verification', 'refunded', 'partially_refunded');
+			$payStatuses = array( '', 'unpaid', 'paid', 'failed', 'pending', 'processing', 'unknown', 'pending_verification', 'refunded', 'partially_refunded' );
 			echo '<label>' . esc_html__('Payment Status', 'mhm-rentiva') . '<br /><select name="mhm_pstatus">';
 			foreach ($payStatuses as $ps) {
 				echo '<option value="' . esc_attr($ps) . '"' . selected($pstatus, $ps, false) . '>' . esc_html($ps === '' ? __('Any', 'mhm-rentiva') : $ps) . '</option>';
 			}
 			echo '</select></label>';
 		} else {
-			$logStatuses = array('', 'success', 'error');
+			$logStatuses = array( '', 'success', 'error' );
 			echo '<label>' . esc_html__('Log Status', 'mhm-rentiva') . '<br /><select name="mhm_status">';
 			foreach ($logStatuses as $ls) {
 				echo '<option value="' . esc_attr($ls) . '"' . selected($status, $ls, false) . '>' . esc_html($ls === '' ? __('Any', 'mhm-rentiva') : $ls) . '</option>';
@@ -240,7 +240,7 @@ final class Export
 		if (! empty($dq)) {
 			$dq['inclusive']    = true;
 			$dq['column']       = 'post_date_gmt';
-			$args['date_query'] = array($dq);
+			$args['date_query'] = array( $dq );
 		}
 
 		// Meta filters
@@ -327,7 +327,7 @@ final class Export
 
 		if (! empty($meta)) {
 			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- User-selected export filters require meta_query composition.
-			$args['meta_query'] = array_merge(array('relation' => 'AND'), $meta);
+			$args['meta_query'] = array_merge(array( 'relation' => 'AND' ), $meta);
 		}
 
 		return $args;
@@ -345,7 +345,7 @@ final class Export
 		check_admin_referer('mhm_rentiva_export');
 
 		$post_type = isset($_POST['post_type']) ? sanitize_key(wp_unslash($_POST['post_type'])) : '';
-		if (! in_array($post_type, array('vehicle_booking', LogPostType::TYPE, 'vehicle'), true)) {
+		if (! in_array($post_type, array( 'vehicle_booking', LogPostType::TYPE, 'vehicle' ), true)) {
 			wp_die(esc_html__('Invalid export type.', 'mhm-rentiva'));
 		}
 
@@ -357,7 +357,7 @@ final class Export
 		}
 
 		// Validate allowed formats
-		$allowed_formats = Mode::isPro() ? array('csv', 'json') : array('csv');
+		$allowed_formats = Mode::isPro() ? array( 'csv', 'json' ) : array( 'csv' );
 		if (! in_array($format, $allowed_formats, true)) {
 			$format = 'csv'; // Fallback to safe default
 		}
@@ -376,7 +376,10 @@ final class Export
 		$args = apply_filters('mhm_rentiva_export_args', $args); // Lite → tarih/limit kısıtları uygulanır
 
 		// Get record count before export (override no_found_rows for counting)
-		$count_args     = array_merge($args, array('no_found_rows' => false, 'posts_per_page' => 1));
+		$count_args     = array_merge($args, array(
+			'no_found_rows'  => false,
+			'posts_per_page' => 1,
+		));
 		$query          = new WP_Query($count_args);
 		$exported_count = $query->found_posts;
 
@@ -475,7 +478,7 @@ final class Export
 
 		$paged = 1;
 		do {
-			$q = new WP_Query(array_merge($args, array('paged' => $paged)));
+			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
 			if (! $q->have_posts()) {
 				break;
 			}
@@ -662,7 +665,7 @@ final class Export
 
 		$paged = 1;
 		do {
-			$q = new WP_Query(array_merge($args, array('paged' => $paged)));
+			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
 			if (! $q->have_posts()) {
 				break;
 			}
@@ -808,7 +811,7 @@ final class Export
 
 		$paged = 1;
 		do {
-			$q = new WP_Query(array_merge($args, array('paged' => $paged)));
+			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
 			if (! $q->have_posts()) {
 				break;
 			}
@@ -897,9 +900,9 @@ final class Export
 		foreach ($cells as $c) {
 			$isNum = is_numeric($c) && ! preg_match('/^0[0-9]/', (string) $c);
 			if ($isNum) {
-				echo '<Cell><Data ss:Type="Number">' . esc_xml((string) $c) . '</Data></Cell>';
+				echo '<Cell><Data ss:Type="Number">' . esc_xml( (string) $c) . '</Data></Cell>';
 			} else {
-				echo '<Cell><Data ss:Type="String">' . esc_xml((string) $c) . '</Data></Cell>';
+				echo '<Cell><Data ss:Type="String">' . esc_xml( (string) $c) . '</Data></Cell>';
 			}
 		}
 		echo '</Row>' . "\n";
@@ -939,7 +942,7 @@ final class Export
 
 		$paged = 1;
 		do {
-			$q = new WP_Query(array_merge($args, array('paged' => $paged)));
+			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
 			if (! $q->have_posts()) {
 				break;
 			}
@@ -1023,7 +1026,7 @@ final class Export
 			),
 		);
 
-		$this->render_admin_header((string) get_admin_page_title(), $buttons);
+		$this->render_admin_header( (string) get_admin_page_title(), $buttons);
 
 		// Pro feature notices and Developer Mode banner
 		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('export');
@@ -1401,7 +1404,7 @@ final class Export
 			wp_enqueue_script(
 				'mhm-rentiva-export',
 				plugin_dir_url(__FILE__) . '../../../assets/js/admin/export.js',
-				array('jquery'),
+				array( 'jquery' ),
 				'1.0.0',
 				true
 			);
@@ -1543,7 +1546,7 @@ final class Export
 
 		foreach ($export_history as $key => $export) {
 			if (isset($export['date']) && $export['date'] === $export_id) {
-				unset($export_history[$key]);
+				unset($export_history[ $key ]);
 				$found = true;
 				break;
 			}
@@ -1694,7 +1697,7 @@ final class Export
 		$first = true;
 
 		do {
-			$q = new WP_Query(array_merge($args, array('paged' => $paged)));
+			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
 			if (! $q->have_posts()) {
 				break;
 			}
@@ -1711,7 +1714,7 @@ final class Export
 						'payment_status' => (string) get_post_meta($pid, '_mhm_payment_status', true),
 						'gateway'        => (string) get_post_meta($pid, '_mhm_payment_gateway', true),
 						'total'          => (float) get_post_meta($pid, '_mhm_total_price', true),
-						'paid_amount'    => number_format((float) get_post_meta($pid, '_mhm_payment_amount', true) / 100, 2, '.', ''),
+						'paid_amount'    => number_format( (float) get_post_meta($pid, '_mhm_payment_amount', true) / 100, 2, '.', ''),
 						'currency'       => (string) get_post_meta($pid, '_mhm_payment_currency', true),
 						'contact'        => array(
 							'name'  => (string) get_post_meta($pid, '_mhm_contact_name', true),
@@ -1810,8 +1813,8 @@ final class Export
 				if ($is_header && count($data) > 1) {
 					$count = count($data);
 					for ($i = 1; $i < $count; $i++) {
-						if (count($data[$i]) === count($headers)) {
-							$json_data[] = array_combine($headers, $data[$i]);
+						if (count($data[ $i ]) === count($headers)) {
+							$json_data[] = array_combine($headers, $data[ $i ]);
 						}
 					}
 				} else {
@@ -1836,7 +1839,7 @@ final class Export
 			foreach ($data as $row) {
 				echo '<tr>';
 				foreach ($row as $cell) {
-					echo '<td>' . esc_html((string) $cell) . '</td>';
+					echo '<td>' . esc_html( (string) $cell) . '</td>';
 				}
 				echo '</tr>';
 			}

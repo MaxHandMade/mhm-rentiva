@@ -14,8 +14,8 @@ use MHMRentiva\Admin\Core\Utilities\RateLimiter;
 /**
  * Locations API endpoint.
  */
-final class Locations
-{
+final class Locations {
+
 
 	/**
 	 * Register REST route.
@@ -27,14 +27,14 @@ final class Locations
 			'/locations',
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array(self::class, 'get_locations'),
-				'permission_callback' => array(self::class, 'permission_check'),
+				'callback'            => array( self::class, 'get_locations' ),
+				'permission_callback' => array( self::class, 'permission_check' ),
 				'args'                => array(
 					'service_type' => array(
 						'required'          => false,
 						'sanitize_callback' => 'sanitize_text_field',
 						'default'           => 'both',
-						'enum'              => array('rental', 'transfer', 'both'),
+						'enum'              => array( 'rental', 'transfer', 'both' ),
 					),
 				),
 			)
@@ -68,7 +68,7 @@ final class Locations
 	 */
 	public static function get_locations(\WP_REST_Request $request): \WP_REST_Response
 	{
-		$service_type = sanitize_key((string) $request->get_param('service_type'));
+		$service_type = sanitize_key( (string) $request->get_param('service_type'));
 		$results      = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($service_type);
 
 		return rest_ensure_response($results);

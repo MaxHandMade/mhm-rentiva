@@ -14,8 +14,8 @@ use MHMRentiva\Core\Services\TrendService;
 /**
  * Customer upcoming pickups metric.
  */
-final class UpcomingPickupsMetric implements MetricInterface
-{
+final class UpcomingPickupsMetric implements MetricInterface {
+
 	public function key(): string
 	{
 		return 'upcoming_pickups';
@@ -27,11 +27,15 @@ final class UpcomingPickupsMetric implements MetricInterface
 
 		$userId = TrendService::resolve_customer_user_id_from_args($args);
 		if ($userId <= 0) {
-			return array('total' => 0, 'current' => 0, 'previous' => 0);
+			return array(
+				'total'    => 0,
+				'current'  => 0,
+				'previous' => 0,
+			);
 		}
 
-		$today = gmdate('Y-m-d', $now);
-		$plusSeven = gmdate('Y-m-d', (int) strtotime('+7 days', $now));
+		$today      = gmdate('Y-m-d', $now);
+		$plusSeven  = gmdate('Y-m-d', (int) strtotime('+7 days', $now));
 		$minusSeven = gmdate('Y-m-d', (int) strtotime('-7 days', $now));
 
 		return array(

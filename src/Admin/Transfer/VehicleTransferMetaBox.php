@@ -7,16 +7,16 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-final class VehicleTransferMetaBox
-{
+final class VehicleTransferMetaBox {
+
 
 	/**
 	 * Register meta box
 	 */
 	public static function register(): void
 	{
-		add_action('add_meta_boxes', array(self::class, 'add_meta_box'));
-		add_action('save_post', array(self::class, 'save_meta_box'));
+		add_action('add_meta_boxes', array( self::class, 'add_meta_box' ));
+		add_action('save_post', array( self::class, 'save_meta_box' ));
 	}
 
 	/**
@@ -27,7 +27,7 @@ final class VehicleTransferMetaBox
 		add_meta_box(
 			'mhm_rentiva_vehicle_transfer_settings',
 			__('Transfer Settings (VIP Module)', 'mhm-rentiva'),
-			array(self::class, 'render_meta_box'),
+			array( self::class, 'render_meta_box' ),
 			'vehicle',
 			'side',
 			'default'
@@ -43,8 +43,8 @@ final class VehicleTransferMetaBox
 		wp_nonce_field('rentiva_vehicle_transfer_settings_nonce', 'rentiva_vehicle_transfer_settings_nonce');
 
 		// Detect if this is a vendor vehicle and show city info.
-		$post_author = (int) get_post_field('post_author', $post->ID);
-		$author_data = get_userdata($post_author);
+		$post_author       = (int) get_post_field('post_author', $post->ID);
+		$author_data       = get_userdata($post_author);
 		$is_vendor_vehicle = $author_data && in_array('rentiva_vendor', $author_data->roles ?? [], true);
 		if ($is_vendor_vehicle) {
 			$vendor_city = (string) get_user_meta($post_author, '_mhm_rentiva_vendor_city', true);
@@ -58,7 +58,7 @@ final class VehicleTransferMetaBox
 		}
 
 		// Retrieve existing values (with backward compatibility)
-		$service_type  = get_post_meta($post->ID, '_rentiva_vehicle_service_type', true);
+		$service_type = get_post_meta($post->ID, '_rentiva_vehicle_service_type', true);
 		if (! $service_type) {
 			$service_type = get_post_meta($post->ID, '_mhm_vehicle_service_type', true) ?: 'rental';
 		}
@@ -88,7 +88,7 @@ final class VehicleTransferMetaBox
 			$multiplier = get_post_meta($post->ID, '_mhm_transfer_price_multiplier', true) ?: '1.0';
 		}
 
-?>
+		?>
 		<div class="mhm-meta-box-content">
 			<!-- Service Type -->
 			<p>
@@ -103,7 +103,7 @@ final class VehicleTransferMetaBox
 			<hr>
 
 			<!-- Transfer Capacity -->
-			<div id="mhm-transfer-fields" style="<?php echo ($service_type === 'rental') ? 'display:none;' : ''; ?>">
+			<div id="mhm-transfer-fields" style="<?php echo ( $service_type === 'rental' ) ? 'display:none;' : ''; ?>">
 				<p>
 					<label for="rentiva_transfer_max_pax"><strong><?php echo esc_html__('Max Passengers', 'mhm-rentiva'); ?></strong></label><br>
 					<input type="number" name="rentiva_transfer_max_pax" id="rentiva_transfer_max_pax" value="<?php echo esc_attr($max_pax); ?>" style="width:100%;" min="1">
@@ -164,7 +164,7 @@ final class VehicleTransferMetaBox
 				});
 			</script>
 		</div>
-<?php
+		<?php
 	}
 
 	/**

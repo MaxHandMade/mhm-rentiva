@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Registry for metric handlers.
  */
-final class MetricRegistry
-{
+final class MetricRegistry {
+
 	/** @var array<string, class-string<MetricInterface>>|null */
 	private static ?array $map = null;
 
@@ -21,8 +21,8 @@ final class MetricRegistry
 	public static function get(string $metric): ?MetricInterface
 	{
 		$metric = sanitize_key($metric);
-		$map = self::get_map();
-		$class = $map[$metric] ?? null;
+		$map    = self::get_map();
+		$class  = $map[ $metric ] ?? null;
 
 		if (! is_string($class) || ! class_exists($class)) {
 			return null;
@@ -54,12 +54,12 @@ final class MetricRegistry
 			self::get_map();
 		}
 
-		if (isset(self::$map[$metric])) {
+		if (isset(self::$map[ $metric ])) {
 			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
 			throw new \InvalidArgumentException(sprintf('Metric handler "%s" is already registered.', $metric));
 		}
 
-		self::$map[$metric] = $class;
+		self::$map[ $metric ] = $class;
 	}
 
 	/**
@@ -74,13 +74,13 @@ final class MetricRegistry
 		}
 
 		$core_metrics = array(
-			'total_bookings'          => TotalBookingsMetric::class,
-			'upcoming_pickups'        => UpcomingPickupsMetric::class,
-			'unread_messages'         => UnreadMessagesMetric::class,
-			'revenue_7d'              => Revenue7dMetric::class,
-			'available_balance'       => AvailableBalanceMetric::class,
-			'pending_balance'         => PendingBalanceMetric::class,
-			'total_paid_out'          => TotalPaidOutMetric::class,
+			'total_bookings'           => TotalBookingsMetric::class,
+			'upcoming_pickups'         => UpcomingPickupsMetric::class,
+			'unread_messages'          => UnreadMessagesMetric::class,
+			'revenue_7d'               => Revenue7dMetric::class,
+			'available_balance'        => AvailableBalanceMetric::class,
+			'pending_balance'          => PendingBalanceMetric::class,
+			'total_paid_out'           => TotalPaidOutMetric::class,
 			// Sprint 3 — Vendor Analytics
 			'vendor_revenue_30d'       => VendorRevenue30dMetric::class,
 			'vendor_growth_7d'         => VendorGrowth7dMetric::class,

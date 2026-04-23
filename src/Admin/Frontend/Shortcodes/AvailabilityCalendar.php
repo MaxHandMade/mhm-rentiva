@@ -32,8 +32,8 @@ use Exception;
  * - Integration with pricing shortcode
  * - Responsive design
  */
-final class AvailabilityCalendar extends AbstractShortcode
-{
+final class AvailabilityCalendar extends AbstractShortcode {
+
 
 
 
@@ -50,7 +50,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	public static function register(): void
@@ -58,14 +58,14 @@ final class AvailabilityCalendar extends AbstractShortcode
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_availability_unified', array(self::class, 'ajax_unified_availability'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_availability_unified', array(self::class, 'ajax_unified_availability'));
+		add_action('wp_ajax_mhm_rentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
 
-		add_action('wp_ajax_mhm_rentiva_get_vehicle_info', array(self::class, 'ajax_get_vehicle_info'));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_info', array(self::class, 'ajax_get_vehicle_info'));
+		add_action('wp_ajax_mhm_rentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
 
 		// Cache invalidation
-		add_action('save_post_vehicle_booking', array(self::class, 'clear_availability_cache'), 10, 3);
+		add_action('save_post_vehicle_booking', array( self::class, 'clear_availability_cache' ), 10, 3);
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -146,7 +146,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 				// Check for minified version
 				$minified_file = str_replace('.css', '.min.css', $css_file);
-				$css_url       = MHM_RENTIVA_PLUGIN_URL . (self::asset_exists($minified_file) ? $minified_file : $css_file);
+				$css_url       = MHM_RENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $css_file );
 
 				wp_enqueue_style(
 					$handle,
@@ -171,7 +171,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 				// Check for minified version
 				$minified_file = str_replace('.js', '.min.js', $js_file);
-				$js_url        = MHM_RENTIVA_PLUGIN_URL . (self::asset_exists($minified_file) ? $minified_file : $js_file);
+				$js_url        = MHM_RENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $js_file );
 
 				wp_enqueue_script(
 					$handle,
@@ -233,7 +233,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 		// Load assets
 		self::enqueue_assets();
-		$enqueued_assets[$tag] = true;
+		$enqueued_assets[ $tag ] = true;
 	}
 
 	/**
@@ -249,7 +249,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array('jquery');
+		return array( 'jquery' );
 	}
 
 	protected static function get_script_object_name(): string
@@ -289,14 +289,14 @@ final class AvailabilityCalendar extends AbstractShortcode
 		$data = parent::get_localized_data();
 
 		// Add common Rentiva data
-		$data['isUserLoggedIn'] = is_user_logged_in();
-		$data['currencySymbol'] = CurrencyHelper::get_currency_symbol();
+		$data['isUserLoggedIn']   = is_user_logged_in();
+		$data['currencySymbol']   = CurrencyHelper::get_currency_symbol();
 		$data['currencyPosition'] = CurrencyHelper::get_currency_position();
-		$data['pluginUrl']      = MHM_RENTIVA_PLUGIN_URL;
-		$data['dateFormat']     = get_option('date_format', 'd.m.Y');
-		$data['timeFormat']     = get_option('time_format', 'H:i');
-		$data['locale']         = get_locale();
-		$data['bookingPageUrl'] = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
+		$data['pluginUrl']        = MHM_RENTIVA_PLUGIN_URL;
+		$data['dateFormat']       = get_option('date_format', 'd.m.Y');
+		$data['timeFormat']       = get_option('time_format', 'H:i');
+		$data['locale']           = get_locale();
+		$data['bookingPageUrl']   = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
 
 		// Add messages for fallback
 		$data['messages'] = array(
@@ -325,8 +325,11 @@ final class AvailabilityCalendar extends AbstractShortcode
 		$data['icons'] = array(
 			'success'      => \MHMRentiva\Helpers\Icons::get('success'),
 			'warning'      => \MHMRentiva\Helpers\Icons::get('warning'),
-			'heart'        => \MHMRentiva\Helpers\Icons::get('heart', array('class' => 'rv-heart-icon')),
-			'heart_filled' => \MHMRentiva\Helpers\Icons::get('heart', array('class' => 'rv-heart-icon favorited', 'fill' => 'currentColor')),
+			'heart'        => \MHMRentiva\Helpers\Icons::get('heart', array( 'class' => 'rv-heart-icon' )),
+			'heart_filled' => \MHMRentiva\Helpers\Icons::get('heart', array(
+				'class' => 'rv-heart-icon favorited',
+				'fill'  => 'currentColor',
+			)),
 		);
 
 		/**
@@ -355,7 +358,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			$vehicles = get_posts(
 				array(
 					'post_type'   => 'vehicle',
-					'post_status' => array('publish', 'draft', 'private'),
+					'post_status' => array( 'publish', 'draft', 'private' ),
 					'numberposts' => 1,
 					'orderby'     => 'date',
 					'order'       => 'DESC',
@@ -379,9 +382,9 @@ final class AvailabilityCalendar extends AbstractShortcode
 		$selected_vehicle = $vehicle_id > 0 ? self::get_selected_vehicle_data($vehicle_id) : null;
 
 		// Start month (Fallback precedence: Attribute > Today)
-		$show_pricing    = $atts['show_pricing'] === '1' || $atts['show_pricing'] === true;
-		$months_to_show  = (int) $atts['months_to_show'];
-		$start_month     = ! empty($atts['start_month']) ? $atts['start_month'] : gmdate('Y-m');
+		$show_pricing   = $atts['show_pricing'] === '1' || $atts['show_pricing'] === true;
+		$months_to_show = (int) $atts['months_to_show'];
+		$start_month    = ! empty($atts['start_month']) ? $atts['start_month'] : gmdate('Y-m');
 
 		// Get calendar data (if vehicle exists)
 		$availability_data = array();
@@ -436,8 +439,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 		);
 		if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
 			$rating_data       = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_rating($vehicle_id);
-			$rating['average'] = (float) ($rating_data['average'] ?? 0);
-			$rating['count']   = (int) ($rating_data['count'] ?? 0);
+			$rating['average'] = (float) ( $rating_data['average'] ?? 0 );
+			$rating['count']   = (int) ( $rating_data['count'] ?? 0 );
 		}
 
 		// Favorite check
@@ -471,7 +474,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 		$status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
 
-		$is_available = ($status === 'active');
+		$is_available = ( $status === 'active' );
 		$status_data  = array(
 			'is_available' => $is_available,
 			'status'       => $status,
@@ -483,7 +486,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			'title'           => $vehicle->post_title,
 			'excerpt'         => wp_trim_words($vehicle->post_excerpt, 20),
 			'price_per_day'   => $price_per_day,
-			'formatted_price' => CurrencyHelper::format_price((float) $price_per_day, 0),
+			'formatted_price' => CurrencyHelper::format_price( (float) $price_per_day, 0),
 			'currency_symbol' => $currency_symbol,
 			'rating'          => $rating,
 			'favorite'        => $is_favorited,
@@ -514,7 +517,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				$vehicles = get_posts(
 					array(
 						'post_type'   => 'vehicle',
-						'post_status' => array('publish', 'draft', 'private'),
+						'post_status' => array( 'publish', 'draft', 'private' ),
 						'numberposts' => -1,
 						'orderby'     => 'title',
 						'order'       => 'ASC',
@@ -534,7 +537,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				$vehicles_list = array();
 				foreach ($vehicles as $vehicle) {
 					$vehicle_id = $vehicle->ID;
-					$batch_data = $vehicle_data_batch[$vehicle_id] ?? array();
+					$batch_data = $vehicle_data_batch[ $vehicle_id ] ?? array();
 
 					$price = 0;
 
@@ -562,7 +565,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			$cache_key,
 			$vehicles_list,
 			1800,
-			array('vehicles', 'availability_calendar')
+			array( 'vehicles', 'availability_calendar' )
 		);
 
 		// Debug log
@@ -593,7 +596,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 				// Calculate date range for single query
 				$start_date = gmdate('Y-m-01', strtotime($start_month));
-				$end_date   = gmdate('Y-m-t', strtotime($start_month . ' +' . ($months_to_show - 1) . ' months'));
+				$end_date   = gmdate('Y-m-t', strtotime($start_month . ' +' . ( $months_to_show - 1 ) . ' months'));
 
 				// Single optimized query for all months
 				$bookings = $wpdb->get_results(
@@ -646,8 +649,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 
 						foreach ($bookings as $booking) {
 							// Normalize dates to exclude time portion if exists
-							$b_start = substr((string) $booking->start_date, 0, 10);
-							$b_end   = substr((string) $booking->end_date, 0, 10);
+							$b_start = substr( (string) $booking->start_date, 0, 10);
+							$b_end   = substr( (string) $booking->end_date, 0, 10);
 
 							if ($current_date >= $b_start && $current_date <= $b_end) {
 								$day_status     = $booking->status ?: 'booked';
@@ -702,12 +705,12 @@ final class AvailabilityCalendar extends AbstractShortcode
 							$day_status = 'unavailable';
 						}
 
-						$days[$current_date] = array(
+						$days[ $current_date ] = array(
 							'status'     => $day_status,
 							'bookings'   => $day_bookings,
 							'occupancy'  => $day_occupancy,
 							'day_number' => gmdate('j', strtotime($current_date)),
-							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array(6, 7)),
+							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array( 6, 7 )),
 							'is_today'   => $current_date === gmdate('Y-m-d'),
 							'is_past'    => $current_date < gmdate('Y-m-d'),
 						);
@@ -715,7 +718,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 						$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
 					}
 
-					$availability_data[$current_month] = array(
+					$availability_data[ $current_month ] = array(
 						'month_name' => self::get_month_name($current_month),
 						'year'       => gmdate('Y', strtotime($current_month)),
 						'days'       => $days,
@@ -763,7 +766,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			$cache_key,
 			$availability_data,
 			60,
-			array('vehicles', 'availability', "vehicle_{$vehicle_id}")
+			array( 'vehicles', 'availability', "vehicle_{$vehicle_id}" )
 		);
 
 		// Debug log
@@ -796,7 +799,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 			$current_date = $month_start;
 
 			while ($current_date <= $month_end) {
-				$is_weekend      = in_array(gmdate('N', strtotime($current_date)), array(6, 7));
+				$is_weekend      = in_array(gmdate('N', strtotime($current_date)), array( 6, 7 ));
 				$day_price       = $base_price;
 				$discount_amount = 0;
 
@@ -817,7 +820,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				foreach ($discounts as $discount) {
 					if ($current_date >= $discount['start_date'] && $current_date <= $discount['end_date']) {
 						if ($discount['type'] === 'percentage') {
-							$discount_amount = ($day_price * $discount['value']) / 100;
+							$discount_amount = ( $day_price * $discount['value'] ) / 100;
 						} else {
 							$discount_amount = $discount['value'];
 						}
@@ -826,7 +829,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 					}
 				}
 
-				$days[$current_date] = array(
+				$days[ $current_date ] = array(
 					'base_price'      => $base_price,
 					'day_price'       => $day_price,
 					'is_weekend'      => $is_weekend,
@@ -838,7 +841,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
 			}
 
-			$pricing_data[$current_month] = array(
+			$pricing_data[ $current_month ] = array(
 				'month_name'    => self::get_month_name($current_month),
 				'year'          => gmdate('Y', strtotime($current_month)),
 				'days'          => $days,
@@ -894,17 +897,17 @@ final class AvailabilityCalendar extends AbstractShortcode
 	{
 		// Security check
 		if (! check_ajax_referer('mhm_rentiva_availability_nonce', 'nonce', false)) {
-			wp_send_json_error(array('message' => esc_html__('Security check failed.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 			return;
 		}
 
 		try {
 			$vehicle_id     = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-			$start_month    = isset($_POST['start_month']) ? sanitize_text_field(wp_unslash((string) $_POST['start_month'])) : gmdate('Y-m');
+			$start_month    = isset($_POST['start_month']) ? sanitize_text_field(wp_unslash( (string) $_POST['start_month'])) : gmdate('Y-m');
 			$months_to_show = intval(isset($_POST['months_to_show']) ? wp_unslash($_POST['months_to_show']) : 1);
 
 			if (! $vehicle_id) {
-				wp_send_json_error(array('message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva')));
+				wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
 			}
 
 			// ⭐ OPTIMIZATION: Check for license limits before substantial work
@@ -927,7 +930,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				)
 			);
 		} catch (Exception $e) {
-			wp_send_json_error(array('message' => esc_html__('An error occurred while retrieving data.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving data.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -1012,8 +1015,8 @@ final class AvailabilityCalendar extends AbstractShortcode
 			);
 			if (class_exists('\MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList')) {
 				$rating_data       = \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_rating($vehicle_id);
-				$rating['average'] = (float) ($rating_data['average'] ?? 0);
-				$rating['count']   = (int) ($rating_data['count'] ?? 0);
+				$rating['average'] = (float) ( $rating_data['average'] ?? 0 );
+				$rating['count']   = (int) ( $rating_data['count'] ?? 0 );
 			}
 
 			$data = array(
@@ -1023,7 +1026,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 				'image'           => $image_url ?: '',
 				'features'        => $features,
 				'price'           => (float) $price,
-				'formatted_price' => CurrencyHelper::format_price((float) $price, 0),
+				'formatted_price' => CurrencyHelper::format_price( (float) $price, 0),
 				'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 				'rating'          => $rating,
 				'is_favorite'     => false,
@@ -1047,17 +1050,17 @@ final class AvailabilityCalendar extends AbstractShortcode
 			}
 
 			$data['status']       = $status;
-			$data['is_available'] = ($status === 'active');
+			$data['is_available'] = ( $status === 'active' );
 
 			$status_labels       = array(
 				'active'      => esc_html__('Available', 'mhm-rentiva'),
 				'maintenance' => esc_html__('Out of Order', 'mhm-rentiva'),
 			);
-			$data['status_text'] = $status_labels[$status] ?? esc_html__('Unavailable', 'mhm-rentiva');
+			$data['status_text'] = $status_labels[ $status ] ?? esc_html__('Unavailable', 'mhm-rentiva');
 
 			wp_send_json_success($data);
 		} catch (Exception $e) {
-			wp_send_json_error(array('message' => esc_html__('An error occurred while retrieving vehicle information.', 'mhm-rentiva')));
+			wp_send_json_error(array( 'message' => esc_html__('An error occurred while retrieving vehicle information.', 'mhm-rentiva') ));
 		}
 	}
 
@@ -1086,7 +1089,7 @@ final class AvailabilityCalendar extends AbstractShortcode
 		);
 
 		$month_num = gmdate('m', strtotime($month));
-		return $months[$month_num] ?? esc_html__('Unknown', 'mhm-rentiva');
+		return $months[ $month_num ] ?? esc_html__('Unknown', 'mhm-rentiva');
 	}
 
 	/**
@@ -1103,9 +1106,9 @@ final class AvailabilityCalendar extends AbstractShortcode
 			return;
 		}
 
-		$vehicle_id = (int) get_post_meta((int) $post_id, '_mhm_vehicle_id', true);
+		$vehicle_id = (int) get_post_meta( (int) $post_id, '_mhm_vehicle_id', true);
 		if ($vehicle_id > 0) {
-			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(array("vehicle_{$vehicle_id}"));
+			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(array( "vehicle_{$vehicle_id}" ));
 		}
 	}
 }

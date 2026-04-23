@@ -23,8 +23,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class CommissionPolicyMigration
-{
+final class CommissionPolicyMigration {
+
     /**
      * Create or update the commission policy table via dbDelta.
      */

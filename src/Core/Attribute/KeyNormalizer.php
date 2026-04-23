@@ -24,8 +24,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Core\Attribute
  * @since 4.11.0
  */
-final class KeyNormalizer
-{
+final class KeyNormalizer {
+
 
     /**
      * Normalizes a key to its canonical snake_case format.

@@ -297,7 +297,7 @@ final class SettingsSanitizer {
 
 	private static function sanitize_vehicle_management_settings( array $input, array $defaults ): array {
 		$url_base = \sanitize_title( $input['mhm_rentiva_vehicle_url_base'] ?? ( $defaults['mhm_rentiva_vehicle_url_base'] ?? 'vehicle' ) );
-		$out = array(
+		$out      = array(
 			'mhm_rentiva_vehicle_url_base'             => $url_base ?: 'vehicle',
 			'mhm_rentiva_vehicle_base_price'           => max( 0.1, floatval( $input['mhm_rentiva_vehicle_base_price'] ?? ( $defaults['mhm_rentiva_vehicle_base_price'] ?? 1.0 ) ) ),
 			'mhm_rentiva_vehicle_weekend_multiplier'   => max( 0.1, floatval( $input['mhm_rentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ) ),
@@ -415,13 +415,13 @@ final class SettingsSanitizer {
 
 	private static function sanitize_email_sending_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_email_reply_to'           => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_reply_to'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhm_rentiva_email_send_enabled'       => self::get_bool( $input, 'mhm_rentiva_email_send_enabled' ),
-			'mhm_rentiva_email_test_mode'          => self::get_bool( $input, 'mhm_rentiva_email_test_mode' ),
-			'mhm_rentiva_email_test_address'       => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_test_address'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhm_rentiva_email_template_path'      => self::safe_text( $input['mhm_rentiva_email_template_path'] ?? 'mhm-rentiva/emails/' ),
-			'mhm_rentiva_email_auto_send'          => self::get_bool( $input, 'mhm_rentiva_email_auto_send' ),
-			'mhm_rentiva_email_log_enabled'        => self::get_bool( $input, 'mhm_rentiva_email_log_enabled' ),
+			'mhm_rentiva_email_reply_to'                 => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_reply_to'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhm_rentiva_email_send_enabled'             => self::get_bool( $input, 'mhm_rentiva_email_send_enabled' ),
+			'mhm_rentiva_email_test_mode'                => self::get_bool( $input, 'mhm_rentiva_email_test_mode' ),
+			'mhm_rentiva_email_test_address'             => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_test_address'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhm_rentiva_email_template_path'            => self::safe_text( $input['mhm_rentiva_email_template_path'] ?? 'mhm-rentiva/emails/' ),
+			'mhm_rentiva_email_auto_send'                => self::get_bool( $input, 'mhm_rentiva_email_auto_send' ),
+			'mhm_rentiva_email_log_enabled'              => self::get_bool( $input, 'mhm_rentiva_email_log_enabled' ),
 			'mhm_rentiva_email_log_retention_days'       => self::get_int( $input, 'mhm_rentiva_email_log_retention_days', 30, 1, 365 ),
 			'mhm_rentiva_customer_welcome_email'         => self::get_bool( $input, 'mhm_rentiva_customer_welcome_email' ),
 			'mhm_rentiva_customer_booking_notifications' => self::get_bool( $input, 'mhm_rentiva_customer_booking_notifications' ),

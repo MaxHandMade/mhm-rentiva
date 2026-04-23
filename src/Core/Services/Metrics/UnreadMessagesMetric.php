@@ -14,8 +14,8 @@ use MHMRentiva\Core\Services\TrendService;
 /**
  * Customer unread messages metric.
  */
-final class UnreadMessagesMetric implements MetricInterface
-{
+final class UnreadMessagesMetric implements MetricInterface {
+
 	public function key(): string
 	{
 		return 'unread_messages';
@@ -27,7 +27,11 @@ final class UnreadMessagesMetric implements MetricInterface
 
 		$email = TrendService::resolve_customer_email_from_args($args);
 		if ($email === '') {
-			return array('total' => 0, 'current' => 0, 'previous' => 0);
+			return array(
+				'total'    => 0,
+				'current'  => 0,
+				'previous' => 0,
+			);
 		}
 
 		return array(
