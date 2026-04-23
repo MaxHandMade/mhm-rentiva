@@ -121,8 +121,9 @@ abstract class AbstractShortcode {
 			}
 
 			// Performance: Cache check
-			$cache_key = static::get_cache_key($atts);
-			if ($cached_html = static::get_cached_html($cache_key)) {
+			$cache_key   = static::get_cache_key($atts);
+			$cached_html = static::get_cached_html($cache_key);
+			if ($cached_html) {
 				return $cached_html;
 			}
 

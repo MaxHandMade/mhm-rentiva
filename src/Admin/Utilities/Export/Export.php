@@ -1822,7 +1822,7 @@ final class Export {
 				}
 			}
 
-			echo json_encode($json_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+			echo wp_json_encode($json_data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 			exit;
 		}
 

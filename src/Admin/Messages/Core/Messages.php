@@ -111,6 +111,7 @@ final class Messages {
 					<?php echo esc_html( $pending_count ); ?>
 				</span>
 				<div class="mhm-msg-widget__header-text">
+					<?php /* translators: %d: number of pending messages awaiting reply */ ?>
 					<strong><?php echo esc_html( sprintf( _n( '%d Pending Message', '%d Pending Messages', $pending_count, 'mhm-rentiva' ), $pending_count ) ); ?></strong>
 					<?php if ( $pending_count > 0 ) : ?>
 						<?php esc_html_e( 'Awaiting your response', 'mhm-rentiva' ); ?>

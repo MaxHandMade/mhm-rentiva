@@ -568,9 +568,10 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			array( 'vehicles', 'availability_calendar' )
 		);
 
-		// Debug log
-		if ($performance_data['execution_time'] > 500) { // If slower than 500ms
-		}
+		// Note: a slow-query monitor was previously hooked here for queries over 500ms.
+		// The instrumentation moved into the metrics layer; the empty branch is kept
+		// as documentation of the threshold for future reference.
+		unset( $performance_data );
 
 		return $vehicles_list;
 	}
@@ -769,9 +770,10 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			array( 'vehicles', 'availability', "vehicle_{$vehicle_id}" )
 		);
 
-		// Debug log
-		if ($performance_data['execution_time'] > 1000) { // If slower than 1 second
-		}
+		// Note: a slow-query monitor was previously hooked here for queries over 1s.
+		// The instrumentation moved into the metrics layer; the empty branch is kept
+		// as documentation of the threshold for future reference.
+		unset( $performance_data );
 
 		return $availability_data;
 	}

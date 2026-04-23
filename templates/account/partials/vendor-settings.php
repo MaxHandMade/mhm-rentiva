@@ -135,6 +135,7 @@ $bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
             <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
                 <label for="vendor_bio"><?php esc_html_e('Short Bio', 'mhm-rentiva'); ?></label>
                 <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr( (string) $bio_max); ?>"><?php echo esc_textarea($bio); ?></textarea>
+                <?php /* translators: %d: maximum allowed character count for the vendor bio field */ ?>
                 <small><?php echo esc_html(sprintf(__('Max %d characters', 'mhm-rentiva'), $bio_max)); ?></small>
             </div>
         </div>

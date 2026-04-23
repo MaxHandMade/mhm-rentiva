@@ -212,11 +212,11 @@ final class AuthHelper {
 			'nonce' => wp_generate_password(32, false),
 		);
 
-		$encoded   = base64_encode(json_encode($payload));
+		$encoded   = base64_encode(wp_json_encode($payload));
 		$signature = hash_hmac('sha256', $encoded, wp_salt());
 
 		return base64_encode(
-			json_encode(
+			wp_json_encode(
 				array(
 					'payload'   => $encoded,
 					'signature' => $signature,

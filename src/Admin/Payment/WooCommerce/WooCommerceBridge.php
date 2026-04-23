@@ -1735,8 +1735,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$cart_updated        = true;
 			}
 
-			if ($is_booking_item) {
-			}
+			// Note: $is_booking_item carry-through; logging happens in caller layer.
+			unset($is_booking_item);
 		}
 
 		if (! $cart_updated) {
@@ -2016,7 +2016,6 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		$order = function_exists('wc_get_order') ? call_user_func('wc_get_order', $order_id) : false;
 		if (! $order) {
-			return;
 			return;
 		}
 

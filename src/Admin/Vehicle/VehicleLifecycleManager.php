@@ -73,6 +73,7 @@ final class VehicleLifecycleManager {
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::ACTIVE)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot activate vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -123,6 +124,7 @@ final class VehicleLifecycleManager {
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::PAUSED)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot pause vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -213,6 +215,7 @@ final class VehicleLifecycleManager {
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::WITHDRAWN)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot withdraw vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -261,6 +264,7 @@ final class VehicleLifecycleManager {
         if (! VehicleLifecycleStatus::can_transition($current, VehicleLifecycleStatus::EXPIRED)) {
             return new \WP_Error(
                 'invalid_transition',
+                /* translators: %s: current vehicle lifecycle state name */
                 sprintf(__('Cannot expire vehicle from "%s" state.', 'mhm-rentiva'), $current)
             );
         }
@@ -351,6 +355,7 @@ final class VehicleLifecycleManager {
             $remaining = (int) ceil(( strtotime($cooldown_ends) - time() ) / DAY_IN_SECONDS);
             return new \WP_Error(
                 'cooldown_active',
+                /* translators: %d: number of days remaining in cooldown period */
                 sprintf(__('Cooldown period active. %d day(s) remaining.', 'mhm-rentiva'), $remaining)
             );
         }
@@ -444,6 +449,7 @@ final class VehicleLifecycleManager {
                 return new \WP_Error(
                     'pause_limit_reached',
                     sprintf(
+                        /* translators: 1: current pause count this month, 2: maximum pauses allowed per month */
                         __('Monthly pause limit reached (%1$d/%2$d). Try again next month.', 'mhm-rentiva'),
                         $count,
                         VehicleLifecycleStatus::max_pauses_per_month()

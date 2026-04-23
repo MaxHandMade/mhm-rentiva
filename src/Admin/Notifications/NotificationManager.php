@@ -139,7 +139,7 @@ final class NotificationManager {
 			array(
 				'user_id'           => $user_id,
 				'notification_type' => $type,
-				'notification_data' => json_encode($data),
+				'notification_data' => wp_json_encode($data),
 				'scheduled_for'     => self::get_next_send_time(),
 				'status'            => 'pending',
 				'created_at'        => current_time('mysql'),

@@ -85,8 +85,7 @@ final class CustomerMessages {
 	 * @deprecated 4.0.0 Portal tabs removed - My Account system is used
 	 */
 	public static function add_portal_tab(): void {
-		// ⭐ v4.0.0: Portal tabs removed
-		return;
+		// v4.0.0: Portal tabs removed; My Account system is used instead.
 	}
 
 	/**

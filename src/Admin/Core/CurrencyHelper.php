@@ -206,8 +206,6 @@ final class CurrencyHelper {
 	private static function normalize_currency_code( string $currency_code ): string {
 		$aliases = array(
 			"\u{20BA}"  => 'TRY',
-			'₺'         => 'TRY',
-			'₺'         => 'TRY',
 			'TL'        => 'TRY',
 			'TL_SYMBOL' => 'TRY',
 			'LIRA'      => 'TRY',
