@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.27.4
+Stable tag:        4.27.5
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.27.5 =
+* **Security:** License client now participates in per-product license binding introduced by `mhm-license-server v1.8.0+`. Requires that same server version.
+* **UI fix:** Additional Services list rendered two Documentation buttons; the global `all_admin_notices` docs-link hook no longer fires on the addon screen (the custom page header already provides one).
 
 = 4.27.4 =
 * **Fix (architectural):** The v4.27.1 and v4.27.2 data cleanup migrations never actually executed on upgraded sites — only on fresh installs. The `plugins_loaded` migration trigger bailed out of ALL migrations whenever `get_option('mhm_rentiva_plugin_version') === MHM_RENTIVA_VERSION`, but `mhm_rentiva_single_site_activation()` stamps that version BEFORE the first `plugins_loaded` fires. After a ZIP-replace upgrade (the common case), the version stamp is already current, the drift check short-circuits, and new flag-guarded cleanups are skipped forever. This is why mhmrentiva.com still showed Brand Name = "1" and Currency = "1" (stats cards rendering "0,00 1") after upgrading from v4.27.0 → v4.27.2. Fix: the migration trigger now runs on two independent lanes. Lane A — schema drift — still runs `DatabaseMigrator::run_migrations()` only when the version differs. Lane B — per-flag data cleanups (`migrate_remove_auto_populated_labels`, `migrate_clean_test_pollution`) — runs on every admin request; each migration returns immediately once its own flag is set, so the overhead is a single `get_option()` call on steady state. Three new regression tests in `tests/Migration/MigrationLaneIndependenceTest.php` prove both migrations execute when the version stamp is already current.
