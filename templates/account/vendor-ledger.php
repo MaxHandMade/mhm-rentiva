@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Local scope inside render context.
 
 if (! defined('ABSPATH')) {
@@ -9,6 +11,7 @@ if (! defined('ABSPATH')) {
  * Display grid matching ledger execution blocks exposing paginations seamlessly extracting securely formatted presentation elements implicitly.
  *
  * Incoming Context:
+ *
  * @var array<int, \stdClass> $ledger_entries Array containing stdClass transaction matching rows correctly retrieved from DB.
  * @var array<string, string> $ledger_filters Extracted contextual bounds applying safe query parameters securely.
  * @var int                   $ledger_paged   Resolved sequential index correctly.
@@ -32,8 +35,8 @@ if (! defined('ABSPATH')) {
             <label for="mhm_ledger_status"><?php esc_html_e('Status', 'mhm-rentiva'); ?></label>
             <select name="filter_status" id="mhm_ledger_status">
                 <option value=""><?php esc_html_e('All Statuses', 'mhm-rentiva'); ?></option>
-                <option value="cleared" <?php selected(($ledger_filters['status'] ?? ''), 'cleared'); ?>><?php esc_html_e('Cleared', 'mhm-rentiva'); ?></option>
-                <option value="pending" <?php selected(($ledger_filters['status'] ?? ''), 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
+                <option value="cleared" <?php selected(( $ledger_filters['status'] ?? '' ), 'cleared'); ?>><?php esc_html_e('Cleared', 'mhm-rentiva'); ?></option>
+                <option value="pending" <?php selected(( $ledger_filters['status'] ?? '' ), 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
             </select>
         </div>
 
@@ -41,9 +44,9 @@ if (! defined('ABSPATH')) {
             <label for="mhm_ledger_type"><?php esc_html_e('Type', 'mhm-rentiva'); ?></label>
             <select name="filter_type" id="mhm_ledger_type">
                 <option value=""><?php esc_html_e('All Types', 'mhm-rentiva'); ?></option>
-                <option value="commission_credit" <?php selected(($ledger_filters['type'] ?? ''), 'commission_credit'); ?>><?php esc_html_e('Earnings', 'mhm-rentiva'); ?></option>
-                <option value="payout_debit" <?php selected(($ledger_filters['type'] ?? ''), 'payout_debit'); ?>><?php esc_html_e('Payouts', 'mhm-rentiva'); ?></option>
-                <option value="commission_refund" <?php selected(($ledger_filters['type'] ?? ''), 'commission_refund'); ?>><?php esc_html_e('Refunds', 'mhm-rentiva'); ?></option>
+                <option value="commission_credit" <?php selected(( $ledger_filters['type'] ?? '' ), 'commission_credit'); ?>><?php esc_html_e('Earnings', 'mhm-rentiva'); ?></option>
+                <option value="payout_debit" <?php selected(( $ledger_filters['type'] ?? '' ), 'payout_debit'); ?>><?php esc_html_e('Payouts', 'mhm-rentiva'); ?></option>
+                <option value="commission_refund" <?php selected(( $ledger_filters['type'] ?? '' ), 'commission_refund'); ?>><?php esc_html_e('Refunds', 'mhm-rentiva'); ?></option>
             </select>
         </div>
 
@@ -99,9 +102,9 @@ if (! defined('ABSPATH')) {
                         }
 
                         // Value Map
-                        $amount = (float) $entry->amount;
-                        $amount_class = $amount > 0 ? 'is-positive' : 'is-negative';
-                        $amount_display = function_exists('wc_price') ? wc_price($amount, array('currency' => $entry->currency)) : number_format($amount, 2) . ' ' . $entry->currency;
+                        $amount         = (float) $entry->amount;
+                        $amount_class   = $amount > 0 ? 'is-positive' : 'is-negative';
+                        $amount_display = function_exists('wc_price') ? wc_price($amount, array( 'currency' => $entry->currency )) : number_format($amount, 2) . ' ' . $entry->currency;
                         ?>
                         <tr>
                             <td>
@@ -140,7 +143,7 @@ if (! defined('ABSPATH')) {
     <?php
     // Minimalist fallback pagination logic (Standard WP pagination bounds generally require precise row limits, handled dynamically here over simple offsets)
     if (count($ledger_entries) === $ledger_limit || $ledger_paged > 1) :
-    ?>
+		?>
         <div class="mhm-rentiva-ledger__pagination" style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
             <?php if ($ledger_paged > 1) : ?>
                 <a href="<?php echo esc_url(add_query_arg('paged', $ledger_paged - 1)); ?>" class="button">&laquo; <?php esc_html_e('Previous', 'mhm-rentiva'); ?></a>
