@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.27.3
+Stable tag:        4.27.4
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.27.4 =
+* **Fix (architectural):** The v4.27.1 and v4.27.2 data cleanup migrations never actually executed on upgraded sites — only on fresh installs. The `plugins_loaded` migration trigger bailed out of ALL migrations whenever `get_option('mhm_rentiva_plugin_version') === MHM_RENTIVA_VERSION`, but `mhm_rentiva_single_site_activation()` stamps that version BEFORE the first `plugins_loaded` fires. After a ZIP-replace upgrade (the common case), the version stamp is already current, the drift check short-circuits, and new flag-guarded cleanups are skipped forever. This is why mhmrentiva.com still showed Brand Name = "1" and Currency = "1" (stats cards rendering "0,00 1") after upgrading from v4.27.0 → v4.27.2. Fix: the migration trigger now runs on two independent lanes. Lane A — schema drift — still runs `DatabaseMigrator::run_migrations()` only when the version differs. Lane B — per-flag data cleanups (`migrate_remove_auto_populated_labels`, `migrate_clean_test_pollution`) — runs on every admin request; each migration returns immediately once its own flag is set, so the overhead is a single `get_option()` call on steady state. Three new regression tests in `tests/Migration/MigrationLaneIndependenceTest.php` prove both migrations execute when the version stamp is already current.
 
 = 4.27.3 =
 * **Fix:** v4.27.2's attempt to de-duplicate the Lite "Additional Services limit" admin notice was incomplete; on production sites the notice still rendered twice. Root cause (confirmed on the live DOM): the custom page header inside `add_addon_page_title()` emitted its own `<hr class="wp-header-end">` marker, and WordPress core also emits one for the built-in post-type list heading. WP's `wp-admin/js/common.js` relocator calls `$( 'hr.wp-header-end' ).before( $notice )` — jQuery's `.before()` clones its argument for every matched target except the last, so the single notice got duplicated to one copy per marker. Fix: `AdminHelperTrait::render_admin_header()` now accepts a `$skip_wp_header_end` parameter; `AddonMenu::add_addon_page_title()` passes `true` on the addon list screen so only WordPress's own marker remains in the DOM. Verified in the production browser after deploy — notice now renders exactly once.

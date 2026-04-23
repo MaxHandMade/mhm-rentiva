@@ -1,5 +1,14 @@
 [
     {
+        "version": "4.27.4",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME (mimari): v4.27.1 ve v4.27.2 veri temizleme migrasyonları YÜKSELTILMIŞ sitelerde asla çalışmadı — sadece taze kurulumlarda çalıştı. `plugins_loaded` migration tetikleyicisi, saklı plugin versiyonu dosya sabitiyle eşleştiğinde TÜM migrasyonlardan çıkıyordu; ama `mhm_rentiva_single_site_activation()` versiyonu bir sonraki `plugins_loaded` tetiklenmeden ÖNCE damgalıyor. ZIP-replace yükseltmesinden sonra drift kontrolü kısa devre yapıyor ve yeni temizlemeler sonsuza dek atlanıyordu — mhmrentiva.com'un v4.27.0'dan yükselttikten sonra bile Marka Adı = '1' ve Para Birimi = '1' göstermesinin nedeni buydu. Düzeltme: migration tetikleyici artık iki bağımsız şeritte çalışıyor. Şerit A (şema drift — DatabaseMigrator) versiyon kontrollü kalıyor. Şerit B (flag'li veri temizlemeleri — migrate_remove_auto_populated_labels, migrate_clean_test_pollution) her admin isteğinde çalışıyor; her migrasyon kendi flag'i set edildikten sonra erken dönüyor. tests/Migration/MigrationLaneIndependenceTest.php içinde 3 yeni regresyon testi, versiyon damgası mevcut olduğunda iki migrasyonun da çalıştığını kanıtlıyor."
+        ],
+        "notice": "v4.27.4 — migration mimarisi düzeltildi; patch release veri temizlemeleri artık yükseltilmiş sitelerde gerçekten çalışıyor."
+    },
+    {
         "version": "4.27.3",
         "date": "2026-04-23",
         "type": "patch",

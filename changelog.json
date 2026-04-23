@@ -1,5 +1,14 @@
 [
     {
+        "version": "4.27.4",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "Fix (architectural): The v4.27.1 and v4.27.2 data cleanup migrations never executed on upgraded sites — only on fresh installs. The `plugins_loaded` migration trigger bailed out of ALL migrations whenever the stored plugin version matched the file constant, but `mhm_rentiva_single_site_activation()` stamps that version BEFORE the next `plugins_loaded` fires. After a ZIP-replace upgrade the drift check short-circuited and the new cleanups were skipped forever — this is why mhmrentiva.com still showed Brand Name = '1' and Currency = '1' after upgrading from v4.27.0. Fix: migration trigger now runs on two independent lanes. Lane A (schema drift via DatabaseMigrator) stays version-gated. Lane B (per-flag data cleanups — migrate_remove_auto_populated_labels, migrate_clean_test_pollution) runs on every admin request; each migration returns early once its own flag is set. Three new regression tests in tests/Migration/MigrationLaneIndependenceTest.php prove both migrations execute when the version stamp is already current."
+        ],
+        "notice": "v4.27.4 — fixes the migration architecture so patch-release data cleanups actually run on upgraded sites."
+    },
+    {
         "version": "4.27.3",
         "date": "2026-04-23",
         "type": "patch",

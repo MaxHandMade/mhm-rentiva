@@ -4,7 +4,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           4.27.3
+ * Version:           4.27.4
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
@@ -75,7 +75,7 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '4.27.3');
+define('MHM_RENTIVA_VERSION', '4.27.4');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -202,16 +202,30 @@ add_action(
 ); // Priority -10: Load very early (critical for AJAX)
 
 /**
- * Version drift migration trigger.
+ * Migration trigger (two independent lanes).
  *
- * Fires on every request after bootstrap. Compares the plugin file constant
- * (MHM_RENTIVA_VERSION) against the stored option (mhm_rentiva_plugin_version).
- * If they differ, run_migrations() is invoked so schema changes from an update
- * are applied even when the user installs via manual upload / FTP / wp-cli —
- * paths that never trigger the activation hook.
+ * Fires on every admin / cron / cli request after bootstrap. The work is
+ * split into two lanes so that a single misstep on one lane cannot block
+ * the other.
  *
- * DatabaseMigrator is idempotent (guarded by mhm_rentiva_db_version) so this
- * is safe to call on every version bump with no duplicate work.
+ *  Lane A — schema migrations driven by the stored version stamp.
+ *    Runs `DatabaseMigrator::run_migrations()` only when the plugin file
+ *    constant (MHM_RENTIVA_VERSION) differs from the stored option
+ *    (mhm_rentiva_plugin_version). DatabaseMigrator is itself idempotent
+ *    (guarded by mhm_rentiva_db_version), so re-running on every drift is
+ *    cheap; the outer check just skips the call entirely on steady state.
+ *
+ *  Lane B — one-time data cleanups that carry their own per-migration flag
+ *    option. These MUST run outside the version-drift guard. Reason:
+ *    `mhm_rentiva_single_site_activation()` stamps the version BEFORE the
+ *    next `plugins_loaded` fires, so a ZIP-replace upgrade (the most common
+ *    deploy path) lands with `stored_version === MHM_RENTIVA_VERSION`
+ *    already true. The drift check would short-circuit and the new data
+ *    cleanup would never run — which is exactly the v4.27.2 →
+ *    migrate_clean_test_pollution → never-executed bug reported on
+ *    mhmrentiva.com. Each migration checks its own flag option and returns
+ *    immediately once done, so the overhead on repeat admin loads is a
+ *    single `get_option()` call per migration.
  */
 add_action(
 	'plugins_loaded',
@@ -221,30 +235,28 @@ add_action(
 			return;
 		}
 
+		// Lane A — schema drift.
 		$stored_version = get_option( 'mhm_rentiva_plugin_version', '' );
-
-		if ($stored_version === MHM_RENTIVA_VERSION) {
-			return;
-		}
-
-		if (class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
+		if ($stored_version !== MHM_RENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
 			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
 			update_option('mhm_rentiva_plugin_version', MHM_RENTIVA_VERSION);
 		}
 
-		// v4.27.1 one-time cleanup: legacy installs persisted translated
-		// field labels into wp_options, which then outranked live __() calls
-		// after a locale switch. The migration is idempotent (guarded by its
-		// own flag option) and only runs once per site.
+		// Lane B — one-time data cleanups.
+		// Each migration is idempotent via its own flag option; calling them
+		// on every admin request after steady state is a cheap no-op.
+		//
+		// v4.27.1 — legacy installs persisted translated field labels into
+		// wp_options, where they outranked live __() calls after a locale
+		// switch. Flag: mhm_rentiva_v4271_labels_migrated.
 		if (class_exists('MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleMeta')) {
 			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::migrate_remove_auto_populated_labels();
 		}
 
-		// v4.27.2 one-time cleanup: earlier Settings Testing "Run All
-		// Diagnostics" runs could leave '1' / '0' test payloads in free-text,
-		// email, URL and currency fields inside mhm_rentiva_settings. The
-		// harness fix prevents recurrence; this migration erases the already-
-		// recorded pollution so SettingsCore::get() falls back to defaults.
+		// v4.27.2 — Settings Testing "Run All Diagnostics" could leak
+		// '1' / '0' test payloads into free-text, email, URL and currency
+		// fields inside mhm_rentiva_settings. Flag:
+		// mhm_rentiva_v4272_test_pollution_cleaned.
 		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
 			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_clean_test_pollution();
 		}
