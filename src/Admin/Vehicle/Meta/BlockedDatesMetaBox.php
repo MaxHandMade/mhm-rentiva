@@ -144,9 +144,9 @@ final class BlockedDatesMetaBox {
 		// Save notes — decode JSON first, then sanitize each value individually
 		$notes_clean   = array();
 		$raw_notes_str = isset( $_POST[ self::META_KEY_NOTES ] )
-			? wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] )
+			? wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON payload is sanitized after decoding per note value.
 			: '{}';
-		$notes_raw = json_decode( $raw_notes_str, true );
+		$notes_raw     = json_decode( $raw_notes_str, true );
 		if ( is_array( $notes_raw ) ) {
 			foreach ( $notes_raw as $d => $note ) {
 				$d = sanitize_text_field( (string) $d );
@@ -205,7 +205,7 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
-		$source_id = isset( $_POST['vehicle_id'] ) ? (int) $_POST['vehicle_id'] : 0;
+		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
@@ -261,7 +261,7 @@ final class BlockedDatesMetaBox {
 			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
-		$source_id = isset( $_POST['vehicle_id'] ) ? (int) $_POST['vehicle_id'] : 0;
+		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
 		}
@@ -285,9 +285,9 @@ final class BlockedDatesMetaBox {
 		) );
 
 		foreach ( $vehicles as $vid ) {
-			$vid            = (int) $vid;
-			$existing       = self::get_blocked_dates( $vid );
-			$updated        = array_values( array_diff( $existing, $dates_to_remove ) );
+			$vid      = (int) $vid;
+			$existing = self::get_blocked_dates( $vid );
+			$updated  = array_values( array_diff( $existing, $dates_to_remove ) );
 			update_post_meta( $vid, self::META_KEY, wp_json_encode( $updated ) );
 
 			// Also remove notes for deleted dates
@@ -307,10 +307,10 @@ final class BlockedDatesMetaBox {
 	 * @return string[] Sanitized date strings in Y-m-d format.
 	 */
 	private static function parse_dates_from_payload(): array {
-		if ( ! isset( $_POST['dates'] ) ) {
+		if ( ! isset( $_POST['dates'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
 			return array();
 		}
-		$raw   = sanitize_text_field( wp_unslash( $_POST['dates'] ) );
+		$raw   = sanitize_text_field( wp_unslash( $_POST['dates'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
 		$dates = json_decode( $raw, true );
 		if ( ! is_array( $dates ) ) {
 			return array();
@@ -334,10 +334,10 @@ final class BlockedDatesMetaBox {
 	 * @return array<string,string> Map of date → note.
 	 */
 	private static function parse_notes_from_payload( array $valid_dates ): array {
-		if ( ! isset( $_POST['notes'] ) ) {
+		if ( ! isset( $_POST['notes'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
 			return array();
 		}
-		$raw   = wp_unslash( (string) $_POST['notes'] );
+		$raw   = wp_unslash( (string) $_POST['notes'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON payload is sanitized after decoding per note value.
 		$notes = json_decode( $raw, true );
 		if ( ! is_array( $notes ) ) {
 			return array();
@@ -357,7 +357,7 @@ final class BlockedDatesMetaBox {
 
 	public static function ajax_get_blocked_dates(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read endpoint; no state change.
-		$vehicle_id = isset( $_GET['vehicle_id'] ) ? (int) $_GET['vehicle_id'] : 0;
+		$vehicle_id = isset( $_GET['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_GET['vehicle_id'] ) ) : 0;
 		if ( $vehicle_id <= 0 ) {
 			wp_send_json_error( 'Invalid vehicle ID' );
 		}
@@ -399,13 +399,13 @@ final class BlockedDatesMetaBox {
 			true
 		);
 		wp_localize_script( 'mhm-blocked-dates', 'mhmBlockedDatesL10n', array(
-			'confirmApply'  => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
-			'confirmRemove' => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
+			'confirmApply'    => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
+			'confirmRemove'   => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
 			/* translators: %d: number of vehicles */
-			'appliedTo'     => __( 'Applied to %d vehicles.', 'mhm-rentiva' ),
+			'appliedTo'       => __( 'Applied to %d vehicles.', 'mhm-rentiva' ),
 			/* translators: %d: number of vehicles */
-			'removedFrom'   => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
-			'error'         => __( 'An error occurred.', 'mhm-rentiva' ),
+			'removedFrom'     => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
+			'error'           => __( 'An error occurred.', 'mhm-rentiva' ),
 			'notePlaceholder' => __( 'Add note... (optional)', 'mhm-rentiva' ),
 		) );
 	}

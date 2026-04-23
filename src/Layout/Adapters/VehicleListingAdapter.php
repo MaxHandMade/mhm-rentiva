@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Adapters
  * @since 4.14.0
  */
-final class VehicleListingAdapter extends BaseAdapter
-{
+final class VehicleListingAdapter extends BaseAdapter {
+
     /**
      * @var string Target shortcode tag.
      */

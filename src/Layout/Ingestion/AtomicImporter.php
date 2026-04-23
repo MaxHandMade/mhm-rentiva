@@ -29,8 +29,8 @@ use WP_Error;
  * @package MHMRentiva\Layout\Ingestion
  * @since 4.16.0
  */
-class AtomicImporter
-{
+class AtomicImporter {
+
     /**
      * @var int[] IDs of posts created during the current batch.
      */
@@ -72,7 +72,7 @@ class AtomicImporter
         // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message for internal import control flow.
         $validation_result = $validator->validate($manifest);
         if (is_wp_error($validation_result)) {
-            throw new Exception(sanitize_text_field((string) $validation_result->get_error_message()));
+            throw new Exception(sanitize_text_field( (string) $validation_result->get_error_message()));
         }
 
         // 2. Hash Calculation (Task 1)
@@ -102,21 +102,21 @@ class AtomicImporter
                         /* translators: 1: page index, 2: error message. */
                         __('Composition error in page %1$d: %2$s', 'mhm-rentiva'),
                         $index,
-                        sanitize_text_field((string) $markup->get_error_message())
+                        sanitize_text_field( (string) $markup->get_error_message())
                     ));
                 }
 
                 if ($resolution['status'] === 'update') {
                     // Check if hash matches (Task 2: Skip identical)
-                    if (($resolution['current_hash'] ?? '') === $hash) {
-                        $resolution['status'] = 'skip';
+                    if (( $resolution['current_hash'] ?? '' ) === $hash) {
+                        $resolution['status']  = 'skip';
                         $resolution['message'] = esc_html__('Layout identical, skipping update.', 'mhm-rentiva');
-                        $summary[] = $resolution;
+                        $summary[]             = $resolution;
                         continue;
                     }
                     $this->perform_update($resolution['post_id'], $markup, $manifest, $hash, $options);
                 } elseif ($resolution['status'] === 'create') {
-                    $new_id = $this->perform_create($page_data, $markup, $manifest, $hash);
+                    $new_id                = $this->perform_create($page_data, $markup, $manifest, $hash);
                     $resolution['post_id'] = $new_id;
                 }
 
@@ -143,7 +143,7 @@ class AtomicImporter
      */
     public function dry_run(array $manifest, array $options = []): array
     {
-        $pages = $manifest['pages'] ?? [];
+        $pages   = $manifest['pages'] ?? [];
         $summary = [];
 
         foreach ($pages as $page_data) {
@@ -170,7 +170,7 @@ class AtomicImporter
                     'post_id'      => $post->ID,
                     'title'        => $post->post_title,
                     'slug'         => $post->post_name,
-                    'current_hash' => get_post_meta($post->ID, '_mhm_layout_hash', true)
+                    'current_hash' => get_post_meta($post->ID, '_mhm_layout_hash', true),
                 ];
             }
         }
@@ -186,13 +186,19 @@ class AtomicImporter
                     'title'        => $existing->post_title,
                     'slug'         => $existing->post_name,
                     // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata read, not directly rendered.
-                    'current_hash' => get_post_meta($existing->ID, '_mhm_layout_hash', true)
+                    'current_hash' => get_post_meta($existing->ID, '_mhm_layout_hash', true),
                 ];
             }
         }
 
         if (!empty($options['create'])) {
-            return ['status' => 'create', 'post_id' => 0, 'title' => $title, 'slug' => $slug, 'current_hash' => ''];
+            return [
+				'status'       => 'create',
+				'post_id'      => 0,
+				'title'        => $title,
+				'slug'         => $slug,
+				'current_hash' => '',
+			];
         }
 
         return [
@@ -201,7 +207,7 @@ class AtomicImporter
             'title'        => $title,
             'slug'         => $slug,
             'current_hash' => '',
-            'message'      => esc_html__('Page not found and --create flag not set.', 'mhm-rentiva')
+            'message'      => esc_html__('Page not found and --create flag not set.', 'mhm-rentiva'),
         ];
     }
 
@@ -225,14 +231,14 @@ class AtomicImporter
         $is_rollback = ! empty($options['is_rollback']);
 
         // 1. Snapshot for atomicity (Internal Rollback)
-        $this->snapshots[$post_id] = [
-            'post_content' => $post->post_content,
-            'post_title'   => $post->post_title,
-            'post_status'  => $post->post_status,
-            'manifest'     => get_post_meta($post_id, '_mhm_layout_manifest', true),
-            'hash'         => get_post_meta($post_id, '_mhm_layout_hash', true),
-            'timestamp'    => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
-            'template'     => get_post_meta($post_id, '_wp_page_template', true),
+        $this->snapshots[ $post_id ] = [
+            'post_content'   => $post->post_content,
+            'post_title'     => $post->post_title,
+            'post_status'    => $post->post_status,
+            'manifest'       => get_post_meta($post_id, '_mhm_layout_manifest', true),
+            'hash'           => get_post_meta($post_id, '_mhm_layout_hash', true),
+            'timestamp'      => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
+            'template'       => get_post_meta($post_id, '_wp_page_template', true),
             // Previous set for full restore if needed
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata snapshot for rollback.
             'manifest_prev'  => get_post_meta($post_id, '_mhm_layout_manifest_previous', true),
@@ -251,7 +257,10 @@ class AtomicImporter
         }
 
         // 3. Write Current
-        wp_update_post(['ID' => $post_id, 'post_content' => $markup], true);
+        wp_update_post([
+			'ID'           => $post_id,
+			'post_content' => $markup,
+		], true);
         update_post_meta($post_id, '_mhm_layout_manifest', $manifest);
         update_post_meta($post_id, '_mhm_layout_hash', $hash);
         update_post_meta($post_id, '_mhm_layout_version_timestamp', current_time('mysql', true));
@@ -259,7 +268,7 @@ class AtomicImporter
         // 4. Audit Log (Task: Observability)
         if (empty($options['suppress_audit'])) {
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal telemetry call, no direct output.
-            LayoutAuditService::log_import($post_id, $this->snapshots[$post_id]['hash'] ?? '', $hash, false);
+            LayoutAuditService::log_import($post_id, $this->snapshots[ $post_id ]['hash'] ?? '', $hash, false);
         }
     }
 
@@ -273,11 +282,11 @@ class AtomicImporter
             'post_name'    => $page_data['slug']  ?? '',
             'post_content' => $markup,
             'post_status'  => 'publish',
-            'post_type'    => 'page'
+            'post_type'    => 'page',
         ], true);
 
         if (is_wp_error($new_id)) {
-            throw new Exception(sanitize_text_field((string) $new_id->get_error_message()));
+            throw new Exception(sanitize_text_field( (string) $new_id->get_error_message()));
         }
 
         $this->undo_stack[] = $new_id;

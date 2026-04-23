@@ -193,14 +193,14 @@ final class Testimonials extends AbstractShortcode {
 		$testimonials = array_merge($testimonials, self::get_vehicle_comments($atts));
 
 		// Sort merged results
-		$orderby = self::sanitize_orderby((string) ( $atts['orderby'] ?? 'date' ));
-		$order   = self::sanitize_order((string) ( $atts['order'] ?? 'DESC' ));
+		$orderby = self::sanitize_orderby( (string) ( $atts['orderby'] ?? 'date' ));
+		$order   = self::sanitize_order( (string) ( $atts['order'] ?? 'DESC' ));
 
 		if ('rand' === $orderby) {
 			shuffle($testimonials);
 		} else {
 			usort($testimonials, static function (array $a, array $b) use ($order): int {
-				$cmp = strcmp((string) ( $a['date'] ?? '' ), (string) ( $b['date'] ?? '' ));
+				$cmp = strcmp( (string) ( $a['date'] ?? '' ), (string) ( $b['date'] ?? '' ));
 				return 'ASC' === $order ? $cmp : -$cmp;
 			});
 		}
@@ -314,7 +314,7 @@ final class Testimonials extends AbstractShortcode {
 			// Prefer comment_author; fallback to WP user display_name.
 			$customer_name = $comment->comment_author;
 			if (empty($customer_name) && $comment->user_id) {
-				$user = get_userdata((int) $comment->user_id);
+				$user = get_userdata( (int) $comment->user_id);
 				if ($user) {
 					$customer_name = $user->display_name;
 				}
@@ -340,7 +340,7 @@ final class Testimonials extends AbstractShortcode {
 	 */
 	private static function sanitize_orderby(string $value): string
 	{
-		$allowed = array('date', 'title', 'rand', 'modified');
+		$allowed = array( 'date', 'title', 'rand', 'modified' );
 		$value   = strtolower($value);
 		return in_array($value, $allowed, true) ? $value : 'date';
 	}
@@ -351,7 +351,7 @@ final class Testimonials extends AbstractShortcode {
 	private static function sanitize_order(string $value): string
 	{
 		$value = strtoupper($value);
-		return in_array($value, array('ASC', 'DESC'), true) ? $value : 'DESC';
+		return in_array($value, array( 'ASC', 'DESC' ), true) ? $value : 'DESC';
 	}
 
 	private static function get_testimonials_count(array $atts): int

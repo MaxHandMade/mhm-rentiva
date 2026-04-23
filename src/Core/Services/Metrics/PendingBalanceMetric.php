@@ -14,8 +14,8 @@ use MHMRentiva\Core\Financial\Ledger;
 /**
  * Metric defining total non-accessible balance amounts historically constrained to credit injections and reversals natively.
  */
-final class PendingBalanceMetric implements MetricInterface
-{
+final class PendingBalanceMetric implements MetricInterface {
+
     public function key(): string
     {
         return 'pending_balance';

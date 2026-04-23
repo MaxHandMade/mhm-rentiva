@@ -12,8 +12,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-enum RiskLevel: string
-{
+enum RiskLevel: string {
+
     case LOW    = 'low';
     case MEDIUM = 'medium';
     case HIGH   = 'high';

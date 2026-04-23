@@ -576,34 +576,34 @@ final class VendorEmails {
 	 */
 	private static function mock_context(): array {
 		return array(
-			'vendor'    => array(
+			'vendor'        => array(
 				'name'  => '{{vendor.name}}',
 				'email' => '{{vendor.email}}',
 			),
-			'site'      => array(
+			'site'          => array(
 				'name' => '{{site.name}}',
 				'url'  => '{{site.url}}',
 			),
-			'panel'     => array( 'url' => '{{panel.url}}' ),
-			'vehicle'   => array(
+			'panel'         => array( 'url' => '{{panel.url}}' ),
+			'vehicle'       => array(
 				'title'     => '{{vehicle.title}}',
 				'url'       => '{{vehicle.url}}',
 				'admin_url' => '{{vehicle.admin_url}}',
 			),
-			'lifecycle' => array(
+			'lifecycle'     => array(
 				'days_remaining' => '{{lifecycle.days_remaining}}',
 				'expires_at'     => '{{lifecycle.expires_at}}',
 				'duration_days'  => '{{lifecycle.duration_days}}',
 				'cooldown_days'  => '{{lifecycle.cooldown_days}}',
 			),
-			'payout'    => array( 'amount_formatted' => '{{payout.amount_formatted}}' ),
-			'application' => array( 'id' => '{{application.id}}' ),
-			'customer'    => array(
+			'payout'        => array( 'amount_formatted' => '{{payout.amount_formatted}}' ),
+			'application'   => array( 'id' => '{{application.id}}' ),
+			'customer'      => array(
 				'name'  => '{{customer.name}}',
 				'email' => '{{customer.email}}',
 				'phone' => '{{customer.phone}}',
 			),
-			'booking'     => array(
+			'booking'       => array(
 				'id'             => '{{booking.id}}',
 				'order_id'       => '{{booking.order_id}}',
 				'service_type'   => '{{booking.service_type}}',

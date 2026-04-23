@@ -137,7 +137,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<?php
 							$locations_by_city = array();
 							foreach ($filter_options['locations'] as $loc) {
-								$city_key = $loc->city !== '' ? $loc->city : esc_html__('Other', 'mhm-rentiva');
+								$city_key                         = $loc->city !== '' ? $loc->city : esc_html__('Other', 'mhm-rentiva');
 								$locations_by_city[ $city_key ][] = $loc;
 							}
 							ksort($locations_by_city);
@@ -164,7 +164,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 										<?php foreach ($city_locs as $loc) : ?>
 											<label class="rv-filter-option rv-filter-option--sub">
 												<input type="checkbox" name="pickup_location[]"
-													value="<?php echo esc_attr((string) $loc->id); ?>"
+													value="<?php echo esc_attr( (string) $loc->id); ?>"
 													<?php checked(in_array( (int) $loc->id, $active_loc_ids, true )); ?>>
 												<span class="rv-checkbox-custom"></span>
 												<span class="rv-option-label"><?php echo esc_html($loc->name); ?></span>

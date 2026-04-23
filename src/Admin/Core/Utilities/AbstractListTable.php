@@ -160,7 +160,7 @@ abstract class AbstractListTable extends \WP_List_Table {
 			return;
 		}
 
-		$action   = self::post_key_param( 'action' );
+		$action = self::post_key_param( 'action' );
 		if ( '' === $action ) {
 			$action = self::post_key_param( 'action2' );
 		}

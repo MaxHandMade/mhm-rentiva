@@ -21,8 +21,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-final class CommissionPolicy
-{
+final class CommissionPolicy {
+
     private int $id;
     private string $label;
     private float $global_rate;

@@ -19,8 +19,8 @@ use MHMRentiva\Admin\Core\Utilities\UXHelper;
  * @method void render_admin_header(string $title, array $buttons = array(), bool $echo = true, string $subtitle = '')
  * @method void show_admin_notice(string $message, string $type = 'info', bool $dismissible = true)
  */
-final class LicenseAdmin
-{
+final class LicenseAdmin {
+
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 
@@ -35,16 +35,16 @@ final class LicenseAdmin
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	public static function register(): void
 	{
-		add_action('admin_post_mhm_rentiva_activate_license', array(self::class, 'handle_activation'));
-		add_action('admin_post_mhm_rentiva_deactivate_license', array(self::class, 'handle_deactivation'));
-		add_action('admin_post_mhm_rentiva_toggle_dev_mode', array(self::class, 'handle_toggle_dev_mode'));
-		add_action('admin_notices', array(self::class, 'admin_notices'));
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_styles'));
+		add_action('admin_post_mhm_rentiva_activate_license', array( self::class, 'handle_activation' ));
+		add_action('admin_post_mhm_rentiva_deactivate_license', array( self::class, 'handle_deactivation' ));
+		add_action('admin_post_mhm_rentiva_toggle_dev_mode', array( self::class, 'handle_toggle_dev_mode' ));
+		add_action('admin_notices', array( self::class, 'admin_notices' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_styles' ));
 	}
 
 
@@ -91,7 +91,7 @@ final class LicenseAdmin
 		// Developer mode warning - only show if no real license is active
 		$disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
 		$has_real_license = ! empty($license_data['key']) &&
-			($license_data['status'] ?? '') === 'active' &&
+			( $license_data['status'] ?? '' ) === 'active' &&
 			! empty($license_data['activation_id']);
 
 		// Only show developer mode warning if no real license is active
@@ -152,7 +152,7 @@ final class LicenseAdmin
 
 					// Calculate days remaining
 					$current_time   = time();
-					$days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
+					$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - $current_time ) / DAY_IN_SECONDS);
 
 					echo '<tr>';
 					echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
@@ -183,7 +183,7 @@ final class LicenseAdmin
 
 					// Calculate days remaining
 					$current_time   = time();
-					$days_remaining = $is_expired ? 0 : (int) floor(($expires_timestamp - $current_time) / DAY_IN_SECONDS);
+					$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - $current_time ) / DAY_IN_SECONDS);
 
 					echo '<tr>';
 					echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
@@ -329,7 +329,7 @@ final class LicenseAdmin
 				)
 			);
 		} else {
-			wp_safe_redirect(add_query_arg(array('license' => 'activated'), wp_get_referer()));
+			wp_safe_redirect(add_query_arg(array( 'license' => 'activated' ), wp_get_referer()));
 		}
 
 		exit;
@@ -358,7 +358,7 @@ final class LicenseAdmin
 			$license->clearLicense();
 		}
 
-		wp_safe_redirect(add_query_arg(array('license' => 'deactivated'), wp_get_referer()));
+		wp_safe_redirect(add_query_arg(array( 'license' => 'deactivated' ), wp_get_referer()));
 		exit;
 	}
 
@@ -378,7 +378,7 @@ final class LicenseAdmin
 		$current_value = get_option('mhm_rentiva_disable_dev_mode', false);
 		update_option('mhm_rentiva_disable_dev_mode', ! $current_value);
 
-		wp_safe_redirect(add_query_arg(array('license' => 'dev_mode_toggled'), wp_get_referer()));
+		wp_safe_redirect(add_query_arg(array( 'license' => 'dev_mode_toggled' ), wp_get_referer()));
 		exit;
 	}
 
@@ -390,7 +390,7 @@ final class LicenseAdmin
 		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
-		$message       = isset($_GET['license']) ? sanitize_text_field(wp_unslash($_GET['license'])) : '';
+		$message = isset($_GET['license']) ? sanitize_text_field(wp_unslash($_GET['license'])) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
 		$error_message = isset($_GET['message']) ? sanitize_text_field(wp_unslash($_GET['message'])) : '';
 
@@ -436,10 +436,10 @@ final class LicenseAdmin
 
 			case 'limit_exceeded':
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
-				$type        = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
-				$limit_msg   = match ($type) {
+				$type      = isset($_GET['type']) ? sanitize_text_field(wp_unslash($_GET['type'])) : '';
+				$limit_msg = match ($type) {
 					/* translators: %d: max vehicles allowed in Lite */
-				'vehicle' => sprintf(__('Vehicle limit reached (Max %d).', 'mhm-rentiva'), \MHMRentiva\Admin\Licensing\Mode::maxVehicles()),
+					'vehicle' => sprintf(__('Vehicle limit reached (Max %d).', 'mhm-rentiva'), \MHMRentiva\Admin\Licensing\Mode::maxVehicles()),
 					'booking' => __('Booking limit reached (Max 50).', 'mhm-rentiva'),
 					'route' => __('Transfer route limit reached.', 'mhm-rentiva'),
 					'addon' => __('Addon limit reached.', 'mhm-rentiva'),
@@ -503,19 +503,65 @@ final class LicenseAdmin
 		$max_gallery   = (int) apply_filters('mhm_rentiva_lite_max_gallery_images', 5);
 
 		$lite_rows = array(
-			array('label' => __('Maximum Vehicles', 'mhm-rentiva'),        'value' => sprintf(__('%d vehicles', 'mhm-rentiva'), $max_vehicles)),
-			array('label' => __('Maximum Bookings', 'mhm-rentiva'),        'value' => sprintf(__('%d bookings', 'mhm-rentiva'), $max_bookings)),
-			array('label' => __('Maximum Customers', 'mhm-rentiva'),       'value' => sprintf(__('%d customers', 'mhm-rentiva'), $max_customers)),
-			array('label' => __('Maximum Addons', 'mhm-rentiva'),          'value' => sprintf(__('%d services', 'mhm-rentiva'), $max_addons)),
-			array('label' => __('VIP Transfer Routes', 'mhm-rentiva'),     'value' => sprintf(__('%d routes', 'mhm-rentiva'), $max_routes)),
-			array('label' => __('Gallery Images', 'mhm-rentiva'),          'value' => sprintf(__('%d / vehicle', 'mhm-rentiva'), $max_gallery)),
-			array('label' => __('Export Formats', 'mhm-rentiva'),          'value' => 'CSV'),
-			array('label' => __('Report Date Range', 'mhm-rentiva'),       'value' => sprintf(__('%d days', 'mhm-rentiva'), (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30))),
-			array('label' => __('Payment Gateways', 'mhm-rentiva'),        'value' => 'WooCommerce'),
-			array('label' => __('Advanced Reports', 'mhm-rentiva'),        'unavailable' => true),
-			array('label' => __('Messaging System', 'mhm-rentiva'),        'unavailable' => true),
-			array('label' => __('Vendor & Payout', 'mhm-rentiva'),         'unavailable' => true),
-			array('label' => __('REST API', 'mhm-rentiva'),                'value' => __('Limited', 'mhm-rentiva')),
+			array(
+				'label' => __('Maximum Vehicles', 'mhm-rentiva'),
+				/* translators: %d: maximum number of vehicles allowed in Lite tier */
+				'value' => sprintf(__('%d vehicles', 'mhm-rentiva'), $max_vehicles),
+			),
+			array(
+				'label' => __('Maximum Bookings', 'mhm-rentiva'),
+				/* translators: %d: maximum number of bookings allowed in Lite tier */
+				'value' => sprintf(__('%d bookings', 'mhm-rentiva'), $max_bookings),
+			),
+			array(
+				'label' => __('Maximum Customers', 'mhm-rentiva'),
+				/* translators: %d: maximum number of customers allowed in Lite tier */
+				'value' => sprintf(__('%d customers', 'mhm-rentiva'), $max_customers),
+			),
+			array(
+				'label' => __('Maximum Addons', 'mhm-rentiva'),
+				/* translators: %d: maximum number of add-on services allowed in Lite tier */
+				'value' => sprintf(__('%d services', 'mhm-rentiva'), $max_addons),
+			),
+			array(
+				'label' => __('VIP Transfer Routes', 'mhm-rentiva'),
+				/* translators: %d: maximum number of transfer routes allowed in Lite tier */
+				'value' => sprintf(__('%d routes', 'mhm-rentiva'), $max_routes),
+			),
+			array(
+				'label' => __('Gallery Images', 'mhm-rentiva'),
+				/* translators: %d: maximum number of gallery images per vehicle in Lite tier */
+				'value' => sprintf(__('%d / vehicle', 'mhm-rentiva'), $max_gallery),
+			),
+			array(
+				'label' => __('Export Formats', 'mhm-rentiva'),
+				'value' => 'CSV',
+			),
+			array(
+				'label' => __('Report Date Range', 'mhm-rentiva'),
+				/* translators: %d: maximum report date range in days for Lite tier */
+				'value' => sprintf(__('%d days', 'mhm-rentiva'), (int) apply_filters('mhm_rentiva_lite_reports_max_days', 30)),
+			),
+			array(
+				'label' => __('Payment Gateways', 'mhm-rentiva'),
+				'value' => 'WooCommerce',
+			),
+			array(
+				'label'       => __('Advanced Reports', 'mhm-rentiva'),
+				'unavailable' => true,
+			),
+			array(
+				'label'       => __('Messaging System', 'mhm-rentiva'),
+				'unavailable' => true,
+			),
+			array(
+				'label'       => __('Vendor & Payout', 'mhm-rentiva'),
+				'unavailable' => true,
+			),
+			array(
+				'label' => __('REST API', 'mhm-rentiva'),
+				'value' => __('Limited', 'mhm-rentiva'),
+			),
 		);
 
 		foreach ($lite_rows as $row) {
@@ -549,19 +595,58 @@ final class LicenseAdmin
 		echo '<ul class="mhm-plan-features">';
 
 		$pro_rows = array(
-			array('label' => __('Maximum Vehicles', 'mhm-rentiva'),    'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Maximum Bookings', 'mhm-rentiva'),    'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Maximum Customers', 'mhm-rentiva'),   'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Maximum Addons', 'mhm-rentiva'),      'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('VIP Transfer Routes', 'mhm-rentiva'), 'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Gallery Images', 'mhm-rentiva'),      'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Export Formats', 'mhm-rentiva'),      'value' => 'CSV + JSON'),
-			array('label' => __('Report Date Range', 'mhm-rentiva'),   'value' => __('Unlimited', 'mhm-rentiva')),
-			array('label' => __('Payment Gateways', 'mhm-rentiva'),    'value' => 'WooCommerce'),
-			array('label' => __('Advanced Reports', 'mhm-rentiva'),    'available' => true),
-			array('label' => __('Messaging System', 'mhm-rentiva'),    'available' => true),
-			array('label' => __('Vendor & Payout', 'mhm-rentiva'),     'available' => true),
-			array('label' => __('REST API', 'mhm-rentiva'),            'value' => __('Full Access', 'mhm-rentiva')),
+			array(
+				'label' => __('Maximum Vehicles', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Maximum Bookings', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Maximum Customers', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Maximum Addons', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('VIP Transfer Routes', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Gallery Images', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Export Formats', 'mhm-rentiva'),
+				'value' => 'CSV + JSON',
+			),
+			array(
+				'label' => __('Report Date Range', 'mhm-rentiva'),
+				'value' => __('Unlimited', 'mhm-rentiva'),
+			),
+			array(
+				'label' => __('Payment Gateways', 'mhm-rentiva'),
+				'value' => 'WooCommerce',
+			),
+			array(
+				'label'     => __('Advanced Reports', 'mhm-rentiva'),
+				'available' => true,
+			),
+			array(
+				'label'     => __('Messaging System', 'mhm-rentiva'),
+				'available' => true,
+			),
+			array(
+				'label'     => __('Vendor & Payout', 'mhm-rentiva'),
+				'available' => true,
+			),
+			array(
+				'label' => __('REST API', 'mhm-rentiva'),
+				'value' => __('Full Access', 'mhm-rentiva'),
+			),
 		);
 
 		foreach ($pro_rows as $row) {

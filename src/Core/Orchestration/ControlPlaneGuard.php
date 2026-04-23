@@ -68,12 +68,14 @@ final class ControlPlaneGuard {
     public static function get_tenant_record(int $tenant_id): ?\stdClass
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_tenants' );
+        $table = $wpdb->prefix . 'mhm_rentiva_tenants';
 
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a trusted plugin table name derived from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Guard intentionally reads authoritative tenant state directly from the control-plane tables.
         return $wpdb->get_row(
             $wpdb->prepare("SELECT * FROM {$table} WHERE tenant_id = %d", $tenant_id)
         );
+        // phpcs:enable
     }
 
     /**
@@ -91,10 +93,11 @@ final class ControlPlaneGuard {
     private static function assert_quota_available(int $tenant_id, string $metric_type, \stdClass $tenant): void
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_usage_metrics' );
+        $table = $wpdb->prefix . 'mhm_rentiva_usage_metrics';
 
         // Get current cycle's usage
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.NoCaching
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a trusted plugin table name derived from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Guard intentionally reads live quota state from the control-plane metrics table.
         $usage = (int) $wpdb->get_var(
             $wpdb->prepare(
                 "SELECT metric_value FROM {$table} WHERE tenant_id = %d AND metric_type = %s ORDER BY cycle_start DESC LIMIT 1",
@@ -102,6 +105,7 @@ final class ControlPlaneGuard {
                 $metric_type
             )
         );
+        // phpcs:enable
 
         $limit_field = "quota_{$metric_type}_limit";
         $limit       = isset($tenant->$limit_field) ? (int) $tenant->$limit_field : 0;

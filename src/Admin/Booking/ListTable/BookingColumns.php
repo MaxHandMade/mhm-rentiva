@@ -1666,7 +1666,7 @@ final class BookingColumns {
 			$created_date_formatted = $booking->created_date ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $booking->created_date ) ) : '';
 
 			// Append time to date if available (fetched via get_post_meta to avoid JOIN duplication)
-			$bid = (int) $booking->booking_id;
+			$bid              = (int) $booking->booking_id;
 			$pickup_time_str  = get_post_meta( $bid, '_mhm_start_time', true ) ?: get_post_meta( $bid, '_mhm_pickup_time', true );
 			$dropoff_time_str = get_post_meta( $bid, '_mhm_end_time', true ) ?: get_post_meta( $bid, '_mhm_dropoff_time', true );
 			if ( $pickup_time_str && $start_date_formatted ) {

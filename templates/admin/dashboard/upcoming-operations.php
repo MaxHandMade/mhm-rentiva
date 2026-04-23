@@ -90,18 +90,20 @@ $pages    = $result['total_pages'];
 
 								if ( $days >= 3 ) {
 									$cd_class = 'countdown-green';
-									$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
+									/* translators: 1: days remaining, 2: hours remaining (countdown >= 3 days) */
+									$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 								} elseif ( $diff >= DAY_IN_SECONDS ) {
 									$cd_class = 'countdown-orange';
-									$cd_text  = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
+									/* translators: 1: days remaining, 2: hours remaining (countdown < 3 days) */
+									$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
 								} elseif ( $diff >= HOUR_IN_SECONDS ) {
 									$cd_class = 'countdown-red';
-									$cd_text  = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
+									/* translators: 1: hours remaining, 2: minutes remaining */
+									$cd_text = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
 								} else {
 									$cd_class = 'countdown-red';
-									$cd_text  = $minutes > 0
-										? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes )
-										: esc_html__( 'Almost there!', 'mhm-rentiva' );
+									/* translators: %d: minutes remaining */
+									$cd_text = $minutes > 0 ? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes ) : esc_html__( 'Almost there!', 'mhm-rentiva' );
 								}
 
 								$countdown_html = '<span class="op-countdown ' . esc_attr( $cd_class ) . '">' . esc_html( $cd_text ) . '</span>';

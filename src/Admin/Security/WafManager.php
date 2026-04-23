@@ -18,8 +18,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * @since 4.0.0
  */
-final class WafManager
-{
+final class WafManager {
+
 
 
 
@@ -29,7 +29,7 @@ final class WafManager
 	public static function init(): void
 	{
 		// Run early to intercept requests
-		add_action('plugins_loaded', array(self::class, 'inspect_request'), 1);
+		add_action('plugins_loaded', array( self::class, 'inspect_request' ), 1);
 	}
 
 	/**
@@ -164,18 +164,18 @@ final class WafManager
 					$type,
 					$key
 				),
-				array('ip' => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? 'unknown'))),
+				array( 'ip' => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? 'unknown')) ),
 				'security'
 			);
 		} else {
 			// Fallback: This should never happen since we check class_exists above, but keep for safety
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(sprintf('WAF Blocked: %s in %s[%s]', $reason, $type, $key), array('ip' => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? 'unknown'))));
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(sprintf('WAF Blocked: %s in %s[%s]', $reason, $type, $key), array( 'ip' => sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'] ?? 'unknown')) ));
 		}
 
 		wp_die(
 			esc_html__('Security Violation Detected. Request Blocked.', 'mhm-rentiva'),
 			esc_html__('Forbidden', 'mhm-rentiva'),
-			array('response' => 403)
+			array( 'response' => 403 )
 		);
 	}
 }

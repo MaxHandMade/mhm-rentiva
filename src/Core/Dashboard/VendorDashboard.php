@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Vendor dashboard renderer.
  */
-final class VendorDashboard
-{
+final class VendorDashboard {
+
 	/**
 	 * Render vendor dashboard template.
 	 *

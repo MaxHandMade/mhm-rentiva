@@ -23,8 +23,8 @@ use WP_Query;
  *
  * @since 4.24.0
  */
-final class ListingExpiryJob
-{
+final class ListingExpiryJob {
+
 	public const EVENT = 'mhm_rentiva_listing_expiry_event';
 
 	/**
@@ -32,8 +32,8 @@ final class ListingExpiryJob
 	 */
 	public static function register(): void
 	{
-		add_action('init', array(self::class, 'maybe_schedule'), 100);
-		add_action(self::EVENT, array(self::class, 'run'));
+		add_action('init', array( self::class, 'maybe_schedule' ), 100);
+		add_action(self::EVENT, array( self::class, 'run' ));
 	}
 
 	/**
@@ -100,7 +100,7 @@ final class ListingExpiryJob
 				if (class_exists(AdvancedLogger::class)) {
 					AdvancedLogger::warning(
 						"Failed to expire vehicle #{$vehicle_id}: " . $result->get_error_message(),
-						array('vehicle_id' => $vehicle_id),
+						array( 'vehicle_id' => $vehicle_id ),
 						'system'
 					);
 				}
@@ -115,7 +115,7 @@ final class ListingExpiryJob
 		if ($expired_count > 0 && class_exists(AdvancedLogger::class)) {
 			AdvancedLogger::info(
 				"Listing expiry cron: expired {$expired_count} vehicle(s).",
-				array('count' => $expired_count),
+				array( 'count' => $expired_count ),
 				'system'
 			);
 		}
@@ -185,7 +185,7 @@ final class ListingExpiryJob
 		if ($withdrawn_count > 0 && class_exists(AdvancedLogger::class)) {
 			AdvancedLogger::info(
 				"Listing expiry cron: auto-withdrew {$withdrawn_count} vehicle(s) past grace period.",
-				array('count' => $withdrawn_count),
+				array( 'count' => $withdrawn_count ),
 				'system'
 			);
 		}

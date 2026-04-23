@@ -94,7 +94,7 @@ final class ObjectCache {
 					return self::$current_backend;
 				}
 			} catch ( \Exception $e ) {
-				// Redis not working
+				unset( $e ); // Redis probe failed; fall through to next backend.
 			}
 		}
 
@@ -111,7 +111,7 @@ final class ObjectCache {
 					return self::$current_backend;
 				}
 			} catch ( \Exception $e ) {
-				// Memcached not working
+				unset( $e ); // Memcached probe failed; fall through to next backend.
 			}
 		}
 

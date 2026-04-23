@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
 
 
 
-final class Restrictions
-{
+final class Restrictions {
+
 
 
 
@@ -24,28 +24,28 @@ final class Restrictions
 	public static function register(): void
 	{
 		// Vehicles limit
-		add_action('admin_menu', array(self::class, 'maybeHideAddNewVehicle'));
-		add_action('load-post-new.php', array(self::class, 'maybeBlockVehicleCreation'));
+		add_action('admin_menu', array( self::class, 'maybeHideAddNewVehicle' ));
+		add_action('load-post-new.php', array( self::class, 'maybeBlockVehicleCreation' ));
 
 		// Bookings limit
-		add_action('load-post-new.php', array(self::class, 'maybeBlockBookingCreation'));
-		add_action('mhm_rentiva_before_booking_create', array(self::class, 'blockBookingOnFrontend'), 10, 2);
+		add_action('load-post-new.php', array( self::class, 'maybeBlockBookingCreation' ));
+		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingOnFrontend' ), 10, 2);
 
 		// Customers limit
-		add_action('admin_menu', array(self::class, 'maybeHideAddNewCustomer'));
-		add_action('admin_init', array(self::class, 'maybeBlockCustomerCreation'));
+		add_action('admin_menu', array( self::class, 'maybeHideAddNewCustomer' ));
+		add_action('admin_init', array( self::class, 'maybeBlockCustomerCreation' ));
 
 		// Transfer limits
-		add_action('admin_post_mhm_save_route', array(self::class, 'blockTransferRouteCreation'), 5);
+		add_action('admin_post_mhm_save_route', array( self::class, 'blockTransferRouteCreation' ), 5);
 
 		// Addon limits (Backend enforcement)
-		add_filter('wp_insert_post_data', array(self::class, 'preventAddonInsert'), 10, 2);
+		add_filter('wp_insert_post_data', array( self::class, 'preventAddonInsert' ), 10, 2);
 
 		// Clamp export/report args
-		add_filter('mhm_rentiva_export_args', array(self::class, 'clampExportArgs'));
+		add_filter('mhm_rentiva_export_args', array( self::class, 'clampExportArgs' ));
 
 		// Minimal admin CSS (overlay for Pro-locked groups)
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueueAdminStyles'));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueueAdminStyles' ));
 	}
 
 	/**
@@ -71,13 +71,13 @@ final class Restrictions
 		$q = new \WP_Query(
 			array(
 				'post_type'      => 'vehicle',
-				'post_status'    => array('publish', 'pending', 'private'), // EXCLUDING draft/trash
+				'post_status'    => array( 'publish', 'pending', 'private' ), // EXCLUDING draft/trash
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'no_found_rows'  => false,
 			)
 		);
-		return (int) ($q->found_posts ?? 0);
+		return (int) ( $q->found_posts ?? 0 );
 	}
 
 	/**
@@ -119,13 +119,13 @@ final class Restrictions
 		$q = new \WP_Query(
 			array(
 				'post_type'      => 'vehicle_booking',
-				'post_status'    => array('publish', 'pending', 'private'),
+				'post_status'    => array( 'publish', 'pending', 'private' ),
 				'posts_per_page' => 1,
 				'fields'         => 'ids',
 				'no_found_rows'  => false,
 			)
 		);
-		return (int) ($q->found_posts ?? 0);
+		return (int) ( $q->found_posts ?? 0 );
 	}
 
 	/**
@@ -155,7 +155,7 @@ final class Restrictions
 
 		if (self::bookingCount() >= Mode::maxBookings()) {
 			// If it's an AJAX/REST request, return error
-			if (wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST)) {
+			if (wp_doing_ajax() || ( defined('REST_REQUEST') && REST_REQUEST )) {
 				wp_send_json_error(
 					array(
 						/* translators: %d: maximum number of bookings. */
@@ -187,15 +187,15 @@ final class Restrictions
 
 		$maxDays = Mode::reportsMaxRangeDays();
 		if (! empty($args['date_from']) || ! empty($args['date_to'])) {
-			$to   = ! empty($args['date_to']) ? strtotime((string) $args['date_to']) : time();
-			$from = ! empty($args['date_from']) ? strtotime((string) $args['date_from']) : ($to - ($maxDays * DAY_IN_SECONDS));
-			if (($to - $from) > ($maxDays * DAY_IN_SECONDS)) {
-				$from = $to - ($maxDays * DAY_IN_SECONDS);
+			$to   = ! empty($args['date_to']) ? strtotime( (string) $args['date_to']) : time();
+			$from = ! empty($args['date_from']) ? strtotime( (string) $args['date_from']) : ( $to - ( $maxDays * DAY_IN_SECONDS ) );
+			if (( $to - $from ) > ( $maxDays * DAY_IN_SECONDS )) {
+				$from = $to - ( $maxDays * DAY_IN_SECONDS );
 			}
 			$args['date_from'] = gmdate('Y-m-d', $from);
 			$args['date_to']   = gmdate('Y-m-d', $to);
 		}
-		$args['limit'] = min((int) ($args['limit'] ?? 1000), Mode::reportsMaxRows());
+		$args['limit'] = min( (int) ( $args['limit'] ?? 1000 ), Mode::reportsMaxRows());
 		return $args;
 	}
 
@@ -442,7 +442,7 @@ final class Restrictions
 
 		// If we are here, user is trying to Save/Publish a NEW addon.
 		$count_obj     = wp_count_posts('vehicle_addon');
-		$current_count = ($count_obj->publish ?? 0) + ($count_obj->draft ?? 0) + ($count_obj->pending ?? 0) + ($count_obj->future ?? 0);
+		$current_count = ( $count_obj->publish ?? 0 ) + ( $count_obj->draft ?? 0 ) + ( $count_obj->pending ?? 0 ) + ( $count_obj->future ?? 0 );
 		$max           = Mode::maxAddons();
 
 		if ($current_count >= $max) {

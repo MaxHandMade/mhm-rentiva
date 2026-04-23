@@ -21,23 +21,22 @@ use MHMRentiva\Core\Financial\Events\PayoutApprovedEvent;
  *
  * @since 4.21.0
  */
-final 
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
-class GovernanceService
-{
+final class GovernanceService {
+
     /**
      * Reusable action constants
      */
-    public const ACTION_SUBMITTED       = 'submit_payout';
-    public const ACTION_REVIEWED        = 'review_payout';
-    public const ACTION_FINALIZED       = 'finalize_payout';
-    public const ACTION_REJECTED        = 'reject_payout';
-    public const ACTION_EXECUTED        = 'execute_payout';
-    public const ACTION_FLAGGED         = 'flag_payout';
-    public const ACTION_OVERRIDE_USED   = 'override_maker_checker';
-    public const ACTION_DENY            = 'deny_payout_approval';
-    public const ACTION_TIMELOCK_CREATED = 'timelock_created';
-    public const ACTION_TIMELOCK_MATURED = 'timelock_matured';
+    public const ACTION_SUBMITTED         = 'submit_payout';
+    public const ACTION_REVIEWED          = 'review_payout';
+    public const ACTION_FINALIZED         = 'finalize_payout';
+    public const ACTION_REJECTED          = 'reject_payout';
+    public const ACTION_EXECUTED          = 'execute_payout';
+    public const ACTION_FLAGGED           = 'flag_payout';
+    public const ACTION_OVERRIDE_USED     = 'override_maker_checker';
+    public const ACTION_DENY              = 'deny_payout_approval';
+    public const ACTION_TIMELOCK_CREATED  = 'timelock_created';
+    public const ACTION_TIMELOCK_MATURED  = 'timelock_matured';
     public const ACTION_TIMELOCK_EXECUTED = 'timelock_executed';
     public const ACTION_TIMELOCK_BYPASS   = 'timelock_bypass';
 
@@ -72,16 +71,16 @@ class GovernanceService
             $current_state = ApprovalStateMachine::STATE_PENDING;
         }
 
-        $payout_amount = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
-        $vendor_user = get_user_by('id', $vendor_id);
+        $payout_amount   = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
+        $vendor_user     = get_user_by('id', $vendor_id);
         $vendor_age_days = 0;
         if ($vendor_user) {
-            $registered = strtotime($vendor_user->user_registered);
-            $vendor_age_days = (int) floor((time() - $registered) / DAY_IN_SECONDS);
+            $registered      = strtotime($vendor_user->user_registered);
+            $vendor_age_days = (int) floor(( time() - $registered ) / DAY_IN_SECONDS);
         }
 
         $total_completed = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE vendor_id = %d AND type = 'commission_credit'", $vendor_id));
-        $total_refunded = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE vendor_id = %d AND type = 'commission_refund'", $vendor_id));
+        $total_refunded  = (int) $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE vendor_id = %d AND type = 'commission_refund'", $vendor_id));
 
         $context = new Risk\PayoutContext($payout_id, $vendor_id, $payout_amount, $vendor_age_days, $total_completed, $total_refunded);
 
@@ -112,6 +111,7 @@ class GovernanceService
 
         // 6. Maker-Checker Validate
         $maker_id = (int) get_post_meta($payout_id, '_mhm_payout_maker_id', true);
+        // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Custom payout governance capability registered by the plugin.
         $has_override = user_can($actor_id, 'mhm_rentiva_override_maker_checker');
 
         try {
@@ -139,12 +139,12 @@ class GovernanceService
         }
 
         // Log Workflow Transition (Deferred to listener if final state, otherwise immediate)
-        $action_map = [
-            ApprovalStateMachine::STATE_UNDER_REVIEW => self::ACTION_REVIEWED,
+        $action_map   = [
+            ApprovalStateMachine::STATE_UNDER_REVIEW     => self::ACTION_REVIEWED,
             ApprovalStateMachine::STATE_APPROVED_STAGE_1 => self::ACTION_REVIEWED,
             ApprovalStateMachine::STATE_APPROVED_STAGE_2 => self::ACTION_FINALIZED,
         ];
-        $action_event = $action_map[$candidate_state] ?? 'state_transition';
+        $action_event = $action_map[ $candidate_state ] ?? 'state_transition';
 
         // 8. Execute Atomic Core if workflow resolves to final approval or time-lock transition
         if ($candidate_state === ApprovalStateMachine::STATE_APPROVED_STAGE_2 || $candidate_state === ApprovalStateMachine::STATE_TIME_LOCKED) {
@@ -182,7 +182,7 @@ class GovernanceService
             }
 
             // Calculate Cooling Period (Tenant-Aware: respects compliance_profile overrides)
-            $tenant       = \MHMRentiva\Core\Tenancy\TenantResolver::resolve();
+            $tenant        = \MHMRentiva\Core\Tenancy\TenantResolver::resolve();
             $release_after = Risk\CoolingPolicyManager::calculate_release_time($risk_result->level->value, $tenant);
 
             update_post_meta($payout_id, '_mhm_release_after', $release_after);
@@ -194,7 +194,10 @@ class GovernanceService
                 ApprovalStateMachine::atomic_update_state($wpdb, $payout_id, $candidate_state, ApprovalStateMachine::STATE_TIME_LOCKED);
                 self::log_approval_event($payout_id, $actor_id, self::ACTION_TIMELOCK_CREATED, '', "Payout locked until {$release_after}", $risk_result->score, ApprovalStateMachine::STATE_TIME_LOCKED);
             } catch (Exceptions\GovernanceException $e) {
-                AdvancedLogger::critical('Atomic Payout Reserved but Time-Lock State Update Failed', ['payout_id' => $payout_id, 'error' => $e->getMessage()], 'payout_governance');
+                AdvancedLogger::critical('Atomic Payout Reserved but Time-Lock State Update Failed', [
+					'payout_id' => $payout_id,
+					'error'     => $e->getMessage(),
+				], 'payout_governance');
             }
         }
 
@@ -211,13 +214,13 @@ class GovernanceService
     public static function authorize_state_transition(string $candidate_state, int $user_id)
     {
         if ($candidate_state === ApprovalStateMachine::STATE_APPROVED_STAGE_2) {
+            // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Custom payout governance capability registered by the plugin.
             if (! user_can($user_id, 'mhm_rentiva_finalize_payout')) {
                 return new \WP_Error('governance_denied', __('You do not have the capability to finalize payouts.', 'mhm-rentiva'));
             }
-        } else {
-            if (! user_can($user_id, 'mhm_rentiva_review_payout')) {
+        // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Custom payout governance capability registered by the plugin.
+        } elseif (! user_can($user_id, 'mhm_rentiva_review_payout')) {
                 return new \WP_Error('governance_denied', __('You do not have the capability to review payouts.', 'mhm-rentiva'));
-            }
         }
 
         return true;
@@ -263,7 +266,7 @@ class GovernanceService
     {
         global $wpdb;
 
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_payout_audit' );
+        $table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
 
         // Graceful skip if table not migrated yet
         $has_table = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table));
@@ -273,21 +276,25 @@ class GovernanceService
         }
 
         // Generate IP hash (privacy + tracking)
-        $raw_ip  = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
+        $raw_ip = 'CLI';
+        if (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR'])) {
+            $raw_ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+        }
         $ip_hash = hash('sha256', $raw_ip . wp_salt());
 
         $metadata = wp_json_encode(array(
             'context'        => $context,
             'risk_score'     => $risk_score,
-            'workflow_state' => $workflow_state
+            'workflow_state' => $workflow_state,
         ));
 
         $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
 
         // Use INSERT IGNORE to stay idempotent during retries/concurrent race conditions.
         $wpdb->query($wpdb->prepare(
-            "INSERT IGNORE INTO $table (tenant_id, payout_id, actor_user_id, action, tx_uuid, ip_hash, metadata_json, created_at)
-             VALUES (%d, %d, %d, %s, %s, %s, %s, %s)",
+            'INSERT IGNORE INTO %i (tenant_id, payout_id, actor_user_id, action, tx_uuid, ip_hash, metadata_json, created_at)
+             VALUES (%d, %d, %d, %s, %s, %s, %s, %s)',
+            $table,
             $tenant_id,
             $payout_id,
             $actor_id,
@@ -309,6 +316,7 @@ class GovernanceService
     public static function bypass_time_lock(int $payout_id, string $reason)
     {
         $actor_id = get_current_user_id();
+        // phpcs:ignore WordPress.WP.Capabilities.Unknown -- Custom payout governance capability registered by the plugin.
         if (! current_user_can('mhm_rentiva_bypass_time_lock')) {
             return new \WP_Error('governance_denied', __('You do not have the capability to bypass time-locks.', 'mhm-rentiva'));
         }
@@ -324,10 +332,10 @@ class GovernanceService
 
         // 1. Re-score risk for the bypass attempt
         $payout_amount = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
-        $vendor_id = (int) $post->post_author;
+        $vendor_id     = (int) $post->post_author;
 
         // Simplified context for bypass re-scoring (real system would fetch full context)
-        $context = new Risk\PayoutContext($payout_id, $vendor_id, $payout_amount, 0, 0, 0);
+        $context     = new Risk\PayoutContext($payout_id, $vendor_id, $payout_amount, 0, 0, 0);
         $risk_engine = new Risk\DeterministicRiskEngine();
         $risk_result = $risk_engine->score($context);
 

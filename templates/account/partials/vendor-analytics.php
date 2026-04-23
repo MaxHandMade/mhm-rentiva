@@ -18,14 +18,14 @@ if (! defined('ABSPATH')) {
 
 $analytics = is_array($analytics ?? null) ? $analytics : array();
 
-$revenue_30d       = (float) ($analytics['revenue_30d']       ?? 0.0);
-$revenue_30d_prev  = (float) ($analytics['revenue_30d_prev']  ?? 0.0);
-$growth_7d         = isset($analytics['growth_7d']) && is_numeric($analytics['growth_7d'])
+$revenue_30d      = (float) ( $analytics['revenue_30d']       ?? 0.0 );
+$revenue_30d_prev = (float) ( $analytics['revenue_30d_prev']  ?? 0.0 );
+$growth_7d        = isset($analytics['growth_7d']) && is_numeric($analytics['growth_7d'])
     ? (float) $analytics['growth_7d']
     : null;
-$avg_booking       = (float) ($analytics['avg_booking_value'] ?? 0.0);
-$sparkline_7d      = is_array($analytics['sparkline_7d']  ?? null) ? $analytics['sparkline_7d']  : array_fill(0, 7, 0.0);
-$sparkline_30d     = is_array($analytics['sparkline_30d'] ?? null) ? $analytics['sparkline_30d'] : array_fill(0, 30, 0.0);
+$avg_booking      = (float) ( $analytics['avg_booking_value'] ?? 0.0 );
+$sparkline_7d     = is_array($analytics['sparkline_7d']  ?? null) ? $analytics['sparkline_7d']  : array_fill(0, 7, 0.0);
+$sparkline_30d    = is_array($analytics['sparkline_30d'] ?? null) ? $analytics['sparkline_30d'] : array_fill(0, 30, 0.0);
 
 // --- Growth badge resolution ---
 $growth_class = 'is-neutral';

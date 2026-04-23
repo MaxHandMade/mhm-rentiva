@@ -49,9 +49,12 @@ if (! $is_available) {
                     $sizes  = $image_id ? '(max-width: 782px) 100vw, 500px' : '';
                     ?>
                     <img src="<?php echo esc_url($image_url); ?>"
-                         alt="<?php echo esc_attr($image_alt); ?>"
-                         loading="lazy"
-                         <?php if ($srcset) : ?>srcset="<?php echo esc_attr($srcset); ?>" sizes="<?php echo esc_attr($sizes); ?>"<?php endif; ?>>
+                        alt="<?php echo esc_attr($image_alt); ?>"
+                        loading="lazy"
+                        <?php
+                        if ($srcset) :
+							?>
+                            srcset="<?php echo esc_attr($srcset); ?>" sizes="<?php echo esc_attr($sizes); ?>"<?php endif; ?>>
                 <?php else : ?>
                     <div class="mhm-placeholder-image">
                         <div class="mhm-card-image-placeholder">

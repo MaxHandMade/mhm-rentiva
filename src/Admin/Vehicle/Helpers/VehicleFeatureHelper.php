@@ -22,8 +22,8 @@ use MHMRentiva\Admin\Vehicle\Settings\VehicleSettings;
  *
  * @since 4.3.9
  */
-final class VehicleFeatureHelper
-{
+final class VehicleFeatureHelper {
+
 	/**
 	 * Static cache for the available fields map within the same request.
 	 *
@@ -33,7 +33,7 @@ final class VehicleFeatureHelper
 
 	/**
 	 * Primes the static feature map cache.
-	 * 
+	 *
 	 * @return void
 	 */
 	public static function prime_static_feature_map(): void
@@ -169,17 +169,17 @@ final class VehicleFeatureHelper
 				continue;
 			}
 
-			if (! isset($available[$type][$key])) {
+			if (! isset($available[ $type ][ $key ])) {
 				// Skip fields that are no longer active/available.
 				continue;
 			}
 
 			$dedupe_key = $type . ':' . $key;
-			if (isset($dedupe[$dedupe_key])) {
+			if (isset($dedupe[ $dedupe_key ])) {
 				continue;
 			}
 
-			$dedupe[$dedupe_key] = true;
+			$dedupe[ $dedupe_key ] = true;
 			$sanitized[]           = array(
 				'type' => $type,
 				'key'  => $key,
@@ -218,12 +218,12 @@ final class VehicleFeatureHelper
 
 		foreach ($selected_details as $key) {
 			$key = sanitize_key($key);
-			if ($key === '' || ! isset($all_details[$key])) {
+			if ($key === '' || ! isset($all_details[ $key ])) {
 				continue;
 			}
 
-			$result[self::TYPE_DETAIL][$key] = array(
-				'label'    => self::sanitize_label($all_details[$key], $key),
+			$result[ self::TYPE_DETAIL ][ $key ] = array(
+				'label'    => self::sanitize_label($all_details[ $key ], $key),
 				'meta_key' => self::map_detail_meta_key($key),
 				'type'     => self::TYPE_DETAIL,
 				'key'      => $key,
@@ -238,7 +238,7 @@ final class VehicleFeatureHelper
 		foreach ($all_features as $key => $label) {
 			// Include all available features, not just selected ones (Comparison table needs everything)
 			$key                                  = sanitize_key($key);
-			$result[self::TYPE_FEATURE][$key] = array(
+			$result[ self::TYPE_FEATURE ][ $key ] = array(
 				'label'    => self::sanitize_label($label, $key),
 				'meta_key' => '', // meta key is generic _mhm_rentiva_features array check
 				'type'     => self::TYPE_FEATURE,
@@ -253,7 +253,7 @@ final class VehicleFeatureHelper
 
 		foreach ($all_equipment as $key => $label) {
 			$key                                    = sanitize_key($key);
-			$result[self::TYPE_EQUIPMENT][$key] = array(
+			$result[ self::TYPE_EQUIPMENT ][ $key ] = array(
 				'label'    => self::sanitize_label($label, $key),
 				'meta_key' => '', // meta key is generic _mhm_rentiva_equipment array check
 				'type'     => self::TYPE_EQUIPMENT,
@@ -282,7 +282,7 @@ final class VehicleFeatureHelper
 			// last part is term slug? No, term slug can have underscores.
 			// It's ambiguous. But we don't strictly NEED has_term if we trust the meta sync.
 
-			$result[self::TYPE_TAXONOMY][$key] = array(
+			$result[ self::TYPE_TAXONOMY ][ $key ] = array(
 				'label'    => $label,
 				'meta_key' => '',
 				'type'     => self::TYPE_TAXONOMY,
@@ -319,16 +319,16 @@ final class VehicleFeatureHelper
 			$type = $item['type'];
 			$key  = $item['key'];
 
-			if (! isset($available[$type][$key])) {
+			if (! isset($available[ $type ][ $key ])) {
 				continue;
 			}
 
-			$label = $available[$type][$key]['label'];
+			$label = $available[ $type ][ $key ]['label'];
 
 			if ($type === self::TYPE_DETAIL) {
-				$meta_key = $available[$type][$key]['meta_key'];
-				$raw      = $details_meta[$meta_key] ?? '';
-				if (($raw === '' || $raw === null) && $key === 'year') {
+				$meta_key = $available[ $type ][ $key ]['meta_key'];
+				$raw      = $details_meta[ $meta_key ] ?? '';
+				if (( $raw === '' || $raw === null ) && $key === 'year') {
 					$raw = $details_meta['_mhm_rentiva_model_year'] ?? $details_meta['_mhm_rentiva_year'] ?? '';
 				}
 				$formatted = self::format_detail_value($key, $raw, $details_meta);
@@ -421,8 +421,8 @@ final class VehicleFeatureHelper
 			'deposit'       => '_mhm_rentiva_deposit',
 		);
 
-		if (isset($map[$key])) {
-			return $map[$key];
+		if (isset($map[ $key ])) {
+			return $map[ $key ];
 		}
 
 		// Custom details fallback
@@ -474,12 +474,12 @@ final class VehicleFeatureHelper
 				}
 			}
 
-			$meta[$key] = $val;
+			$meta[ $key ] = $val;
 		}
 
 		$custom_details = (array) get_option('mhm_custom_details', array());
 		foreach (array_keys($custom_details) as $custom_key) {
-			$meta['_mhm_rentiva_' . $custom_key] = get_post_meta($vehicle_id, '_mhm_rentiva_' . $custom_key, true);
+			$meta[ '_mhm_rentiva_' . $custom_key ] = get_post_meta($vehicle_id, '_mhm_rentiva_' . $custom_key, true);
 		}
 
 		return $meta;
@@ -515,8 +515,8 @@ final class VehicleFeatureHelper
 			case 'fuel_type':
 				$map  = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				$raw  = sanitize_key($raw);
-				$text = $map[$raw] ?? ucfirst($raw);
-				$icon = ($raw === 'electric' || $raw === 'hybrid') ? 'bolt' : 'fuel';
+				$text = $map[ $raw ] ?? ucfirst($raw);
+				$icon = ( $raw === 'electric' || $raw === 'hybrid' ) ? 'bolt' : 'fuel';
 				break;
 
 			case 'transmission':
@@ -526,7 +526,7 @@ final class VehicleFeatureHelper
 					$raw = 'auto';
 				}
 				$raw  = sanitize_key($raw);
-				$text = $map[$raw] ?? ucfirst($raw);
+				$text = $map[ $raw ] ?? ucfirst($raw);
 				$icon = 'gear';
 				break;
 
@@ -551,7 +551,7 @@ final class VehicleFeatureHelper
 
 			case 'year':
 			case 'model_year':
-				$value = trim((string) $raw);
+				$value = trim( (string) $raw);
 				if ($value === '') {
 					return null;
 				}
@@ -560,7 +560,7 @@ final class VehicleFeatureHelper
 				break;
 
 			case 'mileage':
-				$numeric = floatval(str_replace(array('.', ',', ' '), '', (string) $raw));
+				$numeric = floatval(str_replace(array( '.', ',', ' ' ), '', (string) $raw));
 				if ($numeric <= 0) {
 					return null;
 				}
@@ -577,7 +577,7 @@ final class VehicleFeatureHelper
 				break;
 
 			case 'deposit':
-				$deposit_val = trim((string) $raw);
+				$deposit_val = trim( (string) $raw);
 				if ($deposit_val === '') {
 					return null;
 				}
@@ -618,11 +618,11 @@ final class VehicleFeatureHelper
 					'passive'     => __('Inactive', 'mhm-rentiva'),
 				);
 				$raw  = sanitize_key($raw);
-				$text = $map[$raw] ?? ucfirst($raw);
+				$text = $map[ $raw ] ?? ucfirst($raw);
 				break;
 
 			default:
-				$value = trim((string) $raw);
+				$value = trim( (string) $raw);
 				if ($value === '') {
 					return null;
 				}

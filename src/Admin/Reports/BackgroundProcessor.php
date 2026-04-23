@@ -758,7 +758,7 @@ final class BackgroundProcessor {
 			array(
 				'job_id'         => $job_data['job_id'],
 				'report_type'    => $job_data['report_type'],
-				'params'         => json_encode( $job_data['params'] ),
+				'params'         => wp_json_encode( $job_data['params'] ),
 				'user_id'        => $job_data['user_id'],
 				'status'         => $job_data['status'],
 				'progress'       => $job_data['progress'],
@@ -813,7 +813,7 @@ final class BackgroundProcessor {
 		);
 
 		if ( $result_data !== null ) {
-			$update_data['result_data'] = json_encode( $result_data );
+			$update_data['result_data'] = wp_json_encode( $result_data );
 		}
 
 		if ( $error !== null ) {

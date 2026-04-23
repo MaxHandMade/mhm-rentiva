@@ -14,8 +14,8 @@ use MHMRentiva\Core\Financial\Ledger;
 /**
  * Validatable metric reflecting natively accessible ledger cleared limits dynamically independent of pending allocations.
  */
-final class AvailableBalanceMetric implements MetricInterface
-{
+final class AvailableBalanceMetric implements MetricInterface {
+
     public function key(): string
     {
         return 'available_balance';

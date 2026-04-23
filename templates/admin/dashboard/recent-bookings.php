@@ -53,7 +53,8 @@ $booking_stats = $args['booking_stats'] ?? array();
 
 			<?php if ( ! empty( $bookings ) ) : ?>
 				<div class="transfer-route-list">
-					<?php foreach ( $bookings as $booking ) :
+					<?php
+                    foreach ( $bookings as $booking ) :
 						$status       = $booking['status']       ?? 'pending';
 						$type         = $booking['booking_type'] ?? 'rental';
 						$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( $status );
@@ -67,7 +68,7 @@ $booking_stats = $args['booking_stats'] ?? array();
 						$pickup_date  = $pickup_ts ? date_i18n( 'd M Y', $pickup_ts ) : '-';
 						$pickup_time  = $booking['pickup_time'] ?? '';
 						$booking_url  = admin_url( 'post.php?post=' . (int) $booking['id'] . '&action=edit' );
-					?>
+						?>
 					<a href="<?php echo esc_url( $booking_url ); ?>" class="transfer-route-card <?php echo esc_attr( $status_class ); ?>">
 						<div class="transfer-route-card__route">
 							<span class="trc-origin">

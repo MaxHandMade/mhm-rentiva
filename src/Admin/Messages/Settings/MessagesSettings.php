@@ -334,7 +334,7 @@ final class MessagesSettings {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'mhm-rentiva' ) );
 		}
 
-		$settings   = self::get_settings();
+		$settings = self::get_settings();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector for settings UI rendering.
 		$active_tab = sanitize_key( $_GET['tab'] ?? 'email' );
 

@@ -312,7 +312,8 @@ final class ProFeatureNotice {
 			echo '</div>';
 		} elseif ( $type === 'routes' ) {
 			global $wpdb;
-			$table      = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+			$table = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- The limit notice needs the current live route count for this admin screen.
 			$current    = (int) $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 			$max        = Mode::maxTransferRoutes();
 			$percentage = $max > 0 ? round( ( $current / $max ) * 100 ) : 0;

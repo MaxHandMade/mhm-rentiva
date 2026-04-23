@@ -42,8 +42,8 @@ if (! defined('ABSPATH')) {
  * @since 4.21.0 Refactored with explicit 4-level hierarchy, PolicyService integration,
  *               TierService integration, and full CommissionResult metadata.
  */
-final class CommissionResolver
-{
+final class CommissionResolver {
+
     /**
      * Legacy default — used only as an emergency guard if PolicyService is unavailable
      * in a non-production test context. NOT a silent production fallback.
@@ -76,13 +76,13 @@ final class CommissionResolver
         }
 
         // Normalize booking date: default to now (UTC) if not supplied.
-        $booking_date = ($booking_date !== '') ? $booking_date : (string) current_time('mysql', true);
+        $booking_date = ( $booking_date !== '' ) ? $booking_date : (string) current_time('mysql', true);
 
         // --- Resolve active policy (provides base rate + audit metadata) ---
-        $policy            = PolicyService::resolve_policy_at($vendor_id, $booking_date);
-        $policy_id         = $policy->get_id();
-        $policy_version    = $policy->get_version_hash();
-        $policy_base_rate  = $policy->get_global_rate();
+        $policy           = PolicyService::resolve_policy_at($vendor_id, $booking_date);
+        $policy_id        = $policy->get_id();
+        $policy_version   = $policy->get_version_hash();
+        $policy_base_rate = $policy->get_global_rate();
 
         // --- HIERARCHY RESOLUTION ---
         $rate   = null;
@@ -121,7 +121,7 @@ final class CommissionResolver
         }
 
         // --- MATH (banker-safe rounding) ---
-        $commission_amount = round(($payment_amount * $rate) / 100.0, 2, PHP_ROUND_HALF_UP);
+        $commission_amount = round(( $payment_amount * $rate ) / 100.0, 2, PHP_ROUND_HALF_UP);
         $vendor_net_amount = round($payment_amount - $commission_amount, 2, PHP_ROUND_HALF_UP);
 
         return new CommissionResult(

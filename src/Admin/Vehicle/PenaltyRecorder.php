@@ -18,14 +18,14 @@ use MHMRentiva\Core\Financial\LedgerEntry;
  *
  * @since 4.24.0
  */
-final class PenaltyRecorder
-{
+final class PenaltyRecorder {
+
 	/**
 	 * Register the hook listener.
 	 */
 	public static function register(): void
 	{
-		add_action('mhm_rentiva_vehicle_withdrawn', array(self::class, 'record_penalty'), 20, 3);
+		add_action('mhm_rentiva_vehicle_withdrawn', array( self::class, 'record_penalty' ), 20, 3);
 	}
 
 	/**
@@ -66,7 +66,8 @@ final class PenaltyRecorder
 		try {
 			Ledger::add_entry($entry);
 		} catch (\RuntimeException $e) {
-			// Idempotent: duplicate UUID is silently ignored.
+			// Idempotent: duplicate UUID is silently ignored — entry is already recorded.
+			unset($e);
 		}
 
 		do_action('mhm_rentiva_withdrawal_penalty_recorded', $vehicle_id, $vendor_id, $penalty_amount);

@@ -58,7 +58,20 @@ function mhm_rentiva_sanitize_text_field_safe($value)
 function mhm_rentiva_get_display_id(int $booking_id): int
 {
 	$order_id = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
-	return $order_id ?: $booking_id;
+	return $order_id ? $order_id : $booking_id;
+}
+
+/**
+ * Render a standard admin error notice for bootstrap/dependency failures.
+ *
+ * @param string $message Notice body text.
+ */
+function mhm_rentiva_render_admin_error_notice(string $message): void
+{
+	printf(
+		'<div class="notice notice-error"><p>%s</p></div>',
+		esc_html($message)
+	);
 }
 
 // Define Version (Updated via build script)
@@ -69,13 +82,13 @@ if (version_compare(PHP_VERSION, '8.1', '<')) {
 	add_action(
 		'admin_notices',
 		function () {
-			echo '<div class="notice notice-error"><p>';
-			printf(
-				/* translators: %s: detected PHP version number. */
-				esc_html__('MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s', 'mhm-rentiva'),
-				esc_html(PHP_VERSION)
+			mhm_rentiva_render_admin_error_notice(
+				sprintf(
+					/* translators: %s: detected PHP version number. */
+					__('MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s', 'mhm-rentiva'),
+					PHP_VERSION
+				)
 			);
-			echo '</p></div>';
 		}
 	);
 	return;
@@ -130,7 +143,7 @@ spl_autoload_register(
 		}
 
 		// Convert namespace to file path
-		$relative = str_replace(array('MHMRentiva\\', '\\'), array('', '/'), $class_name) . '.php';
+		$relative = str_replace( array( 'MHMRentiva\\', '\\' ), array( '', '/' ), $class_name ) . '.php';
 		$path     = __DIR__ . '/src/' . $relative;
 
 		// Load file if exists
@@ -164,11 +177,13 @@ add_action(
 				add_action(
 					'admin_notices',
 					function () use ($e) {
-						echo '<div class="notice notice-error">
-            <p>';
-						echo esc_html__('MHM Rentiva plugin error on startup: ', 'mhm-rentiva') . esc_html($e->getMessage());
-						echo '</p>
-        </div>';
+						mhm_rentiva_render_admin_error_notice(
+							sprintf(
+								/* translators: %s: startup exception message. */
+								__('MHM Rentiva plugin error on startup: %s', 'mhm-rentiva'),
+								$e->getMessage()
+							)
+						);
 					}
 				);
 			}
@@ -176,11 +191,9 @@ add_action(
 			add_action(
 				'admin_notices',
 				function () {
-					echo '<div class="notice notice-error">
-            <p>';
-					echo esc_html__('MHM Rentiva plugin failed to load. Please reinstall the plugin.', 'mhm-rentiva');
-					echo '</p>
-        </div>';
+					mhm_rentiva_render_admin_error_notice(
+						__('MHM Rentiva plugin failed to load. Please reinstall the plugin.', 'mhm-rentiva')
+					);
 				}
 			);
 		}
@@ -203,12 +216,12 @@ add_action(
 add_action(
 	'plugins_loaded',
 	function () {
-		if (! is_admin() && ! wp_doing_cron() && ! (defined('WP_CLI') && WP_CLI)) {
+		if (! is_admin() && ! wp_doing_cron() && ! ( defined('WP_CLI') && WP_CLI )) {
 			// Only check on admin / cron / cli to avoid front-end overhead.
 			return;
 		}
 
-		$stored_version = get_option('mhm_rentiva_plugin_version', '');
+		$stored_version = get_option( 'mhm_rentiva_plugin_version', '' );
 
 		if ($stored_version === MHM_RENTIVA_VERSION) {
 			return;
@@ -292,7 +305,7 @@ register_activation_hook(
 					'MHM Rentiva'
 				),
 				esc_html__('Plugin Dependency Check', 'mhm-rentiva'),
-				array('back_link' => true)
+				array( 'back_link' => true )
 			);
 		}
 
@@ -305,7 +318,7 @@ register_activation_hook(
 				// Fetch blog IDs using get_sites() instead of direct database query
 				$blog_ids = wp_cache_get('mhm_rentiva_network_blogs');
 				if (false === $blog_ids) {
-					$sites    = get_sites(array('public' => 1));
+					$sites    = get_sites( array( 'public' => 1 ) );
 					$blog_ids = array();
 					foreach ($sites as $site) {
 						$blog_ids[] = $site->blog_id;
@@ -315,7 +328,7 @@ register_activation_hook(
 
 				if (! empty($blog_ids)) {
 					foreach ($blog_ids as $blog_id) {
-						switch_to_blog((int) $blog_id);
+						switch_to_blog( (int) $blog_id );
 						mhm_rentiva_single_site_activation();
 						restore_current_blog();
 					}
@@ -334,15 +347,17 @@ add_action(
 	'admin_notices',
 	function () {
 		if (! class_exists('WooCommerce')) {
-			echo '<div class="notice notice-error">
-            <p>';
 			printf(
-				/* translators: %s: Plugin name. */
-				esc_html__('%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin.', 'mhm-rentiva'),
-				'<strong>MHM Rentiva</strong>'
+				'<div class="notice notice-error"><p>%s</p></div>',
+				wp_kses(
+					sprintf(
+						/* translators: %s: Plugin name. */
+						__( '%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin.', 'mhm-rentiva' ),
+						'<strong>' . esc_html__( 'MHM Rentiva', 'mhm-rentiva' ) . '</strong>'
+					),
+					array( 'strong' => array() )
+				)
 			);
-			echo '</p>
-        </div>';
 		}
 	}
 );

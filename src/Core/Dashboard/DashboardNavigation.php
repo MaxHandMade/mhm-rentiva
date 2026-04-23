@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Provides dashboard navigation items by dashboard context.
  */
-final class DashboardNavigation
-{
+final class DashboardNavigation {
+
 	/**
 	 * Get navigation items by context.
 	 *
@@ -40,23 +40,23 @@ final class DashboardNavigation
 				),
 			),
 			'vendor'   => array(
-				'overview' => array(
+				'overview'    => array(
 					'label' => __('Overview', 'mhm-rentiva'),
 					'icon'  => 'dashboard',
 				),
-				'listings' => array(
+				'listings'    => array(
 					'label' => __('Listings', 'mhm-rentiva'),
 					'icon'  => 'car',
 				),
-				'bookings' => array(
+				'bookings'    => array(
 					'label' => __('Booking Requests', 'mhm-rentiva'),
 					'icon'  => 'calendar',
 				),
-				'ledger'   => array(
+				'ledger'      => array(
 					'label' => __('Ledger & Payouts', 'mhm-rentiva'),
 					'icon'  => 'chart',
 				),
-				'settings' => array(
+				'settings'    => array(
 					'label' => __('Payment Settings', 'mhm-rentiva'),
 					'icon'  => 'settings',
 				),
@@ -71,6 +71,6 @@ final class DashboardNavigation
 			),
 		);
 
-		return $map[$context] ?? array();
+		return $map[ $context ] ?? array();
 	}
 }

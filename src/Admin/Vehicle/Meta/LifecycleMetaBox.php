@@ -16,14 +16,14 @@ use MHMRentiva\Admin\Vehicle\ReliabilityScoreCalculator;
  *
  * @since 4.24.0
  */
-final class LifecycleMetaBox
-{
+final class LifecycleMetaBox {
+
 	/**
 	 * Register the meta box.
 	 */
 	public static function register(): void
 	{
-		add_action('add_meta_boxes_vehicle', array(self::class, 'add_meta_box'));
+		add_action('add_meta_boxes_vehicle', array( self::class, 'add_meta_box' ));
 	}
 
 	/**
@@ -34,7 +34,7 @@ final class LifecycleMetaBox
 		add_meta_box(
 			'mhm_vehicle_lifecycle',
 			__('Lifecycle Status', 'mhm-rentiva'),
-			array(self::class, 'render'),
+			array( self::class, 'render' ),
 			'vehicle',
 			'side',
 			'high'
@@ -75,7 +75,7 @@ final class LifecycleMetaBox
 		}
 
 		if ($expires) {
-			$days_left = max(0, (int) ceil((strtotime($expires) - time()) / DAY_IN_SECONDS));
+			$days_left = max(0, (int) ceil(( strtotime($expires) - time() ) / DAY_IN_SECONDS));
 			echo '<p style="margin:4px 0;font-size:12px;color:#666;">';
 			echo '<strong>' . esc_html__('Expires:', 'mhm-rentiva') . '</strong> ';
 			echo esc_html(wp_date(get_option('date_format'), strtotime($expires)));
@@ -112,14 +112,14 @@ final class LifecycleMetaBox
 		if ($renewals > 0) {
 			echo '<p style="margin:4px 0;font-size:12px;color:#666;">';
 			echo '<strong>' . esc_html__('Renewals:', 'mhm-rentiva') . '</strong> ';
-			echo esc_html((string) $renewals);
+			echo esc_html( (string) $renewals);
 			echo '</p>';
 		}
 
 		// Vendor reliability score.
 		$vendor_id = (int) $post->post_author;
 		if ($vendor_id > 0) {
-			$score = ReliabilityScoreCalculator::get($vendor_id);
+			$score       = ReliabilityScoreCalculator::get($vendor_id);
 			$score_label = ReliabilityScoreCalculator::get_label($score);
 			$score_color = ReliabilityScoreCalculator::get_color($score);
 

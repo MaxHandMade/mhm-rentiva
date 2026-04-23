@@ -36,9 +36,11 @@ final class PolicyRepository {
     public static function find_active_at(int $vendor_id, string $datetime): ?CommissionPolicy
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_commission_policy' );
+        $table = $wpdb->prefix . 'mhm_rentiva_commission_policy';
 
         // 1. Try vendor-specific policy first (highest ID wins if overlapping).
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a trusted plugin table name derived from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository is the intentional DB access layer for policy resolution.
         $vendor_row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM {$table}
@@ -52,12 +54,15 @@ final class PolicyRepository {
                 $datetime
             )
         );
+        // phpcs:enable
 
         if ($vendor_row !== null) {
             return self::hydrate($vendor_row);
         }
 
         // 2. Fallback to platform-wide policy (vendor_id IS NULL), newest wins.
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a trusted plugin table name derived from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Repository is the intentional DB access layer for policy resolution.
         $global_row = $wpdb->get_row(
             $wpdb->prepare(
                 "SELECT * FROM {$table}
@@ -70,6 +75,7 @@ final class PolicyRepository {
                 $datetime
             )
         );
+        // phpcs:enable
 
         if ($global_row !== null) {
             return self::hydrate($global_row);
@@ -102,15 +108,16 @@ final class PolicyRepository {
     public static function insert_global_policy(float $rate, string $label = ''): bool
     {
         global $wpdb;
-        $table = esc_sql( $wpdb->prefix . 'mhm_rentiva_commission_policy' );
+        $table = $wpdb->prefix . 'mhm_rentiva_commission_policy';
 
         if ($rate < 0.0 || $rate > 100.0) {
             return false;
         }
 
         $now  = current_time('mysql', true);
-        $hash = hash('sha256', (string) json_encode(array( null, $rate, $now, null )));
+        $hash = hash('sha256', (string) wp_json_encode(array( null, $rate, $now, null )));
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Repository is the intentional write boundary for commission policies.
         $inserted = $wpdb->insert(
             $table,
             array(

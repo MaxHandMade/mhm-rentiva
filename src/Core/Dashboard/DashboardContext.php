@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Resolve dashboard context from authenticated user roles.
  */
-final class DashboardContext
-{
+final class DashboardContext {
+
 	/**
 	 * Resolve dashboard type.
 	 *

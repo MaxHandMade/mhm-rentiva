@@ -274,7 +274,7 @@ final class VehicleSettings {
 		}
 
 		// Detail page highlighted features selection.
-		$detail_selected_rows = VehicleFeatureHelper::get_selected_detail_fields();
+		$detail_selected_rows      = VehicleFeatureHelper::get_selected_detail_fields();
 		$available_flat_for_detail = array();
 		foreach ( $available_map as $type => $fields ) {
 			foreach ( $fields as $key => $field ) {
@@ -676,7 +676,7 @@ final class VehicleSettings {
 						<h4 class="mhm-section-subtitle"><?php echo esc_html__( 'Core Details (Essential)', 'mhm-rentiva' ); ?></h4>
 						<div class="mhm-checkbox-list mhm-core-details-grid">
 							<?php
-							$core_fields   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+							$core_fields = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
 							foreach ( $all_details as $key => $label ) :
 								if ( ! in_array( $key, $core_fields ) ) {
 									continue;
@@ -756,11 +756,12 @@ final class VehicleSettings {
 							</div>
 						</div>
 						<div class="mhm-checkbox-list">
-							<?php foreach ( $all_features as $key => $label ) :
-							if ( in_array( $key, $custom_feature_keys, true ) ) {
-								continue;
-							}
-						?>
+							<?php
+                            foreach ( $all_features as $key => $label ) :
+								if ( in_array( $key, $custom_feature_keys, true ) ) {
+									continue;
+								}
+								?>
 								<div class="mhm-checkbox-item mhm-removable-item mhm-custom-row-item">
 									<label class="mhm-checkbox-label">
 										<input type="checkbox" name="selected_features[]" value="<?php echo esc_attr( $key ); ?>"
@@ -807,11 +808,12 @@ final class VehicleSettings {
 							</div>
 						</div>
 						<div class="mhm-checkbox-list">
-							<?php foreach ( $all_equipment as $key => $label ) :
-							if ( in_array( $key, $custom_equipment_keys, true ) ) {
-								continue;
-							}
-						?>
+							<?php
+                            foreach ( $all_equipment as $key => $label ) :
+								if ( in_array( $key, $custom_equipment_keys, true ) ) {
+									continue;
+								}
+								?>
 								<div class="mhm-checkbox-item mhm-removable-item mhm-custom-row-item">
 									<label class="mhm-checkbox-label">
 										<input type="checkbox" name="selected_equipment[]" value="<?php echo esc_attr( $key ); ?>"
@@ -1688,11 +1690,9 @@ final class VehicleSettings {
 					$settings['mhm_rentiva_vehicle_card_fields'] = $decoded;
 					$settings_updated                            = true;
 				}
-			} else {
-				// If not set, it might mean empty?
-				// Hidden input usually sends "[]" if empty via JS, but if empty string...
-				// Let's assume valid JSON should always be sent if JS works.
 			}
+			// If the field is not present in $_POST we leave the existing setting in place.
+			// JS submits "[]" for an explicit empty selection; missing field means "no change".
 
 			// Save Vehicle Detail Highlighted Fields
 			if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
@@ -1731,7 +1731,7 @@ final class VehicleSettings {
 		}
 
 		// Save selected fields (Definitions Tab)
-		$selected_details   = array_map( 'sanitize_text_field', self::post_array( 'selected_details' ) );
+		$selected_details = array_map( 'sanitize_text_field', self::post_array( 'selected_details' ) );
 		// Core fields are always selected - enforce even if disabled checkboxes weren't submitted
 		$core_fields_list = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
 		foreach ( $core_fields_list as $core_key ) {
@@ -1871,7 +1871,7 @@ final class VehicleSettings {
 
 		if ( $field_type === 'details' ) {
 			// 1. Check if Core (Cannot remove)
-			$core_fields   = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+			$core_fields = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
 			if ( in_array( $field_key, $core_fields ) ) {
 				wp_send_json_error( __( 'This is a core field and cannot be removed.', 'mhm-rentiva' ) );
 				return;
@@ -1984,7 +1984,7 @@ final class VehicleSettings {
 		}
 
 		// Key always generated server-side — never trust client-provided keys
-		$field_key = 'custom_' . time() . '_' . wp_rand( 1000, 9999 );
+		$field_key   = 'custom_' . time() . '_' . wp_rand( 1000, 9999 );
 		$field_label = self::post_text( 'field_label' );
 		$field_type  = self::post_text( 'field_type' ); // details, features, equipment
 
@@ -2006,19 +2006,28 @@ final class VehicleSettings {
 				update_option( 'mhm_custom_field_meta', $field_meta );
 			}
 
-			wp_send_json_success( array( 'key' => $field_key, 'message' => esc_html__( 'Custom detail added successfully', 'mhm-rentiva' ) ) );
+			wp_send_json_success( array(
+				'key'     => $field_key,
+				'message' => esc_html__( 'Custom detail added successfully', 'mhm-rentiva' ),
+			) );
 		} elseif ( 'features' === $field_type ) {
 			$custom_features               = get_option( 'mhm_custom_features', array() );
 			$custom_features[ $field_key ] = $field_label;
 			update_option( 'mhm_custom_features', $custom_features );
 
-			wp_send_json_success( array( 'key' => $field_key, 'message' => esc_html__( 'Custom feature added successfully', 'mhm-rentiva' ) ) );
+			wp_send_json_success( array(
+				'key'     => $field_key,
+				'message' => esc_html__( 'Custom feature added successfully', 'mhm-rentiva' ),
+			) );
 		} elseif ( 'equipment' === $field_type ) {
 			$custom_equipment               = get_option( 'mhm_custom_equipment', array() );
 			$custom_equipment[ $field_key ] = $field_label;
 			update_option( 'mhm_custom_equipment', $custom_equipment );
 
-			wp_send_json_success( array( 'key' => $field_key, 'message' => esc_html__( 'Custom equipment added successfully', 'mhm-rentiva' ) ) );
+			wp_send_json_success( array(
+				'key'     => $field_key,
+				'message' => esc_html__( 'Custom equipment added successfully', 'mhm-rentiva' ),
+			) );
 		} else {
 			wp_send_json_error( esc_html__( 'Invalid field type', 'mhm-rentiva' ) );
 		}
@@ -2038,10 +2047,10 @@ final class VehicleSettings {
 
 		if ( $tab === 'display' ) {
 			// Reset Display Options to empty arrays
-			$settings                                    = get_option( 'mhm_rentiva_settings', array() );
-			$settings['mhm_rentiva_vehicle_card_fields'] = array();
+			$settings                                      = get_option( 'mhm_rentiva_settings', array() );
+			$settings['mhm_rentiva_vehicle_card_fields']   = array();
 			$settings['mhm_rentiva_vehicle_detail_fields'] = array();
-			$settings['comparison_fields']               = array();
+			$settings['comparison_fields']                 = array();
 			update_option( 'mhm_rentiva_settings', $settings );
 		} else {
 			// Reset Selection Options (Checkboxes) to default values (Definitions Tab)

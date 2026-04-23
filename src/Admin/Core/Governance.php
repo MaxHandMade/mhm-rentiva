@@ -24,8 +24,8 @@ if (!defined('ABSPATH')) {
  *
  * Enforces project-wide governance rules, specifically the "No Tailwind Runtime" policy.
  */
-class Governance
-{
+class Governance {
+
 
 
     /**
@@ -53,8 +53,8 @@ class Governance
      */
     public function register(): void
     {
-        add_action('wp_enqueue_scripts', [$this, 'enforce_no_tailwind'], 9999);
-        add_action('admin_enqueue_scripts', [$this, 'enforce_no_tailwind'], 9999);
+        add_action('wp_enqueue_scripts', [ $this, 'enforce_no_tailwind' ], 9999);
+        add_action('admin_enqueue_scripts', [ $this, 'enforce_no_tailwind' ], 9999);
     }
 
     /**
@@ -77,16 +77,16 @@ class Governance
     {
         global $wp_styles;
 
-        if (!($wp_styles instanceof \WP_Styles)) {
+        if (!( $wp_styles instanceof \WP_Styles )) {
             return;
         }
 
         foreach ($wp_styles->queue as $handle) {
-            if (!isset($wp_styles->registered[$handle])) {
+            if (!isset($wp_styles->registered[ $handle ])) {
                 continue;
             }
 
-            $asset = $wp_styles->registered[$handle];
+            $asset = $wp_styles->registered[ $handle ];
             if ($this->is_violation($handle, $asset->src)) {
                 wp_dequeue_style($handle);
                 wp_deregister_style($handle);
@@ -104,16 +104,16 @@ class Governance
     {
         global $wp_scripts;
 
-        if (!($wp_scripts instanceof \WP_Scripts)) {
+        if (!( $wp_scripts instanceof \WP_Scripts )) {
             return;
         }
 
         foreach ($wp_scripts->queue as $handle) {
-            if (!isset($wp_scripts->registered[$handle])) {
+            if (!isset($wp_scripts->registered[ $handle ])) {
                 continue;
             }
 
-            $asset = $wp_scripts->registered[$handle];
+            $asset = $wp_scripts->registered[ $handle ];
             if ($this->is_violation($handle, $asset->src)) {
                 wp_dequeue_script($handle);
                 wp_deregister_script($handle);

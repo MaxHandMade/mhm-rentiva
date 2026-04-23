@@ -10,13 +10,15 @@
  * @since   1.0.0
  */
 
+declare(strict_types=1);
+
 // If uninstall not called from WordPress, then exit.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
 // Check if user wants to clean data on uninstall
-$settings           = get_option( 'mhm_rentiva_settings', array() );
+$settings = get_option( 'mhm_rentiva_settings', array() );
 if ( ! is_array( $settings ) ) {
 	$settings = array();
 }

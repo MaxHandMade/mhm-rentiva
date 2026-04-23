@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Contract for trend-capable dashboard metrics.
  */
-interface MetricInterface
-{
+interface MetricInterface {
+
 	/**
 	 * Unique metric key (e.g. total_bookings).
 	 */

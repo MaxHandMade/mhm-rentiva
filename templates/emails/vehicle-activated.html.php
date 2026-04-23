@@ -18,7 +18,7 @@
 		<p>
 			<?php
 			/* translators: %s: expiry date */
-			echo esc_html(sprintf(__('Listing expires on: %s', 'mhm-rentiva'), wp_date(get_option('date_format'), strtotime((string) $data['lifecycle']['expires_at']))));
+			echo esc_html(sprintf(__('Listing expires on: %s', 'mhm-rentiva'), wp_date(get_option('date_format'), strtotime( (string) $data['lifecycle']['expires_at']))));
 			?>
 		</p>
 	<?php endif; ?>

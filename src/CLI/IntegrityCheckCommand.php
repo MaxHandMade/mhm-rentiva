@@ -13,19 +13,19 @@ use WP_CLI_Command;
 
 /**
  * CLI Command for manual integrity verification of the Financial Ledger.
- * 
+ *
  * @since 4.22.0
  */
-class IntegrityCheckCommand extends WP_CLI_Command
-{
+class IntegrityCheckCommand extends WP_CLI_Command {
+
 
     /**
      * Triggers a full integrity audit of the ledger.
-     * 
+     *
      * ## EXAMPLES
-     * 
+     *
      *     wp mhm audit:verify
-     * 
+     *
      * @param array $args
      * @param array $assoc_args
      */
@@ -35,7 +35,7 @@ class IntegrityCheckCommand extends WP_CLI_Command
 
         try {
             $service = new IntegrityVerificationService();
-            $result = $service->verify_ledger_integrity();
+            $result  = $service->verify_ledger_integrity();
 
             if ($result['status'] === IntegrityVerificationService::STATUS_SECURE) {
                 WP_CLI::success(sprintf('Ledger Integrity Verified: %s. Rows: %d', $result['status'], $result['rows_verified']));

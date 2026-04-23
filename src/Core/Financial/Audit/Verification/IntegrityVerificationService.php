@@ -15,21 +15,21 @@ use MHMRentiva\Core\Financial\Exceptions\GovernanceException;
 
 /**
  * Service for Internal Integrity Verification of the Financial Ledger.
- * 
- * Rebuilds the HashChain from Genesis to the latest Row and compares it 
+ *
+ * Rebuilds the HashChain from Genesis to the latest Row and compares it
  * against previously stored checkpoints to detect tampering.
  */
-class IntegrityVerificationService
-{
+class IntegrityVerificationService {
 
-    public const OPTION_STATUS = 'mhm_rentiva_system_integrity_status';
-    public const OPTION_LAST_CHECK = 'mhm_rentiva_last_integrity_check';
-    public const STATUS_SECURE = 'SECURE';
+
+    public const OPTION_STATUS      = 'mhm_rentiva_system_integrity_status';
+    public const OPTION_LAST_CHECK  = 'mhm_rentiva_last_integrity_check';
+    public const STATUS_SECURE      = 'SECURE';
     public const STATUS_COMPROMISED = 'COMPROMISED';
 
     /**
      * Executes a full integrity audit of the ledger.
-     * 
+     *
      * @return array{ status: string, rows_verified: int, tip_hash: string }
      * @throws GovernanceException
      */
@@ -38,7 +38,9 @@ class IntegrityVerificationService
         global $wpdb;
 
         // 1. Strict READ ONLY session enforcement
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Integrity verification must set a live read-only isolation boundary.
         $wpdb->query('SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;');
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Integrity verification must open a live read-only transaction.
         $wpdb->query('START TRANSACTION READ ONLY;');
 
         try {
@@ -46,6 +48,7 @@ class IntegrityVerificationService
             $a_table = $wpdb->prefix . 'mhm_rentiva_payout_audit';
 
             // Rebuild query exactly like the Export Service for canonical parity.
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Integrity verification must rebuild the live canonical ledger snapshot.
             $results = $wpdb->get_results(
                 $wpdb->prepare(
                     "
@@ -69,11 +72,11 @@ class IntegrityVerificationService
                 ),
                 ARRAY_A
             );
-            $count = count($results);
+            $count   = count($results);
 
             $chain = new HashChainBuilder();
             foreach ($results as $row) {
-                $chain->advance((array) $row);
+                $chain->advance( (array) $row);
             }
 
             $tip_hash = $chain->get_tip_hash();
@@ -83,7 +86,7 @@ class IntegrityVerificationService
             // (advance() would throw if data was missing or malformed).
             // We also compare against the last check if it exists and no new rows were added.
 
-            $last_check = get_option(self::OPTION_LAST_CHECK, []);
+            $last_check       = get_option(self::OPTION_LAST_CHECK, []);
             $integrity_status = self::STATUS_SECURE;
 
             // If we have a previous check, and row count is same but hash differs -> TAMPERING
@@ -94,14 +97,16 @@ class IntegrityVerificationService
             // 3. Update Persistence
             $this->update_system_status($integrity_status, $count, $tip_hash);
 
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Integrity verification must close the live read-only transaction.
             $wpdb->query('COMMIT;');
 
             return [
                 'status'        => $integrity_status,
                 'rows_verified' => $count,
-                'tip_hash'      => $tip_hash
+                'tip_hash'      => $tip_hash,
             ];
         } catch (\Exception $e) {
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Integrity verification must roll back the live read-only transaction on failure.
             $wpdb->query('ROLLBACK;');
             // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
             throw new GovernanceException('Integrity verification failed: ' . $e->getMessage());
@@ -129,7 +134,7 @@ class IntegrityVerificationService
                 [
                     'expected_hash_at_count' => $row_count,
                     'calculated_hash'        => $tip_hash,
-                    'action_required'        => 'Forensic Audit'
+                    'action_required'        => 'Forensic Audit',
                 ],
                 AdvancedLogger::CATEGORY_SECURITY
             );
@@ -139,7 +144,7 @@ class IntegrityVerificationService
         update_option(self::OPTION_LAST_CHECK, [
             'timestamp' => current_time('mysql', true),
             'row_count' => $row_count,
-            'tip_hash'  => $tip_hash
+            'tip_hash'  => $tip_hash,
         ]);
     }
 
@@ -154,7 +159,7 @@ class IntegrityVerificationService
 
     /**
      * Get the current system integrity status.
-     * 
+     *
      * @return string
      */
     public static function get_system_status(): string

@@ -107,8 +107,8 @@ final class WordPressOptimizer {
 		wp_dequeue_style( 'jquery-ui-resizable' );
 		wp_dequeue_style( 'jquery-ui-selectable' );
 
-		// Disable unnecessary WordPress admin bar
-		if ( ! current_user_can( 'administrator' ) ) {
+		// Hide the admin bar for non-admin operators using capability-based gating.
+		if ( ! current_user_can( 'manage_options' ) ) {
 			show_admin_bar( false );
 		}
 

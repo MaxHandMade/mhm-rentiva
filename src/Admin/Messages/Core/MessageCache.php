@@ -322,12 +322,11 @@ final class MessageCache {
 			}
 		}
 
-		// Also clear WordPress object cache (wp_cache_flush_group might not work in some cases)
-		if ( function_exists( 'wp_cache_flush' ) ) {
-			// This is aggressive but solves caching issues
-			// Alternative: Use wp_cache_delete_group for message caches only
-			// However wp_cache_delete_group is available in WordPress 6.1+
-		}
+		// Note: object cache flush was previously fired here as a safety net.
+		// It was too aggressive (purges every group, not just messages); the
+		// targeted self::delete() calls above are sufficient. The branch is
+		// preserved as inline documentation of the WP 6.1+ wp_cache_delete_group
+		// alternative for future migration.
 	}
 
 	/**

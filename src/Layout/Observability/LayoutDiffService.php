@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Observability
  * @since 4.19.0
  */
-class LayoutDiffService
-{
+class LayoutDiffService {
+
     /**
      * Compute diff between two manifests.
      *
@@ -43,8 +43,11 @@ class LayoutDiffService
         $changed = [];
 
         foreach (array_intersect_key($current, $previous) as $key => $val) {
-            if ($val !== $previous[$key]) {
-                $changed[$key] = ['from' => $previous[$key], 'to' => $val];
+            if ($val !== $previous[ $key ]) {
+                $changed[ $key ] = [
+					'from' => $previous[ $key ],
+					'to'   => $val,
+				];
             }
         }
 
@@ -65,9 +68,9 @@ class LayoutDiffService
         $changed = [];
 
         foreach (array_intersect_key($current, $previous) as $key => $comp) {
-            if ($comp !== $previous[$key]) {
-                $changed[$key] = [
-                    'type_changed' => ($comp['type'] ?? '') !== ($previous[$key]['type'] ?? ''),
+            if ($comp !== $previous[ $key ]) {
+                $changed[ $key ] = [
+                    'type_changed' => ( $comp['type'] ?? '' ) !== ( $previous[ $key ]['type'] ?? '' ),
                     // Deep comparison could be added here if needed
                 ];
             }

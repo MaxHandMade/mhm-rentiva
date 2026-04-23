@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Customer dashboard renderer.
  */
-final class CustomerDashboard
-{
+final class CustomerDashboard {
+
 	/**
 	 * Render customer dashboard template.
 	 *

@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
  *
  * @since 4.21.0
  */
-class RiskResult
-{
+class RiskResult {
+
     /**
      * The numeric risk score, typically 0 to 100.
      *

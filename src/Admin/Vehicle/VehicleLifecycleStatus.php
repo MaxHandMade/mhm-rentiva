@@ -17,8 +17,8 @@ use MHMRentiva\Admin\Core\MetaKeys;
  *
  * @since 4.24.0
  */
-final class VehicleLifecycleStatus
-{
+final class VehicleLifecycleStatus {
+
     public const PENDING_REVIEW = 'pending_review';
     public const ACTIVE         = 'active';
     public const PAUSED         = 'paused';
@@ -119,11 +119,11 @@ final class VehicleLifecycleStatus
     public static function transitions(): array
     {
         return array(
-            self::PENDING_REVIEW => array(self::ACTIVE, self::WITHDRAWN),
-            self::ACTIVE         => array(self::PAUSED, self::EXPIRED, self::WITHDRAWN),
-            self::PAUSED         => array(self::ACTIVE, self::WITHDRAWN),
-            self::EXPIRED        => array(self::ACTIVE, self::WITHDRAWN),
-            self::WITHDRAWN      => array(self::PENDING_REVIEW),
+            self::PENDING_REVIEW => array( self::ACTIVE, self::WITHDRAWN ),
+            self::ACTIVE         => array( self::PAUSED, self::EXPIRED, self::WITHDRAWN ),
+            self::PAUSED         => array( self::ACTIVE, self::WITHDRAWN ),
+            self::EXPIRED        => array( self::ACTIVE, self::WITHDRAWN ),
+            self::WITHDRAWN      => array( self::PENDING_REVIEW ),
         );
     }
 
@@ -137,7 +137,7 @@ final class VehicleLifecycleStatus
         }
 
         $allowed = self::transitions();
-        return isset($allowed[$from]) && in_array($to, $allowed[$from], true);
+        return isset($allowed[ $from ]) && in_array($to, $allowed[ $from ], true);
     }
 
     /**
@@ -168,7 +168,7 @@ final class VehicleLifecycleStatus
             self::WITHDRAWN      => __('Withdrawn', 'mhm-rentiva'),
         );
 
-        return $labels[$status] ?? $status;
+        return $labels[ $status ] ?? $status;
     }
 
     /**
@@ -184,6 +184,6 @@ final class VehicleLifecycleStatus
             self::WITHDRAWN      => '#dc3545',
         );
 
-        return $colors[$status] ?? '#6c757d';
+        return $colors[ $status ] ?? '#6c757d';
     }
 }

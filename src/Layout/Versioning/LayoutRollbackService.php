@@ -23,8 +23,8 @@ use Throwable;
  * @package MHMRentiva\Layout\Versioning
  * @since 4.18.0
  */
-final class LayoutRollbackService
-{
+final class LayoutRollbackService {
+
 
 
     /**
@@ -90,7 +90,7 @@ final class LayoutRollbackService
                     sprintf(
                         /* translators: %s: governance validation error message. */
                         __('Governance validation failed for previous layout: %s', 'mhm-rentiva'),
-                        sanitize_text_field((string) $validation_result->get_error_message())
+                        sanitize_text_field( (string) $validation_result->get_error_message())
                     )
                 );
             }
@@ -111,7 +111,10 @@ final class LayoutRollbackService
             $importer = new AtomicImporter();
             // Re-run atomic import on previous manifest with is_rollback => true to avoid shifting.
             // also suppress_audit => true because we log rollback separately here.
-            $importer->import($prev_manifest_data, array('is_rollback' => true, 'suppress_audit' => true));
+            $importer->import($prev_manifest_data, array(
+				'is_rollback'    => true,
+				'suppress_audit' => true,
+			));
 
             // Meta Flip on Success:
             // new current = old previous

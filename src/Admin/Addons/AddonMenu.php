@@ -24,8 +24,8 @@ use MHMRentiva\Admin\Addons\AddonManager;
 /**
  * Handles admin menu and notices for additional services.
  */
-final class AddonMenu
-{
+final class AddonMenu {
+
 
 
 
@@ -34,9 +34,9 @@ final class AddonMenu
 	 */
 	public static function register(): void
 	{
-		add_action('admin_notices', array(self::class, 'admin_notices'));
-		add_action('admin_notices', array(self::class, 'add_addon_page_title'));
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_admin_scripts'));
+		add_action('admin_notices', array( self::class, 'admin_notices' ));
+		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_scripts' ));
 	}
 
 	/**
@@ -62,7 +62,7 @@ final class AddonMenu
 		// Hide default WP Title & Add New button to replace with standardized header
 		echo '<style>.wp-heading-inline, .page-title-action, .wp-header-end { display: none !important; }</style>';
 
-		$renderer = new class {
+		$renderer = new class() {
 			use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
 
 			public function render()
@@ -106,7 +106,7 @@ final class AddonMenu
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
 		$addon_limit_reached = isset( $_GET['addon_limit_reached'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_limit_reached'] ) ) : '';
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
-		$addon_created       = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
+		$addon_created = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
 
 		// Show license limit notice.
 		if ( '1' === $addon_limit_reached ) {
@@ -146,7 +146,7 @@ final class AddonMenu
 		wp_enqueue_script(
 			'mhm-rentiva-addon-admin',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-admin.js',
-			array('jquery'),
+			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);

@@ -35,6 +35,10 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
     {
         parent::set_up();
 
+        global $wpdb;
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_payout_audit"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+
         $this->vendor_id = $this->factory->user->create(array('role' => 'customer'));
 
         $this->manager_id = $this->factory->user->create(array('role' => 'editor'));
@@ -42,6 +46,16 @@ class GovernanceAuthorizationTest extends WP_UnitTestCase
         $manager->add_cap('manage_options'); // Has legacy dashboard access, but no governance cap
 
         $this->admin_id = $this->factory->user->create(array('role' => 'administrator'));
+    }
+
+    public function tear_down()
+    {
+        global $wpdb;
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_payout_audit"); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+        wp_set_current_user(0);
+
+        parent::tear_down();
     }
 
     /** @test */

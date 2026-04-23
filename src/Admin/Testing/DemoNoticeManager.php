@@ -22,8 +22,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Admin\Testing
  * @since   4.25.1
  */
-final class DemoNoticeManager
-{
+final class DemoNoticeManager {
+
     /**
      * Registers all hooks. No-ops silently when demo is not active.
      *
@@ -35,9 +35,9 @@ final class DemoNoticeManager
             return;
         }
 
-        add_action('admin_notices',  array( self::class, 'render_global_notice' ));
+        add_action('admin_notices', array( self::class, 'render_global_notice' ));
         add_action('admin_bar_menu', array( self::class, 'render_admin_bar_badge' ), 100);
-        add_action('edit_form_top',  array( self::class, 'render_post_editor_banner' ));
+        add_action('edit_form_top', array( self::class, 'render_post_editor_banner' ));
         add_filter('display_post_states', array( self::class, 'add_demo_post_state' ), 10, 2);
     }
 
@@ -76,9 +76,9 @@ final class DemoNoticeManager
      */
     public static function render_global_notice(): void
     {
-        $is_old   = self::is_expiry_warning();
-        $class    = $is_old ? 'notice-error' : 'notice-warning';
-        $message  = $is_old
+        $is_old  = self::is_expiry_warning();
+        $class   = $is_old ? 'notice-error' : 'notice-warning';
+        $message = $is_old
             ? __( '⚠️ Demo data has been active for 7+ days. Clean up before using in production.', 'mhm-rentiva' )
             : __( 'ℹ️ Demo data is active. Remember to clean up before going live.', 'mhm-rentiva' );
 

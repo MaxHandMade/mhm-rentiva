@@ -15,8 +15,8 @@ if (! defined('ABSPATH')) {
  * @package MHMRentiva\Layout\Adapters
  * @since 4.14.0
  */
-final class ReviewsAdapter extends BaseAdapter
-{
+final class ReviewsAdapter extends BaseAdapter {
+
     /**
      * @var string Target shortcode tag.
      */

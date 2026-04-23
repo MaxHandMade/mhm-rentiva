@@ -61,7 +61,7 @@ $renderer    = $args['renderer'] ?? null;
 					<?php
 					// Delegate form wrapping decision to the renderer itself
 					if ($renderer->should_wrap_with_form()) :
-					?>
+						?>
 						<div class="mhm-settings-form-container">
 							<form method="post" action="options.php" class="mhm-settings-form" id="mhm-settings-main-form">
 								<?php
@@ -75,7 +75,7 @@ $renderer    = $args['renderer'] ?? null;
 
 								$form_content = ob_get_clean();
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Internal fields are escaped, we must allow form tags here.
-								echo \MHMRentiva\Admin\Settings\View\SettingsViewHelper::remove_nested_forms((string) $form_content);
+								echo \MHMRentiva\Admin\Settings\View\SettingsViewHelper::remove_nested_forms( (string) $form_content);
 								?>
 
 								<div class="submit-section">
@@ -92,7 +92,7 @@ $renderer    = $args['renderer'] ?? null;
 					<p><?php esc_html_e('Custom or unknown tab detected. Attempting legacy hook dispatch.', 'mhm-rentiva'); ?></p>
 					<?php
 					$handled = false;
-					do_action_ref_array('mhm_rentiva_render_settings_tab', array(&$current_tab, &$handled));
+					do_action_ref_array('mhm_rentiva_render_settings_tab', array( &$current_tab, &$handled ));
 					if (! $handled) {
 						echo '<p>' . esc_html__('No content available for this tab.', 'mhm-rentiva') . '</p>';
 					}

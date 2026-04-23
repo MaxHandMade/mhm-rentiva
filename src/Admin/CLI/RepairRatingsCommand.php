@@ -21,13 +21,13 @@ use MHMRentiva\Admin\Frontend\Shortcodes\SearchResults;
 
 /**
  * WP-CLI Command to repair vehicle ratings
- * 
+ *
  * Usage:
  * wp mhm-rentiva repair-ratings
  * wp mhm-rentiva repair-ratings --dry-run
  */
-class RepairRatingsCommand
-{
+class RepairRatingsCommand {
+
     /**
      * Repair vehicle ratings by normalizing comment types and recalculating stats.
      *
@@ -35,12 +35,12 @@ class RepairRatingsCommand
      *
      * [--dry-run]
      * : Show what would be changed without executing.
-     * 
+     *
      * ## EXAMPLES
-     * 
+     *
      *     wp mhm-rentiva repair-ratings
      *     wp mhm-rentiva repair-ratings --dry-run
-     * 
+     *
      * @when after_wp_load
      */
     public function __invoke($args, $assoc_args)
@@ -75,7 +75,7 @@ class RepairRatingsCommand
         // Table identifiers are from $wpdb core properties; query is safe in this context.
         // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
         $results = $wpdb->get_results($query);
-        $count = count($results);
+        $count   = count($results);
 
         \WP_CLI::log("Found {$count} comments requiring normalization.");
 
@@ -88,14 +88,14 @@ class RepairRatingsCommand
                 if (! $dry_run) {
                     $wpdb->update(
                         $wpdb->comments,
-                        ['comment_type' => 'review'],
-                        ['comment_ID' => $row->comment_ID],
-                        ['%s'],
-                        ['%d']
+                        [ 'comment_type' => 'review' ],
+                        [ 'comment_ID' => $row->comment_ID ],
+                        [ '%s' ],
+                        [ '%d' ]
                     );
                     clean_comment_cache($row->comment_ID);
                 }
-                $affected_vehicles[$row->comment_post_ID] = true;
+                $affected_vehicles[ $row->comment_post_ID ] = true;
                 $progress->tick();
             }
 
@@ -105,14 +105,14 @@ class RepairRatingsCommand
             \WP_CLI::log('No comments needed normalization.');
         }
 
-        // Also check vehicles that MIGHT have reviews but stats are out of sync? 
+        // Also check vehicles that MIGHT have reviews but stats are out of sync?
         // For now, let's just recalculate the ones we touched, PLUS all vehicles just in case.
         // The user instruction said "Recalculate ratings for affected vehicles."
         // But maybe we should be safe and do ALL vehicles if it's a "repair" command?
         // Let's stick to "affected" first, or maybe "all vehicles with reviews".
 
         // Getting unique vehicle IDs from the normalization query + logic to find vehicles with reviews
-        // A safer bet for a "repair" command is to recalculate ALL vehicles that have ratings, 
+        // A safer bet for a "repair" command is to recalculate ALL vehicles that have ratings,
         // just in case the stats meta is wrong even if comment type is correct.
 
         \WP_CLI::log('Recalculating vehicle statistics...');
@@ -133,7 +133,7 @@ class RepairRatingsCommand
 
         foreach ($all_vehicles as $vid) {
             if (! $dry_run) {
-                RatingHelper::recalculate_and_save((int)$vid);
+                RatingHelper::recalculate_and_save( (int) $vid);
             }
             $progress_calc->tick();
         }
@@ -144,10 +144,18 @@ class RepairRatingsCommand
         // Invalidate Cache
         \WP_CLI::log('Invalidating shortcode caches...');
         if (! $dry_run) {
-            if (class_exists(VehiclesList::class)) VehiclesList::cleanup();
-            if (class_exists(VehiclesGrid::class)) VehiclesGrid::cleanup();
-            if (class_exists(FeaturedVehicles::class)) FeaturedVehicles::cleanup();
-            if (class_exists(SearchResults::class)) SearchResults::cleanup();
+            if (class_exists(VehiclesList::class)) {
+				VehiclesList::cleanup();
+            }
+            if (class_exists(VehiclesGrid::class)) {
+				VehiclesGrid::cleanup();
+            }
+            if (class_exists(FeaturedVehicles::class)) {
+				FeaturedVehicles::cleanup();
+            }
+            if (class_exists(SearchResults::class)) {
+				SearchResults::cleanup();
+            }
             \WP_CLI::success('Shortcode caches cleared.');
         } else {
             \WP_CLI::log('Dry run: Skipping cache clearing.');

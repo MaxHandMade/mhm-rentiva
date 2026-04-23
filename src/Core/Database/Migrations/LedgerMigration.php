@@ -10,8 +10,8 @@ if (! defined('ABSPATH')) {
 /**
  * Migration schema for the immutable financial ledger table.
  */
-final class LedgerMigration
-{
+final class LedgerMigration {
+
 	/**
 	 * Create or update the ledger table via dbDelta.
 	 */

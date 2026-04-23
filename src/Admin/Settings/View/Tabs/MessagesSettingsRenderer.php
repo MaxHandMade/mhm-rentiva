@@ -57,7 +57,7 @@ final class MessagesSettingsRenderer extends AbstractTabRenderer {
 		// Initialize Messaging Settings
 		MessagesSettings::init();
 
-		$settings      = MessagesSettings::get_settings();
+		$settings = MessagesSettings::get_settings();
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only subtab selector for settings UI rendering.
 		$active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( wp_unslash( $_GET['subtab'] ) ) : 'email';
 

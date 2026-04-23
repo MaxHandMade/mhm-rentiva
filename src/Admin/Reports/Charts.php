@@ -14,8 +14,8 @@ use MHMRentiva\Admin\Core\AssetManager;
 /**
  * Charts class - Manages charts on the Reports page
  */
-final class Charts
-{
+final class Charts {
+
 
 	/**
 	 * Enqueues scripts
@@ -40,7 +40,7 @@ final class Charts
 		wp_enqueue_script(
 			'mhm-reports-charts',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/reports-charts.js',
-			array('jquery', 'chart-js'),
+			array( 'jquery', 'chart-js' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);

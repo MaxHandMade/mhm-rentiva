@@ -22,8 +22,8 @@ use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
  * This class meets the common authorization needs of all REST endpoints
  * and prevents code duplication.
  */
-final class AuthHelper
-{
+final class AuthHelper {
+
 
 	/**
 	 * Admin permission check
@@ -73,7 +73,7 @@ final class AuthHelper
 			return new WP_Error(
 				'security_check_failed',
 				__('Security check failed. Access denied.', 'mhm-rentiva'),
-				array('status' => 403)
+				array( 'status' => 403 )
 			);
 		}
 
@@ -86,7 +86,7 @@ final class AuthHelper
 		// 2. MHM custom nonce check (guest users)
 		if ($booking_id > 0 && ! empty($gateway_prefix)) {
 			$body     = $request->get_json_params();
-			$mhmNonce = is_array($body) ? (string) ($body['mhm_nonce'] ?? '') : '';
+			$mhmNonce = is_array($body) ? (string) ( $body['mhm_nonce'] ?? '' ) : '';
 
 			if ($mhmNonce && wp_verify_nonce($mhmNonce, 'mhm_' . $gateway_prefix . '_' . $booking_id)) {
 				return true;
@@ -96,7 +96,7 @@ final class AuthHelper
 		return new WP_Error(
 			'forbidden',
 			__('Authorization failed. Please refresh the page and try again.', 'mhm-rentiva'),
-			array('status' => 403)
+			array( 'status' => 403 )
 		);
 	}
 
@@ -142,7 +142,7 @@ final class AuthHelper
 		$requests = array_filter(
 			$requests,
 			function ($timestamp) use ($now, $window) {
-				return ($now - $timestamp) < $window;
+				return ( $now - $timestamp ) < $window;
 			}
 		);
 
@@ -173,11 +173,11 @@ final class AuthHelper
 
 		$valid_keys = get_option('mhm_rentiva_api_keys', array());
 
-		if (! is_array($valid_keys) || ! isset($valid_keys[$key_type])) {
+		if (! is_array($valid_keys) || ! isset($valid_keys[ $key_type ])) {
 			return false;
 		}
 
-		return hash_equals($valid_keys[$key_type], $api_key);
+		return hash_equals($valid_keys[ $key_type ], $api_key);
 	}
 
 	/**
@@ -212,11 +212,11 @@ final class AuthHelper
 			'nonce' => wp_generate_password(32, false),
 		);
 
-		$encoded   = base64_encode(json_encode($payload));
+		$encoded   = base64_encode(wp_json_encode($payload));
 		$signature = hash_hmac('sha256', $encoded, wp_salt());
 
 		return base64_encode(
-			json_encode(
+			wp_json_encode(
 				array(
 					'payload'   => $encoded,
 					'signature' => $signature,

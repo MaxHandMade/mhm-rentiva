@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  * Automatically creates critical indexes for performance optimization
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
-final class DatabaseMigrator
-{
+final class DatabaseMigrator {
+
 
 
 
@@ -121,7 +121,7 @@ final class DatabaseMigrator
 
 		foreach ($indexes as $index_name => $sql) {
 			try {
-				$table = (strpos($index_name, 'idx_posts_') === 0) ? $wpdb->posts : $wpdb->postmeta;
+				$table = ( strpos($index_name, 'idx_posts_') === 0 ) ? $wpdb->posts : $wpdb->postmeta;
 
 				if (self::index_exists($table, $index_name)) {
 					continue;
@@ -212,7 +212,7 @@ final class DatabaseMigrator
 		foreach ($mhm_meta_keys as $meta_key) {
 			// Create a specific index for each meta key
 			$index_name                     = 'idx_mhm_' . str_replace('_mhm_', '', $meta_key);
-			$missing_indexes[$index_name] = "CREATE INDEX {$index_name} ON {$wpdb->postmeta} (meta_key(50), meta_value(50), post_id)";
+			$missing_indexes[ $index_name ] = "CREATE INDEX {$index_name} ON {$wpdb->postmeta} (meta_key(50), meta_value(50), post_id)";
 		}
 
 		return $missing_indexes;
@@ -250,7 +250,7 @@ final class DatabaseMigrator
 			}
 
 			// Calculate performance score
-			$status['performance_score'] = min(100, ($status['mhm_indexes'] / 8) * 100);
+			$status['performance_score'] = min(100, ( $status['mhm_indexes'] / 8 ) * 100);
 
 			// Recommendations
 			if ($status['mhm_indexes'] < 5) {
@@ -306,8 +306,8 @@ final class DatabaseMigrator
 			$result   = $wpdb->get_var($query);
 			$end_time = microtime(true);
 
-			$results[$test_name] = array(
-				'execution_time' => round(($end_time - $start_time) * 1000, 2), // ms
+			$results[ $test_name ] = array(
+				'execution_time' => round(( $end_time - $start_time ) * 1000, 2), // ms
 				'result'         => $result,
 				'query'          => $query,
 			);
@@ -327,7 +327,7 @@ final class DatabaseMigrator
 
 		try {
 			// Optimize tables
-			$tables = array($wpdb->posts, $wpdb->postmeta);
+			$tables = array( $wpdb->posts, $wpdb->postmeta );
 
 			foreach ($tables as $table) {
 				$start_time = microtime(true);
@@ -336,9 +336,9 @@ final class DatabaseMigrator
 				$result   = $wpdb->query(sprintf('OPTIMIZE TABLE `%s`', $table_name));
 				$end_time = microtime(true);
 
-				$results['optimize'][$table] = array(
+				$results['optimize'][ $table ] = array(
 					'success'        => $result !== false,
-					'execution_time' => round(($end_time - $start_time) * 1000, 2),
+					'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
 					'error'          => $result === false ? $wpdb->last_error : null,
 				);
 			}
@@ -408,7 +408,7 @@ final class DatabaseMigrator
 			$results[] = array(
 				'sql'            => $index['sql'],
 				'success'        => $result !== false,
-				'execution_time' => round(($end_time - $start_time) * 1000, 2),
+				'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
 				'error'          => $result === false ? (string) $wpdb->last_error : null,
 			);
 		}
@@ -445,14 +445,38 @@ final class DatabaseMigrator
 		try {
 			// Delete MHM Rentiva indexes
 			$drop_indexes = array(
-				'idx_mhm_status_lookup'    => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}"),
-				'idx_mhm_timestamp_range'  => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta}"),
-				'idx_mhm_vehicle_bookings' => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta}"),
-				'idx_posts_date_type'      => array('table' => $wpdb->posts, 'sql' => "DROP INDEX idx_posts_date_type ON {$wpdb->posts}"),
-				'idx_mhm_booking_meta'     => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_booking_meta ON {$wpdb->postmeta}"),
-				'idx_mhm_customer_email'   => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_customer_email ON {$wpdb->postmeta}"),
-				'idx_mhm_price_range'      => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_price_range ON {$wpdb->postmeta}"),
-				'idx_mhm_booking_combined' => array('table' => $wpdb->postmeta, 'sql' => "DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}"),
+				'idx_mhm_status_lookup'    => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}",
+				),
+				'idx_mhm_timestamp_range'  => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta}",
+				),
+				'idx_mhm_vehicle_bookings' => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta}",
+				),
+				'idx_posts_date_type'      => array(
+					'table' => $wpdb->posts,
+					'sql'   => "DROP INDEX idx_posts_date_type ON {$wpdb->posts}",
+				),
+				'idx_mhm_booking_meta'     => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_booking_meta ON {$wpdb->postmeta}",
+				),
+				'idx_mhm_customer_email'   => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_customer_email ON {$wpdb->postmeta}",
+				),
+				'idx_mhm_price_range'      => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_price_range ON {$wpdb->postmeta}",
+				),
+				'idx_mhm_booking_combined' => array(
+					'table' => $wpdb->postmeta,
+					'sql'   => "DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}",
+				),
 			);
 
 			foreach ($drop_indexes as $index_name => $index_data) {
@@ -904,7 +928,14 @@ final class DatabaseMigrator
 
 		// Drop old non-tenant-aware UNIQUE key if exists (dbDelta won't drop it automatically)
 		if (self::index_exists($table_name, 'key_uuid')) {
-			$wpdb->query("ALTER TABLE `{$table_escaped}` DROP INDEX `key_uuid`");
+			// phpcs:disable WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally removes a legacy index during upgrade.
+			$wpdb->query(
+				$wpdb->prepare(
+					'ALTER TABLE %i DROP INDEX `key_uuid`',
+					$table_escaped
+				)
+			);
+			// phpcs:enable WordPress.DB.DirectDatabaseQuery.SchemaChange
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -939,15 +970,15 @@ final class DatabaseMigrator
 			$old_val = get_option($old_key, null);
 
 			// If old option exists and new key is NOT in settings
-			if ($old_val !== null && ! isset($settings[$new_key])) {
-				$settings[$new_key] = $old_val;
+			if ($old_val !== null && ! isset($settings[ $new_key ])) {
+				$settings[ $new_key ] = $old_val;
 				$migrated             = true;
 				// Ideally we delete old option, but for safety lets keep it for a while or rename usages?
 				// The instruction says "Update calls to get_option".
 				// I will add the new key.
-			} elseif (! isset($settings[$new_key])) {
+			} elseif (! isset($settings[ $new_key ])) {
 				// Set default if not set
-				$settings[$new_key] = $defaults[$new_key] ?? '';
+				$settings[ $new_key ] = $defaults[ $new_key ] ?? '';
 				$migrated             = true;
 			}
 		}
@@ -1016,7 +1047,7 @@ final class DatabaseMigrator
 		foreach ($vehicle_ids as $vid) {
 			$vid        = (int) $vid;
 			$old_status = get_post_meta($vid, '_mhm_vehicle_status', true);
-			$new_status = $status_map[$old_status] ?? 'active';
+			$new_status = $status_map[ $old_status ] ?? 'active';
 
 			update_post_meta($vid, '_mhm_vehicle_lifecycle_status', $new_status);
 

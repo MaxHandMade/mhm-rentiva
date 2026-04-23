@@ -34,18 +34,20 @@ if (empty($top_vehicles)) {
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($top_vehicles as $veh) :
-                    $sparkline = is_array($veh['sparkline_7d'] ?? null) ? $veh['sparkline_7d'] : array_fill(0, 7, 0.0);
-                    $revenue_formatted = function_exists('wc_price') ? call_user_func('wc_price', (float)$veh['revenue']) : sprintf('₺%.2f', $veh['revenue']);
-                ?>
+                <?php
+                foreach ($top_vehicles as $veh) :
+                    $sparkline         = is_array($veh['sparkline_7d'] ?? null) ? $veh['sparkline_7d'] : array_fill(0, 7, 0.0);
+                    $revenue_formatted = function_exists('wc_price') ? call_user_func('wc_price', (float) $veh['revenue']) : sprintf('₺%.2f', $veh['revenue']);
+					?>
                     <tr>
                         <td><strong><?php echo esc_html($veh['title'] ?? ''); ?></strong></td>
-                        <td class="is-value"><?php echo wp_kses_post((string) $revenue_formatted); ?></td>
-                        <td><?php echo esc_html(number_format((float)($veh['occupancy_rate'] ?? 0), 1)) . '%'; ?></td>
-                        <td><?php echo esc_html((string)($veh['cancellation_count'] ?? 0)); ?></td>
+                        <td class="is-value"><?php echo wp_kses_post( (string) $revenue_formatted); ?></td>
+                        <td><?php echo esc_html(number_format( (float) ( $veh['occupancy_rate'] ?? 0 ), 1)) . '%'; ?></td>
+                        <td><?php echo esc_html( (string) ( $veh['cancellation_count'] ?? 0 )); ?></td>
                         <td class="mini-sparkline" style="min-width: 100px;">
                             <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-    echo SparklineRenderer::render($sparkline, 100, 30, '#4ade80'); ?>
+							echo SparklineRenderer::render($sparkline, 100, 30, '#4ade80');
+							?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

@@ -31,8 +31,8 @@ use Exception;
  * @package MHMRentiva\Layout\CLI
  * @since 4.14.0
  */
-class LayoutImportCommand
-{
+class LayoutImportCommand {
+
     /**
      * Imports a blueprint manifest.
      *
@@ -56,8 +56,8 @@ class LayoutImportCommand
         }
 
         list($file_path) = $args;
-        $dry_run = isset($assoc_args['dry-run']);
-        $create  = isset($assoc_args['create']);
+        $dry_run         = isset($assoc_args['dry-run']);
+        $create          = isset($assoc_args['create']);
 
         if (! file_exists($file_path)) {
             $this->log_error(sprintf('File not found: %s', $file_path));
@@ -65,7 +65,7 @@ class LayoutImportCommand
         }
 
         $raw_content = file_get_contents($file_path);
-        $manifest = json_decode((string) $raw_content, true);
+        $manifest    = json_decode( (string) $raw_content, true);
 
         if (json_last_error() !== JSON_ERROR_NONE) {
             $this->log_error(sprintf('Invalid JSON: %s', json_last_error_msg()));
@@ -79,7 +79,7 @@ class LayoutImportCommand
 
         if ($dry_run) {
             $this->log(__('Executing side-effect free dry-run...', 'mhm-rentiva'));
-            $summary = $importer->dry_run($manifest, ['create' => $create]);
+            $summary = $importer->dry_run($manifest, [ 'create' => $create ]);
             $this->render_summary_table($summary);
             $this->log_success(__('Dry-run simulation completed.', 'mhm-rentiva'));
             return;
@@ -87,7 +87,7 @@ class LayoutImportCommand
 
         try {
             $this->log(__('Starting atomic multi-page ingestion...', 'mhm-rentiva'));
-            $summary = $importer->import($manifest, ['create' => $create]);
+            $summary = $importer->import($manifest, [ 'create' => $create ]);
             $this->render_summary_table($summary);
             $this->log_success(__('All pages imported successfully.', 'mhm-rentiva'));
         } catch (Exception $e) {
@@ -154,14 +154,14 @@ class LayoutImportCommand
                     sprintf(
                         /* translators: %s: current layout hash or dash. */
                         __('Current Hash: %s', 'mhm-rentiva'),
-                        (string) ($result['current_hash'] ?: '-')
+                        (string) ( $result['current_hash'] ?: '-' )
                     )
                 );
                 $this->log_success(
                     sprintf(
                         /* translators: %s: rollback validation message. */
                         __('Rollback is possible. (%s)', 'mhm-rentiva'),
-                        sanitize_text_field((string) $result['message'])
+                        sanitize_text_field( (string) $result['message'])
                     )
                 );
             } else {
@@ -212,7 +212,7 @@ class LayoutImportCommand
      */
     public function history(array $args, array $assoc_args): void
     {
-        $post_id = (int) ($args[0] ?? 0);
+        $post_id = (int) ( $args[0] ?? 0 );
         if ($post_id <= 0) {
             $this->log_error(__('Invalid post ID.', 'mhm-rentiva'));
             return;
@@ -249,13 +249,11 @@ class LayoutImportCommand
 
             if (function_exists('\WP_CLI\Utils\format_items')) {
                 // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
-                \WP_CLI\Utils\format_items('table', $table_events, ['Date', 'Operation', 'Actor', 'Result']);
+                \WP_CLI\Utils\format_items('table', $table_events, [ 'Date', 'Operation', 'Actor', 'Result' ]);
             }
-        } else {
-            if (function_exists('\WP_CLI\Utils\format_items')) {
+        } elseif (function_exists('\WP_CLI\Utils\format_items')) {
                 // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
                 \WP_CLI\Utils\format_items($format, $events, array_keys($events[0] ?? []));
-            }
         }
     }
 
@@ -270,7 +268,7 @@ class LayoutImportCommand
      */
     public function diff(array $args, array $assoc_args): void
     {
-        $post_id = (int) ($args[0] ?? 0);
+        $post_id = (int) ( $args[0] ?? 0 );
         if ($post_id <= 0) {
             $this->log_error(__('Invalid post ID.', 'mhm-rentiva'));
             return;
@@ -297,8 +295,8 @@ class LayoutImportCommand
             sprintf(
                 /* translators: 1: previous hash prefix, 2: current hash prefix. */
                 __('Comparing %1$s -> %2$s', 'mhm-rentiva'),
-                substr((string) $prev['hash'], 0, 8),
-                substr((string) $current['hash'], 0, 8)
+                substr( (string) $prev['hash'], 0, 8),
+                substr( (string) $current['hash'], 0, 8)
             )
         );
         $this->log('--------------------------------------------------');
@@ -306,9 +304,15 @@ class LayoutImportCommand
         // Tokens Diff
         if (! empty($diff['tokens']['added']) || ! empty($diff['tokens']['removed']) || ! empty($diff['tokens']['changed'])) {
             $this->log_success(__('Tokens Changes:', 'mhm-rentiva'));
-            foreach ($diff['tokens']['added'] as $t) $this->log("  [+] $t");
-            foreach ($diff['tokens']['removed'] as $t) $this->log("  [-] $t");
-            foreach ($diff['tokens']['changed'] as $t => $v) $this->log("  [*] $t ({$v['from']} -> {$v['to']})");
+            foreach ($diff['tokens']['added'] as $t) {
+				$this->log("  [+] $t");
+            }
+            foreach ($diff['tokens']['removed'] as $t) {
+				$this->log("  [-] $t");
+            }
+            foreach ($diff['tokens']['changed'] as $t => $v) {
+				$this->log("  [*] $t ({$v['from']} -> {$v['to']})");
+            }
         } else {
             $this->log(__('No Token changes.', 'mhm-rentiva'));
         }
@@ -316,9 +320,15 @@ class LayoutImportCommand
         // Components Diff
         if (! empty($diff['components']['added']) || ! empty($diff['components']['removed']) || ! empty($diff['components']['changed'])) {
             $this->log_success(__('Components Changes:', 'mhm-rentiva'));
-            foreach ($diff['components']['added'] as $c) $this->log("  [+] $c");
-            foreach ($diff['components']['removed'] as $c) $this->log("  [-] $c");
-            foreach ($diff['components']['changed'] as $c) $this->log("  [*] $c (modified)");
+            foreach ($diff['components']['added'] as $c) {
+				$this->log("  [+] $c");
+            }
+            foreach ($diff['components']['removed'] as $c) {
+				$this->log("  [-] $c");
+            }
+            foreach ($diff['components']['changed'] as $c) {
+				$this->log("  [*] $c (modified)");
+            }
         } else {
             $this->log(__('No Component changes.', 'mhm-rentiva'));
         }
@@ -365,12 +375,12 @@ class LayoutImportCommand
                 'ID'      => $item['post_id'] > 0 ? (string) $item['post_id'] : '-',
                 'Title'   => $item['title'] ?? '-',
                 'Slug'    => $item['slug'] ?? '-',
-                'Message' => $item['message'] ?? 'OK'
+                'Message' => $item['message'] ?? 'OK',
             ];
         }, $summary);
 
         if (function_exists('\WP_CLI\Utils\format_items')) {
-            \WP_CLI\Utils\format_items('table', $items, ['Status', 'ID', 'Title', 'Slug', 'Message']);
+            \WP_CLI\Utils\format_items('table', $items, [ 'Status', 'ID', 'Title', 'Slug', 'Message' ]);
         }
     }
 }

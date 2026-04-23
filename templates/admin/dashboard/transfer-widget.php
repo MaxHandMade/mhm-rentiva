@@ -53,17 +53,18 @@ $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 			<?php if ( ! empty( $stats['recent_routes'] ) ) : ?>
 				<div class="transfer-route-list">
-					<?php foreach ( $stats['recent_routes'] as $route ) :
-						$pickup_ts    = ! empty( $route['pickup_date'] ) ? strtotime( $route['pickup_date'] ) : 0;
-						$pickup_date  = $pickup_ts ? date_i18n( get_option( 'date_format' ), $pickup_ts ) : '-';
-						$pickup_time  = ! empty( $route['pickup_time'] ) ? esc_html( $route['pickup_time'] ) : '';
-						$origin       = $route['origin_name']   ?: __( 'Unknown', 'mhm-rentiva' );
-						$dest         = $route['dest_name']     ?: __( 'Unknown', 'mhm-rentiva' );
-						$status       = $route['status']        ?? '';
-						$booking_url  = admin_url( 'post.php?post=' . (int) $route['ID'] . '&action=edit' );
-						$vehicle_name = $route['vehicle_title'] ?? '';
+					<?php
+                    foreach ( $stats['recent_routes'] as $route ) :
+						$pickup_ts     = ! empty( $route['pickup_date'] ) ? strtotime( $route['pickup_date'] ) : 0;
+						$pickup_date   = $pickup_ts ? date_i18n( get_option( 'date_format' ), $pickup_ts ) : '-';
+						$pickup_time   = ! empty( $route['pickup_time'] ) ? esc_html( $route['pickup_time'] ) : '';
+						$origin        = $route['origin_name']   ?: __( 'Unknown', 'mhm-rentiva' );
+						$dest          = $route['dest_name']     ?: __( 'Unknown', 'mhm-rentiva' );
+						$status        = $route['status']        ?? '';
+						$booking_url   = admin_url( 'post.php?post=' . (int) $route['ID'] . '&action=edit' );
+						$vehicle_name  = $route['vehicle_title'] ?? '';
 						$vehicle_plate = $route['vehicle_plate'] ?? '';
-					?>
+						?>
 					<a href="<?php echo esc_url( $booking_url ); ?>" class="transfer-route-card status-<?php echo esc_attr( $status ); ?>">
 						<div class="transfer-route-card__route">
 							<span class="dashicons dashicons-airplane trc-type-icon"></span>

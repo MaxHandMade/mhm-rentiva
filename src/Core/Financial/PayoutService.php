@@ -15,15 +15,15 @@ use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 /**
  * Manages the "Model B" Payout Engine isolating temporally mutable workflow states off-ledger strictly writing standardized idempotent completions executing securely against immutable ledgers globally.
  */
-final class PayoutService
-{
+final class PayoutService {
+
     /**
      * Resolves minimum threshold configuration bounds executing natively.
      */
     public static function get_minimum_payout_amount(): float
     {
         $amount = get_option('mhm_min_payout_amount', 100);
-        return (float) (is_numeric($amount) ? $amount : 100);
+        return (float) ( is_numeric($amount) ? $amount : 100 );
     }
 
     /**
@@ -97,7 +97,7 @@ final class PayoutService
         // Save the requested amount off-ledger natively.
         update_post_meta($post_id, '_mhm_payout_amount', $amount);
 
-        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+        MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         return $post_id;
     }
@@ -125,7 +125,7 @@ final class PayoutService
 
         $vendor_id = (int) $post->post_author;
 
-        $uuid = 'payout_' . $payout_id;
+        $uuid     = 'payout_' . $payout_id;
         $currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
 
         // Deduct from ledger formally matching execution structures predictably
@@ -159,7 +159,7 @@ final class PayoutService
         );
 
         // Invalidate all vendor dashboard metrics cache after ledger mutation
-        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+        MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         /**
          * Fires when a vendor payout request gets approved.
@@ -202,7 +202,7 @@ final class PayoutService
 
         // Invalidate all vendor dashboard metrics cache mapping states globally properly
         $vendor_id = (int) $post->post_author;
-        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+        MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         $amount = (float) get_post_meta($payout_id, '_mhm_payout_amount', true);
 
@@ -249,7 +249,7 @@ final class PayoutService
             null,           // gross_amount
             null,           // commission_amount
             null,           // commission_rate
-            (function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY'), // currency
+            ( function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY' ), // currency
             'vendor',       // category
             'cleared'       // status
         );
@@ -260,7 +260,7 @@ final class PayoutService
             return new \WP_Error('ledger_error', $e->getMessage());
         }
 
-        MetricCacheManager::flush_subject_all_metrics((string) $vendor_id);
+        MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         return true;
     }

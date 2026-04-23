@@ -22,22 +22,37 @@ if (! defined('ABSPATH')) {
  * @since 4.21.0
  */
 
-$current_user_id    = (int) ($dashboard['user']->ID ?? get_current_user_id());
-$available_balance  = Ledger::get_balance($current_user_id);
-$min_payout         = PayoutService::get_minimum_payout_amount();
-$has_pending        = PayoutService::vendor_has_pending_payout($current_user_id);
-$payout_history     = PayoutHistoryProvider::get_for_vendor($current_user_id, 25);
+$current_user_id   = (int) ( $dashboard['user']->ID ?? get_current_user_id() );
+$available_balance = Ledger::get_balance($current_user_id);
+$min_payout        = PayoutService::get_minimum_payout_amount();
+$has_pending       = PayoutService::vendor_has_pending_payout($current_user_id);
+$payout_history    = PayoutHistoryProvider::get_for_vendor($current_user_id, 25);
 
 // Handle payout request form submission.
 // Payout is now handled by AJAX in PayoutAjaxController.php
 
 // Status display map.
 $status_labels = array(
-    'pending'   => array('label' => __('Pending',   'mhm-rentiva'), 'class' => 'is-pending'),
-    'approved'  => array('label' => __('Approved',  'mhm-rentiva'), 'class' => 'is-confirmed'),
-    'confirmed' => array('label' => __('Confirmed', 'mhm-rentiva'), 'class' => 'is-completed'),
-    'failed'    => array('label' => __('Failed',    'mhm-rentiva'), 'class' => 'is-cancelled'),
-    'rejected'  => array('label' => __('Rejected',  'mhm-rentiva'), 'class' => 'is-refunded'),
+    'pending'   => array(
+		'label' => __('Pending', 'mhm-rentiva'),
+		'class' => 'is-pending',
+	),
+    'approved'  => array(
+		'label' => __('Approved', 'mhm-rentiva'),
+		'class' => 'is-confirmed',
+	),
+    'confirmed' => array(
+		'label' => __('Confirmed', 'mhm-rentiva'),
+		'class' => 'is-completed',
+	),
+    'failed'    => array(
+		'label' => __('Failed', 'mhm-rentiva'),
+		'class' => 'is-cancelled',
+	),
+    'rejected'  => array(
+		'label' => __('Rejected', 'mhm-rentiva'),
+		'class' => 'is-refunded',
+	),
 );
 
 $format_currency = static function (float $amount): string {
@@ -53,35 +68,39 @@ $format_currency = static function (float $amount): string {
 
     <!-- ========= FINANCIAL SUMMARY KPIs ========= -->
     <?php
-    $financial_metrics = array('available_balance', 'pending_balance', 'total_paid_out');
-    $kpi_items_all = is_array($dashboard['kpis'] ?? null)
+    $financial_metrics = array( 'available_balance', 'pending_balance', 'total_paid_out' );
+    $kpi_items_all     = is_array($dashboard['kpis'] ?? null)
         ? $dashboard['kpis']
         : \MHMRentiva\Core\Dashboard\DashboardConfig::get_kpis('vendor');
-    $kpi_data_all = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : array();
+    $kpi_data_all      = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : array();
 
     $has_financials = false;
     foreach ($financial_metrics as $fm) {
-        if (isset($kpi_items_all[$fm])) {
+        if (isset($kpi_items_all[ $fm ])) {
             $has_financials = true;
             break;
         }
     }
 
-    if ($has_financials) : ?>
+    if ($has_financials) :
+		?>
         <div class="mhm-rentiva-dashboard__section" style="margin-bottom: 24px;">
             <div class="mhm-rentiva-dashboard__section-head">
                 <h3><?php esc_html_e('Financial Summary', 'mhm-rentiva'); ?></h3>
             </div>
             <div class="mhm-rentiva-dashboard__kpis mhm-financial-cards">
                 <?php foreach ($financial_metrics as $fm_key) : ?>
-                    <?php if (! isset($kpi_items_all[$fm_key])) { continue; } ?>
                     <?php
-                    $fkpi = $kpi_items_all[$fm_key];
-                    $fkpi_label = (string) ($fkpi['label'] ?? '');
-                    $fkpi_meta = (string) ($fkpi['meta'] ?? '');
-                    $fkpi_icon = sanitize_key((string) ($fkpi['icon'] ?? 'wallet'));
-                    $fkpi_item = is_array($kpi_data_all[$fm_key] ?? null) ? $kpi_data_all[$fm_key] : array();
-                    $fkpi_value = isset($fkpi_item['total']) ? round((float) $fkpi_item['total'], 2) : 0.00;
+                    if (! isset($kpi_items_all[ $fm_key ])) {
+						continue; }
+					?>
+                    <?php
+                    $fkpi         = $kpi_items_all[ $fm_key ];
+                    $fkpi_label   = (string) ( $fkpi['label'] ?? '' );
+                    $fkpi_meta    = (string) ( $fkpi['meta'] ?? '' );
+                    $fkpi_icon    = sanitize_key( (string) ( $fkpi['icon'] ?? 'wallet' ));
+                    $fkpi_item    = is_array($kpi_data_all[ $fm_key ] ?? null) ? $kpi_data_all[ $fm_key ] : array();
+                    $fkpi_value   = isset($fkpi_item['total']) ? round( (float) $fkpi_item['total'], 2) : 0.00;
                     $fkpi_display = function_exists('wc_price') ? wc_price($fkpi_value) : number_format($fkpi_value, 2) . ' ' . get_woocommerce_currency();
                     ?>
                     <div class="mhm-rentiva-dashboard__kpi-card is-financial">
@@ -107,7 +126,7 @@ $format_currency = static function (float $amount): string {
                             </div>
                             <div class="mhm-rentiva-dashboard__kpi-label"><?php echo esc_html($fkpi_label); ?></div>
                         </div>
-                        <div class="mhm-rentiva-dashboard__kpi-value is-currency" data-raw="<?php echo esc_attr((string) $fkpi_value); ?>">
+                        <div class="mhm-rentiva-dashboard__kpi-value is-currency" data-raw="<?php echo esc_attr( (string) $fkpi_value); ?>">
                             <?php echo wp_kses_post($fkpi_display); ?>
                         </div>
                         <div class="mhm-rentiva-dashboard__kpi-meta"><?php echo esc_html($fkpi_meta); ?></div>
@@ -169,9 +188,9 @@ $format_currency = static function (float $amount): string {
                             id="payout_amount"
                             name="payout_amount"
                             class="mhm-rentiva-dashboard__payout-form-input"
-                            value="<?php echo esc_attr((string) round($available_balance, 2)); ?>"
-                            min="<?php echo esc_attr((string) $min_payout); ?>"
-                            max="<?php echo esc_attr((string) round($available_balance, 2)); ?>"
+                            value="<?php echo esc_attr( (string) round($available_balance, 2)); ?>"
+                            min="<?php echo esc_attr( (string) $min_payout); ?>"
+                            max="<?php echo esc_attr( (string) round($available_balance, 2)); ?>"
                             step="0.01"
                             required>
                     </div>
@@ -207,14 +226,17 @@ $format_currency = static function (float $amount): string {
                         <?php foreach ($payout_history as $payout) : ?>
                             <?php
                             $status_key   = $payout['status'];
-                            $status_info  = $status_labels[$status_key] ?? array('label' => esc_html($status_key), 'class' => '');
+                            $status_info  = $status_labels[ $status_key ] ?? array(
+								'label' => esc_html($status_key),
+								'class' => '',
+							);
                             $display_date = $payout['requested_at'] !== ''
                                 ? date_i18n(get_option('date_format'), strtotime($payout['requested_at']))
                                 : '—';
                             $ext_ref      = $payout['external_reference'] !== '' ? $payout['external_reference'] : '—';
                             ?>
                             <tr>
-                                <td>#<?php echo esc_html((string) $payout['id']); ?></td>
+                                <td>#<?php echo esc_html( (string) $payout['id']); ?></td>
                                 <td class="mhm-rentiva-dashboard__payout-amount"><?php echo wp_kses_post($format_currency($payout['amount'])); ?></td>
                                 <td>
                                     <span class="mhm-rentiva-dashboard__status <?php echo esc_attr($status_info['class']); ?>">

@@ -254,10 +254,10 @@ final class Mailer {
 		// Transfer route context (origin + destination + meta)
 		$transfer_context = array();
 		if ( $service_type === 'transfer' ) {
-			$origin_id      = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
-			$destination_id = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
-			$origin_loc     = $origin_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
-			$dest_loc       = $destination_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
+			$origin_id        = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
+			$destination_id   = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
+			$origin_loc       = $origin_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
+			$dest_loc         = $destination_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
 			$transfer_context = array(
 				'origin_name'      => $origin_loc ? (string) $origin_loc->name : '',
 				'origin_city'      => $origin_loc && ! empty( $origin_loc->city ) ? (string) $origin_loc->city : '',
@@ -278,7 +278,7 @@ final class Mailer {
 			'name'  => '',
 			'email' => '',
 		);
-		$vehicle_id = (int) ( $vehicle_info['id'] ?? 0 );
+		$vehicle_id     = (int) ( $vehicle_info['id'] ?? 0 );
 		if ( $vehicle_id > 0 ) {
 			$vendor_id = (int) get_post_field( 'post_author', $vehicle_id );
 			if ( $vendor_id > 0 ) {

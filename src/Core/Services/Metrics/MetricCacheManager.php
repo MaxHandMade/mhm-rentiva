@@ -13,8 +13,8 @@ if (! defined('ABSPATH')) {
  * Handles granular, event-driven cache invalidation for dashboard analytics.
  * Protects runtime memory footprints by leveraging namespace segmentation and event debouncing.
  */
-final class MetricCacheManager
-{
+final class MetricCacheManager {
+
     /**
      * Prefix for all metric caching.
      */
@@ -34,10 +34,10 @@ final class MetricCacheManager
 
     /**
      * Generate a standardized deterministic cache key.
-     * 
+     *
      * @param string $context    e.g. customer, vendor
      * @param string $metric     e.g. total_bookings, revenue_7d
-     * @param string $subjectKey e.g. 12 (user ID), guest 
+     * @param string $subjectKey e.g. 12 (user ID), guest
      */
     public static function build_key(string $context, string $metric, string $subjectKey): string
     {
@@ -72,12 +72,12 @@ final class MetricCacheManager
         $key = self::build_key($context, $metric, $subjectKey);
 
         // Event Debounce Guard: Prevents duplicate flushes in same request
-        if (isset(self::$flushed[$key])) {
+        if (isset(self::$flushed[ $key ])) {
             return;
         }
 
         delete_transient($key);
-        self::$flushed[$key] = true;
+        self::$flushed[ $key ] = true;
     }
 
     /**
@@ -89,7 +89,7 @@ final class MetricCacheManager
 
         // Event Debounce Guard for wildcard flush
         $flushId = 'all_metrics_' . $subjectKey;
-        if (isset(self::$flushed[$flushId])) {
+        if (isset(self::$flushed[ $flushId ])) {
             return;
         }
 
@@ -99,6 +99,7 @@ final class MetricCacheManager
         // $wpdb->esc_like escapes special characters so they act as literals, allowing us to safely append real SQL '%' wildcards.
         $like_pattern = '_transient_' . $wpdb->esc_like(self::PREFIX) . '%' . $wpdb->esc_like('_' . $subjectKey);
 
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache invalidation requires a live lookup of matching transient option rows.
         $results = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s",
@@ -109,10 +110,10 @@ final class MetricCacheManager
         foreach ($results as $result) {
             $transient_name = str_replace('_transient_', '', $result->option_name);
             delete_transient($transient_name);
-            self::$flushed[$transient_name] = true;
+            self::$flushed[ $transient_name ] = true;
         }
 
-        self::$flushed[$flushId] = true;
+        self::$flushed[ $flushId ] = true;
     }
 
     /**
@@ -121,18 +122,18 @@ final class MetricCacheManager
     public static function boot(): void
     {
         // Booking Entity Modifications affecting all contexts
-        add_action('save_post_vehicle_booking', array(self::class, 'on_booking_saved'), 10, 3);
-        add_action('delete_post', array(self::class, 'on_booking_deleted'), 10, 2);
-        add_action('mhm_rentiva_booking_status_changed', array(self::class, 'on_booking_status_changed'), 10, 3);
+        add_action('save_post_vehicle_booking', array( self::class, 'on_booking_saved' ), 10, 3);
+        add_action('delete_post', array( self::class, 'on_booking_deleted' ), 10, 2);
+        add_action('mhm_rentiva_booking_status_changed', array( self::class, 'on_booking_status_changed' ), 10, 3);
 
         // Profiles & Users (Favorites are generally mapped to customer namespace explicitly)
-        add_action('updated_user_meta', array(self::class, 'on_user_meta_updated'), 10, 4);
-        add_action('added_user_meta', array(self::class, 'on_user_meta_updated'), 10, 4);
-        add_action('deleted_user_meta', array(self::class, 'on_user_meta_updated'), 10, 4);
+        add_action('updated_user_meta', array( self::class, 'on_user_meta_updated' ), 10, 4);
+        add_action('added_user_meta', array( self::class, 'on_user_meta_updated' ), 10, 4);
+        add_action('deleted_user_meta', array( self::class, 'on_user_meta_updated' ), 10, 4);
 
         // Internal Communication Message events affecting unread metrics on both role namespaces
-        add_action('mhm_message_status_changed', array(self::class, 'on_message_updated'), 10, 3);
-        add_action('mhm_message_created', array(self::class, 'on_message_created'), 10, 2);
+        add_action('mhm_message_status_changed', array( self::class, 'on_message_updated' ), 10, 3);
+        add_action('mhm_message_created', array( self::class, 'on_message_created' ), 10, 2);
     }
 
     // === Event Dispatches (Hook Callbacks) ===
@@ -188,7 +189,7 @@ final class MetricCacheManager
     public static function on_message_created(int $message_id, array $data): void
     {
         // The `mhm_message_created` hook array payload contains 'recipient_id' OR we extract meta.
-        $recipient_id = (int) ($data['recipient_id'] ?? get_post_meta($message_id, '_mhm_recipient_id', true));
+        $recipient_id = (int) ( $data['recipient_id'] ?? get_post_meta($message_id, '_mhm_recipient_id', true) );
         if ($recipient_id > 0) {
             self::flush_subject_metric('customer', 'unread_messages', (string) $recipient_id);
             self::flush_subject_metric('vendor', 'unread_messages', (string) $recipient_id);
@@ -202,7 +203,7 @@ final class MetricCacheManager
     {
         $customer_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
         if ($customer_id > 0) {
-            self::flush_subject_all_metrics((string) $customer_id);
+            self::flush_subject_all_metrics( (string) $customer_id);
         }
 
         $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
@@ -210,7 +211,7 @@ final class MetricCacheManager
             // Locate owner of the vehicle (Vendor)
             $vendor_id = (int) get_post_field('post_author', $vehicle_id);
             if ($vendor_id > 0) {
-                self::flush_subject_all_metrics((string) $vendor_id);
+                self::flush_subject_all_metrics( (string) $vendor_id);
             }
 
             // Flush isolated vehicle performance cache
