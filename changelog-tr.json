@@ -1,5 +1,15 @@
 [
     {
+        "version": "4.27.1",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "🔧 DÜZELTME (i18n hotfix): Araç Ayarları yönetim sayfası, site dili değişen veya farklı dilli bir sitenin veritabanı yedeğinden geri yüklenen kurulumlarda eski (çoğunlukla Türkçe) etiketleri göstermeye devam ediyordu. Eski sürümler, çevrilmiş alan etiketlerini `wp_options`'a yazıyor ve bu değerler her render'da canlı `__()` çağrılarını geçersiz kılıyordu. Otomatik kayıt kaldırıldı; tek seferlik bir migrasyon, `mhm_vehicle_details`, `mhm_vehicle_features` ve `mhm_vehicle_equipment` kayıtlarındaki sızmış değerleri temizliyor — böylece render akışı İngilizce kaynak → mevcut dile çeviri rotasına geri dönüyor. Kullanıcının 'Özel Ekle' ile eklediği alanlar değişmez; 'İsimleri Düzenle' ile çekirdek alan adlarını değiştirmiş kullanıcılar bu özel isimleri upgrade sonrası tek sefer yeniden girmelidir.",
+            "🧪 TEST: `tests/Migration/LocaleLeakLabelsMigrationTest.php` — sızmış etiket temizliği, meşru rename sonrası idempotency, fresh install flag seeding ve custom-field korunumu için 4 regresyon testi eklendi."
+        ],
+        "notice": "v4.27.1 — i18n hotfix: Araç Ayarları etiketleri artık ilk kurulum dilinde donup kalmıyor."
+    },
+    {
         "version": "4.27.0",
         "date": "2026-04-23",
         "type": "minor",
