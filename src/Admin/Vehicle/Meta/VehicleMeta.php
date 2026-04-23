@@ -11,8 +11,8 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 
 
 
-final class VehicleMeta extends AbstractMetaBox
-{
+final class VehicleMeta extends AbstractMetaBox {
+
 
 
 	/**
@@ -22,7 +22,7 @@ final class VehicleMeta extends AbstractMetaBox
 	{
 		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 			'mhm_rentiva_vehicle_max_seats',
-			100 // Default: 100 (supports buses)
+			100 // Supports larger vehicles such as buses.
 		);
 	}
 
@@ -96,20 +96,20 @@ final class VehicleMeta extends AbstractMetaBox
 		if ($value === null || $value === '') {
 			return '';
 		}
-		return sanitize_text_field((string) $value);
+		return sanitize_text_field( (string) $value);
 	}
 
 	/**
 	 * Read sanitized text from POST.
 	 */
-	private static function post_text(string $key, string $default = ''): string
+	private static function post_text(string $key, string $fallback = ''): string
 	{
 		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
-		$request = (array) ($_POST ?? array());
-		if (! isset($request[$key])) {
-			return $default;
+		$request = (array) ( $_POST ?? array() );
+		if (! isset($request[ $key ])) {
+			return $fallback;
 		}
-		$value = sanitize_text_field(wp_unslash((string) $request[$key]));
+		$value = sanitize_text_field(wp_unslash( (string) $request[ $key ]));
 		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return $value;
 	}
@@ -122,11 +122,11 @@ final class VehicleMeta extends AbstractMetaBox
 	private static function post_array(string $key): array
 	{
 		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
-		$request = (array) ($_POST ?? array());
-		if (! isset($request[$key]) || ! is_array($request[$key])) {
+		$request = (array) ( $_POST ?? array() );
+		if (! isset($request[ $key ]) || ! is_array($request[ $key ])) {
 			return array();
 		}
-		$value = wp_unslash($request[$key]);
+		$value = wp_unslash($request[ $key ]);
 		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 		return $value;
 	}
@@ -163,23 +163,23 @@ final class VehicleMeta extends AbstractMetaBox
 	{
 		parent::register();
 
-		add_action('init', array(self::class, 'register_meta_fields'));
-		add_action('admin_enqueue_scripts', array(self::class, 'enqueue_scripts'));
-		add_action('add_meta_boxes_vehicle', array(self::class, 'add_featured_meta_box'));
-		add_action('save_post_vehicle', array(self::class, 'save_featured_meta_box'));
+		add_action('init', array( self::class, 'register_meta_fields' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
+		add_action('add_meta_boxes_vehicle', array( self::class, 'add_featured_meta_box' ));
+		add_action('save_post_vehicle', array( self::class, 'save_featured_meta_box' ));
 
-		add_action('admin_head', array(self::class, 'hide_default_meta_boxes'));
+		add_action('admin_head', array( self::class, 'hide_default_meta_boxes' ));
 
-		add_action('wp_ajax_mhm_save_item_order', array(self::class, 'ajax_save_item_order'));
+		add_action('wp_ajax_mhm_save_item_order', array( self::class, 'ajax_save_item_order' ));
 
-		add_action('add_meta_boxes', array(self::class, 'reorder_meta_boxes'), 999);
+		add_action('add_meta_boxes', array( self::class, 'reorder_meta_boxes' ), 999);
 	}
 
 	public static function enqueue_scripts(): void
 	{
 		global $post_type, $pagenow;
 
-		if ($post_type === 'vehicle' && ($pagenow === 'post.php' || $pagenow === 'post-new.php')) {
+		if ($post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			wp_enqueue_style(
 				'mhm-vehicle-meta-css',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
@@ -190,7 +190,7 @@ final class VehicleMeta extends AbstractMetaBox
 			wp_enqueue_script(
 				'mhm-vehicle-meta-js',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
-				array('jquery', 'jquery-ui-sortable'),
+				array( 'jquery', 'jquery-ui-sortable' ),
 				\MHM_RENTIVA_VERSION,
 				true
 			);
@@ -236,7 +236,7 @@ final class VehicleMeta extends AbstractMetaBox
 		add_meta_box(
 			'mhm_rentiva_vehicle_featured',
 			__('Featured', 'mhm-rentiva'),
-			array(self::class, 'render_featured_meta_box'),
+			array( self::class, 'render_featured_meta_box' ),
 			'vehicle',
 			'side',
 			'default'
@@ -250,14 +250,14 @@ final class VehicleMeta extends AbstractMetaBox
 	{
 		wp_nonce_field('mhm_rentiva_vehicle_featured_action', 'mhm_rentiva_vehicle_featured_nonce');
 		$is_featured = get_post_meta($post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, true) === '1';
-?>
+		?>
 		<p>
 			<label for="mhm_rentiva_is_featured">
 				<input type="checkbox" id="mhm_rentiva_is_featured" name="mhm_rentiva_is_featured" value="1" <?php checked($is_featured); ?> />
 				<?php esc_html_e('Featured vehicle', 'mhm-rentiva'); ?>
 			</label>
 		</p>
-<?php
+		<?php
 	}
 
 	/**
@@ -330,7 +330,7 @@ final class VehicleMeta extends AbstractMetaBox
 	 */
 	private static function include_template_with_vars(string $template_path, array $template_data): void
 	{
-		(static function () use ($template_path, $template_data): void {
+		( static function () use ($template_path, $template_data): void {
 			foreach ($template_data as $key => $value) {
 				if (! is_string($key) || ! preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $key)) {
 					continue;
@@ -338,7 +338,7 @@ final class VehicleMeta extends AbstractMetaBox
 				${$key} = $value; // phpcs:ignore WordPress.NamingConventions.ValidVariableName.VariableNotSnakeCase
 			}
 			include $template_path;
-		})();
+		} )();
 	}
 
 	/**
@@ -372,8 +372,8 @@ final class VehicleMeta extends AbstractMetaBox
 		}
 
 		foreach ($custom_details as $key => $detail) {
-			if (isset($available_details[$key])) {
-				unset($available_details[$key]);
+			if (isset($available_details[ $key ])) {
+				unset($available_details[ $key ]);
 			}
 		}
 
@@ -390,16 +390,14 @@ final class VehicleMeta extends AbstractMetaBox
 		$available_value = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post->ID);
 
 		foreach ($available_details as $key => $label) {
-			$detail_values[$key] = $meta_data['_mhm_rentiva_' . $key] ?? '';
+			$detail_values[ $key ] = $meta_data[ '_mhm_rentiva_' . $key ] ?? '';
 
 			// Default Deposit: 10% (v4.9.0)
 			// Treat empty, null, or '0' as 10 to ensure persistence and visual clarity
-			if ($key === 'deposit' && ($detail_values[$key] === '' || $detail_values[$key] === null || $detail_values[$key] === '0' || $detail_values[$key] === 0)) {
-				$detail_values[$key] = '10';
+			if ($key === 'deposit' && ( $detail_values[ $key ] === '' || $detail_values[ $key ] === null || $detail_values[ $key ] === '0' || $detail_values[ $key ] === 0 )) {
+				$detail_values[ $key ] = '10';
 			}
 
-			if (strpos($key, 'custom_') === 0) {
-			}
 		}
 
 		return array(
@@ -507,7 +505,7 @@ final class VehicleMeta extends AbstractMetaBox
 
 	public static function save_meta(int $post_id, \WP_Post $post): void
 	{
-		if (! in_array($post->post_type, array('vehicle', 'vehicle_booking'), true)) {
+		if (! in_array($post->post_type, array( 'vehicle', 'vehicle_booking' ), true)) {
 			return;
 		}
 
@@ -549,11 +547,11 @@ final class VehicleMeta extends AbstractMetaBox
 
 		if (! empty($status_to_save)) {
 			$normalized = self::normalize_availability($status_to_save);
-			$meta_updates[\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS] = $normalized;
+			$meta_updates[ \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS ] = $normalized;
 		}
 
 		foreach ($available_details as $key => $label) {
-			if (in_array($key, $removed_details) && $key !== 'engine_size') {
+			if (in_array($key, $removed_details, true) && $key !== 'engine_size') {
 				continue;
 			}
 
@@ -562,14 +560,14 @@ final class VehicleMeta extends AbstractMetaBox
 			// Sanitize value from POST
 			$value                     = self::post_text($field_name);
 			$sanitized_value           = self::sanitize_field($field_name, $value);
-			$meta_updates[$meta_key] = $sanitized_value;
+			$meta_updates[ $meta_key ] = $sanitized_value;
 		}
 
 		$meta_updates['_mhm_removed_details'] = $removed_details;
 
 		if (! empty($removed_details)) {
 			foreach ($removed_details as $removed_key) {
-				unset($available_details[$removed_key]);
+				unset($available_details[ $removed_key ]);
 			}
 			$option_updated = true;
 		}
@@ -591,10 +589,10 @@ final class VehicleMeta extends AbstractMetaBox
 			$meta_key   = '_mhm_rentiva_' . $field_key;
 			$field_name = 'mhm_rentiva_' . $field_key;
 
-			if (isset($_POST[$field_name])) {
+			if (isset($_POST[ $field_name ])) {
 				$value                     = self::post_text($field_name);
 				$value                     = mb_convert_encoding($value, 'UTF-8', 'auto');
-				$meta_updates[$meta_key] = $value;
+				$meta_updates[ $meta_key ] = $value;
 			}
 		}
 
@@ -605,12 +603,12 @@ final class VehicleMeta extends AbstractMetaBox
 
 		foreach ($legacy_custom_details as $key => $detail_data) {
 			if (is_array($detail_data) && isset($detail_data['label']) && isset($detail_data['value'])) {
-				$sanitized_custom_details[self::sanitize_text_field_safe($key)] = array(
+				$sanitized_custom_details[ self::sanitize_text_field_safe($key) ] = array(
 					'label' => self::sanitize_text_field_safe($detail_data['label']),
 					'value' => self::sanitize_text_field_safe($detail_data['value']),
 				);
 			} else {
-				$sanitized_custom_details[self::sanitize_text_field_safe($key)] = array(
+				$sanitized_custom_details[ self::sanitize_text_field_safe($key) ] = array(
 					'label' => self::sanitize_text_field_safe($key),
 					'value' => self::sanitize_text_field_safe($detail_data),
 				);
@@ -635,12 +633,12 @@ final class VehicleMeta extends AbstractMetaBox
 		}
 
 		// Sanitize features array before processing
-		$features           = array_map(array(self::class, 'sanitize_text_field_safe'), self::post_array('mhm_rentiva_features'));
+		$features           = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('mhm_rentiva_features'));
 		$sanitized_features = self::sanitize_array($features);
 		update_post_meta($post_id, '_mhm_rentiva_features', $sanitized_features);
 
 		// Sanitize equipment array before processing
-		$equipment           = array_map(array(self::class, 'sanitize_text_field_safe'), self::post_array('mhm_rentiva_equipment'));
+		$equipment           = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('mhm_rentiva_equipment'));
 		$sanitized_equipment = self::sanitize_array($equipment);
 		update_post_meta($post_id, '_mhm_rentiva_equipment', $sanitized_equipment);
 
@@ -697,9 +695,9 @@ final class VehicleMeta extends AbstractMetaBox
 				return self::sanitize_text_field_safe($value);
 
 			case 'mhm_rentiva_deposit':
-				$clean_value = str_replace(array('%', ' '), '', (string) $value);
+				$clean_value = str_replace(array( '%', ' ' ), '', (string) $value);
 
-				// If empty, force default 10 (v4.9.0)
+				// If empty, force the default deposit value.
 				if ($clean_value === '') {
 					return 10.0;
 				}
@@ -718,10 +716,10 @@ final class VehicleMeta extends AbstractMetaBox
 	/**
 	 * Sanitize array values
 	 */
-	private static function sanitize_array(array $array): array
+	private static function sanitize_array(array $items): array
 	{
 		$sanitized = array();
-		foreach ($array as $item) {
+		foreach ($items as $item) {
 			$sanitized[] = self::sanitize_text_field_safe($item);
 		}
 		return $sanitized;
@@ -743,11 +741,11 @@ final class VehicleMeta extends AbstractMetaBox
 			'maintenance' => 'maintenance',
 		);
 
-		if (isset($mapping[$value])) {
-			return $mapping[$value];
+		if (isset($mapping[ $value ])) {
+			return $mapping[ $value ];
 		}
 
-		if (in_array($value, array('active', 'inactive', 'maintenance'), true)) {
+		if (in_array($value, array( 'active', 'inactive', 'maintenance' ), true)) {
 			return $value;
 		}
 
@@ -789,7 +787,7 @@ final class VehicleMeta extends AbstractMetaBox
 		);
 
 		foreach ($meta_fields as $field) {
-			if (isset($_POST[$field])) {
+			if (isset($_POST[ $field ])) {
 				$value = self::post_text($field);
 				update_post_meta($post_id, $field, $value);
 			}
@@ -810,7 +808,7 @@ final class VehicleMeta extends AbstractMetaBox
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => function ($value) {
-					$allowed   = array('active', 'inactive', 'maintenance');
+					$allowed   = array( 'active', 'inactive', 'maintenance' );
 					$sanitized = in_array($value, $allowed, true) ? $value : 'active';
 					return $sanitized;
 				},
@@ -825,7 +823,7 @@ final class VehicleMeta extends AbstractMetaBox
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => function ($value) {
-					return (string) ((string) $value === '1' ? '1' : '0');
+					return (string) ( (string) $value === '1' ? '1' : '0' );
 				},
 			)
 		);
@@ -877,7 +875,7 @@ final class VehicleMeta extends AbstractMetaBox
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => function ($value) {
-					$allowed = array('auto', 'manual');
+					$allowed = array( 'auto', 'manual' );
 					return in_array($value, $allowed, true) ? $value : 'auto';
 				},
 			)
@@ -891,7 +889,7 @@ final class VehicleMeta extends AbstractMetaBox
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => function ($value) {
-					$allowed = array('petrol', 'diesel', 'hybrid', 'electric');
+					$allowed = array( 'petrol', 'diesel', 'hybrid', 'electric' );
 					return in_array($value, $allowed, true) ? $value : 'petrol';
 				},
 			)
@@ -948,7 +946,7 @@ final class VehicleMeta extends AbstractMetaBox
 				'single'            => true,
 				'show_in_rest'      => true,
 				'sanitize_callback' => function ($value) {
-					$allowed = array('active', 'passive', 'maintenance', '1', '0');
+					$allowed = array( 'active', 'passive', 'maintenance', '1', '0' );
 					if (in_array($value, $allowed, true)) {
 						if ($value === '1') {
 							return 'active';
@@ -1089,7 +1087,7 @@ final class VehicleMeta extends AbstractMetaBox
 
 		$meta_data = array();
 		foreach ($meta_keys as $key) {
-			$meta_data[$key] = get_post_meta($post_id, $key, true);
+			$meta_data[ $key ] = get_post_meta($post_id, $key, true);
 		}
 
 		return $meta_data;
@@ -1103,10 +1101,10 @@ final class VehicleMeta extends AbstractMetaBox
 		$available_fields = array();
 
 		foreach ($selected_fields as $key) {
-			if (! empty($stored_fields[$key])) {
-				$available_fields[$key] = $stored_fields[$key];
-			} elseif (! empty($custom_fields[$key])) {
-				$available_fields[$key] = $custom_fields[$key];
+			if (! empty($stored_fields[ $key ])) {
+				$available_fields[ $key ] = $stored_fields[ $key ];
+			} elseif (! empty($custom_fields[ $key ])) {
+				$available_fields[ $key ] = $custom_fields[ $key ];
 			} else {
 				// DATA RECOVERY FALLBACK: If label is missing from stored options, search in hardcoded defaults
 				$all_defaults = array_merge(
@@ -1114,11 +1112,11 @@ final class VehicleMeta extends AbstractMetaBox
 					self::get_default_features(),
 					self::get_default_equipment()
 				);
-				if (isset($all_defaults[$key])) {
-					$available_fields[$key] = $all_defaults[$key];
+				if (isset($all_defaults[ $key ])) {
+					$available_fields[ $key ] = $all_defaults[ $key ];
 				} else {
 					// Last resort: use the key name as label
-					$available_fields[$key] = ucwords(str_replace('_', ' ', (string) $key));
+					$available_fields[ $key ] = ucwords(str_replace('_', ' ', (string) $key));
 				}
 			}
 		}
@@ -1168,8 +1166,8 @@ final class VehicleMeta extends AbstractMetaBox
 		// Populate available arrays when empty (fresh install fallback)
 		if (empty($available_details)) {
 			foreach ($selected_details as $key) {
-				if (isset($default_details[$key])) {
-					$available_details[$key] = $default_details[$key];
+				if (isset($default_details[ $key ])) {
+					$available_details[ $key ] = $default_details[ $key ];
 				}
 			}
 
@@ -1180,8 +1178,8 @@ final class VehicleMeta extends AbstractMetaBox
 
 		if (empty($available_features)) {
 			foreach ($selected_features as $key) {
-				if (isset($default_features[$key])) {
-					$available_features[$key] = $default_features[$key];
+				if (isset($default_features[ $key ])) {
+					$available_features[ $key ] = $default_features[ $key ];
 				}
 			}
 
@@ -1192,8 +1190,8 @@ final class VehicleMeta extends AbstractMetaBox
 
 		if (empty($available_equipment)) {
 			foreach ($selected_equipment as $key) {
-				if (isset($default_equipment[$key])) {
-					$available_equipment[$key] = $default_equipment[$key];
+				if (isset($default_equipment[ $key ])) {
+					$available_equipment[ $key ] = $default_equipment[ $key ];
 				}
 			}
 
@@ -1218,7 +1216,7 @@ final class VehicleMeta extends AbstractMetaBox
 
 		$grid_type = self::post_text('grid_type');
 		// Sanitize order array - each element should be a string key
-		$order = array_map(array(self::class, 'sanitize_text_field_safe'), self::post_array('order'));
+		$order = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('order'));
 
 		if (empty($grid_type) || empty($order)) {
 			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
@@ -1238,8 +1236,8 @@ final class VehicleMeta extends AbstractMetaBox
 		if (! empty($current_data)) {
 			$reordered_data = array();
 			foreach ($order as $key) {
-				if (isset($current_data[$key])) {
-					$reordered_data[$key] = $current_data[$key];
+				if (isset($current_data[ $key ])) {
+					$reordered_data[ $key ] = $current_data[ $key ];
 				}
 			}
 			update_option($option_key, $reordered_data);
@@ -1272,7 +1270,7 @@ final class VehicleMeta extends AbstractMetaBox
 		$all_boxes = array();
 		foreach ($wp_meta_boxes['vehicle']['side'] as $boxes) {
 			foreach ($boxes as $id => $box) {
-				$all_boxes[$id] = $box;
+				$all_boxes[ $id ] = $box;
 			}
 		}
 
@@ -1280,17 +1278,18 @@ final class VehicleMeta extends AbstractMetaBox
 		$reordered = array( 'default' => array() );
 
 		foreach ($desired_order as $box_id) {
-			if (isset($all_boxes[$box_id])) {
-				$reordered['default'][$box_id] = $all_boxes[$box_id];
-				unset($all_boxes[$box_id]);
+			if (isset($all_boxes[ $box_id ])) {
+				$reordered['default'][ $box_id ] = $all_boxes[ $box_id ];
+				unset($all_boxes[ $box_id ]);
 			}
 		}
 
 		// Append any remaining boxes not explicitly listed.
 		foreach ($all_boxes as $id => $box) {
-			$reordered['default'][$id] = $box;
+			$reordered['default'][ $id ] = $box;
 		}
 
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reordering side meta boxes requires writing back to the core global registry.
 		$wp_meta_boxes['vehicle']['side'] = $reordered;
 	}
 }
