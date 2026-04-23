@@ -36,6 +36,9 @@ final class AddonMenu {
 	{
 		add_action('admin_notices', array( self::class, 'admin_notices' ));
 		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
+		// Priority 20: fire AFTER add_addon_page_title so the notice is not
+		// nested inside the header's sub-`<div class="wrap">` block.
+		add_action('admin_notices', array( self::class, 'render_addon_limit_notice' ), 20);
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_scripts' ));
 	}
 
@@ -92,10 +95,34 @@ final class AddonMenu {
 		echo '<div class="wrap">';
 		$renderer->render();
 
-		// Add-on limit notice for Lite users
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayLimitNotice( 'addons' );
+		// NOTE (v4.27.2): the Lite limit notice used to be emitted here, but
+		// that caused it to render twice — WordPress's core notice-relocator
+		// JS inserts a copy right after the first `wp-header-end` marker while
+		// the DOM still contains the original inside this nested `.wrap`.
+		// The notice is now emitted by `render_addon_limit_notice()`, hooked
+		// to `admin_notices` as its own callback. WordPress places it once and
+		// cleans up the duplicate.
 
 		echo '</div>';
+	}
+
+	/**
+	 * Standalone admin_notices callback for the Lite addon limit notice.
+	 *
+	 * Split out of {@see self::add_addon_page_title()} in v4.27.2 to stop the
+	 * notice from appearing twice on the Additional Services list screen.
+	 */
+	public static function render_addon_limit_notice(): void
+	{
+		global $pagenow, $post_type;
+
+		if ( 'edit.php' !== $pagenow || 'vehicle_addon' !== $post_type ) {
+			return;
+		}
+
+		if ( class_exists( \MHMRentiva\Admin\Core\ProFeatureNotice::class ) ) {
+			\MHMRentiva\Admin\Core\ProFeatureNotice::displayLimitNotice( 'addons' );
+		}
 	}
 
 	/**

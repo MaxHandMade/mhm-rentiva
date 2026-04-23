@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.27.2",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "Fix (critical, fresh install): Running the Settings → Settings Testing 'Run All Diagnostics' page even once leaked test payloads into the live settings. On a fresh install this showed as Brand Name = '1', Cancellation Deadline = 1, Payment Deadline = 1, and other Text/Email/URL fields set to '1'. Root cause: the diagnostic harness flipped empty strings to '1' to force a 'changed' save, fed that through the real sanitizer (which rewrites every field of the targeted tab, not just the tested keys), then restored only the keys explicitly under test. Collateral writes to other tab fields survived. Fix: the harness now snapshots and restores the entire mhm_rentiva_settings option, and a one-time migration (migrate_clean_test_pollution) clears the '1'/'0' pollution fingerprint from Text/Email/URL/currency fields on upgrade.",
+            "Fix: The Additional Services admin page rendered the Lite-tier limit notice twice because it was emitted inside a nested <div class='wrap'> that confused WordPress's core notice-relocator JS. The notice is now emitted by a dedicated admin_notices callback at priority 20.",
+            "Fix: Settings Testing 'Defaults Set' check no longer flags phantom settings that were never registered (mhm_rentiva_timezone, mhm_rentiva_db_auto_optimize, mhm_rentiva_wp_optimization_enabled, mhm_rentiva_my_account_url). Cascading Email Address Valid / Email Validation Works failures also clear once the pollution migration runs.",
+            "Tests: Five regression tests in tests/Migration/SettingsTestPollutionMigrationTest.php."
+        ],
+        "notice": "v4.27.2 — critical fresh-install hotfix: Settings Testing no longer pollutes live settings with '1' values; duplicate Addon limit notice removed."
+    },
+    {
         "version": "4.27.1",
         "date": "2026-04-23",
         "type": "patch",

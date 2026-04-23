@@ -60,12 +60,15 @@ final class SettingsTester {
 		// Test if general settings are registered
 		$results['settings_registered'] = self::check_settings_registered( 'mhm_rentiva_settings' );
 
-		// Test if default values are set
+		// Test if default values are set.
+		// Note: mhm_rentiva_timezone is NOT a real setting — the sanitizer has a
+		// defensive fallback but the General tab has no field for it, so it was
+		// never in defaults or the DB. Dropped from the default-set check in
+		// v4.27.2 to stop flagging a phantom setting as missing.
 		$results['defaults_set'] = self::check_defaults_set(
 			array(
 				'mhm_rentiva_brand_name',
 				'mhm_rentiva_currency',
-				'mhm_rentiva_timezone',
 			)
 		);
 
@@ -270,23 +273,24 @@ final class SettingsTester {
 		// Test if system settings are registered
 		$results['settings_registered'] = self::check_settings_registered( 'mhm_rentiva_settings' );
 
-		// Test if system defaults are set
+		// Test if system defaults are set.
+		// Note: mhm_rentiva_db_auto_optimize and mhm_rentiva_wp_optimization_enabled
+		// are NOT registered in any settings group — they were added speculatively
+		// to the test harness. Dropped in v4.27.2 so Defaults Set stops failing on
+		// phantom keys. If these features land later, reinstate alongside real
+		// defaults in CoreSettings::get_default_settings().
 		$results['defaults_set'] = self::check_defaults_set(
 			array(
 				'mhm_rentiva_cache_enabled',
 				'mhm_rentiva_cache_default_ttl',
-				'mhm_rentiva_db_auto_optimize',
-				'mhm_rentiva_wp_optimization_enabled',
 			)
 		);
 
-		// Test if system settings can be saved
+		// Test if system settings can be saved.
 		$results['can_save'] = self::test_settings_save(
 			array(
-				'mhm_rentiva_cache_enabled'           => '1',
-				'mhm_rentiva_cache_default_ttl'       => 1.0,
-				'mhm_rentiva_db_auto_optimize'        => '0',
-				'mhm_rentiva_wp_optimization_enabled' => '1',
+				'mhm_rentiva_cache_enabled'     => '1',
+				'mhm_rentiva_cache_default_ttl' => 1.0,
 			)
 		);
 
@@ -314,23 +318,23 @@ final class SettingsTester {
 		// Test if frontend settings are registered
 		$results['settings_registered'] = self::check_settings_registered( 'mhm_rentiva_settings' );
 
-		// Test if frontend defaults are set
+		// Test if frontend defaults are set.
+		// Note: mhm_rentiva_my_account_url is NOT a settings group default — WC
+		// My Account endpoints are managed elsewhere. Dropped in v4.27.2.
 		$results['defaults_set'] = self::check_defaults_set(
 			array(
 				'mhm_rentiva_booking_url',
 				'mhm_rentiva_login_url',
 				'mhm_rentiva_register_url',
-				'mhm_rentiva_my_account_url',
 			)
 		);
 
-		// Test if frontend settings can be saved
+		// Test if frontend settings can be saved.
 		$results['can_save'] = self::test_settings_save(
 			array(
-				'mhm_rentiva_booking_url'    => '/booking',
-				'mhm_rentiva_login_url'      => '/login',
-				'mhm_rentiva_register_url'   => '/register',
-				'mhm_rentiva_my_account_url' => '/my-account',
+				'mhm_rentiva_booking_url'  => '/booking',
+				'mhm_rentiva_login_url'    => '/login',
+				'mhm_rentiva_register_url' => '/register',
 			)
 		);
 
@@ -619,8 +623,21 @@ final class SettingsTester {
 	 * Test if settings can be saved
 	 */
 	private static function test_settings_save( array $settings ): bool {
-		$all_settings    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
-		$original_values = array();
+		$option_name = 'mhm_rentiva_settings';
+
+		// CRITICAL: snapshot the ENTIRE option BEFORE the test. The REAL
+		// sanitizer we invoke at line 741 rewrites many fields from the same
+		// tab section (not just the keys we asked to test), and the
+		// per-key restore at the bottom of this function used to leave those
+		// collateral writes in place. That is how a single click on
+		// "Run All Diagnostics" could leave Brand Name = "1", Cancellation
+		// Deadline = 1, Payment Deadline = 1 in the production options table
+		// on a fresh install. v4.27.2: restore the whole option verbatim so
+		// the test is truly read-only from the caller's point of view.
+		$option_existed_before = false !== get_option( $option_name, false );
+		$full_option_snapshot  = (array) get_option( $option_name, array() );
+		$all_settings          = $full_option_snapshot;
+		$original_values       = array();
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test harness captures/restores raw globals to simulate form submissions.
 		$original_post = $_POST ?? array();
 
@@ -836,16 +853,24 @@ final class SettingsTester {
 			}
 		}
 
-		// Restore original values
-		$restore_settings = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_all();
-		foreach ( $original_values as $key => $value ) {
-			if ( $value === null ) {
-				unset( $restore_settings[ $key ] );
-			} else {
-				$restore_settings[ $key ] = $value;
-			}
+		// Full-option snapshot restore: the sanitizer called above may have
+		// rewritten many fields from the target tab, not just the keys under
+		// test. Restoring the entire option back to its pre-test value keeps
+		// the diagnostic truly read-only from the database's perspective.
+		if ( $option_existed_before ) {
+			update_option( $option_name, $full_option_snapshot );
+		} else {
+			// The option did not exist before the test (fresh install). Delete
+			// it so SettingsCore::get() continues to fall back to hardcoded
+			// defaults on subsequent reads.
+			delete_option( $option_name );
 		}
-		update_option( $option_name, $restore_settings );
+		wp_cache_delete( $option_name, 'options' );
+		if ( class_exists( '\MHMRentiva\Admin\Core\Utilities\CacheManager' ) ) {
+			\MHMRentiva\Admin\Core\Utilities\CacheManager::clear_settings_cache();
+		}
+		$_unused_legacy = $original_values; // kept for readability; no longer used.
+		unset( $_unused_legacy );
 
 		// Return $all_saved - this already checks if save mechanism works
 		// (either through update_option success OR through sanitization processing)

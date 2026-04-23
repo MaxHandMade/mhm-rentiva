@@ -4,7 +4,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           4.27.1
+ * Version:           4.27.2
  * Requires at least: 6.7
  * Tested up to:      6.9
  * Requires PHP:      8.1
@@ -75,7 +75,7 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '4.27.1');
+define('MHM_RENTIVA_VERSION', '4.27.2');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -238,6 +238,15 @@ add_action(
 		// own flag option) and only runs once per site.
 		if (class_exists('MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleMeta')) {
 			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::migrate_remove_auto_populated_labels();
+		}
+
+		// v4.27.2 one-time cleanup: earlier Settings Testing "Run All
+		// Diagnostics" runs could leave '1' / '0' test payloads in free-text,
+		// email, URL and currency fields inside mhm_rentiva_settings. The
+		// harness fix prevents recurrence; this migration erases the already-
+		// recorded pollution so SettingsCore::get() falls back to defaults.
+		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
+			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_clean_test_pollution();
 		}
 	},
 	20

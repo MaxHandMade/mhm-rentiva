@@ -176,6 +176,81 @@ final class SettingsCore {
 	/**
 	 * Get value from settings with safe fallback
 	 */
+	/**
+	 * One-time cleanup for installations hit by the v4.27.1-era
+	 * Settings Testing "Run All Diagnostics" pollution bug.
+	 *
+	 * Root cause: {@see \MHMRentiva\Admin\Settings\Testing\SettingsTester::test_settings_save()}
+	 * flipped empty strings to '1' to generate a "changed" test payload, then
+	 * fed that through the REAL sanitizer (which rewrites the whole target
+	 * tab, not just the keys asked about), and finally restored ONLY the
+	 * tested keys. The collateral tab writes stayed in the options table, so
+	 * a fresh install that clicked "Run All Diagnostics" once ended up with
+	 * Brand Name = "1", Cancellation Deadline = 1, Payment Deadline = 1 etc.
+	 *
+	 * This migration removes entries whose value is literally the '1' / '0'
+	 * flip-pollution fingerprint on fields that can never legitimately hold
+	 * those values (free-text labels, emails, URLs). Number fields are left
+	 * alone because a user may have deliberately saved 1 there. The harness
+	 * fix in v4.27.2 prevents the pollution from recurring; this migration
+	 * just cleans up the already-affected installs.
+	 *
+	 * Idempotent via the `mhm_rentiva_v4272_test_pollution_cleaned` flag.
+	 */
+	public static function migrate_clean_test_pollution(): void
+	{
+		$flag = 'mhm_rentiva_v4272_test_pollution_cleaned';
+		if (get_option($flag)) {
+			return;
+		}
+
+		$settings = get_option(self::OPTION_NAME, null);
+
+		if (is_array($settings) && ! empty($settings)) {
+			$polluted_keys = array(
+				// Free-text labels that can never legitimately equal '0' or '1'.
+				'mhm_rentiva_brand_name',
+				'mhm_rentiva_email_from_name',
+				'mhm_rentiva_contact_phone',
+				'mhm_rentiva_contact_hours',
+				'mhm_rentiva_email_footer_text',
+				// Email fields.
+				'mhm_rentiva_email_from_address',
+				'mhm_rentiva_support_email',
+				'mhm_rentiva_email_reply_to',
+				// URL fields.
+				'mhm_rentiva_booking_url',
+				'mhm_rentiva_login_url',
+				'mhm_rentiva_register_url',
+				'mhm_rentiva_vehicles_list_url',
+				'mhm_rentiva_my_bookings_url',
+				'mhm_rentiva_brand_logo_url',
+				'mhm_rentiva_email_header_image',
+				// Currency codes — three-letter ISO; '0' / '1' is pollution.
+				'mhm_rentiva_currency',
+			);
+
+			$changed = false;
+			foreach ($polluted_keys as $key) {
+				if (! array_key_exists($key, $settings)) {
+					continue;
+				}
+				$value = $settings[ $key ];
+				if ('0' === $value || '1' === $value || 0 === $value || 1 === $value) {
+					unset($settings[ $key ]);
+					$changed = true;
+				}
+			}
+
+			if ($changed) {
+				update_option(self::OPTION_NAME, $settings);
+				wp_cache_delete(self::OPTION_NAME, 'options');
+			}
+		}
+
+		update_option($flag, '1', true);
+	}
+
 	public static function get(string $key, mixed $default = null): mixed
 	{
 		$settings = get_option(self::OPTION_NAME, array());
