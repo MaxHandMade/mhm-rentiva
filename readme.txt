@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.27.6
+Stable tag:        4.30.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.30.0 =
+* **Security hardening — Phase B (client side):** Adds three new defenses against source-edit Pro feature bypass, paired with `mhm-license-server v1.9.0+`. Layer 1: every successful activate/validate response is now HMAC-verified against `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET`; tampered responses return `tampered_response` instead of unlocking Pro. Layer 2: a new public REST route `/wp-json/mhm-rentiva-verify/v1/ping` answers the server's `X-MHM-Challenge` during activation, proving the site is reachable and shares the ping secret. Layer 3: `Mode::canUseVendorMarketplace()`, `canUseMessages()`, `canUseAdvancedReports()`, `canUseVendorPayout()` no longer trust `LicenseManager::isActive()` alone — they require a feature flag inside a server-issued, HMAC-signed feature token (24h TTL). A `return true;` patch on `isActive()` no longer unlocks Pro features.
+* **Required wp-config constants:** Add `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET`, `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY`, `MHM_RENTIVA_LICENSE_PING_SECRET` to `wp-config.php`. Each value MUST match the corresponding constant on the license server. If `FEATURE_TOKEN_KEY` is omitted, gates fall back to legacy `isPro()` behavior so existing customers are not broken during rollout.
+* **Backward compatible with v1.8.x license servers:** Responses without a `signature` field are accepted unchanged so this client can talk to a not-yet-upgraded license server during the rollout window.
+* **New helpers:** `Admin\Licensing\ClientSecrets`, `Admin\Licensing\ResponseVerifier`, `Admin\Licensing\FeatureTokenVerifier`, `Admin\Licensing\VerifyEndpoint`. Activate request now sends `client_version` so the server can apply per-version reverse-validation enforcement.
+* **Tests:** 740 → 776 (+36 new), 2715 assertions, 6 skipped, all green. PHPCS: 0 errors.
 
 = 4.27.6 =
 * **WordPress.org submission polish:** Cleaned up Plugin Check results to zero ERROR for plugin directory submission. Replaced `unlink()` with `wp_delete_file()` in the demo image importer. Added gerekçeli `phpcs:ignore` comments for false-positive warnings that the project's `phpcs.xml` ruleset already excluded (error_log audit logging, `mhm_rentiva_` prefixed hooks, `meta_query` / `post__not_in` accepted performance tradeoffs, interpolated SQL with core-controlled table names bound via `$wpdb->prepare()`). Renamed a template-scope variable to honor Plugin Check's prefix convention. Trimmed the readme changelog to fit WP.org's 5000-character limit, linking older releases to GitHub. No functional changes — 740/740 PHPUnit tests still pass.

@@ -672,6 +672,11 @@ final class Plugin {
 		if ($is_admin && class_exists(Admin\Licensing\LicenseAdmin::class)) {
 			Admin\Licensing\LicenseAdmin::register();
 		}
+		// v4.30.0+ — Reverse-validation endpoint that mhm-license-server v1.9.0+
+		// pings during activation. Frontend-only; no admin gate.
+		if (class_exists(Admin\Licensing\VerifyEndpoint::class)) {
+			Admin\Licensing\VerifyEndpoint::register();
+		}
 	}
 
 	/**

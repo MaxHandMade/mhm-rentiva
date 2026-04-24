@@ -1,5 +1,18 @@
 [
     {
+        "version": "4.30.0",
+        "date": "2026-04-24",
+        "type": "minor",
+        "changes": [
+            "🛡️ GÜVENLİK SERTLEŞTİRME — Faz B (istemci tarafı): Pro özellik kaynak-düzenleme bypass'ına karşı 3 katmanlı server-side savunmaya istemci eşleniği. `mhm-license-server v1.9.0+` ile birlikte çalışır. Katman 1: Her başarılı activate/validate cevabı `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET` ile HMAC-doğrulanır; tampered cevap Pro açmıyor, `tampered_response` hatası dönüyor. Katman 2: Yeni public REST route `/wp-json/mhm-rentiva-verify/v1/ping` activation sırasında server'ın `X-MHM-Challenge` header'ına HMAC cevabı veriyor — site ulaşılabilirliğini ve ping secret paylaşımını kanıtlıyor. Katman 3: `Mode::canUseVendorMarketplace()`, `canUseMessages()`, `canUseAdvancedReports()`, `canUseVendorPayout()` artık `LicenseManager::isActive()`'e tek başına güvenmiyor — server'ın HMAC-imzalı feature token'ı (24 saat TTL) içindeki feature flag'i okuyor. `isActive()` üzerine `return true;` patch atılsa bile Pro açılmıyor.",
+            "⚙️ YENİ wp-config sabitleri zorunlu: `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET`, `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY`, `MHM_RENTIVA_LICENSE_PING_SECRET`. Her değer lisans sunucunuzdaki karşılık sabitle birebir AYNI olmalı. `FEATURE_TOKEN_KEY` tanımsızsa, gate'ler eski `isPro()` davranışına düşüyor — mevcut müşteriler kırılmıyor, rollout sırasında sorun çıkmıyor.",
+            "🔄 Geriye dönük uyumluluk (v1.8.x lisans sunucularıyla): `signature` field'ı içermeyen cevaplar olduğu gibi kabul ediliyor — bu istemci henüz yükseltilmemiş bir lisans sunucusuyla rollout süresince konuşabiliyor.",
+            "📦 Yeni yardımcılar: `Admin\\Licensing\\ClientSecrets`, `Admin\\Licensing\\ResponseVerifier`, `Admin\\Licensing\\FeatureTokenVerifier`, `Admin\\Licensing\\VerifyEndpoint`. Activate isteği artık `client_version` taşıyor — server bu sürüm bilgisine göre per-version reverse-validation enforcement yapabiliyor.",
+            "🧪 Testler: 740 → 776 (+36 yeni Faz B testi), 2715 assertion, 6 skipped, hepsi yeşil. PHPCS: 0 hata."
+        ],
+        "notice": "v4.30.0 — Lisans güvenlik sertleştirmesi Faz B. mhm-license-server v1.9.0+ gerektirir + 3 yeni wp-config sabiti."
+    },
+    {
         "version": "4.27.6",
         "date": "2026-04-24",
         "type": "patch",
