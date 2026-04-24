@@ -65,30 +65,77 @@ final class Mode {
 
 	/**
 	 * Check if Vendor/Payout module can be used.
+	 *
+	 * V4.30.0+ — Gated on the `vendor_marketplace` feature flag in the
+	 * server-issued feature token. Vendor + Payout are bundled in the same
+	 * Pro tier, so they share the marketplace flag.
 	 */
 	public static function canUseVendorPayout(): bool {
-		return self::isPro();
+		return self::featureGranted('vendor_marketplace');
 	}
 
 	/**
 	 * Check if Messages module can be used.
 	 */
 	public static function canUseMessages(): bool {
-		return self::isPro();
+		return self::featureGranted('messaging');
 	}
 
 	/**
 	 * Check if advanced reports module can be used.
 	 */
 	public static function canUseAdvancedReports(): bool {
-		return self::isPro();
+		return self::featureGranted('advanced_reports');
 	}
 
 	/**
 	 * Check if Vendor Marketplace module can be used.
 	 */
 	public static function canUseVendorMarketplace(): bool {
-		return self::isPro();
+		return self::featureGranted('vendor_marketplace');
+	}
+
+	/**
+	 * Pro feature gate (v4.30.0+) that consults the server-issued feature
+	 * token (mhm-license-server v1.9.0+) instead of a single isPro() flag.
+	 *
+	 * A `return true;` patch on `LicenseManager::isActive()` no longer
+	 * unlocks anything because the gate also requires the feature flag to
+	 * be present in a HMAC-verified, non-expired, server-signed token.
+	 *
+	 * Backward-compat: when `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` is not
+	 * configured (legacy deploy), we fall back to `isPro()` so existing
+	 * customers keep working until they roll out v4.30.0 with secrets.
+	 */
+	private static function featureGranted( string $feature ): bool {
+		// Hard gate: license must be locally active.
+		if ( ! self::isPro() ) {
+			return false;
+		}
+
+		$secret = ClientSecrets::getFeatureTokenKey();
+
+		// Legacy fallback: secret not configured → behave like pre-v4.30.0
+		// (only basic license check, no token gating). Operators must define
+		// MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY in wp-config (matching their
+		// license server's MHM_LICENSE_SERVER_FEATURE_TOKEN_KEY) to enable
+		// the v4.30.0 hardening. See LIVE_DEPLOYMENT_CHECKLIST.md on the
+		// license server for value generation.
+		if ( $secret === '' ) {
+			return true;
+		}
+
+		$token = LicenseManager::instance()->getFeatureToken();
+		if ( $token === '' ) {
+			// Phase B configured but no token in storage → either patched
+			// `isActive()` or talking to a legacy server. Fail closed.
+			return false;
+		}
+
+		$verifier = new FeatureTokenVerifier( $secret );
+		$payload  = $verifier->verify( $token );
+
+		return $verifier->hasFeature( $payload, $feature );
 	}
 	// ... (skip until get_pro_features_list)
 	/**

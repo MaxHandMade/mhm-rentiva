@@ -225,13 +225,16 @@ final class LicenseManager {
 		$resp = $this->request(
 			'/licenses/activate',
 			array(
-				'license_key'  => $key,
-				'site_hash'    => $this->siteHash(),
-				'site_url'     => home_url(),
-				'is_staging'   => $this->isStaging(),
+				'license_key'    => $key,
+				'site_hash'      => $this->siteHash(),
+				'site_url'       => home_url(),
+				'is_staging'     => $this->isStaging(),
 				// Identifies this plugin to mhm-license-server v1.8.0+ which
 				// enforces per-product license binding server-side.
-				'product_slug' => 'mhm-rentiva',
+				'product_slug'   => 'mhm-rentiva',
+				// v1.9.0+ — server runs reverse site validation when
+				// client_version >= REVERSE_VALIDATION_FLOOR for this product.
+				'client_version' => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : '',
 			)
 		);
 		if (is_wp_error($resp)) {
@@ -252,11 +255,26 @@ final class LicenseManager {
 			'expires_at'    => isset($resp['expires_at']) ? (int) $resp['expires_at'] : null,
 			'activation_id' => $resp['activation_id'] ?? '',
 			'token'         => $resp['token'] ?? '',
+			// v4.30.0+ — Server-issued feature token used by Mode::canUse*()
+			// to gate Pro features. Empty string when talking to a legacy server.
+			'feature_token' => isset($resp['feature_token']) ? (string) $resp['feature_token'] : '',
 			'last_check_at' => time(),
 			'hash_v2'       => true,
 		);
 		$this->save($data);
 		return true;
+	}
+
+	/**
+	 * Returns the server-issued feature token (v4.30.0+) from local storage.
+	 *
+	 * Empty string when no active license, when talking to a legacy server,
+	 * or when the daily validate cron has not yet refreshed it.
+	 */
+	public function getFeatureToken(): string
+	{
+		$o = $this->get();
+		return (string) ( $o['feature_token'] ?? '' );
 	}
 
 	/**
@@ -347,6 +365,13 @@ final class LicenseManager {
 		$o['plan']          = $resp['plan'] ?? ( $o['plan'] ?? null );
 		$o['expires_at']    = isset($resp['expires_at']) ? (int) $resp['expires_at'] : ( $o['expires_at'] ?? null );
 		$o['last_check_at'] = time();
+
+		// v4.30.0+ — Refresh feature token from server. Server omits the field
+		// when the license downgrades to non-active state, so we DO update
+		// here even when the new value is empty (Pro features close immediately).
+		if (array_key_exists('feature_token', $resp)) {
+			$o['feature_token'] = (string) $resp['feature_token'];
+		}
 
 		// If Grace Mode is active, save it. Otherwise, remove it.
 		if (isset($resp['grace_mode']) && $resp['grace_mode'] === true) {
@@ -606,6 +631,22 @@ final class LicenseManager {
 
 		// Handle success responses (200-299)
 		if ($code >= 200 && $code < 300 && is_array($json)) {
+			// v4.30.0+ — Verify server-side response signature when present.
+			// Legacy servers (v1.8.x) omit the field entirely; we accept those
+			// responses unchanged so the v4.30.0 client can still talk to a
+			// not-yet-upgraded license server during the rollout window.
+			if (isset($json['signature'])) {
+				$secret = ClientSecrets::getResponseHmacSecret();
+				if ($secret !== '') {
+					$verifier = new ResponseVerifier($secret);
+					if (! $verifier->verify($json)) {
+						return new WP_Error(
+							'tampered_response',
+							__('License server response failed signature verification.', 'mhm-rentiva')
+						);
+					}
+				}
+			}
 			return $json;
 		}
 
