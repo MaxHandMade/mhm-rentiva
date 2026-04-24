@@ -100,6 +100,7 @@ final class VehicleLifecycleManager {
         $vendor_id  = (int) get_post_field('post_author', $vehicle_id);
         $old_status = $current;
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $old_status, VehicleLifecycleStatus::ACTIVE);
 
         return true;
@@ -148,7 +149,9 @@ final class VehicleLifecycleManager {
 
         ReliabilityScoreCalculator::update($vendor_id, 'pause', $vehicle_id);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_paused', $vehicle_id, $vendor_id);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $current, VehicleLifecycleStatus::PAUSED);
 
         return true;
@@ -190,7 +193,9 @@ final class VehicleLifecycleManager {
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, 'active');
         delete_post_meta($vehicle_id, MetaKeys::VEHICLE_PAUSED_AT);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_resumed', $vehicle_id, $vendor_id);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, VehicleLifecycleStatus::PAUSED, VehicleLifecycleStatus::ACTIVE);
 
         return true;
@@ -245,7 +250,9 @@ final class VehicleLifecycleManager {
 
         ReliabilityScoreCalculator::update($vendor_id, 'withdraw', $vehicle_id);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_withdrawn', $vehicle_id, $vendor_id, $penalty);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $current, VehicleLifecycleStatus::WITHDRAWN);
 
         return true;
@@ -274,7 +281,9 @@ final class VehicleLifecycleManager {
 
         $vendor_id = (int) get_post_field('post_author', $vehicle_id);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_expired', $vehicle_id, $vendor_id);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, $current, VehicleLifecycleStatus::EXPIRED);
 
         return true;
@@ -323,7 +332,9 @@ final class VehicleLifecycleManager {
         $count = (int) get_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_RENEWAL_CNT, true);
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_RENEWAL_CNT, $count + 1);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_renewed', $vehicle_id);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, VehicleLifecycleStatus::EXPIRED, VehicleLifecycleStatus::ACTIVE);
 
         return true;
@@ -372,7 +383,9 @@ final class VehicleLifecycleManager {
         delete_post_meta($vehicle_id, MetaKeys::VEHICLE_WITHDRAWN_AT);
         delete_post_meta($vehicle_id, MetaKeys::VEHICLE_COOLDOWN_ENDS_AT);
 
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_relist', $vehicle_id, $vendor_id);
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_lifecycle_changed', $vehicle_id, VehicleLifecycleStatus::WITHDRAWN, VehicleLifecycleStatus::PENDING_REVIEW);
 
         return true;
@@ -409,6 +422,7 @@ final class VehicleLifecycleManager {
             'posts_per_page' => 1,
             'fields'         => 'ids',
             'no_found_rows'  => true,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
             'meta_query'     => array(
                 'relation' => 'AND',
                 array(

@@ -164,6 +164,7 @@ class Governance {
         $logging_enabled = defined('WP_DEBUG') && WP_DEBUG && apply_filters('mhm_rentiva_enable_governance_log', false);
 
         if ($logging_enabled) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
             error_log(sprintf(
                 '[MHM Rentiva Governance] Blocked %s: %s (Source: %s) - No Tailwind Runtime allowed.',
                 $type,
@@ -180,6 +181,7 @@ class Governance {
          * @param string $handle The asset handle.
          * @param mixed  $src    The asset source URL.
          */
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_governance_violation', $type, $handle, $src);
     }
 }

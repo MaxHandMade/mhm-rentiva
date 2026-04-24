@@ -113,7 +113,7 @@ final class DemoImageImporter {
         $attach_id = wp_insert_attachment($attachment, $target_path);
 
         if (is_wp_error($attach_id) || $attach_id <= 0) {
-            @unlink( $target_path ); // Remove orphaned physical file
+            wp_delete_file( $target_path ); // Remove orphaned physical file
             return 0;
         }
 

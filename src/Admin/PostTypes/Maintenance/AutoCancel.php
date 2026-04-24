@@ -255,6 +255,7 @@ final class AutoCancel {
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				if (function_exists('error_log')) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
 				}
 			}

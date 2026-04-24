@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /** @var array $args */
-$pending_messages = (int) ( $args['pending_messages'] ?? 0 );
+$mhm_rentiva_pending_messages = (int) ( $args['pending_messages'] ?? 0 );
 ?>
 
 <div class="mhm-quick-actions">
@@ -65,14 +65,14 @@ $pending_messages = (int) ( $args['pending_messages'] ?? 0 );
 		</a>
 
 		<!-- Messages -->
-		<a href="<?php echo esc_url( admin_url( 'admin.php?page=mhm-rentiva-messages' ) ); ?>" class="quick-action-card quick-action-card--messages<?php echo $pending_messages > 0 ? ' qa-has-notification' : ''; ?>">
+		<a href="<?php echo esc_url( admin_url( 'admin.php?page=mhm-rentiva-messages' ) ); ?>" class="quick-action-card quick-action-card--messages<?php echo $mhm_rentiva_pending_messages > 0 ? ' qa-has-notification' : ''; ?>">
 			<span class="qa-icon-wrap">
-				<?php if ( $pending_messages > 0 ) : ?>
+				<?php if ( $mhm_rentiva_pending_messages > 0 ) : ?>
 					<span class="qa-pulse-ring"></span>
 				<?php endif; ?>
 				<span class="dashicons dashicons-format-chat"></span>
-				<?php if ( $pending_messages > 0 ) : ?>
-					<span class="qa-badge"><?php echo esc_html( $pending_messages > 99 ? '99+' : $pending_messages ); ?></span>
+				<?php if ( $mhm_rentiva_pending_messages > 0 ) : ?>
+					<span class="qa-badge"><?php echo esc_html( $mhm_rentiva_pending_messages > 99 ? '99+' : $mhm_rentiva_pending_messages ); ?></span>
 				<?php endif; ?>
 			</span>
 			<span class="action-title"><?php echo esc_html__( 'Messages', 'mhm-rentiva' ); ?></span>

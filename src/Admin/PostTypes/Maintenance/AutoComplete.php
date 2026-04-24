@@ -125,10 +125,12 @@ final class AutoComplete {
 					);
 				}
 
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
 				do_action('mhm_rentiva_booking_auto_completed', $bid);
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				if (function_exists('error_log')) {
+					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log('[mhm-rentiva] auto-complete skipped booking ' . $bid . ': ' . $e->getMessage());
 				}
 			}
