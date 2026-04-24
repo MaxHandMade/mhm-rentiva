@@ -235,6 +235,7 @@ final class BlockedDatesMetaBox {
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
+			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- post__not_in kept intentionally; alternative `post__in` query would require extra ID collection round-trip.
 			'exclude'        => array( $source_id ),
 		) );
 
@@ -281,6 +282,7 @@ final class BlockedDatesMetaBox {
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
+			// phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- post__not_in kept intentionally; alternative `post__in` query would require extra ID collection round-trip.
 			'exclude'        => array( $source_id ),
 		) );
 

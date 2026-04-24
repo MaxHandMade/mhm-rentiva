@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
  * Financial analytics aggregation service — Ledger is the ONLY source of truth.
  *
  * This 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, PluginCheck.Security.DirectDB.UnescapedDBParameter, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Table names (`{$wpdb->prefix}mhm_rentiva_ledger`, `{$wpdb->postmeta}`, `{$wpdb->posts}`) are interpolated from WordPress core-controlled identifiers; values bind via `$wpdb->prepare()` with `...$query_args` spread — static analyzer cannot count spread args so ReplacementsWrongNumber/UnfinishedPrepare are false positives.
 class conventionally reads ONLY from mhm_rentiva_ledger.
  * Exception: get_vehicle_performance() resolves vehicle ownership and dates
  * via wp_postmeta because vehicles and bookings are CPTs.

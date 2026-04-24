@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.27.6",
+        "date": "2026-04-24",
+        "type": "patch",
+        "changes": [
+            "🧹 TEMİZLİK (WordPress.org gönderim cilası): Plugin Check taraması 0 HATA seviyesine indirildi — WordPress.org eklenti dizinine gönderim için şart. Demo görsel içe aktarıcıdaki `unlink()` çağrısı `wp_delete_file()` ile değiştirildi (tek HATA kaynağı). Projenin `phpcs.xml` dosyasında zaten gerekçeli olarak dışlanan uyarılar için satır bazında `phpcs:ignore` yorumları eklendi: denetim amaçlı `error_log()` kullanımları, `mhm_rentiva_` öneki taşıyan hook'lar (Plugin Check önek yapılandırmasını okumadığı için yanlış-pozitif), kabul edilen performans tavizleri olan `meta_query` ve `post__not_in`, WP çekirdeği kontrolündeki tablo adlarıyla `$wpdb->prepare()` kullanan ledger sorguları. Template kapsamındaki bir değişken Plugin Check'in önek konvansiyonuna uyacak şekilde yeniden adlandırıldı. readme.txt Changelog bölümü WP.org'un 5000 karakter sınırına sığacak şekilde kısaltıldı; eski sürümler GitHub releases'e link verildi. Fonksiyonel bir değişiklik yok — 740/740 PHPUnit testi hâlâ geçiyor."
+        ],
+        "notice": "v4.27.6 — WordPress.org eklenti dizinine gönderim için Plugin Check uyumluluğu sağlandı (0 HATA)."
+    },
+    {
+        "version": "4.27.5",
+        "date": "2026-04-23",
+        "type": "patch",
+        "changes": [
+            "🔐 GÜVENLİK (uyumluluk): Lisans istemcisi artık `activate` ve `validate` isteklerinde ürün slug'ını (`product_slug`) iletiyor — mhm-license-server v1.8.0'da eklenen ürün bazlı lisans bağlamayı etkinleştirmek için şart. Bu sayede ucuz Currency Switcher aylık anahtarıyla Rentiva Pro aktivasyonu yapmak gibi çapraz-ürün suistimaller engelleniyor. `mhm-license-server v1.8.0+` bu sürümle birlikte gerekli.",
+            "🔧 DÜZELTME: Additional Services (Ek Hizmetler) listesi sayfasında iki adet 'Dokümantasyon' düğmesi gözüküyordu — küresel `all_admin_notices` dokümantasyon hook'u artık `vehicle_addon` ekranını atlıyor, özel AddonMenu başlığı tek kaynak olarak kalıyor."
+        ],
+        "notice": "v4.27.5 — lisans sunucusu v1.8.0 uyumluluğu + küçük UI düzeltmesi."
+    },
+    {
         "version": "4.27.4",
         "date": "2026-04-23",
         "type": "patch",

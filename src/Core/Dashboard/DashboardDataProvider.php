@@ -280,6 +280,7 @@ final class DashboardDataProvider {
 			'orderby'        => 'date',
 			'order'          => 'DESC',
 			'no_found_rows'  => true,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 			'meta_query'     => array(
 				array(
 					'key'     => '_mhm_vehicle_id',
