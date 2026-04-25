@@ -414,6 +414,15 @@ final class LicenseAdmin {
 				break;
 
 			case 'error':
+				// v4.30.2+ — Defensive: when stale URL state leaves $_GET[message]
+				// unset (e.g. browser back/forward, bookmark, copy-paste of a
+				// truncated URL), the original `default` match arm rendered
+				// "License activation failed: " with an empty trailing %s.
+				// Skip the notice entirely when there is no actual error code.
+				if ('' === $error_message) {
+					break;
+				}
+
 				$error_text = match ($error_message) {
 					'empty_key' => __('License key cannot be empty.', 'mhm-rentiva'),
 					'invalid_key' => __('Invalid license key.', 'mhm-rentiva'),
@@ -426,12 +435,24 @@ final class LicenseAdmin {
 					'license_connection' => __('Could not connect to license server. Please check your internet connection and try again.', 'mhm-rentiva'),
 					'license_http' => __('License server error. Please try again later.', 'mhm-rentiva'),
 					'missing_parameters' => __('Missing required parameters.', 'mhm-rentiva'),
-					/* translators: %s: error message */
-					default => sprintf(esc_html__('License activation failed: %s', 'mhm-rentiva'), esc_html($error_message)),
+					// v4.30.2+ — server v1.9.0+ reverse-validation error codes.
+					'site_unreachable' => __('License server could not reach your site for verification. A firewall or CDN may be blocking inbound HTTP. Please contact support.', 'mhm-rentiva'),
+					'site_verification_failed' => __('Site verification failed. Please try again or contact support.', 'mhm-rentiva'),
+					'tampered_response' => __('License server response could not be verified (tampered or out-of-sync). Please contact support.', 'mhm-rentiva'),
+					// v4.30.2+ — server v1.8.0+ / v1.9.3+ product binding error codes.
+					'product_mismatch' => __('This license key was issued for a different product and cannot be activated here.', 'mhm-rentiva'),
+					'product_slug_required' => __('Your plugin version is outdated or the request is malformed. Please update to the latest plugin release and try again.', 'mhm-rentiva'),
+					// v4.30.2+ — Generic fallback for unknown/future codes; the
+					// raw code is exposed via the wrapper's data-error-code
+					// attribute (see below) for support, NOT inline text.
+					default => __('License activation failed. Please try again.', 'mhm-rentiva'),
 				};
-				echo '<div class="notice notice-error is-dismissible">';
-				echo '<p>' . esc_html($error_text) . '</p>';
-				echo '</div>';
+
+				printf(
+					'<div class="notice notice-error is-dismissible" data-error-code="%s"><p>%s</p></div>',
+					esc_attr($error_message),
+					esc_html($error_text)
+				);
 				break;
 
 			case 'limit_exceeded':

@@ -149,7 +149,7 @@ final class Mode {
 			__( 'Messaging System', 'mhm-rentiva' ),
 			__( 'Vendor & Payout', 'mhm-rentiva' ),
 			__( 'Full REST API Access', 'mhm-rentiva' ),
-			__( 'JSON Export Format', 'mhm-rentiva' ),
+			__( 'Expanded Export Formats', 'mhm-rentiva' ),
 			__( 'Unlimited Date Range for Reports', 'mhm-rentiva' ),
 			__( 'Unlimited Report Rows', 'mhm-rentiva' ),
 			__( 'Email Notifications', 'mhm-rentiva' ),
@@ -335,8 +335,8 @@ final class Mode {
 			),
 			array(
 				'name' => __( 'Export Formats', 'mhm-rentiva' ),
-				'lite' => esc_html__( 'CSV', 'mhm-rentiva' ),
-				'pro'  => esc_html__( 'CSV, JSON', 'mhm-rentiva' ),
+				'lite' => esc_html__( 'CSV only', 'mhm-rentiva' ),
+				'pro'  => esc_html__( 'CSV, JSON, Excel, XML, PDF', 'mhm-rentiva' ),
 			),
 			array(
 				'id'             => 'advanced_reports',

@@ -73,7 +73,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 **Temel Araç Özellikleri:**
 - **Özel Post Tipi**: Araçlar için yerel WordPress post tipi
-- **Araç Galerisi**: WordPress Medya Kütüphanesi entegrasyonu ile görsel yükleme (Lite: 3 görsel / Pro: 50'ye kadar, ayarlanabilir)
+- **Araç Galerisi**: WordPress Medya Kütüphanesi entegrasyonu ile görsel yükleme (Lite: 5 görsel / araç, Pro: sınırsız, ayarlanabilir)
 - **Sürükle-Bırak Sıralama**: Sezgisel sürükle-bırak arayüzü ile araç görsellerini yeniden sıralama
 - **Araç Kategorileri**: Araçları organize etmek için hiyerarşik taksonomi sistemi
 - **Araç Meta Verileri**: 
@@ -215,7 +215,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 | **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
 | **Vendor & Payout** | ❌ Yok | ✅ Var |
 | **E-posta Bildirimleri** | ✅ Var | ✅ Var |
-| **Dışa Aktarım** | Sadece CSV | CSV + JSON |
+| **Dışa Aktarım** | Sadece CSV | CSV + JSON + Excel + XML + PDF |
 | **Ödeme Altyapısı** | WooCommerce | WooCommerce |
 | **REST API Erişimi** | Sınırlı | Tam Erişim |
 | **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
@@ -855,7 +855,6 @@ Bu eklentiyi faydalı bulursanız, lütfen GitHub'da yıldız vermeyi düşünü
 ---
 
 **WordPress topluluğu için ❤️ ile yapıldı**
-
 
 
 

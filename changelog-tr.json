@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.30.2",
+        "date": "2026-04-25",
+        "type": "patch",
+        "changes": [
+            "🛠 LİSANS BİLDİRİMİ — Defansif düzeltme: License sayfası URL'sinde `?license=error` varken `&message=...` yoksa (tarayıcı geri/ileri, bookmark veya kırpılmış kopyala-yapıştır), notice 'License activation failed: ' boş kuyrukla render oluyordu. v4.30.2 ile error kodu yoksa notice tamamen render edilmiyor.",
+            "🌐 LİSANS BİLDİRİMİ — v1.8.0+/v1.9.x sunucu hata kodları için Türkçe mesajlar: `site_unreachable`, `site_verification_failed`, `tampered_response`, `product_mismatch`, `product_slug_required` artık ham 'License activation failed: <teknik_kod>' yerine müşteri-dostu Türkçe çevrilmiş mesaj veriyor.",
+            "🔧 NOTICE DEFAULT — Bilinmeyen gelecek error kodları için generic 'Lisans etkinleştirme başarısız oldu. Lütfen tekrar deneyin.' mesajı + teknik kod `data-error-code` HTML attribute'unda (sadece debug/support için, son kullanıcıya yansımaz).",
+            "🧪 5 yeni unit test (`LicenseAdminAdminNoticesTest`). 776 → 781 PHPUnit, 0 PHPCS."
+        ],
+        "notice": "v4.30.2 — Lisans bildirimi defansif düzeltme + v1.9.x sunucu hata kodları için Türkçe friendly mesajlar."
+    },
+    {
         "version": "4.30.1",
         "date": "2026-04-25",
         "type": "patch",

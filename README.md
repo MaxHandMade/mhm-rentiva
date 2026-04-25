@@ -208,7 +208,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 | **Report Date Range** | Last 30 Days | **Unlimited** |
 | **Report Rows** | 500 Rows | **Unlimited** |
 | **Messaging System** | ❌ Not available | ✅ Available |
-| **Export Formats** | CSV Only | CSV, JSON |
+| **Export Formats** | CSV Only | CSV, JSON, Excel, XML, PDF |
 | **Payment Gateways** | WooCommerce | WooCommerce |
 | **REST API Access** | Limited | Full API |
 | **Advanced Reports** | ❌ Limited | ✅ Full Access |
@@ -677,7 +677,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 
 **Export Restrictions:**
 - ✅ **CSV Export**: Available (all versions)
-- ✅ **JSON Export**: Available (all versions)
+- ❌ **JSON Export**: Not available (Pro only)
 - ❌ **Excel Export (XLS)**: Not available (Pro only via FEATURE_EXPORT)
 - ❌ **XML Export**: Not available (Pro only via FEATURE_EXPORT)
 - ❌ **PDF Export**: Not available (Pro only via FEATURE_REPORTS_ADV)
@@ -686,7 +686,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Date Range**: Maximum **30 days** (filtered automatically)
 - **Report Rows**: Maximum **500 rows** per export
 - **Advanced Reports**: Not available (Pro only)
-- **Report Export**: Limited to CSV/JSON only
+- **Report Export**: Limited to CSV only
 
 **Messaging System:**
 - ❌ **Customer Messaging**: Not available (Pro only)
@@ -695,10 +695,10 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 
 **Other Limitations:**
 - **Advanced Reports Feature**: Not available (basic reports only)
-- **Report Export Formats**: Limited to CSV/JSON for Lite reports
+- **Report Export Formats**: Limited to CSV only for Lite reports
 
 **Lite Version Restrictions UI:**
-- Admin notices show current usage (e.g., "3/3 vehicles used")
+- Admin notices show current usage (e.g., "5/5 vehicles used")
 - "Add New" buttons hidden when limits reached
 - Pro-locked sections show "Pro" badge
 - Upgrade prompts throughout admin interface
@@ -717,7 +717,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 
 **All Export Formats:**
 - ✅ **CSV Export**: Available (all versions)
-- ✅ **JSON Export**: Available (all versions)
+- ✅ **JSON Export**: Available (Pro only)
 - ✅ **Excel Export (XLS)**: Available (Pro only, requires FEATURE_EXPORT)
 - ✅ **XML Export**: Available (Pro only, requires FEATURE_EXPORT)
 - ✅ **PDF Export**: Available (Pro only, requires FEATURE_REPORTS_ADV, HTML-based table export)
@@ -761,7 +761,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 | **Gallery Images** | 5 / Vehicle | Unlimited |
 | **Frontend Payments** | Via WooCommerce | Via WooCommerce |
 | **Manual Payments** | Native Offline | Native Offline |
-| **Export Formats** | CSV, JSON | CSV, JSON, Excel, XML, PDF |
+| **Export Formats** | CSV Only | CSV, JSON, Excel, XML, PDF |
 | **Report Date Range** | 30 days max | Unlimited |
 | **Report Rows** | 500 max | Unlimited |
 | **Advanced Reports** | ❌ | ✅ (FEATURE_REPORTS_ADV) |
