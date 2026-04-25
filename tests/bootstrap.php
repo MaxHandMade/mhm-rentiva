@@ -183,6 +183,34 @@ function _manually_load_plugin()
 tests_add_filter('muplugins_loaded', '_manually_load_plugin');
 
 /**
+ * Pin LicenseServerPublicKey::resource() to the test fixture public PEM.
+ *
+ * The embedded LicenseServerPublicKey::PEM constant ships the production
+ * public key (swapped in at release time). The fixture-bound suite signs
+ * test tokens with the paired fixture PRIVATE key — those signatures only
+ * verify against the fixture PUBLIC key. Without this override, the Mode
+ * → FeatureTokenVerifier → openssl_verify chain would reject every
+ * fixture-signed token after the production swap.
+ *
+ * Priority 12 runs after _manually_load_plugin (priority 10) so the
+ * autoloader has the LicenseServerPublicKey class registered.
+ */
+tests_add_filter('muplugins_loaded', static function () {
+	if (! class_exists(\MHMRentiva\Admin\Licensing\LicenseServerPublicKey::class)) {
+		return;
+	}
+
+	$fixturePath = __DIR__ . '/fixtures/test-rsa-public.pem';
+	if (! is_readable($fixturePath)) {
+		return;
+	}
+
+	\MHMRentiva\Admin\Licensing\LicenseServerPublicKey::injectForTesting(
+		(string) file_get_contents($fixturePath)
+	);
+}, 12);
+
+/**
  * Force valid Tenant ID for all tests to satisfy v1.9 Orchestration requirements.
  */
 tests_add_filter('muplugins_loaded', function () {

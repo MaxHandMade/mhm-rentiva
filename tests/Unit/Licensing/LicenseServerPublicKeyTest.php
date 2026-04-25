@@ -26,21 +26,18 @@ final class LicenseServerPublicKeyTest extends WP_UnitTestCase
 
     public function testResourceMatchesFixturePublicKey(): void
     {
-        // During development, the embedded PEM is the test fixture's public
-        // half. Verifying the constant matches the fixture file gives us a
-        // canary on the release-time swap: if someone replaces the constant
-        // with the production key in this branch (it should be done on the
-        // release tag commit only), this test fails loudly.
-        $reflect    = new ReflectionClass(LicenseServerPublicKey::class);
-        $constant   = $reflect->getReflectionConstant('PEM');
-        $embedded   = trim((string) $constant->getValue());
-        $fixturePem = trim((string) file_get_contents(__DIR__ . '/../../fixtures/test-rsa-public.pem'));
-
-        $this->assertSame(
-            $fixturePem,
-            $embedded,
-            'Embedded PEM must match tests/fixtures/test-rsa-public.pem during development. '
-            . 'Replace with production public.pem ONLY on the release tag commit.'
+        // Pre-release this test pinned the embedded PEM to the fixture file
+        // as a canary: if someone swapped the constant for production keys
+        // mid-development, this would fail loudly. Once the release tag
+        // ships with the production public key embedded, the invariant is
+        // intentionally broken — fixture-bound tests now reach the fixture
+        // key via tests/bootstrap.php LicenseServerPublicKey::injectForTesting()
+        // override instead. The reflection-direct constant read here cannot
+        // see that override, so this test is skipped in the released branch.
+        $this->markTestSkipped(
+            'Embedded PEM is the production public key after the v4.31.0 release '
+            . 'swap. Fixture-bound suite uses bootstrap.php injectForTesting() override; '
+            . 'reflection-direct constant read here cannot see the override.'
         );
     }
 
