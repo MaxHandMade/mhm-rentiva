@@ -10,7 +10,8 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.30.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.31.0-blue.svg)
+![Lisans Güvenliği](https://img.shields.io/badge/lisans%20g%C3%BCvenli%C4%9Fi-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)

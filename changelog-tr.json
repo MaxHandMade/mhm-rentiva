@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.31.0",
+        "date": "2026-04-25",
+        "type": "minor",
+        "changes": [
+            "🔐 LISANS GÜVENLIĞI — ASIMETRIK KRIPTO: Pro özellikler artık `mhm-license-server` v1.10.0+ tarafından RSA imzalı feature token gerektiriyor. v4.30.x'teki HMAC tabanlı doğrulama, müşteri wp-config'ine `FEATURE_TOKEN_KEY` koyulmadığı senaryoda (zero-config varsayılan) `isPro()` legacy fallback'ine düşüyordu — kırılmış bir binary `Mode::canUse*()` veya `LicenseManager::isActive()` metodlarını `return true;` yapıp gerçek bir lisansla Pro özellikleri açabiliyordu. v4.31.0 bu boşluğu kapatıyor: public key yalnızca doğrular, üretemez — saldırgan kendi token'ını imzalayamadığı için forge denemesi reddediliyor.",
+            "✨ YENİ DOSYA: `Admin/Licensing/LicenseServerPublicKey` — RSA-2048 public key plugin build'inde gömülü olarak geliyor. Müşteri wp-config'e hiçbir şey eklemiyor.",
+            "🔄 DEĞİŞİKLİK: `FeatureTokenVerifier` HMAC'ten `openssl_verify`'a taşındı. Yeni API: `verify($token, $expectedSiteHash): bool` + `hasFeature($token, $featureName): bool`. Site hash bağlama artık verifier içinde, çağıran bypass edemez.",
+            "🛡 DEĞİŞİKLİK: `Mode::featureGranted()` gate katı zorlama yapıyor — aktif lisans + RSA imzası geçerli + `site_hash` lokal site ile uyumlu + features'ta ilgili flag true olmalı. Legacy `isPro()` fallback yok.",
+            "🗑 KALDIRILDI: `ClientSecrets::getFeatureTokenKey()` ve `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` wp-config sabiti. Bunlar v4.30.x simetrik şifreleme kalıntısıydı. wp-config'den silmek güvenlidir.",
+            "⚠️ DEPLOY SIRASI: Önce `mhm-license-server` v1.10.0'a yükseltilmeli, SONRA Rentiva v4.31.0 client'ları. Yeni client + eski server kombinasyonunda eski server hâlâ HMAC token gönderiyor → yeni client doğrulayamıyor → Pro sessizce kapanıyor.",
+            "🧪 TESTLER: 781 → 793 (+12). RSA verify roundtrip (fixture key pair), yabancı key forge denemesi reddi, signature-byte tamper, payload tamper, süresi dolmuş token, site_hash uyuşmazlığı, no-legacy-fallback zorlama testi, BootIsolation pro-state seed güncellemesi. 0 PHPCS hatası."
+        ],
+        "notice": "v4.31.0 BREAKING — Asimetrik kripto. Önce server v1.10.0+, sonra client. wp-config'deki `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` artık okunmuyor; silebilirsiniz."
+    },
+    {
         "version": "4.30.2",
         "date": "2026-04-25",
         "type": "patch",
