@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.30.1",
+        "date": "2026-04-25",
+        "type": "patch",
+        "changes": [
+            "🛠 UX DÜZELTMESİ: v4.30.0'da `MHM_RENTIVA_LICENSE_PING_SECRET` zorunluydu — yoksa verify endpoint `ping_secret_not_configured` dönüyordu, lisans sunucusu da `site_unreachable` ile aktivasyonu reddediyordu. Yani her müşteri sitesi `wp-config.php`'ye 3 secret yapıştırmak zorunda kalıyordu. v4.30.1 ile artık `PING_SECRET` tanımsızsa, server-client'ın zaten paylaştığı `site_hash` (activate body'sinde gönderilen değer) HMAC anahtarı olarak kullanılıyor. **Müşteriler `wp-config.php`'ye dokunmadan lisansı aktive edebiliyor.**",
+            "🔄 Geriye dönük uyumluluk: `MHM_RENTIVA_LICENSE_PING_SECRET` tanımlı kalmaya devam ederse endpoint onu tercih ediyor — operatörün secret'ı pinlediği v4.30.0 deploy'ları olduğu gibi çalışmaya devam ediyor.",
+            "🤝 `mhm-license-server v1.9.1+` ile birlikte: Sunucu da `Security\\SiteVerifier::verify()` içinde aynı site_hash fallback'ini uyguluyor. Eski v1.9.0 sunucu + secret'lı v4.30.0 client kombinasyonu da legacy path üzerinden hâlâ çalışıyor.",
+            "🧪 Testler: `VerifyEndpointTest` site_hash fallback path'i için güncellendi. 776/776 PHPUnit, PHPCS temiz."
+        ],
+        "notice": "v4.30.1 — Müşteri lisans aktivasyonu artık wp-config edit gerektirmiyor. mhm-license-server v1.9.1+ ile birlikte."
+    },
+    {
         "version": "4.30.0",
         "date": "2026-04-24",
         "type": "minor",

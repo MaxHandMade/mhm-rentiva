@@ -82,6 +82,12 @@ Yes, all frontend components and admin settings are fully responsive.
 
 == Changelog ==
 
+= 4.30.1 =
+* **Reverse-validation UX fix:** v4.30.0 made `MHM_RENTIVA_LICENSE_PING_SECRET` mandatory — without it, the verify endpoint returned `ping_secret_not_configured` and the license server rejected activation with `site_unreachable`. That meant every customer site needed an operator-pinned secret in `wp-config.php`, which is unworkable for an end-customer product. v4.30.1 falls back to the per-activation `site_hash` (already shared between server and client via the activate body) when `PING_SECRET` is unset. Customers can now activate licenses without any `wp-config.php` edits.
+* **Backward compatible:** When `MHM_RENTIVA_LICENSE_PING_SECRET` is defined the endpoint still uses it, so v4.30.0 deploys with the operator config baked in keep working unchanged.
+* **Pairs with `mhm-license-server v1.9.1+`:** The server applies the matching `site_hash` fallback in `Security\SiteVerifier::verify()`. Older v1.9.0 servers that already pin `PING_SECRET` work unchanged via the legacy path.
+* **Tests:** Updated `VerifyEndpointTest` to cover the site_hash fallback path. 776/776 PHPUnit, PHPCS clean.
+
 = 4.30.0 =
 * **Security hardening — Phase B (client side):** Adds three new defenses against source-edit Pro feature bypass, paired with `mhm-license-server v1.9.0+`. Layer 1: every successful activate/validate response is now HMAC-verified against `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET`; tampered responses return `tampered_response` instead of unlocking Pro. Layer 2: a new public REST route `/wp-json/mhm-rentiva-verify/v1/ping` answers the server's `X-MHM-Challenge` during activation, proving the site is reachable and shares the ping secret. Layer 3: `Mode::canUseVendorMarketplace()`, `canUseMessages()`, `canUseAdvancedReports()`, `canUseVendorPayout()` no longer trust `LicenseManager::isActive()` alone — they require a feature flag inside a server-issued, HMAC-signed feature token (24h TTL). A `return true;` patch on `isActive()` no longer unlocks Pro features.
 * **Required wp-config constants:** Add `MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET`, `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY`, `MHM_RENTIVA_LICENSE_PING_SECRET` to `wp-config.php`. Each value MUST match the corresponding constant on the license server. If `FEATURE_TOKEN_KEY` is omitted, gates fall back to legacy `isPro()` behavior so existing customers are not broken during rollout.
