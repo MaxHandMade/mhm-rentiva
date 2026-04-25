@@ -9,11 +9,14 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Resolves the three v4.30.0+ shared secrets used to talk to mhm-license-server v1.9.0+.
+ * Resolves the v4.30.0+ shared secrets used to talk to mhm-license-server.
  *
  *   - RESPONSE_HMAC_SECRET — verifies the HMAC on every successful activate/validate response
- *   - FEATURE_TOKEN_KEY    — verifies the server-issued feature token used by Mode::canUse*()
- *   - PING_SECRET          — answers the X-MHM-Challenge during reverse site validation
+ *   - PING_SECRET          — answers the X-MHM-Challenge during reverse site validation (optional)
+ *
+ * v4.31.0 — `FEATURE_TOKEN_KEY` removed: feature_token signing migrated to
+ * RSA, so the client no longer carries a shared secret for that path. The
+ * embedded {@see LicenseServerPublicKey} is enough to verify tokens.
  *
  * Each value MUST match the corresponding wp-config constant on the license server
  * (`MHM_LICENSE_SERVER_RESPONSE_HMAC_SECRET`, etc.). Operators define them in their
@@ -25,17 +28,11 @@ if (!defined('ABSPATH')) {
 final class ClientSecrets {
 
     public const CONST_RESPONSE_HMAC = 'MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET';
-    public const CONST_FEATURE_TOKEN = 'MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY';
     public const CONST_PING          = 'MHM_RENTIVA_LICENSE_PING_SECRET';
 
     public static function getResponseHmacSecret(): string
     {
         return self::resolve(self::CONST_RESPONSE_HMAC);
-    }
-
-    public static function getFeatureTokenKey(): string
-    {
-        return self::resolve(self::CONST_FEATURE_TOKEN);
     }
 
     public static function getPingSecret(): string
