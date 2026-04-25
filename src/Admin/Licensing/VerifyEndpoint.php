@@ -54,12 +54,14 @@ final class VerifyEndpoint {
             ], 400);
         }
 
+        // v4.30.1+ — Prefer PING_SECRET when defined (matches v4.30.0 deploys
+        // where operator pinned a shared secret in wp-config). Otherwise fall
+        // back to site_hash, which both server and client compute the same way
+        // from home_url() + site_url(). This means new customers don't need
+        // any wp-config edits for activation to succeed.
         $secret = ClientSecrets::getPingSecret();
         if ($secret === '') {
-            return new WP_REST_Response([
-                'code'    => 'ping_secret_not_configured',
-                'message' => __('Ping secret is not configured on this site.', 'mhm-rentiva'),
-            ], 503);
+            $secret = self::compute_site_hash();
         }
 
         return new WP_REST_Response([
@@ -68,5 +70,19 @@ final class VerifyEndpoint {
             'product_slug'       => 'mhm-rentiva',
             'version'            => defined('MHM_RENTIVA_VERSION') ? MHM_RENTIVA_VERSION : 'unknown',
         ], 200);
+    }
+
+    /**
+     * Mirror of LicenseManager::siteHash() — must compute the SAME value the
+     * client sent in the activate request body so the server and client
+     * derive matching HMAC keys when PING_SECRET is unset.
+     */
+    private static function compute_site_hash(): string
+    {
+        $payload = [
+            'home' => home_url(),
+            'site' => site_url(),
+        ];
+        return hash('sha256', (string) wp_json_encode($payload));
     }
 }

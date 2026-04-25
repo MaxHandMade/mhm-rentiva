@@ -92,22 +92,37 @@ final class VerifyEndpointTest extends WP_UnitTestCase
         $this->assertSame('challenge_missing', $data['code'] ?? '');
     }
 
-    public function test_returns_error_when_ping_secret_not_configured(): void
+    /**
+     * v4.30.1+ — When PING_SECRET is unset, the endpoint MUST fall back to
+     * site_hash so customers can activate without editing wp-config.php.
+     * The HMAC key used here mirrors LicenseManager::siteHash() (home_url
+     * + site_url, JSON-encoded, SHA-256). Server-side SiteVerifier uses
+     * the same algorithm, so the challenge response stays verifiable.
+     */
+    public function test_falls_back_to_site_hash_when_ping_secret_unset(): void
     {
         if (defined('MHM_RENTIVA_LICENSE_PING_SECRET')) {
-            $this->markTestSkipped('Constant defined; not-configured path cannot be asserted.');
+            $this->markTestSkipped('Constant defined; site_hash fallback path cannot be asserted.');
         }
 
         // Clear the env var that was set in setUp().
         putenv('MHM_RENTIVA_LICENSE_PING_SECRET=');
 
+        $challenge = 'fallback-test-uuid';
         $request = new WP_REST_Request('GET', '/mhm-rentiva-verify/v1/ping');
-        $request->set_header('X-MHM-Challenge', 'foo');
+        $request->set_header('X-MHM-Challenge', $challenge);
 
         $response = rest_do_request($request);
 
-        $this->assertSame(503, $response->get_status());
+        $this->assertSame(200, $response->get_status());
+
+        $expected_site_hash = hash('sha256', (string) wp_json_encode([
+            'home' => home_url(),
+            'site' => site_url(),
+        ]));
+        $expected_hmac = hash_hmac('sha256', $challenge, $expected_site_hash);
+
         $data = $response->get_data();
-        $this->assertSame('ping_secret_not_configured', $data['code'] ?? '');
+        $this->assertSame($expected_hmac, $data['challenge_response'] ?? '');
     }
 }
