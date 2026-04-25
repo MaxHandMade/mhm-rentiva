@@ -760,6 +760,19 @@ final class LicenseManager {
 	}
 
 	/**
+	 * Public accessor for the local site hash. Mode::featureGranted() (v4.31.0+)
+	 * needs this to bind a feature token to the current host before treating
+	 * its claims as authoritative; activate/validate already used the private
+	 * helper internally.
+	 *
+	 * @return string SHA-256 hex of {home_url, site_url}.
+	 */
+	public function getSiteHash(): string
+	{
+		return $this->siteHash();
+	}
+
+	/**
 	 * Check if site is staging environment
 	 *
 	 * @return bool True if staging

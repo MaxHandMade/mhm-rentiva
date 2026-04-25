@@ -27,11 +27,43 @@ final class LicenseIsolationDowngradeTest extends WP_UnitTestCase
 				'plan'          => 'pro',
 				'activation_id' => 'test-activation-downgrade',
 				'expires_at'    => time() + DAY_IN_SECONDS,
+				// v4.31.0 — Mode gate now requires a valid RSA-signed token,
+				// not just license-active. Legacy fallback removed.
+				'feature_token' => $this->buildVendorPayoutToken(),
 			),
 			false
 		);
 		update_option('mhm_rentiva_disable_dev_mode', 1, false);
 		set_transient('mhm_rentiva_license_status_' . md5('TEST-PRO-KEY-DOWNGRADE' . 'test-activation-downgrade'), 1, 30);
+	}
+
+	private function buildVendorPayoutToken(): string
+	{
+		$privatePem = (string) file_get_contents(__DIR__ . '/../../fixtures/test-rsa-private.pem');
+		$privateKey = openssl_pkey_get_private($privatePem);
+
+		$payload = array(
+			'expires_at'       => time() + DAY_IN_SECONDS,
+			'features'         => array(
+				'vendor_marketplace' => true,
+				'messaging'          => true,
+				'advanced_reports'   => true,
+			),
+			'issued_at'        => time(),
+			'license_key_hash' => 'h',
+			'plan'             => 'pro',
+			'product_slug'     => 'mhm-rentiva',
+			'site_hash'        => LicenseManager::instance()->getSiteHash(),
+		);
+
+		$canonical = (string) wp_json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+		$signature = '';
+		openssl_sign($canonical, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+
+		$encode = static fn(string $bin): string => rtrim(strtr(base64_encode($bin), '+/', '-_'), '=');
+
+		return $encode($canonical) . '.' . $encode($signature);
 	}
 
 	private function forceLiteLicenseState(): void

@@ -10,6 +10,10 @@ use WP_UnitTestCase;
 
 /**
  * Coverage for Mode helper isolation gates.
+ *
+ * v4.31.0 — Pro path requires both an active license AND a valid RSA-signed
+ * feature token whose `site_hash` matches the local site. Legacy `isPro()`
+ * fallback was removed; an "active" license without a token now fails closed.
  */
 final class ModeIsolationTest extends WP_UnitTestCase
 {
@@ -30,6 +34,7 @@ final class ModeIsolationTest extends WP_UnitTestCase
 				'plan'          => 'pro',
 				'activation_id' => 'MODE-TEST-ACT',
 				'expires_at'    => time() + DAY_IN_SECONDS,
+				'feature_token' => $this->buildProToken(),
 			),
 			false
 		);
@@ -56,5 +61,33 @@ final class ModeIsolationTest extends WP_UnitTestCase
 		$this->assertTrue(Mode::canUseAdvancedReports());
 		$this->assertTrue(Mode::canUseVendorMarketplace());
 	}
-}
 
+	private function buildProToken(): string
+	{
+		$privatePem = (string) file_get_contents(__DIR__ . '/../../fixtures/test-rsa-private.pem');
+		$privateKey = openssl_pkey_get_private($privatePem);
+
+		$payload = array(
+			'expires_at'       => time() + DAY_IN_SECONDS,
+			'features'         => array(
+				'vendor_marketplace' => true,
+				'messaging'          => true,
+				'advanced_reports'   => true,
+			),
+			'issued_at'        => time(),
+			'license_key_hash' => 'h',
+			'plan'             => 'pro',
+			'product_slug'     => 'mhm-rentiva',
+			'site_hash'        => LicenseManager::instance()->getSiteHash(),
+		);
+
+		$canonical = (string) wp_json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+
+		$signature = '';
+		openssl_sign($canonical, $signature, $privateKey, OPENSSL_ALGO_SHA256);
+
+		$encode = static fn(string $bin): string => rtrim(strtr(base64_encode($bin), '+/', '-_'), '=');
+
+		return $encode($canonical) . '.' . $encode($signature);
+	}
+}

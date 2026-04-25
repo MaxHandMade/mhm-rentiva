@@ -13,14 +13,12 @@ final class ClientSecretsTest extends WP_UnitTestCase
     {
         parent::setUp();
         putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=');
-        putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=');
         putenv('MHM_RENTIVA_LICENSE_PING_SECRET=');
     }
 
     protected function tearDown(): void
     {
         putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=');
-        putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=');
         putenv('MHM_RENTIVA_LICENSE_PING_SECRET=');
         parent::tearDown();
     }
@@ -32,7 +30,6 @@ final class ClientSecretsTest extends WP_UnitTestCase
         }
 
         $this->assertSame('', ClientSecrets::getResponseHmacSecret());
-        $this->assertSame('', ClientSecrets::getFeatureTokenKey());
         $this->assertSame('', ClientSecrets::getPingSecret());
     }
 
@@ -43,11 +40,9 @@ final class ClientSecretsTest extends WP_UnitTestCase
         }
 
         putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=env-resp-secret');
-        putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=env-token-key');
         putenv('MHM_RENTIVA_LICENSE_PING_SECRET=env-ping-secret');
 
         $this->assertSame('env-resp-secret', ClientSecrets::getResponseHmacSecret());
-        $this->assertSame('env-token-key', ClientSecrets::getFeatureTokenKey());
         $this->assertSame('env-ping-secret', ClientSecrets::getPingSecret());
     }
 
@@ -61,23 +56,21 @@ final class ClientSecretsTest extends WP_UnitTestCase
         $this->assertSame('spaced-secret', ClientSecrets::getResponseHmacSecret());
     }
 
-    public function test_three_secrets_resolve_to_distinct_constants(): void
+    public function test_two_secrets_resolve_to_distinct_constants(): void
     {
-        // Sanity: ensure the helper is reading three different sources, not a single shared one.
+        // Sanity: ensure the helper is reading two different sources, not a single shared one.
+        // v4.31.0 — FEATURE_TOKEN_KEY removed; only RESPONSE_HMAC + PING remain.
         if (defined('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET')) {
             $this->markTestSkipped('Constants pre-defined.');
         }
 
         putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=A');
-        putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=B');
         putenv('MHM_RENTIVA_LICENSE_PING_SECRET=C');
 
         $r = ClientSecrets::getResponseHmacSecret();
-        $f = ClientSecrets::getFeatureTokenKey();
         $p = ClientSecrets::getPingSecret();
 
         $this->assertSame('A', $r);
-        $this->assertSame('B', $f);
         $this->assertSame('C', $p);
     }
 }

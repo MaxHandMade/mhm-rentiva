@@ -96,16 +96,21 @@ final class Mode {
 	}
 
 	/**
-	 * Pro feature gate (v4.30.0+) that consults the server-issued feature
-	 * token (mhm-license-server v1.9.0+) instead of a single isPro() flag.
+	 * Pro feature gate (v4.31.0+) that requires a valid RSA-signed feature
+	 * token from `mhm-license-server` v1.10.0+. Strict enforcement — there
+	 * is no legacy `isPro()`-only fallback any more.
 	 *
-	 * A `return true;` patch on `LicenseManager::isActive()` no longer
-	 * unlocks anything because the gate also requires the feature flag to
-	 * be present in a HMAC-verified, non-expired, server-signed token.
+	 * The v4.30.x design left a hole: when `FEATURE_TOKEN_KEY` was unset on
+	 * the customer's wp-config (the zero-config deploy default), the gate
+	 * fell through to `isPro()`, which a cracked binary could trivially
+	 * patch. v4.31.0 closes that by requiring a token whose RSA signature
+	 * verifies against the embedded public key — public keys cannot mint,
+	 * so source-edit attacks cannot forge a token even with a real license.
 	 *
-	 * Backward-compat: when `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` is not
-	 * configured (legacy deploy), we fall back to `isPro()` so existing
-	 * customers keep working until they roll out v4.30.0 with secrets.
+	 * Defense-in-depth boundary: this single private method is the only
+	 * gate. A `Mode::featureGranted() { return true; }` patch defeats every
+	 * `canUse*()` call. Closing that requires inline RSA verify per gate
+	 * (DRY trade-off, deferred to a future release).
 	 */
 	private static function featureGranted( string $feature ): bool {
 		// Hard gate: license must be locally active.
@@ -113,29 +118,20 @@ final class Mode {
 			return false;
 		}
 
-		$secret = ClientSecrets::getFeatureTokenKey();
-
-		// Legacy fallback: secret not configured → behave like pre-v4.30.0
-		// (only basic license check, no token gating). Operators must define
-		// MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY in wp-config (matching their
-		// license server's MHM_LICENSE_SERVER_FEATURE_TOKEN_KEY) to enable
-		// the v4.30.0 hardening. See LIVE_DEPLOYMENT_CHECKLIST.md on the
-		// license server for value generation.
-		if ( $secret === '' ) {
-			return true;
-		}
-
-		$token = LicenseManager::instance()->getFeatureToken();
+		$licenseManager = LicenseManager::instance();
+		$token          = $licenseManager->getFeatureToken();
 		if ( $token === '' ) {
-			// Phase B configured but no token in storage → either patched
-			// `isActive()` or talking to a legacy server. Fail closed.
+			// No token in storage — either talking to a legacy server, or a
+			// cracked binary patched `isActive()`. Fail closed.
 			return false;
 		}
 
-		$verifier = new FeatureTokenVerifier( $secret );
-		$payload  = $verifier->verify( $token );
+		$verifier = new FeatureTokenVerifier();
+		if ( ! $verifier->verify( $token, $licenseManager->getSiteHash() ) ) {
+			return false;
+		}
 
-		return $verifier->hasFeature( $payload, $feature );
+		return $verifier->hasFeature( $token, $feature );
 	}
 	// ... (skip until get_pro_features_list)
 	/**
