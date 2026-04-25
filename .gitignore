@@ -211,6 +211,10 @@ releases/
 *.pem
 *.key
 *.crt
+
+# Allow test-only RSA key pair (cross-repo sync with mhm-license-server,
+# byte-identical fixture; never used as production signing keys).
+!tests/fixtures/*.pem
 config.local.php
 secrets.php
 credentials.php
