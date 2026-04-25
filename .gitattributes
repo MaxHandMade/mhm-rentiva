@@ -15,6 +15,9 @@
 *.txt text eol=lf
 *.html text eol=lf
 
+# Test fixtures — preserve LF, never CRLF-convert (PEM byte-exact + cross-repo sha256 sync)
+tests/fixtures/*.pem binary
+
 # Binary files — do not modify
 *.png binary
 *.jpg binary
