@@ -75,6 +75,12 @@ website/**
 # Language artifacts
 languages/*-backup-*.pot~
 languages/*-backup-*.po~
+# msgmerge default backup (no `-backup-` prefix) — the original patterns
+# above only matched explicitly-named backup files; default `msgmerge --update`
+# without `--backup=none` produces `<slug>-tr_TR.po~` next to the .po, which
+# slipped past the patterns into v4.30.2 ZIP. Catch any *.po~ / *.pot~.
+languages/*.po~
+languages/*.pot~
 languages/*.l10n.php
 languages/*-*.json
 
