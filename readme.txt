@@ -82,6 +82,15 @@ Yes, all frontend components and admin settings are fully responsive.
 
 == Changelog ==
 
+= 4.31.0 =
+* **BREAKING — Asymmetric crypto licence security:** Pro features now require an RSA-signed feature token from `mhm-license-server` v1.10.0+. The legacy `isPro()`-only fallback (engaged whenever `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` was unset, which was the zero-config default) has been removed. A cracked binary that patched `Mode::canUse*()` or `LicenseManager::isActive()` to always-return-true could re-enable Pro features on a real-license site under v4.30.x; v4.31.0 closes that hole because public keys can verify but cannot mint, so a forged token is rejected.
+* **New:** `Admin/Licensing/LicenseServerPublicKey` — embedded RSA-2048 public key (no operator config required, ships with the build).
+* **Changed:** `FeatureTokenVerifier` migrated from HMAC to `openssl_verify`. New API surface — `verify($token, $expectedSiteHash): bool` + `hasFeature($token, $featureName): bool`.
+* **Changed:** `Mode::featureGranted()` requires an active license AND a valid RSA-signed token whose `site_hash` matches the local site AND which carries the requested feature flag. No legacy fallback.
+* **Removed:** `ClientSecrets::getFeatureTokenKey()` and the `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` wp-config constant — both were the symmetric remnants of v4.30.x. Safe to delete from wp-config.
+* **Deploy ordering:** Upgrade `mhm-license-server` to v1.10.0 BEFORE upgrading clients to v4.31.0. New clients against an old server cannot verify the HMAC-signed token the old server still emits — Pro silently goes dark.
+* **Tests:** 781 → 793 (+12). RSA verify roundtrip with paired fixture key, foreign-key forge rejection, signature-byte tamper, payload tamper, expired-token, site_hash mismatch, no-legacy-fallback enforcement, BootIsolation pro-state seeding token. PHPCS clean.
+
 = 4.30.2 =
 * **License notice rendering — defensive fix:** When the License page URL had `?license=error` but no `&message=...` (stale URL state from browser back/forward, bookmark, or truncated copy-paste), the notice rendered "License activation failed: " with an empty trailing space. v4.30.2 skips the notice entirely when the error code is missing.
 * **License notice — friendly mappings for v1.8.0+/v1.9.x server error codes:** `site_unreachable`, `site_verification_failed`, `tampered_response`, `product_mismatch`, `product_slug_required` now produce customer-friendly Turkish-translated messages instead of falling through to the raw "License activation failed: <technical_code>" default.

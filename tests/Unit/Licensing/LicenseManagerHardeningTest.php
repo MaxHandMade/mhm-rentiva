@@ -33,9 +33,9 @@ final class LicenseManagerHardeningTest extends WP_UnitTestCase
         if (!defined('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET')) {
             putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=' . self::RESPONSE_SECRET);
         }
-        if (!defined('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY')) {
-            putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=' . self::FEATURE_SECRET);
-        }
+        // v4.31.0 — FEATURE_TOKEN_KEY no longer read by ClientSecrets; the
+        // putenv below is a no-op kept only so the assertions below that
+        // still inspect feature_token wire shape work in isolation.
 
         $this->http_mock = function ($preempt, $parsed_args, $url) {
             $this->captured_request = [
@@ -71,9 +71,8 @@ final class LicenseManagerHardeningTest extends WP_UnitTestCase
         if (!defined('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET')) {
             putenv('MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET=');
         }
-        if (!defined('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY')) {
-            putenv('MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY=');
-        }
+        // v4.31.0 — see setUp comment above; FEATURE_TOKEN_KEY env cleanup
+        // retained as a no-op for symmetry.
         $this->captured_request = null;
         $this->next_response_body = null;
         parent::tearDown();
