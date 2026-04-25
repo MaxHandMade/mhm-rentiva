@@ -46,15 +46,30 @@ final class LicenseServerPublicKey {
      */
     private const PEM = <<<'PEM'
 -----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsA2VC900IzZuqS+PDtQE
-Fy+6Hc13GGvQu6UbjHCg56ZLF4h2PA0GdwkcpL/pI3RFADPXiVwUHX/qfrt+GcVK
-k/enicekPd5/D3HNTOX0jcZ90BielzGNldL3WuQwTZXD8tiOWBGKm3U53aRnoP2P
-kYX9pikCOQY5Ylbl3UzSFExp/GcjKj1k6oEmE2LLk11fv/A2iSssqwID/0BLUy9r
-/W5Ge559XECvpztqjjbioV0FpueH3C+CuW4lKqGXphJbvPr/DXgujo18ur8ADIGX
-qtd/TtHjMZdudOsEraIaZB9VoBDQ7v0ntlZstepIeYMcgEwO6ViaH7lpf7080tG8
-8QIDAQAB
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAg0X/caFG421pZYjWr32K
+QFCBZ6IR9jYzDvhBi3XoiBuurlPh3mLe+qFsbd/7i/gQUSuQyR/AFv06E3spWwl4
+cCgkGMLAd6C1T3OwzYwEvO3usH/L+BSj46d2fTXRqk8blcyKo6RvVRQQQM6U+5oo
+TY659FczWbI1uDhfnlhI9/+ty/+R/r9c5oGU63eN+bBPpGc/qPC2bXFNwkTSLddq
+blipBseQXE3RawtO30EE3EwpNTdUQP38356zMmL4nOVBdYMYQJDv0g0LFYKIWICK
+yeBShuViW+dPlyKZ4MicYuHFNGI58yicmOgcQ/bmGXCXXq7sorfdqejw9xApdPdj
+iwIDAQAB
 -----END PUBLIC KEY-----
 PEM;
+
+    /**
+     * Test-only PEM override.
+     *
+     * Production paths must never set this. The unit/integration suite pins
+     * this to the fixture public key in {@see tests/bootstrap.php} so the
+     * RSA verify chain (Mode → FeatureTokenVerifier → openssl_verify) can
+     * exercise tokens signed with the paired fixture private key. Without
+     * this override, swapping in the production public key for release
+     * would force every fixture-bound test to re-sign tokens with the
+     * production private key — which we explicitly do NOT ship.
+     *
+     * @internal
+     */
+    private static ?string $testPemOverride = null;
 
     private static ?OpenSSLAsymmetricKey $cachedKey = null;
 
@@ -74,7 +89,8 @@ PEM;
             return self::$cachedKey;
         }
 
-        $key = openssl_pkey_get_public(self::PEM);
+        $pem = self::$testPemOverride ?? self::PEM;
+        $key = openssl_pkey_get_public($pem);
         if ($key === false) {
             throw new RuntimeException(
                 esc_html(
@@ -95,5 +111,30 @@ PEM;
     public static function resetCache(): void
     {
         self::$cachedKey = null;
+    }
+
+    /**
+     * Pin the resource() output to a caller-supplied PEM (test-only).
+     *
+     * The PHPUnit bootstrap calls this once at suite start with the fixture
+     * public key so every fixture-signed token in the suite verifies against
+     * the matching fixture public key — even after the embedded production
+     * PEM constant has been swapped in for release. Production code must
+     * never call this method.
+     */
+    public static function injectForTesting(string $pem): void
+    {
+        self::$testPemOverride = $pem;
+        self::$cachedKey       = null;
+    }
+
+    /**
+     * Drop the test-only PEM override. Restores the embedded production
+     * constant on the next resource() call.
+     */
+    public static function clearTestOverride(): void
+    {
+        self::$testPemOverride = null;
+        self::$cachedKey       = null;
     }
 }
