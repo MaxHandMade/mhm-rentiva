@@ -9,6 +9,7 @@
 .gemini
 .intelephense
 .gitattributes
+.wordpress-org/
 
 # Build & Dependencies
 # NOTE: leading "/" anchors to plugin root — otherwise "vendor/" would also
