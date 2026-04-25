@@ -10,6 +10,7 @@
 .intelephense
 .gitattributes
 .wordpress-org/
+drafts/
 
 # Build & Dependencies
 # NOTE: leading "/" anchors to plugin root — otherwise "vendor/" would also
