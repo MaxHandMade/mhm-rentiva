@@ -841,7 +841,7 @@ final class Plugin {
 			if (Admin\Licensing\Mode::isLite()) {
 				// Only check limits when creating NEW posts (not updating/deleting)
 				if ($type === 'vehicle' && Admin\Licensing\Restrictions::vehicleCount() >= Admin\Licensing\Mode::maxVehicles()) {
-					wp_die(esc_html__('Rentiva Lite version allows you to add up to 3 vehicles. Activate your license to add more vehicles.', 'mhm-rentiva'), 403);
+					wp_die(esc_html__('Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles.', 'mhm-rentiva'), 403);
 				}
 				if ($type === 'vehicle_booking' && Admin\Licensing\Restrictions::bookingCount() >= Admin\Licensing\Mode::maxBookings()) {
 					wp_die(esc_html__('Rentiva Lite version has reached the booking limit. Activate your license to add more bookings.', 'mhm-rentiva'), 403);

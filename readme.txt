@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.30.0
+Stable tag:        4.30.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,12 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.30.2 =
+* **License notice rendering — defensive fix:** When the License page URL had `?license=error` but no `&message=...` (stale URL state from browser back/forward, bookmark, or truncated copy-paste), the notice rendered "License activation failed: " with an empty trailing space. v4.30.2 skips the notice entirely when the error code is missing.
+* **License notice — friendly mappings for v1.8.0+/v1.9.x server error codes:** `site_unreachable`, `site_verification_failed`, `tampered_response`, `product_mismatch`, `product_slug_required` now produce customer-friendly Turkish-translated messages instead of falling through to the raw "License activation failed: <technical_code>" default.
+* **Notice default — generic message + data attribute:** Unknown future error codes render a generic "License activation failed. Please try again." with the technical code exposed via `data-error-code` HTML attribute (debug/support only — not shown to end users).
+* **Tests:** 5 new unit tests under `LicenseAdminAdminNoticesTest`. 776 → 781 PHPUnit, PHPCS clean.
 
 = 4.30.1 =
 * **Reverse-validation UX fix:** v4.30.0 made `MHM_RENTIVA_LICENSE_PING_SECRET` mandatory — without it, the verify endpoint returned `ping_secret_not_configured` and the license server rejected activation with `site_unreachable`. That meant every customer site needed an operator-pinned secret in `wp-config.php`, which is unworkable for an end-customer product. v4.30.1 falls back to the per-activation `site_hash` (already shared between server and client via the activate body) when `PING_SECRET` is unset. Customers can now activate licenses without any `wp-config.php` edits.
