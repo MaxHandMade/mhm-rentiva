@@ -70,7 +70,23 @@ final class LicenseAdmin {
 			wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
 		}
 
-		$license          = LicenseManager::instance();
+		$license = LicenseManager::instance();
+
+		// v4.31.0+ — Force a fresh server check when the admin opens this
+		// page so a deactivation initiated from the license-server side is
+		// reflected immediately instead of waiting for the 6-hourly cron.
+		// Throttled by a 5-minute transient so reloads on the same page do
+		// not hammer the license server.
+		$throttle_key = 'mhm_rentiva_license_visit_throttle';
+		if (false === get_transient($throttle_key)) {
+			$current = $license->get();
+			if (! empty($current['key']) && ! empty($current['activation_id'])) {
+				// Silent: errors surface through admin_notices on the next render.
+				$license->validate(true);
+			}
+			set_transient($throttle_key, time(), 5 * MINUTE_IN_SECONDS);
+		}
+
 		$license_data     = $license->get();
 		$disable_dev_mode = get_option('mhm_rentiva_disable_dev_mode', false);
 		$is_dev_mode      = $license->isDevelopmentEnvironment() && ! $disable_dev_mode;
