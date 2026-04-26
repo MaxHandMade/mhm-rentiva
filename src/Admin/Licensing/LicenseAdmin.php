@@ -666,6 +666,14 @@ final class LicenseAdmin {
 			'license_not_active'       => __('license inactive', 'mhm-rentiva'),
 			'site_not_activated'       => __('site not activated', 'mhm-rentiva'),
 			'license_not_found'        => __('license not found', 'mhm-rentiva'),
+			// Network / HTTP transport errors collapsed to a single user-facing label.
+			// Triggered when request() returns WP_Error (DNS/timeout/connection-refused),
+			// when the server returns a non-2xx without a JSON body, OR — importantly —
+			// when an older mhm-license-server (< v1.11.0) returns a `rest_no_route` 404
+			// for the new /licenses/customer-portal-session endpoint.
+			'license_http'             => __('service unavailable', 'mhm-rentiva'),
+			'license_connection'       => __('service unavailable', 'mhm-rentiva'),
+			'http_error'               => __('service unavailable', 'mhm-rentiva'),
 		);
 		return $labels[ $reason ] ?? __('unknown error', 'mhm-rentiva');
 	}
