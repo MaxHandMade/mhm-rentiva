@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.32.0",
+        "date": "2026-04-27",
+        "type": "minor",
+        "changes": [
+            "New: 'Manage Subscription' button on the License page. Opens the Polar customer portal in a new tab — cancel auto-renewal, update payment, switch plans, or resubscribe without leaving WP admin. Renders next to 'Re-validate Now' and 'Deactivate License' inside the License Management section, only when the license is active.",
+            "New: State-driven button emphasis. Standard primary blue at >30 days, yellow at <=30 days, amber + glow at <=7 days. Customers always see how close their renewal is, regardless of whether they read the email reminders.",
+            "New: LicenseManager::createCustomerPortalSession() public method. Calls the new mhm-license-server v1.11.0+ endpoint /licenses/customer-portal-session via the existing RSA-signed request pipeline (same plumbing as activate/validate). Returns customer_portal_url + expires_at on success, or success=false + error_code on any failure path.",
+            "New: ?license=manage_unavailable&reason=<code> admin notice. When the portal session mint fails (license not active, server 4xx, tampered response, network error), the admin lands back on the License page with a customer-friendly translated warning instead of a raw redirect. Five reason codes mapped to short Turkish labels via get_manage_unavailable_label().",
+            "Pairs with mhm-license-server v1.11.0+ and mhm-polar-bridge v1.9.0+. Older servers without the customer-portal endpoint return a graceful manage_unavailable notice instead of breaking.",
+            "Tests: 793 to 807 PHPUnit (+14 across 5 LicenseManagerCustomerPortalSessionTest, 4 LicenseAdminManageSubscriptionTest, 5 EmphasisClassTest). PHPCS: 0 errors. i18n: 9 new strings, all translated to Turkish."
+        ],
+        "notice": "v4.32.0 minor — Manage Subscription button + state-driven emphasis. Pairs with license-server v1.11.0 + polar-bridge v1.9.0."
+    },
+    {
         "version": "4.27.5",
         "date": "2026-04-23",
         "type": "patch",
