@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.31.1",
+        "date": "2026-04-26",
+        "type": "patch",
+        "changes": [
+            "🔁 ANINDA LISANS IPTALI: Lisans sunucusu yoneticisinden yapilan deaktivasyon artik musteri sitesinde 24 saat degil, dakikalar icinde gecerli oluyor. Uc katman birlikte calisiyor: (a) gunluk validate cron'u 6 saatte bire cekildi (eski 'daily' schedule'lar plugin ilk yuklendiginde otomatik rotate ediliyor), (b) admin License sayfasini actiginda 5 dakikalik transient throttle ile force-validate tetikleniyor, (c) sunucu 'inactive/refunded/expired/trashed' herhangi bir non-active state dondugunde lokal feature_token derhal temizleniyor.",
+            "🛡 SAVUNMA DERINLIGI: v4.31.0 RSA verify zinciri ile birlikte 'fake activate 24 saat Pro kalir' penceresi (manuel server-side iptal sonrasi gozlenen) kapanmis oldu.",
+            "📊 TEST: 793 / 793 PHPUnit, regression yok. Davranis canli senaryoyla dogrulandi."
+        ],
+        "notice": "v4.31.1 patch — RSA token tabani korunuyor, sadece revocation propagation hizlandirildi. Operator/musteri eylem gerektirmiyor."
+    },
+    {
         "version": "4.31.0",
         "date": "2026-04-25",
         "type": "minor",

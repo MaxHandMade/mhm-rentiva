@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.30.2
+Stable tag:        4.31.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.31.1 =
+* **Immediate license revocation:** A licence deactivated from the licence-server admin now propagates to the customer site within minutes instead of up to 24 hours. Three reinforcing layers: (a) the daily validation cron rotated to every 6 hours (existing schedules upgrade automatically on next plugin load), (b) a force-validate fires when an admin opens the License page (5 minute throttle so reloads do not hammer the server), (c) the cached `feature_token` is dropped on any non-active server response so `Mode::canUse*()` fails closed on the next page render even before the cron fires.
+* **Defense-in-depth:** Combined with the v4.31.0 RSA verify chain this closes the "fake activate stays Pro for 24 h" window surfaced by manual server-side revocations.
 
 = 4.31.0 =
 * **BREAKING — Asymmetric crypto licence security:** Pro features now require an RSA-signed feature token from `mhm-license-server` v1.10.0+. The legacy `isPro()`-only fallback (engaged whenever `MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY` was unset, which was the zero-config default) has been removed. A cracked binary that patched `Mode::canUse*()` or `LicenseManager::isActive()` to always-return-true could re-enable Pro features on a real-license site under v4.30.x; v4.31.0 closes that hole because public keys can verify but cannot mint, so a forged token is rejected.

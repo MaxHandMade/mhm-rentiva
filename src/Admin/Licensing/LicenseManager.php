@@ -43,8 +43,20 @@ final class LicenseManager {
 
 		add_filter('cron_schedules', array( $this, 'registerCronSchedules' ));
 
-		if (! wp_next_scheduled(self::CRON_HOOK)) {
-			wp_schedule_event(time() + 3600, 'daily', self::CRON_HOOK);
+		// v4.31.0+ — validate every 6 hours. Daily was too coarse for
+		// server-side license revocation: a deactivated license stayed Pro
+		// on the customer site for up to 24h. Upgrade path below detects an
+		// existing 'daily' schedule from prior versions and rotates it to
+		// 'every6hours' on the next plugin load.
+		$existing = wp_next_scheduled(self::CRON_HOOK);
+		if ($existing === false) {
+			wp_schedule_event(time() + 3600, 'every6hours', self::CRON_HOOK);
+		} else {
+			$event = function_exists('wp_get_scheduled_event') ? wp_get_scheduled_event(self::CRON_HOOK) : null;
+			if ($event && isset($event->schedule) && $event->schedule !== 'every6hours') {
+				wp_unschedule_event($existing, self::CRON_HOOK);
+				wp_schedule_event(time() + 3600, 'every6hours', self::CRON_HOOK);
+			}
 		}
 
 		if (! wp_next_scheduled(self::CHECKIN_HOOK)) {
@@ -66,6 +78,14 @@ final class LicenseManager {
 			$schedules['weekly'] = array(
 				'interval' => WEEK_IN_SECONDS,
 				'display'  => 'Once Weekly',
+			);
+		}
+		// v4.31.0+ — used by license validation cron to pick up server-side
+		// revocations within ~6 hours instead of the prior 24h delay.
+		if (! isset($schedules['every6hours'])) {
+			$schedules['every6hours'] = array(
+				'interval' => 6 * HOUR_IN_SECONDS,
+				'display'  => 'Every 6 Hours',
 			);
 		}
 		return $schedules;
@@ -352,6 +372,11 @@ final class LicenseManager {
 			$o['activation_id'] = '';
 			$o['status']        = 'inactive';
 			$o['last_check_at'] = time();
+			// v4.31.0+ — Drop the cached feature token so Mode::featureGranted()
+			// fails closed on the next page load. Mode already short-circuits on
+			// status!=='active' via isPro(), but clearing the token here removes
+			// the stale credential entirely (defense in depth).
+			$o['feature_token'] = '';
 			$this->save($o);
 
 			if ( ! $silent ) {
