@@ -419,6 +419,67 @@ final class LicenseManager {
 	}
 
 	/**
+	 * Mint a Polar customer portal session via license-server (v4.32.0+).
+	 *
+	 * Calls the `/licenses/customer-portal-session` endpoint on
+	 * mhm-license-server, which forwards to Polar to create a short-lived
+	 * customer-portal URL where the subscriber can cancel auto-renewal,
+	 * update their payment method, switch plans, or resubscribe.
+	 *
+	 * Response signature verification (v4.30.0+) is done by the underlying
+	 * `request()` method — no extra crypto here.
+	 *
+	 * @param string $return_url Optional URL to send Polar's "back to site"
+	 *                           link to (e.g. the WP admin License page).
+	 * @return array{success:true, customer_portal_url:string, expires_at:string}
+	 *               | array{success:false, error_code:string}
+	 */
+	public function createCustomerPortalSession(string $return_url = ''): array
+	{
+		$o = $this->get();
+		if (empty($o['key']) || ! $this->isActive()) {
+			return array(
+				'success'    => false,
+				'error_code' => 'license_not_active',
+			);
+		}
+
+		$response = $this->request(
+			'/licenses/customer-portal-session',
+			array(
+				'license_key' => $o['key'],
+				'site_hash'   => $this->siteHash(),
+				'return_url'  => $return_url,
+			)
+		);
+
+		if (is_wp_error($response)) {
+			$code = $response->get_error_code();
+			return array(
+				'success'    => false,
+				'error_code' => is_string($code) && $code !== '' ? $code : 'http_error',
+			);
+		}
+
+		if (! isset($response['success']) || $response['success'] !== true) {
+			$error_code = isset($response['error']) && is_string($response['error']) && $response['error'] !== ''
+				? $response['error']
+				: 'unknown_error';
+			return array(
+				'success'    => false,
+				'error_code' => $error_code,
+			);
+		}
+
+		$data = isset($response['data']) && is_array($response['data']) ? $response['data'] : array();
+		return array(
+			'success'             => true,
+			'customer_portal_url' => (string) ( $data['customer_portal_url'] ?? '' ),
+			'expires_at'          => (string) ( $data['expires_at'] ?? '' ),
+		);
+	}
+
+	/**
 	 * Weekly cron: report instance to license server for usage tracking.
 	 *
 	 * Sends site_url, site_hash, plugin version, PHP/WP versions.

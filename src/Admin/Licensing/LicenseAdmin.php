@@ -43,6 +43,8 @@ final class LicenseAdmin {
 		add_action('admin_post_mhm_rentiva_activate_license', array( self::class, 'handle_activation' ));
 		add_action('admin_post_mhm_rentiva_deactivate_license', array( self::class, 'handle_deactivation' ));
 		add_action('admin_post_mhm_rentiva_toggle_dev_mode', array( self::class, 'handle_toggle_dev_mode' ));
+		// v4.32.0+ — Manage Subscription button → Polar customer portal.
+		add_action('admin_post_mhm_rentiva_manage_subscription', array( self::class, 'handle_manage_subscription' ));
 		add_action('admin_notices', array( self::class, 'admin_notices' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_styles' ));
 	}
@@ -54,11 +56,19 @@ final class LicenseAdmin {
 		if (strpos($hook, 'mhm-rentiva-license') === false) {
 			return;
 		}
+
+		// v4.32.0+ — filemtime cache-busting so state-driven button emphasis
+		// styles refresh as soon as the CSS is updated, even mid-version.
+		$css_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/css/admin/license-admin.css';
+		if (! file_exists($css_path)) {
+			return;
+		}
+
 		wp_enqueue_style(
 			'mhm-rentiva-license-admin',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/license-admin.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHM_RENTIVA_VERSION . '.' . filemtime($css_path)
 		);
 	}
 
@@ -317,6 +327,31 @@ final class LicenseAdmin {
 
 			echo '<p>' . esc_html__('If you want to deactivate your license, click the button below. This will disable Pro features.', 'mhm-rentiva') . '</p>';
 
+			// v4.32.0+ — "Manage Subscription" button. Opens the Polar customer
+			// portal in a new tab so the admin can cancel auto-renewal, update
+			// their payment method, switch plans, or resubscribe — all without
+			// leaving WP admin. The button gains a state-driven emphasis class
+			// (`...-warning` ≤ 30 days, `...-urgent` ≤ 7 days) so customers see
+			// renewal urgency at a glance.
+			$days_remaining = self::compute_days_remaining($license_data);
+			$emphasis_class = self::compute_emphasis_class($days_remaining);
+
+			$manage_url = wp_nonce_url(
+				add_query_arg(
+					'action',
+					'mhm_rentiva_manage_subscription',
+					admin_url('admin-post.php')
+				),
+				'mhm_rentiva_manage_subscription'
+			);
+
+			printf(
+				'<a href="%1$s" target="_blank" rel="noopener" class="button button-primary mhm-rentiva-manage-subscription %2$s" style="margin-right:10px;">%3$s</a>',
+				esc_url($manage_url),
+				esc_attr($emphasis_class),
+				esc_html__('Manage Subscription', 'mhm-rentiva')
+			);
+
 			// v4.31.2+ — "Re-validate Now" button: lets the customer admin
 			// force an immediate license check without waiting for the 5-minute
 			// throttle or the 6-hour cron. Useful when the licence-server
@@ -442,6 +477,45 @@ final class LicenseAdmin {
 		exit;
 	}
 
+	/**
+	 * Handle the "Manage Subscription" button click (v4.32.0+).
+	 *
+	 * Mints a Polar customer-portal session via {@see LicenseManager::createCustomerPortalSession()}
+	 * and redirects the admin there. On any failure (license not active,
+	 * server 4xx, tampered response, network error) we fall back to the
+	 * License page with `?license=manage_unavailable&reason=<sanitized code>`,
+	 * which {@see admin_notices()} renders as a customer-friendly warning.
+	 */
+	public static function handle_manage_subscription(): void
+	{
+		if (! current_user_can('manage_options')) {
+			wp_die(esc_html__('Insufficient permissions.', 'mhm-rentiva'), '', array( 'response' => 403 ));
+		}
+
+		check_admin_referer('mhm_rentiva_manage_subscription');
+
+		$license_admin_url = admin_url('admin.php?page=mhm-rentiva-license');
+		$session           = LicenseManager::instance()->createCustomerPortalSession($license_admin_url);
+
+		if (empty($session['success'])) {
+			$reason = isset($session['error_code']) ? sanitize_key( (string) $session['error_code']) : 'unknown_error';
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'license' => 'manage_unavailable',
+						'reason'  => $reason,
+					),
+					$license_admin_url
+				)
+			);
+			exit;
+		}
+
+		// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- External Polar URL by design (customer portal lives on polar.sh).
+		wp_redirect( (string) $session['customer_portal_url']);
+		exit;
+	}
+
 	public static function admin_notices(): void
 	{
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query-flag check for admin notices.
@@ -552,7 +626,48 @@ final class LicenseAdmin {
 				echo '<p>' . esc_html__('Enter your license key below to unlock this feature.', 'mhm-rentiva') . '</p>';
 				echo '</div>';
 				break;
+
+			case 'manage_unavailable':
+				// v4.32.0+ — Customer clicked "Manage Subscription" but the
+				// portal session could not be minted (license inactive,
+				// server 4xx, tampered response, network error). Render a
+				// friendly warning with a short reason label.
+				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin notices display only, no form processing.
+				$reason       = isset($_GET['reason']) ? sanitize_key( (string) wp_unslash($_GET['reason'])) : '';
+				$reason_label = self::get_manage_unavailable_label($reason);
+				echo '<div class="notice notice-warning is-dismissible">';
+				printf(
+					'<p>%s</p>',
+					esc_html(
+						sprintf(
+							/* translators: %s: short reason label like "service unavailable" */
+							__('ℹ️ Subscription management is not available right now (%s). Please try again later or contact support@wpalemi.com.', 'mhm-rentiva'),
+							$reason_label
+						)
+					)
+				);
+				echo '</div>';
+				break;
 		}
+	}
+
+	/**
+	 * Map a `manage_unavailable` reason code to a short, customer-friendly
+	 * label that fits inside the parenthesis of the warning notice (v4.32.0+).
+	 *
+	 * Unknown codes (future server releases, typos in the URL) collapse to
+	 * "unknown error" so we never leak raw technical strings.
+	 */
+	private static function get_manage_unavailable_label(string $reason): string
+	{
+		$labels = array(
+			'license_not_subscription' => __('legacy license', 'mhm-rentiva'),
+			'polar_api_unavailable'    => __('service unavailable', 'mhm-rentiva'),
+			'license_not_active'       => __('license inactive', 'mhm-rentiva'),
+			'site_not_activated'       => __('site not activated', 'mhm-rentiva'),
+			'license_not_found'        => __('license not found', 'mhm-rentiva'),
+		);
+		return $labels[ $reason ] ?? __('unknown error', 'mhm-rentiva');
 	}
 
 	private static function validate_license(string $license_key): array
@@ -563,6 +678,62 @@ final class LicenseAdmin {
 			'success' => false,
 			'message' => 'invalid',
 		);
+	}
+
+	/**
+	 * Compute days remaining until license expiry (v4.32.0+).
+	 *
+	 * Reads `expires_at` (preferred, v4.30.0+ canonical) with a fallback to the
+	 * legacy `expires` key. Accepts unix timestamp ints or any strtotime()-able
+	 * string. Returns `null` when no expiry information is available so the
+	 * caller can render a default (non-emphasised) UI.
+	 *
+	 * @param array<string,mixed> $license_data License option payload from
+	 *                                          {@see LicenseManager::get()}.
+	 * @return int|null Whole days remaining (>= 0) or null when undetermined.
+	 */
+	public static function compute_days_remaining(array $license_data): ?int
+	{
+		$expires_raw = $license_data['expires_at'] ?? $license_data['expires'] ?? '';
+		if (empty($expires_raw)) {
+			return null;
+		}
+
+		$ts = is_numeric($expires_raw) ? (int) $expires_raw : strtotime( (string) $expires_raw);
+		if ($ts === false) {
+			return null;
+		}
+
+		$diff = $ts - time();
+		if ($diff <= 0) {
+			return 0;
+		}
+
+		return (int) ceil($diff / DAY_IN_SECONDS);
+	}
+
+	/**
+	 * Map days-remaining to the CSS emphasis class for the "Manage
+	 * Subscription" button (v4.32.0+).
+	 *
+	 * Mapping:
+	 * - null           → '' (no expiry data — default styling)
+	 * - >= 31 days     → '' (plenty of runway)
+	 * - 8..30 days     → 'mhm-rentiva-license-warning' (yellow)
+	 * - 0..7 days      → 'mhm-rentiva-license-urgent' (amber + glow)
+	 */
+	public static function compute_emphasis_class(?int $days_remaining): string
+	{
+		if ($days_remaining === null) {
+			return '';
+		}
+		if ($days_remaining <= 7) {
+			return 'mhm-rentiva-license-urgent';
+		}
+		if ($days_remaining <= 30) {
+			return 'mhm-rentiva-license-warning';
+		}
+		return '';
 	}
 
 	private static function render_feature_comparison(): void
