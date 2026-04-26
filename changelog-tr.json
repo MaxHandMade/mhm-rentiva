@@ -1,5 +1,15 @@
 [
     {
+        "version": "4.31.2",
+        "date": "2026-04-26",
+        "type": "patch",
+        "changes": [
+            "🔄 'Re-validate Now' BUTONU: License sayfasinda 'Deactivate License' butonunun yanina manuel re-validate butonu eklendi. Tiklandiginda 5 dakikalik throttle bypass + server'a aninda check + Pro/Lite state guncellemesi yapiliyor. Lisans-sunucusu tarafindan acil bir aktivasyon/iptal sonrasi musteri admin'inin throttle/cron beklemeden senkronize olmasi icin.",
+            "✨ YENI BILDIRIM: '?license=revalidated' query parametresi success notice gosteriyor — re-validate islemi tamamlandiginda admin gorur."
+        ],
+        "notice": "v4.31.2 patch — Manuel re-validate butonu. v4.31.1'in 5dk throttled visit-validate + 6h cron mantigi korunuyor; bu sadece acil bypass icin."
+    },
+    {
         "version": "4.31.1",
         "date": "2026-04-26",
         "type": "patch",

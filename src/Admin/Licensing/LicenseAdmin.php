@@ -70,14 +70,42 @@ final class LicenseAdmin {
 			wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
 		}
 
-		$license = LicenseManager::instance();
+		$license      = LicenseManager::instance();
+		$throttle_key = 'mhm_rentiva_license_visit_throttle';
+
+		// v4.31.2+ — Manual "Re-validate Now" trigger. Bypasses the 5-minute
+		// throttle so an admin who just had a license revoked / re-issued on
+		// the license-server side can force an immediate re-check without
+		// waiting for the throttle TTL.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce checked on the next line.
+		$revalidate_requested = isset($_GET['mhm_revalidate']);
+		if (
+			$revalidate_requested
+			&& isset($_GET['_wpnonce'])
+			&& wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'mhm_rentiva_revalidate')
+		) {
+			delete_transient($throttle_key);
+			$current = $license->get();
+			if (! empty($current['key']) && ! empty($current['activation_id'])) {
+				$license->validate(true);
+			}
+			wp_safe_redirect(
+				add_query_arg(
+					array(
+						'page'    => 'mhm-rentiva-license',
+						'license' => 'revalidated',
+					),
+					admin_url('admin.php')
+				)
+			);
+			exit;
+		}
 
 		// v4.31.0+ — Force a fresh server check when the admin opens this
 		// page so a deactivation initiated from the license-server side is
 		// reflected immediately instead of waiting for the 6-hourly cron.
 		// Throttled by a 5-minute transient so reloads on the same page do
 		// not hammer the license server.
-		$throttle_key = 'mhm_rentiva_license_visit_throttle';
 		if (false === get_transient($throttle_key)) {
 			$current = $license->get();
 			if (! empty($current['key']) && ! empty($current['activation_id'])) {
@@ -289,7 +317,23 @@ final class LicenseAdmin {
 
 			echo '<p>' . esc_html__('If you want to deactivate your license, click the button below. This will disable Pro features.', 'mhm-rentiva') . '</p>';
 
-			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
+			// v4.31.2+ — "Re-validate Now" button: lets the customer admin
+			// force an immediate license check without waiting for the 5-minute
+			// throttle or the 6-hour cron. Useful when the licence-server
+			// admin just revoked or re-issued an activation.
+			$revalidate_url = wp_nonce_url(
+				add_query_arg(
+					array(
+						'page'           => 'mhm-rentiva-license',
+						'mhm_revalidate' => '1',
+					),
+					admin_url('admin.php')
+				),
+				'mhm_rentiva_revalidate'
+			);
+			echo '<a href="' . esc_url($revalidate_url) . '" class="button" style="margin-right:10px;">' . esc_html__('Re-validate Now', 'mhm-rentiva') . '</a>';
+
+			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:inline-block;" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
 			wp_nonce_field('mhm_rentiva_license_action', 'mhm_rentiva_license_nonce');
 			echo '<input type="hidden" name="action" value="mhm_rentiva_deactivate_license">';
 
@@ -420,6 +464,12 @@ final class LicenseAdmin {
 			case 'deactivated':
 				echo '<div class="notice notice-info is-dismissible">';
 				echo '<p>' . esc_html__('ℹ️ License deactivated.', 'mhm-rentiva') . '</p>';
+				echo '</div>';
+				break;
+
+			case 'revalidated':
+				echo '<div class="notice notice-success is-dismissible">';
+				echo '<p>' . esc_html__('🔄 License re-validated against the licence server. Pro state is now in sync.', 'mhm-rentiva') . '</p>';
 				echo '</div>';
 				break;
 

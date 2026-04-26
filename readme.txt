@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.31.1
+Stable tag:        4.31.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.31.2 =
+* **"Re-validate Now" button on the License page:** Clicking it bypasses the 5-minute throttle and forces an immediate server check, useful when an admin just had a licence revoked or re-issued on the licence-server side and does not want to wait for the next throttle/cron tick. Renders next to the existing "Deactivate License" button when a license is active. GET request guarded by a WordPress nonce (`mhm_rentiva_revalidate`).
+* **New success notice:** `?license=revalidated` shows a "License re-validated" confirmation after the manual trigger completes.
 
 = 4.31.1 =
 * **Immediate license revocation:** A licence deactivated from the licence-server admin now propagates to the customer site within minutes instead of up to 24 hours. Three reinforcing layers: (a) the daily validation cron rotated to every 6 hours (existing schedules upgrade automatically on next plugin load), (b) a force-validate fires when an admin opens the License page (5 minute throttle so reloads do not hammer the server), (c) the cached `feature_token` is dropped on any non-active server response so `Mode::canUse*()` fails closed on the next page render even before the cron fires.
