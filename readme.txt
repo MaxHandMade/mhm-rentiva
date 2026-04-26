@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.31.2
+Stable tag:        4.32.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,14 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.32.0 =
+* **New: "Manage Subscription" button on the License page.** Opens the Polar customer portal in a new tab — cancel auto-renewal, update payment, switch plans, or resubscribe without leaving WP admin. Renders next to "Re-validate Now" and "Deactivate License" inside the License Management section, only when the license is active.
+* **State-driven button emphasis.** Standard primary blue at >30 days, yellow at ≤30 days, amber + glow at ≤7 days. Customers always see how close their renewal is, regardless of whether they read the email reminders.
+* **New: `LicenseManager::createCustomerPortalSession()` public method.** Calls the new `mhm-license-server v1.11.0+` endpoint `/licenses/customer-portal-session` (RSA-signed roundtrip, same pipeline as activate/validate). Returns `customer_portal_url` + `expires_at` on success, or `success=false` + `error_code` on any failure path.
+* **New: `?license=manage_unavailable&reason=<code>` admin notice.** When the portal session mint fails (license not active, server 4xx, tampered response, network error), the admin lands back on the License page with a customer-friendly translated warning instead of a raw redirect. Five reason codes mapped to short Turkish labels via `get_manage_unavailable_label()`.
+* **Pairs with `mhm-license-server v1.11.0+` and `mhm-polar-bridge v1.9.0+`.** Older servers without the customer-portal endpoint return a graceful `manage_unavailable` notice instead of breaking.
+* **Tests:** 793 → 807 PHPUnit (+14: 5 LicenseManagerCustomerPortalSession, 4 LicenseAdminManageSubscription, 5 EmphasisClass). PHPCS: 0 errors. i18n: 9 new strings, all translated.
 
 = 4.31.2 =
 * **"Re-validate Now" button on the License page:** Clicking it bypasses the 5-minute throttle and forces an immediate server check, useful when an admin just had a licence revoked or re-issued on the licence-server side and does not want to wait for the next throttle/cron tick. Renders next to the existing "Deactivate License" button when a license is active. GET request guarded by a WordPress nonce (`mhm_rentiva_revalidate`).

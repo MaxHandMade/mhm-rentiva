@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.32.0",
+        "date": "2026-04-27",
+        "type": "minor",
+        "changes": [
+            "🆕 'ABONELIGI YONET' BUTONU: Lisans sayfasinda Polar musteri portalini yeni sekmede acan buton — otomatik yenilemeyi iptal et, odeme bilgisini guncelle, plan degistir veya yeniden abone ol; WP yoneticisinden cikmadan. License Management bolumunde 'Re-validate Now' ve 'Deactivate License'in yaninda, sadece lisans aktifken render ediliyor.",
+            "🎨 DURUMA GORE BUTON RENGI: Standart mavi (>30 gun), sari (<=30 gun), kehribar + parlama (<=7 gun). Musteri yenilemenin ne kadar yakin oldugunu — hatirlatma maillerini okumasa bile — anlik gorur.",
+            "🔧 YENI: LicenseManager::createCustomerPortalSession() public methodu. mhm-license-server v1.11.0+ endpoint /licenses/customer-portal-session ile mevcut RSA-imzali request pipeline uzerinden (activate/validate'in ayni borulamasi) konusur. Basarida customer_portal_url + expires_at, herhangi bir hata yolunda success=false + error_code dondurur.",
+            "💬 YENI BILDIRIM: ?license=manage_unavailable&reason=<kod>. Portal oturumu uretilemezse (lisans aktif degil, server 4xx, tampered response, ag hatasi) admin License sayfasina ham redirect yerine musteri-dostu, cevirili bir uyari ile geri donuyor. 5 hata kodu kisa Turkce etiketlere mapleniyor (get_manage_unavailable_label()).",
+            "🤝 mhm-license-server v1.11.0+ ve mhm-polar-bridge v1.9.0+ ile birlikte calisir. Henuz endpoint'i olmayan eski sunucular sessiz bozulmak yerine zarif bir manage_unavailable bildirimi gosterir.",
+            "📊 TEST: 793 → 807 PHPUnit (+14 yeni — 5 LicenseManagerCustomerPortalSession, 4 LicenseAdminManageSubscription, 5 EmphasisClass). PHPCS: 0 hata. i18n: 9 yeni string, hepsi Turkce'ye cevrildi."
+        ],
+        "notice": "v4.32.0 minor — Aboneligi Yonet butonu + duruma gore vurgu. license-server v1.11.0 + polar-bridge v1.9.0 ile birlikte calisir."
+    },
+    {
         "version": "4.31.2",
         "date": "2026-04-26",
         "type": "patch",
