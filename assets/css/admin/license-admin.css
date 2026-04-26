@@ -252,3 +252,35 @@
         border-top: 3px solid #f0b429;
     }
 }
+
+/* =============================================
+   v4.32.0 — Manage Subscription button state-driven emphasis.
+   Yellow >= 8 days from expiry, amber + glow <= 7 days.
+   ============================================= */
+
+.mhm-rentiva-manage-subscription {
+    transition: box-shadow 0.2s, background-color 0.2s;
+}
+
+.mhm-rentiva-manage-subscription.mhm-rentiva-license-warning {
+    background-color: #fbbf24;
+    border-color: #d97706;
+    color: #78350f;
+}
+.mhm-rentiva-manage-subscription.mhm-rentiva-license-warning:hover {
+    background-color: #f59e0b;
+    border-color: #b45309;
+    color: #451a03;
+}
+
+.mhm-rentiva-manage-subscription.mhm-rentiva-license-urgent {
+    background-color: #f97316;
+    border-color: #c2410c;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
+}
+.mhm-rentiva-manage-subscription.mhm-rentiva-license-urgent:hover {
+    background-color: #ea580c;
+    border-color: #9a3412;
+    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.24);
+}
