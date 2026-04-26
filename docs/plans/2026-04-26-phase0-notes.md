@@ -112,30 +112,33 @@ c:/projects/wpalemi/plugins/mhm-polar-bridge/
 
 **Önerim: Çözüm 1.** TDD disiplini hot.md'de explicit gate. Ek 1 saatlik altyapı yatırımı; gelecek polar-bridge geliştirmeleri için kalıcı kazanç.
 
-### B) wpalemi sandbox WP'sinde Polar API token tanımlı değil
+### B) Canlı wpalemi.com sandbox konfigürasyonu — TAMAM ✓
 
-**Mevcut wp-config:**
+**İlk yanlış iddiam (DÜZELTİLDİ):** Bu raporun ilk versiyonunda "Polar API token tanımlı değil" demiştim. Yanılmışım — **lokal Docker sandbox'ı canlı sandbox sandım**.
 
+**Gerçek durum (kullanıcı kanıtladı):**
+
+Canlı wpalemi.com Hostinger sunucusundaki `wp-config.php`'de tanımlı:
+
+```php
+define('MHM_POLAR_WEBHOOK_SECRET', 'whsec_...');                  ✓
+define('MHM_LICENSE_SERVER_API_KEY', 'mhm-polar-wpalemi-...');    ✓
+define('MHM_LICENSE_API_KEY', 'mhm-polar-wpalemi-...');           ✓
+define('MHM_POLAR_API_TOKEN', 'polar_oat_...');                   ✓
+define('MHM_POLAR_SANDBOX', true);                                ✓
+define('MHM_LICENSE_SERVER_RSA_PRIVATE_KEY_PEM', <<<'PEM' ...);   ✓
 ```
-define('MHM_POLAR_WEBHOOK_SECRET', 'whsec_...'); ✓
-```
 
-**Eksik:**
+**Geliştirme stratejisi (kullanıcının "sandbox üzerinde çalışıyoruz" ifadesinin gerçek anlamı):**
 
-```
-define('MHM_POLAR_API_TOKEN', 'polar_oat_...');  ❌
-define('MHM_POLAR_SANDBOX', true);               ❌ (default false)
-```
+- **Canlı wpalemi.com** = Polar Sandbox API endpoint'i kullanıyor (`MHM_POLAR_SANDBOX=true` → `sandbox-api.polar.sh`)
+- Geliştirme + integration + E2E testleri **canlı wpalemi.com'da** yapılır
+- Lokal Docker sandbox WP'si **PHPUnit unit testleri** için ortam (mocked everything)
+- Production'a açılma = canlı wpalemi.com'da `MHM_POLAR_SANDBOX` constant'ı remove + token swap
 
-`MHM_Polar_API::is_configured()` false döner → bizim yeni endpoint `polar_api_unavailable` 503 döner. Phase 4 E2E senaryoları çalıştırılamaz.
+**Phase 4 prerequisite:** Yok — sandbox aktif ve hazır.
 
-**Neden:** Mevcut polar-bridge, **gelen webhook'ları işliyor** (subscription.active vs.) — outbound API çağrısı için token gerekiyor. Şu an `BillingPortalRedirect` da kullanılıyorsa demek ki ya token başka bir yerde tanımlı ya da çalışmıyor.
-
-**Eylem:**
-1. Kullanıcı Polar Sandbox dashboard'dan "Organization Access Token" üretir (Settings → API & Webhooks → Tokens)
-2. Token'a `customer_sessions:write` scope verilmeli
-3. Token + `MHM_POLAR_SANDBOX=true` constant'ı wpalemi sandbox WP'sinin wp-config'ine eklenir
-4. Bu Phase 4 başlamadan önce yapılmalı; Phase 1-3 token olmadan da geliştirilebilir (testler mock'la, runtime sadece smoke test)
+**Öğrenme (memory'ye yazıldı):** [feedback_verified_claims_only.md](../../../../../../Users/manag/.claude/projects/c--projects-rentiva-dev/memory/feedback_verified_claims_only.md) — iddia öncesi zorunlu çapraz doğrulama, lokal vs canlı ortam ayrımı, tempo baskısına karşı checklist disiplini.
 
 ---
 
@@ -166,9 +169,9 @@ Sandbox WP'sine `MHM_POLAR_API_TOKEN` + `MHM_POLAR_SANDBOX` constant'ları eklen
 
 ---
 
-## Onay bekleyen kararlar
+## Karar (kullanıcı onayı sonrası)
 
-1. **Phase 2 PHPUnit infrastructure kurulumu** — Çözüm 1/2/3 hangisi?
-2. **Polar Sandbox API token** — kullanıcı ne zaman üretip ekleyecek? (Phase 4'ten önce)
+1. **Phase 2 PHPUnit infrastructure** → **Çözüm 1: Yeni Task B.0 ekle** (PHPUnit bootstrap; ~1 saat ek). TDD discipline gate gerektirdiği için bu küçük altyapı yatırımı zorunlu kabul.
+2. **Polar Sandbox API token** → **Konu kapandı** — canlı wpalemi.com'da zaten tanımlı; geliştirme canlı sandbox'ta yapılıyor.
 
-Bu iki husus netleşmeden Phase 1'e başlamak güvenli (Phase 1 license-server, polar-bridge'e bağımlı değil).
+Phase 1'e geçmek için engel yok.
