@@ -84,7 +84,7 @@ final class WooCommerceIntegration {
 					if ( $e_key === 'view_booking' ) {
 						continue;
 					}
-					if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::featureEnabled( \MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES ) ) ) {
+					if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseMessages() ) ) {
 						continue;
 					}
 					// vendor_apply: show only when Pro is active and user can still apply
@@ -118,7 +118,7 @@ final class WooCommerceIntegration {
 				if ( $e_key === 'view_booking' ) {
 					continue;
 				}
-				if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::featureEnabled( \MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES ) ) ) {
+				if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseMessages() ) ) {
 					continue;
 				}
 				if ( $e_key === 'vendor_apply' ) {

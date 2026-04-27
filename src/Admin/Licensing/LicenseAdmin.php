@@ -151,8 +151,19 @@ final class LicenseAdmin {
 		// Only show developer mode warning if no real license is active
 		if ($is_dev_mode && ! $disable_dev_mode && ! $has_real_license) {
 			echo '<div class="notice notice-warning"><p>';
-			echo '<strong>' . esc_html__('🚀 Developer Mode Active', 'mhm-rentiva') . '</strong><br>';
-			echo esc_html__('Automatic developer mode active (development environment detected). All Pro features enabled.', 'mhm-rentiva');
+			if ( defined( 'MHM_RENTIVA_DEV_PRO' ) && MHM_RENTIVA_DEV_PRO ) {
+				echo '<strong>' . esc_html__( '🔧 Developer Mode Active', 'mhm-rentiva' ) . '</strong> &mdash; ';
+				echo esc_html__( 'Pro features can be tested (token check is skipped).', 'mhm-rentiva' );
+			} else {
+				echo '<strong>' . esc_html__( '🔧 Developer Mode', 'mhm-rentiva' ) . '</strong> &mdash; ';
+				echo esc_html(
+					sprintf(
+						/* translators: %s — PHP define snippet to add to wp-config.php */
+						__( 'Pro features cannot be tested. Add %s to wp-config.php.', 'mhm-rentiva' ),
+						"define('MHM_RENTIVA_DEV_PRO', true);"
+					)
+				);
+			}
 			echo '</p></div>';
 
 			// Option to disable developer mode
@@ -265,7 +276,7 @@ final class LicenseAdmin {
 				echo '</div>';
 			}
 
-			echo '<p>' . esc_html__('All Pro features active: Unlimited vehicles/bookings, export, advanced reports, Vendor & Payout.', 'mhm-rentiva') . '</p>';
+			$this->render_active_features();
 		} else {
 
 			echo '<div class="notice notice-warning inline">';
@@ -380,6 +391,43 @@ final class LicenseAdmin {
 		self::render_feature_comparison();
 
 		echo '</div>';
+	}
+
+	/**
+	 * Render the dynamic "Active Pro features" line on the License page.
+	 *
+	 * Introduced in v4.33.0 — replaces the static "All Pro features active"
+	 * string with a list derived from the actual feature-token gates. If no
+	 * features are granted (license active but token empty), shows a warning
+	 * notice with a "Re-validate Now" CTA.
+	 */
+	public function render_active_features(): void {
+		$active_features = array();
+
+		if ( Mode::canUseVendorMarketplace() ) {
+			$active_features[] = __( 'Vendor & Payout', 'mhm-rentiva' );
+		}
+		if ( Mode::canUseAdvancedReports() ) {
+			$active_features[] = __( 'Advanced Reports', 'mhm-rentiva' );
+		}
+		if ( Mode::canUseMessages() ) {
+			$active_features[] = __( 'Messages', 'mhm-rentiva' );
+		}
+		if ( Mode::canUseExport() ) {
+			$active_features[] = __( 'Expanded Export', 'mhm-rentiva' );
+		}
+
+		if ( ! empty( $active_features ) ) {
+			// Each $active_features entry is __( literal, 'mhm-rentiva' ) — no
+			// user input ever enters this array. If you later add a filter or
+			// dynamic source, escape inside the implode and remove this ignore.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safety guaranteed by hardcoded __() literals; see comment above.
+			echo '<p>' . esc_html__( 'Active Pro features:', 'mhm-rentiva' ) . ' ' . implode( ', ', $active_features ) . '</p>';
+		} else {
+			echo '<div class="notice notice-warning inline"><p>'
+				. esc_html__( 'License active but no feature tokens loaded yet. Click "Re-validate Now" to refresh.', 'mhm-rentiva' )
+				. '</p></div>';
+		}
 	}
 
 	public static function handle_activation(): void

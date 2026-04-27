@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Messages {
 
 	public static function register(): void {
-		if ( ! Mode::featureEnabled( Mode::FEATURE_MESSAGES ) ) {
+		if ( ! Mode::canUseMessages() ) {
 			return;
 		}
 
