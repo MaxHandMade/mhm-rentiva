@@ -418,8 +418,10 @@ final class LicenseAdmin {
 		}
 
 		if ( ! empty( $active_features ) ) {
-			// Feature names are hardcoded trusted strings; escape label only.
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- feature names are hardcoded, not user-supplied.
+			// Each $active_features entry is __( literal, 'mhm-rentiva' ) — no
+			// user input ever enters this array. If you later add a filter or
+			// dynamic source, escape inside the implode and remove this ignore.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- safety guaranteed by hardcoded __() literals; see comment above.
 			echo '<p>' . esc_html__( 'Active Pro features:', 'mhm-rentiva' ) . ' ' . implode( ', ', $active_features ) . '</p>';
 		} else {
 			echo '<div class="notice notice-warning inline"><p>'
