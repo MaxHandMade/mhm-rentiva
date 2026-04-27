@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.32.0
+Stable tag:        4.33.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,15 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.33.0 — 2026-04-27 =
+**Pro Gate Unification**
+
+* Fixed: Pro feature gates now verify the RSA token at all 22 callsites (previously Mode::featureEnabled bypassed verification, vulnerable to cracked binary attacks).
+* Fixed: License Admin shows actual granted Pro features instead of static "All Pro features active" string.
+* Added: Developer Mode bypass — `define('MHM_RENTIVA_DEV_PRO', true)` + WP_DEBUG=true allows local Pro feature testing without a real token.
+* Changed: BREAKING — Lite users can no longer use xlsx/pdf export formats. CSV/JSON remain free. Pro users unaffected (server v1.11.2 prerequisite).
+* Note: Requires mhm-license-server v1.11.2 — without it, Pro users lose export for up to 24h. Click "Re-validate Now" on License page to refresh.
 
 = 4.32.0 =
 * **New: "Manage Subscription" button on the License page.** Opens the Polar customer portal in a new tab — cancel auto-renewal, update payment, switch plans, or resubscribe without leaving WP admin. Renders next to "Re-validate Now" and "Deactivate License" inside the License Management section, only when the license is active.
