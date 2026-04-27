@@ -23,7 +23,7 @@ final class ExportReports {
 		}
 
 		// License check
-		if ( ! in_array( $format, array( 'csv', 'json' ) ) && ! Mode::featureEnabled( Mode::FEATURE_EXPORT ) ) {
+		if ( ! in_array( $format, array( 'csv', 'json' ) ) && ! Mode::canUseExport() ) {
 			wp_die( esc_html__( 'Excel/CSV export is available in Pro version.', 'mhm-rentiva' ) );
 		}
 
@@ -100,7 +100,7 @@ final class ExportReports {
 
 	private static function export_excel( array $data, string $filename ): void {
 		// Pro feature check
-		if ( ! Mode::featureEnabled( Mode::FEATURE_EXPORT ) ) {
+		if ( ! Mode::canUseExport() ) {
 			wp_die( esc_html__( 'Excel export is available in Pro version.', 'mhm-rentiva' ) );
 		}
 
@@ -139,7 +139,7 @@ final class ExportReports {
 
 	private static function export_pdf( array $data, string $filename ): void {
 		// Pro feature check
-		if ( ! Mode::featureEnabled( Mode::FEATURE_REPORTS_ADV ) ) {
+		if ( ! Mode::canUseAdvancedReports() ) {
 			wp_die( esc_html__( 'PDF export is available in Pro version.', 'mhm-rentiva' ) );
 		}
 
@@ -241,12 +241,12 @@ final class ExportReports {
 			'json' => __( 'JSON', 'mhm-rentiva' ),
 		);
 
-		if ( Mode::featureEnabled( Mode::FEATURE_EXPORT ) ) {
+		if ( Mode::canUseExport() ) {
 			$formats['xml'] = __( 'XML', 'mhm-rentiva' );
 			$formats['xls'] = __( 'Excel (XLS)', 'mhm-rentiva' );
 		}
 
-		if ( Mode::featureEnabled( Mode::FEATURE_REPORTS_ADV ) ) {
+		if ( Mode::canUseAdvancedReports() ) {
 			$formats['pdf'] = __( 'PDF', 'mhm-rentiva' );
 		}
 
@@ -271,7 +271,7 @@ final class ExportReports {
 		}
 
 		// License check
-		if ( ! Mode::featureEnabled( Mode::FEATURE_REPORTS_ADV ) ) {
+		if ( ! Mode::canUseAdvancedReports() ) {
 			$max_days  = Mode::reportsMaxRangeDays();
 			$date_diff = ( strtotime( $end_date ) - strtotime( $start_date ) ) / ( 60 * 60 * 24 );
 

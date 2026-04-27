@@ -1,5 +1,20 @@
 [
     {
+        "version": "4.33.0",
+        "date": "2026-04-27",
+        "type": "minor",
+        "changes": [
+            "Security: 22 callsites now token-verify. After v4.31.0's RSA token migration, 22 locations still used Mode::featureEnabled() — only checking isPro() with no token verify. Cracked binary + Mode::isActive() patch attacks bypassed Pro gates at those sites. All migrated to Mode::canUse*() family (canUseMessages, canUseAdvancedReports, canUseExport, canUseVendorMarketplace, canUseVendorPayout). Mode::featureEnabled() is soft-deprecated; hard removal in v5.0.",
+            "Fixed: License Admin shows actual active Pro features. Previously echoed a static 'All Pro features active: ...' regardless of token state. Misleading when the token was empty or partial. Now derives the list from real gate state; shows 'Re-validate Now' warning if no gates are active.",
+            "New: Developer Mode for local Pro testing. WP_DEBUG=true + define('MHM_RENTIVA_DEV_PRO', true) skips the RSA token check, enabling local Pro feature testing without a real token. Production-safe (WP_DEBUG defaults false on Hostinger). License Admin yellow banner subtitle now reflects whether the bypass is actually active or just dormant.",
+            "BREAKING: Lite users lose xlsx/pdf export access. Old featureEnabled(FEATURE_EXPORT) returned true unconditionally for Lite (bug). New canUseExport() returns false for Lite. Lite csv/json access preserved (direct format check in callers unchanged). Pro users get all formats after server v1.11.2 deploys.",
+            "Fixed: TR translation quality (collateral). 22 pre-existing Turkish translation issues fixed: 'Airport Transfer' was incorrectly 'Aktarımı İzin Ver' (Allow Transfer) → 'Havalimanı Transferi'. 'Report Issue' was 'Raporlar' (Reports) → 'Sorun Bildir'. Multiple placeholder ordering (%d/%d → %1$d/%2$d), URL updates, email label corrections. msgmerge fuzzy count post-merge: 0.",
+            "Tests: 807 → 822 PHPUnit (+15 — 5 ModeDevBypassTest, 4 LicenseAdminActiveFeaturesTest, 6 ModeGateMigrationTest). PHPCS: 0 errors. Plugin Check: 0 ERROR. i18n: 10 new strings + 22 collateral fixes.",
+            "Pairs with mhm-license-server v1.11.2 — adds 'export' to the issued feature-token allowlist. Releasing v4.33.0 before the server patch lands means Pro users cannot use export for up to 24h (until daily cron refreshes the token). Manual 'Re-validate Now' button refreshes immediately."
+        ],
+        "notice": "v4.33.0 minor — Pro Gate Unification. Pairs with mhm-license-server v1.11.2. BREAKING: Lite users lose xlsx/pdf export (csv/json preserved)."
+    },
+    {
         "version": "4.32.0",
         "date": "2026-04-27",
         "type": "minor",

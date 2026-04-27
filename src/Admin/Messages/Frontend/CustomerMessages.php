@@ -92,7 +92,7 @@ final class CustomerMessages {
 	 * @deprecated 4.0.0 Portal content hooks removed - My Account system is used
 	 */
 	public static function render_portal_messages(): void {
-		if ( ! Mode::featureEnabled( Mode::FEATURE_MESSAGES ) ) {
+		if ( ! Mode::canUseMessages() ) {
 			echo '<div class="portal-section">';
 			echo '<p>' . esc_html__( 'Messaging feature is available in Pro version.', 'mhm-rentiva' ) . '</p>';
 			echo '</div>';
