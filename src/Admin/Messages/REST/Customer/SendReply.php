@@ -29,7 +29,7 @@ final class SendReply {
 	 * Customer reply sending (WordPress User Auth)
 	 */
 	public static function handle( WP_REST_Request $request ): WP_REST_Response {
-		if ( ! Mode::featureEnabled( Mode::FEATURE_MESSAGES ) ) {
+		if ( ! Mode::canUseMessages() ) {
 			return new WP_REST_Response( array( 'error' => __( 'Messaging feature is not active', 'mhm-rentiva' ) ), 403 );
 		}
 

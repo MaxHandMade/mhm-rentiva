@@ -118,7 +118,7 @@ final class Menu {
 		);
 
 		// 7. Reports (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_REPORTS_ADV)) {
+		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Reports', 'mhm-rentiva'),
@@ -130,7 +130,7 @@ final class Menu {
 		}
 
 		// 8. Messages (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)) {
+		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseMessages()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Messages', 'mhm-rentiva'),
@@ -142,7 +142,7 @@ final class Menu {
 		}
 
 		// 9. Export (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_EXPORT)) {
+		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseExport()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Export', 'mhm-rentiva'),

@@ -245,7 +245,7 @@ final class AccountRenderer {
 		// Check if Messages feature is enabled
 		if (
 			! class_exists(\MHMRentiva\Admin\Licensing\Mode::class) ||
-			! \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES)
+			! \MHMRentiva\Admin\Licensing\Mode::canUseMessages()
 		) {
 			return array(
 				'error' => '<div class="mhm-rentiva-account-page"><div class="mhm-account-content"><p>' .

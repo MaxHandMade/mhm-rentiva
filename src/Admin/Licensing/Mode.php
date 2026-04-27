@@ -42,24 +42,35 @@ final class Mode {
 	}
 
 	/**
-	 * Check if feature is enabled
+	 * Check if feature is enabled (legacy gate, NO token verification).
 	 *
-	 * @param string $feature Feature name
-	 * @return bool True if enabled
+	 * @deprecated 4.33.0 Use Mode::canUseMessages(), canUseAdvancedReports(),
+	 * canUseExport(), canUseVendorMarketplace(), or canUseVendorPayout() instead.
+	 * This method does NOT verify the RSA-signed feature token, leaving it
+	 * vulnerable to source-edit attacks (cracked binary patching isActive()).
+	 * Body kept intact for any third-party callers; will be removed in v5.0.
+	 *
+	 * @param string $feature Feature name.
+	 * @return bool True if enabled.
 	 */
 	public static function featureEnabled( string $feature ): bool {
+		_deprecated_function(
+			__METHOD__,
+			'4.33.0',
+			'Mode::canUseMessages() / canUseAdvancedReports() / canUseExport() / canUseVendorMarketplace() / canUseVendorPayout()'
+		);
+
+		// Body preserved for back-compat. v4.32.0 behavior unchanged.
 		if ( self::isPro() ) {
 			return true;
 		}
-
 		switch ( $feature ) {
-			case self::FEATURE_EXPORT: // Export is now available for Lite (CSV only)
+			case self::FEATURE_EXPORT:
 				return true;
 			case self::FEATURE_REPORTS_ADV:
 			case self::FEATURE_MESSAGES:
 				return false;
 		}
-
 		return false;
 	}
 
