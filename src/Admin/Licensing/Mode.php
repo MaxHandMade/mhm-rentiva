@@ -96,6 +96,18 @@ final class Mode {
 	}
 
 	/**
+	 * Check if expanded export formats (XLSX, PDF) module can be used.
+	 *
+	 * Lite users have CSV/JSON access via direct format check in callers;
+	 * this gate covers Pro-only formats.
+	 *
+	 * Server-side allowlist: 'export' key added in mhm-license-server v1.11.2.
+	 */
+	public static function canUseExport(): bool {
+		return self::featureGranted( 'export' );
+	}
+
+	/**
 	 * Pro feature gate (v4.31.0+) that requires a valid RSA-signed feature
 	 * token from `mhm-license-server` v1.10.0+. Strict enforcement — there
 	 * is no legacy `isPro()`-only fallback any more.
@@ -116,6 +128,27 @@ final class Mode {
 		// Hard gate: license must be locally active.
 		if ( ! self::isPro() ) {
 			return false;
+		}
+
+		// Dev-mode bypass — production-safe via double guard:
+		//   1. WP_DEBUG=true (Hostinger production defaults to false)
+		//   2. MHM_RENTIVA_DEV_PRO=true (opt-in constant)
+		// Filter `mhm_rentiva_dev_pro_bypass` exists for testability since
+		// PHP defines cannot be undone within a single process.
+		$dev_pro_default = ( defined( 'WP_DEBUG' ) && WP_DEBUG
+		                  && defined( 'MHM_RENTIVA_DEV_PRO' ) && MHM_RENTIVA_DEV_PRO );
+		/**
+		 * Filter whether the dev-mode Pro bypass is active.
+		 *
+		 * Default: requires WP_DEBUG=true AND MHM_RENTIVA_DEV_PRO=true.
+		 * Tests inject this filter to exercise both branches without touching
+		 * PHP defines.
+		 *
+		 * @param bool $dev_pro_default Default bypass decision based on constants.
+		 */
+		$dev_pro_active = (bool) apply_filters( 'mhm_rentiva_dev_pro_bypass', $dev_pro_default );
+		if ( $dev_pro_active ) {
+			return true;
 		}
 
 		$licenseManager = LicenseManager::instance();
