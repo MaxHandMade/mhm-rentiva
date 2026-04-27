@@ -742,7 +742,7 @@ final class Messages {
 			return;
 		}
 
-		$is_pro     = \MHMRentiva\Admin\Licensing\Mode::featureEnabled(\MHMRentiva\Admin\Licensing\Mode::FEATURE_MESSAGES);
+		$is_pro     = \MHMRentiva\Admin\Licensing\Mode::canUseMessages();
 		$action     = self::get_key('action', 'list');
 		$message_id = self::get_int('id');
 

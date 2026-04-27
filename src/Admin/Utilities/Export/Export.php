@@ -94,7 +94,7 @@ final class Export {
 		if (! current_user_can('export') && ! current_user_can('manage_options') && ! current_user_can('edit_posts')) {
 			return;
 		}
-		if (! Mode::featureEnabled(Mode::FEATURE_EXPORT)) {
+		if (! Mode::canUseExport()) {
 			return; // Export is completely disabled
 		}
 		// Current filters (preserve) - These are only used for repopulating form fields, not for database operations
@@ -335,7 +335,7 @@ final class Export {
 
 	public static function handle_export(): void
 	{
-		if (! Mode::featureEnabled(Mode::FEATURE_EXPORT)) {
+		if (! Mode::canUseExport()) {
 			wp_die(esc_html__('Export is disabled.', 'mhm-rentiva'), 403);
 		}
 
@@ -1299,7 +1299,7 @@ final class Export {
 		echo '<label for="format">' . esc_html__('Format', 'mhm-rentiva') . '</label>';
 		echo '<select name="format" id="format" required>';
 		echo '<option value="csv">CSV</option>';
-		if (class_exists(Mode::class) && Mode::featureEnabled(Mode::FEATURE_EXPORT)) {
+		if (class_exists(Mode::class) && Mode::canUseExport()) {
 			echo '<option value="xls">Excel (XLS)</option>';
 		}
 		echo '</select>';

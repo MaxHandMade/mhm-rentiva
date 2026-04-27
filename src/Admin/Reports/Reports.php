@@ -223,7 +223,7 @@ final class Reports {
 		$end_date   = isset($_POST['end_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['end_date'])) : gmdate('Y-m-d');
 
 		// License check
-		if (! Mode::featureEnabled(Mode::FEATURE_REPORTS_ADV)) {
+		if (! Mode::canUseAdvancedReports()) {
 			$max_days  = Mode::reportsMaxRangeDays();
 			$date_diff = ( strtotime($end_date) - strtotime($start_date) ) / ( 60 * 60 * 24 );
 
@@ -390,7 +390,7 @@ final class Reports {
 		}
 
 		// Pro feature check
-		$is_pro = Mode::featureEnabled(Mode::FEATURE_REPORTS_ADV);
+		$is_pro = Mode::canUseAdvancedReports();
 
 		echo '<div class="wrap mhm-rentiva-reports-wrap">';
 
