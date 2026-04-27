@@ -136,7 +136,7 @@ final class Mode {
 		// Filter `mhm_rentiva_dev_pro_bypass` exists for testability since
 		// PHP defines cannot be undone within a single process.
 		$dev_pro_default = ( defined( 'WP_DEBUG' ) && WP_DEBUG
-		                  && defined( 'MHM_RENTIVA_DEV_PRO' ) && MHM_RENTIVA_DEV_PRO );
+							&& defined( 'MHM_RENTIVA_DEV_PRO' ) && MHM_RENTIVA_DEV_PRO );
 		/**
 		 * Filter whether the dev-mode Pro bypass is active.
 		 *
