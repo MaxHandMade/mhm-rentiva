@@ -29,6 +29,88 @@
         "notice": "v4.32.0 minor — Manage Subscription button + state-driven emphasis. Pairs with license-server v1.11.0 + polar-bridge v1.9.0."
     },
     {
+        "version": "4.31.2",
+        "date": "2026-04-26",
+        "type": "patch",
+        "changes": [
+            "New: 'Re-validate Now' button on the License page, next to 'Deactivate License'. Clicking bypasses the 5-minute throttle, hits the server immediately, and refreshes Pro/Lite state. Lets customers sync after an urgent server-side activation or revocation without waiting on the throttle or the 6-hour cron.",
+            "New: ?license=revalidated query parameter renders a success notice once re-validation completes."
+        ],
+        "notice": "v4.31.2 patch — Manual Re-validate button. v4.31.1's 5-min throttled visit-validate + 6h cron logic preserved; this is purely an emergency bypass."
+    },
+    {
+        "version": "4.31.1",
+        "date": "2026-04-26",
+        "type": "patch",
+        "changes": [
+            "Fix: license revocation propagation. Server-side deactivation now reaches customer sites in minutes, not 24 hours. Three layers cooperate: (a) the daily validate cron is pulled to 6 hours (legacy 'daily' schedules auto-rotate on plugin load), (b) opening the admin License page triggers a force-validate behind a 5-minute transient throttle, and (c) any non-active server response (inactive / refunded / expired / trashed) clears the local feature_token immediately.",
+            "Defense-in-depth: combined with the v4.31.0 RSA verify chain, the 'fake activate keeps Pro for 24h after a manual server-side cancellation' window observed during testing is now closed.",
+            "Tests: 793 / 793 PHPUnit, no regressions. Behavior verified against a live cancel scenario."
+        ],
+        "notice": "v4.31.1 patch — RSA token base preserved, only revocation propagation accelerated. No operator or customer action required."
+    },
+    {
+        "version": "4.31.0",
+        "date": "2026-04-25",
+        "type": "minor",
+        "changes": [
+            "Security — asymmetric crypto: Pro features now require an RSA-signed feature token from mhm-license-server v1.10.0+. The HMAC-based verification in v4.30.x fell back to the legacy isPro() path whenever the customer had not pasted FEATURE_TOKEN_KEY into wp-config (the zero-config default), so a cracked binary patching Mode::canUse*() or LicenseManager::isActive() to return true with a real license could still unlock Pro. v4.31.0 closes that gap: the embedded public key can only verify — it cannot sign, so an attacker cannot forge tokens.",
+            "New: Admin\\Licensing\\LicenseServerPublicKey. The RSA-2048 public key ships embedded in the plugin build. Customers add nothing to wp-config.",
+            "Changed: FeatureTokenVerifier moved from HMAC to openssl_verify. New API: verify($token, $expectedSiteHash): bool + hasFeature($token, $featureName): bool. Site-hash binding now lives inside the verifier — callers can no longer bypass it.",
+            "Changed: Mode::featureGranted() enforces strictly — active license + valid RSA signature + site_hash matches the local site + the feature flag is true in the token. No legacy isPro() fallback.",
+            "Removed: ClientSecrets::getFeatureTokenKey() and the MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY wp-config constant. These were v4.30.x symmetric-crypto vestiges; deleting them from wp-config is safe.",
+            "Deploy ordering: upgrade mhm-license-server to v1.10.0 FIRST, then the Rentiva v4.31.0 client. New client + old server means the server still issues HMAC tokens the new client cannot verify, so Pro silently closes.",
+            "Tests: 781 → 793 (+12). RSA verify roundtrip with the fixture key pair, foreign-key forge rejection, signature-byte tamper, payload tamper, expired token, site_hash mismatch, no-legacy-fallback enforcement, BootIsolation pro-state seed update. 0 PHPCS errors."
+        ],
+        "notice": "v4.31.0 BREAKING — Asymmetric crypto. Server v1.10.0+ first, then client. wp-config's MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY is no longer read; safe to delete."
+    },
+    {
+        "version": "4.30.2",
+        "date": "2026-04-25",
+        "type": "patch",
+        "changes": [
+            "Fix (defensive): the License page admin notice rendered as 'License activation failed: ' with an empty tail when ?license=error arrived without &message=... (browser back/forward, bookmark, or a clipped paste). v4.30.2 suppresses the notice entirely when no error code is present.",
+            "i18n: customer-friendly Turkish messages for the v1.8.0+/v1.9.x server error codes site_unreachable, site_verification_failed, tampered_response, product_mismatch, and product_slug_required. Previously these surfaced as raw 'License activation failed: <technical_code>'.",
+            "Notice fallback: unknown future error codes now render a generic 'License activation failed. Please try again.' message; the technical code is preserved in a data-error-code HTML attribute for debug/support, never shown to the end user.",
+            "Tests: 5 new unit tests (LicenseAdminAdminNoticesTest). 776 → 781 PHPUnit, 0 PHPCS."
+        ],
+        "notice": "v4.30.2 — License notice defensive fix + Turkish-friendly messages for v1.9.x server error codes."
+    },
+    {
+        "version": "4.30.1",
+        "date": "2026-04-25",
+        "type": "patch",
+        "changes": [
+            "UX fix: v4.30.0 required MHM_RENTIVA_LICENSE_PING_SECRET in wp-config — without it the verify endpoint returned ping_secret_not_configured and the license server rejected activation with site_unreachable. Every customer site had to paste three secrets into wp-config before it could activate. v4.30.1 falls back to the site_hash that server and client already share (sent in the activate body) as the HMAC key when PING_SECRET is undefined. Customers can now activate without touching wp-config.",
+            "Backward compat: if MHM_RENTIVA_LICENSE_PING_SECRET is still defined, the endpoint prefers it — operator-pinned v4.30.0 deploys keep working unchanged.",
+            "Pairs with mhm-license-server v1.9.1+: the server applies the same site_hash fallback inside Security\\SiteVerifier::verify(). Old v1.9.0 server + secret-equipped v4.30.0 client still works through the legacy path.",
+            "Tests: VerifyEndpointTest updated for the site_hash fallback path. 776/776 PHPUnit, PHPCS clean."
+        ],
+        "notice": "v4.30.1 — Customer license activation no longer requires a wp-config edit. Pairs with mhm-license-server v1.9.1+."
+    },
+    {
+        "version": "4.30.0",
+        "date": "2026-04-24",
+        "type": "minor",
+        "changes": [
+            "Security hardening — Phase B (client side): client-side counterpart of the 3-layer server-side defense against Pro-feature source-edit bypass. Pairs with mhm-license-server v1.9.0+. Layer 1 — every successful activate/validate response is HMAC-verified with MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET; tampered responses no longer unlock Pro and surface a tampered_response error. Layer 2 — new public REST route /wp-json/mhm-rentiva-verify/v1/ping HMAC-answers the server's X-MHM-Challenge header during activation, proving the site is reachable and shares the ping secret. Layer 3 — Mode::canUseVendorMarketplace(), canUseMessages(), canUseAdvancedReports(), and canUseVendorPayout() no longer trust LicenseManager::isActive() alone; they read the feature flag from the server's HMAC-signed feature token (24h TTL). Patching isActive() to return true no longer unlocks Pro.",
+            "Required: three new wp-config constants — MHM_RENTIVA_LICENSE_RESPONSE_HMAC_SECRET, MHM_RENTIVA_LICENSE_FEATURE_TOKEN_KEY, MHM_RENTIVA_LICENSE_PING_SECRET. Each value must match the corresponding constant on your license server byte-for-byte. If FEATURE_TOKEN_KEY is undefined the gates fall back to legacy isPro() behavior — existing customers don't break during rollout.",
+            "Backward compat (with v1.8.x license servers): responses without a signature field are accepted as-is, so this client still talks to a not-yet-upgraded license server during rollout.",
+            "New helpers: Admin\\Licensing\\ClientSecrets, Admin\\Licensing\\ResponseVerifier, Admin\\Licensing\\FeatureTokenVerifier, Admin\\Licensing\\VerifyEndpoint. The activate request now carries client_version so the server can apply per-version reverse-validation enforcement.",
+            "Tests: 740 → 776 (+36 new Phase B tests), 2715 assertions, 6 skipped, all green. PHPCS: 0 errors."
+        ],
+        "notice": "v4.30.0 — License security hardening Phase B. Requires mhm-license-server v1.9.0+ and three new wp-config constants."
+    },
+    {
+        "version": "4.27.6",
+        "date": "2026-04-24",
+        "type": "patch",
+        "changes": [
+            "Cleanup (WordPress.org submission polish): the Plugin Check scan was driven down to 0 ERROR — required for submission to the WordPress.org plugin directory. The unlink() call in the demo image importer was replaced with wp_delete_file() (the sole ERROR source). Justified phpcs:ignore comments were added inline for warnings already excluded in phpcs.xml: audit-purpose error_log() calls, mhm_rentiva_-prefixed hooks (Plugin Check does not honor the prefix configuration, so these surface as false positives), the meta_query and post__not_in performance trade-offs we accept, and ledger queries using $wpdb->prepare() with WP-core-controlled table names. One template-scoped variable was renamed to satisfy Plugin Check's prefix convention. The readme.txt Changelog section was trimmed to fit WP.org's 5000-character limit, with older versions linking out to GitHub releases. No functional changes — 740/740 PHPUnit tests still pass."
+        ],
+        "notice": "v4.27.6 — Plugin Check compliance for WordPress.org plugin directory submission (0 ERROR)."
+    },
+    {
         "version": "4.27.5",
         "date": "2026-04-23",
         "type": "patch",
