@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.33.1-blue.svg)
+![Version](https://img.shields.io/badge/version-4.33.2-blue.svg)
 ![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)

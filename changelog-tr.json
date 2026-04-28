@@ -1,13 +1,24 @@
 [
     {
+        "version": "4.33.2",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "🌐 TERMİNOLOJİ TUTARLILIĞI (TR): Tüm 'Vendor' çevirisi 'Satıcı' kelimesinden 'Bayi' kelimesine taşındı. 'Satıcı' kelime anlamı 'satan kişi' demek — biz araç kiralıyoruz, satmıyoruz; bu nedenle bağlamsal olarak yanıltıcıydı. 'Bayi' bir markanın yetkili temsilcisi/distribütörü için doğru terim ('Toyota Bayisi', 'Yetkili Bayi') ve kiralama acentelerinin kendilerini nasıl tanımladığıyla örtüşüyor. ~130 string güncellendi: yalın hâl, çoğul, ilgi, yönelme, belirtme, ayrılma, bulunma ve sahiplik ekleri ile birlikte ünlü uyumu kuralları korunarak (Bayinin / Bayiye / Bayiyi / Bayilerin / Bayilerden, vb.). Kataloğda zaten 5 yerde kullanılan 'Bayi' (terminoloji drift'i) artık tüm yüzeylerde tutarlı.",
+            "🔧 ÇEKİM-BİLİNÇLİ MIGRATION: Toplu değiştirmeler kısmi eşleşme önlemek için uzun ekler önce sırayla yapıldı (Satıcılarınız → Bayileriniz, Satıcı → Bayi'den önce). Bir ünlü uyumu manuel düzeltmesi gerekti — Satıcısınız → Bayisiniz (back-vowel sınız → front-vowel siniz, çünkü yeni 'Bayi' kökü front-vowel).",
+            "📁 GÜNCELLENEN DOSYALAR: languages/mhm-rentiva-tr_TR.po (~130 değişiklik), languages/mhm-rentiva-tr_TR.mo (yeniden derlendi), languages/mhm-rentiva-tr_TR.l10n.php (yeniden üretildi), README-tr.md (10 occurrence), changelog-tr.json (v4.33.1 entry self-reference yeni terime güncellendi)."
+        ],
+        "notice": "v4.33.2 patch — Türkçe terminoloji temizliği. 'Satıcı' (satan kişi) → 'Bayi' (yetkili temsilci) tüm UI yüzeylerinde. İngilizce metin ve kod değişmedi. Lisans-sunucu güncelleme gerektirmez."
+    },
+    {
         "version": "4.33.1",
         "date": "2026-04-29",
         "type": "patch",
         "changes": [
-            "🔧 SATICI ETİKETİ: Araç düzenleme ekranındaki 'Yaşam Döngüsü' meta box'ı artık aracın bayisinin adını da gösteriyor. Önceki sürümlerde sadece güvenilirlik puanı görünüyordu (ör. 'Satıcı Skoru: 100/100 — Mükemmel'); admin hangi bayinin puanına baktığını anlamak için ayrıca kullanıcı listesine bakmak zorundaydı. Artık 'Satıcı: Acme Filo Kiralama' satırı puanın hemen üstünde. display_name boşsa user_login'e fallback yapılıyor — vendor satırı asla boş görünmez.",
+            "🔧 BAYİ ETİKETİ: Araç düzenleme ekranındaki 'Yaşam Döngüsü' meta box'ı artık aracın bayisinin adını da gösteriyor. Önceki sürümlerde sadece güvenilirlik puanı görünüyordu (ör. 'Bayi Skoru: 100/100 — Mükemmel'); admin hangi bayinin puanına baktığını anlamak için ayrıca kullanıcı listesine bakmak zorundaydı. Artık 'Bayi: Acme Filo Kiralama' satırı puanın hemen üstünde. display_name boşsa user_login'e fallback yapılıyor — vendor satırı asla boş görünmez.",
             "🎠 SLIDER LOOP FIX: Öne Çıkan Araçlar (`rentiva_featured_vehicles`) shortcode'unun slider modu, az araçlı listelerde flicker yapıyordu. Swiper'in `loop: true` modu yeterli duplicate slide olmadığında bozulur — 3 sütunlu slider'da 5 araç varsa kartlar boş slide ile dönüyordu. Yeni davranış: kart sayısı `columns × 2`'den fazla değilse loop kapatılıyor. Az kart = düz kaydırma, çok kart = sonsuz döngü. Otomatik koşullu, kullanıcı tarafında ayar yok.",
             "🔗 'TÜMÜNÜ GÖR' BUTONU: Öne Çıkan Araçlar shortcode'una `view_all_url` ve `view_all_text` özellikleri eklendi — Araç Izgarası ile parite. Slider/grid altında özel bir 'Tümünü Gör' linki gösterir. Shortcode (`view_all_url=\"...\"` attribute), Elementor widget (Carousel Options panelinde 2 yeni alan) ve Gutenberg blok (Inspector Controls'te 2 yeni TextControl) — üçü birden destekliyor. Boşsa link gizli, doldurulduğunda template footer'da render ediliyor.",
-            "📊 TEST: 822 → 824 PHPUnit (+2 yeni — `lifecycle_meta_box_renders_vendor_display_name`, `lifecycle_meta_box_falls_back_to_user_login_when_display_name_is_empty`). FeaturedVehiclesDefaultsParityTest 2 yeni mapping (view_all_url, view_all_text) ile genişletildi. PHPCS: 0 hata değişen 6 dosyada. i18n: 2 yeni string ('Satıcı:', 'Galerinin altına \"Tümünü Gör\" linki ekler...'), TR çevirileri eklendi (msgmerge fuzzy=0)."
+            "📊 TEST: 822 → 824 PHPUnit (+2 yeni — `lifecycle_meta_box_renders_vendor_display_name`, `lifecycle_meta_box_falls_back_to_user_login_when_display_name_is_empty`). FeaturedVehiclesDefaultsParityTest 2 yeni mapping (view_all_url, view_all_text) ile genişletildi. PHPCS: 0 hata değişen 6 dosyada. i18n: 2 yeni string ('Bayi:', 'Galerinin altına \"Tümünü Gör\" linki ekler...'), TR çevirileri eklendi (msgmerge fuzzy=0)."
         ],
         "notice": "v4.33.1 patch — Yaşam Döngüsü meta box'ında bayi adı, Öne Çıkan Araçlar slider loop fix + 'Tümünü Gör' butonu pariteyi sağladı. Lisans server güncelleme gerektirmez."
     },

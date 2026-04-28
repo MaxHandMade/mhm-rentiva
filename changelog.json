@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.33.2",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "i18n (TR): the entire 'Vendor' translation surface migrated from 'Satıcı' (seller) to 'Bayi' (dealer/agency). 'Satıcı' literally means 'one who sells' and reads awkwardly in a vehicle rental context where vendors don't sell anything — they rent. 'Bayi' is the natural Turkish term for an authorized agency/franchisee (think 'Toyota Bayisi') and matches how rental agencies actually describe themselves. ~130 strings touched: nominative, plural, genitive, dative, accusative, ablative, locative, and possessive forms with proper vowel-harmony agreement (Bayinin / Bayiye / Bayiyi / Bayilerin / Bayilerden, etc.). Existing 'Bayi' usage in 5 places (terminology drift) is now consistent across the catalog.",
+            "Inflection-aware migration: bulk replacements ordered longest suffix first to prevent partial matches (Satıcılarınız → Bayileriniz before Satıcı → Bayi). One vowel-harmony fixup needed manually — Satıcısınız → Bayisiniz (back-vowel sınız → front-vowel siniz on the new front-vowel stem 'Bayi').",
+            "Files updated: languages/mhm-rentiva-tr_TR.po (~130 substitutions), languages/mhm-rentiva-tr_TR.mo (recompiled), languages/mhm-rentiva-tr_TR.l10n.php (regenerated), README-tr.md (10 occurrences), changelog-tr.json (v4.33.1 entry self-reference updated to match new term)."
+        ],
+        "notice": "v4.33.2 patch — Turkish terminology cleanup. 'Satıcı' (seller) → 'Bayi' (dealer/agency) across all UI surfaces. EN copy and code unchanged. No license-server upgrade required."
+    },
+    {
         "version": "4.33.1",
         "date": "2026-04-29",
         "type": "patch",

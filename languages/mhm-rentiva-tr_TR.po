@@ -6831,7 +6831,7 @@ msgstr "Mesaj Bildirimleri"
 #: src/Admin/Emails/Core/EmailTemplates.php:196
 #: src/Admin/Emails/Templates/VendorEmails.php:16
 msgid "Vendor Notifications"
-msgstr "Satıcı Bildirimleri"
+msgstr "Bayi Bildirimleri"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:79
 #: templates/admin/dashboard/quick-actions.php:58
@@ -7091,11 +7091,11 @@ msgstr "kısmi geri ödeme"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:72
 msgid "Welcome! Your vendor account is approved — {{site.name}}"
-msgstr "Hoş geldiniz! Satıcı hesabınız onaylandı — {{site.name}}"
+msgstr "Hoş geldiniz! Bayi hesabınız onaylandı — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:76
 msgid "Your vendor application — {{site.name}}"
-msgstr "Satıcı başvurunuz — {{site.name}}"
+msgstr "Bayi başvurunuz — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:80
 msgid "We received your application — {{site.name}}"
@@ -7103,7 +7103,7 @@ msgstr "Başvurunuzu aldık — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:84
 msgid "[Admin] New vendor application from {{vendor.name}} — {{site.name}}"
-msgstr "[Admin] {{vendor.name}} adından yeni satıcı başvurusu — {{site.name}}"
+msgstr "[Admin] {{vendor.name}} adından yeni bayi başvurusu — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:88
 msgid "Your vehicle is live! — {{site.name}}"
@@ -7131,7 +7131,7 @@ msgstr "IBAN değişikliği güncelleme — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:112
 msgid "Your vendor account has been suspended — {{site.name}}"
-msgstr "Satıcı hesabınız askıya alındı — {{site.name}}"
+msgstr "Bayi hesabınız askıya alındı — {{site.name}}"
 
 #: src/Admin/Emails/Notifications/VendorNotifications.php:116
 msgid "[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}"
@@ -7469,21 +7469,21 @@ msgstr "Otomatik Yanıt (Müşteri)"
 #: src/Admin/Emails/Templates/EmailPreview.php:62
 #: src/Admin/Emails/Templates/VendorEmails.php:54
 msgid "Vendor Approved"
-msgstr "Satıcı Onaylandı"
+msgstr "Bayi Onaylandı"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:63
 #: src/Admin/Emails/Templates/VendorEmails.php:74
 msgid "Vendor Rejected"
-msgstr "Satıcı Reddedildi"
+msgstr "Bayi Reddedildi"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:64
 #: src/Admin/Emails/Templates/VendorEmails.php:94
 msgid "Vendor Suspended"
-msgstr "Satıcı Askıya Alındı"
+msgstr "Bayi Askıya Alındı"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:65
 msgid "Application Received (Vendor)"
-msgstr "Başvuru Alındı (Satıcı)"
+msgstr "Başvuru Alındı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:66
 #: src/Admin/Emails/Templates/VendorEmails.php:134
@@ -7492,11 +7492,11 @@ msgstr "Yeni Başvuru (Yönetici)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:68
 msgid "Vehicle Approved (Vendor)"
-msgstr "Araç Onaylandı (Satıcı)"
+msgstr "Araç Onaylandı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:69
 msgid "Vehicle Rejected (Vendor)"
-msgstr "Araç Reddedildi (Satıcı)"
+msgstr "Araç Reddedildi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:70
 #: src/Admin/Emails/Templates/VendorEmails.php:245
@@ -7510,55 +7510,55 @@ msgstr "Araç Yeniden İnceleme (Yönetici)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:73
 msgid "Vehicle Activated (Vendor)"
-msgstr "Araç Aktifleşti (Satıcı)"
+msgstr "Araç Aktifleşti (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:74
 msgid "Vehicle Paused (Vendor)"
-msgstr "Araç Duraklatıldı (Satıcı)"
+msgstr "Araç Duraklatıldı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:75
 msgid "Vehicle Resumed (Vendor)"
-msgstr "Araç Yeniden Başlatıldı (Satıcı)"
+msgstr "Araç Yeniden Başlatıldı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:76
 msgid "Listing Expired (Vendor)"
-msgstr "İlan Süresi Doldu (Satıcı)"
+msgstr "İlan Süresi Doldu (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:77
 msgid "Vehicle Withdrawn (Vendor)"
-msgstr "Araç Geri Çekildi (Satıcı)"
+msgstr "Araç Geri Çekildi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:78
 msgid "Listing Renewed (Vendor)"
-msgstr "İlan Yenilendi (Satıcı)"
+msgstr "İlan Yenilendi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:79
 msgid "Vehicle Relisted (Vendor)"
-msgstr "Araç Yeniden Listelendi (Satıcı)"
+msgstr "Araç Yeniden Listelendi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:80
 msgid "Expiry Warning — 10 Days (Vendor)"
-msgstr "Süre Uyarısı — 10 Gün (Satıcı)"
+msgstr "Süre Uyarısı — 10 Gün (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:81
 msgid "Expiry Warning — 3 Days (Vendor)"
-msgstr "Süre Uyarısı — 3 Gün (Satıcı)"
+msgstr "Süre Uyarısı — 3 Gün (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:83
 msgid "Payout Approved (Vendor)"
-msgstr "Hakediş Onaylandı (Satıcı)"
+msgstr "Hakediş Onaylandı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:84
 msgid "Payout Rejected (Vendor)"
-msgstr "Hakediş Reddedildi (Satıcı)"
+msgstr "Hakediş Reddedildi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:85
 msgid "IBAN Change Approved (Vendor)"
-msgstr "IBAN Değişikliği Onaylandı (Satıcı)"
+msgstr "IBAN Değişikliği Onaylandı (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:86
 msgid "IBAN Change Rejected (Vendor)"
-msgstr "IBAN Değişikliği Reddedildi (Satıcı)"
+msgstr "IBAN Değişikliği Reddedildi (Bayi)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:99
 msgid "Preview"
@@ -7689,7 +7689,7 @@ msgid ""
 "Configure email notifications sent to vendors and admins for marketplace "
 "events."
 msgstr ""
-"Pazaryeri olayları için satıcı ve yöneticilere gönderilen e-posta "
+"Pazaryeri olayları için bayi ve yöneticilere gönderilen e-posta "
 "bildirimlerini yapılandırın."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:18
@@ -7720,19 +7720,19 @@ msgstr "Ödeme e-postaları ayrıca: {{payout.amount_formatted}}"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:51
 msgid "Vendor Account"
-msgstr "Satıcı Hesabı"
+msgstr "Bayi Hesabı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:55
 msgid "Sent to vendor when application is approved."
-msgstr "Başvuru onaylandığında satıcıya gönderilir."
+msgstr "Başvuru onaylandığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:75
 msgid "Sent to vendor when application is rejected."
-msgstr "Başvuru reddedildiğinde satıcıya gönderilir."
+msgstr "Başvuru reddedildiğinde bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:95
 msgid "Sent to vendor when account is suspended."
-msgstr "Hesap askıya alındığında satıcıya gönderilir."
+msgstr "Hesap askıya alındığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:114
 msgid "Application Received"
@@ -7740,11 +7740,11 @@ msgstr "Başvuru Alındı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:115
 msgid "Confirmation sent to applicant when vendor application is received."
-msgstr "Satıcı başvurusu alındığında başvuran kişiye onay gönderilir."
+msgstr "Bayi başvurusu alındığında başvuran kişiye onay gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:135
 msgid "Admin notification when a new vendor application is submitted."
-msgstr "Yeni satıcı başvurusu gönderildiğinde yöneticiye bildirim gönderilir."
+msgstr "Yeni bayi başvurusu gönderildiğinde yöneticiye bildirim gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:157
 msgid ""
@@ -7789,7 +7789,7 @@ msgstr "Araç Onaylandı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:206
 msgid "Sent to vendor when a vehicle listing is approved."
-msgstr "Araç ilanı onaylandığında satıcıya gönderilir."
+msgstr "Araç ilanı onaylandığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:225
 msgid "Vehicle Rejected"
@@ -7797,7 +7797,7 @@ msgstr "Araç Reddedildi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:226
 msgid "Sent to vendor when a vehicle listing is rejected."
-msgstr "Araç ilanı reddedildiğinde satıcıya gönderilir."
+msgstr "Araç ilanı reddedildiğinde bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:246
 msgid "Admin notification when a vehicle is submitted for review."
@@ -7818,7 +7818,7 @@ msgstr "Araç Aktifleştirildi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:291
 msgid "Sent to vendor when a listing goes live."
-msgstr "İlan yayına alındığında satıcıya gönderilir."
+msgstr "İlan yayına alındığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:310
 msgid "Vehicle Paused"
@@ -7826,7 +7826,7 @@ msgstr "Araç Duraklatıldı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:311
 msgid "Sent to vendor when they pause a listing."
-msgstr "Satıcı ilanı duraklatığında gönderilir."
+msgstr "Bayi ilanı duraklatığında gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:330
 msgid "Vehicle Resumed"
@@ -7834,7 +7834,7 @@ msgstr "Araç Yeniden Başlatıldı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:331
 msgid "Sent to vendor when they resume a paused listing."
-msgstr "Satıcı duraklatılmış ilanı yeniden başlattığında gönderilir."
+msgstr "Bayi duraklatılmış ilanı yeniden başlattığında gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:350
 msgid "Listing Expired"
@@ -7842,7 +7842,7 @@ msgstr "İlan Süresi Doldu"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:351
 msgid "Sent to vendor when a 90-day listing expires."
-msgstr "90 günlük ilan süresi dolduğunda satıcıya gönderilir."
+msgstr "90 günlük ilan süresi dolduğunda bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:370
 msgid "Vehicle Withdrawn"
@@ -7850,7 +7850,7 @@ msgstr "Araç Geri Çekildi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:371
 msgid "Sent to vendor when a listing is withdrawn."
-msgstr "İlan geri çekildiğinde satıcıya gönderilir."
+msgstr "İlan geri çekildiğinde bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:390
 msgid "Listing Renewed"
@@ -7858,7 +7858,7 @@ msgstr "İlan Yenilendi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:391
 msgid "Sent to vendor when they renew a listing."
-msgstr "Satıcı ilanı yenilediğinde gönderilir."
+msgstr "Bayi ilanı yenilediğinde gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:410
 msgid "Vehicle Relisted"
@@ -7866,7 +7866,7 @@ msgstr "Araç Yeniden Listelendi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:411
 msgid "Sent to vendor when a withdrawn vehicle is resubmitted."
-msgstr "Geri çekilen araç yeniden gönderildiğinde satıcıya gönderilir."
+msgstr "Geri çekilen araç yeniden gönderildiğinde bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:430
 msgid "Expiry Warning (First)"
@@ -7874,7 +7874,7 @@ msgstr "Bitiş Uyarısı (Birinci)"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:431
 msgid "First warning sent to vendor before listing expires."
-msgstr "İlan süresi dolmadan önce satıcıya gönderilen ilk uyarı."
+msgstr "İlan süresi dolmadan önce bayiye gönderilen ilk uyarı."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:450
 msgid "Expiry Warning (Second)"
@@ -7882,7 +7882,7 @@ msgstr "Bitiş Uyarısı (İkinci)"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:451
 msgid "Urgent warning sent to vendor before listing expires."
-msgstr "İlan süresi dolmadan önce satıcıya gönderilen acil uyarı."
+msgstr "İlan süresi dolmadan önce bayiye gönderilen acil uyarı."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:472
 msgid "Financial Emails"
@@ -7894,7 +7894,7 @@ msgstr "Hakediş Onaylandı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:476
 msgid "Sent to vendor when a payout is approved."
-msgstr "Hakediş onaylandığında satıcıya gönderilir."
+msgstr "Hakediş onaylandığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:495
 msgid "Payout Rejected"
@@ -7902,7 +7902,7 @@ msgstr "Hakediş Reddedildi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:496
 msgid "Sent to vendor when a payout is rejected."
-msgstr "Hakediş reddedildiğinde satıcıya gönderilir."
+msgstr "Hakediş reddedildiğinde bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:515
 msgid "IBAN Change Approved"
@@ -7910,7 +7910,7 @@ msgstr "IBAN Değişikliği Onaylandı"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:516
 msgid "Sent to vendor when an IBAN change request is approved."
-msgstr "IBAN değişiklik talebi onaylandığında satıcıya gönderilir."
+msgstr "IBAN değişiklik talebi onaylandığında bayiye gönderilir."
 
 #: src/Admin/Emails/Templates/VendorEmails.php:535
 msgid "IBAN Change Rejected"
@@ -7918,7 +7918,7 @@ msgstr "IBAN Değişikliği Reddedildi"
 
 #: src/Admin/Emails/Templates/VendorEmails.php:536
 msgid "Sent to vendor when an IBAN change request is rejected."
-msgstr "IBAN değişiklik talebi reddedildiğinde satıcıya gönderilir."
+msgstr "IBAN değişiklik talebi reddedildiğinde bayiye gönderilir."
 
 #: src/Admin/Frontend/Account/AccountAssets.php:56
 #: src/Admin/Frontend/Account/AccountController.php:346
@@ -8468,7 +8468,7 @@ msgstr "Rezervasyon Görüntüle"
 
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:59
 msgid "Become a Vendor"
-msgstr "Satıcı Olun"
+msgstr "Bayi Olun"
 
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:114
 msgctxt "endpoint slug"
@@ -8503,7 +8503,7 @@ msgstr "satici-basvuru"
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:101
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:133
 msgid "Vendor Panel"
-msgstr "Satıcı Paneli"
+msgstr "Bayi Paneli"
 
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:261
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:171
@@ -8574,11 +8574,11 @@ msgstr "N/A"
 
 #: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php:45
 msgid "Access Denied. Only vendors can view the financial ledger."
-msgstr "Erişim engellendi. Mali defteri yalnızca satıcılar görebilir."
+msgstr "Erişim engellendi. Mali defteri yalnızca bayiler görebilir."
 
 #: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php:118
 msgid "Vendor Ledger template missing."
-msgstr "Satıcı muhasebe şablonu eksik."
+msgstr "Bayi muhasebe şablonu eksik."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:265
 #: templates/shortcodes/availability-calendar.php:395
@@ -9845,7 +9845,7 @@ msgstr "Araç göndermek için lütfen giriş yapın."
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:183
 msgid "Only approved vendors can submit vehicles. Apply as a vendor first."
 msgstr ""
-"Yalnızca onaylanmış satıcılar araç ekleyebilir. Önce satıcı olarak başvurun."
+"Yalnızca onaylanmış bayiler araç ekleyebilir. Önce bayi olarak başvurun."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:200
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:225
@@ -10016,7 +10016,7 @@ msgstr "Konum / Şehir"
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:294
 msgid "City is set based on your vendor profile. Contact admin to change."
 msgstr ""
-"Şehir, satıcı profilinize göre belirlenmektedir. Değiştirmek için yönetici "
+"Şehir, bayi profilinize göre belirlenmektedir. Değiştirmek için yönetici "
 "ile iletişime geçin."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:301
@@ -10233,7 +10233,7 @@ msgstr "Bir şeyler ters gitti. Lütfen tekrar deneyin."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:644
 msgid "Only approved vendors can submit vehicles."
-msgstr "Yalnızca onaylanmış satıcılar araç ekleyebilir."
+msgstr "Yalnızca onaylanmış bayiler araç ekleyebilir."
 
 #. translators: %d: minimum photo count
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:741
@@ -10266,7 +10266,7 @@ msgstr "Bu araç size ait değil."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1048
 msgid "Only approved vendors can edit vehicles."
-msgstr "Yalnızca onaylı satıcılar araç düzenleyebilir."
+msgstr "Yalnızca onaylı bayiler araç düzenleyebilir."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1054
 msgid "Invalid vehicle or permission denied."
@@ -10286,7 +10286,7 @@ msgstr "Araç başarıyla güncellendi."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:107
 msgid "Please log in to apply as a vendor."
-msgstr "Satıcı olarak başvurmak için lütfen giriş yapın."
+msgstr "Bayi olarak başvurmak için lütfen giriş yapın."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:108
 msgid "Log In"
@@ -10294,7 +10294,7 @@ msgstr "Giriş Yap"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:114
 msgid "Your application is under review or you are already an active vendor."
-msgstr "Başvurunuz inceleniyor veya zaten aktif bir satıcısınız."
+msgstr "Başvurunuz inceleniyor veya zaten aktif bir bayisiniz."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:132
 #: templates/account/account-details.php:61
@@ -11243,7 +11243,7 @@ msgid ""
 "Displays the vendor or customer dashboard panel. Output is determined "
 "automatically by the logged-in user's role."
 msgstr ""
-"Satıcı veya müşteri kontrol panelini görüntüler. Çıktı, giriş yapan "
+"Bayi veya müşteri kontrol panelini görüntüler. Çıktı, giriş yapan "
 "kullanıcının rolüne göre otomatik belirlenir."
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:42
@@ -11690,7 +11690,7 @@ msgstr "Lisansı Devre Dışı Bırak"
 #: src/Admin/Licensing/LicenseAdmin.php:957 src/Admin/Licensing/Mode.php:190
 #: src/Admin/Licensing/Mode.php:403
 msgid "Vendor & Payout"
-msgstr "Satıcı ve Ödeme"
+msgstr "Bayi ve Ödeme"
 
 #: src/Admin/Licensing/LicenseAdmin.php:417
 msgid "Expanded Export"
@@ -13797,7 +13797,7 @@ msgstr "Çıktı akışı açılamadı."
 #: templates/emails/vehicle-rereview-admin.html.php:7
 #: templates/emails/vehicle-submitted-admin.html.php:7
 msgid "Vendor"
-msgstr "Satıcı"
+msgstr "Bayi"
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:55
 #: src/Core/Dashboard/DashboardConfig.php:86
@@ -16127,7 +16127,7 @@ msgid ""
 "This location will be used as a fallback if a vehicle has no specific "
 "location and its owner (vendor) has no default location set."
 msgstr ""
-"Bu konum, bir aracın belirli konumu ve sahibinin (satıcının) varsayılan "
+"Bu konum, bir aracın belirli konumu ve sahibinin (bayinin) varsayılan "
 "konumu yoksa yedek olarak kullanılacaktır."
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:205
@@ -16203,7 +16203,7 @@ msgstr "Geri Çekilme Bekleme Süresi (Gün)"
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:145
 msgid "Days a vendor must wait before relisting after withdrawal."
 msgstr ""
-"Geri çekildikten sonra satıcının yeniden listelemek için beklemesi gereken "
+"Geri çekildikten sonra bayinin yeniden listelemek için beklemesi gereken "
 "gün sayısı."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:152
@@ -16214,7 +16214,7 @@ msgstr "Aylık Maksimum Duraklatma"
 msgid ""
 "Maximum number of times a vendor can pause a vehicle per calendar month."
 msgstr ""
-"Bir satıcının takvim ayı başına bir aracı duraklatabildiği maksimum sayı."
+"Bir bayinin takvim ayı başına bir aracı duraklatabildiği maksimum sayı."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:162
 msgid "Max Pause Duration (Days)"
@@ -16232,7 +16232,7 @@ msgstr "Geri Çekilme Cezası Ayarları"
 msgid ""
 "Configure progressive penalty rates applied when vendors withdraw vehicles."
 msgstr ""
-"Satıcılar araçlarını geri çektiğinde uygulanan kademeli ceza oranlarını "
+"Bayiler araçlarını geri çektiğinde uygulanan kademeli ceza oranlarını "
 "yapılandırın."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:180
@@ -16244,7 +16244,7 @@ msgid ""
 "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal "
 "in 12 months."
 msgstr ""
-"Satıcının 12 ay içindeki ikinci geri çekilmesine uygulanan ceza oranı (aylık "
+"Bayinin 12 ay içindeki ikinci geri çekilmesine uygulanan ceza oranı (aylık "
 "ortalama gelirin yüzdesi)."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:190
@@ -16278,7 +16278,7 @@ msgid ""
 "Prevent vendors from gaming the system by cancelling bookings to relist at "
 "higher prices."
 msgstr ""
-"Satıcıların daha yüksek fiyatla yeniden listelemek için rezervasyonları "
+"Bayilerin daha yüksek fiyatla yeniden listelemek için rezervasyonları "
 "iptal ederek sistemi istismar etmesini önler."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:218
@@ -16290,7 +16290,7 @@ msgid ""
 "After a vendor cancels a booking, these dates are blocked for new "
 "reservations for this many days."
 msgstr ""
-"Bir satıcı rezervasyonu iptal ettiğinde, bu tarihler bu kadar gün boyunca "
+"Bir bayi rezervasyonu iptal ettiğinde, bu tarihler bu kadar gün boyunca "
 "yeni rezervasyonlara kapatılır."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:228
@@ -16302,7 +16302,7 @@ msgid ""
 "Configure the point values used to calculate vendor reliability scores (base "
 "100)."
 msgstr ""
-"Satıcı güvenilirlik skorlarını hesaplamak için kullanılan puan değerlerini "
+"Bayi güvenilirlik skorlarını hesaplamak için kullanılan puan değerlerini "
 "yapılandırın (taban 100)."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:236
@@ -16314,7 +16314,7 @@ msgid ""
 "Points deducted from reliability score for each vendor-initiated "
 "cancellation (last 6 months)."
 msgstr ""
-"Satıcı kaynaklı her iptal için güvenilirlik puanından düşülen puan (son 6 "
+"Bayi kaynaklı her iptal için güvenilirlik puanından düşülen puan (son 6 "
 "ay)."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:246
@@ -16359,7 +16359,7 @@ msgstr "İlan Ücreti"
 msgid ""
 "Configure fees charged to vendors for listing vehicles on the marketplace."
 msgstr ""
-"Pazar yerinde araç ilanı vermek için satıcılardan alınan ücretleri "
+"Pazar yerinde araç ilanı vermek için bayilerden alınan ücretleri "
 "yapılandırın."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:294
@@ -16368,7 +16368,7 @@ msgstr "İlan Ücretini Etkinleştir"
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:295
 msgid "Charge vendors a fee for listing vehicles."
-msgstr "Bir araç ilanı yayına alındığında satıcılardan ücret alın."
+msgstr "Bir araç ilanı yayına alındığında bayilerden ücret alın."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:302
 msgid "Fee Model"
@@ -16392,7 +16392,7 @@ msgstr "İlan Ücreti Tutarı"
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:317
 msgid "The fee amount charged to vendors for listing a vehicle."
-msgstr "Satıcılardan araç ilanı için alınan ücret tutarı."
+msgstr "Bayilerden araç ilanı için alınan ücret tutarı."
 
 #: src/Admin/Settings/Settings.php:159
 msgid "Insufficient permissions for this action."
@@ -16579,11 +16579,11 @@ msgstr "Öne çıkan araçlar vitrini - öne çıkan premium veya önerilen ara�
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:119
 #: src/Admin/Vendor/PostType/VendorApplication.php:27
 msgid "Vendor Application"
-msgstr "Satıcı Başvurusu"
+msgstr "Bayi Başvurusu"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:121
 msgid "Vendor application form - apply to become a vehicle rental vendor"
-msgstr "Satıcı başvuru formu - araç kiralama satıcısı olmak için başvurun"
+msgstr "Bayi başvuru formu - araç kiralama bayisi olmak için başvurun"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:124
 msgid "Vehicle Submission"
@@ -16591,7 +16591,7 @@ msgstr "Araç Gönderimi"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:126
 msgid "Vendor vehicle submission form - vendors can add their vehicles"
-msgstr "Satıcı araç gönderim formu - satıcılar araçlarını ekleyebilir"
+msgstr "Bayi araç gönderim formu - bayiler araçlarını ekleyebilir"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:40
 msgid "You do not have permission."
@@ -16837,14 +16837,14 @@ msgstr ""
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:112
 msgid "Vendor Marketplace"
-msgstr "Satıcı Pazaryeri"
+msgstr "Bayi Pazaryeri"
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:114
 msgid ""
 "Configure vendor listing durations, penalty rates, anti-gaming protection, "
 "and reliability score weights."
 msgstr ""
-"Satıcı ilan sürelerini, ceza oranlarını, anti-hile korumasını ve "
+"Bayi ilan sürelerini, ceza oranlarını, anti-hile korumasını ve "
 "güvenilirlik skoru ağırlıklarını yapılandırın."
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:127
@@ -19281,13 +19281,13 @@ msgstr "Minimum Fiyat"
 
 #: src/Admin/Transfer/TransferAdmin.php:713
 msgid "Maximum Price (Vendor Ceiling)"
-msgstr "Maksimum Fiyat (Satıcı Tavanı)"
+msgstr "Maksimum Fiyat (Bayi Tavanı)"
 
 #: src/Admin/Transfer/TransferAdmin.php:715
 msgid ""
 "Maximum price vendors can charge for this route. Leave 0 for no ceiling."
 msgstr ""
-"Satıcıların bu rota için talep edebileceği maksimum fiyat. Tavan yok için 0 "
+"Bayilerin bu rota için talep edebileceği maksimum fiyat. Tavan yok için 0 "
 "bırakın."
 
 #: src/Admin/Transfer/TransferAdmin.php:718
@@ -20842,11 +20842,11 @@ msgstr "Yenilemeler:"
 
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:129
 msgid "Vendor:"
-msgstr "Satıcı:"
+msgstr "Bayi:"
 
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:139
 msgid "Vendor Score:"
-msgstr "Satıcı Skoru:"
+msgstr "Bayi Skoru:"
 
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:44
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:50
@@ -21612,7 +21612,7 @@ msgstr "Aracın temel bilgilerini girin"
 
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
 msgid "Inherit (Vendor/Global)"
-msgstr "Miras Al (Satıcı/Genel)"
+msgstr "Miras Al (Bayi/Genel)"
 
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:105
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:178
@@ -21761,7 +21761,7 @@ msgstr ""
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:44
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:67
 msgid "Vendor Management"
-msgstr "Satıcı Yönetimi"
+msgstr "Bayi Yönetimi"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:58
 msgid "You do not have permission to view this page."
@@ -21774,7 +21774,7 @@ msgstr "Bekleyen Başvurular"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:75
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:393
 msgid "Active Vendors"
-msgstr "Aktif Satıcılar"
+msgstr "Aktif Bayiler"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:77
 msgid "IBAN Requests"
@@ -21786,7 +21786,7 @@ msgstr "Komisyon"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:132
 msgid "No pending vendor applications."
-msgstr "Bekleyen satıcı başvurusu yok."
+msgstr "Bekleyen bayi başvurusu yok."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:140
 msgid "Applicant"
@@ -21850,11 +21850,11 @@ msgstr "Bu, rentiva_vendor rolünü atayacak ve başvuranı bilgilendirecektir."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:273
 msgid "Approve & Activate Vendor"
-msgstr "Onayla ve Satıcıyı Aktifleştir"
+msgstr "Onayla ve Bayiyi Aktifleştir"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:273
 msgid "Approve this vendor application?"
-msgstr "Bu satıcı başvurusunu onaylıyor musunuz?"
+msgstr "Bu bayi başvurusunu onaylıyor musunuz?"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:279
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:286
@@ -21900,7 +21900,7 @@ msgstr "Ayarlanmamış"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
 msgid ""
 "Approve this new IBAN? The vendor will receive payouts to this new account."
-msgstr "Yeni IBAN'ı onaylıyor musunuz? Satıcı ödemeleri bu yeni hesaba alacak."
+msgstr "Yeni IBAN'ı onaylıyor musunuz? Bayi ödemeleri bu yeni hesaba alacak."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
 msgid "Approve"
@@ -21910,7 +21910,7 @@ msgstr "Onayla"
 msgid ""
 "Reject this IBAN request? The vendor will continue using their old IBAN."
 msgstr ""
-"Bu IBAN talebini reddediyor musunuz? Satıcı eski IBAN'ını kullanmaya devam "
+"Bu IBAN talebini reddediyor musunuz? Bayi eski IBAN'ını kullanmaya devam "
 "edecek."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:371
@@ -21919,7 +21919,7 @@ msgstr "Reddet"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:396
 msgid "No active vendors yet."
-msgstr "Henüz aktif satıcı yok."
+msgstr "Henüz aktif bayi yok."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:405
 msgid "Service Areas"
@@ -21932,7 +21932,7 @@ msgstr "Askıya Alındı"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:433
 msgid "Suspend this vendor?"
-msgstr "Bu satıcıyı askıya almak istiyor musunuz?"
+msgstr "Bu bayiyi askıya almak istiyor musunuz?"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:433
 msgid "Suspend"
@@ -21940,7 +21940,7 @@ msgstr "Askıya Al"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:472
 msgid "Vendor Marketplace Settings"
-msgstr "Satıcı Pazaryeri Ayarları"
+msgstr "Bayi Pazaryeri Ayarları"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:481
 msgid "Global Payout Freeze"
@@ -21948,7 +21948,7 @@ msgstr "Genel Ödeme Dondurma"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:484
 msgid "Freeze all vendor payout requests site-wide"
-msgstr "Tüm satıcı ödeme taleplerini site genelinde dondur"
+msgstr "Tüm bayi ödeme taleplerini site genelinde dondur"
 
 #. translators: %s: currency symbol
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:493
@@ -21962,7 +21962,7 @@ msgstr "Minimum Ödeme Tutarı"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:499
 msgid "Vendors must have at least this balance to request a payout."
-msgstr "Satıcılar ödeme talep etmek için en az bu bakiyeye sahip olmalıdır."
+msgstr "Bayiler ödeme talep etmek için en az bu bakiyeye sahip olmalıdır."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:504
 msgid "Min Vehicle Photos"
@@ -21987,7 +21987,7 @@ msgstr "Belge Yükleme Limiti (MB)"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:520
 msgid "Maximum file size for vendor identity documents (ID, license, etc.)."
 msgstr ""
-"Satıcı kimlik belgeleri için maksimum dosya boyutu (kimlik, ehliyet vb.)."
+"Bayi kimlik belgeleri için maksimum dosya boyutu (kimlik, ehliyet vb.)."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:525
 msgid "Minimum Vehicle Year"
@@ -21999,11 +21999,11 @@ msgstr "İlanlarda izin verilen en eski araç yılı."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:532
 msgid "Vendor Bio Max Characters"
-msgstr "Satıcı Biyografi Maks Karakter"
+msgstr "Bayi Biyografi Maks Karakter"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:534
 msgid "Maximum character count for the vendor profile bio."
-msgstr "Satıcı profili biyografisi için maksimum karakter sayısı."
+msgstr "Bayi profili biyografisi için maksimum karakter sayısı."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:539
 msgid "Service Area Cities"
@@ -22012,7 +22012,7 @@ msgstr "Hizmet Alanı Şehirleri"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:541
 msgid "One city per line. Shown as checkboxes in the vendor application form."
 msgstr ""
-"Her satıra bir şehir. Satıcı başvuru formunda onay kutuları olarak "
+"Her satıra bir şehir. Bayi başvuru formunda onay kutuları olarak "
 "gösterilir."
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:561
@@ -22029,7 +22029,7 @@ msgid ""
 "creates a new policy record effective immediately. Previous rates are "
 "preserved in history for audit purposes."
 msgstr ""
-"Tüm satıcı ödemelerine uygulanan genel komisyon yüzdesini ayarlayın. Bu, "
+"Tüm bayi ödemelerine uygulanan genel komisyon yüzdesini ayarlayın. Bu, "
 "hemen geçerli olan yeni bir politika kaydı oluşturur. Önceki oranlar denetim "
 "amacıyla geçmişte korunur."
 
@@ -22064,7 +22064,7 @@ msgstr "Komisyon Oranını Kaydet"
 #: src/Admin/Vendor/PostType/VendorApplication.php:26
 #: src/Admin/Vendor/PostType/VendorApplication.php:28
 msgid "Vendor Applications"
-msgstr "Satıcı Başvuruları"
+msgstr "Bayi Başvuruları"
 
 #: src/Admin/Vendor/PostType/VendorApplication.php:30
 msgid "Add New Application"
@@ -22093,7 +22093,7 @@ msgstr "Çöp kutusunda başvuru bulunamadı."
 
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:49
 msgid "MHM Rentiva Vendor Settings"
-msgstr "MHM Rentiva Satıcı Ayarları"
+msgstr "MHM Rentiva Bayi Ayarları"
 
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:52
 msgid "Default Branch/Location"
@@ -22122,13 +22122,13 @@ msgstr "Başvurunuz zaten işleniyor. Lütfen bekleyin."
 
 #: src/Admin/Vendor/VendorApplicationManager.php:77
 msgid "You are not eligible to submit a vendor application."
-msgstr "Satıcı başvurusu yapmaya uygun değilsiniz."
+msgstr "Bayi başvurusu yapmaya uygun değilsiniz."
 
 #. translators: %s: user display name
 #: src/Admin/Vendor/VendorApplicationManager.php:84
 #, php-format
 msgid "Vendor Application — %s"
-msgstr "Satıcı Başvurusu — %s"
+msgstr "Bayi Başvurusu — %s"
 
 #: src/Admin/Vendor/VendorApplicationManager.php:107
 msgid "Could not securely store bank account information. Please try again."
@@ -22328,7 +22328,7 @@ msgstr ""
 
 #: src/Core/Financial/GovernanceService.php:247
 msgid "Payouts for this vendor have been frozen."
-msgstr "Bu satıcının ödemeleri donduruldu."
+msgstr "Bu bayinin ödemeleri donduruldu."
 
 #: src/Core/Financial/GovernanceService.php:321
 msgid "You do not have the capability to bypass time-locks."
@@ -22387,7 +22387,7 @@ msgstr "Bu ödemeyi işlemek için yeterli bakiye yok."
 #: src/Core/Financial/PayoutService.php:85
 #, php-format
 msgid "Payout Request - Vendor #%1$d - %2$s"
-msgstr "Ödeme Talebi - Satıcı #%1$d - %2$s"
+msgstr "Ödeme Talebi - Bayi #%1$d - %2$s"
 
 #: src/Core/Financial/PayoutService.php:189
 msgid "Only pending payout requests can be rejected."
@@ -22404,7 +22404,7 @@ msgid ""
 "No active commission policy found for vendor #%1$d at %2$s. Please configure "
 "a platform-wide policy in the admin."
 msgstr ""
-"%2$s tarihinde satıcı #%1$d için aktif komisyon politikası bulunamadı. "
+"%2$s tarihinde bayi #%1$d için aktif komisyon politikası bulunamadı. "
 "Lütfen yönetim panelinde platform geneli bir politika yapılandırın."
 
 #. translators: %s: missing root key in manifest.
@@ -22663,7 +22663,7 @@ msgstr ""
 
 #: src/Plugin.php:1168
 msgid "Rentiva Vendor"
-msgstr "Rentiva Satıcı"
+msgstr "Rentiva Bayi"
 
 #: templates/account/account-details.php:54
 msgid "Update your account information and preferences"
@@ -23331,7 +23331,7 @@ msgstr "Ceza"
 
 #: templates/account/partials/vendor-reliability.php:174
 msgid "Vendor-initiated cancellation"
-msgstr "Satıcı kaynaklı iptal"
+msgstr "Bayi kaynaklı iptal"
 
 #. translators: %d: points deducted per cancellation
 #. translators: %d: points deducted per withdrawal
@@ -23443,8 +23443,8 @@ msgid ""
 "ensures that reliable vendors are rewarded and unreliable behaviour carries "
 "a proportionate cost."
 msgstr ""
-"Tutarlı performans sergileyen satıcılar daha fazla görünürlük kazanır. Puan "
-"sistemi, güvenilir satıcıları ödüllendirirken güvenilmez davranışların "
+"Tutarlı performans sergileyen bayiler daha fazla görünürlük kazanır. Puan "
+"sistemi, güvenilir bayilerı ödüllendirirken güvenilmez davranışların "
 "orantılı bir bedeli olmasını sağlar."
 
 #: templates/account/partials/vendor-reliability.php:313
@@ -24736,7 +24736,7 @@ msgid ""
 "another 90 days. If you do not renew within the grace period, the listing "
 "will be automatically withdrawn."
 msgstr ""
-"İlanınızı satıcı panelinizden yenileyerek 90 gün daha aktif tutabilirsiniz. "
+"İlanınızı bayi panelinizden yenileyerek 90 gün daha aktif tutabilirsiniz. "
 "Yetkisiz süre içinde yenilenmezse ilan otomatik olarak geri çekilecek."
 
 #: templates/emails/vehicle-expired.html.php:22
@@ -24776,7 +24776,7 @@ msgid ""
 "You can resume your listing at any time from your vendor dashboard. Note: "
 "the listing timer continues while paused."
 msgstr ""
-"İlanınızı istediğiniz zaman satıcı panelinizden devam ettirebilirsiniz. Not: "
+"İlanınızı istediğiniz zaman bayi panelinizden devam ettirebilirsiniz. Not: "
 "Duraklatma sırasında ilan sayacı çalışmaya devam eder."
 
 #. translators: %s: vehicle title
@@ -24823,7 +24823,7 @@ msgid ""
 "A vendor has edited a published vehicle with critical field changes. The "
 "vehicle has been moved to pending review."
 msgstr ""
-"Bir satıcı yayındaki araçta kritik alan değişiklikleri yaptı. Araç inceleme "
+"Bir bayi yayındaki araçta kritik alan değişiklikleri yaptı. Araç inceleme "
 "kuyruğuna alındı."
 
 #: templates/emails/vehicle-rereview-admin.html.php:22
@@ -24838,7 +24838,7 @@ msgstr "Aracınız \"%s\" tekrar aktif ve müşterilere görünür durumda."
 
 #: templates/emails/vehicle-submitted-admin.html.php:4
 msgid "A vendor has submitted a new vehicle for review."
-msgstr "Bir satıcı incelenmek üzere yeni bir araç gönderdi."
+msgstr "Bir bayi incelenmek üzere yeni bir araç gönderdi."
 
 #: templates/emails/vehicle-submitted-admin.html.php:22
 msgid "Review Vehicle"
@@ -24865,14 +24865,14 @@ msgstr ""
 
 #: templates/emails/vendor-application-new-admin.html.php:4
 msgid "A new vendor application has been submitted and is awaiting review."
-msgstr "Yeni bir satıcı başvurusu gönderildi ve inceleme bekliyor."
+msgstr "Yeni bir bayi başvurusu gönderildi ve inceleme bekliyor."
 
 #: templates/emails/vendor-application-received.html.php:11
 msgid ""
 "We have received your vendor application. Our team will review your "
 "documents and notify you by email once a decision has been made."
 msgstr ""
-"Satıcı başvurunuzu aldık. Ekibimiz belgelerinizi inceleyecek ve bir karar "
+"Bayi başvurunuzu aldık. Ekibimiz belgelerinizi inceleyecek ve bir karar "
 "verildiğinde e-posta ile bilgilendirecektir."
 
 #: templates/emails/vendor-application-received.html.php:12
@@ -24885,7 +24885,7 @@ msgid ""
 "Great news! Your vendor application has been reviewed and approved. You can "
 "now log in and start adding your vehicles to the platform."
 msgstr ""
-"Harika haber! Satıcı başvurunuz incelendi ve onaylandı. Artık giriş "
+"Harika haber! Bayi başvurunuz incelendi ve onaylandı. Artık giriş "
 "yapabilir ve araçlarınızı platforma eklemeye başlayabilirsiniz."
 
 #: templates/emails/vendor-rejected.html.php:11
@@ -24893,7 +24893,7 @@ msgid ""
 "Thank you for applying to become a vendor on our platform. After reviewing "
 "your application, we are unable to approve it at this time."
 msgstr ""
-"Platformumuzda satıcı olmak için başvurduğunuz için teşekkür ederiz. "
+"Platformumuzda bayi olmak için başvurduğunuz için teşekkür ederiz. "
 "Başvurunuzu inceledikten sonra şu anda onaylayamıyoruz."
 
 #: templates/emails/vendor-rejected.html.php:18
@@ -24909,7 +24909,7 @@ msgid ""
 "We are writing to inform you that your vendor account has been temporarily "
 "suspended on our platform."
 msgstr ""
-"Platformumuzda satıcı hesabınızın geçici olarak askıya alındığını bildirmek "
+"Platformumuzda bayi hesabınızın geçici olarak askıya alındığını bildirmek "
 "için yazıyoruz."
 
 #: templates/emails/vendor-suspended.html.php:14
@@ -24918,7 +24918,7 @@ msgid ""
 "customers will not be able to make new bookings until the suspension is "
 "lifted."
 msgstr ""
-"Satıcı hesabınız ve tüm aktif ilanlarınız askıya alındı. Askı kaldırılana "
+"Bayi hesabınız ve tüm aktif ilanlarınız askıya alındı. Askı kaldırılana "
 "kadar müşterileriniz yeni rezervasyon yapamayacaktır."
 
 #: templates/emails/vendor-suspended.html.php:16
@@ -26425,7 +26425,7 @@ msgstr "MHM Kullanıcı Paneli"
 #: assets/blocks/user-dashboard/block.json
 msgctxt "block description"
 msgid "Display the vendor or customer dashboard panel."
-msgstr "Satıcı veya müşteri kontrol panelini görüntüleyin."
+msgstr "Bayi veya müşteri kontrol panelini görüntüleyin."
 
 #: assets/blocks/vehicle-comparison/block.json
 msgctxt "block title"

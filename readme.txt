@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.33.1
+Stable tag:        4.33.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,12 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.33.2 — 2026-04-29 =
+**Turkish Terminology Cleanup**
+
+* i18n (TR): Vendor translation migrated from "Satıcı" (seller) to "Bayi" (dealer/agency) — "Satıcı" was contextually misleading for a rental marketplace. ~130 strings touched with proper Turkish inflection (Bayinin, Bayiye, Bayilerden, etc.) and vowel harmony.
+* No EN string changes, no code changes — pure translation polish.
 
 = 4.33.1 — 2026-04-29 =
 **Search Polish & UX Fixes**

@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.33.1-blue.svg)
+![Version](https://img.shields.io/badge/version-4.33.2-blue.svg)
 ![Lisans Güvenliği](https://img.shields.io/badge/lisans%20g%C3%BCvenli%C4%9Fi-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
@@ -49,7 +49,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Rezervasyon Sistemi**: Gerçek zamanlı müsaitlik kontrolü, rezervasyon yönetimi ve otomatik iptal
 - **Ödeme İşleme**: Tüm frontend rezervasyonları için WooCommerce entegrasyonu ile güvenli ödeme işlemleri
 - **WooCommerce Hesabım Entegrasyonu**: Müşteriler standart WooCommerce "Hesabım" sayfasını kullanır; eklenti bu sayfaya Rezervasyonlarım, Favorilerim, Ödeme Geçmişi ve Mesajlar gibi özel sekmeler ekler
-- **Vendor Marketplace** *(Pro)*: Araç sahiplerinin platforma başvurmasına, araçlarını frontend üzerinden listelemesine (araç gönderme formu), finansal hareketlerini takip etmesine ve vendor dashboard üzerinden durumlarını görüntülemesine olanak tanıyan çok satıcılı pazar yeri sistemi
+- **Vendor Marketplace** *(Pro)*: Araç sahiplerinin platforma başvurmasına, araçlarını frontend üzerinden listelemesine (araç gönderme formu), finansal hareketlerini takip etmesine ve vendor dashboard üzerinden durumlarını görüntülemesine olanak tanıyan çok bayili pazar yeri sistemi
 - **Araç Yaşam Döngüsü Yönetimi** *(Pro, v4.24.0)*: 90 gün listeleme süresi, vendor self-servis (duraklat/devam/geri çek/yenile), artan ceza sistemi, güvenilirlik puanı, anti-gaming tarih bloklama
 - **Analitik ve Raporlama**: Gelir, müşteri ve araç içgörüleri ile kapsamlı analitik dashboard
 - **E-posta Sistemi**: Özelleştirilebilir HTML şablonları ile otomatik e-posta bildirimleri
@@ -63,7 +63,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Bisiklet/Motosiklet Kiralama**: Müsaitliği takip edin ve ödemeleri işleyin
 - **Ekipman Kiralama İşletmeleri**: Her türlü araç veya ekipmanı kiralayın
 - **Transfer Lokasyon Yönetimi**: VIP Transfer modülü ile birden fazla alış/bırakış noktası ve para birimi desteği
-- **Pazar Yeri İşletmeleri**: Vendor Marketplace ile çok satıcılı araç kiralama platformu kurun *(Pro)*
+- **Pazar Yeri İşletmeleri**: Vendor Marketplace ile çok bayili araç kiralama platformu kurun *(Pro)*
 - **Çeviriye Hazır**: Eklenti İngilizce ve Türkçe ile gelir; WooCommerce uyumlu para birimi desteği. Loco Translate üzerinden her dile çevrilebilir
 
 ---
@@ -137,10 +137,10 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - **Makbuz Yönetimi**: Yöneticiler manuel rezervasyonlara ödeme kanıtı ekleyebilir.
 
 **3. Vendor Finansal Sistemi** *(Pro)*
-- **Komisyon Politikası**: Platforma kayıtlı satıcılar için zaman bazlı komisyon oranı tanımlanabilir (`CommissionPolicy`).
-- **Kademe Sistemi**: Hacim bazlı komisyon indirimi — satıcı ne çok kazanırsa komisyon oranı o kadar düşer (`TierService`).
-- **Finansal Defter (Ledger)**: Satıcı bazında tüm kazanç ve kesinti kayıtları izlenebilir.
-- **Ödeme Yönetimi (Payout)**: Yönetici satıcılara ödeme işleyebilir; tüm hareketler loglanır.
+- **Komisyon Politikası**: Platforma kayıtlı bayiler için zaman bazlı komisyon oranı tanımlanabilir (`CommissionPolicy`).
+- **Kademe Sistemi**: Hacim bazlı komisyon indirimi — bayi ne çok kazanırsa komisyon oranı o kadar düşer (`TierService`).
+- **Finansal Defter (Ledger)**: Bayi bazında tüm kazanç ve kesinti kayıtları izlenebilir.
+- **Ödeme Yönetimi (Payout)**: Yönetici bayilere ödeme işleyebilir; tüm hareketler loglanır.
 
 **Ödeme Özellikleri:**
 - Kısmi ödeme desteği — Depozito sistemi (yüzde bazlı)
@@ -241,7 +241,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 - Yeni mesaj bildirimi
 
 **4. Vendor E-postaları** *(Pro — `VendorNotifications`)*:
-- Başvuru alındı (satıcıya + admin)
+- Başvuru alındı (bayiye + admin)
 - Vendor başvurusu onaylandı / reddedildi
 - Araç listesi onaylandı / reddedildi
 - Ödeme (payout) onaylandı / reddedildi
@@ -303,7 +303,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 ### 🏪 Vendor Pazaryeri (Pro)
 
-**Çok Satıcılı Yönetim:**
+**Çok Bayili Yönetim:**
 - **Vendor Rolü**: İzole izinlerle özel `rentiva_vendor` WordPress rolü
 - **Vendor Başvurusu**: Belge yükleme destekli frontend başvuru formu (kimlik, ehliyet, adres belgesi, sigorta)
 - **Onboarding İş Akışı**: Admin başvuruları onaylama/reddetme/askıya alma
@@ -592,9 +592,9 @@ Eklenti, esnek yerleşimler için kapsamlı bir shortcode setine sahiptir.
 - `[rentiva_messages]` — Müşteri ve yönetici arası mesajlaşma (Pro).
 
 ### Vendor & Transfer
-- `[rentiva_vendor_apply]` — Yeni satıcı (vendor) başvuru formu.
+- `[rentiva_vendor_apply]` — Yeni bayi (vendor) başvuru formu.
 - `[rentiva_vehicle_submit]` — Frontend üzerinden araç ekleme/düzenleme (Vendor).
-- `[rentiva_vendor_ledger]` — Satıcı finansal dökümü ve bakiye tablosu (Vendor).
+- `[rentiva_vendor_ledger]` — Bayi finansal dökümü ve bakiye tablosu (Vendor).
 - `[rentiva_transfer_search]` — VIP Transfer / Şoförlü hizmet arama formu.
 - `[rentiva_transfer_results]` — Transfer arama sonuçları sayfası.
 
@@ -694,7 +694,7 @@ mhm-rentiva/
 #### Önemli Aksiyonlar (Actions)
 - `mhm_rentiva_booking_created` — Yeni rezervasyon oluşturulduğunda tetiklenir.
 - `mhm_rentiva_booking_status_changed` — Rezervasyon durumu değiştiğinde tetiklenir.
-- `mhm_rentiva_vendor_approved` — Satıcı başvurusu onaylandığında tetiklenir.
+- `mhm_rentiva_vendor_approved` — Bayi başvurusu onaylandığında tetiklenir.
 - `mhm_rentiva_vehicle_approved` — Araç ilanı onaylandığında tetiklenir.
 - `mhm_rentiva_email_sent` — Sistem tarafından bir e-posta gönderildiğinde tetiklenir.
 
