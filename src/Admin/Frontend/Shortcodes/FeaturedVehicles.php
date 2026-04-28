@@ -120,6 +120,8 @@ final class FeaturedVehicles extends AbstractShortcode {
 			'price_format'         => 'daily',
 			'filter_brands'        => '',
 			'filter_categories'    => '',
+			'view_all_url'         => '',
+			'view_all_text'        => '',
 		);
 	}
 

@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.33.1",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "Fix: the Lifecycle meta box on the vehicle edit screen now identifies the vendor by name. Previously it rendered the reliability score (e.g. 'Vendor Score: 100/100 — Excellent') without saying which vendor the score belonged to — admins had to cross-reference the users list to find out. The new 'Vendor:' row sits just above the score and resolves to display_name with a user_login fallback so the vendor row is never blank.",
+            "Fix: Featured Vehicles slider (`rentiva_featured_vehicles`) flickered on short lists. Swiper's `loop: true` mode breaks when there are not enough duplicate slides — a 3-column slider with 5 vehicles would rotate through blank slides. The slider now enables loop only when slide count exceeds `columns × 2`. Few slides = plain swipe, many slides = infinite loop. Automatic; no user-facing setting.",
+            "New: Featured Vehicles gains `view_all_url` and `view_all_text` attributes — parity with Vehicles Grid. Renders a 'View All' link below the slider/grid. Supported across all three surfaces: shortcode (`view_all_url=\"...\"` attribute), Elementor widget (two new fields in the Carousel Options panel), and Gutenberg block (two new TextControls in the Inspector Controls). Hidden when empty; rendered in the template footer when populated.",
+            "Tests: 822 → 824 PHPUnit (+2 — `lifecycle_meta_box_renders_vendor_display_name`, `lifecycle_meta_box_falls_back_to_user_login_when_display_name_is_empty`). FeaturedVehiclesDefaultsParityTest extended with two new mappings (view_all_url, view_all_text). PHPCS: 0 errors across the six changed files. i18n: 2 new strings ('Vendor:', 'Adds a \"View All\" link below the carousel...') with Turkish translations (msgmerge fuzzy=0)."
+        ],
+        "notice": "v4.33.1 patch — Vendor name in the Lifecycle meta box, Featured Vehicles slider loop fix + 'View All' button parity. No license-server upgrade required."
+    },
+    {
         "version": "4.33.0",
         "date": "2026-04-27",
         "type": "minor",

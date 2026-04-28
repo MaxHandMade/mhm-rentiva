@@ -19,10 +19,16 @@
             const columns = cfg.columns || 3;
             const autoplayEnabled = cfg.autoplay !== false;
             const interval = cfg.interval || 5000;
+            // Swiper'in loop modu duplicate slide ihtiyacı duyar. Slide sayısı
+            // columns * 2'den az ise duplicate yetersiz kalır ve geçişlerde
+            // boş kart / flicker oluşur. Bu yüzden loop'u sadece yeterli
+            // sayıda kart varsa açıyoruz.
+            const slideCount = container.find('.swiper-slide').length;
+            const enableLoop = slideCount > columns * 2;
 
             try {
                 new Swiper(container[0], {
-                    loop: true,
+                    loop: enableLoop,
                     speed: 600,
                     autoplay: autoplayEnabled ? {
                         delay: interval,

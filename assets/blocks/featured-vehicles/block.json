@@ -167,6 +167,14 @@
             "type": "string",
             "default": "daily"
         },
+        "viewAllUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "viewAllText": {
+            "type": "string",
+            "default": ""
+        },
         "className": {
             "type": "string",
             "default": ""

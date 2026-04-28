@@ -96,6 +96,78 @@ class AdminUITest extends \WP_UnitTestCase
         wp_delete_post($vehicle_id, true);
     }
 
+    /**
+     * Regression for Note 1 (v4.33.1): when an admin opens a vehicle edit
+     * screen, the Lifecycle meta box has to identify which vendor owns the
+     * vehicle. Before v4.33.1 the box rendered the reliability score but
+     * never the vendor's name, so admins had no immediate context for the
+     * score they were looking at.
+     */
+    public function test_lifecycle_meta_box_renders_vendor_display_name(): void
+    {
+        $vendor_id = $this->factory()->user->create(array(
+            'role'         => 'subscriber',
+            'display_name' => 'Acme Filo Kiralama',
+            'user_login'   => 'acme_filo',
+        ));
+        $user = get_userdata($vendor_id);
+        $user->add_role('rentiva_vendor');
+
+        $vehicle_id = wp_insert_post(array(
+            'post_type'   => 'vehicle',
+            'post_status' => 'publish',
+            'post_author' => $vendor_id,
+            'post_title'  => 'Vendor Name Test Vehicle',
+        ));
+
+        $post = get_post($vehicle_id);
+        $this->assertNotNull($post);
+
+        ob_start();
+        LifecycleMetaBox::render($post);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Vendor:', $output, 'Meta box must label the vendor row');
+        $this->assertStringContainsString('Acme Filo Kiralama', $output, 'Vendor display_name must be visible to admins');
+
+        wp_delete_post($vehicle_id, true);
+    }
+
+    /**
+     * Fallback: when display_name is empty, the meta box still has to
+     * identify the vendor. Falls back to user_login so admins never see a
+     * blank vendor row.
+     */
+    public function test_lifecycle_meta_box_falls_back_to_user_login_when_display_name_is_empty(): void
+    {
+        $vendor_id = $this->factory()->user->create(array(
+            'role'         => 'subscriber',
+            'user_login'   => 'fallback_vendor_login',
+            'display_name' => '',
+        ));
+        // Force display_name empty (factory may copy from user_login).
+        wp_update_user(array('ID' => $vendor_id, 'display_name' => ''));
+        $user = get_userdata($vendor_id);
+        $user->add_role('rentiva_vendor');
+
+        $vehicle_id = wp_insert_post(array(
+            'post_type'   => 'vehicle',
+            'post_status' => 'publish',
+            'post_author' => $vendor_id,
+            'post_title'  => 'Fallback Vendor Test',
+        ));
+
+        $post = get_post($vehicle_id);
+        ob_start();
+        LifecycleMetaBox::render($post);
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Vendor:', $output);
+        $this->assertStringContainsString('fallback_vendor_login', $output);
+
+        wp_delete_post($vehicle_id, true);
+    }
+
     // ── Vendor Reliability Column ────────────────────────────
 
     public function test_reliability_column_added_to_users_list(): void

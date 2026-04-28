@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.33.1",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "🔧 SATICI ETİKETİ: Araç düzenleme ekranındaki 'Yaşam Döngüsü' meta box'ı artık aracın bayisinin adını da gösteriyor. Önceki sürümlerde sadece güvenilirlik puanı görünüyordu (ör. 'Satıcı Skoru: 100/100 — Mükemmel'); admin hangi bayinin puanına baktığını anlamak için ayrıca kullanıcı listesine bakmak zorundaydı. Artık 'Satıcı: Acme Filo Kiralama' satırı puanın hemen üstünde. display_name boşsa user_login'e fallback yapılıyor — vendor satırı asla boş görünmez.",
+            "🎠 SLIDER LOOP FIX: Öne Çıkan Araçlar (`rentiva_featured_vehicles`) shortcode'unun slider modu, az araçlı listelerde flicker yapıyordu. Swiper'in `loop: true` modu yeterli duplicate slide olmadığında bozulur — 3 sütunlu slider'da 5 araç varsa kartlar boş slide ile dönüyordu. Yeni davranış: kart sayısı `columns × 2`'den fazla değilse loop kapatılıyor. Az kart = düz kaydırma, çok kart = sonsuz döngü. Otomatik koşullu, kullanıcı tarafında ayar yok.",
+            "🔗 'TÜMÜNÜ GÖR' BUTONU: Öne Çıkan Araçlar shortcode'una `view_all_url` ve `view_all_text` özellikleri eklendi — Araç Izgarası ile parite. Slider/grid altında özel bir 'Tümünü Gör' linki gösterir. Shortcode (`view_all_url=\"...\"` attribute), Elementor widget (Carousel Options panelinde 2 yeni alan) ve Gutenberg blok (Inspector Controls'te 2 yeni TextControl) — üçü birden destekliyor. Boşsa link gizli, doldurulduğunda template footer'da render ediliyor.",
+            "📊 TEST: 822 → 824 PHPUnit (+2 yeni — `lifecycle_meta_box_renders_vendor_display_name`, `lifecycle_meta_box_falls_back_to_user_login_when_display_name_is_empty`). FeaturedVehiclesDefaultsParityTest 2 yeni mapping (view_all_url, view_all_text) ile genişletildi. PHPCS: 0 hata değişen 6 dosyada. i18n: 2 yeni string ('Satıcı:', 'Galerinin altına \"Tümünü Gör\" linki ekler...'), TR çevirileri eklendi (msgmerge fuzzy=0)."
+        ],
+        "notice": "v4.33.1 patch — Yaşam Döngüsü meta box'ında bayi adı, Öne Çıkan Araçlar slider loop fix + 'Tümünü Gör' butonu pariteyi sağladı. Lisans server güncelleme gerektirmez."
+    },
+    {
         "version": "4.33.0",
         "date": "2026-04-27",
         "type": "minor",

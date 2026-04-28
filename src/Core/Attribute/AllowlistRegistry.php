@@ -1429,6 +1429,8 @@ final class AllowlistRegistry {
             'service_type',
             'filter_brands',
             'filter_categories',
+            'view_all_url',
+            'view_all_text',
         ],
         'rentiva_unified_search'        => [
             'default_tab',

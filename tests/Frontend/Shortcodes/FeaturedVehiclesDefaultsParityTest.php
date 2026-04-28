@@ -30,6 +30,9 @@ class FeaturedVehiclesDefaultsParityTest extends WP_UnitTestCase
             'limit'                => 'limit',
             'orderby'              => 'sortBy',
             'order'                => 'sortOrder',
+            // v4.33.1 — "View All" link parity with rentiva_vehicles_grid.
+            'view_all_url'         => 'viewAllUrl',
+            'view_all_text'        => 'viewAllText',
         ];
 
         foreach ($pairs as $shortcode_key => $block_key) {

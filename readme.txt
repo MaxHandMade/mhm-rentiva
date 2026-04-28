@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.33.0
+Stable tag:        4.33.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -81,6 +81,14 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.33.1 — 2026-04-29 =
+**Search Polish & UX Fixes**
+
+* Fixed: the Lifecycle meta box on the vehicle edit screen now shows the vendor's name above the reliability score (display_name with user_login fallback).
+* Fixed: Featured Vehicles slider no longer flickers on short lists — `loop` mode now activates only when slide count exceeds `columns × 2`.
+* Added: `view_all_url` and `view_all_text` attributes for `rentiva_featured_vehicles` (shortcode + Elementor widget + Gutenberg block) — parity with Vehicles Grid.
+* Tests: 822 → 824 PHPUnit (+2). PHPCS: 0 errors. i18n: 2 new TR strings.
 
 = 4.33.0 — 2026-04-27 =
 **Pro Gate Unification**

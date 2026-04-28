@@ -84,6 +84,18 @@
                             onChange: function (val) { setAttributes({ columns: val }); }
                         }),
                         el(TextControl, {
+                            label: __('View All URL', 'mhm-rentiva'),
+                            value: attributes.viewAllUrl,
+                            onChange: function (val) { setAttributes({ viewAllUrl: val }); },
+                            help: __('Adds a "View All" link below the carousel. Leave empty to hide.', 'mhm-rentiva')
+                        }),
+                        attributes.viewAllUrl ? el(TextControl, {
+                            label: __('View All Button Text', 'mhm-rentiva'),
+                            value: attributes.viewAllText,
+                            onChange: function (val) { setAttributes({ viewAllText: val }); },
+                            placeholder: __('View All Vehicles', 'mhm-rentiva')
+                        }) : null,
+                        el(TextControl, {
                             label: __('Custom CSS Class', 'mhm-rentiva'),
                             value: attributes.className,
                             onChange: function (val) { setAttributes({ className: val }); }

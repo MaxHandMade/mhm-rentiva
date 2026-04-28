@@ -116,14 +116,25 @@ final class LifecycleMetaBox {
 			echo '</p>';
 		}
 
-		// Vendor reliability score.
+		// Vendor identification + reliability score.
 		$vendor_id = (int) $post->post_author;
 		if ($vendor_id > 0) {
+			$vendor       = get_userdata($vendor_id);
+			$vendor_label = $vendor ? ( $vendor->display_name !== '' ? $vendor->display_name : $vendor->user_login ) : '';
+
+			echo '<hr style="margin:8px 0;border:0;border-top:1px solid #ddd;">';
+
+			if ($vendor_label !== '') {
+				echo '<p style="margin:4px 0;font-size:12px;">';
+				echo '<strong>' . esc_html__('Vendor:', 'mhm-rentiva') . '</strong> ';
+				echo esc_html($vendor_label);
+				echo '</p>';
+			}
+
 			$score       = ReliabilityScoreCalculator::get($vendor_id);
 			$score_label = ReliabilityScoreCalculator::get_label($score);
 			$score_color = ReliabilityScoreCalculator::get_color($score);
 
-			echo '<hr style="margin:8px 0;border:0;border-top:1px solid #ddd;">';
 			echo '<p style="margin:4px 0;font-size:12px;">';
 			echo '<strong>' . esc_html__('Vendor Score:', 'mhm-rentiva') . '</strong> ';
 			echo '<span style="color:' . esc_attr($score_color) . ';font-weight:700;">';
