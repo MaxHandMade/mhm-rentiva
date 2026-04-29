@@ -248,7 +248,28 @@ final class VehicleLifecycleManager {
         // Calculate progressive penalty based on withdrawal history.
         $penalty = PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
 
-        ReliabilityScoreCalculator::update($vendor_id, 'withdraw', $vehicle_id);
+        /**
+         * Filter — should the withdrawal penalty (score deduction + ledger debit) be applied?
+         *
+         * Returning false suspends the immediate score update. Used by the Vendor
+         * Report system (v4.35.0) to defer penalties while a withdrawal-reason
+         * appeal is open. The same filter also gates {@see PenaltyRecorder::record_penalty()}
+         * so the ledger entry stays in sync with the score.
+         *
+         * @since 4.35.0
+         *
+         * @param bool   $apply      Whether to apply the penalty. Default true.
+         * @param int    $vehicle_id Vehicle post ID.
+         * @param int    $vendor_id  Vendor user ID.
+         * @param string $reason     Penalty reason ('withdrawal').
+         * @param float  $penalty    Pre-calculated penalty amount.
+         */
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain.
+        $apply_penalty = (bool) apply_filters('mhm_rentiva_before_apply_penalty', true, $vehicle_id, $vendor_id, 'withdrawal', $penalty);
+
+        if ($apply_penalty) {
+            ReliabilityScoreCalculator::update($vendor_id, 'withdraw', $vehicle_id);
+        }
 
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
         do_action('mhm_rentiva_vehicle_withdrawn', $vehicle_id, $vendor_id, $penalty);

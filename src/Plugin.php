@@ -286,6 +286,24 @@ final class Plugin {
 			\MHMRentiva\Admin\Vehicle\PenaltyRecorder::register();
 		}
 
+		// Vendor Report system — bridges open vehicle_action reports with the
+		// penalty pipeline so withdrawal reasons under review suspend penalties.
+		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')) {
+			\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook::register();
+		}
+
+		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler')) {
+			\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler::register();
+		}
+
+		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\VendorReportAssets')) {
+			\MHMRentiva\Admin\VendorReport\VendorReportAssets::register();
+		}
+
+		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage')) {
+			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::register();
+		}
+
 		// Anti-gaming: block dates when vendor cancels a confirmed booking.
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker')) {
 			\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker::register();

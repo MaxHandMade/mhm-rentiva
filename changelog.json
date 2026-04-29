@@ -1,5 +1,21 @@
 [
     {
+        "version": "4.35.0",
+        "date": "2026-04-29",
+        "type": "minor",
+        "changes": [
+            "Vendor Report / Appeal System: a shared infrastructure for vendor → admin reports across five contexts (booking, vehicle, vehicle_action, penalty, general). Single custom table `{prefix}mhm_rentiva_vendor_reports`, single AJAX endpoint, single shared modal triggered from the vendor panel — 'Sorun Bildir' on booking cards (button already existed since v4.26.5, now wired up), 'İtiraz Et' on paused/withdrawn vehicles and on each penalty row in the score history, 'Yöneticiye Yaz' from the vendor panel footer.",
+            "Withdrawal/pause reason capture (Not 2 augment): when a vendor pauses or withdraws a vehicle, a modal captures the reason and creates a `vehicle_action` report. The new `mhm_rentiva_before_apply_penalty` filter checks for an open report and suspends the score deduction + ledger entry until an admin resolves it. Resolved → vendor wins (no penalty). Rejected → deferred penalty applied retroactively. The previous `confirm()` dialog used by the lifecycle JS is replaced by the shared modal so a real reason capture path now exists.",
+            "Admin 'Bayi Raporları' submenu under MHM Rentiva (Mode::canUseVendorMarketplace gated) — list with status + context filters, detail view with description, optional admin note, and resolve/reject/in-review actions. Form actions submit via standard admin-post handlers; nonce + capability checks on every endpoint.",
+            "Two email notifications via the existing VendorNotifications registry: `vendor_report_received_admin` (vendor → admin on new report) and `vendor_report_resolved` (admin → vendor on status change). Both gated by canUseVendorMarketplace and follow the existing Mailer::send() pattern.",
+            "Penalty pipeline integration via two new filter hook points: `VehicleLifecycleManager::withdraw()` wraps the score update with `apply_filters('mhm_rentiva_before_apply_penalty', ...)`, and `PenaltyRecorder::record_penalty()` gates the ledger entry with the same filter. PenaltySuspensionHook callback returns false when an open vehicle_action report exists for the matching vendor + vehicle.",
+            "Database: new `{prefix}mhm_rentiva_vendor_reports` table via dbDelta + `VendorReportsMigration` class. `DatabaseMigrator::CURRENT_VERSION` bumped 3.5.0 → 3.6.0 to trigger the migration on existing installs. `context_id` is VARCHAR(64) — can carry integer IDs (booking/vehicle), ledger UUIDs (penalty), or NULL (general). Per-request `has_open_report_for()` cache so the dual filter hook (Manager + Recorder) costs one DB query.",
+            "Plan-vs-codebase drift: pre-implementation audit found 9 items where the original 2026-04-15 plan diverged from current code (no `src/Admin/Penalty/` directory, no `PenaltyService`, no pre-existing filter, no integer penalty record IDs, score deduction synchronous before any hook, sequential migration filename convention nonexistent, 'Sorun Bildir' button already in vendor-bookings.php since v4.26.5, 'Report Issue' string already in tr_TR.po, and Mode::canUseVendorMarketplace required everywhere). The plan was revised before implementation; all 9 items resolved.",
+            "Tests: 840 → 864 PHPUnit (+24 — VendorReportRepository 10, VendorReportService 8, PenaltySuspensionHook 6). PHPCS: 0 errors. i18n: 30+ new TR strings (admin page labels, modal labels, withdrawal/pause reason flow, status enum, context enum, admin actions, email subjects)."
+        ],
+        "notice": "v4.35.0 minor — Vendor Report / Appeal System feature. New custom table, new admin submenu, new vendor panel modal triggers, new penalty filter hook, two new email templates. No license-server upgrade required. Dev sites need `define('MHM_RENTIVA_DEV_PRO', true)` in wp-config.php to bypass the Pro gate."
+    },
+    {
         "version": "4.34.2",
         "date": "2026-04-29",
         "type": "patch",

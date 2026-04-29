@@ -61,6 +61,13 @@ final class VehicleLifecycleAjaxController {
 
 	/**
 	 * Handle withdraw action.
+	 *
+	 * If the request carries a `reason` POST parameter, a `vehicle_action`
+	 * vendor report is created BEFORE the withdrawal call. The penalty
+	 * suspension filter ({@see \MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook})
+	 * sees the open report and skips the score deduction + ledger entry.
+	 * Admins resolve the report later — resolved keeps the suspension,
+	 * rejected applies the deferred penalty.
 	 */
 	public static function handle_withdraw(): void
 	{
@@ -70,6 +77,28 @@ final class VehicleLifecycleAjaxController {
 		}
 
 		$vendor_id = get_current_user_id();
+
+		// Optional reason capture (Not 2 augment, v4.35.0). When provided, the
+		// reason is stored as a vendor_action report and the penalty suspended.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- check_ajax_referer ran in validate_request().
+		$reason = isset($_POST['reason']) ? sanitize_textarea_field(wp_unslash($_POST['reason'])) : '';
+		$reason = trim($reason);
+
+		if ($reason !== ''
+			&& class_exists(\MHMRentiva\Admin\VendorReport\Core\VendorReportService::class)
+		) {
+			$service = new \MHMRentiva\Admin\VendorReport\Core\VendorReportService();
+			$report  = $service->create_report(
+				$vendor_id,
+				\MHMRentiva\Admin\VendorReport\Core\VendorReportContext::VEHICLE_ACTION,
+				$vehicle_id,
+				__('Withdrawal reason', 'mhm-rentiva'),
+				$reason
+			);
+			// Non-fatal: if the report could not be saved (duplicate/short text)
+			// the withdrawal still proceeds, but with the normal penalty applied.
+			unset($report);
+		}
 
 		// Preview penalty before withdrawal so we can include it in the response.
 		$penalty = PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);

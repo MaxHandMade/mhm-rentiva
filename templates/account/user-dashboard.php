@@ -317,6 +317,14 @@ if (! $user_display_name) {
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
 				</div>
 			<?php endif; ?>
+
+			<?php if ($context === 'vendor' && \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) : ?>
+				<div class="mhm-rentiva-dashboard__contact-admin">
+					<button type="button" class="mhm-rentiva-dashboard__contact-admin-link" data-mhm-vrm-trigger="report" data-context-type="general">
+						<?php esc_html_e('Contact Administrator', 'mhm-rentiva'); ?>
+					</button>
+				</div>
+			<?php endif; ?>
 		</div>
 	</main>
 </div>

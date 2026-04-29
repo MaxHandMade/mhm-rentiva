@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 4.34.0\n"
+"Project-Id-Version: MHM Rentiva 4.34.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-29T00:46:54+00:00\n"
+"POT-Creation-Date: 2026-04-29T05:37:59+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -188,7 +188,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:1534
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
-#: templates/account/partials/vendor-listings.php:427
+#: templates/account/partials/vendor-listings.php:433
 #: templates/shortcodes/availability-calendar.php:443
 msgid "Loading..."
 msgstr ""
@@ -203,6 +203,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:410
+#: src/Admin/VendorReport/VendorReportAssets.php:136
 #: templates/account/booking-detail.php:306
 msgid "An error occurred."
 msgstr ""
@@ -882,6 +883,8 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:95
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:73
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:168
+#: templates/emails/vendor-report-received-admin.html.php:15
 msgid "Title"
 msgstr ""
 
@@ -917,6 +920,7 @@ msgstr ""
 #: src/Admin/Utilities/Export/ExportHistory.php:195
 #: src/Admin/Utilities/ListTable/LogColumns.php:48
 #: src/Admin/Utilities/ListTable/LogColumns.php:116
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:169
 #: templates/account/booking-detail.php:149
 #: templates/account/bookings.php:148
 #: templates/account/bookings.php:256
@@ -1046,6 +1050,7 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:468
 #: src/Admin/Booking/ListTable/BookingColumns.php:476
 #: src/Admin/Utilities/ListTable/LogColumns.php:118
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:135
 msgid "All statuses"
 msgstr ""
 
@@ -1066,6 +1071,7 @@ msgstr ""
 #: src/Admin/Messages/Admin/MessageListTable.php:607
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:273
 #: src/Admin/Reports/Reports.php:473
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:155
 #: templates/account/bookings.php:103
 #: templates/account/vendor-ledger.php:54
 msgid "Filter"
@@ -1903,6 +1909,7 @@ msgstr ""
 #: templates/emails/vendor-application-received.html.php:8
 #: templates/emails/vendor-approved.html.php:8
 #: templates/emails/vendor-rejected.html.php:8
+#: templates/emails/vendor-report-resolved.html.php:20
 #: templates/emails/vendor-suspended.html.php:8
 #, php-format
 msgid "Hello %s,"
@@ -2056,7 +2063,7 @@ msgstr ""
 
 #: src/Admin/Booking/Helpers/Util.php:769
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:190
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:403
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:424
 #: templates/shortcodes/availability-calendar.php:50
 msgid "Vehicle not found."
 msgstr ""
@@ -2096,6 +2103,7 @@ msgstr ""
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:393
 #: src/Admin/Vehicle/ListingFeeManager.php:230
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:348
 #: templates/account/booking-detail.php:126
 #: templates/account/partials/top-vehicles.php:29
 #: templates/account/partials/vendor-reliability.php:363
@@ -2565,7 +2573,8 @@ msgstr ""
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:991
 #: src/Blocks/BlockRegistry.php:257
 #: templates/account/partials/vendor-listings.php:175
-#: templates/account/partials/vendor-listings.php:424
+#: templates/account/partials/vendor-listings.php:430
+#: templates/account/partials/vendor-report-modal.php:27
 msgid "Close"
 msgstr ""
 
@@ -2585,7 +2594,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:71
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:265
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1146
+#: src/Plugin.php:1164
 #: templates/admin/dashboard/pending-payments.php:27
 #: templates/admin/dashboard/upcoming-operations.php:32
 #: templates/admin/reports/customers.php:84
@@ -2687,6 +2696,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1364
 #: src/Admin/Core/AssetManager.php:1161
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1052
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:170
 msgid "Created"
 msgstr ""
 
@@ -2749,6 +2759,7 @@ msgstr ""
 #: src/Admin/PostTypes/Message/Message.php:323
 #: src/Admin/Settings/Testing/SettingsTester.php:970
 #: src/Admin/Utilities/ListTable/LogColumns.php:49
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:346
 #: templates/account/user-dashboard.php:199
 #: templates/account/user-dashboard.php:251
 #: templates/admin/dashboard/pending-payments.php:26
@@ -3262,11 +3273,13 @@ msgstr ""
 #: src/Admin/Settings/Groups/EmailSettings.php:209
 #: src/Admin/Settings/Groups/LicenseSettings.php:90
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:60
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:214
 #: templates/account/payment-history.php:103
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:246
 #: templates/emails/refund-admin.html.php:29
 #: templates/emails/refund-customer.html.php:27
+#: templates/emails/vendor-report-resolved.html.php:32
 msgid "Status:"
 msgstr ""
 
@@ -4318,6 +4331,7 @@ msgstr ""
 #: templates/account/account-details.php:189
 #: templates/account/messages.php:89
 #: templates/account/messages.php:161
+#: templates/account/partials/vendor-report-modal.php:81
 #: templates/messages/message-reply-form.html.php:65
 msgid "Cancel"
 msgstr ""
@@ -4923,6 +4937,7 @@ msgstr ""
 #: src/Admin/Utilities/Export/ExportHistory.php:197
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:144
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:343
+#: templates/account/partials/vendor-reliability.php:366
 #: templates/admin/shortcode-pages.php:31
 msgid "Actions"
 msgstr ""
@@ -6139,7 +6154,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:221
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:210
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:168
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:197
 #: src/Admin/Vendor/VendorVehicleReviewManager.php:102
 #: src/Admin/Vendor/VendorVehicleReviewManager.php:129
 msgid "Invalid vehicle ID."
@@ -6294,6 +6309,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:407
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:171
 #: templates/account/partials/vendor-reliability.php:150
 msgid "Action"
 msgstr ""
@@ -6497,19 +6513,19 @@ msgstr ""
 msgid "index.php file missing - directory listing is possible"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:541
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:548
 msgid "MHM Rentiva: Database migration required. Run migration for performance."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:543
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:550
 msgid "Run Migration"
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:548
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:555
 msgid "MHM Rentiva: Database performance can be optimized."
 msgstr ""
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:550
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:557
 msgid "Optimize"
 msgstr ""
 
@@ -7064,92 +7080,100 @@ msgstr ""
 msgid "partial refund"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:72
+#: src/Admin/Emails/Notifications/VendorNotifications.php:76
 msgid "Welcome! Your vendor account is approved — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:76
+#: src/Admin/Emails/Notifications/VendorNotifications.php:80
 msgid "Your vendor application — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:80
+#: src/Admin/Emails/Notifications/VendorNotifications.php:84
 msgid "We received your application — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:84
+#: src/Admin/Emails/Notifications/VendorNotifications.php:88
 msgid "[Admin] New vendor application from {{vendor.name}} — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:88
+#: src/Admin/Emails/Notifications/VendorNotifications.php:92
 msgid "Your vehicle is live! — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:92
+#: src/Admin/Emails/Notifications/VendorNotifications.php:96
 msgid "Your vehicle listing — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:96
+#: src/Admin/Emails/Notifications/VendorNotifications.php:100
 msgid "Payout approved — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:100
+#: src/Admin/Emails/Notifications/VendorNotifications.php:104
 msgid "Payout request update — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:104
+#: src/Admin/Emails/Notifications/VendorNotifications.php:108
 msgid "IBAN change approved — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:108
+#: src/Admin/Emails/Notifications/VendorNotifications.php:112
 msgid "IBAN change update — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:112
+#: src/Admin/Emails/Notifications/VendorNotifications.php:116
 msgid "Your vendor account has been suspended — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:116
+#: src/Admin/Emails/Notifications/VendorNotifications.php:120
 msgid "[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:120
+#: src/Admin/Emails/Notifications/VendorNotifications.php:124
 msgid "[Admin] Vehicle edited — re-review needed — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:126
+#: src/Admin/Emails/Notifications/VendorNotifications.php:130
 msgid "Your listing is now live! — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:130
+#: src/Admin/Emails/Notifications/VendorNotifications.php:134
 msgid "Vehicle paused — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:134
+#: src/Admin/Emails/Notifications/VendorNotifications.php:138
 msgid "Vehicle resumed — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:138
+#: src/Admin/Emails/Notifications/VendorNotifications.php:142
 msgid "Vehicle withdrawn — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:142
+#: src/Admin/Emails/Notifications/VendorNotifications.php:146
 msgid "Your listing has expired — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:146
+#: src/Admin/Emails/Notifications/VendorNotifications.php:150
 msgid "Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:150
+#: src/Admin/Emails/Notifications/VendorNotifications.php:154
 msgid "Urgent: Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:154
+#: src/Admin/Emails/Notifications/VendorNotifications.php:158
 msgid "Listing renewed — {{site.name}}"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:158
+#: src/Admin/Emails/Notifications/VendorNotifications.php:162
 msgid "Vehicle submitted for review — {{site.name}}"
+msgstr ""
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php:168
+msgid "[Admin] New vendor report: {{report.title}} — {{site.name}}"
+msgstr ""
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php:172
+msgid "Your report has been updated: {{report.title}} — {{site.name}}"
 msgstr ""
 
 #: src/Admin/Emails/PostTypes/EmailLog.php:25
@@ -8443,6 +8467,7 @@ msgstr ""
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:52
 #: src/Admin/Reports/BackgroundProcessor.php:460
 #: src/Admin/Reports/BackgroundProcessor.php:474
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:165
 #: templates/account/bookings.php:142
 #: templates/account/bookings.php:250
 #: templates/account/partials/vendor-payouts.php:217
@@ -8687,6 +8712,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:241
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:575
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:230
+#: src/Admin/VendorReport/VendorReportAssets.php:133
 msgid "Submitting..."
 msgstr ""
 
@@ -10097,7 +10123,7 @@ msgid "Invalid vehicle."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:977
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:407
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:428
 msgid "You do not own this vehicle."
 msgstr ""
 
@@ -12844,6 +12870,7 @@ msgstr ""
 #: src/Admin/Messages/Settings/MessagesSettings.php:353
 #: src/Admin/PostTypes/Message/Message.php:322
 #: src/Admin/Settings/Testing/SettingsTester.php:968
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:354
 #: templates/account/messages.php:113
 msgid "General"
 msgstr ""
@@ -13384,12 +13411,15 @@ msgid "Site URL: %s"
 msgstr ""
 
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:588
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:216
 msgid "Context:"
 msgstr ""
 
 #: src/Admin/PostTypes/Logs/MetaBox.php:24
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:141
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:167
 #: templates/account/vendor-ledger.php:65
+#: templates/emails/vendor-report-received-admin.html.php:19
 msgid "Context"
 msgstr ""
 
@@ -13531,9 +13561,11 @@ msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:53
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:166
 #: templates/admin/dashboard/quick-actions.php:84
 #: templates/emails/vehicle-rereview-admin.html.php:7
 #: templates/emails/vehicle-submitted-admin.html.php:7
+#: templates/emails/vendor-report-received-admin.html.php:11
 msgid "Vendor"
 msgstr ""
 
@@ -13558,8 +13590,10 @@ msgid "Approved"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:176
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:336
 #: templates/account/partials/vendor-listings.php:33
 #: templates/account/partials/vendor-payouts.php:53
+#: templates/emails/vendor-report-resolved.html.php:11
 msgid "Rejected"
 msgstr ""
 
@@ -19972,7 +20006,7 @@ msgid "Renewal"
 msgstr ""
 
 #: src/Admin/Vehicle/ListingFeeManager.php:238
-#: templates/account/partials/vendor-listings.php:407
+#: templates/account/partials/vendor-listings.php:410
 msgid "Relist"
 msgstr ""
 
@@ -20155,6 +20189,7 @@ msgid "Renewals:"
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:129
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:215
 msgid "Vendor:"
 msgstr ""
 
@@ -20930,30 +20965,36 @@ msgstr ""
 msgid "Vehicle resumed successfully."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:84
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:95
+#: src/Admin/VendorReport/VendorReportAssets.php:143
+msgid "Withdrawal reason"
+msgstr ""
+
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:113
 msgid "Vehicle withdrawn successfully."
 msgstr ""
 
 #. translators: %s: formatted penalty amount
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:88
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:117
 #, php-format
 msgid "Vehicle withdrawn. A penalty of %s has been applied."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:117
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:142
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:146
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:171
 msgid "Redirecting to payment..."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:123
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:152
 msgid "Listing renewed for another 90 days."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:148
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:177
 msgid "Vehicle submitted for review."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:162
+#: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:191
+#: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php:54
 msgid "Unauthorized."
 msgstr ""
 
@@ -20988,35 +21029,35 @@ msgid "Cannot withdraw vehicle from \"%s\" state."
 msgstr ""
 
 #. translators: %s: current vehicle lifecycle state name
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:275
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:296
 #, php-format
 msgid "Cannot expire vehicle from \"%s\" state."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:309
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:330
 msgid "Only expired listings can be renewed."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:319
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:340
 msgid "Renewal grace period has passed. Please relist the vehicle."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:360
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:381
 msgid "Only withdrawn vehicles can be relisted."
 msgstr ""
 
 #. translators: %d: number of days remaining in cooldown period
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:370
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:391
 #, php-format
 msgid "Cooldown period active. %d day(s) remaining."
 msgstr ""
 
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:443
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:464
 msgid "Cannot change vehicle status while it has active bookings."
 msgstr ""
 
 #. translators: 1: current pause count this month, 2: maximum pauses allowed per month
-#: src/Admin/Vehicle/VehicleLifecycleManager.php:467
+#: src/Admin/Vehicle/VehicleLifecycleManager.php:488
 #, php-format
 msgid "Monthly pause limit reached (%1$d/%2$d). Try again next month."
 msgstr ""
@@ -21046,6 +21087,7 @@ msgid "Vendor Management"
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:58
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:67
 msgid "You do not have permission to view this page."
 msgstr ""
 
@@ -21192,6 +21234,7 @@ msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:371
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:255
 msgid "Reject"
 msgstr ""
 
@@ -21404,6 +21447,220 @@ msgstr ""
 
 #: src/Admin/Vendor/VendorOnboardingController.php:39
 msgid "Associated user not found."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:56
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:57
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:75
+msgid "Vendor Reports"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:147
+msgid "All contexts"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:159
+msgid "No reports found."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:186
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:330
+msgid "Open"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:199
+#: src/Admin/VendorReport/Core/VendorReportService.php:225
+msgid "Report not found."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:206
+msgid "Unknown vendor"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:208
+msgid "Back to list"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:222
+msgid "Submitted:"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:224
+#: templates/emails/vendor-report-received-admin.html.php:24
+msgid "Description"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:228
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:250
+#: templates/emails/vendor-report-resolved.html.php:37
+msgid "Administrator Note"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:235
+msgid "This report is closed. No further action is possible."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:244
+msgid "Resolve this report"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:251
+msgid "Optional — explain your decision so the vendor knows why."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:254
+msgid "Mark as Resolved"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:256
+msgid "Mark In Review"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:282
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:291
+msgid "Invalid report."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:332
+msgid "In Review"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:334
+msgid "Resolved"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:350
+msgid "Vehicle action"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:352
+msgid "Penalty appeal"
+msgstr ""
+
+#: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php:44
+msgid "Vendor reports are a Pro feature."
+msgstr ""
+
+#: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php:61
+#: src/Admin/VendorReport/Core/VendorReportService.php:60
+msgid "Unknown report context."
+msgstr ""
+
+#: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php:99
+msgid "Your report has been sent to the administrator."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:56
+msgid "Vendor not identified."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:65
+msgid "Report title is required."
+msgstr ""
+
+#. translators: %d: minimum description length
+#: src/Admin/VendorReport/Core/VendorReportService.php:74
+#, php-format
+msgid "Please describe the issue in at least %d characters."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:85
+msgid "You already have an open report for this item."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:98
+msgid "Could not save your report. Please try again."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:230
+msgid "This report has already been closed."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:126
+msgid "Report a booking issue"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:127
+msgid "Appeal vehicle action"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:128
+msgid "Appeal Penalty"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:129
+#: templates/account/user-dashboard.php:324
+msgid "Contact Administrator"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:130
+#: templates/account/partials/vendor-report-modal.php:34
+msgid "Tell the administrator what happened. Your message goes only to the platform team."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:131
+#: templates/account/partials/vendor-report-modal.php:60
+msgid "Describe the issue in detail..."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:132
+#: templates/account/partials/vendor-report-modal.php:84
+msgid "Submit Report"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:134
+msgid "Report submitted successfully"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:135
+msgid "Please describe the issue in at least 20 characters."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:137
+msgid "Network error. Please try again."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:138
+msgid "Done."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:139
+msgid "Withdraw vehicle"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:140
+msgid "A penalty applies to vehicle withdrawals. Tell the administrator the reason — if accepted, the penalty will not apply."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:141
+msgid "Reason for withdrawal"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:142
+msgid "Withdraw Vehicle"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:144
+msgid "Pause vehicle"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:145
+msgid "A penalty may apply to repeated pauses. Tell the administrator the reason — if accepted, the penalty will not apply."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:146
+msgid "Reason for pausing"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:147
+msgid "Pause Vehicle"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:148
+msgid "Pause reason"
 msgstr ""
 
 #: src/Api/REST/PayoutCallbackController.php:98
@@ -21897,15 +22154,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:844
+#: src/Plugin.php:862
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:847
+#: src/Plugin.php:865
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1168
+#: src/Plugin.php:1186
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -22326,6 +22583,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: templates/account/partials/vendor-bookings.php:425
+#: templates/account/partials/vendor-report-modal.php:31
 msgid "Report Issue"
 msgstr ""
 
@@ -22415,11 +22673,17 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:403
+#: templates/account/partials/vendor-listings.php:402
+#: templates/account/partials/vendor-listings.php:413
+#: templates/account/partials/vendor-reliability.php:428
+msgid "Appeal"
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:406
 msgid "Renew"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:423
+#: templates/account/partials/vendor-listings.php:429
 msgid "Edit Vehicle"
 msgstr ""
 
@@ -22693,8 +22957,22 @@ msgstr ""
 msgid "Score"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:401
+#: templates/account/partials/vendor-reliability.php:410
 msgid "pts"
+msgstr ""
+
+#. translators: %1$s: event label, %2$s: vehicle title
+#: templates/account/partials/vendor-reliability.php:422
+#, php-format
+msgid "Appeal: %1$s on %2$s"
+msgstr ""
+
+#: templates/account/partials/vendor-report-modal.php:45
+msgid "Report Title"
+msgstr ""
+
+#: templates/account/partials/vendor-report-modal.php:73
+msgid "Minimum 20 characters."
 msgstr ""
 
 #: templates/account/partials/vendor-settings.php:62
@@ -23924,6 +24202,28 @@ msgstr ""
 
 #: templates/emails/vendor-rejected.html.php:18
 msgid "You are welcome to reapply once the noted issues have been resolved. If you believe this decision was made in error, please contact our support team."
+msgstr ""
+
+#: templates/emails/vendor-report-received-admin.html.php:7
+msgid "A vendor has submitted a new report."
+msgstr ""
+
+#: templates/emails/vendor-report-received-admin.html.php:29
+msgid "Open report in admin"
+msgstr ""
+
+#: templates/emails/vendor-report-resolved.html.php:9
+msgid "Resolved (in your favor)"
+msgstr ""
+
+#. translators: %s: report title
+#: templates/emails/vendor-report-resolved.html.php:27
+#, php-format
+msgid "The administrator has reviewed your report \"%s\"."
+msgstr ""
+
+#: templates/emails/vendor-report-resolved.html.php:45
+msgid "Go to your panel"
 msgstr ""
 
 #: templates/emails/vendor-suspended.html.php:11

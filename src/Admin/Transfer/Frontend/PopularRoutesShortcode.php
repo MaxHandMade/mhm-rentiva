@@ -229,7 +229,7 @@ final class PopularRoutesShortcode {
 
         $type_icon = self::location_type_icon($origin_type);
 
-        $card_link = self::build_card_link($origin_id, $destination_id);
+        $card_link  = self::build_card_link($origin_id, $destination_id);
         $aria_label = sprintf(
             /* translators: 1: origin location name, 2: destination location name */
             __('Search transfers from %1$s to %2$s', 'mhm-rentiva'),

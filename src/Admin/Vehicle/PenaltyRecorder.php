@@ -41,6 +41,20 @@ final class PenaltyRecorder {
 			return;
 		}
 
+		/**
+		 * Filter — gate the ledger debit. Mirrors the score-deduction gate in
+		 * {@see VehicleLifecycleManager::withdraw()} so the score and the ledger
+		 * stay in sync. Used by the Vendor Report system (v4.35.0) to suspend
+		 * penalties while a withdrawal-reason appeal is open.
+		 *
+		 * @since 4.35.0
+		 */
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain.
+		$apply_penalty = (bool) apply_filters('mhm_rentiva_before_apply_penalty', true, $vehicle_id, $vendor_id, 'withdrawal', $penalty_amount);
+		if (! $apply_penalty) {
+			return;
+		}
+
 		$currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
 
 		$uuid = 'withdrawal_penalty_' . $vehicle_id . '_' . $vendor_id . '_' . time();

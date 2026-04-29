@@ -58,6 +58,10 @@ final class VendorNotifications {
 		add_action('mhm_rentiva_payout_rejected', array( self::class, 'on_payout_rejected' ), 10, 4);
 		add_action('mhm_rentiva_iban_change_approved', array( self::class, 'on_iban_change_approved' ), 10, 1);
 		add_action('mhm_rentiva_iban_change_rejected', array( self::class, 'on_iban_change_rejected' ), 10, 1);
+
+		// Vendor Report system (v4.35.0)
+		add_action('mhm_rentiva_vendor_report_created', array( self::class, 'on_vendor_report_created' ), 10, 3);
+		add_action('mhm_rentiva_vendor_report_resolved', array( self::class, 'on_vendor_report_resolved' ), 10, 3);
 	}
 
 	/**
@@ -159,7 +163,94 @@ final class VendorNotifications {
 			'file'    => 'vehicle-relisted',
 		);
 
+		// Vendor Report system (v4.35.0).
+		$registry['vendor_report_received_admin'] = array(
+			'subject' => __('[Admin] New vendor report: {{report.title}} — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vendor-report-received-admin',
+		);
+		$registry['vendor_report_resolved']       = array(
+			'subject' => __('Your report has been updated: {{report.title}} — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'vendor-report-resolved',
+		);
+
 		return $registry;
+	}
+
+	/**
+	 * Vendor report submitted — notify admin.
+	 *
+	 * Listens to `mhm_rentiva_vendor_report_created` from VendorReportService.
+	 *
+	 * @param int    $report_id    Inserted report row ID.
+	 * @param int    $vendor_id    Vendor user ID.
+	 * @param string $context_type Context: booking | vehicle | vehicle_action | penalty | general.
+	 */
+	public static function on_vendor_report_created(int $report_id, int $vendor_id, string $context_type): void
+	{
+		if (! class_exists(\MHMRentiva\Admin\VendorReport\Core\VendorReportRepository::class)) {
+			return;
+		}
+
+		$report = \MHMRentiva\Admin\VendorReport\Core\VendorReportRepository::find($report_id);
+		if ($report === null) {
+			return;
+		}
+
+		$vendor = get_userdata($vendor_id);
+		if (! $vendor instanceof \WP_User) {
+			return;
+		}
+
+		$ctx           = self::build_vendor_context($vendor);
+		$ctx['report'] = array(
+			'id'           => $report_id,
+			'title'        => (string) $report->title,
+			'context_type' => $context_type,
+			'description'  => (string) $report->description,
+			'admin_url'    => admin_url('admin.php?page=mhm-rentiva-vendor-reports&view=' . $report_id),
+		);
+
+		$admin_email = (string) get_option('admin_email');
+		if ($admin_email !== '') {
+			\MHMRentiva\Admin\Emails\Core\Mailer::send('vendor_report_received_admin', $admin_email, $ctx);
+		}
+	}
+
+	/**
+	 * Vendor report resolved/rejected — notify vendor.
+	 *
+	 * Listens to `mhm_rentiva_vendor_report_resolved` from VendorReportService.
+	 *
+	 * @param int    $report_id  Report row ID.
+	 * @param int    $vendor_id  Vendor user ID.
+	 * @param string $new_status 'resolved' or 'rejected'.
+	 */
+	public static function on_vendor_report_resolved(int $report_id, int $vendor_id, string $new_status): void
+	{
+		if (! class_exists(\MHMRentiva\Admin\VendorReport\Core\VendorReportRepository::class)) {
+			return;
+		}
+
+		$report = \MHMRentiva\Admin\VendorReport\Core\VendorReportRepository::find($report_id);
+		if ($report === null) {
+			return;
+		}
+
+		$vendor = get_userdata($vendor_id);
+		if (! $vendor instanceof \WP_User) {
+			return;
+		}
+
+		$ctx           = self::build_vendor_context($vendor);
+		$ctx['report'] = array(
+			'id'         => $report_id,
+			'title'      => (string) $report->title,
+			'status'     => $new_status,
+			'admin_note' => (string) ( $report->admin_note ?? '' ),
+			'panel_url'  => $ctx['panel']['url'] ?? home_url('/'),
+		);
+
+		\MHMRentiva\Admin\Emails\Core\Mailer::send('vendor_report_resolved', (string) $vendor->user_email, $ctx);
 	}
 
 	/**

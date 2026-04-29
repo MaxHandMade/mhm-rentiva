@@ -1,5 +1,21 @@
 [
     {
+        "version": "4.35.0",
+        "date": "2026-04-29",
+        "type": "minor",
+        "changes": [
+            "🌟 BAYİ RAPOR / İTİRAZ SİSTEMİ: Bayi → admin yönlü raporlar için tek paylaşılan altyapı, beş bağlam (rezervasyon, araç, araç işlemi, ceza, genel) bir custom tabloda toplanıyor. Tek AJAX endpoint, tek paylaşılan modal — bayi panelinde 'Sorun Bildir' (rezervasyon kartı, v4.26.5'ten beri buton vardı, şimdi bağlandı), 'İtiraz Et' (durdurulmuş/çekilmiş araçlar + güvenilirlik puan geçmişi her satırda), 'Yöneticiye Yaz' (panel altbilgisi).",
+            "🛡️ ÇEKME/DURDURMA SEBEBİ KAPTURE (Not 2 augment): Bayi araç durdurma/çekme yaptığında modal sebep yakalıyor ve `vehicle_action` raporu oluşturuyor. Yeni `mhm_rentiva_before_apply_penalty` filtresi açık rapor varsa puan düşüşünü ve muhasebe defteri girişini admin karar verene kadar askıya alıyor. Çözüldü → bayi kazanır (ceza yok). Reddedildi → ertelenmiş ceza geriye dönük uygulanır. Lifecycle JS'in eski `confirm()` dialog'u paylaşılan modal ile değiştirildi.",
+            "👨‍💼 ADMIN 'BAYİ RAPORLARI' SAYFASI: MHM Rentiva alt menüsü (Mode::canUseVendorMarketplace gate'li). Durum + bağlam filtreleri ile liste, açıklama detayı, isteğe bağlı yönetici notu, çöz/reddet/incelemeye al aksiyonları. Form admin-post handler'larıyla gönderiliyor; her endpoint'te nonce + yetki kontrolü.",
+            "📧 İKİ E-POSTA BİLDİRİMİ: Mevcut VendorNotifications registry'sine `vendor_report_received_admin` (yeni rapor → admin) ve `vendor_report_resolved` (durum değişikliği → bayi) eklendi. İkisi de canUseVendorMarketplace gate'li ve mevcut Mailer::send() pattern'ını izliyor.",
+            "🔌 CEZA HATTI ENTEGRASYONU: İki yeni filtre noktası — `VehicleLifecycleManager::withdraw()` puan güncellemesini `apply_filters('mhm_rentiva_before_apply_penalty', ...)` ile sarmalıyor ve `PenaltyRecorder::record_penalty()` muhasebe defteri girişini aynı filtre ile geçitliyor. PenaltySuspensionHook callback'i, eşleşen bayi + araç için açık vehicle_action raporu varsa false döndürüyor.",
+            "💾 VERİTABANI: Yeni `{prefix}mhm_rentiva_vendor_reports` tablosu dbDelta + `VendorReportsMigration` sınıfı ile. `DatabaseMigrator::CURRENT_VERSION` 3.5.0 → 3.6.0 bump (mevcut kurulumlarda migration'ı tetiklemek için). `context_id` VARCHAR(64) — integer ID (rezervasyon/araç), ledger UUID (ceza), veya NULL (genel) taşıyabilir. Per-request `has_open_report_for()` cache'i ile dual filter hook tek DB sorgusu maliyeti.",
+            "📋 PLAN-vs-CODEBASE DRIFT: Implementasyon öncesi audit, orijinal 2026-04-15 plan'ı ile mevcut kod arasında 9 sapma noktası buldu (`src/Admin/Penalty/` dizini yok, `PenaltyService` yok, mevcut filter yok, integer penalty record ID yok, puan düşüşü hook'tan ÖNCE senkron, sequential migration dosya adı konvansiyonu yok, 'Sorun Bildir' butonu v4.26.5'ten beri vendor-bookings.php'de mevcut, 'Report Issue' string'i tr_TR.po'da zaten çevrili, ve Mode::canUseVendorMarketplace her yerde gerekli). Plan implementasyon öncesi revize edildi; 9 madde de çözüldü.",
+            "🧪 TESTLER: 840 → 864 PHPUnit (+24 — VendorReportRepository 10, VendorReportService 8, PenaltySuspensionHook 6). PHPCS: 0 hata. i18n: 30+ yeni TR çevirisi (admin sayfa etiketleri, modal etiketleri, çekme/durdurma sebep akışı, durum enum, bağlam enum, admin işlemleri, e-posta konuları)."
+        ],
+        "notice": "v4.35.0 minor — Bayi Rapor / İtiraz Sistemi. Yeni custom tablo, yeni admin alt menü, yeni bayi panel modal tetikleyicileri, yeni ceza filter hook, iki yeni e-posta şablonu. Lisans server güncelleme gerektirmez. Dev sitelerde `wp-config.php`'ye `define('MHM_RENTIVA_DEV_PRO', true);` eklemek Pro gate'i atlatır."
+    },
+    {
         "version": "4.34.2",
         "date": "2026-04-29",
         "type": "patch",

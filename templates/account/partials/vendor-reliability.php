@@ -363,6 +363,7 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 							<th><?php esc_html_e('Vehicle', 'mhm-rentiva'); ?></th>
 							<th><?php esc_html_e('Change', 'mhm-rentiva'); ?></th>
 							<th><?php esc_html_e('Score', 'mhm-rentiva'); ?></th>
+							<th><?php esc_html_e('Actions', 'mhm-rentiva'); ?></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -381,6 +382,14 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 							$is_negative = $delta < 0;
 							$delta_class = $is_positive ? 'is-green' : ( $is_negative ? 'is-red' : 'is-neutral' );
 							$delta_sign  = $is_positive ? '+' : '';
+
+							// "Appeal" button only for negative-delta events tied to a specific vehicle.
+							// The penalty UUID format mirrors PenaltyRecorder's ledger key.
+							$can_appeal     = $is_negative && $vehicle_id_e > 0 && in_array($event_type, [ 'withdraw', 'cancel', 'pause' ], true);
+							$appeal_context = $event_type === 'withdraw' ? 'penalty' : 'penalty';
+							$appeal_uuid    = $event_type === 'withdraw' && $vehicle_id_e > 0
+								? 'withdrawal_penalty_' . $vehicle_id_e . '_' . get_current_user_id()
+								: 'score_event_' . $event_type . '_' . $vehicle_id_e;
 							?>
 							<tr>
 								<td class="mhm-vendor-reliability__history-date"><?php echo esc_html($date_fmt); ?></td>
@@ -403,6 +412,24 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 								</td>
 								<td class="mhm-vendor-reliability__history-score">
 									<?php echo esc_html( (string) $score_after); ?>
+								</td>
+								<td class="mhm-vendor-reliability__history-actions">
+									<?php if ($can_appeal) : ?>
+										<button type="button" class="mhm-vendor-reliability__appeal-btn" data-mhm-vrm-trigger="report" data-context-type="penalty" data-context-id="<?php echo esc_attr($appeal_uuid); ?>" data-suggested-title="
+                                        <?php
+                                        echo esc_attr(sprintf(
+											/* translators: %1$s: event label, %2$s: vehicle title */
+											__('Appeal: %1$s on %2$s', 'mhm-rentiva'),
+											$event_label,
+											$vehicle_title !== '' ? $vehicle_title : '#' . $vehicle_id_e
+										));
+										?>
+                                        ">
+											<?php esc_html_e('Appeal', 'mhm-rentiva'); ?>
+										</button>
+									<?php else : ?>
+										<span class="mhm-vendor-reliability__history-na">—</span>
+									<?php endif; ?>
 								</td>
 							</tr>
 						<?php endforeach; ?>

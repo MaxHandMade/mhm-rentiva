@@ -398,6 +398,9 @@ $vehicle_count = count( $vehicles );
 								<button type="button" class="mhm-vendor-listing-card__action is-danger mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="withdraw">
 									<?php esc_html_e( 'Withdraw', 'mhm-rentiva' ); ?>
 								</button>
+								<button type="button" class="mhm-vendor-listing-card__action is-outline" data-mhm-vrm-trigger="report" data-context-type="vehicle" data-context-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>">
+									<?php esc_html_e( 'Appeal', 'mhm-rentiva' ); ?>
+								</button>
 							<?php elseif ( $lifecycle_status === 'expired' ) : ?>
 								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="renew">
 									<?php esc_html_e( 'Renew', 'mhm-rentiva' ); ?>
@@ -405,6 +408,9 @@ $vehicle_count = count( $vehicles );
 							<?php elseif ( $lifecycle_status === 'withdrawn' ) : ?>
 								<button type="button" class="mhm-vendor-listing-card__action is-outline mhm-lifecycle-btn" data-vehicle-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>" data-action="relist">
 									<?php esc_html_e( 'Relist', 'mhm-rentiva' ); ?>
+								</button>
+								<button type="button" class="mhm-vendor-listing-card__action is-outline" data-mhm-vrm-trigger="report" data-context-type="vehicle" data-context-id="<?php echo esc_attr( (string) $vehicle->ID ); ?>">
+									<?php esc_html_e( 'Appeal', 'mhm-rentiva' ); ?>
 								</button>
 							<?php endif; ?>
 						</div>

@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.34.2
+Stable tag:        4.35.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,17 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.35.0 — 2026-04-29 =
+**Vendor Report / Appeal System (Pro)**
+
+* New: shared infrastructure for vendor → admin reports across five contexts (booking, vehicle, vehicle_action, penalty, general). Single custom table (`{prefix}mhm_rentiva_vendor_reports`), single AJAX endpoint, single shared modal triggered from the vendor panel — Sorun Bildir on booking cards, İtiraz Et on paused/withdrawn vehicles and on each penalty row in the score history, Yöneticiye Yaz from the vendor panel footer.
+* New: **Withdrawal/pause reason capture (Not 2)** — when a vendor pauses or withdraws a vehicle, a modal captures the reason and creates a `vehicle_action` report. The new `mhm_rentiva_before_apply_penalty` filter checks for an open report and suspends the score deduction + ledger entry until an admin resolves it. Resolved → vendor wins (no penalty). Rejected → deferred penalty applied retroactively.
+* New: Admin "Bayi Raporları" page (Mode::canUseVendorMarketplace gated) — list with status + context filters, detail view with description, optional admin note, and resolve/reject/in-review actions. Form actions submit via admin-post handlers.
+* New: two email notifications via the existing `VendorNotifications` registry — `vendor_report_received_admin` (new report → admin) and `vendor_report_resolved` (status change → vendor).
+* New: penalty pipeline integration via two new filter hook points in `VehicleLifecycleManager::withdraw()` and `PenaltyRecorder::record_penalty()`. Cache invalidation on report CRUD; per-request memo so the dual hook check costs one DB query.
+* Database: new `{prefix}mhm_rentiva_vendor_reports` table via dbDelta. `DatabaseMigrator::CURRENT_VERSION` bumped 3.5.0 → 3.6.0 to trigger the migration on existing installs. `context_id` is VARCHAR(64) so it can carry integer IDs (booking/vehicle), UUIDs (penalty ledger transaction), or NULL (general).
+* Tests: 840 → 864 PHPUnit (+24 — Repository 10, Service 8, PenaltySuspensionHook 6). PHPCS: 0 errors. i18n: 30+ new TR strings translated.
 
 = 4.34.2 — 2026-04-29 =
 **Transfer-card favorite/compare button styling hotfix**

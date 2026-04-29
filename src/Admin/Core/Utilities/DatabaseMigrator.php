@@ -21,8 +21,11 @@ final class DatabaseMigrator {
 
 	/**
 	 * Migration version
+	 *
+	 * Bump this when a new schema-creating migration is added so that
+	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.5.0';
+	private const CURRENT_VERSION = '3.6.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -60,6 +63,10 @@ final class DatabaseMigrator {
 			// SaaS Control Plane (v1.9)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::run();
+			}
+			// Vendor Reports / Appeals (v4.35.0)
+			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
+				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
 			}
 			self::add_performance_indexes();
 			self::optimize_existing_indexes();
