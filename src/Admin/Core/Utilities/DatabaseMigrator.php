@@ -615,10 +615,12 @@ final class DatabaseMigrator {
             base_price decimal(10,2) DEFAULT 0.00,
             min_price decimal(10,2) DEFAULT 0.00,
             max_price decimal(10,2) DEFAULT 0.00,
+            is_featured tinyint(1) NOT NULL DEFAULT 0,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
             KEY origin_dest (origin_id, destination_id),
-            KEY pricing_method (pricing_method)
+            KEY pricing_method (pricing_method),
+            KEY is_featured (is_featured)
         ) $charset_collate;";
 
 		dbDelta($sql_routes);

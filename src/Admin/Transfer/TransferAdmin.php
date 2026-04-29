@@ -715,6 +715,15 @@ final class TransferAdmin {
 									<p class="description"><?php echo esc_html__('Maximum price vendors can charge for this route. Leave 0 for no ceiling.', 'mhm-rentiva'); ?></p>
 								</div>
 
+								<!-- Showcase / Featured -->
+								<div class="form-field">
+									<label for="is_featured" style="display: inline-flex; align-items: center; gap: 8px;">
+										<input name="is_featured" id="is_featured" type="checkbox" value="1" <?php checked($edit_route && (int) $edit_route->is_featured === 1); ?>>
+										<?php echo esc_html__('🌟 Showcase (pin to popular routes block)', 'mhm-rentiva'); ?>
+									</label>
+									<p class="description"><?php echo esc_html__('Featured routes are pinned first in the [rentiva_popular_routes] block, Gutenberg block, and Elementor widget on the homepage.', 'mhm-rentiva'); ?></p>
+								</div>
+
 								<?php submit_button($edit_route ? __('Update Route', 'mhm-rentiva') : __('Add Route', 'mhm-rentiva')); ?>
 								<?php if ($edit_route) : ?>
 									<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-routes')); ?>" class="button"><?php echo esc_html__('Cancel', 'mhm-rentiva'); ?></a>
@@ -744,6 +753,9 @@ final class TransferAdmin {
 											<td><?php echo esc_html($route->city ?? ''); ?></td>
 											<td>
 												<strong><?php echo esc_html($route->origin_name); ?></strong> &rarr; <strong><?php echo esc_html($route->dest_name); ?></strong>
+												<?php if (isset($route->is_featured) && (int) $route->is_featured === 1) : ?>
+													<span class="badge badge-featured" style="background: #fff7e6; color: #b45309; padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #fde68a; margin-left: 6px; display: inline-block;" title="<?php echo esc_attr__('Pinned to homepage Popular Routes', 'mhm-rentiva'); ?>">🌟 <?php echo esc_html__('Showcase', 'mhm-rentiva'); ?></span>
+												<?php endif; ?>
 												<?php if (!$route->origin_eligible || !$route->dest_eligible) : ?>
 													<br><span class="badge badge-warning" style="background: #fff8e5; color: #856404; padding: 2px 6px; border-radius: 4px; font-size: 11px; border: 1px solid #ffeeba; margin-top: 5px; display: inline-block;">
 														<span class="dashicons dashicons-warning" style="font-size: 14px; width: 14px; height: 14px; margin-top: -2px;"></span>
@@ -878,6 +890,7 @@ final class TransferAdmin {
 			'base_price'     => isset($_POST['base_price']) ? floatval(wp_unslash($_POST['base_price'])) : 0.0,
 			'min_price'      => isset($_POST['min_price']) ? floatval(wp_unslash($_POST['min_price'])) : 0.0,
 			'max_price'      => isset($_POST['max_price']) ? floatval(wp_unslash($_POST['max_price'])) : 0.0,
+			'is_featured'    => ! empty($_POST['is_featured']) ? 1 : 0,
 		);
 
 		// Server-side validation: Check eligibility
@@ -905,6 +918,8 @@ final class TransferAdmin {
 			$wpdb->insert($table_name, $data);
 		}
 
+		\MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider::clear_cache();
+
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&updated=true'));
 		exit;
 	}
@@ -919,6 +934,8 @@ final class TransferAdmin {
 		$table_name = self::resolve_table_name('rentiva_transfer_routes', 'mhm_rentiva_transfer_routes');
 
 		$wpdb->delete($table_name, array( 'id' => isset($_GET['id']) ? intval(wp_unslash($_GET['id'])) : 0 ));
+
+		\MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider::clear_cache();
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-transfer-routes&deleted=true'));
 		exit;

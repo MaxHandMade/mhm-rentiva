@@ -515,13 +515,13 @@ wp mhm-rentiva cleanup full --execute   # Full cleanup
 
 ### 🧩 Gutenberg Blocks Integration
 
-**19 Available Blocks:**
+**20 Available Blocks:**
 - Availability Calendar, Booking Form, Featured Vehicles, Login Form, Messages
-- My Bookings, My Favorites, Payment History, Register Form, Search Results
-- Testimonials, Thank You, Transfer Results, Transfer Search, Unified Search
-- User Dashboard, Vehicle Comparison, Vehicle Details, Vehicles Grid
+- My Bookings, My Favorites, Payment History, Popular Routes, Register Form
+- Search Results, Testimonials, Thank You, Transfer Results, Transfer Search
+- Unified Search, User Dashboard, Vehicle Comparison, Vehicle Details, Vehicles Grid
 
-All 19 blocks delegate to their shortcode renderer via `do_shortcode()` (Render Parity architecture), ensuring identical output across Gutenberg, Elementor, and shortcode usage.
+All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render Parity architecture), ensuring identical output across Gutenberg, Elementor, and shortcode usage.
 
 **Block Features:**
 - Visual block editor integration

@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.34.0",
+        "date": "2026-04-29",
+        "type": "minor",
+        "changes": [
+            "Popular Routes Showcase: a new homepage conversion surface — A → B transfer route cards (origin → destination, average duration, distance, starting price). Ships as a trio: `[rentiva_popular_routes]` shortcode + Gutenberg block (`mhm-rentiva/popular-routes`) + Elementor widget (`mhm_rentiva_popular_routes`). Single canonical renderer in `PopularRoutesShortcode::render`; block and widget delegate via `do_shortcode()`, preserving the plugin's render-parity contract.",
+            "Admin '🌟 Showcase' (Vitrine Koy) checkbox on the Transfer Routes form pins selected routes to the homepage block. Pinned routes appear first when `order=\"featured\"` (default) and exclusively when `featured_only=\"true\"`. The route list table shows a '🌟 Showcase' badge next to pinned rows. Form save/delete automatically invalidates the TransferRouteProvider transient cache.",
+            "Five sort orders: `featured` (pinned first — default), `price_asc` (cheapest first), `price_desc` (most expensive first), `alphabetical` (by origin name), `newest` (most recently created first).",
+            "Origin filters: `filter_origin_city=\"Istanbul\"` for city-scoped lists, `filter_origin_type=\"airport|train|hotel|marina|city_center\"` for type-scoped lists.",
+            "Sixteen attributes (limit 1-50, columns 2/3/4, order, heading, subheading, show_view_all, view_all_url, show_duration, show_distance, show_traffic_note, show_price, currency_symbol default ₺, filter_origin_city, filter_origin_type, featured_only, theme light/dark) — each registered in block.json + Elementor controls + AllowlistRegistry TAG_MAPPING.",
+            "Two filter hooks: `mhm_rentiva_popular_routes_view_all_url` (themes/integrations supply transfer-search URL when no explicit `view_all_url` is set) and `mhm_rentiva_popular_routes_type_icon` (override emoji per location type).",
+            "Database: new `is_featured tinyint(1)` column + index added to `{prefix}rentiva_transfer_routes`. dbDelta idempotent migration; existing installations upgrade in place with no downtime.",
+            "Lite/Pro: Lite plans render up to 3 cards (matching the existing 3-route quota enforced by `Mode::maxTransferRoutes()`); Pro plans render up to the configured `limit` (default 6).",
+            "Empty state: silent no-op — the section never renders when no eligible routes exist (eligibility = both endpoints `is_active=1` and `allow_transfer=1`). New installations don't show a placeholder 'Coming soon...' block.",
+            "Performance: new `TransferRouteProvider` repository follows the LocationProvider pattern — 1-hour transient cache, JOIN-based eligibility filtering, automatic cache invalidation after admin route CRUD. Cache-key computation hashes the full filter set so distinct shortcode invocations don't share cache.",
+            "i18n: 35+ new TR strings translated (frontend card labels — 'Popüler Rotalar', 'Yaklaşık %d dk', 'Trafiğe göre değişebilir', 'Başlangıç fiyatı'; admin form '🌟 Vitrine Koy', 'Vitrin' badge; full block + widget editor controls — Sorting, Filters, Card Display panels).",
+            "Tests: 824 → 837 PHPUnit (+13 — empty state, single/multiple card rendering, origin city/type filters, featured-only mode, featured-pin ordering, price-ascending ordering, hidden routes for inactive endpoints, duration/distance/price visibility flags, invalid columns fallback). PHPCS: 0 errors. SchemaParityTest: 19 → 20 block.json files validated."
+        ],
+        "notice": "v4.34.0 minor — Popular Routes Showcase feature. New homepage trio (shortcode + block + widget) for surfacing transfer routes with pricing. No license-server upgrade required."
+    },
+    {
         "version": "4.33.2",
         "date": "2026-04-29",
         "type": "patch",

@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.34.0",
+        "date": "2026-04-29",
+        "type": "minor",
+        "changes": [
+            "🌟 POPÜLER ROTALAR VITRINI: Ana sayfa için yeni satış aracı — A → B transfer rota kartları (kalkış → varış, ortalama süre, mesafe, başlangıç fiyatı). Yeni `[rentiva_popular_routes]` shortcode + Gutenberg blok + Elementor widget üçlüsü; tek bir kanonik renderer (`PopularRoutesShortcode::render`), blok ve widget `do_shortcode()` ile delege ediyor — render parite kuralı korundu.",
+            "🌟 ADMIN 'VITRINE KOY' CHECKBOX: Transfer Rotaları formuna yeni '🌟 Vitrine Koy' alanı eklendi. İşaretli rotalar ana sayfa bloğunda önce sabitlenir (`order=\"featured\"` varsayılan davranışı) veya yalnızca `featured_only=\"true\"` ile gösterilir. Liste tablosunda her vitrin rotanın yanında '🌟 Vitrin' rozeti görünür. Form save/delete sonrası TransferRouteProvider transient cache'i otomatik temizlenir.",
+            "📊 5 SIRALAMA SEÇENEĞİ: `featured` (vitrin önce — varsayılan), `price_asc` (en ucuzdan), `price_desc` (en pahalıdan), `alphabetical` (kalkış adına göre), `newest` (en yeni rotalar önce).",
+            "🔍 KALKIŞ FİLTRELERİ: `filter_origin_city=\"İstanbul\"` ile sadece belirli şehirden kalkan rotalar; `filter_origin_type=\"airport|train|hotel|marina|city_center\"` ile tipe göre filtre.",
+            "🎨 16 ATTRIBUTE: limit (1-50), columns (2/3/4), order, heading, subheading, show_view_all, view_all_url, show_duration, show_distance, show_traffic_note, show_price, currency_symbol (varsayılan ₺), filter_origin_city, filter_origin_type, featured_only, theme (light/dark). Her biri block.json + Elementor controls + AllowlistRegistry'de tanımlı.",
+            "🪝 İKİ FİLTRE HOOK'U: `mhm_rentiva_popular_routes_view_all_url` (boş `view_all_url` durumunda transfer arama URL'i tedarik eder) ve `mhm_rentiva_popular_routes_type_icon` (lokasyon tipine göre emoji override).",
+            "💾 VERİTABANI: `{prefix}rentiva_transfer_routes` tablosuna `is_featured tinyint(1)` kolonu + index eklendi. dbDelta idempotent migration; mevcut kurulumlarda otomatik çalışır, downtime yok.",
+            "🔒 LITE/PRO: Lite planlarda en fazla 3 kart render edilir (mevcut 3-rota kotası ile uyumlu). Pro planlar `limit` parametresi kadar (varsayılan 6) gösterir. `Mode::maxTransferRoutes()` üzerinden enforce edilir.",
+            "🤫 SESSİZ NO-OP: Hiç uygun rota yoksa (her iki uç aktif + transfer izinli) bölüm hiç render edilmez — yeni kurulumda boş 'Yakında...' placeholder'ı görmezsin.",
+            "⚡ PERFORMANS: `TransferRouteProvider` repository LocationProvider pattern'ini izler — 1 saatlik transient cache, JOIN-tabanlı eligibility filtresi (lokasyon aktif + transfer izinli), admin route CRUD sonrası otomatik invalidation.",
+            "🌐 i18n: 35+ yeni TR çevirisi eklendi (frontend kart etiketleri 'Popüler Rotalar', 'Yaklaşık %d dk', 'Trafiğe göre değişebilir', 'Başlangıç fiyatı'; admin form '🌟 Vitrine Koy', 'Vitrin' rozeti; block + widget editor controls — Sıralama, Filtreler, Kart Görünümü tüm panelleri).",
+            "📊 TEST: 824 → 837 PHPUnit (+13 yeni — boş durum, tek/çoklu kart render, kalkış şehir/tip filtresi, vitrin-sadece, vitrin-önce sıralama, fiyat-artan sıralama, aktif olmayan kalkış/varış lokasyonu gizleme, süre/fiyat görünüm flag'leri, geçersiz columns fallback). PHPCS: 0 hata. SchemaParityTest: 19 → 20 block.json doğrulandı."
+        ],
+        "notice": "v4.34.0 minor — Popüler Rotalar Vitrini özelliği. Ana sayfa transfer satışı için yeni shortcode + blok + widget üçlüsü. Lisans server güncellemesi gerektirmez."
+    },
+    {
         "version": "4.33.2",
         "date": "2026-04-29",
         "type": "patch",

@@ -193,6 +193,11 @@ final class ShortcodeServiceProvider {
 					'method'        => 'render',
 					'requires_auth' => false,
 				),
+				'rentiva_popular_routes'   => array(
+					'class'         => \MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode::class,
+					'method'        => 'render',
+					'requires_auth' => false,
+				),
 			),
 			'support'     => array(
 				'rentiva_contact'             => array(

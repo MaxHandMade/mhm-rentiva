@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.33.2
+Stable tag:        4.34.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -28,8 +28,9 @@ MHM Rentiva is a comprehensive vehicle rental management solution designed for c
 *   **Email Notifications:** Customizable email templates for booking confirmations, cancellations, vendor lifecycle notifications, and more.
 *   **Shortcode Support:** Easy-to-use shortcodes to display vehicle lists, search forms, and booking wizards anywhere on your site.
 *   **REST API:** Full REST API support for mobile app or external integrations.
-*   **Gutenberg Blocks:** 19 blocks with Render Parity architecture — identical output across Gutenberg, Elementor, and shortcodes.
-*   **Elementor Widgets:** 20 widgets with advanced controls, live preview, and responsive design.
+*   **Gutenberg Blocks:** 20 blocks with Render Parity architecture — identical output across Gutenberg, Elementor, and shortcodes.
+*   **Elementor Widgets:** 21 widgets with advanced controls, live preview, and responsive design.
+*   **Popular Routes Showcase (v4.34.0):** Homepage A → B route cards with origin → destination, average duration, distance, and starting price. New `[rentiva_popular_routes]` shortcode + Gutenberg block + Elementor widget delegating to a single canonical renderer. Admin "🌟 Vitrine Koy" checkbox pins routes to the showcase. Lite plans show up to 3 cards; Pro plans show as many as configured. Silent no-op when no routes exist.
 
 == Project Structure ==
  
@@ -81,6 +82,21 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.34.0 — 2026-04-29 =
+**Popular Routes Showcase (Homepage Conversion)**
+
+* Added: `[rentiva_popular_routes]` shortcode + Gutenberg block + Elementor widget — A → B transfer route cards with origin → destination, average duration, distance, and starting price. Single canonical renderer; block and widget delegate via do_shortcode().
+* Added: Admin "🌟 Vitrine Koy" (Showcase) checkbox on the Transfer Routes form pins selected routes to the homepage block; pinned routes appear first with `order="featured"` (default) and exclusively when `featured_only="true"`.
+* Added: 5 sort orders — `featured` (pinned first), `price_asc`, `price_desc`, `alphabetical`, `newest`.
+* Added: Origin filters — `filter_origin_city` (e.g. "Istanbul") and `filter_origin_type` (airport / train / hotel / marina / city_center).
+* Added: 16 attributes for full rendering control (heading, subheading, columns 2/3/4, theme light/dark, show_view_all, view_all_url, show_duration, show_distance, show_traffic_note, show_price, currency_symbol).
+* Added: `mhm_rentiva_popular_routes_view_all_url` filter (themes/integrations supply transfer-search URL when no explicit `view_all_url` is set) and `mhm_rentiva_popular_routes_type_icon` filter (override emoji per location type).
+* Database: new `is_featured tinyint(1)` column + index on `{prefix}rentiva_transfer_routes` (dbDelta idempotent migration; no downtime).
+* Lite/Pro: Lite plans render up to 3 cards (matches the existing 3-route quota); Pro plans render up to the configured `limit` (default 6).
+* Empty state: silent no-op — section never renders when no eligible routes exist (eligibility = both endpoints active + transfer-allowed).
+* Performance: `TransferRouteProvider` repository with 1-hour transient cache, JOIN-based eligibility filtering, automatic cache invalidation on admin route CRUD.
+* Tests: 824 → 837 PHPUnit (+13). PHPCS: 0 errors. i18n: 35+ new TR strings (frontend + admin + block + widget).
 
 = 4.33.2 — 2026-04-29 =
 **Turkish Terminology Cleanup**

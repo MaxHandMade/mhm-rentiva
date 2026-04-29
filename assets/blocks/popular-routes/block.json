@@ -1,0 +1,118 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/popular-routes",
+    "title": "MHM Popular Transfer Routes",
+    "category": "widgets",
+    "icon": "location-alt",
+    "description": "A → B transfer route cards with duration and starting price.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "customClassName": true,
+        "align": ["wide", "full", "center"],
+        "color": {
+            "text": true,
+            "background": true,
+            "link": true
+        },
+        "spacing": {
+            "margin": true,
+            "padding": true,
+            "blockGap": true
+        },
+        "border": {
+            "color": true,
+            "radius": true,
+            "style": true,
+            "width": true
+        },
+        "typography": {
+            "fontSize": true,
+            "lineHeight": true,
+            "__experimentalFontFamily": true,
+            "__experimentalFontWeight": true
+        }
+    },
+    "attributes": {
+        "limit": {
+            "type": "string",
+            "default": "6"
+        },
+        "columns": {
+            "type": "string",
+            "default": "3",
+            "enum": ["2", "3", "4"]
+        },
+        "order": {
+            "type": "string",
+            "default": "featured",
+            "enum": ["featured", "price_asc", "price_desc", "alphabetical", "newest"]
+        },
+        "heading": {
+            "type": "string",
+            "default": ""
+        },
+        "subheading": {
+            "type": "string",
+            "default": ""
+        },
+        "showViewAll": {
+            "type": "boolean",
+            "default": true
+        },
+        "viewAllUrl": {
+            "type": "string",
+            "default": ""
+        },
+        "showDuration": {
+            "type": "boolean",
+            "default": true
+        },
+        "showDistance": {
+            "type": "boolean",
+            "default": true
+        },
+        "showTrafficNote": {
+            "type": "boolean",
+            "default": true
+        },
+        "showPrice": {
+            "type": "boolean",
+            "default": true
+        },
+        "currencySymbol": {
+            "type": "string",
+            "default": "₺"
+        },
+        "filterOriginCity": {
+            "type": "string",
+            "default": ""
+        },
+        "filterOriginType": {
+            "type": "string",
+            "default": ""
+        },
+        "featuredOnly": {
+            "type": "boolean",
+            "default": false
+        },
+        "theme": {
+            "type": "string",
+            "default": "light",
+            "enum": ["light", "dark"]
+        },
+        "className": {
+            "type": "string",
+            "default": ""
+        }
+    },
+    "editorStyle": [
+        "mhm-rentiva-core-variables"
+    ],
+    "style": [
+        "mhm-rentiva-rentiva-popular-routes"
+    ]
+}
