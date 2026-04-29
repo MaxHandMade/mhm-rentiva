@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.34.1
+Stable tag:        4.34.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.34.2 — 2026-04-29 =
+**Transfer-card favorite/compare button styling hotfix**
+
+* Fixed: on the transfer-search results page, the favorite (heart) and compare buttons rendered as oversized solid-blue blocks instead of the small round white icons used on the rental vehicles grid/list. The styling rule in `vehicle-card.css` was scoped to `.mhm-vehicle-card` only — a deliberate specificity hack to outweigh Astra's generic `button` style — but the transfer cards use `.mhm-transfer-card` as their parent class, so the rule never applied and the theme defaults bled through. Both selectors are now listed (`.mhm-vehicle-card .mhm-card-favorite, .mhm-transfer-card .mhm-card-favorite`), keeping the icon styling identical across surfaces.
 
 = 4.34.1 — 2026-04-29 =
 **Popular Routes — clickable cards & deep-link pre-fill**

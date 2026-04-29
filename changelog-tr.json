@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.34.2",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "🎨 TRANSFER KARTI FAVORİ/KARŞILAŞTIR DÜĞMESİ STİL HOTFİX'İ: Transfer arama sonuçları sayfasında kalp (favori) ve karşılaştır ikonları, kiralama araç ızgarası/listesindeki küçük yuvarlak beyaz ikonlar yerine büyük dolu mavi bloklar olarak render ediliyordu. `vehicle-card.css`'deki CSS kuralı sadece `.mhm-vehicle-card` parent class'ını hedefliyordu — Astra'nın genel `button` stilini ezmek için bilinçli bir specificity hack'i — ama transfer kartları parent olarak `.mhm-transfer-card` kullanıyor, bu yüzden kural hiç uygulanmıyor ve theme varsayılanları sızıyordu (32×32 yuvarlak beyaz ikon yerine 100×55px dolu mavi düğme).",
+            "Düzeltme: her iki selector artık listeleniyor (`.mhm-vehicle-card .mhm-card-favorite, .mhm-transfer-card .mhm-card-favorite` ve aynısı `.mhm-card-compare` için). İkon stili kiralama ve transfer yüzeylerinde birebir aynı. Specificity (0,2,0)'da kalıyor, Astra'nın `button` kuralı `!important` olmadan eziliyor.",
+            "v4.34.1'in kullanıcı odaklı tarayıcı testinde yakalandı — CSS kapsama bug'larının PHPUnit + PHPCS gate'lerinden sızdığı ve tamamlanma iddiasından önce gerçek DOM doğrulaması gerektirdiği hatırlatması."
+        ],
+        "notice": "v4.34.2 patch — Transfer kartı favori/karşılaştır düğmesi stil hotfix'i. Lisans server güncelleme gerektirmez."
+    },
+    {
         "version": "4.34.1",
         "date": "2026-04-29",
         "type": "patch",

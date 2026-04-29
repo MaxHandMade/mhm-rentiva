@@ -124,8 +124,12 @@
 
 /* Favorite Button (Top Right)
    Parent selector raises specificity to (0,2,0) — overrides Astra's inline button rule (0,0,1)
-   without needing !important. Works across themes. */
-.mhm-vehicle-card .mhm-card-favorite {
+   without needing !important. Works across themes.
+   Both .mhm-vehicle-card (rental cards) and .mhm-transfer-card (transfer-search results)
+   render the same button markup, so both parents are listed here to keep the icon styling
+   identical across surfaces. */
+.mhm-vehicle-card .mhm-card-favorite,
+.mhm-transfer-card .mhm-card-favorite {
     position: absolute;
     top: 12px;
     right: 12px;
@@ -205,7 +209,8 @@
 }
 
 /* Compare Button (Below Favorite, Top Right) */
-.mhm-vehicle-card .mhm-card-compare {
+.mhm-vehicle-card .mhm-card-compare,
+.mhm-transfer-card .mhm-card-compare {
     position: absolute;
     top: 52px;
     right: 12px;

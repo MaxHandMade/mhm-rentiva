@@ -1,5 +1,16 @@
 [
     {
+        "version": "4.34.2",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "Transfer-card favorite/compare button styling hotfix: on the transfer-search results page, the heart (favorite) and compare icons rendered as oversized solid-blue blocks instead of the small round white icons used on the rental vehicles grid/list. The CSS rule in `vehicle-card.css` was scoped to `.mhm-vehicle-card` only — a deliberate specificity hack to outweigh Astra's generic button styling — but transfer cards use `.mhm-transfer-card` as their parent class, so the rule never applied and the theme defaults bled through (100×55px solid blue button instead of 32×32 white round icon).",
+            "Fix: both selectors are now listed (`.mhm-vehicle-card .mhm-card-favorite, .mhm-transfer-card .mhm-card-favorite` and the same for `.mhm-card-compare`), keeping the icon styling identical across rental and transfer surfaces. Specificity stays at (0,2,0) so Astra's `button` rule is still outweighed without `!important`.",
+            "Caught during user-driven browser smoke testing of v4.34.1 — a reminder that CSS scoping bugs slip past PHPUnit + PHPCS gates and need real-DOM verification before claiming completion."
+        ],
+        "notice": "v4.34.2 patch — Transfer-card favorite/compare button styling hotfix. No license-server upgrade required."
+    },
+    {
         "version": "4.34.1",
         "date": "2026-04-29",
         "type": "patch",
