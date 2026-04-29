@@ -218,5 +218,32 @@ final class TransferResults extends AbstractShortcode {
             [ 'mhm-rentiva-transfer-results-css', 'mhm-rentiva-google-fonts' ],
             MHM_RENTIVA_VERSION . '.' . time() // Cache busting for dev
         );
+
+        // Transfer Addon Modal Assets (v4.36.0 Task 13)
+        wp_enqueue_style(
+            'rentiva-transfer-addon-modal',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/transfer-addon-modal.css',
+            array(),
+            MHM_RENTIVA_VERSION . '.' . filemtime( MHM_RENTIVA_PLUGIN_PATH . 'assets/css/components/transfer-addon-modal.css' )
+        );
+        wp_enqueue_script(
+            'rentiva-transfer-addon-modal',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/transfer-addon-modal.js',
+            array(),
+            MHM_RENTIVA_VERSION . '.' . filemtime( MHM_RENTIVA_PLUGIN_PATH . 'assets/js/components/transfer-addon-modal.js' ),
+            true
+        );
+
+        // Localize script strings for transfer addon modal.
+        wp_localize_script(
+            'rentiva-transfer-addon-modal',
+            'mhmRentivaTransferModalI18n',
+            array(
+                'passengers'  => __( 'passengers', 'mhm-rentiva' ),
+                'required'    => __( 'required', 'mhm-rentiva' ),
+                'vehicleLabel' => __( 'Vehicle', 'mhm-rentiva' ),
+                'addonsLabel'  => __( 'Add-ons', 'mhm-rentiva' ),
+            )
+        );
     }
 }

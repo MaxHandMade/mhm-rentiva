@@ -10,10 +10,12 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Helpers\Icons;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 
-$item     = isset($item) && is_array($item) ? $item : array();
-$criteria = isset($criteria) && is_array($criteria) ? $criteria : array();
-$atts     = isset($atts) && is_array($atts) ? $atts : array();
-$layout   = $atts['layout'] ?? 'grid';
+$item              = isset($item) && is_array($item) ? $item : array();
+$criteria          = isset($criteria) && is_array($criteria) ? $criteria : array();
+$atts              = isset($atts) && is_array($atts) ? $atts : array();
+$layout            = $atts['layout'] ?? 'grid';
+$origin_name       = isset($origin_name) ? (string) $origin_name : '';
+$destination_name  = isset($destination_name) ? (string) $destination_name : '';
 
 if (! isset($format_price) || ! is_callable($format_price)) {
 	$format_price = static function (float $price, string $currency = ''): string {
@@ -179,6 +181,23 @@ $card_class = 'mhm-transfer-card mhm-transfer-card--' . esc_attr($layout);
 		<?php endif; ?>
 
 		<?php if ($show_booking_button) : ?>
+			<?php
+			// v4.36.0: addon count is constant per request → cache statically to avoid N+1 query across cards.
+			static $transfer_addons_count = null;
+			if ( null === $transfer_addons_count ) {
+				$transfer_addons_count = count( \MHMRentiva\Admin\Addons\AddonManager::get_available_addons( 'transfer' ) );
+			}
+			if ( $transfer_addons_count > 0 ) {
+				printf(
+					'<div class="rentiva-card__addon-hint">+ %s</div>',
+					esc_html( sprintf(
+						/* translators: %d: count of available transfer add-ons */
+						_n( '%d add-on available', '%d add-ons available', $transfer_addons_count, 'mhm-rentiva' ),
+						$transfer_addons_count
+					) )
+				);
+			}
+			?>
 			<button class="mhm-transfer-card__btn js-mhm-transfer-book mhm-transfer-book-btn"
 				data-vehicle-id="<?php echo esc_attr( (string) $vehicle_id); ?>"
 				data-price="<?php echo esc_attr( (string) $price); ?>"
@@ -189,7 +208,9 @@ $card_class = 'mhm-transfer-card mhm-transfer-card--' . esc_attr($layout);
 				data-adults="<?php echo esc_attr( (string) ( $criteria['adults'] ?? 1 )); ?>"
 				data-children="<?php echo esc_attr( (string) ( $criteria['children'] ?? 0 )); ?>"
 				data-luggage-big="<?php echo esc_attr( (string) ( $criteria['luggage_big'] ?? 0 )); ?>"
-				data-luggage-small="<?php echo esc_attr( (string) ( $criteria['luggage_small'] ?? 0 )); ?>">
+				data-luggage-small="<?php echo esc_attr( (string) ( $criteria['luggage_small'] ?? 0 )); ?>"
+				data-origin-name="<?php echo esc_attr($origin_name); ?>"
+				data-destination-name="<?php echo esc_attr($destination_name); ?>">
 				<?php esc_html_e('Book Now', 'mhm-rentiva'); ?>
 			</button>
 		<?php endif; ?>

@@ -141,39 +141,62 @@ jQuery(document).ready(function ($) {
             };
         }
 
-        var processingText = (typeof rentiva_transfer_vars.i18n.processing_text !== 'undefined') ? rentiva_transfer_vars.i18n.processing_text : 'Processing...';
-        btn.prop('disabled', true).text(processingText);
+        // Helper function to dispatch add to cart with optional addons
+        function dispatchAddToCart(selectedAddonIds) {
+            var processingText = (typeof rentiva_transfer_vars.i18n.processing_text !== 'undefined') ? rentiva_transfer_vars.i18n.processing_text : 'Processing...';
+            btn.prop('disabled', true).text(processingText);
 
-        $.ajax({
-            url: rentiva_transfer_vars.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'rentiva_transfer_add_to_cart',
-                vehicle_id: vehicleId,
-                transfer_data: transferData,
-                security: rentiva_transfer_vars.nonce
-            },
-            success: function (response) {
-                if (response.success) {
-                    window.location.href = response.data.redirect_url || rentiva_transfer_vars.cart_url;
-                } else {
-                    // Reset button state
-                    var bookNowText = (typeof rentiva_transfer_vars.i18n.book_now_text !== 'undefined') ? rentiva_transfer_vars.i18n.book_now_text : 'Book Now';
-                    btn.prop('disabled', false).text(btn.data('original-text') || bookNowText);
+            $.ajax({
+                url: rentiva_transfer_vars.ajax_url,
+                type: 'POST',
+                data: {
+                    action: 'rentiva_transfer_add_to_cart',
+                    vehicle_id: vehicleId,
+                    transfer_data: transferData,
+                    selected_addons: selectedAddonIds,
+                    security: rentiva_transfer_vars.nonce
+                },
+                success: function (response) {
+                    if (response.success) {
+                        window.location.href = response.data.redirect_url || rentiva_transfer_vars.cart_url;
+                    } else {
+                        // Reset button state
+                        var bookNowText = (typeof rentiva_transfer_vars.i18n.book_now_text !== 'undefined') ? rentiva_transfer_vars.i18n.book_now_text : 'Book Now';
+                        btn.prop('disabled', false).text(btn.data('original-text') || bookNowText);
 
-                    // Safely read error message
-                    var msg = (typeof rentiva_transfer_vars.i18n.default_error !== 'undefined') ? rentiva_transfer_vars.i18n.default_error : "An error occurred.";
-                    if (response.data && response.data.message) {
-                        msg = response.data.message;
+                        // Safely read error message
+                        var msg = (typeof rentiva_transfer_vars.i18n.default_error !== 'undefined') ? rentiva_transfer_vars.i18n.default_error : "An error occurred.";
+                        if (response.data && response.data.message) {
+                            msg = response.data.message;
+                        }
+                        alert(msg);
                     }
-                    alert(msg);
+                },
+                error: function () {
+                    btn.prop('disabled', false).text('Error');
+                    var serverError = (typeof rentiva_transfer_vars.i18n.server_error !== 'undefined') ? rentiva_transfer_vars.i18n.server_error : "Server communication error!";
+                    alert(serverError);
                 }
-            },
-            error: function () {
-                btn.prop('disabled', false).text('Error');
-                var serverError = (typeof rentiva_transfer_vars.i18n.server_error !== 'undefined') ? rentiva_transfer_vars.i18n.server_error : "Server communication error!";
-                alert(serverError);
-            }
-        });
+            });
+        }
+
+        // Check if addon modal is available and has addons
+        if (typeof window.RentivaTransferAddonModal !== 'undefined' && window.RentivaTransferAddonModal.hasAddons()) {
+            var context = {
+                vehicleId: vehicleId,
+                baseTotal: transferData.price || 0,
+                adults: transferData.adults || 1,
+                children: transferData.children || 0,
+                originName: btn.data('origin-name') || '',
+                destinationName: btn.data('destination-name') || '',
+                onConfirm: function (selectedAddonIds) {
+                    dispatchAddToCart(selectedAddonIds);
+                }
+            };
+            window.RentivaTransferAddonModal.open(context);
+        } else {
+            // No addons configured, proceed directly
+            dispatchAddToCart([]);
+        }
     });
 });

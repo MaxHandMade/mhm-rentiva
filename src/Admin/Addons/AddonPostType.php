@@ -18,6 +18,8 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\PostTypes\AbstractPostType;
+use MHMRentiva\Admin\Addons\AddonContextTaxonomy;
+use MHMRentiva\Admin\Addons\AddonPricingType;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -93,5 +95,29 @@ final class AddonPostType extends AbstractPostType {
 		);
 
 		register_taxonomy( 'addon_category', array( self::POST_TYPE ), $args );
+
+		AddonContextTaxonomy::register();
+		AddonContextTaxonomy::seed_default_terms();
+	}
+
+	/**
+	 * Register the `_mhm_addon_pricing_type` post meta with REST exposure
+	 * and a sanitize callback delegating to the AddonPricingType enum.
+	 */
+	public static function register_pricing_type_meta(): void {
+		register_post_meta(
+			self::POST_TYPE,
+			'_mhm_addon_pricing_type',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'show_in_rest'      => true,
+				'default'           => AddonPricingType::PER_BOOKING,
+				'sanitize_callback' => array( AddonPricingType::class, 'sanitize' ),
+				'auth_callback'     => static function (): bool {
+					return current_user_can( 'manage_options' );
+				},
+			)
+		);
 	}
 }

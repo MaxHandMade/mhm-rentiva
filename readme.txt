@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.35.0
+Stable tag:        4.36.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.36.0 — 2026-04-29 =
+* New: Add-ons now support context (rental / transfer / both) and pricing types (per_booking / per_day / per_passenger)
+* New: Transfer booking flow exposes a modal add-on picker with live total
+* New: Admin add-on edit screen has Context radio + Pricing Type select with dynamic UI guard
+* Migration: Existing add-on records auto-assigned to "rental" context with "per_booking" pricing
+* I18n: 30+ new strings (English source, Turkish translations included)
 
 = 4.35.0 — 2026-04-29 =
 **Vendor Report / Appeal System (Pro)**

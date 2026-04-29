@@ -18,6 +18,7 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Addons\AddonPricingType;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -69,7 +70,7 @@ final class AddonMeta extends AbstractMetaBox {
 				'context'  => 'normal',
 				'priority' => 'high',
 				'fields'   => array(
-					'addon_price' => array(
+					'addon_price'             => array(
 						'type'              => 'number',
 						'label'             => __( 'Price', 'mhm-rentiva' ),
 						/* translators: %s placeholder. */
@@ -79,6 +80,19 @@ final class AddonMeta extends AbstractMetaBox {
 						'required'          => true,
 						'class'             => 'regular-text',
 						'sanitize_callback' => array( self::class, 'sanitize_price' ),
+					),
+					'_mhm_addon_pricing_type' => array(
+						'type'              => 'select',
+						'label'             => __( 'Pricing Type', 'mhm-rentiva' ),
+						'description'       => __( 'How should the price apply? Context-compatible options are enabled.', 'mhm-rentiva' ),
+						'options'           => array(
+							AddonPricingType::PER_BOOKING => AddonPricingType::label( AddonPricingType::PER_BOOKING ),
+							AddonPricingType::PER_DAY     => AddonPricingType::label( AddonPricingType::PER_DAY ),
+							AddonPricingType::PER_PASSENGER => AddonPricingType::label( AddonPricingType::PER_PASSENGER ),
+						),
+						'default'           => AddonPricingType::PER_BOOKING,
+						'sanitize_callback' => array( AddonPricingType::class, 'sanitize' ),
+						'class'             => 'regular-text mhm-addon-pricing-type-select',
 					),
 				),
 			),

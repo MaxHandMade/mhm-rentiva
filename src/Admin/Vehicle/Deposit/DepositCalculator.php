@@ -192,10 +192,13 @@ final class DepositCalculator {
 		// ⭐ Fix: Use Util::total_price for correct calculation (weekend multipliers etc.)
 		$vehicle_total = \MHMRentiva\Admin\Booking\Helpers\Util::total_price($vehicle_id, $rental_days, $start_ts);
 
+		// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
 		$addon_total = 0;
 		foreach ($addons as $addon_id) {
-			$addon_price  = floatval(get_post_meta($addon_id, 'addon_price', true) ?: 0);
-			$addon_total += $addon_price * $rental_days;
+			$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
+				(int) $addon_id,
+				array( 'rental_days' => (int) $rental_days )
+			);
 		}
 
 		$total_amount = $vehicle_total + $addon_total;

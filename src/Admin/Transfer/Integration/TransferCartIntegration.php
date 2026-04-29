@@ -39,6 +39,77 @@ final class TransferCartIntegration {
 	}
 
 	/**
+	 * Filter a list of candidate addon IDs to only those valid for transfer context
+	 * (term in transfer's allow-list = transfer or both, status = publish, enabled = 1).
+	 *
+	 * @param array<int|string> $candidate_ids
+	 * @return array<int>
+	 */
+	public static function filter_valid_addon_ids( array $candidate_ids ): array {
+		$allowed = array_column(
+			\MHMRentiva\Admin\Addons\AddonManager::get_available_addons( 'transfer' ),
+			'id'
+		);
+		$clean   = array_map( 'absint', $candidate_ids );
+		return array_values( array_intersect( $clean, $allowed ) );
+	}
+
+	/**
+	 * @param array<int> $addon_ids
+	 * @param array{adults?:int,children?:int} $context
+	 */
+	public static function compute_addon_total( array $addon_ids, array $context ): float {
+		$total = 0.0;
+		foreach ( $addon_ids as $id ) {
+			$total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate( (int) $id, $context );
+		}
+		return $total;
+	}
+
+	/**
+	 * Returns null on success, or a human-readable error string for a missing required addon.
+	 *
+	 * @param array<int> $selected_ids
+	 */
+	public static function validate_required_addons( array $selected_ids, string $context ): ?string {
+		$available = \MHMRentiva\Admin\Addons\AddonManager::get_available_addons( $context );
+		foreach ( $available as $addon ) {
+			if ( $addon['required'] && ! in_array( (int) $addon['id'], $selected_ids, true ) ) {
+				/* translators: %s: addon title */
+				return sprintf( __( '"%s" is a required add-on.', 'mhm-rentiva' ), $addon['title'] );
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * @param array<int> $addon_ids
+	 * @param array{adults?:int,children?:int} $context
+	 * @return array<int,array<string,mixed>>
+	 */
+	public static function build_addon_details( array $addon_ids, array $context ): array {
+		$details = array();
+		foreach ( $addon_ids as $id ) {
+			$addon = \MHMRentiva\Admin\Addons\AddonManager::get_addon_by_id( (int) $id );
+			if ( ! $addon ) {
+				continue;
+			}
+			$type      = \MHMRentiva\Admin\Addons\AddonPricingType::sanitize(
+				get_post_meta( (int) $id, '_mhm_addon_pricing_type', true )
+			);
+			$details[] = array(
+				'id'           => (int) $addon['id'],
+				'title'        => $addon['title'],
+				'price'        => (float) $addon['price'],
+				'pricing_type' => $type,
+				'multiplier'   => \MHMRentiva\Admin\Addons\AddonPricingCalculator::multiplier( $type, $context ),
+				'line_total'   => \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate( (int) $id, $context ),
+			);
+		}
+		return $details;
+	}
+
+	/**
 	 * Add Transfer Meta to Order Item
 	 */
 	public static function add_transfer_order_item_meta($item, $cart_item_key, $values, $order): void
@@ -68,6 +139,21 @@ final class TransferCartIntegration {
 		}
 		if ($duration_min) {
 			$item->add_meta_data(__('Duration', 'mhm-rentiva'), $duration_min . ' min');
+		}
+
+		// v4.36.0 — write addon line items into order meta.
+		$addon_details = $booking_data['addon_details'] ?? array();
+		if ( is_array( $addon_details ) && ! empty( $addon_details ) ) {
+			foreach ( $addon_details as $detail ) {
+				$item->add_meta_data(
+					(string) $detail['title'],
+					wc_price( (float) $detail['line_total'] )
+				);
+			}
+			$item->add_meta_data(
+				__( 'Add-ons total', 'mhm-rentiva' ),
+				wc_price( (float) ( $booking_data['addon_total'] ?? 0 ) )
+			);
 		}
 	}
 
@@ -108,6 +194,29 @@ final class TransferCartIntegration {
 		$selected_price    = isset($input_data['price']) ? floatval($input_data['price']) : null;
 		$selected_duration = isset($input_data['duration']) ? intval($input_data['duration']) : null;
 		$selected_distance = isset($input_data['distance']) ? floatval($input_data['distance']) : null;
+
+		// === v4.36.0: extract and validate selected_addons from payload ===
+		$candidate_addon_ids = array();
+		if ( isset( $input_data['selected_addons'] ) && is_array( $input_data['selected_addons'] ) ) {
+			$candidate_addon_ids = $input_data['selected_addons'];
+		} elseif ( isset( $_POST['selected_addons'] ) && is_array( $_POST['selected_addons'] ) ) {
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized field-by-field via filter_valid_addon_ids() which absint's each ID. Nonce already verified above (line 80).
+			$candidate_addon_ids = wp_unslash( $_POST['selected_addons'] );
+		}
+		$selected_addons = self::filter_valid_addon_ids( $candidate_addon_ids );
+
+		$required_error = self::validate_required_addons( $selected_addons, 'transfer' );
+		if ( null !== $required_error ) {
+			wp_send_json_error( array( 'message' => esc_html( $required_error ) ) );
+			return;
+		}
+
+		$addon_context = array(
+			'adults'   => $adults,
+			'children' => $children,
+		);
+		$addon_total   = self::compute_addon_total( $selected_addons, $addon_context );
+		$addon_details = self::build_addon_details( $selected_addons, $addon_context );
 
 		// SANITY CHECK: Verify Price if coming from Frontend
 		if ($selected_price !== null && $selected_distance !== null) {
@@ -167,6 +276,11 @@ final class TransferCartIntegration {
 				return;
 			}
 		}
+
+		// v4.36.0: Add addon total AFTER vehicle price is resolved.
+		// Sanity check runs on the vehicle-only price (base + distance * rate);
+		// addon total is layered on top once that check passes (or the null-fallback resolves the price).
+		$selected_price = (float) $selected_price + $addon_total;
 
 		// 4. Financial Calculation (Deposit vs Full)
 		$deposit_type = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('rentiva_transfer_deposit_type', 'full_payment');
@@ -230,7 +344,9 @@ final class TransferCartIntegration {
 			'pay_now_price'           => $deposit_amount, // Important helper
 
 			'rental_days'             => 1, // Transfer is conceptually 1 unit
-			'selected_addons'         => array(),
+			'selected_addons'         => $selected_addons,
+			'addon_details'           => $addon_details,
+			'addon_total'             => $addon_total,
 			'booking_type'            => 'transfer', // Distinct from 'rental'
 
 			// Extra Transfer Meta
@@ -416,6 +532,19 @@ final class TransferCartIntegration {
 				'display' => $type_label,
 				'value'   => $type_label,
 			);
+		}
+
+		// v4.36.0 — surface add-on lines in cart.
+		$addon_details = $booking_data['addon_details'] ?? array();
+		if ( is_array( $addon_details ) && ! empty( $addon_details ) ) {
+			foreach ( $addon_details as $detail ) {
+				$value      = wp_kses_post( wc_price( (float) $detail['line_total'] ) );
+				$new_data[] = array(
+					'key'     => esc_html( $detail['title'] ),
+					'display' => $value,
+					'value'   => $value,
+				);
+			}
 		}
 
 		return $new_data;

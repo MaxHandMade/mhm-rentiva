@@ -670,6 +670,12 @@ final class Plugin {
 		if (class_exists(Admin\Addons\AddonManager::class)) {
 			Admin\Addons\AddonManager::register();
 		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\Addons\\AddonContextMigration')) {
+			\MHMRentiva\Admin\Addons\AddonContextMigration::register();
+		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\Addons\\AddonContextValidator')) {
+			\MHMRentiva\Admin\Addons\AddonContextValidator::register();
+		}
 		if ($is_admin && class_exists(Admin\Addons\AddonMenu::class)) {
 			Admin\Addons\AddonMenu::register();
 		}

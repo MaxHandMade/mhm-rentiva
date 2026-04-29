@@ -180,6 +180,8 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 						'criteria'     => $criteria,
 						'atts'         => $atts,
 						'format_price' => $format_price,
+						'origin_name'  => $origin_name,
+						'destination_name' => $destination_name,
 					),
 					true
 				);
@@ -189,4 +191,9 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 			<?php endforeach; ?>
 		</div>
 	<?php endif; ?>
+
+	<?php
+	// Mount addon modal once per page (v4.36.0 Task 13)
+	\MHMRentiva\Admin\Transfer\Frontend\TransferAddonModal::render();
+	?>
 </div>

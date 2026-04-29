@@ -534,8 +534,11 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		if (! empty($selected_addons)) {
 			foreach ($selected_addons as $addon_id) {
-				$addon_price  = floatval( get_post_meta( $addon_id, 'addon_price', true ) ?: 0 );
-				$addon_total += $addon_price * $days; // Daily calculation
+				// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
+				$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
+					(int) $addon_id,
+					array( 'rental_days' => (int) $days )
+				);
 			}
 		}
 
@@ -716,8 +719,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		if (! empty($selected_addons)) {
 			foreach ($selected_addons as $addon_id) {
+				// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
+				$line_total   = \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
+					(int) $addon_id,
+					array( 'rental_days' => (int) $days )
+				);
+				$addon_total += $line_total;
 				$addon_price  = floatval(get_post_meta($addon_id, 'addon_price', true) ?: 0);
-				$addon_total += $addon_price * $days; // Daily calculation (same as BookingForm.php)
 
 				$addon_details[] = array(
 					'id'    => $addon_id,

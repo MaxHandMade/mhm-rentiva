@@ -19,6 +19,10 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Addons\AddonContextMetaBox;
+use MHMRentiva\Admin\Addons\AddonContextTaxonomy;
+use MHMRentiva\Admin\Addons\AddonPricingType;
+use MHMRentiva\Admin\Addons\AddonPricingCalculator;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -78,6 +82,7 @@ final class AddonManager {
 	public static function init(): void {
 		// Register addon post type.
 		AddonPostType::register();
+		AddonPostType::register_pricing_type_meta(); // NEW (v4.36.0 Task 4)
 	}
 
 	/**
@@ -92,6 +97,10 @@ final class AddonManager {
 		add_action( 'manage_vehicle_addon_posts_custom_column', array( self::class, 'render_price_column' ), 10, 2 );
 		add_filter( 'manage_edit-vehicle_addon_sortable_columns', array( self::class, 'make_price_sortable' ) );
 
+		// Add context and pricing type columns (v4.36.0 Task 9).
+		add_filter( 'manage_vehicle_addon_posts_columns', array( self::class, 'add_context_pricing_columns' ) );
+		add_action( 'manage_vehicle_addon_posts_custom_column', array( self::class, 'render_context_pricing_column' ), 10, 2 );
+
 		// Enqueue script and style.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
 
@@ -99,6 +108,9 @@ final class AddonManager {
 		if ( class_exists( AddonListTable::class ) ) {
 			new AddonListTable();
 		}
+
+		// Register addon context metabox and save handler.
+		AddonContextMetaBox::register();
 	}
 
 	/**
@@ -184,6 +196,59 @@ final class AddonManager {
 	}
 
 	/**
+	 * Add context and pricing type columns (v4.36.0 Task 9).
+	 *
+	 * @param array $columns List of columns.
+	 * @return array Modified columns.
+	 */
+	public static function add_context_pricing_columns( array $columns ): array {
+		$new = array();
+		foreach ( $columns as $key => $label ) {
+			$new[ $key ] = $label;
+			if ( 'addon_price' === $key ) {
+				$new['mhm_addon_context']      = __( 'Context', 'mhm-rentiva' );
+				$new['mhm_addon_pricing_type'] = __( 'Pricing Type', 'mhm-rentiva' );
+			}
+		}
+		return $new;
+	}
+
+	/**
+	 * Render context and pricing type columns.
+	 *
+	 * @param string $column Column name.
+	 * @param int    $post_id Post ID.
+	 */
+	public static function render_context_pricing_column( string $column, int $post_id ): void {
+		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query -- bounded query for single addon context.
+		if ( 'mhm_addon_context' === $column ) {
+			$terms = wp_get_object_terms( $post_id, AddonContextTaxonomy::TAXONOMY, array( 'fields' => 'slugs' ) );
+			$slug  = ( ! is_wp_error( $terms ) && ! empty( $terms ) ) ? (string) $terms[0] : '';
+
+			$labels = array(
+				AddonContextTaxonomy::TERM_RENTAL   => __( 'Rental', 'mhm-rentiva' ),
+				AddonContextTaxonomy::TERM_TRANSFER => __( 'Transfer', 'mhm-rentiva' ),
+				AddonContextTaxonomy::TERM_BOTH     => __( 'Both', 'mhm-rentiva' ),
+			);
+
+			$label = $labels[ $slug ] ?? __( 'Unassigned', 'mhm-rentiva' );
+
+			$badge_class = $slug ? 'mhm-addon-context-badge--' . $slug : 'mhm-addon-context-badge--unset';
+			printf(
+				'<span class="mhm-addon-context-badge %s">%s</span>',
+				esc_attr( $badge_class ),
+				esc_html( $label )
+			);
+			return;
+		}
+
+		if ( 'mhm_addon_pricing_type' === $column ) {
+			$type = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhm_addon_pricing_type', true ) );
+			echo esc_html( AddonPricingType::label( $type ) );
+		}
+	}
+
+	/**
 	 * Make price column sortable.
 	 *
 	 * @param array $columns Sortable columns.
@@ -244,15 +309,36 @@ final class AddonManager {
 				)
 			);
 		}
+
+		// Enqueue context↔pricing-type constraint script on addon edit screens (v4.36.0 Task 10).
+		if ( in_array( $hook, array( 'post.php', 'post-new.php' ), true )
+			&& 'vehicle_addon' === $post_type
+		) {
+			wp_enqueue_script(
+				'mhm-addon-context',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-context.js',
+				array(),
+				MHM_RENTIVA_VERSION . '.' . filemtime( MHM_RENTIVA_PLUGIN_PATH . 'assets/js/admin/addon-context.js' ),
+				true
+			);
+			wp_localize_script(
+				'mhm-addon-context',
+				'mhmRentivaAddonContextI18n',
+				array(
+					'incompatible' => __( ' (incompatible with context)', 'mhm-rentiva' ),
+				)
+			);
+		}
 	}
 
 
 	/**
 	 * Get all published and enabled additional services.
 	 *
+	 * @param string $context Addon context ('rental', 'transfer', or 'both'). Defaults to 'rental' for backwards compatibility.
 	 * @return array List of addons.
 	 */
-	public static function get_available_addons(): array {
+	public static function get_available_addons( string $context = 'rental' ): array {
 		$args = array(
 			'post_type'      => 'vehicle_addon',
 			'post_status'    => 'publish',
@@ -261,6 +347,13 @@ final class AddonManager {
 					'key'     => 'addon_enabled',
 					'value'   => '1',
 					'compare' => '=',
+				),
+			),
+			'tax_query'      => array(
+				array(
+					'taxonomy' => AddonContextTaxonomy::TAXONOMY,
+					'field'    => 'slug',
+					'terms'    => array( $context, AddonContextTaxonomy::TERM_BOTH ),
 				),
 			),
 			'orderby'        => 'menu_order',
@@ -277,11 +370,14 @@ final class AddonManager {
 				$description = $addon->post_content;
 			}
 			$result[] = array(
-				'id'          => $addon->ID,
-				'title'       => $addon->post_title,
-				'description' => $description,
-				'price'       => (float) get_post_meta( $addon->ID, 'addon_price', true ),
-				'required'    => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
+				'id'           => $addon->ID,
+				'title'        => $addon->post_title,
+				'description'  => $description,
+				'price'        => (float) get_post_meta( $addon->ID, 'addon_price', true ),
+				'pricing_type' => AddonPricingType::sanitize(
+					get_post_meta( $addon->ID, '_mhm_addon_pricing_type', true )
+				),
+				'required'     => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
 			);
 		}
 
@@ -349,14 +445,18 @@ final class AddonManager {
 	 */
 	public static function calculate_addon_total( float $total, array $booking_data ): float {
 		$selected_addons = $booking_data['selected_addons'] ?? array();
+		if ( empty( $selected_addons ) || ! is_array( $selected_addons ) ) {
+			return $total;
+		}
 
-		if ( ! empty( $selected_addons ) && is_array( $selected_addons ) ) {
-			foreach ( $selected_addons as $addon_id ) {
-				$addon = self::get_addon_by_id( (int) $addon_id );
-				if ( $addon ) {
-					$total += $addon['price'];
-				}
-			}
+		$context = array(
+			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
+			'adults'      => (int) ( $booking_data['transfer_adults'] ?? $booking_data['guests'] ?? 0 ),
+			'children'    => (int) ( $booking_data['transfer_children'] ?? 0 ),
+		);
+
+		foreach ( $selected_addons as $addon_id ) {
+			$total += AddonPricingCalculator::calculate( (int) $addon_id, $context );
 		}
 
 		return $total;
@@ -370,30 +470,44 @@ final class AddonManager {
 	 */
 	public static function save_booking_addons( int $booking_id, array $booking_data ): void {
 		$selected_addons = $booking_data['selected_addons'] ?? array();
-
-		if ( ! empty( $selected_addons ) && is_array( $selected_addons ) ) {
-			// Save selected addons as booking meta.
-			update_post_meta( $booking_id, '_mhm_selected_addons', $selected_addons );
-
-			// Calculate and save addon total.
-			$addon_total   = 0;
-			$addon_details = array();
-
-			foreach ( $selected_addons as $addon_id ) {
-				$addon = self::get_addon_by_id( (int) $addon_id );
-				if ( $addon ) {
-					$addon_total    += $addon['price'];
-					$addon_details[] = array(
-						'id'    => $addon['id'],
-						'title' => $addon['title'],
-						'price' => $addon['price'],
-					);
-				}
-			}
-
-			update_post_meta( $booking_id, '_mhm_addon_total', $addon_total );
-			update_post_meta( $booking_id, '_mhm_addon_details', $addon_details );
+		if ( empty( $selected_addons ) || ! is_array( $selected_addons ) ) {
+			return;
 		}
+
+		$context = array(
+			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
+			'adults'      => (int) ( $booking_data['transfer_adults'] ?? $booking_data['guests'] ?? 0 ),
+			'children'    => (int) ( $booking_data['transfer_children'] ?? 0 ),
+		);
+
+		$addon_total   = 0.0;
+		$addon_details = array();
+
+		foreach ( $selected_addons as $addon_id ) {
+			$addon = self::get_addon_by_id( (int) $addon_id );
+			if ( ! $addon ) {
+				continue;
+			}
+			$line_total = AddonPricingCalculator::calculate( (int) $addon_id, $context );
+			$type       = AddonPricingType::sanitize(
+				get_post_meta( (int) $addon_id, '_mhm_addon_pricing_type', true )
+			);
+			$multiplier = AddonPricingCalculator::multiplier( $type, $context );
+
+			$addon_total    += $line_total;
+			$addon_details[] = array(
+				'id'           => $addon['id'],
+				'title'        => $addon['title'],
+				'price'        => $addon['price'],
+				'pricing_type' => $type,
+				'multiplier'   => $multiplier,
+				'line_total'   => $line_total,
+			);
+		}
+
+		update_post_meta( $booking_id, '_mhm_selected_addons', $selected_addons );
+		update_post_meta( $booking_id, '_mhm_addon_total', $addon_total );
+		update_post_meta( $booking_id, '_mhm_addon_details', $addon_details );
 	}
 
 	/**
@@ -426,7 +540,7 @@ final class AddonManager {
 		if ( $count >= self::MAX_ADDONS_LITE ) {
 			return sprintf(
 				/* translators: %d: maximum number of addons. */
-				__( 'You can add maximum %d additional services in Lite version. Upgrade to Pro version for more additional services.', 'mhm-rentiva' ),
+				__( 'You can add a maximum of %d add-ons in Lite version (rental + transfer combined). Upgrade to Pro for unlimited add-ons.', 'mhm-rentiva' ),
 				self::MAX_ADDONS_LITE
 			);
 		}
@@ -434,7 +548,7 @@ final class AddonManager {
 		$remaining = self::MAX_ADDONS_LITE - $count;
 		return sprintf(
 			/* translators: %d: remaining number of addons. */
-			__( 'You can add %d more additional services in Lite version.', 'mhm-rentiva' ),
+			__( 'You can add %d more add-ons in Lite version (rental + transfer combined).', 'mhm-rentiva' ),
 			(int) $remaining
 		);
 	}

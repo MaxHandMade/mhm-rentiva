@@ -97,6 +97,10 @@
 		calculateTotal: function () {
 			let total       = 0;
 			const breakdown = [];
+			const rentalDays = parseInt(
+				$( '[data-rental-days]' ).data( 'rentalDays' ) || '1',
+				10
+			);
 
 			$( '.addon-item' ).each(
 				function () {
@@ -108,7 +112,14 @@
 						const quantity  = parseInt( $quantityInput.val() ) || 0;
 						const priceText = $item.find( '.addon-price' ).text();
 						const price     = parseFloat( priceText.replace( /[^\d.,]/g, '' ).replace( ',', '.' ) ) || 0;
-						const itemTotal = price * quantity;
+						const pricingType = $checkbox.data( 'pricingType' ) || 'per_booking';
+
+						let itemTotal = 0;
+						if ( 'per_day' === pricingType ) {
+							itemTotal = price * Math.max( 1, rentalDays ) * quantity;
+						} else {
+							itemTotal = price * quantity;
+						}
 
 						if (itemTotal > 0) {
 							total += itemTotal;
@@ -117,6 +128,7 @@
 									name: $item.find( '.addon-name' ).text(),
 									quantity: quantity,
 									price: price,
+									pricingType: pricingType,
 									total: itemTotal
 								}
 							);

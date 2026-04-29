@@ -1154,11 +1154,13 @@ final class BookingForm extends AbstractShortcode {
 				}
 			}
 
-			// Addon total price (daily calculation)
+			// Addon total price — v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
 			$addon_total = 0;
 			foreach ($addons as $addon_id) {
-				$addon_price  = (float) get_post_meta($addon_id, 'addon_price', true);
-				$addon_total += $addon_price * $days; // Daily calculation
+				$addon_total += \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
+					(int) $addon_id,
+					array( 'rental_days' => (int) $days )
+				);
 			}
 
 			// Total price (after tax) - this is what customer will pay

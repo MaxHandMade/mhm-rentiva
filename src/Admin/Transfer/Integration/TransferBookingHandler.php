@@ -49,5 +49,12 @@ final class TransferBookingHandler {
 				update_post_meta( $booking_id, '_mhm_' . $key, $booking_data[ $key ] );
 			}
 		}
+
+		// v4.36.0 — persist addon details on booking post.
+		if ( ! empty( $booking_data['selected_addons'] ) && is_array( $booking_data['selected_addons'] ) ) {
+			update_post_meta( $booking_id, '_mhm_selected_addons', $booking_data['selected_addons'] );
+			update_post_meta( $booking_id, '_mhm_addon_details', $booking_data['addon_details'] ?? array() );
+			update_post_meta( $booking_id, '_mhm_addon_total', (float) ( $booking_data['addon_total'] ?? 0 ) );
+		}
 	}
 }

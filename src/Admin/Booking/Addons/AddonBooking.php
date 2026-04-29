@@ -44,13 +44,19 @@ final class AddonBooking {
 		foreach ( $addons as $addon ) {
 			$checked       = $addon['required'] ? 'checked disabled' : '';
 			$required_text = $addon['required'] ? ' <span class="required">*</span>' : '';
+			$type          = $addon['pricing_type'] ?? 'per_booking';
+			$type_label    = self::format_pricing_label( (float) $addon['price'], $type );
 
 			echo '<div class="addon-item">';
 			echo '<label class="addon-checkbox-label">';
-			echo '<input type="checkbox" name="selected_addons[]" value="' . esc_attr( $addon['id'] ) . '" ' . esc_attr( $checked ) . ' class="addon-checkbox" data-price="' . esc_attr( $addon['price'] ) . '">';
+			echo '<input type="checkbox" name="selected_addons[]" value="' . esc_attr( $addon['id'] )
+				. '" ' . esc_attr( $checked )
+				. ' class="addon-checkbox"'
+				. ' data-price="' . esc_attr( $addon['price'] ) . '"'
+				. ' data-pricing-type="' . esc_attr( $type ) . '">';
 			echo '<span class="addon-info">';
 			echo '<span class="addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
-			echo '<span class="addon-price">+ ' . esc_html( self::format_addon_price( (float) $addon['price'] ) ) . '</span>';
+			echo '<span class="addon-price">' . esc_html( $type_label ) . '</span>';
 			echo '</span>';
 			if ( ! empty( $addon['description'] ) ) {
 				echo '<span class="addon-description">' . esc_html( $addon['description'] ) . '</span>';
@@ -107,7 +113,14 @@ final class AddonBooking {
 			return;
 		}
 
-		$total = 0;
+		$total = 0.0;
+
+		// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
+		$context = array(
+			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
+			'adults'      => (int) ( $booking_data['transfer_adults'] ?? $booking_data['guests'] ?? 0 ),
+			'children'    => (int) ( $booking_data['transfer_children'] ?? 0 ),
+		);
 
 		echo '<div class="booking-summary-addons">';
 		echo '<h4>' . esc_html__( 'Selected Additional Services', 'mhm-rentiva' ) . '</h4>';
@@ -116,10 +129,11 @@ final class AddonBooking {
 		foreach ( $selected_addons as $addon_id ) {
 			$addon = AddonManager::get_addon_by_id( (int) $addon_id );
 			if ( $addon ) {
-				$total += $addon['price'];
+				$line_total = \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate( (int) $addon_id, $context );
+				$total     += $line_total;
 				echo '<li class="addon-item">';
 				echo '<span class="addon-name">' . esc_html( $addon['title'] ) . '</span>';
-				echo '<span class="addon-price">' . esc_html( self::format_addon_price( $addon['price'] ) ) . '</span>';
+				echo '<span class="addon-price">' . esc_html( self::format_addon_price( $line_total ) ) . '</span>';
 				echo '</li>';
 			}
 		}
@@ -258,7 +272,7 @@ final class AddonBooking {
                 p.post_date as booking_date
             FROM {$wpdb->postmeta} pm
             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-            WHERE pm.meta_key = 'mhm_addon_details'
+            WHERE pm.meta_key = '_mhm_addon_details'
             AND p.post_type = 'vehicle_booking'
             AND p.post_status IN ('confirmed', 'completed')
             AND p.post_date BETWEEN %s AND %s
@@ -324,6 +338,25 @@ final class AddonBooking {
 			case 'right_space':
 			default:
 				return $formatted_amount . ' ' . $symbol;
+		}
+	}
+
+	/**
+	 * Format pricing label with per-day / per-passenger suffix
+	 */
+	private static function format_pricing_label( float $price, string $type ): string {
+		$price_text = self::format_addon_price( $price );
+		switch ( $type ) {
+			case 'per_day':
+				/* translators: %s: formatted price */
+				return sprintf( __( '+ %s / day', 'mhm-rentiva' ), $price_text );
+			case 'per_passenger':
+				/* translators: %s: formatted price */
+				return sprintf( __( '+ %s / passenger', 'mhm-rentiva' ), $price_text );
+			case 'per_booking':
+			default:
+				/* translators: %s: formatted price */
+				return sprintf( __( '+ %s', 'mhm-rentiva' ), $price_text );
 		}
 	}
 }

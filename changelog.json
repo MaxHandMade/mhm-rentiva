@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.36.0",
+        "date": "2026-04-29",
+        "type": "feature",
+        "title": "Transfer Booking Add-ons",
+        "summary": "Vehicle add-ons can now target transfer bookings via a new context taxonomy, with three pricing types (per booking / per day / per passenger). Transfer customers see a modal picker on add-to-cart with live total. Existing add-ons auto-migrate to the rental context.",
+        "highlights": [
+            "addon_context taxonomy: rental / transfer / both",
+            "_mhm_addon_pricing_type meta: per_booking, per_day, per_passenger",
+            "TransferCartIntegration carries selected_addons end-to-end",
+            "Modal picker with live multiplier-aware total",
+            "Idempotent data-lane migration for legacy records"
+        ]
+    },
+    {
         "version": "4.35.0",
         "date": "2026-04-29",
         "type": "minor",

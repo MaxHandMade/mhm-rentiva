@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.36.0",
+        "date": "2026-04-29",
+        "type": "feature",
+        "title": "Transfer Rezervasyonlarına Ek Hizmet Desteği",
+        "summary": "Araç ek hizmetleri artık transfer rezervasyonlarında da seçilebiliyor. Yeni bağlam taxonomy'si (kiralama / transfer / her ikisi) ile üç fiyatlandırma tipi (rezervasyon başına / günlük / yolcu başına) eklendi. Transfer müşterileri sepete eklerken canlı toplamlı bir modal pencereyle ek hizmet seçer. Mevcut ek hizmetler otomatik olarak kiralama bağlamına alındı.",
+        "highlights": [
+            "addon_context taxonomy: kiralama / transfer / her ikisi",
+            "_mhm_addon_pricing_type meta: rezervasyon başına, günlük, yolcu başına",
+            "TransferCartIntegration selected_addons'ı uçtan uca taşıyor",
+            "Çarpan-uyumlu canlı toplamlı modal seçici",
+            "Eski kayıtlar için idempotent veri-şeritli migration"
+        ]
+    },
+    {
         "version": "4.35.0",
         "date": "2026-04-29",
         "type": "minor",
