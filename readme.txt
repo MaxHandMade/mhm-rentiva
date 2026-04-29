@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.34.0
+Stable tag:        4.34.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,16 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.34.1 — 2026-04-29 =
+**Popular Routes — clickable cards & deep-link pre-fill**
+
+* New: each route card is now a single click target. Clicking a card opens the transfer-search page with the chosen `origin_id` and `destination_id` pre-filled in the form selects, so the visitor only adds date/time and submits.
+* New: `mhm_rentiva_popular_routes_search_url` filter — themes/integrations can override the card-link base URL independently of the section "Search transfers" link.
+* New: ARIA label per card ("Search transfers from {origin} to {destination}") for screen readers and crawlers.
+* Changed: section header link relabeled from "View all" to "Search transfers" — more honest about what the link actually does (it lands on the transfer-search form, not a list of all routes).
+* Changed: Transfer Search shortcode now reads `origin_id` / `destination_id` from the URL (`$_GET`) and pre-selects them in the form selects. Backwards compatible — existing installations without query params behave exactly as before.
+* Tests: 837 → 840 PHPUnit (+3 — card link wrapper, query params, view-all label rename). PHPCS: 0 errors.
 
 = 4.34.0 — 2026-04-29 =
 **Popular Routes Showcase (Homepage Conversion)**

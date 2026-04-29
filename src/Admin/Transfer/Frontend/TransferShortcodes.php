@@ -128,9 +128,18 @@ final class TransferShortcodes extends AbstractShortcode {
 	{
 		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('transfer');
 
+		// Read pre-fill parameters from the URL so the popular-routes block can
+		// deep-link a chosen origin/destination directly into the search form.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display hint; the underlying search submission is nonce-protected by AJAX.
+		$preselected_origin = isset($_GET['origin_id']) ? absint(wp_unslash($_GET['origin_id'])) : 0;
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only display hint; the underlying search submission is nonce-protected by AJAX.
+		$preselected_destination = isset($_GET['destination_id']) ? absint(wp_unslash($_GET['destination_id'])) : 0;
+
 		return array(
-			'locations' => $locations,
-			'atts'      => $atts,
+			'locations'               => $locations,
+			'atts'                    => $atts,
+			'preselected_origin'      => $preselected_origin,
+			'preselected_destination' => $preselected_destination,
 		);
 	}
 

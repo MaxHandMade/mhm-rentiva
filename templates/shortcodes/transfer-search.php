@@ -52,7 +52,7 @@ if (! empty($atts['class'])) {
                         <select name="origin_id" id="mhm-origin" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-origin">
                             <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc) : ?>
-                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>" <?php selected(isset($preselected_origin) ? (int) $preselected_origin : 0, (int) $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>
@@ -67,7 +67,7 @@ if (! empty($atts['class'])) {
                         <select name="destination_id" id="mhm-destination" required class="rv-select" title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="transfer-destination">
                             <option value=""><?php esc_html_e('Select Location', 'mhm-rentiva'); ?></option>
                             <?php foreach ($locations as $loc) : ?>
-                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
+                                <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>" <?php selected(isset($preselected_destination) ? (int) $preselected_destination : 0, (int) $loc->id); ?>><?php echo esc_html($loc->name); ?></option>
                             <?php endforeach; ?>
                         </select>
                     </div>

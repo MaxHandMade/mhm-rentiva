@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.34.1",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "🖱️ TIKLANABILIR KARTLAR: Her rota kartı artık tek tıklama hedefi. Karta tıklamak transfer arama sayfasını açıyor ve seçilen rotanın `origin_id` ile `destination_id` değerleri form seçicilerinde önceden doldurulmuş geliyor. Ziyaretçi sadece tarih/saat ekliyor ve gönder'e basıyor.",
+            "🔗 DEEP-LINK ÖN-DOLDURMA: Transfer Search shortcode artık `$_GET`'ten `origin_id` ve `destination_id` parametrelerini okuyup form seçicilerinde işaretliyor. Geriye uyumlu — query parametresi olmadan çalışan kurulumlar v4.34.0'la aynı davranıyor.",
+            "🪝 YENİ FİLTRE `mhm_rentiva_popular_routes_search_url` — tema/entegrasyonlar kart link taban URL'ini bölüm 'Transfer arayın' linkinden bağımsız olarak override edebilir (mevcut `mhm_rentiva_popular_routes_view_all_url` filtresi bölüm linkini kontrol etmeye devam ediyor).",
+            "♿ KART BAŞINA ARIA: 'Search transfers from {kalkış} to {varış}' formatında aria-label — ekran okuyucu UX'ini iyileştiriyor, arama motorlarına linkin nereye gittiğini anlatıyor.",
+            "🏷️ BÖLÜM ETİKETİ: 'Tümünü gör' → 'Transfer arayın'. Link zaten her zaman transfer arama formuna yönlendiriyordu, rota katalog sayfasına değil — yeni etiket gerçeği yansıtıyor.",
+            "🎨 CSS: Tüm kart yüzeyi tıklama hedefi, color/decoration inherit (alt çizgi yok), klavye navigasyonu için focus-visible outline, hover korundu (mevcut translateY + accent border)."
+        ],
+        "notice": "v4.34.1 patch — Popüler Rotalar kartları artık tıklanabilir. Karttan direkt transfer arama formuna deep-link, kalkış/varış önceden doldurulu. Lisans server güncelleme gerektirmez."
+    },
+    {
         "version": "4.34.0",
         "date": "2026-04-29",
         "type": "minor",

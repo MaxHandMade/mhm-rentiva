@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.34.1",
+        "date": "2026-04-29",
+        "type": "patch",
+        "changes": [
+            "Clickable cards: each route card is now a single click target. Clicking a card opens the transfer-search page with the chosen `origin_id` and `destination_id` pre-filled in the form selects, so the visitor only adds date/time and submits.",
+            "Deep-link pre-fill: Transfer Search shortcode now reads `origin_id` / `destination_id` from `$_GET` and pre-selects them in the form selects. Backwards compatible — installations without query params behave identically to v4.34.0.",
+            "New filter `mhm_rentiva_popular_routes_search_url` — themes/integrations can override the card-link base URL independently of the section 'Search transfers' link (the existing `mhm_rentiva_popular_routes_view_all_url` filter still controls the section link).",
+            "ARIA labels per card: 'Search transfers from {origin} to {destination}' — improves screen-reader UX and gives crawlers a real description of where the link goes.",
+            "Section header link relabeled: 'View all' → 'Search transfers'. The link has always landed on the transfer-search form, not a route catalog; the new label matches reality.",
+            "CSS: full card surface is the click target, color/decoration inherit (no underline), focus-visible outline for keyboard navigation, hover preserved (existing translateY + accent border)."
+        ],
+        "notice": "v4.34.1 patch — Popular Routes cards are now clickable. Direct deep-link from a card pre-fills the transfer-search form. No license-server upgrade required."
+    },
+    {
         "version": "4.34.0",
         "date": "2026-04-29",
         "type": "minor",

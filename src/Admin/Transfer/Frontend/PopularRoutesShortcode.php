@@ -192,7 +192,7 @@ final class PopularRoutesShortcode {
                 </div>
                 <?php if ($show_view_all) : ?>
                     <a class="mhm-popular-routes__view-all" href="<?php echo esc_url($view_all_url); ?>">
-                        <?php echo esc_html__('View all', 'mhm-rentiva'); ?> &rarr;
+                        <?php echo esc_html__('Search transfers', 'mhm-rentiva'); ?> &rarr;
                     </a>
                 <?php endif; ?>
             </header>
@@ -216,6 +216,8 @@ final class PopularRoutesShortcode {
      */
     private static function render_card(object $route, array $opts): string
     {
+        $origin_id        = isset($route->origin_id) ? (int) $route->origin_id : 0;
+        $destination_id   = isset($route->destination_id) ? (int) $route->destination_id : 0;
         $origin_name      = isset($route->origin_name) ? (string) $route->origin_name : '';
         $destination_name = isset($route->destination_name) ? (string) $route->destination_name : '';
         $origin_city      = isset($route->origin_city) ? (string) $route->origin_city : '';
@@ -227,8 +229,17 @@ final class PopularRoutesShortcode {
 
         $type_icon = self::location_type_icon($origin_type);
 
+        $card_link = self::build_card_link($origin_id, $destination_id);
+        $aria_label = sprintf(
+            /* translators: 1: origin location name, 2: destination location name */
+            __('Search transfers from %1$s to %2$s', 'mhm-rentiva'),
+            $origin_name,
+            $destination_name
+        );
+
         ob_start();
         ?>
+        <a class="mhm-popular-route-card-link" href="<?php echo esc_url($card_link); ?>" aria-label="<?php echo esc_attr($aria_label); ?>">
         <article class="mhm-popular-route-card<?php echo $is_featured ? ' mhm-popular-route-card--featured' : ''; ?>" role="listitem">
             <header class="mhm-popular-route-card__top">
                 <?php if ($origin_city !== '') : ?>
@@ -285,8 +296,40 @@ final class PopularRoutesShortcode {
                 </footer>
             <?php endif; ?>
         </article>
+        </a>
         <?php
         return (string) ob_get_clean();
+    }
+
+    /**
+     * Build the card click target — the transfer-search page with origin and
+     * destination IDs pre-filled as query parameters. Themes/integrations
+     * may override the base URL via the `mhm_rentiva_popular_routes_search_url`
+     * filter (e.g. when the search page is at a non-default slug).
+     */
+    private static function build_card_link(int $origin_id, int $destination_id): string
+    {
+        /**
+         * Filter the base URL the popular-routes cards link to. Defaults to
+         * the same target as the section "Search transfers" link, which falls
+         * back to `home_url('/transfer/')` when no other filter supplies a value.
+         *
+         * @param string $url Base URL (without query parameters).
+         */
+        $base = (string) apply_filters('mhm_rentiva_popular_routes_search_url', '');
+
+        if ($base === '') {
+            $view_all = self::resolve_view_all_url('');
+            $base     = $view_all !== '' ? $view_all : home_url('/transfer/');
+        }
+
+        return add_query_arg(
+            [
+                'origin_id'      => $origin_id,
+                'destination_id' => $destination_id,
+            ],
+            $base
+        );
     }
 
     private static function resolve_card_price(object $route): float

@@ -256,4 +256,49 @@ final class PopularRoutesShortcodeTest extends \WP_UnitTestCase
         $output = do_shortcode('[rentiva_popular_routes columns="5"]');
         $this->assertStringContainsString('mhm-popular-routes', $output);
     }
+
+    public function test_card_is_wrapped_in_link_pointing_to_transfer_search(): void
+    {
+        $this->insert_route([ 'origin_id' => $this->loc['ist_airport'], 'destination_id' => $this->loc['taksim'] ]);
+
+        $output = do_shortcode('[rentiva_popular_routes]');
+
+        $this->assertStringContainsString('<a class="mhm-popular-route-card-link"', $output, 'Each card must be wrapped in an anchor');
+        $this->assertMatchesRegularExpression(
+            '/href="[^"]*origin_id=' . $this->loc['ist_airport'] . '[^"]*destination_id=' . $this->loc['taksim'] . '/',
+            $output,
+            'Card link must carry origin_id and destination_id query params'
+        );
+    }
+
+    public function test_card_link_target_is_filterable(): void
+    {
+        $this->insert_route([ 'origin_id' => $this->loc['ist_airport'], 'destination_id' => $this->loc['taksim'] ]);
+
+        $custom_url = 'https://example.test/custom-transfer-search/';
+        $filter = static function () use ($custom_url) {
+            return $custom_url;
+        };
+        add_filter('mhm_rentiva_popular_routes_search_url', $filter);
+
+        $output = do_shortcode('[rentiva_popular_routes]');
+
+        remove_filter('mhm_rentiva_popular_routes_search_url', $filter);
+
+        $this->assertStringContainsString('https://example.test/custom-transfer-search/', $output, 'Cards must use the filtered base URL when set');
+        $this->assertStringContainsString('origin_id=' . $this->loc['ist_airport'], $output);
+    }
+
+    public function test_view_all_label_renamed_to_search_transfers(): void
+    {
+        // Insert more routes than the default limit so view_all renders.
+        $this->insert_route([ 'origin_id' => $this->loc['ist_airport'], 'destination_id' => $this->loc['taksim'] ]);
+        $this->insert_route([ 'origin_id' => $this->loc['ank_airport'], 'destination_id' => $this->loc['taksim'] ]);
+
+        // Force a non-empty view_all_url so the link element renders.
+        $output = do_shortcode('[rentiva_popular_routes limit="1" view_all_url="/transfer/"]');
+
+        $this->assertStringContainsString('Search transfers', $output, 'View all label should now read "Search transfers"');
+        $this->assertStringNotContainsString('>View all<', $output, 'Old "View all" label must be removed');
+    }
 }

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-04-28T23:22:39+00:00\n"
+"POT-Creation-Date: 2026-04-29T00:46:54+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -194,7 +194,7 @@ msgstr "Yükleniyor..."
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:62
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:222
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:410
 #: templates/account/booking-detail.php:306
 msgid "An error occurred."
@@ -1085,7 +1085,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:660
 #: src/Admin/Frontend/Account/AccountController.php:247
 #: src/Admin/Messages/Core/Messages.php:1449
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:219
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:228
 #: templates/account/booking-detail.php:287
 #: templates/shortcodes/booking-form.php:416
 msgid "Processing..."
@@ -1100,7 +1100,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1446
 #: src/Admin/Messages/Core/Messages.php:1535
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:218
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
 
@@ -8279,7 +8279,7 @@ msgstr "Araç bulunamadı."
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:87
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:88
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:220
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:229
 #: templates/account/favorites.php:84 templates/archive-vehicle.php:57
 #: templates/partials/transfer-card.php:193
 #: templates/partials/vehicle-card-base.php:36
@@ -9305,7 +9305,7 @@ msgid "Newest First"
 msgstr "Yeniden Eskiye"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:910
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:252
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:261
 msgid "No vehicles found matching your criteria."
 msgstr "Kriterlerinize uyan araç bulunamadı."
 
@@ -9327,22 +9327,22 @@ msgid "An error occurred while loading reviews."
 msgstr "Yorumlar yüklenirken bir hata oluştu."
 
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:192
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:215
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:224
 msgid "Pick-up and Drop-off locations cannot be the same."
 msgstr "Teslim alma ve bırakma yerleri aynı olamaz."
 
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:193
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:216
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:225
 msgid "No transfer route available between selected locations."
 msgstr "Seçilen konumlar arasında transfer rotası mevcut değildir."
 
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:194
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:217
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:226
 msgid "Searching..."
 msgstr "Aranıyor..."
 
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:196
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:221
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:230
 msgid "Server communication error!"
 msgstr "Sunucu iletişim hatası!"
 
@@ -18951,26 +18951,32 @@ msgid "Test Date:"
 msgstr "Test Tarihi:"
 
 #: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:195
-msgid "View all"
-msgstr "Tümünü gör"
+msgid "Search transfers"
+msgstr "Transfer arayın"
+
+#. translators: 1: origin location name, 2: destination location name
+#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:235
+#, php-format
+msgid "Search transfers from %1$s to %2$s"
+msgstr "%1$s'dan %2$s'e transfer arayın"
 
 #. translators: %d: average travel duration in minutes
-#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:253
+#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:264
 #, php-format
 msgid "Approx. %d min"
 msgstr "Yaklaşık %d dk"
 
 #. translators: %s: route distance in kilometers
-#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:265
+#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:276
 #, php-format
 msgid "%s km"
 msgstr "%s km"
 
-#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:274
+#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:285
 msgid "May vary with traffic"
 msgstr "Trafiğe göre değişebilir"
 
-#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:283
+#: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:294
 msgid "Starting from"
 msgstr "Başlangıç fiyatı"
 
@@ -25760,6 +25766,9 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#~ msgid "View all"
+#~ msgstr "Tümünü gör"
 
 #~ msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
 #~ msgstr ""
