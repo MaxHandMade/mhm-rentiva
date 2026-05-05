@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.37.1",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "Bayi profil rozet + değerlendirme sayısı etiketi hotfix'i",
+        "summary": "Halka açık bayi profil sayfasındaki üç smoke-test bulgusunu kapatır: rozet her bayide 'Yeni Bayi' kalıyordu (filter callback admin-only init bucket'ında bağlıydı — frontend hiç görmüyordu), hero'daki değerlendirme sayısı etiketi 'X yorum' ama altındaki sayı rezervasyon-zamanı yıldız değerlendirmelerinin toplamıydı (WP yorum sayısı değil), yorum rozet yıldızları sadece Rentiva canonical meta anahtarı üzerinden çözülüyordu (3rd-party import edilmiş yorumlarda fallback yoktu).",
+        "changes": [
+            "🐛 Düzeltme: VendorBadgeEligibility::evaluate() apply_filters() default'unu ReliabilityScoreCalculator::count_completed_bookings($id, 9999) ile dolduruyor — rozet filter callback wiring olmadan da çalışıyor. Yaş/puan/rezervasyon eşiklerini sağlayan bayiler artık 'Doğrulanmış Bayi' olarak render ediliyor.",
+            "🐛 Düzeltme: Hero değerlendirme sayısı etiketi '%d yorum' / '%d yorum' yerine '%d değerlendirme' (EN source: '%d rating' / '%d ratings'). Sayı her zaman araç bazlı rating count toplamıydı; etiket artık sayının ne olduğunu doğru ifade ediyor.",
+            "🛡 Defansif: Provider yorum rating çözümü artık önce 'mhm_rating' (Rentiva canonical) deniyor, sonra 'rating' (WC standart) fallback'ine düşüyor — 3rd-party plugin'lerden import edilmiş yorumlar (WC product reviews → vehicle, Site Reviews / Customer Reviews for WooCommerce, vb.) artık halka açık profilde yıldızlarını gösteriyor.",
+            "Testler: 982 → 987 PHPUnit (+5 regression: VendorBadgeDefaultFallbackTest 2, VendorProfileReviewRatingFallbackTest 3). PHPCS: 0 hata. Browser smoke 3 test bayisinde doğrulandı (Akif: verified, Zeynep: verified, Mehmet: yeni — tüm yorumlarda yıldızlar render ediyor)."
+        ],
+        "notice": "v4.37.1 patch — v4.37.0 smoke-test bulguları için 3 bayi profil düzeltmesi. Schema migration yok. Lisans server güncelleme gerektirmez. Cache invalidation eklenti güncelleme sırasında mevcut user-meta version stamp üzerinden otomatik çalışır; rozetleri hemen yenilemek isteyen siteler `wp transient delete --all` çalıştırabilir."
+    },
+    {
         "version": "4.37.0",
         "date": "2026-05-05",
         "type": "feature",

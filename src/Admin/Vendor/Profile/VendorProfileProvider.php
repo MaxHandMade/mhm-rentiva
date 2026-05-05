@@ -331,13 +331,34 @@ final class VendorProfileProvider
                 'author'        => (string) $c->comment_author,
                 'date'          => (string) $c->comment_date,
                 'content'       => wp_kses_post((string) $c->comment_content),
-                'rating'        => (int) get_comment_meta((int) $c->comment_ID, 'mhm_rating', true),
+                'rating'        => self::resolve_review_rating((int) $c->comment_ID),
                 'vehicle_id'    => $post_id,
                 'vehicle_title' => get_the_title($post_id),
                 'vehicle_url'   => (string) get_permalink($post_id),
             ];
         }
         return $out;
+    }
+
+    /**
+     * Resolve a review rating from comment meta.
+     *
+     * Rentiva canonical key is `mhm_rating` (set by VehicleRatingForm and the
+     * ReviewEnforcer normalization hook). Falls back to the WC-standard
+     * `rating` key so reviews submitted by 3rd-party plugins (e.g. WC product
+     * reviews imported into vehicles, or Site Reviews / Customer Reviews for
+     * WooCommerce extensions) still surface their stars on the public vendor
+     * profile.
+     *
+     * @since 4.37.1
+     */
+    private static function resolve_review_rating(int $comment_id): int
+    {
+        $rating = (int) get_comment_meta($comment_id, 'mhm_rating', true);
+        if ($rating > 0) {
+            return $rating;
+        }
+        return (int) get_comment_meta($comment_id, 'rating', true);
     }
 
     /**

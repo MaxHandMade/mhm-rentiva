@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Vehicle\ReliabilityScoreCalculator;
 
 /**
  * Pure logic for vendor profile badge state.
@@ -48,9 +49,19 @@ final class VendorBadgeEligibility
             : 0;
 
         $score = (int) get_user_meta($user_id, '_rentiva_vendor_reliability_score', true);
+
+        // v4.37.1 fix: previous default of `0` left the badge stuck on
+        // STATUS_NEW for every vendor whenever the filter callback was not
+        // wired (admin-only init bucket trap surfaced by smoke test). Compute
+        // the lifetime completion count inline so the badge works out of the
+        // box; filter callbacks can still override the result.
+        $default_completed = class_exists(ReliabilityScoreCalculator::class)
+            ? ReliabilityScoreCalculator::count_completed_bookings($user_id, 9999)
+            : 0;
+
         $completed = (int) apply_filters(
             'mhm_rentiva_vendor_completed_bookings_count',
-            0,  // default; in production replaced by ReliabilityScoreCalculator helper
+            $default_completed,
             $user_id
         );
 

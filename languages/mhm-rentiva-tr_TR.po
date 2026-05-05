@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-05-05T02:09:45+00:00\n"
+"POT-Creation-Date: 2026-05-05T03:22:55+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -25770,15 +25770,13 @@ msgstr "Doğrulanmış Bayi"
 msgid "New Vendor"
 msgstr "Yeni Bayi"
 
-#. translators: %d: number of reviews
-#. translators: %d: number of reviews.
+#. translators: %d: number of vehicle ratings (not WP review comments — this counts booking-time star ratings aggregated across the vendor's vehicles).
 #: templates/frontend/partials/vendor-profile-hero.php:58
-#: templates/shortcodes/vehicle-rating-form.php:138
 #, php-format
-msgid "%d review"
-msgid_plural "%d reviews"
-msgstr[0] "%d yorum"
-msgstr[1] "%d yorumlar"
+msgid "%d rating"
+msgid_plural "%d ratings"
+msgstr[0] "%d değerlendirme"
+msgstr[1] "%d değerlendirme"
 
 #: templates/frontend/partials/vendor-profile-reviews.php:15
 msgid "Recent Reviews"
@@ -26360,6 +26358,14 @@ msgstr "Bu aracı inceleyen kullanıcılar şunlara da baktı."
 #: templates/shortcodes/vehicle-rating-form.php:42
 msgid "Vehicle ID not found"
 msgstr "Araç kimliği bulunamadı"
+
+#. translators: %d: number of reviews.
+#: templates/shortcodes/vehicle-rating-form.php:138
+#, php-format
+msgid "%d review"
+msgid_plural "%d reviews"
+msgstr[0] "%d yorum"
+msgstr[1] "%d yorumlar"
 
 #: templates/shortcodes/vehicle-rating-form.php:245
 msgid "Verified Rental"

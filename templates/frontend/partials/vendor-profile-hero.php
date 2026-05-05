@@ -53,11 +53,11 @@ $rating       = $data['rating'];
 				<?php echo esc_html(number_format_i18n($rating['average'], 1)); ?>
 				<span class="mhm-vendor-rating-count">
 					(
-                    <?php
-					/* translators: %d: number of reviews */
-					printf(esc_html(_n('%d review', '%d reviews', $rating['count'], 'mhm-rentiva')), (int) $rating['count']);
+					<?php
+					/* translators: %d: number of vehicle ratings (not WP review comments — this counts booking-time star ratings aggregated across the vendor's vehicles). */
+					printf(esc_html(_n('%d rating', '%d ratings', $rating['count'], 'mhm-rentiva')), (int) $rating['count']);
 					?>
-                    )
+					)
 				</span>
 			</span>
 		</div>

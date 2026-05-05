@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.37.0
+Stable tag:        4.37.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,12 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.37.1 — 2026-05-05 =
+* 🐛 Fix: **Vendor profile badge stuck on "New Vendor"** — every vendor displayed the "New Vendor" badge on `/vendor/<slug>/` even when their reliability score, account age, and completed bookings all met the verified-vendor thresholds. Root cause: `mhm_rentiva_vendor_completed_bookings_count` filter callback was registered inside `VendorProfileExtension::register()` (admin-only init bucket), so on public frontend requests the filter had no callback and the count defaulted to 0. `VendorBadgeEligibility::evaluate()` now seeds the apply_filters() default from `ReliabilityScoreCalculator::count_completed_bookings($id, 9999)` so the badge works out of the box; filter callbacks may still override.
+* 🐛 Fix: **Hero rating count label "X reviews" was misleading** — the number on the profile hero (e.g. "( 25 reviews )") was the sum of `_mhm_rentiva_rating_count` across the vendor's vehicles (booking-time star ratings), not WP review comment count. Vendors with 25 booking ratings but only 4 written reviews appeared inconsistent. The label now reads "X rating" / "X ratings" in English (Turkish: "X değerlendirme") to match the underlying data.
+* 🛡 Defensive: Vendor profile review rating now resolves through `mhm_rating` (Rentiva canonical, set by VehicleRatingForm + ReviewEnforcer) first, then falls back to the WC-standard `rating` meta key. Reviews imported from external sources (WC product reviews migrated into vehicles, Site Reviews / Customer Reviews for WooCommerce, etc.) now surface their stars on the public profile.
+* Tests: 982 → **987 PHPUnit (+5 regression)**, 3170 assertions, 7 skipped. PHPCS: 0 errors. Browser smoke green: vendors meeting thresholds now render "✓ Doğrulanmış Bayi" with star ratings on every review item.
 
 = 4.37.0 — 2026-05-05 =
 * 🌟 NEW: **Vendor Public Profile Page** — every approved vendor now gets a dedicated public-facing profile at `/vendor/<slug>/` (EN) and `/bayi/<slug>/` (TR). i18n-aware base URL pattern mirrors WooCommerce's translatable `/shop/`, `/product/` slugs. Site-owner override via the `mhm_rentiva_vendor_profile_url_base` filter.

@@ -1,5 +1,19 @@
 [
     {
+        "version": "4.37.1",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "Vendor profile badge + rating count label hotfix",
+        "summary": "Closes three smoke-test findings on the public vendor profile page: the badge defaulted to 'New Vendor' for every vendor (filter callback wired in admin-only init bucket — frontend never saw it), the hero rating count label was 'X reviews' but the underlying number was the sum of booking-time star ratings (not WP review comments), and review rating stars only resolved through the Rentiva canonical meta key with no fallback for imported third-party reviews.",
+        "changes": [
+            "🐛 Fix: VendorBadgeEligibility::evaluate() seeds apply_filters() default from ReliabilityScoreCalculator::count_completed_bookings($id, 9999) so badge works without filter callback wiring. Vendors meeting age/score/booking thresholds now correctly render as 'Verified Vendor'.",
+            "🐛 Fix: Hero rating count label changed from '%d review' / '%d reviews' to '%d rating' / '%d ratings' (Turkish: '%d değerlendirme'). The number was always the sum of vehicle rating counts; the label now accurately describes what the number represents.",
+            "🛡 Defensive: Provider review rating resolution now tries 'mhm_rating' (Rentiva canonical) first, then falls back to 'rating' (WC-standard) so reviews imported from third-party plugins surface their stars on the public profile.",
+            "Tests: 982 → 987 PHPUnit (+5 regression: VendorBadgeDefaultFallbackTest 2, VendorProfileReviewRatingFallbackTest 3). PHPCS: 0 errors. Browser smoke validated on three test vendors (Akif: verified, Zeynep: verified, Mehmet: new — all star ratings render)."
+        ],
+        "notice": "v4.37.1 patch — three vendor profile fixes for v4.37.0 smoke-test findings. No schema migration. No license-server upgrade. Cache invalidation runs automatically on plugin upgrade via the existing user-meta version stamp; sites that want to force-refresh badges immediately can run `wp transient delete --all`."
+    },
+    {
         "version": "4.37.0",
         "date": "2026-05-05",
         "type": "feature",
