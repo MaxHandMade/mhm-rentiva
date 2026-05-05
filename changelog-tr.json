@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.37.2",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "Bayi profil UX cilası — yedi tema-bağımsız iyileştirme",
+        "summary": "v4.37.0/v4.37.1 smoke testlerinden ertelenen 7 UX bulgusunu kapatır. Her düzeltme WordPress ekosisteminin geri kalanıyla iyi anlaşacak şekilde tasarlandı — Yoast / Rank Math / AIOSEO ve diğer büyük SEO eklentileri başlık/açıklama sahipliğini koruyor, 3rd-party avatar eklentileri avatar önceliğini koruyor, 3rd-party yorum import'ları yıldızlarını v4.37.1 multi-source key fallback ile gösteriyor, CSS class adları tema çakışmalarını önleyecek şekilde scoped.",
+        "changes": [
+            "🖼 YENİ VendorAvatarFallback — Custom avatarı ve gerçek Gravatar'ı olmayan bayilere deterministic SVG initials avatar. Renk display_name'den hash ile (Slack/Gmail pattern) — her bayi unique stabil renk alır, site brand paletine bağlı değil. get_avatar_data filter'ına priority 99'da bağlanır — 3rd-party avatar eklentileri (Simple Local Avatars, Avatar Privacy, WP User Avatar, vb.) önceliğini korur; sadece Gravatar mystery-man placeholder yerine geçer.",
+            "🚗 Araç thumbnail cascade — Provider::collect_vehicles() artık featured_image yoksa Rentiva gallery'nin ilk eki'ne (_mhm_rentiva_gallery_images + legacy _mhm_gallery_images / _mhm_rentiva_gallery aliasları) düşüyor, o da yoksa compact text-only karta dönüyor. Bir araçta foto yokken boş placeholder dikdörtgen yok.",
+            "⭐ Araç kartı rating düzeni hero ile aynı — tek glif yerine full yarım-yıldız barı (★★★★½). Rating rengi, count chip ve --compact modifier ayrı stillendi.",
+            "📍 show_location attribute default'u 'yes'ten 'no'ya çevrildi (shortcode + block.json + Elementor widget). Hero zaten city gösteriyor; özel section v4.40.0+ Transfer Map gelene kadar meta'yı tekrarlıyordu. Section'ı isteyen layout'lar açıkça show_location='yes' ile render eder.",
+            "🎯 YENİ VendorProfileSeo — Rewrite-routed profil URL'leri için document_title_parts + <meta name=description> default'ları SADECE gerçek bir SEO eklentisi aktif değilse. Yoast SEO, Rank Math, AIOSEO, SEOPress, The SEO Framework, SmartCrawl class/constant probe ile tespit ediliyor — onlara yol veriyoruz. Bio kelime sınırında 155 karakterde kesiliyor. Tamamen kapatmak için: add_filter('mhm_rentiva_vendor_profile_seo_disable', '__return_true').",
+            "🔘 Hero CTA stack — Primary 'Araçları görüntüle' butonu #mhm-vendor-vehicles'a anchor'lı, opsiyonel secondary 'Mesaj gönder' butonu sadece mhm_rentiva_vendor_profile_message_url filter'ından non-empty URL dönerse. Etiket + URL filter ile tamamen değiştirilebilir.",
+            "🏷 .label CSS class adı .mhm-vendor-section-label'a renamed — tema/eklenti generic .label stilleri ile çakışmaları önler. 4 section partial (about, vehicles, reviews, location) güncellendi.",
+            "📱 Mobile araç grid breakpoint'i 480px → 600px taşındı — phone-landscape (568px) ve küçük tabletler artık tek-sütuna düşüyor. 3 araçlı bayide 'iki kart yan yana + üçüncü kart yalnız' layout'u kalktı.",
+            "🐛 Düzeltme: Avatar <img src> yeni SVG data URI'leri için esc_url() tarafından strip ediliyordu (data: scheme WordPress URL whitelist'inde değil). Hero partial artık scheme'e göre dallanıyor — kendi class'ımızın ürettiği SVG payload için esc_attr(), diğer her şey için esc_url().",
+            "Testler: 987 → 1007 PHPUnit (+20 regression: VendorAvatarFallbackTest 9, VendorProfileSeoTest 5, VendorVehicleThumbnailCascadeTest 3, VendorProfileShowLocationDefaultTest 2 + 1 mevcut shortcode test class imza güncellemesi). PHPCS: 0 hata. Browser smoke 3 test bayisinde desktop + mobile (390px) yeşil."
+        ],
+        "notice": "v4.37.2 patch — bayi profil UX cilası. Schema migration yok. Lisans server güncellemesi gerektirmez. Her değişiklik filter / CSS ile override edilebilir — site sahipleri veya tema yazarları mevcut özelleştirmelerini koruyabilir. Yeni SEO default'ları Yoast / Rank Math / AIOSEO / SEOPress / The SEO Framework / SmartCrawl aktif sitelerde inert."
+    },
+    {
         "version": "4.37.1",
         "date": "2026-05-05",
         "type": "patch",

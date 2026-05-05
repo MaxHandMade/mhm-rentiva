@@ -544,6 +544,23 @@ final class Plugin {
 				\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator::register();
 			}
 
+			// v4.37.2: deterministic SVG fallback for vendors with no custom
+			// avatar and no Gravatar. Registers on get_avatar_data at priority
+			// 99 so it runs after 3rd-party avatar plugins (Simple Local
+			// Avatars, Avatar Privacy, etc.) and only substitutes the
+			// Gravatar mystery-man placeholder.
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback')) {
+				\MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback::register();
+			}
+
+			// v4.37.2: SEO defaults — page title + meta description for vendor
+			// profile URLs only when no real SEO plugin is active. Yoast,
+			// Rank Math, AIOSEO, SEOPress, The SEO Framework, SmartCrawl all
+			// own this contract on sites that have them installed; we defer.
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSeo')) {
+				\MHMRentiva\Admin\Vendor\Profile\VendorProfileSeo::register();
+			}
+
 			// Locale change detector — flushes rewrites when the site
 			// language switches and the localized base differs from cache.
 			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase')) {

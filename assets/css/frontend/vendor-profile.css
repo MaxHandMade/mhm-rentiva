@@ -51,6 +51,47 @@
     margin-top: 10px;
     font-size: 0.95rem;
 }
+/* v4.37.2 hero CTA stack — anchor + optional secondary. Theme-agnostic
+ * neutral palette so it doesn't clash with brand-coloured surrounding
+ * content. Sites can override .mhm-vendor-hero-cta-primary in a child
+ * theme stylesheet without touching plugin internals. */
+.mhm-vendor-hero-cta {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.mhm-vendor-hero-cta a {
+    display: inline-block;
+    padding: 10px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    line-height: 1.2;
+    transition: opacity 0.15s, background-color 0.15s, border-color 0.15s;
+}
+.mhm-vendor-hero-cta-primary {
+    background: #111827;
+    color: #ffffff;
+    border: 1px solid #111827;
+}
+.mhm-vendor-hero-cta-primary:hover,
+.mhm-vendor-hero-cta-primary:focus {
+    opacity: 0.9;
+    color: #ffffff;
+}
+.mhm-vendor-hero-cta-secondary {
+    background: transparent;
+    color: #111827;
+    border: 1px solid #d1d5db;
+}
+.mhm-vendor-hero-cta-secondary:hover,
+.mhm-vendor-hero-cta-secondary:focus {
+    background: #f3f4f6;
+    color: #111827;
+}
 .mhm-vendor-rating-stars { color: #f59e0b; letter-spacing: 1px; }
 .mhm-vendor-rating-count { color: #6b7280; }
 
@@ -64,7 +105,7 @@
     line-height: 1.6;
     color: #374151;
 }
-.mhm-rentiva-vendor-profile .label {
+.mhm-rentiva-vendor-profile .mhm-vendor-section-label {
     font-size: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -103,6 +144,31 @@
     padding: 0 12px 8px;
     font-size: 0.85rem;
     color: #f59e0b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.mhm-vendor-vehicle-card-stars {
+    color: #f59e0b;
+    letter-spacing: 1px;
+}
+.mhm-vendor-vehicle-card-rating-text {
+    color: #374151;
+    font-weight: 500;
+}
+.mhm-vendor-vehicle-card-rating-count {
+    color: #6b7280;
+    font-weight: 400;
+}
+/* Compact mode — vehicle has no featured image and no gallery fallback.
+ * The card collapses to a tight text-only block instead of showing a
+ * generic "no image" placeholder which would clash visually with the
+ * other cards on the same vendor's profile. */
+.mhm-vendor-vehicle-card--compact .mhm-vendor-vehicle-card-title {
+    padding-top: 14px;
+}
+.mhm-vendor-vehicle-card--compact {
+    background: #f9fafb;
 }
 .mhm-vendor-vehicles-cta {
     margin-top: 12px;
@@ -159,9 +225,15 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
-@media (max-width: 480px) {
+/* v4.37.2: 600px instead of 480px so phone-landscape (568px) and small
+ * tablets collapse to a single column. Avoids the "two cards plus a
+ * solo orphan on the third row" layout reported on 3-vehicle vendors. */
+@media (max-width: 600px) {
     .mhm-vendor-vehicle-grid {
         grid-template-columns: 1fr;
+    }
+    .mhm-vendor-vehicle-card img {
+        height: 180px;
     }
     .mhm-vendor-meta > span + span::before {
         content: '\A';

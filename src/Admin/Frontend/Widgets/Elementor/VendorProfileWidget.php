@@ -77,6 +77,18 @@ class VendorProfileWidget extends ElementorWidgetBase {
             'show_location' => __('Location', 'mhm-rentiva'),
         ];
 
+        // v4.37.2: show_location default flipped to 'no' (city already in hero;
+        // dedicated section reserved for v4.40.0+ Transfer Map). Other sections
+        // remain 'yes' so existing layouts are unaffected.
+        $section_defaults = [
+            'show_badge'    => 'yes',
+            'show_rating'   => 'yes',
+            'show_about'    => 'yes',
+            'show_vehicles' => 'yes',
+            'show_reviews'  => 'yes',
+            'show_location' => 'no',
+        ];
+
         foreach ($section_labels as $key => $label) {
             $this->add_control(
                 $key,
@@ -84,7 +96,7 @@ class VendorProfileWidget extends ElementorWidgetBase {
                     'label'        => $label,
                     'type'         => Controls_Manager::SWITCHER,
                     'return_value' => 'yes',
-                    'default'      => 'yes',
+                    'default'      => $section_defaults[ $key ] ?? 'yes',
                 ]
             );
         }

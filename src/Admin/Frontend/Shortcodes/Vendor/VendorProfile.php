@@ -109,7 +109,11 @@ final class VendorProfile
             'vehicle_sort'           => 'rating-newest',
             'show_reviews'           => 'yes',
             'max_reviews'            => '10',
-            'show_location'          => 'yes',
+            // v4.37.2: default 'no' — hero already shows the city. The dedicated
+            // section is reserved for the v4.40.0+ Transfer Map enrichment;
+            // until then it duplicates the hero meta. Layouts that want to show
+            // the section explicitly can pass show_location="yes".
+            'show_location'          => 'no',
             'empty_vehicles_message' => '',
             'empty_reviews_message'  => '',
             'class'                  => '',

@@ -281,17 +281,61 @@ final class VendorProfileProvider
         $out = [];
         foreach ((array) $ids as $vid) {
             $vid   = (int) $vid;
-            $thumb = get_the_post_thumbnail_url($vid, 'medium');
             $out[] = [
                 'id'     => $vid,
                 'title'  => get_the_title($vid),
                 'url'    => (string) get_permalink($vid),
-                'thumb'  => $thumb !== false ? (string) $thumb : '',
+                'thumb'  => self::resolve_vehicle_thumb($vid),
                 'rating' => (float) get_post_meta($vid, '_mhm_rentiva_rating_average', true),
                 'count'  => (int) get_post_meta($vid, '_mhm_rentiva_rating_count', true),
             ];
         }
         return $out;
+    }
+
+    /**
+     * Cascade fallback for the vehicle card thumbnail.
+     *
+     * 1. WP featured image (canonical, set via the post editor).
+     * 2. First attachment ID in the Rentiva vehicle gallery meta — supports
+     *    the canonical key `_mhm_rentiva_gallery_images` plus the legacy
+     *    aliases `_mhm_gallery_images` and `_mhm_rentiva_gallery` to mirror
+     *    {@see \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::get_gallery()}.
+     * 3. Empty string — the template renders a compact, image-less card so
+     *    a missing photo doesn't surface a generic placeholder rectangle.
+     *
+     * @since 4.37.2
+     */
+    private static function resolve_vehicle_thumb(int $vehicle_id): string
+    {
+        $featured = get_the_post_thumbnail_url($vehicle_id, 'medium');
+        if (is_string($featured) && $featured !== '') {
+            return $featured;
+        }
+
+        $gallery_keys = ['_mhm_rentiva_gallery_images', '_mhm_gallery_images', '_mhm_rentiva_gallery'];
+        foreach ($gallery_keys as $key) {
+            $raw = get_post_meta($vehicle_id, $key, true);
+            if (empty($raw)) {
+                continue;
+            }
+            $items = is_string($raw) ? json_decode($raw, true) : $raw;
+            if (!is_array($items)) {
+                continue;
+            }
+            foreach ($items as $item) {
+                $att_id = is_array($item) ? (int) ($item['id'] ?? 0) : (int) $item;
+                if ($att_id <= 0) {
+                    continue;
+                }
+                $url = wp_get_attachment_image_url($att_id, 'medium');
+                if (is_string($url) && $url !== '') {
+                    return $url;
+                }
+            }
+        }
+
+        return '';
     }
 
     /**

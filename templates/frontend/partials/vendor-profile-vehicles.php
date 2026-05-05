@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
 $vehicles     = $data['vehicles'] ?? [];
 $view_all_url = (string) apply_filters('mhm_rentiva_vendor_profile_view_all_url', '', $data['user_id']);
 ?>
-<div class="mhm-vendor-vehicles">
-	<div class="label">
+<div class="mhm-vendor-vehicles" id="mhm-vendor-vehicles">
+	<div class="mhm-vendor-section-label">
 		<?php
 		/* translators: %d: vehicle count */
 		printf(esc_html__('Vehicles (%d)', 'mhm-rentiva'), count($vehicles));
@@ -29,15 +29,21 @@ $view_all_url = (string) apply_filters('mhm_rentiva_vendor_profile_view_all_url'
 	<?php else : ?>
 		<div class="mhm-vendor-vehicle-grid">
 			<?php foreach ($vehicles as $vehicle) : ?>
-				<a href="<?php echo esc_url($vehicle['url']); ?>" class="mhm-vendor-vehicle-card">
-					<?php if (!empty($vehicle['thumb'])) : ?>
-						<img src="<?php echo esc_url($vehicle['thumb']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" />
+				<?php $is_compact = empty($vehicle['thumb']); ?>
+				<a href="<?php echo esc_url($vehicle['url']); ?>" class="mhm-vendor-vehicle-card<?php echo $is_compact ? ' mhm-vendor-vehicle-card--compact' : ''; ?>">
+					<?php if (!$is_compact) : ?>
+						<img src="<?php echo esc_url($vehicle['thumb']); ?>" alt="<?php echo esc_attr($vehicle['title']); ?>" loading="lazy" />
 					<?php endif; ?>
 					<div class="mhm-vendor-vehicle-card-title"><?php echo esc_html($vehicle['title']); ?></div>
 					<?php if ($vehicle['count'] > 0) : ?>
 						<div class="mhm-vendor-vehicle-card-rating">
-							★ <?php echo esc_html(number_format_i18n($vehicle['rating'], 1)); ?>
-							<span>(<?php echo (int) $vehicle['count']; ?>)</span>
+							<span class="mhm-vendor-vehicle-card-stars" aria-hidden="true">
+								<?php echo esc_html(\MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile::stars_html( (float) $vehicle['rating'])); ?>
+							</span>
+							<span class="mhm-vendor-vehicle-card-rating-text">
+								<?php echo esc_html(number_format_i18n($vehicle['rating'], 1)); ?>
+								<span class="mhm-vendor-vehicle-card-rating-count">(<?php echo (int) $vehicle['count']; ?>)</span>
+							</span>
 						</div>
 					<?php endif; ?>
 				</a>

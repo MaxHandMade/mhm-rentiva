@@ -128,8 +128,12 @@ final class VendorProfileShortcodeTest extends \WP_UnitTestCase
             update_post_meta($vid, '_mhm_rentiva_rating_average', 4.0);
         }
         $html       = do_shortcode('[rentiva_vendor_profile slug="akif-cap" max_vehicles="2"]');
-        // Count exact card class (not the subclasses ‑title / ‑rating that share the prefix).
-        $card_count = substr_count($html, 'class="mhm-vendor-vehicle-card"');
+        // Match the card opening anchor — v4.37.2 introduced an optional
+        // `mhm-vendor-vehicle-card--compact` modifier on the same class
+        // attribute, so the previous exact `class="mhm-vendor-vehicle-card"`
+        // string no longer matches when the card is in compact mode. Look
+        // for the start of the card class on `<a` openings instead.
+        $card_count = preg_match_all('/<a [^>]*class="mhm-vendor-vehicle-card(?:["\s])/', $html, $unused);
         $this->assertSame(2, $card_count, 'max_vehicles shortcode attribute should cap rendered vehicle cards.');
     }
 

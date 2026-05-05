@@ -16,8 +16,18 @@ $rating       = $data['rating'];
 ?>
 <div class="mhm-vendor-hero">
 	<div class="mhm-vendor-avatar">
-		<?php if (!empty($data['avatar_url'])) : ?>
-			<img src="<?php echo esc_url($data['avatar_url']); ?>" alt="<?php echo esc_attr($data['display_name']); ?>" />
+		<?php if (!empty($data['avatar_url'])) :
+			// v4.37.2: VendorAvatarFallback may resolve to a `data:image/svg+xml`
+			// URI (deterministic initials fallback for vendors without a custom
+			// avatar and without a real Gravatar). esc_url() strips data:
+			// scheme by default — WordPress whitelist excludes it — so the
+			// SVG would be lost on output. Branch on the scheme: trust the
+			// SVG payload built by our own class with esc_attr() (no remote
+			// content), keep esc_url() for everything else.
+			$mhm_avatar_url = (string) $data['avatar_url'];
+			$mhm_is_inline_svg = strpos($mhm_avatar_url, 'data:image/svg+xml') === 0;
+			?>
+			<img src="<?php echo $mhm_is_inline_svg ? esc_attr($mhm_avatar_url) : esc_url($mhm_avatar_url); ?>" alt="<?php echo esc_attr($data['display_name']); ?>" />
 		<?php endif; ?>
 	</div>
 	<h1 class="mhm-vendor-name"><?php echo esc_html($data['display_name']); ?></h1>
@@ -43,6 +53,40 @@ $rating       = $data['rating'];
 		<?php elseif ($badge_status === 'new') : ?>
 			<span class="mhm-vendor-badge mhm-vendor-badge--new"><?php esc_html_e('New Vendor', 'mhm-rentiva'); ?></span>
 		<?php endif; ?>
+	<?php endif; ?>
+	<?php
+	// v4.37.2: hero CTA stack — primary "View vehicles" anchor (#mhm-vendor-vehicles)
+	// always, secondary "Send message" only if a vendor messaging surface is wired
+	// on this site (filter returns a non-empty URL). Filters expose the destination
+	// + label so site owners can swap to an external booking link or custom CPT
+	// archive without overriding the partial.
+	$hero_primary_url   = (string) apply_filters(
+		'mhm_rentiva_vendor_profile_primary_cta_url',
+		'#mhm-vendor-vehicles',
+		$data['user_id']
+	);
+	$hero_primary_label = (string) apply_filters(
+		'mhm_rentiva_vendor_profile_primary_cta_label',
+		__('View vehicles', 'mhm-rentiva'),
+		$data['user_id']
+	);
+	$hero_message_url   = (string) apply_filters(
+		'mhm_rentiva_vendor_profile_message_url',
+		'',
+		$data['user_id']
+	);
+	?>
+	<?php if ($hero_primary_url !== '' && $hero_primary_label !== '') : ?>
+		<div class="mhm-vendor-hero-cta">
+			<a class="mhm-vendor-hero-cta-primary" href="<?php echo esc_url($hero_primary_url); ?>">
+				<?php echo esc_html($hero_primary_label); ?>
+			</a>
+			<?php if ($hero_message_url !== '') : ?>
+				<a class="mhm-vendor-hero-cta-secondary" href="<?php echo esc_url($hero_message_url); ?>">
+					<?php esc_html_e('Send message', 'mhm-rentiva'); ?>
+				</a>
+			<?php endif; ?>
+		</div>
 	<?php endif; ?>
 	<?php if ($atts['show_rating'] === 'yes' && $rating['count'] > 0) : ?>
 		<div class="mhm-vendor-rating">

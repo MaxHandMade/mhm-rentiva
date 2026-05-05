@@ -27,7 +27,7 @@
         "vehicle_sort":           { "type": "string", "default": "rating-newest" },
         "show_reviews":           { "type": "string", "default": "yes", "enum": ["yes", "no"] },
         "max_reviews":            { "type": "string", "default": "10" },
-        "show_location":          { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "show_location":          { "type": "string", "default": "no",  "enum": ["yes", "no"] },
         "empty_vehicles_message": { "type": "string", "default": "" },
         "empty_reviews_message":  { "type": "string", "default": "" },
         "className":              { "type": "string", "default": "" }

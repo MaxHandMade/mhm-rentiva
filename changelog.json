@@ -1,5 +1,25 @@
 [
     {
+        "version": "4.37.2",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "Vendor profile UX polish — seven theme-agnostic improvements",
+        "summary": "Closes the seven UX findings deferred from v4.37.0/v4.37.1 smoke tests. Every fix is designed to play nicely with the rest of the WordPress ecosystem — Yoast / Rank Math / AIOSEO and other major SEO plugins keep title/description ownership, third-party avatar plugins keep avatar precedence, third-party review imports surface their stars via the v4.37.1 multi-source key fallback, and CSS class names are scoped to avoid collisions with host themes.",
+        "changes": [
+            "🖼 NEW VendorAvatarFallback — deterministic SVG initials avatar for vendors without a custom avatar and without a real Gravatar. Hue hashed from the display name (Slack/Gmail pattern) so each vendor gets a stable unique colour without depending on the host site's brand palette. Hooks get_avatar_data at priority 99 so 3rd-party avatar plugins (Simple Local Avatars, Avatar Privacy, WP User Avatar, etc.) retain their precedence; only the Gravatar mystery-man placeholder is substituted.",
+            "🚗 Vehicle thumbnail cascade — Provider::collect_vehicles() now falls back from featured image to the first attachment in the Rentiva gallery (_mhm_rentiva_gallery_images + legacy _mhm_gallery_images / _mhm_rentiva_gallery aliases), then to a compact text-only card. No empty placeholder rectangles when one car is missing a photo.",
+            "⭐ Vehicle card rating layout now mirrors the hero — full half-star bar (★★★★½) instead of a single glyph. Rating colour, count chip, and compact --compact modifier styled separately.",
+            "📍 show_location attribute default flipped from 'yes' to 'no' across shortcode + block.json + Elementor widget. Hero already shows the city; dedicated section duplicated the meta until the v4.40.0+ Transfer Map can populate it. Layouts that want the section render explicitly with show_location='yes'.",
+            "🎯 NEW VendorProfileSeo — document_title_parts + <meta name=description> defaults for rewrite-routed profile URLs ONLY when no real SEO plugin is active. Yoast SEO, Rank Math, AIOSEO, SEOPress, The SEO Framework, SmartCrawl all detected via class/constant probes — we yield to them. Bio excerpted at 155 chars on a word boundary. Globally disable with add_filter('mhm_rentiva_vendor_profile_seo_disable', '__return_true').",
+            "🔘 Hero CTA stack — primary 'View vehicles' button anchored to #mhm-vendor-vehicles, optional secondary 'Send message' button only when a third-party messaging surface is wired via mhm_rentiva_vendor_profile_message_url filter. Both label + URL fully filterable.",
+            "🏷 .label CSS class renamed to .mhm-vendor-section-label to avoid collisions with theme/plugin generic .label styles. All four section partials (about, vehicles, reviews, location) updated.",
+            "📱 Mobile vehicle grid breakpoint moved from 480px → 600px so phone-landscape (568px) and small tablets collapse to single-column. The 3-vehicle vendor 'two cards plus solo orphan' layout is gone.",
+            "🐛 Fix: avatar <img src> was stripped by esc_url() for the new SVG data URIs (data: scheme is not on the WordPress URL whitelist). Hero partial now branches on the scheme — esc_attr() for the own-class-built SVG payload, esc_url() for everything else.",
+            "Tests: 987 → 1007 PHPUnit (+20 regression: VendorAvatarFallbackTest 9, VendorProfileSeoTest 5, VendorVehicleThumbnailCascadeTest 3, VendorProfileShowLocationDefaultTest 2 + 1 mevcut shortcode test class signature update). PHPCS: 0 errors. Browser smoke green on three test vendors at desktop + mobile (390px) viewports."
+        ],
+        "notice": "v4.37.2 patch — vendor profile UX polish. No schema migration. No license-server upgrade. Every change is filter-/CSS-overridable so site owners or theme authors can keep their existing customizations. The new SEO defaults are inert on sites with Yoast / Rank Math / AIOSEO / SEOPress / The SEO Framework / SmartCrawl active."
+    },
+    {
         "version": "4.37.1",
         "date": "2026-05-05",
         "type": "patch",

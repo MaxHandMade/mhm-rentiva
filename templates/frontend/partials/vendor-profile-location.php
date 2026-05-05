@@ -10,6 +10,6 @@ if (!defined('ABSPATH')) {
 }
 ?>
 <div class="mhm-vendor-location">
-	<div class="label"><?php esc_html_e('Location', 'mhm-rentiva'); ?></div>
+	<div class="mhm-vendor-section-label"><?php esc_html_e('Location', 'mhm-rentiva'); ?></div>
 	<p>📍 <?php echo esc_html($data['city']); ?></p>
 </div>

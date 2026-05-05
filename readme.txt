@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.37.1
+Stable tag:        4.37.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,19 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.37.2 — 2026-05-05 =
+* 🎨 **Vendor profile UX polish — seven theme-agnostic improvements** designed to play nicely with any host theme and the rest of the WordPress ecosystem (Yoast / Rank Math / AIOSEO, Simple Local Avatars, third-party review imports, etc.).
+* 🖼 NEW `VendorAvatarFallback` — vendors without a custom avatar and without a real Gravatar now get a deterministic SVG circle bearing their initials. Hue is hashed from the display name (Slack/Gmail pattern) so each vendor has a stable unique colour without depending on the host site's brand palette. Hooks `get_avatar_data` at priority 99 so 3rd-party avatar plugins (Simple Local Avatars, Avatar Privacy, etc.) keep their precedence and only the Gravatar mystery-man placeholder is substituted.
+* 🚗 Vehicle thumbnail cascade — `Provider::collect_vehicles()` now falls back from featured image to the first attachment in the Rentiva gallery (`_mhm_rentiva_gallery_images` + legacy aliases), then to a compact text-only card. No more empty placeholder rectangles when one car is missing a photo and others aren't.
+* ⭐ Vehicle card rating layout now mirrors the hero — full half-star bar (`★★★★½`) instead of a single glyph + numeric rating. Rating colour, count chip, and compact `--compact` modifier styled separately.
+* 📍 `show_location` shortcode/block/widget attribute default flipped from `yes` to `no`. The hero already shows the city; the dedicated section duplicated the meta until the v4.40.0+ Transfer Map can populate it. Layouts that want the section render with `show_location="yes"`.
+* 🎯 NEW `VendorProfileSeo` — page title (`document_title_parts`) + `<meta name="description">` defaults for the rewrite-routed profile URLs **only when no real SEO plugin is active**. Yoast SEO, Rank Math, AIOSEO, SEOPress, The SEO Framework, and SmartCrawl all detected via class/constant probes; we yield to them. Bio is excerpted at 155 characters on a word boundary. Globally disable with `add_filter('mhm_rentiva_vendor_profile_seo_disable', '__return_true')`.
+* 🔘 Hero CTA stack — primary "View vehicles" button anchored to `#mhm-vendor-vehicles`, optional secondary "Send message" button only when a third-party messaging surface is wired via `mhm_rentiva_vendor_profile_message_url` filter. Both label + URL fully filterable.
+* 🏷 `.label` CSS class renamed to `.mhm-vendor-section-label` to avoid collisions with theme/plugin generic `.label` styles.
+* 📱 Mobile vehicle grid breakpoint moved from 480px → 600px so phone-landscape (568px) and small tablets collapse to a single column instead of leaving a solo card on its own row.
+* 🐛 Fix: avatar `<img src>` was being stripped by `esc_url()` for the new SVG data URIs (data: scheme is not on the WordPress URL whitelist). Hero partial now branches on the scheme — `esc_attr()` for our own-class-built SVG payload, `esc_url()` for everything else.
+* Tests: 987 → **1007 PHPUnit (+20 regression)**, 3208 assertions, 7 skipped. PHPCS: 0 errors.
 
 = 4.37.1 — 2026-05-05 =
 * 🐛 Fix: **Vendor profile badge stuck on "New Vendor"** — every vendor displayed the "New Vendor" badge on `/vendor/<slug>/` even when their reliability score, account age, and completed bookings all met the verified-vendor thresholds. Root cause: `mhm_rentiva_vendor_completed_bookings_count` filter callback was registered inside `VendorProfileExtension::register()` (admin-only init bucket), so on public frontend requests the filter had no callback and the count defaulted to 0. `VendorBadgeEligibility::evaluate()` now seeds the apply_filters() default from `ReliabilityScoreCalculator::count_completed_bookings($id, 9999)` so the badge works out of the box; filter callbacks may still override.

@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 4.37.0\n"
+"Project-Id-Version: MHM Rentiva 4.37.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-05T03:22:55+00:00\n"
+"POT-Creation-Date: 2026-05-05T18:18:12+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -2742,7 +2742,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:71
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:265
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1207
+#: src/Plugin.php:1224
 #: templates/admin/dashboard/pending-payments.php:27
 #: templates/admin/dashboard/upcoming-operations.php:32
 #: templates/admin/reports/customers.php:84
@@ -11169,7 +11169,7 @@ msgid "Alphabetical"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/PopularRoutesWidget.php:155
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:131
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:143
 #: assets/blocks/popular-routes/index.js:84
 #: assets/blocks/vendor-profile/index.js:67
 msgid "Newest first"
@@ -11818,62 +11818,62 @@ msgstr ""
 msgid "Location"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:97
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:109
 #: assets/blocks/vendor-profile/index.js:49
 msgid "Limits"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:104
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:116
 #: assets/blocks/vendor-profile/index.js:51
 msgid "Max vehicles"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:115
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:127
 #: assets/blocks/vendor-profile/index.js:57
 msgid "Max reviews"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:126
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:138
 #: assets/blocks/vendor-profile/index.js:63
 msgid "Vehicle sort order"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:130
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:142
 #: assets/blocks/vendor-profile/index.js:66
 msgid "Rating, then newest"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:132
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:144
 #: assets/blocks/vendor-profile/index.js:68
 msgid "Price (low to high)"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:133
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:145
 #: assets/blocks/vendor-profile/index.js:69
 msgid "Price (high to low)"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:143
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:155
 #: assets/blocks/vendor-profile/index.js:74
 msgid "Empty States"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:150
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:162
 #: assets/blocks/vendor-profile/index.js:76
 msgid "Empty vehicles message"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:153
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:165
 #: assets/blocks/vendor-profile/index.js:78
 msgid "Custom text when vendor has no public vehicles."
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:160
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:172
 #: assets/blocks/vendor-profile/index.js:82
 msgid "Empty reviews message"
 msgstr ""
 
-#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:163
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:175
 #: assets/blocks/vendor-profile/index.js:84
 msgid "Custom text when vendor has no reviews yet."
 msgstr ""
@@ -22684,15 +22684,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:905
+#: src/Plugin.php:922
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:908
+#: src/Plugin.php:925
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1229
+#: src/Plugin.php:1246
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -24803,8 +24803,16 @@ msgstr ""
 msgid "New Vendor"
 msgstr ""
 
+#: templates/frontend/partials/vendor-profile-hero.php:60
+msgid "View vehicles"
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-hero.php:76
+msgid "Send message"
+msgstr ""
+
 #. translators: %d: number of vehicle ratings (not WP review comments — this counts booking-time star ratings aggregated across the vendor's vehicles).
-#: templates/frontend/partials/vendor-profile-hero.php:58
+#: templates/frontend/partials/vendor-profile-hero.php:92
 #, php-format
 msgid "%d rating"
 msgid_plural "%d ratings"
@@ -24835,7 +24843,7 @@ msgstr ""
 msgid "This vendor is not currently listing any vehicles."
 msgstr ""
 
-#: templates/frontend/partials/vendor-profile-vehicles.php:48
+#: templates/frontend/partials/vendor-profile-vehicles.php:54
 msgid "View all vehicles →"
 msgstr ""
 

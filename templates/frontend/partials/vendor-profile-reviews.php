@@ -12,7 +12,7 @@ if (!defined('ABSPATH')) {
 $reviews = $data['reviews'] ?? [];
 ?>
 <div class="mhm-vendor-reviews">
-	<div class="label"><?php esc_html_e('Recent Reviews', 'mhm-rentiva'); ?></div>
+	<div class="mhm-vendor-section-label"><?php esc_html_e('Recent Reviews', 'mhm-rentiva'); ?></div>
 	<?php if (empty($reviews)) : ?>
 		<div class="mhm-vendor-reviews-empty">
 			<?php
