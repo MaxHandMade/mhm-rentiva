@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.37.3",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "CI hotfix — v4.37.2 hero template'inde PHPCS açılış PHP tag'i",
+        "summary": "v4.37.2 merge edildikten sonra CI 'Run PHPCS' job tek bir Generic.PHP.LowerCaseKeyword companion sniff'inde fail oldu: templates/frontend/partials/vendor-profile-hero.php line 19'da 'Opening PHP tag must be on a line by itself'. Avatar src dual-escape dalı `<?php if (...) :` ifadesini takip eden multi-line statement body ile aynı satırda yerleştirmişti. Sadece lint — v4.37.2 ZIP'i fonksiyonel olarak doğruydu (browser smoke yeşil, desktop + mobile runtime test edildi). v4.37.3 bloğu yeniden yapılandırıyor — PHP tag kendi satırında, çevre tooling memnun.",
+        "changes": [
+            "🔧 Hero partial: `<?php if (!empty(...)) : { multi-line body }` yeniden yazıldı — PHP tag kendi satırını açıyor. Değişken atamaları üst kısımda ayrı bir blok'a taşındı.",
+            "PHPCS: 0 hata (tests/ dahil tüm proje). PHPUnit: 1007 test, 3208 doğrulama, 7 skipped — v4.37.2 baseline ile aynı."
+        ],
+        "notice": "v4.37.3 patch — CI lint hotfix. Kod davranışı değişikliği yok. v4.37.2 çalıştıran sitelerin bu güncellemeye ihtiyacı yok; bu sürüm repo'daki CI badge'in yeşil kalması ve testing.yml workflow'unun sonraki release'ler için güvenilir bir gate olarak kalması için var."
+    },
+    {
         "version": "4.37.2",
         "date": "2026-05-05",
         "type": "patch",

@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.37.3",
+        "date": "2026-05-05",
+        "type": "patch",
+        "title": "CI hotfix — PHPCS opening PHP tag in v4.37.2 hero template",
+        "summary": "v4.37.2 merged with the CI 'Run PHPCS' job failing on a single Generic.PHP.LowerCaseKeyword companion sniff: 'Opening PHP tag must be on a line by itself' in templates/frontend/partials/vendor-profile-hero.php line 19. The avatar src dual-escape branch placed `<?php if (...) :` on the same line as the multi-line statement body that followed it. Lint-only — the v4.37.2 ZIP was functionally correct (browser smoke green, runtime-tested at desktop + mobile). v4.37.3 refactors the block so the PHP tag is alone on its line and surrounding tooling is satisfied.",
+        "changes": [
+            "🔧 Hero partial: `<?php if (!empty(...)) : { multi-line body }` rewritten so the PHP tag opens its own line. Variable assignments moved to a separate top-of-section block.",
+            "PHPCS: 0 errors (full project, including tests/). PHPUnit: 1007 tests, 3208 assertions, 7 skipped — same as v4.37.2 baseline."
+        ],
+        "notice": "v4.37.3 patch — CI lint hotfix. No code-behavior change. Sites already running v4.37.2 do not require this update; it exists so the CI badge on the repo is green and the testing.yml workflow stays a reliable gate for future releases."
+    },
+    {
         "version": "4.37.2",
         "date": "2026-05-05",
         "type": "patch",

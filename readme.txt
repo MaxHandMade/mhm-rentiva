@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.37.2
+Stable tag:        4.37.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.37.3 — 2026-05-05 =
+* 🔧 CI hotfix: WPCS "Opening PHP tag must be on a line by itself" error in `templates/frontend/partials/vendor-profile-hero.php` line 19. The v4.37.2 avatar src dual-escape branch placed `<?php if (...) :` on the same line as the multi-line statement body that followed it. Refactored so the PHP tag is alone on its line and the variable assignments live in a separate block. **No functional change** — v4.37.2 was working in production smoke tests; the issue was lint-only and surfaced when CI runs the full `composer phpcs` (broader than `composer phpcs:release`).
+* PHPCS: 0 errors (full project, including tests/). PHPUnit: 1007 tests, 3208 assertions, 7 skipped.
 
 = 4.37.2 — 2026-05-05 =
 * 🎨 **Vendor profile UX polish — seven theme-agnostic improvements** designed to play nicely with any host theme and the rest of the WordPress ecosystem (Yoast / Rank Math / AIOSEO, Simple Local Avatars, third-party review imports, etc.).

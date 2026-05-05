@@ -16,17 +16,23 @@ $rating       = $data['rating'];
 ?>
 <div class="mhm-vendor-hero">
 	<div class="mhm-vendor-avatar">
-		<?php if (!empty($data['avatar_url'])) :
-			// v4.37.2: VendorAvatarFallback may resolve to a `data:image/svg+xml`
-			// URI (deterministic initials fallback for vendors without a custom
-			// avatar and without a real Gravatar). esc_url() strips data:
-			// scheme by default — WordPress whitelist excludes it — so the
-			// SVG would be lost on output. Branch on the scheme: trust the
-			// SVG payload built by our own class with esc_attr() (no remote
-			// content), keep esc_url() for everything else.
-			$mhm_avatar_url = (string) $data['avatar_url'];
-			$mhm_is_inline_svg = strpos($mhm_avatar_url, 'data:image/svg+xml') === 0;
-			?>
+		<?php
+		// v4.37.3: VendorAvatarFallback may resolve to a `data:image/svg+xml`
+		// URI (deterministic initials fallback for vendors without a custom
+		// avatar and without a real Gravatar). esc_url() strips data: scheme
+		// by default — WordPress whitelist excludes it — so the SVG would be
+		// lost on output. Branch on the scheme: trust the SVG payload built
+		// by our own class with esc_attr() (no remote content, no user
+		// input), keep esc_url() for everything else.
+		//
+		// PHPCS lint fix from v4.37.2: the previous variant placed `<?php`
+		// on the same line as a multi-statement body, which trips
+		// Generic.PHP.LowerCaseKeyword's companion sniff "Opening PHP tag
+		// must be on a line by itself" in CI.
+		$mhm_avatar_url    = (string) ( $data['avatar_url'] ?? '' );
+		$mhm_is_inline_svg = strpos($mhm_avatar_url, 'data:image/svg+xml') === 0;
+		?>
+		<?php if ($mhm_avatar_url !== '') : ?>
 			<img src="<?php echo $mhm_is_inline_svg ? esc_attr($mhm_avatar_url) : esc_url($mhm_avatar_url); ?>" alt="<?php echo esc_attr($data['display_name']); ?>" />
 		<?php endif; ?>
 	</div>
