@@ -520,6 +520,43 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
 			\MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
 		}
+
+		// v4.37.0 Vendor Public Profile — Pro-gated, public-facing wiring.
+		// MUST live in the context-agnostic init path: rewrite rules, head
+		// schema, and cache invalidation hooks need to fire on frontend
+		// requests too. initialize_admin_services is admin-only (is_admin()
+		// guard at line 108) — placing this there leaves /bayi/<slug>/ as
+		// a 404 for anonymous visitors. Schema (Phase 8) was previously
+		// orphaned: tests covered it but register() was never invoked
+		// anywhere. Pro-gated outer guard so Lite installs neither pay the
+		// hook cost nor expose vendor URLs. The shortcode
+		// `rentiva_vendor_profile` is already wired via
+		// ShortcodeServiceProvider and self-gates inside render() — not
+		// re-registered here to avoid double-registration.
+		if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) {
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite')) {
+				\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSchema')) {
+				\MHMRentiva\Admin\Vendor\Profile\VendorProfileSchema::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator')) {
+				\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator::register();
+			}
+
+			// Locale change detector — flushes rewrites when the site
+			// language switches and the localized base differs from cache.
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase')) {
+				add_action('init', [ \MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase::class, 'check_for_locale_change' ], 5);
+			}
+
+			// One-time slug backfill — idempotent via site option flag, also
+			// internally guarded by the same Pro check so toggling Pro off
+			// preserves data.
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration')) {
+				add_action('plugins_loaded', [ \MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration::class, 'run' ], 20);
+			}
+		}
 	}
 
 	/**

@@ -667,6 +667,11 @@ final class SettingsSanitizer {
 			'vendor_score_pause_penalty'           => self::get_int( $input, 'vendor_score_pause_penalty', 2, 0, 20 ),
 			'vendor_score_completion_bonus'        => self::get_int( $input, 'vendor_score_completion_bonus', 5, 0, 20 ),
 			'vendor_score_max_completion_bonus'    => self::get_int( $input, 'vendor_score_max_completion_bonus', 20, 0, 100 ),
+
+			// Vendor Profile badge thresholds (v4.37.0)
+			'vendor_badge_min_age_days'            => self::get_int( $input, 'vendor_badge_min_age_days', 180, 0, 1825 ),
+			'vendor_badge_min_score'               => self::get_int( $input, 'vendor_badge_min_score', 80, 0, 100 ),
+			'vendor_badge_min_completed_bookings'  => self::get_int( $input, 'vendor_badge_min_completed_bookings', 10, 0, 500 ),
 		);
 	}
 }

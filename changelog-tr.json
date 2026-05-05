@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.37.0",
+        "date": "2026-05-05",
+        "type": "feature",
+        "title": "Bayi Genel Profil Sayfası",
+        "summary": "Her onaylı bayi artık /vendor/<slug>/ (EN) veya /bayi/<slug>/ (TR) adresinde kendi genel profil sayfasına sahip. i18n duyarlı base URL, WooCommerce'in çevrilebilir /shop/, /product/ slug'larıyla aynı pattern'i izliyor. Yeni canonical shortcode + Gutenberg bloğu + Elementor widget'ı tek renderer'a delege ediyor (Render Parity). Schema.org LocalBusiness JSON-LD <head> içinde emit ediliyor; Yoast / Rank Math canonical filter uyumluluğu var. Mode::canUseVendorMarketplace ile Pro gate'li.",
+        "highlights": [
+            "i18n duyarlı URL base: /vendor/{slug}/ (EN) → /bayi/{slug}/ (TR), filtre ile değiştirilebilir",
+            "[rentiva_vendor_profile] shortcode + Gutenberg bloğu + Elementor widget'ı — tek renderer",
+            "Schema.org LocalBusiness JSON-LD <head>'de + Yoast / Rank Math canonical filter uyumu",
+            "Bayi admin: avatar yükleme + ASCII slug + collision suffix + eski slug'lardan 301 redirect",
+            "Doğrulanmış Bayi / Yeni Bayi rozetleri + admin'de yapılandırılabilir eşikler",
+            "Idempotent slug backfill migration + 7 tetikli transient cache invalidator",
+            "i18n: 19 TR çeviri yenilendi (4 yeni, 15 fuzzy temizlendi), 'Henüz değerlendirme yok — ilk değerlendirmeyi siz yapın.' dahil",
+            "Testler: 904 → 982 PHPUnit (+78, 9 implementation faz boyunca), 3162 doğrulama, 0 PHPCS hatası"
+        ],
+        "notice": "v4.37.0 minor — Bayi Genel Profil Sayfası özelliği. Yeni rewrite rule (/bayi/{slug}/), yeni canonical shortcode + block + widget, yeni admin avatar/slug alanları, yeni LocalBusiness JSON-LD emisyonu. Slug backfill migration upgrade'de bir kez çalışır (idempotent). Lisans server güncelleme gerektirmez. Dev sitelerde `wp-config.php`'ye `define('MHM_RENTIVA_DEV_PRO', true);` eklemek Pro gate'i atlatır."
+    },
+    {
         "version": "4.36.0",
         "date": "2026-04-29",
         "type": "feature",

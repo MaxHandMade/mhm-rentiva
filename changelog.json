@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.37.0",
+        "date": "2026-05-05",
+        "type": "feature",
+        "title": "Vendor Public Profile Page",
+        "summary": "Every approved vendor now gets a dedicated public-facing profile at /vendor/<slug>/ (EN) or /bayi/<slug>/ (TR). The i18n-aware base URL mirrors WooCommerce's translatable /shop/, /product/ slugs. New canonical shortcode + Gutenberg block + Elementor widget all delegate to a single renderer (Render Parity). Schema.org LocalBusiness JSON-LD emitted in <head> with Yoast / Rank Math canonical filter compatibility. Pro-gated via Mode::canUseVendorMarketplace.",
+        "highlights": [
+            "i18n-aware URL base: /vendor/{slug}/ (EN) → /bayi/{slug}/ (TR), filterable",
+            "[rentiva_vendor_profile] shortcode + Gutenberg block + Elementor widget — single renderer",
+            "Schema.org LocalBusiness JSON-LD in <head> + Yoast / Rank Math canonical filter compat",
+            "Vendor admin: avatar upload + ASCII slug with collision suffix + 301 redirects from old slugs",
+            "Verified Vendor / New Vendor badges with admin-configurable thresholds",
+            "Idempotent slug backfill migration + 7-trigger transient cache invalidator",
+            "i18n: 19 TR strings refreshed (4 new, 15 fuzzy cleared), including 'No reviews yet — be the first to leave one.'",
+            "Tests: 904 → 982 PHPUnit (+78 over nine implementation phases), 3162 assertions, 0 PHPCS errors"
+        ],
+        "notice": "v4.37.0 minor — Vendor Public Profile Page feature. New rewrite rule (/vendor/{slug}/), new canonical shortcode + block + widget, new admin avatar/slug fields, new LocalBusiness JSON-LD emission. Slug backfill migration runs once on upgrade (idempotent). No license-server upgrade required. Dev sites need `define('MHM_RENTIVA_DEV_PRO', true)` in wp-config.php to bypass the Pro gate."
+    },
+    {
         "version": "4.36.0",
         "date": "2026-04-29",
         "type": "feature",

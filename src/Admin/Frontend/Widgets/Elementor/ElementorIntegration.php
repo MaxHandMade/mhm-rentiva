@@ -59,6 +59,7 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UserDashboardWidget::class,
+			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget::class,
 		);
 
 		foreach ( $widgets as $widget_class ) {

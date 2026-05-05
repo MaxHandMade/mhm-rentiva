@@ -699,6 +699,52 @@ final class AllowlistRegistry {
             'aliases' => [ 'buttonText' ],
         ],
 
+        // Vendor profile attributes
+        'slug'                     => [
+            'type'  => 'string',
+            'group' => 'data',
+        ],
+        'show_badge'               => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showBadge' ],
+        ],
+        'show_about'               => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showAbout' ],
+        ],
+        'show_vehicles'            => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showVehicles' ],
+        ],
+        'show_location'            => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showLocation' ],
+        ],
+        'vehicle_sort'             => [
+            'type'    => 'string',
+            'group'   => 'query',
+            'aliases' => [ 'vehicleSort' ],
+        ],
+        'max_reviews'              => [
+            'type'    => 'int',
+            'group'   => 'query',
+            'aliases' => [ 'maxReviews' ],
+        ],
+        'empty_vehicles_message'   => [
+            'type'    => 'string',
+            'group'   => 'content',
+            'aliases' => [ 'emptyVehiclesMessage' ],
+        ],
+        'empty_reviews_message'    => [
+            'type'    => 'string',
+            'group'   => 'content',
+            'aliases' => [ 'emptyReviewsMessage' ],
+        ],
+
         // Core Content & Identity
         'title'                    => [
             'type'  => 'string',
@@ -1223,6 +1269,21 @@ final class AllowlistRegistry {
             'featured_only'      => [ 'default' => '0' ],
             'theme'              => [ 'default' => 'light' ],
             'class'              => [ 'default' => '' ],
+        ],
+        'rentiva_vendor_profile'        => [
+            'slug'                   => [ 'default' => '' ],
+            'show_badge'             => [ 'default' => 'yes' ],
+            'show_rating'            => [ 'default' => 'yes' ],
+            'show_about'             => [ 'default' => 'yes' ],
+            'show_vehicles'          => [ 'default' => 'yes' ],
+            'max_vehicles'           => [ 'default' => '6' ],
+            'vehicle_sort'           => [ 'default' => 'rating-newest' ],
+            'show_reviews'           => [ 'default' => 'yes' ],
+            'max_reviews'            => [ 'default' => '10' ],
+            'show_location'          => [ 'default' => 'yes' ],
+            'empty_vehicles_message' => [ 'default' => '' ],
+            'empty_reviews_message'  => [ 'default' => '' ],
+            'class'                  => [ 'default' => '' ],
         ],
         'rentiva_availability_calendar' => [
             'vehicle_id'            => [ 'default' => '' ],

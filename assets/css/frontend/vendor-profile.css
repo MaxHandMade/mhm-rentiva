@@ -1,0 +1,170 @@
+/* MHM Rentiva Vendor Profile (v4.37.0) — Centered Hero layout */
+.mhm-rentiva-vendor-profile {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    font-family: inherit;
+}
+
+.mhm-vendor-hero {
+    text-align: center;
+    padding: 32px 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 24px;
+}
+.mhm-vendor-avatar img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+}
+.mhm-vendor-name {
+    font-size: 1.5rem;
+    margin: 0 0 8px;
+}
+.mhm-vendor-meta {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+}
+.mhm-vendor-meta > span + span::before {
+    content: ' · ';
+    margin: 0 4px;
+}
+.mhm-vendor-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-top: 4px;
+}
+.mhm-vendor-badge--verified {
+    background: #e6f4ea;
+    color: #1e8e3e;
+}
+.mhm-vendor-badge--new {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+.mhm-vendor-rating {
+    margin-top: 10px;
+    font-size: 0.95rem;
+}
+.mhm-vendor-rating-stars { color: #f59e0b; letter-spacing: 1px; }
+.mhm-vendor-rating-count { color: #6b7280; }
+
+.mhm-vendor-about,
+.mhm-vendor-vehicles,
+.mhm-vendor-reviews,
+.mhm-vendor-location {
+    margin-bottom: 28px;
+}
+.mhm-vendor-about p {
+    line-height: 1.6;
+    color: #374151;
+}
+.mhm-rentiva-vendor-profile .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.mhm-vendor-vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.mhm-vendor-vehicle-card {
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.15s;
+}
+.mhm-vendor-vehicle-card:hover {
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.mhm-vendor-vehicle-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    display: block;
+}
+.mhm-vendor-vehicle-card-title {
+    padding: 8px 12px 4px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+.mhm-vendor-vehicle-card-rating {
+    padding: 0 12px 8px;
+    font-size: 0.85rem;
+    color: #f59e0b;
+}
+.mhm-vendor-vehicles-cta {
+    margin-top: 12px;
+    text-align: right;
+}
+
+.mhm-vendor-review-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.mhm-vendor-review {
+    padding: 12px 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+.mhm-vendor-review:last-child {
+    border-bottom: 0;
+}
+.mhm-vendor-review-rating {
+    color: #f59e0b;
+    margin-bottom: 4px;
+}
+.mhm-vendor-review-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+.mhm-vendor-review-content {
+    margin-bottom: 6px;
+    line-height: 1.5;
+}
+.mhm-vendor-review-source {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+.mhm-vendor-review-source a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.mhm-vendor-vehicles-empty,
+.mhm-vendor-reviews-empty {
+    padding: 16px;
+    text-align: center;
+    color: #6b7280;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .mhm-vendor-vehicle-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 480px) {
+    .mhm-vendor-vehicle-grid {
+        grid-template-columns: 1fr;
+    }
+    .mhm-vendor-meta > span + span::before {
+        content: '\A';
+        white-space: pre;
+    }
+}

@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.36.0
+Stable tag:        4.37.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,16 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.37.0 — 2026-05-05 =
+* 🌟 NEW: **Vendor Public Profile Page** — every approved vendor now gets a dedicated public-facing profile at `/vendor/<slug>/` (EN) and `/bayi/<slug>/` (TR). i18n-aware base URL pattern mirrors WooCommerce's translatable `/shop/`, `/product/` slugs. Site-owner override via the `mhm_rentiva_vendor_profile_url_base` filter.
+* New canonical `[rentiva_vendor_profile]` shortcode + Gutenberg block (`mhm-rentiva/vendor-profile`) + Elementor widget (`mhm_rentiva_vendor_profile`) — all three delegate to a single renderer. Render Parity preserved.
+* Schema.org `LocalBusiness` JSON-LD emitted in `<head>` for SEO. Yoast / Rank Math canonical filter compatibility (`wpseo_canonical` + `rank_math/frontend/canonical` at `PHP_INT_MAX-10`).
+* Vendor admin profile: avatar upload (Media Library) + ASCII slug field with live collision suffix and slug-history tracking. Slug changes register a 301 redirect from the previous URL.
+* Verified Vendor / New Vendor badges on the profile hero, with admin-configurable thresholds (completed bookings + reliability score).
+* Pro-gated via `Mode::canUseVendorMarketplace`. Idempotent slug backfill migration runs once on upgrade. 7-trigger transient cache invalidator (booking save / user meta / comment status / lifecycle / profile_update).
+* 🌐 i18n cleanup: 19 TR translations refreshed (4 new strings filled, 15 fuzzy markers cleared), including "No reviews yet — be the first to leave one." → "Henüz değerlendirme yok — ilk değerlendirmeyi siz yapın.", "Verified Vendor" → "Doğrulanmış Bayi", "View all vehicles →" → "Tüm araçları görüntüle →".
+* Tests: **904 → 982 PHPUnit (+78 across nine implementation phases)**, 3162 assertions, 7 skipped. PHPCS: 0 errors.
 
 = 4.36.0 — 2026-04-29 =
 * New: Add-ons now support context (rental / transfer / both) and pricing types (per_booking / per_day / per_passenger)

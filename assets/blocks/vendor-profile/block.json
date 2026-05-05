@@ -1,0 +1,36 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/vendor-profile",
+    "title": "MHM Vendor Profile",
+    "category": "widgets",
+    "icon": "businessperson",
+    "description": "Public vendor profile page (avatar, badge, vehicles, reviews).",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "align": ["wide", "full"],
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "attributes": {
+        "slug":                   { "type": "string", "default": "" },
+        "show_badge":             { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "show_rating":            { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "show_about":             { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "show_vehicles":          { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "max_vehicles":           { "type": "string", "default": "6" },
+        "vehicle_sort":           { "type": "string", "default": "rating-newest" },
+        "show_reviews":           { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "max_reviews":            { "type": "string", "default": "10" },
+        "show_location":          { "type": "string", "default": "yes", "enum": ["yes", "no"] },
+        "empty_vehicles_message": { "type": "string", "default": "" },
+        "empty_reviews_message":  { "type": "string", "default": "" },
+        "className":              { "type": "string", "default": "" }
+    },
+    "style": ["mhm-rentiva-rentiva-vendor-profile"]
+}

@@ -342,11 +342,17 @@ final class ReliabilityScoreCalculator {
 	}
 
 	/**
-	 * Count completed bookings for vehicles owned by this vendor in last 6 months.
+	 * Count completed bookings for vehicles owned by this vendor.
+	 *
+	 * @param int $vendor_id     Vendor (post author) user ID.
+	 * @param int $months_window Rolling window in months. Default 6 (score formula).
+	 *                           Pass a large value (e.g. 9999) for lifetime count
+	 *                           (used by vendor profile badge eligibility, v4.37.0+).
 	 */
-	private static function count_completed_bookings(int $vendor_id): int
+	public static function count_completed_bookings(int $vendor_id, int $months_window = 6): int
 	{
-		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-6 months'));
+		$months_window = max(1, $months_window);
+		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . $months_window . ' months'));
 
 		$vehicle_ids = get_posts(array(
 			'post_type'      => 'vehicle',
@@ -387,5 +393,28 @@ final class ReliabilityScoreCalculator {
 		));
 
 		return count($completed);
+	}
+
+	/**
+	 * Filter callback for `mhm_rentiva_vendor_completed_bookings_count`.
+	 *
+	 * Bridges the 2-arg WP filter signature into {@see count_completed_bookings()}
+	 * with a lifetime window so the badge eligibility evaluator (v4.37.0+) sees
+	 * the vendor's full completion history rather than the rolling 6-month
+	 * score window.
+	 *
+	 * Wired in {@see \MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension::register()}.
+	 *
+	 * @since 4.37.0
+	 *
+	 * @param int $count   Default count passed in by the filter chain (ignored).
+	 * @param int $user_id Vendor user ID.
+	 */
+	public static function count_completed_bookings_for_filter(int $count, int $user_id): int
+	{
+		if ($user_id <= 0) {
+			return 0;
+		}
+		return self::count_completed_bookings($user_id, 9999);
 	}
 }

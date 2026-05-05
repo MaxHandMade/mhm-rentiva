@@ -150,6 +150,11 @@ class BlockRegistry {
 			'title' => 'User Dashboard',
 			'css'   => 'user-dashboard.css',
 		),
+		'vendor-profile'        => array(
+			'tag'   => 'rentiva_vendor_profile',
+			'title' => 'Vendor Profile',
+			'css'   => 'vendor-profile.css',
+		),
 	);
 
 	/**

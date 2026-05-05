@@ -57,6 +57,11 @@ final class VendorMarketplaceSettings {
 			'vendor_score_completion_bonus'        => 5,
 			'vendor_score_max_completion_bonus'    => 20,
 
+			// Vendor Profile badge thresholds (v4.37.0)
+			'vendor_badge_min_age_days'            => 180,
+			'vendor_badge_min_score'               => 80,
+			'vendor_badge_min_completed_bookings'  => 10,
+
 			// Listing Fee
 			'mhm_rentiva_listing_fee_enabled'      => false,
 			'mhm_rentiva_listing_fee_model'        => 'one_time',

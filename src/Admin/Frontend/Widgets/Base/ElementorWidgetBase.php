@@ -453,6 +453,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'VehiclesListWidget'         => 'rentiva_vehicles_list',
 			'VehicleCardWidget'          => 'rentiva_vehicles_list',
 			'UserDashboardWidget'        => 'rentiva_user_dashboard',
+			'VendorProfileWidget'        => 'rentiva_vendor_profile',
 		);
 
 		return $map[ $class ] ?? '';
@@ -482,6 +483,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'rentiva_vehicles_grid'         => 'vehicles-grid',
 			'rentiva_vehicles_list'         => 'vehicles-list',
 			'rentiva_user_dashboard'        => 'user-dashboard',
+			'rentiva_vendor_profile'        => 'vendor-profile',
 		);
 
 		return $map[ $shortcode_tag ] ?? '';

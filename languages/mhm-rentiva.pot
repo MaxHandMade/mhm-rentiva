@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-04-29T15:46:03+00:00\n"
+"POT-Creation-Date: 2026-05-05T02:09:45+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -18,7 +18,7 @@ msgstr ""
 #: mhm-rentiva.php
 #: mhm-rentiva.php:385
 #: src/Admin/About/Tabs/GeneralTab.php:140
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:96
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:97
 #: src/Admin/Utilities/Menu/Menu.php:28
 #: src/Admin/Utilities/Menu/Menu.php:29
 msgid "MHM Rentiva"
@@ -182,8 +182,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:81
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:99
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:352
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:150
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:208
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:151
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:209
 #: src/Admin/Messages/Core/Messages.php:1445
 #: src/Admin/Messages/Core/Messages.php:1534
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
@@ -2475,7 +2475,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1440
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:768
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "January"
 msgstr ""
 
@@ -2484,7 +2484,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1441
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:769
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "February"
 msgstr ""
 
@@ -2493,7 +2493,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1442
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:770
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "March"
 msgstr ""
 
@@ -2502,7 +2502,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1443
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:771
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "April"
 msgstr ""
 
@@ -2512,7 +2512,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1444
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1458
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:772
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "May"
 msgstr ""
 
@@ -2521,7 +2521,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1445
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:773
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "June"
 msgstr ""
 
@@ -2530,7 +2530,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1446
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:774
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "July"
 msgstr ""
 
@@ -2539,7 +2539,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1447
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:775
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "August"
 msgstr ""
 
@@ -2548,7 +2548,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1448
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:776
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "September"
 msgstr ""
 
@@ -2557,7 +2557,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1449
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:777
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "October"
 msgstr ""
 
@@ -2566,7 +2566,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1450
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:778
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "November"
 msgstr ""
 
@@ -2575,7 +2575,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1451
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:779
-#: src/Blocks/BlockRegistry.php:259
+#: src/Blocks/BlockRegistry.php:264
 msgid "December"
 msgstr ""
 
@@ -2719,7 +2719,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1436
 #: src/Admin/Transfer/Frontend/TransferAddonModal.php:66
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:991
-#: src/Blocks/BlockRegistry.php:257
+#: src/Blocks/BlockRegistry.php:262
 #: templates/account/partials/vendor-listings.php:175
 #: templates/account/partials/vendor-listings.php:430
 #: templates/account/partials/vendor-report-modal.php:27
@@ -2742,7 +2742,7 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:71
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:265
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1170
+#: src/Plugin.php:1207
 #: templates/admin/dashboard/pending-payments.php:27
 #: templates/admin/dashboard/upcoming-operations.php:32
 #: templates/admin/reports/customers.php:84
@@ -2901,7 +2901,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1831
 #: src/Admin/Booking/Meta/BookingMeta.php:376
 #: src/Admin/Booking/PostType/Booking.php:23
-#: src/Admin/Core/ShortcodeServiceProvider.php:449
+#: src/Admin/Core/ShortcodeServiceProvider.php:454
 #: src/Admin/Messages/Admin/MessageListTable.php:504
 #: src/Admin/Messages/Settings/MessagesSettings.php:213
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
@@ -3234,7 +3234,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:82
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:100
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:354
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:151
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:152
 msgid "An error occurred"
 msgstr ""
 
@@ -3264,7 +3264,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:262
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:272
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:218
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:206
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:207
 #: src/Admin/Settings/Groups/FrontendSettings.php:350
 #: templates/shortcodes/booking-form.php:140
 msgid "Select Vehicle"
@@ -4340,6 +4340,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:834
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:968
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1017
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:94
 #: templates/account/payment-history.php:150
 #: templates/admin/shortcode-pages.php:90
 msgid "Remove"
@@ -5372,7 +5373,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1573
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:457
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:152
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:153
 msgid "Success"
 msgstr ""
 
@@ -5536,50 +5537,50 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1437
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:340
 #: src/Admin/Utilities/Export/ExportFilters.php:28
-#: src/Blocks/BlockRegistry.php:258
+#: src/Blocks/BlockRegistry.php:263
 #: templates/admin/dashboard/upcoming-operations.php:56
 msgid "Today"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:78
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1486
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Su"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:79
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1487
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Mo"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:80
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1488
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Tu"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:81
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1489
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "We"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:82
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1490
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Th"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:83
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1491
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Fr"
 msgstr ""
 
 #: src/Admin/Core/Assets/DatepickerAssets.php:84
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1492
-#: src/Blocks/BlockRegistry.php:260
+#: src/Blocks/BlockRegistry.php:265
 msgid "Sa"
 msgstr ""
 
@@ -6331,23 +6332,23 @@ msgstr ""
 msgid "An error occurred during the operation."
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:370
+#: src/Admin/Core/ShortcodeServiceProvider.php:375
 msgid "Please login to view this content."
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:450
+#: src/Admin/Core/ShortcodeServiceProvider.php:455
 msgid "Vehicle Display"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:451
+#: src/Admin/Core/ShortcodeServiceProvider.php:456
 msgid "Account Management"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:452
+#: src/Admin/Core/ShortcodeServiceProvider.php:457
 msgid "Support and Contact"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:453
+#: src/Admin/Core/ShortcodeServiceProvider.php:458
 msgid "Transfer Services"
 msgstr ""
 
@@ -8360,7 +8361,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountRenderer.php:173
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:299
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:353
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:207
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:208
 #: templates/shortcodes/search-results.php:63
 #: templates/shortcodes/search-results.php:323
 msgid "No vehicles found"
@@ -9178,6 +9179,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:500
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:73
 #: templates/shortcodes/contact-form.php:146
 #: assets/blocks/featured-vehicles/index.js:40
 #: assets/blocks/my-favorites/index.js:52
@@ -9185,6 +9187,7 @@ msgstr ""
 #: assets/blocks/testimonials/index.js:64
 #: assets/blocks/vehicles-grid/index.js:54
 #: assets/blocks/vehicles-list/index.js:30
+#: assets/blocks/vendor-profile/index.js:43
 msgid "Rating"
 msgstr ""
 
@@ -11166,7 +11169,9 @@ msgid "Alphabetical"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/PopularRoutesWidget.php:155
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:131
 #: assets/blocks/popular-routes/index.js:84
+#: assets/blocks/vendor-profile/index.js:67
 msgid "Newest first"
 msgstr ""
 
@@ -11741,6 +11746,136 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:30
 msgid "MHM Vehicles List"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:33
+msgid "MHM Vendor Profile"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:46
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:53
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:166
+#: templates/admin/dashboard/quick-actions.php:84
+#: templates/emails/vehicle-rereview-admin.html.php:7
+#: templates/emails/vehicle-submitted-admin.html.php:7
+#: templates/emails/vendor-report-received-admin.html.php:11
+#: assets/blocks/vendor-profile/index.js:32
+msgid "Vendor"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:53
+#: assets/blocks/vendor-profile/index.js:34
+msgid "Vendor slug"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:57
+#: assets/blocks/vendor-profile/index.js:37
+msgid "The vendor's public profile slug. Required."
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:66
+#: assets/blocks/vendor-profile/index.js:41
+msgid "Sections"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:72
+#: assets/blocks/vendor-profile/index.js:42
+msgid "Badge"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:74
+#: src/Admin/Utilities/Menu/Menu.php:194
+#: src/Admin/Utilities/Menu/Menu.php:195
+#: templates/frontend/partials/vendor-profile-about.php:13
+#: assets/blocks/vendor-profile/index.js:44
+msgid "About"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:75
+#: src/Admin/Utilities/Export/Export.php:1281
+#: src/Admin/Utilities/Menu/Menu.php:50
+#: src/Admin/Utilities/Menu/Menu.php:51
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:859
+#: src/Admin/Vehicle/PostType/Vehicle.php:30
+#: templates/single-vehicle.php:26
+#: assets/blocks/vendor-profile/index.js:45
+msgid "Vehicles"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:76
+#: templates/shortcodes/vehicle-rating-form.php:192
+#: assets/blocks/vendor-profile/index.js:46
+msgid "Reviews"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:77
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:79
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1463
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:48
+#: templates/frontend/partials/vendor-profile-location.php:13
+#: assets/blocks/vendor-profile/index.js:47
+msgid "Location"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:97
+#: assets/blocks/vendor-profile/index.js:49
+msgid "Limits"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:104
+#: assets/blocks/vendor-profile/index.js:51
+msgid "Max vehicles"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:115
+#: assets/blocks/vendor-profile/index.js:57
+msgid "Max reviews"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:126
+#: assets/blocks/vendor-profile/index.js:63
+msgid "Vehicle sort order"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:130
+#: assets/blocks/vendor-profile/index.js:66
+msgid "Rating, then newest"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:132
+#: assets/blocks/vendor-profile/index.js:68
+msgid "Price (low to high)"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:133
+#: assets/blocks/vendor-profile/index.js:69
+msgid "Price (high to low)"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:143
+#: assets/blocks/vendor-profile/index.js:74
+msgid "Empty States"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:150
+#: assets/blocks/vendor-profile/index.js:76
+msgid "Empty vehicles message"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:153
+#: assets/blocks/vendor-profile/index.js:78
+msgid "Custom text when vendor has no public vehicles."
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:160
+#: assets/blocks/vendor-profile/index.js:82
+msgid "Empty reviews message"
+msgstr ""
+
+#: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:163
+#: assets/blocks/vendor-profile/index.js:84
+msgid "Custom text when vendor has no reviews yet."
 msgstr ""
 
 #: src/Admin/Licensing/LicenseAdmin.php:155
@@ -13924,16 +14059,6 @@ msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutCsvExporter.php:78
 msgid "Failed to open output stream."
-msgstr ""
-
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:53
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:166
-#: templates/admin/dashboard/quick-actions.php:84
-#: templates/emails/vehicle-rereview-admin.html.php:7
-#: templates/emails/vehicle-submitted-admin.html.php:7
-#: templates/emails/vendor-report-received-admin.html.php:11
-msgid "Vendor"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:55
@@ -16134,207 +16259,207 @@ msgstr ""
 msgid "Tax rate percentage (e.g., 18 for 18%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:72
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:77
 msgid "These settings require a Pro license. Default values are used on Lite installations."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:94
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:99
 msgid "Listing & Duration Settings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:95
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:100
 msgid "Configure how long vehicle listings stay active and related timing rules."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:102
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:107
 msgid "Listing Duration (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:105
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:110
 msgid "How many days a vehicle listing stays active before expiry."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:112
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:117
 msgid "First Expiry Warning (Days Before)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:115
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:120
 msgid "Send first warning email this many days before listing expires."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:122
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:127
 msgid "Second Expiry Warning (Days Before)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:125
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:130
 msgid "Send second warning email this many days before listing expires."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:132
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:137
 msgid "Grace Period After Expiry (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:135
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:140
 msgid "Days after expiry before expired listing is auto-withdrawn."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:142
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:147
 msgid "Withdrawal Cooldown (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:145
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:150
 msgid "Days a vendor must wait before relisting after withdrawal."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:152
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:157
 msgid "Max Pauses Per Month"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:155
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:160
 msgid "Maximum number of times a vendor can pause a vehicle per calendar month."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:162
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:167
 msgid "Max Pause Duration (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:165
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:170
 msgid "Maximum number of days a vehicle can remain paused."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:172
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:177
 msgid "Withdrawal Penalty Settings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:173
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:178
 msgid "Configure progressive penalty rates applied when vendors withdraw vehicles."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:180
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:185
 msgid "2nd Withdrawal Penalty (%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:183
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:188
 msgid "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal in 12 months."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:190
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:195
 msgid "3rd+ Withdrawal Penalty (%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:193
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:198
 msgid "Penalty rate for 3rd and subsequent withdrawals in the 12-month rolling window."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:200
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:205
 msgid "Rolling Window (Months)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:203
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:208
 msgid "Number of months to look back when counting withdrawals for penalty calculation."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:210
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:215
 msgid "Anti-Gaming Protection"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:211
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:216
 msgid "Prevent vendors from gaming the system by cancelling bookings to relist at higher prices."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:218
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:223
 msgid "Cancelled Booking Re-block Period (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:221
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:226
 msgid "After a vendor cancels a booking, these dates are blocked for new reservations for this many days."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:228
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:233
 msgid "Reliability Score Weights"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:229
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:234
 msgid "Configure the point values used to calculate vendor reliability scores (base 100)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:236
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:241
 msgid "Points Deducted per Cancellation"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:239
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:244
 msgid "Points deducted from reliability score for each vendor-initiated cancellation (last 6 months)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:246
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:251
 msgid "Points Deducted per Withdrawal"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:249
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:254
 msgid "Points deducted per withdrawal in rolling window."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:256
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:261
 msgid "Points Deducted per Pause"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:259
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:264
 msgid "Points deducted per pause in last 6 months."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:266
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:271
 msgid "Points Added per Completed Booking"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:269
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:274
 msgid "Points added to reliability score per completed booking (last 6 months)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:276
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:281
 msgid "Max Completion Bonus"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:279
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:284
 msgid "Maximum points that can be earned from completed bookings."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:286
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:291
 msgid "Listing Fee"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:287
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:292
 msgid "Configure fees charged to vendors for listing vehicles on the marketplace."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:294
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:299
 msgid "Enable Listing Fee"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:295
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:300
 msgid "Charge vendors a fee for listing vehicles."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:302
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:307
 msgid "Fee Model"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:304
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:309
 msgid "One Time"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:305
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:310
 msgid "Per Period"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:307
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:312
 msgid "Whether the fee is charged once or per listing period."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:314
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:319
 msgid "Listing Fee Amount"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:317
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:322
 msgid "The fee amount charged to vendors for listing a vehicle."
 msgstr ""
 
@@ -20001,15 +20126,6 @@ msgstr ""
 msgid "Customers"
 msgstr ""
 
-#: src/Admin/Utilities/Export/Export.php:1281
-#: src/Admin/Utilities/Menu/Menu.php:50
-#: src/Admin/Utilities/Menu/Menu.php:51
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:859
-#: src/Admin/Vehicle/PostType/Vehicle.php:30
-#: templates/single-vehicle.php:26
-msgid "Vehicles"
-msgstr ""
-
 #: src/Admin/Utilities/Export/Export.php:1282
 #: src/Admin/Utilities/Export/ExportHistory.php:234
 #: src/Admin/Utilities/Menu/Menu.php:124
@@ -20269,11 +20385,6 @@ msgstr ""
 msgid "Locations"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:194
-#: src/Admin/Utilities/Menu/Menu.php:195
-msgid "About"
-msgstr ""
-
 #: src/Admin/Utilities/Uninstall/Uninstaller.php:375
 msgid "All plugin data has been removed successfully"
 msgstr ""
@@ -20410,12 +20521,6 @@ msgstr ""
 #: src/Admin/Vehicle/ListingFeeManager.php:238
 #: templates/account/partials/vendor-listings.php:410
 msgid "Relist"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:79
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1463
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:48
-msgid "Location"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:80
@@ -21805,21 +21910,47 @@ msgstr ""
 msgid "No applications found in trash."
 msgstr ""
 
-#: src/Admin/Vendor/Profile/VendorProfileExtension.php:49
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:62
 msgid "MHM Rentiva Vendor Settings"
 msgstr ""
 
-#: src/Admin/Vendor/Profile/VendorProfileExtension.php:52
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:65
 msgid "Default Branch/Location"
 msgstr ""
 
-#: src/Admin/Vendor/Profile/VendorProfileExtension.php:55
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:68
 #: assets/blocks/unified-search/index.js:62
 msgid "Use Global Default"
 msgstr ""
 
-#: src/Admin/Vendor/Profile/VendorProfileExtension.php:63
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:76
 msgid "This location will be used as the default for all vehicles owned by this user, unless a specific location is set for the vehicle."
+msgstr ""
+
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:85
+msgid "Vendor Avatar"
+msgstr ""
+
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:93
+msgid "Choose image"
+msgstr ""
+
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:95
+msgid "Custom profile picture shown on the public vendor profile page. Leave empty to use Gravatar."
+msgstr ""
+
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:102
+msgid "Public Profile URL Slug"
+msgstr ""
+
+#: src/Admin/Vendor/Profile/VendorProfileExtension.php:105
+msgid "ASCII-only slug used in the public profile URL. Leave empty to auto-generate from display name. Changing this creates a 301 redirect from the old URL."
+msgstr ""
+
+#. translators: URL slug used in /vendor/{vendor-slug}/ public profile URLs. Lowercase ASCII recommended (no spaces, no diacritics) — used in browser address bar and shared links. Examples: "vendor" (EN), "bayi" (TR), "anbieter" (DE), "partenaire" (FR), "vendedor" (ES).
+#: src/Admin/Vendor/Profile/VendorProfileUrlBase.php:36
+msgctxt "URL slug"
+msgid "vendor"
 msgstr ""
 
 #: src/Admin/Vendor/VendorApplicationManager.php:39
@@ -22553,15 +22684,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:868
+#: src/Plugin.php:905
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:871
+#: src/Plugin.php:908
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1192
+#: src/Plugin.php:1229
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -24658,6 +24789,58 @@ msgstr ""
 msgid "We are happy to have you with us."
 msgstr ""
 
+#. translators: %s: 4-digit year
+#: templates/frontend/partials/vendor-profile-hero.php:35
+#, php-format
+msgid "Member %s"
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-hero.php:42
+msgid "Verified Vendor"
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-hero.php:44
+msgid "New Vendor"
+msgstr ""
+
+#. translators: %d: number of reviews
+#. translators: %d: number of reviews.
+#: templates/frontend/partials/vendor-profile-hero.php:58
+#: templates/shortcodes/vehicle-rating-form.php:138
+#, php-format
+msgid "%d review"
+msgid_plural "%d reviews"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/frontend/partials/vendor-profile-reviews.php:15
+msgid "Recent Reviews"
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-reviews.php:20
+msgid "No reviews yet — be the first to leave one."
+msgstr ""
+
+#. translators: %s: HTML anchor link to the reviewed vehicle
+#: templates/frontend/partials/vendor-profile-reviews.php:52
+#, php-format
+msgid "→ %s"
+msgstr ""
+
+#. translators: %d: vehicle count
+#: templates/frontend/partials/vendor-profile-vehicles.php:19
+#, php-format
+msgid "Vehicles (%d)"
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-vehicles.php:26
+msgid "This vendor is not currently listing any vehicles."
+msgstr ""
+
+#: templates/frontend/partials/vendor-profile-vehicles.php:48
+msgid "View all vehicles →"
+msgstr ""
+
 #: templates/messages/admin-message-email.html.php:21
 #: templates/messages/admin-message-email.html.php:75
 msgid "New Customer Message"
@@ -25195,18 +25378,6 @@ msgstr ""
 
 #: templates/shortcodes/vehicle-rating-form.php:42
 msgid "Vehicle ID not found"
-msgstr ""
-
-#. translators: %d: number of reviews.
-#: templates/shortcodes/vehicle-rating-form.php:138
-#, php-format
-msgid "%d review"
-msgid_plural "%d reviews"
-msgstr[0] ""
-msgstr[1] ""
-
-#: templates/shortcodes/vehicle-rating-form.php:192
-msgid "Reviews"
 msgstr ""
 
 #: templates/shortcodes/vehicle-rating-form.php:245
@@ -26187,4 +26358,14 @@ msgstr ""
 #: assets/blocks/vehicles-list/block.json
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
+msgstr ""
+
+#: assets/blocks/vendor-profile/block.json
+msgctxt "block title"
+msgid "MHM Vendor Profile"
+msgstr ""
+
+#: assets/blocks/vendor-profile/block.json
+msgctxt "block description"
+msgid "Public vendor profile page (avatar, badge, vehicles, reviews)."
 msgstr ""
