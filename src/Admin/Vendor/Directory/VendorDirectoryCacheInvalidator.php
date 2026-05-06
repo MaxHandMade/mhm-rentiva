@@ -53,7 +53,11 @@ final class VendorDirectoryCacheInvalidator
 	public static function on_user_meta_change($meta_id, $object_id, $meta_key, $_meta_value = null): void
 	{
 		unset($meta_id, $object_id, $_meta_value);
-		if (!in_array($meta_key, self::INVALIDATING_META_KEYS, true)) {
+		// Parity with VendorProfileCacheInvalidator: bail when WP fires the
+		// hook with a non-string $meta_key (rare but seen on multisite + a
+		// few legacy plugins) — `in_array` against an array is loose and
+		// can match unintended sentinel values (v4.38.1 paper-cut Phase 6).
+		if (!is_string($meta_key) || !in_array($meta_key, self::INVALIDATING_META_KEYS, true)) {
 			return;
 		}
 
@@ -84,7 +88,14 @@ final class VendorDirectoryCacheInvalidator
 
 	public static function on_lifecycle_change(int $vehicle_id, string $new_status, string $old_status): void
 	{
-		unset($vehicle_id, $new_status, $old_status);
+		unset($vehicle_id);
+		// No-op when nothing actually changed — parity with on_comment_status
+		// above (v4.38.1 paper-cut Phase 6). Spurious cache flushes here
+		// would defeat the directory cache for sites that re-save vehicles
+		// without lifecycle transitions.
+		if ($new_status === $old_status) {
+			return;
+		}
 		VendorDirectoryProvider::clear_cache();
 	}
 

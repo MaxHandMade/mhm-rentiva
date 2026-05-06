@@ -329,6 +329,9 @@ final class VendorDirectoryProvider
 
 	private static function count_active_vehicles_for(int $vendor_id): int
 	{
+		// Lifecycle filter parity with VendorProfileProvider::collect_vehicles()
+		// — paused/withdrawn vehicles must NOT inflate the directory card count
+		// (regression v4.38.1 ORTA-1).
 		$q = new \WP_Query([
 			'post_type'      => 'vehicle',
 			'post_status'    => 'publish',
@@ -336,6 +339,12 @@ final class VendorDirectoryProvider
 			'fields'         => 'ids',
 			'posts_per_page' => -1,
 			'no_found_rows'  => true,
+			'meta_query'     => [
+				[
+					'key'   => '_mhm_vehicle_lifecycle_status',
+					'value' => 'active',
+				],
+			],
 		]);
 
 		return count($q->posts);

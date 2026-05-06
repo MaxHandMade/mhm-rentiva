@@ -85,4 +85,56 @@ final class VendorDirectoryCacheInvalidatorTest extends WP_UnitTestCase
 
 		$this->assertSame(0, $this->cache_count(), 'Comment approve must invalidate (rating recalc).');
 	}
+
+	/**
+	 * @group v4.38.1
+	 */
+	public function test_user_meta_change_ignores_non_string_meta_key(): void
+	{
+		$this->seed_cache();
+		$initial = $this->cache_count();
+		$this->assertGreaterThan(0, $initial);
+
+		// Simulate a hook fire with an array meta_key (rare WP edge case
+		// + a few legacy plugins). The handler must bail without flushing.
+		VendorDirectoryCacheInvalidator::on_user_meta_change(
+			1,
+			1,
+			['_rentiva_vendor_status'],  // array, not string
+			null
+		);
+
+		$this->assertSame($initial, $this->cache_count(),
+			'Non-string $meta_key must short-circuit (parity with VendorProfileCacheInvalidator).');
+	}
+
+	/**
+	 * @group v4.38.1
+	 */
+	public function test_lifecycle_change_is_noop_when_status_unchanged(): void
+	{
+		$this->seed_cache();
+		$initial = $this->cache_count();
+		$this->assertGreaterThan(0, $initial);
+
+		VendorDirectoryCacheInvalidator::on_lifecycle_change(1, 'active', 'active');
+
+		$this->assertSame($initial, $this->cache_count(),
+			'Same-status lifecycle transition must not flush cache (parity with on_comment_status no-op).');
+	}
+
+	/**
+	 * @group v4.38.1
+	 */
+	public function test_lifecycle_change_invalidates_when_status_actually_changes(): void
+	{
+		VendorDirectoryCacheInvalidator::register();
+		$this->seed_cache();
+		$this->assertGreaterThan(0, $this->cache_count());
+
+		VendorDirectoryCacheInvalidator::on_lifecycle_change(1, 'paused', 'active');
+
+		$this->assertSame(0, $this->cache_count(),
+			'Real lifecycle transition must flush cache (regression guard for the no-op fix).');
+	}
 }

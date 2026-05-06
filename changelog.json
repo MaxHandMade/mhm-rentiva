@@ -1,5 +1,23 @@
 [
     {
+        "version": "4.38.1",
+        "date": "2026-05-06",
+        "type": "patch",
+        "title": "Audit-driven patch — vendor slug collision + directory vehicle count + paper-cuts",
+        "summary": "Closes 2 audit findings (1 YÜKSEK + 1 ORTA), 3 deferred Phase 5/6/7 paper-cuts, and 1 dormant production defect surfaced by the new test coverage. Bundled with the v4.37.0 → v4.38.0 chain so customers receive 6 releases in a single mhmrentiva.com deploy. No new schema, no breaking changes, no gating changes.",
+        "changes": [
+            "🔴 YÜKSEK fix — Admin vendor profile slug edit now routes through VendorSlugManager::change_slug(). v4.37.0 Phase 1.3 left a `// later` TODO that wrote slugs directly via update_user_meta(), bypassing the canonical collision-suffix and history-sanitize pipeline. Two admins submitting the same raw slug to different vendors would both succeed; lookup_by_slug() returned the first match, breaking the second vendor's public profile URL permanently.",
+            "🟡 ORTA fix — Vendor Directory card vehicle_count now respects _mhm_vehicle_lifecycle_status='active' parity with VendorProfileProvider::collect_vehicles(). v4.38.0 baseline counted all `publish` vehicles regardless of lifecycle, so paused/withdrawn vehicles inflated the directory card count. A vendor showed 5 araç on the directory but only 2 active vehicles on the profile — marketplace data inconsistency for paying Pro customers.",
+            "🐛 Dormant defect fix — vendor-directory-pagination.php passed $big (int 999999999) as the first argument to str_replace(). PHP 8.1+ strict types throw TypeError. Existing tests never seeded enough vendors to cross per_page=12 so the bug stayed dormant; production sites running PHP 8.x would have crashed the directory the moment a 13th active vendor pushed the result set past one page. Cast to string explicitly (mirrors WP core's own pattern in identical callers).",
+            "📌 Phase 5 paper-cut — VendorDirectorySeo::register() now early-returns when an SEO plugin (Yoast / Rank Math / AIOSEO / SEOPress / The SEO Framework / SmartCrawl) owns the contract or the mhm_rentiva_vendor_directory_seo_disable filter is true. Parity with VendorProfileSeo's register guard. Plus DocBlock spelling out the 3-arg filter signature for build_meta_description($default, $vendor_count, $vehicle_count) so callers don't have to grep apply_filters.",
+            "📌 Phase 6 paper-cut — VendorDirectoryCacheInvalidator two parity guards: !is_string($meta_key) short-circuit on the user_meta hooks (rare WP edge case where meta_key is an array — VendorProfileCacheInvalidator already had this guard), and a no-op early-return when $new_status === $old_status on the lifecycle hook (parity with the existing on_comment_status no-op in the same class). Avoids spurious cache flushes that would defeat the 30-min directory cache for sites that re-save vehicles without lifecycle transitions.",
+            "📌 Phase 7 paper-cut — 3 new combination tests covering pagination overflow + alpha sort with city filter + paged query string on page 2. Verifies the .current pagination class stays scoped under .mhm-vendor-directory-pagination so theme .current rules (Astra menu item, OceanWP sidebar widget, etc.) cannot hijack the styling.",
+            "Tests: 1044 → 1058 PHPUnit (+14), 3289 → 3320 assertions, 7 skipped, 0 fail. PHPCS: 0 errors (full project, CI parity gate). Independent wp-code-reviewer agent audit: 'merge ready, no KRİTİK/YÜKSEK findings'.",
+            "Plan dosyası: docs/plans/2026-05-06-v4.38.1-audit-fixes-plan.md (in-repo audit trail; 5-phase scope, acceptance criteria, risk/mitigation table)."
+        ],
+        "notice": "v4.38.1 is a deploy-with-the-chain patch: it ships with v4.37.0 + v4.37.1 + v4.37.2 + v4.37.3 + v4.38.0 to mhmrentiva.com as a single 6-release customer deploy. No standalone deploy required. The dormant pagination defect closed in this patch is the strongest argument for not shipping v4.38.0 alone — sites with 13+ active vendors would have crashed within a day of upgrade."
+    },
+    {
         "version": "4.38.0",
         "date": "2026-05-06",
         "type": "minor",

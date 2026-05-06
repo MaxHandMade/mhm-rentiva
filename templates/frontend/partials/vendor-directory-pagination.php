@@ -12,7 +12,9 @@ $total   = (int) $data['pagination']['total_pages'];
 
 $big   = 999999999;
 $links = paginate_links([
-    'base'      => str_replace($big, '%#%', esc_url(get_pagenum_link($big))),
+    // $big is cast to string because str_replace's $search parameter is
+    // strictly typed since PHP 8.1; WP core does the same in its own callers.
+    'base'      => str_replace( (string) $big, '%#%', esc_url(get_pagenum_link($big))),
     'format'    => '?paged=%#%',
     'current'   => max(1, $current),
     'total'     => $total,

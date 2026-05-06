@@ -143,24 +143,14 @@ final class VendorProfileExtension
             }
         }
 
-        // Save slug (sanitized via VendorSlugManager later — for now plain ASCII pass)
+        // Save slug — route through VendorSlugManager so collision suffix and
+        // history sanitize stay canonical (regression v4.38.1 YÜKSEK-1).
         if (isset($_POST['mhm_rentiva_vendor_slug'])) {
             $raw_slug = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_vendor_slug']));
-            $clean_slug = $raw_slug === '' ? '' : sanitize_title(remove_accents($raw_slug));
-            $existing = (string) get_user_meta($user_id, MetaKeys::VENDOR_SLUG, true);
-            if ($clean_slug !== $existing) {
-                if ($existing !== '') {
-                    // Append old slug to history (Phase 2 will handle the helper)
-                    $history = (array) get_user_meta($user_id, MetaKeys::VENDOR_SLUG_HISTORY, true);
-                    array_unshift($history, $existing);
-                    $history = array_slice(array_values(array_unique($history)), 0, 10);
-                    update_user_meta($user_id, MetaKeys::VENDOR_SLUG_HISTORY, $history);
-                }
-                if ($clean_slug !== '') {
-                    update_user_meta($user_id, MetaKeys::VENDOR_SLUG, $clean_slug);
-                } else {
-                    delete_user_meta($user_id, MetaKeys::VENDOR_SLUG);
-                }
+            if ($raw_slug === '') {
+                delete_user_meta($user_id, MetaKeys::VENDOR_SLUG);
+            } else {
+                VendorSlugManager::change_slug($user_id, $raw_slug);
             }
         }
     }

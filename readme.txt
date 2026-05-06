@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.38.0
+Stable tag:        4.38.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,16 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.38.1 — 2026-05-06 =
+* 🛡️ **Audit-driven patch** — closes 2 findings (1 YÜKSEK + 1 ORTA) and 3 deferred Phase 5/6/7 paper-cuts surfaced by post-merge `/wp-conductor` audit of the v4.37.0 → v4.38.0 release chain. Plus 1 dormant production defect surfaced by the new test coverage.
+* 🔴 **YÜKSEK fix** — Admin vendor profile slug edit now routes through `VendorSlugManager::change_slug()`. Previously a `// later` TODO left the save path writing slugs directly via `update_user_meta()`, bypassing collision suffix and history sanitize. Two admins submitting the same raw slug to different vendors would both succeed, breaking the second vendor's public profile URL.
+* 🟡 **ORTA fix** — Vendor Directory card `vehicle_count` now respects `_mhm_vehicle_lifecycle_status='active'` parity with the Profile vehicle list. Previously paused/withdrawn vehicles inflated the directory card count, so a vendor showed "5 araç" on the directory but only 2 active vehicles on the profile.
+* 🐛 **Dormant defect fix** — Pagination partial `str_replace($big, ...)` passed `$big` as int (999999999); PHP 8.1+ strict types throw `TypeError` whenever pagination renders. Existing tests never seeded enough vendors to cross `per_page=12`, so the defect lay dormant and would have crashed the directory the moment a 13th active vendor appeared on production. Fixed via explicit `(string)` cast.
+* 📌 **Phase 5 paper-cut** — `VendorDirectorySeo::register()` now early-returns when an SEO plugin owns the contract or `mhm_rentiva_vendor_directory_seo_disable` filter is true (parity with `VendorProfileSeo`'s register guard). Plus DocBlock spelling out the 3-arg filter signature for `build_meta_description($default, $vendor_count, $vehicle_count)`.
+* 📌 **Phase 6 paper-cut** — `VendorDirectoryCacheInvalidator` two parity guards: `!is_string($meta_key)` short-circuit on the user_meta hooks (rare WP edge case where meta_key is an array — Profile sibling already had this guard), and a no-op early-return when `$new_status === $old_status` on the lifecycle hook (parity with the existing `on_comment_status` no-op in the same class). Avoids spurious cache flushes that would defeat the 30-min directory cache.
+* 📌 **Phase 7 paper-cut** — 3 new combination tests covering pagination overflow + alpha sort with city filter + paged query string on page 2. Verifies CSS `.current` selector stays scoped under `.mhm-vendor-directory-pagination` (theme `.current` rules can't hijack styling).
+* Tests: 1044 → **1058** PHPUnit (+14: 2 slug admin edit + 2 vehicle count lifecycle + 4 SEO register guard + 3 cache invalidator parity + 3 pagination/sort combination), 3289 → 3320 assertions, 0 fail. PHPCS: 0 errors (full project, CI parity).
 
 = 4.38.0 — 2026-05-06 =
 * 🆕 **Vendor Directory Page** — Pro-gated public catalogue at `/vendors/` (EN) / `/bayiler/` (TR). Customers discover all active vendors in one place: filter by city (combined from vendor headquarters + vehicle pickup locations), badge status (Verified / New), minimum rating (3+ / 4+ / 5). Sort by rating (default, with newest member tiebreaker), newest, or alphabetical. 12 vendors per page, classic page-number pagination.
