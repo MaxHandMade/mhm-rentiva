@@ -244,6 +244,31 @@ final class VendorProfileProvider
     }
 
     /**
+     * Vendor-level weighted rating aggregate — public bridge for sibling classes.
+     *
+     * Wraps the internal {@see aggregate_rating()} private method and normalizes
+     * the return key from `average` to `avg` (Directory contract). Used by
+     * {@see \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryProvider} for the
+     * directory rating filter, sort, and card rating display.
+     *
+     * Inherits the v4.37.1 B3 multi-source meta key fallback (`mhm_rating` →
+     * `rating`) from {@see resolve_review_rating()} reachable through the
+     * private aggregator.
+     *
+     * @return array{avg: float, count: int}
+     * @since 4.38.0
+     */
+    public static function aggregate_rating_for_vendor(int $vendor_id): array
+    {
+        $raw = self::aggregate_rating($vendor_id);
+
+        return [
+            'avg'   => (float) ($raw['average'] ?? 0.0),
+            'count' => (int) ($raw['count'] ?? 0),
+        ];
+    }
+
+    /**
      * @return array<int,array<string,mixed>>
      */
     private static function collect_vehicles(int $user_id, int $limit): array

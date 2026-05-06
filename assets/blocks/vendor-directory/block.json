@@ -1,0 +1,30 @@
+{
+    "$schema": "https://schemas.wp.org/trunk/block.json",
+    "apiVersion": 3,
+    "name": "mhm-rentiva/vendor-directory",
+    "title": "MHM Vendor Directory",
+    "category": "widgets",
+    "icon": "list-view",
+    "description": "Public vendor directory listing with filters and pagination.",
+    "textdomain": "mhm-rentiva",
+    "supports": {
+        "html": false,
+        "anchor": true,
+        "className": true,
+        "align": ["wide", "full"],
+        "spacing": {
+            "margin": true,
+            "padding": true
+        }
+    },
+    "attributes": {
+        "per_page":        { "type": "string", "default": "12" },
+        "default_sort":    { "type": "string", "default": "rating", "enum": ["rating", "newest", "alpha"] },
+        "show_filter_bar": { "type": "string", "default": "yes",    "enum": ["yes", "no"] },
+        "show_breadcrumb": { "type": "string", "default": "yes",    "enum": ["yes", "no"] },
+        "show_pagination": { "type": "string", "default": "yes",    "enum": ["yes", "no"] },
+        "empty_message":   { "type": "string", "default": "" },
+        "className":       { "type": "string", "default": "" }
+    },
+    "style": ["mhm-rentiva-rentiva-vendor-directory"]
+}

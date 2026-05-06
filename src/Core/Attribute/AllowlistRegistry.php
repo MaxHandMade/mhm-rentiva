@@ -158,6 +158,21 @@ final class AllowlistRegistry {
             'group'   => 'layout',
             'aliases' => [ 'defaultSort' ],
         ],
+        'per_page'                 => [
+            'type'    => 'int',
+            'group'   => 'pagination',
+            'aliases' => [ 'perPage' ],
+        ],
+        'show_filter_bar'          => [
+            'type'    => 'bool',
+            'group'   => 'visibility',
+            'aliases' => [ 'showFilterBar' ],
+        ],
+        'empty_message'            => [
+            'type'    => 'string',
+            'group'   => 'content',
+            'aliases' => [ 'emptyMessage' ],
+        ],
         'search_layout'            => [
             'type'    => 'string',
             'group'   => 'layout',
@@ -1284,6 +1299,16 @@ final class AllowlistRegistry {
             'empty_vehicles_message' => [ 'default' => '' ],
             'empty_reviews_message'  => [ 'default' => '' ],
             'class'                  => [ 'default' => '' ],
+        ],
+        'rentiva_vendor_directory'      => [
+            'per_page'        => [ 'default' => '12' ],
+            'default_sort'    => [ 'default' => 'rating' ],
+            'show_filter_bar' => [ 'default' => 'yes' ],
+            'show_breadcrumb' => [ 'default' => 'yes' ],
+            'show_pagination' => [ 'default' => 'yes' ],
+            'empty_message'   => [ 'default' => '' ],
+            'class'           => [ 'default' => '' ],
+            'id'              => [ 'default' => '' ],
         ],
         'rentiva_availability_calendar' => [
             'vehicle_id'            => [ 'default' => '' ],

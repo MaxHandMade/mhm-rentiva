@@ -121,7 +121,7 @@ class SchemaParityTest extends WP_UnitTestCase
             }
         }
 
-        $this->assertEquals(21, $blocks_found, 'Expected 21 block.json files to be found.');
+        $this->assertEquals(22, $blocks_found, 'Expected 22 block.json files to be found.');
     }
 
     /**

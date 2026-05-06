@@ -573,6 +573,70 @@ final class Plugin {
 			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration')) {
 				add_action('plugins_loaded', [ \MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration::class, 'run' ], 20);
 			}
+
+			// v4.38.0 Vendor Directory Page — public /bayiler/ landing.
+			// Same context-agnostic init reasoning as Vendor Profile above:
+			// rewrite rules, head schema, SEO defaults, and cache invalidation
+			// all need to fire on frontend requests too. Pro-gated outer
+			// guard so Lite installs neither pay the hook cost nor expose the
+			// directory URL. Shortcode `rentiva_vendor_directory` self-gates
+			// inside render() and is registered via ShortcodeServiceProvider —
+			// not re-registered here to avoid double-registration.
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite')) {
+				\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema')) {
+				\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo')) {
+				\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator')) {
+				\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator::register();
+			}
+			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase')) {
+				add_action('init', [ \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase::class, 'check_for_locale_change' ], 5);
+			}
+
+			// Phase 7 reviewer KRITIK-1 fix: serve the outer page wrapper.
+			// VendorDirectoryRewrite registers /bayiler/ -> index.php?<flag>=1,
+			// but without a template_include filter WordPress falls back to
+			// the theme's index.php and the wrapper is never invoked. Priority
+			// 99 runs after most theme overrides; pattern parity with
+			// vendor-profile-page.php from v4.37.0.
+			add_filter('template_include', static function (string $template): string {
+				$flag = get_query_var(\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite::QUERY_VAR);
+				if ($flag !== '' && $flag !== null) {
+					$candidate = MHM_RENTIVA_PLUGIN_PATH . 'templates/frontend/vendor-directory-page.php';
+					if (file_exists($candidate)) {
+						return $candidate;
+					}
+				}
+				return $template;
+			}, 99);
+
+			// Schema dispatch: VendorDirectorySchema::output_in_head() fires
+			// the action inside wp_head; here we wire Provider -> Schema::render
+			// with the actual current-page vendor list. Direct method call,
+			// not do_action, so no recursion risk with the wp_head emitter.
+			add_action('mhm_rentiva_vendor_directory_emit_schema', static function (): void {
+				// Read filter args from $_GET so schema reflects the rendered filtered list,
+				// not the unfiltered first page (avoids canonical/schema mismatch for
+				// crawlers landing on /bayiler/?city=X). Sanitization mirrors
+				// VendorDirectory::read_query_args().
+				// phpcs:disable WordPress.Security.NonceVerification.Recommended
+				$args = [
+					'paged'      => max(1, (int) get_query_var('paged')),
+					'city'       => isset($_GET['city']) ? sanitize_text_field(wp_unslash( (string) $_GET['city'])) : '',
+					'badge'      => isset($_GET['badge']) ? sanitize_text_field(wp_unslash( (string) $_GET['badge'])) : '',
+					'min_rating' => isset($_GET['min_rating']) ? absint(wp_unslash($_GET['min_rating'])) : 0,
+					'sort'       => isset($_GET['sort']) ? sanitize_text_field(wp_unslash( (string) $_GET['sort'])) : 'rating',
+				];
+				// phpcs:enable WordPress.Security.NonceVerification.Recommended
+
+				$data = \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryProvider::query($args);
+				\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema::render($data['vendors']);
+			});
 		}
 	}
 

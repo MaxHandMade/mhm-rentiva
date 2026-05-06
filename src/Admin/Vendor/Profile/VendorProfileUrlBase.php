@@ -100,7 +100,9 @@ final class VendorProfileUrlBase
 			return;
 		}
 
-		update_option(self::CACHE_OPTION, $current);
+		// $autoload = false: option is only read inside check_for_locale_change()
+		// on textdomain load (once per request), no benefit from autoload.
+		update_option(self::CACHE_OPTION, $current, false);
 		do_action('mhm_rentiva_vendor_url_base_changed', $current, $cached);
 	}
 }
