@@ -18,57 +18,6 @@ final class Charts {
 
 
 	/**
-	 * Enqueues scripts
-	 */
-	public static function enqueue_scripts(): void
-	{
-		// ✅ Enqueue Chart.js library from local package (no CDN dependency)
-		$chart_js_path    = MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js';
-		$chart_js_version = file_exists(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/vendor/chart.min.js')
-			? filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/vendor/chart.min.js')
-			: MHM_RENTIVA_VERSION;
-
-		wp_enqueue_script(
-			'chart-js',
-			$chart_js_path,
-			array(),
-			$chart_js_version,
-			true
-		);
-
-		// ✅ Enqueue External JavaScript file
-		wp_enqueue_script(
-			'mhm-reports-charts',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/reports-charts.js',
-			array( 'jquery', 'chart-js' ),
-			MHM_RENTIVA_VERSION,
-			true
-		);
-
-		// ✅ Dynamic settings with Localization
-		wp_localize_script(
-			'mhm-reports-charts',
-			'mhmRentivaCharts',
-			array(
-				'ajax_url'       => admin_url('admin-ajax.php'),
-				'nonce'          => wp_create_nonce('mhm_reports_nonce'),
-				'locale'         => get_locale(),
-				'currencySymbol' => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
-				'strings'        => array(
-					'daily_revenue'     => __('Daily Revenue', 'mhm-rentiva'),
-					'cancelled_revenue' => __('Cancelled', 'mhm-rentiva'),
-					'daily_bookings'    => __('Daily Bookings', 'mhm-rentiva'),
-					'vip_customers'     => __('VIP Customers', 'mhm-rentiva'),
-					'regular_customers' => __('Regular Customers', 'mhm-rentiva'),
-					'new_customers'     => __('New Customers', 'mhm-rentiva'),
-					'no_data'           => __('No data found', 'mhm-rentiva'),
-					'error_loading'     => __('Error loading data', 'mhm-rentiva'),
-				),
-			)
-		);
-	}
-
-	/**
 	 * Generic chart renderer to reduce code duplication
 	 *
 	 * Uses printf to output HTML/JS within PHP context to ensure IDE stability.

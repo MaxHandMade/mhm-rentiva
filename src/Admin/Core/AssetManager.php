@@ -692,50 +692,6 @@ final class AssetManager {
 			);
 		}
 
-		// Reports Charts
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-reports') {
-			wp_enqueue_script(
-				'chart-js',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
-				array(),
-				self::get_file_version('assets/js/vendor/chart.min.js'),
-				true
-			);
-
-			wp_enqueue_script(
-				'mhm-reports-charts',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/reports-charts.js',
-				array( 'jquery', 'chart-js' ),
-				self::get_file_version('assets/js/admin/reports-charts.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-reports-charts',
-				'mhmRentivaCharts',
-				array(
-					'ajax_url'       => admin_url('admin-ajax.php'),
-					'nonce'          => wp_create_nonce('mhm_charts_nonce'),
-					'currencySymbol' => CurrencyHelper::get_currency_symbol(),
-					'locale'         => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'strings'        => array(
-						'daily_revenue'     => __('Daily Revenue', 'mhm-rentiva'),
-						'no_data'           => __('No data available', 'mhm-rentiva'),
-						'error_loading'     => __('Error loading data', 'mhm-rentiva'),
-						'vip_customers'     => __('VIP Customers', 'mhm-rentiva'),
-						'regular_customers' => __('Regular Customers', 'mhm-rentiva'),
-						'new_customers'     => __('New Customers', 'mhm-rentiva'),
-						'booking_count'     => __('Booking Count', 'mhm-rentiva'),
-					),
-					'statusLabels'   => array(
-						'pending'   => __('Pending', 'mhm-rentiva'),
-						'confirmed' => __('Confirmed', 'mhm-rentiva'),
-						'completed' => __('Completed', 'mhm-rentiva'),
-						'cancelled' => __('Cancelled', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
 
 		// Deposit Management
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view detection from query string.
