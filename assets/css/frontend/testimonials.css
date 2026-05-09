@@ -29,6 +29,7 @@
 .rv-testimonials {
 	margin: 0;
 	font-family: var(--mhm-font-primary, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
+	white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
 }
 
 .rv-testimonials-container {

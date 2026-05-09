@@ -8,6 +8,7 @@
 
 .mhm-transfer-results-page {
     font-family: var(--mhm-font-display, "Plus Jakarta Sans", sans-serif) !important;
+    white-space: normal !important; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
 }
 
 /* 1. Base Card Styling (Premium) */

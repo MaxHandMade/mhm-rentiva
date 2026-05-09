@@ -3,7 +3,8 @@
     max-width: 960px;
     margin: 0 auto;
     padding: 24px 16px;
-    font-family: inherit;
+    white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
+    font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif; /* reset monospace from <pre> wrapper */
 }
 
 .mhm-vendor-hero {

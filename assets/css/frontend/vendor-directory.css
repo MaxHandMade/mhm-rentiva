@@ -8,6 +8,8 @@
     margin: 2rem auto;
     padding: 0 1rem;
     box-sizing: border-box;
+    white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
+    font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif; /* reset monospace from <pre> wrapper */
 }
 
 .mhm-vendor-directory-breadcrumb {
@@ -54,6 +56,17 @@
 .mhm-vendor-directory-filter-mobile-toggle:not([open]) > summary::after {
     content: " ▾";
     margin-left: 0.5rem;
+}
+
+/* Mobile only: toggle visibility via [open] attribute sibling combinator */
+@media (max-width: 599px) {
+    .mhm-vendor-directory-filter-inner {
+        display: none;
+    }
+
+    .mhm-vendor-directory-filter-mobile-toggle[open] ~ .mhm-vendor-directory-filter-inner {
+        display: block;
+    }
 }
 
 .mhm-vendor-directory-filter {
@@ -217,12 +230,11 @@
 
 /* Tablet (≥600px) */
 @media (min-width: 600px) {
-    .mhm-vendor-directory-filter-mobile-toggle[open] > summary,
-    .mhm-vendor-directory-filter-mobile-toggle:not([open]) > summary {
+    .mhm-vendor-directory-filter-mobile-toggle {
         display: none;
     }
 
-    .mhm-vendor-directory-filter-mobile-toggle {
+    .mhm-vendor-directory-filter-inner {
         display: flex;
         flex-wrap: wrap;
         gap: 1rem;

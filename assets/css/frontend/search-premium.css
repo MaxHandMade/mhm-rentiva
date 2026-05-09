@@ -13,6 +13,7 @@
     padding: 24px !important;
     margin: 20px 0 !important;
     font-family: var(--mhm-font-display, "Plus Jakarta Sans", sans-serif) !important;
+    white-space: normal !important; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
     overflow: visible !important;
     /* Prevents datepicker clipping */
     border: none !important;

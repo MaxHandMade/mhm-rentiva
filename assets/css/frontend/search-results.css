@@ -9,7 +9,8 @@
 	margin: 0 auto;
 	padding-block: var(--mhm-space-phi-3, 1.3125rem);
 	padding-inline: var(--mhm-surface-gutter-desktop, var(--mhm-space-phi-2, 0.8125rem));
-	font-family: var(--mhm-font-primary);
+	font-family: var(--mhm-font-primary, -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif);
+	white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
 }
 
 /* Results Header */

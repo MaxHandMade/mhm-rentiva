@@ -175,6 +175,9 @@
 
 	width: 100%;
 
+	font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif; /* reset monospace from <pre> wrapper */
+	white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
+
 }
 
 

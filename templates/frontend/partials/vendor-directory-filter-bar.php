@@ -14,7 +14,9 @@ $action_url = home_url('/' . \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryU
 
     <details class="mhm-vendor-directory-filter-mobile-toggle" open>
         <summary><?php echo esc_html__('Filter', 'mhm-rentiva'); ?></summary>
+    </details>
 
+    <div class="mhm-vendor-directory-filter-inner">
         <label class="mhm-vendor-directory-filter">
             <span class="mhm-vendor-directory-filter-label"><?php echo esc_html__('City', 'mhm-rentiva'); ?></span>
             <select name="city">
@@ -56,5 +58,5 @@ $action_url = home_url('/' . \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryU
         </label>
 
         <button type="submit" class="mhm-vendor-directory-filter-submit"><?php echo esc_html__('Apply', 'mhm-rentiva'); ?></button>
-    </details>
+    </div><!-- .mhm-vendor-directory-filter-inner -->
 </form>

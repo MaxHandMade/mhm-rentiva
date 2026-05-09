@@ -7,6 +7,8 @@
     max-width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif; /* reset monospace from <pre> wrapper */
+    white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
     --mhm-color-primary: var(--wp--preset--color--primary, #2563eb);
     --mhm-color-text-primary: var(--wp--preset--color--black, #1f2937);
     --mhm-color-text-secondary: var(--wp--preset--color--gray-600, #6b7280);
