@@ -39,17 +39,9 @@ final class Reports {
 
 	public static function register(): void
 	{
-		// Add dashboard widgets
 		add_action('wp_dashboard_setup', array( self::class, 'add_dashboard_widgets' ));
-
-		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_reports_data', array( self::class, 'ajax_get_data' ));
-
-		// Admin scripts
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-
-		// Cache clearing
-		add_action('wp_ajax_mhm_rentiva_clear_reports_cache', array( self::class, 'ajax_clear_cache' ));
+		add_action('rest_api_init', array( \MHMRentiva\Admin\Reports\REST\ReportsRestController::class, 'register_routes' ));
 	}
 
 	public static function add_dashboard_widgets(): void
