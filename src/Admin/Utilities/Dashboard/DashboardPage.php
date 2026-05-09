@@ -68,10 +68,9 @@ final class DashboardPage {
 				},
 				'args'                => array(
 					'page' => array(
-						'type'              => 'integer',
-						'default'           => 1,
-						'minimum'           => 1,
-						'sanitize_callback' => 'absint',
+						'type'    => 'integer',
+						'default' => 1,
+						'minimum' => 1,
 					),
 				),
 			)

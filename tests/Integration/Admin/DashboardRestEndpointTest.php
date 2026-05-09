@@ -32,6 +32,7 @@ final class DashboardRestEndpointTest extends WP_UnitTestCase
         global $wp_rest_server;
         $wp_rest_server = null;
         wp_set_current_user( 0 );
+        remove_action( 'rest_api_init', array( DashboardPage::class, 'register_rest_routes' ) );
         parent::tearDown();
     }
 
