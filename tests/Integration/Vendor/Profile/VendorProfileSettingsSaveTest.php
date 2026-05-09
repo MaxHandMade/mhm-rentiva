@@ -101,4 +101,11 @@ final class VendorProfileSettingsSaveTest extends \WP_UnitTestCase
         $this->assertNotEmpty($result['error']);
         $this->assertSame('', (string) get_user_meta($user_id, '_rentiva_vendor_phone', true));
     }
+
+    public function test_vendor_nav_contains_profil_tab(): void
+    {
+        $items = \MHMRentiva\Core\Dashboard\DashboardNavigation::get_items('vendor');
+        $this->assertArrayHasKey('profil', $items);
+        $this->assertNotEmpty($items['profil']['label']);
+    }
 }

@@ -60,6 +60,10 @@ final class DashboardNavigation {
 					'label' => __('Payment Settings', 'mhm-rentiva'),
 					'icon'  => 'settings',
 				),
+				'profil'      => array(
+					'label' => __('Profile', 'mhm-rentiva'),
+					'icon'  => 'user',
+				),
 				'messages'    => array(
 					'label' => __('Messages', 'mhm-rentiva'),
 					'icon'  => 'mail',
