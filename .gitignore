@@ -69,6 +69,10 @@ wp-content/uploads/
 *.min.css.map
 *.min.js.map
 build/
+!build/admin/dashboard.js
+!build/admin/dashboard.asset.php
+!build/admin/reports.js
+!build/admin/reports.asset.php
 dist/
 .cache/
 
