@@ -14,14 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 4.39.0
  */
-final class VendorProfileSettingsSave {
+final class VendorProfileSettingsSave
+{
 	private const ALLOWED_MIME_TYPES = array( 'image/jpeg', 'image/png' );
 	private const MAX_BYTES          = 2 * 1024 * 1024; // 2 MB
 
 	/**
 	 * Validate a $_FILES entry before upload.
 	 *
-	 * @param array<string, mixed> $file File array with 'type' and 'size' keys.
+	 * @param array{type: string, size: int} $file File array with 'type' and 'size' keys.
 	 * @return string|null Error message, or null on success.
 	 */
 	public static function validate_upload( array $file ): ?string {
