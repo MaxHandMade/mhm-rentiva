@@ -28,6 +28,10 @@ final class AssetManager {
 	 * Guard to prevent duplicate admin global localization in same request.
 	 */
 	private static bool $admin_globals_localized = false;
+	/**
+	 * Guard to prevent duplicate REST nonce middleware injection in same request.
+	 */
+	private static bool $react_nonce_added = false;
 
 
 
@@ -1723,6 +1727,44 @@ final class AssetManager {
 
 		$content = (string) $post->post_content;
 		return strpos($content, '[rentiva_') !== false;
+	}
+
+	/**
+	 * Enqueue a React admin page bundle with its wp-api-fetch nonce middleware.
+	 *
+	 * @param string $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
+	 */
+	public static function enqueue_react_page( string $page_handle ): void
+	{
+		if ( ! self::$react_nonce_added ) {
+			wp_add_inline_script(
+				'wp-api-fetch',
+				sprintf(
+					'wp.apiFetch.use( wp.apiFetch.createNonceMiddleware( "%s" ) );',
+					esc_js( wp_create_nonce( 'wp_rest' ) )
+				),
+				'after'
+			);
+			self::$react_nonce_added = true;
+		}
+
+		wp_enqueue_style( 'wp-components' );
+
+		$asset_file = MHM_RENTIVA_PLUGIN_DIR . "build/admin/{$page_handle}.asset.php";
+		$asset      = file_exists( $asset_file )
+			? include $asset_file
+			: array(
+				'dependencies' => array(),
+				'version'      => MHM_RENTIVA_VERSION,
+			);
+
+		wp_enqueue_script(
+			"mhm-rentiva-react-{$page_handle}",
+			MHM_RENTIVA_PLUGIN_URL . "build/admin/{$page_handle}.js",
+			$asset['dependencies'],
+			$asset['version'],
+			true
+		);
 	}
 
 	/**
