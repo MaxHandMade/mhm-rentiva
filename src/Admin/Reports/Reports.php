@@ -307,69 +307,40 @@ final class Reports {
 		}
 	}
 
-	public static function enqueue_scripts(string $hook): void
+	public static function enqueue_scripts( string $hook ): void
 	{
-		// Load only on reports page and dashboard
-		if (strpos($hook, 'mhm-rentiva-reports') === false && $hook !== 'index.php') {
+		if ( strpos( $hook, 'mhm-rentiva-reports' ) === false ) {
 			return;
 		}
 
-		// Load core JavaScript files using AssetManager
-		if (class_exists('MHMRentiva\\Admin\\Core\\AssetManager')) {
-			\MHMRentiva\Admin\Core\AssetManager::enqueue_core_js();
-		}
-
-		// Load core CSS files in correct order
-		wp_enqueue_style(
-			'mhm-css-variables',
-			plugins_url('assets/css/core/css-variables.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array(),
-			MHM_RENTIVA_VERSION
-		);
-
-		wp_enqueue_style(
-			'mhm-core-css',
-			plugins_url('assets/css/core/core.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array( 'mhm-css-variables' ),
-			MHM_RENTIVA_VERSION
-		);
-
-		wp_enqueue_style(
-			'mhm-animations',
-			plugins_url('assets/css/core/animations.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array( 'mhm-css-variables' ),
-			MHM_RENTIVA_VERSION
-		);
-
-		// Load statistics cards CSS
-		wp_enqueue_style(
-			'mhm-stats-cards',
-			plugins_url('assets/css/components/stats-cards.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array( 'mhm-core-css' ),
-			MHM_RENTIVA_VERSION
-		);
-
-		// Load admin reports CSS
-		wp_enqueue_style(
-			'mhm-admin-reports',
-			plugins_url('assets/css/admin/admin-reports.css', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array( 'mhm-core-css' ),
-			( MHM_RENTIVA_VERSION ) . '.4' // Add version for cache busting
-		);
-
-		// Reports JavaScript
 		wp_enqueue_script(
-			'mhm-admin-reports',
-			plugins_url('assets/js/admin/reports.js', dirname(__DIR__, 3) . '/mhm-rentiva.php'),
-			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			'chart-js',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
+			array(),
+			'3.9.1',
 			true
 		);
 
-		// AJAX nonce for reports
-		wp_localize_script('mhm-admin-reports', 'mhm_reports_nonce', array( 'nonce' => wp_create_nonce('mhm_reports_nonce') ));
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'reports', array( 'chart-js' ) );
 
-		Charts::enqueue_scripts();
+		$stats    = self::get_dashboard_stats();
+		$currency = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+
+		wp_localize_script(
+			'mhm-rentiva-react-reports',
+			'mhmRentivaReports',
+			array(
+				'statsCards'   => array(
+					'total_bookings'  => $stats['total_bookings'],
+					'monthly_revenue' => $stats['monthly_revenue'],
+					'active_bookings' => $stats['active_bookings'],
+					'occupancy_rate'  => (string) $stats['occupancy_rate'],
+				),
+				'defaultStart' => gmdate( 'Y-m-d', strtotime( '-30 days' ) ),
+				'defaultEnd'   => gmdate( 'Y-m-d' ),
+				'currency'     => $currency,
+			)
+		);
 	}
 
 	/**
@@ -377,15 +348,10 @@ final class Reports {
 	 */
 	public function render_page(): void
 	{
-		if (! current_user_can('manage_options')) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-
-		// Pro feature check
-		$is_pro = Mode::canUseAdvancedReports();
-
 		echo '<div class="wrap mhm-rentiva-reports-wrap">';
-
 		$this->render_admin_header(
 			(string) get_admin_page_title(),
 			array(
@@ -395,171 +361,8 @@ final class Reports {
 				),
 			)
 		);
-
-		// Pro feature notices and Developer Mode banner
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('reports');
-
-		// Statistics cards - at the top of page
-		self::render_stats_cards();
-
-		// Filters (read-only querystring values).
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-		$request    = wp_unslash($_GET ?? []);
-		$start_date = isset($request['start_date']) ? sanitize_text_field( (string) $request['start_date']) : gmdate('Y-m-d', strtotime('-30 days'));
-		$end_date   = isset($request['end_date']) ? sanitize_text_field( (string) $request['end_date']) : gmdate('Y-m-d');
-
-		// Date validation
-		if (! strtotime($start_date) || ! strtotime($end_date)) {
-			$start_date = gmdate('Y-m-d', strtotime('-30 days'));
-			$end_date   = gmdate('Y-m-d');
-		}
-
-		// Date sorting check
-		if (strtotime($start_date) > strtotime($end_date)) {
-			$temp       = $start_date;
-			$start_date = $end_date;
-			$end_date   = $temp;
-		}
-
-		// Cache clearing check - Only if date parameters exist
-		if (isset($request['start_date']) || isset($request['end_date'])) {
-			self::clear_reports_cache();
-		}
-
-		// Debug: Date filtering check
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-
-			// Check available dates in database (using prepared statement for security)
-			global $wpdb;
-			$available_dates = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT DATE(post_date) as date, COUNT(*) as count 
-                 FROM {$wpdb->posts} 
-                 WHERE post_type = %s 
-                 AND post_status = %s 
-                 GROUP BY DATE(post_date) 
-                 ORDER BY date DESC 
-                 LIMIT 10",
-					'vehicle_booking',
-					'publish'
-				)
-			);
-		}
-
-		echo '<div class="mhm-rentiva-reports-filters">';
-		echo '<form method="get" action="" id="reports-filter-form">';
-		echo '<input type="hidden" name="page" value="mhm-rentiva-reports">';
-
-		// Preserve current tab
-		if (isset($request['tab'])) {
-			echo '<input type="hidden" name="tab" value="' . esc_attr(sanitize_key( (string) $request['tab'])) . '">';
-		}
-
-		echo '<div class="filter-row">';
-		echo '<label for="start_date">' . esc_html__('Start Date:', 'mhm-rentiva') . '</label>';
-		echo '<input type="date" id="start_date" name="start_date" value="' . esc_attr($start_date) . '" required>';
-
-		echo '<label for="end_date">' . esc_html__('End Date:', 'mhm-rentiva') . '</label>';
-		echo '<input type="date" id="end_date" name="end_date" value="' . esc_attr($end_date) . '" required>';
-
-		echo '<button type="submit" class="button button-primary" id="filter-button">' . esc_html__('Filter', 'mhm-rentiva') . '</button>';
-		echo '<button type="button" class="button" id="reset-filter">' . esc_html__('Reset', 'mhm-rentiva') . '</button>';
-		echo '</div>';
-
-		echo '</form>';
-		echo '</div>';
-
-		// Base report tabs (can be extended via filter hook)
-		$tabs = array(
-			'overview'  => esc_html__('Overview', 'mhm-rentiva'),
-			'revenue'   => esc_html__('Revenue Report', 'mhm-rentiva'),
-			'bookings'  => esc_html__('Booking Report', 'mhm-rentiva'),
-			'vehicles'  => esc_html__('Vehicle Report', 'mhm-rentiva'),
-			'customers' => esc_html__('Customer Report', 'mhm-rentiva'),
-		);
-
-		/**
-		 * Filter: Allow addons and third-party plugins to add custom report tabs
-		 *
-		 * @param array<string, string> $tabs Array of tab_key => tab_label pairs
-		 * @return array Modified tabs array
-		 *
-		 * @example
-		 * add_filter('mhm_rentiva_report_tabs', function($tabs) {
-		 *     $tabs['custom-report'] = __('Custom Report', 'my-plugin');
-		 *     return $tabs;
-		 * });
-		 */
-		$tabs = apply_filters('mhm_rentiva_report_tabs', $tabs);
-
-		$current_tab = isset($request['tab']) ? sanitize_key( (string) $request['tab']) : 'overview';
-
-		echo '<div class="nav-tab-wrapper">';
-		foreach ($tabs as $tab => $label) {
-			$active = $current_tab === $tab ? ' nav-tab-active' : '';
-			$url    = add_query_arg(
-				array(
-					'tab'        => $tab,
-					'start_date' => $start_date,
-					'end_date'   => $end_date,
-				)
-			);
-			echo '<a href="' . esc_url($url) . '" class="nav-tab' . esc_attr($active) . '">' . esc_html($label) . '</a>';
-		}
-		echo '</div>';
-
-		// Tab content
-		echo '<div class="tab-content">';
-
-		// Check if custom tab rendering is handled via action hook
-		$custom_tab_handled = false;
-
-		/**
-		 * Action: Allow addons to render custom report tabs
-		 *
-		 * @param string $current_tab Current tab key
-		 * @param string $start_date  Start date filter
-		 * @param string $end_date    End date filter
-		 * @param bool   $handled     Reference to indicate if tab was handled
-		 *
-		 * @example
-		 * add_action('mhm_rentiva_render_report_tab', function($tab, $start_date, $end_date, &$handled) {
-		 *     if ($tab === 'custom-report') {
-		 *         echo '<h2>Custom Report</h2>';
-		 *         // Render custom report...
-		 *         $handled = true;
-		 *     }
-		 * }, 10, 4);
-		 */
-		do_action_ref_array('mhm_rentiva_render_report_tab', array( &$current_tab, &$start_date, &$end_date, &$custom_tab_handled ));
-
-		// If custom tab was handled, skip default rendering
-		if (! $custom_tab_handled) {
-			switch ($current_tab) {
-				case 'overview':
-					self::render_overview_tab($start_date, $end_date);
-					break;
-				case 'revenue':
-					self::render_revenue_tab($start_date, $end_date);
-					break;
-				case 'bookings':
-					self::render_bookings_tab($start_date, $end_date);
-					break;
-				case 'vehicles':
-					self::render_vehicles_tab($start_date, $end_date);
-					break;
-				case 'customers':
-					self::render_customers_tab($start_date, $end_date);
-					break;
-				default:
-					// Default case for unknown tabs
-					echo '<p>' . esc_html__('Report for this section is not yet implemented.', 'mhm-rentiva') . '</p>';
-					break;
-			}
-		}
-
-		echo '</div>';
-
+		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice( 'reports' );
+		echo '<div id="mhm-reports-root"></div>';
 		echo '</div>';
 	}
 
