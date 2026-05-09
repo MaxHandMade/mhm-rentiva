@@ -1,12 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
-const STATUS_LABELS = {
-	pending:     'Pending',
-	confirmed:   'Confirmed',
-	in_progress: 'In Progress',
-	completed:   'Completed',
-	cancelled:   'Cancelled',
-};
+const statusLabel = ( status ) => ( {
+	pending:     __( 'Pending',     'mhm-rentiva' ),
+	confirmed:   __( 'Confirmed',   'mhm-rentiva' ),
+	in_progress: __( 'In Progress', 'mhm-rentiva' ),
+	completed:   __( 'Completed',   'mhm-rentiva' ),
+	cancelled:   __( 'Cancelled',   'mhm-rentiva' ),
+}[ status ] ?? status );
 
 export default function RecentBookings( { bookings, adminUrl } ) {
 	if ( ! bookings?.length ) {
@@ -35,7 +35,7 @@ export default function RecentBookings( { bookings, adminUrl } ) {
 							<td>{ b.pickup_date || '—' }</td>
 							<td>
 								<span className={ `mhm-status mhm-status--${ b.status }` }>
-									{ STATUS_LABELS[ b.status ] ?? b.status }
+									{ statusLabel( b.status ) }
 								</span>
 							</td>
 						</tr>
