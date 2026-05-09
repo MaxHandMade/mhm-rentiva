@@ -12,13 +12,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$current_user_id = (int) ($dashboard['user']->ID ?? get_current_user_id());
+$current_user_id = (int) ( $dashboard['user']->ID ?? get_current_user_id() );
 $form_error      = '';
 $form_success    = '';
 
 if (
     isset($_POST['mhm_vendor_profile_nonce']) &&
-    wp_verify_nonce(sanitize_text_field(wp_unslash((string) $_POST['mhm_vendor_profile_nonce'])), 'mhm_vendor_profile_' . $current_user_id)
+    wp_verify_nonce(sanitize_text_field(wp_unslash( (string) $_POST['mhm_vendor_profile_nonce'])), 'mhm_vendor_profile_' . $current_user_id)
 ) {
     // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
     $post_data = [
@@ -29,8 +29,8 @@ if (
     ];
     // phpcs:enable
 
-    $file = (isset($_FILES['vendor_avatar']) && (int) $_FILES['vendor_avatar']['size'] > 0)
-        ? $_FILES['vendor_avatar']
+    $file = ( isset( $_FILES['vendor_avatar']['size'] ) && (int) $_FILES['vendor_avatar']['size'] > 0 )
+        ? $_FILES['vendor_avatar'] // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitised inside VendorProfileSettingsSave::handle()
         : null;
 
     $result = VendorProfileSettingsSave::handle($current_user_id, $post_data, $file);
@@ -46,12 +46,12 @@ $current_avatar_id  = (int) get_user_meta($current_user_id, MetaKeys::VENDOR_AVA
 $current_avatar_url = $current_avatar_id > 0
     ? (string) wp_get_attachment_image_url($current_avatar_id, 'thumbnail')
     : '';
-$current_slug  = (string) get_user_meta($current_user_id, MetaKeys::VENDOR_SLUG, true);
-$current_phone = (string) get_user_meta($current_user_id, '_rentiva_vendor_phone', true);
-$current_city  = (string) get_user_meta($current_user_id, '_rentiva_vendor_city', true);
-$current_bio   = (string) get_user_meta($current_user_id, '_rentiva_vendor_bio', true);
-$bio_max       = (int) get_option('mhm_vendor_bio_max_length', 400);
-$url_base      = home_url('/' . VendorProfileUrlBase::resolve() . '/');
+$current_slug       = (string) get_user_meta($current_user_id, MetaKeys::VENDOR_SLUG, true);
+$current_phone      = (string) get_user_meta($current_user_id, '_rentiva_vendor_phone', true);
+$current_city       = (string) get_user_meta($current_user_id, '_rentiva_vendor_city', true);
+$current_bio        = (string) get_user_meta($current_user_id, '_rentiva_vendor_bio', true);
+$bio_max            = (int) get_option('mhm_vendor_bio_max_length', 400);
+$url_base           = home_url('/' . VendorProfileUrlBase::resolve() . '/');
 ?>
 
 <div class="mhm-vendor-apply-wrap">
@@ -117,7 +117,7 @@ $url_base      = home_url('/' . VendorProfileUrlBase::resolve() . '/');
             </div>
             <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
                 <label for="vendor_bio"><?php esc_html_e('Short Bio', 'mhm-rentiva'); ?></label>
-                <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr((string) $bio_max); ?>"><?php echo esc_textarea($current_bio); ?></textarea>
+                <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr( (string) $bio_max); ?>"><?php echo esc_textarea($current_bio); ?></textarea>
                 <?php /* translators: %d: maximum character count */ ?>
                 <small><?php echo esc_html(sprintf(__('Max %d characters', 'mhm-rentiva'), $bio_max)); ?></small>
             </div>

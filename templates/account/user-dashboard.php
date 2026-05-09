@@ -55,7 +55,7 @@ if (! $user_display_name) {
 					<?php
 					$_sidebar_avatar_id  = (int) get_user_meta($user->ID, MetaKeys::VENDOR_AVATAR_ID, true);
 					$_sidebar_avatar_url = $_sidebar_avatar_id > 0
-						? (string) wp_get_attachment_image_url($_sidebar_avatar_id, array(40, 40))
+						? (string) wp_get_attachment_image_url($_sidebar_avatar_id, array( 40, 40 ))
 						: '';
 					if ($_sidebar_avatar_url !== '') {
 						printf(
