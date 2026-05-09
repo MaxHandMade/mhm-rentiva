@@ -14,9 +14,11 @@ final class VendorDirectoryRewriteTest extends WP_UnitTestCase
 	public function test_register_adds_top_priority_rule(): void
 	{
 		// Calling do_action('init') re-fires plugin block registration, which
-		// trips WP_Block_Type_Registry's "already registered" notice. The test
-		// only cares about rewrite rule presence, so whitelist that notice.
+		// trips registry "already registered" notices. The test only cares about
+		// rewrite rule presence, so whitelist both registry classes (WP 6.5+
+		// added WP_Block_Bindings_Registry alongside the older block-type one).
 		$this->setExpectedIncorrectUsage('WP_Block_Type_Registry::register');
+		$this->setExpectedIncorrectUsage('WP_Block_Bindings_Registry::register');
 
 		VendorDirectoryRewrite::register();
 		do_action('init');

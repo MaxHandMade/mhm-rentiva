@@ -883,7 +883,7 @@ final class LicenseManager {
 	{
 		// 1. Host check (localhost, .local, .dev, .test, .staging)
 		$host        = wp_parse_url(home_url(), PHP_URL_HOST) ?: '';
-		$dev_domains = array( '.local', '.test', '.dev', '.staging' );
+		$dev_domains = array( '.local', '.test', '.dev', '.staging', '.localhost' );
 
 		// localhost check
 		if (in_array($host, array( 'localhost', '127.0.0.1', '::1' ), true)) {

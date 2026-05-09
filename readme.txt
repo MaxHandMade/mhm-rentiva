@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.38.1
+Stable tag:        4.38.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.38.2 — 2026-05-09 =
+* 🔧 **Dev mode fix** — `isDevelopmentEnvironment()` now recognises `*.localhost` domains (Traefik reverse-proxy convention: `rentiva.localhost`, `bozcon.localhost`, etc.). The Traefik migration from `localhost:port` URLs to `*.localhost` domains silently broke automatic Pro dev mode activation on all local Docker stacks — only `.local` / `.test` / `.dev` / `.staging` were in the allowlist. Adding `.localhost` restores the zero-config dev experience: no license key and no `wp-config.php` changes needed on any Traefik-based local stack.
+* Tests: 1058 → **1070** PHPUnit (+12: 3 Traefik `*.localhost` detection + 3 existing dev domain regression guards + 2 production domain rejection + 2 `isActive()` auto-dev integration + 1 `disable_dev_mode` option coverage + 1 WP 6.7 `WP_Block_Bindings_Registry` notice whitelist), 3320 → 3332 assertions, 0 fail. PHPCS: 0 errors.
 
 = 4.38.1 — 2026-05-06 =
 * 🛡️ **Audit-driven patch** — closes 2 findings (1 YÜKSEK + 1 ORTA) and 3 deferred Phase 5/6/7 paper-cuts surfaced by post-merge `/wp-conductor` audit of the v4.37.0 → v4.38.0 release chain. Plus 1 dormant production defect surfaced by the new test coverage.

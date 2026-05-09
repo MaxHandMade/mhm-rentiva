@@ -1,5 +1,17 @@
 [
     {
+        "version": "4.38.2",
+        "date": "2026-05-09",
+        "type": "patch",
+        "summary": "Dev mode fix: isDevelopmentEnvironment() now recognises *.localhost Traefik domains, restoring zero-config Pro dev mode on all local Docker stacks after the localhost:port → *.localhost migration.",
+        "changes": [
+            "Fix isDevelopmentEnvironment() to include .localhost TLD in the dev domain allowlist. The Traefik migration from localhost:port URLs to *.localhost domains silently broke automatic Pro dev mode — rentiva.localhost, bozcon.localhost, etc. were not recognised as development environments.",
+            "No wp-config.php changes, no license key, no MHM_RENTIVA_DEV_PRO constant required on any Traefik-based local Docker stack. Zero-config dev experience restored.",
+            "Fix VendorDirectoryRewriteTest WP 6.7 compatibility: whitelist WP_Block_Bindings_Registry::register incorrect-usage notice alongside the existing WP_Block_Type_Registry::register whitelist (WP 6.5+ emits both on do_action('init') re-fire)."
+        ],
+        "notice": "No schema changes, no breaking changes, no gating changes. Pure dev-tooling fix."
+    },
+    {
         "version": "4.38.1",
         "date": "2026-05-06",
         "type": "patch",
