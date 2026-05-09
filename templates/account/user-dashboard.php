@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Core\Dashboard\DashboardContext;
 use MHMRentiva\Core\Dashboard\DashboardConfig;
 use MHMRentiva\Core\Dashboard\DashboardNavigation;
@@ -51,7 +52,21 @@ if (! $user_display_name) {
 		<div class="mhm-rentiva-dashboard__user">
 			<div class="mhm-rentiva-dashboard__user-card">
 				<div class="mhm-rentiva-dashboard__user-avatar" aria-hidden="true">
-					<?php echo get_avatar($user->ID, 40, '', $user_display_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_avatar returns safe <img> tag. ?>
+					<?php
+					$_sidebar_avatar_id  = (int) get_user_meta($user->ID, MetaKeys::VENDOR_AVATAR_ID, true);
+					$_sidebar_avatar_url = $_sidebar_avatar_id > 0
+						? (string) wp_get_attachment_image_url($_sidebar_avatar_id, array(40, 40))
+						: '';
+					if ($_sidebar_avatar_url !== '') {
+						printf(
+							'<img src="%s" alt="%s" width="40" height="40" style="border-radius:50%%;object-fit:cover" />',
+							esc_url($_sidebar_avatar_url),
+							esc_attr($user_display_name)
+						);
+					} else {
+						echo get_avatar($user->ID, 40, '', $user_display_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_avatar returns safe <img> tag.
+					}
+					?>
 				</div>
 				<div class="mhm-rentiva-dashboard__user-info">
 					<div class="mhm-rentiva-dashboard__user-name"><?php echo esc_html($user_display_name); ?></div>
