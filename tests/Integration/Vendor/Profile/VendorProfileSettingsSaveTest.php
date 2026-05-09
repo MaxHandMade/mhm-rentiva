@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Vendor\Profile;
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Vendor\Profile\VendorProfileSettingsSave;
 
 /**
@@ -59,7 +60,7 @@ final class VendorProfileSettingsSaveTest extends \WP_UnitTestCase
     public function test_handle_with_empty_slug_preserves_existing_slug(): void
     {
         $user_id = self::factory()->user->create(['display_name' => 'Ali Test']);
-        update_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_SLUG, 'ali-test');
+        update_user_meta($user_id, MetaKeys::VENDOR_SLUG, 'ali-test');
 
         VendorProfileSettingsSave::handle(
             $user_id,
@@ -67,13 +68,13 @@ final class VendorProfileSettingsSaveTest extends \WP_UnitTestCase
             null
         );
 
-        $this->assertSame('ali-test', get_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_SLUG, true));
+        $this->assertSame('ali-test', get_user_meta($user_id, MetaKeys::VENDOR_SLUG, true));
     }
 
     public function test_handle_with_new_slug_updates_and_stores_history(): void
     {
         $user_id = self::factory()->user->create(['display_name' => 'Veli Test']);
-        update_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_SLUG, 'veli-test');
+        update_user_meta($user_id, MetaKeys::VENDOR_SLUG, 'veli-test');
 
         VendorProfileSettingsSave::handle(
             $user_id,
@@ -81,8 +82,8 @@ final class VendorProfileSettingsSaveTest extends \WP_UnitTestCase
             null
         );
 
-        $this->assertSame('veli-yeni', get_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_SLUG, true));
-        $history = (array) get_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_SLUG_HISTORY, true);
+        $this->assertSame('veli-yeni', get_user_meta($user_id, MetaKeys::VENDOR_SLUG, true));
+        $history = (array) get_user_meta($user_id, MetaKeys::VENDOR_SLUG_HISTORY, true);
         $this->assertContains('veli-test', $history);
     }
 

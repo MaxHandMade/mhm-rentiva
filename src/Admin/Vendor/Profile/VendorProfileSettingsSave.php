@@ -71,9 +71,10 @@ final class VendorProfileSettingsSave
 		}
 
 		// Profile fields
+		$bio_max = (int) get_option( 'mhm_vendor_bio_max_length', 400 );
 		update_user_meta( $user_id, '_rentiva_vendor_phone', (string) ( $post_data['phone'] ?? '' ) );
 		update_user_meta( $user_id, '_rentiva_vendor_city',  (string) ( $post_data['city']  ?? '' ) );
-		update_user_meta( $user_id, '_rentiva_vendor_bio',   (string) ( $post_data['bio']   ?? '' ) );
+		update_user_meta( $user_id, '_rentiva_vendor_bio',   mb_substr( (string) ( $post_data['bio'] ?? '' ), 0, $bio_max ) );
 
 		return [ 'success' => true, 'error' => '' ];
 	}
