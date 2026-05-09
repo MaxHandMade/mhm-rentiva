@@ -17,7 +17,7 @@ drafts/
 # exclude assets/js/vendor/chart.min.js and other in-tree vendored libraries.
 /vendor/
 node_modules/
-build/
+build/zip-staging
 composer.lock
 package.json
 package-lock.json
