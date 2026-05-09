@@ -1733,8 +1733,9 @@ final class AssetManager {
 	 * Enqueue a React admin page bundle with its wp-api-fetch nonce middleware.
 	 *
 	 * @param string $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
+	 * @param array  $extra_deps Optional array of additional script dependencies.
 	 */
-	public static function enqueue_react_page( string $page_handle ): void
+	public static function enqueue_react_page( string $page_handle, array $extra_deps = [] ): void
 	{
 		if ( ! self::$react_nonce_added ) {
 			wp_add_inline_script(
@@ -1761,7 +1762,7 @@ final class AssetManager {
 		wp_enqueue_script(
 			"mhm-rentiva-react-{$page_handle}",
 			MHM_RENTIVA_PLUGIN_URL . "build/admin/{$page_handle}.js",
-			$asset['dependencies'],
+			array_merge( $asset['dependencies'], $extra_deps ),
 			$asset['version'],
 			true
 		);
