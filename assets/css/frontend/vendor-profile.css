@@ -1,3 +1,18 @@
+/* Back navigation — shown on the rewrite-routed /bayi/<slug>/ page */
+.mhm-vendor-profile-back-nav {
+    max-width: 960px;
+    margin: 0 auto 16px;
+    padding: 0 16px;
+}
+.mhm-vendor-profile-back-nav a {
+    font-size: 0.9rem;
+    color: #6b7280;
+    text-decoration: none;
+}
+.mhm-vendor-profile-back-nav a:hover {
+    color: #111827;
+}
+
 /* MHM Rentiva Vendor Profile (v4.37.0) — Centered Hero layout */
 .mhm-rentiva-vendor-profile {
     max-width: 960px;
