@@ -99,5 +99,6 @@ final class VendorProfileSettingsSaveTest extends \WP_UnitTestCase
 
         $this->assertFalse($result['success']);
         $this->assertNotEmpty($result['error']);
+        $this->assertSame('', (string) get_user_meta($user_id, '_rentiva_vendor_phone', true));
     }
 }

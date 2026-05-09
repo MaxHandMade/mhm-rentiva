@@ -58,9 +58,10 @@ final class VendorProfileSettingsSave
 				return [ 'success' => false, 'error' => (string) $uploaded['error'] ];
 			}
 			$attachment_id = self::create_attachment( $uploaded, $user_id );
-			if ( $attachment_id > 0 ) {
-				update_user_meta( $user_id, MetaKeys::VENDOR_AVATAR_ID, $attachment_id );
+			if ( $attachment_id === 0 ) {
+				return [ 'success' => false, 'error' => __( 'Could not save the uploaded image.', 'mhm-rentiva' ) ];
 			}
+			update_user_meta( $user_id, MetaKeys::VENDOR_AVATAR_ID, $attachment_id );
 		}
 
 		// Slug (empty = keep existing)
