@@ -692,45 +692,6 @@ final class AssetManager {
 			);
 		}
 
-		// Dashboard
-		if ($screen->id === 'toplevel_page_mhm-rentiva') {
-			wp_enqueue_script(
-				'chart-js',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
-				array(),
-				self::get_file_version('assets/js/vendor/chart.min.js'),
-				true
-			);
-
-			wp_enqueue_script(
-				'mhm-dashboard',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js',
-				array( 'jquery', 'jquery-ui-sortable', 'chart-js' ),
-				self::get_file_version('assets/js/admin/dashboard.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-dashboard',
-				'mhm_dashboard_vars',
-				array(
-					'ajax_url'     => admin_url('admin-ajax.php'),
-					'nonce'        => wp_create_nonce('mhm_dashboard_nonce'),
-					'currency'     => CurrencyHelper::get_currency_symbol(),
-					'locale'       => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'revenue_data' => self::get_dashboard_revenue_data(),
-					'strings'      => array(
-						'daily_revenue' => __('Daily Revenue', 'mhm-rentiva'),
-						'revenue'       => __('Revenue', 'mhm-rentiva'),
-						'this_month'    => __('this month', 'mhm-rentiva'),
-						'available'     => __('available', 'mhm-rentiva'),
-						'new'           => __('new', 'mhm-rentiva'),
-						'refresh_error' => __('Error refreshing dashboard data', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Reports Charts
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-reports') {
 			wp_enqueue_script(
@@ -1512,19 +1473,6 @@ final class AssetManager {
 
 
 
-
-
-	/**
-	 * Get revenue data for dashboard
-	 */
-	private static function get_dashboard_revenue_data(): array
-	{
-		// This function should return actual revenue data
-		// For now, returning sample data
-		return array(
-			'daily_data' => array(),
-		);
-	}
 
 
 	/**
