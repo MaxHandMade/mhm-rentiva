@@ -34,10 +34,12 @@ final class DashboardPage {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
+		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhm_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
+		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhm_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
+		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhm_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
-		add_action('wp_ajax_mhm_upcoming_operations_page', array( self::class, 'ajax_upcoming_operations_page' ));
 
 		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
@@ -122,34 +124,6 @@ final class DashboardPage {
 	}
 
 	/**
-	 * Refresh dashboard data via AJAX
-	 */
-	public static function ajax_refresh_dashboard_data(): void
-	{
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
-			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
-			return;
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
-		}
-
-		try {
-			$stats = DashboardService::get_comprehensive_stats();
-
-			// Add extra fields expected by frontend
-			$stats['timestamp'] = current_time('mysql');
-
-			wp_send_json_success($stats);
-		} catch (\Exception $e) {
-			wp_send_json_error(__('Error occurred while fetching data: ', 'mhm-rentiva') . $e->getMessage());
-		}
-	}
-
-	/**
 	 * Save dashboard widget order via AJAX
 	 */
 	public static function ajax_save_dashboard_order(): void
@@ -223,10 +197,8 @@ final class DashboardPage {
 				'metrics'          => DashboardService::get_dashboard_metrics(),
 				'revenue_data'     => DashboardService::get_revenue_data(),
 				'recent_bookings'  => DashboardService::get_recent_bookings(),
-				'booking_stats'    => DashboardService::get_booking_stats(),
 				'transfer_stats'   => DashboardService::get_transfer_summary(),
 				'pending_payments' => DashboardService::get_pending_payments(),
-				'message_stats'    => DashboardService::get_message_stats(),
 				'upcoming_initial' => array(
 					'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
 					'total'       => (int) $upcoming_result['total'],
@@ -315,128 +287,6 @@ final class DashboardPage {
 			$timeout_like = $wpdb->esc_like('_transient_timeout_' . $key_prefix) . '%';
 			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $timeout_like)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		}
-	}
-
-	/**
-	 * Return a page of upcoming operations as rendered HTML rows.
-	 */
-	public static function ajax_upcoming_operations_page(): void
-	{
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_dashboard_nonce' ) ) {
-			wp_send_json_error( __( 'Security check failed', 'mhm-rentiva' ) );
-			return;
-		}
-
-		if ( ! current_user_can( 'manage_options' ) ) {
-			wp_send_json_error( __( 'Unauthorized access', 'mhm-rentiva' ) );
-			return;
-		}
-
-		$page     = isset( $_POST['page'] ) ? max( 1, (int) $_POST['page'] ) : 1;
-		$per_page = 5;
-		$result   = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( $page, $per_page, 7 );
-
-		ob_start();
-		foreach ( $result['items'] as $op ) {
-			$icon      = ( 'transfer' === $op['type'] ) ? 'dashicons-airplane' : 'dashicons-car';
-			$date_str  = ! empty( $op['start_time'] ) ? $op['start_date'] . ' ' . $op['start_time'] : $op['start_date'];
-			$date_time = strtotime( $date_str );
-
-			$formatted_date = date_i18n( 'd M Y', $date_time );
-			$formatted_time = ! empty( $op['start_time'] ) ? esc_html( $op['start_time'] ) : wp_date( 'H:i', $date_time );
-
-			$today    = strtotime( wp_date( 'Y-m-d' ) );
-			$tomorrow = strtotime( wp_date( 'Y-m-d', strtotime( '+1 day', current_time( 'timestamp' ) ) ) );
-			$op_day   = strtotime( wp_date( 'Y-m-d', $date_time ) );
-
-			if ( $op_day === $today ) {
-				$day_label = '<strong>' . esc_html__( 'Today', 'mhm-rentiva' ) . '</strong>';
-			} elseif ( $op_day === $tomorrow ) {
-				$day_label = '<strong>' . esc_html__( 'Tomorrow', 'mhm-rentiva' ) . '</strong>';
-			} else {
-				$day_label = esc_html( $formatted_date );
-			}
-
-			if ( 'transfer' === $op['type'] && ( ! empty( $op['origin'] ) || ! empty( $op['destination'] ) ) ) {
-				$route = esc_html( $op['origin'] ?? '-' ) . ' &rarr; ' . esc_html( $op['destination'] ?? '-' );
-			} elseif ( 'transfer' === $op['type'] ) {
-				$route = '<em class="op-route-unknown">' . esc_html__( 'Transfer', 'mhm-rentiva' ) . '</em>';
-			} elseif ( ! empty( $op['vehicle_location'] ) ) {
-				$route = '<span class="dashicons dashicons-location op-location-icon"></span> ' . esc_html( $op['vehicle_location'] );
-			} else {
-				$route = '-';
-			}
-
-			$booking_id    = (int) ( $op['id'] ?? 0 );
-			$booking_url   = $booking_id ? esc_url( admin_url( 'post.php?post=' . $booking_id . '&action=edit' ) ) : '';
-			$vehicle_label = esc_html( $op['vehicle_title'] ?? __( 'VIP Transfer', 'mhm-rentiva' ) );
-			if ( ! empty( $op['vehicle_plate'] ) ) {
-				$vehicle_label .= ' <small class="op-vehicle-plate">(' . esc_html( $op['vehicle_plate'] ) . ')</small>';
-			}
-
-			$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label( $op['status'] );
-			$status_class = 'status-' . esc_attr( $op['status'] );
-
-			$countdown_html = '';
-			if ( 'confirmed' === $op['status'] ) {
-				$diff = $date_time - current_time( 'timestamp' );
-				if ( $diff > 0 ) {
-					$days    = (int) floor( $diff / DAY_IN_SECONDS );
-					$hours   = (int) floor( ( $diff % DAY_IN_SECONDS ) / HOUR_IN_SECONDS );
-					$minutes = (int) floor( ( $diff % HOUR_IN_SECONDS ) / MINUTE_IN_SECONDS );
-
-					if ( $days >= 3 ) {
-						$cd_class = 'countdown-green';
-						/* translators: 1: days remaining, 2: hours remaining (countdown >= 3 days) */
-						$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
-					} elseif ( $diff >= DAY_IN_SECONDS ) {
-						$cd_class = 'countdown-orange';
-						/* translators: 1: days remaining, 2: hours remaining (countdown < 3 days) */
-						$cd_text = sprintf( __( '%1$dd %2$dh', 'mhm-rentiva' ), $days, $hours );
-					} elseif ( $diff >= HOUR_IN_SECONDS ) {
-						$cd_class = 'countdown-red';
-						/* translators: 1: hours remaining, 2: minutes remaining */
-						$cd_text = sprintf( __( '%1$dh %2$dm', 'mhm-rentiva' ), $hours, $minutes );
-					} else {
-						$cd_class = 'countdown-red';
-						/* translators: %d: minutes remaining */
-						$cd_text = $minutes > 0 ? sprintf( __( '%dm', 'mhm-rentiva' ), $minutes ) : esc_html__( 'Almost there!', 'mhm-rentiva' );
-					}
-
-					$countdown_html = '<span class="op-countdown ' . esc_attr( $cd_class ) . '">' . esc_html( $cd_text ) . '</span>';
-				}
-			}
-			?>
-			<tr>
-				<td class="op-icon"><span class="dashicons <?php echo esc_attr( $icon ); ?> op-type-icon"></span></td>
-				<td>
-					<?php if ( $booking_url ) : ?>
-						<a href="<?php echo esc_url( $booking_url ); ?>" class="op-booking-link">#<?php echo esc_html( $booking_id ); ?></a>
-					<?php else : ?>
-						-
-					<?php endif; ?>
-				</td>
-				<td><?php echo wp_kses_post( $day_label ); ?><br><small class="op-time-sub"><?php echo esc_html( $formatted_time ); ?></small></td>
-				<td><?php echo wp_kses_post( $countdown_html ); ?></td>
-				<td><?php echo esc_html( $op['customer_name'] ?: '-' ); ?></td>
-				<td><?php echo esc_html( $op['customer_phone'] ?? '-' ); ?></td>
-				<td><?php echo wp_kses_post( $vehicle_label ); ?></td>
-				<td><?php echo wp_kses_post( $route ); ?></td>
-				<td><span class="status-badge <?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( $status_label ); ?></span></td>
-			</tr>
-			<?php
-		}
-		$rows_html = ob_get_clean();
-
-		wp_send_json_success(
-			array(
-				'html'        => $rows_html,
-				'total'       => $result['total'],
-				'total_pages' => $result['total_pages'],
-				'page'        => $page,
-			)
-		);
 	}
 
 	public static function ajax_clear_dashboard_cache(): void

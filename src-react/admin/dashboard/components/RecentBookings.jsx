@@ -1,5 +1,13 @@
 import { __ } from '@wordpress/i18n';
 
+const STATUS_LABELS = {
+	pending:     'Pending',
+	confirmed:   'Confirmed',
+	in_progress: 'In Progress',
+	completed:   'Completed',
+	cancelled:   'Cancelled',
+};
+
 export default function RecentBookings( { bookings, adminUrl } ) {
 	if ( ! bookings?.length ) {
 		return (
@@ -27,7 +35,7 @@ export default function RecentBookings( { bookings, adminUrl } ) {
 							<td>{ b.pickup_date || '—' }</td>
 							<td>
 								<span className={ `mhm-status mhm-status--${ b.status }` }>
-									{ b.status }
+									{ STATUS_LABELS[ b.status ] ?? b.status }
 								</span>
 							</td>
 						</tr>
