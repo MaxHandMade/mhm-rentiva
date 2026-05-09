@@ -14,10 +14,15 @@ if (( $vendor['badge_status'] ?? '' ) === 'verified') {
     $badge_label = __('New vendor', 'mhm-rentiva');
 }
 
-$avatar_html = '';
-if (function_exists('get_avatar')) {
-    $avatar_html = get_avatar( (int) $vendor['id'], 96, '', (string) $vendor['display_name']);
+$avatar_src  = '';
+$avatar_id   = (int) ( $vendor['avatar_id'] ?? 0 );
+if ($avatar_id > 0) {
+    $avatar_src = (string) ( wp_get_attachment_image_url($avatar_id, 'thumbnail') ?: '' );
 }
+if ($avatar_src === '') {
+    $avatar_src = \MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback::svg_data_uri((string) $vendor['display_name'], 96);
+}
+$avatar_is_svg = strpos($avatar_src, 'data:image/svg+xml') === 0;
 
 $rating_avg   = (float) ( $vendor['rating_avg'] ?? 0 );
 $rating_count = (int) ( $vendor['rating_count'] ?? 0 );
@@ -25,7 +30,7 @@ $rating_count = (int) ( $vendor['rating_count'] ?? 0 );
 <a class="mhm-vendor-directory-card-link" href="<?php echo esc_url( (string) $vendor['profile_url']); ?>">
     <article class="mhm-vendor-directory-card">
         <div class="mhm-vendor-directory-card-avatar">
-            <?php echo $avatar_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_avatar returns safe HTML ?>
+            <img src="<?php echo $avatar_is_svg ? esc_attr($avatar_src) : esc_url($avatar_src); ?>" alt="<?php echo esc_attr( (string) $vendor['display_name']); ?>" width="64" height="64" loading="lazy">
         </div>
         <div class="mhm-vendor-directory-card-body">
             <h3 class="mhm-vendor-directory-card-name"><?php echo esc_html( (string) $vendor['display_name']); ?></h3>

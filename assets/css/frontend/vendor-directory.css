@@ -137,6 +137,10 @@
 
 .mhm-vendor-directory-card-avatar {
     flex: 0 0 64px;
+    width: 64px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: 50%;
 }
 
 .mhm-vendor-directory-card-avatar img {
@@ -144,6 +148,7 @@
     height: 64px;
     border-radius: 50%;
     object-fit: cover;
+    display: block;
 }
 
 .mhm-vendor-directory-card-body {
@@ -155,18 +160,25 @@
     margin: 0 0 0.25rem;
     font-size: 1.0625rem;
     font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mhm-vendor-directory-card-meta {
     margin: 0 0 0.375rem;
     font-size: 0.875rem;
     color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .mhm-vendor-directory-card-badge {
     margin: 0 0 0.375rem;
     font-size: 0.8125rem;
     font-weight: 500;
+    white-space: nowrap;
 }
 
 .mhm-vendor-directory-card-badge-verified {
@@ -180,6 +192,8 @@
 .mhm-vendor-directory-card-rating {
     margin: 0 0 0.5rem;
     font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .mhm-vendor-directory-card-rating-count {
@@ -254,6 +268,6 @@
 /* Desktop (≥1024px) */
 @media (min-width: 1024px) {
     .mhm-vendor-directory-grid {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
     }
 }
