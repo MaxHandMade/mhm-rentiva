@@ -6,5 +6,8 @@ export const rentivaApi = {
 	dashboard: {
 		getUpcoming: ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/upcoming?page=${ page }` } ),
 	},
-	// Extended per page as fazes are implemented.
+	reports: {
+		getSummary: ( params ) =>
+			apiFetch( { path: `${ BASE }/reports`, method: 'GET', data: params } ),
+	},
 };
