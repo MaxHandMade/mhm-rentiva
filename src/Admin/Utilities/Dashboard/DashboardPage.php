@@ -11,7 +11,6 @@ if (! defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 
@@ -26,9 +25,6 @@ use MHMRentiva\Admin\Core\CurrencyHelper;
  * @since 4.6.3
  */
 final class DashboardPage {
-
-	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
-
 
 	/**
 	 * Register WordPress hooks and actions
@@ -115,56 +111,14 @@ final class DashboardPage {
 	}
 
 	/**
-	 * Render dashboard page using the new template system
+	 * Render dashboard page — React mount point.
 	 */
 	public function render(): void
 	{
-		if (! current_user_can('manage_options')) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
-
-		// Fetch all stats from service
-		$stats = DashboardService::get_comprehensive_stats();
-
-		// Get saved widget order
-		$user_id = get_current_user_id();
-		$order   = get_user_meta($user_id, 'mhm_dashboard_widget_order', true);
-
-		// Prepare header buttons
-		$buttons = array(
-			array(
-				'type' => 'documentation',
-				'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
-			),
-			array(
-				'type' => 'reset',
-				'url'  => '#',
-				'id'   => 'mhm-reset-dashboard',
-			),
-		);
-
-		// Centralized header rendering (echo=false to capture output)
-		$admin_header = $this->render_admin_header( (string) get_admin_page_title(), $buttons, false);
-
-		// Capture Developer Mode Banner (if active)
-		ob_start();
-		$this->render_developer_mode_banner();
-		$dev_banner = ob_get_clean();
-
-		// Combine Header + Banner
-		$header_html = $admin_header . $dev_banner;
-
-		// Pass to main index template
-		Templates::load(
-			'admin/dashboard/index',
-			array(
-				'args' => array(
-					'stats'        => $stats,
-					'widget_order' => $order ?: array(),
-					'header_html'  => $header_html,
-				),
-			)
-		);
+		echo '<div id="mhm-rentiva-dashboard"></div>';
 	}
 
 	/**
@@ -237,53 +191,51 @@ final class DashboardPage {
 	}
 
 	/**
-	 * Load dashboard scripts and styles
+	 * Load dashboard scripts and styles — React build.
 	 */
-	public static function enqueue_scripts(string $hook): void
+	public static function enqueue_scripts( string $hook ): void
 	{
-		// Target both the top-level page (toplevel_page_mhm-rentiva) and the submenu (mhm-rentiva_page_mhm-rentiva-dashboard)
-		if (strpos($hook, 'mhm-rentiva') === false) {
-			return;
-		}
-
-		// If explicit dashboard slug is not present, check generic top level
-		// But wait, other pages like settings also have 'mhm-rentiva' in hook.
-		// We only want to load DASHBOARD assets on dashboard.
-
 		$is_dashboard = (
-			strpos($hook, 'mhm-rentiva-dashboard') !== false ||
+			str_contains( $hook, 'mhm-rentiva-dashboard' ) ||
 			$hook === 'toplevel_page_mhm-rentiva'
 		);
 
-		if (! $is_dashboard) {
+		if ( ! $is_dashboard ) {
 			return;
 		}
 
-		if (class_exists(AssetManager::class)) {
-			AssetManager::enqueue_core_js();
-		}
+		wp_enqueue_script(
+			'chart-js',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
+			array(),
+			'3.9.1',
+			true
+		);
 
-		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-core-css', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-animations', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/animations.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array( 'mhm-core-css' ), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard.css', array( 'mhm-stats-cards' ), MHM_RENTIVA_VERSION);
-		wp_enqueue_style('mhm-dashboard-tooltips', MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dashboard-tooltips.css', array( 'mhm-dashboard' ), MHM_RENTIVA_VERSION);
+		AssetManager::enqueue_react_page( 'dashboard', array( 'chart-js' ) );
 
-		wp_enqueue_script('chart-js', MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js', array(), '3.9.1', true);
-		wp_enqueue_script('mhm-dashboard', MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dashboard.js', array( 'jquery', 'jquery-ui-sortable', 'chart-js' ), MHM_RENTIVA_VERSION, true);
-
-		$currency_symbol = CurrencyHelper::get_currency_symbol();
-		$revenue_data    = DashboardService::get_revenue_data();
+		$upcoming_result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
 
 		wp_localize_script(
-			'mhm-dashboard',
-			'mhm_dashboard_vars',
+			'mhm-rentiva-react-dashboard',
+			'mhmRentivaDashboard',
 			array(
-				'ajax_url'     => admin_url('admin-ajax.php'),
-				'nonce'        => wp_create_nonce('mhm_dashboard_nonce'),
-				'revenue_data' => $revenue_data,
-				'currency'     => $currency_symbol,
+				'metrics'          => DashboardService::get_dashboard_metrics(),
+				'revenue_data'     => DashboardService::get_revenue_data(),
+				'recent_bookings'  => DashboardService::get_recent_bookings(),
+				'booking_stats'    => DashboardService::get_booking_stats(),
+				'transfer_stats'   => DashboardService::get_transfer_summary(),
+				'pending_payments' => DashboardService::get_pending_payments(),
+				'message_stats'    => DashboardService::get_message_stats(),
+				'upcoming_initial' => array(
+					'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
+					'total'       => (int) $upcoming_result['total'],
+					'total_pages' => (int) $upcoming_result['total_pages'],
+					'page'        => 1,
+				),
+				'widget_order'     => (array) get_user_meta( get_current_user_id(), 'mhm_dashboard_widget_order', true ) ?: array(),
+				'currency'         => CurrencyHelper::get_currency_symbol(),
+				'admin_url'        => admin_url(),
 			)
 		);
 	}
