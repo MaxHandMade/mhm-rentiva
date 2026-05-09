@@ -1,10 +1,6 @@
 import { createRoot } from '@wordpress/element';
 import ErrorBoundary from '../../shared/components/ErrorBoundary';
-
-// DashboardPage component is added in Faz 1a.
-function DashboardPage() {
-	return null;
-}
+import DashboardPage from './DashboardPage';
 
 const container = document.getElementById( 'mhm-rentiva-dashboard' );
 if ( container ) {
