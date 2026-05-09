@@ -312,6 +312,10 @@ if (! $user_display_name) {
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-settings.php'; ?>
 				</div>
+			<?php elseif ($active_tab === 'profil' && $context === 'vendor') : ?>
+				<div class="mhm-rentiva-dashboard__tab-content">
+					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-profile-settings.php'; ?>
+				</div>
 			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>

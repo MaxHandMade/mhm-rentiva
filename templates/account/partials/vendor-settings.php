@@ -11,7 +11,6 @@ if (! defined('ABSPATH')) {
  * Vendor Settings partial — rendered under the Payment Settings tab.
  *
  * Provides:
- *  - Vendor profile settings update form (bio, phone, city)
  *  - Payment / banking details with admin review on IBAN change
  *
  * @since 4.21.0
@@ -30,18 +29,12 @@ if (
 ) {
     // 1. Process basic profile information (instantly updated)
     // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-    $new_phone          = isset($_POST['vendor_phone'])          ? sanitize_text_field(wp_unslash($_POST['vendor_phone'])) : '';
-    $new_city           = isset($_POST['vendor_city'])           ? sanitize_text_field(wp_unslash($_POST['vendor_city'])) : '';
-    $new_bio            = isset($_POST['vendor_bio'])            ? sanitize_textarea_field(wp_unslash($_POST['vendor_bio'])) : '';
     $new_account_holder = isset($_POST['vendor_account_holder']) ? sanitize_text_field(wp_unslash($_POST['vendor_account_holder'])) : '';
     $new_tax_office     = isset($_POST['vendor_tax_office'])     ? sanitize_text_field(wp_unslash($_POST['vendor_tax_office'])) : '';
     $new_tax            = isset($_POST['vendor_tax'])            ? sanitize_text_field(wp_unslash($_POST['vendor_tax'])) : '';
     $new_iban           = isset($_POST['vendor_iban'])           ? sanitize_text_field(wp_unslash($_POST['vendor_iban'])) : '';
     // phpcs:enable
 
-    update_user_meta($current_user_id, '_rentiva_vendor_phone', $new_phone);
-    update_user_meta($current_user_id, '_rentiva_vendor_city', $new_city);
-    update_user_meta($current_user_id, '_rentiva_vendor_bio', $new_bio);
     update_user_meta($current_user_id, '_rentiva_vendor_account_holder', $new_account_holder);
     update_user_meta($current_user_id, '_rentiva_vendor_tax_office', $new_tax_office);
     update_user_meta($current_user_id, '_rentiva_vendor_tax_number', $new_tax);
@@ -78,9 +71,6 @@ if (
 }
 
 // Retrieve current data for display
-$phone          = (string) get_user_meta($current_user_id, '_rentiva_vendor_phone', true);
-$city           = (string) get_user_meta($current_user_id, '_rentiva_vendor_city', true);
-$bio            = (string) get_user_meta($current_user_id, '_rentiva_vendor_bio', true);
 $account_holder = (string) get_user_meta($current_user_id, '_rentiva_vendor_account_holder', true);
 $tax_office     = (string) get_user_meta($current_user_id, '_rentiva_vendor_tax_office', true);
 $tax_number     = (string) get_user_meta($current_user_id, '_rentiva_vendor_tax_number', true);
@@ -89,8 +79,6 @@ $raw_iban = VendorApplicationManager::decrypt_iban( (string) get_user_meta($curr
 
 $pending_iban_status = (string) get_user_meta($current_user_id, '_rentiva_iban_change_status', true);
 $has_pending_iban    = $pending_iban_status === 'pending';
-
-$bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
 
 ?>
 
@@ -116,29 +104,6 @@ $bio_max = (int) get_option('mhm_vendor_bio_max_length', 400);
 
     <form method="post" class="mhm-vendor-form" novalidate>
         <?php wp_nonce_field('mhm_vendor_settings_' . $current_user_id, 'mhm_vendor_settings_nonce'); ?>
-
-        <!-- Profile Section -->
-        <div class="mhm-vendor-form__section">
-            <h3><?php esc_html_e('Profile Information', 'mhm-rentiva'); ?></h3>
-
-            <div class="mhm-vendor-form__row">
-                <div class="mhm-vendor-form__field">
-                    <label for="vendor_phone"><?php esc_html_e('Phone', 'mhm-rentiva'); ?></label>
-                    <input type="tel" id="vendor_phone" name="vendor_phone" value="<?php echo esc_attr($phone); ?>">
-                </div>
-                <div class="mhm-vendor-form__field">
-                    <label for="vendor_city"><?php esc_html_e('Base City', 'mhm-rentiva'); ?></label>
-                    <?php echo \MHMRentiva\Admin\Core\Utilities\CityHelper::render_select('vendor_city', 'vendor_city', $city); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
-                </div>
-            </div>
-
-            <div class="mhm-vendor-form__field mhm-vendor-form__field--wide">
-                <label for="vendor_bio"><?php esc_html_e('Short Bio', 'mhm-rentiva'); ?></label>
-                <textarea id="vendor_bio" name="vendor_bio" rows="4" maxlength="<?php echo esc_attr( (string) $bio_max); ?>"><?php echo esc_textarea($bio); ?></textarea>
-                <?php /* translators: %d: maximum allowed character count for the vendor bio field */ ?>
-                <small><?php echo esc_html(sprintf(__('Max %d characters', 'mhm-rentiva'), $bio_max)); ?></small>
-            </div>
-        </div>
 
         <!-- Financial Details Section -->
         <div class="mhm-vendor-form__section">
