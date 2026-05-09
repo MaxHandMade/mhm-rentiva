@@ -1,8 +1,7 @@
 import { __ } from '@wordpress/i18n';
 
-export default function TransferWidget( { transferStats } ) {
-	const s        = transferStats ?? {};
-	const currency = window.mhmRentivaDashboard?.currency ?? '';
+export default function TransferWidget( { transferStats, currency } ) {
+	const s = transferStats ?? {};
 
 	return (
 		<div className="mhm-widget mhm-transfer-widget">

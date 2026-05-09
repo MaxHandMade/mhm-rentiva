@@ -35,7 +35,7 @@ export default function DashboardPage() {
 	const widgets = {
 		'quick-actions':       <QuickActions       adminUrl={ adminUrl } />,
 		'upcoming-operations': <UpcomingOperations initial={ upcomingInitial } />,
-		'transfer-widget':     <TransferWidget     transferStats={ transferStats } />,
+		'transfer-widget':     <TransferWidget     transferStats={ transferStats } currency={ currency } />,
 		'recent-bookings':     <RecentBookings     bookings={ recentBookings } adminUrl={ adminUrl } />,
 		'pending-payments':    <PendingPayments    payments={ pendingPayments } adminUrl={ adminUrl } />,
 		'revenue-chart':       <RevenueChart       revenueData={ revenueData } currency={ currency } />,
