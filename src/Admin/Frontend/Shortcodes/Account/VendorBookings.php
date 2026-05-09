@@ -38,6 +38,17 @@ final class VendorBookings extends AbstractAccountShortcode {
         );
     }
 
+    protected static function enqueue_assets(array $atts = array()): void
+    {
+        parent::enqueue_assets($atts);
+        wp_enqueue_style(
+            'mhm-rentiva-bookings-page',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
+            array(),
+            MHM_RENTIVA_VERSION
+        );
+    }
+
     protected static function prepare_template_data(array $atts): array
     {
         $user = wp_get_current_user();
@@ -181,7 +192,7 @@ final class VendorBookings extends AbstractAccountShortcode {
                                         <tr>
                                             <td class="rv-booking-id">#<?php echo esc_html($booking->ID); ?></td>
                                             <td class="rv-vehicle-name"><?php echo esc_html($vehicle_title); ?></td>
-                                            <td class="rv-customer-name"><?php echo esc_html($booking->customer_name ?? '—'); ?></td>
+                                            <td class="rv-customer-name"><?php echo esc_html($booking->customer_name ?: '—'); ?></td>
                                             <td class="rv-booking-date"><?php echo esc_html($date_start_fmt); ?></td>
                                             <td class="rv-booking-date"><?php echo esc_html($date_end_fmt); ?></td>
                                             <td class="rv-booking-status">

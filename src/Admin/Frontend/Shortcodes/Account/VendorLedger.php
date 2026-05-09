@@ -33,6 +33,19 @@ final class VendorLedger {
     {
         unset($atts);
 
+        wp_enqueue_style(
+            'mhm-rentiva-user-dashboard',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
+            array(),
+            MHM_RENTIVA_VERSION
+        );
+        wp_enqueue_style(
+            'mhm-rentiva-vendor-ledger',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vendor-ledger.css',
+            array( 'mhm-rentiva-user-dashboard' ),
+            MHM_RENTIVA_VERSION
+        );
+
         if (! is_user_logged_in()) {
             return '';
         }

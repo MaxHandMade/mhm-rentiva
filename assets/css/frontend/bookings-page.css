@@ -1,5 +1,11 @@
 /* My Bookings Sayfası Stilleri */
 
+.rv-bookings-page,
+.mhm-rentiva-account-page {
+	white-space: normal; /* reset inherited white-space:pre from wp-block-shortcode <pre> wrapper */
+	font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Segoe UI", sans-serif;
+}
+
 .rv-bookings-page {
 	max-width: 1200px;
 	margin: 0 auto;
