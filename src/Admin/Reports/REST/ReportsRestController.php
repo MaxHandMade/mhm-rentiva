@@ -15,8 +15,7 @@ use MHMRentiva\Admin\Reports\BusinessLogic\CustomerReport;
 use MHMRentiva\Admin\Reports\BusinessLogic\RevenueReport;
 use MHMRentiva\Admin\Vehicle\Reports\VehicleReport;
 
-final class ReportsRestController
-{
+final class ReportsRestController {
 	private const ALLOWED_TABS = array( 'overview', 'revenue', 'bookings', 'vehicles', 'customers' );
 
 	public static function register_routes(): void

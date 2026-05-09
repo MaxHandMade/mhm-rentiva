@@ -1,5 +1,4 @@
 import { useRef, useEffect } from '@wordpress/element';
-<parameter name="content">import { useRef, useEffect } from '@wordpress/element';
 import { __ }               from '@wordpress/i18n';
 
 export default function BookingsTab( { data } ) {

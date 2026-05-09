@@ -692,7 +692,6 @@ final class AssetManager {
 			);
 		}
 
-
 		// Deposit Management
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view detection from query string.
 		if ($screen->id === 'booking' && isset($_GET['deposit_management'])) {

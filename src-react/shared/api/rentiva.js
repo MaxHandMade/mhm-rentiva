@@ -7,7 +7,9 @@ export const rentivaApi = {
 		getUpcoming: ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/upcoming?page=${ page }` } ),
 	},
 	reports: {
-		getSummary: ( params ) =>
-			apiFetch( { path: `${ BASE }/reports`, method: 'GET', data: params } ),
+		getSummary: ( params ) => {
+			const qs = new URLSearchParams( params ).toString();
+			return apiFetch( { path: `${ BASE }/reports?${ qs }` } );
+		},
 	},
 };

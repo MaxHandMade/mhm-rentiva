@@ -14,13 +14,13 @@ if (( $vendor['badge_status'] ?? '' ) === 'verified') {
     $badge_label = __('New vendor', 'mhm-rentiva');
 }
 
-$avatar_src  = '';
-$avatar_id   = (int) ( $vendor['avatar_id'] ?? 0 );
+$avatar_src = '';
+$avatar_id  = (int) ( $vendor['avatar_id'] ?? 0 );
 if ($avatar_id > 0) {
     $avatar_src = (string) ( wp_get_attachment_image_url($avatar_id, 'thumbnail') ?: '' );
 }
 if ($avatar_src === '') {
-    $avatar_src = \MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback::svg_data_uri((string) $vendor['display_name'], 96);
+    $avatar_src = \MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback::svg_data_uri( (string) $vendor['display_name'], 96);
 }
 $avatar_is_svg = strpos($avatar_src, 'data:image/svg+xml') === 0;
 
