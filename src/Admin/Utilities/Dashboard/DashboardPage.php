@@ -36,8 +36,8 @@ final class DashboardPage {
 	public static function register(): void
 	{
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
+		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
-		add_action('wp_ajax_mhm_refresh_dashboard_data', array( self::class, 'ajax_refresh_dashboard_data' ));
 		add_action('wp_ajax_mhm_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
 		add_action('wp_ajax_mhm_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
 		add_action('wp_ajax_mhm_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
@@ -50,6 +50,69 @@ final class DashboardPage {
 		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
 		add_action('updated_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
 		add_action('added_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
+	}
+
+	/**
+	 * Register REST API routes for the dashboard.
+	 */
+	public static function register_rest_routes(): void
+	{
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/dashboard/upcoming',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( self::class, 'rest_get_upcoming' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'args'                => array(
+					'page' => array(
+						'type'              => 'integer',
+						'default'           => 1,
+						'minimum'           => 1,
+						'sanitize_callback' => 'absint',
+					),
+				),
+			)
+		);
+	}
+
+	/**
+	 * REST callback: return a page of upcoming operations.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 */
+	public static function rest_get_upcoming( \WP_REST_Request $request ): \WP_REST_Response
+	{
+		$page   = (int) $request->get_param( 'page' );
+		$result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( $page, 5, 7 );
+		return new \WP_REST_Response(
+			array(
+				'items'       => self::format_upcoming_items( $result['items'] ),
+				'total'       => (int) $result['total'],
+				'total_pages' => (int) $result['total_pages'],
+				'page'        => $page,
+			)
+		);
+	}
+
+	/**
+	 * Format upcoming operation items for the REST response.
+	 *
+	 * @param array $items Raw items from the repository.
+	 * @return array Formatted items.
+	 */
+	private static function format_upcoming_items( array $items ): array
+	{
+		return array_map(
+			function ( array $op ): array {
+				$op['display_id']   = mhm_rentiva_get_display_id( (int) ( $op['id'] ?? 0 ) );
+				$op['status_label'] = \MHMRentiva\Admin\Booking\Core\Status::get_label( $op['status'] ?? '' );
+				return $op;
+			},
+			$items
+		);
 	}
 
 	/**

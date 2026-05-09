@@ -17,6 +17,7 @@ final class DashboardRestEndpointTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+        DashboardPage::register();
         global $wp_rest_server;
         $wp_rest_server = new WP_REST_Server();
         self::$server   = $wp_rest_server;
