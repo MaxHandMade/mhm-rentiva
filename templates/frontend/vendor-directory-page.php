@@ -14,8 +14,16 @@ if (!defined('ABSPATH')) {
 
 get_header();
 ?>
-<main class="mhm-vendor-directory-page" role="main">
-    <?php echo do_shortcode('[rentiva_vendor_directory]'); ?>
-</main>
+
+<div id="primary" class="content-area primary">
+    <main id="main" class="site-main" role="main">
+        <article class="ast-article-single mhm-rentiva-vendor-directory-article">
+            <div class="entry-content">
+                <?php echo do_shortcode('[rentiva_vendor_directory]'); ?>
+            </div><!-- .entry-content -->
+        </article>
+    </main><!-- #main -->
+</div><!-- #primary -->
+
 <?php
 get_footer();

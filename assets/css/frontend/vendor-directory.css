@@ -3,6 +3,18 @@
    Mobile-first; 600px breakpoint matches v4.37.2 B10.
    No generic class names (.label, .card, .filter-bar all forbidden — v4.37.2 B7). */
 
+/* Gutenberg shortcode block context: give the <pre> wrapper the Astra content blue bg
+   so demo/embed pages match the /bayiler/ template-routed appearance. */
+.wp-block-shortcode:has(.mhm-vendor-directory) {
+    background: rgb(231, 246, 255);
+    padding: 2rem 0;
+}
+
+.wp-block-shortcode .mhm-vendor-directory {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
 .mhm-vendor-directory {
     max-width: 1200px;
     margin: 2rem auto;
@@ -256,8 +268,14 @@
     }
 
     .mhm-vendor-directory-filter {
-        flex: 1 1 200px;
+        flex: 1 1 160px;
         margin-bottom: 0;
+    }
+
+    .mhm-vendor-directory-filter-submit {
+        flex-shrink: 0;
+        margin-top: 0;
+        align-self: flex-end;
     }
 
     .mhm-vendor-directory-grid {
