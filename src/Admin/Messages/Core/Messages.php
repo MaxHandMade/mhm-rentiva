@@ -34,7 +34,7 @@ final class Messages {
 		add_action('wp_dashboard_setup', array( self::class, 'add_dashboard_widget' ));
 
 		// admin_post handlers
-		add_action( 'admin_post_mhm_rentiva_delete_messages',        array( MessageDeleteHandler::class, 'handle' ) );
+		add_action( 'admin_post_mhm_rentiva_delete_messages', array( MessageDeleteHandler::class, 'handle' ) );
 		add_action( 'admin_post_mhm_rentiva_save_messages_settings', array( self::class, 'handle_save_settings' ) );
 
 		// Form handlers
@@ -58,8 +58,8 @@ final class Messages {
 			wp_die( esc_html__( 'Unauthorized.', 'mhm-rentiva' ), '', array( 'response' => 403 ) );
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by check_admin_referer.
-		$input     = (array) ( $_POST[ MessagesSettings::OPTION_NAME ] ?? array() );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Verified by check_admin_referer; deep sanitization happens in MessagesSettings::sanitize_settings().
+		$input     = (array) wp_unslash( $_POST[ MessagesSettings::OPTION_NAME ] ?? array() );
 		$sanitized = MessagesSettings::sanitize_settings( $input );
 		update_option( MessagesSettings::OPTION_NAME, $sanitized );
 
