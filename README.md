@@ -209,7 +209,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 | **Report Date Range** | Last 30 Days | **Unlimited** |
 | **Report Rows** | 500 Rows | **Unlimited** |
 | **Messaging System** | ❌ Not available | ✅ Available |
-| **Export Formats** | CSV Only | CSV, JSON, Excel, XML, PDF |
+| **Export Formats** | CSV Only | CSV, JSON |
 | **Payment Gateways** | WooCommerce | WooCommerce |
 | **REST API Access** | Limited | Full API |
 | **Advanced Reports** | ❌ Limited | ✅ Full Access |
@@ -440,11 +440,8 @@ MHM Rentiva follows WordPress Coding Standards (WPCS) and strict security protoc
 ### 📤 Data Export System
 
 **Export Formats:**
-- **CSV**: Comma-separated values (free)
-- **JSON**: JSON format (free)
-- **Excel (XLS)**: Microsoft Excel format (Pro)
-- **XML**: XML format (Pro)
-- **PDF**: PDF reports (Pro - Advanced Reports feature)
+- **CSV**: Comma-separated values (Lite & Pro)
+- **JSON**: JSON format (Pro only)
 
 **Exportable Data:**
 - **Bookings**: All booking data with filters
@@ -679,9 +676,6 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 **Export Restrictions:**
 - ✅ **CSV Export**: Available (all versions)
 - ❌ **JSON Export**: Not available (Pro only)
-- ❌ **Excel Export (XLS)**: Not available (Pro only via FEATURE_EXPORT)
-- ❌ **XML Export**: Not available (Pro only via FEATURE_EXPORT)
-- ❌ **PDF Export**: Not available (Pro only via FEATURE_REPORTS_ADV)
 
 **Report Restrictions:**
 - **Date Range**: Maximum **30 days** (filtered automatically)
@@ -762,7 +756,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 | **Gallery Images** | 5 / Vehicle | Unlimited |
 | **Frontend Payments** | Via WooCommerce | Via WooCommerce |
 | **Manual Payments** | Native Offline | Native Offline |
-| **Export Formats** | CSV Only | CSV, JSON, Excel, XML, PDF |
+| **Export Formats** | CSV Only | CSV, JSON |
 | **Report Date Range** | 30 days max | Unlimited |
 | **Report Rows** | 500 max | Unlimited |
 | **Advanced Reports** | ❌ | ✅ (FEATURE_REPORTS_ADV) |

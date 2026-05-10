@@ -216,7 +216,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 | **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
 | **Vendor & Payout** | ❌ Yok | ✅ Var |
 | **E-posta Bildirimleri** | ✅ Var | ✅ Var |
-| **Dışa Aktarım** | Sadece CSV | CSV + JSON + Excel + XML + PDF |
+| **Dışa Aktarım** | Sadece CSV | CSV, JSON |
 | **Ödeme Altyapısı** | WooCommerce | WooCommerce |
 | **REST API Erişimi** | Sınırlı | Tam Erişim |
 | **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
@@ -429,7 +429,7 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 - Tüm Pro özellikleri etkinleştirilir
 - Miktar sınırı yok
 - Tüm ödeme ağ geçitleri kullanılabilir (WooCommerce ile)
-- Tüm dışa aktarma formatları kullanılabilir
+- CSV ve JSON dışa aktarma formatları kullanılabilir
 - Tam mesajlaşma sistemi
 - Gelişmiş raporlar etkin
 
