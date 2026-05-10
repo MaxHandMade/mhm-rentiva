@@ -73,6 +73,44 @@ final class DashboardPage {
 				),
 			)
 		);
+
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/dashboard/recent-bookings',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( self::class, 'rest_get_recent_bookings' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'args'                => array(
+					'page' => array(
+						'type'    => 'integer',
+						'default' => 1,
+						'minimum' => 1,
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'mhm-rentiva/v1',
+			'/dashboard/recent-transfers',
+			array(
+				'methods'             => \WP_REST_Server::READABLE,
+				'callback'            => array( self::class, 'rest_get_recent_transfers' ),
+				'permission_callback' => function () {
+					return current_user_can( 'manage_options' );
+				},
+				'args'                => array(
+					'page' => array(
+						'type'    => 'integer',
+						'default' => 1,
+						'minimum' => 1,
+					),
+				),
+			)
+		);
 	}
 
 	/**
@@ -89,6 +127,46 @@ final class DashboardPage {
 				'items'       => self::format_upcoming_items( $result['items'] ),
 				'total'       => (int) $result['total'],
 				'total_pages' => (int) $result['total_pages'],
+				'page'        => $page,
+			)
+		);
+	}
+
+	/**
+	 * REST callback: paginated recent bookings.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 */
+	public static function rest_get_recent_bookings( \WP_REST_Request $request ): \WP_REST_Response
+	{
+		$page   = (int) $request->get_param( 'page' );
+		$result = DashboardService::get_recent_bookings_paginated( $page, 5 );
+		return new \WP_REST_Response(
+			array(
+				'items'       => $result['items'],
+				'total'       => $result['total'],
+				'total_pages' => $result['total_pages'],
+				'page'        => $page,
+			)
+		);
+	}
+
+	/**
+	 * REST callback: paginated recent transfers with stats.
+	 *
+	 * @param \WP_REST_Request $request REST request object.
+	 */
+	public static function rest_get_recent_transfers( \WP_REST_Request $request ): \WP_REST_Response
+	{
+		$page   = (int) $request->get_param( 'page' );
+		$result = DashboardService::get_recent_transfers_paginated( $page, 5 );
+		$stats  = DashboardService::get_transfer_summary();
+		return new \WP_REST_Response(
+			array(
+				'items'       => $result['items'],
+				'stats'       => $stats,
+				'total'       => $result['total'],
+				'total_pages' => $result['total_pages'],
 				'page'        => $page,
 			)
 		);
@@ -188,26 +266,38 @@ final class DashboardPage {
 
 		AssetManager::enqueue_react_page( 'dashboard', array( 'chart-js' ) );
 
-		$upcoming_result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
+		wp_enqueue_style(
+			'mhm-rentiva-dashboard',
+			MHM_RENTIVA_PLUGIN_URL . 'build/admin/dashboard.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
+		$upcoming_result  = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
+		$bookings_result  = DashboardService::get_recent_bookings_paginated( 1, 5 );
+		$transfers_result = DashboardService::get_recent_transfers_paginated( 1, 5 );
 
 		wp_localize_script(
 			'mhm-rentiva-react-dashboard',
 			'mhmRentivaDashboard',
 			array(
-				'metrics'          => DashboardService::get_dashboard_metrics(),
-				'revenue_data'     => DashboardService::get_revenue_data(),
-				'recent_bookings'  => DashboardService::get_recent_bookings(),
-				'transfer_stats'   => DashboardService::get_transfer_summary(),
-				'pending_payments' => DashboardService::get_pending_payments(),
-				'upcoming_initial' => array(
+				'metrics'                      => DashboardService::get_dashboard_metrics(),
+				'revenue_data'                 => DashboardService::get_revenue_data(),
+				'recent_bookings'              => $bookings_result['items'],
+				'recent_bookings_total_pages'  => $bookings_result['total_pages'],
+				'transfer_stats'               => DashboardService::get_transfer_summary(),
+				'recent_transfers'             => $transfers_result['items'],
+				'recent_transfers_total_pages' => $transfers_result['total_pages'],
+				'pending_payments'             => DashboardService::get_pending_payments(),
+				'upcoming_initial'             => array(
 					'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
 					'total'       => (int) $upcoming_result['total'],
 					'total_pages' => (int) $upcoming_result['total_pages'],
 					'page'        => 1,
 				),
-				'widget_order'     => (array) get_user_meta( get_current_user_id(), 'mhm_dashboard_widget_order', true ) ?: array(),
-				'currency'         => CurrencyHelper::get_currency_symbol(),
-				'admin_url'        => admin_url(),
+				'widget_order'                 => array(),
+				'currency'                     => CurrencyHelper::get_currency_symbol(),
+				'admin_url'                    => admin_url(),
 			)
 		);
 	}

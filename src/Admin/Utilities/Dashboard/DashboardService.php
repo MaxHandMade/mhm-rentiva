@@ -290,6 +290,84 @@ final class DashboardService {
 	}
 
 	/**
+	 * Get paginated recent bookings for the dashboard REST endpoint.
+	 *
+	 * @param int $page     Page number (1-based).
+	 * @param int $per_page Items per page.
+	 * @return array{ items: array, total: int, total_pages: int }
+	 */
+	public static function get_recent_bookings_paginated( int $page, int $per_page ): array {
+		global $wpdb;
+
+		$offset = ( $page - 1 ) * $per_page;
+
+		$total = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+             WHERE post_type = %s AND post_status != %s",
+				'vehicle_booking',
+				'trash'
+			)
+		);
+
+		$bookings = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+                p.ID as id,
+                p_veh.post_title as vehicle_title,
+                pm_plate.meta_value as vehicle_plate,
+                COALESCE(
+                    NULLIF(TRIM(CONCAT(COALESCE(pm_first.meta_value,''), ' ', COALESCE(pm_last.meta_value,''))), ''),
+                    pm_name.meta_value,
+                    pm_name2.meta_value,
+                    ''
+                ) as customer_name,
+                pm_pickup.meta_value as pickup_date,
+                pm_status.meta_value as status
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} pm_vid    ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
+             LEFT JOIN {$wpdb->posts}    p_veh     ON pm_vid.meta_value = p_veh.ID
+             LEFT JOIN {$wpdb->postmeta} pm_plate  ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_first  ON p.ID = pm_first.post_id  AND pm_first.meta_key  = %s
+             LEFT JOIN {$wpdb->postmeta} pm_last   ON p.ID = pm_last.post_id   AND pm_last.meta_key   = %s
+             LEFT JOIN {$wpdb->postmeta} pm_name   ON p.ID = pm_name.post_id   AND pm_name.meta_key   = '_mhm_customer_name'
+             LEFT JOIN {$wpdb->postmeta} pm_name2  ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
+             LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             WHERE p.post_type = %s AND p.post_status != %s
+             ORDER BY p.post_date DESC
+             LIMIT %d OFFSET %d",
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_FIRST_NAME,
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
+				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+				'vehicle_booking',
+				'trash',
+				$per_page,
+				$offset
+			),
+			ARRAY_A
+		);
+
+		$items = array_map(
+			function ( array $b ): array {
+				$b['display_id']   = mhm_rentiva_get_display_id( (int) $b['id'] );
+				$b['status_label'] = \MHMRentiva\Admin\Booking\Core\Status::get_label( $b['status'] ?? '' );
+				return $b;
+			},
+			$bookings ?: array()
+		);
+
+		return array(
+			'items'       => $items,
+			'total'       => $total,
+			'total_pages' => (int) ceil( $total / $per_page ),
+		);
+	}
+
+	/**
 	 * Get booking summary stats: monthly, confirmed, pending counts.
 	 */
 	public static function get_booking_stats(): array {
@@ -920,49 +998,93 @@ final class DashboardService {
 			)
 		);
 
-		// Get Recent Transfer Routes (Last 3) — identified by _mhm_transfer_origin_id presence
+		return array(
+			'total'              => $total_transfers,
+			'this_month'         => $monthly_transfers,
+			'revenue_this_month' => $transfer_revenue,
+		);
+	}
+
+	/**
+	 * Get paginated recent transfers for the dashboard REST endpoint.
+	 *
+	 * @param int $page     Page number (1-based).
+	 * @param int $per_page Items per page.
+	 * @return array{ items: array, total: int, total_pages: int }
+	 */
+	public static function get_recent_transfers_paginated( int $page, int $per_page ): array {
+		global $wpdb;
+
+		$offset = ( $page - 1 ) * $per_page;
+
+		// Resolve transfer-locations table name (new vs. old).
 		$new_loc_table = $wpdb->prefix . 'rentiva_transfer_locations';
 		$old_loc_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
 		$loc_table     = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_loc_table ) ) === $new_loc_table )
 			? $new_loc_table
 			: $old_loc_table;
 
-		$recent_routes = $wpdb->get_results(
+		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT p.ID,
-                    pm_pickup.meta_value  as pickup_date,
-                    pm_time.meta_value    as pickup_time,
-                    pm_status.meta_value  as status,
-                    p_veh.post_title      as vehicle_title,
-                    pm_plate.meta_value   as vehicle_plate,
-                    COALESCE(l_origin.name, '') as origin_name,
-                    COALESCE(l_dest.name, '')   as dest_name
+				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_transfer_origin_id'
+             WHERE p.post_type = %s AND p.post_status != %s",
+				'vehicle_booking',
+				'trash'
+			)
+		);
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+                p.ID                        as id,
+                pm_pickup.meta_value        as pickup_date,
+                pm_time.meta_value          as start_time,
+                pm_status.meta_value        as status,
+                p_veh.post_title            as vehicle_title,
+                pm_plate.meta_value         as vehicle_plate,
+                COALESCE(l_origin.name, '') as route_from,
+                COALESCE(l_dest.name, '')   as route_to
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_origin ON p.ID = pm_origin.post_id AND pm_origin.meta_key = '_mhm_transfer_origin_id'
-             LEFT JOIN {$wpdb->postmeta} pm_dest   ON p.ID = pm_dest.post_id   AND pm_dest.meta_key   = '_mhm_transfer_destination_id'
-             LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key  = '_mhm_pickup_date'
-             LEFT JOIN {$wpdb->postmeta} pm_time   ON p.ID = pm_time.post_id   AND pm_time.meta_key    = '_mhm_start_time'
-             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key  = '_mhm_status'
-             LEFT JOIN {$wpdb->postmeta} pm_vid    ON p.ID = pm_vid.post_id    AND pm_vid.meta_key     = '_mhm_vehicle_id'
-             LEFT JOIN {$wpdb->posts}    p_veh     ON p_veh.ID = pm_vid.meta_value
-             LEFT JOIN {$wpdb->postmeta} pm_plate  ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = '_mhm_rentiva_license_plate'
-             LEFT JOIN %i l_origin ON l_origin.id = pm_origin.meta_value
-             LEFT JOIN %i l_dest   ON l_dest.id   = pm_dest.meta_value
+             LEFT  JOIN {$wpdb->postmeta} pm_dest   ON p.ID = pm_dest.post_id   AND pm_dest.meta_key   = '_mhm_transfer_destination_id'
+             LEFT  JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key  = '_mhm_pickup_date'
+             LEFT  JOIN {$wpdb->postmeta} pm_time   ON p.ID = pm_time.post_id   AND pm_time.meta_key    = '_mhm_start_time'
+             LEFT  JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key  = '_mhm_status'
+             LEFT  JOIN {$wpdb->postmeta} pm_vid    ON p.ID = pm_vid.post_id    AND pm_vid.meta_key     = '_mhm_vehicle_id'
+             LEFT  JOIN {$wpdb->posts}    p_veh     ON p_veh.ID = pm_vid.meta_value
+             LEFT  JOIN {$wpdb->postmeta} pm_plate  ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
+             LEFT  JOIN %i l_origin ON l_origin.id = pm_origin.meta_value
+             LEFT  JOIN %i l_dest   ON l_dest.id   = pm_dest.meta_value
              WHERE p.post_type = %s AND p.post_status != %s
-             ORDER BY pm_pickup.meta_value ASC LIMIT 3",
+             ORDER BY p.post_date DESC
+             LIMIT %d OFFSET %d",
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
 				$loc_table,
 				$loc_table,
 				'vehicle_booking',
-				'trash'
+				'trash',
+				$per_page,
+				$offset
 			),
 			ARRAY_A
 		);
 
+		$items = array_map(
+			function ( array $r ): array {
+				$r['display_id']   = '#' . mhm_rentiva_get_display_id( (int) $r['id'] );
+				$r['status_label'] = \MHMRentiva\Admin\Booking\Core\Status::get_label( $r['status'] ?? '' );
+				$r['datetime']     = trim( ( $r['pickup_date'] ?? '' ) . ' ' . ( $r['start_time'] ?? '' ) );
+				unset( $r['pickup_date'], $r['start_time'] );
+				return $r;
+			},
+			$rows ?: array()
+		);
+
 		return array(
-			'total'         => $total_transfers,
-			'monthly'       => $monthly_transfers,
-			'revenue'       => $transfer_revenue,
-			'recent_routes' => $recent_routes ?: array(),
+			'items'       => $items,
+			'total'       => $total,
+			'total_pages' => (int) ceil( $total / $per_page ),
 		);
 	}
 }
