@@ -7,50 +7,69 @@ import UpcomingOperations from './components/UpcomingOperations';
 import TransferWidget     from './components/TransferWidget';
 import PendingPayments    from './components/PendingPayments';
 
-const DEFAULT_ORDER = [
-	'quick-actions',
-	'upcoming-operations',
-	'transfer-widget',
-	'recent-bookings',
-	'pending-payments',
-	'revenue-chart',
-];
-
 export default function DashboardPage() {
 	const data = window.mhmRentivaDashboard ?? {};
 
 	const {
 		metrics,
-		revenue_data:    revenueData,
-		recent_bookings: recentBookings,
-		pending_payments: pendingPayments,
-		transfer_stats:  transferStats,
-		upcoming_initial: upcomingInitial,
+		revenue_data:                  revenueData,
+		recent_bookings:               recentBookings       = [],
+		recent_bookings_total_pages:   recentBookingsTotalPages = 1,
+		transfer_stats:                transferStats,
+		recent_transfers:              recentTransfers      = [],
+		recent_transfers_total_pages:  recentTransfersTotalPages = 1,
+		pending_payments:              pendingPayments,
+		upcoming_initial:              upcomingInitial,
 		currency  = '',
 		admin_url: adminUrl = '',
 	} = data;
 
-	const order = data.widget_order?.length ? data.widget_order : DEFAULT_ORDER;
+	const bookingsInitial = {
+		items:       recentBookings,
+		total_pages: recentBookingsTotalPages,
+		page:        1,
+	};
 
-	const widgets = {
-		'quick-actions':       <QuickActions       adminUrl={ adminUrl } />,
-		'upcoming-operations': <UpcomingOperations initial={ upcomingInitial } />,
-		'transfer-widget':     <TransferWidget     transferStats={ transferStats } currency={ currency } />,
-		'recent-bookings':     <RecentBookings     bookings={ recentBookings } adminUrl={ adminUrl } />,
-		'pending-payments':    <PendingPayments    payments={ pendingPayments } adminUrl={ adminUrl } />,
-		'revenue-chart':       <RevenueChart       revenueData={ revenueData } currency={ currency } />,
+	const transfersInitial = {
+		items:       recentTransfers,
+		total_pages: recentTransfersTotalPages,
+		page:        1,
 	};
 
 	return (
 		<div className="mhm-dashboard">
-			<StatsCards metrics={ metrics } currency={ currency } />
-			<div className="mhm-dashboard__widgets">
-				{ order.map( ( key ) =>
-					widgets[ key ]
-						? <div key={ key } className="mhm-dashboard__widget">{ widgets[ key ] }</div>
-						: null
-				) }
+
+			{ /* Row 1: Stats — 4-col gradient cards */ }
+			<div className="mhm-dashboard__row mhm-dashboard__row--1">
+				<StatsCards metrics={ metrics } currency={ currency } />
 			</div>
+
+			{ /* Row 2: Quick Actions (left) + Upcoming Operations (right) */ }
+			<div className="mhm-dashboard__row mhm-dashboard__row--2">
+				<QuickActions adminUrl={ adminUrl } />
+				<UpcomingOperations initial={ upcomingInitial } />
+			</div>
+
+			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right) — symmetric KPI */ }
+			<div className="mhm-dashboard__row mhm-dashboard__row--3">
+				<RecentBookings
+					initial={ bookingsInitial }
+					metrics={ metrics }
+					adminUrl={ adminUrl }
+				/>
+				<TransferWidget
+					initial={ transfersInitial }
+					stats={ transferStats }
+					currency={ currency }
+				/>
+			</div>
+
+			{ /* Row 4: Pending Payments (left) + Revenue Chart (right) */ }
+			<div className="mhm-dashboard__row mhm-dashboard__row--4">
+				<PendingPayments payments={ pendingPayments } adminUrl={ adminUrl } />
+				<RevenueChart    revenueData={ revenueData }  currency={ currency } />
+			</div>
+
 		</div>
 	);
 }
