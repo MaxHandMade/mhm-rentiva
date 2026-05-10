@@ -25,7 +25,7 @@ export default function SystemTab( { data } ) {
 											: __( 'No', 'mhm-rentiva' ) )
 										: row.copyable
 											? <CopyValue value={ row.value } />
-											: row.value }
+											: `${ row.value }${ row.suffix ?? '' }` }
 								</dd>
 							</div>
 						) ) }

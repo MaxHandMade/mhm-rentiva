@@ -34,7 +34,7 @@ export default function DeveloperTab( { data } ) {
 				{ data.logo_url && (
 					<img
 						src={ data.logo_url }
-						alt="MHM Logo"
+						alt={ __( 'MHM Logo', 'mhm-rentiva') }
 						className="mhm-developer-logo"
 						onError={ ( e ) => { e.currentTarget.style.display = 'none'; } }
 					/>
