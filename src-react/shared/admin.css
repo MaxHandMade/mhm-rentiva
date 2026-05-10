@@ -5,7 +5,8 @@
 
 /* Custom properties — WP admin color palette */
 #mhm-rentiva-dashboard,
-#mhm-reports-root {
+#mhm-reports-root,
+#mhm-customers-root {
 	--mhm-blue:         #2271b1;
 	--mhm-blue-dark:    #135e96;
 	--mhm-green:        #00a32a;
