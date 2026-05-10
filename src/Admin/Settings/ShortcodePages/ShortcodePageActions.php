@@ -202,34 +202,81 @@ final class ShortcodePageActions {
 	/**
 	 * Reset all shortcode pages (Factory Reset).
 	 * Deletes all pages and clears mappings.
+	 *
+	 * @return int Number of pages deleted.
 	 */
-	public function reset_pages(): bool {
-		$shortcodes = array_keys( $this->get_config() );
-		$settings   = get_option( 'mhm_rentiva_settings', array() );
-		$changed    = false;
+	public function reset_pages(): int {
+		$shortcodes    = array_keys( $this->get_config() );
+		$settings      = get_option( 'mhm_rentiva_settings', array() );
+		$deleted_count = 0;
 
 		foreach ( $shortcodes as $sc ) {
 			$page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id( $sc );
 			if ( $page_id ) {
-				// Permanently delete post (bypass trash as requested by "Factory Reset" context)
 				wp_delete_post( $page_id, true );
-				$changed = true;
+				++$deleted_count;
 			}
 
-			// Also check for manual URL overrides in settings
 			$setting_key = $this->get_setting_key_for_sc( $sc );
 			if ( $setting_key && isset( $settings[ $setting_key ] ) ) {
 				unset( $settings[ $setting_key ] );
-				$changed = true;
 			}
 		}
 
-		if ( $changed ) {
-			update_option( 'mhm_rentiva_settings', $settings );
-			\MHMRentiva\Admin\Core\ShortcodeUrlManager::clear_cache();
+		update_option( 'mhm_rentiva_settings', $settings );
+		\MHMRentiva\Admin\Core\ShortcodeUrlManager::clear_cache();
+
+		return $deleted_count;
+	}
+
+	/**
+	 * Scan all published pages for shortcode usage.
+	 *
+	 * @return array{ scanned_pages: int, results: list<array{slug: string, label: string, found_in: list<array{page_id: int, page_title: string, page_url: string}>}> }
+	 */
+	// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded admin-only debug scan; no user-facing cache needed.
+	public static function debug_search(): array {
+		global $wpdb;
+
+		$all_pages = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT ID, post_title, post_content FROM {$wpdb->posts}
+				 WHERE post_type = %s
+				 AND post_status = %s
+				 AND post_content LIKE %s
+				 ORDER BY post_date DESC",
+				'page',
+				'publish',
+				'%[%'
+			)
+		);
+		// phpcs:enable
+
+		$config  = ( new self() )->get_config();
+		$results = array();
+
+		foreach ( $config as $slug => $info ) {
+			$found_in = array();
+			foreach ( $all_pages as $page ) {
+				if ( preg_match( '/\[' . preg_quote( $slug, '/' ) . '(\]| |=)/', (string) $page->post_content ) ) {
+					$found_in[] = array(
+						'page_id'    => (int) $page->ID,
+						'page_title' => esc_html( (string) $page->post_title ),
+						'page_url'   => esc_url( (string) get_permalink( $page->ID ) ),
+					);
+				}
+			}
+			$results[] = array(
+				'slug'     => $slug,
+				'label'    => $info['title'],
+				'found_in' => $found_in,
+			);
 		}
 
-		return true;
+		return array(
+			'scanned_pages' => count( $all_pages ),
+			'results'       => $results,
+		);
 	}
 
 	/**
