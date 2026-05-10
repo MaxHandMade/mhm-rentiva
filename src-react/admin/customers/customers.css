@@ -5,6 +5,11 @@
 	padding: 0 4px;
 }
 
+/* Stats grid — breathing room before toolbar */
+#mhm-customers-root .mhm-stats-grid {
+	margin-bottom: 16px;
+}
+
 /* Search + Filter bar row */
 .mhm-customers__toolbar {
 	display: flex;
@@ -12,6 +17,13 @@
 	gap: 12px;
 	margin-bottom: 16px;
 	flex-wrap: wrap;
+}
+
+/* Action buttons (Add Customer, Export CSV) — sits inside toolbar flex row */
+.mhm-customers__actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .mhm-customers__search {

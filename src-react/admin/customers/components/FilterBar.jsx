@@ -9,7 +9,7 @@ export default function FilterBar( { search, selectedIds, nonce, adminUrl, addCu
 	};
 
 	return (
-		<div className="mhm-customers__toolbar" style={ { justifyContent: 'flex-end' } }>
+		<div className="mhm-customers__actions">
 			<a href={ addCustomerUrl } className="button button-primary">
 				{ __( 'Add Customer', 'mhm-rentiva' ) }
 			</a>
