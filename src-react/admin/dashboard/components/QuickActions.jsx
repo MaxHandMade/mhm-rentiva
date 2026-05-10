@@ -10,7 +10,7 @@ export default function QuickActions( { adminUrl } ) {
 		{ label: __( 'Settings', 'mhm-rentiva' ),         href: `${ adminUrl }admin.php?page=mhm-rentiva-settings`,    icon: 'dashicons-admin-settings' },
 		{ label: __( 'Customers', 'mhm-rentiva' ),        href: `${ adminUrl }admin.php?page=mhm-rentiva-customers`,   icon: 'dashicons-groups' },
 		{ label: __( 'Messages', 'mhm-rentiva' ),         href: `${ adminUrl }admin.php?page=mhm-rentiva-messages`,    icon: 'dashicons-email' },
-		{ label: __( 'Addons', 'mhm-rentiva' ),           href: `${ adminUrl }admin.php?page=mhm-rentiva-addons`,      icon: 'dashicons-admin-plugins' },
+		{ label: __( 'Addons', 'mhm-rentiva' ),           href: `${ adminUrl }edit.php?post_type=vehicle_addon`,       icon: 'dashicons-admin-plugins' },
 		{ label: __( 'Export', 'mhm-rentiva' ),           href: `${ adminUrl }admin.php?page=mhm-rentiva-export`,      icon: 'dashicons-download' },
 	];
 
