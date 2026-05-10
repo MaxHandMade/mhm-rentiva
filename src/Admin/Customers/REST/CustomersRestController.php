@@ -133,12 +133,10 @@ final class CustomersRestController {
 
 	public static function bulk_delete( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error
 	{
-		$body = $request->get_json_params();
-		$ids  = isset( $body['ids'] ) ? array_map( 'intval', (array) $body['ids'] ) : array();
-		$ids  = array_filter( $ids, fn( $id ) => $id > 1 ); // Skip user ID 1 silently.
-		$ids  = array_values( $ids );
+		$body    = $request->get_json_params();
+		$raw_ids = isset( $body['ids'] ) ? (array) $body['ids'] : array();
 
-		if ( empty( $body['ids'] ) ) {
+		if ( empty( $raw_ids ) ) {
 			return new \WP_Error(
 				'empty_ids',
 				__( 'ids must be a non-empty array.', 'mhm-rentiva' ),
@@ -146,8 +144,9 @@ final class CustomersRestController {
 			);
 		}
 
+		$ids     = array_values( array_filter( array_map( 'intval', $raw_ids ), fn( $id ) => $id > 1 ) ); // Skip user ID 1 silently.
 		$deleted = 0;
-		$skipped = count( (array) $body['ids'] ) - count( $ids );
+		$skipped = count( $raw_ids ) - count( $ids );
 
 		foreach ( $ids as $id ) {
 			if ( wp_delete_user( $id ) ) {
