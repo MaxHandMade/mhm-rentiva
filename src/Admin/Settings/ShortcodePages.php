@@ -13,13 +13,6 @@ use MHMRentiva\Admin\Settings\ShortcodePages\REST\ShortcodePagesController;
 use MHMRentiva\Admin\Core\AssetManager;
 
 /**
- * Prevent direct access.
- */
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
-}
-
-/**
  * Class ShortcodePages
  *
  * Orchestrates menu registration, asset loading, and functional sub-modules.
@@ -32,7 +25,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ShortcodePages {
 
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
-
 
 	/**
 	 * @var self|null
