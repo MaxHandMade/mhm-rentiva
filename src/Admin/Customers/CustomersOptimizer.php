@@ -17,8 +17,8 @@ if (!defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\Utilities\CacheManager;
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -104,7 +104,7 @@ final class CustomersOptimizer {
                 AND email_meta.meta_key = '_mhm_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
-                AND p.post_status = 'publish'
+                AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhm_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -142,7 +142,7 @@ final class CustomersOptimizer {
                 AND email_meta.meta_key = '_mhm_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
-                AND p.post_status = 'publish'
+                AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhm_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -195,7 +195,7 @@ final class CustomersOptimizer {
 		$total = (int) $wpdb->get_var( $total_query );
 
 		// Format data
-		$currency  = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+		$currency  = CurrencyHelper::get_currency_symbol();
 		$customers = array();
 
 		foreach ( $results as $result ) {
@@ -332,7 +332,7 @@ final class CustomersOptimizer {
                 AND email_meta.meta_key = '_mhm_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
-                AND p.post_status = 'publish'
+                AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhm_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
@@ -352,7 +352,7 @@ final class CustomersOptimizer {
 			return null;
 		}
 
-		$currency = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+		$currency = CurrencyHelper::get_currency_symbol();
 
 		$customer_data = array(
 			'id'            => (int) $result->ID,
