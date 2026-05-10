@@ -829,29 +829,6 @@ final class AssetManager {
 			);
 		}
 
-		// Customers Calendar
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view selection from query string.
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-customers' && isset($_GET['view']) && sanitize_text_field(wp_unslash($_GET['view'])) === 'calendar') {
-			wp_enqueue_script(
-				'mhm-customers-calendar',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers-calendar.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/customers-calendar.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-customers-calendar',
-				'mhmCustomersCalendar',
-				array(
-					'locale'  => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'strings' => array(
-						'selectedDate' => __('Selected date', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Booking Calendar
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view selection from query string.
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-bookings' && isset($_GET['view']) && sanitize_text_field(wp_unslash($_GET['view'])) === 'calendar') {
@@ -1209,57 +1186,6 @@ final class AssetManager {
 						'refreshing'        => __('Refreshing...', 'mhm-rentiva'),
 						'systemRefreshed'   => __('System information refreshed', 'mhm-rentiva'),
 						'refreshSystemInfo' => __('Refresh System Info', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
-		// Customers
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-customers') {
-			wp_enqueue_script(
-				'mhm-customers',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/customers.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/customers.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-customers',
-				'mhm_rentiva_customers',
-				array(
-					'nonce'          => wp_create_nonce('mhm_customers_nonce'),
-					'currencySymbol' => CurrencyHelper::get_currency_symbol(),
-					'strings'        => array(
-						'this_month'        => __('this month', 'mhm-rentiva'),
-						'new'               => __('new', 'mhm-rentiva'),
-						'total_spent'       => __('Total Spent', 'mhm-rentiva'),
-						'statsError'        => __('Error loading statistics', 'mhm-rentiva'),
-						'loadError'         => __('Error loading customer data', 'mhm-rentiva'),
-						'selectAction'      => __('Please select an action', 'mhm-rentiva'),
-						'selectCustomer'    => __('Please select at least one customer', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirmBulkAction' => __('Are you sure you want to perform this action for %d customer(s)?', 'mhm-rentiva'),
-						'actionError'       => __('Error performing action', 'mhm-rentiva'),
-						'actionSuccess'     => __('Operation completed successfully', 'mhm-rentiva'),
-						'exportStarted'     => __('Export process started', 'mhm-rentiva'),
-						'customerDetails'   => __('Customer Details', 'mhm-rentiva'),
-						'name'              => __('Name', 'mhm-rentiva'),
-						'email'             => __('Email', 'mhm-rentiva'),
-						'phone'             => __('Phone', 'mhm-rentiva'),
-						'totalBookings'     => __('Total Bookings', 'mhm-rentiva'),
-						'lastBooking'       => __('Last Booking', 'mhm-rentiva'),
-						'close'             => __('Close', 'mhm-rentiva'),
-						'edit'              => __('Edit', 'mhm-rentiva'),
-						'selected'          => __('selected', 'mhm-rentiva'),
-						'detailsError'      => __('Error loading customer details', 'mhm-rentiva'),
-					),
-					'bulkActions'    => array(
-						'bulk_actions'  => __('Bulk Actions', 'mhm-rentiva'),
-						'export'        => __('Export', 'mhm-rentiva'),
-						'delete'        => __('Delete', 'mhm-rentiva'),
-						'mark_active'   => __('Mark as Active', 'mhm-rentiva'),
-						'mark_inactive' => __('Mark as Inactive', 'mhm-rentiva'),
 					),
 				)
 			);
