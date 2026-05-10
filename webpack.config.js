@@ -10,6 +10,7 @@ module.exports = {
 		'admin/reports':    './src-react/admin/reports/index.js',
 		'admin/customers':  './src-react/admin/customers/index.js',
 		'admin/messages':   './src-react/admin/messages/index.js',
+		'admin/about':      './src-react/admin/about/index.js',
 	},
 	output: {
 		...defaultConfig.output,

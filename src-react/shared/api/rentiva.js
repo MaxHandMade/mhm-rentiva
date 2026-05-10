@@ -36,4 +36,7 @@ export const rentivaApi = {
 		reply: ( id, message, closeThread = false ) =>
 			apiFetch( { path: `${ BASE }/messages/${ id }/reply`, method: 'POST', data: { message, close_thread: closeThread } } ),
 	},
+	about: {
+		getData: () => apiFetch( { path: `${ BASE }/about` } ),
+	},
 };

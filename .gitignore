@@ -84,6 +84,10 @@ build/
 !build/admin/messages.asset.php
 !build/admin/messages.css
 !build/admin/messages-rtl.css
+!build/admin/about.js
+!build/admin/about.asset.php
+!build/admin/about.css
+!build/admin/about-rtl.css
 dist/
 .cache/
 
