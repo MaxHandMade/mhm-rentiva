@@ -1,6 +1,6 @@
 import { useState, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import rentivaApi from '../../shared/api/rentiva';
+import { rentivaApi } from '../../shared/api/rentiva';
 import StatsBar from './components/StatsBar';
 import SystemActions from './components/SystemActions';
 import ShortcodeTable from './components/ShortcodeTable';

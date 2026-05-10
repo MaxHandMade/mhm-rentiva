@@ -39,4 +39,12 @@ export const rentivaApi = {
 	about: {
 		getData: () => apiFetch( { path: `${ BASE }/about` } ),
 	},
+	shortcodePages: {
+		getList:    ()     => apiFetch( { path: `${ BASE }/shortcode-pages`,                      method: 'GET'    } ),
+		createPage: (slug) => apiFetch( { path: `${ BASE }/shortcode-pages/${ slug }/create`,     method: 'POST'   } ),
+		deletePage: (slug) => apiFetch( { path: `${ BASE }/shortcode-pages/${ slug }`,            method: 'DELETE' } ),
+		clearCache: ()     => apiFetch( { path: `${ BASE }/shortcode-pages/clear-cache`,          method: 'POST'   } ),
+		debug:      ()     => apiFetch( { path: `${ BASE }/shortcode-pages/debug`,                method: 'GET'    } ),
+		reset:      ()     => apiFetch( { path: `${ BASE }/shortcode-pages/reset`,                method: 'POST'   } ),
+	},
 };
