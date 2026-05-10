@@ -1598,6 +1598,12 @@ final class AssetManager {
 			$asset['version'],
 			true
 		);
+
+		wp_set_script_translations(
+			"mhm-rentiva-react-{$page_handle}",
+			'mhm-rentiva',
+			MHM_RENTIVA_PLUGIN_DIR . 'languages/'
+		);
 	}
 
 	/**
