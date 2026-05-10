@@ -6,10 +6,8 @@ namespace MHMRentiva\Tests\Admin\Settings;
 
 use MHMRentiva\Admin\Settings\ShortcodePages;
 use MHMRentiva\Admin\Settings\ShortcodePages\ShortcodePageActions;
-use MHMRentiva\Admin\Settings\ShortcodePages\ShortcodePageAjax;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
 use WP_UnitTestCase;
-use RuntimeException;
 use InvalidArgumentException;
 
 /**
@@ -29,7 +27,6 @@ use InvalidArgumentException;
 class ShortcodePagesTest extends WP_UnitTestCase
 {
     private ShortcodePageActions $actions;
-    private ShortcodePageAjax $ajax;
     private ShortcodeUrlManager $url_manager;
     private ShortcodePages $orchestrator;
 
@@ -40,17 +37,12 @@ class ShortcodePagesTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        // Admin user with manage_options capability
-        $admin_id = $this->factory->user->create(['role' => 'administrator']);
-        wp_set_current_user($admin_id);
+        $admin_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+        wp_set_current_user( $admin_id );
 
-        // Mock dependencies
         $this->actions     = new ShortcodePageActions();
-        $this->ajax        = new ShortcodePageAjax($this->actions);
         $this->url_manager = new ShortcodeUrlManager();
-
-        // Initialize orchestrator with mocked dependencies
-        $this->orchestrator = new ShortcodePages($this->actions, $this->ajax, $this->url_manager);
+        $this->orchestrator = new ShortcodePages( $this->actions, $this->url_manager );
     }
 
     /**
@@ -82,33 +74,35 @@ class ShortcodePagesTest extends WP_UnitTestCase
      */
     public function it_enqueues_assets_standardly()
     {
-        // Mock required constants if not defined
-        if (!defined('MHM_RENTIVA_VERSION')) define('MHM_RENTIVA_VERSION', '1.0.0');
-        if (!defined('MHM_RENTIVA_PLUGIN_URL')) define('MHM_RENTIVA_PLUGIN_URL', 'http://example.com/wp-content/plugins/mhm-rentiva/');
+        if ( ! defined( 'MHM_RENTIVA_VERSION' ) ) {
+            define( 'MHM_RENTIVA_VERSION', '1.0.0' );
+        }
+        if ( ! defined( 'MHM_RENTIVA_PLUGIN_URL' ) ) {
+            define( 'MHM_RENTIVA_PLUGIN_URL', 'http://example.com/wp-content/plugins/mhm-rentiva/' );
+        }
 
-        // Simulate being on the page
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
         $_GET['page'] = 'mhm-rentiva-shortcode-pages';
+        $this->orchestrator->enqueue_assets( 'some-hook-suffix' );
 
-        $this->orchestrator->enqueue_assets('some-hook-suffix');
-
-        $this->assertTrue(wp_style_is('mhm-shortcode-pages', 'enqueued'));
-        $this->assertTrue(wp_script_is('mhm-shortcode-pages', 'enqueued'));
+        $this->assertTrue( wp_style_is( 'mhm-shortcode-pages', 'enqueued' ) );
+        $this->assertTrue( wp_script_is( 'mhm-rentiva-react-shortcode-pages', 'enqueued' ) );
     }
 
     /** @test */
     public function it_dies_if_user_has_no_permission_to_render_page()
     {
         // Set user without manage_options
-        $user_id = $this->factory->user->create(['role' => 'subscriber']);
-        wp_set_current_user($user_id);
+        $user_id = $this->factory->user->create( array( 'role' => 'subscriber' ) );
+        wp_set_current_user( $user_id );
 
         // Expect wp_die to be called. In WP_UnitTestCase, this usually throws an exception or we catch it.
         try {
             $this->orchestrator->render_page();
-            $this->fail('Expected wp_die() but execution continued.');
-        } catch (\Exception $e) {
+            $this->fail( 'Expected wp_die() but execution continued.' );
+        } catch ( \Exception $e ) {
             // Check if it's a WPDieException or similar die message
-            $this->assertStringContainsString('You do not have sufficient permissions', $e->getMessage());
+            $this->assertStringContainsString( 'You do not have sufficient permissions', $e->getMessage() );
         }
     }
 
@@ -117,14 +111,13 @@ class ShortcodePagesTest extends WP_UnitTestCase
      */
     public function it_prevents_illegal_template_access()
     {
-        // Reflection to call private render_view
-        $reflection = new \ReflectionClass(ShortcodePages::class);
-        $method = $reflection->getMethod('render_view');
+        // render_view() was removed in Faz 5 (React SPA migration).
+        // render_page() now outputs a div directly.
+        ob_start();
+        $this->orchestrator->render_page();
+        $output = ob_get_clean();
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Illegal template access');
-
-        $method->invoke($this->orchestrator, '../../etc/passwd', []);
+        $this->assertStringContainsString( 'id="mhm-shortcode-pages-root"', (string) $output );
     }
 
     /**
