@@ -4,7 +4,9 @@ const BASE = '/mhm-rentiva/v1';
 
 export const rentivaApi = {
 	dashboard: {
-		getUpcoming: ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/upcoming?page=${ page }` } ),
+		getUpcoming:        ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/upcoming?page=${ page }` } ),
+		getRecentBookings:  ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/recent-bookings?page=${ page }` } ),
+		getRecentTransfers: ( page = 1 ) => apiFetch( { path: `${ BASE }/dashboard/recent-transfers?page=${ page }` } ),
 	},
 	reports: {
 		getSummary: ( params ) => {
