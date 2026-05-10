@@ -6,12 +6,12 @@ export default function BookingsTab( { data } ) {
 	const chartRef  = useRef( null );
 
 	useEffect( () => {
-		if ( ! canvasRef.current || ! window.Chart || ! data?.daily_data ) return;
+		if ( ! canvasRef.current || ! window.Chart || ! data?.daily_trend ) return;
 		if ( chartRef.current ) {
 			chartRef.current.destroy();
 		}
-		const labels = data.daily_data.map( ( d ) => d.label ?? d.date );
-		const counts = data.daily_data.map( ( d ) => parseInt( d.count ?? 0, 10 ) );
+		const labels = data.daily_trend.map( ( d ) => d.label ?? d.date );
+		const counts = data.daily_trend.map( ( d ) => parseInt( d.bookings ?? 0, 10 ) );
 
 		chartRef.current = new window.Chart( canvasRef.current, {
 			type: 'line',

@@ -6,12 +6,12 @@ export default function RevenueTab( { data, currency } ) {
 	const chartRef  = useRef( null );
 
 	useEffect( () => {
-		if ( ! canvasRef.current || ! window.Chart || ! data?.daily_data ) return;
+		if ( ! canvasRef.current || ! window.Chart || ! data?.daily ) return;
 		if ( chartRef.current ) {
 			chartRef.current.destroy();
 		}
-		const labels   = data.daily_data.map( ( d ) => d.label ?? d.date );
-		const revenues = data.daily_data.map( ( d ) => parseFloat( d.revenue ?? 0 ) );
+		const labels   = data.daily.map( ( d ) => d.label ?? d.date );
+		const revenues = data.daily.map( ( d ) => parseFloat( d.revenue ?? 0 ) );
 
 		chartRef.current = new window.Chart( canvasRef.current, {
 			type: 'bar',
@@ -52,7 +52,7 @@ export default function RevenueTab( { data, currency } ) {
 				<canvas ref={ canvasRef } height="250" />
 			</div>
 			<div className="mhm-reports__summary">
-				<p>{ __( 'Total Revenue', 'mhm-rentiva' ) }: { currency }{ data?.total_revenue ?? 0 }</p>
+				<p>{ __( 'Total Revenue', 'mhm-rentiva' ) }: { currency }{ data?.total ?? 0 }</p>
 			</div>
 		</div>
 	);
