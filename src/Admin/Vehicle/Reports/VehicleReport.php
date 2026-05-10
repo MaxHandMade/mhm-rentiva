@@ -60,7 +60,7 @@ final class VehicleReport {
                  INNER JOIN {$wpdb->postmeta} pm_price ON pm_vehicle.post_id = pm_price.post_id
                  INNER JOIN {$wpdb->posts} p ON pm_vehicle.post_id = p.ID
                  WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status = 'publish'
+                 AND p.post_status IN ('publish', 'private', 'pending')
                  AND pm_vehicle.meta_key = '_mhm_vehicle_id'
                  AND pm_price.meta_key = '_mhm_total_price'
                  AND DATE(p.post_date) BETWEEN %s AND %s
@@ -81,18 +81,22 @@ final class VehicleReport {
 					"SELECT t.name as category_name,
                         COUNT(DISTINCT p.ID) as vehicle_count,
                         COUNT(DISTINCT b.ID) as booking_count,
-                        SUM(pm_price.meta_value) as total_revenue
+                        COALESCE(SUM(CAST(pm_price.meta_value AS DECIMAL(10,2))), 0) as total_revenue
                  FROM {$wpdb->terms} t
                  INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
                  INNER JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
                  INNER JOIN {$wpdb->posts} p ON tr.object_id = p.ID
-                 LEFT JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-                 LEFT JOIN {$wpdb->posts} b ON pm_vehicle.meta_value = b.ID AND b.post_type = 'vehicle_booking'
-                 LEFT JOIN {$wpdb->postmeta} pm_price ON b.ID = pm_price.post_id AND pm_price.meta_key = '_mhm_total_price'
+                 LEFT JOIN {$wpdb->postmeta} pm_vehicle ON pm_vehicle.meta_value = p.ID
+                           AND pm_vehicle.meta_key = '_mhm_vehicle_id'
+                 LEFT JOIN {$wpdb->posts} b ON b.ID = pm_vehicle.post_id
+                           AND b.post_type = 'vehicle_booking'
+                           AND b.post_status IN ('publish', 'private', 'pending')
+                           AND DATE(b.post_date) BETWEEN %s AND %s
+                 LEFT JOIN {$wpdb->postmeta} pm_price ON pm_price.post_id = b.ID
+                           AND pm_price.meta_key = '_mhm_total_price'
                  WHERE p.post_type = 'vehicle'
                  AND p.post_status = 'publish'
                  AND tt.taxonomy = 'vehicle_category'
-                 AND (b.ID IS NULL OR DATE(b.post_date) BETWEEN %s AND %s)
                  GROUP BY t.term_id, t.name
                  ORDER BY total_revenue DESC",
 					$start_date,
