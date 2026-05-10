@@ -82,7 +82,8 @@ final class ShortcodePages {
 	 * @return void
 	 */
 	private function register_hooks(): void {
-		ShortcodePagesController::register();
+		// REST routes are registered context-agnostically from Plugin::initialize_remaining_services()
+		// to ensure they fire on REST API requests where is_admin() returns false.
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 	}
 
