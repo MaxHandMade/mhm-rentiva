@@ -10,6 +10,11 @@
 	padding: 12px 0;
 }
 
+/* Stats grid — add bottom breathing room before the date filter */
+#mhm-reports-root .mhm-stats-grid {
+	margin-bottom: 16px;
+}
+
 /* -----------------------------------------------------------------------------
    Date filter bar
    ----------------------------------------------------------------------------- */
