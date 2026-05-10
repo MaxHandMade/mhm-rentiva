@@ -265,6 +265,8 @@ docs/*
 .ai/
 !docs/plans/
 !docs/plans/**
+!docs/superpowers/
+!docs/superpowers/**
 # bin/ is dev-only, but build tooling + its doc must be tracked
 bin/*
 !bin/build-release.py
