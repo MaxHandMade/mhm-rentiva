@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.39.0",
+        "date": "2026-05-10",
+        "type": "minor",
+        "title": "Customers page React SPA migration (Faz 2)",
+        "summary": "Replaces the legacy jQuery/WP_List_Table Customers admin page with a full React SPA backed by REST API endpoints. Customers now load instantly, support live search, column sorting, a slide-in detail panel, and bulk delete — all without page reloads.",
+        "changes": [
+            "New REST API: GET /mhm-rentiva/v1/customers (paginated, search, sort), GET /customers/{id} (detail), DELETE /customers/bulk. All routes require manage_options capability.",
+            "Customers table replaces WP_List_Table with a React component. Supports sortable columns: Name, Email, Bookings, Total Spent, Last Booking, Registered.",
+            "Live search with 300 ms debounce — no page reload required.",
+            "Customer detail slide panel — click any row to view Name, Email, Phone, Address, Registered date, Total Bookings, Total Spent, First/Last Booking, plus Edit and View Bookings links.",
+            "Bulk delete via checkbox selection with browser confirm guard.",
+            "Export CSV streams via admin-post.php. Exports all customers (paged) or only selected IDs.",
+            "CustomersOptimizer extended with sort_by / sort_dir parameters and safe ORDER BY injection via a PHP-side column whitelist.",
+            "Legacy jQuery customers.js, customers-calendar.js, customers.css, simple-calendars.css removed; CustomersListTable.php and CustomersListPage.php deleted.",
+            "13 new PHPUnit integration tests (10 REST endpoint tests + 3 exporter tests). Full suite: 1115 tests, 3425 assertions."
+        ],
+        "notice": "No schema changes. No breaking changes for the Add Customer flow. CustomersPage::register() no longer hooks rest_api_init (moved to Plugin.php context-agnostic path so routes register before admin_menu fires)."
+    },
+    {
         "version": "4.38.2",
         "date": "2026-05-09",
         "type": "patch",

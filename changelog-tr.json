@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.39.0",
+        "date": "2026-05-10",
+        "type": "minor",
+        "title": "Müşteriler sayfası React SPA geçişi (Faz 2)",
+        "summary": "Eski jQuery/WP_List_Table tabanlı Müşteriler admin sayfası, REST API'ye dayalı tam bir React SPA ile değiştirildi. Müşteriler artık anında yükleniyor, canlı arama, sütun sıralaması, kayar detay paneli ve toplu silme — hepsi sayfa yenilemeden.",
+        "changes": [
+            "Yeni REST API: GET /mhm-rentiva/v1/customers (sayfalı, arama, sıralama), GET /customers/{id} (detay), DELETE /customers/bulk. Tüm rotalar manage_options yetkisi gerektirir.",
+            "Müşteriler tablosu WP_List_Table yerine React bileşeni kullanıyor. Sıralanabilir sütunlar: Ad, E-posta, Rezervasyonlar, Toplam Harcama, Son Rezervasyon, Kayıt Tarihi.",
+            "300 ms geciktirmeli canlı arama — sayfa yenilemesi gerekmiyor.",
+            "Müşteri detay kayar paneli — herhangi bir satıra tıklayarak Ad, E-posta, Telefon, Adres, Kayıt tarihi, Toplam Rezervasyon, Toplam Harcama, İlk/Son Rezervasyon ve Düzenle / Rezervasyonları Görüntüle bağlantılarını görün.",
+            "Onay kutusu seçimi ve tarayıcı confirm korumalı toplu silme.",
+            "CSV Dışa Aktarma, admin-post.php üzerinden akış olarak çalışıyor. Tüm müşterileri (sayfalı) veya yalnızca seçili ID'leri dışa aktarır.",
+            "CustomersOptimizer; sort_by / sort_dir parametreleri ve PHP tarafı sütun beyaz listesi üzerinden güvenli ORDER BY enjeksiyonu ile genişletildi.",
+            "Eski jQuery customers.js, customers-calendar.js, customers.css, simple-calendars.css kaldırıldı; CustomersListTable.php ve CustomersListPage.php silindi.",
+            "13 yeni PHPUnit entegrasyon testi (10 REST uç nokta testi + 3 dışa aktarıcı testi). Tam süit: 1115 test, 3425 assertion."
+        ],
+        "notice": "Şema değişikliği yok. Müşteri Ekle akışında kırıcı değişiklik yok. CustomersPage::register() artık rest_api_init'e bağlanmıyor (rotaların admin_menu'dan önce kaydolması için Plugin.php bağlam-bağımsız yoluna taşındı)."
+    },
+    {
         "version": "4.38.1",
         "date": "2026-05-06",
         "type": "patch",

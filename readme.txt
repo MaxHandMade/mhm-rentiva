@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.38.2
+Stable tag:        4.39.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.39.0 — 2026-05-10 =
+* 🆕 **Customers React SPA (Faz 2)** — Replaces the legacy jQuery/WP_List_Table Customers admin page with a full React SPA backed by REST API endpoints. Live search (300 ms debounce), sortable columns, slide-in customer detail panel, bulk delete, and Export CSV — all without page reloads.
+* 🔌 **New REST API** — `GET /mhm-rentiva/v1/customers` (paginated, search, sort), `GET /customers/{id}` (detail), `DELETE /customers/bulk`. All routes require `manage_options` capability.
+* 🗃 **CustomersOptimizer** extended with `sort_by` / `sort_dir` parameters and safe ORDER BY injection via a PHP-side column whitelist.
+* 🗑 Legacy `customers.js`, `customers-calendar.js`, `customers.css`, `simple-calendars.css` removed; `CustomersListTable.php` and `CustomersListPage.php` deleted.
+* 🧪 13 new PHPUnit integration tests (10 REST endpoint + 3 CSV exporter). Full suite: 1115 tests, 3425 assertions.
 
 = 4.38.2 — 2026-05-09 =
 * 🔧 **Dev mode fix** — `isDevelopmentEnvironment()` now recognises `*.localhost` domains (Traefik reverse-proxy convention: `rentiva.localhost`, `bozcon.localhost`, etc.). The Traefik migration from `localhost:port` URLs to `*.localhost` domains silently broke automatic Pro dev mode activation on all local Docker stacks — only `.local` / `.test` / `.dev` / `.staging` were in the allowlist. Adding `.localhost` restores the zero-config dev experience: no license key and no `wp-config.php` changes needed on any Traefik-based local stack.
