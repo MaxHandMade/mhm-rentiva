@@ -76,6 +76,10 @@ build/
 !build/admin/reports.js
 !build/admin/reports.asset.php
 !build/admin/reports.css
+!build/admin/customers.js
+!build/admin/customers.asset.php
+!build/admin/customers.css
+!build/admin/customers-rtl.css
 dist/
 .cache/
 
