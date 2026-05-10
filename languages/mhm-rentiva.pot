@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-10T11:02:00+00:00\n"
+"POT-Creation-Date: 2026-05-10T14:57:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -18,6 +18,7 @@ msgstr ""
 #: mhm-rentiva.php
 #: mhm-rentiva.php:385
 #: src/Admin/About/Tabs/GeneralTab.php:140
+#: src/Admin/About/Tabs/GeneralTab.php:348
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:98
 #: src/Admin/Utilities/Menu/Menu.php:28
 #: src/Admin/Utilities/Menu/Menu.php:29
@@ -80,38 +81,42 @@ msgstr ""
 msgid "%s requires WooCommerce to be installed and active. Please install WooCommerce to use this plugin."
 msgstr ""
 
-#: src/Admin/About/About.php:63
+#: src/Admin/About/About.php:84
 msgid "About MHM Rentiva"
 msgstr ""
 
 #. translators: %s: feature name
-#: src/Admin/About/About.php:66
+#: src/Admin/About/About.php:87
 #: src/Admin/About/Tabs/FeaturesTab.php:89
 #: src/Admin/About/Tabs/GeneralTab.php:158
+#: src/Admin/About/Tabs/GeneralTab.php:360
 #: src/Admin/Core/ProFeatureNotice.php:110
 #: src/Admin/Licensing/LicenseAdmin.php:905
 #: src/Admin/Licensing/Mode.php:434
 #: src/Admin/Setup/SetupWizard.php:91
+#: src-react/admin/about/components/FeaturesTab.jsx:13
 msgid "Pro"
 msgstr ""
 
-#: src/Admin/About/About.php:66
+#: src/Admin/About/About.php:87
 #: src/Admin/About/Tabs/FeaturesTab.php:88
 #: src/Admin/About/Tabs/GeneralTab.php:158
+#: src/Admin/About/Tabs/GeneralTab.php:360
 #: src/Admin/Licensing/LicenseAdmin.php:806
 #: src/Admin/Licensing/Mode.php:433
 #: src/Admin/Setup/SetupWizard.php:91
+#: src-react/admin/about/components/FeaturesTab.jsx:12
 msgid "Lite"
 msgstr ""
 
-#: src/Admin/About/About.php:77
-#: src/Admin/About/About.php:108
+#: src/Admin/About/About.php:100
 #: src/Admin/About/Tabs/SupportTab.php:37
 #: templates/account/messages.php:114
+#: src-react/admin/about/components/TabNav.jsx:7
 msgid "Support"
 msgstr ""
 
-#: src/Admin/About/About.php:84
+#: src/Admin/About/About.php:107
 #: src/Admin/Frontend/Widgets/Elementor/AvailabilityCalendarWidget.php:37
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:37
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:36
@@ -128,173 +133,6 @@ msgstr ""
 #: src-react/admin/dashboard/components/QuickActions.jsx:10
 #: src-react/admin/messages/MessagesPage.jsx:107
 msgid "Settings"
-msgstr ""
-
-#: src/Admin/About/About.php:96
-#: src/Admin/About/Tabs/GeneralTab.php:52
-msgid "General Information"
-msgstr ""
-
-#: src/Admin/About/About.php:100
-#: src/Admin/About/Tabs/FeaturesTab.php:27
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:444
-msgid "Features"
-msgstr ""
-
-#: src/Admin/About/About.php:104
-#: src/Admin/About/Tabs/SystemTab.php:27
-msgid "System Information"
-msgstr ""
-
-#: src/Admin/About/About.php:112
-#: src/Admin/About/Tabs/DeveloperTab.php:35
-msgid "Developer"
-msgstr ""
-
-#. translators: %s error message
-#: src/Admin/About/About.php:123
-#, php-format
-msgid "Error loading tab content: %s"
-msgstr ""
-
-#: src/Admin/About/About.php:162
-msgid "Invalid tab selected."
-msgstr ""
-
-#: src/Admin/About/About.php:201
-#: src/Admin/Core/AssetManager.php:577
-#: src/Admin/Core/AssetManager.php:1147
-#: src/Admin/Core/AssetManager.php:1255
-#: src/Admin/Core/AssetManager.php:1369
-#: src/Admin/Frontend/Account/AccountAssets.php:54
-#: src/Admin/Frontend/Account/AccountController.php:344
-#: src/Admin/Frontend/Account/AccountRenderer.php:172
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:61
-#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:238
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:239
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:415
-#: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:455
-#: src/Admin/Frontend/Shortcodes/SearchResults.php:298
-#: src/Admin/Frontend/Shortcodes/Testimonials.php:151
-#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:109
-#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:399
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:81
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:99
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:352
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:152
-#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:210
-#: src/Admin/Messages/Core/Messages.php:1498
-#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
-#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
-#: templates/account/partials/vendor-listings.php:433
-#: templates/shortcodes/availability-calendar.php:443
-msgid "Loading..."
-msgstr ""
-
-#: src/Admin/About/About.php:202
-#: src/Admin/Frontend/Account/AccountAssets.php:55
-#: src/Admin/Frontend/Account/AccountController.php:345
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:62
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
-#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
-#: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:410
-#: src/Admin/VendorReport/VendorReportAssets.php:136
-#: templates/account/booking-detail.php:306
-msgid "An error occurred."
-msgstr ""
-
-#: src/Admin/About/About.php:217
-#: src/Admin/Addons/AddonManager.php:563
-#: src/Admin/Addons/AddonManager.php:708
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:45
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:113
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:167
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:218
-#: src/Admin/Booking/Actions/DepositManagementAjax.php:311
-#: src/Admin/Booking/Meta/BookingMeta.php:726
-#: src/Admin/Booking/Meta/BookingMeta.php:998
-#: src/Admin/Booking/Meta/BookingMeta.php:1282
-#: src/Admin/Booking/Meta/BookingMeta.php:1488
-#: src/Admin/Booking/Meta/BookingMeta.php:1516
-#: src/Admin/Booking/Meta/BookingMeta.php:1590
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:121
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:494
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
-#: src/Admin/Core/SecurityHelper.php:129
-#: src/Admin/Core/Utilities/AbstractListTable.php:159
-#: src/Admin/Customers/AddCustomerPage.php:192
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:34
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:84
-#: src/Admin/Emails/Core/EmailTemplates.php:306
-#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
-#: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:594
-#: src/Admin/Frontend/Account/AccountController.php:677
-#: src/Admin/Frontend/Account/AccountController.php:723
-#: src/Admin/Frontend/Account/AccountController.php:831
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:902
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:613
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1000
-#: src/Admin/Frontend/Shortcodes/BookingForm.php:1335
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:258
-#: src/Admin/Frontend/Shortcodes/ContactForm.php:337
-#: src/Admin/Frontend/Shortcodes/Testimonials.php:445
-#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:168
-#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:214
-#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:674
-#: src/Admin/Licensing/LicenseAdmin.php:443
-#: src/Admin/Licensing/LicenseAdmin.php:491
-#: src/Admin/Licensing/LicenseAdmin.php:518
-#: src/Admin/Messages/Core/Messages.php:996
-#: src/Admin/Messages/Core/Messages.php:1131
-#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:248
-#: src/Admin/Privacy/GDPRManager.php:341
-#: src/Admin/Privacy/GDPRManager.php:362
-#: src/Admin/Privacy/GDPRManager.php:385
-#: src/Admin/Privacy/GDPRManager.php:409
-#: src/Admin/Testing/ShortcodeTestHandler.php:44
-#: src/Admin/Testing/TestAdminPage.php:231
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:618
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:639
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:659
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:678
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:711
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:749
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:789
-msgid "Security check failed."
-msgstr ""
-
-#: src/Admin/About/About.php:223
-#: src/Admin/Booking/ListTable/BookingColumns.php:1952
-#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:114
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:498
-#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:579
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:38
-#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:88
-#: src/Admin/Testing/DemoAjaxHandler.php:103
-#: src/Admin/Testing/DemoAjaxHandler.php:127
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:609
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:629
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:650
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:670
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:703
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:740
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:780
-msgid "Permission denied."
-msgstr ""
-
-#: src/Admin/About/About.php:230
-msgid "Invalid tab specified."
-msgstr ""
-
-#: src/Admin/About/About.php:241
-msgid "Unknown tab requested."
-msgstr ""
-
-#: src/Admin/About/About.php:253
-msgid "An unexpected error occurred: "
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:52
@@ -323,12 +161,15 @@ msgstr ""
 
 #: src/Admin/About/SystemInfo.php:100
 #: src/Admin/About/Tabs/GeneralTab.php:283
+#: src/Admin/About/Tabs/GeneralTab.php:434
 msgid "Pro Active"
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:100
 #: src/Admin/About/Tabs/GeneralTab.php:283
+#: src/Admin/About/Tabs/GeneralTab.php:434
 #: src/Admin/About/Tabs/SystemTab.php:146
+#: src/Admin/About/Tabs/SystemTab.php:297
 msgid "Lite Version"
 msgstr ""
 
@@ -338,7 +179,7 @@ msgstr ""
 
 #: src/Admin/About/SystemInfo.php:225
 #: src/Admin/Core/AssetManager.php:908
-#: src/Admin/Core/AssetManager.php:1370
+#: src/Admin/Core/AssetManager.php:1341
 #: src/Admin/Frontend/Account/AccountController.php:255
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:316
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:261
@@ -346,42 +187,57 @@ msgstr ""
 msgid "Error"
 msgstr ""
 
+#: src/Admin/About/Tabs/DeveloperTab.php:35
+#: src/Admin/About/Tabs/GeneralTab.php:355
+#: src-react/admin/about/components/TabNav.jsx:8
+msgid "Developer"
+msgstr ""
+
 #: src/Admin/About/Tabs/DeveloperTab.php:40
 msgid "MHM (MaxHandMade) developer information and projects"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:55
+#: src-react/admin/about/components/DeveloperTab.jsx:56
 msgid "Our Expertise"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:60
 #: templates/emails/receipt-status-email.html.php:295
+#: src-react/admin/about/components/DeveloperTab.jsx:68
 msgid "Contact"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:65
+#: src-react/admin/about/components/DeveloperTab.jsx:90
 msgid "Our Other Projects"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:85
 #: src/Admin/About/Tabs/DeveloperTab.php:98
 #: src/Admin/About/Tabs/GeneralTab.php:152
+#: src/Admin/About/Tabs/GeneralTab.php:356
+#: src-react/admin/about/components/DeveloperTab.jsx:43
 msgid "MHM (MaxHandMade)"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:86
+#: src-react/admin/about/components/DeveloperTab.jsx:45
 msgid "WordPress Expertise and Custom Software Solutions"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:88
+#: src-react/admin/about/components/DeveloperTab.jsx:48
 msgid "10+ Years Experience"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:89
+#: src-react/admin/about/components/DeveloperTab.jsx:49
 msgid "500+ Projects"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:90
+#: src-react/admin/about/components/DeveloperTab.jsx:50
 msgid "100% Customer Satisfaction"
 msgstr ""
 
@@ -396,30 +252,37 @@ msgid "%s is an expert team that has been developing WordPress-based solutions a
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:116
+#: src-react/admin/about/components/DeveloperTab.jsx:5
 msgid "WordPress Development"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:117
+#: src-react/admin/about/components/DeveloperTab.jsx:6
 msgid "Custom plugins, theme development, performance optimization"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:120
+#: src-react/admin/about/components/DeveloperTab.jsx:9
 msgid "E-commerce Solutions"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:121
+#: src-react/admin/about/components/DeveloperTab.jsx:10
 msgid "WooCommerce customizations, payment integrations"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:124
+#: src-react/admin/about/components/DeveloperTab.jsx:13
 msgid "Reservation Systems"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:125
+#: src-react/admin/about/components/DeveloperTab.jsx:14
 msgid "Hotel, restaurant, car rental and event reservations"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:150
+#: src-react/admin/about/components/DeveloperTab.jsx:71
 msgid "Website:"
 msgstr ""
 
@@ -433,6 +296,8 @@ msgstr ""
 #: templates/emails/booking-created-vendor.html.php:67
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
+#: src-react/admin/about/components/DeveloperTab.jsx:75
+#: src-react/admin/about/components/SupportTab.jsx:29
 msgid "Email:"
 msgstr ""
 
@@ -441,6 +306,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:636
 #: templates/emails/booking-created-admin.html.php:24
 #: templates/emails/booking-created-vendor.html.php:71
+#: src-react/admin/about/components/DeveloperTab.jsx:79
+#: src-react/admin/about/components/SupportTab.jsx:30
 msgid "Phone:"
 msgstr ""
 
@@ -450,6 +317,7 @@ msgid "+90 538 556 4158"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:166
+#: src-react/admin/about/components/DeveloperTab.jsx:83
 msgid "Address:"
 msgstr ""
 
@@ -468,23 +336,34 @@ msgid "Turkey"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:190
+#: src-react/admin/about/components/DeveloperTab.jsx:20
 msgid "MHM E-commerce Package"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:191
+#: src-react/admin/about/components/DeveloperTab.jsx:21
 msgid "Comprehensive WooCommerce-based e-commerce solution"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:194
+#: src-react/admin/about/components/DeveloperTab.jsx:24
 msgid "MHM Vehicle Reservation"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:195
+#: src-react/admin/about/components/DeveloperTab.jsx:25
 msgid "Professional vehicle rental and reservation management system."
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:207
+#: src-react/admin/about/components/DeveloperTab.jsx:97
 msgid "Learn More"
+msgstr ""
+
+#: src/Admin/About/Tabs/FeaturesTab.php:27
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:444
+#: src-react/admin/about/components/TabNav.jsx:5
+msgid "Features"
 msgstr ""
 
 #: src/Admin/About/Tabs/FeaturesTab.php:31
@@ -492,6 +371,7 @@ msgid "Lite vs Pro feature comparison"
 msgstr ""
 
 #: src/Admin/About/Tabs/FeaturesTab.php:41
+#: src-react/admin/about/components/FeaturesTab.jsx:6
 msgid "Lite vs Pro Comparison"
 msgstr ""
 
@@ -502,7 +382,13 @@ msgstr ""
 #: src/Admin/About/Tabs/FeaturesTab.php:87
 #: src/Admin/Licensing/Mode.php:432
 #: templates/shortcodes/vehicle-comparison.php:99
+#: src-react/admin/about/components/FeaturesTab.jsx:11
 msgid "Feature"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:52
+#: src-react/admin/about/components/TabNav.jsx:4
+msgid "General Information"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:62
@@ -541,14 +427,17 @@ msgid "Expires today"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:189
+#: src/Admin/About/Tabs/GeneralTab.php:380
 #: src/Admin/Licensing/LicenseAdmin.php:233
 #: src/Admin/Licensing/LicenseAdmin.php:264
 msgid "1 day remaining"
 msgstr ""
 
 #. translators: %d: number of days.
+#. translators: %d: number of days remaining.
 #. translators: %d: number of days remaining
 #: src/Admin/About/Tabs/GeneralTab.php:193
+#: src/Admin/About/Tabs/GeneralTab.php:383
 #: src/Admin/Licensing/LicenseAdmin.php:236
 #: src/Admin/Licensing/LicenseAdmin.php:267
 #, php-format
@@ -556,6 +445,7 @@ msgid "%d days remaining"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:198
+#: src/Admin/About/Tabs/GeneralTab.php:387
 #: src/Admin/Licensing/LicenseAdmin.php:227
 #: src/Admin/Licensing/LicenseAdmin.php:258
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:167
@@ -582,10 +472,13 @@ msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:225
 #: src/Admin/About/Tabs/SystemTab.php:117
+#: src-react/admin/about/components/GeneralTab.jsx:7
+#: src-react/admin/about/components/SystemTab.jsx:8
 msgid "Plugin Information"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:229
+#: src-react/admin/about/components/GeneralTab.jsx:8
 msgid "Compatibility"
 msgstr ""
 
@@ -610,10 +503,12 @@ msgid "Tested:"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:254
+#: src/Admin/About/Tabs/GeneralTab.php:416
 msgid "WP 6.6, PHP 8.2"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:260
+#: src-react/admin/about/components/GeneralTab.jsx:9
 msgid "Statistics"
 msgstr ""
 
@@ -633,11 +528,94 @@ msgstr ""
 msgid "Active License:"
 msgstr ""
 
+#: src/Admin/About/Tabs/GeneralTab.php:347
+#: src/Admin/Booking/ListTable/BookingColumns.php:1314
+#: src/Admin/Reports/BackgroundProcessor.php:468
+#: src/Admin/Transfer/TransferAdmin.php:443
+#: src/Admin/Transfer/TransferAdmin.php:502
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1006
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:402
+#: templates/account/vendor-booking-detail.php:140
+#: templates/emails/vendor-application-new-admin.html.php:7
+#: assets/blocks/my-favorites/index.js:51
+#: src-react/admin/customers/components/CustomerPanel.jsx:54
+#: src-react/admin/customers/components/CustomerTable.jsx:4
+#: src-react/admin/reports/components/tabs/CustomersTab.jsx:61
+msgid "Name"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:351
+#: src/Admin/About/Tabs/SystemTab.php:226
+#: src/Admin/About/Tabs/SystemTab.php:254
+#: src/Admin/About/Tabs/SystemTab.php:281
+msgid "Version"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:359
+#: src/Admin/Setup/SetupWizard.php:1052
+#: src/Admin/Utilities/Menu/Menu.php:206
+msgid "License"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:367
+msgid "Activated On"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:391
+msgid "Expires On"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:401
+msgid "WordPress"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:406
+msgid "PHP"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:411
+msgid "MySQL"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:415
+msgid "Tested"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:421
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:17
+msgid "Total Vehicles"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:425
+#: src/Admin/Customers/CustomersPage.php:223
+#: src/Admin/Reports/Reports.php:84
+#: src/Core/Dashboard/DashboardConfig.php:26
+#: templates/account/dashboard.php:50
+#: src-react/admin/customers/components/CustomerPanel.jsx:76
+#: src-react/admin/dashboard/components/StatsCards.jsx:10
+#: src-react/admin/reports/components/StatsCards.jsx:7
+#: src-react/admin/reports/components/tabs/BookingsTab.jsx:52
+#: src-react/admin/reports/components/tabs/OverviewTab.jsx:39
+msgid "Total Bookings"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:429
+#: src-react/admin/customers/components/StatsCards.jsx:10
+#: src-react/admin/reports/components/tabs/CustomersTab.jsx:17
+#: src-react/admin/reports/components/tabs/OverviewTab.jsx:63
+msgid "Total Customers"
+msgstr ""
+
+#: src/Admin/About/Tabs/GeneralTab.php:433
+msgid "Active License"
+msgstr ""
+
 #: src/Admin/About/Tabs/SupportTab.php:42
 msgid "Support channels, documentation and version history"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:62
+#: src-react/admin/about/components/SupportTab.jsx:45
 msgid "Version History"
 msgstr ""
 
@@ -647,30 +625,37 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:415
 #: src/Admin/Transfer/TransferAdmin.php:589
 #: src/Admin/Utilities/Export/Export.php:1021
+#: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:81
+#: src-react/admin/about/components/SupportTab.jsx:11
 msgid "Detailed user guides, video tutorials and API documentation."
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:86
+#: src-react/admin/about/components/SupportTab.jsx:13
 msgid "User Guide"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:93
+#: src-react/admin/about/components/SupportTab.jsx:14
 msgid "API Documentation"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:100
+#: src-react/admin/about/components/SupportTab.jsx:15
 msgid "Video Tutorials"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:111
+#: src-react/admin/about/components/SupportTab.jsx:20
 msgid "Support Channels"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:112
+#: src-react/admin/about/components/SupportTab.jsx:21
 msgid "Contact us for your questions."
 msgstr ""
 
@@ -678,26 +663,32 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:89
 #: src/Admin/Setup/SetupWizard.php:1155
+#: src-react/admin/about/components/SupportTab.jsx:23
 msgid "Contact Form"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:126
+#: src-react/admin/about/components/SupportTab.jsx:25
 msgid "Priority Support"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:142
+#: src-react/admin/about/components/SupportTab.jsx:35
 msgid "Community"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:143
+#: src-react/admin/about/components/SupportTab.jsx:36
 msgid "Share your experiences with other users."
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:148
+#: src-react/admin/about/components/SupportTab.jsx:38
 msgid "WordPress Support Forum"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:176
+#: src-react/admin/about/components/ChangelogList.jsx:40
 msgid "Current Version"
 msgstr ""
 
@@ -721,11 +712,17 @@ msgstr ""
 msgid "Advanced reports system"
 msgstr ""
 
+#: src/Admin/About/Tabs/SystemTab.php:27
+#: src-react/admin/about/components/TabNav.jsx:6
+msgid "System Information"
+msgstr ""
+
 #: src/Admin/About/Tabs/SystemTab.php:31
 msgid "WordPress, PHP, MySQL and plugin system information"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:48
+#: src-react/admin/about/components/SystemTab.jsx:6
 msgid "WordPress Information"
 msgstr ""
 
@@ -746,6 +743,7 @@ msgid "Multisite:"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:82
+#: src-react/admin/about/components/SystemTab.jsx:7
 msgid "PHP Information"
 msgstr ""
 
@@ -779,6 +777,7 @@ msgid "License Status:"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:146
+#: src/Admin/About/Tabs/SystemTab.php:297
 #: src/Admin/Addons/AddonListTable.php:200
 #: src/Admin/Addons/AddonListTable.php:394
 #: src/Admin/Addons/AddonListTable.php:469
@@ -808,6 +807,7 @@ msgid "License Expiry:"
 msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:158
+#: src-react/admin/about/components/SystemTab.jsx:9
 msgid "Database Information"
 msgstr ""
 
@@ -821,6 +821,67 @@ msgstr ""
 
 #: src/Admin/About/Tabs/SystemTab.php:174
 msgid "Collate:"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:231
+msgid "Language"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:236
+msgid "Timezone"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:241
+msgid "Site URL"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:246
+msgid "Multisite"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:259
+msgid "Memory Limit"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:264
+msgid "Max Execution Time"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:269
+msgid "Upload Max Size"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:274
+msgid "Post Max Size"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:286
+msgid "Install Date"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:291
+msgid "Last Update"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:296
+#: src/Admin/Licensing/LicenseAdmin.php:195
+msgid "License Status"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:301
+msgid "License Expiry"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:308
+msgid "MySQL Version"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:313
+msgid "Charset"
+msgstr ""
+
+#: src/Admin/About/Tabs/SystemTab.php:318
+msgid "Collate"
 msgstr ""
 
 #: src/Admin/Actions/Actions.php:54
@@ -1022,7 +1083,7 @@ msgstr ""
 #: templates/admin/shortcode-pages.php:30
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
-#: src-react/admin/messages/components/MessageTable.jsx:20
+#: src-react/admin/messages/components/MessageTable.jsx:23
 msgid "Status"
 msgstr ""
 
@@ -1055,7 +1116,7 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
-#: src-react/admin/messages/components/MessageTable.jsx:22
+#: src-react/admin/messages/components/MessageTable.jsx:25
 msgid "Date"
 msgstr ""
 
@@ -1069,7 +1130,7 @@ msgid "Inactive"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:224
-#: src/Admin/Core/AssetManager.php:1380
+#: src/Admin/Core/AssetManager.php:1351
 #: src/Admin/Core/Utilities/AbstractListTable.php:390
 #: src/Admin/Customers/CustomersPage.php:249
 #: src/Admin/Setup/SetupWizard.php:370
@@ -1098,7 +1159,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:822
 #: src/Admin/Core/AssetManager.php:966
 #: src/Admin/Core/AssetManager.php:1066
-#: src/Admin/Core/AssetManager.php:1379
+#: src/Admin/Core/AssetManager.php:1350
 #: src/Admin/Core/Utilities/AbstractListTable.php:405
 #: src/Admin/Messages/Settings/MessagesSettings.php:463
 #: src/Admin/Messages/Settings/MessagesSettings.php:481
@@ -1163,7 +1224,7 @@ msgid "Max price"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:497
-#: src/Admin/Core/AssetManager.php:1384
+#: src/Admin/Core/AssetManager.php:1355
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:273
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:155
 #: templates/account/bookings.php:103
@@ -1173,7 +1234,7 @@ msgid "Filter"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:498
-#: src/Admin/Core/AssetManager.php:1391
+#: src/Admin/Core/AssetManager.php:1362
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1438
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:277
 msgid "Clear"
@@ -1212,10 +1273,10 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:584
 #: src/Admin/Core/AssetManager.php:1008
 #: src/Admin/Core/AssetManager.php:1119
-#: src/Admin/Core/AssetManager.php:1177
-#: src/Admin/Core/AssetManager.php:1218
-#: src/Admin/Core/AssetManager.php:1259
-#: src/Admin/Core/AssetManager.php:1397
+#: src/Admin/Core/AssetManager.php:1148
+#: src/Admin/Core/AssetManager.php:1189
+#: src/Admin/Core/AssetManager.php:1230
+#: src/Admin/Core/AssetManager.php:1368
 #: src/Admin/Emails/Core/EmailTemplates.php:660
 #: src/Admin/Frontend/Account/AccountController.php:247
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:228
@@ -1232,7 +1293,7 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:209
 #: src/Admin/Frontend/Account/AccountController.php:281
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
-#: src/Admin/Messages/Core/Messages.php:1499
+#: src/Admin/Messages/Core/Messages.php:1506
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
 msgid "An error occurred. Please try again."
 msgstr ""
@@ -1303,6 +1364,67 @@ msgstr ""
 #: src/Admin/Addons/AddonManager.php:551
 #, php-format
 msgid "You can add %d more add-ons in Lite version (rental + transfer combined)."
+msgstr ""
+
+#: src/Admin/Addons/AddonManager.php:563
+#: src/Admin/Addons/AddonManager.php:708
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:45
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:113
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:167
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:218
+#: src/Admin/Booking/Actions/DepositManagementAjax.php:311
+#: src/Admin/Booking/Meta/BookingMeta.php:726
+#: src/Admin/Booking/Meta/BookingMeta.php:998
+#: src/Admin/Booking/Meta/BookingMeta.php:1282
+#: src/Admin/Booking/Meta/BookingMeta.php:1488
+#: src/Admin/Booking/Meta/BookingMeta.php:1516
+#: src/Admin/Booking/Meta/BookingMeta.php:1590
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:121
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:494
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
+#: src/Admin/Core/SecurityHelper.php:129
+#: src/Admin/Core/Utilities/AbstractListTable.php:159
+#: src/Admin/Customers/AddCustomerPage.php:192
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:34
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:84
+#: src/Admin/Emails/Core/EmailTemplates.php:306
+#: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
+#: src/Admin/Emails/Settings/EmailTestAction.php:31
+#: src/Admin/Frontend/Account/AccountController.php:594
+#: src/Admin/Frontend/Account/AccountController.php:677
+#: src/Admin/Frontend/Account/AccountController.php:723
+#: src/Admin/Frontend/Account/AccountController.php:831
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:902
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:613
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1000
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:1335
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:258
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:337
+#: src/Admin/Frontend/Shortcodes/Testimonials.php:445
+#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:168
+#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:214
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:674
+#: src/Admin/Licensing/LicenseAdmin.php:443
+#: src/Admin/Licensing/LicenseAdmin.php:491
+#: src/Admin/Licensing/LicenseAdmin.php:518
+#: src/Admin/Messages/Core/Messages.php:996
+#: src/Admin/Messages/Core/Messages.php:1131
+#: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:248
+#: src/Admin/Privacy/GDPRManager.php:341
+#: src/Admin/Privacy/GDPRManager.php:362
+#: src/Admin/Privacy/GDPRManager.php:385
+#: src/Admin/Privacy/GDPRManager.php:409
+#: src/Admin/Testing/ShortcodeTestHandler.php:44
+#: src/Admin/Testing/TestAdminPage.php:231
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:618
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:639
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:659
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:678
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:711
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:749
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:789
+msgid "Security check failed."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:576
@@ -1547,7 +1669,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:853
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:545
 #: templates/account/partials/vendor-settings.php:142
-#: src-react/admin/messages/components/SettingsView.jsx:209
+#: src-react/admin/messages/components/SettingsView.jsx:216
 msgid "Save Settings"
 msgstr ""
 
@@ -2651,7 +2773,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1298
 #: src/Admin/Core/AssetManager.php:1052
-#: src/Admin/Core/AssetManager.php:1386
+#: src/Admin/Core/AssetManager.php:1357
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1436
@@ -2677,25 +2799,10 @@ msgstr ""
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1299
+#: src/Plugin.php:1303
 #: templates/messages/message-thread-view.html.php:56
-#: src-react/admin/messages/components/MessageTable.jsx:18
+#: src-react/admin/messages/components/MessageTable.jsx:21
 msgid "Customer"
-msgstr ""
-
-#: src/Admin/Booking/ListTable/BookingColumns.php:1314
-#: src/Admin/Reports/BackgroundProcessor.php:468
-#: src/Admin/Transfer/TransferAdmin.php:443
-#: src/Admin/Transfer/TransferAdmin.php:502
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1006
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:402
-#: templates/account/vendor-booking-detail.php:140
-#: templates/emails/vendor-application-new-admin.html.php:7
-#: assets/blocks/my-favorites/index.js:51
-#: src-react/admin/customers/components/CustomerPanel.jsx:54
-#: src-react/admin/customers/components/CustomerTable.jsx:4
-#: src-react/admin/reports/components/tabs/CustomersTab.jsx:61
-msgid "Name"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1318
@@ -2718,7 +2825,7 @@ msgstr ""
 #: templates/shortcodes/contact-form.php:62
 #: src-react/admin/customers/components/CustomerPanel.jsx:58
 #: src-react/admin/customers/components/CustomerTable.jsx:5
-#: src-react/admin/messages/components/SettingsView.jsx:46
+#: src-react/admin/messages/components/SettingsView.jsx:52
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 msgid "Email"
 msgstr ""
@@ -2854,6 +2961,24 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:306
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1258
 msgid "Security error"
+msgstr ""
+
+#: src/Admin/Booking/ListTable/BookingColumns.php:1952
+#: src/Admin/Booking/Meta/BookingPortalMetaBox.php:114
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:498
+#: src/Admin/Booking/Meta/ManualBookingMetaBox.php:579
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:38
+#: src/Admin/Emails/Ajax/EmailAjaxHandler.php:88
+#: src/Admin/Testing/DemoAjaxHandler.php:103
+#: src/Admin/Testing/DemoAjaxHandler.php:127
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:609
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:629
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:650
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:670
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:703
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:740
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:780
+msgid "Permission denied."
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1959
@@ -3145,11 +3270,10 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:720
 #: src/Admin/Core/AssetManager.php:1011
 #: src/Admin/Core/AssetManager.php:1120
-#: src/Admin/Core/AssetManager.php:1148
-#: src/Admin/Core/AssetManager.php:1180
-#: src/Admin/Core/AssetManager.php:1219
-#: src/Admin/Core/AssetManager.php:1256
-#: src/Admin/Core/AssetManager.php:1398
+#: src/Admin/Core/AssetManager.php:1151
+#: src/Admin/Core/AssetManager.php:1190
+#: src/Admin/Core/AssetManager.php:1227
+#: src/Admin/Core/AssetManager.php:1369
 #: src/Admin/Frontend/Account/AccountRenderer.php:174
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:263
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:320
@@ -4271,8 +4395,8 @@ msgstr ""
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:94
 #: templates/account/payment-history.php:150
 #: templates/admin/shortcode-pages.php:90
-#: src-react/admin/messages/components/SettingsView.jsx:148
-#: src-react/admin/messages/components/SettingsView.jsx:188
+#: src-react/admin/messages/components/SettingsView.jsx:155
+#: src-react/admin/messages/components/SettingsView.jsx:195
 msgid "Remove"
 msgstr ""
 
@@ -4344,7 +4468,7 @@ msgid "Maintenance"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:491
-#: src/Admin/Core/AssetManager.php:1374
+#: src/Admin/Core/AssetManager.php:1345
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:125
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:137
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:149
@@ -4367,18 +4491,48 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:753
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:765
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:207
+#: src-react/admin/about/components/InfoCard.jsx:14
+#: src-react/admin/about/components/SystemTab.jsx:24
 msgid "Yes"
 msgstr ""
 
+#: src/Admin/Core/AssetManager.php:577
+#: src/Admin/Core/AssetManager.php:1226
+#: src/Admin/Core/AssetManager.php:1340
+#: src/Admin/Frontend/Account/AccountAssets.php:54
+#: src/Admin/Frontend/Account/AccountController.php:344
+#: src/Admin/Frontend/Account/AccountRenderer.php:172
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:61
+#: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:238
+#: src/Admin/Frontend/Shortcodes/BookingForm.php:239
+#: src/Admin/Frontend/Shortcodes/ContactForm.php:415
+#: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:455
+#: src/Admin/Frontend/Shortcodes/SearchResults.php:298
+#: src/Admin/Frontend/Shortcodes/Testimonials.php:151
+#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:109
+#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:399
+#: src/Admin/Frontend/Shortcodes/VehicleDetails.php:81
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:99
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:352
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:152
+#: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:210
+#: src/Admin/Messages/Core/Messages.php:1505
+#: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
+#: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
+#: templates/account/partials/vendor-listings.php:433
+#: templates/shortcodes/availability-calendar.php:443
+msgid "Loading..."
+msgstr ""
+
 #: src/Admin/Core/AssetManager.php:579
-#: src/Admin/Core/AssetManager.php:1257
+#: src/Admin/Core/AssetManager.php:1228
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:321
 msgid "Operation successful"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:580
-#: src/Admin/Core/AssetManager.php:1258
-#: src/Admin/Core/AssetManager.php:1402
+#: src/Admin/Core/AssetManager.php:1229
+#: src/Admin/Core/AssetManager.php:1373
 #: src/Admin/Frontend/Account/AccountAssets.php:57
 #: src/Admin/Frontend/Account/AccountController.php:347
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:64
@@ -4390,9 +4544,9 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:581
 #: src/Admin/Core/AssetManager.php:1015
-#: src/Admin/Core/AssetManager.php:1184
-#: src/Admin/Core/AssetManager.php:1224
-#: src/Admin/Core/AssetManager.php:1376
+#: src/Admin/Core/AssetManager.php:1155
+#: src/Admin/Core/AssetManager.php:1195
+#: src/Admin/Core/AssetManager.php:1347
 #: src/Admin/Customers/AddCustomerPage.php:177
 #: src/Admin/Customers/CustomersPage.php:376
 #: src/Admin/Frontend/Account/AccountRenderer.php:323
@@ -4416,8 +4570,8 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:582
 #: src/Admin/Core/AssetManager.php:1020
-#: src/Admin/Core/AssetManager.php:1189
-#: src/Admin/Core/AssetManager.php:1378
+#: src/Admin/Core/AssetManager.php:1160
+#: src/Admin/Core/AssetManager.php:1349
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1333
 #: templates/account/partials/vendor-profile-settings.php:128
 msgid "Save"
@@ -4490,7 +4644,7 @@ msgid "Price calculated"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:640
-#: src/Admin/Core/AssetManager.php:1406
+#: src/Admin/Core/AssetManager.php:1377
 msgid "Please fill all required fields"
 msgstr ""
 
@@ -4782,7 +4936,7 @@ msgid "Your message received: {{subject}}"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1006
-#: src/Admin/Core/AssetManager.php:1175
+#: src/Admin/Core/AssetManager.php:1146
 #: src/Admin/Emails/Core/EmailTemplates.php:70
 #: src/Admin/Emails/Core/EmailTemplates.php:197
 #: src/Admin/Emails/Core/EmailTemplates.php:656
@@ -4792,8 +4946,8 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1007
 #: src/Admin/Core/AssetManager.php:1013
-#: src/Admin/Core/AssetManager.php:1176
-#: src/Admin/Core/AssetManager.php:1182
+#: src/Admin/Core/AssetManager.php:1147
+#: src/Admin/Core/AssetManager.php:1153
 #: src/Admin/Emails/Core/EmailTemplates.php:108
 #: src/Admin/Emails/Core/EmailTemplates.php:149
 #: src/Admin/Emails/Templates/EmailPreview.php:98
@@ -4802,33 +4956,33 @@ msgid "Send Test Email"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1009
-#: src/Admin/Core/AssetManager.php:1178
+#: src/Admin/Core/AssetManager.php:1149
 msgid "Test email sent successfully"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1010
-#: src/Admin/Core/AssetManager.php:1179
+#: src/Admin/Core/AssetManager.php:1150
 msgid "Failed to send test email"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1014
-#: src/Admin/Core/AssetManager.php:1183
+#: src/Admin/Core/AssetManager.php:1154
 #: templates/account/account-details.php:94
 msgid "Email Address"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1016
-#: src/Admin/Core/AssetManager.php:1185
+#: src/Admin/Core/AssetManager.php:1156
 msgid "Please enter email address"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1017
-#: src/Admin/Core/AssetManager.php:1186
+#: src/Admin/Core/AssetManager.php:1157
 msgid "Edit Template"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1018
-#: src/Admin/Core/AssetManager.php:1187
+#: src/Admin/Core/AssetManager.php:1158
 #: src/Admin/Emails/Templates/BookingNotifications.php:54
 #: src/Admin/Emails/Templates/BookingNotifications.php:83
 #: src/Admin/Emails/Templates/BookingNotifications.php:119
@@ -4863,24 +5017,24 @@ msgstr ""
 #: src/Admin/Emails/Templates/VendorEmails.php:521
 #: src/Admin/Emails/Templates/VendorEmails.php:541
 #: src/Admin/Messages/Core/Messages.php:840
-#: src-react/admin/messages/components/MessageTable.jsx:17
+#: src-react/admin/messages/components/MessageTable.jsx:20
 msgid "Subject"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1019
-#: src/Admin/Core/AssetManager.php:1188
+#: src/Admin/Core/AssetManager.php:1159
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:38
 msgid "Content"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1021
-#: src/Admin/Core/AssetManager.php:1190
+#: src/Admin/Core/AssetManager.php:1161
 msgid "Template saved successfully!"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1022
-#: src/Admin/Core/AssetManager.php:1191
+#: src/Admin/Core/AssetManager.php:1162
 msgid "Template reset to default!"
 msgstr ""
 
@@ -4966,19 +5120,19 @@ msgid "Are you sure you want to reset all REST API settings to default values? T
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1114
-#: src/Admin/Core/AssetManager.php:1213
+#: src/Admin/Core/AssetManager.php:1184
 msgid "Please select at least one item"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1115
-#: src/Admin/Core/AssetManager.php:1214
+#: src/Admin/Core/AssetManager.php:1185
 #: src-react/admin/customers/CustomersPage.jsx:94
 #: src-react/admin/messages/components/BulkBar.jsx:42
 msgid "selected"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1116
-#: src/Admin/Core/AssetManager.php:1309
+#: src/Admin/Core/AssetManager.php:1280
 msgid "Enable selected add-ons?"
 msgstr ""
 
@@ -4998,76 +5152,56 @@ msgstr ""
 msgid "Error updating price"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1149
-msgid "Copied!"
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1150
-msgid "Copy failed"
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1151
-msgid "Refreshing..."
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1152
-msgid "System information refreshed"
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1153
-msgid "Refresh System Info"
-msgstr ""
-
-#: src/Admin/Core/AssetManager.php:1215
+#: src/Admin/Core/AssetManager.php:1186
 msgid "Mark selected messages as read?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1216
+#: src/Admin/Core/AssetManager.php:1187
 msgid "Mark selected messages as unread?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1217
+#: src/Admin/Core/AssetManager.php:1188
 msgid "Delete selected messages? This action cannot be undone."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1221
+#: src/Admin/Core/AssetManager.php:1192
 msgid "Quick Reply"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1222
+#: src/Admin/Core/AssetManager.php:1193
 msgid "Your Reply"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1223
+#: src/Admin/Core/AssetManager.php:1194
 #: src/Admin/Messages/Frontend/CustomerMessages.php:133
 msgid "Send"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1225
+#: src/Admin/Core/AssetManager.php:1196
 msgid "Select new status:\\n1. pending\\n2. answered\\n3. closed\\n4. spam"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1260
+#: src/Admin/Core/AssetManager.php:1231
 msgid "Export process started"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1261
+#: src/Admin/Core/AssetManager.php:1232
 msgid "Export completed successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1262
+#: src/Admin/Core/AssetManager.php:1233
 msgid "Export failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1263
+#: src/Admin/Core/AssetManager.php:1234
 msgid "Filters applied successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1264
+#: src/Admin/Core/AssetManager.php:1235
 msgid "Filters reset successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1265
+#: src/Admin/Core/AssetManager.php:1236
 #: src/Admin/Frontend/Account/AccountRenderer.php:176
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:313
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:184
@@ -5082,43 +5216,43 @@ msgstr ""
 msgid "View Details"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1310
+#: src/Admin/Core/AssetManager.php:1281
 msgid "Are you sure you want to delete this?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1311
+#: src/Admin/Core/AssetManager.php:1282
 msgid "Enter a valid price (0 or greater)"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1312
+#: src/Admin/Core/AssetManager.php:1283
 msgid "Auto-saved"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1313
+#: src/Admin/Core/AssetManager.php:1284
 msgid "Auto-save failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1371
+#: src/Admin/Core/AssetManager.php:1342
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:457
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:154
 msgid "Success"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1372
+#: src/Admin/Core/AssetManager.php:1343
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:260
 #: src/Admin/Settings/Groups/LogsSettings.php:69
 #: src/Admin/Setup/SetupWizard.php:1453
 msgid "Warning"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1373
+#: src/Admin/Core/AssetManager.php:1344
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:259
 #: src/Admin/Settings/Groups/LogsSettings.php:70
 msgid "Info"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1375
+#: src/Admin/Core/AssetManager.php:1346
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:126
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:138
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:150
@@ -5141,37 +5275,39 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:754
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:766
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:207
+#: src-react/admin/about/components/InfoCard.jsx:15
+#: src-react/admin/about/components/SystemTab.jsx:25
 msgid "No"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1377
+#: src/Admin/Core/AssetManager.php:1348
 msgid "Confirm"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1381
-#: src-react/admin/messages/components/SettingsView.jsx:161
-#: src-react/admin/messages/components/SettingsView.jsx:201
+#: src/Admin/Core/AssetManager.php:1352
+#: src-react/admin/messages/components/SettingsView.jsx:168
+#: src-react/admin/messages/components/SettingsView.jsx:208
 msgid "Add"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1382
+#: src/Admin/Core/AssetManager.php:1353
 #: src/Admin/Customers/CustomersPage.php:375
 msgid "Update"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1383
+#: src/Admin/Core/AssetManager.php:1354
 #: src/Admin/Core/Utilities/AbstractListTable.php:436
 #: templates/shortcodes/unified-search.php:201
 msgid "Search"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1385
+#: src/Admin/Core/AssetManager.php:1356
 #: templates/account/vendor-ledger.php:55
 #: templates/shortcodes/contact-form.php:203
 msgid "Reset"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1387
+#: src/Admin/Core/AssetManager.php:1358
 #: src/Admin/Setup/SetupWizard.php:286
 #: src/Admin/Setup/SetupWizard.php:304
 #: src/Admin/Setup/SetupWizard.php:391
@@ -5182,7 +5318,7 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1388
+#: src/Admin/Core/AssetManager.php:1359
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:315
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:984
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:298
@@ -5196,7 +5332,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1389
+#: src/Admin/Core/AssetManager.php:1360
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:314
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:983
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:292
@@ -5210,11 +5346,11 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1390
+#: src/Admin/Core/AssetManager.php:1361
 msgid "Submit"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1392
+#: src/Admin/Core/AssetManager.php:1363
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:452
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:701
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:753
@@ -5223,45 +5359,45 @@ msgstr ""
 msgid "Select All"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1393
+#: src/Admin/Core/AssetManager.php:1364
 msgid "Select None"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1394
+#: src/Admin/Core/AssetManager.php:1365
 msgid "No data found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1395
+#: src/Admin/Core/AssetManager.php:1366
 msgid "No results found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1396
+#: src/Admin/Core/AssetManager.php:1367
 msgid "Please wait..."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1399
+#: src/Admin/Core/AssetManager.php:1370
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:243
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:83
 msgid "Please try again"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1400
+#: src/Admin/Core/AssetManager.php:1371
 msgid "Operation completed successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1401
+#: src/Admin/Core/AssetManager.php:1372
 msgid "Operation failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1403
+#: src/Admin/Core/AssetManager.php:1374
 msgid "This action cannot be undone"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1404
+#: src/Admin/Core/AssetManager.php:1375
 msgid "Invalid input"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1405
+#: src/Admin/Core/AssetManager.php:1376
 msgid "Required field"
 msgstr ""
 
@@ -6174,7 +6310,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:858
 #: src/Admin/Messages/Core/Messages.php:1252
 #: src/Admin/Messages/Notifications/MessageNotifications.php:160
-#: src-react/admin/messages/components/MessageTable.jsx:19
+#: src-react/admin/messages/components/MessageTable.jsx:22
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:71
 msgid "Category"
 msgstr ""
@@ -6521,18 +6657,6 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:218
 msgid "Booking Statistics"
-msgstr ""
-
-#: src/Admin/Customers/CustomersPage.php:223
-#: src/Admin/Reports/Reports.php:84
-#: src/Core/Dashboard/DashboardConfig.php:26
-#: templates/account/dashboard.php:50
-#: src-react/admin/customers/components/CustomerPanel.jsx:76
-#: src-react/admin/dashboard/components/StatsCards.jsx:10
-#: src-react/admin/reports/components/StatsCards.jsx:7
-#: src-react/admin/reports/components/tabs/BookingsTab.jsx:52
-#: src-react/admin/reports/components/tabs/OverviewTab.jsx:39
-msgid "Total Bookings"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:228
@@ -7099,7 +7223,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/BookingNotifications.php:112
 #: src/Admin/Emails/Templates/RefundEmails.php:74
 #: src/Admin/Messages/Settings/MessagesSettings.php:375
-#: src-react/admin/messages/components/SettingsView.jsx:70
+#: src-react/admin/messages/components/SettingsView.jsx:77
 msgid "Admin Email"
 msgstr ""
 
@@ -7645,6 +7769,18 @@ msgstr ""
 msgid "Sent to vendor when an IBAN change request is rejected."
 msgstr ""
 
+#: src/Admin/Frontend/Account/AccountAssets.php:55
+#: src/Admin/Frontend/Account/AccountController.php:345
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:62
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
+#: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
+#: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:410
+#: src/Admin/VendorReport/VendorReportAssets.php:136
+#: templates/account/booking-detail.php:306
+msgid "An error occurred."
+msgstr ""
+
 #: src/Admin/Frontend/Account/AccountAssets.php:56
 #: src/Admin/Frontend/Account/AccountController.php:346
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63
@@ -7750,13 +7886,13 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:201
 #: src/Admin/Frontend/Account/AccountRenderer.php:312
-#: src-react/admin/messages/components/ThreadView.jsx:24
+#: src-react/admin/messages/components/ThreadView.jsx:39
 msgid "Failed to load thread."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:202
 #: src/Admin/Frontend/Account/AccountRenderer.php:313
-#: src-react/admin/messages/components/MessageTable.jsx:29
+#: src-react/admin/messages/components/MessageTable.jsx:32
 msgid "No messages found."
 msgstr ""
 
@@ -8331,7 +8467,7 @@ msgid "Please login to add favorites."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:304
-#: src/Admin/Messages/Core/Messages.php:1500
+#: src/Admin/Messages/Core/Messages.php:1507
 msgid "Operation successful."
 msgstr ""
 
@@ -8830,7 +8966,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:467
 #: src/Admin/Transfer/TransferAdmin.php:505
 #: templates/shortcodes/contact-form.php:128
-#: src-react/admin/messages/components/MessageTable.jsx:21
+#: src-react/admin/messages/components/MessageTable.jsx:24
 msgid "Priority"
 msgstr ""
 
@@ -11623,10 +11759,6 @@ msgstr ""
 msgid "Re-enable developer mode"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:195
-msgid "License Status"
-msgstr ""
-
 #: src/Admin/Licensing/LicenseAdmin.php:199
 msgid "✅ Pro License Active"
 msgstr ""
@@ -12217,7 +12349,7 @@ msgid "CSV only"
 msgstr ""
 
 #: src/Admin/Licensing/Mode.php:379
-msgid "CSV, JSON, Excel, XML, PDF"
+msgid "CSV, JSON"
 msgstr ""
 
 #: src/Admin/Licensing/Mode.php:412
@@ -12582,11 +12714,11 @@ msgstr ""
 msgid "Update Message"
 msgstr ""
 
-#: src/Admin/Messages/Core/Messages.php:1501
+#: src/Admin/Messages/Core/Messages.php:1508
 msgid "Are you sure you want to send this message?"
 msgstr ""
 
-#: src/Admin/Messages/Core/Messages.php:1502
+#: src/Admin/Messages/Core/Messages.php:1509
 msgid "Please login to send a message."
 msgstr ""
 
@@ -13068,12 +13200,12 @@ msgstr ""
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:74
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:59
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:188
-#: src-react/admin/messages/components/SettingsView.jsx:47
+#: src-react/admin/messages/components/SettingsView.jsx:53
 msgid "Categories"
 msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:361
-#: src-react/admin/messages/components/SettingsView.jsx:48
+#: src-react/admin/messages/components/SettingsView.jsx:54
 msgid "Statuses"
 msgstr ""
 
@@ -13143,7 +13275,7 @@ msgid "Send automatic reply to new messages"
 msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:469
-#: src-react/admin/messages/components/SettingsView.jsx:157
+#: src-react/admin/messages/components/SettingsView.jsx:164
 msgid "New category name"
 msgstr ""
 
@@ -13153,7 +13285,7 @@ msgid "Add Category"
 msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:487
-#: src-react/admin/messages/components/SettingsView.jsx:197
+#: src-react/admin/messages/components/SettingsView.jsx:204
 msgid "New status name"
 msgstr ""
 
@@ -14536,7 +14668,7 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:158
 #: src/Admin/Settings/Groups/FrontendSettings.php:303
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:72
-#: src-react/admin/messages/components/SettingsView.jsx:103
+#: src-react/admin/messages/components/SettingsView.jsx:110
 msgid "Notifications"
 msgstr ""
 
@@ -17508,11 +17640,6 @@ msgstr ""
 msgid "System Check"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1052
-#: src/Admin/Utilities/Menu/Menu.php:206
-msgid "License"
-msgstr ""
-
 #: src/Admin/Setup/SetupWizard.php:1053
 msgid "Required Pages"
 msgstr ""
@@ -18744,7 +18871,7 @@ msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php:265
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:455
-#: src-react/admin/messages/components/SettingsView.jsx:41
+#: src-react/admin/messages/components/SettingsView.jsx:47
 msgid "Settings saved."
 msgstr ""
 
@@ -22372,7 +22499,7 @@ msgstr ""
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1321
+#: src/Plugin.php:1325
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -25664,6 +25791,26 @@ msgstr ""
 msgid "Number of vendors per page (1-50)."
 msgstr ""
 
+#: src-react/admin/about/AboutPage.jsx:27
+msgid "Failed to load page data. Please refresh."
+msgstr ""
+
+#: src-react/admin/about/components/CopyValue.jsx:31
+msgid "Click to copy"
+msgstr ""
+
+#: src-react/admin/about/components/CopyValue.jsx:39
+msgid "Copied!"
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:37
+msgid "MHM Logo"
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:84
+msgid "Kocaeli - Turkey 41400"
+msgstr ""
+
 #: src-react/admin/customers/components/CustomerPanel.jsx:16
 msgid "Could not load customer details."
 msgstr ""
@@ -25707,12 +25854,6 @@ msgstr ""
 
 #: src-react/admin/customers/components/SearchBar.jsx:23
 msgid "Search customers…"
-msgstr ""
-
-#: src-react/admin/customers/components/StatsCards.jsx:10
-#: src-react/admin/reports/components/tabs/CustomersTab.jsx:17
-#: src-react/admin/reports/components/tabs/OverviewTab.jsx:63
-msgid "Total Customers"
 msgstr ""
 
 #: src-react/admin/customers/components/StatsCards.jsx:15
@@ -25865,35 +26006,36 @@ msgstr ""
 msgid "Send + Close"
 msgstr ""
 
-#: src-react/admin/messages/components/SettingsView.jsx:81
-msgid "From Name"
-msgstr ""
-
-#: src-react/admin/messages/components/SettingsView.jsx:92
-msgid "From Email"
-msgstr ""
-
-#: src-react/admin/messages/components/SettingsView.jsx:106
-msgid "Notify admin on new message"
-msgstr ""
-
-#: src-react/admin/messages/components/SettingsView.jsx:107
-msgid "Notify customer on reply"
-msgstr ""
-
-#: src-react/admin/messages/components/SettingsView.jsx:108
-msgid "Notify on admin reply"
-msgstr ""
-
-#: src-react/admin/messages/components/SettingsView.jsx:109
-msgid "Notify on status change"
-msgstr ""
-
-#: src-react/admin/messages/components/ThreadView.jsx:47
+#: src-react/admin/messages/components/SettingsView.jsx:41
+#: src-react/admin/messages/components/ThreadView.jsx:62
 msgid "← Back to Messages"
 msgstr ""
 
-#: src-react/admin/messages/components/ThreadView.jsx:87
+#: src-react/admin/messages/components/SettingsView.jsx:88
+msgid "From Name"
+msgstr ""
+
+#: src-react/admin/messages/components/SettingsView.jsx:99
+msgid "From Email"
+msgstr ""
+
+#: src-react/admin/messages/components/SettingsView.jsx:113
+msgid "Notify admin on new message"
+msgstr ""
+
+#: src-react/admin/messages/components/SettingsView.jsx:114
+msgid "Notify customer on reply"
+msgstr ""
+
+#: src-react/admin/messages/components/SettingsView.jsx:115
+msgid "Notify on admin reply"
+msgstr ""
+
+#: src-react/admin/messages/components/SettingsView.jsx:116
+msgid "Notify on status change"
+msgstr ""
+
+#: src-react/admin/messages/components/ThreadView.jsx:102
 msgid "Admin"
 msgstr ""
 
@@ -25941,10 +26083,6 @@ msgstr ""
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:55
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:25
 msgid "Avg Occupancy"
-msgstr ""
-
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:17
-msgid "Total Vehicles"
 msgstr ""
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:35
