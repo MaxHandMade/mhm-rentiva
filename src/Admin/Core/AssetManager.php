@@ -1093,44 +1093,6 @@ final class AssetManager {
 			);
 		}
 
-		// Messages Admin
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-messages') {
-			wp_enqueue_script(
-				'mhm-messages-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-admin.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/messages-admin.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-messages-admin',
-				'mhmMessagesAdmin',
-				array(
-					'ajax_url' => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhm_messages_nonce'),
-					'locale'   => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'strings'  => array(
-						'error'               => __('An error occurred', 'mhm-rentiva'),
-						'no_items_selected'   => __('Please select at least one item', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirm_mark_read'   => __('Mark %d message(s) as read?', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirm_mark_unread' => __('Mark %d message(s) as unread?', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirm_delete'      => __('Delete %d message(s)? This action cannot be undone.', 'mhm-rentiva'),
-						'processing'          => __('Processing...', 'mhm-rentiva'),
-						'justNow'             => __('Just now', 'mhm-rentiva'),
-						'minutesAgo'          => __('minutes ago', 'mhm-rentiva'),
-						'hoursAgo'            => __('hours ago', 'mhm-rentiva'),
-						'daysAgo'             => __('days ago', 'mhm-rentiva'),
-						'draftSaved'          => __('Draft saved', 'mhm-rentiva'),
-						'sendReply'           => __('Send Reply', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Addon List
 		if ($screen->id === 'edit-addon' || $screen->post_type === 'addon') {
 			wp_enqueue_script(
