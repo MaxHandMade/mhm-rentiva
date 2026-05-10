@@ -1123,6 +1123,10 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\Admin\REST\Locations')) {
 			\MHMRentiva\Admin\REST\Locations::register();
 		}
+
+		if ($this->is_class_available('MHMRentiva\Admin\Utilities\Dashboard\DashboardPage')) {
+			\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::register_rest_routes();
+		}
 	}
 
 	/**
