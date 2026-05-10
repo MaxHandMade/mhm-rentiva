@@ -14,4 +14,19 @@ export const rentivaApi = {
 			return apiFetch( { path: `${ BASE }/reports?${ qs }` } );
 		},
 	},
+	customers: {
+		getList: ( params ) => {
+			const qs = new URLSearchParams( params ).toString();
+			return apiFetch( { path: `${ BASE }/customers?${ qs }` } );
+		},
+		getDetail: ( id ) =>
+			apiFetch( { path: `${ BASE }/customers/${ id }` } ),
+		bulkDelete: ( ids ) =>
+			apiFetch( {
+				path:    `${ BASE }/customers/bulk`,
+				method:  'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				data:    { ids },
+			} ),
+	},
 };
