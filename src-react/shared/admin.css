@@ -99,6 +99,18 @@
 	font-size: 13px;
 	font-weight: 600;
 	color: var( --mhm-text );
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.mhm-widget h3 .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	color: var( --mhm-blue );
+	flex-shrink: 0;
+	opacity: .85;
 }
 
 .mhm-widget h3 .mhm-widget__subtitle {

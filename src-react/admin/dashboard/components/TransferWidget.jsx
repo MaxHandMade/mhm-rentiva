@@ -24,7 +24,7 @@ export default function TransferWidget( { initial, stats, currency, adminUrl } )
 
 	return (
 		<div className="mhm-widget mhm-transfer-widget">
-			<h3>{ __( 'Transfer Summary', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-airplane" />{ __( 'Transfer Summary', 'mhm-rentiva' ) }</h3>
 
 			{ /* Mini KPI row */ }
 			<div className="mhm-kpi-row">

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-10T07:09:05+00:00\n"
+"POT-Creation-Date: 2026-05-10T08:15:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1397,6 +1397,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:357
 #: templates/account/booking-detail.php:211
 #: templates/shortcodes/booking-form.php:288
+#: src-react/admin/dashboard/components/QuickActions.jsx:13
 msgid "Additional Services"
 msgstr ""
 
@@ -25893,10 +25894,6 @@ msgstr ""
 
 #: src-react/admin/dashboard/components/QuickActions.jsx:8
 msgid "All Vehicles"
-msgstr ""
-
-#: src-react/admin/dashboard/components/QuickActions.jsx:13
-msgid "Addons"
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:45

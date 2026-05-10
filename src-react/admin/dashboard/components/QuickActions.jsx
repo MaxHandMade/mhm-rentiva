@@ -10,13 +10,13 @@ export default function QuickActions( { adminUrl } ) {
 		{ label: __( 'Settings', 'mhm-rentiva' ),         href: `${ adminUrl }admin.php?page=mhm-rentiva-settings`,    icon: 'dashicons-admin-settings' },
 		{ label: __( 'Customers', 'mhm-rentiva' ),        href: `${ adminUrl }admin.php?page=mhm-rentiva-customers`,   icon: 'dashicons-groups' },
 		{ label: __( 'Messages', 'mhm-rentiva' ),         href: `${ adminUrl }admin.php?page=mhm-rentiva-messages`,    icon: 'dashicons-email' },
-		{ label: __( 'Addons', 'mhm-rentiva' ),           href: `${ adminUrl }edit.php?post_type=vehicle_addon`,       icon: 'dashicons-admin-plugins' },
+		{ label: __( 'Additional Services', 'mhm-rentiva' ), href: `${ adminUrl }edit.php?post_type=vehicle_addon`,       icon: 'dashicons-admin-plugins' },
 		{ label: __( 'Export', 'mhm-rentiva' ),           href: `${ adminUrl }admin.php?page=mhm-rentiva-export`,      icon: 'dashicons-download' },
 	];
 
 	return (
 		<div className="mhm-widget mhm-quick-actions">
-			<h3>{ __( 'Quick Actions', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-performance" />{ __( 'Quick Actions', 'mhm-rentiva' ) }</h3>
 			<div className="mhm-quick-actions__grid">
 				{ actions.map( ( a ) => (
 					<a key={ a.label } href={ a.href } className="mhm-quick-actions__item">

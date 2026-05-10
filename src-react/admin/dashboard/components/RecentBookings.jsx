@@ -32,7 +32,7 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 
 	return (
 		<div className="mhm-widget mhm-recent-bookings">
-			<h3>{ __( 'Recent Bookings', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-calendar-alt" />{ __( 'Recent Bookings', 'mhm-rentiva' ) }</h3>
 
 			{ /* Mini KPI row — values from localize data (same source as StatsCards) */ }
 			<div className="mhm-kpi-row">

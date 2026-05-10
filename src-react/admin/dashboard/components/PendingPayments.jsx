@@ -4,7 +4,7 @@ export default function PendingPayments( { payments, adminUrl } ) {
 	if ( ! payments?.length ) {
 		return (
 			<div className="mhm-widget mhm-pending-payments">
-				<h3>{ __( 'Pending Payments', 'mhm-rentiva' ) }</h3>
+				<h3><span className="dashicons dashicons-money-alt" />{ __( 'Pending Payments', 'mhm-rentiva' ) }</h3>
 				<p className="mhm-empty">{ __( 'No pending payments.', 'mhm-rentiva' ) }</p>
 			</div>
 		);
@@ -12,7 +12,7 @@ export default function PendingPayments( { payments, adminUrl } ) {
 
 	return (
 		<div className="mhm-widget mhm-pending-payments">
-			<h3>{ __( 'Pending Payments', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-money-alt" />{ __( 'Pending Payments', 'mhm-rentiva' ) }</h3>
 			<table className="widefat fixed striped">
 				<tbody>
 					{ payments.map( ( p ) => (

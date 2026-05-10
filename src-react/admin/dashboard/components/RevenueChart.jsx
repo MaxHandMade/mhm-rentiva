@@ -55,7 +55,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 
 	return (
 		<div className="mhm-widget mhm-revenue-chart">
-			<h3>{ __( 'Revenue (Last 7 Days)', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-chart-bar" />{ __( 'Revenue (Last 7 Days)', 'mhm-rentiva' ) }</h3>
 			<canvas ref={ canvasRef } height="200" />
 			<p className="mhm-revenue-chart__weekly">
 				{ __( 'This week:', 'mhm-rentiva' ) }{ ' ' }

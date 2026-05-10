@@ -19,7 +19,7 @@ export default function UpcomingOperations( { initial } ) {
 
 	return (
 		<div className="mhm-widget mhm-upcoming-ops">
-			<h3>{ __( 'Upcoming Operations', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-clock" />{ __( 'Upcoming Operations', 'mhm-rentiva' ) }</h3>
 
 			{ loading && <Spinner /> }
 			{ error   && <p className="mhm-error">{ __( 'Failed to load.', 'mhm-rentiva' ) }</p> }
