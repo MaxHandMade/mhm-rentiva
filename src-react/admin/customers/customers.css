@@ -1,6 +1,8 @@
 /* Customers page layout */
 .mhm-customers {
 	max-width: 1400px;
+	margin-top: 16px;
+	padding: 0 4px;
 }
 
 /* Search + Filter bar row */
