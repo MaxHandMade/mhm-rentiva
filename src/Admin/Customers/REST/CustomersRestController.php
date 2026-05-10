@@ -102,7 +102,7 @@ final class CustomersRestController {
 			$sort_dir = 'desc';
 		}
 
-		$result = CustomersOptimizer::get_customers_optimized( $page, $per_page, $search );
+		$result = CustomersOptimizer::get_customers_optimized( $page, $per_page, $search, $sort_by, $sort_dir );
 
 		return new \WP_REST_Response(
 			array(

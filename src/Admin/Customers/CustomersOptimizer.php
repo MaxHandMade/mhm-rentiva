@@ -59,8 +59,18 @@ final class CustomersOptimizer {
 	 * @param string $search Search term
 	 * @return array
 	 */
-	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '' ): array {
-		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search );
+	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '', string $sort_by = 'last_booking', string $sort_dir = 'desc' ): array {
+		$column_map = array(
+			'name'         => 'u.display_name',
+			'email'        => 'u.user_email',
+			'bookings'     => 'booking_count',
+			'total_spent'  => 'total_spent',
+			'last_booking' => 'last_booking',
+			'date'         => 'u.user_registered',
+		);
+		$order_col  = $column_map[ $sort_by ] ?? 'last_booking';
+		$order_dir  = 'asc' === strtolower( $sort_dir ) ? 'ASC' : 'DESC';
+		$cache_key  = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -75,10 +85,11 @@ final class CustomersOptimizer {
 
 		$search_like = '%' . $wpdb->esc_like( $search ) . '%';
 
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- ORDER BY column name whitelisted from $column_map static PHP array, not user input.
 		if ( $search !== '' ) {
 			$results_query = $wpdb->prepare(
 				"
-            SELECT 
+            SELECT
                 u.ID as user_id,
                 u.display_name as customer_name,
                 u.user_email as customer_email,
@@ -104,7 +115,7 @@ final class CustomersOptimizer {
                 AND u.user_login != 'admin'
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            ORDER BY last_booking DESC
+            ORDER BY {$order_col} {$order_dir}
             LIMIT %d OFFSET %d
 
             ",
@@ -116,7 +127,7 @@ final class CustomersOptimizer {
 		} else {
 			$results_query = $wpdb->prepare(
 				"
-            SELECT 
+            SELECT
                 u.ID as user_id,
                 u.display_name as customer_name,
                 u.user_email as customer_email,
@@ -141,7 +152,7 @@ final class CustomersOptimizer {
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            ORDER BY last_booking DESC
+            ORDER BY {$order_col} {$order_dir}
             LIMIT %d OFFSET %d
 
             ",
@@ -149,8 +160,9 @@ final class CustomersOptimizer {
 				(int) $offset
 			);
 		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- ORDER BY column name whitelisted from static PHP array, not user input.
 		$results = $wpdb->get_results( $results_query );
 
 		if ( empty( $results ) ) {
