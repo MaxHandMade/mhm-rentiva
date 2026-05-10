@@ -18,8 +18,23 @@ export default function ThreadView( { messageId, onBack } ) {
 		setError( null );
 		try {
 			const data = await rentivaApi.messages.getThread( messageId );
-			setThread( data.message );
-			setStatus( data.message.status );
+			const normalized = {
+				subject:        data.message.post_title,
+				customer_name:  data.meta.customer_name,
+				customer_email: data.meta.customer_email,
+				status:         data.meta.status,
+				can_reply:      true,
+				thread_messages: ( data.thread ?? [] ).map( ( msg ) => ( {
+					id:            msg.ID,
+					content:       msg.post_content,
+					message_type:  msg.meta?.message_type ?? 'customer_to_admin',
+					customer_name: msg.meta?.customer_name ?? data.meta.customer_name,
+					admin_name:    msg.meta?.admin_name ?? '',
+					date_full:     msg.post_date,
+				} ) ),
+			};
+			setThread( normalized );
+			setStatus( data.meta.status );
 		} catch {
 			setError( __( 'Failed to load thread.', 'mhm-rentiva' ) );
 		} finally {
