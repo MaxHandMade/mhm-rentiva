@@ -62,6 +62,7 @@ export default function DashboardPage() {
 					initial={ transfersInitial }
 					stats={ transferStats }
 					currency={ currency }
+					adminUrl={ adminUrl }
 				/>
 			</div>
 

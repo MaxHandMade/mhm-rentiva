@@ -5,7 +5,7 @@ import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
 import { fmtAmount, fmtMoney } from '../../../shared/format';
 
-export default function TransferWidget( { initial, stats, currency } ) {
+export default function TransferWidget( { initial, stats, currency, adminUrl } ) {
 	const [ page, setPage ] = useState( 1 );
 
 	const fetchPage = useCallback(
@@ -54,7 +54,10 @@ export default function TransferWidget( { initial, stats, currency } ) {
 					{ items.map( ( t ) => (
 						<div key={ t.id } className="mhm-card-list__item">
 							<div className="mhm-card-list__top">
-								<span className="mhm-card-list__id">{ t.display_id }</span>
+								<a
+									className="mhm-card-list__id"
+									href={ `${ adminUrl }post.php?post=${ t.id }&action=edit` }
+								>{ t.display_id }</a>
 								<span className="mhm-card-list__name">
 									{ [ t.route_from, t.route_to ].filter( Boolean ).join( ' → ' ) || '—' }
 								</span>
