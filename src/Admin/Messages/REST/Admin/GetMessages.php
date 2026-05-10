@@ -25,8 +25,10 @@ final class GetMessages {
 		$category = $request->get_param( 'category' );
 		$per_page = $request->get_param( 'per_page' );
 		$page     = $request->get_param( 'page' );
+		$search   = $request->get_param( 'search' ) ?: null;
+		$priority = $request->get_param( 'priority' ) ?: null;
 
-		$result = MessageQuery::getAdminMessages( $status, $category, $per_page, $page );
+		$result = MessageQuery::getAdminMessages( $status, $category, $per_page, $page, $search, $priority );
 
 		return new WP_REST_Response( $result, 200 );
 	}

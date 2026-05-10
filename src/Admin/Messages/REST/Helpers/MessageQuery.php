@@ -28,7 +28,7 @@ final class MessageQuery {
 	 * Optimized query using central MetaQueryHelper
 	 */
 	// phpcs:ignore WordPress.NamingConventions.ValidFunctionName.MethodNameInvalid -- Public API kept for backward compatibility.
-	public static function getAdminMessages( ?string $status = null, ?string $category = null, int $per_page = 20, int $page = 1 ): array {
+	public static function getAdminMessages( ?string $status = null, ?string $category = null, int $per_page = 20, int $page = 1, ?string $search = null, ?string $priority = null ): array {
 		global $wpdb;
 
 		$where_clauses = array(
@@ -42,6 +42,20 @@ final class MessageQuery {
 
 		if ( $category ) {
 			$where_clauses[] = $wpdb->prepare( 'pm_category.meta_value = %s', $category );
+		}
+
+		if ( $search ) {
+			$like = '%' . $wpdb->esc_like( $search ) . '%';
+			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $like is escaped above with esc_like.
+			$where_clauses[] = $wpdb->prepare(
+				'(p.post_title LIKE %s OR pm_customer_name.meta_value LIKE %s)',
+				$like,
+				$like
+			);
+		}
+
+		if ( $priority ) {
+			$where_clauses[] = $wpdb->prepare( 'pm_priority.meta_value = %s', $priority );
 		}
 
 		$offset = ( $page - 1 ) * $per_page;

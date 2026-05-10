@@ -68,6 +68,18 @@ final class Messages {
 						'default'  => 1,
 						'required' => false,
 					),
+					'search'   => array(
+						'type'              => 'string',
+						'required'          => false,
+						'default'           => '',
+						'sanitize_callback' => 'sanitize_text_field',
+					),
+					'priority' => array(
+						'type'     => 'string',
+						'required' => false,
+						'default'  => '',
+						'enum'     => array( '', 'normal', 'high', 'urgent' ),
+					),
 				),
 			)
 		);
