@@ -1,0 +1,242 @@
+/* ── Root scope ─────────────────────────────────────────────────────── */
+#mhm-about-root {
+	margin-top: 16px;
+	--mhm-border:       #c3c4c7;
+	--mhm-border-light: #f0f0f1;
+	--mhm-text:         #1d2327;
+	--mhm-text-light:   #646970;
+	--mhm-card-bg:      #ffffff;
+	--mhm-gap:          16px;
+	--mhm-blue:         #2271b1;
+}
+
+/* ── Loading ─────────────────────────────────────────────────────────── */
+.mhm-about-loading {
+	padding: 32px;
+	text-align: center;
+}
+
+/* ── Tab content wrapper ─────────────────────────────────────────────── */
+.mhm-about-tab-content {
+	margin-top: var(--mhm-gap);
+}
+
+/* ── Cards grid (General + System) ──────────────────────────────────── */
+.mhm-about-cards-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: var(--mhm-gap);
+}
+
+/* ── InfoCard ────────────────────────────────────────────────────────── */
+.mhm-about-info-card h3 {
+	margin: 0 0 12px;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+	color: var(--mhm-text-light);
+	border-bottom: 1px solid var(--mhm-border-light);
+	padding-bottom: 8px;
+}
+
+.mhm-info-row {
+	display: flex;
+	gap: 8px;
+	padding: 5px 0;
+	border-bottom: 1px solid var(--mhm-border-light);
+	font-size: 13px;
+}
+
+.mhm-info-row:last-child {
+	border-bottom: none;
+}
+
+.mhm-info-row dt {
+	flex: 0 0 140px;
+	color: var(--mhm-text-light);
+	font-weight: 500;
+}
+
+.mhm-info-row dd {
+	flex: 1;
+	margin: 0;
+	word-break: break-all;
+}
+
+/* ── CopyValue ───────────────────────────────────────────────────────── */
+.mhm-copy-value {
+	cursor: pointer;
+	position: relative;
+	border-bottom: 1px dashed var(--mhm-blue);
+}
+
+.mhm-copy-value:hover {
+	color: var(--mhm-blue);
+}
+
+.mhm-copy-feedback {
+	position: absolute;
+	bottom: calc(100% + 4px);
+	left: 0;
+	background: #1d2327;
+	color: #fff;
+	font-size: 11px;
+	padding: 2px 6px;
+	border-radius: 3px;
+	white-space: nowrap;
+	pointer-events: none;
+	z-index: 10;
+}
+
+/* ── Features table ──────────────────────────────────────────────────── */
+.mhm-about-features {
+	margin-top: 0;
+}
+
+.mhm-about-features-table-wrap {
+	overflow-x: auto;
+}
+
+.mhm-features-table th:first-child,
+.mhm-features-table td:first-child {
+	width: 40%;
+}
+
+/* ── Support cards ───────────────────────────────────────────────────── */
+.mhm-about-support-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: var(--mhm-gap);
+	margin-bottom: var(--mhm-gap);
+}
+
+.mhm-support-card h3 {
+	margin: 0 0 8px;
+}
+
+.mhm-support-links {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.mhm-contact-info {
+	font-size: 12px;
+	color: var(--mhm-text-light);
+	margin-top: 8px;
+}
+
+.mhm-contact-info p {
+	margin: 2px 0;
+}
+
+/* ── Changelog ───────────────────────────────────────────────────────── */
+.mhm-changelog-item {
+	border-bottom: 1px solid var(--mhm-border-light);
+}
+
+.mhm-changelog-item:last-child {
+	border-bottom: none;
+}
+
+.mhm-changelog-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 0;
+	cursor: pointer;
+	user-select: none;
+}
+
+.mhm-changelog-version-info {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 13px;
+}
+
+.mhm-changelog-date {
+	color: var(--mhm-text-light);
+	font-size: 12px;
+}
+
+.mhm-current-badge {
+	background: #00a32a;
+	color: #fff;
+	font-size: 11px;
+	padding: 1px 6px;
+	border-radius: 10px;
+}
+
+.mhm-changelog-content {
+	padding: 4px 0 12px 16px;
+}
+
+.mhm-changelog-content ul {
+	margin: 0;
+	padding: 0 0 0 16px;
+}
+
+.mhm-changelog-content li {
+	font-size: 13px;
+	margin-bottom: 3px;
+	color: var(--mhm-text);
+}
+
+/* ── Developer tab ───────────────────────────────────────────────────── */
+.mhm-developer-header {
+	display: flex;
+	align-items: center;
+	gap: 20px;
+}
+
+.mhm-developer-logo {
+	max-height: 60px;
+	width: auto;
+}
+
+.mhm-developer-tagline {
+	color: var(--mhm-text-light);
+	margin: 4px 0 8px;
+}
+
+.mhm-developer-stats {
+	display: flex;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+
+.mhm-developer-stats span {
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--mhm-blue);
+}
+
+.mhm-about-grid-3 {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: var(--mhm-gap);
+	margin-top: 12px;
+}
+
+.mhm-about-grid-2 {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+	gap: var(--mhm-gap);
+	margin-top: 12px;
+}
+
+.mhm-expertise-item h4,
+.mhm-project-item h4 {
+	margin: 0 0 4px;
+	font-size: 13px;
+}
+
+.mhm-expertise-item p,
+.mhm-project-item p {
+	font-size: 12px;
+	color: var(--mhm-text-light);
+	margin-bottom: 8px;
+}
