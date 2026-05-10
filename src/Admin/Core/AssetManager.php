@@ -568,6 +568,9 @@ final class AssetManager {
 				'currency'         => get_option('mhm_rentiva_currency', 'USD'),
 				'currencySymbol'   => CurrencyHelper::get_currency_symbol(),
 				'currencyPosition' => CurrencyHelper::get_currency_position(),
+				'decimalSep'       => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',',
+				'thousandSep'      => function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.',
+				'numDecimals'      => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
 				'dateFormat'       => get_option('date_format', 'Y-m-d'),
 				'timeFormat'       => get_option('time_format', 'H:i'),
 				'strings'          => array(
