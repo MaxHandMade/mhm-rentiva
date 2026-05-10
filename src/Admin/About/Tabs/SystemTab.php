@@ -208,4 +208,118 @@ final class SystemTab extends AbstractTab {
 			self::render_notice( $system_info['error'], 'error' );
 		}
 	}
+
+	/**
+	 * Returns structured system tab data for the REST endpoint.
+	 */
+	public static function get_data(): array
+	{
+		$info      = \MHMRentiva\Admin\About\SystemInfo::get_cached_system_info();
+		$wp_info   = $info['wordpress'] ?? array();
+		$php_info  = $info['php']       ?? array();
+		$plug_info = $info['plugin']    ?? array();
+		$db_info   = $info['database']  ?? array();
+
+		return array(
+			'wordpress' => array(
+				array(
+					'label'    => __( 'Version', 'mhm-rentiva' ),
+					'value'    => $wp_info['version']  ?? get_bloginfo( 'version' ),
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Language', 'mhm-rentiva' ),
+					'value'    => $wp_info['language'] ?? get_locale(),
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Timezone', 'mhm-rentiva' ),
+					'value'    => $wp_info['timezone'] ?? wp_timezone_string(),
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Site URL', 'mhm-rentiva' ),
+					'value'    => $wp_info['site_url'] ?? site_url(),
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Multisite', 'mhm-rentiva' ),
+					'value'    => (bool) ( $wp_info['multisite'] ?? is_multisite() ),
+					'copyable' => false,
+					'boolean'  => true,
+				),
+			),
+			'php'       => array(
+				array(
+					'label'    => __( 'Version', 'mhm-rentiva' ),
+					'value'    => $php_info['version']             ?? PHP_VERSION,
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Memory Limit', 'mhm-rentiva' ),
+					'value'    => $php_info['memory_limit']        ?? ini_get( 'memory_limit' ),
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Max Execution Time', 'mhm-rentiva' ),
+					'value'    => ( $php_info['max_execution_time'] ?? ini_get( 'max_execution_time' ) ) . 's',
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Upload Max Size', 'mhm-rentiva' ),
+					'value'    => $php_info['upload_max_filesize'] ?? ini_get( 'upload_max_filesize' ),
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Post Max Size', 'mhm-rentiva' ),
+					'value'    => $php_info['post_max_size']        ?? ini_get( 'post_max_size' ),
+					'copyable' => false,
+				),
+			),
+			'plugin'    => array(
+				array(
+					'label'    => __( 'Version', 'mhm-rentiva' ),
+					'value'    => 'v' . MHM_RENTIVA_VERSION,
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Install Date', 'mhm-rentiva' ),
+					'value'    => $plug_info['install_date']   ?? '',
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Last Update', 'mhm-rentiva' ),
+					'value'    => $plug_info['last_update']    ?? '',
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'License Status', 'mhm-rentiva' ),
+					'value'    => Mode::isPro() ? __( 'Active', 'mhm-rentiva' ) : __( 'Lite Version', 'mhm-rentiva' ),
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'License Expiry', 'mhm-rentiva' ),
+					'value'    => \MHMRentiva\Admin\Licensing\LicenseManager::instance()->getExpiryDate(),
+					'copyable' => false,
+				),
+			),
+			'database'  => array(
+				array(
+					'label'    => __( 'MySQL Version', 'mhm-rentiva' ),
+					'value'    => $db_info['version'] ?? '',
+					'copyable' => true,
+				),
+				array(
+					'label'    => __( 'Charset', 'mhm-rentiva' ),
+					'value'    => $db_info['charset'] ?? '',
+					'copyable' => false,
+				),
+				array(
+					'label'    => __( 'Collate', 'mhm-rentiva' ),
+					'value'    => $db_info['collate']  ?? '',
+					'copyable' => false,
+				),
+			),
+		);
+	}
 }
