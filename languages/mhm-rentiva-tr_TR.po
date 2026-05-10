@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-05-09T18:17:13+00:00\n"
+"POT-Creation-Date: 2026-05-10T01:25:30+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -777,7 +777,7 @@ msgstr "Lisans durumu:"
 #: src/Admin/Settings/Groups/LicenseSettings.php:85
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:1353 src/Admin/Setup/SetupWizard.php:1412
-#: src/Admin/Utilities/Dashboard/DashboardService.php:849
+#: src/Admin/Utilities/Dashboard/DashboardService.php:927
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1594
@@ -1743,8 +1743,8 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Messages/Settings/MessagesSettings.php:222
 #: src/Admin/PostTypes/Message/Message.php:342
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:168
-#: src/Admin/Utilities/Dashboard/DashboardService.php:682
-#: src/Admin/Utilities/Dashboard/DashboardService.php:847
+#: src/Admin/Utilities/Dashboard/DashboardService.php:760
+#: src/Admin/Utilities/Dashboard/DashboardService.php:925
 #: src/Admin/Utilities/Export/ExportFilters.php:45
 #: src/Admin/Utilities/Export/ExportFilters.php:58
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:959
@@ -1762,7 +1762,7 @@ msgstr "Bekleyen Ödeme"
 #: templates/emails/booking-created-customer.html.php:90
 #: templates/emails/refund-customer.html.php:32
 #: assets/blocks/payment-history/index.js:41
-#: src-react/admin/dashboard/components/RecentBookings.jsx:4
+#: src-react/admin/dashboard/components/RecentBookings.jsx:8
 msgid "Pending"
 msgstr "Beklemede"
 
@@ -1778,7 +1778,7 @@ msgstr "Beklemede"
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:136
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:191
-#: src/Admin/Utilities/Dashboard/DashboardService.php:848
+#: src/Admin/Utilities/Dashboard/DashboardService.php:926
 #: src/Admin/Utilities/Export/ExportFilters.php:46
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:963
 #: templates/account/booking-detail.php:74 templates/account/bookings.php:113
@@ -1789,7 +1789,7 @@ msgstr "Beklemede"
 #: templates/account/partials/vendor-payouts.php:45
 #: templates/account/user-dashboard.php:254
 #: templates/account/vendor-booking-detail.php:83
-#: src-react/admin/dashboard/components/RecentBookings.jsx:5
+#: src-react/admin/dashboard/components/RecentBookings.jsx:9
 msgid "Confirmed"
 msgstr "Onaylandı"
 
@@ -1806,7 +1806,7 @@ msgstr "Onaylandı"
 #: templates/account/partials/vendor-bookings.php:88
 #: templates/account/user-dashboard.php:255
 #: templates/account/vendor-booking-detail.php:84
-#: src-react/admin/dashboard/components/RecentBookings.jsx:6
+#: src-react/admin/dashboard/components/RecentBookings.jsx:10
 msgid "In Progress"
 msgstr "Devam Ediyor"
 
@@ -1837,7 +1837,7 @@ msgstr "Devam Ediyor"
 #: templates/emails/booking-created-vendor.html.php:22
 #: templates/emails/refund-customer.html.php:33
 #: assets/blocks/my-bookings/index.js:44
-#: src-react/admin/dashboard/components/RecentBookings.jsx:7
+#: src-react/admin/dashboard/components/RecentBookings.jsx:11
 msgid "Completed"
 msgstr "Tamamlandı"
 
@@ -1865,7 +1865,7 @@ msgstr "Tamamlandı"
 #: templates/emails/booking-created-admin.html.php:67
 #: templates/emails/booking-created-vendor.html.php:24
 #: assets/blocks/my-bookings/index.js:45
-#: src-react/admin/dashboard/components/RecentBookings.jsx:8
+#: src-react/admin/dashboard/components/RecentBookings.jsx:12
 msgid "Cancelled"
 msgstr "İptal Edildi"
 
@@ -2267,6 +2267,8 @@ msgstr "Gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1489
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:193
 #: src/Admin/Reports/BackgroundProcessor.php:465
+#: src-react/admin/dashboard/components/RecentBookings.jsx:41
+#: src-react/admin/dashboard/components/TransferWidget.jsx:33
 msgid "Total"
 msgstr "Toplam"
 
@@ -2678,7 +2680,7 @@ msgstr "Kapat"
 #: src/Admin/Settings/Testing/SettingsTester.php:971
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:71
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:265
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1288
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1292
 #: templates/messages/message-thread-view.html.php:56
 msgid "Customer"
 msgstr "Müşteri"
@@ -2945,7 +2947,7 @@ msgstr "Ödeme türü"
 #: src/Admin/Core/AssetManager.php:650
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:345
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:850
+#: src/Admin/Utilities/Dashboard/DashboardService.php:928
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:493
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1521
 #: assets/blocks/booking-form/index.js:94
@@ -4019,6 +4021,7 @@ msgstr "Rezervasyon başarıyla oluşturuldu."
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:119
 #: src/Admin/Utilities/ListTable/CustomersListTable.php:268
 #: src/Admin/Utilities/Menu/Menu.php:76 src/Admin/Utilities/Menu/Menu.php:77
+#: src-react/admin/reports/components/tabs/BookingsTab.jsx:22
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:12
 msgid "Bookings"
 msgstr "Rezervasyonlar"
@@ -5116,6 +5119,7 @@ msgstr "Müşteri Detayları"
 #: src/Core/Dashboard/DashboardConfig.php:26 templates/account/dashboard.php:50
 #: src-react/admin/dashboard/components/StatsCards.jsx:9
 #: src-react/admin/reports/components/StatsCards.jsx:6
+#: src-react/admin/reports/components/tabs/BookingsTab.jsx:52
 msgid "Total Bookings"
 msgstr "Toplam Rezervasyonlar"
 
@@ -7036,7 +7040,7 @@ msgstr "E-posta şablonları başarıyla kaydedildi!"
 #: src/Admin/Messages/Admin/MessageListTable.php:392
 #: src/Admin/Messages/Admin/MessageListTable.php:405
 #: src/Admin/Messages/REST/Helpers/MessageQuery.php:85
-#: src/Admin/Utilities/Dashboard/DashboardService.php:692
+#: src/Admin/Utilities/Dashboard/DashboardService.php:770
 #: templates/shortcodes/vehicle-rating-form.php:214
 msgid "Anonymous"
 msgstr "Anonim"
@@ -8671,9 +8675,9 @@ msgstr "Verileri alırken bir hata oluştu."
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:327
 #: src/Admin/Services/CompareService.php:201
 #: src/Admin/Services/FavoritesService.php:129
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:133
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:154
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:296
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:211
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:232
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:386
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1860
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1977
 msgid "Security check failed"
@@ -12760,7 +12764,7 @@ msgid "%d messages deleted."
 msgstr "%d mesaj silindi."
 
 #: src/Admin/Messages/Core/Messages.php:64
-#: src/Admin/Utilities/Dashboard/DashboardService.php:718
+#: src/Admin/Utilities/Dashboard/DashboardService.php:796
 msgid "Pending Messages"
 msgstr "Bekleyen Mesajlar"
 
@@ -12852,8 +12856,8 @@ msgstr "Bu yanıtın ardından sohbeti kapatın"
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:341
 #: src/Admin/Messages/Monitoring/PerformanceMonitor.php:285
 #: src/Admin/Reports/Reports.php:210 src/Admin/Reports/Reports.php:265
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:159
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:300
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:237
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:390
 #: src/Admin/Utilities/Export/ExportReports.php:22
 msgid "Unauthorized access"
 msgstr "İzinsiz erişim"
@@ -13509,13 +13513,13 @@ msgstr "Önerilen"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:223
 #: src/Admin/PostTypes/Message/Message.php:343
-#: src/Admin/Utilities/Dashboard/DashboardService.php:683
+#: src/Admin/Utilities/Dashboard/DashboardService.php:761
 msgid "Answered"
 msgstr "Cevaplandı"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:224
 #: src/Admin/PostTypes/Message/Message.php:344
-#: src/Admin/Utilities/Dashboard/DashboardService.php:684
+#: src/Admin/Utilities/Dashboard/DashboardService.php:762
 msgid "Closed"
 msgstr "Kapalı"
 
@@ -14523,6 +14527,8 @@ msgstr "PayPal"
 
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:187
 #: templates/account/partials/top-vehicles.php:30
+#: src-react/admin/dashboard/components/RecentBookings.jsx:49
+#: src-react/admin/dashboard/components/TransferWidget.jsx:41
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:8
 #: src-react/admin/reports/components/tabs/RevenueTab.jsx:22
 msgid "Revenue"
@@ -14572,7 +14578,7 @@ msgid "Invalid report type"
 msgstr "Geçersiz rapor türü"
 
 #: src/Admin/Reports/Reports.php:281
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:304
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:394
 msgid "Cache cleared successfully"
 msgstr "Önbellek başarıyla temizlendi"
 
@@ -19957,25 +19963,25 @@ msgstr "Cron işi yürütülürken hata oluştu: %s"
 msgid "Cron hook is required"
 msgstr "Cron kancası gereklidir"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:139
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:217
 msgid "Invalid order data"
 msgstr "Geçersiz sipariş verileri"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:144
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:222
 msgid "Order saved successfully"
 msgstr "Sipariş başarıyla kaydedildi"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:164
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:242
 msgid "Dashboard layout reset successfully"
 msgstr "Kontrol paneli düzeni başarıyla sıfırlandı"
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:721
+#: src/Admin/Utilities/Dashboard/DashboardService.php:799
 #, php-format
 msgid "%s pending messages"
 msgstr "%s bekleyen mesajlar"
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:724
+#: src/Admin/Utilities/Dashboard/DashboardService.php:802
 msgid "Now"
 msgstr "Şimdi"
 
@@ -23378,7 +23384,7 @@ msgstr ""
 "Rentiva Lite sürümü rezervasyon sınırına ulaştı. Daha fazla rezervasyon "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1310
+#: src/Plugin.php:1314
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -23570,8 +23576,7 @@ msgid "Active Bookings"
 msgstr "Aktif Rezervasyonlar"
 
 #: templates/account/dashboard.php:87 templates/account/user-dashboard.php:204
-#: src-react/admin/dashboard/components/RecentBookings.jsx:15
-#: src-react/admin/dashboard/components/RecentBookings.jsx:23
+#: src-react/admin/dashboard/components/RecentBookings.jsx:35
 msgid "Recent Bookings"
 msgstr "Son Rezervasyonlar"
 
@@ -26942,9 +26947,32 @@ msgstr "Tüm Araçlar"
 msgid "Addons"
 msgstr "Eklentiler"
 
-#: src-react/admin/dashboard/components/RecentBookings.jsx:16
+#: src-react/admin/dashboard/components/RecentBookings.jsx:45
+#: src-react/admin/dashboard/components/TransferWidget.jsx:37
+msgid "This Month"
+msgstr "Bu Ay"
+
+#: src-react/admin/dashboard/components/RecentBookings.jsx:54
+#: src-react/admin/dashboard/components/TransferWidget.jsx:46
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:25
+msgid "Failed to load."
+msgstr "Yükleme başarısız."
+
+#: src-react/admin/dashboard/components/RecentBookings.jsx:57
 msgid "No bookings yet."
 msgstr "Henüz rezervasyon yok."
+
+#: src-react/admin/dashboard/components/RecentBookings.jsx:93
+#: src-react/admin/dashboard/components/TransferWidget.jsx:82
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:48
+msgid "← Prev"
+msgstr "← Önceki"
+
+#: src-react/admin/dashboard/components/RecentBookings.jsx:101
+#: src-react/admin/dashboard/components/TransferWidget.jsx:90
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
+msgid "Next →"
+msgstr "Sonraki →"
 
 #: src-react/admin/dashboard/components/RevenueChart.jsx:25
 msgid "Daily Revenue"
@@ -26967,47 +26995,25 @@ msgstr "Aktif Araçlar"
 msgid "new this month"
 msgstr "bu ay yeni"
 
-#: src-react/admin/dashboard/components/TransferWidget.jsx:8
+#: src-react/admin/dashboard/components/TransferWidget.jsx:27
 msgid "Transfer Summary"
 msgstr "Transfer Özeti"
 
-#: src-react/admin/dashboard/components/TransferWidget.jsx:11
-msgid "Total transfers:"
-msgstr "Toplam transfer:"
-
-#: src-react/admin/dashboard/components/TransferWidget.jsx:15
-msgid "This month:"
-msgstr "Bu ay:"
-
-#: src-react/admin/dashboard/components/TransferWidget.jsx:19
-msgid "Transfer revenue:"
-msgstr "Transfer geliri:"
-
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:25
-msgid "Failed to load."
-msgstr "Yükleme başarısız."
+#: src-react/admin/dashboard/components/TransferWidget.jsx:49
+msgid "No transfers yet."
+msgstr "Henüz transfer yok."
 
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:28
 msgid "No upcoming operations in the next 7 days."
 msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
 
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:48
-msgid "← Prev"
-msgstr "← Önceki"
-
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
-msgid "Next →"
-msgstr "Sonraki →"
-
 #: src-react/admin/reports/components/ReportContent.jsx:18
-#, fuzzy
 msgid "Loading…"
-msgstr "Yükleniyor"
+msgstr "Yükleniyor…"
 
 #: src-react/admin/reports/components/ReportContent.jsx:23
-#, fuzzy
 msgid "Failed to load report data."
-msgstr "İş parçacığı yüklenemedi."
+msgstr "Rapor verileri yüklenemedi."
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:7
 msgid "Total Customers"
@@ -27247,6 +27253,15 @@ msgstr "MHM Bayi Profili"
 msgctxt "block description"
 msgid "Public vendor profile page (avatar, badge, vehicles, reviews)."
 msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar)."
+
+#~ msgid "Total transfers:"
+#~ msgstr "Toplam transfer:"
+
+#~ msgid "This month:"
+#~ msgstr "Bu ay:"
+
+#~ msgid "Transfer revenue:"
+#~ msgstr "Transfer geliri:"
 
 #~ msgid "No data available"
 #~ msgstr "Veri bulunamadı"
