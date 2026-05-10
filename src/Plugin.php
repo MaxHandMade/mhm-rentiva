@@ -516,6 +516,13 @@ final class Plugin {
 			\MHMRentiva\Admin\Reports\Reports::register();
 		}
 
+		// Customers REST endpoints — must be in the context-agnostic init path.
+		// rest_api_init fires before admin_menu, so registering via Menu→CustomersPage
+		// is too late. REST routes are needed on both admin and REST API requests.
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\Customers\\REST\\CustomersRestController')) {
+			add_action('rest_api_init', [ '\\MHMRentiva\\Admin\\Customers\\REST\\CustomersRestController', 'register_routes' ]);
+		}
+
 		// Email Logs
 		if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
 			\MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();

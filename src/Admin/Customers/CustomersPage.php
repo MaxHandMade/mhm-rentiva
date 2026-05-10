@@ -48,7 +48,7 @@ final class CustomersPage {
 	public static function register(): void
 	{
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
-		add_action( 'rest_api_init', array( \MHMRentiva\Admin\Customers\REST\CustomersRestController::class, 'register_routes' ) );
+		// REST routes are registered in Plugin.php (context-agnostic path) — not here.
 		add_action( 'admin_post_mhm_rentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
 		add_action( 'admin_init', array( self::class, 'maybe_create_database_indexes' ) );
 		AddCustomerPage::register();
