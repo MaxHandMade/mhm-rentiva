@@ -182,12 +182,11 @@ final class CurrencyHelper {
 	 */
 	public static function get_currency_symbol( ?string $currency_code = null ): string {
 		if ( $currency_code === null ) {
-			// If WooCommerce is active, use WooCommerce currency.
-			if ( function_exists( 'get_woocommerce_currency' ) ) {
-				$currency_code = get_woocommerce_currency();
-			} else {
-				$currency_code = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+			// When WooCommerce is active, use its symbol directly — WC owns the symbol map.
+			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+				return get_woocommerce_currency_symbol();
 			}
+			$currency_code = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
 		}
 
 		$currency_code = strtoupper( trim( $currency_code ) );
