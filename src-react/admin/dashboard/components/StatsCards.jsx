@@ -1,8 +1,9 @@
 import { __ } from '@wordpress/i18n';
+import { fmtAmount, fmtMoney as fmtMon } from '../../../shared/format';
 
 export default function StatsCards( { metrics, currency } ) {
-	const fmt      = ( n ) => Number( n ?? 0 ).toLocaleString();
-	const fmtMoney = ( n ) => `${ currency }${ Number( n ?? 0 ).toFixed( 2 ) }`;
+	const fmt      = ( n ) => fmtAmount( n, 0 );
+	const fmtMoney = ( n ) => fmtMon( n, currency );
 
 	const cards = [
 		{

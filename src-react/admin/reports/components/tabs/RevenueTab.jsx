@@ -1,5 +1,6 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { __ }               from '@wordpress/i18n';
+import { fmtAmount, fmtMoney } from '../../../../shared/format';
 
 export default function RevenueTab( { data, currency } ) {
 	const canvasRef = useRef( null );
@@ -32,7 +33,7 @@ export default function RevenueTab( { data, currency } ) {
 				scales:     {
 					y: {
 						beginAtZero: true,
-						ticks:       { callback: ( v ) => `${ currency }${ v }` },
+						ticks:       { callback: ( v ) => fmtMoney( v, currency, 0 ) },
 					},
 				},
 			},
@@ -52,7 +53,7 @@ export default function RevenueTab( { data, currency } ) {
 				<canvas ref={ canvasRef } height="250" />
 			</div>
 			<div className="mhm-reports__summary">
-				<p>{ __( 'Total Revenue', 'mhm-rentiva' ) }: { currency }{ data?.total ?? 0 }</p>
+				<p>{ __( 'Total Revenue', 'mhm-rentiva' ) }: { fmtMoney( data?.total, currency ) }</p>
 			</div>
 		</div>
 	);

@@ -1,15 +1,16 @@
 import { __ } from '@wordpress/i18n';
+import { fmtAmount, fmtMoney } from '../../../shared/format';
 
 export default function StatsCards( { statsCards, currency } ) {
 	const cards = [
 		{
 			label: __( 'Total Bookings', 'mhm-rentiva' ),
-			value: statsCards?.total_bookings ?? '—',
+			value: fmtAmount( statsCards?.total_bookings, 0 ),
 			icon:  'dashicons-calendar-alt',
 		},
 		{
 			label: __( 'Monthly Revenue', 'mhm-rentiva' ),
-			value: `${ currency }${ statsCards?.monthly_revenue ?? '0' }`,
+			value: fmtMoney( statsCards?.monthly_revenue, currency ),
 			icon:  'dashicons-money-alt',
 		},
 		{

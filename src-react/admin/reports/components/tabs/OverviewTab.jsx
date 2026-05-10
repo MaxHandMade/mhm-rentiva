@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../../shared/format';
 
 function MetricRow( { label, value } ) {
 	return (
@@ -24,11 +25,11 @@ export default function OverviewTab( { data, currency } ) {
 					<h3>{ __( 'Revenue', 'mhm-rentiva' ) }</h3>
 					<MetricRow
 						label={ __( 'Total Revenue', 'mhm-rentiva' ) }
-						value={ `${ cur }${ rev.total ?? 0 }` }
+						value={ fmtMoney( rev.total, cur ) }
 					/>
 					<MetricRow
 						label={ __( 'Avg Daily Revenue', 'mhm-rentiva' ) }
-						value={ `${ cur }${ rev.avg_daily ?? 0 }` }
+						value={ fmtMoney( rev.avg_daily, cur ) }
 					/>
 				</section>
 
