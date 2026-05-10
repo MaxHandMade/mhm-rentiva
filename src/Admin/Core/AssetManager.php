@@ -1127,35 +1127,6 @@ final class AssetManager {
 			);
 		}
 
-		// About Page
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-about') {
-			wp_enqueue_script(
-				'mhm-about',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/about.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/about.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-about',
-				'mhmAboutAdmin',
-				array(
-					'ajax_url' => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhm_about_nonce'),
-					'strings'  => array(
-						'loading'           => __('Loading...', 'mhm-rentiva'),
-						'error'             => __('An error occurred', 'mhm-rentiva'),
-						'copied'            => __('Copied!', 'mhm-rentiva'),
-						'copyFailed'        => __('Copy failed', 'mhm-rentiva'),
-						'refreshing'        => __('Refreshing...', 'mhm-rentiva'),
-						'systemRefreshed'   => __('System information refreshed', 'mhm-rentiva'),
-						'refreshSystemInfo' => __('Refresh System Info', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Email Templates
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates') {
 			wp_enqueue_script(

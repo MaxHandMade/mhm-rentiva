@@ -57,7 +57,7 @@ final class About {
 		$initial_tab = in_array( $raw_tab, $allowed, true ) ? $raw_tab : 'general';
 
 		wp_localize_script(
-			'mhm-rentiva-about',
+			'mhm-rentiva-react-about',
 			'mhmRentivaAbout',
 			array(
 				'nonce'       => wp_create_nonce( 'wp_rest' ),

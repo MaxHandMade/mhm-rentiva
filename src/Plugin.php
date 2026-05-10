@@ -1134,6 +1134,10 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\Admin\Utilities\Dashboard\DashboardPage')) {
 			\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::register_rest_routes();
 		}
+
+		if ($this->is_class_available('MHMRentiva\Admin\About\REST\AboutController')) {
+			\MHMRentiva\Admin\About\REST\AboutController::register_route();
+		}
 	}
 
 	/**
