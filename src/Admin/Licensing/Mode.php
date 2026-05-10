@@ -376,7 +376,7 @@ final class Mode {
 			array(
 				'name' => __( 'Export Formats', 'mhm-rentiva' ),
 				'lite' => esc_html__( 'CSV only', 'mhm-rentiva' ),
-				'pro'  => esc_html__( 'CSV, JSON, Excel, XML, PDF', 'mhm-rentiva' ),
+				'pro'  => esc_html__( 'CSV, JSON', 'mhm-rentiva' ),
 			),
 			array(
 				'id'             => 'advanced_reports',
