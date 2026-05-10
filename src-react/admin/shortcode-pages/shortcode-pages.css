@@ -1,0 +1,143 @@
+/* ShortcodePages React SPA — page-specific styles */
+
+.mhm-shortcode-pages-app {
+	max-width: 1200px;
+}
+
+/* Stats bar */
+.mhm-sc-stats {
+	display: flex;
+	gap: 16px;
+	margin-bottom: 20px;
+}
+
+.mhm-stat-card {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-radius: 4px;
+	padding: 12px 20px;
+	min-width: 100px;
+	text-align: center;
+}
+
+.mhm-stat-card--active { border-left: 4px solid #00a32a; }
+.mhm-stat-card--missing { border-left: 4px solid #d63638; }
+
+.mhm-stat-value {
+	display: block;
+	font-size: 24px;
+	font-weight: 600;
+	line-height: 1.2;
+}
+
+.mhm-stat-label {
+	display: block;
+	font-size: 12px;
+	color: #646970;
+	margin-top: 4px;
+}
+
+/* System actions */
+.mhm-sc-system-actions {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 20px;
+	flex-wrap: wrap;
+}
+
+/* Table */
+.mhm-sc-table .mhm-sc-slug {
+	display: block;
+	font-family: monospace;
+	font-size: 12px;
+	color: #2271b1;
+	margin-bottom: 4px;
+}
+
+.mhm-sc-table .mhm-sc-label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 2px;
+}
+
+.mhm-sc-table .mhm-sc-description {
+	display: block;
+	font-size: 12px;
+	color: #646970;
+}
+
+.mhm-sc-no-page {
+	color: #646970;
+}
+
+.mhm-sc-row--pending td {
+	opacity: 0.6;
+}
+
+.mhm-sc-actions {
+	white-space: nowrap;
+}
+
+.mhm-sc-actions .button {
+	margin-right: 4px;
+}
+
+/* Status badge */
+.mhm-sc-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.mhm-sc-badge--active {
+	background: #d7f0de;
+	color: #00600c;
+}
+
+.mhm-sc-badge--missing {
+	background: #fde8e8;
+	color: #8a0000;
+}
+
+/* Debug panel */
+.mhm-sc-debug-panel {
+	margin-top: 24px;
+}
+
+.mhm-sc-debug-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+}
+
+.mhm-sc-debug-header h3 {
+	margin: 0;
+}
+
+.mhm-sc-debug-meta {
+	color: #646970;
+	margin-bottom: 12px;
+}
+
+.mhm-debug-found td {
+	background: #f0fff4;
+}
+
+/* Danger button */
+.mhm-btn-danger {
+	background: #d63638 !important;
+	border-color: #a52224 !important;
+	color: #fff !important;
+}
+
+.mhm-btn-danger:hover {
+	background: #a52224 !important;
+}
+
+.mhm-btn-danger-outline {
+	color: #d63638 !important;
+	border-color: #d63638 !important;
+}
