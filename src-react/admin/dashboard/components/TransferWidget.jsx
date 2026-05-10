@@ -3,6 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
+import { fmtAmount, fmtMoney } from '../../../shared/format';
 
 export default function TransferWidget( { initial, stats, currency } ) {
 	const [ page, setPage ] = useState( 1 );
@@ -19,8 +20,7 @@ export default function TransferWidget( { initial, stats, currency } ) {
 	const items      = data?.items ?? [];
 	const totalPages = data?.total_pages ?? 1;
 
-	const fmt      = ( n ) => Number( n ?? 0 ).toLocaleString();
-	const fmtMoney = ( n ) => `${ currency }${ Number( n ?? 0 ).toFixed( 0 ) }`;
+	const fmt = ( n ) => fmtAmount( n, 0 );
 
 	return (
 		<div className="mhm-widget mhm-transfer-widget">
@@ -37,7 +37,7 @@ export default function TransferWidget( { initial, stats, currency } ) {
 					<div className="mhm-kpi-box__label">{ __( 'This Month', 'mhm-rentiva' ) }</div>
 				</div>
 				<div className="mhm-kpi-box mhm-kpi-box--amber">
-					<div className="mhm-kpi-box__value">{ fmtMoney( stats?.revenue_this_month ) }</div>
+					<div className="mhm-kpi-box__value">{ fmtMoney( stats?.revenue_this_month, currency, 0 ) }</div>
 					<div className="mhm-kpi-box__label">{ __( 'Revenue', 'mhm-rentiva' ) }</div>
 				</div>
 			</div>

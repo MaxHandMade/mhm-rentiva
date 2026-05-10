@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../../shared/format';
 
 export default function CustomersTab( { data, currency } ) {
-	const cur       = currency ?? '';
+	const cur = currency ?? '';
 	const summary   = data?.summary ?? {};
 	const lifecycle = data?.lifecycle ?? {};
 	const customers = ( data?.customers ?? [] ).slice( 0, 10 );
@@ -24,7 +25,7 @@ export default function CustomersTab( { data, currency } ) {
 					<div className="mhm-kpi-box__label">{ __( 'Loyalty Rate', 'mhm-rentiva' ) }</div>
 				</div>
 				<div className="mhm-kpi-box mhm-kpi-box--grey">
-					<div className="mhm-kpi-box__value">{ cur }{ summary.avg_spending ?? 0 }</div>
+					<div className="mhm-kpi-box__value">{ fmtMoney( summary.avg_spending, cur ) }</div>
 					<div className="mhm-kpi-box__label">{ __( 'Avg Spending', 'mhm-rentiva' ) }</div>
 				</div>
 			</div>
@@ -70,7 +71,7 @@ export default function CustomersTab( { data, currency } ) {
 									<td>{ c.name || '—' }</td>
 									<td>{ c.email }</td>
 									<td>{ c.booking_count }</td>
-									<td>{ cur }{ c.total_spent }</td>
+									<td>{ fmtMoney( c.total_spent, cur ) }</td>
 									<td>{ c.last_booking_date || '—' }</td>
 								</tr>
 							) ) }

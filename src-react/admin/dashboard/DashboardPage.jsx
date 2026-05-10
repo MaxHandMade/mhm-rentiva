@@ -55,6 +55,7 @@ export default function DashboardPage() {
 				<RecentBookings
 					initial={ bookingsInitial }
 					metrics={ metrics }
+					currency={ currency }
 					adminUrl={ adminUrl }
 				/>
 				<TransferWidget

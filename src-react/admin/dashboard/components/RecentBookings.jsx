@@ -3,6 +3,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
+import { fmtAmount, fmtMoney } from '../../../shared/format';
 
 const statusLabel = ( status ) => ( {
 	pending:     __( 'Pending',     'mhm-rentiva' ),
@@ -12,7 +13,7 @@ const statusLabel = ( status ) => ( {
 	cancelled:   __( 'Cancelled',   'mhm-rentiva' ),
 }[ status ] ?? status );
 
-export default function RecentBookings( { initial, metrics, adminUrl } ) {
+export default function RecentBookings( { initial, metrics, currency, adminUrl } ) {
 	const [ page, setPage ] = useState( 1 );
 
 	const fetchPage = useCallback(
@@ -27,8 +28,7 @@ export default function RecentBookings( { initial, metrics, adminUrl } ) {
 	const items      = data?.items ?? [];
 	const totalPages = data?.total_pages ?? 1;
 
-	const fmt      = ( n ) => Number( n ?? 0 ).toLocaleString();
-	const fmtMoney = ( n ) => `${ Number( n ?? 0 ).toFixed( 0 ) }`;
+	const fmt = ( n ) => fmtAmount( n, 0 );
 
 	return (
 		<div className="mhm-widget mhm-recent-bookings">
@@ -45,7 +45,7 @@ export default function RecentBookings( { initial, metrics, adminUrl } ) {
 					<div className="mhm-kpi-box__label">{ __( 'This Month', 'mhm-rentiva' ) }</div>
 				</div>
 				<div className="mhm-kpi-box mhm-kpi-box--amber">
-					<div className="mhm-kpi-box__value">{ fmtMoney( metrics?.total_revenue ) }</div>
+					<div className="mhm-kpi-box__value">{ fmtMoney( metrics?.total_revenue, currency, 0 ) }</div>
 					<div className="mhm-kpi-box__label">{ __( 'Revenue', 'mhm-rentiva' ) }</div>
 				</div>
 			</div>

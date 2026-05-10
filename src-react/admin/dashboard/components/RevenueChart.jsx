@@ -1,5 +1,6 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../shared/format';
 
 export default function RevenueChart( { revenueData, currency } ) {
 	const canvasRef = useRef( null );
@@ -34,7 +35,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 				plugins: {
 					tooltip: {
 						callbacks: {
-							label: ( ctx ) => `${ currency }${ ctx.parsed.y.toFixed( 2 ) }`,
+							label: ( ctx ) => fmtMoney( ctx.parsed.y, currency ),
 						},
 					},
 				},
@@ -58,7 +59,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 			<canvas ref={ canvasRef } height="200" />
 			<p className="mhm-revenue-chart__weekly">
 				{ __( 'This week:', 'mhm-rentiva' ) }{ ' ' }
-				<strong>{ currency }{ Number( revenueData?.weekly_total ?? 0 ).toFixed( 2 ) }</strong>
+				<strong>{ fmtMoney( revenueData?.weekly_total, currency ) }</strong>
 			</p>
 		</div>
 	);

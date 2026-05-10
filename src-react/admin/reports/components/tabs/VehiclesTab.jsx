@@ -1,7 +1,8 @@
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../../shared/format';
 
 export default function VehiclesTab( { data, currency } ) {
-	const cur     = currency ?? '';
+	const cur = currency ?? '';
 	const summary = data?.summary ?? {};
 	const topVeh  = data?.top_vehicles ?? [];
 	const cats    = data?.category_performance ?? [];
@@ -24,7 +25,7 @@ export default function VehiclesTab( { data, currency } ) {
 					<div className="mhm-kpi-box__label">{ __( 'Avg Occupancy', 'mhm-rentiva' ) }</div>
 				</div>
 				<div className="mhm-kpi-box mhm-kpi-box--grey">
-					<div className="mhm-kpi-box__value">{ cur }{ summary.total_revenue ?? 0 }</div>
+					<div className="mhm-kpi-box__value">{ fmtMoney( summary.total_revenue, cur ) }</div>
 					<div className="mhm-kpi-box__label">{ __( 'Total Revenue', 'mhm-rentiva' ) }</div>
 				</div>
 			</div>
@@ -49,8 +50,8 @@ export default function VehiclesTab( { data, currency } ) {
 								<tr key={ v.vehicle_id }>
 									<td>{ v.vehicle_title }</td>
 									<td>{ v.booking_count }</td>
-									<td>{ cur }{ v.total_revenue }</td>
-									<td>{ cur }{ v.avg_revenue_per_booking }</td>
+									<td>{ fmtMoney( v.total_revenue, cur ) }</td>
+									<td>{ fmtMoney( v.avg_revenue_per_booking, cur ) }</td>
 								</tr>
 							) ) }
 						</tbody>
@@ -79,7 +80,7 @@ export default function VehiclesTab( { data, currency } ) {
 									<td>{ c.category_name }</td>
 									<td>{ c.vehicle_count }</td>
 									<td>{ c.booking_count }</td>
-									<td>{ cur }{ c.total_revenue }</td>
+									<td>{ fmtMoney( c.total_revenue, cur ) }</td>
 								</tr>
 							) ) }
 						</tbody>
