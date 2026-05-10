@@ -128,10 +128,10 @@ final class CustomerReport {
 			// Customer loyalty (repeat booking rate)
 			$loyalty_rate = count( $customers ) > 0 ? ( count( $repeat_customers ) / count( $customers ) ) * 100 : 0;
 
-			// Format data
+			// Format data — dates as strings, amounts as raw floats (JS does currency formatting)
 			foreach ( $customers as &$customer ) {
-				$customer->total_spent        = number_format( (float) $customer->total_spent, 2 );
-				$customer->avg_booking_value  = number_format( (float) $customer->avg_booking_value, 2 );
+				$customer->total_spent        = round( (float) $customer->total_spent, 2 );
+				$customer->avg_booking_value  = round( (float) $customer->avg_booking_value, 2 );
 				$customer->last_booking_date  = gmdate( 'd.m.Y', (int) strtotime( $customer->last_booking_date ) );
 				$customer->first_booking_date = gmdate( 'd.m.Y', (int) strtotime( $customer->first_booking_date ) );
 			}
@@ -145,8 +145,8 @@ final class CustomerReport {
 					'total_customers'  => count( $customers ),
 					'repeat_customers' => count( $repeat_customers ),
 					'loyalty_rate'     => round( $loyalty_rate, 1 ),
-					'avg_spending'     => number_format( $avg_spending, 2 ),
-					'total_revenue'    => number_format( $total_spent, 2 ),
+					'avg_spending'     => round( $avg_spending, 2 ),
+					'total_revenue'    => round( $total_spent, 2 ),
 				),
 				'date_range'    => array(
 					'start' => $start_date,
