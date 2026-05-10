@@ -71,6 +71,8 @@ wp-content/uploads/
 build/
 !build/admin/dashboard.js
 !build/admin/dashboard.asset.php
+!build/admin/dashboard.css
+!build/admin/dashboard-rtl.css
 !build/admin/reports.js
 !build/admin/reports.asset.php
 dist/
