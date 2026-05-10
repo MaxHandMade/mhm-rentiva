@@ -80,6 +80,10 @@ build/
 !build/admin/customers.asset.php
 !build/admin/customers.css
 !build/admin/customers-rtl.css
+!build/admin/messages.js
+!build/admin/messages.asset.php
+!build/admin/messages.css
+!build/admin/messages-rtl.css
 dist/
 .cache/
 

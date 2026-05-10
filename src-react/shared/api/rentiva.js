@@ -22,11 +22,18 @@ export const rentivaApi = {
 		getDetail: ( id ) =>
 			apiFetch( { path: `${ BASE }/customers/${ id }` } ),
 		bulkDelete: ( ids ) =>
-			apiFetch( {
-				path:    `${ BASE }/customers/bulk`,
-				method:  'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				data:    { ids },
-			} ),
+			apiFetch( { path: `${ BASE }/customers/bulk`, method: 'DELETE', data: { ids } } ),
+	},
+	messages: {
+		getList: ( params ) => {
+			const qs = new URLSearchParams( params ).toString();
+			return apiFetch( { path: `${ BASE }/messages?${ qs }` } );
+		},
+		getThread: ( id ) =>
+			apiFetch( { path: `${ BASE }/messages/${ id }` } ),
+		updateStatus: ( id, status ) =>
+			apiFetch( { path: `${ BASE }/messages/${ id }/status`, method: 'POST', data: { status } } ),
+		reply: ( id, message, closeThread = false ) =>
+			apiFetch( { path: `${ BASE }/messages/${ id }/reply`, method: 'POST', data: { message, close_thread: closeThread } } ),
 	},
 };

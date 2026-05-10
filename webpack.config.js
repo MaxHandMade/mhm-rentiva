@@ -9,6 +9,7 @@ module.exports = {
 		'admin/dashboard': './src-react/admin/dashboard/index.js',
 		'admin/reports':    './src-react/admin/reports/index.js',
 		'admin/customers':  './src-react/admin/customers/index.js',
+		'admin/messages':   './src-react/admin/messages/index.js',
 	},
 	output: {
 		...defaultConfig.output,
