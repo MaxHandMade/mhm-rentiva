@@ -220,7 +220,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_time      ON p.ID = pm_time.post_id     AND pm_time.meta_key    = '_mhm_start_time'
              LEFT JOIN {$wpdb->postmeta} pm_status    ON p.ID = pm_status.post_id   AND pm_status.meta_key  = %s
              LEFT JOIN {$wpdb->postmeta} pm_transfer  ON p.ID = pm_transfer.post_id AND pm_transfer.meta_key = '_mhm_transfer_origin_id'
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
              LIMIT 3",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
@@ -230,8 +230,7 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_PHONE,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking',
-				'trash'
+				'vehicle_booking'
 			),
 			ARRAY_A
 		);
@@ -304,9 +303,8 @@ final class DashboardService {
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts}
-             WHERE post_type = %s AND post_status != %s",
-				'vehicle_booking',
-				'trash'
+             WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending')",
+				'vehicle_booking'
 			)
 		);
 
@@ -334,7 +332,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_name2  ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
              LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
              LIMIT %d OFFSET %d",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
@@ -344,7 +342,6 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'vehicle_booking',
-				'trash',
 				$per_page,
 				$offset
 			),
@@ -1028,9 +1025,8 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_transfer_origin_id'
-             WHERE p.post_type = %s AND p.post_status != %s",
-				'vehicle_booking',
-				'trash'
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')",
+				'vehicle_booking'
 			)
 		);
 
@@ -1056,14 +1052,13 @@ final class DashboardService {
              LEFT  JOIN {$wpdb->postmeta} pm_plate  ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
              LEFT  JOIN %i l_origin ON l_origin.id = pm_origin.meta_value
              LEFT  JOIN %i l_dest   ON l_dest.id   = pm_dest.meta_value
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
              LIMIT %d OFFSET %d",
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
 				$loc_table,
 				$loc_table,
 				'vehicle_booking',
-				'trash',
 				$per_page,
 				$offset
 			),
