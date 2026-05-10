@@ -88,6 +88,10 @@ build/
 !build/admin/about.asset.php
 !build/admin/about.css
 !build/admin/about-rtl.css
+!build/admin/shortcode-pages.js
+!build/admin/shortcode-pages.asset.php
+!build/admin/shortcode-pages.css
+!build/admin/shortcode-pages-rtl.css
 dist/
 .cache/
 
