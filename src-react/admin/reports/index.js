@@ -1,3 +1,5 @@
+import '../../shared/admin.css';
+import './reports.css';
 import { createRoot } from '@wordpress/element';
 import ErrorBoundary  from '../../shared/components/ErrorBoundary';
 import ReportsPage    from './ReportsPage';

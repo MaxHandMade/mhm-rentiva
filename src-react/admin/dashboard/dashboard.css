@@ -1,28 +1,10 @@
 /* =============================================================================
-   MHM Rentiva Dashboard
+   MHM Rentiva Dashboard — Dashboard-specific styles
+   Shared base classes are in src-react/shared/admin.css (imported via index.js)
    ============================================================================= */
 
-/* Custom properties — WP admin color palette */
-#mhm-rentiva-dashboard {
-	--mhm-blue:       #2271b1;
-	--mhm-blue-dark:  #135e96;
-	--mhm-green:      #00a32a;
-	--mhm-green-dark: #007a1f;
-	--mhm-amber:      #dba617;
-	--mhm-amber-dark: #b08000;
-	--mhm-grey:       #646970;
-	--mhm-grey-dark:  #3c3f44;
-	--mhm-border:     #c3c4c7;
-	--mhm-border-light: #f0f0f1;
-	--mhm-text:       #1d2327;
-	--mhm-text-light: #646970;
-	--mhm-bg:         #f0f0f1;
-	--mhm-card-bg:    #ffffff;
-	--mhm-gap:        12px;
-}
-
 /* -----------------------------------------------------------------------------
-   Dashboard wrapper
+   Dashboard wrapper + row grid
    ----------------------------------------------------------------------------- */
 .mhm-dashboard {
 	display: flex;
@@ -32,9 +14,6 @@
 	width: 100%;
 }
 
-/* -----------------------------------------------------------------------------
-   Row grid wrappers
-   ----------------------------------------------------------------------------- */
 .mhm-dashboard__row {
 	display: grid;
 	gap: var( --mhm-gap );
@@ -54,137 +33,25 @@
 }
 
 /* -----------------------------------------------------------------------------
-   Stats cards — Row 1
+   Upcoming Operations row — dashboard-only component
    ----------------------------------------------------------------------------- */
-.mhm-stats-grid {
+.mhm-ops-row {
 	display: grid;
-	grid-template-columns: repeat( 4, 1fr );
-	gap: var( --mhm-gap );
-}
-
-.mhm-stat-card {
-	border-radius: 8px;
-	padding: 18px 16px;
-	color: #fff;
-	display: flex;
-	align-items: flex-start;
-	gap: 12px;
-}
-
-.mhm-stat-card:nth-child(1) { background: linear-gradient( 135deg, var( --mhm-blue ),  var( --mhm-blue-dark )  ); box-shadow: 0 2px 8px rgba( 34, 113, 177, .25 ); }
-.mhm-stat-card:nth-child(2) { background: linear-gradient( 135deg, var( --mhm-green ), var( --mhm-green-dark ) ); box-shadow: 0 2px 8px rgba( 0, 163, 42, .25 ); }
-.mhm-stat-card:nth-child(3) { background: linear-gradient( 135deg, var( --mhm-amber ), var( --mhm-amber-dark ) ); box-shadow: 0 2px 8px rgba( 219, 166, 23, .25 ); }
-.mhm-stat-card:nth-child(4) { background: linear-gradient( 135deg, var( --mhm-grey ),  var( --mhm-grey-dark )  ); box-shadow: 0 2px 8px rgba( 100, 105, 112, .25 ); }
-
-.mhm-stat-card .dashicons {
-	font-size: 28px;
-	width: 28px;
-	height: 28px;
-	opacity: .85;
-	flex-shrink: 0;
-	margin-top: 2px;
-}
-
-.mhm-stat-card__body {
-	flex: 1;
-}
-
-.mhm-stat-card__label {
-	margin: 0 0 4px;
-	font-size: 10px;
-	text-transform: uppercase;
-	letter-spacing: .5px;
-	opacity: .8;
-}
-
-.mhm-stat-card__value {
-	margin: 0 0 4px;
-	font-size: 30px;
-	font-weight: 700;
-	line-height: 1;
-}
-
-.mhm-stat-card__sub {
-	margin: 0;
-	font-size: 11px;
-	opacity: .7;
-}
-
-/* -----------------------------------------------------------------------------
-   Widget card — shared base for all 6 non-stats widgets
-   ----------------------------------------------------------------------------- */
-.mhm-widget {
-	background: var( --mhm-card-bg );
-	border: 1px solid var( --mhm-border );
-	border-radius: 6px;
-	padding: 16px;
-	box-shadow: 0 1px 3px rgba( 0, 0, 0, .06 );
-	display: flex;
-	flex-direction: column;
-}
-
-.mhm-widget h3 {
-	margin: 0 0 10px;
-	padding-bottom: 8px;
+	grid-template-columns: 20px 64px 1fr auto;
+	align-items: center;
+	gap: 8px;
+	padding: 7px 0;
 	border-bottom: 1px solid var( --mhm-border-light );
-	font-size: 13px;
-	font-weight: 600;
-	color: var( --mhm-text );
+	font-size: 11px;
 }
 
-.mhm-widget h3 .mhm-widget__subtitle {
-	font-size: 10px;
-	font-weight: 400;
-	color: var( --mhm-text-light );
-	margin-left: 4px;
-}
+.mhm-ops-row:last-child { border-bottom: none; }
 
-/* Empty / error states */
-.mhm-empty,
-.mhm-error {
-	color: var( --mhm-text-light );
-	font-size: 12px;
-	margin: 8px 0 0;
-}
+.mhm-ops-row__id   { font-weight: 600; color: var( --mhm-blue ); }
+.mhm-ops-row__date { color: var( --mhm-text ); }
 
 /* -----------------------------------------------------------------------------
-   Mini KPI row — used in RecentBookings + TransferWidget
-   ----------------------------------------------------------------------------- */
-.mhm-kpi-row {
-	display: grid;
-	grid-template-columns: repeat( 3, 1fr );
-	gap: 6px;
-	margin-bottom: 10px;
-}
-
-.mhm-kpi-box {
-	border-radius: 5px;
-	padding: 7px 6px;
-	text-align: center;
-}
-
-.mhm-kpi-box--blue   { background: #f0f6fc; border: 1px solid #c3daf7; }
-.mhm-kpi-box--green  { background: #f0faf2; border: 1px solid #b8e6c1; }
-.mhm-kpi-box--amber  { background: #fdf8f0; border: 1px solid #f0d7a0; }
-
-.mhm-kpi-box__value {
-	font-size: 18px;
-	font-weight: 700;
-	line-height: 1.2;
-}
-
-.mhm-kpi-box--blue  .mhm-kpi-box__value { color: var( --mhm-blue ); }
-.mhm-kpi-box--green .mhm-kpi-box__value { color: var( --mhm-green ); }
-.mhm-kpi-box--amber .mhm-kpi-box__value { color: var( --mhm-amber-dark ); }
-
-.mhm-kpi-box__label {
-	font-size: 9px;
-	color: var( --mhm-text-light );
-	margin-top: 2px;
-}
-
-/* -----------------------------------------------------------------------------
-   Card list — shared by RecentBookings, TransferWidget, UpcomingOperations
+   Card list — RecentBookings, TransferWidget, UpcomingOperations
    ----------------------------------------------------------------------------- */
 .mhm-card-list {
 	flex: 1;
@@ -197,9 +64,7 @@
 	border-bottom: 1px solid var( --mhm-border-light );
 }
 
-.mhm-card-list__item:last-child {
-	border-bottom: none;
-}
+.mhm-card-list__item:last-child { border-bottom: none; }
 
 .mhm-card-list__top {
 	display: flex;
@@ -216,9 +81,7 @@
 	text-decoration: none;
 }
 
-.mhm-card-list__id:hover {
-	text-decoration: underline;
-}
+.mhm-card-list__id:hover { text-decoration: underline; }
 
 .mhm-card-list__name {
 	flex: 1;
@@ -234,81 +97,8 @@
 	margin-top: 2px;
 }
 
-/* Upcoming Operations existing row — keep compatible */
-.mhm-ops-row {
-	display: grid;
-	grid-template-columns: 20px 64px 1fr auto;
-	align-items: center;
-	gap: 8px;
-	padding: 7px 0;
-	border-bottom: 1px solid var( --mhm-border-light );
-	font-size: 11px;
-}
-
-.mhm-ops-row:last-child {
-	border-bottom: none;
-}
-
-.mhm-ops-row__id   { font-weight: 600; color: var( --mhm-blue ); }
-.mhm-ops-row__date { color: var( --mhm-text ); }
-
 /* -----------------------------------------------------------------------------
-   Status badges — shared across all widgets
-   ----------------------------------------------------------------------------- */
-.mhm-status {
-	padding: 2px 6px;
-	border-radius: 3px;
-	font-size: 10px;
-	white-space: nowrap;
-	font-weight: 500;
-}
-
-.mhm-status--confirmed,
-.mhm-status--completed  { background: #dcf7dc; color: #1a7a1a; }
-.mhm-status--pending    { background: #fff3cd; color: #856404; }
-.mhm-status--in_progress { background: #cce0ff; color: #0a4b78; }
-.mhm-status--cancelled  { background: #fce9e9; color: #d63638; }
-
-/* Overdue row highlight (PendingPayments) */
-.mhm-overdue td:first-child a,
-.mhm-status--overdue { color: #d63638; font-weight: 600; }
-
-/* -----------------------------------------------------------------------------
-   Pagination controls — shared
-   ----------------------------------------------------------------------------- */
-.mhm-pagination {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-top: 10px;
-	padding-top: 8px;
-	border-top: 1px solid var( --mhm-border-light );
-}
-
-.mhm-pagination__btn {
-	background: #f6f7f7;
-	border: 1px solid var( --mhm-border );
-	border-radius: 3px;
-	padding: 4px 10px;
-	font-size: 10px;
-	color: var( --mhm-text );
-	cursor: pointer;
-	line-height: 1.4;
-}
-
-.mhm-pagination__btn:disabled {
-	color: var( --mhm-text-light );
-	cursor: default;
-	opacity: .7;
-}
-
-.mhm-pagination__info {
-	font-size: 10px;
-	color: var( --mhm-text-light );
-}
-
-/* -----------------------------------------------------------------------------
-   Quick Actions — Row 2 left
+   Quick Actions — Row 2 left widget
    ----------------------------------------------------------------------------- */
 .mhm-quick-actions__grid {
 	display: grid;

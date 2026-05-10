@@ -323,6 +323,13 @@ final class Reports {
 
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'reports', array( 'chart-js' ) );
 
+		wp_enqueue_style(
+			'mhm-rentiva-reports',
+			MHM_RENTIVA_PLUGIN_URL . 'build/admin/reports.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
 		$stats    = self::get_dashboard_stats();
 		$currency = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 

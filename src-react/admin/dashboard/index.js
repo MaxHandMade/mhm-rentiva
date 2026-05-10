@@ -1,3 +1,4 @@
+import '../../shared/admin.css';
 import './dashboard.css';
 import { createRoot } from '@wordpress/element';
 import ErrorBoundary from '../../shared/components/ErrorBoundary';

@@ -75,6 +75,7 @@ build/
 !build/admin/dashboard-rtl.css
 !build/admin/reports.js
 !build/admin/reports.asset.php
+!build/admin/reports.css
 dist/
 .cache/
 
