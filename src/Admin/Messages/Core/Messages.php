@@ -19,6 +19,7 @@ use MHMRentiva\Admin\Messages\Settings\MessagesSettings;
 use MHMRentiva\Admin\Messages\Core\MessageQueryHelper;
 use MHMRentiva\Admin\Messages\Core\MessageCache;
 use MHMRentiva\Admin\Messages\Core\MessageUrlHelper;
+use MHMRentiva\Admin\Messages\Admin\MessageDeleteHandler;
 
 
 
@@ -32,11 +33,9 @@ final class Messages {
 	{
 		add_action('wp_dashboard_setup', array( self::class, 'add_dashboard_widget' ));
 
-		// AJAX handlers
-		add_action('wp_ajax_mhm_messages_bulk_action', array( self::class, 'handle_bulk_actions' ));
-		add_action('wp_ajax_mhm_message_reply', array( self::class, 'ajax_reply_to_message' ));
-		add_action('wp_ajax_mhm_message_status_update', array( self::class, 'ajax_update_status' ));
-		add_action('wp_ajax_mhm_message_reopen', array( self::class, 'ajax_reopen_message' ));
+		// admin_post handlers
+		add_action( 'admin_post_mhm_rentiva_delete_messages',        array( MessageDeleteHandler::class, 'handle' ) );
+		add_action( 'admin_post_mhm_rentiva_save_messages_settings', array( self::class, 'handle_save_settings' ) );
 
 		// Form handlers
 		add_action('admin_init', array( self::class, 'handle_new_message_form' ));
@@ -50,6 +49,31 @@ final class Messages {
 
 		// Initialize MessagesSettings
 		MessagesSettings::init();
+	}
+
+	public static function handle_save_settings(): void {
+		check_admin_referer( 'mhm_rentiva_save_messages_settings', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Unauthorized.', 'mhm-rentiva' ), '', array( 'response' => 403 ) );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified by check_admin_referer.
+		$input     = (array) ( $_POST[ MessagesSettings::OPTION_NAME ] ?? array() );
+		$sanitized = MessagesSettings::sanitize_settings( $input );
+		update_option( MessagesSettings::OPTION_NAME, $sanitized );
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'           => 'mhm-rentiva-messages',
+					'tab'            => 'settings',
+					'settings_saved' => '1',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
 	}
 
 	public static function add_dashboard_widget(): void
@@ -736,60 +760,21 @@ final class Messages {
 		}
 	}
 
-	public function render_messages_page(): void
-	{
-		if (! current_user_can('manage_options')) {
+	public function render_messages_page(): void {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
 
-		$is_pro     = \MHMRentiva\Admin\Licensing\Mode::canUseMessages();
-		$action     = self::get_key('action', 'list');
-		$message_id = self::get_int('id');
-
 		echo '<div class="wrap mhm-messages-wrap">';
+		$this->render_admin_header( (string) get_admin_page_title(), array() );
 
-		$buttons = array();
-		if ($is_pro) {
-			$buttons[] = array(
-				'text'  => esc_html__('New Message', 'mhm-rentiva'),
-				'url'   => admin_url('admin.php?page=mhm-rentiva-messages&action=new-message'),
-				'class' => 'button button-primary',
-				'icon'  => 'dashicons-plus-alt',
-			);
-		}
-
-		$buttons[] = array(
-			'type' => 'documentation',
-			'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
-		);
-
-		$this->render_admin_header( (string) get_admin_page_title(), $buttons);
-		$this->render_developer_mode_banner();
-
-		if (! $is_pro) {
-			\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('messages');
+		if ( ! Mode::canUseMessages() ) {
+			\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice( 'messages' );
 			echo '</div>';
 			return;
 		}
 
-		switch ($action) {
-			case 'view':
-				self::render_message_thread($message_id);
-				break;
-			case 'edit':
-				self::render_edit_form($message_id);
-				break;
-			case 'reply':
-				self::render_reply_form($message_id);
-				break;
-			case 'new-message':
-				self::render_new_message_form();
-				break;
-			default:
-				self::render_messages_list();
-				break;
-		}
-
+		echo '<div id="mhm-messages-root"></div>';
 		echo '</div>';
 	}
 
@@ -1352,75 +1337,22 @@ final class Messages {
 	public static function enqueue_message_scripts(string $hook): void
 	{
 		// Load only on messages pages
-		if (strpos($hook, 'mhm-rentiva-messages') !== false || strpos($hook, 'mhm-rentiva-messages-logs') !== false) {
+		if ( strpos( $hook, 'mhm-rentiva-messages' ) === false && strpos( $hook, 'mhm-rentiva-messages-logs' ) === false ) {
+			return;
+		}
 
-			// Admin Messages CSS
+		// Monitoring CSS and JS (preserve exactly as-is)
+		if ( strpos( $hook, 'mhm-rentiva-messages-monitoring' ) !== false || strpos( $hook, 'mhm-rentiva-messages-logs' ) !== false ) {
 			wp_enqueue_style(
-				'mhm-messages-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/messages-admin.css',
+				'mhm-messages-monitoring',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/monitoring.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
-			// Stats Cards CSS (Modular)
-			wp_enqueue_style(
-				'mhm-stats-cards',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
-				array( 'mhm-core-css' ),
-				MHM_RENTIVA_VERSION
-			);
-
-			// Messages Settings CSS and JS
-			if (strpos($hook, 'mhm-rentiva-messages-settings') !== false) {
-				wp_enqueue_style(
-					'mhm-messages-settings',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/messages-settings.css',
-					array(),
-					MHM_RENTIVA_VERSION
-				);
-
-				wp_enqueue_script(
-					'mhm-messages-settings',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
-					array( 'jquery' ),
-					MHM_RENTIVA_VERSION,
-					true
-				);
-			}
-
-			// Monitoring CSS and JS
-			if (strpos($hook, 'mhm-rentiva-messages-monitoring') !== false || strpos($hook, 'mhm-rentiva-messages-logs') !== false) {
-				wp_enqueue_style(
-					'mhm-messages-monitoring',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/monitoring.css',
-					array(),
-					MHM_RENTIVA_VERSION
-				);
-
-				wp_enqueue_script(
-					'mhm-messages-monitoring',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
-					array( 'jquery' ),
-					MHM_RENTIVA_VERSION,
-					true
-				);
-
-				// Localize JavaScript variables
-				wp_localize_script(
-					'mhm-messages-monitoring',
-					'mhmMonitoring',
-					array(
-						'ajax_url' => MessageUrlHelper::get_ajax_url(),
-						'nonce'    => wp_create_nonce('mhm_messages_performance'),
-						'logs_url' => MessageUrlHelper::get_admin_page_url('mhm-rentiva-messages-logs'),
-					)
-				);
-			}
-
-			// Admin Messages JS
 			wp_enqueue_script(
-				'mhm-messages-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-admin.js',
+				'mhm-messages-monitoring',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
 				true
@@ -1428,32 +1360,64 @@ final class Messages {
 
 			// Localize JavaScript variables
 			wp_localize_script(
-				'mhm-messages-admin',
-				'mhmMessagesAdmin',
+				'mhm-messages-monitoring',
+				'mhmMonitoring',
 				array(
-					'ajax_url'            => MessageUrlHelper::get_ajax_url(),
-					'nonce'               => wp_create_nonce('mhm_message_reply'),
-					'reopen_nonce'        => wp_create_nonce('mhm_message_reopen'),
-					'status_update_nonce' => wp_create_nonce('mhm_message_status_update'),
-					'strings'             => array(
-						'confirm_delete'        => __('Are you sure you want to delete these messages?', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirm_mark_read'     => __('Are you sure you want to mark %d messages as read?', 'mhm-rentiva'),
-						/* translators: %d placeholder. */
-						'confirm_mark_unread'   => __('Are you sure you want to mark %d messages as unread?', 'mhm-rentiva'),
-						'confirm_status_change' => __('Are you sure you want to change the status?', 'mhm-rentiva'),
-						'loading'               => __('Loading...', 'mhm-rentiva'),
-						'error'                 => __('An error occurred. Please try again.', 'mhm-rentiva'),
-						'success'               => __('Operation successful.', 'mhm-rentiva'),
-						'no_items_selected'     => __('Please select at least one message.', 'mhm-rentiva'),
-						'processing'            => __('Processing...', 'mhm-rentiva'),
-						'sendReply'             => __('Send Reply', 'mhm-rentiva'),
-						'draftSaved'            => __('Draft saved', 'mhm-rentiva'),
-						'process'               => __('Process', 'mhm-rentiva'),
-					),
+					'ajax_url' => MessageUrlHelper::get_ajax_url(),
+					'nonce'    => wp_create_nonce( 'mhm_messages_performance' ),
+					'logs_url' => MessageUrlHelper::get_admin_page_url( 'mhm-rentiva-messages-logs' ),
 				)
 			);
+
+			return;
 		}
+
+		// Main messages page — React SPA.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'messages' );
+
+		wp_localize_script(
+			'mhm-rentiva-react-messages',
+			'mhmRentivaMessages',
+			array(
+				'statuses'     => MessagesSettings::get_statuses(),
+				'categories'   => MessagesSettings::get_categories(),
+				'priorities'   => MessagesSettings::get_priorities(),
+				'settings'     => MessagesSettings::get_settings(),
+				'unread_count' => self::get_unread_count(),
+				'admin_url'    => admin_url(),
+				'nonces'       => array(
+					'delete'   => wp_create_nonce( 'mhm_rentiva_delete_messages' ),
+					'settings' => wp_create_nonce( 'mhm_rentiva_save_messages_settings' ),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Get count of unread messages.
+	 */
+	private static function get_unread_count(): int {
+		$query = new \WP_Query(
+			array(
+				'post_type'      => Message::POST_TYPE,
+				'post_status'    => 'publish',
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
+				'meta_query'     => array(
+					'relation' => 'OR',
+					array(
+						'key'     => '_mhm_is_read',
+						'compare' => 'NOT EXISTS',
+					),
+					array(
+						'key'     => '_mhm_is_read',
+						'value'   => '0',
+						'compare' => '=',
+					),
+				),
+			)
+		);
+		return (int) $query->found_posts;
 	}
 
 	/**
