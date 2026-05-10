@@ -46,6 +46,14 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
         $this->assertSame( 401, $response->get_status() );
     }
 
+    public function test_editor_get_returns_403(): void
+    {
+        wp_set_current_user( $this->editor_id );
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/shortcode-pages' );
+        $response = self::$server->dispatch( $request );
+        $this->assertSame( 403, $response->get_status() );
+    }
+
     // ── List ─────────────────────────────────────────────────────────────
 
     public function test_admin_get_list_returns_200_with_20_shortcodes(): void
