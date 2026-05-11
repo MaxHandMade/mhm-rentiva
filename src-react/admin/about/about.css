@@ -29,6 +29,10 @@
 }
 
 /* ── InfoCard ────────────────────────────────────────────────────────── */
+.mhm-about-info-card {
+	min-height: 160px;
+}
+
 .mhm-about-info-card h3 {
 	margin: 0 0 12px;
 	font-size: 13px;

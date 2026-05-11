@@ -103,11 +103,9 @@ final class GeneralTab extends AbstractTab {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Value is cached in transient immediately below.
 			$customer_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$wpdb->users} WHERE ID IN (
-SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
-WHERE meta_key = %s AND meta_value != ''
-)",
-					'_booking_customer_id'
+					"SELECT COUNT(DISTINCT meta_value) FROM {$wpdb->postmeta}
+WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
+					'_mhm_customer_user_id'
 				)
 			);
 
@@ -321,11 +319,9 @@ WHERE meta_key = %s AND meta_value != ''
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Value is cached in transient immediately below.
 			$customer_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT COUNT(*) FROM {$wpdb->users} WHERE ID IN (
-                        SELECT DISTINCT meta_value FROM {$wpdb->postmeta}
-                        WHERE meta_key = %s AND meta_value != ''
-                    )",
-					'_booking_customer_id'
+					"SELECT COUNT(DISTINCT meta_value) FROM {$wpdb->postmeta}
+WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
+					'_mhm_customer_user_id'
 				)
 			);
 
