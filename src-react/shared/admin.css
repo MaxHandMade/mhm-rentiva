@@ -33,6 +33,18 @@
 	gap: var( --mhm-gap );
 }
 
+@media ( max-width: 768px ) {
+	.mhm-stats-grid {
+		grid-template-columns: repeat( 2, 1fr );
+	}
+}
+
+@media ( max-width: 480px ) {
+	.mhm-stats-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
 .mhm-stat-card {
 	border-radius: 8px;
 	padding: 18px 16px;

@@ -213,6 +213,46 @@
 	border-top: 1px solid var( --mhm-border-light, #f0f0f1 );
 }
 
+/* ── Mobile: stacked table rows ─────────────────────────────── */
+@media ( max-width: 768px ) {
+	.mhm-messages-table {
+		display:    block;
+		overflow-x: auto;
+	}
+
+	.mhm-messages-table thead {
+		display: none;
+	}
+
+	.mhm-messages-table tbody,
+	.mhm-messages-table tr {
+		display: block;
+	}
+
+	.mhm-messages-table tr {
+		border-bottom:  2px solid #c3c4c7;
+		margin-bottom:  8px;
+		padding-bottom: 4px;
+	}
+
+	.mhm-messages-table td {
+		display:       block;
+		text-align:    left;
+		padding:       4px 8px;
+		white-space:   normal;
+		border-bottom: none;
+	}
+
+	.mhm-messages-table td::before {
+		content:       attr( data-label );
+		font-weight:   600;
+		display:       block;
+		font-size:     10px;
+		color:         #646970;
+		margin-bottom: 2px;
+	}
+}
+
 /* ── Empty + error states ───────────────────────────────────── */
 .mhm-messages-wrap .mhm-empty {
 	color:     var( --mhm-text-light, #646970 );

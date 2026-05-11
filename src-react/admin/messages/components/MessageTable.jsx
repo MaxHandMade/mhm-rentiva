@@ -50,19 +50,19 @@ export default function MessageTable( { items, selected, onSelect, onSelectAll, 
 								} }
 							/>
 						</td>
-						<td onClick={ () => onRowClick( msg.id ) }>
+						<td data-label={ __( 'Subject', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>
 							{ ! msg.is_read && <span className="mhm-unread-dot" /> }
 							{ msg.subject }
 						</td>
-						<td onClick={ () => onRowClick( msg.id ) }>{ msg.customer_name }</td>
-						<td onClick={ () => onRowClick( msg.id ) }>{ msg.category_label }</td>
-						<td onClick={ () => onRowClick( msg.id ) }>
+						<td data-label={ __( 'Customer', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>{ msg.customer_name }</td>
+						<td data-label={ __( 'Category', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>{ msg.category_label }</td>
+						<td data-label={ __( 'Status', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>
 							<span className={ `mhm-status mhm-status--${ msg.status }` }>
 								{ msg.status_label }
 							</span>
 						</td>
-						<td onClick={ () => onRowClick( msg.id ) }>{ priorities[ msg.priority ] ?? msg.priority }</td>
-						<td onClick={ () => onRowClick( msg.id ) }>{ msg.date_human }</td>
+						<td data-label={ __( 'Priority', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>{ priorities[ msg.priority ] ?? msg.priority }</td>
+						<td data-label={ __( 'Date', 'mhm-rentiva' ) } onClick={ () => onRowClick( msg.id ) }>{ msg.date_human }</td>
 					</tr>
 				) ) }
 			</tbody>
