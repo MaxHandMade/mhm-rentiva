@@ -43,7 +43,6 @@ final class VendorReportsAdminPage {
             return;
         }
 
-        add_action('admin_menu', [ self::class, 'add_submenu' ]);
         add_action('admin_enqueue_scripts', [ self::class, 'enqueue_assets' ]);
         add_action('admin_post_mhm_vendor_report_resolve', [ self::class, 'handle_resolve' ]);
         add_action('admin_post_mhm_vendor_report_reject', [ self::class, 'handle_reject' ]);

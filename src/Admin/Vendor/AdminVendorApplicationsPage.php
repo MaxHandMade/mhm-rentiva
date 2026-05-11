@@ -25,7 +25,6 @@ final class AdminVendorApplicationsPage
             return;
         }
 
-        add_action('admin_menu',            array(static::class, 'add_submenu'));
         add_action('admin_enqueue_scripts', array(static::class, 'enqueue_assets'));
         add_action('admin_post_mhm_vendor_suspend',           array(static::class, 'handle_suspend_post'));
         add_action('admin_post_mhm_vendor_commission_update', array(static::class, 'handle_commission_update'));

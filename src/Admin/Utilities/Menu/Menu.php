@@ -11,7 +11,8 @@ final class Menu {
 
 	public static function register(): void
 	{
-		add_action('admin_menu', array( self::class, 'add_menu' ), 5); // Priority 5 to run earliest
+		add_action('admin_menu', array( self::class, 'add_menu' ), 5);   // Priority 5: main menu items
+		add_action('admin_menu', array( self::class, 'add_bayi_menus' ), 15); // Priority 15: vendor menus at the bottom
 
 		// Parent menu fix - Keep menu open when editing Vehicle and Booking
 		add_filter('parent_file', array( self::class, 'fix_parent_file' ));
@@ -117,19 +118,7 @@ final class Menu {
 			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);
 
-		// 7. Payout Requests
-		// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
-		add_submenu_page(
-			'mhm-rentiva',
-			__('Payout Requests', 'mhm-rentiva'),
-			__('Payout Requests', 'mhm-rentiva'),
-			'mhm_rentiva_approve_payout',
-			'mhm-rentiva-payouts',
-			array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
-		);
-		// phpcs:enable
-
-		// 8. Reports (Pro feature)
+		// 7. Reports (Pro feature)
 		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
 			add_submenu_page(
 				'mhm-rentiva',
@@ -223,6 +212,38 @@ final class Menu {
 
 		// Remove WordPress's automatically created "MHM Rentiva" submenu
 		remove_submenu_page('mhm-rentiva', 'mhm-rentiva');
+	}
+
+	/**
+	 * Vendor (Bayi) menus — registered at priority 15 so they always appear at the bottom.
+	 */
+	public static function add_bayi_menus(): void
+	{
+		// 1. Vendor Management (Pro — Vendor Marketplace)
+		if (class_exists(\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::class)
+			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+		) {
+			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::add_submenu();
+		}
+
+		// 2. Vendor Reports (Pro — Vendor Marketplace)
+		if (class_exists(\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::class)
+			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+		) {
+			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::add_submenu();
+		}
+
+		// 3. Payout Requests
+		// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
+		add_submenu_page(
+			'mhm-rentiva',
+			__('Payout Requests', 'mhm-rentiva'),
+			__('Payout Requests', 'mhm-rentiva'),
+			'mhm_rentiva_approve_payout',
+			'mhm-rentiva-payouts',
+			array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
+		);
+		// phpcs:enable
 	}
 
 	public static function slug(): string
