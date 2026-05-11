@@ -153,17 +153,22 @@ final class ShortcodePages {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'mhm-rentiva' ) );
 		}
-
-		$this->render_admin_header(
-			(string) get_admin_page_title(),
-			array(
+		?>
+		<div class="wrap mhm-rentiva-shortcode-pages-wrap">
+			<?php
+			$this->render_admin_header(
+				(string) get_admin_page_title(),
 				array(
-					'type' => 'documentation',
-					'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
-				),
-			)
-		);
-		$this->render_developer_mode_banner();
-		echo '<div id="mhm-shortcode-pages-root"></div>';
+					array(
+						'type' => 'documentation',
+						'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
+					),
+				)
+			);
+			$this->render_developer_mode_banner();
+			?>
+			<div id="mhm-shortcode-pages-root"></div>
+		</div>
+		<?php
 	}
 }
