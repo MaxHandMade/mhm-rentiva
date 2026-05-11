@@ -135,6 +135,30 @@ final class PolicyRepository {
     }
 
     /**
+     * Return all platform-wide commission policies ordered newest first.
+     *
+     * @return CommissionPolicy[]
+     */
+    public static function get_all_global_policies(): array
+    {
+        global $wpdb;
+        $table = $wpdb->prefix . 'mhm_rentiva_commission_policy';
+
+        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $table is a trusted plugin table name derived from $wpdb->prefix.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only audit log; caching not needed.
+        $rows = $wpdb->get_results(
+            "SELECT * FROM {$table} WHERE vendor_id IS NULL ORDER BY id DESC"
+        );
+        // phpcs:enable
+
+        if (! is_array($rows)) {
+            return array();
+        }
+
+        return array_map(array( self::class, 'hydrate' ), $rows);
+    }
+
+    /**
      * Hydrate a DB row object into a CommissionPolicy value object.
      *
      * @param \stdClass $row Raw database row.

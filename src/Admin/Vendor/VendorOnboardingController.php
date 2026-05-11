@@ -162,4 +162,51 @@ final class VendorOnboardingController
 
         return true;
     }
+
+    /**
+     * Unsuspend a previously suspended vendor.
+     * Restores the rentiva_vendor role, clears the suspended status, and moves
+     * ban-suspended vehicles to 'pending' (requires admin review before going live).
+     * Fires: mhm_rentiva_vendor_unsuspended( $user_id )
+     *
+     * @param  int $user_id
+     * @return bool False if user not found.
+     */
+    public static function unsuspend(int $user_id): bool
+    {
+        $user = get_userdata($user_id);
+        if (! $user) {
+            return false;
+        }
+
+        $user->remove_role('customer');
+        $user->add_role('rentiva_vendor');
+        update_user_meta($user_id, '_rentiva_vendor_status', 'active');
+
+        // Move ban-suspended vehicles to 'pending' for admin review before going live.
+        $vehicle_ids = get_posts(array(
+            'post_type'      => 'vehicle',
+            'post_status'    => 'draft',
+            'author'         => $user_id,
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key, WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+            'meta_key'       => '_mhm_vehicle_suspended_by_vendor_ban',
+            'meta_value'     => '1',
+        ));
+
+        foreach ($vehicle_ids as $vehicle_id) {
+            wp_update_post(array(
+                'ID'          => $vehicle_id,
+                'post_status' => 'pending',
+            ));
+            delete_post_meta($vehicle_id, '_mhm_vehicle_suspended_by_vendor_ban');
+            update_post_meta($vehicle_id, '_mhm_vehicle_status', 'pending_review');
+        }
+
+        do_action('mhm_rentiva_vendor_unsuspended', $user_id);
+
+        return true;
+    }
 }

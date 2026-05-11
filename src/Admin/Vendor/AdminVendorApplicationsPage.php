@@ -27,6 +27,7 @@ final class AdminVendorApplicationsPage
 
         add_action('admin_enqueue_scripts', array(static::class, 'enqueue_assets'));
         add_action('admin_post_mhm_vendor_suspend',           array(static::class, 'handle_suspend_post'));
+        add_action('admin_post_mhm_vendor_unsuspend',         array(static::class, 'handle_unsuspend_post'));
         add_action('admin_post_mhm_vendor_commission_update', array(static::class, 'handle_commission_update'));
         add_action('admin_post_mhm_vendor_settings_save',     array(static::class, 'handle_settings_save'));
     }
@@ -191,9 +192,13 @@ final class AdminVendorApplicationsPage
             $approved  = (string) get_user_meta($vendor->ID, '_rentiva_vendor_approved_at', true);
             $status    = (string) get_user_meta($vendor->ID, '_rentiva_vendor_status', true);
 
-            $suspend_url = wp_nonce_url(
+            $suspend_url   = wp_nonce_url(
                 admin_url('admin-post.php?action=mhm_vendor_suspend&vendor_id=' . $vendor->ID),
                 'mhm_vendor_suspend_' . $vendor->ID
+            );
+            $unsuspend_url = wp_nonce_url(
+                admin_url('admin-post.php?action=mhm_vendor_unsuspend&vendor_id=' . $vendor->ID),
+                'mhm_vendor_unsuspend_' . $vendor->ID
             );
 
             $badge = $status === 'suspended'
@@ -210,7 +215,7 @@ final class AdminVendorApplicationsPage
             if ($status !== 'suspended') {
                 echo '<a href="' . esc_url($suspend_url) . '" class="button button-small" onclick="return confirm(\'' . esc_js(__('Suspend this vendor?', 'mhm-rentiva')) . '\')">' . esc_html__('Suspend', 'mhm-rentiva') . '</a>';
             } else {
-                echo '<em>' . esc_html__('Suspended', 'mhm-rentiva') . '</em>';
+                echo '<a href="' . esc_url($unsuspend_url) . '" class="button button-small" onclick="return confirm(\'' . esc_js(__('Unsuspend this vendor? Their vehicles will move to Pending Review.', 'mhm-rentiva')) . '\')">' . esc_html__('Unsuspend', 'mhm-rentiva') . '</a>';
             }
             echo '</td>';
             echo '</tr>';
@@ -375,6 +380,36 @@ final class AdminVendorApplicationsPage
         echo '<input type="submit" class="button button-primary" value="' . esc_attr__('Save Commission Rate', 'mhm-rentiva') . '">';
         echo '</p>';
         echo '</form>';
+
+        // Audit log — all historical global policies, newest first.
+        $policies = \MHMRentiva\Core\Financial\PolicyRepository::get_all_global_policies();
+
+        echo '<h3 style="margin-top:2em">' . esc_html__('Rate History', 'mhm-rentiva') . '</h3>';
+
+        if (empty($policies)) {
+            echo '<p>' . esc_html__('No commission policies recorded yet.', 'mhm-rentiva') . '</p>';
+            return;
+        }
+
+        $date_format = get_option('date_format') . ' ' . get_option('time_format');
+
+        echo '<table class="widefat fixed striped" style="max-width:700px">';
+        echo '<thead><tr>';
+        echo '<th style="width:180px">' . esc_html__('Effective From', 'mhm-rentiva') . '</th>';
+        echo '<th style="width:90px">' . esc_html__('Rate', 'mhm-rentiva') . '</th>';
+        echo '<th>' . esc_html__('Label', 'mhm-rentiva') . '</th>';
+        echo '</tr></thead><tbody>';
+
+        foreach ($policies as $policy) {
+            $ts = strtotime($policy->get_effective_from());
+            echo '<tr>';
+            echo '<td>' . esc_html($ts ? wp_date($date_format, $ts) : $policy->get_effective_from()) . '</td>';
+            echo '<td>' . esc_html(number_format($policy->get_global_rate(), 2)) . '%</td>';
+            echo '<td>' . esc_html($policy->get_label()) . '</td>';
+            echo '</tr>';
+        }
+
+        echo '</tbody></table>';
     }
 
     // ---------------------------------------------------------------
@@ -398,6 +433,26 @@ final class AdminVendorApplicationsPage
 
         VendorOnboardingController::suspend($vendor_id);
         wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=vendors&suspended=1'));
+        exit;
+    }
+
+    public static function handle_unsuspend_post(): void
+    {
+        if (! current_user_can('manage_options')) {
+            wp_die(esc_html__('Permission denied.', 'mhm-rentiva'));
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Recommended
+        $vendor_id = isset($_GET['vendor_id']) ? (int) $_GET['vendor_id'] : 0;
+        $nonce     = isset($_GET['_wpnonce'])  ? sanitize_text_field(wp_unslash($_GET['_wpnonce'])) : '';
+        // phpcs:enable
+
+        if (! wp_verify_nonce($nonce, 'mhm_vendor_unsuspend_' . $vendor_id)) {
+            wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
+        }
+
+        VendorOnboardingController::unsuspend($vendor_id);
+        wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-vendors&tab=vendors&unsuspended=1'));
         exit;
     }
 
@@ -474,5 +529,10 @@ final class AdminVendorApplicationsPage
     public static function process_reject(int $application_id, string $reason = '')
     {
         return VendorOnboardingController::reject($application_id, $reason);
+    }
+
+    public static function process_unsuspend(int $user_id): bool
+    {
+        return VendorOnboardingController::unsuspend($user_id);
     }
 }
