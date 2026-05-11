@@ -692,6 +692,14 @@ final class BookingColumns {
 		// Get statistics data
 		$stats = self::get_booking_stats();
 
+		// Display Developer Mode banner and limit notices — before KPI cards
+		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
+			'bookings',
+			array(
+				__( 'Unlimited Bookings', 'mhm-rentiva' ),
+				__( 'Advanced Booking Management', 'mhm-rentiva' ),
+			)
+		);
 		?>
 		<div class="mhm-stats-cards">
 			<div class="stats-grid">
@@ -755,15 +763,6 @@ final class BookingColumns {
 			</div>
 		</div>
 
-		<?php
-		// Display Developer Mode banner and limit notices — after KPI cards
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'bookings',
-			array(
-				__( 'Unlimited Bookings', 'mhm-rentiva' ),
-				__( 'Advanced Booking Management', 'mhm-rentiva' ),
-			)
-		);
 	}
 
 	/**
