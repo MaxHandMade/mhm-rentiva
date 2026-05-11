@@ -28,6 +28,7 @@ final class SetupWizard {
 	{
 		add_action('admin_init', array( self::class, 'maybe_redirect' ));
 		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		add_action('admin_post_mhm_rentiva_setup_save_license', array( self::class, 'handle_save_license' ));
 		add_action('admin_post_mhm_rentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
@@ -50,13 +51,63 @@ final class SetupWizard {
 		);
 	}
 
+	public static function enqueue_assets(string $hook): void
+	{
+		if (strpos($hook, 'mhm-rentiva-setup') === false) {
+			return;
+		}
+
+		$css_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/css/admin/setup-wizard.css';
+		if (file_exists($css_path)) {
+			wp_enqueue_style(
+				'mhm-rentiva-setup-wizard',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/setup-wizard.css',
+				array(),
+				MHM_RENTIVA_VERSION . '.' . filemtime($css_path)
+			);
+		}
+
+		$js_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/js/admin/setup-wizard.js';
+		if (file_exists($js_path)) {
+			wp_enqueue_script(
+				'mhm-rentiva-setup-wizard',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/setup-wizard.js',
+				array(),
+				MHM_RENTIVA_VERSION . '.' . filemtime($js_path),
+				true
+			);
+
+			$seed_steps    = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
+				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_seed_steps()
+				: array();
+			$cleanup_steps = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
+				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_cleanup_steps()
+				: array();
+			$demo_nonce    = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
+				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_nonce()
+				: '';
+
+			wp_localize_script(
+				'mhm-rentiva-setup-wizard',
+				'mhmSetupWizard',
+				array(
+					'ajaxUrl'      => admin_url('admin-ajax.php'),
+					'nonce'        => $demo_nonce,
+					'seedSteps'    => array_keys($seed_steps),
+					'cleanupSteps' => array_keys($cleanup_steps),
+					'msgSeeded'    => __('Demo data loaded successfully! Refresh the page to see the cleanup button.', 'mhm-rentiva'),
+					'msgCleaned'   => __('Demo data removed. Refresh the page to continue.', 'mhm-rentiva'),
+				)
+			);
+		}
+	}
+
 	public function render_page(): void
 	{
 		if (! current_user_can('manage_options')) {
 			return;
 		}
 
-		self::print_styles();
 		$current_step = self::get_current_step();
 		$steps        = self::get_steps();
 
@@ -598,10 +649,7 @@ final class SetupWizard {
 
 	private static function render_step_demo(): void
 	{
-		$is_active     = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
-		$seed_steps    = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_seed_steps();
-		$cleanup_steps = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_cleanup_steps();
-		$nonce         = \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_nonce();
+		$is_active = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
 		?>
 		<h2><?php esc_html_e( 'Demo Data', 'mhm-rentiva' ); ?></h2>
 		<p><?php esc_html_e( 'Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data.', 'mhm-rentiva' ); ?></p>
@@ -638,85 +686,6 @@ final class SetupWizard {
 				<?php endif; ?>
 			</p>
 		</div>
-
-		<script>
-		(function() {
-			var ajaxUrl = <?php echo wp_json_encode( admin_url( 'admin-ajax.php' ) ); ?>;
-			var nonce   = <?php echo wp_json_encode( $nonce ); ?>;
-			var seedSteps    = <?php echo wp_json_encode( array_keys( $seed_steps ) ); ?>;
-			var cleanupSteps = <?php echo wp_json_encode( array_keys( $cleanup_steps ) ); ?>;
-
-			function setProgress(pct, label) {
-				document.getElementById('mhm-demo-progress-bar').style.display = 'block';
-				document.getElementById('mhm-demo-progress-fill').style.width  = pct + '%';
-				document.getElementById('mhm-demo-progress-label').textContent = label;
-			}
-			function showResult(msg) {
-				var el = document.getElementById('mhm-demo-result');
-				el.style.display = 'block';
-				document.getElementById('mhm-demo-result-msg').textContent = msg;
-			}
-			function showError(msg) {
-				var el = document.getElementById('mhm-demo-error');
-				el.style.display = 'block';
-				document.getElementById('mhm-demo-error-msg').textContent = msg;
-			}
-			function clearFeedback() {
-				document.getElementById('mhm-demo-progress-bar').style.display  = 'none';
-				document.getElementById('mhm-demo-result').style.display         = 'none';
-				document.getElementById('mhm-demo-error').style.display          = 'none';
-				document.getElementById('mhm-demo-progress-fill').style.width    = '0';
-			}
-
-			function runSteps(steps, action, onDone) {
-				var i = 0;
-				function next() {
-					if (i >= steps.length) { onDone(); return; }
-					var step = steps[i++];
-					var fd   = new FormData();
-					fd.append('action', action);
-					fd.append('nonce',  nonce);
-					fd.append('step',   step);
-					fetch(ajaxUrl, { method: 'POST', body: fd })
-						.then(function(r) { return r.json(); })
-						.then(function(data) {
-							if (data.success) {
-								setProgress(data.data.progress, data.data.message);
-								next();
-							} else {
-								showError(data.data && data.data.message ? data.data.message : 'Error during step: ' + step);
-							}
-						})
-						.catch(function() { showError('Network error during step: ' + step); });
-				}
-				next();
-			}
-
-			var btnSeed = document.getElementById('mhm-btn-seed');
-			if (btnSeed) {
-				btnSeed.addEventListener('click', function() {
-					clearFeedback();
-					btnSeed.disabled = true;
-					runSteps(seedSteps, 'mhm_rentiva_demo_seed', function() {
-						showResult(<?php echo wp_json_encode( __( 'Demo data loaded successfully! Refresh the page to see the cleanup button.', 'mhm-rentiva' ) ); ?>);
-						btnSeed.disabled = false;
-					});
-				});
-			}
-
-			var btnCleanup = document.getElementById('mhm-btn-cleanup');
-			if (btnCleanup) {
-				btnCleanup.addEventListener('click', function() {
-					clearFeedback();
-					btnCleanup.disabled = true;
-					runSteps(cleanupSteps, 'mhm_rentiva_demo_cleanup', function() {
-						showResult(<?php echo wp_json_encode( __( 'Demo data removed. Refresh the page to continue.', 'mhm-rentiva' ) ); ?>);
-						btnCleanup.disabled = false;
-					});
-				});
-			}
-		})();
-		</script>
 
 		<div class="mhm-step-actions" style="margin-top:24px;">
 			<a class="button button-secondary button-large align-left" href="<?php echo esc_url( self::step_url( 'frontend' ) ); ?>">&larr; <?php esc_html_e( 'Back', 'mhm-rentiva' ); ?></a>
@@ -1195,146 +1164,6 @@ final class SetupWizard {
 		return (int) $post_id;
 	}
 
-	private static function print_styles(): void
-	{
-		static $printed = false;
-		if ($printed) {
-			return;
-		}
-		$printed = true;
-		?>
-		<style>
-			.mhm-setup-steps {
-				display: flex;
-				gap: 12px;
-				flex-wrap: wrap;
-				list-style: none;
-				padding-left: 0;
-				margin-bottom: 20px;
-			}
-
-			.mhm-setup-steps li {
-				padding: 6px 14px;
-				border-radius: 20px;
-				background: #f6f7f7;
-				border: 1px solid #dcdcdc;
-				color: #1d2327;
-				transition: all 0.2s;
-			}
-
-			.mhm-setup-steps li.current {
-				background: #2271b1;
-				color: #fff;
-				border-color: #2271b1;
-				box-shadow: none;
-			}
-
-			.mhm-setup-steps li.completed {
-				border-color: #dcdcdc;
-				box-shadow: none;
-			}
-
-			.mhm-setup-steps li a {
-				color: inherit;
-				text-decoration: none;
-			}
-
-			.mhm-system-table .mhm-system-note {
-				font-size: 12px;
-				margin-top: 4px;
-				color: #646970;
-			}
-
-			.mhm-status {
-				display: inline-flex;
-				align-items: center;
-				gap: 6px;
-				padding: 2px 8px;
-				border-radius: 999px;
-				font-size: 12px;
-			}
-
-			.mhm-status-ok {
-				background: #d5f2e3;
-				color: #1d7a46;
-			}
-
-			.mhm-status-warning {
-				background: #fff4ce;
-				color: #7a5b00;
-			}
-
-			.mhm-status-fail {
-				background: #fdeaea;
-				color: #a12622;
-			}
-
-			.mhm-step-actions {
-				margin-top: 32px;
-				padding-top: 24px;
-				border-top: 1px solid #f0f0f1;
-				display: flex;
-				justify-content: flex-end;
-				gap: 12px;
-				flex-wrap: wrap;
-				align-items: center;
-			}
-
-			.mhm-step-actions .align-left {
-				margin-right: auto;
-			}
-
-			.mhm-summary-actions {
-				display: flex;
-				gap: 10px;
-				margin: 16px 0;
-				flex-wrap: wrap;
-			}
-
-			.mhm-license-card {
-				border: 1px solid #c3c4c7;
-				border-radius: 8px;
-				background: #fff;
-				padding: 16px 20px;
-				margin-bottom: 16px;
-			}
-
-			.mhm-license-card--active {
-				border-color: #3ab27b;
-				box-shadow: 0 0 0 1px rgba(58, 178, 123, 0.2);
-			}
-
-			.mhm-license-card__status {
-				font-weight: 600;
-				margin-bottom: 12px;
-			}
-
-			.mhm-license-grid {
-				display: grid;
-				grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-				gap: 12px 24px;
-				margin-bottom: 8px;
-			}
-
-			.mhm-license-label {
-				font-size: 12px;
-				text-transform: uppercase;
-				letter-spacing: 0.04em;
-				color: #646970;
-			}
-
-			.mhm-license-code {
-				display: inline-block;
-				font-size: 14px;
-				padding: 4px 8px;
-				background: #f6f7f7;
-				border-radius: 4px;
-				margin-top: 4px;
-			}
-		</style>
-		<?php
-	}
-
 	private static function get_system_checks(): array
 	{
 		global $wpdb;
@@ -1342,7 +1171,6 @@ final class SetupWizard {
 		$php_ok     = version_compare(PHP_VERSION, '7.4', '>=');
 		$wp_version = get_bloginfo('version');
 		$wp_ok      = version_compare($wp_version, '6.0', '>=');
-		$db_version = $wpdb instanceof \wpdb ? $wpdb->db_version() : __('Unknown', 'mhm-rentiva');
 		$db_version = $wpdb instanceof \wpdb ? $wpdb->db_version() : __('Unknown', 'mhm-rentiva');
 		$memory_mb  = self::memory_limit_mb();
 
@@ -1569,12 +1397,11 @@ final class SetupWizard {
 			case 'pages':
 				return self::are_required_pages_present();
 			case 'email':
-				return SettingsCore::get('mhm_rentiva_email_send_enabled', '0') === '1'
-					&& (bool) SettingsCore::get('mhm_rentiva_email_from_address', '');
-			case 'payments':
-				return self::is_payment_ready();
+				return (bool) SettingsCore::get('mhm_rentiva_email_from_address', '');
 			case 'frontend':
 				return (bool) SettingsCore::get('mhm_rentiva_currency', 'USD');
+			case 'demo':
+				return true;
 			case 'summary':
 				return get_option(self::OPTION_COMPLETED, '0') === '1';
 			default:
@@ -1590,17 +1417,6 @@ final class SetupWizard {
 			}
 		}
 		return true;
-	}
-
-	private static function is_payment_ready(): bool
-	{
-		$settings = get_option('mhm_rentiva_settings', array());
-		$gateways = array(
-
-			'0', // ⭐ Offline payment removed - WooCommerce handles all payments
-		);
-
-		return in_array('1', $gateways, true);
 	}
 
 	private static function is_smtp_layer_detected(): bool

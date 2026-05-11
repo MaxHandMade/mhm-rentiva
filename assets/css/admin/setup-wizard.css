@@ -1,0 +1,131 @@
+/* =============================================
+   MHM Rentiva — Setup Wizard Styles
+   ============================================= */
+
+.mhm-setup-steps {
+	display: flex;
+	gap: 12px;
+	flex-wrap: wrap;
+	list-style: none;
+	padding-left: 0;
+	margin-bottom: 20px;
+}
+
+.mhm-setup-steps li {
+	padding: 6px 14px;
+	border-radius: 20px;
+	background: #f6f7f7;
+	border: 1px solid #dcdcdc;
+	color: #1d2327;
+	transition: all 0.2s;
+}
+
+.mhm-setup-steps li.current {
+	background: #2271b1;
+	color: #fff;
+	border-color: #2271b1;
+	box-shadow: none;
+}
+
+.mhm-setup-steps li.completed {
+	border-color: #dcdcdc;
+	box-shadow: none;
+}
+
+.mhm-setup-steps li a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.mhm-system-table .mhm-system-note {
+	font-size: 12px;
+	margin-top: 4px;
+	color: #646970;
+}
+
+.mhm-status {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	font-size: 12px;
+}
+
+.mhm-status-ok {
+	background: #d5f2e3;
+	color: #1d7a46;
+}
+
+.mhm-status-warning {
+	background: #fff4ce;
+	color: #7a5b00;
+}
+
+.mhm-status-fail {
+	background: #fdeaea;
+	color: #a12622;
+}
+
+.mhm-step-actions {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid #f0f0f1;
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.mhm-step-actions .align-left {
+	margin-right: auto;
+}
+
+.mhm-summary-actions {
+	display: flex;
+	gap: 10px;
+	margin: 16px 0;
+	flex-wrap: wrap;
+}
+
+.mhm-license-card {
+	border: 1px solid #c3c4c7;
+	border-radius: 8px;
+	background: #fff;
+	padding: 16px 20px;
+	margin-bottom: 16px;
+}
+
+.mhm-license-card--active {
+	border-color: #3ab27b;
+	box-shadow: 0 0 0 1px rgba(58, 178, 123, 0.2);
+}
+
+.mhm-license-card__status {
+	font-weight: 600;
+	margin-bottom: 12px;
+}
+
+.mhm-license-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 12px 24px;
+	margin-bottom: 8px;
+}
+
+.mhm-license-label {
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #646970;
+}
+
+.mhm-license-code {
+	display: inline-block;
+	font-size: 14px;
+	padding: 4px 8px;
+	background: #f6f7f7;
+	border-radius: 4px;
+	margin-top: 4px;
+}
