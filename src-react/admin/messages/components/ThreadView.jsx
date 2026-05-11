@@ -56,7 +56,7 @@ export default function ThreadView( { messageId, onBack } ) {
 	};
 
 	return (
-		<div className="mhm-thread-view">
+		<div className="mhm-thread-view mhm-widget">
 			<div className="mhm-thread-view__header">
 				<button className="button" onClick={ onBack }>
 					{ __( '← Back to Messages', 'mhm-rentiva' ) }

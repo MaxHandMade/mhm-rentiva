@@ -1,9 +1,12 @@
 import { __ } from '@wordpress/i18n';
 
+const { priorities } = window.mhmRentivaMessages;
+
 export default function MessageTable( { items, selected, onSelect, onSelectAll, onRowClick } ) {
 	const allSelected = items.length > 0 && selected.length === items.length;
 
 	return (
+		<div className="mhm-widget mhm-messages-table-wrap">
 		<table className="mhm-messages-table widefat fixed striped">
 			<thead>
 				<tr>
@@ -58,11 +61,12 @@ export default function MessageTable( { items, selected, onSelect, onSelectAll, 
 								{ msg.status_label }
 							</span>
 						</td>
-						<td onClick={ () => onRowClick( msg.id ) }>{ msg.priority ?? 'normal' }</td>
+						<td onClick={ () => onRowClick( msg.id ) }>{ priorities[ msg.priority ] ?? msg.priority }</td>
 						<td onClick={ () => onRowClick( msg.id ) }>{ msg.date_human }</td>
 					</tr>
 				) ) }
 			</tbody>
 		</table>
+		</div>
 	);
 }

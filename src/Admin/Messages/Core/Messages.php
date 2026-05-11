@@ -1375,6 +1375,13 @@ final class Messages {
 		// Main messages page — React SPA.
 		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'messages' );
 
+		wp_enqueue_style(
+			'mhm-rentiva-messages',
+			MHM_RENTIVA_PLUGIN_URL . 'build/admin/messages.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
 		wp_localize_script(
 			'mhm-rentiva-react-messages',
 			'mhmRentivaMessages',

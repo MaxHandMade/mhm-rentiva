@@ -84,11 +84,11 @@ export default function MessagesPage() {
 	}
 
 	if ( view === 'settings' ) {
-		return <SettingsView />;
+		return <SettingsView onBack={ goBack } />;
 	}
 
 	return (
-		<div>
+		<div className="mhm-messages-wrap">
 			{ /* Tab bar */ }
 			<div style={ { marginBottom: 12 } }>
 				<a

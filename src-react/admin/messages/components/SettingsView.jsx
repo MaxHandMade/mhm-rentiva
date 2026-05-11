@@ -8,7 +8,7 @@ function field( key ) {
 	return `${ OPTION }[${ key }]`;
 }
 
-export default function SettingsView() {
+export default function SettingsView( { onBack } ) {
 	const params  = new URLSearchParams( window.location.search );
 	const saved   = params.get( 'settings_saved' ) === '1';
 
@@ -36,6 +36,12 @@ export default function SettingsView() {
 
 	return (
 		<div className="mhm-settings-view">
+			<div style={ { marginBottom: 12 } }>
+				<button className="button" onClick={ onBack }>
+					{ __( '← Back to Messages', 'mhm-rentiva' ) }
+				</button>
+			</div>
+
 			{ saved && (
 				<div className="notice notice-success inline">
 					<p>{ __( 'Settings saved.', 'mhm-rentiva' ) }</p>
@@ -62,6 +68,7 @@ export default function SettingsView() {
 				<input type="hidden" name="action" value="mhm_rentiva_save_messages_settings" />
 				<input type="hidden" name="nonce"  value={ nonces.settings } />
 
+				<div className="mhm-widget mhm-tab-content">
 				{ /* Email tab */ }
 				{ tab === 'email' && (
 					<table className="form-table">
@@ -209,6 +216,7 @@ export default function SettingsView() {
 						{ __( 'Save Settings', 'mhm-rentiva' ) }
 					</button>
 				</p>
+			</div>
 			</form>
 		</div>
 	);
