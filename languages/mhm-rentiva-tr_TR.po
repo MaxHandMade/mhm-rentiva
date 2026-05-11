@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-05-10T14:57:52+00:00\n"
+"POT-Creation-Date: 2026-05-11T02:57:18+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -789,7 +789,9 @@ msgstr "Lisans durumu:"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:423
 #: templates/account/partials/vendor-bookings.php:228
 #: templates/account/partials/vendor-listings.php:44
-#: templates/admin/shortcode-pages.php:73 assets/blocks/my-bookings/index.js:42
+#: assets/blocks/my-bookings/index.js:42
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
+#: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 msgid "Active"
 msgstr "Aktif"
 
@@ -885,10 +887,6 @@ msgstr "Derleme:"
 #: src/Admin/Customers/AddCustomerPage.php:197
 #: src/Admin/Messages/Core/Messages.php:1000
 #: src/Admin/Messages/Core/Messages.php:1135
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:61
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:99
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:131
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:194
 #: src/Admin/Testing/ShortcodeTestHandler.php:50
 #: src/Admin/Utilities/Actions/Actions.php:51
 #: src/Admin/Utilities/Actions/Actions.php:65
@@ -1066,10 +1064,10 @@ msgstr "Fiyat"
 #: templates/account/user-dashboard.php:217
 #: templates/account/user-dashboard.php:280
 #: templates/account/vendor-ledger.php:35
-#: templates/account/vendor-ledger.php:67
-#: templates/admin/shortcode-pages.php:30 assets/blocks/my-bookings/index.js:54
+#: templates/account/vendor-ledger.php:67 assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/messages/components/MessageTable.jsx:23
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
 msgid "Status"
 msgstr "Durum"
 
@@ -1119,9 +1117,9 @@ msgstr "Pasif"
 #: src/Admin/Setup/SetupWizard.php:370 src/Admin/Transfer/TransferAdmin.php:530
 #: src/Admin/Transfer/TransferAdmin.php:794
 #: templates/account/partials/vendor-listings.php:384
-#: templates/admin/shortcode-pages.php:82
 #: templates/shortcodes/vehicle-rating-form.php:278
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
 msgid "Edit"
 msgstr "Düzenle"
 
@@ -1211,6 +1209,7 @@ msgstr "Filtre"
 #: src/Admin/Addons/AddonListTable.php:498 src/Admin/Core/AssetManager.php:1362
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1438
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:277
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Clear"
 msgstr "Temizle"
 
@@ -2388,6 +2387,7 @@ msgstr "Gün"
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
 #: src-react/admin/dashboard/components/TransferWidget.jsx:33
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:39
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:9
 msgid "Total"
 msgstr "Toplam"
 
@@ -2770,6 +2770,7 @@ msgstr "Rezervasyon detayları"
 #: templates/account/partials/vendor-listings.php:175
 #: templates/account/partials/vendor-listings.php:430
 #: templates/account/partials/vendor-report-modal.php:27
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:10
 msgid "Close"
 msgstr "Kapat"
 
@@ -2785,7 +2786,7 @@ msgstr "Kapat"
 #: src/Admin/Messages/Core/Messages.php:809
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1303
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1310
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 msgid "Customer"
@@ -3945,7 +3946,6 @@ msgstr "Fiyatı Hesapla"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:195
 #: src/Admin/Core/AssetManager.php:642
-#: src/Admin/Settings/ShortcodePages.php:203
 msgid "Creating..."
 msgstr "Oluşturuluyor..."
 
@@ -4400,9 +4400,10 @@ msgstr "Değer Gir"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1017
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:94
 #: templates/account/payment-history.php:150
-#: templates/admin/shortcode-pages.php:90
 #: src-react/admin/messages/components/SettingsView.jsx:155
 #: src-react/admin/messages/components/SettingsView.jsx:195
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:46
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:56
 msgid "Remove"
 msgstr "Kaldır"
 
@@ -4564,6 +4565,7 @@ msgstr "Emin misiniz?"
 #: templates/account/messages.php:161
 #: templates/account/partials/vendor-report-modal.php:81
 #: templates/messages/message-reply-form.html.php:65
+#: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
 msgid "Cancel"
 msgstr "İptal"
 
@@ -4827,8 +4829,8 @@ msgid "No logs found"
 msgstr "Herhangi bir günlük kaydı bulunamadı"
 
 #: src/Admin/Core/AssetManager.php:911 src/Admin/Setup/SetupWizard.php:348
-#: templates/admin/shortcode-pages.php:28
 #: src-react/admin/customers/components/Pagination.jsx:15
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:10
 msgid "Page"
 msgstr "Sayfa"
 
@@ -5081,7 +5083,7 @@ msgstr "Son kullanılan"
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:144
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:343
 #: templates/account/partials/vendor-reliability.php:366
-#: templates/admin/shortcode-pages.php:31
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
 msgid "Actions"
 msgstr "Eylemler"
 
@@ -6280,8 +6282,7 @@ msgstr "Henüz %s oluşturulmadı."
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:256
 #: templates/account/dashboard.php:221
 #: templates/account/partials/vendor-listings.php:378
-#: templates/admin/shortcode-pages.php:85
-#: templates/admin/shortcode-pages.php:94
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 msgid "View"
 msgstr "Görünüm"
 
@@ -12694,11 +12695,6 @@ msgstr "Bu yanıtın ardından sohbeti kapatın"
 #: src/Admin/REST/Settings/RESTSettings.php:370
 #: src/Admin/REST/Settings/RESTSettings.php:382
 #: src/Admin/Settings/APIKeysPage.php:84 src/Admin/Settings/Settings.php:155
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:36
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:57
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:95
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:127
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:190
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:87
@@ -15937,7 +15933,7 @@ msgid "Security check failed. Please try again."
 msgstr "Güvenlik kontrolü başarısız oldu. Lütfen tekrar deneyin."
 
 #: src/Admin/Settings/Groups/LicenseSettings.php:139
-#: src/Admin/Settings/ShortcodePages.php:241
+#: src/Admin/Settings/ShortcodePages.php:154
 msgid "You do not have sufficient permissions to access this page."
 msgstr "Bu sayfaya erişmek için yeterli izniniz yok."
 
@@ -16676,45 +16672,11 @@ msgstr "REST API Ayarları başarıyla kaydedildi!"
 msgid "Settings template file not found."
 msgstr "Ayarlar şablon dosyası bulunamadı."
 
-#: src/Admin/Settings/ShortcodePages.php:127
-#: src/Admin/Settings/ShortcodePages.php:128
+#: src/Admin/Settings/ShortcodePages.php:101
+#: src/Admin/Settings/ShortcodePages.php:102
 #: src/Admin/Utilities/Menu/Menu.php:170 src/Admin/Utilities/Menu/Menu.php:171
 msgid "Shortcode Pages"
 msgstr "Kısa Kod Sayfaları"
-
-#: src/Admin/Settings/ShortcodePages.php:201
-msgid "Cache will be cleared. Do you want to continue?"
-msgstr "Önbellek silinecek. Devam etmek istiyor musunuz?"
-
-#: src/Admin/Settings/ShortcodePages.php:202
-msgid "A page will be created for this shortcode. Do you want to continue?"
-msgstr "Bu kısa kod için bir sayfa oluşturulacak. Devam etmek istiyor musunuz?"
-
-#: src/Admin/Settings/ShortcodePages.php:204
-msgid "Page created! Go to editor?"
-msgstr "Sayfa oluşturuldu! Düzenleyiciye gitmek ister misiniz?"
-
-#: src/Admin/Settings/ShortcodePages.php:205
-msgid "Move this page to trash?"
-msgstr "Bu sayfayı çöp kutusuna taşımak ister misiniz?"
-
-#: src/Admin/Settings/ShortcodePages.php:206
-msgid ""
-"This action will permanently delete all created shortcode pages. Are you "
-"sure?"
-msgstr ""
-"Bu işlem, oluşturulan tüm kısa kod sayfalarını kalıcı olarak silecektir. "
-"Emin misiniz?"
-
-#: src/Admin/Settings/ShortcodePages.php:290
-msgid "Templates directory not found."
-msgstr "Şablonlar dizini bulunamadı."
-
-#. translators: %s: illegal template name
-#: src/Admin/Settings/ShortcodePages.php:300
-#, php-format
-msgid "Illegal template access: %s"
-msgstr "Yasadışı şablon erişimi: %s"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:30
 msgid "All user bookings"
@@ -16844,60 +16806,6 @@ msgstr "Araç Gönderimi"
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:126
 msgid "Vendor vehicle submission form - vendors can add their vehicles"
 msgstr "Bayi araç gönderim formu - bayiler araçlarını ekleyebilir"
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:40
-msgid "You do not have permission."
-msgstr "Vergi sınıflarını silmek için izniniz yok."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:45
-msgid "Cache cleared successfully."
-msgstr "Önbellek başarıyla temizlendi."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:47
-msgid "Error while clearing cache: "
-msgstr "Önbellek temizlenirken hata oluştu: "
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:68
-#: src/Admin/Testing/ShortcodeTestHandler.php:58
-msgid "Shortcode not specified."
-msgstr "Kısa kod belirtilmedi."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:78
-msgid "Page created successfully."
-msgstr "Sayfa başarıyla oluşturuldu."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:86
-msgid "Error occurred while creating page."
-msgstr "Sayfa oluşturulurken hata oluştu."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:106
-msgid "Invalid page ID."
-msgstr "Geçersiz sayfa kimliği."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:112
-msgid "Page successfully moved to trash."
-msgstr "Sayfa başarıyla çöp kutusuna taşındı."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:118
-msgid "Error occurred while removing page."
-msgstr "Sayfa kaldırılırken hata oluştu."
-
-#. translators: %d: number of pages found
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:178
-#, php-format
-msgid "%d pages found."
-msgstr "%d sayfa bulundu."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:200
-msgid ""
-"All shortcode pages have been deleted and system returned to default "
-"settings."
-msgstr ""
-"Tüm kısa kod sayfaları silindi ve sistem varsayılan ayarlara geri döndü."
-
-#: src/Admin/Settings/ShortcodePages/ShortcodePageAjax.php:205
-msgid "Error occurred while resetting pages."
-msgstr "Sayfalar sıfırlanırken hata oluştu."
 
 #: src/Admin/Settings/Testing/SettingsTester.php:975
 msgid "Frontend"
@@ -17861,7 +17769,9 @@ msgstr ""
 "sayfaları kullanır. Eksik sayfaları otomatik olarak oluşturun veya mevcut "
 "sayfalara bağlantı verin."
 
-#: src/Admin/Setup/SetupWizard.php:349 templates/admin/shortcode-pages.php:27
+#: src/Admin/Setup/SetupWizard.php:349
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:9
 msgid "Shortcode"
 msgstr "Kısa kod"
 
@@ -17874,7 +17784,8 @@ msgid "Present"
 msgstr "Mevcut"
 
 #: src/Admin/Setup/SetupWizard.php:358 src/Admin/Setup/SetupWizard.php:1352
-#: templates/admin/shortcode-pages.php:75
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:17
+#: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr "Eksik"
 
@@ -19071,6 +18982,10 @@ msgstr "İzin Kontroller"
 #, php-format
 msgid "✅ %d permission checks found"
 msgstr "✅ %d izin kontrolü bulundu"
+
+#: src/Admin/Testing/ShortcodeTestHandler.php:58
+msgid "Shortcode not specified."
+msgstr "Kısa kod belirtilmedi."
 
 #. translators: Dynamic value.
 #: src/Admin/Testing/ShortcodeTestHandler.php:66
@@ -23197,7 +23112,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:993
+#: src/Plugin.php:1000
 msgid ""
 "Rentiva Lite version allows you to add up to 5 vehicles. Activate your "
 "license to add more vehicles."
@@ -23205,7 +23120,7 @@ msgstr ""
 "Rentiva Lite sürümü, en fazla 5 araç eklemenize izin verir. Daha fazla araç "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:996
+#: src/Plugin.php:1003
 msgid ""
 "Rentiva Lite version has reached the booking limit. Activate your license to "
 "add more bookings."
@@ -23213,7 +23128,7 @@ msgstr ""
 "Rentiva Lite sürümü rezervasyon sınırına ulaştı. Daha fazla rezervasyon "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1325
+#: src/Plugin.php:1332
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -24375,80 +24290,6 @@ msgstr "Özel veya bilinmeyen sekme algılandı. Eski kanca gönderimi denenecek
 #: templates/admin/settings-page.php:97
 msgid "No content available for this tab."
 msgstr "Bu sekme için içerik mevcut değildir."
-
-#: templates/admin/shortcode-pages.php:20
-msgid ""
-"Below is a list of all MHM Rentiva shortcodes and which pages they are used "
-"on."
-msgstr ""
-"Aşağıda, tüm MHM Rentiva kısa kodlarının ve bunların hangi sayfalarda "
-"kullanıldığının bir listesi bulunmaktadır."
-
-#: templates/admin/shortcode-pages.php:29
-msgid "URL"
-msgstr "URL"
-
-#: templates/admin/shortcode-pages.php:53
-msgid "ID:"
-msgstr "ID:"
-
-#: templates/admin/shortcode-pages.php:55
-msgid "Dynamic / Custom URL"
-msgstr "Dinamik / Özel URL"
-
-#: templates/admin/shortcode-pages.php:57
-msgid "Managed by WooCommerce/Settings"
-msgstr "WooCommerce/Ayarlar tarafından yönetilir"
-
-#: templates/admin/shortcode-pages.php:59
-msgid "Page not found"
-msgstr "Sayfa Bulunamadı"
-
-#: templates/admin/shortcode-pages.php:81
-msgid "Edit Page"
-msgstr "Sayfayı Düzenle"
-
-#: templates/admin/shortcode-pages.php:98
-#: templates/admin/shortcode-pages.php:103
-msgid "Create Page"
-msgstr "Sayfa oluştur"
-
-#: templates/admin/shortcode-pages.php:130
-msgid "System Summary"
-msgstr "Sistem Özeti"
-
-#: templates/admin/shortcode-pages.php:133
-msgid "Total Shortcodes"
-msgstr "Toplam Kısa Kodlar"
-
-#: templates/admin/shortcode-pages.php:137
-msgid "Active Pages"
-msgstr "Aktif Sayfalar"
-
-#: templates/admin/shortcode-pages.php:141
-msgid "Missing Pages"
-msgstr "Eksik Sayfalar"
-
-#: templates/admin/shortcode-pages.php:148
-msgid "System Actions"
-msgstr "Sistem İşlemleri"
-
-#: templates/admin/shortcode-pages.php:151
-msgid "Clear Cache"
-msgstr "Önbelleği Temizle"
-
-#: templates/admin/shortcode-pages.php:154
-msgid "Debug Search"
-msgstr "Hata Ayıklama Arama"
-
-#: templates/admin/shortcode-pages.php:158
-msgid ""
-"Clears shortcode page cache and performs a deep scan for shortcode "
-"placements. Use after manual page updates."
-msgstr ""
-"Kısa kod sayfası önbelleğini temizler ve kısa kod yerleşimleri için "
-"derinlemesine tarama gerçekleştirir. Manuel sayfa güncellemelerinden sonra "
-"kullanın."
 
 #: templates/archive-vehicle.php:74
 msgid "&laquo; Previous"
@@ -27054,6 +26895,71 @@ msgstr "Kategori Performansı"
 msgid "No category data for this period."
 msgstr "Bu dönem için kategori verisi bulunamadı."
 
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:8
+msgid "Debug Search Results"
+msgstr "Debug Arama Sonuçları"
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:15
+msgid "Scanned %d pages."
+msgstr "%d sayfa tarandı."
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:21
+msgid "Found In"
+msgstr "Bulunduğu Yer"
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:33
+msgid "Not found"
+msgstr "Bulunamadı"
+
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:31
+msgid "Create Page"
+msgstr "Sayfa oluştur"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:79
+msgid "Clear Cache"
+msgstr "Önbelleği Temizle"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:11
+msgid "Scanning…"
+msgstr "Taranıyor…"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:12
+msgid "Debug Search"
+msgstr "Hata Ayıklama Arama"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:15
+msgid "Reset All"
+msgstr "Tümünü Sıfırla"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:30
+msgid "Failed to load shortcode pages."
+msgstr "Kısa kod sayfaları yüklenemedi."
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:54
+msgid "Remove Page"
+msgstr "Sayfayı Kaldır"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
+msgid "Move this page to trash?"
+msgstr "Bu sayfayı çöp kutusuna taşımak ister misiniz?"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
+msgid "Cache will be cleared. Do you want to continue?"
+msgstr "Önbellek silinecek. Devam etmek istiyor musunuz?"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:102
+msgid "Reset All Pages"
+msgstr "Tüm Sayfaları Sıfırla"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
+msgid "This will permanently delete all created shortcode pages. Are you sure?"
+msgstr "Bu işlem, oluşturulan tüm kısa kod sayfalarını kalıcı olarak silecektir. Emin misiniz?"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
+msgid "Delete All"
+msgstr "Tümünü Sil"
+
 #: src-react/shared/components/ErrorBoundary.jsx:16
 msgid "An error occurred. Please refresh the page."
 msgstr "Bir hata oluştu. Lütfen sayfayı yenileyin."
@@ -27284,6 +27190,105 @@ msgstr "MHM Bayi Profili"
 msgctxt "block description"
 msgid "Public vendor profile page (avatar, badge, vehicles, reviews)."
 msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar)."
+
+#~ msgid "A page will be created for this shortcode. Do you want to continue?"
+#~ msgstr ""
+#~ "Bu kısa kod için bir sayfa oluşturulacak. Devam etmek istiyor musunuz?"
+
+#~ msgid "Page created! Go to editor?"
+#~ msgstr "Sayfa oluşturuldu! Düzenleyiciye gitmek ister misiniz?"
+
+#~ msgid "Templates directory not found."
+#~ msgstr "Şablonlar dizini bulunamadı."
+
+#, php-format
+#~ msgid "Illegal template access: %s"
+#~ msgstr "Yasadışı şablon erişimi: %s"
+
+#~ msgid "You do not have permission."
+#~ msgstr "Vergi sınıflarını silmek için izniniz yok."
+
+#~ msgid "Cache cleared successfully."
+#~ msgstr "Önbellek başarıyla temizlendi."
+
+#~ msgid "Error while clearing cache: "
+#~ msgstr "Önbellek temizlenirken hata oluştu: "
+
+#~ msgid "Page created successfully."
+#~ msgstr "Sayfa başarıyla oluşturuldu."
+
+#~ msgid "Error occurred while creating page."
+#~ msgstr "Sayfa oluşturulurken hata oluştu."
+
+#~ msgid "Invalid page ID."
+#~ msgstr "Geçersiz sayfa kimliği."
+
+#~ msgid "Page successfully moved to trash."
+#~ msgstr "Sayfa başarıyla çöp kutusuna taşındı."
+
+#~ msgid "Error occurred while removing page."
+#~ msgstr "Sayfa kaldırılırken hata oluştu."
+
+#, php-format
+#~ msgid "%d pages found."
+#~ msgstr "%d sayfa bulundu."
+
+#~ msgid ""
+#~ "All shortcode pages have been deleted and system returned to default "
+#~ "settings."
+#~ msgstr ""
+#~ "Tüm kısa kod sayfaları silindi ve sistem varsayılan ayarlara geri döndü."
+
+#~ msgid "Error occurred while resetting pages."
+#~ msgstr "Sayfalar sıfırlanırken hata oluştu."
+
+#~ msgid ""
+#~ "Below is a list of all MHM Rentiva shortcodes and which pages they are "
+#~ "used on."
+#~ msgstr ""
+#~ "Aşağıda, tüm MHM Rentiva kısa kodlarının ve bunların hangi sayfalarda "
+#~ "kullanıldığının bir listesi bulunmaktadır."
+
+#~ msgid "URL"
+#~ msgstr "URL"
+
+#~ msgid "ID:"
+#~ msgstr "ID:"
+
+#~ msgid "Dynamic / Custom URL"
+#~ msgstr "Dinamik / Özel URL"
+
+#~ msgid "Managed by WooCommerce/Settings"
+#~ msgstr "WooCommerce/Ayarlar tarafından yönetilir"
+
+#~ msgid "Page not found"
+#~ msgstr "Sayfa Bulunamadı"
+
+#~ msgid "Edit Page"
+#~ msgstr "Sayfayı Düzenle"
+
+#~ msgid "System Summary"
+#~ msgstr "Sistem Özeti"
+
+#~ msgid "Total Shortcodes"
+#~ msgstr "Toplam Kısa Kodlar"
+
+#~ msgid "Active Pages"
+#~ msgstr "Aktif Sayfalar"
+
+#~ msgid "Missing Pages"
+#~ msgstr "Eksik Sayfalar"
+
+#~ msgid "System Actions"
+#~ msgstr "Sistem İşlemleri"
+
+#~ msgid ""
+#~ "Clears shortcode page cache and performs a deep scan for shortcode "
+#~ "placements. Use after manual page updates."
+#~ msgstr ""
+#~ "Kısa kod sayfası önbelleğini temizler ve kısa kod yerleşimleri için "
+#~ "derinlemesine tarama gerçekleştirir. Manuel sayfa güncellemelerinden "
+#~ "sonra kullanın."
 
 #, php-format
 #~ msgid "Error loading tab content: %s"

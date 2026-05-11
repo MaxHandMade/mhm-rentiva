@@ -11,8 +11,8 @@ export default function DebugPanel( { data, onClose } ) {
 				</button>
 			</div>
 			<p className="mhm-sc-debug-meta">
-				{ /* translators: %d: number of pages scanned */ }
-				{ sprintf( __( 'Scanned %d pages.', 'mhm-rentiva' ), data.scanned_pages ) }
+				{ // translators: %d: number of pages scanned
+			sprintf( __( 'Scanned %d pages.', 'mhm-rentiva' ), data.scanned_pages ) }
 			</p>
 			<table className="wp-list-table widefat fixed striped">
 				<thead>
