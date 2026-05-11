@@ -78,6 +78,10 @@ final class VendorReportsAdminPage {
             filemtime( MHM_RENTIVA_PLUGIN_DIR . 'build/admin/vendor-reports.css' ) ?: MHM_RENTIVA_VERSION
         );
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only flag from admin-post redirect; no nonce needed here.
+        $flash = isset( $_GET['updated'] ) && '1' === $_GET['updated'] ? 'updated'
+               : ( isset( $_GET['error'] ) && '1' === $_GET['error'] ? 'error' : '' );
+
         wp_localize_script(
             'mhm-rentiva-react-vendor-reports',
             'mhmRentivaVendorReports',
@@ -99,6 +103,7 @@ final class VendorReportsAdminPage {
                     'action' => wp_create_nonce( self::NONCE_ACTION ),
                 ),
                 'admin_url' => admin_url(),
+                'flash'     => $flash,
             )
         );
     }

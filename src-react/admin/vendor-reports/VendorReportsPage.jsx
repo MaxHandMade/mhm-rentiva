@@ -43,7 +43,11 @@ export default function VendorReportsPage() {
 		}
 	}, [ fetchList, view ] );
 
-	// Read URL params on mount
+	// Read URL params and PHP-injected flash on mount.
+	// NOTE: WP admin's canonical-URL cleanup script (common.js) strips unknown
+	// query params like ?updated=1 via history.replaceState *before* React runs.
+	// We therefore read the flash flag from window.mhmRentivaVendorReports.flash
+	// (set by wp_localize_script in PHP) instead of from the URL.
 	useEffect( () => {
 		const params = new URLSearchParams( window.location.search );
 		const viewId = parseInt( params.get( 'view' ) || '0', 10 );
@@ -53,18 +57,11 @@ export default function VendorReportsPage() {
 			setReportId( viewId );
 		}
 
-		if ( params.get( 'updated' ) === '1' ) {
+		const flash = window.mhmRentivaVendorReports?.flash;
+		if ( flash === 'updated' ) {
 			setNotice( { type: 'success', message: __( 'Report updated.', 'mhm-rentiva' ) } );
-			const clean = new URL( window.location.href );
-			clean.searchParams.delete( 'updated' );
-			history.replaceState( {}, '', clean.toString() );
-		}
-
-		if ( params.get( 'error' ) === '1' ) {
+		} else if ( flash === 'error' ) {
 			setNotice( { type: 'error', message: __( 'An error occurred. Please try again.', 'mhm-rentiva' ) } );
-			const clean = new URL( window.location.href );
-			clean.searchParams.delete( 'error' );
-			history.replaceState( {}, '', clean.toString() );
 		}
 	}, [] );
 
