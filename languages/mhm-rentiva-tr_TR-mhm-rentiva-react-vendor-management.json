@@ -1,0 +1,171 @@
+{
+  "translation-revision-date": "2026-05-11 08:19+0000",
+  "generator": "WP-CLI/2.12.0",
+  "source": "mhm-rentiva-react-vendor-management",
+  "domain": "messages",
+  "locale_data": {
+    "messages": {
+      "": {
+        "domain": "messages",
+        "lang": "tr_TR",
+        "plural-forms": "nplurals=2; plural=n != 1;"
+      },
+      "Email": [
+        "E-posta"
+      ],
+      "Phone": [
+        "Telefon"
+      ],
+      "Actions": [
+        "Eylemler"
+      ],
+      "View": [
+        "Görünüm"
+      ],
+      "Full Name": [
+        "Ad Soyad"
+      ],
+      "Tax Office": [
+        "Vergi Dairesi"
+      ],
+      "Tax Number": [
+        "Vergi Numarası"
+      ],
+      "Vendor": [
+        "Bayi"
+      ],
+      "City": [
+        "Şehir"
+      ],
+      "IBAN Requests": [
+        "IBAN Talepleri"
+      ],
+      "Pending Applications": [
+        "Bekleyen Başvurular"
+      ],
+      "Rejection reason is required.": [
+        "Red gerekçesi zorunludur."
+      ],
+      "Loading…": [
+        "Yükleniyor…"
+      ],
+      "← Previous": [
+        "← Önceki"
+      ],
+      "Next →": [
+        "Sonraki →"
+      ],
+      "Processing…": [
+        "İşleniyor"
+      ],
+      "Failed to load application.": [
+        "Başvuru yüklenemedi."
+      ],
+      "Back to applications": [
+        "Başvurulara geri dön"
+      ],
+      "Application: %s": [
+        "Başvuru: %s"
+      ],
+      "Account Holder": [
+        "Hesap Sahibi"
+      ],
+      "IBAN (masked)": [
+        "IBAN (maskelenmiş)"
+      ],
+      "Bio": [
+        "Biyografi"
+      ],
+      "Applied": [
+        "Uygulandı"
+      ],
+      "Documents": [
+        "Belgeler"
+      ],
+      "Not uploaded": [
+        "Yüklenmedi"
+      ],
+      "Review": [
+        "İnceleme"
+      ],
+      "No pending vendor applications.": [
+        "Bekleyen bayi başvurusu yok."
+      ],
+      "Applicant": [
+        "Başvuran"
+      ],
+      "Approve this vendor application?": [
+        "Bu bayi başvurusunu onaylıyor musunuz?"
+      ],
+      "Vendor application approved. The vendor has been notified.": [
+        "Bayi başvurusu onaylandı. Bayiye bildirim gönderildi."
+      ],
+      "Approval failed. Please try again.": [
+        "Onay işlemi başarısız. Lütfen tekrar deneyin."
+      ],
+      "Approve Application": [
+        "Başvuruyu Onayla"
+      ],
+      "This will assign the vendor role and notify the applicant.": [
+        "Bayi rolü atanacak ve başvurana bildirim gönderilecek."
+      ],
+      "Approve & Activate Vendor": [
+        "Onayla ve Bayiyi Aktifleştir"
+      ],
+      "Approve this new IBAN? The vendor will receive payouts to this new account.": [
+        "Yeni IBAN'ı onaylıyor musunuz? Bayi ödemeleri bu yeni hesaba alacak."
+      ],
+      "IBAN request approved and updated.": [
+        "IBAN talebi onaylandı ve güncellendi."
+      ],
+      "IBAN approval failed.": [
+        "IBAN onayı başarısız."
+      ],
+      "Reject this IBAN request? The vendor will continue using their old IBAN.": [
+        "Bu IBAN talebini reddediyor musunuz? Bayi eski IBAN'ını kullanmaya devam edecek."
+      ],
+      "IBAN request rejected.": [
+        "IBAN talebi reddedildi."
+      ],
+      "IBAN rejection failed.": [
+        "IBAN reddi başarısız."
+      ],
+      "Approve": [
+        "Onayla"
+      ],
+      "Reject": [
+        "Reddet"
+      ],
+      "Failed to load IBAN requests.": [
+        "IBAN talepleri yüklenemedi."
+      ],
+      "No pending IBAN changes.": [
+        "Bekleyen IBAN değişikliği yok."
+      ],
+      "Current IBAN (Masked)": [
+        "Mevcut IBAN (Maskelenmiş)"
+      ],
+      "Requested IBAN": [
+        "Talep Edilen IBAN"
+      ],
+      "Vendor application rejected.": [
+        "Bayi başvurusu reddedildi."
+      ],
+      "Rejection failed. Please try again.": [
+        "Red işlemi başarısız. Lütfen tekrar deneyin."
+      ],
+      "Reject Application": [
+        "Başvuruyu Reddet"
+      ],
+      "Rejection Reason (required):": [
+        "Ret Nedeni (zorunlu):"
+      ],
+      "Explain why this application is being rejected…": [
+        "Başvuruyu neden reddettiğinizi açıklayın…"
+      ],
+      "Failed to load applications.": [
+        "Başvurular yüklenemedi."
+      ]
+    }
+  }
+}

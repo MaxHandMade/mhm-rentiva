@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-11T06:21:49+00:00\n"
+"POT-Creation-Date: 2026-05-11T08:08:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -129,7 +129,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
 #: src/Admin/Utilities/Menu/Menu.php:159
 #: src/Admin/Utilities/Menu/Menu.php:160
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:84
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:130
 #: src-react/admin/dashboard/components/QuickActions.jsx:10
 #: src-react/admin/messages/MessagesPage.jsx:107
 msgid "Settings"
@@ -534,7 +534,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:443
 #: src/Admin/Transfer/TransferAdmin.php:502
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1006
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:402
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:181
 #: templates/account/vendor-booking-detail.php:140
 #: templates/emails/vendor-application-new-admin.html.php:7
 #: assets/blocks/my-favorites/index.js:51
@@ -794,7 +794,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:337
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:423
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:202
 #: templates/account/partials/vendor-bookings.php:228
 #: templates/account/partials/vendor-listings.php:44
 #: assets/blocks/my-bookings/index.js:42
@@ -1294,6 +1294,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1506
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:77
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:64
 msgid "An error occurred. Please try again."
 msgstr ""
@@ -1417,13 +1418,9 @@ msgstr ""
 #: src/Admin/Privacy/GDPRManager.php:409
 #: src/Admin/Testing/ShortcodeTestHandler.php:44
 #: src/Admin/Testing/TestAdminPage.php:231
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:618
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:639
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:659
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:678
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:711
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:749
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:789
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:397
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:416
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:449
 msgid "Security check failed."
 msgstr ""
 
@@ -1667,7 +1664,7 @@ msgstr ""
 #: src/Admin/Addons/AddonSettings.php:204
 #: src/Admin/Messages/Settings/MessagesSettings.php:492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:853
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:545
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:324
 #: templates/account/partials/vendor-settings.php:142
 #: src-react/admin/messages/components/SettingsView.jsx:216
 msgid "Save Settings"
@@ -2802,7 +2799,7 @@ msgstr ""
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1313
+#: src/Plugin.php:1316
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 msgid "Customer"
@@ -2820,9 +2817,7 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Settings/Testing/SettingsTester.php:973
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1010
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:141
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:233
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:403
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:182
 #: templates/account/vendor-booking-detail.php:142
 #: templates/emails/vendor-application-new-admin.html.php:16
 #: templates/shortcodes/contact-form.php:62
@@ -2830,6 +2825,8 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerTable.jsx:5
 #: src-react/admin/messages/components/SettingsView.jsx:52
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
 msgid "Email"
 msgstr ""
 
@@ -2843,12 +2840,12 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1014
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:234
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
 #: templates/shortcodes/contact-form.php:74
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
 msgid "Phone"
 msgstr ""
 
@@ -2974,13 +2971,9 @@ msgstr ""
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:88
 #: src/Admin/Testing/DemoAjaxHandler.php:103
 #: src/Admin/Testing/DemoAjaxHandler.php:127
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:609
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:629
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:650
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:670
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:703
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:740
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:780
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:388
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:408
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:441
 msgid "Permission denied."
 msgstr ""
 
@@ -5108,10 +5101,10 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:746
 #: src/Admin/Utilities/Export/Export.php:1222
 #: src/Admin/Utilities/Export/ExportHistory.php:197
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:144
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:343
 #: templates/account/partials/vendor-reliability.php:366
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:17
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:44
 msgid "Actions"
 msgstr ""
 
@@ -5326,7 +5319,6 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:315
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:984
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:298
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:187
 #: templates/account/payment-history.php:191
 #: templates/account/payment-history.php:194
 #: templates/account/vendor-ledger.php:153
@@ -5340,7 +5332,6 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:314
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:983
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:292
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:184
 #: templates/account/payment-history.php:176
 #: templates/account/payment-history.php:179
 #: templates/account/vendor-ledger.php:149
@@ -6285,10 +6276,10 @@ msgstr ""
 
 #: src/Admin/Core/Utilities/AbstractListTable.php:375
 #: src/Admin/Customers/CustomersPage.php:336
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:256
 #: templates/account/dashboard.php:221
 #: templates/account/partials/vendor-listings.php:378
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:76
 msgid "View"
 msgstr ""
 
@@ -6330,7 +6321,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:477
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:407
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:186
 #: templates/account/partials/vendor-reliability.php:150
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:19
 msgid "Action"
@@ -8949,8 +8940,8 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:135
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:232
 #: templates/shortcodes/contact-form.php:53
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:52
 msgid "Full Name"
 msgstr ""
 
@@ -10153,8 +10144,8 @@ msgid "Your payout earnings will be sent to this account."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:172
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:238
 #: templates/account/partials/vendor-settings.php:129
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:58
 msgid "Tax Office"
 msgstr ""
 
@@ -10165,8 +10156,8 @@ msgid "optional"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:176
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:239
 #: templates/account/partials/vendor-settings.php:133
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:59
 msgid "Tax Number"
 msgstr ""
 
@@ -10202,17 +10193,17 @@ msgid "Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB e
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:205
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:249
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:191
 msgid "ID Document"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:206
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:250
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:192
 msgid "Driver's License"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:207
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:251
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:193
 msgid "Address Document"
 msgstr ""
 
@@ -11607,11 +11598,11 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:46
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:53
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
 #: templates/emails/vehicle-rereview-admin.html.php:7
 #: templates/emails/vehicle-submitted-admin.html.php:7
 #: templates/emails/vendor-report-received-admin.html.php:11
 #: assets/blocks/vendor-profile/index.js:32
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:41
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:14
 msgid "Vendor"
 msgstr ""
@@ -13297,6 +13288,7 @@ msgstr ""
 #. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:157
 #: src/Admin/VendorReport/REST/VendorReportsController.php:172
 #: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
@@ -13650,10 +13642,10 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:448
 #: src/Admin/Transfer/TransferAdmin.php:503
 #: src/Admin/Transfer/TransferAdmin.php:742
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:142
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:235
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:404
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:183
 #: templates/frontend/partials/vendor-directory-filter-bar.php:21
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
 msgid "City"
 msgstr ""
 
@@ -13866,7 +13858,7 @@ msgid "Approve Selected"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:172
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:406
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:185
 #: templates/account/partials/vendor-payouts.php:41
 msgid "Approved"
 msgstr ""
@@ -18798,7 +18790,7 @@ msgid "Hospital / Clinic"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php:265
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:455
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:234
 #: src-react/admin/messages/components/SettingsView.jsx:47
 msgid "Settings saved."
 msgstr ""
@@ -21270,296 +21262,172 @@ msgstr ""
 msgid "Reliability"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:43
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:44
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:67
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:39
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:40
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:117
 msgid "Vendor Management"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:58
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:75
+msgid "Operation completed successfully."
+msgstr ""
+
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:105
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:114
 msgid "You do not have permission to view this page."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:74
-msgid "Pending Applications"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:75
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:393
-msgid "Active Vendors"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:77
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:120
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:96
 msgid "IBAN Requests"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:83
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:126
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:88
+msgid "Pending Applications"
+msgstr ""
+
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:127
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:172
+msgid "Active Vendors"
+msgstr ""
+
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:129
 msgid "Commission"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:132
-msgid "No pending vendor applications."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:140
-msgid "Applicant"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:143
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:241
-msgid "Applied"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:159
-msgid "Review"
-msgstr ""
-
-#. translators: 1: first item number, 2: last item number, 3: total count
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:173
-#, php-format
-msgid "Showing %1$d-%2$d of %3$d applications"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:201
-msgid "Application not found."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:228
-msgid "Back to applications"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:229
-#, php-format
-msgid "Application: %s"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:236
-msgid "Account Holder"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:237
-msgid "IBAN (masked)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:240
-msgid "Bio"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:245
-msgid "Documents"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:257
-msgid "Not uploaded"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:267
-msgid "Approve Application"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:272
-msgid "This will assign the rentiva_vendor role and notify the applicant."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:273
-msgid "Approve & Activate Vendor"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:273
-msgid "Approve this vendor application?"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:279
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:286
-msgid "Reject Application"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:284
-msgid "Rejection Reason (required):"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:285
-msgid "Explain why this application is being rejected..."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:315
-msgid "Pending IBAN Change Requests"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:318
-msgid "IBAN request approved and updated."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:321
-msgid "IBAN request rejected."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:334
-msgid "No pending IBAN changes."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:341
-msgid "Current IBAN (Masked)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:342
-msgid "Requested IBAN"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:348
-msgid "Not set"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
-msgid "Approve this new IBAN? The vendor will receive payouts to this new account."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
-msgid "Approve"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:371
-msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:371
-#: src-react/admin/vendor-reports/components/ActionForm.jsx:34
-msgid "Reject"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:396
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:175
 msgid "No active vendors yet."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:405
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:184
 msgid "Service Areas"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:422
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:435
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:201
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:214
 msgid "Suspended"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:433
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:212
 msgid "Suspend this vendor?"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:433
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:212
 msgid "Suspend"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:472
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:251
 msgid "Vendor Marketplace Settings"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:481
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:260
 msgid "Global Payout Freeze"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:484
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:263
 msgid "Freeze all vendor payout requests site-wide"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:493
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:272
 #, php-format
 msgid "Minimum Payout Amount (%s)"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:496
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:275
 msgid "Minimum Payout Amount"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:499
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:278
 msgid "Vendors must have at least this balance to request a payout."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:504
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:283
 msgid "Min Vehicle Photos"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:506
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:285
 msgid "Minimum number of photos required per vehicle listing."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:511
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:290
 msgid "Max Vehicle Photos"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:513
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:292
 msgid "Maximum number of photos per vehicle listing."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:518
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:297
 msgid "Document Upload Limit (MB)"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:520
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:299
 msgid "Maximum file size for vendor identity documents (ID, license, etc.)."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:525
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:304
 msgid "Minimum Vehicle Year"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:527
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:306
 msgid "Oldest vehicle year allowed in listings."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:532
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:311
 msgid "Vendor Bio Max Characters"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:534
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:313
 msgid "Maximum character count for the vendor profile bio."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:539
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:318
 msgid "Service Area Cities"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:541
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:320
 msgid "One city per line. Shown as checkboxes in the vendor application form."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:561
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
 msgid "Platform Commission Rate"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:564
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:343
 msgid "Commission rate updated successfully."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:567
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:346
 msgid "Set the global commission percentage applied to all vendor payouts. This creates a new policy record effective immediately. Previous rates are preserved in history for audit purposes."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:570
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:349
 msgid "Current active rate:"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:572
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:351
 msgid "No active commission policy found. Set one below."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:581
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:360
 msgid "New Commission Rate (%)"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:585
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:364
 msgid "Enter a value between 0 and 100. E.g. 15 = 15%."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:589
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:368
 msgid "Label (optional)"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:591
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
 msgid "e.g. Q1 2026 standard rate"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:597
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:376
 msgid "Save Commission Rate"
 msgstr ""
 
@@ -21675,6 +21543,15 @@ msgstr ""
 #: src/Admin/Vendor/Profile/VendorProfileUrlBase.php:36
 msgctxt "URL slug"
 msgid "vendor"
+msgstr ""
+
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:244
+#: src-react/admin/vendor-management/components/RejectForm.jsx:11
+msgid "Rejection reason is required."
+msgstr ""
+
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:282
+msgid "Not set"
 msgstr ""
 
 #: src/Admin/Vendor/VendorApplicationManager.php:39
@@ -22375,15 +22252,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:1003
+#: src/Plugin.php:1006
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:1006
+#: src/Plugin.php:1009
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1335
+#: src/Plugin.php:1338
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -25648,6 +25525,9 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:48
 #: src-react/admin/customers/CustomersPage.jsx:103
 #: src-react/admin/reports/components/ReportContent.jsx:18
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:22
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:114
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:108
 msgid "Loading…"
@@ -25669,6 +25549,7 @@ msgid "No customers found."
 msgstr ""
 
 #: src-react/admin/customers/components/Pagination.jsx:12
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:123
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
 msgid "← Previous"
 msgstr ""
@@ -25682,6 +25563,7 @@ msgstr ""
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
 #: src-react/admin/messages/components/Pagination.jsx:23
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:129
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
 msgid "Next →"
 msgstr ""
@@ -25813,6 +25695,8 @@ msgid "Mark as unread"
 msgstr ""
 
 #: src-react/admin/messages/components/BulkBar.jsx:62
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:26
+#: src-react/admin/vendor-management/components/RejectForm.jsx:42
 msgid "Processing…"
 msgstr ""
 
@@ -26004,6 +25888,154 @@ msgstr ""
 
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
 msgid "Delete All"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:19
+msgid "Failed to load application."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:33
+msgid "Back to applications"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:47
+#, js-format
+msgid "Application: %s"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:56
+msgid "Account Holder"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:57
+msgid "IBAN (masked)"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:61
+msgid "Bio"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:64
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:16
+msgid "Applied"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:68
+msgid "Documents"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:77
+msgid "Not uploaded"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationRow.jsx:12
+msgid "Review"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:6
+msgid "No pending vendor applications."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:13
+msgid "Applicant"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:9
+msgid "Approve this vendor application?"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:12
+msgid "Vendor application approved. The vendor has been notified."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:13
+msgid "Approval failed. Please try again."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:18
+msgid "Approve Application"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:19
+msgid "This will assign the vendor role and notify the applicant."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:26
+msgid "Approve & Activate Vendor"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:9
+msgid "Approve this new IBAN? The vendor will receive payouts to this new account."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:12
+msgid "IBAN request approved and updated."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:13
+msgid "IBAN approval failed."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:17
+msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:20
+msgid "IBAN request rejected."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:21
+msgid "IBAN rejection failed."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:41
+msgid "Approve"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:50
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:34
+msgid "Reject"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:16
+msgid "Failed to load IBAN requests."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:34
+msgid "No pending IBAN changes."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:42
+msgid "Current IBAN (Masked)"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:43
+msgid "Requested IBAN"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:16
+msgid "Vendor application rejected."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:17
+msgid "Rejection failed. Please try again."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:22
+#: src-react/admin/vendor-management/components/RejectForm.jsx:42
+msgid "Reject Application"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:24
+msgid "Rejection Reason (required):"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:30
+msgid "Explain why this application is being rejected…"
+msgstr ""
+
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:62
+msgid "Failed to load applications."
 msgstr ""
 
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:11
