@@ -47,4 +47,11 @@ export const rentivaApi = {
 		debug:      ()     => apiFetch( { path: `${ BASE }/shortcode-pages/debug`,                method: 'GET'    } ),
 		reset:      ()     => apiFetch( { path: `${ BASE }/shortcode-pages/reset`,                method: 'POST'   } ),
 	},
+	vendorReports: {
+		getList:   ( params ) => {
+			const qs = new URLSearchParams( params ).toString();
+			return apiFetch( { path: `${ BASE }/vendor-reports?${ qs }` } );
+		},
+		getDetail: ( id ) => apiFetch( { path: `${ BASE }/vendor-reports/${ id }` } ),
+	},
 };

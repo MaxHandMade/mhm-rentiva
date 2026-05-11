@@ -92,6 +92,10 @@ build/
 !build/admin/shortcode-pages.asset.php
 !build/admin/shortcode-pages.css
 !build/admin/shortcode-pages-rtl.css
+!build/admin/vendor-reports.js
+!build/admin/vendor-reports.asset.php
+!build/admin/vendor-reports.css
+!build/admin/vendor-reports-rtl.css
 dist/
 .cache/
 
