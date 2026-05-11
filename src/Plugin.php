@@ -529,6 +529,9 @@ final class Plugin {
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Settings\\ShortcodePages\\REST\\ShortcodePagesController')) {
 			\MHMRentiva\Admin\Settings\ShortcodePages\REST\ShortcodePagesController::register();
 		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\VendorReport\\REST\\VendorReportsController')) {
+			\MHMRentiva\Admin\VendorReport\REST\VendorReportsController::register();
+		}
 
 		// Email Logs
 		if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
