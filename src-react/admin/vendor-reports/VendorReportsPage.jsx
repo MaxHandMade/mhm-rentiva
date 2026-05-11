@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ }      from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
+import FilterBar   from './components/FilterBar';
+import ReportTable from './components/ReportTable';
 
 export default function VendorReportsPage() {
 	// Routing
@@ -99,10 +101,35 @@ export default function VendorReportsPage() {
 
 			{ view === 'list' && (
 				<>
+					<FilterBar
+						onFilter={ handleFilter }
+						initialStatus={ status }
+						initialContext={ context }
+					/>
+
 					{ loading && <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p> }
 					{ error   && <div className="notice notice-error"><p>{ error }</p></div> }
+
 					{ ! loading && ! error && (
-						<p>{ __( 'List view placeholder — components coming next.', 'mhm-rentiva' ) }</p>
+						<ReportTable reports={ data?.reports } onOpen={ handleOpenReport } />
+					) }
+
+					{ data && data.pages > 1 && (
+						<div className="tablenav bottom" style={ { marginTop: '12px' } }>
+							{ page > 1 && (
+								<button type="button" className="button" onClick={ () => setPage( p => p - 1 ) }>
+									{ __( '← Previous', 'mhm-rentiva' ) }
+								</button>
+							) }
+							<span style={ { margin: '0 8px', lineHeight: '28px' } }>
+								{ page } / { data.pages }
+							</span>
+							{ page < data.pages && (
+								<button type="button" className="button" onClick={ () => setPage( p => p + 1 ) }>
+									{ __( 'Next →', 'mhm-rentiva' ) }
+								</button>
+							) }
+						</div>
 					) }
 				</>
 			) }
