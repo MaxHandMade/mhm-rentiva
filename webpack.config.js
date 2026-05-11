@@ -13,6 +13,7 @@ module.exports = {
 		'admin/about':           './src-react/admin/about/index.js',
 		'admin/shortcode-pages': './src-react/admin/shortcode-pages/index.js',
 		'admin/vendor-reports': './src-react/admin/vendor-reports/index.js',
+		'admin/vendor-management': './src-react/admin/vendor-management/index.js',
 	},
 	output: {
 		...defaultConfig.output,

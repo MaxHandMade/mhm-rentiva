@@ -98,6 +98,10 @@ build/
 !build/admin/vendor-reports.asset.php
 !build/admin/vendor-reports.css
 !build/admin/vendor-reports-rtl.css
+!build/admin/vendor-management.js
+!build/admin/vendor-management.asset.php
+!build/admin/vendor-management.css
+!build/admin/vendor-management-rtl.css
 dist/
 .cache/
 
