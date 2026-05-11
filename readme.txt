@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.46.0
+Stable tag:        4.47.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.47.0 — 2026-05-11 =
+* 🐛 **Critical fix:** Restored PHP mode after HTML output block in `VehicleColumns` and `BookingColumns` — Araçlar and Rezervasyonlar admin pages were throwing a fatal error (`add_monthly_calendar` method not found) introduced in v4.44.0.
 
 = 4.39.0 — 2026-05-10 =
 * 🆕 **Customers React SPA (Faz 2)** — Replaces the legacy jQuery/WP_List_Table Customers admin page with a full React SPA backed by REST API endpoints. Live search (300 ms debounce), sortable columns, slide-in customer detail panel, bulk delete, and Export CSV — all without page reloads.
