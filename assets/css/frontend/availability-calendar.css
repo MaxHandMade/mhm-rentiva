@@ -4,6 +4,11 @@
 	--mhm-text-primary: var(--wp--style--color--text, var(--wp--preset--color--text, #1f2937));
 }
 
+.rv-shortcode-wrapper,
+[class*="rv-"] {
+	white-space: normal;
+}
+
 
 /* ===== CSS VARIABLES ===== */
 :root {

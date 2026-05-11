@@ -1,3 +1,11 @@
+/* WordPress theme token integration */
+[class*="rv-"] {
+	--mhm-primary: var(--wp--preset--color--primary, #2271b1);
+	--mhm-font-base: var(--wp--preset--font-size--normal, 1rem);
+	--mhm-radius: var(--wp--preset--border-radius, 4px);
+	--mhm-text: var(--wp--preset--color--foreground, #1d2327);
+}
+
 /* Vendor Directory — v4.38.0
    Scoped under .mhm-vendor-directory namespace.
    Mobile-first; 600px breakpoint matches v4.37.2 B10.
