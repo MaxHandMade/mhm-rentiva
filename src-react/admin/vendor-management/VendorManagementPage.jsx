@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
 import ApplicationTable from './components/ApplicationTable';
+import ApplicationDetailPage from './components/ApplicationDetailPage';
 
 const config = window.mhmRentivaVendorManagement || {};
 
@@ -38,6 +39,12 @@ export default function VendorManagementPage() {
 		const url = new URL( window.location.href );
 		url.searchParams.delete( 'view' );
 		history.pushState( {}, '', url.toString() );
+	};
+
+	const handleActionSuccess = ( message ) => {
+		setNotice( { type: 'success', message } );
+		closeDetail();
+		fetchPending();
 	};
 
 	const [ listData,    setListData    ] = useState( null );
@@ -94,7 +101,11 @@ export default function VendorManagementPage() {
 			) }
 
 			{ viewId > 0
-				? <p>{ __( 'Detail view — coming in Task 7.', 'mhm-rentiva' ) } (ID: { viewId })</p>
+				? <ApplicationDetailPage
+					applicationId={ viewId }
+					onBack={ closeDetail }
+					onActionSuccess={ handleActionSuccess }
+				/>
 				: tab === 'iban_requests'
 					? <p>{ __( 'IBAN Requests tab — coming in Task 8.', 'mhm-rentiva' ) }</p>
 					: (
