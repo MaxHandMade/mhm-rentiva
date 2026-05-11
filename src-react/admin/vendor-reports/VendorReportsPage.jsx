@@ -3,6 +3,7 @@ import { __ }      from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
 import FilterBar   from './components/FilterBar';
 import ReportTable from './components/ReportTable';
+import DetailView  from './components/DetailView';
 
 export default function VendorReportsPage() {
 	// Routing
@@ -135,7 +136,7 @@ export default function VendorReportsPage() {
 			) }
 
 			{ view === 'detail' && (
-				<p>{ __( 'Detail view placeholder — coming in Task 7.', 'mhm-rentiva' ) } (ID: { reportId })</p>
+				<DetailView reportId={ reportId } onBack={ handleBack } />
 			) }
 		</div>
 	);
