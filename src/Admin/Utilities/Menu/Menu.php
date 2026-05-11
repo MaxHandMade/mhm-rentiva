@@ -117,7 +117,19 @@ final class Menu {
 			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);
 
-		// 7. Reports (Pro feature)
+		// 7. Payout Requests
+		// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
+		add_submenu_page(
+			'mhm-rentiva',
+			__('Payout Requests', 'mhm-rentiva'),
+			__('Payout Requests', 'mhm-rentiva'),
+			'mhm_rentiva_approve_payout',
+			'mhm-rentiva-payouts',
+			array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
+		);
+		// phpcs:enable
+
+		// 8. Reports (Pro feature)
 		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
 			add_submenu_page(
 				'mhm-rentiva',

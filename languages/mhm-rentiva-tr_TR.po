@@ -13879,7 +13879,7 @@ msgstr "Yönetim Katmanı tarafından izin reddedildi."
 
 #: src/Admin/PostTypes/Payouts/PostType.php:35
 msgid "Payout Requests"
-msgstr "Ödeme Talepleri"
+msgstr "Bayi Ödeme Talepleri"
 
 #: src/Admin/PostTypes/Payouts/PostType.php:36
 #: src/Admin/PostTypes/Payouts/PostType.php:38
@@ -13889,7 +13889,7 @@ msgstr "Ödeme Talebi"
 #: src/Admin/PostTypes/Payouts/PostType.php:37
 #: templates/account/vendor-ledger.php:48
 msgid "Payouts"
-msgstr "Ödemeler"
+msgstr "Bayi Ödemeleri"
 
 #: src/Admin/PostTypes/Payouts/PostType.php:40
 msgid "Add New Payout Request"
