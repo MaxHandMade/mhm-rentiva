@@ -1,5 +1,7 @@
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { rentivaApi } from '../../shared/api/rentiva';
+import ApplicationTable from './components/ApplicationTable';
 
 const config = window.mhmRentivaVendorManagement || {};
 
@@ -38,6 +40,26 @@ export default function VendorManagementPage() {
 		history.pushState( {}, '', url.toString() );
 	};
 
+	const [ listData,    setListData    ] = useState( null );
+	const [ listLoading, setListLoading ] = useState( false );
+	const [ listError,   setListError   ] = useState( null );
+	const [ page,        setPage        ] = useState( 1 );
+	const PER_PAGE = 20;
+
+	const fetchPending = useCallback( () => {
+		setListLoading( true );
+		setListError( null );
+		rentivaApi.vendorManagement.getApplications( { page, per_page: PER_PAGE } )
+			.then( ( res ) => { setListData( res ); setListLoading( false ); } )
+			.catch( () => { setListError( __( 'Failed to load applications.', 'mhm-rentiva' ) ); setListLoading( false ); } );
+	}, [ page ] );
+
+	useEffect( () => {
+		if ( tab === 'pending' && viewId === 0 ) {
+			fetchPending();
+		}
+	}, [ fetchPending, tab, viewId ] );
+
 	return (
 		<div className="mhm-vm-app">
 			{ notice && (
@@ -75,7 +97,30 @@ export default function VendorManagementPage() {
 				? <p>{ __( 'Detail view — coming in Task 7.', 'mhm-rentiva' ) } (ID: { viewId })</p>
 				: tab === 'iban_requests'
 					? <p>{ __( 'IBAN Requests tab — coming in Task 8.', 'mhm-rentiva' ) }</p>
-					: <p>{ __( 'Pending Applications tab — coming in Task 6.', 'mhm-rentiva' ) }</p>
+					: (
+					<>
+						{ listLoading && <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p> }
+						{ listError   && <div className="notice notice-error"><p>{ listError }</p></div> }
+						{ ! listLoading && ! listError && (
+							<ApplicationTable applications={ listData?.applications } onOpen={ openDetail } />
+						) }
+						{ listData && listData.pages > 1 && (
+							<div className="mhm-vm-pagination">
+								{ page > 1 && (
+									<button type="button" className="button" onClick={ () => setPage( p => p - 1 ) }>
+										{ __( '← Previous', 'mhm-rentiva' ) }
+									</button>
+								) }
+								<span>{ page } / { listData.pages }</span>
+								{ page < listData.pages && (
+									<button type="button" className="button" onClick={ () => setPage( p => p + 1 ) }>
+										{ __( 'Next →', 'mhm-rentiva' ) }
+									</button>
+								) }
+							</div>
+						) }
+					</>
+				)
 			}
 		</div>
 	);
