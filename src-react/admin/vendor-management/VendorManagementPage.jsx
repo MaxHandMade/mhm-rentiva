@@ -3,6 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
 import ApplicationTable from './components/ApplicationTable';
 import ApplicationDetailPage from './components/ApplicationDetailPage';
+import IbanRequestsTab from './components/IbanRequestsTab';
 
 const config = window.mhmRentivaVendorManagement || {};
 
@@ -107,7 +108,7 @@ export default function VendorManagementPage() {
 					onActionSuccess={ handleActionSuccess }
 				/>
 				: tab === 'iban_requests'
-					? <p>{ __( 'IBAN Requests tab — coming in Task 8.', 'mhm-rentiva' ) }</p>
+					? <IbanRequestsTab onNotice={ setNotice } />
 					: (
 					<>
 						{ listLoading && <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p> }
