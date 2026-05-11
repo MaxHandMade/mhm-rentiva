@@ -121,7 +121,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 
 ?>
 
-<div class="rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
+<div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
 
 	<!-- Current Rating Display -->
 	<div class="rv-rating-display">

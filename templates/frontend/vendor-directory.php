@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  *   - $data       : Provider result {vendors, total_count, pagination, city_pool}
  */
 
-$wrapper_class = 'mhm-vendor-directory';
+$wrapper_class = 'mhm-rentiva-vendor-directory mhm-vendor-directory';
 if (!empty($atts['class'])) {
     $wrapper_class .= ' ' . $atts['class'];
 }

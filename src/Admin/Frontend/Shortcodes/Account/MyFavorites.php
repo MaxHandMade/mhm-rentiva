@@ -108,7 +108,7 @@ class MyFavorites extends AbstractShortcode {
 			'has_vehicles'    => ! empty($vehicles),
 			'layout_class'    => $layout_class,
 			'columns_class'   => $layout_class . '--columns-' . ( $atts['columns'] ?? 3 ),
-			'wrapper_class'   => 'mhm-my-favorites-container rv-my-favorites-wrapper ' . ( $atts['class'] ?? '' ),
+			'wrapper_class'   => 'mhm-rentiva-my-favorites mhm-my-favorites-container rv-my-favorites-wrapper ' . ( $atts['class'] ?? '' ),
 			'no_results_text' => $atts['no_results_text'] ?? __('You have no favorite vehicles yet.', 'mhm-rentiva'),
 		);
 	}
