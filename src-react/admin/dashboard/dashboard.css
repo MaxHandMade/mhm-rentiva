@@ -33,6 +33,22 @@
 }
 
 /* -----------------------------------------------------------------------------
+   Mobile: stack all widget rows to single column
+   WP admin window.innerWidth ~670–782px on a 390px device (no viewport meta)
+   ----------------------------------------------------------------------------- */
+@media ( max-width: 782px ) {
+	.mhm-dashboard__row--2,
+	.mhm-dashboard__row--3,
+	.mhm-dashboard__row--4 {
+		grid-template-columns: 1fr;
+	}
+
+	.mhm-quick-actions__grid {
+		grid-template-columns: repeat( 3, 1fr );
+	}
+}
+
+/* -----------------------------------------------------------------------------
    Upcoming Operations row — dashboard-only component
    ----------------------------------------------------------------------------- */
 .mhm-ops-row {
