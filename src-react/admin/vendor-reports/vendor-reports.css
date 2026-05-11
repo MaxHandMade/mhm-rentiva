@@ -1,0 +1,92 @@
+/* Vendor Reports React SPA — page-specific styles */
+
+.mhm-vendor-reports-app {
+	max-width: 1200px;
+}
+
+/* FilterBar */
+.mhm-vr-filter-bar {
+	display: flex;
+	gap: 8px;
+	margin-bottom: 20px;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+/* Status badge */
+.mhm-vr-badge {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 10px;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+.mhm-vr-badge--open       { background: #dbeafe; color: #1e40af; }
+.mhm-vr-badge--in_review  { background: #fef9c3; color: #854d0e; }
+.mhm-vr-badge--resolved   { background: #d7f0de; color: #00600c; }
+.mhm-vr-badge--rejected   { background: #fde8e8; color: #8a0000; }
+
+/* Detail view */
+.mhm-vr-detail {
+	background: #fff;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 24px;
+	max-width: 760px;
+}
+
+.mhm-vr-detail h2 {
+	margin-top: 0;
+}
+
+.mhm-vr-meta {
+	color: #646970;
+	margin-bottom: 16px;
+}
+
+.mhm-vr-description {
+	background: #f9fafb;
+	padding: 14px;
+	border-radius: 6px;
+	white-space: pre-wrap;
+	margin-bottom: 16px;
+}
+
+.mhm-vr-admin-note {
+	background: #fff7e6;
+	padding: 14px;
+	border-radius: 6px;
+	border: 1px solid #fde68a;
+	white-space: pre-wrap;
+	margin-bottom: 16px;
+}
+
+.mhm-vr-closed-notice {
+	color: #6b7280;
+	font-style: italic;
+	margin-top: 24px;
+}
+
+/* ActionForm */
+.mhm-vr-action-form {
+	border-top: 1px solid #e5e7eb;
+	margin-top: 24px;
+	padding-top: 20px;
+}
+
+.mhm-vr-action-buttons {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-top: 12px;
+}
+
+/* Clickable table rows */
+.mhm-vr-table tbody tr {
+	cursor: pointer;
+}
+
+.mhm-vr-table tbody tr:hover td {
+	background: #f0f6fc;
+}
