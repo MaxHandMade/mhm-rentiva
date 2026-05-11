@@ -223,6 +223,7 @@ languages/*-*.json
 !languages/mhm-rentiva-tr_TR-mhm-rentiva-react-messages.json
 !languages/mhm-rentiva-tr_TR-mhm-rentiva-react-about.json
 !languages/mhm-rentiva-tr_TR-mhm-rentiva-react-shortcode-pages.json
+!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-reports.json
 languages/mhm-rentiva-en_US.*
 
 # ============================================================================

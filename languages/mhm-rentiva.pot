@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-11T02:57:18+00:00\n"
+"POT-Creation-Date: 2026-05-11T06:21:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -956,14 +956,14 @@ msgstr ""
 #: src/Admin/Addons/AddonManager.php:209
 #: src/Admin/PostTypes/Logs/MetaBox.php:24
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:141
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:167
 #: templates/account/vendor-ledger.php:65
 #: templates/emails/vendor-report-received-admin.html.php:19
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:15
 msgid "Context"
 msgstr ""
 
 #: src/Admin/Addons/AddonContextTaxonomy.php:33
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:147
+#: src-react/admin/vendor-reports/components/FilterBar.jsx:16
 msgid "All contexts"
 msgstr ""
 
@@ -1024,9 +1024,9 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:95
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:73
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:168
 #: templates/emails/vendor-report-received-admin.html.php:15
 #: assets/blocks/popular-routes/index.js:51
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:16
 msgid "Title"
 msgstr ""
 
@@ -1068,7 +1068,6 @@ msgstr ""
 #: src/Admin/Utilities/Export/ExportHistory.php:195
 #: src/Admin/Utilities/ListTable/LogColumns.php:48
 #: src/Admin/Utilities/ListTable/LogColumns.php:116
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:169
 #: templates/account/booking-detail.php:149
 #: templates/account/bookings.php:148
 #: templates/account/bookings.php:256
@@ -1081,6 +1080,7 @@ msgstr ""
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/messages/components/MessageTable.jsx:23
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Status"
 msgstr ""
 
@@ -1114,6 +1114,7 @@ msgstr ""
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
 #: src-react/admin/messages/components/MessageTable.jsx:25
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:18
 msgid "Date"
 msgstr ""
 
@@ -1202,8 +1203,8 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:468
 #: src/Admin/Booking/ListTable/BookingColumns.php:476
 #: src/Admin/Utilities/ListTable/LogColumns.php:118
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:135
 #: src-react/admin/messages/components/FilterBar.jsx:33
+#: src-react/admin/vendor-reports/components/FilterBar.jsx:15
 msgid "All statuses"
 msgstr ""
 
@@ -1223,10 +1224,10 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:497
 #: src/Admin/Core/AssetManager.php:1355
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:273
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:155
 #: templates/account/bookings.php:103
 #: templates/account/vendor-ledger.php:54
 #: templates/frontend/partials/vendor-directory-filter-bar.php:16
+#: src-react/admin/vendor-reports/components/FilterBar.jsx:33
 msgid "Filter"
 msgstr ""
 
@@ -1293,6 +1294,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1506
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:64
 msgid "An error occurred. Please try again."
 msgstr ""
 
@@ -2358,7 +2360,8 @@ msgstr ""
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:509
 #: src/Admin/Vehicle/ListingFeeManager.php:230
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:348
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:97
+#: src/Admin/VendorReport/REST/VendorReportsController.php:254
 #: templates/account/booking-detail.php:126
 #: templates/account/partials/top-vehicles.php:29
 #: templates/account/partials/vendor-reliability.php:363
@@ -2799,7 +2802,7 @@ msgstr ""
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002
-#: src/Plugin.php:1310
+#: src/Plugin.php:1313
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 msgid "Customer"
@@ -2886,7 +2889,6 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1364
 #: src/Admin/Core/AssetManager.php:1061
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1052
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:170
 msgid "Created"
 msgstr ""
 
@@ -2946,7 +2948,8 @@ msgstr ""
 #: src/Admin/PostTypes/Message/Message.php:323
 #: src/Admin/Settings/Testing/SettingsTester.php:970
 #: src/Admin/Utilities/ListTable/LogColumns.php:49
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:346
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:96
+#: src/Admin/VendorReport/REST/VendorReportsController.php:252
 #: templates/account/user-dashboard.php:214
 #: templates/account/user-dashboard.php:266
 msgid "Booking"
@@ -3469,13 +3472,13 @@ msgstr ""
 #: src/Admin/Settings/Groups/EmailSettings.php:209
 #: src/Admin/Settings/Groups/LicenseSettings.php:90
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:60
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:214
 #: templates/account/payment-history.php:103
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:246
 #: templates/emails/refund-admin.html.php:29
 #: templates/emails/refund-customer.html.php:27
 #: templates/emails/vendor-report-resolved.html.php:32
+#: src-react/admin/vendor-reports/components/DetailView.jsx:43
 msgid "Status:"
 msgstr ""
 
@@ -6328,8 +6331,8 @@ msgstr ""
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:407
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:171
 #: templates/account/partials/vendor-reliability.php:150
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:19
 msgid "Action"
 msgstr ""
 
@@ -8412,10 +8415,10 @@ msgstr ""
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:52
 #: src/Admin/Reports/BackgroundProcessor.php:460
 #: src/Admin/Reports/BackgroundProcessor.php:474
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:165
 #: templates/account/bookings.php:142
 #: templates/account/bookings.php:250
 #: templates/account/partials/vendor-payouts.php:217
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:13
 msgid "ID"
 msgstr ""
 
@@ -11605,11 +11608,11 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:46
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:53
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:166
 #: templates/emails/vehicle-rereview-admin.html.php:7
 #: templates/emails/vehicle-submitted-admin.html.php:7
 #: templates/emails/vendor-report-received-admin.html.php:11
 #: assets/blocks/vendor-profile/index.js:32
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:14
 msgid "Vendor"
 msgstr ""
 
@@ -13158,7 +13161,8 @@ msgstr ""
 #: src/Admin/Messages/Settings/MessagesSettings.php:353
 #: src/Admin/PostTypes/Message/Message.php:322
 #: src/Admin/Settings/Testing/SettingsTester.php:968
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:354
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:100
+#: src/Admin/VendorReport/REST/VendorReportsController.php:260
 #: templates/account/messages.php:113
 msgid "General"
 msgstr ""
@@ -13290,8 +13294,11 @@ msgid "Add Status"
 msgstr ""
 
 #. translators: %s placeholder.
+#. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
+#: src/Admin/VendorReport/REST/VendorReportsController.php:172
+#: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
 #, php-format
 msgid "%s ago"
@@ -13703,7 +13710,7 @@ msgid "Site URL: %s"
 msgstr ""
 
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:588
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:216
+#: src-react/admin/vendor-reports/components/DetailView.jsx:49
 msgid "Context:"
 msgstr ""
 
@@ -13865,7 +13872,8 @@ msgid "Approved"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:176
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:336
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:93
+#: src/Admin/VendorReport/REST/VendorReportsController.php:243
 #: templates/account/partials/vendor-listings.php:33
 #: templates/account/partials/vendor-payouts.php:53
 #: templates/emails/vendor-report-resolved.html.php:11
@@ -20375,7 +20383,7 @@ msgid "Renewals:"
 msgstr ""
 
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:129
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:215
+#: src-react/admin/vendor-reports/components/DetailView.jsx:46
 msgid "Vendor:"
 msgstr ""
 
@@ -21269,7 +21277,7 @@ msgid "Vendor Management"
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:58
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:67
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:114
 msgid "You do not have permission to view this page."
 msgstr ""
 
@@ -21416,7 +21424,7 @@ msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:371
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:255
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:34
 msgid "Reject"
 msgstr ""
 
@@ -21699,91 +21707,43 @@ msgstr ""
 msgid "Associated user not found."
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:56
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:57
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:75
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:58
 msgid "Vendor Reports"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:159
-msgid "No reports found."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:186
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:330
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:90
+#: src/Admin/VendorReport/REST/VendorReportsController.php:237
+#: src-react/admin/vendor-reports/components/ReportRow.jsx:17
 msgid "Open"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:199
-#: src/Admin/VendorReport/Core/VendorReportService.php:225
-msgid "Report not found."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:206
-msgid "Unknown vendor"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:208
-msgid "Back to list"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:222
-msgid "Submitted:"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:224
-#: templates/emails/vendor-report-received-admin.html.php:24
-msgid "Description"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:228
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:250
-#: templates/emails/vendor-report-resolved.html.php:37
-msgid "Administrator Note"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:235
-msgid "This report is closed. No further action is possible."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:244
-msgid "Resolve this report"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:251
-msgid "Optional — explain your decision so the vendor knows why."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:254
-msgid "Mark as Resolved"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:256
-msgid "Mark In Review"
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:282
-msgid "You do not have permission to do this."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:291
-msgid "Invalid report."
-msgstr ""
-
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:332
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:91
+#: src/Admin/VendorReport/REST/VendorReportsController.php:239
 msgid "In Review"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:334
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:92
+#: src/Admin/VendorReport/REST/VendorReportsController.php:241
 msgid "Resolved"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:350
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:98
+#: src/Admin/VendorReport/REST/VendorReportsController.php:256
 msgid "Vehicle action"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:352
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:99
+#: src/Admin/VendorReport/REST/VendorReportsController.php:258
 msgid "Penalty appeal"
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:143
+msgid "You do not have permission to do this."
+msgstr ""
+
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:152
+msgid "Invalid report."
 msgstr ""
 
 #: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php:44
@@ -21819,6 +21779,10 @@ msgstr ""
 
 #: src/Admin/VendorReport/Core/VendorReportService.php:98
 msgid "Could not save your report. Please try again."
+msgstr ""
+
+#: src/Admin/VendorReport/Core/VendorReportService.php:225
+msgid "Report not found."
 msgstr ""
 
 #: src/Admin/VendorReport/Core/VendorReportService.php:230
@@ -22411,15 +22375,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:1000
+#: src/Plugin.php:1003
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:1003
+#: src/Plugin.php:1006
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1332
+#: src/Plugin.php:1335
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -24111,6 +24075,11 @@ msgstr ""
 msgid "A vendor has submitted a new report."
 msgstr ""
 
+#: templates/emails/vendor-report-received-admin.html.php:24
+#: src-react/admin/vendor-reports/components/DetailView.jsx:59
+msgid "Description"
+msgstr ""
+
 #: templates/emails/vendor-report-received-admin.html.php:29
 msgid "Open report in admin"
 msgstr ""
@@ -24123,6 +24092,12 @@ msgstr ""
 #: templates/emails/vendor-report-resolved.html.php:27
 #, php-format
 msgid "The administrator has reviewed your report \"%s\"."
+msgstr ""
+
+#: templates/emails/vendor-report-resolved.html.php:37
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:17
+#: src-react/admin/vendor-reports/components/DetailView.jsx:64
+msgid "Administrator Note"
 msgstr ""
 
 #: templates/emails/vendor-report-resolved.html.php:45
@@ -25673,6 +25648,8 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:48
 #: src-react/admin/customers/CustomersPage.jsx:103
 #: src-react/admin/reports/components/ReportContent.jsx:18
+#: src-react/admin/vendor-reports/components/DetailView.jsx:27
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:108
 msgid "Loading…"
 msgstr ""
 
@@ -25692,6 +25669,7 @@ msgid "No customers found."
 msgstr ""
 
 #: src-react/admin/customers/components/Pagination.jsx:12
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
 msgid "← Previous"
 msgstr ""
 
@@ -25704,6 +25682,7 @@ msgstr ""
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
 #: src-react/admin/messages/components/Pagination.jsx:23
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
 msgid "Next →"
 msgstr ""
 
@@ -25964,6 +25943,7 @@ msgstr ""
 msgid "Debug Search Results"
 msgstr ""
 
+#. translators: %d: number of pages scanned
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:15
 #, js-format
 msgid "Scanned %d pages."
@@ -26024,6 +26004,50 @@ msgstr ""
 
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
 msgid "Delete All"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:11
+msgid "Resolve this report"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:24
+msgid "Optional — explain your decision so the vendor knows why."
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:31
+msgid "Mark as Resolved"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:37
+msgid "Mark In Review"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/DetailView.jsx:22
+msgid "Failed to load report."
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/DetailView.jsx:35
+msgid "← Back to Reports"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/DetailView.jsx:55
+msgid "Submitted:"
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/DetailView.jsx:70
+msgid "This report is closed. No further action is possible."
+msgstr ""
+
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:6
+msgid "No reports found."
+msgstr ""
+
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:35
+msgid "Failed to load reports."
+msgstr ""
+
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:62
+msgid "Report updated."
 msgstr ""
 
 #: src-react/shared/components/ErrorBoundary.jsx:16
