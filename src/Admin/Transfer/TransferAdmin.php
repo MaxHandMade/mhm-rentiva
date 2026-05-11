@@ -513,7 +513,8 @@ final class TransferAdmin {
 										<tr>
 											<td><strong><?php echo esc_html($location->name); ?></strong></td>
 											<td><?php echo esc_html($location->city); ?></td>
-											<td><?php echo esc_html(ucfirst($location->type)); ?></td>
+											<?php $location_types = self::get_location_types(); ?>
+											<td><?php echo esc_html( $location_types[ $location->type ] ?? ucwords( str_replace( '_', ' ', $location->type ) ) ); ?></td>
 											<td><?php echo esc_html($location->priority); ?></td>
 											<td>
 												<?php if ($location->allow_rental) : ?>
@@ -527,8 +528,8 @@ final class TransferAdmin {
 												<?php endif; ?>
 											</td>
 											<td>
-												<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-locations&action=edit&id=' . $location->id)); ?>"><?php echo esc_html__('Edit', 'mhm-rentiva'); ?></a> |
-												<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_delete_location&id=' . $location->id), 'mhm_delete_location_nonce')); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure?', 'mhm-rentiva')); ?>');" style="color: #a00;"><?php echo esc_html__('Delete', 'mhm-rentiva'); ?></a>
+												<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-locations&action=edit&id=' . $location->id)); ?>" class="button button-small"><?php echo esc_html__('Edit', 'mhm-rentiva'); ?></a>
+												<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_delete_location&id=' . $location->id), 'mhm_delete_location_nonce')); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php echo esc_js(__('Are you sure?', 'mhm-rentiva')); ?>');"><?php echo esc_html__('Delete', 'mhm-rentiva'); ?></a>
 											</td>
 										</tr>
 									<?php endforeach; ?>
@@ -791,8 +792,8 @@ final class TransferAdmin {
 												<?php endif; ?>
 											</td>
 											<td>
-												<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-routes&action=edit&id=' . $route->id)); ?>"><?php echo esc_html__('Edit', 'mhm-rentiva'); ?></a> |
-												<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_delete_route&id=' . $route->id), 'mhm_delete_route_nonce')); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure?', 'mhm-rentiva')); ?>');" style="color: #a00;"><?php echo esc_html__('Delete', 'mhm-rentiva'); ?></a>
+												<a href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-transfer-routes&action=edit&id=' . $route->id)); ?>" class="button button-small"><?php echo esc_html__('Edit', 'mhm-rentiva'); ?></a>
+												<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_delete_route&id=' . $route->id), 'mhm_delete_route_nonce')); ?>" class="button button-small button-link-delete" onclick="return confirm('<?php echo esc_js(__('Are you sure?', 'mhm-rentiva')); ?>');"><?php echo esc_html__('Delete', 'mhm-rentiva'); ?></a>
 											</td>
 										</tr>
 									<?php endforeach; ?>
