@@ -114,6 +114,7 @@ final class VendorReportsAdminPage {
         }
         ?>
         <div class="wrap mhm-rentiva-vendor-reports-wrap">
+            <h1><?php esc_html_e('Vendor Reports', 'mhm-rentiva'); ?></h1>
             <div id="mhm-vendor-reports-root"></div>
         </div>
         <?php
