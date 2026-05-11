@@ -9,7 +9,7 @@ const config = window.mhmRentivaVendorManagement || {};
 
 export default function VendorManagementPage() {
 	const [ tab,    setTab    ] = useState( config.initialTab  || 'pending' );
-	const [ viewId, setViewId ] = useState( config.initialView || 0 );
+	const [ viewId, setViewId ] = useState( parseInt( config.initialView, 10 ) || 0 );
 	const [ notice, setNotice ] = useState( config.flash || null );
 
 	// Flash from PHP (read before WP's common.js strips URL params).
