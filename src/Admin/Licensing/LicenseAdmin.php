@@ -172,7 +172,7 @@ final class LicenseAdmin {
 			echo '<input type="hidden" name="action" value="mhm_rentiva_toggle_dev_mode">';
 			wp_nonce_field('mhm_rentiva_toggle_dev_mode', 'mhm_rentiva_toggle_dev_mode_nonce');
 			echo '<p>';
-			echo '<label><input type="checkbox" name="disable_dev_mode" value="1" onchange="this.form.submit();"> ';
+			echo '<label><input type="checkbox" id="mhm-disable-dev-mode" name="disable_dev_mode" value="1"> ';
 			echo esc_html__('Disable automatic developer mode (force real license validation)', 'mhm-rentiva');
 			echo '</label>';
 			echo '</p>';
@@ -201,75 +201,16 @@ final class LicenseAdmin {
 
 			// Show license key and expiry date in a nice format
 			if (! empty($license_data['key'])) {
-				echo '<div style="background: #f9f9f9; border: 1px solid #ddd; border-radius: 4px; padding: 15px; margin: 15px 0;">';
-				echo '<table class="form-table" style="margin: 0;">';
+				echo '<div class="mhm-license-key-panel">';
+				echo '<table class="form-table mhm-license-meta-table">';
 				echo '<tr>';
-				echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('License Key:', 'mhm-rentiva') . '</th>';
-				echo '<td style="padding: 8px 0;"><code style="background: #fff; padding: 6px 10px; border: 1px solid #ccc; border-radius: 3px; font-size: 14px; font-weight: 600;">' . esc_html($license_data['key']) . '</code></td>';
+				echo '<th scope="row" class="mhm-license-meta-th">' . esc_html__('License Key:', 'mhm-rentiva') . '</th>';
+				echo '<td class="mhm-license-meta-td"><code class="mhm-license-key-code">' . esc_html($license_data['key']) . '</code></td>';
 				echo '</tr>';
 
-				// Show expiry date if available
-				if (isset($license_data['expires_at']) && ! empty($license_data['expires_at'])) {
-					$expires_timestamp = is_numeric($license_data['expires_at']) ? (int) $license_data['expires_at'] : strtotime($license_data['expires_at']);
-					$expires_date      = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires_timestamp);
-					$is_expired        = $expires_timestamp < time();
-					$expires_class     = $is_expired ? 'color: #d63638;' : 'color: #00a32a;';
-
-					// Calculate days remaining
-					$current_time   = time();
-					$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - $current_time ) / DAY_IN_SECONDS);
-
-					echo '<tr>';
-					echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
-					echo '<td style="padding: 8px 0;">';
-					echo '<span style="' . esc_attr($expires_class) . ' font-weight: 600;">' . esc_html($expires_date) . '</span>';
-					if ($is_expired) {
-						echo ' <span style="color: #d63638;">(' . esc_html__('Expired', 'mhm-rentiva') . ')</span>';
-					} else {
-						echo ' <span style="color: #666; font-size: 13px;">(';
-						if ($days_remaining === 0) {
-							echo esc_html__('Expires today', 'mhm-rentiva');
-						} elseif ($days_remaining === 1) {
-							echo esc_html__('1 day remaining', 'mhm-rentiva');
-						} else {
-							/* translators: %d: number of days remaining */
-							echo esc_html(sprintf(__('%d days remaining', 'mhm-rentiva'), $days_remaining));
-						}
-						echo ')</span>';
-					}
-					echo '</td>';
-					echo '</tr>';
-				} elseif (isset($license_data['expires']) && ! empty($license_data['expires'])) {
-					// Fallback for old format
-					$expires_timestamp = is_numeric($license_data['expires']) ? (int) $license_data['expires'] : strtotime($license_data['expires']);
-					$expires_date      = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires_timestamp);
-					$is_expired        = $expires_timestamp < time();
-					$expires_class     = $is_expired ? 'color: #d63638;' : 'color: #00a32a;';
-
-					// Calculate days remaining
-					$current_time   = time();
-					$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - $current_time ) / DAY_IN_SECONDS);
-
-					echo '<tr>';
-					echo '<th scope="row" style="width: 150px; padding: 8px 0;">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
-					echo '<td style="padding: 8px 0;">';
-					echo '<span style="' . esc_attr($expires_class) . ' font-weight: 600;">' . esc_html($expires_date) . '</span>';
-					if ($is_expired) {
-						echo ' <span style="color: #d63638;">(' . esc_html__('Expired', 'mhm-rentiva') . ')</span>';
-					} else {
-						echo ' <span style="color: #666; font-size: 13px;">(';
-						if ($days_remaining === 0) {
-							echo esc_html__('Expires today', 'mhm-rentiva');
-						} elseif ($days_remaining === 1) {
-							echo esc_html__('1 day remaining', 'mhm-rentiva');
-						} else {
-							/* translators: %d: number of days remaining */
-							echo esc_html(sprintf(__('%d days remaining', 'mhm-rentiva'), $days_remaining));
-						}
-						echo ')</span>';
-					}
-					echo '</td>';
-					echo '</tr>';
+				$expires_raw = $license_data['expires_at'] ?? $license_data['expires'] ?? '';
+				if (! empty($expires_raw)) {
+					self::render_expiry_row( (string) $expires_raw );
 				}
 
 				echo '</table>';
@@ -291,8 +232,8 @@ final class LicenseAdmin {
 			echo '<h2>' . esc_html__('License Activation', 'mhm-rentiva') . '</h2>';
 
 			// CTA to open the product/purchase page in a new tab.
-			echo '<div class="mhm-license-purchase-cta" style="margin: 10px 0 20px;">';
-			echo '<p class="description" style="margin: 0 0 8px;">';
+			echo '<div class="mhm-license-purchase-cta">';
+			echo '<p class="description">';
 			echo esc_html__('Don\'t have a license yet? Get one from our store, then paste the key below.', 'mhm-rentiva');
 			echo '</p>';
 			echo '<a class="button button-secondary" href="' . esc_url(UXHelper::get_product_url()) . '" target="_blank" rel="noopener noreferrer">';
@@ -357,7 +298,7 @@ final class LicenseAdmin {
 			);
 
 			printf(
-				'<a href="%1$s" target="_blank" rel="noopener" class="button button-primary mhm-rentiva-manage-subscription %2$s" style="margin-right:10px;">%3$s</a>',
+				'<a href="%1$s" target="_blank" rel="noopener" class="button button-primary mhm-rentiva-manage-subscription mhm-license-action-btn %2$s">%3$s</a>',
 				esc_url($manage_url),
 				esc_attr($emphasis_class),
 				esc_html__('Manage Subscription', 'mhm-rentiva')
@@ -377,9 +318,9 @@ final class LicenseAdmin {
 				),
 				'mhm_rentiva_revalidate'
 			);
-			echo '<a href="' . esc_url($revalidate_url) . '" class="button" style="margin-right:10px;">' . esc_html__('Re-validate Now', 'mhm-rentiva') . '</a>';
+			echo '<a href="' . esc_url($revalidate_url) . '" class="button mhm-license-action-btn">' . esc_html__('Re-validate Now', 'mhm-rentiva') . '</a>';
 
-			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" style="display:inline-block;" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
+			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="mhm-license-deactivate-form" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
 			wp_nonce_field('mhm_rentiva_license_action', 'mhm_rentiva_license_nonce');
 			echo '<input type="hidden" name="action" value="mhm_rentiva_deactivate_license">';
 
@@ -389,6 +330,9 @@ final class LicenseAdmin {
 
 		// Lite vs Pro comparison
 		self::render_feature_comparison();
+
+		// Unobtrusive: auto-submit dev-mode toggle form on checkbox change.
+		echo '<script>(function(){var cb=document.getElementById("mhm-disable-dev-mode");if(cb){cb.addEventListener("change",function(){this.form.submit();});}}());</script>';
 
 		echo '</div>';
 	}
@@ -428,6 +372,45 @@ final class LicenseAdmin {
 				. esc_html__( 'License active but no feature tokens loaded yet. Click "Re-validate Now" to refresh.', 'mhm-rentiva' )
 				. '</p></div>';
 		}
+	}
+
+	/**
+	 * Render the expiry <tr> inside the license-key panel.
+	 *
+	 * Accepts a unix timestamp or any strtotime()-parseable string.
+	 * Prefers `expires_at`; caller passes whichever key is available.
+	 */
+	private static function render_expiry_row(string $expires_raw): void
+	{
+		$expires_timestamp = is_numeric($expires_raw) ? (int) $expires_raw : strtotime($expires_raw);
+		if ($expires_timestamp === false || $expires_timestamp <= 0) {
+			return;
+		}
+
+		$expires_date   = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $expires_timestamp);
+		$is_expired     = $expires_timestamp < time();
+		$days_remaining = $is_expired ? 0 : (int) floor(( $expires_timestamp - time() ) / DAY_IN_SECONDS);
+
+		echo '<tr>';
+		echo '<th scope="row" class="mhm-license-meta-th">' . esc_html__('Expires At:', 'mhm-rentiva') . '</th>';
+		echo '<td class="mhm-license-meta-td">';
+		echo '<span class="' . esc_attr($is_expired ? 'mhm-license-expiry--expired' : 'mhm-license-expiry--active') . '">' . esc_html($expires_date) . '</span>';
+		if ($is_expired) {
+			echo ' <span class="mhm-license-expiry-badge--expired">(' . esc_html__('Expired', 'mhm-rentiva') . ')</span>';
+		} else {
+			echo ' <span class="mhm-license-expiry-days">(';
+			if ($days_remaining === 0) {
+				echo esc_html__('Expires today', 'mhm-rentiva');
+			} elseif ($days_remaining === 1) {
+				echo esc_html__('1 day remaining', 'mhm-rentiva');
+			} else {
+				/* translators: %d: number of days remaining */
+				echo esc_html(sprintf(__('%d days remaining', 'mhm-rentiva'), $days_remaining));
+			}
+			echo ')</span>';
+		}
+		echo '</td>';
+		echo '</tr>';
 	}
 
 	public static function handle_activation(): void
@@ -726,15 +709,6 @@ final class LicenseAdmin {
 		return $labels[ $reason ] ?? __('unknown error', 'mhm-rentiva');
 	}
 
-	private static function validate_license(string $license_key): array
-	{
-		// This method is no longer used - LicenseManager handles API calls directly
-		// Kept for backward compatibility but should not be called
-		return array(
-			'success' => false,
-			'message' => 'invalid',
-		);
-	}
 
 	/**
 	 * Compute days remaining until license expiry (v4.32.0+).
@@ -977,7 +951,7 @@ final class LicenseAdmin {
 		echo '</ul>';
 
 		if ($is_pro) {
-			echo '<span class="mhm-plan-cta" style="background:#00a32a;color:#fff;display:block;text-align:center;padding:12px;border-radius:6px;font-weight:700;">' . esc_html__('✅ Active Plan', 'mhm-rentiva') . '</span>';
+			echo '<span class="mhm-plan-cta mhm-plan-cta--active">' . esc_html__('✅ Active Plan', 'mhm-rentiva') . '</span>';
 		} else {
 			echo '<a href="' . esc_url($license_url) . '" class="mhm-plan-cta">' . esc_html__('Enter License Key →', 'mhm-rentiva') . '</a>';
 		}

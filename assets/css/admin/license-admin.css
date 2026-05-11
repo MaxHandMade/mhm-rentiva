@@ -254,6 +254,85 @@
 }
 
 /* =============================================
+   v4.41.0 — License key panel + expiry display + action buttons.
+   ============================================= */
+
+.mhm-license-key-panel {
+    background: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.mhm-license-meta-table {
+    margin: 0;
+}
+
+.mhm-license-meta-th {
+    width: 150px;
+    padding: 8px 0;
+}
+
+.mhm-license-meta-td {
+    padding: 8px 0;
+}
+
+.mhm-license-key-code {
+    background: #fff;
+    padding: 6px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.mhm-license-expiry--active {
+    color: #00a32a;
+    font-weight: 600;
+}
+
+.mhm-license-expiry--expired {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.mhm-license-expiry-days {
+    color: #666;
+    font-size: 13px;
+}
+
+.mhm-license-expiry-badge--expired {
+    color: #d63638;
+}
+
+.mhm-license-purchase-cta {
+    margin: 10px 0 20px;
+}
+
+.mhm-license-purchase-cta .description {
+    margin: 0 0 8px;
+}
+
+.mhm-license-action-btn {
+    margin-right: 10px;
+}
+
+.mhm-license-deactivate-form {
+    display: inline-block;
+}
+
+.mhm-plan-cta--active {
+    background: #00a32a;
+    color: #fff;
+    display: block;
+    text-align: center;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: 700;
+}
+
+/* =============================================
    v4.32.0 — Manage Subscription button state-driven emphasis.
    Yellow >= 8 days from expiry, amber + glow <= 7 days.
    ============================================= */
