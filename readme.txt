@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.47.0
+Stable tag:        4.48.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
@@ -82,6 +82,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.48.0 — 2026-05-11 =
+* 🐛 **Mobile responsive:** Messages table stacks to single-column card layout at 375px (data-label headers via `::before`).
+* 🐛 **Mobile responsive:** KPI stat cards collapse to 2-column grid at ≤768px, single column at ≤480px.
+* 🐛 **Mobile responsive:** Reports date filter switches to vertical stack at ≤768px.
 
 = 4.47.0 — 2026-05-11 =
 * 🐛 **Critical fix:** Restored PHP mode after HTML output block in `VehicleColumns` and `BookingColumns` — Araçlar and Rezervasyonlar admin pages were throwing a fatal error (`add_monthly_calendar` method not found) introduced in v4.44.0.
