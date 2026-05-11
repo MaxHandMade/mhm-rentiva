@@ -77,31 +77,7 @@ export default function VendorManagementPage() {
 				</div>
 			) }
 
-			{ /* Tab switcher within React-managed tabs */ }
-			{ viewId === 0 && (
-				<div className="mhm-vm-tab-switcher" style={ { marginBottom: '16px' } }>
-					<button
-						type="button"
-						className={ `button ${ tab === 'pending' ? 'button-primary' : '' }` }
-						onClick={ () => switchTab( 'pending' ) }
-					>
-						{ __( 'Pending Applications', 'mhm-rentiva' ) }
-					</button>
-					{ ' ' }
-					<button
-						type="button"
-						className={ `button ${ tab === 'iban_requests' ? 'button-primary' : '' }` }
-						onClick={ () => switchTab( 'iban_requests' ) }
-					>
-						{ __( 'IBAN Requests', 'mhm-rentiva' ) }
-						{ config.pendingIbanCount > 0 && (
-							<span className="mhm-vm-badge-count"> ({ config.pendingIbanCount })</span>
-						) }
-					</button>
-				</div>
-			) }
-
-			{ viewId > 0
+{ viewId > 0
 				? <ApplicationDetailPage
 					applicationId={ viewId }
 					onBack={ closeDetail }
