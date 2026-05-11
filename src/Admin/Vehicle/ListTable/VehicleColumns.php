@@ -474,6 +474,7 @@ final class VehicleColumns {
 			</div>
 		</div>
 
+		<?php
 	}
 
 	/**

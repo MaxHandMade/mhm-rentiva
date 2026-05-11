@@ -763,6 +763,7 @@ final class BookingColumns {
 			</div>
 		</div>
 
+		<?php
 	}
 
 	/**
