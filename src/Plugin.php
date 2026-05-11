@@ -532,6 +532,9 @@ final class Plugin {
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\VendorReport\\REST\\VendorReportsController')) {
 			\MHMRentiva\Admin\VendorReport\REST\VendorReportsController::register();
 		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\Vendor\\REST\\VendorManagementRestController')) {
+			\MHMRentiva\Admin\Vendor\REST\VendorManagementRestController::register();
+		}
 
 		// Email Logs
 		if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
