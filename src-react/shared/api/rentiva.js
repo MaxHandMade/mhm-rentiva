@@ -69,5 +69,15 @@ export const rentivaApi = {
 		getIbanRequests: () => apiFetch( { path: `${ BASE }/vendors/iban-requests` } ),
 		approveIban: ( vendorId ) => apiFetch( { path: `${ BASE }/vendors/iban-requests/${ vendorId }/approve`, method: 'POST' } ),
 		rejectIban: ( vendorId ) => apiFetch( { path: `${ BASE }/vendors/iban-requests/${ vendorId }/reject`, method: 'POST' } ),
+		getVendors: ( params ) => {
+			const qs = new URLSearchParams( params ).toString();
+			return apiFetch( { path: `${ BASE }/vendors/vendors?${ qs }` } );
+		},
+		suspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/suspend`, method: 'POST' } ),
+		unsuspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/unsuspend`, method: 'POST' } ),
+		getCommission: () => apiFetch( { path: `${ BASE }/vendors/commission` } ),
+		saveCommission: ( data ) => apiFetch( { path: `${ BASE }/vendors/commission`, method: 'POST', data } ),
+		getSettings: () => apiFetch( { path: `${ BASE }/vendors/settings` } ),
+		saveSettings: ( data ) => apiFetch( { path: `${ BASE }/vendors/settings`, method: 'POST', data } ),
 	},
 };

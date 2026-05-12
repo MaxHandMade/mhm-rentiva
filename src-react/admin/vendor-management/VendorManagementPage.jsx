@@ -4,6 +4,9 @@ import { rentivaApi } from '../../shared/api/rentiva';
 import ApplicationTable from './components/ApplicationTable';
 import ApplicationDetailPage from './components/ApplicationDetailPage';
 import IbanRequestsTab from './components/IbanRequestsTab';
+import VendorTable from './components/VendorTable';
+import CommissionTab from './components/CommissionTab';
+import SettingsTab from './components/SettingsTab';
 
 const config = window.mhmRentivaVendorManagement || {};
 
@@ -85,30 +88,36 @@ export default function VendorManagementPage() {
 				/>
 				: tab === 'iban_requests'
 					? <IbanRequestsTab onNotice={ setNotice } />
-					: (
-					<>
-						{ listLoading && <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p> }
-						{ listError   && <div className="notice notice-error"><p>{ listError }</p></div> }
-						{ ! listLoading && ! listError && (
-							<ApplicationTable applications={ listData?.applications } onOpen={ openDetail } />
-						) }
-						{ listData && listData.pages > 1 && (
-							<div className="mhm-vm-pagination">
-								{ page > 1 && (
-									<button type="button" className="button" onClick={ () => setPage( p => p - 1 ) }>
-										{ __( '← Previous', 'mhm-rentiva' ) }
-									</button>
-								) }
-								<span>{ page } / { listData.pages }</span>
-								{ page < listData.pages && (
-									<button type="button" className="button" onClick={ () => setPage( p => p + 1 ) }>
-										{ __( 'Next →', 'mhm-rentiva' ) }
-									</button>
-								) }
-							</div>
-						) }
-					</>
-				)
+					: tab === 'vendors'
+						? <VendorTable onNotice={ setNotice } />
+						: tab === 'commission'
+							? <CommissionTab onNotice={ setNotice } />
+							: tab === 'settings'
+								? <SettingsTab onNotice={ setNotice } />
+								: (
+									<>
+										{ listLoading && <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p> }
+										{ listError   && <div className="notice notice-error"><p>{ listError }</p></div> }
+										{ ! listLoading && ! listError && (
+											<ApplicationTable applications={ listData?.applications } onOpen={ openDetail } />
+										) }
+										{ listData && listData.pages > 1 && (
+											<div className="mhm-vm-pagination">
+												{ page > 1 && (
+													<button type="button" className="button" onClick={ () => setPage( p => p - 1 ) }>
+														{ __( '← Previous', 'mhm-rentiva' ) }
+													</button>
+												) }
+												<span>{ page } / { listData.pages }</span>
+												{ page < listData.pages && (
+													<button type="button" className="button" onClick={ () => setPage( p => p + 1 ) }>
+														{ __( 'Next →', 'mhm-rentiva' ) }
+													</button>
+												) }
+											</div>
+										) }
+									</>
+								)
 			}
 		</div>
 	);
