@@ -214,7 +214,7 @@
 }
 
 /* ── Mobile: stacked table rows ─────────────────────────────── */
-@media ( max-width: 768px ) {
+@media ( max-width: 782px ) {
 	.mhm-messages-table {
 		display:    block;
 		overflow-x: auto;

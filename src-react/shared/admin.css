@@ -33,7 +33,7 @@
 	gap: var( --mhm-gap );
 }
 
-@media ( max-width: 768px ) {
+@media ( max-width: 782px ) {
 	.mhm-stats-grid {
 		grid-template-columns: repeat( 2, 1fr );
 	}
