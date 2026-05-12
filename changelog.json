@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.52.0",
+        "date": "2026-05-12",
+        "type": "minor",
+        "title": "Export page React SPA — REST endpoints, history, preview",
+        "summary": "Replaces the legacy 780-line PHP-rendered Export page with a full React SPA. Three new REST API endpoints power live preview, export history, and per-entry deletion. The admin-post.php CSV download flow is preserved.",
+        "changes": [
+            "New ExportRestController: GET /mhm-rentiva/v1/admin/export/history, DELETE /mhm-rentiva/v1/admin/export/{id}, POST /mhm-rentiva/v1/admin/export/preview. History stored in WP transient (max 50 entries, 1-week TTL).",
+            "ExportCards component: visual card selector for Bookings, Vehicles, and App Logs post types with active highlight.",
+            "AdvancedFilters component: collapsible date filter panel with preset ranges (from PHP ExportFilters::get_date_ranges()) and custom from/to date inputs.",
+            "PreviewBar component: REST preview returns total record count and 5-row sample table before committing to export.",
+            "ExportForm component: Export CSV button triggers the preserved admin-post.php download via hidden form ref — no page reload.",
+            "ExportHistory component: REST-loaded export log table with per-entry delete action.",
+            "i18n: 33 new TR translations; mhm-rentiva-tr_TR-mhm-rentiva-react-export.json generated.",
+            "Legacy 780-line PHP render code moved to private deprecated method; 3 AJAX hooks removed from register().",
+            "22 new PHPUnit integration tests for all three REST endpoints (auth, CRUD, validation, date filtering)."
+        ],
+        "notice": "No schema changes. No breaking changes. Requires npm run build (included)."
+    },
+    {
         "version": "4.49.0",
         "date": "2026-05-12",
         "type": "patch",

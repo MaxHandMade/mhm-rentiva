@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.51.0
+Stable tag:        4.52.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,15 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.52.0 — 2026-05-12 =
+* ✨ **Export page React SPA:** Replaced legacy 780-line PHP render with a full React SPA. Three new REST endpoints (`GET /admin/export/history`, `DELETE /admin/export/{id}`, `POST /admin/export/preview`) backed by WP transient storage.
+* ✨ **ExportCards:** Visual card selector for Bookings, Vehicles, and App Logs post types.
+* ✨ **AdvancedFilters:** Collapsible date filter panel with preset ranges and custom from/to date inputs.
+* ✨ **PreviewBar:** Live record count and 5-row sample table before export commit.
+* ✨ **ExportHistory:** REST-loaded export log table with per-entry delete action.
+* 🔧 **i18n:** 33 new TR translations for all export React strings.
+* 🧪 **Tests:** 22 new PHPUnit integration tests for Export REST endpoints.
 
 = 4.51.0 — 2026-05-12 =
 * ✨ **Vendor Management (Faz B):** Vendors, Commission, and Settings tabs migrated from PHP render to React SPA. Three new REST controllers (`GET /vendors/vendors`, `POST /vendors/{id}/suspend`, `POST /vendors/{id}/unsuspend`, `GET /vendors/commission`, `POST /vendors/commission`, `GET /vendors/settings`, `POST /vendors/settings`).

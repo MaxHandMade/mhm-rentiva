@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-05-12T06:15:28+00:00\n"
+"POT-Creation-Date: 2026-05-12T08:44:04+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -614,7 +614,7 @@ msgstr "Sürüm geçmişi"
 #: src/Admin/Core/Traits/AdminHelperTrait.php:117
 #: src/Admin/Setup/SetupWizard.php:129 src/Admin/Transfer/TransferAdmin.php:415
 #: src/Admin/Transfer/TransferAdmin.php:590
-#: src/Admin/Utilities/Export/Export.php:1021
+#: src/Admin/Utilities/Export/Export.php:785
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
 msgstr "Belgeler"
@@ -1050,8 +1050,7 @@ msgstr "Fiyat"
 #: src/Admin/Reports/BackgroundProcessor.php:478
 #: src/Admin/Setup/SetupWizard.php:218 src/Admin/Setup/SetupWizard.php:401
 #: src/Admin/Setup/SetupWizard.php:708 src/Admin/Testing/TestRunner.php:186
-#: src/Admin/Utilities/Export/Export.php:1221
-#: src/Admin/Utilities/Export/ExportHistory.php:195
+#: src/Admin/Utilities/Export/Export.php:995
 #: src/Admin/Utilities/ListTable/LogColumns.php:48
 #: src/Admin/Utilities/ListTable/LogColumns.php:116
 #: templates/account/booking-detail.php:149 templates/account/bookings.php:148
@@ -1062,6 +1061,7 @@ msgstr "Fiyat"
 #: templates/account/vendor-ledger.php:35
 #: templates/account/vendor-ledger.php:67 assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
+#: src-react/admin/export/components/PreviewBar.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:59
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
@@ -1086,7 +1086,6 @@ msgstr "Gerekli"
 #: src/Admin/Reports/BackgroundProcessor.php:461
 #: src/Admin/Reports/BackgroundProcessor.php:475
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
-#: src/Admin/Utilities/Export/ExportHistory.php:191
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
 #: templates/account/partials/vendor-payouts.php:221
 #: templates/account/partials/vendor-reliability.php:361
@@ -1097,6 +1096,8 @@ msgstr "Gerekli"
 #: assets/blocks/messages/index.js:51 assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
+#: src-react/admin/export/components/ExportHistory.jsx:64
+#: src-react/admin/export/components/PreviewBar.jsx:22
 #: src-react/admin/messages/components/MessageTable.jsx:25
 #: src-react/admin/messages/components/MessageTable.jsx:65
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:18
@@ -1144,6 +1145,7 @@ msgstr "Bu ek hizmeti silmek istediğinizden emin misiniz?"
 #: src/Admin/Transfer/TransferAdmin.php:796
 #: templates/shortcodes/vehicle-rating-form.php:284
 #: src-react/admin/customers/CustomersPage.jsx:66
+#: src-react/admin/export/components/ExportHistory.jsx:90
 msgid "Delete"
 msgstr "Sil"
 
@@ -1934,9 +1936,8 @@ msgstr "Devam Ediyor"
 #: src/Admin/Frontend/Account/AccountRenderer.php:614
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:138
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
-#: src/Admin/Utilities/Export/Export.php:1229
+#: src/Admin/Utilities/Export/Export.php:1003
 #: src/Admin/Utilities/Export/ExportFilters.php:47
-#: src/Admin/Utilities/Export/ExportHistory.php:205
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:967
 #: templates/account/booking-detail.php:76 templates/account/bookings.php:115
 #: templates/account/bookings.php:181 templates/account/bookings.php:289
@@ -2461,9 +2462,8 @@ msgstr "Tüm ödeme yöntemleri"
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:194
 #: src/Admin/Testing/TestRunner.php:169
-#: src/Admin/Utilities/Export/Export.php:1229
+#: src/Admin/Utilities/Export/Export.php:1003
 #: src/Admin/Utilities/Export/ExportFilters.php:60
-#: src/Admin/Utilities/Export/ExportHistory.php:206
 #: templates/account/partials/vendor-payouts.php:49
 #: templates/account/vendor-booking-detail.php:93
 #: templates/emails/booking-created-admin.html.php:66
@@ -2785,7 +2785,7 @@ msgstr "Kapat"
 #: src/Admin/Messages/Core/Messages.php:809
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1316
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1002 src/Plugin.php:1313
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 #: src-react/admin/messages/components/MessageTable.jsx:57
@@ -3075,7 +3075,7 @@ msgstr "Tam ödeme"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:172
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:442
-#: src/Admin/Utilities/Export/Export.php:126
+#: src/Admin/Utilities/Export/Export.php:120
 #: src/Admin/Utilities/ListTable/LogColumns.php:46
 #: templates/account/booking-detail.php:166
 msgid "Payment Method"
@@ -3115,7 +3115,7 @@ msgstr "Depozito"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:223
 #: src/Admin/Reports/BackgroundProcessor.php:463
-#: src/Admin/Utilities/Export/Export.php:141
+#: src/Admin/Utilities/Export/Export.php:135
 #: src/Admin/Utilities/Export/ExportFilters.php:390
 #: templates/account/vendor-booking-detail.php:178
 msgid "Payment Status"
@@ -3365,7 +3365,7 @@ msgstr "Rezervasyon - %s"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:122
 #: src/Admin/Booking/Meta/BookingMeta.php:129
-#: src/Admin/Utilities/Export/Export.php:135
+#: src/Admin/Utilities/Export/Export.php:129
 #: src/Admin/Utilities/Export/ExportFilters.php:375
 msgid "Booking Status"
 msgstr "Rezervasyon Durumu"
@@ -4114,10 +4114,11 @@ msgid "Booking created successfully."
 msgstr "Rezervasyon başarıyla oluşturuldu."
 
 #: src/Admin/Booking/PostType/Booking.php:27
-#: src/Admin/Utilities/Export/Export.php:1279
-#: src/Admin/Utilities/Export/ExportHistory.php:232
+#: src/Admin/Utilities/Export/Export.php:1053
+#: src/Admin/Utilities/Export/Export.php:1133
 #: src/Admin/Utilities/Menu/Menu.php:77 src/Admin/Utilities/Menu/Menu.php:78
 #: src-react/admin/customers/components/CustomerTable.jsx:6
+#: src-react/admin/export/components/ExportCards.jsx:5
 #: src-react/admin/reports/components/tabs/BookingsTab.jsx:22
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:63
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:37
@@ -4554,7 +4555,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Transfer/Frontend/TransferAddonModal.php:73
 #: src/Admin/Transfer/TransferAdmin.php:489
 #: src/Admin/Transfer/TransferAdmin.php:730
-#: src/Admin/Utilities/Export/Export.php:1311
+#: src/Admin/Utilities/Export/Export.php:1085
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1332
 #: templates/account/account-details.php:189 templates/account/messages.php:89
 #: templates/account/messages.php:161
@@ -5074,8 +5075,7 @@ msgstr "Son kullanılan"
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
 #: src/Admin/Transfer/TransferAdmin.php:507
 #: src/Admin/Transfer/TransferAdmin.php:747
-#: src/Admin/Utilities/Export/Export.php:1222
-#: src/Admin/Utilities/Export/ExportHistory.php:197
+#: src/Admin/Utilities/Export/Export.php:996
 #: templates/account/partials/vendor-reliability.php:366
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:17
@@ -5182,8 +5182,7 @@ msgstr "Filtreler başarıyla sıfırlandı"
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:356
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:678
 #: src/Admin/Settings/Groups/FrontendSettings.php:290
-#: src/Admin/Utilities/Export/Export.php:1239
-#: src/Admin/Utilities/Export/ExportHistory.php:217
+#: src/Admin/Utilities/Export/Export.php:1013
 #: templates/account/bookings.php:224 templates/account/bookings.php:332
 #: templates/account/partials/vendor-bookings.php:421
 msgid "View Details"
@@ -6893,7 +6892,6 @@ msgid "Email count"
 msgstr "E-posta sayısı"
 
 #: src/Admin/Emails/Core/EmailTemplates.php:733
-#: src/Admin/Utilities/Export/Export.php:1364
 msgid "Success Rate"
 msgstr "Başarı Puanı"
 
@@ -8502,6 +8500,7 @@ msgstr "Henüz rezervasyon alınmadı."
 #: src/Admin/Reports/BackgroundProcessor.php:474
 #: templates/account/bookings.php:142 templates/account/bookings.php:250
 #: templates/account/partials/vendor-payouts.php:217
+#: src-react/admin/export/components/PreviewBar.jsx:21
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:13
 msgid "ID"
 msgstr "ID"
@@ -11780,11 +11779,13 @@ msgid "About"
 msgstr "Hakkında"
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:75
-#: src/Admin/Utilities/Export/Export.php:1281
+#: src/Admin/Utilities/Export/Export.php:1055
+#: src/Admin/Utilities/Export/Export.php:1134
 #: src/Admin/Utilities/Menu/Menu.php:51 src/Admin/Utilities/Menu/Menu.php:52
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:859
 #: src/Admin/Vehicle/PostType/Vehicle.php:30 templates/single-vehicle.php:26
 #: assets/blocks/vendor-profile/index.js:45
+#: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
 #: src-react/admin/vendor-management/components/VendorTable.jsx:101
@@ -13024,7 +13025,7 @@ msgid "Generate Detailed Report"
 msgstr "Ayrıntılı Rapor Oluştur"
 
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:167
-#: src/Admin/Utilities/Export/Export.php:148
+#: src/Admin/Utilities/Export/Export.php:142
 msgid "Log Status"
 msgstr "Günlük Durumu"
 
@@ -14054,11 +14055,12 @@ msgid "Payout Requests"
 msgstr "Bayi Ödeme Talepleri"
 
 #: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:51
-#: src/Admin/Utilities/Export/Export.php:174
-#: src/Admin/Utilities/Export/Export.php:1058
-#: src/Admin/Utilities/Export/Export.php:1090
-#: src/Admin/Utilities/Export/Export.php:1122
+#: src/Admin/Utilities/Export/Export.php:168
+#: src/Admin/Utilities/Export/Export.php:832
+#: src/Admin/Utilities/Export/Export.php:864
+#: src/Admin/Utilities/Export/Export.php:896
 #: src-react/admin/customers/components/FilterBar.jsx:17
+#: src-react/admin/export/components/ExportForm.jsx:22
 msgid "Export CSV"
 msgstr "CSV Dışa Aktar"
 
@@ -14230,7 +14232,7 @@ msgid "Customer Export"
 msgstr "Müşteri İhracatı"
 
 #: src/Admin/Reports/BackgroundProcessor.php:42
-#: src/Admin/Utilities/Export/Export.php:1111
+#: src/Admin/Utilities/Export/Export.php:885
 msgid "Vehicle Export"
 msgstr "Araç İhracatı"
 
@@ -14468,9 +14470,9 @@ msgstr "Önbellek başarıyla temizlendi"
 
 #: src/Admin/Reports/Reports.php:519 src/Admin/Transfer/TransferAdmin.php:454
 #: src/Admin/Transfer/TransferAdmin.php:504
-#: src/Admin/Utilities/Export/ExportHistory.php:192
 #: templates/account/vendor-ledger.php:44
 #: templates/account/vendor-ledger.php:64
+#: src-react/admin/export/components/ExportHistory.jsx:65
 msgid "Type"
 msgstr "Tip"
 
@@ -14729,9 +14731,9 @@ msgstr "REST API ayarları başarıyla varsayılanlara sıfırlandı."
 
 #: src/Admin/Settings/Core/SettingsCore.php:410
 #: src/Admin/Settings/Core/SettingsCore.php:443
-#: src/Admin/Utilities/Export/Export.php:1430
-#: src/Admin/Utilities/Export/Export.php:1528
-#: src/Admin/Utilities/Export/Export.php:1576
+#: src/Admin/Utilities/Export/Export.php:1150
+#: src/Admin/Utilities/Export/Export.php:1248
+#: src/Admin/Utilities/Export/Export.php:1297
 msgid "Invalid nonce"
 msgstr "Geçersiz doğrulama"
 
@@ -20258,69 +20260,69 @@ msgstr "Örnek:"
 msgid "Categories:"
 msgstr "Kategoriler:"
 
-#: src/Admin/Utilities/Export/Export.php:110
+#: src/Admin/Utilities/Export/Export.php:104
 msgid "Rentiva Export Filters"
 msgstr "Rentiva İhracat Filtreleri"
 
-#: src/Admin/Utilities/Export/Export.php:120
-#: src/Admin/Utilities/Export/Export.php:1288
+#: src/Admin/Utilities/Export/Export.php:114
+#: src/Admin/Utilities/Export/Export.php:1062
 #: src/Admin/Utilities/Export/ExportFilters.php:471
 #: assets/blocks/booking-form/index.js:104
 #: src-react/admin/reports/components/DateFilter.jsx:18
 msgid "Start Date"
 msgstr "Başlangıç Tarihi"
 
-#: src/Admin/Utilities/Export/Export.php:121
-#: src/Admin/Utilities/Export/Export.php:1293
+#: src/Admin/Utilities/Export/Export.php:115
+#: src/Admin/Utilities/Export/Export.php:1067
 #: src/Admin/Utilities/Export/ExportFilters.php:475
 #: assets/blocks/booking-form/index.js:110
 #: src-react/admin/reports/components/DateFilter.jsx:27
 msgid "End Date"
 msgstr "Bitiş Tarihi"
 
-#: src/Admin/Utilities/Export/Export.php:128
+#: src/Admin/Utilities/Export/Export.php:122
+#: src/Admin/Utilities/Export/Export.php:131
 #: src/Admin/Utilities/Export/Export.php:137
-#: src/Admin/Utilities/Export/Export.php:143
-#: src/Admin/Utilities/Export/Export.php:150
+#: src/Admin/Utilities/Export/Export.php:144
 msgid "Any"
 msgstr "Herhangi bir"
 
-#: src/Admin/Utilities/Export/Export.php:156
+#: src/Admin/Utilities/Export/Export.php:150
 msgid "Minimum Amount"
 msgstr "Minimum Sepet Tutarı"
 
-#: src/Admin/Utilities/Export/Export.php:157
+#: src/Admin/Utilities/Export/Export.php:151
 msgid "Maximum Amount"
 msgstr "Maksimum miktar"
 
-#: src/Admin/Utilities/Export/Export.php:179
-#: src/Admin/Utilities/Export/Export.php:1067
-#: src/Admin/Utilities/Export/Export.php:1099
-#: src/Admin/Utilities/Export/Export.php:1131
+#: src/Admin/Utilities/Export/Export.php:173
+#: src/Admin/Utilities/Export/Export.php:841
+#: src/Admin/Utilities/Export/Export.php:873
+#: src/Admin/Utilities/Export/Export.php:905
 msgid "Export JSON"
 msgstr "JSON'u dışa aktar"
 
-#: src/Admin/Utilities/Export/Export.php:339
+#: src/Admin/Utilities/Export/Export.php:333
 msgid "Export is disabled."
 msgstr "Dışa aktarma devre dışıdır."
 
-#: src/Admin/Utilities/Export/Export.php:343
+#: src/Admin/Utilities/Export/Export.php:337
 msgid "You do not have permission to export."
 msgstr "İhracat yapma izniniz yok."
 
-#: src/Admin/Utilities/Export/Export.php:349
+#: src/Admin/Utilities/Export/Export.php:343
 msgid "Invalid export type."
 msgstr "Geçersiz dışa aktarım türü."
 
-#: src/Admin/Utilities/Export/Export.php:356
+#: src/Admin/Utilities/Export/Export.php:350
 msgid "This export format is available in Pro version only."
 msgstr "Bu dışa aktarma biçimi yalnızca Pro sürümünde mevcuttur."
 
-#: src/Admin/Utilities/Export/Export.php:406
+#: src/Admin/Utilities/Export/Export.php:400
 msgid "Unsupported export format."
 msgstr "Desteklenmeyen dışa aktarım biçimi."
 
-#: src/Admin/Utilities/Export/Export.php:1034
+#: src/Admin/Utilities/Export/Export.php:808
 msgid ""
 "Export your vehicle rental data in various formats for analysis, reporting, "
 "and backup purposes."
@@ -20328,11 +20330,11 @@ msgstr ""
 "Araç kiralama verilerinizi analiz, raporlama ve yedekleme amacıyla çeşitli "
 "formatlarda dışa aktarın."
 
-#: src/Admin/Utilities/Export/Export.php:1047
+#: src/Admin/Utilities/Export/Export.php:821
 msgid "Bookings Export"
 msgstr "Rezervasyonların Dışa Aktarılması"
 
-#: src/Admin/Utilities/Export/Export.php:1048
+#: src/Admin/Utilities/Export/Export.php:822
 msgid ""
 "Export booking data including customer information, payment details, and "
 "booking status."
@@ -20340,16 +20342,16 @@ msgstr ""
 "Müşteri bilgileri, ödeme ayrıntıları ve rezervasyon durumu dahil olmak üzere "
 "rezervasyon verilerini dışa aktarın."
 
-#: src/Admin/Utilities/Export/Export.php:1079
+#: src/Admin/Utilities/Export/Export.php:853
 msgid "Payment Logs Export"
 msgstr "Ödeme Günlükleri Dışa Aktarma"
 
-#: src/Admin/Utilities/Export/Export.php:1080
+#: src/Admin/Utilities/Export/Export.php:854
 msgid "Export payment transaction logs for accounting and financial analysis."
 msgstr ""
 "Muhasebe ve finansal analiz için ödeme işlem günlüklerini dışa aktarın."
 
-#: src/Admin/Utilities/Export/Export.php:1112
+#: src/Admin/Utilities/Export/Export.php:886
 msgid ""
 "Export vehicle data including specifications, availability, pricing, and "
 "performance metrics."
@@ -20357,11 +20359,11 @@ msgstr ""
 "Özellikler, stok durumu, fiyatlandırma ve performans ölçütleri dahil olmak "
 "üzere araç verilerini dışa aktarın."
 
-#: src/Admin/Utilities/Export/Export.php:1143
+#: src/Admin/Utilities/Export/Export.php:917
 msgid "Reports Export"
 msgstr "Raporları Dışa Aktar"
 
-#: src/Admin/Utilities/Export/Export.php:1144
+#: src/Admin/Utilities/Export/Export.php:918
 msgid ""
 "Export detailed reports including revenue, customer analytics, and vehicle "
 "performance data."
@@ -20369,82 +20371,82 @@ msgstr ""
 "Gelir, müşteri analizi ve araç performans verilerini içeren ayrıntılı "
 "raporları dışa aktarın."
 
-#: src/Admin/Utilities/Export/Export.php:1149
+#: src/Admin/Utilities/Export/Export.php:923
 msgid "Go to Reports"
 msgstr "Raporlara git"
 
-#: src/Admin/Utilities/Export/Export.php:1177
+#: src/Admin/Utilities/Export/Export.php:951
 msgid "Export Started!"
 msgstr "Dışa aktarım başladı!"
 
-#: src/Admin/Utilities/Export/Export.php:1177
+#: src/Admin/Utilities/Export/Export.php:951
 msgid ""
 "Your export request has been queued and will be processed in the background."
 msgstr "Dışa aktarma talebiniz sıraya alındı ve arka planda işlenecektir."
 
-#: src/Admin/Utilities/Export/Export.php:1185
+#: src/Admin/Utilities/Export/Export.php:959
 msgid "Export Completed!"
 msgstr "Dışa aktarma tamamlandı!"
 
-#: src/Admin/Utilities/Export/Export.php:1185
+#: src/Admin/Utilities/Export/Export.php:959
 msgid "Your export has been completed successfully."
 msgstr "Dışa aktarım işleminiz başarıyla tamamlandı."
 
-#: src/Admin/Utilities/Export/Export.php:1193
+#: src/Admin/Utilities/Export/Export.php:967
 msgid "Export Error!"
 msgstr "Dışa Aktarma Hatası!"
 
-#: src/Admin/Utilities/Export/Export.php:1193
+#: src/Admin/Utilities/Export/Export.php:967
 msgid "An error occurred during the export process."
 msgstr "Dışa aktarma işlemi sırasında bir hata oluştu."
 
-#: src/Admin/Utilities/Export/Export.php:1205
+#: src/Admin/Utilities/Export/Export.php:979
+#: src-react/admin/export/components/ExportHistory.jsx:50
 msgid "Export History"
 msgstr "Dışa Aktar Geçmişi"
 
-#: src/Admin/Utilities/Export/Export.php:1206
+#: src/Admin/Utilities/Export/Export.php:980
 msgid "View and manage your recent export activities."
 msgstr "Son dışa aktarım etkinliklerinizi görüntüleyin ve yönetin."
 
-#: src/Admin/Utilities/Export/Export.php:1217
+#: src/Admin/Utilities/Export/Export.php:991
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1024
 msgid "Date & Time"
 msgstr "Tarih & Saat"
 
-#: src/Admin/Utilities/Export/Export.php:1218
-#: src/Admin/Utilities/Export/Export.php:1276
+#: src/Admin/Utilities/Export/Export.php:992
+#: src/Admin/Utilities/Export/Export.php:1050
 msgid "Export Type"
 msgstr "Dışa Aktarma Türü"
 
-#: src/Admin/Utilities/Export/Export.php:1219
-#: src/Admin/Utilities/Export/Export.php:1299
-#: src/Admin/Utilities/Export/ExportHistory.php:193
+#: src/Admin/Utilities/Export/Export.php:993
+#: src/Admin/Utilities/Export/Export.php:1073
 msgid "Format"
 msgstr "Biçim"
 
-#: src/Admin/Utilities/Export/Export.php:1220
-#: src/Admin/Utilities/Export/ExportHistory.php:194
+#: src/Admin/Utilities/Export/Export.php:994
+#: src-react/admin/export/components/ExportHistory.jsx:66
 msgid "Records"
 msgstr "Kayıtlar"
 
-#: src/Admin/Utilities/Export/Export.php:1251
+#: src/Admin/Utilities/Export/Export.php:1025
 msgid "No exports yet"
 msgstr "Henüz ihracat yok"
 
-#: src/Admin/Utilities/Export/Export.php:1252
+#: src/Admin/Utilities/Export/Export.php:1026
 msgid "Start by exporting your data using the options above."
 msgstr ""
 "Yukarıdaki seçenekleri kullanarak verilerinizi dışa aktarmaya başlayın."
 
-#: src/Admin/Utilities/Export/Export.php:1267
+#: src/Admin/Utilities/Export/Export.php:1041
 msgid "Custom Export"
 msgstr "Özel İhracat"
 
-#: src/Admin/Utilities/Export/Export.php:1278
+#: src/Admin/Utilities/Export/Export.php:1052
 msgid "Select Export Type"
 msgstr "Dışa Aktarım Türünü Seçin"
 
-#: src/Admin/Utilities/Export/Export.php:1280
+#: src/Admin/Utilities/Export/Export.php:1054
 #: src/Admin/Utilities/Menu/Menu.php:114 src/Admin/Utilities/Menu/Menu.php:115
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
 #: src-react/admin/dashboard/components/StatsCards.jsx:28
@@ -20452,73 +20454,44 @@ msgstr "Dışa Aktarım Türünü Seçin"
 msgid "Customers"
 msgstr "Müşteriler"
 
-#: src/Admin/Utilities/Export/Export.php:1282
-#: src/Admin/Utilities/Export/ExportHistory.php:234
+#: src/Admin/Utilities/Export/Export.php:1056
 #: src/Admin/Utilities/Menu/Menu.php:125 src/Admin/Utilities/Menu/Menu.php:126
 #: src-react/admin/dashboard/components/QuickActions.jsx:9
 msgid "Reports"
 msgstr "Raporlar"
 
-#: src/Admin/Utilities/Export/Export.php:1310
+#: src/Admin/Utilities/Export/Export.php:1084
 msgid "Start Export"
 msgstr "Dışa Aktarmayı Başlat"
 
-#: src/Admin/Utilities/Export/Export.php:1346
-msgid "Export Statistics"
-msgstr "İhracat İstatistikleri"
+#: src/Admin/Utilities/Export/Export.php:1135
+msgid "Payment Logs"
+msgstr "Ödeme Günlükleri"
 
-#: src/Admin/Utilities/Export/Export.php:1352
-msgid "Total Exports"
-msgstr "Toplam İhracat"
-
-#: src/Admin/Utilities/Export/Export.php:1358
-msgid "Records Exported"
-msgstr "Dışa Aktarılan Kayıtlar"
-
-#: src/Admin/Utilities/Export/Export.php:1370
-msgid "Available Records"
-msgstr "Mevcut Kayıtlar"
-
-#: src/Admin/Utilities/Export/Export.php:1377
-msgid "Current Data Overview"
-msgstr "Güncel Verilere Genel Bakış"
-
-#: src/Admin/Utilities/Export/Export.php:1380
-msgid "Vehicles:"
-msgstr "Araçlar:"
-
-#: src/Admin/Utilities/Export/Export.php:1384
-msgid "Bookings:"
-msgstr "Rezervasyonlar:"
-
-#: src/Admin/Utilities/Export/Export.php:1388
-msgid "Payment Logs:"
-msgstr "Ödeme Kayıtları:"
-
-#: src/Admin/Utilities/Export/Export.php:1435
-#: src/Admin/Utilities/Export/Export.php:1533
-#: src/Admin/Utilities/Export/Export.php:1581
+#: src/Admin/Utilities/Export/Export.php:1155
+#: src/Admin/Utilities/Export/Export.php:1253
+#: src/Admin/Utilities/Export/Export.php:1302
 msgid "Insufficient permissions"
 msgstr "Yetersiz yetkiler"
 
-#: src/Admin/Utilities/Export/Export.php:1463
+#: src/Admin/Utilities/Export/Export.php:1183
 msgid "Filters applied successfully!"
 msgstr "Filtreler başarıyla uygulandı!"
 
-#: src/Admin/Utilities/Export/Export.php:1540
-#: src/Admin/Utilities/Export/Export.php:1588
+#: src/Admin/Utilities/Export/Export.php:1260
+#: src/Admin/Utilities/Export/Export.php:1309
 msgid "Export ID is required"
 msgstr "İhracat kimliği gereklidir"
 
-#: src/Admin/Utilities/Export/Export.php:1556
+#: src/Admin/Utilities/Export/Export.php:1277
 msgid "Export not found."
 msgstr "Dışa aktarma bulunamadı."
 
-#: src/Admin/Utilities/Export/Export.php:1563
+#: src/Admin/Utilities/Export/Export.php:1284
 msgid "Export deleted successfully!"
 msgstr "Dışa aktarma başarıyla tamamlandı!"
 
-#: src/Admin/Utilities/Export/Export.php:1604
+#: src/Admin/Utilities/Export/Export.php:1326
 msgid "Export not found"
 msgstr "İhracat bulunamadı"
 
@@ -20639,18 +20612,6 @@ msgstr "Filtreleri Sıfırla"
 msgid "Apply Filters"
 msgstr "Filtreleri Uygula"
 
-#: src/Admin/Utilities/Export/ExportHistory.php:183
-msgid "No export history found."
-msgstr "İhracat geçmişi bulunamadı."
-
-#: src/Admin/Utilities/Export/ExportHistory.php:196
-msgid "User"
-msgstr "Kullanıcı"
-
-#: src/Admin/Utilities/Export/ExportHistory.php:233
-msgid "Payment Logs"
-msgstr "Ödeme Günlükleri"
-
 #: src/Admin/Utilities/Export/ExportReports.php:27
 msgid "Excel/CSV export is available in Pro version."
 msgstr "Excel/CSV dışa aktarma özelliği Pro sürümünde mevcuttur."
@@ -20686,16 +20647,6 @@ msgstr "Excel (XLS)"
 #: src/Admin/Utilities/Export/ExportReports.php:250
 msgid "PDF"
 msgstr "PDF"
-
-#. translators: 1: %s; 2: %s.
-#: src/Admin/Utilities/Export/ExportStats.php:175
-#, php-format
-msgid "%1$s (%2$s format)"
-msgstr "%1$s (%2$s formatı)"
-
-#: src/Admin/Utilities/Export/ExportStats.php:179
-msgid "Never"
-msgstr "Asla"
 
 #: src/Admin/Utilities/Menu/Menu.php:59 src/Admin/Utilities/Menu/Menu.php:60
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:57
@@ -22822,7 +22773,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:1006
+#: src/Plugin.php:1003
 msgid ""
 "Rentiva Lite version allows you to add up to 5 vehicles. Activate your "
 "license to add more vehicles."
@@ -22830,7 +22781,7 @@ msgstr ""
 "Rentiva Lite sürümü, en fazla 5 araç eklemenize izin verir. Daha fazla araç "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1009
+#: src/Plugin.php:1006
 msgid ""
 "Rentiva Lite version has reached the booking limit. Activate your license to "
 "add more bookings."
@@ -22838,7 +22789,7 @@ msgstr ""
 "Rentiva Lite sürümü rezervasyon sınırına ulaştı. Daha fazla rezervasyon "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1338
+#: src/Plugin.php:1335
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -23878,6 +23829,7 @@ msgid "Transfer Route"
 msgstr "Transfer Güzergahı"
 
 #: templates/account/vendor-booking-detail.php:192
+#: src-react/admin/export/components/AdvancedFilters.jsx:75
 msgid "From"
 msgstr "Nereden"
 
@@ -23888,6 +23840,7 @@ msgid "-"
 msgstr "-"
 
 #: templates/account/vendor-booking-detail.php:205
+#: src-react/admin/export/components/AdvancedFilters.jsx:87
 msgid "To"
 msgstr "Nereye"
 
@@ -26324,6 +26277,7 @@ msgstr "Müşteri detayları yüklenemedi."
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:48
 #: src-react/admin/customers/CustomersPage.jsx:103
+#: src-react/admin/export/components/AdvancedFilters.jsx:107
 #: src-react/admin/reports/components/ReportContent.jsx:18
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:22
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:46
@@ -26486,6 +26440,86 @@ msgstr "Henüz transfer yok."
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:28
 msgid "No upcoming operations in the next 7 days."
 msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
+
+#: src-react/admin/export/components/AdvancedFilters.jsx:45
+msgid "Date Filters"
+msgstr "Tarih Filtreleri"
+
+#: src-react/admin/export/components/AdvancedFilters.jsx:54
+msgid "Preset range"
+msgstr "Hazır aralık"
+
+#: src-react/admin/export/components/AdvancedFilters.jsx:62
+msgid "— All time —"
+msgstr "— Tüm zamanlar —"
+
+#: src-react/admin/export/components/AdvancedFilters.jsx:108
+msgid "Preview count"
+msgstr "Sayıyı Önizle"
+
+#: src-react/admin/export/components/ExportCards.jsx:7
+msgid "All reservation records"
+msgstr "Tüm rezervasyon kayıtları"
+
+#: src-react/admin/export/components/ExportCards.jsx:12
+msgid "Vehicle listings and details"
+msgstr "Araç listeleri ve detayları"
+
+#: src-react/admin/export/components/ExportCards.jsx:15
+msgid "App Logs"
+msgstr "Uygulama Logları"
+
+#: src-react/admin/export/components/ExportCards.jsx:17
+msgid "Application event log"
+msgstr "Uygulama olay logu"
+
+#: src-react/admin/export/components/ExportForm.jsx:27
+msgid "No records to export with the current filters."
+msgstr "Mevcut filtrelerle dışa aktarılacak kayıt yok."
+
+#: src-react/admin/export/components/ExportHistory.jsx:18
+msgid "Failed to load export history."
+msgstr "Dışa aktarma geçmişi yüklenemedi."
+
+#: src-react/admin/export/components/ExportHistory.jsx:34
+msgid "Delete failed."
+msgstr "Silme başarısız."
+
+#: src-react/admin/export/components/ExportHistory.jsx:43
+msgid "Loading history…"
+msgstr "Geçmiş yükleniyor…"
+
+#: src-react/admin/export/components/ExportHistory.jsx:58
+msgid "No exports recorded yet."
+msgstr "Henüz dışa aktarma kaydı yok."
+
+#: src-react/admin/export/components/ExportHistory.jsx:67
+msgid "User"
+msgstr "Kullanıcı"
+
+#: src-react/admin/export/components/ExportHistory.jsx:86
+msgid "Delete entry"
+msgstr "Kaydı sil"
+
+#: src-react/admin/export/components/ExportHistory.jsx:89
+msgid "Deleting…"
+msgstr "Siliniyor…"
+
+#: src-react/admin/export/components/PreviewBar.jsx:8
+msgid "No records match the selected filters."
+msgstr "Seçilen filtrelere uyan kayıt yok."
+
+#: src-react/admin/export/components/PreviewBar.jsx:10
+msgid "Records found:"
+msgstr "Bulunan kayıtlar:"
+
+#: src-react/admin/export/components/PreviewBar.jsx:39
+msgid "more records"
+msgstr "daha fazla kayıt"
+
+#: src-react/admin/export/ExportPage.jsx:48
+msgid "Preview failed."
+msgstr "Önizleme başarısız."
 
 #: src-react/admin/messages/components/BulkBar.jsx:46
 msgid "Bulk action…"
@@ -26982,7 +27016,9 @@ msgstr "Bu bayiyi askıya almak istiyor musunuz?"
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:48
 msgid "Unsuspend this vendor? Their vehicles will move to Pending Review."
-msgstr "Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor durumuna geçecektir."
+msgstr ""
+"Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor "
+"durumuna geçecektir."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:55
 msgid "Vendor suspended."
@@ -27301,6 +27337,40 @@ msgctxt "block description"
 msgid "Public vendor profile page (avatar, badge, vehicles, reviews)."
 msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar)."
 
+#~ msgid "Export Statistics"
+#~ msgstr "İhracat İstatistikleri"
+
+#~ msgid "Total Exports"
+#~ msgstr "Toplam İhracat"
+
+#~ msgid "Records Exported"
+#~ msgstr "Dışa Aktarılan Kayıtlar"
+
+#~ msgid "Available Records"
+#~ msgstr "Mevcut Kayıtlar"
+
+#~ msgid "Current Data Overview"
+#~ msgstr "Güncel Verilere Genel Bakış"
+
+#~ msgid "Vehicles:"
+#~ msgstr "Araçlar:"
+
+#~ msgid "Bookings:"
+#~ msgstr "Rezervasyonlar:"
+
+#~ msgid "Payment Logs:"
+#~ msgstr "Ödeme Kayıtları:"
+
+#~ msgid "No export history found."
+#~ msgstr "İhracat geçmişi bulunamadı."
+
+#, php-format
+#~ msgid "%1$s (%2$s format)"
+#~ msgstr "%1$s (%2$s formatı)"
+
+#~ msgid "Never"
+#~ msgstr "Asla"
+
 #~ msgid "No active vendors yet."
 #~ msgstr "Henüz aktif bayi yok."
 
@@ -27338,9 +27408,6 @@ msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar).
 #, php-format
 #~ msgid "Showing %1$d-%2$d of %3$d applications"
 #~ msgstr "%3$d başvurudan %1$d-%2$d arası gösteriliyor"
-
-#~ msgid "Application not found."
-#~ msgstr "Başvuru bulunamadı."
 
 #~ msgid "Pending IBAN Change Requests"
 #~ msgstr "Bekleyen IBAN Değişiklik Talepleri"

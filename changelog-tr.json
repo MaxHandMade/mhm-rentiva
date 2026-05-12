@@ -1,5 +1,24 @@
 [
     {
+        "version": "4.52.0",
+        "date": "2026-05-12",
+        "type": "minor",
+        "title": "Dışa Aktar sayfası React SPA — REST endpoint'leri, geçmiş, önizleme",
+        "summary": "780 satırlık eski PHP render'lı Dışa Aktar sayfası tam React SPA ile değiştirildi. Üç yeni REST API endpoint'i canlı önizleme, dışa aktarma geçmişi ve kayıt silme işlemlerini destekliyor. admin-post.php CSV indirme akışı korundu.",
+        "changes": [
+            "Yeni ExportRestController: GET /mhm-rentiva/v1/admin/export/history, DELETE /mhm-rentiva/v1/admin/export/{id}, POST /mhm-rentiva/v1/admin/export/preview. Geçmiş WP transient'ında saklanıyor (max 50 kayıt, 1 hafta TTL).",
+            "ExportCards bileşeni: Rezervasyonlar, Araçlar ve Uygulama Logları post türleri için görsel kart seçici; seçili kart vurgulanıyor.",
+            "AdvancedFilters bileşeni: PHP ExportFilters::get_date_ranges() hazır aralıkları + özel başlangıç/bitiş tarih girdileriyle katlanabilir tarih filtresi paneli.",
+            "PreviewBar bileşeni: Dışa aktarma öncesi REST önizlemesi — toplam kayıt sayısı ve 5 satırlık örnek tablo.",
+            "ExportForm bileşeni: CSV İndir butonu, gizli form ref aracılığıyla admin-post.php indirmesini tetikliyor — sayfa yenilemesi yok.",
+            "ExportHistory bileşeni: REST ile yüklenen dışa aktarma geçmişi tablosu; kayıt başına silme işlemi.",
+            "i18n: 33 yeni TR çevirisi; mhm-rentiva-tr_TR-mhm-rentiva-react-export.json oluşturuldu.",
+            "780 satırlık eski PHP render kodu özel deprecated metoda taşındı; 3 AJAX hook register()'dan kaldırıldı.",
+            "22 yeni PHPUnit entegrasyon testi (auth, CRUD, doğrulama, tarih filtreleme)."
+        ],
+        "notice": "Şema değişikliği yok. Kırıcı değişiklik yok. npm run build gerekli (bu sürüme dahil)."
+    },
+    {
         "version": "4.49.0",
         "date": "2026-05-12",
         "type": "patch",

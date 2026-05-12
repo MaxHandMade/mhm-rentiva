@@ -1,0 +1,116 @@
+{
+    "translation-revision-date": "2026-05-12T00:00:00+00:00",
+    "generator": "WP-CLI/2.x make-json",
+    "domain": "messages",
+    "locale_data": {
+        "messages": {
+            "": {
+                "Plural-Forms": "nplurals=2; plural=(n != 1);",
+                "MIME-Version": "1.0",
+                "Content-Type": "text/plain; charset=UTF-8",
+                "Content-Transfer-Encoding": "8bit",
+                "Project-Id-Version": "MHM Rentiva",
+                "Language": "tr_TR"
+            },
+            "Status": [
+                "Durum"
+            ],
+            "Date": [
+                "Tarih"
+            ],
+            "Delete": [
+                "Sil"
+            ],
+            "Bookings": [
+                "Rezervasyonlar"
+            ],
+            "ID": [
+                "ID"
+            ],
+            "Vehicles": [
+                "Araçlar"
+            ],
+            "Export CSV": [
+                "CSV Dışa Aktar"
+            ],
+            "Type": [
+                "Tip"
+            ],
+            "Export History": [
+                "Dışa Aktar Geçmişi"
+            ],
+            "Records": [
+                "Kayıtlar"
+            ],
+            "From": [
+                "Nereden"
+            ],
+            "To": [
+                "Nereye"
+            ],
+            "Loading…": [
+                "Yükleniyor…"
+            ],
+            "Date Filters": [
+                "Tarih Filtreleri"
+            ],
+            "Preset range": [
+                "Hazır aralık"
+            ],
+            "— All time —": [
+                "— Tüm zamanlar —"
+            ],
+            "Preview count": [
+                "Sayıyı Önizle"
+            ],
+            "All reservation records": [
+                "Tüm rezervasyon kayıtları"
+            ],
+            "Vehicle listings and details": [
+                "Araç listeleri ve detayları"
+            ],
+            "App Logs": [
+                "Uygulama Logları"
+            ],
+            "Application event log": [
+                "Uygulama olay logu"
+            ],
+            "No records to export with the current filters.": [
+                "Mevcut filtrelerle dışa aktarılacak kayıt yok."
+            ],
+            "Failed to load export history.": [
+                "Dışa aktarma geçmişi yüklenemedi."
+            ],
+            "Delete failed.": [
+                "Silme başarısız."
+            ],
+            "Loading history…": [
+                "Geçmiş yükleniyor…"
+            ],
+            "No exports recorded yet.": [
+                "Henüz dışa aktarma kaydı yok."
+            ],
+            "User": [
+                "Kullanıcı"
+            ],
+            "Delete entry": [
+                "Kaydı sil"
+            ],
+            "Deleting…": [
+                "Siliniyor…"
+            ],
+            "No records match the selected filters.": [
+                "Seçilen filtrelere uyan kayıt yok."
+            ],
+            "Records found:": [
+                "Bulunan kayıtlar:"
+            ],
+            "more records": [
+                "daha fazla kayıt"
+            ],
+            "Preview failed.": [
+                "Önizleme başarısız."
+            ]
+        }
+    }
+}
