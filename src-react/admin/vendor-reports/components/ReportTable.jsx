@@ -7,23 +7,25 @@ export default function ReportTable( { reports, onOpen } ) {
 	}
 
 	return (
-		<table className="wp-list-table widefat fixed striped mhm-vr-table">
-			<thead>
-				<tr>
-					<th style={ { width: '60px' } }>{ __( 'ID', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Vendor', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Context', 'mhm-rentiva' ) }</th>
-					<th>{ __( 'Title', 'mhm-rentiva' ) }</th>
-					<th style={ { width: '100px' } }>{ __( 'Status', 'mhm-rentiva' ) }</th>
-					<th style={ { width: '130px' } }>{ __( 'Date', 'mhm-rentiva' ) }</th>
-					<th style={ { width: '80px' } }>{ __( 'Action', 'mhm-rentiva' ) }</th>
-				</tr>
-			</thead>
-			<tbody>
-				{ reports.map( ( r ) => (
-					<ReportRow key={ r.id } report={ r } onOpen={ onOpen } />
-				) ) }
-			</tbody>
-		</table>
+		<div className="mhm-vr-table-scroll">
+			<table className="wp-list-table widefat fixed striped mhm-vr-table">
+				<thead>
+					<tr>
+						<th style={ { width: '60px' } }>{ __( 'ID', 'mhm-rentiva' ) }</th>
+						<th>{ __( 'Vendor', 'mhm-rentiva' ) }</th>
+						<th>{ __( 'Context', 'mhm-rentiva' ) }</th>
+						<th>{ __( 'Title', 'mhm-rentiva' ) }</th>
+						<th style={ { width: '100px' } }>{ __( 'Status', 'mhm-rentiva' ) }</th>
+						<th style={ { width: '130px' } }>{ __( 'Date', 'mhm-rentiva' ) }</th>
+						<th style={ { width: '80px' } }>{ __( 'Action', 'mhm-rentiva' ) }</th>
+					</tr>
+				</thead>
+				<tbody>
+					{ reports.map( ( r ) => (
+						<ReportRow key={ r.id } report={ r } onOpen={ onOpen } />
+					) ) }
+				</tbody>
+			</table>
+		</div>
 	);
 }

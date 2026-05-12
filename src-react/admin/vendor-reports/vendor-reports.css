@@ -82,6 +82,28 @@
 	margin-top: 12px;
 }
 
+/* Table — horizontal scroll wrapper */
+.mhm-vr-table-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	margin-bottom: 8px;
+}
+
+.mhm-vr-table-scroll .mhm-vr-table {
+	min-width: 600px;
+}
+
+@media screen and (max-width: 900px) {
+	.mhm-vr-table {
+		table-layout: auto !important;
+	}
+
+	.mhm-vr-table th,
+	.mhm-vr-table td {
+		white-space: nowrap;
+	}
+}
+
 /* Clickable table rows */
 .mhm-vr-table tbody tr {
 	cursor: pointer;

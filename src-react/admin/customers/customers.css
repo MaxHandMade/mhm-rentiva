@@ -216,6 +216,28 @@
 	display: block;
 }
 
+/* Mobile responsive — table + panel */
+@media (max-width: 782px) {
+	.mhm-customers__table-wrap {
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+
+	.mhm-customers__table {
+		min-width: 520px;
+	}
+
+	.mhm-customers__table th,
+	.mhm-customers__table td {
+		white-space: nowrap;
+	}
+
+	.mhm-customer-panel {
+		width: 100%;
+		top: 46px; /* WP mobile admin bar */
+	}
+}
+
 /* Bulk action bar */
 .mhm-customers__bulk-bar {
 	display: flex;

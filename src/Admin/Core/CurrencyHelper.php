@@ -184,7 +184,7 @@ final class CurrencyHelper {
 		if ( $currency_code === null ) {
 			// When WooCommerce is active, use its symbol directly — WC owns the symbol map.
 			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
-				return get_woocommerce_currency_symbol();
+				return html_entity_decode( get_woocommerce_currency_symbol(), ENT_HTML5, 'UTF-8' );
 			}
 			$currency_code = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
 		}
