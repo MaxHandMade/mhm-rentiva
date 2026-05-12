@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.38.1-blue.svg)
+![Version](https://img.shields.io/badge/version-4.49.0-blue.svg)
 ![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
@@ -908,6 +908,29 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Revenue Charts**: Visual revenue representation
 - **Recent Activity**: Latest bookings and payments
 - **Quick Actions**: Quick links to common tasks
+
+### ⚛️ Modern React Admin Interface (v4.36.0+)
+
+All major admin pages have been migrated from legacy jQuery/WP_List_Table to React SPAs backed by REST API endpoints. The migration is complete as of v4.49.0.
+
+**Migrated Pages:**
+
+| Page | Version | React Components | REST Endpoints |
+| :--- | :---: | :--- | :--- |
+| **Dashboard** | v4.36.0 | DashboardPage, StatsCards, RecentBookings, TransferWidget, QuickActions | `/mhm-rentiva/v1/dashboard/*` |
+| **Reports** | v4.37.x | ReportsPage, BookingsTab, RevenueTab, VehiclesTab, CustomersTab (Chart.js) | `/mhm-rentiva/v1/reports/*` |
+| **Customers** | v4.39.0 | CustomerTable, CustomerPanel, SearchBar, FilterBar, Pagination | `/mhm-rentiva/v1/customers`, `/customers/{id}`, `/customers/bulk` |
+| **Messages** | v4.40.0–v4.41.0 | MessagesPage, MessageTable, ThreadView, SettingsView | `/mhm-rentiva/v1/messages/*` |
+| **Vendor Reports** | v4.40.0 | VendorReportsPage, FilterBar, ReportTable, DetailView, ActionForm | `/mhm-rentiva/v1/vendor-reports`, `/vendor-reports/{id}` |
+| **Vendor Management** | v4.40.0 | VendorManagementPage, ApplicationTable, ApplicationDetailPage, IbanRequestsTab | `/mhm-rentiva/v1/vendor-management/*` |
+
+**Architecture Highlights:**
+- **REST API First**: All data fetched via authenticated WP REST API endpoints (manage_options capability)
+- **Shared Component Library**: `shared/admin.css` — stats grid, KPI boxes, status badges, pagination shared across all pages
+- **Zero jQuery Dependency**: All pages use React 18 hooks, fetch API, and wp.i18n for translations
+- **Mobile Responsive**: All admin pages fully responsive at WP admin breakpoints (782px / 480px)
+- **WP Flash Pattern**: Post-action notices delivered via `wp_localize_script` flash key (not URL params, which `common.js` strips before React loads)
+- **Build Pipeline**: Webpack + `npm run build` compiles `src-react/` → `build/admin/` per page
 
 ---
 

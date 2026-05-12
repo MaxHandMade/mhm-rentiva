@@ -1,5 +1,138 @@
 [
     {
+        "version": "4.49.0",
+        "date": "2026-05-12",
+        "type": "patch",
+        "title": "WP admin mobile breakpoint standardization (768px → 782px)",
+        "summary": "Standardizes all React admin page CSS @media breakpoints from 768px to 782px — matching the WP core admin breakpoint where the sidebar collapses. On mobile devices (~390px), window.innerWidth in WP admin is ~671px due to the sidebar offset, so 768px breakpoints never fired. 782px is the reliable threshold that matches WordPress's own wp-admin.css behavior. Dashboard widget rows now collapse to a single column at ≤782px.",
+        "changes": [
+            "Standardized all @media (max-width: 768px) rules in shared/admin.css, messages.css, reports.css, and dashboard.css to @media (max-width: 782px). 782px is the WP core admin breakpoint where the sidebar collapses — the viewport offset means 768px never fired on real mobile devices.",
+            "Dashboard widget rows (rows 2, 3, 4) now collapse to a single column at ≤782px. The quick actions grid reduces to 3 columns at ≤782px.",
+            "Stats grid (.mhm-stats-grid) switches to 2 columns at ≤782px and 1 column at ≤480px.",
+            "Messages table stacked layout fires at ≤782px. Reports date filter vertical stack fires at ≤782px."
+        ],
+        "notice": "No PHP changes. No schema changes. No breaking changes. Pure CSS responsive fix."
+    },
+    {
+        "version": "4.48.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Mobile responsive fixes — Messages table, KPI cards, Reports date filter",
+        "summary": "Three targeted CSS fixes for admin pages at 375–390px viewport. Messages table collapses to a card-per-row layout with data labels. The shared stats grid switches to 2 columns on mobile. The Reports date filter bar stacks vertically.",
+        "changes": [
+            "Messages table (admin): mobile stacked layout added. On small screens, thead is hidden and each td becomes a block row with a column header injected via CSS attr(data-label). MessageTable.jsx cells received data-label attributes for Subject, Customer, Category, Status, Priority, Date.",
+            "Shared stats grid (.mhm-stats-grid): responsive breakpoints added — 2 columns at ≤782px, 1 column at ≤480px. Shared admin.css used by Dashboard, Reports, and Customers.",
+            "Reports date filter (.mhm-reports__date-filter): flex-direction: column + align-items: flex-start at ≤782px so date inputs stack below the label."
+        ],
+        "notice": "No PHP changes. No schema changes. Requires npm run build (included in this release)."
+    },
+    {
+        "version": "4.47.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Critical fix: PHP mode restore in VehicleColumns + BookingColumns",
+        "summary": "Fixes a fatal error on the Vehicles and Bookings admin list pages introduced by commit c53ce14. The add_vehicle_stats_cards() and add_booking_stats_cards() methods exited PHP mode with ?> to output HTML but never re-entered PHP mode before the closing }. As a result, every method defined below (add_monthly_calendar, get_vehicle_stats, etc.) was never parsed as PHP — WordPress fired a fatal error when trying to call them.",
+        "changes": [
+            "VehicleColumns::add_vehicle_stats_cards() — inserted <?php before the closing } to restore PHP parsing mode after the inline HTML block. All subsequent methods (add_monthly_calendar, get_vehicle_stats, etc.) are now correctly defined.",
+            "BookingColumns::add_booking_stats_cards() — same fix. Both files were affected by the same commit (c53ce14) which moved the dev-mode banner before KPI cards and inadvertently dropped the <?php re-entry tag.",
+            "Verified with php -l syntax check and Chrome DevTools MCP screenshot on the live admin Vehicles page (no fatal error, KPI cards render correctly)."
+        ],
+        "notice": "No schema changes. No breaking changes. If Vehicles or Bookings admin pages showed a fatal error after v4.44.0 or v4.45.0, this patch resolves it."
+    },
+    {
+        "version": "4.46.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Frontend CSS isolation — custom properties + whitespace reset standardization",
+        "summary": "Applies CSS custom properties scoping and whitespace reset standardization across frontend shortcode and block styles to prevent theme CSS bleed-through and ensure consistent rendering across different active themes.",
+        "changes": [
+            "CSS custom properties (--rentiva-*) now scoped to plugin root elements. Prevents theme stylesheets from overriding plugin variables.",
+            "Whitespace reset standardization applied to shortcode containers to normalize box-sizing, margin, and padding across Astra, Hello Elementor, and other common themes.",
+            "No PHP or template changes. Frontend visual output is unchanged — the isolation is structural, not presentational."
+        ],
+        "notice": "If your theme applies custom CSS targeting Rentiva shortcode internals, review after this update."
+    },
+    {
+        "version": "4.45.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Admin UX polish — location type labels, action buttons, KPI layout",
+        "summary": "Three admin UX paper-cuts: transfer location type now shows human-readable labels instead of raw slugs; action links in admin tables are styled as proper buttons; the stats-grid minmax is reduced so all 4 KPI cards fit on one row without overflow.",
+        "changes": [
+            "Transfer location type column now renders human-readable labels (e.g., 'Airport', 'Hotel', 'City Centre') instead of raw type slugs ('airport', 'hotel', 'city_centre').",
+            "Admin list table action links (Edit, Delete, View) are now styled as wp-core button links for visual consistency with WP standard list tables.",
+            "Dev-mode banner repositioned before KPI cards on Vehicles and Bookings pages so the banner does not push cards below the fold.",
+            "stats-grid column template changed from minmax(250px, 1fr) to minmax(200px, 1fr) so all 4 KPI cards render on a single row on 1280px+ screens."
+        ]
+    },
+    {
+        "version": "4.44.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "UI consistency pass — KPI cards, About page, Vendor Reports heading",
+        "summary": "Upgrades KPI stat cards across shortcode-managed pages to match the gradient Dashboard style, fixes the About page customer count, and adds a missing page heading to the Vendor Reports page.",
+        "changes": [
+            "Shortcode-page KPI stat cards (Vehicles list, Bookings list) upgraded to use the same gradient card style as the Dashboard (.mhm-stat-card gradient backgrounds). Visual consistency across all admin pages.",
+            "About page: corrected customer count — was reading wrong meta key (_mhm_customer_type vs _customer_type). Added min-height to stat cards so empty states render at consistent height.",
+            "Vendor Reports admin page: missing <h1> page heading added to render_page().",
+            "Vendor Management: removed duplicate React tab-switcher buttons that appeared when the Faz A React SPA root re-rendered alongside the legacy PHP tab markup."
+        ]
+    },
+    {
+        "version": "4.43.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Vendor Management — unsuspend action + commission audit log",
+        "summary": "Adds the missing unsuspend action to the Vendor Management admin panel and introduces a commission audit log so every commission rate change is recorded with timestamp, old value, new value, and actor.",
+        "changes": [
+            "Unsuspend vendor action added to the admin Vendor Management page. Previously only suspend/approve/reject were available; reinstating a suspended vendor required direct DB edit.",
+            "Commission audit log: every change to a vendor's commission rate now writes an entry to the audit log table (timestamp, vendor_id, old_rate, new_rate, changed_by user ID). Viewable in the vendor detail panel."
+        ]
+    },
+    {
+        "version": "4.42.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Bayi menu centralization + i18n fix",
+        "summary": "Centralizes all vendor (bayi) admin sub-menus under a single priority-15 hook so they always render at the bottom of the WP admin menu regardless of activation order. Fixes a WP 6.5+ .l10n.php cache issue that prevented updated payout translations from being read.",
+        "changes": [
+            "Admin menu: all bayi-related sub-menus (Vendor Management, Vendor Reports, Payout Requests) moved to priority-15 add_action('admin_menu') hook so they consistently appear at the bottom of the menu below the main Rentiva group.",
+            "i18n fix: regenerated .l10n.php binary so WP 6.5+ reads the updated payout translation strings. WP 6.5+ reads .l10n.php before .mo; the stale binary was causing the previous .mo translations to be ignored."
+        ]
+    },
+    {
+        "version": "4.41.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Messages Faz 3 final + Payouts admin menu + license and setup-wizard cleanup",
+        "summary": "Completes the Messages admin page React SPA with final CSS polish. Wires the PayoutListTable to the admin menu as 'Bayi Ödeme Talepleri'. Cleans up the license admin page (extracted expiry rendering, removed dead code) and refactors the setup wizard (extracted CSS/JS assets, fixed dead code, fixed step completion logic).",
+        "changes": [
+            "Messages React SPA (Faz 3): final CSS polish — bubble layout tuning, filter bar gap, unread dot alignment, mobile stacked row fix for thread view. All 6 React components (MessagesPage, MessageTable, SettingsView, ThreadView, index.js, messages.css) finalized.",
+            "Payouts: PayoutListTable now registered as 'Bayi Ödeme Talepleri' in the admin menu under the Vendor Management group. Previously only accessible via direct URL.",
+            "License admin: extracted expiry rendering into a dedicated helper, removed dead code paths, moved inline styles to the admin CSS file.",
+            "Setup wizard: CSS and JS assets extracted to dedicated files (setup-wizard.css, setup-wizard.js), dead step-validation code removed, step completion logic fixed so completing step N no longer skips step N+1."
+        ]
+    },
+    {
+        "version": "4.40.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Vendor Management + Vendor Reports React SPA migrations (Faz A + Faz 6)",
+        "summary": "Migrates two major admin pages to React SPAs backed by REST API endpoints. Vendor Management (Faz A) replaces the legacy PHP pending-applications and IBAN-requests tabs with a full React SPA. Vendor Reports (Faz 6) replaces the PHP list/detail/action-form renderer with a filterable React table and detail view. Both migrations include REST controllers, i18n, and full smoke-test coverage.",
+        "changes": [
+            "NEW VendorManagementRestController — 7 REST routes: GET /vendor-management/applications (paginated), GET /applications/{id}, POST /applications/{id}/approve, POST /applications/{id}/reject, GET /vendor-management/iban-requests, POST /iban-requests/{id}/approve, POST /iban-requests/{id}/reject. All routes require manage_options.",
+            "Vendor Management React SPA (Faz A): VendorManagementPage, ApplicationTable, ApplicationRow, ApplicationDetailPage, ApproveForm, RejectForm, IbanRequestsTab, IbanRequestRow. AdminVendorApplicationsPage.php hybrid rewrite — 7 Faz A legacy methods + 4 admin-post hooks removed (~407 lines), Faz B methods preserved.",
+            "Fix: parseInt(config.initialView, 10) applied to wp_localize_script integer → JSON string serialization. PHP int 0 serializes as JSON '0' (truthy string); without parseInt the tab-switcher condition viewId === 0 evaluated false and the React SPA never mounted.",
+            "IBAN security: decrypt_iban() → masking applied server-side; only masked IBAN string sent to frontend. Raw encrypted value never reaches the browser.",
+            "NEW VendorReportsController — 2 REST routes: GET /vendor-reports (paginated, filterable by status/vendor/date), GET /vendor-reports/{id}. Requires manage_options.",
+            "Vendor Reports React SPA (Faz 6): VendorReportsPage, FilterBar, ReportTable, DetailView, ActionForm, StatusBadge. VendorReportsAdminPage.php rewritten — legacy render_list / render_detail / render_action_form / status_label / context_label removed (~222 lines).",
+            "Flash flag pattern: WP common.js runs history.replaceState before React bundles load, stripping ?updated=1 / ?error=1 URL params. Solution: PHP enqueue_assets() reads $_GET['updated'] / $_GET['error'], passes them via wp_localize_script as flash key; React reads window.mhmRentiva*.flash (not URL params).",
+            "i18n: .pot updated, TR .po msgmerge, .mo + .l10n.php compiled, React JSON generated (mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-management.json 53 entries, mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-reports.json).",
+            "PHPUnit: 15 new Vendor Management tests + 8 new Vendor Reports tests. Full suite: 1166 tests, 3591 assertions. PHPCS: 0 errors."
+        ],
+        "notice": "Admin-post handlers for vendor report resolve/reject/in_review mutations are preserved in VendorReportsAdminPage.php. REST API mutations for Vendor Management are new — no breaking changes to existing admin-post flows."
+    },
+    {
         "version": "4.39.0",
         "date": "2026-05-10",
         "type": "minor",

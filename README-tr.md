@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.38.1-blue.svg)
+![Version](https://img.shields.io/badge/version-4.49.0-blue.svg)
 ![Lisans Güvenliği](https://img.shields.io/badge/lisans%20g%C3%BCvenli%C4%9Fi-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
@@ -697,6 +697,31 @@ mhm-rentiva/
 - `mhm_rentiva_vendor_approved` — Bayi başvurusu onaylandığında tetiklenir.
 - `mhm_rentiva_vehicle_approved` — Araç ilanı onaylandığında tetiklenir.
 - `mhm_rentiva_email_sent` — Sistem tarafından bir e-posta gönderildiğinde tetiklenir.
+
+---
+
+## ⚛️ Modern React Admin Arayüzü (v4.36.0+)
+
+Tüm büyük admin sayfaları eski jQuery/WP_List_Table altyapısından REST API destekli React SPA'larına geçirildi. Geçiş v4.49.0 itibarıyla tamamlandı.
+
+**Geçirilen Sayfalar:**
+
+| Sayfa | Sürüm | React Bileşenleri | REST Uç Noktaları |
+| :--- | :---: | :--- | :--- |
+| **Dashboard** | v4.36.0 | DashboardPage, StatsCards, RecentBookings, TransferWidget, QuickActions | `/mhm-rentiva/v1/dashboard/*` |
+| **Raporlar** | v4.37.x | ReportsPage, BookingsTab, RevenueTab, VehiclesTab, CustomersTab (Chart.js) | `/mhm-rentiva/v1/reports/*` |
+| **Müşteriler** | v4.39.0 | CustomerTable, CustomerPanel, SearchBar, FilterBar, Pagination | `/mhm-rentiva/v1/customers`, `/customers/{id}`, `/customers/bulk` |
+| **Mesajlar** | v4.40.0–v4.41.0 | MessagesPage, MessageTable, ThreadView, SettingsView | `/mhm-rentiva/v1/messages/*` |
+| **Bayi Raporlar** | v4.40.0 | VendorReportsPage, FilterBar, ReportTable, DetailView, ActionForm | `/mhm-rentiva/v1/vendor-reports`, `/vendor-reports/{id}` |
+| **Bayi Yönetim** | v4.40.0 | VendorManagementPage, ApplicationTable, ApplicationDetailPage, IbanRequestsTab | `/mhm-rentiva/v1/vendor-management/*` |
+
+**Mimari Öne Çıkanlar:**
+- **REST API Önce**: Tüm veriler kimlik doğrulamalı WP REST API uç noktaları üzerinden alınır (manage_options yetkisi)
+- **Paylaşılan Bileşen Kütüphanesi**: `shared/admin.css` — stats grid, KPI kutuları, durum rozetleri, sayfalama tüm sayfalarda ortaklaştırıldı
+- **jQuery Bağımlılığı Yok**: Tüm sayfalar React 18 hook'ları, fetch API ve wp.i18n kullanır
+- **Mobil Duyarlı**: Tüm admin sayfaları WP admin breakpoint'lerinde (782px / 480px) tam duyarlı
+- **WP Flash Deseni**: Eylem sonrası bildirimler `wp_localize_script` flash anahtarı ile iletilir (React yüklenmeden önce `common.js` tarafından silinen URL parametreleri değil)
+- **Build Pipeline**: Webpack + `npm run build` ile `src-react/` → `build/admin/` sayfa başına derlenir
 
 ---
 

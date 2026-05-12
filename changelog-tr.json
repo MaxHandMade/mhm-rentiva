@@ -1,5 +1,138 @@
 [
     {
+        "version": "4.49.0",
+        "date": "2026-05-12",
+        "type": "patch",
+        "title": "WP admin mobil breakpoint standardizasyonu (768px → 782px)",
+        "summary": "Tüm React admin sayfası CSS @media breakpoint'leri 768px'ten 782px'e standartlaştırıldı — WP core admin sidebar'ın kapandığı noktayla eşleşiyor. Mobil cihazlarda (~390px), WP admin içinde window.innerWidth sidebar ofseti nedeniyle ~671px oluyor; bu yüzden 768px breakpoint'ler hiç tetiklenmiyordu. 782px, WordPress'in kendi wp-admin.css'indeki güvenilir eşiği. Dashboard widget satırları artık ≤782px'te tek sütuna indirgeniyor.",
+        "changes": [
+            "shared/admin.css, messages.css, reports.css ve dashboard.css içindeki tüm @media (max-width: 768px) kuralları @media (max-width: 782px) olarak güncellendi. 782px, WP admin sidebar'ının kapandığı WP core breakpoint'i — viewport ofseti nedeniyle 768px gerçek mobil cihazlarda hiç tetiklenmiyordu.",
+            "Dashboard widget satırları (satır 2, 3, 4) artık ≤782px'te tek sütuna indirgeniyor. Hızlı işlemler grid'i ≤782px'te 3 sütuna düşürülüyor.",
+            "Stats grid (.mhm-stats-grid): ≤782px'te 2 sütun, ≤480px'te 1 sütun.",
+            "Mesajlar tablosu yığın düzeni ve Raporlar tarih filtresi dikey yığın ≤782px'te tetikleniyor."
+        ],
+        "notice": "PHP değişikliği yok. Şema değişikliği yok. Kırıcı değişiklik yok. Saf CSS responsive düzeltmesi."
+    },
+    {
+        "version": "4.48.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Mobil responsive düzeltmeler — Mesajlar tablosu, KPI kartlar, Raporlar tarih filtresi",
+        "summary": "375–390px viewport için üç hedefli CSS düzeltmesi. Mesajlar tablosu satır başına kart düzenine geçiyor ve data-label'lar gösteriyor. Paylaşılan stats grid mobilde 2 sütuna geçiyor. Raporlar tarih filtresi dikey olarak istifleniy.",
+        "changes": [
+            "Mesajlar tablosu (admin): mobil yığın düzeni eklendi. Küçük ekranlarda thead gizleniyor; her td, CSS attr(data-label) ile enjekte edilmiş sütun başlığıyla birlikte blok satır haline geliyor. MessageTable.jsx hücrelerine Konu, Müşteri, Kategori, Durum, Öncelik, Tarih için data-label attribute eklendi.",
+            "Paylaşılan stats grid (.mhm-stats-grid): responsive breakpoint'ler eklendi — ≤782px'te 2 sütun, ≤480px'te 1 sütun. Dashboard, Raporlar ve Müşteriler tarafından kullanılan shared admin.css güncellendi.",
+            "Raporlar tarih filtresi (.mhm-reports__date-filter): ≤782px'te flex-direction: column + align-items: flex-start uygulandı, tarih input'ları etiketin altında istifleniy."
+        ],
+        "notice": "PHP değişikliği yok. Şema değişikliği yok. npm run build gerektirir (bu release'e dahil)."
+    },
+    {
+        "version": "4.47.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Kritik düzeltme: VehicleColumns + BookingColumns'ta PHP modunu geri yükleme",
+        "summary": "c53ce14 commit'inin getirdiği, Araçlar ve Rezervasyonlar admin liste sayfalarındaki fatal error düzeltildi. add_vehicle_stats_cards() ve add_booking_stats_cards() metodları HTML çıktısı için ?> ile PHP modundan çıktı fakat kapanış }'undan önce PHP moduna geri girmedi. Sonuç olarak aşağıda tanımlanan her metod (add_monthly_calendar, get_vehicle_stats vb.) PHP olarak hiç parse edilmedi — WordPress bunları çağırmaya çalıştığında fatal error verdi.",
+        "changes": [
+            "VehicleColumns::add_vehicle_stats_cards() — satır içi HTML bloğundan sonra PHP ayrıştırma modunu geri yüklemek için kapanış }'undan önce <?php eklendi. Sonraki tüm metodlar (add_monthly_calendar, get_vehicle_stats vb.) artık doğru şekilde tanımlanıyor.",
+            "BookingColumns::add_booking_stats_cards() — aynı düzeltme. Her iki dosya da aynı commit (c53ce14) tarafından etkilenmişti; dev-mode banner'ını KPI kartlarından önce taşırken <?php yeniden giriş etiketi yanlışlıkla kaldırılmıştı.",
+            "php -l syntax kontrolü ve Chrome DevTools MCP ekran görüntüsü ile doğrulandı (fatal error yok, KPI kartları doğru render ediliyor)."
+        ],
+        "notice": "Şema değişikliği yok. Kırıcı değişiklik yok. v4.44.0 veya v4.45.0'dan sonra Araçlar veya Rezervasyonlar admin sayfaları fatal error gösterdiyse bu yama sorunu çözüyor."
+    },
+    {
+        "version": "4.46.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Frontend CSS izolasyonu — custom properties + boşluk reset standardizasyonu",
+        "summary": "Tema CSS kayması ve farklı aktif temalarda tutarsız render'ı önlemek için frontend shortcode ve blok stillerine CSS custom properties kapsama ve boşluk reset standardizasyonu uygulandı.",
+        "changes": [
+            "CSS custom property'leri (--rentiva-*) artık plugin kök elementlerine kapsamlı. Tema stil sayfalarının plugin değişkenlerini geçersiz kılmasını önler.",
+            "Box-sizing, margin ve padding'i Astra, Hello Elementor ve diğer yaygın temalar arasında normalleştirmek için shortcode container'larına boşluk reset standardizasyonu uygulandı.",
+            "PHP veya template değişikliği yok. Frontend görsel çıktı değişmedi — izolasyon yapısaldır, sunum değil."
+        ],
+        "notice": "Temanız Rentiva shortcode iç elementlerine özel CSS uyguluyorsa bu güncellemeden sonra gözden geçirin."
+    },
+    {
+        "version": "4.45.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Admin UX cilaları — konum tipi etiketleri, işlem butonları, KPI düzeni",
+        "summary": "Üç admin UX paper-cut: transfer konum tipi artık ham slug'lar yerine insanın okuyabileceği etiketler gösteriyor; admin tablolardaki işlem linkleri düzgün butonlar olarak stil verildi; stats-grid minmax küçültülerek tüm 4 KPI kartının tek satıra sığması sağlandı.",
+        "changes": [
+            "Transfer konum tipi sütunu artık ham tip slug'ları ('airport', 'hotel', 'city_centre') yerine insanın okuyabileceği etiketler ('Havalimanı', 'Otel', 'Şehir Merkezi') gösteriyor.",
+            "Admin liste tablosu işlem linkleri (Düzenle, Sil, Görüntüle) WP standart liste tablolarıyla görsel tutarlılık için wp-core buton link'leri olarak stilize edildi.",
+            "Dev-mode banner'ı Araçlar ve Rezervasyonlar sayfalarında KPI kartlarından önce yeniden konumlandırıldı.",
+            "stats-grid sütun şablonu minmax(250px, 1fr)'dan minmax(200px, 1fr)'a değiştirildi; tüm 4 KPI kartı 1280px+ ekranlarda tek satırda render ediliyor."
+        ]
+    },
+    {
+        "version": "4.44.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "UI tutarlılık geçişi — KPI kartlar, Hakkında sayfası, Bayi Raporlar başlığı",
+        "summary": "Shortcode yönetimindeki sayfalardaki KPI stat kartları Dashboard degradasyon stiline yükseltildi, Hakkında sayfasının müşteri sayısı düzeltildi ve Bayi Raporlar sayfasına eksik sayfa başlığı eklendi.",
+        "changes": [
+            "Shortcode sayfa KPI stat kartları (Araçlar listesi, Rezervasyonlar listesi) Dashboard ile aynı degrade kart stilini kullanacak şekilde yükseltildi (.mhm-stat-card degrade arka planları). Tüm admin sayfalarında görsel tutarlılık.",
+            "Hakkında sayfası: müşteri sayısı düzeltildi — yanlış meta key okunuyordu (_mhm_customer_type vs _customer_type). Boş durumların tutarlı yükseklikte render edilmesi için stat kartlarına min-height eklendi.",
+            "Bayi Raporlar admin sayfası: render_page()'e eksik <h1> sayfa başlığı eklendi.",
+            "Bayi Yönetim: Faz A React SPA kökü eski PHP tab markup'ıyla birlikte yeniden render ettiğinde görünen çift React tab-switcher butonları kaldırıldı."
+        ]
+    },
+    {
+        "version": "4.43.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Bayi Yönetim — askıyı kaldır işlemi + komisyon denetim günlüğü",
+        "summary": "Bayi Yönetim admin paneline eksik askıyı kaldır işlemi eklendi ve her komisyon oranı değişikliğinin zaman damgası, eski değer, yeni değer ve aktör ile kaydedildiği bir komisyon denetim günlüğü tanıtıldı.",
+        "changes": [
+            "Admin Bayi Yönetim sayfasına bayi askıyı kaldır işlemi eklendi. Daha önce yalnızca askıya al/onayla/reddet seçenekleri mevcuttu; askıya alınmış bayiyi yeniden aktive etmek doğrudan DB düzenlemesi gerektiriyordu.",
+            "Komisyon denetim günlüğü: bir bayinin komisyon oranındaki her değişiklik artık denetim günlüğü tablosuna bir giriş yazıyor (zaman damgası, vendor_id, eski_oran, yeni_oran, değiştiren user ID). Bayi detay panelinde görüntülenebilir."
+        ]
+    },
+    {
+        "version": "4.42.0",
+        "date": "2026-05-11",
+        "type": "patch",
+        "title": "Bayi menü merkezileştirme + i18n düzeltmesi",
+        "summary": "Tüm bayi admin alt menüleri, aktivasyon sırasından bağımsız olarak her zaman WP admin menüsünün en altında render edilmeleri için tek bir priority-15 hook'una taşındı. Güncellenen ödeme çevirilerinin WP 6.5+'ta okunmasını engelleyen eski .l10n.php cache sorunu düzeltildi.",
+        "changes": [
+            "Admin menüsü: tüm bayi ile ilgili alt menüler (Bayi Yönetim, Bayi Raporlar, Ödeme Talepleri) priority-15 add_action('admin_menu') hook'una taşındı; ana Rentiva grubunun altında tutarlı biçimde en altta görünüyor.",
+            "i18n düzeltmesi: WP 6.5+'ın güncellenen ödeme çeviri string'lerini okuması için .l10n.php binary yeniden üretildi. WP 6.5+ .mo'dan önce .l10n.php okur; eski binary önceki .mo çevirilerinin yok sayılmasına neden oluyordu."
+        ]
+    },
+    {
+        "version": "4.41.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Mesajlar Faz 3 final + Ödemeler admin menüsü + lisans ve kurulum sihirbazı temizliği",
+        "summary": "Mesajlar admin sayfası React SPA'sını son CSS cilayla tamamlandı. PayoutListTable'ı 'Bayi Ödeme Talepleri' olarak admin menüsüne bağlandı. Lisans admin sayfası temizlendi (vade render'ı ayrıştırıldı, ölü kod kaldırıldı) ve kurulum sihirbazı yeniden düzenlendi (CSS/JS varlıkları ayrıştırıldı, ölü kod düzeltildi, adım tamamlama mantığı düzeltildi).",
+        "changes": [
+            "Mesajlar React SPA (Faz 3): son CSS cilası — balon düzeni ayarı, filtre çubuğu boşluğu, okunmamış nokta hizası, thread görünümü için mobil yığın satır düzeltmesi. Tüm 6 React bileşeni (MessagesPage, MessageTable, SettingsView, ThreadView, index.js, messages.css) sonlandırıldı.",
+            "Ödemeler: PayoutListTable artık Bayi Yönetim grubu altında admin menüsünde 'Bayi Ödeme Talepleri' olarak kayıtlı. Daha önce yalnızca doğrudan URL ile erişilebiliyordu.",
+            "Lisans admin'i: vade render'ı özel bir yardımcıya ayrıştırıldı, ölü kod yolları kaldırıldı, satır içi stiller admin CSS dosyasına taşındı.",
+            "Kurulum sihirbazı: CSS ve JS varlıkları özel dosyalara ayrıştırıldı (setup-wizard.css, setup-wizard.js), ölü adım doğrulama kodu kaldırıldı, N adımının tamamlanmasının N+1 adımını atlamama sorunu düzeltildi."
+        ]
+    },
+    {
+        "version": "4.40.0",
+        "date": "2026-05-11",
+        "type": "minor",
+        "title": "Bayi Yönetim + Bayi Raporlar React SPA geçişleri (Faz A + Faz 6)",
+        "summary": "İki büyük admin sayfası REST API destekli React SPA'larına geçirildi. Bayi Yönetim (Faz A), eski PHP bekleyen-başvurular ve IBAN-talepleri sekmelerini tam bir React SPA ile değiştiriyor. Bayi Raporlar (Faz 6), PHP liste/detay/işlem-formu render'ını filtrelenebilir React tablosu ve detay görünümüyle değiştiriyor. Her iki geçiş de REST controller'lar, i18n ve tam smoke-test kapsamı içeriyor.",
+        "changes": [
+            "YENİ VendorManagementRestController — 7 REST route: GET /vendor-management/applications (sayfalı), GET /applications/{id}, POST /applications/{id}/approve, POST /applications/{id}/reject, GET /vendor-management/iban-requests, POST /iban-requests/{id}/approve, POST /iban-requests/{id}/reject. Tüm route'lar manage_options gerektirir.",
+            "Bayi Yönetim React SPA (Faz A): VendorManagementPage, ApplicationTable, ApplicationRow, ApplicationDetailPage, ApproveForm, RejectForm, IbanRequestsTab, IbanRequestRow. AdminVendorApplicationsPage.php hibrit yeniden yazma — 7 Faz A eski metod + 4 admin-post hook kaldırıldı (~407 satır), Faz B metodları korundu.",
+            "Düzeltme: wp_localize_script integer → JSON string serialize'ına parseInt(config.initialView, 10) uygulandı. PHP int 0, JSON '0' (truthy string) olarak serialize ediliyor; parseInt olmadan tab-switcher koşulu viewId === 0 false değerlendiriliyor ve React SPA hiç mount edilmiyordu.",
+            "IBAN güvenliği: decrypt_iban() → maskeleme sunucu tarafında uygulandı; frontend'e yalnızca maskeli IBAN string'i gönderiliyor. Ham şifreli değer hiçbir zaman tarayıcıya ulaşmıyor.",
+            "YENİ VendorReportsController — 2 REST route: GET /vendor-reports (sayfalı, durum/bayi/tarih ile filtrelenebilir), GET /vendor-reports/{id}. manage_options gerektirir.",
+            "Bayi Raporlar React SPA (Faz 6): VendorReportsPage, FilterBar, ReportTable, DetailView, ActionForm, StatusBadge. VendorReportsAdminPage.php yeniden yazıldı — eski render_list / render_detail / render_action_form / status_label / context_label kaldırıldı (~222 satır).",
+            "Flash flag deseni: WP common.js, React bundle'ları yüklenmeden önce history.replaceState çalıştırarak ?updated=1 / ?error=1 URL paramlarını siliyor. Çözüm: PHP enqueue_assets() $_GET['updated'] / $_GET['error'] okuyor, bunları flash key'i olarak wp_localize_script ile iletiyor; React window.mhmRentiva*.flash okuyor (URL param'ları değil).",
+            "i18n: .pot güncellendi, TR .po msgmerge, .mo + .l10n.php derlendi, React JSON üretildi (mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-management.json 53 giriş, mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-reports.json).",
+            "PHPUnit: 15 yeni Bayi Yönetim testi + 8 yeni Bayi Raporlar testi. Tam süit: 1166 test, 3591 assertion. PHPCS: 0 hata."
+        ],
+        "notice": "Bayi raporu çözme/reddetme/inceleme mutasyonları için admin-post handler'ları VendorReportsAdminPage.php'de korunuyor. Bayi Yönetim için REST API mutasyonları yeni — mevcut admin-post akışlarında kırıcı değişiklik yok."
+    },
+    {
         "version": "4.39.0",
         "date": "2026-05-10",
         "type": "minor",
