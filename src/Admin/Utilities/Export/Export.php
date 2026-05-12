@@ -778,236 +778,6 @@ final class Export {
 		exit;
 	}
 
-	private static function stream_csv($out, string $post_type, array $args): void
-	{
-		if ($post_type === 'vehicle_booking') {
-			$headers = array(
-				'ID',
-				'Date',
-				'Status',
-				'Payment Status',
-				'Gateway',
-				'Total',
-				'Paid Amount',
-				'Currency',
-				'Name',
-				'Email',
-				'Phone',
-			);
-		} else {
-			$headers = array(
-				'ID',
-				'Date',
-				'Gateway',
-				'Action',
-				'Status',
-				'Booking ID',
-				'Amount (kurus)',
-				'Currency',
-				'Message',
-			);
-		}
-		fputcsv($out, $headers);
-
-		$paged = 1;
-		do {
-			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
-			if (! $q->have_posts()) {
-				break;
-			}
-			foreach ($q->posts as $pid) {
-				$pid = (int) $pid;
-				if ($post_type === 'vehicle_booking') {
-					$date   = get_post($pid)->post_date_gmt;
-					$status = (string) get_post_meta($pid, '_mhm_status', true);
-					$pstat  = (string) get_post_meta($pid, '_mhm_payment_status', true);
-					$gw     = (string) get_post_meta($pid, '_mhm_payment_gateway', true);
-					$total  = (float) get_post_meta($pid, '_mhm_total_price', true);
-					$paidk  = (int) get_post_meta($pid, '_mhm_payment_amount', true);
-					$cur    = (string) get_post_meta($pid, '_mhm_payment_currency', true);
-					$name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
-					$email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
-					$phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-					$row    = array(
-						$pid,
-						$date,
-						$status,
-						$pstat,
-						$gw,
-						number_format($total, 2, '.', ''),
-						number_format($paidk / 100, 2, '.', ''),
-						strtoupper($cur ?: ''),
-						$name,
-						$email,
-						$phone,
-					);
-					fputcsv($out, $row);
-				} else {
-					$p    = get_post($pid);
-					$date = $p ? $p->post_date_gmt : '';
-					$gw   = (string) get_post_meta($pid, '_mhm_log_gateway', true);
-					$act  = (string) get_post_meta($pid, '_mhm_log_action', true);
-					$st   = (string) get_post_meta($pid, '_mhm_log_status', true);
-					$bid  = (int) get_post_meta($pid, '_mhm_log_booking_id', true);
-					$ak   = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
-					$cur  = (string) get_post_meta($pid, '_mhm_log_currency', true);
-					$msg  = (string) get_post_meta($pid, '_mhm_log_message', true);
-					fputcsv(
-						$out,
-						array(
-							$pid,
-							$date,
-							$gw,
-							$act,
-							$st,
-							$bid,
-							$ak,
-							strtoupper($cur ?: ''),
-							$msg,
-						)
-					);
-				}
-			}
-			++$paged;
-			// flush output buffer for streaming
-			if (function_exists('flush')) {
-				flush();
-			}
-		} while (true);
-		wp_reset_postdata();
-	}
-
-	private static function xls_header(string $title): void
-	{
-		echo '<?xml version="1.0"?>' . "\n";
-		echo '<?mso-application progid="Excel.Sheet"?>' . "\n";
-		echo '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-            xmlns:o="urn:schemas-microsoft-com:office:office"
-            xmlns:x="urn:schemas-microsoft-com:office:excel"
-            xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
-            xmlns:html="http://www.w3.org/TR/REC-html40">' . "\n";
-		echo '<Worksheet ss:Name="' . esc_attr($title) . '"><Table>' . "\n";
-	}
-
-	private static function xls_footer(): void
-	{
-		echo '</Table></Worksheet></Workbook>';
-	}
-
-	private static function xls_row(array $cells): void
-	{
-		echo '<Row>';
-		foreach ($cells as $c) {
-			$isNum = is_numeric($c) && ! preg_match('/^0[0-9]/', (string) $c);
-			if ($isNum) {
-				echo '<Cell><Data ss:Type="Number">' . esc_xml( (string) $c) . '</Data></Cell>';
-			} else {
-				echo '<Cell><Data ss:Type="String">' . esc_xml( (string) $c) . '</Data></Cell>';
-			}
-		}
-		echo '</Row>' . "\n";
-	}
-
-	private static function stream_xls(string $post_type, array $args, string $sheetTitle): void
-	{
-		self::xls_header($sheetTitle);
-		if ($post_type === 'vehicle_booking') {
-			$headers = array(
-				'ID',
-				'Date',
-				'Status',
-				'Payment Status',
-				'Gateway',
-				'Total',
-				'Paid Amount',
-				'Currency',
-				'Name',
-				'Email',
-				'Phone',
-			);
-		} else {
-			$headers = array(
-				'ID',
-				'Date',
-				'Gateway',
-				'Action',
-				'Status',
-				'Booking ID',
-				'Amount (kurus)',
-				'Currency',
-				'Message',
-			);
-		}
-		self::xls_row($headers);
-
-		$paged = 1;
-		do {
-			$q = new WP_Query(array_merge($args, array( 'paged' => $paged )));
-			if (! $q->have_posts()) {
-				break;
-			}
-			foreach ($q->posts as $pid) {
-				$pid = (int) $pid;
-				if ($post_type === 'vehicle_booking') {
-					$date   = get_post($pid)->post_date_gmt;
-					$status = (string) get_post_meta($pid, '_mhm_status', true);
-					$pstat  = (string) get_post_meta($pid, '_mhm_payment_status', true);
-					$gw     = (string) get_post_meta($pid, '_mhm_payment_gateway', true);
-					$total  = (float) get_post_meta($pid, '_mhm_total_price', true);
-					$paidk  = (int) get_post_meta($pid, '_mhm_payment_amount', true);
-					$cur    = (string) get_post_meta($pid, '_mhm_payment_currency', true);
-					$name   = (string) get_post_meta($pid, '_mhm_contact_name', true);
-					$email  = (string) get_post_meta($pid, '_mhm_contact_email', true);
-					$phone  = (string) get_post_meta($pid, '_mhm_contact_phone', true);
-					self::xls_row(
-						array(
-							$pid,
-							$date,
-							$status,
-							$pstat,
-							$gw,
-							number_format($total, 2, '.', ''),
-							number_format($paidk / 100, 2, '.', ''),
-							strtoupper($cur ?: ''),
-							$name,
-							$email,
-							$phone,
-						)
-					);
-				} else {
-					$p    = get_post($pid);
-					$date = $p ? $p->post_date_gmt : '';
-					$gw   = (string) get_post_meta($pid, '_mhm_log_gateway', true);
-					$act  = (string) get_post_meta($pid, '_mhm_log_action', true);
-					$st   = (string) get_post_meta($pid, '_mhm_log_status', true);
-					$bid  = (int) get_post_meta($pid, '_mhm_log_booking_id', true);
-					$ak   = (int) get_post_meta($pid, '_mhm_log_amount_kurus', true);
-					$cur  = (string) get_post_meta($pid, '_mhm_log_currency', true);
-					$msg  = (string) get_post_meta($pid, '_mhm_log_message', true);
-					self::xls_row(
-						array(
-							$pid,
-							$date,
-							$gw,
-							$act,
-							$st,
-							$bid,
-							$ak,
-							strtoupper($cur ?: ''),
-							$msg,
-						)
-					);
-				}
-			}
-			++$paged;
-			if (function_exists('flush')) {
-				flush();
-			}
-		} while (true);
-		wp_reset_postdata();
-		self::xls_footer();
-	}
-
 	public function render_export_page(): void
 	{
 		if (! current_user_can('manage_options')) {
@@ -1235,7 +1005,7 @@ final class Export {
 				echo '<td>' . esc_html(number_format($export['records'])) . '</td>';
 				echo '<td><span class="status-badge ' . esc_attr($status_class) . '">' . esc_html($status_text) . '</span></td>';
 				echo '<td>';
-				echo '<button type="button" class="button button-small" onclick="viewExportDetails(\'' . esc_js($export['date']) . '\')">';
+				echo '<button type="button" class="button button-small" onclick="viewExportDetails(\'' . esc_js($export['id'] ?? $export['date']) . '\')">';
 				echo esc_html__('View Details', 'mhm-rentiva');
 				echo '</button>';
 				echo '</td>';
@@ -1329,69 +1099,6 @@ final class Export {
 	private static function get_export_history_for_render(): array
 	{
 		return self::get_export_history();
-	}
-
-	/**
-	 * Render export statistics
-	 */
-	private static function render_export_statistics(): void
-	{
-		if (! class_exists(ExportStats::class)) {
-			return;
-		}
-
-		$stats = ExportStats::get_display_stats();
-
-		echo '<div class="mhm-export-stats">';
-		echo '<h2>' . esc_html__('Export Statistics', 'mhm-rentiva') . '</h2>';
-		echo '<div class="stats-grid">';
-
-		// Total Exports
-		echo '<div class="stat-card">';
-		echo '<div class="stat-number">' . esc_html($stats['total_exports']) . '</div>';
-		echo '<div class="stat-label">' . esc_html__('Total Exports', 'mhm-rentiva') . '</div>';
-		echo '</div>';
-
-		// Total Records
-		echo '<div class="stat-card">';
-		echo '<div class="stat-number">' . esc_html($stats['total_records']) . '</div>';
-		echo '<div class="stat-label">' . esc_html__('Records Exported', 'mhm-rentiva') . '</div>';
-		echo '</div>';
-
-		// Success Rate
-		echo '<div class="stat-card">';
-		echo '<div class="stat-number">' . esc_html($stats['success_rate']) . '</div>';
-		echo '<div class="stat-label">' . esc_html__('Success Rate', 'mhm-rentiva') . '</div>';
-		echo '</div>';
-
-		// Available Records
-		echo '<div class="stat-card">';
-		echo '<div class="stat-number">' . esc_html($stats['available_records']) . '</div>';
-		echo '<div class="stat-label">' . esc_html__('Available Records', 'mhm-rentiva') . '</div>';
-		echo '</div>';
-
-		echo '</div>';
-
-		// Current Data Overview
-		echo '<div class="current-data-overview">';
-		echo '<h3>' . esc_html__('Current Data Overview', 'mhm-rentiva') . '</h3>';
-		echo '<div class="data-grid">';
-		echo '<div class="data-item">';
-		echo '<span class="data-label">' . esc_html__('Vehicles:', 'mhm-rentiva') . '</span>';
-		echo '<span class="data-value">' . esc_html(number_format($stats['current_data']['vehicles'])) . '</span>';
-		echo '</div>';
-		echo '<div class="data-item">';
-		echo '<span class="data-label">' . esc_html__('Bookings:', 'mhm-rentiva') . '</span>';
-		echo '<span class="data-value">' . esc_html(number_format($stats['current_data']['bookings'])) . '</span>';
-		echo '</div>';
-		echo '<div class="data-item">';
-		echo '<span class="data-label">' . esc_html__('Payment Logs:', 'mhm-rentiva') . '</span>';
-		echo '<span class="data-value">' . esc_html(number_format($stats['current_data']['payment_logs'])) . '</span>';
-		echo '</div>';
-		echo '</div>';
-		echo '</div>';
-
-		echo '</div>';
 	}
 
 	/**
@@ -1545,7 +1252,8 @@ final class Export {
 		$found          = false;
 
 		foreach ($export_history as $key => $export) {
-			if (isset($export['date']) && $export['date'] === $export_id) {
+			if (( isset($export['id']) && $export['id'] === $export_id ) ||
+				( isset($export['date']) && $export['date'] === $export_id )) {
 				unset($export_history[ $key ]);
 				$found = true;
 				break;
@@ -1594,7 +1302,8 @@ final class Export {
 		// Find the specific export
 		$export_details = null;
 		foreach ($export_history as $export) {
-			if ($export['date'] === $export_id) {
+			if (( isset($export['id']) && $export['id'] === $export_id ) ||
+				( isset($export['date']) && $export['date'] === $export_id )) {
 				$export_details = $export;
 				break;
 			}
@@ -1631,6 +1340,7 @@ final class Export {
 		}
 
 		$export_log = array(
+			'id'              => uniqid('export_'),
 			'date'            => current_time('Y-m-d H:i:s'),
 			'type'            => $type_name,
 			'format'          => strtoupper($format),
@@ -1717,9 +1427,9 @@ final class Export {
 						'paid_amount'    => number_format( (float) get_post_meta($pid, '_mhm_payment_amount', true) / 100, 2, '.', ''),
 						'currency'       => (string) get_post_meta($pid, '_mhm_payment_currency', true),
 						'contact'        => array(
-							'name'  => (string) get_post_meta($pid, '_mhm_contact_name', true),
-							'email' => (string) get_post_meta($pid, '_mhm_contact_email', true),
-							'phone' => (string) get_post_meta($pid, '_mhm_contact_phone', true),
+							'name'  => (string) get_post_meta($pid, '_mhm_customer_name', true),
+							'email' => (string) get_post_meta($pid, '_mhm_customer_email', true),
+							'phone' => (string) get_post_meta($pid, '_mhm_customer_phone', true),
 						),
 					);
 				} else {

@@ -489,12 +489,6 @@ final class Plugin {
 		// Export
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
-			if (
-				\MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports() &&
-				$this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\ExportStats')
-			) {
-				\MHMRentiva\Admin\Utilities\Export\ExportStats::register();
-			}
 		}
 
 		// Booking
