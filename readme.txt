@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.50.0
+Stable tag:        4.51.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.51.0 — 2026-05-12 =
+* ✨ **Vendor Management (Faz B):** Vendors, Commission, and Settings tabs migrated from PHP render to React SPA. Three new REST controllers (`GET /vendors/vendors`, `POST /vendors/{id}/suspend`, `POST /vendors/{id}/unsuspend`, `GET /vendors/commission`, `POST /vendors/commission`, `GET /vendors/settings`, `POST /vendors/settings`).
+* ✨ **VendorTable component:** Paginated vendor list with search, status filter (Active/Suspended), vehicle count, reliability score, and Suspend/Unsuspend quick actions.
+* ✨ **CommissionTab component:** Live rate display, policy history table, and new rate form.
+* ✨ **SettingsTab component:** Editable marketplace settings (payout freeze, min payout, photo limits, doc size, vehicle year, bio length, service cities).
+* 🐛 **Performance:** Eliminated N+1 query in vendor list endpoint — vehicle counts now fetched in a single GROUP BY query.
 
 = 4.50.0 — 2026-05-12 =
 * 🔧 **Maintenance:** Support URLs updated from maxhandmade.com to wpalemi.com. Support email updated to support@wpalemi.com.

@@ -11,11 +11,12 @@ use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Vendor\PostType\VendorApplication;
 use MHMRentiva\Admin\Vendor\VendorApplicationManager;
 use MHMRentiva\Admin\Vendor\VendorOnboardingController;
+use MHMRentiva\Core\Financial\PolicyRepository;
 
 /**
- * REST endpoints for the Vendor Management admin SPA (Faz A).
+ * REST endpoints for the Vendor Management admin SPA (Faz A + Faz B).
  *
- * Routes:
+ * Faz A routes:
  *   GET  /mhm-rentiva/v1/vendors/applications              → paginated pending list
  *   GET  /mhm-rentiva/v1/vendors/applications/(?P<id>\d+)  → application detail (IBAN masked)
  *   POST /mhm-rentiva/v1/vendors/applications/(?P<id>\d+)/approve
@@ -24,13 +25,23 @@ use MHMRentiva\Admin\Vendor\VendorOnboardingController;
  *   POST /mhm-rentiva/v1/vendors/iban-requests/(?P<vendor_id>\d+)/approve
  *   POST /mhm-rentiva/v1/vendors/iban-requests/(?P<vendor_id>\d+)/reject
  *
- * Faz B routes (vendors list, commission, settings) are not included here.
+ * Faz B routes:
+ *   GET  /mhm-rentiva/v1/vendors/vendors                   → paginated vendor list
+ *   POST /mhm-rentiva/v1/vendors/vendors/(?P<id>\d+)/suspend
+ *   POST /mhm-rentiva/v1/vendors/vendors/(?P<id>\d+)/unsuspend
+ *   GET  /mhm-rentiva/v1/vendors/commission
+ *   POST /mhm-rentiva/v1/vendors/commission
+ *   GET  /mhm-rentiva/v1/vendors/settings
+ *   POST /mhm-rentiva/v1/vendors/settings
  */
 final class VendorManagementRestController {
 
-	private const REST_NAMESPACE = 'mhm-rentiva/v1';
-	private const APPS_BASE      = '/vendors/applications';
-	private const IBAN_BASE      = '/vendors/iban-requests';
+	private const REST_NAMESPACE  = 'mhm-rentiva/v1';
+	private const APPS_BASE       = '/vendors/applications';
+	private const IBAN_BASE       = '/vendors/iban-requests';
+	private const VENDORS_BASE    = '/vendors/vendors';
+	private const COMMISSION_BASE = '/vendors/commission';
+	private const SETTINGS_BASE   = '/vendors/settings';
 
 	public static function register(): void {
 		if ( ! Mode::canUseVendorMarketplace() ) {
@@ -109,6 +120,81 @@ final class VendorManagementRestController {
 			'permission_callback' => $perm,
 			'args'                => array(
 				'vendor_id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+			),
+		) );
+
+		// Vendors list.
+		register_rest_route( $ns, self::VENDORS_BASE, array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( self::class, 'get_vendors' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'per_page' => array( 'type' => 'integer', 'default' => 20, 'minimum' => 1, 'maximum' => 100 ),
+				'page'     => array( 'type' => 'integer', 'default' => 1,  'minimum' => 1 ),
+				'search'   => array( 'type' => 'string',  'default' => '', 'sanitize_callback' => 'sanitize_text_field' ),
+				'status'   => array( 'type' => 'string',  'default' => 'all', 'enum' => array( 'active', 'suspended', 'all' ) ),
+			),
+		) );
+
+		// Suspend vendor.
+		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)/suspend', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'suspend_vendor' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+			),
+		) );
+
+		// Unsuspend vendor.
+		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)/unsuspend', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'unsuspend_vendor' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+			),
+		) );
+
+		// Get commission.
+		register_rest_route( $ns, self::COMMISSION_BASE, array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( self::class, 'get_commission' ),
+			'permission_callback' => $perm,
+		) );
+
+		// Save commission.
+		register_rest_route( $ns, self::COMMISSION_BASE, array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'save_commission' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'global_rate'  => array( 'type' => 'number', 'required' => true, 'minimum' => 0, 'maximum' => 100 ),
+				'policy_label' => array( 'type' => 'string', 'default' => '', 'sanitize_callback' => 'sanitize_text_field' ),
+			),
+		) );
+
+		// Get settings.
+		register_rest_route( $ns, self::SETTINGS_BASE, array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( self::class, 'get_settings' ),
+			'permission_callback' => $perm,
+		) );
+
+		// Save settings.
+		register_rest_route( $ns, self::SETTINGS_BASE, array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'save_settings' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'payout_freeze'  => array( 'type' => 'boolean', 'default' => false ),
+				'min_payout'     => array( 'type' => 'number',  'default' => 100,  'minimum' => 0 ),
+				'min_photos'     => array( 'type' => 'integer', 'default' => 4,    'minimum' => 1,   'maximum' => 20 ),
+				'max_photos'     => array( 'type' => 'integer', 'default' => 8,    'minimum' => 1,   'maximum' => 30 ),
+				'doc_max_mb'     => array( 'type' => 'integer', 'default' => 5,    'minimum' => 1,   'maximum' => 50 ),
+				'min_year'       => array( 'type' => 'integer', 'default' => 1990, 'minimum' => 1900, 'maximum' => 2100 ),
+				'bio_max_chars'  => array( 'type' => 'integer', 'default' => 400,  'minimum' => 50,  'maximum' => 2000 ),
+				'service_cities' => array( 'type' => 'array',   'default' => array(), 'items' => array( 'type' => 'string' ) ),
 			),
 		) );
 	}
@@ -330,6 +416,185 @@ final class VendorManagementRestController {
 		);
 
 		do_action( 'mhm_rentiva_iban_change_rejected', $vendor_id );
+
+		return new \WP_REST_Response( array( 'success' => true ) );
+	}
+
+	// ---------------------------------------------------------------
+	// Vendors (Faz B)
+	// ---------------------------------------------------------------
+
+	public static function get_vendors( \WP_REST_Request $request ): \WP_REST_Response {
+		$per_page = (int) $request->get_param( 'per_page' );
+		$page     = (int) $request->get_param( 'page' );
+		$search   = (string) $request->get_param( 'search' );
+		$status   = (string) $request->get_param( 'status' );
+
+		$args = array(
+			'role'    => 'rentiva_vendor',
+			'orderby' => 'display_name',
+			'order'   => 'ASC',
+		);
+
+		if ( '' !== $search ) {
+			$args['search']         = '*' . $search . '*';
+			$args['search_columns'] = array( 'display_name', 'user_email' );
+		}
+
+		if ( 'all' !== $status ) {
+			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => '_rentiva_vendor_status',
+					'value'   => $status,
+					'compare' => '=',
+				),
+			);
+		}
+
+		$count_args    = array_merge( $args, array( 'fields' => 'ID', 'number' => -1 ) );
+		$total         = count( get_users( $count_args ) );
+
+		$page_args     = array_merge( $args, array( 'number' => $per_page, 'paged' => $page ) );
+		$vendor_users  = get_users( $page_args );
+
+		// Batch-load vehicle counts for all vendors on this page.
+		$vendor_ids     = array_map( fn( $u ) => (int) $u->ID, $vendor_users );
+		$vehicle_counts = array();
+
+		if ( ! empty( $vendor_ids ) ) {
+			global $wpdb;
+			$placeholders = implode( ',', array_fill( 0, count( $vendor_ids ), '%d' ) );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$rows = $wpdb->get_results(
+				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+				$wpdb->prepare(
+					"SELECT post_author, COUNT(*) as cnt
+					 FROM {$wpdb->posts}
+					 WHERE post_author IN ($placeholders)
+					   AND post_type = %s
+					   AND post_status IN ('publish','pending')
+					 GROUP BY post_author",
+					array_merge( $vendor_ids, array( 'vehicle' ) )
+				)
+			);
+			foreach ( $rows as $row ) {
+				$vehicle_counts[ (int) $row->post_author ] = (int) $row->cnt;
+			}
+		}
+
+		$vendors = array();
+		foreach ( $vendor_users as $vendor ) {
+			$vendors[] = array(
+				'id'                => (int) $vendor->ID,
+				'display_name'      => $vendor->display_name,
+				'email'             => $vendor->user_email,
+				'city'              => (string) get_user_meta( $vendor->ID, '_rentiva_vendor_city', true ),
+				'service_areas'     => (array) get_user_meta( $vendor->ID, '_rentiva_vendor_service_areas', true ),
+				'approved_at'       => (string) get_user_meta( $vendor->ID, '_rentiva_vendor_approved_at', true ),
+				'status'            => (string) get_user_meta( $vendor->ID, '_rentiva_vendor_status', true ) ?: 'active',
+				'vehicle_count'     => $vehicle_counts[ (int) $vendor->ID ] ?? 0,
+				'reliability_score' => (int) get_user_meta( $vendor->ID, '_rentiva_vendor_reliability_score', true ),
+			);
+		}
+
+		return new \WP_REST_Response( array(
+			'vendors'      => $vendors,
+			'total'        => $total,
+			'pages'        => (int) ceil( $total / $per_page ),
+			'current_page' => $page,
+		) );
+	}
+
+	public static function suspend_vendor( \WP_REST_Request $request ): \WP_REST_Response {
+		$vendor_id   = (int) $request->get_param( 'id' );
+		$vendor_data = get_userdata( $vendor_id );
+
+		if ( ! $vendor_data || ! in_array( 'rentiva_vendor', (array) $vendor_data->roles, true ) ) {
+			return new \WP_REST_Response( array( 'code' => 'vendor_not_found' ), 404 );
+		}
+
+		VendorOnboardingController::suspend( $vendor_id );
+
+		return new \WP_REST_Response( array( 'success' => true ) );
+	}
+
+	public static function unsuspend_vendor( \WP_REST_Request $request ): \WP_REST_Response {
+		$vendor_id   = (int) $request->get_param( 'id' );
+		$vendor_data = get_userdata( $vendor_id );
+
+		if ( ! $vendor_data || ! in_array( 'rentiva_vendor', (array) $vendor_data->roles, true ) ) {
+			return new \WP_REST_Response( array( 'code' => 'vendor_not_found' ), 404 );
+		}
+
+		VendorOnboardingController::unsuspend( $vendor_id );
+
+		return new \WP_REST_Response( array( 'success' => true ) );
+	}
+
+	// ---------------------------------------------------------------
+	// Commission (Faz B)
+	// ---------------------------------------------------------------
+
+	public static function get_commission(): \WP_REST_Response {
+		$current_rate = PolicyRepository::get_current_global_rate();
+		$policies     = PolicyRepository::get_all_global_policies();
+
+		$history = array();
+		foreach ( $policies as $policy ) {
+			$history[] = array(
+				'rate'           => (float) $policy->get_global_rate(),
+				'label'          => (string) $policy->get_label(),
+				'effective_from' => (string) $policy->get_effective_from(),
+			);
+		}
+
+		return new \WP_REST_Response( array(
+			'current_rate' => $current_rate,
+			'history'      => $history,
+		) );
+	}
+
+	public static function save_commission( \WP_REST_Request $request ): \WP_REST_Response {
+		$rate  = (float) $request->get_param( 'global_rate' );
+		$label = (string) $request->get_param( 'policy_label' );
+
+		PolicyRepository::insert_global_policy( $rate, $label );
+
+		return new \WP_REST_Response( array( 'success' => true, 'new_rate' => $rate ) );
+	}
+
+	// ---------------------------------------------------------------
+	// Settings (Faz B)
+	// ---------------------------------------------------------------
+
+	public static function get_settings(): \WP_REST_Response {
+		$service_cities_raw = get_option( 'mhm_vendor_service_cities', '' );
+		$default_cities     = array( 'Istanbul', 'Ankara', 'Izmir', 'Antalya', 'Bursa', 'Adana', 'Konya', 'Other' );
+		$service_cities     = ! empty( $service_cities_raw )
+			? (array) maybe_unserialize( $service_cities_raw )
+			: $default_cities;
+
+		return new \WP_REST_Response( array(
+			'payout_freeze'  => get_option( 'mhm_rentiva_global_payout_freeze', 'no' ) === 'yes',
+			'min_payout'     => (float) get_option( 'mhm_min_payout_amount', 100 ),
+			'min_photos'     => (int)   get_option( 'mhm_vehicle_min_photos', 4 ),
+			'max_photos'     => (int)   get_option( 'mhm_vehicle_max_photos', 8 ),
+			'doc_max_mb'     => (int)   get_option( 'mhm_vendor_doc_max_file_size_mb', 5 ),
+			'min_year'       => (int)   get_option( 'mhm_vehicle_min_year', 1990 ),
+			'bio_max_chars'  => (int)   get_option( 'mhm_vendor_bio_max_length', 400 ),
+			'service_cities' => $service_cities,
+		) );
+	}
+
+	public static function save_settings( \WP_REST_Request $request ): \WP_REST_Response {
+		update_option( 'mhm_rentiva_global_payout_freeze', $request->get_param( 'payout_freeze' ) ? 'yes' : 'no' );
+		update_option( 'mhm_min_payout_amount',            (float) $request->get_param( 'min_payout' ) );
+		update_option( 'mhm_vehicle_min_photos',           (int)   $request->get_param( 'min_photos' ) );
+		update_option( 'mhm_vehicle_max_photos',           (int)   $request->get_param( 'max_photos' ) );
+		update_option( 'mhm_vendor_doc_max_file_size_mb',  (int)   $request->get_param( 'doc_max_mb' ) );
+		update_option( 'mhm_vehicle_min_year',             (int)   $request->get_param( 'min_year' ) );
+		update_option( 'mhm_vendor_bio_max_length',        (int)   $request->get_param( 'bio_max_chars' ) );
+		update_option( 'mhm_vendor_service_cities',        maybe_serialize( (array) $request->get_param( 'service_cities' ) ) );
 
 		return new \WP_REST_Response( array( 'success' => true ) );
 	}
