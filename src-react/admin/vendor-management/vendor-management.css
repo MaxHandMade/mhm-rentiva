@@ -15,6 +15,17 @@
 	font-weight: 600;
 }
 
+/* Vendors table — horizontal scroll wrapper */
+.mhm-vm-table-scroll {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	margin-bottom: 8px;
+}
+
+.mhm-vm-table-scroll .mhm-vm-table {
+	min-width: 580px;
+}
+
 /* Application table */
 .mhm-vm-table tbody tr {
 	cursor: pointer;
@@ -22,6 +33,28 @@
 
 .mhm-vm-table tbody tr:hover td {
 	background: #f0f6fc;
+}
+
+/* At mid/narrow widths switch to auto layout so content drives column widths */
+@media screen and (max-width: 900px) {
+	.mhm-vm-table {
+		table-layout: auto !important;
+	}
+
+	.mhm-vm-table th,
+	.mhm-vm-table td {
+		white-space: nowrap;
+	}
+
+	.mhm-vm-table th:nth-child(1),
+	.mhm-vm-table td:nth-child(1) {
+		min-width: 110px;
+	}
+
+	.mhm-vm-table th:nth-child(2),
+	.mhm-vm-table td:nth-child(2) {
+		min-width: 150px;
+	}
 }
 
 /* Application detail */
@@ -104,4 +137,24 @@
 	gap: 8px;
 	align-items: center;
 	margin-top: 12px;
+}
+
+/* Settings tab — prevent textarea/inputs from overflowing at narrow widths */
+.mhm-vm-settings-tab textarea,
+.mhm-vm-settings-tab input[type="number"],
+.mhm-vm-settings-tab input[type="text"] {
+	box-sizing: border-box;
+	max-width: 100%;
+}
+
+@media screen and (max-width: 600px) {
+	.mhm-vm-settings-tab textarea {
+		width: 100% !important;
+	}
+
+	/* Commission label input */
+	.mhm-vm-commission-tab .form-table td input[type="text"] {
+		width: 100% !important;
+		box-sizing: border-box;
+	}
 }

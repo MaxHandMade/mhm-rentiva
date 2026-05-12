@@ -92,6 +92,7 @@ export default function VendorTable( { onNotice } ) {
 			) }
 
 			{ ! loading && vendors.length > 0 && (
+			<div className="mhm-vm-table-scroll">
 				<table className="wp-list-table widefat fixed striped mhm-vm-table">
 					<thead>
 						<tr>
@@ -133,6 +134,7 @@ export default function VendorTable( { onNotice } ) {
 						} ) }
 					</tbody>
 				</table>
+			</div>
 			) }
 
 			{ pages > 1 && (
