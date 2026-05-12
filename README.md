@@ -1348,16 +1348,16 @@ This project is licensed under the **GPL-2.0+** license. See the [LICENSE](LICEN
 ## 👨‍💻 Developer
 
 **MaxHandMade**
-- Website: [maxhandmade.com](https://maxhandmade.com)
-- Support: info@maxhandmade.com
+- Website: [wpalemi.com](https://wpalemi.com)
+- Support: support@wpalemi.com
 
 ---
 
 ## 📞 Support
 
 For questions, issues, or feature requests:
-- **Email**: info@maxhandmade.com
-- **Website**: https://maxhandmade.com
+- **Email**: support@wpalemi.com
+- **Website**: https://wpalemi.com
 
 ---
 

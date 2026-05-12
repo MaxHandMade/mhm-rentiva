@@ -7,8 +7,8 @@ Requires PHP:      8.1
 Stable tag:        4.49.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
-Plugin URI:        https://maxhandmade.com/urun/mhm-rentiva/
-Author URI:        https://maxhandmade.com/
+Plugin URI:        https://wpalemi.com/rentiva/
+Author URI:        https://wpalemi.com/
 
 MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
 

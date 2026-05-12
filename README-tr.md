@@ -861,16 +861,16 @@ Bu proje **GPL-2.0+** lisansı altında lisanslanmıştır. Detaylar için [LICE
 ## 👨‍💻 Geliştirici
 
 **MaxHandMade**
-- Website: [maxhandmade.com](https://maxhandmade.com)
-- Destek: info@maxhandmade.com
+- Website: [wpalemi.com](https://wpalemi.com)
+- Destek: support@wpalemi.com
 
 ---
 
 ## 📞 Destek
 
 Sorular, sorunlar veya özellik istekleri için:
-- **E-posta**: info@maxhandmade.com
-- **Website**: https://maxhandmade.com
+- **E-posta**: support@wpalemi.com
+- **Website**: https://wpalemi.com
 
 ---
 
