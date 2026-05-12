@@ -102,6 +102,10 @@ build/
 !build/admin/vendor-management.asset.php
 !build/admin/vendor-management.css
 !build/admin/vendor-management-rtl.css
+!build/admin/export.js
+!build/admin/export.asset.php
+!build/admin/export.css
+!build/admin/export-rtl.css
 dist/
 .cache/
 

@@ -54,6 +54,11 @@ export const rentivaApi = {
 		},
 		getDetail: ( id ) => apiFetch( { path: `${ BASE }/vendor-reports/${ id }` } ),
 	},
+	export: {
+		getHistory:  ()       => apiFetch( { path: `${ BASE }/admin/export/history` } ),
+		deleteEntry: ( id )   => apiFetch( { path: `${ BASE }/admin/export/${ id }`, method: 'DELETE' } ),
+		preview:     ( data ) => apiFetch( { path: `${ BASE }/admin/export/preview`, method: 'POST', data } ),
+	},
 	vendorManagement: {
 		getApplications: ( params ) => {
 			const qs = new URLSearchParams( params ).toString();

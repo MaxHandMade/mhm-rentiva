@@ -75,15 +75,9 @@ final class Export {
 
 	public static function register(): void
 	{
-		// Export handler
-		add_action('admin_post_mhm_rentiva_export', array( self::class, 'handle_export' ));
-		// AJAX handler for apply filters
-		add_action('wp_ajax_mhm_rentiva_apply_export_filters', array( self::class, 'handle_apply_filters' ));
-		// AJAX handler for delete export
-		add_action('wp_ajax_mhm_rentiva_delete_export', array( self::class, 'handle_delete_export' ));
-		// AJAX handler for get export details
-		add_action('wp_ajax_mhm_rentiva_get_export_details', array( self::class, 'handle_get_export_details' ));
-		// CSS and JS loading is now handled by AssetManager
+		// Export download — admin-post.php form submission preserved for React SPA.
+		add_action( 'admin_post_mhm_rentiva_export', array( self::class, 'handle_export' ) );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 	}
 
 	public static function render_filters(string $post_type): void
@@ -798,6 +792,16 @@ final class Export {
 
 		$this->render_admin_header( (string) get_admin_page_title(), $buttons);
 
+		echo '<div id="mhm-export-root"></div>';
+
+		echo '</div>';
+	}
+
+	/**
+	 * @deprecated Replaced by React SPA.
+	 */
+	private static function render_export_page_legacy(): void
+	{
 		// Pro feature notices and Developer Mode banner
 		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('export');
 
@@ -1102,29 +1106,38 @@ final class Export {
 	}
 
 	/**
-	 * Enqueue JavaScript files
+	 * Enqueue React SPA bundle and page data for the Export admin page.
 	 */
-	public static function enqueue_scripts(): void
+	public static function enqueue_scripts( string $hook ): void
 	{
-		$screen = get_current_screen();
-		if ($screen && $screen->id === 'mhm-rentiva_page_mhm-rentiva-export') {
-			wp_enqueue_script(
-				'mhm-rentiva-export',
-				plugin_dir_url(__FILE__) . '../../../assets/js/admin/export.js',
-				array( 'jquery' ),
-				'1.0.0',
-				true
-			);
-
-			wp_localize_script(
-				'mhm-rentiva-export',
-				'mhm_rentiva_export',
-				array(
-					'ajaxurl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhm_rentiva_export'),
-				)
-			);
+		if (! str_contains($hook, 'mhm-rentiva-export')) {
+			return;
 		}
+
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page('export');
+
+		wp_enqueue_style(
+			'mhm-rentiva-export',
+			MHM_RENTIVA_PLUGIN_URL . 'build/admin/export.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+
+		wp_localize_script(
+			'mhm-rentiva-react-export',
+			'mhmRentivaExport',
+			array(
+				'adminUrl'    => admin_url(),
+				'exportNonce' => wp_create_nonce('mhm_rentiva_export'),
+				'postTypes'   => array(
+					'vehicle_booking' => __('Bookings', 'mhm-rentiva'),
+					'vehicle'         => __('Vehicles', 'mhm-rentiva'),
+					'payment_log'     => __('Payment Logs', 'mhm-rentiva'),
+				),
+				'dateRanges'  => class_exists(ExportFilters::class) ? ExportFilters::get_date_ranges() : array(),
+				'currency'    => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
+			)
+		);
 	}
 
 	/**

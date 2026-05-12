@@ -1,0 +1,1 @@
+(()=>{"use strict";const e=window.wp.element,t=window.ReactJSXRuntime;function n({config:e}){return(0,t.jsx)("div",{className:"mhm-export-spa"})}const o=document.getElementById("mhm-export-root");o&&(0,e.createRoot)(o).render((0,t.jsx)(n,{config:window.mhmRentivaExport}))})();
