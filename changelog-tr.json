@@ -19,6 +19,36 @@
         "notice": "Şema değişikliği yok. Kırıcı değişiklik yok. npm run build gerekli (bu sürüme dahil)."
     },
     {
+        "version": "4.51.0",
+        "date": "2026-05-12",
+        "type": "minor",
+        "title": "Bayi Yönetimi Faz B: Bayiler, Komisyon ve Ayarlar React SPA",
+        "summary": "Bayi Yönetimi React SPA geçişini Faz B ile tamamlıyor. Bayiler, Komisyon ve Ayarlar tab'ları tamamen istemci taraflı. Yedi yeni REST endpoint, bayi listesi için N+1 sorgu düzeltmesi ve 19 yeni PHPUnit testi.",
+        "changes": [
+            "Yeni REST endpoint'leri (7): GET /vendors/vendors (araç sayısıyla sayfalandırılmış liste), POST /vendors/{id}/suspend, POST /vendors/{id}/unsuspend, GET /vendors/commission, POST /vendors/commission, GET /vendors/settings, POST /vendors/settings.",
+            "VendorTable bileşeni: arama, durum filtresi (Aktif/Askıya Alındı), araç sayısı, güvenilirlik skoru ve Askıya Al/Aktifleştir hızlı eylemleriyle sayfalandırılmış bayi listesi.",
+            "CommissionTab bileşeni: canlı oran gösterimi, politika geçmişi tablosu ve doğrulamalı yeni oran formu.",
+            "SettingsTab bileşeni: düzenlenebilir pazar yeri ayarları (ödeme dondurma, minimum ödeme, fotoğraf limitleri, belge boyutu, araç yılı, biyografi uzunluğu, hizmet şehirleri).",
+            "N+1 sorgu düzeltmesi: bayi listesi endpoint'i artık araç sayılarını her bayi için ayrı COUNT(*) yerine tek bir GROUP BY sorgusuyla çekiyor.",
+            "7 REST endpoint'ini kapsayan 19 yeni PHPUnit entegrasyon testi."
+        ],
+        "notice": "Şema değişikliği yok. Kırıcı değişiklik yok. npm run build gerekli (bu sürüme dahil)."
+    },
+    {
+        "version": "4.50.0",
+        "date": "2026-05-12",
+        "type": "patch",
+        "title": "Bakım ve Dokümantasyon Güncellemesi — destek URL'leri, changelog backfill, README",
+        "summary": "Destek URL'leri wpalemi.com'a güncellendi, v4.40.0–v4.49.0 için changelog backfill yapıldı ve README React SPA admin arayüzü bölümüyle güncellendi.",
+        "changes": [
+            "Eklenti içi tüm destek linkleri ve e-posta güncellendi: URL'ler artık wpalemi.com'a, e-posta support@wpalemi.com'a yönlendiriyor.",
+            "v4.40.0'dan v4.49.0'a kadar changelog kayıtları İngilizce ve Türkçe olarak backfill edildi — Bayi Yönetimi Faz A, Mesajlar Faz 3, Ödeme Talepleri, Frontend CSS izolasyonu ve mobil responsive düzeltmeler dahil.",
+            "README, tüm geçirilmiş admin sayfalarını belgeleyen React SPA Admin Arayüzü bölümüyle güncellendi.",
+            "v4.46.0 veya öncesinden güncelleme yapan operatörler için v4.49.0'dan mobil breakpoint düzeltmesini (768px → 782px) içeriyor."
+        ],
+        "notice": "PHP mantık değişikliği yok. Şema değişikliği yok. Kırıcı değişiklik yok."
+    },
+    {
         "version": "4.49.0",
         "date": "2026-05-12",
         "type": "patch",

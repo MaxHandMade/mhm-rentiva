@@ -19,6 +19,36 @@
         "notice": "No schema changes. No breaking changes. Requires npm run build (included)."
     },
     {
+        "version": "4.51.0",
+        "date": "2026-05-12",
+        "type": "minor",
+        "title": "Vendor Management Faz B: Vendors, Commission & Settings React SPA",
+        "summary": "Vendor Management completes its React SPA migration with Faz B. The Vendors, Commission, and Settings tabs are fully client-side. Seven new REST endpoints, an N+1 query fix for vendor listing, and 19 new PHPUnit tests.",
+        "changes": [
+            "New REST endpoints (7): GET /vendors/vendors (paginated list with vehicle counts), POST /vendors/{id}/suspend, POST /vendors/{id}/unsuspend, GET /vendors/commission, POST /vendors/commission, GET /vendors/settings, POST /vendors/settings.",
+            "VendorTable component: paginated vendor list with search, status filter (Active/Suspended), vehicle count, reliability score, and Suspend/Unsuspend quick actions.",
+            "CommissionTab component: live rate display, policy history table, and new rate form with validation.",
+            "SettingsTab component: editable marketplace settings (payout freeze, min payout, photo limits, doc size, vehicle year, bio length, service cities).",
+            "N+1 query fix: vendor list endpoint now fetches vehicle counts in a single GROUP BY query instead of one COUNT(*) per vendor.",
+            "19 new PHPUnit integration tests covering all 7 REST endpoints."
+        ],
+        "notice": "No schema changes. No breaking changes. Requires npm run build (included)."
+    },
+    {
+        "version": "4.50.0",
+        "date": "2026-05-12",
+        "type": "patch",
+        "title": "Maintenance & Docs Update — support URLs, changelog backfill, README",
+        "summary": "Support URLs updated to wpalemi.com, changelog backfilled for v4.40.0–v4.49.0, and README updated with the React SPA admin interface section.",
+        "changes": [
+            "All in-plugin support links and email updated: URLs now point to wpalemi.com, email to support@wpalemi.com.",
+            "Changelog entries for v4.40.0 through v4.49.0 backfilled in both English and Turkish — covering Vendor Management Faz A, Messages Faz 3, Payout Requests, Frontend CSS isolation, and mobile responsive fixes.",
+            "README updated with a dedicated React SPA Admin Interface section documenting all migrated admin pages.",
+            "Bundles the mobile breakpoint fix from v4.49.0 (768px → 782px) for operators updating from v4.46.0 or earlier."
+        ],
+        "notice": "No PHP logic changes. No schema changes. No breaking changes."
+    },
+    {
         "version": "4.49.0",
         "date": "2026-05-12",
         "type": "patch",
