@@ -490,6 +490,9 @@ final class Plugin {
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
 		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')) {
+			\MHMRentiva\Admin\Utilities\Export\REST\ExportRestController::register();
+		}
 
 		// Booking
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Handler')) {
