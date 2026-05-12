@@ -209,6 +209,7 @@ final class SetupWizard {
 		?>
 		<h2><?php esc_html_e('Step 1: System Requirements', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing.', 'mhm-rentiva'); ?></p>
+		<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
 		<table class="widefat striped mhm-system-table">
 			<thead>
 				<tr>
@@ -226,7 +227,7 @@ final class SetupWizard {
 						<td><?php echo esc_html($check['expected']); ?></td>
 						<td>
 							<?php
-							echo self::format_status_badge($check['status']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+							echo self::format_status_badge($check['status']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 							?>
 							<?php if (! empty($check['message'])) : ?>
 								<div class="mhm-system-note"><?php echo esc_html($check['message']); ?></div>
@@ -236,6 +237,7 @@ final class SetupWizard {
 				<?php endforeach; ?>
 			</tbody>
 		</table>
+		</div>
 		<div class="mhm-step-actions">
 			<a class="button button-large align-left" href="<?php echo esc_url(self::skip_url()); ?>"><?php esc_html_e('Skip wizard', 'mhm-rentiva'); ?></a>
 			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('license')); ?>"><?php esc_html_e('Continue to License', 'mhm-rentiva'); ?></a>

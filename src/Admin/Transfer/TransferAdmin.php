@@ -480,6 +480,7 @@ final class TransferAdmin {
 				<!-- List Table -->
 				<div id="col-right">
 					<div class="col-wrap">
+						<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
 						<table class="wp-list-table widefat fixed striped">
 							<thead>
 								<tr>
@@ -524,6 +525,7 @@ final class TransferAdmin {
 								<?php endif; ?>
 							</tbody>
 						</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -721,6 +723,7 @@ final class TransferAdmin {
 				<!-- List Table -->
 				<div id="col-right">
 					<div class="col-wrap">
+						<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
 						<table class="wp-list-table widefat fixed striped">
 							<thead>
 								<tr>
@@ -788,6 +791,7 @@ final class TransferAdmin {
 								<?php endif; ?>
 							</tbody>
 						</table>
+						</div>
 					</div>
 				</div>
 			</div>
