@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 4.39.0\n"
+"Project-Id-Version: MHM Rentiva 4.50.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-11T08:08:34+00:00\n"
+"POT-Creation-Date: 2026-05-12T06:15:28+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -17,11 +17,11 @@ msgstr ""
 #. Plugin Name of the plugin
 #: mhm-rentiva.php
 #: mhm-rentiva.php:385
-#: src/Admin/About/Tabs/GeneralTab.php:140
-#: src/Admin/About/Tabs/GeneralTab.php:348
+#: src/Admin/About/Tabs/GeneralTab.php:138
+#: src/Admin/About/Tabs/GeneralTab.php:344
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:98
-#: src/Admin/Utilities/Menu/Menu.php:28
 #: src/Admin/Utilities/Menu/Menu.php:29
+#: src/Admin/Utilities/Menu/Menu.php:30
 msgid "MHM Rentiva"
 msgstr ""
 
@@ -88,23 +88,23 @@ msgstr ""
 #. translators: %s: feature name
 #: src/Admin/About/About.php:87
 #: src/Admin/About/Tabs/FeaturesTab.php:89
-#: src/Admin/About/Tabs/GeneralTab.php:158
-#: src/Admin/About/Tabs/GeneralTab.php:360
+#: src/Admin/About/Tabs/GeneralTab.php:156
+#: src/Admin/About/Tabs/GeneralTab.php:356
 #: src/Admin/Core/ProFeatureNotice.php:110
-#: src/Admin/Licensing/LicenseAdmin.php:905
+#: src/Admin/Licensing/LicenseAdmin.php:879
 #: src/Admin/Licensing/Mode.php:434
-#: src/Admin/Setup/SetupWizard.php:91
+#: src/Admin/Setup/SetupWizard.php:142
 #: src-react/admin/about/components/FeaturesTab.jsx:13
 msgid "Pro"
 msgstr ""
 
 #: src/Admin/About/About.php:87
 #: src/Admin/About/Tabs/FeaturesTab.php:88
-#: src/Admin/About/Tabs/GeneralTab.php:158
-#: src/Admin/About/Tabs/GeneralTab.php:360
-#: src/Admin/Licensing/LicenseAdmin.php:806
+#: src/Admin/About/Tabs/GeneralTab.php:156
+#: src/Admin/About/Tabs/GeneralTab.php:356
+#: src/Admin/Licensing/LicenseAdmin.php:780
 #: src/Admin/Licensing/Mode.php:433
-#: src/Admin/Setup/SetupWizard.php:91
+#: src/Admin/Setup/SetupWizard.php:142
 #: src-react/admin/about/components/FeaturesTab.jsx:12
 msgid "Lite"
 msgstr ""
@@ -127,9 +127,9 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/UserDashboardWidget.php:34
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:38
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
-#: src/Admin/Utilities/Menu/Menu.php:159
 #: src/Admin/Utilities/Menu/Menu.php:160
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:130
+#: src/Admin/Utilities/Menu/Menu.php:161
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:122
 #: src-react/admin/dashboard/components/QuickActions.jsx:10
 #: src-react/admin/messages/MessagesPage.jsx:107
 msgid "Settings"
@@ -148,11 +148,10 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:152
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:123
 #: src/Admin/Reports/BusinessLogic/CustomerReport.php:54
-#: src/Admin/Setup/SetupWizard.php:201
-#: src/Admin/Setup/SetupWizard.php:1345
-#: src/Admin/Setup/SetupWizard.php:1346
-#: src/Admin/Setup/SetupWizard.php:1433
-#: src/Admin/Setup/SetupWizard.php:1456
+#: src/Admin/Setup/SetupWizard.php:252
+#: src/Admin/Setup/SetupWizard.php:1174
+#: src/Admin/Setup/SetupWizard.php:1261
+#: src/Admin/Setup/SetupWizard.php:1284
 #: src/Admin/Testing/TestRunner.php:170
 #: templates/account/partials/vendor-bookings.php:269
 #: templates/account/partials/vendor-bookings.php:311
@@ -160,14 +159,14 @@ msgid "Unknown"
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:100
-#: src/Admin/About/Tabs/GeneralTab.php:283
-#: src/Admin/About/Tabs/GeneralTab.php:434
+#: src/Admin/About/Tabs/GeneralTab.php:281
+#: src/Admin/About/Tabs/GeneralTab.php:430
 msgid "Pro Active"
 msgstr ""
 
 #: src/Admin/About/SystemInfo.php:100
-#: src/Admin/About/Tabs/GeneralTab.php:283
-#: src/Admin/About/Tabs/GeneralTab.php:434
+#: src/Admin/About/Tabs/GeneralTab.php:281
+#: src/Admin/About/Tabs/GeneralTab.php:430
 #: src/Admin/About/Tabs/SystemTab.php:146
 #: src/Admin/About/Tabs/SystemTab.php:297
 msgid "Lite Version"
@@ -188,7 +187,7 @@ msgid "Error"
 msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:35
-#: src/Admin/About/Tabs/GeneralTab.php:355
+#: src/Admin/About/Tabs/GeneralTab.php:351
 #: src-react/admin/about/components/TabNav.jsx:8
 msgid "Developer"
 msgstr ""
@@ -215,8 +214,8 @@ msgstr ""
 
 #: src/Admin/About/Tabs/DeveloperTab.php:85
 #: src/Admin/About/Tabs/DeveloperTab.php:98
-#: src/Admin/About/Tabs/GeneralTab.php:152
-#: src/Admin/About/Tabs/GeneralTab.php:356
+#: src/Admin/About/Tabs/GeneralTab.php:150
+#: src/Admin/About/Tabs/GeneralTab.php:352
 #: src-react/admin/about/components/DeveloperTab.jsx:43
 msgid "MHM (MaxHandMade)"
 msgstr ""
@@ -395,74 +394,70 @@ msgstr ""
 msgid "General information and statistics about the plugin"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:139
+#: src/Admin/About/Tabs/GeneralTab.php:137
 #: templates/emails/booking-created-admin.html.php:16
 #: templates/emails/booking-created-vendor.html.php:63
 msgid "Name:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:145
+#: src/Admin/About/Tabs/GeneralTab.php:143
 #: src/Admin/About/Tabs/SystemTab.php:52
 #: src/Admin/About/Tabs/SystemTab.php:86
 #: src/Admin/About/Tabs/SystemTab.php:121
 msgid "Version:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:151
+#: src/Admin/About/Tabs/GeneralTab.php:149
 msgid "Developer:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:157
+#: src/Admin/About/Tabs/GeneralTab.php:155
 msgid "License:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:169
+#: src/Admin/About/Tabs/GeneralTab.php:167
 msgid "Activated On:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:187
-#: src/Admin/Licensing/LicenseAdmin.php:231
-#: src/Admin/Licensing/LicenseAdmin.php:262
+#: src/Admin/About/Tabs/GeneralTab.php:185
+#: src/Admin/Licensing/LicenseAdmin.php:403
 msgid "Expires today"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:189
-#: src/Admin/About/Tabs/GeneralTab.php:380
-#: src/Admin/Licensing/LicenseAdmin.php:233
-#: src/Admin/Licensing/LicenseAdmin.php:264
+#: src/Admin/About/Tabs/GeneralTab.php:187
+#: src/Admin/About/Tabs/GeneralTab.php:376
+#: src/Admin/Licensing/LicenseAdmin.php:405
 msgid "1 day remaining"
 msgstr ""
 
 #. translators: %d: number of days.
 #. translators: %d: number of days remaining.
 #. translators: %d: number of days remaining
-#: src/Admin/About/Tabs/GeneralTab.php:193
-#: src/Admin/About/Tabs/GeneralTab.php:383
-#: src/Admin/Licensing/LicenseAdmin.php:236
-#: src/Admin/Licensing/LicenseAdmin.php:267
+#: src/Admin/About/Tabs/GeneralTab.php:191
+#: src/Admin/About/Tabs/GeneralTab.php:379
+#: src/Admin/Licensing/LicenseAdmin.php:408
 #, php-format
 msgid "%d days remaining"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:198
-#: src/Admin/About/Tabs/GeneralTab.php:387
-#: src/Admin/Licensing/LicenseAdmin.php:227
-#: src/Admin/Licensing/LicenseAdmin.php:258
+#: src/Admin/About/Tabs/GeneralTab.php:196
+#: src/Admin/About/Tabs/GeneralTab.php:383
+#: src/Admin/Licensing/LicenseAdmin.php:399
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:167
 #: templates/account/partials/vendor-listings.php:52
 msgid "Expired"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:203
+#: src/Admin/About/Tabs/GeneralTab.php:201
 msgid "Expires On:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:212
+#: src/Admin/About/Tabs/GeneralTab.php:210
 #: src/Admin/About/Tabs/SystemTab.php:127
 msgid "File Size:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:213
+#: src/Admin/About/Tabs/GeneralTab.php:211
 #: src/Admin/About/Tabs/SystemTab.php:128
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:191
 #: src/Admin/Core/AssetManager.php:636
@@ -470,123 +465,123 @@ msgstr ""
 msgid "Calculating..."
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:225
+#: src/Admin/About/Tabs/GeneralTab.php:223
 #: src/Admin/About/Tabs/SystemTab.php:117
 #: src-react/admin/about/components/GeneralTab.jsx:7
 #: src-react/admin/about/components/SystemTab.jsx:8
 msgid "Plugin Information"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:229
+#: src/Admin/About/Tabs/GeneralTab.php:227
 #: src-react/admin/about/components/GeneralTab.jsx:8
 msgid "Compatibility"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:233
+#: src/Admin/About/Tabs/GeneralTab.php:231
 msgid "WordPress:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:240
+#: src/Admin/About/Tabs/GeneralTab.php:238
 msgid "PHP:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:247
+#: src/Admin/About/Tabs/GeneralTab.php:245
 msgid "MySQL:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:248
+#: src/Admin/About/Tabs/GeneralTab.php:246
 msgid "5.6+"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:253
+#: src/Admin/About/Tabs/GeneralTab.php:251
 msgid "Tested:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:254
-#: src/Admin/About/Tabs/GeneralTab.php:416
+#: src/Admin/About/Tabs/GeneralTab.php:252
+#: src/Admin/About/Tabs/GeneralTab.php:412
 msgid "WP 6.6, PHP 8.2"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:260
+#: src/Admin/About/Tabs/GeneralTab.php:258
 #: src-react/admin/about/components/GeneralTab.jsx:9
 msgid "Statistics"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:264
+#: src/Admin/About/Tabs/GeneralTab.php:262
 msgid "Total Vehicles:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:270
+#: src/Admin/About/Tabs/GeneralTab.php:268
 msgid "Total Bookings:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:276
+#: src/Admin/About/Tabs/GeneralTab.php:274
 msgid "Total Customers:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:282
+#: src/Admin/About/Tabs/GeneralTab.php:280
 msgid "Active License:"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:347
+#: src/Admin/About/Tabs/GeneralTab.php:343
 #: src/Admin/Booking/ListTable/BookingColumns.php:1314
 #: src/Admin/Reports/BackgroundProcessor.php:468
 #: src/Admin/Transfer/TransferAdmin.php:443
 #: src/Admin/Transfer/TransferAdmin.php:502
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1006
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:181
 #: templates/account/vendor-booking-detail.php:140
 #: templates/emails/vendor-application-new-admin.html.php:7
 #: assets/blocks/my-favorites/index.js:51
 #: src-react/admin/customers/components/CustomerPanel.jsx:54
 #: src-react/admin/customers/components/CustomerTable.jsx:4
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:61
+#: src-react/admin/vendor-management/components/VendorTable.jsx:98
 msgid "Name"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:351
+#: src/Admin/About/Tabs/GeneralTab.php:347
 #: src/Admin/About/Tabs/SystemTab.php:226
 #: src/Admin/About/Tabs/SystemTab.php:254
 #: src/Admin/About/Tabs/SystemTab.php:281
 msgid "Version"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:359
-#: src/Admin/Setup/SetupWizard.php:1052
-#: src/Admin/Utilities/Menu/Menu.php:206
+#: src/Admin/About/Tabs/GeneralTab.php:355
+#: src/Admin/Setup/SetupWizard.php:1021
+#: src/Admin/Utilities/Menu/Menu.php:207
 msgid "License"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:367
+#: src/Admin/About/Tabs/GeneralTab.php:363
 msgid "Activated On"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:391
+#: src/Admin/About/Tabs/GeneralTab.php:387
 msgid "Expires On"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:401
+#: src/Admin/About/Tabs/GeneralTab.php:397
 msgid "WordPress"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:406
+#: src/Admin/About/Tabs/GeneralTab.php:402
 msgid "PHP"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:411
+#: src/Admin/About/Tabs/GeneralTab.php:407
 msgid "MySQL"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:415
+#: src/Admin/About/Tabs/GeneralTab.php:411
 msgid "Tested"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:421
+#: src/Admin/About/Tabs/GeneralTab.php:417
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:17
 msgid "Total Vehicles"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:425
+#: src/Admin/About/Tabs/GeneralTab.php:421
 #: src/Admin/Customers/CustomersPage.php:223
 #: src/Admin/Reports/Reports.php:84
 #: src/Core/Dashboard/DashboardConfig.php:26
@@ -599,14 +594,14 @@ msgstr ""
 msgid "Total Bookings"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:429
+#: src/Admin/About/Tabs/GeneralTab.php:425
 #: src-react/admin/customers/components/StatsCards.jsx:10
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:17
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:63
 msgid "Total Customers"
 msgstr ""
 
-#: src/Admin/About/Tabs/GeneralTab.php:433
+#: src/Admin/About/Tabs/GeneralTab.php:429
 msgid "Active License"
 msgstr ""
 
@@ -621,9 +616,9 @@ msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:80
 #: src/Admin/Core/Traits/AdminHelperTrait.php:117
-#: src/Admin/Setup/SetupWizard.php:78
+#: src/Admin/Setup/SetupWizard.php:129
 #: src/Admin/Transfer/TransferAdmin.php:415
-#: src/Admin/Transfer/TransferAdmin.php:589
+#: src/Admin/Transfer/TransferAdmin.php:590
 #: src/Admin/Utilities/Export/Export.php:1021
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
@@ -662,7 +657,7 @@ msgstr ""
 #: src/Admin/About/Tabs/SupportTab.php:117
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:89
-#: src/Admin/Setup/SetupWizard.php:1155
+#: src/Admin/Setup/SetupWizard.php:1124
 #: src-react/admin/about/components/SupportTab.jsx:23
 msgid "Contact Form"
 msgstr ""
@@ -785,8 +780,8 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Settings/Groups/LicenseSettings.php:85
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
-#: src/Admin/Setup/SetupWizard.php:1353
-#: src/Admin/Setup/SetupWizard.php:1412
+#: src/Admin/Setup/SetupWizard.php:1181
+#: src/Admin/Setup/SetupWizard.php:1240
 #: src/Admin/Utilities/Dashboard/DashboardService.php:924
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
@@ -794,12 +789,13 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:337
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:202
 #: templates/account/partials/vendor-bookings.php:228
 #: templates/account/partials/vendor-listings.php:44
 #: assets/blocks/my-bookings/index.js:42
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
+#: src-react/admin/vendor-management/components/VendorTable.jsx:80
+#: src-react/admin/vendor-management/components/VendorTable.jsx:119
 msgid "Active"
 msgstr ""
 
@@ -1038,7 +1034,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:84
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:96
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:75
-#: src/Admin/Transfer/TransferAdmin.php:703
+#: src/Admin/Transfer/TransferAdmin.php:704
 #: assets/blocks/featured-vehicles/index.js:38
 #: assets/blocks/my-bookings/index.js:55
 #: assets/blocks/my-favorites/index.js:50
@@ -1060,9 +1056,9 @@ msgstr ""
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:56
 #: src/Admin/Reports/BackgroundProcessor.php:462
 #: src/Admin/Reports/BackgroundProcessor.php:478
-#: src/Admin/Setup/SetupWizard.php:167
-#: src/Admin/Setup/SetupWizard.php:350
-#: src/Admin/Setup/SetupWizard.php:739
+#: src/Admin/Setup/SetupWizard.php:218
+#: src/Admin/Setup/SetupWizard.php:401
+#: src/Admin/Setup/SetupWizard.php:708
 #: src/Admin/Testing/TestRunner.php:186
 #: src/Admin/Utilities/Export/Export.php:1221
 #: src/Admin/Utilities/Export/ExportHistory.php:195
@@ -1079,14 +1075,16 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/messages/components/MessageTable.jsx:23
+#: src-react/admin/messages/components/MessageTable.jsx:59
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
+#: src-react/admin/vendor-management/components/VendorTable.jsx:103
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Status"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:156
 #: src/Admin/Addons/AddonMeta.php:112
-#: src/Admin/Setup/SetupWizard.php:1454
+#: src/Admin/Setup/SetupWizard.php:1282
 #: src/Admin/Utilities/Database/MetaKeysDocumentation.php:626
 #: assets/blocks/unified-search/index.js:182
 msgid "Required"
@@ -1114,6 +1112,7 @@ msgstr ""
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
 #: src-react/admin/messages/components/MessageTable.jsx:25
+#: src-react/admin/messages/components/MessageTable.jsx:65
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:18
 msgid "Date"
 msgstr ""
@@ -1131,9 +1130,9 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1351
 #: src/Admin/Core/Utilities/AbstractListTable.php:390
 #: src/Admin/Customers/CustomersPage.php:249
-#: src/Admin/Setup/SetupWizard.php:370
-#: src/Admin/Transfer/TransferAdmin.php:530
-#: src/Admin/Transfer/TransferAdmin.php:794
+#: src/Admin/Setup/SetupWizard.php:421
+#: src/Admin/Transfer/TransferAdmin.php:531
+#: src/Admin/Transfer/TransferAdmin.php:795
 #: templates/account/partials/vendor-listings.php:384
 #: templates/shortcodes/vehicle-rating-form.php:278
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
@@ -1161,8 +1160,8 @@ msgstr ""
 #: src/Admin/Core/Utilities/AbstractListTable.php:405
 #: src/Admin/Messages/Settings/MessagesSettings.php:463
 #: src/Admin/Messages/Settings/MessagesSettings.php:481
-#: src/Admin/Transfer/TransferAdmin.php:531
-#: src/Admin/Transfer/TransferAdmin.php:795
+#: src/Admin/Transfer/TransferAdmin.php:532
+#: src/Admin/Transfer/TransferAdmin.php:796
 #: templates/shortcodes/vehicle-rating-form.php:284
 #: src-react/admin/customers/CustomersPage.jsx:66
 msgid "Delete"
@@ -1294,7 +1293,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1506
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:77
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:69
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:64
 msgid "An error occurred. Please try again."
 msgstr ""
@@ -1405,9 +1404,9 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:168
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:214
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:674
-#: src/Admin/Licensing/LicenseAdmin.php:443
-#: src/Admin/Licensing/LicenseAdmin.php:491
-#: src/Admin/Licensing/LicenseAdmin.php:518
+#: src/Admin/Licensing/LicenseAdmin.php:426
+#: src/Admin/Licensing/LicenseAdmin.php:474
+#: src/Admin/Licensing/LicenseAdmin.php:501
 #: src/Admin/Messages/Core/Messages.php:996
 #: src/Admin/Messages/Core/Messages.php:1131
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
@@ -1418,9 +1417,8 @@ msgstr ""
 #: src/Admin/Privacy/GDPRManager.php:409
 #: src/Admin/Testing/ShortcodeTestHandler.php:44
 #: src/Admin/Testing/TestAdminPage.php:231
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:397
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:416
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:449
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:160
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:180
 msgid "Security check failed."
 msgstr ""
 
@@ -1507,8 +1505,8 @@ msgstr ""
 #: src/Admin/Booking/Addons/AddonBooking.php:162
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:260
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:393
-#: src/Admin/Utilities/Menu/Menu.php:104
 #: src/Admin/Utilities/Menu/Menu.php:105
+#: src/Admin/Utilities/Menu/Menu.php:106
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:357
 #: templates/account/booking-detail.php:211
 #: templates/shortcodes/booking-form.php:288
@@ -1595,7 +1593,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonSettings.php:128
 #: src/Admin/Addons/AddonSettings.php:239
-#: src/Admin/Licensing/LicenseAdmin.php:540
+#: src/Admin/Licensing/LicenseAdmin.php:523
 #: src/Admin/PostTypes/Payouts/PayoutCsvExporter.php:51
 #: src/Admin/REST/Settings/RESTSettings.php:336
 #: src/Admin/REST/Settings/RESTSettings.php:350
@@ -1664,9 +1662,9 @@ msgstr ""
 #: src/Admin/Addons/AddonSettings.php:204
 #: src/Admin/Messages/Settings/MessagesSettings.php:492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:853
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:324
 #: templates/account/partials/vendor-settings.php:142
 #: src-react/admin/messages/components/SettingsView.jsx:216
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
 msgid "Save Settings"
 msgstr ""
 
@@ -1856,7 +1854,7 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:111
 #: src/Admin/Booking/ListTable/BookingColumns.php:589
-#: src/Admin/Booking/ListTable/BookingColumns.php:705
+#: src/Admin/Booking/ListTable/BookingColumns.php:713
 #: src/Admin/Booking/ListTable/BookingColumns.php:1266
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:411
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
@@ -1897,7 +1895,7 @@ msgid "Pending"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:112
-#: src/Admin/Booking/ListTable/BookingColumns.php:719
+#: src/Admin/Booking/ListTable/BookingColumns.php:727
 #: src/Admin/Booking/ListTable/BookingColumns.php:1270
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:250
 #: src/Admin/Booking/Meta/BookingMeta.php:1185
@@ -1947,7 +1945,7 @@ msgid "In Progress"
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:114
-#: src/Admin/Booking/ListTable/BookingColumns.php:733
+#: src/Admin/Booking/ListTable/BookingColumns.php:741
 #: src/Admin/Booking/ListTable/BookingColumns.php:1274
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
 #: src/Admin/Booking/Meta/BookingMeta.php:1187
@@ -2357,7 +2355,7 @@ msgstr ""
 #: src/Admin/Transfer/Integration/TransferCartIntegration.php:509
 #: src/Admin/Vehicle/ListingFeeManager.php:230
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:97
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:96
 #: src/Admin/VendorReport/REST/VendorReportsController.php:254
 #: templates/account/booking-detail.php:126
 #: templates/account/partials/top-vehicles.php:29
@@ -2524,32 +2522,32 @@ msgstr ""
 msgid "Cash"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:707
+#: src/Admin/Booking/ListTable/BookingColumns.php:699
+msgid "Unlimited Bookings"
+msgstr ""
+
+#: src/Admin/Booking/ListTable/BookingColumns.php:700
+msgid "Advanced Booking Management"
+msgstr ""
+
+#: src/Admin/Booking/ListTable/BookingColumns.php:715
 msgid "This week"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:721
-#: src/Admin/Booking/ListTable/BookingColumns.php:735
+#: src/Admin/Booking/ListTable/BookingColumns.php:729
+#: src/Admin/Booking/ListTable/BookingColumns.php:743
 #: src/Admin/Utilities/Export/ExportFilters.php:32
 msgid "This month"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:747
+#: src/Admin/Booking/ListTable/BookingColumns.php:755
 #: src-react/admin/reports/components/StatsCards.jsx:12
 msgid "Monthly Revenue"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:750
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:461
+#: src/Admin/Booking/ListTable/BookingColumns.php:758
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:469
 msgid "vs last month"
-msgstr ""
-
-#: src/Admin/Booking/ListTable/BookingColumns.php:763
-msgid "Unlimited Bookings"
-msgstr ""
-
-#: src/Admin/Booking/ListTable/BookingColumns.php:764
-msgid "Advanced Booking Management"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1009
@@ -2802,6 +2800,7 @@ msgstr ""
 #: src/Plugin.php:1316
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
+#: src-react/admin/messages/components/MessageTable.jsx:57
 msgid "Customer"
 msgstr ""
 
@@ -2817,7 +2816,6 @@ msgstr ""
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Settings/Testing/SettingsTester.php:973
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1010
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:182
 #: templates/account/vendor-booking-detail.php:142
 #: templates/emails/vendor-application-new-admin.html.php:16
 #: templates/shortcodes/contact-form.php:62
@@ -2827,6 +2825,7 @@ msgstr ""
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
+#: src-react/admin/vendor-management/components/VendorTable.jsx:99
 msgid "Email"
 msgstr ""
 
@@ -2878,7 +2877,7 @@ msgid "Booking Info"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1360
-#: src/Admin/Transfer/TransferAdmin.php:817
+#: src/Admin/Transfer/TransferAdmin.php:818
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1048
 msgid "Total Price"
 msgstr ""
@@ -2945,7 +2944,7 @@ msgstr ""
 #: src/Admin/PostTypes/Message/Message.php:323
 #: src/Admin/Settings/Testing/SettingsTester.php:970
 #: src/Admin/Utilities/ListTable/LogColumns.php:49
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:96
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:95
 #: src/Admin/VendorReport/REST/VendorReportsController.php:252
 #: templates/account/user-dashboard.php:214
 #: templates/account/user-dashboard.php:266
@@ -2971,9 +2970,8 @@ msgstr ""
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:88
 #: src/Admin/Testing/DemoAjaxHandler.php:103
 #: src/Admin/Testing/DemoAjaxHandler.php:127
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:388
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:408
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:441
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:151
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:171
 msgid "Permission denied."
 msgstr ""
 
@@ -4106,8 +4104,8 @@ msgstr ""
 #: src/Admin/Booking/PostType/Booking.php:27
 #: src/Admin/Utilities/Export/Export.php:1279
 #: src/Admin/Utilities/Export/ExportHistory.php:232
-#: src/Admin/Utilities/Menu/Menu.php:76
 #: src/Admin/Utilities/Menu/Menu.php:77
+#: src/Admin/Utilities/Menu/Menu.php:78
 #: src-react/admin/customers/components/CustomerTable.jsx:6
 #: src-react/admin/reports/components/tabs/BookingsTab.jsx:22
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:63
@@ -4533,8 +4531,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:347
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:64
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
-#: src/Admin/Transfer/TransferAdmin.php:531
-#: src/Admin/Transfer/TransferAdmin.php:795
+#: src/Admin/Transfer/TransferAdmin.php:532
+#: src/Admin/Transfer/TransferAdmin.php:796
 msgid "Are you sure?"
 msgstr ""
 
@@ -4553,7 +4551,7 @@ msgstr ""
 #: src/Admin/Messages/Frontend/CustomerMessages.php:181
 #: src/Admin/Transfer/Frontend/TransferAddonModal.php:73
 #: src/Admin/Transfer/TransferAdmin.php:489
-#: src/Admin/Transfer/TransferAdmin.php:729
+#: src/Admin/Transfer/TransferAdmin.php:730
 #: src/Admin/Utilities/Export/Export.php:1311
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1332
 #: templates/account/account-details.php:189
@@ -4843,7 +4841,7 @@ msgid "No logs found"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:911
-#: src/Admin/Setup/SetupWizard.php:348
+#: src/Admin/Setup/SetupWizard.php:399
 #: src-react/admin/customers/components/Pagination.jsx:15
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:10
 msgid "Page"
@@ -4948,7 +4946,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:108
 #: src/Admin/Emails/Core/EmailTemplates.php:149
 #: src/Admin/Emails/Templates/EmailPreview.php:98
-#: src/Admin/Setup/SetupWizard.php:759
+#: src/Admin/Setup/SetupWizard.php:728
 msgid "Send Test Email"
 msgstr ""
 
@@ -5015,6 +5013,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/VendorEmails.php:541
 #: src/Admin/Messages/Core/Messages.php:840
 #: src-react/admin/messages/components/MessageTable.jsx:20
+#: src-react/admin/messages/components/MessageTable.jsx:53
 msgid "Subject"
 msgstr ""
 
@@ -5098,7 +5097,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1064
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
 #: src/Admin/Transfer/TransferAdmin.php:507
-#: src/Admin/Transfer/TransferAdmin.php:746
+#: src/Admin/Transfer/TransferAdmin.php:747
 #: src/Admin/Utilities/Export/Export.php:1222
 #: src/Admin/Utilities/Export/ExportHistory.php:197
 #: templates/account/partials/vendor-reliability.php:366
@@ -5239,7 +5238,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1343
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:260
 #: src/Admin/Settings/Groups/LogsSettings.php:69
-#: src/Admin/Setup/SetupWizard.php:1453
+#: src/Admin/Setup/SetupWizard.php:1281
 msgid "Warning"
 msgstr ""
 
@@ -5305,13 +5304,13 @@ msgid "Reset"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1358
-#: src/Admin/Setup/SetupWizard.php:286
-#: src/Admin/Setup/SetupWizard.php:304
-#: src/Admin/Setup/SetupWizard.php:391
-#: src/Admin/Setup/SetupWizard.php:465
-#: src/Admin/Setup/SetupWizard.php:592
-#: src/Admin/Setup/SetupWizard.php:722
-#: src/Admin/Setup/SetupWizard.php:794
+#: src/Admin/Setup/SetupWizard.php:337
+#: src/Admin/Setup/SetupWizard.php:355
+#: src/Admin/Setup/SetupWizard.php:442
+#: src/Admin/Setup/SetupWizard.php:516
+#: src/Admin/Setup/SetupWizard.php:643
+#: src/Admin/Setup/SetupWizard.php:691
+#: src/Admin/Setup/SetupWizard.php:763
 msgid "Back"
 msgstr ""
 
@@ -6034,9 +6033,9 @@ msgstr ""
 
 #: src/Admin/Core/ProFeatureNotice.php:131
 #: src/Admin/Core/ProFeatureNotice.php:144
-#: src/Admin/Licensing/LicenseAdmin.php:411
-#: src/Admin/Licensing/LicenseAdmin.php:864
-#: src/Admin/Licensing/LicenseAdmin.php:949
+#: src/Admin/Licensing/LicenseAdmin.php:355
+#: src/Admin/Licensing/LicenseAdmin.php:838
+#: src/Admin/Licensing/LicenseAdmin.php:923
 #: src/Admin/Licensing/Mode.php:383
 msgid "Advanced Reports"
 msgstr ""
@@ -6053,8 +6052,8 @@ msgstr ""
 
 #: src/Admin/Core/ProFeatureNotice.php:137
 #: src/Admin/Core/ProFeatureNotice.php:147
-#: src/Admin/Licensing/LicenseAdmin.php:868
-#: src/Admin/Licensing/LicenseAdmin.php:953
+#: src/Admin/Licensing/LicenseAdmin.php:842
+#: src/Admin/Licensing/LicenseAdmin.php:927
 #: src/Admin/Licensing/Mode.php:189
 #: src/Admin/Licensing/Mode.php:393
 msgid "Messaging System"
@@ -6305,6 +6304,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:1252
 #: src/Admin/Messages/Notifications/MessageNotifications.php:160
 #: src-react/admin/messages/components/MessageTable.jsx:22
+#: src-react/admin/messages/components/MessageTable.jsx:58
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:71
 msgid "Category"
 msgstr ""
@@ -6321,8 +6321,8 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:477
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:186
 #: templates/account/partials/vendor-reliability.php:150
+#: src-react/admin/vendor-management/components/VendorTable.jsx:104
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:19
 msgid "Action"
 msgstr ""
@@ -6762,7 +6762,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:87
 #: src/Admin/Emails/Core/EmailTemplates.php:218
 #: src/Admin/Messages/Settings/MessagesSettings.php:53
-#: src/Admin/Setup/SetupWizard.php:1054
+#: src/Admin/Setup/SetupWizard.php:1023
 msgid "Email Settings"
 msgstr ""
 
@@ -7142,7 +7142,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:68
 #: src/Admin/Emails/Templates/RefundEmails.php:69
 #: src/Admin/Settings/Core/SettingsHelper.php:333
-#: src/Admin/Setup/SetupWizard.php:1403
+#: src/Admin/Setup/SetupWizard.php:1231
 #: assets/blocks/unified-search/index.js:142
 #: assets/blocks/unified-search/index.js:152
 #: assets/blocks/unified-search/index.js:162
@@ -8256,8 +8256,8 @@ msgid "You do not have permission to view this booking."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:439
-#: src/Admin/Utilities/Menu/Menu.php:40
 #: src/Admin/Utilities/Menu/Menu.php:41
+#: src/Admin/Utilities/Menu/Menu.php:42
 #: templates/account/booking-detail.php:100
 msgid "Dashboard"
 msgstr ""
@@ -8285,12 +8285,12 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:459
 #: src/Admin/Frontend/Account/EndpointHelperTrait.php:49
-#: src/Admin/Licensing/LicenseAdmin.php:414
+#: src/Admin/Licensing/LicenseAdmin.php:358
 #: src/Admin/PostTypes/Message/Message.php:53
 #: src/Admin/PostTypes/Message/Message.php:55
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:94
-#: src/Admin/Utilities/Menu/Menu.php:136
 #: src/Admin/Utilities/Menu/Menu.php:137
+#: src/Admin/Utilities/Menu/Menu.php:138
 #: src/Core/Dashboard/DashboardNavigation.php:38
 #: src/Core/Dashboard/DashboardNavigation.php:64
 #: templates/account/messages.php:58
@@ -8961,6 +8961,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:505
 #: templates/shortcodes/contact-form.php:128
 #: src-react/admin/messages/components/MessageTable.jsx:24
+#: src-react/admin/messages/components/MessageTable.jsx:64
 msgid "Priority"
 msgstr ""
 
@@ -9374,8 +9375,8 @@ msgid "Rating Count"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:349
-#: src/Admin/Licensing/LicenseAdmin.php:846
-#: src/Admin/Licensing/LicenseAdmin.php:933
+#: src/Admin/Licensing/LicenseAdmin.php:820
+#: src/Admin/Licensing/LicenseAdmin.php:907
 #: src/Admin/Licensing/Mode.php:345
 msgid "Gallery Images"
 msgstr ""
@@ -9820,7 +9821,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:266
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:74
-#: src/Admin/Setup/SetupWizard.php:1145
+#: src/Admin/Setup/SetupWizard.php:1114
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:146
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:153
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:672
@@ -9976,8 +9977,8 @@ msgid "Select the locations where you can provide transfer service."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:453
-#: src/Admin/Utilities/Menu/Menu.php:94
 #: src/Admin/Utilities/Menu/Menu.php:95
+#: src/Admin/Utilities/Menu/Menu.php:96
 msgid "Transfer Routes"
 msgstr ""
 
@@ -10193,17 +10194,17 @@ msgid "Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB e
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:205
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:191
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:277
 msgid "ID Document"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:206
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:192
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:278
 msgid "Driver's License"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:207
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:193
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:279
 msgid "Address Document"
 msgstr ""
 
@@ -10302,7 +10303,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:40
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:99
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:44
-#: src/Admin/Setup/SetupWizard.php:1130
+#: src/Admin/Setup/SetupWizard.php:1099
 msgid "Booking Form"
 msgstr ""
 
@@ -11052,7 +11053,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:31
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:54
-#: src/Admin/Setup/SetupWizard.php:1140
+#: src/Admin/Setup/SetupWizard.php:1109
 msgid "Search Results"
 msgstr ""
 
@@ -11624,8 +11625,8 @@ msgid "Badge"
 msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:74
-#: src/Admin/Utilities/Menu/Menu.php:194
 #: src/Admin/Utilities/Menu/Menu.php:195
+#: src/Admin/Utilities/Menu/Menu.php:196
 #: templates/frontend/partials/vendor-profile-about.php:13
 #: assets/blocks/vendor-profile/index.js:44
 msgid "About"
@@ -11633,14 +11634,15 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:75
 #: src/Admin/Utilities/Export/Export.php:1281
-#: src/Admin/Utilities/Menu/Menu.php:50
 #: src/Admin/Utilities/Menu/Menu.php:51
+#: src/Admin/Utilities/Menu/Menu.php:52
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:859
 #: src/Admin/Vehicle/PostType/Vehicle.php:30
 #: templates/single-vehicle.php:26
 #: assets/blocks/vendor-profile/index.js:45
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
+#: src-react/admin/vendor-management/components/VendorTable.jsx:101
 msgid "Vehicles"
 msgstr ""
 
@@ -11761,419 +11763,418 @@ msgstr ""
 msgid "License Key:"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:223
-#: src/Admin/Licensing/LicenseAdmin.php:254
-msgid "Expires At:"
-msgstr ""
-
-#: src/Admin/Licensing/LicenseAdmin.php:283
+#: src/Admin/Licensing/LicenseAdmin.php:224
 msgid "⚠️ Lite Version Active"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:284
+#: src/Admin/Licensing/LicenseAdmin.php:225
 msgid "Enter your license key below to unlock unlimited access and Pro features."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:291
-#: src/Admin/Licensing/LicenseAdmin.php:323
+#: src/Admin/Licensing/LicenseAdmin.php:232
+#: src/Admin/Licensing/LicenseAdmin.php:264
 msgid "License Activation"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:296
-#: src/Admin/Setup/SetupWizard.php:218
+#: src/Admin/Licensing/LicenseAdmin.php:237
+#: src/Admin/Setup/SetupWizard.php:269
 msgid "Don't have a license yet? Get one from our store, then paste the key below."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:300
-#: src/Admin/Setup/SetupWizard.php:225
+#: src/Admin/Licensing/LicenseAdmin.php:241
+#: src/Admin/Setup/SetupWizard.php:276
 msgid "Get a License"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:311
+#: src/Admin/Licensing/LicenseAdmin.php:252
 #: src/Admin/Settings/Groups/LicenseSettings.php:52
-#: src/Admin/Setup/SetupWizard.php:269
-#: src/Admin/Setup/SetupWizard.php:296
+#: src/Admin/Setup/SetupWizard.php:320
+#: src/Admin/Setup/SetupWizard.php:347
 msgid "License Key"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:314
+#: src/Admin/Licensing/LicenseAdmin.php:255
 msgid "Paste your Pro license key and click the Activate button."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:319
+#: src/Admin/Licensing/LicenseAdmin.php:260
 #: src/Admin/Settings/Groups/LicenseSettings.php:111
 msgid "Activate License"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:325
+#: src/Admin/Licensing/LicenseAdmin.php:266
 msgid "Your license is active. To activate a different license key, please deactivate the current license first using the \"Deactivate License\" button below."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:331
+#: src/Admin/Licensing/LicenseAdmin.php:272
 #: src/Admin/Settings/Groups/LicenseSettings.php:44
-#: src/Admin/Utilities/Menu/Menu.php:205
+#: src/Admin/Utilities/Menu/Menu.php:206
 msgid "License Management"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:335
+#: src/Admin/Licensing/LicenseAdmin.php:276
 msgid "You are running in developer mode. You can deactivate to test real license."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:339
+#: src/Admin/Licensing/LicenseAdmin.php:280
 msgid "If you want to deactivate your license, click the button below. This will disable Pro features."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:363
+#: src/Admin/Licensing/LicenseAdmin.php:304
 msgid "Manage Subscription"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:380
+#: src/Admin/Licensing/LicenseAdmin.php:321
 msgid "Re-validate Now"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:382
+#: src/Admin/Licensing/LicenseAdmin.php:323
 msgid "Are you sure you want to deactivate the license?"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:386
+#: src/Admin/Licensing/LicenseAdmin.php:327
 msgid "Deactivate License"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:408
-#: src/Admin/Licensing/LicenseAdmin.php:872
-#: src/Admin/Licensing/LicenseAdmin.php:957
+#: src/Admin/Licensing/LicenseAdmin.php:352
+#: src/Admin/Licensing/LicenseAdmin.php:846
+#: src/Admin/Licensing/LicenseAdmin.php:931
 #: src/Admin/Licensing/Mode.php:190
 #: src/Admin/Licensing/Mode.php:403
 msgid "Vendor & Payout"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:417
+#: src/Admin/Licensing/LicenseAdmin.php:361
 msgid "Expanded Export"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:425
+#: src/Admin/Licensing/LicenseAdmin.php:369
 msgid "Active Pro features:"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:428
+#: src/Admin/Licensing/LicenseAdmin.php:372
 msgid "License active but no feature tokens loaded yet. Click \"Re-validate Now\" to refresh."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:436
-#: src/Admin/Licensing/LicenseAdmin.php:484
-#: src/Admin/Licensing/LicenseAdmin.php:511
+#: src/Admin/Licensing/LicenseAdmin.php:395
+msgid "Expires At:"
+msgstr ""
+
+#: src/Admin/Licensing/LicenseAdmin.php:419
+#: src/Admin/Licensing/LicenseAdmin.php:467
+#: src/Admin/Licensing/LicenseAdmin.php:494
 msgid "You do not have permission for this operation."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:582
+#: src/Admin/Licensing/LicenseAdmin.php:565
 msgid "✅ License successfully activated!"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:588
+#: src/Admin/Licensing/LicenseAdmin.php:571
 msgid "ℹ️ License deactivated."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:594
+#: src/Admin/Licensing/LicenseAdmin.php:577
 msgid "🔄 License re-validated against the licence server. Pro state is now in sync."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:600
+#: src/Admin/Licensing/LicenseAdmin.php:583
 msgid "✅ Developer mode setting updated."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:615
+#: src/Admin/Licensing/LicenseAdmin.php:598
 msgid "License key cannot be empty."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:616
-#: src/Admin/Licensing/LicenseAdmin.php:617
+#: src/Admin/Licensing/LicenseAdmin.php:599
+#: src/Admin/Licensing/LicenseAdmin.php:600
 msgid "Invalid license key."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:618
-#: src/Admin/Licensing/LicenseAdmin.php:619
+#: src/Admin/Licensing/LicenseAdmin.php:601
+#: src/Admin/Licensing/LicenseAdmin.php:602
 msgid "License has expired."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:620
+#: src/Admin/Licensing/LicenseAdmin.php:603
 msgid "License is not active."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:621
+#: src/Admin/Licensing/LicenseAdmin.php:604
 msgid "License is already activated on another site. Maximum 1 activation allowed."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:622
+#: src/Admin/Licensing/LicenseAdmin.php:605
 msgid "This site already has an active license key. Please deactivate the existing license before activating a new one."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:623
+#: src/Admin/Licensing/LicenseAdmin.php:606
 msgid "Could not connect to license server. Please check your internet connection and try again."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:624
+#: src/Admin/Licensing/LicenseAdmin.php:607
 msgid "License server error. Please try again later."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:625
+#: src/Admin/Licensing/LicenseAdmin.php:608
 msgid "Missing required parameters."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:627
+#: src/Admin/Licensing/LicenseAdmin.php:610
 msgid "License server could not reach your site for verification. A firewall or CDN may be blocking inbound HTTP. Please contact support."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:628
+#: src/Admin/Licensing/LicenseAdmin.php:611
 msgid "Site verification failed. Please try again or contact support."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:629
+#: src/Admin/Licensing/LicenseAdmin.php:612
 msgid "License server response could not be verified (tampered or out-of-sync). Please contact support."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:631
+#: src/Admin/Licensing/LicenseAdmin.php:614
 msgid "This license key was issued for a different product and cannot be activated here."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:632
+#: src/Admin/Licensing/LicenseAdmin.php:615
 msgid "Your plugin version is outdated or the request is malformed. Please update to the latest plugin release and try again."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:636
-#: src/Admin/Setup/SetupWizard.php:252
+#: src/Admin/Licensing/LicenseAdmin.php:619
+#: src/Admin/Setup/SetupWizard.php:303
 msgid "License activation failed. Please try again."
 msgstr ""
 
 #. translators: %d: max vehicles allowed in Lite
-#: src/Admin/Licensing/LicenseAdmin.php:651
+#: src/Admin/Licensing/LicenseAdmin.php:634
 #, php-format
 msgid "Vehicle limit reached (Max %d)."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:652
+#: src/Admin/Licensing/LicenseAdmin.php:635
 msgid "Booking limit reached (Max 50)."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:653
+#: src/Admin/Licensing/LicenseAdmin.php:636
 msgid "Transfer route limit reached."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:654
+#: src/Admin/Licensing/LicenseAdmin.php:637
 msgid "Addon limit reached."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:655
+#: src/Admin/Licensing/LicenseAdmin.php:638
 msgid "License limit exceeded."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:658
+#: src/Admin/Licensing/LicenseAdmin.php:641
 msgid "⚠️ Pro Upgrade Required"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:659
+#: src/Admin/Licensing/LicenseAdmin.php:642
 msgid "Please activate your license to unlock unlimited access."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:667
+#: src/Admin/Licensing/LicenseAdmin.php:650
 msgid "💎 Pro Feature Locked"
 msgstr ""
 
 #. translators: %s: feature name
-#: src/Admin/Licensing/LicenseAdmin.php:670
+#: src/Admin/Licensing/LicenseAdmin.php:653
 #, php-format
 msgid "%s is available in Pro version."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:672
+#: src/Admin/Licensing/LicenseAdmin.php:655
 msgid "This feature is available in Pro version."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:674
+#: src/Admin/Licensing/LicenseAdmin.php:657
 msgid "Enter your license key below to unlock this feature."
 msgstr ""
 
 #. translators: %s: short reason label like "service unavailable"
-#: src/Admin/Licensing/LicenseAdmin.php:692
+#: src/Admin/Licensing/LicenseAdmin.php:675
 #, php-format
 msgid "ℹ️ Subscription management is not available right now (%s). Please try again later or contact support@wpalemi.com."
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:712
+#: src/Admin/Licensing/LicenseAdmin.php:695
 msgid "legacy license"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:713
-#: src/Admin/Licensing/LicenseAdmin.php:722
-#: src/Admin/Licensing/LicenseAdmin.php:723
-#: src/Admin/Licensing/LicenseAdmin.php:724
+#: src/Admin/Licensing/LicenseAdmin.php:696
+#: src/Admin/Licensing/LicenseAdmin.php:705
+#: src/Admin/Licensing/LicenseAdmin.php:706
+#: src/Admin/Licensing/LicenseAdmin.php:707
 msgid "service unavailable"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:714
+#: src/Admin/Licensing/LicenseAdmin.php:697
 msgid "license inactive"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:715
+#: src/Admin/Licensing/LicenseAdmin.php:698
 msgid "site not activated"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:716
+#: src/Admin/Licensing/LicenseAdmin.php:699
 msgid "license not found"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:726
+#: src/Admin/Licensing/LicenseAdmin.php:709
 msgid "unknown error"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:800
+#: src/Admin/Licensing/LicenseAdmin.php:774
 msgid "Lite vs Pro"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:807
+#: src/Admin/Licensing/LicenseAdmin.php:781
 msgid "Free — Get started"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:821
-#: src/Admin/Licensing/LicenseAdmin.php:913
+#: src/Admin/Licensing/LicenseAdmin.php:795
+#: src/Admin/Licensing/LicenseAdmin.php:887
 #: src/Admin/Licensing/Mode.php:300
 msgid "Maximum Vehicles"
 msgstr ""
 
 #. translators: %d: maximum number of vehicles allowed in Lite tier
 #. translators: %d: maximum number of vehicles allowed in Lite version.
-#: src/Admin/Licensing/LicenseAdmin.php:823
+#: src/Admin/Licensing/LicenseAdmin.php:797
 #: src/Admin/Licensing/Mode.php:303
 #, php-format
 msgid "%d vehicles"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:826
-#: src/Admin/Licensing/LicenseAdmin.php:917
+#: src/Admin/Licensing/LicenseAdmin.php:800
+#: src/Admin/Licensing/LicenseAdmin.php:891
 #: src/Admin/Licensing/Mode.php:309
 msgid "Maximum Bookings"
 msgstr ""
 
 #. translators: %d: maximum number of bookings allowed in Lite tier
 #. translators: %d: maximum number of bookings allowed in Lite version.
-#: src/Admin/Licensing/LicenseAdmin.php:828
+#: src/Admin/Licensing/LicenseAdmin.php:802
 #: src/Admin/Licensing/Mode.php:312
 #, php-format
 msgid "%d bookings"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:831
-#: src/Admin/Licensing/LicenseAdmin.php:921
+#: src/Admin/Licensing/LicenseAdmin.php:805
+#: src/Admin/Licensing/LicenseAdmin.php:895
 #: src/Admin/Licensing/Mode.php:318
 msgid "Maximum Customers"
 msgstr ""
 
 #. translators: %d: maximum number of customers allowed in Lite tier
 #. translators: %d: maximum number of customers allowed in Lite version.
-#: src/Admin/Licensing/LicenseAdmin.php:833
+#: src/Admin/Licensing/LicenseAdmin.php:807
 #: src/Admin/Licensing/Mode.php:321
 #, php-format
 msgid "%d customers"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:836
-#: src/Admin/Licensing/LicenseAdmin.php:925
+#: src/Admin/Licensing/LicenseAdmin.php:810
+#: src/Admin/Licensing/LicenseAdmin.php:899
 #: src/Admin/Licensing/Mode.php:327
 msgid "Maximum Addons"
 msgstr ""
 
 #. translators: %d: maximum number of add-on services allowed in Lite tier
-#: src/Admin/Licensing/LicenseAdmin.php:838
+#: src/Admin/Licensing/LicenseAdmin.php:812
 #, php-format
 msgid "%d services"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:841
-#: src/Admin/Licensing/LicenseAdmin.php:929
+#: src/Admin/Licensing/LicenseAdmin.php:815
+#: src/Admin/Licensing/LicenseAdmin.php:903
 #: src/Admin/Licensing/Mode.php:336
 msgid "VIP Transfer Routes"
 msgstr ""
 
 #. translators: %d: maximum number of transfer routes allowed in Lite tier
 #. translators: %d: maximum number of transfer routes allowed in Lite version.
-#: src/Admin/Licensing/LicenseAdmin.php:843
+#: src/Admin/Licensing/LicenseAdmin.php:817
 #: src/Admin/Licensing/Mode.php:339
 #, php-format
 msgid "%d routes"
 msgstr ""
 
 #. translators: %d: maximum number of gallery images per vehicle in Lite tier
-#: src/Admin/Licensing/LicenseAdmin.php:848
+#: src/Admin/Licensing/LicenseAdmin.php:822
 #, php-format
 msgid "%d / vehicle"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:851
-#: src/Admin/Licensing/LicenseAdmin.php:937
+#: src/Admin/Licensing/LicenseAdmin.php:825
+#: src/Admin/Licensing/LicenseAdmin.php:911
 #: src/Admin/Licensing/Mode.php:377
 msgid "Export Formats"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:855
-#: src/Admin/Licensing/LicenseAdmin.php:941
+#: src/Admin/Licensing/LicenseAdmin.php:829
+#: src/Admin/Licensing/LicenseAdmin.php:915
 #: src/Admin/Licensing/Mode.php:354
 msgid "Report Date Range"
 msgstr ""
 
 #. translators: %d: maximum report date range in days for Lite tier
 #. translators: %d: maximum number of days for report range in Lite version.
-#: src/Admin/Licensing/LicenseAdmin.php:857
+#: src/Admin/Licensing/LicenseAdmin.php:831
 #: src/Admin/Licensing/Mode.php:357
 #, php-format
 msgid "%d days"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:860
-#: src/Admin/Licensing/LicenseAdmin.php:945
+#: src/Admin/Licensing/LicenseAdmin.php:834
+#: src/Admin/Licensing/LicenseAdmin.php:919
 #: src/Admin/Licensing/Mode.php:372
 #: src/Admin/Testing/IntegrationTest.php:169
 msgid "Payment Gateways"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:876
-#: src/Admin/Licensing/LicenseAdmin.php:961
+#: src/Admin/Licensing/LicenseAdmin.php:850
+#: src/Admin/Licensing/LicenseAdmin.php:935
 msgid "REST API"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:877
+#: src/Admin/Licensing/LicenseAdmin.php:851
 #: src/Admin/Licensing/Mode.php:413
 msgid "Limited"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:885
+#: src/Admin/Licensing/LicenseAdmin.php:859
 #: src/Admin/Licensing/Mode.php:384
 #: src/Admin/Licensing/Mode.php:394
 #: src/Admin/Licensing/Mode.php:404
 msgid "Not available"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:895
+#: src/Admin/Licensing/LicenseAdmin.php:869
 msgid "Your previous plan"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:897
+#: src/Admin/Licensing/LicenseAdmin.php:871
 msgid "Current Plan"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:903
+#: src/Admin/Licensing/LicenseAdmin.php:877
 msgid "RECOMMENDED"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:906
+#: src/Admin/Licensing/LicenseAdmin.php:880
 msgid "Unlimited everything"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:914
-#: src/Admin/Licensing/LicenseAdmin.php:918
-#: src/Admin/Licensing/LicenseAdmin.php:922
-#: src/Admin/Licensing/LicenseAdmin.php:926
-#: src/Admin/Licensing/LicenseAdmin.php:930
-#: src/Admin/Licensing/LicenseAdmin.php:934
-#: src/Admin/Licensing/LicenseAdmin.php:942
+#: src/Admin/Licensing/LicenseAdmin.php:888
+#: src/Admin/Licensing/LicenseAdmin.php:892
+#: src/Admin/Licensing/LicenseAdmin.php:896
+#: src/Admin/Licensing/LicenseAdmin.php:900
+#: src/Admin/Licensing/LicenseAdmin.php:904
+#: src/Admin/Licensing/LicenseAdmin.php:908
+#: src/Admin/Licensing/LicenseAdmin.php:916
 #: src/Admin/Licensing/Mode.php:306
 #: src/Admin/Licensing/Mode.php:315
 #: src/Admin/Licensing/Mode.php:324
@@ -12182,24 +12183,24 @@ msgstr ""
 #: src/Admin/Licensing/Mode.php:351
 #: src/Admin/Licensing/Mode.php:360
 #: src/Admin/Licensing/Mode.php:369
-#: src/Admin/Setup/SetupWizard.php:1380
-#: src/Admin/Setup/SetupWizard.php:1394
+#: src/Admin/Setup/SetupWizard.php:1208
+#: src/Admin/Setup/SetupWizard.php:1222
 msgid "Unlimited"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:962
+#: src/Admin/Licensing/LicenseAdmin.php:936
 msgid "Full Access"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:970
+#: src/Admin/Licensing/LicenseAdmin.php:944
 msgid "Included"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:980
+#: src/Admin/Licensing/LicenseAdmin.php:954
 msgid "✅ Active Plan"
 msgstr ""
 
-#: src/Admin/Licensing/LicenseAdmin.php:982
+#: src/Admin/Licensing/LicenseAdmin.php:956
 msgid "Enter License Key →"
 msgstr ""
 
@@ -12217,7 +12218,7 @@ msgstr ""
 
 #: src/Admin/Licensing/LicenseManager.php:242
 #: src/Admin/Settings/Groups/LicenseSettings.php:157
-#: src/Admin/Setup/SetupWizard.php:240
+#: src/Admin/Setup/SetupWizard.php:291
 msgid "Please enter a license key."
 msgstr ""
 
@@ -12333,7 +12334,7 @@ msgstr ""
 #: src/Admin/Licensing/Mode.php:374
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2157
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:91
-#: src/Admin/Setup/SetupWizard.php:1351
+#: src/Admin/Setup/SetupWizard.php:1179
 #: src/Admin/Utilities/Export/ExportFilters.php:71
 msgid "WooCommerce"
 msgstr ""
@@ -13152,7 +13153,7 @@ msgstr ""
 #: src/Admin/Messages/Settings/MessagesSettings.php:353
 #: src/Admin/PostTypes/Message/Message.php:322
 #: src/Admin/Settings/Testing/SettingsTester.php:968
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:100
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:99
 #: src/Admin/VendorReport/REST/VendorReportsController.php:260
 #: templates/account/messages.php:113
 msgid "General"
@@ -13205,7 +13206,7 @@ msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:383
 #: src/Admin/Settings/Groups/EmailSettings.php:252
-#: src/Admin/Setup/SetupWizard.php:431
+#: src/Admin/Setup/SetupWizard.php:482
 msgid "Sender Name"
 msgstr ""
 
@@ -13215,7 +13216,7 @@ msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:391
 #: src/Admin/Settings/Groups/EmailSettings.php:253
-#: src/Admin/Setup/SetupWizard.php:435
+#: src/Admin/Setup/SetupWizard.php:486
 msgid "Sender Email"
 msgstr ""
 
@@ -13288,7 +13289,7 @@ msgstr ""
 #. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:157
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:243
 #: src/Admin/VendorReport/REST/VendorReportsController.php:172
 #: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
@@ -13641,11 +13642,11 @@ msgstr ""
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2308
 #: src/Admin/Transfer/TransferAdmin.php:448
 #: src/Admin/Transfer/TransferAdmin.php:503
-#: src/Admin/Transfer/TransferAdmin.php:742
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:183
+#: src/Admin/Transfer/TransferAdmin.php:743
 #: templates/frontend/partials/vendor-directory-filter-bar.php:21
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
+#: src-react/admin/vendor-management/components/VendorTable.jsx:100
 msgid "City"
 msgstr ""
 
@@ -13835,6 +13836,40 @@ msgstr ""
 msgid "Technical"
 msgstr ""
 
+#: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:28
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:97
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:113
+msgid "You do not have permission to view this page."
+msgstr ""
+
+#: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:49
+#: src/Admin/PostTypes/Payouts/PostType.php:35
+#: src/Admin/Utilities/Menu/Menu.php:240
+#: src/Admin/Utilities/Menu/Menu.php:241
+msgid "Payout Requests"
+msgstr ""
+
+#: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:51
+#: src/Admin/Utilities/Export/Export.php:174
+#: src/Admin/Utilities/Export/Export.php:1058
+#: src/Admin/Utilities/Export/Export.php:1090
+#: src/Admin/Utilities/Export/Export.php:1122
+#: src-react/admin/customers/components/FilterBar.jsx:17
+msgid "Export CSV"
+msgstr ""
+
+#. translators: %d: number of approved payout requests
+#: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:70
+#, php-format
+msgid "%d payout approved."
+msgid_plural "%d payouts approved."
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:79
+msgid "No pending payouts were selected for approval."
+msgstr ""
+
 #: src/Admin/PostTypes/Payouts/PayoutCsvExporter.php:56
 msgid "Nonce verification failed."
 msgstr ""
@@ -13858,13 +13893,12 @@ msgid "Approve Selected"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:172
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:185
 #: templates/account/partials/vendor-payouts.php:41
 msgid "Approved"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:176
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:93
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:92
 #: src/Admin/VendorReport/REST/VendorReportsController.php:243
 #: templates/account/partials/vendor-listings.php:33
 #: templates/account/partials/vendor-payouts.php:53
@@ -13874,10 +13908,6 @@ msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:233
 msgid "Permission denied by Governance Layer."
-msgstr ""
-
-#: src/Admin/PostTypes/Payouts/PostType.php:35
-msgid "Payout Requests"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PostType.php:36
@@ -14025,7 +14055,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:467
 #: src/Admin/Reports/BackgroundProcessor.php:481
 #: src/Admin/Settings/Groups/GeneralSettings.php:81
-#: src/Admin/Setup/SetupWizard.php:512
+#: src/Admin/Setup/SetupWizard.php:563
 msgid "Currency"
 msgstr ""
 
@@ -14173,7 +14203,7 @@ msgid "Upcoming Operations"
 msgstr ""
 
 #: src/Admin/Reports/Reports.php:91
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:458
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:466
 msgid "This Month Revenue"
 msgstr ""
 
@@ -14478,7 +14508,7 @@ msgid "Diagnostic testing engine not found."
 msgstr ""
 
 #: src/Admin/Settings/Core/SettingsHelper.php:339
-#: src/Admin/Setup/SetupWizard.php:1412
+#: src/Admin/Setup/SetupWizard.php:1240
 #: assets/blocks/unified-search/index.js:143
 #: assets/blocks/unified-search/index.js:153
 #: assets/blocks/unified-search/index.js:163
@@ -14549,7 +14579,7 @@ msgid "General booking configuration and data retention settings."
 msgstr ""
 
 #: src/Admin/Settings/Groups/BookingSettings.php:78
-#: src/Admin/Setup/SetupWizard.php:572
+#: src/Admin/Setup/SetupWizard.php:623
 msgid "Default Rental Days"
 msgstr ""
 
@@ -15105,7 +15135,7 @@ msgid "Email Configuration"
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:254
-#: src/Admin/Setup/SetupWizard.php:439
+#: src/Admin/Setup/SetupWizard.php:490
 msgid "Reply-To Address"
 msgstr ""
 
@@ -15138,7 +15168,7 @@ msgid "Redirect all outgoing mails to the test address below."
 msgstr ""
 
 #: src/Admin/Settings/Groups/EmailSettings.php:269
-#: src/Admin/Setup/SetupWizard.php:452
+#: src/Admin/Setup/SetupWizard.php:503
 msgid "Test Email Address"
 msgstr ""
 
@@ -15485,7 +15515,7 @@ msgid "Configure currency and display preferences."
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:90
-#: src/Admin/Setup/SetupWizard.php:540
+#: src/Admin/Setup/SetupWizard.php:591
 msgid "Currency Position"
 msgstr ""
 
@@ -15554,8 +15584,8 @@ msgid "09:00 - 18:00"
 msgstr ""
 
 #: src/Admin/Settings/Groups/GeneralSettings.php:158
-#: src/Admin/Setup/SetupWizard.php:516
-#: src/Admin/Setup/SetupWizard.php:548
+#: src/Admin/Setup/SetupWizard.php:567
+#: src/Admin/Setup/SetupWizard.php:599
 msgid "Managed by WooCommerce:"
 msgstr ""
 
@@ -15995,7 +16025,7 @@ msgid "Configure vehicle availability rules and booking restrictions."
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:148
-#: src/Admin/Setup/SetupWizard.php:576
+#: src/Admin/Setup/SetupWizard.php:627
 msgid "Minimum Rental Days"
 msgstr ""
 
@@ -16004,7 +16034,7 @@ msgid "Minimum number of rental days"
 msgstr ""
 
 #: src/Admin/Settings/Groups/VehicleManagementSettings.php:158
-#: src/Admin/Setup/SetupWizard.php:580
+#: src/Admin/Setup/SetupWizard.php:631
 msgid "Maximum Rental Days"
 msgstr ""
 
@@ -16290,8 +16320,8 @@ msgstr ""
 
 #: src/Admin/Settings/ShortcodePages.php:101
 #: src/Admin/Settings/ShortcodePages.php:102
-#: src/Admin/Utilities/Menu/Menu.php:170
 #: src/Admin/Utilities/Menu/Menu.php:171
+#: src/Admin/Utilities/Menu/Menu.php:172
 msgid "Shortcode Pages"
 msgstr ""
 
@@ -16312,7 +16342,7 @@ msgid "Detailed booking form - with all booking options"
 msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:49
-#: src/Admin/Setup/SetupWizard.php:1135
+#: src/Admin/Setup/SetupWizard.php:1104
 msgid "Unified Search"
 msgstr ""
 
@@ -16353,7 +16383,7 @@ msgid "Vehicles displayed in grid layout - multiple vehicles in grid format"
 msgstr ""
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:84
-#: src/Admin/Setup/SetupWizard.php:1150
+#: src/Admin/Setup/SetupWizard.php:1119
 msgid "Vehicles List"
 msgstr ""
 
@@ -16645,7 +16675,7 @@ msgid "Monitor and configure system health, security, and performance."
 msgstr ""
 
 #: src/Admin/Settings/View/TabRendererRegistry.php:208
-#: src/Admin/Setup/SetupWizard.php:1055
+#: src/Admin/Setup/SetupWizard.php:1024
 msgid "Frontend & Display"
 msgstr ""
 
@@ -16889,8 +16919,8 @@ msgid "Command"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:146
-#: src/Admin/Utilities/Menu/Menu.php:148
 #: src/Admin/Utilities/Menu/Menu.php:149
+#: src/Admin/Utilities/Menu/Menu.php:150
 #: src-react/admin/dashboard/components/QuickActions.jsx:14
 msgid "Export"
 msgstr ""
@@ -17165,524 +17195,524 @@ msgstr ""
 msgid "Transfer Settings configuration group not found."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:45
 #: src/Admin/Setup/SetupWizard.php:46
-#: src/Admin/Utilities/Menu/Menu.php:182
+#: src/Admin/Setup/SetupWizard.php:47
 #: src/Admin/Utilities/Menu/Menu.php:183
+#: src/Admin/Utilities/Menu/Menu.php:184
 msgid "Setup Wizard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:97
+#: src/Admin/Setup/SetupWizard.php:98
+msgid "Demo data loaded successfully! Refresh the page to see the cleanup button."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:99
+msgid "Demo data removed. Refresh the page to continue."
+msgstr ""
+
+#: src/Admin/Setup/SetupWizard.php:148
 msgid "Follow the steps below to prepare Rentiva on a fresh WordPress installation. You can re-open this wizard later from the MHM Rentiva menu."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:159
+#: src/Admin/Setup/SetupWizard.php:210
 msgid "Step 1: System Requirements"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:160
+#: src/Admin/Setup/SetupWizard.php:211
 msgid "We scanned your WordPress environment to ensure Rentiva can run reliably. Resolve any item marked as required before continuing."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:164
+#: src/Admin/Setup/SetupWizard.php:215
 msgid "Requirement"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:165
+#: src/Admin/Setup/SetupWizard.php:216
 msgid "Current Value"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:166
+#: src/Admin/Setup/SetupWizard.php:217
 msgid "Recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:189
+#: src/Admin/Setup/SetupWizard.php:240
 msgid "Skip wizard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:190
+#: src/Admin/Setup/SetupWizard.php:241
 msgid "Continue to License"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:212
+#: src/Admin/Setup/SetupWizard.php:263
 msgid "Step 2: License Activation"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:213
+#: src/Admin/Setup/SetupWizard.php:264
 msgid "Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more)."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:243
+#: src/Admin/Setup/SetupWizard.php:294
 msgid "License activation failed. Please check your key and try again."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:246
+#: src/Admin/Setup/SetupWizard.php:297
 msgid "Invalid license key. Please check your key and try again."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:249
+#: src/Admin/Setup/SetupWizard.php:300
 msgid "This license is already activated on another site. Maximum 1 activation allowed."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:260
+#: src/Admin/Setup/SetupWizard.php:311
 msgid "License activated successfully!"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:266
+#: src/Admin/Setup/SetupWizard.php:317
 msgid "✅ Pro license active on this site"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:273
+#: src/Admin/Setup/SetupWizard.php:324
 msgid "Plan"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:277
+#: src/Admin/Setup/SetupWizard.php:328
 msgid "Expires At"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:282
+#: src/Admin/Setup/SetupWizard.php:333
 msgid "Need to deactivate or change the key? Use the License page from the main menu."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:287
+#: src/Admin/Setup/SetupWizard.php:338
 msgid "Open License Page"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:288
+#: src/Admin/Setup/SetupWizard.php:339
 msgid "Continue to Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:299
+#: src/Admin/Setup/SetupWizard.php:350
 msgid "Paste the key from your purchase receipt or customer dashboard."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:305
+#: src/Admin/Setup/SetupWizard.php:356
 msgid "Skip for now"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:306
+#: src/Admin/Setup/SetupWizard.php:357
 msgid "Activate & Continue"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:314
+#: src/Admin/Setup/SetupWizard.php:365
 msgid "Developer mode detected: this local/staging domain can test the plugin without a license. Activate a license before going live to keep Pro features enabled."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:320
+#: src/Admin/Setup/SetupWizard.php:371
 msgid "Developer mode has been disabled for this installation. Activate a valid license key to continue using Pro features."
 msgstr ""
 
 #. translators: %s: License page URL
-#: src/Admin/Setup/SetupWizard.php:330
+#: src/Admin/Setup/SetupWizard.php:381
 #, php-format
 msgid "Already have an active license? Review it on the %s."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:331
+#: src/Admin/Setup/SetupWizard.php:382
 msgid "License page"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:343
+#: src/Admin/Setup/SetupWizard.php:394
 msgid "Step 3: Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:344
+#: src/Admin/Setup/SetupWizard.php:395
 msgid "Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:349
+#: src/Admin/Setup/SetupWizard.php:400
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:9
 msgid "Shortcode"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:351
+#: src/Admin/Setup/SetupWizard.php:402
 msgid "Recommended URL"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:358
+#: src/Admin/Setup/SetupWizard.php:409
 msgid "Present"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:358
-#: src/Admin/Setup/SetupWizard.php:1352
+#: src/Admin/Setup/SetupWizard.php:409
+#: src/Admin/Setup/SetupWizard.php:1180
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:17
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:385
+#: src/Admin/Setup/SetupWizard.php:436
 msgid "Create Missing Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:387
+#: src/Admin/Setup/SetupWizard.php:438
 msgid "Open Shortcode Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:392
+#: src/Admin/Setup/SetupWizard.php:443
 msgid "Continue to Email"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:408
+#: src/Admin/Setup/SetupWizard.php:459
 msgid "Step 4: Email & Notifications"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:409
+#: src/Admin/Setup/SetupWizard.php:460
 msgid "Configure the sender information and enable automatic notifications for bookings."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:412
+#: src/Admin/Setup/SetupWizard.php:463
 msgid "📧 Important: Email Delivery Security"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:414
+#: src/Admin/Setup/SetupWizard.php:465
 msgid "The default WordPress email system can be unreliable depending on server configuration, causing your emails to fall into Spam/Junk folders."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:417
+#: src/Admin/Setup/SetupWizard.php:468
 msgid "For uninterrupted communication and delivery of booking notifications, please install and configure an SMTP Plugin."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:420
+#: src/Admin/Setup/SetupWizard.php:471
 msgid "Recommended Plugins:"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:421
+#: src/Admin/Setup/SetupWizard.php:472
 msgid "or"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:443
+#: src/Admin/Setup/SetupWizard.php:494
 msgid "Test Mode"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:447
+#: src/Admin/Setup/SetupWizard.php:498
 msgid "Enable test mode (emails will be sent only to the test address)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:456
+#: src/Admin/Setup/SetupWizard.php:507
 msgid "Automation"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:458
+#: src/Admin/Setup/SetupWizard.php:509
 msgid "Email sending enabled"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:459
+#: src/Admin/Setup/SetupWizard.php:510
 msgid "Automatic email sending enabled"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:460
+#: src/Admin/Setup/SetupWizard.php:511
 msgid "Log emails in the email log post type"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:466
-#: src/Admin/Setup/SetupWizard.php:593
+#: src/Admin/Setup/SetupWizard.php:517
+#: src/Admin/Setup/SetupWizard.php:644
 msgid "Save & Continue"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:491
+#: src/Admin/Setup/SetupWizard.php:542
 #, php-format
 msgid "Left (%s100)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:493
+#: src/Admin/Setup/SetupWizard.php:544
 #, php-format
 msgid "Left Space (%s 100)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:495
+#: src/Admin/Setup/SetupWizard.php:546
 #, php-format
 msgid "Right (100%s)"
 msgstr ""
 
 #. translators: %s: currency symbol
-#: src/Admin/Setup/SetupWizard.php:497
+#: src/Admin/Setup/SetupWizard.php:548
 #, php-format
 msgid "Right Space (100 %s)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:505
+#: src/Admin/Setup/SetupWizard.php:556
 msgid "Step 5: Frontend & Display"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:506
+#: src/Admin/Setup/SetupWizard.php:557
 msgid "Fine tune the visible defaults that appear on booking forms and vehicle cards."
 msgstr ""
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:523
+#: src/Admin/Setup/SetupWizard.php:574
 #, php-format
 msgid "To change the currency, please visit %s."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:524
-#: src/Admin/Setup/SetupWizard.php:556
+#: src/Admin/Setup/SetupWizard.php:575
+#: src/Admin/Setup/SetupWizard.php:607
 msgid "WooCommerce Settings"
 msgstr ""
 
 #. translators: %s: link to WooCommerce settings
-#: src/Admin/Setup/SetupWizard.php:555
+#: src/Admin/Setup/SetupWizard.php:606
 #, php-format
 msgid "To change the position, please visit %s."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:584
+#: src/Admin/Setup/SetupWizard.php:635
 msgid "Vehicle Cards"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:586
+#: src/Admin/Setup/SetupWizard.php:637
 msgid "Show feature badges"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:587
+#: src/Admin/Setup/SetupWizard.php:638
 msgid "Show availability badge"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:606
-#: src/Admin/Setup/SetupWizard.php:1056
+#: src/Admin/Setup/SetupWizard.php:654
+#: src/Admin/Setup/SetupWizard.php:1025
 msgid "Demo Data"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:607
+#: src/Admin/Setup/SetupWizard.php:655
 msgid "Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:611
+#: src/Admin/Setup/SetupWizard.php:659
 msgid "⚠️ Demo data is currently active."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:612
+#: src/Admin/Setup/SetupWizard.php:660
 msgid "Use \"Clean Up\" to remove all demo data before going live."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:632
+#: src/Admin/Setup/SetupWizard.php:680
 msgid "Load Demo Data"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:636
+#: src/Admin/Setup/SetupWizard.php:684
 msgid "Clean Up Demo Data"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:701
-msgid "Demo data loaded successfully! Refresh the page to see the cleanup button."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php:713
-msgid "Demo data removed. Refresh the page to continue."
-msgstr ""
-
-#: src/Admin/Setup/SetupWizard.php:723
+#: src/Admin/Setup/SetupWizard.php:692
 msgid "Continue to Summary"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:733
+#: src/Admin/Setup/SetupWizard.php:702
 msgid "Final Step: Summary & Tests"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:734
+#: src/Admin/Setup/SetupWizard.php:703
 msgid "Review the checklist below and run a quick booking to confirm everything is ready."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:738
+#: src/Admin/Setup/SetupWizard.php:707
 msgid "Step"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:757
+#: src/Admin/Setup/SetupWizard.php:726
 msgid "Open Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:758
+#: src/Admin/Setup/SetupWizard.php:727
 msgid "Review Shortcode Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:771
+#: src/Admin/Setup/SetupWizard.php:740
 msgid "⚠️ Important: Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:772
+#: src/Admin/Setup/SetupWizard.php:741
 msgid "Your WordPress permalink structure is set to \"Plain\". For the frontend pages to work correctly, please update your permalink settings to a SEO-friendly structure (e.g., \"Post name\")."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:776
-#: src/Admin/Setup/SetupWizard.php:1033
+#: src/Admin/Setup/SetupWizard.php:745
+#: src/Admin/Setup/SetupWizard.php:1002
 msgid "Open Permalink Settings"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:779
+#: src/Admin/Setup/SetupWizard.php:748
 msgid "After updating, click \"Save Changes\" to refresh permalinks."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:790
+#: src/Admin/Setup/SetupWizard.php:759
 msgid "Setup wizard was completed previously. You can still finish again to return to the dashboard."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:795
+#: src/Admin/Setup/SetupWizard.php:764
 #: templates/emails/vehicle-paused.html.php:22
 #: templates/emails/vehicle-relisted.html.php:19
 #: templates/emails/vehicle-withdrawn.html.php:33
 msgid "Go to Dashboard"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:796
+#: src/Admin/Setup/SetupWizard.php:765
 msgid "Complete Setup"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:805
-#: src/Admin/Setup/SetupWizard.php:856
-#: src/Admin/Setup/SetupWizard.php:878
-#: src/Admin/Setup/SetupWizard.php:900
-#: src/Admin/Setup/SetupWizard.php:935
-#: src/Admin/Setup/SetupWizard.php:955
-#: src/Admin/Setup/SetupWizard.php:967
+#: src/Admin/Setup/SetupWizard.php:774
+#: src/Admin/Setup/SetupWizard.php:825
+#: src/Admin/Setup/SetupWizard.php:847
+#: src/Admin/Setup/SetupWizard.php:869
+#: src/Admin/Setup/SetupWizard.php:904
+#: src/Admin/Setup/SetupWizard.php:924
+#: src/Admin/Setup/SetupWizard.php:936
 msgid "You are not allowed to perform this action."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1026
+#: src/Admin/Setup/SetupWizard.php:995
 msgid "⚠️ Important: Permalink Settings Required"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1029
+#: src/Admin/Setup/SetupWizard.php:998
 msgid "Your WordPress permalink structure is set to \"Plain\". For the frontend pages (booking form, account pages, etc.) to work correctly, please update your permalink settings to a SEO-friendly structure."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1036
+#: src/Admin/Setup/SetupWizard.php:1005
 msgid "Dismiss"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1051
+#: src/Admin/Setup/SetupWizard.php:1020
 msgid "System Check"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1053
+#: src/Admin/Setup/SetupWizard.php:1022
 msgid "Required Pages"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1057
+#: src/Admin/Setup/SetupWizard.php:1026
 msgid "Summary & Tests"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1352
+#: src/Admin/Setup/SetupWizard.php:1180
 msgid "Installed"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1355
+#: src/Admin/Setup/SetupWizard.php:1183
 msgid "WooCommerce is required for payments and account management."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1358
+#: src/Admin/Setup/SetupWizard.php:1186
 msgid "PHP Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1362
+#: src/Admin/Setup/SetupWizard.php:1190
 msgid "Update PHP to 7.4 or higher."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1365
+#: src/Admin/Setup/SetupWizard.php:1193
 msgid "WordPress Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1369
+#: src/Admin/Setup/SetupWizard.php:1197
 msgid "Please update WordPress to the latest version."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1372
+#: src/Admin/Setup/SetupWizard.php:1200
 msgid "Database Version"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1374
+#: src/Admin/Setup/SetupWizard.php:1202
 msgid "MySQL 5.7+ / MariaDB 10.3+"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1379
+#: src/Admin/Setup/SetupWizard.php:1207
 msgid "PHP Memory Limit"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1381
+#: src/Admin/Setup/SetupWizard.php:1209
 msgid "256 MB recommended"
 msgstr ""
 
 #. translators: %s: link to wp-config.php documentation
-#: src/Admin/Setup/SetupWizard.php:1385
+#: src/Admin/Setup/SetupWizard.php:1213
 #, php-format
 msgid "Add %s to your wp-config.php file to increase memory."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1393
+#: src/Admin/Setup/SetupWizard.php:1221
 msgid "PHP max_execution_time"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1395
+#: src/Admin/Setup/SetupWizard.php:1223
 msgid "60s+"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1397
+#: src/Admin/Setup/SetupWizard.php:1225
 msgid "Increase max_execution_time to 60 seconds for large imports."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1402
+#: src/Admin/Setup/SetupWizard.php:1230
 msgid "HTTPS / SSL"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1403
+#: src/Admin/Setup/SetupWizard.php:1231
 msgid "Not detected"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1404
+#: src/Admin/Setup/SetupWizard.php:1232
 msgid "Valid SSL certificate"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1406
+#: src/Admin/Setup/SetupWizard.php:1234
 msgid "Install an SSL certificate to secure customer data."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1411
+#: src/Admin/Setup/SetupWizard.php:1239
 msgid "WP-Cron"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1413
+#: src/Admin/Setup/SetupWizard.php:1241
 msgid "Required for scheduled emails & jobs"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1415
+#: src/Admin/Setup/SetupWizard.php:1243
 msgid "Enable WP-Cron or set a real cron job for reminders."
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1420
+#: src/Admin/Setup/SetupWizard.php:1248
 msgid "Email Delivery"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1421
+#: src/Admin/Setup/SetupWizard.php:1249
 msgid "SMTP/Provider detected"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1421
+#: src/Admin/Setup/SetupWizard.php:1249
 msgid "Default wp_mail()"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1422
+#: src/Admin/Setup/SetupWizard.php:1250
 msgid "SMTP provider recommended"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1424
+#: src/Admin/Setup/SetupWizard.php:1252
 msgid "Configure SMTP (WP Mail SMTP, Post SMTP, etc.) for reliable delivery."
 msgstr ""
 
 #. translators: 1: %1$s; 2: %2$s.
-#: src/Admin/Setup/SetupWizard.php:1441
+#: src/Admin/Setup/SetupWizard.php:1269
 #, php-format
 msgid "Expires %1$s (%2$s remaining)"
 msgstr ""
 
 #. translators: 1: %1$s; 2: %2$s.
-#: src/Admin/Setup/SetupWizard.php:1446
+#: src/Admin/Setup/SetupWizard.php:1274
 #, php-format
 msgid "Expired %1$s (%2$s ago)"
 msgstr ""
 
-#: src/Admin/Setup/SetupWizard.php:1452
+#: src/Admin/Setup/SetupWizard.php:1280
 msgid "Ready"
 msgstr ""
 
@@ -18790,8 +18820,8 @@ msgid "Hospital / Clinic"
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php:265
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:234
 #: src-react/admin/messages/components/SettingsView.jsx:47
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:56
 msgid "Settings saved."
 msgstr ""
 
@@ -18804,10 +18834,10 @@ msgid "Enter custom location types, one per line. (e.g. Stadium, Exhibition Cent
 msgstr ""
 
 #: src/Admin/Transfer/TransferAdmin.php:367
-#: src/Admin/Transfer/TransferAdmin.php:831
-#: src/Admin/Transfer/TransferAdmin.php:861
-#: src/Admin/Transfer/TransferAdmin.php:878
-#: src/Admin/Transfer/TransferAdmin.php:930
+#: src/Admin/Transfer/TransferAdmin.php:832
+#: src/Admin/Transfer/TransferAdmin.php:862
+#: src/Admin/Transfer/TransferAdmin.php:879
+#: src/Admin/Transfer/TransferAdmin.php:931
 #: src/Core/Dashboard/AnalyticsController.php:31
 #: src/Core/Financial/PayoutAjaxController.php:26
 msgid "Unauthorized"
@@ -18853,129 +18883,129 @@ msgstr ""
 msgid "Services"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:520
+#: src/Admin/Transfer/TransferAdmin.php:521
 msgid "Rental Available"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:523
+#: src/Admin/Transfer/TransferAdmin.php:524
 msgid "Transfer Available"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:526
+#: src/Admin/Transfer/TransferAdmin.php:527
 msgid "No Services"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:537
+#: src/Admin/Transfer/TransferAdmin.php:538
 msgid "No locations found."
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:610
+#: src/Admin/Transfer/TransferAdmin.php:611
 msgid "Edit Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:610
+#: src/Admin/Transfer/TransferAdmin.php:611
 msgid "Add New Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:620
+#: src/Admin/Transfer/TransferAdmin.php:621
 msgid "Origin"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:622
+#: src/Admin/Transfer/TransferAdmin.php:623
 msgid "Select Origin"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:642
-#: src/Admin/Transfer/TransferAdmin.php:674
-#: src/Admin/Transfer/TransferAdmin.php:762
+#: src/Admin/Transfer/TransferAdmin.php:643
+#: src/Admin/Transfer/TransferAdmin.php:675
+#: src/Admin/Transfer/TransferAdmin.php:763
 msgid "Not eligible for transfer"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:652
+#: src/Admin/Transfer/TransferAdmin.php:653
 msgid "Destination"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:654
+#: src/Admin/Transfer/TransferAdmin.php:655
 msgid "Select Destination"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:684
+#: src/Admin/Transfer/TransferAdmin.php:685
 msgid "Distance (KM)"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:688
+#: src/Admin/Transfer/TransferAdmin.php:689
 msgid "Duration (Minutes)"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:694
+#: src/Admin/Transfer/TransferAdmin.php:695
 msgid "Pricing Method"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:696
+#: src/Admin/Transfer/TransferAdmin.php:697
 msgid "Fixed Price"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:697
+#: src/Admin/Transfer/TransferAdmin.php:698
 msgid "Distance Based (KM)"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:708
+#: src/Admin/Transfer/TransferAdmin.php:709
 msgid "Minimum Price"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:713
+#: src/Admin/Transfer/TransferAdmin.php:714
 msgid "Maximum Price (Vendor Ceiling)"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:715
+#: src/Admin/Transfer/TransferAdmin.php:716
 msgid "Maximum price vendors can charge for this route. Leave 0 for no ceiling."
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:722
+#: src/Admin/Transfer/TransferAdmin.php:723
 msgid "🌟 Showcase (pin to popular routes block)"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:724
+#: src/Admin/Transfer/TransferAdmin.php:725
 msgid "Featured routes are pinned first in the [rentiva_popular_routes] block, Gutenberg block, and Elementor widget on the homepage."
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:727
+#: src/Admin/Transfer/TransferAdmin.php:728
 msgid "Update Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:727
+#: src/Admin/Transfer/TransferAdmin.php:728
 msgid "Add Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:743
+#: src/Admin/Transfer/TransferAdmin.php:744
 msgid "Route"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:744
+#: src/Admin/Transfer/TransferAdmin.php:745
 msgid "Distance/Time"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:745
+#: src/Admin/Transfer/TransferAdmin.php:746
 msgid "Pricing"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:757
+#: src/Admin/Transfer/TransferAdmin.php:758
 msgid "Pinned to homepage Popular Routes"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:757
+#: src/Admin/Transfer/TransferAdmin.php:758
 msgid "Showcase"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:801
+#: src/Admin/Transfer/TransferAdmin.php:802
 msgid "No routes found."
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:814
+#: src/Admin/Transfer/TransferAdmin.php:815
 msgid "Price per KM"
 msgstr ""
 
-#: src/Admin/Transfer/TransferAdmin.php:912
+#: src/Admin/Transfer/TransferAdmin.php:913
 msgid "Error: One or more selected locations are not eligible for transfer services."
 msgstr ""
 
@@ -19663,14 +19693,6 @@ msgstr ""
 msgid "Maximum Amount"
 msgstr ""
 
-#: src/Admin/Utilities/Export/Export.php:174
-#: src/Admin/Utilities/Export/Export.php:1058
-#: src/Admin/Utilities/Export/Export.php:1090
-#: src/Admin/Utilities/Export/Export.php:1122
-#: src-react/admin/customers/components/FilterBar.jsx:17
-msgid "Export CSV"
-msgstr ""
-
 #: src/Admin/Utilities/Export/Export.php:179
 #: src/Admin/Utilities/Export/Export.php:1067
 #: src/Admin/Utilities/Export/Export.php:1099
@@ -19804,8 +19826,8 @@ msgid "Select Export Type"
 msgstr ""
 
 #: src/Admin/Utilities/Export/Export.php:1280
-#: src/Admin/Utilities/Menu/Menu.php:113
 #: src/Admin/Utilities/Menu/Menu.php:114
+#: src/Admin/Utilities/Menu/Menu.php:115
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
 #: src-react/admin/dashboard/components/StatsCards.jsx:28
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:61
@@ -19814,8 +19836,8 @@ msgstr ""
 
 #: src/Admin/Utilities/Export/Export.php:1282
 #: src/Admin/Utilities/Export/ExportHistory.php:234
-#: src/Admin/Utilities/Menu/Menu.php:124
 #: src/Admin/Utilities/Menu/Menu.php:125
+#: src/Admin/Utilities/Menu/Menu.php:126
 #: src-react/admin/dashboard/components/QuickActions.jsx:9
 msgid "Reports"
 msgstr ""
@@ -19939,6 +19961,7 @@ msgstr ""
 
 #: src/Admin/Utilities/Export/ExportFilters.php:379
 #: templates/account/vendor-ledger.php:37
+#: src-react/admin/vendor-management/components/VendorTable.jsx:79
 msgid "All Statuses"
 msgstr ""
 
@@ -20053,19 +20076,19 @@ msgstr ""
 msgid "Never"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:58
 #: src/Admin/Utilities/Menu/Menu.php:59
+#: src/Admin/Utilities/Menu/Menu.php:60
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:57
 msgid "Vehicle Categories"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:66
 #: src/Admin/Utilities/Menu/Menu.php:67
+#: src/Admin/Utilities/Menu/Menu.php:68
 msgid "Vehicle Settings"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:85
 #: src/Admin/Utilities/Menu/Menu.php:86
+#: src/Admin/Utilities/Menu/Menu.php:87
 msgid "Locations"
 msgstr ""
 
@@ -20235,37 +20258,37 @@ msgstr ""
 msgid "All locations"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:416
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:410
+msgid "Unlimited Vehicles"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:411
+msgid "Advanced Vehicle Management"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:424
 msgid "Monthly Reserved Vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:418
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:426
 #: src-react/admin/dashboard/components/StatsCards.jsx:24
 msgid "total"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:430
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:438
 msgid "This Month Occupancy"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:432
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:440
 msgid "total vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:444
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:452
 msgid "Active Today"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:446
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:454
 msgid "vehicles with customers"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:474
-msgid "Unlimited Vehicles"
-msgstr ""
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:475
-msgid "Advanced Vehicle Management"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:802
@@ -21262,173 +21285,30 @@ msgstr ""
 msgid "Reliability"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:39
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:40
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:117
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:36
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:37
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:109
 msgid "Vendor Management"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:75
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:67
 msgid "Operation completed successfully."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:105
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:114
-msgid "You do not have permission to view this page."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:120
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:96
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:112
 msgid "IBAN Requests"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:126
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:88
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:118
 msgid "Pending Applications"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:127
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:172
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:119
 msgid "Active Vendors"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:129
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:121
 msgid "Commission"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:175
-msgid "No active vendors yet."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:184
-msgid "Service Areas"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:201
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:214
-msgid "Suspended"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:212
-msgid "Suspend this vendor?"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:212
-msgid "Suspend"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:251
-msgid "Vendor Marketplace Settings"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:260
-msgid "Global Payout Freeze"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:263
-msgid "Freeze all vendor payout requests site-wide"
-msgstr ""
-
-#. translators: %s: currency symbol
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:272
-#, php-format
-msgid "Minimum Payout Amount (%s)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:275
-msgid "Minimum Payout Amount"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:278
-msgid "Vendors must have at least this balance to request a payout."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:283
-msgid "Min Vehicle Photos"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:285
-msgid "Minimum number of photos required per vehicle listing."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:290
-msgid "Max Vehicle Photos"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:292
-msgid "Maximum number of photos per vehicle listing."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:297
-msgid "Document Upload Limit (MB)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:299
-msgid "Maximum file size for vendor identity documents (ID, license, etc.)."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:304
-msgid "Minimum Vehicle Year"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:306
-msgid "Oldest vehicle year allowed in listings."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:311
-msgid "Vendor Bio Max Characters"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:313
-msgid "Maximum character count for the vendor profile bio."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:318
-msgid "Service Area Cities"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:320
-msgid "One city per line. Shown as checkboxes in the vendor application form."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:340
-msgid "Platform Commission Rate"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:343
-msgid "Commission rate updated successfully."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:346
-msgid "Set the global commission percentage applied to all vendor payouts. This creates a new policy record effective immediately. Previous rates are preserved in history for audit purposes."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:349
-msgid "Current active rate:"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:351
-msgid "No active commission policy found. Set one below."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:360
-msgid "New Commission Rate (%)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:364
-msgid "Enter a value between 0 and 100. E.g. 15 = 15%."
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:368
-msgid "Label (optional)"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:370
-msgid "e.g. Q1 2026 standard rate"
-msgstr ""
-
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:376
-msgid "Save Commission Rate"
 msgstr ""
 
 #: src/Admin/Vendor/Directory/VendorDirectorySchema.php:95
@@ -21545,12 +21425,12 @@ msgctxt "URL slug"
 msgid "vendor"
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:244
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:330
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:282
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:368
 msgid "Not set"
 msgstr ""
 
@@ -21584,33 +21464,34 @@ msgstr ""
 msgid "Associated user not found."
 msgstr ""
 
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:56
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:57
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:58
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:117
 msgid "Vendor Reports"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:90
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:89
 #: src/Admin/VendorReport/REST/VendorReportsController.php:237
 #: src-react/admin/vendor-reports/components/ReportRow.jsx:17
 msgid "Open"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:91
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:90
 #: src/Admin/VendorReport/REST/VendorReportsController.php:239
 msgid "In Review"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:92
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:91
 #: src/Admin/VendorReport/REST/VendorReportsController.php:241
 msgid "Resolved"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:98
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:97
 #: src/Admin/VendorReport/REST/VendorReportsController.php:256
 msgid "Vehicle action"
 msgstr ""
 
-#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:99
+#: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:98
 #: src/Admin/VendorReport/REST/VendorReportsController.php:258
 msgid "Penalty appeal"
 msgstr ""
@@ -23084,6 +22965,7 @@ msgid "Change"
 msgstr ""
 
 #: templates/account/partials/vendor-reliability.php:365
+#: src-react/admin/vendor-management/components/VendorTable.jsx:102
 msgid "Score"
 msgstr ""
 
@@ -25526,8 +25408,11 @@ msgstr ""
 #: src-react/admin/customers/CustomersPage.jsx:103
 #: src-react/admin/reports/components/ReportContent.jsx:18
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:22
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:46
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:114
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:65
+#: src-react/admin/vendor-management/components/VendorTable.jsx:88
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:99
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:108
 msgid "Loading…"
@@ -25549,7 +25434,8 @@ msgid "No customers found."
 msgstr ""
 
 #: src-react/admin/customers/components/Pagination.jsx:12
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:123
+#: src-react/admin/vendor-management/components/VendorTable.jsx:141
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:108
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
 msgid "← Previous"
 msgstr ""
@@ -25563,7 +25449,8 @@ msgstr ""
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
 #: src-react/admin/messages/components/Pagination.jsx:23
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:129
+#: src-react/admin/vendor-management/components/VendorTable.jsx:145
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:114
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
 msgid "Next →"
 msgstr ""
@@ -25964,6 +25851,75 @@ msgstr ""
 msgid "Approve & Activate Vendor"
 msgstr ""
 
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:17
+msgid "Failed to load commission data."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:28
+msgid "Rate must be between 0 and 100."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:34
+msgid "Commission rate updated."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:41
+msgid "Failed to save commission rate."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:50
+msgid "Platform Commission Rate"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:54
+msgid "Current active rate:"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:61
+msgid "No active commission policy found. Set one below."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:65
+msgid "Setting a new rate creates a policy record effective immediately. Previous rates are preserved for audit."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:71
+msgid "New Commission Rate (%)"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:87
+msgid "Label (optional)"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:93
+msgid "e.g. Q1 2026 standard rate"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
+msgid "Saving…"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
+msgid "Save Commission Rate"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:110
+msgid "Rate History"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:114
+msgid "Effective From"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:115
+msgid "Rate"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:116
+msgid "Label"
+msgstr ""
+
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:9
 msgid "Approve this new IBAN? The vendor will receive payouts to this new account."
 msgstr ""
@@ -26034,7 +25990,112 @@ msgstr ""
 msgid "Explain why this application is being rejected…"
 msgstr ""
 
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:62
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:37
+msgid "Failed to load settings."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:60
+msgid "Failed to save settings."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:74
+msgid "Vendor Marketplace Settings"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:79
+msgid "Global Payout Freeze"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:87
+msgid "Freeze all vendor payout requests site-wide"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:92
+msgid "Minimum Payout Amount"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:98
+msgid "Vendors must have at least this balance to request a payout."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:102
+msgid "Min Vehicle Photos"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:111
+msgid "Max Vehicle Photos"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:120
+msgid "Document Upload Limit (MB)"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:129
+msgid "Minimum Vehicle Year"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:138
+msgid "Vendor Bio Max Characters"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:147
+msgid "Service Area Cities"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:156
+msgid "One city per line."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:34
+msgid "Failed to load vendors."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:47
+msgid "Suspend this vendor?"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:48
+msgid "Unsuspend this vendor? Their vehicles will move to Pending Review."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:55
+msgid "Vendor suspended."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:56
+msgid "Vendor unsuspended."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:60
+msgid "Action failed."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:70
+msgid "Search vendors…"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:81
+#: src-react/admin/vendor-management/components/VendorTable.jsx:119
+msgid "Suspended"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:84
+msgid "vendors"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:91
+msgid "No vendors found."
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:128
+msgid "Unsuspend"
+msgstr ""
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:128
+msgid "Suspend"
+msgstr ""
+
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:65
 msgid "Failed to load applications."
 msgstr ""
 
