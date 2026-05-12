@@ -52,6 +52,18 @@
 .mhm-sc-stat-card--active .mhm-sc-stat-value,
 .mhm-sc-stat-card--missing .mhm-sc-stat-value { color: #fff; }
 
+/* Mobile responsive */
+@media (max-width: 782px) {
+	.mhm-sc-stats {
+		flex-wrap: wrap;
+	}
+
+	.mhm-sc-stats .mhm-sc-stat-card {
+		flex: 1 1 calc(50% - 8px);
+		min-width: 120px;
+	}
+}
+
 /* System actions */
 .mhm-sc-system-actions {
 	display: flex;

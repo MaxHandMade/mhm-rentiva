@@ -3,6 +3,7 @@ import ShortcodeRow from './ShortcodeRow';
 
 export default function ShortcodeTable( { shortcodes, pendingSlugs, onCreate, onDelete } ) {
 	return (
+		<div style={ { overflowX: 'auto', WebkitOverflowScrolling: 'touch' } }>
 		<table className="wp-list-table widefat fixed striped mhm-sc-table">
 			<thead>
 				<tr>
@@ -24,5 +25,6 @@ export default function ShortcodeTable( { shortcodes, pendingSlugs, onCreate, on
 				) ) }
 			</tbody>
 		</table>
+		</div>
 	);
 }
