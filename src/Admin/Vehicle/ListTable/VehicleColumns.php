@@ -361,6 +361,13 @@ final class VehicleColumns {
 				MHM_RENTIVA_VERSION
 			);
 
+			wp_enqueue_style(
+				'mhm-rentiva-shared-admin',
+				MHM_RENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
+
 			// Load calendar CSS
 			wp_enqueue_style(
 				'mhm-calendars',
@@ -412,64 +419,40 @@ final class VehicleColumns {
 			)
 		);
 		?>
-		<div class="mhm-stats-cards">
-			<div class="stats-grid">
-				<!-- Reserved Vehicles -->
-				<div class="stat-card stat-card-reserved">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-calendar-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['reserved']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Monthly Reserved Vehicles', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php echo esc_html($stats['reserved_all_time'] ?? 0); ?> <?php esc_html_e('total', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+		<div class="mhm-stats-grid">
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-calendar-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('Monthly Reserved Vehicles', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($stats['reserved']); ?></p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['reserved_all_time'] ?? 0); ?> <?php esc_html_e('total', 'mhm-rentiva'); ?></p>
 				</div>
+			</div>
 
-				<!-- Occupancy Rate -->
-				<div class="stat-card stat-card-passive">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-chart-bar"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['occupancy_rate']); ?>%</div>
-						<div class="stat-label"><?php esc_html_e('This Month Occupancy', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php echo esc_html($stats['total_vehicles']); ?> <?php esc_html_e('total vehicles', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-chart-bar"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Occupancy', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($stats['occupancy_rate']); ?>%</p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['total_vehicles']); ?> <?php esc_html_e('total vehicles', 'mhm-rentiva'); ?></p>
 				</div>
+			</div>
 
-				<!-- Active Today -->
-				<div class="stat-card stat-card-maintenance">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-admin-users"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($stats['active_today']); ?></div>
-						<div class="stat-label"><?php esc_html_e('Active Today', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('vehicles with customers', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-admin-users"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('Active Today', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($stats['active_today']); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e('vehicles with customers', 'mhm-rentiva'); ?></p>
 				</div>
+			</div>
 
-				<!-- Monthly Revenue Average -->
-				<div class="stat-card stat-card-revenue">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-money-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html(self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ))); ?></div>
-						<div class="stat-label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text <?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? 'trend-up' : 'trend-down'; ?>">
-								<?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? '+' : ''; ?><?php echo esc_html($stats['revenue_trend'] ?? 0); ?>% <?php esc_html_e('vs last month', 'mhm-rentiva'); ?>
-							</span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-money-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html(self::format_currency( (float) ( $stats['monthly_avg_revenue'] ?? 0 ))); ?></p>
+					<p class="mhm-stat-card__sub"><?php echo ( $stats['revenue_trend'] ?? 0 ) >= 0 ? '+' : ''; ?><?php echo esc_html($stats['revenue_trend'] ?? 0); ?>% <?php esc_html_e('vs last month', 'mhm-rentiva'); ?></p>
 				</div>
 			</div>
 		</div>

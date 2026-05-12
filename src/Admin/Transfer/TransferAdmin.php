@@ -115,6 +115,7 @@ final class TransferAdmin {
 
 		wp_enqueue_style('mhm-css-variables', MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css', array(), MHM_RENTIVA_VERSION);
 		wp_enqueue_style('mhm-stats-cards', MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css', array( 'mhm-css-variables' ), MHM_RENTIVA_VERSION);
+		wp_enqueue_style('mhm-rentiva-shared-admin', MHM_RENTIVA_PLUGIN_URL . 'src-react/shared/admin.css', array(), MHM_RENTIVA_VERSION);
 		wp_enqueue_script('wc-enhanced-select'); // WC Select2 for admin
 	}
 
@@ -160,48 +161,31 @@ final class TransferAdmin {
 		$latest_text          = $latest_transfer_date ? date_i18n(get_option('date_format'), strtotime($latest_transfer_date)) : __('No transfers yet', 'mhm-rentiva');
 
 		?>
-		<div class="mhm-stats-cards" style="margin-bottom: 20px;">
-			<div class="stats-grid">
-				<!-- Total Locations -->
-				<div class="stat-card stat-card-total-bookings">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-location-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($total_locations); ?></div>
-						<div class="stat-label"><?php esc_html_e('Total Locations', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('Active pickup/dropoff points', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+		<div class="mhm-stats-grid" style="margin-bottom: 20px;">
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-location-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('Total Locations', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($total_locations); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e('Active pickup/dropoff points', 'mhm-rentiva'); ?></p>
 				</div>
+			</div>
 
-				<!-- Active Routes -->
-				<div class="stat-card stat-card-total-vehicles">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-networking"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html($total_routes); ?></div>
-						<div class="stat-label"><?php esc_html_e('Total Routes', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('Defined transfer paths', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-networking"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('Total Routes', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($total_routes); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e('Defined transfer paths', 'mhm-rentiva'); ?></p>
 				</div>
+			</div>
 
-				<!-- Latest Operation -->
-				<div class="stat-card stat-card-total-customers">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-clock"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number" style="font-size: 1.2em;"><?php echo esc_html($latest_text); ?></div>
-						<div class="stat-label"><?php esc_html_e('Latest Operation', 'mhm-rentiva'); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e('Last transfer booking', 'mhm-rentiva'); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-clock"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('Latest Operation', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value" style="font-size: 1rem; line-height: 1.3;"><?php echo esc_html($latest_text); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e('Last transfer booking', 'mhm-rentiva'); ?></p>
 				</div>
 			</div>
 		</div>

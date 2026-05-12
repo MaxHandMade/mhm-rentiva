@@ -518,6 +518,13 @@ final class AddonListTable extends AbstractListTable {
 			);
 
 			wp_enqueue_style(
+				'mhm-rentiva-shared-admin',
+				MHM_RENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
+
+			wp_enqueue_style(
 				'mhm-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
 				array(),
@@ -574,62 +581,40 @@ final class AddonListTable extends AbstractListTable {
 		$stats = self::get_addon_stats();
 
 		?>
-		<div class="mhm-stats-cards">
-			<div class="stats-grid">
-				<!-- Total Additional Services -->
-				<div class="stat-card stat-card-total-addons">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-plus-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html( $stats['total_addons'] ); ?></div>
-						<div class="stat-label"><?php esc_html_e( 'Total Additional Services', 'mhm-rentiva' ); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e( 'All services', 'mhm-rentiva' ); ?></span>
-						</div>
-					</div>
+		<div class="mhm-stats-grid">
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-plus-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e( 'Total Additional Services', 'mhm-rentiva' ); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['total_addons'] ); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e( 'All services', 'mhm-rentiva' ); ?></p>
 				</div>
+			</div>
 
-				<!-- Active Additional Services -->
-				<div class="stat-card stat-card-active-addons">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-yes-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html( $stats['active_addons'] ); ?></div>
-						<div class="stat-label"><?php esc_html_e( 'Active Services', 'mhm-rentiva' ); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text trend-up"><?php echo esc_html( $stats['active_percentage'] ); ?>% <?php esc_html_e( 'active', 'mhm-rentiva' ); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-yes-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e( 'Active Services', 'mhm-rentiva' ); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['active_addons'] ); ?></p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['active_percentage'] ); ?>% <?php esc_html_e( 'active', 'mhm-rentiva' ); ?></p>
 				</div>
+			</div>
 
-				<!-- Average Price -->
-				<div class="stat-card stat-card-avg-price">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-money-alt"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html( $stats['avg_price'] ); ?></div>
-						<div class="stat-label"><?php esc_html_e( 'Average Price', 'mhm-rentiva' ); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e( 'All services', 'mhm-rentiva' ); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-money-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e( 'Average Price', 'mhm-rentiva' ); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['avg_price'] ); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e( 'All services', 'mhm-rentiva' ); ?></p>
 				</div>
+			</div>
 
-				<!-- Total Value -->
-				<div class="stat-card stat-card-total-value">
-					<div class="stat-icon">
-						<span class="dashicons dashicons-chart-line"></span>
-					</div>
-					<div class="stat-content">
-						<div class="stat-number"><?php echo esc_html( $stats['total_value'] ); ?></div>
-						<div class="stat-label"><?php esc_html_e( 'Total Value', 'mhm-rentiva' ); ?></div>
-						<div class="stat-trend">
-							<span class="trend-text"><?php esc_html_e( 'All prices', 'mhm-rentiva' ); ?></span>
-						</div>
-					</div>
+			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-chart-line"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e( 'Total Value', 'mhm-rentiva' ); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['total_value'] ); ?></p>
+					<p class="mhm-stat-card__sub"><?php esc_html_e( 'All prices', 'mhm-rentiva' ); ?></p>
 				</div>
 			</div>
 		</div>
