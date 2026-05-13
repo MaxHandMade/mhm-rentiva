@@ -165,6 +165,162 @@
       ],
       "Failed to load applications.": [
         "Başvurular yüklenemedi."
+      ],
+      "Active": [
+        "Aktif"
+      ],
+      "All Statuses": [
+        "Tüm Durumlar"
+      ],
+      "Failed to load vendors.": [
+        "Bayiler yüklenemedi."
+      ],
+      "Name": [
+        "Ad"
+      ],
+      "No vendors found.": [
+        "Bayi bulunamadı."
+      ],
+      "Score": [
+        "Puan"
+      ],
+      "Search vendors…": [
+        "Bayi ara…"
+      ],
+      "Status": [
+        "Durum"
+      ],
+      "Suspend": [
+        "Askıya Al"
+      ],
+      "Suspend this vendor?": [
+        "Bu bayiyi askıya almak istiyor musunuz?"
+      ],
+      "Suspended": [
+        "Askıya Alındı"
+      ],
+      "Unsuspend": [
+        "Askıdan Kaldır"
+      ],
+      "Unsuspend this vendor? Their vehicles will move to Pending Review.": [
+        "Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor durumuna geçecektir."
+      ],
+      "Vehicles": [
+        "Araçlar"
+      ],
+      "Vendor suspended.": [
+        "Bayi askıya alındı."
+      ],
+      "Vendor unsuspended.": [
+        "Bayinin askısı kaldırıldı."
+      ],
+      "vendors": [
+        "bayi"
+      ],
+      "Commission rate updated.": [
+        "Komisyon oranı güncellendi."
+      ],
+      "Current active rate:": [
+        "Mevcut aktif oran:"
+      ],
+      "Effective From": [
+        "Başlangıç Tarihi"
+      ],
+      "Failed to load commission data.": [
+        "Komisyon verileri yüklenemedi."
+      ],
+      "Failed to save commission rate.": [
+        "Komisyon oranı kaydedilemedi."
+      ],
+      "Label": [
+        "Etiket"
+      ],
+      "Label (optional)": [
+        "Etiket (isteğe bağlı)"
+      ],
+      "New Commission Rate (%)": [
+        "Yeni Komisyon Oranı (%)"
+      ],
+      "No active commission policy found. Set one below.": [
+        "Aktif komisyon politikası bulunamadı. Aşağıdan bir tane belirleyin."
+      ],
+      "Platform Commission Rate": [
+        "Platform Komisyon Oranı"
+      ],
+      "Rate": [
+        "Oran"
+      ],
+      "Rate History": [
+        "Oran Geçmişi"
+      ],
+      "Rate must be between 0 and 100.": [
+        "Oran 0 ile 100 arasında olmalıdır."
+      ],
+      "Save Commission Rate": [
+        "Komisyon Oranını Kaydet"
+      ],
+      "Saving…": [
+        "Kaydediliyor…"
+      ],
+      "Setting a new rate creates a policy record effective immediately. Previous rates are preserved for audit.": [
+        "Yeni oran belirlenmesi anında geçerli bir politika kaydı oluşturur. Önceki oranlar denetim için saklanır."
+      ],
+      "e.g. Q1 2026 standard rate": [
+        "örn. Q1 2026 standart oran"
+      ],
+      "Document Upload Limit (MB)": [
+        "Belge Yükleme Limiti (MB)"
+      ],
+      "Failed to load settings.": [
+        "Ayarlar yüklenemedi."
+      ],
+      "Failed to save settings.": [
+        "Ayarlar kaydedilemedi."
+      ],
+      "Freeze all vendor payout requests site-wide": [
+        "Tüm bayi ödeme taleplerini site genelinde dondur"
+      ],
+      "Global Payout Freeze": [
+        "Global Ödeme Dondurma"
+      ],
+      "Max Vehicle Photos": [
+        "Maksimum Araç Fotoğrafı"
+      ],
+      "Min Vehicle Photos": [
+        "Minimum Araç Fotoğrafı"
+      ],
+      "Minimum Payout Amount": [
+        "Minimum Ödeme Tutarı"
+      ],
+      "Minimum Vehicle Year": [
+        "Minimum Araç Yılı"
+      ],
+      "One city per line.": [
+        "Her satıra bir şehir."
+      ],
+      "Save Settings": [
+        "Ayarları Kaydet"
+      ],
+      "Service Area Cities": [
+        "Hizmet Bölgesi Şehirleri"
+      ],
+      "Settings saved.": [
+        "Ayarlar kaydedildi."
+      ],
+      "Vendor Bio Max Characters": [
+        "Bayi Biyografi Maksimum Karakter"
+      ],
+      "Vendor Marketplace Settings": [
+        "Bayi Pazaryeri Ayarları"
+      ],
+      "Vendors must have at least this balance to request a payout.": [
+        "Bayilerin ödeme talep edebilmesi için en az bu bakiyeye sahip olmaları gerekir."
+      ],
+      "Action": [
+        "Eylem"
+      ],
+      "Action failed.": [
+        "İşlem başarısız."
       ]
     }
   }
