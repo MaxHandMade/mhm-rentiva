@@ -125,12 +125,6 @@ def stage_files(patterns: list[str]) -> int:
             pruned.append(d)
         dirs[:] = pruned
 
-        # Never walk into our own staging output — but ONLY at the plugin root.
-        # Do not prune nested "build" dirs (e.g. admin-app/build/, blocks/build/)
-        # which may contain production asset bundles that must ship with the plugin.
-        if rel_root == "" and "build" in dirs:
-            dirs.remove("build")
-
         for f in files:
             rel_f = f"{rel_root}/{f}" if rel_root else f
             if is_excluded(rel_f, patterns):
