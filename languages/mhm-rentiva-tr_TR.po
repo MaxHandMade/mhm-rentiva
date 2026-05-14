@@ -11052,6 +11052,7 @@ msgid "Heading"
 msgstr "Başlık"
 
 #: src/Admin/Frontend/Widgets/Elementor/PopularRoutesWidget.php:101
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:154
 #: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php:79
 #: assets/blocks/popular-routes/index.js:53
 msgid "Popular Routes"
@@ -11400,6 +11401,7 @@ msgid "General Style"
 msgstr "Genel Stil"
 
 #: src/Admin/Frontend/Widgets/Elementor/UserDashboardWidget.php:23
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:149
 msgid "User Dashboard"
 msgstr "Kullanıcı Paneli"
 
@@ -26909,3 +26911,43 @@ msgstr "hata / başarısızlık"
 #: src-react/admin/about/components/SupportTab.jsx:58
 msgid "Tested with: WP 6.6, PHP 8.2"
 msgstr "Test edildi: WP 6.6, PHP 8.2"
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:129
+msgid "Vendor Directory"
+msgstr "Bayi Dizini"
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:131
+msgid "Public directory of all active vendors - searchable and filterable list"
+msgstr "Tüm aktif bayilerin herkese açık dizin listesi — aranabilir ve filtrelenebilir."
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:134
+msgid "Vendor Profile"
+msgstr "Bayi Profili"
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:136
+msgid "Public vendor profile page - shows vendor vehicles, reviews and contact info"
+msgstr "Araçlar, yorumlar ve iletişim bilgilerini gösteren herkese açık bayi profil sayfası."
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:139
+msgid "Vendor Bookings"
+msgstr "Bayi Rezervasyonları"
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:141
+msgid "Vendor booking management - incoming and completed reservations"
+msgstr "Bayi rezervasyon yönetimi — gelen ve tamamlanan rezervasyonlar."
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:144
+msgid "Vendor Ledger"
+msgstr "Bayi Cüzdanı"
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:146
+msgid "Vendor earnings ledger - commission history and net payout balance"
+msgstr "Bayi kazanç defteri — komisyon geçmişi ve net ödeme bakiyesi."
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:151
+msgid "Role-aware dashboard - customer summary or vendor summary based on role"
+msgstr "Role duyarlı panel — role göre müşteri özeti veya bayi özeti."
+
+#: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:156
+msgid "Most popular transfer routes - widget for home or transfer landing pages"
+msgstr "En popüler transfer güzergahları — ana sayfa veya transfer landing sayfaları için widget."

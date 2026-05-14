@@ -125,6 +125,36 @@ final class ShortcodePageActions {
 				'slug'        => 'vehicle-submit',
 				'description' => __( 'Vendor vehicle submission form - vendors can add their vehicles', 'mhm-rentiva' ),
 			),
+			'rentiva_vendor_directory'      => array(
+				'title'       => __( 'Vendor Directory', 'mhm-rentiva' ),
+				'slug'        => 'demo-vendor-directory',
+				'description' => __( 'Public directory of all active vendors - searchable and filterable list', 'mhm-rentiva' ),
+			),
+			'rentiva_vendor_profile'        => array(
+				'title'       => __( 'Vendor Profile', 'mhm-rentiva' ),
+				'slug'        => 'demo-vendor-profile',
+				'description' => __( 'Public vendor profile page - shows vendor vehicles, reviews and contact info', 'mhm-rentiva' ),
+			),
+			'rentiva_vendor_bookings'       => array(
+				'title'       => __( 'Vendor Bookings', 'mhm-rentiva' ),
+				'slug'        => 'demo-vendor-bookings',
+				'description' => __( 'Vendor booking management - incoming and completed reservations', 'mhm-rentiva' ),
+			),
+			'rentiva_vendor_ledger'         => array(
+				'title'       => __( 'Vendor Ledger', 'mhm-rentiva' ),
+				'slug'        => 'demo-vendor-ledger',
+				'description' => __( 'Vendor earnings ledger - commission history and net payout balance', 'mhm-rentiva' ),
+			),
+			'rentiva_user_dashboard'        => array(
+				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
+				'slug'        => 'demo-user-dashboard',
+				'description' => __( 'Role-aware dashboard - customer summary or vendor summary based on role', 'mhm-rentiva' ),
+			),
+			'rentiva_popular_routes'        => array(
+				'title'       => __( 'Popular Routes', 'mhm-rentiva' ),
+				'slug'        => 'demo-popular-routes',
+				'description' => __( 'Most popular transfer routes - widget for home or transfer landing pages', 'mhm-rentiva' ),
+			),
 		);
 
 		ksort( $config );
