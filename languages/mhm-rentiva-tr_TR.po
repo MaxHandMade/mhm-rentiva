@@ -657,7 +657,7 @@ msgstr "Destek kanalları, belgeler ve sürüm geçmişi"
 
 #: src/Admin/About/Tabs/SupportTab.php:62
 #: build/admin/about.js:1
-#: src-react/admin/about/components/SupportTab.jsx:53
+#: src-react/admin/about/components/SupportTab.jsx:64
 msgid "Version History"
 msgstr "Sürüm geçmişi"
 
@@ -26879,3 +26879,33 @@ msgstr "Hata bildirmek veya yeni özellik önermek için GitHub Issues kullanın
 #: src-react/admin/about/components/SupportTab.jsx:46
 msgid "GitHub Issues"
 msgstr "GitHub Issues"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:51
+msgid "Tests & Verification"
+msgstr "Test & Doğrulama"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:52
+msgid "Automated test coverage in this release:"
+msgstr "Bu sürümde otomatik test kapsamı:"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:54
+msgid "PHPUnit tests"
+msgstr "PHPUnit testi"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:55
+msgid "assertions"
+msgstr "assertion"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:56
+msgid "errors / failures"
+msgstr "hata / başarısızlık"
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:58
+msgid "Tested with: WP 6.6, PHP 8.2"
+msgstr "Test edildi: WP 6.6, PHP 8.2"

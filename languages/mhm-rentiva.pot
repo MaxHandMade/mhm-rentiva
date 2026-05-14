@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-14T07:36:38+00:00\n"
+"POT-Creation-Date: 2026-05-14T07:56:09+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -656,7 +656,7 @@ msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:62
 #: build/admin/about.js:1
-#: src-react/admin/about/components/SupportTab.jsx:53
+#: src-react/admin/about/components/SupportTab.jsx:64
 msgid "Version History"
 msgstr ""
 
@@ -25571,6 +25571,36 @@ msgstr ""
 #: build/admin/about.js:1
 #: src-react/admin/about/components/SupportTab.jsx:46
 msgid "GitHub Issues"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:51
+msgid "Tests & Verification"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:52
+msgid "Automated test coverage in this release:"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:54
+msgid "PHPUnit tests"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:55
+msgid "assertions"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:56
+msgid "errors / failures"
+msgstr ""
+
+#: build/admin/about.js:1
+#: src-react/admin/about/components/SupportTab.jsx:58
+msgid "Tested with: WP 6.6, PHP 8.2"
 msgstr ""
 
 #: build/admin/about.js:1

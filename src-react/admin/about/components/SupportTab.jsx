@@ -47,6 +47,17 @@ export default function SupportTab( { data } ) {
 					</div>
 				</div>
 
+				<div className="mhm-widget mhm-support-card">
+					<h3><span className="dashicons dashicons-yes-alt"></span> { __( 'Tests & Verification', 'mhm-rentiva' ) }</h3>
+					<p>{ __( 'Automated test coverage in this release:', 'mhm-rentiva' ) }</p>
+					<ul>
+						<li><strong>1,207</strong> { __( 'PHPUnit tests', 'mhm-rentiva' ) }</li>
+						<li><strong>3,712</strong> { __( 'assertions', 'mhm-rentiva' ) }</li>
+						<li><strong>0</strong> { __( 'errors / failures', 'mhm-rentiva' ) }</li>
+					</ul>
+					<p className="mhm-support-card-meta">{ __( 'Tested with: WP 6.6, PHP 8.2', 'mhm-rentiva' ) }</p>
+				</div>
+
 			</div>
 
 			<div className="mhm-widget mhm-about-changelog">
