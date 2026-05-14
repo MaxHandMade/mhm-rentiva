@@ -98,9 +98,9 @@ final class About {
 					),
 					array(
 						'text'   => __( 'Support', 'mhm-rentiva' ),
-						'url'    => 'mailto:' . esc_attr( $support_email ),
+						'url'    => 'https://wpalemi.com/support/',
 						'class'  => 'button button-secondary',
-						'icon'   => 'dashicons-sos',
+						'icon'   => 'dashicons-external',
 						'target' => '_blank',
 					),
 					array(
