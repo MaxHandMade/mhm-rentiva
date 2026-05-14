@@ -314,12 +314,16 @@
     margin: 0 0 8px;
 }
 
-.mhm-license-action-btn {
-    margin-right: 10px;
+.mhm-license-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 16px;
 }
 
 .mhm-license-deactivate-form {
-    display: inline-block;
+    display: contents;
 }
 
 .mhm-plan-cta--active {

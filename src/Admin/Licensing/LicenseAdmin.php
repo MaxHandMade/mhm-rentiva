@@ -304,13 +304,6 @@ final class LicenseAdmin {
 				'mhm_rentiva_manage_subscription'
 			);
 
-			printf(
-				'<a href="%1$s" target="_blank" rel="noopener" class="button button-primary mhm-rentiva-manage-subscription mhm-license-action-btn %2$s">%3$s</a>',
-				esc_url($manage_url),
-				esc_attr($emphasis_class),
-				esc_html__('Manage Subscription', 'mhm-rentiva')
-			);
-
 			// v4.31.2+ — "Re-validate Now" button: lets the customer admin
 			// force an immediate license check without waiting for the 5-minute
 			// throttle or the 6-hour cron. Useful when the licence-server
@@ -325,6 +318,16 @@ final class LicenseAdmin {
 				),
 				'mhm_rentiva_revalidate'
 			);
+
+			echo '<div class="mhm-license-actions">';
+
+			printf(
+				'<a href="%1$s" target="_blank" rel="noopener" class="button button-primary mhm-rentiva-manage-subscription mhm-license-action-btn %2$s">%3$s</a>',
+				esc_url($manage_url),
+				esc_attr($emphasis_class),
+				esc_html__('Manage Subscription', 'mhm-rentiva')
+			);
+
 			echo '<a href="' . esc_url($revalidate_url) . '" class="button mhm-license-action-btn">' . esc_html__('Re-validate Now', 'mhm-rentiva') . '</a>';
 
 			echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '" class="mhm-license-deactivate-form" onsubmit="return confirm(\'' . esc_js(__('Are you sure you want to deactivate the license?', 'mhm-rentiva')) . '\')">';
@@ -333,6 +336,8 @@ final class LicenseAdmin {
 
 			submit_button(__('Deactivate License', 'mhm-rentiva'), 'secondary', 'submit', false);
 			echo '</form>';
+
+			echo '</div>';
 		}
 
 		// Close left column, open right column.
