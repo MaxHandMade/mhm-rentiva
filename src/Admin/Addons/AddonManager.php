@@ -629,10 +629,16 @@ final class AddonManager {
 
 
 	/**
-	 * Get currency from settings
+	 * Get currency code for addon display.
+	 *
+	 * Prefers WooCommerce currency when WC is active so addon prices stay in
+	 * sync with the rest of the booking flow. Falls back to the plugin's own
+	 * setting when WC is not present.
 	 */
 	public static function get_default_currency(): string {
-		// Get currency from general settings.
+		if ( function_exists( 'get_woocommerce_currency' ) ) {
+			return get_woocommerce_currency();
+		}
 		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
 	}
 
