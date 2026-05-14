@@ -497,19 +497,29 @@ final class Reports {
 	public static function render_upcoming_ops_widget(): void
 	{
 		$operations = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations(5);
+
+		$status_labels = array(
+			'confirmed' => __( 'Confirmed', 'mhm-rentiva' ),
+			'pending'   => __( 'Pending', 'mhm-rentiva' ),
+			'active'    => __( 'Active', 'mhm-rentiva' ),
+		);
 		?>
 		<style>
 			.mhm-upcoming-ops-widget__list { margin: 0; padding: 0; list-style: none; }
-			.mhm-upcoming-ops-widget__item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 6px; border-radius: 10px; background: #f9fafb; border: 1px solid #f3f4f6; transition: background 0.15s, border-color 0.15s; text-decoration: none; color: inherit; }
+			.mhm-upcoming-ops-widget__item { display: block; padding: 10px 12px; margin-bottom: 6px; border-radius: 10px; background: #f9fafb; border: 1px solid #f3f4f6; transition: background 0.15s, border-color 0.15s; text-decoration: none; color: inherit; }
 			.mhm-upcoming-ops-widget__item:hover { background: #eff6ff; border-color: #bfdbfe; }
-			.mhm-upcoming-ops-widget__icon { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; }
-			.mhm-upcoming-ops-widget__icon .dashicons { font-size: 18px; width: 18px; height: 18px; }
-			.mhm-upcoming-ops-widget__time-block { flex-shrink: 0; text-align: center; min-width: 50px; }
-			.mhm-upcoming-ops-widget__time-block strong { display: block; font-size: 13px; color: #1f2937; line-height: 1.2; font-weight: 600; }
-			.mhm-upcoming-ops-widget__time-block small { font-size: 11px; color: #6b7280; }
-			.mhm-upcoming-ops-widget__content { flex: 1; min-width: 0; }
-			.mhm-upcoming-ops-widget__content strong { font-size: 13px; color: #1f2937; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-			.mhm-upcoming-ops-widget__content small { font-size: 11px; color: #6b7280; }
+			.mhm-upcoming-ops-widget__header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+			.mhm-upcoming-ops-widget__icon { flex-shrink: 0; width: 28px; height: 28px; border-radius: 8px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; }
+			.mhm-upcoming-ops-widget__icon .dashicons { font-size: 16px; width: 16px; height: 16px; }
+			.mhm-upcoming-ops-widget__id { font-size: 13px; color: #1f2937; font-weight: 600; }
+			.mhm-upcoming-ops-widget__status { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin-left: auto; }
+			.mhm-upcoming-ops-widget__status--confirmed { background: #ecfdf5; color: #059669; }
+			.mhm-upcoming-ops-widget__status--pending { background: #fef3c7; color: #d97706; }
+			.mhm-upcoming-ops-widget__status--active { background: #eff6ff; color: #2563eb; }
+			.mhm-upcoming-ops-widget__body { padding-left: 36px; }
+			.mhm-upcoming-ops-widget__primary { font-size: 13px; color: #1f2937; line-height: 1.3; }
+			.mhm-upcoming-ops-widget__dates { font-size: 12px; color: #6b7280; margin-top: 2px; }
+			.mhm-upcoming-ops-widget__customer { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 			.mhm-upcoming-ops-widget__empty { text-align: center; padding: 20px 10px; color: #9ca3af; font-size: 13px; }
 			.mhm-upcoming-ops-widget__footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb; text-align: center; }
 			.mhm-upcoming-ops-widget__footer a { font-size: 13px; text-decoration: none; color: #2563eb; font-weight: 500; }
@@ -520,35 +530,62 @@ final class Reports {
 				<ul class="mhm-upcoming-ops-widget__list">
 					<?php
                     foreach ( $operations as $op ) :
-						$icon      = ( $op['type'] === 'transfer' ) ? 'dashicons-airplane' : 'dashicons-car';
-						$date_str  = ! empty($op['start_time'])
-							? $op['start_date'] . ' ' . $op['start_time']
-							: $op['start_date'];
-						$date_time = strtotime($date_str);
+						$is_transfer = ( $op['type'] === 'transfer' );
+						$icon        = $is_transfer ? 'dashicons-airplane' : 'dashicons-car';
 
-						$formatted_date = date_i18n('d M', $date_time);
-						$formatted_time = ! empty($op['start_time']) ? $op['start_time'] : wp_date('H:i', $date_time);
+						$start_dt    = ! empty( $op['start_time'] ) ? $op['start_date'] . ' ' . $op['start_time'] : $op['start_date'];
+						$start_stamp = strtotime( $start_dt );
+						$start_fmt   = date_i18n( 'd M', $start_stamp )
+							. ( ! empty( $op['start_time'] ) ? ' ' . $op['start_time'] : '' );
 
-						$customer         = $op['customer_name'];
-						$vehicle_or_route = ( $op['type'] === 'transfer' )
-							? ( ( $op['origin'] ?? '' ) . ' → ' . ( $op['destination'] ?? '' ) )
-							: ( $op['vehicle_title'] ?? '' );
+						$end_fmt = '';
+						if ( ! $is_transfer && ! empty( $op['end_date'] ) ) {
+							$end_stamp = strtotime( $op['end_date'] );
+							$end_fmt   = date_i18n( 'd M', $end_stamp );
+						}
 
+						$customer    = $op['customer_name'];
 						$booking_id  = (int) ( $op['id'] ?? 0 );
-						$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id($booking_id) : '';
-						$booking_url = $booking_id ? admin_url('post.php?post=' . $booking_id . '&action=edit') : '';
+						$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id( $booking_id ) : '';
+						$booking_url = $booking_id ? admin_url( 'post.php?post=' . $booking_id . '&action=edit' ) : '';
 						$tag         = $booking_url ? 'a' : 'div';
+
+						$status        = (string) ( $op['status'] ?? '' );
+						$status_label  = $status_labels[ $status ] ?? $status;
+						$status_class  = $status ? 'mhm-upcoming-ops-widget__status--' . $status : '';
+
+						// Build primary text (vehicle + plate for rental; route for transfer)
+						if ( $is_transfer ) {
+							$primary = trim( ( $op['origin'] ?? '' ) . ' → ' . ( $op['destination'] ?? '' ) );
+						} else {
+							$primary = (string) ( $op['vehicle_title'] ?? '' );
+							if ( ! empty( $op['vehicle_plate'] ) ) {
+								$primary .= ' · ' . $op['vehicle_plate'];
+							}
+						}
 						?>
 						<li>
 							<<?php echo esc_attr( $tag ); ?> class="mhm-upcoming-ops-widget__item"<?php echo $booking_url ? ' href="' . esc_url( $booking_url ) . '"' : ''; ?>>
-								<span class="mhm-upcoming-ops-widget__icon"><span class="dashicons <?php echo esc_attr( $icon ); ?>"></span></span>
-								<div class="mhm-upcoming-ops-widget__time-block">
-									<strong><?php echo esc_html( $formatted_date ); ?></strong>
-									<small><?php echo esc_html( $formatted_time ); ?></small>
+								<div class="mhm-upcoming-ops-widget__header">
+									<span class="mhm-upcoming-ops-widget__icon"><span class="dashicons <?php echo esc_attr( $icon ); ?>"></span></span>
+									<span class="mhm-upcoming-ops-widget__id"><?php echo esc_html( $display_id ); ?></span>
+									<?php if ( $status_label ) : ?>
+										<span class="mhm-upcoming-ops-widget__status <?php echo esc_attr( $status_class ); ?>"><?php echo esc_html( $status_label ); ?></span>
+									<?php endif; ?>
 								</div>
-								<div class="mhm-upcoming-ops-widget__content">
-									<strong><?php echo esc_html( $vehicle_or_route ); ?></strong>
-									<small><?php echo esc_html( trim( $customer . ' ' . $display_id ) ); ?></small>
+								<div class="mhm-upcoming-ops-widget__body">
+									<div class="mhm-upcoming-ops-widget__primary"><?php echo esc_html( $primary ); ?></div>
+									<?php if ( $is_transfer ) : ?>
+										<div class="mhm-upcoming-ops-widget__dates"><?php echo esc_html( $start_fmt ); ?></div>
+									<?php else : ?>
+										<div class="mhm-upcoming-ops-widget__dates">
+											<?php echo esc_html( $start_fmt ); ?>
+											<?php if ( $end_fmt ) : ?> → <?php echo esc_html( $end_fmt ); ?><?php endif; ?>
+										</div>
+									<?php endif; ?>
+									<?php if ( $customer ) : ?>
+										<div class="mhm-upcoming-ops-widget__customer"><?php echo esc_html( $customer ); ?></div>
+									<?php endif; ?>
 								</div>
 							</<?php echo esc_attr( $tag ); ?>>
 						</li>
