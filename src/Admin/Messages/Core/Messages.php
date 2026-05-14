@@ -126,8 +126,8 @@ final class Messages {
 			.mhm-msg-widget__empty { text-align: center; padding: 20px 10px; color: #9ca3af; font-size: 13px; }
 			.mhm-msg-widget__empty .dashicons { font-size: 32px; width: 32px; height: 32px; display: block; margin: 0 auto 8px; color: #d1d5db; }
 			.mhm-msg-widget__footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb; text-align: center; }
-			.mhm-msg-widget__footer a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; background: #2563eb; color: #fff; border-radius: 6px; font-size: 13px; font-weight: 500; text-decoration: none; transition: background 0.15s; }
-			.mhm-msg-widget__footer a:hover { background: #1d4ed8; color: #fff; }
+			.mhm-msg-widget__footer a { font-size: 13px; text-decoration: none; color: #2563eb; font-weight: 500; }
+			.mhm-msg-widget__footer a:hover { text-decoration: underline; }
 		</style>
 		<div class="mhm-msg-widget">
 			<div class="mhm-msg-widget__header">
@@ -173,8 +173,7 @@ final class Messages {
 
 			<div class="mhm-msg-widget__footer">
 				<a href="<?php echo esc_url( MessageUrlHelper::get_messages_list_url() ); ?>">
-					<span class="dashicons dashicons-email" style="font-size:16px;width:16px;height:16px;"></span>
-					<?php esc_html_e( 'View All Messages', 'mhm-rentiva' ); ?>
+					<?php esc_html_e( 'View All Messages', 'mhm-rentiva' ); ?> &rarr;
 				</a>
 			</div>
 		</div>

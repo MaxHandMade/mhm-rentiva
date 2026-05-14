@@ -497,60 +497,73 @@ final class Reports {
 	public static function render_upcoming_ops_widget(): void
 	{
 		$operations = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations(5);
+		?>
+		<style>
+			.mhm-upcoming-ops-widget__list { margin: 0; padding: 0; list-style: none; }
+			.mhm-upcoming-ops-widget__item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 6px; border-radius: 10px; background: #f9fafb; border: 1px solid #f3f4f6; transition: background 0.15s, border-color 0.15s; text-decoration: none; color: inherit; }
+			.mhm-upcoming-ops-widget__item:hover { background: #eff6ff; border-color: #bfdbfe; }
+			.mhm-upcoming-ops-widget__icon { flex-shrink: 0; width: 36px; height: 36px; border-radius: 10px; background: #eff6ff; color: #2563eb; display: flex; align-items: center; justify-content: center; }
+			.mhm-upcoming-ops-widget__icon .dashicons { font-size: 18px; width: 18px; height: 18px; }
+			.mhm-upcoming-ops-widget__time-block { flex-shrink: 0; text-align: center; min-width: 50px; }
+			.mhm-upcoming-ops-widget__time-block strong { display: block; font-size: 13px; color: #1f2937; line-height: 1.2; font-weight: 600; }
+			.mhm-upcoming-ops-widget__time-block small { font-size: 11px; color: #6b7280; }
+			.mhm-upcoming-ops-widget__content { flex: 1; min-width: 0; }
+			.mhm-upcoming-ops-widget__content strong { font-size: 13px; color: #1f2937; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+			.mhm-upcoming-ops-widget__content small { font-size: 11px; color: #6b7280; }
+			.mhm-upcoming-ops-widget__empty { text-align: center; padding: 20px 10px; color: #9ca3af; font-size: 13px; }
+			.mhm-upcoming-ops-widget__footer { margin-top: 14px; padding-top: 12px; border-top: 1px solid #e5e7eb; text-align: center; }
+			.mhm-upcoming-ops-widget__footer a { font-size: 13px; text-decoration: none; color: #2563eb; font-weight: 500; }
+			.mhm-upcoming-ops-widget__footer a:hover { text-decoration: underline; }
+		</style>
+		<div class="mhm-upcoming-ops-widget">
+			<?php if ( ! empty( $operations ) ) : ?>
+				<ul class="mhm-upcoming-ops-widget__list">
+					<?php foreach ( $operations as $op ) :
+						$icon      = ( $op['type'] === 'transfer' ) ? 'dashicons-airplane' : 'dashicons-car';
+						$date_str  = ! empty($op['start_time'])
+							? $op['start_date'] . ' ' . $op['start_time']
+							: $op['start_date'];
+						$date_time = strtotime($date_str);
 
-		if (! empty($operations)) {
-			echo '<div class="mhm-upcoming-ops-widget">';
-			echo '<table class="widefat striped">';
-			echo '<thead><tr>';
-			echo '<th>' . esc_html__('Type', 'mhm-rentiva') . '</th>';
-			echo '<th>' . esc_html__('Time', 'mhm-rentiva') . '</th>';
-			echo '<th>' . esc_html__('Detail', 'mhm-rentiva') . '</th>';
-			echo '</tr></thead>';
-			echo '<tbody>';
+						$formatted_date = date_i18n('d M', $date_time);
+						$formatted_time = ! empty($op['start_time']) ? $op['start_time'] : wp_date('H:i', $date_time);
 
-			foreach ($operations as $op) {
-				$icon      = ( $op['type'] === 'transfer' ) ? 'dashicons-airplane' : 'dashicons-car';
-				$date_str  = ! empty($op['start_time'])
-					? $op['start_date'] . ' ' . $op['start_time']
-					: $op['start_date'];
-				$date_time = strtotime($date_str);
+						$customer         = $op['customer_name'];
+						$vehicle_or_route = ( $op['type'] === 'transfer' )
+							? ( ($op['origin'] ?? '') . ' → ' . ($op['destination'] ?? '') )
+							: ( $op['vehicle_title'] ?? '' );
 
-				$formatted_date = date_i18n('d M', $date_time);
-				$formatted_time = ! empty($op['start_time']) ? esc_html($op['start_time']) : wp_date('H:i', $date_time);
-
-				$customer         = esc_html($op['customer_name']);
-				$vehicle_or_route = ( $op['type'] === 'transfer' )
-					? esc_html($op['origin'] ?? '') . ' &rarr; ' . esc_html($op['destination'] ?? '')
-					: esc_html($op['vehicle_title'] ?? '');
-
-				$booking_id  = (int) ( $op['id'] ?? 0 );
-				$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id($booking_id) : '';
-				$booking_url = $booking_id ? esc_url(admin_url('post.php?post=' . $booking_id . '&action=edit')) : '';
-
-				echo '<tr>';
-				echo '<td style="text-align:center;"><span class="dashicons ' . esc_attr($icon) . '"></span></td>';
-				echo '<td>' . esc_html($formatted_date) . '<br><small>' . esc_html($formatted_time) . '</small></td>';
-				echo '<td>';
-				if ($booking_url) {
-					echo '<a href="' . esc_url($booking_url) . '" style="text-decoration:none;">';
-				}
-				echo '<strong>' . wp_kses_post( (string) $vehicle_or_route) . '</strong>';
-				echo '<br><small>' . esc_html( (string) $customer) . ' ' . esc_html($display_id) . '</small>';
-				if ($booking_url) {
-					echo '</a>';
-				}
-				echo '</td>';
-				echo '</tr>';
-			}
-			echo '</tbody></table>';
-
-			// Footer link
-			echo '<div style="margin-top:10px; text-align:right;">';
-			echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-dashboard')) . '">' . esc_html__('View Full Dashboard', 'mhm-rentiva') . '</a>';
-			echo '</div>';
-			echo '</div>';
-		} else {
-			echo '<p>' . esc_html__('No upcoming operations.', 'mhm-rentiva') . '</p>';
-		}
+						$booking_id  = (int) ( $op['id'] ?? 0 );
+						$display_id  = $booking_id ? '#' . mhm_rentiva_get_display_id($booking_id) : '';
+						$booking_url = $booking_id ? admin_url('post.php?post=' . $booking_id . '&action=edit') : '';
+						$tag         = $booking_url ? 'a' : 'div';
+						?>
+						<li>
+							<<?php echo esc_attr( $tag ); ?> class="mhm-upcoming-ops-widget__item"<?php echo $booking_url ? ' href="' . esc_url( $booking_url ) . '"' : ''; ?>>
+								<span class="mhm-upcoming-ops-widget__icon"><span class="dashicons <?php echo esc_attr( $icon ); ?>"></span></span>
+								<div class="mhm-upcoming-ops-widget__time-block">
+									<strong><?php echo esc_html( $formatted_date ); ?></strong>
+									<small><?php echo esc_html( $formatted_time ); ?></small>
+								</div>
+								<div class="mhm-upcoming-ops-widget__content">
+									<strong><?php echo esc_html( $vehicle_or_route ); ?></strong>
+									<small><?php echo esc_html( trim( $customer . ' ' . $display_id ) ); ?></small>
+								</div>
+							</<?php echo esc_attr( $tag ); ?>>
+						</li>
+					<?php endforeach; ?>
+				</ul>
+			<?php else : ?>
+				<div class="mhm-upcoming-ops-widget__empty">
+					<?php esc_html_e( 'No upcoming operations.', 'mhm-rentiva' ); ?>
+				</div>
+			<?php endif; ?>
+			<div class="mhm-upcoming-ops-widget__footer">
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=mhm-rentiva-dashboard' ) ); ?>">
+					<?php esc_html_e( 'View Full Dashboard', 'mhm-rentiva' ); ?> &rarr;
+				</a>
+			</div>
+		</div>
+		<?php
 	}
 }
