@@ -67,14 +67,15 @@ final class AboutController {
 	{
 		return array(
 			'is_pro'        => Mode::isPro(),
-			'support_email' => SettingsCore::get_support_email(),
+			'support_email' => 'support@wpalemi.com',
 			'phone'         => apply_filters( 'mhm_rentiva_contact_phone', self::CONTACT_PHONE ),
 			'links'         => array(
-				'docs'         => 'https://maxhandmade.github.io/mhm-rentiva-docs/',
-				'api_docs'     => 'https://maxhandmade.github.io/mhm-rentiva-docs/docs/developer/rest-api/',
-				'youtube'      => 'https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA',
-				'contact_form' => 'https://wpalemi.com/support/',
-				'wp_forum'     => 'https://wordpress.org/support/plugin/mhm-rentiva',
+				'docs'          => 'https://maxhandmade.github.io/mhm-rentiva-docs/',
+				'api_docs'      => 'https://maxhandmade.github.io/mhm-rentiva-docs/docs/api/overview',
+				'youtube'       => 'https://www.youtube.com/channel/UC3qBE6ZCCEc8ugFUYXwtcpA',
+				'contact_form'  => 'https://wpalemi.com/support/',
+				'wp_forum'      => 'https://wordpress.org/support/plugin/mhm-rentiva',
+				'github_issues' => 'https://github.com/MaxHandMade/mhm-rentiva/issues',
 			),
 			'changelog'     => SupportTab::get_changelog(),
 		);

@@ -39,6 +39,14 @@ export default function SupportTab( { data } ) {
 					</div>
 				</div>
 
+				<div className="mhm-widget mhm-support-card">
+					<h3>{ __( 'Bug Reports & Feature Requests', 'mhm-rentiva' ) }</h3>
+					<p>{ __( 'Use GitHub Issues to report bugs or suggest new features.', 'mhm-rentiva' ) }</p>
+					<div className="mhm-support-links">
+						<a href={ data.links.github_issues } target="_blank" rel="noreferrer" className="button button-secondary dashicons-before dashicons-warning">{ __( 'GitHub Issues', 'mhm-rentiva' ) }</a>
+					</div>
+				</div>
+
 			</div>
 
 			<div className="mhm-widget mhm-about-changelog">
