@@ -4,6 +4,13 @@ import { __ } from '@wordpress/i18n';
 import { useApi } from '../../../shared/hooks/useApi';
 import { rentivaApi } from '../../../shared/api/rentiva';
 
+const formatShortDate = ( dateStr ) => {
+	if ( ! dateStr ) return '';
+	const d = new Date( dateStr );
+	if ( isNaN( d.getTime() ) ) return dateStr;
+	return d.toLocaleDateString( undefined, { day: '2-digit', month: 'short' } );
+};
+
 export default function UpcomingOperations( { initial } ) {
 	const [ page, setPage ] = useState( 1 );
 
@@ -28,16 +35,38 @@ export default function UpcomingOperations( { initial } ) {
 				<p className="mhm-empty">{ __( 'No upcoming operations in the next 7 days.', 'mhm-rentiva' ) }</p>
 			) }
 
-			{ ! loading && items.map( ( op ) => (
-				<div key={ op.id } className="mhm-ops-row">
-					<span className={ `dashicons ${ op.type === 'transfer' ? 'dashicons-airplane' : 'dashicons-car' }` } />
-					<span className="mhm-ops-row__id">{ op.display_id }</span>
-					<span className="mhm-ops-row__date">
-						{ op.start_date }{ op.start_time ? ` ${ op.start_time }` : '' }
-					</span>
-					<span className={ `mhm-status mhm-status--${ op.status }` }>{ op.status_label }</span>
-				</div>
-			) ) }
+			{ ! loading && items.map( ( op ) => {
+				const isTransfer = op.type === 'transfer';
+				const primary    = isTransfer
+					? `${ op.origin || '' } → ${ op.destination || '' }`.trim()
+					: ( op.vehicle_title || '' ) + ( op.vehicle_plate ? ` · ${ op.vehicle_plate }` : '' );
+				const startFmt = formatShortDate( op.start_date ) + ( op.start_time ? ` ${ op.start_time }` : '' );
+				const endFmt   = ! isTransfer ? formatShortDate( op.end_date ) : '';
+
+				return (
+					<div key={ op.id } className="mhm-upcoming-ops__item">
+						<div className="mhm-upcoming-ops__header">
+							<span className="mhm-upcoming-ops__icon">
+								<span className={ `dashicons ${ isTransfer ? 'dashicons-airplane' : 'dashicons-car' }` } />
+							</span>
+							<span className="mhm-upcoming-ops__id">#{ op.display_id }</span>
+							{ op.status_label && (
+								<span className={ `mhm-upcoming-ops__status mhm-upcoming-ops__status--${ op.status }` }>{ op.status_label }</span>
+							) }
+						</div>
+						<div className="mhm-upcoming-ops__body">
+							<div className="mhm-upcoming-ops__primary">{ primary }</div>
+							<div className="mhm-upcoming-ops__dates">
+								{ startFmt }
+								{ endFmt && <> → { endFmt }</> }
+							</div>
+							{ op.customer_name && (
+								<div className="mhm-upcoming-ops__customer">{ op.customer_name }</div>
+							) }
+						</div>
+					</div>
+				);
+			} ) }
 
 			{ totalPages > 1 && (
 				<div className="mhm-ops-pagination">
