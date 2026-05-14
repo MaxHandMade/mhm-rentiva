@@ -56,7 +56,7 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
 
     // ── List ─────────────────────────────────────────────────────────────
 
-    public function test_admin_get_list_returns_200_with_20_shortcodes(): void
+    public function test_admin_get_list_returns_200_with_26_shortcodes(): void
     {
         wp_set_current_user( $this->admin_id );
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/shortcode-pages' );
@@ -67,8 +67,8 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey( 'shortcodes', $data );
         $this->assertArrayHasKey( 'stats', $data );
-        $this->assertCount( 20, $data['shortcodes'] );
-        $this->assertSame( 20, (int) $data['stats']['total'] );
+        $this->assertCount( 26, $data['shortcodes'] );
+        $this->assertSame( 26, (int) $data['stats']['total'] );
     }
 
     public function test_all_shortcode_slugs_have_rentiva_prefix(): void
@@ -152,7 +152,7 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'scanned_pages', $data );
         $this->assertArrayHasKey( 'results', $data );
         $this->assertGreaterThanOrEqual( 0, (int) $data['scanned_pages'] );
-        $this->assertCount( 20, $data['results'] );
+        $this->assertCount( 26, $data['results'] );
         $this->assertArrayHasKey( 'slug',     $data['results'][0] );
         $this->assertArrayHasKey( 'found_in', $data['results'][0] );
     }
