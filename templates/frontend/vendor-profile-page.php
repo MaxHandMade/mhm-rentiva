@@ -18,7 +18,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-$mhm_rentiva_vendor_slug = (string) get_query_var(\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite::QUERY_VAR);
+$mhm_rentiva_vendor_slug   = (string) get_query_var(\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite::QUERY_VAR);
 $mhm_rentiva_directory_url = home_url('/' . \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase::resolve() . '/');
 
 get_header();

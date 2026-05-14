@@ -518,7 +518,8 @@ final class Reports {
 		<div class="mhm-upcoming-ops-widget">
 			<?php if ( ! empty( $operations ) ) : ?>
 				<ul class="mhm-upcoming-ops-widget__list">
-					<?php foreach ( $operations as $op ) :
+					<?php
+                    foreach ( $operations as $op ) :
 						$icon      = ( $op['type'] === 'transfer' ) ? 'dashicons-airplane' : 'dashicons-car';
 						$date_str  = ! empty($op['start_time'])
 							? $op['start_date'] . ' ' . $op['start_time']
@@ -530,7 +531,7 @@ final class Reports {
 
 						$customer         = $op['customer_name'];
 						$vehicle_or_route = ( $op['type'] === 'transfer' )
-							? ( ($op['origin'] ?? '') . ' → ' . ($op['destination'] ?? '') )
+							? ( ( $op['origin'] ?? '' ) . ' → ' . ( $op['destination'] ?? '' ) )
 							: ( $op['vehicle_title'] ?? '' );
 
 						$booking_id  = (int) ( $op['id'] ?? 0 );
