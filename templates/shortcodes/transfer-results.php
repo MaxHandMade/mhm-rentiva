@@ -176,11 +176,11 @@ $wrapper_class  = 'mhm-transfer-results-page mhm-transfer-results rv-transfer-re
 				$transfer_card_html = Templates::render(
 					'partials/transfer-card',
 					array(
-						'item'         => $item,
-						'criteria'     => $criteria,
-						'atts'         => $atts,
-						'format_price' => $format_price,
-						'origin_name'  => $origin_name,
+						'item'             => $item,
+						'criteria'         => $criteria,
+						'atts'             => $atts,
+						'format_price'     => $format_price,
+						'origin_name'      => $origin_name,
 						'destination_name' => $destination_name,
 					),
 					true

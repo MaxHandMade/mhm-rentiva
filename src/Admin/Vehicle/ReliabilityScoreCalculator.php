@@ -352,7 +352,7 @@ final class ReliabilityScoreCalculator {
 	public static function count_completed_bookings(int $vendor_id, int $months_window = 6): int
 	{
 		$months_window = max(1, $months_window);
-		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . $months_window . ' months'));
+		$cutoff        = gmdate('Y-m-d H:i:s', strtotime('-' . $months_window . ' months'));
 
 		$vehicle_ids = get_posts(array(
 			'post_type'      => 'vehicle',

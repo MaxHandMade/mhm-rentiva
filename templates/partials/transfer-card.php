@@ -10,12 +10,12 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Helpers\Icons;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 
-$item              = isset($item) && is_array($item) ? $item : array();
-$criteria          = isset($criteria) && is_array($criteria) ? $criteria : array();
-$atts              = isset($atts) && is_array($atts) ? $atts : array();
-$layout            = $atts['layout'] ?? 'grid';
-$origin_name       = isset($origin_name) ? (string) $origin_name : '';
-$destination_name  = isset($destination_name) ? (string) $destination_name : '';
+$item             = isset($item) && is_array($item) ? $item : array();
+$criteria         = isset($criteria) && is_array($criteria) ? $criteria : array();
+$atts             = isset($atts) && is_array($atts) ? $atts : array();
+$layout           = $atts['layout'] ?? 'grid';
+$origin_name      = isset($origin_name) ? (string) $origin_name : '';
+$destination_name = isset($destination_name) ? (string) $destination_name : '';
 
 if (! isset($format_price) || ! is_callable($format_price)) {
 	$format_price = static function (float $price, string $currency = ''): string {

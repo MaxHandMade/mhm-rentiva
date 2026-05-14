@@ -44,9 +44,9 @@ final class MetaKeys {
 	public const VENDOR_LOCATION_ID       = '_mhm_rentiva_vendor_location_id';
 
 	// Vendor Profile (v4.37.0)
-	public const VENDOR_SLUG          = '_rentiva_vendor_slug';
-	public const VENDOR_SLUG_HISTORY  = '_rentiva_vendor_slug_history';
-	public const VENDOR_AVATAR_ID     = '_rentiva_vendor_avatar_id';
+	public const VENDOR_SLUG         = '_rentiva_vendor_slug';
+	public const VENDOR_SLUG_HISTORY = '_rentiva_vendor_slug_history';
+	public const VENDOR_AVATAR_ID    = '_rentiva_vendor_avatar_id';
 
 	// Vehicle Lifecycle Meta Keys
 	public const VEHICLE_LIFECYCLE_STATUS    = '_mhm_vehicle_lifecycle_status';

@@ -550,9 +550,9 @@ final class Reports {
 						$booking_url = $booking_id ? admin_url( 'post.php?post=' . $booking_id . '&action=edit' ) : '';
 						$tag         = $booking_url ? 'a' : 'div';
 
-						$status        = (string) ( $op['status'] ?? '' );
-						$status_label  = $status_labels[ $status ] ?? $status;
-						$status_class  = $status ? 'mhm-upcoming-ops-widget__status--' . $status : '';
+						$status       = (string) ( $op['status'] ?? '' );
+						$status_label = $status_labels[ $status ] ?? $status;
+						$status_class = $status ? 'mhm-upcoming-ops-widget__status--' . $status : '';
 
 						// Build primary text (vehicle + plate for rental; route for transfer)
 						if ( $is_transfer ) {
@@ -580,7 +580,10 @@ final class Reports {
 									<?php else : ?>
 										<div class="mhm-upcoming-ops-widget__dates">
 											<?php echo esc_html( $start_fmt ); ?>
-											<?php if ( $end_fmt ) : ?> → <?php echo esc_html( $end_fmt ); ?><?php endif; ?>
+											<?php
+                                            if ( $end_fmt ) :
+												?>
+                                                → <?php echo esc_html( $end_fmt ); ?><?php endif; ?>
 										</div>
 									<?php endif; ?>
 									<?php if ( $customer ) : ?>

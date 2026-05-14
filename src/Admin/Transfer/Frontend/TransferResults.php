@@ -239,8 +239,8 @@ final class TransferResults extends AbstractShortcode {
             'rentiva-transfer-addon-modal',
             'mhmRentivaTransferModalI18n',
             array(
-                'passengers'  => __( 'passengers', 'mhm-rentiva' ),
-                'required'    => __( 'required', 'mhm-rentiva' ),
+                'passengers'   => __( 'passengers', 'mhm-rentiva' ),
+                'required'     => __( 'required', 'mhm-rentiva' ),
                 'vehicleLabel' => __( 'Vehicle', 'mhm-rentiva' ),
                 'addonsLabel'  => __( 'Add-ons', 'mhm-rentiva' ),
             )
