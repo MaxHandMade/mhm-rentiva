@@ -139,7 +139,9 @@ final class LicenseAdmin {
 					'type' => 'documentation',
 					'url'  => \MHMRentiva\Admin\Core\Utilities\UXHelper::get_docs_url(),
 				),
-			)
+			),
+			true,
+			'v' . MHM_RENTIVA_VERSION
 		);
 
 		// Developer mode warning - only show if no real license is active
@@ -190,6 +192,11 @@ final class LicenseAdmin {
 			echo '</form>';
 			echo '</div>';
 		}
+
+		// 2-column grid wrapper: left = license sections, right = feature comparison.
+		echo '<style>@media (max-width: 782px) { .mhm-license-grid { grid-template-columns: 1fr !important; } }</style>';
+		echo '<div class="mhm-license-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">';
+		echo '<div>';
 
 		// License status
 		echo '<h2>' . esc_html__('License Status', 'mhm-rentiva') . '</h2>';
@@ -328,8 +335,16 @@ final class LicenseAdmin {
 			echo '</form>';
 		}
 
+		// Close left column, open right column.
+		echo '</div>';
+		echo '<div>';
+
 		// Lite vs Pro comparison
 		self::render_feature_comparison();
+
+		// Close right column + grid wrapper.
+		echo '</div>';
+		echo '</div>';
 
 		// Unobtrusive: auto-submit dev-mode toggle form on checkbox change.
 		echo '<script>(function(){var cb=document.getElementById("mhm-disable-dev-mode");if(cb){cb.addEventListener("change",function(){this.form.submit();});}}());</script>';
