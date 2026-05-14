@@ -53,14 +53,8 @@ final class Reports {
 			array( self::class, 'render_stats_widget' )
 		);
 
-		// Revenue chart and upcoming ops — Pro only (advanced reports feature)
+		// Upcoming operations — Pro only (advanced reports feature)
 		if ( Mode::canUseAdvancedReports() ) {
-			wp_add_dashboard_widget(
-				'mhm_rentiva_revenue_chart',
-				esc_html__('Revenue Chart', 'mhm-rentiva'),
-				array( self::class, 'render_revenue_widget' )
-			);
-
 			wp_add_dashboard_widget(
 				'mhm_rentiva_upcoming_ops',
 				esc_html__('Upcoming Operations', 'mhm-rentiva'),
@@ -140,14 +134,6 @@ final class Reports {
 			</div>
 		</div>
 		<?php
-	}
-
-	public static function render_revenue_widget(): void
-	{
-		$start_date = gmdate('Y-m-d', strtotime('-30 days'));
-		$end_date   = gmdate('Y-m-d');
-
-		Charts::render_revenue_chart($start_date, $end_date);
 	}
 
 	public static function get_dashboard_stats(): array
