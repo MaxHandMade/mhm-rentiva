@@ -308,6 +308,21 @@ final class DashboardService {
 			)
 		);
 
+		// Resolve locations table — new name takes priority over legacy name.
+		$new_loc_table          = $wpdb->prefix . 'rentiva_transfer_locations';
+		$old_loc_table          = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+		$locations_table        = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_loc_table ) ) === $new_loc_table )
+			? $new_loc_table
+			: $old_loc_table;
+		$locations_table_exists = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $locations_table ) ) === $locations_table );
+
+		$location_select = $locations_table_exists
+			? ', loc_veh.name as vehicle_location'
+			: ', NULL as vehicle_location';
+		$location_joins  = $locations_table_exists
+			? "LEFT JOIN {$locations_table} loc_veh ON pm_veh_loc.meta_value = loc_veh.id"
+			: '';
+
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT
@@ -322,21 +337,25 @@ final class DashboardService {
                 ) as customer_name,
                 pm_pickup.meta_value as pickup_date,
                 pm_status.meta_value as status
+                {$location_select}
              FROM {$wpdb->posts} p
-             LEFT JOIN {$wpdb->postmeta} pm_vid    ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
-             LEFT JOIN {$wpdb->posts}    p_veh     ON pm_vid.meta_value = p_veh.ID
-             LEFT JOIN {$wpdb->postmeta} pm_plate  ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
-             LEFT JOIN {$wpdb->postmeta} pm_first  ON p.ID = pm_first.post_id  AND pm_first.meta_key  = %s
-             LEFT JOIN {$wpdb->postmeta} pm_last   ON p.ID = pm_last.post_id   AND pm_last.meta_key   = %s
-             LEFT JOIN {$wpdb->postmeta} pm_name   ON p.ID = pm_name.post_id   AND pm_name.meta_key   = '_mhm_customer_name'
-             LEFT JOIN {$wpdb->postmeta} pm_name2  ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
-             LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
-             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_vid     ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
+             LEFT JOIN {$wpdb->posts}    p_veh      ON pm_vid.meta_value = p_veh.ID
+             LEFT JOIN {$wpdb->postmeta} pm_plate   ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_veh_loc ON p_veh.ID = pm_veh_loc.post_id AND pm_veh_loc.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_first   ON p.ID = pm_first.post_id  AND pm_first.meta_key  = %s
+             LEFT JOIN {$wpdb->postmeta} pm_last    ON p.ID = pm_last.post_id   AND pm_last.meta_key   = %s
+             LEFT JOIN {$wpdb->postmeta} pm_name    ON p.ID = pm_name.post_id   AND pm_name.meta_key   = '_mhm_customer_name'
+             LEFT JOIN {$wpdb->postmeta} pm_name2   ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
+             LEFT JOIN {$wpdb->postmeta} pm_pickup  ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_status  ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             {$location_joins}
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
              LIMIT %d OFFSET %d",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
+				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_FIRST_NAME,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
@@ -348,13 +367,60 @@ final class DashboardService {
 			ARRAY_A
 		);
 
+		$bookings = $bookings ?: array();
+
+		// Fill missing customer info via WooCommerce order or WordPress user fallback.
+		// Mirrors ReportRepository::get_upcoming_operations_paginated() enrichment.
+		// TODO(tech-debt): extract to shared helper to avoid duplication.
+		foreach ( $bookings as &$booking ) {
+			if ( ! empty( $booking['customer_name'] ) || empty( $booking['id'] ) ) {
+				continue;
+			}
+
+			$booking_id = (int) $booking['id'];
+
+			// Try WooCommerce order.
+			if ( function_exists( 'wc_get_order' ) ) {
+				$order_id = get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true )
+					?: get_post_meta( $booking_id, '_mhm_wc_order_id', true )
+					?: get_post_meta( $booking_id, '_mhm_order_id', true )
+					?: get_post_meta( $booking_id, '_booking_order_id', true );
+
+				if ( $order_id ) {
+					$order = wc_get_order( $order_id );
+					if ( $order ) {
+						$first = $order->get_billing_first_name();
+						$last  = $order->get_billing_last_name();
+						if ( $first || $last ) {
+							$booking['customer_name'] = trim( $first . ' ' . $last );
+						}
+						continue;
+					}
+				}
+			}
+
+			// Try WordPress user.
+			$user_id = get_post_meta( $booking_id, '_mhm_customer_user_id', true );
+			if ( $user_id ) {
+				$user = get_userdata( (int) $user_id );
+				if ( $user ) {
+					$first = $user->first_name;
+					$last  = $user->last_name;
+					if ( $first || $last ) {
+						$booking['customer_name'] = trim( $first . ' ' . $last );
+					}
+				}
+			}
+		}
+		unset( $booking );
+
 		$items = array_map(
 			function ( array $b ): array {
 				$b['display_id']   = mhm_rentiva_get_display_id( (int) $b['id'] );
 				$b['status_label'] = \MHMRentiva\Admin\Booking\Core\Status::get_label( $b['status'] ?? '' );
 				return $b;
 			},
-			$bookings ?: array()
+			$bookings
 		);
 
 		return array(

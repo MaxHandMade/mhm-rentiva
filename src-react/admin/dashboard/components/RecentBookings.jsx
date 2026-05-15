@@ -74,7 +74,7 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 								</span>
 							</div>
 							<div className="mhm-card-list__sub">
-								{ [ b.vehicle_title, b.vehicle_plate, b.pickup_date ]
+								{ [ b.vehicle_title, b.vehicle_plate, b.vehicle_location, b.pickup_date ]
 									.filter( Boolean )
 									.join( ' · ' ) }
 							</div>
