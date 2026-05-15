@@ -137,6 +137,39 @@ def stage_files(patterns: list[str]) -> int:
     return copied
 
 
+def inject_l10n_abspath_guard() -> int:
+    """Prepend ABSPATH guard to staged `languages/*.l10n.php` files.
+
+    Why this exists:
+        `wp i18n make-php` emits files in the form `<?php\nreturn [...];` with
+        no direct-file-access guard. WordPress.org Plugin Check flags this as
+        an ERROR (`missing_direct_file_access_protection`) and blocks
+        submission. We patch only the *staged* copies so the source files in
+        `languages/` stay in WP-CLI's canonical format (no diff churn when
+        i18n is regenerated).
+    """
+    guard       = "if ( ! defined( 'ABSPATH' ) ) { exit; }"
+    patched     = 0
+    languages   = STAGING_DIR / "languages"
+    if not languages.exists():
+        return 0
+    for path in languages.glob("*.l10n.php"):
+        original = path.read_text(encoding="utf-8")
+        # Skip if already protected (e.g. someone edited the source file).
+        if "defined('ABSPATH')" in original.replace(" ", "")[:200]:
+            continue
+        if original.startswith("<?php\n"):
+            new_content = "<?php\n" + guard + "\n" + original[6:]
+        elif original.startswith("<?php"):
+            new_content = "<?php\n" + guard + "\n" + original[5:]
+        else:
+            # Not a PHP file we recognize — leave it alone.
+            continue
+        path.write_text(new_content, encoding="utf-8")
+        patched += 1
+    return patched
+
+
 def create_zip(version: str) -> Path:
     zip_path = BUILD_DIR / f"{PLUGIN_SLUG}.{version}.zip"
     if zip_path.exists():
@@ -167,6 +200,9 @@ def main() -> int:
 
     copied = stage_files(patterns)
     print(f"[build] Staged   : {copied} files -> {STAGING_DIR}")
+
+    guarded = inject_l10n_abspath_guard()
+    print(f"[build] Guarded  : {guarded} l10n.php file(s) (ABSPATH injected)")
 
     zip_path = create_zip(version)
     size_mb = zip_path.stat().st_size / (1024 * 1024)
