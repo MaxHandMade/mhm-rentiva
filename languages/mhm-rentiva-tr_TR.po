@@ -10323,7 +10323,7 @@ msgstr "10 veya 11 haneli"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:182
 msgid "Service areas will be determined based on your selected city after your application is approved."
-msgstr ""
+msgstr "Hizmet alanları, başvurunuz onaylandıktan sonra seçtiğiniz şehre göre belirlenecektir."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:187
 msgid "About You"
@@ -12042,7 +12042,7 @@ msgstr "ℹ️ Lisans devre dışı bırakıldı."
 
 #: src/Admin/Licensing/LicenseAdmin.php:597
 msgid "🔄 License re-validated against the licence server. Pro state is now in sync."
-msgstr ""
+msgstr "🔄 Lisans, lisans sunucusunda yeniden doğrulandı. Pro durumu artık senkronize."
 
 #: src/Admin/Licensing/LicenseAdmin.php:603
 msgid "✅ Developer mode setting updated."
@@ -12448,7 +12448,7 @@ msgstr "Rentiva Lisans Güncellemesi"
 
 #: src/Admin/Licensing/LicenseManager.php:982
 msgid "A security update improved license verification. Please deactivate and reactivate your license once. Go to Rentiva > License."
-msgstr ""
+msgstr "Güvenlik güncellemesi lisans doğrulamasını iyileştirdi. Lütfen lisansınızı bir kez devre dışı bırakıp tekrar etkinleştirin. Rentiva > Lisans menüsüne gidin."
 
 #: src/Admin/Licensing/LicenseManager.php:1002
 msgid "Lifetime"
@@ -16299,7 +16299,7 @@ msgstr "İlan ve Süre Ayarları"
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:100
 msgid "Configure how long vehicle listings stay active and related timing rules."
-msgstr ""
+msgstr "Araç ilanlarının ne kadar süre aktif kalacağını ve ilgili zamanlama kurallarını yapılandırın."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:107
 msgid "Listing Duration (Days)"
@@ -17408,7 +17408,7 @@ msgstr "Kurulum Sihirbazı"
 
 #: src/Admin/Setup/SetupWizard.php:98
 msgid "Demo data loaded successfully! Refresh the page to see the cleanup button."
-msgstr ""
+msgstr "Demo veriler başarıyla yüklendi! Temizleme butonunu görmek için sayfayı yenileyin."
 
 #: src/Admin/Setup/SetupWizard.php:99
 msgid "Demo data removed. Refresh the page to continue."
@@ -21568,7 +21568,7 @@ msgstr "Görsel seç"
 
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:95
 msgid "Custom profile picture shown on the public vendor profile page. Leave empty to use Gravatar."
-msgstr ""
+msgstr "Herkese açık bayi profil sayfasında gösterilecek özel profil resmi. Gravatar kullanmak için boş bırakın."
 
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:102
 msgid "Public Profile URL Slug"
@@ -21576,7 +21576,7 @@ msgstr "Genel Profil URL Slug'ı"
 
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:105
 msgid "ASCII-only slug used in the public profile URL. Leave empty to auto-generate from display name. Changing this creates a 301 redirect from the old URL."
-msgstr ""
+msgstr "Herkese açık profil URL'inde kullanılan yalnızca ASCII karakterli slug. Görünen addan otomatik üretmek için boş bırakın. Değiştirmek eski URL'den 301 yönlendirme oluşturur."
 
 #: src/Admin/Vendor/Profile/VendorProfileSettingsSave.php:31
 msgid "Only JPG and PNG files are allowed."
@@ -22912,7 +22912,7 @@ msgstr "Genel URL Slug'ı"
 
 #: templates/account/partials/vendor-profile-settings.php:101
 msgid "ASCII characters only. Changing creates a 301 redirect from the old URL."
-msgstr ""
+msgstr "Yalnızca ASCII karakter. Değiştirmek eski URL'den 301 yönlendirme oluşturur."
 
 #: templates/account/partials/vendor-profile-settings.php:107
 msgid "Profile Information"
@@ -23937,7 +23937,7 @@ msgstr "Kontrol Panelime Git"
 #: templates/emails/vehicle-relisted.html.php:14
 #, php-format
 msgid "Your vehicle \"%s\" has been submitted for review. Our team will review it shortly and notify you once it is approved."
-msgstr ""
+msgstr ""%s" aracınız incelemeye gönderildi. Ekibimiz kısa süre içinde inceleyecek ve onaylandığında size bildirim gönderecek."
 
 #. translators: 1: vehicle title, 2: duration days
 #: templates/emails/vehicle-renewed.html.php:14
@@ -24888,7 +24888,7 @@ msgstr "Araç sayfalarında otomatik algılama için boş bırakın."
 
 #: assets/blocks/availability-calendar/index.js:43
 msgid "Months to Show"
-msgstr ""
+msgstr "Gösterilecek Ay Sayısı"
 
 #: assets/blocks/availability-calendar/index.js:56
 msgid "Start Week On"
@@ -24907,11 +24907,11 @@ msgstr "Düzen ve Stil"
 
 #: assets/blocks/availability-calendar/index.js:69
 msgid "Calendar Height"
-msgstr ""
+msgstr "Takvim Yüksekliği"
 
 #: assets/blocks/availability-calendar/index.js:72
 msgid "e.g., \"auto\", \"500px\""
-msgstr ""
+msgstr "örn., "auto", "500px""
 
 #: assets/blocks/availability-calendar/index.js:82
 #: assets/blocks/booking-form/index.js:59
@@ -24958,7 +24958,7 @@ msgstr "Form Açıklaması"
 
 #: assets/blocks/booking-form/index.js:33
 msgid "Show Login Prompt"
-msgstr ""
+msgstr "Giriş Uyarısı Göster"
 
 #: assets/blocks/booking-form/index.js:66
 msgid "Show Insurance Options"
@@ -24995,7 +24995,7 @@ msgstr "Gelişmiş Tarih Geçersiz Kılma"
 #: assets/blocks/booking-form/index.js:105
 #: assets/blocks/booking-form/index.js:111
 msgid "Format: YYYY-MM-DD. Leave empty for dynamic."
-msgstr ""
+msgstr "Biçim: YYYY-AA-GG. Dinamik için boş bırakın."
 
 #: assets/blocks/booking-form/index.js:116
 msgid "Default Days"
@@ -25015,7 +25015,7 @@ msgstr "Alıcı E-posta"
 
 #: assets/blocks/contact/index.js:38
 msgid "Overrides global setting."
-msgstr ""
+msgstr "Genel ayarı geçersiz kılar."
 
 #: assets/blocks/contact/index.js:41
 msgid "Subject Prefix"
@@ -25031,7 +25031,7 @@ msgstr "Telefon Alanını Göster"
 
 #: assets/blocks/contact/index.js:69
 msgid "Show Subject Field"
-msgstr ""
+msgstr "Konu Alanını Göster"
 
 #: assets/blocks/contact/index.js:74
 msgid "Show Booking ID Field"
@@ -25094,7 +25094,7 @@ msgstr "Kategoriye Göre Filtrele (ID'ler)"
 #: assets/blocks/featured-vehicles/index.js:62
 #: assets/blocks/featured-vehicles/index.js:68
 msgid "Comma separated IDs"
-msgstr ""
+msgstr "Virgülle ayrılmış ID'ler"
 
 #: assets/blocks/featured-vehicles/index.js:66
 #: assets/blocks/vehicles-grid/index.js:88
@@ -25112,7 +25112,7 @@ msgstr "Görünür Slaytlar"
 
 #: assets/blocks/featured-vehicles/index.js:90
 msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
-msgstr ""
+msgstr "Carousel altına "Tümünü Gör" bağlantısı ekler. Gizlemek için boş bırakın."
 
 #: assets/blocks/messages/index.js:37
 #: assets/blocks/my-bookings/index.js:38
@@ -25122,7 +25122,7 @@ msgstr "Duruma Göre Filtrele"
 
 #: assets/blocks/messages/index.js:41
 msgid "Unread"
-msgstr ""
+msgstr "Okunmamış"
 
 #: assets/blocks/messages/index.js:42
 msgid "Read"
@@ -25234,7 +25234,7 @@ msgstr "Sıralama Seçeneklerini Göster"
 
 #: assets/blocks/testimonials/index.js:42
 msgid "Carousel"
-msgstr ""
+msgstr "Carousel"
 
 #: assets/blocks/testimonials/index.js:49
 msgid "Filter by Rating"
@@ -25302,15 +25302,15 @@ msgstr "Her İkisi (Kiralama + Transfer)"
 
 #: assets/blocks/unified-search/index.js:56
 msgid "Controls which search tabs are available."
-msgstr ""
+msgstr "Hangi arama sekmelerinin kullanılabilir olduğunu kontrol eder."
 
 #: assets/blocks/unified-search/index.js:71
 msgid "Business Logic"
-msgstr ""
+msgstr "İş Mantığı"
 
 #: assets/blocks/unified-search/index.js:73
 msgid "Booking rules (min days, buffers) are inherited from Global Settings."
-msgstr ""
+msgstr "Rezervasyon kuralları (min günler, tampon süreler) Genel Ayarlardan devralınır."
 
 #: assets/blocks/unified-search/index.js:77
 msgid "Manage Global Rules"
@@ -25318,7 +25318,7 @@ msgstr "Global Kuralları Yönet"
 
 #: assets/blocks/unified-search/index.js:81
 msgid "UI & Branding"
-msgstr ""
+msgstr "Arayüz & Marka"
 
 #: assets/blocks/unified-search/index.js:86
 msgid "Horizontal (Standard)"
@@ -25330,7 +25330,7 @@ msgstr "Stil Hazır Ayarı"
 
 #: assets/blocks/unified-search/index.js:97
 msgid "Solid / Flat"
-msgstr ""
+msgstr "Dolu / Düz"
 
 #: assets/blocks/unified-search/index.js:109
 msgid "Pricing & Currency"
@@ -25375,15 +25375,15 @@ msgstr "Form Alanlarını Zorunlu Kıl"
 
 #: assets/blocks/unified-search/index.js:183
 msgid "Optional (Browse All)"
-msgstr ""
+msgstr "İsteğe Bağlı (Tümüne Gözat)"
 
 #: assets/blocks/unified-search/index.js:186
 msgid "When optional, users can search without filling any fields to browse all vehicles."
-msgstr ""
+msgstr "İsteğe bağlı olduğunda kullanıcılar tüm araçları görmek için herhangi bir alan doldurmadan arama yapabilir."
 
 #: assets/blocks/unified-search/index.js:189
 msgid "Pax Select (Adults/Children)"
-msgstr ""
+msgstr "Yolcu Seçimi (Yetişkinler/Çocuklar)"
 
 #: assets/blocks/unified-search/index.js:199
 msgid "Luggage Select"
@@ -25399,15 +25399,15 @@ msgstr "Yönlendirme Sayfası Kimliği"
 
 #: assets/blocks/unified-search/index.js:220
 msgid "Leave as default to use global results page."
-msgstr ""
+msgstr "Genel sonuç sayfasını kullanmak için varsayılan olarak bırakın."
 
 #: assets/blocks/unified-search/index.js:223
 msgid "Override Redirect Page ID"
-msgstr ""
+msgstr "Yönlendirme Sayfası ID'sini Geçersiz Kıl"
 
 #: assets/blocks/unified-search/index.js:226
 msgid "Enter a Page ID to override global setting. Clear to reset to Default."
-msgstr ""
+msgstr "Genel ayarı geçersiz kılmak için bir Sayfa ID'si girin. Varsayılana sıfırlamak için temizleyin."
 
 #: assets/blocks/vehicle-comparison/index.js:37
 msgid "Vehicle IDs (Optional)"
@@ -25485,7 +25485,7 @@ msgstr "Minimum Yorum Karakter Sayısı"
 
 #: assets/blocks/vehicle-rating-form/index.js:62
 msgid "Max Photos to Upload"
-msgstr ""
+msgstr "Yüklenecek Maks. Fotoğraf"
 
 #: assets/blocks/vehicle-rating-form/index.js:81
 msgid "Show Vehicle Preview"
@@ -25501,7 +25501,7 @@ msgstr "Kategori Puanlarını Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:101
 msgid "Show Photo Upload"
-msgstr ""
+msgstr "Fotoğraf Yüklemeyi Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:106
 msgid "Show Recommend Toggle"
@@ -25520,7 +25520,7 @@ msgstr "En Çok Yorumlanan"
 #: assets/blocks/vehicles-grid/index.js:56
 #: assets/blocks/vehicles-list/index.js:32
 msgid "Confidence Score"
-msgstr ""
+msgstr "Güvenilirlik Puanı"
 
 #: assets/blocks/vehicles-grid/index.js:80
 #: assets/blocks/vehicles-list/index.js:54
@@ -25549,7 +25549,7 @@ msgstr "Min. Yorum Sayısı"
 
 #: assets/blocks/vehicles-grid/index.js:128
 msgid "Masonry"
-msgstr ""
+msgstr "Masonry"
 
 #: assets/blocks/vehicles-grid/index.js:184
 msgid "View All Link"
@@ -25557,7 +25557,7 @@ msgstr "Tümünü Gör Bağlantısı"
 
 #: assets/blocks/vehicles-grid/index.js:189
 msgid "Adds a \"View All\" button below the grid. Leave empty to hide."
-msgstr ""
+msgstr "Grid altına "Tümünü Gör" butonu ekler. Gizlemek için boş bırakın."
 
 #: assets/blocks/vehicles-grid/index.js:195
 msgid "Default: \"View All Vehicles\""
