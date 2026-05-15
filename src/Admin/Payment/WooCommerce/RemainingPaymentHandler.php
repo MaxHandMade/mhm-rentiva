@@ -119,8 +119,24 @@ final class RemainingPaymentHandler {
 		$item->set_product($product);
 		$item->set_name($item_name);
 		$item->set_quantity(1);
-		$item->set_subtotal($remaining_amount);
-		$item->set_total($remaining_amount);
+
+		// $remaining_amount is tax-INCLUSIVE (gross). WC_Order_Item::set_subtotal()
+		// expects net (pre-tax) when prices_include_tax is on, then
+		// calculate_totals() re-adds tax. Without this conversion we double-tax
+		// the customer (gross + tax_on_gross), inflating the order total.
+		// wc_get_price_excluding_tax() handles tax class + zone automatically.
+		$net_amount = function_exists( 'wc_get_price_excluding_tax' )
+			? (float) wc_get_price_excluding_tax(
+				$product,
+				array(
+					'price' => $remaining_amount,
+					'qty'   => 1,
+				)
+			)
+			: (float) $remaining_amount;
+
+		$item->set_subtotal($net_amount);
+		$item->set_total($net_amount);
 
 		// Item meta so handle_order_status_change can pick up the booking
 		$item->add_meta_data('_mhm_booking_id', $booking_id, true);
