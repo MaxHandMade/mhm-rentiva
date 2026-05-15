@@ -958,28 +958,38 @@ final class DashboardService {
 
 		$now = current_time( 'mysql' );
 
+		// Status-aware: pull bookings that have at least one WC order attached
+		// (deposit or remaining). Filter by WC order status in PHP.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT p.ID as booking_id, p.post_title,
                     pm_name.meta_value as customer_name,
-                    CAST(pm_remaining.meta_value AS DECIMAL(10,2)) as amount,
+                    CAST(COALESCE(pm_deposit_amount.meta_value, '0') AS DECIMAL(10,2)) as deposit_amount,
+                    CAST(COALESCE(pm_remaining.meta_value, '0') AS DECIMAL(10,2)) as remaining_amount,
                     pm_deadline.meta_value as deadline,
-                    pm_status.meta_value as booking_status
+                    pm_status.meta_value as booking_status,
+                    pm_deposit_order.meta_value as deposit_order_id,
+                    pm_remaining_order.meta_value as remaining_order_id
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_deposit_amount ON p.ID = pm_deposit_amount.post_id AND pm_deposit_amount.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_remaining ON p.ID = pm_remaining.post_id AND pm_remaining.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_deposit_order ON p.ID = pm_deposit_order.post_id AND pm_deposit_order.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_remaining_order ON p.ID = pm_remaining_order.post_id AND pm_remaining_order.meta_key = %s
              WHERE p.post_type = %s
              AND p.post_status != %s
-             AND pm_remaining.meta_value IS NOT NULL
-             AND CAST(pm_remaining.meta_value AS DECIMAL(10,2)) > 0
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')
-             ORDER BY pm_deadline.meta_value ASC LIMIT 10",
+             AND ( pm_deposit_order.meta_value IS NOT NULL OR pm_remaining_order.meta_value IS NOT NULL )
+             ORDER BY pm_deadline.meta_value ASC LIMIT 50",
 				'_mhm_customer_name',
+				'_mhm_deposit_amount',
 				'_mhm_remaining_amount',
 				'_mhm_payment_deadline',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+				'_mhm_woocommerce_order_id',
+				'_mhm_remaining_order_id',
 				'vehicle_booking',
 				'trash'
 			),
@@ -993,20 +1003,74 @@ final class DashboardService {
 			'deposit'   => __( 'Deposit', 'mhm-rentiva' ),
 		);
 
-		$payments = array();
+		$type_labels = array(
+			'deposit'   => __( 'Deposit', 'mhm-rentiva' ),
+			'remaining' => __( 'Remaining', 'mhm-rentiva' ),
+		);
+
+		$pending_order_statuses = array( 'pending', 'on-hold' );
+
+		$payments        = array();
+		$has_wc_function = function_exists( 'wc_get_order' );
+
 		foreach ( $rows as $row ) {
-			$deadline   = $row['deadline'] ?? '';
-			$is_overdue = $deadline && strtotime( $deadline ) < strtotime( $now );
-			$status     = strtolower( $row['booking_status'] ?? 'pending' );
-			$payments[] = array(
-				'booking_id'    => $row['booking_id'],
-				'customer_name' => $row['customer_name'] ?? '',
-				'amount'        => $row['amount'] ?? 0,
-				'deadline'      => $deadline ? wp_date( 'd.m.Y', strtotime( $deadline ) ) : '—',
-				'status'        => $status,
-				'status_label'  => $status_labels[ $status ] ?? ucfirst( $status ),
-				'is_overdue'    => $is_overdue,
-			);
+			if ( count( $payments ) >= 10 ) {
+				break;
+			}
+
+			$booking_id         = (int) $row['booking_id'];
+			$deposit_order_id   = (int) ( $row['deposit_order_id'] ?? 0 );
+			$remaining_order_id = (int) ( $row['remaining_order_id'] ?? 0 );
+			$deadline           = $row['deadline'] ?? '';
+			$is_overdue         = $deadline && strtotime( $deadline ) < strtotime( $now );
+			$booking_status     = strtolower( $row['booking_status'] ?? 'pending' );
+
+			// Use WC order totals as the authoritative source — booking-side
+			// `_mhm_deposit_amount` / `_mhm_remaining_amount` may drift (e.g.
+			// some hooks zero out the remaining amount after status changes).
+			// Emit one row per pending WC order so admins see every payment due.
+			$display_id    = mhm_rentiva_get_display_id( $booking_id );
+			$customer_name = $row['customer_name'] ?? '';
+			$deadline_fmt  = $deadline ? wp_date( 'd.m.Y', strtotime( $deadline ) ) : '—';
+			$status_label  = $status_labels[ $booking_status ] ?? ucfirst( $booking_status );
+
+			if ( $has_wc_function && $deposit_order_id > 0 && count( $payments ) < 10 ) {
+				$deposit_order = wc_get_order( $deposit_order_id );
+				if ( $deposit_order && in_array( $deposit_order->get_status(), $pending_order_statuses, true ) ) {
+					$payments[] = array(
+						'booking_id'    => $booking_id,
+						'display_id'    => $display_id,
+						'customer_name' => $customer_name,
+						'amount'        => (float) $deposit_order->get_total(),
+						'deadline'      => $deadline_fmt,
+						'status'        => $booking_status,
+						'status_label'  => $status_label,
+						'type'          => 'deposit',
+						'type_label'    => $type_labels['deposit'],
+						'order_id'      => $deposit_order_id,
+						'is_overdue'    => (bool) $is_overdue,
+					);
+				}
+			}
+
+			if ( $has_wc_function && $remaining_order_id > 0 && count( $payments ) < 10 ) {
+				$remaining_order = wc_get_order( $remaining_order_id );
+				if ( $remaining_order && in_array( $remaining_order->get_status(), $pending_order_statuses, true ) ) {
+					$payments[] = array(
+						'booking_id'    => $booking_id,
+						'display_id'    => $display_id,
+						'customer_name' => $customer_name,
+						'amount'        => (float) $remaining_order->get_total(),
+						'deadline'      => $deadline_fmt,
+						'status'        => $booking_status,
+						'status_label'  => $status_label,
+						'type'          => 'remaining',
+						'type_label'    => $type_labels['remaining'],
+						'order_id'      => $remaining_order_id,
+						'is_overdue'    => (bool) $is_overdue,
+					);
+				}
+			}
 		}
 
 		return $payments;

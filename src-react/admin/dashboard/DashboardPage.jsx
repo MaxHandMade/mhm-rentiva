@@ -68,7 +68,7 @@ export default function DashboardPage() {
 
 			{ /* Row 4: Pending Payments (left) + Revenue Chart (right) */ }
 			<div className="mhm-dashboard__row mhm-dashboard__row--4">
-				<PendingPayments payments={ pendingPayments } adminUrl={ adminUrl } />
+				<PendingPayments payments={ pendingPayments } currency={ currency } adminUrl={ adminUrl } />
 				<RevenueChart    revenueData={ revenueData }  currency={ currency } />
 			</div>
 

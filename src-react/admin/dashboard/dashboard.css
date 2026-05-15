@@ -167,3 +167,13 @@
 .mhm-pending-payments table {
 	font-size: 12px;
 }
+
+.mhm-payment-type {
+	display: inline-block;
+	padding: 2px 8px;
+	border-radius: 6px;
+	font-size: 11px;
+	font-weight: 600;
+}
+.mhm-payment-type--deposit   { background: #fef3c7; color: #d97706; }
+.mhm-payment-type--remaining { background: #eff6ff; color: #2563eb; }
