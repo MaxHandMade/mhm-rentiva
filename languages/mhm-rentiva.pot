@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-05-14T11:30:47+00:00\n"
+"POT-Creation-Date: 2026-05-15T14:49:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -184,7 +184,7 @@ msgstr ""
 #: src/Admin/About/SystemInfo.php:225
 #: src/Admin/Core/AssetManager.php:908
 #: src/Admin/Core/AssetManager.php:1341
-#: src/Admin/Frontend/Account/AccountController.php:255
+#: src/Admin/Frontend/Account/AccountController.php:256
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:316
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:261
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
@@ -840,11 +840,12 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:469
 #: src/Admin/Addons/AddonMeta.php:106
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
+#: src/Admin/Reports/Reports.php:504
 #: src/Admin/Settings/Groups/LicenseSettings.php:85
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:1183
 #: src/Admin/Setup/SetupWizard.php:1242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:924
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1002
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1577
@@ -1365,7 +1366,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1230
 #: src/Admin/Core/AssetManager.php:1368
 #: src/Admin/Emails/Core/EmailTemplates.php:660
-#: src/Admin/Frontend/Account/AccountController.php:247
+#: src/Admin/Frontend/Account/AccountController.php:248
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:228
 #: templates/account/booking-detail.php:287
 #: templates/shortcodes/booking-form.php:416
@@ -1377,8 +1378,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:974
 #: src/Admin/Core/AssetManager.php:1050
 #: src/Admin/Emails/Core/EmailTemplates.php:661
-#: src/Admin/Frontend/Account/AccountController.php:209
-#: src/Admin/Frontend/Account/AccountController.php:281
+#: src/Admin/Frontend/Account/AccountController.php:210
+#: src/Admin/Frontend/Account/AccountController.php:282
 #: src/Admin/Frontend/Shortcodes/UnifiedSearch.php:195
 #: src/Admin/Messages/Core/Messages.php:1505
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
@@ -1480,10 +1481,10 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:306
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:594
-#: src/Admin/Frontend/Account/AccountController.php:677
-#: src/Admin/Frontend/Account/AccountController.php:723
-#: src/Admin/Frontend/Account/AccountController.php:831
+#: src/Admin/Frontend/Account/AccountController.php:595
+#: src/Admin/Frontend/Account/AccountController.php:678
+#: src/Admin/Frontend/Account/AccountController.php:724
+#: src/Admin/Frontend/Account/AccountController.php:832
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:902
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:613
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1000
@@ -1808,9 +1809,9 @@ msgstr ""
 #: src/Admin/Booking/Helpers/CancellationHandler.php:53
 #: src/Admin/Booking/Meta/BookingMeta.php:741
 #: src/Admin/Booking/Meta/BookingMeta.php:1295
-#: src/Admin/Frontend/Account/AccountController.php:600
-#: src/Admin/Frontend/Account/AccountController.php:684
-#: src/Admin/Frontend/Account/AccountController.php:882
+#: src/Admin/Frontend/Account/AccountController.php:601
+#: src/Admin/Frontend/Account/AccountController.php:685
+#: src/Admin/Frontend/Account/AccountController.php:883
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2202
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2261
 msgid "Invalid booking ID."
@@ -1962,8 +1963,9 @@ msgstr ""
 #: src/Admin/Messages/Settings/MessagesSettings.php:222
 #: src/Admin/PostTypes/Message/Message.php:342
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:168
-#: src/Admin/Utilities/Dashboard/DashboardService.php:757
-#: src/Admin/Utilities/Dashboard/DashboardService.php:922
+#: src/Admin/Reports/Reports.php:503
+#: src/Admin/Utilities/Dashboard/DashboardService.php:825
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1000
 #: src/Admin/Utilities/Export/ExportFilters.php:45
 #: src/Admin/Utilities/Export/ExportFilters.php:58
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:942
@@ -2001,7 +2003,8 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:136
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:191
-#: src/Admin/Utilities/Dashboard/DashboardService.php:923
+#: src/Admin/Reports/Reports.php:502
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1001
 #: src/Admin/Utilities/Export/ExportFilters.php:46
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:946
 #: templates/account/booking-detail.php:74
@@ -3167,7 +3170,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:653
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:345
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:925
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1003
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1007
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:493
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1521
 #: assets/blocks/booking-form/index.js:94
@@ -3325,7 +3329,7 @@ msgid "Process Remaining Amount"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:352
-#: src/Admin/Frontend/Account/AccountController.php:359
+#: src/Admin/Frontend/Account/AccountController.php:360
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: templates/account/booking-detail.php:251
@@ -3510,7 +3514,7 @@ msgid "Proceed with refund?"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:246
-#: src/Admin/Frontend/Account/AccountController.php:206
+#: src/Admin/Frontend/Account/AccountController.php:207
 #: src/Admin/Frontend/Account/AccountRenderer.php:320
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:387
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:407
@@ -3539,7 +3543,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:249
 #: src/Admin/Core/AssetManager.php:1124
-#: src/Admin/Frontend/Account/AccountController.php:256
+#: src/Admin/Frontend/Account/AccountController.php:257
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:270
 msgid "Unknown error"
 msgstr ""
@@ -4063,7 +4067,7 @@ msgid "Drop-off date must be after pick-up date."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:199
-#: src/Admin/Frontend/Account/AccountController.php:205
+#: src/Admin/Frontend/Account/AccountController.php:206
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:390
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:411
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:412
@@ -4104,6 +4108,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
 #: src/Admin/Core/AssetManager.php:654
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1008
 msgid "Remaining"
 msgstr ""
 
@@ -4612,7 +4617,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1226
 #: src/Admin/Core/AssetManager.php:1340
 #: src/Admin/Frontend/Account/AccountAssets.php:54
-#: src/Admin/Frontend/Account/AccountController.php:344
+#: src/Admin/Frontend/Account/AccountController.php:345
 #: src/Admin/Frontend/Account/AccountRenderer.php:172
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:61
 #: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:238
@@ -4646,7 +4651,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1229
 #: src/Admin/Core/AssetManager.php:1373
 #: src/Admin/Frontend/Account/AccountAssets.php:57
-#: src/Admin/Frontend/Account/AccountController.php:347
+#: src/Admin/Frontend/Account/AccountController.php:348
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:64
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
 #: src/Admin/Transfer/TransferAdmin.php:517
@@ -6936,7 +6941,7 @@ msgid "Failed to send template email."
 msgstr ""
 
 #: src/Admin/Emails/Core/EmailTemplates.php:181
-#: src/Admin/Frontend/Account/AccountController.php:360
+#: src/Admin/Frontend/Account/AccountController.php:361
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:82
@@ -7047,7 +7052,7 @@ msgstr ""
 
 #: src/Admin/Emails/Core/Mailer.php:384
 #: src/Admin/Messages/REST/Helpers/MessageQuery.php:99
-#: src/Admin/Utilities/Dashboard/DashboardService.php:767
+#: src/Admin/Utilities/Dashboard/DashboardService.php:835
 #: templates/shortcodes/vehicle-rating-form.php:214
 msgid "Anonymous"
 msgstr ""
@@ -7904,7 +7909,7 @@ msgid "Sent to vendor when an IBAN change request is rejected."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountAssets.php:55
-#: src/Admin/Frontend/Account/AccountController.php:345
+#: src/Admin/Frontend/Account/AccountController.php:346
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:62
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
@@ -7916,7 +7921,7 @@ msgid "An error occurred."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountAssets.php:56
-#: src/Admin/Frontend/Account/AccountController.php:346
+#: src/Admin/Frontend/Account/AccountController.php:347
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63
 msgid "Success!"
 msgstr ""
@@ -7938,7 +7943,7 @@ msgid "Removed from favorites!"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountAssets.php:62
-#: src/Admin/Frontend/Account/AccountController.php:577
+#: src/Admin/Frontend/Account/AccountController.php:578
 msgid "All favorites cleared"
 msgstr ""
 
@@ -8016,193 +8021,197 @@ msgid "Administrator"
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:200
+msgid "You"
+msgstr ""
+
+#: src/Admin/Frontend/Account/AccountController.php:201
 #: src/Admin/Frontend/Account/AccountRenderer.php:311
 msgid "Loading thread..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:201
+#: src/Admin/Frontend/Account/AccountController.php:202
 #: src/Admin/Frontend/Account/AccountRenderer.php:312
 #: build/admin/messages.js:1
 #: src-react/admin/messages/components/ThreadView.jsx:39
 msgid "Failed to load thread."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:202
+#: src/Admin/Frontend/Account/AccountController.php:203
 #: src/Admin/Frontend/Account/AccountRenderer.php:313
 #: build/admin/messages.js:1
 #: src-react/admin/messages/components/MessageTable.jsx:32
 msgid "No messages found."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:203
+#: src/Admin/Frontend/Account/AccountController.php:204
 #: src/Admin/Frontend/Account/AccountRenderer.php:314
 msgid "Close Message"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:204
+#: src/Admin/Frontend/Account/AccountController.php:205
 #: src/Admin/Frontend/Account/AccountRenderer.php:315
 #: src/Admin/Messages/Core/Messages.php:317
 msgid "This conversation is closed."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:207
+#: src/Admin/Frontend/Account/AccountController.php:208
 #: src/Admin/Frontend/Account/AccountRenderer.php:318
 #: src/Admin/Messages/Core/Messages.php:1107
 msgid "Message sent successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:208
+#: src/Admin/Frontend/Account/AccountController.php:209
 msgid "Message could not be sent."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:210
+#: src/Admin/Frontend/Account/AccountController.php:211
 msgid "Please enter your reply."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:211
+#: src/Admin/Frontend/Account/AccountController.php:212
 #: src/Admin/Frontend/Account/AccountRenderer.php:316
 #: src/Admin/Messages/Core/Messages.php:660
 msgid "Reply sent successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:212
+#: src/Admin/Frontend/Account/AccountController.php:213
 #: src/Admin/Frontend/Account/AccountRenderer.php:317
 #: build/admin/messages.js:1
 #: src-react/admin/messages/components/ReplyForm.jsx:20
 msgid "Failed to send reply."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:242
+#: src/Admin/Frontend/Account/AccountController.php:243
 msgid "Are you sure you want to export your data? This may take a few minutes."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:243
+#: src/Admin/Frontend/Account/AccountController.php:244
 msgid "Exporting..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:244
+#: src/Admin/Frontend/Account/AccountController.php:245
 msgid "Data exported successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:245
+#: src/Admin/Frontend/Account/AccountController.php:246
 msgid "An error occurred while exporting data"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:246
+#: src/Admin/Frontend/Account/AccountController.php:247
 msgid "Are you sure you want to withdraw your consent? This will disable data processing for your account."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:248
+#: src/Admin/Frontend/Account/AccountController.php:249
 msgid "Consent withdrawn successfully!"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:249
+#: src/Admin/Frontend/Account/AccountController.php:250
 msgid "An error occurred while withdrawing consent"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:250
+#: src/Admin/Frontend/Account/AccountController.php:251
 msgid "This action cannot be undone. Type \"DELETE\" to confirm account deletion:"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:251
+#: src/Admin/Frontend/Account/AccountController.php:252
 msgid "Are you absolutely sure? This will permanently delete your account and all data."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:252
+#: src/Admin/Frontend/Account/AccountController.php:253
 msgid "Deleting..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:253
+#: src/Admin/Frontend/Account/AccountController.php:254
 msgid "Account deleted successfully. You will be redirected to the homepage."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:254
+#: src/Admin/Frontend/Account/AccountController.php:255
 msgid "An error occurred while deleting account"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:280
+#: src/Admin/Frontend/Account/AccountController.php:281
 msgid "Cancelling..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:348
+#: src/Admin/Frontend/Account/AccountController.php:349
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:65
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:139
 msgid "Uploading..."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:349
-#: src/Admin/Frontend/Account/AccountController.php:660
+#: src/Admin/Frontend/Account/AccountController.php:350
+#: src/Admin/Frontend/Account/AccountController.php:661
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 msgid "Receipt uploaded successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:350
+#: src/Admin/Frontend/Account/AccountController.php:351
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
 msgid "Receipt upload failed."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:351
+#: src/Admin/Frontend/Account/AccountController.php:352
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 msgid "Account details saved successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:352
+#: src/Admin/Frontend/Account/AccountController.php:353
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:69
 msgid "Vehicle removed from favorites."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:353
+#: src/Admin/Frontend/Account/AccountController.php:354
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
 msgid "Vehicle added to favorites."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:354
+#: src/Admin/Frontend/Account/AccountController.php:355
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:71
 msgid "All favorites cleared."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:355
+#: src/Admin/Frontend/Account/AccountController.php:356
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 msgid "Passwords do not match."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:356
+#: src/Admin/Frontend/Account/AccountController.php:357
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 msgid "Are you sure you want to cancel changes?"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:357
+#: src/Admin/Frontend/Account/AccountController.php:358
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 msgid "No favorite vehicles yet."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:358
+#: src/Admin/Frontend/Account/AccountController.php:359
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:361
+#: src/Admin/Frontend/Account/AccountController.php:362
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 msgid "vehicle in your favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:362
+#: src/Admin/Frontend/Account/AccountController.php:363
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "vehicles in your favorites"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:565
+#: src/Admin/Frontend/Account/AccountController.php:566
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:202
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:259
 msgid "Security error."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:569
+#: src/Admin/Frontend/Account/AccountController.php:570
 msgid "You must be logged in"
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:590
-#: src/Admin/Frontend/Account/AccountController.php:673
+#: src/Admin/Frontend/Account/AccountController.php:591
+#: src/Admin/Frontend/Account/AccountController.php:674
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:638
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1043
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:276
@@ -8210,69 +8219,69 @@ msgstr ""
 msgid "You must be logged in."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:606
+#: src/Admin/Frontend/Account/AccountController.php:607
 msgid "You are not allowed to upload for this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:610
+#: src/Admin/Frontend/Account/AccountController.php:611
 msgid "No file uploaded."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:623
+#: src/Admin/Frontend/Account/AccountController.php:624
 msgid "Upload error."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:628
+#: src/Admin/Frontend/Account/AccountController.php:629
 msgid "Invalid file type. Allowed: JPG, PNG, PDF."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:690
+#: src/Admin/Frontend/Account/AccountController.php:691
 msgid "You are not allowed to remove receipt for this booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:695
+#: src/Admin/Frontend/Account/AccountController.php:696
 msgid "No receipt found to remove."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:708
+#: src/Admin/Frontend/Account/AccountController.php:709
 msgid "Receipt removed successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:710
+#: src/Admin/Frontend/Account/AccountController.php:711
 msgid "Failed to remove receipt file."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:728
+#: src/Admin/Frontend/Account/AccountController.php:729
 msgid "Please login."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:734
+#: src/Admin/Frontend/Account/AccountController.php:735
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:777
+#: src/Admin/Frontend/Account/AccountController.php:778
 msgid "Account updated successfully."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:781
+#: src/Admin/Frontend/Account/AccountController.php:782
 msgid "An error occurred while updating your account."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:798
-#: src/Admin/Frontend/Account/AccountController.php:811
+#: src/Admin/Frontend/Account/AccountController.php:799
+#: src/Admin/Frontend/Account/AccountController.php:812
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:861
+#: src/Admin/Frontend/Account/AccountController.php:862
 msgid "You must be logged in to cancel a booking."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:871
+#: src/Admin/Frontend/Account/AccountController.php:872
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 
-#: src/Admin/Frontend/Account/AccountController.php:909
+#: src/Admin/Frontend/Account/AccountController.php:910
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr ""
 
@@ -12545,7 +12554,7 @@ msgid "X-MHM-Challenge header is required."
 msgstr ""
 
 #: src/Admin/Messages/Core/Messages.php:88
-#: src/Admin/Utilities/Dashboard/DashboardService.php:793
+#: src/Admin/Utilities/Dashboard/DashboardService.php:861
 msgid "Pending Messages"
 msgstr ""
 
@@ -13335,13 +13344,13 @@ msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:223
 #: src/Admin/PostTypes/Message/Message.php:343
-#: src/Admin/Utilities/Dashboard/DashboardService.php:758
+#: src/Admin/Utilities/Dashboard/DashboardService.php:826
 msgid "Answered"
 msgstr ""
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:224
 #: src/Admin/PostTypes/Message/Message.php:344
-#: src/Admin/Utilities/Dashboard/DashboardService.php:759
+#: src/Admin/Utilities/Dashboard/DashboardService.php:827
 msgid "Closed"
 msgstr ""
 
@@ -13942,8 +13951,12 @@ msgstr ""
 msgid "Every 15 Minutes (Rentiva)"
 msgstr ""
 
-#: src/Admin/PostTypes/Maintenance/AutoCancel.php:232
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:310
 msgid "Reservation time expired."
+msgstr ""
+
+#: src/Admin/PostTypes/Maintenance/AutoCancel.php:414
+msgid "Booking auto-cancelled — orphan WC order backfill."
 msgstr ""
 
 #: src/Admin/PostTypes/Message/Message.php:58
@@ -14376,7 +14389,7 @@ msgstr ""
 
 #: src/Admin/Reports/Reports.php:60
 #: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:22
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:29
 msgid "Upcoming Operations"
 msgstr ""
 
@@ -14396,7 +14409,7 @@ msgid "Occupancy Rate"
 msgstr ""
 
 #: src/Admin/Reports/Reports.php:132
-#: src/Admin/Reports/Reports.php:564
+#: src/Admin/Reports/Reports.php:604
 msgid "View Full Dashboard"
 msgstr ""
 
@@ -14413,7 +14426,7 @@ msgstr ""
 msgid "Cache cleared successfully"
 msgstr ""
 
-#: src/Admin/Reports/Reports.php:559
+#: src/Admin/Reports/Reports.php:599
 msgid "No upcoming operations."
 msgstr ""
 
@@ -19384,12 +19397,12 @@ msgid "Dashboard layout reset successfully"
 msgstr ""
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:796
+#: src/Admin/Utilities/Dashboard/DashboardService.php:864
 #, php-format
 msgid "%s pending messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:799
+#: src/Admin/Utilities/Dashboard/DashboardService.php:867
 msgid "Now"
 msgstr ""
 
@@ -25658,6 +25671,7 @@ msgstr ""
 #: build/admin/customers.js:1
 #: build/admin/dashboard.js:1
 #: build/admin/export.js:1
+#: build/admin/messages.js:1
 #: build/admin/reports.js:1
 #: src-react/shared/components/ErrorBoundary.jsx:16
 msgid "An error occurred. Please refresh the page."
@@ -25725,7 +25739,7 @@ msgstr ""
 #: src-react/admin/customers/components/Pagination.jsx:22
 #: src-react/admin/dashboard/components/RecentBookings.jsx:101
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:55
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
 #: src-react/admin/messages/components/Pagination.jsx:23
 #: src-react/admin/vendor-management/components/VendorTable.jsx:147
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:114
@@ -25837,7 +25851,7 @@ msgstr ""
 #: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:54
 #: src-react/admin/dashboard/components/TransferWidget.jsx:46
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:25
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:32
 msgid "Failed to load."
 msgstr ""
 
@@ -25850,13 +25864,13 @@ msgstr ""
 #: build/admin/messages.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:93
 #: src-react/admin/dashboard/components/TransferWidget.jsx:85
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:48
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:77
 #: src-react/admin/messages/components/Pagination.jsx:13
 msgid "← Prev"
 msgstr ""
 
 #: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:28
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
 msgid "No upcoming operations in the next 7 days."
 msgstr ""
 
@@ -25871,13 +25885,13 @@ msgid "No transfers yet."
 msgstr ""
 
 #: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/PendingPayments.jsx:7
-#: src-react/admin/dashboard/components/PendingPayments.jsx:15
+#: src-react/admin/dashboard/components/PendingPayments.jsx:8
+#: src-react/admin/dashboard/components/PendingPayments.jsx:16
 msgid "Pending Payments"
 msgstr ""
 
 #: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/PendingPayments.jsx:8
+#: src-react/admin/dashboard/components/PendingPayments.jsx:9
 msgid "No pending payments."
 msgstr ""
 

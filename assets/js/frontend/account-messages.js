@@ -358,9 +358,16 @@ jQuery(document).ready(
 				let html = '<div class="thread-messages-list">';
 				threadData.messages.forEach(
 					function (message) {
-						const isCustomer = message.message_type === 'customer_to_admin';
+						// Mirror PHP default (Messages.php:358) — empty message_type
+						// means original thread starter, which is a customer message.
+						const messageType = message.message_type || 'customer_to_admin';
+						const isCustomer = messageType === 'customer_to_admin';
 						const messageClass = isCustomer ? 'customer-message' : 'admin-message';
-						const authorName = isCustomer ? (message.customer_name || mhmRentivaMessages.i18n.customer) : (message.admin_name || mhmRentivaMessages.i18n.administrator);
+						const rawName = isCustomer
+							? (message.customer_name || mhmRentivaMessages.i18n.customer)
+							: (message.admin_name || mhmRentivaMessages.i18n.administrator);
+						const youSuffix = mhmRentivaMessages.i18n.you ? ' (' + mhmRentivaMessages.i18n.you + ')' : '';
+						const authorName = isCustomer ? rawName + youSuffix : rawName;
 
 						html += '<div class="thread-message-item ' + messageClass + '">';
 						html += '<div class="message-header">';

@@ -197,6 +197,7 @@ final class AccountController {
 						'new'                => __('New', 'mhm-rentiva'),
 						'customer'           => __('Customer', 'mhm-rentiva'),
 						'administrator'      => __('Administrator', 'mhm-rentiva'),
+						'you'                => __('You', 'mhm-rentiva'),
 						'loadingThread'      => __('Loading thread...', 'mhm-rentiva'),
 						'threadLoadFailed'   => __('Failed to load thread.', 'mhm-rentiva'),
 						'noMessagesFound'    => __('No messages found.', 'mhm-rentiva'),

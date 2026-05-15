@@ -284,44 +284,54 @@
 	margin-bottom: 20px;
 }
 
-.thread-message {
-	margin-bottom: 20px;
-	padding: 15px;
-	border-radius: 6px;
-	border: 1px solid #eee;
+/* Chat bubble layout — customer (self) right, admin (other) left. */
+.thread-messages-list {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 8px 0;
 }
 
-.thread-message.customer {
-	background: #e3f2fd;
-	border-left: 4px solid #2196f3;
+.thread-message-item {
+	max-width: 70%;
+	padding: 10px 14px;
+	border-radius: 14px;
+	line-height: 1.5;
+	word-wrap: break-word;
 }
 
-.thread-message.admin {
-	background: #e8f5e8;
-	border-left: 4px solid #4caf50;
+.thread-message-item.customer-message {
+	align-self: flex-end;
+	background: #2563eb;
+	color: #fff;
+	border-bottom-right-radius: 4px;
 }
 
-.thread-message .message-header {
+.thread-message-item.admin-message {
+	align-self: flex-start;
+	background: #f3f4f6;
+	color: #1f2937;
+	border-bottom-left-radius: 4px;
+}
+
+.thread-message-item .message-header {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 10px;
-	padding-bottom: 8px;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+	gap: 12px;
+	margin-bottom: 4px;
+	font-size: 12px;
+	opacity: 0.85;
 }
 
-.thread-message .message-header strong {
-	color: #333;
-}
+.thread-message-item.customer-message .message-header strong { color: rgba(255, 255, 255, 0.95); }
+.thread-message-item.admin-message    .message-header strong { color: #374151; }
 
-.thread-message .message-date {
-	color: #666;
-	font-size: 0.9em;
-}
+.thread-message-item .message-date { opacity: 0.7; font-size: 11px; }
+.thread-message-item .message-content { margin: 0; }
+.thread-message-item .message-content p:last-child { margin-bottom: 0; }
 
-.thread-message .message-content {
-	line-height: 1.6;
-	color: #333;
+@media (max-width: 600px) {
+	.thread-message-item { max-width: 88%; }
 }
 
 /* Thread Reply */
