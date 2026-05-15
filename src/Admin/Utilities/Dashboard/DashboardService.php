@@ -323,9 +323,7 @@ final class DashboardService {
 			? "LEFT JOIN {$locations_table} loc_veh ON pm_veh_loc.meta_value = loc_veh.id"
 			: '';
 
-		$bookings = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT
+		$sql = "SELECT
                 p.ID as id,
                 p_veh.post_title as vehicle_title,
                 pm_plate.meta_value as vehicle_plate,
@@ -352,7 +350,11 @@ final class DashboardService {
              {$location_joins}
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
-             LIMIT %d OFFSET %d",
+             LIMIT %d OFFSET %d";
+
+		$bookings = $wpdb->get_results(
+			$wpdb->prepare(
+				$sql, // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- SQL is built from safe interpolated table/column strings and %s placeholders only.
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
