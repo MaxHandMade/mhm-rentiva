@@ -307,6 +307,7 @@ docs/*
 !docs/plans/**
 !docs/superpowers/
 !docs/superpowers/**
+!docs/wp-org-submission-notes.md
 # bin/ is dev-only, but build tooling + its doc must be tracked
 bin/*
 !bin/build-release.py
