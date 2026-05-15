@@ -208,59 +208,246 @@ final class AutoCancel {
 		}
 
 		foreach ($q->posts as $bid) {
-			$bid = (int) $bid;
+			self::cancel_booking_with_orders(
+				(int) $bid,
+				'Payment deadline expired (' . $minutes . ' minutes)'
+			);
+		}
+		wp_reset_postdata();
 
-			// Perform cancellation
-			try {
-				$newStatus = 'cancelled';
-				update_post_meta($bid, '_mhm_status', $newStatus);
-				update_post_meta($bid, '_mhm_payment_status', 'cancelled');
-				update_post_meta($bid, '_mhm_auto_cancelled', current_time('timestamp'));
-				update_post_meta($bid, '_mhm_auto_cancelled_reason', 'Payment deadline expired (' . $minutes . ' minutes)');
+		// Second sweep: bookings whose pickup_date is already in the past but
+		// were never paid. These escape the deadline-based sweep when the
+		// payment_deadline_minutes setting was changed, when meta keys were
+		// missing on legacy bookings, or when cron was offline at the time.
+		self::sweep_past_pickup_unpaid();
+	}
 
-				// Send Auto Cancellation Email
-				if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
-					\MHMRentiva\Helpers\NotificationHelper::send_auto_cancel_email($bid);
-				}
+	/**
+	 * Sweep bookings whose pickup_date is in the past but payment_status is
+	 * still pending. Idempotent — re-running is safe.
+	 *
+	 * @param int $limit Maximum bookings to process per run.
+	 * @return int Number of bookings cancelled in this sweep.
+	 */
+	private static function sweep_past_pickup_unpaid( int $limit = 50 ): int {
+		$today = wp_date( 'Y-m-d' );
+		$q     = new WP_Query(array(
+			'post_type'      => 'vehicle_booking',
+			'post_status'    => 'any',
+			'fields'         => 'ids',
+			'posts_per_page' => $limit,
+			'no_found_rows'  => true,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'meta_query'     => array(
+				'relation' => 'AND',
+				array(
+					'key'     => '_mhm_pickup_date',
+					'value'   => $today,
+					'compare' => '<',
+					'type'    => 'DATE',
+				),
+				array(
+					'key'     => '_mhm_payment_status',
+					'value'   => array( 'paid', 'completed', 'refunded', 'cancelled' ),
+					'compare' => 'NOT IN',
+				),
+				array(
+					'key'     => '_mhm_status',
+					'value'   => array( 'cancelled', 'refunded' ),
+					'compare' => 'NOT IN',
+				),
+			),
+		));
 
-				// 1. Cancel WooCommerce Order if exists
-				$order_id = get_post_meta($bid, '_mhm_wc_order_id', true);
-				if ($order_id) {
-					$order = function_exists('wc_get_order') ? call_user_func('\wc_get_order', $order_id) : null;
-					// Also cancel 'processing' orders — payment may have been captured but booking cancelled
+		$count = 0;
+		foreach ( $q->posts as $bid ) {
+			self::cancel_booking_with_orders( (int) $bid, 'Pickup date passed without payment' );
+			++$count;
+		}
+		wp_reset_postdata();
+		return $count;
+	}
+
+	/**
+	 * Centralised cancellation for a single booking: updates booking meta,
+	 * sends notification email, cancels both linked WC orders (deposit +
+	 * remaining), clears availability cache and fires the
+	 * `mhm_rentiva_booking_auto_cancelled` action.
+	 *
+	 * Used by both cron sweeps and backfill helpers so the cancellation
+	 * side-effects stay identical.
+	 *
+	 * @param int    $bid    Booking post ID.
+	 * @param string $reason Human-readable reason persisted on the booking.
+	 */
+	private static function cancel_booking_with_orders( int $bid, string $reason ): void {
+		try {
+			$new_status = 'cancelled';
+			update_post_meta($bid, '_mhm_status', $new_status);
+			update_post_meta($bid, '_mhm_payment_status', 'cancelled');
+			update_post_meta($bid, '_mhm_auto_cancelled', current_time('timestamp'));
+			update_post_meta($bid, '_mhm_auto_cancelled_reason', $reason);
+
+			if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
+				\MHMRentiva\Helpers\NotificationHelper::send_auto_cancel_email($bid);
+			}
+
+			// Cancel both WooCommerce orders (deposit + remaining) if present.
+			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
+			// historical key drift left several aliases in production data.
+			$wc_orders_to_cancel = array_filter(array(
+				(int) ( get_post_meta($bid, '_mhm_woocommerce_order_id', true)
+					?: get_post_meta($bid, '_mhm_wc_order_id', true)
+					?: get_post_meta($bid, '_mhm_order_id', true)
+					?: get_post_meta($bid, '_booking_order_id', true) ),
+				(int) get_post_meta($bid, '_mhm_remaining_order_id', true),
+			));
+
+			if ($wc_orders_to_cancel && function_exists('wc_get_order')) {
+				foreach (array_unique($wc_orders_to_cancel) as $oid) {
+					$order = call_user_func('\wc_get_order', $oid);
 					if ($order && $order->has_status(array( 'pending', 'on-hold', 'failed', 'processing' ))) {
 						$order->update_status('cancelled', __('Reservation time expired.', 'mhm-rentiva'));
 					}
 				}
+			}
 
-				// Clear availability cache
-				$vehicle_id = (int) get_post_meta($bid, '_mhm_vehicle_id', true);
-				if ($vehicle_id && class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
-					\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
-				}
+			$vehicle_id = (int) get_post_meta($bid, '_mhm_vehicle_id', true);
+			if ($vehicle_id && class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
+				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
+			}
 
-				// Log action
-				if (class_exists(AdvancedLogger::class)) {
-					AdvancedLogger::info(
-						"Booking #$bid auto-cancelled due to payment deadline expiration.",
-						array(
-							'booking_id'       => $bid,
-							'deadline_minutes' => $minutes,
-						),
-						'system'
-					);
-				}
+			if (class_exists(AdvancedLogger::class)) {
+				AdvancedLogger::info(
+					"Booking #$bid auto-cancelled.",
+					array(
+						'booking_id' => $bid,
+						'reason'     => $reason,
+					),
+					'system'
+				);
+			}
 
-				do_action('mhm_rentiva_booking_auto_cancelled', $bid, $newStatus);
-			} catch (\Throwable $e) {
-				// Per-booking failure must not abort the cron sweep; log and continue.
-				if (function_exists('error_log')) {
-					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-					error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
-				}
+			do_action('mhm_rentiva_booking_auto_cancelled', $bid, $new_status);
+		} catch (\Throwable $e) {
+			if (function_exists('error_log')) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
 			}
 		}
-		wp_reset_postdata();
+	}
+
+	/**
+	 * One-time backfill: cancel WC orders left in pending/on-hold for bookings
+	 * that were already auto-cancelled (or whose status is `cancelled`) but
+	 * whose WC order was never synced. Handles the historical key-drift bug
+	 * where AutoCancel only checked the wrong meta key.
+	 *
+	 * Idempotent — re-running is safe; only touches orders still in pending
+	 * statuses.
+	 *
+	 * Usage:
+	 *   wp eval 'echo MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::sync_orphan_wc_orders();'
+	 *
+	 * @return array{checked: int, cancelled: int, skipped: int}
+	 */
+	public static function sync_orphan_wc_orders(): array
+	{
+		$checked   = 0;
+		$cancelled = 0;
+		$skipped   = 0;
+
+		if (! function_exists('wc_get_order')) {
+			return compact('checked', 'cancelled', 'skipped');
+		}
+
+		$q = new \WP_Query(array(
+			'post_type'      => 'vehicle_booking',
+			'posts_per_page' => -1,
+			'post_status'    => 'any',
+			'fields'         => 'ids',
+			'no_found_rows'  => true,
+			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+			'meta_query'     => array(
+				'relation' => 'OR',
+				array(
+					'key'     => '_mhm_status',
+					'value'   => 'cancelled',
+					'compare' => '=',
+				),
+				array(
+					'key'     => '_mhm_auto_cancelled',
+					'compare' => 'EXISTS',
+				),
+			),
+		));
+
+		foreach ($q->posts as $bid) {
+			++$checked;
+			$bid = (int) $bid;
+
+			$candidate_ids = array_filter(array(
+				(int) ( get_post_meta($bid, '_mhm_woocommerce_order_id', true)
+					?: get_post_meta($bid, '_mhm_wc_order_id', true)
+					?: get_post_meta($bid, '_mhm_order_id', true)
+					?: get_post_meta($bid, '_booking_order_id', true) ),
+				(int) get_post_meta($bid, '_mhm_remaining_order_id', true),
+			));
+
+			if (! $candidate_ids) {
+				++$skipped;
+				continue;
+			}
+
+			// Each booking can have BOTH a deposit order and a remaining order;
+			// check & cancel them independently so a deposit already cancelled
+			// in a previous pass doesn't cause the remaining order to be missed.
+			$booking_touched = false;
+			foreach (array_unique($candidate_ids) as $oid) {
+				$order = call_user_func('\wc_get_order', $oid);
+				if (! $order) {
+					continue;
+				}
+				if (! $order->has_status(array( 'pending', 'on-hold', 'failed', 'processing' ))) {
+					continue;
+				}
+				$order->update_status('cancelled', __('Booking auto-cancelled — orphan WC order backfill.', 'mhm-rentiva'));
+				++$cancelled;
+				$booking_touched = true;
+			}
+
+			if (! $booking_touched) {
+				++$skipped;
+			}
+		}
+
+		if (class_exists(AdvancedLogger::class)) {
+			AdvancedLogger::info(
+				'Orphan WC order backfill completed.',
+				compact('checked', 'cancelled', 'skipped'),
+				'system'
+			);
+		}
+
+		return compact('checked', 'cancelled', 'skipped');
+	}
+
+	/**
+	 * One-time backfill: cancel bookings whose pickup date is in the past but
+	 * payment was never received. Catches bookings created before the
+	 * deadline-based sweep existed, or while it was disabled / mis-configured.
+	 *
+	 * Idempotent — bookings already in cancelled/completed/refunded/active
+	 * statuses are skipped.
+	 *
+	 * Usage:
+	 *   wp eval 'echo wp_json_encode(MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::sync_stale_past_bookings());'
+	 *
+	 * @return array{cancelled: int}
+	 */
+	public static function sync_stale_past_bookings(): array {
+		$cancelled = self::sweep_past_pickup_unpaid( 200 );
+		return array( 'cancelled' => $cancelled );
 	}
 
 	/**
