@@ -10,7 +10,7 @@
 
 </div>
 
-![Version](https://img.shields.io/badge/version-4.49.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.58.0-blue.svg)
 ![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
@@ -20,26 +20,27 @@
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Installation](#installation)
 - [Configuration](#configuration)
-- [Usage Guide](#usage-guide)
 - [Shortcodes Reference](#shortcodes-reference)
 - [REST API Documentation](#rest-api-documentation)
-- [Payment Gateways](#payment-gateways)
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Development](#development)
 - [Contributing](#contributing)
 - [Changelog](#changelog)
 - [License](#license)
+- [Developer](#developer)
+- [Support](#support)
+- [Star This Project](#star-this-project)
 
 ---
 
-## 🎯 Overview
+## Overview
 
 MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental businesses. Whether you're running a car rental company, motorcycle rental service, or a multi-location fleet operation, this plugin provides everything you need to manage your operations efficiently.
 
@@ -64,7 +65,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 ### 🚗 Vehicle Management System
 
@@ -934,7 +935,7 @@ All major admin pages have been migrated from legacy jQuery/WP_List_Table to Rea
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Step 1: Upload Plugin
 
@@ -996,7 +997,7 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### General Settings
 
@@ -1037,39 +1038,50 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ---
 
-## 🎯 Shortcodes Reference
+## Shortcodes Reference
 
-The plugin provides a comprehensive set of shortcodes for flexible layout building.
+The plugin registers **26 shortcodes** across booking, account, vendor marketplace, transfer, and supporting surfaces. Every shortcode has a paired Gutenberg block and Elementor widget that delegate to the same canonical renderer (Render Parity — identical output across all three).
 
-### Booking & Vehicle Display
+### Booking & Vehicle Display (9)
 - `[rentiva_booking_form]` — Main booking form (accepts `vehicle_id` parameter).
-- `[rentiva_vehicles_grid]` — Displays vehicles in a grid layout.
-- `[rentiva_vehicles_list]` — Displays vehicles in a list layout.
-- `[rentiva_featured_vehicles]` — Displays featured vehicles (slider/grid).
-- `[rentiva_vehicle_details]` — Displays detailed information for a single vehicle.
-- `[rentiva_search_results]` — Active search results page.
-- `[rentiva_unified_search]` — Modern unified search box.
+- `[rentiva_vehicles_grid]` — Vehicle catalog in a responsive grid layout.
+- `[rentiva_vehicles_list]` — Vehicle catalog in a list layout with details.
+- `[rentiva_featured_vehicles]` — Featured vehicles (Swiper slider / grid).
+- `[rentiva_vehicle_details]` — Single-vehicle detail page with gallery and booking CTA.
+- `[rentiva_search_results]` — Active search results page renderer.
+- `[rentiva_unified_search]` — Modern unified search box (vehicles + transfer).
 - `[rentiva_availability_calendar]` — Visual availability calendar.
-- `[rentiva_testimonials]` — Customer testimonials slider.
-- `[rentiva_vehicle_rating_form]` — Vehicle review/rating form.
+- `[rentiva_vehicle_comparison]` — Side-by-side vehicle comparison.
 
-### Customer Account
-- `[rentiva_user_dashboard]` — Customer/Vendor main dashboard.
-- `[rentiva_my_bookings]` — Lists customer's current and past bookings.
-- `[rentiva_my_favorites]` — Lists customer's favorite vehicles.
-- `[rentiva_payment_history]` — Displays payment history and receipt details.
-- `[rentiva_messages]` — Internal messaging system (Pro).
+### Customer Account (6)
+- `[rentiva_user_dashboard]` — Customer / Vendor main dashboard.
+- `[rentiva_my_bookings]` — Customer's current and past bookings (WC My Account sub-route).
+- `[rentiva_my_favorites]` — Customer's favorite vehicles (WC My Account sub-route).
+- `[rentiva_payment_history]` — Payment history and receipt details.
+- `[rentiva_messages]` — Internal vendor ↔ customer messaging (Pro).
+- `[rentiva_commission_resolver]` — Returns the active commission rate for a vendor (utility).
 
-### Vendor & Transfer
+### Vendor Marketplace (5, Pro)
 - `[rentiva_vendor_apply]` — New vendor application form.
-- `[rentiva_vehicle_submit]` — Frontend vehicle submission form (Vendor).
-- `[rentiva_vendor_ledger]` — Vendor financial ledger and balance table (Vendor).
-- `[rentiva_transfer_search]` — VIP Transfer / Chauffeur search form.
+- `[rentiva_vehicle_submit]` — Frontend vehicle submission form (vendor panel).
+- `[rentiva_vendor_bookings]` — Vendor's incoming bookings management table.
+- `[rentiva_vendor_profile]` — Public vendor profile page (delegated by `/vendor/<slug>/` rewrite).
+- `[rentiva_vendor_directory]` — Public catalogue of all active vendors (delegated by `/vendors/` rewrite).
+- `[rentiva_vendor_ledger]` — Vendor financial ledger and balance table (vendor panel).
+
+### Transfer Module (3)
+- `[rentiva_transfer_search]` — VIP transfer / chauffeur search form.
 - `[rentiva_transfer_results]` — Transfer search results display.
+- `[rentiva_popular_routes]` — A → B popular transfer route cards (homepage conversion block).
+
+### Supporting Surfaces (3)
+- `[rentiva_contact]` — Site contact form.
+- `[rentiva_testimonials]` — Customer testimonials slider (reads from `vehicle_booking` ratings).
+- `[rentiva_vehicle_rating_form]` — Post-booking vehicle review/rating form.
 
 ---
 
-## 🔌 REST API Documentation
+## REST API Documentation
 
 > **Lite:** Limited API access. **Pro:** Full REST API with all endpoints.
 
@@ -1098,30 +1110,41 @@ Protected against Brute Force via the `RateLimiter` system:
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```text
 mhm-rentiva/
-├── assets/                 # CSS, JS, Images (Minified)
-├── docs/                   # Technical documentation & API guides
-├── languages/              # i18n (.pot, .po)
-├── src/                    # PSR-4 Core PHP (MHMRentiva\*)
-│   ├── Admin/              # Admin Module Controllers & Services
-│   ├── Api/                # Custom REST API Endpoints
-│   ├── Blocks/             # Gutenberg Block definitions
-│   ├── CLI/                # WP-CLI Commands
-│   ├── Core/               # Financial engine & Base Services
-│   ├── Helpers/            # Utility & Sanitization classes
+├── assets/                 # Frontend & admin assets (CSS, JS, images)
+├── build/                  # Webpack-built React admin bundles + CSS
+├── src-react/              # React source — admin SPA components (Webpack input)
+├── bin/                    # Build tooling (build-release.py for WP.org ZIP)
+├── docs/                   # Technical documentation, plans, API guides
+├── languages/              # i18n: .pot, .po, .mo, .l10n.php, JED .json
+├── src/                    # PSR-4 PHP source (MHMRentiva\*)
+│   ├── Admin/              # Admin module controllers & services
+│   ├── Api/                # Custom REST API endpoints
+│   ├── Blocks/             # Gutenberg block definitions (19 blocks)
+│   ├── CLI/                # WP-CLI commands
+│   ├── Core/               # Financial engine, attribute pipeline, base services
+│   ├── Helpers/            # Sanitization, security, utility classes
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
-├── templates/              # HTML & Email templates
-├── mhm-rentiva.php         # Main entry point
-└── uninstall.php           # Cleanup on deletion
+├── templates/              # Frontend partials & email templates
+├── tests/                  # PHPUnit suite (1215 tests, 0 failures)
+├── vendor/                 # Composer dependencies (autoloader)
+├── changelog.json          # Structured version history (English)
+├── changelog-tr.json       # Structured version history (Turkish)
+├── mhm-rentiva.php         # Main plugin entry point
+├── uninstall.php           # Cleanup on plugin deletion
+├── readme.txt              # WordPress.org plugin directory metadata
+├── README.md               # Developer documentation (this file)
+├── README-tr.md            # Developer documentation (Turkish)
+└── LICENSE                 # GPLv2-or-later license
 ```
 
 ---
 
-## 📋 Requirements
+## Requirements
 
 ### WordPress & PHP
 - **WordPress**: 6.7 minimum (Tested up to 6.9)
@@ -1136,7 +1159,7 @@ mhm-rentiva/
 
 ---
 
-## 🛠 Development
+## Development
 
 ### Development Setup
 
@@ -1192,7 +1215,7 @@ define('SCRIPT_DEBUG', true);
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please follow these guidelines:
 
@@ -1205,7 +1228,7 @@ We welcome contributions! Please follow these guidelines:
 
 ---
 
-## 📝 Changelog
+## Changelog
 
 ### Version 4.26.0 (2026-04-07)
 - **Pay Remaining Amount**: Customers with deposit bookings can now pay the remaining balance directly from My Account → Booking Detail via a "Pay Remaining Amount" button.
@@ -1339,13 +1362,13 @@ Full changelog available in [changelog.json](changelog.json).
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the **GPL-2.0+** license. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👨‍💻 Developer
+## Developer
 
 **MaxHandMade**
 - Website: [wpalemi.com](https://wpalemi.com)
@@ -1353,7 +1376,7 @@ This project is licensed under the **GPL-2.0+** license. See the [LICENSE](LICEN
 
 ---
 
-## 📞 Support
+## Support
 
 For questions, issues, or feature requests:
 - **Email**: support@wpalemi.com
@@ -1361,7 +1384,7 @@ For questions, issues, or feature requests:
 
 ---
 
-## ⭐ Star This Project
+## Star This Project
 
 If you find this plugin useful, please consider giving it a star on GitHub!
 
