@@ -1,5 +1,32 @@
 [
   {
+    "version": "4.58.0",
+    "date": "2026-05-15",
+    "type": "minor",
+    "title": "Financial bug fixes, dashboard polish, expanded i18n",
+    "summary": "Critical fixes for remaining-payment double-tax and orphan WC orders after auto-cancel. Dashboard widgets (upcoming ops, recent bookings, pending payments, quick actions) gain status badges, plate, location, deposit/remaining split, and Transfer/Vendors buttons. About > Support gains GitHub Issues card, test stats and changelog accordion. License page now uses a 2-column grid with version subtitle. Messages adopt React 18 + chat bubble UI. 88 new TR translations.",
+    "changes": [
+      "Fix (critical): remaining-payment WC order no longer double-taxes — uses wc_get_price_excluding_tax() when prices_include_tax is on. Customer no longer overpays ~20% of the remaining amount.",
+      "Fix (critical): auto-cancelled bookings now correctly cancel their linked WC orders (deposit + remaining). One-time backfill helper sync_orphan_wc_orders() / sync_stale_past_bookings() recovers historical orphan pending orders.",
+      "Fix: addon list/statistics use WooCommerce currency dynamically (was reading plugin setting instead).",
+      "Fix: recent bookings widget shows customer name (WC order billing fallback) and vehicle location.",
+      "Fix: pending payments widget shows both deposit and remaining as separate rows, status-aware aggregation, WC order totals as source of truth.",
+      "Fix: defensive null coalescing for optional booking_data keys in WooCommerceBridge — removes Undefined array key warnings in PHP debug log.",
+      "Fix: WP Dashboard widgets (Stats, Upcoming Operations, Pending Messages) now share consistent footer and bubble styling.",
+      "Feat: Upcoming Operations widget (both WP Dashboard PHP version and plugin Dashboard React version) adds plate, status badge (green/amber/blue), and end date.",
+      "Feat: Quick Actions grid adds Transfer and Vendors shortcut buttons.",
+      "Feat: License page uses 2-column grid (account info left, Lite/Pro comparison right), version pill in header, flex action button row.",
+      "Feat: About > Support tab — added GitHub Issues card, Test & Verification stats card, version history accordion (first 5 visible, toggle for rest).",
+      "Feat: Messages thread view adopts modern chat bubble layout (right-aligned blue for self, left-aligned gray for other party) with You suffix.",
+      "Feat: Shortcode Pages admin now tracks all 26 registered shortcodes (was 20) — vendor/user/popular routes added.",
+      "Chore: Removed dead Revenue Chart dashboard widget and Charts.php (~85 lines orphan code after React migration).",
+      "Chore: ReactDOM.render → React 18 createRoot migration in Messages bundle.",
+      "Test: 12 new PHPUnit tests across RemainingPaymentTax, AutoCancelOrderKeyLookup, ShortcodePagesController suites — 1215 tests total, 0 failures.",
+      "i18n: 88 new Turkish translations across Pro features, block editor settings, email templates, and chat UI."
+    ],
+    "notice": "Critical financial fix — sites using deposit + remaining payment with prices_include_tax should run sync_orphan_wc_orders() via WP-CLI after upgrade to clean up historical pending orders. No schema changes."
+  },
+  {
     "version": "4.57.0",
     "date": "2026-05-12",
     "type": "patch",

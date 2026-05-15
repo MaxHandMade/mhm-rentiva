@@ -1,5 +1,32 @@
 [
   {
+    "version": "4.58.0",
+    "date": "2026-05-15",
+    "type": "minor",
+    "title": "Finansal hata düzeltmeleri, kontrol paneli iyileştirmeleri, genişletilmiş çeviri",
+    "summary": "Kalan ödeme çifte vergi sorunu ve otomatik iptal sonrası orphan WC siparişleri için kritik düzeltmeler. Kontrol paneli widget'ları (yaklaşan operasyonlar, son rezervasyonlar, bekleyen ödemeler, hızlı işlemler) durum rozeti, plaka, lokasyon, depozito/kalan ayrımı ve Transfer/Bayiler butonları kazandı. Hakkında > Destek sekmesine GitHub Issues kartı, test istatistikleri ve sürüm geçmişi accordion eklendi. Lisans sayfası artık 2 sütun grid + versiyon subtitle kullanıyor. Mesajlar React 18 + chat bubble arayüzüne geçti. 88 yeni TR çeviri.",
+    "changes": [
+      "Kritik düzeltme: Kalan ödeme WC siparişi artık çifte vergi uygulamıyor — prices_include_tax aktifken wc_get_price_excluding_tax() kullanılıyor. Müşteri kalan tutarın %20 fazlasını artık ödemiyor.",
+      "Kritik düzeltme: Otomatik iptal edilen rezervasyonlar artık bağlı WC siparişlerini de iptal ediyor (depozito + kalan). Tek seferlik backfill helper'ı sync_orphan_wc_orders() / sync_stale_past_bookings() ile geçmiş orphan pending siparişler temizlenebilir.",
+      "Düzeltme: Ek Hizmetler listesi ve istatistikleri WooCommerce para birimini dinamik olarak okuyor (önceden plugin ayarı kullanılıyordu).",
+      "Düzeltme: Son Rezervasyonlar widget'ı müşteri adı (WC order billing fallback) ve araç lokasyonu gösteriyor.",
+      "Düzeltme: Bekleyen Ödemeler widget'ı depozito ve kalan ödemeyi ayrı satır olarak gösteriyor, status-aware aggregation, WC order total'ı doğru kaynak olarak.",
+      "Düzeltme: WooCommerceBridge'de opsiyonel booking_data anahtarları için defensive null coalescing — PHP debug log'daki Undefined array key uyarıları kaldırıldı.",
+      "Düzeltme: WP Başlangıç widget'ları (İstatistikler, Yaklaşan Operasyonlar, Bekleyen Mesajlar) tutarlı footer ve bubble stiline kavuştu.",
+      "Yeni: Yaklaşan Operasyonlar widget'ı (hem WP Başlangıç PHP versiyonu hem plugin Kontrol Paneli React versiyonu) plaka, durum rozeti (yeşil/amber/mavi) ve bitiş tarihini gösteriyor.",
+      "Yeni: Hızlı İşlemler grid'ine Transfer ve Bayiler butonları eklendi.",
+      "Yeni: Lisans sayfası 2 sütun grid (sol hesap bilgileri, sağ Lite/Pro karşılaştırma) + başlıkta versiyon pill + flex aksiyon butonu satırı.",
+      "Yeni: Hakkında > Destek sekmesi — GitHub Issues kartı, Test & Doğrulama istatistik kartı, sürüm geçmişi accordion (ilk 5 görünür, kalan için toggle) eklendi.",
+      "Yeni: Mesajlar thread görünümü modern chat bubble düzenine geçti (kendi mesajları sağa hizalı mavi, karşı taraf sola hizalı gri) + (Sen) suffix.",
+      "Yeni: Kısa Kod Sayfaları yönetici artık tüm 26 kayıtlı kısa kodu izliyor (önceden 20) — bayi/kullanıcı/popüler güzergahlar eklendi.",
+      "Bakım: Ölü Gelir Grafiği kontrol paneli widget'ı ve Charts.php kaldırıldı (~85 satır orphan kod, React migration sonrası).",
+      "Bakım: ReactDOM.render → React 18 createRoot migration'ı (Messages bundle).",
+      "Test: RemainingPaymentTax, AutoCancelOrderKeyLookup, ShortcodePagesController suite'lerinde 12 yeni PHPUnit testi — toplam 1215 test, 0 başarısızlık.",
+      "i18n: 88 yeni Türkçe çeviri — Pro özellikler, blok editör ayarları, e-posta şablonları ve sohbet arayüzü."
+    ],
+    "notice": "Kritik finansal düzeltme — depozito + kalan ödeme akışı kullanan ve prices_include_tax açık olan siteler, yükseltme sonrası geçmiş bekleyen siparişleri temizlemek için sync_orphan_wc_orders() komutunu WP-CLI üzerinden çalıştırmalı. Şema değişikliği yok."
+  },
+  {
     "version": "4.57.0",
     "date": "2026-05-12",
     "type": "patch",
