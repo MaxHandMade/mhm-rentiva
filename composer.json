@@ -2,7 +2,7 @@
     "name": "maxhandmade/mhm-rentiva",
     "description": "Booking Plugin for WordPress",
     "type": "wordpress-plugin",
-    "license": "GPL-3.0-or-later",
+    "license": "GPL-2.0-or-later",
     "scripts": {
         "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
         "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",

@@ -1,5 +1,5 @@
 === MHM Rentiva ===
-Contributors:     mhmdevelopment
+Contributors:     maxhandmade
 Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
