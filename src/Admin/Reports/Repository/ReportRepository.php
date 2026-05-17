@@ -531,54 +531,9 @@ class ReportRepository {
 
 		$wpdb->suppress_errors( false );
 
-		// Fill missing customer info via WooCommerce order or WordPress user fallback.
-		foreach ( $operations as &$op ) {
-			if ( ! empty( $op['customer_name'] ) || empty( $op['id'] ) ) {
-				continue;
-			}
-
-			$booking_id = (int) $op['id'];
-
-			// Try WooCommerce order.
-			if ( function_exists( 'wc_get_order' ) ) {
-				$order_id = get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true )
-					?: get_post_meta( $booking_id, '_mhm_wc_order_id', true )
-					?: get_post_meta( $booking_id, '_mhm_order_id', true )
-					?: get_post_meta( $booking_id, '_booking_order_id', true );
-
-				if ( $order_id ) {
-					$order = wc_get_order( $order_id );
-					if ( $order ) {
-						$first = $order->get_billing_first_name();
-						$last  = $order->get_billing_last_name();
-						if ( $first || $last ) {
-							$op['customer_name'] = trim( $first . ' ' . $last );
-						}
-						if ( empty( $op['customer_phone'] ) ) {
-							$op['customer_phone'] = $order->get_billing_phone();
-						}
-						continue;
-					}
-				}
-			}
-
-			// Try WordPress user.
-			$user_id = get_post_meta( $booking_id, '_mhm_customer_user_id', true );
-			if ( $user_id ) {
-				$user = get_userdata( (int) $user_id );
-				if ( $user ) {
-					$first = $user->first_name;
-					$last  = $user->last_name;
-					if ( $first || $last ) {
-						$op['customer_name'] = trim( $first . ' ' . $last );
-					}
-					if ( empty( $op['customer_phone'] ) ) {
-						$op['customer_phone'] = get_user_meta( (int) $user_id, 'phone', true );
-					}
-				}
-			}
-		}
-		unset( $op );
+		// Fill missing customer info via WooCommerce order or WordPress
+		// user fallback (shared with DashboardService — see BookingEnricher).
+		\MHMRentiva\Core\Repository\BookingEnricher::enrich_customer_info( $operations );
 
 		// Sort merged results by date
 		usort(
