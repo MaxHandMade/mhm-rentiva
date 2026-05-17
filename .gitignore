@@ -317,6 +317,10 @@ bin/*
 !bin/build-release.py
 !bin/build-i18n.py
 !bin/BUILD.md
+# Required by tests/Migration/MetaMigrationTest.php (it include()s this CLI
+# script). Must be tracked or every clean clone fails 4 migration tests —
+# the recurrence the unmerged 362a475 "restore missing scripts" never fixed.
+!bin/mhm-migrate-meta.php
 tools/
 AGENTS.md
 build_debug.txt
