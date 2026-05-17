@@ -319,7 +319,6 @@ final class ShortcodePageActions {
 			'rentiva_my_favorites'          => 'mhm_rentiva_my_favorites_url',
 			'rentiva_payment_history'       => 'mhm_rentiva_payment_history_url',
 			'rentiva_messages'              => 'mhm_rentiva_messages_url',
-			'rentiva_account_details'       => 'mhm_rentiva_account_details_url',
 			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
 			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
 			'rentiva_unified_search'        => 'mhm_rentiva_unified_search_url',
