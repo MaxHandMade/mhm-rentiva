@@ -13,12 +13,14 @@ final class VendorDirectoryRewriteTest extends WP_UnitTestCase
 {
 	public function test_register_adds_top_priority_rule(): void
 	{
-		// Calling do_action('init') re-fires plugin block registration, which
-		// trips registry "already registered" notices. The test only cares about
-		// rewrite rule presence, so whitelist both registry classes (WP 6.5+
-		// added WP_Block_Bindings_Registry alongside the older block-type one).
+		// Calling do_action('init') re-fires plugin block-TYPE registration,
+		// which trips WP_Block_Type_Registry::register "already registered".
+		// The test only cares about rewrite-rule presence, so whitelist that.
+		// Do NOT also whitelist WP_Block_Bindings_Registry::register — the
+		// plugin registers no block bindings, so that notice never fires, and
+		// setExpectedIncorrectUsage is strict (an unmet expectation fails the
+		// test). Declaring it broke the test under WP 6.9.4.
 		$this->setExpectedIncorrectUsage('WP_Block_Type_Registry::register');
-		$this->setExpectedIncorrectUsage('WP_Block_Bindings_Registry::register');
 
 		VendorDirectoryRewrite::register();
 		do_action('init');
