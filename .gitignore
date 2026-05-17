@@ -38,7 +38,9 @@ yarn-debug.log*
 yarn-error.log*
 .npm/
 .yarn/
-package-lock.json
+# package-lock.json IS tracked: a pinned lockfile is required for a
+# reproducible `npm ci` + `npm run build`, which the deterministic i18n
+# recipe (bin/build-i18n.py) and release builds depend on.
 
 # Composer (vendor is excluded, but composer.json is tracked for CI)
 vendor/
@@ -229,14 +231,16 @@ DESIGN.md
 languages/*-backup-*.pot~
 languages/*-backup-*.po~
 languages/*.l10n.php
-languages/*-*.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-messages.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-about.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-shortcode-pages.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-reports.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-vendor-management.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-export.json
-!languages/mhm-rentiva-tr_TR-mhm-rentiva-react-dashboard.json
+# React/JS i18n: WordPress core resolves a script handle's translations to
+# `mhm-rentiva-<locale>-md5(<src relative to plugin root>).json`. The React
+# admin scripts register src `build/admin/<page>.js`, so the ONLY files WP
+# loads are `mhm-rentiva-<locale>-<md5>.json`. These md5-named files are the
+# canonical runtime set and MUST be committed so a clean clone ships a
+# translated React admin (regenerate deterministically via
+# `python bin/build-i18n.py`). They are intentionally NOT ignored.
+#
+# The old handle-named `*-mhm-rentiva-react-*.json` files were vestigial —
+# WP never loaded them (md5 resolution only) — and have been removed.
 languages/mhm-rentiva-en_US.*
 
 # ============================================================================
@@ -311,6 +315,7 @@ docs/*
 # bin/ is dev-only, but build tooling + its doc must be tracked
 bin/*
 !bin/build-release.py
+!bin/build-i18n.py
 !bin/BUILD.md
 tools/
 AGENTS.md
