@@ -1,5 +1,6 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import Chart from 'chart.js/auto';
 import { fmtMoney } from '../../../shared/format';
 
 export default function RevenueChart( { revenueData, currency } ) {
@@ -7,7 +8,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 	const chartRef  = useRef( null );
 
 	useEffect( () => {
-		if ( ! canvasRef.current || ! window.Chart || ! revenueData?.daily_data ) {
+		if ( ! canvasRef.current || ! revenueData?.daily_data ) {
 			return;
 		}
 
@@ -18,7 +19,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 		const labels  = revenueData.daily_data.map( ( d ) => d.date );
 		const amounts = revenueData.daily_data.map( ( d ) => Number( d.revenue ) );
 
-		chartRef.current = new window.Chart( canvasRef.current, {
+		chartRef.current = new Chart( canvasRef.current, {
 			type: 'bar',
 			data: {
 				labels,

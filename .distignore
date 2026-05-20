@@ -15,7 +15,7 @@ drafts/
 
 # Build & Dependencies
 # NOTE: leading "/" anchors to plugin root — otherwise "vendor/" would also
-# exclude assets/js/vendor/chart.min.js and other in-tree vendored libraries.
+# exclude any in-tree assets/js/vendor/ directory if one were re-introduced.
 /vendor/
 node_modules/
 build/zip-staging

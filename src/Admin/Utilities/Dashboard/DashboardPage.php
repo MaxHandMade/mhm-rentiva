@@ -256,15 +256,7 @@ final class DashboardPage {
 			return;
 		}
 
-		wp_enqueue_script(
-			'chart-js',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
-			array(),
-			'3.9.1',
-			true
-		);
-
-		AssetManager::enqueue_react_page( 'dashboard', array( 'chart-js' ) );
+		AssetManager::enqueue_react_page( 'dashboard', array() );
 
 		wp_enqueue_style(
 			'mhm-rentiva-dashboard',

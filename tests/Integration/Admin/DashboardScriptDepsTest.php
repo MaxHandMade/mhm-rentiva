@@ -42,15 +42,15 @@ final class DashboardScriptDepsTest extends WP_UnitTestCase
         );
     }
 
-    public function test_react_dashboard_script_depends_on_chart_js(): void
+    public function test_react_dashboard_script_no_longer_depends_on_chart_js(): void
     {
         DashboardPage::enqueue_scripts( 'toplevel_page_mhm-rentiva' );
 
         $scripts = wp_scripts();
-        $this->assertContains(
+        $this->assertNotContains(
             'chart-js',
             $scripts->registered['mhm-rentiva-react-dashboard']->deps,
-            'mhm-rentiva-react-dashboard must declare chart-js as a dependency.'
+            'mhm-rentiva-react-dashboard must NOT declare chart-js as a dependency — Chart.js is now bundled inside dashboard.js via webpack import (Task 5.0k carved the broken in-tree assets/js/vendor/chart.min.js enqueue; the file was never git-tracked + .distignore-excluded, causing a 404 on the shipped ZIP since baseline).'
         );
     }
 
