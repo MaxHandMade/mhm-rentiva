@@ -11,7 +11,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;
-use WP_Query;
 
 final class AutoComplete {
 
@@ -61,47 +60,64 @@ final class AutoComplete {
 			return;
 		}
 
-		$limit = 50;
-		$now   = current_time('mysql'); // Local time — consistent with _mhm_dropoff_date
+		$limit     = 50;
+		$now_ts    = (int) current_time('timestamp');
+		$now_local = current_time('mysql'); // Local time — consistent with _mhm_dropoff_date
 
-		$q = new WP_Query(
-			array(
-				'post_type'      => 'vehicle_booking',
-				'post_status'    => 'any',
-				'fields'         => 'ids',
-				'posts_per_page' => $limit,
-				'no_found_rows'  => true,
-				'meta_query'     => array(
-					'relation' => 'AND',
-					array(
-						'key'     => '_mhm_status',
-						'value'   => array( 'confirmed', 'in_progress' ),
-						'compare' => 'IN',
-					),
-					array(
-						'relation' => 'OR',
-						array(
-							'key'     => '_mhm_dropoff_date',
-							'value'   => $now,
-							'compare' => '<',
-							'type'    => 'DATETIME',
-						),
-						array(
-							'key'     => '_mhm_end_date',
-							'value'   => $now,
-							'compare' => '<',
-							'type'    => 'DATETIME',
-						),
-					),
-				),
+		global $wpdb;
+
+		/*
+		 * Datetime-based selection: _mhm_end_ts (UNIX) is authoritative when present.
+		 * Fallback: CONCAT(dropoff_date, ' ', dropoff_time) — defaults to '23:59:59'
+		 *           when dropoff_time meta is missing/empty (treat as end-of-day,
+		 *           never auto-complete mid-day).
+		 * Legacy fallback: _mhm_end_date (parallel field for pre-checkout-rewrite data).
+		 *
+		 * Direct SQL because WP_Query meta_query cannot compose CONCAT across two meta keys.
+		 */
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cron sweep, no caching by design.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT p.ID
+				 FROM {$wpdb->posts} p
+				 INNER JOIN {$wpdb->postmeta} st  ON st.post_id  = p.ID AND st.meta_key  = '_mhm_status'
+				 LEFT  JOIN {$wpdb->postmeta} ets ON ets.post_id = p.ID AND ets.meta_key = '_mhm_end_ts'
+				 LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhm_dropoff_date'
+				 LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhm_dropoff_time'
+				 LEFT  JOIN {$wpdb->postmeta} ed  ON ed.post_id  = p.ID AND ed.meta_key  = '_mhm_end_date'
+				 WHERE p.post_type = 'vehicle_booking'
+				   AND p.post_status NOT IN ('trash', 'auto-draft')
+				   AND st.meta_value IN ('confirmed', 'in_progress')
+				   AND (
+					   ( ets.meta_value IS NOT NULL AND ets.meta_value <> '' AND CAST(ets.meta_value AS UNSIGNED) < %d )
+					   OR
+					   (
+						 ( ets.meta_value IS NULL OR ets.meta_value = '' )
+						 AND dd.meta_value IS NOT NULL AND dd.meta_value <> ''
+						 AND CONCAT(dd.meta_value, ' ', COALESCE(NULLIF(dt.meta_value, ''), '23:59:59')) < %s
+					   )
+					   OR
+					   (
+						 ( ets.meta_value IS NULL OR ets.meta_value = '' )
+						 AND ( dd.meta_value IS NULL OR dd.meta_value = '' )
+						 AND ed.meta_value IS NOT NULL AND ed.meta_value <> ''
+						 AND CONCAT(ed.meta_value, ' 23:59:59') < %s
+					   )
+				   )
+				 LIMIT %d",
+				$now_ts,
+				$now_local,
+				$now_local,
+				$limit
 			)
 		);
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
-		if (! $q->have_posts()) {
+		if (empty($ids)) {
 			return;
 		}
 
-		foreach ($q->posts as $bid) {
+		foreach ($ids as $bid) {
 			$bid = (int) $bid;
 
 			try {
@@ -119,7 +135,7 @@ final class AutoComplete {
 
 				if (class_exists(AdvancedLogger::class)) {
 					AdvancedLogger::info(
-						"Booking #$bid auto-completed (rental end date passed).",
+						"Booking #$bid auto-completed (rental end datetime passed).",
 						array( 'booking_id' => $bid ),
 						'system'
 					);
@@ -135,8 +151,6 @@ final class AutoComplete {
 				}
 			}
 		}
-
-		wp_reset_postdata();
 	}
 
 	private static function direct_schedule_event(): void
