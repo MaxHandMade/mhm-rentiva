@@ -1,5 +1,20 @@
 [
   {
+    "version": "4.58.1",
+    "date": "2026-05-21",
+    "type": "patch",
+    "title": "Kritik: aynı gün iadelerinde çift-rezervasyon düzeltmesi",
+    "summary": "AutoComplete cron'u dropoff_date < NOW() karşılaştırmasını tarih-only granülerlikte yapıyordu. MySQL YYYY-MM-DD değerini YYYY-MM-DD 00:00:00 olarak yorumladığından, dropoff'u aynı gün olan herhangi bir confirmed rezervasyon gece 00:00'da otomatik 'completed' işaretleniyordu — gerçek iade saatinden saatler önce. has_overlap() bu yanlış-completed kayıtları status filtresinden hariç tutuyordu ('completed' listede yoktu), aynı araç kalan kira saatleri için çift-rezervasyona açık kalıyordu. Üç katmanlı düzeltme: cron datetime-tabanlı seçime geçti (end_ts UNIX birincil + tarih+saat yedek), has_overlap completed+gelecek-bitiş rezervasyonlar için defansif status filtresi kazandı, Status geçiş matrisi temizlik için completed → in_progress'e izin veriyor. Bakım script'i dahil.",
+    "changes": [
+      "Düzeltme (kritik): AutoComplete cron'u artık _mhm_end_ts (UNIX) değerini birincil, CONCAT(dropoff_date, dropoff_time) değerini yedek kullanıyor (dropoff_time eksikse 23:59:59 varsayar — gün-içi erken completed yapmaz). Legacy _mhm_end_date yedeği korundu.",
+      "Düzeltme: has_overlap() defansif katman — end_ts'i hâlâ gelecekte olan 'completed' rezervasyonlar müsaitliği bloke etmeye devam ediyor (gelecekteki manuel status hatalarına karşı koruma ve cron bug'ının anlık tampon düzeltmesi).",
+      "Yeni: Status::can_transition() artık erken-completion düzeltmesi için COMPLETED → IN_PROGRESS geçişine izin veriyor (temizlik script'inin audit zinciri için gerekli).",
+      "Araç: bin/cleanup-early-completed-bookings.php — wp eval-file script'i; status=completed ama end_ts > NOW() olan rezervasyonları listeler (varsayılan dry-run) veya geri alır (pozisyonel 'apply'). Status::update_status() üzerinden gider, böylece mhm_rentiva_booking_status_changed audit/cache için tetiklenir.",
+      "Test: 11 yeni PHPUnit testi (AutoCompleteCronDatetime ×5, HasOverlapStatusFilter ×3, StatusTransition ×3) — toplam 1231 test."
+    ],
+    "notice": "Yükseltme sonrası önerilen: `wp eval-file plugins/mhm-rentiva/bin/cleanup-early-completed-bookings.php` (dry-run). Kayıt çıkarsa pozisyonel 'apply' ile tekrar çalıştırın — kayıtlar in_progress'e geri alınır ve sonraki datetime-aware cron tick'i doğru zamanda completed yapar."
+  },
+  {
     "version": "4.58.0",
     "date": "2026-05-15",
     "type": "minor",

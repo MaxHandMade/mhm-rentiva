@@ -1,5 +1,20 @@
 [
   {
+    "version": "4.58.1",
+    "date": "2026-05-21",
+    "type": "patch",
+    "title": "Critical: double-booking fix on same-day returns",
+    "summary": "AutoComplete cron compared dropoff_date < NOW() at date-only granularity. MySQL cast YYYY-MM-DD to YYYY-MM-DD 00:00:00, so any confirmed booking with a same-day dropoff was auto-completed at midnight — long before the actual return time. has_overlap() then skipped these wrongly-completed bookings (status filter excluded 'completed'), allowing the same vehicle to be double-booked for the remaining rental hours. Three-layer fix: cron switched to datetime-based selection (end_ts UNIX primary + date+time fallback), has_overlap gains a defense-in-depth status filter for completed+future-end bookings, Status transition matrix allows completed → in_progress for cleanup. Maintenance script included.",
+    "changes": [
+      "Fix (critical): AutoComplete cron now uses _mhm_end_ts (UNIX) as primary, CONCAT(dropoff_date, dropoff_time) fallback (defaults to 23:59:59 if dropoff_time missing — never auto-completes mid-day). Legacy _mhm_end_date fallback preserved.",
+      "Fix: has_overlap() defense-in-depth — 'completed' bookings whose end_ts is still in the future continue to block availability (handles future manual status mishaps and was the immediate fix for the cron bug).",
+      "Feat: Status::can_transition() now allows COMPLETED → IN_PROGRESS for early-completion correction (required by the cleanup script audit chain).",
+      "Tools: bin/cleanup-early-completed-bookings.php — wp eval-file script that lists (dry-run default) or reverts (positional 'apply') bookings where status=completed but end_ts > NOW(). Routes through Status::update_status() so mhm_rentiva_booking_status_changed fires for audit/cache.",
+      "Test: 11 new PHPUnit tests (AutoCompleteCronDatetime ×5, HasOverlapStatusFilter ×3, StatusTransition ×3) — total 1231 tests."
+    ],
+    "notice": "Recommended after upgrade: run `wp eval-file plugins/mhm-rentiva/bin/cleanup-early-completed-bookings.php` (dry-run). If any rows surface, re-run with positional 'apply' to revert them to in_progress; the next datetime-aware cron tick will complete them at the correct moment."
+  },
+  {
     "version": "4.58.0",
     "date": "2026-05-15",
     "type": "minor",

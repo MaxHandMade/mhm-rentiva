@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      6.9
 Requires PHP:      8.1
-Stable tag:        4.58.0
+Stable tag:        4.58.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.58.1 — 2026-05-21 =
+* 🐛 **Critical fix:** Double-booking prevention on same-day returns — AutoComplete cron now compares full datetime (`_mhm_end_ts` UNIX primary, `CONCAT(dropoff_date, dropoff_time)` fallback) instead of date-only. Previously, same-day-dropoff bookings were auto-completed at midnight, allowing the vehicle to be double-booked for the remaining rental hours.
+* 🐛 **Defense-in-depth fix:** `has_overlap()` now also flags `'completed'` bookings whose `end_ts` is still in the future, blocking availability even if a future cron bug or manual mishap marks a booking complete early.
+* ✨ **Feat:** `Status` transition matrix allows `completed` → `in_progress` for early-completion correction.
+* 🔧 **Tools:** `wp eval-file plugins/mhm-rentiva/bin/cleanup-early-completed-bookings.php` (positional `apply` to revert; default is dry-run).
+* 🧪 **Tests:** 11 new PHPUnit tests — total 1231 tests, 0 NEW failures (7 documented saas_block env-quota baseline unchanged).
 
 = 4.58.0 — 2026-05-15 =
 * 🐛 **Critical fix:** Remaining-payment WC order no longer double-taxes when `prices_include_tax` is enabled — uses `wc_get_price_excluding_tax()`. Customer no longer overpays ~20% of the remaining amount.
