@@ -82,10 +82,18 @@ class QueryHelper {
      *
      * Accepts a single ID (int) or multiple IDs (array) for checkbox-style filtering.
      *
-     * @param int|array $location_ids Single location ID or array of IDs.
+     * When $expand_to_city=true, the input IDs are first expanded to all
+     * location IDs sharing their city in wp_rentiva_transfer_locations. This
+     * lets transfer search match vehicles by route-origin city, not just the
+     * exact location_id — e.g. a "Kadıköy → Esenler" route (both İstanbul)
+     * accepts a vehicle parked anywhere in İstanbul. Rental keeps strict
+     * matching (default false).
+     *
+     * @param int|array $location_ids   Single location ID or array of IDs.
+     * @param bool      $expand_to_city Optional. Expand IDs to all locations in same city.
      * @return string SQL fragment
      */
-    public static function get_location_subquery(int|array $location_ids): string
+    public static function get_location_subquery(int|array $location_ids, bool $expand_to_city = false): string
     {
         global $wpdb;
 
@@ -94,6 +102,41 @@ class QueryHelper {
 
         if (empty($ids)) {
             return '';
+        }
+
+        // City expansion: resolve all location IDs sharing the requested IDs' cities.
+        // Falls back to strict matching if the locations table has no city data.
+        if ($expand_to_city) {
+            $loc_table = $wpdb->prefix . 'rentiva_transfer_locations';
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema probe.
+            $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $loc_table));
+            if ($table_exists !== $loc_table) {
+                $loc_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+            }
+            $loc_table = preg_replace('/[^A-Za-z0-9_]/', '', $loc_table) ?? '';
+
+            $id_placeholders = implode(',', array_fill(0, count($ids), '%d'));
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($ids); values passed via prepare().
+            $cities = $wpdb->get_col(
+                $wpdb->prepare(
+                    "SELECT DISTINCT city FROM {$loc_table} WHERE id IN ({$id_placeholders}) AND city <> ''",
+                    ...$ids
+                )
+            );
+
+            if (! empty($cities)) {
+                $city_placeholders = implode(',', array_fill(0, count($cities), '%s'));
+                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($cities); values passed via prepare().
+                $expanded_ids = $wpdb->get_col(
+                    $wpdb->prepare(
+                        "SELECT id FROM {$loc_table} WHERE city IN ({$city_placeholders})",
+                        ...$cities
+                    )
+                );
+                if (! empty($expanded_ids)) {
+                    $ids = array_map('intval', $expanded_ids);
+                }
+            }
         }
 
         $loc_meta_key   = MetaKeys::VEHICLE_LOCATION_ID;
