@@ -14,6 +14,7 @@
 	border-radius: 12px;
 	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 	overflow: hidden;
+	margin-top: var(--mhm-space-5); /* Bookings page parity: 20px gap between KPI stats grid and calendar widget. */
 	margin-bottom: 30px;
 }
 
