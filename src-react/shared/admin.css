@@ -32,6 +32,12 @@
 	display: grid;
 	grid-template-columns: repeat( 4, 1fr );
 	gap: var( --mhm-gap );
+	margin-top: 16px; /* Breathing room below WP .wrap H1/notice area on PHP list-table pages. */
+}
+
+/* Dashboard already provides its own top padding via .mhm-dashboard — keep its layout unchanged. */
+.mhm-dashboard .mhm-stats-grid {
+	margin-top: 0;
 }
 
 @media ( max-width: 782px ) {
