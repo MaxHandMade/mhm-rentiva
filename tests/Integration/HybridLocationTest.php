@@ -111,6 +111,86 @@ class HybridLocationTest extends \WP_UnitTestCase
     }
 
     /**
+     * Test Case 4 (RED): expand_to_city=true must include vehicles at any
+     * location in the SAME city as the requested location_id, not just exact match.
+     *
+     * Bug context: TransferSearchEngine had no location filter, so a route
+     * search "Kadıköy → Esenler" (both İstanbul) returned vehicles parked in
+     * Ankara and Antalya. Fix extends this helper with city expansion so
+     * Transfer can reuse the same 3-layer hybrid filter as rental.
+     */
+    public function test_expand_to_city_includes_all_locations_in_same_city()
+    {
+        global $wpdb;
+        // setUp seeded id=1 (Location A) and id=2 (Location B) without city.
+        // Annotate them with cities, then add a third location sharing city with Location 1.
+        $wpdb->update($this->table_name, ['city' => 'TestCity1'], ['id' => 1]);
+        $wpdb->update($this->table_name, ['city' => 'TestCity2'], ['id' => 2]);
+        $wpdb->insert($this->table_name, [
+            'id'           => 3,
+            'name'         => 'Location C (same city as A)',
+            'city'         => 'TestCity1',
+            'is_active'    => 1,
+            'allow_rental' => 1,
+        ]);
+
+        // Vehicle at Location 3 — same city as Location 1.
+        $vehicle_id = $this->factory->post->create(['post_type' => 'vehicle']);
+        update_post_meta($vehicle_id, MetaKeys::VEHICLE_LOCATION_ID, 3);
+
+        // Search Location 1 WITH expand_to_city=true → must find vehicle at Location 3.
+        $subquery = QueryHelper::get_location_subquery(1, true);
+        $found = $this->query_vehicles_with_subquery($subquery);
+        $this->assertContains(
+            $vehicle_id,
+            $found,
+            'Vehicle at Location 3 (same city as 1) must be found when expand_to_city=true.'
+        );
+
+        // Sanity: WITHOUT expansion, vehicle at Location 3 must NOT match Location 1.
+        $subquery_strict = QueryHelper::get_location_subquery(1, false);
+        $found_strict = $this->query_vehicles_with_subquery($subquery_strict);
+        $this->assertNotContains(
+            $vehicle_id,
+            $found_strict,
+            'Vehicle at Location 3 must NOT be found for Location 1 when expand_to_city=false.'
+        );
+    }
+
+    /**
+     * Test Case 5 (regression baseline): default (no second arg) preserves the
+     * existing strict location_id matching used by rental search.
+     */
+    public function test_expand_to_city_false_preserves_existing_behavior()
+    {
+        global $wpdb;
+        // Annotate two seeded locations to share a city.
+        $wpdb->update($this->table_name, ['city' => 'CityX'], ['id' => 1]);
+        $wpdb->update($this->table_name, ['city' => 'CityX'], ['id' => 2]);
+
+        $vehicle_loc1 = $this->factory->post->create(['post_type' => 'vehicle']);
+        update_post_meta($vehicle_loc1, MetaKeys::VEHICLE_LOCATION_ID, 1);
+
+        $vehicle_loc2 = $this->factory->post->create(['post_type' => 'vehicle']);
+        update_post_meta($vehicle_loc2, MetaKeys::VEHICLE_LOCATION_ID, 2);
+
+        // Default call (no second arg) and explicit false must produce identical SQL.
+        $sql_default  = QueryHelper::get_location_subquery(1);
+        $sql_explicit = QueryHelper::get_location_subquery(1, false);
+        $this->assertSame($sql_default, $sql_explicit, 'Default and explicit false must produce identical SQL fragment.');
+
+        // Without expansion, vehicle at Location 2 must NOT match strict search for Location 1
+        // (even though they share a city). This is the existing rental contract.
+        $found = $this->query_vehicles_with_subquery($sql_default);
+        $this->assertContains($vehicle_loc1, $found, 'Vehicle at Location 1 found in strict search.');
+        $this->assertNotContains(
+            $vehicle_loc2,
+            $found,
+            'Vehicle at Location 2 must NOT be found in strict search for Location 1 (no city expansion).'
+        );
+    }
+
+    /**
      * Helper to run WP_Query with specific subquery
      */
     private function query_vehicles_with_subquery(string $subquery): array
