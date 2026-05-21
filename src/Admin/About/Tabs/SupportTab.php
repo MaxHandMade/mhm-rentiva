@@ -74,7 +74,7 @@ final class SupportTab extends AbstractTab {
 		echo '<div class="support-grid">';
 
 		// Documentation card
-		$company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
+		$company_website = 'https://wpalemi.com';
 
 		echo '<div class="support-card">';
 		echo '<h3>' . esc_html__('Documentation', 'mhm-rentiva') . '</h3>';
@@ -104,7 +104,7 @@ final class SupportTab extends AbstractTab {
 		echo '</div>';
 		echo '</div>';
 
-		$support_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
+		$support_email = 'support@wpalemi.com';
 
 		// Support channels card
 		echo '<div class="support-card">';

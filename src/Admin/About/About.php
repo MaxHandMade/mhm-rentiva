@@ -77,7 +77,7 @@ final class About {
 			return;
 		}
 
-		$support_email = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
+		$support_email = 'support@wpalemi.com';
 
 		$title = sprintf(
 			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',

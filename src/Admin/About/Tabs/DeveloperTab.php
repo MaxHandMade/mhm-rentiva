@@ -143,8 +143,8 @@ final class DeveloperTab extends AbstractTab {
 	{
 		echo '<div class="contact-grid">';
 
-		$company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
-		$support_email   = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_support_email();
+		$company_website = 'https://wpalemi.com';
+		$support_email   = 'support@wpalemi.com';
 
 		echo '<div class="contact-item">';
 		echo '<strong>' . esc_html__('Website:', 'mhm-rentiva') . '</strong>';
@@ -183,7 +183,7 @@ final class DeveloperTab extends AbstractTab {
 	public static function render_other_projects(array $section, array $data = array()): void
 	{
 		// Company website URL
-		$company_website = \MHMRentiva\Admin\Settings\Core\SettingsCore::get_company_website();
+		$company_website = 'https://wpalemi.com';
 
 		$projects = array(
 			array(

@@ -84,8 +84,8 @@ final class AboutController {
 	private static function build_developer(): array
 	{
 		return array(
-			'company_website' => SettingsCore::get_company_website(),
-			'support_email'   => SettingsCore::get_support_email(),
+			'company_website' => 'https://wpalemi.com',
+			'support_email'   => 'support@wpalemi.com',
 			'phone'           => apply_filters( 'mhm_rentiva_contact_phone', self::CONTACT_PHONE ),
 			'logo_url'        => MHM_RENTIVA_PLUGIN_URL . 'assets/images/mhm-logo.png',
 		);
