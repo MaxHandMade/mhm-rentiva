@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Transfer;
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Transfer\Engine\TransferSearchEngine;
 
 class TransferSearchEngineRouteFilterTest extends \WP_UnitTestCase
@@ -61,6 +62,10 @@ class TransferSearchEngineRouteFilterTest extends \WP_UnitTestCase
         update_post_meta($this->vehicle_with_route, '_rentiva_transfer_max_luggage_score', 20);
         update_post_meta($this->vehicle_with_route, '_mhm_rentiva_transfer_routes', [$this->route_id]);
         update_post_meta($this->vehicle_with_route, '_mhm_rentiva_transfer_route_prices', wp_json_encode([$this->route_id => 650.00]));
+        // Vehicle parked at the route origin (TestCity) — required for the city-based
+        // location filter introduced alongside this test (TransferSearchEngine wires
+        // QueryHelper::get_location_subquery with expand_to_city=true).
+        update_post_meta($this->vehicle_with_route, MetaKeys::VEHICLE_LOCATION_ID, 9901);
 
         // Vehicle WITHOUT route assigned (has routes array but not this route).
         $this->vehicle_without_route = self::factory()->post->create([
@@ -72,6 +77,7 @@ class TransferSearchEngineRouteFilterTest extends \WP_UnitTestCase
         update_post_meta($this->vehicle_without_route, '_rentiva_transfer_max_pax', 8);
         update_post_meta($this->vehicle_without_route, '_rentiva_transfer_max_luggage_score', 20);
         update_post_meta($this->vehicle_without_route, '_mhm_rentiva_transfer_routes', [99999]); // different route
+        update_post_meta($this->vehicle_without_route, MetaKeys::VEHICLE_LOCATION_ID, 9901); // same city as origin so location filter passes; route filter is what excludes it.
     }
 
     public function tearDown(): void

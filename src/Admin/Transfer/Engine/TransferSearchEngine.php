@@ -82,10 +82,11 @@ final class TransferSearchEngine {
 		// 4. SQL Filtering (Service Type, Capacity, Luggage)
 		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Transfer search requires bounded vehicle meta filters.
 		$args = array(
-			'post_type'      => 'vehicle',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'meta_query'     => array(
+			'post_type'        => 'vehicle',
+			'post_status'      => 'publish',
+			'posts_per_page'   => -1,
+			'suppress_filters' => false, // posts_where filter must fire for city-based location filter below; get_posts() suppresses filters by default.
+			'meta_query'       => array(
 				'relation' => 'AND',
 				// Service Type
 				array(
@@ -145,7 +146,28 @@ final class TransferSearchEngine {
 		}
 		$args['meta_query'][] = $luggage_meta_query;
 
-		$vehicles           = get_posts($args);
+		// 4c. City-based location filter via QueryHelper.
+		// Reuses the same 3-layer hybrid filter as rental (vehicle direct → vendor
+		// inheritance → global default) but expands the route's origin location_id
+		// to all locations sharing its city. So a "Kadıköy → Esenler" route (both
+		// İstanbul) accepts any İstanbul-located vehicle, but excludes Ankara/Antalya.
+		$location_filter = function ($where, $query) use ($origin_id) {
+			// Scope-guard: only apply to our vehicle search, not any sub-queries
+			// WordPress core or third-party plugins may run inside get_posts().
+			if (! ( $query instanceof \WP_Query ) || $query->get('post_type') !== 'vehicle') {
+				return $where;
+			}
+			return $where . \MHMRentiva\Admin\Core\QueryHelper::get_location_subquery($origin_id, true);
+		};
+		add_filter('posts_where', $location_filter, 10, 2);
+
+		try {
+			$vehicles = get_posts($args);
+		} finally {
+			// Mandatory scope isolation — mirrors SearchResults.php rental pattern.
+			remove_filter('posts_where', $location_filter, 10);
+		}
+
 		$available_vehicles = array();
 
 		foreach ($vehicles as $vehicle) {
