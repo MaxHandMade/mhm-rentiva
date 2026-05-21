@@ -221,7 +221,21 @@ final class Util {
             WHERE p.post_type = 'vehicle_booking'
             AND p.post_status = 'publish'
             AND pm_vid.meta_value = %d
-            AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
+            AND (
+                pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
+                OR (
+                    -- Defense-in-depth: a completed booking whose real end_ts is still
+                    -- in the future (e.g., cron misfire or early manual completion) must
+                    -- continue to block availability until the actual return time.
+                    -- Default 23:59:59 when dropoff_time is missing -- if unsure, block
+                    -- until end of day (safer than picking an arbitrary mid-day time).
+                    pm_status.meta_value = 'completed'
+                    AND COALESCE(
+                        CAST(pm_ts_e.meta_value AS UNSIGNED),
+                        UNIX_TIMESTAMP(CONCAT(pm_date_e.meta_value, ' ', COALESCE(NULLIF(pm_time_e.meta_value, ''), '23:59:59')))
+                    ) > UNIX_TIMESTAMP(NOW())
+                )
+            )
             AND (
                 -- Symmetrical Overlap Logic: (StartA < EndB + Buffer) AND (StartB < EndA + Buffer)
                 -- This ensures buffer time is respected BOTH ways regardless of order
