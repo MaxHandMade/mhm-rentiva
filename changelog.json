@@ -1,5 +1,23 @@
 [
   {
+    "version": "4.58.2",
+    "date": "2026-05-21",
+    "type": "patch",
+    "title": "Transfer city filter + dashboard polish + About updates",
+    "summary": "TransferSearchEngine had no location filter — a search for an İstanbul route returned vehicles parked in Ankara and Antalya. This release adds city-based vehicle matching (route origin's city), reusing the rental module's 3-layer hybrid filter (vehicle → vendor inheritance → global default) via a new expand_to_city mode. Plus a batch of UI polish: KPI card top spacing on list-table pages, dashboard Pending Payments / Revenue cards no longer stretch into a tall empty gap (RevenueChart bound to 250px), and Vehicles calendar spacing brought to parity with the Bookings page. About page hardened: developer contact info is now hardcoded (no DB option leak), test stats updated, and WP 7.0 marked as tested.",
+    "changes": [
+      "Fix (critical): Transfer search now filters vehicles by the route origin's city. Vehicles in a different city (e.g. an Ankara vehicle for an İstanbul route) are excluded. Same 3-layer hybrid filter as rental (vehicle direct meta → vendor inheritance → global default), expanded to all locations sharing the origin's city.",
+      "Feat: QueryHelper::get_location_subquery() gains an optional expand_to_city parameter (backward-compatible; rental's strict matching unchanged).",
+      "Fix: About page developer contact info (website, email) is now hardcoded to the official values, defensive against a DB option leaking the WordPress admin_email (e.g. admin@localhost.com).",
+      "Fix: About 'Tests & Verification' card updated to the current baseline (1,237 PHPUnit tests, 3,736 assertions) and 'Tested with: WP 7.0'. Plugin header and readme.txt 'Tested up to' aligned to 7.0.",
+      "Style: KPI stats grid now has top spacing on admin list-table pages (was flush against the page edge when no admin banner was present).",
+      "Style: Dashboard Pending Payments and Revenue cards no longer stretch to a tall empty height — RevenueChart is bound to a 250px max height and Row 4 cards size to their own content.",
+      "Style: Vehicles calendar spacing (top margin + card-pattern inner padding) brought to visual parity with the Bookings calendar.",
+      "Test: 6 new PHPUnit tests for the transfer location filter (city expansion + vendor inheritance). Total 1,237 tests / 3,736 assertions."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.58.1",
     "date": "2026-05-21",
     "type": "patch",

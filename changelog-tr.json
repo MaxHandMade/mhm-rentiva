@@ -1,5 +1,23 @@
 [
   {
+    "version": "4.58.2",
+    "date": "2026-05-21",
+    "type": "patch",
+    "title": "Transfer şehir filtresi + kontrol paneli iyileştirmeleri + Hakkında güncellemeleri",
+    "summary": "TransferSearchEngine'de lokasyon filtresi yoktu — bir İstanbul rotası aramasında Ankara ve Antalya'daki araçlar da çıkıyordu. Bu sürüm şehir-bazlı araç eşleştirmesi ekliyor (rotanın kalkış şehri), kiralama modülünün 3-katmanlı hibrit filtresini (araç → bayi devralma → global varsayılan) yeni expand_to_city moduyla yeniden kullanarak. Ayrıca bir dizi arayüz iyileştirmesi: liste-tablo sayfalarında KPI kart üst boşluğu, kontrol panelinde Bekleyen Ödemeler / Gelir kartlarının uzun boş alana esnememesi (RevenueChart 250px'e sabitlendi), ve Araçlar takviminin Rezervasyonlar sayfasıyla görsel pariteye getirilmesi. Hakkında sayfası sağlamlaştırıldı: geliştirici iletişim bilgileri artık sabit (DB ayar sızıntısı yok), test istatistikleri güncellendi, WP 7.0 test edildi olarak işaretlendi.",
+    "changes": [
+      "Düzeltme (kritik): Transfer araması artık araçları rotanın kalkış şehrine göre filtreliyor. Farklı şehirdeki araçlar (örn. İstanbul rotası için Ankara aracı) hariç tutulur. Kiralama ile aynı 3-katmanlı hibrit filtre (araç meta → bayi devralma → global varsayılan), kalkış şehrini paylaşan tüm lokasyonlara genişletilir.",
+      "Yeni: QueryHelper::get_location_subquery() opsiyonel expand_to_city parametresi kazandı (geriye uyumlu; kiralamanın katı eşleşmesi değişmedi).",
+      "Düzeltme: Hakkında sayfası geliştirici iletişim bilgileri (website, e-posta) artık resmi değerlere sabit; WordPress admin_email sızıntısına (örn. admin@localhost.com) karşı korumalı.",
+      "Düzeltme: Hakkında 'Test ve Doğrulama' kartı güncel baseline'a güncellendi (1.237 PHPUnit testi, 3.736 assertion) ve 'Test edildi: WP 7.0'. Plugin header ve readme.txt 'Tested up to' 7.0'a hizalandı.",
+      "Stil: KPI istatistik grid'i artık liste-tablo sayfalarında üst boşluğa sahip (admin banner olmadığında sayfa kenarına yapışıktı).",
+      "Stil: Kontrol paneli Bekleyen Ödemeler ve Gelir kartları artık uzun boş yüksekliğe esnemiyor — RevenueChart 250px maks yüksekliğe sabitlendi ve Row 4 kartları kendi içeriklerine göre boyutlanıyor.",
+      "Stil: Araçlar takvimi boşlukları (üst margin + card-pattern iç padding) Rezervasyonlar takvimiyle görsel pariteye getirildi.",
+      "Test: Transfer lokasyon filtresi için 6 yeni PHPUnit testi (şehir genişletme + bayi devralma). Toplam 1.237 test / 3.736 assertion."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.58.1",
     "date": "2026-05-21",
     "type": "patch",

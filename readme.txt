@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.58.1
+Stable tag:        4.58.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,14 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.58.2 — 2026-05-21 =
+* 🐛 **Critical fix:** Transfer search now filters vehicles by the route origin's city. A vehicle parked in Ankara no longer appears for an İstanbul route. Uses the same 3-layer hybrid location filter (vehicle → vendor → global default) as rental, expanded to the origin city.
+* ✨ **Feat:** `QueryHelper::get_location_subquery()` gains an optional `expand_to_city` parameter (backward-compatible).
+* 🛡️ **Fix:** About page developer contact info hardcoded — defensive against a DB option leaking the WP `admin_email`.
+* 🔧 **Fix:** About test stats updated (1,237 tests / 3,736 assertions); plugin header + readme "Tested up to" set to WP 7.0.
+* 💅 **Style:** KPI card top spacing on list-table pages; dashboard Pending Payments / Revenue cards bound height (no empty gap); Vehicles calendar spacing parity with Bookings.
+* 🧪 **Tests:** 6 new PHPUnit tests — total 1,237 tests, 0 NEW failures (7 documented saas_block env-quota baseline unchanged).
 
 = 4.58.1 — 2026-05-21 =
 * 🐛 **Critical fix:** Double-booking prevention on same-day returns — AutoComplete cron now compares full datetime (`_mhm_end_ts` UNIX primary, `CONCAT(dropoff_date, dropoff_time)` fallback) instead of date-only. Previously, same-day-dropoff bookings were auto-completed at midnight, allowing the vehicle to be double-booked for the remaining rental hours.
