@@ -322,7 +322,7 @@ final class SettingsCore {
 	 */
 	public static function get_support_email(): string
 	{
-		return (string) self::get('mhm_rentiva_support_email', get_option('admin_email'));
+		return (string) self::get('mhm_rentiva_support_email', 'support@wpalemi.com');
 	}
 
 	/**

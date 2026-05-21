@@ -6,7 +6,7 @@
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
  * Version:           4.58.1
  * Requires at least: 6.7
- * Tested up to:      6.9
+ * Tested up to:      7.0
  * Requires PHP:      8.1
  * Requires Plugins:  woocommerce
  * Author:            MHM Development Team

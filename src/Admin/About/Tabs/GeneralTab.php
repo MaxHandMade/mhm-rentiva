@@ -249,7 +249,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 								array(
 									'type'     => 'key-value',
 									'label'    => __('Tested:', 'mhm-rentiva'),
-									'value'    => __('WP 6.6, PHP 8.2', 'mhm-rentiva'),
+									'value'    => __('WP 7.0, PHP 8.2', 'mhm-rentiva'),
 									'data_key' => '',
 								),
 							),
@@ -409,7 +409,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 				),
 				array(
 					'label' => __( 'Tested', 'mhm-rentiva' ),
-					'value' => __( 'WP 6.6, PHP 8.2', 'mhm-rentiva' ),
+					'value' => __( 'WP 7.0, PHP 8.2', 'mhm-rentiva' ),
 				),
 			),
 			'stats'         => array(
