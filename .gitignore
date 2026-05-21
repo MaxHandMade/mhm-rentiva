@@ -51,6 +51,12 @@ vendor/
 !src/Admin/Frontend/Shortcodes/Vendor/**
 !tests/Integration/Vendor/
 !tests/Integration/Vendor/**
+# Re-include browser-shipped vendor bundles (flatpickr, swiper) — same pattern
+# as !assets/js/vendor/chart.min.js. Without this, the global vendor/ rule
+# above also matches assets/vendor/ and the bundles get dropped from clean
+# clones (2026-05-16 host plugin dir incident silently wiped them).
+!assets/vendor/
+!assets/vendor/**
 !tests/Integration/Admin/Vendor/
 !tests/Integration/Admin/Vendor/**
 .phpunit.result.cache
