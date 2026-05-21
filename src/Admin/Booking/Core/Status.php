@@ -67,7 +67,7 @@ final class Status {
 			self::PENDING         => array( self::CONFIRMED, self::COMPLETED, self::CANCELLED ), // ✅ Allow direct completion
 			self::CONFIRMED       => array( self::IN_PROGRESS, self::COMPLETED, self::CANCELLED, self::NO_SHOW, self::PENDING ), // ✅ Allow revert to pending
 			self::IN_PROGRESS     => array( self::COMPLETED, self::CANCELLED ),
-			self::COMPLETED       => array( self::REFUNDED ),
+			self::COMPLETED       => array( self::REFUNDED, self::IN_PROGRESS ), // ✅ IN_PROGRESS for early-completion correction (cron misfire, manual mistake)
 			self::CANCELLED       => array( self::PENDING_PAYMENT, self::CONFIRMED, self::PENDING ), // Re-booking
 			self::REFUNDED        => array(), // Final status
 			self::NO_SHOW         => array( self::CANCELLED ), // Can be cancelled
