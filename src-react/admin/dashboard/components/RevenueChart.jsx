@@ -32,6 +32,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 			},
 			options: {
 				responsive: true,
+				maintainAspectRatio: false, // Container'a uy, default aspect ratio dikey büyütme yapmasın (max-height: dashboard.css'te .mhm-revenue-chart canvas).
 				plugins: {
 					tooltip: {
 						callbacks: {

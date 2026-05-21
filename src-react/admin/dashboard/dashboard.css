@@ -32,6 +32,17 @@
 	align-items: stretch;
 }
 
+/* Row 4 (PendingPayments + RevenueChart): cards keep their own content height.
+   Empty PendingPayments + tall RevenueChart stretch produced a large empty gap. */
+.mhm-dashboard__row--4 {
+	align-items: start;
+}
+
+/* Bound the Chart.js canvas so maintainAspectRatio: false has a deterministic ceiling. */
+.mhm-revenue-chart canvas {
+	max-height: 250px;
+}
+
 /* -----------------------------------------------------------------------------
    Mobile: stack all widget rows to single column
    WP admin window.innerWidth ~670–782px on a 390px device (no viewport meta)
