@@ -222,6 +222,18 @@ final class UserDashboard {
 			true
 		);
 
+		// Localize flatpickr (currently TR; other languages fall back to default English).
+		$flatpickr_locale = self::resolve_flatpickr_locale();
+		if ( $flatpickr_locale !== null ) {
+			wp_enqueue_script(
+				'flatpickr-l10n-' . $flatpickr_locale,
+				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
+				array( 'flatpickr' ),
+				'4.6.13',
+				true
+			);
+		}
+
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
@@ -234,6 +246,7 @@ final class UserDashboard {
 			'ajaxUrl'        => admin_url('admin-ajax.php'),
 			'nonce'          => wp_create_nonce('mhm_rentiva_vendor_nonce'),
 			'lifecycleNonce' => wp_create_nonce('mhm_rentiva_vehicle_lifecycle'),
+			'flatpickrLocale' => $flatpickr_locale,
 			'i18n'           => array(
 				'loading'         => __('Loading...', 'mhm-rentiva'),
 				'error'           => __('Error fetching analytics data.', 'mhm-rentiva'),
@@ -241,5 +254,19 @@ final class UserDashboard {
 				'confirmRelist'   => __('Relist this vehicle for operator review?', 'mhm-rentiva'),
 			),
 		));
+	}
+
+	/**
+	 * Resolve the flatpickr locale code to load for the current WordPress locale.
+	 *
+	 * @return string|null
+	 */
+	private static function resolve_flatpickr_locale(): ?string
+	{
+		$wp_locale = (string) get_locale();
+		$short     = strtolower( substr( $wp_locale, 0, 2 ) );
+		$supported = array( 'tr' );
+
+		return in_array( $short, $supported, true ) ? $short : null;
 	}
 }

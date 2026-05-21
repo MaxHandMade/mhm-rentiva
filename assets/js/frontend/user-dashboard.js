@@ -228,7 +228,7 @@ function initAnalyticsDashboard() {
 
     let debounceTimer;
 
-    const fp = flatpickr(fpInput, {
+    const fpOptions = {
         mode: "range",
         dateFormat: "Y-m-d",
         onChange: function (selectedDates, dateStr, instance) {
@@ -239,7 +239,14 @@ function initAnalyticsDashboard() {
                 }, 400); // Debounce limit
             }
         }
-    });
+    };
+
+    // Apply WP-side locale (PHP enqueues the matching l10n bundle).
+    if (window.mhmRentivaAnalytics && window.mhmRentivaAnalytics.flatpickrLocale) {
+        fpOptions.locale = window.mhmRentivaAnalytics.flatpickrLocale;
+    }
+
+    const fp = flatpickr(fpInput, fpOptions);
 
     // Preset Buttons
     document.querySelectorAll('.mhm-rentiva-preset-btn').forEach(btn => {

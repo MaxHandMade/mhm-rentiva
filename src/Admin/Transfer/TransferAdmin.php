@@ -752,29 +752,29 @@ final class TransferAdmin {
 												<?php endif; ?>
 											</td>
 											<td>
-												<?php echo esc_html($route->distance_km); ?> km <br>
-												<small><?php echo esc_html($route->duration_min); ?> min</small>
+												<?php echo esc_html($route->distance_km); ?> <?php echo esc_html__('km', 'mhm-rentiva'); ?> <br>
+												<small><?php echo esc_html($route->duration_min); ?> <?php echo esc_html__('min', 'mhm-rentiva'); ?></small>
 											</td>
 											<td>
 												<?php if ('fixed' === $route->pricing_method) : ?>
-													<span class="badge badge-primary">Fixed</span>
+													<span class="badge badge-primary"><?php echo esc_html__('Fixed', 'mhm-rentiva'); ?></span>
 													<strong><?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?></strong>
 													<?php if ( (float) $route->min_price > 0 || (float) $route->max_price > 0) : ?>
 														<br><small>
 														<?php if ( (float) $route->min_price > 0) : ?>
-															Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
+															<?php echo esc_html__('Min:', 'mhm-rentiva'); ?> <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
 														<?php endif; ?>
 														<?php if ( (float) $route->max_price > 0) : ?>
-															Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
+															<?php echo esc_html__('Max:', 'mhm-rentiva'); ?> <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
 														<?php endif; ?>
 														</small>
 													<?php endif; ?>
 												<?php else : ?>
-													<span class="badge badge-secondary">KM</span>
-													<?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?> / km <br>
-													Min: <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
+													<span class="badge badge-secondary"><?php echo esc_html__('KM', 'mhm-rentiva'); ?></span>
+													<?php echo wp_kses_post(call_user_func('wc_price', $route->base_price)); ?> / <?php echo esc_html__('km', 'mhm-rentiva'); ?> <br>
+													<?php echo esc_html__('Min:', 'mhm-rentiva'); ?> <?php echo wp_kses_post(call_user_func('wc_price', $route->min_price)); ?>
 													<?php if ( (float) $route->max_price > 0) : ?>
-														Max: <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
+														<?php echo esc_html__('Max:', 'mhm-rentiva'); ?> <?php echo wp_kses_post(call_user_func('wc_price', $route->max_price)); ?>
 													<?php endif; ?>
 												<?php endif; ?>
 											</td>

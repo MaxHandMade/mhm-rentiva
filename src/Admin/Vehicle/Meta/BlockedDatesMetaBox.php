@@ -393,6 +393,19 @@ final class BlockedDatesMetaBox {
 			'4.6.13',
 			true
 		);
+
+		// Localize flatpickr (currently TR; other languages fall back to default English).
+		$flatpickr_locale = self::resolve_flatpickr_locale();
+		if ( $flatpickr_locale !== null ) {
+			wp_enqueue_script(
+				'flatpickr-l10n-' . $flatpickr_locale,
+				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
+				array( 'flatpickr' ),
+				'4.6.13',
+				true
+			);
+		}
+
 		wp_enqueue_script(
 			'mhm-blocked-dates',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/blocked-dates.js',
@@ -409,6 +422,25 @@ final class BlockedDatesMetaBox {
 			'removedFrom'     => __( 'Removed from %d vehicles.', 'mhm-rentiva' ),
 			'error'           => __( 'An error occurred.', 'mhm-rentiva' ),
 			'notePlaceholder' => __( 'Add note... (optional)', 'mhm-rentiva' ),
+			'flatpickrLocale' => $flatpickr_locale,
 		) );
+	}
+
+	/**
+	 * Resolve the flatpickr locale code to load for the current WordPress locale.
+	 *
+	 * Returns the short locale string (e.g. 'tr') when a matching l10n file is
+	 * bundled, or null to leave flatpickr in its default English locale.
+	 *
+	 * @return string|null
+	 */
+	private static function resolve_flatpickr_locale(): ?string {
+		$wp_locale = (string) get_locale();
+		$short     = strtolower( substr( $wp_locale, 0, 2 ) );
+
+		// Bundled flatpickr l10n files under assets/vendor/flatpickr/l10n/.
+		$supported = array( 'tr' );
+
+		return in_array( $short, $supported, true ) ? $short : null;
 	}
 }

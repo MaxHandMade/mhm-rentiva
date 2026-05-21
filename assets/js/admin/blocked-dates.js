@@ -25,7 +25,7 @@
 			blockedNotes = {};
 		}
 
-		fp = flatpickr( '#mhm_blocked_dates_picker', {
+		var fpOptions = {
 			mode: 'multiple',
 			dateFormat: 'Y-m-d',
 			inline: true,
@@ -46,7 +46,14 @@
 				syncHiddenFields();
 				renderChips();
 			},
-		} );
+		};
+
+		// Apply WP-side locale (PHP enqueues the matching l10n bundle).
+		if ( window.mhmBlockedDatesL10n && window.mhmBlockedDatesL10n.flatpickrLocale ) {
+			fpOptions.locale = window.mhmBlockedDatesL10n.flatpickrLocale;
+		}
+
+		fp = flatpickr( '#mhm_blocked_dates_picker', fpOptions );
 
 		renderChips();
 
