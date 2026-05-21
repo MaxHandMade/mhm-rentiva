@@ -116,23 +116,27 @@ class QueryHelper {
             $loc_table = preg_replace('/[^A-Za-z0-9_]/', '', $loc_table) ?? '';
 
             $id_placeholders = implode(',', array_fill(0, count($ids), '%d'));
-            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($ids); values passed via prepare().
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($ids); table name passed via %i; values via prepare().
             $cities = $wpdb->get_col(
                 $wpdb->prepare(
-                    "SELECT DISTINCT city FROM {$loc_table} WHERE id IN ({$id_placeholders}) AND city <> ''",
+                    "SELECT DISTINCT city FROM %i WHERE id IN ({$id_placeholders}) AND city <> ''",
+                    $loc_table,
                     ...$ids
                 )
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
             if (! empty($cities)) {
                 $city_placeholders = implode(',', array_fill(0, count($cities), '%s'));
-                // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($cities); values passed via prepare().
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($cities); table name passed via %i; values via prepare().
                 $expanded_ids = $wpdb->get_col(
                     $wpdb->prepare(
-                        "SELECT id FROM {$loc_table} WHERE city IN ({$city_placeholders})",
+                        "SELECT id FROM %i WHERE city IN ({$city_placeholders})",
+                        $loc_table,
                         ...$cities
                     )
                 );
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 if (! empty($expanded_ids)) {
                     $ids = array_map('intval', $expanded_ids);
                 }
