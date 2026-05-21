@@ -16,6 +16,7 @@
 	overflow: hidden;
 	margin-top: var(--mhm-space-5); /* Bookings page parity: 20px gap between KPI stats grid and calendar widget. */
 	margin-bottom: 30px;
+	padding: var(--mhm-space-5); /* Bookings parity card-pattern: 20px inner breathing room around header, grid, and legend. */
 }
 
 .mhm-calendars .calendar-container {
