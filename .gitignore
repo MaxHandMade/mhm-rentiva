@@ -327,6 +327,9 @@ bin/*
 # script). Must be tracked or every clean clone fails 4 migration tests —
 # the recurrence the unmerged 362a475 "restore missing scripts" never fixed.
 !bin/mhm-migrate-meta.php
+# One-shot maintenance script for reverting prematurely auto-completed bookings
+# (paired with the AutoComplete cron fix in 6b51cb0). Live-verified end-to-end.
+!bin/cleanup-early-completed-bookings.php
 tools/
 AGENTS.md
 build_debug.txt
