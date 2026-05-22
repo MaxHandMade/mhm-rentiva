@@ -24,6 +24,13 @@ package-lock.json
 webpack.config.js
 gulpfile.js
 
+# src-react/ INTENTIONALLY NOT excluded — shared/admin.css is enqueued
+# directly by VehicleColumns.php, BookingColumns.php, AddonListTable.php,
+# and TransferAdmin.php on PHP list-table pages. Excluding src-react/
+# would 404 those styles and break KPI cards on installed sites.
+# (Future option: move shared/admin.css into the wp-scripts build output,
+#  then src-react/ could be excluded — separate task, needs PHP+webpack changes.)
+
 # Tests
 tests/
 phpunit.xml
