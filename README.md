@@ -715,19 +715,16 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - ✅ **Frontend Payments**: Via WooCommerce (All gateways supported)
 - ✅ **Manual Payments**: Native Offline Payment (Admin only)
 
-**All Export Formats:**
-- ✅ **CSV Export**: Available (all versions)
-- ✅ **JSON Export**: Available (Pro only)
-- ✅ **Excel Export (XLS)**: Available (Pro only, requires FEATURE_EXPORT)
-- ✅ **XML Export**: Available (Pro only, requires FEATURE_EXPORT)
-- ✅ **PDF Export**: Available (Pro only, requires FEATURE_REPORTS_ADV, HTML-based table export)
+**Export Formats:**
+- ✅ **CSV Export**: Available (all versions, includes UTF-8 BOM for Excel compatibility)
+- ✅ **JSON Export**: Available (Pro only — structured data export with metadata wrapper)
 
 **Advanced Reports (FEATURE_REPORTS_ADV):**
 - **Unlimited Date Range**: No date restrictions (Lite: 30 days max)
 - **Unlimited Rows**: No row limits (Lite: 500 rows max)
 - **Report Types**: Revenue, Bookings, Vehicles, Customers reports
 - **Dashboard Widgets**: Statistics and revenue chart widgets
-- **Multi-format Export**: Export reports in all formats (CSV, JSON, Excel, XML, PDF)
+- **Multi-format Export**: Export reports as CSV or JSON
 - **Report Cache**: Automatic caching for performance
 
 **Messaging System (FEATURE_MESSAGES):**
