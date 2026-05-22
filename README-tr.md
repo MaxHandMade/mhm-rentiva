@@ -38,6 +38,7 @@
 - [Proje Yapısı](#-proje-yapısı)
 - [Gereksinimler](#-gereksinimler)
 - [Geliştirme](#-geliştirme)
+- [Modern React Admin Arayüzü](#-modern-react-admin-arayüzü)
 - [Katkıda Bulunma](#-katkıda-bulunma)
 - [Değişiklik Geçmişi](#-değişiklik-geçmişi-changelog)
 - [Lisans](#-lisans)
@@ -984,7 +985,7 @@ mhm-rentiva/
 
 ---
 
-## ⚛ Modern React Admin Arayüzü (v4.36.0+)
+## ⚛ Modern React Admin Arayüzü
 
 Tüm büyük admin sayfaları eski jQuery/WP_List_Table altyapısından REST API destekli React SPA'larına geçirildi. Geçiş v4.49.0 itibarıyla tamamlandı.
 
