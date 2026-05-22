@@ -438,8 +438,8 @@ MHM Rentiva follows WordPress Coding Standards (WPCS) and strict security protoc
 **Default Addons** (can be created automatically):
 - GPS Navigation
 - Child Seat
-- Additional Driver
-- Insurance
+- Extra Driver
+- Full Insurance
 - And more...
 
 ### 📤 Data Export System

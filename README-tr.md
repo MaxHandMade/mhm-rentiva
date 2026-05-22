@@ -390,6 +390,70 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 - **Nonce Doğrulama**: Tüm form gönderimleri ve AJAX istekleri (`SecurityHelper::verify_ajax_request`) nonce kontrolü ile korunur.
 - **Yetki Kontrolü**: Tüm admin işlemleri `current_user_can('manage_options')` ve hassas işlemler için ek yetki kontrolleri içerir.
 
+### 🎁 Ek Hizmet Sistemi
+
+**Ek Hizmet Yönetimi:**
+- **Özel Yazı Türü**: Ek hizmetler için `vehicle_addon` özel yazı türü (CPT)
+- **Ek Hizmet Özellikleri**:
+  - Başlık, açıklama ve fiyat
+  - Ek hizmet başına etkinleştir/devre dışı bırak
+  - Görüntüleme sırası ayarları
+  - Fiyat görüntüleme seçenekleri
+  - Çoklu seçim desteği
+- **Rezervasyon Entegrasyonu**: Ek hizmetler rezervasyon toplamına otomatik eklenir
+- **Lite Sürüm Limiti**: Lite sürümde maksimum 4 ek hizmet (Pro'da sınırsız)
+- **Toplu Eylemler**: Birden fazla ek hizmeti aynı anda etkinleştir/devre dışı bırak/ekle/kaldır
+- **Ek Hizmet Ayarları**: Ek hizmet görüntüleme ve davranışı için genel ayarlar
+
+**Varsayılan Ek Hizmetler** (otomatik olarak oluşturulabilir):
+- GPS Navigasyonu
+- Çocuk Koltuğu
+- Ek Sürücü
+- Tam Sigorta
+- Ve daha fazlası...
+
+### 📤 Veri Dışa Aktarma Sistemi
+
+**Dışa Aktarma Formatları:**
+- **CSV**: Virgülle ayrılmış değerler (Lite ve Pro)
+- **JSON**: JSON formatı (sadece Pro)
+
+**Dışa Aktarılabilir Veri:**
+- **Rezervasyonlar**: Filtrelerle tüm rezervasyon verileri
+- **Araçlar**: Araç envanteri
+- **Loglar**: Sistem logları
+- **Raporlar**: Analitik veriler
+
+**Dışa Aktarma Özellikleri:**
+- **Gelişmiş Filtreleme**: Tarih aralığı, durum, araç, müşteri ile filtreleme
+- **Dışa Aktarma Geçmişi**: Tüm dışa aktarmaları takip et
+- **Dışa Aktarma İstatistikleri**: Dışa aktarma kullanımını görüntüle
+- **Toplu Dışa Aktarma**: Birden fazla veri türünü aynı anda dışa aktar
+- **Özel Alanlar**: Belirli alanları dahil et/hariç tut
+- **Tarih Aralığı Seçimi**: Esnek tarih filtreleme
+
+### 🔒 Gizlilik ve GDPR Uyumluluğu (Pro)
+
+**GDPR Özellikleri:**
+- **Veri Saklama**: Yapılandırılabilir veri saklama süresi (varsayılan: 2550 gün)
+- **Veri Anonimleştirme**: Silme yerine kullanıcı verilerini anonimleştirme
+- **Veri Dışa Aktarma**: Müşteri tüm verilerini dışa aktarabilir
+- **Veri Silme**: Müşteri hesap silme talebinde bulunabilir
+- **Onay Yönetimi**: Kullanıcı onaylarını takip ve yönetme
+- **Gizlilik Kontrolleri**: Müşteri panelinde gizlilik kontrolleri
+
+**Müşteri Panelindeki Gizlilik Kontrolleri:**
+- Kişisel verileri dışa aktar (JSON formatı)
+- Veri işleme onayını geri çek
+- Hesabı ve ilişkili tüm verileri sil
+- Gizlilik politikasını görüntüle
+
+**Otomatik Temizlik:**
+- Aktif olmayan kullanıcıların planlı temizliği
+- Eski tamamlanmış/iptal edilmiş rezervasyonları temizleme
+- Saklama süresi ayarlarına uyar
+- Silmeden önce anonimleştirme seçeneği
+
 ---
 
 ## 🏗️ Lisans Yönetimi
