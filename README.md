@@ -719,7 +719,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - ✅ **CSV Export**: Available (all versions, includes UTF-8 BOM for Excel compatibility)
 - ✅ **JSON Export**: Available (Pro only — structured data export with metadata wrapper)
 
-**Advanced Reports (FEATURE_REPORTS_ADV):**
+**Advanced Reports:**
 - **Unlimited Date Range**: No date restrictions (Lite: 30 days max)
 - **Unlimited Rows**: No row limits (Lite: 500 rows max)
 - **Report Types**: Revenue, Bookings, Vehicles, Customers reports
@@ -727,7 +727,7 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 - **Multi-format Export**: Export reports as CSV or JSON
 - **Report Cache**: Automatic caching for performance
 
-**Messaging System (FEATURE_MESSAGES):**
+**Messaging System:**
 - ✅ **Customer Messaging**: Frontend customer message interface
 - ✅ **Admin Messaging**: Admin message management interface
 - ✅ **Message Threads**: Thread-based conversation system (UUID-based)
@@ -761,8 +761,8 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 | **Export Formats** | CSV Only | CSV, JSON |
 | **Report Date Range** | 30 days max | Unlimited |
 | **Report Rows** | 500 max | Unlimited |
-| **Advanced Reports** | ❌ | ✅ (FEATURE_REPORTS_ADV) |
-| **Messaging System** | ❌ | ✅ (FEATURE_MESSAGES) |
+| **Advanced Reports** | ❌ | ✅ |
+| **Messaging System** | ❌ | ✅ |
 | **Vendor Marketplace** | ❌ | ✅ (Pro) |
 | **Vehicle Lifecycle Management** | ❌ | ✅ (Pro) |
 | **API Access** | Limited | Full REST API |
@@ -822,9 +822,9 @@ MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. 
 
 **License Expiration:**
 - **Warning Period**: Shows warnings 14 days before expiration
-- **Grace Period**: Features continue working after expiration (configurable)
-- **Expiration Handling**: Automatic deactivation on expiration
-- **Renewal**: Easy renewal process from license page
+- **Network Grace Period**: If the license server is temporarily unreachable, Pro features keep working for 7 days from the last successful validation (offline tolerance). Does not extend past the expiration date.
+- **Expiration Handling**: Pro features immediately disabled when the expiration date passes (license record is retained for renewal)
+- **Renewal**: Re-activate with a new license key from the License page
 
 #### Developer Mode
 

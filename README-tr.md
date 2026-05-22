@@ -207,25 +207,7 @@ MHM Rentiva, araç kiralama işletmeleri için tasarlanmış kapsamlı bir WordP
 
 ### 🚀 Lite ve Pro Sürüm Karşılaştırması
 
-| Özellik | Lite (Ücretsiz) | Pro (Premium) |
-| :--- | :--- | :--- |
-| **Maksimum Araç** | 5 Araç | **Sınırsız** |
-| **Maksimum Rezervasyon** | 50 Rezervasyon | **Sınırsız** |
-| **Maksimum Müşteri** | 10 Müşteri | **Sınırsız** |
-| **Ek Hizmetler** | 4 Hizmet | **Sınırsız** |
-| **VIP Transfer Rotası** | 3 Rota | **Sınırsız** |
-| **Galeri Resmi** | 5 Resim / Araç | **Sınırsız (ayarlanabilir)** |
-| **Rapor Tarih Aralığı** | Son 30 Gün | **Sınırsız** |
-| **Rapor Satır Limiti** | 500 Satır | **Sınırsız** |
-| **Mesajlaşma Sistemi** | ❌ Yok | ✅ Var |
-| **Vendor & Payout** | ❌ Yok | ✅ Var |
-| **E-posta Bildirimleri** | ✅ Var | ✅ Var |
-| **Dışa Aktarım** | Sadece CSV | CSV, JSON |
-| **Ödeme Altyapısı** | WooCommerce | WooCommerce |
-| **REST API Erişimi** | Sınırlı | Tam Erişim |
-| **Gelişmiş Raporlar** | ❌ Sınırlı | ✅ Tam Erişim |
-
-> **Not:** Lite sürümü küçük işletmeler ve test amaçlı tasarlanmıştır. Sınırsız erişim için Pro sürüme geçiş yapın.
+Lite sürümü, küçük işletmeler ve test amaçlı tasarlanmıştır; temel kiralama akışını sınırlı miktarlarda çalıştırır. Pro sürümü tüm sınırları kaldırır ve gelişmiş özellikleri (mesajlaşma, vendor pazaryeri, araç yaşam döngüsü, gelişmiş raporlar) ekler. Detaylı özellik karşılaştırması için aşağıdaki [Özellik Karşılaştırma Tablosu](#özellik-karşılaştırma-tablosu) bölümüne bakın.
 
 ### 📧 E-posta Bildirim Sistemi
 
@@ -412,7 +394,145 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 
 ## 🏗️ Lisans Yönetimi
 
-**Lisans Sayfası Konumu**: `Rentiva > License`
+MHM Rentiva, Lite (ücretsiz) ve Pro (ücretli) sürümlerle bir **freemium modeli** kullanır. Eklenti lisans durumunu otomatik algılar ve özellikleri buna göre etkinleştirir/kısıtlar.
+
+### Lisans Genel Bakış
+
+**Lisans Aktivasyonu:**
+- **Konum**: `Rentiva > Lisans`
+- **Lisans Anahtarı Formatı**: Tireli alfanümerik (örn. `XXXX-XXXX-XXXX-XXXX`)
+- **Aktivasyon Süreci**:
+  1. Lisans sayfasında lisans anahtarını girin
+  2. "Lisansı Aktive Et" butonuna tıklayın
+  3. Sistem lisans sunucusuyla doğrular
+  4. Pro özellikleri otomatik olarak etkinleştirilir
+- **Lisans Doğrulama**: WordPress cron ile otomatik günlük doğrulama
+- **Lisans Sona Erme**: Sona erme tarihinden 14 gün önce uyarı gösterilir
+
+**Lisans Sunucu Entegrasyonu:**
+- **API Endpoint'leri**:
+  - `/licenses/activate` — Lisansı aktive et
+  - `/licenses/validate` — Lisansı doğrula
+  - `/licenses/deactivate` — Lisansı deaktive et
+- **Site Hash**: Lisans bağlama için benzersiz site tanımlayıcısı
+- **Staging Desteği**: Staging ortamlarının otomatik algılanması
+- **Çoklu Site Desteği**: Lisans WordPress multisite genelinde çalışır
+
+**Geliştirici Modu:**
+- **Otomatik Algılama**: Geliştirme ortamlarında Pro özellikleri otomatik etkinleştirilir
+- **Algılama Kriterleri**:
+  - Localhost alan adları (localhost, 127.0.0.1, ::1)
+  - Yerel TLD'ler (.local, .test, .dev, .staging)
+  - Geliştirme portları (8080, 8081, 3000, vb.)
+  - XAMPP/WAMP/MAMP sunucu yazılımları
+  - WordPress hata ayıklama modu (WP_DEBUG)
+  - Geliştirme ortamı sabiti (WP_ENV)
+- **Güvenlik**: Sadece localhost/geliştirme alan adlarında çalışır (güvenli)
+
+### Lite Sürüm (Ücretsiz) - Özellik Sınırlamaları
+
+**Miktar Sınırları:**
+- **Araçlar**: Maksimum **5 araç** (yayında, beklemede ve özel durumdaki araçlar dahil)
+- **Rezervasyonlar**: Maksimum **50 rezervasyon** (yayında, beklemede ve özel durumdaki rezervasyonlar dahil)
+- **Müşteriler**: Maksimum **10 müşteri** (rezervasyonu olan WordPress kullanıcıları)
+- **Ek Hizmetler**: Maksimum **4 ek hizmet**
+
+**Ödeme Ağ Geçidi:**
+- ✅ **Frontend Ödemeleri**: WooCommerce üzerinden (tüm ağ geçitleri desteklenir)
+- ✅ **Manuel Ödemeler**: Yerel çevrim dışı ödeme (sadece yönetici)
+
+**Dışa Aktarma Kısıtlamaları:**
+- ✅ **CSV Dışa Aktarma**: Mevcut (tüm sürümlerde)
+- ❌ **JSON Dışa Aktarma**: Mevcut değil (sadece Pro)
+
+**Rapor Kısıtlamaları:**
+- **Tarih Aralığı**: Maksimum **30 gün** (otomatik filtrelenir)
+- **Rapor Satırları**: Dışa aktarma başına maksimum **500 satır**
+- **Gelişmiş Raporlar**: Mevcut değil (sadece Pro)
+- **Rapor Dışa Aktarma**: Sadece CSV ile sınırlı
+
+**Mesajlaşma Sistemi:**
+- ❌ **Müşteri Mesajlaşma**: Mevcut değil (sadece Pro)
+- ❌ **Yönetici Mesajlaşma**: Mevcut değil (sadece Pro)
+- ❌ **Mesaj İş Parçacıkları**: Mevcut değil (sadece Pro)
+
+**Diğer Sınırlamalar:**
+- **Gelişmiş Raporlar Özelliği**: Mevcut değil (sadece temel raporlar)
+- **Rapor Dışa Aktarma Formatları**: Lite raporlar için sadece CSV ile sınırlı
+
+**Lite Sürüm Kısıtlama Arayüzü:**
+- Yönetici bildirimleri mevcut kullanımı gösterir (örn. "5/5 araç kullanıldı")
+- Limit dolduğunda "Yeni Ekle" düğmeleri gizlenir
+- Pro'ya kilitli bölümler "Pro" rozeti gösterir
+- Yönetici arayüzü boyunca yükseltme istemleri
+
+### Pro Sürüm - Tam Özellik Erişimi
+
+**Sınırsız Miktarlar:**
+- **Araçlar**: **Sınırsız** araç
+- **Rezervasyonlar**: **Sınırsız** rezervasyon
+- **Müşteriler**: **Sınırsız** müşteri
+- **Ek Hizmetler**: **Sınırsız** ek hizmet
+
+**Tüm Ödeme Ağ Geçitleri:**
+- ✅ **Frontend Ödemeleri**: WooCommerce üzerinden (tüm ağ geçitleri desteklenir)
+- ✅ **Manuel Ödemeler**: Yerel çevrim dışı ödeme (sadece yönetici)
+
+**Dışa Aktarma Formatları:**
+- ✅ **CSV Dışa Aktarma**: Mevcut (tüm sürümlerde, Excel uyumluluğu için UTF-8 BOM dahil)
+- ✅ **JSON Dışa Aktarma**: Mevcut (sadece Pro — metadata sarmalayıcı içeren yapılandırılmış veri ihracı)
+
+**Gelişmiş Raporlar:**
+- **Sınırsız Tarih Aralığı**: Tarih kısıtlaması yok (Lite: maks. 30 gün)
+- **Sınırsız Satır**: Satır limiti yok (Lite: maks. 500 satır)
+- **Rapor Türleri**: Gelir, Rezervasyonlar, Araçlar, Müşteriler raporları
+- **Kontrol Paneli Widget'ları**: İstatistik ve gelir grafik widget'ları
+- **Çoklu Format Dışa Aktarma**: Raporları CSV veya JSON olarak dışa aktarma
+- **Rapor Önbelleği**: Performans için otomatik önbellekleme
+
+**Mesajlaşma Sistemi:**
+- ✅ **Müşteri Mesajlaşma**: Ön yüz müşteri mesaj arayüzü
+- ✅ **Yönetici Mesajlaşma**: Yönetici mesaj yönetim arayüzü
+- ✅ **Mesaj İş Parçacıkları**: İş parçacığı tabanlı konuşma sistemi (UUID tabanlı)
+- ✅ **E-posta Bildirimleri**: Yeni mesajlar ve yanıtlar için otomatik e-posta bildirimleri
+- ✅ **Mesaj Durumu**: Açık, Devam Ediyor, Kapalı durum yönetimi
+- ✅ **Mesaj Kategorileri**: Kategorize edilmiş mesaj organizasyonu (Genel, Destek, Rezervasyon, vb.)
+- ✅ **Mesaj Önceliği**: Öncelik seviyeleri (Düşük, Normal, Yüksek, Acil)
+- ✅ **REST API**: Mesaj işlemleri için REST endpoint'leri
+- ✅ **Sınırsız Mesaj**: Pro sürümde mesaj sınırı yok
+
+**Ek Pro Özellikleri:**
+- **REST API Erişimi**: Entegrasyon için tam REST API endpoint'leri
+- **E-posta Bildirimleri**: Rezervasyonlar için otomatik e-posta bildirimleri
+- **Loglama Sistemi**: Hata ayıklama için kapsamlı loglama
+- **GDPR Uyumluluğu**: Veri ihracı, anonimleştirme ve silme özellikleri
+- **Veritabanı Bakımı**: Veritabanı temizliği için WP-CLI komutları
+- **Cron İşleri**: Otomatik arka plan görevleri
+
+### Özellik Karşılaştırma Tablosu
+
+| Özellik | Lite Sürüm | Pro Sürüm |
+|---------|------------|-----------|
+| **Maksimum Araç** | 5 | Sınırsız |
+| **Maksimum Rezervasyon** | 50 | Sınırsız |
+| **Maksimum Müşteri** | 10 | Sınırsız |
+| **Maksimum Ek Hizmet** | 4 | Sınırsız |
+| **VIP Transfer Rotası** | 3 | Sınırsız |
+| **Galeri Görseli** | 5 / Araç | Sınırsız |
+| **Frontend Ödemeleri** | WooCommerce üzerinden | WooCommerce üzerinden |
+| **Manuel Ödemeler** | Yerel Çevrim Dışı | Yerel Çevrim Dışı |
+| **Dışa Aktarma Formatları** | Sadece CSV | CSV, JSON |
+| **Rapor Tarih Aralığı** | Maks. 30 gün | Sınırsız |
+| **Rapor Satırları** | Maks. 500 | Sınırsız |
+| **Gelişmiş Raporlar** | ❌ | ✅ |
+| **Mesajlaşma Sistemi** | ❌ | ✅ |
+| **Vendor Pazaryeri** | ❌ | ✅ (Pro) |
+| **Araç Yaşam Döngüsü Yönetimi** | ❌ | ✅ (Pro) |
+| **API Erişimi** | Sınırlı | Tam REST API |
+
+### Lisans Yönetim Sayfası
+
+**Lisans Sayfası Konumu**: `Rentiva > Lisans`
 
 **Lisans Durumu Görüntüleme:**
 - Pro Lisans Aktif (yeşil rozet)
@@ -420,6 +540,54 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 - Geliştirici Modu (bilgi rozeti)
 - Lisans sona erme uyarıları
 - Son doğrulama zaman damgası
+
+**Lisans Eylemleri:**
+- **Lisansı Aktive Et**: Lisans anahtarını girin ve aktive edin
+- **Lisansı Deaktive Et**: Lisansı siteden kaldırın
+- **Lisansı Doğrula**: Lisans durumunu manuel olarak kontrol edin
+- **Lisansı Değiştir**: Eskisini deaktive edin, yenisini aktive edin
+
+**Görüntülenen Lisans Bilgileri:**
+- Lisans anahtarı (maskelenmiş)
+- Lisans durumu (aktif/pasif)
+- Sona erme tarihi
+- Son doğrulama zamanı
+- Site hash (destek için)
+
+**Kısıtlama Uygulaması:**
+- **Otomatik Limitler**: Sistem Lite limitlerinin aşılmasını engeller
+- **Yönetici Bildirimleri**: Limitlere yaklaşıldığında uyarılar
+- **Özellik Kapıları**: Pro özellikleri Lite'da otomatik olarak devre dışı
+- **Arayüz Kaplamaları**: Pro'ya kilitli bölümler görsel olarak işaretlenir
+- **Yükseltme İstemleri**: Pro'ya geçiş için net yollar
+
+### Lisans Doğrulama
+
+**Otomatik Doğrulama:**
+- **Günlük Cron İşi**: Lisansı her 24 saatte bir doğrular
+- **Aktivasyon Anında**: Aktive edildiğinde anında doğrular
+- **Sayfa Yüklemede**: Yönetici panelinde lisans durumunu kontrol eder
+- **Pro Özelliklerinden Önce**: Pro özellikleri etkinleştirmeden önce doğrular
+
+**Doğrulama Süreci:**
+1. Lisans anahtarını lisans sunucusuna gönderir
+2. Site bağlama için site hash gönderir
+3. Sunucu lisans durumunu doğrular
+4. Lisans bilgilerini döner (durum, sona erme, plan)
+5. Yerel lisans verilerini günceller
+6. Özellikleri buna göre etkinleştirir/kısıtlar
+
+**Site Bağlama:**
+- **Site Hash**: Site URL'si, WordPress sürümü, PHP sürümünden üretilir
+- **Lisans Paylaşımını Engeller**: Lisans belirli bir siteye bağlıdır
+- **Staging Desteği**: Staging siteleri ayrı aktivasyon sayılmaz
+- **Multisite**: Lisans ağ siteleri arasında çalışır
+
+**Lisans Sona Erme:**
+- **Uyarı Periyodu**: Sona erme tarihinden 14 gün önce uyarı gösterilir
+- **Ağ Bağlantısı Ek Süresi**: Lisans sunucusuna geçici olarak ulaşılamadığında, son başarılı doğrulamadan itibaren 7 gün boyunca Pro özellikler çalışmaya devam eder (çevrim dışı tolerans). Bu süre sona erme tarihini uzatmaz.
+- **Sona Erme İşlemi**: Sona erme tarihi geçtiğinde Pro özellikler anında devre dışı kalır (lisans kaydı yenileme için saklanır)
+- **Yenileme**: Lisans sayfasından yeni lisans anahtarı girerek tekrar aktive edin
 
 ### 💻 Geliştirici Modu
 
@@ -429,6 +597,13 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 - **Algılama**: Güvenilir algılama için çoklu kriterler
 - **Lisans Gerekmez**: Geliştirme ortamında lisans anahtarına ihtiyaç duyulmaz
 
+**Geliştirme Ortamı Algılaması:**
+1. **Host Kontrolü**: localhost, .local, .test, .dev, .staging alan adları
+2. **Sunucu Yazılımı**: XAMPP, WAMP, MAMP, LAMP algılaması
+3. **Port Kontrolü**: Geliştirme portları (8080, 3000, vb.)
+4. **WordPress Hata Ayıklama**: WP_DEBUG sabit kontrolü
+5. **Ortam Sabiti**: WP_ENV development kontrolü
+
 **Geliştirici Modu Özellikleri:**
 - Tüm Pro özellikleri etkinleştirilir
 - Miktar sınırı yok
@@ -436,6 +611,43 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 - CSV ve JSON dışa aktarma formatları kullanılabilir
 - Tam mesajlaşma sistemi
 - Gelişmiş raporlar etkin
+
+**Güvenlik Konuları:**
+- Sadece localhost/geliştirme alan adlarında çalışır
+- Üretim sitelerinde aktive edilemez
+- Lisans anahtarı paylaşımını engeller
+- Güvenli otomatik algılama
+
+### Lisans Sorun Giderme
+
+**Sık Karşılaşılan Sorunlar:**
+
+1. **Lisans Aktive Olmuyor**
+   - Lisans anahtarı formatını kontrol edin
+   - Lisans sunucusu bağlantısını doğrulayın
+   - Site hash üretimini kontrol edin
+   - Staging ortam algılamasını doğrulayın
+
+2. **Özellikler Etkinleşmiyor**
+   - Lisansı manuel olarak doğrulayın
+   - Lisans sona ermesini kontrol edin
+   - Site hash eşleşmesini doğrulayın
+   - Geliştirici modu durumunu kontrol edin
+
+3. **Lisans Sona Ermesi**
+   - Lisansı sona ermeden önce yenileyin
+   - Lisans sayfasında sona erme tarihini kontrol edin
+   - Yenileme sorunları için destek ile iletişime geçin
+
+4. **Staging Ortamı**
+   - Staging siteleri otomatik algılanır
+   - Ayrı aktivasyon olarak sayılmazlar
+   - Lisans staging sitelerinde çalışır
+
+**Destek:**
+- Lisans sorunları: Lisans anahtarınızla destek ekibine başvurun
+- Özellik soruları: Özellik karşılaştırma tablosunu kontrol edin
+- Yükseltme talepleri: Yükseltme seçenekleri için lisans sayfasını ziyaret edin
 
 ---
 
