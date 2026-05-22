@@ -26,20 +26,24 @@
 
 ## 📋 İçindekiler
 
-- [Genel Bakış](#genel-bakış)
-- [Temel Özellikler](#temel-özellikler)
-- [Kurulum](#kurulum)
-- [Yapılandırma](#yapılandırma)
-- [Kullanım Kılavuzu](#kullanım-kılavuzu)
-- [Shortcode Referansı](#shortcode-referansı)
-- [REST API Dokümantasyonu](#rest-api-dokümantasyonu)
-- [Ödeme Ağ Geçitleri](#ödeme-ağ-geçitleri)
-- [Proje Yapısı](#proje-yapısı)
-- [Gereksinimler](#gereksinimler)
-- [Geliştirme](#geliştirme)
-- [Katkıda Bulunma](#katkıda-bulunma)
-- [Değişiklik Geçmişi](#değişiklik-geçmişi)
-- [Lisans](#lisans)
+- [Genel Bakış](#-genel-bakış)
+- [Temel Özellikler](#-temel-özellikler)
+- [Lisans Yönetimi](#-lisans-yönetimi)
+- [Silme Sistemi](#-silme-sistemi)
+- [Kurulum](#-kurulum)
+- [Yapılandırma](#-yapılandırma)
+- [Kullanım Kılavuzu](#-kullanım-kılavuzu)
+- [Shortcode Referansı](#-shortcode-referansı)
+- [REST API Dokümantasyonu](#-rest-api-dokümantasyonu)
+- [Proje Yapısı](#-proje-yapısı)
+- [Gereksinimler](#-gereksinimler)
+- [Geliştirme](#-geliştirme)
+- [Katkıda Bulunma](#-katkıda-bulunma)
+- [Değişiklik Geçmişi](#-değişiklik-geçmişi-changelog)
+- [Lisans](#-lisans)
+- [Geliştirici](#-geliştirici)
+- [Destek](#-destek)
+- [Projeyi Yıldızlayın](#-projeyi-yıldızlayın)
 
 ---
 
@@ -456,7 +460,7 @@ MHM Rentiva, WordPress güvenlik standartlarına (WPCS) tam uyumlu olarak geliş
 
 ---
 
-## 🏗️ Lisans Yönetimi
+## 🏗 Lisans Yönetimi
 
 MHM Rentiva, Lite (ücretsiz) ve Pro (ücretli) sürümlerle bir **freemium modeli** kullanır. Eklenti lisans durumunu otomatik algılar ve özellikleri buna göre etkinleştirir/kısıtlar.
 
@@ -790,7 +794,7 @@ Eklenti shortcode'lar için sayfaları otomatik olarak oluşturur veya manuel ol
 
 ---
 
-## ⚙️ Yapılandırma
+## ⚙ Yapılandırma
 
 ### Genel Ayarlar
 
@@ -980,7 +984,7 @@ mhm-rentiva/
 
 ---
 
-## ⚛️ Modern React Admin Arayüzü (v4.36.0+)
+## ⚛ Modern React Admin Arayüzü (v4.36.0+)
 
 Tüm büyük admin sayfaları eski jQuery/WP_List_Table altyapısından REST API destekli React SPA'larına geçirildi. Geçiş v4.49.0 itibarıyla tamamlandı.
 
