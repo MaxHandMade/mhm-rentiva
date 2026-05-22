@@ -10,6 +10,10 @@
 
 </div>
 
+<p align="center">
+  <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental and Transfer Booking for WordPress" width="800">
+</p>
+
 ![Version](https://img.shields.io/badge/version-4.58.2-blue.svg)
 ![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
