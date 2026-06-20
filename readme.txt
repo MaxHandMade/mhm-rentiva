@@ -88,6 +88,7 @@ Yes, all frontend components and admin settings are fully responsive.
 * 🔧 **Change:** Removed the redundant "Currency symbol" control from the Popular Routes Gutenberg block + Elementor widget (and the `currency_symbol` shortcode attribute). Currency is sourced from WooCommerce/plugin settings, so the manual override was dead config. Removed across `block.json`, `AllowlistRegistry` (schema + TAG_MAPPING), and the shortcode — schema parity preserved.
 * 🐛 **Fix:** `render_shortcode()` (ElementorWidgetBase) skips non-scalar settings (icon/url/`__globals__` arrays), preventing "Array to string conversion" warnings across all Elementor widgets that delegate to a shortcode.
 * 🐛 **Fix:** `AbstractShortcode` cache getter normalizes a transient miss (`false`) to `null`, so callers reliably distinguish "no cache" from a cached falsey value.
+* 🐛 **Fix:** Featured Vehicles slider now initialises in the Elementor editor preview (render-time-enqueued initialiser wasn't replayed into the preview iframe, so the slider showed empty in the editor — front-end was unaffected). Added an `elementor/preview/enqueue_scripts` loader + `frontend/element_ready` re-init hook.
 * 📝 **Docs:** SHORTCODES.md inventory updated to current counts (27 shortcodes, 22 blocks, 23 Elementor widgets / TAG_MAPPING entries); README / README-tr parity touch-ups.
 * 🧪 **Tests:** PopularRoutesShortcodeTest updated for WC-driven currency (regression guard: old `₺850` → `850 $`); schema parity suite green.
 

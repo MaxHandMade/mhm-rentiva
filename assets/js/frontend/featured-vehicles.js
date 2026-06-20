@@ -66,4 +66,30 @@
     // Re-init on Customizer/Widget updates if needed
     $(document).on('mhm-rentiva-reinit-sliders', initFeaturedVehicles);
 
+    // Elementor editor preview: the widget is injected/re-rendered after the page has
+    // loaded, so $(document).ready never fires for it (this was why the slider showed
+    // empty in the editor while the frontend worked). (1) Initialise immediately — when
+    // Elementor injects this script alongside the rendered widget the markup is already
+    // in the DOM. (2) Register Elementor's per-widget lifecycle hook so editing controls
+    // (which re-render the widget node) re-initialise. initFeaturedVehicles is idempotent
+    // via the swiper-initialized guard.
+    if (document.readyState !== 'loading') {
+        initFeaturedVehicles();
+    }
+
+    const registerElementorInit = function () {
+        if (window.elementorFrontend && window.elementorFrontend.hooks) {
+            window.elementorFrontend.hooks.addAction(
+                'frontend/element_ready/mhm_rentiva_featured_vehicles.default',
+                initFeaturedVehicles
+            );
+            return true;
+        }
+        return false;
+    };
+
+    if (!registerElementorInit()) {
+        $(window).on('elementor/frontend/init', registerElementorInit);
+    }
+
 })(jQuery);

@@ -215,6 +215,38 @@ class ElementorIntegration {
 	}
 
 	/**
+	 * Enqueue front-end widget assets into the Elementor preview iframe.
+	 *
+	 * Some widgets enqueue their JS/CSS only at shortcode-render time. Those render-time
+	 * enqueues are not replayed into the editor preview iframe, so e.g. the Featured
+	 * Vehicles slider renders its markup but its Swiper initialiser never loads — the
+	 * widget then looks empty in the editor while working fine on the front-end.
+	 * Loading the initialiser here lets the preview initialise like the front-end.
+	 */
+	public static function enqueue_preview_scripts(): void {
+		if ( ! self::is_elementor_active() ) {
+			return;
+		}
+
+		// Featured Vehicles slider (default layout) — Swiper is registered by AssetManager.
+		wp_enqueue_style( 'mhm-swiper-css' );
+		wp_enqueue_script( 'mhm-swiper' );
+		wp_enqueue_style(
+			'mhm-rentiva-featured-vehicles-preview',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/featured-vehicles.css',
+			array(),
+			MHM_RENTIVA_VERSION
+		);
+		wp_enqueue_script(
+			'mhm-rentiva-featured-vehicles-preview',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/featured-vehicles.js',
+			array( 'jquery', 'mhm-swiper' ),
+			MHM_RENTIVA_VERSION,
+			true
+		);
+	}
+
+	/**
 	 * Register Elementor hooks
 	 */
 	public static function register_hooks(): void {
@@ -234,6 +266,11 @@ class ElementorIntegration {
 		add_action( 'elementor/frontend/after_enqueue_scripts', array( self::class, 'enqueue_scripts' ), 10 );
 		add_action( 'elementor/editor/before_enqueue_styles', array( self::class, 'enqueue_editor_styles' ), 10 );
 		add_action( 'elementor/editor/before_enqueue_scripts', array( self::class, 'enqueue_editor_scripts' ), 10 );
+
+		// Preview iframe: some widget assets are enqueued only at shortcode-render time
+		// and are NOT replayed into the Elementor editor preview, so sliders render but
+		// never initialise (appear empty in the editor). Load them here for the preview.
+		add_action( 'elementor/preview/enqueue_scripts', array( self::class, 'enqueue_preview_scripts' ), 10 );
 	}
 
 	/**
