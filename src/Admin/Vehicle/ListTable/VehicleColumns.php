@@ -193,7 +193,8 @@ final class VehicleColumns {
 				echo '</span>';
 
 				$expires = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
-				if ($lifecycle === 'active' && $expires) {
+				// Countdown only for vendor listings — operator-owned vehicles never expire.
+				if ($lifecycle === 'active' && $expires && \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($post_id)) {
 					$days_left = max(0, (int) ceil(( strtotime($expires) - time() ) / DAY_IN_SECONDS));
 					echo '<br><small style="color:#666;">' . esc_html(
 						/* translators: %d: days remaining */

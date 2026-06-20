@@ -49,9 +49,23 @@ final class LifecycleMetaBox {
 	public static function render(\WP_Post $post): void
 	{
 		$vehicle_id = $post->ID;
-		$status     = VehicleLifecycleStatus::get($vehicle_id);
-		$label      = VehicleLifecycleStatus::get_label($status);
-		$color      = VehicleLifecycleStatus::get_color($status);
+
+		// Operator-owned (non-vendor) vehicles are not marketplace listings — the listing
+		// lifecycle (90-day expiry, renewal, vendor score) does not apply to them.
+		if (! VehicleLifecycleStatus::is_vendor_listing($vehicle_id)) {
+			echo '<div style="margin:-6px -12px -12px;padding:12px;">';
+			echo '<p style="margin:0 0 8px;">';
+			echo '<strong>' . esc_html__('Status:', 'mhm-rentiva') . '</strong> ';
+			echo '<span style="display:inline-block;padding:3px 10px;border-radius:4px;background:#28a74520;color:#28a745;font-weight:700;">' . esc_html__('Active', 'mhm-rentiva') . '</span>';
+			echo '</p>';
+			echo '<p style="margin:0;font-size:12px;color:#666;">' . esc_html__('Operator-owned vehicle — not subject to the listing lifecycle (no expiry).', 'mhm-rentiva') . '</p>';
+			echo '</div>';
+			return;
+		}
+
+		$status = VehicleLifecycleStatus::get($vehicle_id);
+		$label  = VehicleLifecycleStatus::get_label($status);
+		$color  = VehicleLifecycleStatus::get_color($status);
 
 		echo '<div style="margin:-6px -12px -12px;padding:12px;">';
 

@@ -97,6 +97,83 @@ class VehicleLifecycleActivationTest extends \WP_UnitTestCase
         $this->assertGreaterThan(0, $fired);
     }
 
+    public function test_is_vendor_listing_true_for_vendor_false_for_operator(): void
+    {
+        $this->assertTrue(
+            VehicleLifecycleStatus::is_vendor_listing($this->vehicle_id),
+            'vendor-authored vehicle is a vendor listing'
+        );
+
+        $admin_id      = $this->factory()->user->create(array('role' => 'administrator'));
+        $admin_vehicle = wp_insert_post(array(
+            'post_type'   => 'vehicle',
+            'post_status' => 'pending',
+            'post_author' => $admin_id,
+            'post_title'  => 'Operator Vehicle',
+        ));
+
+        $this->assertFalse(
+            VehicleLifecycleStatus::is_vendor_listing($admin_vehicle),
+            'admin-authored vehicle is not a vendor listing'
+        );
+
+        wp_delete_post($admin_vehicle, true);
+        wp_delete_user($admin_id);
+    }
+
+    public function test_operator_owned_vehicle_publish_does_not_start_lifecycle_timer(): void
+    {
+        $admin_id      = $this->factory()->user->create(array('role' => 'administrator'));
+        $admin_vehicle = wp_insert_post(array(
+            'post_type'   => 'vehicle',
+            'post_status' => 'pending',
+            'post_author' => $admin_id,
+            'post_title'  => 'Operator Vehicle',
+        ));
+        update_post_meta($admin_vehicle, '_vehicle_review_status', 'pending_review');
+
+        // Admin publishes directly — fires the approval flow, but lifecycle must be skipped.
+        wp_update_post(array('ID' => $admin_vehicle, 'post_status' => 'publish'));
+
+        $this->assertEmpty(
+            get_post_meta($admin_vehicle, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true),
+            'operator vehicle must not get an expiry timer'
+        );
+        $this->assertEmpty(
+            get_post_meta($admin_vehicle, MetaKeys::VEHICLE_LISTING_STARTED_AT, true),
+            'operator vehicle must not get a listing start'
+        );
+
+        wp_delete_post($admin_vehicle, true);
+        wp_delete_user($admin_id);
+    }
+
+    public function test_listing_expiry_job_skips_operator_owned_vehicles(): void
+    {
+        $admin_id      = $this->factory()->user->create(array('role' => 'administrator'));
+        $admin_vehicle = wp_insert_post(array(
+            'post_type'   => 'vehicle',
+            'post_status' => 'publish',
+            'post_author' => $admin_id,
+            'post_title'  => 'Operator Vehicle (stale lifecycle)',
+        ));
+        // Simulate stale lifecycle meta predating the fix: active + already past expiry.
+        update_post_meta($admin_vehicle, MetaKeys::VEHICLE_LIFECYCLE_STATUS, VehicleLifecycleStatus::ACTIVE);
+        update_post_meta($admin_vehicle, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, gmdate('Y-m-d H:i:s', strtotime('-1 day')));
+
+        \MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob::run();
+
+        $this->assertSame(
+            VehicleLifecycleStatus::ACTIVE,
+            VehicleLifecycleStatus::get($admin_vehicle),
+            'operator-owned vehicle must not be expired by the cron'
+        );
+        $this->assertSame('publish', get_post_status($admin_vehicle));
+
+        wp_delete_post($admin_vehicle, true);
+        wp_delete_user($admin_id);
+    }
+
     protected function tearDown(): void
     {
         wp_delete_post($this->vehicle_id, true);

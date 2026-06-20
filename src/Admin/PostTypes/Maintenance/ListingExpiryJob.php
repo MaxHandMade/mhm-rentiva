@@ -94,6 +94,12 @@ final class ListingExpiryJob {
 
 		foreach ($query->posts as $vehicle_id) {
 			$vehicle_id = (int) $vehicle_id;
+
+			// Operator-owned (non-vendor) vehicles never expire — lifecycle is vendor-only.
+			if (! VehicleLifecycleStatus::is_vendor_listing($vehicle_id)) {
+				continue;
+			}
+
 			$result     = VehicleLifecycleManager::expire($vehicle_id);
 
 			if (is_wp_error($result)) {
@@ -157,6 +163,12 @@ final class ListingExpiryJob {
 
 		foreach ($query->posts as $vehicle_id) {
 			$vehicle_id = (int) $vehicle_id;
+
+			// Operator-owned (non-vendor) vehicles never auto-withdraw — lifecycle is vendor-only.
+			if (! VehicleLifecycleStatus::is_vendor_listing($vehicle_id)) {
+				continue;
+			}
+
 			$vendor_id  = (int) get_post_field('post_author', $vehicle_id);
 
 			// Direct state change (bypass ownership check — system action).

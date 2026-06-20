@@ -38,6 +38,13 @@ final class VehicleLifecycleManager {
      */
     public static function on_vehicle_approved(int $vehicle_id, int $vendor_id): void
     {
+        // The listing lifecycle is a vendor-marketplace feature. Operator-owned vehicles
+        // (admin/editor, not a vendor) are part of the operator's own fleet and must not
+        // enter the 90-day expiry cycle, so skip lifecycle activation entirely for them.
+        if (! VehicleLifecycleStatus::is_vendor_listing($vehicle_id)) {
+            return;
+        }
+
         $current = VehicleLifecycleStatus::get($vehicle_id);
 
         // Only activate if the vehicle is in pending_review or has no lifecycle meta yet.

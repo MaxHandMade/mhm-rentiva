@@ -336,6 +336,12 @@ final class VendorNotifications {
 	 */
 	public static function on_vehicle_approved(int $vehicle_id, int $vendor_id): void
 	{
+		// Operator-owned vehicles publish directly and are not vendor listings — they must
+		// not trigger the "your vehicle is live" vendor email.
+		if (! \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($vehicle_id)) {
+			return;
+		}
+
 		$user = get_userdata($vendor_id);
 		if (! $user) {
 			return;
