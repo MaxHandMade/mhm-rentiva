@@ -497,7 +497,8 @@ abstract class AbstractShortcode {
 			return null;
 		}
 
-		return get_transient($cache_key);
+		$result = get_transient($cache_key);
+		return $result === false ? null : $result;
 	}
 
 	/**

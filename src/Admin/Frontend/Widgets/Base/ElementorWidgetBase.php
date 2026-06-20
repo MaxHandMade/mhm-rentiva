@@ -125,6 +125,11 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	protected function render_shortcode( string $tag, array $atts = array() ): string {
 		$atts_string = '';
 		foreach ( $atts as $key => $value ) {
+			// Skip non-scalar settings (icon/url/globals arrays) — they can't be
+			// string shortcode attributes and would trigger "Array to string conversion".
+			if ( is_array( $value ) || is_object( $value ) ) {
+				continue;
+			}
 			$atts_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( (string) $value ) );
 		}
 		return do_shortcode( sprintf( '[%s%s]', $tag, $atts_string ) );
