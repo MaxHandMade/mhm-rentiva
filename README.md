@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental and Transfer Booking for WordPress" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-4.58.2-blue.svg)
+![Version](https://img.shields.io/badge/version-4.59.0-blue.svg)
 ![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
@@ -597,7 +597,7 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 1,237 tests / 3,736 assertions (v4.58.2)
+- **PHPUnit**: 1,241 tests / 3,743 assertions (v4.59.0)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu
@@ -1131,7 +1131,7 @@ mhm-rentiva/
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (1,237 tests, 3,736 assertions)
+├── tests/                  # PHPUnit suite (1,241 tests, 3,743 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
