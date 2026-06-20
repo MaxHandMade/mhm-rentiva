@@ -668,11 +668,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showTrafficNote' ],
         ],
-        'currency_symbol'          => [
-            'type'    => 'string',
-            'group'   => 'content',
-            'aliases' => [ 'currencySymbol' ],
-        ],
         'filter_origin_city'       => [
             'type'    => 'string',
             'group'   => 'data',
@@ -1278,7 +1273,6 @@ final class AllowlistRegistry {
             'show_distance'      => [ 'default' => '1' ],
             'show_traffic_note'  => [ 'default' => '1' ],
             'show_price'         => [ 'default' => '1' ],
-            'currency_symbol'    => [ 'default' => '₺' ],
             'filter_origin_city' => [ 'default' => '' ],
             'filter_origin_type' => [ 'default' => '' ],
             'featured_only'      => [ 'default' => '0' ],

@@ -238,14 +238,18 @@ final class PopularRoutesShortcodeTest extends \WP_UnitTestCase
         $this->assertStringNotContainsString('mhm-popular-route-duration', $without);
     }
 
-    public function test_price_renders_with_currency_symbol(): void
+    public function test_price_uses_system_currency_not_hardcoded(): void
     {
+        // Regression guard: the old code hardcoded "₺850" (symbol prefixed, no space).
+        // The fix routes through CurrencyHelper::format_price(), which uses the active
+        // WooCommerce/system currency + position — in the test env: USD "850 $".
         $this->insert_route([ 'min_price' => 850.00 ]);
 
-        $output = do_shortcode('[rentiva_popular_routes show_price="true" currency_symbol="₺"]');
+        $output = do_shortcode('[rentiva_popular_routes show_price="true"]');
 
-        $this->assertStringContainsString('₺', $output);
-        $this->assertStringContainsString('850', $output);
+        $this->assertStringContainsString('850', $output, 'price value should render');
+        $this->assertStringNotContainsString('₺', $output, 'old hardcoded TRY symbol must be gone');
+        $this->assertStringContainsString('$', $output, 'currency must come from the active system currency (USD in test env)');
     }
 
     public function test_invalid_columns_attribute_falls_back_to_default(): void

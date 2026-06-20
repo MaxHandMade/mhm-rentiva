@@ -243,15 +243,6 @@ class PopularRoutesWidget extends ElementorWidgetBase {
             ]
         );
 
-        $this->add_control(
-            'currencySymbol',
-            [
-                'label'   => __('Currency symbol', 'mhm-rentiva'),
-                'type'    => Controls_Manager::TEXT,
-                'default' => '₺',
-            ]
-        );
-
         $this->end_controls_section();
 
         $this->register_parity_controls_from_block();

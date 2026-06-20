@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider;
 
@@ -84,7 +85,6 @@ final class PopularRoutesShortcode {
             'show_distance'      => 'true',
             'show_traffic_note'  => 'true',
             'show_price'         => 'true',
-            'currency_symbol'    => '₺',
             'filter_origin_city' => '',
             'filter_origin_type' => '',
             'featured_only'      => 'false',
@@ -164,7 +164,6 @@ final class PopularRoutesShortcode {
         $show_distance      = self::to_bool($atts['show_distance']);
         $show_traffic_note  = self::to_bool($atts['show_traffic_note']);
         $show_price         = self::to_bool($atts['show_price']);
-        $currency_symbol    = (string) $atts['currency_symbol'];
         $show_view_all_attr = self::to_bool($atts['show_view_all']);
 
         $view_all_url  = self::resolve_view_all_url( (string) $atts['view_all_url']);
@@ -175,7 +174,6 @@ final class PopularRoutesShortcode {
             'show_distance'     => $show_distance,
             'show_traffic_note' => $show_traffic_note,
             'show_price'        => $show_price,
-            'currency_symbol'   => $currency_symbol,
         ];
 
         ob_start();
@@ -212,7 +210,7 @@ final class PopularRoutesShortcode {
     }
 
     /**
-     * @param array{show_duration:bool,show_distance:bool,show_traffic_note:bool,show_price:bool,currency_symbol:string} $opts
+     * @param array{show_duration:bool,show_distance:bool,show_traffic_note:bool,show_price:bool} $opts
      */
     private static function render_card(object $route, array $opts): string
     {
@@ -288,7 +286,7 @@ final class PopularRoutesShortcode {
             <?php if ($opts['show_price'] && $price > 0) : ?>
                 <footer class="mhm-popular-route-card__footer">
                     <span class="mhm-popular-route-card__price">
-                        <?php echo esc_html($opts['currency_symbol']); ?><?php echo esc_html(number_format_i18n($price)); ?>
+                        <?php echo esc_html(CurrencyHelper::format_price($price)); ?>
                     </span>
                     <span class="mhm-popular-route-card__price-label">
                         <?php echo esc_html__('Starting from', 'mhm-rentiva'); ?>

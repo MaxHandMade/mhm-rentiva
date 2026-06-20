@@ -83,10 +83,6 @@
             "type": "boolean",
             "default": true
         },
-        "currencySymbol": {
-            "type": "string",
-            "default": "₺"
-        },
         "filterOriginCity": {
             "type": "string",
             "default": ""

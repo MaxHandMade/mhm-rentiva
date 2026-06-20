@@ -131,12 +131,7 @@
                             label: __('Show starting price', 'mhm-rentiva'),
                             checked: attributes.showPrice,
                             onChange: function (val) { setAttributes({ showPrice: val }); }
-                        }),
-                        attributes.showPrice ? el(TextControl, {
-                            label: __('Currency symbol', 'mhm-rentiva'),
-                            value: attributes.currencySymbol,
-                            onChange: function (val) { setAttributes({ currencySymbol: val }); }
-                        }) : null
+                        })
                     )
                 ),
                 el(ServerSideRender, {
