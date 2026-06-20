@@ -534,7 +534,7 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 
 ### 🎨 Elementor Widgets Integration
 
-**Complete Widget Suite (20 Widgets):**
+**Complete Widget Suite (23 Widgets):**
 
 **Vehicle Widgets:**
 - **Vehicle Search Widget**: Advanced vehicle search with filters
@@ -597,7 +597,7 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 720 tests (v4.26.0)
+- **PHPUnit**: 1,237 tests / 3,736 assertions (v4.58.2)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu
@@ -1124,14 +1124,14 @@ mhm-rentiva/
 ├── src/                    # PSR-4 PHP source (MHMRentiva\*)
 │   ├── Admin/              # Admin module controllers & services
 │   ├── Api/                # Custom REST API endpoints
-│   ├── Blocks/             # Gutenberg block definitions (19 blocks)
+│   ├── Blocks/             # Gutenberg block definitions (22 blocks)
 │   ├── CLI/                # WP-CLI commands
 │   ├── Core/               # Financial engine, attribute pipeline, base services
 │   ├── Helpers/            # Sanitization, security, utility classes
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (1215 tests, 0 failures)
+├── tests/                  # PHPUnit suite (1,237 tests, 3,736 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)
@@ -1148,7 +1148,7 @@ mhm-rentiva/
 ## Requirements
 
 ### WordPress & PHP
-- **WordPress**: 6.7 minimum (Tested up to 6.9)
+- **WordPress**: 6.7 minimum (Tested up to 7.0)
 - **PHP**: 8.1 minimum (8.2+ recommended)
 - **Memory Limit**: 128MB minimum (256MB recommended)
 

@@ -953,7 +953,7 @@ All Elementor widgets reuse the shortcode renderer via their `render()` method �
 Notes:
 - `VehicleCardWidget` renders the vehicle card template component directly, not via a named shortcode.
 - `rentiva_home_poc` has NO Elementor widget counterpart.
-- All 19 shortcodes (excluding `rentiva_home_poc`) have a corresponding Elementor widget.
+- 22 of the 27 production shortcodes (excluding `rentiva_home_poc`) have a corresponding Elementor widget. The remaining five are intentionally shortcode-only: `rentiva_vendor_apply`, `rentiva_vehicle_submit`, `rentiva_vendor_bookings`, `rentiva_vendor_ledger`, `rentiva_commission_resolver`.
 
 ---
 
@@ -966,11 +966,11 @@ Notes:
 
 | Layer | Count | Coverage |
 | :--- | :---: | :--- |
-| Active Shortcodes | 20 | 19 fully covered, 1 experimental (home_poc) |
-| Gutenberg Blocks | 19 | All 19 map to shortcodes via render_callback |
-| AllowlistRegistry TAG_MAPPING | 19 | 19 shortcodes covered (home_poc missing) |
-| Elementor Widgets | 20 | 19 SC-mapped + 1 component widget |
-| block.json files | 19 | Verified in `assets/blocks/*/block.json` |
+| Active Shortcodes | 27 | 26 covered (1 experimental: home_poc) |
+| Gutenberg Blocks | 22 | All 22 map to shortcodes via render_callback |
+| AllowlistRegistry TAG_MAPPING | 23 | 23 shortcodes covered (home_poc missing) |
+| Elementor Widgets | 23 | 22 SC-mapped + 1 component widget |
+| block.json files | 22 | Verified in `assets/blocks/*/block.json` |
 
 ### 12.2 Critical Findings (C)
 
@@ -1048,11 +1048,11 @@ All `⚠️ Block Only` and `⚠️ SC Only` entries in Section 4.2 are by archi
 
 | Item | Status |
 | :--- | :--- |
-| Shortcode inventory verified | ✅ 20/20 shortcodes confirmed |
-| Block registry verified | ✅ 19/19 blocks confirmed |
-| AllowlistRegistry TAG_MAPPING verified | ✅ 19 entries (home_poc intentionally excluded) |
-| Elementor widget inventory | ✅ 20 widgets confirmed |
-| block.json files verified | ✅ 19 files confirmed |
+| Shortcode inventory verified | ✅ 27/27 shortcodes confirmed |
+| Block registry verified | ✅ 22/22 blocks confirmed |
+| AllowlistRegistry TAG_MAPPING verified | ✅ 23 entries (home_poc intentionally excluded) |
+| Elementor widget inventory | ✅ 23 widgets confirmed |
+| block.json files verified | ✅ 22 files confirmed |
 | C1 (duplicate ALLOWLIST keys) | ⚠️ CRITICAL — Code fix required (separate task) |
 | C2 (home_poc orphan) | ℹ️ By design — experimental status documented |
 | M1 (enum without values) | ⚠️ MAJOR — No values constraint for 4 enum attributes |

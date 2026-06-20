@@ -942,7 +942,7 @@ mhm-rentiva/
 
 ### WordPress & PHP
 - **Minimum WordPress**: 6.7
-- **Test Edilen**: 6.9
+- **Test Edilen**: 7.0
 - **Minimum PHP**: 8.1 (Önerilen: 8.2+)
 - **Bellek Limiti**: Minimum 128MB (256MB önerilir)
 
@@ -966,6 +966,13 @@ mhm-rentiva/
 - **Strict Types**: Tüm dosyalarda `declare(strict_types=1);` zorunluluğu.
 - **Prefixing**: Fonksiyonlar için `mhm_rentiva_`, sınıflar için `MHMRentiva` prefixi.
 - **Güvenlik**: Raw SQL yasaktır, her zaman `$wpdb->prepare()` kullanılır.
+
+### 🧪 Otomatik Test Süiti
+- **PHPUnit**: 1.237 test / 3.736 doğrulama (v4.58.2 — son stabil sürüm).
+- **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
+- **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
+- **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
+- **Belgelenmiş Baseline**: 7 hata (saas_block ortam kotası — kapsam dışı, kasıtlı), 15 atlanan test.
 
 ### ⚓ Geliştirici Kancaları (Hooks)
 

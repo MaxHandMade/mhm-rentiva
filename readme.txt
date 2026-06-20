@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.58.2
+Stable tag:        4.59.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,14 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.59.0 — 2026-06-20 =
+* 🐛 **Fix:** "Popular Routes" prices now use the active WooCommerce currency (symbol, position, thousand/decimal separators) via `CurrencyHelper::format_price()` — was hardcoded to `₺`. The Gutenberg block, Elementor widget, and shortcode all render through the same WC-aware formatter.
+* 🔧 **Change:** Removed the redundant "Currency symbol" control from the Popular Routes Gutenberg block + Elementor widget (and the `currency_symbol` shortcode attribute). Currency is sourced from WooCommerce/plugin settings, so the manual override was dead config. Removed across `block.json`, `AllowlistRegistry` (schema + TAG_MAPPING), and the shortcode — schema parity preserved.
+* 🐛 **Fix:** `render_shortcode()` (ElementorWidgetBase) skips non-scalar settings (icon/url/`__globals__` arrays), preventing "Array to string conversion" warnings across all Elementor widgets that delegate to a shortcode.
+* 🐛 **Fix:** `AbstractShortcode` cache getter normalizes a transient miss (`false`) to `null`, so callers reliably distinguish "no cache" from a cached falsey value.
+* 📝 **Docs:** SHORTCODES.md inventory updated to current counts (27 shortcodes, 22 blocks, 23 Elementor widgets / TAG_MAPPING entries); README / README-tr parity touch-ups.
+* 🧪 **Tests:** PopularRoutesShortcodeTest updated for WC-driven currency (regression guard: old `₺850` → `850 $`); schema parity suite green.
 
 = 4.58.2 — 2026-05-21 =
 * 🐛 **Critical fix:** Transfer search now filters vehicles by the route origin's city. A vehicle parked in Ankara no longer appears for an İstanbul route. Uses the same 3-layer hybrid location filter (vehicle → vendor → global default) as rental, expanded to the origin city.

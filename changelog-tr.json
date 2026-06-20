@@ -1,5 +1,21 @@
 [
   {
+    "version": "4.59.0",
+    "date": "2026-06-20",
+    "type": "minor",
+    "title": "Popüler Rotalar para birimi WooCommerce'ten + ölü config temizliği",
+    "summary": "Popüler Rotalar kartları mağaza para biriminden bağımsız olarak sabit ₺ gösteriyordu; WooCommerce'in sembol, konum ve ayraçlarını yok sayıyordu. Fiyatlar artık plugin'in başka yerlerinde de kullanılan WC-uyumlu CurrencyHelper::format_price() üzerinden geçiyor — yani USD mağaza '1.000 $' (veya WooCommerce neye ayarlıysa onu) gösteriyor. Artık gereksiz olan manuel 'Para birimi sembolü' geçersiz kılması Gutenberg block, Elementor widget ve shortcode'dan kaldırıldı; block.json ve AllowlistRegistry genelinde schema pariteleri korundu. Bu sürüm ayrıca iki bekleyen düzeltmeyi de içeriyor: render_shortcode() artık skaler olmayan Elementor ayarlarını atlıyor ('Array to string conversion' uyarıları kalktı) ve shortcode cache getter transient miss'i null'a normalize ediyor. Doküman envanteri tazelendi.",
+    "changes": [
+      "Düzeltme: 'Popüler Rotalar' fiyatları artık aktif WooCommerce para birimi sembolü, konumu ve binlik/ondalık ayraçlarını CurrencyHelper::format_price() ile kullanıyor — önceden ₺'ye sabitti. Gutenberg block, Elementor widget ve shortcode'un üçü de aynı WC-uyumlu formatlayıcıdan geçiyor (tek kanonik render'a delege ediyorlar).",
+      "Değişiklik: Popüler Rotalar Gutenberg block ve Elementor widget'ından gereksiz 'Para birimi sembolü' kontrolü, ayrıca currency_symbol shortcode att'ı kaldırıldı. Para birimi WooCommerce/plugin ayarlarından alındığı için manuel geçersiz kılma ölü config'di. block.json, AllowlistRegistry (ALLOWLIST schema + TAG_MAPPING) ve shortcode genelinde tutarlı şekilde kaldırıldı — schema parity testleri hâlâ yeşil.",
+      "Düzeltme: render_shortcode() (ElementorWidgetBase) skaler olmayan ayarları (icon/url/__globals__ array'leri) atlıyor; shortcode'a delege eden tüm Elementor widget'larında 'Array to string conversion' uyarılarını önlüyor.",
+      "Düzeltme: AbstractShortcode cache getter transient miss'i (false) null'a normalize ediyor; çağıranlar 'cache yok' ile 'cache'lenmiş falsey değer' ayrımını güvenilir yapabiliyor.",
+      "Doküman: SHORTCODES.md envanteri güncel sayılara güncellendi (27 shortcode, 22 block, 23 Elementor widget / TAG_MAPPING girişi); README / README-tr parite düzeltmeleri.",
+      "Test: PopularRoutesShortcodeTest WC-tabanlı para birimi için güncellendi (regresyon guard'ı: eski '₺850' → '850 $'). Schema parity suite yeşil."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.58.2",
     "date": "2026-05-21",
     "type": "patch",
