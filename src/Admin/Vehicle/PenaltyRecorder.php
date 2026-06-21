@@ -57,7 +57,7 @@ final class PenaltyRecorder {
 
 		$currency = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
 
-		$uuid = 'withdrawal_penalty_' . $vehicle_id . '_' . $vendor_id . '_' . time();
+		$uuid = self::penalty_uuid($vehicle_id, $vendor_id);
 
 		$entry = new LedgerEntry(
 			$uuid,
@@ -99,5 +99,21 @@ final class PenaltyRecorder {
 		}
 
 		do_action('mhm_rentiva_withdrawal_penalty_recorded', $vehicle_id, $vendor_id, $penalty_amount);
+	}
+
+	/**
+	 * Build the ledger transaction UUID for a withdrawal penalty.
+	 *
+	 * Must fit the ledger `transaction_uuid CHAR(36)` column. The previous
+	 * "withdrawal_penalty_<vehicle>_<vendor>_<time>" format overflowed 36 chars for realistic
+	 * (multi-digit) post/user IDs, so the penalty debit failed to write — and the failure was
+	 * swallowed silently. This hashed form is always 36 chars and stays per-withdrawal unique.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 * @param int $vendor_id  Vendor user ID.
+	 */
+	public static function penalty_uuid(int $vehicle_id, int $vendor_id): string
+	{
+		return substr('wpen_' . md5($vehicle_id . '_' . $vendor_id . '_' . microtime(true)), 0, 36);
 	}
 }
