@@ -212,12 +212,74 @@ final class VendorReportService {
      */
     private function reverse_applied_penalty(object $report): void
     {
-        // Reserved for future extension — proper reversal needs ledger compensating
-        // entry tooling (`Ledger::add_entry()` with positive amount). For v4.35.0 the
-        // resolved penalty appeal records the resolution; reversal of the financial
-        // ledger entry is deferred to v4.36.0 once the ledger compensating-entry
-        // helper lands. The reliability score will recompute on the next cron run.
-        unset($report);
+        $vendor_id    = (int) $report->vendor_id;
+        $penalty_uuid = is_string($report->context_id) ? (string) $report->context_id : '';
+
+        if ($vendor_id <= 0 || $penalty_uuid === '') {
+            return;
+        }
+
+        global $wpdb;
+        $table = $wpdb->prefix . 'mhm_rentiva_ledger';
+
+        // The PENALTY appeal's context_id is the exact transaction_uuid of the applied penalty
+        // debit (see VendorReportContext::PENALTY). Look it up, scoped to this vendor.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+        $penalty = $wpdb->get_row($wpdb->prepare(
+            // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            "SELECT amount, currency FROM {$table} WHERE transaction_uuid = %s AND vendor_id = %d AND type = 'withdrawal_penalty' LIMIT 1",
+            $penalty_uuid,
+            $vendor_id
+        ));
+
+        if (! $penalty) {
+            return; // Nothing was applied for this reference — nothing to reverse.
+        }
+
+        $refund = abs( (float) $penalty->amount);
+        if ($refund <= 0.0) {
+            return;
+        }
+
+        // Deterministic reversal UUID (bounded to the CHAR(36) column) → idempotent: a second
+        // resolution of the same penalty cannot double-refund (duplicate UUID is a no-op insert).
+        $reversal_uuid = substr('wprev_' . md5($penalty_uuid), 0, 36);
+        $currency      = '' !== (string) $penalty->currency ? (string) $penalty->currency : 'TRY';
+
+        $entry = new \MHMRentiva\Core\Financial\LedgerEntry(
+            $reversal_uuid,
+            $vendor_id,
+            null,
+            null,
+            'withdrawal_penalty_reversal',
+            $refund, // Positive = credit the penalty back to the vendor's balance.
+            null,
+            null,
+            null,
+            $currency,
+            'platform',
+            'cleared'
+        );
+
+        try {
+            \MHMRentiva\Core\Financial\Ledger::add_entry($entry);
+        } catch (\RuntimeException $e) {
+            if (class_exists('\\MHMRentiva\\Admin\\PostTypes\\Logs\\AdvancedLogger')) {
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+                    sprintf('Failed to reverse penalty %s for vendor #%d: %s', $penalty_uuid, $vendor_id, $e->getMessage()),
+                    array(
+						'vendor'       => $vendor_id,
+						'penalty_uuid' => $penalty_uuid,
+						'refund'       => $refund,
+					),
+                    'payout'
+                );
+            }
+            return;
+        }
+
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain.
+        do_action('mhm_rentiva_withdrawal_penalty_reversed', $vendor_id, $penalty_uuid, $refund);
     }
 
     /**

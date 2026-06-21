@@ -95,4 +95,29 @@ final class AppealPenaltyFlowTest extends WP_UnitTestCase {
 		$this->assertSame( 0, $this->penalty_count(), 'Resolving (upholding) the appeal must waive the penalty.' );
 		$this->assertSame( 2000.0, Ledger::get_balance( $this->vendor_id ), 'Balance must be unchanged when the penalty is waived.' );
 	}
+
+	public function test_resolve_penalty_appeal_refunds_an_already_applied_penalty(): void {
+		// An already-applied penalty: a cleared withdrawal_penalty debit, referenced by its UUID.
+		$penalty_uuid = 'wpen_appliedpenaltytest0001';
+		Ledger::add_entry( new LedgerEntry(
+			$penalty_uuid, $this->vendor_id, null, null, 'withdrawal_penalty', -250.0,
+			null, null, null, 'TRY', 'platform', 'cleared', null, null, null
+		) );
+		$balance_before = Ledger::get_balance( $this->vendor_id ); // 2000 - 250 = 1750
+
+		// Vendor appeals that specific penalty (PENALTY context, context_id = the ledger UUID).
+		$report_id = $this->service->create_report( $this->vendor_id, VendorReportContext::PENALTY, $penalty_uuid, 'Penalty appeal', 'Bu ceza haksiz uygulandi, gecerli bir gerekcem vardi.' );
+		$this->assertIsInt( $report_id );
+
+		$this->service->resolve_report( (int) $report_id, 'Gerekce gecerli, ceza iade edildi.', $this->admin_id );
+
+		$this->assertSame( $balance_before + 250.0, Ledger::get_balance( $this->vendor_id ), 'Resolving a penalty appeal must refund the applied penalty.' );
+
+		global $wpdb;
+		$reversals = (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE vendor_id=%d AND type='withdrawal_penalty_reversal'",
+			$this->vendor_id
+		) );
+		$this->assertSame( 1, $reversals, 'A compensating reversal ledger entry must be written.' );
+	}
 }
