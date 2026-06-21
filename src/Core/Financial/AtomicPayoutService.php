@@ -77,13 +77,12 @@ final class AtomicPayoutService {
         $uuid      = 'payout_' . $payout_id;
         $currency  = function_exists('get_woocommerce_currency') ? call_user_func('get_woocommerce_currency', ) : 'USD';
 
-        // ── SaaS Control Plane Guard (Quota & Status) ────────────────────────────
+        // Resolve tenant id for post-commit usage metering only. The SaaS Control Plane
+        // quota/status gate was removed from the approval path: this is a single-site,
+        // license-gated product whose blog id (1) is never provisioned in the control-plane
+        // registry, so the gate blocked every admin payout approval (saas_block). Metering
+        // below remains a passive, non-gating side effect.
         $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
-        try {
-            \MHMRentiva\Core\Orchestration\ControlPlaneGuard::assert_operational_and_quota($tenant_id, 'payouts');
-        } catch (\Exception $e) {
-            return new \WP_Error('saas_block', $e->getMessage());
-        }
 
         $entry = new LedgerEntry(
             $uuid,

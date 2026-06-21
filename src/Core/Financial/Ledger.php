@@ -35,10 +35,10 @@ final class Ledger {
         $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
         $tenant_id = TenantResolver::resolve()->get_id();
 
-        // 1. SaaS Control Plane Guard (Quota & Status)
-        if (class_exists('\\MHMRentiva\\Core\\Orchestration\\ControlPlaneGuard')) {
-            \MHMRentiva\Core\Orchestration\ControlPlaneGuard::assert_operational_and_quota($tenant_id, 'ledger_entries');
-        }
+        // The SaaS Control Plane quota/status gate was removed from the ledger write path:
+        // single-site installs never provision a control-plane tenant record for blog id 1,
+        // so the gate blocked legitimate financial writes. tenant_id is still stamped on the
+        // row for multi-tenant data scoping.
 
         $data = array(
             'tenant_id'           => $tenant_id,

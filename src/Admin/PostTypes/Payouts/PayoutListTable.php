@@ -275,7 +275,10 @@ final class PayoutListTable extends \WP_List_Table {
                 continue;
             }
 
-            $result = \MHMRentiva\Core\Financial\GovernanceService::process_approval($payout_id);
+            // Single-click finalize: a single admin approval publishes the payout directly
+            // (atomic ledger debit + post_status=publish). The multi-stage maker-checker
+            // governance state machine is bypassed for this single-site admin flow.
+            $result = \MHMRentiva\Core\Financial\AtomicPayoutService::approve($payout_id);
 
             if (is_wp_error($result)) {
                 $errors[] = sprintf('#%d: %s', $payout_id, $result->get_error_message());

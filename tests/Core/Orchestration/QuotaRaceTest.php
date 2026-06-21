@@ -7,10 +7,9 @@ namespace MHMRentiva\Tests\Core\Orchestration;
 
 use MHMRentiva\Core\Orchestration\TenantProvisioner;
 use MHMRentiva\Core\Orchestration\ControlPlaneGuard;
+use MHMRentiva\Core\Orchestration\MeteredUsageTracker;
 use MHMRentiva\Core\Tenancy\TenantResolver;
 use MHMRentiva\Core\Tenancy\TenantContext;
-use MHMRentiva\Core\Financial\Ledger;
-use MHMRentiva\Core\Financial\LedgerEntry;
 use MHMRentiva\Core\Orchestration\Exceptions\QuotaExceededException;
 
 /**
@@ -34,18 +33,17 @@ class QuotaRaceTest extends \WP_UnitTestCase
     }
 
     /**
-     * Test that quota of 2 allows 2 entries and blocks the 3rd.
+     * Quota enforcement now lives in ControlPlaneGuard directly. The financial ledger no
+     * longer invokes the gate (single-site simplification — AtomicPayoutService/Ledger gate
+     * removal, 2026-06-21). The guard's own contract is unchanged: at the provisioned limit
+     * (2) the next operation is blocked.
      */
     public function test_quota_blocks_at_limit()
     {
-        $entry1 = new LedgerEntry('tx_1', 1, null, null, 'test', 10.0, null, null, null, 'TRY', 'test', 'cleared');
-        $entry2 = new LedgerEntry('tx_2', 1, null, null, 'test', 10.0, null, null, null, 'TRY', 'test', 'cleared');
-        $entry3 = new LedgerEntry('tx_3', 1, null, null, 'test', 10.0, null, null, null, 'TRY', 'test', 'cleared');
-
-        Ledger::add_entry($entry1);
-        Ledger::add_entry($entry2);
+        // Drive recorded usage up to the provisioned limit of 2.
+        MeteredUsageTracker::increment($this->tenant_id, 'ledger_entries', 2);
 
         $this->expectException(QuotaExceededException::class);
-        Ledger::add_entry($entry3);
+        ControlPlaneGuard::assert_operational_and_quota($this->tenant_id, 'ledger_entries');
     }
 }

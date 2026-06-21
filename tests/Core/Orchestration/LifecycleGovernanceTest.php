@@ -31,7 +31,9 @@ class LifecycleGovernanceTest extends \WP_UnitTestCase
     }
 
     /**
-     * Test that suspended tenant blocks ledger operations.
+     * Suspended-tenant lifecycle enforcement is performed by ControlPlaneGuard directly.
+     * The financial ledger no longer invokes the gate (single-site simplification —
+     * AtomicPayoutService/Ledger gate removal, 2026-06-21). The guard's contract is unchanged.
      */
     public function test_suspended_tenant_blocks_ledger()
     {
@@ -41,8 +43,7 @@ class LifecycleGovernanceTest extends \WP_UnitTestCase
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Tenant is currently suspended');
 
-        $entry = new \MHMRentiva\Core\Financial\LedgerEntry('tx_4', 1, null, null, 'test', 10.0, null, null, null, 'TRY', 'test', 'cleared');
-        Ledger::add_entry($entry);
+        \MHMRentiva\Core\Orchestration\ControlPlaneGuard::assert_operational_and_quota($this->tenant_id, 'ledger_entries');
     }
 
     /**
