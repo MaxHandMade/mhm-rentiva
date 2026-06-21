@@ -57,7 +57,9 @@ final class MetaKeys {
 	public const VEHICLE_PAUSED_AT           = '_mhm_vehicle_paused_at';
 	public const VEHICLE_WITHDRAWN_AT        = '_mhm_vehicle_withdrawn_at';
 	public const VEHICLE_COOLDOWN_ENDS_AT    = '_mhm_vehicle_cooldown_ends_at';
-	public const VEHICLE_BLOCKED_DATES       = '_mhm_vehicle_blocked_dates';
+	/** Penalty amount computed at withdraw time but deferred while an appeal is open. */
+	public const VEHICLE_DEFERRED_PENALTY = '_mhm_vehicle_deferred_penalty';
+	public const VEHICLE_BLOCKED_DATES    = '_mhm_vehicle_blocked_dates';
 
 	// Vendor Reliability Meta Keys
 	public const VENDOR_RELIABILITY_SCORE      = '_rentiva_vendor_reliability_score';

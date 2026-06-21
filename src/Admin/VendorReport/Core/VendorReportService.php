@@ -189,11 +189,18 @@ final class VendorReportService {
         if (class_exists(\MHMRentiva\Admin\Vehicle\PenaltyCalculator::class)
             && class_exists(\MHMRentiva\Admin\Vehicle\PenaltyRecorder::class)
         ) {
-            $penalty = \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+            // Use the amount captured at withdraw time (before this vehicle counted in its own
+            // tier). Recomputing here would self-count the now-withdrawn vehicle and apply a
+            // tier-too-high penalty. Fall back to a fresh calc only if nothing was stored.
+            $stored  = get_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_DEFERRED_PENALTY, true);
+            $penalty = ( '' !== $stored )
+                ? (float) $stored
+                : \MHMRentiva\Admin\Vehicle\PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+
             // Direct call bypasses the suspension filter — at this point the report
-            // is rejected (no longer open) so the filter would let it through anyway,
-            // but calling directly is faster and avoids an unnecessary DB lookup.
+            // is rejected (no longer open) so the filter would let it through anyway.
             \MHMRentiva\Admin\Vehicle\PenaltyRecorder::record_penalty($vehicle_id, $vendor_id, $penalty);
+            delete_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_DEFERRED_PENALTY);
         }
     }
 

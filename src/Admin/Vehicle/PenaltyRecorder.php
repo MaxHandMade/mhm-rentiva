@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Core\Financial\Ledger;
 use MHMRentiva\Core\Financial\LedgerEntry;
 
@@ -52,6 +53,11 @@ final class PenaltyRecorder {
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain.
 		$apply_penalty = (bool) apply_filters('mhm_rentiva_before_apply_penalty', true, $vehicle_id, $vendor_id, 'withdrawal', $penalty_amount);
 		if (! $apply_penalty) {
+			// Penalty is deferred while an appeal is open. Persist the amount computed NOW
+			// (before this vehicle's withdrawn_at counts in its own tier) so that, if the
+			// appeal is later rejected, the correct tier is applied rather than a recomputed
+			// (self-counting, one-tier-too-high) value.
+			update_post_meta($vehicle_id, MetaKeys::VEHICLE_DEFERRED_PENALTY, $penalty_amount);
 			return;
 		}
 
