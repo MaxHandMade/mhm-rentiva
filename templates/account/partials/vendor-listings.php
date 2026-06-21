@@ -20,6 +20,18 @@ $vehicles = get_posts( array(
 	'order'          => 'DESC',
 ) );
 
+// Push archived listings (expired/withdrawn) to the end so active listings show first and
+// an "Archived Listings" divider can separate them. Stable within each group.
+usort( $vehicles, static function ( $a, $b ) {
+	$archived = array(
+		'expired'   => 1,
+		'withdrawn' => 1,
+	);
+	$la       = (string) get_post_meta( $a->ID, '_mhm_vehicle_lifecycle_status', true );
+	$lb       = (string) get_post_meta( $b->ID, '_mhm_vehicle_lifecycle_status', true );
+	return ( isset( $archived[ $la ] ) ? 1 : 0 ) <=> ( isset( $archived[ $lb ] ) ? 1 : 0 );
+} );
+
 $review_status_labels = array(
 	'pending_review' => array(
 		'label' => __( 'Awaiting Review', 'mhm-rentiva' ),
@@ -194,6 +206,7 @@ $vehicle_count = count( $vehicles );
 			<p class="mhm-vendor-listings-page__empty-text"><?php esc_html_e( 'Click "Add Vehicle" to submit your first listing for review.', 'mhm-rentiva' ); ?></p>
 		</div>
 	<?php else : ?>
+		<?php $archived_divider_shown = false; ?>
 		<div class="mhm-vendor-listings-page__list">
 			<?php foreach ( $vehicles as $vehicle ) : ?>
 				<?php
@@ -207,6 +220,14 @@ $vehicle_count = count( $vehicles );
 				// Default lifecycle status for approved vehicles with no lifecycle meta yet.
 				if ( $lifecycle_status === '' && $review_status === 'approved' ) {
 					$lifecycle_status = 'active';
+				}
+				// Insert the "Archived Listings" divider before the first expired/withdrawn card
+				// (vehicles are sorted active-first, archived-last).
+				if ( ! $archived_divider_shown && in_array( $lifecycle_status, array( 'expired', 'withdrawn' ), true ) ) {
+					$archived_divider_shown = true;
+					echo '</div><h3 class="mhm-vendor-listings-page__title mhm-vendor-listings-page__archived-title">'
+						. esc_html__( 'Archived Listings', 'mhm-rentiva' )
+						. '</h3><div class="mhm-vendor-listings-page__list">';
 				}
 				$rejection_note = (string) get_post_meta( $vehicle->ID, '_vehicle_rejection_note', true );
 				$brand          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_brand', true );

@@ -290,6 +290,23 @@ final class VehicleColumns {
 			echo '<option value="' . esc_attr( (string) $loc_id) . '"' . selected($current_loc, $loc_id, false) . '>' . esc_html($loc_name) . '</option>';
 		}
 		echo '</select>';
+
+		// Lifecycle / archive filter dropdown.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+		$current_lc = isset($request['mhm_lifecycle_filter']) ? sanitize_text_field( (string) $request['mhm_lifecycle_filter']) : '';
+		$lc_options = array(
+			''          => __('All lifecycle states', 'mhm-rentiva'),
+			'active'    => __('Active', 'mhm-rentiva'),
+			'paused'    => __('Paused', 'mhm-rentiva'),
+			'expired'   => __('Expired', 'mhm-rentiva'),
+			'withdrawn' => __('Withdrawn', 'mhm-rentiva'),
+			'archive'   => __('Archive (expired + withdrawn)', 'mhm-rentiva'),
+		);
+		echo '<select name="mhm_lifecycle_filter" class="postform">';
+		foreach ($lc_options as $value => $label) {
+			echo '<option value="' . esc_attr($value) . '"' . selected($current_lc, $value, false) . '>' . esc_html($label) . '</option>';
+		}
+		echo '</select>';
 	}
 
 	public static function apply_availability_filter(\WP_Query $q): void
@@ -333,9 +350,61 @@ final class VehicleColumns {
 			);
 		}
 
+		// Lifecycle / archive filter (expired + withdrawn listings).
+		$lifecycle      = isset($request['mhm_lifecycle_filter']) ? sanitize_text_field( (string) $request['mhm_lifecycle_filter']) : '';
+		$lifecycle_args = self::lifecycle_filter_args($lifecycle);
+		if (! empty($lifecycle_args)) {
+			$meta_query[] = $lifecycle_args['meta_query'][0];
+			// Withdrawn vehicles are drafts; widen post_status so the archive view surfaces them.
+			$q->set('post_status', $lifecycle_args['post_status']);
+		}
+
 		if (! empty($meta_query)) {
 			$q->set('meta_query', $meta_query);
 		}
+	}
+
+	/**
+	 * Pure query-args mapper for the admin vehicle-list lifecycle/archive filter.
+	 *
+	 * Returns the meta_query clause + the post_status set needed to surface vehicles in a
+	 * given lifecycle state. 'archive' = expired + withdrawn. Withdrawn vehicles live in
+	 * post_status=draft, so every lifecycle view widens post_status to include draft.
+	 *
+	 * @param string $lifecycle One of: 'archive', or a VehicleLifecycleStatus value. Empty/unknown → no filter.
+	 * @return array{meta_query: array<int, array<string, mixed>>, post_status: string[]}|array{}
+	 */
+	public static function lifecycle_filter_args(string $lifecycle): array
+	{
+		$visible_statuses = array( 'publish', 'pending', 'draft', 'private' );
+
+		if ($lifecycle === 'archive') {
+			return array(
+				'meta_query'  => array(
+					array(
+						'key'     => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LIFECYCLE_STATUS,
+						'value'   => array( \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::EXPIRED, \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::WITHDRAWN ),
+						'compare' => 'IN',
+					),
+				),
+				'post_status' => $visible_statuses,
+			);
+		}
+
+		if (in_array($lifecycle, \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::allowed(), true)) {
+			return array(
+				'meta_query'  => array(
+					array(
+						'key'     => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LIFECYCLE_STATUS,
+						'value'   => $lifecycle,
+						'compare' => '=',
+					),
+				),
+				'post_status' => $visible_statuses,
+			);
+		}
+
+		return array();
 	}
 
 	/**
