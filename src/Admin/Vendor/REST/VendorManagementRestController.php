@@ -136,6 +136,16 @@ final class VendorManagementRestController {
 			),
 		) );
 
+		// Vendor detail (clickable name target — includes archived vehicles).
+		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)', array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( self::class, 'get_vendor_detail' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'id' => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+			),
+		) );
+
 		// Suspend vendor.
 		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)/suspend', array(
 			'methods'             => \WP_REST_Server::CREATABLE,
@@ -508,6 +518,59 @@ final class VendorManagementRestController {
 			'total'        => $total,
 			'pages'        => (int) ceil( $total / $per_page ),
 			'current_page' => $page,
+		) );
+	}
+
+	public static function get_vendor_detail( \WP_REST_Request $request ): \WP_REST_Response {
+		$vendor_id = (int) $request->get_param( 'id' );
+		$user      = get_userdata( $vendor_id );
+
+		// Accept current vendors (role) OR suspended ones (status meta retained after role removal).
+		$is_vendor = $user instanceof \WP_User
+			&& ( in_array( 'rentiva_vendor', (array) $user->roles, true )
+				|| '' !== (string) get_user_meta( $vendor_id, '_rentiva_vendor_status', true ) );
+
+		if ( ! $is_vendor ) {
+			return new \WP_REST_Response( array( 'code' => 'vendor_not_found' ), 404 );
+		}
+
+		$raw_iban    = VendorApplicationManager::decrypt_iban( (string) get_user_meta( $vendor_id, '_rentiva_vendor_iban', true ) );
+		$iban_masked = strlen( $raw_iban ) > 4
+			? substr( $raw_iban, 0, 2 ) . '** **** ' . substr( $raw_iban, -4 )
+			: '—';
+
+		$vehicles = array();
+		$posts    = get_posts( array(
+			'post_type'      => 'vehicle',
+			'post_status'    => array( 'publish', 'pending', 'draft', 'private' ),
+			'author'         => $vendor_id,
+			'posts_per_page' => 100,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		) );
+		foreach ( $posts as $vehicle_post ) {
+			$vehicles[] = array(
+				'id'        => (int) $vehicle_post->ID,
+				'title'     => get_the_title( $vehicle_post ),
+				'status'    => $vehicle_post->post_status,
+				'lifecycle' => (string) get_post_meta( $vehicle_post->ID, '_mhm_vehicle_lifecycle_status', true ) ?: 'active',
+				'edit_link' => get_edit_post_link( $vehicle_post->ID, 'raw' ),
+			);
+		}
+
+		return new \WP_REST_Response( array(
+			'vendor' => array(
+				'id'                => $vendor_id,
+				'display_name'      => $user->display_name,
+				'email'             => $user->user_email,
+				'phone'             => (string) get_user_meta( $vendor_id, '_rentiva_vendor_phone', true ),
+				'city'              => (string) get_user_meta( $vendor_id, '_rentiva_vendor_city', true ),
+				'status'            => (string) get_user_meta( $vendor_id, '_rentiva_vendor_status', true ) ?: 'active',
+				'reliability_score' => (int) get_user_meta( $vendor_id, '_rentiva_vendor_reliability_score', true ),
+				'iban_masked'       => $iban_masked,
+				'approved_at'       => (string) get_user_meta( $vendor_id, '_rentiva_vendor_approved_at', true ),
+				'vehicles'          => $vehicles,
+			),
 		) );
 	}
 
