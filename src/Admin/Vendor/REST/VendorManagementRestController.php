@@ -430,10 +430,18 @@ final class VendorManagementRestController {
 		$search   = (string) $request->get_param( 'search' );
 		$status   = (string) $request->get_param( 'status' );
 
+		// Enumerate every approved vendor by the durable _rentiva_vendor_status meta, NOT the
+		// rentiva_vendor role: suspend() removes the role (re-assigns customer) but retains the
+		// status meta, so a role-based query would hide suspended vendors entirely — even under "All".
 		$args = array(
-			'role'    => 'rentiva_vendor',
-			'orderby' => 'display_name',
-			'order'   => 'ASC',
+			'meta_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				array(
+					'key'     => '_rentiva_vendor_status',
+					'compare' => 'EXISTS',
+				),
+			),
+			'orderby'    => 'display_name',
+			'order'      => 'ASC',
 		);
 
 		if ( '' !== $search ) {
@@ -442,12 +450,10 @@ final class VendorManagementRestController {
 		}
 
 		if ( 'all' !== $status ) {
-			$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
-				array(
-					'key'     => '_rentiva_vendor_status',
-					'value'   => $status,
-					'compare' => '=',
-				),
+			$args['meta_query'][] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+				'key'     => '_rentiva_vendor_status',
+				'value'   => $status,
+				'compare' => '=',
 			);
 		}
 
