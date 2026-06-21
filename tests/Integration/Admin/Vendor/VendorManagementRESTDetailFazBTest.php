@@ -85,4 +85,43 @@ final class VendorManagementRESTDetailFazBTest extends WP_UnitTestCase {
 		$response = self::$server->dispatch( new WP_REST_Request( 'GET', "/mhm-rentiva/v1/vendors/vendors/{$user}" ) );
 		$this->assertSame( 404, $response->get_status() );
 	}
+
+	public function test_detail_includes_payout_history_score_history_and_stats(): void {
+		$vendor = $this->make_vendor( 'Bio Vendor' );
+
+		// Two payouts (one pending, one approved/publish).
+		$p1 = (int) $this->factory->post->create( array( 'post_type' => 'mhm_payout', 'post_status' => 'pending', 'post_author' => $vendor ) );
+		update_post_meta( $p1, '_mhm_payout_amount', 150.0 );
+		$p2 = (int) $this->factory->post->create( array( 'post_type' => 'mhm_payout', 'post_status' => 'publish', 'post_author' => $vendor ) );
+		update_post_meta( $p2, '_mhm_payout_amount', 200.0 );
+
+		// Reliability/penalty history meta (newest first, as stored by ReliabilityScoreCalculator).
+		update_user_meta( $vendor, '_rentiva_vendor_score_history', array(
+			array( 'ts' => '2026-06-01 10:00:00', 'event_type' => 'withdraw', 'vehicle_id' => 0, 'vehicle_title' => 'Car A', 'score_before' => 100, 'score_after' => 90, 'delta' => -10 ),
+			array( 'ts' => '2026-05-20 09:00:00', 'event_type' => 'cancel',   'vehicle_id' => 0, 'vehicle_title' => 'Car B', 'score_before' => 100, 'score_after' => 95, 'delta' => -5 ),
+		) );
+
+		wp_set_current_user( $this->admin_id );
+		$response = self::$server->dispatch( new WP_REST_Request( 'GET', "/mhm-rentiva/v1/vendors/vendors/{$vendor}" ) );
+		$this->assertSame( 200, $response->get_status() );
+		$v = $response->get_data()['vendor'];
+
+		// Balance + stats keys present and numeric.
+		$this->assertArrayHasKey( 'balance', $v );
+		$this->assertIsNumeric( $v['balance'] );
+		$this->assertArrayHasKey( 'stats', $v );
+		$this->assertArrayHasKey( 'completed', $v['stats'] );
+		$this->assertArrayHasKey( 'refunded', $v['stats'] );
+
+		// Payout history (2 entries with amount + status).
+		$this->assertCount( 2, $v['payouts'] );
+		$payout_ids = array_column( $v['payouts'], 'id' );
+		$this->assertContains( $p1, $payout_ids );
+		$this->assertContains( $p2, $payout_ids );
+
+		// Score/penalty history surfaced from meta.
+		$this->assertCount( 2, $v['score_history'] );
+		$this->assertSame( 'withdraw', $v['score_history'][0]['event_type'] );
+		$this->assertSame( -10, $v['score_history'][0]['delta'] );
+	}
 }

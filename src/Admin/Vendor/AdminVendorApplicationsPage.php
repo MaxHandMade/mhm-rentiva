@@ -82,6 +82,7 @@ final class AdminVendorApplicationsPage
                 'nonce'            => wp_create_nonce('wp_rest'),
                 'adminUrl'         => admin_url(),
                 'pageUrl'          => admin_url('admin.php?page=mhm-rentiva-vendors'),
+                'payoutsUrl'       => admin_url('admin.php?page=mhm-rentiva-payouts'),
                 'flash'            => $flash,
             )
         );

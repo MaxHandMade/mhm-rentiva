@@ -558,6 +558,49 @@ final class VendorManagementRestController {
 			);
 		}
 
+		// --- Vendor "biography" extras: balance, payout history, penalty/score history, lifetime stats ---
+		global $wpdb;
+		$balance = \MHMRentiva\Core\Financial\Ledger::get_balance( $vendor_id );
+
+		$payout_status_map = array( 'pending' => 'pending', 'publish' => 'approved', 'trash' => 'rejected' );
+		$payouts           = array();
+		$payout_posts      = get_posts( array(
+			'post_type'      => 'mhm_payout',
+			'post_status'    => array( 'pending', 'publish', 'trash' ),
+			'author'         => $vendor_id,
+			'posts_per_page' => 10,
+			'orderby'        => 'date',
+			'order'          => 'DESC',
+		) );
+		foreach ( $payout_posts as $payout_post ) {
+			$payouts[] = array(
+				'id'     => (int) $payout_post->ID,
+				'amount' => (float) get_post_meta( $payout_post->ID, '_mhm_payout_amount', true ),
+				'status' => $payout_status_map[ $payout_post->post_status ] ?? $payout_post->post_status,
+				'date'   => get_the_date( 'Y-m-d', $payout_post ),
+			);
+		}
+
+		$raw_history   = get_user_meta( $vendor_id, '_rentiva_vendor_score_history', true );
+		$score_history = array();
+		if ( is_array( $raw_history ) ) {
+			foreach ( array_slice( $raw_history, 0, 10 ) as $entry ) {
+				$score_history[] = array(
+					'ts'            => (string) ( $entry['ts'] ?? '' ),
+					'event_type'    => (string) ( $entry['event_type'] ?? '' ),
+					'vehicle_title' => (string) ( $entry['vehicle_title'] ?? '' ),
+					'delta'         => (int) ( $entry['delta'] ?? 0 ),
+					'score_after'   => (int) ( $entry['score_after'] ?? 0 ),
+				);
+			}
+		}
+
+		$ledger_table = $wpdb->prefix . 'mhm_rentiva_ledger';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$completed = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$ledger_table} WHERE vendor_id = %d AND type = %s", $vendor_id, 'commission_credit' ) );
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$refunded  = (int) $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$ledger_table} WHERE vendor_id = %d AND type = %s", $vendor_id, 'commission_refund' ) );
+
 		return new \WP_REST_Response( array(
 			'vendor' => array(
 				'id'                => $vendor_id,
@@ -569,6 +612,10 @@ final class VendorManagementRestController {
 				'reliability_score' => (int) get_user_meta( $vendor_id, '_rentiva_vendor_reliability_score', true ),
 				'iban_masked'       => $iban_masked,
 				'approved_at'       => (string) get_user_meta( $vendor_id, '_rentiva_vendor_approved_at', true ),
+				'balance'           => $balance,
+				'stats'             => array( 'completed' => $completed, 'refunded' => $refunded ),
+				'payouts'           => $payouts,
+				'score_history'     => $score_history,
 				'vehicles'          => $vehicles,
 			),
 		) );
