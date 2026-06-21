@@ -32,6 +32,8 @@
     var titleInput = null;
     var descriptionTextarea = null;
     var descriptionLabel = null;
+    var descriptionRequiredMark = null;
+    var descriptionHint = null;
     var subtitleEl = null;
     var titleEl = null;
     var errorEl = null;
@@ -57,6 +59,8 @@
         titleInput = $('input[name="title"]', form);
         descriptionTextarea = $('textarea[name="description"]', form);
         descriptionLabel = $('[data-mhm-vrm-description-label]', form);
+        descriptionRequiredMark = $('[data-mhm-vrm-description-label] .mhm-vendor-report-modal__required', form);
+        descriptionHint = $('.mhm-vendor-report-modal__hint', form);
         subtitleEl = $('[data-mhm-vrm-subtitle]', modal);
         titleEl = $('#mhm-vendor-report-modal-title', modal);
         errorEl = $('[data-mhm-vrm-error]', modal);
@@ -140,6 +144,10 @@
         descriptionLabel.firstChild.textContent = i18n('reportDescriptionLabel', 'Describe the issue in detail...');
         submitBtn.textContent = i18n('submitReport', 'Submit Report');
 
+        // Report mode requires a description — restore the required marker + hint.
+        if (descriptionRequiredMark) descriptionRequiredMark.hidden = false;
+        if (descriptionHint) descriptionHint.textContent = i18n('minChars', 'Minimum 20 characters.');
+
         titleField.hidden = false;
         if (trigger.dataset.suggestedTitle) {
             titleInput.value = trigger.dataset.suggestedTitle;
@@ -162,15 +170,19 @@
 
         if (action === 'withdraw') {
             titleEl.textContent = i18n('withdrawTitle', 'Withdraw vehicle');
-            subtitleEl.textContent = i18n('withdrawSubtitle', 'A penalty applies to vehicle withdrawals. Tell the administrator the reason — if accepted, the penalty will not apply.');
-            descriptionLabel.firstChild.textContent = i18n('reasonForWithdrawal', 'Reason for withdrawal');
+            subtitleEl.textContent = i18n('withdrawSubtitle', 'Withdrawing applies a penalty. Leave the reason empty to withdraw and accept the penalty, or explain why to appeal it — if the admin accepts your reason, no penalty applies.');
+            descriptionLabel.firstChild.textContent = i18n('reasonForWithdrawal', 'Reason for withdrawal (optional)');
             submitBtn.textContent = i18n('confirmWithdraw', 'Withdraw Vehicle');
         } else {
             titleEl.textContent = i18n('pauseTitle', 'Pause vehicle');
-            subtitleEl.textContent = i18n('pauseSubtitle', 'A penalty may apply to repeated pauses. Tell the administrator the reason — if accepted, the penalty will not apply.');
-            descriptionLabel.firstChild.textContent = i18n('reasonForPausing', 'Reason for pausing');
+            subtitleEl.textContent = i18n('pauseSubtitle', 'Repeated pauses may incur a penalty. Leave the reason empty to pause and accept any penalty, or explain why to appeal it — if the admin accepts your reason, no penalty applies.');
+            descriptionLabel.firstChild.textContent = i18n('reasonForPausing', 'Reason for pausing (optional)');
             submitBtn.textContent = i18n('confirmPause', 'Pause Vehicle');
         }
+
+        // Lifecycle reason is OPTIONAL — hide the required marker and show an optional hint.
+        if (descriptionRequiredMark) descriptionRequiredMark.hidden = true;
+        if (descriptionHint) descriptionHint.textContent = i18n('reasonOptionalHint', 'Optional. Leave empty to proceed and accept the penalty, or write at least 20 characters to appeal it.');
 
         // Title field is filled automatically — hide it for the lifecycle flow.
         titleField.hidden = true;
@@ -211,7 +223,17 @@
         e.preventDefault();
 
         var description = descriptionTextarea.value.trim();
-        if (description.length < 20) {
+        var isLifecycle = (currentMode === 'withdraw' || currentMode === 'pause');
+
+        if (!isLifecycle) {
+            // Report mode: a description is required.
+            if (description.length < 20) {
+                showError(i18n('descTooShort', 'Please describe the issue in at least 20 characters.'));
+                return;
+            }
+        } else if (description.length > 0 && description.length < 20) {
+            // Lifecycle mode: the reason is OPTIONAL (leave empty to withdraw and accept the
+            // penalty), but if the vendor wants to appeal, the reason must be meaningful.
             showError(i18n('descTooShort', 'Please describe the issue in at least 20 characters.'));
             return;
         }

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-21T16:33:51+00:00\n"
+"POT-Creation-Date: 2026-06-21T21:59:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -7939,7 +7939,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:423
-#: src/Admin/VendorReport/VendorReportAssets.php:136
+#: src/Admin/VendorReport/VendorReportAssets.php:138
 #: templates/account/booking-detail.php:306
 msgid "An error occurred."
 msgstr ""
@@ -21453,7 +21453,7 @@ msgid "Vehicle resumed successfully."
 msgstr ""
 
 #: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:95
-#: src/Admin/VendorReport/VendorReportAssets.php:143
+#: src/Admin/VendorReport/VendorReportAssets.php:145
 msgid "Withdrawal reason"
 msgstr ""
 
@@ -21812,11 +21812,11 @@ msgstr ""
 msgid "Could not save your report. Please try again."
 msgstr ""
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:225
+#: src/Admin/VendorReport/Core/VendorReportService.php:232
 msgid "Report not found."
 msgstr ""
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:230
+#: src/Admin/VendorReport/Core/VendorReportService.php:237
 msgid "This report has already been closed."
 msgstr ""
 
@@ -21860,47 +21860,56 @@ msgstr ""
 msgid "Please describe the issue in at least 20 characters."
 msgstr ""
 
-#: src/Admin/VendorReport/VendorReportAssets.php:137
-msgid "Network error. Please try again."
+#: src/Admin/VendorReport/VendorReportAssets.php:136
+#: templates/account/partials/vendor-report-modal.php:73
+msgid "Minimum 20 characters."
 msgstr ""
 
-#: src/Admin/VendorReport/VendorReportAssets.php:138
-msgid "Done."
+#: src/Admin/VendorReport/VendorReportAssets.php:137
+msgid "Optional. Leave empty to proceed and accept the penalty, or write at least 20 characters to appeal it."
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:139
-msgid "Withdraw vehicle"
+msgid "Network error. Please try again."
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:140
-msgid "A penalty applies to vehicle withdrawals. Tell the administrator the reason — if accepted, the penalty will not apply."
+msgid "Done."
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:141
-msgid "Reason for withdrawal"
+msgid "Withdraw vehicle"
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:142
-msgid "Withdraw Vehicle"
+msgid "Withdrawing applies a penalty. Leave the reason empty to withdraw and accept the penalty, or explain why to appeal it — if the admin accepts your reason, no penalty applies."
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:143
+msgid "Reason for withdrawal (optional)"
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:144
-msgid "Pause vehicle"
-msgstr ""
-
-#: src/Admin/VendorReport/VendorReportAssets.php:145
-msgid "A penalty may apply to repeated pauses. Tell the administrator the reason — if accepted, the penalty will not apply."
+msgid "Withdraw Vehicle"
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:146
-msgid "Reason for pausing"
+msgid "Pause vehicle"
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:147
-msgid "Pause Vehicle"
+msgid "Repeated pauses may incur a penalty. Leave the reason empty to pause and accept any penalty, or explain why to appeal it — if the admin accepts your reason, no penalty applies."
 msgstr ""
 
 #: src/Admin/VendorReport/VendorReportAssets.php:148
+msgid "Reason for pausing (optional)"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:149
+msgid "Pause Vehicle"
+msgstr ""
+
+#: src/Admin/VendorReport/VendorReportAssets.php:150
 msgid "Pause reason"
 msgstr ""
 
@@ -23277,10 +23286,6 @@ msgstr ""
 
 #: templates/account/partials/vendor-report-modal.php:45
 msgid "Report Title"
-msgstr ""
-
-#: templates/account/partials/vendor-report-modal.php:73
-msgid "Minimum 20 characters."
 msgstr ""
 
 #: templates/account/partials/vendor-settings.php:55

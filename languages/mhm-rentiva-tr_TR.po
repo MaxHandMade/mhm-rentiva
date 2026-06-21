@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-21T16:33:51+00:00\n"
+"POT-Creation-Date: 2026-06-21T21:59:01+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -7904,7 +7904,7 @@ msgstr "IBAN değişiklik talebi reddedildiğinde bayiye gönderilir."
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:423
-#: src/Admin/VendorReport/VendorReportAssets.php:136
+#: src/Admin/VendorReport/VendorReportAssets.php:138
 #: templates/account/booking-detail.php:306
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
@@ -16605,7 +16605,9 @@ msgstr "1. Çekim Cezası (%)"
 msgid ""
 "Penalty rate (% of monthly avg revenue) for the vendor's first withdrawal in "
 "12 months. Set to 0 to make the first withdrawal free."
-msgstr "İlk araç çekiminde uygulanan ceza oranı (aylık ortalama gelirin %'si), 12 ay içinde. İlk çekimi ücretsiz yapmak için 0 girin."
+msgstr ""
+"İlk araç çekiminde uygulanan ceza oranı (aylık ortalama gelirin %'si), 12 ay "
+"içinde. İlk çekimi ücretsiz yapmak için 0 girin."
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:196
 msgid "2nd Withdrawal Penalty (%)"
@@ -21998,7 +22000,7 @@ msgid "Vehicle resumed successfully."
 msgstr "Araç başarıyla yeniden aktifleştirildi."
 
 #: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:95
-#: src/Admin/VendorReport/VendorReportAssets.php:143
+#: src/Admin/VendorReport/VendorReportAssets.php:145
 msgid "Withdrawal reason"
 msgstr "Çekme sebebi"
 
@@ -22371,11 +22373,11 @@ msgstr "Bu öğe için zaten açık bir raporunuz var."
 msgid "Could not save your report. Please try again."
 msgstr "Rapor kaydedilemedi. Lütfen tekrar deneyin."
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:225
+#: src/Admin/VendorReport/Core/VendorReportService.php:232
 msgid "Report not found."
 msgstr "Rapor bulunamadı."
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:230
+#: src/Admin/VendorReport/Core/VendorReportService.php:237
 msgid "This report has already been closed."
 msgstr "Bu rapor zaten kapatılmış."
 
@@ -22422,55 +22424,64 @@ msgstr "Rapor başarıyla gönderildi"
 msgid "Please describe the issue in at least 20 characters."
 msgstr "Lütfen sorunu en az 20 karakterle açıklayın."
 
+#: src/Admin/VendorReport/VendorReportAssets.php:136
+#: templates/account/partials/vendor-report-modal.php:73
+msgid "Minimum 20 characters."
+msgstr "En az 20 karakter."
+
 #: src/Admin/VendorReport/VendorReportAssets.php:137
+msgid ""
+"Optional. Leave empty to proceed and accept the penalty, or write at least "
+"20 characters to appeal it."
+msgstr "İsteğe bağlı. Devam edip cezayı kabul etmek için boş bırakın; itiraz etmek için en az 20 karakter yazın."
+
+#: src/Admin/VendorReport/VendorReportAssets.php:139
 msgid "Network error. Please try again."
 msgstr "Ağ hatası. Lütfen tekrar deneyin."
 
-#: src/Admin/VendorReport/VendorReportAssets.php:138
+#: src/Admin/VendorReport/VendorReportAssets.php:140
 msgid "Done."
 msgstr "Tamamlandı."
 
-#: src/Admin/VendorReport/VendorReportAssets.php:139
+#: src/Admin/VendorReport/VendorReportAssets.php:141
 msgid "Withdraw vehicle"
 msgstr "Aracı çek"
 
-#: src/Admin/VendorReport/VendorReportAssets.php:140
-msgid ""
-"A penalty applies to vehicle withdrawals. Tell the administrator the reason "
-"— if accepted, the penalty will not apply."
-msgstr ""
-"Araç çekiminde ceza uygulanır. Yöneticiye sebebini anlatın — kabul edilirse "
-"ceza uygulanmaz."
-
-#: src/Admin/VendorReport/VendorReportAssets.php:141
-msgid "Reason for withdrawal"
-msgstr "Çekme sebebi"
-
 #: src/Admin/VendorReport/VendorReportAssets.php:142
+msgid ""
+"Withdrawing applies a penalty. Leave the reason empty to withdraw and accept "
+"the penalty, or explain why to appeal it — if the admin accepts your reason, "
+"no penalty applies."
+msgstr "Aracı geri çekmek bir ceza uygular. Cezayı kabul ederek çekmek için sebebi boş bırakın; itiraz etmek için sebebini açıklayın — yönetici sebebinizi kabul ederse ceza uygulanmaz."
+
+#: src/Admin/VendorReport/VendorReportAssets.php:143
+msgid "Reason for withdrawal (optional)"
+msgstr "Geri çekme sebebi (isteğe bağlı)"
+
+#: src/Admin/VendorReport/VendorReportAssets.php:144
 msgid "Withdraw Vehicle"
 msgstr "Aracı Çek"
 
-#: src/Admin/VendorReport/VendorReportAssets.php:144
+#: src/Admin/VendorReport/VendorReportAssets.php:146
 msgid "Pause vehicle"
 msgstr "Aracı durdur"
 
-#: src/Admin/VendorReport/VendorReportAssets.php:145
-msgid ""
-"A penalty may apply to repeated pauses. Tell the administrator the reason — "
-"if accepted, the penalty will not apply."
-msgstr ""
-"Tekrarlı durdurmalarda ceza uygulanabilir. Yöneticiye sebebini anlatın — "
-"kabul edilirse ceza uygulanmaz."
-
-#: src/Admin/VendorReport/VendorReportAssets.php:146
-msgid "Reason for pausing"
-msgstr "Durdurma sebebi"
-
 #: src/Admin/VendorReport/VendorReportAssets.php:147
+msgid ""
+"Repeated pauses may incur a penalty. Leave the reason empty to pause and "
+"accept any penalty, or explain why to appeal it — if the admin accepts your "
+"reason, no penalty applies."
+msgstr "Tekrarlanan durdurmalar ceza doğurabilir. Cezayı kabul ederek durdurmak için sebebi boş bırakın; itiraz etmek için sebebini açıklayın — yönetici sebebinizi kabul ederse ceza uygulanmaz."
+
+#: src/Admin/VendorReport/VendorReportAssets.php:148
+msgid "Reason for pausing (optional)"
+msgstr "Durdurma sebebi (isteğe bağlı)"
+
+#: src/Admin/VendorReport/VendorReportAssets.php:149
 msgid "Pause Vehicle"
 msgstr "Aracı Durdur"
 
-#: src/Admin/VendorReport/VendorReportAssets.php:148
+#: src/Admin/VendorReport/VendorReportAssets.php:150
 msgid "Pause reason"
 msgstr "Durdurma sebebi"
 
@@ -23922,10 +23933,6 @@ msgstr "İtiraz: %2$s — %1$s"
 #: templates/account/partials/vendor-report-modal.php:45
 msgid "Report Title"
 msgstr "Rapor Başlığı"
-
-#: templates/account/partials/vendor-report-modal.php:73
-msgid "Minimum 20 characters."
-msgstr "En az 20 karakter."
 
 #: templates/account/partials/vendor-settings.php:55
 msgid ""
@@ -27883,3 +27890,23 @@ msgstr "MHM Bayi Profili"
 msgctxt "block description"
 msgid "Public vendor profile page (avatar, badge, vehicles, reviews)."
 msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar)."
+
+#~ msgid ""
+#~ "A penalty applies to vehicle withdrawals. Tell the administrator the "
+#~ "reason — if accepted, the penalty will not apply."
+#~ msgstr ""
+#~ "Araç çekiminde ceza uygulanır. Yöneticiye sebebini anlatın — kabul "
+#~ "edilirse ceza uygulanmaz."
+
+#~ msgid "Reason for withdrawal"
+#~ msgstr "Çekme sebebi"
+
+#~ msgid ""
+#~ "A penalty may apply to repeated pauses. Tell the administrator the reason "
+#~ "— if accepted, the penalty will not apply."
+#~ msgstr ""
+#~ "Tekrarlı durdurmalarda ceza uygulanabilir. Yöneticiye sebebini anlatın — "
+#~ "kabul edilirse ceza uygulanmaz."
+
+#~ msgid "Reason for pausing"
+#~ msgstr "Durdurma sebebi"
