@@ -5,15 +5,17 @@ import ApplicationTable from './components/ApplicationTable';
 import ApplicationDetailPage from './components/ApplicationDetailPage';
 import IbanRequestsTab from './components/IbanRequestsTab';
 import VendorTable from './components/VendorTable';
+import VendorDetailPage from './components/VendorDetailPage';
 import CommissionTab from './components/CommissionTab';
 import SettingsTab from './components/SettingsTab';
 
 const config = window.mhmRentivaVendorManagement || {};
 
 export default function VendorManagementPage() {
-	const [ tab,    setTab    ] = useState( config.initialTab  || 'pending' );
-	const [ viewId, setViewId ] = useState( parseInt( config.initialView, 10 ) || 0 );
-	const [ notice, setNotice ] = useState( config.flash || null );
+	const [ tab,        setTab        ] = useState( config.initialTab  || 'pending' );
+	const [ viewId,     setViewId     ] = useState( parseInt( config.initialView, 10 ) || 0 );
+	const [ vendorView, setVendorView ] = useState( 0 );
+	const [ notice,     setNotice     ] = useState( config.flash || null );
 
 	// Flash from PHP (read before WP's common.js strips URL params).
 	useEffect( () => {
@@ -25,6 +27,7 @@ export default function VendorManagementPage() {
 	const switchTab = ( newTab ) => {
 		setTab( newTab );
 		setViewId( 0 );
+		setVendorView( 0 );
 		const url = new URL( window.location.href );
 		url.searchParams.set( 'tab', newTab );
 		url.searchParams.delete( 'view' );
@@ -89,7 +92,9 @@ export default function VendorManagementPage() {
 				: tab === 'iban_requests'
 					? <IbanRequestsTab onNotice={ setNotice } />
 					: tab === 'vendors'
-						? <VendorTable onNotice={ setNotice } />
+						? ( vendorView > 0
+							? <VendorDetailPage vendorId={ vendorView } onBack={ () => setVendorView( 0 ) } />
+							: <VendorTable onNotice={ setNotice } onOpenVendor={ setVendorView } /> )
 						: tab === 'commission'
 							? <CommissionTab onNotice={ setNotice } />
 							: tab === 'settings'

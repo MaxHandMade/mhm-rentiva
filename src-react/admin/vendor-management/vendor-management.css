@@ -26,12 +26,12 @@
 	min-width: 580px;
 }
 
-/* Application table */
-.mhm-vm-table tbody tr {
+/* Clickable rows (application table only — vendor table rows are not row-clickable) */
+.mhm-vm-table--clickable tbody tr {
 	cursor: pointer;
 }
 
-.mhm-vm-table tbody tr:hover td {
+.mhm-vm-table--clickable tbody tr:hover td {
 	background: #f0f6fc;
 }
 

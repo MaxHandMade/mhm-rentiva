@@ -78,6 +78,7 @@ export const rentivaApi = {
 			const qs = new URLSearchParams( params ).toString();
 			return apiFetch( { path: `${ BASE }/vendors/vendors?${ qs }` } );
 		},
+		getVendorDetail: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }` } ),
 		suspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/suspend`, method: 'POST' } ),
 		unsuspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/unsuspend`, method: 'POST' } ),
 		getCommission: () => apiFetch( { path: `${ BASE }/vendors/commission` } ),

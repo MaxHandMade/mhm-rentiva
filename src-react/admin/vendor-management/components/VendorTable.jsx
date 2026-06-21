@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../../shared/api/rentiva';
 
-export default function VendorTable( { onNotice } ) {
+export default function VendorTable( { onNotice, onOpenVendor } ) {
 	const [ vendors, setVendors ] = useState( [] );
 	const [ total,   setTotal   ] = useState( 0 );
 	const [ pages,   setPages   ] = useState( 1 );
@@ -110,7 +110,15 @@ export default function VendorTable( { onNotice } ) {
 							const isSuspended = v.status === 'suspended';
 							return (
 								<tr key={ v.id }>
-									<td>{ v.display_name }</td>
+									<td>
+										<button
+											type="button"
+											className="button-link"
+											onClick={ () => onOpenVendor && onOpenVendor( v.id ) }
+										>
+											{ v.display_name }
+										</button>
+									</td>
 									<td>{ v.email }</td>
 									<td>{ v.city || '—' }</td>
 									<td>{ v.vehicle_count }</td>

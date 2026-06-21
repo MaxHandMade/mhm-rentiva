@@ -7,7 +7,7 @@ export default function ApplicationTable( { applications, onOpen } ) {
 	}
 
 	return (
-		<table className="wp-list-table widefat fixed striped mhm-vm-table">
+		<table className="wp-list-table widefat fixed striped mhm-vm-table mhm-vm-table--clickable">
 			<thead>
 				<tr>
 					<th>{ __( 'Applicant', 'mhm-rentiva' ) }</th>
