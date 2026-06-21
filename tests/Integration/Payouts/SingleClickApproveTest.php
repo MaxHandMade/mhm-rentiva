@@ -98,4 +98,12 @@ final class SingleClickApproveTest extends WP_UnitTestCase {
 		$this->assertSame( 1, $result['approved'], 'Exactly one payout approved.' );
 		$this->assertSame( 'publish', get_post_status( $payout ), 'Single bulk approve must finalize (publish) the payout.' );
 	}
+
+	public function test_vendor_bio_url_targets_vendor_detail(): void {
+		$url = PayoutListTable::vendor_bio_url( 42 );
+
+		$this->assertStringContainsString( 'page=mhm-rentiva-vendors', $url );
+		$this->assertStringContainsString( 'tab=vendors', $url );
+		$this->assertStringContainsString( 'vendor=42', $url );
+	}
 }

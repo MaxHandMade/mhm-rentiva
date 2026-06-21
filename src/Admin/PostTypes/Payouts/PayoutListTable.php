@@ -105,11 +105,35 @@ final class PayoutListTable extends \WP_List_Table {
     }
 
     /**
+     * Admin URL of a vendor's detail/biography panel (Vendor Management → Active Vendors).
+     *
+     * @param int $vendor_id
+     */
+    public static function vendor_bio_url(int $vendor_id): string
+    {
+        return add_query_arg(
+            array(
+                'page'   => 'mhm-rentiva-vendors',
+                'tab'    => 'vendors',
+                'vendor' => $vendor_id,
+            ),
+            admin_url('admin.php')
+        );
+    }
+
+    /**
      * @param \WP_Post $item
      */
     protected function column_payout_id(\WP_Post $item): string
     {
-        return '#' . esc_html( (string) $item->ID);
+        $vendor_id = (int) $item->post_author;
+        $label     = '#' . esc_html( (string) $item->ID);
+
+        return sprintf(
+            '<a href="%s">%s</a>',
+            esc_url(self::vendor_bio_url($vendor_id)),
+            $label
+        );
     }
 
     /**
@@ -128,7 +152,12 @@ final class PayoutListTable extends \WP_List_Table {
             $vendor_name = $user->user_login;
         }
 
-        return esc_html($vendor_name) . ' <small>#' . esc_html( (string) $vendor_id) . '</small>';
+        return sprintf(
+            '<a href="%s">%s</a> <small>#%s</small>',
+            esc_url(self::vendor_bio_url($vendor_id)),
+            esc_html($vendor_name),
+            esc_html( (string) $vendor_id)
+        );
     }
 
     /**

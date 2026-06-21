@@ -77,6 +77,7 @@ final class AdminVendorApplicationsPage
                 // phpcs:disable WordPress.Security.NonceVerification.Recommended
                 'initialTab'       => $tab,
                 'initialView'      => isset($_GET['view']) ? (int) $_GET['view'] : 0,
+                'initialVendor'    => isset($_GET['vendor']) ? (int) $_GET['vendor'] : 0,
                 // phpcs:enable
                 'pendingIbanCount' => static::get_pending_iban_count(),
                 'nonce'            => wp_create_nonce('wp_rest'),
