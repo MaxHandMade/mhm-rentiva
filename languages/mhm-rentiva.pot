@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-21T00:58:37+00:00\n"
+"POT-Creation-Date: 2026-06-21T01:19:53+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -865,7 +865,7 @@ msgstr ""
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:8
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:54
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:62
 #: src-react/admin/vendor-management/components/VendorTable.jsx:80
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Active"
@@ -1101,7 +1101,7 @@ msgstr ""
 #: assets/blocks/popular-routes/index.js:51
 #: build/admin/vendor-management.js:1
 #: build/admin/vendor-reports.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:74
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:82
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Title"
 msgstr ""
@@ -1229,8 +1229,8 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:77
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:88
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:85
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:96
 msgid "Edit"
 msgstr ""
 
@@ -1950,6 +1950,8 @@ msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:109
 #: templates/account/partials/vendor-listings.php:240
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:18
 msgid "Draft"
 msgstr ""
 
@@ -1998,7 +2000,9 @@ msgstr ""
 #: templates/emails/refund-customer.html.php:32
 #: assets/blocks/payment-history/index.js:41
 #: build/admin/dashboard.js:1
+#: build/admin/vendor-management.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:9
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:17
 msgid "Pending"
 msgstr ""
 
@@ -2947,7 +2951,7 @@ msgstr ""
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:60
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:68
 #: src-react/admin/vendor-management/components/VendorTable.jsx:100
 msgid "Email"
 msgstr ""
@@ -2970,7 +2974,7 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:61
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:69
 msgid "Phone"
 msgstr ""
 
@@ -10315,7 +10319,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:165
 #: templates/account/partials/vendor-settings.php:120
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:64
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:72
 msgid "IBAN"
 msgstr ""
 
@@ -11829,7 +11833,7 @@ msgstr ""
 #: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:69
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:77
 #: src-react/admin/vendor-management/components/VendorTable.jsx:102
 msgid "Vehicles"
 msgstr ""
@@ -13839,7 +13843,7 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:62
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:70
 #: src-react/admin/vendor-management/components/VendorTable.jsx:101
 msgid "City"
 msgstr ""
@@ -20459,7 +20463,7 @@ msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:85
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:76
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:84
 msgid "Lifecycle"
 msgstr ""
 
@@ -25828,7 +25832,7 @@ msgstr ""
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:46
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:65
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:40
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:48
 #: src-react/admin/vendor-management/components/VendorTable.jsx:88
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:104
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
@@ -26509,7 +26513,7 @@ msgid "Search vendors…"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:53
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:61
 #: src-react/admin/vendor-management/components/VendorTable.jsx:81
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Suspended"
@@ -26561,32 +26565,42 @@ msgid "Suspend"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:26
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:33
 msgid "Failed to load vendor."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:36
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:16
+msgid "Published"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:19
+msgid "Private"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:44
 msgid "← Back to vendors"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:63
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:71
 msgid "Reliability Score"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:73
 msgid "Approved At"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:75
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:83
 msgid "Post Status"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:96
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:104
 msgid "This vendor has no vehicles."
 msgstr ""
 

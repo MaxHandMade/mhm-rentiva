@@ -12,6 +12,13 @@ const LIFECYCLE_LABELS = () => ( {
 	pending_review: __( 'Pending Review', 'mhm-rentiva' ),
 } );
 
+const POST_STATUS_LABELS = () => ( {
+	publish: __( 'Published', 'mhm-rentiva' ),
+	pending: __( 'Pending', 'mhm-rentiva' ),
+	draft:   __( 'Draft', 'mhm-rentiva' ),
+	private: __( 'Private', 'mhm-rentiva' ),
+} );
+
 export default function VendorDetailPage( { vendorId, onBack } ) {
 	const [ vendor,  setVendor  ] = useState( null );
 	const [ loading, setLoading ] = useState( true );
@@ -27,7 +34,8 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 		return () => { active = false; };
 	}, [ vendorId ] );
 
-	const lifecycleLabels = LIFECYCLE_LABELS();
+	const lifecycleLabels  = LIFECYCLE_LABELS();
+	const postStatusLabels = POST_STATUS_LABELS();
 
 	return (
 		<div className="mhm-vm-vendor-detail">
@@ -81,7 +89,7 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 								{ vendor.vehicles.map( ( v ) => (
 									<tr key={ v.id }>
 										<td>{ v.title || `#${ v.id }` }</td>
-										<td>{ v.status }</td>
+										<td>{ postStatusLabels[ v.status ] || v.status }</td>
 										<td>{ lifecycleLabels[ v.lifecycle ] || v.lifecycle }</td>
 										<td>
 											{ v.edit_link
