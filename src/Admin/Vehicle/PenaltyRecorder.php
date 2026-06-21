@@ -80,8 +80,22 @@ final class PenaltyRecorder {
 		try {
 			Ledger::add_entry($entry);
 		} catch (\RuntimeException $e) {
-			// Idempotent: duplicate UUID is silently ignored — entry is already recorded.
-			unset($e);
+			// Ledger::add_entry returns 0 (not an exception) for a duplicate UUID, so a
+			// RuntimeException here is a genuine write failure — never swallow it silently,
+			// or a vendor escapes their penalty with no trace. Log and abort (no "recorded"
+			// event fires).
+			if (class_exists('\\MHMRentiva\\Admin\\PostTypes\\Logs\\AdvancedLogger')) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+					sprintf('Failed to record withdrawal penalty for vendor #%d (vehicle #%d): %s', $vendor_id, $vehicle_id, $e->getMessage()),
+					array(
+						'vendor'  => $vendor_id,
+						'vehicle' => $vehicle_id,
+						'amount'  => $penalty_amount,
+					),
+					'payout'
+				);
+			}
+			return;
 		}
 
 		do_action('mhm_rentiva_withdrawal_penalty_recorded', $vehicle_id, $vendor_id, $penalty_amount);
