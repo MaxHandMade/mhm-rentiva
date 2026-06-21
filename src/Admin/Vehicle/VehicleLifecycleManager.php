@@ -241,6 +241,13 @@ final class VehicleLifecycleManager {
         $now          = gmdate('Y-m-d H:i:s');
         $cooldown_end = gmdate('Y-m-d H:i:s', strtotime('+' . VehicleLifecycleStatus::withdrawal_cooldown_days() . ' days'));
 
+        // Calculate the progressive penalty BEFORE stamping this vehicle's withdrawn_at.
+        // The tier is based on PRIOR withdrawals in the rolling window; if we set
+        // withdrawn_at first, this very vehicle is counted in its own tier — pushing the
+        // 1st (free) withdrawal to tier-2 and every later one a tier too high, and making
+        // the recorded penalty differ from the pre-withdrawal preview shown to the vendor.
+        $penalty = PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
+
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LIFECYCLE_STATUS, VehicleLifecycleStatus::WITHDRAWN);
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_STATUS, 'inactive');
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_WITHDRAWN_AT, $now);
@@ -251,9 +258,6 @@ final class VehicleLifecycleManager {
             'ID'          => $vehicle_id,
             'post_status' => 'draft',
         ));
-
-        // Calculate progressive penalty based on withdrawal history.
-        $penalty = PenaltyCalculator::calculate_withdrawal_penalty($vehicle_id, $vendor_id);
 
         /**
          * Filter — should the withdrawal penalty (score deduction + ledger debit) be applied?

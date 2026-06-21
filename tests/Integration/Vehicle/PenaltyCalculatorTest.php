@@ -23,24 +23,27 @@ class PenaltyCalculatorTest extends \WP_UnitTestCase
 
     // ── Penalty Rate Tiers ───────────────────────────────────
 
-    public function test_first_withdrawal_is_free(): void
+    // Defaults: 1st = 10%, 2nd = 25%, 3rd+ = 50% (all settings-driven; no free tier).
+    // $count is PRIOR withdrawals in the window, so 0 = the vendor's 1st withdrawal.
+
+    public function test_first_withdrawal_is_tier1(): void
     {
-        $this->assertSame(0.0, PenaltyCalculator::get_penalty_rate(0));
+        $this->assertSame(0.10, PenaltyCalculator::get_penalty_rate(0));
     }
 
-    public function test_second_withdrawal_is_10_percent(): void
+    public function test_second_withdrawal_is_25_percent(): void
     {
-        $this->assertSame(0.10, PenaltyCalculator::get_penalty_rate(1));
+        $this->assertSame(0.25, PenaltyCalculator::get_penalty_rate(1));
     }
 
-    public function test_third_withdrawal_is_25_percent(): void
+    public function test_third_withdrawal_is_50_percent(): void
     {
-        $this->assertSame(0.25, PenaltyCalculator::get_penalty_rate(2));
+        $this->assertSame(0.50, PenaltyCalculator::get_penalty_rate(2));
     }
 
-    public function test_fourth_plus_withdrawal_is_25_percent(): void
+    public function test_fourth_plus_withdrawal_is_50_percent(): void
     {
-        $this->assertSame(0.25, PenaltyCalculator::get_penalty_rate(5));
+        $this->assertSame(0.50, PenaltyCalculator::get_penalty_rate(5));
     }
 
     // ── Rolling Withdrawal Count ─────────────────────────────

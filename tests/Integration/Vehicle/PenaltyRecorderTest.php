@@ -92,30 +92,50 @@ final class PenaltyRecorderTest extends WP_UnitTestCase {
 
 	public function test_second_withdrawal_debits_penalty_to_ledger(): void {
 		$this->seed_revenue( 1000.0 );
-		$this->create_prior_withdrawal(); // rolling count → 1, so the next is tier-2 (10%).
+		$this->create_prior_withdrawal(); // rolling count → 1, so the next is tier-2 (25%).
 
 		$vehicle2 = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'Second Vehicle' ) );
 		$penalty  = PenaltyCalculator::calculate_withdrawal_penalty( $vehicle2, $this->vendor_id );
-		$this->assertSame( 100.0, $penalty, '2nd withdrawal penalty must be 10% of the 1000 monthly average.' );
+		$this->assertSame( 250.0, $penalty, '2nd withdrawal penalty must be 25% of the 1000 monthly average.' );
 
 		$balance_before = Ledger::get_balance( $this->vendor_id );
 
 		PenaltyRecorder::record_penalty( $vehicle2, $this->vendor_id, $penalty );
 
-		$this->assertSame( -100.0, $this->penalty_row_amount(), 'A withdrawal_penalty debit of -100 must be written to the ledger.' );
-		$this->assertSame( $balance_before - 100.0, Ledger::get_balance( $this->vendor_id ), 'Balance must drop by the penalty amount.' );
+		$this->assertSame( -250.0, $this->penalty_row_amount(), 'A withdrawal_penalty debit of -250 must be written to the ledger.' );
+		$this->assertSame( $balance_before - 250.0, Ledger::get_balance( $this->vendor_id ), 'Balance must drop by the penalty amount.' );
 	}
 
-	public function test_first_withdrawal_writes_no_penalty(): void {
+	public function test_manager_withdraw_excludes_the_vehicle_from_its_own_tier(): void {
 		$this->seed_revenue( 1000.0 );
-		// No prior withdrawal → rolling count 0 → tier-1 (free).
+		// No prior withdrawals → this is the 1st withdrawal = tier-1 (10% = 100). If withdraw()
+		// stamps withdrawn_at before computing the tier, the vehicle counts itself and the rate
+		// jumps to tier-2 (25% = 250). Asserting 100 proves the vehicle is excluded from its own tier.
+		$captured = null;
+		add_action(
+			'mhm_rentiva_vehicle_withdrawn',
+			static function ( $vid, $vendor, $penalty ) use ( &$captured ) {
+				$captured = $penalty;
+			},
+			5,
+			3
+		);
 
+		$vehicle = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'Active V' ) );
+		$result  = \MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::withdraw( $vehicle, $this->vendor_id );
+
+		$this->assertNotWPError( $result );
+		$this->assertSame( 100.0, $captured, '1st withdrawal must be tier-1 (10% = 100), not tier-2 — the vehicle must not count itself in its own penalty tier.' );
+	}
+
+	public function test_no_revenue_writes_no_penalty(): void {
+		// No revenue → monthly average is 0 → penalty is 0 regardless of tier → no ledger row.
 		$vehicle = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'First Vehicle' ) );
 		$penalty = PenaltyCalculator::calculate_withdrawal_penalty( $vehicle, $this->vendor_id );
 		$this->assertSame( 0.0, $penalty );
 
 		PenaltyRecorder::record_penalty( $vehicle, $this->vendor_id, $penalty );
 
-		$this->assertNull( $this->penalty_row_amount(), 'First withdrawal is free — no penalty row.' );
+		$this->assertNull( $this->penalty_row_amount(), 'A zero penalty must not write a ledger row.' );
 	}
 }

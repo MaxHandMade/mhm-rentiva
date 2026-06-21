@@ -43,8 +43,9 @@ final class VendorMarketplaceSettings {
 			'vendor_max_pause_duration_days'       => 30,
 
 			// Penalty
-			'vendor_penalty_tier2_rate'            => 10,
-			'vendor_penalty_tier3_rate'            => 25,
+			'vendor_penalty_tier1_rate'            => 10,
+			'vendor_penalty_tier2_rate'            => 25,
+			'vendor_penalty_tier3_rate'            => 50,
 			'vendor_penalty_rolling_window_months' => 12,
 
 			// Anti-Gaming
@@ -177,6 +178,16 @@ final class VendorMarketplaceSettings {
 			__( 'Withdrawal Penalty Settings', 'mhm-rentiva' ),
 			fn() => print( '<p>' . esc_html__( 'Configure progressive penalty rates applied when vendors withdraw vehicles.', 'mhm-rentiva' ) . '</p>' ),
 			$page_slug
+		);
+
+		SettingsHelper::number_field(
+			$page_slug,
+			'vendor_penalty_tier1_rate',
+			__( '1st Withdrawal Penalty (%)', 'mhm-rentiva' ),
+			0,
+			100,
+			__( 'Penalty rate (% of monthly avg revenue) for the vendor\'s first withdrawal in 12 months. Set to 0 to make the first withdrawal free.', 'mhm-rentiva' ),
+			self::SECTION_PENALTY
 		);
 
 		SettingsHelper::number_field(

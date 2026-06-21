@@ -15,39 +15,50 @@ use MHMRentiva\Admin\Core\MetaKeys;
 /**
  * Calculates progressive withdrawal penalties for vendors.
  *
- * Penalty tiers (per rolling 12-month window):
- * - 1st withdrawal: Free (₺0)
- * - 2nd withdrawal: 10% of monthly average revenue
- * - 3rd+ withdrawal: 25% of monthly average revenue
+ * Penalty tiers (per rolling 12-month window) — all rates are settings-driven; the site
+ * admin changes them under Vendor Marketplace → Withdrawal Penalty Settings:
+ * - 1st withdrawal: 10% of monthly average revenue (default)
+ * - 2nd withdrawal: 25% (default)
+ * - 3rd+ withdrawal: 50% (default)
+ *
+ * A valid-reason withdrawal can have the penalty reversed by an admin via the Vendor
+ * Report (appeal) workflow.
  *
  * @since 4.24.0
  */
 final class PenaltyCalculator {
 
-	/** First withdrawal is free. */
-	public const TIER_1_RATE = 0.0;
+	/** First withdrawal default rate (10% of monthly avg revenue). */
+	public const TIER_1_RATE = 0.10;
 
-	/** Second withdrawal: 10% of monthly avg revenue. */
-	public const TIER_2_RATE = 0.10;
+	/** Second withdrawal default rate (25%). */
+	public const TIER_2_RATE = 0.25;
 
-	/** Third and subsequent: 25% of monthly avg revenue. */
-	public const TIER_3_RATE = 0.25;
+	/** Third and subsequent default rate (50%). */
+	public const TIER_3_RATE = 0.50;
 
 	/** Rolling window for withdrawal count (months). */
 	public const ROLLING_WINDOW_MONTHS = 12;
 
 	/**
-	 * Get tier 2 penalty rate from settings (settings-aware).
+	 * Get tier 1 penalty rate from settings (settings-aware). First withdrawal.
 	 */
-	public static function tier2_rate(): float {
-		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier2_rate', 10 ) / 100.0;
+	public static function tier1_rate(): float {
+		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier1_rate', 10 ) / 100.0;
 	}
 
 	/**
-	 * Get tier 3 penalty rate from settings (settings-aware).
+	 * Get tier 2 penalty rate from settings (settings-aware). Second withdrawal.
+	 */
+	public static function tier2_rate(): float {
+		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier2_rate', 25 ) / 100.0;
+	}
+
+	/**
+	 * Get tier 3 penalty rate from settings (settings-aware). Third and subsequent.
 	 */
 	public static function tier3_rate(): float {
-		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier3_rate', 25 ) / 100.0;
+		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'vendor_penalty_tier3_rate', 50 ) / 100.0;
 	}
 
 	/**
@@ -83,15 +94,17 @@ final class PenaltyCalculator {
 	}
 
 	/**
-	 * Get the penalty rate based on the number of prior withdrawals.
+	 * Get the penalty rate based on the number of PRIOR withdrawals (excluding the current one).
 	 *
-	 * @param int $count Number of withdrawals in rolling window (BEFORE the current one).
-	 * @return float Penalty rate (0.0 to 0.25).
+	 * Count 0 → 1st withdrawal (tier 1), count 1 → 2nd (tier 2), count >= 2 → 3rd+ (tier 3).
+	 *
+	 * @param int $count Number of withdrawals in rolling window BEFORE the current one.
+	 * @return float Penalty rate (e.g. 0.10, 0.25, 0.50 with default settings).
 	 */
 	public static function get_penalty_rate(int $count): float
 	{
 		if ($count <= 0) {
-			return self::TIER_1_RATE;
+			return self::tier1_rate();
 		}
 
 		if ($count === 1) {

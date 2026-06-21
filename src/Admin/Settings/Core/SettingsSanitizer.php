@@ -654,8 +654,9 @@ final class SettingsSanitizer {
 			'vendor_max_pause_duration_days'       => self::get_int( $input, 'vendor_max_pause_duration_days', 30, 1, 180 ),
 
 			// Penalty
-			'vendor_penalty_tier2_rate'            => self::get_int( $input, 'vendor_penalty_tier2_rate', 10, 0, 100 ),
-			'vendor_penalty_tier3_rate'            => self::get_int( $input, 'vendor_penalty_tier3_rate', 25, 0, 100 ),
+			'vendor_penalty_tier1_rate'            => self::get_int( $input, 'vendor_penalty_tier1_rate', 10, 0, 100 ),
+			'vendor_penalty_tier2_rate'            => self::get_int( $input, 'vendor_penalty_tier2_rate', 25, 0, 100 ),
+			'vendor_penalty_tier3_rate'            => self::get_int( $input, 'vendor_penalty_tier3_rate', 50, 0, 100 ),
 			'vendor_penalty_rolling_window_months' => self::get_int( $input, 'vendor_penalty_rolling_window_months', 12, 1, 36 ),
 
 			// Anti-Gaming
