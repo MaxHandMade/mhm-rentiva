@@ -7,6 +7,8 @@ use MHMRentiva\Admin\PostTypes\Payouts\PayoutListTable;
 use MHMRentiva\Admin\PostTypes\Payouts\PostType;
 use MHMRentiva\Core\Database\Migrations\LedgerMigration;
 use MHMRentiva\Core\Financial\AtomicPayoutService;
+use MHMRentiva\Core\Financial\Ledger;
+use MHMRentiva\Core\Financial\LedgerEntry;
 use WP_UnitTestCase;
 
 /**
@@ -55,10 +57,16 @@ final class SingleClickApproveTest extends WP_UnitTestCase {
 	}
 
 	private function make_pending_payout( float $amount ): int {
-		// Fresh vendor (age < 90d) + no ledger history → risk score 30 = MEDIUM.
-		// Under the old flow MEDIUM routed PENDING → under_review (no publish).
 		$vendor = (int) self::factory()->user->create( array( 'role' => 'rentiva_vendor' ) );
-		$id     = (int) self::factory()->post->create( array(
+		// Seed enough cleared balance so the approval's funds check passes (mirrors a real
+		// request, which only succeeds when the vendor has the balance).
+		if ( $amount > 0 ) {
+			Ledger::add_entry( new LedgerEntry(
+				'seed_' . $vendor, $vendor, null, null, 'commission_credit', $amount,
+				null, null, null, 'TRY', 'booking', 'cleared', null, null, null
+			) );
+		}
+		$id = (int) self::factory()->post->create( array(
 			'post_type'   => PostType::POST_TYPE,
 			'post_status' => 'pending',
 			'post_author' => $vendor,
@@ -97,6 +105,29 @@ final class SingleClickApproveTest extends WP_UnitTestCase {
 		$this->assertSame( array(), $result['errors'], 'No governance errors expected.' );
 		$this->assertSame( 1, $result['approved'], 'Exactly one payout approved.' );
 		$this->assertSame( 'publish', get_post_status( $payout ), 'Single bulk approve must finalize (publish) the payout.' );
+	}
+
+	public function test_approve_rejects_when_balance_insufficient(): void {
+		$vendor = (int) self::factory()->user->create( array( 'role' => 'rentiva_vendor' ) );
+		// Vendor only has 100 cleared, but a 500 payout is pending — e.g. a withdrawal penalty
+		// was applied after the request, dropping the balance below the requested amount.
+		Ledger::add_entry( new LedgerEntry(
+			'bal_' . $vendor, $vendor, null, null, 'commission_credit', 100.0,
+			null, null, null, 'TRY', 'booking', 'cleared', null, null, null
+		) );
+
+		$payout = (int) self::factory()->post->create( array(
+			'post_type'   => PostType::POST_TYPE,
+			'post_status' => 'pending',
+			'post_author' => $vendor,
+		) );
+		update_post_meta( $payout, '_mhm_payout_amount', 500.0 );
+
+		$result = AtomicPayoutService::approve( $payout );
+
+		$this->assertWPError( $result );
+		$this->assertSame( 'insufficient_funds', $result->get_error_code() );
+		$this->assertSame( 'pending', get_post_status( $payout ), 'Payout must stay pending when the balance is insufficient.' );
 	}
 
 	public function test_vendor_bio_url_targets_vendor_detail(): void {

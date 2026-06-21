@@ -58,6 +58,24 @@ class ForensicHardeningTest extends WP_UnitTestCase
 
     private function create_pending_payout(float $amount = 1000.00): int
     {
+        // Seed cleared balance so the approval funds check (AtomicPayoutService::approve) passes.
+        // Use a neutral 'adjustment' type — NOT commission_credit — so this does not alter the
+        // vendor's risk-scoring history.
+        \MHMRentiva\Core\Financial\Ledger::add_entry(new \MHMRentiva\Core\Financial\LedgerEntry(
+            'forensic_seed_' . $this->vendor_id . '_' . uniqid(),
+            $this->vendor_id,
+            null,
+            null,
+            'adjustment',
+            $amount,
+            null,
+            null,
+            null,
+            'TRY',
+            'booking',
+            'cleared'
+        ));
+
         $payout_id = wp_insert_post(array(
             'post_type'   => 'mhm_payout',
             'post_status' => 'pending',

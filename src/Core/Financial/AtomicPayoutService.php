@@ -74,8 +74,20 @@ final class AtomicPayoutService {
         }
 
         $vendor_id = (int) $post->post_author;
-        $uuid      = 'payout_' . $payout_id;
-        $currency  = function_exists('get_woocommerce_currency') ? call_user_func('get_woocommerce_currency', ) : 'USD';
+
+        // Re-verify the vendor still has the funds at approval time. request_payout() checks the
+        // balance when the request is created, but it can drop between request and approval (e.g. a
+        // withdrawal penalty is applied), so without this guard the approval would overdraw the
+        // vendor into a negative balance.
+        if (Ledger::get_balance($vendor_id) < $amount) {
+            return new \WP_Error(
+                'insufficient_funds',
+                __('Vendor balance is no longer sufficient for this payout.', 'mhm-rentiva')
+            );
+        }
+
+        $uuid     = 'payout_' . $payout_id;
+        $currency = function_exists('get_woocommerce_currency') ? call_user_func('get_woocommerce_currency', ) : 'USD';
 
         // Resolve tenant id for post-commit usage metering only. The SaaS Control Plane
         // quota/status gate was removed from the approval path: this is a single-site,

@@ -71,6 +71,24 @@ class Sprint10GovernanceTest extends WP_UnitTestCase
             'user_registered' => wp_date('Y-m-d H:i:s', strtotime($date)),
         ));
 
+        // Seed cleared balance so the approval funds check (AtomicPayoutService::approve) passes.
+        // Use a neutral 'adjustment' type — NOT commission_credit — so this does not give the
+        // vendor payout "history" that would lower the risk score and change the workflow path.
+        \MHMRentiva\Core\Financial\Ledger::add_entry(new \MHMRentiva\Core\Financial\LedgerEntry(
+            'sprint10_seed_' . $vendor_id . '_' . uniqid(),
+            (int) $vendor_id,
+            null,
+            null,
+            'adjustment',
+            $amount,
+            null,
+            null,
+            null,
+            'TRY',
+            'booking',
+            'cleared'
+        ));
+
         $payout_id = wp_insert_post(array(
             'post_type'   => PostType::POST_TYPE,
             'post_author' => $vendor_id,
