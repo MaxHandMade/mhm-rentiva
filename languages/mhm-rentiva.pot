@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-20T19:49:05+00:00\n"
+"POT-Creation-Date: 2026-06-21T00:58:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -476,8 +476,11 @@ msgstr ""
 #: src/Admin/About/Tabs/GeneralTab.php:196
 #: src/Admin/About/Tabs/GeneralTab.php:383
 #: src/Admin/Licensing/LicenseAdmin.php:419
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:301
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:167
-#: templates/account/partials/vendor-listings.php:52
+#: templates/account/partials/vendor-listings.php:64
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:10
 msgid "Expired"
 msgstr ""
 
@@ -564,7 +567,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:468
 #: src/Admin/Transfer/TransferAdmin.php:427
 #: src/Admin/Transfer/TransferAdmin.php:487
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:990
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1059
 #: templates/account/vendor-booking-detail.php:140
 #: templates/emails/vendor-application-new-admin.html.php:7
 #: assets/blocks/my-favorites/index.js:51
@@ -848,20 +851,23 @@ msgstr ""
 #: src/Admin/Utilities/Dashboard/DashboardService.php:961
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1578
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:299
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1647
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:59
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:337
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: templates/account/partials/vendor-bookings.php:228
-#: templates/account/partials/vendor-listings.php:44
+#: templates/account/partials/vendor-listings.php:56
 #: assets/blocks/my-bookings/index.js:42
 #: build/admin/shortcode-pages.js:1
 #: build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:8
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:54
 #: src-react/admin/vendor-management/components/VendorTable.jsx:80
-#: src-react/admin/vendor-management/components/VendorTable.jsx:120
+#: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Active"
 msgstr ""
 
@@ -1093,7 +1099,9 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:73
 #: templates/emails/vendor-report-received-admin.html.php:15
 #: assets/blocks/popular-routes/index.js:51
+#: build/admin/vendor-management.js:1
 #: build/admin/vendor-reports.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:74
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Title"
 msgstr ""
@@ -1214,12 +1222,15 @@ msgstr ""
 #: src/Admin/Setup/SetupWizard.php:423
 #: src/Admin/Transfer/TransferAdmin.php:516
 #: src/Admin/Transfer/TransferAdmin.php:782
-#: templates/account/partials/vendor-listings.php:384
+#: templates/account/partials/vendor-listings.php:405
 #: templates/shortcodes/vehicle-rating-form.php:278
 #: build/admin/customers.js:1
 #: build/admin/shortcode-pages.js:1
+#: build/admin/vendor-management.js:1
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:77
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:88
 msgid "Edit"
 msgstr ""
 
@@ -1938,7 +1949,7 @@ msgid "Booking Request: %1$s (%2$s) between %3$s - %4$s dates."
 msgstr ""
 
 #: src/Admin/Booking/Core/Status.php:109
-#: templates/account/partials/vendor-listings.php:219
+#: templates/account/partials/vendor-listings.php:240
 msgid "Draft"
 msgstr ""
 
@@ -1969,7 +1980,7 @@ msgstr ""
 #: src/Admin/Utilities/Dashboard/DashboardService.php:959
 #: src/Admin/Utilities/Export/ExportFilters.php:45
 #: src/Admin/Utilities/Export/ExportFilters.php:58
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:943
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1012
 #: templates/account/booking-detail.php:73
 #: templates/account/bookings.php:112
 #: templates/account/bookings.php:178
@@ -2007,7 +2018,7 @@ msgstr ""
 #: src/Admin/Reports/Reports.php:502
 #: src/Admin/Utilities/Dashboard/DashboardService.php:960
 #: src/Admin/Utilities/Export/ExportFilters.php:46
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:947
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1016
 #: templates/account/booking-detail.php:74
 #: templates/account/bookings.php:113
 #: templates/account/bookings.php:179
@@ -2057,7 +2068,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
 #: src/Admin/Utilities/Export/Export.php:1003
 #: src/Admin/Utilities/Export/ExportFilters.php:47
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:951
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1020
 #: templates/account/booking-detail.php:76
 #: templates/account/bookings.php:115
 #: templates/account/bookings.php:181
@@ -2475,7 +2486,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:346
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:347
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:78
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1349
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1418
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:484
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1512
 msgid "License Plate"
@@ -2651,7 +2662,7 @@ msgid "Monthly Revenue"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:744
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:456
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:525
 msgid "vs last month"
 msgstr ""
 
@@ -2659,7 +2670,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1440
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:752
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:821
 #: src/Blocks/BlockRegistry.php:269
 msgid "January"
 msgstr ""
@@ -2668,7 +2679,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1441
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:753
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:822
 #: src/Blocks/BlockRegistry.php:269
 msgid "February"
 msgstr ""
@@ -2677,7 +2688,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1442
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:754
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:823
 #: src/Blocks/BlockRegistry.php:269
 msgid "March"
 msgstr ""
@@ -2686,7 +2697,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1443
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:755
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:824
 #: src/Blocks/BlockRegistry.php:269
 msgid "April"
 msgstr ""
@@ -2696,7 +2707,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1444
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1458
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:756
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:825
 #: src/Blocks/BlockRegistry.php:269
 msgid "May"
 msgstr ""
@@ -2705,7 +2716,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1445
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:757
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:826
 #: src/Blocks/BlockRegistry.php:269
 msgid "June"
 msgstr ""
@@ -2714,7 +2725,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1446
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:758
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:827
 #: src/Blocks/BlockRegistry.php:269
 msgid "July"
 msgstr ""
@@ -2723,7 +2734,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1447
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:759
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:828
 #: src/Blocks/BlockRegistry.php:269
 msgid "August"
 msgstr ""
@@ -2732,7 +2743,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1448
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:760
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:829
 #: src/Blocks/BlockRegistry.php:269
 msgid "September"
 msgstr ""
@@ -2741,7 +2752,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1449
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:761
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:830
 #: src/Blocks/BlockRegistry.php:269
 msgid "October"
 msgstr ""
@@ -2750,7 +2761,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1450
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:762
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:831
 #: src/Blocks/BlockRegistry.php:269
 msgid "November"
 msgstr ""
@@ -2759,7 +2770,7 @@ msgstr ""
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1451
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:763
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:832
 #: src/Blocks/BlockRegistry.php:269
 msgid "December"
 msgstr ""
@@ -2850,15 +2861,15 @@ msgstr ""
 #: src/Admin/Licensing/Mode.php:396
 #: src/Admin/Licensing/Mode.php:406
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:84
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:922
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1415
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:991
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1484
 #: templates/shortcodes/availability-calendar.php:92
 #: templates/shortcodes/availability-calendar.php:233
 msgid "Available"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1245
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:939
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1008
 msgid "Status Legend"
 msgstr ""
 
@@ -2866,7 +2877,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingMeta.php:414
 #: src/Admin/Booking/Meta/BookingMeta.php:461
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:969
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1038
 #: templates/account/booking-detail.php:104
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:240
@@ -2880,10 +2891,10 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1436
 #: src/Admin/Transfer/Frontend/TransferAddonModal.php:66
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:975
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1044
 #: src/Blocks/BlockRegistry.php:267
-#: templates/account/partials/vendor-listings.php:175
-#: templates/account/partials/vendor-listings.php:430
+#: templates/account/partials/vendor-listings.php:187
+#: templates/account/partials/vendor-listings.php:451
 #: templates/account/partials/vendor-report-modal.php:27
 #: build/admin/shortcode-pages.js:1
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:10
@@ -2902,7 +2913,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:808
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:986
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1055
 #: src/Plugin.php:1313
 #: templates/messages/message-thread-view.html.php:56
 #: build/admin/messages.js:1
@@ -2922,7 +2933,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:469
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Settings/Testing/SettingsTester.php:973
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:994
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1063
 #: templates/account/vendor-booking-detail.php:142
 #: templates/emails/vendor-application-new-admin.html.php:16
 #: templates/shortcodes/contact-form.php:62
@@ -2936,6 +2947,7 @@ msgstr ""
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:60
 #: src-react/admin/vendor-management/components/VendorTable.jsx:100
 msgid "Email"
 msgstr ""
@@ -2949,7 +2961,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:145
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:998
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1067
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
 #: templates/shortcodes/contact-form.php:74
@@ -2958,6 +2970,7 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:61
 msgid "Phone"
 msgstr ""
 
@@ -2973,37 +2986,37 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1470
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:173
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1012
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1081
 #: templates/account/vendor-booking-detail.php:172
 msgid "Pickup"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1330
 #: src/Admin/Booking/ListTable/BookingColumns.php:1471
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1017
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1086
 msgid "Return"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1339
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1028
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1097
 msgid "Booking Info"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1343
 #: src/Admin/Transfer/TransferAdmin.php:806
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1032
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1101
 msgid "Total Price"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1347
 #: src/Admin/Core/AssetManager.php:1061
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1036
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1105
 msgid "Created"
 msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1367
 #: src/Admin/Booking/ListTable/BookingColumns.php:1476
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1046
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1115
 msgid "Edit Booking"
 msgstr ""
 
@@ -4060,7 +4073,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:336
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:481
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1509
-#: templates/account/partials/vendor-listings.php:288
+#: templates/account/partials/vendor-listings.php:309
 msgid "Daily Price"
 msgstr ""
 
@@ -4127,7 +4140,7 @@ msgid "Select a vehicle..."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:267
-#: templates/account/partials/vendor-listings.php:289
+#: templates/account/partials/vendor-listings.php:310
 #: templates/shortcodes/vehicle-comparison.php:153
 #: templates/shortcodes/vehicle-comparison.php:220
 msgid "day"
@@ -4572,7 +4585,7 @@ msgid "Electric"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:489
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1589
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1658
 msgid "Passive"
 msgstr ""
 
@@ -4580,7 +4593,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:269
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:191
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:617
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1579
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1648
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:40
 msgid "Maintenance"
 msgstr ""
@@ -4638,7 +4651,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:1504
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
-#: templates/account/partials/vendor-listings.php:433
+#: templates/account/partials/vendor-listings.php:454
 #: templates/shortcodes/availability-calendar.php:443
 msgid "Loading..."
 msgstr ""
@@ -6410,7 +6423,7 @@ msgstr ""
 #: src/Admin/Core/Utilities/AbstractListTable.php:375
 #: src/Admin/Customers/CustomersPage.php:336
 #: templates/account/dashboard.php:221
-#: templates/account/partials/vendor-listings.php:378
+#: templates/account/partials/vendor-listings.php:399
 #: build/admin/shortcode-pages.js:1
 #: build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
@@ -9413,7 +9426,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:115
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:411
-#: templates/account/partials/vendor-listings.php:165
+#: templates/account/partials/vendor-listings.php:177
 #: templates/shortcodes/vehicle-comparison.php:58
 msgid "Add Vehicle"
 msgstr ""
@@ -9479,7 +9492,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:338
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:359
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:82
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1384
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1453
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1518
 #: templates/shortcodes/search-results.php:235
 msgid "Transmission"
@@ -9488,7 +9501,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:339
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:351
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:81
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1372
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1441
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1516
 #: templates/shortcodes/search-results.php:252
 #: templates/shortcodes/vehicle-details.php:299
@@ -9837,7 +9850,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:604
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:76
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:86
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1436
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1505
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:238
 msgid "Featured"
 msgstr ""
@@ -10301,6 +10314,8 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:165
 #: templates/account/partials/vendor-settings.php:120
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:64
 msgid "IBAN"
 msgstr ""
 
@@ -10360,17 +10375,17 @@ msgid "Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB e
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:205
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:277
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:287
 msgid "ID Document"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:206
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:278
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:288
 msgid "Driver's License"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:207
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:279
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:289
 msgid "Address Document"
 msgstr ""
 
@@ -11804,7 +11819,7 @@ msgstr ""
 #: src/Admin/Utilities/Export/Export.php:1134
 #: src/Admin/Utilities/Menu/Menu.php:51
 #: src/Admin/Utilities/Menu/Menu.php:52
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:843
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:912
 #: src/Admin/Vehicle/PostType/Vehicle.php:30
 #: templates/single-vehicle.php:26
 #: assets/blocks/vendor-profile/index.js:45
@@ -11814,6 +11829,7 @@ msgstr ""
 #: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:69
 #: src-react/admin/vendor-management/components/VendorTable.jsx:102
 msgid "Vehicles"
 msgstr ""
@@ -11826,7 +11842,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:77
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:79
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1447
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1516
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:48
 #: templates/frontend/partials/vendor-profile-location.php:13
 #: assets/blocks/vendor-profile/index.js:47
@@ -13465,7 +13481,7 @@ msgstr ""
 #. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:243
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:253
 #: src/Admin/VendorReport/REST/VendorReportsController.php:172
 #: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
@@ -13823,6 +13839,7 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:62
 #: src-react/admin/vendor-management/components/VendorTable.jsx:101
 msgid "City"
 msgstr ""
@@ -14085,7 +14102,7 @@ msgstr ""
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:176
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:92
 #: src/Admin/VendorReport/REST/VendorReportsController.php:243
-#: templates/account/partials/vendor-listings.php:33
+#: templates/account/partials/vendor-listings.php:45
 #: templates/account/partials/vendor-payouts.php:53
 #: templates/emails/vendor-report-resolved.html.php:11
 msgid "Rejected"
@@ -14392,7 +14409,7 @@ msgid "Upcoming Operations"
 msgstr ""
 
 #: src/Admin/Reports/Reports.php:85
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:454
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:523
 msgid "This Month Revenue"
 msgstr ""
 
@@ -16948,7 +16965,7 @@ msgid "Scheduled"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:110
-#: templates/account/partials/vendor-listings.php:124
+#: templates/account/partials/vendor-listings.php:136
 msgid "Idle"
 msgstr ""
 
@@ -20041,7 +20058,7 @@ msgid "View and manage your recent export activities."
 msgstr ""
 
 #: src/Admin/Utilities/Export/Export.php:991
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1008
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1077
 msgid "Date & Time"
 msgstr ""
 
@@ -20426,21 +20443,23 @@ msgid "Renewal"
 msgstr ""
 
 #: src/Admin/Vehicle/ListingFeeManager.php:238
-#: templates/account/partials/vendor-listings.php:410
+#: templates/account/partials/vendor-listings.php:431
 msgid "Relist"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:80
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1360
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1429
 msgid "Price/Day"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:83
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1400
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1469
 msgid "Fuel"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:85
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:76
 msgid "Lifecycle"
 msgstr ""
 
@@ -20458,61 +20477,85 @@ msgstr ""
 msgid "All locations"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:418
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:298
+msgid "All lifecycle states"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:300
+#: src/Admin/Vehicle/VehicleLifecycleStatus.php:166
+#: templates/account/partials/vendor-listings.php:60
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:9
+msgid "Paused"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:302
+#: src/Admin/Vehicle/VehicleLifecycleStatus.php:168
+#: templates/account/partials/vendor-listings.php:68
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:11
+msgid "Withdrawn"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:303
+msgid "Archive (expired + withdrawn)"
+msgstr ""
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:487
 msgid "Unlimited Vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:419
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:488
 msgid "Advanced Vehicle Management"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:427
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:496
 msgid "Monthly Reserved Vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:429
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:498
 #: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/StatsCards.jsx:24
 msgid "total"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:436
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:505
 msgid "This Month Occupancy"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:438
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:507
 msgid "total vehicles"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:445
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:514
 msgid "Active Today"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:447
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:516
 msgid "vehicles with customers"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:786
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:855
 msgid "Monthly Booking Calendar"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:874
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:955
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:943
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1024
 msgid "Blocked Day"
 msgstr ""
 
 #. translators: %s: customer name.
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:885
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:954
 #, php-format
 msgid "Reserved: %s"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1280
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1349
 #: templates/shortcodes/availability-calendar.php:241
 msgid "Reserved"
 msgstr ""
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1449
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1518
 msgid "— No Location —"
 msgstr ""
 
@@ -21475,17 +21518,9 @@ msgid "Monthly pause limit reached (%1$d/%2$d). Try again next month."
 msgstr ""
 
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:164
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:12
 msgid "Pending Review"
-msgstr ""
-
-#: src/Admin/Vehicle/VehicleLifecycleStatus.php:166
-#: templates/account/partials/vendor-listings.php:48
-msgid "Paused"
-msgstr ""
-
-#: src/Admin/Vehicle/VehicleLifecycleStatus.php:168
-#: templates/account/partials/vendor-listings.php:56
-msgid "Withdrawn"
 msgstr ""
 
 #: src/Admin/Vehicle/VendorReliabilityColumn.php:34
@@ -21634,13 +21669,13 @@ msgctxt "URL slug"
 msgid "vendor"
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:330
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:340
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:368
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:378
 msgid "Not set"
 msgstr ""
 
@@ -22782,67 +22817,71 @@ msgstr[1] ""
 msgid "Report Issue"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:25
-#: templates/account/partials/vendor-listings.php:60
+#: templates/account/partials/vendor-listings.php:37
+#: templates/account/partials/vendor-listings.php:72
 msgid "Awaiting Review"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:29
+#: templates/account/partials/vendor-listings.php:41
 msgid "Live"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:37
+#: templates/account/partials/vendor-listings.php:49
 msgid "Re-review Pending"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:128
+#: templates/account/partials/vendor-listings.php:140
 msgid "Rented"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:132
+#: templates/account/partials/vendor-listings.php:144
 msgid "On Transfer"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:136
+#: templates/account/partials/vendor-listings.php:148
 msgid "In Maintenance"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:149
+#: templates/account/partials/vendor-listings.php:161
 msgid "My Vehicles"
 msgstr ""
 
 #. translators: %d: number of vehicles
-#: templates/account/partials/vendor-listings.php:154
+#: templates/account/partials/vendor-listings.php:166
 #, php-format
 msgid "%d vehicles in your portfolio."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:174
+#: templates/account/partials/vendor-listings.php:186
 msgid "New Vehicle Details"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:193
+#: templates/account/partials/vendor-listings.php:205
 msgid "You have not added any vehicles yet."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:194
+#: templates/account/partials/vendor-listings.php:206
 msgid "Click \"Add Vehicle\" to submit your first listing for review."
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:297
-msgid "Plate:"
-msgstr ""
-
-#: templates/account/partials/vendor-listings.php:311
-msgid "Your listing will be published after operator approval."
+#: templates/account/partials/vendor-listings.php:229
+msgid "Archived Listings"
 msgstr ""
 
 #: templates/account/partials/vendor-listings.php:318
+msgid "Plate:"
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:332
+msgid "Your listing will be published after operator approval."
+msgstr ""
+
+#: templates/account/partials/vendor-listings.php:339
 msgid "Rejection reason:"
 msgstr ""
 
 #. translators: %d: number of days until new listing ban is lifted
-#: templates/account/partials/vendor-listings.php:335
+#: templates/account/partials/vendor-listings.php:356
 #, php-format
 msgid "New listing ban: %d more day"
 msgid_plural "New listing ban: %d more days"
@@ -22850,35 +22889,35 @@ msgstr[0] ""
 msgstr[1] ""
 
 #. translators: %d: number of remaining days
-#: templates/account/partials/vendor-listings.php:368
+#: templates/account/partials/vendor-listings.php:389
 #, php-format
 msgid "Remaining: %d days"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:389
+#: templates/account/partials/vendor-listings.php:410
 msgid "Pause"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:392
-#: templates/account/partials/vendor-listings.php:399
+#: templates/account/partials/vendor-listings.php:413
+#: templates/account/partials/vendor-listings.php:420
 msgid "Withdraw"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:396
+#: templates/account/partials/vendor-listings.php:417
 msgid "Resume"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:402
-#: templates/account/partials/vendor-listings.php:413
+#: templates/account/partials/vendor-listings.php:423
+#: templates/account/partials/vendor-listings.php:434
 #: templates/account/partials/vendor-reliability.php:428
 msgid "Appeal"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:406
+#: templates/account/partials/vendor-listings.php:427
 msgid "Renew"
 msgstr ""
 
-#: templates/account/partials/vendor-listings.php:429
+#: templates/account/partials/vendor-listings.php:450
 msgid "Edit Vehicle"
 msgstr ""
 
@@ -25743,8 +25782,8 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: build/admin/vendor-reports.js:1
 #: src-react/admin/customers/components/Pagination.jsx:12
-#: src-react/admin/vendor-management/components/VendorTable.jsx:143
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:108
+#: src-react/admin/vendor-management/components/VendorTable.jsx:151
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:113
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
 msgid "← Previous"
 msgstr ""
@@ -25764,8 +25803,8 @@ msgstr ""
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
 #: src-react/admin/messages/components/Pagination.jsx:23
-#: src-react/admin/vendor-management/components/VendorTable.jsx:147
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:114
+#: src-react/admin/vendor-management/components/VendorTable.jsx:155
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:119
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
 msgid "Next →"
 msgstr ""
@@ -25789,8 +25828,9 @@ msgstr ""
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:46
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:65
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:40
 #: src-react/admin/vendor-management/components/VendorTable.jsx:88
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:99
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:104
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:108
 msgid "Loading…"
@@ -26469,8 +26509,9 @@ msgid "Search vendors…"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/VendorTable.jsx:81
-#: src-react/admin/vendor-management/components/VendorTable.jsx:120
+#: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Suspended"
 msgstr ""
 
@@ -26510,13 +26551,43 @@ msgid "Action failed."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:129
+#: src-react/admin/vendor-management/components/VendorTable.jsx:137
 msgid "Unsuspend"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:129
+#: src-react/admin/vendor-management/components/VendorTable.jsx:137
 msgid "Suspend"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:26
+msgid "Failed to load vendor."
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:36
+msgid "← Back to vendors"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:63
+msgid "Reliability Score"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
+msgid "Approved At"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:75
+msgid "Post Status"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:96
+msgid "This vendor has no vehicles."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
@@ -26676,7 +26747,7 @@ msgid "One city per line."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:65
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:68
 msgid "Failed to load applications."
 msgstr ""
 
