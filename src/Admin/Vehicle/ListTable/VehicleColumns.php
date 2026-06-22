@@ -461,6 +461,8 @@ final class VehicleColumns {
 				#mhm-booking-popup .mhm-popup-content { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; width:560px; max-width:calc(100vw - 40px); max-height:90vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; z-index:100000; box-sizing:border-box; }
 				#mhm-booking-popup .mhm-popup-footer { padding:16px 24px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; box-sizing:border-box; }
 				#mhm-booking-popup .mhm-popup-footer .button { box-sizing:border-box; }
+				.calendar-table .day-cell.available, .calendar-table .day-cell.blocked-day { cursor: pointer; }
+				.calendar-table .day-cell.mhm-toggling { opacity: .5; cursor: progress; }
 			' );
 		}
 	}
@@ -940,7 +942,7 @@ final class VehicleColumns {
 										$is_blocked = in_array( $date_str, $vehicle['blocked_dates'] ?? array(), true );
 
 										if ( $is_blocked ) {
-											echo '<td class="day-cell blocked-day" title="' . esc_attr__( 'Blocked Day', 'mhm-rentiva' ) . '"></td>';
+											echo '<td class="day-cell blocked-day" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr__( 'Blocked — click to open', 'mhm-rentiva' ) . '"></td>';
 											continue;
 										}
 
@@ -988,8 +990,8 @@ final class VehicleColumns {
 											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped dynamically
 											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
 										} else {
-											$title = esc_attr__('Available', 'mhm-rentiva');
-											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '">';
+											$title = esc_attr__('Available — click to close', 'mhm-rentiva');
+											echo '<td class="' . esc_attr($class) . '" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr($title) . '">';
 										}
 
 										echo $is_booked ? '<span class="dashicons dashicons-calendar-alt booking-icon"></span>' : '';
@@ -1120,6 +1122,8 @@ final class VehicleColumns {
 
 		<script>
 			jQuery(document).ready(function($) {
+				var mhmToggleNonce = '<?php echo esc_js( wp_create_nonce( 'mhm_toggle_blocked_date' ) ); ?>';
+
 				var statusClasses = {
 					'pending'     : 'status-badge--pending',
 					'confirmed'   : 'status-badge--confirmed',
@@ -1175,6 +1179,41 @@ final class VehicleColumns {
 					});
 
 					$('#mhm-booking-popup').fadeIn(250);
+				});
+
+				// Quick block/unblock: toggle a single day directly from the calendar.
+				$('.calendar-table').on('click', '.day-cell.available, .day-cell.blocked-day', function() {
+					var $cell = $(this);
+					if ($cell.hasClass('mhm-toggling')) { return; }
+
+					var vehicleId = $cell.data('vehicle-id');
+					var date      = $cell.data('date');
+					if (!vehicleId || !date) { return; }
+
+					$cell.addClass('mhm-toggling');
+
+					$.post(ajaxurl, {
+						action: 'mhm_toggle_blocked_date',
+						vehicle_id: vehicleId,
+						date: date,
+						nonce: mhmToggleNonce
+					}).done(function(resp) {
+						if (resp && resp.success && resp.data) {
+							if (resp.data.blocked) {
+								$cell.removeClass('available').addClass('blocked-day')
+									.attr('title', '<?php echo esc_js( __( 'Blocked — click to open', 'mhm-rentiva' ) ); ?>');
+							} else {
+								$cell.removeClass('blocked-day').addClass('available')
+									.attr('title', '<?php echo esc_js( __( 'Available — click to close', 'mhm-rentiva' ) ); ?>');
+							}
+						} else {
+							window.alert((resp && resp.data) ? resp.data : '<?php echo esc_js( __( 'Could not update the day.', 'mhm-rentiva' ) ); ?>');
+						}
+					}).fail(function() {
+						window.alert('<?php echo esc_js( __( 'Could not update the day.', 'mhm-rentiva' ) ); ?>');
+					}).always(function() {
+						$cell.removeClass('mhm-toggling');
+					});
 				});
 
 				// Close popup
