@@ -1016,11 +1016,11 @@ final class DatabaseMigrator {
 	/**
 	 * Migrate existing vehicles to the new lifecycle status meta key.
 	 *
-	 * Maps: active â active, maintenance â paused, inactive â withdrawn (draft).
+	 * Maps: active → active, maintenance → paused, inactive → withdrawn (draft).
 	 * Vehicles without _mhm_vehicle_status get 'active' (legacy default).
 	 * Also sets initial listing_started_at and listing_expires_at for published vehicles.
 	 *
-	 * Idempotent â skips vehicles that already have _mhm_vehicle_lifecycle_status set.
+	 * Idempotent — skips vehicles that already have _mhm_vehicle_lifecycle_status set.
 	 */
 	private static function migrate_vehicle_lifecycle_status(): void
 	{
