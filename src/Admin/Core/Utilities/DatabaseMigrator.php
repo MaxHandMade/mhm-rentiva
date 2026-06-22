@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.8.0';
+	private const CURRENT_VERSION = '3.9.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -60,10 +60,8 @@ final class DatabaseMigrator {
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
 			}
-			// SaaS Control Plane (v1.9)
-			if (class_exists(\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::class)) {
-				\MHMRentiva\Core\Database\Migrations\OrchestrationMigration::run();
-			}
+			// SaaS Control Plane scaffolding removed (#4 cleanup) — drop its dead tables.
+			self::drop_orchestration_tables();
 			// Vendor Reports / Appeals (v4.35.0)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
@@ -1018,11 +1016,11 @@ final class DatabaseMigrator {
 	/**
 	 * Migrate existing vehicles to the new lifecycle status meta key.
 	 *
-	 * Maps: active → active, maintenance → paused, inactive → withdrawn (draft).
+	 * Maps: active â active, maintenance â paused, inactive â withdrawn (draft).
 	 * Vehicles without _mhm_vehicle_status get 'active' (legacy default).
 	 * Also sets initial listing_started_at and listing_expires_at for published vehicles.
 	 *
-	 * Idempotent — skips vehicles that already have _mhm_vehicle_lifecycle_status set.
+	 * Idempotent â skips vehicles that already have _mhm_vehicle_lifecycle_status set.
 	 */
 	private static function migrate_vehicle_lifecycle_status(): void
 	{
@@ -1073,5 +1071,22 @@ final class DatabaseMigrator {
 		}
 
 		update_option('mhm_rentiva_lifecycle_migration_done', '1', false);
+	}
+
+	/**
+	 * Drop the dead SaaS orchestration tables.
+	 *
+	 * The multi-tenant "Control Plane" scaffolding (OrchestrationMigration) was removed in the
+	 * #4 cleanup. Its two tables were never read by any live code path and are empty on
+	 * single-site installs, so dropping them loses no data.
+	 */
+	private static function drop_orchestration_tables(): void
+	{
+		global $wpdb;
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from trusted $wpdb->prefix.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");
+		// phpcs:enable
 	}
 }
