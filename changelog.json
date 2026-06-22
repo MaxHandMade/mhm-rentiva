@@ -1,5 +1,18 @@
 [
   {
+    "version": "4.60.0",
+    "date": "2026-06-22",
+    "type": "patch",
+    "title": "Orchestration cleanup — matured payout fix + dead SaaS scaffolding removal",
+    "summary": "Removes the dead multi-tenant SaaS control-plane scaffolding that was silently blocking matured vendor payouts on every single-site install. MaturedPayoutJob's is_operational() gate required a tenant-registry row that is never provisioned on a normal install, so no payout ever processed automatically. The gate is removed and the job now runs unconditionally. The cleanup also drops the two empty orchestration tables via a v3.9.0 drop-migration, removes usage-metering call sites from the financial layer, and deletes 6 dead class files. src/Core/Tenancy/ (TenantResolver/TenantContext) is intentionally kept.",
+    "changes": [
+      "Fix: Matured vendor payouts were silently skipped on single-site installs. MaturedPayoutJob::handle() called is_operational() which required a provisioned tenant-registry row — a row that is never created on a normal (non-SaaS-hosted) install. Every scheduled payout run exited early without processing any matured requests. The gate has been removed; MaturedPayoutJob now runs unconditionally.",
+      "Change: Removed unused multi-tenant SaaS orchestration scaffolding. Deleted 6 dead class files (ControlPlane task queue and related orchestration classes), stripped usage-metering call sites from AtomicPayoutService and related financial code, and added a v3.9.0 drop-migration in DatabaseMigrator that drops the two now-empty orchestration tables (mhm_tenant_task_queue, mhm_usage_metrics) on upgrade. src/Core/Tenancy/ (TenantResolver/TenantContext, used by Ledger, AtomicPayoutService, GovernanceService, KeyRegistryRepository, CoolingPolicyManager) is intentionally retained.",
+      "Test: Deleted the orchestration integration test file (covered only the now-removed scaffolding). Full suite: 1263 tests, 3840 assertions, 0 failures, 15 skipped."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.59.0",
     "date": "2026-06-20",
     "type": "minor",

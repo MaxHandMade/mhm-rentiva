@@ -1,5 +1,18 @@
 [
   {
+    "version": "4.60.0",
+    "date": "2026-06-22",
+    "type": "patch",
+    "title": "Orkestrasyon temizliği — olgunlaşmış ödeme düzeltmesi + ölü SaaS iskelet kaldırma",
+    "summary": "Her tek-siteli kurulumda olgunlaşmış bayi ödemelerini sessizce bloke eden, ölü çok-kiracılı SaaS control-plane iskeletini kaldırır. MaturedPayoutJob'ın is_operational() gate'i, normal bir kurulumda hiç sağlanmayan bir tenant-registry satırı gerektiriyordu; bu yüzden hiçbir ödeme otomatik işlemiyordu. Gate kaldırıldı, job artık koşulsuz çalışıyor. Temizlik ayrıca iki boş orkestrasyon tablosunu v3.9.0 drop-migration ile düşürüyor, finansal katmandaki usage-metering çağrılarını kaldırıyor ve 6 ölü sınıf dosyasını siliyor. src/Core/Tenancy/ (TenantResolver/TenantContext) kasıtlı olarak korunuyor.",
+    "changes": [
+      "Düzeltme: Olgunlaşmış bayi ödemeleri tek-siteli kurulumlarda sessizce atlanıyordu. MaturedPayoutJob::handle() is_operational()'ı çağırıyordu; bu metot, normal (SaaS-barındırmalı olmayan) bir kurulumda hiç oluşturulmayan provision edilmiş bir tenant-registry satırı gerektiriyordu. Her zamanlanmış ödeme çalışması herhangi bir olgunlaşmış talebi işlemeden erken çıkıyordu. Gate kaldırıldı; MaturedPayoutJob artık koşulsuz çalışıyor.",
+      "Değişiklik: Kullanılmayan çok-kiracılı SaaS orkestrasyon iskeleti kaldırıldı. 6 ölü sınıf dosyası silindi (ControlPlane görev kuyruğu ve ilgili orkestrasyon sınıfları), AtomicPayoutService ve ilgili finansal koddan usage-metering çağrıları temizlendi, DatabaseMigrator'a iki artık boş orkestrasyon tablosunu (mhm_tenant_task_queue, mhm_usage_metrics) yükseltmede düşüren bir v3.9.0 drop-migration eklendi. src/Core/Tenancy/ (TenantResolver/TenantContext — Ledger, AtomicPayoutService, GovernanceService, KeyRegistryRepository, CoolingPolicyManager tarafından kullanılıyor) kasıtlı olarak korunuyor.",
+      "Test: Orkestrasyon entegrasyon test dosyası silindi (yalnızca kaldırılan iskelet için kapsam içeriyordu). Tam suite: 1263 test, 3840 assertion, 0 başarısızlık, 15 atlanan."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.59.0",
     "date": "2026-06-20",
     "type": "minor",
