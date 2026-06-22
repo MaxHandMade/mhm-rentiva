@@ -250,25 +250,6 @@ tests_add_filter('muplugins_loaded', function () {
 		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table);
 	}
 
-	// Ensure Default Tenants exist for Orchestration/Isolation tests
-	global $wpdb;
-	$tenants_table = $wpdb->prefix . 'mhm_rentiva_tenants';
-
-	$seed_tenants = [1, 2];
-	foreach ($seed_tenants as $tid) {
-		$exists = $wpdb->get_var($wpdb->prepare("SELECT id FROM $tenants_table WHERE tenant_id = %d", $tid));
-		if (!$exists) {
-			$wpdb->insert($tenants_table, [
-				'tenant_id' => $tid,
-				'status' => 'ACTIVE',
-				'subscription_plan' => ($tid === 1) ? 'pro' : 'basic',
-				'quota_payouts_limit' => 1000,
-				'quota_ledger_entries_limit' => 10000,
-				'quota_risk_events_limit' => 500,
-				'created_at' => current_time('mysql')
-			]);
-		}
-	}
 }, 20);
 
 // Start up the WP testing environment.
