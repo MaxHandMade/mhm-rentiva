@@ -128,6 +128,24 @@ final class PenaltyRecorderTest extends WP_UnitTestCase {
 		$this->assertSame( 100.0, $captured, '1st withdrawal must be tier-1 (10% = 100), not tier-2 — the vehicle must not count itself in its own penalty tier.' );
 	}
 
+	public function test_record_penalty_links_ledger_uuid_to_vehicle(): void {
+		global $wpdb;
+		$this->seed_revenue( 1000.0 );
+		$vehicle = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'Linked' ) );
+
+		PenaltyRecorder::record_penalty( $vehicle, $this->vendor_id, 100.0 );
+
+		$uuid = (string) get_post_meta( $vehicle, MetaKeys::VEHICLE_PENALTY_UUID, true );
+		$this->assertNotSame( '', $uuid, 'The applied penalty UUID must be stored on the vehicle for the appeal/reversal flow.' );
+
+		$matches = (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE transaction_uuid = %s AND vendor_id = %d AND type = 'withdrawal_penalty'",
+			$uuid,
+			$this->vendor_id
+		) );
+		$this->assertSame( 1, $matches, 'The stored UUID must match the actual ledger penalty entry.' );
+	}
+
 	public function test_no_revenue_writes_no_penalty(): void {
 		// No revenue → monthly average is 0 → penalty is 0 regardless of tier → no ledger row.
 		$vehicle = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'First Vehicle' ) );

@@ -386,9 +386,16 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 							// "Appeal" button only for negative-delta events tied to a specific vehicle.
 							// The penalty UUID format mirrors PenaltyRecorder's ledger key.
 							$can_appeal     = $is_negative && $vehicle_id_e > 0 && in_array($event_type, [ 'withdraw', 'cancel', 'pause' ], true);
-							$appeal_context = $event_type === 'withdraw' ? 'penalty' : 'penalty';
-							$appeal_uuid    = $event_type === 'withdraw' && $vehicle_id_e > 0
-								? 'withdrawal_penalty_' . $vehicle_id_e . '_' . get_current_user_id()
+							$appeal_context = 'penalty';
+							// For a financial withdrawal penalty, reference the ACTUAL ledger
+							// transaction_uuid (stored on the vehicle when the penalty was applied) so
+							// the admin reversal can find and refund it. Fall back to a score-only
+							// reference for events with no financial penalty.
+							$penalty_uuid_e = $event_type === 'withdraw' && $vehicle_id_e > 0
+								? (string) get_post_meta($vehicle_id_e, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PENALTY_UUID, true)
+								: '';
+							$appeal_uuid    = '' !== $penalty_uuid_e
+								? $penalty_uuid_e
 								: 'score_event_' . $event_type . '_' . $vehicle_id_e;
 							?>
 							<tr>

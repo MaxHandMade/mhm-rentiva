@@ -59,7 +59,9 @@ final class MetaKeys {
 	public const VEHICLE_COOLDOWN_ENDS_AT    = '_mhm_vehicle_cooldown_ends_at';
 	/** Penalty amount computed at withdraw time but deferred while an appeal is open. */
 	public const VEHICLE_DEFERRED_PENALTY = '_mhm_vehicle_deferred_penalty';
-	public const VEHICLE_BLOCKED_DATES    = '_mhm_vehicle_blocked_dates';
+	/** Ledger transaction_uuid of the most recent applied withdrawal penalty (for appeal/reversal). */
+	public const VEHICLE_PENALTY_UUID  = '_mhm_vehicle_penalty_uuid';
+	public const VEHICLE_BLOCKED_DATES = '_mhm_vehicle_blocked_dates';
 
 	// Vendor Reliability Meta Keys
 	public const VENDOR_RELIABILITY_SCORE      = '_rentiva_vendor_reliability_score';

@@ -104,6 +104,11 @@ final class PenaltyRecorder {
 			return;
 		}
 
+		// Link the applied penalty to its vehicle so the vendor's appeal UI can reference the
+		// exact ledger entry (transaction_uuid) when contesting this penalty, and the admin
+		// reversal can find it.
+		update_post_meta($vehicle_id, MetaKeys::VEHICLE_PENALTY_UUID, $uuid);
+
 		do_action('mhm_rentiva_withdrawal_penalty_recorded', $vehicle_id, $vendor_id, $penalty_amount);
 	}
 
