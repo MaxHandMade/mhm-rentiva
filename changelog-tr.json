@@ -2,7 +2,7 @@
   {
     "version": "4.60.0",
     "date": "2026-06-22",
-    "type": "patch",
+    "type": "minor",
     "title": "Orkestrasyon temizliği — olgunlaşmış ödeme düzeltmesi + ölü SaaS iskelet kaldırma",
     "summary": "Her tek-siteli kurulumda olgunlaşmış bayi ödemelerini sessizce bloke eden, ölü çok-kiracılı SaaS control-plane iskeletini kaldırır. MaturedPayoutJob'ın is_operational() gate'i, normal bir kurulumda hiç sağlanmayan bir tenant-registry satırı gerektiriyordu; bu yüzden hiçbir ödeme otomatik işlemiyordu. Gate kaldırıldı, job artık koşulsuz çalışıyor. Temizlik ayrıca iki boş orkestrasyon tablosunu v3.9.0 drop-migration ile düşürüyor, finansal katmandaki usage-metering çağrılarını kaldırıyor ve 6 ölü sınıf dosyasını siliyor. src/Core/Tenancy/ (TenantResolver/TenantContext) kasıtlı olarak korunuyor.",
     "changes": [

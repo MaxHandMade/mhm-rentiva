@@ -2,7 +2,7 @@
   {
     "version": "4.60.0",
     "date": "2026-06-22",
-    "type": "patch",
+    "type": "minor",
     "title": "Orchestration cleanup — matured payout fix + dead SaaS scaffolding removal",
     "summary": "Removes the dead multi-tenant SaaS control-plane scaffolding that was silently blocking matured vendor payouts on every single-site install. MaturedPayoutJob's is_operational() gate required a tenant-registry row that is never provisioned on a normal install, so no payout ever processed automatically. The gate is removed and the job now runs unconditionally. The cleanup also drops the two empty orchestration tables via a v3.9.0 drop-migration, removes usage-metering call sites from the financial layer, and deletes 6 dead class files. src/Core/Tenancy/ (TenantResolver/TenantContext) is intentionally kept.",
     "changes": [
