@@ -85,7 +85,7 @@ Yes, all frontend components and admin settings are fully responsive.
 
 = 4.60.0 — 2026-06-22 =
 * 🐛 **Fix:** Matured vendor payouts were silently skipped on single-site installs — a dead SaaS control-plane `is_operational()` gate in `MaturedPayoutJob` prevented any payout from processing unless a multi-tenant registry row existed (which it never does on a normal install).
-* 🔧 **Change:** Removed unused multi-tenant SaaS scaffolding: the control-plane task queue and its orchestration classes, usage-metering call sites, and a drop-migration (v3.9.0) that removes the two now-empty orchestration tables on upgrade. `src/Core/Tenancy/` (TenantResolver/TenantContext) is retained.
+* 🔧 **Change:** Removed unused multi-tenant SaaS scaffolding: the control-plane gate and metering classes (ControlPlaneGuard, MeteredUsageTracker, CycleManager, TenantProvisioner), usage-metering call sites, and a drop-migration (v3.9.0) that removes the two now-empty orchestration tables (`mhm_rentiva_tenants`, `mhm_rentiva_usage_metrics`) on upgrade. `src/Core/Tenancy/` (TenantResolver/TenantContext) is retained.
 
 = 4.59.0 — 2026-06-20 =
 * 🐛 **Fix:** "Popular Routes" prices now use the active WooCommerce currency (symbol, position, thousand/decimal separators) via `CurrencyHelper::format_price()` — was hardcoded to `₺`. The Gutenberg block, Elementor widget, and shortcode all render through the same WC-aware formatter.
