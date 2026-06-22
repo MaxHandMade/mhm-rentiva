@@ -17,8 +17,11 @@ $withdraw_pts = ReliabilityScoreCalculator::WITHDRAWAL_PENALTY;
 $pause_pts    = ReliabilityScoreCalculator::PAUSE_PENALTY;
 $complete_pts = ReliabilityScoreCalculator::COMPLETION_BONUS;
 $max_bonus    = ReliabilityScoreCalculator::MAX_COMPLETION_BONUS;
-$tier2_pct    = (int) round(PenaltyCalculator::TIER_2_RATE * 100);
-$tier3_pct    = (int) round(PenaltyCalculator::TIER_3_RATE * 100);
+// Read the live, admin-configured rates (not the class-constant defaults) so the cards
+// always reflect what the site will actually charge.
+$tier1_pct = (int) round(PenaltyCalculator::tier1_rate() * 100);
+$tier2_pct = (int) round(PenaltyCalculator::tier2_rate() * 100);
+$tier3_pct = (int) round(PenaltyCalculator::tier3_rate() * 100);
 
 // Score as percentage for the progress ring (circumference ≈ 251.2 for r=40).
 $circumference = 251.2;
@@ -228,12 +231,22 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 		</p>
 
 		<div class="mhm-vendor-reliability__penalty-cards">
-			<div class="mhm-vendor-reliability__penalty-card is-free">
+			<div class="mhm-vendor-reliability__penalty-card <?php echo $tier1_pct > 0 ? 'is-moderate' : 'is-free'; ?>">
 				<div class="mhm-vendor-reliability__penalty-number">1</div>
 				<div class="mhm-vendor-reliability__penalty-body">
 					<div class="mhm-vendor-reliability__penalty-title"><?php esc_html_e('1st Withdrawal', 'mhm-rentiva'); ?></div>
-					<div class="mhm-vendor-reliability__penalty-amount is-green"><?php esc_html_e('Free', 'mhm-rentiva'); ?></div>
-					<div class="mhm-vendor-reliability__penalty-note"><?php esc_html_e('No financial penalty for your first withdrawal in any 12-month window.', 'mhm-rentiva'); ?></div>
+					<?php if ($tier1_pct > 0) : ?>
+						<div class="mhm-vendor-reliability__penalty-amount is-orange">
+							<?php
+							/* translators: %d: penalty percentage */
+							echo esc_html( sprintf( __( '%d%% of monthly avg. revenue', 'mhm-rentiva' ), $tier1_pct ) );
+							?>
+						</div>
+						<div class="mhm-vendor-reliability__penalty-note"><?php esc_html_e('Deducted from your ledger balance at time of withdrawal.', 'mhm-rentiva'); ?></div>
+					<?php else : ?>
+						<div class="mhm-vendor-reliability__penalty-amount is-green"><?php esc_html_e('Free', 'mhm-rentiva'); ?></div>
+						<div class="mhm-vendor-reliability__penalty-note"><?php esc_html_e('No financial penalty for your first withdrawal in any 12-month window.', 'mhm-rentiva'); ?></div>
+					<?php endif; ?>
 				</div>
 			</div>
 
