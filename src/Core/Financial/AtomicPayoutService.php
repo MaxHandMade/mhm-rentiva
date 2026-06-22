@@ -89,13 +89,6 @@ final class AtomicPayoutService {
         $uuid     = 'payout_' . $payout_id;
         $currency = function_exists('get_woocommerce_currency') ? call_user_func('get_woocommerce_currency', ) : 'USD';
 
-        // Resolve tenant id for post-commit usage metering only. The SaaS Control Plane
-        // quota/status gate was removed from the approval path: this is a single-site,
-        // license-gated product whose blog id (1) is never provisioned in the control-plane
-        // registry, so the gate blocked every admin payout approval (saas_block). Metering
-        // below remains a passive, non-gating side effect.
-        $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
-
         $entry = new LedgerEntry(
             $uuid,
             $vendor_id,
@@ -202,9 +195,6 @@ final class AtomicPayoutService {
         }
 
         // ── Post-COMMIT side effects (outside transaction) ───────────────────────
-        // Capture SaaS Metering
-        \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'payouts');
-
         MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
 
         StructuredLogger::info(

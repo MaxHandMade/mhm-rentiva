@@ -26,7 +26,6 @@ final class Ledger {
      *
      * @return int Number of affected rows (1 on success, 0 on duplicate/idempotent skip)
      * @throws \RuntimeException If physical database insertion fails due to duplication constraints.
-     * @throws \MHMRentiva\Core\Orchestration\Exceptions\QuotaExceededException If ledger quota is hit.
      */
     public static function add_entry(LedgerEntry $entry): int
     {
@@ -100,11 +99,6 @@ final class Ledger {
                 $error
             ));
             // phpcs:enable WordPress.Security.EscapeOutput.ExceptionNotEscaped
-        }
-
-        // 2. SaaS Metering Capture (Post-Success)
-        if (class_exists('\\MHMRentiva\\Core\\Orchestration\\MeteredUsageTracker')) {
-            \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'ledger_entries');
         }
 
         return 1;

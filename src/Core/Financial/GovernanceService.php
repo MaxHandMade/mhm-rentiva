@@ -95,10 +95,6 @@ final class GovernanceService {
             // High Risk auto-freeze
             self::log_approval_event($payout_id, $actor_id, self::ACTION_FLAGGED, '', $e->getMessage() . ' | Score: ' . $risk_result->score);
 
-            // SaaS Metering: Capture Risk Event (Flagged)
-            $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
-            \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'risk_events');
-
             return new \WP_Error('governance_frozen_risk', $e->getMessage());
         }
 
@@ -124,10 +120,6 @@ final class GovernanceService {
         // Identify override usage
         if ($maker_id === $actor_id && $has_override) {
             self::log_approval_event($payout_id, $actor_id, self::ACTION_OVERRIDE_USED, '', "Maker-Checker bypass used for state: {$candidate_state}");
-
-            // SaaS Metering: Capture Risk Event (Override)
-            $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
-            \MHMRentiva\Core\Orchestration\MeteredUsageTracker::increment($tenant_id, 'risk_events');
         }
 
         // 7. Transition Workflow State
