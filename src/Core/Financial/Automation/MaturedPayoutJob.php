@@ -82,18 +82,6 @@ final class MaturedPayoutJob {
         foreach ($payout_ids as $payout_id) {
             $payout_id = (int) $payout_id;
 
-            // ─── SaaS Control Plane Guard (Worker Skip) ───────────────────────
-            // Resolve current tenant context first
-            \MHMRentiva\Core\Tenancy\TenantResolver::reset();
-            $tenant_id = (int) \MHMRentiva\Core\Tenancy\TenantResolver::resolve()->get_id();
-
-            if (class_exists('\\MHMRentiva\\Core\\Orchestration\\ControlPlaneGuard')) {
-                if (! \MHMRentiva\Core\Orchestration\ControlPlaneGuard::is_operational($tenant_id)) {
-                    // Skip suspended/terminated tenants silently per Chief Engineer
-                    continue;
-                }
-            }
-
             // finalize_time_locked_payout() handles its own idempotency and DB transaction
             $result = AtomicPayoutService::finalize_time_locked_payout($payout_id);
 
