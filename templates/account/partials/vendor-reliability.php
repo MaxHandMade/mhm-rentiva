@@ -339,6 +339,7 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 		'withdraw' => __('Vehicle withdrawn', 'mhm-rentiva'),
 		'cancel'   => __('Booking cancelled', 'mhm-rentiva'),
 		'complete' => __('Booking completed', 'mhm-rentiva'),
+		'appeal'   => __('Appeal upheld', 'mhm-rentiva'),
 		'cron'     => __('Daily recalculation', 'mhm-rentiva'),
 	);
 
@@ -347,6 +348,7 @@ $stroke_offset = $circumference - ( $score / 100 ) * $circumference;
 		'withdraw' => 'remove',
 		'cancel'   => 'cancel',
 		'complete' => 'complete',
+		'appeal'   => 'complete',
 		'cron'     => 'cron',
 	);
 	?>

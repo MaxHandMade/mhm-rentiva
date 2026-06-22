@@ -134,11 +134,18 @@ final class PenaltyCalculator {
 			'fields'         => 'ids',
 			'no_found_rows'  => true,
 			'meta_query'     => array(
+				'relation' => 'AND',
 				array(
 					'key'     => MetaKeys::VEHICLE_WITHDRAWN_AT,
 					'value'   => $cutoff,
 					'compare' => '>=',
 					'type'    => 'DATETIME',
+				),
+				// Withdrawals whose appeal was upheld are excused — they no longer count
+				// against the vendor in either the reliability score or the penalty tier.
+				array(
+					'key'     => MetaKeys::VEHICLE_WITHDRAWAL_EXCUSED,
+					'compare' => 'NOT EXISTS',
 				),
 			),
 		));

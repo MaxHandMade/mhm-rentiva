@@ -125,11 +125,16 @@ final class VendorReportService {
 
         VendorReportRepository::update_status($report_id, VendorReportStatus::RESOLVED, $admin_note, $admin_user_id);
 
-        // Side-effect: penalty appeal upheld → reverse the applied penalty (if any).
-        // For vehicle_action, no penalty was ever applied (suspended at withdraw time),
-        // so resolution is a no-op for that context.
+        // Side-effect: the appeal is upheld → fully exonerate the vendor.
+        // - PENALTY: a penalty was already applied → refund it and excuse the withdrawal.
+        // - VEHICLE_ACTION: the penalty was suspended at withdraw time (never charged), but the
+        //   withdrawal still drags the reliability score down via the rolling count, so it must
+        //   be excused here too.
         if ($row->context_type === VendorReportContext::PENALTY) {
             $this->reverse_applied_penalty($row);
+        } elseif ($row->context_type === VendorReportContext::VEHICLE_ACTION) {
+            $vehicle_id = is_numeric($row->context_id) ? (int) $row->context_id : 0;
+            $this->excuse_withdrawal($vehicle_id, (int) $row->vendor_id);
         }
 
         /**
@@ -207,8 +212,10 @@ final class VendorReportService {
     /**
      * Reverse a penalty that has already been applied — vendor wins their appeal.
      *
-     * Writes a compensating positive ledger entry and recomputes the reliability
-     * score with the offending withdrawal excluded (via report-resolution flag).
+     * Writes a compensating positive ledger entry (money back) and excuses the
+     * underlying withdrawal so it stops counting against the reliability score and
+     * future penalty tiers (reputation back). The vehicle is located via the penalty
+     * UUID that {@see PenaltyRecorder} stamped on it at debit time.
      */
     private function reverse_applied_penalty(object $report): void
     {
@@ -278,8 +285,68 @@ final class VendorReportService {
             return;
         }
 
+        // Reputation back: excuse the withdrawal this penalty came from so it no longer
+        // counts in the reliability score / penalty tier. The vehicle carries the penalty UUID.
+        $vehicle_id = $this->find_vehicle_by_penalty_uuid($penalty_uuid, $vendor_id);
+        if ($vehicle_id > 0) {
+            $this->excuse_withdrawal($vehicle_id, $vendor_id);
+        }
+
         // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain.
         do_action('mhm_rentiva_withdrawal_penalty_reversed', $vendor_id, $penalty_uuid, $refund);
+    }
+
+    /**
+     * Flag a withdrawal as excused and recompute the vendor's reliability score.
+     *
+     * Once flagged, {@see \MHMRentiva\Admin\Vehicle\PenaltyCalculator::get_rolling_withdrawal_count()}
+     * excludes the vehicle, so the recompute restores the score the withdrawal had cost.
+     * Also clears any deferred penalty so a later state change cannot re-charge it.
+     *
+     * @param int $vehicle_id Vehicle whose withdrawal is excused (0 = nothing to do).
+     * @param int $vendor_id  Owning vendor.
+     */
+    private function excuse_withdrawal(int $vehicle_id, int $vendor_id): void
+    {
+        if ($vehicle_id <= 0 || $vendor_id <= 0) {
+            return;
+        }
+
+        update_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_WITHDRAWAL_EXCUSED, '1');
+        delete_post_meta($vehicle_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_DEFERRED_PENALTY);
+
+        if (class_exists(\MHMRentiva\Admin\Vehicle\ReliabilityScoreCalculator::class)) {
+            // 'appeal' so the score-history entry reads "Appeal upheld" (+points), not a
+            // confusing second "Vehicle withdrawn" line.
+            \MHMRentiva\Admin\Vehicle\ReliabilityScoreCalculator::update($vendor_id, 'appeal', $vehicle_id);
+        }
+    }
+
+    /**
+     * Find the vehicle a withdrawal penalty was applied to, via the UUID stamped on it.
+     *
+     * @param string $penalty_uuid Ledger transaction_uuid of the penalty debit.
+     * @param int    $vendor_id    Owning vendor (scopes the lookup).
+     * @return int Vehicle post ID, or 0 if none is linked.
+     */
+    private function find_vehicle_by_penalty_uuid(string $penalty_uuid, int $vendor_id): int
+    {
+        if ($penalty_uuid === '' || $vendor_id <= 0) {
+            return 0;
+        }
+
+        $ids = get_posts(array(
+            'post_type'      => 'vehicle',
+            'post_status'    => 'any',
+            'author'         => $vendor_id,
+            'posts_per_page' => 1,
+            'fields'         => 'ids',
+            'no_found_rows'  => true,
+            'meta_key'       => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PENALTY_UUID, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+            'meta_value'     => $penalty_uuid, // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+        ));
+
+        return ! empty($ids) ? (int) $ids[0] : 0;
     }
 
     /**

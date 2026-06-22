@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-21T21:59:01+00:00\n"
+"POT-Creation-Date: 2026-06-22T16:52:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1187,7 +1187,7 @@ msgstr ""
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
 #: templates/account/partials/vendor-payouts.php:221
-#: templates/account/partials/vendor-reliability.php:361
+#: templates/account/partials/vendor-reliability.php:376
 #: templates/account/vendor-ledger.php:63
 #: templates/shortcodes/transfer-results.php:88
 #: templates/shortcodes/transfer-search.php:80
@@ -2480,7 +2480,7 @@ msgstr ""
 #: src/Admin/VendorReport/REST/VendorReportsController.php:254
 #: templates/account/booking-detail.php:126
 #: templates/account/partials/top-vehicles.php:29
-#: templates/account/partials/vendor-reliability.php:363
+#: templates/account/partials/vendor-reliability.php:378
 #: templates/account/vendor-booking-detail.php:170
 #: templates/emails/vehicle-rereview-admin.html.php:16
 #: templates/emails/vehicle-submitted-admin.html.php:16
@@ -5250,7 +5250,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:492
 #: src/Admin/Transfer/TransferAdmin.php:734
 #: src/Admin/Utilities/Export/Export.php:996
-#: templates/account/partials/vendor-reliability.php:366
+#: templates/account/partials/vendor-reliability.php:381
 #: build/admin/shortcode-pages.js:1
 #: build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
@@ -6481,7 +6481,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:477
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
-#: templates/account/partials/vendor-reliability.php:150
+#: templates/account/partials/vendor-reliability.php:153
 #: build/admin/vendor-management.js:1
 #: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-management/components/VendorTable.jsx:105
@@ -18858,13 +18858,13 @@ msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:165
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:204
-#: templates/account/partials/vendor-reliability.php:86
+#: templates/account/partials/vendor-reliability.php:89
 msgid "Excellent"
 msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:166
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:207
-#: templates/account/partials/vendor-reliability.php:91
+#: templates/account/partials/vendor-reliability.php:94
 msgid "Good"
 msgstr ""
 
@@ -18874,7 +18874,7 @@ msgstr ""
 
 #: src/Admin/Testing/TestRunner.php:168
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:213
-#: templates/account/partials/vendor-reliability.php:101
+#: templates/account/partials/vendor-reliability.php:104
 msgid "Poor"
 msgstr ""
 
@@ -20785,7 +20785,7 @@ msgid "ABS Brake System"
 msgstr ""
 
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:210
-#: templates/account/partials/vendor-reliability.php:96
+#: templates/account/partials/vendor-reliability.php:99
 msgid "Fair"
 msgstr ""
 
@@ -21812,11 +21812,11 @@ msgstr ""
 msgid "Could not save your report. Please try again."
 msgstr ""
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:232
+#: src/Admin/VendorReport/Core/VendorReportService.php:361
 msgid "Report not found."
 msgstr ""
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:237
+#: src/Admin/VendorReport/Core/VendorReportService.php:366
 msgid "This report has already been closed."
 msgstr ""
 
@@ -22067,7 +22067,7 @@ msgid "Ledger & Payouts"
 msgstr ""
 
 #: src/Core/Dashboard/DashboardNavigation.php:68
-#: templates/account/partials/vendor-reliability.php:32
+#: templates/account/partials/vendor-reliability.php:35
 msgid "Reliability & Penalties"
 msgstr ""
 
@@ -22089,6 +22089,10 @@ msgstr ""
 #: src/Core/Financial/AtomicPayoutService.php:73
 #: src/Core/Financial/PayoutService.php:123
 msgid "Payout amount is invalid or zero."
+msgstr ""
+
+#: src/Core/Financial/AtomicPayoutService.php:85
+msgid "Vendor balance is no longer sufficient for this payout."
 msgstr ""
 
 #: src/Core/Financial/GovernanceService.php:56
@@ -22945,7 +22949,7 @@ msgstr ""
 
 #: templates/account/partials/vendor-listings.php:423
 #: templates/account/partials/vendor-listings.php:434
-#: templates/account/partials/vendor-reliability.php:428
+#: templates/account/partials/vendor-reliability.php:450
 msgid "Appeal"
 msgstr ""
 
@@ -23039,247 +23043,253 @@ msgstr ""
 msgid "Max %d characters"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:34
+#: templates/account/partials/vendor-reliability.php:37
 msgid "Your performance score and the penalty system that keeps the marketplace fair for everyone."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:65
+#: templates/account/partials/vendor-reliability.php:68
 msgid "/ 100"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:74
+#: templates/account/partials/vendor-reliability.php:77
 msgid "Your Reliability Score"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:77
+#: templates/account/partials/vendor-reliability.php:80
 msgid "Calculated daily from your booking completions, cancellations, withdrawals, and pauses over the last 6–12 months. A higher score signals trustworthiness to customers and to Rentiva."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:121
+#: templates/account/partials/vendor-reliability.php:124
 msgid "90–100"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:123
+#: templates/account/partials/vendor-reliability.php:126
 msgid "70–89"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:125
+#: templates/account/partials/vendor-reliability.php:128
 msgid "50–69"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:127
+#: templates/account/partials/vendor-reliability.php:130
 msgid "0–49"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:140
+#: templates/account/partials/vendor-reliability.php:143
 msgid "How Your Score Is Calculated"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:143
+#: templates/account/partials/vendor-reliability.php:146
 msgid "Your score starts at 100 and is adjusted based on your actions. Scores are clamped between 0 and 100."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:151
+#: templates/account/partials/vendor-reliability.php:154
 msgid "Window"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:152
+#: templates/account/partials/vendor-reliability.php:155
 msgid "Effect"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:158
+#: templates/account/partials/vendor-reliability.php:161
 msgid "Bonus"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:159
+#: templates/account/partials/vendor-reliability.php:162
 msgid "Completed booking"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:161
-#: templates/account/partials/vendor-reliability.php:176
-#: templates/account/partials/vendor-reliability.php:206
+#: templates/account/partials/vendor-reliability.php:164
+#: templates/account/partials/vendor-reliability.php:179
+#: templates/account/partials/vendor-reliability.php:209
 msgid "Last 6 months"
 msgstr ""
 
 #. translators: %d: points per completed booking
-#: templates/account/partials/vendor-reliability.php:166
+#: templates/account/partials/vendor-reliability.php:169
 #, php-format
 msgid "+%1$d pts each (max +%2$d)"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:173
-#: templates/account/partials/vendor-reliability.php:188
+#: templates/account/partials/vendor-reliability.php:176
+#: templates/account/partials/vendor-reliability.php:191
 msgid "Penalty"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:174
+#: templates/account/partials/vendor-reliability.php:177
 msgid "Vendor-initiated cancellation"
 msgstr ""
 
 #. translators: %d: points deducted per cancellation
 #. translators: %d: points deducted per withdrawal
 #. translators: %d: points deducted per pause
-#: templates/account/partials/vendor-reliability.php:181
-#: templates/account/partials/vendor-reliability.php:196
-#: templates/account/partials/vendor-reliability.php:211
+#: templates/account/partials/vendor-reliability.php:184
+#: templates/account/partials/vendor-reliability.php:199
+#: templates/account/partials/vendor-reliability.php:214
 #, php-format
 msgid "-%d pts each"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:189
+#: templates/account/partials/vendor-reliability.php:192
 msgid "Vehicle withdrawal"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:191
+#: templates/account/partials/vendor-reliability.php:194
 msgid "Last 12 months"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:203
+#: templates/account/partials/vendor-reliability.php:206
 msgid "Minor"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:204
+#: templates/account/partials/vendor-reliability.php:207
 msgid "Vehicle pause"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:224
+#: templates/account/partials/vendor-reliability.php:227
 msgid "Withdrawal Penalty Tiers"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:227
+#: templates/account/partials/vendor-reliability.php:230
 msgid "Repeated vehicle withdrawals carry financial penalties based on your rolling 12-month history. Penalties are deducted from your next payout."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:234
+#: templates/account/partials/vendor-reliability.php:237
 msgid "1st Withdrawal"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:235
-msgid "Free"
-msgstr ""
-
-#: templates/account/partials/vendor-reliability.php:236
-msgid "No financial penalty for your first withdrawal in any 12-month window."
-msgstr ""
-
-#: templates/account/partials/vendor-reliability.php:243
-msgid "2nd Withdrawal"
-msgstr ""
-
 #. translators: %d: penalty percentage
-#: templates/account/partials/vendor-reliability.php:247
-#: templates/account/partials/vendor-reliability.php:261
+#: templates/account/partials/vendor-reliability.php:242
+#: templates/account/partials/vendor-reliability.php:260
+#: templates/account/partials/vendor-reliability.php:274
 #, php-format
 msgid "%d%% of monthly avg. revenue"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:250
+#: templates/account/partials/vendor-reliability.php:245
+#: templates/account/partials/vendor-reliability.php:263
 msgid "Deducted from your ledger balance at time of withdrawal."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:257
+#: templates/account/partials/vendor-reliability.php:247
+msgid "Free"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:248
+msgid "No financial penalty for your first withdrawal in any 12-month window."
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:256
+msgid "2nd Withdrawal"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:270
 msgid "3rd+ Withdrawal"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:264
+#: templates/account/partials/vendor-reliability.php:277
 msgid "Each subsequent withdrawal within the 12-month window carries this rate."
 msgstr ""
 
 #. translators: %d: rolling window in months
-#: templates/account/partials/vendor-reliability.php:272
+#: templates/account/partials/vendor-reliability.php:285
 #, php-format
 msgid "The withdrawal counter resets after %d months of no withdrawals."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:280
+#: templates/account/partials/vendor-reliability.php:293
 msgid "Why Does This System Exist?"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:291
+#: templates/account/partials/vendor-reliability.php:304
 msgid "Customer Trust"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:292
+#: templates/account/partials/vendor-reliability.php:305
 msgid "Customers rely on vehicles being available on the dates they book. Sudden withdrawals or cancellations erode trust in the entire marketplace."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:302
+#: templates/account/partials/vendor-reliability.php:315
 msgid "Fair Competition"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:303
+#: templates/account/partials/vendor-reliability.php:316
 msgid "Vendors who consistently deliver receive better visibility. The score ensures that reliable vendors are rewarded and unreliable behaviour carries a proportionate cost."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:313
+#: templates/account/partials/vendor-reliability.php:326
 msgid "Your Growth"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:314
+#: templates/account/partials/vendor-reliability.php:327
 msgid "A high score is your reputation on Rentiva. It signals to customers that you are a dependable partner, which translates directly into more bookings and revenue."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:325
+#: templates/account/partials/vendor-reliability.php:338
 msgid "Vehicle paused"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:326
+#: templates/account/partials/vendor-reliability.php:339
 msgid "Vehicle withdrawn"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:327
+#: templates/account/partials/vendor-reliability.php:340
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:31
 msgid "Booking cancelled"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:328
+#: templates/account/partials/vendor-reliability.php:341
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:32
 msgid "Booking completed"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:329
-msgid "Daily recalculation"
+#: templates/account/partials/vendor-reliability.php:342
+msgid "Appeal upheld"
 msgstr ""
 
 #: templates/account/partials/vendor-reliability.php:343
+msgid "Daily recalculation"
+msgstr ""
+
+#: templates/account/partials/vendor-reliability.php:358
 msgid "Score History"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:346
+#: templates/account/partials/vendor-reliability.php:361
 msgid "A log of every event that affected your reliability score. Up to 50 entries are kept."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:354
+#: templates/account/partials/vendor-reliability.php:369
 msgid "No score events recorded yet. Events appear here when your score changes."
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:362
+#: templates/account/partials/vendor-reliability.php:377
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
 msgid "Event"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:364
+#: templates/account/partials/vendor-reliability.php:379
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:150
 msgid "Change"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:365
+#: templates/account/partials/vendor-reliability.php:380
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:151
 #: src-react/admin/vendor-management/components/VendorTable.jsx:103
 msgid "Score"
 msgstr ""
 
-#: templates/account/partials/vendor-reliability.php:410
+#: templates/account/partials/vendor-reliability.php:432
 msgid "pts"
 msgstr ""
 
 #. translators: %1$s: event label, %2$s: vehicle title
-#: templates/account/partials/vendor-reliability.php:422
+#: templates/account/partials/vendor-reliability.php:444
 #, php-format
 msgid "Appeal: %1$s on %2$s"
 msgstr ""

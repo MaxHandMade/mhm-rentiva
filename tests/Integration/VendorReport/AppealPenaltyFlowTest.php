@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\VendorReport;
 
 use MHMRentiva\Admin\Core\MetaKeys;
+use MHMRentiva\Admin\Vehicle\PenaltyCalculator;
 use MHMRentiva\Admin\Vehicle\PenaltyRecorder;
 use MHMRentiva\Admin\Vehicle\VehicleLifecycleManager;
 use MHMRentiva\Admin\VendorReport\Core\VendorReportContext;
@@ -119,5 +120,39 @@ final class AppealPenaltyFlowTest extends WP_UnitTestCase {
 			$this->vendor_id
 		) );
 		$this->assertSame( 1, $reversals, 'A compensating reversal ledger entry must be written.' );
+	}
+
+	public function test_resolving_penalty_appeal_restores_reliability_score(): void {
+		// Withdraw with NO open appeal → the penalty applies immediately and PenaltyRecorder
+		// stores the ledger UUID on the vehicle. The withdrawal also drags the reliability
+		// score down (it is now counted in the rolling window).
+		$vehicle = (int) wp_insert_post( array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'post_author' => $this->vendor_id, 'post_title' => 'Applied' ) );
+		VehicleLifecycleManager::withdraw( $vehicle, $this->vendor_id );
+
+		$this->assertSame( 1, $this->penalty_count(), 'Penalty must apply when no appeal is open.' );
+		$uuid = (string) get_post_meta( $vehicle, MetaKeys::VEHICLE_PENALTY_UUID, true );
+		$this->assertNotSame( '', $uuid, 'The applied penalty UUID must be stored on the vehicle.' );
+
+		// 'Prior' (setUp) + this vehicle = 2 withdrawals counted against the score.
+		$this->assertSame( 2, PenaltyCalculator::get_rolling_withdrawal_count( $this->vendor_id ), 'Both withdrawals must count before the appeal is upheld.' );
+
+		// Vendor appeals the applied penalty and wins.
+		$report_id = $this->service->create_report( $this->vendor_id, VendorReportContext::PENALTY, $uuid, 'Penalty appeal', 'Bu ceza haksiz uygulandi, gecerli bir gerekcem vardi.' );
+		$this->assertIsInt( $report_id );
+		$this->service->resolve_report( (int) $report_id, 'Kabul.', $this->admin_id );
+
+		// Full exoneration: money refunded AND the withdrawal no longer counts against the score.
+		$this->assertSame( '1', (string) get_post_meta( $vehicle, MetaKeys::VEHICLE_WITHDRAWAL_EXCUSED, true ), 'The vehicle must be flagged as excused.' );
+		$this->assertSame( 1, PenaltyCalculator::get_rolling_withdrawal_count( $this->vendor_id ), 'The exonerated withdrawal must be excluded from the rolling count (score restored).' );
+	}
+
+	public function test_resolving_vehicle_action_appeal_excludes_withdrawal_from_score(): void {
+		$report_id = $this->withdraw_with_reason( 'Gecerli gerekce ile cekiyorum, lutfen mazur gorun bu seferlik.' );
+
+		$this->assertSame( 2, PenaltyCalculator::get_rolling_withdrawal_count( $this->vendor_id ), 'Both withdrawals count while the appeal is open.' );
+
+		$this->service->resolve_report( $report_id, 'Gerekce gecerli.', $this->admin_id );
+
+		$this->assertSame( 1, PenaltyCalculator::get_rolling_withdrawal_count( $this->vendor_id ), 'Upholding a vehicle-action appeal must exclude the withdrawal from the score count.' );
 	}
 }

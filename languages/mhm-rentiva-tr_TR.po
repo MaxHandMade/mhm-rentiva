@@ -23866,6 +23866,10 @@ msgstr "Araç duraklatıldı"
 msgid "Vehicle withdrawn"
 msgstr "Araç geri çekildi"
 
+#: templates/account/partials/vendor-reliability.php:342
+msgid "Appeal upheld"
+msgstr "İtiraz kabul edildi"
+
 #: templates/account/partials/vendor-reliability.php:327
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:31
