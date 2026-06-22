@@ -28,6 +28,7 @@ final class BlockedDatesMetaBox {
 		add_action( 'wp_ajax_nopriv_mhm_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
 		add_action( 'wp_ajax_mhm_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
 		add_action( 'wp_ajax_mhm_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
+		add_action( 'wp_ajax_mhm_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
 	}
 
 	public static function add_meta_box(): void {
@@ -174,6 +175,71 @@ final class BlockedDatesMetaBox {
 		}
 		$dates = json_decode( $raw, true );
 		return is_array( $dates ) ? $dates : array();
+	}
+
+	/**
+	 * Toggle a single blocked date for a vehicle (used by the calendar quick-block UI).
+	 *
+	 * Pure data operation — no nonce/capability check (the AJAX wrapper enforces those).
+	 *
+	 * @param int    $vehicle_id Vehicle post ID.
+	 * @param string $date       Date in Y-m-d format.
+	 * @return array{blocked:bool,count:int}|\WP_Error
+	 */
+	public static function toggle_blocked_date( int $vehicle_id, string $date ) {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date ) ) {
+			return new \WP_Error( 'invalid_date', __( 'Invalid date format.', 'mhm-rentiva' ) );
+		}
+		$parts = explode( '-', $date );
+		if ( ! checkdate( (int) $parts[1], (int) $parts[2], (int) $parts[0] ) ) {
+			return new \WP_Error( 'invalid_date', __( 'Invalid date format.', 'mhm-rentiva' ) );
+		}
+
+		$dates = self::get_blocked_dates( $vehicle_id );
+		$key   = array_search( $date, $dates, true );
+
+		if ( false !== $key ) {
+			unset( $dates[ $key ] );
+			$blocked = false;
+		} else {
+			$dates[] = $date;
+			$blocked = true;
+		}
+
+		$dates = array_values( array_unique( $dates ) );
+		sort( $dates );
+		update_post_meta( $vehicle_id, self::META_KEY, wp_json_encode( $dates ) );
+
+		return array(
+			'blocked' => $blocked,
+			'count'   => count( $dates ),
+		);
+	}
+
+	/**
+	 * AJAX: toggle a single blocked date from the monthly reservation calendar.
+	 */
+	public static function ajax_toggle_blocked_date(): void {
+		if (
+			! isset( $_POST['nonce'] ) ||
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_toggle_blocked_date' )
+		) {
+			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
+		}
+
+		$vehicle_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+		if ( $vehicle_id <= 0 || ! current_user_can( 'edit_post', $vehicle_id ) ) {
+			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
+		}
+
+		$date   = isset( $_POST['date'] ) ? sanitize_text_field( wp_unslash( $_POST['date'] ) ) : '';
+		$result = self::toggle_blocked_date( $vehicle_id, $date );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message() );
+		}
+
+		wp_send_json_success( $result );
 	}
 
 	/**
