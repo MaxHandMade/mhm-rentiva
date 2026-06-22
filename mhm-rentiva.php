@@ -76,7 +76,7 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '4.59.0');
+define('MHM_RENTIVA_VERSION', '4.60.0');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
