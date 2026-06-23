@@ -1180,13 +1180,16 @@ final class VehicleColumns {
 					$('#mhm-booking-popup').fadeIn(250);
 				});
 
-				// Quick block/unblock: optimistic toggle. The admin-ajax round-trip is
-				// slow (full plugin bootstrap on every request), so the cell is flipped
-				// instantly on click for immediate feedback; the request confirms in the
-				// background and the flip is reverted only if it fails.
+				// Quick block/unblock: explicit confirm, then repaint from the server's
+				// confirmed result. The native confirm gives instant feedback that the
+				// click registered (the admin-ajax round-trip itself is slow because the
+				// whole plugin bootstraps on every request), and repainting from the
+				// server response — not optimistically — keeps the cell and the DB in sync.
 				var mhmBlockedTitle = '<?php echo esc_js( __( 'Blocked — click to open', 'mhm-rentiva' ) ); ?>';
 				var mhmAvailTitle   = '<?php echo esc_js( __( 'Available — click to close', 'mhm-rentiva' ) ); ?>';
 				var mhmToggleError  = '<?php echo esc_js( __( 'Could not update the day.', 'mhm-rentiva' ) ); ?>';
+				var mhmConfirmClose = '<?php echo esc_js( __( 'Close this day for reservations?', 'mhm-rentiva' ) ); ?>';
+				var mhmConfirmOpen  = '<?php echo esc_js( __( 'Re-open this day for reservations?', 'mhm-rentiva' ) ); ?>';
 
 				$('.calendar-table').on('click', '.day-cell.available, .day-cell.blocked-day', function() {
 					var $cell = $(this);
@@ -1194,17 +1197,8 @@ final class VehicleColumns {
 					var date      = $cell.data('date');
 					if (!vehicleId || !date) { return; }
 
-					var wasBlocked = $cell.hasClass('blocked-day');
-					var paint = function(blocked) {
-						if (blocked) {
-							$cell.removeClass('available').addClass('blocked-day').attr('title', mhmBlockedTitle);
-						} else {
-							$cell.removeClass('blocked-day').addClass('available').attr('title', mhmAvailTitle);
-						}
-					};
-
-					// Optimistic flip — instant feedback regardless of server latency.
-					paint(!wasBlocked);
+					var isBlocked = $cell.hasClass('blocked-day');
+					if (!window.confirm(isBlocked ? mhmConfirmOpen : mhmConfirmClose)) { return; }
 
 					$.post(ajaxurl, {
 						action: 'mhm_toggle_blocked_date',
@@ -1212,12 +1206,16 @@ final class VehicleColumns {
 						date: date,
 						nonce: mhmToggleNonce
 					}).done(function(resp) {
-						if (!(resp && resp.success && resp.data)) {
-							paint(wasBlocked); // revert
+						if (resp && resp.success && resp.data) {
+							if (resp.data.blocked) {
+								$cell.removeClass('available').addClass('blocked-day').attr('title', mhmBlockedTitle);
+							} else {
+								$cell.removeClass('blocked-day').addClass('available').attr('title', mhmAvailTitle);
+							}
+						} else {
 							window.alert((resp && typeof resp.data === 'string') ? resp.data : mhmToggleError);
 						}
 					}).fail(function() {
-						paint(wasBlocked); // revert
 						window.alert(mhmToggleError);
 					});
 				});
