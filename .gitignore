@@ -59,6 +59,8 @@ vendor/
 !assets/vendor/**
 !tests/Integration/Admin/Vendor/
 !tests/Integration/Admin/Vendor/**
+!tests/Admin/Frontend/Shortcodes/Vendor/
+!tests/Admin/Frontend/Shortcodes/Vendor/**
 .phpunit.result.cache
 
 # ============================================================================

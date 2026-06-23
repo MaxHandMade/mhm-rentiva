@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\CityHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vendor\VendorApplicationManager;
 
 
@@ -43,6 +44,19 @@ final class VendorApply extends AbstractShortcode
     {
         add_action('wp_ajax_mhm_vendor_apply', array(static::class, 'handle_ajax'));
         add_action('wp_ajax_nopriv_mhm_vendor_apply', array(static::class, 'handle_ajax'));
+    }
+
+    /**
+     * Whether the vendor agreement must be accepted before applying.
+     *
+     * True only when the admin enabled the gate AND wrote agreement text.
+     *
+     * @return bool
+     */
+    public static function is_agreement_required(): bool
+    {
+        return SettingsCore::get('vendor_agreement_enabled', '0') === '1'
+            && trim((string) SettingsCore::get('vendor_agreement_text', '')) !== '';
     }
 
     /**
