@@ -309,8 +309,10 @@ final class VendorManagementRestController {
 				'tax_office'      => (string) get_post_meta( $id, '_vendor_tax_office', true ),
 				'tax_number'      => (string) get_post_meta( $id, '_vendor_tax_number', true ),
 				'documents'       => $documents,
-				'applied_date'    => get_the_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $app ),
-				'status'          => $app->post_status,
+				'applied_date'      => get_the_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $app ),
+				'terms_accepted_at' => (string) get_post_meta( $id, '_vendor_terms_accepted_at', true ),
+				'terms_version'     => (string) get_post_meta( $id, '_vendor_terms_version', true ),
+				'status'            => $app->post_status,
 			),
 		) );
 	}
