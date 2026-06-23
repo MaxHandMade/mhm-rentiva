@@ -116,6 +116,11 @@ final class VendorApplicationManager
         update_post_meta($post_id, '_vendor_doc_address',    (int) ($data['doc_address'] ?? 0));
         update_post_meta($post_id, '_vendor_status',        self::STATUS_PENDING);
 
+        if (! empty($data['terms_accepted_at'])) {
+            update_post_meta($post_id, '_vendor_terms_accepted_at', sanitize_text_field((string) $data['terms_accepted_at']));
+            update_post_meta($post_id, '_vendor_terms_version',     sanitize_text_field((string) ($data['terms_version'] ?? '')));
+        }
+
         delete_transient($lock_key);
         return $post_id;
     }
