@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.61.0",
+    "date": "2026-06-23",
+    "type": "minor",
+    "title": "Calendar quick-block — close/open a vehicle day from the Monthly Reservation Calendar",
+    "summary": "Adds click-to-toggle day blocking directly in the Monthly Reservation Calendar. Clicking an empty day blocks it for new reservations; clicking a blocked day re-opens it. No vehicle-edit detour needed. Booked days are unchanged — they retain their reservation popup.",
+    "changes": [
+      "Added: close or re-open a vehicle's day for reservations directly from the Monthly Reservation Calendar — click an empty day to block it, click a blocked day to open it, no vehicle-edit needed. Booked days keep their reservation popup."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.60.0",
     "date": "2026-06-22",
     "type": "minor",

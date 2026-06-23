@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.60.0
+Stable tag:        4.61.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.61.0 — 2026-06-23 =
+* ✨ **Added:** Close or re-open a vehicle's day for reservations directly from the Monthly Reservation Calendar — click an empty day to block it, click a blocked day to open it, no vehicle-edit needed. Booked days keep their reservation popup.
 
 = 4.60.0 — 2026-06-22 =
 * 🐛 **Fix:** Matured vendor payouts were silently skipped on single-site installs — a dead SaaS control-plane `is_operational()` gate in `MaturedPayoutJob` prevented any payout from processing unless a multi-tenant registry row existed (which it never does on a normal install).

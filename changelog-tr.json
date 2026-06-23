@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.61.0",
+    "date": "2026-06-23",
+    "type": "minor",
+    "title": "Takvim hızlı blok — Aylık Rezervasyon Takvimi'nden araç günü kapatma/açma",
+    "summary": "Aylık Rezervasyon Takvimi'nde tıkla-aç/kapat gün bloke özelliği ekler. Boş bir güne tıklamak rezervasyona kapatır; kapalı bir güne tıklamak yeniden açar. Araç düzenlemeye gerek yok. Rezervasyonlu günler değişmez — popup'larını korurlar.",
+    "changes": [
+      "Eklendi: bir aracın gününü Aylık Rezervasyon Takvimi'nden doğrudan rezervasyona kapatma/açma — boş güne tıkla kapanır, kapalı güne tıkla açılır, araç düzenlemeye gerek yok. Rezervasyonlu günler popup'ını korur."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.60.0",
     "date": "2026-06-22",
     "type": "minor",

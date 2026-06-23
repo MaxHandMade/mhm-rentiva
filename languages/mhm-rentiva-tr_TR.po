@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-21T21:59:01+00:00\n"
+"POT-Creation-Date: 2026-06-23T11:14:52+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -531,7 +531,7 @@ msgstr "Aktif Lisans:"
 #: src/Admin/Reports/BackgroundProcessor.php:468
 #: src/Admin/Transfer/TransferAdmin.php:427
 #: src/Admin/Transfer/TransferAdmin.php:487
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1059
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1061
 #: templates/account/vendor-booking-detail.php:140
 #: templates/emails/vendor-application-new-admin.html.php:7
 #: assets/blocks/my-favorites/index.js:51 build/admin/customers.js:1
@@ -788,7 +788,7 @@ msgstr "Lisans durumu:"
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:299
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1647
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1686
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:59
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:337
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
@@ -1109,7 +1109,7 @@ msgstr "Gerekli"
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
 #: templates/account/partials/vendor-payouts.php:221
-#: templates/account/partials/vendor-reliability.php:361
+#: templates/account/partials/vendor-reliability.php:376
 #: templates/account/vendor-ledger.php:63
 #: templates/shortcodes/transfer-results.php:88
 #: templates/shortcodes/transfer-search.php:80
@@ -1611,8 +1611,9 @@ msgstr "Ayarlar başarıyla kaydedildi."
 #: src/Admin/REST/Settings/RESTSettings.php:361
 #: src/Admin/REST/Settings/RESTSettings.php:373
 #: src/Admin/REST/Settings/RESTSettings.php:385
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:205
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:262
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:232
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:271
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:328
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:2043
 msgid "Insufficient permissions."
 msgstr "Yetersiz izinler."
@@ -1899,7 +1900,7 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Utilities/Dashboard/DashboardService.php:959
 #: src/Admin/Utilities/Export/ExportFilters.php:45
 #: src/Admin/Utilities/Export/ExportFilters.php:58
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1012
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1014
 #: templates/account/booking-detail.php:73 templates/account/bookings.php:112
 #: templates/account/bookings.php:178 templates/account/bookings.php:286
 #: templates/account/dashboard.php:136
@@ -1936,7 +1937,7 @@ msgstr "Beklemede"
 #: src/Admin/Reports/Reports.php:502
 #: src/Admin/Utilities/Dashboard/DashboardService.php:960
 #: src/Admin/Utilities/Export/ExportFilters.php:46
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1016
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1018
 #: templates/account/booking-detail.php:74 templates/account/bookings.php:113
 #: templates/account/bookings.php:179 templates/account/bookings.php:287
 #: templates/account/dashboard.php:124
@@ -1978,7 +1979,7 @@ msgstr "Devam Ediyor"
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
 #: src/Admin/Utilities/Export/Export.php:1003
 #: src/Admin/Utilities/Export/ExportFilters.php:47
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1020
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1022
 #: templates/account/booking-detail.php:76 templates/account/bookings.php:115
 #: templates/account/bookings.php:181 templates/account/bookings.php:289
 #: templates/account/dashboard.php:128
@@ -2391,7 +2392,7 @@ msgstr "Rezervasyon ID"
 #: src/Admin/VendorReport/REST/VendorReportsController.php:254
 #: templates/account/booking-detail.php:126
 #: templates/account/partials/top-vehicles.php:29
-#: templates/account/partials/vendor-reliability.php:363
+#: templates/account/partials/vendor-reliability.php:378
 #: templates/account/vendor-booking-detail.php:170
 #: templates/emails/vehicle-rereview-admin.html.php:16
 #: templates/emails/vehicle-submitted-admin.html.php:16
@@ -2405,7 +2406,7 @@ msgstr "Araç"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:346
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:347
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:78
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1418
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1457
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:484
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1512
 msgid "License Plate"
@@ -2578,7 +2579,7 @@ msgid "Monthly Revenue"
 msgstr "Aylık Gelir"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:744
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:525
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:527
 msgid "vs last month"
 msgstr "geçen aya göre"
 
@@ -2586,7 +2587,7 @@ msgstr "geçen aya göre"
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1440
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:821
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:823
 #: src/Blocks/BlockRegistry.php:269
 msgid "January"
 msgstr "Ocak"
@@ -2595,7 +2596,7 @@ msgstr "Ocak"
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1441
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:822
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:824
 #: src/Blocks/BlockRegistry.php:269
 msgid "February"
 msgstr "Şubat"
@@ -2604,7 +2605,7 @@ msgstr "Şubat"
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1442
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:823
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:825
 #: src/Blocks/BlockRegistry.php:269
 msgid "March"
 msgstr "Mart"
@@ -2613,7 +2614,7 @@ msgstr "Mart"
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1443
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:824
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:826
 #: src/Blocks/BlockRegistry.php:269
 msgid "April"
 msgstr "Nisan"
@@ -2623,7 +2624,7 @@ msgstr "Nisan"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1444
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1458
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:825
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:827
 #: src/Blocks/BlockRegistry.php:269
 msgid "May"
 msgstr "Mayıs"
@@ -2632,7 +2633,7 @@ msgstr "Mayıs"
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1445
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:826
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:828
 #: src/Blocks/BlockRegistry.php:269
 msgid "June"
 msgstr "Haziran"
@@ -2641,7 +2642,7 @@ msgstr "Haziran"
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1446
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:827
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:829
 #: src/Blocks/BlockRegistry.php:269
 msgid "July"
 msgstr "Temmuz"
@@ -2650,7 +2651,7 @@ msgstr "Temmuz"
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1447
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:828
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:830
 #: src/Blocks/BlockRegistry.php:269
 msgid "August"
 msgstr "Ağustos"
@@ -2659,7 +2660,7 @@ msgstr "Ağustos"
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1448
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:829
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:831
 #: src/Blocks/BlockRegistry.php:269
 msgid "September"
 msgstr "Eylül"
@@ -2668,7 +2669,7 @@ msgstr "Eylül"
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1449
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:830
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:832
 #: src/Blocks/BlockRegistry.php:269
 msgid "October"
 msgstr "Ekim"
@@ -2677,7 +2678,7 @@ msgstr "Ekim"
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1450
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:831
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:833
 #: src/Blocks/BlockRegistry.php:269
 msgid "November"
 msgstr "Kasım"
@@ -2686,7 +2687,7 @@ msgstr "Kasım"
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1090
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1451
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:832
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:834
 #: src/Blocks/BlockRegistry.php:269
 msgid "December"
 msgstr "Aralık"
@@ -2776,15 +2777,14 @@ msgstr "Rezervasyonlar: "
 #: src/Admin/Licensing/Mode.php:386 src/Admin/Licensing/Mode.php:396
 #: src/Admin/Licensing/Mode.php:406
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:84
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:991
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1484
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1523
 #: templates/shortcodes/availability-calendar.php:92
 #: templates/shortcodes/availability-calendar.php:233
 msgid "Available"
 msgstr "Mevcut"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1245
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1008
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1010
 msgid "Status Legend"
 msgstr "Durum Açıklaması"
 
@@ -2792,7 +2792,7 @@ msgstr "Durum Açıklaması"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:214
 #: src/Admin/Booking/Meta/BookingMeta.php:414
 #: src/Admin/Booking/Meta/BookingMeta.php:461
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1038
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1040
 #: templates/account/booking-detail.php:104
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:240
@@ -2805,7 +2805,7 @@ msgstr "Rezervasyon detayları"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1436
 #: src/Admin/Transfer/Frontend/TransferAddonModal.php:66
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1044
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1046
 #: src/Blocks/BlockRegistry.php:267
 #: templates/account/partials/vendor-listings.php:187
 #: templates/account/partials/vendor-listings.php:451
@@ -2827,7 +2827,7 @@ msgstr "Kapat"
 #: src/Admin/Messages/Core/Messages.php:808
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1055 src/Plugin.php:1313
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1057 src/Plugin.php:1313
 #: templates/messages/message-thread-view.html.php:56 build/admin/messages.js:1
 #: src-react/admin/messages/components/MessageTable.jsx:21
 #: src-react/admin/messages/components/MessageTable.jsx:57
@@ -2845,7 +2845,7 @@ msgstr "Müşteri"
 #: src/Admin/Reports/BackgroundProcessor.php:469
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Settings/Testing/SettingsTester.php:973
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1063
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1065
 #: templates/account/vendor-booking-detail.php:142
 #: templates/emails/vendor-application-new-admin.html.php:16
 #: templates/shortcodes/contact-form.php:62 build/admin/customers.js:1
@@ -2871,7 +2871,7 @@ msgstr "E-posta"
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:145
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1067
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1069
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
 #: templates/shortcodes/contact-form.php:74 build/admin/customers.js:1
@@ -2895,37 +2895,37 @@ msgstr "Plaka:"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1470
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:173
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1081
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1083
 #: templates/account/vendor-booking-detail.php:172
 msgid "Pickup"
 msgstr "Teslim Alma"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1330
 #: src/Admin/Booking/ListTable/BookingColumns.php:1471
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1086
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1088
 msgid "Return"
 msgstr "İade"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1339
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1097
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1099
 msgid "Booking Info"
 msgstr "Rezervasyon Bilgisi"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1343
 #: src/Admin/Transfer/TransferAdmin.php:806
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1101
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1103
 msgid "Total Price"
 msgstr "Toplam Fiyat"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1347
 #: src/Admin/Core/AssetManager.php:1061
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1105
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1107
 msgid "Created"
 msgstr "Oluşturuldu"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1367
 #: src/Admin/Booking/ListTable/BookingColumns.php:1476
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1115
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1117
 msgid "Edit Booking"
 msgstr "Rezervasyonu Düzenle"
 
@@ -4510,7 +4510,7 @@ msgid "Electric"
 msgstr "Elektrik"
 
 #: src/Admin/Core/AssetManager.php:489
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1658
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1697
 msgid "Passive"
 msgstr "Pasif"
 
@@ -4518,7 +4518,7 @@ msgstr "Pasif"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:269
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:191
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:617
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1648
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1687
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:40
 msgid "Maintenance"
 msgstr "Bakım"
@@ -5131,7 +5131,7 @@ msgstr "Son kullanılan"
 #: src/Admin/Transfer/TransferAdmin.php:492
 #: src/Admin/Transfer/TransferAdmin.php:734
 #: src/Admin/Utilities/Export/Export.php:996
-#: templates/account/partials/vendor-reliability.php:366
+#: templates/account/partials/vendor-reliability.php:381
 #: build/admin/shortcode-pages.js:1 build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:17
@@ -6217,8 +6217,8 @@ msgstr "Çok fazla istek var. Lütfen bekleyin."
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:768
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:175
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:221
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:210
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:276
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:333
 #: src/Admin/Vehicle/VehicleLifecycleAjaxController.php:197
 #: src/Admin/Vendor/VendorVehicleReviewManager.php:102
 #: src/Admin/Vendor/VendorVehicleReviewManager.php:129
@@ -6226,9 +6226,11 @@ msgid "Invalid vehicle ID."
 msgstr "Geçersiz araç kimliği."
 
 #: src/Admin/Core/SecurityHelper.php:237 src/Admin/Core/SecurityHelper.php:271
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:191
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:195
 #: src/Admin/Vehicle/Reports/VehicleReport.php:351
 msgid "Invalid date format."
-msgstr "Tarih biçimi geçersiz."
+msgstr "Geçersiz tarih biçimi."
 
 #: src/Admin/Core/SecurityHelper.php:280 src/Admin/Core/SecurityHelper.php:284
 msgid "Invalid email address."
@@ -6377,7 +6379,7 @@ msgstr "Boyut"
 #: src/Admin/Reports/BackgroundProcessor.php:477
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
-#: templates/account/partials/vendor-reliability.php:150
+#: templates/account/partials/vendor-reliability.php:153
 #: build/admin/vendor-management.js:1 build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-management/components/VendorTable.jsx:105
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:20
@@ -6583,22 +6585,22 @@ msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemi
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:548
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:546
 msgid ""
 "MHM Rentiva: Database migration required. Run migration for performance."
 msgstr ""
 "MHM Rentiva: Veritabanı taşıma işlemi gereklidir. Performans için taşıma "
 "işlemini çalıştırın."
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:550
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:548
 msgid "Run Migration"
 msgstr "Taşımayı Çalıştır"
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:555
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:553
 msgid "MHM Rentiva: Database performance can be optimized."
 msgstr "MHM Rentiva: Veritabanı performansı optimize edilebilir."
 
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:557
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:555
 msgid "Optimize"
 msgstr "Optimize"
 
@@ -7903,7 +7905,7 @@ msgstr "IBAN değişiklik talebi reddedildiğinde bayiye gönderilir."
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:401
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:231
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:423
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:489
 #: src/Admin/VendorReport/VendorReportAssets.php:138
 #: templates/account/booking-detail.php:306
 msgid "An error occurred."
@@ -8202,8 +8204,9 @@ msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
 #: src/Admin/Frontend/Account/AccountController.php:566
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:202
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:259
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:227
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:268
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:325
 msgid "Security error."
 msgstr "Güvenlik hatası."
 
@@ -9282,7 +9285,7 @@ msgid "Clear all filters"
 msgstr "Tüm filtreleri temizle"
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:302
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:69
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:70
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:355
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:396
 #: templates/shortcodes/search-results.php:126
@@ -9495,7 +9498,7 @@ msgstr "Yakıt tipi"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:338
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:359
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:82
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1453
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1518
 #: templates/shortcodes/search-results.php:235
 msgid "Transmission"
@@ -9504,7 +9507,7 @@ msgstr "Vites"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:339
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:351
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:81
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1441
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1480
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1516
 #: templates/shortcodes/search-results.php:252
 #: templates/shortcodes/vehicle-details.php:299
@@ -9854,7 +9857,7 @@ msgstr "Fiyat Belirtilmedi"
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:604
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:76
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:86
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1505
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1544
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:238
 msgid "Featured"
 msgstr "Öne Çıkan"
@@ -11857,7 +11860,7 @@ msgstr "Hakkında"
 #: src/Admin/Utilities/Export/Export.php:1055
 #: src/Admin/Utilities/Export/Export.php:1134
 #: src/Admin/Utilities/Menu/Menu.php:51 src/Admin/Utilities/Menu/Menu.php:52
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:912
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:914
 #: src/Admin/Vehicle/PostType/Vehicle.php:30 templates/single-vehicle.php:26
 #: assets/blocks/vendor-profile/index.js:45 build/admin/export.js:1
 #: build/admin/reports.js:1 build/admin/vendor-management.js:1
@@ -11877,7 +11880,7 @@ msgstr "İncelemeler"
 
 #: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php:77
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:79
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1516
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1555
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:48
 #: templates/frontend/partials/vendor-profile-location.php:13
 #: assets/blocks/vendor-profile/index.js:47
@@ -14537,7 +14540,7 @@ msgid "Upcoming Operations"
 msgstr "Yaklaşan Operasyonlar"
 
 #: src/Admin/Reports/Reports.php:85
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:523
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:525
 msgid "This Month Revenue"
 msgstr "Bu Ayın Geliri"
 
@@ -19312,13 +19315,13 @@ msgstr "Başarı Puanı:"
 
 #: src/Admin/Testing/TestRunner.php:165
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:204
-#: templates/account/partials/vendor-reliability.php:86
+#: templates/account/partials/vendor-reliability.php:89
 msgid "Excellent"
 msgstr "Mükemmel"
 
 #: src/Admin/Testing/TestRunner.php:166
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:207
-#: templates/account/partials/vendor-reliability.php:91
+#: templates/account/partials/vendor-reliability.php:94
 msgid "Good"
 msgstr "İyi"
 
@@ -19328,7 +19331,7 @@ msgstr "Kabul edilebilir"
 
 #: src/Admin/Testing/TestRunner.php:168
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:213
-#: templates/account/partials/vendor-reliability.php:101
+#: templates/account/partials/vendor-reliability.php:104
 msgid "Poor"
 msgstr "Kötü"
 
@@ -20590,7 +20593,7 @@ msgid "View and manage your recent export activities."
 msgstr "Son dışa aktarım etkinliklerinizi görüntüleyin ve yönetin."
 
 #: src/Admin/Utilities/Export/Export.php:991
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1077
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1079
 msgid "Date & Time"
 msgstr "Tarih & Saat"
 
@@ -20980,12 +20983,12 @@ msgid "Relist"
 msgstr "Yeniden Listeleme"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:80
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1429
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1468
 msgid "Price/Day"
 msgstr "Fiyat/Gün"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:83
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1469
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1508
 msgid "Fuel"
 msgstr "Yakıt"
 
@@ -21035,97 +21038,111 @@ msgstr "Geri Çekildi"
 msgid "Archive (expired + withdrawn)"
 msgstr "Arşiv (süresi dolmuş + geri çekilmiş)"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:487
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:489
 msgid "Unlimited Vehicles"
 msgstr "Sınırsız Araç"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:488
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:490
 msgid "Advanced Vehicle Management"
 msgstr "Gelişmiş Araç Yönetimi"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:496
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:498
 msgid "Monthly Reserved Vehicles"
 msgstr "Aylık Rezervasyonlu Araçlar"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:498
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:500
 #: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/StatsCards.jsx:24
 msgid "total"
 msgstr "toplam"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:505
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:507
 msgid "This Month Occupancy"
 msgstr "Bu Ay Doluluk"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:507
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:509
 msgid "total vehicles"
 msgstr "toplam araç"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:514
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:516
 msgid "Active Today"
 msgstr "Bugün Aktif"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:516
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:518
 msgid "vehicles with customers"
 msgstr "müşterili araçlar"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:855
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:857
 msgid "Monthly Booking Calendar"
 msgstr "Aylık Rezervasyon Takvimi"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:943
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1024
-msgid "Blocked Day"
-msgstr "Kapalı Gün"
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:945
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1204
+msgid "Blocked — click to open"
+msgstr "Kapalı — açmak için tıkla"
 
 #. translators: %s: customer name.
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:954
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:956
 #, php-format
 msgid "Reserved: %s"
 msgstr "Rezerve edildi: %s"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1349
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:993
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1207
+msgid "Available — click to close"
+msgstr "Müsait — kapatmak için tıkla"
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1026
+msgid "Blocked Day"
+msgstr "Kapalı Gün"
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1210
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1213
+msgid "Could not update the day."
+msgstr "Gün güncellenemedi."
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1388
 #: templates/shortcodes/availability-calendar.php:241
 msgid "Reserved"
 msgstr "Rezerve"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1518
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1557
 msgid "— No Location —"
 msgstr "— Konum Yok —"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:36
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:37
 msgid "Blocked Dates"
 msgstr "Kapalı Tarihler"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:53
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:54
 msgid "Select dates when this vehicle is unavailable for reservations."
 msgstr "Bu aracın rezervasyon için müsait olmadığı tarihleri ​​seçin."
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:57
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:58
 msgid "days blocked"
 msgstr "gün kapalı"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:67
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:68
 msgid "Blocked Days"
 msgstr "Kapalı Günler"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:75
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:76
 msgid "No dates blocked yet. Click days on the calendar."
 msgstr "Henüz kapalı tarih yok. Takvimde günlere tıklayın."
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:100
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:101
 msgid "Apply to All Vehicles"
 msgstr "Tüm Araçlara Uygula"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:104
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:105
 msgid "Remove from All Vehicles"
 msgstr "Tüm Araçlardan Kaldır"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:223
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:289
 msgid "No blocked dates selected."
 msgstr "Engellenen tarih seçilmedi."
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:417
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:483
 msgid ""
 "All blocked dates selected for this vehicle will be applied to all other "
 "vehicles, overwriting their existing blocked dates. Do you want to continue?"
@@ -21133,7 +21150,7 @@ msgstr ""
 "Bu araç için seçilen tüm kapalı günler diğer tüm araçlara uygulanacak ve "
 "mevcut kapalı günlerin üzerine yazılacak. Devam etmek istiyor musunuz?"
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:418
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:484
 msgid ""
 "All blocked dates selected for this vehicle will be removed from all other "
 "vehicles. Do you want to continue?"
@@ -21142,18 +21159,18 @@ msgstr ""
 "Devam etmek istiyor musunuz?"
 
 #. translators: %d: number of vehicles
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:420
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:486
 #, php-format
 msgid "Applied to %d vehicles."
 msgstr "%d araca uygulandı."
 
 #. translators: %d: number of vehicles
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:422
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:488
 #, php-format
 msgid "Removed from %d vehicles."
 msgstr "%d araçtan kaldırıldı."
 
-#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:424
+#: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:490
 msgid "Add note... (optional)"
 msgstr "Not ekle... (isteğe bağlı)"
 
@@ -21301,7 +21318,7 @@ msgid "ABS Brake System"
 msgstr "ABS Fren Sistemi"
 
 #: src/Admin/Vehicle/ReliabilityScoreCalculator.php:210
-#: templates/account/partials/vendor-reliability.php:96
+#: templates/account/partials/vendor-reliability.php:99
 msgid "Fair"
 msgstr "Orta"
 
@@ -22373,11 +22390,11 @@ msgstr "Bu öğe için zaten açık bir raporunuz var."
 msgid "Could not save your report. Please try again."
 msgstr "Rapor kaydedilemedi. Lütfen tekrar deneyin."
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:232
+#: src/Admin/VendorReport/Core/VendorReportService.php:361
 msgid "Report not found."
 msgstr "Rapor bulunamadı."
 
-#: src/Admin/VendorReport/Core/VendorReportService.php:237
+#: src/Admin/VendorReport/Core/VendorReportService.php:366
 msgid "This report has already been closed."
 msgstr "Bu rapor zaten kapatılmış."
 
@@ -22433,7 +22450,9 @@ msgstr "En az 20 karakter."
 msgid ""
 "Optional. Leave empty to proceed and accept the penalty, or write at least "
 "20 characters to appeal it."
-msgstr "İsteğe bağlı. Devam edip cezayı kabul etmek için boş bırakın; itiraz etmek için en az 20 karakter yazın."
+msgstr ""
+"İsteğe bağlı. Devam edip cezayı kabul etmek için boş bırakın; itiraz etmek "
+"için en az 20 karakter yazın."
 
 #: src/Admin/VendorReport/VendorReportAssets.php:139
 msgid "Network error. Please try again."
@@ -22452,7 +22471,10 @@ msgid ""
 "Withdrawing applies a penalty. Leave the reason empty to withdraw and accept "
 "the penalty, or explain why to appeal it — if the admin accepts your reason, "
 "no penalty applies."
-msgstr "Aracı geri çekmek bir ceza uygular. Cezayı kabul ederek çekmek için sebebi boş bırakın; itiraz etmek için sebebini açıklayın — yönetici sebebinizi kabul ederse ceza uygulanmaz."
+msgstr ""
+"Aracı geri çekmek bir ceza uygular. Cezayı kabul ederek çekmek için sebebi "
+"boş bırakın; itiraz etmek için sebebini açıklayın — yönetici sebebinizi "
+"kabul ederse ceza uygulanmaz."
 
 #: src/Admin/VendorReport/VendorReportAssets.php:143
 msgid "Reason for withdrawal (optional)"
@@ -22471,7 +22493,10 @@ msgid ""
 "Repeated pauses may incur a penalty. Leave the reason empty to pause and "
 "accept any penalty, or explain why to appeal it — if the admin accepts your "
 "reason, no penalty applies."
-msgstr "Tekrarlanan durdurmalar ceza doğurabilir. Cezayı kabul ederek durdurmak için sebebi boş bırakın; itiraz etmek için sebebini açıklayın — yönetici sebebinizi kabul ederse ceza uygulanmaz."
+msgstr ""
+"Tekrarlanan durdurmalar ceza doğurabilir. Cezayı kabul ederek durdurmak için "
+"sebebi boş bırakın; itiraz etmek için sebebini açıklayın — yönetici "
+"sebebinizi kabul ederse ceza uygulanmaz."
 
 #: src/Admin/VendorReport/VendorReportAssets.php:148
 msgid "Reason for pausing (optional)"
@@ -22637,7 +22662,7 @@ msgid "Ledger & Payouts"
 msgstr "Muhasebe ve Ödemeler"
 
 #: src/Core/Dashboard/DashboardNavigation.php:68
-#: templates/account/partials/vendor-reliability.php:32
+#: templates/account/partials/vendor-reliability.php:35
 msgid "Reliability & Penalties"
 msgstr "Güvenilirlik & Ceza"
 
@@ -22661,35 +22686,39 @@ msgstr "Yalnızca bekleyen ödeme talepleri onaylanabilir."
 msgid "Payout amount is invalid or zero."
 msgstr "Ödeme tutarı geçersiz veya sıfır."
 
+#: src/Core/Financial/AtomicPayoutService.php:85
+msgid "Vendor balance is no longer sufficient for this payout."
+msgstr ""
+
 #: src/Core/Financial/GovernanceService.php:56
 msgid "Invalid payout."
 msgstr "Geçersiz ödeme."
 
-#: src/Core/Financial/GovernanceService.php:219
+#: src/Core/Financial/GovernanceService.php:211
 msgid "You do not have the capability to finalize payouts."
 msgstr "Ödemeleri sonuçlandırma yetkiniz yok."
 
-#: src/Core/Financial/GovernanceService.php:223
+#: src/Core/Financial/GovernanceService.php:215
 msgid "You do not have the capability to review payouts."
 msgstr "Ödemeleri inceleme yetkiniz yok."
 
-#: src/Core/Financial/GovernanceService.php:240
+#: src/Core/Financial/GovernanceService.php:232
 msgid "Financial payouts are currently globally frozen by Governance."
 msgstr "Mali ödemeler şu anda Yönetim tarafından genel olarak durdurulmuştur."
 
-#: src/Core/Financial/GovernanceService.php:247
+#: src/Core/Financial/GovernanceService.php:239
 msgid "Payouts for this vendor have been frozen."
 msgstr "Bu bayinin ödemeleri donduruldu."
 
-#: src/Core/Financial/GovernanceService.php:321
+#: src/Core/Financial/GovernanceService.php:313
 msgid "You do not have the capability to bypass time-locks."
 msgstr "Zaman kilitlerini atlatma yetkiniz yok."
 
-#: src/Core/Financial/GovernanceService.php:325
+#: src/Core/Financial/GovernanceService.php:317
 msgid "A bypass reason is strictly required for audit auditability."
 msgstr "Denetim izlenebilirliği için atlama nedeni kesinlikle gereklidir."
 
-#: src/Core/Financial/GovernanceService.php:330
+#: src/Core/Financial/GovernanceService.php:322
 msgid "Only time-locked payouts can be bypassed."
 msgstr "Yalnızca zaman kilitli ödemeler atlatılabilir."
 
@@ -23546,7 +23575,7 @@ msgstr "Devam Et"
 
 #: templates/account/partials/vendor-listings.php:423
 #: templates/account/partials/vendor-listings.php:434
-#: templates/account/partials/vendor-reliability.php:428
+#: templates/account/partials/vendor-reliability.php:450
 msgid "Appeal"
 msgstr "İtiraz Et"
 
@@ -23642,22 +23671,22 @@ msgstr "Profil Bilgileri"
 msgid "Max %d characters"
 msgstr "Maksimum %d karakter"
 
-#: templates/account/partials/vendor-reliability.php:34
+#: templates/account/partials/vendor-reliability.php:37
 msgid ""
 "Your performance score and the penalty system that keeps the marketplace "
 "fair for everyone."
 msgstr ""
 "Performans puanınız ve pazaryerini herkes için adil tutan ceza sistemi."
 
-#: templates/account/partials/vendor-reliability.php:65
+#: templates/account/partials/vendor-reliability.php:68
 msgid "/ 100"
 msgstr "/ 100"
 
-#: templates/account/partials/vendor-reliability.php:74
+#: templates/account/partials/vendor-reliability.php:77
 msgid "Your Reliability Score"
 msgstr "Güvenilirlik Puanınız"
 
-#: templates/account/partials/vendor-reliability.php:77
+#: templates/account/partials/vendor-reliability.php:80
 msgid ""
 "Calculated daily from your booking completions, cancellations, withdrawals, "
 "and pauses over the last 6–12 months. A higher score signals trustworthiness "
@@ -23667,27 +23696,27 @@ msgstr ""
 "çekmeleriniz ve duraklatmalarınız temel alınarak her gün hesaplanır. Yüksek "
 "puan, müşterilere ve Rentiva'ya güvenilirliğinizi gösterir."
 
-#: templates/account/partials/vendor-reliability.php:121
+#: templates/account/partials/vendor-reliability.php:124
 msgid "90–100"
 msgstr "90–100"
 
-#: templates/account/partials/vendor-reliability.php:123
+#: templates/account/partials/vendor-reliability.php:126
 msgid "70–89"
 msgstr "70–89"
 
-#: templates/account/partials/vendor-reliability.php:125
+#: templates/account/partials/vendor-reliability.php:128
 msgid "50–69"
 msgstr "50–69"
 
-#: templates/account/partials/vendor-reliability.php:127
+#: templates/account/partials/vendor-reliability.php:130
 msgid "0–49"
 msgstr "0–49"
 
-#: templates/account/partials/vendor-reliability.php:140
+#: templates/account/partials/vendor-reliability.php:143
 msgid "How Your Score Is Calculated"
 msgstr "Puanınız Nasıl Hesaplanır?"
 
-#: templates/account/partials/vendor-reliability.php:143
+#: templates/account/partials/vendor-reliability.php:146
 msgid ""
 "Your score starts at 100 and is adjusted based on your actions. Scores are "
 "clamped between 0 and 100."
@@ -23695,74 +23724,74 @@ msgstr ""
 "Puanınız 100'den başlar ve eylemlerinize göre artıp azalır. Puan her zaman 0–"
 "100 arasında tutulur."
 
-#: templates/account/partials/vendor-reliability.php:151
+#: templates/account/partials/vendor-reliability.php:154
 msgid "Window"
 msgstr "Süre"
 
-#: templates/account/partials/vendor-reliability.php:152
+#: templates/account/partials/vendor-reliability.php:155
 msgid "Effect"
 msgstr "Etki"
 
-#: templates/account/partials/vendor-reliability.php:158
+#: templates/account/partials/vendor-reliability.php:161
 msgid "Bonus"
 msgstr "Bonus"
 
-#: templates/account/partials/vendor-reliability.php:159
+#: templates/account/partials/vendor-reliability.php:162
 msgid "Completed booking"
 msgstr "Tamamlanan rezervasyon"
 
-#: templates/account/partials/vendor-reliability.php:161
-#: templates/account/partials/vendor-reliability.php:176
-#: templates/account/partials/vendor-reliability.php:206
+#: templates/account/partials/vendor-reliability.php:164
+#: templates/account/partials/vendor-reliability.php:179
+#: templates/account/partials/vendor-reliability.php:209
 msgid "Last 6 months"
 msgstr "Son 6 ay"
 
 #. translators: %d: points per completed booking
-#: templates/account/partials/vendor-reliability.php:166
+#: templates/account/partials/vendor-reliability.php:169
 #, php-format
 msgid "+%1$d pts each (max +%2$d)"
 msgstr "Her biri +%1$d puan (maks. +%2$d)"
 
-#: templates/account/partials/vendor-reliability.php:173
-#: templates/account/partials/vendor-reliability.php:188
+#: templates/account/partials/vendor-reliability.php:176
+#: templates/account/partials/vendor-reliability.php:191
 msgid "Penalty"
 msgstr "Ceza"
 
-#: templates/account/partials/vendor-reliability.php:174
+#: templates/account/partials/vendor-reliability.php:177
 msgid "Vendor-initiated cancellation"
 msgstr "Bayi kaynaklı iptal"
 
 #. translators: %d: points deducted per cancellation
 #. translators: %d: points deducted per withdrawal
 #. translators: %d: points deducted per pause
-#: templates/account/partials/vendor-reliability.php:181
-#: templates/account/partials/vendor-reliability.php:196
-#: templates/account/partials/vendor-reliability.php:211
+#: templates/account/partials/vendor-reliability.php:184
+#: templates/account/partials/vendor-reliability.php:199
+#: templates/account/partials/vendor-reliability.php:214
 #, php-format
 msgid "-%d pts each"
 msgstr "Her biri -%d puan"
 
-#: templates/account/partials/vendor-reliability.php:189
+#: templates/account/partials/vendor-reliability.php:192
 msgid "Vehicle withdrawal"
 msgstr "Araç geri çekme"
 
-#: templates/account/partials/vendor-reliability.php:191
+#: templates/account/partials/vendor-reliability.php:194
 msgid "Last 12 months"
 msgstr "Son 12 ay"
 
-#: templates/account/partials/vendor-reliability.php:203
+#: templates/account/partials/vendor-reliability.php:206
 msgid "Minor"
 msgstr "Hafif"
 
-#: templates/account/partials/vendor-reliability.php:204
+#: templates/account/partials/vendor-reliability.php:207
 msgid "Vehicle pause"
 msgstr "Araç duraklatma"
 
-#: templates/account/partials/vendor-reliability.php:224
+#: templates/account/partials/vendor-reliability.php:227
 msgid "Withdrawal Penalty Tiers"
 msgstr "Geri Çekme Ceza Kademeleri"
 
-#: templates/account/partials/vendor-reliability.php:227
+#: templates/account/partials/vendor-reliability.php:230
 msgid ""
 "Repeated vehicle withdrawals carry financial penalties based on your rolling "
 "12-month history. Penalties are deducted from your next payout."
@@ -23770,58 +23799,60 @@ msgstr ""
 "Tekrarlanan araç geri çekmeler, son 12 aylık geçmişinize göre mali cezalar "
 "doğurur. Cezalar bir sonraki ödemenizden düşülür."
 
-#: templates/account/partials/vendor-reliability.php:234
+#: templates/account/partials/vendor-reliability.php:237
 msgid "1st Withdrawal"
 msgstr "1. Geri Çekme"
 
-#: templates/account/partials/vendor-reliability.php:235
-msgid "Free"
-msgstr "Ücretsiz"
-
-#: templates/account/partials/vendor-reliability.php:236
-msgid "No financial penalty for your first withdrawal in any 12-month window."
-msgstr "12 aylık süre içindeki ilk geri çekmeniz için mali ceza uygulanmaz."
-
-#: templates/account/partials/vendor-reliability.php:243
-msgid "2nd Withdrawal"
-msgstr "2. Geri Çekme"
-
 #. translators: %d: penalty percentage
-#: templates/account/partials/vendor-reliability.php:247
-#: templates/account/partials/vendor-reliability.php:261
+#: templates/account/partials/vendor-reliability.php:242
+#: templates/account/partials/vendor-reliability.php:260
+#: templates/account/partials/vendor-reliability.php:274
 #, php-format
 msgid "%d%% of monthly avg. revenue"
 msgstr "Aylık ortalama gelirin %d%%'si"
 
-#: templates/account/partials/vendor-reliability.php:250
+#: templates/account/partials/vendor-reliability.php:245
+#: templates/account/partials/vendor-reliability.php:263
 msgid "Deducted from your ledger balance at time of withdrawal."
 msgstr "Geri çekme anında muhasebe bakiyenizden düşülür."
 
-#: templates/account/partials/vendor-reliability.php:257
+#: templates/account/partials/vendor-reliability.php:247
+msgid "Free"
+msgstr "Ücretsiz"
+
+#: templates/account/partials/vendor-reliability.php:248
+msgid "No financial penalty for your first withdrawal in any 12-month window."
+msgstr "12 aylık süre içindeki ilk geri çekmeniz için mali ceza uygulanmaz."
+
+#: templates/account/partials/vendor-reliability.php:256
+msgid "2nd Withdrawal"
+msgstr "2. Geri Çekme"
+
+#: templates/account/partials/vendor-reliability.php:270
 msgid "3rd+ Withdrawal"
 msgstr "3. ve Sonraki Geri Çekmeler"
 
-#: templates/account/partials/vendor-reliability.php:264
+#: templates/account/partials/vendor-reliability.php:277
 msgid ""
 "Each subsequent withdrawal within the 12-month window carries this rate."
 msgstr ""
 "12 aylık penceredeki sonraki her geri çekme bu oran üzerinden cezalandırılır."
 
 #. translators: %d: rolling window in months
-#: templates/account/partials/vendor-reliability.php:272
+#: templates/account/partials/vendor-reliability.php:285
 #, php-format
 msgid "The withdrawal counter resets after %d months of no withdrawals."
 msgstr "Geri çekme sayacı, %d ay geri çekme yapılmadıktan sonra sıfırlanır."
 
-#: templates/account/partials/vendor-reliability.php:280
+#: templates/account/partials/vendor-reliability.php:293
 msgid "Why Does This System Exist?"
 msgstr "Bu Sistem Neden Var?"
 
-#: templates/account/partials/vendor-reliability.php:291
+#: templates/account/partials/vendor-reliability.php:304
 msgid "Customer Trust"
 msgstr "Müşteri Güveni"
 
-#: templates/account/partials/vendor-reliability.php:292
+#: templates/account/partials/vendor-reliability.php:305
 msgid ""
 "Customers rely on vehicles being available on the dates they book. Sudden "
 "withdrawals or cancellations erode trust in the entire marketplace."
@@ -23830,11 +23861,11 @@ msgstr ""
 "güvenir. Ani geri çekmeler veya iptaller, pazaryerinin tamamına duyulan "
 "güveni zedeler."
 
-#: templates/account/partials/vendor-reliability.php:302
+#: templates/account/partials/vendor-reliability.php:315
 msgid "Fair Competition"
 msgstr "Adil Rekabet"
 
-#: templates/account/partials/vendor-reliability.php:303
+#: templates/account/partials/vendor-reliability.php:316
 msgid ""
 "Vendors who consistently deliver receive better visibility. The score "
 "ensures that reliable vendors are rewarded and unreliable behaviour carries "
@@ -23844,11 +23875,11 @@ msgstr ""
 "sistemi, güvenilir bayilerı ödüllendirirken güvenilmez davranışların "
 "orantılı bir bedeli olmasını sağlar."
 
-#: templates/account/partials/vendor-reliability.php:313
+#: templates/account/partials/vendor-reliability.php:326
 msgid "Your Growth"
 msgstr "Büyümeniz"
 
-#: templates/account/partials/vendor-reliability.php:314
+#: templates/account/partials/vendor-reliability.php:327
 msgid ""
 "A high score is your reputation on Rentiva. It signals to customers that you "
 "are a dependable partner, which translates directly into more bookings and "
@@ -23858,39 +23889,39 @@ msgstr ""
 "olduğunuzu gösterir; bu da doğrudan daha fazla rezervasyon ve gelir anlamına "
 "gelir."
 
-#: templates/account/partials/vendor-reliability.php:325
+#: templates/account/partials/vendor-reliability.php:338
 msgid "Vehicle paused"
 msgstr "Araç duraklatıldı"
 
-#: templates/account/partials/vendor-reliability.php:326
+#: templates/account/partials/vendor-reliability.php:339
 msgid "Vehicle withdrawn"
 msgstr "Araç geri çekildi"
 
-#: templates/account/partials/vendor-reliability.php:342
-msgid "Appeal upheld"
-msgstr "İtiraz kabul edildi"
-
-#: templates/account/partials/vendor-reliability.php:327
+#: templates/account/partials/vendor-reliability.php:340
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:31
 msgid "Booking cancelled"
 msgstr "Rezervasyon iptal edildi"
 
-#: templates/account/partials/vendor-reliability.php:328
+#: templates/account/partials/vendor-reliability.php:341
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:32
 msgid "Booking completed"
 msgstr "Rezervasyon tamamlandı"
 
-#: templates/account/partials/vendor-reliability.php:329
+#: templates/account/partials/vendor-reliability.php:342
+msgid "Appeal upheld"
+msgstr "İtiraz kabul edildi"
+
+#: templates/account/partials/vendor-reliability.php:343
 msgid "Daily recalculation"
 msgstr "Günlük yeniden hesaplama"
 
-#: templates/account/partials/vendor-reliability.php:343
+#: templates/account/partials/vendor-reliability.php:358
 msgid "Score History"
 msgstr "Puan Geçmişi"
 
-#: templates/account/partials/vendor-reliability.php:346
+#: templates/account/partials/vendor-reliability.php:361
 msgid ""
 "A log of every event that affected your reliability score. Up to 50 entries "
 "are kept."
@@ -23898,38 +23929,38 @@ msgstr ""
 "Güvenilirlik puanınızı etkileyen tüm olayların kaydı. En fazla 50 kayıt "
 "tutulur."
 
-#: templates/account/partials/vendor-reliability.php:354
+#: templates/account/partials/vendor-reliability.php:369
 msgid ""
 "No score events recorded yet. Events appear here when your score changes."
 msgstr ""
 "Henüz puan değişikliği kaydedilmedi. Puanınız değiştiğinde olaylar burada "
 "görünür."
 
-#: templates/account/partials/vendor-reliability.php:362
+#: templates/account/partials/vendor-reliability.php:377
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
 msgid "Event"
 msgstr "Olay"
 
-#: templates/account/partials/vendor-reliability.php:364
+#: templates/account/partials/vendor-reliability.php:379
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:150
 msgid "Change"
 msgstr "Değişim"
 
-#: templates/account/partials/vendor-reliability.php:365
+#: templates/account/partials/vendor-reliability.php:380
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:151
 #: src-react/admin/vendor-management/components/VendorTable.jsx:103
 msgid "Score"
 msgstr "Puan"
 
-#: templates/account/partials/vendor-reliability.php:410
+#: templates/account/partials/vendor-reliability.php:432
 msgid "pts"
 msgstr "puan"
 
 #. translators: %1$s: event label, %2$s: vehicle title
-#: templates/account/partials/vendor-reliability.php:422
+#: templates/account/partials/vendor-reliability.php:444
 #, php-format
 msgid "Appeal: %1$s on %2$s"
 msgstr "İtiraz: %2$s — %1$s"

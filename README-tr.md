@@ -14,7 +14,7 @@
   <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — WordPress için Araç Kiralama ve Transfer Rezervasyon Sistemi" width="800">
 </p>
 
-![Version](https://img.shields.io/badge/version-4.60.0-blue.svg)
+![Version](https://img.shields.io/badge/version-4.61.0-blue.svg)
 ![Lisans Güvenliği](https://img.shields.io/badge/lisans%20g%C3%BCvenli%C4%9Fi-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
