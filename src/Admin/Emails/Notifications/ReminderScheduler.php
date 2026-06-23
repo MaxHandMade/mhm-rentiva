@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Booking\Core\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -60,11 +61,38 @@ final class ReminderScheduler {
 	}
 
 	public static function send_reminder( int $booking_id ): void {
-		// Respect toggle at send-time too
-		if ( SettingsCore::get( 'mhm_rentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
+		if ( ! self::should_send_reminder( $booking_id ) ) {
 			return;
 		}
 		// Send reminder to customer with finalized template key
 		Mailer::sendBookingEmail( 'booking_reminder_customer', $booking_id, 'customer' );
+	}
+
+	/**
+	 * Whether a "starting soon" reminder should still be sent at fire time.
+	 *
+	 * The reminder is scheduled when the booking is created, so by the time the
+	 * cron event fires the booking may have changed state — most notably it could
+	 * have been auto-cancelled for non-payment. Skip terminal / inactive statuses
+	 * so cancelled, refunded, no-show, completed or draft bookings never receive a
+	 * reminder. Respects the global toggle as before.
+	 *
+	 * @param int $booking_id Booking post ID.
+	 * @return bool
+	 */
+	public static function should_send_reminder( int $booking_id ): bool {
+		if ( SettingsCore::get( 'mhm_rentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
+			return false;
+		}
+
+		$skip = array(
+			Status::CANCELLED,
+			Status::REFUNDED,
+			Status::NO_SHOW,
+			Status::COMPLETED,
+			Status::DRAFT,
+		);
+
+		return ! in_array( Status::get( $booking_id ), $skip, true );
 	}
 }
