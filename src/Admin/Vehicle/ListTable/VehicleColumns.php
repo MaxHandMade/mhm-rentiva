@@ -990,7 +990,7 @@ final class VehicleColumns {
 											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped dynamically
 											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
 										} else {
-											$title = esc_attr__('Available — click to close', 'mhm-rentiva');
+											$title = __('Available — click to close', 'mhm-rentiva');
 											echo '<td class="' . esc_attr($class) . '" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr($title) . '">';
 										}
 
