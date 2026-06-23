@@ -70,7 +70,7 @@ final class VendorMarketplaceSettings {
 			'mhm_rentiva_listing_fee_amount'       => 0.0,
 
 			// Vendor Agreement
-			'vendor_agreement_enabled'             => false,
+			'vendor_agreement_enabled'             => '0',
 			'vendor_agreement_text'                => '',
 		);
 	}
