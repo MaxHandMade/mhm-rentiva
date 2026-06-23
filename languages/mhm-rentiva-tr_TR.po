@@ -22688,7 +22688,7 @@ msgstr "Ödeme tutarı geçersiz veya sıfır."
 
 #: src/Core/Financial/AtomicPayoutService.php:85
 msgid "Vendor balance is no longer sufficient for this payout."
-msgstr ""
+msgstr "Bayi bakiyesi bu ödeme için artık yeterli değil."
 
 #: src/Core/Financial/GovernanceService.php:56
 msgid "Invalid payout."
