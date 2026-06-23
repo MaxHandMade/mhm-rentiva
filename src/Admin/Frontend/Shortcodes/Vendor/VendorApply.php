@@ -258,6 +258,19 @@ final class VendorApply extends AbstractShortcode
                     </div>
                 </div>
 
+                <?php if (static::is_agreement_required()) : ?>
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Vendor Agreement', 'mhm-rentiva'); ?></h3>
+                    <div class="mhm-vendor-agreement-box"><?php
+                        echo nl2br(esc_html((string) SettingsCore::get('vendor_agreement_text', '')));
+                    ?></div>
+                    <label class="mhm-vendor-form__consent">
+                        <input type="checkbox" name="terms_accepted" value="1" required>
+                        <span><?php esc_html_e('I have read and accept the vendor agreement.', 'mhm-rentiva'); ?> <span class="required">*</span></span>
+                    </label>
+                </div>
+                <?php endif; ?>
+
                 <div class="mhm-vendor-form__submit">
                     <button type="submit" class="mhm-vendor-form__btn mhm-vendor-form__btn--primary" id="mhm-vendor-apply-submit">
                         <?php esc_html_e('Submit Application', 'mhm-rentiva'); ?>
