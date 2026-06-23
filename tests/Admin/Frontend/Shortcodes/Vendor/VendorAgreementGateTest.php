@@ -47,4 +47,30 @@ class VendorAgreementGateTest extends WP_UnitTestCase
         $this->settings('1', "These are the vendor terms.\nLine two.");
         $this->assertTrue(VendorApply::is_agreement_required());
     }
+
+    /** @test */
+    public function test_gate_passes_empty_when_not_required(): void
+    {
+        $this->settings('0', '');
+        $this->assertSame(array(), VendorApply::evaluate_terms_gate(array()));
+    }
+
+    /** @test */
+    public function test_gate_errors_when_required_but_not_accepted(): void
+    {
+        $this->settings('1', 'Vendor terms');
+        $result = VendorApply::evaluate_terms_gate(array());
+        $this->assertInstanceOf(\WP_Error::class, $result);
+        $this->assertSame('terms_required', $result->get_error_code());
+    }
+
+    /** @test */
+    public function test_gate_returns_proof_when_accepted(): void
+    {
+        $this->settings('1', 'Vendor terms');
+        $result = VendorApply::evaluate_terms_gate(array('terms_accepted' => '1'));
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result['terms_accepted_at']);
+        $this->assertSame(hash('sha256', 'Vendor terms'), $result['terms_version']);
+    }
 }

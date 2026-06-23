@@ -60,6 +60,28 @@ final class VendorApply extends AbstractShortcode
     }
 
     /**
+     * Validate the agreement gate against the submitted data.
+     *
+     * @param array $post The request data (only the presence of 'terms_accepted' is read).
+     * @return array{terms_accepted_at:string,terms_version:string}|array<empty,empty>|\WP_Error
+     */
+    public static function evaluate_terms_gate(array $post)
+    {
+        if (! self::is_agreement_required()) {
+            return array();
+        }
+
+        if (empty($post['terms_accepted'])) {
+            return new \WP_Error('terms_required', __('You must accept the vendor agreement to apply.', 'mhm-rentiva'));
+        }
+
+        return array(
+            'terms_accepted_at' => current_time('mysql', true),
+            'terms_version'     => hash('sha256', (string) SettingsCore::get('vendor_agreement_text', '')),
+        );
+    }
+
+    /**
      * Prepare template data, applying access control checks.
      *
      * @param array $atts Shortcode attributes.
@@ -290,6 +312,11 @@ final class VendorApply extends AbstractShortcode
             wp_send_json_error(array('message' => __('You must be logged in.', 'mhm-rentiva')));
         }
 
+        $terms = self::evaluate_terms_gate($_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above via check_ajax_referer; only presence of terms_accepted is read.
+        if (is_wp_error($terms)) {
+            wp_send_json_error(array('message' => $terms->get_error_message()));
+        }
+
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -341,7 +368,7 @@ final class VendorApply extends AbstractShortcode
         );
         // phpcs:enable
 
-        $result = VendorApplicationManager::create_application(get_current_user_id(), $data);
+        $result = VendorApplicationManager::create_application(get_current_user_id(), array_merge($data, $terms));
 
         if (is_wp_error($result)) {
             wp_send_json_error(array('message' => $result->get_error_message()));
