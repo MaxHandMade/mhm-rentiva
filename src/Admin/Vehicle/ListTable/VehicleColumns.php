@@ -462,6 +462,10 @@ final class VehicleColumns {
 				#mhm-booking-popup .mhm-popup-footer { padding:16px 24px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; box-sizing:border-box; }
 				#mhm-booking-popup .mhm-popup-footer .button { box-sizing:border-box; }
 				.calendar-table .day-cell.available, .calendar-table .day-cell.blocked-day { cursor: pointer; }
+				/* Blocked days are now clickable (quick unblock); the component CSS sets
+				   pointer-events:none + cursor:not-allowed for the informational red stripe,
+				   so re-enable interaction on this admin calendar. */
+				.calendar-table td.day-cell.blocked-day { pointer-events: auto !important; cursor: pointer !important; }
 			' );
 		}
 	}
