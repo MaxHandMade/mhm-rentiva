@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-28T12:43:12+00:00\n"
+"POT-Creation-Date: 2026-06-28T18:21:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -132,7 +132,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
 #: src/Admin/Utilities/Menu/Menu.php:160
 #: src/Admin/Utilities/Menu/Menu.php:161
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:124
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:125
 #: build/admin/dashboard.js:1
 #: build/admin/messages.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
@@ -865,7 +865,7 @@ msgstr ""
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:8
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:81
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:99
 #: src-react/admin/vendor-management/components/VendorTable.jsx:80
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Active"
@@ -1101,7 +1101,7 @@ msgstr ""
 #: assets/blocks/popular-routes/index.js:51
 #: build/admin/vendor-management.js:1
 #: build/admin/vendor-reports.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:179
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:228
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Title"
 msgstr ""
@@ -1109,7 +1109,7 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:154
 #: src/Admin/Addons/AddonManager.php:161
 #: src/Admin/Addons/AddonMeta.php:75
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:478
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:495
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:84
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:96
@@ -1162,7 +1162,7 @@ msgstr ""
 #: src-react/admin/messages/components/MessageTable.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:59
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:125
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:174
 #: src-react/admin/vendor-management/components/VendorTable.jsx:104
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:18
 msgid "Status"
@@ -1204,8 +1204,8 @@ msgstr ""
 #: src-react/admin/export/components/PreviewBar.jsx:22
 #: src-react/admin/messages/components/MessageTable.jsx:25
 #: src-react/admin/messages/components/MessageTable.jsx:65
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:123
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:148
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:172
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:197
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:19
 msgid "Date"
 msgstr ""
@@ -1233,8 +1233,8 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:182
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:193
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:231
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:242
 msgid "Edit"
 msgstr ""
 
@@ -1524,8 +1524,8 @@ msgstr ""
 #: src/Admin/Privacy/GDPRManager.php:409
 #: src/Admin/Testing/ShortcodeTestHandler.php:44
 #: src/Admin/Testing/TestAdminPage.php:231
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:162
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:182
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:163
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:183
 msgid "Security check failed."
 msgstr ""
 
@@ -1571,7 +1571,7 @@ msgid "Error occurred while updating price."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:768
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:247
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:264
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:536
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1494
 msgid "Child Seat"
@@ -2494,7 +2494,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:125
 #: src/Admin/Booking/ListTable/BookingColumns.php:1841
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:346
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:347
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:364
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:78
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1465
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:484
@@ -2956,7 +2956,7 @@ msgstr ""
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:87
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:105
 #: src-react/admin/vendor-management/components/VendorTable.jsx:100
 msgid "Email"
 msgstr ""
@@ -2979,7 +2979,7 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:88
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:106
 msgid "Phone"
 msgstr ""
 
@@ -3105,8 +3105,8 @@ msgstr ""
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:88
 #: src/Admin/Testing/DemoAjaxHandler.php:103
 #: src/Admin/Testing/DemoAjaxHandler.php:127
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:153
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:173
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:154
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:174
 msgid "Permission denied."
 msgstr ""
 
@@ -3433,7 +3433,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:174
 #: src/Admin/Core/AssetManager.php:485
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:201
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:218
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:224
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:85
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:188
@@ -4570,7 +4570,7 @@ msgid "Redirecting to Vehicle Settings..."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:486
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:208
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:225
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:206
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:69
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:193
@@ -4578,7 +4578,7 @@ msgid "Diesel"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:487
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:209
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:226
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:209
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:70
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:194
@@ -4586,7 +4586,7 @@ msgid "Hybrid"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:488
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:210
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:227
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:208
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:71
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:195
@@ -4717,6 +4717,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1349
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1333
 #: templates/account/partials/vendor-profile-settings.php:128
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
 msgid "Save"
 msgstr ""
 
@@ -6452,6 +6454,8 @@ msgid "Search:"
 msgstr ""
 
 #: src/Admin/Core/Utilities/CityHelper.php:162
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:117
 msgid "Select a city..."
 msgstr ""
 
@@ -8240,8 +8244,8 @@ msgstr ""
 
 #: src/Admin/Frontend/Account/AccountController.php:591
 #: src/Admin/Frontend/Account/AccountController.php:674
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:638
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1043
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:655
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1060
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:325
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
@@ -8545,7 +8549,7 @@ msgid "Vendor Panel"
 msgstr ""
 
 #: src/Admin/Frontend/Account/WooCommerceIntegration.php:261
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:171
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:188
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:137
 msgid "This feature requires Rentiva Pro."
 msgstr ""
@@ -8839,7 +8843,7 @@ msgid "Tax (included)"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:241
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:575
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:592
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:279
 #: src/Admin/VendorReport/VendorReportAssets.php:133
 msgid "Submitting..."
@@ -9487,14 +9491,14 @@ msgid "Brand"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:335
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:273
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:290
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:487
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1515
 msgid "Model"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:337
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:367
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:384
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:491
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1519
 #: templates/shortcodes/search-results.php:218
@@ -9502,7 +9506,7 @@ msgid "Fuel Type"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:338
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:359
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:376
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:82
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1500
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1518
@@ -9511,7 +9515,7 @@ msgid "Transmission"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:339
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:351
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:368
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:81
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1488
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1516
@@ -9521,7 +9525,7 @@ msgid "Seats"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:340
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:355
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:372
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1517
 msgid "Doors"
 msgstr ""
@@ -9533,13 +9537,13 @@ msgid "Engine Size"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:342
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:277
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:294
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:482
 msgid "Model Year"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:343
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:343
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:360
 #: src/Admin/Utilities/Database/DatabaseInitialization.php:261
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:483
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1511
@@ -9547,7 +9551,7 @@ msgid "Mileage"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:344
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:286
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:303
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:259
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:308
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:485
@@ -9572,7 +9576,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:350
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:554
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:221
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:238
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:504
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1463
 msgid "Air Conditioning"
@@ -9584,21 +9588,21 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:352
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:566
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:230
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:247
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:513
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1472
 msgid "Bluetooth"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:353
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:231
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:248
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:514
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1473
 msgid "USB Port"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:354
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:233
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:250
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:516
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1475
 msgid "Sunroof"
@@ -9606,7 +9610,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:356
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:555
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:222
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:239
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:505
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1464
 msgid "Power Steering"
@@ -9614,7 +9618,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:357
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:558
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:225
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:242
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:508
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1467
 msgid "Central Locking"
@@ -9622,7 +9626,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:358
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:570
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:229
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:246
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:512
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1471
 msgid "Cruise Control"
@@ -9630,7 +9634,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:359
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:557
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:224
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:241
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:507
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1466
 msgid "Airbags"
@@ -9639,13 +9643,13 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:360
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:361
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:556
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:223
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:240
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1465
 msgid "ABS Brakes"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:362
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:228
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:245
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:511
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1470
 msgid "Fog Lights"
@@ -9661,7 +9665,7 @@ msgid "Backup Camera"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:365
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:234
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:251
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:517
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1476
 msgid "Leather Seats"
@@ -9669,7 +9673,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:366
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:567
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:235
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:252
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:518
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1477
 msgid "Heated Seats"
@@ -9677,14 +9681,14 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:367
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:559
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:226
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:243
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:509
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1468
 msgid "Electric Windows"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:368
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:227
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:244
 msgid "Electric Mirrors"
 msgstr ""
 
@@ -9704,7 +9708,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:372
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:562
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:232
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:249
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:515
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1474
 msgid "Navigation"
@@ -9867,49 +9871,49 @@ msgstr ""
 msgid "Featured"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:177
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:194
 msgid "Please log in to submit a vehicle."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:183
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:200
 msgid "Only approved vendors can submit vehicles. Apply as a vendor first."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:200
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:217
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:225
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:84
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:187
 msgid "Automatic"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:202
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:219
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:226
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:86
 msgid "Semi-Automatic"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:203
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:220
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:87
 msgid "CVT"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:207
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:224
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:68
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:192
 msgid "Petrol"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:211
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:228
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:207
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:72
 msgid "LPG"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:215
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:232
 msgid "Car Rental Only"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:216
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:233
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:93
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:98
 #: templates/partials/vehicle-card.php:78
@@ -9917,97 +9921,97 @@ msgstr ""
 msgid "Transfer Only"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:217
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:234
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:91
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:99
 msgid "Both (Rental & Transfer)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:239
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:256
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:528
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1486
 msgid "Spare Tire"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:240
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:257
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:529
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1487
 msgid "Jack"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:241
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:258
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:530
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1488
 msgid "First Aid Kit"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:242
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:259
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:531
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1489
 msgid "Fire Extinguisher"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:243
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:260
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:532
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1490
 msgid "Warning Triangle"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:244
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:261
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:533
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1491
 msgid "Jumper Cables"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:245
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:262
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:534
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1492
 msgid "Ice Scraper"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:246
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:263
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:535
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1493
 msgid "Car Cover"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:248
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:265
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:537
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1495
 msgid "GPS Tracker"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:249
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:266
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:538
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1496
 msgid "Dashcam"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:250
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:267
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:539
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1497
 msgid "Phone Holder"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:251
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:268
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:540
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1498
 msgid "Charger"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:252
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:269
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:541
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1499
 msgid "Cleaning Kit"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:253
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:270
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:542
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1500
 msgid "Emergency Kit"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:266
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:283
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:74
 #: src/Admin/Setup/SetupWizard.php:1116
@@ -10017,94 +10021,94 @@ msgstr ""
 msgid "Vehicle Details"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:269
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:286
 msgid "Make (Brand)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:270
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:287
 msgid "e.g. Toyota"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:274
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:291
 msgid "e.g. Corolla"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:279
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:296
 msgid "Select Year"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:287
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:304
 msgid "e.g. White"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:290
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:307
 msgid "Location / City"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:294
-msgid "City is set based on your vendor profile. Contact admin to change."
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:311
+msgid "City is set from your vendor profile. You can change it in your profile settings."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:301
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:318
 #: templates/shortcodes/search-results.php:136
 #: templates/shortcodes/transfer-search.php:49
 #: templates/shortcodes/unified-search.php:222
 msgid "Pickup Location"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:303
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:320
 msgid "Select Pickup Location"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:308
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:325
 msgid "The main pickup point for this vehicle in your city."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:313
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:330
 #: src/Admin/Utilities/Export/ExportFilters.php:446
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:58
 msgid "Vehicle Category"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:315
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:332
 msgid "Select Category"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:327
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:344
 msgid "Short Description"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:329
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:346
 msgid "Vehicle Description"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:330
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:347
 msgid "Briefly describe the vehicle — condition, highlights, any extras included."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:336
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:353
 msgid "Price & Technical Details"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:339
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:356
 #: templates/shortcodes/vehicle-details.php:325
 msgid "Daily Rate"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:344
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:361
 msgid "e.g. 45000"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:348
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:365
 msgid "e.g. 34ABC123"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:375
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:392
 msgid "Engine Size (L)"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:384
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:386
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:401
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:403
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:87
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:95
 #: templates/account/vendor-booking-detail.php:168
@@ -10112,179 +10116,179 @@ msgstr ""
 msgid "Service Type"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:388
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:405
 msgid "Select Service"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:399
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:416
 msgid "Transfer Service Settings"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:403
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:420
 msgid "Service City"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:405
-msgid "Your city is set during vendor application. Contact admin to change."
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:422
+msgid "Your city is set from your vendor profile. You can change it in your profile settings."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:411
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:428
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:108
 #: templates/partials/transfer-card.php:128
 msgid "Max Passengers"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:412
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:429
 msgid "Excluding driver"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:415
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:432
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:114
 msgid "Luggage Score Capacity"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:417
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:434
 msgid "Small Bag = 1 pt, Big Bag = 2.5 pt"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:422
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:439
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:127
 msgid "Max Big Luggage"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:426
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:443
 #: src/Admin/Transfer/VehicleTransferMetaBox.php:134
 msgid "Max Small Luggage"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:434
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:451
 msgid "Service Locations"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:435
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:452
 msgid "Select the locations where you can provide transfer service."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:453
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:470
 #: src/Admin/Utilities/Menu/Menu.php:95
 #: src/Admin/Utilities/Menu/Menu.php:96
 msgid "Transfer Routes"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:454
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:471
 msgid "Select routes and set your price for each."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:461
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:478
 #, php-format
 msgid "Range: %s – %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:463
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:480
 #, php-format
 msgid "Min: %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:465
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:482
 #, php-format
 msgid "Max: %s"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:511
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:528
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:746
 msgid "Vehicle Features"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:524
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:541
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:798
 msgid "Vehicle Equipment"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:537
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:554
 msgid "Vehicle Registration Document"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:538
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:555
 msgid "Upload a clear photo or scan of the vehicle registration certificate (ruhsat). This document is required for verification and will only be visible to the site administrator."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:546
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:563
 msgid "Vehicle Insurance"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:547
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:564
 msgid "Upload a clear photo or scan of the current vehicle insurance policy (kasko/trafik sigortası). This document is required for verification and will only be visible to the site administrator."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:555
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:572
 msgid "Photos"
 msgstr ""
 
 #. translators: 1: min photos, 2: max photos
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:558
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:575
 #, php-format
 msgid "Upload between %1$d and %2$d photos. The first photo will be the main image."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:572
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:589
 msgid "Submit Vehicle for Review"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:623
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:640
 msgid "Your vehicle has been submitted for review! We will notify you once approved."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:624
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:641
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:313
 msgid "Something went wrong. Please try again."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:644
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:661
 msgid "Only approved vendors can submit vehicles."
 msgstr ""
 
 #. translators: %d: minimum photo count
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:741
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:758
 #, php-format
 msgid "Please upload at least %d photos."
 msgstr ""
 
 #. translators: %d: maximum photo count
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:750
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:767
 #, php-format
 msgid "You can upload a maximum of %d photos."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:758
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:775
 msgid "Untitled Vehicle"
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:777
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:794
 msgid "Failed to create vehicle listing."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:973
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:990
 msgid "Invalid vehicle."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:977
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:994
 #: src/Admin/Vehicle/VehicleLifecycleManager.php:439
 msgid "You do not own this vehicle."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1048
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1065
 msgid "Only approved vendors can edit vehicles."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1054
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1071
 msgid "Invalid vehicle or permission denied."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1278
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1295
 msgid "Vehicle updated. Critical fields were changed — your listing will be reviewed again before publishing."
 msgstr ""
 
-#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1285
+#: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1302
 msgid "Vehicle updated successfully."
 msgstr ""
 
@@ -10331,7 +10335,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
 #: templates/account/partials/vendor-settings.php:120
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:91
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
 msgid "IBAN"
 msgstr ""
 
@@ -10391,17 +10395,17 @@ msgid "Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB e
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:241
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:287
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:298
 msgid "ID Document"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:242
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:288
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:299
 msgid "Driver's License"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:243
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:289
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:300
 msgid "Address Document"
 msgstr ""
 
@@ -11854,7 +11858,7 @@ msgstr ""
 #: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:174
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:223
 #: src-react/admin/vendor-management/components/VendorTable.jsx:102
 msgid "Vehicles"
 msgstr ""
@@ -13506,7 +13510,7 @@ msgstr ""
 #. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:253
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:264
 #: src/Admin/VendorReport/REST/VendorReportsController.php:172
 #: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
@@ -13864,7 +13868,7 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:89
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:108
 #: src-react/admin/vendor-management/components/VendorTable.jsx:101
 msgid "City"
 msgstr ""
@@ -13934,7 +13938,7 @@ msgstr ""
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:124
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:173
 msgid "Amount"
 msgstr ""
 
@@ -14063,7 +14067,7 @@ msgid "Technical"
 msgstr ""
 
 #: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:28
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:99
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:100
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:113
 msgid "You do not have permission to view this page."
 msgstr ""
@@ -14111,7 +14115,7 @@ msgstr ""
 #: src/Core/Dashboard/DashboardConfig.php:86
 #: templates/account/partials/vendor-payouts.php:150
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:99
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:148
 msgid "Available Balance"
 msgstr ""
 
@@ -20520,7 +20524,7 @@ msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:85
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:181
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:230
 msgid "Lifecycle"
 msgstr ""
 
@@ -21613,7 +21617,7 @@ msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:36
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:37
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:111
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:112
 msgid "Vendor Management"
 msgstr ""
 
@@ -21621,19 +21625,19 @@ msgstr ""
 msgid "Operation completed successfully."
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:114
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:115
 msgid "IBAN Requests"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:120
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:121
 msgid "Pending Applications"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:121
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:122
 msgid "Active Vendors"
 msgstr ""
 
-#: src/Admin/Vendor/AdminVendorApplicationsPage.php:123
+#: src/Admin/Vendor/AdminVendorApplicationsPage.php:124
 msgid "Commission"
 msgstr ""
 
@@ -21753,14 +21757,18 @@ msgctxt "URL slug"
 msgid "vendor"
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:342
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:353
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
 msgstr ""
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:380
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:391
 msgid "Not set"
+msgstr ""
+
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:685
+msgid "The selected city is not in the allowed list."
 msgstr ""
 
 #: src/Admin/Vendor/VendorApplicationManager.php:39
@@ -23054,7 +23062,7 @@ msgstr ""
 
 #: templates/account/partials/vendor-payouts.php:210
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:114
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
 msgid "Payout History"
 msgstr ""
 
@@ -23324,19 +23332,19 @@ msgstr ""
 
 #: templates/account/partials/vendor-reliability.php:377
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:198
 msgid "Event"
 msgstr ""
 
 #: templates/account/partials/vendor-reliability.php:379
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:150
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:199
 msgid "Change"
 msgstr ""
 
 #: templates/account/partials/vendor-reliability.php:380
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:151
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:200
 #: src-react/admin/vendor-management/components/VendorTable.jsx:103
 msgid "Score"
 msgstr ""
@@ -23571,7 +23579,7 @@ msgstr ""
 
 #: templates/account/vendor-ledger.php:49
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:107
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:156
 msgid "Refunds"
 msgstr ""
 
@@ -25940,7 +25948,7 @@ msgstr ""
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:46
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:65
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:67
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:85
 #: src-react/admin/vendor-management/components/VendorTable.jsx:88
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:104
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
@@ -26631,7 +26639,7 @@ msgid "Search vendors…"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:80
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:98
 #: src-react/admin/vendor-management/components/VendorTable.jsx:81
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Suspended"
@@ -26683,7 +26691,7 @@ msgid "Suspend"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:49
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:55
 msgid "Failed to load vendor."
 msgstr ""
 
@@ -26703,52 +26711,69 @@ msgid "Scheduled recalculation"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:63
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:81
 msgid "← Back to vendors"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:90
-msgid "Reliability Score"
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
+msgid "City updated."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:92
-msgid "Approved At"
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:67
+msgid "Could not update the city."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:103
-msgid "Completed Bookings"
-msgstr ""
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:116
-msgid "View all →"
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
+msgid "Saving…"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:139
+msgid "Reliability Score"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:141
+msgid "Approved At"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:152
+msgid "Completed Bookings"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:165
+msgid "View all →"
+msgstr ""
+
+#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:188
 msgid "No payout requests yet."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:143
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
 msgid "Reliability & Penalty History"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:171
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:220
 msgid "No penalties or reliability events recorded."
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:180
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:229
 msgid "Post Status"
 msgstr ""
 
 #: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:201
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:250
 msgid "This vendor has no vehicles."
 msgstr ""
 
@@ -26805,12 +26830,6 @@ msgstr ""
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:93
 msgid "e.g. Q1 2026 standard rate"
-msgstr ""
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
-#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
-msgid "Saving…"
 msgstr ""
 
 #: build/admin/vendor-management.js:1

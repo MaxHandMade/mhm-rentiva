@@ -39,16 +39,34 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 	const [ vendor,  setVendor  ] = useState( null );
 	const [ loading, setLoading ] = useState( true );
 	const [ error,   setError   ] = useState( null );
+	const [ cityValue,  setCityValue  ] = useState( '' );
+	const [ citySaving, setCitySaving ] = useState( false );
+	const [ cityMsg,    setCityMsg    ] = useState( null );
+
+	const cities = ( window.mhmRentivaVendorManagement || {} ).cities || [];
 
 	useEffect( () => {
 		let active = true;
 		setLoading( true );
 		setError( null );
+		setCityMsg( null );
 		rentivaApi.vendorManagement.getVendorDetail( vendorId )
-			.then( ( res ) => { if ( active ) { setVendor( res.vendor ); setLoading( false ); } } )
+			.then( ( res ) => { if ( active ) { setVendor( res.vendor ); setCityValue( res.vendor.city || '' ); setLoading( false ); } } )
 			.catch( () => { if ( active ) { setError( __( 'Failed to load vendor.', 'mhm-rentiva' ) ); setLoading( false ); } } );
 		return () => { active = false; };
 	}, [ vendorId ] );
+
+	const saveCity = () => {
+		setCitySaving( true );
+		setCityMsg( null );
+		rentivaApi.vendorManagement.updateVendorCity( vendorId, cityValue )
+			.then( ( res ) => {
+				setVendor( ( v ) => ( { ...v, city: res.city } ) );
+				setCityMsg( { type: 'success', text: __( 'City updated.', 'mhm-rentiva' ) } );
+			} )
+			.catch( () => setCityMsg( { type: 'error', text: __( 'Could not update the city.', 'mhm-rentiva' ) } ) )
+			.finally( () => setCitySaving( false ) );
+	};
 
 	const lifecycleLabels    = LIFECYCLE_LABELS();
 	const postStatusLabels   = POST_STATUS_LABELS();
@@ -86,7 +104,38 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 						<tbody>
 							<tr><th style={ { width: '180px' } }>{ __( 'Email', 'mhm-rentiva' ) }</th><td>{ vendor.email || '—' }</td></tr>
 							<tr><th>{ __( 'Phone', 'mhm-rentiva' ) }</th><td>{ vendor.phone || '—' }</td></tr>
-							<tr><th>{ __( 'City', 'mhm-rentiva' ) }</th><td>{ vendor.city || '—' }</td></tr>
+							<tr>
+								<th>{ __( 'City', 'mhm-rentiva' ) }</th>
+								<td>
+									{ cities.length > 0 ? (
+										<span style={ { display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }>
+											<select
+												value={ cityValue }
+												onChange={ ( e ) => setCityValue( e.target.value ) }
+												disabled={ citySaving }
+											>
+												<option value="">{ __( 'Select a city...', 'mhm-rentiva' ) }</option>
+												{ cities.map( ( c ) => (
+													<option key={ c } value={ c }>{ c }</option>
+												) ) }
+											</select>
+											<button
+												type="button"
+												className="button button-small"
+												onClick={ saveCity }
+												disabled={ citySaving || cityValue === '' || cityValue === ( vendor.city || '' ) }
+											>
+												{ citySaving ? __( 'Saving…', 'mhm-rentiva' ) : __( 'Save', 'mhm-rentiva' ) }
+											</button>
+											{ cityMsg && (
+												<span style={ { fontSize: '12px', color: cityMsg.type === 'error' ? '#c62828' : '#2e7d32' } }>
+													{ cityMsg.text }
+												</span>
+											) }
+										</span>
+									) : ( vendor.city || '—' ) }
+								</td>
+							</tr>
 							<tr><th>{ __( 'Reliability Score', 'mhm-rentiva' ) }</th><td>{ vendor.reliability_score ?? '—' }</td></tr>
 							<tr><th>{ __( 'IBAN', 'mhm-rentiva' ) }</th><td>{ vendor.iban_masked || '—' }</td></tr>
 							<tr><th>{ __( 'Approved At', 'mhm-rentiva' ) }</th><td>{ vendor.approved_at || '—' }</td></tr>

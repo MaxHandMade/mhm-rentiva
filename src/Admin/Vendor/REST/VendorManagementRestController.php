@@ -166,6 +166,17 @@ final class VendorManagementRestController {
 			),
 		) );
 
+		// Update vendor base city (admin override of _rentiva_vendor_city on request).
+		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)/city', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'update_vendor_city' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'id'   => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+				'city' => array( 'type' => 'string', 'required' => true, 'sanitize_callback' => 'sanitize_text_field' ),
+			),
+		) );
+
 		// Get commission.
 		register_rest_route( $ns, self::COMMISSION_BASE, array(
 			'methods'             => \WP_REST_Server::READABLE,
@@ -647,6 +658,39 @@ final class VendorManagementRestController {
 		VendorOnboardingController::unsuspend( $vendor_id );
 
 		return new \WP_REST_Response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Admin override of a vendor's base city (handles "change my city" requests).
+	 *
+	 * Writes the canonical MetaKeys::VENDOR_CITY user meta — the same key the vendor
+	 * profile self-edit and onboarding use — so the vehicle form, transfer scoping,
+	 * directory and profile caches all stay consistent. The city is validated against
+	 * the known city list to prevent free-text drift.
+	 */
+	public static function update_vendor_city( \WP_REST_Request $request ): \WP_REST_Response {
+		$vendor_id   = (int) $request->get_param( 'id' );
+		$vendor_data = get_userdata( $vendor_id );
+
+		if ( ! $vendor_data || ! in_array( 'rentiva_vendor', (array) $vendor_data->roles, true ) ) {
+			return new \WP_REST_Response( array( 'code' => 'vendor_not_found' ), 404 );
+		}
+
+		$city = trim( (string) $request->get_param( 'city' ) );
+
+		if ( ! in_array( $city, \MHMRentiva\Admin\Core\Utilities\CityHelper::get_city_list(), true ) ) {
+			return new \WP_REST_Response(
+				array(
+					'code'    => 'invalid_city',
+					'message' => __( 'The selected city is not in the allowed list.', 'mhm-rentiva' ),
+				),
+				400
+			);
+		}
+
+		update_user_meta( $vendor_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, $city );
+
+		return new \WP_REST_Response( array( 'success' => true, 'city' => $city ) );
 	}
 
 	// ---------------------------------------------------------------

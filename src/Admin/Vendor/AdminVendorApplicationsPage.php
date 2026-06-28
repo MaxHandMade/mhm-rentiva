@@ -84,6 +84,7 @@ final class AdminVendorApplicationsPage
                 'adminUrl'         => admin_url(),
                 'pageUrl'          => admin_url('admin.php?page=mhm-rentiva-vendors'),
                 'payoutsUrl'       => admin_url('admin.php?page=mhm-rentiva-payouts'),
+                'cities'           => \MHMRentiva\Admin\Core\Utilities\CityHelper::get_city_list(),
                 'flash'            => $flash,
             )
         );

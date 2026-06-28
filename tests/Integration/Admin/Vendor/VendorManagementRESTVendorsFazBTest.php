@@ -144,4 +144,48 @@ final class VendorManagementRESTVendorsFazBTest extends WP_UnitTestCase {
 		$status = get_user_meta( $this->vendor_suspended_id, '_rentiva_vendor_status', true );
 		$this->assertSame( 'active', $status, 'Vendor status must be "active" after unsuspend' );
 	}
+
+	public function test_update_vendor_city_with_valid_city_updates_canonical_meta(): void {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'POST', "/mhm-rentiva/v1/vendors/vendors/{$this->vendor_active_id}/city" );
+		$request->set_body_params( array( 'city' => 'Ankara' ) );
+		$response = self::$server->dispatch( $request );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertTrue( $response->get_data()['success'] );
+		$this->assertSame( 'Ankara', $response->get_data()['city'] );
+		$this->assertSame(
+			'Ankara',
+			get_user_meta( $this->vendor_active_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, true ),
+			'Admin city edit must write the canonical _rentiva_vendor_city user meta'
+		);
+	}
+
+	public function test_update_vendor_city_rejects_city_outside_the_known_list(): void {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'POST', "/mhm-rentiva/v1/vendors/vendors/{$this->vendor_active_id}/city" );
+		$request->set_body_params( array( 'city' => 'Gotham City' ) );
+		$response = self::$server->dispatch( $request );
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame(
+			'Istanbul',
+			get_user_meta( $this->vendor_active_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, true ),
+			'An invalid city must not overwrite the existing value'
+		);
+	}
+
+	public function test_update_vendor_city_on_non_vendor_returns_404(): void {
+		wp_set_current_user( $this->admin_id );
+		$request = new WP_REST_Request( 'POST', "/mhm-rentiva/v1/vendors/vendors/{$this->admin_id}/city" );
+		$request->set_body_params( array( 'city' => 'Ankara' ) );
+		$response = self::$server->dispatch( $request );
+		$this->assertSame( 404, $response->get_status() );
+	}
+
+	public function test_update_vendor_city_unauthenticated_returns_401(): void {
+		wp_set_current_user( 0 );
+		$request = new WP_REST_Request( 'POST', "/mhm-rentiva/v1/vendors/vendors/{$this->vendor_active_id}/city" );
+		$request->set_body_params( array( 'city' => 'Ankara' ) );
+		$response = self::$server->dispatch( $request );
+		$this->assertSame( 401, $response->get_status() );
+	}
 }

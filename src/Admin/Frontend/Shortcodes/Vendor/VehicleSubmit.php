@@ -308,7 +308,7 @@ final class VehicleSubmit extends AbstractShortcode
                             <?php if (! empty($data['vendor_city'])) : ?>
                                 <input type="text" id="mhm-vehicle-city" name="city" required
                                        value="<?php echo esc_attr($data['vendor_city']); ?>" readonly class="mhm-vendor-form__readonly">
-                                <p class="mhm-vendor-form__hint"><?php esc_html_e('City is set based on your vendor profile. Contact admin to change.', 'mhm-rentiva'); ?></p>
+                                <p class="mhm-vendor-form__hint"><?php esc_html_e('City is set from your vendor profile. You can change it in your profile settings.', 'mhm-rentiva'); ?></p>
                             <?php else : ?>
                                 <?php echo CityHelper::render_select('city', 'mhm-vehicle-city', '', array('required' => true)); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                             <?php endif; ?>
@@ -419,7 +419,7 @@ final class VehicleSubmit extends AbstractShortcode
                     <div class="mhm-vendor-form__field">
                         <label><?php esc_html_e('Service City', 'mhm-rentiva'); ?></label>
                         <input type="text" value="<?php echo esc_attr($data['vendor_city'] ?? ''); ?>" disabled>
-                        <p class="mhm-vendor-form__hint"><?php esc_html_e('Your city is set during vendor application. Contact admin to change.', 'mhm-rentiva'); ?></p>
+                        <p class="mhm-vendor-form__hint"><?php esc_html_e('Your city is set from your vendor profile. You can change it in your profile settings.', 'mhm-rentiva'); ?></p>
                     </div>
 
                     <!-- Transfer Capacity -->

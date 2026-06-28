@@ -81,6 +81,7 @@ export const rentivaApi = {
 		getVendorDetail: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }` } ),
 		suspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/suspend`, method: 'POST' } ),
 		unsuspendVendor: ( id ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/unsuspend`, method: 'POST' } ),
+		updateVendorCity: ( id, city ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/city`, method: 'POST', data: { city } } ),
 		getCommission: () => apiFetch( { path: `${ BASE }/vendors/commission` } ),
 		saveCommission: ( data ) => apiFetch( { path: `${ BASE }/vendors/commission`, method: 'POST', data } ),
 		getSettings: () => apiFetch( { path: `${ BASE }/vendors/settings` } ),
