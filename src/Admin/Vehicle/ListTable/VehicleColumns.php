@@ -75,6 +75,7 @@ final class VehicleColumns {
 		$date = $cols['date'] ?? null;
 		unset($cols['date']);
 
+		$cols['mhm_owner']         = __('Added by', 'mhm-rentiva');
 		$cols['mhm_license_plate'] = __('License Plate', 'mhm-rentiva');
 		$cols['mhm_location']      = __('Location', 'mhm-rentiva');
 		$cols['mhm_price_per_day'] = __('Price/Day', 'mhm-rentiva');
@@ -100,6 +101,19 @@ final class VehicleColumns {
 	public static function render(string $column, int $post_id): void
 	{
 		switch ($column) {
+			case 'mhm_owner':
+				if (\MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($post_id)) {
+					$author_id = (int) get_post_field('post_author', $post_id);
+					$author    = get_userdata($author_id);
+					$name      = $author instanceof \WP_User ? $author->display_name : ( '#' . $author_id );
+					echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#e7f0fd;color:#1d4ed8;font-weight:600;font-size:12px;">'
+						. esc_html__('Vendor', 'mhm-rentiva') . '</span> '
+						. '<span style="color:#1d2327;">' . esc_html($name) . '</span>';
+				} else {
+					echo '<span style="color:#6c757d;">' . esc_html__('Operator', 'mhm-rentiva') . '</span>';
+				}
+				break;
+
 			case 'mhm_license_plate':
 				$v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
 				echo ! empty($v) ? esc_html($v) : '—';
@@ -307,6 +321,20 @@ final class VehicleColumns {
 			echo '<option value="' . esc_attr($value) . '"' . selected($current_lc, $value, false) . '>' . esc_html($label) . '</option>';
 		}
 		echo '</select>';
+
+		// Owner filter dropdown (vendor-added vs operator-added).
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+		$current_owner = isset($request['mhm_owner_filter']) ? sanitize_text_field( (string) $request['mhm_owner_filter']) : '';
+		$owner_options = array(
+			''         => __('All owners', 'mhm-rentiva'),
+			'vendor'   => __('Vendor', 'mhm-rentiva'),
+			'operator' => __('Operator', 'mhm-rentiva'),
+		);
+		echo '<select name="mhm_owner_filter" class="postform">';
+		foreach ($owner_options as $value => $label) {
+			echo '<option value="' . esc_attr($value) . '"' . selected($current_owner, $value, false) . '>' . esc_html($label) . '</option>';
+		}
+		echo '</select>';
 	}
 
 	public static function apply_availability_filter(\WP_Query $q): void
@@ -362,6 +390,13 @@ final class VehicleColumns {
 		if (! empty($meta_query)) {
 			$q->set('meta_query', $meta_query);
 		}
+
+		// Owner filter (vendor-added vs operator-added) — translated to author query vars.
+		$owner      = isset($request['mhm_owner_filter']) ? sanitize_text_field( (string) $request['mhm_owner_filter']) : '';
+		$owner_args = self::owner_filter_args($owner);
+		foreach ($owner_args as $key => $value) {
+			$q->set($key, $value);
+		}
 	}
 
 	/**
@@ -405,6 +440,36 @@ final class VehicleColumns {
 		}
 
 		return array();
+	}
+
+	/**
+	 * Pure query-args mapper for the admin vehicle-list "Added by" (owner) filter.
+	 *
+	 * A vehicle is a vendor listing when its post_author has the rentiva_vendor role.
+	 * - 'vendor'   → author__in = vendor user IDs (empty set → [0] so nothing matches)
+	 * - 'operator' → author__not_in = vendor user IDs (no vendors → no restriction)
+	 * - other      → no filter
+	 *
+	 * @param string $owner One of 'vendor', 'operator'. Empty/unknown → no filter.
+	 * @return array{author__in?: int[], author__not_in?: int[]}
+	 */
+	public static function owner_filter_args(string $owner): array
+	{
+		if ($owner !== 'vendor' && $owner !== 'operator') {
+			return array();
+		}
+
+		$vendor_ids = array_map('intval', get_users(array(
+			'role'   => 'rentiva_vendor',
+			'fields' => 'ID',
+		)));
+
+		if ($owner === 'vendor') {
+			return array( 'author__in' => ! empty($vendor_ids) ? array_values($vendor_ids) : array( 0 ) );
+		}
+
+		// operator: every vehicle NOT authored by a vendor.
+		return ! empty($vendor_ids) ? array( 'author__not_in' => array_values($vendor_ids) ) : array();
 	}
 
 	/**
