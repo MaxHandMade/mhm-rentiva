@@ -62,6 +62,8 @@ final class VendorNotifications {
 		// Vendor Report system (v4.35.0)
 		add_action('mhm_rentiva_vendor_report_created', array( self::class, 'on_vendor_report_created' ), 10, 3);
 		add_action('mhm_rentiva_vendor_report_resolved', array( self::class, 'on_vendor_report_resolved' ), 10, 3);
+
+		add_action('mhm_rentiva_payout_statement_generated', array( self::class, 'on_statement_generated' ), 10, 1);
 	}
 
 	/**
@@ -415,6 +417,43 @@ final class VendorNotifications {
 		}
 		$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₺';
 		return $symbol . number_format(abs($amount), 2, '.', ',');
+	}
+
+	/**
+	 * Email the vendor that their payout statement is ready.
+	 */
+	public static function on_statement_generated(int $payout_id): void
+	{
+		$statement = \MHMRentiva\Core\Financial\Statement\PayoutStatementRepository::get($payout_id);
+		if ($statement === null) {
+			return;
+		}
+
+		$vendor = get_userdata( (int) $statement['vendor_id']);
+		if (! $vendor instanceof \WP_User || $vendor->user_email === '') {
+			return;
+		}
+
+		$view_url = \MHMRentiva\Core\Financial\Statement\PayoutStatementController::view_url($payout_id);
+		$paid     = number_format_i18n( (float) $statement['paid'], 2) . ' ' . (string) $statement['currency'];
+
+		$subject = sprintf(
+			/* translators: %s: statement number */
+			__('Your payout statement %s is ready', 'mhm-rentiva'),
+			(string) $statement['number']
+		);
+
+		$body = sprintf(
+			/* translators: 1: amount paid, 2: statement number */
+			__('A payout of %1$s has been processed. Statement: %2$s', 'mhm-rentiva'),
+			$paid,
+			(string) $statement['number']
+		) . "\n\n";
+		$body .= __('View / print your statement:', 'mhm-rentiva') . ' ' . $view_url;
+
+		wp_mail($vendor->user_email, $subject, $body);
+
+		\MHMRentiva\Core\Financial\Statement\PayoutStatementRepository::mark_emailed($payout_id);
 	}
 
 	// ---------------------------------------------------------------
