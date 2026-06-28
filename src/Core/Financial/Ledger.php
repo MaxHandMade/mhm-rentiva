@@ -263,6 +263,60 @@ final class Ledger {
     }
 
     /**
+     * Highest ledger row id for a vendor within the tenant (0 if none).
+     */
+    public static function get_max_entry_id(int $vendor_id, ?int $tenant_id = null): int
+    {
+        global $wpdb;
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary.
+        $max = $wpdb->get_var(
+            $wpdb->prepare(
+                'SELECT MAX(id) FROM %i WHERE tenant_id = %d AND vendor_id = %d',
+                $table,
+                $tenant_id,
+                $vendor_id
+            )
+        );
+
+        return (int) $max;
+    }
+
+    /**
+     * Cleared earning/penalty/refund rows in an id range, ordered by id ASC.
+     * Excludes payout debits (payments, not statement activity).
+     *
+     * @return array<int, \stdClass>
+     */
+    public static function get_statement_lines(int $vendor_id, int $after_id, int $up_to_id, ?int $tenant_id = null): array
+    {
+        global $wpdb;
+        $table     = $wpdb->prefix . 'mhm_rentiva_ledger';
+        $tenant_id = self::ensure_tenant_id($tenant_id);
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary.
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT id, created_at, type, amount, booking_id, order_id
+                 FROM %i
+                 WHERE tenant_id = %d AND vendor_id = %d AND status = 'cleared'
+                   AND id > %d AND id <= %d
+                   AND type IN ('commission_credit','commission_refund','withdrawal_penalty','refund')
+                 ORDER BY id ASC",
+                $table,
+                $tenant_id,
+                $vendor_id,
+                $after_id,
+                $up_to_id
+            )
+        );
+
+        return is_array($rows) ? $rows : array();
+    }
+
+    /**
      * Ensures a valid tenant ID is provided or resolved.
      * Throws an exception if no isolation context can be established.
      *
