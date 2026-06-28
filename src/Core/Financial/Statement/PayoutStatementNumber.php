@@ -29,6 +29,11 @@ final class PayoutStatementNumber {
 			)
 		);
 
+		if ($wpdb->last_error !== '') {
+			// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Domain exception; escaped at render layer.
+			throw new \RuntimeException('PayoutStatementNumber: counter increment failed: ' . $wpdb->last_error);
+		}
+
 		wp_cache_delete(self::OPTION, 'options');
 		$counter = (int) get_option(self::OPTION, 1);
 
