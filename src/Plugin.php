@@ -274,6 +274,7 @@ final class Plugin {
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
+			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
 		}
 
 		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
