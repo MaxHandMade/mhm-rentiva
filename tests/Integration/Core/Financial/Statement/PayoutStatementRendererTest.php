@@ -34,6 +34,7 @@ final class PayoutStatementRendererTest extends WP_UnitTestCase {
 		$this->assertStringContainsString('Withdrawal penalty', $html);
 		$this->assertStringContainsString('not an official invoice', $html); // footer note present
 		$this->assertStringContainsString('window.print', $html); // print button
+		$this->assertStringContainsString('TRY', $html); // money currency rendered
 	}
 
 	public function test_render_escapes_vendor_name(): void {

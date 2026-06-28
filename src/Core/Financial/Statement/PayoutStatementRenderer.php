@@ -40,7 +40,7 @@ final class PayoutStatementRenderer {
 				<?php esc_html_e('Tax office', 'mhm-rentiva'); ?>: <?php echo esc_html( (string) ( $snap['tax_office'] ?? '' )); ?> ·
 				<?php esc_html_e('Tax no', 'mhm-rentiva'); ?>: <?php echo esc_html( (string) ( $snap['tax_number'] ?? '' )); ?><br>
 				<?php esc_html_e('Account holder', 'mhm-rentiva'); ?>: <?php echo esc_html( (string) ( $snap['account_holder'] ?? '' )); ?><br>
-				IBAN: <?php echo esc_html( (string) ( $snap['iban'] ?? '' )); ?>
+				<?php esc_html_e('IBAN', 'mhm-rentiva'); ?>: <?php echo esc_html( (string) ( $snap['iban'] ?? '' )); ?>
 			</div>
 
 			<div style="color:#646970;margin-bottom:8px;">
