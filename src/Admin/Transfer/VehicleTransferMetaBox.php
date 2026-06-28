@@ -47,7 +47,7 @@ final class VehicleTransferMetaBox {
 		$author_data       = get_userdata($post_author);
 		$is_vendor_vehicle = $author_data && in_array('rentiva_vendor', $author_data->roles ?? [], true);
 		if ($is_vendor_vehicle) {
-			$vendor_city = (string) get_user_meta($post_author, '_mhm_rentiva_vendor_city', true);
+			$vendor_city = (string) get_user_meta($post_author, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, true);
 			if ($vendor_city !== '') {
 				printf(
 					'<p class="description" style="background:#fff8e5;padding:8px;border-left:3px solid #ffb900;margin-bottom:12px;">%s <strong>%s</strong></p>',

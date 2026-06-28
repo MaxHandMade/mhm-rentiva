@@ -48,6 +48,42 @@ class VehicleSubmitShortcodeTest extends \WP_UnitTestCase
         $this->assertStringContainsString('pro', strtolower($html));
     }
 
+    /**
+     * Regression: the vendor vehicle form must read the SAME user-meta key that
+     * onboarding/profile-settings write (_rentiva_vendor_city). It previously read an
+     * orphan key (_mhm_rentiva_vendor_city) that was never written, so the city was
+     * always empty — which hid the transfer locations, routes, and the whole VIP
+     * transfer section on the vendor form.
+     */
+    public function test_get_vendor_city_reads_canonical_meta_key(): void
+    {
+        $user_id = $this->factory()->user->create();
+        update_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, 'İstanbul');
+
+        $this->assertSame(
+            'İstanbul',
+            VehicleSubmit::get_vendor_city($user_id),
+            'get_vendor_city must read the canonical _rentiva_vendor_city meta key'
+        );
+
+        wp_delete_user($user_id);
+    }
+
+    public function test_get_vendor_city_returns_empty_for_orphan_key(): void
+    {
+        $user_id = $this->factory()->user->create();
+        // Simulate the historical orphan key: it must NOT be picked up.
+        update_user_meta($user_id, '_mhm_rentiva_vendor_city', 'Ankara');
+
+        $this->assertSame(
+            '',
+            VehicleSubmit::get_vendor_city($user_id),
+            'The orphan _mhm_rentiva_vendor_city key must not be read'
+        );
+
+        wp_delete_user($user_id);
+    }
+
     public function test_prepare_template_data_returns_vendor_only_false_for_vendor_user_when_pro_enabled(): void
     {
         // This test only runs when Mode::canUseVendorMarketplace() is true.

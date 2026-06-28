@@ -48,6 +48,24 @@ final class VehicleSubmit extends AbstractShortcode
     }
 
     /**
+     * Read a vendor's canonical base city from user meta.
+     *
+     * Single source of truth: this is the SAME key written by
+     * VendorOnboardingController on approval and VendorProfileSettingsSave on
+     * self-edit. A historical bug read an orphan key (_mhm_rentiva_vendor_city)
+     * that was never written, which silently emptied the city and hid the
+     * transfer locations/routes and the whole VIP transfer section.
+     *
+     * @param int $user_id Vendor user ID.
+     * @return string Trimmed city, or '' when unset.
+     */
+    public static function get_vendor_city(int $user_id): string
+    {
+        $city = get_user_meta($user_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, true);
+        return is_string($city) ? trim($city) : '';
+    }
+
+    /**
      * Prepare template data with access control checks.
      *
      * @param array $atts Shortcode attributes.
@@ -88,9 +106,8 @@ final class VehicleSubmit extends AbstractShortcode
             $categories = array();
         }
 
-        // Fetch vendor's city.
-        $vendor_city = get_user_meta(get_current_user_id(), '_mhm_rentiva_vendor_city', true);
-        $vendor_city = is_string($vendor_city) ? trim($vendor_city) : '';
+        // Fetch vendor's city (canonical user meta — see MetaKeys::VENDOR_CITY).
+        $vendor_city = static::get_vendor_city(get_current_user_id());
 
         // Fetch rental pickup locations filtered by vendor's city.
         $rental_locations = $vendor_city !== '' ? LocationProvider::get_by_city($vendor_city, 'rental') : array();
