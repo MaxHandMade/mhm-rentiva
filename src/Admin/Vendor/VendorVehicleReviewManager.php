@@ -154,11 +154,27 @@ final class VendorVehicleReviewManager
 
         foreach (array_keys($changed_fields) as $field) {
             if (self::is_critical_field($field)) {
-                update_post_meta($vehicle_id, '_vehicle_review_status', 'pending_review');
-                do_action('mhm_rentiva_vehicle_needs_rereview', $vehicle_id);
+                self::demote_to_pending_review($vehicle_id);
                 return;
             }
         }
+    }
+
+    /**
+     * Pull a published vendor listing back to pending review and notify the admin.
+     *
+     * Called when a critical field changes on a live vehicle. The listing is
+     * unpublished (post_status → pending) so the unreviewed change is not public,
+     * flagged pending_review, and the re-review notification fires. Admin approval
+     * (approve(), or simply publishing the post) restores it to publish + approved.
+     *
+     * @param int $vehicle_id
+     */
+    public static function demote_to_pending_review(int $vehicle_id): void
+    {
+        update_post_meta($vehicle_id, '_vehicle_review_status', 'pending_review');
+        wp_update_post(array('ID' => $vehicle_id, 'post_status' => 'pending'));
+        do_action('mhm_rentiva_vehicle_needs_rereview', $vehicle_id);
     }
 
     /**

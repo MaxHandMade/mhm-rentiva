@@ -1285,14 +1285,14 @@ final class VehicleSubmit extends AbstractShortcode
             update_post_meta($vehicle_id, '_mhm_rentiva_gallery_images', wp_json_encode($existing_gallery));
         }
 
-        // If critical field changed on published vehicle → re-review.
+        // If critical field changed on a published vehicle → pull it back to pending
+        // review so the unreviewed change is not public until an admin approves it.
         if ($has_critical_change && $post->post_status === 'publish') {
-            update_post_meta($vehicle_id, '_vehicle_review_status', 'pending_review');
-            do_action('mhm_rentiva_vehicle_needs_rereview', $vehicle_id);
+            \MHMRentiva\Admin\Vendor\VendorVehicleReviewManager::demote_to_pending_review($vehicle_id);
             wp_send_json_success(array(
                 'vehicle_id' => $vehicle_id,
                 'rereview'   => true,
-                'message'    => __('Vehicle updated. Critical fields were changed — your listing will be reviewed again before publishing.', 'mhm-rentiva'),
+                'message'    => __('Vehicle updated. Because critical details changed, your listing has been unpublished and sent for admin review — it will go live again once approved.', 'mhm-rentiva'),
             ));
         }
 

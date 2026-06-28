@@ -68,6 +68,11 @@ class VendorVehicleReviewManagerTest extends \WP_UnitTestCase
         VendorVehicleReviewManager::handle_vendor_edit($this->vehicle_id, array('price_per_day' => 500));
 
         $this->assertSame('pending_review', get_post_meta($this->vehicle_id, '_vehicle_review_status', true));
+        $this->assertSame(
+            'pending',
+            get_post_status($this->vehicle_id),
+            'A critical edit must pull the published listing back to pending so the unreviewed change is not public.'
+        );
         $this->assertGreaterThan(0, did_action('mhm_rentiva_vehicle_needs_rereview'));
     }
 
@@ -78,6 +83,36 @@ class VendorVehicleReviewManagerTest extends \WP_UnitTestCase
 
         VendorVehicleReviewManager::handle_vendor_edit($this->vehicle_id, array('description' => 'Updated text'));
 
+        $this->assertSame('approved', get_post_meta($this->vehicle_id, '_vehicle_review_status', true));
+        $this->assertSame(
+            'publish',
+            get_post_status($this->vehicle_id),
+            'A minor edit must keep the listing live.'
+        );
+    }
+
+    public function test_demote_to_pending_review_unpublishes_flags_and_notifies(): void
+    {
+        wp_update_post(array('ID' => $this->vehicle_id, 'post_status' => 'publish'));
+        update_post_meta($this->vehicle_id, '_vehicle_review_status', 'approved');
+
+        VendorVehicleReviewManager::demote_to_pending_review($this->vehicle_id);
+
+        $this->assertSame('pending', get_post_status($this->vehicle_id));
+        $this->assertSame('pending_review', get_post_meta($this->vehicle_id, '_vehicle_review_status', true));
+        $this->assertGreaterThan(0, did_action('mhm_rentiva_vehicle_needs_rereview'));
+    }
+
+    public function test_approve_restores_published_after_rereview_demotion(): void
+    {
+        // Full round-trip: live → critical edit (pending) → admin approve (live again).
+        wp_update_post(array('ID' => $this->vehicle_id, 'post_status' => 'publish'));
+        VendorVehicleReviewManager::demote_to_pending_review($this->vehicle_id);
+        $this->assertSame('pending', get_post_status($this->vehicle_id));
+
+        VendorVehicleReviewManager::approve($this->vehicle_id);
+
+        $this->assertSame('publish', get_post_status($this->vehicle_id));
         $this->assertSame('approved', get_post_meta($this->vehicle_id, '_vehicle_review_status', true));
     }
 
