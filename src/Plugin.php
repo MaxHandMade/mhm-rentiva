@@ -274,6 +274,10 @@ final class Plugin {
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
+		}
+
+		// Vendor payout statement generation — on payout approval (post publish).
+		if ($this->is_class_available('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
 			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
 		}
 
