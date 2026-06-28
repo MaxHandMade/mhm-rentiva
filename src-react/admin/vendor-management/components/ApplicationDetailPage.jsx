@@ -62,6 +62,15 @@ export default function ApplicationDetailPage( { applicationId, onBack, onAction
 							<td style={ { whiteSpace: 'pre-wrap' } }>{ app.bio || '—' }</td>
 						</tr>
 						<tr><th>{ __( 'Applied', 'mhm-rentiva' ) }</th><td>{ app.applied_date }</td></tr>
+						{ app.terms_accepted_at && (
+							<tr>
+								<th>{ __( 'Agreement accepted', 'mhm-rentiva' ) }</th>
+								<td>
+									{ app.terms_accepted_at }
+									{ app.terms_version ? ` (${ __( 'version', 'mhm-rentiva' ) } ${ app.terms_version.slice( 0, 8 ) })` : '' }
+								</td>
+							</tr>
+						) }
 					</tbody>
 				</table>
 

@@ -25,6 +25,7 @@ final class VendorMarketplaceSettings {
 	public const SECTION_ANTI_GAMING = 'mhm_rentiva_vendor_anti_gaming_section';
 	public const SECTION_RELIABILITY = 'mhm_rentiva_vendor_reliability_section';
 	public const SECTION_LISTING_FEE = 'mhm_rentiva_vendor_listing_fee_section';
+	public const SECTION_AGREEMENT   = 'mhm_rentiva_vendor_agreement_section';
 
 	/**
 	 * Get default settings.
@@ -67,6 +68,10 @@ final class VendorMarketplaceSettings {
 			'mhm_rentiva_listing_fee_enabled'      => false,
 			'mhm_rentiva_listing_fee_model'        => 'one_time',
 			'mhm_rentiva_listing_fee_amount'       => 0.0,
+
+			// Vendor Agreement
+			'vendor_agreement_enabled'             => '0',
+			'vendor_agreement_text'                => '',
 		);
 	}
 
@@ -85,6 +90,7 @@ final class VendorMarketplaceSettings {
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_ANTI_GAMING );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_RELIABILITY );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_LISTING_FEE );
+			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_AGREEMENT );
 		}
 	}
 
@@ -333,6 +339,31 @@ final class VendorMarketplaceSettings {
 			__( 'The fee amount charged to vendors for listing a vehicle.', 'mhm-rentiva' ),
 			self::SECTION_LISTING_FEE,
 			0.01
+		);
+
+		// Section: Vendor Agreement
+		add_settings_section(
+			self::SECTION_AGREEMENT,
+			__( 'Vendor Agreement', 'mhm-rentiva' ),
+			fn() => print( '<p>' . esc_html__( 'Require applicants to accept an agreement before submitting a vendor application.', 'mhm-rentiva' ) . '</p>' ),
+			$page_slug
+		);
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'vendor_agreement_enabled',
+			__( 'Require vendor agreement', 'mhm-rentiva' ),
+			__( 'When enabled (and the text below is filled), applicants must accept the agreement before submitting.', 'mhm-rentiva' ),
+			self::SECTION_AGREEMENT
+		);
+
+		SettingsHelper::textarea_field(
+			$page_slug,
+			'vendor_agreement_text',
+			__( 'Agreement Text', 'mhm-rentiva' ),
+			10,
+			__( 'Plain text shown to applicants. Line breaks are preserved.', 'mhm-rentiva' ),
+			self::SECTION_AGREEMENT
 		);
 	}
 }

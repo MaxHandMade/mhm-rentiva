@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Core\Utilities\CityHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\Core\AbstractShortcode;
 use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vendor\VendorApplicationManager;
 
 
@@ -43,6 +44,41 @@ final class VendorApply extends AbstractShortcode
     {
         add_action('wp_ajax_mhm_vendor_apply', array(static::class, 'handle_ajax'));
         add_action('wp_ajax_nopriv_mhm_vendor_apply', array(static::class, 'handle_ajax'));
+    }
+
+    /**
+     * Whether the vendor agreement must be accepted before applying.
+     *
+     * True only when the admin enabled the gate AND wrote agreement text.
+     *
+     * @return bool
+     */
+    public static function is_agreement_required(): bool
+    {
+        return SettingsCore::get('vendor_agreement_enabled', '0') === '1'
+            && trim((string) SettingsCore::get('vendor_agreement_text', '')) !== '';
+    }
+
+    /**
+     * Validate the agreement gate against the submitted data.
+     *
+     * @param array $post The request data (only the presence of 'terms_accepted' is read).
+     * @return array{terms_accepted_at:string,terms_version:string}|array<empty,empty>|\WP_Error
+     */
+    public static function evaluate_terms_gate(array $post)
+    {
+        if (! self::is_agreement_required()) {
+            return array();
+        }
+
+        if (empty($post['terms_accepted'])) {
+            return new \WP_Error('terms_required', __('You must accept the vendor agreement to apply.', 'mhm-rentiva'));
+        }
+
+        return array(
+            'terms_accepted_at' => current_time('mysql', true),
+            'terms_version'     => hash('sha256', (string) SettingsCore::get('vendor_agreement_text', '')),
+        );
     }
 
     /**
@@ -222,6 +258,19 @@ final class VendorApply extends AbstractShortcode
                     </div>
                 </div>
 
+                <?php if (static::is_agreement_required()) : ?>
+                <div class="mhm-vendor-form__section">
+                    <h3><?php esc_html_e('Vendor Agreement', 'mhm-rentiva'); ?></h3>
+                    <div class="mhm-vendor-agreement-box"><?php
+                        echo nl2br(esc_html((string) SettingsCore::get('vendor_agreement_text', '')));
+                    ?></div>
+                    <label class="mhm-vendor-form__consent">
+                        <input type="checkbox" name="terms_accepted" value="1" required>
+                        <span><?php esc_html_e('I have read and accept the vendor agreement.', 'mhm-rentiva'); ?> <span class="required">*</span></span>
+                    </label>
+                </div>
+                <?php endif; ?>
+
                 <div class="mhm-vendor-form__submit">
                     <button type="submit" class="mhm-vendor-form__btn mhm-vendor-form__btn--primary" id="mhm-vendor-apply-submit">
                         <?php esc_html_e('Submit Application', 'mhm-rentiva'); ?>
@@ -276,6 +325,11 @@ final class VendorApply extends AbstractShortcode
             wp_send_json_error(array('message' => __('You must be logged in.', 'mhm-rentiva')));
         }
 
+        $terms = self::evaluate_terms_gate($_POST); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified above via check_ajax_referer; only presence of terms_accepted is read.
+        if (is_wp_error($terms)) {
+            wp_send_json_error(array('message' => $terms->get_error_message()));
+        }
+
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/media.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
@@ -327,7 +381,7 @@ final class VendorApply extends AbstractShortcode
         );
         // phpcs:enable
 
-        $result = VendorApplicationManager::create_application(get_current_user_id(), $data);
+        $result = VendorApplicationManager::create_application(get_current_user_id(), array_merge($data, $terms));
 
         if (is_wp_error($result)) {
             wp_send_json_error(array('message' => $result->get_error_message()));

@@ -303,3 +303,27 @@
     font-size: 0.75rem;
     color: #6b7280;
 }
+
+.mhm-vendor-agreement-box {
+	max-height: 220px;
+	overflow-y: auto;
+	padding: 12px 14px;
+	border: 1px solid #d8dce0;
+	border-radius: 6px;
+	background: #fafbfc;
+	font-size: 13px;
+	line-height: 1.6;
+	white-space: normal;
+	margin-bottom: 10px;
+}
+
+.mhm-vendor-form__consent {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+	cursor: pointer;
+}
+
+.mhm-vendor-form__consent input[type="checkbox"] {
+	margin-top: 3px;
+}

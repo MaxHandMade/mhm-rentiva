@@ -673,6 +673,10 @@ final class SettingsSanitizer {
 			'vendor_badge_min_age_days'            => self::get_int( $input, 'vendor_badge_min_age_days', 180, 0, 1825 ),
 			'vendor_badge_min_score'               => self::get_int( $input, 'vendor_badge_min_score', 80, 0, 100 ),
 			'vendor_badge_min_completed_bookings'  => self::get_int( $input, 'vendor_badge_min_completed_bookings', 10, 0, 500 ),
+
+			// Vendor Agreement
+			'vendor_agreement_enabled'             => ( ( $input['vendor_agreement_enabled'] ?? '' ) === '1' ) ? '1' : '0',
+			'vendor_agreement_text'                => \sanitize_textarea_field( (string) ( $input['vendor_agreement_text'] ?? '' ) ),
 		);
 	}
 }
