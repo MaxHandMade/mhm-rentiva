@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-29T15:22:50+00:00\n"
+"POT-Creation-Date: 2026-06-29T17:16:54+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -3943,7 +3943,7 @@ msgstr "Müşteri hesabı oluşturuldu ve rezervasyona bağlandı."
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:24
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:75
 #: src/Admin/PostTypes/Message/Message.php:327
-#: src/Core/Financial/Statement/PayoutStatement.php:102
+#: src/Core/Financial/Statement/PayoutStatement.php:112
 msgid "Refund"
 msgstr "İade"
 
@@ -14055,7 +14055,6 @@ msgstr "Bağlam:"
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:54
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52 build/admin/vendor-management.js:1
@@ -22295,6 +22294,7 @@ msgid "Active Vendors"
 msgstr "Aktif Bayiler"
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:124
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:76
 msgid "Commission"
 msgstr "Komisyon"
 
@@ -22946,23 +22946,23 @@ msgstr ""
 "yönetim panelinde platform geneli bir politika yapılandırın."
 
 #. translators: %d: booking ID
-#: src/Core/Financial/Statement/PayoutStatement.php:95
+#: src/Core/Financial/Statement/PayoutStatement.php:105
 #, php-format
 msgid "Earnings — booking #%d"
 msgstr "Hakediş — rezervasyon #%d"
 
-#: src/Core/Financial/Statement/PayoutStatement.php:96
+#: src/Core/Financial/Statement/PayoutStatement.php:106
 #: templates/account/vendor-ledger.php:47
 msgid "Earnings"
 msgstr "Hakediş"
 
 #. translators: %d: booking ID
-#: src/Core/Financial/Statement/PayoutStatement.php:101
+#: src/Core/Financial/Statement/PayoutStatement.php:111
 #, php-format
 msgid "Refund — booking #%d"
 msgstr "İade — rezervasyon #%d"
 
-#: src/Core/Financial/Statement/PayoutStatement.php:104
+#: src/Core/Financial/Statement/PayoutStatement.php:114
 msgid "Withdrawal penalty"
 msgstr "Çekim cezası"
 
@@ -23007,36 +23007,48 @@ msgstr "Dönem"
 msgid "Description"
 msgstr "Açıklama"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
+msgid "Gross"
+msgstr "Brüt"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:77
+msgid "Net"
+msgstr "Net"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:82
 msgid "No activity in this period."
 msgstr "Bu dönemde hareket yok."
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:98
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
 msgid "Period earnings"
 msgstr "Dönem hakedişi"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:99
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:111
 msgid "Period penalties"
 msgstr "Dönem cezaları"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:100
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:113
+msgid "Total commission deducted"
+msgstr "Toplam komisyon kesintisi"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:115
 msgid "Period net"
 msgstr "Dönem neti"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:101
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:116
 msgid "Amount paid"
 msgstr "Ödenen tutar"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:102
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:117
 msgid "Carried balance"
 msgstr "Devreden bakiye"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:114
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:125
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:129
 msgid "This is a payment statement, not an official invoice."
 msgstr "Bu belge bir hakediş/ödeme makbuzudur, resmi e-Fatura değildir."
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:119
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:134
 msgid "Print / Save as PDF"
 msgstr "Yazdır / PDF olarak kaydet"
 
