@@ -24,9 +24,10 @@ final class PayoutStatement {
 		$up_to_id = Ledger::get_max_entry_id($vendor_id);
 		$rows     = Ledger::get_statement_lines($vendor_id, $after_id, $up_to_id);
 
-		$lines        = array();
-		$gross        = 0.0;
-		$penalties    = 0.0;
+		$lines            = array();
+		$gross            = 0.0;
+		$penalties        = 0.0;
+		$commission_total = 0.0;
 		$currency     = function_exists('get_woocommerce_currency') ? get_woocommerce_currency() : 'TRY';
 		$period_start = '';
 		$period_end   = '';
@@ -43,12 +44,20 @@ final class PayoutStatement {
 			}
 			$period_end = (string) $row->created_at;
 
+			$line_commission = $amount >= 0 ? (float) ( $row->commission_amount ?? 0 ) : 0.0;
+			if ( (string) $row->type === 'commission_credit' ) {
+				$commission_total += $line_commission;
+			}
+
 			$lines[] = array(
-				'date'        => (string) $row->created_at,
-				'type'        => (string) $row->type,
-				'ref'         => (int) ( $row->booking_id ?? 0 ),
-				'description' => self::describe($row),
-				'amount'      => $amount,
+				'date'            => (string) $row->created_at,
+				'type'            => (string) $row->type,
+				'ref'             => (int) ( $row->booking_id ?? 0 ),
+				'description'     => self::describe($row),
+				'amount'          => $amount,
+				'gross'           => $amount >= 0 ? (float) ( $row->gross_amount ?? 0 ) : 0.0,
+				'commission'      => $line_commission,
+				'commission_rate' => $amount >= 0 ? (float) ( $row->commission_rate ?? 0 ) : 0.0,
 			);
 		}
 
@@ -70,8 +79,9 @@ final class PayoutStatement {
 			'period_end'      => $period_end,
 			'last_entry_id'   => (int) ( $up_to_id > $after_id ? $up_to_id : $after_id ),
 			'lines'           => $lines,
-			'gross'           => $gross,
-			'penalties'       => $penalties,
+			'gross'            => $gross,
+			'penalties'        => $penalties,
+			'commission_total' => $commission_total,
 			'net_activity'    => $gross - $penalties,
 			'paid'            => $paid,
 			'carried_balance' => Ledger::get_balance($vendor_id),

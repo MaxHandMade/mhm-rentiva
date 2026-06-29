@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-29T15:22:50+00:00\n"
+"POT-Creation-Date: 2026-06-29T17:16:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -4019,7 +4019,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:24
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:75
 #: src/Admin/PostTypes/Message/Message.php:327
-#: src/Core/Financial/Statement/PayoutStatement.php:102
+#: src/Core/Financial/Statement/PayoutStatement.php:112
 msgid "Refund"
 msgstr ""
 
@@ -13960,7 +13960,6 @@ msgstr ""
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:54
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52
@@ -21733,6 +21732,7 @@ msgid "Active Vendors"
 msgstr ""
 
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:124
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:76
 msgid "Commission"
 msgstr ""
 
@@ -22345,23 +22345,23 @@ msgid "No active commission policy found for vendor #%1$d at %2$s. Please config
 msgstr ""
 
 #. translators: %d: booking ID
-#: src/Core/Financial/Statement/PayoutStatement.php:95
+#: src/Core/Financial/Statement/PayoutStatement.php:105
 #, php-format
 msgid "Earnings — booking #%d"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatement.php:96
+#: src/Core/Financial/Statement/PayoutStatement.php:106
 #: templates/account/vendor-ledger.php:47
 msgid "Earnings"
 msgstr ""
 
 #. translators: %d: booking ID
-#: src/Core/Financial/Statement/PayoutStatement.php:101
+#: src/Core/Financial/Statement/PayoutStatement.php:111
 #, php-format
 msgid "Refund — booking #%d"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatement.php:104
+#: src/Core/Financial/Statement/PayoutStatement.php:114
 msgid "Withdrawal penalty"
 msgstr ""
 
@@ -22406,36 +22406,48 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
+msgid "Gross"
+msgstr ""
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:77
+msgid "Net"
+msgstr ""
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:82
 msgid "No activity in this period."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:98
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
 msgid "Period earnings"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:99
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:111
 msgid "Period penalties"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:100
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:113
+msgid "Total commission deducted"
+msgstr ""
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:115
 msgid "Period net"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:101
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:116
 msgid "Amount paid"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:102
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:117
 msgid "Carried balance"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:114
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:125
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:129
 msgid "This is a payment statement, not an official invoice."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:119
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:134
 msgid "Print / Save as PDF"
 msgstr ""
 
