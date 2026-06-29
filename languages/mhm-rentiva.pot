@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-29T14:59:34+00:00\n"
+"POT-Creation-Date: 2026-06-29T15:22:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -7259,19 +7259,19 @@ msgid "Your report has been updated: {{report.title}} — {{site.name}}"
 msgstr ""
 
 #. translators: %s: statement number
-#: src/Admin/Emails/Notifications/VendorNotifications.php:442
+#: src/Admin/Emails/Notifications/VendorNotifications.php:446
 #, php-format
 msgid "Your payout statement %s is ready"
 msgstr ""
 
 #. translators: 1: amount paid, 2: statement number
-#: src/Admin/Emails/Notifications/VendorNotifications.php:448
+#: src/Admin/Emails/Notifications/VendorNotifications.php:452
 #, php-format
 msgid "A payout of %1$s has been processed. Statement: %2$s"
 msgstr ""
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:452
-msgid "View / print your statement:"
+#: src/Admin/Emails/Notifications/VendorNotifications.php:456
+msgid "View and print your statement from your vendor panel:"
 msgstr ""
 
 #: src/Admin/Emails/PostTypes/EmailLog.php:25

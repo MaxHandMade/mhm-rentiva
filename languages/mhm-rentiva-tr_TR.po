@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-29T14:59:34+00:00\n"
+"POT-Creation-Date: 2026-06-29T15:22:50+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -7175,20 +7175,20 @@ msgid "Your report has been updated: {{report.title}} — {{site.name}}"
 msgstr "Raporunuz güncellendi: {{report.title}} — {{site.name}}"
 
 #. translators: %s: statement number
-#: src/Admin/Emails/Notifications/VendorNotifications.php:442
+#: src/Admin/Emails/Notifications/VendorNotifications.php:446
 #, php-format
 msgid "Your payout statement %s is ready"
 msgstr "Hakediş makbuzunuz %s hazır"
 
 #. translators: 1: amount paid, 2: statement number
-#: src/Admin/Emails/Notifications/VendorNotifications.php:448
+#: src/Admin/Emails/Notifications/VendorNotifications.php:452
 #, php-format
 msgid "A payout of %1$s has been processed. Statement: %2$s"
 msgstr "%1$s tutarında bir ödeme işlendi. Makbuz: %2$s"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:452
-msgid "View / print your statement:"
-msgstr "Makbuzunuzu görüntüleyin / yazdırın:"
+#: src/Admin/Emails/Notifications/VendorNotifications.php:456
+msgid "View and print your statement from your vendor panel:"
+msgstr "Makbuzunuzu bayi panelinizden görüntüleyip yazdırın:"
 
 #: src/Admin/Emails/PostTypes/EmailLog.php:25
 #: src/Admin/Emails/PostTypes/EmailLog.php:27
@@ -16901,7 +16901,8 @@ msgstr "Dipnot"
 
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:396
 msgid "Optional note shown above the permanent \"not an invoice\" disclaimer."
-msgstr "Kalıcı \"fatura değildir\" uyarısının üstünde gösterilen isteğe bağlı not."
+msgstr ""
+"Kalıcı \"fatura değildir\" uyarısının üstünde gösterilen isteğe bağlı not."
 
 #: src/Admin/Settings/Settings.php:159
 msgid "Insufficient permissions for this action."
