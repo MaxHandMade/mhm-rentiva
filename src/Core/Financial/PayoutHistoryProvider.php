@@ -56,6 +56,8 @@ final class PayoutHistoryProvider {
                 continue;
             }
 
+            $statement = \MHMRentiva\Core\Financial\Statement\PayoutStatementRepository::get($post->ID);
+
             $rows[] = array(
                 'id'                 => $post->ID,
                 'amount'             => (float) get_post_meta($post->ID, '_mhm_payout_amount', true),
@@ -63,6 +65,8 @@ final class PayoutHistoryProvider {
                 'external_reference' => (string) get_post_meta($post->ID, '_mhm_payout_external_ref', true),
                 'rejection_reason'   => (string) get_post_meta($post->ID, '_mhm_payout_rejection_reason', true),
                 'requested_at'       => $post->post_date_gmt, // UTC
+                'statement_number'   => $statement !== null ? (string) $statement['number'] : '',
+                'statement_url'      => $statement !== null ? \MHMRentiva\Core\Financial\Statement\PayoutStatementController::view_url($post->ID) : '',
             );
         }
 
