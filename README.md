@@ -597,7 +597,7 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 1,263 tests / 3,839 assertions (v4.60.0)
+- **PHPUnit**: 1,331 tests / 4,021 assertions (v4.61.0)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu

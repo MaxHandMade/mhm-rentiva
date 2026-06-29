@@ -83,8 +83,16 @@ Yes, all frontend components and admin settings are fully responsive.
 
 == Changelog ==
 
-= 4.61.0 — 2026-06-23 =
+= 4.61.0 — 2026-06-29 =
+* ✨ **Added:** Vendor payout statements. Approving a vendor payout now generates a printable, sequentially-numbered payment statement for the period — earnings, penalties, and net — frozen as an immutable record, and emails the vendor a link to view and print it from their panel. Admins see the statement number and a view link on the Payout Requests list; vendors see it in their payout history.
+* ✨ **Added:** Commission breakdown on the statement. Each earning line shows Gross, Commission (rate % and amount), and Net, plus a period "Total commission deducted" total. Statements issued before this version show net only.
+* ✨ **Added:** Statement branding. Your company identity (name, address, tax office and number, phone, email, logo) and a custom footer note appear on the statement, configured under the new statement branding settings and applied at view time.
+* ✨ **Added:** Vendor agreement gate. You can require applicants to read and accept a vendor agreement on the application form; the acceptance (with timestamp) is stored and shown on the application detail. The toggle and agreement text live in the vendor settings.
+* ✨ **Added:** "Added by" column for vehicles. The admin vehicle list now shows and filters who added each vehicle (vendor or operator), so operator and vendor listings are easy to tell apart.
 * ✨ **Added:** Close or re-open a vehicle's day for reservations directly from the Monthly Reservation Calendar — click an empty day to block it, click a blocked day to open it, no vehicle-edit needed. Booked days keep their reservation popup.
+* 🐛 **Fix:** When a vendor edits critical fields of a live listing, the listing is unpublished for admin re-review instead of staying live with unreviewed changes.
+* 🐛 **Fix:** An admin can now edit a vendor's city, and the vendor's city is read from the canonical field across the panel.
+* 🐛 **Fix:** Booking reminder emails are no longer sent for inactive bookings.
 
 = 4.60.0 — 2026-06-22 =
 * 🐛 **Fix:** Matured vendor payouts were silently skipped on single-site installs — a dead SaaS control-plane `is_operational()` gate in `MaturedPayoutJob` prevented any payout from processing unless a multi-tenant registry row existed (which it never does on a normal install).

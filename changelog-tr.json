@@ -1,12 +1,20 @@
 [
   {
     "version": "4.61.0",
-    "date": "2026-06-23",
+    "date": "2026-06-29",
     "type": "minor",
-    "title": "Takvim hızlı blok — Aylık Rezervasyon Takvimi'nden araç günü kapatma/açma",
-    "summary": "Aylık Rezervasyon Takvimi'nde tıkla-aç/kapat gün bloke özelliği ekler. Boş bir güne tıklamak rezervasyona kapatır; kapalı bir güne tıklamak yeniden açar. Araç düzenlemeye gerek yok. Rezervasyonlu günler değişmez — popup'larını korurlar.",
+    "title": "Komisyon dökümlü bayi hakediş makbuzları, bayi sözleşmesi ve takvim hızlı blok",
+    "summary": "Kapsamlı bir bayi pazaryeri sürümü. Onaylanan bayi ödemeleri artık yazdırılabilir, numaralı bir ödeme makbuzu — brüt / komisyon / net dökümü ve firma markalamanızla — üretip bayiye e-postayla gönderir. Başvuru formuna bayi sözleşmesi onayı, araçlara \"Ekleyen\" sütunu ve Aylık Rezervasyon Takvimi'nde tek tıkla gün bloklama ekler.",
     "changes": [
-      "Eklendi: bir aracın gününü Aylık Rezervasyon Takvimi'nden doğrudan rezervasyona kapatma/açma — boş güne tıkla kapanır, kapalı güne tıkla açılır, araç düzenlemeye gerek yok. Rezervasyonlu günler popup'ını korur."
+      "Eklendi: Bayi hakediş makbuzları. Bir bayi ödemesi onaylandığında döneme ait sıra numaralı, yazdırılabilir bir ödeme makbuzu oluşturulur — hakediş, cezalar ve net tutar — değiştirilemez bir kayıt olarak dondurulur ve bayiye panelinden görüntüleyip yazdırabileceği bir bağlantı e-postayla gönderilir. Yöneticiler makbuz numarasını ve görüntüleme bağlantısını Ödeme Talepleri listesinde, bayiler ise ödeme geçmişinde görür.",
+      "Eklendi: Makbuzda komisyon dökümü. Her hakediş satırı Brüt, Komisyon (oran % ve tutar) ve Net değerlerini gösterir; ayrıca döneme ait \"Toplam komisyon kesintisi\" toplamı eklenir. Bu sürümden önce oluşturulmuş makbuzlar yalnızca net tutarı gösterir.",
+      "Eklendi: Makbuz markalama. Firma kimliğiniz (ad, adres, vergi dairesi ve numarası, telefon, e-posta, logo) ve özel bir dipnot, yeni makbuz markalama ayarlarından yapılandırılıp görüntüleme anında makbuza yansır.",
+      "Eklendi: Bayi sözleşmesi onayı. Başvuru formunda adayların bir bayi sözleşmesini okuyup kabul etmesini zorunlu kılabilirsiniz; kabul (zaman damgasıyla) saklanır ve başvuru detayında gösterilir. Aç/kapa ve sözleşme metni bayi ayarlarında yer alır.",
+      "Eklendi: Araçlar için \"Ekleyen\" sütunu. Yönetici araç listesi artık her aracı kimin eklediğini (bayi mi operatör mü) gösterir ve filtreler; böylece operatör ve bayi ilanları kolayca ayırt edilir.",
+      "Eklendi: Aylık Rezervasyon Takvimi'nde hızlı gün bloklama — boş bir güne tıklayarak rezervasyona kapatın, kapalı bir güne tıklayarak yeniden açın, araç düzenlemeye gerek yok. Rezervasyonlu günler popup'ını korur.",
+      "Düzeltme: Bir bayi yayındaki bir ilanın kritik alanlarını düzenlediğinde, ilan yayından kaldırılıp yönetici yeniden incelemesine alınır; incelenmemiş değişikliklerle yayında kalmaz.",
+      "Düzeltme: Yönetici artık bir bayinin ilini düzenleyebilir ve bayinin ili panel genelinde kanonik alandan okunur.",
+      "Düzeltme: Pasif rezervasyonlar için artık rezervasyon hatırlatma e-postası gönderilmez."
     ],
     "notice": ""
   },

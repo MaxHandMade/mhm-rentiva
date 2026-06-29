@@ -968,7 +968,7 @@ mhm-rentiva/
 - **Güvenlik**: Raw SQL yasaktır, her zaman `$wpdb->prepare()` kullanılır.
 
 ### 🧪 Otomatik Test Süiti
-- **PHPUnit**: 1.263 test / 3.839 doğrulama (v4.60.0 — son stabil sürüm).
+- **PHPUnit**: 1.331 test / 4.021 doğrulama (v4.61.0 — son stabil sürüm).
 - **CI Matrisi**: PHP 8.1 / 8.2 / 8.3 × WP 6.7 / latest = 6 paralel iş.
 - **PHPCS**: Tam WordPress Coding Standards uyumluluğu (0 hata).
 - **Test Yönetim Sayfası**: Rentiva menüsünden erişilebilir, raporlar indirilebilir.
