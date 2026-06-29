@@ -72,12 +72,14 @@ final class PayoutStatementRenderer {
 					<tr style="background:#f0f0f1;text-align:left;">
 						<th style="padding:6px;border:1px solid #dcdcde;"><?php esc_html_e('Date', 'mhm-rentiva'); ?></th>
 						<th style="padding:6px;border:1px solid #dcdcde;"><?php esc_html_e('Description', 'mhm-rentiva'); ?></th>
-						<th style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php esc_html_e('Amount', 'mhm-rentiva'); ?></th>
+						<th style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php esc_html_e('Gross', 'mhm-rentiva'); ?></th>
+						<th style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php esc_html_e('Commission', 'mhm-rentiva'); ?></th>
+						<th style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php esc_html_e('Net', 'mhm-rentiva'); ?></th>
 					</tr>
 				</thead>
 				<tbody>
 					<?php if (empty($statement['lines'])) : ?>
-						<tr><td colspan="3" style="padding:8px;border:1px solid #dcdcde;color:#646970;"><?php esc_html_e('No activity in this period.', 'mhm-rentiva'); ?></td></tr>
+						<tr><td colspan="5" style="padding:8px;border:1px solid #dcdcde;color:#646970;"><?php esc_html_e('No activity in this period.', 'mhm-rentiva'); ?></td></tr>
 						<?php
                     else :
 						foreach ( (array) $statement['lines'] as $line) :
@@ -85,7 +87,17 @@ final class PayoutStatementRenderer {
 						<tr>
 							<td style="padding:6px;border:1px solid #dcdcde;"><?php echo esc_html( (string) ( $line['date'] ?? '' )); ?></td>
 							<td style="padding:6px;border:1px solid #dcdcde;"><?php echo esc_html( (string) ( $line['description'] ?? '' )); ?></td>
-							<td style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php echo $money($line['amount'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td>
+							<?php
+							$line_gross      = (float) ( $line['gross'] ?? 0 );
+							$line_commission = (float) ( $line['commission'] ?? 0 );
+							$line_rate       = (float) ( $line['commission_rate'] ?? 0 );
+							$commission_cell = $line_gross > 0
+								? '%' . esc_html( number_format_i18n($line_rate, 0) ) . ' · ' . $money($line_commission)
+								: '—';
+							?>
+							<td style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php echo $line_gross > 0 ? $money($line_gross) : '—'; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- money() returns esc_html'd. ?></td>
+							<td style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php echo $commission_cell; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html + money() above. ?></td>
+							<td style="padding:6px;border:1px solid #dcdcde;text-align:right;"><?php echo $money($line['amount'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- money() returns esc_html'd. ?></td>
 						</tr>
 											<?php
                     endforeach;
@@ -97,6 +109,9 @@ endif;
 			<table style="width:320px;margin-left:auto;border-collapse:collapse;">
 				<tr><td style="padding:4px;"><?php esc_html_e('Period earnings', 'mhm-rentiva'); ?></td><td style="padding:4px;text-align:right;"><?php echo $money($statement['gross'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td></tr>
 				<tr><td style="padding:4px;"><?php esc_html_e('Period penalties', 'mhm-rentiva'); ?></td><td style="padding:4px;text-align:right;">- <?php echo $money($statement['penalties'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td></tr>
+				<?php if ( (float) ( $statement['commission_total'] ?? 0 ) > 0 ) : ?>
+					<tr><td style="padding:4px;"><?php esc_html_e('Total commission deducted', 'mhm-rentiva'); ?></td><td style="padding:4px;text-align:right;"><?php echo $money($statement['commission_total'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- money() returns esc_html'd. ?></td></tr>
+				<?php endif; ?>
 				<tr style="border-top:1px solid #dcdcde;"><td style="padding:4px;"><strong><?php esc_html_e('Period net', 'mhm-rentiva'); ?></strong></td><td style="padding:4px;text-align:right;"><strong><?php echo $money($statement['net_activity'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong></td></tr>
 				<tr style="border-top:2px solid #1d2327;"><td style="padding:4px;"><strong><?php esc_html_e('Amount paid', 'mhm-rentiva'); ?></strong></td><td style="padding:4px;text-align:right;"><strong><?php echo $money($statement['paid'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></strong></td></tr>
 				<tr><td style="padding:4px;color:#646970;"><?php esc_html_e('Carried balance', 'mhm-rentiva'); ?></td><td style="padding:4px;text-align:right;color:#646970;"><?php echo $money($statement['carried_balance'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td></tr>
