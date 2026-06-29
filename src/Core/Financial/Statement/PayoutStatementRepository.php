@@ -32,6 +32,7 @@ final class PayoutStatementRepository {
 		update_post_meta($payout_id, '_mhm_statement_last_entry_id', (int) $statement['last_entry_id']);
 		update_post_meta($payout_id, '_mhm_statement_gross', (float) $statement['gross']);
 		update_post_meta($payout_id, '_mhm_statement_penalties', (float) $statement['penalties']);
+		update_post_meta($payout_id, '_mhm_statement_commission_total', (float) ( $statement['commission_total'] ?? 0 ));
 		update_post_meta($payout_id, '_mhm_statement_net_activity', (float) $statement['net_activity']);
 		update_post_meta($payout_id, '_mhm_statement_paid', (float) $statement['paid']);
 		update_post_meta($payout_id, '_mhm_statement_carried_balance', (float) $statement['carried_balance']);
@@ -52,22 +53,23 @@ final class PayoutStatementRepository {
 		$snap  = json_decode( (string) get_post_meta($payout_id, '_mhm_statement_vendor_snapshot', true), true);
 
 		return array(
-			'payout_id'       => $payout_id,
-			'vendor_id'       => (int) get_post_field('post_author', $payout_id),
-			'number'          => (string) get_post_meta($payout_id, '_mhm_statement_number', true),
-			'generated_at'    => (string) get_post_meta($payout_id, '_mhm_statement_generated_at', true),
-			'currency'        => (string) get_post_meta($payout_id, '_mhm_statement_currency', true),
-			'period_start'    => (string) get_post_meta($payout_id, '_mhm_statement_period_start', true),
-			'period_end'      => (string) get_post_meta($payout_id, '_mhm_statement_period_end', true),
-			'last_entry_id'   => (int) get_post_meta($payout_id, '_mhm_statement_last_entry_id', true),
-			'lines'           => is_array($lines) ? $lines : array(),
-			'gross'           => (float) get_post_meta($payout_id, '_mhm_statement_gross', true),
-			'penalties'       => (float) get_post_meta($payout_id, '_mhm_statement_penalties', true),
-			'net_activity'    => (float) get_post_meta($payout_id, '_mhm_statement_net_activity', true),
-			'paid'            => (float) get_post_meta($payout_id, '_mhm_statement_paid', true),
-			'carried_balance' => (float) get_post_meta($payout_id, '_mhm_statement_carried_balance', true),
-			'vendor_snapshot' => is_array($snap) ? $snap : array(),
-			'emailed_at'      => (string) get_post_meta($payout_id, '_mhm_statement_emailed_at', true),
+			'payout_id'        => $payout_id,
+			'vendor_id'        => (int) get_post_field('post_author', $payout_id),
+			'number'           => (string) get_post_meta($payout_id, '_mhm_statement_number', true),
+			'generated_at'     => (string) get_post_meta($payout_id, '_mhm_statement_generated_at', true),
+			'currency'         => (string) get_post_meta($payout_id, '_mhm_statement_currency', true),
+			'period_start'     => (string) get_post_meta($payout_id, '_mhm_statement_period_start', true),
+			'period_end'       => (string) get_post_meta($payout_id, '_mhm_statement_period_end', true),
+			'last_entry_id'    => (int) get_post_meta($payout_id, '_mhm_statement_last_entry_id', true),
+			'lines'            => is_array($lines) ? $lines : array(),
+			'gross'            => (float) get_post_meta($payout_id, '_mhm_statement_gross', true),
+			'penalties'        => (float) get_post_meta($payout_id, '_mhm_statement_penalties', true),
+			'commission_total' => (float) get_post_meta($payout_id, '_mhm_statement_commission_total', true),
+			'net_activity'     => (float) get_post_meta($payout_id, '_mhm_statement_net_activity', true),
+			'paid'             => (float) get_post_meta($payout_id, '_mhm_statement_paid', true),
+			'carried_balance'  => (float) get_post_meta($payout_id, '_mhm_statement_carried_balance', true),
+			'vendor_snapshot'  => is_array($snap) ? $snap : array(),
+			'emailed_at'       => (string) get_post_meta($payout_id, '_mhm_statement_emailed_at', true),
 		);
 	}
 
