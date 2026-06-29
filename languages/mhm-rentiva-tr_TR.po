@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-28T19:15:16+00:00\n"
+"POT-Creation-Date: 2026-06-29T04:03:08+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -147,7 +147,7 @@ msgstr "Sistem bilgilerini alırken hata oluştu."
 #: src/Admin/About/Tabs/SystemTab.php:175
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1094
 #: src/Admin/Messages/Core/Messages.php:152
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:147
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:148
 #: src/Admin/Reports/BusinessLogic/CustomerReport.php:54
 #: src/Admin/Setup/SetupWizard.php:254 src/Admin/Setup/SetupWizard.php:1176
 #: src/Admin/Setup/SetupWizard.php:1263 src/Admin/Setup/SetupWizard.php:1286
@@ -1108,6 +1108,7 @@ msgstr "Gerekli"
 #: src/Admin/Reports/BackgroundProcessor.php:475
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:55
 #: templates/account/partials/vendor-payouts.php:221
 #: templates/account/partials/vendor-reliability.php:376
 #: templates/account/vendor-ledger.php:63
@@ -1423,7 +1424,7 @@ msgstr ""
 #: src/Admin/Messages/Core/Messages.php:995
 #: src/Admin/Messages/Core/Messages.php:1130
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:45
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:277
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:302
 #: src/Admin/Privacy/GDPRManager.php:341 src/Admin/Privacy/GDPRManager.php:362
 #: src/Admin/Privacy/GDPRManager.php:385 src/Admin/Privacy/GDPRManager.php:409
 #: src/Admin/Testing/ShortcodeTestHandler.php:44
@@ -1894,7 +1895,7 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
 #: src/Admin/Messages/Settings/MessagesSettings.php:222
 #: src/Admin/PostTypes/Message/Message.php:342
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:197
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:198
 #: src/Admin/Reports/Reports.php:503
 #: src/Admin/Utilities/Dashboard/DashboardService.php:784
 #: src/Admin/Utilities/Dashboard/DashboardService.php:959
@@ -1933,7 +1934,7 @@ msgstr "Beklemede"
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:135
 #: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php:136
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:220
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:221
 #: src/Admin/Reports/Reports.php:502
 #: src/Admin/Utilities/Dashboard/DashboardService.php:960
 #: src/Admin/Utilities/Export/ExportFilters.php:46
@@ -2502,7 +2503,7 @@ msgstr "Tüm ödeme yöntemleri"
 #: src/Admin/Booking/ListTable/BookingColumns.php:594
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:414
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:223
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:224
 #: src/Admin/Testing/TestRunner.php:169
 #: src/Admin/Utilities/Export/Export.php:1003
 #: src/Admin/Utilities/Export/ExportFilters.php:60
@@ -2827,7 +2828,7 @@ msgstr "Kapat"
 #: src/Admin/Messages/Core/Messages.php:808
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125 src/Plugin.php:1313
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125 src/Plugin.php:1318
 #: templates/messages/message-thread-view.html.php:56 build/admin/messages.js:1
 #: src-react/admin/messages/components/MessageTable.jsx:21
 #: src-react/admin/messages/components/MessageTable.jsx:57
@@ -3940,6 +3941,7 @@ msgstr "Müşteri hesabı oluşturuldu ve rezervasyona bağlandı."
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:24
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:75
 #: src/Admin/PostTypes/Message/Message.php:327
+#: src/Core/Financial/Statement/PayoutStatement.php:102
 msgid "Refund"
 msgstr "İade"
 
@@ -7066,86 +7068,86 @@ msgstr "tam geri ödeme"
 msgid "partial refund"
 msgstr "kısmi geri ödeme"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:76
+#: src/Admin/Emails/Notifications/VendorNotifications.php:78
 msgid "Welcome! Your vendor account is approved — {{site.name}}"
 msgstr "Hoş geldiniz! Bayi hesabınız onaylandı — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:80
+#: src/Admin/Emails/Notifications/VendorNotifications.php:82
 msgid "Your vendor application — {{site.name}}"
 msgstr "Bayi başvurunuz — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:84
+#: src/Admin/Emails/Notifications/VendorNotifications.php:86
 msgid "We received your application — {{site.name}}"
 msgstr "Başvurunuzu aldık — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:88
+#: src/Admin/Emails/Notifications/VendorNotifications.php:90
 msgid "[Admin] New vendor application from {{vendor.name}} — {{site.name}}"
 msgstr "[Admin] {{vendor.name}} adından yeni bayi başvurusu — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:92
+#: src/Admin/Emails/Notifications/VendorNotifications.php:94
 msgid "Your vehicle is live! — {{site.name}}"
 msgstr "Aracınız yayında! — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:96
+#: src/Admin/Emails/Notifications/VendorNotifications.php:98
 msgid "Your vehicle listing — {{site.name}}"
 msgstr "Araç ilanınız — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:100
+#: src/Admin/Emails/Notifications/VendorNotifications.php:102
 msgid "Payout approved — {{site.name}}"
 msgstr "Ödeme onaylandı — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:104
+#: src/Admin/Emails/Notifications/VendorNotifications.php:106
 msgid "Payout request update — {{site.name}}"
 msgstr "Ödeme talebi güncelleme — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:108
+#: src/Admin/Emails/Notifications/VendorNotifications.php:110
 msgid "IBAN change approved — {{site.name}}"
 msgstr "IBAN değişikliği onaylandı — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:112
+#: src/Admin/Emails/Notifications/VendorNotifications.php:114
 msgid "IBAN change update — {{site.name}}"
 msgstr "IBAN değişikliği güncelleme — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:116
+#: src/Admin/Emails/Notifications/VendorNotifications.php:118
 msgid "Your vendor account has been suspended — {{site.name}}"
 msgstr "Bayi hesabınız askıya alındı — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:120
+#: src/Admin/Emails/Notifications/VendorNotifications.php:122
 msgid "[Admin] New vehicle submitted by {{vendor.name}} — {{site.name}}"
 msgstr ""
 "[Yönetici] {{vendor.name}} tarafından yeni araç gönderildi — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:124
+#: src/Admin/Emails/Notifications/VendorNotifications.php:126
 msgid "[Admin] Vehicle edited — re-review needed — {{site.name}}"
 msgstr "[Yönetici] Araç düzenlendi — yeniden inceleme gerekli — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:130
+#: src/Admin/Emails/Notifications/VendorNotifications.php:132
 msgid "Your listing is now live! — {{site.name}}"
 msgstr "İlanınız yayında! — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:134
+#: src/Admin/Emails/Notifications/VendorNotifications.php:136
 msgid "Vehicle paused — {{site.name}}"
 msgstr "Araç duraklatıldı — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:138
+#: src/Admin/Emails/Notifications/VendorNotifications.php:140
 msgid "Vehicle resumed — {{site.name}}"
 msgstr "Araç yeniden aktifleştirildi — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:142
+#: src/Admin/Emails/Notifications/VendorNotifications.php:144
 msgid "Vehicle withdrawn — {{site.name}}"
 msgstr "Araç geri çekildi — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:146
+#: src/Admin/Emails/Notifications/VendorNotifications.php:148
 msgid "Your listing has expired — {{site.name}}"
 msgstr "İlanınızın süresi doldu — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:150
+#: src/Admin/Emails/Notifications/VendorNotifications.php:152
 msgid ""
 "Your listing expires in {{lifecycle.days_remaining}} days — {{site.name}}"
 msgstr ""
 "İlanınız {{lifecycle.days_remaining}} gün sonra sona eriyor — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:154
+#: src/Admin/Emails/Notifications/VendorNotifications.php:156
 msgid ""
 "Urgent: Your listing expires in {{lifecycle.days_remaining}} days — "
 "{{site.name}}"
@@ -7153,21 +7155,37 @@ msgstr ""
 "Acil: İlanınız {{lifecycle.days_remaining}} gün sonra sona eriyor — "
 "{{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:158
+#: src/Admin/Emails/Notifications/VendorNotifications.php:160
 msgid "Listing renewed — {{site.name}}"
 msgstr "İlan yenilendi — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:162
+#: src/Admin/Emails/Notifications/VendorNotifications.php:164
 msgid "Vehicle submitted for review — {{site.name}}"
 msgstr "Araç incelemeye gönderildi — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:168
+#: src/Admin/Emails/Notifications/VendorNotifications.php:170
 msgid "[Admin] New vendor report: {{report.title}} — {{site.name}}"
 msgstr "[Admin] Yeni bayi raporu: {{report.title}} — {{site.name}}"
 
-#: src/Admin/Emails/Notifications/VendorNotifications.php:172
+#: src/Admin/Emails/Notifications/VendorNotifications.php:174
 msgid "Your report has been updated: {{report.title}} — {{site.name}}"
 msgstr "Raporunuz güncellendi: {{report.title}} — {{site.name}}"
+
+#. translators: %s: statement number
+#: src/Admin/Emails/Notifications/VendorNotifications.php:442
+#, php-format
+msgid "Your payout statement %s is ready"
+msgstr "Hakediş makbuzunuz %s hazır"
+
+#. translators: 1: amount paid, 2: statement number
+#: src/Admin/Emails/Notifications/VendorNotifications.php:448
+#, php-format
+msgid "A payout of %1$s has been processed. Statement: %2$s"
+msgstr "%1$s tutarında bir ödeme işlendi. Makbuz: %2$s"
+
+#: src/Admin/Emails/Notifications/VendorNotifications.php:452
+msgid "View / print your statement:"
+msgstr "Makbuzunuzu görüntüleyin / yazdırın:"
 
 #: src/Admin/Emails/PostTypes/EmailLog.php:25
 #: src/Admin/Emails/PostTypes/EmailLog.php:27
@@ -10307,8 +10325,9 @@ msgid ""
 "Vehicle updated. Because critical details changed, your listing has been "
 "unpublished and sent for admin review — it will go live again once approved."
 msgstr ""
-"Araç güncellendi. Kritik bilgiler değiştiği için ilanınız yayından kaldırıldı "
-"ve yönetici incelemesine gönderildi — onaylandığında tekrar yayına alınacak."
+"Araç güncellendi. Kritik bilgiler değiştiği için ilanınız yayından "
+"kaldırıldı ve yönetici incelemesine gönderildi — onaylandığında tekrar "
+"yayına alınacak."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php:1302
 msgid "Vehicle updated successfully."
@@ -10355,6 +10374,7 @@ msgid "Full name as it appears on the bank account."
 msgstr "Banka hesabında göründüğü şekliyle tam adınız."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:43
 #: templates/account/partials/vendor-settings.php:120
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
@@ -14030,6 +14050,7 @@ msgstr "Bağlam:"
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:54
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:57
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52 build/admin/vendor-management.js:1
@@ -14216,18 +14237,24 @@ msgstr "Kullanılabilir Bakiye"
 msgid "Requested"
 msgstr "Talep Edildi"
 
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:67
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:58
+#: templates/account/partials/vendor-payouts.php:222
+#: templates/account/partials/vendor-payouts.php:252
+msgid "Statement"
+msgstr "Makbuz"
+
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:68
 msgid "Approve Selected"
 msgstr "Seçilenleri Onayla"
 
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:201
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:202
 #: templates/account/partials/vendor-payouts.php:41
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:24
 msgid "Approved"
 msgstr "Onaylandı"
 
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:205
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:206
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:92
 #: src/Admin/VendorReport/REST/VendorReportsController.php:243
 #: templates/account/partials/vendor-listings.php:45
@@ -14238,7 +14265,11 @@ msgstr "Onaylandı"
 msgid "Rejected"
 msgstr "Reddedildi"
 
-#: src/Admin/PostTypes/Payouts/PayoutListTable.php:262
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:258
+msgid "Emailed to vendor"
+msgstr "Bayiye e-posta gönderildi"
+
+#: src/Admin/PostTypes/Payouts/PayoutListTable.php:287
 msgid "Permission denied by Governance Layer."
 msgstr "Yönetim Katmanı tarafından izin reddedildi."
 
@@ -22861,6 +22892,98 @@ msgstr ""
 "%2$s tarihinde bayi #%1$d için aktif komisyon politikası bulunamadı. Lütfen "
 "yönetim panelinde platform geneli bir politika yapılandırın."
 
+#. translators: %d: booking ID
+#: src/Core/Financial/Statement/PayoutStatement.php:95
+#, php-format
+msgid "Earnings — booking #%d"
+msgstr "Hakediş — rezervasyon #%d"
+
+#: src/Core/Financial/Statement/PayoutStatement.php:96
+#: templates/account/vendor-ledger.php:47
+msgid "Earnings"
+msgstr "Hakediş"
+
+#. translators: %d: booking ID
+#: src/Core/Financial/Statement/PayoutStatement.php:101
+#, php-format
+msgid "Refund — booking #%d"
+msgstr "İade — rezervasyon #%d"
+
+#: src/Core/Financial/Statement/PayoutStatement.php:104
+msgid "Withdrawal penalty"
+msgstr "Çekim cezası"
+
+#: src/Core/Financial/Statement/PayoutStatementController.php:63
+msgid "Invalid or expired statement link."
+msgstr "Geçersiz veya süresi dolmuş makbuz bağlantısı."
+
+#: src/Core/Financial/Statement/PayoutStatementController.php:66
+msgid "You are not allowed to view this statement."
+msgstr "Bu makbuzu görüntüleme izniniz yok."
+
+#: src/Core/Financial/Statement/PayoutStatementController.php:71
+msgid "No statement found for this payout."
+msgstr "Bu ödeme için makbuz bulunamadı."
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:30
+msgid "Vendor Payout Statement"
+msgstr "Bayi Hakediş Makbuzu"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:40
+msgid "Tax office"
+msgstr "Vergi dairesi"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:41
+msgid "Tax no"
+msgstr "Vergi no"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:42
+msgid "Account holder"
+msgstr "Hesap sahibi"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:47
+msgid "Period"
+msgstr "Dönem"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:56
+#: templates/emails/vendor-report-received-admin.html.php:24
+#: build/admin/vendor-reports.js:1
+#: src-react/admin/vendor-reports/components/DetailView.jsx:59
+msgid "Description"
+msgstr "Açıklama"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:62
+msgid "No activity in this period."
+msgstr "Bu dönemde hareket yok."
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
+msgid "Period earnings"
+msgstr "Dönem hakedişi"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:81
+msgid "Period penalties"
+msgstr "Dönem cezaları"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:82
+msgid "Period net"
+msgstr "Dönem neti"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:83
+msgid "Amount paid"
+msgstr "Ödenen tutar"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:84
+msgid "Carried balance"
+msgstr "Devreden bakiye"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:88
+msgid "This is a payment statement, not an official invoice."
+msgstr "Bu belge bir hakediş/ödeme makbuzudur, resmi e-Fatura değildir."
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:92
+msgid "Print / Save as PDF"
+msgstr "Yazdır / PDF olarak kaydet"
+
 #. translators: %s: missing root key in manifest.
 #: src/Layout/BlueprintValidator.php:40
 #, php-format
@@ -23098,7 +23221,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:1003
+#: src/Plugin.php:1008
 msgid ""
 "Rentiva Lite version allows you to add up to 5 vehicles. Activate your "
 "license to add more vehicles."
@@ -23106,7 +23229,7 @@ msgstr ""
 "Rentiva Lite sürümü, en fazla 5 araç eklemenize izin verir. Daha fazla araç "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1006
+#: src/Plugin.php:1011
 msgid ""
 "Rentiva Lite version has reached the booking limit. Activate your license to "
 "add more bookings."
@@ -23114,7 +23237,7 @@ msgstr ""
 "Rentiva Lite sürümü rezervasyon sınırına ulaştı. Daha fazla rezervasyon "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1335
+#: src/Plugin.php:1340
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -23705,7 +23828,7 @@ msgstr "Ödeme Geçmişi"
 msgid "Reference"
 msgstr "Referans"
 
-#: templates/account/partials/vendor-payouts.php:252
+#: templates/account/partials/vendor-payouts.php:260
 msgid "No payout history yet."
 msgstr "Henüz ödeme geçmişi yok."
 
@@ -24258,10 +24381,6 @@ msgstr "Onaylandı"
 #: templates/account/vendor-ledger.php:46
 msgid "All Types"
 msgstr "Tüm Türler"
-
-#: templates/account/vendor-ledger.php:47
-msgid "Earnings"
-msgstr "Kazançlar"
 
 #: templates/account/vendor-ledger.php:49 build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:156
@@ -25037,12 +25156,6 @@ msgstr ""
 #: templates/emails/vendor-report-received-admin.html.php:7
 msgid "A vendor has submitted a new report."
 msgstr "Bir bayi yeni bir rapor gönderdi."
-
-#: templates/emails/vendor-report-received-admin.html.php:24
-#: build/admin/vendor-reports.js:1
-#: src-react/admin/vendor-reports/components/DetailView.jsx:59
-msgid "Description"
-msgstr "Açıklama"
 
 #: templates/emails/vendor-report-received-admin.html.php:29
 msgid "Open report in admin"
