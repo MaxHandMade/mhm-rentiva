@@ -31,6 +31,11 @@ final class PayoutStatementController {
 		if ($new_status !== 'publish' || $old_status === 'publish') {
 			return;
 		}
+		// NOTE: on the live admin approve path this runs synchronously INSIDE
+		// AtomicPayoutService::approve()'s DB transaction (it fires from the wp_update_post
+		// that publishes the payout). A throw here rolls the whole approval back — fail-closed:
+		// no payout without a statement. Keep generate_for_payout() and everything it calls
+		// resilient; do not let a non-critical sub-step (e.g. the vendor email) throw.
 		PayoutStatementService::generate_for_payout( (int) $post->ID);
 	}
 
