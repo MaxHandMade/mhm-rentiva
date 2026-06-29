@@ -299,7 +299,7 @@ final class Ledger {
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Ledger reads are an intentional repository boundary.
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT id, created_at, type, amount, booking_id, order_id
+                "SELECT id, created_at, type, amount, gross_amount, commission_amount, commission_rate, booking_id, order_id
                  FROM %i
                  WHERE tenant_id = %d AND vendor_id = %d AND status = 'cleared'
                    AND id > %d AND id <= %d
