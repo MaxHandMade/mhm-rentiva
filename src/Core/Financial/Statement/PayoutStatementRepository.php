@@ -36,8 +36,8 @@ final class PayoutStatementRepository {
 		update_post_meta($payout_id, '_mhm_statement_paid', (float) $statement['paid']);
 		update_post_meta($payout_id, '_mhm_statement_carried_balance', (float) $statement['carried_balance']);
 		update_post_meta($payout_id, '_mhm_statement_currency', (string) $statement['currency']);
-		update_post_meta($payout_id, '_mhm_statement_lines', wp_json_encode($statement['lines']));
-		update_post_meta($payout_id, '_mhm_statement_vendor_snapshot', wp_json_encode($statement['vendor_snapshot']));
+		update_post_meta($payout_id, '_mhm_statement_lines', wp_json_encode($statement['lines'], JSON_UNESCAPED_UNICODE));
+		update_post_meta($payout_id, '_mhm_statement_vendor_snapshot', wp_json_encode($statement['vendor_snapshot'], JSON_UNESCAPED_UNICODE));
 		if (get_post_meta($payout_id, '_mhm_statement_emailed_at', true) === '') {
 			update_post_meta($payout_id, '_mhm_statement_emailed_at', '');
 		}

@@ -64,4 +64,17 @@ final class PayoutStatementRepositoryTest extends WP_UnitTestCase {
 		$this->assertSame(10, PayoutStatementRepository::previous_last_entry_id($vendor, $p2));
 		$this->assertSame(0, PayoutStatementRepository::previous_last_entry_id($vendor + 12345, $p2));
 	}
+
+	public function test_turkish_characters_survive_json_roundtrip(): void {
+		$vendor = (int) $this->factory->user->create();
+		$pid = $this->make_payout($vendor);
+		$statement = $this->sample($pid, $vendor, 5, 'MKB-2026-0001');
+		$statement['vendor_snapshot']['name'] = 'Mehmet Çelik';
+		$statement['lines'][0]['description']  = 'Hakediş — çekim cezası ışığı';
+		PayoutStatementRepository::save($pid, $statement);
+
+		$got = PayoutStatementRepository::get($pid);
+		$this->assertSame('Mehmet Çelik', $got['vendor_snapshot']['name'], 'Turkish chars in snapshot must survive JSON+postmeta roundtrip');
+		$this->assertSame('Hakediş — çekim cezası ışığı', $got['lines'][0]['description'], 'Turkish chars in lines must survive');
+	}
 }
