@@ -642,7 +642,7 @@ final class SettingsSanitizer {
 	/**
 	 * Sanitize Vendor Marketplace Settings (Pro feature).
 	 */
-	private static function sanitize_vendor_marketplace_settings( array $input, array $defaults ): array {
+	public static function sanitize_vendor_marketplace_settings( array $input, array $defaults ): array {
 		return array(
 			// Listing & Duration
 			'vendor_listing_duration_days'         => self::get_int( $input, 'vendor_listing_duration_days', 90, 1, 365 ),
@@ -677,6 +677,16 @@ final class SettingsSanitizer {
 			// Vendor Agreement
 			'vendor_agreement_enabled'             => ( ( $input['vendor_agreement_enabled'] ?? '' ) === '1' ) ? '1' : '0',
 			'vendor_agreement_text'                => \sanitize_textarea_field( (string) ( $input['vendor_agreement_text'] ?? '' ) ),
+
+			// Payout Statement (operator branding)
+			'statement_company_name'               => \sanitize_text_field( (string) ( $input['statement_company_name'] ?? '' ) ),
+			'statement_company_address'            => \sanitize_textarea_field( (string) ( $input['statement_company_address'] ?? '' ) ),
+			'statement_company_tax_office'         => \sanitize_text_field( (string) ( $input['statement_company_tax_office'] ?? '' ) ),
+			'statement_company_tax_number'         => \sanitize_text_field( (string) ( $input['statement_company_tax_number'] ?? '' ) ),
+			'statement_company_phone'              => \sanitize_text_field( (string) ( $input['statement_company_phone'] ?? '' ) ),
+			'statement_company_email'              => \sanitize_email( (string) ( $input['statement_company_email'] ?? '' ) ),
+			'statement_logo_id'                    => \absint( $input['statement_logo_id'] ?? 0 ),
+			'statement_footer_note'                => \sanitize_textarea_field( (string) ( $input['statement_footer_note'] ?? '' ) ),
 		);
 	}
 }

@@ -26,6 +26,7 @@ final class VendorMarketplaceSettings {
 	public const SECTION_RELIABILITY = 'mhm_rentiva_vendor_reliability_section';
 	public const SECTION_LISTING_FEE = 'mhm_rentiva_vendor_listing_fee_section';
 	public const SECTION_AGREEMENT   = 'mhm_rentiva_vendor_agreement_section';
+	public const SECTION_STATEMENT   = 'mhm_rentiva_vendor_statement_section';
 
 	/**
 	 * Get default settings.
@@ -72,6 +73,16 @@ final class VendorMarketplaceSettings {
 			// Vendor Agreement
 			'vendor_agreement_enabled'             => '0',
 			'vendor_agreement_text'                => '',
+
+			// Payout Statement (operator branding)
+			'statement_company_name'               => '',
+			'statement_company_address'            => '',
+			'statement_company_tax_office'         => '',
+			'statement_company_tax_number'         => '',
+			'statement_company_phone'              => '',
+			'statement_company_email'              => '',
+			'statement_logo_id'                    => 0,
+			'statement_footer_note'                => '',
 		);
 	}
 
@@ -91,6 +102,7 @@ final class VendorMarketplaceSettings {
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_RELIABILITY );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_LISTING_FEE );
 			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_AGREEMENT );
+			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_STATEMENT );
 		}
 	}
 
@@ -365,5 +377,22 @@ final class VendorMarketplaceSettings {
 			__( 'Plain text shown to applicants. Line breaks are preserved.', 'mhm-rentiva' ),
 			self::SECTION_AGREEMENT
 		);
+
+		// Section: Payout Statement branding
+		add_settings_section(
+			self::SECTION_STATEMENT,
+			__( 'Payout Statement', 'mhm-rentiva' ),
+			fn() => print( '<p>' . esc_html__( 'Company header, logo and footer note shown on vendor payout statements (makbuz).', 'mhm-rentiva' ) . '</p>' ),
+			$page_slug
+		);
+
+		SettingsHelper::text_field( $page_slug, 'statement_company_name', __( 'Company Name', 'mhm-rentiva' ), self::SECTION_STATEMENT, __( 'Shown as the statement header. Leave empty to use the site name.', 'mhm-rentiva' ) );
+		SettingsHelper::textarea_field( $page_slug, 'statement_company_address', __( 'Company Address', 'mhm-rentiva' ), 3, __( 'Shown under the company name.', 'mhm-rentiva' ), self::SECTION_STATEMENT );
+		SettingsHelper::text_field( $page_slug, 'statement_company_tax_office', __( 'Tax Office', 'mhm-rentiva' ), self::SECTION_STATEMENT );
+		SettingsHelper::text_field( $page_slug, 'statement_company_tax_number', __( 'Tax Number', 'mhm-rentiva' ), self::SECTION_STATEMENT );
+		SettingsHelper::text_field( $page_slug, 'statement_company_phone', __( 'Phone', 'mhm-rentiva' ), self::SECTION_STATEMENT );
+		SettingsHelper::text_field( $page_slug, 'statement_company_email', __( 'Email', 'mhm-rentiva' ), self::SECTION_STATEMENT );
+		SettingsHelper::media_field( $page_slug, 'statement_logo_id', __( 'Logo', 'mhm-rentiva' ), self::SECTION_STATEMENT, __( 'Optional logo shown in the statement header.', 'mhm-rentiva' ) );
+		SettingsHelper::textarea_field( $page_slug, 'statement_footer_note', __( 'Footer Note', 'mhm-rentiva' ), 3, __( 'Optional note shown above the permanent "not an invoice" disclaimer.', 'mhm-rentiva' ), self::SECTION_STATEMENT );
 	}
 }
