@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-06-29T04:03:08+00:00\n"
+"POT-Creation-Date: 2026-06-29T14:59:34+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1186,7 +1186,7 @@ msgstr ""
 #: src/Admin/Reports/BackgroundProcessor.php:475
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:55
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:73
 #: templates/account/partials/vendor-payouts.php:221
 #: templates/account/partials/vendor-reliability.php:376
 #: templates/account/vendor-ledger.php:63
@@ -2942,6 +2942,7 @@ msgstr ""
 #: src/Admin/Messages/Settings/MessagesSettings.php:349
 #: src/Admin/Reports/BackgroundProcessor.php:469
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:394
 #: src/Admin/Settings/Testing/SettingsTester.php:973
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1133
 #: templates/account/vendor-booking-detail.php:142
@@ -2971,6 +2972,7 @@ msgstr ""
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:181
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:393
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1137
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
@@ -4526,6 +4528,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:465
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:116
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:413
+#: src/Admin/Settings/Core/SettingsHelper.php:234
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:782
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:834
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:968
@@ -6312,7 +6315,7 @@ msgid "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited
 msgstr ""
 
 #: src/Admin/Core/SecurityHelper.php:184
-#: src/Admin/Settings/Core/SettingsCore.php:553
+#: src/Admin/Settings/Core/SettingsCore.php:557
 msgid "Too many requests. Please wait."
 msgstr ""
 
@@ -7333,7 +7336,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:47
 #: src/Admin/Emails/Templates/RefundEmails.php:68
 #: src/Admin/Emails/Templates/RefundEmails.php:69
-#: src/Admin/Settings/Core/SettingsHelper.php:333
+#: src/Admin/Settings/Core/SettingsHelper.php:403
 #: src/Admin/Setup/SetupWizard.php:1233
 #: assets/blocks/unified-search/index.js:142
 #: assets/blocks/unified-search/index.js:152
@@ -10351,7 +10354,7 @@ msgid "Full name as it appears on the bank account."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:43
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:61
 #: templates/account/partials/vendor-settings.php:120
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
@@ -10363,6 +10366,7 @@ msgid "Your payout earnings will be sent to this account."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:208
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:391
 #: templates/account/partials/vendor-settings.php:129
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:58
@@ -10376,6 +10380,7 @@ msgid "optional"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:212
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:392
 #: templates/account/partials/vendor-settings.php:133
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:59
@@ -10429,7 +10434,7 @@ msgid "Address Document"
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:263
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:347
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:359
 msgid "Vendor Agreement"
 msgstr ""
 
@@ -13955,7 +13960,7 @@ msgstr ""
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:54
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:57
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52
@@ -14759,7 +14764,12 @@ msgstr ""
 msgid "Diagnostic testing engine not found."
 msgstr ""
 
-#: src/Admin/Settings/Core/SettingsHelper.php:339
+#: src/Admin/Settings/Core/SettingsHelper.php:233
+#: src/Admin/Settings/Core/SettingsHelper.php:247
+msgid "Select image"
+msgstr ""
+
+#: src/Admin/Settings/Core/SettingsHelper.php:409
 #: src/Admin/Setup/SetupWizard.php:1242
 #: assets/blocks/unified-search/index.js:143
 #: assets/blocks/unified-search/index.js:153
@@ -16339,236 +16349,276 @@ msgstr ""
 msgid "Tax rate percentage (e.g., 18 for 18%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:83
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:94
 msgid "These settings require a Pro license. Default values are used on Lite installations."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:106
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:118
 msgid "Listing & Duration Settings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:107
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:119
 msgid "Configure how long vehicle listings stay active and related timing rules."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:114
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:126
 msgid "Listing Duration (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:117
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:129
 msgid "How many days a vehicle listing stays active before expiry."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:124
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:136
 msgid "First Expiry Warning (Days Before)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:127
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:139
 msgid "Send first warning email this many days before listing expires."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:134
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:146
 msgid "Second Expiry Warning (Days Before)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:137
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:149
 msgid "Send second warning email this many days before listing expires."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:144
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:156
 msgid "Grace Period After Expiry (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:147
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:159
 msgid "Days after expiry before expired listing is auto-withdrawn."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:154
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:166
 msgid "Withdrawal Cooldown (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:157
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:169
 msgid "Days a vendor must wait before relisting after withdrawal."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:164
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:176
 msgid "Max Pauses Per Month"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:167
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:179
 msgid "Maximum number of times a vendor can pause a vehicle per calendar month."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:174
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:186
 msgid "Max Pause Duration (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:177
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:189
 msgid "Maximum number of days a vehicle can remain paused."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:184
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:196
 msgid "Withdrawal Penalty Settings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:185
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:197
 msgid "Configure progressive penalty rates applied when vendors withdraw vehicles."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:192
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:204
 msgid "1st Withdrawal Penalty (%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:195
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:207
 msgid "Penalty rate (% of monthly avg revenue) for the vendor's first withdrawal in 12 months. Set to 0 to make the first withdrawal free."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:202
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:214
 msgid "2nd Withdrawal Penalty (%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:205
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:217
 msgid "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal in 12 months."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:212
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:224
 msgid "3rd+ Withdrawal Penalty (%)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:215
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:227
 msgid "Penalty rate for 3rd and subsequent withdrawals in the 12-month rolling window."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:222
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:234
 msgid "Rolling Window (Months)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:225
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:237
 msgid "Number of months to look back when counting withdrawals for penalty calculation."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:232
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:244
 msgid "Anti-Gaming Protection"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:233
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:245
 msgid "Prevent vendors from gaming the system by cancelling bookings to relist at higher prices."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:240
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:252
 msgid "Cancelled Booking Re-block Period (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:243
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:255
 msgid "After a vendor cancels a booking, these dates are blocked for new reservations for this many days."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:250
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:262
 msgid "Reliability Score Weights"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:251
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:263
 msgid "Configure the point values used to calculate vendor reliability scores (base 100)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:258
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:270
 msgid "Points Deducted per Cancellation"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:261
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:273
 msgid "Points deducted from reliability score for each vendor-initiated cancellation (last 6 months)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:268
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:280
 msgid "Points Deducted per Withdrawal"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:271
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:283
 msgid "Points deducted per withdrawal in rolling window."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:278
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:290
 msgid "Points Deducted per Pause"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:281
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:293
 msgid "Points deducted per pause in last 6 months."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:288
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:300
 msgid "Points Added per Completed Booking"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:291
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:303
 msgid "Points added to reliability score per completed booking (last 6 months)."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:298
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:310
 msgid "Max Completion Bonus"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:301
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:313
 msgid "Maximum points that can be earned from completed bookings."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:308
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:320
 msgid "Listing Fee"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:309
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:321
 msgid "Configure fees charged to vendors for listing vehicles on the marketplace."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:316
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:328
 msgid "Enable Listing Fee"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:317
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:329
 msgid "Charge vendors a fee for listing vehicles."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:324
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:336
 msgid "Fee Model"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:326
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:338
 msgid "One Time"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:327
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:339
 msgid "Per Period"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:329
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:341
 msgid "Whether the fee is charged once or per listing period."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:336
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:348
 msgid "Listing Fee Amount"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:339
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:351
 msgid "The fee amount charged to vendors for listing a vehicle."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:348
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:360
 msgid "Require applicants to accept an agreement before submitting a vendor application."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:355
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:367
 msgid "Require vendor agreement"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:356
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:368
 msgid "When enabled (and the text below is filled), applicants must accept the agreement before submitting."
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:363
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:375
 msgid "Agreement Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:365
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:377
 msgid "Plain text shown to applicants. Line breaks are preserved."
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:384
+msgid "Payout Statement"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:385
+msgid "Company header, logo and footer note shown on vendor payout statements (makbuz)."
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:389
+msgid "Company Name"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:389
+msgid "Shown as the statement header. Leave empty to use the site name."
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:390
+msgid "Company Address"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:390
+msgid "Shown under the company name."
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:395
+msgid "Logo"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:395
+msgid "Optional logo shown in the statement header."
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:396
+msgid "Footer Note"
+msgstr ""
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:396
+msgid "Optional note shown above the permanent \"not an invoice\" disclaimer."
 msgstr ""
 
 #: src/Admin/Settings/Settings.php:159
@@ -22315,74 +22365,77 @@ msgstr ""
 msgid "Withdrawal penalty"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:63
+#: src/Core/Financial/Statement/PayoutStatementController.php:68
 msgid "Invalid or expired statement link."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:66
+#: src/Core/Financial/Statement/PayoutStatementController.php:71
 msgid "You are not allowed to view this statement."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:71
+#: src/Core/Financial/Statement/PayoutStatementController.php:76
 msgid "No statement found for this payout."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:30
-msgid "Vendor Payout Statement"
-msgstr ""
-
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:40
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:39
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:58
 msgid "Tax office"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:41
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:40
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:59
 msgid "Tax no"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:42
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:48
+msgid "Vendor Payout Statement"
+msgstr ""
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:60
 msgid "Account holder"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:47
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:65
 msgid "Period"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:56
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:74
 #: templates/emails/vendor-report-received-admin.html.php:24
 #: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:59
 msgid "Description"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:62
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
 msgid "No activity in this period."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:98
 msgid "Period earnings"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:81
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:99
 msgid "Period penalties"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:82
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:100
 msgid "Period net"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:83
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:101
 msgid "Amount paid"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:84
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:102
 msgid "Carried balance"
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:88
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:114
 msgid "This is a payment statement, not an official invoice."
 msgstr ""
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:92
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:119
 msgid "Print / Save as PDF"
 msgstr ""
 
