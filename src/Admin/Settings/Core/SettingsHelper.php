@@ -196,6 +196,76 @@ final class SettingsHelper {
 	}
 
 	/**
+	 * Media (image) settings field — stores an attachment ID, opens the WP media modal.
+	 */
+	public static function media_field( string $group, string $name, string $label, string $section = '', string $description = '' ): void {
+		add_settings_field(
+			$name,
+			$label,
+			static function () use ( $name, $description ) {
+				echo self::render_media_field_html( $name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within.
+				if ( $description ) {
+					printf( '<p class="description">%s</p>', esc_html( $description ) );
+				}
+			},
+			$group,
+			$section
+		);
+	}
+
+	/**
+	 * Pure HTML for the media field: hidden ID input + preview + select/remove + wp.media script.
+	 */
+	public static function render_media_field_html( string $name ): string {
+		$id      = (int) SettingsCore::get( $name, 0 );
+		$url     = $id > 0 ? (string) ( wp_get_attachment_url( $id ) ?: '' ) : '';
+		$key     = esc_attr( self::SETTINGS_KEY );
+		$field   = esc_attr( $name );
+		$preview = $url !== ''
+			? '<img src="' . esc_url( $url ) . '" alt="" style="max-width:200px;max-height:80px;display:block;margin-bottom:6px;">'
+			: '';
+
+		ob_start();
+		?>
+		<div class="mhm-media-field" data-mhm-media-field="<?php echo $field; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>">
+			<div class="mhm-media-preview"><?php echo $preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_url above. ?></div>
+			<input type="hidden" name="<?php echo $key; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>[<?php echo $field; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>]" class="mhm-media-id" value="<?php echo esc_attr( (string) $id ); ?>">
+			<button type="button" class="button" data-mhm-media-select><?php esc_html_e( 'Select image', 'mhm-rentiva' ); ?></button>
+			<button type="button" class="button" data-mhm-media-remove<?php echo $url === '' ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'mhm-rentiva' ); ?></button>
+		</div>
+		<script>
+		(function(){
+			var wrap = document.currentScript.previousElementSibling;
+			if (!wrap || !window.wp || !wp.media) { return; }
+			var idInput = wrap.querySelector('.mhm-media-id');
+			var preview = wrap.querySelector('.mhm-media-preview');
+			var removeBtn = wrap.querySelector('[data-mhm-media-remove]');
+			var frame;
+			wrap.querySelector('[data-mhm-media-select]').addEventListener('click', function(e){
+				e.preventDefault();
+				if (frame) { frame.open(); return; }
+				frame = wp.media({ title: '<?php echo esc_js( __( 'Select image', 'mhm-rentiva' ) ); ?>', multiple: false, library: { type: 'image' } });
+				frame.on('select', function(){
+					var a = frame.state().get('selection').first().toJSON();
+					idInput.value = a.id;
+					preview.innerHTML = '<img src="' + a.url + '" alt="" style="max-width:200px;max-height:80px;display:block;margin-bottom:6px;">';
+					removeBtn.style.display = '';
+				});
+				frame.open();
+			});
+			removeBtn.addEventListener('click', function(e){
+				e.preventDefault();
+				idInput.value = '0';
+				preview.innerHTML = '';
+				removeBtn.style.display = 'none';
+			});
+		})();
+		</script>
+		<?php
+		return (string) ob_get_clean();
+	}
+
+	/**
 	 * Email field helper for settings.
 	 */
 	public static function email_field( string $group, string $name, string $label, string $description = '', string $section = '' ): void {

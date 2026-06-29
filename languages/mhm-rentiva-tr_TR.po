@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-29T04:03:08+00:00\n"
+"POT-Creation-Date: 2026-06-29T14:59:34+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -1108,7 +1108,7 @@ msgstr "Gerekli"
 #: src/Admin/Reports/BackgroundProcessor.php:475
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:186
 #: src/Admin/Utilities/ListTable/LogColumns.php:52
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:55
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:73
 #: templates/account/partials/vendor-payouts.php:221
 #: templates/account/partials/vendor-reliability.php:376
 #: templates/account/vendor-ledger.php:63
@@ -2845,6 +2845,7 @@ msgstr "Müşteri"
 #: src/Admin/Messages/Settings/MessagesSettings.php:349
 #: src/Admin/Reports/BackgroundProcessor.php:469
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:394
 #: src/Admin/Settings/Testing/SettingsTester.php:973
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1133
 #: templates/account/vendor-booking-detail.php:142
@@ -2872,6 +2873,7 @@ msgstr "E-posta"
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:181
 #: src/Admin/Reports/BackgroundProcessor.php:470
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:393
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1137
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
@@ -4444,6 +4446,7 @@ msgstr "Değer Gir"
 #: src/Admin/Core/AssetManager.php:465
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:116
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:413
+#: src/Admin/Settings/Core/SettingsHelper.php:234
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:782
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:834
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:968
@@ -6213,7 +6216,7 @@ msgstr ""
 "href=\"%s\">lisans anahtarınızı girin</a>."
 
 #: src/Admin/Core/SecurityHelper.php:184
-#: src/Admin/Settings/Core/SettingsCore.php:553
+#: src/Admin/Settings/Core/SettingsCore.php:557
 msgid "Too many requests. Please wait."
 msgstr "Çok fazla istek var. Lütfen bekleyin."
 
@@ -7261,7 +7264,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:47
 #: src/Admin/Emails/Templates/RefundEmails.php:68
 #: src/Admin/Emails/Templates/RefundEmails.php:69
-#: src/Admin/Settings/Core/SettingsHelper.php:333
+#: src/Admin/Settings/Core/SettingsHelper.php:403
 #: src/Admin/Setup/SetupWizard.php:1233
 #: assets/blocks/unified-search/index.js:142
 #: assets/blocks/unified-search/index.js:152
@@ -10374,7 +10377,7 @@ msgid "Full name as it appears on the bank account."
 msgstr "Banka hesabında göründüğü şekliyle tam adınız."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:43
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:61
 #: templates/account/partials/vendor-settings.php:120
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
@@ -10386,6 +10389,7 @@ msgid "Your payout earnings will be sent to this account."
 msgstr "Ödeme kazançlarınız bu hesaba gönderilecektir."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:208
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:391
 #: templates/account/partials/vendor-settings.php:129
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:58
@@ -10399,6 +10403,7 @@ msgid "optional"
 msgstr "isteğe bağlı"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:212
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:392
 #: templates/account/partials/vendor-settings.php:133
 #: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:59
@@ -10460,7 +10465,7 @@ msgid "Address Document"
 msgstr "Adres Belgesi"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:263
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:347
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:359
 msgid "Vendor Agreement"
 msgstr "Bayi Sözleşmesi"
 
@@ -14050,7 +14055,7 @@ msgstr "Bağlam:"
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:54
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:57
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:75
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52 build/admin/vendor-management.js:1
@@ -14879,7 +14884,12 @@ msgstr "Ayarlar güncellendi"
 msgid "Diagnostic testing engine not found."
 msgstr "Teşhis testi motoru bulunamadı."
 
-#: src/Admin/Settings/Core/SettingsHelper.php:339
+#: src/Admin/Settings/Core/SettingsHelper.php:233
+#: src/Admin/Settings/Core/SettingsHelper.php:247
+msgid "Select image"
+msgstr "Görsel seç"
+
+#: src/Admin/Settings/Core/SettingsHelper.php:409
 #: src/Admin/Setup/SetupWizard.php:1242
 #: assets/blocks/unified-search/index.js:143
 #: assets/blocks/unified-search/index.js:153
@@ -16563,7 +16573,7 @@ msgstr "Vergi oranları WooCommerce ayarları tarafından yönetilir."
 msgid "Tax rate percentage (e.g., 18 for 18%)"
 msgstr "Vergi oranı yüzdesi (örneğin, %18 için 18)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:83
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:94
 msgid ""
 "These settings require a Pro license. Default values are used on Lite "
 "installations."
@@ -16571,93 +16581,93 @@ msgstr ""
 "Bu ayarlar Pro lisans gerektirir. Lite kurulumlarında varsayılan değerler "
 "kullanılır."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:106
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:118
 msgid "Listing & Duration Settings"
 msgstr "İlan ve Süre Ayarları"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:107
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:119
 msgid ""
 "Configure how long vehicle listings stay active and related timing rules."
 msgstr ""
 "Araç ilanlarının ne kadar süre aktif kalacağını ve ilgili zamanlama "
 "kurallarını yapılandırın."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:114
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:126
 msgid "Listing Duration (Days)"
 msgstr "İlan Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:117
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:129
 msgid "How many days a vehicle listing stays active before expiry."
 msgstr "Bir araç ilanının süresi dolmadan kaç gün aktif kalacağı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:124
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:136
 msgid "First Expiry Warning (Days Before)"
 msgstr "İlk Bitiş Uyarısı (Gün Önce)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:127
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:139
 msgid "Send first warning email this many days before listing expires."
 msgstr "İlan sona ermeden bu kadar gün önce ilk uyarı e-postası gönderilir."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:134
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:146
 msgid "Second Expiry Warning (Days Before)"
 msgstr "İkinci Bitiş Uyarısı (Gün Önce)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:137
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:149
 msgid "Send second warning email this many days before listing expires."
 msgstr "İlan sona ermeden bu kadar gün önce ikinci uyarı e-postası gönderilir."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:144
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:156
 msgid "Grace Period After Expiry (Days)"
 msgstr "Süre Dolumu Sonrası Hoşgörü Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:147
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:159
 msgid "Days after expiry before expired listing is auto-withdrawn."
 msgstr "Süresi dolan ilanın otomatik kaldırılmasından önceki gün sayısı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:154
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:166
 msgid "Withdrawal Cooldown (Days)"
 msgstr "Geri Çekilme Bekleme Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:157
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:169
 msgid "Days a vendor must wait before relisting after withdrawal."
 msgstr ""
 "Bayinin geri çekme işleminden sonra yeniden ilan vermek için beklemesi "
 "gereken gün sayısı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:164
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:176
 msgid "Max Pauses Per Month"
 msgstr "Aylık Maksimum Duraklatma"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:167
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:179
 msgid ""
 "Maximum number of times a vendor can pause a vehicle per calendar month."
 msgstr ""
 "Bir bayinin takvim ayı başına bir aracı duraklatabildiği maksimum sayı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:174
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:186
 msgid "Max Pause Duration (Days)"
 msgstr "Maksimum Duraklatma Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:177
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:189
 msgid "Maximum number of days a vehicle can remain paused."
 msgstr "Bir aracın duraklatılmış hâlde kalabileceği maksimum gün sayısı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:184
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:196
 msgid "Withdrawal Penalty Settings"
 msgstr "Geri Çekilme Cezası Ayarları"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:185
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:197
 msgid ""
 "Configure progressive penalty rates applied when vendors withdraw vehicles."
 msgstr ""
 "Bayiler araçlarını geri çektiğinde uygulanan kademeli ceza oranlarını "
 "yapılandırın."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:192
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:204
 msgid "1st Withdrawal Penalty (%)"
 msgstr "1. Çekim Cezası (%)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:195
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:207
 msgid ""
 "Penalty rate (% of monthly avg revenue) for the vendor's first withdrawal in "
 "12 months. Set to 0 to make the first withdrawal free."
@@ -16665,11 +16675,11 @@ msgstr ""
 "İlk araç çekiminde uygulanan ceza oranı (aylık ortalama gelirin %'si), 12 ay "
 "içinde. İlk çekimi ücretsiz yapmak için 0 girin."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:202
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:214
 msgid "2nd Withdrawal Penalty (%)"
 msgstr "2. Geri Çekilme Cezası (%)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:205
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:217
 msgid ""
 "Penalty rate (% of monthly avg revenue) for the vendor's second withdrawal "
 "in 12 months."
@@ -16677,11 +16687,11 @@ msgstr ""
 "Bayinin 12 ay içindeki ikinci geri çekilmesine uygulanan ceza oranı (aylık "
 "ortalama gelirin yüzdesi)."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:212
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:224
 msgid "3rd+ Withdrawal Penalty (%)"
 msgstr "3. ve Sonraki Geri Çekilme Cezaları (%)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:215
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:227
 msgid ""
 "Penalty rate for 3rd and subsequent withdrawals in the 12-month rolling "
 "window."
@@ -16689,21 +16699,21 @@ msgstr ""
 "12 aylık yuvarlanan penceredeki 3. ve sonraki geri çekilmeler için ceza "
 "oranı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:222
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:234
 msgid "Rolling Window (Months)"
 msgstr "Yuvarlanan Pencere (Ay)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:225
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:237
 msgid ""
 "Number of months to look back when counting withdrawals for penalty "
 "calculation."
 msgstr "Ceza hesabı için geri çekilmeler sayılırken geriye bakılan ay sayısı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:232
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:244
 msgid "Anti-Gaming Protection"
 msgstr "Anti-Hile Koruması"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:233
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:245
 msgid ""
 "Prevent vendors from gaming the system by cancelling bookings to relist at "
 "higher prices."
@@ -16711,11 +16721,11 @@ msgstr ""
 "Bayilerin daha yüksek fiyatla yeniden listelemek için rezervasyonları iptal "
 "ederek sistemi istismar etmesini önler."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:240
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:252
 msgid "Cancelled Booking Re-block Period (Days)"
 msgstr "İptal Edilen Rezervasyon Yeniden Engelleme Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:243
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:255
 msgid ""
 "After a vendor cancels a booking, these dates are blocked for new "
 "reservations for this many days."
@@ -16723,11 +16733,11 @@ msgstr ""
 "Bir bayi rezervasyonu iptal ettiğinde, bu tarihler bu kadar gün boyunca yeni "
 "rezervasyonlara kapatılır."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:250
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:262
 msgid "Reliability Score Weights"
 msgstr "Güvenilirlik Skoru Ağırlıkları"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:251
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:263
 msgid ""
 "Configure the point values used to calculate vendor reliability scores (base "
 "100)."
@@ -16735,95 +16745,95 @@ msgstr ""
 "Bayi güvenilirlik skorlarını hesaplamak için kullanılan puan değerlerini "
 "yapılandırın (taban 100)."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:258
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:270
 msgid "Points Deducted per Cancellation"
 msgstr "İptal Başına Düşülen Puan"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:261
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:273
 msgid ""
 "Points deducted from reliability score for each vendor-initiated "
 "cancellation (last 6 months)."
 msgstr ""
 "Bayi kaynaklı her iptal için güvenilirlik puanından düşülen puan (son 6 ay)."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:268
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:280
 msgid "Points Deducted per Withdrawal"
 msgstr "Geri Çekilme Başına Düşülen Puan"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:271
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:283
 msgid "Points deducted per withdrawal in rolling window."
 msgstr "Yuvarlanan penceredeki geri çekilme başına düşülen puan."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:278
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:290
 msgid "Points Deducted per Pause"
 msgstr "Duraklatma Başına Düşülen Puan"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:281
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:293
 msgid "Points deducted per pause in last 6 months."
 msgstr "Son 6 aydaki duraklatma başına düşülen puan."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:288
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:300
 msgid "Points Added per Completed Booking"
 msgstr "Tamamlanan Rezervasyon Başına Eklenen Puan"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:291
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:303
 msgid ""
 "Points added to reliability score per completed booking (last 6 months)."
 msgstr ""
 "Tamamlanan rezervasyon başına güvenilirlik puanına eklenen puan (son 6 ay)."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:298
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:310
 msgid "Max Completion Bonus"
 msgstr "Maksimum Tamamlama Bonusu"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:301
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:313
 msgid "Maximum points that can be earned from completed bookings."
 msgstr "Tamamlanan rezervasyonlardan kazanılabilecek maksimum puan."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:308
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:320
 msgid "Listing Fee"
 msgstr "İlan Ücreti"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:309
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:321
 msgid ""
 "Configure fees charged to vendors for listing vehicles on the marketplace."
 msgstr ""
 "Pazar yerinde araç ilanı vermek için bayilerden alınan ücretleri "
 "yapılandırın."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:316
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:328
 msgid "Enable Listing Fee"
 msgstr "İlan Ücretini Etkinleştir"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:317
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:329
 msgid "Charge vendors a fee for listing vehicles."
 msgstr "Bir araç ilanı yayına alındığında bayilerden ücret alın."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:324
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:336
 msgid "Fee Model"
 msgstr "Ücret Modeli"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:326
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:338
 msgid "One Time"
 msgstr "Tek Seferlik"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:327
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:339
 msgid "Per Period"
 msgstr "Dönemsel"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:329
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:341
 msgid "Whether the fee is charged once or per listing period."
 msgstr "Ücretin bir kez mi yoksa her ilan döneminde mi alınacağı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:336
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:348
 msgid "Listing Fee Amount"
 msgstr "İlan Ücreti Tutarı"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:339
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:351
 msgid "The fee amount charged to vendors for listing a vehicle."
 msgstr "Bayilerden araç ilanı için alınan ücret tutarı."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:348
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:360
 msgid ""
 "Require applicants to accept an agreement before submitting a vendor "
 "application."
@@ -16831,11 +16841,11 @@ msgstr ""
 "Bayi başvurusu gönderilmeden önce başvuranların bir sözleşmeyi kabul "
 "etmesini iste."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:355
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:367
 msgid "Require vendor agreement"
 msgstr "Bayi sözleşmesini zorunlu kıl"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:356
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:368
 msgid ""
 "When enabled (and the text below is filled), applicants must accept the "
 "agreement before submitting."
@@ -16843,13 +16853,55 @@ msgstr ""
 "Etkinleştirildiğinde (ve aşağıdaki metin doluyken), başvuranlar göndermeden "
 "önce sözleşmeyi kabul etmek zorundadır."
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:363
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:375
 msgid "Agreement Text"
 msgstr "Sözleşme Metni"
 
-#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:365
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:377
 msgid "Plain text shown to applicants. Line breaks are preserved."
 msgstr "Başvuranlara gösterilen düz metin. Satır sonları korunur."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:384
+msgid "Payout Statement"
+msgstr "Hakediş Makbuzu"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:385
+msgid ""
+"Company header, logo and footer note shown on vendor payout statements "
+"(makbuz)."
+msgstr "Bayi hakediş makbuzlarında gösterilen firma başlığı, logo ve dipnot."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:389
+msgid "Company Name"
+msgstr "Firma Adı"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:389
+msgid "Shown as the statement header. Leave empty to use the site name."
+msgstr "Makbuz başlığında gösterilir. Boş bırakılırsa site adı kullanılır."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:390
+msgid "Company Address"
+msgstr "Firma Adresi"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:390
+msgid "Shown under the company name."
+msgstr "Firma adının altında gösterilir."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:395
+msgid "Logo"
+msgstr "Logo"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:395
+msgid "Optional logo shown in the statement header."
+msgstr "Makbuz başlığında gösterilen isteğe bağlı logo."
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:396
+msgid "Footer Note"
+msgstr "Dipnot"
+
+#: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:396
+msgid "Optional note shown above the permanent \"not an invoice\" disclaimer."
+msgstr "Kalıcı \"fatura değildir\" uyarısının üstünde gösterilen isteğe bağlı not."
 
 #: src/Admin/Settings/Settings.php:159
 msgid "Insufficient permissions for this action."
@@ -22913,74 +22965,77 @@ msgstr "İade — rezervasyon #%d"
 msgid "Withdrawal penalty"
 msgstr "Çekim cezası"
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:63
+#: src/Core/Financial/Statement/PayoutStatementController.php:68
 msgid "Invalid or expired statement link."
 msgstr "Geçersiz veya süresi dolmuş makbuz bağlantısı."
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:66
+#: src/Core/Financial/Statement/PayoutStatementController.php:71
 msgid "You are not allowed to view this statement."
 msgstr "Bu makbuzu görüntüleme izniniz yok."
 
-#: src/Core/Financial/Statement/PayoutStatementController.php:71
+#: src/Core/Financial/Statement/PayoutStatementController.php:76
 msgid "No statement found for this payout."
 msgstr "Bu ödeme için makbuz bulunamadı."
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:30
-msgid "Vendor Payout Statement"
-msgstr "Bayi Hakediş Makbuzu"
-
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:40
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:39
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:58
 msgid "Tax office"
 msgstr "Vergi dairesi"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:41
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:40
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:59
 msgid "Tax no"
 msgstr "Vergi no"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:42
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:48
+msgid "Vendor Payout Statement"
+msgstr "Bayi Hakediş Makbuzu"
+
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:60
 msgid "Account holder"
 msgstr "Hesap sahibi"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:47
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:65
 msgid "Period"
 msgstr "Dönem"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:56
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:74
 #: templates/emails/vendor-report-received-admin.html.php:24
 #: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:59
 msgid "Description"
 msgstr "Açıklama"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:62
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
 msgid "No activity in this period."
 msgstr "Bu dönemde hareket yok."
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:80
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:98
 msgid "Period earnings"
 msgstr "Dönem hakedişi"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:81
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:99
 msgid "Period penalties"
 msgstr "Dönem cezaları"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:82
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:100
 msgid "Period net"
 msgstr "Dönem neti"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:83
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:101
 msgid "Amount paid"
 msgstr "Ödenen tutar"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:84
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:102
 msgid "Carried balance"
 msgstr "Devreden bakiye"
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:88
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:110
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:114
 msgid "This is a payment statement, not an official invoice."
 msgstr "Bu belge bir hakediş/ödeme makbuzudur, resmi e-Fatura değildir."
 
-#: src/Core/Financial/Statement/PayoutStatementRenderer.php:92
+#: src/Core/Financial/Statement/PayoutStatementRenderer.php:119
 msgid "Print / Save as PDF"
 msgstr "Yazdır / PDF olarak kaydet"
 

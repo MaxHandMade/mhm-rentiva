@@ -492,6 +492,10 @@ final class SettingsCore {
 			return;
 		}
 
+		if ( function_exists( 'wp_enqueue_media' ) ) {
+			wp_enqueue_media();
+		}
+
 		wp_enqueue_style(
 			'mhm-rentiva-settings',
 			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',

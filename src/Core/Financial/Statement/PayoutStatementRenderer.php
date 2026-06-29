@@ -14,8 +14,9 @@ final class PayoutStatementRenderer {
 
 	public static function render(array $statement): string
 	{
-		$cur  = (string) ( $statement['currency'] ?? 'TRY' );
-		$snap = (array) ( $statement['vendor_snapshot'] ?? array() );
+		$cur   = (string) ( $statement['currency'] ?? 'TRY' );
+		$snap  = (array) ( $statement['vendor_snapshot'] ?? array() );
+		$brand = PayoutStatementBranding::get();
 
 		$money = static function ($n) use ($cur): string {
 			return esc_html(number_format_i18n( (float) $n, 2) . ' ' . $cur);
@@ -26,8 +27,25 @@ final class PayoutStatementRenderer {
 		<div class="mhm-statement" style="max-width:760px;margin:0 auto;font-family:Arial,sans-serif;color:#1d2327;">
 			<div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1d2327;padding-bottom:12px;">
 				<div>
-					<h2 style="margin:0;"><?php echo esc_html(get_bloginfo('name')); ?></h2>
-					<div style="color:#646970;"><?php esc_html_e('Vendor Payout Statement', 'mhm-rentiva'); ?></div>
+					<?php if ($brand['logo_url'] !== '') : ?>
+						<img src="<?php echo esc_url($brand['logo_url']); ?>" alt="" style="max-height:60px;margin-bottom:6px;display:block;">
+					<?php endif; ?>
+					<h2 style="margin:0;"><?php echo esc_html($brand['company_name']); ?></h2>
+					<?php if ($brand['address'] !== '') : ?>
+						<div style="color:#646970;font-size:12px;"><?php echo nl2br(esc_html($brand['address'])); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html before nl2br. ?></div>
+					<?php endif; ?>
+					<?php
+					$op_meta = array_filter(array(
+						$brand['tax_office'] !== '' ? __('Tax office', 'mhm-rentiva') . ': ' . $brand['tax_office'] : '',
+						$brand['tax_number'] !== '' ? __('Tax no', 'mhm-rentiva') . ': ' . $brand['tax_number'] : '',
+						$brand['phone'] !== '' ? $brand['phone'] : '',
+						$brand['email'] !== '' ? $brand['email'] : '',
+					));
+					?>
+					<?php if (! empty($op_meta)) : ?>
+						<div style="color:#646970;font-size:12px;"><?php echo esc_html(implode(' · ', $op_meta)); ?></div>
+					<?php endif; ?>
+					<div style="color:#646970;margin-top:4px;"><?php esc_html_e('Vendor Payout Statement', 'mhm-rentiva'); ?></div>
 				</div>
 				<div style="text-align:right;">
 					<div><strong><?php echo esc_html( (string) ( $statement['number'] ?? '' )); ?></strong></div>
@@ -84,9 +102,18 @@ endif;
 				<tr><td style="padding:4px;color:#646970;"><?php esc_html_e('Carried balance', 'mhm-rentiva'); ?></td><td style="padding:4px;text-align:right;color:#646970;"><?php echo $money($statement['carried_balance'] ?? 0); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></td></tr>
 			</table>
 
-			<p style="margin-top:24px;color:#646970;font-size:12px;border-top:1px solid #dcdcde;padding-top:8px;">
-				<?php esc_html_e('This is a payment statement, not an official invoice.', 'mhm-rentiva'); ?>
-			</p>
+			<?php if ($brand['footer_note'] !== '') : ?>
+				<p style="margin-top:24px;color:#1d2327;font-size:12px;border-top:1px solid #dcdcde;padding-top:8px;">
+					<?php echo nl2br(esc_html($brand['footer_note'])); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_html before nl2br. ?>
+				</p>
+				<p style="color:#646970;font-size:12px;">
+					<?php esc_html_e('This is a payment statement, not an official invoice.', 'mhm-rentiva'); ?>
+				</p>
+			<?php else : ?>
+				<p style="margin-top:24px;color:#646970;font-size:12px;border-top:1px solid #dcdcde;padding-top:8px;">
+					<?php esc_html_e('This is a payment statement, not an official invoice.', 'mhm-rentiva'); ?>
+				</p>
+			<?php endif; ?>
 
 			<p class="mhm-statement__noprint" style="text-align:right;">
 				<button type="button" class="button" onclick="window.print()"><?php esc_html_e('Print / Save as PDF', 'mhm-rentiva'); ?></button>
