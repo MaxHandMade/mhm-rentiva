@@ -36,8 +36,8 @@ final class PayoutStatementRenderer {
 					<?php endif; ?>
 					<?php
 					$op_meta = array_filter(array(
-						$brand['tax_office'] !== '' ? esc_html__('Tax office', 'mhm-rentiva') . ': ' . $brand['tax_office'] : '',
-						$brand['tax_number'] !== '' ? esc_html__('Tax no', 'mhm-rentiva') . ': ' . $brand['tax_number'] : '',
+						$brand['tax_office'] !== '' ? __('Tax office', 'mhm-rentiva') . ': ' . $brand['tax_office'] : '',
+						$brand['tax_number'] !== '' ? __('Tax no', 'mhm-rentiva') . ': ' . $brand['tax_number'] : '',
 						$brand['phone'] !== '' ? $brand['phone'] : '',
 						$brand['email'] !== '' ? $brand['email'] : '',
 					));
