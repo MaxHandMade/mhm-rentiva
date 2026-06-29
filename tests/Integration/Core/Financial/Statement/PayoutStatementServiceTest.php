@@ -15,7 +15,9 @@ final class PayoutStatementServiceTest extends WP_UnitTestCase {
 
 	private function make_payout(): int {
 		$vendor = (int) $this->factory->user->create();
-		$pid = (int) $this->factory->post->create(array('post_type' => PostType::POST_TYPE, 'post_author' => $vendor));
+		// post_status 'pending' so the live transition_post_status hook does not auto-generate
+		// a statement on publish — this test drives the service explicitly.
+		$pid = (int) $this->factory->post->create(array('post_type' => PostType::POST_TYPE, 'post_author' => $vendor, 'post_status' => 'pending'));
 		update_post_meta($pid, '_mhm_payout_amount', 100.0);
 		return $pid;
 	}

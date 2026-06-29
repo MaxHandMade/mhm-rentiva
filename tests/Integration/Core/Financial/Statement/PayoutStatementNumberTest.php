@@ -18,11 +18,12 @@ final class PayoutStatementNumberTest extends WP_UnitTestCase {
 	}
 
 	public function test_numbers_increment_without_duplicates(): void {
-		delete_option('mhm_rentiva_statement_counter');
+		// Two consecutive numbers must differ and increment by exactly 1. Asserted relatively
+		// (not absolute 0001/0002) so a counter already advanced by the live statement-generation
+		// hook in a full-suite run cannot make this brittle.
 		$a = PayoutStatementNumber::next();
 		$b = PayoutStatementNumber::next();
 		$this->assertNotSame($a, $b);
-		$year = gmdate('Y');
-		$this->assertSame("MKB-{$year}-0002", $b);
+		$this->assertSame(((int) substr($a, -4)) + 1, (int) substr($b, -4));
 	}
 }

@@ -26,7 +26,9 @@ final class PayoutStatementRepositoryTest extends WP_UnitTestCase {
 	}
 
 	private function make_payout(int $vendor_id): int {
-		return (int) $this->factory->post->create(array('post_type' => PostType::POST_TYPE, 'post_author' => $vendor_id));
+		// post_status 'pending' so the live transition_post_status hook does not auto-generate
+		// a statement on publish — these tests drive the repository explicitly.
+		return (int) $this->factory->post->create(array('post_type' => PostType::POST_TYPE, 'post_author' => $vendor_id, 'post_status' => 'pending'));
 	}
 
 	public function test_save_then_get_roundtrips(): void {
