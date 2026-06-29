@@ -55,6 +55,7 @@ final class PayoutListTable extends \WP_List_Table {
             'balance'   => __('Available Balance', 'mhm-rentiva'),
             'status'    => __('Status', 'mhm-rentiva'),
             'requested' => __('Requested', 'mhm-rentiva'),
+            'statement' => __('Statement', 'mhm-rentiva'),
         );
     }
 
@@ -233,6 +234,30 @@ final class PayoutListTable extends \WP_List_Table {
     protected function column_requested(\WP_Post $item): string
     {
         return esc_html(date_i18n(get_option('date_format') . ' ' . get_option('time_format'), strtotime($item->post_date_gmt)));
+    }
+
+    /**
+     * @param \WP_Post $item
+     */
+    protected function column_statement(\WP_Post $item): string
+    {
+        return self::statement_column_html( (int) $item->ID);
+    }
+
+    /**
+     * Statement column cell: number + view link, or em-dash when not yet generated.
+     */
+    public static function statement_column_html(int $payout_id): string
+    {
+        $statement = \MHMRentiva\Core\Financial\Statement\PayoutStatementRepository::get($payout_id);
+        if ($statement === null) {
+            return '—';
+        }
+        $url     = \MHMRentiva\Core\Financial\Statement\PayoutStatementController::view_url($payout_id);
+        $emailed = $statement['emailed_at'] !== ''
+            ? ' <span class="dashicons dashicons-email" title="' . esc_attr__('Emailed to vendor', 'mhm-rentiva') . '"></span>'
+            : '';
+        return '<a href="' . esc_url($url) . '" target="_blank">' . esc_html( (string) $statement['number']) . '</a>' . $emailed;
     }
 
     /**

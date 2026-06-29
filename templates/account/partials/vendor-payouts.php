@@ -219,6 +219,7 @@ $format_currency = static function (float $amount): string {
                         <th><?php esc_html_e('Status', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Reference', 'mhm-rentiva'); ?></th>
                         <th><?php esc_html_e('Date', 'mhm-rentiva'); ?></th>
+                        <th><?php esc_html_e('Statement', 'mhm-rentiva'); ?></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -245,11 +246,18 @@ $format_currency = static function (float $amount): string {
                                 </td>
                                 <td style="font-family:monospace;font-size:0.8125rem;color:#6b7280"><?php echo esc_html($ext_ref); ?></td>
                                 <td><?php echo esc_html($display_date); ?></td>
+                                <td>
+                                    <?php if (! empty($payout['statement_url'])) : ?>
+                                        <a href="<?php echo esc_url($payout['statement_url']); ?>" target="_blank" class="mhm-payout-statement-link">
+                                            <?php echo esc_html($payout['statement_number']); ?> — <?php esc_html_e('Statement', 'mhm-rentiva'); ?>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else : ?>
                         <tr class="mhm-rentiva-dashboard__empty-row">
-                            <td colspan="5"><?php esc_html_e('No payout history yet.', 'mhm-rentiva'); ?></td>
+                            <td colspan="6"><?php esc_html_e('No payout history yet.', 'mhm-rentiva'); ?></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

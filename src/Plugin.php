@@ -276,6 +276,11 @@ final class Plugin {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
 		}
 
+		// Vendor payout statement generation — on payout approval (post publish).
+		if ($this->is_class_available('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
+			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
+		}
+
 		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController::register();
