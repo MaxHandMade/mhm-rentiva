@@ -32,5 +32,12 @@ final class VendorStatementEmailTest extends WP_UnitTestCase {
 		$this->assertNotEmpty($sent, 'A statement email must be sent.');
 		$this->assertContains('v@example.com', (array) $sent[0]['to']);
 		$this->assertNotSame('', get_post_meta($pid, '_mhm_statement_emailed_at', true));
+
+		// The email must link to the vendor panel (where a valid in-session nonce is
+		// generated), NOT a pre-baked admin-post nonce URL minted in the admin/approval
+		// context — that nonce is bound to the wrong user and fails for the vendor.
+		$body = (string) $sent[0]['message'];
+		$this->assertStringContainsString('/panel/', $body, 'Email should link to the vendor panel.');
+		$this->assertStringNotContainsString('action=mhm_rentiva_view_statement', $body, 'Email must not use the session-nonce admin-post link.');
 	}
 }

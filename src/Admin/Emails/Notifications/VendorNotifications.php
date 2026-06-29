@@ -434,8 +434,12 @@ final class VendorNotifications {
 			return;
 		}
 
-		$view_url = \MHMRentiva\Core\Financial\Statement\PayoutStatementController::view_url($payout_id);
-		$paid     = number_format_i18n( (float) $statement['paid'], 2) . ' ' . (string) $statement['currency'];
+		// Link to the vendor panel (NOT a pre-baked admin-post nonce URL): the statement is
+		// generated in the admin/approval context, so a wp_nonce_url minted here is bound to
+		// the wrong user/session and fails for the vendor. From their own panel session the
+		// statement link carries a valid nonce.
+		$panel_url = home_url('/panel/');
+		$paid      = number_format_i18n( (float) $statement['paid'], 2) . ' ' . (string) $statement['currency'];
 
 		$subject = sprintf(
 			/* translators: %s: statement number */
@@ -449,7 +453,7 @@ final class VendorNotifications {
 			$paid,
 			(string) $statement['number']
 		) . "\n\n";
-		$body .= __('View / print your statement:', 'mhm-rentiva') . ' ' . $view_url;
+		$body .= __('View and print your statement from your vendor panel:', 'mhm-rentiva') . ' ' . $panel_url;
 
 		wp_mail($vendor->user_email, $subject, $body);
 
