@@ -1,5 +1,19 @@
 [
   {
+    "version": "4.62.0",
+    "date": "2026-06-30",
+    "type": "minor",
+    "title": "Lite eski sürüme geçişte katalog taşma yaptırımı",
+    "summary": "Lisans süresi dolduğunda Lite katalog limitlerini uygular: aktif Pro lisansı döneminde eklenen ve Lite limitlerini aşan araçlar, ek hizmetler ve transfer rotaları, lisans süresi dolduğunda canlı kalmak yerine herkese açık sitede gizlenir. Veri asla silinmez ve Pro'ya geçince eksiksiz geri yüklenir. Yönetim listeleri limit üstü öğeleri belirgin bir rozetle işaretler; limit üstü araçlar herkese açık sitede rezervasyon alamaz.",
+    "changes": [
+      "Eklendi: Lisans bitince Lite limit yaptırımı: Pro döneminde eklenen ve Lite limitini aşan katalog içerikleri (araçlar, ek hizmetler, transfer rotaları) lisans süresi dolduğunda canlı kalmak yerine herkese açık sitede gizlenir. Veri asla silinmez, tekrar Pro'ya geçince otomatik geri gelir.",
+      "Eklendi: Yönetim listeleri limit üstü öğeleri \"Lite limiti — gizli\" rozetiyle işaretler; araç limit uyarısı kaç tanesinin gizlendiğini gösterir.",
+      "Eklendi: Limit üstü (gizli) araçlar artık herkese açık sitede rezervasyon alamaz.",
+      "Düzeltme: \"Bayi Ödeme Talepleri\" yönetim menüsü artık Lite sürümünde görünmüyor."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.61.0",
     "date": "2026-06-29",
     "type": "minor",

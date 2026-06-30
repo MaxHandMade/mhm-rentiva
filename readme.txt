@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.61.0
+Stable tag:        4.62.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,12 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.62.0 — 2026-06-30 =
+* ✨ **Added:** Lite limit enforcement on downgrade: catalog items added during Pro (vehicles, add-on services, transfer routes) that exceed the Lite limit are now hidden from the public site when a license expires, instead of staying live. Data is never deleted and is restored automatically when you upgrade to Pro again.
+* ✨ **Added:** Admin lists mark over-limit items with a "Lite limit — hidden" badge, and the vehicle limit notice shows how many are hidden.
+* ✨ **Added:** Over-limit (hidden) vehicles can no longer be booked on the public site.
+* 🐛 **Fix:** The "Vendor Payout Requests" admin menu no longer appears in the Lite version.
 
 = 4.61.0 — 2026-06-29 =
 * ✨ **Added:** Vendor payout statements. Approving a vendor payout now generates a printable, sequentially-numbered payment statement for the period — earnings, penalties, and net — frozen as an immutable record, and emails the vendor a link to view and print it from their panel. Admins see the statement number and a view link on the Payout Requests list; vendors see it in their payout history.

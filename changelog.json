@@ -1,5 +1,19 @@
 [
   {
+    "version": "4.62.0",
+    "date": "2026-06-30",
+    "type": "minor",
+    "title": "Lite downgrade catalog overflow enforcement",
+    "summary": "Enforces Lite catalog limits on license expiry: vehicles, add-on services, and transfer routes added during an active Pro license that exceed the Lite limits are now hidden from the public site when the license expires, rather than staying live. Data is never deleted and is fully restored on upgrade. Admin lists flag over-limit items with a visible badge, and over-limit vehicles cannot be booked on the public site.",
+    "changes": [
+      "Added: Lite limit enforcement on downgrade: catalog items added during Pro (vehicles, add-on services, transfer routes) that exceed the Lite limit are now hidden from the public site when a license expires, instead of staying live. Data is never deleted and is restored automatically when you upgrade to Pro again.",
+      "Added: Admin lists mark over-limit items with a \"Lite limit — hidden\" badge, and the vehicle limit notice shows how many are hidden.",
+      "Added: Over-limit (hidden) vehicles can no longer be booked on the public site.",
+      "Fix: The \"Vendor Payout Requests\" admin menu no longer appears in the Lite version."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.61.0",
     "date": "2026-06-29",
     "type": "minor",
