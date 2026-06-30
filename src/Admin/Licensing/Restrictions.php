@@ -29,6 +29,7 @@ final class Restrictions {
 
 		// Bookings limit
 		add_action('load-post-new.php', array( self::class, 'maybeBlockBookingCreation' ));
+		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingForHiddenVehicle' ), 5, 2);
 		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingOnFrontend' ), 10, 2);
 
 		// Customers limit
@@ -172,6 +173,40 @@ final class Restrictions {
 	}
 
 
+
+	/**
+	 * True when a vehicle is hidden by the Lite catalog-overflow limit and must
+	 * not be bookable on the public frontend.
+	 *
+	 * @param int $vehicle_id Vehicle post ID.
+	 */
+	public static function isVehicleOverflowHidden( int $vehicle_id ): bool {
+		if ( ! class_exists( \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::class ) ) {
+			return false;
+		}
+		return \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::isHidden( 'vehicle', $vehicle_id );
+	}
+
+	/**
+	 * Block booking creation for an overflow-hidden vehicle (priority 5, before limit check).
+	 *
+	 * @param int   $vehicle_id   Vehicle post ID passed by mhm_rentiva_before_booking_create.
+	 * @param array $booking_data Additional booking data (pickup/dropoff dates, contact, addons).
+	 */
+	public static function blockBookingForHiddenVehicle( int $vehicle_id, array $booking_data ): void {
+		if ( $vehicle_id > 0 && self::isVehicleOverflowHidden( $vehicle_id ) ) {
+			if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+				wp_send_json_error(
+					array(
+						'message' => __( 'This vehicle is currently unavailable.', 'mhm-rentiva' ),
+						'code'    => 'vehicle_unavailable',
+					)
+				);
+			}
+			wp_safe_redirect( home_url( '/' ) );
+			exit;
+		}
+	}
 
 	/**
 	 * Clamp export arguments for Lite version
