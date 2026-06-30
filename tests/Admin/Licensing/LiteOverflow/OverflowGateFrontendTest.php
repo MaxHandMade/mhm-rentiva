@@ -44,4 +44,24 @@ final class OverflowGateFrontendTest extends WP_UnitTestCase {
 
 		$this->assertContains( $hide, $q->posts );
 	}
+
+	public function test_frontend_ajax_query_excludes_hidden_vehicle(): void {
+		$keep = self::factory()->post->create( array( 'post_type' => 'vehicle', 'post_status' => 'publish' ) );
+		$hide = self::factory()->post->create( array( 'post_type' => 'vehicle', 'post_status' => 'publish' ) );
+		OverflowRegistry::set( 'vehicle', array( $hide ) );
+
+		// Simulate admin-ajax.php: is_admin() true AND wp_doing_ajax() true.
+		set_current_screen( 'edit-vehicle' );
+		add_filter( 'wp_doing_ajax', '__return_true' );
+
+		$q = new \WP_Query(
+			array( 'post_type' => 'vehicle', 'post_status' => 'publish', 'fields' => 'ids', 'posts_per_page' => -1 )
+		);
+
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		set_current_screen( 'front' );
+
+		$this->assertContains( $keep, $q->posts );
+		$this->assertNotContains( $hide, $q->posts, 'front-end AJAX must still exclude hidden vehicles' );
+	}
 }

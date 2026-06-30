@@ -22,12 +22,15 @@ final class OverflowGate {
 		// State-driven reconcile (no Pro->Lite transition hook exists; isActive()
 		// is computed live). Throttled so it is cheap on every admin request.
 		add_action( 'admin_init', array( self::class, 'maybe_reconcile' ) );
-		add_action( 'mhm_rentiva_license_refreshed', array( self::class, 'force_reconcile' ) );
 		OverflowAdminBadge::register();
 	}
 
 	public static function exclude_hidden_from_frontend( \WP_Query $q ): void {
-		if ( is_admin() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+		// admin-ajax.php sets is_admin()=true even for front-end (nopriv) AJAX,
+		// so gate on a REAL admin screen request, not on AJAX. REST stays exempt
+		// (admin React SPA). This keeps wp-admin list tables unfiltered while
+		// still filtering front-end AJAX catalog queries.
+		if ( ( is_admin() && ! wp_doing_ajax() ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
 			return;
 		}
 
@@ -53,11 +56,6 @@ final class OverflowGate {
 			return;
 		}
 		set_transient( self::RECONCILE_THROTTLE, 1, 15 * MINUTE_IN_SECONDS );
-		OverflowReconciler::reconcile();
-	}
-
-	public static function force_reconcile(): void {
-		delete_transient( self::RECONCILE_THROTTLE );
 		OverflowReconciler::reconcile();
 	}
 }
