@@ -88,6 +88,15 @@ final class TransferRouteProvider {
             $params[] = $args['filter_origin_type'];
         }
 
+        $hidden_routes = \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::get( 'route' );
+        if ( ! empty( $hidden_routes ) ) {
+            $placeholders = implode( ', ', array_fill( 0, count( $hidden_routes ), '%d' ) );
+            $where[]      = "r.id NOT IN ({$placeholders})";
+            foreach ( $hidden_routes as $hid ) {
+                $params[] = (int) $hid;
+            }
+        }
+
         $where_sql = implode(' AND ', $where);
         $order_sql = self::build_order_sql($args['order']);
 
@@ -133,11 +142,12 @@ final class TransferRouteProvider {
         delete_option(self::CACHE_GROUP_OPTION);
     }
 
-    private static function build_cache_key(array $args): string
+    private static function build_cache_key( array $args ): string
     {
-        ksort($args);
-        unset($args['force_refresh']);
-        return self::CACHE_PREFIX . substr(md5( (string) wp_json_encode($args)), 0, 12);
+        ksort( $args );
+        unset( $args['force_refresh'] );
+        $args['_hidden_routes'] = \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::get( 'route' );
+        return self::CACHE_PREFIX . substr( md5( (string) wp_json_encode( $args ) ), 0, 12 );
     }
 
     private static function register_cache_key(string $key): void
