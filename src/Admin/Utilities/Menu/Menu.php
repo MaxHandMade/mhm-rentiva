@@ -233,17 +233,21 @@ final class Menu {
 			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::add_submenu();
 		}
 
-		// 3. Payout Requests
-		// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
-		add_submenu_page(
-			'mhm-rentiva',
-			__('Payout Requests', 'mhm-rentiva'),
-			__('Payout Requests', 'mhm-rentiva'),
-			'mhm_rentiva_approve_payout',
-			'mhm-rentiva-payouts',
-			array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
-		);
-		// phpcs:enable
+		// 3. Payout Requests (Pro — Vendor Marketplace / Payout)
+		if (class_exists(\MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class)
+			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()
+		) {
+			// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
+			add_submenu_page(
+				'mhm-rentiva',
+				__('Payout Requests', 'mhm-rentiva'),
+				__('Payout Requests', 'mhm-rentiva'),
+				'mhm_rentiva_approve_payout',
+				'mhm-rentiva-payouts',
+				array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
+			);
+			// phpcs:enable
+		}
 	}
 
 	public static function slug(): string
