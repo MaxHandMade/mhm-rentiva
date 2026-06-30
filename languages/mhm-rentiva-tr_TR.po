@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-06-29T20:44:07+00:00\n"
+"POT-Creation-Date: 2026-06-30T19:37:56+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -98,7 +98,7 @@ msgstr "MHM Rentiva Hakkında"
 #: src/Admin/About/Tabs/GeneralTab.php:356
 #: src/Admin/Core/ProFeatureNotice.php:110
 #: src/Admin/Licensing/LicenseAdmin.php:899 src/Admin/Licensing/Mode.php:434
-#: src/Admin/Setup/SetupWizard.php:142 build/admin/about.js:1
+#: src/Admin/Setup/SetupWizard.php:142
 #: src-react/admin/about/components/FeaturesTab.jsx:13
 msgid "Pro"
 msgstr "Pro"
@@ -107,13 +107,13 @@ msgstr "Pro"
 #: src/Admin/About/Tabs/GeneralTab.php:156
 #: src/Admin/About/Tabs/GeneralTab.php:356
 #: src/Admin/Licensing/LicenseAdmin.php:800 src/Admin/Licensing/Mode.php:433
-#: src/Admin/Setup/SetupWizard.php:142 build/admin/about.js:1
+#: src/Admin/Setup/SetupWizard.php:142
 #: src-react/admin/about/components/FeaturesTab.jsx:12
 msgid "Lite"
 msgstr "Lite"
 
 #: src/Admin/About/About.php:100 src/Admin/About/Tabs/SupportTab.php:37
-#: templates/account/messages.php:114 build/admin/about.js:1
+#: templates/account/messages.php:114
 #: src-react/admin/about/components/TabNav.jsx:7
 msgid "Support"
 msgstr "Destek"
@@ -131,7 +131,6 @@ msgstr "Destek"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
 #: src/Admin/Utilities/Menu/Menu.php:160 src/Admin/Utilities/Menu/Menu.php:161
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:125
-#: build/admin/dashboard.js:1 build/admin/messages.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:11
 #: src-react/admin/messages/MessagesPage.jsx:107
 msgid "Settings"
@@ -183,7 +182,7 @@ msgid "Error"
 msgstr "Hata"
 
 #: src/Admin/About/Tabs/DeveloperTab.php:35
-#: src/Admin/About/Tabs/GeneralTab.php:351 build/admin/about.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:351
 #: src-react/admin/about/components/TabNav.jsx:8
 msgid "Developer"
 msgstr "Geliştirici"
@@ -192,18 +191,18 @@ msgstr "Geliştirici"
 msgid "MHM (MaxHandMade) developer information and projects"
 msgstr "MHM (MaxHandMade) geliştirici bilgileri ve projeleri"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:55 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:55
 #: src-react/admin/about/components/DeveloperTab.jsx:56
 msgid "Our Expertise"
 msgstr "Uzmanlığımız"
 
 #: src/Admin/About/Tabs/DeveloperTab.php:60
-#: templates/emails/receipt-status-email.html.php:295 build/admin/about.js:1
+#: templates/emails/receipt-status-email.html.php:295
 #: src-react/admin/about/components/DeveloperTab.jsx:68
 msgid "Contact"
 msgstr "İletişim"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:65 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:65
 #: src-react/admin/about/components/DeveloperTab.jsx:90
 msgid "Our Other Projects"
 msgstr "Diğer Projelerimiz"
@@ -211,27 +210,27 @@ msgstr "Diğer Projelerimiz"
 #: src/Admin/About/Tabs/DeveloperTab.php:85
 #: src/Admin/About/Tabs/DeveloperTab.php:98
 #: src/Admin/About/Tabs/GeneralTab.php:150
-#: src/Admin/About/Tabs/GeneralTab.php:352 build/admin/about.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:352
 #: src-react/admin/about/components/DeveloperTab.jsx:43
 msgid "MHM (MaxHandMade)"
 msgstr "MHM (MaxHandMade)"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:86 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:86
 #: src-react/admin/about/components/DeveloperTab.jsx:45
 msgid "WordPress Expertise and Custom Software Solutions"
 msgstr "WordPress Uzmanlığı ve Özel Yazılım Çözümleri"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:88 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:88
 #: src-react/admin/about/components/DeveloperTab.jsx:48
 msgid "10+ Years Experience"
 msgstr "10 yılı aşkın deneyim"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:89 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:89
 #: src-react/admin/about/components/DeveloperTab.jsx:49
 msgid "500+ Projects"
 msgstr "500'den fazla proje"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:90 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:90
 #: src-react/admin/about/components/DeveloperTab.jsx:50
 msgid "100% Customer Satisfaction"
 msgstr "%100 Müşteri Memnuniyeti"
@@ -252,37 +251,37 @@ msgstr ""
 "projeleri geliştiren bir uzman ekibidir. E-ticaret, rezervasyon sistemleri, "
 "kurumsal web siteleri ve mobil uygulamalar konularında uzmanız."
 
-#: src/Admin/About/Tabs/DeveloperTab.php:116 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:116
 #: src-react/admin/about/components/DeveloperTab.jsx:5
 msgid "WordPress Development"
 msgstr "WordPress Geliştirme"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:117 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:117
 #: src-react/admin/about/components/DeveloperTab.jsx:6
 msgid "Custom plugins, theme development, performance optimization"
 msgstr "Özel eklentiler, tema geliştirme, performans optimizasyonu"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:120 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:120
 #: src-react/admin/about/components/DeveloperTab.jsx:9
 msgid "E-commerce Solutions"
 msgstr "E-ticaret Çözümleri"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:121 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:121
 #: src-react/admin/about/components/DeveloperTab.jsx:10
 msgid "WooCommerce customizations, payment integrations"
 msgstr "WooCommerce özelleştirmeleri, ödeme entegrasyonları"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:124 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:124
 #: src-react/admin/about/components/DeveloperTab.jsx:13
 msgid "Reservation Systems"
 msgstr "Rezervasyon Sistemleri"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:125 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:125
 #: src-react/admin/about/components/DeveloperTab.jsx:14
 msgid "Hotel, restaurant, car rental and event reservations"
 msgstr "Otel, restoran, araç kiralama ve etkinlik rezervasyonları"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:150 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:150
 #: src-react/admin/about/components/DeveloperTab.jsx:71
 msgid "Website:"
 msgstr "Website:"
@@ -296,7 +295,7 @@ msgstr "Website:"
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-created-vendor.html.php:67
 #: templates/emails/booking-status-changed-admin.html.php:21
-#: templates/emails/refund-admin.html.php:21 build/admin/about.js:1
+#: templates/emails/refund-admin.html.php:21
 #: src-react/admin/about/components/DeveloperTab.jsx:75
 #: src-react/admin/about/components/SupportTab.jsx:29
 msgid "Email:"
@@ -306,7 +305,7 @@ msgstr "E-Posta:"
 #: src/Admin/About/Tabs/SupportTab.php:135
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:636
 #: templates/emails/booking-created-admin.html.php:24
-#: templates/emails/booking-created-vendor.html.php:71 build/admin/about.js:1
+#: templates/emails/booking-created-vendor.html.php:71
 #: src-react/admin/about/components/DeveloperTab.jsx:79
 #: src-react/admin/about/components/SupportTab.jsx:30
 msgid "Phone:"
@@ -317,7 +316,7 @@ msgstr "Telefon:"
 msgid "+90 538 556 4158"
 msgstr "+90 538 556 4158"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:166 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:166
 #: src-react/admin/about/components/DeveloperTab.jsx:83
 msgid "Address:"
 msgstr "Adres:"
@@ -336,33 +335,33 @@ msgstr "Kocaeli"
 msgid "Turkey"
 msgstr "Türkiye"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:190 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:190
 #: src-react/admin/about/components/DeveloperTab.jsx:20
 msgid "MHM E-commerce Package"
 msgstr "MHM E-ticaret Paketi"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:191 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:191
 #: src-react/admin/about/components/DeveloperTab.jsx:21
 msgid "Comprehensive WooCommerce-based e-commerce solution"
 msgstr "Kapsamlı WooCommerce tabanlı e-ticaret çözümü"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:194 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:194
 #: src-react/admin/about/components/DeveloperTab.jsx:24
 msgid "MHM Vehicle Reservation"
 msgstr "MHM Araç Rezervasyonu"
 
-#: src/Admin/About/Tabs/DeveloperTab.php:195 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:195
 #: src-react/admin/about/components/DeveloperTab.jsx:25
 msgid "Professional vehicle rental and reservation management system."
 msgstr "Profesyonel araç kiralama ve rezervasyon yönetim sistemi."
 
-#: src/Admin/About/Tabs/DeveloperTab.php:207 build/admin/about.js:1
+#: src/Admin/About/Tabs/DeveloperTab.php:207
 #: src-react/admin/about/components/DeveloperTab.jsx:97
 msgid "Learn More"
 msgstr "Daha fazla bilgi edin"
 
 #: src/Admin/About/Tabs/FeaturesTab.php:27
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:444 build/admin/about.js:1
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:444
 #: src-react/admin/about/components/TabNav.jsx:5
 msgid "Features"
 msgstr "Özellikler"
@@ -371,7 +370,7 @@ msgstr "Özellikler"
 msgid "Lite vs Pro feature comparison"
 msgstr "Lite ve Pro özellik karşılaştırması"
 
-#: src/Admin/About/Tabs/FeaturesTab.php:41 build/admin/about.js:1
+#: src/Admin/About/Tabs/FeaturesTab.php:41
 #: src-react/admin/about/components/FeaturesTab.jsx:6
 msgid "Lite vs Pro Comparison"
 msgstr "Lite ve Pro Karşılaştırması"
@@ -381,12 +380,12 @@ msgid "Pro Features"
 msgstr "Pro Özellikleri"
 
 #: src/Admin/About/Tabs/FeaturesTab.php:87 src/Admin/Licensing/Mode.php:432
-#: templates/shortcodes/vehicle-comparison.php:99 build/admin/about.js:1
+#: templates/shortcodes/vehicle-comparison.php:99
 #: src-react/admin/about/components/FeaturesTab.jsx:11
 msgid "Feature"
 msgstr "Özellik"
 
-#: src/Admin/About/Tabs/GeneralTab.php:52 build/admin/about.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:52
 #: src-react/admin/about/components/TabNav.jsx:4
 msgid "General Information"
 msgstr "Genel bilgi"
@@ -446,7 +445,6 @@ msgstr "%d gün kaldı"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:315
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:167
 #: templates/account/partials/vendor-listings.php:64
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:10
 msgid "Expired"
 msgstr "Süresi Doldu"
@@ -469,13 +467,13 @@ msgid "Calculating..."
 msgstr "Hesaplanıyor..."
 
 #: src/Admin/About/Tabs/GeneralTab.php:223
-#: src/Admin/About/Tabs/SystemTab.php:117 build/admin/about.js:1
+#: src/Admin/About/Tabs/SystemTab.php:117
 #: src-react/admin/about/components/GeneralTab.jsx:7
 #: src-react/admin/about/components/SystemTab.jsx:8
 msgid "Plugin Information"
 msgstr "Eklenti Bilgileri"
 
-#: src/Admin/About/Tabs/GeneralTab.php:227 build/admin/about.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:227
 #: src-react/admin/about/components/GeneralTab.jsx:8
 msgid "Compatibility"
 msgstr "Uygunluk"
@@ -505,7 +503,7 @@ msgstr "Test edildi:"
 msgid "WP 7.0, PHP 8.2"
 msgstr "WP 7.0, PHP 8.2"
 
-#: src/Admin/About/Tabs/GeneralTab.php:258 build/admin/about.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:258
 #: src-react/admin/about/components/GeneralTab.jsx:9
 msgid "Statistics"
 msgstr "İstatistikler"
@@ -534,8 +532,7 @@ msgstr "Aktif Lisans:"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1129
 #: templates/account/vendor-booking-detail.php:140
 #: templates/emails/vendor-application-new-admin.html.php:7
-#: assets/blocks/my-favorites/index.js:51 build/admin/customers.js:1
-#: build/admin/reports.js:1 build/admin/vendor-management.js:1
+#: assets/blocks/my-favorites/index.js:51
 #: src-react/admin/customers/components/CustomerPanel.jsx:54
 #: src-react/admin/customers/components/CustomerTable.jsx:4
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:61
@@ -579,7 +576,7 @@ msgstr "MySQL:"
 msgid "Tested"
 msgstr "Test edildi:"
 
-#: src/Admin/About/Tabs/GeneralTab.php:417 build/admin/reports.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:417
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:17
 msgid "Total Vehicles"
 msgstr "Toplam Araç Sayısı"
@@ -587,8 +584,6 @@ msgstr "Toplam Araç Sayısı"
 #: src/Admin/About/Tabs/GeneralTab.php:421
 #: src/Admin/Customers/CustomersPage.php:223 src/Admin/Reports/Reports.php:78
 #: src/Core/Dashboard/DashboardConfig.php:26 templates/account/dashboard.php:50
-#: build/admin/customers.js:1 build/admin/dashboard.js:1
-#: build/admin/reports.js:1
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
 #: src-react/admin/dashboard/components/StatsCards.jsx:10
 #: src-react/admin/reports/components/StatsCards.jsx:7
@@ -597,8 +592,7 @@ msgstr "Toplam Araç Sayısı"
 msgid "Total Bookings"
 msgstr "Toplam Rezervasyon"
 
-#: src/Admin/About/Tabs/GeneralTab.php:425 build/admin/customers.js:1
-#: build/admin/reports.js:1
+#: src/Admin/About/Tabs/GeneralTab.php:425
 #: src-react/admin/customers/components/StatsCards.jsx:10
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:17
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:63
@@ -613,7 +607,7 @@ msgstr "Aktif Lisans:"
 msgid "Support channels, documentation and version history"
 msgstr "Destek kanalları, belgeler ve sürüm geçmişi"
 
-#: src/Admin/About/Tabs/SupportTab.php:62 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:62
 #: src-react/admin/about/components/SupportTab.jsx:64
 msgid "Version History"
 msgstr "Sürüm geçmişi"
@@ -622,37 +616,37 @@ msgstr "Sürüm geçmişi"
 #: src/Admin/Core/Traits/AdminHelperTrait.php:117
 #: src/Admin/Setup/SetupWizard.php:129 src/Admin/Transfer/TransferAdmin.php:399
 #: src/Admin/Transfer/TransferAdmin.php:576
-#: src/Admin/Utilities/Export/Export.php:785 build/admin/about.js:1
+#: src/Admin/Utilities/Export/Export.php:785
 #: src-react/admin/about/components/SupportTab.jsx:10
 msgid "Documentation"
 msgstr "Belgeler"
 
-#: src/Admin/About/Tabs/SupportTab.php:81 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:81
 #: src-react/admin/about/components/SupportTab.jsx:11
 msgid "Detailed user guides, video tutorials and API documentation."
 msgstr "Ayrıntılı kullanıcı kılavuzları, video eğitimleri ve API belgeleri."
 
-#: src/Admin/About/Tabs/SupportTab.php:86 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:86
 #: src-react/admin/about/components/SupportTab.jsx:13
 msgid "User Guide"
 msgstr "Kullanıcı rehberi"
 
-#: src/Admin/About/Tabs/SupportTab.php:93 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:93
 #: src-react/admin/about/components/SupportTab.jsx:14
 msgid "API Documentation"
 msgstr "API Dokümantasyonu"
 
-#: src/Admin/About/Tabs/SupportTab.php:100 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:100
 #: src-react/admin/about/components/SupportTab.jsx:15
 msgid "Video Tutorials"
 msgstr "Video Öğreticiler"
 
-#: src/Admin/About/Tabs/SupportTab.php:111 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:111
 #: src-react/admin/about/components/SupportTab.jsx:20
 msgid "Support Channels"
 msgstr "Destek kanalları"
 
-#: src/Admin/About/Tabs/SupportTab.php:112 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:112
 #: src-react/admin/about/components/SupportTab.jsx:21
 msgid "Contact us for your questions."
 msgstr "Sorularınız için bizimle iletişime geçin."
@@ -660,32 +654,32 @@ msgstr "Sorularınız için bizimle iletişime geçin."
 #: src/Admin/About/Tabs/SupportTab.php:117
 #: src/Admin/Frontend/Widgets/Elementor/ContactFormWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:89
-#: src/Admin/Setup/SetupWizard.php:1126 build/admin/about.js:1
+#: src/Admin/Setup/SetupWizard.php:1126
 #: src-react/admin/about/components/SupportTab.jsx:23
 msgid "Contact Form"
 msgstr "İletişim Formu"
 
-#: src/Admin/About/Tabs/SupportTab.php:126 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:126
 #: src-react/admin/about/components/SupportTab.jsx:25
 msgid "Priority Support"
 msgstr "Öncelikli destek"
 
-#: src/Admin/About/Tabs/SupportTab.php:142 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:142
 #: src-react/admin/about/components/SupportTab.jsx:35
 msgid "Community"
 msgstr "Topluluk"
 
-#: src/Admin/About/Tabs/SupportTab.php:143 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:143
 #: src-react/admin/about/components/SupportTab.jsx:36
 msgid "Share your experiences with other users."
 msgstr "Deneyimlerinizi diğer kullanıcılarla paylaşın."
 
-#: src/Admin/About/Tabs/SupportTab.php:148 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:148
 #: src-react/admin/about/components/SupportTab.jsx:38
 msgid "WordPress Support Forum"
 msgstr "WordPress Destek Forumu"
 
-#: src/Admin/About/Tabs/SupportTab.php:176 build/admin/about.js:1
+#: src/Admin/About/Tabs/SupportTab.php:176
 #: src-react/admin/about/components/ChangelogList.jsx:41
 msgid "Current Version"
 msgstr "Mevcut sürüm"
@@ -710,7 +704,7 @@ msgstr "Mesajlaşma sistemi eklendi"
 msgid "Advanced reports system"
 msgstr "Gelişmiş raporlama sistemi"
 
-#: src/Admin/About/Tabs/SystemTab.php:27 build/admin/about.js:1
+#: src/Admin/About/Tabs/SystemTab.php:27
 #: src-react/admin/about/components/TabNav.jsx:6
 msgid "System Information"
 msgstr "Sistem Bilgisi"
@@ -719,7 +713,7 @@ msgstr "Sistem Bilgisi"
 msgid "WordPress, PHP, MySQL and plugin system information"
 msgstr "WordPress, PHP, MySQL ve eklenti sistemi bilgileri"
 
-#: src/Admin/About/Tabs/SystemTab.php:48 build/admin/about.js:1
+#: src/Admin/About/Tabs/SystemTab.php:48
 #: src-react/admin/about/components/SystemTab.jsx:6
 msgid "WordPress Information"
 msgstr "WordPress Bilgileri"
@@ -740,7 +734,7 @@ msgstr "Site URL:"
 msgid "Multisite:"
 msgstr "Çoklu site:"
 
-#: src/Admin/About/Tabs/SystemTab.php:82 build/admin/about.js:1
+#: src/Admin/About/Tabs/SystemTab.php:82
 #: src-react/admin/about/components/SystemTab.jsx:7
 msgid "PHP Information"
 msgstr "PHP Bilgisi"
@@ -795,8 +789,7 @@ msgstr "Lisans durumu:"
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: templates/account/partials/vendor-bookings.php:228
 #: templates/account/partials/vendor-listings.php:56
-#: assets/blocks/my-bookings/index.js:42 build/admin/shortcode-pages.js:1
-#: build/admin/vendor-management.js:1
+#: assets/blocks/my-bookings/index.js:42
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:8
@@ -810,7 +803,7 @@ msgstr "Aktif"
 msgid "License Expiry:"
 msgstr "Lisansın Sona Ermesi:"
 
-#: src/Admin/About/Tabs/SystemTab.php:158 build/admin/about.js:1
+#: src/Admin/About/Tabs/SystemTab.php:158
 #: src-react/admin/about/components/SystemTab.jsx:9
 msgid "Database Information"
 msgstr "Veritabanı Bilgileri"
@@ -959,12 +952,11 @@ msgstr "Bağlamlar"
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:141
 #: templates/account/vendor-ledger.php:65
 #: templates/emails/vendor-report-received-admin.html.php:19
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:16
 msgid "Context"
 msgstr "Bağlam"
 
-#: src/Admin/Addons/AddonContextTaxonomy.php:33 build/admin/vendor-reports.js:1
+#: src/Admin/Addons/AddonContextTaxonomy.php:33
 #: src-react/admin/vendor-reports/components/FilterBar.jsx:16
 msgid "All contexts"
 msgstr "Tüm bağlamlar"
@@ -1011,7 +1003,7 @@ msgstr "Kiralık"
 #: templates/emails/booking-created-vendor.html.php:16
 #: templates/shortcodes/unified-search.php:74
 #: assets/blocks/featured-vehicles/index.js:28
-#: assets/blocks/unified-search/index.js:64 build/admin/dashboard.js:1
+#: assets/blocks/unified-search/index.js:64
 #: src-react/admin/dashboard/components/QuickActions.jsx:9
 msgid "Transfer"
 msgstr "Transfer"
@@ -1031,8 +1023,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:73
 #: templates/emails/vendor-report-received-admin.html.php:15
-#: assets/blocks/popular-routes/index.js:51 build/admin/vendor-management.js:1
-#: build/admin/vendor-reports.js:1
+#: assets/blocks/popular-routes/index.js:51
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:228
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Title"
@@ -1078,9 +1069,7 @@ msgstr "Fiyat"
 #: templates/account/user-dashboard.php:280
 #: templates/account/vendor-ledger.php:35
 #: templates/account/vendor-ledger.php:67 assets/blocks/my-bookings/index.js:54
-#: assets/blocks/payment-history/index.js:53 build/admin/export.js:1
-#: build/admin/messages.js:1 build/admin/shortcode-pages.js:1
-#: build/admin/vendor-management.js:1 build/admin/vendor-reports.js:1
+#: assets/blocks/payment-history/index.js:53
 #: src-react/admin/export/components/PreviewBar.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:59
@@ -1117,9 +1106,7 @@ msgstr "Gerekli"
 #: templates/shortcodes/unified-search.php:252
 #: assets/blocks/messages/index.js:51 assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
-#: assets/blocks/testimonials/index.js:63 build/admin/export.js:1
-#: build/admin/messages.js:1 build/admin/vendor-management.js:1
-#: build/admin/vendor-reports.js:1
+#: assets/blocks/testimonials/index.js:63
 #: src-react/admin/export/components/ExportHistory.jsx:64
 #: src-react/admin/export/components/PreviewBar.jsx:22
 #: src-react/admin/messages/components/MessageTable.jsx:25
@@ -1145,8 +1132,7 @@ msgstr "Pasif"
 #: src/Admin/Setup/SetupWizard.php:423 src/Admin/Transfer/TransferAdmin.php:516
 #: src/Admin/Transfer/TransferAdmin.php:782
 #: templates/account/partials/vendor-listings.php:405
-#: templates/shortcodes/vehicle-rating-form.php:278 build/admin/customers.js:1
-#: build/admin/shortcode-pages.js:1 build/admin/vendor-management.js:1
+#: templates/shortcodes/vehicle-rating-form.php:278
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:231
@@ -1172,8 +1158,8 @@ msgstr "Bu ek hizmeti silmek istediğinizden emin misiniz?"
 #: src/Admin/Messages/Settings/MessagesSettings.php:481
 #: src/Admin/Transfer/TransferAdmin.php:517
 #: src/Admin/Transfer/TransferAdmin.php:783
-#: templates/shortcodes/vehicle-rating-form.php:284 build/admin/customers.js:1
-#: build/admin/export.js:1 src-react/admin/customers/CustomersPage.jsx:66
+#: templates/shortcodes/vehicle-rating-form.php:284
+#: src-react/admin/customers/CustomersPage.jsx:66
 #: src-react/admin/export/components/ExportHistory.jsx:90
 msgid "Delete"
 msgstr "Sil"
@@ -1211,14 +1197,13 @@ msgstr "Yeni Ek Hizmet Ekle"
 
 #: src/Admin/Addons/AddonListTable.php:468
 #: src/Admin/Booking/ListTable/BookingColumns.php:483
-#: src/Admin/Utilities/ListTable/LogColumns.php:118 build/admin/messages.js:1
-#: build/admin/vendor-reports.js:1
+#: src/Admin/Utilities/ListTable/LogColumns.php:118
 #: src-react/admin/messages/components/FilterBar.jsx:33
 #: src-react/admin/vendor-reports/components/FilterBar.jsx:15
 msgid "All statuses"
 msgstr "Tüm durumlar"
 
-#: src/Admin/Addons/AddonListTable.php:476 build/admin/messages.js:1
+#: src/Admin/Addons/AddonListTable.php:476
 #: src-react/admin/messages/components/FilterBar.jsx:43
 msgid "All categories"
 msgstr "Tüm Kategoriler"
@@ -1235,7 +1220,6 @@ msgstr "Max Fiyat"
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:273
 #: templates/account/bookings.php:103 templates/account/vendor-ledger.php:54
 #: templates/frontend/partials/vendor-directory-filter-bar.php:16
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/FilterBar.jsx:33
 msgid "Filter"
 msgstr "Filtre"
@@ -1243,7 +1227,6 @@ msgstr "Filtre"
 #: src/Admin/Addons/AddonListTable.php:498 src/Admin/Core/AssetManager.php:1362
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1438
 #: src/Admin/Messages/Monitoring/MonitoringManager.php:277
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Clear"
 msgstr "Temizle"
@@ -1302,7 +1285,6 @@ msgstr "İşleniyor..."
 #: src/Admin/Messages/Core/Messages.php:1505
 #: src/Admin/Transfer/Frontend/TransferShortcodes.php:227
 #: src/Admin/Vendor/AdminVendorApplicationsPage.php:69
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:64
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
@@ -1519,7 +1501,7 @@ msgstr "Direksiyonu paylaşın. Bir tane daha yetkili sürücü ekleyin."
 #: src/Admin/Utilities/Menu/Menu.php:105 src/Admin/Utilities/Menu/Menu.php:106
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:357
 #: templates/account/booking-detail.php:211
-#: templates/shortcodes/booking-form.php:288 build/admin/dashboard.js:1
+#: templates/shortcodes/booking-form.php:288
 #: src-react/admin/dashboard/components/QuickActions.jsx:15
 msgid "Additional Services"
 msgstr "Ek hizmetler"
@@ -1675,8 +1657,7 @@ msgstr "Menü düzeni"
 #: src/Admin/Addons/AddonSettings.php:204
 #: src/Admin/Messages/Settings/MessagesSettings.php:492
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:853
-#: templates/account/partials/vendor-settings.php:142 build/admin/messages.js:1
-#: build/admin/vendor-management.js:1
+#: templates/account/partials/vendor-settings.php:142
 #: src-react/admin/messages/components/SettingsView.jsx:216
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:163
 msgid "Save Settings"
@@ -1870,7 +1851,6 @@ msgstr "Rezervasyon Talebi: %1$s (%2$s) tarihleri arasında %3$s - %4$s."
 
 #: src/Admin/Booking/Core/Status.php:109
 #: templates/account/partials/vendor-listings.php:240
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:18
 msgid "Draft"
 msgstr "Taslak"
@@ -1915,8 +1895,7 @@ msgstr "Bekleyen Ödeme"
 #: templates/account/vendor-ledger.php:39
 #: templates/emails/booking-created-customer.html.php:90
 #: templates/emails/refund-customer.html.php:32
-#: assets/blocks/payment-history/index.js:41 build/admin/dashboard.js:1
-#: build/admin/vendor-management.js:1
+#: assets/blocks/payment-history/index.js:41
 #: src-react/admin/dashboard/components/RecentBookings.jsx:9
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:17
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:23
@@ -1946,7 +1925,7 @@ msgstr "Beklemede"
 #: templates/account/partials/vendor-bookings.php:87
 #: templates/account/partials/vendor-payouts.php:45
 #: templates/account/user-dashboard.php:254
-#: templates/account/vendor-booking-detail.php:83 build/admin/dashboard.js:1
+#: templates/account/vendor-booking-detail.php:83
 #: src-react/admin/dashboard/components/RecentBookings.jsx:10
 msgid "Confirmed"
 msgstr "Onaylandı"
@@ -1963,7 +1942,7 @@ msgstr "Onaylandı"
 #: templates/account/partials/vendor-bookings.php:45
 #: templates/account/partials/vendor-bookings.php:88
 #: templates/account/user-dashboard.php:255
-#: templates/account/vendor-booking-detail.php:84 build/admin/dashboard.js:1
+#: templates/account/vendor-booking-detail.php:84
 #: src-react/admin/dashboard/components/RecentBookings.jsx:11
 msgid "In Progress"
 msgstr "Devam Ediyor"
@@ -1993,7 +1972,7 @@ msgstr "Devam Ediyor"
 #: templates/emails/booking-created-customer.html.php:89
 #: templates/emails/booking-created-vendor.html.php:22
 #: templates/emails/refund-customer.html.php:33
-#: assets/blocks/my-bookings/index.js:44 build/admin/dashboard.js:1
+#: assets/blocks/my-bookings/index.js:44
 #: src-react/admin/dashboard/components/RecentBookings.jsx:12
 msgid "Completed"
 msgstr "Tamamlandı"
@@ -2021,7 +2000,7 @@ msgstr "Tamamlandı"
 #: templates/account/vendor-booking-detail.php:94
 #: templates/emails/booking-created-admin.html.php:67
 #: templates/emails/booking-created-vendor.html.php:24
-#: assets/blocks/my-bookings/index.js:45 build/admin/dashboard.js:1
+#: assets/blocks/my-bookings/index.js:45
 #: src-react/admin/dashboard/components/RecentBookings.jsx:13
 msgid "Cancelled"
 msgstr "İptal Edildi"
@@ -2397,7 +2376,7 @@ msgstr "Rezervasyon ID"
 #: templates/account/vendor-booking-detail.php:170
 #: templates/emails/vehicle-rereview-admin.html.php:16
 #: templates/emails/vehicle-submitted-admin.html.php:16
-#: templates/shortcodes/contact-form.php:101 build/admin/reports.js:1
+#: templates/shortcodes/contact-form.php:101
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:42
 msgid "Vehicle"
 msgstr "Araç"
@@ -2425,8 +2404,7 @@ msgstr "Gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:128
 #: src/Admin/Booking/ListTable/BookingColumns.php:1472
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:193
-#: src/Admin/Reports/BackgroundProcessor.php:465 build/admin/dashboard.js:1
-#: build/admin/reports.js:1 build/admin/shortcode-pages.js:1
+#: src/Admin/Reports/BackgroundProcessor.php:465
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
 #: src-react/admin/dashboard/components/TransferWidget.jsx:33
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:39
@@ -2574,7 +2552,7 @@ msgstr "Bu hafta"
 msgid "This month"
 msgstr "Bu ay"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:742 build/admin/reports.js:1
+#: src/Admin/Booking/ListTable/BookingColumns.php:742
 #: src-react/admin/reports/components/StatsCards.jsx:12
 msgid "Monthly Revenue"
 msgstr "Aylık Gelir"
@@ -2811,7 +2789,6 @@ msgstr "Rezervasyon detayları"
 #: templates/account/partials/vendor-listings.php:187
 #: templates/account/partials/vendor-listings.php:451
 #: templates/account/partials/vendor-report-modal.php:27
-#: build/admin/shortcode-pages.js:1
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:10
 msgid "Close"
 msgstr "Kapat"
@@ -2828,8 +2805,8 @@ msgstr "Kapat"
 #: src/Admin/Messages/Core/Messages.php:808
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125 src/Plugin.php:1318
-#: templates/messages/message-thread-view.html.php:56 build/admin/messages.js:1
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125 src/Plugin.php:1321
+#: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 #: src-react/admin/messages/components/MessageTable.jsx:57
 msgid "Customer"
@@ -2850,9 +2827,7 @@ msgstr "Müşteri"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1133
 #: templates/account/vendor-booking-detail.php:142
 #: templates/emails/vendor-application-new-admin.html.php:16
-#: templates/shortcodes/contact-form.php:62 build/admin/customers.js:1
-#: build/admin/messages.js:1 build/admin/reports.js:1
-#: build/admin/vendor-management.js:1
+#: templates/shortcodes/contact-form.php:62
 #: src-react/admin/customers/components/CustomerPanel.jsx:58
 #: src-react/admin/customers/components/CustomerTable.jsx:5
 #: src-react/admin/messages/components/SettingsView.jsx:52
@@ -2877,8 +2852,7 @@ msgstr "E-posta"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1137
 #: templates/account/partials/vendor-profile-settings.php:110
 #: templates/account/vendor-booking-detail.php:151
-#: templates/shortcodes/contact-form.php:74 build/admin/customers.js:1
-#: build/admin/vendor-management.js:1
+#: templates/shortcodes/contact-form.php:74
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
@@ -3507,7 +3481,6 @@ msgstr "Makbuz yüklenmedi."
 #: templates/emails/refund-admin.html.php:29
 #: templates/emails/refund-customer.html.php:27
 #: templates/emails/vendor-report-resolved.html.php:32
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:43
 msgid "Status:"
 msgstr "Durum:"
@@ -4172,7 +4145,6 @@ msgstr "Rezervasyon başarıyla oluşturuldu."
 #: src/Admin/Utilities/Export/Export.php:1053
 #: src/Admin/Utilities/Export/Export.php:1133
 #: src/Admin/Utilities/Menu/Menu.php:77 src/Admin/Utilities/Menu/Menu.php:78
-#: build/admin/customers.js:1 build/admin/export.js:1 build/admin/reports.js:1
 #: src-react/admin/customers/components/CustomerTable.jsx:6
 #: src-react/admin/export/components/ExportCards.jsx:5
 #: src-react/admin/reports/components/tabs/BookingsTab.jsx:22
@@ -4452,8 +4424,7 @@ msgstr "Değer Gir"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:968
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1017
 #: src/Admin/Vendor/Profile/VendorProfileExtension.php:94
-#: templates/account/payment-history.php:150 build/admin/messages.js:1
-#: build/admin/shortcode-pages.js:1 build/admin/shortcode-pages.js:4
+#: templates/account/payment-history.php:150
 #: src-react/admin/messages/components/SettingsView.jsx:155
 #: src-react/admin/messages/components/SettingsView.jsx:195
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:46
@@ -4550,7 +4521,7 @@ msgstr "Bakım"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:741
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:753
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:765
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:222 build/admin/about.js:1
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:222
 #: src-react/admin/about/components/InfoCard.jsx:14
 #: src-react/admin/about/components/SystemTab.jsx:24
 msgid "Yes"
@@ -4619,7 +4590,6 @@ msgstr "Emin misiniz?"
 #: templates/account/messages.php:161
 #: templates/account/partials/vendor-report-modal.php:81
 #: templates/messages/message-reply-form.html.php:65
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
 msgid "Cancel"
 msgstr "İptal"
@@ -4628,7 +4598,6 @@ msgstr "İptal"
 #: src/Admin/Core/AssetManager.php:1160 src/Admin/Core/AssetManager.php:1349
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1333
 #: templates/account/partials/vendor-profile-settings.php:128
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
 msgid "Save"
 msgstr "Kaydet"
@@ -4886,7 +4855,6 @@ msgid "No logs found"
 msgstr "Herhangi bir günlük kaydı bulunamadı"
 
 #: src/Admin/Core/AssetManager.php:911 src/Admin/Setup/SetupWizard.php:401
-#: build/admin/customers.js:1 build/admin/shortcode-pages.js:1
 #: src-react/admin/customers/components/Pagination.jsx:15
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
 msgid "Page"
@@ -5049,7 +5017,7 @@ msgstr "Şablonu Düzenle"
 #: src/Admin/Emails/Templates/VendorEmails.php:501
 #: src/Admin/Emails/Templates/VendorEmails.php:521
 #: src/Admin/Emails/Templates/VendorEmails.php:541
-#: src/Admin/Messages/Core/Messages.php:839 build/admin/messages.js:1
+#: src/Admin/Messages/Core/Messages.php:839
 #: src-react/admin/messages/components/MessageTable.jsx:20
 #: src-react/admin/messages/components/MessageTable.jsx:53
 msgid "Subject"
@@ -5139,7 +5107,6 @@ msgstr "Son kullanılan"
 #: src/Admin/Transfer/TransferAdmin.php:734
 #: src/Admin/Utilities/Export/Export.php:996
 #: templates/account/partials/vendor-reliability.php:381
-#: build/admin/shortcode-pages.js:1 build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:17
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:44
@@ -5163,7 +5130,6 @@ msgid "Please select at least one item"
 msgstr "Lütfen en az bir öge seçin"
 
 #: src/Admin/Core/AssetManager.php:1115 src/Admin/Core/AssetManager.php:1185
-#: build/admin/customers.js:1 build/admin/messages.js:1
 #: src-react/admin/customers/CustomersPage.jsx:94
 #: src-react/admin/messages/components/BulkBar.jsx:42
 msgid "selected"
@@ -5310,7 +5276,7 @@ msgstr "Bilgi"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:742
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:754
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:766
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:222 build/admin/about.js:1
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:222
 #: src-react/admin/about/components/InfoCard.jsx:15
 #: src-react/admin/about/components/SystemTab.jsx:25
 msgid "No"
@@ -5320,7 +5286,7 @@ msgstr "Hayır"
 msgid "Confirm"
 msgstr "Onayla"
 
-#: src/Admin/Core/AssetManager.php:1352 build/admin/messages.js:1
+#: src/Admin/Core/AssetManager.php:1352
 #: src-react/admin/messages/components/SettingsView.jsx:168
 #: src-react/admin/messages/components/SettingsView.jsx:208
 msgid "Add"
@@ -6120,10 +6086,10 @@ msgid "Unlimited Vehicles/Bookings/Customers"
 msgstr "Sınırsız Araç/Rezervasyon/Müşteri"
 
 #: src/Admin/Core/ProFeatureNotice.php:223
-#: src/Admin/Core/ProFeatureNotice.php:248
-#: src/Admin/Core/ProFeatureNotice.php:273
-#: src/Admin/Core/ProFeatureNotice.php:299
-#: src/Admin/Core/ProFeatureNotice.php:327
+#: src/Admin/Core/ProFeatureNotice.php:260
+#: src/Admin/Core/ProFeatureNotice.php:285
+#: src/Admin/Core/ProFeatureNotice.php:311
+#: src/Admin/Core/ProFeatureNotice.php:339
 msgid "Rentiva Lite Limit"
 msgstr "Rentiva Lite Sınırı"
 
@@ -6134,10 +6100,10 @@ msgid "You have used %1$d out of %2$d vehicles (%3$d%%)."
 msgstr "%2$d araçtan %1$d tanesini kullandınız (%3$d%%)."
 
 #: src/Admin/Core/ProFeatureNotice.php:227
-#: src/Admin/Core/ProFeatureNotice.php:252
-#: src/Admin/Core/ProFeatureNotice.php:277
-#: src/Admin/Core/ProFeatureNotice.php:303
-#: src/Admin/Core/ProFeatureNotice.php:331
+#: src/Admin/Core/ProFeatureNotice.php:264
+#: src/Admin/Core/ProFeatureNotice.php:289
+#: src/Admin/Core/ProFeatureNotice.php:315
+#: src/Admin/Core/ProFeatureNotice.php:343
 msgid "Limit reached!"
 msgstr "Sınır aşıldı!"
 
@@ -6151,14 +6117,22 @@ msgstr ""
 "Sınırsız araç için Pro sürümüne yükseltmek için <a href=\"%s\">lisans "
 "anahtarınızı girin</a>."
 
+#. translators: %d: number of hidden vehicles.
+#: src/Admin/Core/ProFeatureNotice.php:241
+#, php-format
+msgid ""
+"%d vehicle(s) are hidden from your public site due to the Lite limit — "
+"upgrade to Pro to restore them."
+msgstr "Lite limiti nedeniyle %d araç herkese açık sitenizde gizlendi — geri getirmek için Pro'ya yükseltin."
+
 #. translators: 1: current count, 2: max limit, 3: percentage
-#: src/Admin/Core/ProFeatureNotice.php:250
+#: src/Admin/Core/ProFeatureNotice.php:262
 #, php-format
 msgid "You have used %1$d out of %2$d bookings (%3$d%%)."
 msgstr "%2$d rezervasyondan (%3$d%%) %1$d'ını kullandınız."
 
 #. translators: Dynamic value.
-#: src/Admin/Core/ProFeatureNotice.php:257
+#: src/Admin/Core/ProFeatureNotice.php:269
 #, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
@@ -6168,13 +6142,13 @@ msgstr ""
 "href=\"%s\">lisans anahtarınızı girin</a>."
 
 #. translators: 1: current count, 2: max limit, 3: percentage
-#: src/Admin/Core/ProFeatureNotice.php:275
+#: src/Admin/Core/ProFeatureNotice.php:287
 #, php-format
 msgid "You have used %1$d out of %2$d customers (%3$d%%)."
 msgstr "%2$d müşteriden (%3$d%%) %1$d'ını kullandınız."
 
 #. translators: Dynamic value.
-#: src/Admin/Core/ProFeatureNotice.php:282
+#: src/Admin/Core/ProFeatureNotice.php:294
 #, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
@@ -6184,13 +6158,13 @@ msgstr ""
 "anahtarınızı girin</a>."
 
 #. translators: 1: current count, 2: max limit, 3: percentage
-#: src/Admin/Core/ProFeatureNotice.php:301
+#: src/Admin/Core/ProFeatureNotice.php:313
 #, php-format
 msgid "You have used %1$d out of %2$d addon services (%3$d%%)."
 msgstr "%2$d ek hizmetten %1$d tanesini kullandınız (%3$d%%)."
 
 #. translators: Dynamic value.
-#: src/Admin/Core/ProFeatureNotice.php:308
+#: src/Admin/Core/ProFeatureNotice.php:320
 #, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
@@ -6200,13 +6174,13 @@ msgstr ""
 "anahtarınızı girin</a>."
 
 #. translators: 1: current count, 2: max limit, 3: percentage
-#: src/Admin/Core/ProFeatureNotice.php:329
+#: src/Admin/Core/ProFeatureNotice.php:341
 #, php-format
 msgid "You have used %1$d out of %2$d VIP transfer routes (%3$d%%)."
 msgstr "%2$d VIP transfer rotasından %1$d tanesini kullandınız (%3$d%%)."
 
 #. translators: Dynamic value.
-#: src/Admin/Core/ProFeatureNotice.php:336
+#: src/Admin/Core/ProFeatureNotice.php:348
 #, php-format
 msgid ""
 "<a href=\"%s\">Enter your license key</a> to upgrade to Pro for unlimited "
@@ -6320,7 +6294,7 @@ msgstr "Toplu eylemler"
 
 #: src/Admin/Core/Traits/AdminHelperTrait.php:410
 #: templates/frontend/partials/vendor-directory-filter-bar.php:60
-#: build/admin/messages.js:1 src-react/admin/messages/components/BulkBar.jsx:62
+#: src-react/admin/messages/components/BulkBar.jsx:62
 msgid "Apply"
 msgstr "Uygula"
 
@@ -6340,7 +6314,6 @@ msgstr "Henüz %s oluşturulmadı."
 #: src/Admin/Customers/CustomersPage.php:336
 #: templates/account/dashboard.php:221
 #: templates/account/partials/vendor-listings.php:399
-#: build/admin/shortcode-pages.js:1 build/admin/vendor-management.js:1
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:85
 msgid "View"
@@ -6356,7 +6329,6 @@ msgid "Search:"
 msgstr "Arama:"
 
 #: src/Admin/Core/Utilities/CityHelper.php:162
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:117
 msgid "Select a city..."
 msgstr "Şehir seçin..."
@@ -6369,7 +6341,6 @@ msgstr "Veritabanı Temizleme Raporu"
 #: src/Admin/Messages/Core/Messages.php:857
 #: src/Admin/Messages/Core/Messages.php:1251
 #: src/Admin/Messages/Notifications/MessageNotifications.php:160
-#: build/admin/messages.js:1 build/admin/reports.js:1
 #: src-react/admin/messages/components/MessageTable.jsx:22
 #: src-react/admin/messages/components/MessageTable.jsx:58
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:71
@@ -6389,7 +6360,6 @@ msgstr "Boyut"
 #: src/Admin/Utilities/ListTable/LogColumns.php:47
 #: src/Admin/Vehicle/ListingFeeManager.php:243
 #: templates/account/partials/vendor-reliability.php:153
-#: build/admin/vendor-management.js:1 build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-management/components/VendorTable.jsx:105
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:20
 msgid "Action"
@@ -6654,7 +6624,7 @@ msgstr "Yeni Müşteri Ekleyin"
 #. translators: %d: maximum number of customers.
 #: src/Admin/Customers/AddCustomerPage.php:60
 #: src/Admin/Customers/AddCustomerPage.php:210
-#: src/Admin/Licensing/Restrictions.php:363
+#: src/Admin/Licensing/Restrictions.php:398
 #, php-format
 msgid ""
 "You can add up to %d customers in Lite version. Enter your license key to "
@@ -6691,12 +6661,12 @@ msgstr "Müşteri Adı"
 #: src/Admin/Customers/AddCustomerPage.php:168
 #: src/Admin/Customers/CustomersPage.php:202
 #: src/Admin/Customers/CustomersPage.php:367
-#: templates/account/account-details.php:123 build/admin/customers.js:1
+#: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:66
 msgid "Address"
 msgstr "Adres"
 
-#: src/Admin/Customers/AddCustomerPage.php:176 build/admin/customers.js:1
+#: src/Admin/Customers/AddCustomerPage.php:176
 #: src-react/admin/customers/components/FilterBar.jsx:14
 msgid "Add Customer"
 msgstr "Müşteri Ekle"
@@ -6714,7 +6684,7 @@ msgstr "Geçersiz müşteri kimliği."
 msgid "Customers List"
 msgstr "Müşteri Listesi"
 
-#: src/Admin/Customers/CustomersPage.php:175 build/admin/customers.js:1
+#: src/Admin/Customers/CustomersPage.php:175
 #: src-react/admin/customers/components/CustomerPanel.jsx:42
 #: src-react/admin/customers/components/CustomerPanel.jsx:44
 msgid "Customer Details"
@@ -6732,22 +6702,21 @@ msgstr "Rezervasyon İstatistikleri"
 msgid "Total Spending"
 msgstr "Toplam Harcama"
 
-#: src/Admin/Customers/CustomersPage.php:233 build/admin/customers.js:1
-#: build/admin/reports.js:1
+#: src/Admin/Customers/CustomersPage.php:233
 #: src-react/admin/customers/components/CustomerPanel.jsx:88
 #: src-react/admin/customers/components/CustomerTable.jsx:8
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:65
 msgid "Last Booking"
 msgstr "Son Rezervasyon"
 
-#: src/Admin/Customers/CustomersPage.php:238 build/admin/customers.js:1
+#: src/Admin/Customers/CustomersPage.php:238
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "First Booking"
 msgstr "İlk Rezervasyon"
 
 #: src/Admin/Customers/CustomersPage.php:250
 #: templates/emails/booking-status-changed-admin.html.php:44
-#: templates/emails/refund-admin.html.php:41 build/admin/customers.js:1
+#: templates/emails/refund-admin.html.php:41
 #: src-react/admin/customers/components/CustomerPanel.jsx:104
 msgid "View Bookings"
 msgstr "Rezervasyonları Görüntüle"
@@ -7340,7 +7309,6 @@ msgstr "Rezervasyon durumu değiştiğinde gönderilen e-posta."
 #: src/Admin/Emails/Templates/BookingNotifications.php:112
 #: src/Admin/Emails/Templates/RefundEmails.php:74
 #: src/Admin/Messages/Settings/MessagesSettings.php:375
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:77
 msgid "Admin Email"
 msgstr "Yönetici E-Postası"
@@ -8005,7 +7973,7 @@ msgid "No messages found yet."
 msgstr "Henüz mesaj bulunamadı."
 
 #: src/Admin/Frontend/Account/AccountController.php:194
-#: src/Admin/Frontend/Account/AccountRenderer.php:305 build/admin/messages.js:1
+#: src/Admin/Frontend/Account/AccountRenderer.php:305
 #: src-react/admin/messages/MessagesPage.jsx:48
 msgid "Failed to load messages."
 msgstr "Mesajlar yüklenemedi."
@@ -8025,7 +7993,6 @@ msgstr "Mesajlara erişim izniniz yok."
 #: src/Admin/Frontend/Account/AccountRenderer.php:308
 #: src/Admin/Messages/Core/Messages.php:370
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:85
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:43
 msgid "New"
 msgstr "Yeni"
@@ -8049,13 +8016,13 @@ msgid "Loading thread..."
 msgstr "Konu yükleniyor..."
 
 #: src/Admin/Frontend/Account/AccountController.php:202
-#: src/Admin/Frontend/Account/AccountRenderer.php:313 build/admin/messages.js:1
+#: src/Admin/Frontend/Account/AccountRenderer.php:313
 #: src-react/admin/messages/components/ThreadView.jsx:39
 msgid "Failed to load thread."
 msgstr "İş parçacığı yüklenemedi."
 
 #: src/Admin/Frontend/Account/AccountController.php:203
-#: src/Admin/Frontend/Account/AccountRenderer.php:314 build/admin/messages.js:1
+#: src/Admin/Frontend/Account/AccountRenderer.php:314
 #: src-react/admin/messages/components/MessageTable.jsx:32
 msgid "No messages found."
 msgstr "Mesaj bulunamadı."
@@ -8092,7 +8059,7 @@ msgid "Reply sent successfully."
 msgstr "Yanıt başarıyla gönderildi."
 
 #: src/Admin/Frontend/Account/AccountController.php:213
-#: src/Admin/Frontend/Account/AccountRenderer.php:318 build/admin/messages.js:1
+#: src/Admin/Frontend/Account/AccountRenderer.php:318
 #: src-react/admin/messages/components/ReplyForm.jsx:20
 msgid "Failed to send reply."
 msgstr "Yanıt gönderilemedi."
@@ -8477,8 +8444,7 @@ msgstr "Ödeme Geçmişi"
 #: src/Admin/Utilities/Menu/Menu.php:137 src/Admin/Utilities/Menu/Menu.php:138
 #: src/Core/Dashboard/DashboardNavigation.php:38
 #: src/Core/Dashboard/DashboardNavigation.php:64
-#: templates/account/messages.php:58 build/admin/dashboard.js:1
-#: build/admin/messages.js:1
+#: templates/account/messages.php:58
 #: src-react/admin/dashboard/components/QuickActions.jsx:14
 #: src-react/admin/messages/MessagesPage.jsx:100
 msgid "Messages"
@@ -8596,8 +8562,7 @@ msgstr "Henüz rezervasyon alınmadı."
 #: src/Admin/Reports/BackgroundProcessor.php:460
 #: src/Admin/Reports/BackgroundProcessor.php:474
 #: templates/account/bookings.php:142 templates/account/bookings.php:250
-#: templates/account/partials/vendor-payouts.php:217 build/admin/export.js:1
-#: build/admin/vendor-reports.js:1
+#: templates/account/partials/vendor-payouts.php:217
 #: src-react/admin/export/components/PreviewBar.jsx:21
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:14
 msgid "ID"
@@ -9146,7 +9111,7 @@ msgstr "Lütfen form hatalarını düzeltin."
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:171
-#: templates/shortcodes/contact-form.php:53 build/admin/vendor-management.js:1
+#: templates/shortcodes/contact-form.php:53
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:52
 msgid "Full Name"
 msgstr "Ad Soyad"
@@ -9165,7 +9130,7 @@ msgstr "Tercih Edilen Tarih"
 #: src/Admin/Messages/Core/Messages.php:872
 #: src/Admin/Transfer/TransferAdmin.php:451
 #: src/Admin/Transfer/TransferAdmin.php:490
-#: templates/shortcodes/contact-form.php:128 build/admin/messages.js:1
+#: templates/shortcodes/contact-form.php:128
 #: src-react/admin/messages/components/MessageTable.jsx:24
 #: src-react/admin/messages/components/MessageTable.jsx:64
 msgid "Priority"
@@ -10379,7 +10344,6 @@ msgstr "Banka hesabında göründüğü şekliyle tam adınız."
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
 #: src/Core/Financial/Statement/PayoutStatementRenderer.php:61
 #: templates/account/partials/vendor-settings.php:120
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
 msgid "IBAN"
 msgstr "IBAN"
@@ -10391,7 +10355,6 @@ msgstr "Ödeme kazançlarınız bu hesaba gönderilecektir."
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:208
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:391
 #: templates/account/partials/vendor-settings.php:129
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:58
 msgid "Tax Office"
 msgstr "Vergi Dairesi"
@@ -10405,7 +10368,6 @@ msgstr "isteğe bağlı"
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:212
 #: src/Admin/Settings/Groups/VendorMarketplaceSettings.php:392
 #: templates/account/partials/vendor-settings.php:133
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:59
 msgid "Tax Number"
 msgstr "Vergi Numarası"
@@ -10945,7 +10907,7 @@ msgstr "Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:148
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
 #: assets/blocks/unified-search/index.js:123
-#: assets/blocks/unified-search/index.js:133 build/admin/about.js:1
+#: assets/blocks/unified-search/index.js:133
 #: src-react/admin/about/components/ChangelogList.jsx:75
 msgid "Hide"
 msgstr "Gizle"
@@ -11873,8 +11835,7 @@ msgstr "MHM Bayi Profili"
 #: templates/emails/vehicle-rereview-admin.html.php:7
 #: templates/emails/vehicle-submitted-admin.html.php:7
 #: templates/emails/vendor-report-received-admin.html.php:11
-#: assets/blocks/vendor-profile/index.js:32 build/admin/vendor-management.js:1
-#: build/admin/vendor-reports.js:1
+#: assets/blocks/vendor-profile/index.js:32
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:41
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:15
 msgid "Vendor"
@@ -11909,8 +11870,7 @@ msgstr "Hakkında"
 #: src/Admin/Utilities/Menu/Menu.php:51 src/Admin/Utilities/Menu/Menu.php:52
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:982
 #: src/Admin/Vehicle/PostType/Vehicle.php:30 templates/single-vehicle.php:26
-#: assets/blocks/vendor-profile/index.js:45 build/admin/export.js:1
-#: build/admin/reports.js:1 build/admin/vendor-management.js:1
+#: assets/blocks/vendor-profile/index.js:45
 #: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
@@ -12612,6 +12572,10 @@ msgstr ""
 msgid "Lifetime"
 msgstr "Ömür boyu"
 
+#: src/Admin/Licensing/LiteOverflow/OverflowAdminBadge.php:30
+msgid "🔒 Lite limit — hidden"
+msgstr "🔒 Lite limiti — gizli"
+
 #: src/Admin/Licensing/Mode.php:188
 msgid "Advanced Reporting"
 msgstr "Gelişmiş Raporlama"
@@ -12679,23 +12643,27 @@ msgid "Full REST API"
 msgstr "Tam REST API"
 
 #. translators: %d: maximum number of bookings.
-#: src/Admin/Licensing/Restrictions.php:162
+#: src/Admin/Licensing/Restrictions.php:163
 #, php-format
 msgid "Booking limit reached (%d). Please upgrade to Pro."
 msgstr "Rezervasyon limiti aşıldı (%d). Lütfen Pro sürümüne yükseltin."
 
-#: src/Admin/Licensing/Restrictions.php:221
+#: src/Admin/Licensing/Restrictions.php:201
+msgid "This vehicle is currently unavailable."
+msgstr "Bu araç şu anda kullanılamıyor."
+
+#: src/Admin/Licensing/Restrictions.php:256
 msgid "This setting is available in Pro version."
 msgstr "Bu ayar Pro sürümünde mevcuttur."
 
 #. translators: %s: feature name
-#: src/Admin/Licensing/Restrictions.php:275
+#: src/Admin/Licensing/Restrictions.php:310
 #, php-format
 msgid "%s is available in Pro version. Enter your license key to enable."
 msgstr ""
 "%s Pro sürümünde mevcuttur. Etkinleştirmek için lisans anahtarınızı girin."
 
-#: src/Admin/Licensing/Restrictions.php:278
+#: src/Admin/Licensing/Restrictions.php:313
 msgid ""
 "This feature is available in Pro version. Enter your license key to enable."
 msgstr ""
@@ -13514,13 +13482,11 @@ msgstr "Önemli"
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:74
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:59
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:188
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:53
 msgid "Categories"
 msgstr "Kategoriler"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:361
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:54
 msgid "Statuses"
 msgstr "Durumlar"
@@ -13591,7 +13557,6 @@ msgid "Send automatic reply to new messages"
 msgstr "Yeni mesajlara otomatik yanıt gönder"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:469
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:164
 msgid "New category name"
 msgstr "Yeni Kategori Adı"
@@ -13602,7 +13567,6 @@ msgid "Add Category"
 msgstr "Kategori Ekle"
 
 #: src/Admin/Messages/Settings/MessagesSettings.php:487
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:204
 msgid "New status name"
 msgstr "Yeni durum adı"
@@ -13986,7 +13950,6 @@ msgstr "Geçersiz ödeme tutarı."
 #: src/Admin/Transfer/TransferAdmin.php:488
 #: src/Admin/Transfer/TransferAdmin.php:730
 #: templates/frontend/partials/vendor-directory-filter-bar.php:21
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:108
@@ -14047,7 +14010,6 @@ msgid "Site URL: %s"
 msgstr "Site Adresi: %s"
 
 #: src/Admin/PostTypes/Logs/AdvancedLogger.php:588
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:49
 msgid "Context:"
 msgstr "Bağlam:"
@@ -14057,7 +14019,7 @@ msgstr "Bağlam:"
 #: src/Admin/Utilities/ListTable/LogColumns.php:50
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
-#: assets/blocks/payment-history/index.js:52 build/admin/vendor-management.js:1
+#: assets/blocks/payment-history/index.js:52
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:173
 msgid "Amount"
 msgstr "Tutar"
@@ -14194,7 +14156,7 @@ msgstr "Bu sayfayı görüntüleme izniniz yok."
 
 #: src/Admin/PostTypes/Payouts/PayoutAdminPage.php:49
 #: src/Admin/PostTypes/Payouts/PostType.php:35
-#: src/Admin/Utilities/Menu/Menu.php:240 src/Admin/Utilities/Menu/Menu.php:241
+#: src/Admin/Utilities/Menu/Menu.php:243 src/Admin/Utilities/Menu/Menu.php:244
 msgid "Payout Requests"
 msgstr "Bayi Ödeme Talepleri"
 
@@ -14202,8 +14164,7 @@ msgstr "Bayi Ödeme Talepleri"
 #: src/Admin/Utilities/Export/Export.php:168
 #: src/Admin/Utilities/Export/Export.php:832
 #: src/Admin/Utilities/Export/Export.php:864
-#: src/Admin/Utilities/Export/Export.php:896 build/admin/customers.js:1
-#: build/admin/export.js:1
+#: src/Admin/Utilities/Export/Export.php:896
 #: src-react/admin/customers/components/FilterBar.jsx:17
 #: src-react/admin/export/components/ExportForm.jsx:22
 msgid "Export CSV"
@@ -14232,7 +14193,6 @@ msgstr "Çıktı akışı açılamadı."
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:55
 #: src/Core/Dashboard/DashboardConfig.php:86
 #: templates/account/partials/vendor-payouts.php:150
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:148
 msgid "Available Balance"
 msgstr "Kullanılabilir Bakiye"
@@ -14253,7 +14213,6 @@ msgstr "Seçilenleri Onayla"
 
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:202
 #: templates/account/partials/vendor-payouts.php:41
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:24
 msgid "Approved"
 msgstr "Onaylandı"
@@ -14264,7 +14223,6 @@ msgstr "Onaylandı"
 #: templates/account/partials/vendor-listings.php:45
 #: templates/account/partials/vendor-payouts.php:53
 #: templates/emails/vendor-report-resolved.html.php:11
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:25
 msgid "Rejected"
 msgstr "Reddedildi"
@@ -14364,22 +14322,22 @@ msgstr "Onay başarıyla geri çekildi."
 msgid "Consent recorded."
 msgstr "Onay kaydedildi."
 
-#: src/Admin/Reports/BackgroundProcessor.php:36 build/admin/reports.js:1
+#: src/Admin/Reports/BackgroundProcessor.php:36
 #: src-react/admin/reports/components/TabNavigation.jsx:6
 msgid "Booking Report"
 msgstr "Rezervasyon Şikayeti"
 
-#: src/Admin/Reports/BackgroundProcessor.php:37 build/admin/reports.js:1
+#: src/Admin/Reports/BackgroundProcessor.php:37
 #: src-react/admin/reports/components/TabNavigation.jsx:8
 msgid "Customer Report"
 msgstr "Müşteri Raporu"
 
-#: src/Admin/Reports/BackgroundProcessor.php:38 build/admin/reports.js:1
+#: src/Admin/Reports/BackgroundProcessor.php:38
 #: src-react/admin/reports/components/TabNavigation.jsx:7
 msgid "Vehicle Report"
 msgstr "Araç Raporu"
 
-#: src/Admin/Reports/BackgroundProcessor.php:39 build/admin/reports.js:1
+#: src/Admin/Reports/BackgroundProcessor.php:39
 #: src-react/admin/reports/components/TabNavigation.jsx:5
 msgid "Revenue Report"
 msgstr "Gelir Raporu"
@@ -14547,7 +14505,6 @@ msgid "1000-4999 total spending"
 msgstr "1000-4999 toplam harcama"
 
 #: src/Admin/Reports/BusinessLogic/CustomerReport.php:241
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:21
 msgid "New Customers"
 msgstr "Yeni müşteriler"
@@ -14572,8 +14529,7 @@ msgid "PayPal"
 msgstr "PayPal"
 
 #: src/Admin/Reports/BusinessLogic/RevenueReport.php:187
-#: templates/account/partials/top-vehicles.php:30 build/admin/dashboard.js:1
-#: build/admin/reports.js:1
+#: templates/account/partials/top-vehicles.php:30
 #: src-react/admin/dashboard/components/RecentBookings.jsx:49
 #: src-react/admin/dashboard/components/TransferWidget.jsx:41
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:25
@@ -14591,7 +14547,7 @@ msgstr "Rezervasyon Sayısı"
 msgid "MHM Rentiva Statistics"
 msgstr "MHM Rentiva İstatistikleri"
 
-#: src/Admin/Reports/Reports.php:60 build/admin/dashboard.js:1
+#: src/Admin/Reports/Reports.php:60
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:29
 msgid "Upcoming Operations"
 msgstr "Yaklaşan Operasyonlar"
@@ -14605,7 +14561,7 @@ msgstr "Bu Ayın Geliri"
 msgid "Active Reservations"
 msgstr "Aktif Rezervasyonlar"
 
-#: src/Admin/Reports/Reports.php:99 build/admin/reports.js:1
+#: src/Admin/Reports/Reports.php:99
 #: src-react/admin/reports/components/StatsCards.jsx:22
 msgid "Occupancy Rate"
 msgstr "Doluluk Oranı"
@@ -15090,7 +15046,6 @@ msgstr "Spam ve Güvenlik"
 #: src/Admin/Settings/Groups/FrontendSettings.php:158
 #: src/Admin/Settings/Groups/FrontendSettings.php:303
 #: src/Admin/Settings/View/Tabs/MessagesSettingsRenderer.php:72
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:110
 msgid "Notifications"
 msgstr "Bildirimler"
@@ -17630,7 +17585,6 @@ msgstr "Komut"
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:146
 #: src/Admin/Utilities/Menu/Menu.php:149 src/Admin/Utilities/Menu/Menu.php:150
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:16
 msgid "Export"
 msgstr "Dışa Aktar"
@@ -18089,8 +18043,7 @@ msgstr ""
 "sayfaları kullanır. Eksik sayfaları otomatik olarak oluşturun veya mevcut "
 "sayfalara bağlantı verin."
 
-#: src/Admin/Setup/SetupWizard.php:402 build/admin/shortcode-pages.js:1
-#: build/admin/shortcode-pages.js:4
+#: src/Admin/Setup/SetupWizard.php:402
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:10
 msgid "Shortcode"
@@ -18105,7 +18058,6 @@ msgid "Present"
 msgstr "Mevcut"
 
 #: src/Admin/Setup/SetupWizard.php:411 src/Admin/Setup/SetupWizard.php:1182
-#: build/admin/shortcode-pages.js:1
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:17
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
@@ -19663,8 +19615,7 @@ msgstr "Şehir Merkezi"
 msgid "Hospital / Clinic"
 msgstr "Hastane / Klinik"
 
-#: src/Admin/Transfer/TransferAdmin.php:249 build/admin/messages.js:1
-#: build/admin/vendor-management.js:1
+#: src/Admin/Transfer/TransferAdmin.php:249
 #: src-react/admin/messages/components/SettingsView.jsx:47
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:56
 msgid "Settings saved."
@@ -19707,7 +19658,7 @@ msgstr ""
 #: src/Admin/Transfer/TransferAdmin.php:438
 #: src/Admin/Transfer/TransferAdmin.php:489
 #: templates/account/vendor-ledger.php:44
-#: templates/account/vendor-ledger.php:64 build/admin/export.js:1
+#: templates/account/vendor-ledger.php:64
 #: src-react/admin/export/components/ExportHistory.jsx:65
 msgid "Type"
 msgstr "Tip"
@@ -20583,7 +20534,7 @@ msgstr "Rentiva İhracat Filtreleri"
 #: src/Admin/Utilities/Export/Export.php:114
 #: src/Admin/Utilities/Export/Export.php:1062
 #: src/Admin/Utilities/Export/ExportFilters.php:471
-#: assets/blocks/booking-form/index.js:104 build/admin/reports.js:1
+#: assets/blocks/booking-form/index.js:104
 #: src-react/admin/reports/components/DateFilter.jsx:18
 msgid "Start Date"
 msgstr "Başlangıç Tarihi"
@@ -20591,7 +20542,7 @@ msgstr "Başlangıç Tarihi"
 #: src/Admin/Utilities/Export/Export.php:115
 #: src/Admin/Utilities/Export/Export.php:1067
 #: src/Admin/Utilities/Export/ExportFilters.php:475
-#: assets/blocks/booking-form/index.js:110 build/admin/reports.js:1
+#: assets/blocks/booking-form/index.js:110
 #: src-react/admin/reports/components/DateFilter.jsx:27
 msgid "End Date"
 msgstr "Bitiş Tarihi"
@@ -20716,7 +20667,7 @@ msgstr "Dışa Aktarma Hatası!"
 msgid "An error occurred during the export process."
 msgstr "Dışa aktarma işlemi sırasında bir hata oluştu."
 
-#: src/Admin/Utilities/Export/Export.php:979 build/admin/export.js:1
+#: src/Admin/Utilities/Export/Export.php:979
 #: src-react/admin/export/components/ExportHistory.jsx:50
 msgid "Export History"
 msgstr "Dışa Aktar Geçmişi"
@@ -20740,7 +20691,7 @@ msgstr "Dışa Aktarma Türü"
 msgid "Format"
 msgstr "Biçim"
 
-#: src/Admin/Utilities/Export/Export.php:994 build/admin/export.js:1
+#: src/Admin/Utilities/Export/Export.php:994
 #: src-react/admin/export/components/ExportHistory.jsx:66
 msgid "Records"
 msgstr "Kayıtlar"
@@ -20764,7 +20715,6 @@ msgstr "Dışa Aktarım Türünü Seçin"
 
 #: src/Admin/Utilities/Export/Export.php:1054
 #: src/Admin/Utilities/Menu/Menu.php:114 src/Admin/Utilities/Menu/Menu.php:115
-#: build/admin/dashboard.js:1 build/admin/reports.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:12
 #: src-react/admin/dashboard/components/StatsCards.jsx:28
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:61
@@ -20773,7 +20723,6 @@ msgstr "Müşteriler"
 
 #: src/Admin/Utilities/Export/Export.php:1056
 #: src/Admin/Utilities/Menu/Menu.php:125 src/Admin/Utilities/Menu/Menu.php:126
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:10
 msgid "Reports"
 msgstr "Raporlar"
@@ -20872,7 +20821,7 @@ msgid "Date Range"
 msgstr "Tarih aralığı"
 
 #: src/Admin/Utilities/Export/ExportFilters.php:379
-#: templates/account/vendor-ledger.php:37 build/admin/vendor-management.js:1
+#: templates/account/vendor-ledger.php:37
 #: src-react/admin/vendor-management/components/VendorTable.jsx:79
 msgid "All Statuses"
 msgstr "Tüm Durumlar"
@@ -21130,7 +21079,6 @@ msgid "Fuel"
 msgstr "Yakıt"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:86
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:230
 msgid "Lifecycle"
 msgstr "Yaşam Döngüsü"
@@ -21161,7 +21109,6 @@ msgstr "Tüm yaşam döngüsü durumları"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:314
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:166
 #: templates/account/partials/vendor-listings.php:60
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:9
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:29
 msgid "Paused"
@@ -21170,7 +21117,6 @@ msgstr "Duraklatıldı"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:316
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:168
 #: templates/account/partials/vendor-listings.php:68
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:11
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:30
 msgid "Withdrawn"
@@ -21197,7 +21143,6 @@ msgid "Monthly Reserved Vehicles"
 msgstr "Aylık Rezervasyonlu Araçlar"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:568
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/StatsCards.jsx:24
 msgid "total"
 msgstr "toplam"
@@ -21359,7 +21304,6 @@ msgid "Renewals:"
 msgstr "Yenilemeler:"
 
 #: src/Admin/Vehicle/Meta/LifecycleMetaBox.php:143
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:46
 msgid "Vendor:"
 msgstr "Bayi:"
@@ -22108,7 +22052,7 @@ msgid "Invalid post"
 msgstr "Geçersiz Gönderi"
 
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:44
-#: build/admin/customers.js:3 src-react/admin/customers/CustomersPage.jsx:96
+#: src-react/admin/customers/CustomersPage.jsx:96
 msgid "Delete Selected"
 msgstr "Seçilenleri Sil"
 
@@ -22262,7 +22206,6 @@ msgid "Monthly pause limit reached (%1$d/%2$d). Try again next month."
 msgstr "Aylık duraklatma limiti doldu (%1$d/%2$d). Gelecek ay tekrar deneyin."
 
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:164
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:12
 msgid "Pending Review"
 msgstr "İnceleme Bekliyor"
@@ -22306,7 +22249,6 @@ msgstr "Ana Sayfa"
 
 #: src/Admin/Vendor/Directory/VendorDirectorySchema.php:101
 #: templates/frontend/partials/vendor-directory-breadcrumb.php:34
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:13
 msgid "Vendors"
 msgstr "Bayiler"
@@ -22428,7 +22370,6 @@ msgid "vendor"
 msgstr "bayi"
 
 #: src/Admin/Vendor/REST/VendorManagementRestController.php:353
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
 msgstr "Red gerekçesi zorunludur."
@@ -22480,7 +22421,6 @@ msgstr "Bayi Raporları"
 
 #: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php:89
 #: src/Admin/VendorReport/REST/VendorReportsController.php:237
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ReportRow.jsx:17
 msgid "Open"
 msgstr "Açık"
@@ -22791,7 +22731,7 @@ msgstr "Doluluk %"
 msgid "Avg Window Occupancy"
 msgstr "Ort. Doluluk Oranı"
 
-#: src/Core/Dashboard/DashboardConfig.php:114 build/admin/reports.js:1
+#: src/Core/Dashboard/DashboardConfig.php:114
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:43
 msgid "Cancellation Rate"
 msgstr "İptal Oranı"
@@ -22802,7 +22742,7 @@ msgstr "İptal Edilen Rezervasyonlar %"
 
 #: src/Core/Dashboard/DashboardNavigation.php:26
 #: src/Core/Dashboard/DashboardNavigation.php:44
-#: templates/account/user-dashboard.php:102 build/admin/reports.js:1
+#: templates/account/user-dashboard.php:102
 #: src-react/admin/reports/components/TabNavigation.jsx:4
 msgid "Overview"
 msgstr "Genel Bakış"
@@ -23002,7 +22942,6 @@ msgstr "Dönem"
 
 #: src/Core/Financial/Statement/PayoutStatementRenderer.php:74
 #: templates/emails/vendor-report-received-admin.html.php:24
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:59
 msgid "Description"
 msgstr "Açıklama"
@@ -23289,7 +23228,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:1008
+#: src/Plugin.php:1011
 msgid ""
 "Rentiva Lite version allows you to add up to 5 vehicles. Activate your "
 "license to add more vehicles."
@@ -23297,7 +23236,7 @@ msgstr ""
 "Rentiva Lite sürümü, en fazla 5 araç eklemenize izin verir. Daha fazla araç "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1011
+#: src/Plugin.php:1014
 msgid ""
 "Rentiva Lite version has reached the booking limit. Activate your license to "
 "add more bookings."
@@ -23305,7 +23244,7 @@ msgstr ""
 "Rentiva Lite sürümü rezervasyon sınırına ulaştı. Daha fazla rezervasyon "
 "eklemek için lisansınızı etkinleştirin."
 
-#: src/Plugin.php:1340
+#: src/Plugin.php:1343
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -23491,13 +23430,12 @@ msgstr "Henüz araç rezervasyonu yapmadınız. Filomuzu keşfetmeye başlayın!
 msgid "Browse Vehicles"
 msgstr "Araçlara Göz Atın"
 
-#: templates/account/dashboard.php:60 build/admin/reports.js:1
+#: templates/account/dashboard.php:60
 #: src-react/admin/reports/components/StatsCards.jsx:17
 msgid "Active Bookings"
 msgstr "Aktif Rezervasyonlar"
 
 #: templates/account/dashboard.php:87 templates/account/user-dashboard.php:204
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:35
 msgid "Recent Bookings"
 msgstr "Son Rezervasyonlar"
@@ -23536,7 +23474,7 @@ msgstr ""
 "Henüz araç rezervasyonu yapmadınız. Filomuzu inceleyin ve ilk "
 "rezervasyonunuzu yapın!"
 
-#: templates/account/dashboard.php:256 build/admin/dashboard.js:1
+#: templates/account/dashboard.php:256
 #: src-react/admin/dashboard/components/QuickActions.jsx:21
 msgid "Quick Actions"
 msgstr "Hızlı İşlemler"
@@ -23703,7 +23641,6 @@ msgid "Add a vehicle first to start receiving booking requests."
 msgstr "Rezervasyon talebi almak için önce bir araç ekleyin."
 
 #: templates/account/partials/vendor-bookings.php:237
-#: build/admin/dashboard.js:1 build/admin/reports.js:1
 #: src-react/admin/dashboard/components/StatsCards.jsx:16
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:27
 #: src-react/admin/reports/components/tabs/RevenueTab.jsx:56
@@ -23887,7 +23824,6 @@ msgid "Request Payout"
 msgstr "Ödeme Talep Et"
 
 #: templates/account/partials/vendor-payouts.php:210
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
 msgid "Payout History"
 msgstr "Ödeme Geçmişi"
@@ -24163,13 +24099,11 @@ msgid "Vehicle withdrawn"
 msgstr "Araç geri çekildi"
 
 #: templates/account/partials/vendor-reliability.php:340
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:31
 msgid "Booking cancelled"
 msgstr "Rezervasyon iptal edildi"
 
 #: templates/account/partials/vendor-reliability.php:341
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:32
 msgid "Booking completed"
 msgstr "Rezervasyon tamamlandı"
@@ -24202,19 +24136,16 @@ msgstr ""
 "görünür."
 
 #: templates/account/partials/vendor-reliability.php:377
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:198
 msgid "Event"
 msgstr "Olay"
 
 #: templates/account/partials/vendor-reliability.php:379
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:199
 msgid "Change"
 msgstr "Değişim"
 
 #: templates/account/partials/vendor-reliability.php:380
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:200
 #: src-react/admin/vendor-management/components/VendorTable.jsx:103
 msgid "Score"
@@ -24365,7 +24296,7 @@ msgstr "Teslim Etme"
 msgid "Transfer Route"
 msgstr "Transfer Güzergahı"
 
-#: templates/account/vendor-booking-detail.php:192 build/admin/export.js:1
+#: templates/account/vendor-booking-detail.php:192
 #: src-react/admin/export/components/AdvancedFilters.jsx:75
 msgid "From"
 msgstr "Nereden"
@@ -24376,7 +24307,7 @@ msgstr "Nereden"
 msgid "-"
 msgstr "-"
 
-#: templates/account/vendor-booking-detail.php:205 build/admin/export.js:1
+#: templates/account/vendor-booking-detail.php:205
 #: src-react/admin/export/components/AdvancedFilters.jsx:87
 msgid "To"
 msgstr "Nereye"
@@ -24450,7 +24381,7 @@ msgstr "Onaylandı"
 msgid "All Types"
 msgstr "Tüm Türler"
 
-#: templates/account/vendor-ledger.php:49 build/admin/vendor-management.js:1
+#: templates/account/vendor-ledger.php:49
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:156
 msgid "Refunds"
 msgstr "İadeler"
@@ -25240,7 +25171,6 @@ msgid "The administrator has reviewed your report \"%s\"."
 msgstr "Yönetici \"%s\" başlıklı raporunuzu inceledi."
 
 #: templates/emails/vendor-report-resolved.html.php:37
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:17
 #: src-react/admin/vendor-reports/components/DetailView.jsx:64
 msgid "Administrator Note"
@@ -26800,146 +26730,70 @@ msgstr "Varsayılan: \"Tüm Araçları Görüntüle\""
 msgid "Number of vendors per page (1-50)."
 msgstr "Sayfa başına gösterilecek bayi sayısı (1-50)."
 
-#: build/admin/about.js:1 src-react/admin/about/components/CopyValue.jsx:31
-msgid "Click to copy"
-msgstr "Kopyalamak için tıklayın"
-
-#: build/admin/about.js:1 src-react/admin/about/components/CopyValue.jsx:39
-msgid "Copied!"
-msgstr "Kopyalandı!"
-
-#: build/admin/about.js:1 src-react/admin/about/components/ChangelogList.jsx:76
-msgid "Show all versions"
-msgstr "Tüm sürümleri göster"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:43
-msgid "Bug Reports & Feature Requests"
-msgstr "Hata Bildirimi & Öneriler"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:44
-msgid "Use GitHub Issues to report bugs or suggest new features."
-msgstr "Hata bildirmek veya yeni özellik önermek için GitHub Issues kullanın."
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:46
-msgid "GitHub Issues"
-msgstr "GitHub Issues"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:51
-msgid "Tests & Verification"
-msgstr "Test & Doğrulama"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:52
-msgid "Automated test coverage in this release:"
-msgstr "Bu sürümde otomatik test kapsamı:"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:54
-msgid "PHPUnit tests"
-msgstr "PHPUnit testi"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:55
-msgid "assertions"
-msgstr "assertion"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:56
-msgid "passing"
-msgstr "başarılı"
-
-#: build/admin/about.js:1 src-react/admin/about/components/SupportTab.jsx:58
-msgid "Tested with: WP 7.0, PHP 8.2"
-msgstr "Test edildi: WP 7.0, PHP 8.2"
-
-#: build/admin/about.js:1 src-react/admin/about/components/DeveloperTab.jsx:37
-msgid "MHM Logo"
-msgstr "MHM Logo"
-
-#: build/admin/about.js:1 src-react/admin/about/components/DeveloperTab.jsx:84
-msgid "Kocaeli - Turkey 41400"
-msgstr "Kocaeli - Turkey 41400"
-
-#: build/admin/about.js:1 src-react/admin/about/AboutPage.jsx:27
+#: src-react/admin/about/AboutPage.jsx:27
 msgid "Failed to load page data. Please refresh."
 msgstr "Sayfa verileri yüklenemedi. Lütfen yenileyin."
 
-#: build/admin/about.js:1 build/admin/customers.js:1 build/admin/dashboard.js:1
-#: build/admin/export.js:1 build/admin/messages.js:1 build/admin/reports.js:1
-#: src-react/shared/components/ErrorBoundary.jsx:16
-msgid "An error occurred. Please refresh the page."
-msgstr "Bir hata oluştu. Lütfen sayfayı yenileyin."
+#: src-react/admin/about/components/ChangelogList.jsx:76
+msgid "Show all versions"
+msgstr "Tüm sürümleri göster"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/StatsCards.jsx:15
-msgid "Active Customers"
-msgstr "Aktif Müşteriler"
+#: src-react/admin/about/components/CopyValue.jsx:31
+msgid "Click to copy"
+msgstr "Kopyalamak için tıklayın"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/StatsCards.jsx:20
-msgid "New This Month"
-msgstr "Bu Ay Yeni"
+#: src-react/admin/about/components/CopyValue.jsx:39
+msgid "Copied!"
+msgstr "Kopyalandı!"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/StatsCards.jsx:25
-msgid "Monthly Average"
-msgstr "Aylık Ortalama"
+#: src-react/admin/about/components/DeveloperTab.jsx:37
+msgid "MHM Logo"
+msgstr "MHM Logo"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/SearchBar.jsx:23
-msgid "Search customers…"
-msgstr "Müşteri ara…"
+#: src-react/admin/about/components/DeveloperTab.jsx:84
+msgid "Kocaeli - Turkey 41400"
+msgstr "Kocaeli - Turkey 41400"
 
-#: build/admin/customers.js:1 build/admin/reports.js:1
-#: src-react/admin/customers/components/CustomerPanel.jsx:80
-#: src-react/admin/customers/components/CustomerTable.jsx:7
-#: src-react/admin/reports/components/tabs/CustomersTab.jsx:64
-msgid "Total Spent"
-msgstr "Toplam Harcama"
+#: src-react/admin/about/components/SupportTab.jsx:43
+msgid "Bug Reports & Feature Requests"
+msgstr "Hata Bildirimi & Öneriler"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/CustomerPanel.jsx:70
-#: src-react/admin/customers/components/CustomerTable.jsx:9
-msgid "Registered"
-msgstr "Kayıt Tarihi"
+#: src-react/admin/about/components/SupportTab.jsx:44
+msgid "Use GitHub Issues to report bugs or suggest new features."
+msgstr "Hata bildirmek veya yeni özellik önermek için GitHub Issues kullanın."
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/CustomerTable.jsx:31
-msgid "No customers found."
-msgstr "Müşteri bulunamadı."
+#: src-react/admin/about/components/SupportTab.jsx:46
+msgid "GitHub Issues"
+msgstr "GitHub Issues"
 
-#: build/admin/customers.js:1 build/admin/vendor-management.js:1
-#: build/admin/vendor-reports.js:1
-#: src-react/admin/customers/components/Pagination.jsx:12
-#: src-react/admin/vendor-management/components/VendorTable.jsx:151
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:113
-#: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
-msgid "← Previous"
-msgstr "← Önceki"
+#: src-react/admin/about/components/SupportTab.jsx:51
+msgid "Tests & Verification"
+msgstr "Test & Doğrulama"
 
-#: build/admin/customers.js:1
-#: src-react/admin/customers/components/Pagination.jsx:15
-msgid "of"
-msgstr "/"
+#: src-react/admin/about/components/SupportTab.jsx:52
+msgid "Automated test coverage in this release:"
+msgstr "Bu sürümde otomatik test kapsamı:"
 
-#: build/admin/customers.js:1 build/admin/dashboard.js:1
-#: build/admin/messages.js:1 build/admin/vendor-management.js:1
-#: build/admin/vendor-reports.js:1
-#: src-react/admin/customers/components/Pagination.jsx:22
-#: src-react/admin/dashboard/components/RecentBookings.jsx:101
-#: src-react/admin/dashboard/components/TransferWidget.jsx:93
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
-#: src-react/admin/messages/components/Pagination.jsx:23
-#: src-react/admin/vendor-management/components/VendorTable.jsx:155
-#: src-react/admin/vendor-management/VendorManagementPage.jsx:119
-#: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
-msgid "Next →"
-msgstr "Sonraki →"
+#: src-react/admin/about/components/SupportTab.jsx:54
+msgid "PHPUnit tests"
+msgstr "PHPUnit testi"
 
-#: build/admin/customers.js:1
+#: src-react/admin/about/components/SupportTab.jsx:55
+msgid "assertions"
+msgstr "assertion"
+
+#: src-react/admin/about/components/SupportTab.jsx:56
+msgid "passing"
+msgstr "başarılı"
+
+#: src-react/admin/about/components/SupportTab.jsx:58
+msgid "Tested with: WP 7.0, PHP 8.2"
+msgstr "Test edildi: WP 7.0, PHP 8.2"
+
 #: src-react/admin/customers/components/CustomerPanel.jsx:16
 msgid "Could not load customer details."
 msgstr "Müşteri detayları yüklenemedi."
 
-#: build/admin/customers.js:1 build/admin/customers.js:3
-#: build/admin/export.js:1 build/admin/reports.js:1
-#: build/admin/vendor-management.js:1 build/admin/vendor-reports.js:1
 #: src-react/admin/customers/components/CustomerPanel.jsx:48
 #: src-react/admin/customers/CustomersPage.jsx:103
 #: src-react/admin/export/components/AdvancedFilters.jsx:107
@@ -26956,90 +26810,111 @@ msgstr "Müşteri detayları yüklenemedi."
 msgid "Loading…"
 msgstr "Yükleniyor…"
 
-#: build/admin/customers.js:1 src-react/admin/customers/CustomersPage.jsx:29
+#: src-react/admin/customers/components/CustomerPanel.jsx:70
+#: src-react/admin/customers/components/CustomerTable.jsx:9
+msgid "Registered"
+msgstr "Kayıt Tarihi"
+
+#: src-react/admin/customers/components/CustomerPanel.jsx:80
+#: src-react/admin/customers/components/CustomerTable.jsx:7
+#: src-react/admin/reports/components/tabs/CustomersTab.jsx:64
+msgid "Total Spent"
+msgstr "Toplam Harcama"
+
+#: src-react/admin/customers/components/CustomerTable.jsx:31
+msgid "No customers found."
+msgstr "Müşteri bulunamadı."
+
+#: src-react/admin/customers/components/Pagination.jsx:12
+#: src-react/admin/vendor-management/components/VendorTable.jsx:151
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:113
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:119
+msgid "← Previous"
+msgstr "← Önceki"
+
+#: src-react/admin/customers/components/Pagination.jsx:15
+msgid "of"
+msgstr "/"
+
+#: src-react/admin/customers/components/Pagination.jsx:22
+#: src-react/admin/dashboard/components/RecentBookings.jsx:101
+#: src-react/admin/dashboard/components/TransferWidget.jsx:93
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
+#: src-react/admin/messages/components/Pagination.jsx:23
+#: src-react/admin/vendor-management/components/VendorTable.jsx:155
+#: src-react/admin/vendor-management/VendorManagementPage.jsx:119
+#: src-react/admin/vendor-reports/VendorReportsPage.jsx:127
+msgid "Next →"
+msgstr "Sonraki →"
+
+#: src-react/admin/customers/components/SearchBar.jsx:23
+msgid "Search customers…"
+msgstr "Müşteri ara…"
+
+#: src-react/admin/customers/components/StatsCards.jsx:15
+msgid "Active Customers"
+msgstr "Aktif Müşteriler"
+
+#: src-react/admin/customers/components/StatsCards.jsx:20
+msgid "New This Month"
+msgstr "Bu Ay Yeni"
+
+#: src-react/admin/customers/components/StatsCards.jsx:25
+msgid "Monthly Average"
+msgstr "Aylık Ortalama"
+
+#: src-react/admin/customers/CustomersPage.jsx:29
 msgid "Failed to load customers."
 msgstr "Müşteriler yüklenemedi."
 
-#: build/admin/customers.js:1 src-react/admin/customers/CustomersPage.jsx:66
+#: src-react/admin/customers/CustomersPage.jsx:66
 msgid "customer(s)? This cannot be undone."
 msgstr "müşteri silinsin? Bu işlem geri alınamaz."
 
-#: build/admin/customers.js:1 src-react/admin/customers/CustomersPage.jsx:72
+#: src-react/admin/customers/CustomersPage.jsx:72
 msgid "Bulk delete failed."
 msgstr "Toplu silme başarısız oldu."
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/StatsCards.jsx:12
-#: src-react/admin/dashboard/components/StatsCards.jsx:18
-msgid "this month"
-msgstr "bu ay"
+#: src-react/admin/dashboard/components/PendingPayments.jsx:8
+#: src-react/admin/dashboard/components/PendingPayments.jsx:16
+msgid "Pending Payments"
+msgstr "Bekleyen Ödemeler"
 
-#: build/admin/dashboard.js:1 build/admin/reports.js:1
-#: src-react/admin/dashboard/components/StatsCards.jsx:22
-#: src-react/admin/reports/components/tabs/OverviewTab.jsx:51
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:21
-msgid "Active Vehicles"
-msgstr "Aktif Araçlar"
+#: src-react/admin/dashboard/components/PendingPayments.jsx:9
+msgid "No pending payments."
+msgstr "Bekleyen ödeme yok."
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/StatsCards.jsx:30
-msgid "new this month"
-msgstr "bu ay yeni"
-
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:5
 msgid "Add New Booking"
 msgstr "Yeni Rezervasyon"
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:6
 msgid "All Bookings"
 msgstr "Tüm Rezervasyonlar"
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:7
 msgid "Add New Vehicle"
 msgstr "Yeni Araç Ekle"
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/QuickActions.jsx:8
 msgid "All Vehicles"
 msgstr "Tüm Araçlar"
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/RevenueChart.jsx:26
-msgid "Daily Revenue"
-msgstr "Günlük Gelir"
-
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/RevenueChart.jsx:59
-msgid "Revenue (Last 7 Days)"
-msgstr "Gelir (Son 7 Gün)"
-
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/RevenueChart.jsx:62
-msgid "This week:"
-msgstr "Bu hafta:"
-
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:45
 #: src-react/admin/dashboard/components/TransferWidget.jsx:37
 msgid "This Month"
 msgstr "Bu Ay"
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:54
 #: src-react/admin/dashboard/components/TransferWidget.jsx:46
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:32
 msgid "Failed to load."
 msgstr "Yükleme başarısız."
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
 msgid "No bookings yet."
 msgstr "Henüz rezervasyon yok."
 
-#: build/admin/dashboard.js:1 build/admin/messages.js:1
 #: src-react/admin/dashboard/components/RecentBookings.jsx:93
 #: src-react/admin/dashboard/components/TransferWidget.jsx:85
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:77
@@ -27047,740 +26922,443 @@ msgstr "Henüz rezervasyon yok."
 msgid "← Prev"
 msgstr "← Önceki"
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
-msgid "No upcoming operations in the next 7 days."
-msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
+#: src-react/admin/dashboard/components/RevenueChart.jsx:26
+msgid "Daily Revenue"
+msgstr "Günlük Gelir"
 
-#: build/admin/dashboard.js:1
+#: src-react/admin/dashboard/components/RevenueChart.jsx:59
+msgid "Revenue (Last 7 Days)"
+msgstr "Gelir (Son 7 Gün)"
+
+#: src-react/admin/dashboard/components/RevenueChart.jsx:62
+msgid "This week:"
+msgstr "Bu hafta:"
+
+#: src-react/admin/dashboard/components/StatsCards.jsx:12
+#: src-react/admin/dashboard/components/StatsCards.jsx:18
+msgid "this month"
+msgstr "bu ay"
+
+#: src-react/admin/dashboard/components/StatsCards.jsx:22
+#: src-react/admin/reports/components/tabs/OverviewTab.jsx:51
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:21
+msgid "Active Vehicles"
+msgstr "Aktif Araçlar"
+
+#: src-react/admin/dashboard/components/StatsCards.jsx:30
+msgid "new this month"
+msgstr "bu ay yeni"
+
 #: src-react/admin/dashboard/components/TransferWidget.jsx:27
 msgid "Transfer Summary"
 msgstr "Transfer Özeti"
 
-#: build/admin/dashboard.js:1
 #: src-react/admin/dashboard/components/TransferWidget.jsx:49
 msgid "No transfers yet."
 msgstr "Henüz transfer yok."
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/PendingPayments.jsx:8
-#: src-react/admin/dashboard/components/PendingPayments.jsx:16
-msgid "Pending Payments"
-msgstr "Bekleyen Ödemeler"
+#: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
+msgid "No upcoming operations in the next 7 days."
+msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
 
-#: build/admin/dashboard.js:1
-#: src-react/admin/dashboard/components/PendingPayments.jsx:9
-msgid "No pending payments."
-msgstr "Bekleyen ödeme yok."
-
-#: build/admin/export.js:1 src-react/admin/export/components/ExportCards.jsx:7
-msgid "All reservation records"
-msgstr "Tüm rezervasyon kayıtları"
-
-#: build/admin/export.js:1 src-react/admin/export/components/ExportCards.jsx:12
-msgid "Vehicle listings and details"
-msgstr "Araç listeleri ve detayları"
-
-#: build/admin/export.js:1 src-react/admin/export/components/ExportCards.jsx:15
-msgid "App Logs"
-msgstr "Uygulama Logları"
-
-#: build/admin/export.js:1 src-react/admin/export/components/ExportCards.jsx:17
-msgid "Application event log"
-msgstr "Uygulama olay logu"
-
-#: build/admin/export.js:1
 #: src-react/admin/export/components/AdvancedFilters.jsx:45
 msgid "Date Filters"
 msgstr "Tarih Filtreleri"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/AdvancedFilters.jsx:54
 msgid "Preset range"
 msgstr "Hazır aralık"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/AdvancedFilters.jsx:62
 msgid "— All time —"
 msgstr "— Tüm zamanlar —"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/AdvancedFilters.jsx:108
 msgid "Preview count"
 msgstr "Sayıyı Önizle"
 
-#: build/admin/export.js:1 src-react/admin/export/components/PreviewBar.jsx:8
-msgid "No records match the selected filters."
-msgstr "Seçilen filtrelere uyan kayıt yok."
+#: src-react/admin/export/components/ExportCards.jsx:7
+msgid "All reservation records"
+msgstr "Tüm rezervasyon kayıtları"
 
-#: build/admin/export.js:1 src-react/admin/export/components/PreviewBar.jsx:10
-msgid "Records found:"
-msgstr "Bulunan kayıtlar:"
+#: src-react/admin/export/components/ExportCards.jsx:12
+msgid "Vehicle listings and details"
+msgstr "Araç listeleri ve detayları"
 
-#: build/admin/export.js:1 src-react/admin/export/components/PreviewBar.jsx:39
-msgid "more records"
-msgstr "daha fazla kayıt"
+#: src-react/admin/export/components/ExportCards.jsx:15
+msgid "App Logs"
+msgstr "Uygulama Logları"
 
-#: build/admin/export.js:1 src-react/admin/export/components/ExportForm.jsx:27
+#: src-react/admin/export/components/ExportCards.jsx:17
+msgid "Application event log"
+msgstr "Uygulama olay logu"
+
+#: src-react/admin/export/components/ExportForm.jsx:27
 msgid "No records to export with the current filters."
 msgstr "Mevcut filtrelerle dışa aktarılacak kayıt yok."
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:18
 msgid "Failed to load export history."
 msgstr "Dışa aktarma geçmişi yüklenemedi."
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:34
 msgid "Delete failed."
 msgstr "Silme başarısız."
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:43
 msgid "Loading history…"
 msgstr "Geçmiş yükleniyor…"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:58
 msgid "No exports recorded yet."
 msgstr "Henüz dışa aktarma kaydı yok."
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:67
 msgid "User"
 msgstr "Kullanıcı"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:86
 msgid "Delete entry"
 msgstr "Kaydı sil"
 
-#: build/admin/export.js:1
 #: src-react/admin/export/components/ExportHistory.jsx:89
 msgid "Deleting…"
 msgstr "Siliniyor…"
 
-#: build/admin/export.js:1 src-react/admin/export/ExportPage.jsx:48
+#: src-react/admin/export/components/PreviewBar.jsx:8
+msgid "No records match the selected filters."
+msgstr "Seçilen filtrelere uyan kayıt yok."
+
+#: src-react/admin/export/components/PreviewBar.jsx:10
+msgid "Records found:"
+msgstr "Bulunan kayıtlar:"
+
+#: src-react/admin/export/components/PreviewBar.jsx:39
+msgid "more records"
+msgstr "daha fazla kayıt"
+
+#: src-react/admin/export/ExportPage.jsx:48
 msgid "Preview failed."
 msgstr "Önizleme başarısız."
 
-#: build/admin/messages.js:1
-#: src-react/admin/messages/components/FilterBar.jsx:24
-msgid "Search messages…"
-msgstr "Mesaj Ara"
-
-#: build/admin/messages.js:1
-#: src-react/admin/messages/components/FilterBar.jsx:53
-msgid "All priorities"
-msgstr "Tüm öncelikler"
-
-#: build/admin/messages.js:1 src-react/admin/messages/components/BulkBar.jsx:46
+#: src-react/admin/messages/components/BulkBar.jsx:46
 msgid "Bulk action…"
 msgstr "Toplu eylemler"
 
-#: build/admin/messages.js:1 src-react/admin/messages/components/BulkBar.jsx:47
+#: src-react/admin/messages/components/BulkBar.jsx:47
 msgid "Mark as read"
 msgstr "Okundu olarak işaretle"
 
-#: build/admin/messages.js:1 src-react/admin/messages/components/BulkBar.jsx:48
+#: src-react/admin/messages/components/BulkBar.jsx:48
 msgid "Mark as unread"
 msgstr "Okunmadı olarak işaretle"
 
-#: build/admin/messages.js:1 build/admin/vendor-management.js:1
 #: src-react/admin/messages/components/BulkBar.jsx:62
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:26
 #: src-react/admin/vendor-management/components/RejectForm.jsx:42
 msgid "Processing…"
 msgstr "İşleniyor"
 
-#: build/admin/messages.js:1 src-react/admin/messages/components/BulkBar.jsx:71
+#: src-react/admin/messages/components/BulkBar.jsx:71
 msgid "Delete selected"
 msgstr "Seçilenleri Sil"
 
-#: build/admin/messages.js:1
+#: src-react/admin/messages/components/FilterBar.jsx:24
+msgid "Search messages…"
+msgstr "Mesaj Ara"
+
+#: src-react/admin/messages/components/FilterBar.jsx:53
+msgid "All priorities"
+msgstr "Tüm öncelikler"
+
 #: src-react/admin/messages/components/ReplyForm.jsx:31
 msgid "Write your reply…"
 msgstr "Yanıtınızı yazın…"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/ReplyForm.jsx:42
 msgid "Send (keep open)"
 msgstr "Gönder (açık kalsın)"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/ReplyForm.jsx:49
 msgid "Send + Close"
 msgstr "Gönder + Kapat"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:41
 #: src-react/admin/messages/components/ThreadView.jsx:62
 msgid "← Back to Messages"
 msgstr "← Mesajlara dön"
 
-#: build/admin/messages.js:1
-#: src-react/admin/messages/components/ThreadView.jsx:102
-msgid "Admin"
-msgstr "Yönetici"
-
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:88
 msgid "From Name"
 msgstr "Gönderen Adı"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:99
 msgid "From Email"
 msgstr "Gönderen E-Postası"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:113
 msgid "Notify admin on new message"
 msgstr "Yeni mesajda yöneticiyi bildir"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:114
 msgid "Notify customer on reply"
 msgstr "Yanıt geldiğinde müşteriyi bildir"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:115
 msgid "Notify on admin reply"
 msgstr "Yönetici yanıtında müşteriyi bildir"
 
-#: build/admin/messages.js:1
 #: src-react/admin/messages/components/SettingsView.jsx:116
 msgid "Notify on status change"
 msgstr "Durum değişikliğinde bildir"
 
-#: build/admin/messages.js:1 src-react/admin/messages/MessagesPage.jsx:115
+#: src-react/admin/messages/components/ThreadView.jsx:102
+msgid "Admin"
+msgstr "Yönetici"
+
+#: src-react/admin/messages/MessagesPage.jsx:115
 msgid "message(s) deleted."
 msgstr "%d mesaj silindi."
 
-#: build/admin/messages.js:1 src-react/admin/messages/MessagesPage.jsx:116
+#: src-react/admin/messages/MessagesPage.jsx:116
 msgid "No messages were deleted."
 msgstr "Hiçbir mesaj silinmedi."
 
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/OverviewTab.jsx:31
-msgid "Avg Daily Revenue"
-msgstr "Ort. Günlük Gelir"
+#: src-react/admin/reports/components/ReportContent.jsx:23
+msgid "Failed to load report data."
+msgstr "Rapor verileri yüklenemedi."
 
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/OverviewTab.jsx:55
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:25
-msgid "Avg Occupancy"
-msgstr "Ort. Doluluk"
-
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:25
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:67
 msgid "Loyalty Rate"
 msgstr "Sadakat Oranı"
 
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:35
-msgid "Top Vehicles by Bookings"
-msgstr "En Çok Rezervasyon Alan Araçlar"
-
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:37
-msgid "No vehicle data for this period."
-msgstr "Bu dönem için araç verisi bulunamadı."
-
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:45
-msgid "Avg / Booking"
-msgstr "Ort. / Rezervasyon"
-
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:64
-msgid "Category Performance"
-msgstr "Kategori Performansı"
-
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:66
-msgid "No category data for this period."
-msgstr "Bu dönem için kategori verisi bulunamadı."
-
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:29
 msgid "Avg Spending"
 msgstr "Ort. Harcama"
 
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:35
 msgid "Customer Lifecycle"
 msgstr "Müşteri Yaşam Döngüsü"
 
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:47
 msgid "Returning"
 msgstr "Geri Dönen"
 
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:54
 msgid "Top Customers by Spend"
 msgstr "En Çok Harcayan Müşteriler"
 
-#: build/admin/reports.js:1
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:56
 msgid "No customer data for this period."
 msgstr "Bu dönem için müşteri verisi bulunamadı."
 
-#: build/admin/reports.js:1
-#: src-react/admin/reports/components/ReportContent.jsx:23
-msgid "Failed to load report data."
-msgstr "Rapor verileri yüklenemedi."
+#: src-react/admin/reports/components/tabs/OverviewTab.jsx:31
+msgid "Avg Daily Revenue"
+msgstr "Ort. Günlük Gelir"
 
-#: build/admin/shortcode-pages.js:1 build/admin/shortcode-pages.js:4
-#: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:79
-msgid "Clear Cache"
-msgstr "Önbelleği Temizle"
+#: src-react/admin/reports/components/tabs/OverviewTab.jsx:55
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:25
+msgid "Avg Occupancy"
+msgstr "Ort. Doluluk"
 
-#: build/admin/shortcode-pages.js:1
-#: src-react/admin/shortcode-pages/components/SystemActions.jsx:11
-msgid "Scanning…"
-msgstr "Taranıyor…"
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:35
+msgid "Top Vehicles by Bookings"
+msgstr "En Çok Rezervasyon Alan Araçlar"
 
-#: build/admin/shortcode-pages.js:1
-#: src-react/admin/shortcode-pages/components/SystemActions.jsx:12
-msgid "Debug Search"
-msgstr "Hata Ayıklama Arama"
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:37
+msgid "No vehicle data for this period."
+msgstr "Bu dönem için araç verisi bulunamadı."
 
-#: build/admin/shortcode-pages.js:1
-#: src-react/admin/shortcode-pages/components/SystemActions.jsx:15
-msgid "Reset All"
-msgstr "Tümünü Sıfırla"
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:45
+msgid "Avg / Booking"
+msgstr "Ort. / Rezervasyon"
 
-#: build/admin/shortcode-pages.js:1
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:31
-msgid "Create Page"
-msgstr "Sayfa oluştur"
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:64
+msgid "Category Performance"
+msgstr "Kategori Performansı"
 
-#: build/admin/shortcode-pages.js:1
+#: src-react/admin/reports/components/tabs/VehiclesTab.jsx:66
+msgid "No category data for this period."
+msgstr "Bu dönem için kategori verisi bulunamadı."
+
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:8
 msgid "Debug Search Results"
 msgstr "Debug Arama Sonuçları"
 
 #. translators: %d: number of pages scanned
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:15
 msgid "Scanned %d pages."
 msgstr "%d sayfa tarandı."
 
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:21
 msgid "Found In"
 msgstr "Bulunduğu Yer"
 
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:33
 msgid "Not found"
 msgstr "Bulunamadı"
 
-#: build/admin/shortcode-pages.js:4
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:31
+msgid "Create Page"
+msgstr "Sayfa oluştur"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:79
+msgid "Clear Cache"
+msgstr "Önbelleği Temizle"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:11
+msgid "Scanning…"
+msgstr "Taranıyor…"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:12
+msgid "Debug Search"
+msgstr "Hata Ayıklama Arama"
+
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:15
+msgid "Reset All"
+msgstr "Tümünü Sıfırla"
+
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:30
 msgid "Failed to load shortcode pages."
 msgstr "Kısa kod sayfaları yüklenemedi."
 
-#: build/admin/shortcode-pages.js:4
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:54
+msgid "Remove Page"
+msgstr "Sayfayı Kaldır"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
+msgid "Move this page to trash?"
+msgstr "Bu sayfayı çöp kutusuna taşımak ister misiniz?"
+
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
 msgid "Cache will be cleared. Do you want to continue?"
 msgstr "Önbellek silinecek. Devam etmek istiyor musunuz?"
 
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:102
 msgid "Reset All Pages"
 msgstr "Tüm Sayfaları Sıfırla"
 
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
 msgid "This will permanently delete all created shortcode pages. Are you sure?"
 msgstr ""
 "Bu işlem, oluşturulan tüm kısa kod sayfalarını kalıcı olarak silecektir. "
 "Emin misiniz?"
 
-#: build/admin/shortcode-pages.js:4
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
 msgid "Delete All"
 msgstr "Tümünü Sil"
 
-#: build/admin/shortcode-pages.js:4
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:54
-msgid "Remove Page"
-msgstr "Sayfayı Kaldır"
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:19
+msgid "Failed to load application."
+msgstr "Başvuru yüklenemedi."
 
-#: build/admin/shortcode-pages.js:4
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
-msgid "Move this page to trash?"
-msgstr "Bu sayfayı çöp kutusuna taşımak ister misiniz?"
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:33
+msgid "Back to applications"
+msgstr "Başvurulara geri dön"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationRow.jsx:12
-msgid "Review"
-msgstr "İnceleme"
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:47
+msgid "Application: %s"
+msgstr "Başvuru: %s"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationTable.jsx:13
-msgid "Applicant"
-msgstr "Başvuran"
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:56
+msgid "Account Holder"
+msgstr "Hesap Sahibi"
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:57
+msgid "IBAN (masked)"
+msgstr "IBAN (maskelenmiş)"
+
+#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:61
+msgid "Bio"
+msgstr "Biyografi"
+
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:64
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:16
 msgid "Applied"
 msgstr "Uygulandı"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationTable.jsx:6
-msgid "No pending vendor applications."
-msgstr "Bekleyen bayi başvurusu yok."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:18
-msgid "Approve Application"
-msgstr "Başvuruyu Onayla"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:19
-msgid "This will assign the vendor role and notify the applicant."
-msgstr "Bayi rolü atanacak ve başvurana bildirim gönderilecek."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:9
-msgid "Approve this vendor application?"
-msgstr "Bu bayi başvurusunu onaylıyor musunuz?"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:12
-msgid "Vendor application approved. The vendor has been notified."
-msgstr "Bayi başvurusu onaylandı. Bayiye bildirim gönderildi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:13
-msgid "Approval failed. Please try again."
-msgstr "Onay işlemi başarısız. Lütfen tekrar deneyin."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApproveForm.jsx:26
-msgid "Approve & Activate Vendor"
-msgstr "Onayla ve Bayiyi Aktifleştir"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/RejectForm.jsx:22
-#: src-react/admin/vendor-management/components/RejectForm.jsx:42
-msgid "Reject Application"
-msgstr "Başvuruyu Reddet"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/RejectForm.jsx:24
-msgid "Rejection Reason (required):"
-msgstr "Ret Nedeni (zorunlu):"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/RejectForm.jsx:30
-msgid "Explain why this application is being rejected…"
-msgstr "Başvuruyu neden reddettiğinizi açıklayın…"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/RejectForm.jsx:16
-msgid "Vendor application rejected."
-msgstr "Bayi başvurusu reddedildi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/RejectForm.jsx:17
-msgid "Rejection failed. Please try again."
-msgstr "Red işlemi başarısız. Lütfen tekrar deneyin."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:19
-msgid "Failed to load application."
-msgstr "Başvuru yüklenemedi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:33
-msgid "Back to applications"
-msgstr "Başvurulara geri dön"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:47
-msgid "Application: %s"
-msgstr "Başvuru: %s"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:56
-msgid "Account Holder"
-msgstr "Hesap Sahibi"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:57
-msgid "IBAN (masked)"
-msgstr "IBAN (maskelenmiş)"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:61
-msgid "Bio"
-msgstr "Biyografi"
-
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:67
 msgid "Agreement accepted"
 msgstr "Sözleşme kabul edildi"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:70
 msgid "version"
 msgstr "sürüm"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:77
 msgid "Documents"
 msgstr "Belgeler"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:86
 msgid "Not uploaded"
 msgstr "Yüklenmedi"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:9
-msgid ""
-"Approve this new IBAN? The vendor will receive payouts to this new account."
-msgstr "Yeni IBAN'ı onaylıyor musunuz? Bayi ödemeleri bu yeni hesaba alacak."
+#: src-react/admin/vendor-management/components/ApplicationRow.jsx:12
+msgid "Review"
+msgstr "İnceleme"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:12
-msgid "IBAN request approved and updated."
-msgstr "IBAN talebi onaylandı ve güncellendi."
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:6
+msgid "No pending vendor applications."
+msgstr "Bekleyen bayi başvurusu yok."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:13
-msgid "IBAN approval failed."
-msgstr "IBAN onayı başarısız."
+#: src-react/admin/vendor-management/components/ApplicationTable.jsx:13
+msgid "Applicant"
+msgstr "Başvuran"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:41
-msgid "Approve"
-msgstr "Onayla"
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:9
+msgid "Approve this vendor application?"
+msgstr "Bu bayi başvurusunu onaylıyor musunuz?"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:17
-msgid ""
-"Reject this IBAN request? The vendor will continue using their old IBAN."
-msgstr ""
-"Bu IBAN talebini reddediyor musunuz? Bayi eski IBAN'ını kullanmaya devam "
-"edecek."
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:12
+msgid "Vendor application approved. The vendor has been notified."
+msgstr "Bayi başvurusu onaylandı. Bayiye bildirim gönderildi."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:20
-msgid "IBAN request rejected."
-msgstr "IBAN talebi reddedildi."
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:13
+msgid "Approval failed. Please try again."
+msgstr "Onay işlemi başarısız. Lütfen tekrar deneyin."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:21
-msgid "IBAN rejection failed."
-msgstr "IBAN reddi başarısız."
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:18
+msgid "Approve Application"
+msgstr "Başvuruyu Onayla"
 
-#: build/admin/vendor-management.js:1 build/admin/vendor-reports.js:1
-#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:50
-#: src-react/admin/vendor-reports/components/ActionForm.jsx:34
-msgid "Reject"
-msgstr "Reddet"
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:19
+msgid "This will assign the vendor role and notify the applicant."
+msgstr "Bayi rolü atanacak ve başvurana bildirim gönderilecek."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:16
-msgid "Failed to load IBAN requests."
-msgstr "IBAN talepleri yüklenemedi."
+#: src-react/admin/vendor-management/components/ApproveForm.jsx:26
+msgid "Approve & Activate Vendor"
+msgstr "Onayla ve Bayiyi Aktifleştir"
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:42
-msgid "Current IBAN (Masked)"
-msgstr "Mevcut IBAN (Maskelenmiş)"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:43
-msgid "Requested IBAN"
-msgstr "Talep Edilen IBAN"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:34
-msgid "No pending IBAN changes."
-msgstr "Bekleyen IBAN değişikliği yok."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:34
-msgid "Failed to load vendors."
-msgstr "Bayiler yüklenemedi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:70
-msgid "Search vendors…"
-msgstr "Bayi ara…"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:98
-#: src-react/admin/vendor-management/components/VendorTable.jsx:81
-#: src-react/admin/vendor-management/components/VendorTable.jsx:128
-msgid "Suspended"
-msgstr "Askıya Alındı"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:84
-msgid "vendors"
-msgstr "bayi"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:91
-msgid "No vendors found."
-msgstr "Bayi bulunamadı."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:47
-msgid "Suspend this vendor?"
-msgstr "Bu bayiyi askıya almak istiyor musunuz?"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:48
-msgid "Unsuspend this vendor? Their vehicles will move to Pending Review."
-msgstr ""
-"Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor "
-"durumuna geçecektir."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:55
-msgid "Vendor suspended."
-msgstr "Bayi askıya alındı."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:56
-msgid "Vendor unsuspended."
-msgstr "Bayi askıya alma kaldırıldı."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:60
-msgid "Action failed."
-msgstr "İşlem başarısız."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:137
-msgid "Unsuspend"
-msgstr "Askıyı Kaldır"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorTable.jsx:137
-msgid "Suspend"
-msgstr "Askıya Al"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:55
-msgid "Failed to load vendor."
-msgstr "Bayi yüklenemedi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:16
-msgid "Published"
-msgstr "Yayında"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:19
-msgid "Private"
-msgstr "Özel"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:33
-msgid "Scheduled recalculation"
-msgstr "Zamanlanmış yeniden hesaplama"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:81
-msgid "← Back to vendors"
-msgstr "← Bayilere dön"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
-msgid "City updated."
-msgstr "Şehir güncellendi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:67
-msgid "Could not update the city."
-msgstr "Şehir güncellenemedi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
-#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
-msgid "Saving…"
-msgstr "Kaydediliyor…"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:139
-msgid "Reliability Score"
-msgstr "Güvenilirlik Puanı"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:141
-msgid "Approved At"
-msgstr "Onaylanma Tarihi"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:152
-msgid "Completed Bookings"
-msgstr "Tamamlanan Rezervasyonlar"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:165
-msgid "View all →"
-msgstr "Tümünü gör →"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:188
-msgid "No payout requests yet."
-msgstr "Henüz ödeme talebi yok."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
-msgid "Reliability & Penalty History"
-msgstr "Güvenilirlik ve Ceza Geçmişi"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:220
-msgid "No penalties or reliability events recorded."
-msgstr "Kayıtlı ceza veya güvenilirlik olayı yok."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:229
-msgid "Post Status"
-msgstr "Gönderi Durumu"
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:250
-msgid "This vendor has no vehicles."
-msgstr "Bu bayinin aracı yok."
-
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:17
 msgid "Failed to load commission data."
 msgstr "Komisyon verileri yüklenemedi."
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:28
+msgid "Rate must be between 0 and 100."
+msgstr "Oran 0 ile 100 arasında olmalıdır."
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:34
+msgid "Commission rate updated."
+msgstr "Komisyon oranı güncellendi."
+
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:41
+msgid "Failed to save commission rate."
+msgstr "Komisyon oranı kaydedilemedi."
+
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:50
 msgid "Platform Commission Rate"
 msgstr "Platform Komisyon Oranı"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:54
 msgid "Current active rate:"
 msgstr "Mevcut aktif oran:"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:61
 msgid "No active commission policy found. Set one below."
 msgstr "Aktif komisyon politikası bulunamadı. Aşağıdan birini ayarlayın."
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:65
 msgid ""
 "Setting a new rate creates a policy record effective immediately. Previous "
@@ -27789,191 +27367,342 @@ msgstr ""
 "Yeni bir oran belirlemek, hemen geçerli olan bir politika kaydı oluşturur. "
 "Önceki oranlar denetim amacıyla korunur."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/CommissionTab.jsx:28
-msgid "Rate must be between 0 and 100."
-msgstr "Oran 0 ile 100 arasında olmalıdır."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/CommissionTab.jsx:34
-msgid "Commission rate updated."
-msgstr "Komisyon oranı güncellendi."
-
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/CommissionTab.jsx:41
-msgid "Failed to save commission rate."
-msgstr "Komisyon oranı kaydedilemedi."
-
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:71
 msgid "New Commission Rate (%)"
 msgstr "Yeni Komisyon Oranı (%)"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:87
 msgid "Label (optional)"
 msgstr "Etiket (isteğe bağlı)"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:93
 msgid "e.g. Q1 2026 standard rate"
 msgstr "örn. 2026 Q1 standart oran"
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/CommissionTab.jsx:103
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:163
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
+msgid "Saving…"
+msgstr "Kaydediliyor…"
+
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:103
 msgid "Save Commission Rate"
 msgstr "Komisyon Oranını Kaydet"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:110
 msgid "Rate History"
 msgstr "Oran Geçmişi"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:114
 msgid "Effective From"
 msgstr "Geçerlilik Tarihi"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:115
 msgid "Rate"
 msgstr "Oran"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:116
 msgid "Label"
 msgstr "Etiket"
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:9
+msgid ""
+"Approve this new IBAN? The vendor will receive payouts to this new account."
+msgstr "Yeni IBAN'ı onaylıyor musunuz? Bayi ödemeleri bu yeni hesaba alacak."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:12
+msgid "IBAN request approved and updated."
+msgstr "IBAN talebi onaylandı ve güncellendi."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:13
+msgid "IBAN approval failed."
+msgstr "IBAN onayı başarısız."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:17
+msgid ""
+"Reject this IBAN request? The vendor will continue using their old IBAN."
+msgstr ""
+"Bu IBAN talebini reddediyor musunuz? Bayi eski IBAN'ını kullanmaya devam "
+"edecek."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:20
+msgid "IBAN request rejected."
+msgstr "IBAN talebi reddedildi."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:21
+msgid "IBAN rejection failed."
+msgstr "IBAN reddi başarısız."
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:41
+msgid "Approve"
+msgstr "Onayla"
+
+#: src-react/admin/vendor-management/components/IbanRequestRow.jsx:50
+#: src-react/admin/vendor-reports/components/ActionForm.jsx:34
+msgid "Reject"
+msgstr "Reddet"
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:16
+msgid "Failed to load IBAN requests."
+msgstr "IBAN talepleri yüklenemedi."
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:34
+msgid "No pending IBAN changes."
+msgstr "Bekleyen IBAN değişikliği yok."
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:42
+msgid "Current IBAN (Masked)"
+msgstr "Mevcut IBAN (Maskelenmiş)"
+
+#: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:43
+msgid "Requested IBAN"
+msgstr "Talep Edilen IBAN"
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:16
+msgid "Vendor application rejected."
+msgstr "Bayi başvurusu reddedildi."
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:17
+msgid "Rejection failed. Please try again."
+msgstr "Red işlemi başarısız. Lütfen tekrar deneyin."
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:22
+#: src-react/admin/vendor-management/components/RejectForm.jsx:42
+msgid "Reject Application"
+msgstr "Başvuruyu Reddet"
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:24
+msgid "Rejection Reason (required):"
+msgstr "Ret Nedeni (zorunlu):"
+
+#: src-react/admin/vendor-management/components/RejectForm.jsx:30
+msgid "Explain why this application is being rejected…"
+msgstr "Başvuruyu neden reddettiğinizi açıklayın…"
+
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:37
 msgid "Failed to load settings."
 msgstr "Ayarlar yüklenemedi."
 
-#: build/admin/vendor-management.js:1
-#: src-react/admin/vendor-management/components/SettingsTab.jsx:74
-msgid "Vendor Marketplace Settings"
-msgstr "Bayi Pazaryeri Ayarları"
-
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:60
 msgid "Failed to save settings."
 msgstr "Ayarlar kaydedilemedi."
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/SettingsTab.jsx:74
+msgid "Vendor Marketplace Settings"
+msgstr "Bayi Pazaryeri Ayarları"
+
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:79
 msgid "Global Payout Freeze"
 msgstr "Genel Ödeme Dondurma"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:87
 msgid "Freeze all vendor payout requests site-wide"
 msgstr "Tüm bayi ödeme taleplerini site genelinde dondur"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:92
 msgid "Minimum Payout Amount"
 msgstr "Minimum Ödeme Tutarı"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:98
 msgid "Vendors must have at least this balance to request a payout."
 msgstr "Bayiler ödeme talep etmek için en az bu bakiyeye sahip olmalıdır."
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:102
 msgid "Min Vehicle Photos"
 msgstr "Min Araç Fotoğrafı"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:111
 msgid "Max Vehicle Photos"
 msgstr "Maks Araç Fotoğrafı"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:120
 msgid "Document Upload Limit (MB)"
 msgstr "Belge Yükleme Limiti (MB)"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:129
 msgid "Minimum Vehicle Year"
 msgstr "Minimum Araç Yılı"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:138
 msgid "Vendor Bio Max Characters"
 msgstr "Bayi Biyografi Maks Karakter"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:147
 msgid "Service Area Cities"
 msgstr "Hizmet Alanı Şehirleri"
 
-#: build/admin/vendor-management.js:1
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:156
 msgid "One city per line."
 msgstr "Her satıra bir şehir."
 
-#: build/admin/vendor-management.js:1
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:16
+msgid "Published"
+msgstr "Yayında"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:19
+msgid "Private"
+msgstr "Özel"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:33
+msgid "Scheduled recalculation"
+msgstr "Zamanlanmış yeniden hesaplama"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:55
+msgid "Failed to load vendor."
+msgstr "Bayi yüklenemedi."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
+msgid "City updated."
+msgstr "Şehir güncellendi."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:67
+msgid "Could not update the city."
+msgstr "Şehir güncellenemedi."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:81
+msgid "← Back to vendors"
+msgstr "← Bayilere dön"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:98
+#: src-react/admin/vendor-management/components/VendorTable.jsx:81
+#: src-react/admin/vendor-management/components/VendorTable.jsx:128
+msgid "Suspended"
+msgstr "Askıya Alındı"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:139
+msgid "Reliability Score"
+msgstr "Güvenilirlik Puanı"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:141
+msgid "Approved At"
+msgstr "Onaylanma Tarihi"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:152
+msgid "Completed Bookings"
+msgstr "Tamamlanan Rezervasyonlar"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:165
+msgid "View all →"
+msgstr "Tümünü gör →"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:188
+msgid "No payout requests yet."
+msgstr "Henüz ödeme talebi yok."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
+msgid "Reliability & Penalty History"
+msgstr "Güvenilirlik ve Ceza Geçmişi"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:220
+msgid "No penalties or reliability events recorded."
+msgstr "Kayıtlı ceza veya güvenilirlik olayı yok."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:229
+msgid "Post Status"
+msgstr "Gönderi Durumu"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:250
+msgid "This vendor has no vehicles."
+msgstr "Bu bayinin aracı yok."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:34
+msgid "Failed to load vendors."
+msgstr "Bayiler yüklenemedi."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:47
+msgid "Suspend this vendor?"
+msgstr "Bu bayiyi askıya almak istiyor musunuz?"
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:48
+msgid "Unsuspend this vendor? Their vehicles will move to Pending Review."
+msgstr ""
+"Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor "
+"durumuna geçecektir."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:55
+msgid "Vendor suspended."
+msgstr "Bayi askıya alındı."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:56
+msgid "Vendor unsuspended."
+msgstr "Bayi askıya alma kaldırıldı."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:60
+msgid "Action failed."
+msgstr "İşlem başarısız."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:70
+msgid "Search vendors…"
+msgstr "Bayi ara…"
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:84
+msgid "vendors"
+msgstr "bayi"
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:91
+msgid "No vendors found."
+msgstr "Bayi bulunamadı."
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:137
+msgid "Unsuspend"
+msgstr "Askıyı Kaldır"
+
+#: src-react/admin/vendor-management/components/VendorTable.jsx:137
+msgid "Suspend"
+msgstr "Askıya Al"
+
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:68
 msgid "Failed to load applications."
 msgstr "Başvurular yüklenemedi."
 
-#: build/admin/vendor-reports.js:1
-#: src-react/admin/vendor-reports/components/ReportTable.jsx:6
-msgid "No reports found."
-msgstr "Rapor bulunamadı."
-
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:11
 msgid "Resolve this report"
 msgstr "Bu raporu çöz"
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:24
 msgid "Optional — explain your decision so the vendor knows why."
 msgstr ""
 "İsteğe bağlı — bayinin nedenini anlayabilmesi için kararınızı açıklayın."
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:31
 msgid "Mark as Resolved"
 msgstr "Çözüldü Olarak İşaretle"
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:37
 msgid "Mark In Review"
 msgstr "İncelemeye Al"
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:22
 msgid "Failed to load report."
 msgstr "Rapor yüklenemedi."
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:35
 msgid "← Back to Reports"
 msgstr "← Raporlara Dön"
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:55
 msgid "Submitted:"
 msgstr "Gönderildi:"
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/components/DetailView.jsx:70
 msgid "This report is closed. No further action is possible."
 msgstr "Bu rapor kapatıldı. Başka işlem yapılamaz."
 
-#: build/admin/vendor-reports.js:1
+#: src-react/admin/vendor-reports/components/ReportTable.jsx:6
+msgid "No reports found."
+msgstr "Rapor bulunamadı."
+
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:35
 msgid "Failed to load reports."
 msgstr "Raporlar yüklenemedi."
 
-#: build/admin/vendor-reports.js:1
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:62
 msgid "Report updated."
 msgstr "Rapor güncellendi."
+
+#: src-react/shared/components/ErrorBoundary.jsx:16
+msgid "An error occurred. Please refresh the page."
+msgstr "Bir hata oluştu. Lütfen sayfayı yenileyin."
 
 #: assets/blocks/availability-calendar/block.json
 msgctxt "block title"
