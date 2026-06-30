@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Licensing\LiteOverflow;
 
-use MHMRentiva\Admin\Licensing\Mode;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -25,6 +23,7 @@ final class OverflowGate {
 		// is computed live). Throttled so it is cheap on every admin request.
 		add_action( 'admin_init', array( self::class, 'maybe_reconcile' ) );
 		add_action( 'mhm_rentiva_license_refreshed', array( self::class, 'force_reconcile' ) );
+		OverflowAdminBadge::register();
 	}
 
 	public static function exclude_hidden_from_frontend( \WP_Query $q ): void {

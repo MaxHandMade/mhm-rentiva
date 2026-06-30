@@ -232,6 +232,18 @@ final class ProFeatureNotice {
 				wp_kses_post( __( '<a href="%s">Enter your license key</a> to upgrade to Pro for unlimited vehicles.', 'mhm-rentiva' ) ),
 				esc_url( $license_url )
 			);
+			if ( class_exists( \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::class ) ) {
+				$hidden_vehicles = \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::get( 'vehicle' );
+				if ( ! empty( $hidden_vehicles ) ) {
+					echo ' ' . esc_html(
+						sprintf(
+							/* translators: %d: number of hidden vehicles. */
+							__( '%d vehicle(s) are hidden from your public site due to the Lite limit — upgrade to Pro to restore them.', 'mhm-rentiva' ),
+							count( $hidden_vehicles )
+						)
+					);
+				}
+			}
 			echo '</p>';
 			echo '</div>';
 		} elseif ( $type === 'bookings' && isset( $limits['bookings'] ) ) {
