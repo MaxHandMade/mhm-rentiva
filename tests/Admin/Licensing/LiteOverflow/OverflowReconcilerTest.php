@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Licensing\LiteOverflow;
 
+use MHMRentiva\Admin\Licensing\LiteOverflow\OverflowGate;
 use MHMRentiva\Admin\Licensing\LiteOverflow\OverflowReconciler;
 use MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry;
 use WP_UnitTestCase;
@@ -70,5 +71,33 @@ final class OverflowReconcilerTest extends WP_UnitTestCase {
 		sort( $got );
 		$this->assertSame( $expected_hidden, $got );
 		$this->assertCount( 3, $got );
+	}
+
+	public function test_reconcile_is_idempotent_when_gate_is_registered(): void {
+		// The frontend gate is a pre_get_posts action; suppress_filters does NOT
+		// stop it, so the reconciler must not read the published set through it.
+		OverflowGate::register();
+
+		// Seed 6 published vehicles under a high cap so the insert gate allows them.
+		$high = static fn() => 100;
+		add_filter( 'mhm_rentiva_lite_max_vehicles', $high, 1 );
+		for ( $i = 0; $i < 6; $i++ ) {
+			self::factory()->post->create(
+				array(
+					'post_type'   => 'vehicle',
+					'post_status' => 'publish',
+					'post_date'   => gmdate( 'Y-m-d H:i:s', strtotime( "-{$i} days", strtotime( '-1 hour' ) ) ),
+				)
+			);
+		}
+		remove_filter( 'mhm_rentiva_lite_max_vehicles', $high, 1 );
+		add_filter( 'mhm_rentiva_lite_max_vehicles', static fn() => 5 );
+
+		$first  = OverflowReconciler::reconcile( false );
+		$second = OverflowReconciler::reconcile( false );
+
+		// Stable across runs (no oscillation) and exactly 1 newest hidden (6 - 5).
+		$this->assertSame( $first['vehicle'], $second['vehicle'], 'reconcile must be idempotent' );
+		$this->assertCount( 1, $second['vehicle'] );
 	}
 }

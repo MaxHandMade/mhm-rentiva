@@ -56,19 +56,16 @@ final class OverflowReconciler {
 		return OverflowRegistry::all();
 	}
 
-	/** @return int[] Published post IDs, oldest-first. */
+	/** @return int[] Published post IDs, oldest-first. Direct query so the
+	 *  frontend pre_get_posts gate cannot filter the reconciler's own full-set
+	 *  read (suppress_filters does not stop pre_get_posts). */
 	private static function visible_post_ids( string $post_type ): array {
-		$ids = get_posts(
-			array(
-				'post_type'        => $post_type,
-				'post_status'      => 'publish',
-				'orderby'          => array(
-					'date' => 'ASC',
-					'ID'   => 'ASC',
-				),
-				'numberposts'      => -1,
-				'fields'           => 'ids',
-				'suppress_filters' => true,
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Core table identifier (wpdb->posts); no user input.
+		$ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_status = 'publish' ORDER BY post_date ASC, ID ASC",
+				$post_type
 			)
 		);
 		return array_map( 'intval', is_array( $ids ) ? $ids : array() );
