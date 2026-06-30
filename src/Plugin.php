@@ -833,6 +833,9 @@ final class Plugin {
 		if (class_exists(Admin\Licensing\Restrictions::class)) {
 			Admin\Licensing\Restrictions::register();
 		}
+		if (class_exists(Admin\Licensing\LiteOverflow\OverflowGate::class)) {
+			Admin\Licensing\LiteOverflow\OverflowGate::register();
+		}
 		if ($is_admin && class_exists(Admin\Licensing\LicenseAdmin::class)) {
 			Admin\Licensing\LicenseAdmin::register();
 		}
