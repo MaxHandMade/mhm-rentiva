@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.62.1
+Stable tag:        4.62.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.62.2 — 2026-07-01 =
+* 🔒 **Hardening:** The Lite vehicle-limit counter now reflects the true vehicle count independently of the public overflow-hiding filter (internal robustness; enforced limits unchanged).
 
 = 4.62.1 — 2026-07-01 =
 * 🐛 **Fix:** The Lite VIP transfer route limit now counts routes correctly. On installs using the current routes table, the limit notice showed "0 used" and new routes could still be created past the Lite limit because the counter read the wrong (legacy) database table.

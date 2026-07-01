@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.62.2",
+    "date": "2026-07-01",
+    "type": "patch",
+    "title": "Lite vehicle-limit counter overflow-bypass hardening",
+    "summary": "The Lite vehicle-limit counter now reflects the true vehicle count independently of the public overflow-hiding filter (internal robustness; enforced limits unchanged).",
+    "changes": [
+      "Hardening: the Lite vehicle-limit counter now reflects the true vehicle count independently of the public overflow-hiding filter (internal robustness; enforced limits unchanged)."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.1",
     "date": "2026-07-01",
     "type": "patch",

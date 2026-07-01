@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.62.2",
+    "date": "2026-07-01",
+    "type": "patch",
+    "title": "Lite araç-limiti sayacı overflow-bypass sağlamlaştırması",
+    "summary": "Lite araç-limiti sayacı artık herkese açık overflow-gizleme filtresinden bağımsız olarak gerçek araç sayısını yansıtıyor (iç sağlamlık; uygulanan limitler değişmedi).",
+    "changes": [
+      "Sağlamlaştırma: Lite araç-limiti sayacı artık herkese açık overflow-gizleme filtresinden bağımsız olarak gerçek araç sayısını yansıtıyor (iç sağlamlık; uygulanan limitler değişmedi)."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.1",
     "date": "2026-07-01",
     "type": "patch",
