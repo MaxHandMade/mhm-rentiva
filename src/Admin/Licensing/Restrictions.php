@@ -71,11 +71,14 @@ final class Restrictions {
 	{
 		$q = new \WP_Query(
 			array(
-				'post_type'      => 'vehicle',
-				'post_status'    => array( 'publish', 'pending', 'private' ), // EXCLUDING draft/trash
-				'posts_per_page' => 1,
-				'fields'         => 'ids',
-				'no_found_rows'  => false,
+				'post_type'          => 'vehicle',
+				'post_status'        => array( 'publish', 'pending', 'private' ), // EXCLUDING draft/trash
+				'posts_per_page'     => 1,
+				'fields'             => 'ids',
+				'no_found_rows'      => false,
+				// Internal limit count: bypass the Lite overflow display gate so
+				// this reflects the true vehicle count, not the public-hidden set.
+				'mhm_overflow_bypass' => true,
 			)
 		);
 		return (int) ( $q->found_posts ?? 0 );

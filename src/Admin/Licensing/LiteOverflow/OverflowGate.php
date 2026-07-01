@@ -26,6 +26,13 @@ final class OverflowGate {
 	}
 
 	public static function exclude_hidden_from_frontend( \WP_Query $q ): void {
+		// Internal count/limit queries opt out of the display gate — they need the
+		// TRUE set, not the public-filtered one (e.g. Restrictions::vehicleCount()
+		// feeds the Lite limit gate and must not depend on what is hidden).
+		if ( $q->get( 'mhm_overflow_bypass' ) ) {
+			return;
+		}
+
 		// admin-ajax.php sets is_admin()=true even for front-end (nopriv) AJAX,
 		// so gate on a REAL admin screen request, not on AJAX. REST stays exempt
 		// (admin React SPA). This keeps wp-admin list tables unfiltered while
