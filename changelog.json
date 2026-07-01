@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.62.1",
+    "date": "2026-07-01",
+    "type": "patch",
+    "title": "Lite VIP transfer route limit count fix",
+    "summary": "The Lite VIP transfer route limit now counts routes correctly. On installs using the current routes table, the limit notice showed \"0 used\" and new routes could still be created past the Lite limit because the counter read the wrong (legacy) database table.",
+    "changes": [
+      "Fix: the Lite VIP transfer route limit now counts routes correctly. On installs using the current routes table, the limit notice showed \"0 used\" and new routes could still be created past the Lite limit because the counter read the wrong (legacy) database table."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.0",
     "date": "2026-06-30",
     "type": "minor",

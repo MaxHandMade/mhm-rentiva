@@ -1,5 +1,16 @@
 [
   {
+    "version": "4.62.1",
+    "date": "2026-07-01",
+    "type": "patch",
+    "title": "Lite VIP transfer rota limit sayım düzeltmesi",
+    "summary": "Lite VIP transfer rota limiti artık rotaları doğru sayıyor. Güncel rota tablosunu kullanan kurulumlarda limit uyarısı \"0 kullanıldı\" gösteriyor ve sayaç yanlış (eski) veritabanı tablosunu okuduğu için Lite limitinin üstünde yeni rota eklenebiliyordu.",
+    "changes": [
+      "Düzeltme: Lite VIP transfer rota limiti artık rotaları doğru sayıyor. Güncel rota tablosunu kullanan kurulumlarda limit uyarısı \"0 kullanıldı\" gösteriyor ve sayaç yanlış (eski) veritabanı tablosunu okuduğu için Lite limitinin üstünde yeni rota eklenebiliyordu."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.0",
     "date": "2026-06-30",
     "type": "minor",
