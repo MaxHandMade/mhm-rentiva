@@ -142,6 +142,24 @@ final class TransferRouteProvider {
         delete_option(self::CACHE_GROUP_OPTION);
     }
 
+    /**
+     * Total number of transfer routes, counted against the RESOLVED table
+     * (new `rentiva_transfer_routes` or legacy `mhm_rentiva_transfer_routes`).
+     *
+     * Single source of truth for the Lite route limit — used by the limit
+     * notice and the route-creation gate. Both previously hardcoded the legacy
+     * table name, so on new-table installs (legacy empty/absent) the count
+     * silently returned 0: the notice showed "0 used" and the creation gate
+     * never enforced the Lite cap.
+     */
+    public static function route_count(): int
+    {
+        global $wpdb;
+        $table = self::resolve_routes_table();
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Bounded COUNT on the resolved routes table for admin Lite-limit checks.
+        return (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $table));
+    }
+
     private static function build_cache_key( array $args ): string
     {
         ksort( $args );

@@ -420,13 +420,9 @@ final class Restrictions {
 			return;
 		}
 
-		global $wpdb;
-		$table_name = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
-
-		// Count existing routes
-		$count_query = $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name );
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above.
-		$count = (int) $wpdb->get_var( $count_query );
+		// Resolve against the actual routes table (new vs legacy); a hardcoded
+		// legacy name silently counted 0 on new-table installs, bypassing the cap.
+		$count = \MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider::route_count();
 		$max   = Mode::maxTransferRoutes();
 
 		if ($count >= $max) {
