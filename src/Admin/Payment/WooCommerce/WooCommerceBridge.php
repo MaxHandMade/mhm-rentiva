@@ -1696,10 +1696,12 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				// For deposit payments, check if deposit is > 0. If 0 (full payment forced), take total price.
 				$item_amount_to_pay = ( $payment_type === 'deposit' && $deposit_amount > 0 ) ? $deposit_amount : $total_price;
 
-				// For full payment, remaining amount is 0 (all paid now)
-				if ($payment_type === 'full') {
-					$booking_data['remaining_amount'] = 0;
-				}
+				// For full payment, remaining amount is 0 (all paid now). For deposit,
+				// (re)compute remaining so switching full->deposit restores it instead
+				// of leaving it at a stale 0 from a prior full-payment selection.
+				$booking_data['remaining_amount'] = $payment_type === 'full'
+					? 0
+					: max(0, round($total_price - $deposit_amount, 2));
 
 				// Update Cart
 				$cart->cart_contents[ $cart_item_key ]['mhm_booking_data']  = $booking_data;
@@ -1716,14 +1718,19 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 				// Update DB
 				update_post_meta($booking_id, '_mhm_payment_type', $payment_type);
-				// For full payment, clear remaining amount immediately
-				if ($payment_type === 'full') {
-					update_post_meta($booking_id, '_mhm_remaining_amount', 0);
-				}
 
 				// Get totals
 				$total_price    = (float) get_post_meta($booking_id, '_mhm_total_price', true);
 				$deposit_amount = (float) get_post_meta($booking_id, '_mhm_deposit_amount', true);
+
+				// For full payment, clear remaining amount immediately. For deposit,
+				// (re)compute remaining so switching full->deposit restores it instead
+				// of leaving it at a stale 0 from a prior full-payment selection.
+				update_post_meta(
+					$booking_id,
+					'_mhm_remaining_amount',
+					$payment_type === 'full' ? 0 : max(0, round($total_price - $deposit_amount, 2))
+				);
 
 				$item_amount_to_pay = ( $payment_type === 'deposit' && $deposit_amount > 0 ) ? $deposit_amount : $total_price;
 
