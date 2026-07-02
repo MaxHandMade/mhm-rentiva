@@ -1686,20 +1686,27 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$is_booking_item = true;
 				$booking_data    = $cart_item['mhm_booking_data'];
 
-				// Update payment type
-				$booking_data['payment_type'] = $payment_type;
-
 				// Calculate amount
 				$total_price    = (float) ( $booking_data['total_price'] ?? 0 );
 				$deposit_amount = (float) ( $booking_data['deposit_amount'] ?? 0 );
 
-				// For deposit payments, check if deposit is > 0. If 0 (full payment forced), take total price.
-				$item_amount_to_pay = ( $payment_type === 'deposit' && $deposit_amount > 0 ) ? $deposit_amount : $total_price;
+				// Only honor the checkout-wide "deposit" selection when this item
+				// actually has a partial-payment configuration of its own
+				// (deposit_amount < total_price). Items whose deposit_amount was
+				// set equal to total_price at creation time (e.g. a transfer with
+				// "Full Payment Required") always stay 'full' regardless of what
+				// the cart-wide radio selects.
+				$effective_payment_type       = ( $payment_type === 'deposit' && $deposit_amount > 0 && $deposit_amount < $total_price )
+					? 'deposit'
+					: 'full';
+				$booking_data['payment_type'] = $effective_payment_type;
+
+				$item_amount_to_pay = ( $effective_payment_type === 'deposit' ) ? $deposit_amount : $total_price;
 
 				// For full payment, remaining amount is 0 (all paid now). For deposit,
 				// (re)compute remaining so switching full->deposit restores it instead
 				// of leaving it at a stale 0 from a prior full-payment selection.
-				$booking_data['remaining_amount'] = $payment_type === 'full'
+				$booking_data['remaining_amount'] = $effective_payment_type === 'full'
 					? 0
 					: max(0, round($total_price - $deposit_amount, 2));
 
@@ -1716,12 +1723,22 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				$is_booking_item = true;
 				$booking_id      = (int) $cart_item['mhm_booking_id'];
 
-				// Update DB
-				update_post_meta($booking_id, '_mhm_payment_type', $payment_type);
-
 				// Get totals
 				$total_price    = (float) get_post_meta($booking_id, '_mhm_total_price', true);
 				$deposit_amount = (float) get_post_meta($booking_id, '_mhm_deposit_amount', true);
+
+				// Only honor the checkout-wide "deposit" selection when this
+				// booking actually has a partial-payment configuration of its
+				// own (deposit_amount < total_price). Bookings whose
+				// deposit_amount equals total_price (e.g. a transfer created
+				// while "Full Payment Required" is configured) always stay
+				// 'full' regardless of what the cart-wide radio selects.
+				$effective_payment_type = ( $payment_type === 'deposit' && $deposit_amount > 0 && $deposit_amount < $total_price )
+					? 'deposit'
+					: 'full';
+
+				// Update DB
+				update_post_meta($booking_id, '_mhm_payment_type', $effective_payment_type);
 
 				// For full payment, clear remaining amount immediately. For deposit,
 				// (re)compute remaining so switching full->deposit restores it instead
@@ -1729,10 +1746,10 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 				update_post_meta(
 					$booking_id,
 					'_mhm_remaining_amount',
-					$payment_type === 'full' ? 0 : max(0, round($total_price - $deposit_amount, 2))
+					$effective_payment_type === 'full' ? 0 : max(0, round($total_price - $deposit_amount, 2))
 				);
 
-				$item_amount_to_pay = ( $payment_type === 'deposit' && $deposit_amount > 0 ) ? $deposit_amount : $total_price;
+				$item_amount_to_pay = ( $effective_payment_type === 'deposit' ) ? $deposit_amount : $total_price;
 
 				// Update Cart
 				$cart->cart_contents[ $cart_item_key ]['mhm_booking_price'] = $item_amount_to_pay;

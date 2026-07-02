@@ -111,4 +111,77 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 			// Expected — the AJAX handler always wp_send_json_*()s + wp_die()s.
 		}
 	}
+
+	public function test_full_payment_only_item_keeps_full_label_when_cart_selects_deposit(): void {
+		// A second booking whose own configuration is full-payment-only
+		// (deposit_amount === total_price, e.g. a VIP transfer created while
+		// the transfer deposit setting is "Full Payment Required" —
+		// TransferCartIntegration.php's full_payment branch).
+		$transfer_booking_id = (int) self::factory()->post->create(
+			array(
+				'post_type'   => 'vehicle_booking',
+				'post_status' => 'publish',
+			)
+		);
+		update_post_meta( $transfer_booking_id, '_mhm_payment_type', 'full' );
+		update_post_meta( $transfer_booking_id, '_mhm_total_price', 1025 );
+		update_post_meta( $transfer_booking_id, '_mhm_deposit_amount', 1025 );
+		update_post_meta( $transfer_booking_id, '_mhm_remaining_amount', 0 );
+
+		$this->assertTrue(
+			WooCommerceBridge::add_booking_to_cart( $transfer_booking_id, 1025 ),
+			'Failed to add the full-payment-only booking to the cart.'
+		);
+
+		// Checkout-wide radio selects "deposit" for the whole cart (the
+		// mixed-cart scenario from the 2026-07-02 live test).
+		$this->dispatch_payment_type( 'deposit' );
+
+		$this->assertSame(
+			'deposit',
+			get_post_meta( $this->booking_id, '_mhm_payment_type', true ),
+			'The genuinely deposit-eligible booking must still become deposit.'
+		);
+		$this->assertSame(
+			'full',
+			get_post_meta( $transfer_booking_id, '_mhm_payment_type', true ),
+			'A full-payment-only booking (deposit_amount === total_price) must not be relabeled deposit just because the cart-wide radio selected it.'
+		);
+		$this->assertSame(
+			0.0,
+			(float) get_post_meta( $transfer_booking_id, '_mhm_remaining_amount', true )
+		);
+	}
+
+	public function test_pending_cart_item_full_payment_only_keeps_full_label(): void {
+		// Mirrors TransferCartIntegration's "Full Payment Required" branch:
+		// a not-yet-created booking held as raw cart data with
+		// deposit_amount === total_price.
+		$booking_data = array(
+			'vehicle_id'       => 0,
+			'total_price'      => 1025.0,
+			'deposit_amount'   => 1025.0,
+			'remaining_amount' => 0.0,
+			'payment_type'     => 'full',
+		);
+
+		$this->assertTrue(
+			WooCommerceBridge::add_booking_data_to_cart( $booking_data, 1025.0 ),
+			'Failed to add the pending full-payment-only booking data to the cart.'
+		);
+
+		$this->dispatch_payment_type( 'deposit' );
+
+		$pending_item = null;
+		foreach ( WC()->cart->get_cart() as $cart_item ) {
+			if ( isset( $cart_item['mhm_booking_pending'] ) && $cart_item['mhm_booking_pending'] ) {
+				$pending_item = $cart_item;
+				break;
+			}
+		}
+
+		$this->assertNotNull( $pending_item, 'Pending cart item not found.' );
+		$this->assertSame( 'full', $pending_item['mhm_booking_data']['payment_type'] );
+		$this->assertSame( 0.0, (float) $pending_item['mhm_booking_data']['remaining_amount'] );
+	}
 }
