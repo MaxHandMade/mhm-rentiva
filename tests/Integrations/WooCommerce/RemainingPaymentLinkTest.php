@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integrations\WooCommerce;
 
+use MHMRentiva\Admin\Booking\Actions\DepositManagementAjax;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Payment\WooCommerce\WooCommerceBridge;
 use WP_Ajax_UnitTestCase;
@@ -109,5 +110,54 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertTrue( $response['success'] );
 		$this->assertNotEmpty( $response['data']['payment_url'] );
+	}
+
+	public function test_admin_send_remaining_payment_link_returns_payment_url(): void {
+		DepositManagementAjax::register();
+
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		$_POST['action']     = 'mhm_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhm_deposit_management_action' );
+		$_POST['booking_id'] = $this->booking_id;
+
+		try {
+			$this->_handleAjax( 'mhm_send_remaining_payment_link' );
+		} catch ( \WPAjaxDieContinueException $e ) {
+			// Expected — wp_send_json_*() always wp_die()s.
+		}
+
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertNotEmpty( $response['data']['payment_url'] );
+
+		$logs = get_post_meta( $this->booking_id, '_mhm_booking_logs', true );
+		$this->assertIsArray( $logs );
+		$this->assertSame( 'remaining_payment_link_sent', end( $logs )['action'] );
+	}
+
+	public function test_admin_send_remaining_payment_link_rejects_non_deposit_booking(): void {
+		DepositManagementAjax::register();
+
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		update_post_meta( $this->booking_id, '_mhm_payment_type', 'full' );
+
+		$_POST['action']     = 'mhm_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhm_deposit_management_action' );
+		$_POST['booking_id'] = $this->booking_id;
+
+		try {
+			$this->_handleAjax( 'mhm_send_remaining_payment_link' );
+		} catch ( \WPAjaxDieContinueException $e ) {
+			// Expected.
+		}
+
+		$response = json_decode( $this->_last_response, true );
+
+		$this->assertFalse( $response['success'] );
 	}
 }

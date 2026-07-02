@@ -9,6 +9,8 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
+use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
+use MHMRentiva\Admin\Emails\Core\Mailer;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -33,6 +35,7 @@ final class DepositManagementAjax {
 
 	public static function register(): void {
 		add_action( 'wp_ajax_mhm_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
+		add_action( 'wp_ajax_mhm_send_remaining_payment_link', array( self::class, 'send_remaining_payment_link' ) );
 		add_action( 'wp_ajax_mhm_approve_payment', array( self::class, 'approve_payment' ) );
 		add_action( 'wp_ajax_mhm_cancel_booking', array( self::class, 'cancel_booking' ) );
 		add_action( 'wp_ajax_mhm_process_refund', array( self::class, 'process_refund' ) );
@@ -103,6 +106,80 @@ final class DepositManagementAjax {
 		wp_send_json_success(
 			array(
 				'message' => __( 'Remaining amount processed successfully.', 'mhm-rentiva' ),
+			)
+		);
+	}
+
+	public static function send_remaining_payment_link(): void {
+		// Nonce check
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		// Permission check
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$booking_id = self::post_booking_id();
+		if ( ! $booking_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		// Booking check
+		$booking = get_post( $booking_id );
+		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
+			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		// Deposit system check (same guard as process_remaining_payment())
+		$payment_type = get_post_meta( $booking_id, '_mhm_payment_type', true );
+		if ( $payment_type !== 'deposit' ) {
+			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhm_remaining_amount', true ) );
+		if ( $remaining_amount <= 0 ) {
+			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
+			return;
+		}
+
+		$order = RemainingPaymentHandler::get_or_create_remaining_order( $booking_id );
+		if ( is_wp_error( $order ) ) {
+			wp_send_json_error( array( 'message' => $order->get_error_message() ) );
+			return;
+		}
+
+		$payment_url = $order->get_checkout_payment_url();
+
+		Mailer::sendBookingEmail(
+			'remaining_payment_link_customer',
+			$booking_id,
+			'customer',
+			array(
+				'payment' => array( 'url' => $payment_url ),
+			)
+		);
+
+		// Add log
+		self::add_booking_log(
+			$booking_id,
+			'remaining_payment_link_sent',
+			array(
+				'order_id' => $order->get_id(),
+				'sent_by'  => get_current_user_id(),
+			)
+		);
+
+		wp_send_json_success(
+			array(
+				'message'     => __( 'Payment link generated and emailed to the customer.', 'mhm-rentiva' ),
+				'payment_url' => $payment_url,
 			)
 		);
 	}
