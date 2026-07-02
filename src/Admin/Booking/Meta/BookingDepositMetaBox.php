@@ -115,6 +115,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 						'processing'              => __( 'Processing...', 'mhm-rentiva' ),
 						'success'                 => __( 'Operation successful!', 'mhm-rentiva' ),
 						'error'                   => __( 'An error occurred!', 'mhm-rentiva' ),
+						'copyLink'                => __( 'Copy Link', 'mhm-rentiva' ),
+						'linkCopied'              => __( 'Link copied to clipboard!', 'mhm-rentiva' ),
 					),
 				)
 			);
@@ -342,6 +344,11 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			echo '<button type="button" class="deposit-action-btn primary" id="process-remaining-payment" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
 			echo '<span class="dashicons dashicons-money-alt"></span>';
 			echo esc_html__( 'Process Remaining Amount', 'mhm-rentiva' );
+			echo '</button>';
+
+			echo '<button type="button" class="deposit-action-btn primary" id="send-remaining-payment-link" data-booking-id="' . esc_attr( (string) $post_id ) . '">';
+			echo '<span class="dashicons dashicons-email-alt"></span>';
+			echo esc_html__( 'Send Payment Link', 'mhm-rentiva' );
 			echo '</button>';
 		}
 

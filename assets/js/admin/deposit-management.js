@@ -30,6 +30,9 @@
 
             // Durum güncelleme
             $(document).on('click', '#update-status', (e) => this.handleUpdateStatus(e));
+
+            // Kalan tutar için ödeme linki gönder
+            $(document).on('click', '#send-remaining-payment-link', (e) => this.handleSendPaymentLink(e));
         }
 
         handleRemainingPayment(e) {
@@ -66,6 +69,59 @@
                     this.showMessage('error', mhmDepositManagement.strings.error);
                 }
             });
+        }
+
+        handleSendPaymentLink(e) {
+            e.preventDefault();
+
+            const $button = $(e.currentTarget);
+            const bookingId = $button.data('booking-id');
+
+            this.showLoading($button);
+
+            $.ajax({
+                url: mhmDepositManagement.ajaxUrl,
+                type: 'POST',
+                data: {
+                    action: 'mhm_send_remaining_payment_link',
+                    nonce: mhmDepositManagement.nonce,
+                    booking_id: bookingId
+                },
+                success: (response) => {
+                    this.hideLoading($button);
+                    if (response.success) {
+                        this.showMessage('success', response.data.message);
+                        this.showPaymentLink(response.data.payment_url);
+                    } else {
+                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
+                    }
+                },
+                error: () => {
+                    this.hideLoading($button);
+                    this.showMessage('error', mhmDepositManagement.strings.error);
+                }
+            });
+        }
+
+        showPaymentLink(url) {
+            const copyLabel = mhmDepositManagement.strings.copyLink;
+            const copiedLabel = mhmDepositManagement.strings.linkCopied;
+
+            const $box = $(`
+                <div class="notice notice-info">
+                    <p>
+                        <input type="text" readonly value="${url}" style="width: 70%;" onclick="this.select();" />
+                        <button type="button" class="button mhm-copy-payment-link">${copyLabel}</button>
+                    </p>
+                </div>
+            `);
+
+            $box.find('.mhm-copy-payment-link').on('click', () => {
+                navigator.clipboard.writeText(url);
+                this.showMessage('success', copiedLabel);
+            });
+
+            $('.deposit-management-metabox').prepend($box);
         }
 
         handleApprovePayment(e) {
