@@ -78,7 +78,7 @@ final class RemainingPaymentHandler {
 	 * @param int $booking_id Booking post ID.
 	 * @return \WC_Order|\WP_Error
 	 */
-	public static function get_or_create_remaining_order(int $booking_id)
+	public static function get_or_create_remaining_order(int $booking_id): \WC_Order|\WP_Error
 	{
 		// Must be a deposit booking with remaining amount > 0
 		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
