@@ -65,6 +65,10 @@ final class Templates {
 					'subject' => __( 'Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}', 'mhm-rentiva' ),
 					'file'    => 'booking-reminder-customer',
 				),
+				'remaining_payment_link_customer' => array(
+					'subject' => __( 'Complete Your Payment - {{site.name}}', 'mhm-rentiva' ),
+					'file'    => 'remaining-payment-link-customer',
+				),
 				// Welcome Email (One-time)
 				'welcome_customer'                => array(
 					'subject' => __( 'Welcome to {{site.name}}', 'mhm-rentiva' ),
