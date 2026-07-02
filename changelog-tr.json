@@ -1,5 +1,28 @@
 [
   {
+    "version": "4.63.0",
+    "date": "2026-07-02",
+    "type": "minor",
+    "title": "Admin kalan-ödeme linki + ödeme türü etiket düzeltmesi",
+    "summary": "Adminler artık bir rezervasyonun kalan tutarı için ödeme linki oluşturup e-posta ile gönderebiliyor; ayrıca tam-ödeme-zorunlu rezervasyonlar karma sepette artık yanlışlıkla \"Depozito\" etiketlenmiyor.",
+    "changes": [
+      "Özellik: adminler rezervasyon düzenleme ekranındaki \"Mevduat Yönetimi\" kutusundan doğrudan kalan tutar için ödeme linki oluşturup tek tıkla müşteriye e-posta gönderebiliyor. Link ekranda da kopyalanabilir şekilde gösteriliyor (WhatsApp, SMS, telefon için) ve site hesabı olmayan müşteriler için bile çalışıyor.",
+      "Düzeltme: ödemesi tam-ödeme-zorunlu olan rezervasyonlar (ör. depozito desteği olmadan yapılandırılmış bir VIP transfer), karma bir sepette checkout'un sepet-geneli ödeme türü seçicisi \"Depozito Ödemesi\"ne ayarlandığında artık yanlışlıkla \"Depozito\" etiketlenmiyor. Tahsil edilen tutar zaten her zaman doğruydu; sadece iç etiket düzeltildi."
+    ],
+    "notice": ""
+  },
+  {
+    "version": "4.62.3",
+    "date": "2026-07-02",
+    "type": "patch",
+    "title": "Checkout depozito kalan-tutar geri yükleme düzeltmesi",
+    "summary": "Checkout'ta ödeme türü seçeneğinin \"Tam Ödeme\"den \"Depozito Ödemesi\"ne geri alınması artık kalan bakiyeyi doğru şekilde geri yüklüyor.",
+    "changes": [
+      "Düzeltme: checkout'ta ödeme türü seçeneğinin \"Tam Ödeme\"den \"Depozito Ödemesi\"ne geri alınması artık kalan bakiyeyi doğru şekilde geri yüklüyor. Daha önce, tam ödeme seçeneği kısaca bile seçilmiş olsa (sayfa yüklemesindeki otomatik senkronizasyon dahil), depozitoya geri dönüldüğünde kalan bakiye 0'da kalıyor, kalan tutarın tahsil edilmesi veya takip edilmesi imkansız hale geliyordu."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.2",
     "date": "2026-07-01",
     "type": "patch",

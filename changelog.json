@@ -1,5 +1,28 @@
 [
   {
+    "version": "4.63.0",
+    "date": "2026-07-02",
+    "type": "minor",
+    "title": "Admin remaining-payment link + payment-type label fix",
+    "summary": "Admins can generate and email a payable link for a booking's remaining amount, and full-payment-only bookings no longer get mislabeled \"Deposit\" in a mixed cart.",
+    "changes": [
+      "Feature: admins can generate a payable link for a booking's remaining amount directly from the \"Deposit Management\" box on the booking edit screen, and email it to the customer with one click. The link is also shown on-screen for copying (WhatsApp, SMS, phone), and works even for customers without a site account.",
+      "Fix: bookings whose payment is full-payment-only (e.g. a VIP transfer configured without deposit support) no longer get mislabeled \"Deposit\" when the checkout's cart-wide payment-type selector is set to \"Deposit Payment\" for a mixed cart. The amount charged was always correct; only the internal label is corrected."
+    ],
+    "notice": ""
+  },
+  {
+    "version": "4.62.3",
+    "date": "2026-07-02",
+    "type": "patch",
+    "title": "Checkout deposit remaining-amount restore fix",
+    "summary": "Switching the checkout payment-type option from \"Full Payment\" back to \"Deposit Payment\" now correctly restores the remaining balance.",
+    "changes": [
+      "Fix: switching the checkout payment-type option from \"Full Payment\" back to \"Deposit Payment\" now correctly restores the remaining balance. Previously, once the full-payment option was selected even briefly (including an automatic page-load sync), the remaining balance stayed at 0 after switching back to a deposit, leaving no way to collect or track the rest of the payment."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.62.2",
     "date": "2026-07-01",
     "type": "patch",
