@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.62.2
+Stable tag:        4.62.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,9 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.62.3 — 2026-07-02 =
+* 🐛 **Fix:** Switching the checkout payment-type option from "Full Payment" back to "Deposit Payment" now correctly restores the remaining balance. Previously, once the full-payment option was selected even briefly (including an automatic page-load sync), the remaining balance stayed at 0 after switching back to a deposit, leaving no way to collect or track the rest of the payment.
 
 = 4.62.2 — 2026-07-01 =
 * 🔒 **Hardening:** The Lite vehicle-limit counter now reflects the true vehicle count independently of the public overflow-hiding filter (internal robustness; enforced limits unchanged).
