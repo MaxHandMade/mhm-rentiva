@@ -111,6 +111,8 @@ final class CommissionBridge {
      */
     public static function on_order_refunded(int $order_id, int $refund_id): void
     {
+        global $wpdb;
+
         $order = wc_get_order($order_id);
         if (! $order instanceof \WC_Order) {
             return;
@@ -157,7 +159,7 @@ final class CommissionBridge {
             $commission_logic->get_commission_rate_snapshot(),
             $currency,
             'vendor',
-            'reversed', // Status for refunds represents cancelled financial obligations
+            'cleared', // Immediately debits the available balance (see Ledger::get_balance()).
             null, // created_at (auto)
             $commission_logic->get_policy_id(),
             $commission_logic->get_policy_version_hash()
@@ -168,6 +170,23 @@ final class CommissionBridge {
         } catch (\RuntimeException $e) {
             return;
         }
+
+        // If the original credit for this booking/order has not cleared yet (still
+        // pending, inside the 7-day hold window), void it so it can never clear later —
+        // this refund entry above is the only ledger effect for this booking's commission.
+        // If it already cleared (late refund, e.g. admin/chargeback), this guarded update
+        // affects 0 rows and the debit above is the sole balance adjustment.
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded, idempotent void of the matching pending credit.
+        $wpdb->update(
+            $wpdb->prefix . 'mhm_rentiva_ledger',
+            array( 'status' => 'voided' ),
+            array(
+                'transaction_uuid' => 'pay_cmp_' . $order_id . '_' . $booking_id,
+                'status'           => 'pending',
+            ),
+            array( '%s' ),
+            array( '%s', '%s' )
+        );
 
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
