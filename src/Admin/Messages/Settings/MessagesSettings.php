@@ -143,7 +143,7 @@ final class MessagesSettings {
 		$sanitized['categories'] = isset( $input['categories'] )
 			? self::sanitize_categories( $input['categories'] )
 			: ( $current['categories'] ?? array() );
-		$sanitized['statuses'] = isset( $input['statuses'] )
+		$sanitized['statuses']   = isset( $input['statuses'] )
 			? self::sanitize_statuses( $input['statuses'] )
 			: ( $current['statuses'] ?? array() );
 

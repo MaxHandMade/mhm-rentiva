@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.63.0
+Stable tag:        4.63.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,14 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.63.1 — 2026-07-05 =
+* 🐛 **Fix:** The Dashboard's and Reports page's "Revenue" charts were rendering blank — a pre-existing 404 on a vendor script that never shipped in any release. Chart.js is now bundled directly with the admin scripts.
+* 🐛 **Fix:** The Reports page's "Monthly Revenue" KPI card showed a corrupted value (e.g. "1,87 €" instead of "1,870.00 €") due to a display value being re-parsed as a raw number.
+* 🐛 **Fix:** Saving the Messages settings page from any tab other than the one being edited (e.g. saving Email settings while on the Categories tab) silently reset the other tabs' settings, including notification checkboxes, sender email, and category/status lists, to their defaults.
+* 🐛 **Fix:** A vehicle that became unavailable at the moment of booking submission no longer silently drops the "similar vehicles" suggestion — the alternatives list now reaches the booking form as intended.
+* 🐛 **Fix:** Corrected a Turkish mistranslation on the Reports page ("Booking Report" tab).
+* 🐛 **Fix:** Removed two broken script/style references (booking calendar CSS, standalone customer-messages JS) that resulted in harmless but noisy 404 requests.
 
 = 4.63.0 — 2026-07-02 =
 * ✨ **Feature:** Admins can now generate a payable link for a booking's remaining amount directly from the "Deposit Management" box on the booking edit screen, and email it to the customer with one click. The link is shown on-screen for copying too (WhatsApp, SMS, phone), and works even for customers without a site account.

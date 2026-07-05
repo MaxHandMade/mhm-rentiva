@@ -1,5 +1,21 @@
 [
   {
+    "version": "4.63.1",
+    "date": "2026-07-05",
+    "type": "patch",
+    "title": "Kontrol paneli/Raporlar grafik render, KPI bozulması ve ayar-sekmesi veri kaybı düzeltmeleri",
+    "summary": "Boş gelir grafiklerini, bozuk bir Raporlar KPI değerini ve Mesajlar ayarlarını bir sekmeden kaydedince diğerlerini sessizce sıfırlayan bir hatayı düzeltir.",
+    "changes": [
+      "Düzeltme: Kontrol Paneli ve Raporlar sayfasındaki \"Gelir\" grafikleri boş görünüyordu — hiçbir sürümde hiç yayınlanmamış bir vendor betiğine ait, önceden var olan bir 404 hatasıydı. Chart.js artık admin betikleriyle doğrudan paketleniyor.",
+      "Düzeltme: Raporlar sayfasındaki \"Aylık Gelir\" KPI kartı bozuk bir değer gösteriyordu (\"1.870,00 €\" yerine \"1,87 €\" gibi) — zaten formatlanmış bir görüntü değerinin ham sayı olarak tekrar okunmasından kaynaklanıyordu.",
+      "Düzeltme: Mesajlar ayarlar sayfasını düzenlenmekte olan sekme dışında bir sekmeden kaydetmek (ör. Kategoriler sekmesindeyken E-posta ayarlarını kaydetmek), diğer sekmelerin ayarlarını (bildirim onay kutuları, gönderen e-postası, kategori/durum listeleri dahil) sessizce varsayılana sıfırlıyordu.",
+      "Düzeltme: bir araç, rezervasyon gönderimi anında müsait olmaktan çıkarsa artık \"benzer araçlar\" önerisi sessizce kaybolmuyor — alternatif liste artık amaçlandığı gibi rezervasyon formuna ulaşıyor.",
+      "Düzeltme: Raporlar sayfasındaki bir Türkçe çeviri hatası (\"Rezervasyon Raporu\" sekmesi) düzeltildi.",
+      "Düzeltme: var olmayan iki betik/stil referansı (rezervasyon takvimi CSS'i, bağımsız müşteri-mesajları JS'i) kaldırıldı — bunlar zararsız ama gürültülü 404 isteklerine yol açıyordu."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.0",
     "date": "2026-07-02",
     "type": "minor",

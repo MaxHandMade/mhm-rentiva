@@ -1,5 +1,21 @@
 [
   {
+    "version": "4.63.1",
+    "date": "2026-07-05",
+    "type": "patch",
+    "title": "Dashboard/Reports chart rendering, KPI corruption, and settings-tab data-loss fixes",
+    "summary": "Fixes blank revenue charts, a corrupted Reports KPI value, and a bug where saving Messages settings from one tab silently reset the others.",
+    "changes": [
+      "Fix: the Dashboard's and Reports page's \"Revenue\" charts were rendering blank — a pre-existing 404 on a vendor script that never shipped in any release. Chart.js is now bundled directly with the admin scripts.",
+      "Fix: the Reports page's \"Monthly Revenue\" KPI card showed a corrupted value (e.g. \"1,87 €\" instead of \"1,870.00 €\") due to a display value being re-parsed as a raw number.",
+      "Fix: saving the Messages settings page from any tab other than the one being edited (e.g. saving Email settings while on the Categories tab) silently reset the other tabs' settings, including notification checkboxes, sender email, and category/status lists, to their defaults.",
+      "Fix: a vehicle that became unavailable at the moment of booking submission no longer silently drops the \"similar vehicles\" suggestion — the alternatives list now reaches the booking form as intended.",
+      "Fix: corrected a Turkish mistranslation on the Reports page (\"Booking Report\" tab).",
+      "Fix: removed two broken script/style references (booking calendar CSS, standalone customer-messages JS) that resulted in harmless but noisy 404 requests."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.0",
     "date": "2026-07-02",
     "type": "minor",
