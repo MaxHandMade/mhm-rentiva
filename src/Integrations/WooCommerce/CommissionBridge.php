@@ -50,7 +50,7 @@ final class CommissionBridge {
         }
 
         // Ensure mapping is explicitly deterministic parsing booking meta
-        $booking_id = (int) $order->get_meta('mhm_booking_id');
+        $booking_id = (int) $order->get_meta('_mhm_booking_id');
         if ($booking_id <= 0) {
             return; // Payment was completely unrelated to a specific Rentiva Booking
         }
@@ -121,7 +121,7 @@ final class CommissionBridge {
             return;
         }
 
-        $booking_id = (int) $order->get_meta('mhm_booking_id');
+        $booking_id = (int) $order->get_meta('_mhm_booking_id');
         if ($booking_id <= 0) {
             return;
         }

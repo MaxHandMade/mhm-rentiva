@@ -37,7 +37,7 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         $order = \wc_create_order();
         $order->set_total('100.00');
-        $order->update_meta_data('mhm_booking_id', $this->booking_id);
+        $order->update_meta_data('_mhm_booking_id', $this->booking_id);
         $order->save();
 
         // Fire 1
@@ -59,7 +59,7 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         $order = \wc_create_order();
         $order->set_total('100.00');
-        $order->update_meta_data('mhm_booking_id', $this->booking_id);
+        $order->update_meta_data('_mhm_booking_id', $this->booking_id);
         $order->save();
 
         // Mocking a refund object since wc_create_refund is complex without valid line items
