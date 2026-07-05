@@ -153,6 +153,37 @@ class MessagesSettingsTest extends WP_UnitTestCase
         $this->assertArrayHasKey('support', $result['categories']);
     }
 
+    /**
+     * @test
+     * Scenario: Saving from a tab whose form only renders the active tab's
+     * inputs (e.g. Email) submits no `categories`/`statuses` keys at all.
+     * The existing stored values must be preserved, not wiped to empty.
+     */
+    public function it_preserves_existing_categories_and_statuses_when_input_omits_them()
+    {
+        // Arrange: simulate a prior save that already has real categories/statuses.
+        update_option('mhm_rentiva_messages_settings', [
+            'categories' => ['general' => 'General', 'billing' => 'Billing'],
+            'statuses'   => ['open' => 'Open', 'closed' => 'Closed'],
+        ]);
+
+        // A submission from the Email tab includes no categories/statuses keys.
+        $input = [
+            'admin_email' => 'admin@example.com',
+        ];
+
+        // Act
+        $result = MessagesSettings::sanitize_settings($input);
+
+        // Assert: existing categories/statuses survive untouched.
+        $this->assertCount(2, $result['categories']);
+        $this->assertEquals('General', $result['categories']['general']);
+        $this->assertEquals('Billing', $result['categories']['billing']);
+        $this->assertCount(2, $result['statuses']);
+        $this->assertEquals('Open', $result['statuses']['open']);
+        $this->assertEquals('Closed', $result['statuses']['closed']);
+    }
+
     // =========================================================================
     // POPULATED SAVE SCENARIOS (Dolu Kaydetme Senaryoları)
     // =========================================================================

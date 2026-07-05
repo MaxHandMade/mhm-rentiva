@@ -171,9 +171,11 @@ final class Reports {
 
 			$stats = array(
 				'total_bookings'      => number_format($total_bookings),
+				'total_bookings_raw'  => $total_bookings,
 				'monthly_revenue'     => number_format($monthly_revenue, 0, ',', '.'),
 				'monthly_revenue_raw' => $monthly_revenue,
 				'active_bookings'     => number_format($active_bookings),
+				'active_bookings_raw' => $active_bookings,
 				'occupancy_rate'      => $occupancy_rate,
 			);
 
@@ -316,9 +318,9 @@ final class Reports {
 			'mhmRentivaReports',
 			array(
 				'statsCards'   => array(
-					'total_bookings'  => $stats['total_bookings'],
-					'monthly_revenue' => $stats['monthly_revenue'],
-					'active_bookings' => $stats['active_bookings'],
+					'total_bookings'  => $stats['total_bookings_raw'],
+					'monthly_revenue' => $stats['monthly_revenue_raw'],
+					'active_bookings' => $stats['active_bookings_raw'],
 					'occupancy_rate'  => (string) $stats['occupancy_rate'],
 				),
 				'defaultStart' => gmdate( 'Y-m-d', strtotime( '-30 days' ) ),

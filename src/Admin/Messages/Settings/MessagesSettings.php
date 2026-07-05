@@ -110,9 +110,17 @@ final class MessagesSettings {
 		$sanitized['from_name']   = sanitize_text_field( (string) ( $input['from_name'] ?? '' ) );
 		$sanitized['from_email']  = sanitize_email( (string) ( $input['from_email'] ?? '' ) );
 
-		// Categories and statuses
-		$sanitized['categories'] = self::sanitize_categories( $input['categories'] ?? array() );
-		$sanitized['statuses']   = self::sanitize_statuses( $input['statuses'] ?? array() );
+		// Categories and statuses. The settings form only renders the active
+		// tab's inputs, so a save from another tab (e.g. Email) submits no
+		// `categories`/`statuses` fields at all — preserve the existing
+		// values in that case instead of wiping them to an empty array.
+		$current = self::get_settings();
+		$sanitized['categories'] = isset( $input['categories'] )
+			? self::sanitize_categories( $input['categories'] )
+			: ( $current['categories'] ?? array() );
+		$sanitized['statuses'] = isset( $input['statuses'] )
+			? self::sanitize_statuses( $input['statuses'] )
+			: ( $current['statuses'] ?? array() );
 
 		// Handle NEW category entry (from separate input field)
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified by WordPress Settings API; value is unslashed and sanitized in-place.
