@@ -842,12 +842,7 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			if (! $availability_result['ok']) {
-				wp_send_json_error(
-					array(
-						'message' => $availability_result['message'],
-						'code'    => $availability_result['code'],
-					)
-				);
+				wp_send_json_error($availability_result);
 			}
 
 			// 3. Validate Duration Constraints (Min/Max Days)
