@@ -14114,7 +14114,7 @@ msgstr "Onay kaydedildi."
 #: src/Admin/Reports/BackgroundProcessor.php:36
 #: src-react/admin/reports/components/TabNavigation.jsx:6
 msgid "Booking Report"
-msgstr "Rezervasyon Şikayeti"
+msgstr "Rezervasyon Raporu"
 
 #: src/Admin/Reports/BackgroundProcessor.php:37
 #: src-react/admin/reports/components/TabNavigation.jsx:8

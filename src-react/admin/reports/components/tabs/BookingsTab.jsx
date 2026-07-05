@@ -1,19 +1,20 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { __ }               from '@wordpress/i18n';
+import Chart                 from 'chart.js/auto';
 
 export default function BookingsTab( { data } ) {
 	const canvasRef = useRef( null );
 	const chartRef  = useRef( null );
 
 	useEffect( () => {
-		if ( ! canvasRef.current || ! window.Chart || ! data?.daily_trend ) return;
+		if ( ! canvasRef.current || ! data?.daily_trend ) return;
 		if ( chartRef.current ) {
 			chartRef.current.destroy();
 		}
 		const labels = data.daily_trend.map( ( d ) => d.label ?? d.date );
 		const counts = data.daily_trend.map( ( d ) => parseInt( d.bookings ?? 0, 10 ) );
 
-		chartRef.current = new window.Chart( canvasRef.current, {
+		chartRef.current = new Chart( canvasRef.current, {
 			type: 'line',
 			data: {
 				labels,

@@ -299,15 +299,7 @@ final class Reports {
 			return;
 		}
 
-		wp_enqueue_script(
-			'chart-js',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/vendor/chart.min.js',
-			array(),
-			'3.9.1',
-			true
-		);
-
-		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'reports', array( 'chart-js' ) );
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_react_page( 'reports', array() );
 
 		wp_enqueue_style(
 			'mhm-rentiva-reports',

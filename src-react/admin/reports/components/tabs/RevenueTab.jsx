@@ -1,5 +1,6 @@
 import { useRef, useEffect } from '@wordpress/element';
 import { __ }               from '@wordpress/i18n';
+import Chart                 from 'chart.js/auto';
 import { fmtAmount, fmtMoney } from '../../../../shared/format';
 
 export default function RevenueTab( { data, currency } ) {
@@ -7,14 +8,14 @@ export default function RevenueTab( { data, currency } ) {
 	const chartRef  = useRef( null );
 
 	useEffect( () => {
-		if ( ! canvasRef.current || ! window.Chart || ! data?.daily ) return;
+		if ( ! canvasRef.current || ! data?.daily ) return;
 		if ( chartRef.current ) {
 			chartRef.current.destroy();
 		}
 		const labels   = data.daily.map( ( d ) => d.label ?? d.date );
 		const revenues = data.daily.map( ( d ) => parseFloat( d.revenue ?? 0 ) );
 
-		chartRef.current = new window.Chart( canvasRef.current, {
+		chartRef.current = new Chart( canvasRef.current, {
 			type: 'bar',
 			data: {
 				labels,
