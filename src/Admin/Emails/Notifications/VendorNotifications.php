@@ -58,6 +58,7 @@ final class VendorNotifications {
 		add_action('mhm_rentiva_payout_rejected', array( self::class, 'on_payout_rejected' ), 10, 4);
 		add_action('mhm_rentiva_iban_change_approved', array( self::class, 'on_iban_change_approved' ), 10, 1);
 		add_action('mhm_rentiva_iban_change_rejected', array( self::class, 'on_iban_change_rejected' ), 10, 1);
+		add_action('mhm_rentiva_commission_cleared', array( self::class, 'on_commission_cleared' ), 10, 5);
 
 		// Vendor Report system (v4.35.0)
 		add_action('mhm_rentiva_vendor_report_created', array( self::class, 'on_vendor_report_created' ), 10, 3);
@@ -101,6 +102,10 @@ final class VendorNotifications {
 		$registry['payout_approved']              = array(
 			'subject' => __('Payout approved — {{site.name}}', 'mhm-rentiva'),
 			'file'    => 'payout-approved',
+		);
+		$registry['commission_cleared']           = array(
+			'subject' => __('A commission has cleared — {{site.name}}', 'mhm-rentiva'),
+			'file'    => 'commission-cleared',
 		);
 		$registry['payout_rejected']              = array(
 			'subject' => __('Payout request update — {{site.name}}', 'mhm-rentiva'),
@@ -541,6 +546,36 @@ final class VendorNotifications {
 		);
 
 		Mailer::send('payout_approved', $user->user_email, $ctx);
+	}
+
+	/**
+	 * Commission credit cleared — notify vendor.
+	 *
+	 * Listens to `mhm_rentiva_commission_cleared` from CommissionClearingJob.
+	 *
+	 * @param int    $vendor_id  Vendor user ID.
+	 * @param float  $amount     Cleared commission amount (vendor net).
+	 * @param string $currency   Currency code.
+	 * @param int    $booking_id Booking post ID (0 if none).
+	 * @param int    $order_id   WooCommerce order ID (0 if none).
+	 */
+	public static function on_commission_cleared(int $vendor_id, float $amount, string $currency, int $booking_id, int $order_id): void
+	{
+		$user = get_userdata($vendor_id);
+		if (! $user) {
+			return;
+		}
+
+		$ctx               = self::build_vendor_context($user);
+		$ctx['commission'] = array(
+			'amount'           => $amount,
+			'amount_formatted' => self::format_amount($amount),
+			'currency'         => $currency,
+			'booking_id'       => $booking_id,
+			'order_id'         => $order_id,
+		);
+
+		Mailer::send('commission_cleared', $user->user_email, $ctx);
 	}
 
 	/**
