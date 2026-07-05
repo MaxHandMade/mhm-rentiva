@@ -145,6 +145,30 @@ final class CommissionBridge {
         // Ensure strictly negative transaction values
         $net_deduction = -abs($commission_logic->get_vendor_net_amount());
 
+        // Void the original pending credit FIRST (if still pending). Its rows-affected
+        // count tells us, atomically, whether this is an early refund (credit was still
+        // pending — nothing was ever released to the vendor) or a late refund (credit
+        // already cleared — real money was already released and must be clawed back).
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded, idempotent void of the matching pending credit.
+        $voided_rows = $wpdb->update(
+            $wpdb->prefix . 'mhm_rentiva_ledger',
+            array( 'status' => 'voided' ),
+            array(
+                'transaction_uuid' => 'pay_cmp_' . $order_id . '_' . $booking_id,
+                'status'           => 'pending',
+            ),
+            array( '%s' ),
+            array( '%s', '%s' )
+        );
+
+        // Early refund (credit voided just now, never released): the debit must NOT
+        // also subtract from the balance, or the vendor ends up with a phantom negative
+        // for a booking whose commission was never paid out. 'reversed' is excluded from
+        // every Ledger:: balance query, so the net effect on this booking is zero.
+        // Late refund (credit already cleared, $voided_rows === 0): the debit must be
+        // 'cleared' so it actually claws back the already-released balance.
+        $debit_status = ( $voided_rows === 1 ) ? 'reversed' : 'cleared';
+
         $transaction_uuid = 'pay_ref_' . $refund_id . '_' . $order_id;
 
         $entry = new LedgerEntry(
@@ -159,7 +183,7 @@ final class CommissionBridge {
             $commission_logic->get_commission_rate_snapshot(),
             $currency,
             'vendor',
-            'cleared', // Immediately debits the available balance (see Ledger::get_balance()).
+            $debit_status,
             null, // created_at (auto)
             $commission_logic->get_policy_id(),
             $commission_logic->get_policy_version_hash()
@@ -170,23 +194,6 @@ final class CommissionBridge {
         } catch (\RuntimeException $e) {
             return;
         }
-
-        // If the original credit for this booking/order has not cleared yet (still
-        // pending, inside the 7-day hold window), void it so it can never clear later —
-        // this refund entry above is the only ledger effect for this booking's commission.
-        // If it already cleared (late refund, e.g. admin/chargeback), this guarded update
-        // affects 0 rows and the debit above is the sole balance adjustment.
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded, idempotent void of the matching pending credit.
-        $wpdb->update(
-            $wpdb->prefix . 'mhm_rentiva_ledger',
-            array( 'status' => 'voided' ),
-            array(
-                'transaction_uuid' => 'pay_cmp_' . $order_id . '_' . $booking_id,
-                'status'           => 'pending',
-            ),
-            array( '%s' ),
-            array( '%s', '%s' )
-        );
 
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);

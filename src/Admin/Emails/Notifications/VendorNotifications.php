@@ -412,12 +412,18 @@ final class VendorNotifications {
 	/**
 	 * Format a currency amount for display in emails.
 	 *
-	 * @param float $amount Amount to format.
+	 * @param float       $amount   Amount to format.
+	 * @param string|null $currency Currency code to force (e.g. from a cron context with no
+	 *                              active store/session currency). Defaults to the active
+	 *                              WooCommerce store currency when omitted.
 	 * @return string Formatted string.
 	 */
-	private static function format_amount(float $amount): string
+	private static function format_amount(float $amount, ?string $currency = null): string
 	{
 		if (function_exists('wc_price')) {
+			if ($currency !== null) {
+				return wp_strip_all_tags( (string) wc_price($amount, array( 'currency' => $currency )));
+			}
 			return wp_strip_all_tags( (string) wc_price($amount));
 		}
 		$symbol = function_exists('get_woocommerce_currency_symbol') ? get_woocommerce_currency_symbol() : '₺';
@@ -569,7 +575,7 @@ final class VendorNotifications {
 		$ctx               = self::build_vendor_context($user);
 		$ctx['commission'] = array(
 			'amount'           => $amount,
-			'amount_formatted' => self::format_amount($amount),
+			'amount_formatted' => self::format_amount($amount, $currency),
 			'currency'         => $currency,
 			'booking_id'       => $booking_id,
 			'order_id'         => $order_id,

@@ -77,7 +77,7 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         $this->assertCount(1, $entries, 'Duplicate refund evaluations caused negative balance drifts over idempotent entries.');
         $this->assertEquals('cleared', $entries[0]->status);
-        $this->assertEquals(-42.5, (float) $entries[0]->amount); // 50 * 0.15 = 7.5. 50 - 7.5 = 42.5. Reversed = -42.5
+        $this->assertEquals(-42.5, (float) $entries[0]->amount); // 50 * 0.15 = 7.5. 50 - 7.5 = 42.5. Cleared = -42.5
     }
 
     public function test_unrelated_order_ignored_safely(): void
@@ -168,5 +168,36 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         $balance_after = Ledger::get_balance($this->vendor_id);
         $this->assertEquals($balance_before - 42.5, $balance_after, 'A late refund must actually debit the cleared balance.');
+    }
+
+    public function test_refund_before_clearing_has_zero_net_effect_on_balance(): void
+    {
+        if (! class_exists('WC_Order')) {
+            $this->markTestSkipped('WooCommerce not loaded.');
+        }
+
+        $order = \wc_create_order();
+        $order->set_total('100.00');
+        $order->update_meta_data('_mhm_booking_id', $this->booking_id);
+        $order->save();
+
+        CommissionBridge::on_payment_complete($order->get_id());
+
+        $balance_before = Ledger::get_balance($this->vendor_id);
+
+        $refund = \wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => 50.0,
+        ));
+
+        CommissionBridge::on_order_refunded($order->get_id(), $refund->get_id());
+
+        $balance_after = Ledger::get_balance($this->vendor_id);
+
+        $this->assertSame(
+            $balance_before,
+            $balance_after,
+            'A refund arriving before clearing must have zero net effect on the vendor balance — nothing was ever released, so nothing should be clawed back.'
+        );
     }
 }
