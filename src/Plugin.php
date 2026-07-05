@@ -918,6 +918,9 @@ final class Plugin {
 		) {
 			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
 		}
+		if (class_exists('MHMRentiva\Core\Financial\Automation\CommissionClearingJob')) {
+			\MHMRentiva\Core\Financial\Automation\CommissionClearingJob::register();
+		}
 
 		// Plugin deactivation hook
 		register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array( Admin\Licensing\LicenseManager::class, 'deactivatePluginHook' ));
