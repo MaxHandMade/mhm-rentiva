@@ -175,7 +175,7 @@ final class BookingColumns {
 			// Load simple calendar CSS
 			wp_enqueue_style(
 				'mhm-simple-calendars',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/simple-calendars.css',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);

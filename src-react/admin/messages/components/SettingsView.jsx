@@ -67,6 +67,11 @@ export default function SettingsView( { onBack } ) {
 			<form method="POST" action={ `${ admin_url }admin-post.php` }>
 				<input type="hidden" name="action" value="mhm_rentiva_save_messages_settings" />
 				<input type="hidden" name="nonce"  value={ nonces.settings } />
+				{ /* Only the active tab's inputs are mounted below, so the save
+				   handler needs to know which tab was showing to tell "field
+				   omitted because its tab wasn't active" apart from "checkbox
+				   omitted because the user unchecked it". */ }
+				<input type="hidden" name="active_tab" value={ tab } />
 
 				<div className="mhm-widget mhm-tab-content">
 				{ /* Email tab */ }

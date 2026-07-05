@@ -85,36 +85,61 @@ final class MessagesSettings {
 	 */
 	public static function sanitize_settings( array $input ): array {
 		$sanitized = array();
+		$current   = self::get_settings();
 
-		// Boolean values
-		$boolean_fields = array(
+		// The settings form only renders the active tab's inputs, so a save
+		// submits fields for ONE tab only. A hidden `active_tab` field (set
+		// by SettingsView.jsx) tells us which one, so fields belonging to a
+		// different tab can be preserved instead of wiped.
+		$active_tab = sanitize_key( (string) ( $input['active_tab'] ?? '' ) );
+
+		// Boolean values. Checkboxes are absent from POST both when their
+		// tab wasn't submitted AND when the user unchecked them — only the
+		// Email tab currently renders these four, so only treat "absent" as
+		// "unchecked" when Email was the submitted tab; otherwise preserve.
+		$email_boolean_fields = array(
 			'email_admin_notifications',
 			'email_customer_notifications',
 			'email_reply_notifications',
 			'email_status_change_notifications',
-			'dashboard_widget_enabled',
-			'auto_reply_enabled',
 		);
-
-		foreach ( $boolean_fields as $field ) {
-			$sanitized[ $field ] = isset( $input[ $field ] ) ? (bool) $input[ $field ] : false;
+		foreach ( $email_boolean_fields as $field ) {
+			$sanitized[ $field ] = 'email' === $active_tab
+				? ( isset( $input[ $field ] ) ? (bool) $input[ $field ] : false )
+				: (bool) ( $current[ $field ] ?? false );
 		}
 
-		// Numeric values
-		$sanitized['lite_messages_per_month']       = absint( $input['lite_messages_per_month'] ?? 10 );
-		$sanitized['lite_messages_per_day']         = absint( $input['lite_messages_per_day'] ?? 3 );
-		$sanitized['dashboard_widget_max_messages'] = absint( $input['dashboard_widget_max_messages'] ?? 5 );
+		// Not exposed as checkboxes on any current settings tab, so they can
+		// never be legitimately submitted — always preserve the stored value
+		// rather than force-disabling them on every save.
+		$sanitized['dashboard_widget_enabled'] = (bool) ( $current['dashboard_widget_enabled'] ?? true );
+		$sanitized['auto_reply_enabled']       = (bool) ( $current['auto_reply_enabled'] ?? false );
 
-		// String values
-		$sanitized['admin_email'] = sanitize_email( (string) ( $input['admin_email'] ?? '' ) );
-		$sanitized['from_name']   = sanitize_text_field( (string) ( $input['from_name'] ?? '' ) );
-		$sanitized['from_email']  = sanitize_email( (string) ( $input['from_email'] ?? '' ) );
+		// Numeric/string values. Unlike checkboxes, text/number/email inputs
+		// are always present in POST when their (Email) tab is active, even
+		// if cleared — isset() alone correctly tells "wrong tab" apart from
+		// "field cleared", no active-tab guard needed.
+		$sanitized['lite_messages_per_month']       = isset( $input['lite_messages_per_month'] )
+			? absint( $input['lite_messages_per_month'] )
+			: (int) ( $current['lite_messages_per_month'] ?? 10 );
+		$sanitized['lite_messages_per_day']         = isset( $input['lite_messages_per_day'] )
+			? absint( $input['lite_messages_per_day'] )
+			: (int) ( $current['lite_messages_per_day'] ?? 3 );
+		$sanitized['dashboard_widget_max_messages'] = isset( $input['dashboard_widget_max_messages'] )
+			? absint( $input['dashboard_widget_max_messages'] )
+			: (int) ( $current['dashboard_widget_max_messages'] ?? 5 );
 
-		// Categories and statuses. The settings form only renders the active
-		// tab's inputs, so a save from another tab (e.g. Email) submits no
-		// `categories`/`statuses` fields at all — preserve the existing
-		// values in that case instead of wiping them to an empty array.
-		$current = self::get_settings();
+		$sanitized['admin_email'] = isset( $input['admin_email'] )
+			? sanitize_email( (string) $input['admin_email'] )
+			: (string) ( $current['admin_email'] ?? '' );
+		$sanitized['from_name']   = isset( $input['from_name'] )
+			? sanitize_text_field( (string) $input['from_name'] )
+			: (string) ( $current['from_name'] ?? '' );
+		$sanitized['from_email']  = isset( $input['from_email'] )
+			? sanitize_email( (string) $input['from_email'] )
+			: (string) ( $current['from_email'] ?? '' );
+
+		// Categories and statuses: same absent-key-preserves-existing rule.
 		$sanitized['categories'] = isset( $input['categories'] )
 			? self::sanitize_categories( $input['categories'] )
 			: ( $current['categories'] ?? array() );

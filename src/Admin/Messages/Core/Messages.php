@@ -1481,15 +1481,6 @@ final class Messages {
 			true
 		);
 
-		// Customer Messages Standalone JS
-		wp_enqueue_script(
-			'mhm-customer-messages-standalone',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/customer-messages-standalone.js',
-			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
-			true
-		);
-
 		// Localize JavaScript variables
 		wp_localize_script(
 			'mhm-customer-messages',

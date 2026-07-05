@@ -386,14 +386,15 @@ class MessagesSettingsTest extends WP_UnitTestCase
 
     /**
      * @test
-     * Scenario: Boolean fields are correctly cast.
+     * Scenario: Boolean fields are correctly cast when submitted from the
+     * Email tab (the only tab that renders these checkboxes).
      */
     public function it_sanitizes_boolean_fields_correctly()
     {
         $input = [
+            'active_tab' => 'email',
             'email_admin_notifications' => '1',
             'email_customer_notifications' => 0,
-            'auto_reply_enabled' => true,
             'categories' => [],
             'statuses' => []
         ];
@@ -402,9 +403,81 @@ class MessagesSettingsTest extends WP_UnitTestCase
 
         $this->assertTrue($result['email_admin_notifications']);
         $this->assertFalse($result['email_customer_notifications']);
-        $this->assertTrue($result['auto_reply_enabled']);
-        // Unset fields should default to false
+    }
+
+    /**
+     * @test
+     * Scenario: Unchecking an Email-tab checkbox and saving from the Email
+     * tab must actually turn it off, not preserve the old value — this is
+     * the behavior the `active_tab` signal exists to make possible (an
+     * absent checkbox is ambiguous between "wrong tab" and "unchecked").
+     */
+    public function it_turns_off_email_checkbox_when_unchecked_on_the_email_tab()
+    {
+        update_option('mhm_rentiva_messages_settings', [
+            'email_admin_notifications' => true,
+        ]);
+
+        // Email tab submitted, but the checkbox is absent (user unchecked it).
+        $input = [
+            'active_tab' => 'email',
+        ];
+
+        $result = MessagesSettings::sanitize_settings($input);
+
+        $this->assertFalse($result['email_admin_notifications']);
+    }
+
+    /**
+     * @test
+     * Scenario: `dashboard_widget_enabled` and `auto_reply_enabled` are not
+     * rendered as checkboxes on any current settings tab, so they must
+     * never be force-reset by a save — always preserve the stored value.
+     */
+    public function it_always_preserves_booleans_with_no_settings_ui()
+    {
+        update_option('mhm_rentiva_messages_settings', [
+            'dashboard_widget_enabled' => false,
+            'auto_reply_enabled'       => true,
+        ]);
+
+        $input = [
+            'active_tab' => 'email',
+        ];
+
+        $result = MessagesSettings::sanitize_settings($input);
+
         $this->assertFalse($result['dashboard_widget_enabled']);
+        $this->assertTrue($result['auto_reply_enabled']);
+    }
+
+    /**
+     * @test
+     * Scenario: saving from the Categories tab must not wipe Email tab
+     * settings (notifications, admin email, Lite limits) — the exact
+     * data-loss bug this fix addresses.
+     */
+    public function it_preserves_email_tab_settings_when_saving_from_categories_tab()
+    {
+        update_option('mhm_rentiva_messages_settings', [
+            'email_admin_notifications' => false,
+            'admin_email'               => 'existing@example.com',
+            'from_name'                 => 'Existing Name',
+            'lite_messages_per_month'   => 25,
+        ]);
+
+        // Categories tab submitted; no email-tab fields present at all.
+        $input = [
+            'active_tab' => 'categories',
+            'categories' => ['general' => 'General'],
+        ];
+
+        $result = MessagesSettings::sanitize_settings($input);
+
+        $this->assertFalse($result['email_admin_notifications']);
+        $this->assertEquals('existing@example.com', $result['admin_email']);
+        $this->assertEquals('Existing Name', $result['from_name']);
+        $this->assertEquals(25, $result['lite_messages_per_month']);
     }
 
     // =========================================================================
