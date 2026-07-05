@@ -62,10 +62,10 @@ class CommissionBridgeTest extends WP_UnitTestCase
         $order->update_meta_data('_mhm_booking_id', $this->booking_id);
         $order->save();
 
-        // Mocking a refund object since wc_create_refund is complex without valid line items
-        $refund = \wc_create_order(array('type' => 'shop_order_refund'));
-        $refund->set_total('50.0'); // Refunds are generated manually as order extensions wrapping native DB items
-        $refund->save();
+        $refund = \wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => 50.0,
+        ));
 
         // Fire 1
         CommissionBridge::on_order_refunded($order->get_id(), $refund->get_id());
@@ -110,9 +110,10 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         CommissionBridge::on_payment_complete($order->get_id());
 
-        $refund = \wc_create_order(array('type' => 'shop_order_refund'));
-        $refund->set_total('50.0');
-        $refund->save();
+        $refund = \wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => 50.0,
+        ));
 
         CommissionBridge::on_order_refunded($order->get_id(), $refund->get_id());
 
@@ -152,9 +153,10 @@ class CommissionBridgeTest extends WP_UnitTestCase
 
         $balance_before = Ledger::get_balance($this->vendor_id);
 
-        $refund = \wc_create_order(array('type' => 'shop_order_refund'));
-        $refund->set_total('50.0');
-        $refund->save();
+        $refund = \wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => 50.0,
+        ));
 
         CommissionBridge::on_order_refunded($order->get_id(), $refund->get_id());
 
