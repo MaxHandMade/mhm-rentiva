@@ -85,6 +85,8 @@ export const rentivaApi = {
 		updateVendorCommissionRate: ( id, rate ) => apiFetch( { path: `${ BASE }/vendors/vendors/${ id }/commission-rate`, method: 'POST', data: { rate } } ),
 		getCommission: () => apiFetch( { path: `${ BASE }/vendors/commission` } ),
 		saveCommission: ( data ) => apiFetch( { path: `${ BASE }/vendors/commission`, method: 'POST', data } ),
+		getCommissionTiers: () => apiFetch( { path: `${ BASE }/vendors/commission-tiers` } ),
+		saveCommissionTiers: ( tiers ) => apiFetch( { path: `${ BASE }/vendors/commission-tiers`, method: 'POST', data: { tiers } } ),
 		getSettings: () => apiFetch( { path: `${ BASE }/vendors/settings` } ),
 		saveSettings: ( data ) => apiFetch( { path: `${ BASE }/vendors/settings`, method: 'POST', data } ),
 	},

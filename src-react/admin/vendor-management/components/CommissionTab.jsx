@@ -19,7 +19,16 @@ export default function CommissionTab( { onNotice } ) {
 			} );
 	};
 
-	useEffect( () => { fetchCommission(); }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
+	const [ tiers,      setTiers      ] = useState( [] );
+	const [ tiersSaving, setTiersSaving ] = useState( false );
+
+	const fetchTiers = () => {
+		rentivaApi.vendorManagement.getCommissionTiers()
+			.then( ( res ) => setTiers( res.tiers ) )
+			.catch( () => onNotice( { type: 'error', message: __( 'Failed to load commission tiers.', 'mhm-rentiva' ) } ) );
+	};
+
+	useEffect( () => { fetchCommission(); fetchTiers(); }, [] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const handleSave = ( e ) => {
 		e.preventDefault();
@@ -41,6 +50,26 @@ export default function CommissionTab( { onNotice } ) {
 				onNotice( { type: 'error', message: __( 'Failed to save commission rate.', 'mhm-rentiva' ) } );
 				setSaving( false );
 			} );
+	};
+
+	const updateTierField = ( index, field, value ) => {
+		setTiers( ( prev ) => prev.map( ( t, i ) => ( i === index ? { ...t, [ field ]: value } : t ) ) );
+	};
+
+	const handleSaveTiers = () => {
+		const parsed = tiers.map( ( t ) => ( { threshold: parseFloat( t.threshold ), discount: parseFloat( t.discount ) } ) );
+		if ( parsed.some( ( t ) => isNaN( t.threshold ) || isNaN( t.discount ) || t.threshold < 0 || t.discount < 0 || t.discount > 100 ) ) {
+			onNotice( { type: 'error', message: __( 'All thresholds and discounts must be valid, non-negative numbers (discount max 100).', 'mhm-rentiva' ) } );
+			return;
+		}
+		setTiersSaving( true );
+		rentivaApi.vendorManagement.saveCommissionTiers( parsed )
+			.then( () => {
+				onNotice( { type: 'success', message: __( 'Commission tiers updated.', 'mhm-rentiva' ) } );
+				fetchTiers();
+			} )
+			.catch( () => onNotice( { type: 'error', message: __( 'Failed to save commission tiers.', 'mhm-rentiva' ) } ) )
+			.finally( () => setTiersSaving( false ) );
 	};
 
 	if ( loading ) return <p>{ __( 'Loading…', 'mhm-rentiva' ) }</p>;
@@ -128,6 +157,45 @@ export default function CommissionTab( { onNotice } ) {
 					</table>
 				</>
 			) }
+
+			<h2 style={ { marginTop: '2.5em' } }>{ __( 'Volume Discount Tiers', 'mhm-rentiva' ) }</h2>
+			<p>{ __( '30-day net cleared revenue thresholds that reduce the effective rate for vendors without a manual override.', 'mhm-rentiva' ) }</p>
+			<table className="widefat fixed striped" style={ { maxWidth: '500px' } }>
+				<thead>
+					<tr>
+						<th>{ __( '30-Day Revenue Threshold', 'mhm-rentiva' ) }</th>
+						<th>{ __( 'Discount (points)', 'mhm-rentiva' ) }</th>
+					</tr>
+				</thead>
+				<tbody>
+					{ tiers.map( ( t, i ) => (
+						<tr key={ i }>
+							<td>
+								<input
+									type="number" min="0" step="1"
+									style={ { width: '140px' } }
+									value={ t.threshold }
+									onChange={ ( e ) => updateTierField( i, 'threshold', e.target.value ) }
+								/>
+							</td>
+							<td>
+								<input
+									type="number" min="0" max="100" step="0.1"
+									style={ { width: '90px' } }
+									value={ t.discount }
+									onChange={ ( e ) => updateTierField( i, 'discount', e.target.value ) }
+								/>
+								<span> %</span>
+							</td>
+						</tr>
+					) ) }
+				</tbody>
+			</table>
+			<p className="submit">
+				<button type="button" className="button button-primary" onClick={ handleSaveTiers } disabled={ tiersSaving }>
+					{ tiersSaving ? __( 'Saving…', 'mhm-rentiva' ) : __( 'Save Tiers', 'mhm-rentiva' ) }
+				</button>
+			</p>
 		</div>
 	);
 }

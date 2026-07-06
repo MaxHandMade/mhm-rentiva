@@ -206,6 +206,23 @@ final class VendorManagementRestController {
 			),
 		) );
 
+		// Get commission tiers.
+		register_rest_route( $ns, '/vendors/commission-tiers', array(
+			'methods'             => \WP_REST_Server::READABLE,
+			'callback'            => array( self::class, 'get_commission_tiers' ),
+			'permission_callback' => $perm,
+		) );
+
+		// Save commission tiers.
+		register_rest_route( $ns, '/vendors/commission-tiers', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'save_commission_tiers' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'tiers' => array( 'type' => 'array', 'required' => true ),
+			),
+		) );
+
 		// Get settings.
 		register_rest_route( $ns, self::SETTINGS_BASE, array(
 			'methods'             => \WP_REST_Server::READABLE,
@@ -772,6 +789,49 @@ final class VendorManagementRestController {
 		PolicyRepository::insert_global_policy( $rate, $label );
 
 		return new \WP_REST_Response( array( 'success' => true, 'new_rate' => $rate ) );
+	}
+
+	private const DEFAULT_TIERS = array(
+		array( 'threshold' => 30000.0, 'discount' => 6.0 ),
+		array( 'threshold' => 15000.0, 'discount' => 4.0 ),
+		array( 'threshold' => 5000.0, 'discount' => 2.0 ),
+	);
+
+	public static function get_commission_tiers(): \WP_REST_Response {
+		$tiers = get_option( 'mhm_rentiva_commission_tiers', null );
+		if ( ! is_array( $tiers ) || count( $tiers ) === 0 ) {
+			$tiers = self::DEFAULT_TIERS;
+		}
+
+		return new \WP_REST_Response( array( 'tiers' => $tiers ) );
+	}
+
+	public static function save_commission_tiers( \WP_REST_Request $request ): \WP_REST_Response {
+		$tiers = (array) $request->get_param( 'tiers' );
+
+		if ( count( $tiers ) !== 3 ) {
+			return new \WP_REST_Response(
+				array( 'code' => 'invalid_tier_count', 'message' => __( 'Exactly 3 tiers are required.', 'mhm-rentiva' ) ),
+				400
+			);
+		}
+
+		$clean = array();
+		foreach ( $tiers as $tier ) {
+			$threshold = (float) ( $tier['threshold'] ?? 0 );
+			$discount  = (float) ( $tier['discount'] ?? 0 );
+			if ( $threshold < 0.0 || $discount < 0.0 || $discount > 100.0 ) {
+				return new \WP_REST_Response(
+					array( 'code' => 'invalid_tier_value', 'message' => __( 'Thresholds and discounts must be non-negative; discount must not exceed 100.', 'mhm-rentiva' ) ),
+					400
+				);
+			}
+			$clean[] = array( 'threshold' => $threshold, 'discount' => $discount );
+		}
+
+		update_option( 'mhm_rentiva_commission_tiers', $clean );
+
+		return new \WP_REST_Response( array( 'success' => true, 'tiers' => $clean ) );
 	}
 
 	// ---------------------------------------------------------------
