@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Frontend\Account\AccountRenderer;
 use MHMRentiva\Admin\Services\FavoritesService;
+use MHMRentiva\Core\Services\Metrics\MetricRegistry;
 use MHMRentiva\Core\Services\TrendService;
 
 
@@ -185,7 +186,44 @@ final class DashboardDataProvider {
 				$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
 				return array( 'total' => (string) $metrics['cancellation_rate'] . '%' );
 			},
+			'available_balance' => static function (string $context, int $user_id, string $user_email): array {
+				unset($user_email);
+				return self::resolve_vendor_ledger_metric('available_balance', $context, $user_id);
+			},
+			'pending_balance'   => static function (string $context, int $user_id, string $user_email): array {
+				unset($user_email);
+				return self::resolve_vendor_ledger_metric('pending_balance', $context, $user_id);
+			},
+			'total_paid_out'    => static function (string $context, int $user_id, string $user_email): array {
+				unset($user_email);
+				return self::resolve_vendor_ledger_metric('total_paid_out', $context, $user_id);
+			},
 		);
+	}
+
+	/**
+	 * Resolve a vendor-scoped ledger metric (available_balance, pending_balance,
+	 * total_paid_out) directly via its MetricRegistry handler.
+	 *
+	 * These metrics are lifetime/point-in-time ledger totals, not period trends,
+	 * so they bypass TrendService::get_trend() entirely — that path passes a
+	 * 'user_id' arg key (see trend_args_for_metric()) which these handlers do not
+	 * recognize; they require 'vendor_id' specifically (see e.g.
+	 * AvailableBalanceMetric::resolve()).
+	 *
+	 * @return array<string, float>
+	 */
+	private static function resolve_vendor_ledger_metric(string $metric_key, string $context, int $vendor_id): array
+	{
+		$handler = MetricRegistry::get($metric_key);
+		if (! $handler) {
+			return array( 'total' => 0.0 );
+		}
+
+		$now      = time();
+		$resolved = $handler->resolve($context, array( 'vendor_id' => $vendor_id ), $now, $now, $now);
+
+		return array( 'total' => (float) ( $resolved['total'] ?? 0.0 ) );
 	}
 
 	/**
