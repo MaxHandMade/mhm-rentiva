@@ -60,4 +60,20 @@ class VendorManagementRestCommissionTiersTest extends WP_UnitTestCase
 
         $this->assertSame(400, $response->get_status());
     }
+
+    public function test_saving_a_tier_with_an_out_of_range_discount_is_rejected(): void
+    {
+        $request = new WP_REST_Request('POST', '/mhm-rentiva/v1/vendors/commission-tiers');
+        $request->set_param('tiers', array(
+            array('threshold' => 50000.0, 'discount' => 8.0),
+            array('threshold' => 20000.0, 'discount' => 150.0),
+            array('threshold' => 8000.0, 'discount' => 2.0),
+        ));
+
+        $response = VendorManagementRestController::save_commission_tiers($request);
+        $data     = $response->get_data();
+
+        $this->assertSame(400, $response->get_status());
+        $this->assertSame('invalid_tier_value', $data['code']);
+    }
 }
