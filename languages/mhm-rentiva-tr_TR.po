@@ -801,7 +801,7 @@ msgstr "Lisans durumu:"
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:8
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:99
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:120
 #: src-react/admin/vendor-management/components/VendorTable.jsx:80
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Active"
@@ -1032,7 +1032,7 @@ msgstr "Geçersiz fiyatlandırma/bağlam kombinasyonu — fiyat tipi \"rezervasy
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:73
 #: templates/emails/vendor-report-received-admin.html.php:15
 #: assets/blocks/popular-routes/index.js:51
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:228
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:279
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:17
 msgid "Title"
 msgstr "Başlık"
@@ -1088,7 +1088,7 @@ msgstr "Fiyat"
 #: src-react/admin/messages/components/MessageTable.jsx:23
 #: src-react/admin/messages/components/MessageTable.jsx:59
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:174
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:225
 #: src-react/admin/vendor-management/components/VendorTable.jsx:104
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:18
 msgid "Status"
@@ -1127,8 +1127,8 @@ msgstr "Gerekli"
 #: src-react/admin/export/components/PreviewBar.jsx:22
 #: src-react/admin/messages/components/MessageTable.jsx:25
 #: src-react/admin/messages/components/MessageTable.jsx:65
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:172
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:197
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:223
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:248
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:19
 msgid "Date"
 msgstr "Tarih"
@@ -1153,8 +1153,8 @@ msgstr "Pasif"
 #: templates/shortcodes/vehicle-rating-form.php:278
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:231
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:242
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:282
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:293
 msgid "Edit"
 msgstr "Düzenle"
 
@@ -2854,7 +2854,7 @@ msgstr "Müşteri"
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:62
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:53
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:14
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:105
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:126
 #: src-react/admin/vendor-management/components/VendorTable.jsx:100
 msgid "Email"
 msgstr "E-posta"
@@ -2876,7 +2876,7 @@ msgstr "E-posta"
 #: src-react/admin/customers/components/CustomerPanel.jsx:62
 #: src-react/admin/customers/components/CustomerTable.jsx:49
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:54
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:106
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:127
 msgid "Phone"
 msgstr "Telefon"
 
@@ -4607,7 +4607,8 @@ msgstr "İptal"
 #: src/Admin/Core/AssetManager.php:1349
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1333
 #: templates/account/partials/vendor-profile-settings.php:128
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:182
 msgid "Save"
 msgstr "Kaydet"
 
@@ -6337,7 +6338,7 @@ msgid "Search:"
 msgstr "Arama:"
 
 #: src/Admin/Core/Utilities/CityHelper.php:162
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:117
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:138
 msgid "Select a city..."
 msgstr "Şehir seçin..."
 
@@ -10210,7 +10211,7 @@ msgstr "Banka hesabında göründüğü şekliyle tam adınız."
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:201
 #: src/Core/Financial/Statement/PayoutStatementRenderer.php:61
 #: templates/account/partials/vendor-settings.php:120
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:140
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:161
 msgid "IBAN"
 msgstr "IBAN"
 
@@ -10270,17 +10271,17 @@ msgid "Upload clear photos or scans. Accepted formats: JPG, PNG, PDF (max %dMB e
 msgstr "Net fotoğraf veya tarama yükleyin. Kabul edilen formatlar: JPG, PNG, PDF (her biri maks %dMB)."
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:241
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:298
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:309
 msgid "ID Document"
 msgstr "Kimlik Belgesi"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:242
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:299
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:310
 msgid "Driver's License"
 msgstr "Sürücü Belgesi"
 
 #: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php:243
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:300
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:311
 msgid "Address Document"
 msgstr "Adres Belgesi"
 
@@ -11729,7 +11730,7 @@ msgstr "Hakkında"
 #: src-react/admin/export/components/ExportCards.jsx:10
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:49
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:72
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:223
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:274
 #: src-react/admin/vendor-management/components/VendorTable.jsx:102
 msgid "Vehicles"
 msgstr "Araçlar"
@@ -13386,7 +13387,7 @@ msgstr "Durum Ekle"
 #. translators: %s: human-readable time difference
 #. translators: %s: relative time (e.g. 5 minutes)
 #: src/Admin/Messages/Utilities/MessageUtilities.php:289
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:264
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:275
 #: src/Admin/VendorReport/REST/VendorReportsController.php:172
 #: src/Admin/VendorReport/REST/VendorReportsController.php:224
 #: templates/messages/message-thread-view.html.php:65
@@ -13743,7 +13744,7 @@ msgstr "Geçersiz ödeme tutarı."
 #: templates/frontend/partials/vendor-directory-filter-bar.php:21
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:55
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:15
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:108
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:129
 #: src-react/admin/vendor-management/components/VendorTable.jsx:101
 msgid "City"
 msgstr "Şehir"
@@ -13811,7 +13812,7 @@ msgstr "Bağlam:"
 #: templates/account/partials/vendor-payouts.php:218
 #: templates/account/vendor-ledger.php:66
 #: assets/blocks/payment-history/index.js:52
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:173
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:224
 msgid "Amount"
 msgstr "Tutar"
 
@@ -13985,7 +13986,7 @@ msgstr "Çıktı akışı açılamadı."
 #: src/Admin/PostTypes/Payouts/PayoutListTable.php:55
 #: src/Core/Dashboard/DashboardConfig.php:86
 #: templates/account/partials/vendor-payouts.php:150
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:148
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:199
 msgid "Available Balance"
 msgstr "Kullanılabilir Bakiye"
 
@@ -20453,7 +20454,7 @@ msgid "Fuel"
 msgstr "Yakıt"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:86
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:230
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:281
 msgid "Lifecycle"
 msgstr "Yaşam Döngüsü"
 
@@ -21689,16 +21690,16 @@ msgctxt "URL slug"
 msgid "vendor"
 msgstr "bayi"
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:353
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:364
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
 msgstr "Red gerekçesi zorunludur."
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:391
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:402
 msgid "Not set"
 msgstr "Ayarlanmamış"
 
-#: src/Admin/Vendor/REST/VendorManagementRestController.php:685
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:697
 msgid "The selected city is not in the allowed list."
 msgstr "Seçilen şehir izin verilen listede değil."
 
@@ -23090,7 +23091,7 @@ msgid "Request Payout"
 msgstr "Ödeme Talep Et"
 
 #: templates/account/partials/vendor-payouts.php:210
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:214
 msgid "Payout History"
 msgstr "Ödeme Geçmişi"
 
@@ -23357,17 +23358,17 @@ msgid "No score events recorded yet. Events appear here when your score changes.
 msgstr "Henüz puan değişikliği kaydedilmedi. Puanınız değiştiğinde olaylar burada görünür."
 
 #: templates/account/partials/vendor-reliability.php:377
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:198
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:249
 msgid "Event"
 msgstr "Olay"
 
 #: templates/account/partials/vendor-reliability.php:379
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:199
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:250
 msgid "Change"
 msgstr "Değişim"
 
 #: templates/account/partials/vendor-reliability.php:380
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:200
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:251
 #: src-react/admin/vendor-management/components/VendorTable.jsx:103
 msgid "Score"
 msgstr "Puan"
@@ -23595,7 +23596,7 @@ msgid "All Types"
 msgstr "Tüm Türler"
 
 #: templates/account/vendor-ledger.php:49
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:156
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:207
 msgid "Refunds"
 msgstr "İadeler"
 
@@ -25860,7 +25861,7 @@ msgstr "Müşteri detayları yüklenemedi."
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:46
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:30
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:65
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:85
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:106
 #: src-react/admin/vendor-management/components/VendorTable.jsx:88
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:104
 #: src-react/admin/vendor-reports/components/DetailView.jsx:27
@@ -26393,11 +26394,14 @@ msgstr "Onayla ve Bayiyi Aktifleştir"
 msgid "Failed to load commission data."
 msgstr "Komisyon verileri yüklenemedi."
 
+#: src/Admin/Vendor/REST/VendorManagementRestController.php:735
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:28
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:79
 msgid "Rate must be between 0 and 100."
 msgstr "Oran 0 ile 100 arasında olmalıdır."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:34
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:86
 msgid "Commission rate updated."
 msgstr "Komisyon oranı güncellendi."
 
@@ -26435,7 +26439,8 @@ msgstr "örn. 2026 Q1 standart oran"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:103
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:163
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:128
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:182
 msgid "Saving…"
 msgstr "Kaydediliyor…"
 
@@ -26597,61 +26602,61 @@ msgstr "Özel"
 msgid "Scheduled recalculation"
 msgstr "Zamanlanmış yeniden hesaplama"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:55
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:58
 msgid "Failed to load vendor."
 msgstr "Bayi yüklenemedi."
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:65
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:68
 msgid "City updated."
 msgstr "Şehir güncellendi."
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:67
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:70
 msgid "Could not update the city."
 msgstr "Şehir güncellenemedi."
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:81
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:102
 msgid "← Back to vendors"
 msgstr "← Bayilere dön"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:98
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:119
 #: src-react/admin/vendor-management/components/VendorTable.jsx:81
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Suspended"
 msgstr "Askıya Alındı"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:139
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:160
 msgid "Reliability Score"
 msgstr "Güvenilirlik Puanı"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:141
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
 msgid "Approved At"
 msgstr "Onaylanma Tarihi"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:152
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:203
 msgid "Completed Bookings"
 msgstr "Tamamlanan Rezervasyonlar"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:165
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:216
 msgid "View all →"
 msgstr "Tümünü gör →"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:188
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:239
 msgid "No payout requests yet."
 msgstr "Henüz ödeme talebi yok."
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:243
 msgid "Reliability & Penalty History"
 msgstr "Güvenilirlik ve Ceza Geçmişi"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:220
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:271
 msgid "No penalties or reliability events recorded."
 msgstr "Kayıtlı ceza veya güvenilirlik olayı yok."
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:229
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:280
 msgid "Post Status"
 msgstr "Gönderi Durumu"
 
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:250
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:301
 msgid "This vendor has no vehicles."
 msgstr "Bu bayinin aracı yok."
 
@@ -27018,3 +27023,15 @@ msgstr "Bir komisyon kesinleşti — {{site.name}}"
 #, php-format
 msgid "A commission of %s has cleared and is now part of your available balance."
 msgstr "%s tutarındaki komisyon kesinleşti ve artık kullanılabilir bakiyenizin bir parçası oldu."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:88
+msgid "Could not update the commission rate."
+msgstr "Komisyon oranı güncellenemedi."
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
+msgid "Commission Rate Override"
+msgstr "Komisyon Oranı Geçersiz Kılma"
+
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:170
+msgid "Use global/tier rate"
+msgstr "Genel/kademe oranını kullan"
