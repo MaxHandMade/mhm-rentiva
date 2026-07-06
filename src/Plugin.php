@@ -364,6 +364,10 @@ final class Plugin {
 			\MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::register();
 		}
 
+		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleCommissionRateMetaBox')) {
+			\MHMRentiva\Admin\Vehicle\Meta\VehicleCommissionRateMetaBox::register();
+		}
+
 		// BookingMeta registration - directly
 		\MHMRentiva\Admin\Booking\Meta\BookingMeta::register();
 
