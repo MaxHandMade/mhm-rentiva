@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.63.1
+Stable tag:        4.63.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,13 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.63.2 — 2026-07-06 =
+* 🐛 **Fix:** Vendor commission was silently never recorded for real bookings due to a booking-reference mismatch between the checkout flow and the commission ledger — vendor earnings were never credited at all.
+* ✨ **Feature:** Vendor commission now automatically clears and becomes available for payout 7 days after payment, via a new scheduled job. Previously, commission stayed in a "pending" state indefinitely with no way for a vendor to ever withdraw it.
+* 🐛 **Fix:** Refunds now correctly adjust the vendor's available balance, whether the refund happens before or after the commission clears, and whether it's a partial or full refund. Previously, refunds had no effect on the balance at all.
+* ✨ **Feature:** Vendors now receive an email notification when a commission clears and becomes available for payout.
+* 🐛 **Fix:** The vendor dashboard's "Financial Summary" cards (Available Balance, Pending Balance, Total Paid Out) always showed 0,00 regardless of the vendor's actual balance, due to a data-key mismatch. The payout-request section, which reads the balance directly, was unaffected.
 
 = 4.63.1 — 2026-07-05 =
 * 🐛 **Fix:** The Dashboard's and Reports page's "Revenue" charts were rendering blank — a pre-existing 404 on a vendor script that never shipped in any release. Chart.js is now bundled directly with the admin scripts.

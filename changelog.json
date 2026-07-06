@@ -1,5 +1,20 @@
 [
   {
+    "version": "4.63.2",
+    "date": "2026-07-06",
+    "type": "patch",
+    "title": "Vendor commission clearing, refund balance fix, and dashboard KPI fix",
+    "summary": "Vendor commission is now correctly recorded, automatically clears for payout after 7 days, and refunds correctly adjust the vendor's balance. The dashboard's Financial Summary cards no longer always show zero.",
+    "changes": [
+      "Fix: vendor commission was silently never recorded for real bookings due to a booking-reference mismatch between the checkout flow and the commission ledger — vendor earnings were never credited at all.",
+      "Feature: vendor commission now automatically clears and becomes available for payout 7 days after payment, via a new scheduled job. Previously, commission stayed in a \"pending\" state indefinitely with no way for a vendor to ever withdraw it.",
+      "Fix: refunds now correctly adjust the vendor's available balance, whether the refund happens before or after the commission clears, and whether it's a partial or full refund. Previously, refunds had no effect on the balance at all.",
+      "Feature: vendors now receive an email notification when a commission clears and becomes available for payout.",
+      "Fix: the vendor dashboard's \"Financial Summary\" cards (Available Balance, Pending Balance, Total Paid Out) always showed 0,00 regardless of the vendor's actual balance, due to a data-key mismatch. The payout-request section, which reads the balance directly, was unaffected."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.1",
     "date": "2026-07-05",
     "type": "patch",

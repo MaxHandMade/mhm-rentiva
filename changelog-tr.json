@@ -1,5 +1,20 @@
 [
   {
+    "version": "4.63.2",
+    "date": "2026-07-06",
+    "type": "patch",
+    "title": "Bayi komisyonu clearing mekanizması, iade bakiye düzeltmesi ve panel KPI düzeltmesi",
+    "summary": "Bayi komisyonu artık doğru kaydediliyor, 7 gün sonra otomatik olarak çekilebilir hale geliyor, ve iadeler bayi bakiyesini doğru şekilde etkiliyor. Panelin Finansal Özet kartları artık her zaman sıfır göstermiyor.",
+    "changes": [
+      "Düzeltme: bayi komisyonu, checkout akışı ile komisyon defteri arasındaki bir rezervasyon-referansı uyuşmazlığı yüzünden gerçek rezervasyonlarda hiç kaydedilmiyordu — bayi kazançları hiçbir zaman işlenmiyordu.",
+      "Özellik: bayi komisyonu artık ödemeden 7 gün sonra yeni bir zamanlanmış görev aracılığıyla otomatik olarak kesinleşip ödemeye hazır hale geliyor. Daha önce komisyon süresiz olarak \"bekleyen\" durumda kalıyordu ve bayinin bunu çekmesinin hiçbir yolu yoktu.",
+      "Düzeltme: iadeler artık — komisyon kesinleşmeden önce veya sonra olsun, kısmi veya tam olsun — bayinin kullanılabilir bakiyesini doğru şekilde etkiliyor. Daha önce iadelerin bakiye üzerinde hiçbir etkisi yoktu.",
+      "Özellik: bir komisyon kesinleşip ödemeye hazır hale geldiğinde bayilere artık e-posta bildirimi gönderiliyor.",
+      "Düzeltme: bayi panelindeki \"Finansal Özet\" kartları (Kullanılabilir Bakiye, Bekleyen Bakiye, Toplam Ödenen) bir veri-anahtarı uyuşmazlığı yüzünden bayinin gerçek bakiyesinden bağımsız olarak her zaman 0,00 gösteriyordu. Bakiyeyi doğrudan okuyan ödeme talebi bölümü bundan etkilenmemişti."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.1",
     "date": "2026-07-05",
     "type": "patch",
