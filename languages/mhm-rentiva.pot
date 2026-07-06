@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-06T15:42:20+00:00\n"
+"POT-Creation-Date: 2026-07-06T16:08:52+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -2828,7 +2828,7 @@ msgstr ""
 #: src/Admin/Messages/Notifications/MessageNotifications.php:157
 #: src/Admin/Settings/Testing/SettingsTester.php:971
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125
-#: src/Plugin.php:1324
+#: src/Plugin.php:1328
 #: templates/messages/message-thread-view.html.php:56
 #: src-react/admin/messages/components/MessageTable.jsx:21
 #: src-react/admin/messages/components/MessageTable.jsx:57
@@ -20674,6 +20674,19 @@ msgstr ""
 msgid "Vendor Score:"
 msgstr ""
 
+#: src/Admin/Vehicle/Meta/VehicleCommissionRateMetaBox.php:38
+#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
+msgid "Commission Rate Override"
+msgstr ""
+
+#: src/Admin/Vehicle/Meta/VehicleCommissionRateMetaBox.php:51
+msgid "Commission Rate (%)"
+msgstr ""
+
+#: src/Admin/Vehicle/Meta/VehicleCommissionRateMetaBox.php:52
+msgid "Leave empty to use the vendor or platform-wide rate."
+msgstr ""
+
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:44
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:50
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:29
@@ -22523,15 +22536,15 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:1014
+#: src/Plugin.php:1018
 msgid "Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles."
 msgstr ""
 
-#: src/Plugin.php:1017
+#: src/Plugin.php:1021
 msgid "Rentiva Lite version has reached the booking limit. Activate your license to add more bookings."
 msgstr ""
 
-#: src/Plugin.php:1346
+#: src/Plugin.php:1350
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -26650,10 +26663,6 @@ msgstr ""
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:160
 msgid "Reliability Score"
-msgstr ""
-
-#: src-react/admin/vendor-management/components/VendorDetailPage.jsx:163
-msgid "Commission Rate Override"
 msgstr ""
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:170
