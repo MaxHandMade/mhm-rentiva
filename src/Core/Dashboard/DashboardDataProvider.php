@@ -65,7 +65,7 @@ final class DashboardDataProvider {
 		}
 
 		if ($with_trend) {
-			$args = self::trend_args_for_metric($metric, $user_id, $user_email);
+			$args = self::trend_args_for_metric($metric, $context, $user_id, $user_email);
 			return self::normalize_trend_payload(TrendService::get_trend($metric, $context, $args));
 		}
 
@@ -231,12 +231,19 @@ final class DashboardDataProvider {
 	 *
 	 * @return array<string, int|string>
 	 */
-	private static function trend_args_for_metric(string $metric, int $user_id, string $user_email): array
+	private static function trend_args_for_metric(string $metric, string $context, int $user_id, string $user_email): array
 	{
 		$metric = sanitize_key($metric);
 
 		if ($metric === 'unread_messages') {
 			return array( 'email' => $user_email );
+		}
+
+		// Vendor-context metric handlers (e.g. Revenue7dMetric) key their subject on
+		// 'vendor_id', not 'user_id' — see AvailableBalanceMetric et al. for the same
+		// contract on the metrics resolved directly in metric_resolvers() below.
+		if ($context === 'vendor') {
+			return array( 'vendor_id' => $user_id );
 		}
 
 		return array( 'user_id' => $user_id );

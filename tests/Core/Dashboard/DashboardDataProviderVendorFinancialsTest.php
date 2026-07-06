@@ -101,4 +101,29 @@ class DashboardDataProviderVendorFinancialsTest extends WP_UnitTestCase
 
         $this->assertSame(200.0, $data['kpi_data']['total_paid_out']['total']);
     }
+
+    public function test_revenue_7d_kpi_reflects_real_earnings_not_zero(): void
+    {
+        // revenue_7d is the one vendor KPI still routed through TrendService
+        // (trend => true in DashboardConfig). It must receive a 'vendor_id' arg,
+        // not 'user_id', or Revenue7dMetric::resolve() short-circuits to zero.
+        Ledger::add_entry(new LedgerEntry(
+            'test_revenue_1',
+            $this->vendor_id,
+            null,
+            null,
+            'commission_credit',
+            150.0,
+            176.0,
+            26.0,
+            15.0,
+            'EUR',
+            'vendor',
+            'cleared'
+        ));
+
+        $data = DashboardDataProvider::build('vendor', $this->vendor_id, '');
+
+        $this->assertSame(150, $data['kpi_data']['revenue_7d']['total']);
+    }
 }
