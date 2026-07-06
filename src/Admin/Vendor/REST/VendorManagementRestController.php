@@ -177,6 +177,17 @@ final class VendorManagementRestController {
 			),
 		) );
 
+		// Update vendor commission rate override (empty/omitted = clear override, fall back to global rate).
+		register_rest_route( $ns, self::VENDORS_BASE . '/(?P<id>\d+)/commission-rate', array(
+			'methods'             => \WP_REST_Server::CREATABLE,
+			'callback'            => array( self::class, 'update_vendor_commission_rate' ),
+			'permission_callback' => $perm,
+			'args'                => array(
+				'id'   => array( 'type' => 'integer', 'minimum' => 1, 'required' => true ),
+				'rate' => array( 'type' => 'number', 'required' => false, 'minimum' => 0, 'maximum' => 100 ),
+			),
+		) );
+
 		// Get commission.
 		register_rest_route( $ns, self::COMMISSION_BASE, array(
 			'methods'             => \WP_REST_Server::READABLE,
@@ -623,6 +634,7 @@ final class VendorManagementRestController {
 				'city'              => (string) get_user_meta( $vendor_id, '_rentiva_vendor_city', true ),
 				'status'            => (string) get_user_meta( $vendor_id, '_rentiva_vendor_status', true ) ?: 'active',
 				'reliability_score' => (int) get_user_meta( $vendor_id, '_rentiva_vendor_reliability_score', true ),
+				'commission_rate'   => ( '' !== ( $raw_rate = get_user_meta( $vendor_id, '_mhm_vendor_commission_rate', true ) ) ) ? (float) $raw_rate : null,
 				'iban_masked'       => $iban_masked,
 				'approved_at'       => (string) get_user_meta( $vendor_id, '_rentiva_vendor_approved_at', true ),
 				'balance'           => $balance,
@@ -691,6 +703,43 @@ final class VendorManagementRestController {
 		update_user_meta( $vendor_id, \MHMRentiva\Admin\Core\MetaKeys::VENDOR_CITY, $city );
 
 		return new \WP_REST_Response( array( 'success' => true, 'city' => $city ) );
+	}
+
+	/**
+	 * Set or clear a vendor's commission-rate override.
+	 *
+	 * Writes/deletes the `_mhm_vendor_commission_rate` user meta —
+	 * the same key CommissionResolver::calculate() already reads
+	 * (see CommissionResolver.php Layer 2). Omitting the 'rate' param
+	 * (or WP REST arg validation rejecting it) clears the override so
+	 * the vendor falls back to the tier/global rate.
+	 */
+	public static function update_vendor_commission_rate( \WP_REST_Request $request ): \WP_REST_Response {
+		$vendor_id   = (int) $request->get_param( 'id' );
+		$vendor_data = get_userdata( $vendor_id );
+
+		if ( ! $vendor_data || ! in_array( 'rentiva_vendor', (array) $vendor_data->roles, true ) ) {
+			return new \WP_REST_Response( array( 'code' => 'vendor_not_found' ), 404 );
+		}
+
+		$rate = $request->get_param( 'rate' );
+
+		if ( $rate === null || $rate === '' ) {
+			delete_user_meta( $vendor_id, '_mhm_vendor_commission_rate' );
+			return new \WP_REST_Response( array( 'success' => true, 'rate' => null ) );
+		}
+
+		$rate = (float) $rate;
+		if ( $rate < 0.0 || $rate > 100.0 ) {
+			return new \WP_REST_Response(
+				array( 'code' => 'invalid_rate', 'message' => __( 'Rate must be between 0 and 100.', 'mhm-rentiva' ) ),
+				400
+			);
+		}
+
+		update_user_meta( $vendor_id, '_mhm_vendor_commission_rate', (string) $rate );
+
+		return new \WP_REST_Response( array( 'success' => true, 'rate' => $rate ) );
 	}
 
 	// ---------------------------------------------------------------

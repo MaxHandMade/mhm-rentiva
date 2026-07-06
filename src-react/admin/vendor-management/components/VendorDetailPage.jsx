@@ -42,6 +42,9 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 	const [ cityValue,  setCityValue  ] = useState( '' );
 	const [ citySaving, setCitySaving ] = useState( false );
 	const [ cityMsg,    setCityMsg    ] = useState( null );
+	const [ rateValue,  setRateValue  ] = useState( '' );
+	const [ rateSaving, setRateSaving ] = useState( false );
+	const [ rateMsg,    setRateMsg    ] = useState( null );
 
 	const cities = ( window.mhmRentivaVendorManagement || {} ).cities || [];
 
@@ -51,7 +54,7 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 		setError( null );
 		setCityMsg( null );
 		rentivaApi.vendorManagement.getVendorDetail( vendorId )
-			.then( ( res ) => { if ( active ) { setVendor( res.vendor ); setCityValue( res.vendor.city || '' ); setLoading( false ); } } )
+			.then( ( res ) => { if ( active ) { setVendor( res.vendor ); setCityValue( res.vendor.city || '' ); setRateValue( res.vendor.commission_rate != null ? String( res.vendor.commission_rate ) : '' ); setLoading( false ); } } )
 			.catch( () => { if ( active ) { setError( __( 'Failed to load vendor.', 'mhm-rentiva' ) ); setLoading( false ); } } );
 		return () => { active = false; };
 	}, [ vendorId ] );
@@ -66,6 +69,24 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 			} )
 			.catch( () => setCityMsg( { type: 'error', text: __( 'Could not update the city.', 'mhm-rentiva' ) } ) )
 			.finally( () => setCitySaving( false ) );
+	};
+
+	const saveRate = () => {
+		setRateSaving( true );
+		setRateMsg( null );
+		const parsed = rateValue === '' ? null : parseFloat( rateValue );
+		if ( parsed !== null && ( isNaN( parsed ) || parsed < 0 || parsed > 100 ) ) {
+			setRateMsg( { type: 'error', text: __( 'Rate must be between 0 and 100.', 'mhm-rentiva' ) } );
+			setRateSaving( false );
+			return;
+		}
+		rentivaApi.vendorManagement.updateVendorCommissionRate( vendorId, parsed )
+			.then( ( res ) => {
+				setVendor( ( v ) => ( { ...v, commission_rate: res.rate } ) );
+				setRateMsg( { type: 'success', text: __( 'Commission rate updated.', 'mhm-rentiva' ) } );
+			} )
+			.catch( () => setRateMsg( { type: 'error', text: __( 'Could not update the commission rate.', 'mhm-rentiva' ) } ) )
+			.finally( () => setRateSaving( false ) );
 	};
 
 	const lifecycleLabels    = LIFECYCLE_LABELS();
@@ -138,6 +159,36 @@ export default function VendorDetailPage( { vendorId, onBack } ) {
 							</tr>
 							<tr><th>{ __( 'Reliability Score', 'mhm-rentiva' ) }</th><td>{ vendor.reliability_score ?? '—' }</td></tr>
 							<tr><th>{ __( 'IBAN', 'mhm-rentiva' ) }</th><td>{ vendor.iban_masked || '—' }</td></tr>
+							<tr>
+								<th>{ __( 'Commission Rate Override', 'mhm-rentiva' ) }</th>
+								<td>
+									<span style={ { display: 'inline-flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' } }>
+										<input
+											type="number"
+											min="0" max="100" step="0.01"
+											style={ { width: '90px' } }
+											placeholder={ __( 'Use global/tier rate', 'mhm-rentiva' ) }
+											value={ rateValue }
+											onChange={ ( e ) => setRateValue( e.target.value ) }
+											disabled={ rateSaving }
+										/>
+										<span>%</span>
+										<button
+											type="button"
+											className="button button-small"
+											onClick={ saveRate }
+											disabled={ rateSaving }
+										>
+											{ rateSaving ? __( 'Saving…', 'mhm-rentiva' ) : __( 'Save', 'mhm-rentiva' ) }
+										</button>
+										{ rateMsg && (
+											<span style={ { fontSize: '12px', color: rateMsg.type === 'error' ? '#c62828' : '#2e7d32' } }>
+												{ rateMsg.text }
+											</span>
+										) }
+									</span>
+								</td>
+							</tr>
 							<tr><th>{ __( 'Approved At', 'mhm-rentiva' ) }</th><td>{ vendor.approved_at || '—' }</td></tr>
 						</tbody>
 					</table>
