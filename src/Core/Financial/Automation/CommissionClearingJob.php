@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
+use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 
 /**
  * Background worker to clear matured pending commission credits.
@@ -91,6 +92,13 @@ final class CommissionClearingJob {
                 // Already processed by another worker in the meantime — not a failure.
                 ++$skipped_count;
                 continue;
+            }
+
+            // Invalidate the vendor's cached dashboard metrics (e.g. "Kullanılabilir
+            // Bakiye") so it reflects the newly cleared balance immediately, instead
+            // of showing a stale pre-clearing value until the cache naturally expires.
+            if (class_exists(MetricCacheManager::class)) {
+                MetricCacheManager::flush_subject_all_metrics( (string) $row->vendor_id);
             }
 
             do_action(

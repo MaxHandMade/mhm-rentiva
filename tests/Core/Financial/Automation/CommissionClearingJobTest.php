@@ -8,6 +8,7 @@ use MHMRentiva\Core\Database\Migrations\LedgerMigration;
 use MHMRentiva\Core\Financial\Automation\CommissionClearingJob;
 use MHMRentiva\Core\Financial\Ledger;
 use MHMRentiva\Core\Financial\LedgerEntry;
+use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 use WP_UnitTestCase;
 
 class CommissionClearingJobTest extends WP_UnitTestCase
@@ -127,5 +128,24 @@ class CommissionClearingJobTest extends WP_UnitTestCase
         ));
 
         $this->assertSame('voided', $status);
+    }
+
+    public function test_clearing_a_credit_invalidates_the_vendor_available_balance_cache(): void
+    {
+        MetricCacheManager::set('vendor', 'available_balance', (string) $this->vendor_id, array( 'total' => 0.0 ));
+        $this->assertNotFalse(
+            MetricCacheManager::get('vendor', 'available_balance', (string) $this->vendor_id),
+            'Precondition: a cached available_balance entry must exist before clearing.'
+        );
+
+        $eight_days_ago = gmdate('Y-m-d H:i:s', time() - (8 * DAY_IN_SECONDS));
+        $this->insert_commission_credit('cache_flush_pending', 'pending', $eight_days_ago);
+
+        CommissionClearingJob::run();
+
+        $this->assertFalse(
+            MetricCacheManager::get('vendor', 'available_balance', (string) $this->vendor_id),
+            'Clearing a commission must invalidate the vendor\'s cached available_balance so the dashboard reflects the new balance immediately.'
+        );
     }
 }
