@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integrations\WooCommerce;
 
 use MHMRentiva\Integrations\WooCommerce\CommissionBridge;
+use MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration;
 use MHMRentiva\Core\Database\Migrations\LedgerMigration;
 use MHMRentiva\Core\Financial\Automation\CommissionClearingJob;
 use MHMRentiva\Core\Financial\Ledger;
+use MHMRentiva\Core\Financial\PolicyRepository;
 use WP_UnitTestCase;
 
 class CommissionBridgeTest extends WP_UnitTestCase
@@ -19,9 +21,12 @@ class CommissionBridgeTest extends WP_UnitTestCase
     {
         parent::setUp();
         LedgerMigration::create_table();
+        CommissionPolicyMigration::create_table();
 
         global $wpdb;
         $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_ledger"); // Clean state
+
+        PolicyRepository::insert_global_policy(15.0, 'test-suite-policy');
 
         $this->vendor_id = self::factory()->user->create(array('role' => 'mhm_rentiva_vendor'));
         $this->booking_id = self::factory()->post->create(array(
