@@ -103,6 +103,33 @@ class CommissionBridgeTest extends WP_UnitTestCase
         $this->assertEmpty($entries, 'Independent vanilla e-commerce orders mistakenly flagged into marketplace ledgers.');
     }
 
+    public function test_vehicle_level_commission_override_is_applied_on_payment(): void
+    {
+        if (! class_exists('WC_Order')) {
+            $this->markTestSkipped('WooCommerce not loaded.');
+        }
+
+        $vehicle_id = self::factory()->post->create(array(
+            'post_type'   => 'vehicle',
+            'post_author' => $this->vendor_id,
+        ));
+        update_post_meta($this->booking_id, '_mhm_vehicle_id', $vehicle_id);
+        update_post_meta($vehicle_id, '_mhm_vendor_commission_rate', '5.0');
+
+        $order = \wc_create_order();
+        $order->set_total('100.00');
+        $order->update_meta_data('_mhm_booking_id', $this->booking_id);
+        $order->save();
+
+        CommissionBridge::on_payment_complete($order->get_id());
+
+        $entries = Ledger::get_entries($this->vendor_id);
+
+        $this->assertCount(1, $entries);
+        // 5% of 100 = 5 commission, 95 net to vendor — NOT the 15% seeded global rate.
+        $this->assertEquals(95.0, (float) $entries[0]->amount, 'The vehicle-level 5% override must be applied instead of the 15% global rate.');
+    }
+
     public function test_refund_before_clearing_does_not_touch_the_pending_credit(): void
     {
         if (! class_exists('WC_Order')) {

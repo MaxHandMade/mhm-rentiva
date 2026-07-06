@@ -61,11 +61,12 @@ final class CommissionBridge {
             return; // Invalid booking architecture, ghost author.
         }
 
+        $vehicle_id     = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
         $payment_amount = (float) $order->get_total();
         $currency       = $order->get_currency();
 
         try {
-            $commission_logic = CommissionResolver::calculate($payment_amount, $vendor_id);
+            $commission_logic = CommissionResolver::calculate($payment_amount, $vendor_id, '', $vehicle_id);
         } catch (\InvalidArgumentException $e) {
             return; // Safely abort negative parsing inside isolated module resolving
         }
@@ -100,7 +101,6 @@ final class CommissionBridge {
         // Push to cache manager forcing instant dashboard refresh
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
-            $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
             if ($vehicle_id > 0) {
                 MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
             }
@@ -135,7 +135,8 @@ final class CommissionBridge {
         $refund_amount = (float) $refund->get_amount(); // Often positive integer inside `get_amount` for Refunds, inverse manually
         $currency      = $order->get_currency();
 
-        $commission_logic = self::resolve_refund_commission($refund_amount, $vendor_id, $order_id, $booking_id);
+        $vehicle_id       = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+        $commission_logic = self::resolve_refund_commission($refund_amount, $vendor_id, $order_id, $booking_id, $vehicle_id);
         if ($commission_logic === null) {
             return;
         }
@@ -181,7 +182,6 @@ final class CommissionBridge {
 
         if (class_exists(MetricCacheManager::class)) {
             MetricCacheManager::flush_subject_all_metrics( (string) $vendor_id);
-            $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
             if ($vehicle_id > 0) {
                 MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
             }
@@ -203,7 +203,7 @@ final class CommissionBridge {
      * Falls back to CommissionResolver::calculate() (today's rate) only when no
      * matching original credit can be found — e.g. legacy data.
      */
-    private static function resolve_refund_commission(float $refund_amount, int $vendor_id, int $order_id, int $booking_id): ?CommissionResult
+    private static function resolve_refund_commission(float $refund_amount, int $vendor_id, int $order_id, int $booking_id, int $vehicle_id): ?CommissionResult
     {
         global $wpdb;
 
@@ -233,7 +233,7 @@ final class CommissionBridge {
         }
 
         try {
-            return CommissionResolver::calculate($refund_amount, $vendor_id);
+            return CommissionResolver::calculate($refund_amount, $vendor_id, '', $vehicle_id);
         } catch (\InvalidArgumentException $e) {
             return null;
         }
