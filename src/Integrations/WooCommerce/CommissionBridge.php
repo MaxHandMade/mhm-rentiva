@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Core\Financial\CommissionResolver;
+use MHMRentiva\Core\Financial\CommissionResult;
 use MHMRentiva\Core\Financial\Ledger;
 use MHMRentiva\Core\Financial\LedgerEntry;
 use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
@@ -134,9 +135,8 @@ final class CommissionBridge {
         $refund_amount = (float) $refund->get_amount(); // Often positive integer inside `get_amount` for Refunds, inverse manually
         $currency      = $order->get_currency();
 
-        try {
-            $commission_logic = CommissionResolver::calculate($refund_amount, $vendor_id);
-        } catch (\InvalidArgumentException $e) {
+        $commission_logic = self::resolve_refund_commission($refund_amount, $vendor_id, $order_id, $booking_id);
+        if ($commission_logic === null) {
             return;
         }
 
@@ -185,6 +185,57 @@ final class CommissionBridge {
             if ($vehicle_id > 0) {
                 MetricCacheManager::flush_subject_metric('vehicle', 'perf', (string) $vehicle_id);
             }
+        }
+    }
+
+    /**
+     * Resolve the commission math for a refund, preferring the ORIGINAL credit's
+     * own rate/policy snapshot over whatever rate happens to be active today.
+     *
+     * A vendor's commission rate can change between payment and refund (a manual
+     * rate change, a tier threshold crossed, etc.). Re-resolving via
+     * CommissionResolver::calculate() would apply TODAY's rate to the clawback,
+     * which no longer matches what the vendor was actually credited — drifting
+     * the ledger away from the original transaction's true economics. Reusing the
+     * original credit's stored `commission_rate` keeps the refund's math tied to
+     * the same rate the corresponding credit was built from.
+     *
+     * Falls back to CommissionResolver::calculate() (today's rate) only when no
+     * matching original credit can be found — e.g. legacy data.
+     */
+    private static function resolve_refund_commission(float $refund_amount, int $vendor_id, int $order_id, int $booking_id): ?CommissionResult
+    {
+        global $wpdb;
+
+        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only lookup of the matching credit's rate snapshot for refund math.
+        $original = $wpdb->get_row(
+            $wpdb->prepare(
+                'SELECT commission_rate, policy_id, policy_version_hash FROM %i WHERE transaction_uuid = %s',
+                $wpdb->prefix . 'mhm_rentiva_ledger',
+                'pay_cmp_' . $order_id . '_' . $booking_id
+            )
+        );
+
+        if ($original !== null && $original->commission_rate !== null) {
+            $rate              = (float) $original->commission_rate;
+            $commission_amount = round(( $refund_amount * $rate ) / 100.0, 2, PHP_ROUND_HALF_UP);
+            $vendor_net_amount = round($refund_amount - $commission_amount, 2, PHP_ROUND_HALF_UP);
+
+            return new CommissionResult(
+                $refund_amount,
+                $commission_amount,
+                $vendor_net_amount,
+                $rate,
+                CommissionResult::SOURCE_GLOBAL,
+                $original->policy_id !== null ? (int) $original->policy_id : null,
+                $original->policy_version_hash
+            );
+        }
+
+        try {
+            return CommissionResolver::calculate($refund_amount, $vendor_id);
+        } catch (\InvalidArgumentException $e) {
+            return null;
         }
     }
 }

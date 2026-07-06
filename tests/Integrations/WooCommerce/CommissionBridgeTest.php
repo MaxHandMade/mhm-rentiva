@@ -235,4 +235,47 @@ class CommissionBridgeTest extends WP_UnitTestCase
             'Once the original credit clears, the vendor must receive commission on the retained amount, not zero.'
         );
     }
+
+    public function test_refund_uses_the_original_credit_rate_not_todays_rate(): void
+    {
+        if (! class_exists('WC_Order')) {
+            $this->markTestSkipped('WooCommerce not loaded.');
+        }
+
+        // Payment captured at the 15% rate seeded in setUp().
+        $order = \wc_create_order();
+        $order->set_total('100.00');
+        $order->update_meta_data('_mhm_booking_id', $this->booking_id);
+        $order->save();
+
+        CommissionBridge::on_payment_complete($order->get_id());
+
+        // The platform-wide rate changes to 20% before the refund happens.
+        PolicyRepository::insert_global_policy(20.0, 'rate-changed-after-payment');
+
+        $refund = \wc_create_refund(array(
+            'order_id' => $order->get_id(),
+            'amount'   => 50.0,
+        ));
+
+        CommissionBridge::on_order_refunded($order->get_id(), $refund->get_id());
+
+        global $wpdb;
+        $refund_uuid = 'pay_ref_' . $refund->get_id() . '_' . $order->get_id();
+        $row         = $wpdb->get_row($wpdb->prepare(
+            "SELECT amount, commission_rate FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE transaction_uuid = %s",
+            $refund_uuid
+        ));
+
+        $this->assertEquals(
+            15.0,
+            (float) $row->commission_rate,
+            'The refund must use the rate the vendor was originally credited at (15%), not today\'s active rate (20%).'
+        );
+        $this->assertEquals(
+            -42.5,
+            (float) $row->amount,
+            'At the original 15% rate: 50 - (50 * 0.15) = 42.5.'
+        );
+    }
 }
