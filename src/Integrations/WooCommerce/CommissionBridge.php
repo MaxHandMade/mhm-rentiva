@@ -111,8 +111,6 @@ final class CommissionBridge {
      */
     public static function on_order_refunded(int $order_id, int $refund_id): void
     {
-        global $wpdb;
-
         $order = wc_get_order($order_id);
         if (! $order instanceof \WC_Order) {
             return;
@@ -145,32 +143,18 @@ final class CommissionBridge {
         // Ensure strictly negative transaction values
         $net_deduction = -abs($commission_logic->get_vendor_net_amount());
 
-        // Void the original pending credit FIRST (if still pending). Its rows-affected
-        // count tells us, atomically, whether this is an early refund (credit was still
-        // pending — nothing was ever released to the vendor) or a late refund (credit
-        // already cleared — real money was already released and must be clawed back).
-        // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded, idempotent void of the matching pending credit.
-        $voided_rows = $wpdb->update(
-            $wpdb->prefix . 'mhm_rentiva_ledger',
-            array( 'status' => 'voided' ),
-            array(
-                'transaction_uuid' => 'pay_cmp_' . $order_id . '_' . $booking_id,
-                'status'           => 'pending',
-            ),
-            array( '%s' ),
-            array( '%s', '%s' )
-        );
-
-        // Early refund (credit voided just now, never released): the debit must NOT
-        // also subtract from the balance, or the vendor ends up with a phantom negative
-        // for a booking whose commission was never paid out. 'reversed' is excluded from
-        // every Ledger:: balance query, so the net effect on this booking is zero.
-        // Late refund (credit already cleared, $voided_rows === 0): the debit must be
-        // 'cleared' so it actually claws back the already-released balance.
-        $debit_status = ( $voided_rows === 1 ) ? 'reversed' : 'cleared';
-
         $transaction_uuid = 'pay_ref_' . $refund_id . '_' . $order_id;
 
+        // Always 'cleared' (immediate, real debit) regardless of whether the original
+        // commission_credit for this booking has cleared yet. The original credit is
+        // NEVER voided or amount-adjusted — it clears normally, at its original
+        // full-order-gross value, on its own 7-day schedule. Addition is commutative:
+        // whenever both entries have landed, original_credit + this_debit always equals
+        // the correct commission on the amount the vendor actually retained, whether the
+        // refund is partial or full, and whether it arrives before or after clearing.
+        // (A refund arriving before the original clears will show a temporary balance
+        // dip until the original credit's own 7-day hold elapses — expected and correct,
+        // not a bug: that reflects money not yet released being provisionally offset.)
         $entry = new LedgerEntry(
             $transaction_uuid,
             $vendor_id,
@@ -183,7 +167,7 @@ final class CommissionBridge {
             $commission_logic->get_commission_rate_snapshot(),
             $currency,
             'vendor',
-            $debit_status,
+            'cleared',
             null, // created_at (auto)
             $commission_logic->get_policy_id(),
             $commission_logic->get_policy_version_hash()
