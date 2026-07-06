@@ -39,6 +39,16 @@ final class Ledger {
         // so the gate blocked legitimate financial writes. tenant_id is still stamped on the
         // row for multi-tenant data scoping.
 
+        $now = gmdate('Y-m-d H:i:s'); // UTC strict - no WP timezone.
+
+        // An entry born already 'cleared' (a refund debit, a payout debit, etc.)
+        // clears at the same instant it's created. An entry born 'pending' has no
+        // cleared_at yet — it's stamped later, at the moment it actually transitions
+        // (see CommissionClearingJob), not backdated to its creation time. This
+        // keeps "when did this become recognized revenue" distinct from "when was
+        // the underlying payment captured" for time-windowed reporting.
+        $cleared_at = ( $entry->get_status() === 'cleared' ) ? $now : null;
+
         $data = array(
             'tenant_id'           => $tenant_id,
             'transaction_uuid'    => $entry->get_transaction_uuid(),
@@ -53,7 +63,8 @@ final class Ledger {
             'currency'            => $entry->get_currency(),
             'context'             => $entry->get_context(),
             'status'              => $entry->get_status(),
-            'created_at'          => gmdate('Y-m-d H:i:s'), // UTC strict - no WP timezone.
+            'created_at'          => $now,
+            'cleared_at'          => $cleared_at,
             'policy_id'           => $entry->get_policy_id(),
             'policy_version_hash' => $entry->get_policy_version_hash(),
         );
@@ -73,6 +84,7 @@ final class Ledger {
             '%s', // context
             '%s', // status
             '%s', // created_at
+            '%s', // cleared_at
             '%d', // policy_id
             '%s', // policy_version_hash
         );

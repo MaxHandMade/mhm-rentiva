@@ -25,6 +25,15 @@ class conventionally reads ONLY from mhm_rentiva_ledger.
  * All timestamps passed in are Unix timestamps (integer), converted internally
  * via gmdate() to ensure no timezone drift between PHP and MySQL.
  *
+ * Window filters use COALESCE(cleared_at, created_at), not created_at alone.
+ * A commission_credit's created_at is stamped at payment time, but it only
+ * clears 7 days later (CommissionClearingJob's fixed hold) — filtering on
+ * created_at alone would mean a "last 7 days" window could never contain a
+ * credit that just cleared, since its created_at is always 7+ days old by
+ * then. cleared_at reflects when the amount was actually recognized; the
+ * COALESCE falls back to created_at for entries that clear immediately at
+ * birth (refund/payout debits) or predate this column.
+ *
  * @since 4.21.0
  */
 final class AnalyticsService
@@ -45,8 +54,8 @@ final class AnalyticsService
      *   WHERE vendor_id = %d
      *     AND status = 'cleared'
      *     AND type IN ('commission_credit', 'commission_refund')
-     *     AND created_at >= %s
-     *     AND created_at < %s
+     *     AND COALESCE(cleared_at, created_at) >= %s
+     *     AND COALESCE(cleared_at, created_at) < %s
      */
     public static function get_revenue_period(
         int $vendor_id,
@@ -63,8 +72,8 @@ final class AnalyticsService
 				WHERE vendor_id = %d
 				AND status = %s
 				AND type IN (%s, %s)
-				AND created_at >= %s
-				AND created_at < %s",
+				AND COALESCE(cleared_at, created_at) >= %s
+				AND COALESCE(cleared_at, created_at) < %s",
                 $vendor_id,
                 'cleared',
                 'commission_credit',
@@ -145,8 +154,8 @@ final class AnalyticsService
      *   WHERE vendor_id = %d
      *     AND status = 'cleared'
      *     AND type = 'commission_credit'
-     *     AND created_at >= %s
-     *     AND created_at < %s
+     *     AND COALESCE(cleared_at, created_at) >= %s
+     *     AND COALESCE(cleared_at, created_at) < %s
      *
      * Returns 0.0 if no cleared credits exist in the window.
      */
@@ -167,8 +176,8 @@ final class AnalyticsService
 				WHERE vendor_id = %d
 				AND status = %s
 				AND type = %s
-				AND created_at >= %s
-				AND created_at < %s",
+				AND COALESCE(cleared_at, created_at) >= %s
+				AND COALESCE(cleared_at, created_at) < %s",
                 $vendor_id,
                 'cleared',
                 'commission_credit',
@@ -235,16 +244,16 @@ final class AnalyticsService
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT DATE(l.created_at) AS day, SUM(l.amount) AS amount
+                "SELECT DATE(COALESCE(l.cleared_at, l.created_at)) AS day, SUM(l.amount) AS amount
                 FROM {$ledger_table} l
                 {$join_sql}
                 WHERE l.vendor_id = %d
                 AND l.status = %s
                 AND l.type IN (%s, %s)
-                AND l.created_at >= %s
-                AND l.created_at < %s
+                AND COALESCE(l.cleared_at, l.created_at) >= %s
+                AND COALESCE(l.cleared_at, l.created_at) < %s
                 {$where_sql}
-                GROUP BY DATE(l.created_at)
+                GROUP BY DATE(COALESCE(l.cleared_at, l.created_at))
                 ORDER BY day ASC",
                 ...$query_args
             )
@@ -318,13 +327,13 @@ final class AnalyticsService
 
         $revenue = $wpdb->get_var(
             $wpdb->prepare(
-                "SELECT SUM(amount) 
+                "SELECT SUM(amount)
                  FROM {$ledger_table}
                  WHERE booking_id IN ({$placeholders_ledger})
                    AND status = %s
                    AND type IN (%s, %s)
-                   AND created_at >= %s
-                   AND created_at < %s",
+                   AND COALESCE(cleared_at, created_at) >= %s
+                   AND COALESCE(cleared_at, created_at) < %s",
                 ...array_merge(
                     $booking_ids,
                     array(

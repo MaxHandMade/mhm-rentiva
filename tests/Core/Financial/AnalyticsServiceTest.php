@@ -251,6 +251,65 @@ class AnalyticsServiceTest extends \WP_UnitTestCase
         $this->assertSame(0.0, $avg, 'Must return 0.0 (not division-by-zero) when no cleared credits exist.');
     }
 
+	// -------------------------------------------------------------------------
+	// Test 6: revenue window must recognize a credit by WHEN it cleared, not
+	// when the underlying payment was originally captured
+	// -------------------------------------------------------------------------
+
+    /**
+     * @test
+     * A commission_credit's created_at is stamped at payment time, but it can
+     * only clear 7 days later (CommissionClearingJob's fixed hold). Without
+     * cleared_at, a "last 7 days" revenue window could never include a credit
+     * that just cleared, because its created_at is always 7+ days old. This
+     * asserts the window recognizes it by cleared_at instead.
+     */
+    public function test_revenue_period_recognizes_a_credit_by_when_it_cleared_not_when_it_was_created(): void
+    {
+        $now_ts = time();
+
+        // Payment captured 10 days ago (created_at), but only cleared TODAY
+        // (cleared_at) — simulating CommissionClearingJob's 7-day hold.
+        $this->insert_ledger_row_with_cleared_at(
+            'commission_credit',
+            750.0,
+            'cleared',
+            gmdate('Y-m-d H:i:s', $now_ts - (10 * DAY_IN_SECONDS)),
+            gmdate('Y-m-d H:i:s', $now_ts - DAY_IN_SECONDS) // cleared yesterday
+        );
+
+        $net = AnalyticsService::get_revenue_period($this->vendor_id, $now_ts - (7 * DAY_IN_SECONDS), $now_ts);
+
+        $this->assertSame(
+            750.0,
+            $net,
+            'A credit that cleared within the last 7 days must appear in the window, even though its created_at (payment date) is 10 days old.'
+        );
+    }
+
+    /**
+     * @test
+     * Legacy rows with no cleared_at (predating this column, or created before
+     * status ever became 'cleared') must still fall back to created_at so
+     * existing data doesn't silently disappear from historical reports.
+     */
+    public function test_revenue_period_falls_back_to_created_at_when_cleared_at_is_null(): void
+    {
+        $now_ts = time();
+
+        // No cleared_at column value supplied — legacy row.
+        $this->insert_ledger_row(
+            'commission_credit',
+            400.0,
+            'cleared',
+            gmdate('Y-m-d H:i:s', $now_ts - DAY_IN_SECONDS)
+        );
+
+        $net = AnalyticsService::get_revenue_period($this->vendor_id, $now_ts - (7 * DAY_IN_SECONDS), $now_ts);
+
+        $this->assertSame(400.0, $net, 'A row with no cleared_at must fall back to created_at for window filtering.');
+    }
+
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
@@ -285,6 +344,44 @@ class AnalyticsServiceTest extends \WP_UnitTestCase
                 'created_at'       => $created_at,
             ),
             array('%s', '%d', '%d', '%d', '%s', '%f', '%f', '%f', '%f', '%s', '%s', '%s', '%s')
+        );
+        if ($res === false) {
+            throw new \RuntimeException('INSERT FAILED: ' . $wpdb->last_error);
+        }
+    }
+
+    private function insert_ledger_row_with_cleared_at(
+        string $type,
+        float $amount,
+        string $status,
+        string $created_at,
+        string $cleared_at,
+        int $booking_id = 1001,
+        string $uuid_suffix = ''
+    ): void {
+        global $wpdb;
+
+        $uuid = substr(md5('test_' . $type . '_' . $amount . '_' . $uuid_suffix . '_' . microtime(true)), 0, 36);
+
+        $res = $wpdb->insert(
+            $this->table,
+            array(
+                'transaction_uuid'  => $uuid,
+                'vendor_id'         => $this->vendor_id,
+                'booking_id'        => $booking_id,
+                'order_id'          => null,
+                'type'              => $type,
+                'amount'            => $amount,
+                'gross_amount'      => abs($amount),
+                'commission_amount' => null,
+                'commission_rate'   => null,
+                'currency'          => 'TRY',
+                'context'           => 'vendor',
+                'status'            => $status,
+                'created_at'        => $created_at,
+                'cleared_at'        => $cleared_at,
+            ),
+            array('%s', '%d', '%d', '%d', '%s', '%f', '%f', '%f', '%f', '%s', '%s', '%s', '%s', '%s')
         );
         if ($res === false) {
             throw new \RuntimeException('INSERT FAILED: ' . $wpdb->last_error);

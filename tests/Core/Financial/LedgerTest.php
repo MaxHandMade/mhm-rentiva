@@ -110,4 +110,35 @@ class LedgerTest extends WP_UnitTestCase
         $this->assertSame(array(), Ledger::get_entries($this->vendor_id, array('date_from' => 'not-a-date')));
         $this->assertSame(array(), Ledger::get_entries($this->vendor_id, array('date_to' => 'still-not-a-date')));
     }
+
+    public function test_entry_created_already_cleared_gets_cleared_at_stamped(): void
+    {
+        $uuid = 'test_cleared_at_' . wp_generate_password(8, false);
+
+        Ledger::add_entry(new LedgerEntry($uuid, $this->vendor_id, 1, 1, 'commission_refund', -42.5, -50.0, -7.5, 15.0, 'TRY', 'vendor', 'cleared'));
+
+        global $wpdb;
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT created_at, cleared_at FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE transaction_uuid = %s",
+            $uuid
+        ));
+
+        $this->assertNotNull($row->cleared_at, 'An entry born with status=cleared must have cleared_at stamped immediately.');
+        $this->assertSame($row->created_at, $row->cleared_at, 'cleared_at must match created_at for an entry that is cleared from birth.');
+    }
+
+    public function test_entry_created_pending_has_no_cleared_at_yet(): void
+    {
+        $uuid = 'test_pending_no_cleared_at_' . wp_generate_password(8, false);
+
+        Ledger::add_entry(new LedgerEntry($uuid, $this->vendor_id, 1, 1, 'commission_credit', 85.0, 100.0, 15.0, 15.0, 'TRY', 'vendor', 'pending'));
+
+        global $wpdb;
+        $cleared_at = $wpdb->get_var($wpdb->prepare(
+            "SELECT cleared_at FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE transaction_uuid = %s",
+            $uuid
+        ));
+
+        $this->assertNull($cleared_at, 'A pending entry must not have cleared_at set until it actually clears.');
+    }
 }

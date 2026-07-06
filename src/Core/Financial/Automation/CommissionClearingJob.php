@@ -79,12 +79,15 @@ final class CommissionClearingJob {
             // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Guarded, idempotent transition; safe under concurrent workers.
             $updated = $wpdb->update(
                 $table,
-                [ 'status' => 'cleared' ],
+                [
+                    'status'     => 'cleared',
+                    'cleared_at' => gmdate('Y-m-d H:i:s'),
+                ],
                 [
                     'id'     => $id,
                     'status' => 'pending',
                 ],
-                [ '%s' ],
+                [ '%s', '%s' ],
                 [ '%d', '%s' ]
             );
 

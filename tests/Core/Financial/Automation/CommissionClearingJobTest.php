@@ -81,6 +81,17 @@ class CommissionClearingJobTest extends WP_UnitTestCase
 
         $this->assertSame('cleared', $status);
         $this->assertSame(array( $this->vendor_id, 85.0, 'EUR', 11, 22 ), $captured);
+
+        $cleared_at = $wpdb->get_var($wpdb->prepare(
+            "SELECT cleared_at FROM {$wpdb->prefix}mhm_rentiva_ledger WHERE id = %d",
+            $id
+        ));
+        $this->assertNotNull($cleared_at, 'Clearing must stamp cleared_at at the moment it actually happens.');
+        $this->assertNotEquals(
+            $eight_days_ago,
+            $cleared_at,
+            'cleared_at must be the clearing moment (now), not backdated to the original created_at.'
+        );
     }
 
     public function test_pending_entry_newer_than_seven_days_is_untouched(): void
