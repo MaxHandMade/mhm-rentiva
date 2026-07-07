@@ -1,5 +1,22 @@
 [
   {
+    "version": "4.64.0",
+    "date": "2026-07-07",
+    "type": "minor",
+    "title": "Bayi ve araç bazlı komisyon oranı geçersiz kılmaları ve hacim indirimi kademesi yapılandırması",
+    "summary": "Adminler artık bayi veya araç bazında komisyon oranını geçersiz kılabilir ve hacim indirimi kademe eşiklerini doğrudan admin panelinden yapılandırabilir — komisyon oranı hiyerarşisinin daha önce arayüzü olmayan son üç katmanı tamamlandı. Ayrıca üç komisyon doğruluğu düzeltmesi içerir.",
+    "changes": [
+      "Özellik: adminler artık Bayi Yönetimi'ndeki bayi detay sayfasından, bireysel bir bayi için komisyon oranı geçersiz kılması ayarlayabilir.",
+      "Özellik: adminler artık araç düzenleme ekranındaki yeni \"Komisyon Oranı Geçersiz Kılma\" kutusundan, bireysel bir araç için komisyon oranı geçersiz kılması ayarlayabilir — bu, bayinin oranından ve platform genelindeki orandan önceliklidir.",
+      "Özellik: adminler artık üç hacim indirimi kademe eşiğini (30 günlük gelir tutarı ve indirim yüzdesi) sadece doğrudan veritabanı düzenlemesiyle değil, doğrudan Komisyon sekmesinden düzenleyebilir.",
+      "Düzeltme: yukarıdaki araç bazlı komisyon geçersiz kılması artık gerçek rezervasyonların komisyon hesaplamalarına gerçekten uygulanıyor — bu mantık zaten mevcuttu ama canlı checkout işlemine hiç bağlanmamıştı.",
+      "Düzeltme: iade komisyon geri alımları artık bayinin orijinal olarak kredilendirildiği oranı kullanıyor, iade gününde geçerli olan oranı değil — bu, ödeme ile iade arasında bir oran değişikliğinin iade hesabını sessizce bozmasını engelliyor.",
+      "Düzeltme: bayi panelinin \"son 7 gün\" gelir rakamları, oluşturulduktan 7+ gün sonra kesinleşen bir komisyon kredisinin hiçbir zaman 7 günlük bir pencereye giremezken aynı gün gerçekleşen bir iadenin her zaman girebilmesi yüzünden yapay olarak düşük veya negatif görünebiliyordu. Yeni bir dahili zaman damgası artık bir kredinin gerçekte ne zaman kesinleştiğini takip ediyor, bu da raporlama penceresini düzeltiyor.",
+      "Düzeltme: panelin revenue_7d metriğinde, önceki sürümde diğer Finansal Özet kartları için düzeltilen bakiye-anahtarı uyuşmazlığının aynısı vardı."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.2",
     "date": "2026-07-06",
     "type": "patch",

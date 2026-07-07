@@ -1,5 +1,22 @@
 [
   {
+    "version": "4.64.0",
+    "date": "2026-07-07",
+    "type": "minor",
+    "title": "Commission rate overrides (vendor & vehicle) and volume-discount tier configuration",
+    "summary": "Admins can now override the commission rate per vendor or per vehicle, and configure the volume-discount tier thresholds directly from the admin panel, closing the last three previously UI-less layers of the commission rate hierarchy. Also includes three commission-accuracy fixes.",
+    "changes": [
+      "Feature: admins can now set a commission rate override for an individual vendor, from that vendor's detail page in Vendor Management.",
+      "Feature: admins can now set a commission rate override for an individual vehicle, from a new \"Commission Rate Override\" box on the vehicle edit screen — this takes priority over the vendor's rate and the platform-wide rate.",
+      "Feature: admins can now edit the three volume-discount tier thresholds (30-day revenue amount and discount percentage) directly from the Commission tab, instead of only via direct database edits.",
+      "Fix: the vehicle-level commission override above is now actually applied to real bookings' commission calculations — the underlying logic already existed but was never connected to live checkout processing.",
+      "Fix: refund commission clawbacks now use the rate the vendor was originally credited at, instead of whatever rate happens to be active on the day of the refund — preventing a rate change between payment and refund from silently altering the refund math.",
+      "Fix: the vendor dashboard's \"last 7 days\" revenue figures could show artificially low or negative numbers, because a commission credit that clears 7+ days after it's created could never land inside a rolling 7-day window while a same-day refund always could. A new internal timestamp now tracks when a credit actually cleared, fixing the reporting window.",
+      "Fix: the dashboard's revenue_7d metric had the same balance-lookup key mismatch that was fixed for the other Financial Summary cards in the previous release."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.63.2",
     "date": "2026-07-06",
     "type": "patch",

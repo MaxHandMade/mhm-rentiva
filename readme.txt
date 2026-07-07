@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.63.2
+Stable tag:        4.64.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,15 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.64.0 — 2026-07-07 =
+* ✨ **Feature:** Admins can now set a commission rate override for an individual vendor, from that vendor's detail page in Vendor Management.
+* ✨ **Feature:** Admins can now set a commission rate override for an individual vehicle, from a new "Commission Rate Override" box on the vehicle edit screen — this takes priority over the vendor's rate and the platform-wide rate.
+* ✨ **Feature:** Admins can now edit the three volume-discount tier thresholds (30-day revenue amount and discount percentage) directly from the Commission tab, instead of only via direct database edits.
+* 🐛 **Fix:** The vehicle-level commission override above is now actually applied to real bookings' commission calculations — the underlying logic already existed but was never connected to live checkout processing.
+* 🐛 **Fix:** Refund commission clawbacks now use the rate the vendor was originally credited at, instead of whatever rate happens to be active on the day of the refund — preventing a rate change between payment and refund from silently altering the refund math.
+* 🐛 **Fix:** The vendor dashboard's "last 7 days" revenue figures could show artificially low or negative numbers, because a commission credit that clears 7+ days after it's created could never land inside a rolling 7-day window while a same-day refund always could. A new internal timestamp now tracks when a credit actually cleared, fixing the reporting window.
+* 🐛 **Fix:** The dashboard's `revenue_7d` metric had the same balance-lookup key mismatch that was fixed for the other Financial Summary cards in the previous release.
 
 = 4.63.2 — 2026-07-06 =
 * 🐛 **Fix:** Vendor commission was silently never recorded for real bookings due to a booking-reference mismatch between the checkout flow and the commission ledger — vendor earnings were never credited at all.
