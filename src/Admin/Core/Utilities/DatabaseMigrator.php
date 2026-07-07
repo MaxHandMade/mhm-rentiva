@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.9.0';
+	private const CURRENT_VERSION = '3.10.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
