@@ -177,7 +177,7 @@ Bu çıktıyı gördükten sonra ZIP **kesinlikle** doğru kurulur.
 ## Release Yayınlama Akışı
 
 ```bash
-# 1. Versiyonu bump et (mhm-rentiva.php, readme.txt Stable tag, changelog.json, changelog-tr.json)
+# 1. Versiyonu bump et (mhm-rentiva.php, readme.txt Stable tag, changelog.json, changelog-tr.json, README.md, README-tr.md)
 # 2. Testler geçsin
 docker exec rentiva-dev-wpcli-1 bash -c "cd /var/www/html/wp-content/plugins/mhm-rentiva && vendor/bin/phpunit --no-coverage --colors"
 
