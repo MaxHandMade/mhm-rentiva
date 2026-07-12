@@ -11,8 +11,13 @@
 	--mhm-dark-bg-tertiary: #3a3a3a;
 	--mhm-dark-text-primary: #ffffff;
 	--mhm-dark-text-secondary: #b3b3b3;
-	--mhm-dark-text-muted: #808080;
+	--mhm-dark-text-muted: #999999; /* was #808080 — only 3.49:1 against --mhm-dark-bg-secondary, below WCAG AA's 4.5:1 for normal text; #999999 gives ~4.84:1 */
 	--mhm-dark-border: #404040;
+	/* WP 6.7's "Modern" admin color scheme accent (#3858e9) is only ~2-3:1
+	   against our dark backgrounds — too low for links/buttons users need to
+	   read and click. This lighter blue holds ~6.5:1. */
+	--mhm-dark-link: #8ab4f8;
+	--mhm-dark-link-hover: #aecbfa;
 	--mhm-dark-accent: #0073aa;
 	--mhm-dark-accent-hover: #005a87;
 	--mhm-dark-shadow: rgba(0, 0, 0, 0.3);
@@ -72,14 +77,109 @@ body.mhm-dark-mode .mhm-settings-form-container {
 	margin: 20px 0;
 }
 
-/* Dark Mode Form Elements */
+/* System Status Cards + Accordion (Sistem ve Performans tab) — these had
+   hardcoded light backgrounds (#f9f9f9 / #fff) with no dark-mode override,
+   so inherited white body text became invisible against them. */
+body.mhm-dark-mode .status-card {
+	background: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-creator-box {
+	background: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-cleanup-dashboard {
+	background: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
+}
+
+/* .mhm-settings-card (vehicle-settings.css, reused on the DB cleanup tab's
+   snapshot/incremental-backup cards) uses light theme vars (--mhm-bg-card
+   etc.) with no dark-mode equivalent. */
+body.mhm-dark-mode .mhm-settings-card {
+	background: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-settings-card h2,
+body.mhm-dark-mode .mhm-settings-card p {
+	color: var(--mhm-dark-text-primary);
+}
+
+/* Same specificity as the .mhm-settings-content p.description rule below,
+   which then wins by source order — force it explicitly instead of relying
+   on rule placement. */
+body.mhm-dark-mode .mhm-settings-card p.description {
+	color: var(--mhm-dark-text-primary) !important;
+}
+
+body.mhm-dark-mode .mhm-accordion-group {
+	background: var(--mhm-dark-bg-secondary);
+	border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-accordion-header {
+	background: var(--mhm-dark-bg-tertiary);
+	color: var(--mhm-dark-text-primary);
+}
+
+body.mhm-dark-mode .mhm-accordion-header:hover,
+body.mhm-dark-mode .mhm-accordion-header.active {
+	background: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .mhm-accordion-content {
+	background: var(--mhm-dark-bg-secondary);
+}
+
+body.mhm-dark-mode .mhm-accordion-content .mhm-form-group {
+	border-bottom-color: var(--mhm-dark-border);
+}
+
+/* settings.css hardcodes #1d2327 on these labels (0,2,1 specificity) — needs
+   an equal-or-higher-specificity override here, plain inheritance isn't enough. */
+body.mhm-dark-mode .mhm-accordion-content .mhm-form-group label {
+	color: var(--mhm-dark-text-primary);
+}
+
+/* #d63638 (WP core's danger red) is only ~2.9:1 against our dark backgrounds.
+   Same specificity bump as the light-mode rule in settings.css — needed to
+   beat .mhm-accordion-content .mhm-form-group label's own color. */
+body.mhm-dark-mode .mhm-danger-label,
+body.mhm-dark-mode .mhm-accordion-content .mhm-form-group label.mhm-danger-label {
+	color: #ff6b6b;
+}
+
+/* #2271b1 (WP core admin blue) is only ~2.67:1 against our dark backgrounds.
+   Dashicons render their glyph via the element's own `color`, not a text
+   node, so a text-node-based contrast scanner won't catch this — verified
+   by direct inspection instead. */
+body.mhm-dark-mode .mhm-notice-icon {
+	color: var(--mhm-dark-link);
+}
+
+/* Dark Mode Form Elements
+   Scoped to both .mhm-settings-form (the tabbed SettingsCore pages) AND
+   .mhm-settings-content (the outer wrapper present on every tab, including
+   custom-rendered ones like Bildirim Şablonları that don't use a real
+   <form class="mhm-settings-form"> at all — form.css/h2/th rules that only
+   targeted .mhm-settings-form silently never applied there). */
 body.mhm-dark-mode .mhm-settings-form input[type="text"],
 body.mhm-dark-mode .mhm-settings-form input[type="email"],
 body.mhm-dark-mode .mhm-settings-form input[type="url"],
 body.mhm-dark-mode .mhm-settings-form input[type="number"],
 body.mhm-dark-mode .mhm-settings-form input[type="password"],
 body.mhm-dark-mode .mhm-settings-form select,
-body.mhm-dark-mode .mhm-settings-form textarea {
+body.mhm-dark-mode .mhm-settings-form textarea,
+body.mhm-dark-mode .mhm-settings-content input[type="text"],
+body.mhm-dark-mode .mhm-settings-content input[type="email"],
+body.mhm-dark-mode .mhm-settings-content input[type="url"],
+body.mhm-dark-mode .mhm-settings-content input[type="number"],
+body.mhm-dark-mode .mhm-settings-content input[type="password"],
+body.mhm-dark-mode .mhm-settings-content select,
+body.mhm-dark-mode .mhm-settings-content textarea {
 	background-color: var(--mhm-dark-bg-tertiary);
 	border: 1px solid var(--mhm-dark-border);
 	color: var(--mhm-dark-text-primary);
@@ -88,72 +188,138 @@ body.mhm-dark-mode .mhm-settings-form textarea {
 /* Browser default placeholder color assumes a light background; on our dark
    input background it renders at ~2.6:1 contrast (illegible). */
 body.mhm-dark-mode .mhm-settings-form input::placeholder,
-body.mhm-dark-mode .mhm-settings-form textarea::placeholder {
+body.mhm-dark-mode .mhm-settings-form textarea::placeholder,
+body.mhm-dark-mode .mhm-settings-content input::placeholder,
+body.mhm-dark-mode .mhm-settings-content textarea::placeholder {
 	color: var(--mhm-dark-text-secondary);
 	opacity: 1;
 }
 
 body.mhm-dark-mode .mhm-settings-form input:focus,
 body.mhm-dark-mode .mhm-settings-form select:focus,
-body.mhm-dark-mode .mhm-settings-form textarea:focus {
+body.mhm-dark-mode .mhm-settings-form textarea:focus,
+body.mhm-dark-mode .mhm-settings-content input:focus,
+body.mhm-dark-mode .mhm-settings-content select:focus,
+body.mhm-dark-mode .mhm-settings-content textarea:focus {
 	border-color: var(--mhm-dark-accent);
 	box-shadow: 0 0 0 1px var(--mhm-dark-accent);
 }
 
 /* Dark Mode Checkboxes and Radio Buttons */
 body.mhm-dark-mode .mhm-settings-form input[type="checkbox"],
-body.mhm-dark-mode .mhm-settings-form input[type="radio"] {
+body.mhm-dark-mode .mhm-settings-form input[type="radio"],
+body.mhm-dark-mode .mhm-settings-content input[type="checkbox"],
+body.mhm-dark-mode .mhm-settings-content input[type="radio"] {
 	accent-color: var(--mhm-dark-accent);
 }
 
 /* Dark Mode Buttons */
-body.mhm-dark-mode .mhm-settings-form .button-primary {
+body.mhm-dark-mode .mhm-settings-form .button-primary,
+body.mhm-dark-mode .mhm-settings-content .button-primary {
 	background-color: var(--mhm-dark-accent);
 	border-color: var(--mhm-dark-accent);
 	color: var(--mhm-dark-text-primary);
 }
 
-body.mhm-dark-mode .mhm-settings-form .button-primary:hover {
+body.mhm-dark-mode .mhm-settings-form .button-primary:hover,
+body.mhm-dark-mode .mhm-settings-content .button-primary:hover {
 	background-color: var(--mhm-dark-accent-hover);
 	border-color: var(--mhm-dark-accent-hover);
 }
 
-body.mhm-dark-mode .mhm-settings-form .button-secondary {
+body.mhm-dark-mode .mhm-settings-form .button-secondary,
+body.mhm-dark-mode .mhm-settings-form .button,
+body.mhm-dark-mode .mhm-settings-content .button-secondary,
+body.mhm-dark-mode .mhm-settings-content .button {
 	background-color: var(--mhm-dark-bg-tertiary);
 	border-color: var(--mhm-dark-border);
 	color: var(--mhm-dark-text-primary);
 }
 
-body.mhm-dark-mode .mhm-settings-form .button-secondary:hover {
+body.mhm-dark-mode .mhm-settings-form .button-secondary:hover,
+body.mhm-dark-mode .mhm-settings-form .button:hover,
+body.mhm-dark-mode .mhm-settings-content .button-secondary:hover,
+body.mhm-dark-mode .mhm-settings-content .button:hover {
 	background-color: var(--mhm-dark-border);
 	border-color: var(--mhm-dark-text-secondary);
 }
 
 /* Dark Mode Sections */
 body.mhm-dark-mode .mhm-settings-form h2,
-body.mhm-dark-mode .mhm-settings-form h3 {
+body.mhm-dark-mode .mhm-settings-form h3,
+body.mhm-dark-mode .mhm-settings-content h2,
+body.mhm-dark-mode .mhm-settings-content h3 {
 	color: var(--mhm-dark-text-primary);
 	border-bottom: 1px solid var(--mhm-dark-border);
 }
 
-body.mhm-dark-mode .mhm-settings-form p.description {
+body.mhm-dark-mode .mhm-settings-form p.description,
+body.mhm-dark-mode .mhm-settings-content p.description {
 	color: var(--mhm-dark-text-muted);
 }
 
 /* Dark Mode Tables */
-body.mhm-dark-mode .mhm-settings-form table {
+body.mhm-dark-mode .mhm-settings-form table,
+body.mhm-dark-mode .mhm-settings-content table {
 	background-color: var(--mhm-dark-bg-secondary);
 	border: 1px solid var(--mhm-dark-border);
 }
 
-body.mhm-dark-mode .mhm-settings-form th,
-body.mhm-dark-mode .mhm-settings-form td {
-	border-bottom: 1px solid var(--mhm-dark-border);
+/* WP core's wp-list-table (used e.g. for the REST API endpoints reference on
+   the Integration tab, rendered outside .mhm-settings-form). Text is white
+   from the body-level rule but the .striped odd-row background (#f6f7f7,
+   set by WP core) is untouched, leaving white-on-near-white on every other
+   row — the ".status-success"/method-name cells were the visible symptom. */
+body.mhm-dark-mode .wp-list-table,
+body.mhm-dark-mode .widefat {
+	background-color: var(--mhm-dark-bg-secondary);
 	color: var(--mhm-dark-text-primary);
 }
 
-body.mhm-dark-mode .mhm-settings-form th {
+body.mhm-dark-mode .wp-list-table th,
+body.mhm-dark-mode .wp-list-table td,
+body.mhm-dark-mode .widefat th,
+body.mhm-dark-mode .widefat td {
+	color: var(--mhm-dark-text-primary);
+	border-color: var(--mhm-dark-border);
+}
+
+body.mhm-dark-mode .wp-list-table.striped > tbody > tr:nth-child(odd),
+body.mhm-dark-mode .wp-list-table > tbody > tr:nth-child(odd),
+body.mhm-dark-mode .widefat.striped > tbody > tr:nth-child(odd),
+body.mhm-dark-mode .widefat > tbody > tr:nth-child(odd) {
 	background-color: var(--mhm-dark-bg-tertiary);
+}
+
+/* <code> tags (e.g. table/option names in the DB cleanup history list) use
+   WP core's rgba(0,0,0,.07) translucent chip background + dark text — the
+   background barely tints our dark page, so the dark text nearly vanishes. */
+body.mhm-dark-mode code {
+	background-color: var(--mhm-dark-bg-tertiary);
+	/* WP core sets code { color: #666 } with higher effective specificity
+	   than a plain element selector can beat — same pattern as the notice
+	   strong/p override above. */
+	color: var(--mhm-dark-text-primary) !important;
+}
+
+body.mhm-dark-mode .mhm-settings-form th,
+body.mhm-dark-mode .mhm-settings-form td,
+body.mhm-dark-mode .mhm-settings-content th,
+body.mhm-dark-mode .mhm-settings-content td {
+	border-bottom: 1px solid var(--mhm-dark-border);
+	color: var(--mhm-dark-text-primary) !important;
+}
+
+body.mhm-dark-mode .mhm-settings-form th,
+body.mhm-dark-mode .mhm-settings-content th {
+	background-color: var(--mhm-dark-bg-tertiary);
+}
+
+/* Plain <label> elements outside the accordion (e.g. the Bildirim Şablonları
+   custom template) inherit WP core's #1d2327 the same way the accordion
+   labels did. */
+body.mhm-dark-mode .mhm-settings-content label {
+	color: var(--mhm-dark-text-primary);
 }
 
 /* Dark Mode Notices */
@@ -161,6 +327,43 @@ body.mhm-dark-mode .notice {
 	background-color: var(--mhm-dark-bg-secondary);
 	border-left: 4px solid var(--mhm-dark-accent);
 	color: var(--mhm-dark-text-primary);
+}
+
+/* The WP admin color scheme (e.g. "Modern") sets its own text color on
+   elements like <strong> inside notices with higher effective specificity
+   than the rule above, leaving near-black text on our dark background.
+   !important is deliberate here — we don't control the color scheme's rule. */
+body.mhm-dark-mode .notice p,
+body.mhm-dark-mode .notice strong {
+	color: var(--mhm-dark-text-primary) !important;
+}
+
+/* Links inside notices (e.g. the Lite-upgrade "Enter your license key" link)
+   otherwise inherit the theme/admin-scheme link color, which is a saturated
+   blue with ~2:1 contrast against our dark notice background — unreadable. */
+body.mhm-dark-mode .notice a {
+	color: var(--mhm-dark-link);
+}
+
+body.mhm-dark-mode .notice a:hover,
+body.mhm-dark-mode .notice a:focus {
+	color: var(--mhm-dark-link-hover);
+}
+
+/* Page-header action buttons (Belgeler / Bu Sekmeyi Sıfırla / Konum Yönetimi
+   etc.) render as class="button button-secondary" *outside* .mhm-settings-form,
+   so the .mhm-settings-form-scoped button-secondary rule below doesn't reach
+   them — same #3858e9-on-dark contrast problem as the notice links above. */
+body.mhm-dark-mode .wrap a.button-secondary,
+body.mhm-dark-mode .wrap a.button-link-delete {
+	color: var(--mhm-dark-link);
+	border-color: var(--mhm-dark-link);
+}
+
+body.mhm-dark-mode .wrap a.button-secondary:hover,
+body.mhm-dark-mode .wrap a.button-link-delete:hover {
+	color: var(--mhm-dark-link-hover);
+	border-color: var(--mhm-dark-link-hover);
 }
 
 body.mhm-dark-mode .notice.notice-success {
@@ -176,26 +379,44 @@ body.mhm-dark-mode .notice.notice-warning {
 }
 
 /* Dark Mode Code Blocks */
-body.mhm-dark-mode .mhm-settings-form code {
+body.mhm-dark-mode .mhm-settings-form code,
+body.mhm-dark-mode .mhm-settings-content code {
 	background-color: var(--mhm-dark-bg-tertiary);
 	color: var(--mhm-dark-text-primary);
 	border: 1px solid var(--mhm-dark-border);
 }
 
 /* Dark Mode Pre Blocks */
-body.mhm-dark-mode .mhm-settings-form pre {
+body.mhm-dark-mode .mhm-settings-form pre,
+body.mhm-dark-mode .mhm-settings-content pre {
 	background-color: var(--mhm-dark-bg-tertiary);
 	color: var(--mhm-dark-text-primary);
 	border: 1px solid var(--mhm-dark-border);
 }
 
-/* Dark Mode Links */
-body.mhm-dark-mode .mhm-settings-form a {
-	color: var(--mhm-dark-accent);
+/* WP core's h2.nav-tab-wrapper sub-tabs (e.g. Bildirim Şablonları's
+   Rezervasyon/Geri Ödeme/Mesaj/Bayi/Önizleme switcher) keep their light
+   #f0f0f0 / #dcdcde tab backgrounds — our link-color fix above already makes
+   the tab text light blue, which then reads poorly against that light bg. */
+body.mhm-dark-mode .nav-tab-wrapper .nav-tab {
+	background: var(--mhm-dark-bg-tertiary);
+	border-color: var(--mhm-dark-border);
 }
 
-body.mhm-dark-mode .mhm-settings-form a:hover {
-	color: var(--mhm-dark-accent-hover);
+body.mhm-dark-mode .nav-tab-wrapper .nav-tab-active {
+	background: var(--mhm-dark-bg-secondary);
+	color: var(--mhm-dark-text-primary);
+}
+
+/* Dark Mode Links */
+body.mhm-dark-mode .mhm-settings-form a,
+body.mhm-dark-mode .mhm-settings-content a {
+	color: var(--mhm-dark-link);
+}
+
+body.mhm-dark-mode .mhm-settings-form a:hover,
+body.mhm-dark-mode .mhm-settings-content a:hover {
+	color: var(--mhm-dark-link-hover);
 }
 
 /* Dark Mode Toggle Switch */

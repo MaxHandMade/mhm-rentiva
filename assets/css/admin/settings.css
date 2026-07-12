@@ -500,6 +500,58 @@ input:checked+.mhm-toggle-slider:before {
 	color: var(--mhm-text-primary);
 }
 
+/* System Status Cards (Sistem ve Performans tab) */
+.status-card {
+	background: #f9f9f9;
+	padding: 15px;
+	border-radius: 8px;
+	border: 1px solid #ddd;
+}
+
+/* Issue New Credentials box (Entegrasyon Ayarları tab) */
+.mhm-creator-box {
+	background: #fcfcfc;
+	padding: 25px;
+	border: 1px solid #dfdfdf;
+	border-radius: 6px;
+}
+
+/* Cleanup Dashboard box (Veri tabanı temizleme tab) */
+.mhm-cleanup-dashboard {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	padding: 20px;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+/* System Snapshot / Incremental Backup cards (Veri tabanı temizleme tab).
+   vehicle-settings.css also defines .mhm-settings-card, but that file is only
+   enqueued on the Vehicle Settings screen — it never loads here, so this
+   screen needs its own light-mode definition or these cards render with no
+   background/border at all. */
+.mhm-settings-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+}
+
+/* Destructive-action label (e.g. "WIPE ALL DATA ON UNINSTALL"). The extra
+   specificity (mirroring .mhm-accordion-content .mhm-form-group label below)
+   is needed to beat that rule's own color when this label sits inside an
+   accordion form-group, which is the only place it's currently used. */
+.mhm-danger-label,
+.mhm-accordion-content .mhm-form-group label.mhm-danger-label {
+	color: #d63638;
+	font-weight: bold;
+}
+
+/* Informational notice icon (e.g. the "Secure Storage" lock icon) */
+.mhm-notice-icon {
+	color: #2271b1;
+}
+
 /* Accordion Styles for Texts & Labels Section */
 .mhm-accordion-group {
 	background: #fff;

@@ -1,5 +1,17 @@
 [
   {
+    "version": "4.64.3",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Full dark-mode contrast audit across all Settings tabs",
+    "summary": "A comprehensive contrast audit across all 16 Settings tabs found and fixed roughly 15 more dark-mode readability issues beyond the previous patch, including notice links, header buttons, cards, tables, accordions, and an entire tab that used an uncovered template.",
+    "changes": [
+      "Fix: Dark Mode was still unreadable in many places after the v4.64.2 pass — a full audit across all 16 Settings tabs found roughly 15 more distinct spots: the \"Rentiva Lite\" upgrade notice link, page-header buttons (Belgeler / Bu Sekmeyi Sıfırla / Konum Yönetimi / Rotaları Yönet), System Status cards, the \"Issue New Credentials\" and \"Cleanup Dashboard\" boxes, accordion sections and their labels, data tables (REST API reference, DB cleanup history), <code> tags, the Bildirim Şablonları tab's sub-navigation and all of its form labels/descriptions (which use a template not covered by the previous fix), the destructive \"WIPE ALL DATA ON UNINSTALL\" label, and a notice icon. All are now readable and were re-verified with an automated contrast check across every tab.",
+      "Fix: two backup cards on the Database Cleanup tab lost their card styling in light mode as a side effect of the dark-mode fix above; restored."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.2",
     "date": "2026-07-12",
     "type": "patch",

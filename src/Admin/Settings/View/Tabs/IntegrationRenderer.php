@@ -92,7 +92,7 @@ final class IntegrationRenderer extends AbstractTabRenderer {
 				</div>
 			</div>
 
-			<div class="mhm-creator-box" style="background: #fcfcfc; padding: 25px; border: 1px solid #dfdfdf; border-radius: 6px;">
+			<div class="mhm-creator-box">
 				<h4 style="margin-top: 0;"><?php esc_html_e( 'Issue New Credentials', 'mhm-rentiva' ); ?></h4>
 				<table class="form-table" role="presentation">
 					<tr>

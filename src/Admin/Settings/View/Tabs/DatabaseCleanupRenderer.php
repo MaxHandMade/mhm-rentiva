@@ -50,7 +50,7 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 					<?php esc_html_e( 'Cleanup operations are irreversible. An automated snapshot will be captured before modifications proceed.', 'mhm-rentiva' ); ?>
 			</div>
 
-			<div class="mhm-cleanup-dashboard" style="background: #fff; border: 1px solid #ccd0d4; padding: 20px; border-radius: 4px; box-shadow: 0 1px 1px rgba(0,0,0,0.04);">
+			<div class="mhm-cleanup-dashboard">
 				<?php
 				// Handled via separate logic class for high performance
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
@@ -60,13 +60,13 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 			</div>
 
 			<!-- Full Database Backup Section -->
-			<div id="mhm-full-backup-section" class="mhm-settings-card" style="margin-top: 40px; background: #fff; border: 1px solid #ccd0d4; padding: 25px; border-radius: 4px;">
+			<div id="mhm-full-backup-section" class="mhm-settings-card" style="margin-top: 40px; padding: 25px;">
 				<h3 style="margin-top: 0;"><?php esc_html_e( 'System Snapshot (Full Backup)', 'mhm-rentiva' ); ?></h3>
 				<p class="description"><?php esc_html_e( 'Create a complete archive of all rental-related tables including Posts, Meta, and Custom Definitions.', 'mhm-rentiva' ); ?></p>
 
 				<div class="notice notice-info inline" style="margin: 15px 0;">
 					<p>
-						<span class="dashicons dashicons-lock" style="color: #2271b1; vertical-align: middle;"></span>
+						<span class="dashicons dashicons-lock mhm-notice-icon" style="vertical-align: middle;"></span>
 						<strong><?php esc_html_e( 'Secure Storage:', 'mhm-rentiva' ); ?></strong>
 						<?php esc_html_e( 'Archives are stored in protected directories with restricted web access, adhering to WP application standards.', 'mhm-rentiva' ); ?>
 					</p>
@@ -88,7 +88,7 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 			</div>
 
 			<!-- Cleanup Backup Management Section -->
-			<div id="mhm-backup-management" class="mhm-settings-card" style="margin-top: 30px; background: #fff; border: 1px solid #ccd0d4; padding: 25px; border-radius: 4px;">
+			<div id="mhm-backup-management" class="mhm-settings-card" style="margin-top: 30px; padding: 25px;">
 				<h3 style="margin-top: 0;"><?php esc_html_e( 'Incremental Cleanup Backups', 'mhm-rentiva' ); ?></h3>
 				<p class="description"><?php esc_html_e( 'Manage and restore localized data clusters captured during recent maintenance routines.', 'mhm-rentiva' ); ?></p>
 

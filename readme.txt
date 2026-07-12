@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.64.2
+Stable tag:        4.64.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.64.3 — 2026-07-12 =
+* 🐛 **Fix:** Dark Mode was still unreadable in many places after the v4.64.2 pass — a full audit across all 16 Settings tabs found roughly 15 more distinct spots: the "Rentiva Lite" upgrade notice link, page-header buttons (Belgeler / Bu Sekmeyi Sıfırla / Konum Yönetimi / Rotaları Yönet), System Status cards, the "Issue New Credentials" and "Cleanup Dashboard" boxes, accordion sections and their labels, data tables (REST API reference, DB cleanup history), `<code>` tags, the Bildirim Şablonları tab's sub-navigation and all of its form labels/descriptions (which use a template not covered by the previous fix), the destructive "WIPE ALL DATA ON UNINSTALL" label, and a notice icon. All are now readable and were re-verified with an automated contrast check across every tab.
+* 🐛 **Fix:** Two backup cards on the Database Cleanup tab lost their card styling in light mode as a side effect of the dark-mode fix above; restored.
 
 = 4.64.2 — 2026-07-12 =
 * 🐛 **Fix:** Dark Mode was missing color overrides for the admin page title and for input/textarea placeholder text, making both nearly unreadable (near-invisible page title, low-contrast placeholders) against the dark background.

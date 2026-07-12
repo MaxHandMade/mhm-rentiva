@@ -1,5 +1,17 @@
 [
   {
+    "version": "4.64.3",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Tüm Ayarlar sekmelerinde kapsamlı karanlık mod kontrast denetimi",
+    "summary": "Tüm 16 Ayarlar sekmesinde yapılan kapsamlı bir kontrast denetimi, önceki yamanın ötesinde yaklaşık 15 karanlık-mod okunabilirlik sorunu daha buldu ve düzeltti — bildirim linkleri, üst menü butonları, kartlar, tablolar, akordeonlar ve hiç kapsanmamış bir şablon kullanan koca bir sekme dahil.",
+    "changes": [
+      "Düzeltme: v4.64.2 geçişinden sonra Karanlık Mod hâlâ birçok yerde okunaksızdı — tüm 16 Ayarlar sekmesinde yapılan tam denetim yaklaşık 15 farklı nokta daha buldu: \"Rentiva Lite\" yükseltme bildirimi linki, üst menü butonları (Belgeler / Bu Sekmeyi Sıfırla / Konum Yönetimi / Rotaları Yönet), Sistem Durumu kartları, \"Yeni Kimlik Bilgileri Düzenle\" ve \"Temizlik Paneli\" kutuları, akordeon bölümleri ve etiketleri, veri tabloları (REST API referansı, veritabanı temizleme geçmişi), <code> etiketleri, Bildirim Şablonları sekmesinin alt navigasyonu ve tüm form etiketleri/açıklamaları (önceki düzeltmenin kapsamadığı bir şablon kullanıyordu), yıkıcı \"KURULUM KALDIRILINCA TÜM VERİLERİ SİL\" etiketi ve bir bildirim ikonu. Hepsi artık okunaklı ve her sekmede otomatik kontrast kontrolüyle yeniden doğrulandı.",
+      "Düzeltme: Veritabanı Temizleme sekmesindeki iki yedekleme kartı, yukarıdaki karanlık-mod düzeltmesinin bir yan etkisi olarak açık modda kart görünümünü kaybetmişti; geri getirildi."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.2",
     "date": "2026-07-12",
     "type": "patch",
