@@ -204,51 +204,86 @@ final class SettingsCore {
 			return;
 		}
 
+		self::strip_pollution_fingerprint();
+
+		update_option($flag, '1', true);
+	}
+
+	/**
+	 * Second pass of the v4.27.2 cleanup, for installs where the flag above
+	 * was already stamped "done" (e.g. the migration ran once on a clean
+	 * install before pollution occurred, or the pollution reappeared via the
+	 * v4.64.0-era {@see self::ajax_save_dark_mode()} clobber bug) so the
+	 * original migration never re-ran to catch the collateral '1' values.
+	 *
+	 * Reuses the same fingerprint check as {@see self::migrate_clean_test_pollution()}.
+	 * Idempotent via its own `mhm_rentiva_v4641_test_pollution_recleaned` flag.
+	 */
+	public static function migrate_reclean_test_pollution(): void
+	{
+		$flag = 'mhm_rentiva_v4641_test_pollution_recleaned';
+		if (get_option($flag)) {
+			return;
+		}
+
+		self::strip_pollution_fingerprint();
+
+		update_option($flag, '1', true);
+	}
+
+	/**
+	 * Removes the '1' / '0' flip-pollution fingerprint from free-text,
+	 * email, URL and currency fields that can never legitimately hold those
+	 * values. Number fields are left alone because a user may have
+	 * deliberately saved 1 there.
+	 */
+	private static function strip_pollution_fingerprint(): void
+	{
 		$settings = get_option(self::OPTION_NAME, null);
 
-		if (is_array($settings) && ! empty($settings)) {
-			$polluted_keys = array(
-				// Free-text labels that can never legitimately equal '0' or '1'.
-				'mhm_rentiva_brand_name',
-				'mhm_rentiva_email_from_name',
-				'mhm_rentiva_contact_phone',
-				'mhm_rentiva_contact_hours',
-				'mhm_rentiva_email_footer_text',
-				// Email fields.
-				'mhm_rentiva_email_from_address',
-				'mhm_rentiva_support_email',
-				'mhm_rentiva_email_reply_to',
-				// URL fields.
-				'mhm_rentiva_booking_url',
-				'mhm_rentiva_login_url',
-				'mhm_rentiva_register_url',
-				'mhm_rentiva_vehicles_list_url',
-				'mhm_rentiva_my_bookings_url',
-				'mhm_rentiva_brand_logo_url',
-				'mhm_rentiva_email_header_image',
-				// Currency codes — three-letter ISO; '0' / '1' is pollution.
-				'mhm_rentiva_currency',
-			);
+		if (! is_array($settings) || empty($settings)) {
+			return;
+		}
 
-			$changed = false;
-			foreach ($polluted_keys as $key) {
-				if (! array_key_exists($key, $settings)) {
-					continue;
-				}
-				$value = $settings[ $key ];
-				if ('0' === $value || '1' === $value || 0 === $value || 1 === $value) {
-					unset($settings[ $key ]);
-					$changed = true;
-				}
+		$polluted_keys = array(
+			// Free-text labels that can never legitimately equal '0' or '1'.
+			'mhm_rentiva_brand_name',
+			'mhm_rentiva_email_from_name',
+			'mhm_rentiva_contact_phone',
+			'mhm_rentiva_contact_hours',
+			'mhm_rentiva_email_footer_text',
+			// Email fields.
+			'mhm_rentiva_email_from_address',
+			'mhm_rentiva_support_email',
+			'mhm_rentiva_email_reply_to',
+			// URL fields.
+			'mhm_rentiva_booking_url',
+			'mhm_rentiva_login_url',
+			'mhm_rentiva_register_url',
+			'mhm_rentiva_vehicles_list_url',
+			'mhm_rentiva_my_bookings_url',
+			'mhm_rentiva_brand_logo_url',
+			'mhm_rentiva_email_header_image',
+			// Currency codes — three-letter ISO; '0' / '1' is pollution.
+			'mhm_rentiva_currency',
+		);
+
+		$changed = false;
+		foreach ($polluted_keys as $key) {
+			if (! array_key_exists($key, $settings)) {
+				continue;
 			}
-
-			if ($changed) {
-				update_option(self::OPTION_NAME, $settings);
-				wp_cache_delete(self::OPTION_NAME, 'options');
+			$value = $settings[ $key ];
+			if ('0' === $value || '1' === $value || 0 === $value || 1 === $value) {
+				unset($settings[ $key ]);
+				$changed = true;
 			}
 		}
 
-		update_option($flag, '1', true);
+		if ($changed) {
+			update_option(self::OPTION_NAME, $settings);
+			wp_cache_delete(self::OPTION_NAME, 'options');
+		}
 	}
 
 	public static function get(string $key, mixed $default = null): mixed
@@ -415,21 +450,21 @@ final class SettingsCore {
 		}
 
 		$raw_mode = isset($_POST['mode']) ? sanitize_text_field(wp_unslash($_POST['mode'])) : 'auto';
-
-		$sanitized_settings = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize(
-			array(
-				'current_active_tab'    => 'general',
-				'mhm_rentiva_dark_mode' => $raw_mode,
-			)
-		);
-
-		$mode = (string) ( $sanitized_settings['mhm_rentiva_dark_mode'] ?? 'auto' );
+		$mode     = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize_dark_mode_option($raw_mode);
 
 		// 1. Update standalone option (for quick frontend access)
 		update_option('mhm_rentiva_dark_mode', $mode);
 
-		// 2. Sync with Main Settings Array (so the Settings Form reflects the change)
-		update_option(self::OPTION_NAME, $sanitized_settings);
+		// 2. Sync with Main Settings Array (so the Settings Form reflects the change).
+		// Only touch the dark mode key here — routing this through the full
+		// SettingsSanitizer::sanitize() with an input array that only contains
+		// 'mhm_rentiva_dark_mode' used to re-run the entire General/Site-Info
+		// sanitizer, which silently blanked contact_phone/contact_hours/
+		// support_email and reset brand_name to get_bloginfo('name') on every
+		// dark mode toggle.
+		$settings                          = self::get_all();
+		$settings['mhm_rentiva_dark_mode'] = $mode;
+		update_option(self::OPTION_NAME, $settings);
 
 		wp_send_json_success(array( 'message' => __('Settings updated', 'mhm-rentiva') ));
 	}

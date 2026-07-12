@@ -1,5 +1,17 @@
 [
   {
+    "version": "4.64.1",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Dark mode toggle field clobber fix and residual settings-pollution cleanup",
+    "summary": "The admin panel's quick Dark Mode switch no longer silently blanks Support Phone/Hours/Email and resets Brand Name when toggled. A second cleanup pass also catches installs where a historical settings-pollution cleanup never re-ran.",
+    "changes": [
+      "Fix: toggling the admin panel's quick Dark Mode switch could silently blank the Support Phone, Support Hours, and Support Email fields on the General settings tab, and reset Brand Name back to the site title — because the switch's save handler re-ran the entire General tab's sanitizer with only the dark mode value present. It now updates only the dark mode setting.",
+      "Fix: a one-time cleanup added in v4.27.2 for a historical \"Run All Diagnostics\" data-pollution bug (which could leave Brand Name and similar text fields saved as the literal value \"1\") never re-ran on installs where its completion flag had already been stamped before the pollution actually occurred. A second cleanup pass now catches any installs still carrying the old pollution."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.0",
     "date": "2026-07-07",
     "type": "minor",

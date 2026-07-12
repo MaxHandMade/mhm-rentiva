@@ -61,6 +61,40 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 	}
 
 	/**
+	 * Regression test: toggling dark mode via the quick AJAX switcher must
+	 * only touch mhm_rentiva_dark_mode. It previously routed through
+	 * SettingsSanitizer::sanitize() with 'current_active_tab' => 'general',
+	 * which re-ran the entire General/Site-Info sanitizer on an input array
+	 * that only contained the dark mode key — silently blanking
+	 * contact_phone/contact_hours/support_email and resetting brand_name
+	 * to get_bloginfo('name') on every toggle.
+	 */
+	public function test_ajax_does_not_clobber_unrelated_site_info_fields(): void
+	{
+		update_option(
+			'mhm_rentiva_settings',
+			array(
+				'mhm_rentiva_dark_mode'     => 'auto',
+				'mhm_rentiva_brand_name'    => 'Custom Brand',
+				'mhm_rentiva_contact_phone' => '+90 555 123 45 67',
+				'mhm_rentiva_contact_hours' => '09:00 - 18:00',
+				'mhm_rentiva_support_email' => 'support@example.com',
+			)
+		);
+
+		$response = $this->run_dark_mode_ajax('dark');
+
+		$this->assertTrue($response['success'] ?? false);
+
+		$settings = (array) get_option('mhm_rentiva_settings', array());
+		$this->assertSame('dark', $settings['mhm_rentiva_dark_mode'] ?? null);
+		$this->assertSame('Custom Brand', $settings['mhm_rentiva_brand_name'] ?? null);
+		$this->assertSame('+90 555 123 45 67', $settings['mhm_rentiva_contact_phone'] ?? null);
+		$this->assertSame('09:00 - 18:00', $settings['mhm_rentiva_contact_hours'] ?? null);
+		$this->assertSame('support@example.com', $settings['mhm_rentiva_support_email'] ?? null);
+	}
+
+	/**
 	 * @return array<string,mixed>
 	 */
 	private function run_dark_mode_ajax(string $mode): array

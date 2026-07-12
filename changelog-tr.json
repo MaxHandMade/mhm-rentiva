@@ -1,5 +1,17 @@
 [
   {
+    "version": "4.64.1",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Karanlık mod anahtarının alanları silmesi düzeltmesi ve kalan ayar kirliliği temizliği",
+    "summary": "Admin panelindeki hızlı Karanlık Mod anahtarı artık değiştirildiğinde Destek Telefonu/Saatleri/E-postası'nı sessizce boşaltmıyor ve Marka Adı'nı sıfırlamıyor. Ayrıca, geçmişte yapılan bir ayar-kirliliği temizliğinin bir daha hiç çalışmadığı kurulumları yakalayan ikinci bir temizlik geçişi eklendi.",
+    "changes": [
+      "Düzeltme: admin panelindeki hızlı Karanlık Mod anahtarını değiştirmek, Genel Ayarlar sekmesindeki Destek Telefonu, Destek Saatleri ve Destek E-postası alanlarını sessizce boşaltabiliyor ve Marka Adı'nı site başlığına sıfırlayabiliyordu — çünkü anahtarın kaydetme işleyicisi, sadece karanlık mod değeri mevcutken Genel sekmenin tüm sanitizer'ını yeniden çalıştırıyordu. Artık sadece karanlık mod ayarını güncelliyor.",
+      "Düzeltme: v4.27.2'de geçmişteki bir \"Tüm Testleri Çalıştır\" veri-kirliliği hatası için eklenen tek-seferlik temizlik (Marka Adı ve benzeri metin alanlarının literal \"1\" değeriyle kaydedilmesine yol açabiliyordu), tamamlanma bayrağı kirlilik gerçekleşmeden önce zaten işaretlenmiş olan kurulumlarda bir daha hiç yeniden çalışmıyordu. İkinci bir temizlik geçişi artık hâlâ eski kirliliği taşıyan kurulumları yakalıyor."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.0",
     "date": "2026-07-07",
     "type": "minor",

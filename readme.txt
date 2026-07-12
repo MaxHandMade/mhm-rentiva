@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.64.0
+Stable tag:        4.64.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,10 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.64.1 — 2026-07-12 =
+* 🐛 **Fix:** Toggling the admin panel's quick Dark Mode switch could silently blank the Support Phone, Support Hours, and Support Email fields on the General settings tab, and reset Brand Name back to the site title — because the switch's save handler re-ran the entire General tab's sanitizer with only the dark mode value present. It now updates only the dark mode setting.
+* 🐛 **Fix:** A one-time cleanup added in v4.27.2 for a historical "Run All Diagnostics" data-pollution bug (which could leave Brand Name and similar text fields saved as the literal value "1") never re-ran on installs where its completion flag had already been stamped before the pollution actually occurred. A second cleanup pass now catches any installs still carrying the old pollution.
 
 = 4.64.0 — 2026-07-07 =
 * ✨ **Feature:** Admins can now set a commission rate override for an individual vendor, from that vendor's detail page in Vendor Management.
