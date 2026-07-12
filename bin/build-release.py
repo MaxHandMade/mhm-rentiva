@@ -154,7 +154,13 @@ def inject_l10n_abspath_guard() -> int:
     if not languages.exists():
         return 0
     for path in languages.glob("*.l10n.php"):
-        original = path.read_text(encoding="utf-8")
+        # newline='' disables Python's universal-newline translation. Without
+        # it, write_text() on Windows rewrites every '\n' to '\r\n' — including
+        # '\n' characters embedded *inside* multi-line translated string
+        # values (e.g. a msgid/msgstr pair like "Line one\nLine two"), silently
+        # corrupting those keys so WordPress's runtime __() lookup (which uses
+        # the untouched '\n'-only PHP source string) never matches them.
+        original = path.read_text(encoding="utf-8", newline="")
         # Skip if already protected (e.g. someone edited the source file).
         if "defined('ABSPATH')" in original.replace(" ", "")[:200]:
             continue
@@ -165,7 +171,7 @@ def inject_l10n_abspath_guard() -> int:
         else:
             # Not a PHP file we recognize — leave it alone.
             continue
-        path.write_text(new_content, encoding="utf-8")
+        path.write_text(new_content, encoding="utf-8", newline="")
         patched += 1
     return patched
 
