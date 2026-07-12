@@ -87,9 +87,9 @@ final class TransferSettings {
 			'mhm_transfer_custom_types',
 			__( 'Custom Location Types', 'mhm-rentiva' ),
 			5,
-			__( 'Enter custom location types, one per line.', 'mhm-rentiva' ),
+			__( 'Enter custom location types, one per line. These are added to the "Type" dropdown when creating a location under Locations, alongside the built-in types (Airport, Hotel, etc.).', 'mhm-rentiva' ),
 			self::SECTION_TRANSFER,
-			"Stadium\nExhibition Center\nAirport"
+			__( "Stadium\nExhibition Center\nAirport", 'mhm-rentiva' )
 		);
 	}
 

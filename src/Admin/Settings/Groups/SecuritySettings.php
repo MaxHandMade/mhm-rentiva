@@ -86,11 +86,11 @@ final class SecuritySettings {
 		);
 
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_ip_whitelist_enabled', __( 'Enable IP Whitelist', 'mhm-rentiva' ), __( 'Restrictions are bypassed for these trusted IPs.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL );
-		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_whitelist', __( 'Whitelisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, 'e.g. 192.168.1.1' );
+		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_whitelist', __( 'Whitelisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'e.g. 192.168.1.1', 'mhm-rentiva' ) );
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_ip_blacklist_enabled', __( 'Enable IP Blacklist', 'mhm-rentiva' ), __( 'Traffic from these IPs is completely blocked.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL );
-		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_blacklist', __( 'Blacklisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, 'e.g. 123.123.123.123' );
+		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_blacklist', __( 'Blacklisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'e.g. 123.123.123.123', 'mhm-rentiva' ) );
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_country_restriction_enabled', __( 'Enable Country Restriction', 'mhm-rentiva' ), __( 'Block access from countries not in the allowed list.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL );
-		SettingsHelper::text_field( $page_slug, 'mhm_rentiva_allowed_countries', __( 'Allowed Countries (Codes)', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'Comma separated 2-letter codes. Ex: TR, US', 'mhm-rentiva' ), 'e.g. TR, US, GB' );
+		SettingsHelper::text_field( $page_slug, 'mhm_rentiva_allowed_countries', __( 'Allowed Countries (Codes)', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'Comma separated 2-letter codes. Ex: TR, US', 'mhm-rentiva' ), __( 'e.g. TR, US, GB', 'mhm-rentiva' ) );
 
 		// 2. Security Rules Section
 		add_settings_section(

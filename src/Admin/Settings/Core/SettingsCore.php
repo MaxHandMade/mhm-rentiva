@@ -42,7 +42,6 @@ final class SettingsCore {
 		// Dark Mode Logic
 		add_action('admin_head', array( self::class, 'inject_dark_mode_styles' ));
 		add_action('wp_head', array( self::class, 'inject_dark_mode_styles' ));
-		add_filter('body_class', array( self::class, 'add_dark_mode_body_class' ));
 
 		// AJAX Handlers
 		add_action('wp_ajax_mhm_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));

@@ -51,6 +51,14 @@ body.mhm-dark-mode .mhm-settings-nav-item.active {
 	color: var(--mhm-dark-text-primary);
 }
 
+/* Dark Mode Page Title */
+/* WP core sets an explicit dark gray on .wp-heading-inline that our dark
+   background makes nearly invisible (~1:1 contrast) unless overridden here. */
+body.mhm-dark-mode .wrap h1,
+body.mhm-dark-mode .wp-heading-inline {
+	color: var(--mhm-dark-text-primary);
+}
+
 /* Dark Mode Content */
 body.mhm-dark-mode .mhm-settings-content {
 	background-color: var(--mhm-dark-bg-primary);
@@ -75,6 +83,14 @@ body.mhm-dark-mode .mhm-settings-form textarea {
 	background-color: var(--mhm-dark-bg-tertiary);
 	border: 1px solid var(--mhm-dark-border);
 	color: var(--mhm-dark-text-primary);
+}
+
+/* Browser default placeholder color assumes a light background; on our dark
+   input background it renders at ~2.6:1 contrast (illegible). */
+body.mhm-dark-mode .mhm-settings-form input::placeholder,
+body.mhm-dark-mode .mhm-settings-form textarea::placeholder {
+	color: var(--mhm-dark-text-secondary);
+	opacity: 1;
 }
 
 body.mhm-dark-mode .mhm-settings-form input:focus,

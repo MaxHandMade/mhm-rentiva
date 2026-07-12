@@ -298,7 +298,7 @@ final class RESTSettings {
 		echo '<p class="description">' . esc_html__('Blocks known bots and scraping tools (curl, wget, bot etc.).', 'mhm-rentiva') . '</p><br>';
 
 		echo '<label for="rest_ip_whitelist">' . esc_html__('IP Whitelist', 'mhm-rentiva') . '</label><br>';
-		echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="2" cols="50" class="regular-text" placeholder="1.2.3.4, 5.6.7.8">' . esc_textarea(implode(', ', (array) ( $sec['ip_whitelist'] ?? array() ))) . '</textarea>';
+		echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="2" cols="50" class="regular-text" placeholder="' . esc_attr__('1.2.3.4, 5.6.7.8', 'mhm-rentiva') . '">' . esc_textarea(implode(', ', (array) ( $sec['ip_whitelist'] ?? array() ))) . '</textarea>';
 		echo '<p class="description">' . esc_html__('Comma separated list of allowed IP addresses.', 'mhm-rentiva') . '</p>';
 		echo '</td></tr>';
 

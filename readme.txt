@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        4.64.1
+Stable tag:        4.64.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -82,6 +82,11 @@ Yes, all frontend components and admin settings are fully responsive.
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 4.64.2 — 2026-07-12 =
+* 🐛 **Fix:** Dark Mode was missing color overrides for the admin page title and for input/textarea placeholder text, making both nearly unreadable (near-invisible page title, low-contrast placeholders) against the dark background.
+* 🐛 **Fix:** The "Custom Location Types" placeholder example text on the Transfer settings tab was a raw, un-wrapped string that could never be translated regardless of site locale — it always displayed in English even on non-English installs. Also found and fixed 5 identical un-translatable placeholders elsewhere in Settings and the REST API settings screen (IP whitelist/blacklist and allowed-countries examples on the Security tab, the vehicle URL base example, and a REST API IP whitelist example).
+* ✨ **Improvement:** The "Custom Location Types" field description now explains that these values populate the "Type" dropdown when creating a location under Locations — previously the connection between the two screens wasn't documented anywhere in the UI.
 
 = 4.64.1 — 2026-07-12 =
 * 🐛 **Fix:** Toggling the admin panel's quick Dark Mode switch could silently blank the Support Phone, Support Hours, and Support Email fields on the General settings tab, and reset Brand Name back to the site title — because the switch's save handler re-ran the entire General tab's sanitizer with only the dark mode value present. It now updates only the dark mode setting.

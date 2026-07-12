@@ -1,5 +1,18 @@
 [
   {
+    "version": "4.64.2",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Dark mode contrast fix and un-translatable placeholder fix",
+    "summary": "Dark Mode's page title and placeholder text are now readable. Fixed 4 placeholder strings that could never be translated because they were raw PHP literals instead of __() calls, and clarified how custom location types connect to the Locations page.",
+    "changes": [
+      "Fix: Dark Mode was missing color overrides for the admin page title and for input/textarea placeholder text, making both nearly unreadable (near-invisible page title, low-contrast placeholders) against the dark background.",
+      "Fix: the \"Custom Location Types\" placeholder example text on the Transfer settings tab was a raw, un-wrapped string that could never be translated regardless of site locale — it always displayed in English even on non-English installs. Also found and fixed 5 identical un-translatable placeholders elsewhere in Settings and the REST API settings screen (IP whitelist/blacklist and allowed-countries examples on the Security tab, the vehicle URL base example, and a REST API IP whitelist example).",
+      "Improvement: the \"Custom Location Types\" field description now explains that these values populate the \"Type\" dropdown when creating a location under Locations — previously the connection between the two screens wasn't documented anywhere in the UI."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.1",
     "date": "2026-07-12",
     "type": "patch",

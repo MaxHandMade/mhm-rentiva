@@ -85,7 +85,7 @@ final class VehicleManagementSettings {
 			__( 'Vehicle URL Base', 'mhm-rentiva' ),
 			self::SECTION_URLS,
 			__( 'URL segment used for vehicle detail pages. Default: vehicle → example.com/vehicle/car-name/', 'mhm-rentiva' ),
-			'vehicle'
+			__( 'vehicle', 'mhm-rentiva' )
 		);
 
 		// 1. Vehicle Pricing Section

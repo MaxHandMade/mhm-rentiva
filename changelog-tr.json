@@ -1,5 +1,18 @@
 [
   {
+    "version": "4.64.2",
+    "date": "2026-07-12",
+    "type": "patch",
+    "title": "Karanlık mod kontrast düzeltmesi ve çevrilemeyen placeholder düzeltmesi",
+    "summary": "Karanlık Mod'da sayfa başlığı ve placeholder metinleri artık okunaklı. Hiçbir zaman çevrilemeyen (ham PHP string'i olduğu için) 4 placeholder metni düzeltildi ve özel konum türlerinin Konumlar sayfasıyla bağlantısı netleştirildi.",
+    "changes": [
+      "Düzeltme: Karanlık Mod'da admin sayfa başlığı ve input/textarea placeholder metinleri için renk geçersiz kılması eksikti — ikisi de koyu arkaplana karşı neredeyse okunaksızdı (sayfa başlığı görünmez denecek kadar soluk, placeholder'lar düşük kontrastlı).",
+      "Düzeltme: Transfer Ayarları sekmesindeki \"Özel Konum Türleri\" placeholder örnek metni, `__()` içine hiç sarılmamış ham bir string'di — site dili ne olursa olsun asla çevrilemiyordu, İngilizce olmayan kurulumlarda bile her zaman İngilizce görünüyordu. Aynı hatanın Ayarlar'ın başka yerlerinde ve REST API ayarları ekranında 5 kopyası daha bulunup düzeltildi (Güvenlik sekmesinde IP beyaz/kara liste ve izin verilen ülkeler örnekleri, araç URL tabanı örneği, REST API IP beyaz liste örneği).",
+      "İyileştirme: \"Özel Konum Türleri\" alan açıklaması artık bu değerlerin Konumlar bölümünde yeni bir konum oluştururken \"Tip\" açılır menüsünü beslediğini açıklıyor — daha önce bu iki ekran arasındaki bağlantı arayüzde hiçbir yerde belgelenmemişti."
+    ],
+    "notice": ""
+  },
+  {
     "version": "4.64.1",
     "date": "2026-07-12",
     "type": "patch",
