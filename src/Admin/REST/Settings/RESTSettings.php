@@ -7,9 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use WP_REST_Request;
-use MHMRentiva\Admin\Core\Utilities\RateLimiter;
-
 /**
  * ✅ REST SETTINGS - Dynamic REST API Settings
  */
@@ -143,74 +140,6 @@ final class RESTSettings {
 	{
 		$dev = self::get_development_settings();
 		return ( $dev['debug_mode'] ?? false ) || self::is_wp_debug_enabled();
-	}
-
-	/**
-	 * Security checks for a REST request (IP blacklist/whitelist, HTTPS,
-	 * User-Agent validation) based on the configured `security` settings.
-	 *
-	 * @param WP_REST_Request $request REST request object.
-	 * @return bool True if the request passes all enabled security checks.
-	 */
-	public static function check_security( WP_REST_Request $request ): bool
-	{
-		$dev = self::get_development_settings();
-		if ( ! empty( $dev['security_bypass'] ) ) {
-			return true;
-		}
-
-		$settings = self::get_security_settings();
-
-		if ( ! empty( $settings['require_https'] ) && ! is_ssl() ) {
-			return false;
-		}
-
-		$client_ip = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '';
-
-		if ( ! empty( $settings['ip_blacklist_enabled'] ) && '' !== $client_ip ) {
-			$blacklist = is_array( $settings['ip_blacklist'] ?? null ) ? $settings['ip_blacklist'] : array();
-			if ( in_array( $client_ip, $blacklist, true ) ) {
-				return false;
-			}
-		}
-
-		if ( ! empty( $settings['ip_whitelist_enabled'] ) ) {
-			$whitelist = is_array( $settings['ip_whitelist'] ?? null ) ? $settings['ip_whitelist'] : array();
-			if ( ! empty( $whitelist ) && ! in_array( $client_ip, $whitelist, true ) ) {
-				return false;
-			}
-		}
-
-		if ( ! empty( $settings['user_agent_validation'] ) ) {
-			$user_agent = strtolower( (string) $request->get_header( 'User-Agent' ) );
-			$blocked    = is_array( $settings['blocked_user_agents'] ?? null ) ? $settings['blocked_user_agents'] : array();
-			foreach ( $blocked as $needle ) {
-				$needle = strtolower( (string) $needle );
-				if ( '' !== $needle && false !== strpos( $user_agent, $needle ) ) {
-					return false;
-				}
-			}
-		}
-
-		return true;
-	}
-
-	/**
-	 * Rate limit check for a REST request identifier, delegating to the
-	 * shared RateLimiter using the configured `rate_limiting` settings.
-	 *
-	 * @param string $identifier Client identifier (IP, user_id, etc.).
-	 * @param string $type Rate limit bucket (default, strict, burst).
-	 * @return bool True if the identifier is within its rate limit.
-	 */
-	public static function check_rate_limit( string $identifier, string $type = 'default' ): bool
-	{
-		$settings = self::get_rate_limit_settings();
-		if ( empty( $settings['enabled'] ) ) {
-			return true;
-		}
-
-		return RateLimiter::check( $identifier, $type );
 	}
 
 	public static function register(): void

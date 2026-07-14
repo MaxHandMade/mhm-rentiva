@@ -14,4 +14,4 @@ parameters:
         - src/**/node_modules/*
     treatPhpDocTypesAsCertain: false
     scanDirectories:
-        - /var/www/html/wp-content/plugins/elementor
+        - vendor/wpackagist-plugin/elementor

@@ -681,9 +681,6 @@ final class Plugin {
 			if (class_exists(Admin\Messages\Core\Messages::class)) {
 				Admin\Messages\Core\Messages::register();
 			}
-			if ($is_admin && class_exists(Admin\Messages\Admin\MessageListTable::class)) {
-				Admin\Messages\Admin\MessageListTable::register();
-			}
 
 			if (class_exists(Admin\Messages\REST\Messages::class)) {
 				Admin\Messages\REST\Messages::register();

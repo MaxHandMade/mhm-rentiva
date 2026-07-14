@@ -7,8 +7,8 @@
         "test": "@php ./vendor/bin/phpunit -c phpunit.xml",
         "phpcs": "@php ./vendor/bin/phpcs --standard=phpcs.xml",
         "phpcbf": "@php ./vendor/bin/phpcbf --standard=phpcs.xml",
-        "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=1G",
-        "phpstan:5": "@php ./vendor/bin/phpstan analyse --level=5 --memory-limit=1G",
+        "phpstan": "@php ./vendor/bin/phpstan analyse --memory-limit=2G",
+        "phpstan:5": "@php ./vendor/bin/phpstan analyse --level=5 --memory-limit=2G",
         "phpcs:release": "@php ./vendor/bin/phpcs --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
         "phpcbf:release": "@php ./vendor/bin/phpcbf --standard=phpcs.xml mhm-rentiva.php uninstall.php src templates assets/blocks",
         "plugin-check:release": "wp plugin check mhm-rentiva --path=/var/www/html --allow-root --format=json --ignore-codes=hidden_files --exclude-directories=tests,bin,website,.github,.ai,.agent,.agents,pcp,stubs,.intelephense,.vscode,build,docs,specs,.worktrees --exclude-files=.gitignore,.phpunit.result.cache,.tmp_scan.csv,.tmp_phpscan.csv,cookie_debug.php,generate-clean-pot.php,update-pot-ultimate.php,wp-stubs.php,AGENTS.md,PROJECT_GUIDE.md,PROJECT_MEMORIES.md,SHORTCODES.md,SKILLS.md,UI_CONTRACTS.md,README-tr.md,arac-kiralama-vip-transfer-theme-tasarim.md,phpunit.xml.dist,RELEASE_CHECKLIST.md",
@@ -20,7 +20,19 @@
     },
     "config": {
         "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/installers": true
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://wpackagist.org"
+        }
+    ],
+    "extra": {
+        "installer-paths": {
+            "vendor/{$vendor}/{$name}/": ["type:wordpress-plugin"]
         }
     },
     "require-dev": {
@@ -33,6 +45,8 @@
         "phpstan/phpstan": "^2.0",
         "szepeviktor/phpstan-wordpress": "^2.0",
         "php-stubs/wordpress-stubs": "^6.7",
-        "php-stubs/wp-cli-stubs": "^2.12"
+        "php-stubs/wp-cli-stubs": "^2.12",
+        "composer/installers": "^2.3",
+        "wpackagist-plugin/elementor": "*"
     }
 }

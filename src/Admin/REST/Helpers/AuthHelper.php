@@ -11,8 +11,6 @@ use WP_Error;
 use WP_REST_Request;
 use Exception;
 use MHMRentiva\Admin\REST\Helpers\SecureToken;
-use MHMRentiva\Admin\REST\Settings\RESTSettings;
-use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 
 
@@ -50,33 +48,6 @@ final class AuthHelper {
 	 */
 	public static function verifyAuth(WP_REST_Request $request, int $booking_id = 0, string $gateway_prefix = ''): bool|WP_Error
 	{
-		// ✅ Security checks (IP blacklist, HTTPS, User Agent)
-		if (! RESTSettings::check_security($request)) {
-			// Detailed logging in development mode
-			if (RESTSettings::is_development_mode()) {
-				$dev_settings = RESTSettings::get_development_settings();
-				if ($dev_settings['verbose_logging']) {
-					$client_ip = sanitize_text_field( wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' ) ) );
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::security(
-						'Security check failed',
-						array(
-							'ip'         => '' !== $client_ip ? $client_ip : 'unknown',
-							'user_agent' => $request->get_header('User-Agent'),
-							'https'      => is_ssl(),
-							'url'        => $request->get_route(),
-							'method'     => $request->get_method(),
-						)
-					);
-				}
-			}
-
-			return new WP_Error(
-				'security_check_failed',
-				__('Security check failed. Access denied.', 'mhm-rentiva'),
-				array( 'status' => 403 )
-			);
-		}
-
 		// 1. WordPress REST nonce check (logged-in users)
 		$wpNonce = $request->get_header('X-WP-Nonce');
 		if ($wpNonce && wp_verify_nonce($wpNonce, 'wp_rest')) {
@@ -112,19 +83,6 @@ final class AuthHelper {
 	{
 		// ✅ Use secure token validation system
 		return SecureToken::verify_customer_token($token, $post_type, $email_meta_key);
-	}
-
-	/**
-	 * ✅ Dynamic Rate limiting check
-	 *
-	 * @param string $identifier User identifier (IP, user_id, etc.)
-	 * @param string $type Rate limit type (default, strict, burst)
-	 * @return bool Is rate limit exceeded?
-	 */
-	public static function checkRateLimit(string $identifier, string $type = 'default'): bool
-	{
-		// ✅ Get dynamic settings from RESTSettings
-		return RESTSettings::check_rate_limit($identifier, $type);
 	}
 
 	/**
