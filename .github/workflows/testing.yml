@@ -50,3 +50,102 @@ jobs:
 
       - name: Run PHPCS
         run: composer phpcs
+
+  phpstan:
+    name: Run PHPStan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+          coverage: none
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            vendor
+            ~/.composer/cache/files
+          key: ${{ runner.os }}-php-8.2-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.2-composer-
+
+      # Deliberately NOT caching PHPStan's own result-cache (.phpstan-result-cache /
+      # analysis cache under the system temp dir): measurement showed the OOM this
+      # gate is prone to only happens against a dirty/invalidated result-cache — a
+      # clean checkout (= empty cache) is the lowest-memory path and passes
+      # reliably. Restoring that cache across runs would reintroduce the exact
+      # failure mode we're avoiding. The Composer dependency cache above is a
+      # different, unrelated cache and is safe to keep.
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: PHPStan level 0 (no baseline — dead-reference gate)
+        run: composer phpstan:0
+
+      - name: PHPStan level 5 (baselined)
+        run: composer phpstan
+
+      - name: Guarded-reference check (class_exists()/interface_exists() dead-ref guard)
+        run: composer check-guarded-refs
+
+  phpunit:
+    name: Run PHPUnit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli
+          tools: composer:v2
+          coverage: none
+
+      - name: Install SVN (required by install-wp-tests.sh)
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            vendor
+            ~/.composer/cache/files
+          key: ${{ runner.os }}-php-8.2-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-php-8.2-composer-
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install WordPress test suite
+        run: bash bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:3306 latest
+
+      - name: Run PHPUnit
+        env:
+          WP_TESTS_DIR: /tmp/wordpress-tests-lib
+        run: composer test

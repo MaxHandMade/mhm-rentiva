@@ -337,6 +337,9 @@ bin/*
 # Quality-gate script: `composer check-guarded-refs` requires it at runtime
 # and Task 3 wires it into CI, so it must ship in every clone.
 !bin/check-guarded-refs.php
+# CI needs a canonical WP test-suite installer (tests/bootstrap.php references
+# it); Task 3 wires it into the phpunit CI job, so it must ship in every clone.
+!bin/install-wp-tests.sh
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
