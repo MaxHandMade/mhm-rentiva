@@ -1,9 +1,8 @@
 includes:
     - vendor/szepeviktor/phpstan-wordpress/extension.neon
-    - phpstan-baseline.neon
 
 parameters:
-    level: 5
+    level: 0
     paths:
         - src
         - mhm-rentiva.php
