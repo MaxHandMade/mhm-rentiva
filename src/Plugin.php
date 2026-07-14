@@ -718,16 +718,6 @@ final class Plugin {
 			Admin\Emails\Templates\EmailPreview::register();
 		}
 
-		// REST API Error Handler
-		if ($this->is_class_available('Admin\REST\ErrorHandler')) {
-			Admin\REST\ErrorHandler::register();
-		}
-
-		// Debug Helper
-		if ($this->is_class_available('Admin\Core\Utilities\DebugHelper')) {
-			Admin\Core\Utilities\DebugHelper::register();
-		}
-
 		// Vehicle Settings (admin only)
 		if ($is_admin) {
 			if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Settings\VehicleSettings')) {
@@ -757,11 +747,6 @@ final class Plugin {
 			if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferExportImport')) {
 				\MHMRentiva\Admin\Transfer\TransferExportImport::instance();
 			}
-		}
-
-		// REST API
-		if ($this->is_class_available('Admin\REST\Availability')) {
-			Admin\REST\Availability::register();
 		}
 
 		// â­ New Account System (WordPress Login)
