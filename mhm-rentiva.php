@@ -133,8 +133,8 @@ spl_autoload_register(
 		// Ensure AbstractShortcode is loaded first for shortcode classes
 		if (
 			strpos($class_name, 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\') === 0 &&
-			$class_name !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode' &&
-			! class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode')
+			$class_name !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\Core\\AbstractShortcode' &&
+			! class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\Core\\AbstractShortcode')
 		) {
 
 			$abstract_path = __DIR__ . '/src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
