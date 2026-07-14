@@ -27,14 +27,25 @@
  *     -- a string literal passed to `class_exists()` is NEVER namespace-resolved
  *     by PHP at runtime; it must already be an absolute name. So string
  *     arguments are taken verbatim (only a leading backslash is stripped) and
- *     are only checked when they already start with `MHMRentiva\`. This also
- *     protects against false positives from call sites where the string isn't
- *     a class name at all -- e.g. `BookingReport::is_class_available()` uses
- *     its argument as an internal cache key ('Core\ObjectCache'), and a few
- *     `Plugin::is_class_available()` call sites pass a namespace-relative
- *     fragment ('Admin\REST\ErrorHandler') that is not a valid runtime class
- *     name either. Both are correctly ignored by requiring the `MHMRentiva\`
- *     prefix to already be present in the literal.
+ *     are only checked when they already start with `MHMRentiva\`.
+ *
+ *     A second, narrower check catches the *inverse* mistake: a string that
+ *     is clearly meant to reference one of *our own* classes (because
+ *     prefixing it with `MHMRentiva\` lands on a real file in src/) but is
+ *     missing that prefix. Such a guard is dead by construction -- PHP never
+ *     namespace-resolves a runtime string, so it can never be true. This is
+ *     only ever checked for `class_exists()` / `interface_exists()` /
+ *     `trait_exists()` themselves, and for wrapper methods that are proven
+ *     (by inspecting their own body) to forward their argument *directly* to
+ *     `class_exists()` -- e.g. `Plugin::is_class_available()`. It is
+ *     deliberately NOT checked for other `is_class_available()`-named methods
+ *     that don't have that exact shape: `BookingReport::is_class_available()`
+ *     uses its string argument as an internal cache key ('Core\ObjectCache'),
+ *     not a class name, and flagging it would be a false positive -- one of
+ *     those cache-key fragments ('Admin\Reports\BackgroundProcessor')
+ *     happens to collide with a real file path under src/, which is exactly
+ *     why the wrapper-shape check (not just the file-existence check) is
+ *     required.
  *
  * `self::class` / `static::class` / `parent::class` are ignored -- they name
  * the enclosing class, not an external reference.
@@ -48,8 +59,10 @@
  * bodies, so actually loading them here would be unsafe and slow.
  *
  * Returns the pure collector when required from another PHP file (so it can
- * be unit tested); scans src/, mhm-rentiva.php and uninstall.php -- the exact
- * paths phpstan.neon analyses -- and exits non-zero on findings when run
+ * be unit tested); scans src/, templates/, mhm-rentiva.php and uninstall.php
+ * -- templates/ is intentionally scanned even though PHPStan's own `paths`
+ * doesn't cover it, because that's precisely the kind of blind spot this
+ * checker exists to close -- and exits non-zero on findings when run
  * directly.
  *
  * @package MHMRentiva
@@ -57,13 +70,39 @@
 
 declare(strict_types=1);
 
+// Computed up front (not inside the `is_main_script` branch below) so the
+// collector closure can capture it and resolve "does this MHMRentiva class
+// really exist?" against the real src/ tree even when it's exercised from a
+// unit test with synthetic in-memory PHP source.
+$root = dirname( __DIR__ );
+
+/**
+ * Resolve the file path a given MHMRentiva class/interface/trait name must
+ * live at, mirroring the plugin's own autoloader (see the
+ * `spl_autoload_register()` call in mhm-rentiva.php): `MHMRentiva\Foo\Bar` ->
+ * `src/Foo/Bar.php`.
+ *
+ * @param string $mhmrentiva_class Fully-qualified name, e.g. `MHMRentiva\Foo\Bar`.
+ * @return string Absolute expected file path.
+ */
+$class_file_path = static function ( string $mhmrentiva_class ) use ( $root ): string {
+	$relative = str_replace( array( 'MHMRentiva\\', '\\' ), array( '', '/' ), $mhmrentiva_class ) . '.php';
+	return $root . '/src/' . $relative;
+};
+
 /**
  * Collect MHMRentiva class names referenced inside availability guards.
  *
  * @param string $code PHP source.
- * @return array<int, array{line:int, class:string}>
+ * @return array<int, array{line:int, class:string, kind:string}> `kind` is
+ *         'dangling' (references a class that doesn't exist -- checked
+ *         against the file system by the caller) or 'dead' (the guard
+ *         argument is missing its 'MHMRentiva\' prefix and can therefore
+ *         never resolve at runtime -- already confirmed against the file
+ *         system here, since that confirmation is what rules out false
+ *         positives on third-party classes and non-class-name strings).
  */
-$collect = static function ( string $code ): array {
+$collect = static function ( string $code ) use ( $class_file_path ): array {
 	$found = array();
 
 	$tokens = @token_get_all( $code );
@@ -139,15 +178,136 @@ $collect = static function ( string $code ): array {
 		return false === $pos ? $name : substr( $name, $pos + 1 );
 	};
 
+	// ---- pre-pass: detect `is_class_available()`-style wrappers that
+	// forward their argument *directly* to `class_exists()` --------------
+	//
+	// Only a wrapper matching this exact shape --
+	//   private function is_class_available( string $x ): bool {
+	//       return class_exists( $x );
+	//   }
+	// -- is safe to treat like a raw `class_exists()` call for the "dead
+	// guard" check below. A wrapper with any other body (e.g. one that
+	// looks up a cache keyed by its argument) must NOT be treated the same
+	// way, or the checker would misread a non-class-name string as a class
+	// reference. This is a purely syntactic, per-file determination -- no
+	// class is actually loaded or resolved here.
+	$direct_forward_wrappers = array();
+
+	for ( $fi = 0; $fi < $count; $fi++ ) {
+		$ft = $tokens[ $fi ];
+		if ( ! is_array( $ft ) || T_FUNCTION !== $ft[0] ) {
+			continue;
+		}
+
+		$j = $skip_ws( $tokens, $fi + 1, $count );
+		if ( $j < $count && '&' === $tokens[ $j ] ) {
+			$j = $skip_ws( $tokens, $j + 1, $count );
+		}
+		if ( $j >= $count || ! is_array( $tokens[ $j ] ) || T_STRING !== $tokens[ $j ][0] ) {
+			continue;
+		}
+		$func_name = strtolower( $tokens[ $j ][1] );
+		$j         = $skip_ws( $tokens, $j + 1, $count );
+		if ( $j >= $count || '(' !== $tokens[ $j ] ) {
+			continue;
+		}
+
+		// Collect top-level parameter variable names.
+		$paren_depth = 1;
+		++$j;
+		$param_vars = array();
+		while ( $j < $count && $paren_depth > 0 ) {
+			$t = $tokens[ $j ];
+			if ( '(' === $t ) {
+				++$paren_depth;
+				++$j;
+				continue;
+			}
+			if ( ')' === $t ) {
+				--$paren_depth;
+				if ( 0 === $paren_depth ) {
+					break;
+				}
+				++$j;
+				continue;
+			}
+			if ( 1 === $paren_depth && is_array( $t ) && T_VARIABLE === $t[0] ) {
+				$param_vars[] = $t[1];
+			}
+			++$j;
+		}
+		++$j; // Skip the closing ')'.
+
+		// Skip an optional return-type declaration up to the body or a
+		// semicolon (interface/abstract methods have no body).
+		while ( $j < $count && '{' !== $tokens[ $j ] && ';' !== $tokens[ $j ] ) {
+			++$j;
+		}
+		if ( $j >= $count || ';' === $tokens[ $j ] ) {
+			continue;
+		}
+
+		$body_depth = 1;
+		$k          = $j + 1;
+		while ( $k < $count && $body_depth > 0 ) {
+			if ( '{' === $tokens[ $k ] ) {
+				++$body_depth;
+			} elseif ( '}' === $tokens[ $k ] ) {
+				--$body_depth;
+				if ( 0 === $body_depth ) {
+					break;
+				}
+			}
+			++$k;
+		}
+
+		$body = array();
+		for ( $m = $j + 1; $m < $k; $m++ ) {
+			$t = $tokens[ $m ];
+			if ( is_array( $t ) && in_array( $t[0], array( T_WHITESPACE, T_COMMENT, T_DOC_COMMENT ), true ) ) {
+				continue;
+			}
+			$body[] = $t;
+		}
+
+		// A "direct forward" body is *exactly* six tokens:
+		// T_RETURN class_exists ( T_VARIABLE ) ;  -- where the variable is
+		// the method's sole parameter. Anything else (extra statements,
+		// caching, negation, a different callee) disqualifies it.
+		if (
+			1 === count( $param_vars ) && 6 === count( $body )
+			&& is_array( $body[0] ) && T_RETURN === $body[0][0]
+			&& is_array( $body[1] ) && T_STRING === $body[1][0] && 'class_exists' === strtolower( $body[1][1] )
+			&& '(' === $body[2]
+			&& is_array( $body[3] ) && T_VARIABLE === $body[3][0] && $body[3][1] === $param_vars[0]
+			&& ')' === $body[4]
+			&& ';' === $body[5]
+		) {
+			$direct_forward_wrappers[ $func_name ] = true;
+		}
+	}
+
 	$namespace   = '';
 	$uses        = array(); // lowercase alias => imported FQN (no leading backslash).
 	$depth       = 0;
 	$guard_names = array( 'class_exists', 'interface_exists', 'trait_exists', 'is_class_available' );
+	// Guard names whose bare-string argument is checked directly against
+	// PHP's runtime lookup rules (no namespace resolution) -- used by the
+	// "dead guard" (missing 'MHMRentiva\' prefix) check.
+	$builtin_guard_names = array( 'class_exists', 'interface_exists', 'trait_exists' );
 
 	for ( $i = 0; $i < $count; $i++ ) {
 		$token = $tokens[ $i ];
 
-		if ( '{' === $token ) {
+		if (
+			'{' === $token
+			|| ( is_array( $token ) && T_CURLY_OPEN === $token[0] )
+			|| ( is_array( $token ) && T_DOLLAR_OPEN_CURLY_BRACES === $token[0] )
+		) {
+			// T_CURLY_OPEN / T_DOLLAR_OPEN_CURLY_BRACES are how the tokenizer
+			// represents the opening delimiter of `"{$x}"` / `"${x}"` string
+			// interpolation; PHP still closes both with a plain '}' char
+			// token, so the opener must be counted too or $depth drifts.
 			++$depth;
 			continue;
 		}
@@ -175,6 +335,18 @@ $collect = static function ( string $code ): array {
 
 		// ---- use-import statement (only meaningful at file scope) ----
 		if ( T_USE === $token[0] && 0 === $depth ) {
+			// A closure's `use ($var)` clause is also a `T_USE` token at
+			// depth 0 when the closure itself is declared at file scope
+			// (e.g. inside this very script). It is never preceded by
+			// anything but the closure's parameter-list `)`. Treating it as
+			// an import statement would scan for a terminating `;` through
+			// the entire closure body -- silently swallowing any guards
+			// inside it and corrupting the import map with bogus entries.
+			$prev_for_use = $prev_meaningful( $tokens, $i );
+			if ( ')' === $prev_for_use ) {
+				continue;
+			}
+
 			$j = $skip_ws( $tokens, $i + 1, $count );
 
 			// `use function ...;` / `use const ...;` are not class imports.
@@ -279,7 +451,8 @@ $collect = static function ( string $code ): array {
 			continue;
 		}
 
-		if ( ! in_array( strtolower( $token[1] ), $guard_names, true ) ) {
+		$guard_name_lc = strtolower( $token[1] );
+		if ( ! in_array( $guard_name_lc, $guard_names, true ) ) {
 			continue;
 		}
 
@@ -332,8 +505,32 @@ $collect = static function ( string $code ): array {
 
 		if ( 1 === count( $meaningful ) && is_array( $meaningful[0] ) && T_CONSTANT_ENCAPSED_STRING === $meaningful[0][0] ) {
 			$literal = ltrim( $decode_string_literal( $meaningful[0][1] ), '\\' );
+
 			if ( 0 === strpos( $literal, 'MHMRentiva\\' ) ) {
 				$resolved = $literal;
+			} elseif (
+				false !== strpos( $literal, '\\' )
+				&& (
+					in_array( $guard_name_lc, $builtin_guard_names, true )
+					|| ( 'is_class_available' === $guard_name_lc && isset( $direct_forward_wrappers[ $guard_name_lc ] ) )
+				)
+			) {
+				// Candidate for the "dead guard" check: a multi-segment
+				// string, passed to a checkable guard, that is NOT already
+				// 'MHMRentiva\'-prefixed. Only report it when prefixing it
+				// *does* land on a real file -- that's the proof this was
+				// meant to be one of our own classes (as opposed to a
+				// legitimate third-party absolute reference like
+				// '\Elementor\Plugin', which this checker has no business
+				// judging).
+				$candidate = 'MHMRentiva\\' . $literal;
+				if ( is_file( $class_file_path( $candidate ) ) ) {
+					$found[] = array(
+						'line'  => $call_line,
+						'class' => $candidate,
+						'kind'  => 'dead',
+					);
+				}
 			}
 		} elseif (
 			3 === count( $meaningful )
@@ -373,6 +570,7 @@ $collect = static function ( string $code ): array {
 			$found[] = array(
 				'line'  => $call_line,
 				'class' => $resolved,
+				'kind'  => 'dangling',
 			);
 		}
 	}
@@ -388,13 +586,15 @@ if ( ! $is_main_script ) {
 	return $collect;
 }
 
-$root     = dirname( __DIR__ );
-$dangling = array();
+$dangling    = array();
+$dead_guards = array();
 
-// The exact paths phpstan.neon analyses -- this checker exists to cover the
-// blind spot PHPStan has within that same scope.
+// The exact paths phpstan.neon analyses, PLUS templates/ -- deliberately
+// wider than PHPStan's own `paths`, since this checker exists to cover
+// PHPStan's blind spot within its own scanned scope, not to inherit it.
 $scan_targets = array(
 	$root . '/src',
+	$root . '/templates',
 	$root . '/mhm-rentiva.php',
 	$root . '/uninstall.php',
 );
@@ -422,23 +622,34 @@ foreach ( $php_files as $path ) {
 	$code = (string) file_get_contents( $path );
 
 	foreach ( $collect( $code ) as $hit ) {
-		// Mirrors the plugin's own PSR-4-ish autoloader (mhm-rentiva.php):
-		// MHMRentiva\Foo\Bar -> src/Foo/Bar.php.
-		$relative      = str_replace( array( 'MHMRentiva\\', '\\' ), array( '', '/' ), $hit['class'] ) . '.php';
-		$expected_path = $root . '/src/' . $relative;
+		$relative_source = str_replace( $root . DIRECTORY_SEPARATOR, '', $path );
+		$relative_source = str_replace( '\\', '/', $relative_source );
 
-		if ( ! is_file( $expected_path ) ) {
-			$relative_source = str_replace( $root . DIRECTORY_SEPARATOR, '', $path );
-			$relative_source = str_replace( '\\', '/', $relative_source );
-			$dangling[]      = sprintf( '%s:%d  %s', $relative_source, $hit['line'], $hit['class'] );
+		if ( 'dead' === $hit['kind'] ) {
+			// File existence was already confirmed inside $collect(); no
+			// further check needed here.
+			$dead_guards[] = sprintf( '%s:%d  %s', $relative_source, $hit['line'], $hit['class'] );
+			continue;
+		}
+
+		if ( ! is_file( $class_file_path( $hit['class'] ) ) ) {
+			$dangling[] = sprintf( '%s:%d  %s', $relative_source, $hit['line'], $hit['class'] );
 		}
 	}
 }
 
-if ( array() !== $dangling ) {
-	echo "Dangling guarded references (the class named in the guard does not exist):\n\n";
-	echo implode( "\n", $dangling ) . "\n\n";
-	echo count( $dangling ) . " found.\n";
+if ( array() !== $dangling || array() !== $dead_guards ) {
+	if ( array() !== $dangling ) {
+		echo "Dangling guarded references (the class named in the guard does not exist):\n\n";
+		echo implode( "\n", $dangling ) . "\n\n";
+	}
+
+	if ( array() !== $dead_guards ) {
+		echo "Dead guards (bare string is missing the 'MHMRentiva\\' prefix required by class_exists()/is_class_available() -- the guard can never be true):\n\n";
+		echo implode( "\n", $dead_guards ) . "\n\n";
+	}
+
+	echo ( count( $dangling ) + count( $dead_guards ) ) . " found.\n";
 	exit( 1 );
 }
 

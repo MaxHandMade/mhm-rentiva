@@ -154,13 +154,13 @@ PHP;
 	/**
 	 * A bare string argument to is_class_available()/class_exists() is never
 	 * namespace-resolved by PHP at runtime -- it must already be an absolute
-	 * "MHMRentiva\..." name. Some real call sites in this codebase pass
-	 * namespace-relative-looking fragments (e.g. 'Admin\REST\ErrorHandler',
-	 * or BookingReport's internal cache keys like 'Core\ObjectCache') that are
-	 * NOT real class references. Naively prefixing these with "MHMRentiva\"
-	 * would falsely report them as dangling. They must be skipped entirely.
+	 * "MHMRentiva\..." name. `BookingReport::is_class_available()` is NOT a
+	 * class_exists() proxy: its body doesn't forward the argument to
+	 * class_exists() at all, it uses the string as an internal cache key
+	 * ('Core\ObjectCache'). That string must never be treated as a class
+	 * reference, regardless of whether it happens to look like one.
 	 */
-	public function test_ignores_bare_string_without_mhmrentiva_prefix(): void {
+	public function test_ignores_bare_string_via_non_forwarding_wrapper(): void {
 		$code = <<<'PHP'
 <?php
 namespace MHMRentiva\Admin\Reports\BusinessLogic;
@@ -181,6 +181,101 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertSame( array(), $found );
+	}
+
+	/**
+	 * The sharpest false-positive trap this checker must avoid: one of
+	 * BookingReport's cache keys, 'Admin\Reports\BackgroundProcessor', is
+	 * not just similar in shape to a class name -- prefixing it with
+	 * 'MHMRentiva\' lands on a REAL file in this repository
+	 * (src/Admin/Reports/BackgroundProcessor.php). A file-existence check
+	 * alone would misidentify this as a dead guard. Only gating on the
+	 * wrapper's own body shape (not a direct `class_exists()` forward)
+	 * correctly rules it out.
+	 */
+	public function test_ignores_cache_key_that_collides_with_a_real_class_path(): void {
+		$code = <<<'PHP'
+<?php
+namespace MHMRentiva\Admin\Reports\BusinessLogic;
+
+final class BookingReport {
+	private static function is_class_available( string $class ): bool {
+		static $cache = array( 'Admin\Reports\BackgroundProcessor' => true );
+		return $cache[ $class ] ?? false;
+	}
+
+	public function run(): void {
+		if ( self::is_class_available( 'Admin\Reports\BackgroundProcessor' ) ) {
+			echo 'queued';
+		}
+	}
+}
+PHP;
+
+		$found = ( $this->collector() )( $code );
+
+		$this->assertSame( array(), $found, 'Non-forwarding wrapper must never be treated as a class_exists() proxy, even when its cache key collides with a real file path.' );
+	}
+
+	/**
+	 * The bug FIX 1 exists to catch: `Plugin::is_class_available()` forwards
+	 * its argument *directly* to `class_exists()` (`return class_exists(
+	 * $class_name );` -- nothing else), so a bare string missing the
+	 * 'MHMRentiva\' prefix can never resolve at runtime. The guard is
+	 * permanently false and the code behind it never runs. This must be
+	 * reported, not silently skipped. 'Admin\REST\ErrorHandler' is used
+	 * because it names a REAL class in this repository
+	 * (src/Admin/REST/ErrorHandler.php) -- that's what proves this is a
+	 * missing-prefix bug, not a legitimate third-party reference.
+	 */
+	public function test_reports_dead_guard_missing_mhmrentiva_prefix_via_forwarding_wrapper(): void {
+		$code = <<<'PHP'
+<?php
+namespace MHMRentiva;
+
+final class Plugin {
+	private function is_class_available( string $class_name ): bool {
+		return class_exists( $class_name );
+	}
+
+	public function boot(): void {
+		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+			echo 'never runs';
+		}
+	}
+}
+PHP;
+
+		$found = ( $this->collector() )( $code );
+
+		$this->assertCount( 1, $found );
+		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'dead', $found[0]['kind'] );
+	}
+
+	/**
+	 * Same dead-guard shape, but via a direct `class_exists()` call rather
+	 * than a wrapper -- both call shapes must be caught.
+	 */
+	public function test_reports_dead_guard_missing_mhmrentiva_prefix_via_direct_class_exists(): void {
+		$code = <<<'PHP'
+<?php
+namespace MHMRentiva\Admin;
+
+final class Bootstrap {
+	public function boot(): void {
+		if ( class_exists( 'Admin\Core\Utilities\DebugHelper' ) ) {
+			echo 'never runs';
+		}
+	}
+}
+PHP;
+
+		$found = ( $this->collector() )( $code );
+
+		$this->assertCount( 1, $found );
+		$this->assertSame( 'MHMRentiva\Admin\Core\Utilities\DebugHelper', $found[0]['class'] );
+		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
 	/**
@@ -258,6 +353,38 @@ PHP;
 		$this->assertCount( 2, $found );
 		$this->assertSame( 'MHMRentiva\Admin\Core\Utilities\ObjectCache', $found[0]['class'] );
 		$this->assertSame( 'MHMRentiva\Admin\Core\Utilities\QueueManager', $found[1]['class'] );
+	}
+
+	/**
+	 * FIX 3 regression: a file-scope closure's `use ($var)` clause is a
+	 * `T_USE` token at depth 0 -- the same depth as a real `use` import
+	 * statement. Before this fix, the import-parser would mistake it for an
+	 * import list and scan forward for a terminating `;`, running straight
+	 * through the closure's body (which has no `;` immediately after its
+	 * `use (...)`) and silently swallowing any guard inside that body while
+	 * corrupting $depth. This must not happen: the guard inside the closure
+	 * has to be found.
+	 */
+	public function test_finds_guard_inside_file_scope_closure_use_clause(): void {
+		$code = <<<'PHP'
+<?php
+namespace MHMRentiva;
+
+$x = 1;
+
+$callback = function () use ( $x ) {
+	if ( class_exists( Admin\Ghost\Missing::class ) ) {
+		Admin\Ghost\Missing::register();
+	}
+};
+
+$callback();
+PHP;
+
+		$found = ( $this->collector() )( $code );
+
+		$this->assertCount( 1, $found );
+		$this->assertSame( 'MHMRentiva\Admin\Ghost\Missing', $found[0]['class'] );
 	}
 
 	/**
