@@ -334,7 +334,15 @@ bin/*
 # One-shot maintenance script for reverting prematurely auto-completed bookings
 # (paired with the AutoComplete cron fix in 6b51cb0). Live-verified end-to-end.
 !bin/cleanup-early-completed-bookings.php
+# Quality-gate script: `composer check-guarded-refs` requires it at runtime
+# and Task 3 wires it into CI, so it must ship in every clone.
+!bin/check-guarded-refs.php
 tools/
+# `tools/` (above) matches any directory literally named "tools" at any depth
+# under core.ignorecase — that unintentionally swallows tests/Tools/, which
+# holds the unit tests for bin/check-guarded-refs.php. Keep it tracked.
+!tests/Tools/
+!tests/Tools/**
 AGENTS.md
 build_debug.txt
 test_output.txt
