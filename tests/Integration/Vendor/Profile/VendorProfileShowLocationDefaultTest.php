@@ -20,9 +20,14 @@ final class VendorProfileShowLocationDefaultTest extends \WP_UnitTestCase
     {
         parent::setUp();
         VendorProfile::register();
-        if (!defined('MHM_RENTIVA_DEV_PRO')) {
-            define('MHM_RENTIVA_DEV_PRO', true);
-        }
+        // Pro bypass is driven entirely by the mhm_rentiva_dev_pro_bypass
+        // filter below (add_filter(..., '__return_true') always wins over
+        // Mode::featureGranted()'s constant-derived default). Do NOT also
+        // define('MHM_RENTIVA_DEV_PRO', true) here: PHP constants cannot be
+        // undefined within a process, so doing so would permanently flip the
+        // constant for every later-running test in the same PHPUnit run --
+        // including ModeDevBypassTest's assertions about the *default*
+        // (no-filter) bypass behavior.
         update_option(LicenseManager::OPTION, [
             'key'           => 'TEST-DEV-001',
             'status'        => 'active',

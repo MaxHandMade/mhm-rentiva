@@ -19,9 +19,9 @@ final class VendorDirectoryShortcodeTest extends WP_UnitTestCase
 		// Mode::canUseVendorMarketplace() returns true. Mirrors the working
 		// pattern from VendorProfileShortcodeTest — Mode::featureGranted()
 		// requires isPro() to be true BEFORE the bypass filter is consulted.
-		if (!defined('MHM_RENTIVA_DEV_PRO')) {
-			define('MHM_RENTIVA_DEV_PRO', true);
-		}
+		// No MHM_RENTIVA_DEV_PRO define() here: the filter alone drives the
+		// bypass, and defining the constant would leak process-wide (PHP
+		// constants cannot be undefined within a single PHPUnit run).
 		update_option(LicenseManager::OPTION, [
 			'key'           => 'TEST-DEV-001',
 			'status'        => 'active',

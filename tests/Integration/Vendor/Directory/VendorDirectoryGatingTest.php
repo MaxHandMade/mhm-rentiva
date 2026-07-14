@@ -29,9 +29,10 @@ final class VendorDirectoryGatingTest extends WP_UnitTestCase
 
 	public function test_pro_user_passes_render_gate(): void
 	{
-		if (!defined('MHM_RENTIVA_DEV_PRO')) {
-			define('MHM_RENTIVA_DEV_PRO', true);
-		}
+		// No MHM_RENTIVA_DEV_PRO define() here: the mhm_rentiva_dev_pro_bypass
+		// filter below always wins over the constant-derived default, and
+		// defining the constant would leak for the rest of the PHPUnit
+		// process (PHP constants cannot be undefined within one run).
 		update_option(LicenseManager::OPTION, [
 			'key'           => 'TEST-DEV-001',
 			'status'        => 'active',
@@ -64,9 +65,8 @@ final class VendorDirectoryGatingTest extends WP_UnitTestCase
 
 	public function test_dev_bypass_filter_works(): void
 	{
-		if (!defined('MHM_RENTIVA_DEV_PRO')) {
-			define('MHM_RENTIVA_DEV_PRO', true);
-		}
+		// No MHM_RENTIVA_DEV_PRO define() here: it would leak process-wide
+		// (see test_pro_user_passes_render_gate() above for why).
 		// License seeded so isPro() returns true; the bypass filter then
 		// substitutes for RSA feature-token verification (which would otherwise
 		// fail under unit-test conditions where no real server-issued token
