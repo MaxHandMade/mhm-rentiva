@@ -1,0 +1,17 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 0
+    paths:
+        - src
+        - mhm-rentiva.php
+        - uninstall.php
+    bootstrapFiles:
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+        - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+    excludePaths:
+        - src/**/node_modules/*
+    treatPhpDocTypesAsCertain: false
+    scanDirectories:
+        - /var/www/html/wp-content/plugins/elementor
