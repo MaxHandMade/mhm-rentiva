@@ -178,20 +178,262 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 		return false === $pos ? $name : substr( $name, $pos + 1 );
 	};
 
-	// ---- pre-pass: detect `is_class_available()`-style wrappers that
-	// forward their argument *directly* to `class_exists()` --------------
+	// ---- wrapper-body shape analysis helpers -----------------------------
 	//
-	// Only a wrapper matching this exact shape --
-	//   private function is_class_available( string $x ): bool {
-	//       return class_exists( $x );
-	//   }
-	// -- is safe to treat like a raw `class_exists()` call for the "dead
-	// guard" check below. A wrapper with any other body (e.g. one that
-	// looks up a cache keyed by its argument) must NOT be treated the same
-	// way, or the checker would misread a non-class-name string as a class
-	// reference. This is a purely syntactic, per-file determination -- no
-	// class is actually loaded or resolved here.
-	$direct_forward_wrappers = array();
+	// These recognise whether a wrapper's parameter reaches a
+	// class_exists()/interface_exists()/trait_exists() call *directly* --
+	// i.e. the call's result (or its condition, for an if/return form) is
+	// the wrapper's return value with only boolean-neutral wrapping in
+	// between (redundant parens, a `(bool)` cast, or a *paired* `!!`
+	// negation -- a lone `!` inverts the result and must disqualify), and
+	// the call's sole argument -- after stripping a redundant cast, an
+	// optional PHP 8 named-argument `name:` prefix, and a trailing comma --
+	// is exactly the wrapper's own parameter. Anything else (a different
+	// callee, a different variable, extra statements, a cache lookup) is
+	// NOT a forward and must be rejected.
+	$cast_token_ids = array( T_INT_CAST, T_DOUBLE_CAST, T_STRING_CAST, T_ARRAY_CAST, T_OBJECT_CAST, T_BOOL_CAST, T_UNSET_CAST );
+
+	// Strip a single pair of outer parens spanning the *entire* token list
+	// (not just starting with '(' -- that pair must also be the one that
+	// closes the list, or this isn't redundant grouping).
+	$strip_outer_parens = static function ( array $tokens ): array {
+		$n = count( $tokens );
+		if ( $n < 2 || '(' !== $tokens[0] || ')' !== $tokens[ $n - 1 ] ) {
+			return $tokens;
+		}
+		$paren_depth = 0;
+		for ( $x = 0; $x < $n; $x++ ) {
+			if ( '(' === $tokens[ $x ] ) {
+				++$paren_depth;
+			} elseif ( ')' === $tokens[ $x ] ) {
+				--$paren_depth;
+				if ( 0 === $paren_depth && $x !== $n - 1 ) {
+					return $tokens; // Closes before the end -- not one wrapping pair.
+				}
+			}
+		}
+		return array_slice( $tokens, 1, $n - 2 );
+	};
+
+	// Split a token list on top-level commas (depth 0), dropping empty
+	// trailing groups so a trailing comma doesn't count as a second argument.
+	$split_top_level_commas = static function ( array $tokens ): array {
+		$groups      = array();
+		$current     = array();
+		$paren_depth = 0;
+		foreach ( $tokens as $t ) {
+			if ( '(' === $t ) {
+				++$paren_depth;
+			} elseif ( ')' === $t ) {
+				--$paren_depth;
+			}
+			if ( ',' === $t && 0 === $paren_depth ) {
+				$groups[] = $current;
+				$current  = array();
+				continue;
+			}
+			$current[] = $t;
+		}
+		$groups[] = $current;
+		return array_values(
+			array_filter(
+				$groups,
+				static function ( $g ) {
+					return array() !== $g;
+				}
+			)
+		);
+	};
+
+	// Reduce a call argument's token list down to the plain variable name it
+	// refers to (or null if it doesn't reduce to a single variable) --
+	// stripping an optional named-argument `name:` prefix, any cast, and
+	// redundant outer parens.
+	$reduce_call_argument = static function ( array $tokens ) use ( $strip_outer_parens, $cast_token_ids ): ?string {
+		// Optional PHP 8 named-argument prefix: `name: EXPR`. The name is
+		// whatever identifier-like token spells the parameter ("class", for
+		// class_exists()'s only argument) -- reserved words like `class`
+		// tokenize as their own keyword token (T_CLASS), not T_STRING, so
+		// this deliberately doesn't check the token's type, only that a
+		// bare ':' immediately follows a single leading token.
+		if ( count( $tokens ) >= 2 && is_array( $tokens[0] ) && ':' === $tokens[1] ) {
+			$tokens = array_slice( $tokens, 2 );
+		}
+
+		$changed = true;
+		while ( $changed ) {
+			$changed = false;
+
+			if ( array() !== $tokens && is_array( $tokens[0] ) && in_array( $tokens[0][0], $cast_token_ids, true ) ) {
+				$tokens  = array_slice( $tokens, 1 );
+				$changed = true;
+				continue;
+			}
+
+			$without_parens = $strip_outer_parens( $tokens );
+			if ( $without_parens !== $tokens ) {
+				$tokens  = $without_parens;
+				$changed = true;
+			}
+		}
+
+		if ( 1 === count( $tokens ) && is_array( $tokens[0] ) && T_VARIABLE === $tokens[0][0] ) {
+			return $tokens[0][1];
+		}
+		return null;
+	};
+
+	// Is this token list exactly `class_exists( ARG )` / `interface_exists( ARG )`
+	// / `trait_exists( ARG )` -- a single argument that reduces to $param_var?
+	$is_direct_guard_call = static function ( array $tokens, string $param_var ) use ( $reduce_call_argument, $split_top_level_commas ): bool {
+		$n = count( $tokens );
+		if (
+			$n < 4
+			|| ! is_array( $tokens[0] ) || T_STRING !== $tokens[0][0]
+			|| ! in_array( strtolower( $tokens[0][1] ), array( 'class_exists', 'interface_exists', 'trait_exists' ), true )
+			|| '(' !== $tokens[1]
+			|| ')' !== $tokens[ $n - 1 ]
+		) {
+			return false;
+		}
+
+		$inner  = array_slice( $tokens, 2, $n - 3 );
+		$groups = $split_top_level_commas( $inner );
+		if ( 1 !== count( $groups ) ) {
+			return false; // Zero or 2+ arguments -- not a simple single-argument forward.
+		}
+
+		return $reduce_call_argument( $groups[0] ) === $param_var;
+	};
+
+	// Peel boolean-neutral wrapping (redundant parens, `(bool)` casts, `!`
+	// negations) off the front of an expression's token list, returning the
+	// remaining "core" tokens plus how many `!` negations were stripped --
+	// the caller must reject an odd count (it inverts the result).
+	$peel_boolean_wrapping = static function ( array $tokens ) use ( $strip_outer_parens ): array {
+		$negations = 0;
+		$changed   = true;
+		while ( $changed ) {
+			$changed = false;
+
+			if ( array() !== $tokens && '!' === $tokens[0] ) {
+				$tokens = array_slice( $tokens, 1 );
+				++$negations;
+				$changed = true;
+				continue;
+			}
+
+			if ( array() !== $tokens && is_array( $tokens[0] ) && T_BOOL_CAST === $tokens[0][0] ) {
+				$tokens  = array_slice( $tokens, 1 );
+				$changed = true;
+				continue;
+			}
+
+			$without_parens = $strip_outer_parens( $tokens );
+			if ( $without_parens !== $tokens ) {
+				$tokens  = $without_parens;
+				$changed = true;
+			}
+		}
+
+		return array( $tokens, $negations );
+	};
+
+	// Does this expression's token list forward directly to a guard call on
+	// $param_var, once boolean-neutral wrapping is peeled off?
+	$is_forwarding_expression = static function ( array $tokens, string $param_var ) use ( $peel_boolean_wrapping, $is_direct_guard_call ): bool {
+		list( $core, $negations ) = $peel_boolean_wrapping( $tokens );
+		if ( 0 !== $negations % 2 ) {
+			return false; // An odd number of `!` inverts the guard's meaning.
+		}
+		return $is_direct_guard_call( $core, $param_var );
+	};
+
+	// Does a (whitespace/comment-stripped) function body match one of the
+	// two recognised forwarding shapes?
+	//   1. `return EXPR;` -- a single return statement, EXPR forwards.
+	//   2. `if ( COND ) { return true; } return false;` -- COND forwards.
+	// Any other body (extra statements, a cache lookup, a different
+	// control-flow shape) is rejected -- deliberately: this is what keeps
+	// BookingReport::is_class_available() (a cache lookup, not a forward)
+	// out of this classification without needing to special-case it by name.
+	$body_is_forwarding = static function ( array $body, string $param_var ) use ( $is_forwarding_expression ): bool {
+		$n = count( $body );
+
+		if ( $n >= 4 && is_array( $body[0] ) && T_RETURN === $body[0][0] && ';' === $body[ $n - 1 ] ) {
+			$expr = array_slice( $body, 1, $n - 2 );
+			if ( ! in_array( ';', $expr, true ) && $is_forwarding_expression( $expr, $param_var ) ) {
+				return true;
+			}
+		}
+
+		if ( $n >= 3 && is_array( $body[0] ) && T_IF === $body[0][0] && '(' === $body[1] ) {
+			$paren_depth = 0;
+			$close       = -1;
+			for ( $x = 1; $x < $n; $x++ ) {
+				if ( '(' === $body[ $x ] ) {
+					++$paren_depth;
+				} elseif ( ')' === $body[ $x ] ) {
+					--$paren_depth;
+					if ( 0 === $paren_depth ) {
+						$close = $x;
+						break;
+					}
+				}
+			}
+
+			if ( -1 !== $close ) {
+				$cond = array_slice( $body, 2, $close - 2 );
+				$rest = array_slice( $body, $close + 1 );
+
+				$is_true_kw  = static function ( $t ): bool {
+					return is_array( $t ) && T_STRING === $t[0] && 'true' === strtolower( $t[1] );
+				};
+				$is_false_kw = static function ( $t ): bool {
+					return is_array( $t ) && T_STRING === $t[0] && 'false' === strtolower( $t[1] );
+				};
+
+				if (
+					8 === count( $rest )
+					&& '{' === $rest[0]
+					&& is_array( $rest[1] ) && T_RETURN === $rest[1][0]
+					&& $is_true_kw( $rest[2] )
+					&& ';' === $rest[3]
+					&& '}' === $rest[4]
+					&& is_array( $rest[5] ) && T_RETURN === $rest[5][0]
+					&& $is_false_kw( $rest[6] )
+					&& ';' === $rest[7]
+					&& $is_forwarding_expression( $cond, $param_var )
+				) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	};
+
+	// ---- pre-pass: detect `is_class_available()`-style wrappers that
+	// forward their argument *directly* to a class_exists()-family call ---
+	//
+	// Only a wrapper proven (via $body_is_forwarding, above) to forward its
+	// sole parameter directly is safe to treat like a raw `class_exists()`
+	// call for the "dead guard" check below. A wrapper with any other body
+	// (e.g. one that looks up a cache keyed by its argument) must NOT be
+	// treated the same way, or the checker would misread a non-class-name
+	// string as a class reference. This is a purely syntactic, per-file
+	// determination -- no class is actually loaded or resolved here.
+	//
+	// $is_class_available_non_forwarding_defs separately records every
+	// *non*-forwarding definition literally named `is_class_available`
+	// (regardless of why it was rejected), so that -- if this same file
+	// also *relies* on that name as a real class checker (proven below by a
+	// call site passing an already-'MHMRentiva\'-prefixed string, which
+	// only makes sense against a genuine class_exists() proxy) -- the
+	// checker can flag the mismatch loudly instead of silently disabling
+	// the dead-guard check for that wrapper's call sites.
+	$direct_forward_wrappers                = array();
+	$is_class_available_non_forwarding_defs = array();
 
 	for ( $fi = 0; $fi < $count; $fi++ ) {
 		$ft = $tokens[ $fi ];
@@ -206,8 +448,9 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 		if ( $j >= $count || ! is_array( $tokens[ $j ] ) || T_STRING !== $tokens[ $j ][0] ) {
 			continue;
 		}
-		$func_name = strtolower( $tokens[ $j ][1] );
-		$j         = $skip_ws( $tokens, $j + 1, $count );
+		$func_name      = strtolower( $tokens[ $j ][1] );
+		$func_name_line = $tokens[ $j ][2] ?? 0;
+		$j              = $skip_ws( $tokens, $j + 1, $count );
 		if ( $j >= $count || '(' !== $tokens[ $j ] ) {
 			continue;
 		}
@@ -270,20 +513,12 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 			$body[] = $t;
 		}
 
-		// A "direct forward" body is *exactly* six tokens:
-		// T_RETURN class_exists ( T_VARIABLE ) ;  -- where the variable is
-		// the method's sole parameter. Anything else (extra statements,
-		// caching, negation, a different callee) disqualifies it.
-		if (
-			1 === count( $param_vars ) && 6 === count( $body )
-			&& is_array( $body[0] ) && T_RETURN === $body[0][0]
-			&& is_array( $body[1] ) && T_STRING === $body[1][0] && 'class_exists' === strtolower( $body[1][1] )
-			&& '(' === $body[2]
-			&& is_array( $body[3] ) && T_VARIABLE === $body[3][0] && $body[3][1] === $param_vars[0]
-			&& ')' === $body[4]
-			&& ';' === $body[5]
-		) {
+		$is_forwarding = 1 === count( $param_vars ) && $body_is_forwarding( $body, $param_vars[0] );
+
+		if ( $is_forwarding ) {
 			$direct_forward_wrappers[ $func_name ] = true;
+		} elseif ( 'is_class_available' === $func_name ) {
+			$is_class_available_non_forwarding_defs[] = $func_name_line;
 		}
 	}
 
@@ -295,6 +530,12 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 	// PHP's runtime lookup rules (no namespace resolution) -- used by the
 	// "dead guard" (missing 'MHMRentiva\' prefix) check.
 	$builtin_guard_names = array( 'class_exists', 'interface_exists', 'trait_exists' );
+	// Proof that this file relies on `is_class_available()` as a genuine
+	// class_exists() proxy: at least one call site passes it an already-
+	// 'MHMRentiva\'-prefixed string, which is only ever meaningful against a
+	// real forwarding wrapper (BookingReport's cache-key strings never look
+	// like this). Set below, consumed after the loop.
+	$is_class_available_relied_upon = false;
 
 	for ( $i = 0; $i < $count; $i++ ) {
 		$token = $tokens[ $i ];
@@ -506,6 +747,12 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 		if ( 1 === count( $meaningful ) && is_array( $meaningful[0] ) && T_CONSTANT_ENCAPSED_STRING === $meaningful[0][0] ) {
 			$literal = ltrim( $decode_string_literal( $meaningful[0][1] ), '\\' );
 
+			if ( 'is_class_available' === $guard_name_lc && 0 === strpos( $literal, 'MHMRentiva\\' ) ) {
+				// Proof of reliance: this call only makes sense if
+				// is_class_available() really is a class_exists() proxy.
+				$is_class_available_relied_upon = true;
+			}
+
 			if ( 0 === strpos( $literal, 'MHMRentiva\\' ) ) {
 				$resolved = $literal;
 			} elseif (
@@ -517,19 +764,34 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 			) {
 				// Candidate for the "dead guard" check: a multi-segment
 				// string, passed to a checkable guard, that is NOT already
-				// 'MHMRentiva\'-prefixed. Only report it when prefixing it
-				// *does* land on a real file -- that's the proof this was
-				// meant to be one of our own classes (as opposed to a
-				// legitimate third-party absolute reference like
-				// '\Elementor\Plugin', which this checker has no business
-				// judging).
-				$candidate = 'MHMRentiva\\' . $literal;
-				if ( is_file( $class_file_path( $candidate ) ) ) {
-					$found[] = array(
-						'line'  => $call_line,
-						'class' => $candidate,
-						'kind'  => 'dead',
-					);
+				// 'MHMRentiva\'-prefixed. A missing prefix isn't the only way
+				// this happens -- the prefix can also be malformed, e.g.
+				// 'MHM\Rentiva\Admin\Messages\Core\MessageCache' (the
+				// namespace root was typo'd apart into two segments instead
+				// of the real 'MHMRentiva'). So every trailing (suffix) run
+				// of the literal's segments is tried, longest first -- not
+				// just the whole string -- requiring at least two segments
+				// in the suffix so a single common leaf name alone (e.g.
+				// 'Plugin', which would collide with this plugin's own
+				// top-level src/Plugin.php) can never on its own be mistaken
+				// for one of our classes. Only report when a suffix *does*
+				// land on a real file -- that's the proof this was meant to
+				// be one of our own classes (as opposed to a legitimate
+				// third-party absolute reference like '\Elementor\Plugin',
+				// which this checker has no business judging).
+				$segments       = explode( '\\', $literal );
+				$segment_count  = count( $segments );
+				for ( $start = 0; $start <= $segment_count - 2; $start++ ) {
+					$suffix    = implode( '\\', array_slice( $segments, $start ) );
+					$candidate = 'MHMRentiva\\' . $suffix;
+					if ( is_file( $class_file_path( $candidate ) ) ) {
+						$found[] = array(
+							'line'  => $call_line,
+							'class' => $candidate,
+							'kind'  => 'dead',
+						);
+						break;
+					}
 				}
 			}
 		} elseif (
@@ -575,6 +837,28 @@ $collect = static function ( string $code ) use ( $class_file_path ): array {
 		}
 	}
 
+	// A non-forwarding `is_class_available()` definition in this file is
+	// only worth flagging loudly when the file also *relies* on that name
+	// as a real class checker -- otherwise every legitimate cache-lookup
+	// wrapper (BookingReport::is_class_available(), which is never called
+	// with an 'MHMRentiva\'-prefixed string) would trip this on its own.
+	// A forwarding definition elsewhere in the same file (e.g. a sibling
+	// class) suppresses this -- see the file-scoped-prepass caveat in the
+	// module docblock.
+	if (
+		$is_class_available_relied_upon
+		&& array() !== $is_class_available_non_forwarding_defs
+		&& ! isset( $direct_forward_wrappers['is_class_available'] )
+	) {
+		foreach ( $is_class_available_non_forwarding_defs as $def_line ) {
+			$found[] = array(
+				'line'  => $def_line,
+				'class' => 'is_class_available',
+				'kind'  => 'unverified_wrapper',
+			);
+		}
+	}
+
 	return $found;
 };
 
@@ -586,8 +870,9 @@ if ( ! $is_main_script ) {
 	return $collect;
 }
 
-$dangling    = array();
-$dead_guards = array();
+$dangling            = array();
+$dead_guards         = array();
+$unverified_wrappers = array();
 
 // The exact paths phpstan.neon analyses, PLUS templates/ -- deliberately
 // wider than PHPStan's own `paths`, since this checker exists to cover
@@ -632,24 +917,34 @@ foreach ( $php_files as $path ) {
 			continue;
 		}
 
+		if ( 'unverified_wrapper' === $hit['kind'] ) {
+			$unverified_wrappers[] = sprintf( '%s:%d  %s()', $relative_source, $hit['line'], $hit['class'] );
+			continue;
+		}
+
 		if ( ! is_file( $class_file_path( $hit['class'] ) ) ) {
 			$dangling[] = sprintf( '%s:%d  %s', $relative_source, $hit['line'], $hit['class'] );
 		}
 	}
 }
 
-if ( array() !== $dangling || array() !== $dead_guards ) {
+if ( array() !== $dangling || array() !== $dead_guards || array() !== $unverified_wrappers ) {
 	if ( array() !== $dangling ) {
 		echo "Dangling guarded references (the class named in the guard does not exist):\n\n";
 		echo implode( "\n", $dangling ) . "\n\n";
 	}
 
 	if ( array() !== $dead_guards ) {
-		echo "Dead guards (bare string is missing the 'MHMRentiva\\' prefix required by class_exists()/is_class_available() -- the guard can never be true):\n\n";
+		echo "Dead guards (bare string is missing -- or has a malformed -- the 'MHMRentiva\\' prefix required by class_exists()/is_class_available() -- the guard can never be true):\n\n";
 		echo implode( "\n", $dead_guards ) . "\n\n";
 	}
 
-	echo ( count( $dangling ) + count( $dead_guards ) ) . " found.\n";
+	if ( array() !== $unverified_wrappers ) {
+		echo "Unverified guard wrappers (this method is relied on elsewhere in the same file as a class_exists()-style checker -- called with an already 'MHMRentiva\\'-prefixed string -- but its body no longer matches a recognised forwarding shape, so the dead-guard check cannot verify any of its call sites in this file. Either restore a recognisable forward, or confirm by hand that every call site is still correctly prefixed):\n\n";
+		echo implode( "\n", $unverified_wrappers ) . "\n\n";
+	}
+
+	echo ( count( $dangling ) + count( $dead_guards ) + count( $unverified_wrappers ) ) . " found.\n";
 	exit( 1 );
 }
 
