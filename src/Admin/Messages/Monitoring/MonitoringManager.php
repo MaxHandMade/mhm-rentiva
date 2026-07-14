@@ -432,7 +432,7 @@ final class MonitoringManager {
 		}
 
 		// Cache status check
-		if ( class_exists( 'MHM\\Rentiva\\Admin\\Messages\\Core\\MessageCache' ) ) {
+		if ( class_exists( 'MHMRentiva\\Admin\\Messages\\Core\\MessageCache' ) ) {
 			$checks[] = array(
 				'status'  => 'ok',
 				'message' => esc_html__( 'Cache system active', 'mhm-rentiva' ),
