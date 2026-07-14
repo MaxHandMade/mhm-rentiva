@@ -37,7 +37,7 @@ final class LockoutManager {
 	 */
 	public static function init(): void {
 		add_action( 'wp_login_failed', array( self::class, 'handle_failed_login' ) );
-		add_action( 'wp_login', array( self::class, 'clear_failed_attempts' ) );
+		add_action( 'wp_login', array( self::class, 'clear_failed_attempts' ), 10, 2 );
 		add_filter( 'authenticate', array( self::class, 'check_account_lockout' ), 30, 3 );
 	}
 

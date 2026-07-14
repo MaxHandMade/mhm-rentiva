@@ -431,10 +431,6 @@ final class Templates {
 	 * Try to pull a subject override from settings for the given key
 	 */
 	private static function getSubjectOverride( string $key, array $context ): ?string {
-		$base = self::$overrideMap[ $key ] ?? '';
-		// Note: when $base is empty, the switch below handles the direct-new-keys
-		// fallback by name. No explicit branch needed here.
-
 		// Special cases where option keys differ
 		switch ( $key ) {
 

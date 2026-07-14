@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\REST\Helpers\AuthHelper;
 use WP_REST_Request;
+use WP_Error;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

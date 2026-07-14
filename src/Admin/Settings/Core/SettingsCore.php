@@ -54,7 +54,7 @@ final class SettingsCore {
 		add_action('admin_init', array( self::class, 'init_settings_registration' ));
 
 		// Performance: Flush rewrite rules only when necessary
-		add_action('update_option_' . self::OPTION_NAME, array( self::class, 'handle_rewrite_flushing' ), 10, 3);
+		add_action('update_option_' . self::OPTION_NAME, array( self::class, 'handle_rewrite_flushing' ), 10, 2);
 	}
 
 	/**

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use MHMRentiva\Exceptions\MHMException;
+use MHMRentiva\Admin\Core\Exceptions\MHMException;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

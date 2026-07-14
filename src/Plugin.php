@@ -762,11 +762,6 @@ final class Plugin {
 			}
 		}
 
-		// REST API Fixer
-		if ($this->is_class_available('Admin\Core\Utilities\RestApiFixer')) {
-			Admin\Core\Utilities\RestApiFixer::register();
-		}
-
 		// REST API
 		if ($this->is_class_available('Admin\REST\Availability')) {
 			Admin\REST\Availability::register();
