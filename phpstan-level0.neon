@@ -3,6 +3,8 @@ includes:
 
 parameters:
     level: 0
+    parallel:
+        maximumNumberOfProcesses: 2
     paths:
         - src
         - mhm-rentiva.php
