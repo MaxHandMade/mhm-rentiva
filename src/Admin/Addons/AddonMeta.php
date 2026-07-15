@@ -119,7 +119,7 @@ final class AddonMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Custom render for settings meta box (license check).
+	 * Custom render for settings meta box.
 	 *
 	 * @param \WP_Post $post Post object.
 	 * @param array    $field_config Field configuration.
@@ -127,13 +127,6 @@ final class AddonMeta extends AbstractMetaBox {
 	protected static function render_settings_meta_box( \WP_Post $post, array $field_config ): void {
 		// Default render.
 		self::render_default_template( $post, $field_config, 'addon_settings' );
-
-		// License check for Lite version.
-		if ( ! AddonManager::can_create_addon() ) {
-			echo '<div class="notice notice-warning inline">';
-			echo '<p>' . esc_html( AddonManager::get_addon_limit_message() ) . '</p>';
-			echo '</div>';
-		}
 	}
 
 	/**
@@ -171,30 +164,6 @@ final class AddonMeta extends AbstractMetaBox {
 	public static function validate_post_data( array $data, array $postarr ): array {
 		if ( AddonPostType::POST_TYPE !== $data['post_type'] ) {
 			return $data;
-		}
-
-		// Check license limits for Lite version.
-		if ( ! AddonManager::can_create_addon() && 'publish' === $data['post_status'] ) {
-			// If trying to publish and limit reached, set to draft.
-			$existing_count = (int) wp_count_posts( AddonPostType::POST_TYPE )->publish;
-
-			if ( $existing_count >= AddonManager::MAX_ADDONS_LITE ) {
-				$data['post_status'] = 'draft';
-
-				// Add admin notice.
-				add_filter(
-					'redirect_post_location',
-					function ( $location ) {
-						return add_query_arg(
-							array(
-								'addon_limit_reached' => '1',
-								'post_type'           => AddonPostType::POST_TYPE,
-							),
-							$location
-						);
-					}
-				);
-			}
 		}
 
 		return $data;

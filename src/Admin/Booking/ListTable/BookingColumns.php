@@ -14,7 +14,6 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Settings\Settings;
-use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Booking\Core\Status;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -505,7 +504,7 @@ final class BookingColumns {
 		$gcur = self::get_query_text( 'mhm_payment_gateway' );
 		echo '<select name="mhm_payment_gateway" class="postform">';
 		echo '  <option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
-		$allowedGateways = class_exists( Mode::class ) ? Mode::allowedGateways() : array( 'offline' );
+		$allowedGateways = function_exists( 'WC' ) ? array_keys( WC()->payment_gateways()->payment_gateways() ) : array();
 		foreach ( $allowedGateways as $gw ) {
 			$label = self::get_payment_gateway_label( $gw );
 			echo '  <option value="' . esc_attr( $gw ) . '"' . selected( $gcur, $gw, false ) . '>' . esc_html( $label ) . '</option>';
@@ -698,15 +697,6 @@ final class BookingColumns {
 
 		// Get statistics data
 		$stats = self::get_booking_stats();
-
-		// Display Developer Mode banner and limit notices — before KPI cards
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'bookings',
-			array(
-				__( 'Unlimited Bookings', 'mhm-rentiva' ),
-				__( 'Advanced Booking Management', 'mhm-rentiva' ),
-			)
-		);
 		?>
 		<div class="mhm-stats-grid">
 			<div class="mhm-stat-card">

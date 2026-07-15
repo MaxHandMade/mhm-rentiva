@@ -65,7 +65,9 @@ final class AboutControllerTest extends WP_UnitTestCase
         $this->assertSame( 200, $response->get_status() );
 
         $data = (array) $response->get_data();
-        foreach ( array( 'general', 'features', 'system', 'support', 'developer' ) as $key ) {
+        // 'features' (Lite/Pro comparison table) removed with the crippleware
+        // upsell subsystem — Lite has no artificial limits to compare.
+        foreach ( array( 'general', 'system', 'support', 'developer' ) as $key ) {
             $this->assertArrayHasKey( $key, $data, "Missing top-level key: {$key}" );
         }
     }

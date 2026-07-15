@@ -971,34 +971,16 @@ final class Plugin {
 	}
 
 	/**
-	 * Apply license limits
+	 * Apply license limits.
+	 *
+	 * No-op in Lite (the vehicle/booking creation cap this used to enforce has
+	 * been removed — "Lite'ta yapay limit YOK"). Kept as a registered
+	 * `wp_insert_post_data` filter returning $data unchanged so the hook
+	 * wiring doesn't need to be touched elsewhere.
 	 */
 	public function enforce_limits(array $data, array $postarr): array
 	{
-		$type = $data['post_type'] ?? '';
-
-		// Skip limit check if:
-		// 1. Post ID exists (updating existing post, not creating new)
-		// 2. Post is being deleted/trashed
-		// 3. Post status is trash or deleted
-		$post_id     = $postarr['ID'] ?? 0;
-		$post_status = $data['post_status'] ?? '';
-
-		if ($post_id > 0 || in_array($post_status, array( 'trash', 'delete' ), true)) {
-			return $data;
-		}
-
-		if (class_exists(Admin\Licensing\Mode::class) && class_exists(Admin\Licensing\Restrictions::class)) {
-			if (Admin\Licensing\Mode::isLite()) {
-				// Only check limits when creating NEW posts (not updating/deleting)
-				if ($type === 'vehicle' && Admin\Licensing\Restrictions::vehicleCount() >= Admin\Licensing\Mode::maxVehicles()) {
-					wp_die(esc_html__('Rentiva Lite version allows you to add up to 5 vehicles. Activate your license to add more vehicles.', 'mhm-rentiva'), 403);
-				}
-				if ($type === 'vehicle_booking' && Admin\Licensing\Restrictions::bookingCount() >= Admin\Licensing\Mode::maxBookings()) {
-					wp_die(esc_html__('Rentiva Lite version has reached the booking limit. Activate your license to add more bookings.', 'mhm-rentiva'), 403);
-				}
-			}
-		}
+		unset($postarr);
 
 		return $data;
 	}

@@ -199,15 +199,14 @@ trait AdminHelperTrait {
 	/**
 	 * Render Developer Mode Banner
 	 *
-	 * Displays the standardized "Developer Mode Active" banner if logic applies.
-	 * Wraps ProFeatureNotice::displayDeveloperModeBanner() for consistent usage.
+	 * No-op in Lite (the upsell/limit-notice subsystem this used to wrap has
+	 * been removed). Kept as a callable no-op so existing call sites across
+	 * admin pages don't need to be touched individually.
 	 *
 	 * @param array $features Optional list of unlocked features to display
 	 */
 	protected function render_developer_mode_banner( array $features = array() ): void {
-		if ( class_exists( \MHMRentiva\Admin\Core\ProFeatureNotice::class ) ) {
-			\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeBanner( $features );
-		}
+		unset( $features );
 	}
 
 	/**

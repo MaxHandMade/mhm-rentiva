@@ -31,11 +31,6 @@ $renderer    = $args['renderer'] ?? null;
 
 	<div class="mhm-settings-notices">
 		<?php
-		// Display Pro feature notices if available
-		if (class_exists('\MHMRentiva\Admin\Core\ProFeatureNotice')) {
-			\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice('settings');
-		}
-
 		// Standard WordPress settings messages
 		settings_errors();
 		?>

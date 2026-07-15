@@ -549,15 +549,6 @@ final class VehicleColumns {
 
 		// Get statistics data
 		$stats = self::get_vehicle_stats();
-
-		// Display Developer Mode banner and limit notices — before KPI cards
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'vehicles',
-			array(
-				__('Unlimited Vehicles', 'mhm-rentiva'),
-				__('Advanced Vehicle Management', 'mhm-rentiva'),
-			)
-		);
 		?>
 		<div class="mhm-stats-grid">
 			<div class="mhm-stat-card">

@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\PostTypes\Logs\PostType;
-use MHMRentiva\Admin\Licensing\Mode;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -107,7 +106,7 @@ final class LogColumns {
 		echo '<label for="mhm_log_gateway" class="screen-reader-text">' . esc_html__( 'Gateway', 'mhm-rentiva' ) . '</label>';
 		echo '<select name="mhm_log_gateway" id="mhm_log_gateway">';
 		echo '<option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
-		$allowedGateways = class_exists( Mode::class ) ? Mode::allowedGateways() : array( 'offline' );
+		$allowedGateways = function_exists( 'WC' ) ? array_keys( WC()->payment_gateways()->payment_gateways() ) : array();
 		foreach ( $allowedGateways as $gw ) {
 			echo '<option value="' . esc_attr( $gw ) . '"' . selected( $selGateway, $gw, false ) . '>' . esc_html( strtoupper( $gw ) ) . '</option>';
 		}
