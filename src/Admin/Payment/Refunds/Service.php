@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use MHMRentiva\Admin\PostTypes\Logs\Logger;
+use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger as Logger;
 use MHMRentiva\Admin\Emails\Notifications\RefundNotifications;
 
 if ( ! defined( 'ABSPATH' ) ) {

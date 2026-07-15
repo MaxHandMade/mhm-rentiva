@@ -50,55 +50,84 @@ def read_version() -> str:
     return match.group(1)
 
 
-def load_distignore() -> list[str]:
-    """Return non-comment, non-empty patterns from .distignore (stripped)."""
+def load_distignore() -> list[tuple[bool, str]]:
+    """Return (negate, pattern) tuples from .distignore, in file order.
+
+    A leading "!" negates the pattern (re-includes a path an earlier pattern
+    excluded) — .gitignore semantics. Order matters: the LAST matching
+    pattern in the file wins, so a negation must appear after the pattern
+    it re-includes.
+    """
     if not DISTIGNORE.exists():
         return []
-    patterns: list[str] = []
+    patterns: list[tuple[bool, str]] = []
     for raw in DISTIGNORE.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if not line or line.startswith("#"):
             continue
-        patterns.append(line.rstrip("/"))
+        negate = line.startswith("!")
+        body = line[1:] if negate else line
+        body = body.rstrip("/")
+        if not body:
+            continue
+        patterns.append((negate, body))
     return patterns
 
 
-def is_excluded(rel_path: str, patterns: list[str]) -> bool:
-    """Match a POSIX-style relative path against .distignore patterns.
+def _pattern_matches(rel_path: str, pat: str) -> bool:
+    """Match a POSIX-style relative path against a single pattern body
+    (the "!" negation prefix, if any, has already been stripped by the
+    caller — this only decides whether `pat` matches `rel_path`).
 
-    A pattern matches if it equals the path, is a prefix directory of the path,
-    or matches any path component via glob (e.g. '*.zip', 'languages/*~').
+    A pattern matches if it equals the path, is a prefix directory of the
+    path, or matches any path component via glob (e.g. '*.zip',
+    'languages/*~').
 
-    A leading "/" anchors the pattern to the plugin root (.gitignore semantics).
+    A leading "/" anchors the pattern to the plugin root (.gitignore
+    semantics). An anchored pattern may itself contain glob characters
+    (e.g. "/vendor/*" matches every direct child of vendor/ AND, because
+    fnmatch's "*" also matches "/", every path nested under it) — this is
+    what lets ".distignore" exclude "/vendor/*" wholesale while a later
+    "!/vendor/mhm/" negation re-includes just that subtree.
+
     Without a leading "/", a plain name matches on any path component — so
     "vendor" excludes both "/vendor/" (Composer) AND "/assets/js/vendor/".
     Use "/vendor/" when you only want to exclude the root Composer dir.
     """
-    parts = rel_path.split("/")
-    for pat in patterns:
-        # Leading "/" => root-anchored match (like .gitignore).
-        if pat.startswith("/"):
-            anchored = pat[1:]
-            if not anchored:
-                continue
-            if rel_path == anchored or rel_path.startswith(anchored + "/"):
+    if pat.startswith("/"):
+        anchored = pat[1:]
+        if not anchored:
+            return False
+        if "*" in anchored or "?" in anchored or "[" in anchored:
+            if fnmatch.fnmatch(rel_path, anchored):
                 return True
-            continue
-        if "/" in pat or "*" in pat or "?" in pat:
-            # Glob / path pattern: test against full path and each suffix
-            if fnmatch.fnmatch(rel_path, pat):
-                return True
-            # Directory-prefix match: "docs/" should exclude "docs/foo"
-            if rel_path == pat or rel_path.startswith(pat + "/"):
-                return True
-        else:
-            # Plain name: match on any path component (e.g. '.git', 'node_modules')
-            if pat in parts:
-                return True
-    return False
+        return rel_path == anchored or rel_path.startswith(anchored + "/")
+    if "/" in pat or "*" in pat or "?" in pat:
+        # Glob / path pattern: test against full path and each suffix
+        if fnmatch.fnmatch(rel_path, pat):
+            return True
+        # Directory-prefix match: "docs/" should exclude "docs/foo"
+        return rel_path == pat or rel_path.startswith(pat + "/")
+    # Plain name: match on any path component (e.g. '.git', 'node_modules')
+    return pat in rel_path.split("/")
 
 
-def stage_files(patterns: list[str]) -> int:
+def is_excluded(rel_path: str, patterns: list[tuple[bool, str]]) -> bool:
+    """Decide whether a relative path should be left out of the release ZIP.
+
+    Evaluates every pattern in file order and keeps the verdict of the LAST
+    one that matches (.gitignore "last match wins" semantics), so a
+    negation pattern ("!...") placed after an exclusion can re-include a
+    path that would otherwise be dropped.
+    """
+    excluded = False
+    for negate, pat in patterns:
+        if _pattern_matches(rel_path, pat):
+            excluded = not negate
+    return excluded
+
+
+def stage_files(patterns: list[tuple[bool, str]]) -> int:
     if BUILD_DIR.exists():
         # Only clear the staging subdir, keep older ZIPs in build/
         if STAGING_DIR.parent.exists():

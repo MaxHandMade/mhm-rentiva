@@ -224,7 +224,7 @@ final class TabRendererRegistry {
 		/**
 		 * Allow modifying renderers after defaults are registered.
 		 *
-		 * @param TabRendererRegistry $this This registry instance.
+		 * @param TabRendererRegistry $registry This registry instance.
 		 */
 		do_action( 'mhm_rentiva_settings_register_renderers', $this );
 	}

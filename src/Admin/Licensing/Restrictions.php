@@ -30,7 +30,7 @@ final class Restrictions {
 		// Bookings limit
 		add_action('load-post-new.php', array( self::class, 'maybeBlockBookingCreation' ));
 		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingForHiddenVehicle' ), 5, 2);
-		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingOnFrontend' ), 10, 2);
+		add_action('mhm_rentiva_before_booking_create', array( self::class, 'blockBookingOnFrontend' ), 10, 0);
 
 		// Customers limit
 		add_action('admin_menu', array( self::class, 'maybeHideAddNewCustomer' ));

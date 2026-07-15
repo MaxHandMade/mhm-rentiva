@@ -16,11 +16,10 @@ final class VendorProfilePrivacyTest extends \WP_UnitTestCase
     {
         parent::setUp();
         \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile::register();
-        if (!defined('MHM_RENTIVA_DEV_PRO')) {
-            define('MHM_RENTIVA_DEV_PRO', true);
-        }
         // Same gating pattern as VendorProfileShortcodeTest — license seed +
         // dev-pro filter so Mode::canUseVendorMarketplace() returns true.
+        // No MHM_RENTIVA_DEV_PRO define() here: the filter alone drives the
+        // bypass, and defining the constant would leak process-wide.
         update_option(LicenseManager::OPTION, [
             'key'           => 'TEST-DEV-001',
             'status'        => 'active',

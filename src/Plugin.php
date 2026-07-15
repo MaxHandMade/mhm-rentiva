@@ -681,9 +681,6 @@ final class Plugin {
 			if (class_exists(Admin\Messages\Core\Messages::class)) {
 				Admin\Messages\Core\Messages::register();
 			}
-			if ($is_admin && class_exists(Admin\Messages\Admin\MessageListTable::class)) {
-				Admin\Messages\Admin\MessageListTable::register();
-			}
 
 			if (class_exists(Admin\Messages\REST\Messages::class)) {
 				Admin\Messages\REST\Messages::register();
@@ -721,16 +718,6 @@ final class Plugin {
 			Admin\Emails\Templates\EmailPreview::register();
 		}
 
-		// REST API Error Handler
-		if ($this->is_class_available('Admin\REST\ErrorHandler')) {
-			Admin\REST\ErrorHandler::register();
-		}
-
-		// Debug Helper
-		if ($this->is_class_available('Admin\Core\Utilities\DebugHelper')) {
-			Admin\Core\Utilities\DebugHelper::register();
-		}
-
 		// Vehicle Settings (admin only)
 		if ($is_admin) {
 			if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Settings\VehicleSettings')) {
@@ -760,16 +747,6 @@ final class Plugin {
 			if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferExportImport')) {
 				\MHMRentiva\Admin\Transfer\TransferExportImport::instance();
 			}
-		}
-
-		// REST API Fixer
-		if ($this->is_class_available('Admin\Core\Utilities\RestApiFixer')) {
-			Admin\Core\Utilities\RestApiFixer::register();
-		}
-
-		// REST API
-		if ($this->is_class_available('Admin\REST\Availability')) {
-			Admin\REST\Availability::register();
 		}
 
 		// â­ New Account System (WordPress Login)

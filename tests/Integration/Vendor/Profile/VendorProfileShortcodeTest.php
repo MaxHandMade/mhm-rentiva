@@ -17,12 +17,12 @@ final class VendorProfileShortcodeTest extends \WP_UnitTestCase
     {
         parent::setUp();
         VendorProfile::register();
-        if (!defined('MHM_RENTIVA_DEV_PRO')) {
-            define('MHM_RENTIVA_DEV_PRO', true);
-        }
         // Seed an active license + force the dev-mode bypass filter so
-        // Mode::canUseVendorMarketplace() returns true. WP_DEBUG is not
-        // set in the test bootstrap, so the constant alone is insufficient.
+        // Mode::canUseVendorMarketplace() returns true. The
+        // mhm_rentiva_dev_pro_bypass filter (below) always wins over the
+        // constant-derived default, so no MHM_RENTIVA_DEV_PRO define() is
+        // needed here -- and must be avoided, since PHP constants leak for
+        // the rest of the PHPUnit process once defined.
         update_option(LicenseManager::OPTION, [
             'key'           => 'TEST-DEV-001',
             'status'        => 'active',

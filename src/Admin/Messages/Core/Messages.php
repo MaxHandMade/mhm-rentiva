@@ -14,7 +14,6 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\PostTypes\Message\Message;
 use MHMRentiva\Admin\Core\Utilities\ErrorHandler;
 use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Admin\Messages\Admin\MessageListTable;
 use MHMRentiva\Admin\Messages\Settings\MessagesSettings;
 use MHMRentiva\Admin\Messages\Core\MessageQueryHelper;
 use MHMRentiva\Admin\Messages\Core\MessageCache;
@@ -177,29 +176,6 @@ final class Messages {
 				</a>
 			</div>
 		</div>
-		<?php
-	}
-
-	private static function render_messages_list(): void
-	{
-		// Always clear cache (for parent_only filter)
-		MessageCache::flush();
-
-		// Also clear WordPress object cache
-		if (function_exists('wp_cache_flush_group')) {
-			wp_cache_flush_group('mhm_messages');
-		}
-
-		$messages_table = new MessageListTable();
-		$messages_table->prepare_items();
-
-		?>
-		<form method="post" action="">
-			<input type="hidden" name="page" value="mhm-rentiva-messages">
-			<?php wp_nonce_field('mhm_messages_bulk_action', 'mhm_messages_nonce'); ?>
-
-			<?php $messages_table->display(); ?>
-		</form>
 		<?php
 	}
 

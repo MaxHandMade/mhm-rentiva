@@ -1,0 +1,22 @@
+includes:
+    - vendor/szepeviktor/phpstan-wordpress/extension.neon
+
+parameters:
+    level: 0
+    parallel:
+        maximumNumberOfProcesses: 2
+    paths:
+        - src
+        - mhm-rentiva.php
+        - uninstall.php
+    bootstrapFiles:
+        - vendor/php-stubs/woocommerce-stubs/woocommerce-stubs.php
+        - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+    excludePaths:
+        - src/**/node_modules/*
+    treatPhpDocTypesAsCertain: false
+    scanDirectories:
+        - vendor/wpackagist-plugin/elementor
+    scanFiles:
+        - vendor/mhm/ui-core/register.php
+        - vendor/mhm/ui-core/bootstrap.php

@@ -133,8 +133,8 @@ spl_autoload_register(
 		// Ensure AbstractShortcode is loaded first for shortcode classes
 		if (
 			strpos($class_name, 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\') === 0 &&
-			$class_name !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode' &&
-			! class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\AbstractShortcode')
+			$class_name !== 'MHMRentiva\\Admin\\Frontend\\Shortcodes\\Core\\AbstractShortcode' &&
+			! class_exists('MHMRentiva\\Admin\\Frontend\\Shortcodes\\Core\\AbstractShortcode')
 		) {
 
 			$abstract_path = __DIR__ . '/src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php';
@@ -158,6 +158,18 @@ spl_autoload_register(
 		// Only logged when there's a real problem (e.g., plugin doesn't work)
 	}
 );
+
+// Register this plugin's bundled copy of ui-core. The highest version across
+// all plugins that bundle it wins at plugins_loaded priority 0.
+$mhm_ui_core_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';
+
+if ( file_exists( $mhm_ui_core_register_file ) ) {
+	require_once $mhm_ui_core_register_file;
+	mhm_ui_core_register(
+		'0.1.0',
+		__DIR__ . '/vendor/mhm/ui-core/bootstrap.php'
+	);
+}
 
 // Central bootstrap - ALL registrations are done in Plugin.php
 // Priority -10: Load BEFORE AJAX requests
