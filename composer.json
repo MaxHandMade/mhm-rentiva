@@ -30,6 +30,10 @@
         {
             "type": "composer",
             "url": "https://wpackagist.org"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/MaxHandMade/mhm-ui-core"
         }
     ],
     "extra": {
@@ -50,5 +54,8 @@
         "php-stubs/wp-cli-stubs": "^2.12",
         "composer/installers": "^2.3",
         "wpackagist-plugin/elementor": "*"
+    },
+    "require": {
+        "mhm/ui-core": "^0.1"
     }
 }

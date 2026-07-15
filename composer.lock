@@ -4,8 +4,73 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "cc7116cc9e72c19fc52bcdb39ae683b1",
-    "packages": [],
+    "content-hash": "f159d07374bcd3f2402ac23fa65f37b2",
+    "packages": [
+        {
+            "name": "mhm/ui-core",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
+                "reference": "7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b",
+                "reference": "7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.1"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.1",
+                "php-stubs/wordpress-stubs": "^6.7",
+                "phpstan/phpstan": "^2.0",
+                "phpunit/phpunit": "^9.6",
+                "squizlabs/php_codesniffer": "^3.9",
+                "szepeviktor/phpstan-wordpress": "^2.0",
+                "wp-coding-standards/wpcs": "^3.2",
+                "yoast/phpunit-polyfills": "^2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MHM\\UiCore\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "MHM\\UiCore\\Tests\\": "tests/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "@php ./vendor/bin/phpunit -c phpunit.xml"
+                ],
+                "phpcs": [
+                    "@php ./vendor/bin/phpcs --standard=phpcs.xml"
+                ],
+                "phpstan": [
+                    "@php ./vendor/bin/phpstan analyse --memory-limit=1G"
+                ],
+                "check": [
+                    "@phpcs",
+                    "@phpstan",
+                    "@test"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
+            "support": {
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.1.0",
+                "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
+            },
+            "time": "2026-07-15T02:57:20+00:00"
+        }
+    ],
     "packages-dev": [
         {
             "name": "composer/installers",

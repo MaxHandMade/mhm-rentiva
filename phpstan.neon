@@ -18,3 +18,6 @@ parameters:
     treatPhpDocTypesAsCertain: false
     scanDirectories:
         - vendor/wpackagist-plugin/elementor
+    scanFiles:
+        - vendor/mhm/ui-core/register.php
+        - vendor/mhm/ui-core/bootstrap.php

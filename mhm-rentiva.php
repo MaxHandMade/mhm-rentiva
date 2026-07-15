@@ -159,6 +159,18 @@ spl_autoload_register(
 	}
 );
 
+// Register this plugin's bundled copy of ui-core. The highest version across
+// all plugins that bundle it wins at plugins_loaded priority 0.
+$mhm_ui_core_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';
+
+if ( file_exists( $mhm_ui_core_register_file ) ) {
+	require_once $mhm_ui_core_register_file;
+	mhm_ui_core_register(
+		'0.1.0',
+		__DIR__ . '/vendor/mhm/ui-core/bootstrap.php'
+	);
+}
+
 // Central bootstrap - ALL registrations are done in Plugin.php
 // Priority -10: Load BEFORE AJAX requests
 add_action(
