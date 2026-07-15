@@ -75,6 +75,22 @@ declare(strict_types=1);
 // really exist?" against the real src/ tree even when it's exercised from a
 // unit test with synthetic in-memory PHP source.
 $root = dirname( __DIR__ );
+// Overridable so a unit test can point the whole scan at an isolated, synthetic
+// temp tree instead of this repo -- $root otherwise always resolves to this
+// script's own parent directory, regardless of CWD.
+$root = getenv( 'MHM_GUARD_ROOT' ) ?: $root;
+
+// Pro classes that are allowlisted seams: intentionally absent from a Lite-only
+// tree (carved out by design), guarded behind class_exists()/is_class_available()
+// at every call site. A guarded reference to one of these must NOT be reported
+// as dangling -- that's the whole point of the guard. See bin/seam-classes.txt.
+$seam_allow = array();
+$seam_file  = $root . '/bin/seam-classes.txt';
+if ( is_file( $seam_file ) ) {
+	foreach ( file( $seam_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES ) as $seam_fqn ) {
+		$seam_allow[ ltrim( trim( $seam_fqn ), '\\' ) ] = true;
+	}
+}
 
 /**
  * Resolve the file path a given MHMRentiva class/interface/trait name must
@@ -923,6 +939,9 @@ foreach ( $php_files as $path ) {
 		}
 
 		if ( ! is_file( $class_file_path( $hit['class'] ) ) ) {
+			if ( isset( $seam_allow[ ltrim( $hit['class'], '\\' ) ] ) ) {
+				continue;
+			}
 			$dangling[] = sprintf( '%s:%d  %s', $relative_source, $hit['line'], $hit['class'] );
 		}
 	}
