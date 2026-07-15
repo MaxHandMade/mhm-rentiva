@@ -13,7 +13,7 @@ $forbidden = [
     '\\ballowedGateways\\b' => 'gateway restriction', 'MAX_ADDONS_LITE' => 'addon cap const',
     'get_comparison_table_data' => 'upsell comparison', 'render_comparison_table' => 'upsell comparison',
     'get_pro_features_list' => 'Pro feature upsell list', '\\bfeatureEnabled\\b' => 'deprecated insecure gate',
-    'mhm_rentiva_lite_max_' => 'artificial-limit filter',
+    'mhm_rentiva_lite_' => 'artificial-limit filter',
 ];
 $hits = [];
 foreach ($targets as $dir) {
