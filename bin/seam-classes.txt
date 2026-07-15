@@ -44,3 +44,4 @@ MHMRentiva\Admin\Vendor\REST\VendorManagementRestController
 MHMRentiva\Admin\Vendor\VendorMediaIsolation
 MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer
 MHMRentiva\Admin\Vendor\VendorVehicleReviewManager
+MHMRentiva\Integrations\WooCommerce\CommissionBridge
