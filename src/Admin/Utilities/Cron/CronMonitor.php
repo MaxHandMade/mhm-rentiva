@@ -50,10 +50,6 @@ final class CronMonitor {
 				'name'        => __( 'Scheduled Notifications', 'mhm-rentiva' ),
 				'description' => __( 'Sends scheduled email notifications', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_license_daily'         => array(
-				'name'        => __( 'License Validation', 'mhm-rentiva' ),
-				'description' => __( 'Validates plugin license daily', 'mhm-rentiva' ),
-			),
 			'mhm_rentiva_email_log_purge_event' => array(
 				'name'        => __( 'Email Log Retention', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old email logs', 'mhm-rentiva' ),
@@ -66,11 +62,25 @@ final class CronMonitor {
 				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
 				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_instance_checkin'      => array(
+		);
+
+		// Licensing crons are scheduled by the Pro-only licensing module, so their
+		// labels ("Validates plugin license daily", "Reports site URL... to license
+		// server") must never surface in Lite. Listing them unconditionally was
+		// harmless on a fresh Lite install -- the loop below only reports hooks that
+		// are actually scheduled -- but a site downgraded from Pro keeps the events
+		// in wp_cron until they are cleared, which would have shown a Lite admin a
+		// licence-server cron this build does not have.
+		if ( class_exists( '\MHMRentiva\Admin\Licensing\LicenseManager' ) ) {
+			$plugin_hooks['mhm_rentiva_license_daily']    = array(
+				'name'        => __( 'License Validation', 'mhm-rentiva' ),
+				'description' => __( 'Validates plugin license daily', 'mhm-rentiva' ),
+			);
+			$plugin_hooks['mhm_rentiva_instance_checkin'] = array(
 				'name'        => __( 'Site Instance Check-in', 'mhm-rentiva' ),
 				'description' => __( 'Reports site URL, version and environment to license server for usage tracking', 'mhm-rentiva' ),
-			),
-		);
+			);
+		}
 
 		foreach ( $crons as $timestamp => $cron ) {
 			foreach ( $cron as $hook => $dings ) {
