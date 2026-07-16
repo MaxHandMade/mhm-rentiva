@@ -268,8 +268,6 @@ final class SettingsSanitizer {
 			'mhm_rentiva_ip_whitelist'                   => \sanitize_textarea_field( $input['mhm_rentiva_ip_whitelist'] ?? '' ),
 			'mhm_rentiva_ip_blacklist_enabled'           => self::get_bool( $input, 'mhm_rentiva_ip_blacklist_enabled' ),
 			'mhm_rentiva_ip_blacklist'                   => \sanitize_textarea_field( $input['mhm_rentiva_ip_blacklist'] ?? '' ),
-			'mhm_rentiva_country_restriction_enabled'    => self::get_bool( $input, 'mhm_rentiva_country_restriction_enabled' ),
-			'mhm_rentiva_allowed_countries'              => strtoupper( self::safe_text( $input['mhm_rentiva_allowed_countries'] ?? '' ) ),
 
 			// Security Hardening.
 			'mhm_rentiva_brute_force_protection'         => self::get_bool( $input, 'mhm_rentiva_brute_force_protection' ),

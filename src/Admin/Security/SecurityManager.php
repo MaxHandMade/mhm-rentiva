@@ -16,7 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Global Security Manager
  *
- * Handles IP whitelist, blacklist, and country restrictions across the entire site
+ * Handles IP whitelist and blacklist checks.
+ *
+ * The country restriction that used to live here was REMOVED, along with its
+ * settings. It resolved the visitor's country by sending their IP address to
+ * ip-api.com; once that third-party lookup was removed on privacy grounds the
+ * only remaining signal was Cloudflare's CF-IPCountry request header, which
+ * exists solely on Cloudflare-fronted sites. Everywhere else the check fell
+ * through to its fail-open branch and silently admitted everyone -- while the
+ * settings screen still displayed "Enable Country Restriction" as active.
+ *
+ * A security setting that does not enforce is worse than no setting: it makes a
+ * promise the code does not keep, and the site owner stops looking for a real
+ * control. So the setting is gone rather than conditionally displayed.
  *
  * @since 4.0.0
  */
@@ -55,12 +67,7 @@ final class SecurityManager {
 			}
 		}
 
-		// Check country restriction
-		if ( self::is_country_restriction_enabled() ) {
-			if ( ! self::is_country_allowed( $client_ip ) ) {
-				self::deny_access( __( 'Access denied: Your country is not authorized.', 'mhm-rentiva' ) );
-			}
-		}
+		// No country restriction: see the class docblock.
 	}
 
 	/**
@@ -151,80 +158,6 @@ final class SecurityManager {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Check if country restriction is enabled
-	 */
-	private static function is_country_restriction_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_country_restriction_enabled', '0' ) === '1';
-	}
-
-	/**
-	 * Check if country is allowed.
-	 *
-	 * Fails OPEN when the country cannot be determined -- the long-standing
-	 * behaviour, and the safe one: a restriction that guesses would lock
-	 * legitimate visitors out of the whole site.
-	 *
-	 * Since Lite performs no third-party geolocation lookup (see
-	 * get_country_from_ip()), the country is only known on Cloudflare-fronted
-	 * sites. Everywhere else this check now always allows access, so the
-	 * country restriction is effectively inert there rather than partially
-	 * enforced.
-	 */
-	private static function is_country_allowed( string $ip ): bool {
-		$allowed_countries = SettingsCore::get( 'mhm_rentiva_allowed_countries', '' );
-		if ( empty( $allowed_countries ) ) {
-			return true;
-		}
-
-		$country_code = self::get_country_from_ip( $ip );
-		if ( empty( $country_code ) ) {
-			return true; // Country undeterminable -- fail open.
-		}
-
-		$allowed = array_map( 'trim', explode( ',', strtoupper( $allowed_countries ) ) );
-		return in_array( strtoupper( $country_code ), $allowed, true );
-	}
-
-	/**
-	 * Get country code from IP, using only signals already present on the request.
-	 *
-	 * Lite resolves the country from the `CF-IPCountry` request header that a
-	 * Cloudflare-fronted site already supplies. It performs NO geolocation
-	 * lookup: the previous ip-api.com fallback sent the visitor's IP address to
-	 * an unaffiliated third party, over plain HTTP, with no consent and no
-	 * disclosure -- which is both a privacy defect and something WordPress.org
-	 * review reliably rejects.
-	 *
-	 * When the header is absent the country is simply unknown (''), and
-	 * is_country_allowed() already fails OPEN on an empty result, so access is
-	 * granted rather than wrongly denied. The practical consequence is that the
-	 * country restriction setting only enforces on sites behind Cloudflare; see
-	 * the note on is_country_allowed().
-	 *
-	 * The IP argument is retained for signature stability and for any future
-	 * local (non-networked) resolver.
-	 *
-	 * @param string $ip Client IP (currently unused -- no lookup is performed).
-	 * @return string Uppercase ISO country code, or '' when undeterminable.
-	 */
-	private static function get_country_from_ip( string $ip ): string {
-		unset( $ip );
-
-		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			$country = strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
-			// Cloudflare sends 'XX' when it cannot determine the country (and
-			// 'T1' for Tor); neither is a real country, so treat both as unknown
-			// and let the caller fail open.
-			if ( 'XX' === $country || 'T1' === $country || '' === $country ) {
-				return '';
-			}
-			return $country;
-		}
-
-		return '';
 	}
 
 	/**
