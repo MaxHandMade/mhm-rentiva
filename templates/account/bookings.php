@@ -67,7 +67,7 @@ foreach ($filtered_bookings as $booking) {
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 $currency_code   = SettingsCore::get('mhm_rentiva_currency', 'USD');
-$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 // Booking form page URL
 $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');

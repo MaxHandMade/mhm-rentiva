@@ -54,9 +54,6 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\ContactFormWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TestimonialsWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleRatingWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UserDashboardWidget::class,
 		);
 
@@ -84,6 +81,9 @@ class ElementorIntegration {
 	private static function pro_widget_classes(): array {
 		return array(
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget',
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget',
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget',
 		);

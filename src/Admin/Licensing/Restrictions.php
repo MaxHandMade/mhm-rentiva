@@ -423,6 +423,11 @@ final class Restrictions {
 			return;
 		}
 
+		// No transfer engine, no routes to cap.
+		if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider')) {
+			return;
+		}
+
 		// Resolve against the actual routes table (new vs legacy); a hardcoded
 		// legacy name silently counted 0 on new-table installs, bypassing the cap.
 		$count = \MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider::route_count();

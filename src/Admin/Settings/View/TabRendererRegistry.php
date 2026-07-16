@@ -226,9 +226,14 @@ final class TabRendererRegistry {
 		// Utilities
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
-		// TransferSettingsRenderer — Pro seam (transfer is a Pro surface).
+		// TransferSettingsRenderer — Pro seam (transfer is a Pro surface). As with
+		// the Messages renderer above, the instanceof re-checks the seam contract
+		// that Lite cannot see statically.
 		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer' ) ) {
-			$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer() );
+			$transfer_renderer = new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer();
+			if ( $transfer_renderer instanceof TabRendererInterface ) {
+				$this->register( $transfer_renderer );
+			}
 		}
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
 

@@ -973,18 +973,6 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php
 
 		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\TransferResultsWidget\:\:include_template_with_vars\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/TransferResultsWidget.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\TransferSearchWidget\:\:include_template_with_vars\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/TransferSearchWidget.php
-
-		-
 			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\VehiclesGridWidget\:\:include_template_with_vars\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
@@ -1217,96 +1205,6 @@ parameters:
 			identifier: function.alreadyNarrowedType
 			count: 1
 			path: src/Admin/REST/Helpers/ValidationHelper.php
-
-		-
-			message: '#^Call to function is_array\(\) with \*NEVER\* will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Offset ''success'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between null and null will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: src/Admin/Reports/BusinessLogic/BookingReport.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\BusinessLogic\\BookingReport\:\:get_export_data_paginated\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/BusinessLogic/BookingReport.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:clear_reports_cache\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_bookings_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_customers_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_overview_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_revenue_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_stats_cards\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_vehicles_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Reports/Reports.php
 
 		-
 			message: '#^Variable \$_POST on left side of \?\? always exists and is not nullable\.$#'
@@ -1549,66 +1447,6 @@ parameters:
 			path: src/Admin/Testing/ShortcodeTestHandler.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin\\\\Licensing\\\\Mode'' and ''maxTransferRoutes'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Variable \$_GET in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 2
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/Frontend/TransferShortcodes.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 4
-			path: src/Admin/Transfer/Frontend/TransferShortcodes.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Admin/Transfer/Integration/TransferCartIntegration.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/TransferAdmin.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Admin/Transfer/TransferAdmin.php
-
-		-
-			message: '#^Property WP_User\:\:\$roles \(array\<string\>\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: src/Admin/Transfer/VehicleTransferMetaBox.php
-
-		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{''MHMRentiva\\\\Admin\\\\Utilities\\\\Actions\\\\Actions'', ''create_my_account…''\} given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1649,48 +1487,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Admin/Utilities/Database/MetaKeysDocumentation.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Export\\Export\:\:render_export_page_legacy\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Export\\Export\:\:stream_xls_direct\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Variable \$data in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: src/Admin/Utilities/Export/ExportReports.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Utilities/Export/ExportReports.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int\<0, max\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Utilities/Export/ExportReports.php
 
 		-
 			message: '#^Property WP_Screen\:\:\$post_type \(string\) on left side of \?\? is not nullable\.$#'

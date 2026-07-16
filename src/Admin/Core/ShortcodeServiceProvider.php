@@ -200,18 +200,21 @@ final class ShortcodeServiceProvider {
 			),
 			'transfer'    => array(
 				'rentiva_transfer_search'  => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
 					'dependencies'  => array(),
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_transfer_results' => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferResults::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_popular_routes'   => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 			),

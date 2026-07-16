@@ -136,8 +136,8 @@ final class Menu {
 			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);
 
-		// 7. Reports (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
+		// 7. Reports (Pro seam; absent in Lite)
+		if (class_exists('\MHMRentiva\Admin\Reports\Reports') && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Reports', 'mhm-rentiva'),
@@ -160,8 +160,8 @@ final class Menu {
 			);
 		}
 
-		// 9. Export (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseExport()) {
+		// 9. Export (Pro seam; absent in Lite)
+		if (class_exists('\MHMRentiva\Admin\Utilities\Export\Export') && \MHMRentiva\Admin\Licensing\Mode::canUseExport()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Export', 'mhm-rentiva'),
