@@ -161,7 +161,17 @@ final class SecurityManager {
 	}
 
 	/**
-	 * Check if country is allowed
+	 * Check if country is allowed.
+	 *
+	 * Fails OPEN when the country cannot be determined -- the long-standing
+	 * behaviour, and the safe one: a restriction that guesses would lock
+	 * legitimate visitors out of the whole site.
+	 *
+	 * Since Lite performs no third-party geolocation lookup (see
+	 * get_country_from_ip()), the country is only known on Cloudflare-fronted
+	 * sites. Everywhere else this check now always allows access, so the
+	 * country restriction is effectively inert there rather than partially
+	 * enforced.
 	 */
 	private static function is_country_allowed( string $ip ): bool {
 		$allowed_countries = SettingsCore::get( 'mhm_rentiva_allowed_countries', '' );
@@ -169,10 +179,9 @@ final class SecurityManager {
 			return true;
 		}
 
-		// Get country from IP (simplified - in production, use a proper GeoIP service)
 		$country_code = self::get_country_from_ip( $ip );
 		if ( empty( $country_code ) ) {
-			return true; // If we can't determine country, allow access
+			return true; // Country undeterminable -- fail open.
 		}
 
 		$allowed = array_map( 'trim', explode( ',', strtoupper( $allowed_countries ) ) );
@@ -180,64 +189,38 @@ final class SecurityManager {
 	}
 
 	/**
-	 * Get country code from IP (placeholder - implement with GeoIP service)
-	 */
-	/**
-	 * Get country code from IP (Cloudflare + IP-API fallback with caching)
+	 * Get country code from IP, using only signals already present on the request.
+	 *
+	 * Lite resolves the country from the `CF-IPCountry` request header that a
+	 * Cloudflare-fronted site already supplies. It performs NO geolocation
+	 * lookup: the previous ip-api.com fallback sent the visitor's IP address to
+	 * an unaffiliated third party, over plain HTTP, with no consent and no
+	 * disclosure -- which is both a privacy defect and something WordPress.org
+	 * review reliably rejects.
+	 *
+	 * When the header is absent the country is simply unknown (''), and
+	 * is_country_allowed() already fails OPEN on an empty result, so access is
+	 * granted rather than wrongly denied. The practical consequence is that the
+	 * country restriction setting only enforces on sites behind Cloudflare; see
+	 * the note on is_country_allowed().
+	 *
+	 * The IP argument is retained for signature stability and for any future
+	 * local (non-networked) resolver.
+	 *
+	 * @param string $ip Client IP (currently unused -- no lookup is performed).
+	 * @return string Uppercase ISO country code, or '' when undeterminable.
 	 */
 	private static function get_country_from_ip( string $ip ): string {
-		// 1. Cloudflare Check (Fastest & Most Reliable)
+		unset( $ip );
+
 		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			return strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
-		}
-
-		// Skip private/local IPs to avoid unnecessary API calls
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-			return '';
-		}
-
-		// 2. Cache Check
-		$cache_key = 'mhm_geoip_' . md5( $ip );
-
-		// Try ObjectCache first if available
-		if ( class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ) ) {
-			$country = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get( $cache_key, 'mhm_security' );
-			if ( $country ) {
-				return $country;
+			$country = strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
+			// Cloudflare sends 'XX' when it cannot determine the country (and
+			// 'T1' for Tor); neither is a real country, so treat both as unknown
+			// and let the caller fail open.
+			if ( 'XX' === $country || 'T1' === $country || '' === $country ) {
+				return '';
 			}
-		} else {
-			// Fallback to transient
-			$country = get_transient( $cache_key );
-			if ( $country ) {
-				return $country;
-			}
-		}
-
-		// 3. IP-API.com Fallback (Free, Rate Limited 45/min)
-		$response = wp_remote_get(
-			"http://ip-api.com/json/{$ip}?fields=countryCode",
-			array(
-				'timeout' => 3, // Fail fast
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return '';
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
-
-		if ( isset( $data['countryCode'] ) ) {
-			$country = strtoupper( sanitize_text_field( $data['countryCode'] ) );
-
-			// Cache result for 24 hours (long TTL is crucial for rate limiting)
-			if ( class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ) ) {
-				\MHMRentiva\Admin\Core\Utilities\ObjectCache::set( $cache_key, $country, 'mhm_security', 24 * HOUR_IN_SECONDS );
-			} else {
-				set_transient( $cache_key, $country, 24 * HOUR_IN_SECONDS );
-			}
-
 			return $country;
 		}
 

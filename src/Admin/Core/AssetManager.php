@@ -42,7 +42,8 @@ final class AssetManager {
 	private static array $core_css = array(
 		'mhm-css-variables'         => array(
 			'url'  => 'assets/css/core/css-variables.css',
-			'deps' => array( 'mhm-rentiva-google-fonts' ),
+			// No dependency on a CDN webfont -- see register_global_assets().
+			'deps' => array(),
 		),
 		'mhm-golden-ratio-contract' => array(
 			'url'  => 'assets/css/core/golden-ratio-contract.css',
@@ -150,15 +151,22 @@ final class AssetManager {
 				'11.0.0'
 			);
 		}
-		// Google Fonts: Plus Jakarta Sans
-		if (! wp_style_is('mhm-rentiva-google-fonts', 'registered')) {
-			wp_register_style(
-				'mhm-rentiva-google-fonts',
-				'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap',
-				array(),
-				MHM_RENTIVA_VERSION
-			);
-		}
+		// No Google Fonts registration: `mhm-css-variables` used to depend on a
+		// webfont fetched from fonts.googleapis.com, which made every front-end
+		// page load send the visitor's IP to a third party. That is the same
+		// privacy defect as the removed ip-api.com lookups, and WordPress.org
+		// does not permit loading assets from external CDNs.
+		//
+		// The typography degrades rather than breaks: `--mhm-font-display` is
+		// declared in assets/css/core/css-variables.css as
+		// `"Plus Jakarta Sans", var(--mhm-font-primary)`, so the local font
+		// stack takes over automatically (and the webfont is still used on any
+		// site that already has it installed or supplies it via the theme).
+		//
+		// To restore the exact designed typography without egress, bundle the
+		// font locally under assets/ -- Plus Jakarta Sans is SIL OFL licensed,
+		// so it is redistributable -- the way assets/vendor/swiper-bundle.min.css
+		// already bundles its third-party dependency.
 	}
 
 	/**

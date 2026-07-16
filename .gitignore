@@ -349,6 +349,10 @@ bin/*
 # Pro reference sits behind a guard, incl. in templates/ which PHPStan never
 # scans), so it must ship in every clone (carve-out Task 7).
 !bin/check-unguarded-pro-refs.php
+# Quality-gate script: `composer check-external-http` / `composer carve-gates`
+# require it at runtime; it deny-lists third-party hosts (Lite must make no
+# third-party HTTP calls), so it must ship in every clone (carve-out Task 8).
+!bin/check-external-http.php
 # CI needs a canonical WP test-suite installer (tests/bootstrap.php references
 # it); Task 3 wires it into the phpunit CI job, so it must ship in every clone.
 !bin/install-wp-tests.sh
