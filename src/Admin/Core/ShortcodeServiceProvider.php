@@ -192,9 +192,10 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => true,
 				),
 				'rentiva_commission_resolver' => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver',
 					'method'        => 'render',
 					'requires_auth' => false,
+					'pro_seam'      => true,
 				),
 			),
 			'transfer'    => array(

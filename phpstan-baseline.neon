@@ -643,18 +643,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 4
@@ -1163,12 +1151,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Admin/PostTypes/Logs/PostType.php
-
-		-
-			message: '#^Parameter \#2 \$args of function register_post_type expects array\{label\?\: string, labels\?\: array\<string\>, description\?\: string, public\?\: bool, hierarchical\?\: bool, exclude_from_search\?\: bool, publicly_queryable\?\: bool, show_ui\?\: bool, \.\.\.\}, array\{labels\: array\{name\: string, singular_name\: string, menu_name\: string, name_admin_bar\: string, add_new\: string, add_new_item\: string, new_item\: string, edit_item\: string, \.\.\.\}, public\: false, publicly_queryable\: false, show_ui\: false, show_in_menu\: false, query_var\: false, rewrite\: false, capabilities\: array\{edit_post\: ''manage_options'', read_post\: ''manage_options'', delete_post\: ''manage_options'', edit_posts\: ''manage_options'', edit_others_posts\: ''manage_options'', publish_posts\: ''manage_options'', read_private_posts\: ''manage_options''\}, \.\.\.\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/PostTypes/Payouts/PostType.php
 
 		-
 			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''vehicle_booking'', meta_key\: ''_mhm_customer_user…'', meta_value\: int, date_query\: array\{array\{after\: string, inclusive\: true\}\}, posts_per_page\: 1\} given\.$#'
@@ -1975,112 +1957,10 @@ parameters:
 			path: src/Core/Attribute/AllowlistRegistry.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Core/Dashboard/AnalyticsController.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Core/Dashboard/CustomerDashboard.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between '''' and ''pending'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Financial/ApprovalStateMachine.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Core/Financial/PayoutAjaxController.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\AvailableBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/AvailableBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\AvailableBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/AvailableBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\PendingBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/PendingBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\PendingBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/PendingBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\Revenue7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/Revenue7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\Revenue7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: float, previous\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/Revenue7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\TotalPaidOutMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/TotalPaidOutMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\TotalPaidOutMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/TotalPaidOutMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorAvgBookingValueMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{avg\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorAvgBookingValueMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorAvgBookingValueMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{avg\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorAvgBookingValueMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorGrowth7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{growth\: float\|null\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorGrowth7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorGrowth7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{growth\: null\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorGrowth7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorRevenue30dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorRevenue30dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorRevenue30dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{current\: float, previous\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorRevenue30dMetric.php
 
 		-
 			message: '#^Method MHMRentiva\\Core\\Services\\TrendService\:\:resolve_metric_totals\(\) never returns null so it can be removed from the return type\.$#'

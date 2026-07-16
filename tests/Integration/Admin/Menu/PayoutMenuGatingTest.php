@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin\Menu;
 
-use MHMRentiva\Admin\Licensing\LicenseManager;
 use MHMRentiva\Admin\Utilities\Menu\Menu;
 
 /**
@@ -14,6 +13,11 @@ use MHMRentiva\Admin\Utilities\Menu\Menu;
  *
  * Calls the real `Menu::add_bayi_menus()` and inspects the global `$submenu`
  * so the test exercises the actual wiring, not a re-implemented guard.
+ *
+ * The companion "visible in Pro" case cannot run here: it needs a live
+ * LicenseManager and a PayoutAdminPage, both carved out of Lite. It lives in
+ * the Pro suite. What Lite must prove is the negative below -- and it is now
+ * doubly enforced, by the license gate and by the class simply being absent.
  *
  * @group admin-menu
  * @group vendor-gating
@@ -36,7 +40,6 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         global $menu, $submenu;
         $menu    = [];
         $submenu = [];
-        delete_option(LicenseManager::OPTION);
         remove_all_filters('mhm_rentiva_dev_pro_bypass');
         parent::tearDown();
     }
@@ -52,18 +55,6 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         return false;
     }
 
-    private function activate_pro_license(): void
-    {
-        update_option(LicenseManager::OPTION, [
-            'key'           => 'PRO-PAYOUT-MENU-TEST',
-            'status'        => 'active',
-            'plan'          => 'monthly',
-            'expires_at'    => time() + 86400,
-            'activation_id' => 'a-payout-menu',
-        ], false);
-        add_filter('mhm_rentiva_dev_pro_bypass', '__return_true');
-    }
-
     public function test_payout_menu_hidden_in_lite(): void
     {
         // No license, no bypass -> Mode::canUseVendorPayout() is false.
@@ -72,18 +63,6 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         $this->assertFalse(
             $this->payout_submenu_registered(),
             'Payout Requests submenu must NOT be registered in Lite mode.'
-        );
-    }
-
-    public function test_payout_menu_visible_in_pro(): void
-    {
-        $this->activate_pro_license();
-
-        Menu::add_bayi_menus();
-
-        $this->assertTrue(
-            $this->payout_submenu_registered(),
-            'Payout Requests submenu must be registered when Vendor Marketplace is licensed.'
         );
     }
 }
