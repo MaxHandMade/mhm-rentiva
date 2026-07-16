@@ -840,12 +840,6 @@ final class Plugin {
 		if (class_exists(Admin\Licensing\LicenseManager::class)) {
 			Admin\Licensing\LicenseManager::instance()->register();
 		}
-		if (class_exists(Admin\Licensing\Restrictions::class)) {
-			Admin\Licensing\Restrictions::register();
-		}
-		if (class_exists(Admin\Licensing\LiteOverflow\OverflowGate::class)) {
-			Admin\Licensing\LiteOverflow\OverflowGate::register();
-		}
 		if ($is_admin && class_exists(Admin\Licensing\LicenseAdmin::class)) {
 			Admin\Licensing\LicenseAdmin::register();
 		}
@@ -932,8 +926,12 @@ final class Plugin {
 			\MHMRentiva\Core\Financial\Automation\CommissionClearingJob::register();
 		}
 
-		// Plugin deactivation hook
-		register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array( Admin\Licensing\LicenseManager::class, 'deactivatePluginHook' ));
+		// Plugin deactivation hook. Pro seam: the callback lives on LicenseManager,
+		// so without the guard a Lite deactivation would call a method on a class
+		// that does not exist -- a fatal at the worst possible moment.
+		if (class_exists('\MHMRentiva\Admin\Licensing\LicenseManager')) {
+			register_deactivation_hook(dirname(__DIR__) . '/mhm-rentiva.php', array( Admin\Licensing\LicenseManager::class, 'deactivatePluginHook' ));
+		}
 
 		// Shortcode URL cache temizleme
 		add_action('save_post', array( Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update' ));

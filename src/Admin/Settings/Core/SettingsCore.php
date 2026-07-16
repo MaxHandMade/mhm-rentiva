@@ -132,7 +132,7 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
-			\MHMRentiva\Admin\Settings\Groups\LicenseSettings::class,
+			'MHMRentiva\Admin\Settings\Groups\LicenseSettings',
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
 			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
@@ -395,7 +395,7 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			\MHMRentiva\Admin\Settings\Groups\LicenseSettings::class,
+			'MHMRentiva\Admin\Settings\Groups\LicenseSettings',
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);

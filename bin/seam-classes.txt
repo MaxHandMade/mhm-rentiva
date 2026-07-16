@@ -3,7 +3,6 @@ MHMRentiva\Admin\Emails\Templates\VendorEmails
 MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger
 MHMRentiva\Admin\Licensing\LicenseAdmin
 MHMRentiva\Admin\Licensing\LicenseManager
-MHMRentiva\Admin\Licensing\Restrictions
 MHMRentiva\Admin\Licensing\VerifyEndpoint
 MHMRentiva\Admin\Messages\Core\Messages
 MHMRentiva\Admin\Messages\Notifications\MessageNotifications
@@ -23,7 +22,6 @@ MHMRentiva\Admin\Reports\Reports
 MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer
 MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer
 MHMRentiva\Admin\Transfer\Engine\LocationProvider
-MHMRentiva\Admin\Transfer\Engine\TransferRouteProvider
 MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes
 MHMRentiva\Admin\Transfer\TransferAdmin
 MHMRentiva\Admin\Transfer\TransferExportImport

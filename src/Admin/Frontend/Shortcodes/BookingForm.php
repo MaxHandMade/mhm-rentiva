@@ -637,18 +637,6 @@ final class BookingForm extends AbstractShortcode {
 				return;
 			}
 
-			if ( class_exists( \MHMRentiva\Admin\Licensing\Restrictions::class )
-				&& \MHMRentiva\Admin\Licensing\Restrictions::isVehicleOverflowHidden( $vehicle_id )
-			) {
-				wp_send_json_error(
-					array(
-						'message' => __( 'This vehicle is currently unavailable.', 'mhm-rentiva' ),
-						'code'    => 'vehicle_unavailable',
-					)
-				);
-				return;
-			}
-
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('dropoff_date'));
 			$pickup_time  = self::post_text('pickup_time');

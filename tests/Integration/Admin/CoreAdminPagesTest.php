@@ -184,7 +184,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->assertContains('mhm-rentiva-tests', $submenu_slugs);
 	}
 
-	public function test_menu_keeps_core_settings_and_license_submenus(): void
+	public function test_menu_keeps_core_settings_submenu(): void
 	{
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
@@ -192,7 +192,19 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$submenu_slugs = $this->get_mhm_submenu_slugs();
 
 		$this->assertContains('mhm-rentiva-settings', $submenu_slugs);
-		$this->assertContains('mhm-rentiva-license', $submenu_slugs);
+	}
+
+	/**
+	 * The License submenu is registered only when LicenseAdmin is present, and
+	 * Lite has no licence to manage. Asserting its absence keeps the Pro seam
+	 * honest from the Lite side.
+	 */
+	public function test_menu_has_no_license_submenu_in_lite(): void
+	{
+		$this->reset_admin_menu_globals();
+		Menu::add_menu();
+
+		$this->assertNotContains('mhm-rentiva-license', $this->get_mhm_submenu_slugs());
 	}
 
 	public function test_core_admin_submenus_require_manage_options_capability(): void
@@ -201,20 +213,19 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		Menu::add_menu();
 		TestAdminPage::add_menu_page();
 
-		$setup_item   = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-setup');
-		$about_item   = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-about');
-		$tests_item   = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-tests');
-		$license_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-license');
+		// The License submenu is a Pro seam and is absent here; see
+		// test_menu_has_no_license_submenu_in_lite().
+		$setup_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-setup');
+		$about_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-about');
+		$tests_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-tests');
 
 		$this->assertIsArray($setup_item);
 		$this->assertIsArray($about_item);
 		$this->assertIsArray($tests_item);
-		$this->assertIsArray($license_item);
 
 		$this->assertSame('manage_options', $setup_item[1]);
 		$this->assertSame('manage_options', $about_item[1]);
 		$this->assertSame('manage_options', $tests_item[1]);
-		$this->assertSame('manage_options', $license_item[1]);
 	}
 
 	public function test_setup_about_and_test_suite_callback_classes_are_available(): void

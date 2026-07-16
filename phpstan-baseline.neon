@@ -717,7 +717,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 16
+			count: 15
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
@@ -985,36 +985,6 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Licensing/LicenseAdmin.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Licensing/LicenseAdmin.php
-
-		-
-			message: '#^Call to function in_array\(\) with arguments mixed, array\{''localhost'', ''127\.0\.0\.1''\} and true will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 4
-			path: src/Admin/Licensing/LicenseManager.php
-
-		-
-			message: '#^Method MHMRentiva\\Admin\\Licensing\\LicenseManager\:\:deactivate\(\) never returns WP_Error so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Admin/Licensing/LicenseManager.php
-
-		-
-			message: '#^Property WP_Query\:\:\$found_posts \(int\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 2
-			path: src/Admin/Licensing/Restrictions.php
-
-		-
 			message: '#^Binary operation "\-" between float and string results in an error\.$#'
 			identifier: binaryOp.invalid
 			count: 2
@@ -1211,12 +1181,6 @@ parameters:
 			identifier: argument.type
 			count: 5
 			path: src/Admin/Settings/Groups/CommentsSettingsGroup.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Admin/Settings/Groups/LicenseSettings.php
 
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'

@@ -912,13 +912,6 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
 			}
 
-			// ⭐ OPTIMIZATION: Check for license limits before substantial work
-			$booking_limit_reached = false;
-			if (class_exists('\MHMRentiva\Admin\Licensing\Restrictions')) {
-				$status                = \MHMRentiva\Admin\Licensing\Restrictions::check_limits();
-				$booking_limit_reached = $status['bookings']['exceeded'] ?? false;
-			}
-
 			// Get Both Availability and Pricing
 			$availability_data = self::get_availability_data($vehicle_id, $start_month, $months_to_show);
 			$pricing_data      = self::get_pricing_data($vehicle_id, $start_month, $months_to_show);
@@ -927,7 +920,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				array(
 					'availability_data' => $availability_data,
 					'pricing_data'      => $pricing_data,
-					'limit_reached'     => $booking_limit_reached,
+					// No booking cap exists any more; the key stays so the
+					// calendar JS response contract is unchanged.
+					'limit_reached'     => false,
 					'message'           => esc_html__('Calendar data updated.', 'mhm-rentiva'),
 				)
 			);
