@@ -1141,30 +1141,6 @@ parameters:
 			path: src/Admin/PostTypes/Logs/PostType.php
 
 		-
-			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''vehicle_booking'', meta_key\: ''_mhm_customer_user…'', meta_value\: int, date_query\: array\{array\{after\: string, inclusive\: true\}\}, posts_per_page\: 1\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Privacy/DataRetentionManager.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
-			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''vehicle_booking'', meta_key\: ''_mhm_customer_user…'', meta_value\: int, posts_per_page\: \-1\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 8
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
