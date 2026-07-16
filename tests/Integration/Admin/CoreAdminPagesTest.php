@@ -207,6 +207,91 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->assertNotContains('mhm-rentiva-license', $this->get_mhm_submenu_slugs());
 	}
 
+	/**
+	 * The Setup Wizard's License step was removed from Lite entirely: it linked to
+	 * the unregistered `mhm-rentiva-license` page (a dead link -- see
+	 * test_menu_has_no_license_submenu_in_lite()) and carried a purchase CTA,
+	 * which the "no mention of Pro anywhere in Lite" decision forbids. The step
+	 * must be gone from the step list, its renderer/handler gone with it, and the
+	 * navigation must still resolve with one fewer step.
+	 */
+	public function test_setup_wizard_has_no_license_step_in_lite(): void
+	{
+		$steps = $this->get_setup_wizard_steps();
+
+		$this->assertArrayNotHasKey('license', $steps, 'Lite must not ship a License wizard step.');
+		$this->assertSame(
+			array( 'system', 'pages', 'email', 'frontend', 'demo', 'summary' ),
+			array_keys($steps),
+			'Lite wizard step order must close the gap left by the removed License step.'
+		);
+
+		// The renderer and the admin-post handler must be gone, not merely unlinked.
+		$this->assertFalse(method_exists(SetupWizard::class, 'render_step_license'));
+		$this->assertFalse(method_exists(SetupWizard::class, 'handle_save_license'));
+		$this->assertFalse(has_action('admin_post_mhm_rentiva_setup_save_license'));
+	}
+
+	/**
+	 * The first step's "Continue" must point at the step that now follows it.
+	 * A stale `step=license` link would resolve back to the first step
+	 * (get_current_step() rejects unknown steps), silently trapping the user.
+	 */
+	public function test_setup_wizard_first_step_continues_to_pages(): void
+	{
+		$html = $this->render_setup_wizard_step('system');
+
+		$this->assertStringContainsString('step=pages', $html);
+		$this->assertStringNotContainsString('step=license', $html);
+	}
+
+	/**
+	 * Lite renders no Pro-mention, purchase CTA, or link to the unregistered
+	 * License page anywhere in the wizard. Each step renderer is invoked directly
+	 * rather than through render_page(): the wizard resolves the current step via
+	 * filter_input(INPUT_GET), which is always empty under the CLI SAPI, so
+	 * render_page() would render step 1 every time and the loop would assert
+	 * nothing about the other steps.
+	 */
+	public function test_setup_wizard_renders_no_pro_or_purchase_copy_in_lite(): void
+	{
+		foreach (array( 'system', 'pages', 'email', 'frontend', 'summary' ) as $step) {
+			$html = $this->render_setup_wizard_step($step);
+
+			$this->assertNotSame('', $html, "Step {$step} rendered nothing -- the assertions below would be vacuous.");
+			$this->assertStringNotContainsString('mhm-rentiva-license', $html, "Step {$step} links the unregistered License page.");
+			$this->assertStringNotContainsString('wpalemi.com', $html, "Step {$step} carries a purchase CTA.");
+			$this->assertStringNotContainsString('Get a License', $html, "Step {$step} carries a purchase CTA.");
+			$this->assertStringNotContainsString('unlock Pro features', $html, "Step {$step} advertises Pro.");
+		}
+	}
+
+	/**
+	 * Read the wizard's private step list without duplicating it in the test.
+	 *
+	 * @return array<string, string>
+	 */
+	private function get_setup_wizard_steps(): array
+	{
+		$method = new \ReflectionMethod(SetupWizard::class, 'get_steps');
+		$method->setAccessible(true);
+
+		return (array) $method->invoke(null);
+	}
+
+	private function render_setup_wizard_step(string $step): string
+	{
+		wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+
+		$method = new \ReflectionMethod(SetupWizard::class, 'render_step_' . $step);
+		$method->setAccessible(true);
+
+		ob_start();
+		$method->invoke(null);
+
+		return (string) ob_get_clean();
+	}
+
 	public function test_core_admin_submenus_require_manage_options_capability(): void
 	{
 		$this->reset_admin_menu_globals();

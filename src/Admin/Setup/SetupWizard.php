@@ -9,7 +9,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
-use MHMRentiva\Admin\Licensing\LicenseManager;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
@@ -30,7 +29,6 @@ final class SetupWizard {
 		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
-		add_action('admin_post_mhm_rentiva_setup_save_license', array( self::class, 'handle_save_license' ));
 		add_action('admin_post_mhm_rentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
 		add_action('admin_post_mhm_rentiva_setup_save_email', array( self::class, 'handle_save_email' ));
 		add_action('admin_post_mhm_rentiva_setup_save_frontend', array( self::class, 'handle_save_frontend' ));
@@ -111,19 +109,6 @@ final class SetupWizard {
 		$current_step = self::get_current_step();
 		$steps        = self::get_steps();
 
-		$license_manager = class_exists(LicenseManager::class) ? LicenseManager::instance() : null;
-		$license_data    = $license_manager ? $license_manager->get() : array();
-		$license_context = array(
-			'key'               => $license_manager ? $license_manager->getKey() : get_option('mhm_rentiva_license_key', ''),
-			'expires_at'        => isset($license_data['expires_at']) ? (int) $license_data['expires_at'] : null,
-			'plan'              => $license_data['plan'] ?? '',
-			'status'            => $license_data['status'] ?? 'inactive',
-			'activation_id'     => $license_data['activation_id'] ?? '',
-			'is_active'         => $license_manager ? $license_manager->isActive() : ! empty(get_option('mhm_rentiva_license_key', '')),
-			'is_dev_env'        => $license_manager ? $license_manager->isDevelopmentEnvironment() : false,
-			'dev_mode_disabled' => (bool) get_option('mhm_rentiva_disable_dev_mode', false),
-		);
-
 		$buttons = array(
 			array(
 				'text'   => esc_html__('Documentation', 'mhm-rentiva'),
@@ -154,9 +139,6 @@ final class SetupWizard {
 			switch ($current_step) {
 				case 'system':
 					self::render_step_system();
-					break;
-				case 'license':
-					self::render_step_license($license_context);
 					break;
 				case 'pages':
 					self::render_step_pages();
@@ -240,160 +222,17 @@ final class SetupWizard {
 		</div>
 		<div class="mhm-step-actions">
 			<a class="button button-large align-left" href="<?php echo esc_url(self::skip_url()); ?>"><?php esc_html_e('Skip wizard', 'mhm-rentiva'); ?></a>
-			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('license')); ?>"><?php esc_html_e('Continue to License', 'mhm-rentiva'); ?></a>
+			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Continue to Required Pages', 'mhm-rentiva'); ?></a>
 		</div>
 		<?php
 	}
 
-	private static function render_step_license(array $license): void
-	{
-		$license_key   = (string) ( $license['key'] ?? '' );
-		$is_active     = (bool) ( $license['is_active'] ?? false );
-		$activation_id = (string) ( $license['activation_id'] ?? '' );
-		$expires_at    = $license['expires_at'] ?? null;
-		$plan          = $license['plan'] ?: __('Unknown', 'mhm-rentiva');
-		$status        = $license['status'] ?? 'inactive';
-		$license_page  = admin_url('admin.php?page=mhm-rentiva-license');
-		$dev_env       = (bool) ( $license['is_dev_env'] ?? false );
-		$dev_disabled  = (bool) ( $license['dev_mode_disabled'] ?? false );
-		$dev_allowed   = $dev_env && ! $dev_disabled;
-		// A "real" license requires an activation ID from the server; dev mode
-		// alone is not enough. Show the purchase CTA whenever this is missing.
-		$has_real_license = $license_key !== '' && $status === 'active' && $activation_id !== '';
-
-		?>
-		<h2><?php esc_html_e('Step 2: License Activation', 'mhm-rentiva'); ?></h2>
-		<p><?php esc_html_e('Activate your license to unlock Pro features (online payments, unlimited vehicles, advanced export and more).', 'mhm-rentiva'); ?></p>
-
-		<?php if (! $has_real_license) : ?>
-			<div class="mhm-license-purchase-cta" style="margin: 15px 0 20px; padding: 15px; background: #f6f7f7; border-left: 4px solid #2271b1;">
-				<p class="description" style="margin: 0 0 10px;">
-					<?php esc_html_e('Don\'t have a license yet? Get one from our store, then paste the key below.', 'mhm-rentiva'); ?>
-				</p>
-				<a class="button button-secondary"
-					href="<?php echo esc_url(\MHMRentiva\Admin\Core\Utilities\UXHelper::get_product_url()); ?>"
-					target="_blank"
-					rel="noopener noreferrer">
-					<span class="dashicons dashicons-cart" style="margin-top: 4px;"></span>
-					<?php esc_html_e('Get a License', 'mhm-rentiva'); ?>
-					<span class="dashicons dashicons-external" style="margin-top: 4px;"></span>
-				</a>
-			</div>
-		<?php endif; ?>
-
-		<?php
-		// ⭐ Show error messages if any
-		$error_code = self::get_text('error');
-		if ($error_code !== '') {
-			$error_message = rawurldecode(self::get_text('message'));
-
-			$error_text = '';
-			switch ($error_code) {
-				case 'empty_key':
-					$error_text = __('Please enter a license key.', 'mhm-rentiva');
-					break;
-				case 'license_activation_failed':
-					$error_text = $error_message ?: __('License activation failed. Please check your key and try again.', 'mhm-rentiva');
-					break;
-				case 'invalid_key':
-					$error_text = __('Invalid license key. Please check your key and try again.', 'mhm-rentiva');
-					break;
-				case 'already_activated':
-					$error_text = __('This license is already activated on another site. Maximum 1 activation allowed.', 'mhm-rentiva');
-					break;
-				default:
-					$error_text = $error_message ?: __('License activation failed. Please try again.', 'mhm-rentiva');
-			}
-
-			echo '<div class="notice notice-error inline"><p>' . esc_html($error_text) . '</p></div>';
-		}
-
-		// ⭐ Show success message if license was activated
-		if (self::get_text('license') === 'activated') {
-			echo '<div class="notice notice-success inline"><p>' . esc_html__('License activated successfully!', 'mhm-rentiva') . '</p></div>';
-		}
-		?>
-
-		<?php if ($is_active) : ?>
-			<div class="mhm-license-card mhm-license-card--active">
-				<div class="mhm-license-card__status"><?php esc_html_e('✅ Pro license active on this site', 'mhm-rentiva'); ?></div>
-				<div class="mhm-license-grid">
-					<div>
-						<div class="mhm-license-label"><?php esc_html_e('License Key', 'mhm-rentiva'); ?></div>
-						<code class="mhm-license-code"><?php echo esc_html($license_key); ?></code>
-					</div>
-					<div>
-						<div class="mhm-license-label"><?php esc_html_e('Plan', 'mhm-rentiva'); ?></div>
-						<span><?php echo esc_html(ucfirst($plan)); ?></span>
-					</div>
-					<div>
-						<div class="mhm-license-label"><?php esc_html_e('Expires At', 'mhm-rentiva'); ?></div>
-						<span><?php echo esc_html(self::format_license_expiration($expires_at)); ?></span>
-					</div>
-				</div>
-				<p class="description">
-					<?php esc_html_e('Need to deactivate or change the key? Use the License page from the main menu.', 'mhm-rentiva'); ?>
-				</p>
-			</div>
-			<div class="mhm-step-actions">
-				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
-				<a class="button button-secondary" href="<?php echo esc_url($license_page); ?>" target="_blank"><?php esc_html_e('Open License Page', 'mhm-rentiva'); ?></a>
-				<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Continue to Required Pages', 'mhm-rentiva'); ?></a>
-			</div>
-		<?php else : ?>
-			<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-				<?php wp_nonce_field('mhm_rentiva_setup_license'); ?>
-				<input type="hidden" name="action" value="mhm_rentiva_setup_save_license">
-				<table class="form-table">
-					<tr>
-						<th scope="row"><?php esc_html_e('License Key', 'mhm-rentiva'); ?></th>
-						<td>
-							<input type="text" name="license_key" class="regular-text" value="<?php echo esc_attr($license_key); ?>" placeholder="XXXX-XXXX-XXXX-XXXX" />
-							<p class="description"><?php esc_html_e('Paste the key from your purchase receipt or customer dashboard.', 'mhm-rentiva'); ?></p>
-						</td>
-					</tr>
-				</table>
-				<div class="mhm-step-actions">
-					<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
-					<a class="button button-link" href="<?php echo esc_url(self::step_url('pages')); ?>"><?php esc_html_e('Skip for now', 'mhm-rentiva'); ?></a>
-					<button type="submit" class="button button-primary button-large"><?php esc_html_e('Activate & Continue', 'mhm-rentiva'); ?></button>
-				</div>
-			</form>
-		<?php endif; ?>
-
-		<?php if ($dev_allowed) : ?>
-			<div class="notice notice-info inline">
-				<p>
-					<?php esc_html_e('Developer mode detected: this local/staging domain can test the plugin without a license. Activate a license before going live to keep Pro features enabled.', 'mhm-rentiva'); ?>
-				</p>
-			</div>
-		<?php elseif ($dev_env && $dev_disabled) : ?>
-			<div class="notice notice-warning inline">
-				<p>
-					<?php esc_html_e('Developer mode has been disabled for this installation. Activate a valid license key to continue using Pro features.', 'mhm-rentiva'); ?>
-				</p>
-			</div>
-		<?php endif; ?>
-
-		<?php if (! $is_active) : ?>
-			<p class="description">
-				<?php
-				printf(
-					/* translators: %s: License page URL */
-					esc_html__('Already have an active license? Review it on the %s.', 'mhm-rentiva'),
-					'<a href="' . esc_url($license_page) . '" target="_blank">' . esc_html__('License page', 'mhm-rentiva') . '</a>'
-				);
-				?>
-			</p>
-		<?php endif; ?>
-		<?php
-	}
 
 	private static function render_step_pages(): void
 	{
 		$required_pages = self::get_required_pages();
 		?>
-		<h2><?php esc_html_e('Step 3: Required Pages', 'mhm-rentiva'); ?></h2>
+		<h2><?php esc_html_e('Step 2: Required Pages', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Rentiva uses dedicated WordPress pages for booking, confirmation and customer account screens. Create missing pages automatically or link existing ones.', 'mhm-rentiva'); ?></p>
 		<table class="widefat striped">
 			<thead>
@@ -441,7 +280,7 @@ final class SetupWizard {
 			</a>
 		</form>
 		<div class="mhm-step-actions">
-			<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('license')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+			<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('system')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 			<a class="button button-primary button-large" href="<?php echo esc_url(self::step_url('email')); ?>"><?php esc_html_e('Continue to Email', 'mhm-rentiva'); ?></a>
 		</div>
 		<?php
@@ -458,7 +297,7 @@ final class SetupWizard {
 		$auto_enabled  = SettingsCore::get('mhm_rentiva_email_auto_send', '1');
 		$log_enabled   = SettingsCore::get('mhm_rentiva_email_log_enabled', '1');
 		?>
-		<h2><?php esc_html_e('Step 4: Email & Notifications', 'mhm-rentiva'); ?></h2>
+		<h2><?php esc_html_e('Step 3: Email & Notifications', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Configure the sender information and enable automatic notifications for bookings.', 'mhm-rentiva'); ?></p>
 
 		<div class="mhm-wizard-notice notice notice-info inline" style="padding: 15px; background-color: #f0f6fc; border-left: 4px solid #72aee6; margin-bottom: 20px;">
@@ -555,7 +394,7 @@ final class SetupWizard {
 		$show_features     = SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
 		$show_availability = SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1');
 		?>
-		<h2><?php esc_html_e('Step 5: Frontend & Display', 'mhm-rentiva'); ?></h2>
+		<h2><?php esc_html_e('Step 4: Frontend & Display', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
 			<?php wp_nonce_field('mhm_rentiva_setup_frontend'); ?>
@@ -770,57 +609,6 @@ final class SetupWizard {
 		<?php
 	}
 
-	public static function handle_save_license(): void
-	{
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
-		}
-		check_admin_referer('mhm_rentiva_setup_license');
-		$key = isset($_POST['license_key']) ? sanitize_text_field(wp_unslash($_POST['license_key'])) : '';
-
-		if (empty($key)) {
-			wp_safe_redirect(self::step_url('license', array( 'error' => 'empty_key' )));
-			exit;
-		}
-
-		// ⭐ Use LicenseManager to activate license (same as License Admin page)
-		$license_manager = class_exists(LicenseManager::class) ? LicenseManager::instance() : null;
-		if ($license_manager) {
-			$result = $license_manager->activate($key);
-
-			if (is_wp_error($result)) {
-				$error_code = $result->get_error_code();
-				wp_safe_redirect(
-					self::step_url(
-						'license',
-						array(
-							'error'   => $error_code,
-							'message' => urlencode($result->get_error_message()),
-						)
-					)
-				);
-				exit;
-			}
-
-			// Success - redirect to next step
-			wp_safe_redirect(
-				self::step_url(
-					'pages',
-					array(
-						'updated' => '1',
-						'license' => 'activated',
-					)
-				)
-			);
-			exit;
-		} else {
-			// Fallback: just save the key if LicenseManager is not available
-			update_option('mhm_rentiva_license_key', $key);
-			wp_safe_redirect(self::step_url('pages', array( 'updated' => '1' )));
-			exit;
-		}
-	}
-
 	public static function handle_create_pages(): void
 	{
 		if (! current_user_can('manage_options')) {
@@ -1020,7 +808,6 @@ final class SetupWizard {
 	{
 		return array(
 			'system'   => __('System Check', 'mhm-rentiva'),
-			'license'  => __('License', 'mhm-rentiva'),
 			'pages'    => __('Required Pages', 'mhm-rentiva'),
 			'email'    => __('Email Settings', 'mhm-rentiva'),
 			'frontend' => __('Frontend & Display', 'mhm-rentiva'),
@@ -1257,25 +1044,6 @@ final class SetupWizard {
 		return $checks;
 	}
 
-	private static function format_license_expiration(?int $timestamp): string
-	{
-		if (empty($timestamp)) {
-			return __('Unknown', 'mhm-rentiva');
-		}
-
-		$date = date_i18n(get_option('date_format') . ' ' . get_option('time_format'), $timestamp);
-
-		if ($timestamp >= time()) {
-			$remaining = human_time_diff(time(), $timestamp);
-			/* translators: 1: %1$s; 2: %2$s. */
-			return sprintf(__('Expires %1$s (%2$s remaining)', 'mhm-rentiva'), $date, $remaining);
-		}
-
-		$since = human_time_diff($timestamp, time());
-		/* translators: 1: %1$s; 2: %2$s. */
-		return sprintf(__('Expired %1$s (%2$s ago)', 'mhm-rentiva'), $date, $since);
-	}
-
 	private static function format_status_badge(string $status): string
 	{
 		$labels = array(
@@ -1391,11 +1159,6 @@ final class SetupWizard {
 		switch ($step) {
 			case 'system':
 				return self::are_system_checks_ok();
-			case 'license':
-				if (class_exists(LicenseManager::class)) {
-					return LicenseManager::instance()->isActive();
-				}
-				return (bool) get_option('mhm_rentiva_license_key', '');
 			case 'pages':
 				return self::are_required_pages_present();
 			case 'email':
