@@ -643,12 +643,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -943,42 +937,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Parameter \#2 \$src of function wp_enqueue_style expects string, null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php
-
-		-
-			message: '#^Parameter \#2 \$src of function wp_enqueue_style expects string, null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorDirectory.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(MHMRentiva\\Admin\\Frontend\\Widgets\\Base\\ElementorWidgetBase\) and ''register_content…'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1049,24 +1007,6 @@ parameters:
 			identifier: method.unused
 			count: 1
 			path: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorDirectoryWidget.php
-
-		-
-			message: '#^Offset ''show_about''\|''show_badge''\|''show_location''\|''show_rating''\|''show_reviews''\|''show_vehicles'' on array\{show_badge\: ''yes'', show_rating\: ''yes'', show_about\: ''yes'', show_vehicles\: ''yes'', show_reviews\: ''yes'', show_location\: ''no''\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php
 
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
@@ -1223,12 +1163,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Admin/PostTypes/Logs/PostType.php
-
-		-
-			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
-			identifier: greater.alwaysTrue
-			count: 1
-			path: src/Admin/PostTypes/Maintenance/ReliabilityScoreJob.php
 
 		-
 			message: '#^Parameter \#2 \$args of function register_post_type expects array\{label\?\: string, labels\?\: array\<string\>, description\?\: string, public\?\: bool, hierarchical\?\: bool, exclude_from_search\?\: bool, publicly_queryable\?\: bool, show_ui\?\: bool, \.\.\.\}, array\{labels\: array\{name\: string, singular_name\: string, menu_name\: string, name_admin_bar\: string, add_new\: string, add_new_item\: string, new_item\: string, edit_item\: string, \.\.\.\}, public\: false, publicly_queryable\: false, show_ui\: false, show_in_menu\: false, query_var\: false, rewrite\: false, capabilities\: array\{edit_post\: ''manage_options'', read_post\: ''manage_options'', delete_post\: ''manage_options'', edit_posts\: ''manage_options'', edit_others_posts\: ''manage_options'', publish_posts\: ''manage_options'', read_private_posts\: ''manage_options''\}, \.\.\.\} given\.$#'
@@ -1843,18 +1777,6 @@ parameters:
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
-			message: '#^Call to an undefined method WC_Order_Item\:\:get_product\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Admin/Vehicle/ListingFeeManager.php
-
-		-
-			message: '#^PHPDoc tag @var with type mixed is not subtype of native type WC_Product_Simple\.$#'
-			identifier: varTag.nativeType
-			count: 1
-			path: src/Admin/Vehicle/ListingFeeManager.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 5
@@ -2035,84 +1957,6 @@ parameters:
 			path: src/Admin/Vehicle/Templates/vehicle-meta.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 7
-			path: src/Admin/Vehicle/VehicleLifecycleAjaxController.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Vendor/AdminVendorApplicationsPage.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Vendor/AdminVendorApplicationsPage.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin\\\\Vendor\\\\Profile\\\\VendorProfileProvider'' and ''aggregate_rating…'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectoryProvider.php
-
-		-
-			message: '#^Call to function class_exists\(\) with ''AIOSEO\\\\Plugin\\\\AIOSEO''\|''RankMath''\|''Smartcrawl_Init''\|''WPSEO_Frontend'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectorySchema.php
-
-		-
-			message: '#^Call to function class_exists\(\) with ''AIOSEO\\\\Plugin\\\\AIOSEO''\|''RankMath''\|''Smartcrawl_Init''\|''WPSEO_Frontend'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectorySeo.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, ''strlen'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Vendor/Profile/VendorSlugManager.php
-
-		-
-			message: '#^Constant AUTH_KEY not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Vendor/VendorApplicationManager.php
-
-		-
-			message: '#^Constant SECURE_AUTH_SALT not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Vendor/VendorApplicationManager.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php
-
-		-
-			message: '#^Parameter \#3 \$context_id of method MHMRentiva\\Admin\\VendorReport\\Core\\VendorReportService\:\:create_report\(\) expects int\|null, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -2141,18 +1985,6 @@ parameters:
 			identifier: constant.notFound
 			count: 1
 			path: src/Core/Dashboard/CustomerDashboard.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Core/Dashboard/VendorDashboard.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$data$#'
-			identifier: parameter.notFound
-			count: 1
-			path: src/Core/Dashboard/VendorDashboard.php
 
 		-
 			message: '#^Strict comparison using \!\=\= between '''' and ''pending'' will always evaluate to true\.$#'

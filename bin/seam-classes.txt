@@ -42,6 +42,7 @@ MHMRentiva\Admin\VendorReport\REST\VendorReportsController
 MHMRentiva\Admin\VendorReport\VendorReportAssets
 MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage
 MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator
+MHMRentiva\Admin\Vendor\Directory\VendorDirectoryProvider
 MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite
 MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema
 MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo

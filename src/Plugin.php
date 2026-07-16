@@ -188,23 +188,23 @@ final class Plugin {
 		}
 
 		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel)
-		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')) {
+		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob::register();
 		}
-		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')) {
+		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob::register();
 		}
-		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
+		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob::register();
 		}
 
 		// Privacy and Data Retention
-		if ($this->is_class_available('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
+		if (class_exists('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
 			\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
 		}
 
 		// GDPR Manager (registers AJAX handlers for data export, deletion, consent withdrawal)
-		if ($this->is_class_available('\MHMRentiva\Admin\Privacy\GDPRManager')) {
+		if (class_exists('\MHMRentiva\Admin\Privacy\GDPRManager')) {
 			\MHMRentiva\Admin\Privacy\GDPRManager::init();
 		}
 
@@ -236,81 +236,81 @@ final class Plugin {
 		// Payout workflow storage (Pro only).
 		if (
 			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
-			$this->is_class_available('\MHMRentiva\Admin\PostTypes\Payouts\PostType')
+			class_exists('\MHMRentiva\Admin\PostTypes\Payouts\PostType')
 		) {
 			\MHMRentiva\Admin\PostTypes\Payouts\PostType::register();
 		}
 
 		// Vendor onboarding applications.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
 			\MHMRentiva\Admin\Vendor\PostType\VendorApplication::register();
 		}
 
 		// Vendor media isolation — restrict media library to own uploads.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorMediaIsolation')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\VendorMediaIsolation')) {
 			\MHMRentiva\Admin\Vendor\VendorMediaIsolation::register();
 		}
 
 		// Vendor ownership enforcement — deny editing/deleting other vendors' vehicles.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer')) {
 			\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer::register();
 		}
 
 		// Vendor vehicle review — trigger re-review when vendor edits critical fields.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager')) {
 			\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager::register();
 		}
 
 		// Vehicle lifecycle manager — hooks into approval flow to start listing timer.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::register();
 		}
 
 		// Listing fee manager — WooCommerce hooks for paid vehicle listings.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\ListingFeeManager')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\ListingFeeManager')) {
 			\MHMRentiva\Admin\Vehicle\ListingFeeManager::register();
 		}
 
 		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
-		if ($this->is_class_available('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
+		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
 			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
 		}
 
 		// Vendor payout statement generation — on payout approval (post publish).
-		if ($this->is_class_available('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
+		if (class_exists('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
 			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
 		}
 
 		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController::register();
 		}
 
 		// Withdrawal penalty recorder — writes ledger entry on withdrawal hook.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')) {
 			\MHMRentiva\Admin\Vehicle\PenaltyRecorder::register();
 		}
 
 		// Vendor Report system — bridges open vehicle_action reports with the
 		// penalty pipeline so withdrawal reasons under review suspend penalties.
-		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')) {
+		if (class_exists('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')) {
 			\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook::register();
 		}
 
-		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler')) {
+		if (class_exists('\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler')) {
 			\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler::register();
 		}
 
-		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\VendorReportAssets')) {
+		if (class_exists('\MHMRentiva\Admin\VendorReport\VendorReportAssets')) {
 			\MHMRentiva\Admin\VendorReport\VendorReportAssets::register();
 		}
 
-		if ($this->is_class_available('\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage')) {
+		if (class_exists('\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage')) {
 			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::register();
 		}
 
 		// Anti-gaming: block dates when vendor cancels a confirmed booking.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker')) {
 			\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker::register();
 		}
 	}
@@ -389,12 +389,12 @@ final class Plugin {
 		}
 
 		// Vehicle lifecycle meta box (admin sidebar).
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')) {
 			\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox::register();
 		}
 
 		// Vendor reliability score column in Users table.
-		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')) {
+		if (class_exists('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')) {
 			\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn::register();
 		}
 
@@ -416,11 +416,11 @@ final class Plugin {
 		// Maintenance (Moved to initialize_core_services for all-context support)
 
 		// Vendor Applications admin page (Pro only)
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage')) {
 			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::register();
 		}
 
-		if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')) {
+		if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')) {
 			\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension::register();
 		}
 
@@ -496,10 +496,10 @@ final class Plugin {
 		}
 
 		// Export
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
+		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
 		}
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')) {
+		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')) {
 			\MHMRentiva\Admin\Utilities\Export\REST\ExportRestController::register();
 		}
 
@@ -517,7 +517,7 @@ final class Plugin {
 		// Reports (Pro only).
 		if (
 			\MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports() &&
-			$this->is_class_available('\\MHMRentiva\\Admin\\Reports\\Reports')
+			class_exists('\\MHMRentiva\\Admin\\Reports\\Reports')
 		) {
 			\MHMRentiva\Admin\Reports\Reports::register();
 		}
@@ -535,10 +535,10 @@ final class Plugin {
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Settings\\ShortcodePages\\REST\\ShortcodePagesController')) {
 			\MHMRentiva\Admin\Settings\ShortcodePages\REST\ShortcodePagesController::register();
 		}
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\VendorReport\\REST\\VendorReportsController')) {
+		if (class_exists('\\MHMRentiva\\Admin\\VendorReport\\REST\\VendorReportsController')) {
 			\MHMRentiva\Admin\VendorReport\REST\VendorReportsController::register();
 		}
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\Vendor\\REST\\VendorManagementRestController')) {
+		if (class_exists('\\MHMRentiva\\Admin\\Vendor\\REST\\VendorManagementRestController')) {
 			\MHMRentiva\Admin\Vendor\REST\VendorManagementRestController::register();
 		}
 
@@ -560,13 +560,13 @@ final class Plugin {
 		// ShortcodeServiceProvider and self-gates inside render() — not
 		// re-registered here to avoid double-registration.
 		if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) {
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite')) {
 				\MHMRentiva\Admin\Vendor\Profile\VendorProfileRewrite::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSchema')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSchema')) {
 				\MHMRentiva\Admin\Vendor\Profile\VendorProfileSchema::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator')) {
 				\MHMRentiva\Admin\Vendor\Profile\VendorProfileCacheInvalidator::register();
 			}
 
@@ -575,7 +575,7 @@ final class Plugin {
 			// 99 so it runs after 3rd-party avatar plugins (Simple Local
 			// Avatars, Avatar Privacy, etc.) and only substitutes the
 			// Gravatar mystery-man placeholder.
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback')) {
 				\MHMRentiva\Admin\Vendor\Profile\VendorAvatarFallback::register();
 			}
 
@@ -583,20 +583,20 @@ final class Plugin {
 			// profile URLs only when no real SEO plugin is active. Yoast,
 			// Rank Math, AIOSEO, SEOPress, The SEO Framework, SmartCrawl all
 			// own this contract on sites that have them installed; we defer.
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSeo')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileSeo')) {
 				\MHMRentiva\Admin\Vendor\Profile\VendorProfileSeo::register();
 			}
 
 			// Locale change detector — flushes rewrites when the site
 			// language switches and the localized base differs from cache.
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase')) {
 				add_action('init', [ \MHMRentiva\Admin\Vendor\Profile\VendorProfileUrlBase::class, 'check_for_locale_change' ], 5);
 			}
 
 			// One-time slug backfill — idempotent via site option flag, also
 			// internally guarded by the same Pro check so toggling Pro off
 			// preserves data.
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration')) {
 				add_action('plugins_loaded', [ \MHMRentiva\Admin\Vendor\Profile\VendorSlugMigration::class, 'run' ], 20);
 			}
 
@@ -608,19 +608,19 @@ final class Plugin {
 			// directory URL. Shortcode `rentiva_vendor_directory` self-gates
 			// inside render() and is registered via ShortcodeServiceProvider —
 			// not re-registered here to avoid double-registration.
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite')) {
 				\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema')) {
 				\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo')) {
 				\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySeo::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator')) {
 				\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryCacheInvalidator::register();
 			}
-			if ($this->is_class_available('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase')) {
+			if (class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase')) {
 				add_action('init', [ \MHMRentiva\Admin\Vendor\Directory\VendorDirectoryUrlBase::class, 'check_for_locale_change' ], 5);
 			}
 
@@ -631,6 +631,13 @@ final class Plugin {
 			// 99 runs after most theme overrides; pattern parity with
 			// vendor-profile-page.php from v4.37.0.
 			add_filter('template_include', static function (string $template): string {
+				// The enclosing Mode::canUseVendorMarketplace() gate keeps this
+				// closure off Lite entirely, but the closure body outlives that
+				// check -- it runs on every template_include long after. Re-check
+				// the seam here so the callback is safe on its own terms.
+				if (! class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite')) {
+					return $template;
+				}
 				$flag = get_query_var(\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryRewrite::QUERY_VAR);
 				if ($flag !== '' && $flag !== null) {
 					$candidate = MHM_RENTIVA_PLUGIN_PATH . 'templates/frontend/vendor-directory-page.php';
@@ -646,6 +653,14 @@ final class Plugin {
 			// with the actual current-page vendor list. Direct method call,
 			// not do_action, so no recursion risk with the wp_head emitter.
 			add_action('mhm_rentiva_vendor_directory_emit_schema', static function (): void {
+				// Same reasoning as the template_include closure above: re-check the
+				// seams this body actually calls, rather than trusting the gate that
+				// was true at registration time.
+				if (! class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectoryProvider')
+					|| ! class_exists('\MHMRentiva\Admin\Vendor\Directory\VendorDirectorySchema')) {
+					return;
+				}
+
 				// Read filter args from $_GET so schema reflects the rendered filtered list,
 				// not the unfiltered first page (avoids canonical/schema mismatch for
 				// crawlers landing on /bayiler/?city=X). Sanitization mirrors
@@ -740,11 +755,11 @@ final class Plugin {
 		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
 
 		// Transfer Module
-		if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferAdmin')) {
+		if (class_exists('MHMRentiva\Admin\Transfer\TransferAdmin')) {
 			\MHMRentiva\Admin\Transfer\TransferAdmin::register();
 
 			// Transfer Export/Import Integration
-			if ($this->is_class_available('MHMRentiva\Admin\Transfer\TransferExportImport')) {
+			if (class_exists('MHMRentiva\Admin\Transfer\TransferExportImport')) {
 				\MHMRentiva\Admin\Transfer\TransferExportImport::instance();
 			}
 		}
@@ -942,16 +957,16 @@ final class Plugin {
 			}
 
 			// Auditing & Integrity
-			if ($this->is_class_available('MHMRentiva\CLI\ExportAuditCommand')) {
+			if (class_exists('MHMRentiva\CLI\ExportAuditCommand')) {
 				\WP_CLI::add_command('mhm audit:export', \MHMRentiva\CLI\ExportAuditCommand::class);
 			}
-			if ($this->is_class_available('MHMRentiva\CLI\IntegrityCheckCommand')) {
+			if (class_exists('MHMRentiva\CLI\IntegrityCheckCommand')) {
 				\WP_CLI::add_command('mhm audit:verify', \MHMRentiva\CLI\IntegrityCheckCommand::class);
 			}
-			if ($this->is_class_available('MHMRentiva\CLI\KeyRevokeCommand')) {
+			if (class_exists('MHMRentiva\CLI\KeyRevokeCommand')) {
 				\WP_CLI::add_command('mhm key:revoke', \MHMRentiva\CLI\KeyRevokeCommand::class);
 			}
-			if ($this->is_class_available('MHMRentiva\CLI\MaturedPayoutCommand')) {
+			if (class_exists('MHMRentiva\CLI\MaturedPayoutCommand')) {
 				\WP_CLI::add_command('mhm payout:execute-matured', \MHMRentiva\CLI\MaturedPayoutCommand::class);
 			}
 		}
@@ -1110,7 +1125,7 @@ final class Plugin {
 
 		if (
 			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
-			$this->is_class_available('MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger')
+			class_exists('MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger')
 		) {
 			\MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger::register();
 		}
@@ -1125,7 +1140,7 @@ final class Plugin {
 	public function register_rest_api(): void
 	{
 		// REST API endpoints are now in Admin\REST namespace
-		if ($this->is_class_available('MHMRentiva\Admin\REST\Locations')) {
+		if (class_exists('MHMRentiva\Admin\REST\Locations')) {
 			\MHMRentiva\Admin\REST\Locations::register();
 		}
 

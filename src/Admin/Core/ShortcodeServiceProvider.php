@@ -140,28 +140,33 @@ final class ShortcodeServiceProvider {
 			),
 			'vendor'      => array(
 				'rentiva_vendor_apply'     => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vehicle_submit'   => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_bookings'  => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => true,
 				),
 				'rentiva_vendor_profile'   => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_directory' => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 			),

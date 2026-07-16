@@ -58,8 +58,6 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UserDashboardWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget::class,
 		);
 
 		// Pro seams: present only when this build ships them (see below).
@@ -86,6 +84,8 @@ class ElementorIntegration {
 	private static function pro_widget_classes(): array {
 		return array(
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget',
 		);
 	}
 
