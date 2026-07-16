@@ -45,20 +45,39 @@ final class DatabaseMigrator {
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
 			self::create_table('notification_queue');
-			self::create_key_registry_table();
 			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
 				self::create_table('mhm_rentiva_payout_audit');
 				self::register_governance_capabilities();
 			}
 
+			// Financial / ledger-audit schema. Every table in this cluster --
+			// `ledger`, `commission_policy`, and the `key_registry` that holds the
+			// ledger-signing keys -- belongs to Pro; Lite ships no class that reads
+			// or writes any of them (Ledger, CommissionResolver, KeyPairManager and
+			// KeyRegistryRepository all moved to Pro). Creating them anyway left
+			// dead schema in every Lite install.
+			//
+			// Gated on LedgerMigration (the seam that owns the cluster's primary
+			// table) rather than on Mode::canUse*(): this is a question about which
+			// FILES this build ships, not which features a licence unlocks. A Mode
+			// gate would also skip the schema on a Pro install whose licence is not
+			// yet activated, and since run_migrations() is version-gated it would
+			// not re-run after activation -- leaving Pro with a half-built schema.
+			// Mirrors create_transfer_tables()'s class_exists() gate below.
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
-			}
-			if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
-				\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
-			}
-			if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
-				\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+				self::create_key_registry_table();
+
+				if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
+					\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
+				}
+
+				// Adds tenant_id to ledger / key_registry / payout_audit, so it can
+				// only run once those exist. In Lite it ALTERed three absent tables,
+				// failing three times per upgrade.
+				if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
+					\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+				}
 			}
 			// SaaS Control Plane scaffolding removed (#4 cleanup) — drop its dead tables.
 			self::drop_orchestration_tables();
