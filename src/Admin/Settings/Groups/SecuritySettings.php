@@ -40,8 +40,6 @@ final class SecuritySettings {
 			'mhm_rentiva_ip_whitelist'                   => '',
 			'mhm_rentiva_ip_blacklist_enabled'           => '1',
 			'mhm_rentiva_ip_blacklist'                   => '',
-			'mhm_rentiva_country_restriction_enabled'    => '0',
-			'mhm_rentiva_allowed_countries'              => '',
 
 			// Security Rules
 			'mhm_rentiva_brute_force_protection'         => '1',
@@ -81,7 +79,7 @@ final class SecuritySettings {
 		add_settings_section(
 			self::SECTION_IP_CONTROL,
 			__( 'IP Control & Firewall', 'mhm-rentiva' ),
-			fn() => print( '<p>' . esc_html__( 'Manage IP whitelists, blacklists and country-based restrictions.', 'mhm-rentiva' ) . '</p>' ),
+			fn() => print( '<p>' . esc_html__( 'Manage IP whitelists and blacklists.', 'mhm-rentiva' ) . '</p>' ),
 			$page_slug
 		);
 
@@ -89,8 +87,9 @@ final class SecuritySettings {
 		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_whitelist', __( 'Whitelisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'e.g. 192.168.1.1', 'mhm-rentiva' ) );
 		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_ip_blacklist_enabled', __( 'Enable IP Blacklist', 'mhm-rentiva' ), __( 'Traffic from these IPs is completely blocked.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL );
 		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_ip_blacklist', __( 'Blacklisted IPs', 'mhm-rentiva' ), 5, __( 'One IP per line.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'e.g. 123.123.123.123', 'mhm-rentiva' ) );
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_country_restriction_enabled', __( 'Enable Country Restriction', 'mhm-rentiva' ), __( 'Block access from countries not in the allowed list.', 'mhm-rentiva' ), self::SECTION_IP_CONTROL );
-		SettingsHelper::text_field( $page_slug, 'mhm_rentiva_allowed_countries', __( 'Allowed Countries (Codes)', 'mhm-rentiva' ), self::SECTION_IP_CONTROL, __( 'Comma separated 2-letter codes. Ex: TR, US', 'mhm-rentiva' ), __( 'e.g. TR, US, GB', 'mhm-rentiva' ) );
+		// No country-restriction fields: the enforcement behind them was removed
+		// because it could not work without sending the visitor's IP to a
+		// third-party geolocation service. See SecurityManager's class docblock.
 
 		// 2. Security Rules Section
 		add_settings_section(
@@ -139,14 +138,6 @@ final class SecuritySettings {
 
 	public static function get_ip_blacklist(): string {
 		return (string) SettingsCore::get( 'mhm_rentiva_ip_blacklist', '' );
-	}
-
-	public static function is_country_restriction_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_country_restriction_enabled' ) === '1';
-	}
-
-	public static function get_allowed_countries(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_allowed_countries', '' );
 	}
 
 	/**

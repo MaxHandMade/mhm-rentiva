@@ -45,20 +45,39 @@ final class DatabaseMigrator {
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
 			self::create_table('notification_queue');
-			self::create_key_registry_table();
 			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
 				self::create_table('mhm_rentiva_payout_audit');
 				self::register_governance_capabilities();
 			}
 
+			// Financial / ledger-audit schema. Every table in this cluster --
+			// `ledger`, `commission_policy`, and the `key_registry` that holds the
+			// ledger-signing keys -- belongs to Pro; Lite ships no class that reads
+			// or writes any of them (Ledger, CommissionResolver, KeyPairManager and
+			// KeyRegistryRepository all moved to Pro). Creating them anyway left
+			// dead schema in every Lite install.
+			//
+			// Gated on LedgerMigration (the seam that owns the cluster's primary
+			// table) rather than on Mode::canUse*(): this is a question about which
+			// FILES this build ships, not which features a licence unlocks. A Mode
+			// gate would also skip the schema on a Pro install whose licence is not
+			// yet activated, and since run_migrations() is version-gated it would
+			// not re-run after activation -- leaving Pro with a half-built schema.
+			// Mirrors create_transfer_tables()'s class_exists() gate below.
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
-			}
-			if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
-				\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
-			}
-			if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
-				\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+				self::create_key_registry_table();
+
+				if (class_exists(\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::class)) {
+					\MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration::create_table();
+				}
+
+				// Adds tenant_id to ledger / key_registry / payout_audit, so it can
+				// only run once those exist. In Lite it ALTERed three absent tables,
+				// failing three times per upgrade.
+				if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
+					\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+				}
 			}
 			// SaaS Control Plane scaffolding removed (#4 cleanup) — drop its dead tables.
 			self::drop_orchestration_tables();
@@ -558,10 +577,23 @@ final class DatabaseMigrator {
 		}
 	}
 	/**
-	 * Creates VIP Transfer tables
+	 * Creates VIP Transfer tables (locations + routes).
+	 *
+	 * Both tables belong to the Transfer (Pro) module. Lite has no location search
+	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
+	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
+	 * read is dead schema, which is WP.org-unclean (cf. faz1-exit-decisions Task 5
+	 * REQUIREMENT 2). Guarding here rather than at each of the three call sites
+	 * (run_migrations + the two create_table switch arms) keeps it single-point.
+	 *
+	 * @return bool True if the tables were created; false if skipped (no Transfer).
 	 */
-	private static function create_transfer_tables(): void
+	private static function create_transfer_tables(): bool
 	{
+		if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			return false;
+		}
+
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -629,6 +661,8 @@ final class DatabaseMigrator {
         ) $charset_collate;";
 
 		dbDelta($sql_routes);
+
+		return true;
 	}
 
 	/**
@@ -702,16 +736,16 @@ final class DatabaseMigrator {
 			case 'mhm_sessions':
 				self::create_sessions_table();
 				return true;
+			// Report the real outcome: without the Transfer module these tables are
+			// deliberately not created, so claiming success would be a lie.
 			case 'transfer_locations':
 			case 'mhm_rentiva_transfer_locations':
 			case 'rentiva_transfer_locations':
-				self::create_transfer_tables();
-				return true;
+				return self::create_transfer_tables();
 			case 'transfer_routes':
 			case 'mhm_rentiva_transfer_routes':
 			case 'rentiva_transfer_routes':
-				self::create_transfer_tables();
-				return true;
+				return self::create_transfer_tables();
 			case 'ratings':
 			case 'mhm_rentiva_ratings':
 				self::create_rating_table();

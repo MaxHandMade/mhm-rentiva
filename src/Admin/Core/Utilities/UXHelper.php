@@ -473,18 +473,6 @@ final class UXHelper {
 	}
 
 	/**
-	 * Get the external product/purchase URL where users can buy a license.
-	 *
-	 * Filterable via `mhm_rentiva_product_url` for custom deployments.
-	 */
-	public static function get_product_url(): string {
-		return (string) apply_filters(
-			'mhm_rentiva_product_url',
-			'https://wpalemi.com/rentiva/'
-		);
-	}
-
-	/**
 	 * Render the documentation button HTML
 	 *
 	 * @param bool $echo Whether to echo or return the HTML.

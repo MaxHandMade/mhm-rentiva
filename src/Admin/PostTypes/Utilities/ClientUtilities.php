@@ -150,59 +150,6 @@ final class ClientUtilities {
 	}
 
 	/**
-	 * Get client location info (IP based)
-	 *
-	 * @return array ['country' => string, 'region' => string, 'city' => string]
-	 */
-	public static function get_client_location(): array
-	{
-		$ip = self::get_client_ip();
-
-		if ($ip === 'unknown' || self::is_private_ip($ip)) {
-			return array(
-				'country' => 'unknown',
-				'region'  => 'unknown',
-				'city'    => 'unknown',
-			);
-		}
-
-		// Use Geobytes API (free)
-		$response = wp_remote_get("http://ip-api.com/json/{$ip}?fields=status,message,country,regionName,city");
-
-		if (is_wp_error($response)) {
-			return array(
-				'country' => 'unknown',
-				'region'  => 'unknown',
-				'city'    => 'unknown',
-			);
-		}
-
-		$data = json_decode(wp_remote_retrieve_body($response), true);
-
-		if ($data['status'] === 'success') {
-			return array(
-				'country' => sanitize_text_field($data['country'] ?? 'unknown'),
-				'region'  => sanitize_text_field($data['regionName'] ?? 'unknown'),
-				'city'    => sanitize_text_field($data['city'] ?? 'unknown'),
-			);
-		}
-
-		return array(
-			'country' => 'unknown',
-			'region'  => 'unknown',
-			'city'    => 'unknown',
-		);
-	}
-
-	/**
-	 * Check if IP address is private
-	 */
-	private static function is_private_ip(string $ip): bool
-	{
-		return ! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
-	}
-
-	/**
 	 * Detect bot
 	 */
 	public static function is_bot(): bool

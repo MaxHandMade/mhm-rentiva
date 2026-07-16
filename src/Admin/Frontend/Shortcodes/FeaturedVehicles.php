@@ -179,14 +179,8 @@ final class FeaturedVehicles extends AbstractShortcode {
 			),
 		);
 
-		// Fold the Lite overflow hidden set into the cache key so a Pro->Lite
-		// flip can't keep serving now-hidden vehicles from a warm cache.
-		$cache_args                     = $args;
-		$cache_args['_hidden_vehicles'] = class_exists( \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::class )
-			? \MHMRentiva\Admin\Licensing\LiteOverflow\OverflowRegistry::get( 'vehicle' )
-			: array();
-		$cache_key                      = 'featured_' . md5(wp_json_encode($cache_args));
-		$vehicle_ids                    = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
+		$cache_key   = 'featured_' . md5(wp_json_encode($args));
+		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
 		if (false === $vehicle_ids) {
 			$query       = new WP_Query($args);

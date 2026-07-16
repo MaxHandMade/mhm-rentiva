@@ -693,7 +693,7 @@ final class Util {
 					'fuel_type'        => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_fuel_type'] ?? '' ),
 					'similarity_score' => $similarity_score,
 					'image'            => get_the_post_thumbnail_url($vehicle->ID, 'medium'),
-					'currency_symbol'  => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
+					'currency_symbol'  => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
 				);
 			}
 		}

@@ -20,7 +20,24 @@ final class ShortcodePageActions {
 
 
 	/**
-	 * Get shortcode configurations.
+	 * Get shortcode configurations, minus any this build cannot render.
+	 *
+	 * This is the second registry that has to respect the Lite/Pro seam --
+	 * BlockRegistry was the first. An unregistered shortcode does not vanish, it
+	 * degrades to its own literal source text, so offering a page for one is not a
+	 * cosmetic fault: create_page() publishes the raw shortcode as page content
+	 * and the visitor reads "[rentiva_vendor_apply]" on a live page.
+	 *
+	 * Availability is probed with shortcode_exists() rather than a second
+	 * hardcoded list of Pro tags, deliberately. ShortcodeServiceProvider already
+	 * drops absent Pro seams from the one real registry, so asking that registry
+	 * what exists keeps this list honest automatically -- a duplicated tag list
+	 * here would be free to rot out of sync, which is precisely how this defect
+	 * survived the carve.
+	 *
+	 * Timing is safe: ShortcodeServiceProvider::register() registers immediately
+	 * at plugin load, while every consumer of this method (the REST controller and
+	 * the admin page) runs later, in an admin or REST request.
 	 */
 	public function get_config(): array {
 		$config = array(
@@ -48,7 +65,10 @@ final class ShortcodePageActions {
 			'rentiva_unified_search'        => array(
 				'title'       => __( 'Unified Search', 'mhm-rentiva' ),
 				'slug'        => 'unified-search',
-				'description' => __( 'Unified vehicle and transfer search widget', 'mhm-rentiva' ),
+				// Describes what this build renders: UnifiedSearch hard-gates the
+				// transfer tab off when the Transfer seam is absent, so promising
+				// transfer search here would describe a tab the user never sees.
+				'description' => __( 'Vehicle search widget - date, location and category filters', 'mhm-rentiva' ),
 			),
 			'rentiva_search_results'        => array(
 				'title'       => __( 'Search Results', 'mhm-rentiva' ),
@@ -148,13 +168,24 @@ final class ShortcodePageActions {
 			'rentiva_user_dashboard'        => array(
 				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
 				'slug'        => 'demo-user-dashboard',
-				'description' => __( 'Role-aware dashboard - customer summary or vendor summary based on role', 'mhm-rentiva' ),
+				// The dashboard's vendor branch is unreachable in this build -- only
+				// the Pro onboarding flow grants the rentiva_vendor role -- so the
+				// customer summary is the only thing this description can promise.
+				'description' => __( 'Customer dashboard - booking, favorite and account summary', 'mhm-rentiva' ),
 			),
 			'rentiva_popular_routes'        => array(
 				'title'       => __( 'Popular Routes', 'mhm-rentiva' ),
 				'slug'        => 'demo-popular-routes',
 				'description' => __( 'Most popular transfer routes - widget for home or transfer landing pages', 'mhm-rentiva' ),
 			),
+		);
+
+		$config = array_filter(
+			$config,
+			static function ( string $shortcode ): bool {
+				return shortcode_exists( $shortcode );
+			},
+			ARRAY_FILTER_USE_KEY
 		);
 
 		ksort( $config );

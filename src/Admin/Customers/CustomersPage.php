@@ -92,8 +92,6 @@ final class CustomersPage {
 			)
 		);
 
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayPageProNotice( 'customers' );
-
 		echo '<div id="mhm-customers-root"></div>';
 		echo '</div>';
 	}

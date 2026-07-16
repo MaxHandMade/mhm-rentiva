@@ -242,16 +242,16 @@ final class AccountRenderer {
 	 */
 	public static function get_messages_data(array $atts = array()): array
 	{
-		// Check if Messages feature is enabled
+		// Messaging is a Pro feature. When it is absent this renders NOTHING at all:
+		// no notice, no placeholder, no mention of Pro (owner decision 2026-07-16 --
+		// a feature Lite does not have simply does not render). The empty 'error'
+		// keeps the caller's existing short-circuit, which is shared with the
+		// booking-detail path and must stay intact.
 		if (
 			! class_exists(\MHMRentiva\Admin\Licensing\Mode::class) ||
 			! \MHMRentiva\Admin\Licensing\Mode::canUseMessages()
 		) {
-			return array(
-				'error' => '<div class="mhm-rentiva-account-page"><div class="mhm-account-content"><p>' .
-					__('Messages feature is available in Pro version.', 'mhm-rentiva') .
-					'</p></div></div>',
-			);
+			return array( 'error' => '' );
 		}
 
 		$user          = wp_get_current_user();

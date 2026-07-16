@@ -85,8 +85,13 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Initial service type depends on default_tab
 		$initial_service_type = $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental';
 
-		// Fetch locations based on initial service type
-		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($initial_service_type);
+		// Fetch locations based on initial service type. Locations are a Transfer
+		// (Pro) feature: without LocationProvider there are none, and the location
+		// selects must not render at all (see $show_location_select below).
+		$locations = array();
+		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($initial_service_type);
+		}
 
 		// Normalize boolean attributes (accept '1', 'true', true, 1)
 		$bool = fn($v) => filter_var($v, FILTER_VALIDATE_BOOLEAN);
@@ -104,6 +109,18 @@ final class UnifiedSearch extends AbstractShortcode {
 			$show_transfer = true;
 		}
 
+		// Transfer is a Pro surface. Its tab posts to `rentiva_transfer_results`,
+		// a shortcode Lite carves out, so the search would land on a page printing
+		// the tag's own literal text. Nothing else can turn the tab off here: the
+		// attribute defaults to true, the settings fallback defaults to true, and
+		// the master switch above force-enables it for service_type="transfer" --
+		// so this must be the last word, after every override. The rental side
+		// needs no such gate; it degrades on its own.
+		if (! class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')) {
+			$show_transfer = false;
+			$show_rental   = true;
+		}
+
 		// Resolve layout: Check search_layout first (Block), then layout (Shortcode)
 		$layout = ! empty($atts['search_layout']) ? $atts['search_layout'] : $atts['layout'];
 
@@ -116,7 +133,11 @@ final class UnifiedSearch extends AbstractShortcode {
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,
 			'show_transfer_tab'     => $show_transfer,
-			'show_location_select'  => self::resolve_bool($atts['show_location_select'], 'mhm_rentiva_enable_location_select', true),
+			// Never show a location select with nothing to select: the setting
+			// defaults to true, so without this the Lite rental form would render an
+			// empty (and, when location_required, unsubmittable) picker.
+			'show_location_select'  => $locations !== array()
+				&& self::resolve_bool($atts['show_location_select'], 'mhm_rentiva_enable_location_select', true),
 			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhm_rentiva_enable_time_select', true),
 			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhm_rentiva_enable_date_picker', true),
 			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhm_rentiva_enable_dropoff', true),
@@ -155,13 +176,23 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHM_RENTIVA_VERSION
 		);
 
-		// Ensure Transfer JS logic is loaded for the Transfer tab (Parity)
-		\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::enqueue_assets();
+		// Ensure Transfer JS logic is loaded for the Transfer tab (Parity).
+		// TransferShortcodes is a Pro seam. It is also the ONLY registrar of the
+		// 'rentiva-transfer' script handle, so that handle must drop out of the
+		// dependency list alongside it: wp_enqueue_script() silently refuses to
+		// output a script whose dependency was never registered, which would take
+		// the CORE unified-search JS down with the Pro transfer tab.
+		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
+
+		if (class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')) {
+			\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::enqueue_assets();
+			$search_deps[] = 'rentiva-transfer';
+		}
 
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/unified-search.js',
-			array( 'jquery', 'jquery-ui-datepicker', 'rentiva-transfer' ),
+			$search_deps,
 			MHM_RENTIVA_VERSION,
 			true
 		);

@@ -257,8 +257,12 @@ final class WooCommerceIntegration {
 	 * Shows the vendor application form, or a status message depending on user state.
 	 */
 	public static function render_vendor_apply(): void {
+		// Vendor marketplace is a Pro feature. When it is absent this renders NOTHING
+		// at all -- no notice, no mention of Pro (owner decision 2026-07-16). The
+		// My Account menu already omits this endpoint's link in that case (see
+		// get_rentiva_endpoints_map()'s callers above), so the only way here is a
+		// hand-typed URL, which now yields an empty endpoint rather than an advert.
 		if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
-			echo '<div class="woocommerce-info">' . esc_html__( 'This feature requires Rentiva Pro.', 'mhm-rentiva' ) . '</div>';
 			return;
 		}
 

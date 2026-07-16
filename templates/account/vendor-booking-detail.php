@@ -65,7 +65,12 @@ $transfer_children    = (int) get_post_meta($booking_id, '_mhm_transfer_children
 $transfer_lug_big     = (int) get_post_meta($booking_id, '_mhm_transfer_luggage_big', true);
 $transfer_lug_small   = (int) get_post_meta($booking_id, '_mhm_transfer_luggage_small', true);
 
-if ($is_transfer) {
+// LocationProvider is the transfer engine's lookup and is a Pro seam: it is
+// absent from Lite. Both readers below already treat a null location as "-",
+// so the guard degrades the transfer card to blank origin/destination names
+// rather than fatalling. This template is reached from the live Lite
+// AccountRenderer (vendor booking view), so the guard has to be local.
+if ($is_transfer && class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 	$destination_id = (int) get_post_meta($booking_id, '_mhm_transfer_destination_id', true);
 	if ($origin_id > 0) {
 		$origin_location = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id($origin_id);

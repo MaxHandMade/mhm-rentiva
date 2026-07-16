@@ -9,8 +9,6 @@ if (! defined('ABSPATH')) {
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
-use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Admin\Licensing\Restrictions;
 use MHMRentiva\Admin\Booking\Helpers\Cache;
 
 
@@ -24,9 +22,6 @@ final class Hooks {
 		add_action('mhm_rentiva_booking_created', array( self::class, 'invalidate_availability_cache' ), 10, 1);
 		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'invalidate_availability_cache' ), 10, 1);
 
-		// License limit checks
-		add_action('mhm_rentiva_before_booking_create', array( self::class, 'check_license_limits' ), 10, 2);
-
 		// Status automation hooks
 		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'handle_status_automation' ), 10, 3);
 	}
@@ -39,28 +34,6 @@ final class Hooks {
 		$vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
 		if ($vehicle_id) {
 			Cache::invalidateVehicle($vehicle_id);
-		}
-	}
-
-	/**
-	 * Check license limits before creating a booking
-	 */
-	public static function check_license_limits(int $vehicle_id, array $booking_data): void
-	{
-		if (class_exists('\MHMRentiva\Admin\Licensing\Mode') && class_exists('\MHMRentiva\Admin\Licensing\Restrictions')) {
-			if (Mode::isLite() && Restrictions::bookingCount() >= Mode::maxBookings()) {
-				// Return error with WordPress redirect
-				$referer = wp_get_referer() ?: home_url();
-				$url     = add_query_arg(
-					array(
-						'booking' => 'error',
-						'code'    => 'license_limit',
-					),
-					$referer
-				);
-				wp_safe_redirect($url);
-				exit;
-			}
 		}
 	}
 

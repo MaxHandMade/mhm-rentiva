@@ -16,7 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Global Security Manager
  *
- * Handles IP whitelist, blacklist, and country restrictions across the entire site
+ * Handles IP whitelist and blacklist checks.
+ *
+ * The country restriction that used to live here was REMOVED, along with its
+ * settings. It resolved the visitor's country by sending their IP address to
+ * ip-api.com; once that third-party lookup was removed on privacy grounds the
+ * only remaining signal was Cloudflare's CF-IPCountry request header, which
+ * exists solely on Cloudflare-fronted sites. Everywhere else the check fell
+ * through to its fail-open branch and silently admitted everyone -- while the
+ * settings screen still displayed "Enable Country Restriction" as active.
+ *
+ * A security setting that does not enforce is worse than no setting: it makes a
+ * promise the code does not keep, and the site owner stops looking for a real
+ * control. So the setting is gone rather than conditionally displayed.
  *
  * @since 4.0.0
  */
@@ -55,12 +67,7 @@ final class SecurityManager {
 			}
 		}
 
-		// Check country restriction
-		if ( self::is_country_restriction_enabled() ) {
-			if ( ! self::is_country_allowed( $client_ip ) ) {
-				self::deny_access( __( 'Access denied: Your country is not authorized.', 'mhm-rentiva' ) );
-			}
-		}
+		// No country restriction: see the class docblock.
 	}
 
 	/**
@@ -151,97 +158,6 @@ final class SecurityManager {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Check if country restriction is enabled
-	 */
-	private static function is_country_restriction_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_country_restriction_enabled', '0' ) === '1';
-	}
-
-	/**
-	 * Check if country is allowed
-	 */
-	private static function is_country_allowed( string $ip ): bool {
-		$allowed_countries = SettingsCore::get( 'mhm_rentiva_allowed_countries', '' );
-		if ( empty( $allowed_countries ) ) {
-			return true;
-		}
-
-		// Get country from IP (simplified - in production, use a proper GeoIP service)
-		$country_code = self::get_country_from_ip( $ip );
-		if ( empty( $country_code ) ) {
-			return true; // If we can't determine country, allow access
-		}
-
-		$allowed = array_map( 'trim', explode( ',', strtoupper( $allowed_countries ) ) );
-		return in_array( strtoupper( $country_code ), $allowed, true );
-	}
-
-	/**
-	 * Get country code from IP (placeholder - implement with GeoIP service)
-	 */
-	/**
-	 * Get country code from IP (Cloudflare + IP-API fallback with caching)
-	 */
-	private static function get_country_from_ip( string $ip ): string {
-		// 1. Cloudflare Check (Fastest & Most Reliable)
-		if ( isset( $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) {
-			return strtoupper( sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_CF_IPCOUNTRY'] ) ) );
-		}
-
-		// Skip private/local IPs to avoid unnecessary API calls
-		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-			return '';
-		}
-
-		// 2. Cache Check
-		$cache_key = 'mhm_geoip_' . md5( $ip );
-
-		// Try ObjectCache first if available
-		if ( class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ) ) {
-			$country = \MHMRentiva\Admin\Core\Utilities\ObjectCache::get( $cache_key, 'mhm_security' );
-			if ( $country ) {
-				return $country;
-			}
-		} else {
-			// Fallback to transient
-			$country = get_transient( $cache_key );
-			if ( $country ) {
-				return $country;
-			}
-		}
-
-		// 3. IP-API.com Fallback (Free, Rate Limited 45/min)
-		$response = wp_remote_get(
-			"http://ip-api.com/json/{$ip}?fields=countryCode",
-			array(
-				'timeout' => 3, // Fail fast
-			)
-		);
-
-		if ( is_wp_error( $response ) ) {
-			return '';
-		}
-
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
-
-		if ( isset( $data['countryCode'] ) ) {
-			$country = strtoupper( sanitize_text_field( $data['countryCode'] ) );
-
-			// Cache result for 24 hours (long TTL is crucial for rate limiting)
-			if ( class_exists( \MHMRentiva\Admin\Core\Utilities\ObjectCache::class ) ) {
-				\MHMRentiva\Admin\Core\Utilities\ObjectCache::set( $cache_key, $country, 'mhm_security', 24 * HOUR_IN_SECONDS );
-			} else {
-				set_transient( $cache_key, $country, 24 * HOUR_IN_SECONDS );
-			}
-
-			return $country;
-		}
-
-		return '';
 	}
 
 	/**

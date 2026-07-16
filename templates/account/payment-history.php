@@ -19,7 +19,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 $currency_code   = SettingsCore::get('mhm_rentiva_currency', 'USD');
-$currency_symbol = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 $payments          = $data['payments'] ?? array();
 $navigation        = $data['navigation'] ?? array();

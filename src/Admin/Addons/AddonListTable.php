@@ -442,17 +442,10 @@ final class AddonListTable extends AbstractListTable {
 	protected function render_custom_filters(): void {
 		echo '<div class="alignleft actions">';
 
-		// License limit warning.
-		if ( ! AddonManager::can_create_addon() ) {
-			echo '<div class="notice notice-warning inline" style="margin: 0 10px 0 0; padding: 5px 10px;">';
-			echo '<p style="margin: 0;">' . esc_html( AddonManager::get_addon_limit_message() ) . '</p>';
-			echo '</div>';
-		} else {
-			// Add new button.
-			echo '<a href="' . esc_url( admin_url( 'post-new.php?post_type=vehicle_addon' ) ) . '" class="button button-primary">';
-			echo esc_html__( 'Add New Additional Service', 'mhm-rentiva' );
-			echo '</a>';
-		}
+		// Add new button.
+		echo '<a href="' . esc_url( admin_url( 'post-new.php?post_type=vehicle_addon' ) ) . '" class="button button-primary">';
+		echo esc_html__( 'Add New Additional Service', 'mhm-rentiva' );
+		echo '</a>';
 
 		echo '</div>';
 
@@ -544,23 +537,16 @@ final class AddonListTable extends AbstractListTable {
 				'mhm-addon-list',
 				'mhm_addon_list_vars',
 				array(
-					'ajax_url'                => admin_url( 'admin-ajax.php' ),
-					'nonce'                   => wp_create_nonce( 'mhm_addon_list_nonce' ),
-					'no_items_selected'       => __( 'No items selected.', 'mhm-rentiva' ),
-					'items_selected'          => __( 'items selected', 'mhm-rentiva' ),
-					'confirm_enable'          => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
-					'confirm_disable'         => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
-					'confirm_delete'          => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
-					'processing'              => __( 'Processing...', 'mhm-rentiva' ),
-					'error_occurred'          => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
-					'license_warning_title'   => __( 'License Limit', 'mhm-rentiva' ),
-					'license_warning_message' => sprintf(
-						/* translators: %d placeholder. */
-						__( 'You can add maximum %d additional services in Lite version.', 'mhm-rentiva' ),
-						AddonManager::MAX_ADDONS_LITE
-					),
-					'max_addons_lite'         => AddonManager::MAX_ADDONS_LITE,
-					'auto_refresh'            => false,
+					'ajax_url'          => admin_url( 'admin-ajax.php' ),
+					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
+					'no_items_selected' => __( 'No items selected.', 'mhm-rentiva' ),
+					'items_selected'    => __( 'items selected', 'mhm-rentiva' ),
+					'confirm_enable'    => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
+					'confirm_disable'   => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
+					'confirm_delete'    => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
+					'processing'        => __( 'Processing...', 'mhm-rentiva' ),
+					'error_occurred'    => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'auto_refresh'      => false,
 				)
 			);
 		}

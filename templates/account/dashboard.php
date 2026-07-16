@@ -192,7 +192,7 @@ if ($is_integrated) {
 											echo wp_kses_post(wc_price($total_price));
 										} else {
 											$currency_code     = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
-											$currency_symbol   = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+											$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 											$currency_position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
 											$formatted_amount  = number_format( (float) $total_price, 2, ',', '.');
 

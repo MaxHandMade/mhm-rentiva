@@ -357,7 +357,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 35
+			count: 36
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -645,24 +645,6 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/VendorBookings.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Account/VendorLedger.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
 			count: 4
 			path: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 
@@ -735,7 +717,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 16
+			count: 15
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
@@ -943,42 +925,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Parameter \#2 \$src of function wp_enqueue_style expects string, null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VehicleSubmit.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php
-
-		-
-			message: '#^Parameter \#2 \$src of function wp_enqueue_style expects string, null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorApply.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/Vendor/VendorDirectory.php
-
-		-
 			message: '#^Call to function method_exists\(\) with \$this\(MHMRentiva\\Admin\\Frontend\\Widgets\\Base\\ElementorWidgetBase\) and ''register_content…'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1027,24 +973,6 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php
 
 		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\MyMessagesWidget\:\:include_template_with_vars\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/MyMessagesWidget.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\TransferResultsWidget\:\:include_template_with_vars\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/TransferResultsWidget.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\TransferSearchWidget\:\:include_template_with_vars\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/TransferSearchWidget.php
-
-		-
 			message: '#^Static method MHMRentiva\\Admin\\Frontend\\Widgets\\Elementor\\VehiclesGridWidget\:\:include_template_with_vars\(\) is unused\.$#'
 			identifier: method.unused
 			count: 1
@@ -1055,222 +983,6 @@ parameters:
 			identifier: method.unused
 			count: 1
 			path: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorDirectoryWidget.php
-
-		-
-			message: '#^Offset ''show_about''\|''show_badge''\|''show_location''\|''show_rating''\|''show_reviews''\|''show_vehicles'' on array\{show_badge\: ''yes'', show_rating\: ''yes'', show_about\: ''yes'', show_vehicles\: ''yes'', show_reviews\: ''yes'', show_location\: ''no''\} on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.offset
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/Frontend/Widgets/Elementor/VendorProfileWidget.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Licensing/LicenseAdmin.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Licensing/LicenseAdmin.php
-
-		-
-			message: '#^Call to function in_array\(\) with arguments mixed, array\{''localhost'', ''127\.0\.0\.1''\} and true will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 4
-			path: src/Admin/Licensing/LicenseManager.php
-
-		-
-			message: '#^Method MHMRentiva\\Admin\\Licensing\\LicenseManager\:\:deactivate\(\) never returns WP_Error so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Admin/Licensing/LicenseManager.php
-
-		-
-			message: '#^Property WP_Query\:\:\$found_posts \(int\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 2
-			path: src/Admin/Licensing/Restrictions.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between float\|int and '''' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Admin/Messages/Core/MessageQueryHelper.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between float\|int and null will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Admin/Messages/Core/MessageQueryHelper.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and \-1 will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/Messages/Core/MessageQueryHelper.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 6
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int\<min, \-1\>\|int\<1, max\> given\.$#'
-			identifier: argument.type
-			count: 4
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:get_int\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:get_message_stats\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:render_edit_form\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:render_message_thread\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:render_message_view\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:render_new_message_form\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Core\\Messages\:\:render_reply_form\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 11
-			path: src/Admin/Messages/Core/Messages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Frontend\\CustomerMessages\:\:render_customer_messages_page\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Frontend/CustomerMessages.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Frontend\\CustomerMessages\:\:verify_customer_token\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Frontend/CustomerMessages.php
-
-		-
-			message: '#^Variable \$values in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/Admin/Messages/Monitoring/MessageLogger.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Messages/Monitoring/MonitoringManager.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Messages/Notifications/MessageNotifications.php
-
-		-
-			message: '#^Property WP_Post\:\:\$post_content \(string\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 2
-			path: src/Admin/Messages/Notifications/MessageNotifications.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Notifications\\MessageNotifications\:\:get_admin_message_template\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Notifications/MessageNotifications.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Messages\\Notifications\\MessageNotifications\:\:get_customer_reply_template\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Messages/Notifications/MessageNotifications.php
-
-		-
-			message: '#^Call to function is_numeric\(\) with int\<min, \-1\>\|int\<1, max\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Messages/REST/Customer/SendReply.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: src/Admin/Messages/REST/Customer/SendReply.php
-
-		-
-			message: '#^Method MHMRentiva\\Admin\\Messages\\REST\\Helpers\\Auth\:\:verifyCustomerToken\(\) never returns array so it can be removed from the return type\.$#'
-			identifier: return.unusedType
-			count: 1
-			path: src/Admin/Messages/REST/Helpers/Auth.php
-
-		-
-			message: '#^Parameter \#3 \$callback of function add_settings_section expects callable\(\)\: mixed, null given\.$#'
-			identifier: argument.type
-			count: 4
-			path: src/Admin/Messages/Settings/MessagesSettings.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Messages/Utilities/MessageUtilities.php
 
 		-
 			message: '#^Binary operation "\-" between float and string results in an error\.$#'
@@ -1399,66 +1111,6 @@ parameters:
 			path: src/Admin/PostTypes/Logs/PostType.php
 
 		-
-			message: '#^Comparison operation "\>" between int\<1, max\> and 0 is always true\.$#'
-			identifier: greater.alwaysTrue
-			count: 1
-			path: src/Admin/PostTypes/Maintenance/ReliabilityScoreJob.php
-
-		-
-			message: '#^Access to an undefined property WP_Post\:\:\$meta\.$#'
-			identifier: property.notFound
-			count: 1
-			path: src/Admin/PostTypes/Message/Message.php
-
-		-
-			message: '#^Property WP_Post\:\:\$post_content \(string\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: src/Admin/PostTypes/Message/Message.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\PostTypes\\Message\\Message\:\:get_client_ip\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/PostTypes/Message/Message.php
-
-		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/PostTypes/Message/Message.php
-
-		-
-			message: '#^Parameter \#2 \$args of function register_post_type expects array\{label\?\: string, labels\?\: array\<string\>, description\?\: string, public\?\: bool, hierarchical\?\: bool, exclude_from_search\?\: bool, publicly_queryable\?\: bool, show_ui\?\: bool, \.\.\.\}, array\{labels\: array\{name\: string, singular_name\: string, menu_name\: string, name_admin_bar\: string, add_new\: string, add_new_item\: string, new_item\: string, edit_item\: string, \.\.\.\}, public\: false, publicly_queryable\: false, show_ui\: false, show_in_menu\: false, query_var\: false, rewrite\: false, capabilities\: array\{edit_post\: ''manage_options'', read_post\: ''manage_options'', delete_post\: ''manage_options'', edit_posts\: ''manage_options'', edit_others_posts\: ''manage_options'', publish_posts\: ''manage_options'', read_private_posts\: ''manage_options''\}, \.\.\.\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/PostTypes/Payouts/PostType.php
-
-		-
-			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''vehicle_booking'', meta_key\: ''_mhm_customer_user…'', meta_value\: int, date_query\: array\{array\{after\: string, inclusive\: true\}\}, posts_per_page\: 1\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Privacy/DataRetentionManager.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
-			message: '#^Parameter \#1 \$args of function get_posts expects array\{numberposts\?\: int, category\?\: int\|string, include\?\: array\<int\>, exclude\?\: array\<int\>, suppress_filters\?\: bool, attachment_id\?\: int, author\?\: int\|string, author_name\?\: string, \.\.\.\}\|null, array\{post_type\: ''vehicle_booking'', meta_key\: ''_mhm_customer_user…'', meta_value\: int, posts_per_page\: \-1\} given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 8
-			path: src/Admin/Privacy/GDPRManager.php
-
-		-
 			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
 			count: 1
@@ -1501,96 +1153,6 @@ parameters:
 			path: src/Admin/REST/Helpers/ValidationHelper.php
 
 		-
-			message: '#^Call to function is_array\(\) with \*NEVER\* will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Offset ''success'' on \*NEVER\* in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Result of && is always false\.$#'
-			identifier: booleanAnd.alwaysFalse
-			count: 2
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between null and null will always evaluate to false\.$#'
-			identifier: notIdentical.alwaysFalse
-			count: 1
-			path: src/Admin/Reports/BackgroundProcessor.php
-
-		-
-			message: '#^If condition is always false\.$#'
-			identifier: if.alwaysFalse
-			count: 1
-			path: src/Admin/Reports/BusinessLogic/BookingReport.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\BusinessLogic\\BookingReport\:\:get_export_data_paginated\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/BusinessLogic/BookingReport.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:clear_reports_cache\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_bookings_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_customers_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_overview_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_revenue_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_stats_cards\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Reports\\Reports\:\:render_vehicles_tab\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Reports/Reports.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Reports/Reports.php
-
-		-
 			message: '#^Variable \$_POST on left side of \?\? always exists and is not nullable\.$#'
 			identifier: nullCoalesce.variable
 			count: 2
@@ -1619,12 +1181,6 @@ parameters:
 			identifier: argument.type
 			count: 5
 			path: src/Admin/Settings/Groups/CommentsSettingsGroup.php
-
-		-
-			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Admin/Settings/Groups/LicenseSettings.php
 
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
@@ -1831,66 +1387,6 @@ parameters:
 			path: src/Admin/Testing/ShortcodeTestHandler.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin\\\\Licensing\\\\Mode'' and ''maxTransferRoutes'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Transfer/Frontend/PopularRoutesShortcode.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Variable \$_GET in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
-			count: 2
-			path: src/Admin/Transfer/Frontend/TransferResults.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/Frontend/TransferShortcodes.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 4
-			path: src/Admin/Transfer/Frontend/TransferShortcodes.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Admin/Transfer/Integration/TransferCartIntegration.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Transfer/TransferAdmin.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Admin/Transfer/TransferAdmin.php
-
-		-
-			message: '#^Property WP_User\:\:\$roles \(array\<string\>\) on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.property
-			count: 1
-			path: src/Admin/Transfer/VehicleTransferMetaBox.php
-
-		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{''MHMRentiva\\\\Admin\\\\Utilities\\\\Actions\\\\Actions'', ''create_my_account…''\} given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1931,48 +1427,6 @@ parameters:
 			identifier: argument.type
 			count: 1
 			path: src/Admin/Utilities/Database/MetaKeysDocumentation.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Export\\Export\:\:render_export_page_legacy\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Utilities\\Export\\Export\:\:stream_xls_direct\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Variable \$data in empty\(\) always exists and is not falsy\.$#'
-			identifier: empty.variable
-			count: 1
-			path: src/Admin/Utilities/Export/Export.php
-
-		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 2
-			path: src/Admin/Utilities/Export/ExportReports.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_attr expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Utilities/Export/ExportReports.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int\<0, max\> given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Utilities/Export/ExportReports.php
 
 		-
 			message: '#^Property WP_Screen\:\:\$post_type \(string\) on left side of \?\? is not nullable\.$#'
@@ -2039,18 +1493,6 @@ parameters:
 			identifier: nullCoalesce.variable
 			count: 1
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Call to an undefined method WC_Order_Item\:\:get_product\(\)\.$#'
-			identifier: method.notFound
-			count: 1
-			path: src/Admin/Vehicle/ListingFeeManager.php
-
-		-
-			message: '#^PHPDoc tag @var with type mixed is not subtype of native type WC_Product_Simple\.$#'
-			identifier: varTag.nativeType
-			count: 1
-			path: src/Admin/Vehicle/ListingFeeManager.php
 
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
@@ -2191,12 +1633,6 @@ parameters:
 			path: src/Admin/Vehicle/Templates/vehicle-meta.php
 
 		-
-			message: '#^Variable \$available_locations might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/Admin/Vehicle/Templates/vehicle-meta.php
-
-		-
 			message: '#^Variable \$equipment might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2
@@ -2239,84 +1675,6 @@ parameters:
 			path: src/Admin/Vehicle/Templates/vehicle-meta.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 7
-			path: src/Admin/Vehicle/VehicleLifecycleAjaxController.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Vendor/AdminVendorApplicationsPage.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Vendor/AdminVendorApplicationsPage.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin\\\\Vendor\\\\Profile\\\\VendorProfileProvider'' and ''aggregate_rating…'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectoryProvider.php
-
-		-
-			message: '#^Call to function class_exists\(\) with ''AIOSEO\\\\Plugin\\\\AIOSEO''\|''RankMath''\|''Smartcrawl_Init''\|''WPSEO_Frontend'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectorySchema.php
-
-		-
-			message: '#^Call to function class_exists\(\) with ''AIOSEO\\\\Plugin\\\\AIOSEO''\|''RankMath''\|''Smartcrawl_Init''\|''WPSEO_Frontend'' will always evaluate to false\.$#'
-			identifier: function.impossibleType
-			count: 1
-			path: src/Admin/Vendor/Directory/VendorDirectorySeo.php
-
-		-
-			message: '#^Parameter \#2 \$callback of function array_filter expects \(callable\(mixed\)\: bool\)\|null, ''strlen'' given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Vendor/Profile/VendorSlugManager.php
-
-		-
-			message: '#^Constant AUTH_KEY not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Vendor/VendorApplicationManager.php
-
-		-
-			message: '#^Constant SECURE_AUTH_SALT not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Vendor/VendorApplicationManager.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/VendorReport/Admin/VendorReportsAdminPage.php
-
-		-
-			message: '#^Parameter \#3 \$context_id of method MHMRentiva\\Admin\\VendorReport\\Core\\VendorReportService\:\:create_report\(\) expects int\|null, string\|null given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Admin/VendorReport/Ajax/VendorReportAjaxHandler.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -2325,7 +1683,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 11
+			count: 9
 			path: src/Blocks/BlockRegistry.php
 
 		-
@@ -2335,124 +1693,10 @@ parameters:
 			path: src/Core/Attribute/AllowlistRegistry.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Core/Dashboard/AnalyticsController.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Core/Dashboard/CustomerDashboard.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Core/Dashboard/VendorDashboard.php
-
-		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$data$#'
-			identifier: parameter.notFound
-			count: 1
-			path: src/Core/Dashboard/VendorDashboard.php
-
-		-
-			message: '#^Strict comparison using \!\=\= between '''' and ''pending'' will always evaluate to true\.$#'
-			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Core/Financial/ApprovalStateMachine.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Core/Financial/PayoutAjaxController.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\AvailableBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/AvailableBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\AvailableBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/AvailableBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\PendingBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/PendingBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\PendingBalanceMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/PendingBalanceMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\Revenue7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/Revenue7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\Revenue7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: float, previous\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/Revenue7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\TotalPaidOutMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: 0\.0, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/TotalPaidOutMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\TotalPaidOutMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{total\: float, current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/TotalPaidOutMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorAvgBookingValueMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{avg\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorAvgBookingValueMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorAvgBookingValueMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{avg\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorAvgBookingValueMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorGrowth7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{growth\: float\|null\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorGrowth7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorGrowth7dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{growth\: null\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorGrowth7dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorRevenue30dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{current\: 0\.0, previous\: 0\.0\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorRevenue30dMetric.php
-
-		-
-			message: '#^Method MHMRentiva\\Core\\Services\\Metrics\\VendorRevenue30dMetric\:\:resolve\(\) should return array\{total\: int, current\: int, previous\: int\} but returns array\{current\: float, previous\: float\}\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Core/Services/Metrics/VendorRevenue30dMetric.php
 
 		-
 			message: '#^Method MHMRentiva\\Core\\Services\\TrendService\:\:resolve_metric_totals\(\) never returns null so it can be removed from the return type\.$#'

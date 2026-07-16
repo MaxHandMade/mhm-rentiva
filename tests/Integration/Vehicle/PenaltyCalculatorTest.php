@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration\Vehicle;
 
 use MHMRentiva\Admin\Vehicle\PenaltyCalculator;
-use MHMRentiva\Admin\Vehicle\VehicleLifecycleManager;
 use MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus;
 use MHMRentiva\Admin\Core\MetaKeys;
 

@@ -4,29 +4,22 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Integration;
 
 use MHMRentiva\Core\Dashboard\DashboardContext;
-use MHMRentiva\Admin\Vendor\PostType\VendorApplication;
 
+/**
+ * DashboardContext::resolve() routes every logged-in user, so it stays in Lite.
+ *
+ * The 'vendor_application_pending' outcome is unreachable here: it depends on
+ * the carved-out VendorApplication post type, and resolve() short-circuits on
+ * class_exists() before ever querying for it. That case is therefore covered in
+ * the Pro build, not this one. The role/meta-driven outcomes below need no Pro
+ * class and are exercised as usual.
+ */
 class DashboardContextVendorStatesTest extends \WP_UnitTestCase
 {
     protected function tearDown(): void
     {
         wp_set_current_user(0);
         parent::tearDown();
-    }
-
-    public function test_resolve_returns_vendor_application_pending_for_pending_applicant(): void
-    {
-        $user_id = $this->factory()->user->create();
-        wp_set_current_user($user_id);
-
-        wp_insert_post(array(
-            'post_type'   => VendorApplication::POST_TYPE,
-            'post_author' => $user_id,
-            'post_status' => 'pending',
-            'post_title'  => 'Test Application',
-        ));
-
-        $this->assertSame('vendor_application_pending', DashboardContext::resolve());
     }
 
     public function test_resolve_returns_vendor_suspended_for_suspended_vendor(): void

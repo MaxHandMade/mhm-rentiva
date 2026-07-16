@@ -2,7 +2,6 @@ import { __ } from '@wordpress/i18n';
 
 const TABS = [
 	[ 'general',   __( 'General Information', 'mhm-rentiva' ) ],
-	[ 'features',  __( 'Features', 'mhm-rentiva' ) ],
 	[ 'system',    __( 'System Information', 'mhm-rentiva' ) ],
 	[ 'support',   __( 'Support', 'mhm-rentiva' ) ],
 	[ 'developer', __( 'Developer', 'mhm-rentiva' ) ],

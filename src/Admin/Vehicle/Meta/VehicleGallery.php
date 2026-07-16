@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
-use MHMRentiva\Admin\Licensing\Mode;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -110,15 +109,11 @@ final class VehicleGallery extends AbstractMetaBox {
 			MHM_RENTIVA_VERSION
 		);
 
-		// ⭐ Get max gallery images from settings (default: 50)
-		// ⭐ Get max gallery images from settings (default: 50) or License Limit
-		$setting_limit = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
+		// Get max gallery images from settings (default: 50)
+		$max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 			'mhm_rentiva_vehicle_max_gallery_images',
 			50 // Default: 50 images
 		);
-
-		// If Lite, clamp to License limit (3). If Pro, use setting (or PHP_INT_MAX)
-		$max_gallery_images = min( $setting_limit, Mode::maxGalleryImages() );
 
 		wp_localize_script(
 			'mhm-vehicle-gallery',
@@ -231,8 +226,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		$existing_ids = array_column( $gallery_images, 'id' );
 
 		// Determine limit
-		$setting_limit = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_gallery_images', 50 );
-		$limit         = min( $setting_limit, Mode::maxGalleryImages() );
+		$limit = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_gallery_images', 50 );
 
 		foreach ( $image_ids as $image_id ) {
 			if ( ! in_array( $image_id, $existing_ids ) && count( $gallery_images ) < $limit ) {

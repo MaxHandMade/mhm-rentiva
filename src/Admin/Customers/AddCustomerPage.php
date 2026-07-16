@@ -17,9 +17,6 @@ if (!defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Admin\Licensing\Restrictions;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -44,27 +41,6 @@ final class AddCustomerPage {
 	public static function render(): void {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
-		}
-
-		// Customer limit check for Lite version.
-		if ( ! Mode::isPro() ) {
-			$current = Restrictions::customerCount();
-			$max     = Mode::maxCustomers();
-
-			if ( $current >= $max ) {
-				echo '<div class="wrap mhm-rentiva-wrap">';
-				echo '<h1>' . esc_html__( 'Add New Customer', 'mhm-rentiva' ) . '</h1>';
-				echo '<p>' . wp_kses_post(
-					sprintf(
-						/* translators: %d: maximum number of customers. */
-						__( 'You can add up to %d customers in Lite version. Enter your license key to upgrade to Pro.', 'mhm-rentiva' ),
-						(int) $max
-					)
-				) . '</p>';
-				echo '<p><a href="' . esc_url( admin_url( 'admin.php?page=mhm-rentiva-license' ) ) . '" class="button button-primary">' . esc_html__( 'Upgrade to Pro', 'mhm-rentiva' ) . '</a></p>';
-				echo '</div>';
-				return;
-			}
 		}
 
 		// Form processing.
@@ -195,24 +171,6 @@ final class AddCustomerPage {
 		// Permission check
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
-		}
-
-		// Lite sürümde müşteri limiti kontrolü
-		if ( ! Mode::isPro() ) {
-			$current = Restrictions::customerCount();
-			$max     = Mode::maxCustomers();
-
-			if ( $current >= $max ) {
-				wp_send_json_error(
-					array(
-						'message' => sprintf(
-							/* translators: %d: maximum number of customers. */
-							__( 'You can add up to %d customers in Lite version. Enter your license key to upgrade to Pro.', 'mhm-rentiva' ),
-							(int) $max
-						),
-					)
-				);
-			}
 		}
 
 		$customer_name    = sanitize_text_field( wp_unslash( $_POST['customer_name'] ?? '' ) );

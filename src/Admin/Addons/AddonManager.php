@@ -18,7 +18,6 @@ if (!defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Addons\AddonContextMetaBox;
 use MHMRentiva\Admin\Addons\AddonContextTaxonomy;
 use MHMRentiva\Admin\Addons\AddonPricingType;
@@ -35,11 +34,6 @@ final class AddonManager {
 
 
 
-
-	/**
-	 * Maximum number of addons allowed in Lite version
-	 */
-	public const MAX_ADDONS_LITE = 4;
 
 	/**
 	 * Safe sanitize text field that handles null values.
@@ -289,23 +283,16 @@ final class AddonManager {
 				'mhm-addon-list',
 				'mhm_addon_list_vars',
 				array(
-					'ajax_url'                => admin_url( 'admin-ajax.php' ),
-					'nonce'                   => wp_create_nonce( 'mhm_addon_list_nonce' ),
-					'no_items_selected'       => __( 'No items selected.', 'mhm-rentiva' ),
-					'items_selected'          => __( 'items selected', 'mhm-rentiva' ),
-					'confirm_enable'          => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
-					'confirm_disable'         => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
-					'confirm_delete'          => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
-					'processing'              => __( 'Processing...', 'mhm-rentiva' ),
-					'error_occurred'          => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
-					'license_warning_title'   => __( 'License Limit', 'mhm-rentiva' ),
-					'license_warning_message' => sprintf(
-						/* translators: %d: maximum number of addons. */
-						__( 'You can add maximum %d additional services in Lite version.', 'mhm-rentiva' ),
-						self::MAX_ADDONS_LITE
-					),
-					'max_addons_lite'         => self::MAX_ADDONS_LITE,
-					'auto_refresh'            => false,
+					'ajax_url'          => admin_url( 'admin-ajax.php' ),
+					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
+					'no_items_selected' => __( 'No items selected.', 'mhm-rentiva' ),
+					'items_selected'    => __( 'items selected', 'mhm-rentiva' ),
+					'confirm_enable'    => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
+					'confirm_disable'   => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
+					'confirm_delete'    => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
+					'processing'        => __( 'Processing...', 'mhm-rentiva' ),
+					'error_occurred'    => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'auto_refresh'      => false,
 				)
 			);
 		}
@@ -516,41 +503,7 @@ final class AddonManager {
 	 * @return bool True if can create.
 	 */
 	public static function can_create_addon(): bool {
-		if ( Mode::isPro() ) {
-			return true; // Unlimited in Pro.
-		}
-
-		// Count existing published addons.
-		$count = (int) wp_count_posts( 'vehicle_addon' )->publish;
-		return $count < self::MAX_ADDONS_LITE;
-	}
-
-	/**
-	 * Get message about addon limits.
-	 *
-	 * @return string Limit message.
-	 */
-	public static function get_addon_limit_message(): string {
-		if ( Mode::isPro() ) {
-			return '';
-		}
-
-		$count = (int) wp_count_posts( 'vehicle_addon' )->publish;
-
-		if ( $count >= self::MAX_ADDONS_LITE ) {
-			return sprintf(
-				/* translators: %d: maximum number of addons. */
-				__( 'You can add a maximum of %d add-ons in Lite version (rental + transfer combined). Upgrade to Pro for unlimited add-ons.', 'mhm-rentiva' ),
-				self::MAX_ADDONS_LITE
-			);
-		}
-
-		$remaining = self::MAX_ADDONS_LITE - $count;
-		return sprintf(
-			/* translators: %d: remaining number of addons. */
-			__( 'You can add %d more add-ons in Lite version (rental + transfer combined).', 'mhm-rentiva' ),
-			(int) $remaining
-		);
+		return true;
 	}
 
 

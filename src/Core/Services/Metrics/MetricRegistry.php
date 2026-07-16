@@ -73,18 +73,27 @@ final class MetricRegistry {
 			return self::$map;
 		}
 
+		/*
+		 * CORE metrics only — these resolve from booking post data and have no
+		 * vendor, ledger or messaging dependency.
+		 *
+		 * The vendor metrics that used to be hardcoded here (unread_messages,
+		 * revenue_7d, available_balance, pending_balance, total_paid_out,
+		 * vendor_revenue_30d, vendor_growth_7d, vendor_avg_booking_value) are Pro
+		 * features, not core: each one resolves only under the 'vendor' KPI
+		 * context and reads the messaging tables or the ledger. They are
+		 * registered by Pro through the 'mhm_rentiva_registered_metrics' filter
+		 * below rather than being named here, so that this registry carries no
+		 * compile-time reference to a class the Lite package does not ship.
+		 *
+		 * Consumers already tolerate an unregistered metric: MetricRegistry::get()
+		 * returns null for an unknown key, and
+		 * DashboardDataProvider::resolve_vendor_ledger_metric() maps that null to
+		 * a 0.0 total.
+		 */
 		$core_metrics = array(
-			'total_bookings'           => TotalBookingsMetric::class,
-			'upcoming_pickups'         => UpcomingPickupsMetric::class,
-			'unread_messages'          => UnreadMessagesMetric::class,
-			'revenue_7d'               => Revenue7dMetric::class,
-			'available_balance'        => AvailableBalanceMetric::class,
-			'pending_balance'          => PendingBalanceMetric::class,
-			'total_paid_out'           => TotalPaidOutMetric::class,
-			// Sprint 3 — Vendor Analytics
-			'vendor_revenue_30d'       => VendorRevenue30dMetric::class,
-			'vendor_growth_7d'         => VendorGrowth7dMetric::class,
-			'vendor_avg_booking_value' => VendorAvgBookingValueMetric::class,
+			'total_bookings'   => TotalBookingsMetric::class,
+			'upcoming_pickups' => UpcomingPickupsMetric::class,
 		);
 
 		/**

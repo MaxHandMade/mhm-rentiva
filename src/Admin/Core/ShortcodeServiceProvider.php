@@ -140,28 +140,33 @@ final class ShortcodeServiceProvider {
 			),
 			'vendor'      => array(
 				'rentiva_vendor_apply'     => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vehicle_submit'   => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_bookings'  => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => true,
 				),
 				'rentiva_vendor_profile'   => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_directory' => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 			),
@@ -187,25 +192,29 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => true,
 				),
 				'rentiva_commission_resolver' => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver',
 					'method'        => 'render',
 					'requires_auth' => false,
+					'pro_seam'      => true,
 				),
 			),
 			'transfer'    => array(
 				'rentiva_transfer_search'  => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
 					'dependencies'  => array(),
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_transfer_results' => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\TransferResults::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 				'rentiva_popular_routes'   => array(
-					'class'         => \MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode::class,
+					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
 					'method'        => 'render',
+					'pro_seam'      => true,
 					'requires_auth' => false,
 				),
 			),
@@ -226,9 +235,10 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => false,
 				),
 				'rentiva_messages'            => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
 					'method'        => 'render',
 					'requires_auth' => true,
+					'pro_seam'      => true,
 				),
 				'rentiva_home_poc'            => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
@@ -243,7 +253,38 @@ final class ShortcodeServiceProvider {
 			unset($registry['support']['rentiva_home_poc']);
 		}
 
+		$registry = $this->drop_absent_pro_seams($registry);
+
 		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+	}
+
+	/**
+	 * Drops Pro seam entries whose class this build does not ship.
+	 *
+	 * Lite carves the Pro shortcodes out entirely, so their registry entries must
+	 * disappear with them. Filtering here -- at the single source of the registry
+	 * -- keeps every consumer honest at once: process_registration() would
+	 * otherwise log a "class not found" error on every request for a feature this
+	 * build was never meant to have, and get_total_count()/get_groups() would
+	 * advertise shortcodes that cannot render.
+	 *
+	 * @param array<string, array<string, array>> $registry Full registry.
+	 * @return array<string, array<string, array>> Registry without absent seams.
+	 */
+	private function drop_absent_pro_seams(array $registry): array
+	{
+		foreach ($registry as $group => $shortcodes) {
+			foreach ($shortcodes as $tag => $config) {
+				if (empty($config['pro_seam'])) {
+					continue;
+				}
+				if (! class_exists( (string) ( $config['class'] ?? '' ))) {
+					unset($registry[ $group ][ $tag ]);
+				}
+			}
+		}
+
+		return $registry;
 	}
 
 	/**

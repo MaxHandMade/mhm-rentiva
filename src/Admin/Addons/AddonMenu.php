@@ -17,9 +17,6 @@ if (! defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Addons\AddonManager;
-
-
 
 /**
  * Handles admin menu and notices for additional services.
@@ -36,9 +33,6 @@ final class AddonMenu {
 	{
 		add_action('admin_notices', array( self::class, 'admin_notices' ));
 		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
-		// Priority 20: fire AFTER add_addon_page_title so the notice is not
-		// nested inside the header's sub-`<div class="wrap">` block.
-		add_action('admin_notices', array( self::class, 'render_addon_limit_notice' ), 20);
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_scripts' ));
 	}
 
@@ -116,40 +110,12 @@ final class AddonMenu {
 	}
 
 	/**
-	 * Standalone admin_notices callback for the Lite addon limit notice.
-	 *
-	 * Split out of {@see self::add_addon_page_title()} in v4.27.2 to stop the
-	 * notice from appearing twice on the Additional Services list screen.
-	 */
-	public static function render_addon_limit_notice(): void
-	{
-		global $pagenow, $post_type;
-
-		if ( 'edit.php' !== $pagenow || 'vehicle_addon' !== $post_type ) {
-			return;
-		}
-
-		if ( class_exists( \MHMRentiva\Admin\Core\ProFeatureNotice::class ) ) {
-			\MHMRentiva\Admin\Core\ProFeatureNotice::displayLimitNotice( 'addons' );
-		}
-	}
-
-	/**
 	 * Render admin notices.
 	 */
 	public static function admin_notices(): void
 	{
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
-		$addon_limit_reached = isset( $_GET['addon_limit_reached'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_limit_reached'] ) ) : '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
 		$addon_created = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
-
-		// Show license limit notice.
-		if ( '1' === $addon_limit_reached ) {
-			echo '<div class="notice notice-warning is-dismissible">';
-			echo '<p>' . esc_html(AddonManager::get_addon_limit_message()) . '</p>';
-			echo '</div>';
-		}
 
 		// Show success message for addon creation.
 		if ( '1' === $addon_created ) {

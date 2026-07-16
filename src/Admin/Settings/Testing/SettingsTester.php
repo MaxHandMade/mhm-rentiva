@@ -41,12 +41,19 @@ final class SettingsTester {
 			'frontend'                        => self::test_frontend_settings(),
 			'notification'                    => self::test_notification_settings(),
 			'security'                        => self::test_security_settings(),
-			'transfer'                        => self::test_transfer_settings(),
 			'dark_mode'                       => self::test_dark_mode(),
 			'rate_limiting'                   => self::test_rate_limiting(),
 			'form_validation'                 => self::test_form_validation(),
 			'security_performance_functional' => self::test_security_performance_functional(),
 		);
+
+		// Transfer is a Pro module and its tables are deliberately absent without it
+		// (locations are not a Lite feature). Running the group anyway would report
+		// the missing tables as FAILING tests on a perfectly healthy Lite site, so
+		// the group is skipped rather than reported red.
+		if ( class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' ) ) {
+			$results['transfer'] = self::test_transfer_settings();
+		}
 
 		return $results;
 	}

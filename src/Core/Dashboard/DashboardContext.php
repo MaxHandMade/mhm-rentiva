@@ -33,6 +33,13 @@ final class DashboardContext {
 			return 'vendor';
 		}
 
+		// VendorApplication is a Pro seam, but this routing runs for EVERY logged-in
+		// dashboard viewer, so the constant read must not be reached without it.
+		// No Pro means no vendor-application post type exists to be pending in.
+		if (! class_exists('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
+			return 'customer';
+		}
+
 		$pending = get_posts(array(
 			'post_type'      => \MHMRentiva\Admin\Vendor\PostType\VendorApplication::POST_TYPE,
 			'post_author'    => $user->ID,

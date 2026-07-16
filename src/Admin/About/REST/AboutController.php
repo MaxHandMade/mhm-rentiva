@@ -53,9 +53,6 @@ final class AboutController {
 		return new \WP_REST_Response(
 			array(
 				'general'   => GeneralTab::get_data(),
-				'features'  => array(
-					'comparison' => Mode::get_comparison_table_data(),
-				),
 				'system'    => SystemTab::get_data(),
 				'support'   => self::build_support(),
 				'developer' => self::build_developer(),

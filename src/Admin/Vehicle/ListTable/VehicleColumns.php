@@ -69,6 +69,19 @@ final class VehicleColumns {
 	 * @param array $cols Default columns.
 	 * @return array Modified columns.
 	 */
+	/**
+	 * Whether the Location feature is available.
+	 *
+	 * Locations belong to the Transfer (Pro) module: LocationProvider is the only
+	 * source of the location list AND the only CRUD UI (TransferAdmin) lives there
+	 * too. Without it there is nothing to list and no way to populate it, so every
+	 * location affordance in this list table is withheld rather than rendered empty.
+	 */
+	private static function has_locations(): bool
+	{
+		return class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider');
+	}
+
 	public static function columns(array $cols): array
 	{
 		// Keep title; move date column to end
@@ -77,7 +90,9 @@ final class VehicleColumns {
 
 		$cols['mhm_owner']         = __('Added by', 'mhm-rentiva');
 		$cols['mhm_license_plate'] = __('License Plate', 'mhm-rentiva');
-		$cols['mhm_location']      = __('Location', 'mhm-rentiva');
+		if (self::has_locations()) {
+			$cols['mhm_location'] = __('Location', 'mhm-rentiva');
+		}
 		$cols['mhm_price_per_day'] = __('Price/Day', 'mhm-rentiva');
 		$cols['mhm_seats']         = __('Seats', 'mhm-rentiva');
 		$cols['mhm_transmission']  = __('Transmission', 'mhm-rentiva');
@@ -122,7 +137,11 @@ final class VehicleColumns {
 			case 'mhm_location':
 				$location_id   = (int) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true);
 				$location_name = '';
-				if ($location_id > 0) {
+				// Inline class_exists (not the has_locations() helper) at every site
+				// that actually touches the class: PHPStan only narrows on the inline
+				// form, so once LocationProvider is physically absent from the Lite
+				// tree a helper-gated call would still be reported as unknown.
+				if ($location_id > 0 && class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 					$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 					foreach ($locations as $loc) {
 						if ( (int) $loc->id === $location_id) {
@@ -234,7 +253,10 @@ final class VehicleColumns {
 	{
 		$cols['mhm_price_per_day'] = 'mhm_price_per_day';
 		$cols['mhm_seats']         = 'mhm_seats';
-		$cols['mhm_location']      = 'mhm_location';
+		// Only sortable when the Location column is actually registered.
+		if (self::has_locations()) {
+			$cols['mhm_location'] = 'mhm_location';
+		}
 		return $cols;
 	}
 
@@ -292,18 +314,21 @@ final class VehicleColumns {
 
 		echo '</select>';
 
-		// Location filter dropdown
-		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
-		$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
-		echo '<select name="mhm_location_filter" class="postform">';
-		echo '<option value="">' . esc_html__('All locations', 'mhm-rentiva') . '</option>';
-		foreach ($locations as $loc) {
-			$loc_id   = (int) $loc->id;
-			$loc_name = (string) $loc->name;
-			echo '<option value="' . esc_attr( (string) $loc_id) . '"' . selected($current_loc, $loc_id, false) . '>' . esc_html($loc_name) . '</option>';
+		// Location filter dropdown — withheld entirely without the Location feature,
+		// rather than rendered as a lone "All locations" option that filters nothing.
+		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+			$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
+			echo '<select name="mhm_location_filter" class="postform">';
+			echo '<option value="">' . esc_html__('All locations', 'mhm-rentiva') . '</option>';
+			foreach ($locations as $loc) {
+				$loc_id   = (int) $loc->id;
+				$loc_name = (string) $loc->name;
+				echo '<option value="' . esc_attr( (string) $loc_id) . '"' . selected($current_loc, $loc_id, false) . '>' . esc_html($loc_name) . '</option>';
+			}
+			echo '</select>';
 		}
-		echo '</select>';
 
 		// Lifecycle / archive filter dropdown.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
@@ -549,15 +574,6 @@ final class VehicleColumns {
 
 		// Get statistics data
 		$stats = self::get_vehicle_stats();
-
-		// Display Developer Mode banner and limit notices — before KPI cards
-		\MHMRentiva\Admin\Core\ProFeatureNotice::displayDeveloperModeAndLimits(
-			'vehicles',
-			array(
-				__('Unlimited Vehicles', 'mhm-rentiva'),
-				__('Advanced Vehicle Management', 'mhm-rentiva'),
-			)
-		);
 		?>
 		<div class="mhm-stats-grid">
 			<div class="mhm-stat-card">
@@ -1621,6 +1637,11 @@ final class VehicleColumns {
 				break;
 
 			case 'mhm_location':
+				// Defensive: WP only calls this for registered columns, and columns()
+				// withholds mhm_location without the Location feature.
+				if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+					break;
+				}
 				$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';

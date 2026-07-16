@@ -47,13 +47,15 @@ final class SettingsService {
 			'booking'  => \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
 			'customer' => \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			'email'    => \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-			'messages' => \MHMRentiva\Admin\Messages\Settings\MessagesSettings::class,
+			// Pro seam (absent in Lite): a plain class-string, not ::class, so the
+			// name survives the carve. The class_exists() below already gates use.
+			'messages' => 'MHMRentiva\Admin\Messages\Settings\MessagesSettings',
 			'frontend' => \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
-			'transfer' => \MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			'transfer' => 'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			'vendor-marketplace' => \MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings::class,
+			'vendor-marketplace' => 'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
 			default    => null,
 		};
 
@@ -175,7 +177,7 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-			\MHMRentiva\Admin\Settings\Groups\TransferSettings::class,
+			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,

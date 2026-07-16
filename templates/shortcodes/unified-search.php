@@ -206,6 +206,11 @@ if (!$show_rental_tab && $show_transfer_tab) {
         </div>
 
         <!-- PANEL: TRANSFER -->
+        <?php // Panels are not hidden by $show_*_tab (only the tab buttons are), so the ?>
+        <?php // transfer panel must carry its own guard: without it a build that shows no ?>
+        <?php // transfer tab still emitted this form, whose action resolves to the ?>
+        <?php // carved-out `rentiva_transfer_results` page. ?>
+        <?php if ($show_transfer_tab) : ?>
         <div class="rv-unified-search__panel <?php echo $default_tab === 'transfer' ? 'is-active' : ''; ?>"
             id="<?php echo esc_attr($uid); ?>_panel_transfer"
             role="tabpanel">
@@ -354,6 +359,7 @@ if (!$show_rental_tab && $show_transfer_tab) {
 
             </form>
         </div>
+        <?php endif; ?>
 
     </div>
 </div>

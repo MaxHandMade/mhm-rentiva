@@ -43,17 +43,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 
 				<!-- Vehicle Location (Added for Hybrid Integration) -->
-				<div class="mhm-detail-item vehicle-location" data-detail-key="location">
-					<div class="mhm-detail-content">
-						<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
-						<select id="_mhm_rentiva_location_id" name="_mhm_rentiva_location_id" class="mhm-detail-select">
-							<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
-							<?php foreach ( $available_locations as $loc ) : ?>
-								<option value="<?php echo esc_attr( $loc->id ); ?>" <?php selected( $location_id, $loc->id ); ?>><?php echo esc_html( $loc->name ); ?></option>
-							<?php endforeach; ?>
-						</select>
+				<?php // No locations = Location is not available (Transfer/Pro feature); hide the field rather than offer only "Inherit". ?>
+				<?php if ( ! empty( $available_locations ) ) : ?>
+					<div class="mhm-detail-item vehicle-location" data-detail-key="location">
+						<div class="mhm-detail-content">
+							<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
+							<select id="_mhm_rentiva_location_id" name="_mhm_rentiva_location_id" class="mhm-detail-select">
+								<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
+								<?php foreach ( $available_locations as $loc ) : ?>
+									<option value="<?php echo esc_attr( $loc->id ); ?>" <?php selected( $location_id, $loc->id ); ?>><?php echo esc_html( $loc->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
 					</div>
-				</div>
+				<?php endif; ?>
 
 				<?php
 				// Auto-sync saved order with available details
@@ -97,7 +100,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
-							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
+							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
 							// ⭐ Get max seats from settings (default: 100)
 							$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_seats', 100 );
@@ -172,7 +175,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
-							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
+							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="20" placeholder="5" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Person', 'mhm-rentiva' ) . '</span>';

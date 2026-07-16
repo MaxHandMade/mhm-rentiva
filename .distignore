@@ -12,6 +12,14 @@
 .gitattributes
 .wordpress-org/
 drafts/
+# Carve-out tooling + inventories. MUST NOT ship: Plugin Check rejects the .sh
+# scripts ("application_detected"), and pro-inventory.txt / lite-manifest-*.txt
+# enumerate the paid edition's file list — an IP disclosure to every user.
+carveout/
+# Static-analysis config is dev-only (phpstan-baseline.neon alone is ~68 KB).
+phpstan.neon
+phpstan-level0.neon
+phpstan-baseline.neon
 
 # Build & Dependencies
 # NOTE: leading "/" anchors to plugin root — otherwise "vendor/" would also

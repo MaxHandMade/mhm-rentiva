@@ -122,9 +122,10 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 		$booking_count  = $stats['booking'];
 		$customer_count = $stats['customer'];
 
-		// Get license information.
-		$license_manager   = LicenseManager::instance();
-		$license_data      = $license_manager->get();
+		// Get license information. LicenseManager is a Pro seam — the Lite (wp.org)
+		// build ships no licensing, so an absent manager reads as "no licence data"
+		// and every consumer below already tests with ! empty().
+		$license_data      = self::read_license_data();
 		$is_pro            = Mode::isPro();
 		$has_license_key   = ! empty($license_data['key']);
 		$has_activation_id = ! empty($license_data['activation_id']);
@@ -291,6 +292,27 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 	}
 
 	/**
+	 * Read stored licence data, tolerating an absent Pro licensing layer.
+	 *
+	 * LicenseManager is an allowlisted Pro seam (bin/seam-classes.txt): the Lite
+	 * wp.org build ships no licensing at all, and an unguarded
+	 * LicenseManager::instance() here would fatal the whole About page. Its get()
+	 * just reads an option and returns array() when unset, so returning array()
+	 * when the class is absent is the same "no licence stored" state every caller
+	 * below already handles via ! empty().
+	 *
+	 * @return array<string, mixed>
+	 */
+	private static function read_license_data(): array
+	{
+		if (! class_exists('\MHMRentiva\Admin\Licensing\LicenseManager')) {
+			return array();
+		}
+
+		return LicenseManager::instance()->get();
+	}
+
+	/**
 	 * Returns structured general tab data for the REST endpoint.
 	 */
 	public static function get_data(): array
@@ -333,10 +355,9 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 			set_transient( $stats_cache_key, $stats, 12 * HOUR_IN_SECONDS );
 		}
 
-		$license_manager = LicenseManager::instance();
-		$license_data    = $license_manager->get();
-		$is_pro          = Mode::isPro();
-		$has_active_pro  = $is_pro && ! empty( $license_data['activation_id'] ) && ! empty( $license_data['key'] );
+		$license_data   = self::read_license_data();
+		$is_pro         = Mode::isPro();
+		$has_active_pro = $is_pro && ! empty( $license_data['activation_id'] ) && ! empty( $license_data['key'] );
 
 		$plugin_info = array(
 			array(

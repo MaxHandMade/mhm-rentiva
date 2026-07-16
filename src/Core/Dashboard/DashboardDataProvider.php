@@ -36,8 +36,12 @@ final class DashboardDataProvider {
 		}
 
 		// Vendor-only: build analytics data (ledger-only, deferred — not called for customers).
+		// AnalyticsDashboardDataProvider is a Pro seam (it reads the ledger), so the
+		// guard keeps this core provider loadable when Pro is absent; consumers
+		// already treat an empty 'analytics' array as "no analytics".
 		$analytics = array();
-		if ($context === 'vendor' && $user_id > 0) {
+		if ($context === 'vendor' && $user_id > 0
+			&& class_exists('\MHMRentiva\Core\Dashboard\AnalyticsDashboardDataProvider')) {
 			$analytics = AnalyticsDashboardDataProvider::build($user_id);
 		}
 
@@ -174,17 +178,11 @@ final class DashboardDataProvider {
 			},
 			'occupancy_rate'    => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_email);
-				$now_ts  = time();
-				$from_ts = $now_ts - ( 30 * DAY_IN_SECONDS );
-				$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
-				return array( 'total' => (string) $metrics['occupancy_rate'] . '%' );
+				return self::resolve_vendor_operational_metric('occupancy_rate', $user_id);
 			},
 			'cancellation_rate' => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_email);
-				$now_ts  = time();
-				$from_ts = $now_ts - ( 30 * DAY_IN_SECONDS );
-				$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
-				return array( 'total' => (string) $metrics['cancellation_rate'] . '%' );
+				return self::resolve_vendor_operational_metric('cancellation_rate', $user_id);
 			},
 			'available_balance' => static function (string $context, int $user_id, string $user_email): array {
 				unset($user_email);
@@ -199,6 +197,31 @@ final class DashboardDataProvider {
 				return self::resolve_vendor_ledger_metric('total_paid_out', $context, $user_id);
 			},
 		);
+	}
+
+	/**
+	 * Resolve a vendor-scoped operational metric (occupancy_rate, cancellation_rate)
+	 * from the ledger-backed AnalyticsService.
+	 *
+	 * AnalyticsService is a Pro seam, so the call is guarded: without Pro these
+	 * KPIs report '0%' rather than fataling the whole dashboard. Both KPIs are only
+	 * wired under the 'vendor' context (DashboardConfig::get_kpis), which a Lite
+	 * install cannot reach anyway — the guard is defence-in-depth for the
+	 * Pro→Lite downgrade case, where vendor-role users already exist in the DB.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function resolve_vendor_operational_metric(string $metric_key, int $user_id): array
+	{
+		if (! class_exists('\MHMRentiva\Core\Financial\AnalyticsService')) {
+			return array( 'total' => '0%' );
+		}
+
+		$now_ts  = time();
+		$from_ts = $now_ts - ( 30 * DAY_IN_SECONDS );
+		$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
+
+		return array( 'total' => (string) ( $metrics[ $metric_key ] ?? 0 ) . '%' );
 	}
 
 	/**
