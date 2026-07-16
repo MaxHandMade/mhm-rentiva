@@ -1683,7 +1683,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 11
+			count: 9
 			path: src/Blocks/BlockRegistry.php
 
 		-

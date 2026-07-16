@@ -257,11 +257,11 @@ final class UserDashboard {
 		);
 
 		wp_localize_script('mhm-rentiva-dashboard', 'mhmRentivaAnalytics', array(
-			'ajaxUrl'        => admin_url('admin-ajax.php'),
-			'nonce'          => wp_create_nonce('mhm_rentiva_vendor_nonce'),
-			'lifecycleNonce' => wp_create_nonce('mhm_rentiva_vehicle_lifecycle'),
+			'ajaxUrl'         => admin_url('admin-ajax.php'),
+			'nonce'           => wp_create_nonce('mhm_rentiva_vendor_nonce'),
+			'lifecycleNonce'  => wp_create_nonce('mhm_rentiva_vehicle_lifecycle'),
 			'flatpickrLocale' => $flatpickr_locale,
-			'i18n'           => array(
+			'i18n'            => array(
 				'loading'         => __('Loading...', 'mhm-rentiva'),
 				'error'           => __('Error fetching analytics data.', 'mhm-rentiva'),
 				'confirmWithdraw' => __('Are you sure you want to withdraw this vehicle? A penalty may apply.', 'mhm-rentiva'),

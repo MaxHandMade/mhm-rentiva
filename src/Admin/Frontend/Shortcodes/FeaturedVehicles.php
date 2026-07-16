@@ -180,7 +180,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 		);
 
 		$cache_key   = 'featured_' . md5(wp_json_encode($args));
-		$vehicle_ids                    = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
+		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);
 
 		if (false === $vehicle_ids) {
 			$query       = new WP_Query($args);

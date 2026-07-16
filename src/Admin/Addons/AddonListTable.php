@@ -537,16 +537,16 @@ final class AddonListTable extends AbstractListTable {
 				'mhm-addon-list',
 				'mhm_addon_list_vars',
 				array(
-					'ajax_url'                => admin_url( 'admin-ajax.php' ),
-					'nonce'                   => wp_create_nonce( 'mhm_addon_list_nonce' ),
-					'no_items_selected'       => __( 'No items selected.', 'mhm-rentiva' ),
-					'items_selected'          => __( 'items selected', 'mhm-rentiva' ),
-					'confirm_enable'          => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
-					'confirm_disable'         => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
-					'confirm_delete'          => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
-					'processing'              => __( 'Processing...', 'mhm-rentiva' ),
-					'error_occurred'          => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
-					'auto_refresh'            => false,
+					'ajax_url'          => admin_url( 'admin-ajax.php' ),
+					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
+					'no_items_selected' => __( 'No items selected.', 'mhm-rentiva' ),
+					'items_selected'    => __( 'items selected', 'mhm-rentiva' ),
+					'confirm_enable'    => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
+					'confirm_disable'   => __( 'Are you sure you want to disable selected additional services?', 'mhm-rentiva' ),
+					'confirm_delete'    => __( 'Are you sure you want to delete selected additional services? This action cannot be undone.', 'mhm-rentiva' ),
+					'processing'        => __( 'Processing...', 'mhm-rentiva' ),
+					'error_occurred'    => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'auto_refresh'      => false,
 				)
 			);
 		}

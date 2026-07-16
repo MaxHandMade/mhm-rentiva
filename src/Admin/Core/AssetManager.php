@@ -121,12 +121,83 @@ final class AssetManager {
 		// Correct way to load assets specifically for the block editor (parent and iframe)
 		add_action('enqueue_block_editor_assets', array( self::class, 'enqueue_editor_assets' ));
 
+		// Register core styles FIRST, at an early `init` priority.
+		//
+		// This must beat every other `init`-time registration of the shared
+		// handles (notably BlockRegistry::register_blocks()), because
+		// WP_Dependencies::add() refuses to re-add an already-registered
+		// handle: the FIRST registration wins and any later src/deps/version
+		// are discarded SILENTLY. If something else registered
+		// `mhm-css-variables` first with empty deps, the `mhm-rentiva-fonts`
+		// dependency below would vanish without warning and the bundled
+		// webfont would never load. See register_core_styles().
+		add_action('init', array( self::class, 'register_core_styles' ), 1);
+
 		// Register Vendor Assets
 		add_action('init', array( self::class, 'register_vendor_assets' ));
 		// Register Common Assets (Shared but not Global)
 		add_action('init', array( self::class, 'register_common_assets' ));
 		add_action('wp_head', array( self::class, 'add_inline_styles' ));
 		add_action('admin_head', array( self::class, 'add_inline_styles' ));
+	}
+
+	/**
+	 * Register the bundled webfont and the core stylesheets.
+	 *
+	 * This is the SINGLE canonical registration point for the shared core CSS
+	 * handles. Nothing else in the plugin may call wp_register_style() for
+	 * them -- other call sites must either call this method (it is idempotent
+	 * and safe to call repeatedly) or simply enqueue the handle by name.
+	 *
+	 * Why this is centralised: several call sites enqueue `mhm-css-variables`
+	 * by handle alone (BlockRegistry::enqueue_block_assets(),
+	 * DatepickerAssets, shortcode deps). They all inherit whatever deps the
+	 * first registration declared, so the `mhm-rentiva-fonts` dependency has
+	 * to be attached exactly once, as early as possible.
+	 *
+	 * Runs on `init` priority 1 (see init()) and is additionally called
+	 * directly by the other former registration sites, so the correct deps
+	 * win regardless of hook ordering.
+	 */
+	public static function register_core_styles(): void
+	{
+		// Plus Jakarta Sans -- bundled locally, NOT loaded from Google Fonts.
+		//
+		// This stylesheet used to be a fonts.googleapis.com URL, which meant
+		// every front-end page load sent the visitor's IP address to Google:
+		// the same privacy defect as the removed ip-api.com lookups, and
+		// WordPress.org does not permit loading assets from external CDNs.
+		// Shipping the woff2 files inside the plugin restores the designed
+		// typography with zero third-party requests, which is what
+		// readme.txt promises ("Every asset it loads, including its webfont,
+		// is served from your own site").
+		//
+		// Registered as a dependency of `mhm-css-variables` (see $core_css),
+		// because that stylesheet declares --mhm-font-display as
+		// "Plus Jakarta Sans". The @font-face rules reference the woff2 files
+		// by relative URL, so they resolve against this stylesheet's own
+		// directory.
+		if (! wp_style_is('mhm-rentiva-fonts', 'registered')) {
+			wp_register_style(
+				'mhm-rentiva-fonts',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/fonts/plus-jakarta-sans.css',
+				array(),
+				self::get_file_version('assets/vendor/fonts/plus-jakarta-sans.css')
+			);
+		}
+
+		foreach (self::$core_css as $handle => $asset) {
+			if (wp_style_is($handle, 'registered')) {
+				continue;
+			}
+
+			wp_register_style(
+				$handle,
+				self::get_asset_url($asset['url']),
+				$asset['deps'],
+				self::get_file_version($asset['url'])
+			);
+		}
 	}
 
 	/**
@@ -154,27 +225,8 @@ final class AssetManager {
 				'11.0.0'
 			);
 		}
-		// Plus Jakarta Sans -- bundled locally, NOT loaded from Google Fonts.
-		//
-		// This stylesheet used to be a fonts.googleapis.com URL, which meant
-		// every front-end page load sent the visitor's IP address to Google:
-		// the same privacy defect as the removed ip-api.com lookups, and
-		// WordPress.org does not permit loading assets from external CDNs.
-		// Shipping the woff2 files inside the plugin restores the designed
-		// typography with zero third-party requests.
-		//
-		// Registered as a dependency of `mhm-css-variables` (see $core_css),
-		// because that stylesheet declares --mhm-font-display as
-		// "Plus Jakarta Sans". The @font-face rules reference the woff2 files by
-		// relative URL, so they resolve against this stylesheet's own directory.
-		if (! wp_style_is('mhm-rentiva-fonts', 'registered')) {
-			wp_register_style(
-				'mhm-rentiva-fonts',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/fonts/plus-jakarta-sans.css',
-				array(),
-				self::get_file_version('assets/vendor/fonts/plus-jakarta-sans.css')
-			);
-		}
+		// The bundled Plus Jakarta Sans webfont is registered by
+		// register_core_styles(), which owns every shared core handle.
 	}
 
 	/**
@@ -356,13 +408,17 @@ final class AssetManager {
 	 */
 	public static function enqueue_core_css(): void
 	{
-		foreach (self::$core_css as $handle => $asset) {
-			wp_enqueue_style(
-				$handle,
-				self::get_asset_url($asset['url']),
-				$asset['deps'],
-				self::get_file_version($asset['url'])
-			);
+		// Make sure the handles exist even if `init` never ran (direct calls,
+		// unit tests). Idempotent.
+		self::register_core_styles();
+
+		// Enqueue BY HANDLE ONLY. Passing $src/$deps here would be a lie: the
+		// handles are already registered by this point, and
+		// WP_Dependencies::add() silently ignores the arguments for an
+		// existing handle -- which is exactly how the `mhm-rentiva-fonts`
+		// dependency was previously lost.
+		foreach (array_keys(self::$core_css) as $handle) {
+			wp_enqueue_style($handle);
 		}
 	}
 

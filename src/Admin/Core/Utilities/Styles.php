@@ -76,12 +76,28 @@ class Styles {
 			'all'
 		);
 
-		// Also load CSS Variables
+		// Also load CSS Variables.
+		//
+		// NOTE: this class is only ever wired when AssetManager is absent
+		// (see Plugin::initialize_core_services()), so it cannot delegate to
+		// AssetManager::register_core_styles() and has to carry the bundled
+		// webfont itself. css-variables.css declares --mhm-font-display as
+		// "Plus Jakarta Sans", so the face must be defined alongside it --
+		// otherwise this fallback path would silently drop to a system font.
+		$fonts_url = $this->plugin_url . 'assets/vendor/fonts/plus-jakarta-sans.css';
+		wp_enqueue_style(
+			'mhm-rentiva-fonts',
+			$fonts_url,
+			array(),
+			$version,
+			'all'
+		);
+
 		$css_vars_url = $this->plugin_url . 'assets/css/core/css-variables.css';
 		wp_enqueue_style(
 			'mhm-css-variables',
 			$css_vars_url,
-			array(),
+			array( 'mhm-rentiva-fonts' ),
 			$version,
 			'all'
 		);

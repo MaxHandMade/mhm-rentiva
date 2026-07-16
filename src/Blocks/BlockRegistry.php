@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Blocks;
 
+use MHMRentiva\Admin\Core\AssetManager;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -330,24 +332,17 @@ class BlockRegistry {
 	 */
 	public static function register_blocks(): void
 	{
-		// Core Styles Registration (Unify handles with AssetManager)
-		if (! wp_style_is('mhm-css-variables', 'registered')) {
-			wp_register_style(
-				'mhm-css-variables',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css',
-				array(),
-				MHM_RENTIVA_VERSION
-			);
-		}
-
-		if (! wp_style_is('mhm-core-css', 'registered')) {
-			wp_register_style(
-				'mhm-core-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/core.css',
-				array( 'mhm-css-variables' ),
-				MHM_RENTIVA_VERSION
-			);
-		}
+		// Core styles are owned by AssetManager::register_core_styles(), which
+		// is the single registration point for the shared handles.
+		//
+		// This used to re-register `mhm-css-variables` and `mhm-core-css`
+		// here with EMPTY deps. Because this method runs on `init` -- long
+		// before wp_enqueue_scripts -- that registration won the race and
+		// silently stripped the `mhm-rentiva-fonts` dependency, so the
+		// bundled webfont never loaded on the front end. Calling the owner
+		// directly (it is idempotent) keeps the correct deps no matter which
+		// `init` callback happens to run first.
+		AssetManager::register_core_styles();
 
 		foreach (self::get_available_blocks() as $slug => $config) {
 			$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
