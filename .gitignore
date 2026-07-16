@@ -340,6 +340,10 @@ bin/*
 # Quality-gate script: `composer crippleware` / `composer carve-gates` require
 # it at runtime; must ship in every clone (carve-out Task 1).
 !bin/check-crippleware.php
+# Quality-gate script: `composer check-manifest` / `composer carve-gates` require
+# it at runtime; it asserts src/ == carveout/lite-manifest-final.txt in both
+# directions, so it must ship in every clone (carve-out Task 5c).
+!bin/check-manifest.php
 # CI needs a canonical WP test-suite installer (tests/bootstrap.php references
 # it); Task 3 wires it into the phpunit CI job, so it must ship in every clone.
 !bin/install-wp-tests.sh
