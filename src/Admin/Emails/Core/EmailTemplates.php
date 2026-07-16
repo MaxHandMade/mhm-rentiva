@@ -166,7 +166,7 @@ final class EmailTemplates {
 			RefundEmails::render();
 		} elseif ($current_type === 'message_emails') {
 			MessageEmails::render();
-		} elseif ($current_type === 'vendor_emails') {
+		} elseif ($current_type === 'vendor_emails' && class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
 			VendorEmails::render();
 		} elseif ($current_type === 'preview') {
 			EmailPreview::render();
@@ -243,7 +243,7 @@ final class EmailTemplates {
 				RefundEmails::render();
 			} elseif ($current_type === 'message_emails') {
 				MessageEmails::render();
-			} elseif ($current_type === 'vendor_emails') {
+			} elseif ($current_type === 'vendor_emails' && class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
 				VendorEmails::render();
 			} elseif ($current_type === 'preview') {
 				EmailPreview::render();
