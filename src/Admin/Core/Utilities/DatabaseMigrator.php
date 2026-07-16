@@ -558,10 +558,23 @@ final class DatabaseMigrator {
 		}
 	}
 	/**
-	 * Creates VIP Transfer tables
+	 * Creates VIP Transfer tables (locations + routes).
+	 *
+	 * Both tables belong to the Transfer (Pro) module. Lite has no location search
+	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
+	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
+	 * read is dead schema, which is WP.org-unclean (cf. faz1-exit-decisions Task 5
+	 * REQUIREMENT 2). Guarding here rather than at each of the three call sites
+	 * (run_migrations + the two create_table switch arms) keeps it single-point.
+	 *
+	 * @return bool True if the tables were created; false if skipped (no Transfer).
 	 */
-	private static function create_transfer_tables(): void
+	private static function create_transfer_tables(): bool
 	{
+		if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			return false;
+		}
+
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -629,6 +642,8 @@ final class DatabaseMigrator {
         ) $charset_collate;";
 
 		dbDelta($sql_routes);
+
+		return true;
 	}
 
 	/**
@@ -702,16 +717,16 @@ final class DatabaseMigrator {
 			case 'mhm_sessions':
 				self::create_sessions_table();
 				return true;
+			// Report the real outcome: without the Transfer module these tables are
+			// deliberately not created, so claiming success would be a lie.
 			case 'transfer_locations':
 			case 'mhm_rentiva_transfer_locations':
 			case 'rentiva_transfer_locations':
-				self::create_transfer_tables();
-				return true;
+				return self::create_transfer_tables();
 			case 'transfer_routes':
 			case 'mhm_rentiva_transfer_routes':
 			case 'rentiva_transfer_routes':
-				self::create_transfer_tables();
-				return true;
+				return self::create_transfer_tables();
 			case 'ratings':
 			case 'mhm_rentiva_ratings':
 				self::create_rating_table();

@@ -256,8 +256,12 @@ final class Mailer {
 		if ( $service_type === 'transfer' ) {
 			$origin_id        = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
 			$destination_id   = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
-			$origin_loc       = $origin_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
-			$dest_loc         = $destination_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
+			// Locations are a Transfer (Pro) feature. This whole branch only runs for
+			// transfer bookings, which Lite cannot create; if it is ever reached
+			// without LocationProvider the names degrade to empty strings below.
+			$has_locations    = class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' );
+			$origin_loc       = $has_locations && $origin_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
+			$dest_loc         = $has_locations && $destination_id > 0 ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
 			$transfer_context = array(
 				'origin_name'      => $origin_loc ? (string) $origin_loc->name : '',
 				'origin_city'      => $origin_loc && ! empty( $origin_loc->city ) ? (string) $origin_loc->city : '',

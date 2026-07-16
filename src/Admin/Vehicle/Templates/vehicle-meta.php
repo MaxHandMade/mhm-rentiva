@@ -43,17 +43,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 
 				<!-- Vehicle Location (Added for Hybrid Integration) -->
-				<div class="mhm-detail-item vehicle-location" data-detail-key="location">
-					<div class="mhm-detail-content">
-						<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
-						<select id="_mhm_rentiva_location_id" name="_mhm_rentiva_location_id" class="mhm-detail-select">
-							<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
-							<?php foreach ( $available_locations as $loc ) : ?>
-								<option value="<?php echo esc_attr( $loc->id ); ?>" <?php selected( $location_id, $loc->id ); ?>><?php echo esc_html( $loc->name ); ?></option>
-							<?php endforeach; ?>
-						</select>
+				<?php // No locations = Location is not available (Transfer/Pro feature); hide the field rather than offer only "Inherit". ?>
+				<?php if ( ! empty( $available_locations ) ) : ?>
+					<div class="mhm-detail-item vehicle-location" data-detail-key="location">
+						<div class="mhm-detail-content">
+							<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
+							<select id="_mhm_rentiva_location_id" name="_mhm_rentiva_location_id" class="mhm-detail-select">
+								<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
+								<?php foreach ( $available_locations as $loc ) : ?>
+									<option value="<?php echo esc_attr( $loc->id ); ?>" <?php selected( $location_id, $loc->id ); ?>><?php echo esc_html( $loc->name ); ?></option>
+								<?php endforeach; ?>
+							</select>
+						</div>
 					</div>
-				</div>
+				<?php endif; ?>
 
 				<?php
 				// Auto-sync saved order with available details

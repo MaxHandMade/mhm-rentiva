@@ -180,21 +180,25 @@ final class VehicleManagementSettings {
 			self::SECTION_AVAILABILITY
 		);
 
-		// Global Default Location
-		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations( 'rental' );
-		$options   = array( '' => __( 'Default (None)', 'mhm-rentiva' ) );
-		foreach ( $locations as $loc ) {
-			$options[ $loc->id ] = $loc->name;
-		}
+		// Global Default Location. Locations are a Transfer (Pro) feature: without
+		// LocationProvider the setting has no selectable value and nothing to fall
+		// back to, so the field is withheld instead of offering only "Default (None)".
+		if ( class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' ) ) {
+			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations( 'rental' );
+			$options   = array( '' => __( 'Default (None)', 'mhm-rentiva' ) );
+			foreach ( $locations as $loc ) {
+				$options[ $loc->id ] = $loc->name;
+			}
 
-		SettingsHelper::select_field(
-			$page_slug,
-			'mhm_rentiva_default_rental_location',
-			__( 'Default Rental Location', 'mhm-rentiva' ),
-			$options,
-			__( 'This location will be used as a fallback if a vehicle has no specific location and its owner (vendor) has no default location set.', 'mhm-rentiva' ),
-			self::SECTION_AVAILABILITY
-		);
+			SettingsHelper::select_field(
+				$page_slug,
+				'mhm_rentiva_default_rental_location',
+				__( 'Default Rental Location', 'mhm-rentiva' ),
+				$options,
+				__( 'This location will be used as a fallback if a vehicle has no specific location and its owner (vendor) has no default location set.', 'mhm-rentiva' ),
+				self::SECTION_AVAILABILITY
+			);
+		}
 	}
 
 	/**

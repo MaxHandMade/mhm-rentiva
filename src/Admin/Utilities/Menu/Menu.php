@@ -87,17 +87,15 @@ final class Menu {
 		 * submenus would fatal on `new TransferAdmin()`. There is no
 		 * Mode::canUseTransfer(), so class_exists() is the gate.
 		 *
-		 * KNOWN GAP (escalated, awaiting product decision — see
-		 * .superpowers/sdd/task-5a-report.md §TransferAdmin): "Locations" is not
-		 * really a transfer-only screen. DatabaseMigrator::create_transfer_tables()
-		 * creates `rentiva_transfer_locations` unconditionally in Lite, and the
-		 * CORE (kept-back) LocationProvider::get_locations('rental') serves that
-		 * same table to core rental search (BookingForm, SearchResults,
-		 * VehiclesGrid, VehiclesList, UnifiedSearch, Mailer, REST\Locations, ...).
-		 * render_locations_page() is the ONLY CRUD UI for it. So with this guard a
-		 * Lite site has the table and reads it, but cannot populate it — rental
-		 * location pickers stay permanently empty. Guarding conservatively here
-		 * rather than splitting the screen, which needs a go-ahead.
+		 * The gap escalated here (a Lite site that has the locations table and reads
+		 * it, but has no CRUD UI to populate it → permanently empty rental location
+		 * pickers) was RESOLVED by the owner on 2026-07-16: Lite has NO location
+		 * search — location belongs to Transfer (Pro). Splitting the Locations
+		 * screen into core was explicitly rejected. So this guard is now exactly
+		 * right: no TransferAdmin, no Locations screen, and no location affordance
+		 * anywhere in core either (LocationProvider + REST\Locations moved to Pro in
+		 * Task 5a-2; every core call site is guarded). Lite no longer creates the
+		 * table. See carveout/faz1-exit-decisions.md §"Task 5a escalation".
 		 */
 		if (class_exists('\MHMRentiva\Admin\Transfer\TransferAdmin')) {
 			add_submenu_page(

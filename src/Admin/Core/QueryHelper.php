@@ -104,17 +104,26 @@ class QueryHelper {
             return '';
         }
 
-        // City expansion: resolve all location IDs sharing the requested IDs' cities.
-        // Falls back to strict matching if the locations table has no city data.
+        // City expansion: resolve all location IDs sharing the requested IDs' cities,
+        // via the locations table, preferring the new name over the legacy one.
+        // Neither is guaranteed to exist: locations are a Transfer (Pro) feature and
+        // Lite creates no such table, so the legacy name -- which was previously
+        // assumed rather than probed -- must be probed too. With no table there is
+        // nothing to expand, so city expansion is skipped and the strict ID matching
+        // below stands, exactly as when the table has no city data.
+        $loc_table = null;
         if ($expand_to_city) {
-            $loc_table = $wpdb->prefix . 'rentiva_transfer_locations';
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema probe.
-            $table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $loc_table));
-            if ($table_exists !== $loc_table) {
-                $loc_table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
+            foreach (array( 'rentiva_transfer_locations', 'mhm_rentiva_transfer_locations' ) as $candidate) {
+                $candidate_table = $wpdb->prefix . $candidate;
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Schema probe.
+                if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $candidate_table)) === $candidate_table) {
+                    $loc_table = preg_replace('/[^A-Za-z0-9_]/', '', $candidate_table) ?? '';
+                    break;
+                }
             }
-            $loc_table = preg_replace('/[^A-Za-z0-9_]/', '', $loc_table) ?? '';
+        }
 
+        if ($loc_table !== null) {
             $id_placeholders = implode(',', array_fill(0, count($ids), '%d'));
             // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($ids); table name passed via %i; values via prepare().
             $cities = $wpdb->get_col(
