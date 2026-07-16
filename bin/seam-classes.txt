@@ -1,6 +1,12 @@
 MHMRentiva\Admin\Emails\Notifications\VendorNotifications
 MHMRentiva\Admin\Emails\Templates\VendorEmails
+MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages
+MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings
 MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger
+MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver
+MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget
+MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget
+MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget
 MHMRentiva\Admin\Licensing\LicenseAdmin
 MHMRentiva\Admin\Licensing\LicenseManager
 MHMRentiva\Admin\Licensing\VerifyEndpoint
