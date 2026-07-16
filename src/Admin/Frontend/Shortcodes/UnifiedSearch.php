@@ -109,6 +109,18 @@ final class UnifiedSearch extends AbstractShortcode {
 			$show_transfer = true;
 		}
 
+		// Transfer is a Pro surface. Its tab posts to `rentiva_transfer_results`,
+		// a shortcode Lite carves out, so the search would land on a page printing
+		// the tag's own literal text. Nothing else can turn the tab off here: the
+		// attribute defaults to true, the settings fallback defaults to true, and
+		// the master switch above force-enables it for service_type="transfer" --
+		// so this must be the last word, after every override. The rental side
+		// needs no such gate; it degrades on its own.
+		if (! class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')) {
+			$show_transfer = false;
+			$show_rental   = true;
+		}
+
 		// Resolve layout: Check search_layout first (Block), then layout (Shortcode)
 		$layout = ! empty($atts['search_layout']) ? $atts['search_layout'] : $atts['layout'];
 
