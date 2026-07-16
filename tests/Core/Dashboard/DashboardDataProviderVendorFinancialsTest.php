@@ -8,6 +8,11 @@ use MHMRentiva\Core\Dashboard\DashboardDataProvider;
 use MHMRentiva\Core\Database\Migrations\LedgerMigration;
 use MHMRentiva\Core\Financial\Ledger;
 use MHMRentiva\Core\Financial\LedgerEntry;
+use MHMRentiva\Core\Services\Metrics\AvailableBalanceMetric;
+use MHMRentiva\Core\Services\Metrics\MetricRegistry;
+use MHMRentiva\Core\Services\Metrics\PendingBalanceMetric;
+use MHMRentiva\Core\Services\Metrics\Revenue7dMetric;
+use MHMRentiva\Core\Services\Metrics\TotalPaidOutMetric;
 use WP_UnitTestCase;
 
 /**
@@ -20,6 +25,13 @@ use WP_UnitTestCase;
  * metric_resolvers(), resolve_metric() never even attempted to compute
  * them (trend => false in DashboardConfig short-circuits straight to a
  * hardcoded total => 0).
+ *
+ * Carve-out note (Task 5a): these four metrics are Pro, and MetricRegistry no
+ * longer hardcodes them — Pro registers them through the
+ * 'mhm_rentiva_registered_metrics' filter. setUp() below registers them the same
+ * way, so this stays a genuine regression test of the CORE DashboardDataProvider
+ * wiring while also exercising the Lite/Pro metric seam end to end. If the filter
+ * seam ever breaks, these tests go back to reading 0.
  */
 class DashboardDataProviderVendorFinancialsTest extends WP_UnitTestCase
 {
@@ -33,7 +45,43 @@ class DashboardDataProviderVendorFinancialsTest extends WP_UnitTestCase
         global $wpdb;
         $wpdb->query("TRUNCATE TABLE {$wpdb->prefix}mhm_rentiva_ledger"); // phpcs:ignore WordPress.DB
 
+        $this->register_pro_metrics();
+
         $this->vendor_id = self::factory()->user->create(array('role' => 'mhm_rentiva_vendor'));
+    }
+
+    public function tearDown(): void
+    {
+        $this->reset_metric_registry();
+        parent::tearDown();
+    }
+
+    /**
+     * Register the vendor ledger metrics exactly as Pro does.
+     */
+    private function register_pro_metrics(): void
+    {
+        add_filter(
+            'mhm_rentiva_registered_metrics',
+            static function (array $metrics): array {
+                $metrics['available_balance'] = AvailableBalanceMetric::class;
+                $metrics['pending_balance']   = PendingBalanceMetric::class;
+                $metrics['total_paid_out']    = TotalPaidOutMetric::class;
+                $metrics['revenue_7d']        = Revenue7dMetric::class;
+                return $metrics;
+            }
+        );
+
+        // The registry memoises its map on first read, so drop any map built
+        // before the filter above was attached.
+        $this->reset_metric_registry();
+    }
+
+    private function reset_metric_registry(): void
+    {
+        $map = new \ReflectionProperty(MetricRegistry::class, 'map');
+        $map->setAccessible(true);
+        $map->setValue(null, null);
     }
 
     public function test_available_balance_kpi_reflects_the_real_cleared_balance(): void

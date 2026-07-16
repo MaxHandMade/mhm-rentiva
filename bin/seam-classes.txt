@@ -1,4 +1,5 @@
 MHMRentiva\Admin\Emails\Notifications\VendorNotifications
+MHMRentiva\Admin\Emails\Templates\VendorEmails
 MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger
 MHMRentiva\Admin\Licensing\LicenseAdmin
 MHMRentiva\Admin\Licensing\LicenseManager
@@ -14,6 +15,9 @@ MHMRentiva\Admin\Privacy\DataRetentionManager
 MHMRentiva\Admin\Privacy\GDPRManager
 MHMRentiva\Admin\Reports\BackgroundProcessor
 MHMRentiva\Admin\Reports\Reports
+MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer
+MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer
+MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes
 MHMRentiva\Admin\Transfer\TransferAdmin
 MHMRentiva\Admin\Transfer\TransferExportImport
 MHMRentiva\Admin\Utilities\Export\Export
@@ -49,10 +53,19 @@ MHMRentiva\Admin\Vendor\REST\VendorManagementRestController
 MHMRentiva\Admin\Vendor\VendorMediaIsolation
 MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer
 MHMRentiva\Admin\Vendor\VendorVehicleReviewManager
+MHMRentiva\Api\REST\HealthController
 MHMRentiva\Api\REST\PayoutCallbackController
 MHMRentiva\CLI\ExportAuditCommand
+MHMRentiva\CLI\IntegrityCheckCommand
+MHMRentiva\CLI\KeyRevokeCommand
 MHMRentiva\CLI\MaturedPayoutCommand
+MHMRentiva\Core\Dashboard\AnalyticsController
+MHMRentiva\Core\Dashboard\AnalyticsDashboardDataProvider
+MHMRentiva\Core\Dashboard\VendorDashboard
+MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration
+MHMRentiva\Core\Database\Migrations\LedgerMigration
 MHMRentiva\Core\Database\Migrations\VendorReportsMigration
+MHMRentiva\Core\Financial\AnalyticsService
 MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob
 MHMRentiva\Core\Financial\Automation\CommissionClearingJob
 MHMRentiva\Core\Financial\Automation\MaturedPayoutJob

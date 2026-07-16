@@ -155,13 +155,23 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHM_RENTIVA_VERSION
 		);
 
-		// Ensure Transfer JS logic is loaded for the Transfer tab (Parity)
-		\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::enqueue_assets();
+		// Ensure Transfer JS logic is loaded for the Transfer tab (Parity).
+		// TransferShortcodes is a Pro seam. It is also the ONLY registrar of the
+		// 'rentiva-transfer' script handle, so that handle must drop out of the
+		// dependency list alongside it: wp_enqueue_script() silently refuses to
+		// output a script whose dependency was never registered, which would take
+		// the CORE unified-search JS down with the Pro transfer tab.
+		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
+
+		if (class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')) {
+			\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::enqueue_assets();
+			$search_deps[] = 'rentiva-transfer';
+		}
 
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/unified-search.js',
-			array( 'jquery', 'jquery-ui-datepicker', 'rentiva-transfer' ),
+			$search_deps,
 			MHM_RENTIVA_VERSION,
 			true
 		);

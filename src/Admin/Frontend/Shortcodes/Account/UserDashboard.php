@@ -27,7 +27,12 @@ final class UserDashboard {
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
-		\MHMRentiva\Core\Dashboard\AnalyticsController::register();
+		// AnalyticsController is a Pro seam (vendor ledger analytics AJAX). This
+		// register() runs for the CORE customer dashboard shortcode too, so an
+		// unguarded call would fatal the dashboard for every Lite user.
+		if (class_exists('\MHMRentiva\Core\Dashboard\AnalyticsController')) {
+			\MHMRentiva\Core\Dashboard\AnalyticsController::register();
+		}
 		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 		add_filter('body_class', array( self::class, 'add_body_class' ));
@@ -51,7 +56,16 @@ final class UserDashboard {
 		$current_user = wp_get_current_user();
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
+		// VendorDashboard is a Pro seam. A fresh Lite install can never resolve to
+		// 'vendor' (only the Pro-only VendorOnboardingController::approve() grants
+		// the rentiva_vendor role), so this is defence-in-depth for the Pro->Lite
+		// downgrade case: a site whose DB already holds vendor-role users would
+		// otherwise fatal here on login rather than degrade.
 		if ('vendor' === $type) {
+			if (! class_exists('\MHMRentiva\Core\Dashboard\VendorDashboard')) {
+				return '';
+			}
+
 			return VendorDashboard::render($data);
 		}
 

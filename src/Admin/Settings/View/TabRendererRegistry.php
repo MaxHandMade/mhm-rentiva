@@ -188,8 +188,10 @@ final class TabRendererRegistry {
 			}
 		);
 
-		// Messages
-		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer() );
+		// Messages — Pro seam; without it there is no messaging feature to configure.
+		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer' ) ) {
+			$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer() );
+		}
 
 		// System
 		$this->register(
@@ -218,7 +220,10 @@ final class TabRendererRegistry {
 		// Utilities
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
-		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer() );
+		// TransferSettingsRenderer — Pro seam (transfer is a Pro surface).
+		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer' ) ) {
+			$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer() );
+		}
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
 
 		/**

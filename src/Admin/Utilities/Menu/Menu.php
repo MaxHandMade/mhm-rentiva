@@ -80,24 +80,44 @@ final class Menu {
 			'edit.php?post_type=vehicle_booking'
 		);
 
-		// 4. Transfer Group (Previously in TransferAdmin)
-		add_submenu_page(
-			'mhm-rentiva',
-			__('Locations', 'mhm-rentiva'),
-			__('Locations', 'mhm-rentiva'),
-			'manage_options',
-			'mhm-rentiva-transfer-locations',
-			array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_locations_page' )
-		);
+		/*
+		 * 4. Transfer Group (Previously in TransferAdmin)
+		 *
+		 * TransferAdmin is a Pro seam, so both screens are guarded — without it the
+		 * submenus would fatal on `new TransferAdmin()`. There is no
+		 * Mode::canUseTransfer(), so class_exists() is the gate.
+		 *
+		 * KNOWN GAP (escalated, awaiting product decision — see
+		 * .superpowers/sdd/task-5a-report.md §TransferAdmin): "Locations" is not
+		 * really a transfer-only screen. DatabaseMigrator::create_transfer_tables()
+		 * creates `rentiva_transfer_locations` unconditionally in Lite, and the
+		 * CORE (kept-back) LocationProvider::get_locations('rental') serves that
+		 * same table to core rental search (BookingForm, SearchResults,
+		 * VehiclesGrid, VehiclesList, UnifiedSearch, Mailer, REST\Locations, ...).
+		 * render_locations_page() is the ONLY CRUD UI for it. So with this guard a
+		 * Lite site has the table and reads it, but cannot populate it — rental
+		 * location pickers stay permanently empty. Guarding conservatively here
+		 * rather than splitting the screen, which needs a go-ahead.
+		 */
+		if (class_exists('\MHMRentiva\Admin\Transfer\TransferAdmin')) {
+			add_submenu_page(
+				'mhm-rentiva',
+				__('Locations', 'mhm-rentiva'),
+				__('Locations', 'mhm-rentiva'),
+				'manage_options',
+				'mhm-rentiva-transfer-locations',
+				array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_locations_page' )
+			);
 
-		add_submenu_page(
-			'mhm-rentiva',
-			__('Transfer Routes', 'mhm-rentiva'),
-			__('Transfer Routes', 'mhm-rentiva'),
-			'manage_options',
-			'mhm-rentiva-transfer-routes',
-			array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_routes_page' )
-		);
+			add_submenu_page(
+				'mhm-rentiva',
+				__('Transfer Routes', 'mhm-rentiva'),
+				__('Transfer Routes', 'mhm-rentiva'),
+				'manage_options',
+				'mhm-rentiva-transfer-routes',
+				array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_routes_page' )
+			);
+		}
 
 		// 5. Additional Services (Addons)
 		add_submenu_page(
@@ -201,14 +221,18 @@ final class Menu {
 		}
 
 		// 14. License (Requested at the very bottom)
-		add_submenu_page(
-			'mhm-rentiva',
-			__('License Management', 'mhm-rentiva'),
-			__('License', 'mhm-rentiva'),
-			'manage_options',
-			'mhm-rentiva-license',
-			array( new \MHMRentiva\Admin\Licensing\LicenseAdmin(), 'render_page' )
-		);
+		// LicenseAdmin is a Pro seam: the Lite (wp.org) build has no licence to
+		// manage, and `new LicenseAdmin()` would fatal without it.
+		if (class_exists('\MHMRentiva\Admin\Licensing\LicenseAdmin')) {
+			add_submenu_page(
+				'mhm-rentiva',
+				__('License Management', 'mhm-rentiva'),
+				__('License', 'mhm-rentiva'),
+				'manage_options',
+				'mhm-rentiva-license',
+				array( new \MHMRentiva\Admin\Licensing\LicenseAdmin(), 'render_page' )
+			);
+		}
 
 		// Remove WordPress's automatically created "MHM Rentiva" submenu
 		remove_submenu_page('mhm-rentiva', 'mhm-rentiva');

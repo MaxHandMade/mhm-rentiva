@@ -772,8 +772,22 @@ final class Plugin {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('WooCommerceBridge class NOT FOUND!');
 		}
 
-		// Commission Ledger Bridge
-		if (class_exists(Integrations\WooCommerce\CommissionBridge::class)) {
+		// Commission Ledger Bridge.
+		//
+		// The class_exists() check alone is what the Lite/Pro carve needs (the file
+		// ships only with Pro). The Mode gate is a separate, stronger licensing
+		// requirement: CommissionBridge::boot() hooks woocommerce_payment_complete,
+		// woocommerce_order_status_completed and woocommerce_order_refunded — core
+		// WooCommerce events that fire on EVERY completed booking, vendor or not —
+		// and its handlers write commission ledger entries. A Pro install running
+		// under a licence tier without vendor-marketplace entitlement must not
+		// silently write those entries. Mirrors the
+		// Mode::canUse*() && class_exists(...) pattern used for the vendor-payout
+		// registrations below.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists(Integrations\WooCommerce\CommissionBridge::class)
+		) {
 			Integrations\WooCommerce\CommissionBridge::boot();
 		}
 

@@ -62,13 +62,7 @@ final class EmailTemplates {
 	public static function render_standalone_page(): void
 	{
 		// Define email template types
-		$email_types = array(
-			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
-			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
-			'vendor_emails'         => __('Vendor Notifications', 'mhm-rentiva'),
-			'preview'               => __('Email Preview', 'mhm-rentiva'),
-		);
+		$email_types = self::get_email_type_tabs();
 
 		$current_type = self::get_key('type', 'booking_notifications');
 		if (! isset($email_types[ $current_type ])) {
@@ -189,13 +183,7 @@ final class EmailTemplates {
 	public static function render_content_only(): void
 	{
 		// Define email template types
-		$email_types = array(
-			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
-			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
-			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
-			'vendor_emails'         => __('Vendor Notifications', 'mhm-rentiva'),
-			'preview'               => __('Email Preview', 'mhm-rentiva'),
-		);
+		$email_types = self::get_email_type_tabs();
 
 		$current_type = self::get_key('type', 'booking_notifications');
 		if (! isset($email_types[ $current_type ])) {
@@ -396,6 +384,34 @@ final class EmailTemplates {
 		);
 
 		self::save_email_fields($fields);
+	}
+
+	/**
+	 * Tabs for the email-templates screen.
+	 *
+	 * The Vendor Notifications tab is only offered when its renderer is present:
+	 * VendorEmails is a Pro seam, so in Lite the tab would render a fatal instead
+	 * of a page. Both callers fall back to 'booking_notifications' for an
+	 * unknown $current_type, so dropping the key here also makes the
+	 * `$current_type === 'vendor_emails'` render branch unreachable.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function get_email_type_tabs(): array
+	{
+		$email_types = array(
+			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
+			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
+			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
+		);
+
+		if (class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
+			$email_types['vendor_emails'] = __('Vendor Notifications', 'mhm-rentiva');
+		}
+
+		$email_types['preview'] = __('Email Preview', 'mhm-rentiva');
+
+		return $email_types;
 	}
 
 	private static function save_vendor_emails(): void
