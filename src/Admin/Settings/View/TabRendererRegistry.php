@@ -189,8 +189,14 @@ final class TabRendererRegistry {
 		);
 
 		// Messages — Pro seam; without it there is no messaging feature to configure.
+		// The instanceof re-checks the seam contract: Lite cannot see the carved
+		// class, so nothing but the runtime can prove it still implements the
+		// interface. A Pro build that broke the contract is skipped, not fatal.
 		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer' ) ) {
-			$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer() );
+			$messages_renderer = new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer();
+			if ( $messages_renderer instanceof TabRendererInterface ) {
+				$this->register( $messages_renderer );
+			}
 		}
 
 		// System

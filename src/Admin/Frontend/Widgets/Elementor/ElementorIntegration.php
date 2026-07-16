@@ -50,7 +50,6 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\MyBookingsWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\MyFavoritesWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\PaymentHistoryWidget::class,
-			\MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleComparisonWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\ContactFormWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\TestimonialsWidget::class,
@@ -63,9 +62,31 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget::class,
 		);
 
+		// Pro seams: present only when this build ships them (see below).
+		foreach ( self::pro_widget_classes() as $pro_widget ) {
+			if ( class_exists( $pro_widget ) ) {
+				$widgets[] = $pro_widget;
+			}
+		}
+
 		foreach ( $widgets as $widget_class ) {
 			$manager->register( new $widget_class() );
 		}
+	}
+
+	/**
+	 * Elementor widget classes that the Lite build carves out.
+	 *
+	 * Returned as plain class-strings rather than ::class constants so the names
+	 * survive the carve, and gated by class_exists() at the call site so a Lite
+	 * build registers fewer widgets instead of fataling on a missing class.
+	 *
+	 * @return array<int, string> Fully-qualified Pro widget class names.
+	 */
+	private static function pro_widget_classes(): array {
+		return array(
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget',
+		);
 	}
 
 	/**

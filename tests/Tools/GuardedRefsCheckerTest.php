@@ -775,17 +775,23 @@ PHP;
 	 * which resolves to no file, so the old check silently let it through.
 	 * The generalised check must try every trailing (suffix) run of the
 	 * literal's segments, not just the whole string, and catch this via the
-	 * suffix 'Admin\Messages\Core\MessageCache' resolving to the real
-	 * src/Admin/Messages/Core/MessageCache.php.
+	 * suffix resolving to a real file under src/.
+	 *
+	 * The dead-guard check resolves candidates against the real src/ tree, so
+	 * this fixture must name a class the build actually ships. It originally
+	 * used Admin\Messages\Core\MessageCache; that class was carved out of Lite,
+	 * so the fixture now names Admin\Core\QueryHelper instead. The shape under
+	 * test -- a namespace root typo'd apart into 'MHM\Rentiva\...' -- is
+	 * unchanged.
 	 */
 	public function test_reports_dead_guard_with_malformed_namespace_root_prefix(): void {
 		$code = <<<'PHP'
 <?php
-namespace MHMRentiva\Admin\Messages\Monitoring;
+namespace MHMRentiva\Admin\Core\Monitoring;
 
 final class MonitoringManager {
 	public function check(): void {
-		if ( class_exists( 'MHM\Rentiva\Admin\Messages\Core\MessageCache' ) ) {
+		if ( class_exists( 'MHM\Rentiva\Admin\Core\QueryHelper' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -795,7 +801,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\Messages\Core\MessageCache', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\Core\QueryHelper', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 

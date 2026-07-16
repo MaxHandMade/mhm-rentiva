@@ -6,9 +6,13 @@ MHMRentiva\Admin\Licensing\LicenseManager
 MHMRentiva\Admin\Licensing\Restrictions
 MHMRentiva\Admin\Licensing\VerifyEndpoint
 MHMRentiva\Admin\Messages\Core\Messages
+MHMRentiva\Admin\Messages\Notifications\MessageNotifications
+MHMRentiva\Admin\Messages\REST\Messages
+MHMRentiva\Admin\Messages\Settings\MessagesSettings
 MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob
 MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob
 MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob
+MHMRentiva\Admin\PostTypes\Message\Message
 MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage
 MHMRentiva\Admin\PostTypes\Payouts\PostType
 MHMRentiva\Admin\Privacy\DataRetentionManager

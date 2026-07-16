@@ -148,8 +148,8 @@ final class Menu {
 			);
 		}
 
-		// 8. Messages (Pro feature)
-		if (class_exists(\MHMRentiva\Admin\Licensing\Mode::class) && \MHMRentiva\Admin\Licensing\Mode::canUseMessages()) {
+		// 8. Messages (Pro seam; absent in Lite)
+		if (class_exists('\MHMRentiva\Admin\Messages\Core\Messages') && \MHMRentiva\Admin\Licensing\Mode::canUseMessages()) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Messages', 'mhm-rentiva'),

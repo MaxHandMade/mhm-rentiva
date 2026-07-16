@@ -226,9 +226,10 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => false,
 				),
 				'rentiva_messages'            => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages::class,
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
 					'method'        => 'render',
 					'requires_auth' => true,
+					'pro_seam'      => true,
 				),
 				'rentiva_home_poc'            => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
@@ -243,7 +244,38 @@ final class ShortcodeServiceProvider {
 			unset($registry['support']['rentiva_home_poc']);
 		}
 
+		$registry = $this->drop_absent_pro_seams($registry);
+
 		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+	}
+
+	/**
+	 * Drops Pro seam entries whose class this build does not ship.
+	 *
+	 * Lite carves the Pro shortcodes out entirely, so their registry entries must
+	 * disappear with them. Filtering here -- at the single source of the registry
+	 * -- keeps every consumer honest at once: process_registration() would
+	 * otherwise log a "class not found" error on every request for a feature this
+	 * build was never meant to have, and get_total_count()/get_groups() would
+	 * advertise shortcodes that cannot render.
+	 *
+	 * @param array<string, array<string, array>> $registry Full registry.
+	 * @return array<string, array<string, array>> Registry without absent seams.
+	 */
+	private function drop_absent_pro_seams(array $registry): array
+	{
+		foreach ($registry as $group => $shortcodes) {
+			foreach ($shortcodes as $tag => $config) {
+				if (empty($config['pro_seam'])) {
+					continue;
+				}
+				if (! class_exists( (string) ( $config['class'] ?? '' ))) {
+					unset($registry[ $group ][ $tag ]);
+				}
+			}
+		}
+
+		return $registry;
 	}
 
 	/**
