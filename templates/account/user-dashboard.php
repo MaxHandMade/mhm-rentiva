@@ -319,11 +319,11 @@ if (! $user_display_name) {
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 				</div>
-			<?php // The vendor 'ledger', 'settings' and 'profil' tabs are Pro-only: their ?>
-			<?php // partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
-			<?php // VendorApplicationManager and VendorProfileSettingsSave, none of which Lite ?>
-			<?php // ships, so the partials were removed from this build rather than left one ?>
-			<?php // wiring change away from a fatal. Pro restores tabs and partials together. ?>
+				<?php // The vendor 'ledger', 'settings' and 'profil' tabs are Pro-only: their ?>
+				<?php // partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
+				<?php // VendorApplicationManager and VendorProfileSettingsSave, none of which Lite ?>
+				<?php // ships, so the partials were removed from this build rather than left one ?>
+				<?php // wiring change away from a fatal. Pro restores tabs and partials together. ?>
 			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
