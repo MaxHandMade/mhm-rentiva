@@ -11,7 +11,7 @@ if (! defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Reports\Reports;
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Vehicle\Settings\VehicleSettings;
 
@@ -645,7 +645,7 @@ final class VehicleFeatureHelper {
 	 */
 	private static function format_price(float $price): string
 	{
-		$symbol    = Reports::get_currency_symbol();
+		$symbol    = CurrencyHelper::get_currency_symbol();
 		$position  = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
 		$formatted = number_format($price, 0, ',', '.');
 

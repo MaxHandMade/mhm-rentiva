@@ -244,7 +244,7 @@ final class AddonBooking {
 			'mhmRentivaAddons',
 			array(
 				'currency'         => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' ),
-				'currencySymbol'   => \MHMRentiva\Admin\Reports\Reports::get_currency_symbol(),
+				'currencySymbol'   => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
 				'currencyPosition' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' ),
 				'currencyFormat'   => array(
 					'decimals'          => 2,
@@ -324,7 +324,7 @@ final class AddonBooking {
 	 * Format addon price with currency symbol and position
 	 */
 	private static function format_addon_price( float $price ): string {
-		$symbol           = \MHMRentiva\Admin\Reports\Reports::get_currency_symbol();
+		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
 		$formatted_amount = number_format( $price, 2, ',', '.' );
 

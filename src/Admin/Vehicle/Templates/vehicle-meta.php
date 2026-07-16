@@ -97,7 +97,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
-							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
+							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
 							// ⭐ Get max seats from settings (default: 100)
 							$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_seats', 100 );
@@ -172,7 +172,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						if ( $key === 'price_per_day' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
-							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
+							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
 							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="20" placeholder="5" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Person', 'mhm-rentiva' ) . '</span>';

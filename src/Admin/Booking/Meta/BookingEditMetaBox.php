@@ -302,7 +302,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				echo '<div class="mhm-addon-content">';
 				echo '<div class="mhm-addon-header">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
-				echo '<span class="mhm-addon-price">+ ' . esc_html( number_format( (float) $addon['price'], 2, ',', '.' ) ) . ' ' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span>';
+				echo '<span class="mhm-addon-price">+ ' . esc_html( number_format( (float) $addon['price'], 2, ',', '.' ) ) . ' ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 				echo '</div>';
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<div class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</div>';
@@ -314,7 +314,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			echo '</div>';
 
 			echo '<div class="mhm-addon-total" style="display: none;">';
-			echo '<strong>' . esc_html__( 'Additional Services Total:', 'mhm-rentiva' ) . ' <span class="mhm-addon-total-amount">0,00 ' . esc_html( \MHMRentiva\Admin\Reports\Reports::get_currency_symbol() ) . '</span></strong>';
+			echo '<strong>' . esc_html__( 'Additional Services Total:', 'mhm-rentiva' ) . ' <span class="mhm-addon-total-amount">0,00 ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span></strong>';
 			echo '</div>';
 
 			echo '</div>';
