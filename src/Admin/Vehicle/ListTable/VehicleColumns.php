@@ -137,7 +137,11 @@ final class VehicleColumns {
 			case 'mhm_location':
 				$location_id   = (int) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true);
 				$location_name = '';
-				if ($location_id > 0 && self::has_locations()) {
+				// Inline class_exists (not the has_locations() helper) at every site
+				// that actually touches the class: PHPStan only narrows on the inline
+				// form, so once LocationProvider is physically absent from the Lite
+				// tree a helper-gated call would still be reported as unknown.
+				if ($location_id > 0 && class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 					$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 					foreach ($locations as $loc) {
 						if ( (int) $loc->id === $location_id) {
@@ -312,7 +316,7 @@ final class VehicleColumns {
 
 		// Location filter dropdown — withheld entirely without the Location feature,
 		// rather than rendered as a lone "All locations" option that filters nothing.
-		if (self::has_locations()) {
+		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
 			$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
@@ -1635,7 +1639,7 @@ final class VehicleColumns {
 			case 'mhm_location':
 				// Defensive: WP only calls this for registered columns, and columns()
 				// withholds mhm_location without the Location feature.
-				if (! self::has_locations()) {
+				if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 					break;
 				}
 				$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
