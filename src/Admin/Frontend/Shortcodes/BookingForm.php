@@ -302,7 +302,9 @@ final class BookingForm extends AbstractShortcode {
 		// Read pickup location ID and resolve its name.
 		$pickup_location_id   = absint(self::get_text('pickup_location'));
 		$pickup_location_name = '';
-		if ($pickup_location_id > 0) {
+		// Locations are a Transfer (Pro) feature. Without LocationProvider the name
+		// stays empty and the form simply shows no pick-up location.
+		if ($pickup_location_id > 0 && class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
 			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
 			foreach ($locations as $loc) {
 				if ( (int) $loc->id === $pickup_location_id) {
@@ -667,11 +669,17 @@ final class BookingForm extends AbstractShortcode {
 			$pickup_location_id = self::post_int('pickup_location_id');
 			if ($pickup_location_id > 0) {
 				// Validate submitted location ID against active rental locations.
+				// Locations are a Transfer (Pro) feature: without LocationProvider
+				// there is nothing to validate against, so a submitted ID (only
+				// reachable by hand-crafting the request, since Lite renders no
+				// location picker) is rejected rather than trusted.
 				$valid_location = false;
-				foreach (\MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental') as $loc) {
-					if ( (int) $loc->id === $pickup_location_id) {
-						$valid_location = true;
-						break;
+				if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+					foreach (\MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental') as $loc) {
+						if ( (int) $loc->id === $pickup_location_id) {
+							$valid_location = true;
+							break;
+						}
 					}
 				}
 				if (! $valid_location) {

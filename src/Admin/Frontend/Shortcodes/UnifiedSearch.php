@@ -85,8 +85,13 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Initial service type depends on default_tab
 		$initial_service_type = $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental';
 
-		// Fetch locations based on initial service type
-		$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($initial_service_type);
+		// Fetch locations based on initial service type. Locations are a Transfer
+		// (Pro) feature: without LocationProvider there are none, and the location
+		// selects must not render at all (see $show_location_select below).
+		$locations = array();
+		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($initial_service_type);
+		}
 
 		// Normalize boolean attributes (accept '1', 'true', true, 1)
 		$bool = fn($v) => filter_var($v, FILTER_VALIDATE_BOOLEAN);
@@ -116,7 +121,11 @@ final class UnifiedSearch extends AbstractShortcode {
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,
 			'show_transfer_tab'     => $show_transfer,
-			'show_location_select'  => self::resolve_bool($atts['show_location_select'], 'mhm_rentiva_enable_location_select', true),
+			// Never show a location select with nothing to select: the setting
+			// defaults to true, so without this the Lite rental form would render an
+			// empty (and, when location_required, unsubmittable) picker.
+			'show_location_select'  => $locations !== array()
+				&& self::resolve_bool($atts['show_location_select'], 'mhm_rentiva_enable_location_select', true),
 			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhm_rentiva_enable_time_select', true),
 			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhm_rentiva_enable_date_picker', true),
 			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhm_rentiva_enable_dropoff', true),
