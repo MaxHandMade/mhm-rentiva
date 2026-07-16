@@ -405,34 +405,40 @@ final class DemoSeeder {
         }
 
         // Transfer Locations & Routes: targeted cleanup based on seeded demo names.
-        $wpdb->query(
-            $wpdb->prepare(
-                'DELETE FROM %i
-                WHERE name LIKE %s
-                OR name LIKE %s
-                OR name = %s
-                OR name = %s
-                OR name = %s
-                OR name = %s',
-                $loc_table,
-                '%(IST)%',
-                '%(SAW)%',
-                'Taksim Square',
-                'Kadikoy Port',
-                'Taksim Meydanı',
-                'Kadıköy Rıhtım'
-            )
-        );
-        $wpdb->query(
-            $wpdb->prepare(
-                'DELETE FROM %i
-                WHERE origin_id NOT IN (SELECT id FROM %i)
-                OR destination_id NOT IN (SELECT id FROM %i)',
-                $route_table,
-                $loc_table,
-                $loc_table
-            )
-        );
+        // Transfer tables are absent in Lite (locations are a Pro feature), so only
+        // purge them when they actually exist — same pattern as wc_customer_lookup.
+        if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $loc_table))) {
+            $wpdb->query(
+                $wpdb->prepare(
+                    'DELETE FROM %i
+                    WHERE name LIKE %s
+                    OR name LIKE %s
+                    OR name = %s
+                    OR name = %s
+                    OR name = %s
+                    OR name = %s',
+                    $loc_table,
+                    '%(IST)%',
+                    '%(SAW)%',
+                    'Taksim Square',
+                    'Kadikoy Port',
+                    'Taksim Meydanı',
+                    'Kadıköy Rıhtım'
+                )
+            );
+            if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $route_table))) {
+                $wpdb->query(
+                    $wpdb->prepare(
+                        'DELETE FROM %i
+                        WHERE origin_id NOT IN (SELECT id FROM %i)
+                        OR destination_id NOT IN (SELECT id FROM %i)',
+                        $route_table,
+                        $loc_table,
+                        $loc_table
+                    )
+                );
+            }
+        }
 
         // 6. Comprehensive Cache Clearing (Nuclear Purge)
         if (\class_exists('\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage')) {
@@ -867,10 +873,28 @@ final class DemoSeeder {
     }
 
     /**
+     * Whether the Transfer (Pro) module — and therefore its locations/routes
+     * schema — is present.
+     *
+     * Lite has no location search and creates no transfer tables (owner decision
+     * 2026-07-16), so seeding demo locations there would INSERT into tables that
+     * do not exist and raise wpdb errors. Cleanup is gated on the tables actually
+     * existing instead, so a Pro→Lite downgrade can still purge leftover rows.
+     */
+    private static function has_transfer_feature(): bool
+    {
+        return class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider');
+    }
+
+    /**
      * Seed transfer locations via direct SQL for performance
      */
     private function seed_transfers_sql(): array
     {
+        if (! self::has_transfer_feature()) {
+            return array();
+        }
+
         global $wpdb;
         $table = $wpdb->prefix . 'mhm_rentiva_transfer_locations';
         $ids   = array();
@@ -1406,19 +1430,24 @@ final class DemoSeeder {
             }
         }
 
-        // Transfer locations (seeded demo names)
-        $wpdb->query( $wpdb->prepare(
-            'DELETE FROM %i WHERE name LIKE %s OR name LIKE %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s',
-            $loc_table,
-            '%(IST)%', '%(SAW)%',
-            'Taksim Square', 'Kadikoy Port',
-            'Taksim Meydanı', 'Kadıköy Rıhtım',
-            'Taksim Meydanı', 'Kadıköy İskele'
-        ) );
-        $wpdb->query( $wpdb->prepare(
-            'DELETE FROM %i WHERE origin_id NOT IN (SELECT id FROM %i) OR destination_id NOT IN (SELECT id FROM %i)',
-            $route_table, $loc_table, $loc_table
-        ) );
+        // Transfer locations (seeded demo names). Absent in Lite — purge only if the
+        // tables exist, so a Pro→Lite downgrade still cleans up leftover demo rows.
+        if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $loc_table ) ) ) {
+            $wpdb->query( $wpdb->prepare(
+                'DELETE FROM %i WHERE name LIKE %s OR name LIKE %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s OR name = %s',
+                $loc_table,
+                '%(IST)%', '%(SAW)%',
+                'Taksim Square', 'Kadikoy Port',
+                'Taksim Meydanı', 'Kadıköy Rıhtım',
+                'Taksim Meydanı', 'Kadıköy İskele'
+            ) );
+            if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $route_table ) ) ) {
+                $wpdb->query( $wpdb->prepare(
+                    'DELETE FROM %i WHERE origin_id NOT IN (SELECT id FROM %i) OR destination_id NOT IN (SELECT id FROM %i)',
+                    $route_table, $loc_table, $loc_table
+                ) );
+            }
+        }
 
         // WC customer lookup
         if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wc_customers ) ) ) {
@@ -1660,6 +1689,10 @@ final class DemoSeeder {
      */
     private function seed_transfers_from_provider(): array
     {
+        if (! self::has_transfer_feature()) {
+            return array();
+        }
+
         global $wpdb;
 
         $locations = DemoDataProvider::get_locations();

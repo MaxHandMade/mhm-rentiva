@@ -13,10 +13,12 @@ MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage
 MHMRentiva\Admin\PostTypes\Payouts\PostType
 MHMRentiva\Admin\Privacy\DataRetentionManager
 MHMRentiva\Admin\Privacy\GDPRManager
+MHMRentiva\Admin\REST\Locations
 MHMRentiva\Admin\Reports\BackgroundProcessor
 MHMRentiva\Admin\Reports\Reports
 MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer
 MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer
+MHMRentiva\Admin\Transfer\Engine\LocationProvider
 MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes
 MHMRentiva\Admin\Transfer\TransferAdmin
 MHMRentiva\Admin\Transfer\TransferExportImport

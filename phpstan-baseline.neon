@@ -2191,12 +2191,6 @@ parameters:
 			path: src/Admin/Vehicle/Templates/vehicle-meta.php
 
 		-
-			message: '#^Variable \$available_locations might not be defined\.$#'
-			identifier: variable.undefined
-			count: 1
-			path: src/Admin/Vehicle/Templates/vehicle-meta.php
-
-		-
 			message: '#^Variable \$equipment might not be defined\.$#'
 			identifier: variable.undefined
 			count: 2

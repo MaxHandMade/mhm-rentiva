@@ -254,8 +254,8 @@ final class Mailer {
 		// Transfer route context (origin + destination + meta)
 		$transfer_context = array();
 		if ( $service_type === 'transfer' ) {
-			$origin_id        = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
-			$destination_id   = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
+			$origin_id      = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
+			$destination_id = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
 			// Locations are a Transfer (Pro) feature. This whole branch only runs for
 			// transfer bookings, which Lite cannot create; if it is ever reached
 			// without LocationProvider the names degrade to empty strings below.
