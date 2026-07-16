@@ -11,16 +11,17 @@
 </div>
 
 <p align="center">
-  <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental and Transfer Booking for WordPress" width="800">
+  <img src=".wordpress-org/banner-1544x500.png" alt="MHM Rentiva — Car Rental Booking for WordPress" width="800">
 </p>
 
 ![Version](https://img.shields.io/badge/version-5.0.0-blue.svg)
-![License Security](https://img.shields.io/badge/license%20security-RSA--2048-green.svg)
 ![WordPress](https://img.shields.io/badge/WordPress-6.7%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.1%2B-purple.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0%2B-green.svg)
 
-**Professional vehicle rental management system for WordPress.** A complete, enterprise-grade solution for managing vehicle rentals, bookings, payments, customers, and comprehensive reporting. Built with WordPress best practices, fully internationalized, and ready for global markets.
+**Vehicle rental management for WordPress.** Manage your fleet, availability, bookings and customers from the WordPress admin; WooCommerce handles frontend payments, so your existing gateways keep working. Built with WordPress best practices, fully internationalized, and ready for global markets.
+
+Everything documented here works in full. There are no vehicle, booking or listing caps, no feature timers, and no locked screens.
 
 ---
 
@@ -53,12 +54,10 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - **Vehicle Management**: Complete vehicle inventory management with galleries, categories, pricing, and availability
 - **Booking System**: Real-time availability checking, booking management, and automatic cancellation
 - **Payment Processing**: Secure payment processing via WooCommerce integration for all frontend bookings
-- **Customer Portal**: Full-featured customer account system with booking history, favorites, and messaging
-- **Analytics & Reporting**: Comprehensive analytics dashboard with revenue, customer, and vehicle insights
+- **Customer Portal**: Customer account system with booking history, favorites, and payment history
+- **Reporting**: Dashboard with revenue, customer, and vehicle insights
 - **Email System**: Automated email notifications with customizable HTML templates
-- **Messaging System**: Built-in customer support messaging with thread management
-- **VIP Transfer Module**: Point-to-point booking system with distance-based pricing and vehicle selection
-- **REST API**: Complete REST API for third-party integrations and mobile apps
+- **REST API**: REST API for third-party integrations and mobile apps
 
 ### Who Is This For?
 
@@ -75,7 +74,7 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 
 **Core Vehicle Features:**
 - **Custom Post Type**: Native WordPress post type for vehicles
-- **Vehicle Gallery**: Upload up to 10 images per vehicle using WordPress Media Library
+- **Vehicle Gallery**: Upload images per vehicle using the WordPress Media Library (the maximum is a setting, default 50)
 - **Drag & Drop Sorting**: Reorder vehicle images with intuitive drag-and-drop interface
 - **Vehicle Categories**: Hierarchical taxonomy system for organizing vehicles
 - **Vehicle Metadata**: 
@@ -122,7 +121,6 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - Receipt upload for offline payments
 - Email confirmations
 - Booking reminders
-- **VIP Transfer Module Integration**: Seamless management of chauffeur services
 
 ### 💳 Payment System
 
@@ -156,14 +154,12 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
   - Payment history
   - Account details editing
   - Password management
-  - Message center
 
 **Customer Portal Shortcodes:**
 - `[rentiva_user_dashboard]` - Main account dashboard (Login/Register/Account)
 - `[rentiva_my_bookings]` - Booking history
 - `[rentiva_my_favorites]` - Favorite vehicles
 - `[rentiva_payment_history]` - Payment transactions
-- `[rentiva_account_details]` - Profile editing
 
 **Customer Features:**
 - Automatic account creation on booking
@@ -172,61 +168,25 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 - Password reset functionality
 - Booking notifications
 - Email notifications
-- Message notifications
 
 ### 📊 Reporting & Analytics
 
-> **Lite:** Basic reports with 30-day date range and 500-row limit. **Pro:** Unlimited date range, rows, and advanced report types.
+Analytics live on the **Rentiva Dashboard** (`Rentiva > Dashboard`), a React admin page fed by
+`/mhm-rentiva/v1/dashboard/*`.
 
-**Analytics Dashboard:**
-- **Revenue Analytics**: 
-  - Total revenue
-  - Revenue by period (daily, weekly, monthly, yearly)
-  - Revenue by vehicle
-  - Payment method breakdown
-- **Booking Analytics**:
-  - Total bookings
-  - Booking status distribution
-  - Booking trends
-  - Peak booking periods
-- **Vehicle Analytics**:
-  - Most rented vehicles
-  - Vehicle utilization rates
-  - Revenue per vehicle
-  - Availability statistics
-- **Customer Analytics**:
-  - Total customers
-  - Customer segmentation
-  - Customer lifecycle analysis
-  - Repeat customer rate
-  - Customer acquisition trends
+**Dashboard Data:**
+- **Revenue**: Total and monthly revenue, counted from completed and confirmed bookings only
+- **Bookings**: Totals, status distribution, and a recent-bookings table
+- **Vehicles**: Fleet totals and availability statistics
+- **Customers**: Customer totals and detail statistics
+- **Deposits & Payments**: Deposit statistics and outstanding/pending payments
+- **Notifications**: System notices surfaced on the dashboard
 
-### 🚀 Lite vs Pro Edition Comparison
+**Features:**
+- Fresh data on every load (dashboard metrics are read uncached)
+- Responsive charts
+- No date-range or row limits of any kind
 
-| Feature | Lite (Free) | Pro (Premium) |
-| :--- | :--- | :--- |
-| **Maximum Vehicles** | 5 Vehicles | **Unlimited** |
-| **Maximum Bookings** | 50 Bookings | **Unlimited** |
-| **Maximum Customers** | 10 Customers | **Unlimited** |
-| **Additional Services (Addons)** | 4 Services | **Unlimited** |
-| **VIP Transfer Routes** | 3 Routes | **Unlimited** |
-| **Gallery Images** | 5 Images / Vehicle | **Unlimited** |
-| **Report Date Range** | Last 30 Days | **Unlimited** |
-| **Report Rows** | 500 Rows | **Unlimited** |
-| **Messaging System** | ❌ Not available | ✅ Available |
-| **Export Formats** | CSV Only | CSV, JSON |
-| **Payment Gateways** | WooCommerce | WooCommerce |
-| **REST API Access** | Limited | Full API |
-| **Advanced Reports** | ❌ Limited | ✅ Full Access |
-| **Vendor Marketplace** | ❌ Not available | ✅ Available |
-
-> **Note:** Lite version is designed for small businesses and testing. For unlimited access, please check the Pro version.
-
-**Report Features:**
-- Real-time data updates
-- Custom date range selection
-- Export to CSV (Lite) and CSV/JSON (Pro)
-- Responive charts
 ### 📧 Email Notification System
 
 **Email Templates:**
@@ -241,131 +201,10 @@ MHM Rentiva is a comprehensive WordPress plugin designed for vehicle rental busi
 2. **Refund Emails**:
    - Refund Processed Notification
 
-3. **Vendor Notifications (Pro)**:
-   - Application Submitted (Customer/Admin)
-   - Vendor Approved/Rejected
-   - Vehicle Approved/Rejected
-   - Payout Approved/Rejected
-   - IBAN Change Approved/Rejected
-
 **Email Features:**
 - **Modern HTML Templates**: Responsive design with liquid-like placeholders.
 - **Customization**: Admin can customize subjects and body content from settings.
 - **Logging**: All sent emails are logged via `EmailLog` post type for delivery tracking.
-ging**: All emails logged for debugging
-
-### 💬 Messaging System (Pro)
-
-**Message Features:**
-- **Thread-based Communication**: Conversations organized in threads
-- **Message Categories**: General, Booking, Payment, Technical Support, Complaint, Suggestion
-- **Message Statuses**: Pending, Answered, Closed, Urgent
-- **Priority Levels**: Normal, High, Urgent
-- **Admin Interface**: Full message management in WordPress admin
-- **Customer Interface**: Frontend message center for customers
-- **Email Notifications**: Automatic email notifications for new messages
-- **REST API**: Complete REST API for message operations
-
-**Message Management:**
-- View all messages in admin
-- Reply to customer messages
-- Change message status
-- Assign priorities
-- Bulk actions (delete, mark as read)
-- Search and filter messages
-- Message statistics
-
-### 🚐 VIP Transfer Module (Chauffeur Service)
-
-**Core Transfer Features:**
-- **Point-to-Point Booking**: Select pickup and drop-off locations from predefined zones.
-- **Route-Based Pricing**: Define fixed prices for specific origin-destination pairs.
-- **Passenger & Luggage Criteria**: Filter vehicles by passenger count and luggage capacity (Big/Small).
-- **AJAX Search**: Modern transfer search interface with real-time results.
-- **WooCommerce Integration**: Seamlessly add transfer bookings to cart (Deposit or Full Payment).
-- **Admin Management**: Manage locations, routes, and export/import transfer data.
-- **City → Point Hierarchy (v4.23.0)**: Each location has a city field; locations are filtered by city for vendors and search.
-- **Vendor Route Pricing (v4.23.0)**: Vendors set per-route prices within admin min/max range; search engine uses vendor price with base_price fallback.
-- **Route-Based Vehicle Filtering (v4.23.0)**: Transfer search engine filters vehicles by route assignment, passenger and luggage capacity.
-
-**Transfer Shortcodes:**
-- `[rentiva_transfer_search]` — Main transfer search form.
-- `[rentiva_transfer_results]` — Transfer search results display.
-
-### 🏪 Vendor Marketplace (Pro)
-
-**Multi-Vendor Management:**
-- **Vendor Role**: Custom `rentiva_vendor` WordPress role with isolated permissions
-- **Vendor Application**: Frontend application form with document uploads (ID, license, address, insurance)
-- **Onboarding Workflow**: Admin approve/reject/suspend vendor applications
-- **IBAN Encryption**: AES-256-CBC encrypted bank account storage
-
-**Vendor Vehicle Management:**
-- **Frontend Vehicle Submission**: Vendors submit vehicles via `[rentiva_vehicle_submit]` shortcode
-- **Vehicle Review**: Admin approve/reject with partial edit support (critical vs minor fields)
-- **Media Isolation**: Per-vendor media library isolation
-- **Ownership Enforcement**: Vendors can only edit their own vehicles
-
-**Vendor Transfer Operations (v4.23.0):**
-- **City-Based Filtering**: Vendors only see locations and routes in their city
-- **Route Pricing**: Vendors set per-route prices within admin-defined min/max range
-- **Transfer Search Integration**: Search engine uses vendor prices with base_price fallback
-
-**Financial System:**
-- **Commission Management**: Flexible commission rates per vendor
-- **Ledger System**: Complete financial transaction history
-- **Payout Requests**: Vendor payout tracking and approval
-- **Refund Entries**: Automatic reverse ledger entries for cancellations
-
-**Vendor Panel (`/panel/`):**
-- Listings: Vehicle management with inline add form
-- Booking Requests: Incoming reservation management
-- Ledger & Payouts: Financial overview and payout requests
-
-**Vendor Notifications (15 Email Templates):**
-- Application submitted/approved/rejected
-- Vehicle approved/rejected
-- Payout approved/rejected
-- Lifecycle: activated/paused/resumed/withdrawn/expired/expiry warnings/renewed/relisted
-
-### 🔄 Vehicle Lifecycle Management (Pro, v4.24.0)
-
-**State Machine:**
-- **5 States**: Pending Review, Active, Paused, Expired, Withdrawn
-- **Transition Rules**: Enforced state machine with allowed transitions
-- **90-Day Listings**: Automatic listing duration with cron-based expiry
-
-**Vendor Self-Service:**
-- Pause/Resume: Temporarily hide listing (timer continues)
-- Withdraw: Permanently remove with 7-day cooldown before relisting
-- Renew: Extend active listing for another 90 days
-- Relist: Resubmit withdrawn vehicle for admin review
-
-**Progressive Penalties:**
-- 1st withdrawal: Free
-- 2nd withdrawal: 10% of monthly average revenue
-- 3rd+ withdrawal: 25% of monthly average revenue
-- Rolling 12-month window with ledger-integrated penalty recording
-
-**Reliability Score (0-100):**
-- Daily cron recalculation for all vendors
-- Formula: Base 100, -5/cancellation, -10/withdrawal, -2/pause, +5/completion (max +20)
-- Labels: Excellent (90+), Good (70+), Fair (50+), Poor (<50)
-- Displayed on admin Users list and vehicle edit meta box
-
-**Anti-Gaming Protection:**
-- Vendor-cancelled booking dates re-blocked for 30 days
-- Prevents price manipulation via cancel-and-relist tactics
-
-**Admin UI:**
-- Lifecycle status column on vehicle list table (colored badges with days remaining)
-- Read-only lifecycle meta box on vehicle edit screen
-- Vendor reliability score column on Users list (sortable)
-
-**Automated Notifications:**
-- 10-day and 3-day expiry warning emails
-- Status change notifications (activated, paused, resumed, withdrawn, expired)
-- Renewal and relist confirmation emails
 
 ### 🌍 Internationalization & Localization
 
@@ -431,7 +270,6 @@ MHM Rentiva follows WordPress Coding Standards (WPCS) and strict security protoc
   - Price display options
   - Multiple selection support
 - **Booking Integration**: Addons automatically added to booking totals
-- **Lite Version Limit**: Maximum 4 addons in Lite version (unlimited in Pro)
 - **Bulk Actions**: Enable/disable/add/remove multiple addons at once
 - **Addon Settings**: Global settings for addon display and behavior
 
@@ -442,25 +280,13 @@ MHM Rentiva follows WordPress Coding Standards (WPCS) and strict security protoc
 - Full Insurance
 - And more...
 
-### 📤 Data Export System
+### 📤 Data Export
 
-**Export Formats:**
-- **CSV**: Comma-separated values (Lite & Pro)
-- **JSON**: JSON format (Pro only)
-
-**Exportable Data:**
-- **Bookings**: All booking data with filters
-- **Vehicles**: Vehicle inventory
-- **Logs**: System logs
-- **Reports**: Analytics data
-
-**Export Features:**
-- **Advanced Filtering**: Filter by date range, status, vehicle, customer
-- **Export History**: Track all exports
-- **Export Statistics**: View export usage
-- **Bulk Export**: Export multiple data types at once
-- **Custom Fields**: Include/exclude specific fields
-- **Date Range Selection**: Flexible date filtering
+**Customer Export:**
+- **Format**: CSV (`customers-YYYY-MM-DD.csv`), streamed straight to the browser
+- **Scope**: Export your whole customer list, the current search results, or a selection of rows
+- **Location**: `Rentiva > Customers`
+- **No limits**: No row cap and no date-range restriction
 
 ### 🗄️ Database Maintenance
 
@@ -493,37 +319,15 @@ wp mhm-rentiva cleanup full --execute   # Full cleanup
 - Backup system before cleanup
 - Detailed cleanup reports
 
-### 🔒 Privacy & GDPR Compliance (Pro)
-
-**GDPR Features:**
-- **Data Retention**: Configurable data retention period (default: 2550 days)
-- **Data Anonymization**: Anonymize user data instead of deletion
-- **Data Export**: Customer can export all their data
-- **Data Deletion**: Customer can request account deletion
-- **Consent Management**: Track and manage user consent
-- **Privacy Controls**: Customer dashboard with privacy controls
-
-**Privacy Controls in Customer Dashboard:**
-- Export personal data (JSON format)
-- Withdraw consent for data processing
-- Delete account and all associated data
-- View privacy policy
-
-**Automatic Cleanup:**
-- Scheduled cleanup of inactive users
-- Cleanup old completed/cancelled bookings
-- Respects retention period settings
-- Anonymization option before deletion
-
 ### 🧩 Gutenberg Blocks Integration
 
 **20 Available Blocks:**
-- Availability Calendar, Booking Form, Featured Vehicles, Login Form, Messages
-- My Bookings, My Favorites, Payment History, Popular Routes, Register Form
-- Search Results, Testimonials, Thank You, Transfer Results, Transfer Search
-- Unified Search, User Dashboard, Vehicle Comparison, Vehicle Details, Vehicles Grid
+- Availability Calendar, Booking Form, Contact, Featured Vehicles
+- My Bookings, My Favorites, Payment History, Search Results
+- Testimonials, Unified Search, User Dashboard, Vehicle Comparison
+- Vehicle Details, Vehicle Rating Form, Vehicles Grid, Vehicles List
 
-All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render Parity architecture), ensuring identical output across Gutenberg, Elementor, and shortcode usage.
+All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render Parity architecture), ensuring identical output across Gutenberg, Elementor, and shortcode usage.
 
 **Block Features:**
 - Visual block editor integration
@@ -534,35 +338,30 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 
 ### 🎨 Elementor Widgets Integration
 
-**Complete Widget Suite (23 Widgets):**
+**Complete Widget Suite (17 Widgets):**
 
-**Vehicle Widgets:**
-- **Vehicle Search Widget**: Advanced vehicle search with filters
+**Vehicle Widgets (10):**
+- **Unified Search Widget**: Vehicle search with date, location and category filters
 - **Vehicle Card Widget**: Single vehicle display with customizable layout
-- **Vehicles List Widget**: Grid or list view of vehicles with advanced query options
+- **Vehicles Grid Widget**: Responsive grid view of vehicles with advanced query options
+- **Vehicles List Widget**: List view of vehicles with details
 - **Vehicle Details Widget**: Detailed vehicle information display
 - **Vehicle Comparison Widget**: Side-by-side vehicle comparison
-- **Vehicle Rating Widget**: Vehicle rating and review display
+- **Vehicle Rating Widget**: Vehicle rating and review form
 - **Search Results Widget**: Search results display with filtering
 - **Availability Calendar Widget**: Interactive availability calendar
+- **Featured Vehicles Widget**: Featured vehicles slider or grid
 
-**Booking Widgets:**
+**Booking Widgets (1):**
 - **Booking Form Widget**: Complete booking form with vehicle selection, addons, and payment options
-- **Booking Confirmation Widget**: Booking confirmation display
-- **Thank You Widget**: Thank you page after booking completion
 
-**Account Widgets:**
-- **My Account Widget**: Customer account dashboard
+**Account Widgets (4):**
+- **User Dashboard Widget**: Customer account dashboard
 - **My Bookings Widget**: Customer booking history
 - **My Favorites Widget**: Favorite vehicles management
 - **Payment History Widget**: Payment transaction history
-- **Account Details Widget**: Account profile editing
 
-**Authentication Widgets:**
-- **Login Form Widget**: Customer login form
-- **Register Form Widget**: Customer registration form
-
-**Other Widgets:**
+**Other Widgets (2):**
 - **Contact Form Widget**: Contact form integration
 - **Testimonials Widget**: Customer testimonials display
 
@@ -629,263 +428,6 @@ All 20 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 - **Log Viewing**: View logs in admin with filters
 - **Log Export**: Export logs for analysis
 
-### 🔐 Licensing System
-
-MHM Rentiva uses a **freemium model** with Lite (free) and Pro (paid) versions. The plugin automatically detects license status and enables/restricts features accordingly.
-
-#### License Management
-
-**License Activation:**
-- **Location**: `Rentiva > License`
-- **License Key Format**: Alphanumeric with hyphens (e.g., `XXXX-XXXX-XXXX-XXXX`)
-- **Activation Process**: 
-  1. Enter license key in License page
-  2. Click "Activate License"
-  3. System validates with license server
-  4. Pro features automatically enabled
-- **License Validation**: Automatic daily validation via WordPress cron
-- **License Expiration**: Warnings shown 14 days before expiration
-
-**License Server Integration:**
-- **API Endpoints**: 
-  - `/licenses/activate` - Activate license
-  - `/licenses/validate` - Validate license
-  - `/licenses/deactivate` - Deactivate license
-- **Site Hash**: Unique site identifier for license binding
-- **Staging Support**: Automatic detection of staging environments
-- **Multi-site Support**: License works across WordPress multisite
-
-**Developer Mode:**
-- **Automatic Detection**: Development environments automatically enable Pro features
-- **Detection Criteria**:
-  - Localhost domains (localhost, 127.0.0.1, ::1)
-  - Local TLDs (.local, .test, .dev, .staging)
-  - Development ports (8080, 8081, 3000, etc.)
-  - XAMPP/WAMP/MAMP server software
-  - WordPress debug mode (WP_DEBUG)
-  - Development environment constant (WP_ENV)
-- **Security**: Only works on localhost/development domains (secure)
-
-#### Lite Version (Free) - Feature Limitations
-
-**Quantity Limits:**
-- **Vehicles**: Maximum **5 vehicles** (publish, pending, private status)
-- **Bookings**: Maximum **50 bookings** (publish, pending, private status)
-- **Customers**: Maximum **10 customers** (WordPress users with bookings)
-- **Addons**: Maximum **4 addon services** (additional services)
-
-**Payment Gateway:**
-- ✅ **Frontend Payments**: Via WooCommerce (All gateways supported)
-- ✅ **Manual Payments**: Native Offline Payment (Admin only)
-
-**Export Restrictions:**
-- ✅ **CSV Export**: Available (all versions)
-- ❌ **JSON Export**: Not available (Pro only)
-
-**Report Restrictions:**
-- **Date Range**: Maximum **30 days** (filtered automatically)
-- **Report Rows**: Maximum **500 rows** per export
-- **Advanced Reports**: Not available (Pro only)
-- **Report Export**: Limited to CSV only
-
-**Messaging System:**
-- ❌ **Customer Messaging**: Not available (Pro only)
-- ❌ **Admin Messaging**: Not available (Pro only)
-- ❌ **Message Threads**: Not available (Pro only)
-
-**Other Limitations:**
-- **Advanced Reports Feature**: Not available (basic reports only)
-- **Report Export Formats**: Limited to CSV only for Lite reports
-
-**Lite Version Restrictions UI:**
-- Admin notices show current usage (e.g., "5/5 vehicles used")
-- "Add New" buttons hidden when limits reached
-- Pro-locked sections show "Pro" badge
-- Upgrade prompts throughout admin interface
-
-#### Pro Version - Full Feature Access
-
-**Unlimited Quantities:**
-- **Vehicles**: **Unlimited** vehicles
-- **Bookings**: **Unlimited** bookings
-- **Customers**: **Unlimited** customers
-- **Addons**: **Unlimited** addon services
-
-**All Payment Gateways:**
-- ✅ **Frontend Payments**: Via WooCommerce (All gateways supported)
-- ✅ **Manual Payments**: Native Offline Payment (Admin only)
-
-**Export Formats:**
-- ✅ **CSV Export**: Available (all versions, includes UTF-8 BOM for Excel compatibility)
-- ✅ **JSON Export**: Available (Pro only — structured data export with metadata wrapper)
-
-**Advanced Reports:**
-- **Unlimited Date Range**: No date restrictions (Lite: 30 days max)
-- **Unlimited Rows**: No row limits (Lite: 500 rows max)
-- **Report Types**: Revenue, Bookings, Vehicles, Customers reports
-- **Dashboard Widgets**: Statistics and revenue chart widgets
-- **Multi-format Export**: Export reports as CSV or JSON
-- **Report Cache**: Automatic caching for performance
-
-**Messaging System:**
-- ✅ **Customer Messaging**: Frontend customer message interface
-- ✅ **Admin Messaging**: Admin message management interface
-- ✅ **Message Threads**: Thread-based conversation system (UUID-based)
-- ✅ **Email Notifications**: Automatic email notifications for new messages and replies
-- ✅ **Message Status**: Open, In Progress, Closed status management
-- ✅ **Message Categories**: Categorized message organization (General, Support, Booking, etc.)
-- ✅ **Message Priority**: Priority levels (Low, Normal, High, Urgent)
-- ✅ **REST API**: REST endpoints for message operations
-- ✅ **Unlimited Messages**: No message limits in Pro version
-
-**Additional Pro Features:**
-- **REST API Access**: Full REST API endpoints for integration
-- **Email Notifications**: Automatic email notifications for bookings
-- **Logging System**: Comprehensive logging for debugging
-- **GDPR Compliance**: Data export, anonymization, and deletion features
-- **Database Maintenance**: WP-CLI commands for database cleanup
-- **Cron Jobs**: Automated background tasks
-
-#### Feature Comparison Table
-
-| Feature | Lite Version | Pro Version |
-|---------|--------------|-------------
-| **Maximum Vehicles** | 5 | Unlimited |
-| **Maximum Bookings** | 50 | Unlimited |
-| **Maximum Customers** | 10 | Unlimited |
-| **Maximum Addons** | 4 | Unlimited |
-| **VIP Transfer Routes** | 3 | Unlimited |
-| **Gallery Images** | 5 / Vehicle | Unlimited |
-| **Frontend Payments** | Via WooCommerce | Via WooCommerce |
-| **Manual Payments** | Native Offline | Native Offline |
-| **Export Formats** | CSV Only | CSV, JSON |
-| **Report Date Range** | 30 days max | Unlimited |
-| **Report Rows** | 500 max | Unlimited |
-| **Advanced Reports** | ❌ | ✅ |
-| **Messaging System** | ❌ | ✅ |
-| **Vendor Marketplace** | ❌ | ✅ (Pro) |
-| **Vehicle Lifecycle Management** | ❌ | ✅ (Pro) |
-| **API Access** | Limited | Full REST API |
-
-#### License Administration
-
-**License Page Location**: `Rentiva > License`
-
-**License Status Display:**
-- Pro License Active (green badge)
-- Lite Version (yellow badge)
-- Developer Mode (info badge)
-- License expiration warnings
-- Last validation timestamp
-
-**License Actions:**
-- **Activate License**: Enter license key and activate
-- **Deactivate License**: Remove license from site
-- **Validate License**: Manually check license status
-- **Change License**: Deactivate old, activate new
-
-**License Information Displayed:**
-- License key (masked)
-- License status (active/inactive)
-- Expiration date
-- Last validation time
-- Site hash (for support)
-
-**Restriction Enforcement:**
-- **Automatic Limits**: System prevents exceeding Lite limits
-- **Admin Notices**: Warnings when approaching limits
-- **Feature Gates**: Pro features automatically disabled in Lite
-- **UI Overlays**: Pro-locked sections visually marked
-- **Upgrade Prompts**: Clear upgrade paths to Pro
-
-#### License Validation
-
-**Automatic Validation:**
-- **Daily Cron Job**: Validates license every 24 hours
-- **On Activation**: Validates immediately when activated
-- **On Page Load**: Checks license status in admin
-- **Before Pro Features**: Validates before enabling Pro features
-
-**Validation Process:**
-1. Sends license key to license server
-2. Sends site hash for site binding
-3. Server validates license status
-4. Returns license information (status, expiration, plan)
-5. Updates local license data
-6. Enables/restricts features accordingly
-
-**Site Binding:**
-- **Site Hash**: Generated from site URL, WordPress version, PHP version
-- **Prevents License Sharing**: License tied to specific site
-- **Staging Support**: Staging sites don't count as separate activations
-- **Multi-site**: License works across network sites
-
-**License Expiration:**
-- **Warning Period**: Shows warnings 14 days before expiration
-- **Network Grace Period**: If the license server is temporarily unreachable, Pro features keep working for 7 days from the last successful validation (offline tolerance). Does not extend past the expiration date.
-- **Expiration Handling**: Pro features immediately disabled when the expiration date passes (license record is retained for renewal)
-- **Renewal**: Re-activate with a new license key from the License page
-
-#### Developer Mode
-
-**Automatic Developer Mode:**
-- **Purpose**: Automatically enables Pro features in development
-- **Security**: Only works on localhost/development domains
-- **Detection**: Multiple criteria for reliable detection
-- **No License Required**: No license key needed in development
-
-**Development Environment Detection:**
-1. **Host Check**: localhost, .local, .test, .dev, .staging domains
-2. **Server Software**: XAMPP, WAMP, MAMP, LAMP detection
-3. **Port Check**: Development ports (8080, 3000, etc.)
-4. **WordPress Debug**: WP_DEBUG constant check
-5. **Environment Constant**: WP_ENV development check
-
-**Developer Mode Features:**
-- All Pro features enabled
-- No quantity limits
-- All payment gateways available (via WooCommerce)
-- All export formats available
-- Full messaging system
-- Advanced reports enabled
-
-**Security Considerations:**
-- Only works on localhost/development domains
-- Cannot be activated on production sites
-- Prevents license key sharing
-- Secure automatic detection
-
-#### License Troubleshooting
-
-**Common Issues:**
-
-1. **License Not Activating**
-   - Check license key format
-   - Verify license server connectivity
-   - Check site hash generation
-   - Verify staging environment detection
-
-2. **Features Not Enabling**
-   - Validate license manually
-   - Check license expiration
-   - Verify site hash matches
-   - Check developer mode status
-
-3. **License Expiration**
-   - Renew license before expiration
-   - Check expiration date in license page
-   - Contact support for renewal issues
-
-4. **Staging Environment**
-   - Staging sites automatically detected
-   - Don't count as separate activations
-   - License works on staging sites
-
-**Support:**
-- License issues: Contact support with license key
-- Feature questions: Check feature comparison table
-- Upgrade inquiries: Visit license page for upgrade options
-
 ### 🗑️ Uninstall System
 
 **Uninstall Features:**
@@ -919,12 +461,10 @@ All major admin pages have been migrated from legacy jQuery/WP_List_Table to Rea
 
 | Page | Version | React Components | REST Endpoints |
 | :--- | :---: | :--- | :--- |
-| **Dashboard** | v4.36.0 | DashboardPage, StatsCards, RecentBookings, TransferWidget, QuickActions | `/mhm-rentiva/v1/dashboard/*` |
-| **Reports** | v4.37.x | ReportsPage, BookingsTab, RevenueTab, VehiclesTab, CustomersTab (Chart.js) | `/mhm-rentiva/v1/reports/*` |
+| **Dashboard** | v4.36.0 | DashboardPage, StatsCards, RecentBookings, QuickActions | `/mhm-rentiva/v1/dashboard/*` |
 | **Customers** | v4.39.0 | CustomerTable, CustomerPanel, SearchBar, FilterBar, Pagination | `/mhm-rentiva/v1/customers`, `/customers/{id}`, `/customers/bulk` |
-| **Messages** | v4.40.0–v4.41.0 | MessagesPage, MessageTable, ThreadView, SettingsView | `/mhm-rentiva/v1/messages/*` |
-| **Vendor Reports** | v4.40.0 | VendorReportsPage, FilterBar, ReportTable, DetailView, ActionForm | `/mhm-rentiva/v1/vendor-reports`, `/vendor-reports/{id}` |
-| **Vendor Management** | v4.40.0 | VendorManagementPage, ApplicationTable, ApplicationDetailPage, IbanRequestsTab | `/mhm-rentiva/v1/vendor-management/*` |
+| **Shortcode Pages** | v4.49.0 | ShortcodePagesPage, ShortcodeTable, StatusBadge | `/mhm-rentiva/v1/shortcode-pages/*` |
+| **About** | v5.0.0 | AboutPage, TabNav, GeneralTab, SystemTab, SupportTab, DeveloperTab | `/mhm-rentiva/v1/about` |
 
 **Architecture Highlights:**
 - **REST API First**: All data fetched via authenticated WP REST API endpoints (manage_options capability)
@@ -963,12 +503,16 @@ The plugin will automatically create pages for shortcodes, or you can create the
 - Vehicles List/Grid page (use `[rentiva_vehicles_grid]` or `[rentiva_vehicles_list]`)
 
 **Optional Pages:**
-- Search page (use `[rentiva_search]` shortcode)
+- Search page (use `[rentiva_unified_search]` shortcode)
+- Search results page (use `[rentiva_search_results]` shortcode)
 - Contact page (use `[rentiva_contact]` shortcode)
-- Login page (use `[rentiva_login_form]` shortcode)
-- Registration page (use `[rentiva_register_form]` shortcode)
 - Favorites page (use `[rentiva_my_favorites]` shortcode)
-- VIP Transfer Search (use `[mhm_rentiva_transfer_search]` shortcode)
+- Vehicle comparison page (use `[rentiva_vehicle_comparison]` shortcode)
+
+> Login and registration are handled by the WooCommerce My Account page; `[rentiva_user_dashboard]`
+> renders the login/register/account views on a page of your own if you prefer.
+
+The `Rentiva > Shortcode Pages` tool creates any of these for you in one click.
 
 ### Step 4: Configure Payment Gateways
 
@@ -1041,7 +585,7 @@ The plugin will automatically create pages for shortcodes, or you can create the
 
 ## Shortcodes Reference
 
-The plugin registers **26 shortcodes** across booking, account, vendor marketplace, transfer, and supporting surfaces. Every shortcode has a paired Gutenberg block and Elementor widget that delegate to the same canonical renderer (Render Parity — identical output across all three).
+The plugin registers **16 shortcodes** across booking, account and supporting surfaces. Every shortcode has a paired Gutenberg block and Elementor widget that delegate to the same canonical renderer (Render Parity — identical output across all three).
 
 ### Booking & Vehicle Display (9)
 - `[rentiva_booking_form]` — Main booking form (accepts `vehicle_id` parameter).
@@ -1050,30 +594,15 @@ The plugin registers **26 shortcodes** across booking, account, vendor marketpla
 - `[rentiva_featured_vehicles]` — Featured vehicles (Swiper slider / grid).
 - `[rentiva_vehicle_details]` — Single-vehicle detail page with gallery and booking CTA.
 - `[rentiva_search_results]` — Active search results page renderer.
-- `[rentiva_unified_search]` — Modern unified search box (vehicles + transfer).
+- `[rentiva_unified_search]` — Search box with date, location and category filters.
 - `[rentiva_availability_calendar]` — Visual availability calendar.
 - `[rentiva_vehicle_comparison]` — Side-by-side vehicle comparison.
 
-### Customer Account (6)
-- `[rentiva_user_dashboard]` — Customer / Vendor main dashboard.
+### Customer Account (4)
+- `[rentiva_user_dashboard]` — Customer main dashboard.
 - `[rentiva_my_bookings]` — Customer's current and past bookings (WC My Account sub-route).
 - `[rentiva_my_favorites]` — Customer's favorite vehicles (WC My Account sub-route).
 - `[rentiva_payment_history]` — Payment history and receipt details.
-- `[rentiva_messages]` — Internal vendor ↔ customer messaging (Pro).
-- `[rentiva_commission_resolver]` — Returns the active commission rate for a vendor (utility).
-
-### Vendor Marketplace (5, Pro)
-- `[rentiva_vendor_apply]` — New vendor application form.
-- `[rentiva_vehicle_submit]` — Frontend vehicle submission form (vendor panel).
-- `[rentiva_vendor_bookings]` — Vendor's incoming bookings management table.
-- `[rentiva_vendor_profile]` — Public vendor profile page (delegated by `/vendor/<slug>/` rewrite).
-- `[rentiva_vendor_directory]` — Public catalogue of all active vendors (delegated by `/vendors/` rewrite).
-- `[rentiva_vendor_ledger]` — Vendor financial ledger and balance table (vendor panel).
-
-### Transfer Module (3)
-- `[rentiva_transfer_search]` — VIP transfer / chauffeur search form.
-- `[rentiva_transfer_results]` — Transfer search results display.
-- `[rentiva_popular_routes]` — A → B popular transfer route cards (homepage conversion block).
 
 ### Supporting Surfaces (3)
 - `[rentiva_contact]` — Site contact form.
@@ -1083,8 +612,6 @@ The plugin registers **26 shortcodes** across booking, account, vendor marketpla
 ---
 
 ## REST API Documentation
-
-> **Lite:** Limited API access. **Pro:** Full REST API with all endpoints.
 
 ### Base URL
 ```

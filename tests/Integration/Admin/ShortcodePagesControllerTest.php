@@ -67,8 +67,12 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
 
         $this->assertArrayHasKey( 'shortcodes', $data );
         $this->assertArrayHasKey( 'stats', $data );
-        $this->assertCount( 26, $data['shortcodes'] );
-        $this->assertSame( 26, (int) $data['stats']['total'] );
+        // 16, not the monolith's 26: get_config() drops the 10 carved-out Pro
+        // shortcodes, which this tool used to offer and publish as literal text.
+        // Kept as an explicit count so re-adding an unrenderable entry fails here.
+        // See ShortcodePagesLiteSeamTest for the seam itself.
+        $this->assertCount( 16, $data['shortcodes'] );
+        $this->assertSame( 16, (int) $data['stats']['total'] );
     }
 
     public function test_all_shortcode_slugs_have_rentiva_prefix(): void
@@ -152,7 +156,9 @@ final class ShortcodePagesControllerTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'scanned_pages', $data );
         $this->assertArrayHasKey( 'results', $data );
         $this->assertGreaterThanOrEqual( 0, (int) $data['scanned_pages'] );
-        $this->assertCount( 26, $data['results'] );
+        // 16: the debug scan reports one row per offered shortcode, and Lite offers
+        // only the 16 it can actually render (see the list assertion above).
+        $this->assertCount( 16, $data['results'] );
         $this->assertArrayHasKey( 'slug',     $data['results'][0] );
         $this->assertArrayHasKey( 'found_in', $data['results'][0] );
     }
