@@ -54,10 +54,11 @@ class BlockRegistry {
 			'deps'  => array( 'mhm-vehicle-card-css' ),
 		),
 		'transfer-results'      => array(
-			'tag'   => 'rentiva_transfer_results',
-			'title' => 'Transfer Search Results',
-			'css'   => 'transfer-results.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'tag'      => 'rentiva_transfer_results',
+			'title'    => 'Transfer Search Results',
+			'css'      => 'transfer-results.css',
+			'deps'     => array( 'mhm-vehicle-card-css' ),
+			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
 		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
@@ -131,19 +132,22 @@ class BlockRegistry {
 		),
 
 		'messages'              => array(
-			'tag'   => 'rentiva_messages',
-			'title' => 'Customer Messages',
-			'css'   => 'customer-messages.css',
+			'tag'      => 'rentiva_messages',
+			'title'    => 'Customer Messages',
+			'css'      => 'customer-messages.css',
+			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
 		),
 		'transfer-search'       => array(
-			'tag'   => 'rentiva_transfer_search',
-			'title' => 'Transfer Search',
-			'css'   => 'transfer.css',
+			'tag'      => 'rentiva_transfer_search',
+			'title'    => 'Transfer Search',
+			'css'      => 'transfer.css',
+			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
 		),
 		'popular-routes'        => array(
-			'tag'   => 'rentiva_popular_routes',
-			'title' => 'Popular Transfer Routes',
-			'css'   => 'popular-routes.css',
+			'tag'      => 'rentiva_popular_routes',
+			'title'    => 'Popular Transfer Routes',
+			'css'      => 'popular-routes.css',
+			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
 		),
 		'user-dashboard'        => array(
 			'tag'   => 'rentiva_user_dashboard',
@@ -151,14 +155,16 @@ class BlockRegistry {
 			'css'   => 'user-dashboard.css',
 		),
 		'vendor-profile'        => array(
-			'tag'   => 'rentiva_vendor_profile',
-			'title' => 'Vendor Profile',
-			'css'   => 'vendor-profile.css',
+			'tag'      => 'rentiva_vendor_profile',
+			'title'    => 'Vendor Profile',
+			'css'      => 'vendor-profile.css',
+			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
 		),
 		'vendor-directory'      => array(
-			'tag'   => 'rentiva_vendor_directory',
-			'title' => 'Vendor Directory',
-			'css'   => 'vendor-directory.css',
+			'tag'      => 'rentiva_vendor_directory',
+			'title'    => 'Vendor Directory',
+			'css'      => 'vendor-directory.css',
+			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
 		),
 	);
 
@@ -287,6 +293,37 @@ class BlockRegistry {
 	}
 
 	/**
+	 * The blocks this build can actually render.
+	 *
+	 * Every block delegates to its shortcode via do_shortcode() (see
+	 * render_callback()), so a block whose backing shortcode class this build does
+	 * not ship has nothing to render. Lite carves those classes out, and
+	 * ShortcodeServiceProvider::drop_absent_pro_seams() drops their shortcodes to
+	 * match -- but an unregistered shortcode does not disappear, it degrades to its
+	 * own literal source text. Registering the block anyway therefore produced two
+	 * user-visible defects in Lite: the block stayed in the editor inserter, and a
+	 * page already carrying one printed the raw `[rentiva_transfer_search]` string
+	 * to visitors.
+	 *
+	 * Gating here -- at the single point every consumer reads -- mirrors the
+	 * shortcode registry's own seam filter and Elementor's `pro_widget_classes`
+	 * check, so all three registries drop the same feature together.
+	 *
+	 * @return array<string, array<string, mixed>> Blocks minus absent Pro seams.
+	 */
+	private static function get_available_blocks(): array
+	{
+		return array_filter(
+			self::$blocks,
+			static function (array $config): bool {
+				$seam = $config['pro_seam'] ?? null;
+
+				return null === $seam || class_exists( (string) $seam );
+			}
+		);
+	}
+
+	/**
 	 * Register all defined blocks with their dependencies
 	 *
 	 * @return void
@@ -312,7 +349,7 @@ class BlockRegistry {
 			);
 		}
 
-		foreach (self::$blocks as $slug => $config) {
+		foreach (self::get_available_blocks() as $slug => $config) {
 			$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
 
 			// 1. Register Editor Script (Shared requirements)
