@@ -93,20 +93,6 @@
 	z-index: 10;
 }
 
-/* ── Features table ──────────────────────────────────────────────────── */
-.mhm-about-features {
-	margin-top: 0;
-}
-
-.mhm-about-features-table-wrap {
-	overflow-x: auto;
-}
-
-.mhm-features-table th:first-child,
-.mhm-features-table td:first-child {
-	width: 40%;
-}
-
 /* ── Support cards ───────────────────────────────────────────────────── */
 .mhm-about-support-cards {
 	display: grid;

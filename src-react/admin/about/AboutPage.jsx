@@ -4,14 +4,15 @@ import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../shared/api/rentiva';
 import TabNav        from './components/TabNav';
 import GeneralTab    from './components/GeneralTab';
-import FeaturesTab   from './components/FeaturesTab';
 import SystemTab     from './components/SystemTab';
 import SupportTab    from './components/SupportTab';
 import DeveloperTab  from './components/DeveloperTab';
 
 function getInitialTab() {
 	const tab = new URLSearchParams( window.location.search ).get( 'tab' );
-	const allowed = [ 'general', 'features', 'system', 'support', 'developer' ];
+	// Keep in sync with TabNav's TABS and About.php's $allowed. A stale `features`
+	// entry here would resurrect the removed comparison tab from a bookmarked URL.
+	const allowed = [ 'general', 'system', 'support', 'developer' ];
 	return allowed.includes( tab ) ? tab : ( window.mhmRentivaAbout?.initial_tab ?? 'general' );
 }
 
@@ -51,7 +52,6 @@ export default function AboutPage() {
 
 			<div className="mhm-about-tab-content">
 				{ activeTab === 'general'   && <GeneralTab   data={ data.general }   /> }
-				{ activeTab === 'features'  && <FeaturesTab  data={ data.features }  /> }
 				{ activeTab === 'system'    && <SystemTab    data={ data.system }    /> }
 				{ activeTab === 'support'   && <SupportTab   data={ data.support }   /> }
 				{ activeTab === 'developer' && <DeveloperTab data={ data.developer } /> }
