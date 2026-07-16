@@ -19,6 +19,7 @@ MHMRentiva\Admin\Privacy\GDPRManager
 MHMRentiva\Admin\REST\Locations
 MHMRentiva\Admin\Reports\BackgroundProcessor
 MHMRentiva\Admin\Reports\Reports
+MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings
 MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer
 MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer
 MHMRentiva\Admin\Transfer\Engine\LocationProvider

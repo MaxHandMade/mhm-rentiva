@@ -295,8 +295,16 @@ final class EmailTemplates {
 			}
 		}
 
-		// Get active tab information
+		// Get active tab information. Unlike the render path this value arrives from
+		// POST, so it must be validated against the tabs this build actually offers
+		// -- otherwise a hand-crafted request could still reach the save handler of
+		// a tab that no longer exists (message_emails without the Messages module,
+		// vendor_emails without the vendor module) and write settings for a feature
+		// that cannot use them.
 		$current_tab = self::post_key('current_tab', 'booking_notifications');
+		if (! isset(self::get_email_type_tabs()[ $current_tab ])) {
+			$current_tab = 'booking_notifications';
+		}
 
 		// Process only active tab
 		if ($current_tab === 'booking_notifications') {
@@ -395,6 +403,15 @@ final class EmailTemplates {
 	 * unknown $current_type, so dropping the key here also makes the
 	 * `$current_type === 'vendor_emails'` render branch unreachable.
 	 *
+	 * Message Notifications is gated the same way, but on the Pro class that SENDS
+	 * those emails rather than on the one that renders the form: MessageEmails
+	 * ships in Lite (so gating on it would never be false) while the Messages
+	 * module that sends the mail does not. The tab was therefore a settings form
+	 * for notifications Lite can never emit.
+	 *
+	 * This list is also what save_email_templates() validates its POSTed
+	 * `current_tab` against, so a dropped key closes the save handler too.
+	 *
 	 * @return array<string, string>
 	 */
 	private static function get_email_type_tabs(): array
@@ -402,8 +419,18 @@ final class EmailTemplates {
 		$email_types = array(
 			'booking_notifications' => __('Booking Notifications', 'mhm-rentiva'),
 			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
-			'message_emails'        => __('Message Notifications', 'mhm-rentiva'),
 		);
+
+		// Message Notifications — gated on the Pro class that actually SENDS these
+		// emails, not on the template renderer: MessageEmails ships in Lite, so
+		// gating on it would never be false. Without the Messages module nothing can
+		// send a message notification, making this tab a settings form for mail that
+		// can never leave. Dropping the key here also makes the
+		// `$current_type === 'message_emails'` render/save branches unreachable, the
+		// same way the vendor tab below works.
+		if (class_exists('\MHMRentiva\Admin\Messages\Notifications\MessageNotifications')) {
+			$email_types['message_emails'] = __('Message Notifications', 'mhm-rentiva');
+		}
 
 		if (class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
 			$email_types['vendor_emails'] = __('Vendor Notifications', 'mhm-rentiva');

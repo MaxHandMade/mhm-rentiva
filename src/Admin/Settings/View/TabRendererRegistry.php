@@ -107,20 +107,26 @@ final class TabRendererRegistry {
 			)
 		);
 
-		$this->register(
-			new BaseSettingsTabRenderer(
-				__( 'Vendor Marketplace', 'mhm-rentiva' ),
-				'vendor-marketplace',
-				__( 'Configure vendor listing durations, penalty rates, anti-gaming protection, and reliability score weights.', 'mhm-rentiva' ),
-				'\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
-				array(
-					'mhm_rentiva_vendor_listing_section',
-					'mhm_rentiva_vendor_penalty_section',
-					'mhm_rentiva_vendor_anti_gaming_section',
-					'mhm_rentiva_vendor_reliability_section',
+		// Vendor Marketplace — Pro seam. The tab's whole content comes from
+		// VendorMarketplaceSettings, which Lite carves out: without it the tab
+		// renders as an empty shell advertising a feature this build does not have.
+		// Gated like the Messages and Transfer renderers below.
+		if ( class_exists( '\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings' ) ) {
+			$this->register(
+				new BaseSettingsTabRenderer(
+					__( 'Vendor Marketplace', 'mhm-rentiva' ),
+					'vendor-marketplace',
+					__( 'Configure vendor listing durations, penalty rates, anti-gaming protection, and reliability score weights.', 'mhm-rentiva' ),
+					'\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
+					array(
+						'mhm_rentiva_vendor_listing_section',
+						'mhm_rentiva_vendor_penalty_section',
+						'mhm_rentiva_vendor_anti_gaming_section',
+						'mhm_rentiva_vendor_reliability_section',
+					)
 				)
-			)
-		);
+			);
+		}
 
 		$this->register(
 			new BaseSettingsTabRenderer(
