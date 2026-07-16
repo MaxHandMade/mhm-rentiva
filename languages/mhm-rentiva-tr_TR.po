@@ -11876,9 +11876,8 @@ msgid "IP Control & Firewall"
 msgstr "IP Kontrolü ve Güvenlik Duvarı"
 
 #: src/Admin/Settings/Groups/SecuritySettings.php:82
-#, fuzzy
 msgid "Manage IP whitelists and blacklists."
-msgstr "IP beyaz listeleri, kara listeler ve ülke bazlı kısıtlamaları yönetin."
+msgstr "IP izin ve engel listelerini yönetin."
 
 #: src/Admin/Settings/Groups/SecuritySettings.php:86
 msgid "Enable IP Whitelist"
@@ -13121,9 +13120,8 @@ msgid "Continue to Required Pages"
 msgstr "Gerekli Sayfalara devam et"
 
 #: src/Admin/Setup/SetupWizard.php:235
-#, fuzzy
 msgid "Step 2: Required Pages"
-msgstr "Adım 3: Gerekli Sayfalar"
+msgstr "Adım 2: Gerekli Sayfalar"
 
 #: src/Admin/Setup/SetupWizard.php:236
 msgid ""
@@ -13168,9 +13166,8 @@ msgid "Continue to Email"
 msgstr "E-Posta Ayarlarına devam et"
 
 #: src/Admin/Setup/SetupWizard.php:300
-#, fuzzy
 msgid "Step 3: Email & Notifications"
-msgstr "Adım 4: E-posta ve Bildirimler"
+msgstr "Adım 3: E-posta ve Bildirimler"
 
 #: src/Admin/Setup/SetupWizard.php:301
 msgid ""
@@ -13263,9 +13260,8 @@ msgid "Right Space (100 %s)"
 msgstr "Sağ Alan (100 %s)"
 
 #: src/Admin/Setup/SetupWizard.php:397
-#, fuzzy
 msgid "Step 4: Frontend & Display"
-msgstr "Adım 5: Ön Uç ve Ekran"
+msgstr "Adım 4: Ön Uç ve Görünüm"
 
 #: src/Admin/Setup/SetupWizard.php:398
 msgid ""
@@ -19548,23 +19544,20 @@ msgstr "Araçlara Geri Dön"
 #: assets/blocks/availability-calendar/index.js:37
 #: assets/blocks/vehicle-details/index.js:39
 #: assets/blocks/vehicle-rating-form/index.js:36
-#, fuzzy
 msgid "Vehicle ID (Optional)"
-msgstr "Araç Açıklaması"
+msgstr "Araç Kimliği (İsteğe Bağlı)"
 
 #: assets/blocks/availability-calendar/index.js:40
-#, fuzzy
 msgid "Leave empty to auto-detect on Vehicle pages."
-msgstr "Mevcut araç için boş bırakın"
+msgstr "Araç sayfalarında otomatik algılamak için boş bırakın."
 
 #: assets/blocks/availability-calendar/index.js:43
 msgid "Months to Show"
-msgstr ""
+msgstr "Gösterilecek Ay Sayısı"
 
 #: assets/blocks/availability-calendar/index.js:56
-#, fuzzy
 msgid "Start Week On"
-msgstr "Başlangıç tarihi"
+msgstr "Haftanın Başlangıç Günü"
 
 #: assets/blocks/availability-calendar/index.js:67
 #: assets/blocks/booking-form/index.js:40
@@ -19574,17 +19567,16 @@ msgstr "Başlangıç tarihi"
 #: assets/blocks/transfer-results/index.js:77
 #: assets/blocks/vehicles-grid/index.js:112
 #: assets/blocks/vehicles-list/index.js:86
-#, fuzzy
 msgid "Layout & Style"
-msgstr "Düzen Stili"
+msgstr "Düzen ve Stil"
 
 #: assets/blocks/availability-calendar/index.js:69
 msgid "Calendar Height"
-msgstr ""
+msgstr "Takvim Yüksekliği"
 
 #: assets/blocks/availability-calendar/index.js:72
 msgid "e.g., \"auto\", \"500px\""
-msgstr ""
+msgstr "örn. \"auto\", \"500px\""
 
 #: assets/blocks/availability-calendar/index.js:82
 #: assets/blocks/booking-form/index.js:59 assets/blocks/contact/index.js:62
@@ -19600,83 +19592,68 @@ msgstr ""
 #: assets/blocks/vehicle-rating-form/index.js:79
 #: assets/blocks/vehicles-grid/index.js:150
 #: assets/blocks/vehicles-list/index.js:110
-#, fuzzy
 msgid "Visibility Controls"
-msgstr "Parite Kontroller"
+msgstr "Görünürlük Kontrolleri"
 
 #: assets/blocks/availability-calendar/index.js:89
-#, fuzzy
 msgid "Show Legend"
-msgstr "Durum Açıklaması"
+msgstr "Durum Açıklamasını Göster"
 
 #: assets/blocks/availability-calendar/index.js:99
-#, fuzzy
 msgid "Show Booking Links"
-msgstr "Rezervasyon Butonlarını Göster"
+msgstr "Rezervasyon Bağlantılarını Göster"
 
 #: assets/blocks/availability-calendar/index.js:104
-#, fuzzy
 msgid "Show Month Navigation"
-msgstr "GPS Navigasyon"
+msgstr "Ay Gezinmesini Göster"
 
 #: assets/blocks/availability-calendar/index.js:109
-#, fuzzy
 msgid "Show Today Button"
-msgstr "Rezervasyon Butonunu Göster"
+msgstr "Bugün Butonunu Göster"
 
 #: assets/blocks/availability-calendar/index.js:114
-#, fuzzy
 msgid "Show Week Numbers"
-msgstr "Telefon Numarası"
+msgstr "Hafta Numaralarını Göster"
 
 #: assets/blocks/booking-form/index.js:28
-#, fuzzy
 msgid "Form Description"
-msgstr "Kısa Açıklama"
+msgstr "Form Açıklaması"
 
 #: assets/blocks/booking-form/index.js:33
 msgid "Show Login Prompt"
-msgstr ""
+msgstr "Giriş İstemini Göster"
 
 #: assets/blocks/booking-form/index.js:66
-#, fuzzy
 msgid "Show Insurance Options"
-msgstr "Ödeme Seçeneklerini Göster"
+msgstr "Sigorta Seçeneklerini Göster"
 
 #: assets/blocks/booking-form/index.js:71
-#, fuzzy
 msgid "Show Extras"
-msgstr "Filtreleri Göster"
+msgstr "Ekstraları Göster"
 
 #: assets/blocks/booking-form/index.js:76
-#, fuzzy
 msgid "Show Price Summary"
-msgstr "Fiyat Etiketini Göster"
+msgstr "Fiyat Özetini Göster"
 
 #: assets/blocks/booking-form/index.js:83
-#, fuzzy
 msgid "Redirect & Payment"
-msgstr "Ödeme sayfasına yönlendiriliyor..."
+msgstr "Yönlendirme ve Ödeme"
 
 #: assets/blocks/booking-form/index.js:85
-#, fuzzy
 msgid "Redirect URL"
-msgstr "Site URL:"
+msgstr "Yönlendirme URL'si"
 
 #: assets/blocks/booking-form/index.js:86
-#, fuzzy
 msgid "URL to redirect after successful booking."
-msgstr "İlk başarılı rezervasyonun ardından gönderilen hoş geldiniz e-postası."
+msgstr "Başarılı rezervasyondan sonra yönlendirilecek URL."
 
 #: assets/blocks/booking-form/index.js:91
-#, fuzzy
 msgid "Default Payment"
-msgstr "Varsayılan Ödeme Türü"
+msgstr "Varsayılan Ödeme"
 
 #: assets/blocks/booking-form/index.js:102
-#, fuzzy
 msgid "Advanced Date Overrides"
-msgstr "Gelişmiş Raporlar"
+msgstr "Gelişmiş Tarih Geçersiz Kılmaları"
 
 #: assets/blocks/booking-form/index.js:104
 msgid "Start Date"
@@ -19685,80 +19662,67 @@ msgstr "Başlangıç Tarihi"
 #: assets/blocks/booking-form/index.js:105
 #: assets/blocks/booking-form/index.js:111
 msgid "Format: YYYY-MM-DD. Leave empty for dynamic."
-msgstr ""
+msgstr "Biçim: YYYY-MM-DD. Dinamik için boş bırakın."
 
 #: assets/blocks/booking-form/index.js:110
 msgid "End Date"
 msgstr "Bitiş Tarihi"
 
 #: assets/blocks/booking-form/index.js:116
-#, fuzzy
 msgid "Default Days"
-msgstr "Varsayılan Kiralama Günleri"
+msgstr "Varsayılan Gün Sayısı"
 
 #: assets/blocks/booking-form/index.js:122
-#, fuzzy
 msgid "Min Days"
 msgstr "Minimum Gün"
 
 #: assets/blocks/booking-form/index.js:128
-#, fuzzy
 msgid "Max Days"
-msgstr "Gün"
+msgstr "Maksimum Gün"
 
 #: assets/blocks/contact/index.js:35
-#, fuzzy
 msgid "Recipient Email"
-msgstr "Alıcı:"
+msgstr "Alıcı E-postası"
 
 #: assets/blocks/contact/index.js:38
-#, fuzzy
 msgid "Overrides global setting."
-msgstr "Ayarlar yüklenemedi."
+msgstr "Genel ayarı geçersiz kılar."
 
 #: assets/blocks/contact/index.js:41
-#, fuzzy
 msgid "Subject Prefix"
-msgstr "Konu"
+msgstr "Konu Öneki"
 
 #: assets/blocks/contact/index.js:46
-#, fuzzy
 msgid "Success Message"
-msgstr "Rezervasyon Başarı Mesajı"
+msgstr "Başarı Mesajı"
 
 #: assets/blocks/contact/index.js:64
-#, fuzzy
 msgid "Show Phone Field"
-msgstr "Fiyatı Göster"
+msgstr "Telefon Alanını Göster"
 
 #: assets/blocks/contact/index.js:69
 msgid "Show Subject Field"
-msgstr ""
+msgstr "Konu Alanını Göster"
 
 #: assets/blocks/contact/index.js:74
-#, fuzzy
 msgid "Show Booking ID Field"
-msgstr "Rezervasyon Bölümünü Göster"
+msgstr "Rezervasyon Kimliği Alanını Göster"
 
 #: assets/blocks/contact/index.js:79
-#, fuzzy
 msgid "Show Vehicle Select"
-msgstr "Araç Seçiciyi Göster"
+msgstr "Araç Seçimini Göster"
 
 #: assets/blocks/contact/index.js:84
-#, fuzzy
 msgid "Show Company Info"
-msgstr "Karşılaştırma Düğmesini Göster"
+msgstr "Şirket Bilgilerini Göster"
 
 #: assets/blocks/contact/index.js:89
-#, fuzzy
 msgid "Show Map"
-msgstr "Tarihi Göster"
+msgstr "Haritayı Göster"
 
 #: assets/blocks/contact/index.js:94
-#, fuzzy
 msgid "Show Social Links"
-msgstr "\"Tümünü gör\" bağlantısını göster"
+msgstr "Sosyal Medya Bağlantılarını Göster"
 
 #: assets/blocks/featured-vehicles/index.js:34
 #: assets/blocks/messages/index.js:48 assets/blocks/my-bookings/index.js:50
@@ -19769,18 +19733,16 @@ msgstr "\"Tümünü gör\" bağlantısını göster"
 #: assets/blocks/transfer-results/index.js:49
 #: assets/blocks/vehicles-grid/index.js:48
 #: assets/blocks/vehicles-list/index.js:24
-#, fuzzy
 msgid "Sort By"
-msgstr "Sıralama"
+msgstr "Sıralama Ölçütü"
 
 #: assets/blocks/featured-vehicles/index.js:37
 #: assets/blocks/search-results/index.js:53
 #: assets/blocks/transfer-results/index.js:53
 #: assets/blocks/vehicles-grid/index.js:53
 #: assets/blocks/vehicles-list/index.js:29
-#, fuzzy
 msgid "Popularity"
-msgstr "Popüler Rotalar"
+msgstr "Popülerlik"
 
 #: assets/blocks/featured-vehicles/index.js:39
 #: assets/blocks/search-results/index.js:54
@@ -19797,176 +19759,146 @@ msgstr "En yeni"
 #: assets/blocks/search-results/index.js:60
 #: assets/blocks/testimonials/index.js:69
 #: assets/blocks/transfer-results/index.js:60
-#, fuzzy
 msgid "Sort Order"
-msgstr "Sıralama düzeni"
+msgstr "Sıralama Düzeni"
 
 #: assets/blocks/featured-vehicles/index.js:60
 #: assets/blocks/vehicles-grid/index.js:82
 #: assets/blocks/vehicles-list/index.js:56
-#, fuzzy
 msgid "Filter Categories (IDs)"
-msgstr "Araç Kategorileri"
+msgstr "Kategori Filtresi (Kimlikler)"
 
 #: assets/blocks/featured-vehicles/index.js:62
 #: assets/blocks/featured-vehicles/index.js:68
 msgid "Comma separated IDs"
-msgstr ""
+msgstr "Virgülle ayrılmış kimlikler"
 
 #: assets/blocks/featured-vehicles/index.js:66
 #: assets/blocks/vehicles-grid/index.js:88
 #: assets/blocks/vehicles-list/index.js:62
-#, fuzzy
 msgid "Filter Brands (IDs)"
-msgstr "%s listesini filtrele"
+msgstr "Marka Filtresi (Kimlikler)"
 
 #: assets/blocks/featured-vehicles/index.js:74
-#, fuzzy
 msgid "Carousel Options"
-msgstr "Görüntüleme seçenekleri"
+msgstr "Karusel Seçenekleri"
 
 #: assets/blocks/featured-vehicles/index.js:76
-#, fuzzy
 msgid "Visible Slides"
-msgstr "Görünür öğeler"
+msgstr "Görünür Slaytlar"
 
 #: assets/blocks/featured-vehicles/index.js:90
 msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
-msgstr ""
+msgstr "Karuselin altına \"Tümünü Gör\" bağlantısı ekler. Gizlemek için boş bırakın."
 
 #: assets/blocks/messages/index.js:37 assets/blocks/my-bookings/index.js:38
 #: assets/blocks/payment-history/index.js:36
-#, fuzzy
 msgid "Filter Status"
-msgstr "Duruma Göre Filtrele"
+msgstr "Durum Filtresi"
 
 #: assets/blocks/messages/index.js:41
 msgid "Unread"
-msgstr ""
+msgstr "Okunmamış"
 
 #: assets/blocks/messages/index.js:42
-#, fuzzy
 msgid "Read"
-msgstr "Hazır"
+msgstr "Okundu"
 
 #: assets/blocks/messages/index.js:43
-#, fuzzy
 msgid "Archived"
-msgstr "%s Arşiv"
+msgstr "Arşivlenmiş"
 
 #: assets/blocks/messages/index.js:52
-#, fuzzy
 msgid "Unread Status"
-msgstr "Doğrulanmış Durum"
+msgstr "Okunmamış Durumu"
 
 #: assets/blocks/messages/index.js:60 assets/blocks/my-bookings/index.js:63
-#, fuzzy
 msgid "Descending (Newest First)"
-msgstr "Yıl: En yeni ilk"
+msgstr "Azalan (Önce En Yeni)"
 
 #: assets/blocks/messages/index.js:61 assets/blocks/my-bookings/index.js:64
-#, fuzzy
 msgid "Ascending (Oldest First)"
-msgstr "Yıl: En Eskiden En Yeniye"
+msgstr "Artan (Önce En Eski)"
 
 #: assets/blocks/messages/index.js:66 assets/blocks/testimonials/index.js:78
-#, fuzzy
 msgid "Limit Items"
-msgstr "Limitler"
+msgstr "Öğe Sınırı"
 
 #: assets/blocks/messages/index.js:95 assets/blocks/testimonials/index.js:117
-#, fuzzy
 msgid "Show Author Avatar"
-msgstr "Avatarları Göster"
+msgstr "Yazar Avatarını Göster"
 
 #: assets/blocks/messages/index.js:100
-#, fuzzy
 msgid "Show Unread Badge"
-msgstr "Rozetleri Göster"
+msgstr "Okunmamış Rozetini Göster"
 
 #: assets/blocks/messages/index.js:105
-#, fuzzy
 msgid "Show Thread Preview"
-msgstr "Şablon Önizleme"
+msgstr "Konu Önizlemesini Göster"
 
 #: assets/blocks/messages/index.js:110
 #: assets/blocks/payment-history/index.js:111
-#, fuzzy
 msgid "Show Booking Link"
-msgstr "Rezervasyon Bölümünü Göster"
+msgstr "Rezervasyon Bağlantısını Göster"
 
 #: assets/blocks/messages/index.js:115
-#, fuzzy
 msgid "Show Reply Button"
-msgstr "Kaldır Butonunu Göster"
+msgstr "Yanıtla Butonunu Göster"
 
 #: assets/blocks/my-bookings/index.js:43
-#, fuzzy
 msgid "Upcoming"
-msgstr "Yaklaşan Teslim Alımlar"
+msgstr "Yaklaşan"
 
 #: assets/blocks/my-bookings/index.js:69
 #: assets/blocks/payment-history/index.js:67
 #: assets/blocks/search-results/index.js:69
 #: assets/blocks/transfer-results/index.js:69
-#, fuzzy
 msgid "Limit Results"
-msgstr "Sonuçlar:"
+msgstr "Sonuç Sınırı"
 
 #: assets/blocks/my-bookings/index.js:93
-#, fuzzy
 msgid "Show Vehicle Image"
-msgstr "Araç Görüntülerini Göster"
+msgstr "Araç Görselini Göster"
 
 #: assets/blocks/my-bookings/index.js:98
-#, fuzzy
 msgid "Show Booking Dates"
-msgstr "Rezervasyon Butonlarını Göster"
+msgstr "Rezervasyon Tarihlerini Göster"
 
 #: assets/blocks/my-bookings/index.js:108
-#, fuzzy
 msgid "Show Status"
-msgstr "Yeni Durum"
+msgstr "Durumu Göster"
 
 #: assets/blocks/my-bookings/index.js:113
-#, fuzzy
 msgid "Show Cancel Button"
-msgstr "Karşılaştırma Düğmesini Göster"
+msgstr "İptal Butonunu Göster"
 
 #: assets/blocks/my-bookings/index.js:118
-#, fuzzy
 msgid "Show Modify Button"
-msgstr "Rezervasyon Butonunu Göster"
+msgstr "Değiştir Butonunu Göster"
 
 #: assets/blocks/my-bookings/index.js:123
-#, fuzzy
 msgid "Show Details Link"
-msgstr "Ayrıntılı Sayfada Göster"
+msgstr "Ayrıntılar Bağlantısını Göster"
 
 #: assets/blocks/my-favorites/index.js:94
-#, fuzzy
 msgid "Show Availability Status"
-msgstr "Kullanılabilirlik Durumu"
+msgstr "Müsaitlik Durumunu Göster"
 
 #: assets/blocks/my-favorites/index.js:119
-#, fuzzy
 msgid "Show Added Date"
-msgstr "Tarihi Göster"
+msgstr "Eklenme Tarihini Göster"
 
 #: assets/blocks/payment-history/index.js:91
-#, fuzzy
 msgid "Show Invoice Download"
-msgstr "Görüntüle / İndir"
+msgstr "Fatura İndirmeyi Göster"
 
 #: assets/blocks/payment-history/index.js:96
-#, fuzzy
 msgid "Show Payment Method"
-msgstr "Ödeme Yöntemi"
+msgstr "Ödeme Yöntemini Göster"
 
 #: assets/blocks/payment-history/index.js:101
-#, fuzzy
 msgid "Show Transaction ID"
-msgstr "Sayfalandırmayı Göster"
+msgstr "İşlem Kimliğini Göster"
 
 #: assets/blocks/popular-routes/index.js:22
 msgid "Columns (desktop)"
@@ -20100,78 +20032,64 @@ msgid "Show starting price"
 msgstr "Başlangıç fiyatını göster"
 
 #: assets/blocks/search-results/index.js:108
-#, fuzzy
 msgid "Show Sorting Options"
-msgstr "Bağlantı puanını göster"
+msgstr "Sıralama Seçeneklerini Göster"
 
 #: assets/blocks/testimonials/index.js:42
 msgid "Carousel"
-msgstr ""
+msgstr "Karusel"
 
 #: assets/blocks/testimonials/index.js:49
-#, fuzzy
 msgid "Filter by Rating"
-msgstr "Duruma Göre Filtrele"
+msgstr "Puana Göre Filtrele"
 
 #: assets/blocks/testimonials/index.js:53
-#, fuzzy
 msgid "5 Stars"
-msgstr "5 yıldız"
+msgstr "5 Yıldız"
 
 #: assets/blocks/testimonials/index.js:54
-#, fuzzy
 msgid "4+ Stars"
-msgstr "4+ yıldız"
+msgstr "4+ Yıldız"
 
 #: assets/blocks/testimonials/index.js:55
-#, fuzzy
 msgid "3+ Stars"
-msgstr "3+ yıldız"
+msgstr "3+ Yıldız"
 
 #: assets/blocks/testimonials/index.js:103
-#, fuzzy
 msgid "Autoplay"
-msgstr "Otomatik yanıt"
+msgstr "Otomatik Oynatma"
 
 #: assets/blocks/testimonials/index.js:122
-#, fuzzy
 msgid "Show Author Name"
-msgstr "Müşteri Adını Göster"
+msgstr "Yazar Adını Göster"
 
 #: assets/blocks/testimonials/index.js:137
-#, fuzzy
 msgid "Show Quotes"
-msgstr "Tarihi Göster"
+msgstr "Tırnak İşaretlerini Göster"
 
 #: assets/blocks/transfer-results/index.js:55
-#, fuzzy
 msgid "Capacity"
-msgstr "Widget Kapasitesi"
+msgstr "Kapasite"
 
 #: assets/blocks/transfer-results/index.js:103
-#, fuzzy
 msgid "Show Vehicle Details"
-msgstr "Yeni Araç Bilgileri"
+msgstr "Araç Ayrıntılarını Göster"
 
 #: assets/blocks/transfer-results/index.js:108
-#, fuzzy
 msgid "Show Luggage Info"
-msgstr "Araç Bilgilerini Göster"
+msgstr "Bagaj Bilgilerini Göster"
 
 #: assets/blocks/transfer-results/index.js:113
-#, fuzzy
 msgid "Show Passenger Count"
-msgstr "Derecelendirme Sayısını Göster"
+msgstr "Yolcu Sayısını Göster"
 
 #: assets/blocks/transfer-results/index.js:133
-#, fuzzy
 msgid "Show Route Info"
-msgstr "Araç Bilgilerini Göster"
+msgstr "Rota Bilgilerini Göster"
 
 #: assets/blocks/transfer-search/index.js:22
-#, fuzzy
 msgid "Layout Settings"
-msgstr "Ödeme Ayarları"
+msgstr "Düzen Ayarları"
 
 #: assets/blocks/transfer-search/index.js:27
 msgid "Horizontal"
@@ -20190,23 +20108,20 @@ msgid "Show Dropoff Location"
 msgstr "Bırakış Konumunu Göster"
 
 #: assets/blocks/transfer-search/index.js:55
-#, fuzzy
 msgid "Advanced"
-msgstr "Gelişmiş Raporlar"
+msgstr "Gelişmiş"
 
 #: assets/blocks/unified-search/index.js:48
-#, fuzzy
 msgid "Service Mode"
-msgstr "Hizmet Türü"
+msgstr "Hizmet Modu"
 
 #: assets/blocks/unified-search/index.js:51
-#, fuzzy
 msgid "Both (Rental + Transfer)"
-msgstr "Her ikisi de (Kiralama ve Transfer)"
+msgstr "Her İkisi de (Kiralama + Transfer)"
 
 #: assets/blocks/unified-search/index.js:56
 msgid "Controls which search tabs are available."
-msgstr ""
+msgstr "Hangi arama sekmelerinin kullanılabilir olacağını belirler."
 
 #: assets/blocks/unified-search/index.js:62
 msgid "Use Global Default"
@@ -20214,49 +20129,43 @@ msgstr "Global Varsayılanı Kullan"
 
 #: assets/blocks/unified-search/index.js:71
 msgid "Business Logic"
-msgstr ""
+msgstr "İş Kuralları"
 
 #: assets/blocks/unified-search/index.js:73
 msgid "Booking rules (min days, buffers) are inherited from Global Settings."
-msgstr ""
+msgstr "Rezervasyon kuralları (minimum gün, tampon süreler) Genel Ayarlar'dan devralınır."
 
 #: assets/blocks/unified-search/index.js:77
-#, fuzzy
 msgid "Manage Global Rules"
-msgstr "Rotaları Yönet"
+msgstr "Genel Kuralları Yönet"
 
 #: assets/blocks/unified-search/index.js:81
 msgid "UI & Branding"
-msgstr ""
+msgstr "Arayüz ve Marka"
 
 #: assets/blocks/unified-search/index.js:86
-#, fuzzy
 msgid "Horizontal (Standard)"
-msgstr "Yatay (Tam)"
+msgstr "Yatay (Standart)"
 
 #: assets/blocks/unified-search/index.js:93
-#, fuzzy
 msgid "Style Preset"
-msgstr "Mevcut"
+msgstr "Stil Ön Ayarı"
 
 #: assets/blocks/unified-search/index.js:97
 msgid "Solid / Flat"
-msgstr ""
+msgstr "Düz / Yalın"
 
 #: assets/blocks/unified-search/index.js:109
-#, fuzzy
 msgid "Pricing & Currency"
-msgstr "Para Birimi"
+msgstr "Fiyatlandırma ve Para Birimi"
 
 #: assets/blocks/unified-search/index.js:111
-#, fuzzy
 msgid "Currency settings are managed globally."
-msgstr "Vergi ayarları WooCommerce tarafından yönetilir."
+msgstr "Para birimi ayarları genel olarak yönetilir."
 
 #: assets/blocks/unified-search/index.js:116
-#, fuzzy
 msgid "Form Visibility"
-msgstr "Görünürlük"
+msgstr "Form Görünürlüğü"
 
 #: assets/blocks/unified-search/index.js:121
 #: assets/blocks/unified-search/index.js:131
@@ -20268,264 +20177,224 @@ msgstr "Görünürlük"
 #: assets/blocks/unified-search/index.js:192
 #: assets/blocks/unified-search/index.js:202
 #: assets/blocks/unified-search/index.js:216
-#, fuzzy
 msgid "Global Default"
-msgstr "Global Varsayılanı Kullan"
+msgstr "Genel Varsayılan"
 
 #: assets/blocks/unified-search/index.js:138
-#, fuzzy
 msgid "Location Select"
-msgstr "Konumu Göster Seç"
+msgstr "Konum Seçimi"
 
 #: assets/blocks/unified-search/index.js:148
-#, fuzzy
 msgid "Date Picker"
-msgstr "Tarih Seçiciyi Göster"
+msgstr "Tarih Seçici"
 
 #: assets/blocks/unified-search/index.js:158
-#, fuzzy
 msgid "Time Select"
-msgstr "Seç"
+msgstr "Saat Seçimi"
 
 #: assets/blocks/unified-search/index.js:178
-#, fuzzy
 msgid "Require Form Fields"
-msgstr "Zorunlu alan"
+msgstr "Form Alanlarını Zorunlu Kıl"
 
 #: assets/blocks/unified-search/index.js:183
 msgid "Optional (Browse All)"
-msgstr ""
+msgstr "İsteğe Bağlı (Tümüne Göz At)"
 
 #: assets/blocks/unified-search/index.js:186
 msgid ""
 "When optional, users can search without filling any fields to browse all "
 "vehicles."
-msgstr ""
+msgstr "İsteğe bağlı olduğunda kullanıcılar, tüm araçlara göz atmak için hiçbir alanı doldurmadan arama yapabilir."
 
 #: assets/blocks/unified-search/index.js:189
 msgid "Pax Select (Adults/Children)"
-msgstr ""
+msgstr "Yolcu Seçimi (Yetişkin/Çocuk)"
 
 #: assets/blocks/unified-search/index.js:199
-#, fuzzy
 msgid "Luggage Select"
-msgstr "Bagaj Puanı Kapasitesi"
+msgstr "Bagaj Seçimi"
 
 #: assets/blocks/unified-search/index.js:211
-#, fuzzy
 msgid "Advanced Configuration"
-msgstr "Transfer Yapılandırması"
+msgstr "Gelişmiş Yapılandırma"
 
 #: assets/blocks/unified-search/index.js:213
-#, fuzzy
 msgid "Redirect Page ID"
-msgstr "Gerekli Sayfalar"
+msgstr "Yönlendirme Sayfası Kimliği"
 
 #: assets/blocks/unified-search/index.js:220
 msgid "Leave as default to use global results page."
-msgstr ""
+msgstr "Genel sonuçlar sayfasını kullanmak için varsayılan olarak bırakın."
 
 #: assets/blocks/unified-search/index.js:223
 msgid "Override Redirect Page ID"
-msgstr ""
+msgstr "Yönlendirme Sayfası Kimliğini Geçersiz Kıl"
 
 #: assets/blocks/unified-search/index.js:226
 msgid "Enter a Page ID to override global setting. Clear to reset to Default."
-msgstr ""
+msgstr "Genel ayarı geçersiz kılmak için bir Sayfa Kimliği girin. Varsayılana dönmek için temizleyin."
 
 #: assets/blocks/vehicle-comparison/index.js:37
-#, fuzzy
 msgid "Vehicle IDs (Optional)"
-msgstr "Araç Açıklaması"
+msgstr "Araç Kimlikleri (İsteğe Bağlı)"
 
 #: assets/blocks/vehicle-comparison/index.js:40
-#, fuzzy
 msgid "Comma-separated list of vehicle IDs to compare."
-msgstr "İzin verilen IP adreslerinin virgülle ayrılmış listesi."
+msgstr "Karşılaştırılacak araç kimliklerinin virgülle ayrılmış listesi."
 
 #: assets/blocks/vehicle-comparison/index.js:43
-#, fuzzy
 msgid "Max Vehicles to Compare"
-msgstr "Karşılaştırılacak araç yok"
+msgstr "Karşılaştırılacak Maksimum Araç Sayısı"
 
 #: assets/blocks/vehicle-comparison/index.js:62
-#, fuzzy
 msgid "Show Comparison Images"
-msgstr "Görseller görüntülensin"
+msgstr "Karşılaştırma Görsellerini Göster"
 
 #: assets/blocks/vehicle-comparison/index.js:77
 #: assets/blocks/vehicle-details/index.js:94
-#, fuzzy
 msgid "Show Technical Specs"
-msgstr "Araç Seçiciyi Göster"
+msgstr "Teknik Özellikleri Göster"
 
 #: assets/blocks/vehicle-comparison/index.js:92
-#, fuzzy
 msgid "Show Fuel Type"
-msgstr "Yakıt tipi"
+msgstr "Yakıt Tipini Göster"
 
 #: assets/blocks/vehicle-comparison/index.js:97
-#, fuzzy
 msgid "Show Transmission"
-msgstr "Vites"
+msgstr "Vitesi Göster"
 
 #: assets/blocks/vehicle-comparison/index.js:102
-#, fuzzy
 msgid "Show Seats"
-msgstr "Özellikleri Göster"
+msgstr "Koltuk Sayısını Göster"
 
 #: assets/blocks/vehicle-details/index.js:42
 #: assets/blocks/vehicle-rating-form/index.js:39
-#, fuzzy
 msgid "Leave empty to auto-detect on Vehicle Details page."
-msgstr "Araç ayrıntıları sayfasında depozito bilgilerini göster."
+msgstr "Araç Ayrıntıları sayfasında otomatik algılamak için boş bırakın."
 
 #: assets/blocks/vehicle-details/index.js:45
-#, fuzzy
 msgid "Similar Vehicles Limit"
-msgstr "Benzer Premium Araçlar"
+msgstr "Benzer Araç Sınırı"
 
 #: assets/blocks/vehicle-details/index.js:60
-#, fuzzy
 msgid "Show Breadcrumb"
-msgstr "Site haritası"
+msgstr "Gezinti Yolunu Göster"
 
 #: assets/blocks/vehicle-details/index.js:84
-#, fuzzy
 msgid "Show Reviews"
-msgstr "İncelemeler"
+msgstr "İncelemeleri Göster"
 
 #: assets/blocks/vehicle-details/index.js:104
-#, fuzzy
 msgid "Show Booking Form"
-msgstr "Rezervasyon Formu"
+msgstr "Rezervasyon Formunu Göster"
 
 #: assets/blocks/vehicle-details/index.js:109
-#, fuzzy
 msgid "Show Similar Vehicles"
-msgstr "Benzer Premium Araçlar"
+msgstr "Benzer Araçları Göster"
 
 #: assets/blocks/vehicle-details/index.js:114
-#, fuzzy
 msgid "Show Share Buttons"
-msgstr "Karşılaştırma Düğmesini Göster"
+msgstr "Paylaşım Butonlarını Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:47
-#, fuzzy
 msgid "Require Prior Booking"
-msgstr "Rezervasyon için gerekli"
+msgstr "Önceden Rezervasyon Zorunlu"
 
 #: assets/blocks/vehicle-rating-form/index.js:54
-#, fuzzy
 msgid "Form Configuration"
-msgstr "Jeton Yapılandırması"
+msgstr "Form Yapılandırması"
 
 #: assets/blocks/vehicle-rating-form/index.js:56
-#, fuzzy
 msgid "Minimum Review Characters"
-msgstr "En az %d karakter"
+msgstr "Minimum İnceleme Karakter Sayısı"
 
 #: assets/blocks/vehicle-rating-form/index.js:62
 msgid "Max Photos to Upload"
-msgstr ""
+msgstr "Yüklenecek Maksimum Fotoğraf Sayısı"
 
 #: assets/blocks/vehicle-rating-form/index.js:81
-#, fuzzy
 msgid "Show Vehicle Preview"
-msgstr "Araç İncelemesi"
+msgstr "Araç Önizlemesini Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:91
-#, fuzzy
 msgid "Show Text Review"
-msgstr "Başlığı Göster"
+msgstr "Metin İncelemesini Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:96
-#, fuzzy
 msgid "Show Category Ratings"
-msgstr "Kategoriyi Göster"
+msgstr "Kategori Puanlarını Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:101
 msgid "Show Photo Upload"
-msgstr ""
+msgstr "Fotoğraf Yüklemeyi Göster"
 
 #: assets/blocks/vehicle-rating-form/index.js:106
-#, fuzzy
 msgid "Show Recommend Toggle"
-msgstr "Tavsiye edilen"
+msgstr "Tavsiye Et Anahtarını Göster"
 
 #: assets/blocks/vehicles-grid/index.js:46
 #: assets/blocks/vehicles-list/index.js:22
-#, fuzzy
 msgid "Query Settings"
-msgstr "Güvenlik Ayarları"
+msgstr "Sorgu Ayarları"
 
 #: assets/blocks/vehicles-grid/index.js:55
 #: assets/blocks/vehicles-list/index.js:31
-#, fuzzy
 msgid "Most Reviewed"
-msgstr "Henüz yorum yok"
+msgstr "En Çok İncelenen"
 
 #: assets/blocks/vehicles-grid/index.js:56
 #: assets/blocks/vehicles-list/index.js:32
 msgid "Confidence Score"
-msgstr ""
+msgstr "Güven Puanı"
 
 #: assets/blocks/vehicles-grid/index.js:80
 #: assets/blocks/vehicles-list/index.js:54
-#, fuzzy
 msgid "Filtering"
-msgstr "Filtre"
+msgstr "Filtreleme"
 
 #: assets/blocks/vehicles-grid/index.js:85
 #: assets/blocks/vehicles-list/index.js:58
-#, fuzzy
 msgid "Comma-separated list of category IDs."
-msgstr "İzin verilen IP adreslerinin virgülle ayrılmış listesi."
+msgstr "Kategori kimliklerinin virgülle ayrılmış listesi."
 
 #: assets/blocks/vehicles-grid/index.js:91
 #: assets/blocks/vehicles-list/index.js:64
-#, fuzzy
 msgid "Comma-separated list of brand IDs."
-msgstr "İzin verilen IP adreslerinin virgülle ayrılmış listesi."
+msgstr "Marka kimliklerinin virgülle ayrılmış listesi."
 
 #: assets/blocks/vehicles-grid/index.js:94
 #: assets/blocks/vehicles-list/index.js:68
-#, fuzzy
 msgid "Min Rating (1-5)"
-msgstr "Minimum Puan"
+msgstr "Minimum Puan (1-5)"
 
 #: assets/blocks/vehicles-grid/index.js:103
 #: assets/blocks/vehicles-list/index.js:77
-#, fuzzy
 msgid "Min Reviews"
-msgstr "İncelemede"
+msgstr "Minimum İnceleme Sayısı"
 
 #: assets/blocks/vehicles-grid/index.js:128
 msgid "Masonry"
-msgstr ""
+msgstr "Masonry (Tuğla Düzen)"
 
 #: assets/blocks/vehicles-grid/index.js:184
-#, fuzzy
 msgid "View All Link"
-msgstr "Tümünü Gör URL'si"
+msgstr "Tümünü Gör Bağlantısı"
 
 #: assets/blocks/vehicles-grid/index.js:189
 msgid "Adds a \"View All\" button below the grid. Leave empty to hide."
-msgstr ""
+msgstr "Izgaranın altına \"Tümünü Gör\" butonu ekler. Gizlemek için boş bırakın."
 
 #: assets/blocks/vehicles-grid/index.js:195
-#, fuzzy
 msgid "Default: \"View All Vehicles\""
-msgstr "Tüm Araçları Görüntüle"
+msgstr "Varsayılan: \"Tüm Araçları Görüntüle\""
 
 #: assets/blocks/vendor-directory/index.js:38
 msgid "Vendors per page"
 msgstr "Sayfa başına bayi"
 
 #: assets/blocks/vendor-directory/index.js:41
-#, fuzzy
 msgid "Number of vendors per page (1-50)."
-msgstr "Sayfa başına gösterilecek yorum sayısı."
+msgstr "Sayfa başına gösterilecek bayi sayısı (1-50)."
 
 #: assets/blocks/vendor-directory/index.js:45
 msgid "Default sort"
