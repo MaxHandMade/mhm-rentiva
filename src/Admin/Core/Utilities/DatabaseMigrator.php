@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.10.0';
+	private const CURRENT_VERSION = '3.11.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -81,6 +81,8 @@ final class DatabaseMigrator {
 			}
 			// SaaS Control Plane scaffolding removed (#4 cleanup) — drop its dead tables.
 			self::drop_orchestration_tables();
+			// Geo-blocking removed — drop the option that promised it was ON.
+			self::delete_dead_country_restriction_option();
 			// Vendor Reports / Appeals (v4.35.0)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
@@ -1122,5 +1124,56 @@ final class DatabaseMigrator {
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");
 		// phpcs:enable
+	}
+
+	/**
+	 * Delete the dead `mhm_rentiva_country_restriction_enabled` option.
+	 *
+	 * WHAT WAS WRONG
+	 * --------------
+	 * The geo-blocking feature is gone: the free core's country check was removed
+	 * in Faz 2a (it sent the visitor's IP to ip-api.com over plain HTTP), and the
+	 * Pro-side `CountryRestriction` that inherited that call was deleted in Faz 2b
+	 * Task 9 — zero callers, no UI, absent from the monolith. No code in EITHER
+	 * edition reads this option any more.
+	 *
+	 * A leftover `mhm_rentiva_country_restriction_enabled = 1` row therefore states
+	 * that geo-restriction is ON while nothing whatsoever enforces it. That is a
+	 * false security promise, and this project has shipped that exact bug before
+	 * (the "Brute Force Protection" toggle that reads ON while
+	 * `LockoutManager::init()` is never called). A control that claims to be on and
+	 * is not is worse than an absent one: it is relied upon. So the row goes.
+	 *
+	 * WHY NO SEPARATE run-once FLAG
+	 * -----------------------------
+	 * `run_migrations()` is already version-gated, so the version bump that carries
+	 * this method IS the run-once. Adding an `..._done` flag would import a trap
+	 * this project has been bitten by twice:
+	 *   - a flag stamped BEFORE the pollution exists means the cleanup never fires
+	 *     (v4.27.2);
+	 *   - a migration added without bumping CURRENT_VERSION silently never runs on
+	 *     existing installs at all.
+	 * `delete_option()` is idempotent — deleting an absent option is a harmless
+	 * no-op returning false — so there is nothing a flag would protect.
+	 * CURRENT_VERSION is bumped to 3.11.0 alongside this method; without that bump
+	 * this code would be dead on every existing site.
+	 *
+	 * SCOPE — deliberately exactly one key
+	 * ------------------------------------
+	 * Only the standalone `mhm_rentiva_country_restriction_enabled` row is deleted:
+	 * it is the one that makes the false ON claim. Two related leftovers are
+	 * KNOWINGLY left alone, as they are not this bug and removing user data needs
+	 * its own decision:
+	 *   - the standalone `mhm_rentiva_allowed_countries` row (a value list; claims
+	 *     nothing on its own);
+	 *   - the same two keys inside the `mhm_rentiva_settings` array, where
+	 *     `SettingsCore::get()` actually reads and where the enabled key is already
+	 *     `'0'`. (This is why the feature was doubly dead: even when
+	 *     `CountryRestriction` existed, it read `'0'` from the array and never saw
+	 *     the standalone `1`.)
+	 */
+	private static function delete_dead_country_restriction_option(): void
+	{
+		delete_option('mhm_rentiva_country_restriction_enabled');
 	}
 }
