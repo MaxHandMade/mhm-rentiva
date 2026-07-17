@@ -251,6 +251,22 @@ final class ShortcodeServiceProvider {
 					'pro_seam'      => true,
 					'pro_feature'   => 'vendor_marketplace',
 				),
+				// Vendor payout ledger. Registered elsewhere too (Pro's Bootstrap
+				// register_vendor_payout() and Lite's Plugin.php, both gated on the
+				// payout tier), so it was never in THIS registry -- which meant the
+				// seam silencer never bound it. On a lapsed licence neither gated
+				// registrar fired, so WordPress printed the raw [rentiva_vendor_ledger]
+				// text (23 bytes) to visitors. Declaring it a seam here lets
+				// drop_absent_pro_seams()/render_unlicensed_seams() register the no-op
+				// renderer so it emits 0 bytes unlicensed. pro_feature is the payout
+				// tier key (Mode::canUseVendorPayout() routes to 'vendor_marketplace').
+				'rentiva_vendor_ledger'       => array(
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger',
+					'method'        => 'render',
+					'requires_auth' => true,
+					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
+				),
 			),
 			'transfer'    => array(
 				'rentiva_transfer_search'  => array(
