@@ -143,6 +143,14 @@ final class Plugin {
 			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_event');
 			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_warning_event');
 			wp_clear_scheduled_hook('mhm_rentiva_process_commission_clearing');
+			// Reliability scoring rides the marketplace gate (Fable Y5).
+			wp_clear_scheduled_hook('mhm_rentiva_reliability_score_event');
+		}
+
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseGdpr()) {
+			// Data-retention cleanup anonymises/deletes users — must not linger on a
+			// lapsed licence (Fable Y1).
+			wp_clear_scheduled_hook('mhm_data_retention_cleanup');
 		}
 	}
 
@@ -219,18 +227,28 @@ final class Plugin {
 		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob::register();
 		}
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
+		// Vendor reliability scoring is part of the marketplace feature; without a
+		// licence its daily cron must not compute or write scores (Fable Y5).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+			&& class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob::register();
 		}
 
-		// Privacy and Data Retention
-		if (class_exists('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
-			\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
-		}
-
-		// GDPR Manager (registers AJAX handlers for data export, deletion, consent withdrawal)
-		if (class_exists('\MHMRentiva\Admin\Privacy\GDPRManager')) {
-			\MHMRentiva\Admin\Privacy\GDPRManager::init();
+		// Privacy and Data Retention — Pro `gdpr_tools` feature. Gating on the licence
+		// (not class presence) is critical: DataRetentionManager schedules a DAILY
+		// cron that anonymises/deletes users, which must never run unlicensed. GDPR
+		// Manager likewise registers the export/deletion/consent AJAX + visitor
+		// notice — all part of the paid tooling (Fable Y1).
+		if (\MHMRentiva\Admin\Licensing\Mode::canUseGdpr()) {
+			if (class_exists('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
+				\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
+			}
+			// Registers AJAX handlers for data export, deletion, consent withdrawal.
+			if (class_exists('\MHMRentiva\Admin\Privacy\GDPRManager')) {
+				\MHMRentiva\Admin\Privacy\GDPRManager::init();
+			}
 		}
 
 		// Notification Management
@@ -481,7 +499,12 @@ final class Plugin {
 			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::register();
 		}
 
-		if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')) {
+		// The vendor location field on user profiles is a marketplace feature; without
+		// a licence it must not appear on (or save from) every user's profile (Fable Y4).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+			&& class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')
+		) {
 			\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension::register();
 		}
 
@@ -1032,17 +1055,19 @@ final class Plugin {
 				\WP_CLI::add_command('mhm-rentiva layout', \MHMRentiva\Layout\CLI\LayoutImportCommand::class);
 			}
 
-			// Auditing & Integrity
-			if (class_exists('MHMRentiva\CLI\ExportAuditCommand')) {
+			// Auditing & Integrity — these are Pro commands (the classes ship in Pro).
+			// Gate each on its licence feature, not just class presence, so an
+			// unlicensed shell can't drive Pro jobs from the CLI (Fable Y2).
+			if (\MHMRentiva\Admin\Licensing\Mode::canUseExport() && class_exists('MHMRentiva\CLI\ExportAuditCommand')) {
 				\WP_CLI::add_command('mhm audit:export', \MHMRentiva\CLI\ExportAuditCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\IntegrityCheckCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\CLI\IntegrityCheckCommand')) {
 				\WP_CLI::add_command('mhm audit:verify', \MHMRentiva\CLI\IntegrityCheckCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\KeyRevokeCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\CLI\KeyRevokeCommand')) {
 				\WP_CLI::add_command('mhm key:revoke', \MHMRentiva\CLI\KeyRevokeCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\MaturedPayoutCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() && class_exists('MHMRentiva\CLI\MaturedPayoutCommand')) {
 				\WP_CLI::add_command('mhm payout:execute-matured', \MHMRentiva\CLI\MaturedPayoutCommand::class);
 			}
 		}
@@ -1215,8 +1240,10 @@ final class Plugin {
 	 */
 	public function register_rest_api(): void
 	{
-		// REST API endpoints are now in Admin\REST namespace
-		if (class_exists('MHMRentiva\Admin\REST\Locations')) {
+		// REST API endpoints are now in Admin\REST namespace. Locations serves transfer
+		// location data — a Pro (transfer) surface, so gate on the licence not just
+		// class presence, or an unlicensed site exposes the route (Fable Y6).
+		if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\Admin\REST\Locations')) {
 			\MHMRentiva\Admin\REST\Locations::register();
 		}
 

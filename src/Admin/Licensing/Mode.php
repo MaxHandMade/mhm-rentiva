@@ -51,6 +51,16 @@ final class Mode {
     }
 
     /**
+     * GDPR / data-retention tooling. The licence server issues a `gdpr_tools`
+     * feature token; without it the export/deletion/consent AJAX, the visitor
+     * consent notice, and — critically — the daily retention cron that anonymises
+     * or deletes users must all stay off on an unlicensed site.
+     */
+    public static function canUseGdpr(): bool {
+        return self::canUse( 'gdpr_tools' );
+    }
+
+    /**
      * Seam decision for the three registries that must drop a feature together:
      * ShortcodeServiceProvider::drop_absent_pro_seams(), BlockRegistry's
      * get_available_blocks() and ElementorIntegration::pro_widget_classes().
