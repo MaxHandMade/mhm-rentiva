@@ -20545,11 +20545,11 @@ msgstr "Herkese açık bayi profil sayfası (avatar, rozet, araçlar, yorumlar).
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:71
 msgid "Vehicle search widget - date, location and category filters"
-msgstr ""
+msgstr "Araç arama widget'ı - tarih, konum ve kategori filtreleri"
 
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:174
 msgid "Customer dashboard - booking, favorite and account summary"
-msgstr ""
+msgstr "Müşteri kontrol paneli - rezervasyon, favori ve hesap özeti"
 
 #: assets/blocks/popular-routes/index.js:35
 msgid "The most route cards to display."
@@ -20557,425 +20557,425 @@ msgstr "Gösterilecek en fazla rota kartı sayısı."
 
 #: src-react/admin/export/components/AdvancedFilters.jsx:45
 msgid "Date Filters"
-msgstr ""
+msgstr "Tarih Filtreleri"
 
 #: src-react/admin/export/components/AdvancedFilters.jsx:54
 msgid "Preset range"
-msgstr ""
+msgstr "Hazır Aralık"
 
 #: src-react/admin/export/components/AdvancedFilters.jsx:62
 msgid "— All time —"
-msgstr ""
+msgstr "— Tüm zamanlar —"
 
 #: src-react/admin/export/components/AdvancedFilters.jsx:108
 msgid "Preview count"
-msgstr ""
+msgstr "Sayıyı Önizle"
 
 #: src-react/admin/export/components/ExportCards.jsx:7
 msgid "All reservation records"
-msgstr ""
+msgstr "Tüm rezervasyon kayıtları"
 
 #: src-react/admin/export/components/ExportCards.jsx:12
 msgid "Vehicle listings and details"
-msgstr ""
+msgstr "Araç ilanları ve detayları"
 
 #: src-react/admin/export/components/ExportCards.jsx:15
 msgid "App Logs"
-msgstr ""
+msgstr "Uygulama Günlükleri"
 
 #: src-react/admin/export/components/ExportCards.jsx:17
 msgid "Application event log"
-msgstr ""
+msgstr "Uygulama olay günlüğü"
 
 #: src-react/admin/export/components/ExportForm.jsx:27
 msgid "No records to export with the current filters."
-msgstr ""
+msgstr "Mevcut filtrelerle dışa aktarılacak kayıt yok."
 
 #: src-react/admin/export/components/ExportHistory.jsx:18
 msgid "Failed to load export history."
-msgstr ""
+msgstr "Dışa aktarma geçmişi yüklenemedi."
 
 #: src-react/admin/export/components/ExportHistory.jsx:34
 msgid "Delete failed."
-msgstr ""
+msgstr "Silme başarısız."
 
 #: src-react/admin/export/components/ExportHistory.jsx:43
 msgid "Loading history…"
-msgstr ""
+msgstr "Geçmiş yükleniyor…"
 
 #: src-react/admin/export/components/ExportHistory.jsx:50
 msgid "Export History"
-msgstr ""
+msgstr "Dışa Aktar Geçmişi"
 
 #: src-react/admin/export/components/ExportHistory.jsx:58
 msgid "No exports recorded yet."
-msgstr ""
+msgstr "Henüz dışa aktarma kaydı yok."
 
 #: src-react/admin/export/components/ExportHistory.jsx:66
 msgid "Records"
-msgstr ""
+msgstr "Kayıtlar"
 
 #: src-react/admin/export/components/ExportHistory.jsx:67
 msgid "User"
-msgstr ""
+msgstr "Kullanıcı"
 
 #: src-react/admin/export/components/ExportHistory.jsx:86
 msgid "Delete entry"
-msgstr ""
+msgstr "Kaydı Sil"
 
 #: src-react/admin/export/components/ExportHistory.jsx:89
 msgid "Deleting…"
-msgstr ""
+msgstr "Siliniyor…"
 
 #: src-react/admin/export/components/PreviewBar.jsx:8
 msgid "No records match the selected filters."
-msgstr ""
+msgstr "Seçilen filtrelere uyan kayıt yok."
 
 #: src-react/admin/export/components/PreviewBar.jsx:10
 msgid "Records found:"
-msgstr ""
+msgstr "Bulunan kayıtlar:"
 
 #: src-react/admin/export/components/PreviewBar.jsx:39
 msgid "more records"
-msgstr ""
+msgstr "kayıt daha"
 
 #: src-react/admin/export/ExportPage.jsx:48
 msgid "Preview failed."
-msgstr ""
+msgstr "Önizleme başarısız."
 
 #: src-react/admin/messages/components/BulkBar.jsx:46
 msgid "Bulk action…"
-msgstr ""
+msgstr "Toplu işlem…"
 
 #: src-react/admin/messages/components/BulkBar.jsx:47
 msgid "Mark as read"
-msgstr ""
+msgstr "Okundu olarak işaretle"
 
 #: src-react/admin/messages/components/BulkBar.jsx:48
 msgid "Mark as unread"
-msgstr ""
+msgstr "Okunmadı olarak işaretle"
 
 #: src-react/admin/messages/components/BulkBar.jsx:62
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:26
 #: src-react/admin/vendor-management/components/RejectForm.jsx:42
 msgid "Processing…"
-msgstr ""
+msgstr "İşleniyor…"
 
 #: src-react/admin/messages/components/BulkBar.jsx:71
 msgid "Delete selected"
-msgstr ""
+msgstr "Seçilenleri Sil"
 
 #: src-react/admin/messages/components/FilterBar.jsx:24
 msgid "Search messages…"
-msgstr ""
+msgstr "Mesajlarda ara…"
 
 #: src-react/admin/messages/components/FilterBar.jsx:53
 msgid "All priorities"
-msgstr ""
+msgstr "Tüm öncelikler"
 
 #: src-react/admin/messages/components/ReplyForm.jsx:31
 msgid "Write your reply…"
-msgstr ""
+msgstr "Yanıtınızı yazın…"
 
 #: src-react/admin/messages/components/ReplyForm.jsx:42
 msgid "Send (keep open)"
-msgstr ""
+msgstr "Gönder (açık kalsın)"
 
 #: src-react/admin/messages/components/ReplyForm.jsx:49
 msgid "Send + Close"
-msgstr ""
+msgstr "Gönder + Kapat"
 
 #: src-react/admin/messages/components/SettingsView.jsx:41
 #: src-react/admin/messages/components/ThreadView.jsx:62
 msgid "← Back to Messages"
-msgstr ""
+msgstr "← Mesajlara dön"
 
 #: src-react/admin/messages/components/SettingsView.jsx:47
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:56
 msgid "Settings saved."
-msgstr ""
+msgstr "Ayarlar kaydedildi."
 
 #: src-react/admin/messages/components/SettingsView.jsx:54
 msgid "Statuses"
-msgstr ""
+msgstr "Durumlar"
 
 #: src-react/admin/messages/components/SettingsView.jsx:93
 msgid "From Name"
-msgstr ""
+msgstr "Gönderen Adı"
 
 #: src-react/admin/messages/components/SettingsView.jsx:104
 msgid "From Email"
-msgstr ""
+msgstr "Gönderen E-posta"
 
 #: src-react/admin/messages/components/SettingsView.jsx:118
 msgid "Notify admin on new message"
-msgstr ""
+msgstr "Yeni mesajda yöneticiyi bildir"
 
 #: src-react/admin/messages/components/SettingsView.jsx:119
 msgid "Notify customer on reply"
-msgstr ""
+msgstr "Yanıt geldiğinde müşteriyi bildir"
 
 #: src-react/admin/messages/components/SettingsView.jsx:120
 msgid "Notify on admin reply"
-msgstr ""
+msgstr "Yönetici yanıtında müşteriyi bildir"
 
 #: src-react/admin/messages/components/SettingsView.jsx:121
 msgid "Notify on status change"
-msgstr ""
+msgstr "Durum değişikliğinde bildir"
 
 #: src-react/admin/messages/components/SettingsView.jsx:169
 msgid "New category name"
-msgstr ""
+msgstr "Yeni Kategori Adı"
 
 #: src-react/admin/messages/components/SettingsView.jsx:209
 msgid "New status name"
-msgstr ""
+msgstr "Yeni durum adı"
 
 #: src-react/admin/messages/components/ThreadView.jsx:102
 msgid "Admin"
-msgstr ""
+msgstr "Yönetici"
 
 #: src-react/admin/messages/MessagesPage.jsx:115
 msgid "message(s) deleted."
-msgstr ""
+msgstr "mesaj silindi."
 
 #: src-react/admin/messages/MessagesPage.jsx:116
 msgid "No messages were deleted."
-msgstr ""
+msgstr "Hiçbir mesaj silinmedi."
 
 #: src-react/admin/reports/components/ReportContent.jsx:23
 msgid "Failed to load report data."
-msgstr ""
+msgstr "Rapor verileri yüklenemedi."
 
 #: src-react/admin/reports/components/StatsCards.jsx:22
 msgid "Occupancy Rate"
-msgstr ""
+msgstr "Doluluk Oranı"
 
 #: src-react/admin/reports/components/TabNavigation.jsx:5
 msgid "Revenue Report"
-msgstr ""
+msgstr "Gelir Raporu"
 
 #: src-react/admin/reports/components/TabNavigation.jsx:6
 msgid "Booking Report"
-msgstr ""
+msgstr "Rezervasyon Raporu"
 
 #: src-react/admin/reports/components/TabNavigation.jsx:7
 msgid "Vehicle Report"
-msgstr ""
+msgstr "Araç Raporu"
 
 #: src-react/admin/reports/components/TabNavigation.jsx:8
 msgid "Customer Report"
-msgstr ""
+msgstr "Müşteri Raporu"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:21
 msgid "New Customers"
-msgstr ""
+msgstr "Yeni müşteriler"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:25
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:67
 msgid "Loyalty Rate"
-msgstr ""
+msgstr "Sadakat Oranı"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:29
 msgid "Avg Spending"
-msgstr ""
+msgstr "Ort. Harcama"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:35
 msgid "Customer Lifecycle"
-msgstr ""
+msgstr "Müşteri Yaşam Döngüsü"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:47
 msgid "Returning"
-msgstr ""
+msgstr "Geri Dönen"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:54
 msgid "Top Customers by Spend"
-msgstr ""
+msgstr "En Çok Harcayan Müşteriler"
 
 #: src-react/admin/reports/components/tabs/CustomersTab.jsx:56
 msgid "No customer data for this period."
-msgstr ""
+msgstr "Bu dönem için müşteri verisi bulunamadı."
 
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:31
 msgid "Avg Daily Revenue"
-msgstr ""
+msgstr "Ort. Günlük Gelir"
 
 #: src-react/admin/reports/components/tabs/OverviewTab.jsx:55
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:25
 msgid "Avg Occupancy"
-msgstr ""
+msgstr "Ort. Doluluk"
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:35
 msgid "Top Vehicles by Bookings"
-msgstr ""
+msgstr "En Çok Rezervasyon Alan Araçlar"
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:37
 msgid "No vehicle data for this period."
-msgstr ""
+msgstr "Bu dönem için araç verisi bulunamadı."
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:45
 msgid "Avg / Booking"
-msgstr ""
+msgstr "Ort. / Rezervasyon"
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:64
 msgid "Category Performance"
-msgstr ""
+msgstr "Kategori Performansı"
 
 #: src-react/admin/reports/components/tabs/VehiclesTab.jsx:66
 msgid "No category data for this period."
-msgstr ""
+msgstr "Bu dönem için kategori verisi bulunamadı."
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:19
 msgid "Failed to load application."
-msgstr ""
+msgstr "Başvuru yüklenemedi."
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:33
 msgid "Back to applications"
-msgstr ""
+msgstr "Başvurulara dön"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:47
 #, js-format
 msgid "Application: %s"
-msgstr ""
+msgstr "Başvuru: %s"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:56
 msgid "Account Holder"
-msgstr ""
+msgstr "Hesap Sahibi"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:57
 msgid "IBAN (masked)"
-msgstr ""
+msgstr "IBAN (maskelenmiş)"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:58
 msgid "Tax Office"
-msgstr ""
+msgstr "Vergi Dairesi"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:59
 msgid "Tax Number"
-msgstr ""
+msgstr "Vergi Numarası"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:61
 msgid "Bio"
-msgstr ""
+msgstr "Biyografi"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:64
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:16
 msgid "Applied"
-msgstr ""
+msgstr "Başvuru Tarihi"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:67
 msgid "Agreement accepted"
-msgstr ""
+msgstr "Sözleşme kabul edildi"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:70
 msgid "version"
-msgstr ""
+msgstr "sürüm"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:77
 msgid "Documents"
-msgstr ""
+msgstr "Belgeler"
 
 #: src-react/admin/vendor-management/components/ApplicationDetailPage.jsx:86
 msgid "Not uploaded"
-msgstr ""
+msgstr "Yüklenmedi"
 
 #: src-react/admin/vendor-management/components/ApplicationRow.jsx:12
 msgid "Review"
-msgstr ""
+msgstr "İncele"
 
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:6
 msgid "No pending vendor applications."
-msgstr ""
+msgstr "Bekleyen bayi başvurusu yok."
 
 #: src-react/admin/vendor-management/components/ApplicationTable.jsx:13
 msgid "Applicant"
-msgstr ""
+msgstr "Başvuran"
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:9
 msgid "Approve this vendor application?"
-msgstr ""
+msgstr "Bu bayi başvurusunu onaylamak istiyor musunuz?"
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:12
 msgid "Vendor application approved. The vendor has been notified."
-msgstr ""
+msgstr "Bayi başvurusu onaylandı. Bayiye bildirim gönderildi."
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:13
 msgid "Approval failed. Please try again."
-msgstr ""
+msgstr "Onay işlemi başarısız. Lütfen tekrar deneyin."
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:18
 msgid "Approve Application"
-msgstr ""
+msgstr "Başvuruyu Onayla"
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:19
 msgid "This will assign the vendor role and notify the applicant."
-msgstr ""
+msgstr "Bayi rolü atanacak ve başvurana bildirim gönderilecek."
 
 #: src-react/admin/vendor-management/components/ApproveForm.jsx:26
 msgid "Approve & Activate Vendor"
-msgstr ""
+msgstr "Bayiyi Onayla ve Aktifleştir"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:17
 msgid "Failed to load commission data."
-msgstr ""
+msgstr "Komisyon verileri yüklenemedi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:28
 msgid "Failed to load commission tiers."
-msgstr ""
+msgstr "Komisyon kademeleri yüklenemedi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:37
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:79
 msgid "Rate must be between 0 and 100."
-msgstr ""
+msgstr "Oran 0 ile 100 arasında olmalıdır."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:43
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:86
 msgid "Commission rate updated."
-msgstr ""
+msgstr "Komisyon oranı güncellendi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:50
 msgid "Failed to save commission rate."
-msgstr ""
+msgstr "Komisyon oranı kaydedilemedi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:62
 msgid "All thresholds and discounts must be valid, non-negative numbers (discount max 100)."
-msgstr ""
+msgstr "Tüm eşikler ve indirimler geçerli, negatif olmayan sayılar olmalıdır (indirim en fazla 100)."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:68
 msgid "Commission tiers updated."
-msgstr ""
+msgstr "Komisyon kademeleri güncellendi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:71
 msgid "Failed to save commission tiers."
-msgstr ""
+msgstr "Komisyon kademeleri kaydedilemedi."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:79
 msgid "Platform Commission Rate"
-msgstr ""
+msgstr "Platform Komisyon Oranı"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:83
 msgid "Current active rate:"
-msgstr ""
+msgstr "Mevcut aktif oran:"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:90
 msgid "No active commission policy found. Set one below."
-msgstr ""
+msgstr "Aktif komisyon politikası bulunamadı. Aşağıdan birini ayarlayın."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:94
 msgid "Setting a new rate creates a policy record effective immediately. Previous rates are preserved for audit."
-msgstr ""
+msgstr "Yeni bir oran belirlemek, hemen geçerli olan bir politika kaydı oluşturur. Önceki oranlar denetim amacıyla korunur."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:100
 msgid "New Commission Rate (%)"
-msgstr ""
+msgstr "Yeni Komisyon Oranı (%)"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:116
 msgid "Label (optional)"
-msgstr ""
+msgstr "Etiket (isteğe bağlı)"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:122
 msgid "e.g. Q1 2026 standard rate"
-msgstr ""
+msgstr "örn. 2026 Q1 standart oran"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:132
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:196
@@ -20983,364 +20983,364 @@ msgstr ""
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:149
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:182
 msgid "Saving…"
-msgstr ""
+msgstr "Kaydediliyor…"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:132
 msgid "Save Commission Rate"
-msgstr ""
+msgstr "Komisyon Oranını Kaydet"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:139
 msgid "Rate History"
-msgstr ""
+msgstr "Oran Geçmişi"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:143
 msgid "Effective From"
-msgstr ""
+msgstr "Geçerlilik Tarihi"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:144
 msgid "Rate"
-msgstr ""
+msgstr "Oran"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:145
 msgid "Label"
-msgstr ""
+msgstr "Etiket"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:161
 msgid "Volume Discount Tiers"
-msgstr ""
+msgstr "Hacim İndirimi Kademeleri"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:162
 msgid "30-day net cleared revenue thresholds that reduce the effective rate for vendors without a manual override."
-msgstr ""
+msgstr "Manuel geçersiz kılması olmayan bayiler için geçerli oranı düşüren 30 günlük net onaylanmış gelir eşikleri."
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:166
 msgid "30-Day Revenue Threshold"
-msgstr ""
+msgstr "30 Günlük Gelir Eşiği"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:167
 msgid "Discount (points)"
-msgstr ""
+msgstr "İndirim (puan)"
 
 #: src-react/admin/vendor-management/components/CommissionTab.jsx:196
 msgid "Save Tiers"
-msgstr ""
+msgstr "Kademeleri Kaydet"
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:9
 msgid "Approve this new IBAN? The vendor will receive payouts to this new account."
-msgstr ""
+msgstr "Yeni IBAN'ı onaylıyor musunuz? Bayi ödemeleri bu yeni hesaba alacak."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:12
 msgid "IBAN request approved and updated."
-msgstr ""
+msgstr "IBAN talebi onaylandı ve güncellendi."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:13
 msgid "IBAN approval failed."
-msgstr ""
+msgstr "IBAN onayı başarısız."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:17
 msgid "Reject this IBAN request? The vendor will continue using their old IBAN."
-msgstr ""
+msgstr "Bu IBAN talebini reddediyor musunuz? Bayi eski IBAN'ını kullanmaya devam edecek."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:20
 msgid "IBAN request rejected."
-msgstr ""
+msgstr "IBAN talebi reddedildi."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:21
 msgid "IBAN rejection failed."
-msgstr ""
+msgstr "IBAN reddi başarısız."
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:41
 msgid "Approve"
-msgstr ""
+msgstr "Onayla"
 
 #: src-react/admin/vendor-management/components/IbanRequestRow.jsx:50
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:34
 msgid "Reject"
-msgstr ""
+msgstr "Reddet"
 
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:16
 msgid "Failed to load IBAN requests."
-msgstr ""
+msgstr "IBAN talepleri yüklenemedi."
 
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:34
 msgid "No pending IBAN changes."
-msgstr ""
+msgstr "Bekleyen IBAN değişikliği yok."
 
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:42
 msgid "Current IBAN (Masked)"
-msgstr ""
+msgstr "Mevcut IBAN (Maskelenmiş)"
 
 #: src-react/admin/vendor-management/components/IbanRequestsTab.jsx:43
 msgid "Requested IBAN"
-msgstr ""
+msgstr "Talep Edilen IBAN"
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:11
 msgid "Rejection reason is required."
-msgstr ""
+msgstr "Red gerekçesi zorunludur."
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:16
 msgid "Vendor application rejected."
-msgstr ""
+msgstr "Bayi başvurusu reddedildi."
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:17
 msgid "Rejection failed. Please try again."
-msgstr ""
+msgstr "Red işlemi başarısız. Lütfen tekrar deneyin."
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:22
 #: src-react/admin/vendor-management/components/RejectForm.jsx:42
 msgid "Reject Application"
-msgstr ""
+msgstr "Başvuruyu Reddet"
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:24
 msgid "Rejection Reason (required):"
-msgstr ""
+msgstr "Red Gerekçesi (zorunlu):"
 
 #: src-react/admin/vendor-management/components/RejectForm.jsx:30
 msgid "Explain why this application is being rejected…"
-msgstr ""
+msgstr "Başvuruyu neden reddettiğinizi açıklayın…"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:37
 msgid "Failed to load settings."
-msgstr ""
+msgstr "Ayarlar yüklenemedi."
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:60
 msgid "Failed to save settings."
-msgstr ""
+msgstr "Ayarlar kaydedilemedi."
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:74
 msgid "Vendor Marketplace Settings"
-msgstr ""
+msgstr "Bayi Pazaryeri Ayarları"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:79
 msgid "Global Payout Freeze"
-msgstr ""
+msgstr "Genel Ödeme Dondurma"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:87
 msgid "Freeze all vendor payout requests site-wide"
-msgstr ""
+msgstr "Tüm bayi ödeme taleplerini site genelinde dondur"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:92
 msgid "Minimum Payout Amount"
-msgstr ""
+msgstr "Minimum Ödeme Tutarı"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:98
 msgid "Vendors must have at least this balance to request a payout."
-msgstr ""
+msgstr "Bayiler ödeme talep etmek için en az bu bakiyeye sahip olmalıdır."
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:102
 msgid "Min Vehicle Photos"
-msgstr ""
+msgstr "Min. Araç Fotoğrafı"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:111
 msgid "Max Vehicle Photos"
-msgstr ""
+msgstr "Maks. Araç Fotoğrafı"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:120
 msgid "Document Upload Limit (MB)"
-msgstr ""
+msgstr "Belge Yükleme Limiti (MB)"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:129
 msgid "Minimum Vehicle Year"
-msgstr ""
+msgstr "Minimum Araç Yılı"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:138
 msgid "Vendor Bio Max Characters"
-msgstr ""
+msgstr "Bayi Biyografi Maks Karakter"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:147
 msgid "Service Area Cities"
-msgstr ""
+msgstr "Hizmet Alanı Şehirleri"
 
 #: src-react/admin/vendor-management/components/SettingsTab.jsx:156
 msgid "One city per line."
-msgstr ""
+msgstr "Her satıra bir şehir."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:16
 msgid "Published"
-msgstr ""
+msgstr "Yayında"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:19
 msgid "Private"
-msgstr ""
+msgstr "Özel"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:24
 msgid "Approved"
-msgstr ""
+msgstr "Onaylandı"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:33
 msgid "Scheduled recalculation"
-msgstr ""
+msgstr "Zamanlanmış yeniden hesaplama"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:58
 msgid "Failed to load vendor."
-msgstr ""
+msgstr "Bayi yüklenemedi."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:68
 msgid "City updated."
-msgstr ""
+msgstr "Şehir güncellendi."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:70
 msgid "Could not update the city."
-msgstr ""
+msgstr "Şehir güncellenemedi."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:88
 msgid "Could not update the commission rate."
-msgstr ""
+msgstr "Komisyon oranı güncellenemedi."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:102
 msgid "← Back to vendors"
-msgstr ""
+msgstr "← Bayilere dön"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:119
 #: src-react/admin/vendor-management/components/VendorTable.jsx:81
 #: src-react/admin/vendor-management/components/VendorTable.jsx:128
 msgid "Suspended"
-msgstr ""
+msgstr "Askıya Alındı"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:160
 msgid "Reliability Score"
-msgstr ""
+msgstr "Güvenilirlik Puanı"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:161
 msgid "IBAN"
-msgstr ""
+msgstr "IBAN"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:170
 msgid "Use global/tier rate"
-msgstr ""
+msgstr "Genel/kademe oranını kullan"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:192
 msgid "Approved At"
-msgstr ""
+msgstr "Onaylanma Tarihi"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:203
 msgid "Completed Bookings"
-msgstr ""
+msgstr "Tamamlanan Rezervasyonlar"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:214
 msgid "Payout History"
-msgstr ""
+msgstr "Ödeme Geçmişi"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:216
 msgid "View all →"
-msgstr ""
+msgstr "Tümünü gör →"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:239
 msgid "No payout requests yet."
-msgstr ""
+msgstr "Henüz ödeme talebi yok."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:243
 msgid "Reliability & Penalty History"
-msgstr ""
+msgstr "Güvenilirlik ve Ceza Geçmişi"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:271
 msgid "No penalties or reliability events recorded."
-msgstr ""
+msgstr "Kayıtlı ceza veya güvenilirlik olayı yok."
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:280
 msgid "Post Status"
-msgstr ""
+msgstr "Gönderi Durumu"
 
 #: src-react/admin/vendor-management/components/VendorDetailPage.jsx:301
 msgid "This vendor has no vehicles."
-msgstr ""
+msgstr "Bu bayinin aracı yok."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:34
 msgid "Failed to load vendors."
-msgstr ""
+msgstr "Bayiler yüklenemedi."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:47
 msgid "Suspend this vendor?"
-msgstr ""
+msgstr "Bu bayiyi askıya almak istiyor musunuz?"
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:48
 msgid "Unsuspend this vendor? Their vehicles will move to Pending Review."
-msgstr ""
+msgstr "Bu bayinin askısını kaldırmak istiyor musunuz? Araçları İnceleme Bekliyor durumuna geçecektir."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:55
 msgid "Vendor suspended."
-msgstr ""
+msgstr "Bayi askıya alındı."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:56
 msgid "Vendor unsuspended."
-msgstr ""
+msgstr "Bayinin askısı kaldırıldı."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:60
 msgid "Action failed."
-msgstr ""
+msgstr "İşlem başarısız."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:70
 msgid "Search vendors…"
-msgstr ""
+msgstr "Bayi ara…"
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:84
 msgid "vendors"
-msgstr ""
+msgstr "bayi"
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:91
 msgid "No vendors found."
-msgstr ""
+msgstr "Bayi bulunamadı."
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:137
 msgid "Unsuspend"
-msgstr ""
+msgstr "Askıyı Kaldır"
 
 #: src-react/admin/vendor-management/components/VendorTable.jsx:137
 msgid "Suspend"
-msgstr ""
+msgstr "Askıya Al"
 
 #: src-react/admin/vendor-management/VendorManagementPage.jsx:68
 msgid "Failed to load applications."
-msgstr ""
+msgstr "Başvurular yüklenemedi."
 
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:11
 msgid "Resolve this report"
-msgstr ""
+msgstr "Bu raporu çöz"
 
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:24
 msgid "Optional — explain your decision so the vendor knows why."
-msgstr ""
+msgstr "İsteğe bağlı — bayinin nedenini anlayabilmesi için kararınızı açıklayın."
 
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:31
 msgid "Mark as Resolved"
-msgstr ""
+msgstr "Çözüldü Olarak İşaretle"
 
 #: src-react/admin/vendor-reports/components/ActionForm.jsx:37
 msgid "Mark In Review"
-msgstr ""
+msgstr "İncelemeye Al"
 
 #: src-react/admin/vendor-reports/components/DetailView.jsx:22
 msgid "Failed to load report."
-msgstr ""
+msgstr "Rapor yüklenemedi."
 
 #: src-react/admin/vendor-reports/components/DetailView.jsx:35
 msgid "← Back to Reports"
-msgstr ""
+msgstr "← Raporlara Dön"
 
 #: src-react/admin/vendor-reports/components/DetailView.jsx:46
 msgid "Vendor:"
-msgstr ""
+msgstr "Bayi:"
 
 #: src-react/admin/vendor-reports/components/DetailView.jsx:55
 msgid "Submitted:"
-msgstr ""
+msgstr "Gönderildi:"
 
 #: src-react/admin/vendor-reports/components/DetailView.jsx:70
 msgid "This report is closed. No further action is possible."
-msgstr ""
+msgstr "Bu rapor kapatıldı. Başka işlem yapılamaz."
 
 #: src-react/admin/vendor-reports/components/ReportRow.jsx:17
 msgid "Open"
-msgstr ""
+msgstr "Açık"
 
 #: src-react/admin/vendor-reports/components/ReportTable.jsx:6
 msgid "No reports found."
-msgstr ""
+msgstr "Rapor bulunamadı."
 
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:35
 msgid "Failed to load reports."
-msgstr ""
+msgstr "Raporlar yüklenemedi."
 
 #: src-react/admin/vendor-reports/VendorReportsPage.jsx:62
 msgid "Report updated."
-msgstr ""
+msgstr "Rapor güncellendi."
