@@ -287,13 +287,22 @@ final class Plugin {
 		}
 
 		// Withdrawal penalty recorder — writes ledger entry on withdrawal hook.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')) {
+		// Gated with the same key as Pro's register_lifecycle()/register_vendor_reports():
+		// a lapsed licence must stop writing penalties at the same moment the
+		// vendor's appeal UI disappears, or vendors get penalised with no recourse.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')
+		) {
 			\MHMRentiva\Admin\Vehicle\PenaltyRecorder::register();
 		}
 
 		// Vendor Report system — bridges open vehicle_action reports with the
 		// penalty pipeline so withdrawal reasons under review suspend penalties.
-		if (class_exists('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')
+		) {
 			\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook::register();
 		}
 
@@ -495,11 +504,17 @@ final class Plugin {
 			\MHMRentiva\Admin\PostTypes\Logs\MetaBox::register();
 		}
 
-		// Export
-		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
+		// Export (Pro only — the `export` feature key on the licence server).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseExport() &&
+			class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')
+		) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
 		}
-		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseExport() &&
+			class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')
+		) {
 			\MHMRentiva\Admin\Utilities\Export\REST\ExportRestController::register();
 		}
 
@@ -754,8 +769,13 @@ final class Plugin {
 		require_once MHM_RENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
 		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
 
-		// Transfer Module
-		if (class_exists('MHMRentiva\Admin\Transfer\TransferAdmin')) {
+		// Transfer Module (Pro only — VIP Transfer has no dedicated feature key on
+		// the licence server, so it rides the whole-edition gate, matching Pro's
+		// own Bootstrap).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::isPro() &&
+			class_exists('MHMRentiva\Admin\Transfer\TransferAdmin')
+		) {
 			\MHMRentiva\Admin\Transfer\TransferAdmin::register();
 
 			// Transfer Export/Import Integration

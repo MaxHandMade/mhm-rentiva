@@ -51,6 +51,31 @@ final class Mode {
     }
 
     /**
+     * Seam decision for the three registries that must drop a feature together:
+     * ShortcodeServiceProvider::drop_absent_pro_seams(), BlockRegistry's
+     * get_available_blocks() and ElementorIntegration::pro_widget_classes().
+     *
+     * Those registries only ever asked class_exists() — a PRESENCE check. With Pro
+     * installed but unlicensed the class exists, so the seam registered and the
+     * full UI rendered for free. They must ask the licence too, and they must all
+     * ask the SAME question: a block that registers while its backing shortcode was
+     * dropped prints the raw `[rentiva_transfer_search]` text to visitors.
+     *
+     * @param string|null $feature Licence feature key, 'pro' for the whole edition,
+     *                             or null for a seam with no licence requirement.
+     */
+    public static function allowsSeam( ?string $feature ): bool {
+        if ( null === $feature ) {
+            return true;
+        }
+        if ( 'pro' === $feature ) {
+            return self::isPro();
+        }
+
+        return self::canUse( $feature );
+    }
+
+    /**
      * Route a feature decision to Pro. Lite alone: class_exists false → false.
      * Pro present: LicenseManager::canUse() performs the RSA feature-token check.
      */

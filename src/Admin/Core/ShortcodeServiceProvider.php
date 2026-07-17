@@ -54,6 +54,17 @@ final class ShortcodeServiceProvider {
 	private array $class_instances = array();
 
 	/**
+	 * Seam tags this build ships but the licence does not currently allow.
+	 *
+	 * Distinct from a seam whose class is absent entirely: those tags never
+	 * existed on this site, but these ones did (the licence lapsed), so real
+	 * pages out there still contain them. See render_unlicensed_seams().
+	 *
+	 * @var array<int, string>
+	 */
+	private array $unlicensed_seam_tags = array();
+
+	/**
 	 * Get singleton instance
 	 *
 	 * @return self
@@ -203,18 +214,21 @@ final class ShortcodeServiceProvider {
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
 					'dependencies'  => array(),
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 				'rentiva_transfer_results' => array(
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 				'rentiva_popular_routes'   => array(
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 			),
@@ -268,23 +282,64 @@ final class ShortcodeServiceProvider {
 	 * build was never meant to have, and get_total_count()/get_groups() would
 	 * advertise shortcodes that cannot render.
 	 *
+	 * Shipping the class is necessary but NOT sufficient: with Pro installed but
+	 * unlicensed the class exists, so a presence-only check handed the full Pro UI
+	 * to an unlicensed site for free. Entries carrying a `pro_feature` key must
+	 * therefore satisfy the licence gate as well.
+	 *
 	 * @param array<string, array<string, array>> $registry Full registry.
 	 * @return array<string, array<string, array>> Registry without absent seams.
 	 */
 	private function drop_absent_pro_seams(array $registry): array
 	{
+		$this->unlicensed_seam_tags = array();
+
 		foreach ($registry as $group => $shortcodes) {
 			foreach ($shortcodes as $tag => $config) {
 				if (empty($config['pro_seam'])) {
 					continue;
 				}
-				if (! class_exists( (string) ( $config['class'] ?? '' ))) {
-					unset($registry[ $group ][ $tag ]);
+
+				$class_present = class_exists( (string) ( $config['class'] ?? '' ) );
+				$licensed      = \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
+					isset($config['pro_feature']) ? (string) $config['pro_feature'] : null
+				);
+
+				if ($class_present && $licensed) {
+					continue;
+				}
+
+				// Dropping is what keeps the feature closed: process_registration()
+				// calls $class::register(), so merely swapping the render callback
+				// would still hand over the class's own hooks and AJAX handlers.
+				unset($registry[ $group ][ $tag ]);
+
+				if ($class_present && ! $licensed) {
+					$this->unlicensed_seam_tags[] = $tag;
 				}
 			}
 		}
 
 		return $registry;
+	}
+
+	/**
+	 * Silence the tags a lapsed licence just closed.
+	 *
+	 * An unregistered shortcode does not vanish -- WordPress prints its literal
+	 * source text. A Lite-only build never had these pages, so dropping the tag is
+	 * enough there. But a site whose Pro licence lapsed still has real pages
+	 * carrying [rentiva_transfer_search], and those pages would start showing that
+	 * raw string to visitors. Registering a no-op renderer keeps them silent while
+	 * the feature itself stays closed: nothing here loads or touches the Pro class.
+	 *
+	 * @return void
+	 */
+	private function render_unlicensed_seams(): void
+	{
+		foreach ($this->unlicensed_seam_tags as $tag) {
+			add_shortcode($tag, '__return_empty_string');
+		}
 	}
 
 	/**
@@ -316,6 +371,8 @@ final class ShortcodeServiceProvider {
 				$this->process_registration($tag, $config);
 			}
 		}
+
+		$this->render_unlicensed_seams();
 	}
 
 	/**
