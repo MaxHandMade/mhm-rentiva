@@ -123,14 +123,27 @@ final class Plugin {
 
 	/**
 	 * Remove stale schedules for Pro-only modules when running in Lite mode.
+	 *
+	 * Gating a cron's registration stops it re-scheduling, but an event scheduled
+	 * during a prior licensed run persists in the WP cron array until explicitly
+	 * cleared. Without this, wp_next_scheduled() keeps returning a timestamp on a
+	 * lapsed site — and although the run() callback is no longer hooked, the event
+	 * lingers. Clear the Pro-only events whenever their gate is closed; the matching
+	 * registration in initialize_* reschedules them the moment the gate reopens.
 	 */
 	private function cleanup_pro_only_schedules(): void
 	{
-		if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
-			return;
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
+			// PayoutStatementController / MaturedPayoutJob cluster.
+			wp_clear_scheduled_hook('mhm_rentiva_process_matured_payouts');
 		}
 
-		wp_clear_scheduled_hook('mhm_rentiva_process_matured_payouts');
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) {
+			// Lifecycle + commission-clearing cluster (gated on canUseVendorMarketplace).
+			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_event');
+			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_warning_event');
+			wp_clear_scheduled_hook('mhm_rentiva_process_commission_clearing');
+		}
 	}
 
 
@@ -187,11 +200,23 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
 		}
 
-		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel)
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')) {
+		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel).
+		// Pro-gated on canUseVendorMarketplace() — the SAME door Pro's Bootstrap
+		// register_lifecycle() uses. Lite must ask the same gate or its ungated
+		// door defeats Pro's: ListingExpiryJob::run() irreversibly expires/withdraws
+		// vendor listings twice daily while the renewal UI is gated off. Orphaned
+		// events left scheduled by a prior licensed run are cleared in
+		// cleanup_pro_only_schedules().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob::register();
 		}
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob::register();
 		}
 		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
@@ -262,12 +287,20 @@ final class Plugin {
 		}
 
 		// Vehicle lifecycle manager — hooks into approval flow to start listing timer.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')
+		) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::register();
 		}
 
 		// Listing fee manager — WooCommerce hooks for paid vehicle listings.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\ListingFeeManager')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\ListingFeeManager')
+		) {
 			\MHMRentiva\Admin\Vehicle\ListingFeeManager::register();
 		}
 
@@ -277,12 +310,21 @@ final class Plugin {
 		}
 
 		// Vendor payout statement generation — on payout approval (post publish).
-		if (class_exists('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
+		// Registers admin_post_(nopriv_)mhm_rentiva_view_statement. Registered ONLY
+		// here (Pro's Bootstrap does not), so this gate alone closes the leak.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			class_exists('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')
+		) {
 			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
 		}
 
 		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')
+		) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController::register();
 		}
 
@@ -398,12 +440,22 @@ final class Plugin {
 		}
 
 		// Vehicle lifecycle meta box (admin sidebar).
-		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle() row 23.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')
+		) {
 			\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox::register();
 		}
 
 		// Vendor reliability score column in Users table.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')) {
+		// Pro-gated (canUseVendorMarketplace). Pro's Bootstrap register_vendor() also
+		// registers this class; that door is gated to VM in the F1 batch too, so both
+		// doors ask the same gate.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')
+		) {
 			\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn::register();
 		}
 
@@ -942,7 +994,13 @@ final class Plugin {
 		) {
 			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
 		}
-		if (class_exists('MHMRentiva\Core\Financial\Automation\CommissionClearingJob')) {
+		// Hourly commission clearing (Pro). Pro-gated (canUseVendorMarketplace).
+		// Orphaned mhm_rentiva_process_commission_clearing events left scheduled by a
+		// prior licensed run are cleared in cleanup_pro_only_schedules().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('MHMRentiva\Core\Financial\Automation\CommissionClearingJob')
+		) {
 			\MHMRentiva\Core\Financial\Automation\CommissionClearingJob::register();
 		}
 
