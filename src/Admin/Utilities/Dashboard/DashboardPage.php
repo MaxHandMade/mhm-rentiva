@@ -290,6 +290,16 @@ final class DashboardPage {
 				'widget_order'                 => array(),
 				'currency'                     => CurrencyHelper::get_currency_symbol(),
 				'admin_url'                    => admin_url(),
+				// Licence gates for the Pro quick actions, so the dashboard does not
+				// link to inaccessible Pro pages on an unlicensed site. Keys match the
+				// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
+				'caps'                         => array(
+					'transfer' => \MHMRentiva\Admin\Licensing\Mode::isPro(),
+					'reports'  => \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports(),
+					'vendors'  => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
+					'messages' => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
+					'export'   => \MHMRentiva\Admin\Licensing\Mode::canUseExport(),
+				),
 			)
 		);
 	}
