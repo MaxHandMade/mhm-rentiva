@@ -5,6 +5,7 @@ namespace MHMRentiva\Tests\Admin\Settings;
 
 use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\Services\SettingsService;
 use WP_UnitTestCase;
 
 /**
@@ -72,5 +73,48 @@ final class SettingsSanitizerProTabGateTest extends WP_UnitTestCase
         ));
 
         $this->assertSame(10, $result['mhm_rentiva_max_login_attempts'], 'A core settings tab must still save.');
+    }
+
+    // -- Y3: reset is a WRITE too, and it bypasses the sanitizer -----------------
+    //
+    // SettingsService::reset_defaults() calls update_option directly, so the
+    // sanitizer gate above never sees it. Without its own gate an unlicensed admin
+    // could overwrite Pro tab options with defaults. These pin that reset refuses
+    // Pro tabs unlicensed but still works for a core tab.
+
+    private function as_admin(): void
+    {
+        wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
+    }
+
+    /** @return string[] */
+    public static function pro_reset_tabs(): array
+    {
+        return array( array( 'transfer' ), array( 'vendor-marketplace' ), array( 'messages' ) );
+    }
+
+    /**
+     * @dataProvider pro_reset_tabs
+     * Mutation proof: drop the `$pro_tab_gates` guard in reset_defaults() and this
+     * returns true (the write happens) instead of false.
+     */
+    public function test_unlicensed_pro_tab_reset_is_blocked(string $tab): void
+    {
+        $this->as_admin();
+
+        $this->assertFalse(
+            SettingsService::reset_defaults($tab),
+            "Unlicensed reset of the '{$tab}' Pro tab must be a no-op."
+        );
+    }
+
+    public function test_core_tab_reset_still_runs(): void
+    {
+        $this->as_admin();
+
+        $this->assertTrue(
+            SettingsService::reset_defaults('general'),
+            'A core settings tab must still be resettable.'
+        );
     }
 }
