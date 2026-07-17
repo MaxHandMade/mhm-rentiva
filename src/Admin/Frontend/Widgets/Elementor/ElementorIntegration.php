@@ -84,12 +84,17 @@ class ElementorIntegration {
 	 */
 	private static function pro_widget_classes(): array {
 		return array(
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget'      => null,
+			// A null here means "no licence requirement" -- allowsSeam(null) is true.
+			// These three were null, so with Pro installed but unlicensed the widget
+			// class existed and the widget registered: the full Pro widget, free, in
+			// the Elementor panel. They are keyed to the same features as the
+			// shortcode and block registries so all three drop together.
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget'      => 'messaging',
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget'  => 'pro',
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget' => 'pro',
 			'MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget'   => 'pro',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget'   => null,
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget' => null,
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget'   => 'vendor_marketplace',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget' => 'vendor_marketplace',
 		);
 	}
 

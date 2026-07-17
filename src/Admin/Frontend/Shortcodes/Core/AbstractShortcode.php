@@ -47,6 +47,26 @@ abstract class AbstractShortcode {
 	}
 
 	/**
+	 * Clears the register()-once cache. Test seam.
+	 *
+	 * Registration is idempotent by design: the first register() call per tag sets
+	 * $shortcode_cache and every later call returns early. That is correct at
+	 * runtime (one boot, one registration) but it makes register() untestable
+	 * more than once per PHP process -- and WP_UnitTestCase rolls $wp_filter back
+	 * between tests, so the hooks the first call added are GONE while the cache
+	 * still says "already registered". A test asserting register()'s side effects
+	 * then sees nothing.
+	 *
+	 * That trap was hidden while unlicensed seams leaked: the boot registered them
+	 * for everyone, so the hooks sat in WP_UnitTestCase's baseline and survived
+	 * every rollback. Closing the leak exposed it.
+	 */
+	public static function reset_shortcode_cache_for_tests(): void
+	{
+		self::$shortcode_cache = array();
+	}
+
+	/**
 	 * Returns shortcode tag
 	 *
 	 * @return string Shortcode tag (e.g.: 'rentiva_booking_form')

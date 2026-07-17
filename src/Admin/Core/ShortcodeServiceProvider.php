@@ -99,7 +99,33 @@ final class ShortcodeServiceProvider {
 	 */
 	private function get_shortcode_registry(): array
 	{
-		$registry = array(
+		$registry = $this->get_raw_shortcode_registry();
+
+		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
+		if (! self::is_home_poc_enabled()) {
+			unset($registry['support']['rentiva_home_poc']);
+		}
+
+		$registry = $this->drop_absent_pro_seams($registry);
+
+		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+	}
+
+	/**
+	 * The registry as DECLARED, before any seam is dropped.
+	 *
+	 * Split out from get_shortcode_registry() so the seam metadata can be audited
+	 * as data. The declared table is the only place that says which licence feature
+	 * each seam needs, and get_shortcode_registry() returns the table with those
+	 * seams already REMOVED -- so a test asking it "does every seam declare a
+	 * feature?" sees an empty set and passes vacuously. That is not hypothetical:
+	 * SeamFeatureKeyCoverageTest's premise guard caught exactly that.
+	 *
+	 * @return array<string, array<string, array>>
+	 */
+	private function get_raw_shortcode_registry(): array
+	{
+		return array(
 			'reservation' => array(
 				'rentiva_booking_form'          => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
@@ -149,35 +175,49 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => false,
 				),
 			),
+			/*
+			 * Every entry here is Vendor Marketplace, so every entry carries
+			 * `pro_feature`. They all shipped WITHOUT one, which did not merely
+			 * mislabel them -- it handed the feature away: `pro_seam` alone routes
+			 * to Mode::allowsSeam(null), which returns true by contract, so on a
+			 * Pro-installed-but-unlicensed site the class existed, the licence
+			 * check passed, and the vendor shortcodes registered with their REAL
+			 * renderers. Confirmed at runtime with isPro=false before the fix.
+			 */
 			'vendor'      => array(
 				'rentiva_vendor_apply'     => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vehicle_submit'   => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_bookings'  => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => true,
 				),
 				'rentiva_vendor_profile'   => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_directory' => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 			),
@@ -202,11 +242,14 @@ final class ShortcodeServiceProvider {
 					'method'        => 'render',
 					'requires_auth' => true,
 				),
+				// Commission is a Vendor Marketplace concept: no vendors, nothing to
+				// resolve a commission for. Same missing-key bug as the vendor group.
 				'rentiva_commission_resolver' => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver',
 					'method'        => 'render',
 					'requires_auth' => false,
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 				),
 			),
 			'transfer'    => array(
@@ -248,11 +291,16 @@ final class ShortcodeServiceProvider {
 					'dependencies'  => array( 'booking' ),
 					'requires_auth' => false,
 				),
+				// Messaging is its own licence feature (Mode::canUseMessages()), and
+				// the menu entry has always asked for it -- only this registry
+				// entry forgot, so the admin screen was gated while the public
+				// shortcode was not.
 				'rentiva_messages'            => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
 					'method'        => 'render',
 					'requires_auth' => true,
 					'pro_seam'      => true,
+					'pro_feature'   => 'messaging',
 				),
 				'rentiva_home_poc'            => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
@@ -261,15 +309,6 @@ final class ShortcodeServiceProvider {
 				),
 			),
 		);
-
-		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
-		if (! self::is_home_poc_enabled()) {
-			unset($registry['support']['rentiva_home_poc']);
-		}
-
-		$registry = $this->drop_absent_pro_seams($registry);
-
-		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
 	}
 
 	/**
@@ -301,8 +340,22 @@ final class ShortcodeServiceProvider {
 				}
 
 				$class_present = class_exists( (string) ( $config['class'] ?? '' ) );
-				$licensed      = \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
-					isset($config['pro_feature']) ? (string) $config['pro_feature'] : null
+
+				/*
+				 * FAIL CLOSED. A `pro_seam` entry with no `pro_feature` used to fall
+				 * through to Mode::allowsSeam(null), which returns true by contract --
+				 * so declaring something a Pro seam and forgetting its feature key
+				 * GAVE IT AWAY. Seven entries shipped exactly that way (the whole
+				 * vendor group, commission_resolver and messages): on a
+				 * Pro-installed-but-unlicensed site they registered with their real
+				 * renderers and worked for free.
+				 *
+				 * The default is now the whole edition ('pro'), so the failure mode of
+				 * a forgotten key is a closed feature rather than a free one. Explicit
+				 * keys still refine it to a specific licence feature.
+				 */
+				$licensed = \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
+					isset($config['pro_feature']) ? (string) $config['pro_feature'] : 'pro'
 				);
 
 				if ($class_present && $licensed) {

@@ -84,8 +84,18 @@ final class Menu {
 		 * 4. Transfer Group (Previously in TransferAdmin)
 		 *
 		 * TransferAdmin is a Pro seam, so both screens are guarded — without it the
-		 * submenus would fatal on `new TransferAdmin()`. There is no
-		 * Mode::canUseTransfer(), so class_exists() is the gate.
+		 * submenus would fatal on `new TransferAdmin()`.
+		 *
+		 * class_exists() alone was NOT enough, and shipped that way: with Pro
+		 * installed but UNLICENSED the class exists, so both screens rendered in
+		 * full for free. Menu registration is its own code path — the seam gate
+		 * added to the shortcode/block/Elementor registries never reached it, and
+		 * no test asked. Transfer has no per-feature licence key, so the gate is
+		 * the edition itself: Mode::isPro(), i.e. allowsSeam('pro').
+		 *
+		 * Both checks are required by the seam contract: class_exists() keeps a
+		 * Lite-only build from fatalling, Mode::isPro() keeps an unlicensed build
+		 * from getting the feature.
 		 *
 		 * The gap escalated here (a Lite site that has the locations table and reads
 		 * it, but has no CRUD UI to populate it → permanently empty rental location
@@ -97,7 +107,9 @@ final class Menu {
 		 * Task 5a-2; every core call site is guarded). Lite no longer creates the
 		 * table. See carveout/faz1-exit-decisions.md §"Task 5a escalation".
 		 */
-		if (class_exists('\MHMRentiva\Admin\Transfer\TransferAdmin')) {
+		if (class_exists('\MHMRentiva\Admin\Transfer\TransferAdmin')
+			&& \MHMRentiva\Admin\Licensing\Mode::isPro()
+		) {
 			add_submenu_page(
 				'mhm-rentiva',
 				__('Locations', 'mhm-rentiva'),

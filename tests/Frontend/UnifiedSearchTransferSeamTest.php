@@ -18,11 +18,33 @@ class UnifiedSearchTransferSeamTest extends WP_UnitTestCase
 {
 
     /**
-     * Guards the premise of every assertion below.
+     * Guards the premise of every assertion below: Lite does not SHIP the class.
+     *
+     * This asserted class_exists() === false until 2026-07-17. That is a runtime
+     * question, and it was the wrong one twice over:
+     *
+     *  1. It is false in the field. Lite and Pro share the MHMRentiva\ namespace and
+     *     a chained autoloader, so on any site with the Pro add-on installed --
+     *     including the owner's own dev box -- class_exists() is TRUE. The test only
+     *     held because this suite runs against a Lite-only tree. It was effectively
+     *     asserting "Pro is never installed", which Lite cannot guarantee.
+     *  2. Because the class is absent HERE, the tab could not render for the wrong
+     *     reason, and the assertions below passed with the licence gate reverted.
+     *     Presence-only gating then shipped, and an unlicensed visitor really did
+     *     get the Transfer tab (see UnifiedSearchTransferGateTest, which reproduces
+     *     class-present + licence-absent).
+     *
+     * What this file actually needs to know is a PACKAGING fact -- Lite's src/ does
+     * not contain the file -- and that is what it now checks. Stated this way the
+     * premise stays true under both real configurations (Lite alone, and Lite with
+     * an unlicensed Pro), instead of only the one the CI happens to run.
      */
-    public function test_transfer_shortcode_class_is_absent_from_lite(): void
+    public function test_transfer_shortcode_class_is_not_shipped_by_lite(): void
     {
-        $this->assertFalse(class_exists('MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes'));
+        $this->assertFileDoesNotExist(
+            dirname(__DIR__, 2) . '/src/Admin/Transfer/Frontend/TransferShortcodes.php',
+            'Lite must not ship the Pro Transfer shortcode class.'
+        );
     }
 
     /**

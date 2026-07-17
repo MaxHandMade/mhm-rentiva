@@ -92,18 +92,72 @@ final class UnlicensedProSeamGateTest extends WP_UnitTestCase
     }
 
     /**
-     * The licence is consulted only for seams that declare a feature: a seam with
-     * no `pro_feature` keeps its historic presence-only behaviour.
+     * A `pro_seam` with no `pro_feature` FAILS CLOSED.
+     *
+     * This test used to assert the exact opposite -- that such a seam "keeps its
+     * historic presence-only behaviour" and stays registered. That was not a
+     * harmless default; it was the bug, pinned in place by a green test. A seam
+     * with no feature key routed to Mode::allowsSeam(null), which returns true by
+     * contract, so declaring something a Pro seam and forgetting its key GAVE IT
+     * AWAY. Six registry entries across the three registries shipped exactly that
+     * way (messages + the whole vendor group), and on a Pro-installed-but-
+     * unlicensed site they registered with their real renderers. Verified at
+     * runtime with isPro=false before the fix.
+     *
+     * The registries now default a keyless seam to 'pro', so the failure mode of a
+     * forgotten key is a closed feature rather than a free one.
+     *
+     * Note the scope: Mode::allowsSeam(null) still returns true -- that contract is
+     * unchanged and still covered above. What changed is that the REGISTRIES no
+     * longer pass null for a seam that declared itself Pro.
+     *
+     * Mutation proof: restore the `: null` default in get_available_blocks() and
+     * this fails -- the stand-in class exists, so the keyless seam would survive.
      */
-    public function test_block_registry_keeps_a_present_seam_with_no_feature_requirement(): void
+    public function test_block_registry_drops_a_present_seam_that_declares_no_feature(): void
     {
         $available = $this->available_blocks_for(
             array(
                 'seam-no-feature' => array( 'tag' => 'x', 'pro_seam' => self::PRESENT_CLASS ),
+                'plain-free'      => array( 'tag' => 'y' ),
             )
         );
 
-        $this->assertArrayHasKey('seam-no-feature', $available);
+        $this->assertArrayNotHasKey(
+            'seam-no-feature',
+            $available,
+            'A pro_seam with no pro_feature must fail closed, not register for free.'
+        );
+        // Positive control: only entries that DECLARE a seam are affected. A block
+        // with no pro_seam at all is core and must never be touched.
+        $this->assertArrayHasKey('plain-free', $available, 'A block with no seam must never be dropped.');
+    }
+
+    /**
+     * The same fail-closed default, in the shortcode registry. Both registries must
+     * default identically or a block outlives the shortcode it renders through --
+     * which prints raw `[rentiva_vendor_apply]` text at visitors.
+     *
+     * Mutation proof: restore the `: null` default in drop_absent_pro_seams() and
+     * this fails.
+     */
+    public function test_shortcode_registry_drops_a_present_seam_that_declares_no_feature(): void
+    {
+        $filtered = $this->drop_seams_from(
+            array(
+                'grp' => array(
+                    'keyless_seam' => array( 'class' => self::PRESENT_CLASS, 'pro_seam' => true ),
+                    'free_tag'     => array( 'class' => self::PRESENT_CLASS ),
+                ),
+            )
+        );
+
+        $this->assertArrayNotHasKey(
+            'keyless_seam',
+            $filtered['grp'],
+            'A pro_seam shortcode with no pro_feature must fail closed.'
+        );
+        $this->assertArrayHasKey('free_tag', $filtered['grp'], 'A non-seam shortcode must never be dropped.');
     }
 
     public function test_block_registry_still_drops_a_seam_whose_class_is_absent(): void
