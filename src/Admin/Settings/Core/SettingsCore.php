@@ -40,8 +40,8 @@ final class SettingsCore {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
 		// Dark Mode Logic
-		add_action('admin_head', array( self::class, 'inject_dark_mode_styles' ));
-		add_action('wp_head', array( self::class, 'inject_dark_mode_styles' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_dark_mode_styles' ));
+		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_dark_mode_styles' ));
 
 		// AJAX Handlers
 		add_action('wp_ajax_mhm_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
@@ -410,12 +410,9 @@ final class SettingsCore {
 	}
 
 	/**
-	 * Inject Dark Mode CSS using wp_add_inline_style for better performance
+	 * Enqueue Dark Mode CSS (static file) when auto dark-mode is active
 	 */
-	/**
-	 * Inject Dark Mode CSS using wp_add_inline_style for better performance
-	 */
-	public static function inject_dark_mode_styles(): void
+	public static function enqueue_dark_mode_styles(): void
 	{
 		// Use central getter to respect settings page saves
 		$mode = self::get('mhm_rentiva_dark_mode', 'auto');
@@ -424,15 +421,12 @@ final class SettingsCore {
 			return;
 		}
 
-		// Using a variable to avoid multiple echo statements
-		$css = '
-            @media (prefers-color-scheme: dark) {
-                .mhm-auto-dark-mode .mhm-quick-actions { background: #1e1e1e !important; color: #fff; }
-                .mhm-auto-dark-mode .quick-action-card { background: #2d2d2d !important; border-color: #3c3c3c !important; }
-            }
-        ';
-
-		printf('<style id="mhm-rentiva-dynamic-dark-mode">%s</style>', esc_html(wp_strip_all_tags($css)));
+		wp_enqueue_style(
+			'mhm-rentiva-auto-dark-mode',
+			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/auto-dark-mode.css',
+			array(),
+			\MHM_RENTIVA_VERSION
+		);
 	}
 
 	/**

@@ -1,0 +1,4 @@
+@media (prefers-color-scheme: dark) {
+    .mhm-auto-dark-mode .mhm-quick-actions { background: #1e1e1e !important; color: #fff; }
+    .mhm-auto-dark-mode .quick-action-card { background: #2d2d2d !important; border-color: #3c3c3c !important; }
+}

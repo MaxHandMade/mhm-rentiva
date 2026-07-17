@@ -137,8 +137,14 @@ final class AssetManager {
 		add_action('init', array( self::class, 'register_vendor_assets' ));
 		// Register Common Assets (Shared but not Global)
 		add_action('init', array( self::class, 'register_common_assets' ));
-		add_action('wp_head', array( self::class, 'add_inline_styles' ));
-		add_action('admin_head', array( self::class, 'add_inline_styles' ));
+		// Attached on the *_enqueue_scripts hooks (not wp_head/admin_head):
+		// wp_print_styles runs at wp_head priority 8, and admin_print_styles
+		// fires before admin_head altogether, so by the time wp_head/admin_head
+		// executes the style queue for this request has already been printed.
+		// wp_add_inline_style() only has an effect if it runs before that print,
+		// which the *_enqueue_scripts hooks guarantee.
+		add_action('wp_enqueue_scripts', array( self::class, 'add_inline_styles' ), 20);
+		add_action('admin_enqueue_scripts', array( self::class, 'add_inline_styles' ), 20);
 	}
 
 	/**
@@ -1458,8 +1464,7 @@ final class AssetManager {
 		// Add CSS variables inline
 		$css_variables = self::get_css_variables();
 		if ($css_variables) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '<style id="mhm-css-variables">' . wp_strip_all_tags( (string) $css_variables) . '</style>';
+			wp_add_inline_style( 'mhm-css-variables', (string) $css_variables );
 		}
 	}
 
