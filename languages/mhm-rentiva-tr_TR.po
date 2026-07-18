@@ -20104,9 +20104,23 @@ msgid "No customers found."
 msgstr "Müşteri bulunamadı."
 
 #: src-react/admin/customers/components/FilterBar.jsx:17
-#: src-react/admin/export/components/ExportForm.jsx:22
 msgid "Export CSV"
 msgstr "CSV Dışa Aktar"
+
+#: src-react/admin/export/components/ExportForm.jsx:40
+msgid "Export format"
+msgstr "Dışa aktarma biçimi"
+
+#: src-react/admin/export/components/ExportForm.jsx:43
+#: src-react/admin/export/components/ExportHistory.jsx:66
+msgid "Format"
+msgstr "Biçim"
+
+#. translators: %s: export file format, e.g. CSV or JSON.
+#: src-react/admin/export/components/ExportForm.jsx:69
+#, js-format
+msgid "Export %s"
+msgstr "%s Dışa Aktar"
 
 #: src-react/admin/customers/components/Pagination.jsx:12
 #: src-react/admin/vendor-management/components/VendorTable.jsx:151

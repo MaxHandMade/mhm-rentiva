@@ -1,5 +1,19 @@
 [
   {
+    "version": "5.0.1",
+    "date": "2026-07-18",
+    "type": "patch",
+    "title": "Dışa aktarma ekranı düzeltmeleri (paylaşılan paket) ve çeviri güncellemesi",
+    "summary": "Dışa aktarma ekranının paylaşılan React paketindeki düzeltmeler; bu ekranı Rentiva Pro eklentisi kaydeder ve geçerli bir lisansa bağlar. Ücretsiz eklentide dışa aktarma ekranı yoktur, dolayısıyla davranışı değişmez.",
+    "changes": [
+      "Düzeltme: dışa aktarma ekranının Dışa Aktar düğmesi güvenlik nonce'unu \"nonce\" alan adıyla gönderiyordu; oysa işleyici check_admin_referer() ile doğrulama yapıyor ve _wpnonce alanını okuyor — bu yüzden CSV dahil her dışa aktarma \"bağlantının süresi doldu\" hatasıyla başarısız oluyordu. Artık _wpnonce olarak gönderiliyor.",
+      "Yeni: dışa aktarma geçmişi tablosu, her girdinin hangi biçimde (CSV veya JSON) dışa aktarıldığını gösteriyor.",
+      "i18n: yeni dışa aktarma ekranı metinleri için Türkçe çeviri güncellendi.",
+      "Belgeler: README.md ve README-tr.md artık Lite/Pro karşılaştırması içeriyor (yalnızca GitHub; ikisi de eklenti ZIP'inden hariç)."
+    ],
+    "notice": "Ücretsiz eklentinin davranışı değişmez; işlem gerekmez."
+  },
+  {
     "version": "5.0.0",
     "date": "2026-07-18",
     "type": "major",

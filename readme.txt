@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        5.0.0
+Stable tag:        5.0.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -78,6 +78,9 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 
 == Changelog ==
 
+= 5.0.1 =
+* Maintenance: internal fixes to shared admin assets and an updated Turkish translation. The free plugin's behaviour is unchanged.
+
 = 5.0.0 =
 * First public release of MHM Rentiva on WordPress.org.
 * Rental core: fleet management, availability, bookings, customers, WooCommerce payments, email notifications, and the customer account pages.
@@ -86,6 +89,9 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Full Turkish translation.
 
 == Upgrade Notice ==
+
+= 5.0.1 =
+Maintenance and translation update. No action required.
 
 = 5.0.0 =
 First WordPress.org release.

@@ -1,5 +1,19 @@
 [
   {
+    "version": "5.0.1",
+    "date": "2026-07-18",
+    "type": "patch",
+    "title": "Export screen fixes (shared bundle) and translation update",
+    "summary": "Fixes to the data-export screen's shared React bundle, which the Rentiva Pro add-on registers and gates behind a valid licence. The free plugin has no export screen, so its behaviour is unchanged.",
+    "changes": [
+      "Fixed: the export screen's Export button posted its security nonce under the field name \"nonce\", but the handler verifies with check_admin_referer(), which reads _wpnonce — so every export, CSV included, failed with a \"the link you followed has expired\" error. It is now posted as _wpnonce.",
+      "New: the export history table shows which format (CSV or JSON) each entry was exported as.",
+      "i18n: Turkish translation updated for the new export-screen strings.",
+      "Docs: README.md and README-tr.md now carry a Lite/Pro edition comparison (GitHub only; both are excluded from the plugin ZIP)."
+    ],
+    "notice": "The free plugin's behaviour is unchanged; no action required."
+  },
+  {
     "version": "5.0.0",
     "date": "2026-07-18",
     "type": "major",
