@@ -49,6 +49,14 @@ class HomePoc {
         if (!apply_filters('mhm_rentiva_enable_home_poc', true)) {
             return '';
         }
+        // Container styles that used to be an inline <style> at the end of the template.
+        wp_enqueue_style(
+            'mhm-rentiva-home-poc',
+            MHM_RENTIVA_PLUGIN_URL . 'assets/css/shortcodes/home-poc.css',
+            array(),
+            MHM_RENTIVA_VERSION
+        );
+
         $template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/shortcodes/home-poc.php';
 
         if (!file_exists($template_path)) {
