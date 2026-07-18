@@ -1169,6 +1169,51 @@ final class AssetManager {
 				self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
 				true
 			);
+
+			// Settings-page behavior (reset, display tab, definitions tab + rename modal).
+			// Replaces the three inline <script> blocks in VehicleSettings render methods.
+			wp_enqueue_script(
+				'mhm-vehicle-settings',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
+				array( 'jquery', 'jquery-ui-sortable' ),
+				self::get_file_version('assets/js/admin/vehicle-settings.js'),
+				true
+			);
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
+			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
+			wp_localize_script(
+				'mhm-vehicle-settings',
+				'mhmVehicleSettings',
+				array(
+					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
+					'activeTab' => $vs_active_tab,
+					'i18n'      => array(
+						'confirmResetAll'        => __('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva'),
+						'saved'                  => __('Settings saved successfully!', 'mhm-rentiva'),
+						'errorSaving'            => __('Error saving settings.', 'mhm-rentiva'),
+						'select'                 => __('Select', 'mhm-rentiva'),
+						'number'                 => __('Number', 'mhm-rentiva'),
+						'errPrefix'              => __('Error:', 'mhm-rentiva'),
+						'genericError'           => __('An error occurred!', 'mhm-rentiva'),
+						'remove'                 => __('Remove', 'mhm-rentiva'),
+						'detailAdded'            => __('Custom detail added successfully!', 'mhm-rentiva'),
+						'featureAdded'           => __('Custom feature added successfully!', 'mhm-rentiva'),
+						'equipmentAdded'         => __('Custom equipment added successfully!', 'mhm-rentiva'),
+						'confirmRemoveDetail'    => __('Are you sure you want to remove this custom detail?', 'mhm-rentiva'),
+						'detailRemoved'          => __('Custom detail removed successfully!', 'mhm-rentiva'),
+						'confirmRemoveFeature'   => __('Are you sure you want to remove this custom feature?', 'mhm-rentiva'),
+						'featureRemoved'         => __('Custom feature removed successfully!', 'mhm-rentiva'),
+						'confirmRemoveEquipment' => __('Are you sure you want to remove this custom equipment?', 'mhm-rentiva'),
+						'equipmentRemoved'       => __('Custom equipment removed successfully!', 'mhm-rentiva'),
+						'editFieldNames'         => __('Edit Field Names', 'mhm-rentiva'),
+						'cancel'                 => __('Cancel', 'mhm-rentiva'),
+						'save'                   => __('Save', 'mhm-rentiva'),
+						'fieldNamesSaved'        => __('Field names updated and saved!', 'mhm-rentiva'),
+						'fieldNamesError'        => __('Error: Field names could not be saved!', 'mhm-rentiva'),
+					),
+				)
+			);
 		}
 
 		// Addon List
