@@ -1,0 +1,31 @@
+/* Small static wp-admin chrome overrides.
+ *
+ * Bundles a few one-off screen tweaks that used to be printed as inline
+ * <style> blocks. Each rule set is only enqueued on the specific screen
+ * it targets — see the matching admin_enqueue_scripts callback for the
+ * guard (AddonMenu::enqueue_page_title_style, VehicleMeta::hide_default_meta_boxes,
+ * Plugin::initialize_admin_services docs-button enqueue).
+ */
+
+/* Additional Services (vehicle_addon) list screen: replace the default
+ * WP list-table header with the plugin's standardized header. */
+.wp-heading-inline,
+.page-title-action,
+.wp-header-end {
+	display: none !important;
+}
+
+/* Vehicle edit screen: hide meta boxes not used by this post type. */
+#postexcerpt,
+#slugdiv {
+	display: none !important;
+}
+
+/* Documentation button floated on vehicle/vehicle_booking/vehicle_category screens. */
+.mhm-docs-btn-global {
+	float: right;
+	margin-top: 5px;
+	margin-right: 15px;
+	position: relative;
+	z-index: 10;
+}

@@ -168,7 +168,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		add_action('add_meta_boxes_vehicle', array( self::class, 'add_featured_meta_box' ));
 		add_action('save_post_vehicle', array( self::class, 'save_featured_meta_box' ));
 
-		add_action('admin_head', array( self::class, 'hide_default_meta_boxes' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
 		add_action('wp_ajax_mhm_save_item_order', array( self::class, 'ajax_save_item_order' ));
 
@@ -294,18 +294,19 @@ final class VehicleMeta extends AbstractMetaBox {
 	}
 
 	/**
-	 * Hide default meta boxes
+	 * Hide default meta boxes not used by the vehicle post type.
 	 */
 	public static function hide_default_meta_boxes(): void
 	{
 		global $post_type;
 
 		if ($post_type === 'vehicle') {
-			echo '<style>
-                #postexcerpt,
-                #slugdiv
-                { display: none !important; }
-            </style>';
+			wp_enqueue_style(
+				'mhm-rentiva-hide-wp-chrome',
+				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+				array(),
+				\MHM_RENTIVA_VERSION
+			);
 		}
 	}
 

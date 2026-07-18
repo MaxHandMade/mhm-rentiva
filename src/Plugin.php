@@ -549,10 +549,36 @@ final class Plugin {
 				);
 
 				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
-					echo '<style>.mhm-docs-btn-global { float: right; margin-top: 5px; margin-right: 15px; position: relative; z-index: 10; }</style>';
 					echo '<div class="mhm-docs-btn-global">';
 					\MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button();
 					echo '</div>';
+				}
+			}
+		);
+
+		// Enqueue the positioning CSS for the floated Documentation button above.
+		// Must run on admin_enqueue_scripts (not all_admin_notices/admin_head) —
+		// the style queue is already printed by the time either of those fire.
+		add_action(
+			'admin_enqueue_scripts',
+			function () {
+				$screen = get_current_screen();
+				if (! $screen) {
+					return;
+				}
+
+				$mhm_pages = array(
+					'vehicle',
+					'vehicle_booking',
+				);
+
+				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+					wp_enqueue_style(
+						'mhm-rentiva-hide-wp-chrome',
+						MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+						array(),
+						MHM_RENTIVA_VERSION
+					);
 				}
 			}
 		);
