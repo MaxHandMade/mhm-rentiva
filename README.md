@@ -25,8 +25,41 @@ Everything documented here works in full. There are no vehicle, booking or listi
 
 ---
 
+## Editions — Lite vs Pro
+
+**This repository is MHM Rentiva (Lite)** — the free edition published on WordPress.org. It is a complete rental system, not a trial: everything in the **Lite** column below works in full, with no vehicle, booking or listing caps, no feature timers and no locked screens.
+
+**MHM Rentiva Pro** is a *separate paid add-on plugin* installed alongside Lite. It does not replace Lite — it adds the marketplace and transfer layer on top of it.
+
+| Capability | Lite (this repo) | Pro add-on |
+| --- | :---: | :---: |
+| Fleet & vehicle management — unlimited | ✅ | ✅ |
+| Availability, booking engine & admin calendar | ✅ | ✅ |
+| Customers, booking history, customer CSV | ✅ | ✅ |
+| WooCommerce checkout + offline manual bookings | ✅ | ✅ |
+| Email notifications with editable templates | ✅ | ✅ |
+| Customer account pages — bookings, favourites, payment history | ✅ | ✅ |
+| 16 shortcodes · 16 Gutenberg blocks · 17 Elementor widgets | ✅ | ✅ |
+| Ratings, testimonials, vehicle comparison, contact form | ✅ | ✅ |
+| REST API — availability, customers, dashboard (+ API keys) | ✅ | ✅ |
+| **Multi-vendor marketplace** — vendor onboarding, vendor panel, vendor listings | — | ✅ |
+| **Vendor payouts, commission & ledger** | — | ✅ |
+| **Vendor reports & disputes** | — | ✅ |
+| **VIP transfers + location-based routes** | — | ✅ |
+| **Customer messaging** | — | ✅ |
+| **Advanced reports** | — | ✅ |
+| **Dedicated export screen** | — | ✅ |
+| **GDPR / data-retention tools** | — | ✅ |
+
+Pro capabilities are gated on a valid licence rather than merely hidden — with Pro installed but unlicensed those surfaces stay off. Lite itself never advertises Pro inside your admin, and no Lite feature is limited to promote it.
+
+Pro is available at **[wpalemi.com/rentiva](https://wpalemi.com/rentiva/)**.
+
+---
+
 ## Table of Contents
 
+- [Editions — Lite vs Pro](#editions--lite-vs-pro)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Installation](#installation)

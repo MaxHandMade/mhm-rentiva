@@ -21,10 +21,45 @@
 
 **WordPress için profesyonel araç kiralama yönetim sistemi.** Araç kiralama, rezervasyon, ödeme, müşteri yönetimi ve kapsamlı raporlama için eksiksiz, kurumsal düzeyde bir çözüm. WordPress en iyi uygulamalarıyla geliştirilmiş, tam uluslararasılaştırma desteği ile küresel pazarlara hazır.
 
+Aşağıdaki **Lite** sütununda yer alan her şey eksiksiz çalışır: araç, rezervasyon veya ilan sınırı, özellik sayacı ya da kilitli ekran yoktur.
+
+---
+
+## 🧩 Sürümler — Lite ve Pro farkı
+
+**Bu depo MHM Rentiva (Lite)'dır** — WordPress.org'da yayınlanan ücretsiz sürüm. Bir deneme sürümü değil, eksiksiz bir kiralama sistemidir.
+
+**MHM Rentiva Pro**, Lite'ın yanına kurulan *ayrı ücretli bir eklentidir*. Lite'ın yerini almaz — üzerine pazaryeri ve transfer katmanını ekler.
+
+| Yetenek | Lite (bu depo) | Pro eklentisi |
+| --- | :---: | :---: |
+| Filo ve araç yönetimi — sınırsız | ✅ | ✅ |
+| Uygunluk, rezervasyon motoru ve yönetici takvimi | ✅ | ✅ |
+| Müşteriler, rezervasyon geçmişi, müşteri CSV'si | ✅ | ✅ |
+| WooCommerce ödemesi + çevrimdışı manuel rezervasyon | ✅ | ✅ |
+| Düzenlenebilir şablonlarla e-posta bildirimleri | ✅ | ✅ |
+| Müşteri hesap sayfaları — rezervasyonlar, favoriler, ödeme geçmişi | ✅ | ✅ |
+| 16 kısa kod · 16 Gutenberg bloğu · 17 Elementor widget'ı | ✅ | ✅ |
+| Değerlendirmeler, yorumlar, araç karşılaştırma, iletişim formu | ✅ | ✅ |
+| REST API — uygunluk, müşteriler, kontrol paneli (+ API anahtarları) | ✅ | ✅ |
+| **Çok bayili pazaryeri** — bayi başvurusu, bayi paneli, bayi ilanları | — | ✅ |
+| **Bayi hakedişleri, komisyon ve defter (ledger)** | — | ✅ |
+| **Bayi raporları ve itirazlar** | — | ✅ |
+| **VIP transfer + konum bazlı rotalar** | — | ✅ |
+| **Müşteri mesajlaşması** | — | ✅ |
+| **Gelişmiş raporlar** | — | ✅ |
+| **Ayrı dışa aktarma ekranı** | — | ✅ |
+| **KVKK/GDPR ve veri saklama araçları** | — | ✅ |
+
+Pro yetenekleri yalnızca gizlenmez, **geçerli bir lisansa bağlanır** — Pro kurulu ama lisanssızsa bu yüzeyler kapalı kalır. Lite, yönetici panelinde Pro reklamı yapmaz ve hiçbir Lite özelliği Pro'yu özendirmek için kısıtlanmaz.
+
+Pro için: **[wpalemi.com/rentiva](https://wpalemi.com/rentiva/)**
+
 ---
 
 ## 📋 İçindekiler
 
+- [Sürümler — Lite ve Pro farkı](#-sürümler--lite-ve-pro-farkı)
 - [Genel Bakış](#-genel-bakış)
 - [Temel Özellikler](#-temel-özellikler)
 - [Silme Sistemi](#-silme-sistemi)
