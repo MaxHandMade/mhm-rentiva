@@ -187,9 +187,28 @@ final class NoProMentionInLiteTest extends TestCase
     /**
      * @return iterable<int, string>
      */
+    /**
+     * Only the docs that actually ship are governed by this rule.
+     *
+     * Karar A is about what the *distributed plugin* says: a file excluded from the
+     * ZIP never reaches a WordPress.org user, so it is a GitHub-facing developer
+     * surface and may carry an edition comparison (owner decision, 2026-07-18 —
+     * "GitHub reposu da WordPress geliştiricilerini ilgilendirmez"). README.md and
+     * README-tr.md are both excluded via .distignore for exactly that reason;
+     * readme.txt is the WordPress.org listing page and is always in scope.
+     *
+     * The list is derived from .distignore rather than hard-coded so that putting a
+     * doc back into the ZIP automatically puts it back under the guard.
+     */
     private function doc_files(): iterable
     {
+        $excluded = $this->distignore_entries();
+
         foreach (array( 'README.md', 'README-tr.md', 'readme.txt' ) as $name) {
+            if (in_array($name, $excluded, true)) {
+                continue;
+            }
+
             $path = dirname(__DIR__, 2) . '/' . $name;
             if (is_file($path)) {
                 yield $path;
@@ -198,14 +217,62 @@ final class NoProMentionInLiteTest extends TestCase
     }
 
     /**
+     * Literal filename entries from .distignore (comments and globs ignored).
+     *
+     * @return list<string>
+     */
+    private function distignore_entries(): array
+    {
+        $path = dirname(__DIR__, 2) . '/.distignore';
+        if (! is_file($path)) {
+            return array();
+        }
+
+        $entries = array();
+        foreach (preg_split('/\R/', (string) file_get_contents($path)) ?: array() as $line) {
+            $line = trim($line);
+            if ('' === $line || str_starts_with($line, '#')) {
+                continue;
+            }
+            $entries[] = $line;
+        }
+
+        return $entries;
+    }
+
+    /**
      * Guards the doc scan: if a rename ever made doc_files() yield nothing, every
      * doc assertion above would pass while reading no documentation at all.
+     *
+     * The scan deliberately covers only the docs that ship, so a missing candidate
+     * is acceptable only when .distignore is the reason. That keeps the intentional
+     * narrowing honest while still catching a file that vanished by accident —
+     * renamed, moved, or dropped by a bad glob.
      */
     public function test_the_scan_actually_reads_the_docs(): void
     {
-        $files = iterator_to_array($this->doc_files());
+        $candidates = array( 'README.md', 'README-tr.md', 'readme.txt' );
+        $files      = iterator_to_array($this->doc_files(), false);
+        $scanned    = array_map('basename', $files);
+        $excluded   = $this->distignore_entries();
 
-        $this->assertCount(3, $files, 'Expected README.md, README-tr.md and readme.txt to be scanned.');
+        $this->assertContains(
+            'readme.txt',
+            $scanned,
+            'readme.txt is the WordPress.org listing page and must always be scanned.'
+        );
+
+        foreach ($candidates as $name) {
+            if (in_array($name, $scanned, true)) {
+                continue;
+            }
+
+            $this->assertContains(
+                $name,
+                $excluded,
+                $name . ' dropped out of the doc scan without being excluded in .distignore.'
+            );
+        }
 
         foreach ($files as $path) {
             $this->assertNotSame('', trim((string) file_get_contents($path)), basename($path) . ' is empty.');

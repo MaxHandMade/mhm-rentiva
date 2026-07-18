@@ -25,28 +25,43 @@ Everything documented here works in full. There are no vehicle, booking or listi
 
 ---
 
-## A separate paid add-on
+## Editions — Lite vs Pro
 
-Everything documented in this README ships in this plugin and works in full: no vehicle, booking or listing caps, no feature timers, no locked screens. Nothing here is withheld or limited to promote anything else.
+**This repository is MHM Rentiva (Lite)** — the free edition published on WordPress.org. It is a complete rental system, not a trial: everything in the **Lite** column below works in full, with no vehicle, booking or listing caps, no feature timers and no locked screens. Nothing in Lite is withheld or limited to promote Pro, and Lite never advertises Pro inside your WordPress admin.
 
-A **separate paid Rentiva add-on plugin** exists for operations that need a marketplace layer. It is installed alongside this plugin — it does not replace it — and it adds capabilities that are *not* part of this plugin:
+**MHM Rentiva Pro** is a *separate paid add-on plugin* installed alongside Lite. It does not replace Lite — it adds the marketplace, transfer and compliance layer on top of it.
 
-- multi-vendor marketplace (vendor onboarding and approval, vendor panel, vendor listings)
-- vendor payouts, commission and ledger
-- vendor reports and disputes
-- VIP transfers with location-based routes
-- customer messaging
-- advanced reports
-- a dedicated export screen
-- GDPR / data-retention tooling
+| Capability | Lite (this repo) | Pro add-on |
+| --- | :---: | :---: |
+| Fleet & vehicle management — unlimited | ✅ | ✅ |
+| Availability, booking engine & admin calendar | ✅ | ✅ |
+| Customers, booking history, customer CSV | ✅ | ✅ |
+| WooCommerce checkout + offline manual bookings | ✅ | ✅ |
+| Email notifications with editable templates | ✅ | ✅ |
+| Customer account pages — bookings, favourites, payment history | ✅ | ✅ |
+| 16 shortcodes · 16 Gutenberg blocks · 17 Elementor widgets | ✅ | ✅ |
+| Ratings, testimonials, vehicle comparison, contact form | ✅ | ✅ |
+| REST API — availability, customers, dashboard (+ API keys) | ✅ | ✅ |
+| **Multi-vendor marketplace** — vendor onboarding, vendor panel, vendor listings | — | ✅ |
+| **Vendor payouts, commission & ledger** | — | ✅ |
+| **Vendor reports & disputes** | — | ✅ |
+| **VIP transfers + location-based routes** | — | ✅ |
+| **Customer messaging** | — | ✅ |
+| **Advanced reports** | — | ✅ |
+| **Dedicated export screen** | — | ✅ |
+| **GDPR / data-retention tools** | — | ✅ |
 
-This plugin never advertises the add-on inside your WordPress admin, and a feature it does not have simply does not render.
+Pro capabilities are gated on a valid licence rather than merely hidden — with Pro installed but unlicensed, those surfaces stay off.
+
+Pro is available at **[wpalemi.com/rentiva](https://wpalemi.com/rentiva/)**. Full per-feature documentation for both editions lives at [the documentation site](https://maxhandmade.github.io/mhm-rentiva-docs/).
+
+> This file is developer-facing and is **not** shipped in the distributed plugin (see `.distignore`). The WordPress.org listing is driven by `readme.txt`, which — per the project's Karar A — carries no comparison table and no purchase call to action.
 
 ---
 
 ## Table of Contents
 
-- [A separate paid add-on](#a-separate-paid-add-on)
+- [Editions — Lite vs Pro](#editions--lite-vs-pro)
 - [Overview](#overview)
 - [Key Features](#key-features)
 - [Installation](#installation)

@@ -64,6 +64,11 @@ SHORTCODES.md
 SKILLS.md
 UI_CONTRACTS.md
 README-tr.md
+# Dev-facing GitHub docs. The WordPress.org listing is driven by readme.txt;
+# README.md is not rendered anywhere in wp-admin, so it does not need to ship —
+# and keeping it out of the ZIP is what lets it carry the edition comparison that
+# Karar A forbids in distributed files. See tests/Tools/NoProMentionInLiteTest.
+README.md
 arac-kiralama-vip-transfer-theme-tasarim.md
 RELEASE_CHECKLIST.md
 
