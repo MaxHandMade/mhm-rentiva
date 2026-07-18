@@ -25,41 +25,28 @@ Aşağıdaki **Lite** sütununda yer alan her şey eksiksiz çalışır: araç, 
 
 ---
 
-## 🧩 Sürümler — Lite ve Pro farkı
+## 🧩 Ayrı bir ücretli eklenti
 
-**Bu depo MHM Rentiva (Lite)'dır** — WordPress.org'da yayınlanan ücretsiz sürüm. Bir deneme sürümü değil, eksiksiz bir kiralama sistemidir.
+Bu README'de belgelenen her şey bu eklentiyle birlikte gelir ve eksiksiz çalışır: araç, rezervasyon veya ilan sınırı, özellik sayacı ya da kilitli ekran yoktur. Buradaki hiçbir şey başka bir ürünü özendirmek için kısıtlanmamıştır.
 
-**MHM Rentiva Pro**, Lite'ın yanına kurulan *ayrı ücretli bir eklentidir*. Lite'ın yerini almaz — üzerine pazaryeri ve transfer katmanını ekler.
+Pazaryeri katmanına ihtiyaç duyan işletmeler için **ayrı, ücretli bir Rentiva ek eklentisi** vardır. Bu eklentinin yanına kurulur — yerini almaz — ve bu eklentinin parçası *olmayan* şu yetenekleri ekler:
 
-| Yetenek | Lite (bu depo) | Pro eklentisi |
-| --- | :---: | :---: |
-| Filo ve araç yönetimi — sınırsız | ✅ | ✅ |
-| Uygunluk, rezervasyon motoru ve yönetici takvimi | ✅ | ✅ |
-| Müşteriler, rezervasyon geçmişi, müşteri CSV'si | ✅ | ✅ |
-| WooCommerce ödemesi + çevrimdışı manuel rezervasyon | ✅ | ✅ |
-| Düzenlenebilir şablonlarla e-posta bildirimleri | ✅ | ✅ |
-| Müşteri hesap sayfaları — rezervasyonlar, favoriler, ödeme geçmişi | ✅ | ✅ |
-| 16 kısa kod · 16 Gutenberg bloğu · 17 Elementor widget'ı | ✅ | ✅ |
-| Değerlendirmeler, yorumlar, araç karşılaştırma, iletişim formu | ✅ | ✅ |
-| REST API — uygunluk, müşteriler, kontrol paneli (+ API anahtarları) | ✅ | ✅ |
-| **Çok bayili pazaryeri** — bayi başvurusu, bayi paneli, bayi ilanları | — | ✅ |
-| **Bayi hakedişleri, komisyon ve defter (ledger)** | — | ✅ |
-| **Bayi raporları ve itirazlar** | — | ✅ |
-| **VIP transfer + konum bazlı rotalar** | — | ✅ |
-| **Müşteri mesajlaşması** | — | ✅ |
-| **Gelişmiş raporlar** | — | ✅ |
-| **Ayrı dışa aktarma ekranı** | — | ✅ |
-| **KVKK/GDPR ve veri saklama araçları** | — | ✅ |
+- çok bayili pazaryeri (bayi başvurusu ve onayı, bayi paneli, bayi ilanları)
+- bayi hakedişleri, komisyon ve defter (ledger)
+- bayi raporları ve itirazlar
+- konum bazlı rotalarla VIP transfer
+- müşteri mesajlaşması
+- gelişmiş raporlar
+- ayrı bir dışa aktarma ekranı
+- KVKK/GDPR ve veri saklama araçları
 
-Pro yetenekleri yalnızca gizlenmez, **geçerli bir lisansa bağlanır** — Pro kurulu ama lisanssızsa bu yüzeyler kapalı kalır. Lite, yönetici panelinde Pro reklamı yapmaz ve hiçbir Lite özelliği Pro'yu özendirmek için kısıtlanmaz.
-
-Pro için: **[wpalemi.com/rentiva](https://wpalemi.com/rentiva/)**
+Bu eklenti, WordPress yönetici panelinizde ek eklentinin reklamını yapmaz; sahip olmadığı bir özellik hiç render edilmez.
 
 ---
 
 ## 📋 İçindekiler
 
-- [Sürümler — Lite ve Pro farkı](#-sürümler--lite-ve-pro-farkı)
+- [Ayrı bir ücretli eklenti](#-ayrı-bir-ücretli-eklenti)
 - [Genel Bakış](#-genel-bakış)
 - [Temel Özellikler](#-temel-özellikler)
 - [Silme Sistemi](#-silme-sistemi)
