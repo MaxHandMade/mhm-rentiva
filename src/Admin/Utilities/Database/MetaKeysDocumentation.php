@@ -572,7 +572,13 @@ final class MetaKeysDocumentation {
 	}
 
 	/**
-	 * Generate HTML documentation for meta keys
+	 * Generate HTML documentation for meta keys.
+	 *
+	 * Returns a complete, self-contained HTML document (<!DOCTYPE html> … </html>)
+	 * meant to be viewed or saved on its own. The inline <style> block is therefore
+	 * required and NOT a WordPress.org "use wp_enqueue" violation — it is the same
+	 * legitimate exception applied to email/PDF templates, since an external
+	 * stylesheet would not be available when the document is opened standalone.
 	 */
 	public static function generate_html_documentation(): string {
 		$meta_keys = self::get_meta_keys_documentation();
