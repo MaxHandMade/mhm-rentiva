@@ -63,6 +63,7 @@ export default function ExportHistory() {
 						<tr>
 							<th>{ __( 'Date', 'mhm-rentiva' ) }</th>
 							<th>{ __( 'Type', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Format', 'mhm-rentiva' ) }</th>
 							<th>{ __( 'Records', 'mhm-rentiva' ) }</th>
 							<th>{ __( 'User', 'mhm-rentiva' ) }</th>
 							<th></th>
@@ -75,6 +76,7 @@ export default function ExportHistory() {
 								<tr key={ entryId }>
 									<td>{ entry.date }</td>
 									<td>{ entry.post_type ?? '—' }</td>
+									<td>{ entry.format ?? '—' }</td>
 									<td>{ entry.count ?? '—' }</td>
 									<td>{ entry.user ?? '—' }</td>
 									<td>
