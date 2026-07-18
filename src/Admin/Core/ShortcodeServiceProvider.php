@@ -54,6 +54,17 @@ final class ShortcodeServiceProvider {
 	private array $class_instances = array();
 
 	/**
+	 * Seam tags this build ships but the licence does not currently allow.
+	 *
+	 * Distinct from a seam whose class is absent entirely: those tags never
+	 * existed on this site, but these ones did (the licence lapsed), so real
+	 * pages out there still contain them. See render_unlicensed_seams().
+	 *
+	 * @var array<int, string>
+	 */
+	private array $unlicensed_seam_tags = array();
+
+	/**
 	 * Get singleton instance
 	 *
 	 * @return self
@@ -88,7 +99,33 @@ final class ShortcodeServiceProvider {
 	 */
 	private function get_shortcode_registry(): array
 	{
-		$registry = array(
+		$registry = $this->get_raw_shortcode_registry();
+
+		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
+		if (! self::is_home_poc_enabled()) {
+			unset($registry['support']['rentiva_home_poc']);
+		}
+
+		$registry = $this->drop_absent_pro_seams($registry);
+
+		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+	}
+
+	/**
+	 * The registry as DECLARED, before any seam is dropped.
+	 *
+	 * Split out from get_shortcode_registry() so the seam metadata can be audited
+	 * as data. The declared table is the only place that says which licence feature
+	 * each seam needs, and get_shortcode_registry() returns the table with those
+	 * seams already REMOVED -- so a test asking it "does every seam declare a
+	 * feature?" sees an empty set and passes vacuously. That is not hypothetical:
+	 * SeamFeatureKeyCoverageTest's premise guard caught exactly that.
+	 *
+	 * @return array<string, array<string, array>>
+	 */
+	private function get_raw_shortcode_registry(): array
+	{
+		return array(
 			'reservation' => array(
 				'rentiva_booking_form'          => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::class,
@@ -138,35 +175,49 @@ final class ShortcodeServiceProvider {
 					'requires_auth' => false,
 				),
 			),
+			/*
+			 * Every entry here is Vendor Marketplace, so every entry carries
+			 * `pro_feature`. They all shipped WITHOUT one, which did not merely
+			 * mislabel them -- it handed the feature away: `pro_seam` alone routes
+			 * to Mode::allowsSeam(null), which returns true by contract, so on a
+			 * Pro-installed-but-unlicensed site the class existed, the licence
+			 * check passed, and the vendor shortcodes registered with their REAL
+			 * renderers. Confirmed at runtime with isPro=false before the fix.
+			 */
 			'vendor'      => array(
 				'rentiva_vendor_apply'     => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorApply',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vehicle_submit'   => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VehicleSubmit',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_bookings'  => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorBookings',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => true,
 				),
 				'rentiva_vendor_profile'   => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 				'rentiva_vendor_directory' => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 					'requires_auth' => false,
 				),
 			),
@@ -191,11 +242,30 @@ final class ShortcodeServiceProvider {
 					'method'        => 'render',
 					'requires_auth' => true,
 				),
+				// Commission is a Vendor Marketplace concept: no vendors, nothing to
+				// resolve a commission for. Same missing-key bug as the vendor group.
 				'rentiva_commission_resolver' => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\CommissionResolver',
 					'method'        => 'render',
 					'requires_auth' => false,
 					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
+				),
+				// Vendor payout ledger. Registered elsewhere too (Pro's Bootstrap
+				// register_vendor_payout() and Lite's Plugin.php, both gated on the
+				// payout tier), so it was never in THIS registry -- which meant the
+				// seam silencer never bound it. On a lapsed licence neither gated
+				// registrar fired, so WordPress printed the raw [rentiva_vendor_ledger]
+				// text (23 bytes) to visitors. Declaring it a seam here lets
+				// drop_absent_pro_seams()/render_unlicensed_seams() register the no-op
+				// renderer so it emits 0 bytes unlicensed. pro_feature is the payout
+				// tier key (Mode::canUseVendorPayout() routes to 'vendor_marketplace').
+				'rentiva_vendor_ledger'       => array(
+					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\VendorLedger',
+					'method'        => 'render',
+					'requires_auth' => true,
+					'pro_seam'      => true,
+					'pro_feature'   => 'vendor_marketplace',
 				),
 			),
 			'transfer'    => array(
@@ -203,18 +273,21 @@ final class ShortcodeServiceProvider {
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
 					'dependencies'  => array(),
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 				'rentiva_transfer_results' => array(
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 				'rentiva_popular_routes'   => array(
 					'class'         => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
 					'method'        => 'render',
 					'pro_seam'      => true,
+					'pro_feature'   => 'pro',
 					'requires_auth' => false,
 				),
 			),
@@ -234,11 +307,16 @@ final class ShortcodeServiceProvider {
 					'dependencies'  => array( 'booking' ),
 					'requires_auth' => false,
 				),
+				// Messaging is its own licence feature (Mode::canUseMessages()), and
+				// the menu entry has always asked for it -- only this registry
+				// entry forgot, so the admin screen was gated while the public
+				// shortcode was not.
 				'rentiva_messages'            => array(
 					'class'         => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
 					'method'        => 'render',
 					'requires_auth' => true,
 					'pro_seam'      => true,
+					'pro_feature'   => 'messaging',
 				),
 				'rentiva_home_poc'            => array(
 					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
@@ -247,15 +325,6 @@ final class ShortcodeServiceProvider {
 				),
 			),
 		);
-
-		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
-		if (! self::is_home_poc_enabled()) {
-			unset($registry['support']['rentiva_home_poc']);
-		}
-
-		$registry = $this->drop_absent_pro_seams($registry);
-
-		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
 	}
 
 	/**
@@ -268,23 +337,78 @@ final class ShortcodeServiceProvider {
 	 * build was never meant to have, and get_total_count()/get_groups() would
 	 * advertise shortcodes that cannot render.
 	 *
+	 * Shipping the class is necessary but NOT sufficient: with Pro installed but
+	 * unlicensed the class exists, so a presence-only check handed the full Pro UI
+	 * to an unlicensed site for free. Entries carrying a `pro_feature` key must
+	 * therefore satisfy the licence gate as well.
+	 *
 	 * @param array<string, array<string, array>> $registry Full registry.
 	 * @return array<string, array<string, array>> Registry without absent seams.
 	 */
 	private function drop_absent_pro_seams(array $registry): array
 	{
+		$this->unlicensed_seam_tags = array();
+
 		foreach ($registry as $group => $shortcodes) {
 			foreach ($shortcodes as $tag => $config) {
 				if (empty($config['pro_seam'])) {
 					continue;
 				}
-				if (! class_exists( (string) ( $config['class'] ?? '' ))) {
-					unset($registry[ $group ][ $tag ]);
+
+				$class_present = class_exists( (string) ( $config['class'] ?? '' ) );
+
+				/*
+				 * FAIL CLOSED. A `pro_seam` entry with no `pro_feature` used to fall
+				 * through to Mode::allowsSeam(null), which returns true by contract --
+				 * so declaring something a Pro seam and forgetting its feature key
+				 * GAVE IT AWAY. Seven entries shipped exactly that way (the whole
+				 * vendor group, commission_resolver and messages): on a
+				 * Pro-installed-but-unlicensed site they registered with their real
+				 * renderers and worked for free.
+				 *
+				 * The default is now the whole edition ('pro'), so the failure mode of
+				 * a forgotten key is a closed feature rather than a free one. Explicit
+				 * keys still refine it to a specific licence feature.
+				 */
+				$licensed = \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
+					isset($config['pro_feature']) ? (string) $config['pro_feature'] : 'pro'
+				);
+
+				if ($class_present && $licensed) {
+					continue;
+				}
+
+				// Dropping is what keeps the feature closed: process_registration()
+				// calls $class::register(), so merely swapping the render callback
+				// would still hand over the class's own hooks and AJAX handlers.
+				unset($registry[ $group ][ $tag ]);
+
+				if ($class_present && ! $licensed) {
+					$this->unlicensed_seam_tags[] = $tag;
 				}
 			}
 		}
 
 		return $registry;
+	}
+
+	/**
+	 * Silence the tags a lapsed licence just closed.
+	 *
+	 * An unregistered shortcode does not vanish -- WordPress prints its literal
+	 * source text. A Lite-only build never had these pages, so dropping the tag is
+	 * enough there. But a site whose Pro licence lapsed still has real pages
+	 * carrying [rentiva_transfer_search], and those pages would start showing that
+	 * raw string to visitors. Registering a no-op renderer keeps them silent while
+	 * the feature itself stays closed: nothing here loads or touches the Pro class.
+	 *
+	 * @return void
+	 */
+	private function render_unlicensed_seams(): void
+	{
+		foreach ($this->unlicensed_seam_tags as $tag) {
+			add_shortcode($tag, '__return_empty_string');
+		}
 	}
 
 	/**
@@ -316,6 +440,8 @@ final class ShortcodeServiceProvider {
 				$this->process_registration($tag, $config);
 			}
 		}
+
+		$this->render_unlicensed_seams();
 	}
 
 	/**

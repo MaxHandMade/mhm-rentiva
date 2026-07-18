@@ -17,7 +17,9 @@ final class MediaFieldTest extends WP_UnitTestCase {
 
 		$this->assertStringContainsString('name="mhm_rentiva_settings[statement_logo_id]"', $html);
 		$this->assertStringContainsString('type="hidden"', $html);
-		$this->assertStringContainsString('wp.media', $html);
+		// The wp.media picker now lives in the enqueued assets/js/admin/settings-media-field.js;
+		// the markup only exposes the wrapper hook the script binds to.
+		$this->assertStringContainsString('data-mhm-media-field', $html);
 		$this->assertStringContainsString('data-mhm-media-select', $html);
 	}
 

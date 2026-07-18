@@ -123,14 +123,35 @@ final class Plugin {
 
 	/**
 	 * Remove stale schedules for Pro-only modules when running in Lite mode.
+	 *
+	 * Gating a cron's registration stops it re-scheduling, but an event scheduled
+	 * during a prior licensed run persists in the WP cron array until explicitly
+	 * cleared. Without this, wp_next_scheduled() keeps returning a timestamp on a
+	 * lapsed site — and although the run() callback is no longer hooked, the event
+	 * lingers. Clear the Pro-only events whenever their gate is closed; the matching
+	 * registration in initialize_* reschedules them the moment the gate reopens.
 	 */
 	private function cleanup_pro_only_schedules(): void
 	{
-		if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
-			return;
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
+			// PayoutStatementController / MaturedPayoutJob cluster.
+			wp_clear_scheduled_hook('mhm_rentiva_process_matured_payouts');
 		}
 
-		wp_clear_scheduled_hook('mhm_rentiva_process_matured_payouts');
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) {
+			// Lifecycle + commission-clearing cluster (gated on canUseVendorMarketplace).
+			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_event');
+			wp_clear_scheduled_hook('mhm_rentiva_listing_expiry_warning_event');
+			wp_clear_scheduled_hook('mhm_rentiva_process_commission_clearing');
+			// Reliability scoring rides the marketplace gate (Fable Y5).
+			wp_clear_scheduled_hook('mhm_rentiva_reliability_score_event');
+		}
+
+		if (! \MHMRentiva\Admin\Licensing\Mode::canUseGdpr()) {
+			// Data-retention cleanup anonymises/deletes users — must not linger on a
+			// lapsed licence (Fable Y1).
+			wp_clear_scheduled_hook('mhm_data_retention_cleanup');
+		}
 	}
 
 
@@ -187,25 +208,47 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
 		}
 
-		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel)
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')) {
+		// Vehicle Lifecycle Cron Jobs (must run in ALL contexts like AutoCancel).
+		// Pro-gated on canUseVendorMarketplace() — the SAME door Pro's Bootstrap
+		// register_lifecycle() uses. Lite must ask the same gate or its ungated
+		// door defeats Pro's: ListingExpiryJob::run() irreversibly expires/withdraws
+		// vendor listings twice daily while the renewal UI is gated off. Orphaned
+		// events left scheduled by a prior licensed run are cleared in
+		// cleanup_pro_only_schedules().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryJob::register();
 		}
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ListingExpiryWarningJob::register();
 		}
-		if (class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')) {
+		// Vendor reliability scoring is part of the marketplace feature; without a
+		// licence its daily cron must not compute or write scores (Fable Y5).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+			&& class_exists('\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob')
+		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\ReliabilityScoreJob::register();
 		}
 
-		// Privacy and Data Retention
-		if (class_exists('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
-			\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
-		}
-
-		// GDPR Manager (registers AJAX handlers for data export, deletion, consent withdrawal)
-		if (class_exists('\MHMRentiva\Admin\Privacy\GDPRManager')) {
-			\MHMRentiva\Admin\Privacy\GDPRManager::init();
+		// Privacy and Data Retention — Pro `gdpr_tools` feature. Gating on the licence
+		// (not class presence) is critical: DataRetentionManager schedules a DAILY
+		// cron that anonymises/deletes users, which must never run unlicensed. GDPR
+		// Manager likewise registers the export/deletion/consent AJAX + visitor
+		// notice — all part of the paid tooling (Fable Y1).
+		if (\MHMRentiva\Admin\Licensing\Mode::canUseGdpr()) {
+			if (class_exists('\MHMRentiva\Admin\Privacy\DataRetentionManager')) {
+				\MHMRentiva\Admin\Privacy\DataRetentionManager::init();
+			}
+			// Registers AJAX handlers for data export, deletion, consent withdrawal.
+			if (class_exists('\MHMRentiva\Admin\Privacy\GDPRManager')) {
+				\MHMRentiva\Admin\Privacy\GDPRManager::init();
+			}
 		}
 
 		// Notification Management
@@ -262,12 +305,20 @@ final class Plugin {
 		}
 
 		// Vehicle lifecycle manager — hooks into approval flow to start listing timer.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager')
+		) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleManager::register();
 		}
 
 		// Listing fee manager — WooCommerce hooks for paid vehicle listings.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\ListingFeeManager')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\ListingFeeManager')
+		) {
 			\MHMRentiva\Admin\Vehicle\ListingFeeManager::register();
 		}
 
@@ -277,23 +328,41 @@ final class Plugin {
 		}
 
 		// Vendor payout statement generation — on payout approval (post publish).
-		if (class_exists('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')) {
+		// Registers admin_post_(nopriv_)mhm_rentiva_view_statement. Registered ONLY
+		// here (Pro's Bootstrap does not), so this gate alone closes the leak.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() &&
+			class_exists('\MHMRentiva\Core\Financial\Statement\PayoutStatementController')
+		) {
 			\MHMRentiva\Core\Financial\Statement\PayoutStatementController::register();
 		}
 
 		// Vehicle lifecycle AJAX controller (vendor self-service: pause/resume/withdraw/renew/relist).
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController')
+		) {
 			\MHMRentiva\Admin\Vehicle\VehicleLifecycleAjaxController::register();
 		}
 
 		// Withdrawal penalty recorder — writes ledger entry on withdrawal hook.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')) {
+		// Gated with the same key as Pro's register_lifecycle()/register_vendor_reports():
+		// a lapsed licence must stop writing penalties at the same moment the
+		// vendor's appeal UI disappears, or vendors get penalised with no recourse.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\PenaltyRecorder')
+		) {
 			\MHMRentiva\Admin\Vehicle\PenaltyRecorder::register();
 		}
 
 		// Vendor Report system — bridges open vehicle_action reports with the
 		// penalty pipeline so withdrawal reasons under review suspend penalties.
-		if (class_exists('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook')
+		) {
 			\MHMRentiva\Admin\VendorReport\Hooks\PenaltySuspensionHook::register();
 		}
 
@@ -389,12 +458,22 @@ final class Plugin {
 		}
 
 		// Vehicle lifecycle meta box (admin sidebar).
-		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')) {
+		// Pro-gated (canUseVendorMarketplace) to match Pro's register_lifecycle() row 23.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox')
+		) {
 			\MHMRentiva\Admin\Vehicle\Meta\LifecycleMetaBox::register();
 		}
 
 		// Vendor reliability score column in Users table.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')) {
+		// Pro-gated (canUseVendorMarketplace). Pro's Bootstrap register_vendor() also
+		// registers this class; that door is gated to VM in the F1 batch too, so both
+		// doors ask the same gate.
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn')
+		) {
 			\MHMRentiva\Admin\Vehicle\VendorReliabilityColumn::register();
 		}
 
@@ -420,7 +499,12 @@ final class Plugin {
 			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::register();
 		}
 
-		if (class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')) {
+		// The vendor location field on user profiles is a marketplace feature; without
+		// a licence it must not appear on (or save from) every user's profile (Fable Y4).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
+			&& class_exists('\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension')
+		) {
 			\MHMRentiva\Admin\Vendor\Profile\VendorProfileExtension::register();
 		}
 
@@ -465,10 +549,36 @@ final class Plugin {
 				);
 
 				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
-					echo '<style>.mhm-docs-btn-global { float: right; margin-top: 5px; margin-right: 15px; position: relative; z-index: 10; }</style>';
 					echo '<div class="mhm-docs-btn-global">';
 					\MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button();
 					echo '</div>';
+				}
+			}
+		);
+
+		// Enqueue the positioning CSS for the floated Documentation button above.
+		// Must run on admin_enqueue_scripts (not all_admin_notices/admin_head) —
+		// the style queue is already printed by the time either of those fire.
+		add_action(
+			'admin_enqueue_scripts',
+			function () {
+				$screen = get_current_screen();
+				if (! $screen) {
+					return;
+				}
+
+				$mhm_pages = array(
+					'vehicle',
+					'vehicle_booking',
+				);
+
+				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+					wp_enqueue_style(
+						'mhm-rentiva-hide-wp-chrome',
+						MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+						array(),
+						MHM_RENTIVA_VERSION
+					);
 				}
 			}
 		);
@@ -495,11 +605,17 @@ final class Plugin {
 			\MHMRentiva\Admin\PostTypes\Logs\MetaBox::register();
 		}
 
-		// Export
-		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')) {
+		// Export (Pro only — the `export` feature key on the licence server).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseExport() &&
+			class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\Export')
+		) {
 			\MHMRentiva\Admin\Utilities\Export\Export::register();
 		}
-		if (class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')) {
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseExport() &&
+			class_exists('\\MHMRentiva\\Admin\\Utilities\\Export\\REST\\ExportRestController')
+		) {
 			\MHMRentiva\Admin\Utilities\Export\REST\ExportRestController::register();
 		}
 
@@ -754,8 +870,13 @@ final class Plugin {
 		require_once MHM_RENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
 		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
 
-		// Transfer Module
-		if (class_exists('MHMRentiva\Admin\Transfer\TransferAdmin')) {
+		// Transfer Module (Pro only — VIP Transfer has no dedicated feature key on
+		// the licence server, so it rides the whole-edition gate, matching Pro's
+		// own Bootstrap).
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::isPro() &&
+			class_exists('MHMRentiva\Admin\Transfer\TransferAdmin')
+		) {
 			\MHMRentiva\Admin\Transfer\TransferAdmin::register();
 
 			// Transfer Export/Import Integration
@@ -922,7 +1043,13 @@ final class Plugin {
 		) {
 			\MHMRentiva\Core\Financial\Automation\MaturedPayoutJob::register();
 		}
-		if (class_exists('MHMRentiva\Core\Financial\Automation\CommissionClearingJob')) {
+		// Hourly commission clearing (Pro). Pro-gated (canUseVendorMarketplace).
+		// Orphaned mhm_rentiva_process_commission_clearing events left scheduled by a
+		// prior licensed run are cleared in cleanup_pro_only_schedules().
+		if (
+			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
+			class_exists('MHMRentiva\Core\Financial\Automation\CommissionClearingJob')
+		) {
 			\MHMRentiva\Core\Financial\Automation\CommissionClearingJob::register();
 		}
 
@@ -954,17 +1081,19 @@ final class Plugin {
 				\WP_CLI::add_command('mhm-rentiva layout', \MHMRentiva\Layout\CLI\LayoutImportCommand::class);
 			}
 
-			// Auditing & Integrity
-			if (class_exists('MHMRentiva\CLI\ExportAuditCommand')) {
+			// Auditing & Integrity — these are Pro commands (the classes ship in Pro).
+			// Gate each on its licence feature, not just class presence, so an
+			// unlicensed shell can't drive Pro jobs from the CLI (Fable Y2).
+			if (\MHMRentiva\Admin\Licensing\Mode::canUseExport() && class_exists('MHMRentiva\CLI\ExportAuditCommand')) {
 				\WP_CLI::add_command('mhm audit:export', \MHMRentiva\CLI\ExportAuditCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\IntegrityCheckCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\CLI\IntegrityCheckCommand')) {
 				\WP_CLI::add_command('mhm audit:verify', \MHMRentiva\CLI\IntegrityCheckCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\KeyRevokeCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\CLI\KeyRevokeCommand')) {
 				\WP_CLI::add_command('mhm key:revoke', \MHMRentiva\CLI\KeyRevokeCommand::class);
 			}
-			if (class_exists('MHMRentiva\CLI\MaturedPayoutCommand')) {
+			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout() && class_exists('MHMRentiva\CLI\MaturedPayoutCommand')) {
 				\WP_CLI::add_command('mhm payout:execute-matured', \MHMRentiva\CLI\MaturedPayoutCommand::class);
 			}
 		}
@@ -1089,6 +1218,14 @@ final class Plugin {
 		// Fallback: no shortcode page configured — use bundled single-vehicle template.
 		$template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
 		if (file_exists($template_path)) {
+			// Template styles (were an inline <style> in the template). Enqueued before
+			// the include so get_header()'s wp_head prints the stylesheet.
+			wp_enqueue_style(
+				'mhm-rentiva-single-vehicle',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/single-vehicle.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
 			include $template_path;
 			exit;
 		}
@@ -1137,8 +1274,10 @@ final class Plugin {
 	 */
 	public function register_rest_api(): void
 	{
-		// REST API endpoints are now in Admin\REST namespace
-		if (class_exists('MHMRentiva\Admin\REST\Locations')) {
+		// REST API endpoints are now in Admin\REST namespace. Locations serves transfer
+		// location data — a Pro (transfer) surface, so gate on the licence not just
+		// class presence, or an unlicensed site exposes the route (Fable Y6).
+		if (\MHMRentiva\Admin\Licensing\Mode::isPro() && class_exists('MHMRentiva\Admin\REST\Locations')) {
 			\MHMRentiva\Admin\REST\Locations::register();
 		}
 

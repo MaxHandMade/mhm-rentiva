@@ -1032,44 +1032,11 @@ final class DatabaseCleaner {
 				</tbody>
 			</table>
 
-			<script>
-				jQuery(document).ready(function($) {
-					$('.mhm-repair-table-btn').on('click', function() {
-						var btn = $(this);
-						var table = btn.data('table');
-						var originalText = btn.text();
-
-						if (!confirm('<?php echo esc_js( __( 'Are you sure you want to attempt to create/repair this table?', 'mhm-rentiva' ) ); ?>')) {
-							return;
-						}
-
-						btn.prop('disabled', true).text('Processing...');
-
-						$.post(mhm_db_cleanup_vars.ajaxurl || ajaxurl, {
-							action: 'mhm_repair_table',
-							nonce: mhm_db_cleanup_vars.nonce,
-							table_name: table
-						}, function(response) {
-							if (response.success) {
-								alert(response.data.message);
-								// Trigger analysis again to refresh the list
-								$('#mhm-analyze-db-btn').click();
-							} else {
-								alert(response.data || 'Error occurred');
-								btn.prop('disabled', false).text(originalText);
-							}
-						}).fail(function() {
-							alert('Request failed');
-							btn.prop('disabled', false).text(originalText);
-						});
-					});
-				});
-			</script>
-
 			</tbody>
 			</table>
 		</div>
 		<?php
+		// Repair-table button behavior is delegated in assets/js/admin/database-cleanup.js.
 		return ob_get_clean();
 	}
 

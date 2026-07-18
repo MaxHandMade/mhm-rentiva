@@ -59,6 +59,20 @@ final class SettingsService {
 			default    => null,
 		};
 
+		// Reset is a WRITE. The sanitizer fails closed for unlicensed Pro tabs, but
+		// this reset path bypasses the sanitizer (it calls update_option directly),
+		// so it must apply the same gate or an unlicensed admin could overwrite Pro
+		// settings with defaults (Fable Y3). Same feature map as SettingsSanitizer,
+		// plus Messages (which resets through here, unlike its save handler).
+		$pro_tab_gates = array(
+			'transfer'           => \MHMRentiva\Admin\Licensing\Mode::isPro(),
+			'vendor-marketplace' => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
+			'messages'           => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
+		);
+		if ( isset( $pro_tab_gates[ $target_tab ] ) && ! $pro_tab_gates[ $target_tab ] ) {
+			return false;
+		}
+
 		$defaults = array();
 
 		// Special handling for 'system' tab (Multiple providers: Core + Security)

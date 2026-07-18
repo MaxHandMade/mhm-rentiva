@@ -180,10 +180,34 @@ final class ShortcodePageActions {
 			),
 		);
 
+		/*
+		 * Ask the registry what it REGISTERED -- not WordPress what EXISTS.
+		 *
+		 * shortcode_exists() was the wrong question and shipped that way. When a
+		 * licence closes a seam, ShortcodeServiceProvider drops the entry and then
+		 * deliberately re-registers the tag as `__return_empty_string`, so that
+		 * pages already carrying [rentiva_transfer_search] render nothing instead of
+		 * printing their own raw source text at visitors. That silencing shim is a
+		 * real registration, so shortcode_exists() answers YES for precisely the
+		 * tags this build must NOT offer -- and the Shortcode Pages tool listed
+		 * every closed Pro seam as "Aktif", offering to create pages that could only
+		 * ever render blank.
+		 *
+		 * get_registered_shortcodes() is populated only by process_registration(),
+		 * i.e. only for seams that passed both the class check and the licence
+		 * check. The silencer bypasses it by design, which makes it the one list
+		 * that means "this build can really render this".
+		 *
+		 * Still no duplicated tag list here: this defers to the same single registry
+		 * as before, just via a question the silencer cannot answer falsely.
+		 */
+		$registered = \MHMRentiva\Admin\Core\ShortcodeServiceProvider::instance()
+			->get_registered_shortcodes();
+
 		$config = array_filter(
 			$config,
-			static function ( string $shortcode ): bool {
-				return shortcode_exists( $shortcode );
+			static function ( string $shortcode ) use ( $registered ): bool {
+				return array_key_exists( $shortcode, $registered );
 			},
 			ARRAY_FILTER_USE_KEY
 		);

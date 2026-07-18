@@ -46,6 +46,21 @@ final class SettingsSanitizer {
 		$out         = $current_values;
 		$current_tab = $input['current_active_tab'] ?? '';
 
+		// 2b. Pro settings tabs must not PERSIST on an unlicensed site. The render
+		// layer already shows a placeholder instead of the form (TransferSettings /
+		// VendorMarketplaceSettings), but a forged or replayed POST could still reach
+		// this sanitizer. Fail closed: for a gated Pro tab whose licence is absent,
+		// return the untouched current values (a no-op save) so no Pro setting is
+		// written. Transfer is a whole-edition surface (isPro); vendor-marketplace has
+		// its own feature key. Messages saves through its own gated handler, not here.
+		$pro_tab_gates = array(
+			'transfer'           => \MHMRentiva\Admin\Licensing\Mode::isPro(),
+			'vendor-marketplace' => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
+		);
+		if ( isset( $pro_tab_gates[ $current_tab ] ) && ! $pro_tab_gates[ $current_tab ] ) {
+			return $current_values;
+		}
+
 		// 3. Contextual Sanitization via Match (PHP 8.0+)
 		$sanitized_batch = match ( $current_tab ) {
 			'general'     => self::process_general_tab( $input, $defaults ),

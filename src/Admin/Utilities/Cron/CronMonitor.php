@@ -42,10 +42,6 @@ final class CronMonitor {
 				'name'        => __( 'Auto Cancel Bookings', 'mhm-rentiva' ),
 				'description' => __( 'Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva' ),
 			),
-			'mhm_data_retention_cleanup'        => array(
-				'name'        => __( 'Data Retention Cleanup', 'mhm-rentiva' ),
-				'description' => __( 'Cleans up expired data according to retention policies', 'mhm-rentiva' ),
-			),
 			'mhm_send_scheduled_notifications'  => array(
 				'name'        => __( 'Scheduled Notifications', 'mhm-rentiva' ),
 				'description' => __( 'Sends scheduled email notifications', 'mhm-rentiva' ),
@@ -79,6 +75,16 @@ final class CronMonitor {
 			$plugin_hooks['mhm_rentiva_instance_checkin'] = array(
 				'name'        => __( 'Site Instance Check-in', 'mhm-rentiva' ),
 				'description' => __( 'Reports site URL, version and environment to license server for usage tracking', 'mhm-rentiva' ),
+			);
+		}
+
+		// Data-retention cleanup is a licensed GDPR feature; it is only scheduled when
+		// canUseGdpr(). List it in the monitor only then, so an unlicensed site does
+		// not show a Pro cron flagged "not scheduled / idle" as if it were a fault.
+		if ( \MHMRentiva\Admin\Licensing\Mode::canUseGdpr() ) {
+			$plugin_hooks['mhm_data_retention_cleanup'] = array(
+				'name'        => __( 'Data Retention Cleanup', 'mhm-rentiva' ),
+				'description' => __( 'Cleans up expired data according to retention policies', 'mhm-rentiva' ),
 			);
 		}
 

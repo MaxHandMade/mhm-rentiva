@@ -233,34 +233,6 @@ final class SettingsHelper {
 			<button type="button" class="button" data-mhm-media-select><?php esc_html_e( 'Select image', 'mhm-rentiva' ); ?></button>
 			<button type="button" class="button" data-mhm-media-remove<?php echo $url === '' ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'mhm-rentiva' ); ?></button>
 		</div>
-		<script>
-		(function(){
-			var wrap = document.currentScript.previousElementSibling;
-			if (!wrap || !window.wp || !wp.media) { return; }
-			var idInput = wrap.querySelector('.mhm-media-id');
-			var preview = wrap.querySelector('.mhm-media-preview');
-			var removeBtn = wrap.querySelector('[data-mhm-media-remove]');
-			var frame;
-			wrap.querySelector('[data-mhm-media-select]').addEventListener('click', function(e){
-				e.preventDefault();
-				if (frame) { frame.open(); return; }
-				frame = wp.media({ title: '<?php echo esc_js( __( 'Select image', 'mhm-rentiva' ) ); ?>', multiple: false, library: { type: 'image' } });
-				frame.on('select', function(){
-					var a = frame.state().get('selection').first().toJSON();
-					idInput.value = a.id;
-					preview.innerHTML = '<img src="' + a.url + '" alt="" style="max-width:200px;max-height:80px;display:block;margin-bottom:6px;">';
-					removeBtn.style.display = '';
-				});
-				frame.open();
-			});
-			removeBtn.addEventListener('click', function(e){
-				e.preventDefault();
-				idInput.value = '0';
-				preview.innerHTML = '';
-				removeBtn.style.display = 'none';
-			});
-		})();
-		</script>
 		<?php
 		return (string) ob_get_clean();
 	}

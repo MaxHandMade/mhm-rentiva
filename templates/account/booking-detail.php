@@ -274,48 +274,6 @@ if ($is_integrated) {
 	</div><!-- .mhm-account-content -->
 </div>
 
-<!-- Pay Remaining Amount Script -->
-<script>
-(function () {
-	var btn = document.querySelector('.rv-pay-remaining-btn');
-	if (!btn) { return; }
-
-	btn.addEventListener('click', function () {
-		var bookingId = this.dataset.bookingId;
-		var nonce     = this.dataset.nonce;
-		btn.disabled  = true;
-		btn.textContent = '<?php echo esc_js( __( 'Processing...', 'mhm-rentiva' ) ); ?>';
-
-		var formData = new FormData();
-		formData.append('action', 'mhm_pay_remaining');
-		formData.append('booking_id', bookingId);
-		formData.append('nonce', nonce);
-
-		fetch('<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>', {
-			method: 'POST',
-			credentials: 'same-origin',
-			body: formData,
-		})
-		.then(function (r) { return r.json(); })
-		.then(function (data) {
-			if (data.success && data.data && data.data.payment_url) {
-				window.location.href = data.data.payment_url;
-			} else {
-				var msg = (data.data && data.data.message)
-					? data.data.message
-					: '<?php echo esc_js( __( 'An error occurred.', 'mhm-rentiva' ) ); ?>';
-				alert(msg);
-				btn.disabled    = false;
-				btn.textContent = '<?php echo esc_js( __( 'Pay Remaining Amount', 'mhm-rentiva' ) ); ?>';
-			}
-		})
-		.catch(function () {
-			btn.disabled    = false;
-			btn.textContent = '<?php echo esc_js( __( 'Pay Remaining Amount', 'mhm-rentiva' ) ); ?>';
-		});
-	});
-})();
-</script>
 
 <!-- Cancel Booking Modal -->
 <div id="cancel-booking-modal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.4);">
@@ -344,38 +302,3 @@ if ($is_integrated) {
 		</div>
 	</div>
 </div>
-
-<style>
-	.rv-btn-danger {
-		background-color: #dc3545;
-		color: #ffffff;
-		border: none;
-		padding: 12px 24px;
-		border-radius: 4px;
-		cursor: pointer;
-		font-size: 15px;
-		font-weight: 600;
-		transition: background-color 0.2s;
-	}
-
-	.rv-btn-danger:hover {
-		background-color: #c82333;
-	}
-
-	.rv-btn-danger:disabled {
-		background-color: #6c757d;
-		cursor: not-allowed;
-	}
-
-	.rv-success {
-		background-color: #d4edda;
-		border-left: 4px solid #28a745;
-		color: #155724;
-	}
-
-	.rv-error {
-		background-color: #f8d7da;
-		border-left: 4px solid #dc3545;
-		color: #721c24;
-	}
-</style>

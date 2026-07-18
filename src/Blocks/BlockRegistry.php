@@ -56,11 +56,12 @@ class BlockRegistry {
 			'deps'  => array( 'mhm-vehicle-card-css' ),
 		),
 		'transfer-results'      => array(
-			'tag'      => 'rentiva_transfer_results',
-			'title'    => 'Transfer Search Results',
-			'css'      => 'transfer-results.css',
-			'deps'     => array( 'mhm-vehicle-card-css' ),
-			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
+			'tag'         => 'rentiva_transfer_results',
+			'title'       => 'Transfer Search Results',
+			'css'         => 'transfer-results.css',
+			'deps'        => array( 'mhm-vehicle-card-css' ),
+			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
+			'pro_feature' => 'pro',
 		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
@@ -134,22 +135,25 @@ class BlockRegistry {
 		),
 
 		'messages'              => array(
-			'tag'      => 'rentiva_messages',
-			'title'    => 'Customer Messages',
-			'css'      => 'customer-messages.css',
-			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
+			'tag'         => 'rentiva_messages',
+			'title'       => 'Customer Messages',
+			'css'         => 'customer-messages.css',
+			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
+			'pro_feature' => 'messaging',
 		),
 		'transfer-search'       => array(
-			'tag'      => 'rentiva_transfer_search',
-			'title'    => 'Transfer Search',
-			'css'      => 'transfer.css',
-			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
+			'tag'         => 'rentiva_transfer_search',
+			'title'       => 'Transfer Search',
+			'css'         => 'transfer.css',
+			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
+			'pro_feature' => 'pro',
 		),
 		'popular-routes'        => array(
-			'tag'      => 'rentiva_popular_routes',
-			'title'    => 'Popular Transfer Routes',
-			'css'      => 'popular-routes.css',
-			'pro_seam' => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
+			'tag'         => 'rentiva_popular_routes',
+			'title'       => 'Popular Transfer Routes',
+			'css'         => 'popular-routes.css',
+			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
+			'pro_feature' => 'pro',
 		),
 		'user-dashboard'        => array(
 			'tag'   => 'rentiva_user_dashboard',
@@ -157,16 +161,18 @@ class BlockRegistry {
 			'css'   => 'user-dashboard.css',
 		),
 		'vendor-profile'        => array(
-			'tag'      => 'rentiva_vendor_profile',
-			'title'    => 'Vendor Profile',
-			'css'      => 'vendor-profile.css',
-			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
+			'tag'         => 'rentiva_vendor_profile',
+			'title'       => 'Vendor Profile',
+			'css'         => 'vendor-profile.css',
+			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
+			'pro_feature' => 'vendor_marketplace',
 		),
 		'vendor-directory'      => array(
-			'tag'      => 'rentiva_vendor_directory',
-			'title'    => 'Vendor Directory',
-			'css'      => 'vendor-directory.css',
-			'pro_seam' => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
+			'tag'         => 'rentiva_vendor_directory',
+			'title'       => 'Vendor Directory',
+			'css'         => 'vendor-directory.css',
+			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
+			'pro_feature' => 'vendor_marketplace',
 		),
 	);
 
@@ -319,8 +325,25 @@ class BlockRegistry {
 			self::$blocks,
 			static function (array $config): bool {
 				$seam = $config['pro_seam'] ?? null;
+				if ( null === $seam ) {
+					return true;
+				}
 
-				return null === $seam || class_exists( (string) $seam );
+				// Presence AND licence — an unlicensed Pro install still ships the
+				// class, and registering the block on presence alone handed the
+				// feature over for free. Keyed identically to the shortcode
+				// registry so the two always drop together.
+				//
+				// Fail closed on a missing key, exactly as
+				// ShortcodeServiceProvider::drop_absent_pro_seams() now does: a
+				// `pro_seam` with no `pro_feature` fell through to allowsSeam(null)
+				// = true, so messages/vendor-profile/vendor-directory registered
+				// unlicensed. Defaulting to 'pro' makes a forgotten key close the
+				// block rather than gift it. Both registries must default the same
+				// way or a block outlives the shortcode it renders through.
+				return \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
+					isset( $config['pro_feature'] ) ? (string) $config['pro_feature'] : 'pro'
+				) && class_exists( (string) $seam );
 			}
 		);
 	}

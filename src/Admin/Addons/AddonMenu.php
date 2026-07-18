@@ -34,6 +34,7 @@ final class AddonMenu {
 		add_action('admin_notices', array( self::class, 'admin_notices' ));
 		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_scripts' ));
+		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_page_title_style' ));
 	}
 
 	/**
@@ -55,9 +56,6 @@ final class AddonMenu {
 		if ('edit.php' !== $pagenow || 'vehicle_addon' !== $post_type) {
 			return;
 		}
-
-		// Hide default WP Title & Add New button to replace with standardized header
-		echo '<style>.wp-heading-inline, .page-title-action, .wp-header-end { display: none !important; }</style>';
 
 		$renderer = new class() {
 			use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
@@ -165,6 +163,27 @@ final class AddonMenu {
 					'confirm_bulk_disable' => __('Are you sure you want to disable selected additional services?', 'mhm-rentiva'),
 				),
 			)
+		);
+	}
+
+	/**
+	 * Enqueue the CSS that hides the default WP Title & Add New button on
+	 * the addon list screen, replaced with the standardized header.
+	 */
+	public static function enqueue_page_title_style(): void
+	{
+		global $pagenow, $post_type;
+
+		// Only show on addon list page.
+		if ('edit.php' !== $pagenow || 'vehicle_addon' !== $post_type) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'mhm-rentiva-hide-wp-chrome',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+			array(),
+			MHM_RENTIVA_VERSION
 		);
 	}
 }

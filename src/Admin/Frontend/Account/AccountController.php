@@ -283,6 +283,29 @@ final class AccountController {
 					),
 				)
 			);
+
+			// "Pay Remaining Amount" button (was an inline script in booking-detail.php).
+			// The booking id + nonce ride on the button's data attributes.
+			wp_enqueue_script(
+				'mhm-rentiva-pay-remaining',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-pay-remaining.js',
+				array(),
+				MHM_RENTIVA_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'mhm-rentiva-pay-remaining',
+				'mhmRentivaPayRemaining',
+				array(
+					'ajaxUrl' => admin_url('admin-ajax.php'),
+					'i18n'    => array(
+						'processing'   => __('Processing...', 'mhm-rentiva'),
+						'error'        => __('An error occurred.', 'mhm-rentiva'),
+						'payRemaining' => __('Pay Remaining Amount', 'mhm-rentiva'),
+					),
+				)
+			);
 		}
 
 		// Conditional Loading: Only load account assets on account pages or endpoints

@@ -780,7 +780,6 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		if ($sent) {
-			// JavaScript redirect kullan
 			$redirect_url = add_query_arg(
 				array(
 					'post'    => $booking_id,
@@ -790,9 +789,7 @@ final class BookingMeta extends AbstractMetaBox {
 				admin_url('post.php')
 			);
 
-			// Redirect via JavaScript
-			echo '<script>window.location.href = "' . esc_js($redirect_url) . '";</script>';
-			echo '<p>' . esc_html__('Email sent successfully! Redirecting...', 'mhm-rentiva') . '</p>';
+			wp_safe_redirect( $redirect_url );
 			exit;
 		} else {
 			wp_die(esc_html__('Failed to send email.', 'mhm-rentiva'));
@@ -1029,7 +1026,6 @@ final class BookingMeta extends AbstractMetaBox {
 		// Save history
 		update_post_meta($booking_id, '_mhm_booking_history', $history);
 
-		// JavaScript redirect kullan
 		$redirect_url = add_query_arg(
 			array(
 				'post'    => $booking_id,
@@ -1039,9 +1035,7 @@ final class BookingMeta extends AbstractMetaBox {
 			admin_url('post.php')
 		);
 
-		// Redirect via JavaScript
-		echo '<script>window.location.href = "' . esc_js($redirect_url) . '";</script>';
-		echo '<p>' . esc_html__('Note added successfully! Redirecting...', 'mhm-rentiva') . '</p>';
+		wp_safe_redirect( $redirect_url );
 		exit;
 	}
 

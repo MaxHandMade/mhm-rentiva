@@ -32,7 +32,7 @@
                             label: __('Maximum cards', 'mhm-rentiva'),
                             value: attributes.limit,
                             type: 'number',
-                            help: __('Lite plans cap at 3 routes regardless of this value.', 'mhm-rentiva'),
+                            help: __('The most route cards to display.', 'mhm-rentiva'),
                             onChange: function (val) { setAttributes({ limit: val }); }
                         }),
                         el(SelectControl, {

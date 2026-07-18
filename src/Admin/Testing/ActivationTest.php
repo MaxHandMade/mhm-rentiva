@@ -413,61 +413,6 @@ final class ActivationTest {
 				</tbody>
 			</table>
 
-			<style>
-				.mhm-test-results {
-					margin: 20px 0;
-					padding: 20px;
-					background: #fff;
-					border: 1px solid #ccd0d4;
-				}
-
-				.mhm-test-results h2 {
-					margin-top: 0;
-				}
-
-				.test-pass {
-					background-color: #f0f8f0;
-				}
-
-				.test-fail {
-					background-color: #fff0f0;
-				}
-
-				.test-warning {
-					background-color: #fffbf0;
-				}
-
-				.test-skip {
-					background-color: #f5f5f5;
-				}
-
-				.badge {
-					padding: 3px 8px;
-					border-radius: 3px;
-					font-size: 11px;
-					font-weight: bold;
-				}
-
-				.badge-success {
-					background: #46b450;
-					color: #fff;
-				}
-
-				.badge-error {
-					background: #dc3232;
-					color: #fff;
-				}
-
-				.badge-warning {
-					background: #ffb900;
-					color: #000;
-				}
-
-				.badge-info {
-					background: #00a0d2;
-					color: #fff;
-				}
-			</style>
 		</div>
 		<?php
 		return ob_get_clean();

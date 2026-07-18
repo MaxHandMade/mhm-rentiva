@@ -22,6 +22,7 @@ export default function DashboardPage() {
 		upcoming_initial:              upcomingInitial,
 		currency  = '',
 		admin_url: adminUrl = '',
+		caps                = {},
 	} = data;
 
 	const bookingsInitial = {
@@ -46,7 +47,7 @@ export default function DashboardPage() {
 
 			{ /* Row 2: Quick Actions (left) + Upcoming Operations (right) */ }
 			<div className="mhm-dashboard__row mhm-dashboard__row--2">
-				<QuickActions adminUrl={ adminUrl } />
+				<QuickActions adminUrl={ adminUrl } caps={ caps } />
 				<UpcomingOperations initial={ upcomingInitial } />
 			</div>
 

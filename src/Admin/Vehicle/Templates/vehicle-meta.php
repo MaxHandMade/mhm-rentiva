@@ -363,11 +363,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 </div>
 
-<!-- Send JavaScript data -->
-<script type="text/javascript">
-	window.availableVehicleDetails = <?php echo wp_json_encode( $available_details ); ?>;
-	window.availableVehicleFeatures = <?php echo wp_json_encode( $available_features ); ?>;
-	window.availableVehicleEquipment = <?php echo wp_json_encode( $available_equipment ); ?>;
-</script>
-
-
+<?php
+// Expose the available field maps to assets/js/components/vehicle-meta.js. Attached
+// "before" the enqueued mhm-vehicle-meta handle so the globals exist when it runs
+// (replaces a former inline script data block for WordPress.org compliance).
+wp_add_inline_script(
+	'mhm-vehicle-meta',
+	'window.availableVehicleDetails = ' . wp_json_encode( $available_details ) . ';'
+	. 'window.availableVehicleFeatures = ' . wp_json_encode( $available_features ) . ';'
+	. 'window.availableVehicleEquipment = ' . wp_json_encode( $available_equipment ) . ';',
+	'before'
+);
+?>

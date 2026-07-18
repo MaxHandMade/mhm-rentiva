@@ -57,9 +57,9 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UserDashboardWidget::class,
 		);
 
-		// Pro seams: present only when this build ships them (see below).
-		foreach ( self::pro_widget_classes() as $pro_widget ) {
-			if ( class_exists( $pro_widget ) ) {
+		// Pro seams: shipped by this build AND allowed by the licence (see below).
+		foreach ( self::pro_widget_classes() as $pro_widget => $feature ) {
+			if ( \MHMRentiva\Admin\Licensing\Mode::allowsSeam( $feature ) && class_exists( $pro_widget ) ) {
 				$widgets[] = $pro_widget;
 			}
 		}
@@ -76,16 +76,25 @@ class ElementorIntegration {
 	 * survive the carve, and gated by class_exists() at the call site so a Lite
 	 * build registers fewer widgets instead of fataling on a missing class.
 	 *
-	 * @return array<int, string> Fully-qualified Pro widget class names.
+	 * Mapped to the licence feature each widget requires (null = presence only),
+	 * keyed identically to the shortcode and block registries so a feature drops
+	 * out of all three together.
+	 *
+	 * @return array<string, string|null> Pro widget class name => feature key.
 	 */
 	private static function pro_widget_classes(): array {
 		return array(
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget',
+			// A null here means "no licence requirement" -- allowsSeam(null) is true.
+			// These three were null, so with Pro installed but unlicensed the widget
+			// class existed and the widget registered: the full Pro widget, free, in
+			// the Elementor panel. They are keyed to the same features as the
+			// shortcode and block registries so all three drop together.
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget'      => 'messaging',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget'  => 'pro',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget' => 'pro',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget'   => 'pro',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget'   => 'vendor_marketplace',
+			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget' => 'vendor_marketplace',
 		);
 	}
 

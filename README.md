@@ -396,7 +396,7 @@ All 16 blocks delegate to their shortcode renderer via `do_shortcode()` (Render 
 ### 🧪 Testing System
 
 **Automated Test Suite:**
-- **PHPUnit**: 763 tests / 2,638 assertions (v5.0.0)
+- **PHPUnit**: 868 tests / 2,823 assertions (v5.0.0)
 - **CI Matrix**: PHP 8.1/8.2/8.3 x WP 6.7/latest = 6 jobs
 - **PHPCS**: Full WordPress Coding Standards compliance
 - **Test Admin Page**: Accessible from Rentiva menu
@@ -651,14 +651,14 @@ mhm-rentiva/
 ├── src/                    # PSR-4 PHP source (MHMRentiva\*)
 │   ├── Admin/              # Admin module controllers & services
 │   ├── Api/                # Custom REST API endpoints
-│   ├── Blocks/             # Gutenberg block definitions (22 blocks)
+│   ├── Blocks/             # Gutenberg block definitions (16 blocks)
 │   ├── CLI/                # WP-CLI commands
 │   ├── Core/               # Financial engine, attribute pipeline, base services
 │   ├── Helpers/            # Sanitization, security, utility classes
 │   ├── Integrations/       # External bridges (WooCommerce, etc.)
 │   └── Plugin.php          # Main initialization class
 ├── templates/              # Frontend partials & email templates
-├── tests/                  # PHPUnit suite (763 tests, 2,638 assertions)
+├── tests/                  # PHPUnit suite (868 tests, 2,823 assertions)
 ├── vendor/                 # Composer dependencies (autoloader)
 ├── changelog.json          # Structured version history (English)
 ├── changelog-tr.json       # Structured version history (Turkish)

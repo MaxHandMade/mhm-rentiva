@@ -248,7 +248,11 @@ final class TestAdminPage {
 
 		// Create content based on format
 		if ($format === 'html') {
-			$content      = TestRunner::render_html_report($test_results);
+			// The report is served as a standalone .html download, so it carries its own
+			// styles. The screen version is styled by the enqueued test-suite.css; here we
+			// inline that same bundled stylesheet so the downloaded file stays styled.
+			$report_css   = (string) @file_get_contents(MHM_RENTIVA_PLUGIN_DIR . 'assets/css/admin/test-suite.css'); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents -- Reading a bundled plugin asset to inline into the self-contained report.
+			$content      = '<style>' . $report_css . '</style>' . "\n" . TestRunner::render_html_report($test_results);
 			$filename     = 'mhm-rentiva-test-report-' . gmdate('Y-m-d-H-i-s') . '.html';
 			$content_type = 'text/html';
 		} else {

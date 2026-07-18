@@ -95,6 +95,7 @@ final class DatabaseCleanupPage {
 				'optimize_tables_text'   => esc_html__('Optimize Tables', 'mhm-rentiva'),
 				'confirm_orphaned_text'  => esc_html__('This will delete orphaned meta data. A backup will be created. Continue?', 'mhm-rentiva'),
 				'confirm_tables_text'    => esc_html__('Table optimization may take several minutes. Continue?', 'mhm-rentiva'),
+				'confirm_repair_text'    => esc_html__('Are you sure you want to attempt to create/repair this table?', 'mhm-rentiva'),
 			)
 		);
 	}

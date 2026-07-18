@@ -82,16 +82,3 @@ if (!defined('ABSPATH')) {
         </div>
     </section>
 </div>
-
-<style>
-    /* Scoped styles for POC container to avoid global state pollution */
-    .rv-home-poc-wrapper {
-        font-family: var(--mhm-font-primary);
-        line-height: var(--mhm-leading-normal);
-    }
-
-    .rv-home-poc-wrapper section {
-        width: 100%;
-        box-sizing: border-box;
-    }
-</style>

@@ -457,3 +457,41 @@
 
 
 })(jQuery);
+
+/**
+ * Serialize the current gallery items into the hidden save input.
+ *
+ * Extracted from the inline block previously echoed by templates/../vehicle-gallery.php.
+ * It listens for the galleryUpdated event that the picker above triggers and keeps
+ * #mhm_rentiva_gallery_images in sync so save_gallery_images() persists the order.
+ */
+jQuery(document).ready(function($) {
+	function updateGalleryHiddenInput() {
+		const galleryImages = [];
+		$('.mhm-gallery-item').each(function() {
+			const imageId = $(this).data('image-id');
+			const imageUrl = $(this).find('img').attr('src');
+			const imageAlt = $(this).find('img').attr('alt');
+			const imageTitle = $(this).find('img').attr('title');
+
+			if (imageId) {
+				galleryImages.push({
+					id: parseInt(imageId),
+					url: imageUrl,
+					alt: imageAlt || '',
+					title: imageTitle || ''
+				});
+			}
+		});
+
+		$('#mhm_rentiva_gallery_images').val(JSON.stringify(galleryImages));
+	}
+
+	// Listen for gallery changes
+	$(document).on('galleryUpdated', function() {
+		updateGalleryHiddenInput();
+	});
+
+	// Update hidden input when page loads
+	updateGalleryHiddenInput();
+});
