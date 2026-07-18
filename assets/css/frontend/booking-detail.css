@@ -245,3 +245,38 @@
 		width: 100%;
 	}
 }
+
+/* Cancel-booking modal buttons + status messages (moved from the inline <style>
+   at the end of templates/account/booking-detail.php). */
+.rv-btn-danger {
+	background-color: #dc3545;
+	color: #ffffff;
+	border: none;
+	padding: 12px 24px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 15px;
+	font-weight: 600;
+	transition: background-color 0.2s;
+}
+
+.rv-btn-danger:hover {
+	background-color: #c82333;
+}
+
+.rv-btn-danger:disabled {
+	background-color: #6c757d;
+	cursor: not-allowed;
+}
+
+.rv-success {
+	background-color: #d4edda;
+	border-left: 4px solid #28a745;
+	color: #155724;
+}
+
+.rv-error {
+	background-color: #f8d7da;
+	border-left: 4px solid #dc3545;
+	color: #721c24;
+}
