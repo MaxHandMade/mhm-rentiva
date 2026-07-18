@@ -51,9 +51,9 @@ export default function SupportTab( { data } ) {
 					<h3><span className="dashicons dashicons-yes-alt"></span> { __( 'Tests & Verification', 'mhm-rentiva' ) }</h3>
 					<p>{ __( 'Automated test coverage in this release:', 'mhm-rentiva' ) }</p>
 					<ul>
-						<li><strong>1,366</strong> { __( 'PHPUnit tests', 'mhm-rentiva' ) }</li>
-						<li><strong>4,060</strong> { __( 'assertions', 'mhm-rentiva' ) }</li>
-						<li><strong>1,340</strong> { __( 'passing', 'mhm-rentiva' ) }</li>
+						<li><strong>868</strong> { __( 'PHPUnit tests', 'mhm-rentiva' ) }</li>
+						<li><strong>2,823</strong> { __( 'assertions', 'mhm-rentiva' ) }</li>
+						<li><strong>848</strong> { __( 'passing', 'mhm-rentiva' ) }</li>
 					</ul>
 					<p className="mhm-support-card-meta">{ __( 'Tested with: WP 7.0, PHP 8.2', 'mhm-rentiva' ) }</p>
 				</div>
