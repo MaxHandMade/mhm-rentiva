@@ -1218,6 +1218,14 @@ final class Plugin {
 		// Fallback: no shortcode page configured — use bundled single-vehicle template.
 		$template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
 		if (file_exists($template_path)) {
+			// Template styles (were an inline <style> in the template). Enqueued before
+			// the include so get_header()'s wp_head prints the stylesheet.
+			wp_enqueue_style(
+				'mhm-rentiva-single-vehicle',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/single-vehicle.css',
+				array(),
+				MHM_RENTIVA_VERSION
+			);
 			include $template_path;
 			exit;
 		}
