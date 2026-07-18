@@ -192,11 +192,15 @@
 /* ----- History table ----- */
 .mhm-export-history {
 	margin-top: 8px;
+	/* The card paints a 4px gradient strip through ::before and carried no
+	   padding, so the heading sat directly on that strip and the table ran into
+	   the rounded corners. */
+	padding: 20px;
 }
 
 .mhm-export-history__heading {
 	font-size: 14px;
-	margin: 0 0 10px;
+	margin: 0 0 14px;
 }
 
 .mhm-export-history__loading,
@@ -214,7 +218,9 @@
 	display: flex;
 	align-items: center;
 	gap: 16px;
-	margin-bottom: 12px;
+	/* No bottom margin: this is a flex item in a row and the parent's gap
+	   already spaces it. A margin here just lifts the radios out of line with
+	   the button beside them. */
 }
 
 .mhm-export-form__formats-label {
