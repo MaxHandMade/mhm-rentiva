@@ -555,6 +555,26 @@ final class SettingsCore {
 				'currentMode' => self::get('mhm_rentiva_dark_mode', 'auto'),
 			)
 		);
+
+			// Media (image) settings field picker — replaces the former inline block
+			// in SettingsHelper::render_media_field_html().
+			wp_enqueue_script(
+				'mhm-rentiva-settings-media-field',
+				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings-media-field.js',
+				array( 'media-editor' ),
+				\MHM_RENTIVA_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'mhm-rentiva-settings-media-field',
+				'mhmMediaField',
+				array(
+					'i18n' => array(
+						'selectImage' => __( 'Select image', 'mhm-rentiva' ),
+					),
+				)
+			);
 	}
 
 	/**
