@@ -584,3 +584,15 @@ svg.rv-icon {
 		box-sizing: border-box;
 	}
 }
+
+/* --- Primary-button icon contrast (WordPress 7.0) ---------------------------
+   WP 7.0 ships `[class*="branch-7"].wp-core-ui .button .dashicons { color:
+   var(--wp-admin-theme-color) }`. On a .button-primary the admin theme colour IS
+   the button background, so any dashicon inside it renders blue-on-blue and looks
+   missing (e.g. the "+" on our "Add New" header buttons). Let the icon inherit the
+   button's own text colour instead. The branch-attribute selector is included so
+   this outranks the core rule regardless of stylesheet order. */
+[class*="branch-"].wp-core-ui .button.button-primary .dashicons,
+.wp-core-ui .button.button-primary .dashicons {
+	color: inherit;
+}
