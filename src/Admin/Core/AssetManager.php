@@ -1509,7 +1509,9 @@ final class AssetManager {
 		// Add CSS variables inline
 		$css_variables = self::get_css_variables();
 		if ($css_variables) {
-			wp_add_inline_style( 'mhm-css-variables', (string) $css_variables );
+			// Keep the original wp_strip_all_tags() guard (the inline block had it):
+			// defense-in-depth in case an option ever feeds a raw value into the CSS.
+			wp_add_inline_style( 'mhm-css-variables', wp_strip_all_tags( (string) $css_variables ) );
 		}
 	}
 

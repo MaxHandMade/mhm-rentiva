@@ -8,16 +8,21 @@
  */
 
 /* Additional Services (vehicle_addon) list screen: replace the default
- * WP list-table header with the plugin's standardized header. */
-.wp-heading-inline,
-.page-title-action,
-.wp-header-end {
+ * WP list-table header with the plugin's standardized header. The shared
+ * handle is also enqueued on vehicle/booking screens (docs button, meta-box
+ * hiding), so this rule set is scoped to the addon post type — it must NOT
+ * hide the page title / "Add New" button on the vehicle or booking lists. */
+.post-type-vehicle_addon .wp-heading-inline,
+.post-type-vehicle_addon .page-title-action,
+.post-type-vehicle_addon .wp-header-end {
 	display: none !important;
 }
 
-/* Vehicle edit screen: hide meta boxes not used by this post type. */
-#postexcerpt,
-#slugdiv {
+/* Vehicle edit screen: hide meta boxes not used by this post type. Scoped to
+ * the vehicle post type so it never hides #postexcerpt/#slugdiv on the booking
+ * editor, which also loads this shared handle. */
+.post-type-vehicle #postexcerpt,
+.post-type-vehicle #slugdiv {
 	display: none !important;
 }
 
