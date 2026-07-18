@@ -557,6 +557,31 @@ final class VehicleColumns {
 				   so re-enable interaction on this admin calendar. */
 				.calendar-table td.day-cell.blocked-day { pointer-events: auto !important; cursor: pointer !important; }
 			' );
+
+			// Monthly calendar popup + quick block/unblock toggle (rendered by
+			// add_monthly_calendar()). Replaces the former inline script block.
+			wp_enqueue_script(
+				'mhm-vehicle-calendar-popup',
+				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
+				array( 'jquery' ),
+				MHM_RENTIVA_VERSION,
+				true
+			);
+
+			wp_localize_script(
+				'mhm-vehicle-calendar-popup',
+				'mhmVehicleCalendar',
+				array(
+					'nonce' => wp_create_nonce( 'mhm_toggle_blocked_date' ),
+					'i18n'  => array(
+						'blockedTitle' => __( 'Blocked — click to open', 'mhm-rentiva' ),
+						'availTitle'   => __( 'Available — click to close', 'mhm-rentiva' ),
+						'toggleError'  => __( 'Could not update the day.', 'mhm-rentiva' ),
+						'confirmClose' => __( 'Close this day for reservations?', 'mhm-rentiva' ),
+						'confirmOpen'  => __( 'Re-open this day for reservations?', 'mhm-rentiva' ),
+					),
+				)
+			);
 		}
 	}
 
@@ -1204,120 +1229,8 @@ final class VehicleColumns {
 			</div>
 		</div>
 
-		<script>
-			jQuery(document).ready(function($) {
-				var mhmToggleNonce = '<?php echo esc_js( wp_create_nonce( 'mhm_toggle_blocked_date' ) ); ?>';
-
-				var statusClasses = {
-					'pending'     : 'status-badge--pending',
-					'confirmed'   : 'status-badge--confirmed',
-					'in-progress' : 'status-badge--in-progress',
-					'completed'   : 'status-badge--completed',
-					'cancelled'   : 'status-badge--cancelled'
-				};
-
-				// Open popup
-				$('[data-booking-popup]').on('click', function(e) {
-					e.preventDefault();
-
-					var $this       = $(this);
-					var bookingId   = $this.data('booking-id');
-					var status      = $this.data('status');
-					var statusLabel = $this.data('status-label') || status;
-					var startDate   = $this.data('start-date');
-					var endDate     = $this.data('end-date');
-					var startTime   = $this.data('start-time');
-					var endTime     = $this.data('end-time');
-					var createdDate = $this.data('created-date');
-					var totalPrice  = $this.data('total-price');
-
-					// Customer
-					$('#popup-customer-name').text($this.data('customer-name') || '—');
-					$('#popup-customer-email').text($this.data('customer-email') || '—');
-					$('#popup-customer-phone').text($this.data('customer-phone') || '—');
-
-					// Dates & times
-					$('#popup-start-date').text(startDate || '—');
-					$('#popup-start-time').text(startTime || '');
-					$('#popup-end-date').text(endDate || '—');
-					$('#popup-end-time').text(endTime || '');
-
-					// Booking info
-					$('#popup-total-price').text(totalPrice ? totalPrice + ' €' : '—');
-					$('#popup-created-date').text(createdDate || '—');
-
-					// Booking ID sub-label
-					$('.mhm-popup-booking-id').text(bookingId ? '#' + bookingId : '');
-
-					// Status badge
-					var $badge = $('#popup-status-badge');
-					$badge.text(statusLabel || '—');
-					$badge.attr('class', 'mhm-popup-status-badge ' + (statusClasses[status] || ''));
-
-					// Edit button
-					$('#popup-edit-booking').off('click').on('click', function(e) {
-						e.preventDefault();
-						if (bookingId) {
-							window.location.href = 'post.php?post=' + bookingId + '&action=edit';
-						}
-					});
-
-					$('#mhm-booking-popup').fadeIn(250);
-				});
-
-				// Quick block/unblock: explicit confirm, then repaint from the server's
-				// confirmed result. The native confirm gives instant feedback that the
-				// click registered (the admin-ajax round-trip itself is slow because the
-				// whole plugin bootstraps on every request), and repainting from the
-				// server response — not optimistically — keeps the cell and the DB in sync.
-				var mhmBlockedTitle = '<?php echo esc_js( __( 'Blocked — click to open', 'mhm-rentiva' ) ); ?>';
-				var mhmAvailTitle   = '<?php echo esc_js( __( 'Available — click to close', 'mhm-rentiva' ) ); ?>';
-				var mhmToggleError  = '<?php echo esc_js( __( 'Could not update the day.', 'mhm-rentiva' ) ); ?>';
-				var mhmConfirmClose = '<?php echo esc_js( __( 'Close this day for reservations?', 'mhm-rentiva' ) ); ?>';
-				var mhmConfirmOpen  = '<?php echo esc_js( __( 'Re-open this day for reservations?', 'mhm-rentiva' ) ); ?>';
-
-				$('.calendar-table').on('click', '.day-cell.available, .day-cell.blocked-day', function() {
-					var $cell = $(this);
-					var vehicleId = $cell.data('vehicle-id');
-					var date      = $cell.data('date');
-					if (!vehicleId || !date) { return; }
-
-					var isBlocked = $cell.hasClass('blocked-day');
-					if (!window.confirm(isBlocked ? mhmConfirmOpen : mhmConfirmClose)) { return; }
-
-					$.post(ajaxurl, {
-						action: 'mhm_toggle_blocked_date',
-						vehicle_id: vehicleId,
-						date: date,
-						nonce: mhmToggleNonce
-					}).done(function(resp) {
-						if (resp && resp.success && resp.data) {
-							if (resp.data.blocked) {
-								$cell.removeClass('available').addClass('blocked-day').attr('title', mhmBlockedTitle);
-							} else {
-								$cell.removeClass('blocked-day').addClass('available').attr('title', mhmAvailTitle);
-							}
-						} else {
-							window.alert((resp && typeof resp.data === 'string') ? resp.data : mhmToggleError);
-						}
-					}).fail(function() {
-						window.alert(mhmToggleError);
-					});
-				});
-
-				// Close popup
-				$('.mhm-popup-close, .mhm-popup-overlay').on('click', function() {
-					$('#mhm-booking-popup').fadeOut(200);
-				});
-
-				$(document).on('keydown', function(e) {
-					if (e.keyCode === 27) {
-						$('#mhm-booking-popup').fadeOut(200);
-					}
-				});
-			});
-		</script>
 		<?php
+		// Popup + day-toggle behavior is enqueued as assets/js/admin/vehicle-calendar-popup.js.
 	}
 
 	/**
