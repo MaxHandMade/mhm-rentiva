@@ -84,7 +84,11 @@ export default function ExportForm( {
 				style={ { display: 'none' } }
 			>
 				<input type="hidden" name="action"       value="mhm_rentiva_export" />
-				<input type="hidden" name="nonce"        value={ exportNonce } />
+				{ /* Must be _wpnonce: handle_export() verifies with
+				     check_admin_referer(), which reads $_REQUEST['_wpnonce'].
+				     Posting it as "nonce" made every export — CSV included —
+				     fail with "the link you followed has expired". */ }
+				<input type="hidden" name="_wpnonce"     value={ exportNonce } />
 				<input type="hidden" name="post_type"    value={ activeType } />
 				<input type="hidden" name="format"       value={ format } />
 				{ dateFrom && <input type="hidden" name="date_from" value={ dateFrom } /> }
