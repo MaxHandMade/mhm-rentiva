@@ -106,37 +106,3 @@ if ( ! defined( 'ABSPATH' ) ) {
 	<?php wp_nonce_field( 'mhm_rentiva_gallery_images', 'mhm_rentiva_gallery_images_nonce' ); ?>
 
 </div>
-
-<script type="text/javascript">
-jQuery(document).ready(function($) {
-	// Update gallery images
-	function updateGalleryHiddenInput() {
-		const galleryImages = [];
-		$('.mhm-gallery-item').each(function() {
-			const imageId = $(this).data('image-id');
-			const imageUrl = $(this).find('img').attr('src');
-			const imageAlt = $(this).find('img').attr('alt');
-			const imageTitle = $(this).find('img').attr('title');
-			
-			if (imageId) {
-				galleryImages.push({
-					id: parseInt(imageId),
-					url: imageUrl,
-					alt: imageAlt || '',
-					title: imageTitle || ''
-				});
-			}
-		});
-		
-		$('#mhm_rentiva_gallery_images').val(JSON.stringify(galleryImages));
-	}
-	
-	// Listen for gallery changes
-	$(document).on('galleryUpdated', function() {
-		updateGalleryHiddenInput();
-	});
-	
-	// Update hidden input when page loads
-	updateGalleryHiddenInput();
-});
-</script>
