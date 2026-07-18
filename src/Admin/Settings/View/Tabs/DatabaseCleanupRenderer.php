@@ -129,6 +129,7 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 				'confirm_orphaned_text'            => __( 'Commit to purging orphaned meta? A snapshot will be created.', 'mhm-rentiva' ),
 				'confirm_tables_text'              => __( 'Table compaction may impact short-term performance. Continue?', 'mhm-rentiva' ),
 				'confirm_invalid_meta_text'        => __( 'Purge invalid keys? A snapshot will be created.', 'mhm-rentiva' ),
+				'confirm_repair_text'              => __( 'Are you sure you want to attempt to create/repair this table?', 'mhm-rentiva' ),
 				'confirm_restore_text'             => __( 'Initiate data restoration from snapshot?', 'mhm-rentiva' ),
 				'confirm_delete_backup_text'       => __( 'Permanently discard this backup? This is irreversible.', 'mhm-rentiva' ),
 				'purge_logs_text'                  => __( 'Purge Old Logs', 'mhm-rentiva' ),
