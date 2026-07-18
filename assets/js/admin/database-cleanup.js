@@ -638,5 +638,47 @@ jQuery( document ).ready(
 
 		// Load full backups on page load
 		$( '#mhm-refresh-full-backups-btn' ).trigger( 'click' );
+
+		// Repair/create a missing custom table. The buttons are injected into
+		// #mhm-cleanup-results by the analyze AJAX response, so bind by delegation.
+		$( document ).on(
+			'click',
+			'.mhm-repair-table-btn',
+			function() {
+				var btn          = $( this );
+				var table        = btn.data( 'table' );
+				var originalText = btn.text();
+
+				if ( ! confirm( mhm_db_cleanup_vars.confirm_repair_text ) ) {
+					return;
+				}
+
+				btn.prop( 'disabled', true ).text( 'Processing...' );
+
+				$.post(
+					mhm_db_cleanup_vars.ajaxurl || ajaxurl,
+					{
+						action: 'mhm_repair_table',
+						nonce: mhm_db_cleanup_vars.nonce,
+						table_name: table
+					},
+					function( response ) {
+						if ( response.success ) {
+							alert( response.data.message );
+							// Trigger analysis again to refresh the list
+							$( '#mhm-analyze-db-btn' ).click();
+						} else {
+							alert( response.data || 'Error occurred' );
+							btn.prop( 'disabled', false ).text( originalText );
+						}
+					}
+				).fail(
+					function() {
+						alert( 'Request failed' );
+						btn.prop( 'disabled', false ).text( originalText );
+					}
+				);
+			}
+		);
 	}
 );
