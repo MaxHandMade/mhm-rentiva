@@ -1,5 +1,20 @@
 [
   {
+    "version": "5.0.0",
+    "date": "2026-07-18",
+    "type": "major",
+    "title": "First public WordPress.org release",
+    "summary": "MHM Rentiva's first release on WordPress.org: the complete rental core with no artificial limits, no third-party requests, and full WordPress.org coding-standards compliance. Every screen works exactly as before — this release changes how the plugin is packaged and loaded, not what it does.",
+    "changes": [
+      "New: First public release on WordPress.org — fleet management, availability, bookings, customers, WooCommerce payments, email notifications and the customer account pages, with no vehicle, booking or listing caps, no feature timers and no locked screens.",
+      "Compliance: the plugin makes no third-party requests at all — the webfont is bundled and served from your own site, and there are no geolocation, analytics or CDN calls.",
+      "Compliance: every admin and front-end script and style now loads through the WordPress asset system (wp_enqueue) instead of inline <script>/<style> blocks, with no change to how any screen looks or behaves.",
+      "Security: Pro-only surfaces are now gated on a valid licence rather than only hidden, closing several paths where the separate paid add-on's features could run without one.",
+      "16 shortcodes, 16 Gutenberg blocks and 17 Elementor widgets share a single renderer (Render Parity) so all three produce identical output. Ships with a full Turkish translation."
+    ],
+    "notice": "First WordPress.org release. If you are upgrading from a pre-release build, no action is required."
+  },
+  {
     "version": "4.64.3",
     "date": "2026-07-12",
     "type": "patch",
