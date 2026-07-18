@@ -1427,6 +1427,26 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			return;
 		}
 
+		// Enqueue the selector behavior here — this hook fires exactly where the radios
+		// render on the checkout, so the script loads even when the generic is_checkout()
+		// asset guard does not (e.g. page-builder checkouts). in_footer, so a late enqueue
+		// during the order-review render still prints. Replaces a former inline script block.
+		wp_enqueue_script(
+			'mhm-checkout-payment-type',
+			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/checkout-payment-type.js',
+			array( 'jquery' ),
+			MHM_RENTIVA_VERSION,
+			true
+		);
+		wp_localize_script(
+			'mhm-checkout-payment-type',
+			'mhmCheckoutPaymentType',
+			array(
+				'ajaxUrl' => admin_url('admin-ajax.php'),
+				'nonce'   => wp_create_nonce('mhm_booking_payment_type'),
+			)
+		);
+
 		// Initialize sums
 		$total_full_price       = 0.0;
 		$total_deposit_amount   = 0.0;
@@ -1558,58 +1578,8 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		</div>
 
 
-		<script type="text/javascript">
-			jQuery(document).ready(function($) {
-				// Function to update selected state visual
-				function updateSelectedState() {
-					$('.mhm-payment-type-option').removeClass('selected');
-					$('.mhm-payment-type-option:has(input[type="radio"]:checked)').addClass('selected');
-				}
-
-				// Update on page load
-				updateSelectedState();
-
-				// Sync the initially selected payment type with the cart session on load
-				var $initialSelected = $('input[name="mhm_booking_payment_type"]:checked');
-				if ($initialSelected.length) {
-					$.post(wc_checkout_params.ajax_url || '<?php echo esc_js(admin_url('admin-ajax.php')); ?>', {
-						action: 'mhm_update_booking_payment_type',
-						payment_type: $initialSelected.val(),
-						nonce: '<?php echo esc_js(wp_create_nonce('mhm_booking_payment_type')); ?>'
-					});
-				}
-
-				$('input[name="mhm_booking_payment_type"]').on('change', function() {
-					const paymentType = $(this).val();
-
-					// Update selected state immediately for better UX
-					updateSelectedState();
-
-					// Update cart price via AJAX
-					$.ajax({
-						url: wc_checkout_params.ajax_url || '<?php echo esc_js(admin_url('admin-ajax.php')); ?>',
-						type: 'POST',
-						data: {
-							action: 'mhm_update_booking_payment_type',
-							payment_type: paymentType,
-							nonce: '<?php echo esc_js(wp_create_nonce('mhm_booking_payment_type')); ?>'
-						},
-						success: function(response) {
-							if (response.success) {
-								// Trigger cart update
-								$('body').trigger('update_checkout');
-							} else {
-								console.error('MHM Rentiva: Payment type update failed', response);
-							}
-						},
-						error: function(xhr, status, error) {
-							console.error('MHM Rentiva: AJAX error', error);
-						}
-					});
-				});
-			});
-		</script>
 		<?php
+		// Selector behavior is enqueued as assets/js/frontend/checkout-payment-type.js.
 	}
 
 	/**
