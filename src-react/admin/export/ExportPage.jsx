@@ -11,6 +11,7 @@ const POST_TYPES = [ 'vehicle_booking', 'vehicle', 'mhm_app_log' ];
 
 export default function ExportPage( { config } ) {
 	const [ activeType, setActiveType ]     = useState( 'vehicle_booking' );
+	const [ format, setFormat ]             = useState( 'csv' );
 	const [ dateFrom, setDateFrom ]         = useState( '' );
 	const [ dateTo, setDateTo ]             = useState( '' );
 	const [ dateRange, setDateRange ]       = useState( '' );
@@ -56,6 +57,10 @@ export default function ExportPage( { config } ) {
 	const dateRanges     = config.dateRanges ?? [];
 	const adminUrl       = config.adminUrl ?? '';
 	const exportNonce    = config.exportNonce ?? '';
+	// Comes from Export::allowed_formats() — the same list the request handler
+	// validates against, so the picker cannot offer a format that would be
+	// rejected. Falls back to CSV alone if an older PHP side sends nothing.
+	const formats        = config.formats?.length ? config.formats : [ 'csv' ];
 
 	return (
 		<div className="mhm-export-spa">
@@ -91,6 +96,9 @@ export default function ExportPage( { config } ) {
 				activeType={ activeType }
 				dateFrom={ dateFrom }
 				dateTo={ dateTo }
+				formats={ formats }
+				format={ format }
+				onFormatChange={ setFormat }
 				disabled={ preview !== null && preview.count === 0 }
 			/>
 

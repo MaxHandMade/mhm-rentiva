@@ -208,3 +208,22 @@
 .mhm-export-history__table {
 	font-size: 13px;
 }
+
+/* Format picker — only rendered when more than one format is allowed. */
+.mhm-export-form__formats {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	margin-bottom: 12px;
+}
+
+.mhm-export-form__formats-label {
+	font-weight: 600;
+}
+
+.mhm-export-form__format {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin: 0;
+}
