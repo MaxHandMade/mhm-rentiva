@@ -93,7 +93,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 3
 			path: src/Admin/Addons/AddonMenu.php
 
 		-
@@ -159,7 +159,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 7
+			count: 8
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
@@ -357,7 +357,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 36
+			count: 37
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -579,7 +579,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 8
+			count: 9
 			path: src/Admin/Frontend/Account/AccountController.php
 
 		-
@@ -776,6 +776,12 @@ parameters:
 
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Admin/Frontend/Shortcodes/HomePoc.php
+
+		-
+			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/HomePoc.php
@@ -1053,7 +1059,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 4
+			count: 5
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 
 		-
@@ -1167,7 +1173,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 3
+			count: 5
 			path: src/Admin/Settings/Core/SettingsCore.php
 
 		-
@@ -1387,6 +1393,12 @@ parameters:
 			path: src/Admin/Testing/ShortcodeTestHandler.php
 
 		-
+			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Admin/Testing/TestAdminPage.php
+
+		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{''MHMRentiva\\\\Admin\\\\Utilities\\\\Actions\\\\Actions'', ''create_my_account…''\} given\.$#'
 			identifier: argument.type
 			count: 1
@@ -1455,7 +1467,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 5
+			count: 6
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
@@ -1527,7 +1539,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 3
 			path: src/Admin/Vehicle/Meta/VehicleMeta.php
 
 		-
@@ -1731,7 +1743,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 1
+			count: 3
 			path: src/Plugin.php
 
 		-
