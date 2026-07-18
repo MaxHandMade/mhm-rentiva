@@ -1004,11 +1004,6 @@ final class Plugin {
 			Admin\Utilities\Uninstall\UninstallPage::register();
 		}
 
-		// Test suite page
-		if ($is_admin && class_exists('MHMRentiva\\Admin\\Testing\\TestAdminPage')) {
-			Admin\Testing\TestAdminPage::register();
-		}
-
 		// Vehicle detail page rewrite rules (SEO-friendly sub-path URLs)
 		add_action('init', array( $this, 'register_vehicle_rewrite_rules' ), 15);
 

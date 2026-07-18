@@ -1043,7 +1043,7 @@ final class DatabaseMigrator {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table identifiers cannot be prepared; identifier is strictly sanitized.
+		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifiers cannot be prepared; identifier is strictly sanitized and index name run through esc_sql().
 		$results = $wpdb->get_results(sprintf('SHOW INDEX FROM `%s` WHERE Key_name = \'%s\'', $table_name, esc_sql($index_name)));
 
 		return ! empty($results);

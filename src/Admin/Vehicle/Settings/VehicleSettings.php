@@ -89,13 +89,13 @@ final class VehicleSettings {
 	public static function register(): void {
 		// Menu registration is now done centrally in Menu.php
 		add_action( 'admin_init', array( self::class, 'register_settings' ) );
-		add_action( 'wp_ajax_save_vehicle_settings', array( self::class, 'ajax_save_settings' ) );
-		add_action( 'wp_ajax_update_field_labels', array( self::class, 'ajax_update_field_labels' ) );
-		add_action( 'wp_ajax_remove_custom_field', array( self::class, 'ajax_remove_custom_field' ) );
-		add_action( 'wp_ajax_add_custom_field', array( self::class, 'ajax_add_custom_field' ) );
+		add_action( 'wp_ajax_mhmrentiva_save_vehicle_settings', array( self::class, 'ajax_save_settings' ) );
+		add_action( 'wp_ajax_mhmrentiva_update_field_labels', array( self::class, 'ajax_update_field_labels' ) );
+		add_action( 'wp_ajax_mhmrentiva_remove_custom_field', array( self::class, 'ajax_remove_custom_field' ) );
+		add_action( 'wp_ajax_mhmrentiva_add_custom_field', array( self::class, 'ajax_add_custom_field' ) );
 
 		// Reset Settings
-		add_action( 'wp_ajax_mhm_reset_vehicle_settings', array( self::class, 'ajax_reset_settings' ) );
+		add_action( 'wp_ajax_mhmrentiva_reset_vehicle_settings', array( self::class, 'ajax_reset_settings' ) );
 	}
 
 	/**
@@ -448,7 +448,7 @@ final class VehicleSettings {
 			</div>
 
 			<div class="mhm-display-save-actions submit-section">
-				<input type="hidden" name="action" value="save_vehicle_settings">
+				<input type="hidden" name="action" value="mhmrentiva_save_vehicle_settings">
 				<input type="hidden" name="sub_action" value="save_display_settings">
 				<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'vehicle_settings_nonce' ) ); ?>">
 				<button type="submit" id="save-display-settings" class="button button-primary button-large"><?php echo esc_html__( 'Save Display Settings', 'mhm-rentiva' ); ?></button>
@@ -668,7 +668,7 @@ final class VehicleSettings {
 				</div>
 
 				<div class="mhm-settings-footer-actions">
-					<input type="hidden" name="action" value="save_vehicle_settings">
+					<input type="hidden" name="action" value="mhmrentiva_save_vehicle_settings">
 					<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'vehicle_settings_nonce' ) ); ?>">
 					<button type="submit" id="save-settings" class="button button-primary button-large"><?php echo esc_html__( 'Save Settings', 'mhm-rentiva' ); ?></button>
 				</div>

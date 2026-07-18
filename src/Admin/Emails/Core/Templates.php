@@ -133,6 +133,14 @@ final class Templates {
 		if ( file_exists( $plugin ) ) {
 			return $plugin;
 		}
+		// Additional template directories registered by other editions (e.g. the
+		// paid add-on ships its own email templates and registers its path here).
+		foreach ( apply_filters( 'mhm_rentiva_email_template_dirs', array() ) as $dir ) {
+			$candidate = trailingslashit( (string) $dir ) . $slug . '.html.php';
+			if ( file_exists( $candidate ) ) {
+				return $candidate;
+			}
+		}
 		return null;
 	}
 

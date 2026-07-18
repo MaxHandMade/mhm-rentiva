@@ -285,7 +285,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		$query = "SELECT origin_id, destination_id FROM {$table_routes}";
 
 		// %i identifier placeholder is used for dynamic table names.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name verified via SHOW TABLES above; no user input in query.
 		$results      = $wpdb->get_results($query);
 		$routes_cache = is_array($results) ? $results : array();
 

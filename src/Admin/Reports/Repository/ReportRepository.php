@@ -478,6 +478,7 @@ class ReportRepository {
 
 			$sql .= ' ORDER BY pm_pickup.meta_value ASC';
 
+			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- SQL built from fixed table/column strings and %s placeholders; values via $wpdb->prepare().
 			$rentals = $wpdb->get_results(
 				$wpdb->prepare(
 					$sql, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL is built from safe interpolated table/column strings and %s placeholders only.
@@ -519,6 +520,7 @@ class ReportRepository {
 
 			$transfer_sql .= ' ORDER BY pickup_date ASC';
 
+			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- SQL built from %i identifier and %s placeholders; values via $wpdb->prepare().
 			$transfers = $wpdb->get_results(
 				$wpdb->prepare( $transfer_sql, $transfer_args ), // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
 				ARRAY_A

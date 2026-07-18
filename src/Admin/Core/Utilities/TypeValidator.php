@@ -7,7 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-use MHMRentiva\Admin\Core\Utilities\I18nHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

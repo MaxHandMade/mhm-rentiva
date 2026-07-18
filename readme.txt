@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        5.0.1
+Stable tag:        5.0.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -78,6 +78,13 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 
 == Changelog ==
 
+= 5.0.2 =
+* Changed: the admin menu now sits lower in the WordPress menu, so it no longer competes with core items.
+* Fixed: about 105 error and status messages are now translatable and fully translated to Turkish.
+* Changed: internal AJAX action names on the Vehicle Settings screen are now plugin-prefixed.
+* Removed: a developer-only diagnostics test runner that used to ship with the plugin.
+* Maintenance: various WordPress.org compliance housekeeping. The free plugin's behaviour is unchanged.
+
 = 5.0.1 =
 * Maintenance: internal fixes to shared admin assets and an updated Turkish translation. The free plugin's behaviour is unchanged.
 
@@ -89,6 +96,9 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Full Turkish translation.
 
 == Upgrade Notice ==
+
+= 5.0.2 =
+Compliance housekeeping and translation improvements. No action required; your settings and data are unaffected.
 
 = 5.0.1 =
 Maintenance and translation update. No action required.

@@ -32,7 +32,7 @@ final class Menu {
 			'mhm-rentiva',
 			array( new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render' ),
 			'dashicons-car',
-			6
+			58
 		);
 
 		// 1. Dashboard

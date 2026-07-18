@@ -1,5 +1,20 @@
 [
   {
+    "version": "5.0.2",
+    "date": "2026-07-19",
+    "type": "patch",
+    "title": "WordPress.org uyumluluk iyileştirmeleri",
+    "summary": "WordPress.org listelemesi için düzenlemeler. Eklentinin özellikleri değişmedi; bunlar prefix, menü konumu ve çeviri-çıkarımı iyileştirmeleri ile dahili bir geliştirici aracının kaldırılmasıdır.",
+    "changes": [
+      "Değişti: yönetici menüsü artık en üst yerine daha aşağıda görünüyor, böylece çekirdek öğelerle yarışmıyor.",
+      "Düzeltildi: yaklaşık 105 hata ve durum mesajı önceden çeviri için çıkarılamıyordu; artık düzgün gettext çağrıları ve tamamı Türkçeye çevrildi.",
+      "Değişti: Araç Ayarları ekranındaki dahili AJAX eylem adları artık eklenti önekli.",
+      "Kaldırıldı: eklentiyle birlikte gelen, yalnızca geliştiriciye yönelik bir teşhis test aracı.",
+      "Dahili: hazırlanmış (prepared) veritabanı sorguları yanlış-pozitif tarayıcı uyarılarını susturmak için işaretlendi; ücretli eklentinin e-posta şablonları artık ücretli eklentiyle birlikte geliyor."
+    ],
+    "notice": "İşlem gerekmez; mevcut ayarlar ve veriler etkilenmez."
+  },
+  {
     "version": "5.0.1",
     "date": "2026-07-18",
     "type": "patch",

@@ -357,7 +357,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 37
+			count: 36
 			path: src/Admin/Core/AssetManager.php
 
 		-
@@ -1297,106 +1297,10 @@ parameters:
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Expression on left side of \?\? is not nullable\.$#'
-			identifier: nullCoalesce.expr
-			count: 1
-			path: src/Admin/Testing/ActivationTest.php
-
-		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: src/Admin/Testing/ActivationTest.php
-
-		-
-			message: '#^Property WP_Post_Type\:\:\$rewrite \(array\|false\) in isset\(\) is not nullable\.$#'
-			identifier: isset.property
-			count: 1
-			path: src/Admin/Testing/ActivationTest.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Testing/DemoImageImporter.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Testing/FunctionalTest.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Testing\\FunctionalTest\:\:count_pattern_in_codebase\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Testing/FunctionalTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''log_error'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/IntegrationTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''security_error'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/IntegrationTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''validation_error'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/IntegrationTest.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Testing/IntegrationTest.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Testing/PerformanceTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''check'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/SecurityTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''getClientIP'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/SecurityTest.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''MHMRentiva\\\\Admin…'' and ''permission_check'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Testing/SecurityTest.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 3
-			path: src/Admin/Testing/SecurityTest.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 5
-			path: src/Admin/Testing/ShortcodeTestHandler.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Testing/TestAdminPage.php
 
 		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{''MHMRentiva\\\\Admin\\\\Utilities\\\\Actions\\\\Actions'', ''create_my_account…''\} given\.$#'

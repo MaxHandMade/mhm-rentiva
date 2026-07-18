@@ -136,7 +136,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 
 		$query_params[] = 50; // LIMIT
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $placeholders and $status_where are assembled only from fixed placeholder fragments above.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $placeholders and $status_where are assembled only from fixed placeholder fragments above; values passed through $wpdb->prepare().
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DISTINCT p.ID,

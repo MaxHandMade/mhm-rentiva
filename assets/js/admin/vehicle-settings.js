@@ -19,7 +19,7 @@ jQuery(document).ready(function($) {
 			btn.prop('disabled', true);
 
 			$.post(ajaxurl, {
-				action: 'mhm_reset_vehicle_settings',
+				action: 'mhmrentiva_reset_vehicle_settings',
 				tab: S.activeTab || 'definitions',
 				nonce: vsNonce
 			}, function(response) {
@@ -205,7 +205,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'add_custom_field',
+					action: 'mhmrentiva_add_custom_field',
 					field_key: key,
 					field_label: label,
 					field_type: 'details',
@@ -264,7 +264,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'add_custom_field',
+					action: 'mhmrentiva_add_custom_field',
 					field_key: key,
 					field_label: label,
 					field_type: 'features',
@@ -311,7 +311,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'add_custom_field',
+					action: 'mhmrentiva_add_custom_field',
 					field_key: key,
 					field_label: label,
 					field_type: 'equipment',
@@ -356,7 +356,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'remove_custom_field',
+					action: 'mhmrentiva_remove_custom_field',
 					field_key: fieldKey,
 					field_type: 'details',
 					nonce: vsNonce
@@ -394,7 +394,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'remove_custom_field',
+					action: 'mhmrentiva_remove_custom_field',
 					field_key: fieldKey,
 					field_type: 'features',
 					nonce: vsNonce
@@ -432,7 +432,7 @@ jQuery(document).ready(function($) {
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'remove_custom_field',
+					action: 'mhmrentiva_remove_custom_field',
 					field_key: fieldKey,
 					field_type: 'equipment',
 					nonce: vsNonce
@@ -559,7 +559,7 @@ jQuery(document).ready(function($) {
 			url: ajaxurl,
 			type: 'POST',
 			data: {
-				action: 'save_vehicle_settings',
+				action: 'mhmrentiva_save_vehicle_settings',
 				selected_details: selectedDetails,
 				selected_features: selectedFeatures,
 				selected_equipment: selectedEquipment,
@@ -672,7 +672,7 @@ window.showRenameModal = function(type) {
 			url: ajaxurl,
 			type: 'POST',
 			data: {
-				action: 'update_field_labels',
+				action: 'mhmrentiva_update_field_labels',
 				type: type,
 				labels: newLabels,
 				nonce: vsNonce

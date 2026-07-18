@@ -352,6 +352,7 @@ final class DashboardService {
              ORDER BY p.post_date DESC
              LIMIT %d OFFSET %d";
 
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- SQL built from core table names and %s/%d placeholders; values via $wpdb->prepare().
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				$sql, // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- SQL is built from safe interpolated table/column strings and %s placeholders only.

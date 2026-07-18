@@ -8,7 +8,6 @@ use MHMRentiva\Admin\About\About;
 use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Admin\Frontend\Shortcodes\FeaturedVehicles;
 use MHMRentiva\Admin\Setup\SetupWizard;
-use MHMRentiva\Admin\Testing\TestAdminPage;
 use MHMRentiva\Admin\Utilities\Menu\Menu;
 use MHMRentiva\Admin\Vehicle\Meta\VehicleMeta;
 use MHMRentiva\Blocks\BlockRegistry;
@@ -173,17 +172,6 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->assertContains('mhm-rentiva-about', $submenu_slugs);
 	}
 
-	public function test_menu_shows_test_suite_submenu_when_registered(): void
-	{
-		$this->reset_admin_menu_globals();
-		Menu::add_menu();
-		TestAdminPage::add_menu_page();
-
-		$submenu_slugs = $this->get_mhm_submenu_slugs();
-
-		$this->assertContains('mhm-rentiva-tests', $submenu_slugs);
-	}
-
 	public function test_menu_keeps_core_settings_submenu(): void
 	{
 		$this->reset_admin_menu_globals();
@@ -296,33 +284,26 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 	{
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
-		TestAdminPage::add_menu_page();
 
 		// The License submenu is a Pro seam and is absent here; see
 		// test_menu_has_no_license_submenu_in_lite().
 		$setup_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-setup');
 		$about_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-about');
-		$tests_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-tests');
 
 		$this->assertIsArray($setup_item);
 		$this->assertIsArray($about_item);
-		$this->assertIsArray($tests_item);
 
 		$this->assertSame('manage_options', $setup_item[1]);
 		$this->assertSame('manage_options', $about_item[1]);
-		$this->assertSame('manage_options', $tests_item[1]);
 	}
 
-	public function test_setup_about_and_test_suite_callback_classes_are_available(): void
+	public function test_setup_and_about_callback_classes_are_available(): void
 	{
 		$this->assertTrue(class_exists(SetupWizard::class));
 		$this->assertTrue(method_exists(SetupWizard::class, 'render_page'));
 
 		$this->assertTrue(class_exists(About::class));
 		$this->assertTrue(method_exists(About::class, 'render_page'));
-
-		$this->assertTrue(class_exists(TestAdminPage::class));
-		$this->assertTrue(method_exists(TestAdminPage::class, 'render_page'));
 	}
 
 	private function reset_admin_menu_globals(): void

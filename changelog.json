@@ -1,5 +1,20 @@
 [
   {
+    "version": "5.0.2",
+    "date": "2026-07-19",
+    "type": "patch",
+    "title": "WordPress.org compliance hardening",
+    "summary": "Housekeeping for the WordPress.org listing. The plugin's features are unchanged; these are prefix, menu-placement and translation-extraction improvements plus removal of an internal developer tool.",
+    "changes": [
+      "Changed: the admin menu now sits lower in the WordPress menu instead of near the top, so it no longer competes with core items.",
+      "Fixed: about 105 error and status messages were previously not extractable for translation; they are now proper gettext calls and fully translated to Turkish.",
+      "Changed: internal AJAX action names on the Vehicle Settings screen are now plugin-prefixed.",
+      "Removed: a developer-only diagnostics test runner that used to ship with the plugin.",
+      "Internal: prepared-statement queries annotated to silence false-positive scanner warnings; the paid add-on's email templates now ship with the add-on."
+    ],
+    "notice": "No action required; existing settings and data are unaffected."
+  },
+  {
     "version": "5.0.1",
     "date": "2026-07-18",
     "type": "patch",
