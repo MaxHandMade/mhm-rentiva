@@ -83,11 +83,8 @@ final class VehicleComparison extends AbstractShortcode {
 		// Call parent method (enqueue_styles and enqueue_scripts from AbstractShortcode)
 		parent::enqueue_assets();
 
-		// Localize script
+		// Localize script — this is the effective runtime config the front-end script reads.
 		self::localize_script(self::get_asset_handle());
-
-		// Add inline script for configuration (WordPress way)
-		add_action('wp_footer', array( self::class, 'add_configuration_script' ));
 	}
 
 	protected static function get_asset_handle(): string
@@ -375,71 +372,6 @@ final class VehicleComparison extends AbstractShortcode {
 		return $labels[ $normalized_key ] ?? ucfirst(str_replace('_', ' ', $normalized_key));
 	}
 
-	/**
-	 * Add configuration script to footer (WordPress way)
-	 */
-	public static function add_configuration_script(): void
-	{
-		// Only add if shortcode is used on current page
-		if (! self::is_shortcode_used()) {
-			return;
-		}
-
-		$features     = array();
-		$all_vehicles = self::get_all_available_vehicles();
-
-		echo '<script type="text/javascript">
-					';
-		echo 'window.mhmRentivaVehicleComparison = {';
-		echo 'ajax_url: "' . esc_url(admin_url('admin-ajax.php')) .
-			'",';
-		echo 'nonce: "' . esc_js(wp_create_nonce('mhm_rentiva_vehicle_comparison_nonce')) .
-			'",';
-		echo 'strings: {';
-		echo 'loading: "' . esc_js(__('Loading...', 'mhm-rentiva')) .
-			'",';
-		echo 'error: "' . esc_js(__('An error occurred.', 'mhm-rentiva')) .
-			'",';
-		echo 'vehicleAdded: "' . esc_js(__('Vehicle added to comparison', 'mhm-rentiva')) .
-			'",';
-		echo 'vehicleRemoved: "' . esc_js(__('Vehicle removed from comparison', 'mhm-rentiva')) .
-			'",';
-		echo 'maxVehiclesReached: "' . esc_js(__('Maximum number of vehicles reached', 'mhm-rentiva')) .
-			'",';
-		echo 'noVehiclesToCompare: "' . esc_js(__('No vehicles found to compare', 'mhm-rentiva')) .
-			'",';
-		echo 'addVehicle: "' . esc_js(__('Add Vehicle', 'mhm-rentiva')) .
-			'",';
-		echo 'removeVehicle: "' . esc_js(__('Remove', 'mhm-rentiva')) .
-			'",';
-		echo 'bookNow: "' . esc_js(__('Make Reservation', 'mhm-rentiva')) .
-			'",';
-		echo 'one_vehicle_compared: "' . esc_js(__('1 vehicle being compared', 'mhm-rentiva')) .
-			'",';
-		/* translators: %d: number of vehicles */
-		echo 'multiple_vehicles_compared: "' . esc_js(__('%d vehicles being compared', 'mhm-rentiva')) .
-			'"';
-		echo '},';
-		echo 'features: ' . wp_json_encode($features, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) .
-			',';
-		echo 'availableVehicles: ' . wp_json_encode($all_vehicles, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT);
-		echo '};';
-		echo '
-				</script>';
-	}
-
-	/**
-	 * Check if shortcode is used on current page
-	 */
-	private static function is_shortcode_used(): bool
-	{
-		global $post;
-		if (! $post) {
-			return false;
-		}
-
-		return has_shortcode($post->post_content, self::SHORTCODE);
-	}
 	/**
 	 * Parse vehicle IDs string
 	 */
