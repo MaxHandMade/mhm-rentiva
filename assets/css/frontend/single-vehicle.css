@@ -44,7 +44,10 @@
 	color: #cbd5e1;
 }
 
-.btn-back {
+/* Scoped to the page wrapper (the .btn-back always renders inside it) so this rule
+   keeps winning at head-print position, as the former body-end inline <style> did by
+   source order — without leaking onto any theme/plugin .btn-back elsewhere. */
+.rv-premium-skin .btn-back {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -55,6 +58,6 @@
 	transition: color 0.2s;
 }
 
-.btn-back:hover {
+.rv-premium-skin .btn-back:hover {
 	color: #3182ce;
 }
