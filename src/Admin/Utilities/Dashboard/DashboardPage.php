@@ -293,13 +293,11 @@ final class DashboardPage {
 				// Licence gates for the Pro quick actions, so the dashboard does not
 				// link to inaccessible Pro pages on an unlicensed site. Keys match the
 				// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
-				'caps'                         => array(
-					'transfer' => \MHMRentiva\Admin\Licensing\Mode::isPro(),
-					'reports'  => \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports(),
-					'vendors'  => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
-					'messages' => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
-					'export'   => \MHMRentiva\Admin\Licensing\Mode::canUseExport(),
-				),
+				// Lite ships no keys at all -- a subscriber (Pro) supplies transfer/
+				// reports/vendors/messages/export; QuickActions.jsx already reads
+				// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
+				// key behaves identically to an explicit `false`.
+				'caps'                         => apply_filters( 'mhm_rentiva_dashboard_features', array() ),
 			)
 		);
 	}

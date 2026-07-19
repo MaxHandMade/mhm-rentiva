@@ -200,26 +200,22 @@ final class DashboardDataProvider {
 	}
 
 	/**
-	 * Resolve a vendor-scoped operational metric (occupancy_rate, cancellation_rate)
-	 * from the ledger-backed AnalyticsService.
+	 * Resolve a vendor-scoped operational metric (occupancy_rate, cancellation_rate).
 	 *
-	 * AnalyticsService is a Pro seam, so the call is guarded: without Pro these
-	 * KPIs report '0%' rather than fataling the whole dashboard. Both KPIs are only
-	 * wired under the 'vendor' context (DashboardConfig::get_kpis), which a Lite
-	 * install cannot reach anyway — the guard is defence-in-depth for the
-	 * Pro→Lite downgrade case, where vendor-role users already exist in the DB.
+	 * Both KPIs are only wired under the 'vendor' context (DashboardConfig::get_kpis),
+	 * which a Lite install cannot reach anyway — the empty default is defence-in-depth
+	 * for the Pro→Lite downgrade case, where vendor-role users already exist in the
+	 * DB. A subscriber (Pro) supplies the ledger-backed metrics map; Lite's own
+	 * default is an empty array, which the `?? 0` fallback below turns into '0%',
+	 * identically to the pre-inversion "no metrics" case.
 	 *
 	 * @return array<string, string>
 	 */
 	private static function resolve_vendor_operational_metric(string $metric_key, int $user_id): array
 	{
-		if (! class_exists('\MHMRentiva\Core\Financial\AnalyticsService')) {
-			return array( 'total' => '0%' );
-		}
-
 		$now_ts  = time();
 		$from_ts = $now_ts - ( 30 * DAY_IN_SECONDS );
-		$metrics = \MHMRentiva\Core\Financial\AnalyticsService::get_vendor_operational_metrics($user_id, $from_ts, $now_ts);
+		$metrics = apply_filters('mhm_rentiva_dashboard_vendor_metrics', array(), $user_id, $from_ts, $now_ts);
 
 		return array( 'total' => (string) ( $metrics[ $metric_key ] ?? 0 ) . '%' );
 	}

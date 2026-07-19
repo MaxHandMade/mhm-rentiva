@@ -81,4 +81,44 @@ class DashboardDataProviderTest extends TestCase
         $this->assertContains($fakeData['direction'], array('up', 'down', 'neutral'));
         $this->assertSame('up', $fakeData['direction']);
     }
+
+    /**
+     * Task A5a seam inversion: the ledger-backed operational metrics
+     * (occupancy_rate, cancellation_rate) come from
+     * `apply_filters('mhm_rentiva_dashboard_vendor_metrics', [], ...)`. Lite's
+     * own default is an empty array, which the `?? 0` fallback in
+     * DashboardDataProvider::resolve_vendor_operational_metric() turns into
+     * '0%' -- identical to the pre-inversion "AnalyticsService class absent" case.
+     */
+    public function test_vendor_operational_metrics_default_to_zero_percent_without_a_subscriber(): void
+    {
+        remove_all_filters('mhm_rentiva_dashboard_vendor_metrics');
+
+        $data = DashboardDataProvider::build('vendor', 999999, 'nobody@example.com');
+
+        $this->assertSame('0%', $data['kpi_data']['occupancy_rate']['total'] ?? null);
+        $this->assertSame('0%', $data['kpi_data']['cancellation_rate']['total'] ?? null);
+    }
+
+    /**
+     * A subscriber (Pro) can supply the metrics map; the filter's return value
+     * flows straight through to the KPI's 'total'.
+     */
+    public function test_a_subscriber_can_supply_vendor_operational_metrics(): void
+    {
+        remove_all_filters('mhm_rentiva_dashboard_vendor_metrics');
+        add_filter('mhm_rentiva_dashboard_vendor_metrics', static function () {
+            return array(
+                'occupancy_rate'    => 77,
+                'cancellation_rate' => 3,
+            );
+        });
+
+        $data = DashboardDataProvider::build('vendor', 999999, 'nobody@example.com');
+
+        $this->assertSame('77%', $data['kpi_data']['occupancy_rate']['total'] ?? null);
+        $this->assertSame('3%', $data['kpi_data']['cancellation_rate']['total'] ?? null);
+
+        remove_all_filters('mhm_rentiva_dashboard_vendor_metrics');
+    }
 }
