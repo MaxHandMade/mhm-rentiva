@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Unit\Licensing;
 
-use MHMRentiva\Admin\Core\ShortcodeServiceProvider;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration;
 use MHMRentiva\Admin\Licensing\Mode;
-use ReflectionClass;
 use ReflectionMethod;
 use WP_UnitTestCase;
 
@@ -47,7 +45,6 @@ use WP_UnitTestCase;
  * customer whose licence grants `messaging` but not the whole edition. The default
  * prevents a leak; this test prevents the silent mis-gate.
  *
- * @covers \MHMRentiva\Admin\Core\ShortcodeServiceProvider::get_shortcode_registry
  * @covers \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::pro_widget_classes
  */
 final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
@@ -74,48 +71,14 @@ final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
         'export',
     );
 
-    /**
-     * @return array<string, mixed>
-     */
-    private function shortcode_registry(): array
-    {
-        // The RAW table on purpose: get_shortcode_registry() returns it with the
-        // seams already dropped, so auditing that would scan an empty set and pass
-        // vacuously -- which the premise guard below caught when this test was
-        // first written against it.
-        $provider = ( new ReflectionClass(ShortcodeServiceProvider::class) )->newInstanceWithoutConstructor();
-        $method   = new ReflectionMethod(ShortcodeServiceProvider::class, 'get_raw_shortcode_registry');
-        $method->setAccessible(true);
-
-        return (array) $method->invoke($provider);
-    }
-
-    public function test_every_shortcode_seam_declares_a_known_feature(): void
-    {
-        $offenders = array();
-        $seams     = 0;
-
-        foreach ($this->shortcode_registry() as $group => $shortcodes) {
-            foreach ((array) $shortcodes as $tag => $config) {
-                if (empty($config['pro_seam'])) {
-                    continue;
-                }
-                ++$seams;
-
-                $feature = $config['pro_feature'] ?? null;
-                if (null === $feature) {
-                    $offenders[] = sprintf('%s (group %s): no pro_feature -- would register unlicensed', $tag, $group);
-                    continue;
-                }
-                if (! in_array((string) $feature, self::KNOWN_FEATURES, true)) {
-                    $offenders[] = sprintf('%s (group %s): unknown pro_feature "%s"', $tag, $group, (string) $feature);
-                }
-            }
-        }
-
-        $this->assertGreaterThan(0, $seams, 'Premise failed: no pro_seam entries found -- the scan read nothing.');
-        $this->assertSame(array(), $offenders, "Shortcode seams that are not gated:\n" . implode("\n", $offenders));
-    }
+    // ShortcodeServiceProvider's own pro_seam declarations were removed by the
+    // `mhm_rentiva_shortcodes` seam inversion: Lite's get_raw_shortcode_registry()
+    // carries zero Pro entries now (they moved to Pro's own ShortcodeExtensions
+    // filter subscriber, gated via \MHMRentiva\Pro\Edition, not
+    // Mode/pro_seam/pro_feature). A shortcode seam feature-key audit therefore
+    // belongs in Pro's own suite going forward -- there is nothing left to scan
+    // here. See mhm-rentiva/tests/Unit/Core/ShortcodeRegistryFilterTest.php and
+    // mhm-rentiva-pro/tests/Integration/Pro/ShortcodeExtensionsTest.php.
 
     // BlockRegistry's own pro_seam declarations were removed by the
     // `mhm_rentiva_blocks` seam inversion: Lite's self::$blocks carries zero Pro

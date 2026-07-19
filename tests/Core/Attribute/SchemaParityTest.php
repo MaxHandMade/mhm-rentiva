@@ -28,7 +28,7 @@ class SchemaParityTest extends WP_UnitTestCase
     {
         $service_provider = ShortcodeServiceProvider::instance();
         $reflection       = new ReflectionClass($service_provider);
-        $method           = $reflection->getMethod('get_shortcode_registry');
+        $method           = $reflection->getMethod('get_registry');
         $method->setAccessible(true);
         $registry = $method->invoke($service_provider);
 
