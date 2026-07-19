@@ -161,72 +161,26 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Ensure datepicker assets are loaded via centralized helper
 		DatepickerAssets::enqueue();
 
-		// Fetch Routes for Frontend Filtering
-		$routes = self::get_all_routes();
-
-		// Consolidate Localize script with combined data
-		// We use 'rentiva_transfer_nonce' because it's what TransferShortcodes AJAX handler expects.
+		// Consolidate Localize script with combined data.
+		// ajaxUrl/nonce('rentiva_transfer_nonce')/routes/i18n (same_location_error,
+		// no_route_error, searching_text, error_text, server_error) were dropped:
+		// they fed the TransferShortcodes AJAX handler and route-validation table,
+		// neither of which Lite ships (Task A10 -- transfer is a separate Pro
+		// shortcode/block). Nothing in unified-search.js reads them.
 		wp_localize_script(
 			'mhm-rentiva-unified-search',
 			'mhmUnifiedSearch',
 			array(
-				'ajaxUrl'         => admin_url('admin-ajax.php'),
 				'restUrl'         => get_rest_url(null, 'mhm-rentiva/v1/locations'),
-				'nonce'           => wp_create_nonce('rentiva_transfer_nonce'),
 				'restNonce'       => wp_create_nonce('wp_rest'),
 				'initial_service' => $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental',
-				'routes'          => $routes,
 				'settings'        => array(
 					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_min_rental_days', 1),
 					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1),
 				),
-				'i18n'            => array(
-					'same_location_error' => __('Pick-up and Drop-off locations cannot be the same.', 'mhm-rentiva'),
-					'no_route_error'      => __('No transfer route available between selected locations.', 'mhm-rentiva'),
-					'searching_text'      => __('Searching...', 'mhm-rentiva'),
-					'error_text'          => __('An error occurred. Please try again.', 'mhm-rentiva'),
-					'server_error'        => __('Server communication error!', 'mhm-rentiva'),
-				),
 			)
 		);
 	}
-
-	/**
-	 * Helper to get all routes for frontend validation
-	 *
-	 * @return array
-	 */
-	private static function get_all_routes(): array
-	{
-		static $routes_cache = null;
-		if (null !== $routes_cache) {
-			return $routes_cache;
-		}
-
-		global $wpdb;
-		$table_routes = $wpdb->prefix . 'rentiva_transfer_routes';
-		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_routes));
-		if ($table_exists !== $table_routes) {
-			$table_routes = $wpdb->prefix . 'mhm_rentiva_transfer_routes';
-		}
-
-		// Check if table exists before querying
-		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_routes));
-		if ($table_exists !== $table_routes) {
-			$routes_cache = array();
-			return $routes_cache;
-		}
-
-		$query = "SELECT origin_id, destination_id FROM {$table_routes}";
-
-		// %i identifier placeholder is used for dynamic table names.
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name verified via SHOW TABLES above; no user input in query.
-		$results      = $wpdb->get_results($query);
-		$routes_cache = is_array($results) ? $results : array();
-
-		return $routes_cache;
-	}
-
 
 	/**
 	 * Resolve attribute value: If 'default', fetch from Global Settings.

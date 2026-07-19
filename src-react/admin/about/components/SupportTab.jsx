@@ -21,9 +21,6 @@ export default function SupportTab( { data } ) {
 					<p>{ __( 'Contact us for your questions.', 'mhm-rentiva' ) }</p>
 					<div className="mhm-support-links">
 						<a href={ data.links.contact_form } target="_blank" rel="noreferrer" className="button button-primary">{ __( 'Contact Form', 'mhm-rentiva' ) }</a>
-						{ data.is_pro && (
-							<a href={ `mailto:${ data.support_email }` } className="button button-secondary">{ __( 'Priority Support', 'mhm-rentiva' ) }</a>
-						) }
 					</div>
 					<div className="mhm-contact-info">
 						<p><strong>{ __( 'Email:', 'mhm-rentiva' ) }</strong> { data.support_email }</p>
