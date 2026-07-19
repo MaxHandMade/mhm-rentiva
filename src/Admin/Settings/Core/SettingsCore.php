@@ -134,11 +134,14 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			'MHMRentiva\Admin\Settings\Groups\LicenseSettings',
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
-			'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
 			\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
+
+		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// names the Transfer / Vendor-Marketplace settings-group classes here.
+		// Pro adds its own group class(es) back via this filter.
+		$groups = (array) apply_filters( 'mhm_rentiva_settings_groups', $groups );
 
 		foreach ($groups as $group) {
 			if (class_exists($group) && method_exists($group, 'register')) {
@@ -406,8 +409,6 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
-			'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
@@ -417,6 +418,13 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);
+
+		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// names the Transfer / Vendor-Marketplace settings-group classes here.
+		// Pro adds its own group class(es) back via this filter (same filter as
+		// register_sub_groups() above -- both lists carried the same two
+		// Pro classes before the carve).
+		$sub_modules = (array) apply_filters( 'mhm_rentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {
 			if (class_exists($module) && method_exists($module, 'get_default_settings')) {

@@ -48,15 +48,16 @@ final class SettingsService {
 			'booking'  => \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
 			'customer' => \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			'email'    => \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-			// Pro seam (absent in Lite): a plain class-string, not ::class, so the
-			// name survives the carve. The class_exists() below already gates use.
-			'messages' => 'MHMRentiva\Admin\Messages\Settings\MessagesSettings',
 			'frontend' => \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
-			'transfer' => 'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			'vendor-marketplace' => 'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
+			// Pro-owned tabs (Task A6b seam inversion): Lite no longer names these
+			// classes. Pro registers its provider class for each via the existing
+			// `mhm_rentiva_register_settings_providers` action (Settings::init()),
+			// and this reads that same registry -- returns null with no subscriber,
+			// exactly like every other unregistered tab below.
+			'transfer', 'vendor-marketplace', 'messages' => \MHMRentiva\Admin\Settings\Settings::get_provider( $target_tab ),
 			default    => null,
 		};
 
@@ -192,11 +193,15 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 		);
+
+		// Pro-owned providers that also write to the master option (Task A6b
+		// seam inversion): Lite no longer names the Transfer settings-group
+		// class here. Pro adds its own provider class(es) back via this filter.
+		$provider_classes = (array) apply_filters( 'mhm_rentiva_settings_activation_providers', $provider_classes );
 
 		$defaults = array();
 		foreach ( $provider_classes as $class ) {

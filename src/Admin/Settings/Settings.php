@@ -72,8 +72,10 @@ final class Settings {
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
 		self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
 		self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
-		self::register_provider('vendor-marketplace', 'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings');
 		self::register_provider('security', \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class);
+		// 'vendor-marketplace' (Pro) is no longer hardcoded here (Task A6b seam
+		// inversion) -- Pro registers it via the do_action() below, the same
+		// extension point it already had.
 
 		// Allow third-party extensions to register providers
 		do_action('mhm_rentiva_register_settings_providers');
@@ -90,6 +92,24 @@ final class Settings {
 		if (class_exists($class_name) && method_exists($class_name, 'get_default_settings')) {
 			self::$providers[ $tab ] = $class_name;
 		}
+	}
+
+	/**
+	 * Look up a previously-registered provider class for a tab, if any.
+	 *
+	 * Used by SettingsService::match() (Task A6b seam inversion) to resolve
+	 * the provider class for the Pro-owned tabs (transfer/vendor-marketplace/
+	 * messages) Lite no longer hardcodes by name -- Pro registers its class
+	 * via the existing `mhm_rentiva_register_settings_providers` action
+	 * (see self::init()), and this reads that same registry instead of a
+	 * second, parallel extension point.
+	 *
+	 * @param string $tab Tab slug.
+	 * @return string|null Registered class name, or null if nothing registered.
+	 */
+	public static function get_provider(string $tab): ?string
+	{
+		return self::$providers[ $tab ] ?? null;
 	}
 
 	/**
