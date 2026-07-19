@@ -9,8 +9,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Emails\Templates\BookingNotifications;
 use MHMRentiva\Admin\Emails\Templates\RefundEmails;
-use MHMRentiva\Admin\Emails\Templates\MessageEmails;
-use MHMRentiva\Admin\Emails\Templates\VendorEmails;
 use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
 
@@ -164,12 +162,16 @@ final class EmailTemplates {
 			BookingNotifications::render();
 		} elseif ($current_type === 'refund_emails') {
 			RefundEmails::render();
-		} elseif ($current_type === 'message_emails') {
-			MessageEmails::render();
-		} elseif ($current_type === 'vendor_emails' && class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
-			VendorEmails::render();
 		} elseif ($current_type === 'preview') {
 			EmailPreview::render();
+		} else {
+			/**
+			 * Neutral seam for any email-type tab Lite does not own (e.g. Pro's
+			 * message_emails/vendor_emails). Pro renders its own tabs here.
+			 *
+			 * @param string $current_type The active email-type tab key.
+			 */
+			do_action('mhm_rentiva_render_email_type', $current_type);
 		}
 
 		submit_button(__('Save Changes', 'mhm-rentiva'));
@@ -241,12 +243,17 @@ final class EmailTemplates {
 				BookingNotifications::render();
 			} elseif ($current_type === 'refund_emails') {
 				RefundEmails::render();
-			} elseif ($current_type === 'message_emails') {
-				MessageEmails::render();
-			} elseif ($current_type === 'vendor_emails' && class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
-				VendorEmails::render();
 			} elseif ($current_type === 'preview') {
 				EmailPreview::render();
+			} else {
+				/**
+				 * Neutral seam for any email-type tab Lite does not own (e.g.
+				 * Pro's message_emails/vendor_emails). Pro renders its own tabs
+				 * here.
+				 *
+				 * @param string $current_type The active email-type tab key.
+				 */
+				do_action('mhm_rentiva_render_email_type', $current_type);
 			}
 			?>
 		</div>
@@ -311,10 +318,14 @@ final class EmailTemplates {
 			self::save_booking_notifications();
 		} elseif ($current_tab === 'refund_emails') {
 			self::save_refund_emails();
-		} elseif ($current_tab === 'message_emails') {
-			self::save_message_emails();
-		} elseif ($current_tab === 'vendor_emails') {
-			self::save_vendor_emails();
+		} else {
+			/**
+			 * Neutral seam for any email-type tab Lite does not own (e.g. Pro's
+			 * message_emails/vendor_emails). Pro saves its own tabs here.
+			 *
+			 * @param string $current_tab The active (already-validated) tab key.
+			 */
+			do_action('mhm_rentiva_save_email_type', $current_tab);
 		}
 
 		// Success message - success flag instead of redirect
@@ -380,37 +391,18 @@ final class EmailTemplates {
 		self::save_email_fields($fields);
 	}
 
-	private static function save_message_emails(): void
-	{
-		$fields = array(
-			'mhm_rentiva_message_received_admin_subject'   => 'text',
-			'mhm_rentiva_message_received_admin_body'      => 'html',
-			'mhm_rentiva_message_replied_customer_subject' => 'text',
-			'mhm_rentiva_message_replied_customer_body'    => 'html',
-			'mhm_rentiva_message_auto_reply_subject'       => 'text',
-			'mhm_rentiva_message_auto_reply_body'          => 'html',
-		);
-
-		self::save_email_fields($fields);
-	}
-
 	/**
 	 * Tabs for the email-templates screen.
 	 *
-	 * The Vendor Notifications tab is only offered when its renderer is present:
-	 * VendorEmails is a Pro seam, so in Lite the tab would render a fatal instead
-	 * of a page. Both callers fall back to 'booking_notifications' for an
-	 * unknown $current_type, so dropping the key here also makes the
-	 * `$current_type === 'vendor_emails'` render branch unreachable.
-	 *
-	 * Message Notifications is gated the same way, but on the Pro class that SENDS
-	 * those emails rather than on the one that renders the form: MessageEmails
-	 * ships in Lite (so gating on it would never be false) while the Messages
-	 * module that sends the mail does not. The tab was therefore a settings form
-	 * for notifications Lite can never emit.
+	 * Lite owns three tabs: Booking Notifications, Refund Emails and Email
+	 * Preview. Any other tab -- currently Pro's Message Notifications and
+	 * Vendor Notifications -- is contributed through the
+	 * `mhm_rentiva_email_types` filter, so Lite never names a Pro class here.
 	 *
 	 * This list is also what save_email_templates() validates its POSTed
-	 * `current_tab` against, so a dropped key closes the save handler too.
+	 * `current_tab` against, so a Pro tab not being contributed (e.g. Pro not
+	 * installed, or installed but not registering) also closes the save
+	 * handler for it.
 	 *
 	 * @return array<string, string>
 	 */
@@ -421,76 +413,17 @@ final class EmailTemplates {
 			'refund_emails'         => __('Refund Emails', 'mhm-rentiva'),
 		);
 
-		// Message Notifications — gated on the Pro class that actually SENDS these
-		// emails, not on the template renderer: MessageEmails ships in Lite, so
-		// gating on it would never be false. Without the Messages module nothing can
-		// send a message notification, making this tab a settings form for mail that
-		// can never leave. Dropping the key here also makes the
-		// `$current_type === 'message_emails'` render/save branches unreachable, the
-		// same way the vendor tab below works.
-		if (class_exists('\MHMRentiva\Admin\Messages\Notifications\MessageNotifications')) {
-			$email_types['message_emails'] = __('Message Notifications', 'mhm-rentiva');
-		}
-
-		if (class_exists('\MHMRentiva\Admin\Emails\Templates\VendorEmails')) {
-			$email_types['vendor_emails'] = __('Vendor Notifications', 'mhm-rentiva');
-		}
+		/**
+		 * Let Pro (or any other extension) add its own email-type tabs before
+		 * the Preview tab -- e.g. message_emails, vendor_emails.
+		 *
+		 * @param array<string, string> $email_types Lite's own tabs so far, keyed by type.
+		 */
+		$email_types = apply_filters('mhm_rentiva_email_types', $email_types);
 
 		$email_types['preview'] = __('Email Preview', 'mhm-rentiva');
 
 		return $email_types;
-	}
-
-	private static function save_vendor_emails(): void
-	{
-		$fields = array(
-			'mhm_rentiva_vendor_approved_subject'          => 'text',
-			'mhm_rentiva_vendor_approved_body'             => 'html',
-			'mhm_rentiva_vendor_rejected_subject'          => 'text',
-			'mhm_rentiva_vendor_rejected_body'             => 'html',
-			'mhm_rentiva_vendor_suspended_subject'         => 'text',
-			'mhm_rentiva_vendor_suspended_body'            => 'html',
-			'mhm_rentiva_vendor_application_received_subject' => 'text',
-			'mhm_rentiva_vendor_application_received_body' => 'html',
-			'mhm_rentiva_vendor_application_new_admin_subject' => 'text',
-			'mhm_rentiva_vendor_application_new_admin_body' => 'html',
-			'mhm_rentiva_vehicle_approved_subject'         => 'text',
-			'mhm_rentiva_vehicle_approved_body'            => 'html',
-			'mhm_rentiva_vehicle_rejected_subject'         => 'text',
-			'mhm_rentiva_vehicle_rejected_body'            => 'html',
-			'mhm_rentiva_vehicle_submitted_admin_subject'  => 'text',
-			'mhm_rentiva_vehicle_submitted_admin_body'     => 'html',
-			'mhm_rentiva_vehicle_rereview_admin_subject'   => 'text',
-			'mhm_rentiva_vehicle_rereview_admin_body'      => 'html',
-			'mhm_rentiva_vehicle_activated_subject'        => 'text',
-			'mhm_rentiva_vehicle_activated_body'           => 'html',
-			'mhm_rentiva_vehicle_paused_subject'           => 'text',
-			'mhm_rentiva_vehicle_paused_body'              => 'html',
-			'mhm_rentiva_vehicle_resumed_subject'          => 'text',
-			'mhm_rentiva_vehicle_resumed_body'             => 'html',
-			'mhm_rentiva_vehicle_expired_subject'          => 'text',
-			'mhm_rentiva_vehicle_expired_body'             => 'html',
-			'mhm_rentiva_vehicle_withdrawn_subject'        => 'text',
-			'mhm_rentiva_vehicle_withdrawn_body'           => 'html',
-			'mhm_rentiva_vehicle_renewed_subject'          => 'text',
-			'mhm_rentiva_vehicle_renewed_body'             => 'html',
-			'mhm_rentiva_vehicle_relisted_subject'         => 'text',
-			'mhm_rentiva_vehicle_relisted_body'            => 'html',
-			'mhm_rentiva_vehicle_expiry_warning_first_subject' => 'text',
-			'mhm_rentiva_vehicle_expiry_warning_first_body' => 'html',
-			'mhm_rentiva_vehicle_expiry_warning_second_subject' => 'text',
-			'mhm_rentiva_vehicle_expiry_warning_second_body' => 'html',
-			'mhm_rentiva_payout_approved_subject'          => 'text',
-			'mhm_rentiva_payout_approved_body'             => 'html',
-			'mhm_rentiva_payout_rejected_subject'          => 'text',
-			'mhm_rentiva_payout_rejected_body'             => 'html',
-			'mhm_rentiva_iban_change_approved_subject'     => 'text',
-			'mhm_rentiva_iban_change_approved_body'        => 'html',
-			'mhm_rentiva_iban_change_rejected_subject'     => 'text',
-			'mhm_rentiva_iban_change_rejected_body'        => 'html',
-		);
-
-		self::save_email_fields($fields);
 	}
 
 	/**
