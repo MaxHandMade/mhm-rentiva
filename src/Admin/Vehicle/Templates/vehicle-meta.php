@@ -43,7 +43,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 
 				<!-- Vehicle Location (Added for Hybrid Integration) -->
-				<?php // No locations = Location is not available (Transfer/Pro feature); hide the field rather than offer only "Inherit". ?>
+				<?php // No locations = Location is not available (Transfer is provided by the add-on); hide the field rather than offer only "Inherit". ?>
 				<?php if ( ! empty( $available_locations ) ) : ?>
 					<div class="mhm-detail-item vehicle-location" data-detail-key="location">
 						<div class="mhm-detail-content">

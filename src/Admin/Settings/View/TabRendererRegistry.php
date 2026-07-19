@@ -107,8 +107,8 @@ final class TabRendererRegistry {
 			)
 		);
 
-		// Vendor Marketplace — Pro seam inversion (Task A6): Lite no longer
-		// registers this renderer itself. Pro's SettingsExtensions registers it
+		// Vendor Marketplace — extension-point inversion (Task A6): Lite no longer
+		// registers this renderer itself. The add-on's SettingsExtensions registers it
 		// via the `mhm_rentiva_settings_register_renderers` action below.
 
 		$this->register(
@@ -177,8 +177,8 @@ final class TabRendererRegistry {
 			}
 		);
 
-		// Messages — Pro seam inversion (Task A6): Lite no longer registers this
-		// renderer itself. Pro's SettingsExtensions registers it via the
+		// Messages — extension-point inversion (Task A6): Lite no longer registers this
+		// renderer itself. The add-on's SettingsExtensions registers it via the
 		// `mhm_rentiva_settings_register_renderers` action below.
 
 		// System
@@ -208,8 +208,8 @@ final class TabRendererRegistry {
 		// Utilities
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
-		// Transfer's tab renderer — Pro seam inversion (Task A6): Lite no longer
-		// registers this renderer itself. Pro's SettingsExtensions registers it via
+		// Transfer's tab renderer — extension-point inversion (Task A6): Lite no longer
+		// registers this renderer itself. The add-on's SettingsExtensions registers it via
 		// the `mhm_rentiva_settings_register_renderers` action below.
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
 

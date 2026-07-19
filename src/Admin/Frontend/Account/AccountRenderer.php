@@ -242,8 +242,8 @@ final class AccountRenderer {
 	 */
 	public static function get_messages_data(array $atts = array()): array
 	{
-		// Messaging is a Pro feature. When it is absent this renders NOTHING at all:
-		// no notice, no placeholder, no mention of Pro (owner decision 2026-07-16 --
+		// Messaging is provided by the add-on. When it is absent this renders NOTHING at all:
+		// no notice, no placeholder, no mention of the add-on (owner decision 2026-07-16 --
 		// a feature Lite does not have simply does not render). The empty 'error'
 		// keeps the caller's existing short-circuit, which is shared with the
 		// booking-detail path and must stay intact. The decision now comes from

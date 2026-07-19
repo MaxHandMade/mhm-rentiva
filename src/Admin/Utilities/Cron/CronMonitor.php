@@ -167,7 +167,7 @@ final class CronMonitor {
 		}
 
 		// Check if hook is a plugin hook. Task A9c seam inversion: the two
-		// Pro-only licensing hooks used to be hardcoded here; Pro now adds
+		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
 		// them back via this filter --
 		// see \MHMRentiva\Pro\Extensions\CronExtensions::filter_known_cron_hooks().
 		$plugin_hooks = (array) apply_filters(

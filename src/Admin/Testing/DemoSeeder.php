@@ -405,7 +405,7 @@ final class DemoSeeder {
         }
 
         // Transfer Locations & Routes: targeted cleanup based on seeded demo names.
-        // Transfer tables are absent in Lite (locations are a Pro feature), so only
+        // Transfer tables are absent in Lite (locations are provided by the add-on), so only
         // purge them when they actually exist — same pattern as wc_customer_lookup.
         if ($wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $loc_table))) {
             $wpdb->query(

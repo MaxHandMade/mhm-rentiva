@@ -103,8 +103,8 @@ final class WooCommerceIntegration {
 	 * Build the WooCommerce My Account nav items Rentiva contributes.
 	 *
 	 * Lite supplies only its own tabs (bookings, favorites, payment_history).
-	 * The messages tab and the vendor tab(s) are Pro seams: Pro's
-	 * AccountExtensions subscribes to `mhm_rentiva_account_nav_items` to add
+	 * The messages tab and the vendor tab(s) are extension points filled by
+	 * the add-on: its AccountExtensions subscribes to `mhm_rentiva_account_nav_items` to add
 	 * them back, including the active-vendor "Vendor Panel" vs.
 	 * "Become a Vendor" branching this method used to do inline (Task A8a
 	 * seam inversion). Lite no longer names the deleted mode-routing class's
@@ -265,8 +265,8 @@ final class WooCommerceIntegration {
 	 * Shows the vendor application form, or a status message depending on user state.
 	 */
 	public static function render_vendor_apply(): void {
-		// Vendor marketplace is a Pro feature. When it is absent this renders NOTHING
-		// at all -- no notice, no mention of Pro (owner decision 2026-07-16). The
+		// Vendor marketplace is provided by the add-on. When it is absent this renders NOTHING
+		// at all -- no notice, no mention of the add-on (owner decision 2026-07-16). The
 		// My Account menu already omits this endpoint's link in that case, so the
 		// only way here is a hand-typed URL. The guard defers to the same
 		// `mhm_rentiva_account_nav_items` filter that decides whether the tab is

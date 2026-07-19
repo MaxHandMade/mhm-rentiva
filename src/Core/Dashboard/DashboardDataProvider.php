@@ -36,8 +36,9 @@ final class DashboardDataProvider {
 		}
 
 		// Vendor-only: build analytics data (ledger-only, deferred — not called for customers).
-		// AnalyticsDashboardDataProvider is a Pro seam (it reads the ledger), so the
-		// guard keeps this core provider loadable when Pro is absent; consumers
+		// AnalyticsDashboardDataProvider is an extension point filled by the add-on
+		// (it reads the ledger), so the guard keeps this core provider loadable
+		// when the add-on is absent; consumers
 		// already treat an empty 'analytics' array as "no analytics".
 		$analytics = array();
 		if ($context === 'vendor' && $user_id > 0

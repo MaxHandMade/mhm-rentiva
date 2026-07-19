@@ -47,7 +47,7 @@ final class SettingsTester {
 			'security_performance_functional' => self::test_security_performance_functional(),
 		);
 
-		// Transfer is a Pro module and its tables are deliberately absent without it
+		// Transfer is an add-on module and its tables are deliberately absent without it
 		// (locations are not a Lite feature). Running the group anyway would report
 		// the missing tables as FAILING tests on a perfectly healthy Lite site, so
 		// the group is skipped rather than reported red.

@@ -109,9 +109,7 @@ final class Uninstaller {
 		$crons        = _get_cron_array();
 		$plugin_crons = array(
 			'mhm_rentiva_auto_cancel_event',
-			'mhm_data_retention_cleanup',
 			'mhm_send_scheduled_notifications',
-			'mhm_rentiva_license_daily',
 			'mhm_email_log_retention',
 			'mhm_log_retention',
 		);
@@ -292,10 +290,7 @@ final class Uninstaller {
 		// 6. Clear all cron jobs
 		$plugin_crons = array(
 			'mhm_rentiva_auto_cancel_event',
-
-			'mhm_data_retention_cleanup',
 			'mhm_send_scheduled_notifications',
-			'mhm_rentiva_license_daily',
 			'mhm_email_log_retention',
 			'mhm_log_retention',
 		);
