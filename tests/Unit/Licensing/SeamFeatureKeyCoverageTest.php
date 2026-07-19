@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Unit\Licensing;
 
-use MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration;
 use MHMRentiva\Admin\Licensing\Mode;
-use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
@@ -45,31 +43,9 @@ use WP_UnitTestCase;
  * customer whose licence grants `messaging` but not the whole edition. The default
  * prevents a leak; this test prevents the silent mis-gate.
  *
- * @covers \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::pro_widget_classes
  */
 final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
 {
-
-    /**
-     * Feature keys Mode actually routes. A typo'd key is worse than a missing one:
-     * LicenseManager::canUse() would simply never grant it, closing the feature for
-     * a paying customer with no error anywhere.
-     *
-     * Mirrors FeatureTokenIssuer::featuresFor() on the licence server, plus 'pro'
-     * for whole-edition seams.
-     *
-     * @var array<int, string>
-     */
-    private const KNOWN_FEATURES = array(
-        'pro',
-        'vendor_marketplace',
-        'advanced_reports',
-        'messaging',
-        'full_rest_api',
-        'gdpr_tools',
-        'custom_emails',
-        'export',
-    );
 
     // ShortcodeServiceProvider's own pro_seam declarations were removed by the
     // `mhm_rentiva_shortcodes` seam inversion: Lite's get_raw_shortcode_registry()
@@ -89,27 +65,15 @@ final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
     // mhm-rentiva/tests/Unit/Blocks/BlockRegistryFilterTest.php and
     // mhm-rentiva-pro/tests/Integration/Pro/BlockExtensionsTest.php.
 
-    public function test_every_elementor_pro_widget_declares_a_known_feature(): void
-    {
-        $method = new ReflectionMethod(ElementorIntegration::class, 'pro_widget_classes');
-        $method->setAccessible(true);
-
-        $offenders = array();
-        $widgets   = (array) $method->invoke(null);
-
-        foreach ($widgets as $class => $feature) {
-            if (null === $feature) {
-                $offenders[] = sprintf('%s: null feature -- would register unlicensed', (string) $class);
-                continue;
-            }
-            if (! in_array((string) $feature, self::KNOWN_FEATURES, true)) {
-                $offenders[] = sprintf('%s: unknown feature "%s"', (string) $class, (string) $feature);
-            }
-        }
-
-        $this->assertNotSame(array(), $widgets, 'Premise failed: no Pro widgets found -- the scan read nothing.');
-        $this->assertSame(array(), $offenders, "Elementor Pro widgets that are not gated:\n" . implode("\n", $offenders));
-    }
+    // ElementorIntegration's own pro_widget_classes()/allowsSeam() gating was
+    // removed by the `mhm_rentiva_elementor_widgets` seam inversion: Lite's
+    // get_widget_classes() carries zero Pro entries now (they moved to Pro's own
+    // ElementorExtensions filter subscriber, gated via \MHMRentiva\Pro\Edition,
+    // not Mode/pro_widget_classes/allowsSeam). An Elementor widget seam
+    // feature-key audit therefore belongs in Pro's own suite going forward --
+    // there is nothing left to scan here. See
+    // mhm-rentiva/tests/Unit/Elementor/ElementorWidgetFilterTest.php and
+    // mhm-rentiva-pro/tests/Integration/Pro/ElementorExtensionsTest.php.
 
     // The block-vs-shortcode feature-key agreement check (formerly
     // test_block_and_shortcode_registries_agree_on_each_shared_tag) was removed
