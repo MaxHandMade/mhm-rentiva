@@ -429,12 +429,10 @@ final class VehicleMeta extends AbstractMetaBox {
 			'detail_values'         => $detail_values,
 			'field_meta'            => $field_meta,
 			'location_id'           => get_post_meta($post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true),
-			// Locations are a Transfer (Pro) feature. Empty here hides the Location
-			// field in vehicle-meta.php; the save handler is isset()-guarded on the
-			// field, so an existing location_id survives untouched.
-			'available_locations'   => class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')
-				? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental')
-				: array(),
+			// Locations come from an add-on via the filter. Empty here hides the
+			// Location field in vehicle-meta.php; the save handler is isset()-guarded
+			// on the field, so an existing location_id survives untouched.
+			'available_locations'   => apply_filters('mhm_rentiva_locations', array(), 'rental'),
 		);
 	}
 

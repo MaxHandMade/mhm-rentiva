@@ -762,11 +762,8 @@ final class SearchResults extends AbstractShortcode {
         "
 		);
 
-		// Rental locations
-		$locations = array();
-		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
-			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
-		}
+		// Rental locations come from an add-on via the filter.
+		$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
 
 		$data = array(
 			'fuel_types'    => $fuel_types ?: array(),
