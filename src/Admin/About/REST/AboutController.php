@@ -10,7 +10,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 use MHMRentiva\Admin\About\Tabs\GeneralTab;
 use MHMRentiva\Admin\About\Tabs\SupportTab;
 use MHMRentiva\Admin\About\Tabs\SystemTab;
-use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 /**
@@ -63,7 +62,6 @@ final class AboutController {
 	private static function build_support(): array
 	{
 		return array(
-			'is_pro'        => Mode::isPro(),
 			'support_email' => 'support@wpalemi.com',
 			'phone'         => apply_filters( 'mhm_rentiva_contact_phone', self::CONTACT_PHONE ),
 			'links'         => array(

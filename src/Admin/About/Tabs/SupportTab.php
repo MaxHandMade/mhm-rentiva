@@ -13,7 +13,6 @@ if (! defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\About\Helpers;
 use MHMRentiva\Admin\Core\Tabs\AbstractTab;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
@@ -118,16 +117,6 @@ final class SupportTab extends AbstractTab {
 				array( 'class' => 'button button-primary' )
 			)
 		);
-
-		if (Mode::isPro()) {
-			echo wp_kses_post(
-				Helpers::render_external_link(
-					'mailto:' . $support_email,
-					esc_html__('Priority Support', 'mhm-rentiva'),
-					array( 'class' => 'button button-secondary' )
-				)
-			);
-		}
 
 		echo '<div class="contact-info">';
 		echo '<p><strong>' . esc_html__('Email:', 'mhm-rentiva') . '</strong> ' . esc_html($support_email) . '</p>';

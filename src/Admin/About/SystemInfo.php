@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Admin\Licensing\Mode;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
 
@@ -93,11 +92,10 @@ final class SystemInfo {
 	private static function get_plugin_info(): array
 	{
 		return array(
-			'version'        => \MHM_RENTIVA_VERSION,
-			'file_size'      => self::get_plugin_file_size(),
-			'install_date'   => get_option('mhm_rentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
-			'last_update'    => get_option('mhm_rentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
-			'license_status' => Mode::isPro() ? esc_html__('Pro Active', 'mhm-rentiva') : esc_html__('Lite Version', 'mhm-rentiva'),
+			'version'      => \MHM_RENTIVA_VERSION,
+			'file_size'    => self::get_plugin_file_size(),
+			'install_date' => get_option('mhm_rentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
+			'last_update'  => get_option('mhm_rentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
 		);
 	}
 

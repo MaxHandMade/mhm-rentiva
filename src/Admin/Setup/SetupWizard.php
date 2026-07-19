@@ -120,11 +120,9 @@ final class SetupWizard {
 		);
 
 		$title = sprintf(
-			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',
+			'%s <span class="version-badge">v%s</span>',
 			esc_html( (string) get_admin_page_title()),
-			esc_html(MHM_RENTIVA_VERSION),
-			\MHMRentiva\Admin\Licensing\Mode::isPro() ? 'pro' : 'lite',
-			\MHMRentiva\Admin\Licensing\Mode::isPro() ? esc_html__('Pro', 'mhm-rentiva') : esc_html__('Lite', 'mhm-rentiva')
+			esc_html(MHM_RENTIVA_VERSION)
 		);
 
 		echo '<div class="wrap mhm-setup-wrapper">';

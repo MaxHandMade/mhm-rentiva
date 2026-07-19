@@ -7,10 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Admin\Licensing\Mode;
-
-
-
 /**
  * About page main class
  */
@@ -84,11 +80,9 @@ final class About {
 		$support_email = 'support@wpalemi.com';
 
 		$title = sprintf(
-			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',
+			'%s <span class="version-badge">v%s</span>',
 			esc_html__( 'About MHM Rentiva', 'mhm-rentiva' ),
-			MHM_RENTIVA_VERSION,
-			Mode::isPro() ? 'pro' : 'lite',
-			Mode::isPro() ? esc_html__( 'Pro', 'mhm-rentiva' ) : esc_html__( 'Lite', 'mhm-rentiva' )
+			MHM_RENTIVA_VERSION
 		);
 		?>
 		<div class="wrap mhm-rentiva-about-wrap">
