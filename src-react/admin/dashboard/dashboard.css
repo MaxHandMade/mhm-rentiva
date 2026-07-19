@@ -38,6 +38,12 @@
 	align-items: start;
 }
 
+/* Row 3 without TransferWidget (Lite, no Pro subscriber -- Task A5b): let
+   RecentBookings take the full row instead of leaving an empty second column. */
+.mhm-dashboard__row--3-solo {
+	grid-template-columns: 1fr;
+}
+
 /* Bound the Chart.js canvas so maintainAspectRatio: false has a deterministic ceiling. */
 .mhm-revenue-chart canvas {
 	max-height: 250px;
