@@ -96,6 +96,9 @@ jobs:
       - name: Guarded-reference check (class_exists()/interface_exists() dead-ref guard)
         run: composer check-guarded-refs
 
+      - name: WP.org compliance oracle (zero edition/license/gating tokens)
+        run: composer check-no-pro-refs
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest

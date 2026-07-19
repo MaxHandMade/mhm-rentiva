@@ -356,6 +356,11 @@ bin/*
 # CI needs a canonical WP test-suite installer (tests/bootstrap.php references
 # it); Task 3 wires it into the phpunit CI job, so it must ship in every clone.
 !bin/install-wp-tests.sh
+# Quality-gate script: `composer check-no-pro-refs` / `composer carve-gates`
+# require it at runtime; it is the WP.org compliance oracle asserting Lite
+# ships zero edition/license/gating tokens, so it must ship in every clone
+# (Task A12).
+!bin/check-no-pro-refs.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

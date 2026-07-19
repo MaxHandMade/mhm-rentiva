@@ -333,11 +333,11 @@ if (! $user_display_name) {
 			<?php
 			// The vendor "Contact Administrator" panel is a Pro seam. This template is
 			// `include`d by Lite's own CustomerDashboard (a plain Lite path, not behind
-			// any class_exists() guard), so it must never name the licensing router
-			// directly -- doing so would fatal a Lite-only site once that router
+			// any class_exists() guard), so it must never name the removed mode-routing
+			// class directly -- doing so would fatal a Lite-only site once that
 			// class is deleted (Task A8a seam inversion, B2). Pro's AccountExtensions
-			// subscribes to this filter and returns the markup only when
-			// canUseVendorMarketplace() and $context is 'vendor'; Lite's own default
+			// subscribes to this filter and returns the markup only when the vendor
+			// marketplace is available and $context is 'vendor'; Lite's own default
 			// is the empty string, i.e. no panel at all.
 			$vendor_panel_html = (string) apply_filters('mhm_rentiva_account_vendor_panel', '', $context);
 			if ('' !== $vendor_panel_html) {

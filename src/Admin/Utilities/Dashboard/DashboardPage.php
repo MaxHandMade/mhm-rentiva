@@ -256,7 +256,7 @@ final class DashboardPage {
 		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
 		// subscriber (Pro's DashboardExtensions) adds `transfer_stats` /
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
-		// \MHMRentiva\Pro\Edition::isPro(). The React app already guards its
+		// the site is running Pro. The React app already guards its
 		// TransferWidget render on `transfer_stats` being truthy.
 		$data = apply_filters( 'mhm_rentiva_dashboard_localize', $data );
 

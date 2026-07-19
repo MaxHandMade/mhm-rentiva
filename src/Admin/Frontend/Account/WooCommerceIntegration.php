@@ -107,7 +107,7 @@ final class WooCommerceIntegration {
 	 * AccountExtensions subscribes to `mhm_rentiva_account_nav_items` to add
 	 * them back, including the active-vendor "Vendor Panel" vs.
 	 * "Become a Vendor" branching this method used to do inline (Task A8a
-	 * seam inversion). Lite no longer names the Licensing Mode router's
+	 * seam inversion). Lite no longer names the deleted mode-routing class's
 	 * messages or vendor-marketplace gates anywhere in this file.
 	 *
 	 * Also used as the single source of truth for the access/redirect guards
@@ -271,7 +271,7 @@ final class WooCommerceIntegration {
 		// only way here is a hand-typed URL. The guard defers to the same
 		// `mhm_rentiva_account_nav_items` filter that decides whether the tab is
 		// registered at all (Task A8a seam inversion) -- Lite no longer names
-		// the Licensing Mode router's vendor-marketplace gate.
+		// the deleted mode-routing class's vendor-marketplace gate.
 		$nav_items = self::get_account_nav_items();
 		if ( ! isset( $nav_items['vendor_apply'] ) ) {
 			return;
