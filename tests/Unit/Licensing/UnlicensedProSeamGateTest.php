@@ -6,7 +6,6 @@ namespace MHMRentiva\Tests\Unit\Licensing;
 
 use MHMRentiva\Admin\Core\ShortcodeServiceProvider;
 use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Blocks\BlockRegistry;
 use ReflectionClass;
 use WP_UnitTestCase;
 
@@ -32,7 +31,6 @@ use WP_UnitTestCase;
  * absent" honestly, and it is the only shape that fails when the gate is removed.
  *
  * @covers \MHMRentiva\Admin\Licensing\Mode::allowsSeam
- * @covers \MHMRentiva\Blocks\BlockRegistry::get_available_blocks
  * @covers \MHMRentiva\Admin\Core\ShortcodeServiceProvider::drop_absent_pro_seams
  */
 final class UnlicensedProSeamGateTest extends WP_UnitTestCase
@@ -66,72 +64,14 @@ final class UnlicensedProSeamGateTest extends WP_UnitTestCase
     }
 
     // -- BlockRegistry -------------------------------------------------------------
-
-    /**
-     * Mutation proof: revert BlockRegistry::get_available_blocks() to
-     * `class_exists($seam)` and this fails -- the stand-in class exists, so the
-     * unlicensed block would survive.
-     */
-    public function test_block_registry_drops_a_present_seam_that_the_licence_refuses(): void
-    {
-        $available = $this->available_blocks_for(
-            array(
-                'unlicensed-pro' => array( 'tag' => 'x', 'pro_seam' => self::PRESENT_CLASS, 'pro_feature' => 'pro' ),
-                'plain-free'     => array( 'tag' => 'y' ),
-            )
-        );
-
-        $this->assertArrayNotHasKey(
-            'unlicensed-pro',
-            $available,
-            'A block whose class ships but whose licence is absent must not register.'
-        );
-        // Positive control: a gate that dropped everything would satisfy the
-        // assertion above while breaking the plugin.
-        $this->assertArrayHasKey('plain-free', $available, 'A block with no seam must never be dropped.');
-    }
-
-    /**
-     * A `pro_seam` with no `pro_feature` FAILS CLOSED.
-     *
-     * This test used to assert the exact opposite -- that such a seam "keeps its
-     * historic presence-only behaviour" and stays registered. That was not a
-     * harmless default; it was the bug, pinned in place by a green test. A seam
-     * with no feature key routed to Mode::allowsSeam(null), which returns true by
-     * contract, so declaring something a Pro seam and forgetting its key GAVE IT
-     * AWAY. Six registry entries across the three registries shipped exactly that
-     * way (messages + the whole vendor group), and on a Pro-installed-but-
-     * unlicensed site they registered with their real renderers. Verified at
-     * runtime with isPro=false before the fix.
-     *
-     * The registries now default a keyless seam to 'pro', so the failure mode of a
-     * forgotten key is a closed feature rather than a free one.
-     *
-     * Note the scope: Mode::allowsSeam(null) still returns true -- that contract is
-     * unchanged and still covered above. What changed is that the REGISTRIES no
-     * longer pass null for a seam that declared itself Pro.
-     *
-     * Mutation proof: restore the `: null` default in get_available_blocks() and
-     * this fails -- the stand-in class exists, so the keyless seam would survive.
-     */
-    public function test_block_registry_drops_a_present_seam_that_declares_no_feature(): void
-    {
-        $available = $this->available_blocks_for(
-            array(
-                'seam-no-feature' => array( 'tag' => 'x', 'pro_seam' => self::PRESENT_CLASS ),
-                'plain-free'      => array( 'tag' => 'y' ),
-            )
-        );
-
-        $this->assertArrayNotHasKey(
-            'seam-no-feature',
-            $available,
-            'A pro_seam with no pro_feature must fail closed, not register for free.'
-        );
-        // Positive control: only entries that DECLARE a seam are affected. A block
-        // with no pro_seam at all is core and must never be touched.
-        $this->assertArrayHasKey('plain-free', $available, 'A block with no seam must never be dropped.');
-    }
+    //
+    // BlockRegistry's own pro_seam/get_available_blocks() gate was removed by the
+    // `mhm_rentiva_blocks` seam inversion (Lite no longer declares Pro blocks at
+    // all; Pro's BlockExtensions filter subscriber gates its own contributed
+    // entries via \MHMRentiva\Pro\Edition). See
+    // mhm-rentiva/tests/Unit/Blocks/BlockRegistryFilterTest.php and
+    // mhm-rentiva-pro/tests/Integration/Pro/BlockExtensionsTest.php for the
+    // current coverage of that seam.
 
     /**
      * The same fail-closed default, in the shortcode registry. Both registries must
@@ -158,17 +98,6 @@ final class UnlicensedProSeamGateTest extends WP_UnitTestCase
             'A pro_seam shortcode with no pro_feature must fail closed.'
         );
         $this->assertArrayHasKey('free_tag', $filtered['grp'], 'A non-seam shortcode must never be dropped.');
-    }
-
-    public function test_block_registry_still_drops_a_seam_whose_class_is_absent(): void
-    {
-        $available = $this->available_blocks_for(
-            array(
-                'absent-seam' => array( 'tag' => 'x', 'pro_seam' => 'MHMRentiva\No\Such\Class', 'pro_feature' => 'pro' ),
-            )
-        );
-
-        $this->assertArrayNotHasKey('absent-seam', $available, 'The original class guard must still hold.');
     }
 
     // -- ShortcodeServiceProvider --------------------------------------------------
@@ -234,31 +163,6 @@ final class UnlicensedProSeamGateTest extends WP_UnitTestCase
     }
 
     // -- helpers -------------------------------------------------------------------
-
-    /**
-     * Runs BlockRegistry's seam filter over a synthetic block set, restoring the
-     * real one afterwards so no other test sees the substitution.
-     *
-     * @param array<string, array<string, mixed>> $blocks
-     * @return array<string, array<string, mixed>>
-     */
-    private function available_blocks_for(array $blocks): array
-    {
-        $reflection = new ReflectionClass(BlockRegistry::class);
-        $property   = $reflection->getProperty('blocks');
-        $property->setAccessible(true);
-        $original = $property->getValue();
-
-        $property->setValue(null, $blocks);
-        try {
-            $method = $reflection->getMethod('get_available_blocks');
-            $method->setAccessible(true);
-
-            return (array) $method->invoke(null);
-        } finally {
-            $property->setValue(null, $original);
-        }
-    }
 
     private function provider(): ShortcodeServiceProvider
     {

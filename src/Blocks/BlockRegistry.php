@@ -55,14 +55,6 @@ class BlockRegistry {
 			'css'   => 'search-results.css',
 			'deps'  => array( 'mhm-vehicle-card-css' ),
 		),
-		'transfer-results'      => array(
-			'tag'         => 'rentiva_transfer_results',
-			'title'       => 'Transfer Search Results',
-			'css'         => 'transfer-results.css',
-			'deps'        => array( 'mhm-vehicle-card-css' ),
-			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\TransferResults',
-			'pro_feature' => 'pro',
-		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
 			'title' => 'Vehicle Comparison',
@@ -134,45 +126,10 @@ class BlockRegistry {
 			'css'   => array( 'booking-form.css', 'datepicker-custom.css' ),
 		),
 
-		'messages'              => array(
-			'tag'         => 'rentiva_messages',
-			'title'       => 'Customer Messages',
-			'css'         => 'customer-messages.css',
-			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Account\AccountMessages',
-			'pro_feature' => 'messaging',
-		),
-		'transfer-search'       => array(
-			'tag'         => 'rentiva_transfer_search',
-			'title'       => 'Transfer Search',
-			'css'         => 'transfer.css',
-			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes',
-			'pro_feature' => 'pro',
-		),
-		'popular-routes'        => array(
-			'tag'         => 'rentiva_popular_routes',
-			'title'       => 'Popular Transfer Routes',
-			'css'         => 'popular-routes.css',
-			'pro_seam'    => 'MHMRentiva\Admin\Transfer\Frontend\PopularRoutesShortcode',
-			'pro_feature' => 'pro',
-		),
 		'user-dashboard'        => array(
 			'tag'   => 'rentiva_user_dashboard',
 			'title' => 'User Dashboard',
 			'css'   => 'user-dashboard.css',
-		),
-		'vendor-profile'        => array(
-			'tag'         => 'rentiva_vendor_profile',
-			'title'       => 'Vendor Profile',
-			'css'         => 'vendor-profile.css',
-			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorProfile',
-			'pro_feature' => 'vendor_marketplace',
-		),
-		'vendor-directory'      => array(
-			'tag'         => 'rentiva_vendor_directory',
-			'title'       => 'Vendor Directory',
-			'css'         => 'vendor-directory.css',
-			'pro_seam'    => 'MHMRentiva\Admin\Frontend\Shortcodes\Vendor\VendorDirectory',
-			'pro_feature' => 'vendor_marketplace',
 		),
 	);
 
@@ -301,51 +258,24 @@ class BlockRegistry {
 	}
 
 	/**
-	 * The blocks this build can actually render.
+	 * The full block configuration, open for extension.
 	 *
-	 * Every block delegates to its shortcode via do_shortcode() (see
-	 * render_callback()), so a block whose backing shortcode class this build does
-	 * not ship has nothing to render. Lite carves those classes out, and
-	 * ShortcodeServiceProvider::drop_absent_pro_seams() drops their shortcodes to
-	 * match -- but an unregistered shortcode does not disappear, it degrades to its
-	 * own literal source text. Registering the block anyway therefore produced two
-	 * user-visible defects in Lite: the block stayed in the editor inserter, and a
-	 * page already carrying one printed the raw `[rentiva_transfer_search]` string
-	 * to visitors.
+	 * Lite ships its own blocks only. Pro (or any other consumer) contributes its
+	 * blocks by hooking `mhm_rentiva_blocks` -- Lite carries no knowledge of Pro
+	 * block slugs, classes, or feature names. A contributor is responsible for its
+	 * own presence/licence gating inside its filter callback (see
+	 * \MHMRentiva\Pro\Extensions\BlockExtensions in the Pro add-on): the filter
+	 * simply returns whatever the callback decides to admit.
 	 *
-	 * Gating here -- at the single point every consumer reads -- mirrors the
-	 * shortcode registry's own seam filter and Elementor's `pro_widget_classes`
-	 * check, so all three registries drop the same feature together.
+	 * An entry may carry `base_url`/`base_dir` when its `assets/blocks/<slug>/`
+	 * files (block.json, editor script) live outside this plugin; both default to
+	 * this plugin's own constants below so Lite's own blocks need not specify them.
 	 *
-	 * @return array<string, array<string, mixed>> Blocks minus absent Pro seams.
+	 * @return array<string, array<string, mixed>> Slug => block config.
 	 */
-	private static function get_available_blocks(): array
+	private static function get_block_config(): array
 	{
-		return array_filter(
-			self::$blocks,
-			static function (array $config): bool {
-				$seam = $config['pro_seam'] ?? null;
-				if ( null === $seam ) {
-					return true;
-				}
-
-				// Presence AND licence — an unlicensed Pro install still ships the
-				// class, and registering the block on presence alone handed the
-				// feature over for free. Keyed identically to the shortcode
-				// registry so the two always drop together.
-				//
-				// Fail closed on a missing key, exactly as
-				// ShortcodeServiceProvider::drop_absent_pro_seams() now does: a
-				// `pro_seam` with no `pro_feature` fell through to allowsSeam(null)
-				// = true, so messages/vendor-profile/vendor-directory registered
-				// unlicensed. Defaulting to 'pro' makes a forgotten key close the
-				// block rather than gift it. Both registries must default the same
-				// way or a block outlives the shortcode it renders through.
-				return \MHMRentiva\Admin\Licensing\Mode::allowsSeam(
-					isset( $config['pro_feature'] ) ? (string) $config['pro_feature'] : 'pro'
-				) && class_exists( (string) $seam );
-			}
-		);
+		return (array) apply_filters( 'mhm_rentiva_blocks', self::$blocks );
 	}
 
 	/**
@@ -367,16 +297,25 @@ class BlockRegistry {
 		// `init` callback happens to run first.
 		AssetManager::register_core_styles();
 
-		foreach (self::get_available_blocks() as $slug => $config) {
+		foreach (self::get_block_config() as $slug => $config) {
+			// A contributor's `assets/blocks/<slug>/` (block.json, editor script)
+			// may live outside this plugin -- e.g. Pro's own blocks ship from the
+			// Pro add-on. Default to Lite's own constants so Lite's blocks are
+			// unaffected. NOTE: block-level CSS (below) intentionally keeps
+			// resolving from THIS plugin's URL regardless of base_url -- those
+			// stylesheets are not part of the asset dirs a contributor moves, and
+			// Pro's own shortcode classes already assume they stay Lite-hosted.
+			$base_url = $config['base_url'] ?? MHM_RENTIVA_PLUGIN_URL;
+			$base_dir = $config['base_dir'] ?? MHM_RENTIVA_PLUGIN_DIR;
+
 			$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
 
 			// 1. Register Editor Script (Shared requirements)
-			// 1. Register Editor Script (Shared requirements)
 			wp_register_script(
 				$script_handle,
-				MHM_RENTIVA_PLUGIN_URL . 'assets/blocks/' . $slug . '/index.js',
+				$base_url . 'assets/blocks/' . $slug . '/index.js',
 				array( 'wp-blocks', 'wp-element', 'wp-components', 'wp-server-side-render', 'wp-block-editor' ),
-				self::get_asset_version('assets/blocks/' . $slug . '/index.js'),
+				self::get_asset_version('assets/blocks/' . $slug . '/index.js', $base_dir),
 				true
 			);
 
@@ -419,7 +358,7 @@ class BlockRegistry {
 
 			// 3. Register Block Type via block.json
 			register_block_type(
-				MHM_RENTIVA_PLUGIN_DIR . 'assets/blocks/' . $slug . '/block.json',
+				$base_dir . 'assets/blocks/' . $slug . '/block.json',
 				array(
 					'render_callback' => array( self::class, 'render_callback' ),
 					'editor_script'   => $script_handle,
@@ -452,24 +391,32 @@ class BlockRegistry {
 		// Extract the slug from the block name (e.g., mhm-rentiva/search -> search)
 		$slug = str_replace('mhm-rentiva/', '', $block->name);
 
-		if (! isset(self::$blocks[ $slug ])) {
+		// Resolve through the FILTERED map, not self::$blocks directly: a
+		// Pro-contributed block (e.g. transfer-results) has no entry in Lite's
+		// own array any more, only in the `mhm_rentiva_blocks` filter result.
+		// Reading self::$blocks here would make every Pro block render empty.
+		$blocks = self::get_block_config();
+
+		if (! isset($blocks[ $slug ])) {
 			return '';
 		}
+
+		$config = $blocks[ $slug ];
 
 		// EXPLICIT FRONTEND ENQUEUE: Declaration of block-level CSS dependencies
 		// This ensures visual parity on the frontend for dynamic blocks which sometimes
 		// fail to trigger automatic enqueueing in deep template structures.
-		if (isset(self::$blocks[ $slug ]['css'])) {
-			$css_files = (array) self::$blocks[ $slug ]['css'];
+		if (isset($config['css'])) {
+			$css_files = (array) $config['css'];
 			foreach ($css_files as $index => $css_file) {
 				// Calculate handle based on the same logic as init()
 				if ($css_file === 'datepicker-custom.css') {
 					$style_handle = 'mhm-rentiva-datepicker-custom';
 				} elseif ($css_file === 'vehicle-card.css') {
 					$style_handle = 'mhm-vehicle-card-css';
-				} elseif (isset(self::$blocks[ $slug ]['tag']) && $index === 0) {
+				} elseif (isset($config['tag']) && $index === 0) {
 					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
-					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', self::$blocks[ $slug ]['tag']);
+					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', $config['tag']);
 				} else {
 					// Fallback to block slug
 					$style_handle = ( count($css_files) === 1 )
@@ -482,14 +429,13 @@ class BlockRegistry {
 		}
 
 		// Additional dependency enqueueing from the 'deps' config
-		if (isset(self::$blocks[ $slug ]['deps'])) {
-			foreach ( (array) self::$blocks[ $slug ]['deps'] as $dep_handle) {
+		if (isset($config['deps'])) {
+			foreach ( (array) $config['deps'] as $dep_handle) {
 				wp_enqueue_style($dep_handle);
 			}
 		}
 
-		$config = self::$blocks[ $slug ];
-		$tag    = $config['tag'];
+		$tag = $config['tag'];
 
 		// Guard against double mapping (especially when called recursively or via blocks-in-shortcodes)
 		if (! empty($attributes['_canonical'])) {
@@ -606,25 +552,33 @@ class BlockRegistry {
 	/**
 	 * Resolve stable file version for asset URLs.
 	 *
-	 * @param string $relative_path Asset path relative to plugin root.
+	 * @param string      $relative_path Asset path relative to $base_dir.
+	 * @param string|null $base_dir      Root the path is relative to. Defaults to
+	 *                                   this plugin's own dir; a contributor whose
+	 *                                   assets live elsewhere (e.g. Pro) passes its
+	 *                                   own base_dir so filemtime() checks the file
+	 *                                   that actually exists.
 	 */
-	private static function get_asset_version(string $relative_path): string
+	private static function get_asset_version(string $relative_path, ?string $base_dir = null): string
 	{
-		if (isset(self::$asset_version_cache[ $relative_path ])) {
-			return self::$asset_version_cache[ $relative_path ];
+		$base_dir  = $base_dir ?? MHM_RENTIVA_PLUGIN_DIR;
+		$cache_key = $base_dir . $relative_path;
+
+		if (isset(self::$asset_version_cache[ $cache_key ])) {
+			return self::$asset_version_cache[ $cache_key ];
 		}
 
-		$full_path = MHM_RENTIVA_PLUGIN_DIR . $relative_path;
+		$full_path = $base_dir . $relative_path;
 		if (file_exists($full_path)) {
 			$filemtime = filemtime($full_path);
 			if (false !== $filemtime) {
-				$version                                     = (string) $filemtime;
-				self::$asset_version_cache[ $relative_path ] = $version;
+				$version                                 = (string) $filemtime;
+				self::$asset_version_cache[ $cache_key ] = $version;
 				return $version;
 			}
 		}
 
-		self::$asset_version_cache[ $relative_path ] = MHM_RENTIVA_VERSION;
+		self::$asset_version_cache[ $cache_key ] = MHM_RENTIVA_VERSION;
 		return MHM_RENTIVA_VERSION;
 	}
 }

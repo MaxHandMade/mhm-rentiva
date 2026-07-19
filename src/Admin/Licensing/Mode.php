@@ -61,14 +61,17 @@ final class Mode {
     }
 
     /**
-     * Seam decision for the three registries that must drop a feature together:
-     * ShortcodeServiceProvider::drop_absent_pro_seams(), BlockRegistry's
-     * get_available_blocks() and ElementorIntegration::pro_widget_classes().
+     * Seam decision for the registries that must drop a feature together:
+     * ShortcodeServiceProvider::drop_absent_pro_seams() and
+     * ElementorIntegration::pro_widget_classes(). BlockRegistry no longer consults
+     * this method — the `mhm_rentiva_blocks` seam inversion moved block gating to
+     * Pro's own BlockExtensions filter subscriber, which asks
+     * \MHMRentiva\Pro\Edition instead.
      *
      * Those registries only ever asked class_exists() — a PRESENCE check. With Pro
      * installed but unlicensed the class exists, so the seam registered and the
      * full UI rendered for free. They must ask the licence too, and they must all
-     * ask the SAME question: a block that registers while its backing shortcode was
+     * ask the SAME question: a shortcode that registers while a sibling seam was
      * dropped prints the raw `[rentiva_transfer_search]` text to visitors.
      *
      * @param string|null $feature Licence feature key, 'pro' for the whole edition,

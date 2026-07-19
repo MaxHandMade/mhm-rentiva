@@ -7,7 +7,6 @@ namespace MHMRentiva\Tests\Unit\Licensing;
 use MHMRentiva\Admin\Core\ShortcodeServiceProvider;
 use MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration;
 use MHMRentiva\Admin\Licensing\Mode;
-use MHMRentiva\Blocks\BlockRegistry;
 use ReflectionClass;
 use ReflectionMethod;
 use WP_UnitTestCase;
@@ -49,7 +48,6 @@ use WP_UnitTestCase;
  * prevents a leak; this test prevents the silent mis-gate.
  *
  * @covers \MHMRentiva\Admin\Core\ShortcodeServiceProvider::get_shortcode_registry
- * @covers \MHMRentiva\Blocks\BlockRegistry
  * @covers \MHMRentiva\Admin\Frontend\Widgets\Elementor\ElementorIntegration::pro_widget_classes
  */
 final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
@@ -119,33 +117,14 @@ final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
         $this->assertSame(array(), $offenders, "Shortcode seams that are not gated:\n" . implode("\n", $offenders));
     }
 
-    public function test_every_block_seam_declares_a_known_feature(): void
-    {
-        $property = new \ReflectionProperty(BlockRegistry::class, 'blocks');
-        $property->setAccessible(true);
-
-        $offenders = array();
-        $seams     = 0;
-
-        foreach ((array) $property->getValue() as $name => $config) {
-            if (empty($config['pro_seam'])) {
-                continue;
-            }
-            ++$seams;
-
-            $feature = $config['pro_feature'] ?? null;
-            if (null === $feature) {
-                $offenders[] = sprintf('%s: no pro_feature -- would register unlicensed', (string) $name);
-                continue;
-            }
-            if (! in_array((string) $feature, self::KNOWN_FEATURES, true)) {
-                $offenders[] = sprintf('%s: unknown pro_feature "%s"', (string) $name, (string) $feature);
-            }
-        }
-
-        $this->assertGreaterThan(0, $seams, 'Premise failed: no pro_seam blocks found -- the scan read nothing.');
-        $this->assertSame(array(), $offenders, "Block seams that are not gated:\n" . implode("\n", $offenders));
-    }
+    // BlockRegistry's own pro_seam declarations were removed by the
+    // `mhm_rentiva_blocks` seam inversion: Lite's self::$blocks carries zero Pro
+    // entries now (they moved to Pro's own BlockExtensions filter subscriber,
+    // gated via \MHMRentiva\Pro\Edition, not Mode/pro_seam/pro_feature). A block
+    // seam feature-key audit therefore belongs in Pro's own suite going forward
+    // -- there is nothing left to scan here. See
+    // mhm-rentiva/tests/Unit/Blocks/BlockRegistryFilterTest.php and
+    // mhm-rentiva-pro/tests/Integration/Pro/BlockExtensionsTest.php.
 
     public function test_every_elementor_pro_widget_declares_a_known_feature(): void
     {
@@ -169,53 +148,11 @@ final class SeamFeatureKeyCoverageTest extends WP_UnitTestCase
         $this->assertSame(array(), $offenders, "Elementor Pro widgets that are not gated:\n" . implode("\n", $offenders));
     }
 
-    /**
-     * The three registries must agree on the feature key for the same tag. If the
-     * block says 'messaging' and the shortcode says 'pro', a licence granting only
-     * messaging registers the block while its backing shortcode stays closed -- and
-     * the block then renders through a silenced shortcode, printing nothing.
-     */
-    public function test_block_and_shortcode_registries_agree_on_each_shared_tag(): void
-    {
-        $by_tag = array();
-        foreach ($this->shortcode_registry() as $shortcodes) {
-            foreach ((array) $shortcodes as $tag => $config) {
-                if (! empty($config['pro_seam'])) {
-                    $by_tag[(string) $tag] = (string) ( $config['pro_feature'] ?? 'pro' );
-                }
-            }
-        }
-
-        $property = new \ReflectionProperty(BlockRegistry::class, 'blocks');
-        $property->setAccessible(true);
-
-        $mismatches = array();
-        $compared   = 0;
-
-        foreach ((array) $property->getValue() as $name => $config) {
-            if (empty($config['pro_seam'])) {
-                continue;
-            }
-            $tag = (string) ( $config['tag'] ?? '' );
-            if (! isset($by_tag[$tag])) {
-                continue;
-            }
-            ++$compared;
-
-            $block_feature = (string) ( $config['pro_feature'] ?? 'pro' );
-            if ($block_feature !== $by_tag[$tag]) {
-                $mismatches[] = sprintf(
-                    '%s: block says "%s", shortcode says "%s"',
-                    $tag,
-                    $block_feature,
-                    $by_tag[$tag]
-                );
-            }
-        }
-
-        $this->assertGreaterThan(0, $compared, 'Premise failed: no shared seam tags compared.');
-        $this->assertSame(array(), $mismatches, "Registries disagree on a seam's feature:\n" . implode("\n", $mismatches));
-    }
+    // The block-vs-shortcode feature-key agreement check (formerly
+    // test_block_and_shortcode_registries_agree_on_each_shared_tag) was removed
+    // for the same reason as above: BlockRegistry no longer declares pro_seam
+    // entries in Lite, so there is no block-side feature key left to compare
+    // against the shortcode registry's.
 
     /**
      * Guards the premise of the whole file: if a licence were ever active in this
