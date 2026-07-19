@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Settings;
 
-use MHMRentiva\Admin\Licensing\Mode;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 use MHMRentiva\Admin\Settings\Services\SettingsService;
 use WP_UnitTestCase;
@@ -14,8 +14,11 @@ use WP_UnitTestCase;
  * The render layer shows a placeholder instead of the Transfer / Vendor-Marketplace
  * form, but a forged or replayed POST could still reach SettingsSanitizer::sanitize().
  * The gate there fails closed: for a Pro tab whose licence is absent it returns the
- * untouched current values (a no-op save). This tree has no LicenseManager, so
- * Mode::isPro()/canUseVendorMarketplace() are false — exactly the unlicensed state.
+ * untouched current values (a no-op save). Task A6 inverted the gate itself to read
+ * SettingsCore::settings_tabs() (a thin wrapper over
+ * apply_filters('mhm_rentiva_settings_tabs', array())) instead of
+ * \MHMRentiva\Admin\Licensing\Mode directly; this tree has no subscriber to that
+ * filter, so settings_tabs() is empty — exactly the unlicensed state.
  *
  * @covers \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize
  */
@@ -24,13 +27,13 @@ final class SettingsSanitizerProTabGateTest extends WP_UnitTestCase
     protected function tearDown(): void
     {
         delete_option('mhm_rentiva_settings');
+        remove_all_filters('mhm_rentiva_settings_tabs');
         parent::tearDown();
     }
 
-    public function test_premise_this_tree_is_unlicensed(): void
+    public function test_premise_this_tree_has_no_pro_tabs_subscribed(): void
     {
-        $this->assertFalse(Mode::isPro(), 'Premise failed: the Lite test tree reports a Pro licence.');
-        $this->assertFalse(Mode::canUseVendorMarketplace(), 'Premise failed: vendor marketplace is licensed here.');
+        $this->assertSame(array(), SettingsCore::settings_tabs(), 'Premise failed: a Pro tab is subscribed in the Lite test tree.');
     }
 
     /**
