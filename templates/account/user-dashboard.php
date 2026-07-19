@@ -330,13 +330,20 @@ if (! $user_display_name) {
 				</div>
 			<?php endif; ?>
 
-			<?php if ($context === 'vendor' && \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) : ?>
-				<div class="mhm-rentiva-dashboard__contact-admin">
-					<button type="button" class="mhm-rentiva-dashboard__contact-admin-link" data-mhm-vrm-trigger="report" data-context-type="general">
-						<?php esc_html_e('Contact Administrator', 'mhm-rentiva'); ?>
-					</button>
-				</div>
-			<?php endif; ?>
+			<?php
+			// The vendor "Contact Administrator" panel is a Pro seam. This template is
+			// `include`d by Lite's own CustomerDashboard (a plain Lite path, not behind
+			// any class_exists() guard), so it must never name the licensing router
+			// directly -- doing so would fatal a Lite-only site once that router
+			// class is deleted (Task A8a seam inversion, B2). Pro's AccountExtensions
+			// subscribes to this filter and returns the markup only when
+			// canUseVendorMarketplace() and $context is 'vendor'; Lite's own default
+			// is the empty string, i.e. no panel at all.
+			$vendor_panel_html = (string) apply_filters('mhm_rentiva_account_vendor_panel', '', $context);
+			if ('' !== $vendor_panel_html) {
+				echo $vendor_panel_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Filter output is trusted Pro-rendered markup, escaped at its source.
+			}
+			?>
 		</div>
 	</main>
 </div>

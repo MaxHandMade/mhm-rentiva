@@ -246,11 +246,12 @@ final class AccountRenderer {
 		// no notice, no placeholder, no mention of Pro (owner decision 2026-07-16 --
 		// a feature Lite does not have simply does not render). The empty 'error'
 		// keeps the caller's existing short-circuit, which is shared with the
-		// booking-detail path and must stay intact.
-		if (
-			! class_exists(\MHMRentiva\Admin\Licensing\Mode::class) ||
-			! \MHMRentiva\Admin\Licensing\Mode::canUseMessages()
-		) {
+		// booking-detail path and must stay intact. The decision now comes from
+		// the same `mhm_rentiva_account_nav_items` mechanism that decides whether
+		// the WC My Account "Messages" tab itself registers (Task A8a seam
+		// inversion) -- Lite no longer names the Licensing Mode router's messages gate.
+		$nav_items = WooCommerceIntegration::get_account_nav_items();
+		if ( ! isset( $nav_items['messages'] ) ) {
 			return array( 'error' => '' );
 		}
 

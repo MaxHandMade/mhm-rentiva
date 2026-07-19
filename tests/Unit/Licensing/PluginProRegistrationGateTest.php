@@ -7,8 +7,16 @@ namespace MHMRentiva\Tests\Unit\Licensing;
 use WP_UnitTestCase;
 
 /**
- * Every Pro-only class registration in Lite's Plugin.php (and the UserDashboard
- * shortcode) must be bound to the licence gate, not to class_exists() alone.
+ * Every Pro-only class registration in Lite's Plugin.php must be bound to the
+ * licence gate, not to class_exists() alone.
+ *
+ * The UserDashboard shortcode's AnalyticsController registration used to be
+ * covered here too, but Task A8a's seam inversion moved that registration out
+ * of Lite entirely -- UserDashboard.php no longer names AnalyticsController or
+ * the licensing Mode router at all, so there is no gate left to pin from this
+ * side. The equivalent coverage now lives in Pro's own test suite, alongside
+ * Bootstrap::register_vendor_marketplace() (which is where the registration
+ * moved to).
  *
  * WHY THIS IS A SOURCE-STRUCTURE TEST, NOT A BEHAVIOURAL ONE.
  *
@@ -65,18 +73,6 @@ final class PluginProRegistrationGateTest extends WP_UnitTestCase
         return (string) $src;
     }
 
-    private function user_dashboard_php(): string
-    {
-        $path = defined('MHM_RENTIVA_PLUGIN_DIR')
-            ? constant('MHM_RENTIVA_PLUGIN_DIR') . 'src/Admin/Frontend/Shortcodes/Account/UserDashboard.php'
-            : dirname(__DIR__, 3) . '/src/Admin/Frontend/Shortcodes/Account/UserDashboard.php';
-
-        $src = @file_get_contents($path);
-        $this->assertNotFalse($src, "Could not read UserDashboard.php at {$path}");
-
-        return (string) $src;
-    }
-
     /**
      * Asserts `Mode::<method>() && ... class_exists('...<basename>')` appears as one
      * clause. `[^;{}]*?` spans the newline+whitespace the real code uses but stops at
@@ -121,16 +117,6 @@ final class PluginProRegistrationGateTest extends WP_UnitTestCase
             'canUseVendorPayout',
             'PayoutStatementController',
             'Plugin.php'
-        );
-    }
-
-    public function test_vendor_stats_analytics_ajax_is_marketplace_gated_in_user_dashboard(): void
-    {
-        $this->assertGateBindsClass(
-            $this->user_dashboard_php(),
-            'canUseVendorMarketplace',
-            'AnalyticsController',
-            'UserDashboard.php'
         );
     }
 

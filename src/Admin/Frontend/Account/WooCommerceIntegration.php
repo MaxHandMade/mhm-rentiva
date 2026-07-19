@@ -70,42 +70,17 @@ final class WooCommerceIntegration {
 		$logout = $items['customer-logout'] ?? null;
 		unset( $items['customer-logout'] );
 
-		$new_items   = array();
-		$inserted    = false;
-		$rentiva_map = self::get_rentiva_endpoints_map();
+		$new_items     = array();
+		$inserted      = false;
+		$rentiva_items = self::get_account_nav_items();
 
 		foreach ( $items as $key => $label ) {
 			$new_items[ $key ] = $label;
 
 			// Insert Rentiva items after 'orders' or 'dashboard'
 			if ( ! $inserted && ( $key === 'orders' || $key === 'dashboard' ) ) {
-				foreach ( $rentiva_map as $e_key => $config ) {
-					// Skip view_booking and messages if disabled
-					if ( $e_key === 'view_booking' ) {
-						continue;
-					}
-					if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseMessages() ) ) {
-						continue;
-					}
-					// vendor_apply: show only when Pro is active and user can still apply
-					if ( $e_key === 'vendor_apply' ) {
-						if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
-							continue;
-						}
-						$user_id = get_current_user_id();
-						$user    = $user_id ? get_userdata( $user_id ) : false;
-						// Active vendor: show "Vendor Panel" link instead of "Become a Vendor"
-						if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
-							$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
-							if ( $vendor_status !== 'suspended' ) {
-								$new_items['vendor-panel'] = __( 'Vendor Panel', 'mhm-rentiva' );
-								continue;
-							}
-						}
-					}
-
-					$slug               = self::get_endpoint_slug( $e_key );
-					$new_items[ $slug ] = $config['label'];
+				foreach ( self::flatten_nav_items( $rentiva_items ) as $slug => $item_label ) {
+					$new_items[ $slug ] = $item_label;
 				}
 				$inserted = true;
 			}
@@ -113,32 +88,7 @@ final class WooCommerceIntegration {
 
 		// If orders/dashboard not found, add Rentiva items at the beginning
 		if ( ! $inserted ) {
-			$rentiva_items = array();
-			foreach ( $rentiva_map as $e_key => $config ) {
-				if ( $e_key === 'view_booking' ) {
-					continue;
-				}
-				if ( $e_key === 'messages' && ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseMessages() ) ) {
-					continue;
-				}
-				if ( $e_key === 'vendor_apply' ) {
-					if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
-						continue;
-					}
-					$user_id = get_current_user_id();
-					$user    = $user_id ? get_userdata( $user_id ) : false;
-					if ( $user && in_array( 'rentiva_vendor', (array) $user->roles, true ) ) {
-						$vendor_status = (string) get_user_meta( $user_id, '_rentiva_vendor_status', true );
-						if ( $vendor_status !== 'suspended' ) {
-							$rentiva_items['vendor-panel'] = __( 'Vendor Panel', 'mhm-rentiva' );
-							continue;
-						}
-					}
-				}
-				$slug                   = self::get_endpoint_slug( $e_key );
-				$rentiva_items[ $slug ] = $config['label'];
-			}
-			$new_items = array_merge( $rentiva_items, $new_items );
+			$new_items = array_merge( self::flatten_nav_items( $rentiva_items ), $new_items );
 		}
 
 		// Restore logout at the end
@@ -147,6 +97,64 @@ final class WooCommerceIntegration {
 		}
 
 		return $new_items;
+	}
+
+	/**
+	 * Build the WooCommerce My Account nav items Rentiva contributes.
+	 *
+	 * Lite supplies only its own tabs (bookings, favorites, payment_history).
+	 * The messages tab and the vendor tab(s) are Pro seams: Pro's
+	 * AccountExtensions subscribes to `mhm_rentiva_account_nav_items` to add
+	 * them back, including the active-vendor "Vendor Panel" vs.
+	 * "Become a Vendor" branching this method used to do inline (Task A8a
+	 * seam inversion). Lite no longer names the Licensing Mode router's
+	 * messages or vendor-marketplace gates anywhere in this file.
+	 *
+	 * Also used as the single source of truth for the access/redirect guards
+	 * below (render_vendor_apply()) and by AccountRenderer's messages guard --
+	 * "is this tab registered" is the same question either way.
+	 *
+	 * @return array<string, array{slug: string, label: string}> Keyed by semantic item key (e.g. 'bookings', 'messages', 'vendor_apply').
+	 */
+	public static function get_account_nav_items(): array {
+		$rentiva_map = self::get_rentiva_endpoints_map();
+		$items       = array();
+
+		foreach ( $rentiva_map as $e_key => $config ) {
+			if ( in_array( $e_key, array( 'view_booking', 'messages', 'vendor_apply' ), true ) ) {
+				continue;
+			}
+			$items[ $e_key ] = array(
+				'slug'  => self::get_endpoint_slug( $e_key ),
+				'label' => $config['label'],
+			);
+		}
+
+		/**
+		 * Filters the WooCommerce My Account nav items Rentiva contributes.
+		 *
+		 * @param array<string, array{slug: string, label: string}> $items Keyed by semantic item key.
+		 */
+		return apply_filters( 'mhm_rentiva_account_nav_items', $items );
+	}
+
+	/**
+	 * Reduce the semantic-keyed nav items array to the slug => label shape
+	 * WooCommerce's own menu items array expects, dropping any malformed
+	 * contribution from a filter subscriber.
+	 *
+	 * @param array<string, mixed> $items
+	 * @return array<string, string>
+	 */
+	private static function flatten_nav_items( array $items ): array {
+		$flat = array();
+		foreach ( $items as $item ) {
+			if ( ! is_array( $item ) || empty( $item['slug'] ) || empty( $item['label'] ) ) {
+				continue;
+			}
+			$flat[ (string) $item['slug'] ] = (string) $item['label'];
+		}
+		return $flat;
 	}
 
 	/**
@@ -259,10 +267,13 @@ final class WooCommerceIntegration {
 	public static function render_vendor_apply(): void {
 		// Vendor marketplace is a Pro feature. When it is absent this renders NOTHING
 		// at all -- no notice, no mention of Pro (owner decision 2026-07-16). The
-		// My Account menu already omits this endpoint's link in that case (see
-		// get_rentiva_endpoints_map()'s callers above), so the only way here is a
-		// hand-typed URL, which now yields an empty endpoint rather than an advert.
-		if ( ! class_exists( \MHMRentiva\Admin\Licensing\Mode::class ) || ! \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() ) {
+		// My Account menu already omits this endpoint's link in that case, so the
+		// only way here is a hand-typed URL. The guard defers to the same
+		// `mhm_rentiva_account_nav_items` filter that decides whether the tab is
+		// registered at all (Task A8a seam inversion) -- Lite no longer names
+		// the Licensing Mode router's vendor-marketplace gate.
+		$nav_items = self::get_account_nav_items();
+		if ( ! isset( $nav_items['vendor_apply'] ) ) {
 			return;
 		}
 

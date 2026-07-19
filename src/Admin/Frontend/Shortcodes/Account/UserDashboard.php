@@ -27,18 +27,13 @@ final class UserDashboard {
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
-		// AnalyticsController is a Pro seam (vendor ledger analytics AJAX,
-		// wp_ajax_mhm_fetch_vendor_stats). This register() runs for the CORE customer
-		// dashboard shortcode too, so an unguarded call would fatal the dashboard for
-		// every Lite user. Pro-gated (canUseVendorMarketplace) so an unlicensed install
-		// never registers the vendor-stats AJAX endpoint; class_exists() kept for a
-		// partial Pro install.
-		if (
-			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
-			class_exists('\MHMRentiva\Core\Dashboard\AnalyticsController')
-		) {
-			\MHMRentiva\Core\Dashboard\AnalyticsController::register();
-		}
+		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhm_fetch_vendor_stats)
+		// used to be registered from here, gated by the licensing router's
+		// vendor-marketplace gate. That registration moved to Pro's own
+		// Bootstrap::register_vendor_marketplace() (Task A8a seam inversion) --
+		// this CORE customer dashboard shortcode no longer names
+		// AnalyticsController or the licensing router at all, so it cannot
+		// fatal once that router class is deleted (B2).
 		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 		add_filter('body_class', array( self::class, 'add_body_class' ));
