@@ -14,8 +14,9 @@
  * *classes*). This one asks a blunter, final question: does Lite's source
  * contain the WORDS that spell "this is a crippled/licensed edition" at all?
  *
- * Scans src/, templates/, src-react/, build/ plus the plugin bootstrap and
- * uninstall.php -- i.e. everything that ships in the WP.org ZIP.
+ * Scans src/, templates/, src-react/, build/, assets/ plus the plugin
+ * bootstrap and uninstall.php -- i.e. everything that ships in the WP.org
+ * ZIP.
  *
  * @package MHMRentiva
  */
@@ -23,7 +24,7 @@
 declare( strict_types=1 );
 
 $base  = dirname( __DIR__ );
-$roots = array( $base . '/src', $base . '/templates', $base . '/src-react', $base . '/build' );
+$roots = array( $base . '/src', $base . '/templates', $base . '/src-react', $base . '/build', $base . '/assets' );
 $files = array( $base . '/mhm-rentiva.php', $base . '/uninstall.php' );
 
 $pattern = '/isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|Mode::|Licensing\\\\Mode|canUse[A-Z]|LicenseManager|LicenseAdmin|VerifyEndpoint|\bLicensing\b/';
