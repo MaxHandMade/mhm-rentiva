@@ -47,17 +47,19 @@ final class SettingsSanitizer {
 		$current_tab = $input['current_active_tab'] ?? '';
 
 		// 2b. Pro settings tabs must not PERSIST on an unlicensed site. The render
-		// layer already shows a placeholder instead of the form (TransferSettings /
-		// VendorMarketplaceSettings), but a forged or replayed POST could still reach
+		// layer already shows a placeholder instead of the form (Transfer /
+		// Vendor Marketplace), but a forged or replayed POST could still reach
 		// this sanitizer. Fail closed: for a gated Pro tab whose licence is absent,
 		// return the untouched current values (a no-op save) so no Pro setting is
-		// written. Transfer is a whole-edition surface (isPro); vendor-marketplace has
-		// its own feature key. Messages saves through its own gated handler, not here.
-		$pro_tab_gates = array(
-			'transfer'           => \MHMRentiva\Admin\Licensing\Mode::isPro(),
-			'vendor-marketplace' => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
-		);
-		if ( isset( $pro_tab_gates[ $current_tab ] ) && ! $pro_tab_gates[ $current_tab ] ) {
+		// written. Transfer is a whole-edition surface (the base Pro licence flag);
+		// vendor-marketplace has its own feature key. Messages saves through its
+		// own gated handler, not here.
+		// Licence state comes from SettingsCore::settings_tabs() (Task A6 seam
+		// inversion): Lite's own default is an empty array, so a missing key --
+		// exactly the unlicensed/no-Pro-subscriber state -- is treated as "not
+		// licensed" via empty(), not skipped.
+		$pro_tabs = array( 'transfer', 'vendor-marketplace' );
+		if ( in_array( $current_tab, $pro_tabs, true ) && empty( SettingsCore::settings_tabs()[ $current_tab ] ) ) {
 			return $current_values;
 		}
 
@@ -81,9 +83,17 @@ final class SettingsSanitizer {
 			'transfer'    => self::sanitize_transfer_settings( $input, $defaults ),
 			'comments'           => self::sanitize_comments_settings( $input, $current_values ),
 			'addons'             => self::sanitize_addon_settings( $input, $defaults ),
-			'vendor-marketplace' => self::sanitize_vendor_marketplace_settings( $input, $defaults ),
 			default              => $input, // Fallback for programmatic updates
 		};
+
+		// 3b. Extensible per-tab dispatch (Task A6 seam inversion). Lite's match
+		// above only knows its own tabs; 'vendor-marketplace' now falls to the
+		// fallback ($input, unsanitized) until Pro's SettingsExtensions subscribes
+		// and supplies its own sanitizer for that tab. Harmless when nothing
+		// subscribes: the write itself is already blocked above (step 2b) for an
+		// unlicensed/absent Pro on a gated tab, so this filter only ever reaches
+		// a real subscriber once that gate has already passed.
+		$sanitized_batch = apply_filters( 'mhm_rentiva_sanitize_settings_tab', $sanitized_batch, $current_tab, $input, $defaults );
 
 		$out = array_merge( $out, $sanitized_batch );
 
@@ -650,56 +660,5 @@ final class SettingsSanitizer {
 	 */
 	private static function clamp_value( $value, $min, $max ) {
 		return max( $min, min( $max, $value ) );
-	}
-
-	/**
-	 * Sanitize Vendor Marketplace Settings (Pro feature).
-	 */
-	public static function sanitize_vendor_marketplace_settings( array $input, array $defaults ): array {
-		return array(
-			// Listing & Duration
-			'vendor_listing_duration_days'         => self::get_int( $input, 'vendor_listing_duration_days', 90, 1, 365 ),
-			'vendor_expiry_warning_first_days'     => self::get_int( $input, 'vendor_expiry_warning_first_days', 10, 1, 60 ),
-			'vendor_expiry_warning_second_days'    => self::get_int( $input, 'vendor_expiry_warning_second_days', 3, 1, 30 ),
-			'vendor_expiry_grace_days'             => self::get_int( $input, 'vendor_expiry_grace_days', 7, 0, 30 ),
-			'vendor_withdrawal_cooldown_days'      => self::get_int( $input, 'vendor_withdrawal_cooldown_days', 7, 0, 90 ),
-			'vendor_max_pauses_per_month'          => self::get_int( $input, 'vendor_max_pauses_per_month', 2, 1, 10 ),
-			'vendor_max_pause_duration_days'       => self::get_int( $input, 'vendor_max_pause_duration_days', 30, 1, 180 ),
-
-			// Penalty
-			'vendor_penalty_tier1_rate'            => self::get_int( $input, 'vendor_penalty_tier1_rate', 10, 0, 100 ),
-			'vendor_penalty_tier2_rate'            => self::get_int( $input, 'vendor_penalty_tier2_rate', 25, 0, 100 ),
-			'vendor_penalty_tier3_rate'            => self::get_int( $input, 'vendor_penalty_tier3_rate', 50, 0, 100 ),
-			'vendor_penalty_rolling_window_months' => self::get_int( $input, 'vendor_penalty_rolling_window_months', 12, 1, 36 ),
-
-			// Anti-Gaming
-			'vendor_anti_gaming_block_days'        => self::get_int( $input, 'vendor_anti_gaming_block_days', 30, 1, 180 ),
-
-			// Reliability Score
-			'vendor_score_cancel_penalty'          => self::get_int( $input, 'vendor_score_cancel_penalty', 5, 0, 50 ),
-			'vendor_score_withdrawal_penalty'      => self::get_int( $input, 'vendor_score_withdrawal_penalty', 10, 0, 50 ),
-			'vendor_score_pause_penalty'           => self::get_int( $input, 'vendor_score_pause_penalty', 2, 0, 20 ),
-			'vendor_score_completion_bonus'        => self::get_int( $input, 'vendor_score_completion_bonus', 5, 0, 20 ),
-			'vendor_score_max_completion_bonus'    => self::get_int( $input, 'vendor_score_max_completion_bonus', 20, 0, 100 ),
-
-			// Vendor Profile badge thresholds (v4.37.0)
-			'vendor_badge_min_age_days'            => self::get_int( $input, 'vendor_badge_min_age_days', 180, 0, 1825 ),
-			'vendor_badge_min_score'               => self::get_int( $input, 'vendor_badge_min_score', 80, 0, 100 ),
-			'vendor_badge_min_completed_bookings'  => self::get_int( $input, 'vendor_badge_min_completed_bookings', 10, 0, 500 ),
-
-			// Vendor Agreement
-			'vendor_agreement_enabled'             => ( ( $input['vendor_agreement_enabled'] ?? '' ) === '1' ) ? '1' : '0',
-			'vendor_agreement_text'                => \sanitize_textarea_field( (string) ( $input['vendor_agreement_text'] ?? '' ) ),
-
-			// Payout Statement (operator branding)
-			'statement_company_name'               => \sanitize_text_field( (string) ( $input['statement_company_name'] ?? '' ) ),
-			'statement_company_address'            => \sanitize_textarea_field( (string) ( $input['statement_company_address'] ?? '' ) ),
-			'statement_company_tax_office'         => \sanitize_text_field( (string) ( $input['statement_company_tax_office'] ?? '' ) ),
-			'statement_company_tax_number'         => \sanitize_text_field( (string) ( $input['statement_company_tax_number'] ?? '' ) ),
-			'statement_company_phone'              => \sanitize_text_field( (string) ( $input['statement_company_phone'] ?? '' ) ),
-			'statement_company_email'              => \sanitize_email( (string) ( $input['statement_company_email'] ?? '' ) ),
-			'statement_logo_id'                    => \absint( $input['statement_logo_id'] ?? 0 ),
-			'statement_footer_note'                => \sanitize_textarea_field( (string) ( $input['statement_footer_note'] ?? '' ) ),
-		);
 	}
 }

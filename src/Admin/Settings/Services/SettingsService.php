@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -62,14 +63,14 @@ final class SettingsService {
 		// Reset is a WRITE. The sanitizer fails closed for unlicensed Pro tabs, but
 		// this reset path bypasses the sanitizer (it calls update_option directly),
 		// so it must apply the same gate or an unlicensed admin could overwrite Pro
-		// settings with defaults (Fable Y3). Same feature map as SettingsSanitizer,
-		// plus Messages (which resets through here, unlike its save handler).
-		$pro_tab_gates = array(
-			'transfer'           => \MHMRentiva\Admin\Licensing\Mode::isPro(),
-			'vendor-marketplace' => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
-			'messages'           => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
-		);
-		if ( isset( $pro_tab_gates[ $target_tab ] ) && ! $pro_tab_gates[ $target_tab ] ) {
+		// settings with defaults (Fable Y3). Same tab set as SettingsSanitizer, plus
+		// Messages (which resets through here, unlike its save handler). Licence
+		// state comes from SettingsCore::settings_tabs() (Task A6 seam inversion):
+		// Lite's own default is an empty array, so a missing key -- exactly the
+		// unlicensed/no-Pro-subscriber state -- is treated as "not licensed" via
+		// empty(), not skipped.
+		$pro_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
+		if ( in_array( $target_tab, $pro_tabs, true ) && empty( SettingsCore::settings_tabs()[ $target_tab ] ) ) {
 			return false;
 		}
 

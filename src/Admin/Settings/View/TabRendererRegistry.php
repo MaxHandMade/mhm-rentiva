@@ -107,26 +107,9 @@ final class TabRendererRegistry {
 			)
 		);
 
-		// Vendor Marketplace — Pro seam. The tab's whole content comes from
-		// VendorMarketplaceSettings, which Lite carves out: without it the tab
-		// renders as an empty shell advertising a feature this build does not have.
-		// Gated like the Messages and Transfer renderers below.
-		if ( class_exists( '\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings' ) ) {
-			$this->register(
-				new BaseSettingsTabRenderer(
-					__( 'Vendor Marketplace', 'mhm-rentiva' ),
-					'vendor-marketplace',
-					__( 'Configure vendor listing durations, penalty rates, anti-gaming protection, and reliability score weights.', 'mhm-rentiva' ),
-					'\MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
-					array(
-						'mhm_rentiva_vendor_listing_section',
-						'mhm_rentiva_vendor_penalty_section',
-						'mhm_rentiva_vendor_anti_gaming_section',
-						'mhm_rentiva_vendor_reliability_section',
-					)
-				)
-			);
-		}
+		// Vendor Marketplace — Pro seam inversion (Task A6): Lite no longer
+		// registers this renderer itself. Pro's SettingsExtensions registers it
+		// via the `mhm_rentiva_settings_register_renderers` action below.
 
 		$this->register(
 			new BaseSettingsTabRenderer(
@@ -194,16 +177,9 @@ final class TabRendererRegistry {
 			}
 		);
 
-		// Messages — Pro seam; without it there is no messaging feature to configure.
-		// The instanceof re-checks the seam contract: Lite cannot see the carved
-		// class, so nothing but the runtime can prove it still implements the
-		// interface. A Pro build that broke the contract is skipped, not fatal.
-		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer' ) ) {
-			$messages_renderer = new \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer();
-			if ( $messages_renderer instanceof TabRendererInterface ) {
-				$this->register( $messages_renderer );
-			}
-		}
+		// Messages — Pro seam inversion (Task A6): Lite no longer registers this
+		// renderer itself. Pro's SettingsExtensions registers it via the
+		// `mhm_rentiva_settings_register_renderers` action below.
 
 		// System
 		$this->register(
@@ -232,15 +208,9 @@ final class TabRendererRegistry {
 		// Utilities
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
-		// TransferSettingsRenderer — Pro seam (transfer is a Pro surface). As with
-		// the Messages renderer above, the instanceof re-checks the seam contract
-		// that Lite cannot see statically.
-		if ( class_exists( '\MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer' ) ) {
-			$transfer_renderer = new \MHMRentiva\Admin\Settings\View\Tabs\TransferSettingsRenderer();
-			if ( $transfer_renderer instanceof TabRendererInterface ) {
-				$this->register( $transfer_renderer );
-			}
-		}
+		// Transfer's tab renderer — Pro seam inversion (Task A6): Lite no longer
+		// registers this renderer itself. Pro's SettingsExtensions registers it via
+		// the `mhm_rentiva_settings_register_renderers` action below.
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
 
 		/**

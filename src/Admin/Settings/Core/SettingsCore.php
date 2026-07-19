@@ -360,6 +360,24 @@ final class SettingsCore {
 	}
 
 	/**
+	 * Read Pro's per-tab licence state for the settings tabs Lite carved out
+	 * (transfer, vendor-marketplace, messages).
+	 *
+	 * Lite's own default is an empty array -- a missing key means "not
+	 * licensed", not "visible". Only Pro's SettingsExtensions subscribes,
+	 * reporting Edition::isPro()/canUseVendorMarketplace()/canUseMessages()
+	 * (Task A6 seam inversion). Shared by SettingsService::reset_defaults()
+	 * and SettingsSanitizer::sanitize() so both fail-closed gates read the
+	 * exact same source instead of duplicating the filter call.
+	 *
+	 * @return array<string, bool>
+	 */
+	public static function settings_tabs(): array
+	{
+		return (array) apply_filters('mhm_rentiva_settings_tabs', array());
+	}
+
+	/**
 	 * Optimized defaults merging
 	 */
 	public static function get_defaults(): array
