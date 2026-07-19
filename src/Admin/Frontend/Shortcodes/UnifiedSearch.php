@@ -19,7 +19,8 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 /**
  * Unified Search Shortcode
  *
- * Merges Vehicle and Transfer search into a single tabbed widget.
+ * Rental vehicle search widget. Lite ships rental-only (Task A10) -- transfer
+ * search is the separate `rentiva_transfer_search` shortcode/block (Pro).
  *
  * @since 4.0.0
  */
@@ -49,23 +50,20 @@ final class UnifiedSearch extends AbstractShortcode {
 	{
 		return array(
 			// Tab controls
-			'default_tab'           => 'default', // 'rental', 'transfer', or 'default'
+			'default_tab'           => 'default', // Rental-only; kept for BC, has no other effect.
 			'default_tab_alias'     => 'defaultTab',
 
 			// Visibility controls (boolean as string for shortcode compatibility)
 			'show_rental_tab'       => 'default',
-			'show_transfer_tab'     => 'default',
 			'show_location_select'  => 'default',
 			'show_time_select'      => 'default',
 			'show_date_picker'      => 'default',
 			'show_dropoff_location' => 'default',
 			'location_required'     => 'default', // Whether pickup_location select is required
 			'fields_required'       => 'default', // Whether date fields are required (false = browse all vehicles)
-			'show_pax'              => 'default', // Adults/Children
-			'show_luggage'          => 'default', // Luggage inputs
 
 			// Query filters
-			'service_type'          => 'both', // 'rental', 'transfer', 'both'
+			'service_type'          => 'rental', // Lite ships rental-only; transfer is a separate Pro shortcode/block.
 			'filter_categories'     => '',
 			'redirect_page'         => 'default',
 
@@ -82,55 +80,28 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		// Initial service type depends on default_tab
-		$initial_service_type = $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental';
-
-		// Locations come from an add-on via the filter; Lite has none of its own,
-		// so the default is empty and the location selects must not render at all
-		// (see $show_location_select below).
-		$locations = apply_filters('mhm_rentiva_search_locations', array(), $initial_service_type);
-
-		// Normalize boolean attributes (accept '1', 'true', true, 1)
-		$bool = fn($v) => filter_var($v, FILTER_VALIDATE_BOOLEAN);
+		// Lite is rental-only (Task A10): the unified-search widget no longer
+		// offers a transfer tab -- transfer search is the separate
+		// `rentiva_transfer_search` shortcode/block (Pro). Locations are still
+		// requested for 'rental': the same filter also feeds an add-on's
+		// pickup/dropoff branch selects on the rental form itself, so it must
+		// stay live even though the transfer tab is gone.
+		$locations = apply_filters('mhm_rentiva_search_locations', array(), 'rental');
 
 		// Resolve initial visibility
-		$show_rental   = self::resolve_bool($atts['show_rental_tab'], 'mhm_rentiva_show_rental_tab', true);
-		$show_transfer = self::resolve_bool($atts['show_transfer_tab'], 'mhm_rentiva_show_transfer_tab', true);
-
-		// Override based on Service Mode (Master Switch)
-		if ($atts['service_type'] === 'rental') {
-			$show_transfer = false;
-			$show_rental   = true;
-		} elseif ($atts['service_type'] === 'transfer') {
-			$show_rental   = false;
-			$show_transfer = true;
-		}
-
-		// The extra ("transfer") tab is entirely an add-on concern: Lite ships only
-		// the rental tab, and offers a second tab only when an add-on contributes
-		// one via this filter. Nothing else can turn it off here: the attribute
-		// defaults to true, the settings fallback defaults to true, and the master
-		// switch above force-enables it for service_type="transfer" -- so this must
-		// be the last word, after every override. The rental side needs no such
-		// gate; it degrades on its own.
-		$extra_tabs = apply_filters('mhm_rentiva_search_extra_tabs', array(), $atts);
-		if (empty($extra_tabs)) {
-			$show_transfer = false;
-			$show_rental   = true;
-		}
+		$show_rental = self::resolve_bool($atts['show_rental_tab'], 'mhm_rentiva_show_rental_tab', true);
 
 		// Resolve layout: Check search_layout first (Block), then layout (Shortcode)
 		$layout = ! empty($atts['search_layout']) ? $atts['search_layout'] : $atts['layout'];
 
 		return array(
 			'locations'             => $locations,
-			'default_tab'           => self::resolve_default($atts['default_tab'], 'mhm_rentiva_default_search_tab', 'rental'),
+			'default_tab'           => 'rental',
 			'wrapper_id'            => uniqid('rv_unified_'),
 			'nonce'                 => wp_create_nonce('mhm_rentiva_unified_search'),
 
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,
-			'show_transfer_tab'     => $show_transfer,
 			// Never show a location select with nothing to select: the setting
 			// defaults to true, so without this the Lite rental form would render an
 			// empty (and, when location_required, unsubmittable) picker.
@@ -141,8 +112,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhm_rentiva_enable_dropoff', true),
 			'location_required'     => self::resolve_bool($atts['location_required'], 'mhm_rentiva_location_required', true),
 			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhm_rentiva_fields_required', true),
-			'show_pax'              => self::resolve_bool($atts['show_pax'], 'mhm_rentiva_enable_pax', true),
-			'show_luggage'          => self::resolve_bool($atts['show_luggage'], 'mhm_rentiva_enable_luggage', true),
 
 			// Query filters
 			'service_type'          => $atts['service_type'],
@@ -174,17 +143,12 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHM_RENTIVA_VERSION
 		);
 
-		// An add-on's extra search tab (e.g. transfer) enqueues its own assets and
-		// contributes its own script handle to the dependency list via this
-		// action/filter pair -- matching prepare_template_data()'s $show_transfer
-		// gate above. wp_enqueue_script() silently refuses to output a script whose
-		// dependency was never registered, so a dependency an add-on did not
-		// actually register would take the CORE unified-search JS down with it;
-		// that risk now belongs entirely to the add-on's own filter callback.
+		// Lite is rental-only (Task A10): the search-enqueue action and
+		// script-deps filter this method used to fire/apply existed solely to let
+		// an add-on's extra (transfer) search tab enqueue its own assets and
+		// script dependency for that tab's now-removed panel. Neither has any
+		// rental-side consumer, so both are gone with the tab.
 		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
-
-		do_action('mhm_rentiva_search_enqueue_assets', $atts);
-		$search_deps = apply_filters('mhm_rentiva_search_script_deps', $search_deps);
 
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',

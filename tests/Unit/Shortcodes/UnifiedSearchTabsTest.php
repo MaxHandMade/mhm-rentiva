@@ -12,10 +12,17 @@ use WP_UnitTestCase;
  * (Tasks A1/A2): UnifiedSearch no longer knows about
  * \MHMRentiva\Admin\Transfer\Engine\LocationProvider,
  * \MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes, or Lite's own
- * \MHMRentiva\Admin\Licensing\Mode::isPro(). Locations, the extra ("transfer")
- * search tab, and its enqueue/script-deps are all contributed by an add-on
- * through neutral filters/action -- Pro's own SearchExtensions subscribes to
- * them, gated by its own \MHMRentiva\Pro\Edition, never Lite's Mode.
+ * \MHMRentiva\Admin\Licensing\Mode::isPro(). Locations are contributed by an
+ * add-on through a neutral filter -- Pro's own SearchExtensions subscribes to
+ * it, gated by its own \MHMRentiva\Pro\Edition, never Lite's Mode.
+ *
+ * Task A10 removed the unified-search transfer TAB entirely (Lite ships
+ * rental-only; transfer search is the standalone `rentiva_transfer_search`
+ * shortcode/block), and with it `mhm_rentiva_search_extra_tabs`,
+ * `mhm_rentiva_search_enqueue_assets` and `mhm_rentiva_search_script_deps` --
+ * none of them have any reader left in UnifiedSearch. Only
+ * `mhm_rentiva_search_locations` survives, because the rental panel's own
+ * pickup/dropoff selects read it too.
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch
  */
@@ -24,17 +31,14 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     protected function tearDown(): void
     {
         remove_all_filters('mhm_rentiva_search_locations');
-        remove_all_filters('mhm_rentiva_search_extra_tabs');
-        remove_all_actions('mhm_rentiva_search_enqueue_assets');
-        remove_all_filters('mhm_rentiva_search_script_deps');
         parent::tearDown();
     }
 
     /**
      * The source itself must carry none of the old seam machinery any more --
      * this is the mutation proof for the whole file: reintroduce any of these
-     * three tokens in UnifiedSearch.php and this fails, regardless of whether
-     * the runtime assertions below happen to still pass.
+     * tokens in UnifiedSearch.php and this fails, regardless of whether the
+     * runtime assertions below happen to still pass.
      */
     public function test_source_has_no_mode_ispro_or_locationprovider_reference(): void
     {
@@ -45,6 +49,13 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('Mode::', $source, 'UnifiedSearch.php must not reference Licensing\\Mode any more.');
         $this->assertStringNotContainsString('isPro', $source, 'UnifiedSearch.php must not call isPro() any more.');
         $this->assertStringNotContainsString('LocationProvider', $source, 'UnifiedSearch.php must not name LocationProvider any more.');
+
+        // Task A10: the transfer TAB is gone, and with it every hook that only
+        // ever served it.
+        $this->assertStringNotContainsString('mhm_rentiva_search_extra_tabs', $source, 'UnifiedSearch.php must not read the removed extra-tab filter any more.');
+        $this->assertStringNotContainsString('mhm_rentiva_search_enqueue_assets', $source, 'UnifiedSearch.php must not fire the removed transfer-only enqueue action any more.');
+        $this->assertStringNotContainsString('mhm_rentiva_search_script_deps', $source, 'UnifiedSearch.php must not read the removed transfer-only script-deps filter any more.');
+        $this->assertStringNotContainsString('show_transfer_tab', $source, 'UnifiedSearch.php must not carry the removed transfer-tab visibility key any more.');
     }
 
     /**
@@ -57,16 +68,13 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
             'default_tab'           => 'default',
             'default_tab_alias'     => 'defaultTab',
             'show_rental_tab'       => 'default',
-            'show_transfer_tab'     => 'default',
             'show_location_select'  => 'default',
             'show_time_select'      => 'default',
             'show_date_picker'      => 'default',
             'show_dropoff_location' => 'default',
             'location_required'     => 'default',
             'fields_required'       => 'default',
-            'show_pax'              => 'default',
-            'show_luggage'          => 'default',
-            'service_type'          => 'both',
+            'service_type'          => 'rental',
             'filter_categories'     => '',
             'redirect_page'         => 'default',
             'layout'                => 'horizontal',
@@ -78,43 +86,17 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     }
 
     /**
-     * With no subscriber, `mhm_rentiva_search_locations` and
-     * `mhm_rentiva_search_extra_tabs` both default to empty -- so Lite offers no
-     * locations and no extra ("transfer") tab, purely from the filter defaults,
-     * with nothing left in UnifiedSearch itself to ask a class or a licence.
+     * With no subscriber, `mhm_rentiva_search_locations` defaults to empty -- so
+     * Lite offers no locations, purely from the filter default, with nothing left
+     * in UnifiedSearch itself to ask a class or a licence. There is no extra
+     * ("transfer") tab left to default at all as of Task A10.
      */
-    public function test_without_a_subscriber_no_extra_tab_and_no_locations(): void
+    public function test_without_a_subscriber_no_locations(): void
     {
         $data = $this->template_data();
 
         $this->assertSame(array(), $data['locations'], 'Locations must default to empty without a subscriber.');
-        $this->assertFalse($data['show_transfer_tab'], 'The extra tab must default to hidden without a subscriber.');
         $this->assertTrue($data['show_rental_tab'], 'The core rental tab must still render.');
-    }
-
-    /**
-     * The master switch forces service_type="transfer" to request the extra tab,
-     * so the "no subscriber" default must still be the last word.
-     */
-    public function test_extra_tab_stays_hidden_even_when_forced_by_service_type(): void
-    {
-        $data = $this->template_data(array( 'service_type' => 'transfer', 'default_tab' => 'transfer' ));
-
-        $this->assertFalse($data['show_transfer_tab'], 'service_type="transfer" must not override the "no subscriber" default.');
-        $this->assertTrue($data['show_rental_tab'], 'Hiding the extra tab must leave the rental tab usable.');
-    }
-
-    /**
-     * A subscriber CAN turn the extra tab on -- proves the filter is load-bearing,
-     * not just always-empty.
-     */
-    public function test_a_subscriber_can_enable_the_extra_tab(): void
-    {
-        add_filter('mhm_rentiva_search_extra_tabs', static fn ($tabs, $atts) => $tabs + array( 'transfer' => true ), 10, 2);
-
-        $data = $this->template_data();
-
-        $this->assertTrue($data['show_transfer_tab']);
     }
 
     /**
