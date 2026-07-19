@@ -1611,10 +1611,19 @@ final class AssetManager {
 	/**
 	 * Enqueue a React admin page bundle with its wp-api-fetch nonce middleware.
 	 *
-	 * @param string $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
-	 * @param array  $extra_deps Optional array of additional script dependencies.
+	 * @param string      $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
+	 * @param array       $extra_deps  Optional array of additional script dependencies.
+	 * @param string|null $base_dir    Absolute plugin dir the bundle lives under (trailing slash).
+	 *                                 Defaults to Lite's own MHM_RENTIVA_PLUGIN_DIR. Pro's admin
+	 *                                 pages pass MHM_RENTIVA_PRO_PATH here for the 5 bundles that
+	 *                                 moved to Pro's build/admin/ (Task A11a, WP.org T4 seam
+	 *                                 inversion) -- this Lite class stays the single call site for
+	 *                                 the shared wp-api-fetch nonce middleware + wp_enqueue_script
+	 *                                 boilerplate, it just no longer assumes the bundle is Lite's own.
+	 * @param string|null $base_url    Absolute plugin URL counterpart to $base_dir. Defaults to
+	 *                                 MHM_RENTIVA_PLUGIN_URL.
 	 */
-	public static function enqueue_react_page( string $page_handle, array $extra_deps = [] ): void
+	public static function enqueue_react_page( string $page_handle, array $extra_deps = [], ?string $base_dir = null, ?string $base_url = null ): void
 	{
 		if ( ! self::$react_nonce_added ) {
 			wp_add_inline_script(
@@ -1630,7 +1639,10 @@ final class AssetManager {
 
 		wp_enqueue_style( 'wp-components' );
 
-		$asset_file = MHM_RENTIVA_PLUGIN_DIR . "build/admin/{$page_handle}.asset.php";
+		$base_dir = $base_dir ?? MHM_RENTIVA_PLUGIN_DIR;
+		$base_url = $base_url ?? MHM_RENTIVA_PLUGIN_URL;
+
+		$asset_file = $base_dir . "build/admin/{$page_handle}.asset.php";
 		$asset      = file_exists( $asset_file )
 			? include $asset_file
 			: array(
@@ -1640,7 +1652,7 @@ final class AssetManager {
 
 		wp_enqueue_script(
 			"mhm-rentiva-react-{$page_handle}",
-			MHM_RENTIVA_PLUGIN_URL . "build/admin/{$page_handle}.js",
+			$base_url . "build/admin/{$page_handle}.js",
 			array_merge( $asset['dependencies'], $extra_deps ),
 			$asset['version'],
 			true
@@ -1649,7 +1661,7 @@ final class AssetManager {
 		wp_set_script_translations(
 			"mhm-rentiva-react-{$page_handle}",
 			'mhm-rentiva',
-			MHM_RENTIVA_PLUGIN_DIR . 'languages/'
+			$base_dir . 'languages/'
 		);
 	}
 
