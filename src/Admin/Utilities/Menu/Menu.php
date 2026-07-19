@@ -80,55 +80,6 @@ final class Menu {
 			'edit.php?post_type=vehicle_booking'
 		);
 
-		/*
-		 * 4. Transfer Group (Previously in TransferAdmin)
-		 *
-		 * TransferAdmin is a Pro seam, so both screens are guarded — without it the
-		 * submenus would fatal on `new TransferAdmin()`.
-		 *
-		 * class_exists() alone was NOT enough, and shipped that way: with Pro
-		 * installed but UNLICENSED the class exists, so both screens rendered in
-		 * full for free. Menu registration is its own code path — the seam gate
-		 * added to the shortcode/block/Elementor registries never reached it, and
-		 * no test asked. Transfer has no per-feature licence key, so the gate is
-		 * the edition itself: Mode::isPro(), i.e. allowsSeam('pro').
-		 *
-		 * Both checks are required by the seam contract: class_exists() keeps a
-		 * Lite-only build from fatalling, Mode::isPro() keeps an unlicensed build
-		 * from getting the feature.
-		 *
-		 * The gap escalated here (a Lite site that has the locations table and reads
-		 * it, but has no CRUD UI to populate it → permanently empty rental location
-		 * pickers) was RESOLVED by the owner on 2026-07-16: Lite has NO location
-		 * search — location belongs to Transfer (Pro). Splitting the Locations
-		 * screen into core was explicitly rejected. So this guard is now exactly
-		 * right: no TransferAdmin, no Locations screen, and no location affordance
-		 * anywhere in core either (LocationProvider + REST\Locations moved to Pro in
-		 * Task 5a-2; every core call site is guarded). Lite no longer creates the
-		 * table. See carveout/faz1-exit-decisions.md §"Task 5a escalation".
-		 */
-		if (class_exists('\MHMRentiva\Admin\Transfer\TransferAdmin')
-			&& \MHMRentiva\Admin\Licensing\Mode::isPro()
-		) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Locations', 'mhm-rentiva'),
-				__('Locations', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-transfer-locations',
-				array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_locations_page' )
-			);
-
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Transfer Routes', 'mhm-rentiva'),
-				__('Transfer Routes', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-transfer-routes',
-				array( new \MHMRentiva\Admin\Transfer\TransferAdmin(), 'render_routes_page' )
-			);
-		}
-
 		// 5. Additional Services (Addons)
 		add_submenu_page(
 			'mhm-rentiva',
@@ -147,42 +98,6 @@ final class Menu {
 			'mhm-rentiva-customers',
 			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);
-
-		// 7. Reports (Pro seam; absent in Lite)
-		if (class_exists('\MHMRentiva\Admin\Reports\Reports') && \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports()) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Reports', 'mhm-rentiva'),
-				__('Reports', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-reports',
-				array( new \MHMRentiva\Admin\Reports\Reports(), 'render_page' )
-			);
-		}
-
-		// 8. Messages (Pro seam; absent in Lite)
-		if (class_exists('\MHMRentiva\Admin\Messages\Core\Messages') && \MHMRentiva\Admin\Licensing\Mode::canUseMessages()) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Messages', 'mhm-rentiva'),
-				__('Messages', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-messages',
-				array( new \MHMRentiva\Admin\Messages\Core\Messages(), 'render_messages_page' )
-			);
-		}
-
-		// 9. Export (Pro seam; absent in Lite)
-		if (class_exists('\MHMRentiva\Admin\Utilities\Export\Export') && \MHMRentiva\Admin\Licensing\Mode::canUseExport()) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Export', 'mhm-rentiva'),
-				__('Export', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-export',
-				array( new \MHMRentiva\Admin\Utilities\Export\Export(), 'render_export_page' )
-			);
-		}
 
 		// 10. Settings
 		add_submenu_page(
@@ -230,58 +145,20 @@ final class Menu {
 			);
 		}
 
-		// 14. License (Requested at the very bottom)
-		// LicenseAdmin is a Pro seam: the Lite (wp.org) build has no licence to
-		// manage, and `new LicenseAdmin()` would fatal without it.
-		if (class_exists('\MHMRentiva\Admin\Licensing\LicenseAdmin')) {
-			add_submenu_page(
-				'mhm-rentiva',
-				__('License Management', 'mhm-rentiva'),
-				__('License', 'mhm-rentiva'),
-				'manage_options',
-				'mhm-rentiva-license',
-				array( new \MHMRentiva\Admin\Licensing\LicenseAdmin(), 'render_page' )
-			);
-		}
-
 		// Remove WordPress's automatically created "MHM Rentiva" submenu
 		remove_submenu_page('mhm-rentiva', 'mhm-rentiva');
 	}
 
 	/**
-	 * Vendor (Bayi) menus — registered at priority 15 so they always appear at the bottom.
+	 * Vendor (Bayi) menus — registered at priority 15 so they always appear at the
+	 * bottom. Lite itself has no vendor submenus to add here (all three carved to
+	 * Pro's MenuExtensions::add_pro_bayi_menu_items(), Task A7 seam inversion) —
+	 * the hook stays registered so the priority slot is reserved and Pro's own
+	 * later-priority admin_menu callback appends after whatever Lite would have
+	 * rendered here.
 	 */
 	public static function add_bayi_menus(): void
 	{
-		// 1. Vendor Management (Pro — Vendor Marketplace)
-		if (class_exists(\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::class)
-			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
-		) {
-			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::add_submenu();
-		}
-
-		// 2. Vendor Reports (Pro — Vendor Marketplace)
-		if (class_exists(\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::class)
-			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()
-		) {
-			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::add_submenu();
-		}
-
-		// 3. Payout Requests (Pro — Vendor Marketplace / Payout)
-		if (class_exists(\MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class)
-			&& \MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()
-		) {
-			// phpcs:disable WordPress.WP.Capabilities.Unknown -- mhm_rentiva_approve_payout is a custom governance capability registered via DatabaseMigrator::register_governance_capabilities().
-			add_submenu_page(
-				'mhm-rentiva',
-				__('Payout Requests', 'mhm-rentiva'),
-				__('Payout Requests', 'mhm-rentiva'),
-				'mhm_rentiva_approve_payout',
-				'mhm-rentiva-payouts',
-				array( \MHMRentiva\Admin\PostTypes\Payouts\PayoutAdminPage::class, 'render' )
-			);
-			// phpcs:enable
-		}
 	}
 
 	public static function slug(): string
