@@ -442,10 +442,6 @@ register_deactivation_hook(
 	__FILE__,
 	function () {
 		flush_rewrite_rules();
-		// Clean license cron job
-		if (class_exists('MHMRentiva\\Admin\\Licensing\\LicenseManager')) {
-			\MHMRentiva\Admin\Licensing\LicenseManager::deactivatePluginHook();
-		}
 
 		// Clean log maintenance cron job
 		if (class_exists('MHMRentiva\\Admin\\Core\\Utilities\\LogMaintenanceScheduler')) {

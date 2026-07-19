@@ -1641,7 +1641,7 @@ parameters:
 		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
-			count: 2
+			count: 1
 			path: src/Plugin.php
 
 		-
