@@ -85,21 +85,10 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Initial service type depends on default_tab
 		$initial_service_type = $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental';
 
-		// Fetch locations based on initial service type. Locations are a Transfer
-		// (Pro) feature: without LocationProvider there are none, and the location
-		// selects must not render at all (see $show_location_select below).
-		//
-		// The licence check is not decoration. class_exists() alone asks whether the
-		// class SHIPPED, and on a Pro-installed-but-unlicensed site it did -- so this
-		// served a populated pickup/dropoff dropdown (real airports and hotels, read
-		// from the Pro locations table) to anonymous visitors on the public front
-		// page. The owner's rule is that Lite has NO location search at all.
-		$locations = array();
-		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')
-			&& \MHMRentiva\Admin\Licensing\Mode::isPro()
-		) {
-			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations($initial_service_type);
-		}
+		// Locations come from an add-on via the filter; Lite has none of its own,
+		// so the default is empty and the location selects must not render at all
+		// (see $show_location_select below).
+		$locations = apply_filters('mhm_rentiva_search_locations', array(), $initial_service_type);
 
 		// Normalize boolean attributes (accept '1', 'true', true, 1)
 		$bool = fn($v) => filter_var($v, FILTER_VALIDATE_BOOLEAN);
@@ -117,23 +106,15 @@ final class UnifiedSearch extends AbstractShortcode {
 			$show_transfer = true;
 		}
 
-		// Transfer is a Pro surface. Its tab posts to `rentiva_transfer_results`,
-		// a shortcode Lite carves out, so the search would land on a page printing
-		// the tag's own literal text. Nothing else can turn the tab off here: the
-		// attribute defaults to true, the settings fallback defaults to true, and
-		// the master switch above force-enables it for service_type="transfer" --
-		// so this must be the last word, after every override. The rental side
-		// needs no such gate; it degrades on its own.
-		//
-		// And it must ask the LICENCE, not just the class. Presence-only meant that
-		// on a Pro-installed-but-unlicensed site the tab rendered on the public
-		// front page, with its full origin/destination/date form -- posting to
-		// rentiva_transfer_results, which the licence had closed to a silent no-op.
-		// So the visitor got a working-looking search that always lands on a blank
-		// page. Found in the browser at isPro=false; no test asked.
-		if (! ( class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')
-			&& \MHMRentiva\Admin\Licensing\Mode::isPro() )
-		) {
+		// The extra ("transfer") tab is entirely an add-on concern: Lite ships only
+		// the rental tab, and offers a second tab only when an add-on contributes
+		// one via this filter. Nothing else can turn it off here: the attribute
+		// defaults to true, the settings fallback defaults to true, and the master
+		// switch above force-enables it for service_type="transfer" -- so this must
+		// be the last word, after every override. The rental side needs no such
+		// gate; it degrades on its own.
+		$extra_tabs = apply_filters('mhm_rentiva_search_extra_tabs', array(), $atts);
+		if (empty($extra_tabs)) {
 			$show_transfer = false;
 			$show_rental   = true;
 		}
@@ -193,27 +174,17 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHM_RENTIVA_VERSION
 		);
 
-		// Ensure Transfer JS logic is loaded for the Transfer tab (Parity).
-		// TransferShortcodes is a Pro seam. It is also the ONLY registrar of the
-		// 'rentiva-transfer' script handle, so that handle must drop out of the
-		// dependency list alongside it: wp_enqueue_script() silently refuses to
-		// output a script whose dependency was never registered, which would take
-		// the CORE unified-search JS down with the Pro transfer tab.
+		// An add-on's extra search tab (e.g. transfer) enqueues its own assets and
+		// contributes its own script handle to the dependency list via this
+		// action/filter pair -- matching prepare_template_data()'s $show_transfer
+		// gate above. wp_enqueue_script() silently refuses to output a script whose
+		// dependency was never registered, so a dependency an add-on did not
+		// actually register would take the CORE unified-search JS down with it;
+		// that risk now belongs entirely to the add-on's own filter callback.
 		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
 
-		// Licence-gated to match prepare_template_data(): with the tab hidden there is
-		// nothing for these assets to drive, and enqueuing them anyway shipped the Pro
-		// transfer CSS/JS (and its localized transfer_vars) to every unlicensed
-		// visitor. The two gates must stay identical -- if this one enqueued while the
-		// tab were hidden the payload would leak, and if the tab rendered while this
-		// dropped 'rentiva-transfer', wp_enqueue_script() would silently refuse the
-		// CORE unified-search JS over the missing dependency.
-		if (class_exists('\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes')
-			&& \MHMRentiva\Admin\Licensing\Mode::isPro()
-		) {
-			\MHMRentiva\Admin\Transfer\Frontend\TransferShortcodes::enqueue_assets();
-			$search_deps[] = 'rentiva-transfer';
-		}
+		do_action('mhm_rentiva_search_enqueue_assets', $atts);
+		$search_deps = apply_filters('mhm_rentiva_search_script_deps', $search_deps);
 
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',
