@@ -350,6 +350,23 @@ final class ShortcodeServiceProvider {
 		$output   = call_user_func($callback, $atts, $content, $tag);
 		$buffered = ob_get_clean();
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- This is
+		// a generic dispatcher shared by all 27 registered shortcodes; it has no
+		// knowledge of any callback's field structure, so it cannot escape here
+		// without risking double-escaping or corrupting markup it doesn't
+		// understand. Every shortcode class extends AbstractShortcode::render(),
+		// which renders through Templates::render() (src/Admin/Core/Utilities/
+		// Templates.php) into a template file under templates/shortcodes/ or
+		// templates/partials/ -- and those templates escape every dynamic value
+		// at output (esc_html()/esc_attr()/esc_url() per field; verified across
+		// templates/, e.g. templates/shortcodes/testimonials.php lines 103/115
+		// esc_html($testimonial['review']) / esc_html($format_name(...))). The few
+		// templates that print a raw, pre-built HTML string (e.g. an SVG icon or
+		// star-rating fragment) already carry their own documented
+		// phpcs:ignore at that exact echo (see templates/partials/vehicle-card.php
+		// and templates/shortcodes/availability-calendar.php). Escaping here would
+		// be redundant at best and content-corrupting (wp_kses_post stripping
+		// legitimate SVG/style/data-* markup) at worst.
 		return $output ?? $buffered;
 	}
 

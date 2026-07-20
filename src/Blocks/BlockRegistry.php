@@ -522,7 +522,18 @@ class BlockRegistry {
 			$wrapper_args['style'] = implode(';', $wrapper_styles);
 		}
 
-		// Return wrapped content with proper block wrapper attributes (FSE support)
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Both
+		// interpolated values are already escaped at their own source, not here:
+		// (1) get_block_wrapper_attributes() is WP core (wp-includes/
+		// class-wp-block-supports.php) and esc_attr()'s every attribute value it
+		// emits before returning the string; (2) $shortcode_content is the output
+		// of do_shortcode(), which resolves through
+		// ShortcodeServiceProvider::handle_shortcode_execution() -- see the
+		// documented ignore + rationale there, since every dynamic field in the
+		// shortcode's own template output is already escaped per value. Wrapping
+		// this whole return in wp_kses_post() would risk stripping legitimate
+		// markup (SVG icons, style attributes, data-* used by the frontend JS)
+		// that the per-field escaping already accounts for.
 		return sprintf(
 			'<div %s>%s</div>',
 			get_block_wrapper_attributes($wrapper_args),

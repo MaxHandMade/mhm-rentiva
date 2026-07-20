@@ -321,6 +321,11 @@ final class WooCommerceIntegration {
 		}
 
 		if ( ! $active_key || ! in_the_loop() ) {
+			// Passthrough: $title is WP core's own value for this call, unmodified
+			// by us. This filter is global (fires for every post/page title on the
+			// site, not only Rentiva account endpoints), so re-escaping it here
+			// would double-encode titles core already ran through wptexturize()/
+			// convert_chars() -- corrupting every title on the site, not just ours.
 			return $title;
 		}
 
@@ -328,10 +333,17 @@ final class WooCommerceIntegration {
 		// never titles of nested content (vehicles, bookings, etc.).
 		$queried_id = (int) get_queried_object_id();
 		if ( $id <= 0 || $queried_id <= 0 || $id !== $queried_id ) {
+			// Passthrough -- see rationale above.
 			return $title;
 		}
 
-		return $rentiva_map[ $active_key ]['label'] ?? $title;
+		// The only value THIS filter actually introduces: a static, translated
+		// label from self::get_rentiva_endpoints_map() (never user input), escaped
+		// here at the return per WP.org's "escape as late as possible" guidance.
+		// The only value THIS filter actually introduces: a static, translated
+		// label from self::get_rentiva_endpoints_map() (never user input), escaped
+		// here at the return per WP.org's "escape as late as possible" guidance.
+		return esc_html( $rentiva_map[ $active_key ]['label'] ?? $title );
 	}
 
 	/**
