@@ -622,13 +622,6 @@ final class Plugin {
 		// REST API
 		add_action('rest_api_init', array( $this, 'register_rest_api' ));
 
-		// Operational Resilience: Health & Integrity
-		if (class_exists('MHMRentiva\Api\REST\HealthController')) {
-			\MHMRentiva\Api\REST\HealthController::register();
-		}
-		if (class_exists('MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob')) {
-			\MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob::register();
-		}
 		// Shortcode URL cache temizleme
 		add_action('save_post', array( Admin\Core\ShortcodeUrlManager::class, 'clear_cache_on_page_update' ));
 		add_action(

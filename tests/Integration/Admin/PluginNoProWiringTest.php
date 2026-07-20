@@ -117,6 +117,29 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         $this->assertStringContainsString('mhm-rentiva layout', $src);
     }
 
+    /**
+     * H3 audit fix (inversion holes): Plugin.php used to be the ONLY
+     * registrar of HealthController and IntegrityVerificationJob -- both
+     * Pro classes, wired with a bare class_exists() guard and no licence
+     * gate at all, absent from Pro's own Bootstrap. Removing Lite's blocks
+     * (as the seam-inversion design orders) would have silently killed both
+     * features had they not first been moved into
+     * Bootstrap::register_operational().
+     */
+    public function test_plugin_php_no_longer_wires_health_and_integrity_job(): void
+    {
+        $src = $this->plugin_php_source();
+
+        foreach (array( 'HealthController', 'IntegrityVerificationJob' ) as $class) {
+            $this->assertStringNotContainsString(
+                $class,
+                $src,
+                "Plugin.php must not reference {$class} -- moved to Pro's own "
+                . 'Bootstrap::register_operational() (H3 audit fix).'
+            );
+        }
+    }
+
     public function test_main_file_no_longer_calls_license_manager_deactivation(): void
     {
         $src = $this->main_file_source();
@@ -188,5 +211,27 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         $routes = rest_get_server()->get_routes();
 
         $this->assertArrayHasKey('/mhm-rentiva/v1/about', $routes);
+    }
+
+    /** H3 audit fix: a standalone Lite install must not expose the Pro health endpoint. */
+    public function test_no_health_rest_route_is_registered(): void
+    {
+        do_action('rest_api_init');
+        $routes = rest_get_server()->get_routes();
+
+        $this->assertArrayNotHasKey(
+            '/mhm-rentiva/v1/health',
+            $routes,
+            'A standalone Lite install must not expose the Pro HealthController REST route.'
+        );
+    }
+
+    /** H3 audit fix: a standalone Lite install must not schedule the Pro integrity-check cron. */
+    public function test_no_integrity_check_cron_is_scheduled(): void
+    {
+        $this->assertFalse(
+            wp_next_scheduled('mhm_rentiva_daily_integrity_check'),
+            'A standalone Lite install must never schedule the Pro IntegrityVerificationJob cron.'
+        );
     }
 }
