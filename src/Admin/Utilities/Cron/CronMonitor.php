@@ -63,14 +63,14 @@ final class CronMonitor {
 		/**
 		 * Task A9c seam inversion: the license-validation, licence-server
 		 * check-in and GDPR data-retention crons used to be hardcoded here,
-		 * gated on a class_exists() check for Pro's license-manager class and
-		 * a Pro-edition GDPR capability gate. Their labels ("Validates plugin
-		 * license daily", "Reports site URL... to license server", "Cleans up
-		 * expired data...") must never surface on a site this build does not
-		 * ship them on, including one downgraded from Pro (an event scheduled
-		 * during a prior licensed run persists in wp_cron until cleared). Pro
-		 * now contributes its own cron descriptions back through this filter
-		 * -- see \MHMRentiva\Pro\Extensions\CronExtensions::filter_cron_descriptions().
+		 * gated on a class_exists() check for the add-on's license-manager
+		 * class and an add-on GDPR capability gate. Their labels ("Validates
+		 * plugin license daily", "Reports site URL... to license server",
+		 * "Cleans up expired data...") must never surface on a site this
+		 * build does not ship them on, including one downgraded from the
+		 * add-on (an event scheduled during a prior licensed run persists in
+		 * wp_cron until cleared). The add-on now contributes its own cron
+		 * descriptions back through this filter.
 		 *
 		 * @param array<string, array{name: string, description: string}> $plugin_hooks
 		 */
@@ -168,8 +168,7 @@ final class CronMonitor {
 
 		// Check if hook is a plugin hook. Task A9c seam inversion: the two
 		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
-		// them back via this filter --
-		// see \MHMRentiva\Pro\Extensions\CronExtensions::filter_known_cron_hooks().
+		// them back via this filter.
 		$plugin_hooks = (array) apply_filters(
 			'mhm_rentiva_known_cron_hooks',
 			array(

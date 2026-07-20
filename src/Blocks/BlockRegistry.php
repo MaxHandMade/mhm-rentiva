@@ -260,12 +260,12 @@ class BlockRegistry {
 	/**
 	 * The full block configuration, open for extension.
 	 *
-	 * Lite ships its own blocks only. Pro (or any other consumer) contributes its
-	 * blocks by hooking `mhm_rentiva_blocks` -- Lite carries no knowledge of Pro
-	 * block slugs, classes, or feature names. A contributor is responsible for its
-	 * own presence/licence gating inside its filter callback (see
-	 * \MHMRentiva\Pro\Extensions\BlockExtensions in the Pro add-on): the filter
-	 * simply returns whatever the callback decides to admit.
+	 * Lite ships its own blocks only. The add-on (or any other consumer)
+	 * contributes its blocks by hooking `mhm_rentiva_blocks` -- Lite carries no
+	 * knowledge of the add-on's block slugs, classes, or feature names. A
+	 * contributor is responsible for its own presence/licence gating inside
+	 * its filter callback: the filter simply returns whatever the callback
+	 * decides to admit.
 	 *
 	 * An entry may carry `base_url`/`base_dir` when its `assets/blocks/<slug>/`
 	 * files (block.json, editor script) live outside this plugin; both default to

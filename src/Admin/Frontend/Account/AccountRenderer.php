@@ -262,12 +262,11 @@ final class AccountRenderer {
 		}
 
 		// The customer-messages stylesheet + account-messages script enqueue/localize
-		// used to live here directly. Both assets are Pro-only now (messaging is a Pro
-		// feature) -- Lite no longer knows their filenames, handles, or Lite-hosted
-		// paths. Pro performs the actual enqueue itself, at the exact point this
-		// render happens, via
-		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_messages_render_assets()
-		// (WP.org T4 Phase B, Task B-A1).
+		// used to live here directly. Both assets belong to the add-on now
+		// (messaging is a feature of the add-on) -- Lite no longer knows their
+		// filenames, handles, or Lite-hosted paths. The add-on performs the actual
+		// enqueue itself, at the exact point this render happens (WP.org T4 Phase B,
+		// Task B-A1).
 		do_action('mhm_rentiva_account_messages_render_assets', $user, $customer_name);
 
 		$data = array(

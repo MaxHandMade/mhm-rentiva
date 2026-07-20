@@ -117,10 +117,10 @@ final class AccountController {
 		add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_ROOT | EP_PAGES);
 
 		// The 'messages' endpoint used to register here unconditionally. Messaging
-		// is a Pro-only feature (the `message` CPT only exists when Pro is active),
-		// so Pro now registers its own endpoint via `mhm_rentiva_account_endpoints`
-		// -- Lite carries no knowledge of the messages endpoint slug any more (WP.org
-		// T4 Phase B, Task B-A1).
+		// is a feature of the add-on (the `message` CPT only exists when the add-on
+		// is active), so the add-on now registers its own endpoint via
+		// `mhm_rentiva_account_endpoints` -- Lite carries no knowledge of the
+		// messages endpoint slug any more (WP.org T4 Phase B, Task B-A1).
 		foreach ( (array) apply_filters('mhm_rentiva_account_endpoints', array()) as $extra_endpoint) {
 			if (is_string($extra_endpoint) && '' !== $extra_endpoint) {
 				add_rewrite_endpoint($extra_endpoint, EP_ROOT | EP_PAGES);
@@ -148,11 +148,10 @@ final class AccountController {
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// The messages-endpoint asset enqueue (dequeue guard + the account-messages
-		// script + localize) used to live here unconditionally. Messaging is a Pro-only
-		// feature -- Lite carries no knowledge of its assets or handles any more.
-		// Pro hooks `wp_enqueue_scripts` itself (see
-		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_messages_assets())
-		// and repeats the same endpoint detection independently (WP.org T4 Phase B,
+		// script + localize) used to live here unconditionally. Messaging is a
+		// feature of the add-on -- Lite carries no knowledge of its assets or
+		// handles any more. The add-on hooks `wp_enqueue_scripts` itself and
+		// repeats the same endpoint detection independently (WP.org T4 Phase B,
 		// Task B-A1).
 
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)

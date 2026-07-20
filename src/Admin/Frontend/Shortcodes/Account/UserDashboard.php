@@ -220,11 +220,10 @@ final class UserDashboard {
 		);
 
 		// The vendor-forms stylesheet enqueue used to live here directly. It styles the
-		// vendor-application/vendor-panel markup Pro renders into this page (the
-		// vendor marketplace is Pro-only) -- Lite no longer ships the file or knows
-		// its handle. Pro enqueues it itself on this same page (see
-		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_vendor_forms_css())
-		// (WP.org T4 Phase B, Task B-A1).
+		// vendor-application/vendor-panel markup the add-on renders into this page
+		// (the vendor marketplace is a feature of the add-on) -- Lite no longer
+		// ships the file or knows its handle. The add-on enqueues it itself on this
+		// same page (WP.org T4 Phase B, Task B-A1).
 
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
 		wp_enqueue_style('select2', null); // WC registers this

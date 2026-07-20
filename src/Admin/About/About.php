@@ -50,7 +50,7 @@ final class About {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab switch, no state-changing action.
 		$raw_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
 		// Keep in sync with TabNav.jsx's TABS and AboutPage.jsx's getInitialTab().
-		// The removed `features` tab rendered a Lite-vs-Pro comparison table from a
+		// The removed `features` tab rendered a tier-comparison table from a
 		// REST key that no longer exists, so allowing it here handed the React side
 		// an undefined payload and took the whole About page down.
 		$allowed     = array( 'general', 'system', 'support', 'developer' );

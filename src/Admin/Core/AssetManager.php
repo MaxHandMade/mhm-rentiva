@@ -880,9 +880,9 @@ final class AssetManager {
 		// ('mhm-rentiva_page_mhm-rentiva-messages-settings') that no page has
 		// registered since the tabbed settings refactor -- the real Messages
 		// Settings screen is `page=mhm-rentiva-settings&tab=messages`, which
-		// \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer (Pro) owns
-		// and enqueues its own assets for. This block never fired; removed as part
-		// of the Pro-feature asset carve-out (WP.org T4 Phase B, Task B-A1).
+		// \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer (the add-on)
+		// owns and enqueues its own assets for. This block never fired; removed as
+		// part of the add-on asset carve-out (WP.org T4 Phase B, Task B-A1).
 
 		// Booking Calendar
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view selection from query string.
@@ -1253,14 +1253,14 @@ final class AssetManager {
 		}
 
 		// Message List enqueue used to live here, guarded on
-		// `$screen->post_type === 'message'` -- but the `message` CPT Pro actually
-		// registers is `mhm_message` (see \MHMRentiva\Admin\PostTypes\Message\Message
-		// ::POST_TYPE in Pro), so this guard never matched and the block never
-		// fired. Removed as part of the Pro-feature asset carve-out (WP.org T4
+		// `$screen->post_type === 'message'` -- but the `message` CPT the add-on
+		// actually registers is `mhm_message` (see \MHMRentiva\Admin\PostTypes\Message\Message
+		// ::POST_TYPE in the add-on), so this guard never matched and the block
+		// never fired. Removed as part of the add-on asset carve-out (WP.org T4
 		// Phase B, Task B-A1) along with the file it enqueued.
 
 		// Export Page enqueue (legacy 'mhm-export' handle/CSS/JS) used to live
-		// here. The Export admin screen is Pro-only; Pro's own
+		// here. The Export admin screen belongs to the add-on; the add-on's own
 		// \MHMRentiva\Admin\Utilities\Export\Export::enqueue_scripts() now enqueues
 		// this handle itself from its own plugin directory, alongside the React
 		// bundle it already served (WP.org T4 Phase B, Task B-A1).

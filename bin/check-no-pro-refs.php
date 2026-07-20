@@ -27,7 +27,7 @@ $base  = dirname( __DIR__ );
 $roots = array( $base . '/src', $base . '/templates', $base . '/src-react', $base . '/build', $base . '/assets' );
 $files = array( $base . '/mhm-rentiva.php', $base . '/uninstall.php' );
 
-$pattern = '/isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|Mode::|Licensing\\\\Mode|canUse[A-Z]|LicenseManager|LicenseAdmin|VerifyEndpoint|\bLicensing\b/';
+$pattern = '/isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|Mode::|Licensing\\\\Mode|canUse[A-Z]|LicenseManager|LicenseAdmin|VerifyEndpoint|\bLicensing\b|MHMRentiva\\\\Pro/';
 
 // Domain false positives that are NOT edition/license references.
 // - license_plate / driver's licen(se|ce): vehicle-rental domain, not edition gating.
