@@ -1,9 +1,9 @@
-# 
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-07-20T18:01:16+00:00\n"
+"POT-Creation-Date: 2026-07-20T19:08:25+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -2072,7 +2072,7 @@ msgstr "bu gündeki rezervasyonlar"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1307
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
 #: src/Admin/Settings/Testing/SettingsTester.php:978
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164 src/Plugin.php:924
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164 src/Plugin.php:929
 msgid "Customer"
 msgstr "Müşteri"
 
@@ -2513,7 +2513,7 @@ msgstr "İptal Edilen Rezervasyon"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1702
 #: src/Admin/Booking/Meta/BookingMeta.php:376
 #: src/Admin/Booking/PostType/Booking.php:23
-#: src/Admin/Core/ShortcodeServiceProvider.php:456
+#: src/Admin/Core/ShortcodeServiceProvider.php:430
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
 #: src/Admin/Settings/Testing/SettingsTester.php:977
 #: src/Admin/Utilities/ListTable/LogColumns.php:48
@@ -5427,23 +5427,23 @@ msgstr "Geçersiz dizi biçimi."
 msgid "An error occurred during the operation."
 msgstr "İşlem sırasında bir hata oluştu."
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:346
+#: src/Admin/Core/ShortcodeServiceProvider.php:320
 msgid "Please login to view this content."
 msgstr "Bu içeriği görüntülemek için lütfen giriş yapın."
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:457
+#: src/Admin/Core/ShortcodeServiceProvider.php:431
 msgid "Vehicle Display"
 msgstr "Araç Ekranı"
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:458
+#: src/Admin/Core/ShortcodeServiceProvider.php:432
 msgid "Account Management"
 msgstr "Hesap Yönetimi"
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:459
+#: src/Admin/Core/ShortcodeServiceProvider.php:433
 msgid "Support and Contact"
 msgstr "Destek ve İletişim"
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:460
+#: src/Admin/Core/ShortcodeServiceProvider.php:434
 msgid "Transfer Services"
 msgstr "Transfer Hizmetleri"
 
@@ -8117,13 +8117,8 @@ msgstr "Kısa kod yüklenirken bir hata oluştu."
 
 #: src/Admin/Frontend/Shortcodes/FeaturedVehicles.php:98
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:134
-#: templates/shortcodes/home-poc.php:62
 msgid "Featured Vehicles"
 msgstr "Öne Çıkan Araçlar"
-
-#: src/Admin/Frontend/Shortcodes/HomePoc.php:65
-msgid "Home POC template not found."
-msgstr "Ana Sayfa POC şablonu bulunamadı."
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:369
 msgid "Filter applied"
@@ -15641,7 +15636,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:946
+#: src/Plugin.php:951
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -17185,22 +17180,6 @@ msgstr "Hata Oluştu!"
 #: templates/shortcodes/featured-vehicles.php:28
 msgid "No featured vehicles found."
 msgstr "Öne çıkan araç bulunamadı."
-
-#: templates/shortcodes/home-poc.php:36
-msgid "Find Your Perfect Rental"
-msgstr "Mükemmel Kiralık Evinizi Bulun"
-
-#: templates/shortcodes/home-poc.php:46
-msgid "Luxury vehicles at your fingertips. Rent the experience today."
-msgstr "Lüks araçlar parmaklarınızın ucunda. Bu deneyimi bugün kiralayın."
-
-#: templates/shortcodes/home-poc.php:65
-msgid "Our most popular choices for this month."
-msgstr "Bu ayın en popüler seçimlerimiz."
-
-#: templates/shortcodes/home-poc.php:78
-msgid "What Our Customers Say"
-msgstr "Müşterilerimizin Yorumları"
 
 #. translators: %s: search keyword wrapped in strong tags.
 #: templates/shortcodes/search-results.php:74

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-20T18:01:16+00:00\n"
+"POT-Creation-Date: 2026-07-20T19:08:25+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -2070,7 +2070,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
 #: src/Admin/Settings/Testing/SettingsTester.php:978
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164
-#: src/Plugin.php:924
+#: src/Plugin.php:929
 msgid "Customer"
 msgstr ""
 
@@ -2512,7 +2512,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1702
 #: src/Admin/Booking/Meta/BookingMeta.php:376
 #: src/Admin/Booking/PostType/Booking.php:23
-#: src/Admin/Core/ShortcodeServiceProvider.php:456
+#: src/Admin/Core/ShortcodeServiceProvider.php:430
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
 #: src/Admin/Settings/Testing/SettingsTester.php:977
 #: src/Admin/Utilities/ListTable/LogColumns.php:48
@@ -5417,23 +5417,23 @@ msgstr ""
 msgid "An error occurred during the operation."
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:346
+#: src/Admin/Core/ShortcodeServiceProvider.php:320
 msgid "Please login to view this content."
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:457
+#: src/Admin/Core/ShortcodeServiceProvider.php:431
 msgid "Vehicle Display"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:458
+#: src/Admin/Core/ShortcodeServiceProvider.php:432
 msgid "Account Management"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:459
+#: src/Admin/Core/ShortcodeServiceProvider.php:433
 msgid "Support and Contact"
 msgstr ""
 
-#: src/Admin/Core/ShortcodeServiceProvider.php:460
+#: src/Admin/Core/ShortcodeServiceProvider.php:434
 msgid "Transfer Services"
 msgstr ""
 
@@ -7994,12 +7994,7 @@ msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/FeaturedVehicles.php:98
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:134
-#: templates/shortcodes/home-poc.php:62
 msgid "Featured Vehicles"
-msgstr ""
-
-#: src/Admin/Frontend/Shortcodes/HomePoc.php:65
-msgid "Home POC template not found."
 msgstr ""
 
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:369
@@ -15231,7 +15226,7 @@ msgstr ""
 msgid "Rollback is possible and valid."
 msgstr ""
 
-#: src/Plugin.php:946
+#: src/Plugin.php:951
 msgid "Rentiva Vendor"
 msgstr ""
 
@@ -16651,22 +16646,6 @@ msgstr ""
 
 #: templates/shortcodes/featured-vehicles.php:28
 msgid "No featured vehicles found."
-msgstr ""
-
-#: templates/shortcodes/home-poc.php:36
-msgid "Find Your Perfect Rental"
-msgstr ""
-
-#: templates/shortcodes/home-poc.php:46
-msgid "Luxury vehicles at your fingertips. Rent the experience today."
-msgstr ""
-
-#: templates/shortcodes/home-poc.php:65
-msgid "Our most popular choices for this month."
-msgstr ""
-
-#: templates/shortcodes/home-poc.php:78
-msgid "What Our Customers Say"
 msgstr ""
 
 #. translators: %s: search keyword wrapped in strong tags.
