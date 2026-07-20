@@ -450,7 +450,7 @@ if (class_exists('MHMRentiva\\Blocks\\BlockRegistry')) {
 	\MHMRentiva\Blocks\BlockRegistry::init();
 }
 
-// Deactivation hook - rewrite flush + license cron cleanup
+// Deactivation hook - rewrite flush + scheduled-log cleanup
 register_deactivation_hook(
 	__FILE__,
 	function () {
