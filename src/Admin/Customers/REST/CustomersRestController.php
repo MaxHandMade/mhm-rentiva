@@ -23,7 +23,11 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_list' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Read-only listing of customer/user records (name, email, phone,
+				// address, booking stats) — no write, so gated on the WP capability
+				// that governs browsing the Users list table, not manage_options
+				// (WP.org T4 #7).
+				'permission_callback' => fn() => current_user_can( 'list_users' ),
 				'args'                => array(
 					'page'     => array(
 						'type'    => 'integer',
@@ -61,7 +65,10 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_detail' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Same read-only data class as the list route above — no editable
+				// fields are returned or accepted, so the same capability applies
+				// (WP.org T4 #7).
+				'permission_callback' => fn() => current_user_can( 'list_users' ),
 				'args'                => array(
 					'id' => array(
 						'type'    => 'integer',
@@ -77,7 +84,11 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( self::class, 'bulk_delete' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Deletes real WordPress user accounts, so the route-level gate
+				// matches the operation's WP capability directly (mirrors the
+				// handler-body defense-in-depth guard added in WP.org T4 #5;
+				// WP.org T4 #7).
+				'permission_callback' => fn() => current_user_can( 'delete_users' ),
 			)
 		);
 	}

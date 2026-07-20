@@ -21,16 +21,36 @@ final class Availability {
 	}
 
 	/**
-	 * Permission callback - Security check with rate limiting
+	 * Permission callback — deliberately PUBLIC, not capability-gated (WP.org T4 #7).
+	 *
+	 * `/availability` and `/availability/with-alternatives` answer "is this
+	 * vehicle free for these dates" for the front-end booking widget, which
+	 * must work for anonymous site visitors who are not logged in and hold no
+	 * WP capability at all. The response contains only availability status,
+	 * pricing, and currency formatting (see check()/check_with_alternatives())
+	 * — no PII, no customer/vendor data, and no write side-effects — so a
+	 * `current_user_can()` gate would break the booking flow for every
+	 * anonymous visitor without protecting anything sensitive. This is a
+	 * documented part of the public REST API (README.md "Authentication"
+	 * section), not an oversight.
+	 *
+	 * It is intentionally NOT `__return_true`: the request must still carry a
+	 * valid standard `wp_rest` nonce (X-WP-Nonce), same mechanism WP core uses
+	 * for its own REST endpoints, and be within the RateLimiter's per-IP
+	 * budget. Neither check requires login or a capability — an anonymous
+	 * visitor gets a nonce automatically from the page that embeds this
+	 * widget — so the endpoint remains fully public while still rejecting
+	 * cross-origin/no-session scripted probing and bulk scraping.
 	 */
 	public static function permission_check( \WP_REST_Request $request ): bool {
-		// 1. Security Check (HTTPS, IP blocking, etc.)
+		// 1. Nonce check (CSRF / same-origin, not an authorization check —
+		// works for logged-out visitors too).
 		$auth_check = \MHMRentiva\Admin\REST\Helpers\AuthHelper::verifyAuth( $request );
 		if ( is_wp_error( $auth_check ) ) {
 			return false;
 		}
 
-		// 2. Rate limiting check
+		// 2. Rate limiting check (abuse/scrape protection, IP-scoped).
 		$client_ip = \MHMRentiva\Admin\Core\Utilities\RateLimiter::getClientIP();
 		return \MHMRentiva\Admin\Core\Utilities\RateLimiter::check( $client_ip, 'general' );
 	}
