@@ -138,9 +138,9 @@ final class SettingsCore {
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
 
-		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
-		// Pro adds its own group class(es) back via this filter.
+		// The add-on adds its own group class(es) back via this filter.
 		$groups = (array) apply_filters( 'mhm_rentiva_settings_groups', $groups );
 
 		foreach ($groups as $group) {
@@ -419,11 +419,11 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);
 
-		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
-		// Pro adds its own group class(es) back via this filter (same filter as
+		// The add-on adds its own group class(es) back via this filter (same filter as
 		// register_sub_groups() above -- both lists carried the same two
-		// Pro classes before the carve).
+		// classes before the carve).
 		$sub_modules = (array) apply_filters( 'mhm_rentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {

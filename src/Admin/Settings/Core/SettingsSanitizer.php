@@ -52,7 +52,7 @@ final class SettingsSanitizer {
 		// still reach this sanitizer. Fail closed: for a tab that belongs to an
 		// extension whose registration is absent, return the untouched current
 		// values (a no-op save) so no extension-owned setting is written.
-		// Transfer is a whole-edition extension point; vendor-marketplace has its
+		// Transfer is a whole-add-on extension point; vendor-marketplace has its
 		// own registration key. Messages saves through its own gated handler, not
 		// here.
 		// Registration state comes from SettingsCore::settings_tabs() (Task A6

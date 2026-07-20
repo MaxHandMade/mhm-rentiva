@@ -300,11 +300,11 @@ class BlockRegistry {
 		foreach (self::get_block_config() as $slug => $config) {
 			// A contributor's `assets/blocks/<slug>/` (block.json, editor script)
 			// AND its block-level CSS (below) may live outside this plugin -- e.g.
-			// Pro's own blocks ship from the Pro add-on. Default to Lite's own
+			// the add-on's own blocks ship from the add-on. Default to Lite's own
 			// constants so Lite's blocks are unaffected. Block-level CSS used to
 			// resolve from THIS plugin's URL regardless of base_url, on the theory
 			// that a contributor's stylesheets stayed Lite-hosted; that stopped
-			// being true once Pro's own CSS carve-out moved those files out of
+			// being true once the add-on's own CSS carve-out moved those files out of
 			// Lite, so CSS now honours base_url exactly like the editor script does
 			// (WP.org T4 Phase B, Task B-A1; mirrors Task A1's script handling).
 			$base_url = $config['base_url'] ?? MHM_RENTIVA_PLUGIN_URL;
@@ -393,10 +393,10 @@ class BlockRegistry {
 		// Extract the slug from the block name (e.g., mhm-rentiva/search -> search)
 		$slug = str_replace('mhm-rentiva/', '', $block->name);
 
-		// Resolve through the FILTERED map, not self::$blocks directly: a
-		// Pro-contributed block (e.g. transfer-results) has no entry in Lite's
+		// Resolve through the FILTERED map, not self::$blocks directly: an
+		// add-on-contributed block (e.g. transfer-results) has no entry in Lite's
 		// own array any more, only in the `mhm_rentiva_blocks` filter result.
-		// Reading self::$blocks here would make every Pro block render empty.
+		// Reading self::$blocks here would make every add-on block render empty.
 		$blocks = self::get_block_config();
 
 		if (! isset($blocks[ $slug ])) {
@@ -531,7 +531,7 @@ class BlockRegistry {
 		// ShortcodeServiceProvider::handle_shortcode_execution() -- see the
 		// documented ignore there for the precise, scoped guarantee: all 17 of
 		// Lite's own shortcode templates escape every dynamic field at output,
-		// and any `mhm_rentiva_shortcodes` filter contributor (e.g. Pro) is
+		// and any `mhm_rentiva_shortcodes` filter contributor (e.g. an add-on) is
 		// responsible for its own per-field escaping, same as $blocks here is
 		// itself open to a `mhm_rentiva_blocks` filter contributor whose `tag`
 		// resolves through that same do_shortcode() call and inherits that same
@@ -574,7 +574,7 @@ class BlockRegistry {
 	 * @param string      $relative_path Asset path relative to $base_dir.
 	 * @param string|null $base_dir      Root the path is relative to. Defaults to
 	 *                                   this plugin's own dir; a contributor whose
-	 *                                   assets live elsewhere (e.g. Pro) passes its
+	 *                                   assets live elsewhere (e.g. an add-on) passes its
 	 *                                   own base_dir so filemtime() checks the file
 	 *                                   that actually exists.
 	 */

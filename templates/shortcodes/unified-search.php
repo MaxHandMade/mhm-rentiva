@@ -4,7 +4,7 @@
 /**
  * Template: Unified Search Widget
  *
- * Rental-only in Lite. Transfer search is a separate Pro surface (the
+ * Rental-only in Lite. Transfer search is a separate add-on surface (the
  * `rentiva_transfer_search` shortcode/block), not a tab here -- see Task A10.
  *
  * @var array  $locations            Location options for select dropdowns
@@ -188,7 +188,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
 
         <!-- Rental-only: the transfer panel was removed in Task A10. Transfer -->
         <!-- search is served by the standalone `rentiva_transfer_search` -->
-        <!-- shortcode/block (Pro), not a tab here. -->
+        <!-- shortcode/block (add-on), not a tab here. -->
 
     </div>
 </div>

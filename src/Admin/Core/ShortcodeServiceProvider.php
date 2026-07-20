@@ -369,7 +369,7 @@ final class ShortcodeServiceProvider {
 		//
 		// $callback here is NOT limited to those 17: get_registry() (~:84-92)
 		// opens the registry to `apply_filters('mhm_rentiva_shortcodes', ...)`,
-		// so a contributor (e.g. the Pro add-on's ShortcodeExtensions) can add
+		// so a contributor (e.g. an active add-on's ShortcodeExtensions) can add
 		// its own tags/classes, and this same dispatcher -- and this same
 		// ignore -- also returns THEIR callback's output. Per get_registry()'s
 		// own docblock, a contributor is responsible for its own behavior inside

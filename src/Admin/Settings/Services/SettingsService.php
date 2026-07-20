@@ -199,9 +199,9 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 		);
 
-		// Pro-owned providers that also write to the master option (Task A6b
+		// Add-on-owned providers that also write to the master option (Task A6b
 		// seam inversion): Lite no longer names the Transfer settings-group
-		// class here. Pro adds its own provider class(es) back via this filter.
+		// class here. The add-on adds its own provider class(es) back via this filter.
 		$provider_classes = (array) apply_filters( 'mhm_rentiva_settings_activation_providers', $provider_classes );
 
 		$defaults = array();

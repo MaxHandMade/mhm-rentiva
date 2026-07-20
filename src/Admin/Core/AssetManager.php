@@ -1527,9 +1527,9 @@ final class AssetManager {
 	 * @param string      $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
 	 * @param array       $extra_deps  Optional array of additional script dependencies.
 	 * @param string|null $base_dir    Absolute plugin dir the bundle lives under (trailing slash).
-	 *                                 Defaults to Lite's own MHM_RENTIVA_PLUGIN_DIR. Pro's admin
+	 *                                 Defaults to Lite's own MHM_RENTIVA_PLUGIN_DIR. The add-on's admin
 	 *                                 pages pass MHM_RENTIVA_PRO_PATH here for the 5 bundles that
-	 *                                 moved to Pro's build/admin/ (Task A11a, WP.org T4 seam
+	 *                                 moved to the add-on's build/admin/ (Task A11a, WP.org T4 seam
 	 *                                 inversion) -- this Lite class stays the single call site for
 	 *                                 the shared wp-api-fetch nonce middleware + wp_enqueue_script
 	 *                                 boilerplate, it just no longer assumes the bundle is Lite's own.

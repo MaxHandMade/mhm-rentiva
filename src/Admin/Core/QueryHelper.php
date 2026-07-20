@@ -106,7 +106,7 @@ class QueryHelper {
 
         // City expansion: resolve all location IDs sharing the requested IDs' cities,
         // via the locations table, preferring the new name over the legacy one.
-        // Neither is guaranteed to exist: locations are a Transfer (Pro) feature and
+        // Neither is guaranteed to exist: locations are a Transfer add-on feature and
         // Lite creates no such table, so the legacy name -- which was previously
         // assumed rather than probed -- must be probed too. With no table there is
         // nothing to expand, so city expansion is skipped and the strict ID matching

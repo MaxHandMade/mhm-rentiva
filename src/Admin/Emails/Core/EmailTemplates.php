@@ -166,8 +166,8 @@ final class EmailTemplates {
 			EmailPreview::render();
 		} else {
 			/**
-			 * Neutral seam for any email-type tab Lite does not own (e.g. Pro's
-			 * message_emails/vendor_emails). Pro renders its own tabs here.
+			 * Neutral seam for any email-type tab Lite does not own (e.g. the add-on's
+			 * message_emails/vendor_emails). The add-on renders its own tabs here.
 			 *
 			 * @param string $current_type The active email-type tab key.
 			 */
@@ -248,7 +248,7 @@ final class EmailTemplates {
 			} else {
 				/**
 				 * Neutral seam for any email-type tab Lite does not own (e.g.
-				 * Pro's message_emails/vendor_emails). Pro renders its own tabs
+				 * the add-on's message_emails/vendor_emails). The add-on renders its own tabs
 				 * here.
 				 *
 				 * @param string $current_type The active email-type tab key.
@@ -320,8 +320,8 @@ final class EmailTemplates {
 			self::save_refund_emails();
 		} else {
 			/**
-			 * Neutral seam for any email-type tab Lite does not own (e.g. Pro's
-			 * message_emails/vendor_emails). Pro saves its own tabs here.
+			 * Neutral seam for any email-type tab Lite does not own (e.g. the add-on's
+			 * message_emails/vendor_emails). The add-on saves its own tabs here.
 			 *
 			 * @param string $current_tab The active (already-validated) tab key.
 			 */
@@ -395,14 +395,14 @@ final class EmailTemplates {
 	 * Tabs for the email-templates screen.
 	 *
 	 * Lite owns three tabs: Booking Notifications, Refund Emails and Email
-	 * Preview. Any other tab -- currently Pro's Message Notifications and
+	 * Preview. Any other tab -- currently the add-on's Message Notifications and
 	 * Vendor Notifications -- is contributed through the
-	 * `mhm_rentiva_email_types` filter, so Lite never names a Pro class here.
+	 * `mhm_rentiva_email_types` filter, so Lite never names an add-on class here.
 	 *
 	 * This list is also what save_email_templates() validates its POSTed
-	 * `current_tab` against, so a Pro tab not being contributed (e.g. Pro not
-	 * installed, or installed but not registering) also closes the save
-	 * handler for it.
+	 * `current_tab` against, so a tab not contributed by an active extension
+	 * (e.g. the extension not installed, or installed but not registering) also
+	 * closes the save handler for it.
 	 *
 	 * @return array<string, string>
 	 */
@@ -414,7 +414,7 @@ final class EmailTemplates {
 		);
 
 		/**
-		 * Let Pro (or any other extension) add its own email-type tabs before
+		 * Let the add-on (or any other extension) add its own email-type tabs before
 		 * the Preview tab -- e.g. message_emails, vendor_emails.
 		 *
 		 * @param array<string, string> $email_types Lite's own tabs so far, keyed by type.

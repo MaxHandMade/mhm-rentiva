@@ -1178,7 +1178,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// already exists at this point (checkout has completed), but a
 		// subscriber that halts the request (e.g. wp_die() for missing GDPR
 		// consent) still does so before the booking post itself is written.
-		// No-op by default; Pro's GDPRManager only enforces when GDPR +
+		// No-op by default; the add-on's GDPRManager only enforces when GDPR +
 		// consent-required are both explicitly enabled by the admin.
 		do_action('mhm_rentiva_before_booking_creation', array(
 			'vehicle_id'      => $booking_data['vehicle_id'],

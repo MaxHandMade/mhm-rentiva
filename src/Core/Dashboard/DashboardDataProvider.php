@@ -205,8 +205,8 @@ final class DashboardDataProvider {
 	 *
 	 * Both KPIs are only wired under the 'vendor' context (DashboardConfig::get_kpis),
 	 * which a Lite install cannot reach anyway — the empty default is defence-in-depth
-	 * for the Pro→Lite downgrade case, where vendor-role users already exist in the
-	 * DB. A subscriber (Pro) supplies the ledger-backed metrics map; Lite's own
+	 * for the add-on-removed downgrade case, where vendor-role users already exist in the
+	 * DB. A subscriber (the add-on) supplies the ledger-backed metrics map; Lite's own
 	 * default is an empty array, which the `?? 0` fallback below turns into '0%',
 	 * identically to the pre-inversion "no metrics" case.
 	 *

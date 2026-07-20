@@ -48,15 +48,15 @@ final class DatabaseMigrator {
 
 			// Payout governance schema (the `payout_audit` table + the seven
 			// `mhm_rentiva_*` capabilities added to the administrator role)
-			// belongs to Pro's GovernanceService -- the class that actually
+			// belongs to the add-on's GovernanceService -- the class that actually
 			// reads/writes the audit trail and enforces those capabilities.
 			// Gated on its presence rather than a registration check for the same
 			// reason as the Ledger cluster below: this is a question of which
 			// FILES this build ships, not which features are registered as
-			// active. A registration gate would also skip the schema on a Pro
+			// active. A registration gate would also skip the schema on an add-on
 			// install whose extension is not yet activated, and since
 			// run_migrations() is version-gated it would not re-run after
-			// activation -- leaving Pro with a half-built schema.
+			// activation -- leaving the add-on with a half-built schema.
 			if (class_exists(\MHMRentiva\Core\Financial\GovernanceService::class)) {
 				self::create_table('mhm_rentiva_payout_audit');
 				self::register_governance_capabilities();
@@ -64,18 +64,18 @@ final class DatabaseMigrator {
 
 			// Financial / ledger-audit schema. Every table in this cluster --
 			// `ledger`, `commission_policy`, and the `key_registry` that holds the
-			// ledger-signing keys -- belongs to Pro; Lite ships no class that reads
+			// ledger-signing keys -- belongs to the add-on; Lite ships no class that reads
 			// or writes any of them (Ledger, CommissionResolver, KeyPairManager and
-			// KeyRegistryRepository all moved to Pro). Creating them anyway left
+			// KeyRegistryRepository all moved to the add-on). Creating them anyway left
 			// dead schema in every Lite install.
 			//
 			// Gated on LedgerMigration (the seam that owns the cluster's primary
 			// table) rather than on a registration check: this is a question about
 			// which FILES this build ships, not which features are registered as
-			// active. A registration gate would also skip the schema on a Pro
+			// active. A registration gate would also skip the schema on an add-on
 			// install whose extension is not yet activated, and since
 			// run_migrations() is version-gated it would not re-run after
-			// activation -- leaving Pro with a half-built schema. Mirrors
+			// activation -- leaving the add-on with a half-built schema. Mirrors
 			// create_transfer_tables()'s class_exists() gate below.
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
@@ -594,14 +594,14 @@ final class DatabaseMigrator {
 	/**
 	 * Creates VIP Transfer tables (locations + routes).
 	 *
-	 * Both tables belong to the Transfer (Pro) module. Lite has no location search
+	 * Both tables belong to the Transfer add-on module. Lite has no location search
 	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
 	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
 	 * read is dead schema, which is WP.org-unclean (cf. faz1-exit-decisions Task 5
 	 * REQUIREMENT 2).
 	 *
 	 * Task A9c seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
-	 * verbatim to Pro's `\MHMRentiva\Core\Database\Migrations\TransferMigration`
+	 * verbatim to the add-on's `\MHMRentiva\Core\Database\Migrations\TransferMigration`
 	 * (same "Migrations" cluster as LedgerMigration/VendorReportsMigration below),
 	 * so this file no longer names any class from the Transfer module itself.
 	 * Gate stays a class_exists() check -- unchanged semantics, only the target
@@ -1085,9 +1085,9 @@ final class DatabaseMigrator {
 	 * --------------
 	 * The geo-blocking feature is gone: the free core's country check was removed
 	 * in Faz 2a (it sent the visitor's IP to ip-api.com over plain HTTP), and the
-	 * Pro-side `CountryRestriction` that inherited that call was deleted in Faz 2b
-	 * Task 9 — zero callers, no UI, absent from the monolith. No code in EITHER
-	 * edition reads this option any more.
+	 * add-on's `CountryRestriction` that inherited that call was deleted in Faz 2b
+	 * Task 9 — zero callers, no UI, absent from the monolith. No code reads this
+	 * option any more.
 	 *
 	 * A leftover `mhm_rentiva_country_restriction_enabled = 1` row therefore states
 	 * that geo-restriction is ON while nothing whatsoever enforces it. That is a

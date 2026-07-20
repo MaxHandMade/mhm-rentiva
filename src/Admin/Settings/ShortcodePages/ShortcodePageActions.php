@@ -169,7 +169,7 @@ final class ShortcodePageActions {
 				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
 				'slug'        => 'demo-user-dashboard',
 				// The dashboard's vendor branch is unreachable in this build -- only
-				// the Pro onboarding flow grants the rentiva_vendor role -- so the
+				// the add-on's onboarding flow grants the rentiva_vendor role -- so the
 				// customer summary is the only thing this description can promise.
 				'description' => __( 'Customer dashboard - booking, favorite and account summary', 'mhm-rentiva' ),
 			),

@@ -243,10 +243,10 @@ final class DashboardPage {
 			'widget_order'                => array(),
 			'currency'                    => CurrencyHelper::get_currency_symbol(),
 			'admin_url'                   => admin_url(),
-			// Registration gates for the Pro quick actions, so the dashboard does
-			// not link to inaccessible Pro pages when no extension is active. Keys match the
+			// Registration gates for add-on quick actions, so the dashboard does
+			// not link to pages an inactive add-on would expose. Keys match the
 			// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
-			// Lite ships no keys at all -- a subscriber (Pro) supplies transfer/
+			// Lite ships no keys at all -- a subscriber (the add-on) supplies transfer/
 			// reports/vendors/messages/export; QuickActions.jsx already reads
 			// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
 			// key behaves identically to an explicit `false`.
@@ -254,9 +254,9 @@ final class DashboardPage {
 		);
 
 		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
-		// subscriber (Pro's DashboardExtensions) adds `transfer_stats` /
+		// subscriber (the add-on's DashboardExtensions) adds `transfer_stats` /
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
-		// the site is running Pro. The React app already guards its
+		// the add-on is active. The React app already guards its
 		// TransferWidget render on `transfer_stats` being truthy.
 		$data = apply_filters( 'mhm_rentiva_dashboard_localize', $data );
 
