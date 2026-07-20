@@ -264,7 +264,7 @@ namespace MHMRentiva\Admin;
 
 final class Bootstrap {
 	public function boot(): void {
-		if ( class_exists( 'Admin\Core\Utilities\DebugHelper' ) ) {
+		if ( class_exists( 'Admin\Core\Utilities\CacheManager' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -274,7 +274,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\Core\Utilities\DebugHelper', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\Core\Utilities\CacheManager', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 

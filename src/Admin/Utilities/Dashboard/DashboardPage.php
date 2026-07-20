@@ -172,6 +172,11 @@ final class DashboardPage {
 			return;
 		}
 
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
+			return;
+		}
+
 		$order = isset($_POST['order']) ? array_map('sanitize_key', $_POST['order']) : array();
 		if (empty($order)) {
 			wp_send_json_error(__('Invalid order data', 'mhm-rentiva'));

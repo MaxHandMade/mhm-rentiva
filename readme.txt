@@ -27,7 +27,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **Customer Management:** Customer records, booking history, and CSV export of your customer list.
 *   **Email Notifications:** Editable email templates for booking confirmations, cancellations, refunds and reminders.
 *   **Customer Account Pages:** Bookings, favourites and payment history in the customer's WooCommerce account area.
-*   **15 Shortcodes:** Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
+*   **16 Shortcodes:** Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
 *   **16 Gutenberg Blocks:** One for each frontend shortcode, built on a Render Parity architecture — a block, its Elementor widget and its shortcode all delegate to the same renderer, so they produce identical output.
 *   **17 Elementor Widgets:** The same components as Elementor widgets, with Elementor's own controls and live preview.
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data, with API key management.
@@ -60,11 +60,11 @@ Most of this plugin is plain, human-readable PHP with no build step.
 
 Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No obfuscated code is bundled.
 
-The complete development sources, including the build configuration (`package.json`, `webpack.config.js`), are available in the public GitHub repository:
+The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
 https://github.com/MaxHandMade/mhm-rentiva
 
-To rebuild the admin bundles from source, run the following from the plugin directory (or a checkout of the repository above):
+To rebuild the admin bundles from source, clone or download that repository and run the following from the repository root:
 
 `npm install`
 `npm run build`
