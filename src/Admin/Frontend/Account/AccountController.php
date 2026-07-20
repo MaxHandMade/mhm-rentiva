@@ -160,8 +160,12 @@ final class AccountController {
 			wp_enqueue_script('mhm-vehicle-interactions');
 		}
 
-		// Enqueue Account Privacy JS on Dashboard
-		if ($endpoint === 'dashboard' || empty($endpoint)) {
+		// Enqueue Account Privacy JS on Dashboard.
+		// The three GDPR controls (export / withdraw / delete) are backed by AJAX
+		// handlers that ship with the separate add-on; when it is not installed the
+		// free plugin registers none of them, so we neither render the controls
+		// (see templates/account/dashboard.php) nor load their script — no dead UI.
+		if (( $endpoint === 'dashboard' || empty($endpoint) ) && has_action('wp_ajax_mhm_rentiva_data_export')) {
 			wp_enqueue_script(
 				'mhm-rentiva-account-privacy',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',

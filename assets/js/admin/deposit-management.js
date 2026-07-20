@@ -176,7 +176,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_cancel_booking',
+                    action: 'mhm_rentiva_deposit_cancel_booking',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },
@@ -212,7 +212,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_process_refund',
+                    action: 'mhm_rentiva_deposit_process_refund',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },

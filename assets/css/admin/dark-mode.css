@@ -338,9 +338,9 @@ body.mhm-dark-mode .notice strong {
 	color: var(--mhm-dark-text-primary) !important;
 }
 
-/* Links inside notices (e.g. the Lite-upgrade "Enter your license key" link)
-   otherwise inherit the theme/admin-scheme link color, which is a saturated
-   blue with ~2:1 contrast against our dark notice background — unreadable. */
+/* Links inside admin notices otherwise inherit the theme/admin-scheme link
+   color, which is a saturated blue with ~2:1 contrast against our dark notice
+   background — unreadable. */
 body.mhm-dark-mode .notice a {
 	color: var(--mhm-dark-link);
 }

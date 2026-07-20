@@ -74,7 +74,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_create_api_key',
+                    action: 'mhm_rentiva_create_api_key',
                     nonce: this.nonce,
                     name: name,
                     permissions: permissions
@@ -149,7 +149,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_list_api_keys',
+                    action: 'mhm_rentiva_list_api_keys',
                     nonce: this.nonce
                 },
                 success: (response) => {
@@ -239,7 +239,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_revoke_api_key',
+                    action: 'mhm_rentiva_revoke_api_key',
                     nonce: this.nonce,
                     key_id: keyId
                 },
@@ -272,7 +272,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_delete_api_key',
+                    action: 'mhm_rentiva_delete_api_key',
                     nonce: this.nonce,
                     key_id: keyId
                 },
@@ -307,7 +307,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_reset_rest_settings',
+                    action: 'mhm_rentiva_reset_rest_settings',
                     nonce: this.nonce
                 },
                 success: (response) => {
@@ -340,7 +340,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_list_endpoints',
+                    action: 'mhm_rentiva_list_endpoints',
                     nonce: this.nonce
                 },
                 success: (response) => {
