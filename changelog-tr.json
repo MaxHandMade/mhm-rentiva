@@ -36,7 +36,7 @@
     "date": "2026-07-18",
     "type": "patch",
     "title": "Dışa aktarma ekranı düzeltmeleri (paylaşılan paket) ve çeviri güncellemesi",
-    "summary": "Dışa aktarma ekranının paylaşılan React paketindeki düzeltmeler; bu ekranı Rentiva Pro eklentisi kaydeder ve geçerli bir lisansa bağlar. Ücretsiz eklentide dışa aktarma ekranı yoktur, dolayısıyla davranışı değişmez.",
+    "summary": "Ayrı Rentiva eklentisinin kaydettiği, paylaşılan bir React yönetici paketindeki düzeltmeler. Ücretsiz eklentide dışa aktarma ekranı yoktur, dolayısıyla davranışı değişmez.",
     "changes": [
       "Düzeltme: dışa aktarma ekranının Dışa Aktar düğmesi güvenlik nonce'unu \"nonce\" alan adıyla gönderiyordu; oysa işleyici check_admin_referer() ile doğrulama yapıyor ve _wpnonce alanını okuyor — bu yüzden CSV dahil her dışa aktarma \"bağlantının süresi doldu\" hatasıyla başarısız oluyordu. Artık _wpnonce olarak gönderiliyor.",
       "Yeni: dışa aktarma geçmişi tablosu, her girdinin hangi biçimde (CSV veya JSON) dışa aktarıldığını gösteriyor.",
@@ -55,7 +55,7 @@
       "Yeni: WordPress.org'da ilk genel sürüm — filo yönetimi, uygunluk, rezervasyonlar, müşteriler, WooCommerce ödemeleri, e-posta bildirimleri ve müşteri hesap sayfaları; araç, rezervasyon veya ilan sınırı, özellik sayacı ya da kilitli ekran olmadan.",
       "Uyum: eklenti hiçbir üçüncü taraf isteği yapmaz — web yazı tipi eklentiyle birlikte gelir ve kendi sitenizden sunulur; coğrafi konum, analitik veya CDN çağrısı yoktur.",
       "Uyum: tüm yönetici ve ön yüz betikleri ile stilleri artık satır içi <script>/<style> blokları yerine WordPress varlık sistemi (wp_enqueue) üzerinden yüklenir; hiçbir ekranın görünümü veya davranışı değişmez.",
-      "Güvenlik: yalnızca Pro'ya özgü yüzeyler artık yalnızca gizlenmek yerine geçerli bir lisansa bağlanır; ayrı ücretli eklentinin özelliklerinin lisanssız çalışabildiği birkaç yol kapatıldı.",
+      "Güvenlik: ayrı eklentinin özellikleri artık yalnızca ücretsiz eklentinin nötr genişletme noktaları üzerinden bağlanır; istenmeden çalışabildikleri yollar kapatıldı.",
       "16 kısa kod, 16 Gutenberg bloğu ve 17 Elementor widget'ı tek bir işleyiciyi paylaşır (Render Parity), böylece üçü de aynı çıktıyı üretir. Tam Türkçe çeviriyle birlikte gelir."
     ],
     "notice": "İlk WordPress.org sürümü. Bir ön sürüm yapısından yükseltiyorsanız herhangi bir işlem gerekmez."

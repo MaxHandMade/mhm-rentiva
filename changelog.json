@@ -36,7 +36,7 @@
     "date": "2026-07-18",
     "type": "patch",
     "title": "Export screen fixes (shared bundle) and translation update",
-    "summary": "Fixes to the data-export screen's shared React bundle, which the Rentiva Pro add-on registers and gates behind a valid licence. The free plugin has no export screen, so its behaviour is unchanged.",
+    "summary": "Fixes to a shared React admin bundle that the separate Rentiva add-on registers. The free plugin has no export screen, so its behaviour is unchanged.",
     "changes": [
       "Fixed: the export screen's Export button posted its security nonce under the field name \"nonce\", but the handler verifies with check_admin_referer(), which reads _wpnonce — so every export, CSV included, failed with a \"the link you followed has expired\" error. It is now posted as _wpnonce.",
       "New: the export history table shows which format (CSV or JSON) each entry was exported as.",
@@ -55,7 +55,7 @@
       "New: First public release on WordPress.org — fleet management, availability, bookings, customers, WooCommerce payments, email notifications and the customer account pages, with no vehicle, booking or listing caps, no feature timers and no locked screens.",
       "Compliance: the plugin makes no third-party requests at all — the webfont is bundled and served from your own site, and there are no geolocation, analytics or CDN calls.",
       "Compliance: every admin and front-end script and style now loads through the WordPress asset system (wp_enqueue) instead of inline <script>/<style> blocks, with no change to how any screen looks or behaves.",
-      "Security: Pro-only surfaces are now gated on a valid licence rather than only hidden, closing several paths where the separate paid add-on's features could run without one.",
+      "Security: the separate add-on's features now attach only through the free plugin's neutral extension points, closing paths where they could otherwise run unintentionally.",
       "16 shortcodes, 16 Gutenberg blocks and 17 Elementor widgets share a single renderer (Render Parity) so all three produce identical output. Ships with a full Turkish translation."
     ],
     "notice": "First WordPress.org release. If you are upgrading from a pre-release build, no action is required."
