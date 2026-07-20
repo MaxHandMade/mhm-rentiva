@@ -50,14 +50,6 @@ $format_name = static function (string $full_name): string {
 	return $parts[0] . ' ' . $last_initial . '.';
 };
 
-/**
- * Deterministic single-letter initial for a reviewer's local avatar
- * placeholder. No external request -- everything renders from the name
- * already in hand.
- */
-$local_avatar_initial = static function (string $full_name): string {
-	return mb_strtoupper(mb_substr(trim($full_name), 0, 1, 'UTF-8'), 'UTF-8');
-};
 ?>
 
 <div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
@@ -116,7 +108,7 @@ $local_avatar_initial = static function (string $full_name): string {
 											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 												<div class="rv-author-avatar">
 													<span class="rv-avatar-placeholder" aria-hidden="true">
-														<?php echo esc_html($local_avatar_initial( (string) $testimonial['customer_name'])); ?>
+														<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 													</span>
 												</div>
 												<div class="rv-author-info">
@@ -201,7 +193,7 @@ $local_avatar_initial = static function (string $full_name): string {
 									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 										<div class="rv-author-avatar">
 											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html($local_avatar_initial( (string) $testimonial['customer_name'])); ?>
+												<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 											</span>
 										</div>
 										<div class="rv-author-info">

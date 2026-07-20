@@ -75,6 +75,19 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
 	);
 }
 
+/**
+ * Single uppercase initial letter for a local (non-Gravatar) avatar
+ * placeholder. Used by every template that renders a reviewer/customer/user
+ * avatar so the trim()+substr() logic can't drift between call sites.
+ *
+ * @param string $name Full display name to take the initial from.
+ * @return string Single uppercase letter, or '' if $name has no content.
+ */
+function mhm_rentiva_initial_avatar_letter(string $name): string
+{
+	return mb_strtoupper(mb_substr(trim($name), 0, 1, 'UTF-8'), 'UTF-8');
+}
+
 // Define Version (Updated via build script)
 define('MHM_RENTIVA_VERSION', '5.0.2');
 

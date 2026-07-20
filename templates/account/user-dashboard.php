@@ -66,7 +66,7 @@ if (! $user_display_name) {
 					} else {
 						printf(
 							'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
-							esc_html(mb_strtoupper(mb_substr( (string) $user_display_name, 0, 1, 'UTF-8'), 'UTF-8'))
+							esc_html(mhm_rentiva_initial_avatar_letter( (string) $user_display_name))
 						);
 					}
 					?>

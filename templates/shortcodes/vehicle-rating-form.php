@@ -230,7 +230,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 									<?php if ($display_settings['show_avatars'] ?? true) : ?>
 										<div class="rv-review-avatar">
 											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html(mb_strtoupper(mb_substr(trim($masked_name), 0, 1, 'UTF-8'), 'UTF-8')); ?>
+												<?php echo esc_html(mhm_rentiva_initial_avatar_letter($masked_name)); ?>
 											</span>
 										</div>
 									<?php endif; ?>

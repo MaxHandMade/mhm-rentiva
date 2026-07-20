@@ -96,4 +96,47 @@ final class TestimonialsNoGravatarTest extends WP_UnitTestCase
             "The initials placeholder must show the reviewer's first-name initial."
         );
     }
+
+    /**
+     * Tree-wide backstop (B-G1b review finding #3): PHPUnit's own copy of the
+     * task brief's acceptance-bar grep --
+     *   grep -rniE "gravatar|get_avatar" templates/ src/
+     * -- so vehicle-rating-form.php, user-dashboard.php, and any future
+     * template/class that reintroduces Gravatar fail a test automatically,
+     * not just a manual grep someone has to remember to run. This also
+     * catches a bare get_avatar() call on its own, which
+     * bin/check-external-http.php's host-based deny-list cannot see -- that
+     * gate matches literal host strings like "gravatar.com" and get_avatar()
+     * emits none.
+     */
+    public function test_no_gravatar_or_get_avatar_anywhere_in_templates_or_src(): void
+    {
+        $root = dirname(__DIR__, 3);
+        $hits = array();
+
+        foreach (array( $root . '/templates', $root . '/src' ) as $dir) {
+            $iterator = new \RecursiveIteratorIterator(
+                new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS)
+            );
+            foreach ($iterator as $file) {
+                if ('php' !== $file->getExtension()) {
+                    continue;
+                }
+                $source = (string) file_get_contents($file->getPathname());
+                if (false !== stripos($source, 'gravatar') || false !== stripos($source, 'get_avatar')) {
+                    $relative = str_replace('\\', '/', $file->getPathname());
+                    $relative = str_replace(str_replace('\\', '/', $root) . '/', '', $relative);
+                    $hits[]   = $relative;
+                }
+            }
+        }
+
+        sort($hits);
+
+        $this->assertSame(
+            array(),
+            $hits,
+            'gravatar/get_avatar reference(s) found in templates/ or src/: ' . implode(', ', $hits)
+        );
+    }
 }
