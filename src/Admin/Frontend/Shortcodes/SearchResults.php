@@ -63,7 +63,7 @@ final class SearchResults extends AbstractShortcode {
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
-		'keyword',
+		'keyword', // No current template/JS URL-builder emits this; kept registered for external callers/back-compat -- do not remove.
 		'pickup_date',
 		'return_date',
 		'start_date',
@@ -77,7 +77,7 @@ final class SearchResults extends AbstractShortcode {
 		'year_min',
 		'year_max',
 		'mileage_max',
-		'category',
+		'category', // No current template/JS URL-builder emits this either; same as 'keyword' above.
 		'sort',
 		'pickup_location',
 	);

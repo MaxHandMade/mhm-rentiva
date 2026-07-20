@@ -45,10 +45,39 @@ final class BookingForm extends AbstractShortcode {
 		return sanitize_text_field( (string) $value);
 	}
 
+	/**
+	 * Public GET filter params for this shortcode's shareable/bookmarkable
+	 * "Book Now" URL (e.g. `?vehicle_id=123&pickup_date=2026-08-01&pickup_time=10:00`).
+	 *
+	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
+	 * so they are read via get_query_var() instead of raw $_GET -- WP.org T4 #11.
+	 *
+	 * `pickup_date`, `return_date` and `pickup_location` are intentionally NOT
+	 * listed here: SearchResults::PUBLIC_QUERY_VARS already registers them
+	 * (ShortcodeServiceProvider registers every shortcode's register_hooks()
+	 * unconditionally on `init`, regardless of which shortcodes are placed on
+	 * which pages, so that registration is always active). Re-registering the
+	 * same name twice here would be harmless but redundant.
+	 *
+	 * Existing (unprefixed) names are kept for the same reason as SearchResults:
+	 * this same `.rv-booking-form` field-name convention is what the (out of
+	 * scope) POST/AJAX submit path also relies on, and vehicle-card-base.php's
+	 * "Book Now" link builder already emits these exact names via add_query_arg().
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'vehicle_id',
+		'start_date',
+		'end_date',
+		'pickup_time',
+		'return_time',
+	);
+
 	private static function get_text(string $key, string $fallback = ''): string
 	{
-		$get = $GLOBALS['_GET'] ?? [];
-		return isset($get[ $key ]) ? sanitize_text_field(wp_unslash( (string) $get[ $key ])) : $fallback;
+		$value = get_query_var($key, null);
+		return (null !== $value) ? sanitize_text_field(wp_unslash( (string) $value)) : $fallback;
 	}
 
 	private static function post_text(string $key, string $fallback = ''): string
@@ -91,6 +120,27 @@ final class BookingForm extends AbstractShortcode {
 		add_action('wp_ajax_nopriv_mhm_rentiva_check_availability', array( self::class, 'ajax_check_availability' ));
 
 		// Payment processing AJAX handlers
+	}
+
+	/**
+	 * Registers this shortcode's public "Book Now" URL params on WP's
+	 * query_vars whitelist. Called by parent::register() (AbstractShortcode)
+	 * on `init`.
+	 */
+	protected static function register_hooks(): void
+	{
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
+	}
+
+	/**
+	 * `query_vars` filter callback -- adds PUBLIC_QUERY_VARS and returns the array.
+	 *
+	 * @param array<int, string> $vars
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars(array $vars): array
+	{
+		return array_merge($vars, self::PUBLIC_QUERY_VARS);
 	}
 
 	protected static function get_shortcode_tag(): string
