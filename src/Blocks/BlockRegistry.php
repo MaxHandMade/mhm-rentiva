@@ -529,11 +529,17 @@ class BlockRegistry {
 		// emits before returning the string; (2) $shortcode_content is the output
 		// of do_shortcode(), which resolves through
 		// ShortcodeServiceProvider::handle_shortcode_execution() -- see the
-		// documented ignore + rationale there, since every dynamic field in the
-		// shortcode's own template output is already escaped per value. Wrapping
-		// this whole return in wp_kses_post() would risk stripping legitimate
-		// markup (SVG icons, style attributes, data-* used by the frontend JS)
-		// that the per-field escaping already accounts for.
+		// documented ignore there for the precise, scoped guarantee: all 17 of
+		// Lite's own shortcode templates escape every dynamic field at output,
+		// and any `mhm_rentiva_shortcodes` filter contributor (e.g. Pro) is
+		// responsible for its own per-field escaping, same as $blocks here is
+		// itself open to a `mhm_rentiva_blocks` filter contributor whose `tag`
+		// resolves through that same do_shortcode() call and inherits that same
+		// contract. This ignore does not audit or vouch for any contributor's
+		// rendering, only Lite's own. Wrapping this whole return in
+		// wp_kses_post() would risk stripping legitimate markup (SVG icons,
+		// style attributes, data-* used by the frontend JS) that the per-field
+		// escaping already accounts for.
 		return sprintf(
 			'<div %s>%s</div>',
 			get_block_wrapper_attributes($wrapper_args),

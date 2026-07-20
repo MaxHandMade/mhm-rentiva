@@ -340,9 +340,6 @@ final class WooCommerceIntegration {
 		// The only value THIS filter actually introduces: a static, translated
 		// label from self::get_rentiva_endpoints_map() (never user input), escaped
 		// here at the return per WP.org's "escape as late as possible" guidance.
-		// The only value THIS filter actually introduces: a static, translated
-		// label from self::get_rentiva_endpoints_map() (never user input), escaped
-		// here at the return per WP.org's "escape as late as possible" guidance.
 		return esc_html( $rentiva_map[ $active_key ]['label'] ?? $title );
 	}
 
