@@ -76,7 +76,7 @@ final class Plugin {
 		// Register Vendor role alongside Customer role
 		add_action('init', array( self::class, 'register_vendor_role' ), 20);
 
-		// Apply license limits
+		// Legacy post-data filter hook (no-op, kept for wiring compatibility)
 		add_filter('wp_insert_post_data', array( $this, 'enforce_limits' ), 10, 2);
 
 		// Cache invalidation hooks
@@ -612,7 +612,7 @@ final class Plugin {
 	}
 
 	/**
-	 * Apply license limits.
+	 * Legacy post-data filter (no-op).
 	 *
 	 * No-op in Lite (the vehicle/booking creation cap this used to enforce has
 	 * been removed — "Lite'ta yapay limit YOK"). Kept as a registered

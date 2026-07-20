@@ -215,11 +215,13 @@ final class SecureToken {
 
 	/** Base64 URL encode */
 	private static function base64url_encode( string $data ): string {
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- URL-safe token transport encoding, not obfuscation; the encoded string is only used as a signed token segment, never executed.
 		return rtrim( strtr( base64_encode( $data ), '+/', '-_' ), '=' );
 	}
 
 	/** Base64 URL decode */
 	private static function base64url_decode( string $data ): string {
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- URL-safe token transport decoding, not obfuscation; the decoded string is only used as JSON token data after signature verification (see verify()), never executed.
 		return base64_decode( str_pad( strtr( $data, '-_', '+/' ), strlen( $data ) % 4, '=', STR_PAD_RIGHT ) );
 	}
 

@@ -243,8 +243,8 @@ final class DashboardPage {
 			'widget_order'                => array(),
 			'currency'                    => CurrencyHelper::get_currency_symbol(),
 			'admin_url'                   => admin_url(),
-			// Licence gates for the Pro quick actions, so the dashboard does not
-			// link to inaccessible Pro pages on an unlicensed site. Keys match the
+			// Registration gates for the Pro quick actions, so the dashboard does
+			// not link to inaccessible Pro pages when no extension is active. Keys match the
 			// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
 			// Lite ships no keys at all -- a subscriber (Pro) supplies transfer/
 			// reports/vendors/messages/export; QuickActions.jsx already reads

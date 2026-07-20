@@ -61,16 +61,16 @@ final class CronMonitor {
 		);
 
 		/**
-		 * Task A9c seam inversion: the license-validation, licence-server
+		 * Task A9c seam inversion: the subscription-validation, activation-server
 		 * check-in and GDPR data-retention crons used to be hardcoded here,
-		 * gated on a class_exists() check for the add-on's license-manager
+		 * gated on a class_exists() check for the add-on's activation-manager
 		 * class and an add-on GDPR capability gate. Their labels ("Validates
-		 * plugin license daily", "Reports site URL... to license server",
+		 * plugin subscription daily", "Reports site URL... to activation server",
 		 * "Cleans up expired data...") must never surface on a site this
 		 * build does not ship them on, including one downgraded from the
-		 * add-on (an event scheduled during a prior licensed run persists in
-		 * wp_cron until cleared). The add-on now contributes its own cron
-		 * descriptions back through this filter.
+		 * add-on (an event scheduled while the add-on was previously active
+		 * persists in wp_cron until cleared). The add-on now contributes its own
+		 * cron descriptions back through this filter.
 		 *
 		 * @param array<string, array{name: string, description: string}> $plugin_hooks
 		 */

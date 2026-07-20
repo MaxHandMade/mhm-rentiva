@@ -87,9 +87,9 @@ final class ShortcodeServiceProvider {
 	 * Lite ships its own shortcodes only. The add-on (or any other consumer)
 	 * contributes its shortcodes by hooking `mhm_rentiva_shortcodes` -- Lite
 	 * carries no knowledge of the add-on's shortcode tags, classes, or feature
-	 * names. A contributor is responsible for its own presence/licence gating
-	 * inside its filter callback: the filter simply returns whatever the
-	 * callback decides to admit.
+	 * names. A contributor is responsible for its own presence/registration
+	 * gating inside its filter callback: the filter simply returns whatever
+	 * the callback decides to admit.
 	 *
 	 * @return array<string, array<string, array>>
 	 */

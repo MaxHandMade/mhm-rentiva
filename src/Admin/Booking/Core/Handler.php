@@ -133,7 +133,7 @@ final class Handler {
 			return;
 		}
 
-		// License system check - with Hook
+		// Extension point for add-ons
 		do_action(
 			'mhm_rentiva_before_booking_create',
 			$vehicle_id,

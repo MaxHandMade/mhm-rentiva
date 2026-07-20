@@ -53,7 +53,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No third-party or obfuscated code is bundled.
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No obfuscated code is bundled.
 
 The complete development sources, including the build configuration (`package.json`, `webpack.config.js`), are available in the public GitHub repository:
 
@@ -65,6 +65,15 @@ To rebuild the admin bundles from source, run the following from the plugin dire
 `npm run build`
 
 The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scripts) (webpack). Run `npm start` instead of `npm run build` for a watched development build.
+
+= Bundled third-party libraries =
+
+Two front-end libraries ship pre-built (minified) under `assets/vendor/`, both permissively licensed and with public upstream source:
+
+*   **flatpickr** v4.6.13 — date picker, MIT License. Source: https://github.com/flatpickr/flatpickr
+*   **Swiper** 11.2.10 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
+
+Neither library is modified from its upstream release; their full source is public on the repositories linked above.
 
 == Frequently Asked Questions ==
 

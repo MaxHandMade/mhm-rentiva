@@ -363,12 +363,12 @@ final class SettingsCore {
 	}
 
 	/**
-	 * Read Pro's per-tab licence state for the settings tabs Lite carved out
-	 * (transfer, vendor-marketplace, messages).
+	 * Read the per-tab registration state for the settings tabs Lite carved
+	 * out (transfer, vendor-marketplace, messages).
 	 *
 	 * Lite's own default is an empty array -- a missing key means "not
-	 * licensed", not "visible". Only Pro's SettingsExtensions subscribes,
-	 * reporting its own per-tab availability state
+	 * registered", not "visible". Only an active extension's SettingsExtensions
+	 * subscribes, reporting its own per-tab availability state
 	 * (Task A6 seam inversion). Shared by SettingsService::reset_defaults()
 	 * and SettingsSanitizer::sanitize() so both fail-closed gates read the
 	 * exact same source instead of duplicating the filter call.

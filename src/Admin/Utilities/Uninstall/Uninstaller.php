@@ -80,13 +80,15 @@ final class Uninstaller {
 		);
 		$stats['post_types']['bookings'] = (int) $bookings;
 
-		// Count postmeta - using prepare for LIKE pattern
+		// Count postmeta - using prepare for LIKE pattern. Scoped to this
+		// plugin's own '_mhm_rentiva%' prefix (not the broader '_mhm%') so a
+		// sibling MHM plugin's postmeta on a shared post is never counted.
 		$postmeta          = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) 
+				"SELECT COUNT(*)
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhm%'
+				'_mhm_rentiva%'
 			)
 		);
 		$stats['postmeta'] = (int) $postmeta;
@@ -245,12 +247,16 @@ final class Uninstaller {
 			++$results['posts_deleted'];
 		}
 
-		// 4. Delete all postmeta - using prepare for LIKE pattern
+		// 4. Delete all postmeta - using prepare for LIKE pattern. Scoped to
+		// this plugin's own '_mhm_rentiva%' prefix (every other step in this
+		// method already scopes to 'mhm_rentiva%'/'_mhm_rentiva%'; the
+		// broader '_mhm%' would also delete a sibling MHM plugin's postmeta
+		// on a shared post, e.g. a WooCommerce order).
 		$postmeta_deleted            = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhm%'
+				'_mhm_rentiva%'
 			)
 		);
 		$results['postmeta_deleted'] = (int) $postmeta_deleted;

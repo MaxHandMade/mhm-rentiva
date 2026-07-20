@@ -69,41 +69,11 @@
 		handleBookingClick: function ($button) {
 			var href = $button.attr('href');
 			var vehicleId = $button.closest('.rv-vehicle-card').data('vehicle-id');
-
-			// Analytics tracking
-			if (typeof gtag !== 'undefined') {
-				gtag(
-					'event',
-					'booking_click',
-					{
-						'vehicle_id': vehicleId,
-						'event_category': 'conversion',
-						'event_label': 'grid_booking_button'
-					}
-				);
-			}
-
-			// Track in console for debugging
 		},
 
 		handleCardClick: function ($card) {
 			var vehicleId = $card.data('vehicle-id');
 			var vehicleTitle = $card.find('.rv-vehicle-card__title a').text();
-
-			// Analytics tracking
-			if (typeof gtag !== 'undefined') {
-				gtag(
-					'event',
-					'vehicle_card_click',
-					{
-						'vehicle_id': vehicleId,
-						'vehicle_title': vehicleTitle,
-						'event_category': 'engagement',
-						'event_label': 'grid_card'
-					}
-				);
-			}
-
 		},
 
 		initLazyLoading: function () {

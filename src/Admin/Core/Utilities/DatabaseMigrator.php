@@ -50,11 +50,11 @@ final class DatabaseMigrator {
 			// `mhm_rentiva_*` capabilities added to the administrator role)
 			// belongs to Pro's GovernanceService -- the class that actually
 			// reads/writes the audit trail and enforces those capabilities.
-			// Gated on its presence rather than a licence check for the same
+			// Gated on its presence rather than a registration check for the same
 			// reason as the Ledger cluster below: this is a question of which
-			// FILES this build ships, not which features a licence currently
-			// unlocks. A licence gate would also skip the schema on a Pro
-			// install whose licence is not yet activated, and since
+			// FILES this build ships, not which features are registered as
+			// active. A registration gate would also skip the schema on a Pro
+			// install whose extension is not yet activated, and since
 			// run_migrations() is version-gated it would not re-run after
 			// activation -- leaving Pro with a half-built schema.
 			if (class_exists(\MHMRentiva\Core\Financial\GovernanceService::class)) {
@@ -70,13 +70,13 @@ final class DatabaseMigrator {
 			// dead schema in every Lite install.
 			//
 			// Gated on LedgerMigration (the seam that owns the cluster's primary
-			// table) rather than on a licence check: this is a question about which
-			// FILES this build ships, not which features a licence unlocks. A
-			// licence gate would also skip the schema on a Pro install whose
-			// licence is not yet activated, and since run_migrations() is
-			// version-gated it would not re-run after activation -- leaving Pro
-			// with a half-built schema. Mirrors create_transfer_tables()'s
-			// class_exists() gate below.
+			// table) rather than on a registration check: this is a question about
+			// which FILES this build ships, not which features are registered as
+			// active. A registration gate would also skip the schema on a Pro
+			// install whose extension is not yet activated, and since
+			// run_migrations() is version-gated it would not re-run after
+			// activation -- leaving Pro with a half-built schema. Mirrors
+			// create_transfer_tables()'s class_exists() gate below.
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
 				self::create_key_registry_table();
