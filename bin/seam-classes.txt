@@ -77,11 +77,13 @@ MHMRentiva\Core\Dashboard\AnalyticsDashboardDataProvider
 MHMRentiva\Core\Dashboard\VendorDashboard
 MHMRentiva\Core\Database\Migrations\CommissionPolicyMigration
 MHMRentiva\Core\Database\Migrations\LedgerMigration
+MHMRentiva\Core\Database\Migrations\TransferMigration
 MHMRentiva\Core\Database\Migrations\VendorReportsMigration
 MHMRentiva\Core\Financial\AnalyticsService
 MHMRentiva\Core\Financial\Audit\Verification\IntegrityVerificationJob
 MHMRentiva\Core\Financial\Automation\CommissionClearingJob
 MHMRentiva\Core\Financial\Automation\MaturedPayoutJob
+MHMRentiva\Core\Financial\GovernanceService
 MHMRentiva\Core\Financial\PayoutAjaxController
 MHMRentiva\Core\Financial\Statement\PayoutStatementController
 MHMRentiva\Integrations\WooCommerce\CommissionBridge

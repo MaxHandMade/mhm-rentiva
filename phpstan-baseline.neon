@@ -1297,12 +1297,6 @@ parameters:
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Testing/DemoImageImporter.php
-
-		-
 			message: '#^Parameter \#2 \$callback of function add_action expects callable\(\)\: mixed, array\{''MHMRentiva\\\\Admin\\\\Utilities\\\\Actions\\\\Actions'', ''create_my_account…''\} given\.$#'
 			identifier: argument.type
 			count: 1
