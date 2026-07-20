@@ -38,7 +38,12 @@ final class ContactFormPathResolutionTest extends WP_UnitTestCase
         remove_all_filters('upload_dir');
 
         foreach ($this->tempFiles as $file) {
-            if (file_exists($file)) {
+            // is_link() is required alongside file_exists(): once a
+            // symlink's target has already been unlinked (see the
+            // symlink-escape test), file_exists() follows the link and
+            // reports false for the now-dangling link itself, which would
+            // leave the link's directory entry behind.
+            if (file_exists($file) || is_link($file)) {
                 unlink($file);
             }
         }
@@ -65,10 +70,10 @@ final class ContactFormPathResolutionTest extends WP_UnitTestCase
      *
      * @return array{basedir: string, baseurl: string, file: string, url: string}
      */
-    private function fakeUploadsWithFile(string $relative = '2024/01/test.pdf'): array
+    private function fakeUploadsWithFile(string $relative = '2024/01/test.pdf', ?string $baseurl = null): array
     {
         $basedir = rtrim(sys_get_temp_dir(), '/\\') . '/mhm-cf-uploads-' . uniqid();
-        $baseurl = 'http://example.org/wp-content/uploads/sites/2';
+        $baseurl = $baseurl ?? 'http://example.org/wp-content/uploads/sites/2';
 
         $this->makeDir($basedir);
         $subdir = $basedir . '/' . dirname($relative);
@@ -250,5 +255,83 @@ final class ContactFormPathResolutionTest extends WP_UnitTestCase
     public function test_empty_url_returns_null(): void
     {
         $this->assertNull($this->resolveAttachmentPath(''));
+    }
+
+    /**
+     * Containment guard, symlink-escape variant: a symlink that lives
+     * INSIDE the uploads basedir but points to a file OUTSIDE it must not
+     * be resolvable. realpath() follows the symlink to its real target,
+     * and the post-realpath() containment recheck must catch that the
+     * resolved real path no longer sits under basedir -- this is the
+     * classic containment-check bypass this design has to defend against.
+     */
+    public function test_rejects_symlink_that_escapes_basedir(): void
+    {
+        if (! function_exists('symlink') || stripos(PHP_OS, 'WIN') === 0) {
+            $this->markTestSkipped('symlink() is not reliably available on this platform.');
+        }
+
+        $fixture = $this->fakeUploadsWithFile();
+
+        // A real file OUTSIDE basedir -- the escape target.
+        $outside_dir = rtrim(sys_get_temp_dir(), '/\\') . '/mhm-cf-outside-' . uniqid();
+        $this->makeDir($outside_dir);
+        $secret_file = $outside_dir . '/secret.txt';
+        file_put_contents($secret_file, 'outside-basedir');
+        $this->tempFiles[] = $secret_file;
+
+        // A symlink INSIDE basedir pointing at the outside file.
+        $symlink_path = $fixture['basedir'] . '/2024/01/escape-link.txt';
+        $created      = @symlink($secret_file, $symlink_path);
+        if (! $created) {
+            $this->markTestSkipped('symlink() call failed on this platform/filesystem.');
+        }
+        $this->tempFiles[] = $symlink_path;
+
+        $symlink_url = $fixture['baseurl'] . '/2024/01/escape-link.txt';
+
+        $resolved = $this->resolveAttachmentPath($symlink_url);
+
+        $this->assertNull($resolved, 'A symlink inside basedir pointing outside it must be rejected.');
+    }
+
+    /**
+     * Functional-regression guard: some CDN / media-offload configurations
+     * (e.g. S3/CDN-backed offload plugins) produce a wp_upload_dir()
+     * baseurl with no path component at all (e.g.
+     * "https://cdn.example.org"), so there is no "/wp-content/uploads"-style
+     * string prefix to match against. A legitimate attachment must still
+     * resolve in that configuration -- the resolver must not silently
+     * fail-closed on every attachment just because baseurl is pathless.
+     */
+    public function test_resolves_legit_attachment_when_baseurl_is_pathless(): void
+    {
+        $fixture = $this->fakeUploadsWithFile('2024/01/test.pdf', 'https://example.org');
+
+        $resolved = $this->resolveAttachmentPath($fixture['url']);
+
+        $this->assertNotNull($resolved, 'A legit attachment must still resolve when baseurl has no path component.');
+        $this->assertSame(
+            wp_normalize_path(realpath($fixture['file'])),
+            wp_normalize_path($resolved)
+        );
+    }
+
+    /**
+     * Same pathless-baseurl configuration, but the containment boundary
+     * must still hold: a traversal attempt riding on a pathless baseurl
+     * must still be rejected by the realpath() containment recheck, proving
+     * the fix for the functional regression above did not also reopen the
+     * SSRF/LFI guard.
+     */
+    public function test_rejects_traversal_when_baseurl_is_pathless(): void
+    {
+        $fixture = $this->fakeUploadsWithFile('2024/01/test.pdf', 'https://example.org');
+
+        $traversal_url = $fixture['baseurl'] . '/2024/01/../../../../../../etc/passwd';
+
+        $resolved = $this->resolveAttachmentPath($traversal_url);
+
+        $this->assertNull($resolved);
     }
 }

@@ -612,12 +612,34 @@ final class ContactForm extends AbstractShortcode {
 		$base_path = isset($base_parts['path']) ? untrailingslashit($base_parts['path']) : '';
 		$url_path  = $url_parts['path'] ?? '';
 
-		if ($base_path === '' || strpos($url_path, $base_path . '/') !== 0) {
-			return null;
+		if ($base_path !== '') {
+			// Normal case: baseurl carries a path (e.g. /wp-content/uploads,
+			// or /wp-content/uploads/sites/2 on a multisite subdirectory
+			// network). Require the URL to sit under it -- this is a cheap
+			// pre-filter, not the security boundary itself (that is the
+			// realpath() containment check below).
+			if (strpos($url_path, $base_path . '/') !== 0) {
+				return null;
+			}
+			$relative_path = substr($url_path, strlen($base_path));
+		} else {
+			// Some CDN / media-offload configurations serve uploads from a
+			// path-less host (e.g. baseurl "https://cdn.example.com" with
+			// no path component), so there is no string prefix to check
+			// here. Do NOT hard-reject a legit attachment on that config --
+			// fall through with the URL's own path as the relative segment.
+			// Host equality already passed above, and the realpath()
+			// containment recheck below (resolved candidate must still
+			// land inside realpath($basedir)) remains the real security
+			// boundary regardless of this branch, so skipping the prefix
+			// pre-check here does not weaken containment.
+			if ($url_path === '') {
+				return null;
+			}
+			$relative_path = $url_path;
 		}
 
-		$relative_path = substr($url_path, strlen($base_path));
-		$candidate     = wp_normalize_path(untrailingslashit($upload_dir['basedir']) . $relative_path);
+		$candidate = wp_normalize_path(untrailingslashit($upload_dir['basedir']) . $relative_path);
 
 		// realpath() resolves symlinks/".." and doubles as the file-exists
 		// check (returns false for anything missing).
