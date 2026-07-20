@@ -23,7 +23,7 @@ final class BookingPortalMetaBox {
 
 	public static function register(): void {
 		add_action( 'add_meta_boxes', array( self::class, 'add' ) );
-		add_action( 'wp_ajax_mhm_create_customer_account_manual', array( self::class, 'ajax_create_customer_account' ) );
+		add_action( 'wp_ajax_mhm_rentiva_create_customer_account_manual', array( self::class, 'ajax_create_customer_account' ) );
 	}
 
 	public static function add(): void {

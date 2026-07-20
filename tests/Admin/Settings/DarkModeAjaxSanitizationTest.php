@@ -103,14 +103,14 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 
 		$nonce = wp_create_nonce('mhm_dark_mode_nonce');
 
-		$_POST['action'] = 'mhm_save_dark_mode';
+		$_POST['action'] = 'mhm_rentiva_save_dark_mode';
 		$_POST['nonce']  = $nonce;
 		$_POST['mode']   = $mode;
 
 		$_REQUEST = $_POST;
 
 		try {
-			$this->_handleAjax('mhm_save_dark_mode');
+			$this->_handleAjax('mhm_rentiva_save_dark_mode');
 		} catch (WPAjaxDieContinueException | WPAjaxDieStopException $e) {
 			// Expected in AJAX test context.
 		}

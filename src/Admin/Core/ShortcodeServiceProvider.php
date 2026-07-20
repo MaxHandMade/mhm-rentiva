@@ -87,20 +87,15 @@ final class ShortcodeServiceProvider {
 	 * Lite ships its own shortcodes only. The add-on (or any other consumer)
 	 * contributes its shortcodes by hooking `mhm_rentiva_shortcodes` -- Lite
 	 * carries no knowledge of the add-on's shortcode tags, classes, or feature
-	 * names. A contributor is responsible for its own presence/licence gating
-	 * inside its filter callback: the filter simply returns whatever the
-	 * callback decides to admit.
+	 * names. A contributor is responsible for its own presence/registration
+	 * gating inside its filter callback: the filter simply returns whatever
+	 * the callback decides to admit.
 	 *
 	 * @return array<string, array<string, array>>
 	 */
 	private function get_registry(): array
 	{
 		$registry = $this->get_raw_shortcode_registry();
-
-		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
-		if (! self::is_home_poc_enabled()) {
-			unset($registry['support']['rentiva_home_poc']);
-		}
 
 		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
 	}
@@ -203,29 +198,8 @@ final class ShortcodeServiceProvider {
 					'dependencies'  => array( 'booking' ),
 					'requires_auth' => false,
 				),
-				'rentiva_home_poc'            => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
-					'dependencies'  => array(),
-					'requires_auth' => false,
-				),
 			),
 		);
-	}
-
-	/**
-	 * Determine if Home POC shortcode registration is enabled.
-	 *
-	 * Enable conditions:
-	 * - WP_DEBUG is enabled, OR
-	 * - MHM_RENTIVA_ENABLE_HOME_POC constant is explicitly true.
-	 */
-	private static function is_home_poc_enabled(): bool
-	{
-		if (defined('MHM_RENTIVA_ENABLE_HOME_POC')) {
-			return (bool) constant('MHM_RENTIVA_ENABLE_HOME_POC');
-		}
-
-		return defined('WP_DEBUG') && WP_DEBUG;
 	}
 
 	/**
@@ -369,7 +343,7 @@ final class ShortcodeServiceProvider {
 		//
 		// $callback here is NOT limited to those 17: get_registry() (~:84-92)
 		// opens the registry to `apply_filters('mhm_rentiva_shortcodes', ...)`,
-		// so a contributor (e.g. the Pro add-on's ShortcodeExtensions) can add
+		// so a contributor (e.g. an active add-on's ShortcodeExtensions) can add
 		// its own tags/classes, and this same dispatcher -- and this same
 		// ignore -- also returns THEIR callback's output. Per get_registry()'s
 		// own docblock, a contributor is responsible for its own behavior inside

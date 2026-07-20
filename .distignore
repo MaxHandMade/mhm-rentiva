@@ -33,6 +33,22 @@ phpstan-baseline.neon
 # PHPCS, PHPStan, etc.).
 /vendor/*
 !/vendor/mhm/
+# The blanket re-inclusion above ships the whole vendor/mhm/ui-core Composer
+# package (a real runtime dependency), but that package carries its own
+# dev-only files (CI workflow, static-analysis/test config) which came in via
+# the upstream repo, not this plugin's own tooling exclusions above. Because
+# .distignore uses "last match wins" (gitignore semantics), these patterns
+# must be listed AFTER "!/vendor/mhm/" to re-exclude just those dev files
+# while keeping the package's runtime PHP shipped.
+/vendor/mhm/ui-core/.github/
+/vendor/mhm/ui-core/.gitattributes
+/vendor/mhm/ui-core/.gitignore
+/vendor/mhm/ui-core/phpstan.neon
+/vendor/mhm/ui-core/phpcs.xml
+/vendor/mhm/ui-core/phpcs.xml.dist
+/vendor/mhm/ui-core/phpunit.xml
+/vendor/mhm/ui-core/phpunit.xml.dist
+/vendor/mhm/ui-core/tests/
 node_modules/
 build/zip-staging
 composer.lock

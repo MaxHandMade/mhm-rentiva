@@ -22,7 +22,7 @@
 			btn.textContent = i18n.processing || '';
 
 			var formData = new FormData();
-			formData.append('action', 'mhm_pay_remaining');
+			formData.append('action', 'mhm_rentiva_pay_remaining');
 			formData.append('booking_id', bookingId);
 			formData.append('nonce', nonce);
 

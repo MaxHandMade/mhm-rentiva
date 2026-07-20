@@ -65,8 +65,8 @@ final class AddonManager {
 			add_filter( 'mhm_rentiva_admin_submenu_order', array( self::class, 'admin_menu_order' ) );
 
 			// AJAX handlers.
-			add_action( 'wp_ajax_mhm_bulk_addon_action', array( self::class, 'handle_bulk_action' ) );
-			add_action( 'wp_ajax_mhm_update_addon_price', array( self::class, 'handle_update_price' ) );
+			add_action( 'wp_ajax_mhm_rentiva_bulk_addon_action', array( self::class, 'handle_bulk_action' ) );
+			add_action( 'wp_ajax_mhm_rentiva_update_addon_price', array( self::class, 'handle_update_price' ) );
 		}
 	}
 

@@ -15,8 +15,8 @@ final class DashboardNavigation {
 	/**
 	 * Nav items backed by a feature this build may not ship, keyed by item slug.
 	 *
-	 * Value is the FQN of the class that renders the item's panel. Messaging is a
-	 * Pro surface: its panel is produced by `[rentiva_messages]`, whose class
+	 * Value is the FQN of the class that renders the item's panel. Messaging is an
+	 * add-on surface: its panel is produced by `[rentiva_messages]`, whose class
 	 * AccountMessages is carved out of Lite. The shortcode registry drops the tag
 	 * to match, but an unregistered shortcode degrades to its own literal source
 	 * text -- so an unfiltered Messages tab showed every Lite customer the raw

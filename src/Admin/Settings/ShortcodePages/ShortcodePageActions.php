@@ -169,7 +169,7 @@ final class ShortcodePageActions {
 				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
 				'slug'        => 'demo-user-dashboard',
 				// The dashboard's vendor branch is unreachable in this build -- only
-				// the Pro onboarding flow grants the rentiva_vendor role -- so the
+				// the add-on's onboarding flow grants the rentiva_vendor role -- so the
 				// customer summary is the only thing this description can promise.
 				'description' => __( 'Customer dashboard - booking, favorite and account summary', 'mhm-rentiva' ),
 			),
@@ -183,8 +183,8 @@ final class ShortcodePageActions {
 		/*
 		 * Ask the registry what it REGISTERED -- not WordPress what EXISTS.
 		 *
-		 * shortcode_exists() was the wrong question and shipped that way. When a
-		 * licence closes a seam, ShortcodeServiceProvider drops the entry and then
+		 * shortcode_exists() was the wrong question and shipped that way. When an
+		 * extension is not active and its seam closes, ShortcodeServiceProvider drops the entry and then
 		 * deliberately re-registers the tag as `__return_empty_string`, so that
 		 * pages already carrying [rentiva_transfer_search] render nothing instead of
 		 * printing their own raw source text at visitors. That silencing shim is a
@@ -194,8 +194,8 @@ final class ShortcodePageActions {
 		 * ever render blank.
 		 *
 		 * get_registered_shortcodes() is populated only by process_registration(),
-		 * i.e. only for seams that passed both the class check and the licence
-		 * check. The silencer bypasses it by design, which makes it the one list
+		 * i.e. only for seams that passed both the class check and the
+		 * extension/registration check. The silencer bypasses it by design, which makes it the one list
 		 * that means "this build can really render this".
 		 *
 		 * Still no duplicated tag list here: this defers to the same single registry

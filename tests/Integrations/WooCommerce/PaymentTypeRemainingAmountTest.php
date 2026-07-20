@@ -101,12 +101,12 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 	}
 
 	private function dispatch_payment_type( string $payment_type ): void {
-		$_POST['action']       = 'mhm_update_booking_payment_type';
+		$_POST['action']       = 'mhm_rentiva_update_booking_payment_type';
 		$_POST['payment_type'] = $payment_type;
 		$_POST['nonce']        = wp_create_nonce( 'mhm_booking_payment_type' );
 
 		try {
-			$this->_handleAjax( 'mhm_update_booking_payment_type' );
+			$this->_handleAjax( 'mhm_rentiva_update_booking_payment_type' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected — the AJAX handler always wp_send_json_*()s + wp_die()s.
 		}

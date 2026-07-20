@@ -44,8 +44,8 @@ final class SettingsCore {
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_dark_mode_styles' ));
 
 		// AJAX Handlers
-		add_action('wp_ajax_mhm_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
-		add_action('wp_ajax_mhm_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
+		add_action('wp_ajax_mhm_rentiva_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
+		add_action('wp_ajax_mhm_rentiva_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
 
 		// Service Initializers (Delegated to specialized managers)
 		add_action('init', array( self::class, 'initialize_services' ));
@@ -138,9 +138,9 @@ final class SettingsCore {
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
 
-		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
-		// Pro adds its own group class(es) back via this filter.
+		// The add-on adds its own group class(es) back via this filter.
 		$groups = (array) apply_filters( 'mhm_rentiva_settings_groups', $groups );
 
 		foreach ($groups as $group) {
@@ -363,12 +363,12 @@ final class SettingsCore {
 	}
 
 	/**
-	 * Read Pro's per-tab licence state for the settings tabs Lite carved out
-	 * (transfer, vendor-marketplace, messages).
+	 * Read the per-tab registration state for the settings tabs Lite carved
+	 * out (transfer, vendor-marketplace, messages).
 	 *
 	 * Lite's own default is an empty array -- a missing key means "not
-	 * licensed", not "visible". Only Pro's SettingsExtensions subscribes,
-	 * reporting its own per-tab availability state
+	 * registered", not "visible". Only an active extension's SettingsExtensions
+	 * subscribes, reporting its own per-tab availability state
 	 * (Task A6 seam inversion). Shared by SettingsService::reset_defaults()
 	 * and SettingsSanitizer::sanitize() so both fail-closed gates read the
 	 * exact same source instead of duplicating the filter call.
@@ -419,11 +419,11 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);
 
-		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
-		// Pro adds its own group class(es) back via this filter (same filter as
+		// The add-on adds its own group class(es) back via this filter (same filter as
 		// register_sub_groups() above -- both lists carried the same two
-		// Pro classes before the carve).
+		// classes before the carve).
 		$sub_modules = (array) apply_filters( 'mhm_rentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {

@@ -51,7 +51,7 @@
 					url: mhmDarkMode.ajaxUrl,
 					type: 'POST',
 					data: {
-						action: 'mhm_save_dark_mode',
+						action: 'mhm_rentiva_save_dark_mode',
 						mode: mode,
 						nonce: mhmDarkMode.nonce
 					},

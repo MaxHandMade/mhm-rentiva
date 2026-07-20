@@ -79,10 +79,10 @@ final class MetricRegistry {
 		 *
 		 * The vendor metrics that used to be hardcoded here (unread_messages,
 		 * revenue_7d, available_balance, pending_balance, total_paid_out,
-		 * vendor_revenue_30d, vendor_growth_7d, vendor_avg_booking_value) are Pro
+		 * vendor_revenue_30d, vendor_growth_7d, vendor_avg_booking_value) are add-on
 		 * features, not core: each one resolves only under the 'vendor' KPI
 		 * context and reads the messaging tables or the ledger. They are
-		 * registered by Pro through the 'mhm_rentiva_registered_metrics' filter
+		 * registered by the add-on through the 'mhm_rentiva_registered_metrics' filter
 		 * below rather than being named here, so that this registry carries no
 		 * compile-time reference to a class the Lite package does not ship.
 		 *

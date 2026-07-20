@@ -46,20 +46,21 @@ final class SettingsSanitizer {
 		$out         = $current_values;
 		$current_tab = $input['current_active_tab'] ?? '';
 
-		// 2b. Pro settings tabs must not PERSIST on an unlicensed site. The render
-		// layer already shows a placeholder instead of the form (Transfer /
-		// Vendor Marketplace), but a forged or replayed POST could still reach
-		// this sanitizer. Fail closed: for a gated Pro tab whose licence is absent,
-		// return the untouched current values (a no-op save) so no Pro setting is
-		// written. Transfer is a whole-edition surface (the base Pro licence flag);
-		// vendor-marketplace has its own feature key. Messages saves through its
-		// own gated handler, not here.
-		// Licence state comes from SettingsCore::settings_tabs() (Task A6 seam
-		// inversion): Lite's own default is an empty array, so a missing key --
-		// exactly the unlicensed/no-Pro-subscriber state -- is treated as "not
-		// licensed" via empty(), not skipped.
-		$pro_tabs = array( 'transfer', 'vendor-marketplace' );
-		if ( in_array( $current_tab, $pro_tabs, true ) && empty( SettingsCore::settings_tabs()[ $current_tab ] ) ) {
+		// 2b. Extension-owned tabs must not PERSIST when no extension registered
+		// them. The render layer already shows a placeholder instead of the form
+		// (Transfer / Vendor Marketplace), but a forged or replayed POST could
+		// still reach this sanitizer. Fail closed: for a tab that belongs to an
+		// extension whose registration is absent, return the untouched current
+		// values (a no-op save) so no extension-owned setting is written.
+		// Transfer is a whole-add-on extension point; vendor-marketplace has its
+		// own registration key. Messages saves through its own gated handler, not
+		// here.
+		// Registration state comes from SettingsCore::settings_tabs() (Task A6
+		// seam inversion): Lite's own default is an empty array, so a missing key
+		// -- exactly the "no extension registered this tab" state -- is treated
+		// as absent via empty(), not skipped.
+		$extension_only_tabs = array( 'transfer', 'vendor-marketplace' );
+		if ( in_array( $current_tab, $extension_only_tabs, true ) && empty( SettingsCore::settings_tabs()[ $current_tab ] ) ) {
 			return $current_values;
 		}
 
@@ -88,11 +89,11 @@ final class SettingsSanitizer {
 
 		// 3b. Extensible per-tab dispatch (Task A6 seam inversion). Lite's match
 		// above only knows its own tabs; 'vendor-marketplace' now falls to the
-		// fallback ($input, unsanitized) until Pro's SettingsExtensions subscribes
-		// and supplies its own sanitizer for that tab. Harmless when nothing
-		// subscribes: the write itself is already blocked above (step 2b) for an
-		// unlicensed/absent Pro on a gated tab, so this filter only ever reaches
-		// a real subscriber once that gate has already passed.
+		// fallback ($input, unsanitized) until an extension's SettingsExtensions
+		// subscribes and supplies its own sanitizer for that tab. Harmless when
+		// nothing subscribes: the write itself is already blocked above (step 2b)
+		// for an extension-owned tab with no registered extension, so this filter
+		// only ever reaches a real subscriber once that gate has already passed.
 		$sanitized_batch = apply_filters( 'mhm_rentiva_sanitize_settings_tab', $sanitized_batch, $current_tab, $input, $defaults );
 
 		$out = array_merge( $out, $sanitized_batch );

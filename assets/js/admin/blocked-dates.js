@@ -109,7 +109,7 @@
 			$.post(
 				window.ajaxurl || '/wp-admin/admin-ajax.php',
 				{
-					action:     'mhm_apply_blocked_dates_to_all',
+					action:     'mhm_rentiva_apply_blocked_dates_to_all',
 					nonce:      nonce,
 					vehicle_id: vid,
 					dates:      JSON.stringify( blockedDates ),
@@ -152,7 +152,7 @@
 			$.post(
 				window.ajaxurl || '/wp-admin/admin-ajax.php',
 				{
-					action:     'mhm_remove_blocked_dates_from_all',
+					action:     'mhm_rentiva_remove_blocked_dates_from_all',
 					nonce:      nonce,
 					vehicle_id: vid,
 					dates:      JSON.stringify( blockedDates ),

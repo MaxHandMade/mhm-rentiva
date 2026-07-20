@@ -219,7 +219,7 @@
 		$.post(
 			ajaxurl,
 			{
-				action:     'mhm_create_customer_account_manual',
+				action:     'mhm_rentiva_create_customer_account_manual',
 				booking_id: bookingId,
 				email:      email,
 				name:       name,

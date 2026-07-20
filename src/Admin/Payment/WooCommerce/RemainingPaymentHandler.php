@@ -23,8 +23,8 @@ final class RemainingPaymentHandler {
 	 */
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
-		add_action('wp_ajax_nopriv_mhm_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
+		add_action('wp_ajax_mhm_rentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
+		add_action('wp_ajax_nopriv_mhm_rentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
 	}
 
 	/**

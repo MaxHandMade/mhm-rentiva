@@ -66,15 +66,15 @@ final class Settings {
 	public static function init(): void
 	{
 		// AJAX Actions
-		add_action('wp_ajax_mhm_reset_settings_tab', array( self::class, 'ajax_reset_settings_tab' ));
+		add_action('wp_ajax_mhm_rentiva_reset_settings_tab', array( self::class, 'ajax_reset_settings_tab' ));
 
 		// Register default providers from Groups
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
 		self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
 		self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
 		self::register_provider('security', \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class);
-		// 'vendor-marketplace' (Pro) is no longer hardcoded here (Task A6b seam
-		// inversion) -- Pro registers it via the do_action() below, the same
+		// 'vendor-marketplace' (add-on) is no longer hardcoded here (Task A6b seam
+		// inversion) -- the add-on registers it via the do_action() below, the same
 		// extension point it already had.
 
 		// Allow third-party extensions to register providers
@@ -98,8 +98,8 @@ final class Settings {
 	 * Look up a previously-registered provider class for a tab, if any.
 	 *
 	 * Used by SettingsService::match() (Task A6b seam inversion) to resolve
-	 * the provider class for the Pro-owned tabs (transfer/vendor-marketplace/
-	 * messages) Lite no longer hardcodes by name -- Pro registers its class
+	 * the provider class for the add-on-owned tabs (transfer/vendor-marketplace/
+	 * messages) Lite no longer hardcodes by name -- the add-on registers its class
 	 * via the existing `mhm_rentiva_register_settings_providers` action
 	 * (see self::init()), and this reads that same registry instead of a
 	 * second, parallel extension point.

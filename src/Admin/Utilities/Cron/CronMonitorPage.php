@@ -15,9 +15,9 @@ final class CronMonitorPage {
 
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_list_cron_jobs', array( self::class, 'ajax_list_cron_jobs' ));
-		add_action('wp_ajax_mhm_run_cron_job', array( self::class, 'ajax_run_cron_job' ));
-		add_action('wp_ajax_mhm_test_cron_jobs', array( self::class, 'ajax_test_cron_jobs' ));
+		add_action('wp_ajax_mhm_rentiva_list_cron_jobs', array( self::class, 'ajax_list_cron_jobs' ));
+		add_action('wp_ajax_mhm_rentiva_run_cron_job', array( self::class, 'ajax_run_cron_job' ));
+		add_action('wp_ajax_mhm_rentiva_test_cron_jobs', array( self::class, 'ajax_test_cron_jobs' ));
 	}
 
 	/**

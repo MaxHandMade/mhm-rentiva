@@ -170,9 +170,11 @@ final class AuthHelper {
 			'nonce' => wp_generate_password(32, false),
 		);
 
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- token transport encoding (HMAC-signed payload), not obfuscation; the encoded value is only ever json_decode()'d, never executed.
 		$encoded   = base64_encode(wp_json_encode($payload));
 		$signature = hash_hmac('sha256', $encoded, wp_salt());
 
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- token transport encoding (HMAC-signed payload), not obfuscation; see note above.
 		return base64_encode(
 			wp_json_encode(
 				array(
@@ -192,6 +194,7 @@ final class AuthHelper {
 	public static function verifySecureToken(string $token): ?array
 	{
 		try {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- token transport decoding, not obfuscation; the decoded string is only passed to json_decode(), never executed. Signature verified below before use.
 			$decoded = json_decode(base64_decode($token), true);
 
 			if (! $decoded || ! isset($decoded['payload']) || ! isset($decoded['signature'])) {
@@ -205,6 +208,7 @@ final class AuthHelper {
 			}
 
 			// Payload decode et
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode -- token transport decoding, not obfuscation; only reached after the HMAC signature above has already been verified, and the result is only used as JSON data, never executed.
 			$payload = json_decode(base64_decode($decoded['payload']), true);
 
 			if (! $payload || ! isset($payload['data']) || ! isset($payload['exp'])) {

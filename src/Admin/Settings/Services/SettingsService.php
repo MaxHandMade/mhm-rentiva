@@ -52,8 +52,8 @@ final class SettingsService {
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			// Pro-owned tabs (Task A6b seam inversion): Lite no longer names these
-			// classes. Pro registers its provider class for each via the existing
+			// Extension-owned tabs (Task A6b seam inversion): Lite no longer names these
+			// classes. The extension registers its provider class for each via the existing
 			// `mhm_rentiva_register_settings_providers` action (Settings::init()),
 			// and this reads that same registry -- returns null with no subscriber,
 			// exactly like every other unregistered tab below.
@@ -61,17 +61,18 @@ final class SettingsService {
 			default    => null,
 		};
 
-		// Reset is a WRITE. The sanitizer fails closed for unlicensed Pro tabs, but
-		// this reset path bypasses the sanitizer (it calls update_option directly),
-		// so it must apply the same gate or an unlicensed admin could overwrite Pro
-		// settings with defaults (Fable Y3). Same tab set as SettingsSanitizer, plus
-		// Messages (which resets through here, unlike its save handler). Licence
-		// state comes from SettingsCore::settings_tabs() (Task A6 seam inversion):
-		// Lite's own default is an empty array, so a missing key -- exactly the
-		// unlicensed/no-Pro-subscriber state -- is treated as "not licensed" via
-		// empty(), not skipped.
-		$pro_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
-		if ( in_array( $target_tab, $pro_tabs, true ) && empty( SettingsCore::settings_tabs()[ $target_tab ] ) ) {
+		// Reset is a WRITE. The sanitizer fails closed for extension-owned tabs
+		// with no registered extension, but this reset path bypasses the sanitizer
+		// (it calls update_option directly), so it must apply the same gate or an
+		// admin without the extension active could overwrite extension-owned
+		// settings with defaults (Fable Y3). Same tab set as SettingsSanitizer,
+		// plus Messages (which resets through here, unlike its save handler).
+		// Registration state comes from SettingsCore::settings_tabs() (Task A6
+		// seam inversion): Lite's own default is an empty array, so a missing key
+		// -- exactly the "no extension registered this tab" state -- is treated
+		// as absent via empty(), not skipped.
+		$extension_only_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
+		if ( in_array( $target_tab, $extension_only_tabs, true ) && empty( SettingsCore::settings_tabs()[ $target_tab ] ) ) {
 			return false;
 		}
 
@@ -198,9 +199,9 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 		);
 
-		// Pro-owned providers that also write to the master option (Task A6b
+		// Add-on-owned providers that also write to the master option (Task A6b
 		// seam inversion): Lite no longer names the Transfer settings-group
-		// class here. Pro adds its own provider class(es) back via this filter.
+		// class here. The add-on adds its own provider class(es) back via this filter.
 		$provider_classes = (array) apply_filters( 'mhm_rentiva_settings_activation_providers', $provider_classes );
 
 		$defaults = array();

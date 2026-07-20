@@ -19,7 +19,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_analyze_database',
+						action: 'mhm_rentiva_analyze_database',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -48,7 +48,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_cleanup_orphaned',
+						action: 'mhm_rentiva_cleanup_orphaned',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -75,7 +75,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_cleanup_transients',
+						action: 'mhm_rentiva_cleanup_transients',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -102,7 +102,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_optimize_autoload',
+						action: 'mhm_rentiva_optimize_autoload',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -133,7 +133,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_optimize_tables',
+						action: 'mhm_rentiva_optimize_tables',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -163,7 +163,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_cleanup_logs',
+						action: 'mhm_rentiva_cleanup_logs',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -196,7 +196,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_cleanup_invalid_meta',
+						action: 'mhm_rentiva_cleanup_invalid_meta',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -223,7 +223,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_list_backups',
+						action: 'mhm_rentiva_list_backups',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -257,7 +257,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'action',
-							value: 'mhm_download_backup'
+							value: 'mhm_rentiva_download_backup'
 						}
 					)
 				);
@@ -303,7 +303,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_restore_backup',
+						action: 'mhm_rentiva_restore_backup',
 						nonce: mhm_db_cleanup_vars.nonce,
 						table_name: tableName
 					},
@@ -336,7 +336,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_delete_backup',
+						action: 'mhm_rentiva_delete_backup',
 						nonce: mhm_db_cleanup_vars.nonce,
 						table_name: tableName
 					},
@@ -424,7 +424,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_create_full_backup',
+						action: 'mhm_rentiva_create_full_backup',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -450,7 +450,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_list_full_backups',
+						action: 'mhm_rentiva_list_full_backups',
 						nonce: mhm_db_cleanup_vars.nonce
 					},
 					function (response) {
@@ -484,7 +484,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'action',
-							value: 'mhm_download_full_backup'
+							value: 'mhm_rentiva_download_full_backup'
 						}
 					)
 				);
@@ -530,7 +530,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_restore_full_backup',
+						action: 'mhm_rentiva_restore_full_backup',
 						nonce: mhm_db_cleanup_vars.nonce,
 						file_path: filePath
 					},
@@ -563,7 +563,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_delete_full_backup',
+						action: 'mhm_rentiva_delete_full_backup',
 						nonce: mhm_db_cleanup_vars.nonce,
 						backup_name: backupName
 					},
@@ -658,7 +658,7 @@ jQuery( document ).ready(
 				$.post(
 					mhm_db_cleanup_vars.ajaxurl || ajaxurl,
 					{
-						action: 'mhm_repair_table',
+						action: 'mhm_rentiva_repair_table',
 						nonce: mhm_db_cleanup_vars.nonce,
 						table_name: table
 					},

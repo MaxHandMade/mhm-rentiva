@@ -34,12 +34,12 @@ final class DepositManagementAjax {
 	}
 
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
-		add_action( 'wp_ajax_mhm_send_remaining_payment_link', array( self::class, 'send_remaining_payment_link' ) );
-		add_action( 'wp_ajax_mhm_approve_payment', array( self::class, 'approve_payment' ) );
+		add_action( 'wp_ajax_mhm_rentiva_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
+		add_action( 'wp_ajax_mhm_rentiva_send_remaining_payment_link', array( self::class, 'send_remaining_payment_link' ) );
+		add_action( 'wp_ajax_mhm_rentiva_approve_payment', array( self::class, 'approve_payment' ) );
 		add_action( 'wp_ajax_mhm_cancel_booking', array( self::class, 'cancel_booking' ) );
 		add_action( 'wp_ajax_mhm_process_refund', array( self::class, 'process_refund' ) );
-		add_action( 'wp_ajax_mhm_update_booking_status', array( self::class, 'update_booking_status' ) );
+		add_action( 'wp_ajax_mhm_rentiva_update_booking_status', array( self::class, 'update_booking_status' ) );
 	}
 
 	public static function process_remaining_payment(): void {

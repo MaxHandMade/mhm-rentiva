@@ -57,9 +57,9 @@ abstract class AbstractShortcode {
 	 * still says "already registered". A test asserting register()'s side effects
 	 * then sees nothing.
 	 *
-	 * That trap was hidden while unlicensed seams leaked: the boot registered them
-	 * for everyone, so the hooks sat in WP_UnitTestCase's baseline and survived
-	 * every rollback. Closing the leak exposed it.
+	 * That trap was hidden while unregistered seams leaked: the boot registered
+	 * them for everyone, so the hooks sat in WP_UnitTestCase's baseline and
+	 * survived every rollback. Closing the leak exposed it.
 	 */
 	public static function reset_shortcode_cache_for_tests(): void
 	{

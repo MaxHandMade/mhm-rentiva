@@ -170,7 +170,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
-		add_action('wp_ajax_mhm_save_item_order', array( self::class, 'ajax_save_item_order' ));
+		add_action('wp_ajax_mhm_rentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
 
 		add_action('add_meta_boxes', array( self::class, 'reorder_meta_boxes' ), 999);
 	}

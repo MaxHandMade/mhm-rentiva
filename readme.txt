@@ -4,6 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
+Requires Plugins:  woocommerce
 Stable tag:        5.1.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
@@ -38,6 +39,10 @@ Everything described below works in full. There are no vehicle, booking or listi
 
 This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfont, is served from your own site.
 
+= Privacy =
+
+MHM Rentiva stores its booking and customer records (such as names, e-mail addresses and phone numbers) locally in your WordPress database and does not transmit them anywhere. It registers no personal-data exporter or eraser of its own; advanced GDPR export and erasure tooling is provided by the separate paid Rentiva add-on.
+
 = A paid version exists =
 
 A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers with location-based routes, customer messaging, advanced reports and vendor payouts. It is a separate add-on plugin. Nothing described on this page is withheld or limited to promote it, and this plugin never advertises it to you in the admin.
@@ -53,18 +58,27 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 Most of this plugin is plain, human-readable PHP with no build step.
 
-Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No third-party or obfuscated code is bundled.
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No obfuscated code is bundled.
 
-The complete development sources, including the build configuration (`package.json`, `webpack.config.js`), are available in the public GitHub repository:
+The build tooling itself (`package.json`, `webpack.config.js`) is not included in this plugin's ZIP -- it lives only in the public GitHub repository, alongside the same `src-react/` sources:
 
 https://github.com/MaxHandMade/mhm-rentiva
 
-To rebuild the admin bundles from source, run the following from the plugin directory (or a checkout of the repository above):
+To rebuild the admin bundles from source, clone or download that repository and run the following from the repository root:
 
 `npm install`
 `npm run build`
 
 The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scripts) (webpack). Run `npm start` instead of `npm run build` for a watched development build.
+
+= Bundled third-party libraries =
+
+Two front-end libraries ship pre-built (minified) under `assets/vendor/`, both permissively licensed and with public upstream source:
+
+*   **flatpickr** v4.6.13 — date picker, MIT License. Source: https://github.com/flatpickr/flatpickr
+*   **Swiper** 11.2.10 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
+
+Neither library is modified from its upstream release; their full source is public on the repositories linked above.
 
 == Frequently Asked Questions ==
 

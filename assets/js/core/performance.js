@@ -581,14 +581,6 @@
          */
         logPerformance: function (name, value) {
             // Debug log removed
-
-            // Send to analytics (optional)
-            if (window.gtag) {
-                gtag('event', 'timing_complete', {
-                    name: name,
-                    value: Math.round(value)
-                });
-            }
         },
 
         /**

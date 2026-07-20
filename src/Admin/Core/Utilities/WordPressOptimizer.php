@@ -7,175 +7,25 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Optimizer housekeeping uses controlled admin-only diagnostic queries.
-
-
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
- * WordPress general performance optimization
+ * WordPress admin/frontend asset housekeeping.
+ *
+ * Scope is deliberately narrow: only dequeues this plugin's own unused
+ * admin script/style bundles and trims admin notices on this plugin's own
+ * screens. It does not alter site-wide WordPress behaviour (XML-RPC,
+ * pingbacks, feeds, oEmbed, etc.) -- a car-rental plugin has no functional
+ * need to touch any of that.
  */
 final class WordPressOptimizer {
 
 	public static function register(): void {
-		// PERFORMANCE: Disable unnecessary WordPress features
-		add_action( 'init', array( self::class, 'disable_unnecessary_features' ), 1 );
-
 		add_action( 'admin_enqueue_scripts', array( self::class, 'disable_heartbeat' ), 1 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'remove_unnecessary_admin_scripts' ), 999 );
 		add_action( 'admin_notices', array( self::class, 'limit_admin_notices' ), 1 );
-	}
-
-	/**
-	 * Disable unnecessary WordPress features
-	 */
-	public static function disable_unnecessary_features(): void {
-		// Gutenberg editor active (on all post types)
-		// add_filter('use_block_editor_for_post_type', '__return_true', 10, 2);
-
-		// Prevent REST API errors (disabled because required for Gutenberg)
-		// add_filter('rest_pre_dispatch', [self::class, 'filter_rest_requests'], 10, 3);
-
-		// Disable unnecessary WordPress emojis
-		remove_action( 'wp_head', 'print_emoji_detection_script', 7 );
-		remove_action( 'wp_print_styles', 'print_emoji_styles' );
-		remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
-		remove_action( 'admin_print_styles', 'print_emoji_styles' );
-
-		// Disable unnecessary WordPress embeds
-		remove_action( 'wp_head', 'wp_oembed_add_discovery_links' );
-		remove_action( 'wp_head', 'wp_oembed_add_host_js' );
-
-		// Disable unnecessary WordPress feeds
-		remove_action( 'wp_head', 'feed_links', 2 );
-		remove_action( 'wp_head', 'feed_links_extra', 3 );
-
-		// Disable unnecessary WordPress meta tags
-		remove_action( 'wp_head', 'rsd_link' );
-		remove_action( 'wp_head', 'wlwmanifest_link' );
-		remove_action( 'wp_head', 'wp_generator' );
-		remove_action( 'wp_head', 'start_post_rel_link' );
-		remove_action( 'wp_head', 'index_rel_link' );
-		remove_action( 'wp_head', 'adjacent_posts_rel_link' );
-
-		// Disable unnecessary WordPress pingbacks
-		remove_action( 'wp_head', 'wp_shortlink_wp_head' );
-		remove_action( 'template_redirect', 'wp_shortlink_header', 11 );
-
-		// Disable unnecessary WordPress XML-RPC
-		add_filter( 'xmlrpc_enabled', '__return_false' );
-
-		// Disable unnecessary WordPress pings
-		remove_action( 'do_pings', 'do_all_pings' );
-		remove_action( 'publish_post', '_publish_post_hook', 5 );
-	}
-
-	/**
-	 * Optimize admin page performance
-	 */
-	public static function optimize_admin_performance(): void {
-		// Disable unnecessary admin scripts
-		wp_dequeue_script( 'heartbeat' );
-		wp_dequeue_script( 'autosave' );
-		wp_dequeue_script( 'wp-pointer' );
-		wp_dequeue_script( 'thickbox' );
-		wp_dequeue_script( 'media-upload' );
-		wp_dequeue_script( 'jquery-ui-tabs' );
-		wp_dequeue_script( 'jquery-ui-dialog' );
-		wp_dequeue_script( 'jquery-ui-widget' );
-		wp_dequeue_script( 'jquery-ui-mouse' );
-		wp_dequeue_script( 'jquery-ui-draggable' );
-		wp_dequeue_script( 'jquery-ui-droppable' );
-		wp_dequeue_script( 'jquery-ui-sortable' );
-		wp_dequeue_script( 'jquery-ui-resizable' );
-		wp_dequeue_script( 'jquery-ui-selectable' );
-
-		// Disable unnecessary admin CSS
-		wp_dequeue_style( 'thickbox' );
-		wp_dequeue_style( 'wp-pointer' );
-		wp_dequeue_style( 'media-upload' );
-		wp_dequeue_style( 'jquery-ui-tabs' );
-		wp_dequeue_style( 'jquery-ui-dialog' );
-		wp_dequeue_style( 'jquery-ui-widget' );
-		wp_dequeue_style( 'jquery-ui-mouse' );
-		wp_dequeue_style( 'jquery-ui-draggable' );
-		wp_dequeue_style( 'jquery-ui-droppable' );
-		wp_dequeue_style( 'jquery-ui-sortable' );
-		wp_dequeue_style( 'jquery-ui-resizable' );
-		wp_dequeue_style( 'jquery-ui-selectable' );
-
-		// Hide the admin bar for non-admin operators using capability-based gating.
-		if ( ! current_user_can( 'manage_options' ) ) {
-			show_admin_bar( false );
-		}
-
-		// Limit unnecessary WordPress admin notices
-		add_action( 'admin_notices', array( self::class, 'limit_admin_notices' ), 1 );
-	}
-
-	/**
-	 * Optimize database queries
-	 */
-	public static function optimize_database_queries( array $clauses, \WP_Query $query ): array {
-		// Limit unnecessary meta queries
-		if ( isset( $query->query_vars['meta_query'] ) && is_array( $query->query_vars['meta_query'] ) ) {
-			// Limit the number of meta queries
-			if ( count( $query->query_vars['meta_query'] ) > 5 ) {
-				$query->query_vars['meta_query'] = array_slice( $query->query_vars['meta_query'], 0, 5 );
-			}
-		}
-
-		// Prevent unnecessary JOINs
-		if ( strpos( $clauses['join'], 'LEFT JOIN' ) !== false ) {
-			// Clean up unnecessary JOINs
-			$clauses['join'] = preg_replace( '/LEFT JOIN.*?ON.*?(?=LEFT JOIN|$)/s', '', $clauses['join'] );
-		}
-
-		return $clauses;
-	}
-
-	/**
-	 * Clean up unnecessary cron jobs
-	 */
-	public static function cleanup_unnecessary_cron_jobs(): void {
-		// Clean up unnecessary WordPress cron jobs
-		wp_clear_scheduled_hook( 'wp_scheduled_delete' );
-		wp_clear_scheduled_hook( 'wp_scheduled_auto_draft_delete' );
-		wp_clear_scheduled_hook( 'wp_scheduled_revision_delete' );
-
-		// Clean up unnecessary WordPress pings
-		wp_clear_scheduled_hook( 'do_pings' );
-
-		// Clean up unnecessary WordPress updates
-		wp_clear_scheduled_hook( 'wp_update_plugins' );
-		wp_clear_scheduled_hook( 'wp_update_themes' );
-		wp_clear_scheduled_hook( 'wp_update_core' );
-
-		// Clean up unnecessary WordPress comments
-		wp_clear_scheduled_hook( 'wp_scheduled_comment_cleanup' );
-	}
-
-	/**
-	 * Optimize memory usage
-	 */
-	public static function optimize_memory_usage(): void {
-		// Prefer WordPress-native memory limit handling.
-		if ( function_exists( 'wp_raise_memory_limit' ) ) {
-			wp_raise_memory_limit( 'admin' );
-		}
-
-		// Clean up unnecessary WordPress cache
-		if ( function_exists( 'wp_cache_flush' ) ) {
-			wp_cache_flush();
-		}
-
-		// Clean up unnecessary WordPress transients
-		global $wpdb;
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_%' AND option_value = ''" );
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_%' AND option_value < UNIX_TIMESTAMP()" );
 	}
 
 	/**
@@ -193,33 +43,6 @@ final class WordPressOptimizer {
 		if ( ! in_array( $pagenow, $allowed_pages, true ) ) {
 			wp_deregister_script( 'heartbeat' );
 		}
-	}
-
-	/**
-	 * Remove unnecessary scripts
-	 */
-	public static function remove_unnecessary_scripts(): void {
-		// Remove unnecessary jQuery scripts
-		wp_dequeue_script( 'jquery-ui-core' );
-		wp_dequeue_script( 'jquery-ui-widget' );
-		wp_dequeue_script( 'jquery-ui-mouse' );
-		wp_dequeue_script( 'jquery-ui-draggable' );
-		wp_dequeue_script( 'jquery-ui-droppable' );
-		wp_dequeue_script( 'jquery-ui-sortable' );
-		wp_dequeue_script( 'jquery-ui-resizable' );
-		wp_dequeue_script( 'jquery-ui-selectable' );
-
-		// Remove unnecessary WordPress scripts
-		wp_dequeue_script( 'wp-embed' );
-		wp_dequeue_script( 'wp-emoji' );
-		wp_dequeue_script( 'comment-reply' );
-
-		// Remove unnecessary WordPress CSS
-		wp_dequeue_style( 'wp-embed' );
-		wp_dequeue_style( 'wp-emoji' );
-		wp_dequeue_style( 'wp-block-library' );
-		wp_dequeue_style( 'wp-block-library-theme' );
-		wp_dequeue_style( 'wc-blocks-style' );
 	}
 
 	/**
@@ -266,29 +89,5 @@ final class WordPressOptimizer {
 
 		$post_type = $screen->post_type ?? null;
 		return in_array( $post_type, array( 'vehicle', 'vehicle_booking', 'vehicle_addon' ), true );
-	}
-
-	/**
-	 * Filter REST API requests and prevent unnecessary errors
-	 */
-	public static function filter_rest_requests( $result, $server, $request ): mixed {
-		$route = $request->get_route();
-
-		// Prevent Gutenberg editor's unnecessary REST API requests
-		$blocked_routes = array(
-			'/wp/v2/settings',
-			'/wp/v2/templates',
-			'/wp/v2/global-styles',
-			// Don't block Vehicle post type - required for Gutenberg
-		);
-
-		foreach ( $blocked_routes as $blocked_route ) {
-			if ( strpos( $route, $blocked_route ) === 0 ) {
-				// Return empty response instead of 404 error
-				return new \WP_REST_Response( array( 'message' => 'Endpoint not available' ), 200 );
-			}
-		}
-
-		return $result;
 	}
 }

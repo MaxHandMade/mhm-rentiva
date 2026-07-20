@@ -35,11 +35,11 @@ final class DashboardPage {
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
+		add_action('wp_ajax_mhm_rentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
+		add_action('wp_ajax_mhm_rentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
+		add_action('wp_ajax_mhm_rentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
 
 		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
@@ -172,6 +172,11 @@ final class DashboardPage {
 			return;
 		}
 
+		if (! current_user_can('manage_options')) {
+			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
+			return;
+		}
+
 		$order = isset($_POST['order']) ? array_map('sanitize_key', $_POST['order']) : array();
 		if (empty($order)) {
 			wp_send_json_error(__('Invalid order data', 'mhm-rentiva'));
@@ -243,10 +248,10 @@ final class DashboardPage {
 			'widget_order'                => array(),
 			'currency'                    => CurrencyHelper::get_currency_symbol(),
 			'admin_url'                   => admin_url(),
-			// Licence gates for the Pro quick actions, so the dashboard does not
-			// link to inaccessible Pro pages on an unlicensed site. Keys match the
+			// Registration gates for add-on quick actions, so the dashboard does
+			// not link to pages an inactive add-on would expose. Keys match the
 			// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
-			// Lite ships no keys at all -- a subscriber (Pro) supplies transfer/
+			// Lite ships no keys at all -- a subscriber (the add-on) supplies transfer/
 			// reports/vendors/messages/export; QuickActions.jsx already reads
 			// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
 			// key behaves identically to an explicit `false`.
@@ -254,9 +259,9 @@ final class DashboardPage {
 		);
 
 		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
-		// subscriber (Pro's DashboardExtensions) adds `transfer_stats` /
+		// subscriber (the add-on's DashboardExtensions) adds `transfer_stats` /
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
-		// the site is running Pro. The React app already guards its
+		// the add-on is active. The React app already guards its
 		// TransferWidget render on `transfer_stats` being truthy.
 		$data = apply_filters( 'mhm_rentiva_dashboard_localize', $data );
 

@@ -1652,6 +1652,21 @@ final class DatabaseCleaner {
 		$file_path    = $backup_dir . '/' . $backup_name . '.sql';
 		$backup_table = $wpdb->prefix . 'mhm_backup_records';
 
+		// Security: contain the resolved path to the backup directory before deleting
+		// (same realpath() containment pattern used by the download/restore callers
+		// in DatabaseCleanupPage.php). Skip the check only when the target does not
+		// exist -- there is nothing on disk to traverse to in that case.
+		$real_file_path = realpath( $file_path );
+		if ( $real_file_path !== false ) {
+			$real_backup_dir = realpath( $backup_dir );
+			if ( $real_backup_dir === false || strpos( $real_file_path, $real_backup_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
+				return array(
+					'success' => false,
+					'message' => __( 'Invalid backup file path', 'mhm-rentiva' ),
+				);
+			}
+		}
+
 		// Initialize filesystem
 		$file_deleted = false;
 		if ( self::init_filesystem() ) {

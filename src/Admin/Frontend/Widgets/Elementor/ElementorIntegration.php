@@ -46,8 +46,8 @@ class ElementorIntegration {
 	 * Lite's own widget classes, plus whatever the add-on's `ElementorExtensions`
 	 * subscriber (or any other subscriber) hands back via the
 	 * `mhm_rentiva_elementor_widgets` filter -- the seam inversion. Lite no
-	 * longer knows the 6 add-on widget classes or their licence features exist;
-	 * gating them is entirely the add-on's own responsibility now
+	 * longer knows the 6 add-on widget classes or their registration state
+	 * exist; gating them is entirely the add-on's own responsibility now
 	 * (mirrors `BlockRegistry::get_block_config()` and
 	 * `ShortcodeServiceProvider::get_registry()`).
 	 *

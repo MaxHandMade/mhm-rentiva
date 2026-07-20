@@ -52,7 +52,7 @@ jQuery( document ).ready(
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_run_cron_job',
+						action: 'mhm_rentiva_run_cron_job',
 						nonce: mhm_cron_vars.nonce,
 						hook: hook
 					},
@@ -85,7 +85,7 @@ jQuery( document ).ready(
 			$.post(
 				ajaxurl,
 				{
-					action: 'mhm_list_cron_jobs',
+					action: 'mhm_rentiva_list_cron_jobs',
 					nonce: mhm_cron_vars.nonce
 				},
 				function (response) {
@@ -190,7 +190,7 @@ jQuery( document ).ready(
 			$.post(
 				ajaxurl,
 				{
-					action: 'mhm_test_cron_jobs',
+					action: 'mhm_rentiva_test_cron_jobs',
 					nonce: mhm_cron_vars.nonce
 				},
 				function (response) {

@@ -88,7 +88,7 @@ jQuery(document).ready(function($) {
 		if (!window.confirm(isBlocked ? mhmConfirmOpen : mhmConfirmClose)) { return; }
 
 		$.post(ajaxurl, {
-			action: 'mhm_toggle_blocked_date',
+			action: 'mhm_rentiva_toggle_blocked_date',
 			vehicle_id: vehicleId,
 			date: date,
 			nonce: mhmToggleNonce

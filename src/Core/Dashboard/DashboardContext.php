@@ -33,9 +33,9 @@ final class DashboardContext {
 			return 'vendor';
 		}
 
-		// Lite has no vendor-application post type of its own; a subscriber (Pro)
+		// Lite has no vendor-application post type of its own; a subscriber (the add-on)
 		// answers whether this user has a pending vendor application. Lite's own
-		// default is false, so a Pro-less install (or a Pro-less downgrade, where
+		// default is false, so an install with no add-on active (or a downgrade, where
 		// vendor-role users already exist in the DB) always routes to 'customer'.
 		if (apply_filters('mhm_rentiva_dashboard_vendor_application_pending', false, $user->ID)) {
 			return 'vendor_application_pending';
