@@ -37,6 +37,23 @@ class ElementorIntegration {
 		$manager   = $widgets_manager ?? $elementor::instance()->widgets_manager;
 
 		// Register widgets (Elementor 3.5+ API)
+		foreach ( self::get_widget_classes() as $widget_class ) {
+			$manager->register( new $widget_class() );
+		}
+	}
+
+	/**
+	 * Lite's own widget classes, plus whatever the add-on's `ElementorExtensions`
+	 * subscriber (or any other subscriber) hands back via the
+	 * `mhm_rentiva_elementor_widgets` filter -- the seam inversion. Lite no
+	 * longer knows the 6 add-on widget classes or their licence features exist;
+	 * gating them is entirely the add-on's own responsibility now
+	 * (mirrors `BlockRegistry::get_block_config()` and
+	 * `ShortcodeServiceProvider::get_registry()`).
+	 *
+	 * @return array<int, class-string>
+	 */
+	private static function get_widget_classes(): array {
 		$widgets = array(
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\VehicleCardWidget::class,
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UnifiedSearchWidget::class, // Formerly VehicleSearch
@@ -57,45 +74,10 @@ class ElementorIntegration {
 			\MHMRentiva\Admin\Frontend\Widgets\Elementor\UserDashboardWidget::class,
 		);
 
-		// Pro seams: shipped by this build AND allowed by the licence (see below).
-		foreach ( self::pro_widget_classes() as $pro_widget => $feature ) {
-			if ( \MHMRentiva\Admin\Licensing\Mode::allowsSeam( $feature ) && class_exists( $pro_widget ) ) {
-				$widgets[] = $pro_widget;
-			}
-		}
+		/** @var array<int, class-string> $widgets */
+		$widgets = apply_filters( 'mhm_rentiva_elementor_widgets', $widgets );
 
-		foreach ( $widgets as $widget_class ) {
-			$manager->register( new $widget_class() );
-		}
-	}
-
-	/**
-	 * Elementor widget classes that the Lite build carves out.
-	 *
-	 * Returned as plain class-strings rather than ::class constants so the names
-	 * survive the carve, and gated by class_exists() at the call site so a Lite
-	 * build registers fewer widgets instead of fataling on a missing class.
-	 *
-	 * Mapped to the licence feature each widget requires (null = presence only),
-	 * keyed identically to the shortcode and block registries so a feature drops
-	 * out of all three together.
-	 *
-	 * @return array<string, string|null> Pro widget class name => feature key.
-	 */
-	private static function pro_widget_classes(): array {
-		return array(
-			// A null here means "no licence requirement" -- allowsSeam(null) is true.
-			// These three were null, so with Pro installed but unlicensed the widget
-			// class existed and the widget registered: the full Pro widget, free, in
-			// the Elementor panel. They are keyed to the same features as the
-			// shortcode and block registries so all three drop together.
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\MyMessagesWidget'      => 'messaging',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferSearchWidget'  => 'pro',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\TransferResultsWidget' => 'pro',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\PopularRoutesWidget'   => 'pro',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorProfileWidget'   => 'vendor_marketplace',
-			'MHMRentiva\Admin\Frontend\Widgets\Elementor\VendorDirectoryWidget' => 'vendor_marketplace',
-		);
+		return $widgets;
 	}
 
 	/**

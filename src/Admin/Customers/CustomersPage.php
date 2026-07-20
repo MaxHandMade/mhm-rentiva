@@ -282,6 +282,12 @@ final class CustomersPage {
 	 */
 	private function render_customer_edit(): void
 	{
+		// Editing a customer updates a real WordPress user account, so this is
+		// gated on edit_users, not manage_options (WP.org T4 #5).
+		if (! current_user_can('edit_users')) {
+			wp_die(esc_html__('You do not have permission to edit customers.', 'mhm-rentiva'));
+		}
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
 		if (! isset($_GET['customer_id']) || empty($_GET['customer_id'])) {
 			wp_die(esc_html__('Invalid customer ID.', 'mhm-rentiva'));

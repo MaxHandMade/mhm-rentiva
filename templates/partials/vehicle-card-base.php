@@ -112,11 +112,16 @@ if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
 $booking_base_url = $vehicle['booking_url'] ?? ( $atts['booking_url'] ?? '' );
 
 // Forward search context params to booking URL if present in current request.
+// Read via the query_vars whitelist (WP.org T4 #11), not raw $_GET -- these are
+// all registered public GET params: pickup_location/pickup_date/return_date by
+// SearchResults::PUBLIC_QUERY_VARS, pickup_time/return_time by
+// BookingForm::PUBLIC_QUERY_VARS.
 $search_params = array( 'vehicle_id' => $vehicle_id );
 $forward_keys  = array( 'pickup_location', 'pickup_date', 'pickup_time', 'return_date', 'return_time' );
 foreach ( $forward_keys as $key ) {
-	if ( isset( $_GET[ $key ] ) && $_GET[ $key ] !== '' ) {
-		$search_params[ $key ] = sanitize_text_field( wp_unslash( $_GET[ $key ] ) );
+	$forwarded_value = get_query_var( $key, null );
+	if ( null !== $forwarded_value && $forwarded_value !== '' ) {
+		$search_params[ $key ] = sanitize_text_field( wp_unslash( (string) $forwarded_value ) );
 	}
 }
 // If no pickup_location was forwarded from search, fall back to the vehicle's own location.

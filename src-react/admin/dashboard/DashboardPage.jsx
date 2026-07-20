@@ -51,20 +51,24 @@ export default function DashboardPage() {
 				<UpcomingOperations initial={ upcomingInitial } />
 			</div>
 
-			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right) — symmetric KPI */ }
-			<div className="mhm-dashboard__row mhm-dashboard__row--3">
+			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right, Pro only) — symmetric KPI.
+			     Lite localizes no transfer_stats (Task A5b seam inversion); Pro's
+			     mhm_rentiva_dashboard_localize subscriber adds it back. */ }
+			<div className={ `mhm-dashboard__row mhm-dashboard__row--3${ transferStats ? '' : ' mhm-dashboard__row--3-solo' }` }>
 				<RecentBookings
 					initial={ bookingsInitial }
 					metrics={ metrics }
 					currency={ currency }
 					adminUrl={ adminUrl }
 				/>
-				<TransferWidget
-					initial={ transfersInitial }
-					stats={ transferStats }
-					currency={ currency }
-					adminUrl={ adminUrl }
-				/>
+				{ transferStats && (
+					<TransferWidget
+						initial={ transfersInitial }
+						stats={ transferStats }
+						currency={ currency }
+						adminUrl={ adminUrl }
+					/>
+				) }
 			</div>
 
 			{ /* Row 4: Pending Payments (left) + Revenue Chart (right) */ }

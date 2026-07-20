@@ -33,22 +33,11 @@ final class DashboardContext {
 			return 'vendor';
 		}
 
-		// VendorApplication is a Pro seam, but this routing runs for EVERY logged-in
-		// dashboard viewer, so the constant read must not be reached without it.
-		// No Pro means no vendor-application post type exists to be pending in.
-		if (! class_exists('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
-			return 'customer';
-		}
-
-		$pending = get_posts(array(
-			'post_type'      => \MHMRentiva\Admin\Vendor\PostType\VendorApplication::POST_TYPE,
-			'post_author'    => $user->ID,
-			'post_status'    => 'pending',
-			'posts_per_page' => 1,
-			'fields'         => 'ids',
-		));
-
-		if (! empty($pending)) {
+		// Lite has no vendor-application post type of its own; a subscriber (Pro)
+		// answers whether this user has a pending vendor application. Lite's own
+		// default is false, so a Pro-less install (or a Pro-less downgrade, where
+		// vendor-role users already exist in the DB) always routes to 'customer'.
+		if (apply_filters('mhm_rentiva_dashboard_vendor_application_pending', false, $user->ID)) {
 			return 'vendor_application_pending';
 		}
 

@@ -7,10 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-use MHMRentiva\Admin\Licensing\Mode;
-
-
-
 /**
  * About page main class
  */
@@ -54,7 +50,7 @@ final class About {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab switch, no state-changing action.
 		$raw_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
 		// Keep in sync with TabNav.jsx's TABS and AboutPage.jsx's getInitialTab().
-		// The removed `features` tab rendered a Lite-vs-Pro comparison table from a
+		// The removed `features` tab rendered a tier-comparison table from a
 		// REST key that no longer exists, so allowing it here handed the React side
 		// an undefined payload and took the whole About page down.
 		$allowed     = array( 'general', 'system', 'support', 'developer' );
@@ -84,11 +80,9 @@ final class About {
 		$support_email = 'support@wpalemi.com';
 
 		$title = sprintf(
-			'%s <span class="version-badge">v%s</span> <span class="license-badge %s">%s</span>',
+			'%s <span class="version-badge">v%s</span>',
 			esc_html__( 'About MHM Rentiva', 'mhm-rentiva' ),
-			MHM_RENTIVA_VERSION,
-			Mode::isPro() ? 'pro' : 'lite',
-			Mode::isPro() ? esc_html__( 'Pro', 'mhm-rentiva' ) : esc_html__( 'Lite', 'mhm-rentiva' )
+			MHM_RENTIVA_VERSION
 		);
 		?>
 		<div class="wrap mhm-rentiva-about-wrap">

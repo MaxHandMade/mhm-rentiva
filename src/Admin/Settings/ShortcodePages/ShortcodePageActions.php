@@ -22,15 +22,15 @@ final class ShortcodePageActions {
 	/**
 	 * Get shortcode configurations, minus any this build cannot render.
 	 *
-	 * This is the second registry that has to respect the Lite/Pro seam --
+	 * This is the second registry that has to respect the Lite/add-on extension boundary --
 	 * BlockRegistry was the first. An unregistered shortcode does not vanish, it
 	 * degrades to its own literal source text, so offering a page for one is not a
 	 * cosmetic fault: create_page() publishes the raw shortcode as page content
 	 * and the visitor reads "[rentiva_vendor_apply]" on a live page.
 	 *
 	 * Availability is probed with shortcode_exists() rather than a second
-	 * hardcoded list of Pro tags, deliberately. ShortcodeServiceProvider already
-	 * drops absent Pro seams from the one real registry, so asking that registry
+	 * hardcoded list of add-on tags, deliberately. ShortcodeServiceProvider already
+	 * drops absent add-on extension points from the one real registry, so asking that registry
 	 * what exists keeps this list honest automatically -- a duplicated tag list
 	 * here would be free to rot out of sync, which is precisely how this defect
 	 * survived the carve.
@@ -190,7 +190,7 @@ final class ShortcodePageActions {
 		 * printing their own raw source text at visitors. That silencing shim is a
 		 * real registration, so shortcode_exists() answers YES for precisely the
 		 * tags this build must NOT offer -- and the Shortcode Pages tool listed
-		 * every closed Pro seam as "Aktif", offering to create pages that could only
+		 * every closed add-on extension point as "Aktif", offering to create pages that could only
 		 * ever render blank.
 		 *
 		 * get_registered_shortcodes() is populated only by process_registration(),

@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
+use MHMRentiva\Admin\Settings\Core\SettingsCore;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -47,29 +48,30 @@ final class SettingsService {
 			'booking'  => \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
 			'customer' => \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			'email'    => \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-			// Pro seam (absent in Lite): a plain class-string, not ::class, so the
-			// name survives the carve. The class_exists() below already gates use.
-			'messages' => 'MHMRentiva\Admin\Messages\Settings\MessagesSettings',
 			'frontend' => \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
-			'transfer' => 'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			'vendor-marketplace' => 'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
+			// Pro-owned tabs (Task A6b seam inversion): Lite no longer names these
+			// classes. Pro registers its provider class for each via the existing
+			// `mhm_rentiva_register_settings_providers` action (Settings::init()),
+			// and this reads that same registry -- returns null with no subscriber,
+			// exactly like every other unregistered tab below.
+			'transfer', 'vendor-marketplace', 'messages' => \MHMRentiva\Admin\Settings\Settings::get_provider( $target_tab ),
 			default    => null,
 		};
 
 		// Reset is a WRITE. The sanitizer fails closed for unlicensed Pro tabs, but
 		// this reset path bypasses the sanitizer (it calls update_option directly),
 		// so it must apply the same gate or an unlicensed admin could overwrite Pro
-		// settings with defaults (Fable Y3). Same feature map as SettingsSanitizer,
-		// plus Messages (which resets through here, unlike its save handler).
-		$pro_tab_gates = array(
-			'transfer'           => \MHMRentiva\Admin\Licensing\Mode::isPro(),
-			'vendor-marketplace' => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
-			'messages'           => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
-		);
-		if ( isset( $pro_tab_gates[ $target_tab ] ) && ! $pro_tab_gates[ $target_tab ] ) {
+		// settings with defaults (Fable Y3). Same tab set as SettingsSanitizer, plus
+		// Messages (which resets through here, unlike its save handler). Licence
+		// state comes from SettingsCore::settings_tabs() (Task A6 seam inversion):
+		// Lite's own default is an empty array, so a missing key -- exactly the
+		// unlicensed/no-Pro-subscriber state -- is treated as "not licensed" via
+		// empty(), not skipped.
+		$pro_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
+		if ( in_array( $target_tab, $pro_tabs, true ) && empty( SettingsCore::settings_tabs()[ $target_tab ] ) ) {
 			return false;
 		}
 
@@ -191,11 +193,15 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 		);
+
+		// Pro-owned providers that also write to the master option (Task A6b
+		// seam inversion): Lite no longer names the Transfer settings-group
+		// class here. Pro adds its own provider class(es) back via this filter.
+		$provider_classes = (array) apply_filters( 'mhm_rentiva_settings_activation_providers', $provider_classes );
 
 		$defaults = array();
 		foreach ( $provider_classes as $class ) {

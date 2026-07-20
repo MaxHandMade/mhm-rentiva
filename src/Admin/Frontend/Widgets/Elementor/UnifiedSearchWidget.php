@@ -162,19 +162,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		);
 
 		$this->add_control(
-			'show_transfer_tab',
-			array(
-				'label'        => __( 'Show Transfer Tab', 'mhm-rentiva' ),
-				'type'         => 'switcher',
-				'default'      => 'yes',
-				'return_value' => 'yes',
-				'condition'    => array(
-					'service_type' => 'both',
-				),
-			)
-		);
-
-		$this->add_control(
 			'show_location_select',
 			array(
 				'label'        => __( 'Show Location Select', 'mhm-rentiva' ),
@@ -212,11 +199,9 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 
 		// Mapping service types
 		if ( $settings['service_type'] !== 'both' ) {
-			$atts['show_rental_tab']   = ( $settings['service_type'] === 'rental' ) ? '1' : '0';
-			$atts['show_transfer_tab'] = ( $settings['service_type'] === 'transfer' ) ? '1' : '0';
+			$atts['show_rental_tab'] = ( $settings['service_type'] === 'rental' ) ? '1' : '0';
 		} else {
-			$atts['show_rental_tab']   = ( $settings['show_rental_tab'] === 'yes' ) ? '1' : '0';
-			$atts['show_transfer_tab'] = ( $settings['show_transfer_tab'] === 'yes' ) ? '1' : '0';
+			$atts['show_rental_tab'] = ( $settings['show_rental_tab'] === 'yes' ) ? '1' : '0';
 		}
 
 		$atts['layout']      = $settings['layout'];

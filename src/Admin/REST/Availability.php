@@ -21,16 +21,47 @@ final class Availability {
 	}
 
 	/**
-	 * Permission callback - Security check with rate limiting
+	 * Permission callback — deliberately PUBLIC, not capability-gated (WP.org T4 #7).
+	 *
+	 * `/availability` and `/availability/with-alternatives` answer "is this
+	 * vehicle free for these dates." The response contains only availability
+	 * status, pricing, and currency formatting (see check()/
+	 * check_with_alternatives()) — no PII, no customer/vendor data, and no
+	 * write side-effects — so there is nothing here a `current_user_can()`
+	 * gate would protect; a public REST API for availability lookups is
+	 * documented in README.md's "Authentication" / "Key Endpoints" sections.
+	 *
+	 * It is intentionally NOT `__return_true`, though: the request must still
+	 * carry a valid `wp_rest` nonce (X-WP-Nonce) verified by
+	 * `AuthHelper::verifyAuth()` and stay within `RateLimiter`'s per-IP
+	 * budget. Neither check requires login or a capability — a `wp_rest`
+	 * nonce is valid for logged-out visitors too — so this keeps the route
+	 * same-origin-scoped and rate-limited against blind scripted/bulk
+	 * scraping without turning it into an authorization gate.
+	 *
+	 * Caller note (verified against the current codebase, not assumed): no
+	 * in-repo front-end flow currently calls this REST route or supplies a
+	 * `wp_rest` nonce for it. The plugin's actual availability UI
+	 * (`assets/js/frontend/booking-form.js`,
+	 * `assets/js/frontend/availability-calendar.js`) goes through
+	 * `admin-ajax.php` instead, using its own separate nonce actions
+	 * (`mhm_rentiva_booking_form_nonce`, `mhm_rentiva_availability_nonce`) —
+	 * not this route. This REST endpoint is reachable only by a caller that
+	 * independently obtains a `wp_rest` nonce (e.g. any other logged-in-or-
+	 * not page context that WordPress issues one for) or by a future
+	 * integration; keeping the nonce + rate-limit gate here is a forward-
+	 * looking safeguard for this public route, not a description of an
+	 * existing consumer.
 	 */
 	public static function permission_check( \WP_REST_Request $request ): bool {
-		// 1. Security Check (HTTPS, IP blocking, etc.)
+		// 1. Nonce check (CSRF / same-origin, not an authorization check —
+		// works for logged-out visitors too).
 		$auth_check = \MHMRentiva\Admin\REST\Helpers\AuthHelper::verifyAuth( $request );
 		if ( is_wp_error( $auth_check ) ) {
 			return false;
 		}
 
-		// 2. Rate limiting check
+		// 2. Rate limiting check (abuse/scrape protection, IP-scoped).
 		$client_ip = \MHMRentiva\Admin\Core\Utilities\RateLimiter::getClientIP();
 		return \MHMRentiva\Admin\Core\Utilities\RateLimiter::check( $client_ip, 'general' );
 	}

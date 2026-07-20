@@ -143,18 +143,60 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * Sanitize an array-shaped option: `sanitize_key()` on the KEY, `sanitize_text_field()`
+	 * on the VALUE.
+	 *
+	 * Used for `mhm_selected_*` (selected field-key lists) and `mhm_custom_*`
+	 * (custom field slug => label maps). In both cases the array KEY is an
+	 * internal slug -- for `mhm_custom_*` it gates `isset()` lookups and is
+	 * suffixed onto a postmeta key (`_mhm_rentiva_<key>`); it is normally
+	 * server-generated (`custom_<time>_<rand>`, see ajax_add_custom_field())
+	 * or taxonomy-derived (`tax_<taxonomy>_<slug>`), both already
+	 * `[a-z0-9_-]`, so `sanitize_key()` is lossless for real data. The VALUE
+	 * is a plain label/selection string, so `sanitize_text_field()` (as
+	 * before) is correct there.
+	 *
+	 * WP.org T4 #6: `array_map( 'sanitize_text_field', $input )` sanitized
+	 * VALUES only -- `array_map()` never touches keys -- so a dirty array key
+	 * (e.g. submitted through the Settings API, or any `update_option()`
+	 * call, since core's `sanitize_option()` always routes through the
+	 * registered callback) could persist raw markup into the stored option.
+	 *
+	 * @param mixed $input Raw option payload.
+	 * @return array<string,string>
+	 */
+	public static function sanitize_array_option( mixed $input ): array {
+		if ( ! is_array( $input ) ) {
+			return array();
+		}
+
+		$out = array();
+		foreach ( $input as $key => $value ) {
+			$safe_key = sanitize_key( (string) $key );
+			if ( '' === $safe_key ) {
+				continue;
+			}
+			$out[ $safe_key ] = sanitize_text_field( is_scalar( $value ) ? (string) $value : '' );
+		}
+
+		return $out;
+	}
+
+	/**
 	 * Save settings
 	 */
 	public static function register_settings(): void {
+		$sanitize_callback = array( self::class, 'sanitize_array_option' );
+
 		// Selected fields (checkbox states)
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_details', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_features', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_equipment', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_selected_details', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_selected_features', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_selected_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
 
 		// Custom fields
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_details', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_features', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_equipment', array( 'sanitize_callback' => fn( $input ) => is_array( $input ) ? array_map( 'sanitize_text_field', $input ) : array() ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_custom_details', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_custom_features', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhm_vehicle_settings', 'mhm_custom_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
 	}
 
 	/**

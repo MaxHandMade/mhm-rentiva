@@ -180,12 +180,12 @@ final class VehicleManagementSettings {
 			self::SECTION_AVAILABILITY
 		);
 
-		// Global Default Location. Locations are a Transfer (Pro) feature: without
-		// LocationProvider the setting has no selectable value and nothing to fall
-		// back to, so the field is withheld instead of offering only "Default (None)".
-		if ( class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' ) ) {
-			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations( 'rental' );
-			$options   = array( '' => __( 'Default (None)', 'mhm-rentiva' ) );
+		// Global Default Location. Locations come from an add-on via the filter:
+		// without one the setting has no selectable value and nothing to fall back
+		// to, so the field is withheld instead of offering only "Default (None)".
+		$locations = apply_filters( 'mhm_rentiva_locations', array(), 'rental' );
+		if ( ! empty( $locations ) ) {
+			$options = array( '' => __( 'Default (None)', 'mhm-rentiva' ) );
 			foreach ( $locations as $loc ) {
 				$options[ $loc->id ] = $loc->name;
 			}

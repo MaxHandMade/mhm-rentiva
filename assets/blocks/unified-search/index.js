@@ -19,7 +19,6 @@
         var service_type = attributes.service_type;
         var default_tab = attributes.default_tab;
         var show_rental_tab = attributes.show_rental_tab;
-        var show_transfer_tab = attributes.show_transfer_tab;
         var show_location_select = attributes.show_location_select;
         var show_time_select = attributes.show_time_select;
         var show_date_picker = attributes.show_date_picker;
@@ -123,16 +122,6 @@
                             { label: __('Hide', 'mhm-rentiva'), value: 'false' },
                         ],
                         onChange: function (val) { setAttributes({ show_rental_tab: val }); }
-                    }),
-                    !isRentalOnly && el(SelectControl, {
-                        label: __('Show Transfer Tab', 'mhm-rentiva'),
-                        value: show_transfer_tab,
-                        options: [
-                            { label: __('Global Default', 'mhm-rentiva'), value: 'default' },
-                            { label: __('Show', 'mhm-rentiva'), value: 'true' },
-                            { label: __('Hide', 'mhm-rentiva'), value: 'false' },
-                        ],
-                        onChange: function (val) { setAttributes({ show_transfer_tab: val }); }
                     }),
                     el(SelectControl, {
                         label: __('Location Select', 'mhm-rentiva'),

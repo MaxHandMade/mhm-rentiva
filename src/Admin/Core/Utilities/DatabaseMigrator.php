@@ -45,7 +45,19 @@ final class DatabaseMigrator {
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
 			self::create_table('notification_queue');
-			if (\MHMRentiva\Admin\Licensing\Mode::canUseVendorPayout()) {
+
+			// Payout governance schema (the `payout_audit` table + the seven
+			// `mhm_rentiva_*` capabilities added to the administrator role)
+			// belongs to Pro's GovernanceService -- the class that actually
+			// reads/writes the audit trail and enforces those capabilities.
+			// Gated on its presence rather than a licence check for the same
+			// reason as the Ledger cluster below: this is a question of which
+			// FILES this build ships, not which features a licence currently
+			// unlocks. A licence gate would also skip the schema on a Pro
+			// install whose licence is not yet activated, and since
+			// run_migrations() is version-gated it would not re-run after
+			// activation -- leaving Pro with a half-built schema.
+			if (class_exists(\MHMRentiva\Core\Financial\GovernanceService::class)) {
 				self::create_table('mhm_rentiva_payout_audit');
 				self::register_governance_capabilities();
 			}
@@ -58,12 +70,13 @@ final class DatabaseMigrator {
 			// dead schema in every Lite install.
 			//
 			// Gated on LedgerMigration (the seam that owns the cluster's primary
-			// table) rather than on Mode::canUse*(): this is a question about which
-			// FILES this build ships, not which features a licence unlocks. A Mode
-			// gate would also skip the schema on a Pro install whose licence is not
-			// yet activated, and since run_migrations() is version-gated it would
-			// not re-run after activation -- leaving Pro with a half-built schema.
-			// Mirrors create_transfer_tables()'s class_exists() gate below.
+			// table) rather than on a licence check: this is a question about which
+			// FILES this build ships, not which features a licence unlocks. A
+			// licence gate would also skip the schema on a Pro install whose
+			// licence is not yet activated, and since run_migrations() is
+			// version-gated it would not re-run after activation -- leaving Pro
+			// with a half-built schema. Mirrors create_transfer_tables()'s
+			// class_exists() gate below.
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\LedgerMigration::create_table();
 				self::create_key_registry_table();
@@ -585,86 +598,25 @@ final class DatabaseMigrator {
 	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
 	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
 	 * read is dead schema, which is WP.org-unclean (cf. faz1-exit-decisions Task 5
-	 * REQUIREMENT 2). Guarding here rather than at each of the three call sites
-	 * (run_migrations + the two create_table switch arms) keeps it single-point.
+	 * REQUIREMENT 2).
+	 *
+	 * Task A9c seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
+	 * verbatim to Pro's `\MHMRentiva\Core\Database\Migrations\TransferMigration`
+	 * (same "Migrations" cluster as LedgerMigration/VendorReportsMigration below),
+	 * so this file no longer names any class from the Transfer module itself.
+	 * Gate stays a class_exists() check -- unchanged semantics, only the target
+	 * class changed -- keeping the single-point guard for all three call sites
+	 * (run_migrations + the two create_table switch arms).
 	 *
 	 * @return bool True if the tables were created; false if skipped (no Transfer).
 	 */
 	private static function create_transfer_tables(): bool
 	{
-		if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+		if (! class_exists(\MHMRentiva\Core\Database\Migrations\TransferMigration::class)) {
 			return false;
 		}
 
-		global $wpdb;
-
-		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
-		$charset_collate = $wpdb->get_charset_collate();
-
-		// 1. Transfer Locations
-		$table_locations = esc_sql(self::sanitize_table_identifier($wpdb->prefix . 'rentiva_transfer_locations'));
-		$old_locations   = esc_sql(self::sanitize_table_identifier($wpdb->prefix . 'mhm_rentiva_transfer_locations'));
-
-		// Rename logic
-		$old_locations_table = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $old_locations));
-		if ($old_locations_table === $old_locations) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table identifiers cannot be prepared; identifiers are strictly sanitized and SQL-escaped.
-			$wpdb->query(sprintf('RENAME TABLE `%s` TO `%s`', $old_locations, $table_locations));
-		}
-
-		$sql_locations = "CREATE TABLE $table_locations (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            name varchar(255) NOT NULL,
-            city varchar(100) NOT NULL DEFAULT '',
-            type varchar(50) NOT NULL,
-            priority int(11) DEFAULT 0,
-            is_active tinyint(1) DEFAULT 1,
-            allow_rental tinyint(1) DEFAULT 1,
-            allow_transfer tinyint(1) DEFAULT 1,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY type (type),
-            KEY is_active (is_active),
-            KEY allow_rental (allow_rental),
-            KEY allow_transfer (allow_transfer),
-            KEY city (city)
-        ) $charset_collate;";
-
-		dbDelta($sql_locations);
-
-		// 2. Transfer Routes
-		$table_routes = esc_sql(self::sanitize_table_identifier($wpdb->prefix . 'rentiva_transfer_routes'));
-		$old_routes   = esc_sql(self::sanitize_table_identifier($wpdb->prefix . 'mhm_rentiva_transfer_routes'));
-
-		// Rename logic
-		$old_routes_table = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $old_routes));
-		if ($old_routes_table === $old_routes) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Table identifiers cannot be prepared; identifiers are strictly sanitized and SQL-escaped.
-			$wpdb->query(sprintf('RENAME TABLE `%s` TO `%s`', $old_routes, $table_routes));
-		}
-
-		$sql_routes = "CREATE TABLE $table_routes (
-            id bigint(20) NOT NULL AUTO_INCREMENT,
-            origin_id bigint(20) NOT NULL,
-            destination_id bigint(20) NOT NULL,
-            distance_km float DEFAULT 0,
-            duration_min int(11) DEFAULT 0,
-            pricing_method enum('fixed', 'calculated') DEFAULT 'fixed',
-            base_price decimal(10,2) DEFAULT 0.00,
-            min_price decimal(10,2) DEFAULT 0.00,
-            max_price decimal(10,2) DEFAULT 0.00,
-            is_featured tinyint(1) NOT NULL DEFAULT 0,
-            created_at datetime DEFAULT CURRENT_TIMESTAMP,
-            PRIMARY KEY (id),
-            KEY origin_dest (origin_id, destination_id),
-            KEY pricing_method (pricing_method),
-            KEY is_featured (is_featured)
-        ) $charset_collate;";
-
-		dbDelta($sql_routes);
-
-		return true;
+		return \MHMRentiva\Core\Database\Migrations\TransferMigration::create_tables();
 	}
 
 	/**

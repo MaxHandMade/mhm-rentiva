@@ -4,7 +4,7 @@ Tags:             car rental, vehicle rental, booking, reservation, rent a car
 Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
-Stable tag:        5.0.2
+Stable tag:        5.1.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -49,6 +49,23 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 3. Install and activate WooCommerce if you want customers to book and pay from the frontend.
 4. Use the Settings menu to configure your vehicle features, equipment, and module preferences.
 
+== Source code ==
+
+Most of this plugin is plain, human-readable PHP with no build step.
+
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No third-party or obfuscated code is bundled.
+
+The complete development sources, including the build configuration (`package.json`, `webpack.config.js`), are available in the public GitHub repository:
+
+https://github.com/MaxHandMade/mhm-rentiva
+
+To rebuild the admin bundles from source, run the following from the plugin directory (or a checkout of the repository above):
+
+`npm install`
+`npm run build`
+
+The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scripts) (webpack). Run `npm start` instead of `npm run build` for a watched development build.
+
 == Frequently Asked Questions ==
 
 = Does it work with WooCommerce? =
@@ -78,6 +95,13 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 
 == Changelog ==
 
+= 5.1.0 =
+* Security: hardened contact-form file-path handling, capability checks for customer-account creation, REST route permissions, output escaping and settings sanitization across the plugin.
+* Changed: testimonial and account avatars now render locally from initials with no external Gravatar request; the plugin makes no third-party calls.
+* Removed: the demo-data seeder and its bundled sample images.
+* Added: a "Source code" section documenting the React build and the public repository.
+* Maintenance: WordPress.org guideline compliance. The free plugin's behaviour is unchanged.
+
 = 5.0.2 =
 * Changed: the admin menu now sits lower in the WordPress menu, so it no longer competes with core items.
 * Fixed: about 105 error and status messages are now translatable and fully translated to Turkish.
@@ -96,6 +120,9 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Full Turkish translation.
 
 == Upgrade Notice ==
+
+= 5.1.0 =
+Security hardening and WordPress.org compliance. No action required; your settings and data are unaffected.
 
 = 5.0.2 =
 Compliance housekeeping and translation improvements. No action required; your settings and data are unaffected.

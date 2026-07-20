@@ -60,33 +60,21 @@ final class CronMonitor {
 			),
 		);
 
-		// Licensing crons are scheduled by the Pro-only licensing module, so their
-		// labels ("Validates plugin license daily", "Reports site URL... to license
-		// server") must never surface in Lite. Listing them unconditionally was
-		// harmless on a fresh Lite install -- the loop below only reports hooks that
-		// are actually scheduled -- but a site downgraded from Pro keeps the events
-		// in wp_cron until they are cleared, which would have shown a Lite admin a
-		// licence-server cron this build does not have.
-		if ( class_exists( '\MHMRentiva\Admin\Licensing\LicenseManager' ) ) {
-			$plugin_hooks['mhm_rentiva_license_daily']    = array(
-				'name'        => __( 'License Validation', 'mhm-rentiva' ),
-				'description' => __( 'Validates plugin license daily', 'mhm-rentiva' ),
-			);
-			$plugin_hooks['mhm_rentiva_instance_checkin'] = array(
-				'name'        => __( 'Site Instance Check-in', 'mhm-rentiva' ),
-				'description' => __( 'Reports site URL, version and environment to license server for usage tracking', 'mhm-rentiva' ),
-			);
-		}
-
-		// Data-retention cleanup is a licensed GDPR feature; it is only scheduled when
-		// canUseGdpr(). List it in the monitor only then, so an unlicensed site does
-		// not show a Pro cron flagged "not scheduled / idle" as if it were a fault.
-		if ( \MHMRentiva\Admin\Licensing\Mode::canUseGdpr() ) {
-			$plugin_hooks['mhm_data_retention_cleanup'] = array(
-				'name'        => __( 'Data Retention Cleanup', 'mhm-rentiva' ),
-				'description' => __( 'Cleans up expired data according to retention policies', 'mhm-rentiva' ),
-			);
-		}
+		/**
+		 * Task A9c seam inversion: the license-validation, licence-server
+		 * check-in and GDPR data-retention crons used to be hardcoded here,
+		 * gated on a class_exists() check for the add-on's license-manager
+		 * class and an add-on GDPR capability gate. Their labels ("Validates
+		 * plugin license daily", "Reports site URL... to license server",
+		 * "Cleans up expired data...") must never surface on a site this
+		 * build does not ship them on, including one downgraded from the
+		 * add-on (an event scheduled during a prior licensed run persists in
+		 * wp_cron until cleared). The add-on now contributes its own cron
+		 * descriptions back through this filter.
+		 *
+		 * @param array<string, array{name: string, description: string}> $plugin_hooks
+		 */
+		$plugin_hooks = (array) apply_filters( 'mhm_rentiva_cron_descriptions', $plugin_hooks );
 
 		foreach ( $crons as $timestamp => $cron ) {
 			foreach ( $cron as $hook => $dings ) {
@@ -178,16 +166,19 @@ final class CronMonitor {
 			);
 		}
 
-		// Check if hook is a plugin hook
-		$plugin_hooks = array(
-			'mhm_rentiva_auto_cancel_event',
-			'mhm_data_retention_cleanup',
-			'mhm_send_scheduled_notifications',
-			'mhm_rentiva_license_daily',
-			'mhm_rentiva_email_log_purge_event',
-			'mhm_rentiva_log_purge_event',
-			'mhm_rentiva_daily_log_cleanup',
-			'mhm_rentiva_instance_checkin',
+		// Check if hook is a plugin hook. Task A9c seam inversion: the two
+		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
+		// them back via this filter.
+		$plugin_hooks = (array) apply_filters(
+			'mhm_rentiva_known_cron_hooks',
+			array(
+				'mhm_rentiva_auto_cancel_event',
+				'mhm_data_retention_cleanup',
+				'mhm_send_scheduled_notifications',
+				'mhm_rentiva_email_log_purge_event',
+				'mhm_rentiva_log_purge_event',
+				'mhm_rentiva_daily_log_cleanup',
+			)
 		);
 
 		if ( ! in_array( $hook, $plugin_hooks, true ) ) {
@@ -273,16 +264,19 @@ final class CronMonitor {
 	 * @return array Test results for each cron job
 	 */
 	public static function test_all_cron_jobs(): array {
-		$results      = array();
-		$plugin_hooks = array(
-			'mhm_rentiva_auto_cancel_event',
-			'mhm_data_retention_cleanup',
-			'mhm_send_scheduled_notifications',
-			'mhm_rentiva_license_daily',
-			'mhm_rentiva_email_log_purge_event',
-			'mhm_rentiva_log_purge_event',
-			'mhm_rentiva_daily_log_cleanup',
-			'mhm_rentiva_instance_checkin',
+		$results = array();
+		// Task A9c seam inversion: same filterable "known hooks" list as
+		// run_cron_job() above.
+		$plugin_hooks = (array) apply_filters(
+			'mhm_rentiva_known_cron_hooks',
+			array(
+				'mhm_rentiva_auto_cancel_event',
+				'mhm_data_retention_cleanup',
+				'mhm_send_scheduled_notifications',
+				'mhm_rentiva_email_log_purge_event',
+				'mhm_rentiva_log_purge_event',
+				'mhm_rentiva_daily_log_cleanup',
+			)
 		);
 
 		// Ensure all plugin hooks are loaded

@@ -4,7 +4,6 @@ namespace MHMRentiva\Tests\Blocks;
 
 use MHMRentiva\Blocks\BlockRegistry;
 use ReflectionClass;
-use ReflectionMethod;
 use WP_Block_Type_Registry;
 use WP_UnitTestCase;
 
@@ -12,13 +11,13 @@ use WP_UnitTestCase;
  * Lite must not register blocks it cannot render.
  *
  * Every block delegates to its shortcode through do_shortcode(), so a block whose
- * backing shortcode class is carved out of Lite has nothing to render. An
- * unregistered shortcode does not vanish -- it degrades to its own literal source
- * text -- so registering the block anyway put the raw `[rentiva_transfer_search]`
- * string in front of visitors and left the block in the editor inserter.
- *
- * This suite runs against the real Lite tree, where the Pro shortcode classes are
- * genuinely absent, so it exercises the seam rather than a simulation of it.
+ * backing shortcode class is carved out of Lite has nothing to render. Since the
+ * `mhm_rentiva_blocks` seam inversion, Lite no longer declares these 6 blocks at
+ * all (they are contributed by Pro's own BlockExtensions filter subscriber) --
+ * previously Lite declared them with a `pro_seam` marker and dropped them via
+ * class_exists()+licence gating in get_available_blocks(). This suite runs
+ * against the real Lite tree, where the Pro shortcode classes are genuinely
+ * absent, so it exercises the seam rather than a simulation of it.
  *
  * @package MHMRentiva\Tests\Blocks
  */
@@ -94,43 +93,16 @@ class BlockRegistryLiteSeamTest extends WP_UnitTestCase
     }
 
     /**
-     * The filter keys off the declared seam, not off a hardcoded slug list: every
-     * block carrying a `pro_seam` whose class is absent drops, and nothing else
-     * does.
+     * Lite's own declared blocks (self::$blocks) must not carry `pro_seam`
+     * anymore — that gating moved to Pro's own `mhm_rentiva_blocks` filter
+     * subscriber (BlockExtensions). See BlockRegistryFilterTest for the
+     * `get_block_config()` filter-accessor coverage.
      */
-    public function test_available_blocks_drops_exactly_the_absent_pro_seams(): void
+    public function test_declared_blocks_carry_no_seam_keys(): void
     {
-        $all       = $this->get_declared_blocks();
-        $available = $this->get_available_blocks();
-
-        $expected_dropped = array();
-        foreach ($all as $slug => $config) {
-            if (isset($config['pro_seam']) && ! class_exists((string) $config['pro_seam'])) {
-                $expected_dropped[] = $slug;
-            }
-        }
-
-        sort($expected_dropped);
-        $actual_dropped = array_values(array_diff(array_keys($all), array_keys($available)));
-        sort($actual_dropped);
-
-        $this->assertNotSame(array(), $expected_dropped, 'Premise failed: Lite declares no absent Pro seam.');
-        $this->assertSame($expected_dropped, $actual_dropped);
-    }
-
-    /**
-     * A block with no `pro_seam` is never dropped, regardless of build.
-     */
-    public function test_blocks_without_a_pro_seam_are_never_dropped(): void
-    {
-        $available = $this->get_available_blocks();
-
         foreach ($this->get_declared_blocks() as $slug => $config) {
-            if (isset($config['pro_seam'])) {
-                continue;
-            }
-
-            $this->assertArrayHasKey($slug, $available, sprintf('Seamless block "%s" was dropped.', $slug));
+            $this->assertArrayNotHasKey('pro_seam', $config, $slug);
+            $this->assertArrayNotHasKey('pro_feature', $config, $slug);
         }
     }
 
@@ -143,16 +115,5 @@ class BlockRegistryLiteSeamTest extends WP_UnitTestCase
         $property->setAccessible(true);
 
         return (array) $property->getValue();
-    }
-
-    /**
-     * @return array<string, array<string, mixed>>
-     */
-    private function get_available_blocks(): array
-    {
-        $method = new ReflectionMethod(BlockRegistry::class, 'get_available_blocks');
-        $method->setAccessible(true);
-
-        return (array) $method->invoke(null);
     }
 }

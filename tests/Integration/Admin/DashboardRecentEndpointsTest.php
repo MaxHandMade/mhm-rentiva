@@ -110,38 +110,17 @@ final class DashboardRecentEndpointsTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'display_id',    $first );
     }
 
-    /* ------- recent-transfers ------- */
+    /* ------- recent-transfers -------
+     * Task A5b seam inversion: /dashboard/recent-transfers moved to Pro's
+     * DashboardExtensions (Edition::isPro()-gated). Lite no longer registers
+     * this route at all, so it must 404 rather than return 401/403/200.
+     */
 
-    public function test_recent_transfers_unauthenticated_returns_401(): void
-    {
-        wp_set_current_user( 0 );
-        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/dashboard/recent-transfers' );
-        $response = self::$server->dispatch( $request );
-        $this->assertSame( 401, $response->get_status() );
-    }
-
-    public function test_recent_transfers_admin_returns_200(): void
+    public function test_recent_transfers_route_is_not_registered_in_lite(): void
     {
         wp_set_current_user( $this->admin_id );
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/dashboard/recent-transfers' );
         $response = self::$server->dispatch( $request );
-        $this->assertSame( 200, $response->get_status() );
-    }
-
-    public function test_recent_transfers_response_shape(): void
-    {
-        wp_set_current_user( $this->admin_id );
-        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/dashboard/recent-transfers' );
-        $response = self::$server->dispatch( $request );
-        $data     = $response->get_data();
-
-        $this->assertArrayHasKey( 'items',       $data );
-        $this->assertArrayHasKey( 'stats',       $data );
-        $this->assertArrayHasKey( 'total',       $data );
-        $this->assertArrayHasKey( 'total_pages', $data );
-        $this->assertArrayHasKey( 'page',        $data );
-        $this->assertArrayHasKey( 'total',           $data['stats'] );
-        $this->assertArrayHasKey( 'this_month',      $data['stats'] );
-        $this->assertArrayHasKey( 'revenue_this_month', $data['stats'] );
+        $this->assertSame( 404, $response->get_status(), 'Lite must not register /dashboard/recent-transfers -- it is a Pro-only surface (Task A5b).' );
     }
 }

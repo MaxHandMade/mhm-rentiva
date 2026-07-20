@@ -274,16 +274,14 @@ class VehiclesGrid extends AbstractShortcode {
 			? $atts['image_size']
 			: 'large';
 
-		// Resolve location name for display on vehicle card. Locations are a
-		// Transfer (Pro) feature: without LocationProvider the map stays empty and
-		// the card falls back to the city meta below, so no location UI renders.
+		// Resolve location name for display on vehicle card. Locations come from an
+		// add-on via the filter: without one the map stays empty and the card falls
+		// back to the city meta below, so no location UI renders.
 		static $location_map = null;
 		if ($location_map === null) {
 			$location_map = array();
-			if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
-				foreach (\MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental') as $loc) {
-					$location_map[ (int) $loc->id ] = (string) $loc->name;
-				}
+			foreach (apply_filters('mhm_rentiva_locations', array(), 'rental') as $loc) {
+				$location_map[ (int) $loc->id ] = (string) $loc->name;
 			}
 		}
 		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);

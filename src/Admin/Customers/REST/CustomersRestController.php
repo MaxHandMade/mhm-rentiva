@@ -23,7 +23,11 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_list' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Read-only listing of customer/user records (name, email, phone,
+				// address, booking stats) — no write, so gated on the WP capability
+				// that governs browsing the Users list table, not manage_options
+				// (WP.org T4 #7).
+				'permission_callback' => fn() => current_user_can( 'list_users' ),
 				'args'                => array(
 					'page'     => array(
 						'type'    => 'integer',
@@ -61,7 +65,13 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_detail' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Same read-only data class as the list route above — no editable
+				// fields are returned or accepted, so the same capability applies
+				// (WP.org T4 #7). Note: the response includes phone/address, PII
+				// beyond a bare name+email list, which could arguably warrant
+				// edit_users instead; list_users was chosen because this route is
+				// still read-only and returns the exact same fields as /customers.
+				'permission_callback' => fn() => current_user_can( 'list_users' ),
 				'args'                => array(
 					'id' => array(
 						'type'    => 'integer',
@@ -77,7 +87,11 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::DELETABLE,
 				'callback'            => array( self::class, 'bulk_delete' ),
-				'permission_callback' => fn() => current_user_can( 'manage_options' ),
+				// Deletes real WordPress user accounts, so the route-level gate
+				// matches the operation's WP capability directly (mirrors the
+				// handler-body defense-in-depth guard added in WP.org T4 #5;
+				// WP.org T4 #7).
+				'permission_callback' => fn() => current_user_can( 'delete_users' ),
 			)
 		);
 	}
@@ -133,6 +147,17 @@ final class CustomersRestController {
 
 	public static function bulk_delete( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error
 	{
+		// Deleting customers deletes real WordPress user accounts. Defense-in-depth
+		// operation guard on delete_users, independent of the route's
+		// permission_callback (WP.org T4 #5; route-level mapping is a separate task).
+		if ( ! current_user_can( 'delete_users' ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'You do not have permission to delete customers.', 'mhm-rentiva' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$body    = $request->get_json_params();
 		$raw_ids = isset( $body['ids'] ) ? (array) $body['ids'] : array();
 

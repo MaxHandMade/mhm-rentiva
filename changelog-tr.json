@@ -1,5 +1,22 @@
 [
   {
+    "version": "5.1.0",
+    "date": "2026-07-20",
+    "type": "minor",
+    "title": "Güvenlik ve WordPress.org uyumluluğu",
+    "summary": "Güvenlik sıkılaştırması ve WordPress.org kılavuz uyumluluğu. Ücretsiz eklentinin özellikleri ve davranışı değişmedi; bu sürüm girdi, çıktı ve yetki işlemlerini sıkılaştırır, birlikte gelen demo-veri aracını kaldırır ve kaynak kodu belgeler.",
+    "changes": [
+      "Güvenlik: iletişim formu ek dosya yolları artık kapsama denetimleriyle WordPress yükleme API'leri üzerinden çözülüyor; bir dosya-yolu işleme açığı kapatıldı.",
+      "Güvenlik: müşteri WordPress hesabı oluşturmak artık create_users yetkisini gerektiriyor ve REST uçları ilgili kullanıcı-yönetimi yetkisine göre kapılanıyor.",
+      "Güvenlik: yönetici ve ön yüz genelinde ek çıktı escape, ayar dizi-anahtarı temizleme ve public sorgu-değişkeni kaydı.",
+      "Değişti: referans ve hesap avatarları artık harici Gravatar isteği olmadan yerel olarak baş harflerden çiziliyor; eklenti hiçbir üçüncü-taraf çağrısı yapmıyor.",
+      "Kaldırıldı: demo-veri yükleyici ve birlikte gelen örnek görseller artık eklentinin parçası değil.",
+      "Eklendi: readme'ye React derlemesini ve public depoyu belgeleyen bir Kaynak Kodu bölümü.",
+      "Dahili: ücretli eklenti artık yalnızca nötr WordPress hook'ları üzerinden bağlanıyor; ücretsiz eklenti hiçbir lisans veya ücretli-özellik iskelesi içermiyor."
+    ],
+    "notice": "İşlem gerekmez; mevcut ayarlar ve veriler etkilenmez."
+  },
+  {
     "version": "5.0.2",
     "date": "2026-07-19",
     "type": "patch",

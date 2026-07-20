@@ -64,7 +64,10 @@ if (! $user_display_name) {
 							esc_attr($user_display_name)
 						);
 					} else {
-						echo get_avatar($user->ID, 40, '', $user_display_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_avatar returns safe <img> tag.
+						printf(
+							'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
+							esc_html(mhm_rentiva_initial_avatar_letter( (string) $user_display_name))
+						);
 					}
 					?>
 				</div>
@@ -319,24 +322,31 @@ if (! $user_display_name) {
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 				</div>
-				<?php // The vendor 'ledger', 'settings' and 'profil' tabs are Pro-only: their ?>
-				<?php // partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
+				<?php // The vendor 'ledger', 'settings' and 'profil' tabs belong to the add-on: ?>
+				<?php // their partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
 				<?php // VendorApplicationManager and VendorProfileSettingsSave, none of which Lite ?>
 				<?php // ships, so the partials were removed from this build rather than left one ?>
-				<?php // wiring change away from a fatal. Pro restores tabs and partials together. ?>
+				<?php // wiring change away from a fatal. The add-on restores tabs and partials together. ?>
 			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
 				</div>
 			<?php endif; ?>
 
-			<?php if ($context === 'vendor' && \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace()) : ?>
-				<div class="mhm-rentiva-dashboard__contact-admin">
-					<button type="button" class="mhm-rentiva-dashboard__contact-admin-link" data-mhm-vrm-trigger="report" data-context-type="general">
-						<?php esc_html_e('Contact Administrator', 'mhm-rentiva'); ?>
-					</button>
-				</div>
-			<?php endif; ?>
+			<?php
+			// The vendor "Contact Administrator" panel is an extension seam. This
+			// template is `include`d by Lite's own CustomerDashboard (a plain Lite
+			// path, not behind any class_exists() guard), so it must never name the
+			// removed mode-routing class directly -- doing so would fatal a Lite-only
+			// site once that class is deleted (Task A8a seam inversion, B2). The
+			// add-on subscribes to this filter and returns the markup only when the
+			// vendor marketplace is available and $context is 'vendor'; Lite's own
+			// default is the empty string, i.e. no panel at all.
+			$vendor_panel_html = (string) apply_filters('mhm_rentiva_account_vendor_panel', '', $context);
+			if ('' !== $vendor_panel_html) {
+				echo $vendor_panel_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Filter output is trusted add-on-rendered markup, escaped at its source.
+			}
+			?>
 		</div>
 	</main>
 </div>

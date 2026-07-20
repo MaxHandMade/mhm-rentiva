@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\Tabs\AbstractTab;
-use MHMRentiva\Admin\Licensing\Mode;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -140,18 +139,6 @@ final class SystemTab extends AbstractTab {
 									'value'    => self::get_formatted_date_option( 'mhm_rentiva_last_update' ),
 									'data_key' => '',
 								),
-								array(
-									'type'     => 'key-value',
-									'label'    => __( 'License Status:', 'mhm-rentiva' ),
-									'value'    => Mode::isPro() ? __( 'Active', 'mhm-rentiva' ) : __( 'Lite Version', 'mhm-rentiva' ),
-									'data_key' => '',
-								),
-								array(
-									'type'     => 'key-value',
-									'label'    => __( 'License Expiry:', 'mhm-rentiva' ),
-									'value'    => self::read_license_expiry(),
-									'data_key' => '',
-								),
 							),
 						),
 						array(
@@ -190,24 +177,6 @@ final class SystemTab extends AbstractTab {
 	/**
 	 * Helper to get or set and return formatted date option
 	 */
-	/**
-	 * Licence expiry for the About > System readout, tolerating an absent Pro
-	 * licensing layer.
-	 *
-	 * LicenseManager is an allowlisted Pro seam (bin/seam-classes.txt); the Lite
-	 * wp.org build ships no licensing, and an unguarded
-	 * LicenseManager::instance() here would fatal the whole System tab.
-	 * getExpiryDate() itself returns '-' whenever the licence is not active, so
-	 * '-' is the value this row already shows on an unlicensed site.
-	 */
-	private static function read_license_expiry(): string {
-		if ( ! class_exists( '\MHMRentiva\Admin\Licensing\LicenseManager' ) ) {
-			return '-';
-		}
-
-		return \MHMRentiva\Admin\Licensing\LicenseManager::instance()->getExpiryDate();
-	}
-
 	private static function get_formatted_date_option( string $key ): string {
 		$date = get_option( $key );
 		if ( empty( $date ) ) {
@@ -308,16 +277,6 @@ final class SystemTab extends AbstractTab {
 				array(
 					'label'    => __( 'Last Update', 'mhm-rentiva' ),
 					'value'    => $plug_info['last_update']    ?? '',
-					'copyable' => false,
-				),
-				array(
-					'label'    => __( 'License Status', 'mhm-rentiva' ),
-					'value'    => Mode::isPro() ? __( 'Active', 'mhm-rentiva' ) : __( 'Lite Version', 'mhm-rentiva' ),
-					'copyable' => false,
-				),
-				array(
-					'label'    => __( 'License Expiry', 'mhm-rentiva' ),
-					'value'    => self::read_license_expiry(),
 					'copyable' => false,
 				),
 			),

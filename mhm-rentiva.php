@@ -4,7 +4,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           5.0.2
+ * Version:           5.1.0
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
@@ -75,8 +75,21 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
 	);
 }
 
+/**
+ * Single uppercase initial letter for a local (non-Gravatar) avatar
+ * placeholder. Used by every template that renders a reviewer/customer/user
+ * avatar so the trim()+substr() logic can't drift between call sites.
+ *
+ * @param string $name Full display name to take the initial from.
+ * @return string Single uppercase letter, or '' if $name has no content.
+ */
+function mhm_rentiva_initial_avatar_letter(string $name): string
+{
+	return mb_strtoupper(mb_substr(trim($name), 0, 1, 'UTF-8'), 'UTF-8');
+}
+
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '5.0.2');
+define('MHM_RENTIVA_VERSION', '5.1.0');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -442,10 +455,6 @@ register_deactivation_hook(
 	__FILE__,
 	function () {
 		flush_rewrite_rules();
-		// Clean license cron job
-		if (class_exists('MHMRentiva\\Admin\\Licensing\\LicenseManager')) {
-			\MHMRentiva\Admin\Licensing\LicenseManager::deactivatePluginHook();
-		}
 
 		// Clean log maintenance cron job
 		if (class_exists('MHMRentiva\\Admin\\Core\\Utilities\\LogMaintenanceScheduler')) {

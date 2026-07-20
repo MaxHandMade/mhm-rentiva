@@ -134,11 +134,14 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			'MHMRentiva\Admin\Settings\Groups\LicenseSettings',
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
-			'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
 			\MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
+
+		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// names the Transfer / Vendor-Marketplace settings-group classes here.
+		// Pro adds its own group class(es) back via this filter.
+		$groups = (array) apply_filters( 'mhm_rentiva_settings_groups', $groups );
 
 		foreach ($groups as $group) {
 			if (class_exists($group) && method_exists($group, 'register')) {
@@ -360,6 +363,24 @@ final class SettingsCore {
 	}
 
 	/**
+	 * Read Pro's per-tab licence state for the settings tabs Lite carved out
+	 * (transfer, vendor-marketplace, messages).
+	 *
+	 * Lite's own default is an empty array -- a missing key means "not
+	 * licensed", not "visible". Only Pro's SettingsExtensions subscribes,
+	 * reporting its own per-tab availability state
+	 * (Task A6 seam inversion). Shared by SettingsService::reset_defaults()
+	 * and SettingsSanitizer::sanitize() so both fail-closed gates read the
+	 * exact same source instead of duplicating the filter call.
+	 *
+	 * @return array<string, bool>
+	 */
+	public static function settings_tabs(): array
+	{
+		return (array) apply_filters('mhm_rentiva_settings_tabs', array());
+	}
+
+	/**
 	 * Optimized defaults merging
 	 */
 	public static function get_defaults(): array
@@ -388,8 +409,6 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
-			'MHMRentiva\Admin\Settings\Groups\TransferSettings',
-			'MHMRentiva\Admin\Settings\Groups\VendorMarketplaceSettings',
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
@@ -399,6 +418,13 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\LogsSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);
+
+		// Pro-owned settings groups (Task A6b seam inversion): Lite no longer
+		// names the Transfer / Vendor-Marketplace settings-group classes here.
+		// Pro adds its own group class(es) back via this filter (same filter as
+		// register_sub_groups() above -- both lists carried the same two
+		// Pro classes before the carve).
+		$sub_modules = (array) apply_filters( 'mhm_rentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {
 			if (class_exists($module) && method_exists($module, 'get_default_settings')) {

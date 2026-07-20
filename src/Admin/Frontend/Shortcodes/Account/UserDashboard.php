@@ -27,18 +27,13 @@ final class UserDashboard {
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
-		// AnalyticsController is a Pro seam (vendor ledger analytics AJAX,
-		// wp_ajax_mhm_fetch_vendor_stats). This register() runs for the CORE customer
-		// dashboard shortcode too, so an unguarded call would fatal the dashboard for
-		// every Lite user. Pro-gated (canUseVendorMarketplace) so an unlicensed install
-		// never registers the vendor-stats AJAX endpoint; class_exists() kept for a
-		// partial Pro install.
-		if (
-			\MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace() &&
-			class_exists('\MHMRentiva\Core\Dashboard\AnalyticsController')
-		) {
-			\MHMRentiva\Core\Dashboard\AnalyticsController::register();
-		}
+		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhm_fetch_vendor_stats)
+		// used to be registered from here, gated by the licensing router's
+		// vendor-marketplace gate. That registration moved to Pro's own
+		// Bootstrap::register_vendor_marketplace() (Task A8a seam inversion) --
+		// this CORE customer dashboard shortcode no longer names
+		// AnalyticsController or the licensing router at all, so it cannot
+		// fatal once that router class is deleted (B2).
 		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 		add_filter('body_class', array( self::class, 'add_body_class' ));
@@ -62,10 +57,11 @@ final class UserDashboard {
 		$current_user = wp_get_current_user();
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
-		// VendorDashboard is a Pro seam. A fresh Lite install can never resolve to
-		// 'vendor' (only the Pro-only VendorOnboardingController::approve() grants
-		// the rentiva_vendor role), so this is defence-in-depth for the Pro->Lite
-		// downgrade case: a site whose DB already holds vendor-role users would
+		// VendorDashboard is an extension point filled by the add-on. A fresh Lite
+		// install can never resolve to 'vendor' (only the add-on's
+		// VendorOnboardingController::approve() grants the rentiva_vendor role),
+		// so this is defence-in-depth for the add-on-to-Lite downgrade case: a
+		// site whose DB already holds vendor-role users would
 		// otherwise fatal here on login rather than degrade.
 		if ('vendor' === $type) {
 			if (! class_exists('\MHMRentiva\Core\Dashboard\VendorDashboard')) {
@@ -223,12 +219,11 @@ final class UserDashboard {
 			MHM_RENTIVA_VERSION
 		);
 
-		wp_enqueue_style(
-			'mhm-rentiva-vendor-forms',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vendor-forms.css',
-			array(),
-			MHM_RENTIVA_VERSION
-		);
+		// The vendor-forms stylesheet enqueue used to live here directly. It styles the
+		// vendor-application/vendor-panel markup the add-on renders into this page
+		// (the vendor marketplace is a feature of the add-on) -- Lite no longer
+		// ships the file or knows its handle. The add-on enqueues it itself on this
+		// same page (WP.org T4 Phase B, Task B-A1).
 
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
 		wp_enqueue_style('select2', null); // WC registers this

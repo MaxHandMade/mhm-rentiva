@@ -28,7 +28,7 @@ class SchemaParityTest extends WP_UnitTestCase
     {
         $service_provider = ShortcodeServiceProvider::instance();
         $reflection       = new ReflectionClass($service_provider);
-        $method           = $reflection->getMethod('get_shortcode_registry');
+        $method           = $reflection->getMethod('get_registry');
         $method->setAccessible(true);
         $registry = $method->invoke($service_provider);
 
@@ -121,7 +121,11 @@ class SchemaParityTest extends WP_UnitTestCase
             }
         }
 
-        $this->assertEquals(22, $blocks_found, 'Expected 22 block.json files to be found.');
+        // The `mhm_rentiva_blocks` seam inversion moved 6 Pro block.json files
+        // (transfer-results, transfer-search, popular-routes, messages,
+        // vendor-profile, vendor-directory) to mhm-rentiva-pro's own assets/blocks/.
+        // Lite's tree now ships only its own 16.
+        $this->assertEquals(16, $blocks_found, 'Expected 16 block.json files to be found.');
     }
 
     /**

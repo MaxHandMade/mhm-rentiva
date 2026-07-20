@@ -30,11 +30,19 @@
  *
  * WHAT IS DELIBERATELY NOT DENIED
  * -------------------------------
- * WordPress.org, the site's own host, and Gravatar (WordPress core itself
- * builds Gravatar URLs via get_avatar()) are all part of the expected WordPress
+ * WordPress.org and the site's own host are part of the expected WordPress
  * platform surface. Inert links that are only ever displayed to an admin
  * (wpalemi.com support pages, the maxhandmade.github.io docs site, the YouTube
  * channel) cause no request unless a human clicks them, and are not egress.
+ *
+ * Gravatar is NOT exempt (it used to be, on the theory that WordPress core
+ * itself builds Gravatar URLs via get_avatar(), so it was "expected platform
+ * surface"). Task B-G1b (WP.org T4 #3) removed every get_avatar()/
+ * get_avatar_url()/gravatar.com call site from Lite in favour of local
+ * initials avatars, specifically so the readme's "no third-party requests"
+ * claim would be literally true. 'gravatar.com' is now in the deny-list
+ * below as a regression fence: it must never come back, from core or
+ * otherwise.
  *
  * Exit codes: 0 = clean, 1 = a denied host is referenced.
  *
@@ -70,6 +78,7 @@ $denied_hosts = array(
 	'unpkg.com'           => 'asset CDN -- WordPress.org requires bundled assets, not remote ones',
 	'google-analytics.com' => 'analytics -- undisclosed visitor tracking',
 	'googletagmanager.com' => 'analytics -- undisclosed visitor tracking',
+	'gravatar.com'        => 'avatar CDN -- get_avatar()/get_avatar_url() and hand-built gravatar.com URLs all leak the visitor/reviewer email hash to a third party; Task B-G1b replaced every avatar with a local initials placeholder (matches www.gravatar.com and secure.gravatar.com too, substring match)',
 );
 
 /**

@@ -182,12 +182,12 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 						<div class="rv-price-range">
 							<div class="rv-price-inputs">
 								<input type="number" name="min_price" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
-									value="<?php echo esc_attr($search_params['min_price'] ?? ''); ?>"
+									value="<?php echo ! empty( $search_params['min_price'] ) ? esc_attr( (string) $search_params['min_price'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['price_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['price_range']['max']); ?>">
 								<span class="rv-price-separator">-</span>
 								<input type="number" name="max_price" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
-									value="<?php echo esc_attr($search_params['max_price'] ?? ''); ?>"
+									value="<?php echo ! empty( $search_params['max_price'] ) ? esc_attr( (string) $search_params['max_price'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['price_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['price_range']['max']); ?>">
 							</div>
@@ -269,12 +269,12 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 						<div class="rv-year-range">
 							<div class="rv-year-inputs">
 								<input type="number" name="year_min" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
-									value="<?php echo esc_attr($search_params['year_min'] ?? ''); ?>"
+									value="<?php echo ! empty( $search_params['year_min'] ) ? esc_attr( (string) $search_params['year_min'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['year_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['year_range']['max']); ?>">
 								<span class="rv-year-separator">-</span>
 								<input type="number" name="year_max" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
-									value="<?php echo esc_attr($search_params['year_max'] ?? ''); ?>"
+									value="<?php echo ! empty( $search_params['year_max'] ) ? esc_attr( (string) $search_params['year_max'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['year_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['year_range']['max']); ?>">
 							</div>
@@ -287,7 +287,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 						<h4 class="rv-filter-title"><?php esc_html_e('Maximum Mileage', 'mhm-rentiva'); ?></h4>
 						<div class="rv-mileage-range">
 							<input type="number" name="mileage_max" placeholder="<?php esc_html_e('Max mileage', 'mhm-rentiva'); ?>"
-								value="<?php echo esc_attr($search_params['mileage_max'] ?? ''); ?>"
+								value="<?php echo ! empty( $search_params['mileage_max'] ) ? esc_attr( (string) $search_params['mileage_max'] ) : ''; ?>"
 								min="0" step="1000">
 							<span class="rv-mileage-unit"><?php esc_html_e('km', 'mhm-rentiva'); ?></span>
 						</div>

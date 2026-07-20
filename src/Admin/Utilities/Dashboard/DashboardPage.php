@@ -92,25 +92,6 @@ final class DashboardPage {
 				),
 			)
 		);
-
-		register_rest_route(
-			'mhm-rentiva/v1',
-			'/dashboard/recent-transfers',
-			array(
-				'methods'             => \WP_REST_Server::READABLE,
-				'callback'            => array( self::class, 'rest_get_recent_transfers' ),
-				'permission_callback' => function () {
-					return current_user_can( 'manage_options' );
-				},
-				'args'                => array(
-					'page' => array(
-						'type'    => 'integer',
-						'default' => 1,
-						'minimum' => 1,
-					),
-				),
-			)
-		);
 	}
 
 	/**
@@ -144,27 +125,6 @@ final class DashboardPage {
 		return new \WP_REST_Response(
 			array(
 				'items'       => $result['items'],
-				'total'       => $result['total'],
-				'total_pages' => $result['total_pages'],
-				'page'        => $page,
-			)
-		);
-	}
-
-	/**
-	 * REST callback: paginated recent transfers with stats.
-	 *
-	 * @param \WP_REST_Request $request REST request object.
-	 */
-	public static function rest_get_recent_transfers( \WP_REST_Request $request ): \WP_REST_Response
-	{
-		$page   = (int) $request->get_param( 'page' );
-		$result = DashboardService::get_recent_transfers_paginated( $page, 5 );
-		$stats  = DashboardService::get_transfer_summary();
-		return new \WP_REST_Response(
-			array(
-				'items'       => $result['items'],
-				'stats'       => $stats,
 				'total'       => $result['total'],
 				'total_pages' => $result['total_pages'],
 				'page'        => $page,
@@ -265,42 +225,45 @@ final class DashboardPage {
 			MHM_RENTIVA_VERSION
 		);
 
-		$upcoming_result  = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
-		$bookings_result  = DashboardService::get_recent_bookings_paginated( 1, 5 );
-		$transfers_result = DashboardService::get_recent_transfers_paginated( 1, 5 );
+		$upcoming_result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
+		$bookings_result = DashboardService::get_recent_bookings_paginated( 1, 5 );
+
+		$data = array(
+			'metrics'                     => DashboardService::get_dashboard_metrics(),
+			'revenue_data'                => DashboardService::get_revenue_data(),
+			'recent_bookings'             => $bookings_result['items'],
+			'recent_bookings_total_pages' => $bookings_result['total_pages'],
+			'pending_payments'            => DashboardService::get_pending_payments(),
+			'upcoming_initial'            => array(
+				'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
+				'total'       => (int) $upcoming_result['total'],
+				'total_pages' => (int) $upcoming_result['total_pages'],
+				'page'        => 1,
+			),
+			'widget_order'                => array(),
+			'currency'                    => CurrencyHelper::get_currency_symbol(),
+			'admin_url'                   => admin_url(),
+			// Licence gates for the Pro quick actions, so the dashboard does not
+			// link to inaccessible Pro pages on an unlicensed site. Keys match the
+			// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
+			// Lite ships no keys at all -- a subscriber (Pro) supplies transfer/
+			// reports/vendors/messages/export; QuickActions.jsx already reads
+			// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
+			// key behaves identically to an explicit `false`.
+			'caps'                        => apply_filters( 'mhm_rentiva_dashboard_features', array() ),
+		);
+
+		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
+		// subscriber (Pro's DashboardExtensions) adds `transfer_stats` /
+		// `recent_transfers` / `recent_transfers_total_pages` back only when
+		// the site is running Pro. The React app already guards its
+		// TransferWidget render on `transfer_stats` being truthy.
+		$data = apply_filters( 'mhm_rentiva_dashboard_localize', $data );
 
 		wp_localize_script(
 			'mhm-rentiva-react-dashboard',
 			'mhmRentivaDashboard',
-			array(
-				'metrics'                      => DashboardService::get_dashboard_metrics(),
-				'revenue_data'                 => DashboardService::get_revenue_data(),
-				'recent_bookings'              => $bookings_result['items'],
-				'recent_bookings_total_pages'  => $bookings_result['total_pages'],
-				'transfer_stats'               => DashboardService::get_transfer_summary(),
-				'recent_transfers'             => $transfers_result['items'],
-				'recent_transfers_total_pages' => $transfers_result['total_pages'],
-				'pending_payments'             => DashboardService::get_pending_payments(),
-				'upcoming_initial'             => array(
-					'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
-					'total'       => (int) $upcoming_result['total'],
-					'total_pages' => (int) $upcoming_result['total_pages'],
-					'page'        => 1,
-				),
-				'widget_order'                 => array(),
-				'currency'                     => CurrencyHelper::get_currency_symbol(),
-				'admin_url'                    => admin_url(),
-				// Licence gates for the Pro quick actions, so the dashboard does not
-				// link to inaccessible Pro pages on an unlicensed site. Keys match the
-				// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
-				'caps'                         => array(
-					'transfer' => \MHMRentiva\Admin\Licensing\Mode::isPro(),
-					'reports'  => \MHMRentiva\Admin\Licensing\Mode::canUseAdvancedReports(),
-					'vendors'  => \MHMRentiva\Admin\Licensing\Mode::canUseVendorMarketplace(),
-					'messages' => \MHMRentiva\Admin\Licensing\Mode::canUseMessages(),
-					'export'   => \MHMRentiva\Admin\Licensing\Mode::canUseExport(),
-				),
-			)
+			$data
 		);
 	}
 

@@ -1950,7 +1950,9 @@ final class BookingColumns {
 				/* translators: %d: booking ID */
 				return sprintf( __( 'Booking #%d', 'mhm-rentiva' ), $post_id );
 			}
-			return $default_title;
+			// $default_title is raw $post->post_title (untrusted DB data) — escape
+			// it here too, at this early return point.
+			return esc_html( $default_title );
 		}
 
 		// Return plain text summary prioritizing phone over email
@@ -1962,7 +1964,11 @@ final class BookingColumns {
 			$new_title .= ' - ' . $customer_email;
 		}
 
-		return $new_title;
+		// $new_title is assembled from DB-read data (post meta / user profile /
+		// WooCommerce order fields), which is untrusted per the rubric. Escape
+		// here (the single point where this helper hands the value back to its
+		// only caller, the `the_title` filter) so it is escaped exactly once.
+		return esc_html( $new_title );
 	}
 
 	/**

@@ -50,16 +50,6 @@ $format_name = static function (string $full_name): string {
 	return $parts[0] . ' ' . $last_initial . '.';
 };
 
-/**
- * Get Gravatar URL from email address.
- */
-$get_avatar_url = static function (string $email, int $size = 80): string {
-	if (empty($email)) {
-		return '';
-	}
-	$hash = md5(strtolower(trim($email)));
-	return 'https://www.gravatar.com/avatar/' . $hash . '?s=' . $size . '&d=mp';
-};
 ?>
 
 <div class="rv-testimonials rv-layout-<?php echo esc_attr($layout); ?> rv-columns-<?php echo esc_attr($columns); ?> <?php echo esc_attr($class); ?>"
@@ -117,18 +107,9 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 										<div class="rv-testimonial-author">
 											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 												<div class="rv-author-avatar">
-													<?php
-													$avatar_url = $get_avatar_url( (string) ( $testimonial['customer_email'] ?? '' ));
-													if (! empty($avatar_url)) :
-														?>
-														<img src="<?php echo esc_url($avatar_url); ?>"
-															alt="<?php echo esc_attr($testimonial['customer_name']); ?>"
-															width="40" height="40" loading="lazy" />
-													<?php else : ?>
-														<span class="rv-avatar-placeholder">
-															<?php echo esc_html(mb_strtoupper(mb_substr( (string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
-														</span>
-													<?php endif; ?>
+													<span class="rv-avatar-placeholder" aria-hidden="true">
+														<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
+													</span>
 												</div>
 												<div class="rv-author-info">
 													<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>
@@ -211,18 +192,9 @@ $get_avatar_url = static function (string $email, int $size = 80): string {
 								<div class="rv-testimonial-author">
 									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 										<div class="rv-author-avatar">
-											<?php
-											$avatar_url = $get_avatar_url( (string) ( $testimonial['customer_email'] ?? '' ));
-											if (! empty($avatar_url)) :
-												?>
-												<img src="<?php echo esc_url($avatar_url); ?>"
-													alt="<?php echo esc_attr($testimonial['customer_name']); ?>"
-													width="40" height="40" loading="lazy" />
-											<?php else : ?>
-												<span class="rv-avatar-placeholder">
-													<?php echo esc_html(mb_strtoupper(mb_substr( (string) $testimonial['customer_name'], 0, 1, 'UTF-8'), 'UTF-8')); ?>
-												</span>
-											<?php endif; ?>
+											<span class="rv-avatar-placeholder" aria-hidden="true">
+												<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
+											</span>
 										</div>
 										<div class="rv-author-info">
 											<span class="rv-author-name"><?php echo esc_html($format_name( (string) $testimonial['customer_name'])); ?></span>

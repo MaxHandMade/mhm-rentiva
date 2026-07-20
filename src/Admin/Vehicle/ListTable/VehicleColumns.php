@@ -72,14 +72,14 @@ final class VehicleColumns {
 	/**
 	 * Whether the Location feature is available.
 	 *
-	 * Locations belong to the Transfer (Pro) module: LocationProvider is the only
-	 * source of the location list AND the only CRUD UI (TransferAdmin) lives there
-	 * too. Without it there is nothing to list and no way to populate it, so every
-	 * location affordance in this list table is withheld rather than rendered empty.
+	 * Locations come from an add-on via the `mhm_rentiva_has_locations` filter;
+	 * Lite has no location list or CRUD UI of its own, so the default is false and
+	 * every location affordance in this list table is withheld rather than
+	 * rendered empty.
 	 */
 	private static function has_locations(): bool
 	{
-		return class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider');
+		return (bool) apply_filters('mhm_rentiva_has_locations', false);
 	}
 
 	public static function columns(array $cols): array
@@ -137,12 +137,10 @@ final class VehicleColumns {
 			case 'mhm_location':
 				$location_id   = (int) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true);
 				$location_name = '';
-				// Inline class_exists (not the has_locations() helper) at every site
-				// that actually touches the class: PHPStan only narrows on the inline
-				// form, so once LocationProvider is physically absent from the Lite
-				// tree a helper-gated call would still be reported as unknown.
-				if ($location_id > 0 && class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
-					$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+				// Locations come from an add-on via the filter; the default is empty,
+				// so the lookup below simply finds nothing without one.
+				if ($location_id > 0) {
+					$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
 					foreach ($locations as $loc) {
 						if ( (int) $loc->id === $location_id) {
 							$location_name = $loc->name;
@@ -316,8 +314,8 @@ final class VehicleColumns {
 
 		// Location filter dropdown — withheld entirely without the Location feature,
 		// rather than rendered as a lone "All locations" option that filters nothing.
-		if (class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
-			$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+		if (self::has_locations()) {
+			$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
 			$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
 			echo '<select name="mhm_location_filter" class="postform">';
@@ -1552,10 +1550,10 @@ final class VehicleColumns {
 			case 'mhm_location':
 				// Defensive: WP only calls this for registered columns, and columns()
 				// withholds mhm_location without the Location feature.
-				if (! class_exists('\MHMRentiva\Admin\Transfer\Engine\LocationProvider')) {
+				if (! self::has_locations()) {
 					break;
 				}
-				$locations = \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_locations('rental');
+				$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';

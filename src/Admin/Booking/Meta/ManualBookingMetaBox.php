@@ -606,6 +606,17 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		$customer_phone      = '';
 
 		if ($customer_id === 'new_customer') {
+			// Creating a new WP user (wp_create_user() below) is mandatory to
+			// this branch — there is no fallback path; $customer stays null and
+			// the later wp_insert_post() meta_input reads $customer->ID. Deny
+			// the whole operation up front if the caller lacks the specific WP
+			// user-management capability (T4 #5 — least-privilege for user
+			// creation). The general edit_posts check above stays as-is for the
+			// existing-customer branch, which does not create any WP user.
+			if (! current_user_can('create_users')) {
+				wp_send_json_error(array( 'message' => esc_html__('You do not have permission to create new customer accounts. Please select an existing customer instead.', 'mhm-rentiva') ));
+			}
+
 			// Create new customer
 			$customer_first_name = isset($_POST['new_customer_first_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_first_name'])) : '';
 			$customer_last_name  = isset($_POST['new_customer_last_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['new_customer_last_name'])) : '';

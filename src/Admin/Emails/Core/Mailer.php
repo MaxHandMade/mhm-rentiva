@@ -256,14 +256,11 @@ final class Mailer {
 		if ( $service_type === 'transfer' ) {
 			$origin_id      = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
 			$destination_id = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
-			// Locations are a Transfer (Pro) feature. This whole branch only runs for
-			// transfer bookings, which Lite cannot create; if it is ever reached
-			// without LocationProvider the names degrade to empty strings below.
-			// class_exists() is repeated inline rather than hoisted into a variable:
-			// PHPStan narrows on the inline form, so this keeps resolving once
-			// LocationProvider is physically absent from the Lite tree.
-			$origin_loc       = $origin_id > 0 && class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' ) ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $origin_id ) : null;
-			$dest_loc         = $destination_id > 0 && class_exists( '\MHMRentiva\Admin\Transfer\Engine\LocationProvider' ) ? \MHMRentiva\Admin\Transfer\Engine\LocationProvider::get_by_id( $destination_id ) : null;
+			// Locations come from an add-on via the filter. This whole branch only
+			// runs for transfer bookings, which Lite cannot create; if it is ever
+			// reached without a subscriber the names degrade to empty strings below.
+			$origin_loc       = $origin_id > 0 ? apply_filters( 'mhm_rentiva_location_by_id', null, $origin_id ) : null;
+			$dest_loc         = $destination_id > 0 ? apply_filters( 'mhm_rentiva_location_by_id', null, $destination_id ) : null;
 			$transfer_context = array(
 				'origin_name'      => $origin_loc ? (string) $origin_loc->name : '',
 				'origin_city'      => $origin_loc && ! empty( $origin_loc->city ) ? (string) $origin_loc->city : '',

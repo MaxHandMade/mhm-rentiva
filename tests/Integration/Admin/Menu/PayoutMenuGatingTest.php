@@ -6,21 +6,31 @@ namespace MHMRentiva\Tests\Integration\Admin\Menu;
 use MHMRentiva\Admin\Utilities\Menu\Menu;
 
 /**
- * Regression: the "Payout Requests" (Bayi Ödeme Talepleri) submenu is a
- * Vendor-Marketplace Pro feature and must NOT appear in Lite. Its sibling
- * vendor menus are gated behind the license, but the payout submenu was
- * registered unconditionally, so it leaked into Lite installs.
+ * FORMER PURPOSE (kept for history; do not resurrect the mechanism below)
+ * ------------------------------------------------------------------------
+ * This file used to pin that the "Payout Requests" (Bayi Ödeme Talepleri)
+ * submenu -- a Vendor-Marketplace Pro feature -- stayed unregistered in
+ * Menu::add_bayi_menus() by calling the real method and inspecting the global
+ * $submenu, catching a real regression where Payout leaked in unconditionally
+ * while its sibling vendor menus were gated.
  *
- * Calls the real `Menu::add_bayi_menus()` and inspects the global `$submenu`
- * so the test exercises the actual wiring, not a re-implemented guard.
+ * The Task A7 seam inversion removed Payout (and Vendor Management / Vendor
+ * Reports) from add_bayi_menus() entirely -- the method is now an empty hook
+ * placeholder, and the submenu is re-added by Pro's own
+ * mhm-rentiva-pro/src/Pro/Extensions/MenuExtensions::add_pro_bayi_menu_items(),
+ * gated on \MHMRentiva\Pro\Edition::canUseVendorPayout(). The licensed/
+ * unlicensed coverage that used to live here now lives in
+ * mhm-rentiva-pro/tests/Integration/Pro/MenuExtensionsTest.php (real
+ * LicenseManager + real PayoutAdminPage), and the "Lite emits nothing at all"
+ * side is covered structurally by
+ * mhm-rentiva/tests/Integration/Admin/Menu/MenuNoProSubmenusTest.php.
  *
- * The companion "visible in Pro" case cannot run here: it needs a live
- * LicenseManager and a PayoutAdminPage, both carved out of Lite. It lives in
- * the Pro suite. What Lite must prove is the negative below -- and it is now
- * doubly enforced, by the license gate and by the class simply being absent.
+ * What remains here is the shape that is still meaningful in Lite alone: the
+ * hook fires without fataling and adds nothing.
  *
  * @group admin-menu
  * @group vendor-gating
+ * @covers \MHMRentiva\Admin\Utilities\Menu\Menu::add_bayi_menus
  */
 final class PayoutMenuGatingTest extends \WP_UnitTestCase
 {
@@ -40,7 +50,6 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         global $menu, $submenu;
         $menu    = [];
         $submenu = [];
-        remove_all_filters('mhm_rentiva_dev_pro_bypass');
         parent::tearDown();
     }
 
@@ -55,14 +64,13 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         return false;
     }
 
-    public function test_payout_menu_hidden_in_lite(): void
+    public function test_add_bayi_menus_registers_nothing_in_lite(): void
     {
-        // No license, no bypass -> Mode::canUseVendorPayout() is false.
         Menu::add_bayi_menus();
 
         $this->assertFalse(
             $this->payout_submenu_registered(),
-            'Payout Requests submenu must NOT be registered in Lite mode.'
+            'Payout Requests submenu must NOT be registered by Lite -- it is a Pro-only seam (Task A7).'
         );
     }
 }
