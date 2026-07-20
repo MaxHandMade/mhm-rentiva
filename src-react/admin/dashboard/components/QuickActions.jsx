@@ -1,9 +1,10 @@
 import { __ } from '@wordpress/i18n';
 
 export default function QuickActions( { adminUrl, caps = {} } ) {
-	// Pro actions carry a `cap` key; they are hidden unless the licence allows that
-	// feature, so the dashboard never links to an inaccessible Pro page on an
-	// unlicensed site. Core actions have no `cap` and always show.
+	// Add-on actions carry a `cap` key; they are hidden unless an active extension
+	// registers that capability via `mhm_rentiva_dashboard_features`, so the dashboard
+	// never links to a page that does not exist without it. Core actions have no `cap`
+	// and always show.
 	const actions = [
 		{ label: __( 'Add New Booking', 'mhm-rentiva' ),  href: `${ adminUrl }post-new.php?post_type=vehicle_booking`, icon: 'dashicons-plus-alt' },
 		{ label: __( 'All Bookings', 'mhm-rentiva' ),     href: `${ adminUrl }edit.php?post_type=vehicle_booking`,     icon: 'dashicons-list-view' },

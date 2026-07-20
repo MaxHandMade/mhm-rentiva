@@ -30,7 +30,7 @@
 }
 
 /*
- * Shared "Pro Surface" wrapper rhythm.
+ * Shared content-surface wrapper rhythm.
  * Keeps module blocks off screen edges with consistent margins/padding.
  */
 :where(
