@@ -133,6 +133,17 @@ final class CustomersRestController {
 
 	public static function bulk_delete( \WP_REST_Request $request ): \WP_REST_Response|\WP_Error
 	{
+		// Deleting customers deletes real WordPress user accounts. Defense-in-depth
+		// operation guard on delete_users, independent of the route's
+		// permission_callback (WP.org T4 #5; route-level mapping is a separate task).
+		if ( ! current_user_can( 'delete_users' ) ) {
+			return new \WP_Error(
+				'rest_forbidden',
+				__( 'You do not have permission to delete customers.', 'mhm-rentiva' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$body    = $request->get_json_params();
 		$raw_ids = isset( $body['ids'] ) ? (array) $body['ids'] : array();
 

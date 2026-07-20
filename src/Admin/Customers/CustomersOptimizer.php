@@ -443,6 +443,12 @@ final class CustomersOptimizer {
 	 * @return bool
 	 */
 	public static function batch_update_customers( array $customer_ids, array $updates ): bool {
+		// Batch-updating customers updates real WordPress user accounts, so this
+		// is gated on edit_users, not manage_options (WP.org T4 #5).
+		if ( ! current_user_can( 'edit_users' ) ) {
+			return false;
+		}
+
 		if ( empty( $customer_ids ) || empty( $updates ) ) {
 			return false;
 		}
