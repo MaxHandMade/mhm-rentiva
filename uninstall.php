@@ -29,9 +29,6 @@ if ( ! $clean_on_uninstall ) {
 	return;
 }
 
-// Load WordPress database functions
-require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-
 // Load Uninstaller class if available
 if ( file_exists( __DIR__ . '/src/Admin/Utilities/Uninstall/Uninstaller.php' ) ) {
 	require_once __DIR__ . '/src/Admin/Utilities/Uninstall/Uninstaller.php';
