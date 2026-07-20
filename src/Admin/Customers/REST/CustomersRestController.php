@@ -67,7 +67,10 @@ final class CustomersRestController {
 				'callback'            => array( self::class, 'get_detail' ),
 				// Same read-only data class as the list route above — no editable
 				// fields are returned or accepted, so the same capability applies
-				// (WP.org T4 #7).
+				// (WP.org T4 #7). Note: the response includes phone/address, PII
+				// beyond a bare name+email list, which could arguably warrant
+				// edit_users instead; list_users was chosen because this route is
+				// still read-only and returns the exact same fields as /customers.
 				'permission_callback' => fn() => current_user_can( 'list_users' ),
 				'args'                => array(
 					'id' => array(
