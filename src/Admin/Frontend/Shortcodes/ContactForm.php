@@ -572,7 +572,19 @@ final class ContactForm extends AbstractShortcode {
 	}
 
 	/**
-	 * Resolve attachment URL to local file path using multiple strategies
+	 * Resolve an attachment URL to a local filesystem path.
+	 *
+	 * `$url` reaches this method as attacker-reachable free text -- it is
+	 * stored straight from `sanitize_text_field()`'d POST data and is not
+	 * guaranteed to be the URL `wp_handle_upload()` produced. It is
+	 * resolved via `wp_upload_dir()` (baseurl -> basedir mapping) rather
+	 * than string surgery on `site_url()`/`ABSPATH`, which breaks on
+	 * subdirectory, multisite, and mapped-domain installs (WP.org T4 #10).
+	 *
+	 * Anything that is not verifiably inside this site's own uploads
+	 * directory is rejected outright (never guessed at) to avoid SSRF/LFI:
+	 * a bare filesystem path, a foreign host, or a "../" escape must all
+	 * resolve to null rather than a wrong or attacker-controlled path.
 	 */
 	private static function resolve_attachment_path(string $url): ?string
 	{
@@ -580,48 +592,50 @@ final class ContactForm extends AbstractShortcode {
 			return null;
 		}
 
-		$strategies = array();
 		$upload_dir = wp_upload_dir();
-
-		// Strategy 1: Direct Upload Dir Replacement
-		$strategies[] = function () use ($url, $upload_dir) {
-			return str_replace($upload_dir['baseurl'], $upload_dir['basedir'], $url);
-		};
-
-		// Strategy 2: Site URL -> ABSPATH Replacement
-		$strategies[] = function () use ($url) {
-			return str_replace(site_url(), ABSPATH, $url);
-		};
-
-		// Strategy 3: Path Component Replacement (Robust for XAMPP/Localhost)
-		$strategies[] = function () use ($url, $upload_dir) {
-			$url_path  = wp_parse_url($url, PHP_URL_PATH);
-			$base_path = wp_parse_url($upload_dir['baseurl'], PHP_URL_PATH);
-
-			if ($url_path && $base_path && strpos($url_path, $base_path) !== false) {
-				return str_replace($base_path, $upload_dir['basedir'], $url_path);
-			}
+		if (! empty($upload_dir['error'])) {
 			return null;
-		};
-
-		foreach ($strategies as $strategy) {
-			$path = $strategy();
-			if ($path) {
-				// Formatting: Normalize slashes and decode functionality
-				$clean_path = wp_normalize_path(urldecode($path));
-				if (file_exists($clean_path)) {
-					return $clean_path;
-				}
-
-				// Try without decoding just in case
-				$raw_path = wp_normalize_path($path);
-				if (file_exists($raw_path)) {
-					return $raw_path;
-				}
-			}
 		}
 
-		return null;
+		$url_parts  = wp_parse_url(urldecode($url));
+		$base_parts = wp_parse_url($upload_dir['baseurl']);
+
+		// Require an absolute URL on this site's own uploads host. Rejects
+		// bare filesystem paths (no 'host') and foreign hosts alike.
+		if (
+			empty($url_parts['host']) || empty($base_parts['host'])
+			|| strcasecmp($url_parts['host'], $base_parts['host']) !== 0
+		) {
+			return null;
+		}
+
+		$base_path = isset($base_parts['path']) ? untrailingslashit($base_parts['path']) : '';
+		$url_path  = $url_parts['path'] ?? '';
+
+		if ($base_path === '' || strpos($url_path, $base_path . '/') !== 0) {
+			return null;
+		}
+
+		$relative_path = substr($url_path, strlen($base_path));
+		$candidate     = wp_normalize_path(untrailingslashit($upload_dir['basedir']) . $relative_path);
+
+		// realpath() resolves symlinks/".." and doubles as the file-exists
+		// check (returns false for anything missing).
+		$real_base = realpath($upload_dir['basedir']);
+		$real_path = realpath($candidate);
+
+		if ($real_base === false || $real_path === false || ! is_file($real_path)) {
+			return null;
+		}
+
+		$real_base = wp_normalize_path($real_base);
+		$real_path = wp_normalize_path($real_path);
+
+		if (strpos($real_path, $real_base . '/') !== 0) {
+			return null;
+		}
+
+		return $real_path;
 	}
 
 	private static function build_email_message(array $data, array $form_config, int $message_id): string
