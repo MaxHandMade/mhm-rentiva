@@ -1,5 +1,22 @@
 [
   {
+    "version": "5.1.0",
+    "date": "2026-07-20",
+    "type": "minor",
+    "title": "Security and WordPress.org compliance",
+    "summary": "Security hardening and WordPress.org guideline compliance. The free plugin's features and behaviour are unchanged; this release tightens input, output and capability handling, removes the bundled demo-data tool, and documents the source code.",
+    "changes": [
+      "Security: contact-form attachment paths are resolved through WordPress upload APIs with containment checks, closing a file-path handling issue.",
+      "Security: creating a customer WordPress account now requires the create_users capability, and REST routes are gated on the matching user-management capability.",
+      "Security: additional output escaping, settings array-key sanitization and public query-variable registration across the admin and frontend.",
+      "Changed: testimonial and account avatars now render locally from initials, with no external Gravatar request; the plugin makes no third-party calls.",
+      "Removed: the demo-data seeder and its bundled sample images are no longer part of the plugin.",
+      "Added: a Source code section in the readme documenting the React build and the public repository.",
+      "Internal: the paid add-on now attaches only through neutral WordPress hooks; the free plugin ships no licensing or paid-feature scaffolding."
+    ],
+    "notice": "No action required; your settings and data are unaffected."
+  },
+  {
     "version": "5.0.2",
     "date": "2026-07-19",
     "type": "patch",
