@@ -43,6 +43,46 @@ final class SearchResults extends AbstractShortcode {
 	public const SHORTCODE = 'rentiva_search_results';
 
 	/**
+	 * Public GET filter params for this shortcode's shareable/bookmarkable
+	 * search-results URL (e.g. `?min_price=100&fuel_type=diesel&sort=price_asc`).
+	 *
+	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
+	 * so they are read via get_query_var() instead of raw $_GET -- WP.org T4 #11.
+	 *
+	 * Names are the EXISTING (unprefixed) param names, kept deliberately: renaming
+	 * to a `mhmrentiva_`-prefixed form would break already-shared search URLs and
+	 * would also require renaming the `.rv-filters-form` field names, which feed
+	 * the (out-of-scope) AJAX POST path (`ajax_filter_results`) via the same
+	 * `name` attributes. None of these collide with WordPress core's own default
+	 * public query vars (checked against WP\WP::$public_query_vars).
+	 *
+	 * `page` is intentionally NOT listed here: it is already one of WordPress
+	 * core's default public query vars, so it is readable via get_query_var()
+	 * without any registration.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'keyword',
+		'pickup_date',
+		'return_date',
+		'start_date',
+		'end_date',
+		'min_price',
+		'max_price',
+		'fuel_type',
+		'transmission',
+		'seats',
+		'brand',
+		'year_min',
+		'year_max',
+		'mileage_max',
+		'category',
+		'sort',
+		'pickup_location',
+	);
+
+	/**
 	 * Safe sanitize text field that handles null values
 	 *
 	 * @param mixed $value Value to sanitize
@@ -56,37 +96,46 @@ final class SearchResults extends AbstractShortcode {
 		return sanitize_text_field( (string) $value);
 	}
 
+	/**
+	 * Reads a public search-filter param via WordPress's query_vars whitelist.
+	 *
+	 * WP.org T4 #11: public GET URL filter params must be registered on
+	 * `query_vars` (see register_query_vars()) and read via get_query_var(),
+	 * not raw $_GET. A `null` sentinel default distinguishes "param absent from
+	 * the request" from "param present but empty", matching the previous
+	 * `isset($_GET[$key])` semantics exactly.
+	 */
 	private static function get_text(string $key, string $default = ''): string
 	{
-		$get = $GLOBALS['_GET'] ?? [];
-		if (! isset($get[ $key ])) {
+		$value = get_query_var($key, null);
+		if (null === $value) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash( (string) $get[ $key ]));
+		return sanitize_text_field(wp_unslash( (string) $value));
 	}
 
 	private static function get_int(string $key, int $default = 0): int
 	{
-		$get = $GLOBALS['_GET'] ?? [];
-		if (! isset($get[ $key ])) {
+		$value = get_query_var($key, null);
+		if (null === $value) {
 			return $default;
 		}
 
-		return (int) wp_unslash( (string) $get[ $key ]);
+		return (int) wp_unslash( (string) $value);
 	}
 
 	/**
-	 * Get an array of integers from GET parameter (supports both single int and array).
+	 * Get an array of integers from a registered query var (supports both single int and array).
 	 */
 	private static function get_int_array(string $key): array
 	{
-		$get = $GLOBALS['_GET'] ?? [];
-		if (! isset($get[ $key ])) {
+		$value = get_query_var($key, null);
+		if (null === $value) {
 			return array();
 		}
 
-		$raw    = wp_unslash($get[ $key ]);
+		$raw    = wp_unslash($value);
 		$values = is_array($raw) ? $raw : array( $raw );
 
 		return array_filter(array_map('intval', $values));
@@ -146,6 +195,26 @@ final class SearchResults extends AbstractShortcode {
 		// AJAX handlers
 		add_action('wp_ajax_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
 		add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
+	}
+
+	/**
+	 * Registers this shortcode's public search-filter params on WP's query_vars
+	 * whitelist. Called by parent::register() (AbstractShortcode) on `init`.
+	 */
+	protected static function register_hooks(): void
+	{
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
+	}
+
+	/**
+	 * `query_vars` filter callback -- adds PUBLIC_QUERY_VARS and returns the array.
+	 *
+	 * @param array<int, string> $vars
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars(array $vars): array
+	{
+		return array_merge($vars, self::PUBLIC_QUERY_VARS);
 	}
 
 	protected static function get_shortcode_tag(): string
