@@ -77,7 +77,7 @@ final class BookingForm extends AbstractShortcode {
 	private static function get_text(string $key, string $fallback = ''): string
 	{
 		$value = get_query_var($key, null);
-		return (null !== $value) ? sanitize_text_field(wp_unslash( (string) $value)) : $fallback;
+		return ( null !== $value ) ? sanitize_text_field(wp_unslash( (string) $value)) : $fallback;
 	}
 
 	private static function post_text(string $key, string $fallback = ''): string

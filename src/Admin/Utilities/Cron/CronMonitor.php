@@ -264,7 +264,7 @@ final class CronMonitor {
 	 * @return array Test results for each cron job
 	 */
 	public static function test_all_cron_jobs(): array {
-		$results      = array();
+		$results = array();
 		// Task A9c seam inversion: same filterable "known hooks" list as
 		// run_cron_job() above.
 		$plugin_hooks = (array) apply_filters(
