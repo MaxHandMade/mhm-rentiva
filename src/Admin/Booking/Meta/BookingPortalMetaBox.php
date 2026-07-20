@@ -109,8 +109,11 @@ final class BookingPortalMetaBox {
 	}
 
 	public static function ajax_create_customer_account(): void {
-		// Capability check
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		// Capability check. This handler's sole purpose is creating a real WP
+		// user (wp_create_user() below), so it must be gated on the WP
+		// user-management capability, not the much more common edit_posts
+		// (T4 #5 — least-privilege for user creation).
+		if ( ! current_user_can( 'create_users' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'mhm-rentiva' ) ) );
 			return;
 		}
