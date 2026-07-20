@@ -43,6 +43,7 @@ final class CustomerExporter {
 		$handle = fopen( 'php://output', 'w' );
 		if ( $handle ) {
 			foreach ( $rows as $row ) {
+				$row = array_map( array( self::class, 'guard_csv_cell' ), $row );
 				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fputcsv escapes properly for CSV format.
 				fputcsv( $handle, $row );
 			}
@@ -51,6 +52,25 @@ final class CustomerExporter {
 		}
 
 		wp_die();
+	}
+
+	/**
+	 * Neutralize CSV formula injection. A cell whose first character is one a
+	 * spreadsheet treats as a formula/command trigger (=, +, -, @, or a leading
+	 * tab/carriage return) is prefixed with a single quote, so Excel/Sheets
+	 * renders it as literal text instead of evaluating it. The quote itself is
+	 * not displayed by the spreadsheet.
+	 *
+	 * @param mixed $value Cell value.
+	 * @return string Guarded cell value.
+	 */
+	private static function guard_csv_cell( $value ): string
+	{
+		$value = (string) $value;
+		if ( '' !== $value && in_array( $value[0], array( '=', '+', '-', '@', "\t", "\r" ), true ) ) {
+			return "'" . $value;
+		}
+		return $value;
 	}
 
 	/**
