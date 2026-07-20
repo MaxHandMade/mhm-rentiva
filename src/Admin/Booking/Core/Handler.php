@@ -78,6 +78,29 @@ final class Handler {
 			return;
 		}
 
+		// Neutral extension point: fires immediately before the booking record
+		// is created, on the frontend customer booking path only (this handler
+		// is registered for admin_post_mhm_rentiva_booking / admin_post_nopriv_*,
+		// i.e. the public booking form — never the wp-admin manual booking path).
+		// Fired as soon as the required fields are known and valid (before the
+		// payment-method/vehicle-existence checks and before the DB lock in
+		// create_booking_atomic() is acquired), so a subscriber that halts the
+		// request (e.g. wp_die() for missing GDPR consent) does so early and
+		// never leaves an open DB transaction. No-op by default; Pro's
+		// GDPRManager only enforces when GDPR + consent-required are both
+		// explicitly enabled by the admin.
+		do_action('mhm_rentiva_before_booking_creation', array(
+			'vehicle_id'      => $vehicle_id,
+			'pickup_date'     => $pickup_date,
+			'pickup_time'     => $pickup_time,
+			'dropoff_date'    => $dropoff_date,
+			'dropoff_time'    => $dropoff_time,
+			'contact_name'    => $contact_name,
+			'contact_email'   => $contact_email,
+			'contact_phone'   => $contact_phone,
+			'selected_addons' => $selected_addons,
+		));
+
 		// Deposit system validation
 		if (! DepositCalculator::validate_payment_type($payment_type)) {
 			$error_message = UXHelper::get_user_friendly_error(
