@@ -1169,6 +1169,30 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 			),
 		);
 
+		// Neutral extension point: fires immediately before the booking record
+		// is created, on the REAL live booking-creation path (WooCommerce
+		// checkout → woocommerce_checkout_order_processed → this method). The
+		// admin-post entry point in Handler::handle() fires the same hook for
+		// compatibility, but that path has no live UI trigger — this is the
+		// one that actually runs for real customer bookings. The WC order
+		// already exists at this point (checkout has completed), but a
+		// subscriber that halts the request (e.g. wp_die() for missing GDPR
+		// consent) still does so before the booking post itself is written.
+		// No-op by default; Pro's GDPRManager only enforces when GDPR +
+		// consent-required are both explicitly enabled by the admin.
+		do_action('mhm_rentiva_before_booking_creation', array(
+			'vehicle_id'      => $booking_data['vehicle_id'],
+			'pickup_date'     => $booking_data['pickup_date'],
+			'pickup_time'     => $booking_data['pickup_time'],
+			'dropoff_date'    => $booking_data['dropoff_date'],
+			'dropoff_time'    => $booking_data['dropoff_time'],
+			'contact_name'    => $booking_data['customer_name']  ?? '',
+			'contact_email'   => $booking_data['customer_email'] ?? '',
+			'contact_phone'   => $booking_data['customer_phone'] ?? '',
+			'selected_addons' => $booking_data['selected_addons'] ?? array(),
+			'order_id'        => $order_id,
+		));
+
 		$booking_id = wp_insert_post($post_data);
 
 		if (is_wp_error($booking_id)) {
