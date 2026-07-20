@@ -95,22 +95,31 @@ final class DemoSeederRemovedTest extends WP_UnitTestCase
     {
         global $wp_filter;
 
+        // Collect the class name of every object/static callback hooked into
+        // admin_notices, regardless of whether the hook array exists at all.
+        // Asserting against this collected list (rather than only asserting
+        // inside an `if (isset(...))` branch with a bare pass-through
+        // fallback) keeps the check meaningful in both cases: it is a real
+        // negative-membership assertion on real data, not a tautology that
+        // degenerates to "always pass" when the hook is unregistered.
+        $registered_classes = array();
+
         if (isset($wp_filter['admin_notices'])) {
             foreach ($wp_filter['admin_notices']->callbacks as $callbacks) {
                 foreach ($callbacks as $callback) {
                     $fn = $callback['function'];
                     if (is_array($fn) && is_string($fn[0])) {
-                        $this->assertNotSame(
-                            'MHMRentiva\Admin\Testing\DemoNoticeManager',
-                            ltrim($fn[0], '\\'),
-                            'DemoNoticeManager must not be hooked into admin_notices -- it was deleted.'
-                        );
+                        $registered_classes[] = ltrim($fn[0], '\\');
                     }
                 }
             }
         }
 
-        $this->assertTrue(true); // No admin_notices hooks at all is also a pass.
+        $this->assertNotContains(
+            'MHMRentiva\Admin\Testing\DemoNoticeManager',
+            $registered_classes,
+            'DemoNoticeManager must not be hooked into admin_notices -- it was deleted.'
+        );
     }
 
     public function test_setup_wizard_no_longer_has_a_demo_step(): void
