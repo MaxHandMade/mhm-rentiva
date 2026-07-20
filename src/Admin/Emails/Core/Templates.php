@@ -19,11 +19,10 @@ final class Templates {
 
 
 	/**
-	 * Template registry - subjects are in English for i18n
-	 * Translation is applied at runtime in compile_subject()
-	 */
-	/**
-	 * Template registry with translatable subjects
+	 * Template registry with translatable subjects.
+	 *
+	 * Each entry's 'subject' is translated once, via a literal __() call, at its
+	 * definition site in self::registry() below — never re-translated later.
 	 */
 	public static function register(): void {
 		// No hooks yet; exists for consistency and future extensions
@@ -152,9 +151,12 @@ final class Templates {
 		}
 
 		$reg = self::registry();
+		// $tpl is already translated: each registry entry's 'subject' passes through a
+		// literal __() call at definition time in self::registry() (or, if the key is
+		// unknown, a dynamic 'Notification: {key}' fallback that was never
+		// translatable). Re-wrapping either in __() here would be invalid i18n
+		// (variable first argument) — pass the value through as-is.
 		$tpl = $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key );
-        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-		$tpl = __( $tpl, 'mhm-rentiva' );
 		$sub = self::replace_placeholders( $tpl, $context );
 		$sub = apply_filters( 'mhm_rentiva_email_subject', $sub, $key, $context );
 		$sub = apply_filters( 'mhm_rentiva_email_subject_' . $key, $sub, $context );
@@ -561,9 +563,10 @@ final class Templates {
 		if ( $raw === '' ) {
 			return null;
 		}
-        // phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText
-		$tpl = __( $raw, 'mhm-rentiva' );
-		return self::replace_placeholders( $tpl, $context );
+		// $raw is an admin-entered value stored in a WP option (a custom subject
+		// override typed into the settings UI) — dynamic content that was never
+		// translatable via gettext. Use it as-is rather than wrapping it in __().
+		return self::replace_placeholders( $raw, $context );
 	}
 
 	/**
