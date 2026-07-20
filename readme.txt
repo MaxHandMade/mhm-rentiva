@@ -49,6 +49,23 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 3. Install and activate WooCommerce if you want customers to book and pay from the frontend.
 4. Use the Settings menu to configure your vehicle features, equipment, and module preferences.
 
+== Source code ==
+
+Most of this plugin is plain, human-readable PHP with no build step.
+
+Four admin screens (Dashboard, Customers, About and Shortcode Pages) are built in React. Their compiled bundles ship in `build/admin/` and are generated from the un-minified React sources that are also included with this plugin, under `src-react/`. No third-party or obfuscated code is bundled.
+
+The complete development sources, including the build configuration (`package.json`, `webpack.config.js`), are available in the public GitHub repository:
+
+https://github.com/MaxHandMade/mhm-rentiva
+
+To rebuild the admin bundles from source, run the following from the plugin directory (or a checkout of the repository above):
+
+`npm install`
+`npm run build`
+
+The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scripts) (webpack). Run `npm start` instead of `npm run build` for a watched development build.
+
 == Frequently Asked Questions ==
 
 = Does it work with WooCommerce? =
