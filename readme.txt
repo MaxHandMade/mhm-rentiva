@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.1.0
+Stable tag:        5.1.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -108,6 +108,12 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 4.  **Settings:** Comprehensive configuration options.
 
 == Changelog ==
+
+= 5.1.1 =
+* Internal: the REST API-key and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate registration of the API-key handlers was removed so each action is handled exactly once.
+* Internal: removed a leftover reference to a settings class that is not part of the free plugin, unreachable deposit-calculation code, and developer debug logging from the block-editor and search scripts.
+* Internal: the customer privacy controls now render only when their handlers are available (they ship with the paid add-on), so the free plugin shows no non-functional buttons; add-on-only scripts were also removed from the free plugin.
+* No feature or behaviour change; your settings and data are unaffected.
 
 = 5.1.0 =
 * Security: hardened contact-form file-path handling, capability checks for customer-account creation, REST route permissions, output escaping and settings sanitization across the plugin.

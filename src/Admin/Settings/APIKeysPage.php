@@ -60,7 +60,7 @@ final class APIKeysPage {
 		);
 
 		foreach ($actions as $action) {
-			add_action("wp_ajax_mhm_{$action}", array( self::class, 'handle_request' ));
+			add_action("wp_ajax_mhm_rentiva_{$action}", array( self::class, 'handle_request' ));
 		}
 	}
 
@@ -101,12 +101,12 @@ final class APIKeysPage {
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
 			match ($action) {
-				'mhm_create_api_key'     => self::ajax_create_api_key(),
-				'mhm_list_api_keys'      => self::ajax_list_api_keys(),
-				'mhm_revoke_api_key'     => self::ajax_revoke_api_key(),
-				'mhm_delete_api_key'     => self::ajax_delete_api_key(),
-				'mhm_list_endpoints'     => self::ajax_list_endpoints(),
-				'mhm_reset_rest_settings' => self::ajax_reset_rest_settings(),
+				'mhm_rentiva_create_api_key'     => self::ajax_create_api_key(),
+				'mhm_rentiva_list_api_keys'      => self::ajax_list_api_keys(),
+				'mhm_rentiva_revoke_api_key'     => self::ajax_revoke_api_key(),
+				'mhm_rentiva_delete_api_key'     => self::ajax_delete_api_key(),
+				'mhm_rentiva_list_endpoints'     => self::ajax_list_endpoints(),
+				'mhm_rentiva_reset_rest_settings' => self::ajax_reset_rest_settings(),
 				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
 			};
 		} catch (\Throwable $e) {

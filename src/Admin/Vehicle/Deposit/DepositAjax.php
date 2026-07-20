@@ -32,42 +32,8 @@ class DepositAjax {
 	 * Register AJAX handlers
 	 */
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_calculate_deposit', array( self::class, 'ajax_calculate_deposit' ) );
-		add_action( 'wp_ajax_nopriv_mhm_calculate_deposit', array( self::class, 'ajax_calculate_deposit' ) );
-
 		add_action( 'wp_ajax_mhm_rentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
 		add_action( 'wp_ajax_nopriv_mhm_rentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
-	}
-
-	/**
-	 * Deposit calculation AJAX handler
-	 */
-	public static function ajax_calculate_deposit(): void {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_deposit_calculation' ) ) {
-			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
-		}
-
-		$deposit_value = isset( $_POST['deposit_value'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['deposit_value'] ) ) : '';
-		$daily_price   = isset( $_POST['daily_price'] ) ? (float) sanitize_text_field( wp_unslash( (string) $_POST['daily_price'] ) ) : 0.0;
-		$rental_days   = isset( $_POST['rental_days'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['rental_days'] ) ) ) : 1;
-
-		if ( $daily_price <= 0 ) {
-			wp_send_json_error( __( 'Invalid daily price', 'mhm-rentiva' ) );
-		}
-
-		if ( $rental_days <= 0 ) {
-			wp_send_json_error( __( 'Invalid rental days', 'mhm-rentiva' ) );
-		}
-
-		$result = DepositCalculator::calculate_deposit( $deposit_value, $daily_price, $rental_days );
-
-		$result['deposit_display']     = DepositCalculator::format_deposit_display( $deposit_value );
-		$result['deposit_description'] = DepositCalculator::get_deposit_description( $deposit_value );
-		$result['daily_price']         = $daily_price;
-		$result['rental_days']         = $rental_days;
-
-		wp_send_json_success( $result );
 	}
 
 	/**

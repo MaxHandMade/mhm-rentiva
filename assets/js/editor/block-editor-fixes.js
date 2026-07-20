@@ -10,46 +10,6 @@
 
     if (!wp || !$) return;
 
-    console.log('[MHM Rentiva] Editor Stability Layer v6.3.6');
-
-    // Silence known WP Core annoyance warnings & logs
-    const originalWarn = console.warn;
-    const originalError = console.error;
-    const originalLog = console.log;
-
-    const filterMsg = (msg) => {
-        if (!msg || typeof msg !== 'string') return false;
-        const ignored = [
-            'wp.data.select( "core/navigation" )',
-            'Navigation store is deprecated',
-            'Deprecation warning:',
-            'invalid category',
-            'added to the iframe incorrectly',
-            'woocommerce-blocktheme-css',
-            'mhm-css-variables-css',
-            'data-wp-init--refresh-cart-items',
-            'JQMIGRATE: Migrate is installed',
-            'isEditorPanelEnabled is deprecated',
-            'Using custom components as toolbar controls is deprecated'
-        ];
-        return ignored.some(term => msg.includes(term));
-    };
-
-    console.warn = function (...args) {
-        if (filterMsg(args[0])) return;
-        originalWarn.apply(console, args);
-    };
-
-    console.error = function (...args) {
-        if (filterMsg(args[0])) return;
-        originalError.apply(console, args);
-    };
-
-    console.log = function (...args) {
-        if (filterMsg(args[0])) return;
-        originalLog.apply(console, args);
-    };
-
     function getEditorContext() {
         // Find Gutenberg Iframe or main document
         const iframe = document.querySelector('iframe[name="editor-canvas"]');
@@ -117,7 +77,6 @@
         };
 
         $.datepicker._mhmPatched = true;
-        console.log('[MHM Rentiva] Datepicker protection active.');
     }
 
     function stabilizeInputs() {

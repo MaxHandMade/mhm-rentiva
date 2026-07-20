@@ -10,20 +10,10 @@
 
     class UnifiedSearch {
         constructor() {
-            this.initOnLoadAudit();
             this.initTabs();
             this.initRentalConstraints();
             this.initDropoffMirror();
             // initTransferSearch removed (delegated to rentiva-transfer.js for parity)
-        }
-
-        initOnLoadAudit() {
-            if (typeof mhmUnifiedSearch === 'undefined') return;
-            console.group('[MHM Rentiva] Initial State Audit');
-            console.log('Initial Service Type:', mhmUnifiedSearch.initial_service);
-            console.log('REST URL:', mhmUnifiedSearch.restUrl);
-            console.log('Dropdown Count:', $('select[name="pickup_location"] option').length - 1);
-            console.groupEnd();
         }
 
         initRentalConstraints() {

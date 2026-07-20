@@ -1,5 +1,19 @@
 [
   {
+    "version": "5.1.1",
+    "date": "2026-07-21",
+    "type": "patch",
+    "title": "WordPress.org compliance hardening",
+    "summary": "Internal compliance and code-hygiene pass ahead of the WordPress.org listing. No feature or behaviour change.",
+    "changes": [
+      "Internal: the REST API-key and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate registration of the API-key handlers was removed so each action is handled exactly once.",
+      "Internal: removed a leftover reference to a settings class that is not part of the free plugin, unreachable deposit-calculation code, and developer debug logging from the block-editor and search scripts.",
+      "Internal: the customer privacy controls now render only when their handlers are available (they ship with the paid add-on), so the free plugin shows no non-functional buttons; add-on-only scripts were also removed from the free plugin.",
+      "Docs: the readme describes the bundled shared UI library with neutral wording."
+    ],
+    "notice": "No action required; your settings and data are unaffected."
+  },
+  {
     "version": "5.1.0",
     "date": "2026-07-20",
     "type": "minor",

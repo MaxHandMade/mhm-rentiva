@@ -311,8 +311,13 @@ if ($is_integrated) {
 
 		<!-- Privacy Controls Section -->
 		<?php
+		// These export / withdraw-consent / delete controls are backed by AJAX
+		// handlers that ship with the separate add-on. Render them only when that
+		// add-on is active (its handlers are registered); on the free plugin alone
+		// they would be non-functional, so we omit them entirely rather than show
+		// dead buttons.
 		$gdpr_enabled = SettingsCore::get('mhm_rentiva_customer_gdpr_compliance', '1');
-		if ($gdpr_enabled === '1') :
+		if ($gdpr_enabled === '1' && has_action('wp_ajax_mhm_rentiva_data_export')) :
 			?>
 			<div class="account-section">
 				<div class="section-header">

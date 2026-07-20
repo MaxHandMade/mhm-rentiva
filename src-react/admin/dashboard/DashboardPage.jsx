@@ -51,8 +51,8 @@ export default function DashboardPage() {
 				<UpcomingOperations initial={ upcomingInitial } />
 			</div>
 
-			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right, Pro only) — symmetric KPI.
-			     Lite localizes no transfer_stats (Task A5b seam inversion); Pro's
+			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right, add-on only) — symmetric KPI.
+			     Lite localizes no transfer_stats (Task A5b seam inversion); the add-on's
 			     mhm_rentiva_dashboard_localize subscriber adds it back. */ }
 			<div className={ `mhm-dashboard__row mhm-dashboard__row--3${ transferStats ? '' : ' mhm-dashboard__row--3-solo' }` }>
 				<RecentBookings

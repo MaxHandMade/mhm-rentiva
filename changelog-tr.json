@@ -1,5 +1,19 @@
 [
   {
+    "version": "5.1.1",
+    "date": "2026-07-21",
+    "type": "patch",
+    "title": "WordPress.org uyumluluk sıkılaştırması",
+    "summary": "WordPress.org listelemesi öncesi dahili uyumluluk ve kod-hijyeni turu. Özellik veya davranış değişikliği yok.",
+    "changes": [
+      "Dahili: REST API-anahtarı ve depozito-yönetimi AJAX eylemleri artık tam mhm_rentiva_ önekini kullanıyor ve API-anahtarı işleyicilerinin çift kaydı kaldırıldı; her eylem artık tam olarak bir kez işleniyor.",
+      "Dahili: ücretsiz eklentinin parçası olmayan bir ayar sınıfına yapılan artık referans, erişilemeyen depozito-hesaplama kodu ve blok-düzenleyici ile arama betiklerindeki geliştirici hata-ayıklama kayıtları kaldırıldı.",
+      "Dahili: müşteri gizlilik kontrolleri artık yalnızca işleyicileri mevcut olduğunda görünüyor (bunlar ücretli eklentiyle geliyor), böylece ücretsiz eklenti işlevsel olmayan buton göstermiyor; ücretli-eklentiye-özel betikler de ücretsiz eklentiden kaldırıldı.",
+      "Belgeler: readme, birlikte gelen paylaşılan arayüz kütüphanesini nötr ifadeyle açıklıyor."
+    ],
+    "notice": "İşlem gerekmez; mevcut ayarlar ve veriler etkilenmez."
+  },
+  {
     "version": "5.1.0",
     "date": "2026-07-20",
     "type": "minor",

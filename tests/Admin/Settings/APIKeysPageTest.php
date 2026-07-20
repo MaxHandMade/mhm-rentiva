@@ -28,11 +28,11 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
 
         $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_list_api_keys';
-        $_REQUEST['action'] = 'mhm_list_api_keys';
+        $_POST['action'] = 'mhm_rentiva_list_api_keys';
+        $_REQUEST['action'] = 'mhm_rentiva_list_api_keys';
 
         try {
-            $this->_handleAjax('mhm_list_api_keys');
+            $this->_handleAjax('mhm_rentiva_list_api_keys');
             $this->fail('Expected wp_send_json_error to trigger wp_die');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
@@ -54,11 +54,11 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
 
         $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_list_api_keys';
-        $_REQUEST['action'] = 'mhm_list_api_keys';
+        $_POST['action'] = 'mhm_rentiva_list_api_keys';
+        $_REQUEST['action'] = 'mhm_rentiva_list_api_keys';
 
         try {
-            $this->_handleAjax('mhm_list_api_keys');
+            $this->_handleAjax('mhm_rentiva_list_api_keys');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
         } catch (\WPAjaxDieStopException $e) {
@@ -80,15 +80,15 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
 
         $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_create_api_key';
-        $_REQUEST['action'] = 'mhm_create_api_key';
+        $_POST['action'] = 'mhm_rentiva_create_api_key';
+        $_REQUEST['action'] = 'mhm_rentiva_create_api_key';
         $_POST['name'] = 'Test Key';
         $_REQUEST['name'] = 'Test Key';
         $_POST['permissions'] = ['read', 'write'];
         $_REQUEST['permissions'] = ['read', 'write'];
 
         try {
-            $this->_handleAjax('mhm_create_api_key');
+            $this->_handleAjax('mhm_rentiva_create_api_key');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
         } catch (\WPAjaxDieStopException $e) {
@@ -111,13 +111,13 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
 
         $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_create_api_key';
-        $_REQUEST['action'] = 'mhm_create_api_key';
+        $_POST['action'] = 'mhm_rentiva_create_api_key';
+        $_REQUEST['action'] = 'mhm_rentiva_create_api_key';
         $_POST['name'] = '';
         $_REQUEST['name'] = '';
 
         try {
-            $this->_handleAjax('mhm_create_api_key');
+            $this->_handleAjax('mhm_rentiva_create_api_key');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
         } catch (\WPAjaxDieStopException $e) {
