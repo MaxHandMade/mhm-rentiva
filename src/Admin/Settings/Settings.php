@@ -66,7 +66,7 @@ final class Settings {
 	public static function init(): void
 	{
 		// AJAX Actions
-		add_action('wp_ajax_mhm_reset_settings_tab', array( self::class, 'ajax_reset_settings_tab' ));
+		add_action('wp_ajax_mhm_rentiva_reset_settings_tab', array( self::class, 'ajax_reset_settings_tab' ));
 
 		// Register default providers from Groups
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);

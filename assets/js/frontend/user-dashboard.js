@@ -285,7 +285,7 @@ function initAnalyticsDashboard() {
         container.style.pointerEvents = 'none';
 
         const data = new URLSearchParams();
-        data.append('action', 'mhm_fetch_vendor_stats');
+        data.append('action', 'mhm_rentiva_fetch_vendor_stats');
         data.append('nonce', mhmRentivaAnalytics.nonce);
 
         const formatData = (d) => {

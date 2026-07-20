@@ -15,8 +15,8 @@ final class UninstallPage {
 
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_get_uninstall_stats', array( self::class, 'ajax_get_uninstall_stats' ));
-		add_action('wp_ajax_mhm_uninstall_plugin', array( self::class, 'ajax_uninstall_plugin' ));
+		add_action('wp_ajax_mhm_rentiva_get_uninstall_stats', array( self::class, 'ajax_get_uninstall_stats' ));
+		add_action('wp_ajax_mhm_rentiva_uninstall_plugin', array( self::class, 'ajax_uninstall_plugin' ));
 	}
 
 	/**

@@ -23,7 +23,7 @@ jQuery( document ).ready(
 				$.post(
 					mhmAddonSettings.ajax_url,
 					{
-						action: 'mhm_create_default_addons',
+						action: 'mhm_rentiva_create_default_addons',
 						nonce: mhmAddonSettings.nonce
 					}
 				)

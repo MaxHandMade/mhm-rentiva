@@ -570,7 +570,7 @@ final class VehicleColumns {
 				'mhm-vehicle-calendar-popup',
 				'mhmVehicleCalendar',
 				array(
-					'nonce' => wp_create_nonce( 'mhm_toggle_blocked_date' ),
+					'nonce' => wp_create_nonce( 'mhm_rentiva_toggle_blocked_date' ),
 					'i18n'  => array(
 						'blockedTitle' => __( 'Blocked — click to open', 'mhm-rentiva' ),
 						'availTitle'   => __( 'Available — click to close', 'mhm-rentiva' ),

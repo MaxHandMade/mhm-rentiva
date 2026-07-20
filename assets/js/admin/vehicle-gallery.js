@@ -135,7 +135,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_add_gallery_image',
+					action: 'mhm_rentiva_add_gallery_image',
 					post_id: currentPostId,
 					image_ids: imageIds,
 					nonce: window.mhmVehicleGallery?.nonce
@@ -174,7 +174,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_remove_gallery_image',
+					action: 'mhm_rentiva_remove_gallery_image',
 					post_id: currentPostId,
 					image_id: imageId,
 					nonce: window.mhmVehicleGallery?.nonce
@@ -221,7 +221,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_reorder_gallery_images',
+					action: 'mhm_rentiva_reorder_gallery_images',
 					post_id: currentPostId,
 					image_order: imageOrder,
 					nonce: window.mhmVehicleGallery?.nonce

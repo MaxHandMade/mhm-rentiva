@@ -21,7 +21,7 @@ jQuery( document ).ready(
 						url: ajaxurl,
 						type: 'POST',
 						data: {
-							action: 'mhm_run_settings_tests',
+							action: 'mhm_rentiva_run_settings_tests',
 							nonce: mhm_settings_testing.nonce
 						},
 						success: function (response) {

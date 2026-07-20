@@ -44,8 +44,8 @@ final class SettingsCore {
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_dark_mode_styles' ));
 
 		// AJAX Handlers
-		add_action('wp_ajax_mhm_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
-		add_action('wp_ajax_mhm_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
+		add_action('wp_ajax_mhm_rentiva_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
+		add_action('wp_ajax_mhm_rentiva_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
 
 		// Service Initializers (Delegated to specialized managers)
 		add_action('init', array( self::class, 'initialize_services' ));

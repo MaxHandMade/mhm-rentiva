@@ -51,7 +51,7 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     private function dispatch_ajax(): void
     {
         try {
-            $this->_handleAjax('mhm_create_customer_account_manual');
+            $this->_handleAjax('mhm_rentiva_create_customer_account_manual');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected path for WP_Ajax_UnitTestCase.
         }

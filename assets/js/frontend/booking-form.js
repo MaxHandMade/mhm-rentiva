@@ -485,7 +485,7 @@
             $.ajax( {
                 url:    ajaxUrl,
                 method: 'GET',
-                data:   { action: 'mhm_get_blocked_dates', vehicle_id: parseInt( vehicleId, 10 ) },
+                data:   { action: 'mhm_rentiva_get_blocked_dates', vehicle_id: parseInt( vehicleId, 10 ) },
                 success: ( response ) => {
                     if ( response && response.success && Array.isArray( response.data ) ) {
                         this.blockedDates = response.data;

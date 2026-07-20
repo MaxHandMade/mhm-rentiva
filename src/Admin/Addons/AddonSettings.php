@@ -38,7 +38,7 @@ final class AddonSettings {
 	public static function register(): void {
 		// WordPress Settings API registration.
 		add_action( 'admin_init', array( self::class, 'register_settings' ) );
-		add_action( 'wp_ajax_mhm_create_default_addons', array( self::class, 'ajax_create_default_addons' ) );
+		add_action( 'wp_ajax_mhm_rentiva_create_default_addons', array( self::class, 'ajax_create_default_addons' ) );
 	}
 
 	/**
@@ -233,7 +233,7 @@ final class AddonSettings {
 	 * AJAX handler for creating default addons.
 	 */
 	public static function ajax_create_default_addons(): void {
-		check_ajax_referer( 'mhm_create_default_addons', 'nonce' );
+		check_ajax_referer( 'mhm_rentiva_create_default_addons', 'nonce' );
 
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Insufficient permissions.', 'mhm-rentiva' ) ) );

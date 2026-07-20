@@ -84,7 +84,7 @@ jQuery( document ).ready(
 						url: mhm_addon_list_vars.ajax_url,
 						type: 'POST',
 						data: {
-							action: 'mhm_update_addon_price',
+							action: 'mhm_rentiva_update_addon_price',
 							addon_id: addonId,
 							price: newPrice,
 							nonce: mhm_addon_list_vars.nonce
@@ -272,7 +272,7 @@ jQuery( document ).ready(
 						url: mhm_addon_list_vars.ajax_url,
 						type: 'POST',
 						data: {
-							action: 'mhm_bulk_addon_action',
+							action: 'mhm_rentiva_bulk_addon_action',
 							bulk_action: action,
 							addon_ids: addonIds,
 							nonce: mhm_addon_list_vars.nonce

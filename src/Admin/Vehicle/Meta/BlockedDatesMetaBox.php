@@ -24,11 +24,11 @@ final class BlockedDatesMetaBox {
 		add_action( 'add_meta_boxes_vehicle', array( self::class, 'add_meta_box' ) );
 		add_action( 'save_post_vehicle', array( self::class, 'save' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
-		add_action( 'wp_ajax_mhm_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
-		add_action( 'wp_ajax_nopriv_mhm_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
-		add_action( 'wp_ajax_mhm_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
-		add_action( 'wp_ajax_mhm_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
-		add_action( 'wp_ajax_mhm_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
+		add_action( 'wp_ajax_mhm_rentiva_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
+		add_action( 'wp_ajax_nopriv_mhm_rentiva_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
+		add_action( 'wp_ajax_mhm_rentiva_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
+		add_action( 'wp_ajax_mhm_rentiva_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
+		add_action( 'wp_ajax_mhm_rentiva_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
 	}
 
 	public static function add_meta_box(): void {
@@ -222,7 +222,7 @@ final class BlockedDatesMetaBox {
 	public static function ajax_toggle_blocked_date(): void {
 		if (
 			! isset( $_POST['nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_toggle_blocked_date' )
+			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_rentiva_toggle_blocked_date' )
 		) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}

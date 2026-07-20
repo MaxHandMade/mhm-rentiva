@@ -61,9 +61,9 @@ final class VehicleGallery extends AbstractMetaBox {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 		add_action( 'save_post_vehicle', array( self::class, 'save_gallery_images' ) );
 
-		add_action( 'wp_ajax_mhm_add_gallery_image', array( self::class, 'ajax_add_gallery_image' ) );
-		add_action( 'wp_ajax_mhm_remove_gallery_image', array( self::class, 'ajax_remove_gallery_image' ) );
-		add_action( 'wp_ajax_mhm_reorder_gallery_images', array( self::class, 'ajax_reorder_gallery_images' ) );
+		add_action( 'wp_ajax_mhm_rentiva_add_gallery_image', array( self::class, 'ajax_add_gallery_image' ) );
+		add_action( 'wp_ajax_mhm_rentiva_remove_gallery_image', array( self::class, 'ajax_remove_gallery_image' ) );
+		add_action( 'wp_ajax_mhm_rentiva_reorder_gallery_images', array( self::class, 'ajax_reorder_gallery_images' ) );
 	}
 
 	/**

@@ -26,7 +26,7 @@ jQuery(document).ready(function($) {
 	var $initialSelected = $('input[name="mhm_booking_payment_type"]:checked');
 	if ($initialSelected.length) {
 		$.post(ajaxUrl(), {
-			action: 'mhm_update_booking_payment_type',
+			action: 'mhm_rentiva_update_booking_payment_type',
 			payment_type: $initialSelected.val(),
 			nonce: cfg.nonce
 		});
@@ -47,7 +47,7 @@ jQuery(document).ready(function($) {
 			url: ajaxUrl(),
 			type: 'POST',
 			data: {
-				action: 'mhm_update_booking_payment_type',
+				action: 'mhm_rentiva_update_booking_payment_type',
 				payment_type: paymentType,
 				nonce: cfg.nonce
 			},

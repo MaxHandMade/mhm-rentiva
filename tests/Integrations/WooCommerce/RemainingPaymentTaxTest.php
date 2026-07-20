@@ -106,12 +106,12 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
      */
     public function test_remaining_order_total_is_not_double_taxed(): void
     {
-        $_POST['action']     = 'mhm_pay_remaining';
+        $_POST['action']     = 'mhm_rentiva_pay_remaining';
         $_POST['booking_id'] = $this->booking_id;
         $_POST['nonce']      = wp_create_nonce('mhm_pay_remaining_' . $this->booking_id);
 
         try {
-            $this->_handleAjax('mhm_pay_remaining');
+            $this->_handleAjax('mhm_rentiva_pay_remaining');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected — WC AJAX handlers always wp_die after sending JSON.
         }

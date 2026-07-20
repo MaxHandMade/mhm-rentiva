@@ -294,6 +294,11 @@ final class Plugin {
 			\MHMRentiva\Admin\Setup\SetupWizard::register();
 		}
 		// REST API Settings AJAX
+		// NOTE: kept bare `mhm_` (not renamed to `mhm_rentiva_`) -- APIKeysPage::register()
+		// dynamically registers the identical `wp_ajax_mhm_{$action}` hook names (see
+		// APIKeysPage.php), so both classes' callbacks fire on these hooks today. Renaming
+		// only this static side would silently stop routing to APIKeysPage::handle_request().
+		// Left as a pre-existing dual-registration wart, out of scope for the prefix rename.
 		add_action('wp_ajax_mhm_create_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_create_api_key' ));
 		add_action('wp_ajax_mhm_list_api_keys', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_list_api_keys' ));
 		add_action('wp_ajax_mhm_revoke_api_key', array( \MHMRentiva\Admin\REST\Settings\RESTSettings::class, 'ajax_revoke_api_key' ));

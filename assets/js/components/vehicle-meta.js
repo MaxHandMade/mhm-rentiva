@@ -263,7 +263,7 @@
             url: window.ajaxurl || (window.mhmVehicleMeta?.ajaxUrl || window.location.origin + '/wp-admin/admin-ajax.php'),
             type: 'POST',
             data: {
-                action: 'mhm_save_item_order',
+                action: 'mhm_rentiva_save_item_order',
                 grid_type: gridId.replace('-grid', ''),
                 order: order,
                 post_id: $('#post_ID').val(),

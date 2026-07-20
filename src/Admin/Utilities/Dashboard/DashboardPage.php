@@ -35,11 +35,11 @@ final class DashboardPage {
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
+		add_action('wp_ajax_mhm_rentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
+		add_action('wp_ajax_mhm_rentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
+		add_action('wp_ajax_mhm_rentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
 
 		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
