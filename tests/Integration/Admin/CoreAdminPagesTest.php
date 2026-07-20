@@ -208,10 +208,11 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$steps = $this->get_setup_wizard_steps();
 
 		$this->assertArrayNotHasKey('license', $steps, 'Lite must not ship a License wizard step.');
+		$this->assertArrayNotHasKey('demo', $steps, 'Lite must not ship a Demo Data wizard step (WP.org T4 #4/#5).');
 		$this->assertSame(
-			array( 'system', 'pages', 'email', 'frontend', 'demo', 'summary' ),
+			array( 'system', 'pages', 'email', 'frontend', 'summary' ),
 			array_keys($steps),
-			'Lite wizard step order must close the gap left by the removed License step.'
+			'Lite wizard step order must close the gap left by the removed License and Demo steps.'
 		);
 
 		// The renderer and the admin-post handler must be gone, not merely unlinked.

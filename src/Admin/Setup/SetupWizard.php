@@ -64,40 +64,6 @@ final class SetupWizard {
 				MHM_RENTIVA_VERSION . '.' . filemtime($css_path)
 			);
 		}
-
-		$js_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/js/admin/setup-wizard.js';
-		if (file_exists($js_path)) {
-			wp_enqueue_script(
-				'mhm-rentiva-setup-wizard',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/setup-wizard.js',
-				array(),
-				MHM_RENTIVA_VERSION . '.' . filemtime($js_path),
-				true
-			);
-
-			$seed_steps    = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
-				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_seed_steps()
-				: array();
-			$cleanup_steps = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
-				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_cleanup_steps()
-				: array();
-			$demo_nonce    = class_exists(\MHMRentiva\Admin\Testing\DemoAjaxHandler::class)
-				? \MHMRentiva\Admin\Testing\DemoAjaxHandler::get_nonce()
-				: '';
-
-			wp_localize_script(
-				'mhm-rentiva-setup-wizard',
-				'mhmSetupWizard',
-				array(
-					'ajaxUrl'      => admin_url('admin-ajax.php'),
-					'nonce'        => $demo_nonce,
-					'seedSteps'    => array_keys($seed_steps),
-					'cleanupSteps' => array_keys($cleanup_steps),
-					'msgSeeded'    => __('Demo data loaded successfully! Refresh the page to see the cleanup button.', 'mhm-rentiva'),
-					'msgCleaned'   => __('Demo data removed. Refresh the page to continue.', 'mhm-rentiva'),
-				)
-			);
-		}
 	}
 
 	public function render_page(): void
@@ -146,9 +112,6 @@ final class SetupWizard {
 					break;
 				case 'frontend':
 					self::render_step_frontend();
-					break;
-				case 'demo':
-					self::render_step_demo();
 					break;
 				case 'summary':
 				default:
@@ -486,53 +449,6 @@ final class SetupWizard {
 		<?php
 	}
 
-	private static function render_step_demo(): void
-	{
-		$is_active = \MHMRentiva\Admin\Testing\DemoNoticeManager::is_demo_active();
-		?>
-		<h2><?php esc_html_e( 'Demo Data', 'mhm-rentiva' ); ?></h2>
-		<p><?php esc_html_e( 'Load sample vehicles, customers, bookings, add-ons, transfer points and messages so you can explore every feature without entering real data.', 'mhm-rentiva' ); ?></p>
-
-		<?php if ( $is_active ) : ?>
-			<div class="notice notice-warning inline" style="margin: 0 0 16px;">
-				<p><strong><?php esc_html_e( '⚠️ Demo data is currently active.', 'mhm-rentiva' ); ?></strong>
-				<?php esc_html_e( 'Use "Clean Up" to remove all demo data before going live.', 'mhm-rentiva' ); ?></p>
-			</div>
-		<?php endif; ?>
-
-		<div id="mhm-demo-seed-wrap" style="max-width:640px;">
-			<div id="mhm-demo-progress-bar" style="display:none; margin-bottom:16px;">
-				<div style="background:#e0e0e0; border-radius:4px; height:12px; overflow:hidden;">
-					<div id="mhm-demo-progress-fill" style="background:#2271b1; height:100%; width:0; transition:width .3s;"></div>
-				</div>
-				<p id="mhm-demo-progress-label" style="margin:6px 0 0; font-size:13px; color:#555;"></p>
-			</div>
-			<div id="mhm-demo-result" style="display:none; margin-bottom:16px;" class="notice notice-success inline">
-				<p id="mhm-demo-result-msg"></p>
-			</div>
-			<div id="mhm-demo-error" style="display:none; margin-bottom:16px;" class="notice notice-error inline">
-				<p id="mhm-demo-error-msg"></p>
-			</div>
-
-			<p style="display:flex; gap:10px; flex-wrap:wrap;">
-				<button id="mhm-btn-seed" class="button button-primary button-large">
-					<?php esc_html_e( 'Load Demo Data', 'mhm-rentiva' ); ?>
-				</button>
-				<?php if ( $is_active ) : ?>
-				<button id="mhm-btn-cleanup" class="button button-secondary button-large" style="color:#b32d2e; border-color:#b32d2e;">
-					<?php esc_html_e( 'Clean Up Demo Data', 'mhm-rentiva' ); ?>
-				</button>
-				<?php endif; ?>
-			</p>
-		</div>
-
-		<div class="mhm-step-actions" style="margin-top:24px;">
-			<a class="button button-secondary button-large align-left" href="<?php echo esc_url( self::step_url( 'frontend' ) ); ?>">&larr; <?php esc_html_e( 'Back', 'mhm-rentiva' ); ?></a>
-			<a class="button button-primary button-large" href="<?php echo esc_url( self::step_url( 'summary' ) ); ?>"><?php esc_html_e( 'Continue to Summary', 'mhm-rentiva' ); ?></a>
-		</div>
-		<?php
-	}
-
 	private static function render_step_summary(): void
 	{
 		$steps     = self::get_steps();
@@ -599,7 +515,7 @@ final class SetupWizard {
 			}
 			?>
 			<div class="mhm-step-actions">
-				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('demo')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
+				<a class="button button-secondary button-large align-left" href="<?php echo esc_url(self::step_url('frontend')); ?>">&larr; <?php esc_html_e('Back', 'mhm-rentiva'); ?></a>
 				<a class="button button-secondary button-large" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-dashboard')); ?>"><?php esc_html_e('Go to Dashboard', 'mhm-rentiva'); ?></a>
 				<button type="submit" class="button button-primary button-large"><?php esc_html_e('Complete Setup', 'mhm-rentiva'); ?></button>
 			</div>
@@ -809,7 +725,6 @@ final class SetupWizard {
 			'pages'    => __('Required Pages', 'mhm-rentiva'),
 			'email'    => __('Email Settings', 'mhm-rentiva'),
 			'frontend' => __('Frontend & Display', 'mhm-rentiva'),
-			'demo'     => __('Demo Data', 'mhm-rentiva'),
 			'summary'  => __('Summary & Tests', 'mhm-rentiva'),
 		);
 	}
@@ -1163,8 +1078,6 @@ final class SetupWizard {
 				return (bool) SettingsCore::get('mhm_rentiva_email_from_address', '');
 			case 'frontend':
 				return (bool) SettingsCore::get('mhm_rentiva_currency', 'USD');
-			case 'demo':
-				return true;
 			case 'summary':
 				return get_option(self::OPTION_COMPLETED, '0') === '1';
 			default:
