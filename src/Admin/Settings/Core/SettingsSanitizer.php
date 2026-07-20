@@ -371,16 +371,33 @@ final class SettingsSanitizer {
 			}
 
 			if ( isset( $in['seasonal_multipliers'] ) && \is_array( $in['seasonal_multipliers'] ) ) {
+				// Keys are internal season slugs (spring/summer/autumn/winter,
+				// see VehiclePricingSettings::get_default_settings()) used to
+				// look up $current_pricing['seasonal_multipliers'][ $key ] --
+				// sanitize_key() to prevent an attacker-controlled dirty key
+				// (e.g. '<script>x') from persisting markup into the option
+				// (WP.org T4 #6 -- same defect class as VehicleSettings.php).
 				foreach ( $in['seasonal_multipliers'] as $key => $season ) {
+					$safe_key = \sanitize_key( (string) $key );
+					if ( '' === $safe_key ) {
+						continue;
+					}
 					if ( isset( $season['multiplier'] ) ) {
-						$current_pricing['seasonal_multipliers'][ $key ]['multiplier'] = floatval( $season['multiplier'] );
+						$current_pricing['seasonal_multipliers'][ $safe_key ]['multiplier'] = floatval( $season['multiplier'] );
 					}
 				}
 			}
 
 			if ( isset( $in['discount_options'] ) && \is_array( $in['discount_options'] ) ) {
+				// Keys are internal discount slugs (weekly/monthly/early_booking/
+				// loyalty, see VehiclePricingSettings::get_default_settings()) --
+				// same key-sanitization rationale as seasonal_multipliers above.
 				foreach ( $in['discount_options'] as $key => $discount ) {
-					$current_pricing['discount_options'][ $key ] = array(
+					$safe_key = \sanitize_key( (string) $key );
+					if ( '' === $safe_key ) {
+						continue;
+					}
+					$current_pricing['discount_options'][ $safe_key ] = array(
 						'enabled'          => (bool) ( $discount['enabled'] ?? false ),
 						'min_days'         => \absint( $discount['min_days'] ?? 0 ),
 						'advance_days'     => \absint( $discount['advance_days'] ?? 0 ),
