@@ -64,7 +64,10 @@ if (! $user_display_name) {
 							esc_attr($user_display_name)
 						);
 					} else {
-						echo get_avatar($user->ID, 40, '', $user_display_name); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- get_avatar returns safe <img> tag.
+						printf(
+							'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
+							esc_html(mb_strtoupper(mb_substr( (string) $user_display_name, 0, 1, 'UTF-8'), 'UTF-8'))
+						);
 					}
 					?>
 				</div>

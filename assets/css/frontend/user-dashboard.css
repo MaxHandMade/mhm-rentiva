@@ -140,6 +140,12 @@ body.rentiva-panel-page .entry-content > * {
 	border-radius: 50%;
 }
 
+.mhm-rentiva-dashboard__user-avatar-initials {
+	color: var(--mhm-primary);
+	font-size: 1rem;
+	font-weight: 600;
+}
+
 .mhm-rentiva-dashboard__user-info {
 	flex: 1;
 	min-width: 0;

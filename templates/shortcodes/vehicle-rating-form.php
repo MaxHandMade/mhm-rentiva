@@ -229,7 +229,9 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 								<div class="rv-review-author">
 									<?php if ($display_settings['show_avatars'] ?? true) : ?>
 										<div class="rv-review-avatar">
-											<img src="<?php echo esc_url(get_avatar_url($comment->comment_author_email, [ 'size' => 48 ])); ?>" alt="<?php echo esc_attr($masked_name); ?>" width="48" height="48" loading="lazy" />
+											<span class="rv-avatar-placeholder" aria-hidden="true">
+												<?php echo esc_html(mb_strtoupper(mb_substr(trim($masked_name), 0, 1, 'UTF-8'), 'UTF-8')); ?>
+											</span>
 										</div>
 									<?php endif; ?>
 									<div class="rv-review-author-info">
