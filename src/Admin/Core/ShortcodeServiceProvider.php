@@ -97,11 +97,6 @@ final class ShortcodeServiceProvider {
 	{
 		$registry = $this->get_raw_shortcode_registry();
 
-		// POC shortcodes are intentionally disabled in production unless explicitly enabled.
-		if (! self::is_home_poc_enabled()) {
-			unset($registry['support']['rentiva_home_poc']);
-		}
-
 		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
 	}
 
@@ -203,29 +198,8 @@ final class ShortcodeServiceProvider {
 					'dependencies'  => array( 'booking' ),
 					'requires_auth' => false,
 				),
-				'rentiva_home_poc'            => array(
-					'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\HomePoc::class,
-					'dependencies'  => array(),
-					'requires_auth' => false,
-				),
 			),
 		);
-	}
-
-	/**
-	 * Determine if Home POC shortcode registration is enabled.
-	 *
-	 * Enable conditions:
-	 * - WP_DEBUG is enabled, OR
-	 * - MHM_RENTIVA_ENABLE_HOME_POC constant is explicitly true.
-	 */
-	private static function is_home_poc_enabled(): bool
-	{
-		if (defined('MHM_RENTIVA_ENABLE_HOME_POC')) {
-			return (bool) constant('MHM_RENTIVA_ENABLE_HOME_POC');
-		}
-
-		return defined('WP_DEBUG') && WP_DEBUG;
 	}
 
 	/**

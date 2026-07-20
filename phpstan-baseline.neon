@@ -763,18 +763,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/HomePoc.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/HomePoc.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
