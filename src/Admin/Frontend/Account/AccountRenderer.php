@@ -261,74 +261,14 @@ final class AccountRenderer {
 			$customer_name = $user->user_login;
 		}
 
-		// Load CSS files (filemtime-based version avoids stale browser cache during dev).
-		$customer_messages_css_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/css/frontend/customer-messages.css';
-		$customer_messages_css_ver  = file_exists($customer_messages_css_path)
-			? MHM_RENTIVA_VERSION . '.' . filemtime($customer_messages_css_path)
-			: MHM_RENTIVA_VERSION;
-		wp_enqueue_style(
-			'mhm-customer-messages',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/customer-messages.css',
-			array(),
-			$customer_messages_css_ver
-		);
-
-		// ⭐ Load JavaScript file (required for messages functionality)
-		$account_messages_js_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/account-messages.js';
-		$account_messages_js_ver  = file_exists($account_messages_js_path)
-			? MHM_RENTIVA_VERSION . '.' . filemtime($account_messages_js_path)
-			: MHM_RENTIVA_VERSION;
-		wp_enqueue_script(
-			'mhm-rentiva-account-messages',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
-			array( 'jquery' ),
-			$account_messages_js_ver,
-			true
-		);
-
-		// ⭐ Localize JavaScript (required for REST API calls)
-		wp_localize_script(
-			'mhm-rentiva-account-messages',
-			'mhmRentivaMessages',
-			array(
-				'restUrl'       => rest_url('mhm-rentiva/v1/'),
-				'restNonce'     => wp_create_nonce('wp_rest'),
-				'customerEmail' => $user->user_email,
-				'customerName'  => $customer_name,
-				'i18n'          => array(
-					'threadIdNotFound'   => __('Thread ID not found.', 'mhm-rentiva'),
-					'confirmClose'       => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
-					'closing'            => __('Closing...', 'mhm-rentiva'),
-					'messageClosed'      => __('Message closed successfully.', 'mhm-rentiva'),
-					'closeFailed'        => __('Failed to close message.', 'mhm-rentiva'),
-					'loadingMessages'    => __('Loading messages...', 'mhm-rentiva'),
-					'noMessages'         => __('No messages found yet.', 'mhm-rentiva'),
-					'loadFailed'         => __('Failed to load messages.', 'mhm-rentiva'),
-					'loginRequired'      => __('Please login to access your messages.', 'mhm-rentiva'),
-					'permissionDenied'   => __('You do not have permission to access messages.', 'mhm-rentiva'),
-					'new'                => __('New', 'mhm-rentiva'),
-					'customer'           => __('Customer', 'mhm-rentiva'),
-					'administrator'      => __('Administrator', 'mhm-rentiva'),
-					'you'                => __('You', 'mhm-rentiva'),
-					'loadingThread'      => __('Loading thread...', 'mhm-rentiva'),
-					'threadLoadFailed'   => __('Failed to load thread.', 'mhm-rentiva'),
-					'noMessagesFound'    => __('No messages found.', 'mhm-rentiva'),
-					'closeMessage'       => __('Close Message', 'mhm-rentiva'),
-					'conversationClosed' => __('This conversation is closed.', 'mhm-rentiva'),
-					'replySent'          => __('Reply sent successfully.', 'mhm-rentiva'),
-					'replyFailed'        => __('Failed to send reply.', 'mhm-rentiva'),
-					'messageSent'        => __('Message sent successfully.', 'mhm-rentiva'),
-					'messageFailed'      => __('Failed to send message.', 'mhm-rentiva'),
-					'sending'            => __('Sending...', 'mhm-rentiva'),
-					'sendMessage'        => __('Send Message', 'mhm-rentiva'),
-					'sendReply'          => __('Send Reply', 'mhm-rentiva'),
-					'cancel'             => __('Cancel', 'mhm-rentiva'),
-					'backToMessages'     => __('Back to Messages', 'mhm-rentiva'),
-					'newMessage'         => __('New Message', 'mhm-rentiva'),
-					'yourReply'          => __('Your Reply:', 'mhm-rentiva'),
-				),
-			)
-		);
+		// The customer-messages stylesheet + account-messages script enqueue/localize
+		// used to live here directly. Both assets are Pro-only now (messaging is a Pro
+		// feature) -- Lite no longer knows their filenames, handles, or Lite-hosted
+		// paths. Pro performs the actual enqueue itself, at the exact point this
+		// render happens, via
+		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_messages_render_assets()
+		// (WP.org T4 Phase B, Task B-A1).
+		do_action('mhm_rentiva_account_messages_render_assets', $user, $customer_name);
 
 		$data = array(
 			'user'           => $user,

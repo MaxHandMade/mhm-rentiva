@@ -876,39 +876,13 @@ final class AssetManager {
 			self::enqueue_component_js('vehicle-quick-edit');
 		}
 
-		// Messages Settings
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-messages-settings') {
-			wp_enqueue_script(
-				'mhm-messages-settings',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/messages-settings.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/messages-settings.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-messages-settings',
-				'mhmMessagesSettings',
-				array(
-					'strings' => array(
-						'enterCategoryName'     => __('Please enter a category name', 'mhm-rentiva'),
-						'categoryExists'        => __('This category already exists', 'mhm-rentiva'),
-						'confirmDeleteCategory' => __('Are you sure you want to delete this category?', 'mhm-rentiva'),
-						'enterStatusName'       => __('Please enter a status name', 'mhm-rentiva'),
-						'statusExists'          => __('This status already exists', 'mhm-rentiva'),
-						'confirmDeleteStatus'   => __('Are you sure you want to delete this status?', 'mhm-rentiva'),
-						'delete'                => __('Delete', 'mhm-rentiva'),
-						'validAdminEmail'       => __('Enter a valid admin email address', 'mhm-rentiva'),
-						'validFromEmail'        => __('Enter a valid sender email address', 'mhm-rentiva'),
-						'maxMessagesRange'      => __('Widget max messages must be between 1-20', 'mhm-rentiva'),
-						'duplicateCategory'     => __('Duplicate category names are not allowed', 'mhm-rentiva'),
-						'duplicateStatus'       => __('Duplicate status names are not allowed', 'mhm-rentiva'),
-						'formErrors'            => __('Form errors', 'mhm-rentiva'),
-						'saving'                => __('Saving...', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
+		// Messages Settings enqueue used to live here, guarded on a screen id
+		// ('mhm-rentiva_page_mhm-rentiva-messages-settings') that no page has
+		// registered since the tabbed settings refactor -- the real Messages
+		// Settings screen is `page=mhm-rentiva-settings&tab=messages`, which
+		// \MHMRentiva\Admin\Settings\View\Tabs\MessagesSettingsRenderer (Pro) owns
+		// and enqueues its own assets for. This block never fired; removed as part
+		// of the Pro-feature asset carve-out (WP.org T4 Phase B, Task B-A1).
 
 		// Booking Calendar
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view selection from query string.
@@ -1278,79 +1252,18 @@ final class AssetManager {
 			);
 		}
 
-		// Message List
-		if ($screen->id === 'edit-message' || $screen->post_type === 'message') {
-			wp_enqueue_script(
-				'mhm-message-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/message-list.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/message-list.js'),
-				true
-			);
+		// Message List enqueue used to live here, guarded on
+		// `$screen->post_type === 'message'` -- but the `message` CPT Pro actually
+		// registers is `mhm_message` (see \MHMRentiva\Admin\PostTypes\Message\Message
+		// ::POST_TYPE in Pro), so this guard never matched and the block never
+		// fired. Removed as part of the Pro-feature asset carve-out (WP.org T4
+		// Phase B, Task B-A1) along with the file it enqueued.
 
-			wp_localize_script(
-				'mhm-message-list',
-				'mhm_message_list_vars',
-				array(
-					'ajax_url'            => admin_url('admin-ajax.php'),
-					'nonce'               => wp_create_nonce('mhm_message_list_nonce'),
-					'no_items_selected'   => __('Please select at least one item', 'mhm-rentiva'),
-					'items_selected'      => __('selected', 'mhm-rentiva'),
-					'confirm_mark_read'   => __('Mark selected messages as read?', 'mhm-rentiva'),
-					'confirm_mark_unread' => __('Mark selected messages as unread?', 'mhm-rentiva'),
-					'confirm_delete'      => __('Delete selected messages? This action cannot be undone.', 'mhm-rentiva'),
-					'processing'          => __('Processing...', 'mhm-rentiva'),
-					'error_occurred'      => __('An error occurred', 'mhm-rentiva'),
-					'strings'             => array(
-						'quickReply'      => __('Quick Reply', 'mhm-rentiva'),
-						'yourReply'       => __('Your Reply', 'mhm-rentiva'),
-						'send'            => __('Send', 'mhm-rentiva'),
-						'cancel'          => __('Cancel', 'mhm-rentiva'),
-						'selectNewStatus' => __('Select new status:\n1. pending\n2. answered\n3. closed\n4. spam', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
-		// Export Page
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-export') {
-			wp_enqueue_style(
-				'mhm-export',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/export.css',
-				array( 'mhm-core-css' ),
-				MHM_RENTIVA_VERSION
-			);
-
-			wp_enqueue_script(
-				'mhm-export',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/export.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/export.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-export',
-				'mhmExport',
-				array(
-					'ajax_url' => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhm_export_nonce'),
-					'strings'  => array(
-						'loading'         => __('Loading...', 'mhm-rentiva'),
-						'error'           => __('An error occurred', 'mhm-rentiva'),
-						'success'         => __('Operation successful', 'mhm-rentiva'),
-						'confirm'         => __('Are you sure?', 'mhm-rentiva'),
-						'processing'      => __('Processing...', 'mhm-rentiva'),
-						'exportStarted'   => __('Export process started', 'mhm-rentiva'),
-						'exportCompleted' => __('Export completed successfully', 'mhm-rentiva'),
-						'exportFailed'    => __('Export failed', 'mhm-rentiva'),
-						'filtersApplied'  => __('Filters applied successfully', 'mhm-rentiva'),
-						'filtersReset'    => __('Filters reset successfully', 'mhm-rentiva'),
-						'viewDetails'     => __('View Details', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
+		// Export Page enqueue (legacy 'mhm-export' handle/CSS/JS) used to live
+		// here. The Export admin screen is Pro-only; Pro's own
+		// \MHMRentiva\Admin\Utilities\Export\Export::enqueue_scripts() now enqueues
+		// this handle itself from its own plugin directory, alongside the React
+		// bundle it already served (WP.org T4 Phase B, Task B-A1).
 
 		// Booking Meta
 		if ($screen->id === 'booking' || $screen->post_type === 'booking') {

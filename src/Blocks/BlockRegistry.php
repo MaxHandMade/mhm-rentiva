@@ -299,12 +299,14 @@ class BlockRegistry {
 
 		foreach (self::get_block_config() as $slug => $config) {
 			// A contributor's `assets/blocks/<slug>/` (block.json, editor script)
-			// may live outside this plugin -- e.g. Pro's own blocks ship from the
-			// Pro add-on. Default to Lite's own constants so Lite's blocks are
-			// unaffected. NOTE: block-level CSS (below) intentionally keeps
-			// resolving from THIS plugin's URL regardless of base_url -- those
-			// stylesheets are not part of the asset dirs a contributor moves, and
-			// Pro's own shortcode classes already assume they stay Lite-hosted.
+			// AND its block-level CSS (below) may live outside this plugin -- e.g.
+			// Pro's own blocks ship from the Pro add-on. Default to Lite's own
+			// constants so Lite's blocks are unaffected. Block-level CSS used to
+			// resolve from THIS plugin's URL regardless of base_url, on the theory
+			// that a contributor's stylesheets stayed Lite-hosted; that stopped
+			// being true once Pro's own CSS carve-out moved those files out of
+			// Lite, so CSS now honours base_url exactly like the editor script does
+			// (WP.org T4 Phase B, Task B-A1; mirrors Task A1's script handling).
 			$base_url = $config['base_url'] ?? MHM_RENTIVA_PLUGIN_URL;
 			$base_dir = $config['base_dir'] ?? MHM_RENTIVA_PLUGIN_DIR;
 
@@ -347,9 +349,9 @@ class BlockRegistry {
 					$path = ( strpos($css_file, 'assets/') === 0 ) ? $css_file : 'assets/css/frontend/' . $css_file;
 					wp_register_style(
 						$style_handle,
-						MHM_RENTIVA_PLUGIN_URL . $path,
+						$base_url . $path,
 						$deps,
-						MHM_RENTIVA_VERSION
+						self::get_asset_version($path, $base_dir)
 					);
 				}
 

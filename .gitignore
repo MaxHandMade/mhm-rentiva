@@ -83,6 +83,13 @@ wp-content/uploads/
 *.min.css.map
 *.min.js.map
 build/
+# NOT the compiled-assets directory above -- tests/Unit/Build/ is a PHPUnit
+# test namespace (WP.org T4 Phase B, Task B-A1's NoProFeatureAssetsTest.php).
+# `build/` has no leading slash, so with core.ignorecase=true (this repo's
+# Windows checkouts) it also matches any path ending in a case-insensitive
+# "build" segment, including this one; un-ignore it explicitly.
+!tests/Unit/Build/
+!tests/Unit/Build/**
 !build/admin/dashboard.js
 !build/admin/dashboard.asset.php
 !build/admin/dashboard.css

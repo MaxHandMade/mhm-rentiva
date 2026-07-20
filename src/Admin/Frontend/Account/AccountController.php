@@ -115,7 +115,17 @@ final class AccountController {
 		add_rewrite_endpoint(self::get_endpoint_slug('bookings', 'rentiva-bookings'), EP_ROOT | EP_PAGES);
 		add_rewrite_endpoint(self::get_endpoint_slug('favorites', 'rentiva-favorites'), EP_ROOT | EP_PAGES);
 		add_rewrite_endpoint(self::get_endpoint_slug('payment_history', 'rentiva-payment-history'), EP_ROOT | EP_PAGES);
-		add_rewrite_endpoint(self::get_endpoint_slug('messages', 'rentiva-messages'), EP_ROOT | EP_PAGES);
+
+		// The 'messages' endpoint used to register here unconditionally. Messaging
+		// is a Pro-only feature (the `message` CPT only exists when Pro is active),
+		// so Pro now registers its own endpoint via `mhm_rentiva_account_endpoints`
+		// -- Lite carries no knowledge of the messages endpoint slug any more (WP.org
+		// T4 Phase B, Task B-A1).
+		foreach ( (array) apply_filters('mhm_rentiva_account_endpoints', array()) as $extra_endpoint) {
+			if (is_string($extra_endpoint) && '' !== $extra_endpoint) {
+				add_rewrite_endpoint($extra_endpoint, EP_ROOT | EP_PAGES);
+			}
+		}
 	}
 
 
@@ -130,8 +140,6 @@ final class AccountController {
 		// Enqueue Notifications (v1.3.3)
 		wp_enqueue_style('mhm-rentiva-notifications');
 
-		// Check if we're on messages endpoint - dequeue customer-messages scripts
-		$messages_slug = self::get_endpoint_slug('messages', 'rentiva-messages');
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only endpoint hint used only for conditional asset loading.
 		$endpoint = get_query_var('endpoint');
 		if (! is_string($endpoint) || '' === $endpoint) {
@@ -139,82 +147,13 @@ final class AccountController {
 		}
 		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
-		// Check both logical name and dynamic slug query var
-		if ($endpoint === 'messages' || get_query_var($messages_slug) !== '' || apply_filters('mhm_rentiva_force_messages_assets', false)) {
-			// Prevent customer-messages.js from loading (we use REST API in template)
-			add_action(
-				'wp_enqueue_scripts',
-				function () {
-					wp_dequeue_script('mhm-customer-messages');
-					wp_dequeue_script('mhm-customer-messages-standalone');
-					wp_deregister_script('mhm-customer-messages');
-					wp_deregister_script('mhm-customer-messages-standalone');
-				},
-				999
-			);
-
-			// Enqueue Account Messages JS (filemtime-based version avoids stale browser cache during dev).
-			$account_messages_js_path = MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/account-messages.js';
-			$account_messages_js_ver  = file_exists($account_messages_js_path)
-				? MHM_RENTIVA_VERSION . '.' . filemtime($account_messages_js_path)
-				: MHM_RENTIVA_VERSION;
-			wp_enqueue_script(
-				'mhm-rentiva-account-messages',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-messages.js',
-				array( 'jquery' ),
-				$account_messages_js_ver,
-				true
-			);
-
-			// Enqueue Dashicons for password toggles
-			wp_enqueue_style('dashicons');
-
-			// Localize Account Messages JS
-			$current_user  = wp_get_current_user();
-			$customer_name = $current_user->display_name;
-			if (! $customer_name) {
-				$customer_name = $current_user->user_login;
-			}
-			wp_localize_script(
-				'mhm-rentiva-account-messages',
-				'mhmRentivaMessages',
-				array(
-					'restUrl'       => rest_url('mhm-rentiva/v1/'),
-					'restNonce'     => wp_create_nonce('wp_rest'),
-					'customerEmail' => $current_user->user_email,
-					'customerName'  => $customer_name,
-					'i18n'          => array(
-						'threadIdNotFound'   => __('Thread ID not found.', 'mhm-rentiva'),
-						'confirmClose'       => __('Are you sure you want to close this conversation? You won\'t be able to send more messages.', 'mhm-rentiva'),
-						'closing'            => __('Closing...', 'mhm-rentiva'),
-						'messageClosed'      => __('Message closed successfully.', 'mhm-rentiva'),
-						'closeFailed'        => __('Failed to close message.', 'mhm-rentiva'),
-						'loadingMessages'    => __('Loading messages...', 'mhm-rentiva'),
-						'noMessages'         => __('No messages found yet.', 'mhm-rentiva'),
-						'loadFailed'         => __('Failed to load messages.', 'mhm-rentiva'),
-						'loginRequired'      => __('Please login to access your messages.', 'mhm-rentiva'),
-						'permissionDenied'   => __('You do not have permission to access messages.', 'mhm-rentiva'),
-						'new'                => __('New', 'mhm-rentiva'),
-						'customer'           => __('Customer', 'mhm-rentiva'),
-						'administrator'      => __('Administrator', 'mhm-rentiva'),
-						'you'                => __('You', 'mhm-rentiva'),
-						'loadingThread'      => __('Loading thread...', 'mhm-rentiva'),
-						'threadLoadFailed'   => __('Failed to load thread.', 'mhm-rentiva'),
-						'noMessagesFound'    => __('No messages found.', 'mhm-rentiva'),
-						'closeMessage'       => __('Close Message', 'mhm-rentiva'),
-						'conversationClosed' => __('This conversation is closed.', 'mhm-rentiva'),
-						'fillRequired'       => __('Please fill in all required fields.', 'mhm-rentiva'),
-						'sending'            => __('Sending...', 'mhm-rentiva'),
-						'messageSent'        => __('Message sent successfully.', 'mhm-rentiva'),
-						'messageSendFailed'  => __('Message could not be sent.', 'mhm-rentiva'),
-						'errorOccurred'      => __('An error occurred. Please try again.', 'mhm-rentiva'),
-						'enterReply'         => __('Please enter your reply.', 'mhm-rentiva'),
-						'replySent'          => __('Reply sent successfully.', 'mhm-rentiva'),
-						'replyFailed'        => __('Failed to send reply.', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
+		// The messages-endpoint asset enqueue (dequeue guard + the account-messages
+		// script + localize) used to live here unconditionally. Messaging is a Pro-only
+		// feature -- Lite carries no knowledge of its assets or handles any more.
+		// Pro hooks `wp_enqueue_scripts` itself (see
+		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_messages_assets())
+		// and repeats the same endpoint detection independently (WP.org T4 Phase B,
+		// Task B-A1).
 
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');

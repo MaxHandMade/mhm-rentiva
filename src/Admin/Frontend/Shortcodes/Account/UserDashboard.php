@@ -219,12 +219,12 @@ final class UserDashboard {
 			MHM_RENTIVA_VERSION
 		);
 
-		wp_enqueue_style(
-			'mhm-rentiva-vendor-forms',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vendor-forms.css',
-			array(),
-			MHM_RENTIVA_VERSION
-		);
+		// The vendor-forms stylesheet enqueue used to live here directly. It styles the
+		// vendor-application/vendor-panel markup Pro renders into this page (the
+		// vendor marketplace is Pro-only) -- Lite no longer ships the file or knows
+		// its handle. Pro enqueues it itself on this same page (see
+		// \MHMRentiva\Pro\Extensions\AccountExtensions::enqueue_vendor_forms_css())
+		// (WP.org T4 Phase B, Task B-A1).
 
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
 		wp_enqueue_style('select2', null); // WC registers this
