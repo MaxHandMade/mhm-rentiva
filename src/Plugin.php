@@ -197,48 +197,6 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory')) {
 			\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
 		}
-
-		// Vendor onboarding applications.
-		if (class_exists('\MHMRentiva\Admin\Vendor\PostType\VendorApplication')) {
-			\MHMRentiva\Admin\Vendor\PostType\VendorApplication::register();
-		}
-
-		// Vendor media isolation — restrict media library to own uploads.
-		if (class_exists('\MHMRentiva\Admin\Vendor\VendorMediaIsolation')) {
-			\MHMRentiva\Admin\Vendor\VendorMediaIsolation::register();
-		}
-
-		// Vendor ownership enforcement — deny editing/deleting other vendors' vehicles.
-		if (class_exists('\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer')) {
-			\MHMRentiva\Admin\Vendor\VendorOwnershipEnforcer::register();
-		}
-
-		// Vendor vehicle review — trigger re-review when vendor edits critical fields.
-		if (class_exists('\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager')) {
-			\MHMRentiva\Admin\Vendor\VendorVehicleReviewManager::register();
-		}
-
-		// Vendor email notifications — hook into vendor/vehicle lifecycle actions.
-		if (class_exists('\MHMRentiva\Admin\Emails\Notifications\VendorNotifications')) {
-			\MHMRentiva\Admin\Emails\Notifications\VendorNotifications::register();
-		}
-
-		if (class_exists('\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler')) {
-			\MHMRentiva\Admin\VendorReport\Ajax\VendorReportAjaxHandler::register();
-		}
-
-		if (class_exists('\MHMRentiva\Admin\VendorReport\VendorReportAssets')) {
-			\MHMRentiva\Admin\VendorReport\VendorReportAssets::register();
-		}
-
-		if (class_exists('\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage')) {
-			\MHMRentiva\Admin\VendorReport\Admin\VendorReportsAdminPage::register();
-		}
-
-		// Anti-gaming: block dates when vendor cancels a confirmed booking.
-		if (class_exists('\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker')) {
-			\MHMRentiva\Admin\Vehicle\VendorCancellationDateBlocker::register();
-		}
 	}
 
 	/**
@@ -330,11 +288,6 @@ final class Plugin {
 		}
 
 		// Maintenance (Moved to initialize_core_services for all-context support)
-
-		// Vendor Applications admin page (Pro only)
-		if (class_exists('\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage')) {
-			\MHMRentiva\Admin\Vendor\AdminVendorApplicationsPage::register();
-		}
 
 		// Setup Wizard
 		if ($this->is_class_available('MHMRentiva\Admin\Setup\SetupWizard')) {
@@ -456,12 +409,6 @@ final class Plugin {
 		// false, so initialize_admin_services() is skipped entirely).
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Settings\\ShortcodePages\\REST\\ShortcodePagesController')) {
 			\MHMRentiva\Admin\Settings\ShortcodePages\REST\ShortcodePagesController::register();
-		}
-		if (class_exists('\\MHMRentiva\\Admin\\VendorReport\\REST\\VendorReportsController')) {
-			\MHMRentiva\Admin\VendorReport\REST\VendorReportsController::register();
-		}
-		if (class_exists('\\MHMRentiva\\Admin\\Vendor\\REST\\VendorManagementRestController')) {
-			\MHMRentiva\Admin\Vendor\REST\VendorManagementRestController::register();
 		}
 
 		// Email Logs

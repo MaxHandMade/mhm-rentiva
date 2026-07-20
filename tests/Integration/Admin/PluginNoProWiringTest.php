@@ -140,6 +140,55 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         }
     }
 
+    /**
+     * Audit finding M2: Plugin.php carried ~12 `class_exists('<Pro vendor
+     * class>')` init blocks (VendorApplication, VendorMediaIsolation,
+     * VendorOwnershipEnforcer, VendorVehicleReviewManager,
+     * VendorNotifications, the VendorReport trio, VendorCancellationDateBlocker,
+     * AdminVendorApplicationsPage, VendorReportsController,
+     * VendorManagementRestController) that duplicated Pro's own
+     * Bootstrap::register_vendor()/register_vendor_reports() wiring. They were
+     * runtime-safe (WP de-dups hooks; Pro classes self-gate on Edition) but
+     * were dead Lite→Pro wiring left over from before the seam inversion --
+     * the last of the kind after H3 removed HealthController/
+     * IntegrityVerificationJob. Every one of these classes is registered
+     * exclusively by Pro's Bootstrap now.
+     */
+    public function test_plugin_php_no_longer_wires_pro_vendor_classes(): void
+    {
+        $src = $this->plugin_php_source();
+
+        foreach (
+            array(
+                'VendorApplication',
+                'VendorMediaIsolation',
+                'VendorOwnershipEnforcer',
+                'VendorVehicleReviewManager',
+                'VendorNotifications',
+                'VendorReportAjaxHandler',
+                'VendorReportAssets',
+                'VendorReportsAdminPage',
+                'VendorCancellationDateBlocker',
+                'AdminVendorApplicationsPage',
+                'VendorReportsController',
+                'VendorManagementRestController',
+            ) as $class
+        ) {
+            $this->assertStringNotContainsString(
+                $class,
+                $src,
+                "Plugin.php must not reference {$class} -- moved to Pro's own "
+                . 'Bootstrap::register_vendor()/register_vendor_reports() (audit finding M2).'
+            );
+        }
+
+        // Positive control: Lite's own vendor ROLE registration (not the Pro
+        // vendor FEATURE classes above) must survive, or the whole
+        // initialize_post_types()/initialize_admin_services() block could have
+        // been deleted wholesale rather than surgically edited.
+        $this->assertStringContainsString('register_vendor_role', $src);
+    }
+
     public function test_main_file_no_longer_calls_license_manager_deactivation(): void
     {
         $src = $this->main_file_source();
@@ -232,6 +281,34 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         $this->assertFalse(
             wp_next_scheduled('mhm_rentiva_daily_integrity_check'),
             'A standalone Lite install must never schedule the Pro IntegrityVerificationJob cron.'
+        );
+    }
+
+    /**
+     * Audit finding M2 behavioural half: the source-grep in
+     * test_plugin_php_no_longer_wires_pro_vendor_classes() pins that Plugin.php
+     * names none of the 12 vendor classes, but (per this file's own docblock,
+     * ~:23-35) a string-grep alone cannot catch an ungated re-registration of
+     * the same class reached from a DIFFERENT autoload path. This is the
+     * runtime proxy: VendorReportsController::register_routes() (Pro's
+     * REST_NAMESPACE 'mhm-rentiva/v1' + BASE '/vendor-reports') must not
+     * appear on a standalone Lite boot regardless of which file tried to wire
+     * it. If Plugin.php's deleted class_exists() block were reintroduced (or
+     * reintroduced elsewhere) while the class were somehow autoloadable, this
+     * would go from PASS to FAIL by picking up the extra route -- see the two
+     * adjacent tests (`test_no_transfer_locations_rest_route_is_registered`,
+     * `test_no_health_rest_route_is_registered`) for the same pattern.
+     */
+    public function test_no_vendor_reports_rest_route_is_registered(): void
+    {
+        do_action('rest_api_init');
+        $routes = rest_get_server()->get_routes();
+
+        $this->assertArrayNotHasKey(
+            '/mhm-rentiva/v1/vendor-reports',
+            $routes,
+            'A standalone Lite install must not expose the Pro vendor-reports REST route '
+            . '(audit finding M2).'
         );
     }
 }
