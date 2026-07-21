@@ -27,8 +27,13 @@ $normalize_toggle = function ($val) {
 };
 
 // Toggle States
-$show_image       = $normalize_toggle($atts['show_image'] ?? true);
-$show_features    = $normalize_toggle($atts['show_features'] ?? true);
+$show_image = $normalize_toggle($atts['show_image'] ?? true);
+// Card items arrive as one list but carry a `type`. Vehicle *details* (seats,
+// transmission, fuel, year …) read as a compact spec line, while features,
+// equipment and taxonomy terms read as chips. They are toggled separately so a
+// card can keep the at-a-glance specs without the chip cluster.
+$show_specs       = $normalize_toggle($atts['show_specs'] ?? true);
+$show_features    = $normalize_toggle($atts['show_features'] ?? false);
 $show_price       = $normalize_toggle($atts['show_price'] ?? true);
 $show_title       = $normalize_toggle($atts['show_title'] ?? true);
 $show_rating      = $normalize_toggle($atts['show_rating'] ?? true);
@@ -51,9 +56,24 @@ $status_text   = $vehicle['availability']['text'] ?? '';
 $is_featured   = $vehicle['is_featured'] ?? false;
 $is_favorite   = $vehicle['is_favorite'] ?? false;
 $features      = $vehicle['features'] ?? array();
-$rating_avg    = (float) ( $vehicle['rating']['average'] ?? 0 );
-$rating_count  = intval($vehicle['rating']['count'] ?? 0);
-$rating_stars  = $vehicle['rating']['stars'] ?? '';
+
+// Partition the card items (see $show_specs / $show_features above). Items with
+// no type fall back to the chip list, which is how they rendered before.
+$spec_items = array();
+$chip_items = array();
+foreach ($features as $card_item) {
+	if (! is_array($card_item)) {
+		continue;
+	}
+	if (( $card_item['type'] ?? '' ) === 'detail') {
+		$spec_items[] = $card_item;
+	} else {
+		$chip_items[] = $card_item;
+	}
+}
+$rating_avg   = (float) ( $vehicle['rating']['average'] ?? 0 );
+$rating_count = intval($vehicle['rating']['count'] ?? 0);
+$rating_stars = $vehicle['rating']['stars'] ?? '';
 
 // Visibility Bridges
 $show_fav      = $normalize_toggle($atts['show_favorite_button'] ?? ( $atts['show_favorite_btn'] ?? true ));

@@ -172,12 +172,55 @@ if (! $is_available) {
                 </div>
             <?php endif; ?>
 
-            <?php if ($show_features && ! empty($features)) : ?>
+            <?php
+            // Vehicle details (seats, transmission, fuel …) read as a compact
+            // spec line — the at-a-glance row directly under the title.
+            if ($show_specs && ! empty($spec_items)) :
+                ?>
+                <div class="mhm-card-specs" data-testid="mhm-vehicle-specs">
+                    <?php
+                    $spec_limit = 4;
+                    $spec_count = 0;
+                    foreach ($spec_items as $spec) :
+                        if ($spec_count >= $spec_limit) {
+                            break;
+                        }
+                        $spec_label = (string) ( $spec['text'] ?? $spec['value'] ?? '' );
+                        if ($spec_label === '') {
+                            continue;
+                        }
+                        $spec_svg = isset($spec['svg']) ? (string) $spec['svg'] : '';
+                        if ($spec_svg !== '') {
+                            $replaced_spec_svg = preg_replace('/<svg\b/', '<svg aria-hidden="true" focusable="false"', $spec_svg, 1);
+                            $spec_svg          = $replaced_spec_svg ? $replaced_spec_svg : $spec_svg;
+                        }
+                        ?>
+                        <span class="mhm-spec-item">
+                            <?php
+                            if ($spec_svg !== '') {
+                                echo wp_kses($spec_svg, $allowed_svg);
+                            }
+                            ?>
+                            <?php echo esc_html($spec_label); ?>
+                        </span>
+                        <?php
+                        ++$spec_count;
+                    endforeach;
+                    ?>
+                </div>
+            <?php endif; ?>
+
+            <?php
+            // Features / equipment / taxonomy terms read as chips. Off by
+            // default so the card leads with price and specs; switch on per
+            // instance with show_features="1".
+            ?>
+            <?php if ($show_features && ! empty($chip_items)) : ?>
                 <div class="mhm-card-features">
                     <?php
                     $limit = 6;
                     $count = 0;
-                    foreach ($features as $feature) :
+                    foreach ($chip_items as $feature) :
                         if ($count >= $limit) {
                             break;
                         }
