@@ -981,33 +981,30 @@
 	padding-top: 11px;
 }
 
-/* Price and button share one row while they fit, and the button drops to its
-   own full-width line when they don't. Grid only — the list layout already
-   has its own row rules further up.
-   The `flex: 1 1 120px` basis is the whole mechanism: no media or container
-   query can know the card's column width, the translated button text and the
-   formatted price at once, and a hard row breaks on exactly that combination
-   (a longer label overflowed the list footer once already). */
+/* Price above, full-width button below — always, in every grid card.
+   Grid only; the list layout has its own row rules further up.
+
+   This deliberately does not try to share a row when there is space. A
+   wrapping row decides per card, and the deciding factor is the *price
+   string*: cards in one row wrapped differently because "$850" fits beside
+   the label and "$2.800" does not, so a row of otherwise identical cards
+   came out ragged. Stacking is decided by structure rather than content, so
+   every card in a grid agrees — and the label can never be squeezed or
+   overflow, whatever the translation. */
 .mhm-vehicle-card.mhm-card--grid .mhm-card-footer {
 	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
+	flex-direction: column;
+	align-items: stretch;
 	gap: 10px;
 }
 
-.mhm-vehicle-card.mhm-card--grid .mhm-btn-booking {
-	width: auto;
-	flex: 1 1 auto;
+.mhm-vehicle-card.mhm-card--grid .mhm-card-price {
 	justify-content: center;
+}
 
-	/* Never let the label be squeezed narrower than itself — the row wraps
-	   first, so the button drops to its own full-width line instead of the
-	   text spilling out of it. `max-width` keeps that promise even when the
-	   label is longer than the card, and `normal` lets it break onto a second
-	   line as the last resort rather than overflow. */
-	min-width: max-content;
-	max-width: 100%;
+.mhm-vehicle-card.mhm-card--grid .mhm-btn-booking {
+	width: 100%;
+	justify-content: center;
 	white-space: normal;
 }
 
