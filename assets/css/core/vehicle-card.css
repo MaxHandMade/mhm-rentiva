@@ -981,6 +981,36 @@
 	padding-top: 11px;
 }
 
+/* Price and button share one row while they fit, and the button drops to its
+   own full-width line when they don't. Grid only — the list layout already
+   has its own row rules further up.
+   The `flex: 1 1 120px` basis is the whole mechanism: no media or container
+   query can know the card's column width, the translated button text and the
+   formatted price at once, and a hard row breaks on exactly that combination
+   (a longer label overflowed the list footer once already). */
+.mhm-vehicle-card.mhm-card--grid .mhm-card-footer {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.mhm-vehicle-card.mhm-card--grid .mhm-btn-booking {
+	width: auto;
+	flex: 1 1 auto;
+	justify-content: center;
+
+	/* Never let the label be squeezed narrower than itself — the row wraps
+	   first, so the button drops to its own full-width line instead of the
+	   text spilling out of it. `max-width` keeps that promise even when the
+	   label is longer than the card, and `normal` lets it break onto a second
+	   line as the last resort rather than overflow. */
+	min-width: max-content;
+	max-width: 100%;
+	white-space: normal;
+}
+
 .mhm-vehicle-card .mhm-price-amount {
 	font-family: var(--rv-display);
 	font-size: 24px;
