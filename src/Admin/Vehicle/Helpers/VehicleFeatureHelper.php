@@ -70,6 +70,37 @@ final class VehicleFeatureHelper {
 	}
 
 	/**
+	 * Is a field currently active (in use), for RENDER decisions.
+	 *
+	 * Details are active when core or selected in mhm_selected_details; features/equipment
+	 * when selected in their mhm_selected_* option. Taxonomy and unknown types pass through
+	 * (D5 dormant taxonomy is unchanged). This mirrors get_available_fields_map()'s detail
+	 * gating but is a standalone predicate so it can gate feature/equipment rendering without
+	 * touching the (save-side) availability map.
+	 */
+	public static function is_field_active( string $type, string $key ): bool
+	{
+		switch ( $type ) {
+			case self::TYPE_DETAIL:
+				if ( in_array( $key, self::get_core_fields(), true ) ) {
+					return true;
+				}
+				$selected = (array) get_option( 'mhm_selected_details', VehicleSettings::get_default_selected_details() );
+				break;
+			case self::TYPE_FEATURE:
+				$selected = (array) get_option( 'mhm_selected_features', VehicleSettings::get_default_selected_features() );
+				break;
+			case self::TYPE_EQUIPMENT:
+				$selected = (array) get_option( 'mhm_selected_equipment', VehicleSettings::get_default_selected_equipment() );
+				break;
+			default:
+				return true; // taxonomy (D5) and unknown types are never hidden here
+		}
+
+		return in_array( $key, array_map( 'strval', $selected ), true );
+	}
+
+	/**
 	 * Get list of STANDARD ATTRIBUTE fields that are optional and removable.
 	 * These defaults are for "Car Rental" mode but can be removed for other use cases.
 	 *
