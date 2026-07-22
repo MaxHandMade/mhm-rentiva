@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
+use MHMRentiva\Core\Services\TrendMath;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -174,6 +176,113 @@ final class DashboardService {
 			'total_customers_this_month' => $total_customers_this_month,
 			'total_customers_all_time'   => $total_customers_all_time,
 			'new_customers_this_month'   => $new_customers_this_month,
+		);
+	}
+
+	/**
+	 * Period-over-period deltas for the dashboard stat cards.
+	 *
+	 * @return array<string,array{format:string,value:int,direction:string}>
+	 */
+	public static function get_metric_deltas(): array {
+		$current_start  = gmdate( 'Y-m-01 00:00:00' );
+		$current_end    = gmdate( 'Y-m-t 23:59:59' );
+		$previous_start = gmdate( 'Y-m-01 00:00:00', strtotime( 'first day of last month' ) );
+		$previous_end   = gmdate( 'Y-m-t 23:59:59', strtotime( 'last day of last month' ) );
+
+		return array(
+			'bookings'  => self::shape_delta(
+				self::count_bookings_between( $current_start, $current_end ),
+				self::count_bookings_between( $previous_start, $previous_end )
+			),
+			'revenue'   => self::shape_delta(
+				(int) round( self::sum_revenue_between( $current_start, $current_end ) ),
+				(int) round( self::sum_revenue_between( $previous_start, $previous_end ) )
+			),
+			'customers' => self::shape_delta(
+				self::count_new_customers_between( $current_start, $current_end ),
+				self::count_new_customers_between( $previous_start, $previous_end )
+			),
+		);
+	}
+
+	/**
+	 * Turn a current/previous pair into a render-ready delta, applying the
+	 * mixed-format rule: pct when previous>0, abs when only current>0, else neutral.
+	 *
+	 * @return array{format:string,value:int,direction:string}
+	 */
+	private static function shape_delta( int $current, int $previous ): array {
+		if ( $previous > 0 ) {
+			$t = TrendMath::calculate_trend_from_totals( $current, $previous );
+			return array(
+				'format'    => 'pct',
+				'value'     => $t['trend'],
+				'direction' => $t['direction'],
+			);
+		}
+		if ( $current > 0 ) {
+			return array(
+				'format'    => 'abs',
+				'value'     => $current,
+				'direction' => 'up',
+			);
+		}
+		return array(
+			'format'    => 'neutral',
+			'value'     => 0,
+			'direction' => 'none',
+		);
+	}
+
+	private static function count_bookings_between( string $start, string $end ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+                 WHERE post_type = 'vehicle_booking'
+                 AND post_status IN ('publish','private','pending') AND post_status != 'trash'
+                 AND post_date >= %s AND post_date <= %s",
+				$start,
+				$end
+			)
+		);
+	}
+
+	private static function sum_revenue_between( string $start, string $end ): float {
+		global $wpdb;
+		return (float) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
+                 WHERE p.post_type = 'vehicle_booking'
+                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
+                 AND p.post_date >= %s AND p.post_date <= %s
+                 AND pm.meta_key = '_mhm_total_price'
+                 AND pm_status.meta_key = '_mhm_status'
+                 AND pm_status.meta_value IN ('completed','confirmed')",
+				$start,
+				$end
+			)
+		);
+	}
+
+	private static function count_new_customers_between( string $start, string $end ): int {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT pm_email.meta_value)
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhm_customer_email'
+                 WHERE p.post_type = 'vehicle_booking'
+                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
+                 AND p.post_date >= %s AND p.post_date <= %s
+                 AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
+				$start,
+				$end
+			)
 		);
 	}
 
