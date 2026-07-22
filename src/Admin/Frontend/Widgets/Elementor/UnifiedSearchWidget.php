@@ -104,23 +104,14 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 				'options' => array(
 					'horizontal' => __( 'Horizontal (Full)', 'mhm-rentiva' ),
 					'vertical'   => __( 'Vertical (Sidebar)', 'mhm-rentiva' ),
-					'compact'    => __( 'Compact', 'mhm-rentiva' ),
 				),
 			)
 		);
 
-		$this->add_control(
-			'style',
-			array(
-				'label'   => __( 'Design Style', 'mhm-rentiva' ),
-				'type'    => 'select',
-				'default' => 'glass',
-				'options' => array(
-					'glass' => __( 'Glassmorphism', 'mhm-rentiva' ),
-					'solid' => __( 'Solid', 'mhm-rentiva' ),
-				),
-			)
-		);
+		// A 'Design Style' select (Glassmorphism / Solid) and a third 'Compact'
+		// layout used to live here. Neither had a stylesheet behind it, so every
+		// choice rendered identically -- controls that promised a change and
+		// delivered none. Both are gone rather than left in the panel.
 
 		$this->add_control(
 			'default_tab',
@@ -205,7 +196,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		}
 
 		$atts['layout']      = $settings['layout'];
-		$atts['style']       = $settings['style'];
 		$atts['default_tab'] = $settings['default_tab'];
 
 		$atts['show_location_select'] = ( $settings['show_location_select'] === 'yes' ) ? '1' : '0';
@@ -226,8 +216,9 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		// Render shortcode output
 		$shortcode_output = $this->render_shortcode( 'rentiva_unified_search', $atts );
 
-		// Output widget wrapper
-		printf( '<div class="elementor-widget-rv-unified-search rv-style--%s">', esc_attr( $settings['style'] ) );
+		// Output widget wrapper. The wrapper used to carry an `rv-style--{glass|solid}`
+		// class from the removed Design Style control; no stylesheet ever matched it.
+		echo '<div class="elementor-widget-rv-unified-search">';
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $shortcode_output;
 		echo '</div>';

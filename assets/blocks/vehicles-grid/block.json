@@ -98,10 +98,6 @@
             "type": "string",
             "default": ""
         },
-        "filterBrands": {
-            "type": "string",
-            "default": ""
-        },
         "sortBy": {
             "type": "string",
             "default": "title",
@@ -158,10 +154,6 @@
         "showDescription": {
             "type": "boolean",
             "default": false
-        },
-        "enableLazyLoad": {
-            "type": "boolean",
-            "default": true
         },
         "imageSize": {
             "type": "string",

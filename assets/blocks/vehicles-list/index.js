@@ -59,12 +59,6 @@
                             onChange: function (val) { setAttributes({ filterCategories: val }); }
                         }),
                         el(TextControl, {
-                            label: __('Filter Brands (IDs)', 'mhm-rentiva'),
-                            value: attributes.filterBrands,
-                            help: __('Comma-separated list of brand IDs.', 'mhm-rentiva'),
-                            onChange: function (val) { setAttributes({ filterBrands: val }); }
-                        }),
-                        el(TextControl, {
                             label: __('Min Rating (1-5)', 'mhm-rentiva'),
                             value: attributes.minRating,
                             type: 'number',
@@ -132,11 +126,6 @@
                             label: __('Show Favorite Button', 'mhm-rentiva'),
                             checked: attributes.showFavoriteButton,
                             onChange: function (val) { setAttributes({ showFavoriteButton: val }); }
-                        }),
-                        el(ToggleControl, {
-                            label: __('Show Filters', 'mhm-rentiva'),
-                            checked: attributes.enableAjaxFiltering,
-                            onChange: function (val) { setAttributes({ enableAjaxFiltering: val }); }
                         }),
                         el(ToggleControl, {
                             label: __('Show Compare Button', 'mhm-rentiva'),

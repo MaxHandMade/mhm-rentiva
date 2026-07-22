@@ -61,12 +61,6 @@
                             value: attributes.filterCategories,
                             help: __('Comma separated IDs', 'mhm-rentiva'),
                             onChange: function (val) { setAttributes({ filterCategories: val }); }
-                        }),
-                        el(TextControl, {
-                            label: __('Filter Brands (IDs)', 'mhm-rentiva'),
-                            value: attributes.filterBrands,
-                            help: __('Comma separated IDs', 'mhm-rentiva'),
-                            onChange: function (val) { setAttributes({ filterBrands: val }); }
                         })
                     ),
 

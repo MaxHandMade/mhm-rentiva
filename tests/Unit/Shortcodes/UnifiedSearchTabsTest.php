@@ -66,7 +66,6 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     {
         $defaults = array(
             'default_tab'           => 'default',
-            'default_tab_alias'     => 'defaultTab',
             'show_rental_tab'       => 'default',
             'show_location_select'  => 'default',
             'show_time_select'      => 'default',
@@ -79,7 +78,6 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
             'redirect_page'         => 'default',
             'layout'                => 'horizontal',
             'search_layout'         => '',
-            'style'                 => 'glass',
         );
 
         return (array) UnifiedSearch::get_data(array_merge($defaults, $atts));

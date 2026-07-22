@@ -123,36 +123,33 @@ final class VehiclesList extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'                  => '12',
-			'columns'                => '1', // 1, 2, 3, 4 - For list layout
-			'orderby'                => 'title', // title, date, price, featured
-			'order'                  => 'ASC', // ASC, DESC
-			'category'               => '', // Vehicle category
-			'featured'               => '0', // 0: all, 1: featured only
-			'show_image'             => '1',
-			'show_title'             => '1',
-			'show_price'             => '1',
-			'show_features'          => '1',
-			'show_rating'            => '1',
-			'show_booking_button'    => '1',
-			'show_favorite_button'   => '1',
-			'show_category'          => '1',
-			'show_brand'             => '0',
-			'show_badges'            => '1',
-			'show_description'       => '1',
-			'show_availability'      => '0',
-			'show_compare_button'    => '1',
-			'enable_lazy_load'       => '1',
-			'enable_ajax_filtering'  => '0',
-			'enable_infinite_scroll' => '0',
-			'image_size'             => 'large',
-			'ids'                    => '', // Comma separated vehicle IDs
-			'max_features'           => '5',
-			'price_format'           => 'daily',
-			'class'                  => '',
-			'custom_css_class'       => '',
-			'min_rating'             => '',
-			'min_reviews'            => '',
+			'limit'                => '12',
+			'columns'              => '1', // 1, 2, 3, 4 - For list layout
+			'orderby'              => 'title', // title, date, price, featured
+			'order'                => 'ASC', // ASC, DESC
+			'category'             => '', // Vehicle category
+			'featured'             => '0', // 0: all, 1: featured only
+			'show_image'           => '1',
+			'show_title'           => '1',
+			'show_price'           => '1',
+			'show_features'        => '1',
+			'show_rating'          => '1',
+			'show_booking_button'  => '1',
+			'show_favorite_button' => '1',
+			'show_category'        => '1',
+			'show_brand'           => '0',
+			'show_badges'          => '1',
+			'show_description'     => '1',
+			'show_availability'    => '0',
+			'show_compare_button'  => '1',
+			'image_size'           => 'large',
+			'ids'                  => '', // Comma separated vehicle IDs
+			'max_features'         => '5',
+			'price_format'         => 'daily',
+			'class'                => '',
+			'custom_css_class'     => '',
+			'min_rating'           => '',
+			'min_reviews'          => '',
 		);
 	}
 

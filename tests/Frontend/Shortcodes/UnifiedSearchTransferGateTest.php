@@ -59,7 +59,6 @@ final class UnifiedSearchTransferGateTest extends WP_UnitTestCase
             'redirect_page'         => '',
             'layout'                => 'horizontal',
             'search_layout'         => '',
-            'style'                 => 'glass',
         );
 
         return (array) $method->invoke(null, array_merge($defaults, $atts));

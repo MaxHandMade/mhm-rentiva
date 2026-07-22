@@ -125,10 +125,6 @@ final class AllowlistRegistry {
             'type'  => 'string',
             'group' => 'layout',
         ],
-        'style'                    => [
-            'type'  => 'string',
-            'group' => 'layout',
-        ],
         'theme'                    => [
             'type'  => 'string',
             'group' => 'layout',
@@ -625,11 +621,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showTimeSelect', 'show_time_select' ],
         ],
-        'filter_brands'            => [
-            'type'    => 'string',
-            'group'   => 'data',
-            'aliases' => [ 'filterBrands' ],
-        ],
         'view_all_url'             => [
             'type'    => 'string',
             'group'   => 'content',
@@ -804,12 +795,6 @@ final class AllowlistRegistry {
             'group'   => 'workflow',
             'aliases' => [ 'endDate', 'end_date' ],
         ],
-        'months_ahead'             => [
-            'type'    => 'int',
-            'group'   => 'layout',
-            'aliases' => [ 'monthsAhead' ],
-        ],
-
         // Sliders & Interactivity
         'autoplay'                 => [
             'type'    => 'bool',
@@ -843,21 +828,6 @@ final class AllowlistRegistry {
             'group'   => 'feature',
             'aliases' => [ 'enableDeposit' ],
         ],
-        'enable_lazy_load'         => [
-            'type'    => 'bool',
-            'group'   => 'feature',
-            'aliases' => [ 'enableLazyLoad' ],
-        ],
-        'enable_ajax_filtering'    => [
-            'type'    => 'bool',
-            'group'   => 'feature',
-            'aliases' => [ 'enableAjaxFiltering' ],
-        ],
-        'enable_infinite_scroll'   => [
-            'type'    => 'bool',
-            'group'   => 'feature',
-            'aliases' => [ 'enableInfiniteScroll' ],
-        ],
         'show_payment_options'     => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -886,11 +856,6 @@ final class AllowlistRegistry {
         ],
 
         // Search Specific
-        'default_tab_alias'        => [
-            'type'    => 'string',
-            'group'   => 'feature',
-            'aliases' => [ 'defaultTabAlias' ],
-        ],
         'show_rental_tab'          => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -990,16 +955,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showCalendar' ],
-        ],
-        'show_weekends'            => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showWeekends' ],
-        ],
-        'show_past_dates'          => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showPastDates' ],
         ],
         'show_details'             => [
             'type'    => 'bool',
@@ -1207,9 +1162,6 @@ final class AllowlistRegistry {
             'show_description',
             'show_availability',
             'show_compare_button',
-            'enable_lazy_load',
-            'enable_ajax_filtering',
-            'enable_infinite_scroll',
             'image_size',
             'ids',
             'max_features',
@@ -1218,7 +1170,6 @@ final class AllowlistRegistry {
             'custom_css_class',
             'min_rating',
             'min_reviews',
-            'filter_brands',
         ],
         'rentiva_search_results'        => [
             'layout'               => [ 'default' => 'grid' ],
@@ -1309,9 +1260,6 @@ final class AllowlistRegistry {
             'show_pricing'          => [ 'default' => '1' ],
             'theme'                 => [ 'default' => 'default' ],
             'start_date'            => [ 'default' => '' ],
-            'months_ahead'          => [ 'default' => '3' ],
-            'show_weekends'         => [ 'default' => '1' ],
-            'show_past_dates'       => [ 'default' => '0' ],
             'class'                 => [ 'default' => '' ],
             'show_vehicle_selector' => [ 'default' => '0' ],
             'show_legend'           => [ 'default' => '1' ],
@@ -1370,7 +1318,6 @@ final class AllowlistRegistry {
             'show_description',
             'show_availability',
             'show_compare_button',
-            'enable_lazy_load',
             'image_size',
             'class',
             'custom_css_class',
@@ -1380,7 +1327,6 @@ final class AllowlistRegistry {
             'columns_mobile',
             'layout',
             'filter_categories',
-            'filter_brands',
             'view_all_url',
             'view_all_text',
             'sort_by',
@@ -1574,14 +1520,12 @@ final class AllowlistRegistry {
             'price_format',
             'class',
             'service_type',
-            'filter_brands',
             'filter_categories',
             'view_all_url',
             'view_all_text',
         ],
         'rentiva_unified_search'        => [
             'default_tab',
-            'default_tab_alias',
             'show_rental_tab',
             'show_transfer_tab',
             'show_location_select',
@@ -1597,7 +1541,6 @@ final class AllowlistRegistry {
             'redirect_page',
             'layout',
             'search_layout',
-            'style',
             'class',
             'minwidth',
             'maxwidth',

@@ -17,7 +17,7 @@
  * @var bool   $show_dropoff_location Whether to show drop-off location field
  * @var string $service_type         Filter: 'rental' (only supported value)
  * @var string $filter_categories    Comma-separated category IDs to filter
- * @var string $layout               Layout: 'horizontal', 'vertical', 'compact'
+ * @var string $layout               Layout: 'horizontal', 'vertical'
  */
 if (! defined('ABSPATH')) {
     exit;
@@ -40,7 +40,7 @@ $fields_required       = $fields_required ?? true;
 $location_required = $fields_required ? ( $location_required ?? true ) : false;
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?> rv-unified-search--<?php echo esc_attr($style ?? 'glass'); ?>" data-testid="unified-search">
+<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?>" data-testid="unified-search">
 
     <!-- 1. Tabs Header (Show if the rental tab is enabled) -->
     <?php if ($show_rental_tab) : ?>

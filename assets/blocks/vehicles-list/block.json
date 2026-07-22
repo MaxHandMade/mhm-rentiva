@@ -98,10 +98,6 @@
             "type": "string",
             "default": ""
         },
-        "filterBrands": {
-            "type": "string",
-            "default": ""
-        },
         "orderby": {
             "type": "string",
             "default": "title",
@@ -139,10 +135,6 @@
             "type": "string",
             "default": ""
         },
-        "enableAjaxFiltering": {
-            "type": "boolean",
-            "default": false
-        },
         "columns": {
             "type": "string",
             "default": "1"
@@ -152,14 +144,6 @@
             "default": ""
         },
         "featured": {
-            "type": "boolean",
-            "default": false
-        },
-        "enableLazyLoad": {
-            "type": "boolean",
-            "default": true
-        },
-        "enableInfiniteScroll": {
             "type": "boolean",
             "default": false
         },

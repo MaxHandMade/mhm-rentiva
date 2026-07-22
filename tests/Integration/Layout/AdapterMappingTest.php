@@ -30,12 +30,15 @@ final class AdapterMappingTest extends TestCase
         $adapter = AdapterRegistry::get_adapter('search_hero');
         $this->assertNotNull($adapter);
 
+        // `style` is deliberately not an allowlisted attribute: the glass/solid
+        // preset it named never had a stylesheet, so CAM drops it here rather
+        // than forwarding a shortcode attribute the renderer ignores.
         $attributes = ['layout' => 'horizontal', 'style' => 'glass'];
         $output = $adapter->render($attributes, 'inst_1');
 
         $this->assertStringContainsString('[rentiva_unified_search', $output);
         $this->assertStringContainsString('layout="horizontal"', $output);
-        $this->assertStringContainsString('style="glass"', $output);
+        $this->assertStringNotContainsString('style=', $output);
     }
 
     public function test_vehicle_listing_adapter_mapping(): void

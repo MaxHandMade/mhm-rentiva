@@ -176,10 +176,6 @@
             "type": "string",
             "default": "default"
         },
-        "default_tab_alias": {
-            "type": "string",
-            "default": ""
-        },
         "layout": {
             "type": "string",
             "default": "horizontal"
@@ -195,10 +191,6 @@
         "className": {
             "type": "string",
             "default": ""
-        },
-        "style": {
-            "type": "string",
-            "default": "glass"
         }
     },
     "editorStyle": [

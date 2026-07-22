@@ -98,21 +98,9 @@
             "type": "string",
             "default": ""
         },
-        "monthsAhead": {
-            "type": "string",
-            "default": "3"
-        },
         "startMonth": {
             "type": "string",
             "default": ""
-        },
-        "showWeekends": {
-            "type": "boolean",
-            "default": true
-        },
-        "showPastDates": {
-            "type": "boolean",
-            "default": false
         },
         "showSeasonalPrices": {
             "type": "boolean",

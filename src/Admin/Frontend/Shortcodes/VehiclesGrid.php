@@ -74,7 +74,6 @@ class VehiclesGrid extends AbstractShortcode {
 			'show_description'     => '0',
 			'show_availability'    => '0',
 			'show_compare_button'  => '1',
-			'enable_lazy_load'     => '1',
 			'image_size'           => 'large',
 			'view_all_url'         => '',
 			'view_all_text'        => '',

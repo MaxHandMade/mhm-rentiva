@@ -51,7 +51,6 @@ final class UnifiedSearch extends AbstractShortcode {
 		return array(
 			// Tab controls
 			'default_tab'           => 'default', // Rental-only; kept for BC, has no other effect.
-			'default_tab_alias'     => 'defaultTab',
 
 			// Visibility controls (boolean as string for shortcode compatibility)
 			'show_rental_tab'       => 'default',
@@ -68,9 +67,11 @@ final class UnifiedSearch extends AbstractShortcode {
 			'redirect_page'         => 'default',
 
 			// Layout & Styling
-			'layout'                => 'horizontal', // 'horizontal', 'vertical', 'compact'
+			// 'horizontal' is the base layout; 'vertical' stacks the fields. A third
+			// value, 'compact', was documented for years but never had a stylesheet
+			// behind it, so it rendered as plain horizontal -- it is no longer offered.
+			'layout'                => 'horizontal', // 'horizontal', 'vertical'
 			'search_layout'         => '',           // Block editor uses this
-			'style'                 => 'glass',      // 'glass', 'solid'
 			'class'                 => '',
 		);
 	}
@@ -118,7 +119,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			'filter_categories'     => $atts['filter_categories'],
 			'redirect_page'         => self::resolve_default($atts['redirect_page'], 'mhm_rentiva_search_results_page'),
 			'layout'                => $layout,
-			'style'                 => $atts['style'] ?? 'glass',
 		);
 	}
 

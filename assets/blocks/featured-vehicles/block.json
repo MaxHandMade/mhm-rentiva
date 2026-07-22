@@ -99,10 +99,6 @@
             "type": "string",
             "default": ""
         },
-        "filterBrands": {
-            "type": "string",
-            "default": ""
-        },
         "sortBy": {
             "type": "string",
             "default": "date",

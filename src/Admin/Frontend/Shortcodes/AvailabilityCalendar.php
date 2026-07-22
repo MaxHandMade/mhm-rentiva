@@ -91,11 +91,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			),
 			'theme'                => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),
 			'start_date'           => '',
-			'months_ahead'         => apply_filters('mhm_rentiva/availability_calendar/months_ahead', '3'),
+			// `months_ahead` used to sit beside `months_to_show` but nothing ever
+			// read it -- the render span comes from `months_to_show` alone. Its
+			// siblings `show_weekends`/`show_past_dates` were dead the same way, and
+			// their declared defaults ('1'/'0') contradicted what the calendar
+			// actually renders, so honouring them would have silently changed every
+			// existing calendar. All three are gone rather than back-fitted.
 			'months_to_show'       => apply_filters('mhm_rentiva/availability_calendar/months_to_show', '1'),
 			'start_month'          => '',
-			'show_weekends'        => apply_filters('mhm_rentiva/availability_calendar/show_weekends', '1'),
-			'show_past_dates'      => apply_filters('mhm_rentiva/availability_calendar/show_past_dates', '0'),
 			'integrate_pricing'    => apply_filters('mhm_rentiva/availability_calendar/integrate_pricing', '1'),
 			'class'                => '',
 		);

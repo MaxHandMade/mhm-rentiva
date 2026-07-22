@@ -28,7 +28,6 @@
         var fieldsRequired = attributes.fieldsRequired;
         var redirect_page = attributes.redirect_page;
         var search_layout = attributes.search_layout;
-        var style = attributes.style;
         var className = attributes.className;
 
         // Helper: Logic to show/hide panels based on service type
@@ -84,18 +83,8 @@
                         options: [
                             { label: __('Horizontal (Standard)', 'mhm-rentiva'), value: 'horizontal' },
                             { label: __('Vertical (Sidebar)', 'mhm-rentiva'), value: 'vertical' },
-                            { label: __('Compact', 'mhm-rentiva'), value: 'compact' },
                         ],
                         onChange: function (val) { setAttributes({ search_layout: val }); }
-                    }),
-                    el(SelectControl, {
-                        label: __('Style Preset', 'mhm-rentiva'),
-                        value: style,
-                        options: [
-                            { label: __('Glassmorphism', 'mhm-rentiva'), value: 'glass' },
-                            { label: __('Solid / Flat', 'mhm-rentiva'), value: 'solid' },
-                        ],
-                        onChange: function (val) { setAttributes({ style: val }); }
                     }),
                     el(TextControl, {
                         label: __('Custom CSS Class', 'mhm-rentiva'),

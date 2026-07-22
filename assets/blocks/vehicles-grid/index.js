@@ -29,7 +29,6 @@
             var showBookButton = attributes.showBookButton;
             var showFeatures = attributes.showFeatures;
             var filterCategories = attributes.filterCategories;
-            var filterBrands = attributes.filterBrands;
             var sortBy = attributes.sortBy;
             var sortOrder = attributes.sortOrder;
             var limit = attributes.limit;
@@ -83,12 +82,6 @@
                             value: filterCategories,
                             onChange: function (val) { setAttributes({ filterCategories: val }); },
                             help: __('Comma-separated list of category IDs.', 'mhm-rentiva')
-                        }),
-                        el(TextControl, {
-                            label: __('Filter Brands (IDs)', 'mhm-rentiva'),
-                            value: filterBrands,
-                            onChange: function (val) { setAttributes({ filterBrands: val }); },
-                            help: __('Comma-separated list of brand IDs.', 'mhm-rentiva')
                         }),
                         el(TextControl, {
                             label: __('Min Rating (1-5)', 'mhm-rentiva'),
