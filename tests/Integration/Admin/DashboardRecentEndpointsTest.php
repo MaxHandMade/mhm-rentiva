@@ -108,6 +108,7 @@ final class DashboardRecentEndpointsTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'status',        $first );
         $this->assertArrayHasKey( 'status_label',  $first );
         $this->assertArrayHasKey( 'display_id',    $first );
+        $this->assertArrayHasKey( 'total_price',   $first );
     }
 
     /* ------- recent-transfers -------

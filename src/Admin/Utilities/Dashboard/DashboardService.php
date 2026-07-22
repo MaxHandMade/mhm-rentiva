@@ -493,7 +493,8 @@ final class DashboardService {
                     ''
                 ) as customer_name,
                 pm_pickup.meta_value as pickup_date,
-                pm_status.meta_value as status
+                pm_status.meta_value as status,
+                pm_total.meta_value as total_price
                 {$location_select}
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm_vid     ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
@@ -506,6 +507,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_name2   ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
              LEFT JOIN {$wpdb->postmeta} pm_pickup  ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_status  ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhm_total_price'
              {$location_joins}
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY p.post_date DESC
