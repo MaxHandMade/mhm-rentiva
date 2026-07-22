@@ -1058,8 +1058,8 @@ final class VehicleSettings {
 		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
 
 		// Trap 2: an entirely empty comparison_fields means "all fields compare".
-		$settings   = (array) get_option( 'mhm_rentiva_settings', array() );
-		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
+		$settings    = (array) get_option( 'mhm_rentiva_settings', array() );
+		$comparison  = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
 			? $settings['comparison_fields']
 			: array();
 		$compare_all = empty( $comparison );
