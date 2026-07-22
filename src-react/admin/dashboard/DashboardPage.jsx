@@ -69,8 +69,6 @@ export default function DashboardPage() {
 				</div>
 
 				<div className="rv-dash-cols__right">
-					<StatusBreakdown items={ statusBreakdown } />
-					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
 					<QuickActions adminUrl={ adminUrl } caps={ caps } />
 					{ transferStats && (
 						<TransferWidget
@@ -80,6 +78,8 @@ export default function DashboardPage() {
 							adminUrl={ adminUrl }
 						/>
 					) }
+					<StatusBreakdown items={ statusBreakdown } />
+					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
 				</div>
 			</div>
 

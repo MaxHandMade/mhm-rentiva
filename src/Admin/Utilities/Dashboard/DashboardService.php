@@ -311,6 +311,11 @@ final class DashboardService {
 			ARRAY_A
 		) ?: array();
 
+		// This palette is intentionally the WordPress-admin-native color set from
+		// the dashboard redesign mockup (StatusBreakdown widget dots), and
+		// deliberately diverges from \MHMRentiva\Admin\Booking\Core\Status::get_color()
+		// (the booking-list/badge palette). Do not "fix" this to match Status::get_color() --
+		// the two palettes serve different UI contexts by design.
 		$dots = array(
 			'pending'         => '#dba617',
 			'pending_payment' => '#dba617',
@@ -1230,15 +1235,14 @@ final class DashboardService {
 
 		$this_month_collected = (float) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+				"SELECT SUM(CAST(pm_total.meta_value AS DECIMAL(10,2)) - CAST(COALESCE(pm_rem.meta_value, '0') AS DECIMAL(10,2)))
                  FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
+                 INNER JOIN {$wpdb->postmeta} pm_total ON p.ID = pm_total.post_id AND pm_total.meta_key = '_mhm_total_price'
+                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+                 LEFT JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
                  WHERE p.post_type = 'vehicle_booking'
                  AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
                  AND p.post_date >= %s AND p.post_date <= %s
-                 AND pm.meta_key = '_mhm_total_price'
-                 AND pm_status.meta_key = '_mhm_status'
                  AND pm_status.meta_value IN ('completed','confirmed')",
 				$current_start,
 				$current_end

@@ -33,8 +33,8 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 
 		$this->assertEqualsWithDelta( 1500.0, $s['pending_total'], 0.01 );
 		$this->assertEqualsWithDelta( 500.0, $s['deposit_blocked'], 0.01 );
-		// this_month_collected = confirmed+completed total price this month = (2000 + 300)
-		$this->assertEqualsWithDelta( 2300.0, $s['this_month_collected'], 0.01 );
+		// this_month_collected = total - remaining for confirmed+completed this month = (2000-1500) + (300-0)
+		$this->assertEqualsWithDelta( 800.0, $s['this_month_collected'], 0.01 );
 	}
 
 	public function test_full_payment_booking_without_remaining_meta_does_not_break_pending_total(): void {
@@ -51,7 +51,7 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 
 		$this->assertEqualsWithDelta( 1500.0, $s['pending_total'], 0.01 );        // full-payment contributes 0
 		$this->assertEqualsWithDelta( 500.0, $s['deposit_blocked'], 0.01 );        // no deposit meta on full-payment
-		$this->assertEqualsWithDelta( 5000.0, $s['this_month_collected'], 0.01 );  // 2000 + 3000
+		$this->assertEqualsWithDelta( 3500.0, $s['this_month_collected'], 0.01 );  // (2000-1500) + (3000-0)
 	}
 
 	public function test_deposit_blocked_includes_in_progress(): void {
