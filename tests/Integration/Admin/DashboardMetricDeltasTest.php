@@ -61,4 +61,19 @@ final class DashboardMetricDeltasTest extends WP_UnitTestCase {
 		$this->assertSame( 0, $deltas['customers']['value'] );
 		$this->assertSame( 'none', $deltas['customers']['direction'] );
 	}
+
+	public function test_pct_delta_direction_is_none_when_equal_and_nonzero(): void {
+		$this_month = gmdate( 'Y-m-15 10:00:00' );
+		$last_month = gmdate( 'Y-m-15 10:00:00', strtotime( 'first day of last month' ) );
+
+		// Equal non-zero counts both months → 0% change, direction must be 'none' (not 'neutral').
+		$this->make_booking( $last_month, 'confirmed', '100', 'a@x.com' );
+		$this->make_booking( $this_month, 'confirmed', '100', 'b@x.com' );
+
+		$deltas = DashboardService::get_metric_deltas();
+
+		$this->assertSame( 'pct', $deltas['bookings']['format'] );
+		$this->assertSame( 0, $deltas['bookings']['value'] );
+		$this->assertSame( 'none', $deltas['bookings']['direction'] );
+	}
 }

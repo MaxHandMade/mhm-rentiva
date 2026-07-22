@@ -214,11 +214,12 @@ final class DashboardService {
 	 */
 	private static function shape_delta( int $current, int $previous ): array {
 		if ( $previous > 0 ) {
-			$t = TrendMath::calculate_trend_from_totals( $current, $previous );
+			$t   = TrendMath::calculate_trend_from_totals( $current, $previous );
+			$dir = 'neutral' === $t['direction'] ? 'none' : $t['direction'];
 			return array(
 				'format'    => 'pct',
 				'value'     => $t['trend'],
-				'direction' => $t['direction'],
+				'direction' => $dir,
 			);
 		}
 		if ( $current > 0 ) {
