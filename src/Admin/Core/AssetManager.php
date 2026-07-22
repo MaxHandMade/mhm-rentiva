@@ -1152,6 +1152,7 @@ final class AssetManager {
 				array(
 					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
 					'activeTab' => $vs_active_tab,
+					'state'     => \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_settings_state(),
 					'i18n'      => array(
 						'confirmResetAll'        => __('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva'),
 						'saved'                  => __('Settings saved successfully!', 'mhm-rentiva'),
