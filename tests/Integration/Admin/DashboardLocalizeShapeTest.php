@@ -30,6 +30,6 @@ final class DashboardLocalizeShapeTest extends WP_UnitTestCase {
 		$s = DashboardService::get_payments_summary();
 		$this->assertArrayHasKey( 'pending_total', $s );
 		$this->assertArrayHasKey( 'deposit_blocked', $s );
-		$this->assertArrayHasKey( 'this_month_collected', $s );
+		$this->assertArrayNotHasKey( 'this_month_collected', $s );
 	}
 }

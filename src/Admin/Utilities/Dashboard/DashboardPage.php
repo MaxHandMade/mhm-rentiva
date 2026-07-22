@@ -237,7 +237,6 @@ final class DashboardPage {
 			'revenue_data'                => DashboardService::get_revenue_data(),
 			'recent_bookings'             => $bookings_result['items'],
 			'recent_bookings_total_pages' => $bookings_result['total_pages'],
-			'pending_payments'            => DashboardService::get_pending_payments(),
 			'metric_deltas'               => DashboardService::get_metric_deltas(),
 			'status_breakdown'            => DashboardService::get_status_breakdown(),
 			'payments_summary'            => DashboardService::get_payments_summary(),

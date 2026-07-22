@@ -3,9 +3,8 @@ import { fmtMoney } from '../../../shared/format';
 
 export default function PaymentsSummary( { summary, currency } ) {
 	const rows = [
-		{ label: __( 'Pending payment', 'mhm-rentiva' ),  value: summary?.pending_total,        tone: 'warn' },
-		{ label: __( 'Deposit (held)', 'mhm-rentiva' ),   value: summary?.deposit_blocked,       tone: 'neutral' },
-		{ label: __( 'Collected this month', 'mhm-rentiva' ), value: summary?.this_month_collected, tone: 'pos' },
+		{ label: __( 'Pending payment', 'mhm-rentiva' ),  value: summary?.pending_total,  tone: 'warn' },
+		{ label: __( 'Deposit (held)', 'mhm-rentiva' ),   value: summary?.deposit_blocked, tone: 'neutral' },
 	];
 	return (
 		<div className="mhm-widget rv-pay-summary">

@@ -296,15 +296,20 @@ final class DashboardService {
 	public static function get_status_breakdown(): array {
 		global $wpdb;
 
+		// LEFT JOIN + COALESCE: bookings with no/empty `_mhm_status` meta must
+		// still be counted (bucketed as 'pending', mirroring
+		// \MHMRentiva\Admin\Booking\Core\Status::get()'s fallback) so every
+		// non-trashed booking lands in exactly one bucket and the counts sum
+		// to total_bookings. An INNER JOIN + `!= ''` filter (the old query)
+		// silently drops status-less bookings from every bucket.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT pm.meta_value AS status, COUNT(*) AS cnt
+				"SELECT COALESCE(NULLIF(pm.meta_value, ''), 'pending') AS status, COUNT(*) AS cnt
                  FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_status'
+                 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_status'
                  WHERE p.post_type = %s
                  AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
-                 AND pm.meta_value != ''
-                 GROUP BY pm.meta_value
+                 GROUP BY COALESCE(NULLIF(pm.meta_value, ''), 'pending')
                  ORDER BY cnt DESC",
 				'vehicle_booking'
 			),
@@ -1080,6 +1085,19 @@ final class DashboardService {
 	 * Get pending payments
 	 */
 	public static function get_pending_payments(): array {
+		return self::collect_pending_payments()['items'];
+	}
+
+	/**
+	 * Shared scan behind get_pending_payments() and get_payments_summary()'s
+	 * `pending_total`. Walks the same query rows once and returns BOTH:
+	 * - `items`: the display list, capped at 10 (existing UI behaviour).
+	 * - `total`: the authoritative sum across ALL rows the query returns —
+	 *   NOT capped at 10. It is bounded only by the query's own `LIMIT 50`.
+	 *
+	 * @return array{items:array,total:float}
+	 */
+	private static function collect_pending_payments(): array {
 		global $wpdb;
 
 		$now = current_time( 'mysql' );
@@ -1137,13 +1155,15 @@ final class DashboardService {
 		$pending_order_statuses = array( 'pending', 'on-hold' );
 
 		$payments        = array();
+		$total           = 0.0;
 		$has_wc_function = function_exists( 'wc_get_order' );
 
+		// Walk every row the query returned (bounded by the SQL LIMIT 50
+		// above) so `$total` is authoritative. Only the display list
+		// ($payments) is capped at 10 — the old code stopped scanning rows
+		// entirely once 10 were collected, which is fine for the widget list
+		// but would silently undercount an aggregate total.
 		foreach ( $rows as $row ) {
-			if ( count( $payments ) >= 10 ) {
-				break;
-			}
-
 			$booking_id         = (int) $row['booking_id'];
 			$deposit_order_id   = (int) ( $row['deposit_order_id'] ?? 0 );
 			$remaining_order_id = (int) ( $row['remaining_order_id'] ?? 0 );
@@ -1160,69 +1180,87 @@ final class DashboardService {
 			$deadline_fmt  = $deadline ? wp_date( 'd.m.Y', strtotime( $deadline ) ) : '—';
 			$status_label  = $status_labels[ $booking_status ] ?? ucfirst( $booking_status );
 
-			if ( $has_wc_function && $deposit_order_id > 0 && count( $payments ) < 10 ) {
+			if ( $has_wc_function && $deposit_order_id > 0 ) {
 				$deposit_order = wc_get_order( $deposit_order_id );
 				if ( $deposit_order && in_array( $deposit_order->get_status(), $pending_order_statuses, true ) ) {
-					$payments[] = array(
-						'booking_id'    => $booking_id,
-						'display_id'    => $display_id,
-						'customer_name' => $customer_name,
-						'amount'        => (float) $deposit_order->get_total(),
-						'deadline'      => $deadline_fmt,
-						'status'        => $booking_status,
-						'status_label'  => $status_label,
-						'type'          => 'deposit',
-						'type_label'    => $type_labels['deposit'],
-						'order_id'      => $deposit_order_id,
-						'is_overdue'    => (bool) $is_overdue,
-					);
+					$amount = (float) $deposit_order->get_total();
+					$total += $amount;
+					if ( count( $payments ) < 10 ) {
+						$payments[] = array(
+							'booking_id'    => $booking_id,
+							'display_id'    => $display_id,
+							'customer_name' => $customer_name,
+							'amount'        => $amount,
+							'deadline'      => $deadline_fmt,
+							'status'        => $booking_status,
+							'status_label'  => $status_label,
+							'type'          => 'deposit',
+							'type_label'    => $type_labels['deposit'],
+							'order_id'      => $deposit_order_id,
+							'is_overdue'    => (bool) $is_overdue,
+						);
+					}
 				}
 			}
 
-			if ( $has_wc_function && $remaining_order_id > 0 && count( $payments ) < 10 ) {
+			if ( $has_wc_function && $remaining_order_id > 0 ) {
 				$remaining_order = wc_get_order( $remaining_order_id );
 				if ( $remaining_order && in_array( $remaining_order->get_status(), $pending_order_statuses, true ) ) {
-					$payments[] = array(
-						'booking_id'    => $booking_id,
-						'display_id'    => $display_id,
-						'customer_name' => $customer_name,
-						'amount'        => (float) $remaining_order->get_total(),
-						'deadline'      => $deadline_fmt,
-						'status'        => $booking_status,
-						'status_label'  => $status_label,
-						'type'          => 'remaining',
-						'type_label'    => $type_labels['remaining'],
-						'order_id'      => $remaining_order_id,
-						'is_overdue'    => (bool) $is_overdue,
-					);
+					$amount = (float) $remaining_order->get_total();
+					$total += $amount;
+					if ( count( $payments ) < 10 ) {
+						$payments[] = array(
+							'booking_id'    => $booking_id,
+							'display_id'    => $display_id,
+							'customer_name' => $customer_name,
+							'amount'        => $amount,
+							'deadline'      => $deadline_fmt,
+							'status'        => $booking_status,
+							'status_label'  => $status_label,
+							'type'          => 'remaining',
+							'type_label'    => $type_labels['remaining'],
+							'order_id'      => $remaining_order_id,
+							'is_overdue'    => (bool) $is_overdue,
+						);
+					}
 				}
 			}
 		}
 
-		return $payments;
+		return array(
+			'items' => $payments,
+			'total' => $total,
+		);
 	}
 
 	/**
-	 * Three aggregate payment figures for the dashboard Payments summary card.
+	 * Two aggregate payment figures for the dashboard Payments summary card.
 	 *
-	 * @return array{pending_total:float,deposit_blocked:float,this_month_collected:float}
+	 * `this_month_collected` was removed (owner decision) — true cash
+	 * collected cannot be computed reliably; it depended on the same
+	 * drifting `_mhm_remaining_amount` field that `pending_total` no longer
+	 * uses (see below).
+	 *
+	 * @return array{pending_total:float,deposit_blocked:float}
 	 */
 	public static function get_payments_summary(): array {
 		global $wpdb;
 
-		$pending_total = (float) $wpdb->get_var(
-			"SELECT SUM(CAST(COALESCE(pm_rem.meta_value, '0') AS DECIMAL(10,2)))
-             FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-             LEFT JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
-             WHERE p.post_type = 'vehicle_booking'
-             AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
-             AND pm_status.meta_value NOT IN ('cancelled','refunded','completed')"
-		);
+		// Authoritative: reuse get_pending_payments()'s WC-order-status scan
+		// instead of summing the drifting `_mhm_remaining_amount` meta in
+		// pure SQL. Bounded by that query's own LIMIT (see
+		// collect_pending_payments() docblock).
+		$pending_total = self::collect_pending_payments()['total'];
 
+		// Deposit-only: mirrors get_deposit_stats()'s `_mhm_payment_type` =
+		// 'deposit' filter. Without it, full-payment bookings (which also
+		// get `_mhm_deposit_amount` written, equal to the full total — see
+		// DepositCalculator::calculate_booking_deposit()) were counted here
+		// as "deposit held", inflating the figure by the entire booking total.
 		$deposit_blocked = (float) $wpdb->get_var(
 			"SELECT SUM(CAST(pm_dep.meta_value AS DECIMAL(10,2)))
              FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = '_mhm_payment_type' AND pm_type.meta_value = 'deposit'
              INNER JOIN {$wpdb->postmeta} pm_dep ON p.ID = pm_dep.post_id AND pm_dep.meta_key = '_mhm_deposit_amount'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
              WHERE p.post_type = 'vehicle_booking'
@@ -1230,29 +1268,9 @@ final class DashboardService {
              AND pm_status.meta_value IN ('confirmed','in_progress')"
 		);
 
-		$current_start = gmdate( 'Y-m-01 00:00:00' );
-		$current_end   = gmdate( 'Y-m-t 23:59:59' );
-
-		$this_month_collected = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm_total.meta_value AS DECIMAL(10,2)) - CAST(COALESCE(pm_rem.meta_value, '0') AS DECIMAL(10,2)))
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm_total ON p.ID = pm_total.post_id AND pm_total.meta_key = '_mhm_total_price'
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-                 LEFT JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
-                 WHERE p.post_type = 'vehicle_booking'
-                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
-                 AND p.post_date >= %s AND p.post_date <= %s
-                 AND pm_status.meta_value IN ('completed','confirmed')",
-				$current_start,
-				$current_end
-			)
-		);
-
 		return array(
-			'pending_total'        => $pending_total,
-			'deposit_blocked'      => $deposit_blocked,
-			'this_month_collected' => $this_month_collected,
+			'pending_total'   => $pending_total,
+			'deposit_blocked' => $deposit_blocked,
 		);
 	}
 }
