@@ -1,83 +1,93 @@
 import { __ } from '@wordpress/i18n';
-import StatsCards         from './components/StatsCards';
-import QuickActions       from './components/QuickActions';
-import RevenueChart       from './components/RevenueChart';
-import RecentBookings     from './components/RecentBookings';
-import UpcomingOperations from './components/UpcomingOperations';
-import TransferWidget     from './components/TransferWidget';
-import PendingPayments    from './components/PendingPayments';
+import StatsCards       from './components/StatsCards';
+import QuickActions     from './components/QuickActions';
+import RevenueChart     from './components/RevenueChart';
+import RecentBookings   from './components/RecentBookings';
+import StatusBreakdown  from './components/StatusBreakdown';
+import PaymentsSummary  from './components/PaymentsSummary';
+import TransferWidget   from './components/TransferWidget';
 
 export default function DashboardPage() {
 	const data = window.mhmRentivaDashboard ?? {};
 
 	const {
 		metrics,
-		metric_deltas:                 metricDeltas = {},
-		revenue_data:                  revenueData,
-		recent_bookings:               recentBookings       = [],
-		recent_bookings_total_pages:   recentBookingsTotalPages = 1,
-		transfer_stats:                transferStats,
-		recent_transfers:              recentTransfers      = [],
-		recent_transfers_total_pages:  recentTransfersTotalPages = 1,
-		pending_payments:              pendingPayments,
-		upcoming_initial:              upcomingInitial,
+		metric_deltas:                metricDeltas         = {},
+		revenue_data:                 revenueData,
+		recent_bookings:              recentBookings       = [],
+		recent_bookings_total_pages:  recentBookingsTotalPages = 1,
+		status_breakdown:             statusBreakdown      = [],
+		payments_summary:             paymentsSummary,
+		transfer_stats:               transferStats,
+		recent_transfers:             recentTransfers      = [],
+		recent_transfers_total_pages: recentTransfersTotalPages = 1,
 		currency  = '',
 		admin_url: adminUrl = '',
 		caps                = {},
 	} = data;
 
-	const bookingsInitial = {
-		items:       recentBookings,
-		total_pages: recentBookingsTotalPages,
-		page:        1,
-	};
+	const bookingsInitial  = { items: recentBookings,  total_pages: recentBookingsTotalPages,  page: 1 };
+	const transfersInitial = { items: recentTransfers, total_pages: recentTransfersTotalPages, page: 1 };
 
-	const transfersInitial = {
-		items:       recentTransfers,
-		total_pages: recentTransfersTotalPages,
-		page:        1,
-	};
+	const reportsUrl = `${ adminUrl }admin.php?page=mhm-rentiva-reports`;
 
 	return (
-		<div className="mhm-dashboard">
+		<div className="mhm-dashboard rv-dashboard">
 
-			{ /* Row 1: Stats — 4-col gradient cards */ }
+			{ /* Header strip: title + static range selector (visual only) + report link */ }
+			<div className="rv-dash-header">
+				<div className="rv-dash-header__titles">
+					<h1 className="rv-dash-header__h1">{ __( 'Dashboard', 'mhm-rentiva' ) }</h1>
+					<span className="rv-dash-header__sub">{ __( 'MHM Rentiva · Overview', 'mhm-rentiva' ) }</span>
+				</div>
+				<div className="rv-dash-header__controls">
+					{ /* Date range is visual only this round (deferred); disabled to signal non-functional */ }
+					<select className="rv-dash-header__range" defaultValue="30" disabled aria-label={ __( 'Date range', 'mhm-rentiva' ) }>
+						<option value="30">{ __( 'Last 30 days', 'mhm-rentiva' ) }</option>
+					</select>
+					{ caps.reports && (
+						<a className="rv-dash-header__report" href={ reportsUrl }>{ __( 'View reports', 'mhm-rentiva' ) }</a>
+					) }
+				</div>
+			</div>
+
+			{ /* Stat cards */ }
 			<div className="mhm-dashboard__row mhm-dashboard__row--1">
 				<StatsCards metrics={ metrics } deltas={ metricDeltas } currency={ currency } />
 			</div>
 
-			{ /* Row 2: Quick Actions (left) + Upcoming Operations (right) */ }
-			<div className="mhm-dashboard__row mhm-dashboard__row--2">
-				<QuickActions adminUrl={ adminUrl } caps={ caps } />
-				<UpcomingOperations initial={ upcomingInitial } />
-			</div>
-
-			{ /* Row 3: Recent Bookings (left) + Transfer Summary (right, add-on only) — symmetric KPI.
-			     Lite localizes no transfer_stats (Task A5b seam inversion); the add-on's
-			     mhm_rentiva_dashboard_localize subscriber adds it back. */ }
-			<div className={ `mhm-dashboard__row mhm-dashboard__row--3${ transferStats ? '' : ' mhm-dashboard__row--3-solo' }` }>
-				<RecentBookings
-					initial={ bookingsInitial }
-					metrics={ metrics }
-					currency={ currency }
-					adminUrl={ adminUrl }
-				/>
-				{ transferStats && (
-					<TransferWidget
-						initial={ transfersInitial }
-						stats={ transferStats }
+			{ /* Two columns: left (chart + bookings) / right (statuses + payments + quick actions) */ }
+			<div className="rv-dash-cols">
+				<div className="rv-dash-cols__left">
+					<RevenueChart revenueData={ revenueData } currency={ currency } />
+					<RecentBookings
+						initial={ bookingsInitial }
+						metrics={ metrics }
 						currency={ currency }
 						adminUrl={ adminUrl }
 					/>
-				) }
+				</div>
+
+				<div className="rv-dash-cols__right">
+					<StatusBreakdown items={ statusBreakdown } />
+					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
+					<QuickActions adminUrl={ adminUrl } caps={ caps } />
+					{ transferStats && (
+						<TransferWidget
+							initial={ transfersInitial }
+							stats={ transferStats }
+							currency={ currency }
+							adminUrl={ adminUrl }
+						/>
+					) }
+				</div>
 			</div>
 
-			{ /* Row 4: Pending Payments (left) + Revenue Chart (right) */ }
-			<div className="mhm-dashboard__row mhm-dashboard__row--4">
-				<PendingPayments payments={ pendingPayments } currency={ currency } adminUrl={ adminUrl } />
-				<RevenueChart    revenueData={ revenueData }  currency={ currency } />
+			{ /* Footer */ }
+			<div className="rv-dash-footer">
+				<span>{ __( 'MHM Rentiva', 'mhm-rentiva' ) }</span>
+				<span>{ __( 'Built with WordPress.', 'mhm-rentiva' ) }</span>
 			</div>
-
 		</div>
 	);
 }
