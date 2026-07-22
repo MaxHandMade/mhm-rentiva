@@ -558,3 +558,101 @@
 .rv-luggage-tooltip:focus .rv-luggage-tooltip__text {
 	display: block;
 }
+/* =========================================================================
+   BROADSHEET SKIN + VERTICAL LAYOUT — design-system pilot (v5.2.0-dev)
+   =========================================================================
+   Scoped to this component, like the vehicle card, so the rest of the plugin
+   keeps its palette until the system is rolled out.
+
+   Tokens prefer the theme's WP preset and fall back to the design system's
+   value, so the widget harmonises with its theme rather than imposing a look.
+   No webfont is loaded — the display face follows the theme's heading font.
+   ========================================================================= */
+.rv-unified-search {
+	--rv-s-surface: var(--wp--preset--color--surface, #f8f4f4);
+	--rv-s-ink: var(--wp--preset--color--text, #201e1d);
+	--rv-s-muted: color-mix(in srgb, var(--rv-s-ink) 60%, transparent);
+	--rv-s-accent: var(--wp--preset--color--primary, #0088b0);
+	--rv-s-hair: color-mix(in srgb, var(--rv-s-ink) 12%, transparent);
+	--rv-s-radius: 2px;
+	--rv-s-display: var(--wp--preset--font-family--heading, Georgia, "Times New Roman", serif);
+
+	background: var(--rv-s-surface);
+	border: 1px solid var(--rv-s-hair);
+	border-radius: var(--rv-s-radius);
+	box-shadow: 0 3px 12px color-mix(in srgb, #2d2b2b 14%, transparent);
+}
+
+/* Tabs — the active one is marked by an accent rule, not a filled pill. */
+.rv-unified-search .rv-unified-search__tab {
+	font-family: var(--rv-s-display);
+	font-weight: 600;
+	color: var(--rv-s-muted);
+	border-radius: 0;
+	position: relative;
+}
+
+.rv-unified-search .rv-unified-search__tab.is-active {
+	color: var(--rv-s-ink);
+	background: transparent;
+}
+
+.rv-unified-search .rv-unified-search__tab.is-active::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -1px;
+	height: 2px;
+	background: var(--rv-s-accent);
+}
+
+.rv-unified-search .rv-label {
+	color: var(--rv-s-muted);
+	letter-spacing: 0.06em;
+}
+
+.rv-unified-search .rv-input-wrapper {
+	background: color-mix(in srgb, var(--rv-s-ink) 3%, transparent);
+	border-color: var(--rv-s-hair);
+	border-radius: var(--rv-s-radius);
+}
+
+.rv-unified-search .rv-input-wrapper:focus-within {
+	border-color: var(--rv-s-accent);
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--rv-s-accent) 18%, transparent);
+}
+
+.rv-unified-search .rv-btn {
+	background: var(--rv-s-accent) !important;
+	border-radius: var(--rv-s-radius);
+	font-weight: 600;
+}
+
+/* -------------------------------------------------------------------------
+   layout="vertical" — implemented here for the first time.
+   The attribute has been documented on the shortcode ('horizontal',
+   'vertical', 'compact') and written into the markup as a modifier class all
+   along, but no rule ever matched it, so setting it changed nothing. This is
+   the stacked card the design calls for: one field per row, the action
+   spanning the full width beneath them.
+   ------------------------------------------------------------------------- */
+.rv-unified-search--vertical .rv-unified-search__group {
+	grid-template-columns: 1fr;
+}
+
+.rv-unified-search--vertical .rv-unified-search__action {
+	justify-content: stretch;
+}
+
+.rv-unified-search--vertical .rv-unified-search__action .rv-btn {
+	width: 100%;
+}
+
+/* On a narrow card the date/time pair still reads better side by side than
+   as two full-width rows. */
+@media (min-width: 480px) {
+	.rv-unified-search--vertical .rv-unified-search__group--mobile-grid {
+		grid-template-columns: 1fr 1fr;
+	}
+}

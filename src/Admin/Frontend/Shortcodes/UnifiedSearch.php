@@ -135,12 +135,15 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHM_RENTIVA_VERSION
 		);
 
-		// Premium search overlay styles.
+		// Premium search overlay styles. Versioned by file modification time,
+		// like the base stylesheet above: keyed to the plugin version instead,
+		// an edited stylesheet stayed cached in browsers until the next release,
+		// so the file on disk and the file being rendered could differ.
 		wp_enqueue_style(
 			'mhm-rentiva-search-premium',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
 			array( 'mhm-rentiva-unified-search-base' ),
-			MHM_RENTIVA_VERSION
+			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-premium.css' )
 		);
 
 		// Lite is rental-only (Task A10): the search-enqueue action and

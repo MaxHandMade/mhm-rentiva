@@ -167,3 +167,60 @@
 .mhm-premium-search .rv-unified-search__panel.is-active {
     display: block !important;
 }
+/* =========================================================================
+   BROADSHEET SKIN — design-system pilot (v5.2.0-dev)
+   =========================================================================
+   This file is the layer that actually wins: every rule above is `!important`
+   and the widget's root carries both `rv-unified-search` and
+   `mhm-premium-search`, so a skin written anywhere else is overridden. Rather
+   than stack a third layer, the design system is applied here, at the same
+   weight, and the `!important` is carried only where it is needed to beat the
+   rules above.
+
+   Note this stylesheet is also loaded by the add-on's transfer search, so the
+   two searches stay visually identical — which is the intent.
+   ========================================================================= */
+.mhm-premium-search {
+	--rv-s-accent: var(--wp--preset--color--primary, #0088b0);
+	--rv-s-ink: var(--wp--preset--color--text, #201e1d);
+	--rv-s-hair: color-mix(in srgb, var(--rv-s-ink) 12%, transparent);
+
+	border-radius: 2px !important;
+	border: 1px solid var(--rv-s-hair) !important;
+	box-shadow: 0 3px 12px color-mix(in srgb, #2d2b2b 14%, transparent) !important;
+}
+
+.mhm-premium-search .rv-input-wrapper {
+	border-radius: 2px !important;
+	border-color: var(--rv-s-hair) !important;
+}
+
+.mhm-premium-search .rv-input-wrapper:focus-within {
+	border-color: var(--rv-s-accent) !important;
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--rv-s-accent) 18%, transparent) !important;
+}
+
+.mhm-premium-search .rv-btn {
+	border-radius: 2px !important;
+	background: var(--rv-s-accent) !important;
+}
+
+/* layout="vertical" — the attribute has been documented on the shortcode and
+   written into the markup all along, but no rule ever matched it, so setting
+   it changed nothing. One field per row; the date/time pair keeps its own
+   two-up grid because two full-width date rows read worse than a pair. */
+.mhm-premium-search.rv-unified-search--vertical .rv-unified-search__group {
+	grid-template-columns: 1fr !important;
+}
+
+.mhm-premium-search.rv-unified-search--vertical .rv-unified-search__group--mobile-grid {
+	grid-template-columns: 1fr 1fr !important;
+}
+
+.mhm-premium-search.rv-unified-search--vertical .rv-unified-search__action {
+	justify-content: stretch;
+}
+
+.mhm-premium-search.rv-unified-search--vertical .rv-unified-search__action .rv-btn {
+	width: 100%;
+}
