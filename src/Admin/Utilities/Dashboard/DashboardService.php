@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Utilities\Dashboard;
 
+use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Core\Services\TrendMath;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -284,6 +285,55 @@ final class DashboardService {
 				$start,
 				$end
 			)
+		);
+	}
+
+	/**
+	 * Booking count grouped by status, for the dashboard StatusBreakdown widget.
+	 *
+	 * @return array<int,array{status:string,label:string,count:int,dot:string}>
+	 */
+	public static function get_status_breakdown(): array {
+		global $wpdb;
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT pm.meta_value AS status, COUNT(*) AS cnt
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_status'
+                 WHERE p.post_type = %s
+                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
+                 AND pm.meta_value != ''
+                 GROUP BY pm.meta_value
+                 ORDER BY cnt DESC",
+				'vehicle_booking'
+			),
+			ARRAY_A
+		) ?: array();
+
+		$dots = array(
+			'pending'         => '#dba617',
+			'pending_payment' => '#dba617',
+			'confirmed'       => '#2271b1',
+			'in_progress'     => '#00a32a',
+			'completed'       => '#8c8f94',
+			'cancelled'       => '#d63638',
+			'refunded'        => '#d63638',
+			'no_show'         => '#d63638',
+			'draft'           => '#c3c4c7',
+		);
+
+		return array_map(
+			static function ( array $row ) use ( $dots ): array {
+				$status = (string) $row['status'];
+				return array(
+					'status' => $status,
+					'label'  => Status::get_label( $status ),
+					'count'  => (int) $row['cnt'],
+					'dot'    => $dots[ $status ] ?? '#646970',
+				);
+			},
+			$rows
 		);
 	}
 
