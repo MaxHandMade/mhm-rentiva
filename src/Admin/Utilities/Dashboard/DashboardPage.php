@@ -239,6 +239,9 @@ final class DashboardPage {
 			'recent_bookings'             => $bookings_result['items'],
 			'recent_bookings_total_pages' => $bookings_result['total_pages'],
 			'pending_payments'            => DashboardService::get_pending_payments(),
+			'metric_deltas'               => DashboardService::get_metric_deltas(),
+			'status_breakdown'            => DashboardService::get_status_breakdown(),
+			'payments_summary'            => DashboardService::get_payments_summary(),
 			'upcoming_initial'            => array(
 				'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
 				'total'       => (int) $upcoming_result['total'],
