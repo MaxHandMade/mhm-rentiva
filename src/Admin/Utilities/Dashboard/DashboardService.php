@@ -1194,4 +1194,56 @@ final class DashboardService {
 
 		return $payments;
 	}
+
+	/**
+	 * Three aggregate payment figures for the dashboard Payments summary card.
+	 *
+	 * @return array{pending_total:float,deposit_blocked:float,this_month_collected:float}
+	 */
+	public static function get_payments_summary(): array {
+		global $wpdb;
+
+		$pending_total = (float) $wpdb->get_var(
+			"SELECT SUM(CAST(pm_rem.meta_value AS DECIMAL(10,2)))
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+             WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+             AND pm_status.meta_value NOT IN ('cancelled','refunded','completed')"
+		);
+
+		$deposit_blocked = (float) $wpdb->get_var(
+			"SELECT SUM(CAST(pm_dep.meta_value AS DECIMAL(10,2)))
+             FROM {$wpdb->posts} p
+             INNER JOIN {$wpdb->postmeta} pm_dep ON p.ID = pm_dep.post_id AND pm_dep.meta_key = '_mhm_deposit_amount'
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+             WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+             AND pm_status.meta_value IN ('confirmed','in_progress')"
+		);
+
+		$current_start = gmdate( 'Y-m-01 00:00:00' );
+		$current_end   = gmdate( 'Y-m-t 23:59:59' );
+
+		$this_month_collected = (float) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+                 FROM {$wpdb->posts} p
+                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
+                 WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+                 AND p.post_date >= %s AND p.post_date <= %s
+                 AND pm.meta_key = '_mhm_total_price'
+                 AND pm_status.meta_key = '_mhm_status'
+                 AND pm_status.meta_value IN ('completed','confirmed')",
+				$current_start,
+				$current_end
+			)
+		);
+
+		return array(
+			'pending_total'        => $pending_total,
+			'deposit_blocked'      => $deposit_blocked,
+			'this_month_collected' => $this_month_collected,
+		);
+	}
 }
