@@ -1034,16 +1034,6 @@ final class VehicleSettings {
 			unset( $universes['equipment'][ $tax_key ] );
 		}
 
-		// Frontend availability truth for details: a detail renders iff it is in the selected set,
-		// falling back to the core fields when nothing is selected -- exactly mirroring
-		// VehicleFeatureHelper::get_available_fields_map(). Features/equipment are never gated by a
-		// selected set on the frontend, so they are always enabled (see below).
-		$selected_details = (array) get_option( 'mhm_selected_details', self::get_default_selected_details() );
-		if ( empty( $selected_details ) ) {
-			$selected_details = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
-		}
-		$selected_details = array_map( 'strval', $selected_details );
-
 		$custom = array(
 			'detail'    => (array) get_option( 'mhm_custom_details', array() ),
 			'feature'   => (array) get_option( 'mhm_custom_features', array() ),
@@ -1082,9 +1072,9 @@ final class VehicleSettings {
 					'type'    => $type,
 					'key'     => $key,
 					'label'   => (string) $label,
-					// Features/equipment render ungated on the frontend, so they are always enabled;
-					// details are enabled iff available (selected set, or core when none selected).
-					'enabled' => ( 'detail' === $type ) ? in_array( $key, $selected_details, true ) : true,
+					// Active = the field is in use, per the frontend render predicate (details:
+					// core or selected; features/equipment: selected). Matches what actually renders.
+					'enabled' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::is_field_active( $type, $key ),
 					'core'    => $core,
 					'custom'  => isset( $custom[ $type ][ $key ] ),
 					'meta'    => ( 'detail' === $type && isset( $custom_meta[ $key ] ) && is_array( $custom_meta[ $key ] ) )
