@@ -7,6 +7,9 @@
  * @var int $vehicle_id
  * @var array $vehicle_rating
  * @var array|null $user_rating
+ * @var bool $show_rating_display Whether to render the score summary block
+ * @var bool $show_ratings_list   Whether to render the list of existing reviews
+ * @var bool $show_form           Whether to render the submission form
  */
 
 if (! defined('ABSPATH')) {
@@ -30,6 +33,12 @@ $vehicle_id     = $data['vehicle_id'] ?? $vars['vehicle_id'] ?? get_the_ID();
 $vehicle_rating = $data['vehicle_rating'] ?? $vars['vehicle_rating'] ?? array();
 $user_rating    = $data['user_rating'] ?? $vars['user_rating'] ?? null;
 $is_logged_in   = $data['is_logged_in'] ?? $vars['is_logged_in'] ?? is_user_logged_in();
+
+// Section toggles. They default to true so a bare [rentiva_vehicle_rating_form]
+// keeps rendering all three sections exactly as it always has.
+$show_rating_display = $data['show_rating_display'] ?? $vars['show_rating_display'] ?? true;
+$show_ratings_list   = $data['show_ratings_list'] ?? $vars['show_ratings_list'] ?? true;
+$show_form           = $data['show_form'] ?? $vars['show_form'] ?? true;
 
 // If vehicle_id still not available, get from global
 if (! $vehicle_id || $vehicle_id <= 0) {
@@ -124,6 +133,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 <div class="mhm-rentiva-rating-form rv-rating-form" data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-vehicle-id="<?php echo esc_attr($vehicle_id); ?>" data-debug-data="<?php echo esc_attr(wp_json_encode($data)); ?>" data-render-time="<?php echo esc_attr( (string) microtime(true)); ?>">
 
 	<!-- Current Rating Display -->
+	<?php if ($show_rating_display) : ?>
 	<div class="rv-rating-display">
 		<div class="rv-rating-summary">
 			<div class="rv-rating-summary-left">
@@ -156,8 +166,10 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			</div>
 		</div>
 	</div>
+	<?php endif; ?>
 
 	<!-- Rating List - Show to everyone (TOP) -->
+	<?php if ($show_ratings_list) : ?>
 	<div class="rv-ratings-list" id="ratings-list-<?php echo esc_attr($vehicle_id); ?>">
 		<?php
 		// Get settings from comments settings
@@ -302,9 +314,10 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			</div>
 		<?php endif; ?>
 	</div>
+	<?php endif; ?>
 
 	<!-- Rating Form (BOTTOM) -->
-	<?php if ($can_comment) : ?>
+	<?php if ($show_form && $can_comment) : ?>
 		<div class="rv-rating-form-container">
 			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
 
@@ -390,7 +403,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 			</form>
 		</div>
-	<?php else : ?>
+	<?php elseif ($show_form) : /* Form requested but the visitor may not post: prompt to log in. With show_form off, neither branch renders. */ ?>
 		<div class="rv-rating-login-notice">
 			<div class="rv-login-required">
 				<div class="rv-login-icon">

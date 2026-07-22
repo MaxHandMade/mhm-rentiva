@@ -110,10 +110,22 @@ final class VehicleRatingForm extends AbstractShortcode {
 			return array( 'vehicle_id' => 0 );
 		}
 
+		// These three toggles have been part of the shortcode's documented API --
+		// and of its block inspector -- since it shipped, but nothing ever read
+		// them, so every section rendered unconditionally however they were set.
+		// They map one-to-one onto the template's three sections (summary, review
+		// list, submission form), so they are honoured here rather than dropped.
+		$to_bool = static function ($value): bool {
+			return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+		};
+
 		return array(
-			'vehicle_id'     => $vehicle_id,
-			'vehicle_rating' => self::get_vehicle_rating($vehicle_id),
-			'user_rating'    => is_user_logged_in() ? self::get_user_rating($vehicle_id) : null,
+			'vehicle_id'          => $vehicle_id,
+			'vehicle_rating'      => self::get_vehicle_rating($vehicle_id),
+			'user_rating'         => is_user_logged_in() ? self::get_user_rating($vehicle_id) : null,
+			'show_rating_display' => $to_bool($atts['show_rating_display'] ?? '1'),
+			'show_form'           => $to_bool($atts['show_form'] ?? '1'),
+			'show_ratings_list'   => $to_bool($atts['show_ratings_list'] ?? '1'),
 		);
 	}
 
