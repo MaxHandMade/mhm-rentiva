@@ -234,10 +234,10 @@
 #mhm-rentiva-dashboard .mhm-stat-card .dashicons { color: var( --rv-accent ); opacity: 1; }
 #mhm-rentiva-dashboard .mhm-stat-card__label { color: var( --rv-muted ); opacity: 1; }
 #mhm-rentiva-dashboard .mhm-stat-card__value { color: var( --rv-ink ); }
-.mhm-stat-card__delta { margin: 0; font-size: 12px; }
-.mhm-stat-card__delta--up   { color: var( --rv-pos ); }
-.mhm-stat-card__delta--down { color: var( --rv-neg ); }
-.mhm-stat-card__delta--none { color: var( --rv-muted ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta { margin: 0; font-size: 12px; }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--up   { color: var( --rv-pos ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--down { color: var( --rv-neg ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--none { color: var( --rv-muted ); }
 
 /* Two-column layout */
 .rv-dash-cols { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; align-items: flex-start; }
