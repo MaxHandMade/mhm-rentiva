@@ -998,69 +998,6 @@ final class VehicleSettings {
 	}
 
 	/**
-	 * Drop selection entries whose field is not currently enabled (disable-cascade, D4).
-	 *
-	 * @param array<int,array{type?:string,key?:string}> $selection
-	 * @return array<int,array{type:string,key:string}>
-	 */
-	private static function filter_selection_by_enabled( array $selection ): array {
-		$enabled = array(
-			'detail'    => (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ),
-			'feature'   => (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ),
-			'equipment' => (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ),
-		);
-
-		$out = array();
-		foreach ( $selection as $item ) {
-			if ( ! is_array( $item ) || ! isset( $item['type'], $item['key'] ) ) {
-				continue;
-			}
-			$type = sanitize_key( (string) $item['type'] );
-			$key  = sanitize_key( (string) $item['key'] );
-
-			if ( ! isset( $enabled[ $type ] ) ) {
-				continue; // taxonomy and unknown types are out of scope (D5)
-			}
-			if ( ! in_array( $key, array_map( 'strval', $enabled[ $type ] ), true ) ) {
-				continue;
-			}
-			$out[] = array(
-				'type' => $type,
-				'key'  => $key,
-			);
-		}
-		return $out;
-	}
-
-	/**
-	 * Drop comparison entries whose field is not currently enabled (disable-cascade, D4).
-	 *
-	 * @param array<string,array<int,string>> $comparison
-	 * @return array<string,array<int,string>>
-	 */
-	private static function filter_comparison_by_enabled( array $comparison ): array {
-		$enabled_by_category = array(
-			'details'   => array_map( 'strval', (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ) ),
-			'features'  => array_map( 'strval', (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ) ),
-			'equipment' => array_map( 'strval', (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ) ),
-		);
-
-		$out = array();
-		foreach ( $comparison as $category => $keys ) {
-			if ( ! is_array( $keys ) || ! isset( $enabled_by_category[ $category ] ) ) {
-				continue;
-			}
-			$out[ $category ] = array_values( array_filter(
-				array_map( 'strval', $keys ),
-				static function ( $key ) use ( $enabled_by_category, $category ) {
-					return in_array( $key, $enabled_by_category[ $category ], true );
-				}
-			) );
-		}
-		return $out;
-	}
-
-	/**
 	 * Convert a [{type,key}] selection into a list of "type:key" ids.
 	 *
 	 * @param array<int,array{type?:string,key?:string}> $selection
@@ -1097,11 +1034,15 @@ final class VehicleSettings {
 			unset( $universes['equipment'][ $tax_key ] );
 		}
 
-		$selected = array(
-			'detail'    => (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ),
-			'feature'   => (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ),
-			'equipment' => (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ),
-		);
+		// Frontend availability truth for details: a detail renders iff it is in the selected set,
+		// falling back to the core fields when nothing is selected -- exactly mirroring
+		// VehicleFeatureHelper::get_available_fields_map(). Features/equipment are never gated by a
+		// selected set on the frontend, so they are always enabled (see below).
+		$selected_details = (array) get_option( 'mhm_selected_details', self::get_default_selected_details() );
+		if ( empty( $selected_details ) ) {
+			$selected_details = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
+		}
+		$selected_details = array_map( 'strval', $selected_details );
 
 		$custom = array(
 			'detail'    => (array) get_option( 'mhm_custom_details', array() ),
@@ -1120,12 +1061,13 @@ final class VehicleSettings {
 		$card_ids   = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
 		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
 
-		// Trap 2: an entirely empty comparison_fields means "all fields compare".
-		$settings    = (array) get_option( 'mhm_rentiva_settings', array() );
-		$comparison  = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
+		// The comparison table renders exactly the keys stored in comparison_fields
+		// (VehicleComparison::get_dynamic_features()); an empty set renders NO comparison rows, so
+		// there is no "empty means all" default -- an empty selection means nothing compares.
+		$settings   = (array) get_option( 'mhm_rentiva_settings', array() );
+		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
 			? $settings['comparison_fields']
 			: array();
-		$compare_all = empty( $comparison );
 
 		$fields = array();
 		foreach ( $universes as $type => $universe ) {
@@ -1140,8 +1082,9 @@ final class VehicleSettings {
 					'type'    => $type,
 					'key'     => $key,
 					'label'   => (string) $label,
-					// Core detail fields are always active (mirrors ajax_save_settings' enforcement).
-					'enabled' => $core || in_array( $key, $selected[ $type ], true ),
+					// Features/equipment render ungated on the frontend, so they are always enabled;
+					// details are enabled iff available (selected set, or core when none selected).
+					'enabled' => ( 'detail' === $type ) ? in_array( $key, $selected_details, true ) : true,
 					'core'    => $core,
 					'custom'  => isset( $custom[ $type ][ $key ] ),
 					'meta'    => ( 'detail' === $type && isset( $custom_meta[ $key ] ) && is_array( $custom_meta[ $key ] ) )
@@ -1149,7 +1092,7 @@ final class VehicleSettings {
 						: null,
 					'card'    => in_array( $id, $card_ids, true ),
 					'detail'  => in_array( $id, $detail_ids, true ),
-					'compare' => $compare_all || (
+					'compare' => (
 						isset( $comparison[ $category ] )
 						&& is_array( $comparison[ $category ] )
 						&& in_array( $key, array_map( 'strval', $comparison[ $category ] ), true )
@@ -1193,12 +1136,12 @@ final class VehicleSettings {
 		}
 
 		if ( 'save_all' === $sub_action ) {
-			// Definitions FIRST: the display payload is validated against the new enabled sets.
-			// Contract: save_all requires a COMPLETE definitions payload. save_definitions_payload()
-			// writes mhm_selected_details/features/equipment unconditionally from the POST body, so an
-			// omitted selected_* key is stored as an empty set -- not "leave unchanged" -- and the
-			// cascade above then strips those fields from card/detail/comparison too. See the docblock
-			// on save_definitions_payload() for detail.
+			// Definitions FIRST: save_display_payload() sanitises the card/detail selection against
+			// get_available_fields_map(), which reflects the just-written selected sets, so a detail
+			// removed here is dropped from the card/detail selection. Contract: save_all requires a
+			// COMPLETE definitions payload -- save_definitions_payload() writes the selected_* options
+			// unconditionally, so an omitted key is stored as an empty set (not "leave unchanged").
+			// See the docblock on save_definitions_payload() for detail.
 			self::save_definitions_payload();
 			self::save_display_payload();
 			wp_send_json_success( __( 'Settings saved!', 'mhm-rentiva' ) );
@@ -1227,11 +1170,11 @@ final class VehicleSettings {
 			$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
 			$decoded    = json_decode( $json_value, true );
 
-			// Validate structure
+			// Validate structure. sanitize_card_field_selection() gates every entry through
+			// get_available_fields_map() -- the same availability truth the frontend renders from --
+			// so an unavailable (disabled) detail is dropped here, while features/equipment pass.
 			if ( is_array( $decoded ) ) {
-				$settings['mhm_rentiva_vehicle_card_fields'] = self::filter_selection_by_enabled(
-					\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded )
-				);
+				$settings['mhm_rentiva_vehicle_card_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
 				$settings_updated                            = true;
 			}
 		}
@@ -1244,9 +1187,7 @@ final class VehicleSettings {
 			$decoded    = json_decode( $json_value, true );
 
 			if ( is_array( $decoded ) ) {
-				$settings['mhm_rentiva_vehicle_detail_fields'] = self::filter_selection_by_enabled(
-					\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded )
-				);
+				$settings['mhm_rentiva_vehicle_detail_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
 				$settings_updated                              = true;
 			}
 		}
@@ -1264,8 +1205,9 @@ final class VehicleSettings {
 			}
 		}
 
-		// Should we save if empty? Yes, user might have deselected all.
-		$settings['comparison_fields'] = self::filter_comparison_by_enabled( $sanitized_comparison );
+		// Store the submitted comparison selection as-is (the admin UI only offers available fields,
+		// and the frontend comparison table renders exactly what is stored). Empty = nothing compares.
+		$settings['comparison_fields'] = $sanitized_comparison;
 		$settings_updated              = true;
 
 		if ( $settings_updated ) {
@@ -1281,9 +1223,10 @@ final class VehicleSettings {
 	 * are UNCONDITIONAL -- each is taken from `post_array()`, which yields `array()` when the
 	 * corresponding POST key is absent, unlike the `isset()`-guarded `custom_*` writes further
 	 * down. A caller that invokes `sub_action=save_all` MUST submit a complete definitions
-	 * payload (all three `selected_*` arrays), because an omitted key clears that enabled set,
-	 * and `save_all` runs this method before `save_display_payload()`, so the cascade filters
-	 * would then strip the just-cleared fields from card/detail/comparison as well.
+	 * payload (all three `selected_*` arrays), because an omitted key clears that set; and
+	 * `save_all` runs this method before `save_display_payload()` so that the card/detail
+	 * sanitisation there sees the freshly-written availability (a detail removed here is then
+	 * dropped from the card/detail selection by sanitize_card_field_selection()).
 	 */
 	private static function save_definitions_payload(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
