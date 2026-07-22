@@ -515,7 +515,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhm_total_price'
              {$location_joins}
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
-             ORDER BY p.post_date DESC
+             ORDER BY pm_pickup.meta_value DESC, p.post_date DESC
              LIMIT %d OFFSET %d";
 
 		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- SQL built from core table names and %s/%d placeholders; values via $wpdb->prepare().
