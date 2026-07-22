@@ -998,6 +998,69 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * Drop selection entries whose field is not currently enabled (disable-cascade, D4).
+	 *
+	 * @param array<int,array{type?:string,key?:string}> $selection
+	 * @return array<int,array{type:string,key:string}>
+	 */
+	private static function filter_selection_by_enabled( array $selection ): array {
+		$enabled = array(
+			'detail'    => (array) get_option( 'mhm_selected_details', array() ),
+			'feature'   => (array) get_option( 'mhm_selected_features', array() ),
+			'equipment' => (array) get_option( 'mhm_selected_equipment', array() ),
+		);
+
+		$out = array();
+		foreach ( $selection as $item ) {
+			if ( ! is_array( $item ) || ! isset( $item['type'], $item['key'] ) ) {
+				continue;
+			}
+			$type = sanitize_key( (string) $item['type'] );
+			$key  = sanitize_key( (string) $item['key'] );
+
+			if ( ! isset( $enabled[ $type ] ) ) {
+				continue; // taxonomy and unknown types are out of scope (D5)
+			}
+			if ( ! in_array( $key, array_map( 'strval', $enabled[ $type ] ), true ) ) {
+				continue;
+			}
+			$out[] = array(
+				'type' => $type,
+				'key'  => $key,
+			);
+		}
+		return $out;
+	}
+
+	/**
+	 * Drop comparison entries whose field is not currently enabled (disable-cascade, D4).
+	 *
+	 * @param array<string,array<int,string>> $comparison
+	 * @return array<string,array<int,string>>
+	 */
+	private static function filter_comparison_by_enabled( array $comparison ): array {
+		$enabled_by_category = array(
+			'details'   => array_map( 'strval', (array) get_option( 'mhm_selected_details', array() ) ),
+			'features'  => array_map( 'strval', (array) get_option( 'mhm_selected_features', array() ) ),
+			'equipment' => array_map( 'strval', (array) get_option( 'mhm_selected_equipment', array() ) ),
+		);
+
+		$out = array();
+		foreach ( $comparison as $category => $keys ) {
+			if ( ! is_array( $keys ) || ! isset( $enabled_by_category[ $category ] ) ) {
+				continue;
+			}
+			$out[ $category ] = array_values( array_filter(
+				array_map( 'strval', $keys ),
+				static function ( $key ) use ( $enabled_by_category, $category ) {
+					return in_array( $key, $enabled_by_category[ $category ], true );
+				}
+			) );
+		}
+		return $out;
+	}
+
+	/**
 	 * Convert a [{type,key}] selection into a list of "type:key" ids.
 	 *
 	 * @param array<int,array{type?:string,key?:string}> $selection
@@ -1121,62 +1184,96 @@ final class VehicleSettings {
 			wp_send_json_error( __( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		// CHECK FOR SUB-ACTION (Display Settings)
-		if ( 'save_display_settings' === self::post_text( 'sub_action' ) ) {
-			$settings         = get_option( 'mhm_rentiva_settings', array() );
-			$settings_updated = false;
+		$sub_action = self::post_text( 'sub_action' );
 
-			// Save Card Fields
-			if ( isset( $_POST['mhm_rentiva_vehicle_card_fields'] ) ) {
-				// It comes as a JSON string from the hidden input
-				$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
-				$decoded    = json_decode( $json_value, true );
-
-				// Validate structure
-				if ( is_array( $decoded ) ) {
-					$settings['mhm_rentiva_vehicle_card_fields'] = $decoded;
-					$settings_updated                            = true;
-				}
-			}
-			// If the field is not present in $_POST we leave the existing setting in place.
-			// JS submits "[]" for an explicit empty selection; missing field means "no change".
-
-			// Save Vehicle Detail Highlighted Fields
-			if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
-				$json_value = self::post_text( 'mhm_rentiva_vehicle_detail_fields' );
-				$decoded    = json_decode( $json_value, true );
-
-				if ( is_array( $decoded ) ) {
-					$settings['mhm_rentiva_vehicle_detail_fields'] = $decoded;
-					$settings_updated                              = true;
-				}
-			}
-
-			// Save Comparison Fields
-			// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
-			$comparison_fields    = self::post_array( 'comparison_fields' );
-			$sanitized_comparison = array();
-
-			if ( is_array( $comparison_fields ) ) {
-				foreach ( $comparison_fields as $cat => $fields ) {
-					if ( is_array( $fields ) ) {
-						$sanitized_comparison[ $cat ] = array_map( 'sanitize_text_field', $fields );
-					}
-				}
-			}
-
-			// Should we save if empty? Yes, user might have deselected all.
-			$settings['comparison_fields'] = $sanitized_comparison;
-			$settings_updated              = true;
-
-			if ( $settings_updated ) {
-				update_option( 'mhm_rentiva_settings', $settings );
-			}
-
+		if ( 'save_display_settings' === $sub_action ) {
+			self::save_display_payload();
 			wp_send_json_success( __( 'Display settings saved!', 'mhm-rentiva' ) );
 			return;
 		}
 
+		if ( 'save_all' === $sub_action ) {
+			// Definitions FIRST: the display payload is validated against the new enabled sets.
+			self::save_definitions_payload();
+			self::save_display_payload();
+			wp_send_json_success( __( 'Settings saved!', 'mhm-rentiva' ) );
+			return;
+		}
+
+		self::save_definitions_payload();
+		wp_send_json_success( __( 'Settings saved successfully!', 'mhm-rentiva' ) );
+	}
+
+	/**
+	 * Persist the "Display" tab payload (card/detail/comparison field selections).
+	 *
+	 * Selections and comparison categories are filtered against the currently enabled
+	 * fields before being stored (disable-cascade, D4) -- a field that is not enabled
+	 * must not survive in card/detail/comparison selections.
+	 */
+	private static function save_display_payload(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
+		$settings         = get_option( 'mhm_rentiva_settings', array() );
+		$settings_updated = false;
+
+		// Save Card Fields
+		if ( isset( $_POST['mhm_rentiva_vehicle_card_fields'] ) ) {
+			// It comes as a JSON string from the hidden input
+			$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
+			$decoded    = json_decode( $json_value, true );
+
+			// Validate structure
+			if ( is_array( $decoded ) ) {
+				$settings['mhm_rentiva_vehicle_card_fields'] = self::filter_selection_by_enabled(
+					\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded )
+				);
+				$settings_updated                            = true;
+			}
+		}
+		// If the field is not present in $_POST we leave the existing setting in place.
+		// JS submits "[]" for an explicit empty selection; missing field means "no change".
+
+		// Save Vehicle Detail Highlighted Fields
+		if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
+			$json_value = self::post_text( 'mhm_rentiva_vehicle_detail_fields' );
+			$decoded    = json_decode( $json_value, true );
+
+			if ( is_array( $decoded ) ) {
+				$settings['mhm_rentiva_vehicle_detail_fields'] = self::filter_selection_by_enabled(
+					\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded )
+				);
+				$settings_updated                              = true;
+			}
+		}
+
+		// Save Comparison Fields
+		// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
+		$comparison_fields    = self::post_array( 'comparison_fields' );
+		$sanitized_comparison = array();
+
+		if ( is_array( $comparison_fields ) ) {
+			foreach ( $comparison_fields as $cat => $fields ) {
+				if ( is_array( $fields ) ) {
+					$sanitized_comparison[ $cat ] = array_map( 'sanitize_text_field', $fields );
+				}
+			}
+		}
+
+		// Should we save if empty? Yes, user might have deselected all.
+		$settings['comparison_fields'] = self::filter_comparison_by_enabled( $sanitized_comparison );
+		$settings_updated              = true;
+
+		if ( $settings_updated ) {
+			update_option( 'mhm_rentiva_settings', $settings );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+	}
+
+	/**
+	 * Persist the "Definitions" tab payload (which fields exist / are enabled + custom fields).
+	 */
+	private static function save_definitions_payload(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
 		// Save selected fields (Definitions Tab)
 		$selected_details = array_map( 'sanitize_text_field', self::post_array( 'selected_details' ) );
 		// Core fields are always selected - enforce even if disabled checkboxes weren't submitted
@@ -1213,8 +1310,7 @@ final class VehicleSettings {
 		if ( isset( $_POST['custom_equipment'] ) ) {
 			update_option( 'mhm_custom_equipment', $custom_equipment );
 		}
-
-		wp_send_json_success( __( 'Settings saved successfully!', 'mhm-rentiva' ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**

@@ -1455,7 +1455,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 9
+			count: 10
 			path: src/Admin/Vehicle/Settings/VehicleSettings.php
 
 		-
