@@ -1005,9 +1005,9 @@ final class VehicleSettings {
 	 */
 	private static function filter_selection_by_enabled( array $selection ): array {
 		$enabled = array(
-			'detail'    => (array) get_option( 'mhm_selected_details', array() ),
-			'feature'   => (array) get_option( 'mhm_selected_features', array() ),
-			'equipment' => (array) get_option( 'mhm_selected_equipment', array() ),
+			'detail'    => (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ),
+			'feature'   => (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ),
+			'equipment' => (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ),
 		);
 
 		$out = array();
@@ -1040,9 +1040,9 @@ final class VehicleSettings {
 	 */
 	private static function filter_comparison_by_enabled( array $comparison ): array {
 		$enabled_by_category = array(
-			'details'   => array_map( 'strval', (array) get_option( 'mhm_selected_details', array() ) ),
-			'features'  => array_map( 'strval', (array) get_option( 'mhm_selected_features', array() ) ),
-			'equipment' => array_map( 'strval', (array) get_option( 'mhm_selected_equipment', array() ) ),
+			'details'   => array_map( 'strval', (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ) ),
+			'features'  => array_map( 'strval', (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ) ),
+			'equipment' => array_map( 'strval', (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ) ),
 		);
 
 		$out = array();
@@ -1194,6 +1194,11 @@ final class VehicleSettings {
 
 		if ( 'save_all' === $sub_action ) {
 			// Definitions FIRST: the display payload is validated against the new enabled sets.
+			// Contract: save_all requires a COMPLETE definitions payload. save_definitions_payload()
+			// writes mhm_selected_details/features/equipment unconditionally from the POST body, so an
+			// omitted selected_* key is stored as an empty set -- not "leave unchanged" -- and the
+			// cascade above then strips those fields from card/detail/comparison too. See the docblock
+			// on save_definitions_payload() for detail.
 			self::save_definitions_payload();
 			self::save_display_payload();
 			wp_send_json_success( __( 'Settings saved!', 'mhm-rentiva' ) );
@@ -1271,6 +1276,14 @@ final class VehicleSettings {
 
 	/**
 	 * Persist the "Definitions" tab payload (which fields exist / are enabled + custom fields).
+	 *
+	 * Contract: the three `selected_*` writes below (`mhm_selected_details/features/equipment`)
+	 * are UNCONDITIONAL -- each is taken from `post_array()`, which yields `array()` when the
+	 * corresponding POST key is absent, unlike the `isset()`-guarded `custom_*` writes further
+	 * down. A caller that invokes `sub_action=save_all` MUST submit a complete definitions
+	 * payload (all three `selected_*` arrays), because an omitted key clears that enabled set,
+	 * and `save_all` runs this method before `save_display_payload()`, so the cascade filters
+	 * would then strip the just-cleared fields from card/detail/comparison as well.
 	 */
 	private static function save_definitions_payload(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
