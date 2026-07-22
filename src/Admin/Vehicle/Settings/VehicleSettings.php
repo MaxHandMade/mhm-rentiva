@@ -986,6 +986,132 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * Map a singular field type to its plural option/category name.
+	 */
+	private static function type_to_category( string $type ): string {
+		$map = array(
+			'detail'    => 'details',
+			'feature'   => 'features',
+			'equipment' => 'equipment',
+		);
+		return $map[ $type ] ?? $type;
+	}
+
+	/**
+	 * Convert a [{type,key}] selection into a list of "type:key" ids.
+	 *
+	 * @param array<int,array{type?:string,key?:string}> $selection
+	 * @return string[]
+	 */
+	private static function selection_to_ids( array $selection ): array {
+		$ids = array();
+		foreach ( $selection as $item ) {
+			if ( is_array( $item ) && isset( $item['type'], $item['key'] ) ) {
+				$ids[] = sanitize_key( (string) $item['type'] ) . ':' . sanitize_key( (string) $item['key'] );
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * Build the client-side state payload for the Vehicle Settings UI.
+	 *
+	 * @return array{fields:array<int,array>,cardOrder:string[],detailOrder:string[]}
+	 */
+	public static function build_settings_state(): array {
+		$universes = array(
+			'detail'    => self::get_all_available_details(),
+			'feature'   => self::get_all_available_features(),
+			'equipment' => self::get_all_available_equipment(),
+		);
+
+		// D5: taxonomy-backed keys are out of scope for this UI. Subtract them by key set,
+		// not by string prefix.
+		foreach ( array_keys( self::get_taxonomy_features() ) as $tax_key ) {
+			unset( $universes['feature'][ $tax_key ] );
+		}
+		foreach ( array_keys( self::get_taxonomy_equipment() ) as $tax_key ) {
+			unset( $universes['equipment'][ $tax_key ] );
+		}
+
+		$selected = array(
+			'detail'    => (array) get_option( 'mhm_selected_details', self::get_default_selected_details() ),
+			'feature'   => (array) get_option( 'mhm_selected_features', self::get_default_selected_features() ),
+			'equipment' => (array) get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() ),
+		);
+
+		$custom = array(
+			'detail'    => (array) get_option( 'mhm_custom_details', array() ),
+			'feature'   => (array) get_option( 'mhm_custom_features', array() ),
+			'equipment' => (array) get_option( 'mhm_custom_equipment', array() ),
+		);
+
+		// Trap 4: REQUIRED rows are core keys that actually exist as detail fields.
+		$core_keys = array_values( array_intersect(
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields(),
+			array_keys( $universes['detail'] )
+		) );
+
+		$custom_meta = (array) get_option( 'mhm_custom_field_meta', array() );
+
+		$card_ids   = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
+		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
+
+		// Trap 2: an entirely empty comparison_fields means "all fields compare".
+		$settings   = (array) get_option( 'mhm_rentiva_settings', array() );
+		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
+			? $settings['comparison_fields']
+			: array();
+		$compare_all = empty( $comparison );
+
+		$fields = array();
+		foreach ( $universes as $type => $universe ) {
+			$category = self::type_to_category( $type );
+			foreach ( $universe as $key => $label ) {
+				$key  = (string) $key;
+				$id   = $type . ':' . $key;
+				$core = ( 'detail' === $type && in_array( $key, $core_keys, true ) );
+
+				$fields[] = array(
+					'id'      => $id,
+					'type'    => $type,
+					'key'     => $key,
+					'label'   => (string) $label,
+					// Core detail fields are always active (mirrors ajax_save_settings' enforcement).
+					'enabled' => $core || in_array( $key, $selected[ $type ], true ),
+					'core'    => $core,
+					'custom'  => isset( $custom[ $type ][ $key ] ),
+					'meta'    => ( 'detail' === $type && isset( $custom_meta[ $key ] ) && is_array( $custom_meta[ $key ] ) )
+						? $custom_meta[ $key ]
+						: null,
+					'card'    => in_array( $id, $card_ids, true ),
+					'detail'  => in_array( $id, $detail_ids, true ),
+					'compare' => $compare_all || (
+						isset( $comparison[ $category ] )
+						&& is_array( $comparison[ $category ] )
+						&& in_array( $key, array_map( 'strval', $comparison[ $category ] ), true )
+					),
+				);
+			}
+		}
+
+		// Orders may legitimately reference ids we do not render (e.g. taxonomy selections
+		// stored previously). Keep only ids that exist as rows so the UI cannot desync.
+		$known        = array_column( $fields, 'id' );
+		$filter_known = static function ( array $ids ) use ( $known ): array {
+			return array_values( array_filter( $ids, static function ( $id ) use ( $known ) {
+				return in_array( $id, $known, true );
+			} ) );
+		};
+
+		return array(
+			'fields'      => $fields,
+			'cardOrder'   => $filter_known( $card_ids ),
+			'detailOrder' => $filter_known( $detail_ids ),
+		);
+	}
+
+	/**
 	 * AJAX: Save settings
 	 */
 	public static function ajax_save_settings(): void {
