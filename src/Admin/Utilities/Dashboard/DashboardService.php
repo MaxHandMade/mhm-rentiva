@@ -1204,11 +1204,12 @@ final class DashboardService {
 		global $wpdb;
 
 		$pending_total = (float) $wpdb->get_var(
-			"SELECT SUM(CAST(pm_rem.meta_value AS DECIMAL(10,2)))
+			"SELECT SUM(CAST(COALESCE(pm_rem.meta_value, '0') AS DECIMAL(10,2)))
              FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-             WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+             LEFT JOIN {$wpdb->postmeta} pm_rem ON p.ID = pm_rem.post_id AND pm_rem.meta_key = '_mhm_remaining_amount'
+             WHERE p.post_type = 'vehicle_booking'
+             AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
              AND pm_status.meta_value NOT IN ('cancelled','refunded','completed')"
 		);
 
@@ -1217,7 +1218,8 @@ final class DashboardService {
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_dep ON p.ID = pm_dep.post_id AND pm_dep.meta_key = '_mhm_deposit_amount'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-             WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+             WHERE p.post_type = 'vehicle_booking'
+             AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('confirmed','in_progress')"
 		);
 
@@ -1230,7 +1232,8 @@ final class DashboardService {
                  FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
                  INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = 'vehicle_booking' AND p.post_status != 'trash'
+                 WHERE p.post_type = 'vehicle_booking'
+                 AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
                  AND p.post_date >= %s AND p.post_date <= %s
                  AND pm.meta_key = '_mhm_total_price'
                  AND pm_status.meta_key = '_mhm_status'
