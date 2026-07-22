@@ -124,15 +124,31 @@ final class VehicleFeatureHelper {
 
 	/**
 	 * Returns selected vehicle detail fields.
-	 * Falls back to card field selection for backward compatibility.
+	 *
+	 * Never configured  -> mirror the card selection (legacy behaviour, so sites that
+	 *                      never touched this setting keep their detail highlights).
+	 * Explicitly stored -> honour exactly, including an explicit empty selection.
+	 *
+	 * Note: this cannot be implemented as `SettingsCore::get($key, null) === null`.
+	 * SettingsCore::get() falls back to SettingsCore::get_defaults() before it ever
+	 * looks at the caller-supplied default, and get_defaults() (via
+	 * FrontendSettings::get_default_settings()) already registers a non-null static
+	 * default for this exact key (the fixed 4-field get_default_card_fields() list).
+	 * So *any* default/sentinel passed to get() is masked whenever the key is absent
+	 * from the stored option -- the caller's default is never returned. Only
+	 * SettingsCore::has(), which checks array_key_exists() against the raw stored
+	 * option and ignores defaults entirely, can tell "never configured" apart from
+	 * "explicitly stored".
 	 */
 	public static function get_selected_detail_fields(): array
 	{
-		$fallback = self::get_selected_card_fields();
-		$raw      = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', $fallback);
-		$selected = self::sanitize_card_field_selection($raw);
+		if (! SettingsCore::has('mhm_rentiva_vehicle_detail_fields')) {
+			return self::get_selected_card_fields();
+		}
 
-		return ! empty($selected) ? $selected : $fallback;
+		$raw = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', array());
+
+		return self::sanitize_card_field_selection($raw);
 	}
 
 	/**
