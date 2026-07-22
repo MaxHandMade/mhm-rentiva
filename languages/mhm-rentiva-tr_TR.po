@@ -1,9 +1,9 @@
-#
+# 
 msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-07-20T19:08:25+00:00\n"
+"POT-Creation-Date: 2026-07-22T17:12:15+00:00\n"
 "PO-Revision-Date: 2026-04-14 23:17+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -21,6 +21,7 @@ msgstr ""
 #: src/Admin/About/Tabs/GeneralTab.php:268
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
 #: src/Admin/Utilities/Menu/Menu.php:29 src/Admin/Utilities/Menu/Menu.php:30
+#: src-react/admin/dashboard/DashboardPage.jsx:88
 msgid "MHM Rentiva"
 msgstr "MHM Rentiva"
 
@@ -122,7 +123,7 @@ msgstr "Sistem bilgilerini alırken hata oluştu."
 #: src/Admin/About/Tabs/SystemTab.php:150
 #: src/Admin/About/Tabs/SystemTab.php:156
 #: src/Admin/About/Tabs/SystemTab.php:162
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1092
 #: src/Admin/Setup/SetupWizard.php:884 src/Admin/Setup/SetupWizard.php:975
 #: templates/account/partials/vendor-bookings.php:269
 #: templates/account/partials/vendor-bookings.php:311
@@ -135,7 +136,7 @@ msgstr "Hesaplanamadı"
 
 #: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:960
 #: src/Admin/Core/AssetManager.php:1367
-#: src/Admin/Frontend/Account/AccountController.php:194
+#: src/Admin/Frontend/Account/AccountController.php:198
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:385
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
 msgid "Error"
@@ -449,7 +450,7 @@ msgstr "Toplam Araç Sayısı"
 #: src/Admin/Customers/CustomersPage.php:221
 #: src/Core/Dashboard/DashboardConfig.php:26 templates/account/dashboard.php:50
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
-#: src-react/admin/dashboard/components/StatsCards.jsx:10
+#: src-react/admin/dashboard/components/StatsCards.jsx:21
 msgid "Total Bookings"
 msgstr "Toplam Rezervasyon"
 
@@ -778,22 +779,22 @@ msgstr "Yeni bağlam adı"
 #: src/Admin/Addons/AddonContextTaxonomy.php:65
 #: src/Admin/Addons/AddonManager.php:223
 #: src/Admin/Booking/ListTable/BookingColumns.php:418
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:132
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:123
 #: templates/account/user-dashboard.php:271
 #: assets/blocks/featured-vehicles/index.js:27
-#: assets/blocks/unified-search/index.js:62
+#: assets/blocks/unified-search/index.js:61
 msgid "Rental"
 msgstr "Kiralık"
 
 #: src/Admin/Addons/AddonContextTaxonomy.php:66
 #: src/Admin/Addons/AddonManager.php:224
 #: src/Admin/Booking/ListTable/BookingColumns.php:416
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:133
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:124
 #: src/Admin/Settings/Testing/SettingsTester.php:985
 #: templates/account/partials/vendor-bookings.php:284
 #: templates/account/user-dashboard.php:271
 #: assets/blocks/featured-vehicles/index.js:28
-#: assets/blocks/unified-search/index.js:63
+#: assets/blocks/unified-search/index.js:62
 #: src-react/admin/dashboard/components/QuickActions.jsx:13
 msgid "Transfer"
 msgstr "Transfer"
@@ -823,7 +824,7 @@ msgstr "Başlık"
 #: assets/blocks/featured-vehicles/index.js:38
 #: assets/blocks/my-bookings/index.js:55 assets/blocks/my-favorites/index.js:50
 #: assets/blocks/search-results/index.js:52
-#: assets/blocks/vehicles-grid/index.js:52
+#: assets/blocks/vehicles-grid/index.js:51
 #: assets/blocks/vehicles-list/index.js:28
 msgid "Price"
 msgstr "Fiyat"
@@ -842,6 +843,7 @@ msgstr "Fiyat"
 #: templates/account/user-dashboard.php:283
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
+#: src-react/admin/dashboard/components/RecentBookings.jsx:68
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
 msgid "Status"
 msgstr "Durum"
@@ -849,7 +851,7 @@ msgstr "Durum"
 #: src/Admin/Addons/AddonListTable.php:156 src/Admin/Addons/AddonMeta.php:112
 #: src/Admin/Setup/SetupWizard.php:973
 #: src/Admin/Utilities/Database/MetaKeysDocumentation.php:632
-#: assets/blocks/unified-search/index.js:171
+#: assets/blocks/unified-search/index.js:160
 msgid "Required"
 msgstr "Gerekli"
 
@@ -864,6 +866,7 @@ msgstr "Gerekli"
 #: assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
+#: src-react/admin/dashboard/components/RecentBookings.jsx:66
 msgid "Date"
 msgstr "Tarih"
 
@@ -873,7 +876,7 @@ msgstr "Tarih"
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:891 src/Admin/Setup/SetupWizard.php:950
-#: src/Admin/Utilities/Dashboard/DashboardService.php:961
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1128
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:615
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:336
@@ -903,7 +906,7 @@ msgstr "Pasif"
 #: src/Admin/Customers/CustomersPage.php:247
 #: src/Admin/Setup/SetupWizard.php:223
 #: templates/account/partials/vendor-listings.php:405
-#: templates/shortcodes/vehicle-rating-form.php:280
+#: templates/shortcodes/vehicle-rating-form.php:292
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
 msgid "Edit"
@@ -923,7 +926,7 @@ msgstr "Bu ek hizmeti silmek istediğinizden emin misiniz?"
 #: src/Admin/Core/AssetManager.php:1008 src/Admin/Core/AssetManager.php:1108
 #: src/Admin/Core/AssetManager.php:1376
 #: src/Admin/Core/Utilities/AbstractListTable.php:405
-#: templates/shortcodes/vehicle-rating-form.php:286
+#: templates/shortcodes/vehicle-rating-form.php:298
 #: src-react/admin/customers/CustomersPage.jsx:66
 msgid "Delete"
 msgstr "Sil"
@@ -1023,8 +1026,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1206 src/Admin/Core/AssetManager.php:1235
 #: src/Admin/Core/AssetManager.php:1394
 #: src/Admin/Emails/Core/EmailTemplates.php:636
-#: src/Admin/Frontend/Account/AccountController.php:186
-#: src/Admin/Frontend/Account/AccountController.php:241
+#: src/Admin/Frontend/Account/AccountController.php:190
+#: src/Admin/Frontend/Account/AccountController.php:245
 #: templates/shortcodes/booking-form.php:416
 msgid "Processing..."
 msgstr "İşleniyor..."
@@ -1033,7 +1036,7 @@ msgstr "İşleniyor..."
 #: src/Admin/Addons/AddonManager.php:294 src/Admin/Core/AssetManager.php:1016
 #: src/Admin/Core/AssetManager.php:1092
 #: src/Admin/Emails/Core/EmailTemplates.php:637
-#: src/Admin/Frontend/Account/AccountController.php:220
+#: src/Admin/Frontend/Account/AccountController.php:224
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
 
@@ -1103,11 +1106,11 @@ msgstr " (bağlam ile uyumsuz)"
 #: src/Admin/Emails/Core/EmailTemplates.php:301
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:556
-#: src/Admin/Frontend/Account/AccountController.php:639
-#: src/Admin/Frontend/Account/AccountController.php:685
-#: src/Admin/Frontend/Account/AccountController.php:793
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:902
+#: src/Admin/Frontend/Account/AccountController.php:560
+#: src/Admin/Frontend/Account/AccountController.php:643
+#: src/Admin/Frontend/Account/AccountController.php:689
+#: src/Admin/Frontend/Account/AccountController.php:797
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:905
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:665
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1051
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1386
@@ -1290,11 +1293,6 @@ msgstr "Ayarlar başarıyla kaydedildi."
 
 #: src/Admin/Addons/AddonSettings.php:128
 #: src/Admin/Addons/AddonSettings.php:239
-#: src/Admin/REST/Settings/RESTSettings.php:336
-#: src/Admin/REST/Settings/RESTSettings.php:350
-#: src/Admin/REST/Settings/RESTSettings.php:361
-#: src/Admin/REST/Settings/RESTSettings.php:373
-#: src/Admin/REST/Settings/RESTSettings.php:385
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:232
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:271
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:328
@@ -1420,9 +1418,9 @@ msgstr "Kullanıcı kimliği için hesap kilitlendi: %d"
 #: src/Admin/Booking/Helpers/CancellationHandler.php:53
 #: src/Admin/Booking/Meta/BookingMeta.php:741
 #: src/Admin/Booking/Meta/BookingMeta.php:1289
-#: src/Admin/Frontend/Account/AccountController.php:562
-#: src/Admin/Frontend/Account/AccountController.php:646
-#: src/Admin/Frontend/Account/AccountController.php:844
+#: src/Admin/Frontend/Account/AccountController.php:566
+#: src/Admin/Frontend/Account/AccountController.php:650
+#: src/Admin/Frontend/Account/AccountController.php:848
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2220
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2279
 msgid "Invalid booking ID."
@@ -1576,8 +1574,8 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Emails/Notifications/BookingNotifications.php:164
 #: src/Admin/Frontend/Account/AccountRenderer.php:554
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
-#: src/Admin/Utilities/Dashboard/DashboardService.php:784
-#: src/Admin/Utilities/Dashboard/DashboardService.php:959
+#: src/Admin/Utilities/Dashboard/DashboardService.php:951
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1126
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1121
 #: templates/account/booking-detail.php:73 templates/account/bookings.php:112
 #: templates/account/bookings.php:178 templates/account/bookings.php:286
@@ -1602,7 +1600,7 @@ msgstr "Beklemede"
 #: src/Admin/Emails/Core/EmailTemplates.php:589
 #: src/Admin/Emails/Notifications/BookingNotifications.php:165
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/Utilities/Dashboard/DashboardService.php:960
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1127
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125
 #: templates/account/booking-detail.php:74 templates/account/bookings.php:113
 #: templates/account/bookings.php:179 templates/account/bookings.php:287
@@ -2002,6 +2000,7 @@ msgstr "Rezervasyon ID"
 #: templates/account/partials/top-vehicles.php:29
 #: templates/account/partials/vendor-reliability.php:378
 #: templates/shortcodes/contact-form.php:101
+#: src-react/admin/dashboard/components/RecentBookings.jsx:64
 msgid "Vehicle"
 msgstr "Araç"
 
@@ -2072,7 +2071,8 @@ msgstr "bu gündeki rezervasyonlar"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1307
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:277
 #: src/Admin/Settings/Testing/SettingsTester.php:978
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164 src/Plugin.php:929
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164 src/Plugin.php:921
+#: src-react/admin/dashboard/components/RecentBookings.jsx:65
 msgid "Customer"
 msgstr "Müşteri"
 
@@ -2194,7 +2194,7 @@ msgstr "geçen aya göre"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1006
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1074
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1077
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1491
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:930
 #: src/Blocks/BlockRegistry.php:240
@@ -2203,7 +2203,7 @@ msgstr "Ocak"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1007
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1075
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1078
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1492
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:931
 #: src/Blocks/BlockRegistry.php:240
@@ -2212,7 +2212,7 @@ msgstr "Şubat"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1008
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1076
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1493
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:932
 #: src/Blocks/BlockRegistry.php:240
@@ -2221,7 +2221,7 @@ msgstr "Mart"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1009
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1077
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1494
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:933
 #: src/Blocks/BlockRegistry.php:240
@@ -2230,7 +2230,7 @@ msgstr "Nisan"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1010
 #: src/Admin/Core/Assets/DatepickerAssets.php:68
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1078
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1495
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1509
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:934
@@ -2240,7 +2240,7 @@ msgstr "Mayıs"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1011
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1496
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:935
 #: src/Blocks/BlockRegistry.php:240
@@ -2249,7 +2249,7 @@ msgstr "Haziran"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1012
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1497
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:936
 #: src/Blocks/BlockRegistry.php:240
@@ -2258,7 +2258,7 @@ msgstr "Temmuz"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1013
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1498
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:937
 #: src/Blocks/BlockRegistry.php:240
@@ -2267,7 +2267,7 @@ msgstr "Ağustos"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1014
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1499
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:938
 #: src/Blocks/BlockRegistry.php:240
@@ -2276,7 +2276,7 @@ msgstr "Eylül"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1015
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1500
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:939
 #: src/Blocks/BlockRegistry.php:240
@@ -2285,7 +2285,7 @@ msgstr "Ekim"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1016
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1501
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:940
 #: src/Blocks/BlockRegistry.php:240
@@ -2294,7 +2294,7 @@ msgstr "Kasım"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1017
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1502
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:941
 #: src/Blocks/BlockRegistry.php:240
@@ -2306,7 +2306,7 @@ msgid "Monthly Reservation Calendar"
 msgstr "Aylık Rezervasyon Takvimi"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1097
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:281
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:284
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1528
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:304
@@ -2314,7 +2314,7 @@ msgid "Sun"
 msgstr "Paz"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1098
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:275
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:278
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1529
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:298
@@ -2322,7 +2322,7 @@ msgid "Mon"
 msgstr "Pzt"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1099
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:279
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1530
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:299
@@ -2330,7 +2330,7 @@ msgid "Tue"
 msgstr "Sal"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1100
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:280
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1531
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:300
@@ -2338,7 +2338,7 @@ msgid "Wed"
 msgstr "Çar"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1101
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:278
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:281
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1532
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:301
@@ -2346,7 +2346,7 @@ msgid "Thu"
 msgstr "Per"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1102
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:279
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:282
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1533
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:302
@@ -2354,7 +2354,7 @@ msgid "Fri"
 msgstr "Cum"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1103
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:280
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:283
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1534
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:213
 #: templates/shortcodes/availability-calendar.php:303
@@ -2373,16 +2373,16 @@ msgstr "Rezervasyonlar: "
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1247
 #: src/Admin/Core/AssetManager.php:544
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:264
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:472
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:481
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1053
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:267
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:475
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:484
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1056
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:962
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:330
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:448
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:289
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:378
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:594
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:377
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:591
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:100
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1523
 #: templates/shortcodes/availability-calendar.php:92
@@ -2409,7 +2409,7 @@ msgstr "Rezervasyon detayları"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1295
 #: src/Admin/Core/AssetManager.php:1094 src/Admin/Core/AssetManager.php:1383
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1487
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1153
 #: src/Blocks/BlockRegistry.php:238
@@ -2523,9 +2523,8 @@ msgid "Booking"
 msgstr "Rezervasyon"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1819
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:48
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:79
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:110
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:45
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:76
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:209
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:261
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:300
@@ -2625,8 +2624,8 @@ msgstr "Ödeme türü"
 #: src/Admin/Core/AssetManager.php:731
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:342
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:962
-#: src/Admin/Utilities/Dashboard/DashboardService.php:966
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1129
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1133
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:497
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:842
 #: assets/blocks/booking-form/index.js:94
@@ -2778,7 +2777,7 @@ msgid "Send Payment Link"
 msgstr "Ödeme Linki Gönder"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:359
-#: src/Admin/Frontend/Account/AccountController.php:321
+#: src/Admin/Frontend/Account/AccountController.php:325
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: templates/account/booking-detail.php:251
@@ -2825,15 +2824,15 @@ msgstr "Kaydediliyor..."
 #: src/Admin/Core/AssetManager.php:1207 src/Admin/Core/AssetManager.php:1238
 #: src/Admin/Core/AssetManager.php:1395
 #: src/Admin/Frontend/Account/AccountRenderer.php:174
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:263
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:320
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:266
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:323
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:292
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:476
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:152
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:107
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:82
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:100
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:356
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:355
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:165
 msgid "An error occurred"
 msgstr "Bir hata oluştu"
@@ -2861,7 +2860,7 @@ msgstr "Manuel"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:197
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:262
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:272
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:275
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:223
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:220
 #: src/Admin/Settings/Groups/FrontendSettings.php:350
@@ -2975,8 +2974,8 @@ msgstr "Hata:"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:249
 #: src/Admin/Core/AssetManager.php:1211
-#: src/Admin/Frontend/Account/AccountController.php:195
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:270
+#: src/Admin/Frontend/Account/AccountController.php:199
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
@@ -3525,7 +3524,7 @@ msgstr "Genel Toplam"
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
 #: src/Admin/Core/AssetManager.php:732
-#: src/Admin/Utilities/Dashboard/DashboardService.php:967
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1134
 msgid "Remaining"
 msgstr "Kalan"
 
@@ -3967,7 +3966,7 @@ msgid "Passive"
 msgstr "Pasif"
 
 #: src/Admin/Core/AssetManager.php:568
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:269
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:272
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:191
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:617
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1692
@@ -4004,7 +4003,7 @@ msgstr "Evet"
 
 #: src/Admin/Core/AssetManager.php:655 src/Admin/Core/AssetManager.php:1366
 #: src/Admin/Frontend/Account/AccountAssets.php:54
-#: src/Admin/Frontend/Account/AccountController.php:306
+#: src/Admin/Frontend/Account/AccountController.php:310
 #: src/Admin/Frontend/Account/AccountRenderer.php:172
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:61
 #: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php:266
@@ -4016,7 +4015,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:106
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:81
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:99
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:354
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:353
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:164
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:222
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
@@ -4027,13 +4026,13 @@ msgid "Loading..."
 msgstr "Yükleniyor..."
 
 #: src/Admin/Core/AssetManager.php:657
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:321
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:324
 msgid "Operation successful"
 msgstr "Operasyon Başarılı"
 
 #: src/Admin/Core/AssetManager.php:658 src/Admin/Core/AssetManager.php:1399
 #: src/Admin/Frontend/Account/AccountAssets.php:57
-#: src/Admin/Frontend/Account/AccountController.php:309
+#: src/Admin/Frontend/Account/AccountController.php:313
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:64
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
 msgid "Are you sure?"
@@ -5392,7 +5391,7 @@ msgid "New %s Name"
 msgstr "Yeni %s Adı"
 
 #: src/Admin/Core/SecurityHelper.php:184
-#: src/Admin/Settings/Core/SettingsCore.php:631
+#: src/Admin/Settings/Core/SettingsCore.php:629
 msgid "Too many requests. Please wait."
 msgstr "Çok fazla istek var. Lütfen bekleyin."
 
@@ -5662,7 +5661,7 @@ msgid "Not a backup table"
 msgstr "Yedek tablo değil"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1306
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1681
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1696
 msgid "Backup deleted successfully"
 msgstr "Yedekleme başarıyla silindi"
 
@@ -5715,27 +5714,33 @@ msgstr "Geri yüklenen %d sorgu başarıyla"
 msgid "Restored %1$d queries, %2$d errors occurred"
 msgstr "Geri yüklenen %1$d sorgu, %2$d hata oluştu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1682
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1665
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:499
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:547
+msgid "Invalid backup file path"
+msgstr "Geçersiz yedekleme dosyası yolu"
+
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1697
 msgid "Backup deletion completed with some warnings"
 msgstr "Yedekleme silme işlemi bazı uyarılarla tamamlandı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1736
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1751
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1746
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1761
 msgid "Backup directory does not exist"
 msgstr "Yedekleme dizini mevcut değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1753
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1768
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ".htaccess dosyası eksik - dizin web erişiminden korunmuyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1757
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1772
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemiyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:1764
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:1779
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
@@ -5776,10 +5781,10 @@ msgid "Too many requests. Please try again later."
 msgstr "Çok fazla istek var. Lütfen daha sonra tekrar deneyin."
 
 #: src/Admin/Core/Utilities/Templates.php:101
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:274
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:277
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:378
-#: templates/partials/vehicle-card.php:211
+#: templates/partials/vehicle-card.php:254
 #: templates/shortcodes/availability-calendar.php:209
 #: templates/shortcodes/booking-form.php:151
 msgid "/day"
@@ -6010,7 +6015,7 @@ msgid "Password must be at least %length% characters."
 msgstr "Şifre en az %length% karakter olmalıdır."
 
 #: src/Admin/Core/Utilities/UXHelper.php:129
-#: src/Admin/Frontend/Account/AccountController.php:317
+#: src/Admin/Frontend/Account/AccountController.php:321
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 msgid "Passwords do not match."
 msgstr "Parolalar uyuşmuyor."
@@ -6436,7 +6441,7 @@ msgid "Failed to send template email."
 msgstr "Şablon e-postası gönderilemedi."
 
 #: src/Admin/Emails/Core/EmailTemplates.php:177
-#: src/Admin/Frontend/Account/AccountController.php:322
+#: src/Admin/Frontend/Account/AccountController.php:326
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:77
@@ -6563,8 +6568,8 @@ msgid "Email templates saved successfully!"
 msgstr "E-posta şablonları başarıyla kaydedildi!"
 
 #: src/Admin/Emails/Core/Mailer.php:387
-#: src/Admin/Utilities/Dashboard/DashboardService.php:794
-#: templates/shortcodes/vehicle-rating-form.php:214
+#: src/Admin/Utilities/Dashboard/DashboardService.php:961
+#: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
 msgstr "Anonim"
 
@@ -6722,12 +6727,12 @@ msgstr ""
 #: src/Admin/Emails/Templates/RefundEmails.php:69
 #: src/Admin/Settings/Core/SettingsHelper.php:375
 #: src/Admin/Setup/SetupWizard.php:941
-#: assets/blocks/unified-search/index.js:131
-#: assets/blocks/unified-search/index.js:141
-#: assets/blocks/unified-search/index.js:151
-#: assets/blocks/unified-search/index.js:161
-#: assets/blocks/unified-search/index.js:182
-#: assets/blocks/unified-search/index.js:192
+#: assets/blocks/unified-search/index.js:120
+#: assets/blocks/unified-search/index.js:130
+#: assets/blocks/unified-search/index.js:140
+#: assets/blocks/unified-search/index.js:150
+#: assets/blocks/unified-search/index.js:171
+#: assets/blocks/unified-search/index.js:181
 msgid "Enabled"
 msgstr "Etkin"
 
@@ -7039,16 +7044,16 @@ msgid "Refund Alert: Booking #{booking_id}"
 msgstr "İade Uyarısı: Rezervasyon No. {booking_id}"
 
 #: src/Admin/Frontend/Account/AccountAssets.php:55
-#: src/Admin/Frontend/Account/AccountController.php:242
-#: src/Admin/Frontend/Account/AccountController.php:307
+#: src/Admin/Frontend/Account/AccountController.php:246
+#: src/Admin/Frontend/Account/AccountController.php:311
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:62
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:303
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:306
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:489
 msgid "An error occurred."
 msgstr "Bir hata oluştu."
 
 #: src/Admin/Frontend/Account/AccountAssets.php:56
-#: src/Admin/Frontend/Account/AccountController.php:308
+#: src/Admin/Frontend/Account/AccountController.php:312
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63
 msgid "Success!"
 msgstr "Başarılı!"
@@ -7070,29 +7075,29 @@ msgid "Removed from favorites!"
 msgstr "Sık kullanılanlardan kaldırıldı!"
 
 #: src/Admin/Frontend/Account/AccountAssets.php:62
-#: src/Admin/Frontend/Account/AccountController.php:539
+#: src/Admin/Frontend/Account/AccountController.php:543
 msgid "All favorites cleared"
 msgstr "Tüm favoriler silindi"
 
-#: src/Admin/Frontend/Account/AccountController.php:181
+#: src/Admin/Frontend/Account/AccountController.php:185
 msgid "Are you sure you want to export your data? This may take a few minutes."
 msgstr ""
 "Verilerinizi dışa aktarmak istediğinize emin misiniz? Bu birkaç dakika "
 "sürebilir."
 
-#: src/Admin/Frontend/Account/AccountController.php:182
+#: src/Admin/Frontend/Account/AccountController.php:186
 msgid "Exporting..."
 msgstr "Dışa aktarılıyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:183
+#: src/Admin/Frontend/Account/AccountController.php:187
 msgid "Data exported successfully!"
 msgstr "Veriler başarıyla dışa aktarıldı!"
 
-#: src/Admin/Frontend/Account/AccountController.php:184
+#: src/Admin/Frontend/Account/AccountController.php:188
 msgid "An error occurred while exporting data"
 msgstr "Verileri dışa aktarırken bir hata oluştu"
 
-#: src/Admin/Frontend/Account/AccountController.php:185
+#: src/Admin/Frontend/Account/AccountController.php:189
 msgid ""
 "Are you sure you want to withdraw your consent? This will disable data "
 "processing for your account."
@@ -7100,21 +7105,21 @@ msgstr ""
 "Onayınızı geri çekmek istediğinizden emin misiniz? Bu, hesabınız için veri "
 "işlemeyi devre dışı bırakacaktır."
 
-#: src/Admin/Frontend/Account/AccountController.php:187
+#: src/Admin/Frontend/Account/AccountController.php:191
 msgid "Consent withdrawn successfully!"
 msgstr "Onay başarıyla geri çekildi!"
 
-#: src/Admin/Frontend/Account/AccountController.php:188
+#: src/Admin/Frontend/Account/AccountController.php:192
 msgid "An error occurred while withdrawing consent"
 msgstr "Onay geri çekilirken bir hata oluştu"
 
-#: src/Admin/Frontend/Account/AccountController.php:189
+#: src/Admin/Frontend/Account/AccountController.php:193
 msgid ""
 "This action cannot be undone. Type \"DELETE\" to confirm account deletion:"
 msgstr ""
 "Bu işlem geri alınamaz. Hesap silme işlemini onaylamak için \"DELETE\" yazın:"
 
-#: src/Admin/Frontend/Account/AccountController.php:190
+#: src/Admin/Frontend/Account/AccountController.php:194
 msgid ""
 "Are you absolutely sure? This will permanently delete your account and all "
 "data."
@@ -7122,170 +7127,170 @@ msgstr ""
 "Emin misiniz? Bu işlem, hesabınızı ve tüm verilerinizi kalıcı olarak "
 "silecektir."
 
-#: src/Admin/Frontend/Account/AccountController.php:191
+#: src/Admin/Frontend/Account/AccountController.php:195
 msgid "Deleting..."
 msgstr "Siliniyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:192
+#: src/Admin/Frontend/Account/AccountController.php:196
 msgid "Account deleted successfully. You will be redirected to the homepage."
 msgstr "Hesap başarıyla silindi. Ana sayfaya yönlendirileceksiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:193
+#: src/Admin/Frontend/Account/AccountController.php:197
 msgid "An error occurred while deleting account"
 msgstr "Hesap silinirken bir hata oluştu"
 
-#: src/Admin/Frontend/Account/AccountController.php:219
+#: src/Admin/Frontend/Account/AccountController.php:223
 msgid "Cancelling..."
 msgstr "İptal ediliyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:243
+#: src/Admin/Frontend/Account/AccountController.php:247
 #: templates/account/booking-detail.php:200
 msgid "Pay Remaining Amount"
 msgstr "Kalan Tutarı Öde"
 
-#: src/Admin/Frontend/Account/AccountController.php:310
+#: src/Admin/Frontend/Account/AccountController.php:314
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:65
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:134
 msgid "Uploading..."
 msgstr "Yükleniyor..."
 
-#: src/Admin/Frontend/Account/AccountController.php:311
-#: src/Admin/Frontend/Account/AccountController.php:622
+#: src/Admin/Frontend/Account/AccountController.php:315
+#: src/Admin/Frontend/Account/AccountController.php:626
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:66
 msgid "Receipt uploaded successfully."
 msgstr "Makbuz başarıyla yüklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:312
+#: src/Admin/Frontend/Account/AccountController.php:316
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:67
 msgid "Receipt upload failed."
 msgstr "Makbuz yükleme başarısız."
 
-#: src/Admin/Frontend/Account/AccountController.php:313
+#: src/Admin/Frontend/Account/AccountController.php:317
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 msgid "Account details saved successfully."
 msgstr "Hesap bilgileri başarıyla kaydedildi."
 
-#: src/Admin/Frontend/Account/AccountController.php:314
+#: src/Admin/Frontend/Account/AccountController.php:318
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:69
 msgid "Vehicle removed from favorites."
 msgstr "Araç favorilerden kaldırıldı."
 
-#: src/Admin/Frontend/Account/AccountController.php:315
+#: src/Admin/Frontend/Account/AccountController.php:319
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
 msgid "Vehicle added to favorites."
 msgstr "Araç favorilere eklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:316
+#: src/Admin/Frontend/Account/AccountController.php:320
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:71
 msgid "All favorites cleared."
 msgstr "Tüm favoriler silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:318
+#: src/Admin/Frontend/Account/AccountController.php:322
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 msgid "Are you sure you want to cancel changes?"
 msgstr "Değişiklikleri iptal etmek istediğinizden emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:319
+#: src/Admin/Frontend/Account/AccountController.php:323
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 msgid "No favorite vehicles yet."
 msgstr "Henüz favori araç yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:320
+#: src/Admin/Frontend/Account/AccountController.php:324
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:323
+#: src/Admin/Frontend/Account/AccountController.php:327
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 msgid "vehicle in your favorites"
 msgstr "favorilerinizdeki araç"
 
-#: src/Admin/Frontend/Account/AccountController.php:324
+#: src/Admin/Frontend/Account/AccountController.php:328
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
-#: src/Admin/Frontend/Account/AccountController.php:527
+#: src/Admin/Frontend/Account/AccountController.php:531
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:227
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:268
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:325
 msgid "Security error."
 msgstr "Güvenlik hatası."
 
-#: src/Admin/Frontend/Account/AccountController.php:531
+#: src/Admin/Frontend/Account/AccountController.php:535
 msgid "You must be logged in"
 msgstr "Lütfen Giriş Yapınız"
 
-#: src/Admin/Frontend/Account/AccountController.php:552
-#: src/Admin/Frontend/Account/AccountController.php:635
+#: src/Admin/Frontend/Account/AccountController.php:556
+#: src/Admin/Frontend/Account/AccountController.php:639
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Giriş yapmalısınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:568
+#: src/Admin/Frontend/Account/AccountController.php:572
 msgid "You are not allowed to upload for this booking."
 msgstr "Bu rezervasyon için yükleme yapamazsınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:572
+#: src/Admin/Frontend/Account/AccountController.php:576
 msgid "No file uploaded."
 msgstr "Dosya yüklenmedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:585
+#: src/Admin/Frontend/Account/AccountController.php:589
 msgid "Upload error."
 msgstr "Yükleme hatası."
 
-#: src/Admin/Frontend/Account/AccountController.php:590
+#: src/Admin/Frontend/Account/AccountController.php:594
 msgid "Invalid file type. Allowed: JPG, PNG, PDF."
 msgstr "Geçersiz dosya türü. İzin verilenler: JPG, PNG, PDF."
 
-#: src/Admin/Frontend/Account/AccountController.php:652
+#: src/Admin/Frontend/Account/AccountController.php:656
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Bu rezervasyonun makbuzunu silemezsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:657
+#: src/Admin/Frontend/Account/AccountController.php:661
 msgid "No receipt found to remove."
 msgstr "Kaldırılacak makbuz bulunamadı."
 
-#: src/Admin/Frontend/Account/AccountController.php:670
+#: src/Admin/Frontend/Account/AccountController.php:674
 msgid "Receipt removed successfully."
 msgstr "Makbuz başarıyla silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:672
+#: src/Admin/Frontend/Account/AccountController.php:676
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:690
+#: src/Admin/Frontend/Account/AccountController.php:694
 msgid "Please login."
 msgstr "Lütfen giriş yapın."
 
-#: src/Admin/Frontend/Account/AccountController.php:696
+#: src/Admin/Frontend/Account/AccountController.php:700
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda devre dışıdır."
 
-#: src/Admin/Frontend/Account/AccountController.php:739
+#: src/Admin/Frontend/Account/AccountController.php:743
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:743
+#: src/Admin/Frontend/Account/AccountController.php:747
 msgid "An error occurred while updating your account."
 msgstr "Hesabınızı güncellerken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:760
-#: src/Admin/Frontend/Account/AccountController.php:773
+#: src/Admin/Frontend/Account/AccountController.php:764
+#: src/Admin/Frontend/Account/AccountController.php:777
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:823
+#: src/Admin/Frontend/Account/AccountController.php:827
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:833
+#: src/Admin/Frontend/Account/AccountController.php:837
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve tekrar deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:871
+#: src/Admin/Frontend/Account/AccountController.php:875
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 
@@ -7302,7 +7307,7 @@ msgstr ""
 #. translators: Shown when search returns no results. Avoid using %d here.
 #: src/Admin/Frontend/Account/AccountRenderer.php:173
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:368
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:355
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:354
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:221
 #: templates/shortcodes/search-results.php:63
 #: templates/shortcodes/search-results.php:323
@@ -7312,25 +7317,25 @@ msgstr "Araç bulunamadı."
 #: src/Admin/Frontend/Account/AccountRenderer.php:175
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:114
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:84
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:183
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:357
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:182
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:356
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:676
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:528
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:87
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:88
 #: src/Admin/Settings/Groups/FrontendSettings.php:289
 #: templates/account/favorites.php:84
-#: templates/partials/vehicle-card-base.php:36
-#: templates/partials/vehicle-card-base.php:220
+#: templates/partials/vehicle-card-base.php:41
+#: templates/partials/vehicle-card-base.php:240
 #: templates/shortcodes/vehicle-details.php:332
 msgid "Book Now"
 msgstr "Rezervasyon Yap"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:176
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:382
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:184
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:358
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:183
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:357
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:677
 #: src/Admin/Settings/Groups/FrontendSettings.php:290
 #: templates/account/bookings.php:224 templates/account/bookings.php:332
 #: templates/account/partials/vendor-bookings.php:421
@@ -7338,34 +7343,34 @@ msgid "View Details"
 msgstr "Detayları göster"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:177
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:318
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:321
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:255
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:376
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:185
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:359
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:681
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:184
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:358
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:678
 #: src/Admin/Services/FavoritesService.php:155
 #: src/Admin/Settings/Groups/FrontendSettings.php:308
 msgid "Added to favorites"
 msgstr "Favorilere eklendi"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:178
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:319
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:322
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:256
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:377
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:186
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:360
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:682
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:185
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:359
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:679
 #: src/Admin/Services/FavoritesService.php:151
 #: src/Admin/Settings/Groups/FrontendSettings.php:309
 msgid "Removed from favorites"
 msgstr "Sık kullanılanlardan kaldırıldı"
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:179
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:317
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:187
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:361
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:683
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:320
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:186
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:360
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:680
 #: src/Admin/Services/FavoritesService.php:134
 #: src/Admin/Settings/Groups/FrontendSettings.php:310
 msgid "You must be logged in to add to favorites"
@@ -7379,6 +7384,7 @@ msgstr "Bu rezervasyonu görüntüleme izniniz yok."
 #: src/Admin/Frontend/Account/AccountRenderer.php:380
 #: src/Admin/Utilities/Menu/Menu.php:41 src/Admin/Utilities/Menu/Menu.php:42
 #: templates/account/booking-detail.php:100
+#: src-react/admin/dashboard/DashboardPage.jsx:40
 msgid "Dashboard"
 msgstr "Kontrol Paneli"
 
@@ -7493,12 +7499,12 @@ msgstr "Bu aracı geri çekmek istediğinizden emin misiniz? Ceza uygulanabilir.
 msgid "Relist this vehicle for operator review?"
 msgstr "Bu aracı yeniden listelemek istiyor musunuz?"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:265
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:268
 #: templates/shortcodes/availability-calendar.php:395
 msgid "Vehicle Unavailable"
 msgstr "Araç Kullanılamıyor"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:266
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:269
 #: templates/shortcodes/availability-calendar.php:396
 msgid ""
 "This vehicle is currently out of order and cannot be booked. Please choose "
@@ -7507,90 +7513,90 @@ msgstr ""
 "Bu araç şu anda hizmet dışıdır ve rezerve edilemez. Lütfen başka bir araç "
 "seçin."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:267
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:270
 #: templates/shortcodes/availability-calendar.php:399
 msgid "Choose Another Vehicle"
 msgstr "Başka bir araç seçin"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:268
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:271
 msgid "Booked"
 msgstr "Randevu"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:282
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:285
 msgid "Please select a date first."
 msgstr "Lütfen önce bir tarih seçin."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:283
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:286
 msgid "Please login to add favorites."
 msgstr "Favorilere eklemek için lütfen giriş yapın."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:304
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:307
 msgid "Operation successful."
 msgstr "İşlem başarıyla tamamlandı."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:481
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1054
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:484
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1057
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:962
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:378
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:594
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:377
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:591
 #: templates/shortcodes/availability-calendar.php:92
 msgid "Out of Order"
 msgstr "Kullanım Dışı"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:912
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:915
 msgid "Vehicle ID is required."
 msgstr "Araç kimliği gereklidir."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:926
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:929
 msgid "Calendar data updated."
 msgstr "Takvim verileri güncellendi."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:930
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:933
 msgid "An error occurred while retrieving data."
 msgstr "Verileri alırken bir hata oluştu."
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:944
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:152
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:274
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:327
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:947
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:164
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:286
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:339
 #: src/Admin/Services/CompareService.php:201
 #: src/Admin/Services/FavoritesService.php:129
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:171
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:192
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:351
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:197
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:352
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1181
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1298
 msgid "Security check failed"
 msgstr "Güvenlik kontrolü başarısız oldu"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:951
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:954
 #: src/Admin/Services/CompareService.php:207
 #: src/Admin/Services/FavoritesService.php:140
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:86
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:119
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:52
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:85
 msgid "Invalid vehicle ID"
 msgstr "Geçersiz araç kimliği"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:957
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:960
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:701
 msgid "Vehicle not found"
 msgstr "Araç bulunamadı"
 
 #. translators: %d: number of seats
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:991
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:994
 #, php-format
 msgid "%d people"
 msgstr "%d kişi"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1056
-#: templates/partials/vehicle-card-base.php:221
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1059
+#: templates/partials/vehicle-card-base.php:241
 #: templates/shortcodes/vehicle-comparison.php:115
 #: templates/shortcodes/vehicle-comparison.php:206
 #: templates/shortcodes/vehicle-comparison.php:305
 msgid "Unavailable"
 msgstr "Kullanım dışı"
 
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1060
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1063
 msgid "An error occurred while retrieving vehicle information."
 msgstr "Araç bilgilerini alırken bir hata oluştu."
 
@@ -8015,7 +8021,7 @@ msgstr "Öncelik"
 #: assets/blocks/my-favorites/index.js:52
 #: assets/blocks/search-results/index.js:55
 #: assets/blocks/testimonials/index.js:64
-#: assets/blocks/vehicles-grid/index.js:54
+#: assets/blocks/vehicles-grid/index.js:53
 #: assets/blocks/vehicles-list/index.js:30
 msgid "Rating"
 msgstr "Değerlendirme"
@@ -8526,68 +8532,68 @@ msgid "Electronic Stability"
 msgstr "Elektronik Stabilite"
 
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:101
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:258
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:270
 msgid "Rating submitted successfully"
 msgstr "Değerlendirme başarıyla gönderildi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:161
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:173
 msgid "Invalid vehicle or rating value"
 msgstr "Geçersiz araç veya derecelendirme değeri"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:169
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:181
 msgid "Login required to post a review"
 msgstr "Yorum yazmak için giriş yapmanız gerekiyor"
 
 #. translators: %d: minimum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:183
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:195
 #, php-format
 msgid "Comment is too short. Please write at least %d characters."
 msgstr "Yorum çok kısa. Lütfen en az %d karakter yazın."
 
 #. translators: %d: maximum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:195
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:207
 #, php-format
 msgid "Comment is too long. Maximum %d characters allowed."
 msgstr "Yorum çok uzun. Maksimum %d karakter izin verilir."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:219
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:231
 msgid ""
 "Your comment could not be submitted. Please wait a moment before trying "
 "again."
 msgstr "Yorumunuz gönderilemedi. Lütfen bir süre bekleyip tekrar deneyin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:237
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:249
 msgid "Rating updated successfully"
 msgstr "Oran başarıyla güncellendi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:248
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:260
 msgid "Name and email are required for guests"
 msgstr "Misafirler için isim ve e-posta adresi gereklidir"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:259
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:271
 msgid "Rating submitted and awaiting approval"
 msgstr "Derecelendirme gönderildi ve onay bekleniyor"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:267
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:279
 msgid "Failed to submit rating"
 msgstr "Derecelendirme gönderilemedi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:279
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:291
 msgid "Login required"
 msgstr "Giriş Yapılması Gerekli"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:301
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:306
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:313
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:318
 msgid "Comment not found"
 msgstr "Yorum bulunamadı"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:317
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:329
 msgid "Rating deleted successfully"
 msgstr "Derecelendirme başarıyla silindi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:320
-#: src/Admin/Settings/Core/SettingsCore.php:468
-#: src/Admin/Settings/Core/SettingsCore.php:501
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:332
+#: src/Admin/Settings/Core/SettingsCore.php:466
+#: src/Admin/Settings/Core/SettingsCore.php:499
 #: src/Admin/Utilities/Cron/CronMonitor.php:165
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:33
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:56
@@ -8615,19 +8621,19 @@ msgstr "Derecelendirme başarıyla silindi"
 msgid "Permission denied"
 msgstr "İzin reddedildi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:333
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:345
 msgid "Invalid vehicle"
 msgstr "Geçersiz araç"
 
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:393
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:392
 msgid "Vehicle Image"
 msgstr "Araç Görüntüsü"
 
-#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:444
+#: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:443
 msgid "Price Not Specified"
 msgstr "Fiyat Belirtilmedi"
 
-#: src/Admin/Frontend/Shortcodes/VehiclesList.php:606
+#: src/Admin/Frontend/Shortcodes/VehiclesList.php:603
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:76
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:102
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1544
@@ -8654,12 +8660,12 @@ msgstr "Bir araç seçin"
 #: assets/blocks/payment-history/index.js:75
 #: assets/blocks/search-results/index.js:39
 #: assets/blocks/testimonials/index.js:39
-#: assets/blocks/unified-search/index.js:82
+#: assets/blocks/unified-search/index.js:81
 #: assets/blocks/user-dashboard/index.js:21
 #: assets/blocks/vehicle-comparison/index.js:51
 #: assets/blocks/vehicle-details/index.js:53
 #: assets/blocks/vehicle-rating-form/index.js:70
-#: assets/blocks/vehicles-grid/index.js:124
+#: assets/blocks/vehicles-grid/index.js:117
 msgid "Layout"
 msgstr "Düzen"
 
@@ -8679,7 +8685,7 @@ msgstr "Liste"
 #: assets/blocks/my-favorites/index.js:40
 #: assets/blocks/search-results/index.js:42
 #: assets/blocks/testimonials/index.js:43
-#: assets/blocks/vehicles-grid/index.js:127
+#: assets/blocks/vehicles-grid/index.js:120
 msgid "Grid"
 msgstr "Izgara"
 
@@ -8727,7 +8733,7 @@ msgstr ""
 #: assets/blocks/payment-history/index.js:34
 #: assets/blocks/search-results/index.js:37
 #: assets/blocks/testimonials/index.js:37
-#: assets/blocks/unified-search/index.js:45
+#: assets/blocks/unified-search/index.js:44
 #: assets/blocks/vehicle-comparison/index.js:35
 #: assets/blocks/vehicle-details/index.js:37
 #: assets/blocks/vehicle-rating-form/index.js:34
@@ -8815,18 +8821,18 @@ msgstr "https://example.com/thank-you"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:153
 #: assets/blocks/availability-calendar/index.js:75
 #: assets/blocks/booking-form/index.js:42 assets/blocks/contact/index.js:55
-#: assets/blocks/featured-vehicles/index.js:99
+#: assets/blocks/featured-vehicles/index.js:93
 #: assets/blocks/my-bookings/index.js:79 assets/blocks/my-favorites/index.js:70
 #: assets/blocks/payment-history/index.js:77
 #: assets/blocks/search-results/index.js:79
 #: assets/blocks/testimonials/index.js:88
-#: assets/blocks/unified-search/index.js:101
+#: assets/blocks/unified-search/index.js:90
 #: assets/blocks/user-dashboard/index.js:23
 #: assets/blocks/vehicle-comparison/index.js:53
 #: assets/blocks/vehicle-details/index.js:55
 #: assets/blocks/vehicle-rating-form/index.js:72
-#: assets/blocks/vehicles-grid/index.js:133
-#: assets/blocks/vehicles-list/index.js:88
+#: assets/blocks/vehicles-grid/index.js:126
+#: assets/blocks/vehicles-list/index.js:82
 msgid "Custom CSS Class"
 msgstr "Özel CSS sınıfı"
 
@@ -8888,7 +8894,7 @@ msgstr "İçerik ayarları"
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:53
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:46
 #: assets/blocks/featured-vehicles/index.js:54
-#: assets/blocks/vehicles-grid/index.js:70
+#: assets/blocks/vehicles-grid/index.js:69
 #: assets/blocks/vehicles-list/index.js:46
 msgid "Limit"
 msgstr "Limit"
@@ -8906,7 +8912,7 @@ msgstr "Slider"
 #: assets/blocks/my-favorites/index.js:75
 #: assets/blocks/search-results/index.js:84
 #: assets/blocks/testimonials/index.js:93
-#: assets/blocks/vehicles-grid/index.js:138
+#: assets/blocks/vehicles-grid/index.js:131
 msgid "Columns"
 msgstr "Sütunlar"
 
@@ -8930,7 +8936,7 @@ msgstr "Rastgele"
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:104
 #: src/Admin/Frontend/Widgets/Elementor/TestimonialsWidget.php:101
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:84
-#: assets/blocks/vehicles-grid/index.js:61
+#: assets/blocks/vehicles-grid/index.js:60
 #: assets/blocks/vehicles-list/index.js:37
 msgid "Order"
 msgstr "Sipariş"
@@ -8946,7 +8952,7 @@ msgstr "Sipariş"
 #: assets/blocks/payment-history/index.js:61
 #: assets/blocks/search-results/index.js:64
 #: assets/blocks/testimonials/index.js:72
-#: assets/blocks/vehicles-grid/index.js:64
+#: assets/blocks/vehicles-grid/index.js:63
 #: assets/blocks/vehicles-list/index.js:40
 msgid "Descending"
 msgstr "Azalan"
@@ -8962,7 +8968,7 @@ msgstr "Azalan"
 #: assets/blocks/payment-history/index.js:62
 #: assets/blocks/search-results/index.js:63
 #: assets/blocks/testimonials/index.js:73
-#: assets/blocks/vehicles-grid/index.js:65
+#: assets/blocks/vehicles-grid/index.js:64
 #: assets/blocks/vehicles-list/index.js:41
 msgid "Ascending"
 msgstr "Artan"
@@ -8973,14 +8979,14 @@ msgstr "Artan"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:709
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:97
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:76
-#: assets/blocks/featured-vehicles/index.js:108
+#: assets/blocks/featured-vehicles/index.js:102
 #: assets/blocks/my-bookings/index.js:103
 #: assets/blocks/my-favorites/index.js:89
 #: assets/blocks/search-results/index.js:113
 #: assets/blocks/vehicle-comparison/index.js:67
 #: assets/blocks/vehicle-details/index.js:74
-#: assets/blocks/vehicles-grid/index.js:157
-#: assets/blocks/vehicles-list/index.js:117
+#: assets/blocks/vehicles-grid/index.js:150
+#: assets/blocks/vehicles-list/index.js:111
 msgid "Show Price"
 msgstr "Fiyatı Göster"
 
@@ -9022,7 +9028,7 @@ msgstr "Fiyatı Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:135
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:147
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:66
-#: assets/blocks/unified-search/index.js:121
+#: assets/blocks/unified-search/index.js:110
 msgid "Show"
 msgstr "Göster"
 
@@ -9064,7 +9070,7 @@ msgstr "Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:136
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:148
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:67
-#: assets/blocks/unified-search/index.js:122
+#: assets/blocks/unified-search/index.js:111
 #: src-react/admin/about/components/ChangelogList.jsx:75
 msgid "Hide"
 msgstr "Gizle"
@@ -9076,8 +9082,8 @@ msgstr "Gizle"
 #: assets/blocks/testimonials/index.js:127
 #: assets/blocks/vehicle-comparison/index.js:72
 #: assets/blocks/vehicle-details/index.js:79
-#: assets/blocks/vehicles-grid/index.js:152
-#: assets/blocks/vehicles-list/index.js:112
+#: assets/blocks/vehicles-grid/index.js:145
+#: assets/blocks/vehicles-list/index.js:106
 msgid "Show Rating"
 msgstr "Puanlamayı Göster"
 
@@ -9088,19 +9094,19 @@ msgstr "Puanlamayı Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:79
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:144
 #: templates/shortcodes/vehicle-comparison.php:234
-#: assets/blocks/featured-vehicles/index.js:113
+#: assets/blocks/featured-vehicles/index.js:107
 #: assets/blocks/vehicle-comparison/index.js:82
 #: assets/blocks/vehicle-details/index.js:89
-#: assets/blocks/vehicles-grid/index.js:162
-#: assets/blocks/vehicles-list/index.js:122
+#: assets/blocks/vehicles-grid/index.js:155
+#: assets/blocks/vehicles-list/index.js:116
 msgid "Show Features"
 msgstr "Özellikleri Göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:149
-#: assets/blocks/featured-vehicles/index.js:118
+#: assets/blocks/featured-vehicles/index.js:112
 #: assets/blocks/my-favorites/index.js:109
 #: assets/blocks/vehicle-comparison/index.js:107
-#: assets/blocks/vehicles-grid/index.js:167
+#: assets/blocks/vehicles-grid/index.js:160
 msgid "Show Book Button"
 msgstr "Rezervasyon Butonunu Göster"
 
@@ -9110,11 +9116,11 @@ msgstr "Rezervasyon Butonunu Göster"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:556
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:151
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:120
-#: assets/blocks/featured-vehicles/index.js:123
+#: assets/blocks/featured-vehicles/index.js:117
 #: assets/blocks/search-results/index.js:118
 #: assets/blocks/vehicle-details/index.js:119
-#: assets/blocks/vehicles-grid/index.js:172
-#: assets/blocks/vehicles-list/index.js:132
+#: assets/blocks/vehicles-grid/index.js:165
+#: assets/blocks/vehicles-list/index.js:126
 msgid "Show Favorite Button"
 msgstr "Favori Düğmesini Göster"
 
@@ -9122,10 +9128,10 @@ msgstr "Favori Düğmesini Göster"
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:157
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:163
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:132
-#: assets/blocks/featured-vehicles/index.js:128
+#: assets/blocks/featured-vehicles/index.js:122
 #: assets/blocks/search-results/index.js:123
-#: assets/blocks/vehicles-grid/index.js:177
-#: assets/blocks/vehicles-list/index.js:142
+#: assets/blocks/vehicles-grid/index.js:170
+#: assets/blocks/vehicles-list/index.js:131
 msgid "Show Compare Button"
 msgstr "Karşılaştırma Düğmesini Göster"
 
@@ -9142,8 +9148,8 @@ msgstr "Otomatik Kaydırıcı"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:212
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:156
-#: assets/blocks/featured-vehicles/index.js:87
-#: assets/blocks/vehicles-grid/index.js:186
+#: assets/blocks/featured-vehicles/index.js:81
+#: assets/blocks/vehicles-grid/index.js:179
 msgid "View All URL"
 msgstr "Tümünü Gör URL'si"
 
@@ -9154,7 +9160,7 @@ msgstr "https://siteniz.com/araclar/"
 
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:222
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:166
-#: assets/blocks/featured-vehicles/index.js:93
+#: assets/blocks/featured-vehicles/index.js:87
 msgid "View All Button Text"
 msgstr "Tümünü Gör Düğme Metni"
 
@@ -9162,7 +9168,7 @@ msgstr "Tümünü Gör Düğme Metni"
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:169
 #: templates/shortcodes/featured-vehicles.php:80
 #: templates/shortcodes/vehicles-grid.php:68
-#: assets/blocks/featured-vehicles/index.js:96
+#: assets/blocks/featured-vehicles/index.js:90
 msgid "View All Vehicles"
 msgstr "Tüm Araçları Görüntüle"
 
@@ -9215,7 +9221,7 @@ msgstr "Görünürlük"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:514
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:139
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:108
-#: assets/blocks/vehicles-list/index.js:127
+#: assets/blocks/vehicles-list/index.js:121
 msgid "Show Booking Button"
 msgstr "Rezervasyon Düğmesini Göster"
 
@@ -9247,15 +9253,12 @@ msgid "Results Per Page"
 msgstr "Sayfa Başına Sonuç"
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:82
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:107
 #: assets/blocks/search-results/index.js:44
-#: assets/blocks/unified-search/index.js:87
 msgid "Compact"
 msgstr "Kompakt"
 
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:117
 #: assets/blocks/search-results/index.js:103
-#: assets/blocks/vehicles-list/index.js:137
 msgid "Show Filters"
 msgstr "Filtreleri Göster"
 
@@ -9327,13 +9330,13 @@ msgid "Both (Rental & Transfer)"
 msgstr "Her ikisi de (Kiralama ve Transfer)"
 
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:92
-#: assets/blocks/unified-search/index.js:51
+#: assets/blocks/unified-search/index.js:50
 msgid "Rental Only"
 msgstr "Sadece Kiralama"
 
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:93
 #: templates/partials/vehicle-card.php:78
-#: assets/blocks/unified-search/index.js:52
+#: assets/blocks/unified-search/index.js:51
 msgid "Transfer Only"
 msgstr "Sadece Transfer"
 
@@ -9346,47 +9349,34 @@ msgid "Horizontal (Full)"
 msgstr "Yatay (Tam)"
 
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:106
-#: assets/blocks/unified-search/index.js:86
+#: assets/blocks/unified-search/index.js:85
 msgid "Vertical (Sidebar)"
 msgstr "Dikey (Kenar Çubuğu)"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:115
-msgid "Design Style"
-msgstr "Tasarım Stili"
-
 #: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:119
-#: assets/blocks/unified-search/index.js:95
-msgid "Glassmorphism"
-msgstr "Cam morfizmi"
-
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:120
-msgid "Solid"
-msgstr "Katı"
-
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:128
-#: assets/blocks/unified-search/index.js:58
+#: assets/blocks/unified-search/index.js:57
 msgid "Default Active Tab"
 msgstr "Varsayılan Etkin Sekme"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:146
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:137
 msgid "Visibility Settings"
 msgstr "Görünürlük Ayarları"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:154
-#: assets/blocks/unified-search/index.js:117
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:145
+#: assets/blocks/unified-search/index.js:106
 msgid "Show Rental Tab"
 msgstr "Kiralama Sekmesini Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:167
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:158
 msgid "Show Location Select"
 msgstr "Konumu Göster Seç"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:177
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:168
 #: assets/blocks/booking-form/index.js:61
 msgid "Show Date Picker"
 msgstr "Tarih Seçiciyi Göster"
 
-#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:191
+#: src/Admin/Frontend/Widgets/Elementor/UnifiedSearchWidget.php:182
 msgid "General Style"
 msgstr "Genel Stil"
 
@@ -9493,7 +9483,7 @@ msgstr "Rozet Stili"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:526
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesListWidget.php:85
-#: assets/blocks/vehicles-grid/index.js:192
+#: assets/blocks/vehicles-grid/index.js:185
 msgid "Button Text"
 msgstr "Düğme Metni"
 
@@ -9547,15 +9537,15 @@ msgid "0 = Automatic, 0.1-5.0 = Custom value"
 msgstr "0 = Otomatik, 0,1-5,0 = Özel değer"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:646
-#: assets/blocks/vehicles-grid/index.js:114
-#: assets/blocks/vehicles-list/index.js:93
+#: assets/blocks/vehicles-grid/index.js:107
+#: assets/blocks/vehicles-list/index.js:87
 msgid "Show Image"
 msgstr "Görseli göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:658
 #: assets/blocks/booking-form/index.js:47
-#: assets/blocks/vehicles-grid/index.js:119
-#: assets/blocks/vehicles-list/index.js:98
+#: assets/blocks/vehicles-grid/index.js:112
+#: assets/blocks/vehicles-list/index.js:92
 msgid "Show Title"
 msgstr "Başlığı Göster"
 
@@ -9589,7 +9579,7 @@ msgstr "Rozetleri Göster"
 
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:751
 #: assets/blocks/booking-form/index.js:52
-#: assets/blocks/vehicles-list/index.js:103
+#: assets/blocks/vehicles-list/index.js:97
 msgid "Show Description"
 msgstr "Açıklamayı Göster"
 
@@ -9990,11 +9980,6 @@ msgid "Pay full amount now"
 msgstr "Tam tutarı şimdi ödeyin"
 
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1657
-#: src/Admin/REST/Settings/RESTSettings.php:333
-#: src/Admin/REST/Settings/RESTSettings.php:347
-#: src/Admin/REST/Settings/RESTSettings.php:358
-#: src/Admin/REST/Settings/RESTSettings.php:370
-#: src/Admin/REST/Settings/RESTSettings.php:382
 #: src/Admin/Settings/APIKeysPage.php:84 src/Admin/Settings/Settings.php:175
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -10158,6 +10143,7 @@ msgstr "Bağlam:"
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/Utilities/ListTable/LogColumns.php:49
 #: assets/blocks/payment-history/index.js:52
+#: src-react/admin/dashboard/components/RecentBookings.jsx:67
 msgid "Amount"
 msgstr "Tutar"
 
@@ -10435,33 +10421,33 @@ msgstr "REST API ayarlarını varsayılanlara sıfırlayamadı."
 msgid "REST API settings reset to defaults successfully."
 msgstr "REST API ayarları başarıyla varsayılanlara sıfırlandı."
 
-#: src/Admin/Settings/Core/SettingsCore.php:464
-#: src/Admin/Settings/Core/SettingsCore.php:497
+#: src/Admin/Settings/Core/SettingsCore.php:462
+#: src/Admin/Settings/Core/SettingsCore.php:495
 msgid "Invalid nonce"
 msgstr "Geçersiz doğrulama"
 
-#: src/Admin/Settings/Core/SettingsCore.php:488
+#: src/Admin/Settings/Core/SettingsCore.php:486
 msgid "Settings updated"
 msgstr "Ayarlar güncellendi"
 
-#: src/Admin/Settings/Core/SettingsCore.php:505
+#: src/Admin/Settings/Core/SettingsCore.php:503
 #: src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php:60
 msgid "Diagnostic testing engine not found."
 msgstr "Teşhis testi motoru bulunamadı."
 
-#: src/Admin/Settings/Core/SettingsCore.php:600
+#: src/Admin/Settings/Core/SettingsCore.php:598
 #: src/Admin/Settings/Core/SettingsHelper.php:233
 msgid "Select image"
 msgstr "Görsel seç"
 
 #: src/Admin/Settings/Core/SettingsHelper.php:381
 #: src/Admin/Setup/SetupWizard.php:950
-#: assets/blocks/unified-search/index.js:132
-#: assets/blocks/unified-search/index.js:142
-#: assets/blocks/unified-search/index.js:152
-#: assets/blocks/unified-search/index.js:162
-#: assets/blocks/unified-search/index.js:183
-#: assets/blocks/unified-search/index.js:193
+#: assets/blocks/unified-search/index.js:121
+#: assets/blocks/unified-search/index.js:131
+#: assets/blocks/unified-search/index.js:141
+#: assets/blocks/unified-search/index.js:151
+#: assets/blocks/unified-search/index.js:172
+#: assets/blocks/unified-search/index.js:182
 msgid "Disabled"
 msgstr "Devre dışı"
 
@@ -13494,46 +13480,47 @@ msgstr "Cron işi yürütülürken hata oluştu: %s"
 msgid "Cron hook is required"
 msgstr "Cron kancası gereklidir"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:177
-msgid "Invalid order data"
-msgstr "Geçersiz sipariş verileri"
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:182
-msgid "Order saved successfully"
-msgstr "Sipariş başarıyla kaydedildi"
-
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:197
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:355
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:176
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:202
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:356
 msgid "Unauthorized access"
 msgstr "İzinsiz erişim"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:202
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:182
+msgid "Invalid order data"
+msgstr "Geçersiz sipariş verileri"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:187
+msgid "Order saved successfully"
+msgstr "Sipariş başarıyla kaydedildi"
+
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:207
 msgid "Dashboard layout reset successfully"
 msgstr "Kontrol paneli düzeni başarıyla sıfırlandı"
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:359
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:360
 msgid "Cache cleared successfully"
 msgstr "Önbellek başarıyla temizlendi"
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:785
+#: src/Admin/Utilities/Dashboard/DashboardService.php:952
 msgid "Answered"
 msgstr "Cevaplandı"
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:786
+#: src/Admin/Utilities/Dashboard/DashboardService.php:953
 msgid "Closed"
 msgstr "Kapalı"
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:820
+#: src/Admin/Utilities/Dashboard/DashboardService.php:987
 msgid "Pending Messages"
 msgstr "Bekleyen Mesajlar"
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:823
+#: src/Admin/Utilities/Dashboard/DashboardService.php:990
 #, php-format
 msgid "%s pending messages"
 msgstr "%s bekleyen mesajlar"
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:826
+#: src/Admin/Utilities/Dashboard/DashboardService.php:993
 msgid "Now"
 msgstr "Şimdi"
 
@@ -13628,11 +13615,6 @@ msgstr "Yedekleme geri yüklenemedi"
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:450
 msgid "Failed to create backup"
 msgstr "Yedekleme oluşturulamadı"
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:499
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:547
-msgid "Invalid backup file path"
-msgstr "Geçersiz yedekleme dosyası yolu"
 
 #: src/Admin/Utilities/Database/DatabaseCleanupPage.php:541
 msgid "Backup file path required"
@@ -14043,7 +14025,7 @@ msgstr "Araç Ayarları"
 
 #: src/Admin/Utilities/Menu/Menu.php:95 src/Admin/Utilities/Menu/Menu.php:96
 #: src-react/admin/dashboard/components/QuickActions.jsx:16
-#: src-react/admin/dashboard/components/StatsCards.jsx:28
+#: src-react/admin/dashboard/components/StatsCards.jsx:42
 msgid "Customers"
 msgstr "Müşteriler"
 
@@ -14064,17 +14046,11 @@ msgid "Uninstall failed"
 msgstr "Kaldırma işlemi başarısız oldu"
 
 #: src/Admin/Vehicle/Deposit/DepositAjax.php:56
-#: src/Admin/Vehicle/Deposit/DepositCalculator.php:185
-msgid "Invalid daily price"
-msgstr "Geçersiz günlük fiyat"
-
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:60
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:90
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:123
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:89
 msgid "Invalid rental days"
 msgstr "Geçersiz kiralama günleri"
 
-#: src/Admin/Vehicle/Deposit/DepositAjax.php:133
+#: src/Admin/Vehicle/Deposit/DepositAjax.php:99
 msgid "Invalid payment type"
 msgstr "Geçersiz ödeme türü"
 
@@ -14092,6 +14068,10 @@ msgstr "Para yatırma yok"
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:240
 msgid "No Deposit"
 msgstr "Depozito Yok"
+
+#: src/Admin/Vehicle/Deposit/DepositCalculator.php:185
+msgid "Invalid daily price"
+msgstr "Geçersiz günlük fiyat"
 
 #. translators: 1: deposit amount; 2: currency symbol.
 #: src/Admin/Vehicle/Deposit/DepositCalculator.php:239
@@ -14300,7 +14280,7 @@ msgid "Monthly Reserved Vehicles"
 msgstr "Aylık Rezervasyonlu Araçlar"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:607
-#: src-react/admin/dashboard/components/StatsCards.jsx:24
+#: src-react/admin/dashboard/components/StatsCards.jsx:38
 msgid "total"
 msgstr "toplam"
 
@@ -15636,7 +15616,7 @@ msgstr "Önceki düzen için yönetişim doğrulaması başarısız oldu: %s"
 msgid "Rollback is possible and valid."
 msgstr "Geri alma mümkündür ve geçerlidir."
 
-#: src/Plugin.php:951
+#: src/Plugin.php:943
 msgid "Rentiva Vendor"
 msgstr "Rentiva Bayi"
 
@@ -15893,39 +15873,39 @@ msgstr "İletişim Desteği"
 msgid "We're here to help"
 msgstr "Yardımcı olmak için buradayız"
 
-#: templates/account/dashboard.php:319
+#: templates/account/dashboard.php:324
 msgid "Privacy Controls"
 msgstr "Gizlilik Denetimleri"
 
-#: templates/account/dashboard.php:320
+#: templates/account/dashboard.php:325
 msgid "Manage your personal data and privacy settings"
 msgstr "Kişisel verilerinizi ve gizlilik ayarlarınızı yönetin"
 
-#: templates/account/dashboard.php:325
+#: templates/account/dashboard.php:330
 msgid "Data Export"
 msgstr "Veri Aktarımı"
 
-#: templates/account/dashboard.php:326
+#: templates/account/dashboard.php:331
 msgid "Download a copy of all your personal data"
 msgstr "Tüm kişisel verilerinizin bir kopyasını indirin"
 
-#: templates/account/dashboard.php:328
+#: templates/account/dashboard.php:333
 msgid "Export My Data"
 msgstr "Verilerimi Dışa Aktar"
 
-#: templates/account/dashboard.php:333 templates/account/dashboard.php:336
+#: templates/account/dashboard.php:338 templates/account/dashboard.php:341
 msgid "Withdraw Consent"
 msgstr "Onayı Geri Çekme"
 
-#: templates/account/dashboard.php:334
+#: templates/account/dashboard.php:339
 msgid "Withdraw your consent for data processing"
 msgstr "Veri işleme izninizi geri çekin"
 
-#: templates/account/dashboard.php:341 templates/account/dashboard.php:344
+#: templates/account/dashboard.php:346 templates/account/dashboard.php:349
 msgid "Delete Account"
 msgstr "Hesabı Sil"
 
-#: templates/account/dashboard.php:342
+#: templates/account/dashboard.php:347
 msgid "Permanently delete your account and all associated data"
 msgstr "Hesabınızı ve tüm ilişkili verileri kalıcı olarak silin"
 
@@ -15994,7 +15974,7 @@ msgid "Add a vehicle first to start receiving booking requests."
 msgstr "Rezervasyon talebi almak için önce bir araç ekleyin."
 
 #: templates/account/partials/vendor-bookings.php:237
-#: src-react/admin/dashboard/components/StatsCards.jsx:16
+#: src-react/admin/dashboard/components/StatsCards.jsx:28
 msgid "Total Revenue"
 msgstr "Toplam Gelir"
 
@@ -17404,99 +17384,99 @@ msgstr "Benzer Premium Araçlar"
 msgid "Users who viewed this vehicle also checked these."
 msgstr "Bu aracı inceleyen kullanıcılar şunlara da baktı."
 
-#: templates/shortcodes/vehicle-rating-form.php:42
+#: templates/shortcodes/vehicle-rating-form.php:51
 msgid "Vehicle ID not found"
 msgstr "Araç kimliği bulunamadı"
 
 #. translators: %d: number of reviews.
-#: templates/shortcodes/vehicle-rating-form.php:138
+#: templates/shortcodes/vehicle-rating-form.php:148
 #, php-format
 msgid "%d review"
 msgid_plural "%d reviews"
 msgstr[0] "%d yorum"
 msgstr[1] "%d yorumlar"
 
-#: templates/shortcodes/vehicle-rating-form.php:192
+#: templates/shortcodes/vehicle-rating-form.php:204
 msgid "Reviews"
 msgstr "İncelemeler"
 
-#: templates/shortcodes/vehicle-rating-form.php:247
+#: templates/shortcodes/vehicle-rating-form.php:259
 msgid "Verified Rental"
 msgstr "Doğrulanmış Kiralama"
 
-#: templates/shortcodes/vehicle-rating-form.php:250
+#: templates/shortcodes/vehicle-rating-form.php:262
 msgid "ago"
 msgstr "önce"
 
-#: templates/shortcodes/vehicle-rating-form.php:301
+#: templates/shortcodes/vehicle-rating-form.php:313
 msgid "No reviews yet."
 msgstr "Henüz değerlendirme yok."
 
-#: templates/shortcodes/vehicle-rating-form.php:309
+#: templates/shortcodes/vehicle-rating-form.php:322
 msgid "Rate This Vehicle"
 msgstr "Bu Aracı Değerlendirin"
 
-#: templates/shortcodes/vehicle-rating-form.php:319
+#: templates/shortcodes/vehicle-rating-form.php:332
 msgid "Your Name:"
 msgstr "Adınız:"
 
-#: templates/shortcodes/vehicle-rating-form.php:322
+#: templates/shortcodes/vehicle-rating-form.php:335
 msgid "Enter your name"
 msgstr "Adınızı Giriniz"
 
-#: templates/shortcodes/vehicle-rating-form.php:326
+#: templates/shortcodes/vehicle-rating-form.php:339
 msgid "Your Email:"
 msgstr "Eposta Adresiniz:"
 
-#: templates/shortcodes/vehicle-rating-form.php:329
+#: templates/shortcodes/vehicle-rating-form.php:342
 msgid "Enter your email"
 msgstr "E-posta adresinizi girin"
 
-#: templates/shortcodes/vehicle-rating-form.php:337
+#: templates/shortcodes/vehicle-rating-form.php:350
 msgid "Your Rating:"
 msgstr "Değerlendirmeniz:"
 
-#: templates/shortcodes/vehicle-rating-form.php:359
+#: templates/shortcodes/vehicle-rating-form.php:372
 msgid "Your Comment:"
 msgstr "Yorumunuz:"
 
-#: templates/shortcodes/vehicle-rating-form.php:362
+#: templates/shortcodes/vehicle-rating-form.php:375
 msgid "Share your thoughts about the vehicle..."
 msgstr "Araç hakkındaki düşüncelerinizi paylaşın..."
 
 #. translators: %d: Minimum character length
-#: templates/shortcodes/vehicle-rating-form.php:371
+#: templates/shortcodes/vehicle-rating-form.php:384
 #, php-format
 msgid "min %d"
 msgstr "min %d"
 
-#: templates/shortcodes/vehicle-rating-form.php:383
+#: templates/shortcodes/vehicle-rating-form.php:396
 msgid "Update Rating"
 msgstr "Puanı Güncelle"
 
-#: templates/shortcodes/vehicle-rating-form.php:383
+#: templates/shortcodes/vehicle-rating-form.php:396
 msgid "Submit Rating"
 msgstr "Değerlendirme Gönder"
 
-#: templates/shortcodes/vehicle-rating-form.php:387
+#: templates/shortcodes/vehicle-rating-form.php:400
 msgid "Delete Rating"
 msgstr "Derecelendirmeyi Sil"
 
-#: templates/shortcodes/vehicle-rating-form.php:404
+#: templates/shortcodes/vehicle-rating-form.php:417
 msgid "Login Required"
 msgstr "Oturum Açmak Gereklidir"
 
-#: templates/shortcodes/vehicle-rating-form.php:405
+#: templates/shortcodes/vehicle-rating-form.php:418
 msgid "You must be logged in to submit a rating and review."
 msgstr "Değerlendirme ve yorum göndermek için oturum açmanız gerekir."
 
-#: templates/shortcodes/vehicle-rating-form.php:408
 #: templates/shortcodes/vehicle-rating-form.php:421
+#: templates/shortcodes/vehicle-rating-form.php:434
 msgid "Login"
 msgstr "Giriş"
 
-#: templates/shortcodes/vehicle-rating-form.php:412
-#: templates/shortcodes/vehicle-rating-form.php:430
+#: templates/shortcodes/vehicle-rating-form.php:425
+#: templates/shortcodes/vehicle-rating-form.php:443
 msgid "Register"
 msgstr "Kayıt Ol"
 
@@ -17536,8 +17516,8 @@ msgstr "Haftanın Başlangıç Günü"
 #: assets/blocks/my-favorites/index.js:68
 #: assets/blocks/search-results/index.js:77
 #: assets/blocks/testimonials/index.js:86
-#: assets/blocks/vehicles-grid/index.js:112
-#: assets/blocks/vehicles-list/index.js:86
+#: assets/blocks/vehicles-grid/index.js:105
+#: assets/blocks/vehicles-list/index.js:80
 msgid "Layout & Style"
 msgstr "Düzen ve Stil"
 
@@ -17551,7 +17531,7 @@ msgstr "örn. \"auto\", \"500px\""
 
 #: assets/blocks/availability-calendar/index.js:82
 #: assets/blocks/booking-form/index.js:59 assets/blocks/contact/index.js:62
-#: assets/blocks/featured-vehicles/index.js:106
+#: assets/blocks/featured-vehicles/index.js:100
 #: assets/blocks/my-bookings/index.js:91 assets/blocks/my-favorites/index.js:87
 #: assets/blocks/payment-history/index.js:89
 #: assets/blocks/search-results/index.js:101
@@ -17559,8 +17539,8 @@ msgstr "örn. \"auto\", \"500px\""
 #: assets/blocks/vehicle-comparison/index.js:60
 #: assets/blocks/vehicle-details/index.js:67
 #: assets/blocks/vehicle-rating-form/index.js:79
-#: assets/blocks/vehicles-grid/index.js:150
-#: assets/blocks/vehicles-list/index.js:110
+#: assets/blocks/vehicles-grid/index.js:143
+#: assets/blocks/vehicles-list/index.js:104
 msgid "Visibility Controls"
 msgstr "Görünürlük Kontrolleri"
 
@@ -17698,21 +17678,21 @@ msgstr "Sosyal Medya Bağlantılarını Göster"
 #: assets/blocks/payment-history/index.js:48
 #: assets/blocks/search-results/index.js:49
 #: assets/blocks/testimonials/index.js:60
-#: assets/blocks/vehicles-grid/index.js:48
+#: assets/blocks/vehicles-grid/index.js:47
 #: assets/blocks/vehicles-list/index.js:24
 msgid "Sort By"
 msgstr "Sıralama Ölçütü"
 
 #: assets/blocks/featured-vehicles/index.js:37
 #: assets/blocks/search-results/index.js:53
-#: assets/blocks/vehicles-grid/index.js:53
+#: assets/blocks/vehicles-grid/index.js:52
 #: assets/blocks/vehicles-list/index.js:29
 msgid "Popularity"
 msgstr "Popülerlik"
 
 #: assets/blocks/featured-vehicles/index.js:39
 #: assets/blocks/search-results/index.js:54
-#: assets/blocks/vehicles-grid/index.js:51
+#: assets/blocks/vehicles-grid/index.js:50
 #: assets/blocks/vehicles-list/index.js:27
 msgid "Newest"
 msgstr "En yeni"
@@ -17726,31 +17706,24 @@ msgid "Sort Order"
 msgstr "Sıralama Düzeni"
 
 #: assets/blocks/featured-vehicles/index.js:60
-#: assets/blocks/vehicles-grid/index.js:82
+#: assets/blocks/vehicles-grid/index.js:81
 #: assets/blocks/vehicles-list/index.js:56
 msgid "Filter Categories (IDs)"
 msgstr "Kategori Filtresi (Kimlikler)"
 
 #: assets/blocks/featured-vehicles/index.js:62
-#: assets/blocks/featured-vehicles/index.js:68
 msgid "Comma separated IDs"
 msgstr "Virgülle ayrılmış kimlikler"
 
-#: assets/blocks/featured-vehicles/index.js:66
-#: assets/blocks/vehicles-grid/index.js:88
-#: assets/blocks/vehicles-list/index.js:62
-msgid "Filter Brands (IDs)"
-msgstr "Marka Filtresi (Kimlikler)"
-
-#: assets/blocks/featured-vehicles/index.js:74
+#: assets/blocks/featured-vehicles/index.js:68
 msgid "Carousel Options"
 msgstr "Karusel Seçenekleri"
 
-#: assets/blocks/featured-vehicles/index.js:76
+#: assets/blocks/featured-vehicles/index.js:70
 msgid "Visible Slides"
 msgstr "Görünür Slaytlar"
 
-#: assets/blocks/featured-vehicles/index.js:90
+#: assets/blocks/featured-vehicles/index.js:84
 msgid "Adds a \"View All\" link below the carousel. Leave empty to hide."
 msgstr ""
 "Karuselin altına \"Tümünü Gör\" bağlantısı ekler. Gizlemek için boş bırakın."
@@ -17870,101 +17843,93 @@ msgstr "Yazar Adını Göster"
 msgid "Show Quotes"
 msgstr "Tırnak İşaretlerini Göster"
 
-#: assets/blocks/unified-search/index.js:47
+#: assets/blocks/unified-search/index.js:46
 msgid "Service Mode"
 msgstr "Hizmet Modu"
 
-#: assets/blocks/unified-search/index.js:50
+#: assets/blocks/unified-search/index.js:49
 msgid "Both (Rental + Transfer)"
 msgstr "Her İkisi de (Kiralama + Transfer)"
 
-#: assets/blocks/unified-search/index.js:55
+#: assets/blocks/unified-search/index.js:54
 msgid "Controls which search tabs are available."
 msgstr "Hangi arama sekmelerinin kullanılabilir olacağını belirler."
 
-#: assets/blocks/unified-search/index.js:61
+#: assets/blocks/unified-search/index.js:60
 msgid "Use Global Default"
 msgstr "Global Varsayılanı Kullan"
 
-#: assets/blocks/unified-search/index.js:70
+#: assets/blocks/unified-search/index.js:69
 msgid "Business Logic"
 msgstr "İş Kuralları"
 
-#: assets/blocks/unified-search/index.js:72
+#: assets/blocks/unified-search/index.js:71
 msgid "Booking rules (min days, buffers) are inherited from Global Settings."
 msgstr ""
 "Rezervasyon kuralları (minimum gün, tampon süreler) Genel Ayarlar'dan "
 "devralınır."
 
-#: assets/blocks/unified-search/index.js:76
+#: assets/blocks/unified-search/index.js:75
 msgid "Manage Global Rules"
 msgstr "Genel Kuralları Yönet"
 
-#: assets/blocks/unified-search/index.js:80
+#: assets/blocks/unified-search/index.js:79
 msgid "UI & Branding"
 msgstr "Arayüz ve Marka"
 
-#: assets/blocks/unified-search/index.js:85
+#: assets/blocks/unified-search/index.js:84
 msgid "Horizontal (Standard)"
 msgstr "Yatay (Standart)"
 
-#: assets/blocks/unified-search/index.js:92
-msgid "Style Preset"
-msgstr "Stil Ön Ayarı"
-
-#: assets/blocks/unified-search/index.js:96
-msgid "Solid / Flat"
-msgstr "Düz / Yalın"
-
-#: assets/blocks/unified-search/index.js:108
+#: assets/blocks/unified-search/index.js:97
 msgid "Pricing & Currency"
 msgstr "Fiyatlandırma ve Para Birimi"
 
-#: assets/blocks/unified-search/index.js:110
+#: assets/blocks/unified-search/index.js:99
 msgid "Currency settings are managed globally."
 msgstr "Para birimi ayarları genel olarak yönetilir."
 
-#: assets/blocks/unified-search/index.js:115
+#: assets/blocks/unified-search/index.js:104
 msgid "Form Visibility"
 msgstr "Form Görünürlüğü"
 
-#: assets/blocks/unified-search/index.js:120
-#: assets/blocks/unified-search/index.js:130
-#: assets/blocks/unified-search/index.js:140
-#: assets/blocks/unified-search/index.js:150
-#: assets/blocks/unified-search/index.js:160
+#: assets/blocks/unified-search/index.js:109
+#: assets/blocks/unified-search/index.js:119
+#: assets/blocks/unified-search/index.js:129
+#: assets/blocks/unified-search/index.js:139
+#: assets/blocks/unified-search/index.js:149
+#: assets/blocks/unified-search/index.js:159
 #: assets/blocks/unified-search/index.js:170
-#: assets/blocks/unified-search/index.js:181
-#: assets/blocks/unified-search/index.js:191
-#: assets/blocks/unified-search/index.js:205
+#: assets/blocks/unified-search/index.js:180
+#: assets/blocks/unified-search/index.js:194
 msgid "Global Default"
 msgstr "Genel Varsayılan"
 
-#: assets/blocks/unified-search/index.js:127
+#: assets/blocks/unified-search/index.js:116
 msgid "Location Select"
 msgstr "Konum Seçimi"
 
-#: assets/blocks/unified-search/index.js:137
+#: assets/blocks/unified-search/index.js:126
 msgid "Date Picker"
 msgstr "Tarih Seçici"
 
-#: assets/blocks/unified-search/index.js:147
+#: assets/blocks/unified-search/index.js:136
 msgid "Time Select"
 msgstr "Saat Seçimi"
 
-#: assets/blocks/unified-search/index.js:157
+#: assets/blocks/unified-search/index.js:146
 msgid "Dropoff Location"
 msgstr "Bırakma konumu"
 
-#: assets/blocks/unified-search/index.js:167
+#: assets/blocks/unified-search/index.js:156
 msgid "Require Form Fields"
 msgstr "Form Alanlarını Zorunlu Kıl"
 
-#: assets/blocks/unified-search/index.js:172
+#: assets/blocks/unified-search/index.js:161
 msgid "Optional (Browse All)"
 msgstr "İsteğe Bağlı (Tümüne Göz At)"
 
-#: assets/blocks/unified-search/index.js:175
+#: assets/blocks/unified-search/index.js:164
 msgid ""
 "When optional, users can search without filling any fields to browse all "
 "vehicles."
@@ -17972,31 +17937,31 @@ msgstr ""
 "İsteğe bağlı olduğunda kullanıcılar, tüm araçlara göz atmak için hiçbir "
 "alanı doldurmadan arama yapabilir."
 
-#: assets/blocks/unified-search/index.js:178
+#: assets/blocks/unified-search/index.js:167
 msgid "Pax Select (Adults/Children)"
 msgstr "Yolcu Seçimi (Yetişkin/Çocuk)"
 
-#: assets/blocks/unified-search/index.js:188
+#: assets/blocks/unified-search/index.js:177
 msgid "Luggage Select"
 msgstr "Bagaj Seçimi"
 
-#: assets/blocks/unified-search/index.js:200
+#: assets/blocks/unified-search/index.js:189
 msgid "Advanced Configuration"
 msgstr "Gelişmiş Yapılandırma"
 
-#: assets/blocks/unified-search/index.js:202
+#: assets/blocks/unified-search/index.js:191
 msgid "Redirect Page ID"
 msgstr "Yönlendirme Sayfası Kimliği"
 
-#: assets/blocks/unified-search/index.js:209
+#: assets/blocks/unified-search/index.js:198
 msgid "Leave as default to use global results page."
 msgstr "Genel sonuçlar sayfasını kullanmak için varsayılan olarak bırakın."
 
-#: assets/blocks/unified-search/index.js:212
+#: assets/blocks/unified-search/index.js:201
 msgid "Override Redirect Page ID"
 msgstr "Yönlendirme Sayfası Kimliğini Geçersiz Kıl"
 
-#: assets/blocks/unified-search/index.js:215
+#: assets/blocks/unified-search/index.js:204
 msgid "Enter a Page ID to override global setting. Clear to reset to Default."
 msgstr ""
 "Genel ayarı geçersiz kılmak için bir Sayfa Kimliği girin. Varsayılana dönmek "
@@ -18100,60 +18065,55 @@ msgstr "Fotoğraf Yüklemeyi Göster"
 msgid "Show Recommend Toggle"
 msgstr "Tavsiye Et Anahtarını Göster"
 
-#: assets/blocks/vehicles-grid/index.js:46
+#: assets/blocks/vehicles-grid/index.js:45
 #: assets/blocks/vehicles-list/index.js:22
 msgid "Query Settings"
 msgstr "Sorgu Ayarları"
 
-#: assets/blocks/vehicles-grid/index.js:55
+#: assets/blocks/vehicles-grid/index.js:54
 #: assets/blocks/vehicles-list/index.js:31
 msgid "Most Reviewed"
 msgstr "En Çok İncelenen"
 
-#: assets/blocks/vehicles-grid/index.js:56
+#: assets/blocks/vehicles-grid/index.js:55
 #: assets/blocks/vehicles-list/index.js:32
 msgid "Confidence Score"
 msgstr "Güven Puanı"
 
-#: assets/blocks/vehicles-grid/index.js:80
+#: assets/blocks/vehicles-grid/index.js:79
 #: assets/blocks/vehicles-list/index.js:54
 msgid "Filtering"
 msgstr "Filtreleme"
 
-#: assets/blocks/vehicles-grid/index.js:85
+#: assets/blocks/vehicles-grid/index.js:84
 #: assets/blocks/vehicles-list/index.js:58
 msgid "Comma-separated list of category IDs."
 msgstr "Kategori kimliklerinin virgülle ayrılmış listesi."
 
-#: assets/blocks/vehicles-grid/index.js:91
-#: assets/blocks/vehicles-list/index.js:64
-msgid "Comma-separated list of brand IDs."
-msgstr "Marka kimliklerinin virgülle ayrılmış listesi."
-
-#: assets/blocks/vehicles-grid/index.js:94
-#: assets/blocks/vehicles-list/index.js:68
+#: assets/blocks/vehicles-grid/index.js:87
+#: assets/blocks/vehicles-list/index.js:62
 msgid "Min Rating (1-5)"
 msgstr "Minimum Puan (1-5)"
 
-#: assets/blocks/vehicles-grid/index.js:103
-#: assets/blocks/vehicles-list/index.js:77
+#: assets/blocks/vehicles-grid/index.js:96
+#: assets/blocks/vehicles-list/index.js:71
 msgid "Min Reviews"
 msgstr "Minimum İnceleme Sayısı"
 
-#: assets/blocks/vehicles-grid/index.js:128
+#: assets/blocks/vehicles-grid/index.js:121
 msgid "Masonry"
 msgstr "Masonry (Tuğla Düzen)"
 
-#: assets/blocks/vehicles-grid/index.js:184
+#: assets/blocks/vehicles-grid/index.js:177
 msgid "View All Link"
 msgstr "Tümünü Gör Bağlantısı"
 
-#: assets/blocks/vehicles-grid/index.js:189
+#: assets/blocks/vehicles-grid/index.js:182
 msgid "Adds a \"View All\" button below the grid. Leave empty to hide."
 msgstr ""
 "Izgaranın altına \"Tümünü Gör\" butonu ekler. Gizlemek için boş bırakın."
 
-#: assets/blocks/vehicles-grid/index.js:195
+#: assets/blocks/vehicles-grid/index.js:188
 msgid "Default: \"View All Vehicles\""
 msgstr "Varsayılan: \"Tüm Araçları Görüntüle\""
 
@@ -18253,7 +18213,7 @@ msgid "of"
 msgstr "/"
 
 #: src-react/admin/customers/components/Pagination.jsx:22
-#: src-react/admin/dashboard/components/RecentBookings.jsx:101
+#: src-react/admin/dashboard/components/RecentBookings.jsx:111
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
 msgid "Next →"
@@ -18286,6 +18246,22 @@ msgstr "müşteri silinsin? Bu işlem geri alınamaz."
 #: src-react/admin/customers/CustomersPage.jsx:72
 msgid "Bulk delete failed."
 msgstr "Toplu silme başarısız oldu."
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:6
+msgid "Pending payment"
+msgstr "Bekleyen ödeme"
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:7
+msgid "Deposit (held)"
+msgstr "Depozito (bloke)"
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:8
+msgid "Collected this month"
+msgstr "Bu ay tahsilat"
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:12
+msgid "Payments"
+msgstr "Ödemeler"
 
 #: src-react/admin/dashboard/components/PendingPayments.jsx:8
 #: src-react/admin/dashboard/components/PendingPayments.jsx:16
@@ -18332,10 +18308,11 @@ msgid "Failed to load."
 msgstr "Yükleme başarısız."
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
+#: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
 msgid "No bookings yet."
 msgstr "Henüz rezervasyon yok."
 
-#: src-react/admin/dashboard/components/RecentBookings.jsx:93
+#: src-react/admin/dashboard/components/RecentBookings.jsx:103
 #: src-react/admin/dashboard/components/TransferWidget.jsx:85
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:77
 msgid "← Prev"
@@ -18353,18 +18330,24 @@ msgstr "Gelir (Son 7 Gün)"
 msgid "This week:"
 msgstr "Bu hafta:"
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:12
-#: src-react/admin/dashboard/components/StatsCards.jsx:18
+#: src-react/admin/dashboard/components/StatsCards.jsx:10
+#: src-react/admin/dashboard/components/StatsCards.jsx:11
+#: src-react/admin/dashboard/components/StatsCards.jsx:24
+#: src-react/admin/dashboard/components/StatsCards.jsx:31
 msgid "this month"
 msgstr "bu ay"
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:22
+#: src-react/admin/dashboard/components/StatsCards.jsx:35
 msgid "Active Vehicles"
 msgstr "Aktif Araçlar"
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:30
+#: src-react/admin/dashboard/components/StatsCards.jsx:45
 msgid "new this month"
 msgstr "bu ay yeni"
+
+#: src-react/admin/dashboard/components/StatusBreakdown.jsx:7
+msgid "Booking Statuses"
+msgstr "Rezervasyon Durumları"
 
 #: src-react/admin/dashboard/components/TransferWidget.jsx:27
 msgid "Transfer Summary"
@@ -18381,6 +18364,26 @@ msgstr "Yaklaşan Operasyonlar"
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
 msgid "No upcoming operations in the next 7 days."
 msgstr "Önümüzdeki 7 günde yaklaşan operasyon yok."
+
+#: src-react/admin/dashboard/DashboardPage.jsx:41
+msgid "MHM Rentiva · Overview"
+msgstr "MHM Rentiva · Genel bakış"
+
+#: src-react/admin/dashboard/DashboardPage.jsx:45
+msgid "Date range"
+msgstr "Tarih aralığı"
+
+#: src-react/admin/dashboard/DashboardPage.jsx:46
+msgid "Last 30 days"
+msgstr "Son 30 gün"
+
+#: src-react/admin/dashboard/DashboardPage.jsx:49
+msgid "View reports"
+msgstr "Raporları gör"
+
+#: src-react/admin/dashboard/DashboardPage.jsx:89
+msgid "Built with WordPress."
+msgstr "WordPress ile geliştirildi."
 
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:8
 msgid "Debug Search Results"
@@ -18616,3 +18619,24 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#~ msgid "Design Style"
+#~ msgstr "Tasarım Stili"
+
+#~ msgid "Glassmorphism"
+#~ msgstr "Cam morfizmi"
+
+#~ msgid "Solid"
+#~ msgstr "Katı"
+
+#~ msgid "Filter Brands (IDs)"
+#~ msgstr "Marka Filtresi (Kimlikler)"
+
+#~ msgid "Style Preset"
+#~ msgstr "Stil Ön Ayarı"
+
+#~ msgid "Solid / Flat"
+#~ msgstr "Düz / Yalın"
+
+#~ msgid "Comma-separated list of brand IDs."
+#~ msgstr "Marka kimliklerinin virgülle ayrılmış listesi."
