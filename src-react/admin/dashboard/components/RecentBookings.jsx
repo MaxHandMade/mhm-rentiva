@@ -58,31 +58,28 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 			) }
 
 			{ ! loading && ! error && !! items.length && (
-				<table className="widefat fixed striped">
+				<table className="rv-bookings-table">
 					<thead>
 						<tr>
-							<th>{ __( 'ID',       'mhm-rentiva' ) }</th>
+							<th>{ __( 'Vehicle', 'mhm-rentiva' ) }</th>
 							<th>{ __( 'Customer', 'mhm-rentiva' ) }</th>
-							<th>{ __( 'Vehicle',  'mhm-rentiva' ) }</th>
-							<th>{ __( 'Location', 'mhm-rentiva' ) }</th>
-							<th>{ __( 'Pickup',   'mhm-rentiva' ) }</th>
-							<th>{ __( 'Amount',   'mhm-rentiva' ) }</th>
-							<th>{ __( 'Status',   'mhm-rentiva' ) }</th>
+							<th>{ __( 'Date', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Amount', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Status', 'mhm-rentiva' ) }</th>
 						</tr>
 					</thead>
 					<tbody>
 						{ items.map( ( b ) => (
 							<tr key={ b.id }>
 								<td>
-									<a href={ `${ adminUrl }post.php?post=${ b.id }&action=edit` }>
-										#{ b.display_id ?? b.id }
+									<a
+										className="rv-bookings-table__id"
+										href={ `${ adminUrl }post.php?post=${ b.id }&action=edit` }
+									>
+										{ b.vehicle_title || `#${ b.display_id ?? b.id }` }
 									</a>
 								</td>
 								<td>{ b.customer_name || '—' }</td>
-								<td>
-									{ [ b.vehicle_title, b.vehicle_plate ].filter( Boolean ).join( ' · ' ) || '—' }
-								</td>
-								<td>{ b.vehicle_location || '—' }</td>
 								<td>{ b.pickup_date || '—' }</td>
 								<td>{ b.total_price != null ? fmtMoney( b.total_price, currency, 0 ) : '—' }</td>
 								<td>
