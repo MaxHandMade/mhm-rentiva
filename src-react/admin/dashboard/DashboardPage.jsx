@@ -12,6 +12,7 @@ export default function DashboardPage() {
 
 	const {
 		metrics,
+		metric_deltas:                 metricDeltas = {},
 		revenue_data:                  revenueData,
 		recent_bookings:               recentBookings       = [],
 		recent_bookings_total_pages:   recentBookingsTotalPages = 1,
@@ -42,7 +43,7 @@ export default function DashboardPage() {
 
 			{ /* Row 1: Stats — 4-col gradient cards */ }
 			<div className="mhm-dashboard__row mhm-dashboard__row--1">
-				<StatsCards metrics={ metrics } currency={ currency } />
+				<StatsCards metrics={ metrics } deltas={ metricDeltas } currency={ currency } />
 			</div>
 
 			{ /* Row 2: Quick Actions (left) + Upcoming Operations (right) */ }
