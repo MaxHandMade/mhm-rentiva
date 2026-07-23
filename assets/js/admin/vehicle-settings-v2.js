@@ -76,6 +76,30 @@
 			detailOrder: ( payload.state.detailOrder || [] ).slice()
 		};
 
+		/**
+		 * ONE matrix order drives BOTH surfaces: the stored cardOrder/detailOrder are derived
+		 * from it, filtered to the fields selected for that surface (spec §6 "one order, not
+		 * two"). Seeded from the stored card order, then detail-only ids, then the rest.
+		 */
+		state.matrixOrder = ( function () {
+			var seen = {};
+			var out = [];
+			function push( id ) {
+				if ( id && ! seen[ id ] ) {
+					seen[ id ] = true;
+					out.push( id );
+				}
+			}
+			state.cardOrder.forEach( push );
+			state.detailOrder.forEach( push );
+			state.fields.forEach( function ( f ) { push( f.id ); } );
+			return out.filter( function ( id ) {
+				return state.fields.some( function ( f ) { return f.id === id; } );
+			} );
+		} )();
+
+		state.filter = 'all';
+
 		function fieldById( id ) {
 			for ( var i = 0; i < state.fields.length; i++ ) {
 				if ( state.fields[ i ].id === id ) {
@@ -115,16 +139,12 @@
 				}
 			} );
 
-			function orderedSelection( order, flag ) {
+			// Both surfaces derive from the single matrix order.
+			function orderedSelection( flag ) {
 				var out = [];
-				order.forEach( function ( id ) {
+				state.matrixOrder.forEach( function ( id ) {
 					var f = fieldById( id );
-					if ( f && f[ flag ] ) {
-						out.push( { type: f.type, key: f.key } );
-					}
-				} );
-				state.fields.forEach( function ( f ) {
-					if ( f[ flag ] && order.indexOf( f.id ) === -1 ) {
+					if ( f && f.enabled && f[ flag ] ) {
 						out.push( { type: f.type, key: f.key } );
 					}
 				} );
@@ -134,8 +154,8 @@
 			return {
 				selected: selected,
 				comparison: comparison,
-				card: orderedSelection( state.cardOrder, 'card' ),
-				detail: orderedSelection( state.detailOrder, 'detail' )
+				card: orderedSelection( 'card' ),
+				detail: orderedSelection( 'detail' )
 			};
 		}
 
@@ -444,11 +464,262 @@
 			] );
 		}
 
-		function renderDisplayTab() {
-			return h( 'p', {
-				class: 'rv-vs__subtitle',
-				text: 'Görünüm & Önizleme — sonraki dilimde (B-2b) geliyor.'
+		// ---- Tab 2: Display & Preview ----
+
+		// Client-side only; no preset concept exists server-side (spec §6, out of scope §11).
+		var PRESETS = {
+			minimal: {
+				card: [ 'transmission', 'fuel_type', 'seats' ],
+				detail: [ 'fuel_type', 'transmission' ]
+			},
+			standart: {
+				card: [ 'transmission', 'fuel_type', 'seats', 'price_per_day' ],
+				detail: [ 'fuel_type', 'transmission', 'seats', 'mileage', 'navigation' ]
+			}
+		};
+
+		var previewEl = null;
+		var matrixEl = null;
+
+		function enabledFields() {
+			return state.fields.filter( function ( f ) { return f.enabled; } );
+		}
+
+		/** Enabled fields in matrix order (order is authoritative for both surfaces). */
+		function matrixFields() {
+			var out = [];
+			state.matrixOrder.forEach( function ( id ) {
+				var f = fieldById( id );
+				if ( f && f.enabled ) {
+					out.push( f );
+				}
 			} );
+			enabledFields().forEach( function ( f ) {
+				if ( state.matrixOrder.indexOf( f.id ) === -1 ) {
+					out.push( f );
+				}
+			} );
+			return out;
+		}
+
+		function visibleMatrixFields() {
+			var all = matrixFields();
+			return state.filter === 'all'
+				? all
+				: all.filter( function ( f ) { return f.type === state.filter; } );
+		}
+
+		function applyPreset( kind ) {
+			enabledFields().forEach( function ( f ) {
+				if ( kind === 'detayli' ) {
+					f.card = true;
+					f.detail = true;
+					f.compare = true;
+					return;
+				}
+				var p = PRESETS[ kind ];
+				f.card = p.card.indexOf( f.key ) !== -1;
+				f.detail = p.detail.indexOf( f.key ) !== -1;
+				f.compare = true;
+			} );
+			markDirty();
+			render(); // set-membership change -> full re-render + sortable re-init
+		}
+
+		function surfaceToggle( field, flag ) {
+			var on = !! field[ flag ];
+			var btn = h( 'button', {
+				type: 'button',
+				class: 'rv-vs__toggle' + ( on ? ' rv-vs__toggle--on' : '' ),
+				text: on ? 'Açık' : 'Kapalı'
+			} );
+			// Mutate the row IN PLACE — never replace the node, or jquery-ui-sortable loses it.
+			btn.addEventListener( 'click', function () {
+				field[ flag ] = ! field[ flag ];
+				btn.textContent = field[ flag ] ? 'Açık' : 'Kapalı';
+				btn.classList.toggle( 'rv-vs__toggle--on', field[ flag ] );
+				markDirty();
+				refreshPreview();
+				refreshSaveButton();
+			} );
+			return btn;
+		}
+
+		function renderMatrixRow( field ) {
+			var label = h( 'div', { class: 'rv-vs__row-label' }, [ h( 'span', { text: field.label } ) ] );
+			if ( field.core ) {
+				label.appendChild( badge( 'rv-vs__badge--required', 'ZORUNLU' ) );
+			}
+			return h( 'div', { class: 'rv-vs__mrow', 'data-field-id': field.id }, [
+				h( 'span', { class: 'rv-vs__grip', title: 'Sürükleyerek sırala', text: '⋮⋮' } ),
+				h( 'div', { class: 'rv-vs__mrow-main' }, [
+					label,
+					h( 'div', { class: 'rv-vs__mrow-group', text: GROUP_TITLE[ field.type ] } )
+				] ),
+				surfaceToggle( field, 'card' ),
+				surfaceToggle( field, 'detail' ),
+				surfaceToggle( field, 'compare' )
+			] );
+		}
+
+		function renderMatrix() {
+			var head = h( 'div', { class: 'rv-vs__mhead' }, [
+				h( 'span', { class: 'rv-vs__mhead-field', text: 'Alan' } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: 'Kart' } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: 'Detay' } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: 'Karş.' } )
+			] );
+			var rows = visibleMatrixFields().map( renderMatrixRow );
+			var body = h( 'div', { class: 'rv-vs__mbody' }, rows );
+			if ( ! rows.length ) {
+				body.appendChild( h( 'p', { class: 'rv-vs__empty', text: 'Bu kategoride aktif alan yok.' } ) );
+			}
+			matrixEl = h( 'div', { class: 'rv-vs__matrix' }, [ head, body ] );
+			return matrixEl;
+		}
+
+		/** Drag end: the DOM is authoritative for order — read it back into state. */
+		function initSortable() {
+			if ( ! window.jQuery || ! matrixEl ) {
+				return;
+			}
+			var $body = window.jQuery( matrixEl ).find( '.rv-vs__mbody' );
+			if ( ! $body.sortable ) {
+				return;
+			}
+			// Reordering a filtered subset cannot express a whole-list order, so drag is only
+			// enabled on the unfiltered view.
+			if ( state.filter !== 'all' ) {
+				return;
+			}
+			$body.sortable( {
+				handle: '.rv-vs__grip',
+				axis: 'y',
+				tolerance: 'pointer',
+				update: function () {
+					var ids = [];
+					$body.children( '.rv-vs__mrow' ).each( function () {
+						ids.push( this.getAttribute( 'data-field-id' ) );
+					} );
+					// Keep ids that are not currently shown (disabled fields) after the visible ones.
+					var rest = state.matrixOrder.filter( function ( id ) {
+						return ids.indexOf( id ) === -1;
+					} );
+					state.matrixOrder = ids.concat( rest );
+					markDirty();
+					refreshPreview();
+					refreshSaveButton();
+				}
+			} );
+		}
+
+		function renderPreviewInner() {
+			var cardChips = enabledFields().filter( function ( f ) { return f.card; } );
+			var detailChips = enabledFields().filter( function ( f ) { return f.detail; } );
+			var compareCount = enabledFields().filter( function ( f ) { return f.compare; } ).length;
+
+			var chips = h( 'div', { class: 'rv-vs__chips' },
+				cardChips.map( function ( f ) {
+					return h( 'span', { class: 'rv-vs__chip', text: f.label } );
+				} )
+			);
+			if ( ! cardChips.length ) {
+				chips.appendChild( h( 'span', { class: 'rv-vs__empty-inline', text: 'Kartta gösterilecek alan seçilmedi' } ) );
+			}
+
+			var vehicleCard = h( 'div', { class: 'rv-vs__pcard' }, [
+				h( 'div', { class: 'rv-vs__pimage', text: 'araç görseli' } ),
+				h( 'div', { class: 'rv-vs__pbody' }, [
+					h( 'div', { class: 'rv-vs__pname', text: 'Toyota Corolla Hybrid' } ),
+					h( 'div', { class: 'rv-vs__pprice', text: '₺1.850 / gün' } ),
+					chips,
+					h( 'div', { class: 'rv-vs__plink', text: 'İncele →' } )
+				] )
+			] );
+
+			var grid = h( 'div', { class: 'rv-vs__pgrid' },
+				detailChips.map( function ( f ) {
+					return h( 'div', { class: 'rv-vs__pgrid-item' }, [
+						h( 'span', { class: 'rv-vs__pgrid-label', text: f.label } ),
+						h( 'span', { class: 'rv-vs__pgrid-value', text: '—' } )
+					] );
+				} )
+			);
+			var highlights = h( 'div', { class: 'rv-vs__pcard rv-vs__pcard--flat' }, [
+				h( 'div', { class: 'rv-vs__ptitle', text: 'Detay — Öne çıkanlar' } ),
+				grid
+			] );
+			if ( ! detailChips.length ) {
+				highlights.appendChild( h( 'div', { class: 'rv-vs__empty-inline', text: 'Detayda öne çıkacak alan seçilmedi' } ) );
+			}
+
+			var counts = h( 'div', { class: 'rv-vs__counts' }, [
+				h( 'span', { text: 'Kartta ' + cardChips.length } ),
+				h( 'span', { text: 'Detayda ' + detailChips.length } ),
+				h( 'span', { text: 'Karşılaştırmada ' + compareCount } )
+			] );
+
+			return [
+				h( 'div', { class: 'rv-vs__ptitle rv-vs__ptitle--section', text: 'Canlı önizleme' } ),
+				vehicleCard,
+				highlights,
+				counts
+			];
+		}
+
+		function refreshPreview() {
+			if ( ! previewEl ) {
+				return;
+			}
+			previewEl.textContent = '';
+			renderPreviewInner().forEach( function ( n ) { previewEl.appendChild( n ); } );
+		}
+
+		function refreshSaveButton() {
+			var existing = mount.querySelector( '.rv-vs__save' );
+			if ( existing ) {
+				existing.replaceWith( renderSaveButton() );
+			}
+		}
+
+		function renderDisplayTab() {
+			// Presets + category filter chips
+			var bar = h( 'div', { class: 'rv-vs__toolbar' }, [
+				h( 'span', { class: 'rv-vs__toolbar-label', text: 'Şablon:' } )
+			] );
+			[ [ 'minimal', 'Minimal' ], [ 'standart', 'Standart' ], [ 'detayli', 'Detaylı' ] ].forEach( function ( p ) {
+				var b = h( 'button', { type: 'button', class: 'rv-vs__chipbtn', text: p[ 1 ] } );
+				b.addEventListener( 'click', function () { applyPreset( p[ 0 ] ); } );
+				bar.appendChild( b );
+			} );
+			bar.appendChild( h( 'span', { class: 'rv-vs__divider' } ) );
+			[ [ 'all', 'Tümü' ], [ 'detail', 'Detaylar' ], [ 'feature', 'Özellikler' ], [ 'equipment', 'Ekipman' ] ].forEach( function ( c ) {
+				var on = state.filter === c[ 0 ];
+				var b = h( 'button', {
+					type: 'button',
+					class: 'rv-vs__chipbtn' + ( on ? ' rv-vs__chipbtn--on' : '' ),
+					text: c[ 1 ]
+				} );
+				// Filtering only changes what is VISIBLE; it never mutates state.
+				b.addEventListener( 'click', function () {
+					state.filter = c[ 0 ];
+					render();
+				} );
+				bar.appendChild( b );
+			} );
+
+			previewEl = h( 'div', { class: 'rv-vs__preview' }, renderPreviewInner() );
+
+			var layout = h( 'div', { class: 'rv-vs__display' }, [
+				h( 'div', { class: 'rv-vs__matrix-wrap' }, [ renderMatrix() ] ),
+				previewEl
+			] );
+
+			var wrap = h( 'div', {}, [ bar, layout ] );
+			if ( state.filter !== 'all' ) {
+				bar.appendChild( h( 'span', { class: 'rv-vs__hint', text: 'Sıralama için "Tümü" görünümüne geçin' } ) );
+			}
+			return wrap;
 		}
 
 		function tabButton( key, label ) {
@@ -577,7 +848,14 @@
 				tabButton( 'fields', '1 · Alan Tanımları' ),
 				tabButton( 'display', '2 · Görünüm & Önizleme' )
 			] ) );
-			mount.appendChild( state.tab === 'fields' ? renderFieldsTab() : renderDisplayTab() );
+			if ( state.tab === 'fields' ) {
+				previewEl = null;
+				matrixEl = null;
+				mount.appendChild( renderFieldsTab() );
+			} else {
+				mount.appendChild( renderDisplayTab() );
+				initSortable();
+			}
 			var modal = renderRenameModal();
 			if ( modal ) {
 				mount.appendChild( modal );
