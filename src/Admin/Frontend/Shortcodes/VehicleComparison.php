@@ -249,11 +249,25 @@ final class VehicleComparison extends AbstractShortcode {
 			return array();
 		}
 
-		// Flatten all selected fields from all categories (details, features, equipment)
+		// Flatten selected fields from all categories, dropping Passive fields (truthfulness):
+		// a field removed in Field Definitions must not appear as a comparison row.
+		$category_type     = array(
+			'details'   => 'detail',
+			'features'  => 'feature',
+			'equipment' => 'equipment',
+		);
 		$all_selected_keys = array();
 		foreach ($selected_fields_map as $category => $fields) {
-			if (is_array($fields)) {
-				$all_selected_keys = array_merge($all_selected_keys, $fields);
+			if (! is_array($fields)) {
+				continue;
+			}
+			$type = $category_type[ $category ] ?? '';
+			foreach ($fields as $field_key) {
+				$field_key = (string) $field_key;
+				if ($type !== '' && ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::is_field_active($type, sanitize_key($field_key))) {
+					continue;
+				}
+				$all_selected_keys[] = $field_key;
 			}
 		}
 		$all_selected_keys = array_unique($all_selected_keys);
