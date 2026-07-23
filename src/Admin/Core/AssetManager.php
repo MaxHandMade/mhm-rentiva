@@ -1213,6 +1213,7 @@ final class AssetManager {
 						'coreLocked'             => __('Core fields cannot be disabled', 'mhm-rentiva'),
 						'badgeRequired'          => __('REQUIRED', 'mhm-rentiva'),
 						'badgeCustom'            => __('CUSTOM', 'mhm-rentiva'),
+						/* translators: %s: field name */
 						'removeConfirm'          => __('The field "%s" will be permanently deleted. Are you sure?', 'mhm-rentiva'),
 						'removed'                => __('Field deleted.', 'mhm-rentiva'),
 						'removeFailed'           => __('Could not delete the field.', 'mhm-rentiva'),
