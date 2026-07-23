@@ -235,22 +235,16 @@ final class VehicleComparison extends AbstractShortcode {
 	}
 
 	/**
-	 * Create dynamic feature list — returns FLAT associative array.
-	 * Template iterates this directly: foreach ($features as $key => $label)
+	 * Flatten stored comparison_fields into a de-duplicated key list, dropping Passive fields
+	 * (truthfulness): a field removed in Field Definitions must not appear in comparison. Unknown
+	 * categories pass through ungated. Used for BOTH the row list and the per-vehicle value map so
+	 * the two derive identically (a prior drift between them was the closeout bug this prevents).
+	 *
+	 * @param array<string,mixed> $selected_fields_map comparison_fields (category => key list)
+	 * @return string[]
 	 */
-	private static function get_dynamic_features(array $vehicles = array()): array
+	private static function flatten_gated_selected_keys(array $selected_fields_map): array
 	{
-		// Get selected fields from settings
-		$settings            = get_option('mhm_rentiva_settings', array());
-		$selected_fields_map = $settings['comparison_fields'] ?? array();
-
-		// If no selection is made in the settings, return empty flat array
-		if (empty($selected_fields_map)) {
-			return array();
-		}
-
-		// Flatten selected fields from all categories, dropping Passive fields (truthfulness):
-		// a field removed in Field Definitions must not appear as a comparison row.
 		$category_type     = array(
 			'details'   => 'detail',
 			'features'  => 'feature',
@@ -270,7 +264,26 @@ final class VehicleComparison extends AbstractShortcode {
 				$all_selected_keys[] = $field_key;
 			}
 		}
-		$all_selected_keys = array_unique($all_selected_keys);
+		return array_unique($all_selected_keys);
+	}
+
+	/**
+	 * Create dynamic feature list — returns FLAT associative array.
+	 * Template iterates this directly: foreach ($features as $key => $label)
+	 */
+	private static function get_dynamic_features(array $vehicles = array()): array
+	{
+		// Get selected fields from settings
+		$settings            = get_option('mhm_rentiva_settings', array());
+		$selected_fields_map = $settings['comparison_fields'] ?? array();
+
+		// If no selection is made in the settings, return empty flat array
+		if (empty($selected_fields_map)) {
+			return array();
+		}
+
+		// Flatten selected fields, dropping Passive fields so removed fields are not comparison rows.
+		$all_selected_keys = self::flatten_gated_selected_keys($selected_fields_map);
 
 		// Define preferred sort order for common fields
 		$field_order = array(
@@ -472,26 +485,7 @@ final class VehicleComparison extends AbstractShortcode {
 
 		// Flatten selected keys, dropping Passive fields so the per-vehicle value map matches the
 		// gated comparison rows (get_dynamic_features()).
-		$category_type     = array(
-			'details'   => 'detail',
-			'features'  => 'feature',
-			'equipment' => 'equipment',
-		);
-		$all_selected_keys = array();
-		foreach ($selected_fields_map as $category => $fields) {
-			if (! is_array($fields)) {
-				continue;
-			}
-			$type = $category_type[ $category ] ?? '';
-			foreach ($fields as $field_key) {
-				$field_key = (string) $field_key;
-				if ($type !== '' && ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::is_field_active($type, sanitize_key($field_key))) {
-					continue;
-				}
-				$all_selected_keys[] = $field_key;
-			}
-		}
-		$all_selected_keys = array_unique($all_selected_keys);
+		$all_selected_keys = self::flatten_gated_selected_keys($selected_fields_map);
 
 		// Pre-fetch features and equipment arrays for this vehicle
 		$features_array = get_post_meta($post->ID, '_mhm_rentiva_features', true);
