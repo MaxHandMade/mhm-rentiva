@@ -370,6 +370,11 @@ final class VehicleFeatureHelper {
 				continue;
 			}
 
+			// Truthfulness: a Passive field (removed in Field Definitions) does not render.
+			if (! self::is_field_active($type, $key)) {
+				continue;
+			}
+
 			$label = $available[ $type ][ $key ]['label'];
 
 			if ($type === self::TYPE_DETAIL) {
