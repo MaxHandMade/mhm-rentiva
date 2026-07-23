@@ -1,0 +1,236 @@
+/*
+ * MHM Rentiva — Vehicle Settings v2 UI.
+ * Scoped under .rv-vs / #rv-vs-app. Values mirror the approved mockup
+ * (docs/superpowers/specs/assets/Admin-Arac-Ayarlari-v2.reference.html).
+ * No shared admin stylesheet is modified.
+ */
+
+.rv-vs {
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.rv-vs * {
+	box-sizing: border-box;
+}
+
+/* ---- Header ---- */
+.rv-vs__head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.rv-vs__title {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.rv-vs__subtitle {
+	font-size: 13px;
+	color: #646970;
+}
+
+/* ---- Tabs ---- */
+.rv-vs__tabs {
+	display: inline-flex;
+	background: #eceef1;
+	border-radius: 10px;
+	padding: 4px;
+	margin-top: 16px;
+}
+
+.rv-vs__tab {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 8px 18px;
+	border: none;
+	border-radius: 7px;
+	cursor: pointer;
+	background: transparent;
+	color: #646970;
+}
+
+.rv-vs__tab--active {
+	background: #fff;
+	color: #2271b1;
+}
+
+/* ---- Tab 1: add-custom bar ---- */
+.rv-vs__addcustom {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-top: 14px;
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	padding: 14px 16px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* ---- Tab 1: group cards ---- */
+.rv-vs__groups {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 18px;
+	margin-top: 16px;
+}
+
+.rv-vs__card {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 18px 20px;
+}
+
+.rv-vs__card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.rv-vs__card-title {
+	font-size: 16px;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.rv-vs__count {
+	font-size: 12px;
+	color: #8a8f98;
+}
+
+.rv-vs__rows {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.rv-vs__row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 11px;
+	border: 1px solid #eceef1;
+	border-radius: 9px;
+	background: #fff;
+}
+
+.rv-vs__row--passive {
+	background: #fafafa;
+}
+
+.rv-vs__row-label {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	flex: 1;
+	min-width: 0;
+}
+
+/* ---- Badges ---- */
+.rv-vs__badge {
+	font-size: 10px;
+	font-weight: 700;
+	padding: 1px 6px;
+	border-radius: 5px;
+	white-space: nowrap;
+}
+
+.rv-vs__badge--required {
+	color: #b7791f;
+	background: #fdf3d7;
+}
+
+.rv-vs__badge--custom {
+	color: #135e96;
+	background: #e5f0fb;
+}
+
+/* ---- Active / Passive pill ---- */
+.rv-vs__pill {
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 12px;
+	border-radius: 999px;
+	cursor: pointer;
+	border: 1px solid #e2e4e8;
+	background: #fff;
+	color: #aeb4bd;
+	white-space: nowrap;
+}
+
+.rv-vs__pill--on {
+	border-color: #a6dfb6;
+	background: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.rv-vs__pill:disabled {
+	cursor: default;
+	opacity: 1;
+}
+
+/* ---- Remove-custom control ---- */
+.rv-vs__remove {
+	color: #c3c6cc;
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 1;
+	background: none;
+	border: none;
+	padding: 0 2px;
+}
+
+.rv-vs__remove:hover {
+	color: #d63638;
+}
+
+/* ---- Buttons & inputs ---- */
+.rv-vs__btn {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 9px 16px;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid #2271b1;
+	background: #2271b1;
+	color: #fff;
+}
+
+.rv-vs__btn--ghost {
+	border: 1px solid #dcdde1;
+	background: #fff;
+	color: #50575e;
+}
+
+.rv-vs__input,
+.rv-vs__select {
+	font-size: 13px;
+	padding: 9px 11px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.rv-vs__input {
+	flex: 1;
+	min-width: 180px;
+}
+
+.rv-vs__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 18px;
+}
+
+/* ---- Tab 2 (matrix / live preview) styles are added in Plan B-2b ---- */

@@ -202,6 +202,16 @@ final class VehicleSettings {
 	/**
 	 * Render settings page
 	 */
+	/**
+	 * Whether the redesigned (v2) Vehicle Settings UI is requested via ?ui=v2.
+	 *
+	 * Feature flag for the rebuild: the existing server-rendered tabs stay the default
+	 * so the page keeps working while the new UI is assembled slice by slice.
+	 */
+	public static function is_v2_ui(): bool {
+		return 'v2' === self::get_key( 'ui' );
+	}
+
 	public function render_settings_page(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector in admin page rendering.
 		$active_tab = self::get_key( 'tab', 'definitions' );
@@ -224,20 +234,28 @@ final class VehicleSettings {
 		// Developer Mode Banner
 		$this->render_developer_mode_banner();
 		?>
-		<nav class="nav-tab-wrapper">
-			<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
-				<?php esc_html_e( 'Field Definitions', 'mhm-rentiva' ); ?>
-			</a>
-			<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
-				<?php esc_html_e( 'Display Options', 'mhm-rentiva' ); ?>
-			</a>
-		</nav>
-
 		<?php
-		if ( $active_tab === 'display' ) {
-			self::render_display_tab();
+		if ( self::is_v2_ui() ) {
+			// Redesigned UI: a single mount point; assets/js/admin/vehicle-settings-v2.js renders
+			// both tabs client-side from the localized mhmVehicleSettings.state payload.
+			echo '<div id="rv-vs-app" class="rv-vs"></div>';
 		} else {
-			self::render_definitions_tab();
+			?>
+			<nav class="nav-tab-wrapper">
+				<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Field Definitions', 'mhm-rentiva' ); ?>
+				</a>
+				<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Display Options', 'mhm-rentiva' ); ?>
+				</a>
+			</nav>
+
+			<?php
+			if ( $active_tab === 'display' ) {
+				self::render_display_tab();
+			} else {
+				self::render_definitions_tab();
+			}
 		}
 		?>
 		</div>

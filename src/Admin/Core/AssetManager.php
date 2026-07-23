@@ -1144,6 +1144,25 @@ final class AssetManager {
 				true
 			);
 
+			// Redesigned (v2) UI assets — only when ?ui=v2. The script depends on the handle the
+			// mhmVehicleSettings payload is localized onto, so the global is defined before it runs.
+			if (\MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::is_v2_ui()) {
+				wp_enqueue_style(
+					'mhm-vehicle-settings-v2',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
+					array( 'mhm-vehicle-settings-css' ),
+					self::get_file_version('assets/css/admin/vehicle-settings-v2.css')
+				);
+
+				wp_enqueue_script(
+					'mhm-vehicle-settings-v2',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
+					array( 'jquery', 'mhm-vehicle-settings' ),
+					self::get_file_version('assets/js/admin/vehicle-settings-v2.js'),
+					true
+				);
+			}
+
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
 			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
 			wp_localize_script(
