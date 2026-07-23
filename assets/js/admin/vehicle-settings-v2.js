@@ -862,7 +862,42 @@
 			}
 		}
 
+		// Reset resets the tab the user is actually on (client-side tab, not the stale ?tab= that
+		// the legacy flow localized once). fields -> definitions defaults, display -> display wiped.
+		function wireReset() {
+			var btn = document.getElementById( 'reset-vehicle-settings' );
+			if ( ! btn ) {
+				return;
+			}
+			btn.addEventListener( 'click', function ( e ) {
+				e.preventDefault();
+				if ( ! window.confirm( 'Bu sekmeyi varsayılana sıfırla?' ) ) {
+					return;
+				}
+				postAjax( 'mhmrentiva_reset_vehicle_settings', {
+					tab: state.tab === 'display' ? 'display' : 'definitions'
+				} ).then( function ( res ) {
+					if ( res && res.success ) {
+						state.dirty = false; // avoid the beforeunload prompt on the reload
+						window.location.reload();
+					} else {
+						failNotice( 'Sıfırlanamadı.' );
+					}
+				} ).catch( function () { failNotice(); } );
+			} );
+		}
+
+		// Dirty-state guard: warn before leaving with unsaved selection changes.
+		window.addEventListener( 'beforeunload', function ( e ) {
+			if ( state.dirty && ! state.saving ) {
+				e.preventDefault();
+				e.returnValue = '';
+				return '';
+			}
+		} );
+
 		render();
+		wireReset();
 	}
 
 	if ( document.readyState === 'loading' ) {

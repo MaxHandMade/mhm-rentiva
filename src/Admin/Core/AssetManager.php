@@ -1126,27 +1126,11 @@ final class AssetManager {
 				self::get_file_version('assets/css/admin/vehicle-settings.css')
 			);
 
-			wp_enqueue_script(
-				'mhm-vehicle-card-fields',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
-				true
-			);
+			$vs_is_v2 = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::is_v2_ui();
 
-			// Settings-page behavior (reset, display tab, definitions tab + rename modal).
-			// Replaces the three inline <script> blocks in VehicleSettings render methods.
-			wp_enqueue_script(
-				'mhm-vehicle-settings',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				self::get_file_version('assets/js/admin/vehicle-settings.js'),
-				true
-			);
-
-			// Redesigned (v2) UI assets — only when ?ui=v2. The script depends on the handle the
-			// mhmVehicleSettings payload is localized onto, so the global is defined before it runs.
-			if (\MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::is_v2_ui()) {
+			if ( $vs_is_v2 ) {
+				// Redesigned UI is self-contained: it does NOT load the legacy scripts, so it can
+				// own the whole page (including the Reset button) without double-bound handlers.
 				wp_enqueue_style(
 					'mhm-vehicle-settings-v2',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
@@ -1157,8 +1141,26 @@ final class AssetManager {
 				wp_enqueue_script(
 					'mhm-vehicle-settings-v2',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
-					array( 'jquery', 'mhm-vehicle-settings' ),
+					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-settings-v2.js'),
+					true
+				);
+			} else {
+				wp_enqueue_script(
+					'mhm-vehicle-card-fields',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
+					array( 'jquery', 'jquery-ui-sortable' ),
+					self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
+					true
+				);
+
+				// Settings-page behavior (reset, display tab, definitions tab + rename modal).
+				// Replaces the three inline <script> blocks in VehicleSettings render methods.
+				wp_enqueue_script(
+					'mhm-vehicle-settings',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
+					array( 'jquery', 'jquery-ui-sortable' ),
+					self::get_file_version('assets/js/admin/vehicle-settings.js'),
 					true
 				);
 			}
@@ -1166,7 +1168,7 @@ final class AssetManager {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
 			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
 			wp_localize_script(
-				'mhm-vehicle-settings',
+				$vs_is_v2 ? 'mhm-vehicle-settings-v2' : 'mhm-vehicle-settings',
 				'mhmVehicleSettings',
 				array(
 					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
