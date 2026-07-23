@@ -1,21 +1,27 @@
 /*
  * MHM Rentiva — Vehicle Settings v2 UI.
- * Plan B-2a-1 slice: shell, one client-side state model, client-side tabs,
- * and a read-only render of Tab 1 (Field Definitions).
  *
- * State is hydrated ONCE from window.mhmVehicleSettings.state (localized by
- * AssetManager from VehicleSettings::build_settings_state()) and is the single
- * source of truth — nothing is ever derived from the DOM.
+ * One client-side state model hydrated ONCE from window.mhmVehicleSettings.state
+ * (localized by AssetManager from VehicleSettings::build_settings_state()); the DOM
+ * never feeds state back. All user-facing strings come from mhmVehicleSettings.i18n
+ * (English source in PHP + TR via .po), with English fallbacks here.
  */
 ( function () {
 	'use strict';
 
 	var MOUNT_ID = 'rv-vs-app';
 	var GROUP_ORDER = [ 'detail', 'feature', 'equipment' ];
-	var GROUP_TITLE = {
-		detail: 'Araç Detayları',
-		feature: 'Araç Özellikleri',
-		equipment: 'Araç Ekipmanları'
+
+	// Client-side only; no preset concept exists server-side (spec §6, out of scope §11).
+	var PRESETS = {
+		minimal: {
+			card: [ 'transmission', 'fuel_type', 'seats' ],
+			detail: [ 'fuel_type', 'transmission' ]
+		},
+		standart: {
+			card: [ 'transmission', 'fuel_type', 'seats', 'price_per_day' ],
+			detail: [ 'fuel_type', 'transmission', 'seats', 'mileage', 'navigation' ]
+		}
 	};
 
 	/**
@@ -55,12 +61,99 @@
 		}
 
 		var payload = window.mhmVehicleSettings;
+		var i18n = ( payload && payload.i18n ) || {};
+
+		/** Translated string with an English source fallback. */
+		function t( key, fallback ) {
+			return i18n[ key ] || fallback;
+		}
+
 		if ( ! payload || ! payload.state || ! Array.isArray( payload.state.fields ) ) {
 			mount.appendChild( h( 'p', {
 				class: 'rv-vs__subtitle',
-				text: 'Ayar verisi yüklenemedi. Lütfen sayfayı yenileyin.'
+				text: t( 'loadError', 'Could not load settings data. Please reload the page.' )
 			} ) );
 			return;
+		}
+
+		var T = {
+			title: t( 'title', 'Vehicle Settings' ),
+			subtitle: t( 'subtitle', 'Define fields and manage where they appear' ),
+			tabFields: t( 'tabFields', '1 · Field Definitions' ),
+			tabDisplay: t( 'tabDisplay', '2 · Display & Preview' ),
+			fieldsHint: t( 'fieldsHint', 'Choose which fields are collected. Passive fields do not appear on vehicle forms or in the preview. You can also add your own custom field.' ),
+			titleDetail: t( 'titleDetail', 'Vehicle Details' ),
+			titleFeature: t( 'titleFeature', 'Vehicle Features' ),
+			titleEquipment: t( 'titleEquipment', 'Vehicle Equipment' ),
+			active: t( 'active', 'Active' ),
+			passive: t( 'passive', 'Passive' ),
+			activeLower: t( 'activeLower', 'active' ),
+			coreLocked: t( 'coreLocked', 'Core fields cannot be disabled' ),
+			badgeRequired: t( 'badgeRequired', 'REQUIRED' ),
+			badgeCustom: t( 'badgeCustom', 'CUSTOM' ),
+			removeTitle: t( 'remove', 'Remove' ),
+			removeConfirm: t( 'removeConfirm', 'The field "%s" will be permanently deleted. Are you sure?' ),
+			removed: t( 'removed', 'Field deleted.' ),
+			removeFailed: t( 'removeFailed', 'Could not delete the field.' ),
+			selectAll: t( 'selectAll', 'Select All' ),
+			selectNone: t( 'selectNone', 'Deselect All' ),
+			editNames: t( 'editNames', 'Edit Names' ),
+			addCustom: t( 'addCustom', 'Add custom field:' ),
+			fieldNamePlaceholder: t( 'fieldNamePlaceholder', 'Field name (e.g. Boot Size)' ),
+			groupDetail: t( 'groupDetail', 'Detail' ),
+			groupFeature: t( 'groupFeature', 'Feature' ),
+			groupEquipment: t( 'groupEquipment', 'Equipment' ),
+			typeText: t( 'typeText', 'Text' ),
+			typeNumber: t( 'typeNumber', 'Number' ),
+			typeSelect: t( 'typeSelect', 'Select' ),
+			optionsPlaceholder: t( 'optionsPlaceholder', 'Options (comma separated: S, M, L)' ),
+			add: t( 'add', 'Add' ),
+			nameRequired: t( 'nameRequired', 'Please enter a field name.' ),
+			addFailed: t( 'addFailed', 'Could not add the field.' ),
+			addedOk: t( 'addedOk', 'Field added. Press Save to persist the selection state.' ),
+			genericFail: t( 'genericFail', 'Operation failed. Your session may have expired — reload the page.' ),
+			save: t( 'save', 'Save' ),
+			saving: t( 'saving', 'Saving…' ),
+			dirtyTitle: t( 'dirtyTitle', 'You have unsaved changes' ),
+			savedOk: t( 'savedOk', 'Settings saved.' ),
+			saveErr: t( 'saveErr', 'Could not save. Your session may have expired — reload the page and try again.' ),
+			netErr: t( 'netErr', 'Could not save. Check your connection and try again.' ),
+			template: t( 'template', 'Template:' ),
+			presetMinimal: t( 'presetMinimal', 'Minimal' ),
+			presetStandard: t( 'presetStandard', 'Standard' ),
+			presetDetailed: t( 'presetDetailed', 'Detailed' ),
+			filterAll: t( 'filterAll', 'All' ),
+			filterDetail: t( 'filterDetail', 'Details' ),
+			filterFeature: t( 'filterFeature', 'Features' ),
+			filterEquipment: t( 'filterEquipment', 'Equipment' ),
+			colField: t( 'colField', 'Field' ),
+			colCard: t( 'colCard', 'Card' ),
+			colDetail: t( 'colDetail', 'Detail' ),
+			colCompare: t( 'colCompare', 'Comp.' ),
+			toggleOn: t( 'toggleOn', 'On' ),
+			toggleOff: t( 'toggleOff', 'Off' ),
+			emptyCategory: t( 'emptyCategory', 'No active fields in this category.' ),
+			dragHint: t( 'dragHint', 'Switch to "All" to reorder' ),
+			gripTitle: t( 'gripTitle', 'Drag to reorder' ),
+			livePreview: t( 'livePreview', 'Live preview' ),
+			previewImage: t( 'previewImage', 'vehicle image' ),
+			previewLink: t( 'previewLink', 'View →' ),
+			detailHighlights: t( 'detailHighlights', 'Detail — Highlights' ),
+			noCard: t( 'noCard', 'No fields selected for the card' ),
+			noDetail: t( 'noDetail', 'No fields highlighted in the detail view' ),
+			countCard: t( 'countCard', 'Card' ),
+			countDetail: t( 'countDetail', 'Detail' ),
+			countCompare: t( 'countCompare', 'Comparison' ),
+			cancel: t( 'cancel', 'Cancel' ),
+			renameSuffix: t( 'renameSuffix', ' — Edit Names' ),
+			renameSaved: t( 'renameSaved', 'Names updated.' ),
+			renameFailed: t( 'renameFailed', 'Could not update names.' ),
+			resetConfirm: t( 'resetConfirm', 'Reset this tab to defaults?' ),
+			resetFailed: t( 'resetFailed', 'Could not reset.' )
+		};
+
+		function groupTitle( type ) {
+			return { detail: T.titleDetail, feature: T.titleFeature, equipment: T.titleEquipment }[ type ] || type;
 		}
 
 		// Copy the localized payload so UI edits never mutate the global.
@@ -119,8 +212,7 @@
 		 *
 		 * save_all requires every selected_* set (an omitted key is stored as empty), and
 		 * save_display_payload writes comparison_fields UNGUARDED — so comparison must be sent
-		 * from state even while Tab 2's UI does not exist yet, or the stored selection is wiped.
-		 * Card/detail are sent in their stored order, with any newly-flagged field appended.
+		 * from state, or the stored selection is wiped. Card/detail derive from the matrix order.
 		 */
 		function buildSavePayload() {
 			var selected = { details: [], features: [], equipment: [] };
@@ -195,14 +287,14 @@
 				state.saving = false;
 				if ( res && res.success ) {
 					state.dirty = false;
-					state.notice = { type: 'ok', text: 'Ayarlar kaydedildi.' };
+					state.notice = { type: 'ok', text: T.savedOk };
 				} else {
-					state.notice = { type: 'err', text: 'Kaydedilemedi. Oturumunuz sona ermiş olabilir — sayfayı yenileyip tekrar deneyin.' };
+					state.notice = { type: 'err', text: T.saveErr };
 				}
 				render();
 			} ).catch( function () {
 				state.saving = false;
-				state.notice = { type: 'err', text: 'Kaydedilemedi. Bağlantıyı kontrol edip tekrar deneyin.' };
+				state.notice = { type: 'err', text: T.netErr };
 				render();
 			} );
 		}
@@ -216,22 +308,22 @@
 				h( 'span', { text: field.label } )
 			] );
 			if ( field.core ) {
-				label.appendChild( badge( 'rv-vs__badge--required', 'ZORUNLU' ) );
+				label.appendChild( badge( 'rv-vs__badge--required', T.badgeRequired ) );
 			}
 			if ( field.custom ) {
-				label.appendChild( badge( 'rv-vs__badge--custom', 'ÖZEL' ) );
+				label.appendChild( badge( 'rv-vs__badge--custom', T.badgeCustom ) );
 			}
 
 			var pill = h( 'button', {
 				type: 'button',
 				'data-field-id': field.id,
 				class: 'rv-vs__pill' + ( field.enabled ? ' rv-vs__pill--on' : '' ),
-				text: field.enabled ? 'Aktif' : 'Pasif'
+				text: field.enabled ? T.active : T.passive
 			} );
 			// Core fields are permanently active (enforced server-side too).
 			if ( field.core ) {
 				pill.disabled = true;
-				pill.title = 'Zorunlu alanlar kapatılamaz';
+				pill.title = T.coreLocked;
 			} else {
 				pill.addEventListener( 'click', function () {
 					field.enabled = ! field.enabled;
@@ -246,11 +338,11 @@
 				var remove = h( 'button', {
 					type: 'button',
 					class: 'rv-vs__remove',
-					title: 'Kaldır',
+					title: T.removeTitle,
 					text: '×'
 				} );
 				remove.addEventListener( 'click', function () {
-					if ( ! window.confirm( '"' + field.label + '" alanı kalıcı olarak silinecek. Emin misiniz?' ) ) {
+					if ( ! window.confirm( T.removeConfirm.replace( '%s', field.label ) ) ) {
 						return;
 					}
 					postAjax( 'mhmrentiva_remove_custom_field', {
@@ -258,7 +350,7 @@
 						field_type: typeToCategory( field.type )
 					} ).then( function ( res ) {
 						if ( ! res || ! res.success ) {
-							failNotice( 'Alan silinemedi.' );
+							failNotice( T.removeFailed );
 							return;
 						}
 						// Splice the id out of EVERY reference, or a stale id is written at the
@@ -266,7 +358,8 @@
 						state.fields = state.fields.filter( function ( f ) { return f.id !== field.id; } );
 						state.cardOrder = state.cardOrder.filter( function ( id ) { return id !== field.id; } );
 						state.detailOrder = state.detailOrder.filter( function ( id ) { return id !== field.id; } );
-						state.notice = { type: 'ok', text: 'Alan silindi.' };
+						state.matrixOrder = state.matrixOrder.filter( function ( id ) { return id !== field.id; } );
+						state.notice = { type: 'ok', text: T.removed };
 						render();
 					} ).catch( function () { failNotice(); } );
 				} );
@@ -298,23 +391,22 @@
 				render();
 			}
 
-			var selectAll = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: 'Tümünü Seç' } );
+			var selectAll = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.selectAll } );
 			selectAll.addEventListener( 'click', function () { setGroupEnabled( true ); } );
-			var selectNone = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: 'Tümünü Kaldır' } );
+			var selectNone = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.selectNone } );
 			selectNone.addEventListener( 'click', function () { setGroupEnabled( false ); } );
 
-			// Edit Names opens a per-group modal (one input per field) rather than a chain of
-			// prompts. Renames persist immediately AND update state, so the Tab-2 live preview
-			// (B-2b) reflects a rename without a reload.
-			var editNames = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: 'İsimleri Düzenle' } );
+			// Edit Names opens a per-group modal (one input per field); renames persist immediately
+			// AND update state, so the Tab-2 live preview reflects a rename without a reload.
+			var editNames = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: T.editNames } );
 			editNames.addEventListener( 'click', function () {
 				state.renameGroup = type;
 				render();
 			} );
 
 			var head = h( 'div', { class: 'rv-vs__card-head' }, [
-				h( 'h2', { class: 'rv-vs__card-title', text: GROUP_TITLE[ type ] } ),
-				h( 'span', { class: 'rv-vs__count', text: activeCount + ' aktif' } )
+				h( 'h2', { class: 'rv-vs__card-title', text: groupTitle( type ) } ),
+				h( 'span', { class: 'rv-vs__count', text: activeCount + ' ' + T.activeLower } )
 			] );
 			var actions = h( 'div', { class: 'rv-vs__card-actions' }, [ selectAll, selectNone, editNames ] );
 
@@ -352,7 +444,7 @@
 		}
 
 		function failNotice( text ) {
-			state.notice = { type: 'err', text: text || 'İşlem başarısız. Oturumunuz sona ermiş olabilir — sayfayı yenileyin.' };
+			state.notice = { type: 'err', text: text || T.genericFail };
 			render();
 		}
 
@@ -363,13 +455,13 @@
 			var nameInput = h( 'input', {
 				class: 'rv-vs__input',
 				type: 'text',
-				placeholder: 'Alan adı (örn. Bagaj Hacmi)',
+				placeholder: T.fieldNamePlaceholder,
 				value: addForm.label
 			} );
 			nameInput.addEventListener( 'input', function ( e ) { addForm.label = e.target.value; } );
 
 			var groupSelect = h( 'select', { class: 'rv-vs__select' } );
-			[ [ 'detail', 'Detay' ], [ 'feature', 'Özellik' ], [ 'equipment', 'Ekipman' ] ].forEach( function ( o ) {
+			[ [ 'detail', T.groupDetail ], [ 'feature', T.groupFeature ], [ 'equipment', T.groupEquipment ] ].forEach( function ( o ) {
 				var opt = h( 'option', { value: o[ 0 ], text: o[ 1 ] } );
 				if ( addForm.group === o[ 0 ] ) { opt.selected = true; }
 				groupSelect.appendChild( opt );
@@ -377,7 +469,7 @@
 			groupSelect.addEventListener( 'change', function ( e ) { addForm.group = e.target.value; render(); } );
 
 			var children = [
-				h( 'span', { class: 'rv-vs__addcustom-label', text: 'Özel alan ekle:' } ),
+				h( 'span', { class: 'rv-vs__addcustom-label', text: T.addCustom } ),
 				nameInput,
 				groupSelect
 			];
@@ -385,7 +477,7 @@
 			// Field type + options apply to DETAILS only (that is where mhm_custom_field_meta is read).
 			if ( addForm.group === 'detail' ) {
 				var typeSelect = h( 'select', { class: 'rv-vs__select' } );
-				[ [ 'text', 'Metin' ], [ 'number', 'Sayı' ], [ 'select', 'Seçim' ] ].forEach( function ( o ) {
+				[ [ 'text', T.typeText ], [ 'number', T.typeNumber ], [ 'select', T.typeSelect ] ].forEach( function ( o ) {
 					var opt = h( 'option', { value: o[ 0 ], text: o[ 1 ] } );
 					if ( addForm.type === o[ 0 ] ) { opt.selected = true; }
 					typeSelect.appendChild( opt );
@@ -397,7 +489,7 @@
 					var optionsInput = h( 'input', {
 						class: 'rv-vs__input',
 						type: 'text',
-						placeholder: 'Seçenekler (virgülle ayır: S, M, L)',
+						placeholder: T.optionsPlaceholder,
 						value: addForm.options
 					} );
 					optionsInput.addEventListener( 'input', function ( e ) { addForm.options = e.target.value; } );
@@ -405,11 +497,11 @@
 				}
 			}
 
-			var addBtn = h( 'button', { type: 'button', class: 'rv-vs__btn', text: 'Ekle' } );
+			var addBtn = h( 'button', { type: 'button', class: 'rv-vs__btn', text: T.add } );
 			addBtn.addEventListener( 'click', function () {
 				var label = ( addForm.label || '' ).trim();
 				if ( ! label ) {
-					failNotice( 'Lütfen bir alan adı girin.' );
+					failNotice( T.nameRequired );
 					return;
 				}
 				var group = addForm.group;
@@ -420,7 +512,7 @@
 				}
 				postAjax( 'mhmrentiva_add_custom_field', params ).then( function ( res ) {
 					if ( ! res || ! res.success || ! res.data || ! res.data.key ) {
-						failNotice( 'Alan eklenemedi.' );
+						failNotice( T.addFailed );
 						return;
 					}
 					// Merge the server-generated field into state (server owns the key).
@@ -440,11 +532,12 @@
 						compare: false
 					};
 					state.fields.push( newField );
+					state.matrixOrder.push( newField.id );
 					addForm.label = '';
 					addForm.options = '';
 					// The new field is enabled in state but not yet in mhm_selected_*; Save persists it.
 					markDirty();
-					state.notice = { type: 'ok', text: 'Alan eklendi. Seçim durumunu kaydetmek için Kaydet\'e basın.' };
+					state.notice = { type: 'ok', text: T.addedOk };
 					render();
 				} ).catch( function () { failNotice(); } );
 			} );
@@ -455,28 +548,13 @@
 
 		function renderFieldsTab() {
 			return h( 'div', {}, [
-				h( 'p', {
-					class: 'rv-vs__subtitle',
-					text: 'Hangi alanların toplanacağını belirle. Pasif alanlar araç formlarında ve önizlemede görünmez. Kendi özel alanını da ekleyebilirsin.'
-				} ),
+				h( 'p', { class: 'rv-vs__subtitle', text: T.fieldsHint } ),
 				renderAddCustom(),
 				h( 'div', { class: 'rv-vs__groups' }, GROUP_ORDER.map( renderGroupCard ) )
 			] );
 		}
 
 		// ---- Tab 2: Display & Preview ----
-
-		// Client-side only; no preset concept exists server-side (spec §6, out of scope §11).
-		var PRESETS = {
-			minimal: {
-				card: [ 'transmission', 'fuel_type', 'seats' ],
-				detail: [ 'fuel_type', 'transmission' ]
-			},
-			standart: {
-				card: [ 'transmission', 'fuel_type', 'seats', 'price_per_day' ],
-				detail: [ 'fuel_type', 'transmission', 'seats', 'mileage', 'navigation' ]
-			}
-		};
 
 		var previewEl = null;
 		var matrixEl = null;
@@ -531,12 +609,12 @@
 			var btn = h( 'button', {
 				type: 'button',
 				class: 'rv-vs__toggle' + ( on ? ' rv-vs__toggle--on' : '' ),
-				text: on ? 'Açık' : 'Kapalı'
+				text: on ? T.toggleOn : T.toggleOff
 			} );
 			// Mutate the row IN PLACE — never replace the node, or jquery-ui-sortable loses it.
 			btn.addEventListener( 'click', function () {
 				field[ flag ] = ! field[ flag ];
-				btn.textContent = field[ flag ] ? 'Açık' : 'Kapalı';
+				btn.textContent = field[ flag ] ? T.toggleOn : T.toggleOff;
 				btn.classList.toggle( 'rv-vs__toggle--on', field[ flag ] );
 				markDirty();
 				refreshPreview();
@@ -548,13 +626,13 @@
 		function renderMatrixRow( field ) {
 			var label = h( 'div', { class: 'rv-vs__row-label' }, [ h( 'span', { text: field.label } ) ] );
 			if ( field.core ) {
-				label.appendChild( badge( 'rv-vs__badge--required', 'ZORUNLU' ) );
+				label.appendChild( badge( 'rv-vs__badge--required', T.badgeRequired ) );
 			}
 			return h( 'div', { class: 'rv-vs__mrow', 'data-field-id': field.id }, [
-				h( 'span', { class: 'rv-vs__grip', title: 'Sürükleyerek sırala', text: '⋮⋮' } ),
+				h( 'span', { class: 'rv-vs__grip', title: T.gripTitle, text: '⋮⋮' } ),
 				h( 'div', { class: 'rv-vs__mrow-main' }, [
 					label,
-					h( 'div', { class: 'rv-vs__mrow-group', text: GROUP_TITLE[ field.type ] } )
+					h( 'div', { class: 'rv-vs__mrow-group', text: groupTitle( field.type ) } )
 				] ),
 				surfaceToggle( field, 'card' ),
 				surfaceToggle( field, 'detail' ),
@@ -564,15 +642,15 @@
 
 		function renderMatrix() {
 			var head = h( 'div', { class: 'rv-vs__mhead' }, [
-				h( 'span', { class: 'rv-vs__mhead-field', text: 'Alan' } ),
-				h( 'span', { class: 'rv-vs__mhead-col', text: 'Kart' } ),
-				h( 'span', { class: 'rv-vs__mhead-col', text: 'Detay' } ),
-				h( 'span', { class: 'rv-vs__mhead-col', text: 'Karş.' } )
+				h( 'span', { class: 'rv-vs__mhead-field', text: T.colField } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: T.colCard } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: T.colDetail } ),
+				h( 'span', { class: 'rv-vs__mhead-col', text: T.colCompare } )
 			] );
 			var rows = visibleMatrixFields().map( renderMatrixRow );
 			var body = h( 'div', { class: 'rv-vs__mbody' }, rows );
 			if ( ! rows.length ) {
-				body.appendChild( h( 'p', { class: 'rv-vs__empty', text: 'Bu kategoride aktif alan yok.' } ) );
+				body.appendChild( h( 'p', { class: 'rv-vs__empty', text: T.emptyCategory } ) );
 			}
 			matrixEl = h( 'div', { class: 'rv-vs__matrix' }, [ head, body ] );
 			return matrixEl;
@@ -624,16 +702,16 @@
 				} )
 			);
 			if ( ! cardChips.length ) {
-				chips.appendChild( h( 'span', { class: 'rv-vs__empty-inline', text: 'Kartta gösterilecek alan seçilmedi' } ) );
+				chips.appendChild( h( 'span', { class: 'rv-vs__empty-inline', text: T.noCard } ) );
 			}
 
 			var vehicleCard = h( 'div', { class: 'rv-vs__pcard' }, [
-				h( 'div', { class: 'rv-vs__pimage', text: 'araç görseli' } ),
+				h( 'div', { class: 'rv-vs__pimage', text: T.previewImage } ),
 				h( 'div', { class: 'rv-vs__pbody' }, [
 					h( 'div', { class: 'rv-vs__pname', text: 'Toyota Corolla Hybrid' } ),
 					h( 'div', { class: 'rv-vs__pprice', text: '₺1.850 / gün' } ),
 					chips,
-					h( 'div', { class: 'rv-vs__plink', text: 'İncele →' } )
+					h( 'div', { class: 'rv-vs__plink', text: T.previewLink } )
 				] )
 			] );
 
@@ -646,21 +724,21 @@
 				} )
 			);
 			var highlights = h( 'div', { class: 'rv-vs__pcard rv-vs__pcard--flat' }, [
-				h( 'div', { class: 'rv-vs__ptitle', text: 'Detay — Öne çıkanlar' } ),
+				h( 'div', { class: 'rv-vs__ptitle', text: T.detailHighlights } ),
 				grid
 			] );
 			if ( ! detailChips.length ) {
-				highlights.appendChild( h( 'div', { class: 'rv-vs__empty-inline', text: 'Detayda öne çıkacak alan seçilmedi' } ) );
+				highlights.appendChild( h( 'div', { class: 'rv-vs__empty-inline', text: T.noDetail } ) );
 			}
 
 			var counts = h( 'div', { class: 'rv-vs__counts' }, [
-				h( 'span', { text: 'Kartta ' + cardChips.length } ),
-				h( 'span', { text: 'Detayda ' + detailChips.length } ),
-				h( 'span', { text: 'Karşılaştırmada ' + compareCount } )
+				h( 'span', { text: T.countCard + ' ' + cardChips.length } ),
+				h( 'span', { text: T.countDetail + ' ' + detailChips.length } ),
+				h( 'span', { text: T.countCompare + ' ' + compareCount } )
 			] );
 
 			return [
-				h( 'div', { class: 'rv-vs__ptitle rv-vs__ptitle--section', text: 'Canlı önizleme' } ),
+				h( 'div', { class: 'rv-vs__ptitle rv-vs__ptitle--section', text: T.livePreview } ),
 				vehicleCard,
 				highlights,
 				counts
@@ -685,15 +763,15 @@
 		function renderDisplayTab() {
 			// Presets + category filter chips
 			var bar = h( 'div', { class: 'rv-vs__toolbar' }, [
-				h( 'span', { class: 'rv-vs__toolbar-label', text: 'Şablon:' } )
+				h( 'span', { class: 'rv-vs__toolbar-label', text: T.template } )
 			] );
-			[ [ 'minimal', 'Minimal' ], [ 'standart', 'Standart' ], [ 'detayli', 'Detaylı' ] ].forEach( function ( p ) {
+			[ [ 'minimal', T.presetMinimal ], [ 'standart', T.presetStandard ], [ 'detayli', T.presetDetailed ] ].forEach( function ( p ) {
 				var b = h( 'button', { type: 'button', class: 'rv-vs__chipbtn', text: p[ 1 ] } );
 				b.addEventListener( 'click', function () { applyPreset( p[ 0 ] ); } );
 				bar.appendChild( b );
 			} );
 			bar.appendChild( h( 'span', { class: 'rv-vs__divider' } ) );
-			[ [ 'all', 'Tümü' ], [ 'detail', 'Detaylar' ], [ 'feature', 'Özellikler' ], [ 'equipment', 'Ekipman' ] ].forEach( function ( c ) {
+			[ [ 'all', T.filterAll ], [ 'detail', T.filterDetail ], [ 'feature', T.filterFeature ], [ 'equipment', T.filterEquipment ] ].forEach( function ( c ) {
 				var on = state.filter === c[ 0 ];
 				var b = h( 'button', {
 					type: 'button',
@@ -717,7 +795,7 @@
 
 			var wrap = h( 'div', {}, [ bar, layout ] );
 			if ( state.filter !== 'all' ) {
-				bar.appendChild( h( 'span', { class: 'rv-vs__hint', text: 'Sıralama için "Tümü" görünümüne geçin' } ) );
+				bar.appendChild( h( 'span', { class: 'rv-vs__hint', text: T.dragHint } ) );
 			}
 			return wrap;
 		}
@@ -761,10 +839,10 @@
 				render();
 			}
 
-			var cancel = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost', text: 'İptal' } );
+			var cancel = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost', text: T.cancel } );
 			cancel.addEventListener( 'click', close );
 
-			var confirm = h( 'button', { type: 'button', class: 'rv-vs__btn', text: 'Kaydet' } );
+			var confirm = h( 'button', { type: 'button', class: 'rv-vs__btn', text: T.save } );
 			confirm.addEventListener( 'click', function () {
 				var labels = {};
 				items.forEach( function ( f ) {
@@ -782,7 +860,7 @@
 					labels: labels
 				} ).then( function ( res ) {
 					if ( ! res || ! res.success ) {
-						failNotice( 'İsimler güncellenemedi.' );
+						failNotice( T.renameFailed );
 						return;
 					}
 					Object.keys( labels ).forEach( function ( key ) {
@@ -792,13 +870,13 @@
 						}
 					} );
 					state.renameGroup = null;
-					state.notice = { type: 'ok', text: 'İsimler güncellendi.' };
+					state.notice = { type: 'ok', text: T.renameSaved };
 					render();
 				} ).catch( function () { failNotice(); } );
 			} );
 
 			var dialog = h( 'div', { class: 'rv-vs__modal' }, [
-				h( 'h2', { class: 'rv-vs__card-title', text: GROUP_TITLE[ type ] + ' — İsimleri Düzenle' } ),
+				h( 'h2', { class: 'rv-vs__card-title', text: groupTitle( type ) + T.renameSuffix } ),
 				h( 'div', { class: 'rv-vs__rename-list' }, rows ),
 				h( 'div', { class: 'rv-vs__modal-actions' }, [ cancel, confirm ] )
 			] );
@@ -813,11 +891,11 @@
 		}
 
 		function renderSaveButton() {
-			var label = state.saving ? 'Kaydediliyor…' : ( state.dirty ? 'Kaydet *' : 'Kaydet' );
+			var label = state.saving ? T.saving : ( state.dirty ? T.save + ' *' : T.save );
 			var btn = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__save', text: label } );
 			btn.disabled = state.saving;
 			if ( state.dirty && ! state.saving ) {
-				btn.title = 'Kaydedilmemiş değişiklikler var';
+				btn.title = T.dirtyTitle;
 			}
 			btn.addEventListener( 'click', save );
 			return btn;
@@ -836,8 +914,8 @@
 		function render() {
 			mount.textContent = '';
 			mount.appendChild( h( 'div', { class: 'rv-vs__head' }, [
-				h( 'h1', { class: 'rv-vs__title', text: 'Araç Ayarları' } ),
-				h( 'span', { class: 'rv-vs__subtitle', text: 'Alanları tanımla, nerede görüneceğini yönet' } ),
+				h( 'h1', { class: 'rv-vs__title', text: T.title } ),
+				h( 'span', { class: 'rv-vs__subtitle', text: T.subtitle } ),
 				renderSaveButton()
 			] ) );
 			var notice = renderNotice();
@@ -845,8 +923,8 @@
 				mount.appendChild( notice );
 			}
 			mount.appendChild( h( 'div', { class: 'rv-vs__tabs' }, [
-				tabButton( 'fields', '1 · Alan Tanımları' ),
-				tabButton( 'display', '2 · Görünüm & Önizleme' )
+				tabButton( 'fields', T.tabFields ),
+				tabButton( 'display', T.tabDisplay )
 			] ) );
 			if ( state.tab === 'fields' ) {
 				previewEl = null;
@@ -871,7 +949,7 @@
 			}
 			btn.addEventListener( 'click', function ( e ) {
 				e.preventDefault();
-				if ( ! window.confirm( 'Bu sekmeyi varsayılana sıfırla?' ) ) {
+				if ( ! window.confirm( T.resetConfirm ) ) {
 					return;
 				}
 				postAjax( 'mhmrentiva_reset_vehicle_settings', {
@@ -881,7 +959,7 @@
 						state.dirty = false; // avoid the beforeunload prompt on the reload
 						window.location.reload();
 					} else {
-						failNotice( 'Sıfırlanamadı.' );
+						failNotice( T.resetFailed );
 					}
 				} ).catch( function () { failNotice(); } );
 			} );
