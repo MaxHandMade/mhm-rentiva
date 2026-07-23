@@ -220,10 +220,43 @@
 				} );
 			}
 
+			var children = [ label, pill ];
+
+			if ( field.custom ) {
+				var remove = h( 'button', {
+					type: 'button',
+					class: 'rv-vs__remove',
+					title: 'Kaldır',
+					text: '×'
+				} );
+				remove.addEventListener( 'click', function () {
+					if ( ! window.confirm( '"' + field.label + '" alanı kalıcı olarak silinecek. Emin misiniz?' ) ) {
+						return;
+					}
+					postAjax( 'mhmrentiva_remove_custom_field', {
+						field_key: field.key,
+						field_type: typeToCategory( field.type )
+					} ).then( function ( res ) {
+						if ( ! res || ! res.success ) {
+							failNotice( 'Alan silinemedi.' );
+							return;
+						}
+						// Splice the id out of EVERY reference, or a stale id is written at the
+						// next Save and then silently disappears.
+						state.fields = state.fields.filter( function ( f ) { return f.id !== field.id; } );
+						state.cardOrder = state.cardOrder.filter( function ( id ) { return id !== field.id; } );
+						state.detailOrder = state.detailOrder.filter( function ( id ) { return id !== field.id; } );
+						state.notice = { type: 'ok', text: 'Alan silindi.' };
+						render();
+					} ).catch( function () { failNotice(); } );
+				} );
+				children.push( remove );
+			}
+
 			return h( 'div', {
 				class: 'rv-vs__row' + ( field.enabled ? '' : ' rv-vs__row--passive' ),
 				'data-field-id': field.id
-			}, [ label, pill ] );
+			}, children );
 		}
 
 		function renderGroupCard( type ) {
@@ -250,11 +283,20 @@
 			var selectNone = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: 'Tümünü Kaldır' } );
 			selectNone.addEventListener( 'click', function () { setGroupEnabled( false ); } );
 
+			// Edit Names opens a per-group modal (one input per field) rather than a chain of
+			// prompts. Renames persist immediately AND update state, so the Tab-2 live preview
+			// (B-2b) reflects a rename without a reload.
+			var editNames = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost rv-vs__btn--sm', text: 'İsimleri Düzenle' } );
+			editNames.addEventListener( 'click', function () {
+				state.renameGroup = type;
+				render();
+			} );
+
 			var head = h( 'div', { class: 'rv-vs__card-head' }, [
 				h( 'h2', { class: 'rv-vs__card-title', text: GROUP_TITLE[ type ] } ),
 				h( 'span', { class: 'rv-vs__count', text: activeCount + ' aktif' } )
 			] );
-			var actions = h( 'div', { class: 'rv-vs__card-actions' }, [ selectAll, selectNone ] );
+			var actions = h( 'div', { class: 'rv-vs__card-actions' }, [ selectAll, selectNone, editNames ] );
 
 			return h( 'div', {
 				class: 'rv-vs__card',
@@ -262,12 +304,142 @@
 			}, [ head, actions, h( 'div', { class: 'rv-vs__rows' }, items.map( renderRow ) ) ] );
 		}
 
+		/**
+		 * POST helper for the existing definition-CRUD AJAX endpoints.
+		 * Definition changes (add/remove/rename) persist immediately (D8); only the
+		 * selection state is deferred to Save.
+		 */
+		function postAjax( action, params ) {
+			var body = new URLSearchParams();
+			body.append( 'action', action );
+			body.append( 'nonce', payload.nonce );
+			Object.keys( params ).forEach( function ( k ) {
+				var v = params[ k ];
+				if ( Array.isArray( v ) ) {
+					v.forEach( function ( item ) { body.append( k + '[]', item ); } );
+				} else if ( v !== null && typeof v === 'object' ) {
+					Object.keys( v ).forEach( function ( sub ) { body.append( k + '[' + sub + ']', v[ sub ] ); } );
+				} else {
+					body.append( k, v );
+				}
+			} );
+			return window.fetch( window.ajaxurl, {
+				method: 'POST',
+				credentials: 'same-origin',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+				body: body.toString()
+			} ).then( function ( r ) { return r.json(); } );
+		}
+
+		function failNotice( text ) {
+			state.notice = { type: 'err', text: text || 'İşlem başarısız. Oturumunuz sona ermiş olabilir — sayfayı yenileyin.' };
+			render();
+		}
+
+		// --- Add custom field (the mockup omits the type selector; D7 requires keeping it) ---
+		var addForm = { label: '', group: 'detail', type: 'text', options: '' };
+
+		function renderAddCustom() {
+			var nameInput = h( 'input', {
+				class: 'rv-vs__input',
+				type: 'text',
+				placeholder: 'Alan adı (örn. Bagaj Hacmi)',
+				value: addForm.label
+			} );
+			nameInput.addEventListener( 'input', function ( e ) { addForm.label = e.target.value; } );
+
+			var groupSelect = h( 'select', { class: 'rv-vs__select' } );
+			[ [ 'detail', 'Detay' ], [ 'feature', 'Özellik' ], [ 'equipment', 'Ekipman' ] ].forEach( function ( o ) {
+				var opt = h( 'option', { value: o[ 0 ], text: o[ 1 ] } );
+				if ( addForm.group === o[ 0 ] ) { opt.selected = true; }
+				groupSelect.appendChild( opt );
+			} );
+			groupSelect.addEventListener( 'change', function ( e ) { addForm.group = e.target.value; render(); } );
+
+			var children = [
+				h( 'span', { class: 'rv-vs__addcustom-label', text: 'Özel alan ekle:' } ),
+				nameInput,
+				groupSelect
+			];
+
+			// Field type + options apply to DETAILS only (that is where mhm_custom_field_meta is read).
+			if ( addForm.group === 'detail' ) {
+				var typeSelect = h( 'select', { class: 'rv-vs__select' } );
+				[ [ 'text', 'Metin' ], [ 'number', 'Sayı' ], [ 'select', 'Seçim' ] ].forEach( function ( o ) {
+					var opt = h( 'option', { value: o[ 0 ], text: o[ 1 ] } );
+					if ( addForm.type === o[ 0 ] ) { opt.selected = true; }
+					typeSelect.appendChild( opt );
+				} );
+				typeSelect.addEventListener( 'change', function ( e ) { addForm.type = e.target.value; render(); } );
+				children.push( typeSelect );
+
+				if ( addForm.type === 'select' ) {
+					var optionsInput = h( 'input', {
+						class: 'rv-vs__input',
+						type: 'text',
+						placeholder: 'Seçenekler (virgülle ayır: S, M, L)',
+						value: addForm.options
+					} );
+					optionsInput.addEventListener( 'input', function ( e ) { addForm.options = e.target.value; } );
+					children.push( optionsInput );
+				}
+			}
+
+			var addBtn = h( 'button', { type: 'button', class: 'rv-vs__btn', text: 'Ekle' } );
+			addBtn.addEventListener( 'click', function () {
+				var label = ( addForm.label || '' ).trim();
+				if ( ! label ) {
+					failNotice( 'Lütfen bir alan adı girin.' );
+					return;
+				}
+				var group = addForm.group;
+				var params = { field_label: label, field_type: typeToCategory( group ) };
+				if ( group === 'detail' ) {
+					params.type = addForm.type;
+					params.options = addForm.options;
+				}
+				postAjax( 'mhmrentiva_add_custom_field', params ).then( function ( res ) {
+					if ( ! res || ! res.success || ! res.data || ! res.data.key ) {
+						failNotice( 'Alan eklenemedi.' );
+						return;
+					}
+					// Merge the server-generated field into state (server owns the key).
+					var newField = {
+						id: group + ':' + res.data.key,
+						type: group,
+						key: res.data.key,
+						label: label,
+						enabled: true,
+						core: false,
+						custom: true,
+						meta: ( group === 'detail' && addForm.type )
+							? { type: addForm.type, options: addForm.options }
+							: null,
+						card: false,
+						detail: false,
+						compare: false
+					};
+					state.fields.push( newField );
+					addForm.label = '';
+					addForm.options = '';
+					// The new field is enabled in state but not yet in mhm_selected_*; Save persists it.
+					markDirty();
+					state.notice = { type: 'ok', text: 'Alan eklendi. Seçim durumunu kaydetmek için Kaydet\'e basın.' };
+					render();
+				} ).catch( function () { failNotice(); } );
+			} );
+			children.push( addBtn );
+
+			return h( 'div', { class: 'rv-vs__addcustom' }, children );
+		}
+
 		function renderFieldsTab() {
 			return h( 'div', {}, [
 				h( 'p', {
 					class: 'rv-vs__subtitle',
-					text: 'Hangi alanların toplanacağını belirle. Pasif alanlar araç formlarında ve önizlemede görünmez.'
+					text: 'Hangi alanların toplanacağını belirle. Pasif alanlar araç formlarında ve önizlemede görünmez. Kendi özel alanını da ekleyebilirsin.'
 				} ),
+				renderAddCustom(),
 				h( 'div', { class: 'rv-vs__groups' }, GROUP_ORDER.map( renderGroupCard ) )
 			] );
 		}
@@ -292,6 +464,81 @@
 				}
 			} );
 			return btn;
+		}
+
+		/** Per-group rename modal (Edit Names, D7). */
+		function renderRenameModal() {
+			if ( ! state.renameGroup ) {
+				return null;
+			}
+			var type = state.renameGroup;
+			var items = state.fields.filter( function ( f ) { return f.type === type; } );
+			var draft = {};
+			items.forEach( function ( f ) { draft[ f.key ] = f.label; } );
+
+			var rows = items.map( function ( f ) {
+				var input = h( 'input', { class: 'rv-vs__input', type: 'text', value: f.label } );
+				input.addEventListener( 'input', function ( e ) { draft[ f.key ] = e.target.value; } );
+				return h( 'label', { class: 'rv-vs__rename-row' }, [
+					h( 'span', { class: 'rv-vs__rename-key', text: f.key } ),
+					input
+				] );
+			} );
+
+			function close() {
+				state.renameGroup = null;
+				render();
+			}
+
+			var cancel = h( 'button', { type: 'button', class: 'rv-vs__btn rv-vs__btn--ghost', text: 'İptal' } );
+			cancel.addEventListener( 'click', close );
+
+			var confirm = h( 'button', { type: 'button', class: 'rv-vs__btn', text: 'Kaydet' } );
+			confirm.addEventListener( 'click', function () {
+				var labels = {};
+				items.forEach( function ( f ) {
+					var next = ( draft[ f.key ] || '' ).trim();
+					if ( next && next !== f.label ) {
+						labels[ f.key ] = next;
+					}
+				} );
+				if ( ! Object.keys( labels ).length ) {
+					close();
+					return;
+				}
+				postAjax( 'mhmrentiva_update_field_labels', {
+					type: typeToCategory( type ),
+					labels: labels
+				} ).then( function ( res ) {
+					if ( ! res || ! res.success ) {
+						failNotice( 'İsimler güncellenemedi.' );
+						return;
+					}
+					Object.keys( labels ).forEach( function ( key ) {
+						var f = fieldById( type + ':' + key );
+						if ( f ) {
+							f.label = labels[ key ];
+						}
+					} );
+					state.renameGroup = null;
+					state.notice = { type: 'ok', text: 'İsimler güncellendi.' };
+					render();
+				} ).catch( function () { failNotice(); } );
+			} );
+
+			var dialog = h( 'div', { class: 'rv-vs__modal' }, [
+				h( 'h2', { class: 'rv-vs__card-title', text: GROUP_TITLE[ type ] + ' — İsimleri Düzenle' } ),
+				h( 'div', { class: 'rv-vs__rename-list' }, rows ),
+				h( 'div', { class: 'rv-vs__modal-actions' }, [ cancel, confirm ] )
+			] );
+
+			var overlay = h( 'div', { class: 'rv-vs__overlay' }, [ dialog ] );
+			overlay.addEventListener( 'click', function ( e ) {
+				if ( e.target === overlay ) {
+					close();
+				}
+			} );
+			return overlay;
 		}
 
 		function renderSaveButton() {
@@ -331,6 +578,10 @@
 				tabButton( 'display', '2 · Görünüm & Önizleme' )
 			] ) );
 			mount.appendChild( state.tab === 'fields' ? renderFieldsTab() : renderDisplayTab() );
+			var modal = renderRenameModal();
+			if ( modal ) {
+				mount.appendChild( modal );
+			}
 		}
 
 		render();

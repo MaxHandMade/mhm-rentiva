@@ -252,6 +252,11 @@
 	display: flex;
 	gap: 6px;
 	margin-bottom: 10px;
+	flex-wrap: wrap;
+}
+
+.rv-vs__addcustom-label {
+	font-weight: 600;
 }
 
 /* Save result notice */
@@ -273,6 +278,61 @@
 	background: #fcf0f1;
 	border-color: #f0b7ba;
 	color: #b32d2e;
+}
+
+/* ---- Rename modal (Edit Names) ---- */
+.rv-vs__overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(29, 35, 39, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100000;
+	padding: 20px;
+}
+
+.rv-vs__modal {
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 10px 40px rgba(16, 24, 40, 0.25);
+	padding: 20px 22px;
+	width: 480px;
+	max-width: 100%;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.rv-vs__rename-list {
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-right: 4px;
+}
+
+.rv-vs__rename-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.rv-vs__rename-key {
+	flex: 0 0 34%;
+	font-size: 11px;
+	color: #8a8f98;
+	font-family: Consolas, Monaco, monospace;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.rv-vs__modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
 }
 
 .rv-vs__foot {
