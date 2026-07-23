@@ -227,6 +227,54 @@
 	min-width: 180px;
 }
 
+.rv-vs__btn--sm {
+	font-size: 12px;
+	font-weight: 500;
+	padding: 4px 10px;
+	border-radius: 7px;
+}
+
+/* Save sits at the far right of the header, per the mockup */
+.rv-vs__save {
+	margin-left: auto;
+	font-size: 14px;
+	padding: 10px 20px;
+	border-radius: 9px;
+}
+
+.rv-vs__save:disabled {
+	opacity: 0.65;
+	cursor: default;
+}
+
+/* Per-group bulk actions */
+.rv-vs__card-actions {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 10px;
+}
+
+/* Save result notice */
+.rv-vs__notice {
+	margin-top: 12px;
+	padding: 9px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	border: 1px solid transparent;
+}
+
+.rv-vs__notice--ok {
+	background: #e4f6e9;
+	border-color: #a6dfb6;
+	color: #0a6b1e;
+}
+
+.rv-vs__notice--err {
+	background: #fcf0f1;
+	border-color: #f0b7ba;
+	color: #b32d2e;
+}
+
 .rv-vs__foot {
 	display: flex;
 	justify-content: flex-end;
