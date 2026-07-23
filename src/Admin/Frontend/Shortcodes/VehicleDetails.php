@@ -351,7 +351,8 @@ final class VehicleDetails extends AbstractShortcode {
 			if ( $key === '' ) {
 				return true; // cannot resolve a key -> never hide
 			}
-			return VehicleFeatureHelper::is_field_active( 'feature', $key );
+			$type = ( strpos( $key, 'tax_' ) === 0 ) ? 'taxonomy' : 'feature';
+			return VehicleFeatureHelper::is_field_active( $type, $key );
 		} ) );
 	}
 

@@ -470,11 +470,25 @@ final class VehicleComparison extends AbstractShortcode {
 		$settings            = get_option('mhm_rentiva_settings', array());
 		$selected_fields_map = $settings['comparison_fields'] ?? array();
 
-		// Flatten selected keys from all categories
+		// Flatten selected keys, dropping Passive fields so the per-vehicle value map matches the
+		// gated comparison rows (get_dynamic_features()).
+		$category_type     = array(
+			'details'   => 'detail',
+			'features'  => 'feature',
+			'equipment' => 'equipment',
+		);
 		$all_selected_keys = array();
 		foreach ($selected_fields_map as $category => $fields) {
-			if (is_array($fields)) {
-				$all_selected_keys = array_merge($all_selected_keys, $fields);
+			if (! is_array($fields)) {
+				continue;
+			}
+			$type = $category_type[ $category ] ?? '';
+			foreach ($fields as $field_key) {
+				$field_key = (string) $field_key;
+				if ($type !== '' && ! \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::is_field_active($type, sanitize_key($field_key))) {
+					continue;
+				}
+				$all_selected_keys[] = $field_key;
 			}
 		}
 		$all_selected_keys = array_unique($all_selected_keys);
