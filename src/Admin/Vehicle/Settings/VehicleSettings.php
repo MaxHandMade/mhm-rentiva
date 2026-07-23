@@ -1434,6 +1434,13 @@ final class VehicleSettings {
 					)
 				);
 
+				// Clean the custom-field meta (type/options) so it does not orphan.
+				$field_meta = get_option( 'mhm_custom_field_meta', array() );
+				if ( isset( $field_meta[ $field_key ] ) ) {
+					unset( $field_meta[ $field_key ] );
+					update_option( 'mhm_custom_field_meta', $field_meta );
+				}
+
 				wp_send_json_success( __( 'Custom detail removed successfully', 'mhm-rentiva' ) );
 			} else {
 				wp_send_json_error( 'Field not found' );

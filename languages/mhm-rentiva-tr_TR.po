@@ -4542,13 +4542,13 @@ msgstr "Ayarları kaydederken hata oluştu."
 #: src/Admin/Core/AssetManager.php:1181
 #: src/Admin/Core/AssetManager.php:1230
 msgid "Select"
-msgstr "Seç"
+msgstr "Seçim"
 
 #: src/Admin/Core/AssetManager.php:1182
 #: src/Admin/Core/AssetManager.php:1229
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:611
 msgid "Number"
-msgstr "Numara"
+msgstr "Sayı"
 
 #: src/Admin/Core/AssetManager.php:1186
 msgid "Custom detail added successfully!"
@@ -14524,7 +14524,7 @@ msgstr "Özellikler"
 #: src/Admin/Core/AssetManager.php:1249
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:480
 msgid "Equipment"
-msgstr "Ekipmanlar"
+msgstr "Ekipman"
 
 #: src/Admin/Core/AssetManager.php:1221
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:490
@@ -14532,7 +14532,7 @@ msgstr "Ekipmanlar"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:634
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:686
 msgid "Deselect All"
-msgstr "Hepsini Seçimden Çıkar"
+msgstr "Tümünü Kaldır"
 
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:514
 msgid "Save Display Settings"
