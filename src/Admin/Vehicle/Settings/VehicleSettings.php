@@ -1118,10 +1118,19 @@ final class VehicleSettings {
 			} ) );
 		};
 
+		// The single editing order (spec §6) is persisted explicitly so it round-trips exactly;
+		// two filtered subsets (card/detail) cannot reconstruct one merged order. Empty until
+		// the first v2 save -- the UI then derives one from card/detail order as a fallback.
+		$stored_settings = (array) get_option( 'mhm_rentiva_settings', array() );
+		$matrix_order    = ( isset( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) && is_array( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) )
+			? array_map( 'strval', $stored_settings['mhm_rentiva_vehicle_matrix_order'] )
+			: array();
+
 		return array(
 			'fields'      => $fields,
 			'cardOrder'   => $filter_known( $card_ids ),
 			'detailOrder' => $filter_known( $detail_ids ),
+			'matrixOrder' => $filter_known( $matrix_order ),
 		);
 	}
 
@@ -1161,11 +1170,14 @@ final class VehicleSettings {
 	}
 
 	/**
-	 * Persist the "Display" tab payload (card/detail/comparison field selections).
+	 * Persist the "Display" tab payload (card/detail/comparison selections + the editing order).
 	 *
-	 * Selections and comparison categories are filtered against the currently enabled
-	 * fields before being stored (disable-cascade, D4) -- a field that is not enabled
-	 * must not survive in card/detail/comparison selections.
+	 * Card/detail selections pass through VehicleFeatureHelper::sanitize_card_field_selection(),
+	 * which drops any entry not in get_available_fields_map() -- the same availability truth the
+	 * frontend renders from. Comparison is stored as submitted (the frontend gates Passive keys at
+	 * render, VehicleComparison::flatten_gated_selected_keys()), so a Passive-field compare flag
+	 * may persist as harmless storage cruft. The matrix order (mhm_rentiva_vehicle_matrix_order)
+	 * is stored as the id list so the single editing order round-trips exactly (spec §6).
 	 */
 	private static function save_display_payload(): void {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
@@ -1217,6 +1229,20 @@ final class VehicleSettings {
 		// and the frontend comparison table renders exactly what is stored). Empty = nothing compares.
 		$settings['comparison_fields'] = $sanitized_comparison;
 		$settings_updated              = true;
+
+		// Persist the single editing order (spec §6) as a "type:key" id list, so it round-trips
+		// exactly instead of being re-inferred from the card/detail subsets.
+		if ( isset( $_POST['mhm_rentiva_vehicle_matrix_order'] ) ) {
+			$decoded_order = json_decode( self::post_text( 'mhm_rentiva_vehicle_matrix_order' ), true );
+			if ( is_array( $decoded_order ) ) {
+				$settings['mhm_rentiva_vehicle_matrix_order'] = array_values( array_filter( array_map(
+					static function ( $id ) {
+						return is_string( $id ) ? preg_replace( '/[^a-z0-9_:]/', '', $id ) : '';
+					},
+					$decoded_order
+				) ) );
+			}
+		}
 
 		if ( $settings_updated ) {
 			update_option( 'mhm_rentiva_settings', $settings );

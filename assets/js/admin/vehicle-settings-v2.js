@@ -137,6 +137,8 @@
 			gripTitle: t( 'gripTitle', 'Drag to reorder' ),
 			livePreview: t( 'livePreview', 'Live preview' ),
 			previewImage: t( 'previewImage', 'vehicle image' ),
+			previewName: t( 'previewName', 'Toyota Corolla Hybrid' ),
+			previewPrice: t( 'previewPrice', '$1,850 / day' ),
 			previewLink: t( 'previewLink', 'View →' ),
 			detailHighlights: t( 'detailHighlights', 'Detail — Highlights' ),
 			noCard: t( 'noCard', 'No fields selected for the card' ),
@@ -160,6 +162,7 @@
 		var state = {
 			tab: 'fields',
 			dirty: false,
+			dirtyEpoch: 0,
 			saving: false,
 			notice: null,
 			fields: payload.state.fields.map( function ( f ) {
@@ -170,25 +173,37 @@
 		};
 
 		/**
-		 * ONE matrix order drives BOTH surfaces: the stored cardOrder/detailOrder are derived
-		 * from it, filtered to the fields selected for that surface (spec §6 "one order, not
-		 * two"). Seeded from the stored card order, then detail-only ids, then the rest.
+		 * ONE matrix order drives BOTH surfaces (spec §6 "one order, not two"). It is persisted
+		 * explicitly (mhm_rentiva_vehicle_matrix_order) and hydrated back here, so the admin's
+		 * editing order round-trips exactly. When it is absent (pre-existing installs), fall back
+		 * to deriving it: stored card order, then detail-only ids, then the rest.
 		 */
 		state.matrixOrder = ( function () {
+			var known = {};
+			state.fields.forEach( function ( f ) { known[ f.id ] = true; } );
+
+			var stored = payload.state.matrixOrder;
+			if ( Array.isArray( stored ) && stored.length ) {
+				var out = stored.filter( function ( id ) { return known[ id ]; } );
+				// Append any field missing from the stored order (e.g. newly available field).
+				state.fields.forEach( function ( f ) {
+					if ( out.indexOf( f.id ) === -1 ) { out.push( f.id ); }
+				} );
+				return out;
+			}
+
 			var seen = {};
-			var out = [];
+			var derived = [];
 			function push( id ) {
-				if ( id && ! seen[ id ] ) {
+				if ( id && known[ id ] && ! seen[ id ] ) {
 					seen[ id ] = true;
-					out.push( id );
+					derived.push( id );
 				}
 			}
 			state.cardOrder.forEach( push );
 			state.detailOrder.forEach( push );
 			state.fields.forEach( function ( f ) { push( f.id ); } );
-			return out.filter( function ( id ) {
-				return state.fields.some( function ( f ) { return f.id === id; } );
-			} );
+			return derived;
 		} )();
 
 		state.filter = 'all';
@@ -204,6 +219,7 @@
 
 		function markDirty() {
 			state.dirty = true;
+			state.dirtyEpoch++;
 			state.notice = null;
 		}
 
@@ -226,17 +242,28 @@
 				if ( f.enabled ) {
 					selected[ cat ].push( f.key );
 				}
-				if ( f.compare ) {
+				// Only an ENABLED field can compare — mirror card/detail so a Passive field's
+				// stale compare flag is not persisted as comparison cruft.
+				if ( f.enabled && f.compare ) {
 					comparison[ cat ].push( f.key );
 				}
 			} );
 
-			// Both surfaces derive from the single matrix order.
+			// Both surfaces derive from the single matrix order. Append any enabled+flagged field
+			// that is somehow absent from matrixOrder (defensive — matches matrixFields()), so the
+			// two derivations can never silently drop a field the matrix showed.
 			function orderedSelection( flag ) {
 				var out = [];
+				var seen = {};
 				state.matrixOrder.forEach( function ( id ) {
 					var f = fieldById( id );
 					if ( f && f.enabled && f[ flag ] ) {
+						seen[ id ] = true;
+						out.push( { type: f.type, key: f.key } );
+					}
+				} );
+				state.fields.forEach( function ( f ) {
+					if ( f.enabled && f[ flag ] && ! seen[ f.id ] ) {
 						out.push( { type: f.type, key: f.key } );
 					}
 				} );
@@ -257,6 +284,9 @@
 			}
 			state.saving = true;
 			state.notice = null;
+			// Snapshot the change counter: only clear `dirty` on success if no mutation happened
+			// while the request was in flight, so a change made mid-save is not falsely "saved".
+			var epoch = state.dirtyEpoch;
 			render();
 
 			var p = buildSavePayload();
@@ -275,6 +305,8 @@
 			} );
 			body.append( 'mhm_rentiva_vehicle_card_fields', JSON.stringify( p.card ) );
 			body.append( 'mhm_rentiva_vehicle_detail_fields', JSON.stringify( p.detail ) );
+			// Persist the single editing order so it round-trips exactly (spec §6).
+			body.append( 'mhm_rentiva_vehicle_matrix_order', JSON.stringify( state.matrixOrder ) );
 
 			window.fetch( window.ajaxurl, {
 				method: 'POST',
@@ -286,7 +318,11 @@
 			} ).then( function ( res ) {
 				state.saving = false;
 				if ( res && res.success ) {
-					state.dirty = false;
+					// Keep dirty if the user changed something during the save (that change was
+					// not in this request's body).
+					if ( state.dirtyEpoch === epoch ) {
+						state.dirty = false;
+					}
 					state.notice = { type: 'ok', text: T.savedOk };
 				} else {
 					state.notice = { type: 'err', text: T.saveErr };
@@ -708,8 +744,8 @@
 			var vehicleCard = h( 'div', { class: 'rv-vs__pcard' }, [
 				h( 'div', { class: 'rv-vs__pimage', text: T.previewImage } ),
 				h( 'div', { class: 'rv-vs__pbody' }, [
-					h( 'div', { class: 'rv-vs__pname', text: 'Toyota Corolla Hybrid' } ),
-					h( 'div', { class: 'rv-vs__pprice', text: '₺1.850 / gün' } ),
+					h( 'div', { class: 'rv-vs__pname', text: T.previewName } ),
+					h( 'div', { class: 'rv-vs__pprice', text: T.previewPrice } ),
 					chips,
 					h( 'div', { class: 'rv-vs__plink', text: T.previewLink } )
 				] )
@@ -912,6 +948,14 @@
 		}
 
 		function render() {
+			// Tear down the previous sortable so its jQuery data/handlers do not leak across
+			// the full re-renders (preset/filter/tab switch) that replace the matrix node.
+			if ( matrixEl && window.jQuery ) {
+				var $prev = window.jQuery( matrixEl ).find( '.rv-vs__mbody' );
+				if ( $prev.sortable && $prev.hasClass( 'ui-sortable' ) ) {
+					$prev.sortable( 'destroy' );
+				}
+			}
 			mount.textContent = '';
 			mount.appendChild( h( 'div', { class: 'rv-vs__head' }, [
 				h( 'h1', { class: 'rv-vs__title', text: T.title } ),

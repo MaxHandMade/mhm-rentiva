@@ -1258,6 +1258,8 @@ final class AssetManager {
 						'gripTitle'              => __('Drag to reorder', 'mhm-rentiva'),
 						'livePreview'            => __('Live preview', 'mhm-rentiva'),
 						'previewImage'           => __('vehicle image', 'mhm-rentiva'),
+						'previewName'            => __('Toyota Corolla Hybrid', 'mhm-rentiva'),
+						'previewPrice'           => __('$1,850 / day', 'mhm-rentiva'),
 						'previewLink'            => __('View →', 'mhm-rentiva'),
 						'detailHighlights'       => __('Detail — Highlights', 'mhm-rentiva'),
 						'noCard'                 => __('No fields selected for the card', 'mhm-rentiva'),

@@ -110,6 +110,21 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 		$this->assertSame( array( 'S', 'M', 'L' ), $f['meta']['options'] );
 	}
 
+	public function test_matrix_order_round_trips_filtered_to_known_ids(): void {
+		// Absent by default (pre-v2 installs) -> empty, so the UI derives a fallback order.
+		update_option( 'mhm_rentiva_settings', array() );
+		$this->assertSame( array(), VehicleSettings::build_settings_state()['matrixOrder'] );
+
+		// Stored order is returned verbatim, minus any id that is not an actual row.
+		update_option( 'mhm_rentiva_settings', array(
+			'mhm_rentiva_vehicle_matrix_order' => array( 'detail:fuel_type', 'feature:bluetooth', 'detail:not_a_real_field' ),
+		) );
+		$this->assertSame(
+			array( 'detail:fuel_type', 'feature:bluetooth' ),
+			VehicleSettings::build_settings_state()['matrixOrder']
+		);
+	}
+
 	public function test_orders_contain_only_known_field_ids(): void {
 		$state = VehicleSettings::build_settings_state();
 		$ids   = array_column( $state['fields'], 'id' );

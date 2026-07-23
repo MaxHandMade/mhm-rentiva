@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-23T18:25:32+00:00\n"
+"POT-Creation-Date: 2026-07-23T18:52:01+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -131,7 +131,7 @@ msgstr ""
 
 #: src/Admin/About/SystemInfo.php:223
 #: src/Admin/Core/AssetManager.php:960
-#: src/Admin/Core/AssetManager.php:1462
+#: src/Admin/Core/AssetManager.php:1464
 #: src/Admin/Frontend/Account/AccountController.php:198
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:385
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
@@ -902,7 +902,7 @@ msgid "Inactive"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:224
-#: src/Admin/Core/AssetManager.php:1472
+#: src/Admin/Core/AssetManager.php:1474
 #: src/Admin/Core/Utilities/AbstractListTable.php:390
 #: src/Admin/Customers/CustomersPage.php:247
 #: src/Admin/Setup/SetupWizard.php:223
@@ -928,7 +928,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:661
 #: src/Admin/Core/AssetManager.php:1008
 #: src/Admin/Core/AssetManager.php:1108
-#: src/Admin/Core/AssetManager.php:1471
+#: src/Admin/Core/AssetManager.php:1473
 #: src/Admin/Core/Utilities/AbstractListTable.php:405
 #: templates/shortcodes/vehicle-rating-form.php:298
 #: src-react/admin/customers/CustomersPage.jsx:66
@@ -985,13 +985,13 @@ msgid "Max price"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:490
-#: src/Admin/Core/AssetManager.php:1476
+#: src/Admin/Core/AssetManager.php:1478
 #: templates/account/bookings.php:103
 msgid "Filter"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:491
-#: src/Admin/Core/AssetManager.php:1483
+#: src/Admin/Core/AssetManager.php:1485
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1489
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Clear"
@@ -1029,9 +1029,9 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:115
 #: src/Admin/Core/AssetManager.php:662
 #: src/Admin/Core/AssetManager.php:1050
-#: src/Admin/Core/AssetManager.php:1301
-#: src/Admin/Core/AssetManager.php:1330
-#: src/Admin/Core/AssetManager.php:1489
+#: src/Admin/Core/AssetManager.php:1303
+#: src/Admin/Core/AssetManager.php:1332
+#: src/Admin/Core/AssetManager.php:1491
 #: src/Admin/Emails/Core/EmailTemplates.php:636
 #: src/Admin/Frontend/Account/AccountController.php:190
 #: src/Admin/Frontend/Account/AccountController.php:245
@@ -1307,7 +1307,7 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:232
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:271
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:328
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1550
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1576
 msgid "Insufficient permissions."
 msgstr ""
 
@@ -2404,7 +2404,7 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1295
 #: src/Admin/Core/AssetManager.php:1094
-#: src/Admin/Core/AssetManager.php:1478
+#: src/Admin/Core/AssetManager.php:1480
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1487
@@ -2817,9 +2817,9 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:715
 #: src/Admin/Core/AssetManager.php:798
 #: src/Admin/Core/AssetManager.php:1053
-#: src/Admin/Core/AssetManager.php:1302
-#: src/Admin/Core/AssetManager.php:1333
-#: src/Admin/Core/AssetManager.php:1490
+#: src/Admin/Core/AssetManager.php:1304
+#: src/Admin/Core/AssetManager.php:1335
+#: src/Admin/Core/AssetManager.php:1492
 #: src/Admin/Frontend/Account/AccountRenderer.php:174
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:266
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:323
@@ -2970,7 +2970,7 @@ msgid "Error:"
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:249
-#: src/Admin/Core/AssetManager.php:1306
+#: src/Admin/Core/AssetManager.php:1308
 #: src/Admin/Frontend/Account/AccountController.php:199
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 msgid "Unknown error"
@@ -3948,7 +3948,7 @@ msgid "Maintenance"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:569
-#: src/Admin/Core/AssetManager.php:1466
+#: src/Admin/Core/AssetManager.php:1468
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:125
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:137
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:149
@@ -3976,7 +3976,7 @@ msgid "Yes"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:655
-#: src/Admin/Core/AssetManager.php:1461
+#: src/Admin/Core/AssetManager.php:1463
 #: src/Admin/Frontend/Account/AccountAssets.php:54
 #: src/Admin/Frontend/Account/AccountController.php:310
 #: src/Admin/Frontend/Account/AccountRenderer.php:172
@@ -4006,7 +4006,7 @@ msgid "Operation successful"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:658
-#: src/Admin/Core/AssetManager.php:1494
+#: src/Admin/Core/AssetManager.php:1496
 #: src/Admin/Frontend/Account/AccountAssets.php:57
 #: src/Admin/Frontend/Account/AccountController.php:313
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:64
@@ -4017,8 +4017,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:659
 #: src/Admin/Core/AssetManager.php:1057
 #: src/Admin/Core/AssetManager.php:1196
-#: src/Admin/Core/AssetManager.php:1337
-#: src/Admin/Core/AssetManager.php:1468
+#: src/Admin/Core/AssetManager.php:1339
+#: src/Admin/Core/AssetManager.php:1470
 #: src/Admin/Customers/AddCustomerPage.php:156
 #: src/Admin/Customers/CustomersPage.php:380
 #: templates/account/account-details.php:189
@@ -4030,8 +4030,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:660
 #: src/Admin/Core/AssetManager.php:1062
 #: src/Admin/Core/AssetManager.php:1197
-#: src/Admin/Core/AssetManager.php:1342
-#: src/Admin/Core/AssetManager.php:1470
+#: src/Admin/Core/AssetManager.php:1344
+#: src/Admin/Core/AssetManager.php:1472
 msgid "Save"
 msgstr ""
 
@@ -4102,7 +4102,7 @@ msgid "Price calculated"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:718
-#: src/Admin/Core/AssetManager.php:1498
+#: src/Admin/Core/AssetManager.php:1500
 msgid "Please fill all required fields"
 msgstr ""
 
@@ -4375,7 +4375,7 @@ msgid "Your message received: {{subject}}"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1048
-#: src/Admin/Core/AssetManager.php:1328
+#: src/Admin/Core/AssetManager.php:1330
 #: src/Admin/Emails/Core/EmailTemplates.php:424
 #: src/Admin/Emails/Core/EmailTemplates.php:632
 #: src/Admin/Emails/Templates/EmailPreview.php:26
@@ -4384,8 +4384,8 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1049
 #: src/Admin/Core/AssetManager.php:1055
-#: src/Admin/Core/AssetManager.php:1329
-#: src/Admin/Core/AssetManager.php:1335
+#: src/Admin/Core/AssetManager.php:1331
+#: src/Admin/Core/AssetManager.php:1337
 #: src/Admin/Emails/Core/EmailTemplates.php:100
 #: src/Admin/Emails/Core/EmailTemplates.php:141
 #: src/Admin/Emails/Templates/EmailPreview.php:98
@@ -4394,33 +4394,33 @@ msgid "Send Test Email"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1051
-#: src/Admin/Core/AssetManager.php:1331
+#: src/Admin/Core/AssetManager.php:1333
 msgid "Test email sent successfully"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1052
-#: src/Admin/Core/AssetManager.php:1332
+#: src/Admin/Core/AssetManager.php:1334
 msgid "Failed to send test email"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1056
-#: src/Admin/Core/AssetManager.php:1336
+#: src/Admin/Core/AssetManager.php:1338
 #: templates/account/account-details.php:94
 msgid "Email Address"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1058
-#: src/Admin/Core/AssetManager.php:1338
+#: src/Admin/Core/AssetManager.php:1340
 msgid "Please enter email address"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1059
-#: src/Admin/Core/AssetManager.php:1339
+#: src/Admin/Core/AssetManager.php:1341
 msgid "Edit Template"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1060
-#: src/Admin/Core/AssetManager.php:1340
+#: src/Admin/Core/AssetManager.php:1342
 #: src/Admin/Emails/Templates/BookingNotifications.php:54
 #: src/Admin/Emails/Templates/BookingNotifications.php:83
 #: src/Admin/Emails/Templates/BookingNotifications.php:119
@@ -4434,19 +4434,19 @@ msgid "Subject"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1061
-#: src/Admin/Core/AssetManager.php:1341
+#: src/Admin/Core/AssetManager.php:1343
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:38
 msgid "Content"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1063
-#: src/Admin/Core/AssetManager.php:1343
+#: src/Admin/Core/AssetManager.php:1345
 msgid "Template saved successfully!"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1064
-#: src/Admin/Core/AssetManager.php:1344
+#: src/Admin/Core/AssetManager.php:1346
 msgid "Template reset to default!"
 msgstr ""
 
@@ -4530,7 +4530,7 @@ msgid "Are you sure you want to reset all vehicle settings to defaults? Custom f
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1179
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1160
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1169
 msgid "Settings saved successfully!"
 msgstr ""
 
@@ -4667,7 +4667,7 @@ msgid "Could not delete the field."
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1220
-#: src/Admin/Core/AssetManager.php:1484
+#: src/Admin/Core/AssetManager.php:1486
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:487
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:581
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:633
@@ -4701,7 +4701,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1225
 #: src/Admin/Core/AssetManager.php:1252
-#: src/Admin/Core/AssetManager.php:1266
+#: src/Admin/Core/AssetManager.php:1268
 msgid "Detail"
 msgstr ""
 
@@ -4726,7 +4726,7 @@ msgid "Options (comma separated: S, M, L)"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1232
-#: src/Admin/Core/AssetManager.php:1473
+#: src/Admin/Core/AssetManager.php:1475
 msgid "Add"
 msgstr ""
 
@@ -4793,7 +4793,7 @@ msgid "Field"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1251
-#: src/Admin/Core/AssetManager.php:1265
+#: src/Admin/Core/AssetManager.php:1267
 msgid "Card"
 msgstr ""
 
@@ -4830,110 +4830,118 @@ msgid "vehicle image"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1261
-msgid "View →"
+msgid "Toyota Corolla Hybrid"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1262
-msgid "Detail — Highlights"
+msgid "$1,850 / day"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1263
-msgid "No fields selected for the card"
+msgid "View →"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1264
+msgid "Detail — Highlights"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php:1265
+msgid "No fields selected for the card"
+msgstr ""
+
+#: src/Admin/Core/AssetManager.php:1266
 msgid "No fields highlighted in the detail view"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1267
+#: src/Admin/Core/AssetManager.php:1269
 msgid "Comparison"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1268
+#: src/Admin/Core/AssetManager.php:1270
 msgid " — Edit Names"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1269
+#: src/Admin/Core/AssetManager.php:1271
 msgid "Names updated."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1270
+#: src/Admin/Core/AssetManager.php:1272
 msgid "Could not update names."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1271
+#: src/Admin/Core/AssetManager.php:1273
 msgid "Reset this tab to defaults?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1272
+#: src/Admin/Core/AssetManager.php:1274
 msgid "Could not reset."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1296
+#: src/Admin/Core/AssetManager.php:1298
 msgid "Please select at least one item"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1297
+#: src/Admin/Core/AssetManager.php:1299
 #: src-react/admin/customers/CustomersPage.jsx:94
 msgid "selected"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1298
-#: src/Admin/Core/AssetManager.php:1401
+#: src/Admin/Core/AssetManager.php:1300
+#: src/Admin/Core/AssetManager.php:1403
 msgid "Enable selected add-ons?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1299
+#: src/Admin/Core/AssetManager.php:1301
 msgid "Disable selected add-ons?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1300
+#: src/Admin/Core/AssetManager.php:1302
 msgid "Delete selected add-ons? This action cannot be undone."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1304
+#: src/Admin/Core/AssetManager.php:1306
 msgid "Invalid price value!"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1305
+#: src/Admin/Core/AssetManager.php:1307
 msgid "Error updating price"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1402
+#: src/Admin/Core/AssetManager.php:1404
 msgid "Are you sure you want to delete this?"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1403
+#: src/Admin/Core/AssetManager.php:1405
 msgid "Enter a valid price (0 or greater)"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1404
+#: src/Admin/Core/AssetManager.php:1406
 msgid "Auto-saved"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1405
+#: src/Admin/Core/AssetManager.php:1407
 msgid "Auto-save failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1463
+#: src/Admin/Core/AssetManager.php:1465
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:477
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:166
 msgid "Success"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1464
+#: src/Admin/Core/AssetManager.php:1466
 #: src/Admin/Settings/Groups/LogsSettings.php:69
 #: src/Admin/Setup/SetupWizard.php:972
 msgid "Warning"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1465
+#: src/Admin/Core/AssetManager.php:1467
 #: src/Admin/Settings/Groups/LogsSettings.php:70
 msgid "Info"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1467
+#: src/Admin/Core/AssetManager.php:1469
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:126
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:138
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:150
@@ -4960,27 +4968,27 @@ msgstr ""
 msgid "No"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1469
+#: src/Admin/Core/AssetManager.php:1471
 msgid "Confirm"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1474
+#: src/Admin/Core/AssetManager.php:1476
 #: src/Admin/Customers/CustomersPage.php:379
 msgid "Update"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1475
+#: src/Admin/Core/AssetManager.php:1477
 #: src/Admin/Core/Utilities/AbstractListTable.php:436
 #: templates/shortcodes/unified-search.php:182
 msgid "Search"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1477
+#: src/Admin/Core/AssetManager.php:1479
 #: templates/shortcodes/contact-form.php:203
 msgid "Reset"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1479
+#: src/Admin/Core/AssetManager.php:1481
 #: src/Admin/Setup/SetupWizard.php:244
 #: src/Admin/Setup/SetupWizard.php:318
 #: src/Admin/Setup/SetupWizard.php:445
@@ -4988,7 +4996,7 @@ msgstr ""
 msgid "Back"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1480
+#: src/Admin/Core/AssetManager.php:1482
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:384
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1050
 #: templates/account/payment-history.php:191
@@ -4999,7 +5007,7 @@ msgstr ""
 msgid "Next"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1481
+#: src/Admin/Core/AssetManager.php:1483
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:383
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1049
 #: templates/account/payment-history.php:176
@@ -5010,49 +5018,49 @@ msgstr ""
 msgid "Previous"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1482
+#: src/Admin/Core/AssetManager.php:1484
 msgid "Submit"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1485
+#: src/Admin/Core/AssetManager.php:1487
 msgid "Select None"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1486
+#: src/Admin/Core/AssetManager.php:1488
 msgid "No data found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1487
+#: src/Admin/Core/AssetManager.php:1489
 msgid "No results found"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1488
+#: src/Admin/Core/AssetManager.php:1490
 msgid "Please wait..."
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1491
+#: src/Admin/Core/AssetManager.php:1493
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:293
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:83
 msgid "Please try again"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1492
+#: src/Admin/Core/AssetManager.php:1494
 msgid "Operation completed successfully"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1493
+#: src/Admin/Core/AssetManager.php:1495
 msgid "Operation failed"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1495
+#: src/Admin/Core/AssetManager.php:1497
 msgid "This action cannot be undone"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1496
+#: src/Admin/Core/AssetManager.php:1498
 msgid "Invalid input"
 msgstr ""
 
-#: src/Admin/Core/AssetManager.php:1497
+#: src/Admin/Core/AssetManager.php:1499
 msgid "Required field"
 msgstr ""
 
@@ -7716,8 +7724,8 @@ msgstr ""
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:171
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:197
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:356
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1367
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1484
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1393
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1510
 msgid "Security check failed"
 msgstr ""
 
@@ -14828,70 +14836,70 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1135
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1287
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1372
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1489
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1144
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1313
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1398
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1515
 msgid "You do not have permission"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1142
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1151
 msgid "Display settings saved!"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1155
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1164
 msgid "Settings saved!"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1358
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1384
 msgid "Field names updated successfully!"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1383
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1409
 msgid "This is a core field and cannot be removed."
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1392
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1418
 msgid "Field removed successfully."
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1411
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1437
 msgid "Custom detail removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1421
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1447
 msgid "Feature removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1440
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1466
 msgid "Custom feature removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1450
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1476
 msgid "Equipment removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1469
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1495
 msgid "Custom equipment removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1518
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1544
 msgid "Custom detail added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1527
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1553
 msgid "Custom feature added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1536
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1562
 msgid "Custom equipment added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1539
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1565
 msgid "Invalid field type"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1569
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1595
 msgid "Settings reset to defaults."
 msgstr ""
 
