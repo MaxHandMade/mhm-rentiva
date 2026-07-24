@@ -1126,32 +1126,54 @@ final class AssetManager {
 				self::get_file_version('assets/css/admin/vehicle-settings.css')
 			);
 
-			wp_enqueue_script(
-				'mhm-vehicle-card-fields',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
-				true
-			);
+			$vs_is_v2 = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::is_v2_ui();
 
-			// Settings-page behavior (reset, display tab, definitions tab + rename modal).
-			// Replaces the three inline <script> blocks in VehicleSettings render methods.
-			wp_enqueue_script(
-				'mhm-vehicle-settings',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				self::get_file_version('assets/js/admin/vehicle-settings.js'),
-				true
-			);
+			if ( $vs_is_v2 ) {
+				// Redesigned UI is self-contained: it does NOT load the legacy scripts, so it can
+				// own the whole page (including the Reset button) without double-bound handlers.
+				wp_enqueue_style(
+					'mhm-vehicle-settings-v2',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
+					array( 'mhm-vehicle-settings-css' ),
+					self::get_file_version('assets/css/admin/vehicle-settings-v2.css')
+				);
+
+				wp_enqueue_script(
+					'mhm-vehicle-settings-v2',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
+					array( 'jquery', 'jquery-ui-sortable' ),
+					self::get_file_version('assets/js/admin/vehicle-settings-v2.js'),
+					true
+				);
+			} else {
+				wp_enqueue_script(
+					'mhm-vehicle-card-fields',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
+					array( 'jquery', 'jquery-ui-sortable' ),
+					self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
+					true
+				);
+
+				// Settings-page behavior (reset, display tab, definitions tab + rename modal).
+				// Replaces the three inline <script> blocks in VehicleSettings render methods.
+				wp_enqueue_script(
+					'mhm-vehicle-settings',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
+					array( 'jquery', 'jquery-ui-sortable' ),
+					self::get_file_version('assets/js/admin/vehicle-settings.js'),
+					true
+				);
+			}
 
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
 			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
 			wp_localize_script(
-				'mhm-vehicle-settings',
+				$vs_is_v2 ? 'mhm-vehicle-settings-v2' : 'mhm-vehicle-settings',
 				'mhmVehicleSettings',
 				array(
 					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
 					'activeTab' => $vs_active_tab,
+					'state'     => \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_settings_state(),
 					'i18n'      => array(
 						'confirmResetAll'        => __('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva'),
 						'saved'                  => __('Settings saved successfully!', 'mhm-rentiva'),
@@ -1175,6 +1197,81 @@ final class AssetManager {
 						'save'                   => __('Save', 'mhm-rentiva'),
 						'fieldNamesSaved'        => __('Field names updated and saved!', 'mhm-rentiva'),
 						'fieldNamesError'        => __('Error: Field names could not be saved!', 'mhm-rentiva'),
+
+						// --- Redesigned (v2) UI strings (assets/js/admin/vehicle-settings-v2.js) ---
+						'title'                  => __('Vehicle Settings', 'mhm-rentiva'),
+						'subtitle'               => __('Define fields and manage where they appear', 'mhm-rentiva'),
+						'tabFields'              => __('1 · Field Definitions', 'mhm-rentiva'),
+						'tabDisplay'             => __('2 · Display & Preview', 'mhm-rentiva'),
+						'fieldsHint'             => __('Choose which fields are collected. Passive fields do not appear on vehicle forms or in the preview. You can also add your own custom field.', 'mhm-rentiva'),
+						'titleDetail'            => __('Vehicle Details', 'mhm-rentiva'),
+						'titleFeature'           => __('Vehicle Features', 'mhm-rentiva'),
+						'titleEquipment'         => __('Vehicle Equipment', 'mhm-rentiva'),
+						'active'                 => __('Active', 'mhm-rentiva'),
+						'passive'                => __('Passive', 'mhm-rentiva'),
+						'activeLower'            => __('active', 'mhm-rentiva'),
+						'coreLocked'             => __('Core fields cannot be disabled', 'mhm-rentiva'),
+						'badgeRequired'          => __('REQUIRED', 'mhm-rentiva'),
+						'badgeCustom'            => __('CUSTOM', 'mhm-rentiva'),
+						/* translators: %s: field name */
+						'removeConfirm'          => __('The field "%s" will be permanently deleted. Are you sure?', 'mhm-rentiva'),
+						'removed'                => __('Field deleted.', 'mhm-rentiva'),
+						'removeFailed'           => __('Could not delete the field.', 'mhm-rentiva'),
+						'selectAll'              => __('Select All', 'mhm-rentiva'),
+						'selectNone'             => __('Deselect All', 'mhm-rentiva'),
+						'editNames'              => __('Edit Names', 'mhm-rentiva'),
+						'addCustom'              => __('Add custom field:', 'mhm-rentiva'),
+						'fieldNamePlaceholder'   => __('Field name (e.g. Boot Size)', 'mhm-rentiva'),
+						'groupDetail'            => __('Detail', 'mhm-rentiva'),
+						'groupFeature'           => __('Feature', 'mhm-rentiva'),
+						'groupEquipment'         => __('Equipment', 'mhm-rentiva'),
+						'typeText'               => __('Text', 'mhm-rentiva'),
+						'typeNumber'             => __('Number', 'mhm-rentiva'),
+						'typeSelect'             => __('Select', 'mhm-rentiva'),
+						'optionsPlaceholder'     => __('Options (comma separated: S, M, L)', 'mhm-rentiva'),
+						'add'                    => __('Add', 'mhm-rentiva'),
+						'nameRequired'           => __('Please enter a field name.', 'mhm-rentiva'),
+						'addFailed'              => __('Could not add the field.', 'mhm-rentiva'),
+						'addedOk'                => __('Field added. Press Save to persist the selection state.', 'mhm-rentiva'),
+						'genericFail'            => __('Operation failed. Your session may have expired — reload the page.', 'mhm-rentiva'),
+						'saving'                 => __('Saving…', 'mhm-rentiva'),
+						'dirtyTitle'             => __('You have unsaved changes', 'mhm-rentiva'),
+						'savedOk'                => __('Settings saved.', 'mhm-rentiva'),
+						'saveErr'                => __('Could not save. Your session may have expired — reload the page and try again.', 'mhm-rentiva'),
+						'netErr'                 => __('Could not save. Check your connection and try again.', 'mhm-rentiva'),
+						'template'               => __('Template:', 'mhm-rentiva'),
+						'presetMinimal'          => __('Minimal', 'mhm-rentiva'),
+						'presetStandard'         => __('Standard', 'mhm-rentiva'),
+						'presetDetailed'         => __('Detailed', 'mhm-rentiva'),
+						'filterAll'              => __('All', 'mhm-rentiva'),
+						'filterDetail'           => __('Details', 'mhm-rentiva'),
+						'filterFeature'          => __('Features', 'mhm-rentiva'),
+						'filterEquipment'        => __('Equipment', 'mhm-rentiva'),
+						'colField'               => __('Field', 'mhm-rentiva'),
+						'colCard'                => __('Card', 'mhm-rentiva'),
+						'colDetail'              => __('Detail', 'mhm-rentiva'),
+						'colCompare'             => __('Comp.', 'mhm-rentiva'),
+						'toggleOn'               => __('On', 'mhm-rentiva'),
+						'toggleOff'              => __('Off', 'mhm-rentiva'),
+						'emptyCategory'          => __('No active fields in this category.', 'mhm-rentiva'),
+						'dragHint'               => __('Switch to "All" to reorder', 'mhm-rentiva'),
+						'gripTitle'              => __('Drag to reorder', 'mhm-rentiva'),
+						'livePreview'            => __('Live preview', 'mhm-rentiva'),
+						'previewImage'           => __('vehicle image', 'mhm-rentiva'),
+						'previewName'            => __('Toyota Corolla Hybrid', 'mhm-rentiva'),
+						'previewPrice'           => __('$1,850 / day', 'mhm-rentiva'),
+						'previewLink'            => __('View →', 'mhm-rentiva'),
+						'detailHighlights'       => __('Detail — Highlights', 'mhm-rentiva'),
+						'noCard'                 => __('No fields selected for the card', 'mhm-rentiva'),
+						'noDetail'               => __('No fields highlighted in the detail view', 'mhm-rentiva'),
+						'countCard'              => __('Card', 'mhm-rentiva'),
+						'countDetail'            => __('Detail', 'mhm-rentiva'),
+						'countCompare'           => __('Comparison', 'mhm-rentiva'),
+						'renameSuffix'           => __(' — Edit Names', 'mhm-rentiva'),
+						'renameSaved'            => __('Names updated.', 'mhm-rentiva'),
+						'renameFailed'           => __('Could not update names.', 'mhm-rentiva'),
+						'resetConfirm'           => __('Reset this tab to defaults?', 'mhm-rentiva'),
+						'resetFailed'            => __('Could not reset.', 'mhm-rentiva'),
 					),
 				)
 			);

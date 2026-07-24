@@ -1,0 +1,615 @@
+/*
+ * MHM Rentiva — Vehicle Settings v2 UI.
+ * Scoped under .rv-vs / #rv-vs-app. Values mirror the approved mockup
+ * (docs/superpowers/specs/assets/Admin-Arac-Ayarlari-v2.reference.html).
+ * No shared admin stylesheet is modified.
+ */
+
+.rv-vs {
+	font-size: 13px;
+	color: #1d2327;
+}
+
+.rv-vs * {
+	box-sizing: border-box;
+}
+
+/* ---- Header ---- */
+.rv-vs__head {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	flex-wrap: wrap;
+}
+
+.rv-vs__title {
+	font-size: 24px;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.rv-vs__subtitle {
+	font-size: 13px;
+	color: #646970;
+}
+
+/* ---- Tabs ---- */
+.rv-vs__tabs {
+	display: inline-flex;
+	background: #eceef1;
+	border-radius: 10px;
+	padding: 4px;
+	margin-top: 16px;
+}
+
+.rv-vs__tab {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 8px 18px;
+	border: none;
+	border-radius: 7px;
+	cursor: pointer;
+	background: transparent;
+	color: #646970;
+}
+
+.rv-vs__tab--active {
+	background: #fff;
+	color: #2271b1;
+}
+
+/* ---- Tab 1: add-custom bar ---- */
+.rv-vs__addcustom {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+	align-items: center;
+	margin-top: 14px;
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	padding: 14px 16px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+/* ---- Tab 1: group cards ---- */
+.rv-vs__groups {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: 18px;
+	margin-top: 16px;
+}
+
+.rv-vs__card {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 18px 20px;
+}
+
+.rv-vs__card-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 12px;
+}
+
+.rv-vs__card-title {
+	font-size: 16px;
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.rv-vs__count {
+	font-size: 12px;
+	color: #8a8f98;
+}
+
+.rv-vs__rows {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.rv-vs__row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 9px 11px;
+	border: 1px solid #eceef1;
+	border-radius: 9px;
+	background: #fff;
+}
+
+.rv-vs__row--passive {
+	background: #fafafa;
+}
+
+.rv-vs__row-label {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	flex: 1;
+	min-width: 0;
+}
+
+/* ---- Badges ---- */
+.rv-vs__badge {
+	font-size: 10px;
+	font-weight: 700;
+	padding: 1px 6px;
+	border-radius: 5px;
+	white-space: nowrap;
+}
+
+.rv-vs__badge--required {
+	color: #b7791f;
+	background: #fdf3d7;
+}
+
+.rv-vs__badge--custom {
+	color: #135e96;
+	background: #e5f0fb;
+}
+
+/* ---- Active / Passive pill ---- */
+.rv-vs__pill {
+	font-size: 12px;
+	font-weight: 600;
+	padding: 5px 12px;
+	border-radius: 999px;
+	cursor: pointer;
+	border: 1px solid #e2e4e8;
+	background: #fff;
+	color: #aeb4bd;
+	white-space: nowrap;
+}
+
+.rv-vs__pill--on {
+	border-color: #a6dfb6;
+	background: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.rv-vs__pill:disabled {
+	cursor: default;
+	opacity: 1;
+}
+
+/* ---- Remove-custom control ---- */
+.rv-vs__remove {
+	color: #c3c6cc;
+	cursor: pointer;
+	font-size: 16px;
+	line-height: 1;
+	background: none;
+	border: none;
+	padding: 0 2px;
+}
+
+.rv-vs__remove:hover {
+	color: #d63638;
+}
+
+/* ---- Buttons & inputs ---- */
+.rv-vs__btn {
+	font-size: 13px;
+	font-weight: 600;
+	padding: 9px 16px;
+	border-radius: 8px;
+	cursor: pointer;
+	border: 1px solid #2271b1;
+	background: #2271b1;
+	color: #fff;
+}
+
+.rv-vs__btn--ghost {
+	border: 1px solid #dcdde1;
+	background: #fff;
+	color: #50575e;
+}
+
+.rv-vs__input,
+.rv-vs__select {
+	font-size: 13px;
+	padding: 9px 11px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.rv-vs__input {
+	flex: 1;
+	min-width: 180px;
+}
+
+.rv-vs__btn--sm {
+	font-size: 12px;
+	font-weight: 500;
+	padding: 4px 10px;
+	border-radius: 7px;
+}
+
+/* Save sits at the far right of the header, per the mockup */
+.rv-vs__save {
+	margin-left: auto;
+	font-size: 14px;
+	padding: 10px 20px;
+	border-radius: 9px;
+}
+
+.rv-vs__save:disabled {
+	opacity: 0.65;
+	cursor: default;
+}
+
+/* Per-group bulk actions */
+.rv-vs__card-actions {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 10px;
+	flex-wrap: wrap;
+}
+
+.rv-vs__addcustom-label {
+	font-weight: 600;
+}
+
+/* Save result notice */
+.rv-vs__notice {
+	margin-top: 12px;
+	padding: 9px 12px;
+	border-radius: 8px;
+	font-size: 13px;
+	border: 1px solid transparent;
+}
+
+.rv-vs__notice--ok {
+	background: #e4f6e9;
+	border-color: #a6dfb6;
+	color: #0a6b1e;
+}
+
+.rv-vs__notice--err {
+	background: #fcf0f1;
+	border-color: #f0b7ba;
+	color: #b32d2e;
+}
+
+/* ---- Rename modal (Edit Names) ---- */
+.rv-vs__overlay {
+	position: fixed;
+	inset: 0;
+	background: rgba(29, 35, 39, 0.45);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 100000;
+	padding: 20px;
+}
+
+.rv-vs__modal {
+	background: #fff;
+	border-radius: 14px;
+	box-shadow: 0 10px 40px rgba(16, 24, 40, 0.25);
+	padding: 20px 22px;
+	width: 480px;
+	max-width: 100%;
+	max-height: 80vh;
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+}
+
+.rv-vs__rename-list {
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding-right: 4px;
+}
+
+.rv-vs__rename-row {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.rv-vs__rename-key {
+	flex: 0 0 34%;
+	font-size: 11px;
+	color: #8a8f98;
+	font-family: Consolas, Monaco, monospace;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.rv-vs__modal-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+}
+
+.rv-vs__foot {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 18px;
+}
+
+/* ================= Tab 2 — Display & Preview ================= */
+
+.rv-vs__toolbar {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+	margin-top: 16px;
+}
+
+.rv-vs__toolbar-label {
+	font-size: 12px;
+	color: #8a8f98;
+	font-weight: 600;
+}
+
+.rv-vs__chipbtn {
+	font-size: 13px;
+	padding: 6px 14px;
+	border: 1px solid #dcdde1;
+	background: #fff;
+	border-radius: 999px;
+	cursor: pointer;
+	color: #50575e;
+	font-weight: 500;
+}
+
+.rv-vs__chipbtn--on {
+	border-color: #2271b1;
+	background: #2271b1;
+	color: #fff;
+}
+
+.rv-vs__divider {
+	width: 1px;
+	height: 22px;
+	background: #e2e4e8;
+	margin: 0 4px;
+}
+
+.rv-vs__hint {
+	font-size: 12px;
+	color: #8a8f98;
+	font-style: italic;
+}
+
+.rv-vs__display {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 20px;
+	margin-top: 18px;
+	align-items: flex-start;
+}
+
+.rv-vs__matrix-wrap {
+	flex: 1 1 560px;
+	min-width: 0;
+}
+
+.rv-vs__matrix {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+}
+
+.rv-vs__mhead {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px 12px 44px;
+	border-bottom: 1px solid #eceef1;
+	background: #fafbfc;
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #8a8f98;
+}
+
+.rv-vs__mhead-field {
+	flex: 1;
+}
+
+.rv-vs__mhead-col {
+	width: 66px;
+	text-align: center;
+}
+
+.rv-vs__mrow {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 11px 16px;
+	border-bottom: 1px solid #f4f5f7;
+	background: #fff;
+}
+
+.rv-vs__mrow:last-child {
+	border-bottom: none;
+}
+
+.rv-vs__grip {
+	color: #c3c6cc;
+	cursor: grab;
+	font-size: 14px;
+	user-select: none;
+}
+
+.rv-vs__mrow.ui-sortable-helper {
+	box-shadow: 0 6px 20px rgba(16, 24, 40, 0.14);
+	border-radius: 9px;
+}
+
+.rv-vs__mrow-main {
+	flex: 1;
+	min-width: 0;
+}
+
+.rv-vs__mrow-group {
+	font-size: 12px;
+	color: #9aa0a8;
+	margin-top: 1px;
+}
+
+.rv-vs__toggle {
+	width: 66px;
+	padding: 6px 0;
+	border-radius: 8px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	border: 1px solid #e2e4e8;
+	background: #fff;
+	color: #aeb4bd;
+	flex: none;
+}
+
+.rv-vs__toggle--on {
+	border-color: #9dc3e6;
+	background: #e5f0fb;
+	color: #135e96;
+}
+
+.rv-vs__empty {
+	padding: 18px 16px;
+	color: #9aa0a8;
+	margin: 0;
+}
+
+/* ---- Live preview ---- */
+.rv-vs__preview {
+	flex: 1 1 320px;
+	min-width: 0;
+	position: sticky;
+	top: 48px;
+}
+
+.rv-vs__ptitle {
+	font-weight: 700;
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
+.rv-vs__ptitle--section {
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #8a8f98;
+}
+
+.rv-vs__pcard {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	overflow: hidden;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}
+
+.rv-vs__pcard--flat {
+	padding: 14px 16px;
+	margin-top: 14px;
+}
+
+.rv-vs__pimage {
+	aspect-ratio: 16 / 10;
+	background: linear-gradient(135deg, #e9edf2, #dfe4ea);
+	display: grid;
+	place-items: center;
+	color: #aeb4bd;
+	font-size: 12px;
+}
+
+.rv-vs__pbody {
+	padding: 14px 16px;
+}
+
+.rv-vs__pname {
+	font-weight: 700;
+	font-size: 16px;
+}
+
+.rv-vs__pprice {
+	font-size: 20px;
+	font-weight: 700;
+	margin-top: 2px;
+}
+
+.rv-vs__chips {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin-top: 10px;
+	min-height: 24px;
+}
+
+.rv-vs__chip {
+	font-size: 12px;
+	padding: 3px 10px;
+	border-radius: 7px;
+	background: #eef2f7;
+	color: #50575e;
+}
+
+.rv-vs__empty-inline {
+	font-size: 12px;
+	color: #b7bcc4;
+	font-style: italic;
+}
+
+.rv-vs__plink {
+	margin-top: 14px;
+	padding-top: 12px;
+	border-top: 1px solid #f2f3f5;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2271b1;
+}
+
+.rv-vs__pgrid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 8px;
+}
+
+.rv-vs__pgrid-item {
+	display: flex;
+	flex-direction: column;
+	padding: 8px 10px;
+	background: #f7f9fc;
+	border-radius: 8px;
+}
+
+.rv-vs__pgrid-label {
+	font-size: 11px;
+	color: #9aa0a8;
+}
+
+.rv-vs__pgrid-value {
+	font-weight: 600;
+	font-size: 13px;
+}
+
+.rv-vs__counts {
+	margin-top: 14px;
+	font-size: 12px;
+	color: #8a8f98;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+}

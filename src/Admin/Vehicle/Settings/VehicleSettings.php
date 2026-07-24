@@ -202,6 +202,16 @@ final class VehicleSettings {
 	/**
 	 * Render settings page
 	 */
+	/**
+	 * Whether the redesigned (v2) Vehicle Settings UI is requested via ?ui=v2.
+	 *
+	 * Feature flag for the rebuild: the existing server-rendered tabs stay the default
+	 * so the page keeps working while the new UI is assembled slice by slice.
+	 */
+	public static function is_v2_ui(): bool {
+		return 'v2' === self::get_key( 'ui' );
+	}
+
 	public function render_settings_page(): void {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector in admin page rendering.
 		$active_tab = self::get_key( 'tab', 'definitions' );
@@ -224,20 +234,28 @@ final class VehicleSettings {
 		// Developer Mode Banner
 		$this->render_developer_mode_banner();
 		?>
-		<nav class="nav-tab-wrapper">
-			<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
-				<?php esc_html_e( 'Field Definitions', 'mhm-rentiva' ); ?>
-			</a>
-			<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
-				<?php esc_html_e( 'Display Options', 'mhm-rentiva' ); ?>
-			</a>
-		</nav>
-
 		<?php
-		if ( $active_tab === 'display' ) {
-			self::render_display_tab();
+		if ( self::is_v2_ui() ) {
+			// Redesigned UI: a single mount point; assets/js/admin/vehicle-settings-v2.js renders
+			// both tabs client-side from the localized mhmVehicleSettings.state payload.
+			echo '<div id="rv-vs-app" class="rv-vs"></div>';
 		} else {
-			self::render_definitions_tab();
+			?>
+			<nav class="nav-tab-wrapper">
+				<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Field Definitions', 'mhm-rentiva' ); ?>
+				</a>
+				<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
+					<?php esc_html_e( 'Display Options', 'mhm-rentiva' ); ?>
+				</a>
+			</nav>
+
+			<?php
+			if ( $active_tab === 'display' ) {
+				self::render_display_tab();
+			} else {
+				self::render_definitions_tab();
+			}
 		}
 		?>
 		</div>
@@ -986,6 +1004,137 @@ final class VehicleSettings {
 	}
 
 	/**
+	 * Map a singular field type to its plural option/category name.
+	 */
+	private static function type_to_category( string $type ): string {
+		$map = array(
+			'detail'    => 'details',
+			'feature'   => 'features',
+			'equipment' => 'equipment',
+		);
+		return $map[ $type ] ?? $type;
+	}
+
+	/**
+	 * Convert a [{type,key}] selection into a list of "type:key" ids.
+	 *
+	 * @param array<int,array{type?:string,key?:string}> $selection
+	 * @return string[]
+	 */
+	private static function selection_to_ids( array $selection ): array {
+		$ids = array();
+		foreach ( $selection as $item ) {
+			if ( is_array( $item ) && isset( $item['type'], $item['key'] ) ) {
+				$ids[] = sanitize_key( (string) $item['type'] ) . ':' . sanitize_key( (string) $item['key'] );
+			}
+		}
+		return $ids;
+	}
+
+	/**
+	 * Build the client-side state payload for the Vehicle Settings UI.
+	 *
+	 * @return array{fields:array<int,array>,cardOrder:string[],detailOrder:string[]}
+	 */
+	public static function build_settings_state(): array {
+		$universes = array(
+			'detail'    => self::get_all_available_details(),
+			'feature'   => self::get_all_available_features(),
+			'equipment' => self::get_all_available_equipment(),
+		);
+
+		// D5: taxonomy-backed keys are out of scope for this UI. Subtract them by key set,
+		// not by string prefix.
+		foreach ( array_keys( self::get_taxonomy_features() ) as $tax_key ) {
+			unset( $universes['feature'][ $tax_key ] );
+		}
+		foreach ( array_keys( self::get_taxonomy_equipment() ) as $tax_key ) {
+			unset( $universes['equipment'][ $tax_key ] );
+		}
+
+		$custom = array(
+			'detail'    => (array) get_option( 'mhm_custom_details', array() ),
+			'feature'   => (array) get_option( 'mhm_custom_features', array() ),
+			'equipment' => (array) get_option( 'mhm_custom_equipment', array() ),
+		);
+
+		// Trap 4: REQUIRED rows are core keys that actually exist as detail fields.
+		$core_keys = array_values( array_intersect(
+			\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields(),
+			array_keys( $universes['detail'] )
+		) );
+
+		$custom_meta = (array) get_option( 'mhm_custom_field_meta', array() );
+
+		$card_ids   = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
+		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
+
+		// The comparison table renders exactly the keys stored in comparison_fields
+		// (VehicleComparison::get_dynamic_features()); an empty set renders NO comparison rows, so
+		// there is no "empty means all" default -- an empty selection means nothing compares.
+		$settings   = (array) get_option( 'mhm_rentiva_settings', array() );
+		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
+			? $settings['comparison_fields']
+			: array();
+
+		$fields = array();
+		foreach ( $universes as $type => $universe ) {
+			$category = self::type_to_category( $type );
+			foreach ( $universe as $key => $label ) {
+				$key  = (string) $key;
+				$id   = $type . ':' . $key;
+				$core = ( 'detail' === $type && in_array( $key, $core_keys, true ) );
+
+				$fields[] = array(
+					'id'      => $id,
+					'type'    => $type,
+					'key'     => $key,
+					'label'   => (string) $label,
+					// Active = the field is in use, per the frontend render predicate (details:
+					// core or selected; features/equipment: selected). Matches what actually renders.
+					'enabled' => \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::is_field_active( $type, $key ),
+					'core'    => $core,
+					'custom'  => isset( $custom[ $type ][ $key ] ),
+					'meta'    => ( 'detail' === $type && isset( $custom_meta[ $key ] ) && is_array( $custom_meta[ $key ] ) )
+						? $custom_meta[ $key ]
+						: null,
+					'card'    => in_array( $id, $card_ids, true ),
+					'detail'  => in_array( $id, $detail_ids, true ),
+					'compare' => (
+						isset( $comparison[ $category ] )
+						&& is_array( $comparison[ $category ] )
+						&& in_array( $key, array_map( 'strval', $comparison[ $category ] ), true )
+					),
+				);
+			}
+		}
+
+		// Orders may legitimately reference ids we do not render (e.g. taxonomy selections
+		// stored previously). Keep only ids that exist as rows so the UI cannot desync.
+		$known        = array_column( $fields, 'id' );
+		$filter_known = static function ( array $ids ) use ( $known ): array {
+			return array_values( array_filter( $ids, static function ( $id ) use ( $known ) {
+				return in_array( $id, $known, true );
+			} ) );
+		};
+
+		// The single editing order (spec §6) is persisted explicitly so it round-trips exactly;
+		// two filtered subsets (card/detail) cannot reconstruct one merged order. Empty until
+		// the first v2 save -- the UI then derives one from card/detail order as a fallback.
+		$stored_settings = (array) get_option( 'mhm_rentiva_settings', array() );
+		$matrix_order    = ( isset( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) && is_array( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) )
+			? array_map( 'strval', $stored_settings['mhm_rentiva_vehicle_matrix_order'] )
+			: array();
+
+		return array(
+			'fields'      => $fields,
+			'cardOrder'   => $filter_known( $card_ids ),
+			'detailOrder' => $filter_known( $detail_ids ),
+			'matrixOrder' => $filter_known( $matrix_order ),
+		);
+	}
+
+	/**
 	 * AJAX: Save settings
 	 */
 	public static function ajax_save_settings(): void {
@@ -995,62 +1144,126 @@ final class VehicleSettings {
 			wp_send_json_error( __( 'You do not have permission', 'mhm-rentiva' ) );
 		}
 
-		// CHECK FOR SUB-ACTION (Display Settings)
-		if ( 'save_display_settings' === self::post_text( 'sub_action' ) ) {
-			$settings         = get_option( 'mhm_rentiva_settings', array() );
-			$settings_updated = false;
+		$sub_action = self::post_text( 'sub_action' );
 
-			// Save Card Fields
-			if ( isset( $_POST['mhm_rentiva_vehicle_card_fields'] ) ) {
-				// It comes as a JSON string from the hidden input
-				$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
-				$decoded    = json_decode( $json_value, true );
-
-				// Validate structure
-				if ( is_array( $decoded ) ) {
-					$settings['mhm_rentiva_vehicle_card_fields'] = $decoded;
-					$settings_updated                            = true;
-				}
-			}
-			// If the field is not present in $_POST we leave the existing setting in place.
-			// JS submits "[]" for an explicit empty selection; missing field means "no change".
-
-			// Save Vehicle Detail Highlighted Fields
-			if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
-				$json_value = self::post_text( 'mhm_rentiva_vehicle_detail_fields' );
-				$decoded    = json_decode( $json_value, true );
-
-				if ( is_array( $decoded ) ) {
-					$settings['mhm_rentiva_vehicle_detail_fields'] = $decoded;
-					$settings_updated                              = true;
-				}
-			}
-
-			// Save Comparison Fields
-			// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
-			$comparison_fields    = self::post_array( 'comparison_fields' );
-			$sanitized_comparison = array();
-
-			if ( is_array( $comparison_fields ) ) {
-				foreach ( $comparison_fields as $cat => $fields ) {
-					if ( is_array( $fields ) ) {
-						$sanitized_comparison[ $cat ] = array_map( 'sanitize_text_field', $fields );
-					}
-				}
-			}
-
-			// Should we save if empty? Yes, user might have deselected all.
-			$settings['comparison_fields'] = $sanitized_comparison;
-			$settings_updated              = true;
-
-			if ( $settings_updated ) {
-				update_option( 'mhm_rentiva_settings', $settings );
-			}
-
+		if ( 'save_display_settings' === $sub_action ) {
+			self::save_display_payload();
 			wp_send_json_success( __( 'Display settings saved!', 'mhm-rentiva' ) );
 			return;
 		}
 
+		if ( 'save_all' === $sub_action ) {
+			// Definitions FIRST: save_display_payload() sanitises the card/detail selection against
+			// get_available_fields_map(), which reflects the just-written selected sets, so a detail
+			// removed here is dropped from the card/detail selection. Contract: save_all requires a
+			// COMPLETE definitions payload -- save_definitions_payload() writes the selected_* options
+			// unconditionally, so an omitted key is stored as an empty set (not "leave unchanged").
+			// See the docblock on save_definitions_payload() for detail.
+			self::save_definitions_payload();
+			self::save_display_payload();
+			wp_send_json_success( __( 'Settings saved!', 'mhm-rentiva' ) );
+			return;
+		}
+
+		self::save_definitions_payload();
+		wp_send_json_success( __( 'Settings saved successfully!', 'mhm-rentiva' ) );
+	}
+
+	/**
+	 * Persist the "Display" tab payload (card/detail/comparison selections + the editing order).
+	 *
+	 * Card/detail selections pass through VehicleFeatureHelper::sanitize_card_field_selection(),
+	 * which drops any entry not in get_available_fields_map() -- the same availability truth the
+	 * frontend renders from. Comparison is stored as submitted (the frontend gates Passive keys at
+	 * render, VehicleComparison::flatten_gated_selected_keys()), so a Passive-field compare flag
+	 * may persist as harmless storage cruft. The matrix order (mhm_rentiva_vehicle_matrix_order)
+	 * is stored as the id list so the single editing order round-trips exactly (spec §6).
+	 */
+	private static function save_display_payload(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
+		$settings         = get_option( 'mhm_rentiva_settings', array() );
+		$settings_updated = false;
+
+		// Save Card Fields
+		if ( isset( $_POST['mhm_rentiva_vehicle_card_fields'] ) ) {
+			// It comes as a JSON string from the hidden input
+			$json_value = self::post_text( 'mhm_rentiva_vehicle_card_fields' );
+			$decoded    = json_decode( $json_value, true );
+
+			// Validate structure. sanitize_card_field_selection() gates every entry through
+			// get_available_fields_map() -- the same availability truth the frontend renders from --
+			// so an unavailable (disabled) detail is dropped here, while features/equipment pass.
+			if ( is_array( $decoded ) ) {
+				$settings['mhm_rentiva_vehicle_card_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
+				$settings_updated                            = true;
+			}
+		}
+		// If the field is not present in $_POST we leave the existing setting in place.
+		// JS submits "[]" for an explicit empty selection; missing field means "no change".
+
+		// Save Vehicle Detail Highlighted Fields
+		if ( isset( $_POST['mhm_rentiva_vehicle_detail_fields'] ) ) {
+			$json_value = self::post_text( 'mhm_rentiva_vehicle_detail_fields' );
+			$decoded    = json_decode( $json_value, true );
+
+			if ( is_array( $decoded ) ) {
+				$settings['mhm_rentiva_vehicle_detail_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
+				$settings_updated                              = true;
+			}
+		}
+
+		// Save Comparison Fields
+		// Note: checkboxes are not sent if unchecked. So we must handle "not set" as "empty" if we know we are in this context.
+		$comparison_fields    = self::post_array( 'comparison_fields' );
+		$sanitized_comparison = array();
+
+		if ( is_array( $comparison_fields ) ) {
+			foreach ( $comparison_fields as $cat => $fields ) {
+				if ( is_array( $fields ) ) {
+					$sanitized_comparison[ $cat ] = array_map( 'sanitize_text_field', $fields );
+				}
+			}
+		}
+
+		// Store the submitted comparison selection as-is (the admin UI only offers available fields,
+		// and the frontend comparison table renders exactly what is stored). Empty = nothing compares.
+		$settings['comparison_fields'] = $sanitized_comparison;
+		$settings_updated              = true;
+
+		// Persist the single editing order (spec §6) as a "type:key" id list, so it round-trips
+		// exactly instead of being re-inferred from the card/detail subsets.
+		if ( isset( $_POST['mhm_rentiva_vehicle_matrix_order'] ) ) {
+			$decoded_order = json_decode( self::post_text( 'mhm_rentiva_vehicle_matrix_order' ), true );
+			if ( is_array( $decoded_order ) ) {
+				$settings['mhm_rentiva_vehicle_matrix_order'] = array_values( array_filter( array_map(
+					static function ( $id ) {
+						return is_string( $id ) ? preg_replace( '/[^a-z0-9_:]/', '', $id ) : '';
+					},
+					$decoded_order
+				) ) );
+			}
+		}
+
+		if ( $settings_updated ) {
+			update_option( 'mhm_rentiva_settings', $settings );
+		}
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
+	}
+
+	/**
+	 * Persist the "Definitions" tab payload (which fields exist / are enabled + custom fields).
+	 *
+	 * Contract: the three `selected_*` writes below (`mhm_selected_details/features/equipment`)
+	 * are UNCONDITIONAL -- each is taken from `post_array()`, which yields `array()` when the
+	 * corresponding POST key is absent, unlike the `isset()`-guarded `custom_*` writes further
+	 * down. A caller that invokes `sub_action=save_all` MUST submit a complete definitions
+	 * payload (all three `selected_*` arrays), because an omitted key clears that set; and
+	 * `save_all` runs this method before `save_display_payload()` so that the card/detail
+	 * sanitisation there sees the freshly-written availability (a detail removed here is then
+	 * dropped from the card/detail selection by sanitize_card_field_selection()).
+	 */
+	private static function save_definitions_payload(): void {
+		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
 		// Save selected fields (Definitions Tab)
 		$selected_details = array_map( 'sanitize_text_field', self::post_array( 'selected_details' ) );
 		// Core fields are always selected - enforce even if disabled checkboxes weren't submitted
@@ -1087,8 +1300,7 @@ final class VehicleSettings {
 		if ( isset( $_POST['custom_equipment'] ) ) {
 			update_option( 'mhm_custom_equipment', $custom_equipment );
 		}
-
-		wp_send_json_success( __( 'Settings saved successfully!', 'mhm-rentiva' ) );
+		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -1221,6 +1433,13 @@ final class VehicleSettings {
 						'meta_key' => '_mhm_rentiva_' . $field_key,
 					)
 				);
+
+				// Clean the custom-field meta (type/options) so it does not orphan.
+				$field_meta = get_option( 'mhm_custom_field_meta', array() );
+				if ( isset( $field_meta[ $field_key ] ) ) {
+					unset( $field_meta[ $field_key ] );
+					update_option( 'mhm_custom_field_meta', $field_meta );
+				}
 
 				wp_send_json_success( __( 'Custom detail removed successfully', 'mhm-rentiva' ) );
 			} else {

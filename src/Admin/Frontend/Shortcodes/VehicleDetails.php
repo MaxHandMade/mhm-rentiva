@@ -339,7 +339,21 @@ final class VehicleDetails extends AbstractShortcode {
 
 	private static function get_features( int $vehicle_id ): array {
 		$features = get_post_meta( $vehicle_id, '_mhm_rentiva_features', true );
-		return is_array( $features ) ? $features : array();
+		if ( ! is_array( $features ) ) {
+			return array();
+		}
+
+		// Truthfulness: a Passive feature (removed in Field Definitions) does not render.
+		return array_values( array_filter( $features, static function ( $feature ) {
+			$key = is_array( $feature )
+				? sanitize_key( (string) ( $feature['key'] ?? $feature['slug'] ?? '' ) )
+				: sanitize_key( (string) $feature );
+			if ( $key === '' ) {
+				return true; // cannot resolve a key -> never hide
+			}
+			$type = ( strpos( $key, 'tax_' ) === 0 ) ? 'taxonomy' : 'feature';
+			return VehicleFeatureHelper::is_field_active( $type, $key );
+		} ) );
 	}
 
 	/**

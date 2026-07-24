@@ -70,6 +70,37 @@ final class VehicleFeatureHelper {
 	}
 
 	/**
+	 * Is a field currently active (in use), for RENDER decisions.
+	 *
+	 * Details are active when core or selected in mhm_selected_details; features/equipment
+	 * when selected in their mhm_selected_* option. Taxonomy and unknown types pass through
+	 * (D5 dormant taxonomy is unchanged). This mirrors get_available_fields_map()'s detail
+	 * gating but is a standalone predicate so it can gate feature/equipment rendering without
+	 * touching the (save-side) availability map.
+	 */
+	public static function is_field_active( string $type, string $key ): bool
+	{
+		switch ( $type ) {
+			case self::TYPE_DETAIL:
+				if ( in_array( $key, self::get_core_fields(), true ) ) {
+					return true;
+				}
+				$selected = (array) get_option( 'mhm_selected_details', VehicleSettings::get_default_selected_details() );
+				break;
+			case self::TYPE_FEATURE:
+				$selected = (array) get_option( 'mhm_selected_features', VehicleSettings::get_default_selected_features() );
+				break;
+			case self::TYPE_EQUIPMENT:
+				$selected = (array) get_option( 'mhm_selected_equipment', VehicleSettings::get_default_selected_equipment() );
+				break;
+			default:
+				return true; // taxonomy (D5) and unknown types are never hidden here
+		}
+
+		return in_array( $key, array_map( 'strval', $selected ), true );
+	}
+
+	/**
 	 * Get list of STANDARD ATTRIBUTE fields that are optional and removable.
 	 * These defaults are for "Car Rental" mode but can be removed for other use cases.
 	 *
@@ -124,15 +155,31 @@ final class VehicleFeatureHelper {
 
 	/**
 	 * Returns selected vehicle detail fields.
-	 * Falls back to card field selection for backward compatibility.
+	 *
+	 * Never configured  -> mirror the card selection (legacy behaviour, so sites that
+	 *                      never touched this setting keep their detail highlights).
+	 * Explicitly stored -> honour exactly, including an explicit empty selection.
+	 *
+	 * Note: this cannot be implemented as `SettingsCore::get($key, null) === null`.
+	 * SettingsCore::get() falls back to SettingsCore::get_defaults() before it ever
+	 * looks at the caller-supplied default, and get_defaults() (via
+	 * FrontendSettings::get_default_settings()) already registers a non-null static
+	 * default for this exact key (the fixed 4-field get_default_card_fields() list).
+	 * So *any* default/sentinel passed to get() is masked whenever the key is absent
+	 * from the stored option -- the caller's default is never returned. Only
+	 * SettingsCore::has(), which checks array_key_exists() against the raw stored
+	 * option and ignores defaults entirely, can tell "never configured" apart from
+	 * "explicitly stored".
 	 */
 	public static function get_selected_detail_fields(): array
 	{
-		$fallback = self::get_selected_card_fields();
-		$raw      = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', $fallback);
-		$selected = self::sanitize_card_field_selection($raw);
+		if (! SettingsCore::has('mhm_rentiva_vehicle_detail_fields')) {
+			return self::get_selected_card_fields();
+		}
 
-		return ! empty($selected) ? $selected : $fallback;
+		$raw = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', array());
+
+		return self::sanitize_card_field_selection($raw);
 	}
 
 	/**
@@ -320,6 +367,11 @@ final class VehicleFeatureHelper {
 			$key  = $item['key'];
 
 			if (! isset($available[ $type ][ $key ])) {
+				continue;
+			}
+
+			// Truthfulness: a Passive field (removed in Field Definitions) does not render.
+			if (! self::is_field_active($type, $key)) {
 				continue;
 			}
 
