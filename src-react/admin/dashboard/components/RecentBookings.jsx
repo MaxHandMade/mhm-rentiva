@@ -57,30 +57,40 @@ export default function RecentBookings( { initial, metrics, currency, adminUrl }
 				<p className="mhm-empty">{ __( 'No bookings yet.', 'mhm-rentiva' ) }</p>
 			) }
 
-			{ ! loading && ! error && (
-				<div className="mhm-card-list">
-					{ items.map( ( b ) => (
-						<div key={ b.id } className="mhm-card-list__item">
-							<div className="mhm-card-list__top">
-								<a
-									className="mhm-card-list__id"
-									href={ `${ adminUrl }post.php?post=${ b.id }&action=edit` }
-								>
-									#{ b.display_id ?? b.id }
-								</a>
-								<span className="mhm-card-list__name">{ b.customer_name || '—' }</span>
-								<span className={ `mhm-status mhm-status--${ b.status }` }>
-									{ b.status_label ?? statusLabel( b.status ) }
-								</span>
-							</div>
-							<div className="mhm-card-list__sub">
-								{ [ b.vehicle_title, b.vehicle_plate, b.vehicle_location, b.pickup_date ]
-									.filter( Boolean )
-									.join( ' · ' ) }
-							</div>
-						</div>
-					) ) }
-				</div>
+			{ ! loading && ! error && !! items.length && (
+				<table className="rv-bookings-table">
+					<thead>
+						<tr>
+							<th>{ __( 'Vehicle', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Customer', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Date', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Amount', 'mhm-rentiva' ) }</th>
+							<th>{ __( 'Status', 'mhm-rentiva' ) }</th>
+						</tr>
+					</thead>
+					<tbody>
+						{ items.map( ( b ) => (
+							<tr key={ b.id }>
+								<td>
+									<a
+										className="rv-bookings-table__id"
+										href={ `${ adminUrl }post.php?post=${ b.id }&action=edit` }
+									>
+										{ b.vehicle_title || `#${ b.display_id ?? b.id }` }
+									</a>
+								</td>
+								<td>{ b.customer_name || '—' }</td>
+								<td>{ b.pickup_date || '—' }</td>
+								<td>{ b.total_price != null ? fmtMoney( b.total_price, currency, 0 ) : '—' }</td>
+								<td>
+									<span className={ `mhm-status mhm-status--${ b.status }` }>
+										{ b.status_label ?? statusLabel( b.status ) }
+									</span>
+								</td>
+							</tr>
+						) ) }
+					</tbody>
+				</table>
 			) }
 
 			{ totalPages > 1 && (

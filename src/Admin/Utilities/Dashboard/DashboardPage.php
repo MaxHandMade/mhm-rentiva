@@ -227,10 +227,9 @@ final class DashboardPage {
 			'mhm-rentiva-dashboard',
 			MHM_RENTIVA_PLUGIN_URL . 'build/admin/dashboard.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'build/admin/dashboard.css' )
 		);
 
-		$upcoming_result = \MHMRentiva\Admin\Reports\Repository\ReportRepository::get_upcoming_operations_paginated( 1, 5, 7 );
 		$bookings_result = DashboardService::get_recent_bookings_paginated( 1, 5 );
 
 		$data = array(
@@ -238,13 +237,9 @@ final class DashboardPage {
 			'revenue_data'                => DashboardService::get_revenue_data(),
 			'recent_bookings'             => $bookings_result['items'],
 			'recent_bookings_total_pages' => $bookings_result['total_pages'],
-			'pending_payments'            => DashboardService::get_pending_payments(),
-			'upcoming_initial'            => array(
-				'items'       => self::format_upcoming_items( $upcoming_result['items'] ),
-				'total'       => (int) $upcoming_result['total'],
-				'total_pages' => (int) $upcoming_result['total_pages'],
-				'page'        => 1,
-			),
+			'metric_deltas'               => DashboardService::get_metric_deltas(),
+			'status_breakdown'            => DashboardService::get_status_breakdown(),
+			'payments_summary'            => DashboardService::get_payments_summary(),
 			'widget_order'                => array(),
 			'currency'                    => CurrencyHelper::get_currency_symbol(),
 			'admin_url'                   => admin_url(),

@@ -194,3 +194,86 @@
 }
 .mhm-payment-type--deposit   { background: #fef3c7; color: #d97706; }
 .mhm-payment-type--remaining { background: #eff6ff; color: #2563eb; }
+
+/* =============================================================================
+   Dashboard redesign — refined WP-admin skin, scoped to #mhm-rentiva-dashboard
+   ============================================================================= */
+#mhm-rentiva-dashboard {
+	--rv-surface: #ffffff;
+	--rv-border:  #c3c4c7;
+	--rv-radius:  4px;
+	--rv-shadow:  0 1px 1px rgba( 0, 0, 0, .04 );
+	--rv-accent:  #2271b1;
+	--rv-ink:     #1d2327;
+	--rv-muted:   #646970;
+	--rv-pos:     #0a6b1e;
+	--rv-neg:     #a02222;
+}
+
+/* Header strip */
+.rv-dash-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; padding: 8px 0 4px; }
+.rv-dash-header__h1 { font-size: 23px; font-weight: 400; margin: 0; color: var( --rv-ink ); }
+.rv-dash-header__sub { font-size: 13px; color: var( --rv-muted ); }
+.rv-dash-header__controls { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.rv-dash-header__range { font-size: 13px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: var( --rv-radius ); background: #fff; color: #2c3338; }
+.rv-dash-header__report { font-size: 13px; padding: 5px 12px; background: var( --rv-accent ); color: #fff; border-radius: var( --rv-radius ); text-decoration: none; }
+.rv-dash-header__report:hover { background: #135e96; color: #fff; }
+
+/* Stat cards: gradient -> white (override shared/admin.css via #id specificity) */
+#mhm-rentiva-dashboard .mhm-stat-card,
+#mhm-rentiva-dashboard .mhm-stat-card:nth-child(1),
+#mhm-rentiva-dashboard .mhm-stat-card:nth-child(2),
+#mhm-rentiva-dashboard .mhm-stat-card:nth-child(3),
+#mhm-rentiva-dashboard .mhm-stat-card:nth-child(4) {
+	background: var( --rv-surface );
+	color: var( --rv-ink );
+	border: 1px solid var( --rv-border );
+	border-radius: var( --rv-radius );
+	box-shadow: var( --rv-shadow );
+}
+#mhm-rentiva-dashboard .mhm-stat-card .dashicons { color: var( --rv-accent ); opacity: 1; }
+#mhm-rentiva-dashboard .mhm-stat-card__label { color: var( --rv-muted ); opacity: 1; }
+#mhm-rentiva-dashboard .mhm-stat-card__value { color: var( --rv-ink ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta { margin: 0; font-size: 12px; }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--up   { color: var( --rv-pos ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--down { color: var( --rv-neg ); }
+#mhm-rentiva-dashboard .mhm-stat-card__delta--none { color: var( --rv-muted ); }
+
+/* Two-column layout */
+.rv-dash-cols { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 16px; align-items: flex-start; }
+.rv-dash-cols__left  { flex: 1 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.rv-dash-cols__right { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+@media ( max-width: 782px ) {
+	.rv-dash-cols__left, .rv-dash-cols__right { flex-basis: 100%; }
+}
+
+/* Widget card radius aligned to mockup 4px (scoped) */
+#mhm-rentiva-dashboard .mhm-widget { border-radius: var( --rv-radius ); }
+
+/* Recent bookings table */
+.rv-bookings-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rv-bookings-table th { text-align: left; padding: 8px 10px; font-weight: 600; color: #2c3338; border-bottom: 1px solid var( --rv-border ); background: #f6f7f7; }
+.rv-bookings-table td { padding: 9px 10px; border-bottom: 1px solid #f0f0f1; color: #50575e; }
+.rv-bookings-table tr:last-child td { border-bottom: none; }
+.rv-bookings-table__id { font-weight: 600; color: var( --rv-accent ); text-decoration: none; }
+.rv-bookings-table__id:hover { text-decoration: underline; }
+
+/* Status breakdown */
+.rv-status-list { list-style: none; margin: 0; padding: 0; }
+.rv-status-list__row { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0f1; }
+.rv-status-list__row:last-child { border-bottom: none; }
+.rv-status-list__dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.rv-status-list__label { flex: 1; color: #50575e; font-size: 13px; }
+.rv-status-list__count { font-weight: 600; color: var( --rv-ink ); }
+
+/* Payments summary */
+.rv-pay-summary__list { display: flex; flex-direction: column; gap: 12px; }
+.rv-pay-summary__row { display: flex; justify-content: space-between; align-items: baseline; }
+.rv-pay-summary__label { color: var( --rv-muted ); font-size: 13px; }
+.rv-pay-summary__value { font-size: 18px; font-weight: 600; }
+.rv-pay-summary__value--warn { color: #bd8600; }
+.rv-pay-summary__value--pos  { color: var( --rv-pos ); }
+.rv-pay-summary__value--neutral { color: var( --rv-ink ); }
+
+/* Footer */
+.rv-dash-footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #dcdcde; font-size: 12px; color: var( --rv-muted ); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }

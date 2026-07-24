@@ -108,6 +108,40 @@ final class DashboardRecentEndpointsTest extends WP_UnitTestCase
         $this->assertArrayHasKey( 'status',        $first );
         $this->assertArrayHasKey( 'status_label',  $first );
         $this->assertArrayHasKey( 'display_id',    $first );
+        $this->assertArrayHasKey( 'total_price',   $first );
+    }
+
+    public function test_recent_bookings_ordered_by_pickup_date_desc(): void
+    {
+        $mk = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE;
+
+        $mid = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        update_post_meta( $mid, $mk, '2026-05-20 10:00:00' );
+
+        $new = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        update_post_meta( $new, $mk, '2026-07-05 10:00:00' );
+
+        $old = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        update_post_meta( $old, $mk, '2026-01-10 10:00:00' );
+
+        wp_set_current_user( $this->admin_id );
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/dashboard/recent-bookings' );
+        $response = self::$server->dispatch( $request );
+        $items    = $response->get_data()['items'];
+
+        $dates    = array_map( static fn( $i ) => $i['pickup_date'], $items );
+        $non_null = array_values( array_filter( $dates, static fn( $d ) => $d !== null && $d !== '' ) );
+
+        // Only assert on our three known pickup dates relative to each other --
+        // the DB may already contain other bookings from earlier tests/fixtures.
+        $idx_new = array_search( '2026-07-05 10:00:00', $non_null, true );
+        $idx_mid = array_search( '2026-05-20 10:00:00', $non_null, true );
+        $idx_old = array_search( '2026-01-10 10:00:00', $non_null, true );
+
+        $this->assertNotFalse( $idx_new );
+        $this->assertNotFalse( $idx_mid );
+        $this->assertNotFalse( $idx_old );
+        $this->assertTrue( $idx_new < $idx_mid && $idx_mid < $idx_old, 'pickup dates should be descending' );
     }
 
     /* ------- recent-transfers -------
