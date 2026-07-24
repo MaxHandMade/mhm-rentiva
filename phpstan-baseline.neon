@@ -1303,12 +1303,6 @@ parameters:
 			path: src/Admin/Utilities/Dashboard/DashboardPage.php
 
 		-
-			message: '#^Comparison operation "\<" between int\<0, 9\> and 10 is always true\.$#'
-			identifier: smaller.alwaysTrue
-			count: 1
-			path: src/Admin/Utilities/Dashboard/DashboardService.php
-
-		-
 			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
 			identifier: argument.type
 			count: 1
