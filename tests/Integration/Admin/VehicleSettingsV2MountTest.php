@@ -7,7 +7,8 @@ use MHMRentiva\Admin\Vehicle\Settings\VehicleSettings;
 use WP_UnitTestCase;
 
 /**
- * The v2 UI is behind a ?ui=v2 flag so the existing page keeps working during the rebuild.
+ * The redesigned v2 UI is now the default; the old server-rendered tabs remain reachable
+ * as a fallback via ?ui=legacy.
  */
 final class VehicleSettingsV2MountTest extends WP_UnitTestCase {
 
@@ -16,14 +17,19 @@ final class VehicleSettingsV2MountTest extends WP_UnitTestCase {
 		parent::tearDown();
 	}
 
-	public function test_is_v2_ui_reflects_query_flag(): void {
+	public function test_v2_is_the_default_ui(): void {
 		unset( $_GET['ui'] );
-		$this->assertFalse( VehicleSettings::is_v2_ui(), 'default (no flag) must stay on the old UI' );
+		$this->assertTrue( VehicleSettings::is_v2_ui(), 'default (no flag) must be the redesigned v2 UI' );
 
 		$_GET['ui'] = 'v2';
-		$this->assertTrue( VehicleSettings::is_v2_ui() );
+		$this->assertTrue( VehicleSettings::is_v2_ui(), 'the explicit v2 value must still opt in' );
 
 		$_GET['ui'] = 'something-else';
-		$this->assertFalse( VehicleSettings::is_v2_ui(), 'only the exact v2 value opts in' );
+		$this->assertTrue( VehicleSettings::is_v2_ui(), 'any value other than legacy resolves to v2' );
+	}
+
+	public function test_legacy_fallback_opts_out(): void {
+		$_GET['ui'] = 'legacy';
+		$this->assertFalse( VehicleSettings::is_v2_ui(), '?ui=legacy must fall back to the old UI' );
 	}
 }

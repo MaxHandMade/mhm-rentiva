@@ -203,13 +203,14 @@ final class VehicleSettings {
 	 * Render settings page
 	 */
 	/**
-	 * Whether the redesigned (v2) Vehicle Settings UI is requested via ?ui=v2.
+	 * Whether to render the redesigned (v2) Vehicle Settings UI.
 	 *
-	 * Feature flag for the rebuild: the existing server-rendered tabs stay the default
-	 * so the page keeps working while the new UI is assembled slice by slice.
+	 * The rebuild is complete, so v2 is now the default. The previous server-rendered
+	 * tabs remain reachable as a fallback via ?ui=legacy (kept for one release in case a
+	 * site needs the old screen); everything else — including no flag at all — gets v2.
 	 */
 	public static function is_v2_ui(): bool {
-		return 'v2' === self::get_key( 'ui' );
+		return 'legacy' !== self::get_key( 'ui' );
 	}
 
 	public function render_settings_page(): void {
@@ -242,10 +243,10 @@ final class VehicleSettings {
 		} else {
 			?>
 			<nav class="nav-tab-wrapper">
-				<a href="?page=vehicle-settings&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=vehicle-settings&ui=legacy&tab=definitions" class="nav-tab <?php echo $active_tab === 'definitions' ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Field Definitions', 'mhm-rentiva' ); ?>
 				</a>
-				<a href="?page=vehicle-settings&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
+				<a href="?page=vehicle-settings&ui=legacy&tab=display" class="nav-tab <?php echo $active_tab === 'display' ? 'nav-tab-active' : ''; ?>">
 					<?php esc_html_e( 'Display Options', 'mhm-rentiva' ); ?>
 				</a>
 			</nav>
