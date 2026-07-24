@@ -24,6 +24,8 @@ use MHMRentiva\Admin\REST\Settings\RESTSettings;
  * @package MHMRentiva\Admin\Settings
  * @since 4.0.0
  */
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 final class APIKeysPage {
 
 
@@ -96,15 +98,17 @@ final class APIKeysPage {
 			);
 		}
 
-		$action = self::post_text('action');
+		$req = VerifiedRequest::from($_POST);
+
+		$action = $req->text('action');
 
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
 			match ($action) {
-				'mhm_rentiva_create_api_key'     => self::ajax_create_api_key(),
+				'mhm_rentiva_create_api_key'     => self::ajax_create_api_key($req),
 				'mhm_rentiva_list_api_keys'      => self::ajax_list_api_keys(),
-				'mhm_rentiva_revoke_api_key'     => self::ajax_revoke_api_key(),
-				'mhm_rentiva_delete_api_key'     => self::ajax_delete_api_key(),
+				'mhm_rentiva_revoke_api_key'     => self::ajax_revoke_api_key($req),
+				'mhm_rentiva_delete_api_key'     => self::ajax_delete_api_key($req),
 				'mhm_rentiva_list_endpoints'     => self::ajax_list_endpoints(),
 				'mhm_rentiva_reset_rest_settings' => self::ajax_reset_rest_settings(),
 				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
@@ -121,12 +125,12 @@ final class APIKeysPage {
 	/**
 	 * Create API Key AJAX handler.
 	 */
-	private static function ajax_create_api_key(): void
+	private static function ajax_create_api_key(VerifiedRequest $req): void
 	{
-		$name        = self::post_text('name');
-		$permissions = self::post_array('permissions');
+		$name        = $req->text('name');
+		$permissions = $req->arr('permissions');
 		$permissions = ! empty($permissions) ? array_map('sanitize_text_field', $permissions) : array( 'read' );
-		$expires_at  = self::post_int('expires_at');
+		$expires_at  = $req->int('expires_at');
 		$expires_at  = $expires_at > 0 ? $expires_at : null;
 
 		if (empty($name)) {
@@ -165,9 +169,9 @@ final class APIKeysPage {
 	/**
 	 * Revoke API Key AJAX handler.
 	 */
-	private static function ajax_revoke_api_key(): void
+	private static function ajax_revoke_api_key(VerifiedRequest $req): void
 	{
-		$key_id = self::post_text('key_id');
+		$key_id = $req->text('key_id');
 
 		if (empty($key_id)) {
 			throw new \Exception(esc_html__('API key ID is required to revoke.', 'mhm-rentiva'));
@@ -183,9 +187,9 @@ final class APIKeysPage {
 	/**
 	 * Delete API Key AJAX handler.
 	 */
-	private static function ajax_delete_api_key(): void
+	private static function ajax_delete_api_key(VerifiedRequest $req): void
 	{
-		$key_id = self::post_text('key_id');
+		$key_id = $req->text('key_id');
 
 		if (empty($key_id)) {
 			throw new \Exception(esc_html__('API key ID is required to delete.', 'mhm-rentiva'));
@@ -233,44 +237,5 @@ final class APIKeysPage {
 				'redirect' => esc_url(admin_url('admin.php?page=mhm-rentiva-settings&tab=integration')),
 			)
 		);
-	}
-
-	/**
-	 * Safely read text value from $_POST.
-	 */
-	private static function post_text(string $key, string $fallback = ''): string
-	{
-		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		if (! isset($post[ $key ])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-			return $fallback;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		return sanitize_text_field(wp_unslash( (string) $post[ $key ]));
-	}
-
-	/**
-	 * Safely read integer value from $_POST.
-	 */
-	private static function post_int(string $key, int $fallback = 0): int
-	{
-		$value = self::post_text($key, '');
-		return '' === $value ? $fallback : (int) $value;
-	}
-
-	/**
-	 * Safely read array value from $_POST.
-	 *
-	 * @return array<int|string,mixed>
-	 */
-	private static function post_array(string $key): array
-	{
-		$post = $_POST ?? array(); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-		if (! isset($post[ $key ]) || ! is_array($post[ $key ])) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_request().
-			return array();
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in handle_request(); array items are sanitized by caller.
-		return wp_unslash($post[ $key ]);
 	}
 }

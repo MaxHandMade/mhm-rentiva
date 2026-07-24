@@ -30,6 +30,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Handles various administrative actions.
  */
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 final class Actions {
 
 
@@ -48,15 +50,21 @@ final class Actions {
 	 * Refund a booking.
 	 */
 	public static function refund_booking(): void {
-		$bid = self::post_int( 'booking_id' );
+		// booking_id is read inline because the permission check below needs it; the
+		// nonce is verified before anything is read for use, and nothing is written
+		// before check_admin_referer() (which dies on failure).
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Needed by the capability check on the next line; check_admin_referer() runs before any write.
+		$bid = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
 
 		if ( ! self::check_granular_permission( 'refund_booking', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
 		check_admin_referer( 'mhm_rentiva_refund_booking' );
-		$amount  = self::post_int( 'amount_kurus' );
-		$reason  = self::post_text( 'reason' );
+
+		$req     = VerifiedRequest::from( $_POST );
+		$amount  = $req->int( 'amount_kurus' );
+		$reason  = $req->text( 'reason' );
 		$res     = RefundService::process( $bid, $amount, $reason );
 		$ref_url = get_edit_post_link( $bid, '' );
 		if ( ! $ref_url ) {
@@ -81,7 +89,7 @@ final class Actions {
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 30 ) );
+		$days = VerifiedRequest::from( $_POST )->int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 30 ) );
 		if ( $days <= 0 ) {
 			$days = 30;
 		}
@@ -326,40 +334,6 @@ final class Actions {
 	 */
 	private static function user_owns_booking( int $user_id, int $booking_id ): bool {
 		return self::get_booking_user_id( $booking_id ) === $user_id;
-	}
-
-	/**
-	 * Read an integer from POST.
-	 *
-	 * @param string $key POST key.
-	 * @param int    $default Default value.
-	 * @return int
-	 */
-	private static function post_int( string $key, int $fallback = 0 ): int {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
-		if ( ! isset( $_POST[ $key ] ) ) {
-			return $fallback;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
-		return absint( wp_unslash( $_POST[ $key ] ) );
-	}
-
-	/**
-	 * Read sanitized text from POST.
-	 *
-	 * @param string $key POST key.
-	 * @param string $default Default value.
-	 * @return string
-	 */
-	private static function post_text( string $key, string $fallback = '' ): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
-		if ( ! isset( $_POST[ $key ] ) ) {
-			return $fallback;
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is handled by caller actions before using this helper.
-		return sanitize_text_field( wp_unslash( (string) $_POST[ $key ] ) );
 	}
 
 	/**

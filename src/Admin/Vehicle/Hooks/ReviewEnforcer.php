@@ -51,16 +51,21 @@ class ReviewEnforcer {
 			return $commentdata;
 		}
 
+		// This filter runs inside WordPress core's own comment submission pipeline
+		// (wp_handle_comment_submission -> wp_new_comment). Public comment forms
+		// carry no nonce -- core does not add one -- so there is none for this hook
+		// to verify. Everything read below is used only to REJECT the submission;
+		// this method persists nothing, and the rating that is ultimately stored is
+		// written by core from $commentdata['comment_meta'].
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core comment pipeline has no nonce to verify; read-only validation, nothing is persisted here.
+		$submitted = (array) wp_unslash( $_POST );
+
 		// 1. Mandatory Rating Check
 		$rating = 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
-		if ( isset( $_POST['rating'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
-			$rating = (int) $_POST['rating'];
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
-		} elseif ( isset( $_POST['mhm_rating'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Runs on core comment submission payload; plugin does not mutate options/state here.
-			$rating = (int) $_POST['mhm_rating'];
+		if ( isset( $submitted['rating'] ) ) {
+			$rating = (int) $submitted['rating'];
+		} elseif ( isset( $submitted['mhm_rating'] ) ) {
+			$rating = (int) $submitted['mhm_rating'];
 		} elseif ( isset( $commentdata['comment_meta']['rating'] ) ) {
 			$rating = (int) $commentdata['comment_meta']['rating'];
 		}
@@ -83,12 +88,7 @@ class ReviewEnforcer {
 		$author_email = sanitize_email( $commentdata['comment_author_email'] ?? '' );
 
 		// If user is editing their own existing comment via AJAX/Admin, the comment_ID might be passed.
-		$existing_comment_id = 0;
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read-only duplicate detection from core/admin comment payload.
-		if ( isset( $_POST['comment_ID'] ) ) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read-only duplicate detection from core/admin comment payload.
-			$existing_comment_id = (int) $_POST['comment_ID'];
-		}
+		$existing_comment_id = isset( $submitted['comment_ID'] ) ? (int) $submitted['comment_ID'] : 0;
 
 		if ( ! $existing_comment_id ) {
 			$args = array(

@@ -1080,18 +1080,18 @@ final class VehicleColumns {
 											// Data attributes for popup. Values are passed raw and escaped by
 											// Html::echo_data_attributes() as each one is written out.
 											$data_attrs = array(
-												'booking-id'     => $booking_data['booking_id'],
-												'customer-name'  => $booking_data['customer_name'],
+												'booking-id' => $booking_data['booking_id'],
+												'customer-name' => $booking_data['customer_name'],
 												'customer-email' => $booking_data['customer_email'],
 												'customer-phone' => $booking_data['customer_phone'],
-												'total-price'    => $booking_data['total_price'],
-												'status'         => $booking_data['status'],
-												'status-label'   => $status_label,
-												'start-date'     => $booking_data['start_date'],
-												'end-date'       => $booking_data['end_date'],
-												'start-time'     => $booking_data['start_time'] ?? '',
-												'end-time'       => $booking_data['end_time'] ?? '',
-												'created-date'   => $booking_data['created_date'],
+												'total-price' => $booking_data['total_price'],
+												'status'   => $booking_data['status'],
+												'status-label' => $status_label,
+												'start-date' => $booking_data['start_date'],
+												'end-date' => $booking_data['end_date'],
+												'start-time' => $booking_data['start_time'] ?? '',
+												'end-time' => $booking_data['end_time'] ?? '',
+												'created-date' => $booking_data['created_date'],
 											);
 
 											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '"';

@@ -32,6 +32,8 @@ use MHMRentiva\Admin\Core\QueryHelper;
  * - Pagination
  * - SEO-friendly URL parameters
  */
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 final class SearchResults extends AbstractShortcode {
 
 	/**
@@ -141,52 +143,6 @@ final class SearchResults extends AbstractShortcode {
 		return array_filter(array_map('intval', $values));
 	}
 
-	private static function post_text(string $key, string $default = ''): string
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ])) {
-			return $default;
-		}
-
-		return sanitize_text_field(wp_unslash( (string) $post[ $key ]));
-	}
-
-	private static function post_int(string $key, int $default = 0): int
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ])) {
-			return $default;
-		}
-
-		return (int) wp_unslash( (string) $post[ $key ]);
-	}
-
-	/**
-	 * Get an array of integers from POST parameter.
-	 */
-	private static function post_int_array(string $key): array
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ])) {
-			return array();
-		}
-
-		$raw    = wp_unslash($post[ $key ]);
-		$values = is_array($raw) ? $raw : array( $raw );
-
-		return array_filter(array_map('intval', $values));
-	}
-
-	private static function post_text_or_array(string $key)
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ])) {
-			return array();
-		}
-
-		$value = wp_unslash($post[ $key ]);
-		return is_array($value) ? array_map('sanitize_text_field', $value) : sanitize_text_field( (string) $value);
-	}
 
 	public static function register(): void
 	{
@@ -257,7 +213,13 @@ final class SearchResults extends AbstractShortcode {
 		// If no explicit sort in request, apply shortcode's default_sort attribute.
 		$request_sort = self::get_text('sort');
 		if ('' === $request_sort) {
-			$request_sort = self::post_text('sort');
+			// Public search forms may submit by POST. There is no nonce on a public
+			// search (adding one would break caching and bookmarking, and WordPress
+			// core does not nonce its own search form either). The value is only ever
+			// used to pick a sort order and is validated against the allowed set
+			// downstream; nothing is written on the strength of it.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public search form has no nonce by design; read-only sort selector.
+			$request_sort = isset($_POST['sort']) ? sanitize_text_field(wp_unslash( (string) $_POST['sort'])) : '';
 		}
 
 		if ('' === $request_sort) {
@@ -883,37 +845,39 @@ final class SearchResults extends AbstractShortcode {
 	{
 		check_ajax_referer('mhm_rentiva_search_results', 'nonce');
 
+		$req = VerifiedRequest::from($_POST);
+
 		try {
 			// Get filters from POST parameters
 			$search_params = array(
-				'keyword'         => self::post_text('keyword'),
-				'pickup_date'     => self::post_text('pickup_date'),
-				'return_date'     => self::post_text('return_date'),
-				'min_price'       => self::post_int('min_price'),
-				'max_price'       => self::post_int('max_price'),
-				'fuel_type'       => self::post_text_or_array('fuel_type'),
-				'transmission'    => self::post_text_or_array('transmission'),
-				'seats'           => self::post_text_or_array('seats'),
-				'brand'           => self::post_text_or_array('brand'),
-				'year_min'        => self::post_int('year_min'),
-				'year_max'        => self::post_int('year_max'),
-				'mileage_max'     => self::post_int('mileage_max'),
-				'sort'            => self::post_text('sort', 'relevance'),
-				'page'            => self::post_int('page', 1),
-				'pickup_location' => self::post_int_array('pickup_location'),
+				'keyword'         => $req->text('keyword'),
+				'pickup_date'     => $req->text('pickup_date'),
+				'return_date'     => $req->text('return_date'),
+				'min_price'       => $req->int('min_price'),
+				'max_price'       => $req->int('max_price'),
+				'fuel_type'       => $req->textOrList('fuel_type'),
+				'transmission'    => $req->textOrList('transmission'),
+				'seats'           => $req->textOrList('seats'),
+				'brand'           => $req->textOrList('brand'),
+				'year_min'        => $req->int('year_min'),
+				'year_max'        => $req->int('year_max'),
+				'mileage_max'     => $req->int('mileage_max'),
+				'sort'            => $req->text('sort', 'relevance'),
+				'page'            => $req->int('page', 1),
+				'pickup_location' => $req->intList('pickup_location'),
 			);
 
 			$atts = array(
-				'layout'               => self::post_text('layout', 'grid'),
-				'results_per_page'     => self::post_int('per_page', 12),
-				'show_favorite_button' => self::post_text('show_favorite_button', '1'),
-				'show_compare_button'  => self::post_text('show_compare_button', '1'),
-				'show_booking_button'  => self::post_text('show_booking_button', '1'),
-				'show_price'           => self::post_text('show_price', '1'),
-				'show_title'           => self::post_text('show_title', '1'),
-				'show_features'        => self::post_text('show_features', '1'),
-				'show_rating'          => self::post_text('show_rating', '1'),
-				'show_badges'          => self::post_text('show_badges', '1'),
+				'layout'               => $req->text('layout', 'grid'),
+				'results_per_page'     => $req->int('per_page', 12),
+				'show_favorite_button' => $req->text('show_favorite_button', '1'),
+				'show_compare_button'  => $req->text('show_compare_button', '1'),
+				'show_booking_button'  => $req->text('show_booking_button', '1'),
+				'show_price'           => $req->text('show_price', '1'),
+				'show_title'           => $req->text('show_title', '1'),
+				'show_features'        => $req->text('show_features', '1'),
+				'show_rating'          => $req->text('show_rating', '1'),
+				'show_badges'          => $req->text('show_badges', '1'),
 			);
 
 			$results = self::perform_search($search_params, $atts);

@@ -271,8 +271,11 @@ trait AdminHelperTrait {
 	 * @return bool Submit status
 	 */
 	protected function is_form_submitted( string $action, string $nonce_name = '_wpnonce' ): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This method exists solely to verify the nonce.
-		return isset( $_POST[ $nonce_name ] ) && $this->verify_nonce( $action, $nonce_name );
+		// The isset() guard that used to sit in front of this was what made the line
+		// look like an unverified read; it was also redundant, because verify_nonce()
+		// defaults a missing field to '' and wp_verify_nonce( '' ) is false. Dropping
+		// it leaves the same fail-closed behaviour with nothing to silence.
+		return $this->verify_nonce( $action, $nonce_name );
 	}
 
 	/**

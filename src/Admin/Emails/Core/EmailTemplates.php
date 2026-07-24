@@ -19,6 +19,8 @@ use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 final class EmailTemplates {
 
 
@@ -271,9 +273,11 @@ final class EmailTemplates {
 			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
 		}
 		check_admin_referer('mhm_rentiva_email_send');
-		$key = self::post_key('key');
-		$to  = self::post_email('to');
-		$bid = self::post_int('booking_id');
+
+		$req = VerifiedRequest::from($_POST);
+		$key = sanitize_key($req->text('key'));
+		$to  = sanitize_email($req->text('to'));
+		$bid = $req->int('booking_id');
 		if ($key === '' || $to === '') {
 			wp_die(esc_html__('Missing parameters.', 'mhm-rentiva'));
 		}
@@ -293,14 +297,16 @@ final class EmailTemplates {
 		}
 
 		// Nonce verification - Check specifically for email templates nonce
-		$nonce = self::post_text('mhm_rentiva_email_templates_nonce');
+		$nonce = self::submitted_nonce('mhm_rentiva_email_templates_nonce');
 		if (! wp_verify_nonce($nonce, 'mhm_rentiva_save_email_templates')) {
 			// Fallback: Check for generic settings nonce (some settings pages might use this)
-			$fallback_nonce = self::post_text('_wpnonce');
+			$fallback_nonce = self::submitted_nonce('_wpnonce');
 			if (! wp_verify_nonce($fallback_nonce, 'mhm_rentiva_settings-options')) {
 				wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 			}
 		}
+
+		$req = VerifiedRequest::from($_POST);
 
 		// Get active tab information. Unlike the render path this value arrives from
 		// POST, so it must be validated against the tabs this build actually offers
@@ -308,16 +314,16 @@ final class EmailTemplates {
 		// a tab that no longer exists (message_emails without the Messages module,
 		// vendor_emails without the vendor module) and write settings for a feature
 		// that cannot use them.
-		$current_tab = self::post_key('current_tab', 'booking_notifications');
+		$current_tab = sanitize_key($req->text('current_tab')) ?: 'booking_notifications';
 		if (! isset(self::get_email_type_tabs()[ $current_tab ])) {
 			$current_tab = 'booking_notifications';
 		}
 
 		// Process only active tab
 		if ($current_tab === 'booking_notifications') {
-			self::save_booking_notifications();
+			self::save_booking_notifications($req);
 		} elseif ($current_tab === 'refund_emails') {
-			self::save_refund_emails();
+			self::save_refund_emails($req);
 		} else {
 			/**
 			 * Neutral seam for any email-type tab Lite does not own (e.g. the add-on's
@@ -330,7 +336,7 @@ final class EmailTemplates {
 
 		// Success message - success flag instead of redirect
 		// Don't redirect when called from settings page
-		if (self::post_text('email_templates_action') === '') {
+		if ($req->text('email_templates_action') === '') {
 			// Redirect to settings page since coming from admin-post.php
 			$redirect_url = add_query_arg(
 				array(
@@ -346,7 +352,7 @@ final class EmailTemplates {
 		}
 	}
 
-	private static function save_booking_notifications(): void
+	private static function save_booking_notifications(VerifiedRequest $req): void
 	{
 
 		$fields = array(
@@ -371,12 +377,12 @@ final class EmailTemplates {
 			'mhm_rentiva_welcome_email_body'        => 'html',
 		);
 
-		self::save_email_fields($fields);
+		self::save_email_fields($fields, $req);
 	}
 
 
 
-	private static function save_refund_emails(): void
+	private static function save_refund_emails(VerifiedRequest $req): void
 	{
 		$fields = array(
 			'mhm_rentiva_refund_customer_enabled' => 'checkbox',
@@ -388,7 +394,7 @@ final class EmailTemplates {
 			'mhm_rentiva_refund_admin_body'       => 'html',
 		);
 
-		self::save_email_fields($fields);
+		self::save_email_fields($fields, $req);
 	}
 
 	/**
@@ -431,22 +437,19 @@ final class EmailTemplates {
 	 *
 	 * @param array $fields Field definitions
 	 */
-	private static function save_email_fields(array $fields): void
+	private static function save_email_fields(array $fields, VerifiedRequest $req): void
 	{
-		$post_vars = $GLOBALS['_POST'] ?? array();
-
 		foreach ($fields as $field_name => $field_type) {
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in handle_save_templates() before this method is called.
-			if (! isset($post_vars[ $field_name ])) {
+			if (! $req->has($field_name)) {
 				if ($field_type === 'checkbox') {
 					update_option($field_name, '0');
 				}
 				continue;
 			}
 
-			// Unslash the value before processing
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key is from trusted internal config and value is sanitized below.
-			$value = wp_unslash($post_vars[ $field_name ]);
+			// Raw here on purpose: the type-specific sanitizer runs in the switch
+			// below (html fields need wp_kses_post, not sanitize_text_field).
+			$value = $req->raw($field_name);
 
 			// Null check
 			if ($value === null) {
@@ -809,14 +812,20 @@ final class EmailTemplates {
 		}
 	}
 
+	/**
+	 * Read a screen-navigation value from the admin URL (?page=, ?tab=, ?type=,
+	 * ?updated=). These select which panel to render and never drive a write, so
+	 * there is no state change to protect with a nonce.
+	 */
 	private static function get_text(string $key, string $default = ''): string
 	{
-		$get_vars = $GLOBALS['_GET'] ?? array();
-		if (! isset($get_vars[ $key ])) {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin screen navigation value; render-only, nothing is written.
+		if (! isset($_GET[ $key ])) {
 			return $default;
 		}
 
-		return sanitize_text_field(wp_unslash( (string) $get_vars[ $key ]));
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
+		return sanitize_text_field(wp_unslash( (string) $_GET[ $key ]));
 	}
 
 	private static function get_key(string $key, string $default = ''): string
@@ -825,31 +834,19 @@ final class EmailTemplates {
 		return '' === $value ? $default : sanitize_key($value);
 	}
 
-	private static function post_text(string $key, string $default = ''): string
+	/**
+	 * Read the submitted nonce field itself. Kept separate from the verified
+	 * readers below precisely because it runs BEFORE verification -- it is the
+	 * value being verified.
+	 */
+	private static function submitted_nonce(string $key): string
 	{
-		$post_vars = $GLOBALS['_POST'] ?? array();
-		if (! isset($post_vars[ $key ])) {
-			return $default;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is the nonce being verified; it cannot be read after its own check.
+		if (! isset($_POST[ $key ])) {
+			return '';
 		}
 
-		return sanitize_text_field(wp_unslash( (string) $post_vars[ $key ]));
-	}
-
-	private static function post_key(string $key, string $default = ''): string
-	{
-		$value = self::post_text($key, $default);
-		return '' === $value ? $default : sanitize_key($value);
-	}
-
-	private static function post_email(string $key, string $default = ''): string
-	{
-		$value = self::post_text($key, $default);
-		return '' === $value ? $default : sanitize_email($value);
-	}
-
-	private static function post_int(string $key, int $default = 0): int
-	{
-		$value = self::post_text($key, '');
-		return '' === $value ? $default : (int) $value;
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See above.
+		return sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
 	}
 }

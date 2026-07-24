@@ -24,6 +24,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
  *
  * Usage: [rentiva_booking_form vehicle_id="123" show_addons="1" enable_deposit="1"]
  */
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 final class BookingForm extends AbstractShortcode {
 
 
@@ -78,30 +80,6 @@ final class BookingForm extends AbstractShortcode {
 	{
 		$value = get_query_var($key, null);
 		return ( null !== $value ) ? sanitize_text_field(wp_unslash( (string) $value)) : $fallback;
-	}
-
-	private static function post_text(string $key, string $fallback = ''): string
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		return isset($post[ $key ]) ? sanitize_text_field(wp_unslash( (string) $post[ $key ])) : $fallback;
-	}
-
-	private static function post_int(string $key, int $fallback = 0): int
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		return isset($post[ $key ]) ? absint(wp_unslash($post[ $key ])) : $fallback;
-	}
-
-	private static function post_array(string $key): array
-	{
-		$post = $GLOBALS['_POST'] ?? [];
-		if (! isset($post[ $key ]) || ! is_array($post[ $key ])) {
-			return array();
-		}
-
-		return array_map(function ($item) {
-			return is_array($item) ? array_map('sanitize_text_field', $item) : sanitize_text_field( (string) $item);
-		}, wp_unslash($post[ $key ]));
 	}
 
 	public const SHORTCODE = 'rentiva_booking_form';
@@ -666,6 +644,8 @@ final class BookingForm extends AbstractShortcode {
 				return;
 			}
 
+			$req = VerifiedRequest::from($_POST);
+
 			// Rate limiting check
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'booking_form_submission',
@@ -675,7 +655,7 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			// Input validation
-			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id(self::post_int('vehicle_id'));
+			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
 
 			// Check vehicle status
 			$vehicle_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
@@ -687,10 +667,10 @@ final class BookingForm extends AbstractShortcode {
 				return;
 			}
 
-			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('pickup_date'));
-			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('dropoff_date'));
-			$pickup_time  = self::post_text('pickup_time');
-			$dropoff_time = self::post_text('dropoff_time');
+			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
+			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
+			$pickup_time  = $req->text('pickup_time');
+			$dropoff_time = $req->text('dropoff_time');
 
 			// Validate pickup time (required)
 			if (empty($pickup_time)) {
@@ -703,8 +683,8 @@ final class BookingForm extends AbstractShortcode {
 				$dropoff_time = $pickup_time;
 			}
 
-			$guests             = max(1, self::post_int('guests', 1));
-			$pickup_location_id = self::post_int('pickup_location_id');
+			$guests             = max(1, $req->int('guests', 1));
+			$pickup_location_id = $req->int('pickup_location_id');
 			if ($pickup_location_id > 0) {
 				// Validate submitted location ID against active rental locations.
 				// Locations come from an add-on via the filter: without one there is
@@ -748,15 +728,15 @@ final class BookingForm extends AbstractShortcode {
 			}
 
 			// If form fields are provided (for logged-in users or manual entry), use them
-			$customer_first_name_post = self::post_text('customer_first_name');
+			$customer_first_name_post = $req->text('customer_first_name');
 			if ($customer_first_name_post !== '') {
 				$customer_first_name = $customer_first_name_post;
 			}
-			$customer_last_name_post = self::post_text('customer_last_name');
+			$customer_last_name_post = $req->text('customer_last_name');
 			if ($customer_last_name_post !== '') {
 				$customer_last_name = $customer_last_name_post;
 			}
-			$customer_email_post = self::post_text('customer_email');
+			$customer_email_post = $req->text('customer_email');
 			if ($customer_email_post !== '') {
 				$customer_email_raw = $customer_email_post;
 				// Only validate if email is provided and not empty
@@ -764,7 +744,7 @@ final class BookingForm extends AbstractShortcode {
 					$customer_email = sanitize_email($customer_email_raw);
 				}
 			}
-			$customer_phone_post = self::post_text('customer_phone');
+			$customer_phone_post = $req->text('customer_phone');
 			if ($customer_phone_post !== '') {
 				$customer_phone = $customer_phone_post;
 			}
@@ -773,7 +753,7 @@ final class BookingForm extends AbstractShortcode {
 			if (! empty($customer_first_name) || ! empty($customer_last_name)) {
 				$customer_name = trim($customer_first_name . ' ' . $customer_last_name);
 			}
-			$payment_type = self::post_text('payment_type', 'deposit');
+			$payment_type = $req->text('payment_type', 'deposit');
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures we fallback to full payment instead of 0-deposit (free) booking
@@ -794,29 +774,13 @@ final class BookingForm extends AbstractShortcode {
 			$selected_addons = array();
 
 			// Check 'addons' parameter sent via AJAX
-			if (isset($_POST['addons'])) {
-				$addons_raw = self::post_array('addons');
-
-				// Convert string to array (single value case)
-				if (is_string($addons_raw)) {
-					$addons_raw = array( $addons_raw );
-				}
-
-				if (is_array($addons_raw)) {
-					$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($addons_raw);
-				}
-			} elseif (isset($_POST['selected_addons'])) {
-				// Check 'selected_addons' parameter sent via normal form submit.
-				$addons_raw = self::post_array('selected_addons');
-
-				// Convert string to array (single value case)
-				if (is_string($addons_raw)) {
-					$addons_raw = array( $addons_raw );
-				}
-
-				if (is_array($addons_raw)) {
-					$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($addons_raw);
-				}
+			// intList() accepts either shape, so a single addon posted as a scalar and
+			// a multi-select posted as addons[] both arrive as a list of ids.
+			if ($req->has('addons')) {
+				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('addons'));
+			} elseif ($req->has('selected_addons')) {
+				// 'selected_addons' is the name used by the non-AJAX form submit.
+				$selected_addons = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->intList('selected_addons'));
 			}
 
 			// Validation
@@ -1052,6 +1016,8 @@ final class BookingForm extends AbstractShortcode {
 				return;
 			}
 
+			$req = VerifiedRequest::from($_POST);
+
 			// Rate limiting check (increased limits)
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'price_calculation',
@@ -1061,10 +1027,10 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			// Input validation
-			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id(self::post_int('vehicle_id'));
-			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('pickup_date'));
-			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('dropoff_date'));
-			$addons       = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array(self::post_array('addons'));
+			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
+			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
+			$addons       = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->arr('addons'));
 
 			// Filter empty addon placeholder (JavaScript doesn't send empty array, sends [0])
 			$addons = array_filter(
@@ -1077,8 +1043,8 @@ final class BookingForm extends AbstractShortcode {
 			// ❌ Removed redundant manual data validation (already handled by SecurityHelper above)
 
 			// 1. Refine times
-			$pickup_time  = self::post_text('pickup_time', '10:00');
-			$dropoff_time = self::post_text('dropoff_time', $pickup_time);
+			$pickup_time  = $req->text('pickup_time', '10:00');
+			$dropoff_time = $req->text('dropoff_time', $pickup_time);
 
 			// 2. Consistent Timestamp Parsing (Uses WordPress Timezone)
 			$datetime_result = \MHMRentiva\Admin\Booking\Helpers\Util::parse_datetimes($pickup_date, $pickup_time, $dropoff_date, $dropoff_time);
@@ -1218,7 +1184,7 @@ final class BookingForm extends AbstractShortcode {
 			$total_price = $vehicle_total + $addon_total;
 
 			// Payment type (deposit or full)
-			$payment_type = self::post_text('payment_type', 'deposit');
+			$payment_type = $req->text('payment_type', 'deposit');
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures calculations reflect "No Deposit" as "Full Payment Required"
@@ -1387,6 +1353,8 @@ final class BookingForm extends AbstractShortcode {
 				return;
 			}
 
+			$req = VerifiedRequest::from($_POST);
+
 			// Rate limiting check
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'availability_check',
@@ -1396,12 +1364,12 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			// Input validation
-			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id(self::post_int('vehicle_id'));
-			$pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('pickup_date'));
-			$pickup_time = self::post_text('pickup_time');
+			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			$pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
+			$pickup_time = $req->text('pickup_time');
 			// Check field names from JavaScript (dropoff_date or return_date)
-			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date(self::post_text('dropoff_date', self::post_text('return_date')));
-			$dropoff_time = self::post_text('dropoff_time', self::post_text('return_time'));
+			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date', $req->text('return_date')));
+			$dropoff_time = $req->text('dropoff_time', $req->text('return_time'));
 
 			if (! $vehicle_id || ! $pickup_date || ! $dropoff_date) {
 				wp_send_json_error(array( 'message' => __('Invalid data.', 'mhm-rentiva') ));

@@ -364,17 +364,13 @@ abstract class AbstractMetaBox {
 			return;
 		}
 
+		// has() was just checked, so raw() cannot return the absent-key null here.
 		$value = $request->raw( $field_key );
-
-		// Null check
-		if ( $value === null ) {
-			$value = '';
-		}
 
 		// Sanitize
 		if ( $sanitize_callback && is_callable( $sanitize_callback ) ) {
-			// Check to avoid passing null to sanitize_callback
-			$value = ( $value === null || $value === '' ) ? '' : call_user_func( $sanitize_callback, $value );
+			// Check to avoid passing an empty value to sanitize_callback
+			$value = ( $value === '' ) ? '' : call_user_func( $sanitize_callback, $value );
 		} else {
 			$value = static::sanitize_value( $value, $field_type, $field );
 		}
@@ -454,19 +450,4 @@ abstract class AbstractMetaBox {
 		}
 	}
 
-	/**
-	 * Helper: Custom field render (overridable)
-	 */
-	protected static function render_custom_field( \WP_Post $post, string $field_key, array $field ): void {
-		// Can be overridden in subclasses
-		static::render_field( $post, $field_key, $field );
-	}
-
-	/**
-	 * Helper: Custom field save (overridable)
-	 */
-	protected static function save_custom_field( int $post_id, string $field_key, array $field ): void {
-		// Can be overridden in subclasses
-		static::save_field( $post_id, $field_key, $field );
-	}
 }

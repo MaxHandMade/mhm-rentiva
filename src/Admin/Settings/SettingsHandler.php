@@ -34,9 +34,16 @@ final class SettingsHandler {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce/capability checks are enforced in each dispatched action handler.
+		// This method is a router, not a handler: manage_options is already checked
+		// above, and the only use made of the request below is picking which of the
+		// three branches to enter. Each branch re-reads the request and verifies its
+		// own nonce as a positive condition that must pass -- handle_reset_defaults()
+		// wp_die()s on failure, handle_email_templates() and handle_rest_settings()
+		// fall through without writing -- so all three are fail-closed and no state
+		// can change on the strength of the routing read alone.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Routing read only; every dispatched branch verifies its own nonce fail-closed.
 		$post = wp_unslash( $_POST );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only query flags are validated in handler-specific branches.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Routing read only; see above.
 		$get = wp_unslash( $_GET );
 
 		// Modern Dispatcher using PHP 8.2 match

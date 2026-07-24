@@ -29,7 +29,6 @@
             $(document).on('click', '#process-refund', (e) => this.handleProcessRefund(e));
 
             // Durum güncelleme
-            $(document).on('click', '#update-status', (e) => this.handleUpdateStatus(e));
 
             // Kalan tutar için ödeme linki gönder
             $(document).on('click', '#send-remaining-payment-link', (e) => this.handleSendPaymentLink(e));
@@ -213,38 +212,6 @@
                 type: 'POST',
                 data: {
                     action: 'mhm_rentiva_deposit_process_refund',
-                    nonce: mhmDepositManagement.nonce,
-                    booking_id: bookingId
-                },
-                success: (response) => {
-                    this.hideLoading($button);
-                    if (response.success) {
-                        this.showMessage('success', response.data.message);
-                        this.refreshPage();
-                    } else {
-                        this.showMessage('error', response.data.message || mhmDepositManagement.strings.error);
-                    }
-                },
-                error: () => {
-                    this.hideLoading($button);
-                    this.showMessage('error', mhmDepositManagement.strings.error);
-                }
-            });
-        }
-
-        handleUpdateStatus(e) {
-            e.preventDefault();
-
-            const $button = $(e.currentTarget);
-            const bookingId = $button.data('booking-id');
-
-            this.showLoading($button);
-
-            $.ajax({
-                url: mhmDepositManagement.ajaxUrl,
-                type: 'POST',
-                data: {
-                    action: 'mhm_rentiva_update_booking_status',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },

@@ -118,6 +118,43 @@ final class VerifiedRequest {
 	}
 
 	/**
+	 * List of integers, accepting either a single scalar or an array. Empty and
+	 * non-numeric members are dropped.
+	 *
+	 * @return array<int, int>
+	 */
+	public function intList(string $key): array
+	{
+		if (! isset($this->data[ $key ])) {
+			return array();
+		}
+
+		$raw    = wp_unslash($this->data[ $key ]);
+		$values = is_array($raw) ? $raw : array( $raw );
+
+		return array_values(array_filter(array_map('intval', $values)));
+	}
+
+	/**
+	 * Sanitized text, or a list of sanitized text when the field arrived as an
+	 * array (a multi-select filter posting `name[]`). Absent key yields array().
+	 *
+	 * @return string|array<int|string, string>
+	 */
+	public function textOrList(string $key)
+	{
+		if (! isset($this->data[ $key ])) {
+			return array();
+		}
+
+		$value = wp_unslash($this->data[ $key ]);
+
+		return is_array($value)
+			? array_map('sanitize_text_field', $value)
+			: sanitize_text_field( (string) $value);
+	}
+
+	/**
 	 * Unslashed but UNSANITIZED value, for callers that apply their own
 	 * type-specific sanitizer (wp_kses_post, a field sanitize_callback, ...).
 	 * Returns null when the key is absent.

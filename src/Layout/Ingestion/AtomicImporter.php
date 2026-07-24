@@ -68,7 +68,7 @@ class AtomicImporter {
         $this->snapshots  = [];
 
         // 1. Pre-Validation
-        $validator = new BlueprintValidator();
+        $validator         = new BlueprintValidator();
         $validation_result = $validator->validate($manifest);
         if (is_wp_error($validation_result)) {
             throw new Exception(esc_html( (string) $validation_result->get_error_message()));

@@ -56,17 +56,20 @@ final class WafManager {
 			return;
 		}
 
-		// Data sources to inspect.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WAF intentionally inspects raw superglobals before route-specific handlers process nonce/capability checks.
+		// Data sources to inspect. This is the plugin's optional request firewall: its
+		// whole purpose is to look at the unmodified incoming request for SQLi/XSS
+		// signatures BEFORE any route decides whether it has a nonce, so there is by
+		// construction no nonce to verify at this point. The scan is read-only -- it
+		// only logs and, when configured to, blocks -- and never writes request data
+		// anywhere. Unslashing or sanitizing here would defeat the detection.
+		// phpcs:disable WordPress.Security.NonceVerification -- Request firewall: inspects the raw request ahead of routing; read-only, nothing persisted.
 		$sources = array(
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WAF scans raw incoming query payload for attack signatures.
 			'GET'     => $_GET,
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WAF scans raw incoming payload before endpoint-level nonce checks.
 			'POST'    => $_POST,
 			'COOKIE'  => $_COOKIE,
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- WAF scans raw request bag for attack signatures.
 			'REQUEST' => $_REQUEST,
 		);
+		// phpcs:enable WordPress.Security.NonceVerification
 
 		foreach ($sources as $type => $data) {
 			if (empty($data)) {

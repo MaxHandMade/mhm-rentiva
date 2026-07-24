@@ -11,6 +11,7 @@ use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -19,18 +20,42 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class DepositManagementAjax {
 
 	/**
-	 * Read and validate booking id from POST.
+	 * Single entry guard for every deposit action.
 	 *
-	 * @return int
+	 * Verifies the nonce, resolves the booking the request names, and checks the
+	 * caller against THAT booking. The handlers used to check the blanket
+	 * edit_posts and then act on whichever booking_id arrived, so any role with
+	 * edit_posts (a contributor, for instance) could approve payments, cancel
+	 * bookings or issue refunds on bookings belonging to anyone. edit_post on the
+	 * resolved booking is the capability that matches the object being acted on.
+	 *
+	 * Terminates the request via wp_send_json_error() when any check fails.
 	 */
-	private static function post_booking_id(): int {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in each AJAX handler before this helper is called.
-		if ( ! isset( $_POST['booking_id'] ) ) {
+	private static function authorize_booking_action(): int {
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'mhm_deposit_management_action' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return 0;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced in each AJAX handler before this helper is called.
-		return absint( wp_unslash( $_POST['booking_id'] ) );
+		$booking_id = VerifiedRequest::from( $_POST )->int( 'booking_id' );
+		if ( ! $booking_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
+			return 0;
+		}
+
+		$booking = get_post( $booking_id );
+		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
+			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
+			return 0;
+		}
+
+		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return 0;
+		}
+
+		return $booking_id;
 	}
 
 	public static function register(): void {
@@ -39,32 +64,11 @@ final class DepositManagementAjax {
 		add_action( 'wp_ajax_mhm_rentiva_approve_payment', array( self::class, 'approve_payment' ) );
 		add_action( 'wp_ajax_mhm_rentiva_deposit_cancel_booking', array( self::class, 'cancel_booking' ) );
 		add_action( 'wp_ajax_mhm_rentiva_deposit_process_refund', array( self::class, 'process_refund' ) );
-		add_action( 'wp_ajax_mhm_rentiva_update_booking_status', array( self::class, 'update_booking_status' ) );
 	}
 
 	public static function process_remaining_payment(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
+		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -111,28 +115,8 @@ final class DepositManagementAjax {
 	}
 
 	public static function send_remaining_payment_link(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
+		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -185,28 +169,8 @@ final class DepositManagementAjax {
 	}
 
 	public static function approve_payment(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
+		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -239,28 +203,8 @@ final class DepositManagementAjax {
 	}
 
 	public static function cancel_booking(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
+		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -290,28 +234,8 @@ final class DepositManagementAjax {
 	}
 
 	public static function process_refund(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
+		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
@@ -380,51 +304,6 @@ final class DepositManagementAjax {
 				)
 			);
 		}
-	}
-
-	public static function update_booking_status(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Permission check
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		$booking_id = self::post_booking_id();
-		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Booking check
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Status update operation
-		// This function can be used for general status updates
-
-		// Add log
-		self::add_booking_log(
-			$booking_id,
-			'status_updated',
-			array(
-				'updated_by' => get_current_user_id(),
-			)
-		);
-
-		wp_send_json_success(
-			array(
-				'message' => __( 'Status updated successfully.', 'mhm-rentiva' ),
-			)
-		);
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {

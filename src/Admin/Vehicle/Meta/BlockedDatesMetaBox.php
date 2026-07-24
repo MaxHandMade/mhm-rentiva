@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\Meta;
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -277,8 +278,9 @@ final class BlockedDatesMetaBox {
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.
-		$dates = self::parse_dates_from_payload();
-		$notes = ! empty( $dates ) ? self::parse_notes_from_payload( $dates ) : array();
+		$req   = VerifiedRequest::from( $_POST );
+		$dates = self::parse_dates_from_payload( $req );
+		$notes = ! empty( $dates ) ? self::parse_notes_from_payload( $req, $dates ) : array();
 
 		if ( empty( $dates ) ) {
 			$dates = self::get_blocked_dates( $source_id );
@@ -334,7 +336,7 @@ final class BlockedDatesMetaBox {
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.
-		$dates_to_remove = self::parse_dates_from_payload();
+		$dates_to_remove = self::parse_dates_from_payload( VerifiedRequest::from( $_POST ) );
 		if ( empty( $dates_to_remove ) ) {
 			$dates_to_remove = self::get_blocked_dates( $source_id );
 		}
@@ -374,12 +376,11 @@ final class BlockedDatesMetaBox {
 	 *
 	 * @return string[] Sanitized date strings in Y-m-d format.
 	 */
-	private static function parse_dates_from_payload(): array {
-		if ( ! isset( $_POST['dates'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
+	private static function parse_dates_from_payload( VerifiedRequest $req ): array {
+		if ( ! $req->has( 'dates' ) ) {
 			return array();
 		}
-		$raw   = sanitize_text_field( wp_unslash( $_POST['dates'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
-		$dates = json_decode( $raw, true );
+		$dates = json_decode( $req->text( 'dates' ), true );
 		if ( ! is_array( $dates ) ) {
 			return array();
 		}
@@ -401,12 +402,12 @@ final class BlockedDatesMetaBox {
 	 * @param string[] $valid_dates Only keep notes for these dates.
 	 * @return array<string,string> Map of date → note.
 	 */
-	private static function parse_notes_from_payload( array $valid_dates ): array {
-		if ( ! isset( $_POST['notes'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified in the calling AJAX handlers.
+	private static function parse_notes_from_payload( VerifiedRequest $req, array $valid_dates ): array {
+		if ( ! $req->has( 'notes' ) ) {
 			return array();
 		}
-		$raw   = wp_unslash( (string) $_POST['notes'] ); // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON payload is sanitized after decoding per note value.
-		$notes = json_decode( $raw, true );
+		// Decoded raw, then every note goes through sanitize_textarea_field below.
+		$notes = json_decode( (string) $req->raw( 'notes' ), true );
 		if ( ! is_array( $notes ) ) {
 			return array();
 		}

@@ -76,8 +76,14 @@ final class SecurityHelper {
 	 */
 	public static function verify_ajax_request(string $nonce_name, string $capability = 'read'): bool
 	{
-		$post  = $GLOBALS['_POST'] ?? [];
-		$get   = $GLOBALS['_GET'] ?? [];
+		// Read $_POST/$_GET directly rather than through $GLOBALS. The indirection
+		// resolved to the same arrays, but it also happened to hide the access from
+		// static analysis, which reads as evasion; this method IS the nonce check,
+		// so the one thing it cannot do is verify a nonce before looking for it.
+		// phpcs:ignore WordPress.Security.NonceVerification -- This method is the nonce verification; the read below is the nonce itself.
+		$post = $_POST;
+		// phpcs:ignore WordPress.Security.NonceVerification -- See above.
+		$get   = $_GET;
 		$nonce = '';
 
 		foreach (array( 'nonce', 'security', '_ajax_nonce' ) as $key) {
@@ -198,7 +204,10 @@ final class SecurityHelper {
 	public static function get_client_ip(): string
 	{
 		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
-		$server  = $GLOBALS['_SERVER'] ?? [];
+		// Direct read rather than via $GLOBALS: the indirection resolved to the same
+		// array but hid the access from static analysis. Every value taken from it is
+		// unslashed, sanitized and then validated with filter_var( FILTER_VALIDATE_IP ).
+		$server = $_SERVER;
 
 		foreach ($ip_keys as $key) {
 			if (isset($server[ $key ])) {
