@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-23T18:52:01+00:00\n"
+"POT-Creation-Date: 2026-07-24T20:32:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -22,6 +22,7 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php:110
 #: src/Admin/Utilities/Menu/Menu.php:29
 #: src/Admin/Utilities/Menu/Menu.php:30
+#: src-react/admin/dashboard/DashboardPage.jsx:88
 msgid "MHM Rentiva"
 msgstr ""
 
@@ -442,7 +443,7 @@ msgstr ""
 #: src/Core/Dashboard/DashboardConfig.php:26
 #: templates/account/dashboard.php:50
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
-#: src-react/admin/dashboard/components/StatsCards.jsx:10
+#: src-react/admin/dashboard/components/StatsCards.jsx:21
 msgid "Total Bookings"
 msgstr ""
 
@@ -841,6 +842,7 @@ msgstr ""
 #: templates/account/user-dashboard.php:283
 #: assets/blocks/my-bookings/index.js:54
 #: assets/blocks/payment-history/index.js:53
+#: src-react/admin/dashboard/components/RecentBookings.jsx:68
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
 msgid "Status"
 msgstr ""
@@ -864,6 +866,7 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:53
 #: assets/blocks/payment-history/index.js:51
 #: assets/blocks/testimonials/index.js:63
+#: src-react/admin/dashboard/components/RecentBookings.jsx:66
 msgid "Date"
 msgstr ""
 
@@ -876,7 +879,7 @@ msgstr ""
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:891
 #: src/Admin/Setup/SetupWizard.php:950
-#: src/Admin/Utilities/Dashboard/DashboardService.php:961
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1146
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:667
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:336
@@ -1307,7 +1310,7 @@ msgstr ""
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:232
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:271
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:328
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1576
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1583
 msgid "Insufficient permissions."
 msgstr ""
 
@@ -1574,8 +1577,8 @@ msgstr ""
 #: src/Admin/Emails/Notifications/BookingNotifications.php:164
 #: src/Admin/Frontend/Account/AccountRenderer.php:554
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
-#: src/Admin/Utilities/Dashboard/DashboardService.php:784
-#: src/Admin/Utilities/Dashboard/DashboardService.php:959
+#: src/Admin/Utilities/Dashboard/DashboardService.php:956
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1144
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1121
 #: templates/account/booking-detail.php:73
 #: templates/account/bookings.php:112
@@ -1603,7 +1606,7 @@ msgstr ""
 #: src/Admin/Emails/Core/EmailTemplates.php:589
 #: src/Admin/Emails/Notifications/BookingNotifications.php:165
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
-#: src/Admin/Utilities/Dashboard/DashboardService.php:960
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1145
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1125
 #: templates/account/booking-detail.php:74
 #: templates/account/bookings.php:113
@@ -1997,6 +2000,7 @@ msgstr ""
 #: templates/account/partials/top-vehicles.php:29
 #: templates/account/partials/vendor-reliability.php:378
 #: templates/shortcodes/contact-form.php:101
+#: src-react/admin/dashboard/components/RecentBookings.jsx:64
 msgid "Vehicle"
 msgstr ""
 
@@ -2069,6 +2073,7 @@ msgstr ""
 #: src/Admin/Settings/Testing/SettingsTester.php:978
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1164
 #: src/Plugin.php:921
+#: src-react/admin/dashboard/components/RecentBookings.jsx:65
 msgid "Customer"
 msgstr ""
 
@@ -2618,8 +2623,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:731
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:369
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:242
-#: src/Admin/Utilities/Dashboard/DashboardService.php:962
-#: src/Admin/Utilities/Dashboard/DashboardService.php:966
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1147
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1151
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:497
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:860
 #: assets/blocks/booking-form/index.js:94
@@ -3496,7 +3501,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:210
 #: src/Admin/Core/AssetManager.php:732
-#: src/Admin/Utilities/Dashboard/DashboardService.php:967
+#: src/Admin/Utilities/Dashboard/DashboardService.php:1152
 msgid "Remaining"
 msgstr ""
 
@@ -6777,7 +6782,7 @@ msgid "Email templates saved successfully!"
 msgstr ""
 
 #: src/Admin/Emails/Core/Mailer.php:387
-#: src/Admin/Utilities/Dashboard/DashboardService.php:794
+#: src/Admin/Utilities/Dashboard/DashboardService.php:966
 #: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
 msgstr ""
@@ -7553,6 +7558,7 @@ msgstr ""
 #: src/Admin/Utilities/Menu/Menu.php:41
 #: src/Admin/Utilities/Menu/Menu.php:42
 #: templates/account/booking-detail.php:100
+#: src-react/admin/dashboard/DashboardPage.jsx:40
 msgid "Dashboard"
 msgstr ""
 
@@ -7723,9 +7729,9 @@ msgstr ""
 #: src/Admin/Services/FavoritesService.php:129
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:171
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:197
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:356
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:351
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1393
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1510
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1517
 msgid "Security check failed"
 msgstr ""
 
@@ -10254,6 +10260,7 @@ msgstr ""
 #: src/Admin/PostTypes/Logs/MetaBox.php:72
 #: src/Admin/Utilities/ListTable/LogColumns.php:49
 #: assets/blocks/payment-history/index.js:52
+#: src-react/admin/dashboard/components/RecentBookings.jsx:67
 msgid "Amount"
 msgstr ""
 
@@ -13372,7 +13379,7 @@ msgstr ""
 
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:176
 #: src/Admin/Utilities/Dashboard/DashboardPage.php:202
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:360
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:355
 msgid "Unauthorized access"
 msgstr ""
 
@@ -13388,29 +13395,29 @@ msgstr ""
 msgid "Dashboard layout reset successfully"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardPage.php:364
+#: src/Admin/Utilities/Dashboard/DashboardPage.php:359
 msgid "Cache cleared successfully"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:785
+#: src/Admin/Utilities/Dashboard/DashboardService.php:957
 msgid "Answered"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:786
+#: src/Admin/Utilities/Dashboard/DashboardService.php:958
 msgid "Closed"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:820
+#: src/Admin/Utilities/Dashboard/DashboardService.php:992
 msgid "Pending Messages"
 msgstr ""
 
 #. translators: %s: number of pending messages
-#: src/Admin/Utilities/Dashboard/DashboardService.php:823
+#: src/Admin/Utilities/Dashboard/DashboardService.php:995
 #, php-format
 msgid "%s pending messages"
 msgstr ""
 
-#: src/Admin/Utilities/Dashboard/DashboardService.php:826
+#: src/Admin/Utilities/Dashboard/DashboardService.php:998
 msgid "Now"
 msgstr ""
 
@@ -13902,7 +13909,7 @@ msgstr ""
 #: src/Admin/Utilities/Menu/Menu.php:95
 #: src/Admin/Utilities/Menu/Menu.php:96
 #: src-react/admin/dashboard/components/QuickActions.jsx:16
-#: src-react/admin/dashboard/components/StatsCards.jsx:28
+#: src-react/admin/dashboard/components/StatsCards.jsx:42
 msgid "Customers"
 msgstr ""
 
@@ -14155,7 +14162,7 @@ msgid "Monthly Reserved Vehicles"
 msgstr ""
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:607
-#: src-react/admin/dashboard/components/StatsCards.jsx:24
+#: src-react/admin/dashboard/components/StatsCards.jsx:38
 msgid "total"
 msgstr ""
 
@@ -14839,7 +14846,7 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1144
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1313
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1398
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1515
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1522
 msgid "You do not have permission"
 msgstr ""
 
@@ -14863,43 +14870,43 @@ msgstr ""
 msgid "Field removed successfully."
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1437
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1444
 msgid "Custom detail removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1447
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1454
 msgid "Feature removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1466
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1473
 msgid "Custom feature removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1476
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1483
 msgid "Equipment removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1495
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1502
 msgid "Custom equipment removed successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1544
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1551
 msgid "Custom detail added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1553
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1560
 msgid "Custom feature added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1562
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1569
 msgid "Custom equipment added successfully"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1565
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1572
 msgid "Invalid field type"
 msgstr ""
 
-#: src/Admin/Vehicle/Settings/VehicleSettings.php:1595
+#: src/Admin/Vehicle/Settings/VehicleSettings.php:1602
 msgid "Settings reset to defaults."
 msgstr ""
 
@@ -15767,7 +15774,7 @@ msgid "Add a vehicle first to start receiving booking requests."
 msgstr ""
 
 #: templates/account/partials/vendor-bookings.php:237
-#: src-react/admin/dashboard/components/StatsCards.jsx:16
+#: src-react/admin/dashboard/components/StatsCards.jsx:28
 msgid "Total Revenue"
 msgstr ""
 
@@ -17883,7 +17890,7 @@ msgid "of"
 msgstr ""
 
 #: src-react/admin/customers/components/Pagination.jsx:22
-#: src-react/admin/dashboard/components/RecentBookings.jsx:101
+#: src-react/admin/dashboard/components/RecentBookings.jsx:111
 #: src-react/admin/dashboard/components/TransferWidget.jsx:93
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:84
 msgid "Next →"
@@ -17915,6 +17922,18 @@ msgstr ""
 
 #: src-react/admin/customers/CustomersPage.jsx:72
 msgid "Bulk delete failed."
+msgstr ""
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:6
+msgid "Pending payment"
+msgstr ""
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:7
+msgid "Deposit (held)"
+msgstr ""
+
+#: src-react/admin/dashboard/components/PaymentsSummary.jsx:11
+msgid "Payments"
 msgstr ""
 
 #: src-react/admin/dashboard/components/PendingPayments.jsx:8
@@ -17962,10 +17981,11 @@ msgid "Failed to load."
 msgstr ""
 
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
+#: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
 msgid "No bookings yet."
 msgstr ""
 
-#: src-react/admin/dashboard/components/RecentBookings.jsx:93
+#: src-react/admin/dashboard/components/RecentBookings.jsx:103
 #: src-react/admin/dashboard/components/TransferWidget.jsx:85
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:77
 msgid "← Prev"
@@ -17983,17 +18003,23 @@ msgstr ""
 msgid "This week:"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:12
-#: src-react/admin/dashboard/components/StatsCards.jsx:18
+#: src-react/admin/dashboard/components/StatsCards.jsx:10
+#: src-react/admin/dashboard/components/StatsCards.jsx:11
+#: src-react/admin/dashboard/components/StatsCards.jsx:24
+#: src-react/admin/dashboard/components/StatsCards.jsx:31
 msgid "this month"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:22
+#: src-react/admin/dashboard/components/StatsCards.jsx:35
 msgid "Active Vehicles"
 msgstr ""
 
-#: src-react/admin/dashboard/components/StatsCards.jsx:30
+#: src-react/admin/dashboard/components/StatsCards.jsx:45
 msgid "new this month"
+msgstr ""
+
+#: src-react/admin/dashboard/components/StatusBreakdown.jsx:7
+msgid "Booking Statuses"
 msgstr ""
 
 #: src-react/admin/dashboard/components/TransferWidget.jsx:27
@@ -18010,6 +18036,26 @@ msgstr ""
 
 #: src-react/admin/dashboard/components/UpcomingOperations.jsx:35
 msgid "No upcoming operations in the next 7 days."
+msgstr ""
+
+#: src-react/admin/dashboard/DashboardPage.jsx:41
+msgid "MHM Rentiva · Overview"
+msgstr ""
+
+#: src-react/admin/dashboard/DashboardPage.jsx:45
+msgid "Date range"
+msgstr ""
+
+#: src-react/admin/dashboard/DashboardPage.jsx:46
+msgid "Last 30 days"
+msgstr ""
+
+#: src-react/admin/dashboard/DashboardPage.jsx:49
+msgid "View reports"
+msgstr ""
+
+#: src-react/admin/dashboard/DashboardPage.jsx:89
+msgid "Built with WordPress."
 msgstr ""
 
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:8
