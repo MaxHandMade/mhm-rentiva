@@ -193,6 +193,7 @@ class Icons {
             'stroke-linecap'  => true,
             'stroke-linejoin' => true,
             'class'           => true,
+            'style'           => true,
         ];
 
         return [
@@ -202,6 +203,7 @@ class Icons {
                 'xmlns'       => true,
                 'width'       => true,
                 'height'      => true,
+                'overflow'    => true,
                 'aria-hidden' => true,
                 'focusable'   => true,
                 'role'        => true,
@@ -309,10 +311,36 @@ class Icons {
     }
 
     /**
+     * Escape generated SVG markup with wp_kses() and send it to the page.
+     *
+     * The escaping happens here, right next to the echo, so it is the wp_kses() call that
+     * output flows through -- callers invoke this void method instead of echoing a returned
+     * string. One adjustment over a bare wp_kses(): that function runs every `style` value
+     * through safecss_filter_attr(), whose default allowlist covers width/height (how the
+     * icons are sized) but not `fill`, which the filled star sets inline. Permitting `fill`
+     * for the duration of this one call keeps the star filled without loosening the global
+     * CSS policy for the rest of the page.
+     *
+     * @param string                            $html    Generated icon/SVG markup.
+     * @param array<string,array<string,bool>>  $allowed Allowlist from allowed_svg()/allowed_svg_wrapper().
+     */
+    public static function echo_svg(string $html, array $allowed): void
+    {
+        $allow_fill = static function (array $props): array {
+            $props[] = 'fill';
+            return $props;
+        };
+
+        add_filter('safe_style_css', $allow_fill);
+        echo wp_kses($html, $allowed);
+        remove_filter('safe_style_css', $allow_fill);
+    }
+
+    /**
      * Render and output SVG directly
      */
     public static function render(string $icon_name, array $args = []): void
     {
-        echo wp_kses(self::get($icon_name, $args), self::allowed_svg());
+        self::echo_svg(self::get($icon_name, $args), self::allowed_svg());
     }
 }

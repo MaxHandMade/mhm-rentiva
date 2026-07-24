@@ -159,7 +159,7 @@ if (! $is_available) {
                                                                                 ">
                     <span class="mhm-stars">
                         <?php
-                        echo wp_kses( (string) $vehicle['rating']['stars'], \MHMRentiva\Helpers\Icons::allowed_svg_wrapper());
+                        \MHMRentiva\Helpers\Icons::echo_svg( (string) $vehicle['rating']['stars'], \MHMRentiva\Helpers\Icons::allowed_svg_wrapper());
                         ?>
                     </span>
                     <span class="mhm-rating-count">(<?php echo intval($vehicle['rating']['count']); ?>)</span>
