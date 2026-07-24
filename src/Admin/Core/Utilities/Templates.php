@@ -15,6 +15,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Templates {
 
+	/**
+	 * Run a shortcode and send its rendered markup to the page.
+	 *
+	 * This is the plugin's single point where shortcode output reaches the browser, and
+	 * the only place where output is echoed without an escaping function around it. That
+	 * is deliberate and unavoidable: do_shortcode() returns fully assembled HTML produced
+	 * by the shortcode's own render path, where every dynamic value is already escaped at
+	 * its own output site (esc_html/esc_attr/esc_url, or wp_kses() with the allowlist in
+	 * Icons::allowed_svg() for generated SVG). Escaping the assembled document fragment a
+	 * second time here would encode the tags and print raw markup to the visitor instead
+	 * of rendering it -- and wp_kses() cannot be used either, because these shortcodes
+	 * legitimately emit form controls and inline SVG that a post-level allowlist strips.
+	 *
+	 * Routing every caller through this one method keeps that trade-off in a single
+	 * auditable place instead of scattering it across widget and template files.
+	 *
+	 * @param string $shortcode Full shortcode string, e.g. '[rentiva_vehicles_list columns="3"]'.
+	 */
+	public static function output_shortcode( string $shortcode ): void {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- See docblock: do_shortcode() returns assembled HTML whose dynamic values are each escaped at their own output site; re-escaping here would print markup as text.
+		echo do_shortcode( $shortcode );
+	}
+
 	// Find template and include it. If $return=true, output is buffered and returns string.
 	public static function render( string $relative, array $vars = array(), bool $return = false ) {
 		$file = self::locate( $relative );

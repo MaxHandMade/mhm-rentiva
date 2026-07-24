@@ -303,19 +303,19 @@ if (! $user_display_name) {
 					<?php if ($context === 'vendor') : ?>
 						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-bookings.php'; ?>
 					<?php else : ?>
-						<?php echo do_shortcode( (string) ( $dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]' )); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+						<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]' ) ); ?>
 					<?php endif; ?>
 				</div>
 			<?php elseif ($active_tab === 'favorites') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php
-                    echo do_shortcode( (string) ( $dashboard['favorites_tab_shortcode'] ?? '[rentiva_my_favorites]' )); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                    \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['favorites_tab_shortcode'] ?? '[rentiva_my_favorites]' ) );
 					?>
 				</div>
 			<?php elseif ($active_tab === 'messages') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php
-                    echo do_shortcode( (string) ( $dashboard['messages_tab_shortcode'] ?? '[rentiva_messages hide_nav="1"]' )); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                    \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['messages_tab_shortcode'] ?? '[rentiva_messages hide_nav="1"]' ) );
 					?>
 				</div>
 			<?php elseif ($active_tab === 'listings') : ?>
@@ -344,7 +344,10 @@ if (! $user_display_name) {
 			// default is the empty string, i.e. no panel at all.
 			$vendor_panel_html = (string) apply_filters('mhm_rentiva_account_vendor_panel', '', $context);
 			if ('' !== $vendor_panel_html) {
-				echo $vendor_panel_html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Filter output is trusted add-on-rendered markup, escaped at its source.
+				// Escape at the point of output, even though the markup comes from a trusted
+				// add-on: the allowlist keeps post-level HTML plus the form controls a vendor
+				// panel needs, and drops <script>/on* handlers.
+				echo wp_kses($vendor_panel_html, \MHMRentiva\Helpers\Icons::allowed_panel_html());
 			}
 			?>
 		</div>

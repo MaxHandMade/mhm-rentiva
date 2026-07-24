@@ -89,12 +89,15 @@ final class Menu {
 			'edit.php?post_type=vehicle_addon'
 		);
 
-		// 6. Customers
+		// 6. Customers — gated on `edit_users`, the capability that matches the data
+		// this screen shows (customer PII plus booking/spend history), rather than the
+		// generic manage_options. Same capability as the /customers REST routes that
+		// feed it, so the menu, the page and the API agree.
 		add_submenu_page(
 			'mhm-rentiva',
 			__('Customers', 'mhm-rentiva'),
 			__('Customers', 'mhm-rentiva'),
-			'manage_options',
+			'edit_users',
 			'mhm-rentiva-customers',
 			array( new \MHMRentiva\Admin\Customers\CustomersPage(), 'render' )
 		);

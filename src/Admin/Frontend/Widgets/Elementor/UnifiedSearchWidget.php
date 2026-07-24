@@ -213,14 +213,10 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		// Prepare shortcode attributes
 		$atts = $this->prepare_shortcode_attributes( $settings );
 
-		// Render shortcode output
-		$shortcode_output = $this->render_shortcode( 'rentiva_unified_search', $atts );
-
 		// Output widget wrapper. The wrapper used to carry an `rv-style--{glass|solid}`
 		// class from the removed Design Style control; no stylesheet ever matched it.
 		echo '<div class="elementor-widget-rv-unified-search">';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $shortcode_output;
+		$this->output_shortcode( 'rentiva_unified_search', $atts );
 		echo '</div>';
 	}
 }

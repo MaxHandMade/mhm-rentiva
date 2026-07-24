@@ -506,10 +506,10 @@ final class BookingColumns {
 		echo '  <option value="">' . esc_html__( 'All statuses', 'mhm-rentiva' ) . '</option>';
 
 		foreach ( Status::allowed() as $status ) {
-			$label    = Status::get_label( $status );
-			$selected = selected( $current, $status, false );
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo '  <option value="' . esc_attr( $status ) . '" ' . $selected . '>' . esc_html( $label ) . '</option>';
+			$label = Status::get_label( $status );
+			echo '  <option value="' . esc_attr( $status ) . '"';
+			selected( $current, $status );
+			echo '>' . esc_html( $label ) . '</option>';
 		}
 
 		echo '</select>';
@@ -1154,30 +1154,31 @@ final class BookingColumns {
 								$all_bookings = $booking_data['bookings'] ?? array();
 
 								// Data attributes for popup - include all bookings as JSON
-								$data_attrs = '';
+								$data_attrs = array();
 								if ( ! empty( $all_bookings ) ) {
-									// Add first booking for backward compatibility
+									// Add first booking for backward compatibility. Values are passed raw
+									// and escaped by Html::echo_data_attributes() as each is written out.
 									$first_booking = $all_bookings[0];
-									$data_attrs    = sprintf(
-										'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-vehicle-title="%s" data-vehicle-plate="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s" data-bookings="%s"',
-										esc_attr( $first_booking['booking_id'] ?? '' ),
-										esc_attr( $first_booking['customer_name'] ?? '' ),
-										esc_attr( $first_booking['customer_email'] ?? '' ),
-										esc_attr( $first_booking['customer_phone'] ?? '' ),
-										esc_attr( $first_booking['vehicle_title'] ?? '' ),
-										esc_attr( $first_booking['vehicle_plate'] ?? '' ),
-										esc_attr( $first_booking['total_price'] ?? '' ),
-										esc_attr( $first_booking['status'] ?? '' ),
-										esc_attr( \MHMRentiva\Admin\Booking\Core\Status::get_label( $first_booking['status'] ?? 'pending' ) ),
-										esc_attr( $first_booking['start_date'] ?? '' ),
-										esc_attr( $first_booking['end_date'] ?? '' ),
-										esc_attr( $first_booking['created_date'] ?? '' ),
-										esc_attr( wp_json_encode( $all_bookings ) )
+									$data_attrs    = array(
+										'booking-id'     => $first_booking['booking_id'] ?? '',
+										'customer-name'  => $first_booking['customer_name'] ?? '',
+										'customer-email' => $first_booking['customer_email'] ?? '',
+										'customer-phone' => $first_booking['customer_phone'] ?? '',
+										'vehicle-title'  => $first_booking['vehicle_title'] ?? '',
+										'vehicle-plate'  => $first_booking['vehicle_plate'] ?? '',
+										'total-price'    => $first_booking['total_price'] ?? '',
+										'status'         => $first_booking['status'] ?? '',
+										'status-label'   => \MHMRentiva\Admin\Booking\Core\Status::get_label( $first_booking['status'] ?? 'pending' ),
+										'start-date'     => $first_booking['start_date'] ?? '',
+										'end-date'       => $first_booking['end_date'] ?? '',
+										'created-date'   => $first_booking['created_date'] ?? '',
+										'bookings'       => wp_json_encode( $all_bookings ),
 									);
 								}
 
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_attrs is already escaped via esc_attr in builder.
-								echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" style="grid-column: ' . esc_attr( $grid_column ) . ';" title="' . esc_attr( $title ) . '" ' . $data_attrs . ' data-booking-popup>';
+								echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" style="grid-column: ' . esc_attr( $grid_column ) . ';" title="' . esc_attr( $title ) . '"';
+								\MHMRentiva\Helpers\Html::echo_data_attributes( $data_attrs );
+								echo ' data-booking-popup>';
 								echo '<span class="day-name">' . esc_html( $day_name ) . '</span>';
 								echo '<span class="day-number">' . esc_html( $day ) . '</span>';
 								echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';
@@ -1200,30 +1201,31 @@ final class BookingColumns {
 								$all_bookings = $booking_data['bookings'] ?? array();
 
 								// Data attributes for popup - include all bookings as JSON
-								$data_attrs = '';
+								$data_attrs = array();
 								if ( ! empty( $all_bookings ) ) {
-									// Add first booking for backward compatibility
+									// Add first booking for backward compatibility. Values are passed raw
+									// and escaped by Html::echo_data_attributes() as each is written out.
 									$first_booking = $all_bookings[0];
-									$data_attrs    = sprintf(
-										'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-vehicle-title="%s" data-vehicle-plate="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-created-date="%s" data-bookings="%s"',
-										esc_attr( $first_booking['booking_id'] ?? '' ),
-										esc_attr( $first_booking['customer_name'] ?? '' ),
-										esc_attr( $first_booking['customer_email'] ?? '' ),
-										esc_attr( $first_booking['customer_phone'] ?? '' ),
-										esc_attr( $first_booking['vehicle_title'] ?? '' ),
-										esc_attr( $first_booking['vehicle_plate'] ?? '' ),
-										esc_attr( $first_booking['total_price'] ?? '' ),
-										esc_attr( $first_booking['status'] ?? '' ),
-										esc_attr( \MHMRentiva\Admin\Booking\Core\Status::get_label( $first_booking['status'] ?? 'pending' ) ),
-										esc_attr( $first_booking['start_date'] ?? '' ),
-										esc_attr( $first_booking['end_date'] ?? '' ),
-										esc_attr( $first_booking['created_date'] ?? '' ),
-										esc_attr( wp_json_encode( $all_bookings ) )
+									$data_attrs    = array(
+										'booking-id'     => $first_booking['booking_id'] ?? '',
+										'customer-name'  => $first_booking['customer_name'] ?? '',
+										'customer-email' => $first_booking['customer_email'] ?? '',
+										'customer-phone' => $first_booking['customer_phone'] ?? '',
+										'vehicle-title'  => $first_booking['vehicle_title'] ?? '',
+										'vehicle-plate'  => $first_booking['vehicle_plate'] ?? '',
+										'total-price'    => $first_booking['total_price'] ?? '',
+										'status'         => $first_booking['status'] ?? '',
+										'status-label'   => \MHMRentiva\Admin\Booking\Core\Status::get_label( $first_booking['status'] ?? 'pending' ),
+										'start-date'     => $first_booking['start_date'] ?? '',
+										'end-date'       => $first_booking['end_date'] ?? '',
+										'created-date'   => $first_booking['created_date'] ?? '',
+										'bookings'       => wp_json_encode( $all_bookings ),
 									);
 								}
 
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- $data_attrs is already escaped via esc_attr in builder.
-								echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" style="grid-column: ' . esc_attr( $grid_column ) . ';" title="' . esc_attr( $title ) . '" ' . $data_attrs . ' data-booking-popup>';
+								echo '<div class="' . esc_attr( implode( ' ', $classes ) ) . '" style="grid-column: ' . esc_attr( $grid_column ) . ';" title="' . esc_attr( $title ) . '"';
+								\MHMRentiva\Helpers\Html::echo_data_attributes( $data_attrs );
+								echo ' data-booking-popup>';
 								echo '<span class="day-name">' . esc_html( $day_name ) . '</span>';
 								echo '<span class="day-number">' . esc_html( $day ) . '</span>';
 								echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';

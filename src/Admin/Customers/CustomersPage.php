@@ -59,7 +59,10 @@ final class CustomersPage {
 	 */
 	public function render(): void
 	{
-		if (! current_user_can('manage_options')) {
+		// Matches the submenu registration and the /customers REST routes: this screen
+		// renders customer PII and spend history, so it is gated on `edit_users` rather
+		// than the generic manage_options.
+		if (! current_user_can('edit_users')) {
 			return;
 		}
 

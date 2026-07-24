@@ -17,7 +17,10 @@ final class CustomerExporter {
 			wp_die( esc_html__( 'Invalid security token.', 'mhm-rentiva' ), 403 );
 		}
 
-		if (! current_user_can( 'manage_options' )) {
+		// Exports customer PII (name, email, phone, address) to CSV, so it is gated on
+		// `edit_users` — the capability matching the data — like the Customers screen
+		// and the /customers REST routes.
+		if (! current_user_can( 'edit_users' )) {
 			wp_die( esc_html__( 'Unauthorized.', 'mhm-rentiva' ), 403 );
 		}
 

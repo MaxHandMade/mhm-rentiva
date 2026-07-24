@@ -97,7 +97,7 @@ class MetricRegistryTest extends WP_UnitTestCase
         $this->assertArrayHasKey('test_duplicate_metric', MetricRegistry::all());
 
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Metric handler "test_duplicate_metric" is already registered.');
+        $this->expectExceptionMessage('Metric handler test_duplicate_metric is already registered.');
 
         MetricRegistry::register('test_duplicate_metric', $fakeClass);
     }

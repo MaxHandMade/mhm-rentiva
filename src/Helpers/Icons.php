@@ -177,11 +177,142 @@ class Icons {
     }
 
     /**
+     * Allowlist describing the inline SVG this plugin renders, for wp_kses().
+     *
+     * Use with wp_kses() wherever generated SVG markup is echoed, so output is escaped
+     * (script/event-handler attributes are stripped) without flattening the icon.
+     *
+     * @return array<string,array<string,bool>>
+     */
+    public static function allowed_svg(): array
+    {
+        $shape = [
+            'fill'            => true,
+            'stroke'          => true,
+            'stroke-width'    => true,
+            'stroke-linecap'  => true,
+            'stroke-linejoin' => true,
+            'class'           => true,
+        ];
+
+        return [
+            'svg'      => $shape + [
+                'viewBox'     => true,
+                'viewbox'     => true,
+                'xmlns'       => true,
+                'width'       => true,
+                'height'      => true,
+                'aria-hidden' => true,
+                'focusable'   => true,
+                'role'        => true,
+            ],
+            'g'        => $shape,
+            'path'     => $shape + [ 'd' => true ],
+            'circle'   => $shape + [
+				'cx' => true,
+				'cy' => true,
+				'r'  => true,
+			],
+            'rect'     => $shape + [
+				'x'      => true,
+				'y'      => true,
+				'width'  => true,
+				'height' => true,
+				'rx'     => true,
+				'ry'     => true,
+			],
+            'line'     => $shape + [
+				'x1' => true,
+				'y1' => true,
+				'x2' => true,
+				'y2' => true,
+			],
+            'polyline' => $shape + [ 'points' => true ],
+            'polygon'  => $shape + [ 'points' => true ],
+        ];
+    }
+
+    /**
+     * Allowlist of allowed_svg() plus the <span> wrapper some markup uses (e.g. rating stars,
+     * which emit `<span class="rv-star filled"><svg>…</svg></span>` per star).
+     *
+     * @return array<string,array<string,bool>>
+     */
+    public static function allowed_svg_wrapper(): array
+    {
+        return [ 'span' => [ 'class' => true ] ] + self::allowed_svg();
+    }
+
+    /**
+     * Allowlist for HTML returned by an extension-point filter (e.g. an add-on's
+     * account panel): post-level markup plus the form controls such a panel needs.
+     * Escapes the output (drops <script>, on* handlers, etc.) while keeping it functional.
+     *
+     * @return array<string,array<string,bool>>
+     */
+    public static function allowed_panel_html(): array
+    {
+        $allowed = wp_kses_allowed_html('post');
+
+        $common = [
+			'class'  => true,
+			'id'     => true,
+			'style'  => true,
+			'name'   => true,
+			'title'  => true,
+			'data-*' => true,
+		];
+
+        $allowed['form']     = $common + [
+			'action'  => true,
+			'method'  => true,
+			'enctype' => true,
+		];
+        $allowed['input']    = $common + [
+			'type'        => true,
+			'value'       => true,
+			'placeholder' => true,
+			'checked'     => true,
+			'disabled'    => true,
+			'readonly'    => true,
+			'required'    => true,
+			'min'         => true,
+			'max'         => true,
+			'step'        => true,
+		];
+        $allowed['select']   = $common + [
+			'multiple' => true,
+			'disabled' => true,
+			'required' => true,
+		];
+        $allowed['option']   = $common + [
+			'value'    => true,
+			'selected' => true,
+		];
+        $allowed['textarea'] = $common + [
+			'rows'        => true,
+			'cols'        => true,
+			'placeholder' => true,
+			'disabled'    => true,
+			'readonly'    => true,
+		];
+        $allowed['button']   = $common + [
+			'type'     => true,
+			'value'    => true,
+			'disabled' => true,
+		];
+        $allowed['label']    = $common + [ 'for' => true ];
+        $allowed['svg']      = self::allowed_svg()['svg'];
+        $allowed['path']     = self::allowed_svg()['path'];
+
+        return $allowed;
+    }
+
+    /**
      * Render and output SVG directly
      */
     public static function render(string $icon_name, array $args = []): void
     {
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- self::get() returns internal hardcoded SVG markup and escapes dynamic attributes.
-        echo self::get($icon_name, $args);
+        echo wp_kses(self::get($icon_name, $args), self::allowed_svg());
     }
 }

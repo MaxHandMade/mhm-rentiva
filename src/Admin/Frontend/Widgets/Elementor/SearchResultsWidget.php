@@ -214,8 +214,7 @@ class SearchResultsWidget extends ElementorWidgetBase {
 	protected function render(): void {
 		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
 		echo '<div class="elementor-widget-rv-search-results">';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Shortcode output contains HTML.
-		echo $this->render_shortcode( 'rentiva_search_results', $atts );
+		$this->output_shortcode( 'rentiva_search_results', $atts );
 		echo '</div>';
 	}
 }

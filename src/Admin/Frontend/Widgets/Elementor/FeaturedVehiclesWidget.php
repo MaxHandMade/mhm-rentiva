@@ -240,8 +240,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 
 	protected function render(): void {
 		$atts = $this->prepare_shortcode_attributes( $this->get_settings_for_display() );
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Shortcode output contains HTML.
-		echo $this->render_shortcode( 'rentiva_featured_vehicles', $atts );
+		$this->output_shortcode( 'rentiva_featured_vehicles', $atts );
 	}
 
 	private static function include_template_with_vars( string $template_path, array $template_data ): void {

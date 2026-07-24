@@ -23,11 +23,13 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_list' ),
-				// Read-only listing of customer/user records (name, email, phone,
-				// address, booking stats) — no write, so gated on the WP capability
-				// that governs browsing the Users list table, not manage_options
-				// (WP.org T4 #7).
-				'permission_callback' => fn() => current_user_can( 'list_users' ),
+				// Returns private customer PII (name, email, phone, address) plus booking
+				// and total-spend data. Gated on `edit_users`: a capability (not a role),
+				// and strong enough for the data class. History: T4 asked us to move off
+				// the blanket `manage_options`, so this was `list_users`; T6 then flagged
+				// `list_users` as too weak for PII, so it is now `edit_users` — which
+				// satisfies both (capability-based, and scoped to the data returned).
+				'permission_callback' => fn() => current_user_can( 'edit_users' ),
 				'args'                => array(
 					'page'     => array(
 						'type'    => 'integer',
@@ -65,13 +67,9 @@ final class CustomersRestController {
 			array(
 				'methods'             => \WP_REST_Server::READABLE,
 				'callback'            => array( self::class, 'get_detail' ),
-				// Same read-only data class as the list route above — no editable
-				// fields are returned or accepted, so the same capability applies
-				// (WP.org T4 #7). Note: the response includes phone/address, PII
-				// beyond a bare name+email list, which could arguably warrant
-				// edit_users instead; list_users was chosen because this route is
-				// still read-only and returns the exact same fields as /customers.
-				'permission_callback' => fn() => current_user_can( 'list_users' ),
+				// Same private-PII data class as the list route above (name, email, phone,
+				// address, bookings, spend), so the same capability applies: `edit_users`.
+				'permission_callback' => fn() => current_user_can( 'edit_users' ),
 				'args'                => array(
 					'id' => array(
 						'type'    => 'integer',

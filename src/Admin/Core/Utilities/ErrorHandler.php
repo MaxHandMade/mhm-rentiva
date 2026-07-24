@@ -86,7 +86,11 @@ final class ErrorHandler {
 	 */
 	public static function database_error( string $message, ?\Exception $previous = null ): void {
 		self::log_error( $message, self::TYPE_DATABASE, self::LEVEL_HIGH );
-		throw new \Exception( esc_html( $message ), 0, $previous ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		// The message -- the only argument that can reach a human -- is escaped. The sniff
+		// also inspects the third argument, but that is the previous Exception object; there
+		// is no string in it to escape and it cannot be passed any other way.
+		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the flagged argument is the previous-exception object.
+		throw new \Exception( esc_html( $message ), 0, $previous );
 	}
 
 	/**
@@ -102,7 +106,11 @@ final class ErrorHandler {
 	 */
 	public static function system_error( string $message, ?\Exception $previous = null ): void {
 		self::log_error( $message, self::TYPE_SYSTEM, self::LEVEL_CRITICAL );
-		throw new \Exception( esc_html( $message ), 0, $previous ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		// The message -- the only argument that can reach a human -- is escaped. The sniff
+		// also inspects the third argument, but that is the previous Exception object; there
+		// is no string in it to escape and it cannot be passed any other way.
+		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the flagged argument is the previous-exception object.
+		throw new \Exception( esc_html( $message ), 0, $previous );
 	}
 
 	/**

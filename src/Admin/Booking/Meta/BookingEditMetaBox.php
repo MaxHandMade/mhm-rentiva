@@ -368,13 +368,12 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			}
 		}
 
-		// If we have our form fields, allow save even without nonce (for compatibility)
-		// This ensures special_notes and other fields are always saved
-		$has_our_fields = isset( $_POST['mhm_edit_special_notes'] ) ||
-			isset( $_POST['mhm_edit_pickup_date'] ) ||
-			isset( $_POST['mhm_edit_vehicle_id'] );
-
-		if ( ! $nonce_valid && ! $has_our_fields ) {
+		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
+		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
+		// carrying those field names could persist booking edits on behalf of a logged-in editor
+		// (CSRF). The metabox always renders wp_nonce_field() (see render()), and the classic
+		// editor additionally sends _wpnonce, so every legitimate save has one of the two.
+		if ( ! $nonce_valid ) {
 			return;
 		}
 

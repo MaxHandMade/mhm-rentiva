@@ -65,7 +65,6 @@ class AvailabilityCalendarWidget extends ElementorWidgetBase {
 
 	protected function render(): void {
 		$atts = $this->prepare_shortcode_attributes( (array) $this->get_settings_for_display() );
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $this->render_shortcode( 'rentiva_availability_calendar', $atts );
+		$this->output_shortcode( 'rentiva_availability_calendar', $atts );
 	}
 }

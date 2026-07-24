@@ -196,16 +196,14 @@ final class WooCommerceIntegration {
 	 * Triggered by woocommerce_account_dashboard action.
 	 */
 	public static function render_dashboard(): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- AccountRenderer output is trusted internal template with escaped dynamic values.
-		echo AccountRenderer::render_dashboard( array( 'hide_nav' => true ) );
+		AccountRenderer::output_dashboard( array( 'hide_nav' => true ) );
 	}
 
 	/**
 	 * Bookings endpoint content
 	 */
 	public static function render_bookings(): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- AccountRenderer output is trusted internal template with escaped dynamic values.
-		echo AccountRenderer::render_bookings( array( 'hide_nav' => true ) );
+		AccountRenderer::output_bookings( array( 'hide_nav' => true ) );
 	}
 
 	/**
@@ -238,8 +236,7 @@ final class WooCommerceIntegration {
 			}
 		}
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- AccountRenderer output is trusted internal template with escaped dynamic values.
-		echo AccountRenderer::render_booking_detail( $id, true );
+		AccountRenderer::output_booking_detail( $id, true );
 	}
 
 	/**
@@ -248,16 +245,14 @@ final class WooCommerceIntegration {
 	public static function render_favorites(): void {
 		// Vehicle cards contain inline SVG icons (favorite/compare/rating/features).
 		// wp_kses_post() strips SVG tags and breaks parity with vehicle grid cards.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is rendered from trusted internal templates with escaped dynamic values.
-		echo AccountRenderer::render_favorites( array( 'hide_nav' => true ) );
+		AccountRenderer::output_favorites( array( 'hide_nav' => true ) );
 	}
 
 	/**
 	 * Payment History endpoint content
 	 */
 	public static function render_payment_history(): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- AccountRenderer output is trusted internal template with escaped dynamic values.
-		echo AccountRenderer::render_payment_history( array( 'hide_nav' => true ) );
+		AccountRenderer::output_payment_history( array( 'hide_nav' => true ) );
 	}
 
 	/**
@@ -289,8 +284,7 @@ final class WooCommerceIntegration {
 
 		// Render the shortcode — it handles all states internally:
 		// already_applied → pending notice, already vendor → dashboard link, else → form
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo do_shortcode( '[rentiva_vendor_apply]' );
+		\MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( '[rentiva_vendor_apply]' );
 	}
 
 	/**
@@ -299,8 +293,7 @@ final class WooCommerceIntegration {
 	public static function render_messages(): void {
 		// ⭐ Directly call AccountRenderer instead of shortcode
 		// Shortcode would redirect to WooCommerce page, causing infinite loop
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- AccountRenderer output is trusted internal template with escaped dynamic values.
-		echo AccountRenderer::render_messages( array( 'hide_nav' => true ) );
+		AccountRenderer::output_messages( array( 'hide_nav' => true ) );
 	}
 
 	/**

@@ -1077,25 +1077,26 @@ final class VehicleColumns {
 											// Get translated status label
 											$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
 
-											// Data attributes for popup
-											$data_attrs = sprintf(
-												'data-booking-id="%s" data-customer-name="%s" data-customer-email="%s" data-customer-phone="%s" data-total-price="%s" data-status="%s" data-status-label="%s" data-start-date="%s" data-end-date="%s" data-start-time="%s" data-end-time="%s" data-created-date="%s"',
-												esc_attr($booking_data['booking_id']),
-												esc_attr($booking_data['customer_name']),
-												esc_attr($booking_data['customer_email']),
-												esc_attr($booking_data['customer_phone']),
-												esc_attr($booking_data['total_price']),
-												esc_attr($booking_data['status']),
-												esc_attr($status_label),
-												esc_attr($booking_data['start_date']),
-												esc_attr($booking_data['end_date']),
-												esc_attr($booking_data['start_time'] ?? ''),
-												esc_attr($booking_data['end_time'] ?? ''),
-												esc_attr($booking_data['created_date'])
+											// Data attributes for popup. Values are passed raw and escaped by
+											// Html::echo_data_attributes() as each one is written out.
+											$data_attrs = array(
+												'booking-id'     => $booking_data['booking_id'],
+												'customer-name'  => $booking_data['customer_name'],
+												'customer-email' => $booking_data['customer_email'],
+												'customer-phone' => $booking_data['customer_phone'],
+												'total-price'    => $booking_data['total_price'],
+												'status'         => $booking_data['status'],
+												'status-label'   => $status_label,
+												'start-date'     => $booking_data['start_date'],
+												'end-date'       => $booking_data['end_date'],
+												'start-time'     => $booking_data['start_time'] ?? '',
+												'end-time'       => $booking_data['end_time'] ?? '',
+												'created-date'   => $booking_data['created_date'],
 											);
 
-											// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Attributes are escaped dynamically
-											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '" ' . $data_attrs . ' data-booking-popup>';
+											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '"';
+											\MHMRentiva\Helpers\Html::echo_data_attributes($data_attrs);
+											echo ' data-booking-popup>';
 										} else {
 											$title = __('Available — click to close', 'mhm-rentiva');
 											echo '<td class="' . esc_attr($class) . '" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr($title) . '">';

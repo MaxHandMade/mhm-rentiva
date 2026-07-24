@@ -1,6 +1,5 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Shortcode Template: Featured Vehicles
@@ -42,8 +41,9 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
                     <?php foreach ($vehicles as $vehicle) : ?>
                         <div class="swiper-slide">
                             <?php
-                            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
-                            echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+                            // Rendered directly to output: the partial echoes its own markup and
+                            // escapes each dynamic value at its own output site.
+                            \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                                 'vehicle' => $vehicle,
                                 'layout'  => 'grid', // Featured usually looks like grid cards
                                 'atts'    => $atts,
@@ -62,8 +62,9 @@ $is_carousel = ( $layout === 'slider' || $layout === 'carousel' )
                 <?php foreach ($vehicles as $vehicle) : ?>
                     <div class="mhm-featured-grid-item">
                         <?php
-                        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Rendered by trusted internal template with escaped dynamic attributes.
-                        echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+                        // Rendered directly to output: the partial echoes its own markup and
+                        // escapes each dynamic value at its own output site.
+                        \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
                             'vehicle' => $vehicle,
                             'layout'  => 'grid',
                             'atts'    => $atts,

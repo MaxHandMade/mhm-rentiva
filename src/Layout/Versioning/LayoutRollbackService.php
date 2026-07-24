@@ -147,8 +147,10 @@ final class LayoutRollbackService {
             if ($e instanceof Exception) {
                 throw $e;
             }
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Throwable wrapped for upstream CLI/UI handling.
-            throw new Exception(sanitize_text_field($e->getMessage()), (int) $e->getCode(), $e);
+            // The third argument is the previous Throwable, which is an object and so has
+            // nothing to escape; only the message reaches a human, and it is escaped here.
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the unescapable argument is the previous-exception object.
+            throw new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
         }
     }
 

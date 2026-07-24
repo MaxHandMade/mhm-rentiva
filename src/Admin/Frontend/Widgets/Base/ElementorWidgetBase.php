@@ -9,6 +9,7 @@ if (!defined('ABSPATH')) {
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Core\Attribute\AllowlistRegistry;
 use MHMRentiva\Core\Attribute\KeyNormalizer;
 
@@ -123,6 +124,31 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 * @return string
 	 */
 	protected function render_shortcode( string $tag, array $atts = array() ): string {
+		return do_shortcode( self::build_shortcode( $tag, $atts ) );
+	}
+
+	/**
+	 * Render a shortcode straight to the page.
+	 *
+	 * Widgets use this instead of `echo $this->render_shortcode( ... )` so that no widget
+	 * echoes an unescaped value itself. The single unavoidable unescaped echo of assembled
+	 * shortcode markup lives in Templates::output_shortcode(), documented there.
+	 *
+	 * @param string $tag  Shortcode tag.
+	 * @param array  $atts Shortcode attributes.
+	 */
+	protected function output_shortcode( string $tag, array $atts = array() ): void {
+		Templates::output_shortcode( self::build_shortcode( $tag, $atts ) );
+	}
+
+	/**
+	 * Build the shortcode string, escaping every attribute name and value.
+	 *
+	 * @param string $tag  Shortcode tag.
+	 * @param array  $atts Shortcode attributes.
+	 * @return string
+	 */
+	private static function build_shortcode( string $tag, array $atts = array() ): string {
 		$atts_string = '';
 		foreach ( $atts as $key => $value ) {
 			// Skip non-scalar settings (icon/url/globals arrays) — they can't be
@@ -132,7 +158,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			}
 			$atts_string .= sprintf( ' %s="%s"', esc_attr( $key ), esc_attr( (string) $value ) );
 		}
-		return do_shortcode( sprintf( '[%s%s]', $tag, $atts_string ) );
+
+		return sprintf( '[%s%s]', $tag, $atts_string );
 	}
 	/**
 	 * Standard Style Controls

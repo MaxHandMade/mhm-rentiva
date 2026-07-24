@@ -63,9 +63,9 @@ class EmailFormRenderer {
 
 		switch ( $type ) {
 			case 'checkbox':
-				$checked = ( $value === '1' || $value === 1 || $value === true ) ? 'checked="checked"' : '';
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				echo '<label><input type="checkbox" name="' . esc_attr( $name ) . '" value="1" ' . $checked . '> ';
+				echo '<label><input type="checkbox" name="' . esc_attr( $name ) . '" value="1" ';
+				checked( $value === '1' || $value === 1 || $value === true );
+				echo '> ';
 				echo esc_html( $label ) . '</label>';
 				break;
 
@@ -111,9 +111,9 @@ class EmailFormRenderer {
 			case 'select':
 				echo '<select id="' . esc_attr( $name ) . '" name="' . esc_attr( $name ) . '" class="regular-text">';
 				foreach ( $field['options'] as $option_value => $option_label ) {
-					$selected = ( $value === $option_value ) ? 'selected="selected"' : '';
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo '<option value="' . esc_attr( $option_value ) . '" ' . $selected . '>';
+					echo '<option value="' . esc_attr( $option_value ) . '" ';
+					selected( $value, $option_value );
+					echo '>';
 					echo esc_html( $option_label ) . '</option>';
 				}
 				echo '</select>';

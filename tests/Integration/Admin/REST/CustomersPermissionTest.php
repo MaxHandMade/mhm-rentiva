@@ -10,9 +10,18 @@ use WP_REST_Server;
 use WP_UnitTestCase;
 
 /**
- * WP.org T4 #7 — the ROUTE-level `permission_callback` must declare the WP
+ * WP.org T4 #7 / T6 — the ROUTE-level `permission_callback` must declare the WP
  * capability matching what the route actually does, never a manage_options
  * catch-all; deny must resolve to a real `false`/WP_Error.
+ *
+ * The customer routes return private PII (name, email, phone, address) plus
+ * booking and total-spend data. Two review rounds pushed the capability in
+ * opposite directions: T4 rejected the blanket `manage_options`, so the routes
+ * moved to `list_users`; T6 then rejected `list_users` as too weak for the data
+ * class. `edit_users` satisfies both — it is a capability rather than a role
+ * check, and it is scoped to the private data actually returned. These tests
+ * pin that contract from both sides: `manage_options` alone is denied, and so
+ * is `list_users` alone.
  *
  * This is the route-gate layer, independent of the B-G1d handler-body guards
  * (already covered by CustomerUserCapabilityTest.php, which this task does
@@ -46,8 +55,9 @@ final class CustomersPermissionTest extends WP_UnitTestCase
             )
         );
 
-        // Has list_users but NOT manage_options. Proves the list/detail routes
-        // accept the operation-specific capability on its own.
+        // Has list_users but NOT edit_users. Proves the list/detail routes no
+        // longer settle for the browse-the-users-table capability now that they
+        // return private PII (WP.org T6).
         remove_role( 'mhm_test_perm_list_users' );
         add_role(
             'mhm_test_perm_list_users',
@@ -55,6 +65,18 @@ final class CustomersPermissionTest extends WP_UnitTestCase
             array(
                 'read'       => true,
                 'list_users' => true,
+            )
+        );
+
+        // Has edit_users but NOT manage_options. Proves the list/detail routes
+        // accept the operation-specific capability on its own.
+        remove_role( 'mhm_test_perm_edit_users' );
+        add_role(
+            'mhm_test_perm_edit_users',
+            'MHM Test Perm Edit Users',
+            array(
+                'read'       => true,
+                'edit_users' => true,
             )
         );
 
@@ -75,6 +97,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     {
         remove_role( 'mhm_test_perm_options_only' );
         remove_role( 'mhm_test_perm_list_users' );
+        remove_role( 'mhm_test_perm_edit_users' );
         remove_role( 'mhm_test_perm_delete_users' );
         wp_set_current_user( 0 );
         remove_action( 'rest_api_init', array( CustomersRestController::class, 'register_routes' ) );
@@ -101,7 +124,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         );
     }
 
-    public function test_list_route_allows_list_users_capability(): void
+    public function test_list_route_denies_list_users_only_user(): void
     {
         $id = self::factory()->user->create( array( 'role' => 'mhm_test_perm_list_users' ) );
         wp_set_current_user( $id );
@@ -109,7 +132,22 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
         $response = self::$server->dispatch( $request );
 
-        $this->assertSame( 200, $response->get_status(), 'list_users alone must be sufficient for the list route.' );
+        $this->assertSame(
+            403,
+            $response->get_status(),
+            'list_users is too weak for a route returning customer PII and spend data (WP.org T6).'
+        );
+    }
+
+    public function test_list_route_allows_edit_users_capability(): void
+    {
+        $id = self::factory()->user->create( array( 'role' => 'mhm_test_perm_edit_users' ) );
+        wp_set_current_user( $id );
+
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
+        $response = self::$server->dispatch( $request );
+
+        $this->assertSame( 200, $response->get_status(), 'edit_users alone must be sufficient for the list route.' );
     }
 
     // --- GET /customers/{id} (detail) ----------------------------------------
@@ -126,10 +164,26 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         $this->assertSame( 403, $response->get_status() );
     }
 
-    public function test_detail_route_allows_list_users_capability(): void
+    public function test_detail_route_denies_list_users_only_user(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
         $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_list_users' ) );
+        wp_set_current_user( $id );
+
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );
+        $response = self::$server->dispatch( $request );
+
+        $this->assertSame(
+            403,
+            $response->get_status(),
+            'list_users is too weak for a route returning customer PII and spend data (WP.org T6).'
+        );
+    }
+
+    public function test_detail_route_allows_edit_users_capability(): void
+    {
+        $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_edit_users' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );

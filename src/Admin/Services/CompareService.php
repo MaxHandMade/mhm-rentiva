@@ -152,7 +152,7 @@ class CompareService {
 		if ( count( $list ) >= self::MAX_ITEMS ) {
 			$max_compare_items = (int) self::MAX_ITEMS;
 			/* translators: %d: maximum number of vehicles that can be compared. */
-			throw new \Exception( sprintf( esc_html__( 'You can compare up to %d vehicles.', 'mhm-rentiva' ), $max_compare_items ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is escaped.
+			throw new \Exception( esc_html( sprintf( __( 'You can compare up to %d vehicles.', 'mhm-rentiva' ), $max_compare_items ) ) );
 		}
 
 		$list[] = $vehicle_id;

@@ -147,7 +147,7 @@ if ($vehicle_id > 0) {
 								<?php foreach (array_slice($selected_vehicle['features'], 0, 4) as $feature) : ?>
 									<div class="rv-feature-item">
 										<?php
-                                        echo $feature['svg']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+                                        echo wp_kses( (string) $feature['svg'], \MHMRentiva\Helpers\Icons::allowed_svg());
 										?>
 										<span class="rv-feature-text"><?php echo esc_html($feature['text']); ?></span>
 									</div>

@@ -69,10 +69,9 @@ class AtomicImporter {
 
         // 1. Pre-Validation
         $validator = new BlueprintValidator();
-        // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message for internal import control flow.
         $validation_result = $validator->validate($manifest);
         if (is_wp_error($validation_result)) {
-            throw new Exception(sanitize_text_field( (string) $validation_result->get_error_message()));
+            throw new Exception(esc_html( (string) $validation_result->get_error_message()));
         }
 
         // 2. Hash Calculation (Task 1)
@@ -127,8 +126,10 @@ class AtomicImporter {
             if ($e instanceof Exception) {
                 throw $e;
             }
-            $exception_message = sanitize_text_field($e->getMessage());
-            throw new Exception($exception_message, (int) $e->getCode(), $e);
+            // The third argument is the previous Throwable, which is an object and so has
+            // nothing to escape; only the message reaches a human, and it is escaped here.
+            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the unescapable argument is the previous-exception object.
+            throw new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
         }
 
         return $summary;
@@ -223,7 +224,7 @@ class AtomicImporter {
                 sprintf(
                     /* translators: %d: post ID. */
                     esc_html__('Post ID %d lost during processing.', 'mhm-rentiva'),
-                    $post_id
+                    absint($post_id)
                 )
             );
         }
@@ -286,7 +287,7 @@ class AtomicImporter {
         ], true);
 
         if (is_wp_error($new_id)) {
-            throw new Exception(sanitize_text_field( (string) $new_id->get_error_message()));
+            throw new Exception(esc_html( (string) $new_id->get_error_message()));
         }
 
         $this->undo_stack[] = $new_id;

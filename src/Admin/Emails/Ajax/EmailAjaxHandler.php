@@ -76,11 +76,13 @@ final class EmailAjaxHandler {
 	 * Handle sending test email
 	 */
 	public static function handle_send_test_email(): void {
-		// Verify nonce (Support both specific template test and general connection test)
-		if (
-			! check_ajax_referer( 'mhm_rentiva_send_template_test', 'nonce', false ) &&
-			! check_ajax_referer( 'mhm_rentiva_send_test_email', 'nonce', false )
-		) {
+		// Verify nonce (either the specific template test or the general connection test).
+		// Written as an explicit positive check that must be true to proceed, so the guard
+		// fails closed when the nonce is missing entirely.
+		$nonce_valid = check_ajax_referer( 'mhm_rentiva_send_template_test', 'nonce', false )
+			|| check_ajax_referer( 'mhm_rentiva_send_test_email', 'nonce', false );
+
+		if ( ! $nonce_valid ) {
 			wp_send_json_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 		}
 

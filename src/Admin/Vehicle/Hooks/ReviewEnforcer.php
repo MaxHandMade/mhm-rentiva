@@ -68,13 +68,10 @@ class ReviewEnforcer {
 		if ( $rating < 1 || $rating > 5 ) {
 			$msg = esc_html__( 'Error: You must provide a valid rating (1-5 stars) for this vehicle.', 'mhm-rentiva' );
 			if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'PHP_SAPI' ) && PHP_SAPI === 'cli' ) ) {
-				$cli_message = esc_html( wp_strip_all_tags( $msg ) );
 				if ( class_exists( 'WP_CLI' ) ) {
-					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CLI output is plain text, pre-escaped above.
-					\WP_CLI::error( $cli_message );
+					\WP_CLI::error( esc_html( wp_strip_all_tags( $msg ) ) );
 				} else {
-					// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is pre-escaped above.
-					throw new \Exception( $cli_message );
+					throw new \Exception( esc_html( wp_strip_all_tags( $msg ) ) );
 				}
 			} else {
 				wp_die( esc_html( $msg ), esc_html__( 'Review Error', 'mhm-rentiva' ), array( 'response' => 400 ) );
@@ -111,13 +108,10 @@ class ReviewEnforcer {
 			if ( ! empty( $existing_comments ) ) {
 				$msg = esc_html__( 'Error: You have already reviewed this vehicle. Please edit your existing review instead.', 'mhm-rentiva' );
 				if ( ( defined( 'WP_CLI' ) && WP_CLI ) || ( defined( 'PHP_SAPI' ) && PHP_SAPI === 'cli' ) ) {
-					$cli_message = esc_html( wp_strip_all_tags( $msg ) );
 					if ( class_exists( 'WP_CLI' ) ) {
-						// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- CLI output is plain text, pre-escaped above.
-						\WP_CLI::error( $cli_message );
+						\WP_CLI::error( esc_html( wp_strip_all_tags( $msg ) ) );
 					} else {
-						// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception message is pre-escaped above.
-						throw new \Exception( $cli_message );
+						throw new \Exception( esc_html( wp_strip_all_tags( $msg ) ) );
 					}
 				} else {
 					wp_die( esc_html( $msg ), esc_html__( 'Duplicate Review', 'mhm-rentiva' ), array( 'response' => 409 ) );

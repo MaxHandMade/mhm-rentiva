@@ -48,6 +48,79 @@ final class AccountRenderer {
 		return Templates::render('account/dashboard', self::get_dashboard_data($atts), true);
 	}
 
+	/*
+	 * Direct-output counterparts of the render_*() methods below.
+	 *
+	 * The render_*() methods return a string because shortcodes must return their markup.
+	 * Callers that simply print the result (the WooCommerce My Account endpoints) use these
+	 * instead, so the account templates write to the output buffer themselves and escape each
+	 * dynamic value at its own output site. That leaves no assembled-HTML string to echo --
+	 * which matters here because these views embed inline SVG icons that wp_kses_post() would
+	 * strip, so escaping a returned string was never an option.
+	 */
+
+	/**
+	 * Dashboard, rendered straight to the page.
+	 */
+	public static function output_dashboard(array $atts = array()): void
+	{
+		Templates::render('account/dashboard', self::get_dashboard_data($atts));
+	}
+
+	/**
+	 * Bookings list, rendered straight to the page.
+	 */
+	public static function output_bookings(array $atts = array()): void
+	{
+		Templates::render('account/bookings', self::get_bookings_data($atts));
+	}
+
+	/**
+	 * Favorites, rendered straight to the page.
+	 */
+	public static function output_favorites(array $atts = array()): void
+	{
+		Templates::render('account/favorites', self::get_favorites_data($atts));
+	}
+
+	/**
+	 * Payment history, rendered straight to the page.
+	 */
+	public static function output_payment_history(array $atts = array()): void
+	{
+		Templates::render('account/payment-history', self::get_payment_history_data($atts));
+	}
+
+	/**
+	 * Messages, rendered straight to the page.
+	 */
+	public static function output_messages(array $atts = array()): void
+	{
+		$data_res = self::get_messages_data($atts);
+		if (isset($data_res['error'])) {
+			echo wp_kses_post($data_res['error']);
+			return;
+		}
+
+		Templates::render('account/messages', $data_res);
+	}
+
+	/**
+	 * Single booking detail, rendered straight to the page.
+	 */
+	public static function output_booking_detail(int $booking_id, bool $hide_nav = false): void
+	{
+		$data_res = self::get_booking_detail_data($booking_id, $hide_nav);
+		if (isset($data_res['error'])) {
+			echo wp_kses_post($data_res['error']);
+			return;
+		}
+
+		// Vendor sees a dedicated detail view (mirrors the vendor email).
+		$template = empty($data_res['data']['is_vendor_view']) ? 'account/booking-detail' : 'account/vendor-booking-detail';
+		Templates::render($template, $data_res);
+	}
+
 	/**
 	 * Get dashboard data
 	 */

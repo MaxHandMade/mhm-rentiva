@@ -44,7 +44,7 @@ get_header(); ?>
 
 			<!-- Section 1: All-in-One Highlights -->
 			<div class="rv-unified-details-section">
-				<?php echo do_shortcode('[rentiva_vehicle_details]'); ?>
+				<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode('[rentiva_vehicle_details]'); ?>
 			</div>
 
 		</div>

@@ -1,6 +1,5 @@
 <?php
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 /**
  * Booking Form Template
@@ -91,12 +90,13 @@ $unique_id = uniqid('rv_booking_');
 				<aside class="rv-checkout-sidebar rv-checkout-vehicle <?php echo esc_attr($has_preselected_vehicle ? '' : 'rv-hidden'); ?>" id="rv-checkout-vehicle-wrapper-<?php echo esc_attr($unique_id); ?>">
 				<?php if ($selected_vehicle && $show_vehicle_info) : ?>
 					<?php
-					// Case A: Pre-rendered Vehicle Summary (Detail Page Context)
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/selected-vehicle-summary', array(
+					// Case A: Pre-rendered Vehicle Summary (Detail Page Context).
+					// Rendered directly to output: the partial echoes its own markup and escapes
+					// each dynamic value at its own output site.
+					\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/selected-vehicle-summary', array(
 						'vehicle' => $selected_vehicle,
 						'atts'    => $atts,
-					), true);
+					));
 					?>
 				<?php else : ?>
 					<!-- Case B: JS Dynamically populated Summary (Generic Shortcode Context) -->

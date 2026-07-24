@@ -4,7 +4,6 @@ declare(strict_types=1);
 // My Favorites page template.
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
-// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped -- Dynamic HTML is rendered by internal template layer with localized escaping.
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -97,14 +96,15 @@ if (empty($navigation)) {
 							// Override is_favorite to true since this is the favorites page
 							$vehicle_data['is_favorite'] = true;
 
-							// Render standardized vehicle card as-is.
-							// Do not pass through wp_kses_post() because it strips SVG icons.
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Template output escapes dynamic values internally.
-							echo \MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
+							// Rendered directly to output: the partial echoes its own markup and
+							// escapes each dynamic value at its own output site. (Rendering to a
+							// string and running wp_kses_post() over it is not an option here --
+							// it strips the inline SVG icons the card renders.)
+							\MHMRentiva\Admin\Core\Utilities\Templates::render('partials/vehicle-card', array(
 								'vehicle' => $vehicle_data,
 								'layout'  => 'grid',
 								'atts'    => $card_atts,
-							), true);
+							));
 						endforeach;
 						?>
 					</div>

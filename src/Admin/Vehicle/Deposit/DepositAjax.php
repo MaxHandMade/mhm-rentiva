@@ -36,36 +36,10 @@ class DepositAjax {
 		add_action( 'wp_ajax_nopriv_mhm_rentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
 	}
 
-	/**
-	 * Vehicle deposit calculation AJAX handler
-	 */
-	public static function ajax_calculate_vehicle_deposit(): void {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_vehicle_deposit_calculation' ) ) {
-			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
-		}
-
-		$vehicle_id  = isset( $_POST['vehicle_id'] ) ? absint( sanitize_text_field( wp_unslash( (string) $_POST['vehicle_id'] ) ) ) : 0;
-		$rental_days = intval( wp_unslash( $_POST['rental_days'] ?? 1 ) );
-
-		if ( $vehicle_id <= 0 ) {
-			wp_send_json_error( __( 'Invalid vehicle ID', 'mhm-rentiva' ) );
-		}
-
-		if ( $rental_days <= 0 ) {
-			wp_send_json_error( __( 'Invalid rental days', 'mhm-rentiva' ) );
-		}
-
-		$result = DepositCalculator::calculate_vehicle_deposit( $vehicle_id, $rental_days );
-
-		$vehicle = get_post( $vehicle_id );
-		if ( $vehicle ) {
-			$result['vehicle_name'] = $vehicle->post_title;
-			$result['vehicle_id']   = $vehicle_id;
-		}
-
-		wp_send_json_success( $result );
-	}
+	// Removed: ajax_calculate_vehicle_deposit(). It was never registered on any wp_ajax_*
+	// hook and its nonce action ('mhm_vehicle_deposit_calculation') was referenced nowhere
+	// else in PHP or JS -- dead code. The live deposit endpoint is
+	// ajax_calculate_booking_deposit() below.
 
 	/**
 	 * Booking deposit calculation AJAX handler

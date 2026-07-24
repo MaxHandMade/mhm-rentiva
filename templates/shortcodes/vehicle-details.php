@@ -257,7 +257,7 @@ $allowed_svg_tags = array(
 				<section class="rv-vd2-card rv-vd2-ratings-card">
 					<h3 class="rv-vd2-section-title"><?php esc_html_e('Ratings & Reviews', 'mhm-rentiva'); ?></h3>
 					<div class="rv-integrated-reviews-section">
-						<?php echo do_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . intval($vehicle_id) . '"]'); ?>
+						<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode('[rentiva_vehicle_rating_form vehicle_id="' . intval($vehicle_id) . '"]'); ?>
 					</div>
 				</section>
 			<?php endif; ?>
@@ -373,6 +373,6 @@ $allowed_svg_tags = array(
 				: '[rentiva_featured_vehicles title="" layout="grid" limit="3" columns="3" category="' . esc_attr($safe_category_slug) . '" show_features="1" show_favorite_button="1" show_compare_button="1" show_booking_button="1"]';
 		}
 		?>
-		<?php echo do_shortcode($related_shortcode); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+		<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode($related_shortcode); ?>
 	</section>
 </div>

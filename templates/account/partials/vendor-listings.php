@@ -187,7 +187,7 @@ $vehicle_count = count( $vehicles );
 				<button id="mhm-close-add-vehicle" class="mhm-vendor-listings-page__add-panel-close" aria-label="<?php esc_attr_e( 'Close', 'mhm-rentiva' ); ?>">&times;</button>
 			</div>
 			<div class="mhm-vendor-listings-page__add-panel-body">
-				<?php echo do_shortcode( '[rentiva_vehicle_submit]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+				<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( '[rentiva_vehicle_submit]' ); ?>
 			</div>
 		</div>
 	</div>

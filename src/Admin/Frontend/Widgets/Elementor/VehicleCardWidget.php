@@ -494,13 +494,9 @@ class VehicleCardWidget extends ElementorWidgetBase {
 			$atts['price_format'] = $settings['price_format'];
 		}
 
-		// Render shortcode
-		$shortcode_output = $this->render_shortcode( 'rentiva_vehicles_list', $atts );
-
 		// Widget wrapper
 		echo '<div class="elementor-widget-rv-vehicle-card">';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $shortcode_output;
+		$this->output_shortcode( 'rentiva_vehicles_list', $atts );
 		echo '</div>';
 	}
 
