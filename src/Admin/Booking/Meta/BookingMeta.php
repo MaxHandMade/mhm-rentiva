@@ -12,6 +12,7 @@ if (! defined('ABSPATH')) {
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 
 
@@ -35,66 +36,6 @@ final class BookingMeta extends AbstractMetaBox {
 			return '';
 		}
 		return sanitize_text_field(wp_unslash( (string) $value));
-	}
-
-	/**
-	 * Read sanitized text from POST.
-	 */
-	private static function post_text(string $key, string $fallback = ''): string
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
-		if (! isset($_POST[ $key ])) {
-			return $fallback;
-		}
-
-		$value = sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-		return $value;
-	}
-
-	/**
-	 * Read sanitized textarea content from POST.
-	 */
-	private static function post_textarea(string $key, string $fallback = ''): string
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
-		if (! isset($_POST[ $key ])) {
-			return $fallback;
-		}
-
-		$value = sanitize_textarea_field(wp_unslash( (string) $_POST[ $key ]));
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-		return $value;
-	}
-
-	/**
-	 * Read absint from POST.
-	 */
-	private static function post_int(string $key, int $fallback = 0): int
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce is verified in the caller handlers.
-		if (! isset($_POST[ $key ])) {
-			return $fallback;
-		}
-
-		$value = absint(wp_unslash( (string) $_POST[ $key ]));
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
-		return $value;
-	}
-
-	/**
-	 * Read sanitized text from GET.
-	 */
-	private static function get_text(string $key, string $fallback = ''): string
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only query parameter usage.
-		if (! isset($_GET[ $key ])) {
-			return $fallback;
-		}
-
-		$value = sanitize_text_field(wp_unslash( (string) $_GET[ $key ]));
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
-		return $value;
 	}
 
 	/**
@@ -548,9 +489,12 @@ final class BookingMeta extends AbstractMetaBox {
 			$nonce_valid = true;
 		}
 
-		// If neither nonce is valid, but we have our form fields, allow save
-		// This handles cases where form is submitted via AJAX or other methods
-		if (! $nonce_valid && ! isset($_POST['mhm_edit_special_notes']) && ! isset($_POST['mhm_edit_pickup_date'])) {
+		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
+		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
+		// naming our fields wrote booking data on behalf of a logged-in editor (CSRF). The
+		// metabox always renders wp_nonce_field() and the classic editor additionally sends
+		// _wpnonce, so every legitimate save carries one of the two.
+		if (! $nonce_valid) {
 			return;
 		}
 
@@ -559,10 +503,12 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
+		$req = VerifiedRequest::from($_POST);
+
 		// Status update - Handle both field names from different meta boxes
-		$new_status = self::post_text('mhm_edit_status');
+		$new_status = $req->text('mhm_edit_status');
 		if ($new_status === '') {
-			$new_status = self::post_text('mhm_booking_status');
+			$new_status = $req->text('mhm_booking_status');
 		}
 		if ($new_status) {
 			$actor_user_id = get_current_user_id();
@@ -571,12 +517,12 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$pickup_date   = self::post_text('mhm_edit_pickup_date');
-		$pickup_time   = self::post_text('mhm_edit_pickup_time');
-		$dropoff_date  = self::post_text('mhm_edit_dropoff_date');
-		$dropoff_time  = self::post_text('mhm_edit_dropoff_time');
-		$guests        = max(1, self::post_int('mhm_edit_guests', 1));
-		$special_notes = self::post_textarea('mhm_edit_special_notes');
+		$pickup_date   = $req->text('mhm_edit_pickup_date');
+		$pickup_time   = $req->text('mhm_edit_pickup_time');
+		$dropoff_date  = $req->text('mhm_edit_dropoff_date');
+		$dropoff_time  = $req->text('mhm_edit_dropoff_time');
+		$guests        = max(1, $req->int('mhm_edit_guests', 1));
+		$special_notes = $req->textarea('mhm_edit_special_notes');
 
 		// Update meta data
 		update_post_meta($post_id, '_mhm_pickup_date', $pickup_date);
@@ -604,12 +550,12 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_booking_guests', $guests);
 
 		// Receipt review processing
-		$receipt_nonce = self::post_text('mhm_receipt_nonce');
+		$receipt_nonce = $req->text('mhm_receipt_nonce');
 		if ($receipt_nonce !== '' && wp_verify_nonce($receipt_nonce, 'mhm_rentiva_receipt_review')) {
-			if (isset($_POST['mhm_receipt_note'])) {
-				update_post_meta($post_id, '_mhm_receipt_note', sanitize_textarea_field(wp_unslash( (string) ( $_POST['mhm_receipt_note'] ?? '' ))));
+			if ($req->has('mhm_receipt_note')) {
+				update_post_meta($post_id, '_mhm_receipt_note', $req->textarea('mhm_receipt_note'));
 			}
-			$action = self::post_text('mhm_receipt_action');
+			$action = $req->text('mhm_receipt_action');
 			if ($action !== '') {
 				if ($action === 'approve') {
 					update_post_meta($post_id, '_mhm_receipt_status', 'approved');
@@ -731,11 +677,14 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
 		}
 
-		$booking_id = self::post_int('booking_id');
-		$email_type = self::post_text('email_type');
-		$subject    = self::post_text('email_subject');
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_kses_post used to preserve HTML formatting in email body.
-		$message = isset($_POST['email_message']) ? wp_kses_post( wp_unslash( (string) $_POST['email_message'] ) ) : '';
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+		$email_type = $req->text('email_type');
+		$subject    = $req->text('email_subject');
+		// wp_kses_post rather than sanitize_text_field: the body is authored in a
+		// rich-text field and its HTML formatting has to survive into the email.
+		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
 		if (! $booking_id) {
 			wp_die(esc_html__('Invalid booking ID.', 'mhm-rentiva'));
@@ -1000,9 +949,11 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
 		}
 
-		$booking_id = self::post_int('booking_id');
-		$note       = sanitize_textarea_field(wp_unslash( (string) ( $_POST['history_note'] ?? '' )));
-		$type       = self::post_text('history_type', 'note');
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+		$note       = $req->textarea('history_note');
+		$type       = $req->text('history_type', 'note');
 
 		if (! $booking_id || ! $note) {
 			wp_die(esc_html__('Invalid booking ID or empty note.', 'mhm-rentiva'));
@@ -1233,9 +1184,11 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Fetch message parameter from URL
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice key from URL.
-		$message = self::get_text('message');
+		// Read-only: selects which canned admin notice to print after our own
+		// post-save redirect. No state changes here, so no nonce is involved;
+		// the value is only ever compared against the literal cases below.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice selector, no state change.
+		$message = isset($_GET['message']) ? sanitize_text_field(wp_unslash( (string) $_GET['message'])) : '';
 
 		switch ($message) {
 			case 'email_sent':
@@ -1271,19 +1224,24 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function ajax_update_booking()
 	{
-		// Nonce check
-		if (! isset($_POST['_wpnonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . self::post_int('post_ID'))) {
+		// Nonce check. The nonce and the post id it is bound to are read inline so
+		// that the verification provably precedes every other read of the request.
+		$post_id = isset($_POST['post_ID']) ? absint(wp_unslash( (string) $_POST['post_ID'])) : 0;
+		$nonce   = isset($_POST['_wpnonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['_wpnonce'])) : '';
+		if (! wp_verify_nonce($nonce, 'update-post_' . $post_id)) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}
 
 		// Permission check
-		if (! current_user_can('edit_post', self::post_int('post_ID'))) {
+		if (! current_user_can('edit_post', $post_id)) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
 		}
 
-		$booking_id = self::post_int('booking_id');
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
 
 		if (! $booking_id) {
 			wp_send_json_error(__('Invalid booking ID.', 'mhm-rentiva'));
@@ -1291,20 +1249,20 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$customer_first_name = self::post_text('mhm_edit_customer_first_name');
-		$customer_last_name  = self::post_text('mhm_edit_customer_last_name');
-		$customer_email      = sanitize_email(wp_unslash( (string) ( $_POST['mhm_edit_customer_email'] ?? '' )));
-		$customer_phone      = self::post_text('mhm_edit_customer_phone');
-		$pickup_date         = self::post_text('mhm_edit_pickup_date');
-		$pickup_time         = self::post_text('mhm_edit_pickup_time');
-		$dropoff_date        = self::post_text('mhm_edit_dropoff_date');
-		$dropoff_time        = self::post_text('mhm_edit_dropoff_time');
-		$guests              = self::post_int('mhm_edit_guests');
-		$payment_method      = self::post_text('mhm_edit_payment_method');
-		$status              = self::post_text('mhm_edit_status');
-		$notes               = self::post_textarea('mhm_edit_notes');
-		$special_notes       = self::post_textarea('mhm_edit_special_notes');
-		$new_vehicle_id      = self::post_int('mhm_edit_vehicle_id');
+		$customer_first_name = $req->text('mhm_edit_customer_first_name');
+		$customer_last_name  = $req->text('mhm_edit_customer_last_name');
+		$customer_email      = sanitize_email( (string) ( $req->raw('mhm_edit_customer_email') ?? '' ) );
+		$customer_phone      = $req->text('mhm_edit_customer_phone');
+		$pickup_date         = $req->text('mhm_edit_pickup_date');
+		$pickup_time         = $req->text('mhm_edit_pickup_time');
+		$dropoff_date        = $req->text('mhm_edit_dropoff_date');
+		$dropoff_time        = $req->text('mhm_edit_dropoff_time');
+		$guests              = $req->int('mhm_edit_guests');
+		$payment_method      = $req->text('mhm_edit_payment_method');
+		$status              = $req->text('mhm_edit_status');
+		$notes               = $req->textarea('mhm_edit_notes');
+		$special_notes       = $req->textarea('mhm_edit_special_notes');
+		$new_vehicle_id      = $req->int('mhm_edit_vehicle_id');
 
 		// Get old values (for change detection)
 		$old_pickup_date    = get_post_meta($booking_id, '_mhm_pickup_date', true);
@@ -1477,14 +1435,16 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Nonce check
-		$nonce = self::post_text( 'nonce' );
+		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_email' ) ) {
 			wp_send_json_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 			return;
 		}
 
-		$booking_id = self::post_int('booking_id');
-		$email_type = self::post_text('email_type');
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+		$email_type = $req->text('email_type');
 
 		if (! $booking_id || ! $email_type) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
@@ -1505,7 +1465,7 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function ajax_send_customer_email()
 	{
 		// Nonce check
-		$nonce = self::post_text('mhm_rentiva_email_nonce');
+		$nonce = isset($_POST['mhm_rentiva_email_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_email_nonce'])) : '';
 		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_email')) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
@@ -1517,11 +1477,14 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$booking_id = self::post_int('booking_id');
-		$email_type = self::post_text('email_type');
-		$subject    = self::post_text('email_subject');
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- wp_kses_post used to preserve HTML formatting in email body.
-		$message = isset($_POST['email_message']) ? wp_kses_post( wp_unslash( (string) $_POST['email_message'] ) ) : '';
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+		$email_type = $req->text('email_type');
+		$subject    = $req->text('email_subject');
+		// wp_kses_post rather than sanitize_text_field: the body is authored in a
+		// rich-text field and its HTML formatting has to survive into the email.
+		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
 		if (! $booking_id || ! $email_type) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
@@ -1580,7 +1543,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function ajax_add_booking_history_note()
 	{
 		// Nonce check
-		if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'] ?? '')), 'mhm_rentiva_add_history_note')) {
+		$nonce = isset($_POST['mhm_rentiva_history_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_history_nonce'])) : '';
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_add_history_note')) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}
@@ -1591,9 +1555,11 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$booking_id   = self::post_int('booking_id');
-		$note_type    = self::post_text('note_type', 'manual');
-		$note_content = sanitize_textarea_field(wp_unslash( (string) ( $_POST['note_content'] ?? '' )));
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id   = $req->int('booking_id');
+		$note_type    = $req->text('note_type', 'manual');
+		$note_content = $req->textarea('note_content');
 
 		if (! $booking_id || ! $note_content) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));

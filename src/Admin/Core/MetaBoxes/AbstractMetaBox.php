@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 
 /**
  * Abstract MetaBox Base Class
@@ -323,12 +325,17 @@ abstract class AbstractMetaBox {
 				continue;
 			}
 
+			// The nonce for this meta box has now been verified, so the request
+			// data can be handed on as a VerifiedRequest; the field-level savers
+			// below never touch a superglobal themselves.
+			$request = VerifiedRequest::from( $_POST );
+
 			// Custom save handler
 			if ( isset( $field_config['save_handler'] ) && method_exists( static::class, $field_config['save_handler'] ) ) {
 				call_user_func( array( static::class, $field_config['save_handler'] ), $post_id, $field_config );
 			} else {
 				// Default save
-				static::save_fields( $post_id, $field_config );
+				static::save_fields( $post_id, $field_config, $request );
 			}
 		}
 	}
@@ -336,21 +343,20 @@ abstract class AbstractMetaBox {
 	/**
 	 * Default field save
 	 */
-	protected static function save_fields( int $post_id, array $field_config ): void {
+	protected static function save_fields( int $post_id, array $field_config, VerifiedRequest $request ): void {
 		foreach ( $field_config['fields'] ?? array() as $field_key => $field ) {
-			static::save_field( $post_id, $field_key, $field );
+			static::save_field( $post_id, $field_key, $field, $request );
 		}
 	}
 
 	/**
 	 * Save single field
 	 */
-	protected static function save_field( int $post_id, string $field_key, array $field ): void {
+	protected static function save_field( int $post_id, string $field_key, array $field, VerifiedRequest $request ): void {
 		$field_type        = $field['type'] ?? 'text';
 		$sanitize_callback = $field['sanitize_callback'] ?? null;
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Save flow nonce is verified by caller before field-level persistence.
-		if ( ! isset( $_POST[ $field_key ] ) ) {
+		if ( ! $request->has( $field_key ) ) {
 			// Special case for checkbox
 			if ( $field_type === 'checkbox' ) {
 				delete_post_meta( $post_id, $field_key );
@@ -358,8 +364,7 @@ abstract class AbstractMetaBox {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field key comes from trusted internal field config and is sanitized below.
-		$value = isset( $_POST[ $field_key ] ) ? wp_unslash( $_POST[ $field_key ] ) : '';
+		$value = $request->raw( $field_key );
 
 		// Null check
 		if ( $value === null ) {

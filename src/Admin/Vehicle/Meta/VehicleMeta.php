@@ -8,6 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 
 
@@ -97,38 +98,6 @@ final class VehicleMeta extends AbstractMetaBox {
 			return '';
 		}
 		return sanitize_text_field( (string) $value);
-	}
-
-	/**
-	 * Read sanitized text from POST.
-	 */
-	private static function post_text(string $key, string $fallback = ''): string
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
-		$request = (array) ( $_POST ?? array() );
-		if (! isset($request[ $key ])) {
-			return $fallback;
-		}
-		$value = sanitize_text_field(wp_unslash( (string) $request[ $key ]));
-		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		return $value;
-	}
-
-	/**
-	 * Read unslashed array from POST.
-	 *
-	 * @return array<mixed>
-	 */
-	private static function post_array(string $key): array
-	{
-		// phpcs:disable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is verified in caller save/AJAX handlers.
-		$request = (array) ( $_POST ?? array() );
-		if (! isset($request[ $key ]) || ! is_array($request[ $key ])) {
-			return array();
-		}
-		$value = wp_unslash($request[ $key ]);
-		// phpcs:enable WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		return $value;
 	}
 
 	protected static function get_post_type(): string
@@ -265,7 +234,10 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function save_featured_meta_box(int $post_id): void
 	{
-		if (! isset($_POST['mhm_rentiva_vehicle_featured_nonce']) || ! wp_verify_nonce(self::post_text('mhm_rentiva_vehicle_featured_nonce'), 'mhm_rentiva_vehicle_featured_action')) {
+		$nonce = isset($_POST['mhm_rentiva_vehicle_featured_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_featured_nonce']))
+			: '';
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_featured_action')) {
 			return;
 		}
 
@@ -277,7 +249,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$is_featured = isset($_POST['mhm_rentiva_is_featured']) ? '1' : '0';
+		$is_featured = VerifiedRequest::from($_POST)->has('mhm_rentiva_is_featured') ? '1' : '0';
 		update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, $is_featured);
 
 		// Keep frontend featured/list outputs consistent immediately after admin save.
@@ -553,7 +525,10 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
-		if (! isset($_POST['mhm_rentiva_vehicle_meta_nonce']) || ! wp_verify_nonce(self::post_text('mhm_rentiva_vehicle_meta_nonce'), 'mhm_rentiva_vehicle_meta_action')) {
+		$nonce = isset($_POST['mhm_rentiva_vehicle_meta_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_meta_nonce']))
+			: '';
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
 			return;
 		}
 
@@ -565,17 +540,19 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
+		$req = VerifiedRequest::from($_POST);
+
 		$available_details   = get_option('mhm_vehicle_details', self::get_default_details());
 		$available_features  = get_option('mhm_vehicle_features', self::get_default_features());
 		$available_equipment = get_option('mhm_vehicle_equipment', self::get_default_equipment());
 
-		$details_order = json_decode(self::post_text('details-grid_order'), true);
+		$details_order = json_decode($req->text('details-grid_order'), true);
 
 		if ($details_order && is_array($details_order)) {
 			update_post_meta($post_id, '_mhm_details_order', $details_order);
 		}
 
-		$removed_details = json_decode(self::post_text('removed_details'), true);
+		$removed_details = json_decode($req->text('removed_details'), true);
 		if (! is_array($removed_details)) {
 			$removed_details = array();
 		}
@@ -583,10 +560,10 @@ final class VehicleMeta extends AbstractMetaBox {
 		$meta_updates = array();
 
 		$status_to_save = '';
-		if (isset($_POST['_mhm_vehicle_status'])) {
-			$status_to_save = self::post_text('_mhm_vehicle_status');
-		} elseif (isset($_POST['mhm_rentiva_available'])) {
-			$status_to_save = self::post_text('mhm_rentiva_available');
+		if ($req->has('_mhm_vehicle_status')) {
+			$status_to_save = $req->text('_mhm_vehicle_status');
+		} elseif ($req->has('mhm_rentiva_available')) {
+			$status_to_save = $req->text('mhm_rentiva_available');
 		}
 
 		if (! empty($status_to_save)) {
@@ -602,7 +579,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			$field_name = 'mhm_rentiva_' . $key;
 			$meta_key   = '_mhm_rentiva_' . $key;
 			// Sanitize value from POST
-			$value                     = self::post_text($field_name);
+			$value                     = $req->text($field_name);
 			$sanitized_value           = self::sanitize_field($field_name, $value);
 			$meta_updates[ $meta_key ] = $sanitized_value;
 		}
@@ -633,15 +610,15 @@ final class VehicleMeta extends AbstractMetaBox {
 			$meta_key   = '_mhm_rentiva_' . $field_key;
 			$field_name = 'mhm_rentiva_' . $field_key;
 
-			if (isset($_POST[ $field_name ])) {
-				$value                     = self::post_text($field_name);
+			if ($req->has($field_name)) {
+				$value                     = $req->text($field_name);
 				$value                     = mb_convert_encoding($value, 'UTF-8', 'auto');
 				$meta_updates[ $meta_key ] = $value;
 			}
 		}
 
 		// Sanitize legacy custom details array
-		$legacy_custom_details = self::post_array('mhm_rentiva_custom_details');
+		$legacy_custom_details = $req->arr('mhm_rentiva_custom_details');
 
 		$sanitized_custom_details = array();
 
@@ -665,8 +642,8 @@ final class VehicleMeta extends AbstractMetaBox {
 			update_post_meta($post_id, $meta_key, $meta_value);
 		}
 
-		$features_order  = json_decode(self::post_text('features-grid_order'), true);
-		$equipment_order = json_decode(self::post_text('equipment-grid_order'), true);
+		$features_order  = json_decode($req->text('features-grid_order'), true);
+		$equipment_order = json_decode($req->text('equipment-grid_order'), true);
 
 		if ($features_order && is_array($features_order)) {
 			update_post_meta($post_id, '_mhm_features_order', $features_order);
@@ -677,19 +654,19 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		// Sanitize features array before processing
-		$features           = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('mhm_rentiva_features'));
+		$features           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhm_rentiva_features'));
 		$sanitized_features = self::sanitize_array($features);
 		update_post_meta($post_id, '_mhm_rentiva_features', $sanitized_features);
 
 		// Sanitize equipment array before processing
-		$equipment           = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('mhm_rentiva_equipment'));
+		$equipment           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhm_rentiva_equipment'));
 		$sanitized_equipment = self::sanitize_array($equipment);
 		update_post_meta($post_id, '_mhm_rentiva_equipment', $sanitized_equipment);
 
 		// Save vehicle location (field name is the meta key itself, empty = Inherit/Vendor/Global)
 		$location_key = \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID;
-		if (isset($_POST[ $location_key ])) {
-			$location_val = self::post_text($location_key);
+		if ($req->has($location_key)) {
+			$location_val = $req->text($location_key);
 			if ($location_val === '') {
 				delete_post_meta($post_id, $location_key);
 			} else {
@@ -801,14 +778,21 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function save_vehicle_meta(int $post_id, array $field_config): void
 	{
-		if (! isset($_POST['mhm_rentiva_vehicle_meta_nonce']) || ! wp_verify_nonce(self::post_text('mhm_rentiva_vehicle_meta_nonce'), 'mhm_rentiva_vehicle_meta_action')) {
+		$nonce = isset($_POST['mhm_rentiva_vehicle_meta_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_meta_nonce']))
+			: '';
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
 			return;
 		}
 
-		if (isset($_POST['_mhm_vehicle_status']) || isset($_POST['mhm_rentiva_available'])) {
-			$status_val = isset($_POST['_mhm_vehicle_status'])
-				? self::post_text('_mhm_vehicle_status')
-				: self::post_text('mhm_rentiva_available');
+		// The caller (AbstractMetaBox::save_meta) has already checked
+		// current_user_can('edit_post', $post_id) before dispatching here.
+		$req = VerifiedRequest::from($_POST);
+
+		if ($req->has('_mhm_vehicle_status') || $req->has('mhm_rentiva_available')) {
+			$status_val = $req->has('_mhm_vehicle_status')
+				? $req->text('_mhm_vehicle_status')
+				: $req->text('mhm_rentiva_available');
 			$normalized = self::normalize_availability($status_val);
 			update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, $normalized);
 		}
@@ -831,8 +815,8 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		foreach ($meta_fields as $field) {
-			if (isset($_POST[ $field ])) {
-				$value = self::post_text($field);
+			if ($req->has($field)) {
+				$value = $req->text($field);
 				update_post_meta($post_id, $field, $value);
 			}
 		}
@@ -1258,25 +1242,37 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function ajax_save_item_order(): void
 	{
-		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_vehicle_meta_action')) {
+		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
 			wp_send_json_error(__('Security error', 'mhm-rentiva'));
 		}
 
-		if (! current_user_can('edit_posts')) {
+		$req = VerifiedRequest::from($_POST);
+
+		$post_id = $req->int('post_id');
+		if (! $post_id) {
+			wp_send_json_error('Post ID not found');
+		}
+
+		// edit_post on the actual target, not the blanket edit_posts: this handler
+		// writes meta on whichever post id the request names, so a generic
+		// "can edit something" check let any contributor reorder any vehicle.
+		if (! current_user_can('edit_post', $post_id)) {
 			wp_send_json_error(__('Permission error', 'mhm-rentiva'));
 		}
 
-		$grid_type = self::post_text('grid_type');
-		// Sanitize order array - each element should be a string key
-		$order = array_map(array( self::class, 'sanitize_text_field_safe' ), self::post_array('order'));
-
-		if (empty($grid_type) || empty($order)) {
+		// $grid_type is interpolated into both a meta key and an option key, so it
+		// is matched against the three grids that exist rather than merely sanitized.
+		$grid_type = $req->text('grid_type');
+		if (! in_array($grid_type, array( 'details', 'features', 'equipment' ), true)) {
 			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
 		}
 
-		$post_id = intval($_POST['post_id'] ?? 0);
-		if (! $post_id) {
-			wp_send_json_error('Post ID not found');
+		// Sanitize order array - each element should be a string key
+		$order = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('order'));
+
+		if (empty($order)) {
+			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
 		}
 
 		$meta_key = '_mhm_' . $grid_type . '_order';
