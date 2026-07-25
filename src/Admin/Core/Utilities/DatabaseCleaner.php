@@ -1546,8 +1546,12 @@ final class DatabaseCleaner {
 									'file_size_mb' => isset( $file_info['size'] ) ? round( $file_info['size'] / 1024 / 1024, 2 ) : 0,
 									'tables_count' => 0, // Unknown
 									'rows_count'   => 0, // Unknown
-									'created_at'   => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
-									'date'         => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
+									// `lastmodunix`, not `lastmod`. dirlist() returns both, and
+									// `lastmod` is already formatted for display -- gmdate('M j'),
+									// e.g. "Jul 25" -- so feeding it back to gmdate() is a
+									// TypeError on PHP 8 and takes the whole screen down.
+									'created_at'   => isset( $file_info['lastmodunix'] ) ? gmdate( 'Y-m-d H:i:s', (int) $file_info['lastmodunix'] ) : '',
+									'date'         => isset( $file_info['lastmodunix'] ) ? gmdate( 'Y-m-d H:i:s', (int) $file_info['lastmodunix'] ) : '',
 								);
 							}
 						}
