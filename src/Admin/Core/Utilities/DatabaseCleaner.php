@@ -1146,27 +1146,42 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Is this one of the backup tables this plugin created?
+	 *
+	 * The maintenance endpoints take a table name from the request and
+	 * interpolate it into SHOW CREATE TABLE / SELECT / INSERT / DROP. Checking
+	 * that the table EXISTS is not a scope check -- every table in the database
+	 * exists, so an existence test admitted wp_users as readily as one of our
+	 * own backups. Membership is decided against the same enumeration the UI
+	 * lists, which is scoped to the plugin's `{prefix}mhm_%_backup%` naming,
+	 * and compared as a whole string so no LIKE wildcard can widen it.
+	 */
+	public static function is_managed_backup_table( string $table_name ): bool {
+		if ( '' === $table_name ) {
+			return false;
+		}
+
+		foreach ( self::list_backups() as $backup ) {
+			if ( (string) ( $backup['table_name'] ?? '' ) === $table_name ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Generate SQL export for a backup table
 	 */
 	public static function export_backup_to_sql( string $table_name ): string {
 		global $wpdb;
 
-		// Verify table exists
-		$table_exists = $wpdb->get_var(
-			$wpdb->prepare(
-				'
-            SHOW TABLES LIKE %s
-        ',
-				$table_name
-			)
-		);
-
-		if ( ! $table_exists ) {
+		if ( ! self::is_managed_backup_table( $table_name ) ) {
 			return '';
 		}
 
 		// Get table structure
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is validated for existence via SHOW TABLES LIKE before use.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
 		$create_table = $wpdb->get_row( "SHOW CREATE TABLE `{$table_name}`", ARRAY_A );
 		$sql          = "-- Backup Export: {$table_name}\n";
 		$sql         .= '-- Generated: ' . gmdate( 'Y-m-d H:i:s' ) . "\n\n";
@@ -1174,7 +1189,7 @@ final class DatabaseCleaner {
 		$sql         .= $create_table['Create Table'] . ";\n\n";
 
 		// Get all rows
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is validated for existence via SHOW TABLES LIKE before use.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
 		$rows = $wpdb->get_results( "SELECT * FROM `{$table_name}`", ARRAY_A );
 
 		if ( ! empty( $rows ) ) {
@@ -1203,17 +1218,7 @@ final class DatabaseCleaner {
 	public static function restore_backup( string $backup_table ): array {
 		global $wpdb;
 
-		// Verify backup table exists
-		$table_exists = $wpdb->get_var(
-			$wpdb->prepare(
-				'
-            SHOW TABLES LIKE %s
-        ',
-				$backup_table
-			)
-		);
-
-		if ( ! $table_exists ) {
+		if ( ! self::is_managed_backup_table( $backup_table ) ) {
 			return array(
 				'success' => false,
 				'message' => __( 'Backup table not found', 'mhm-rentiva' ),
@@ -1272,33 +1277,17 @@ final class DatabaseCleaner {
 	public static function delete_backup( string $table_name ): array {
 		global $wpdb;
 
-		// Verify it's a backup table
-		if ( strpos( $table_name, 'backup' ) === false ) {
+		// "backup" appearing somewhere in the name used to be the only test here,
+		// which reached other plugins' tables; ownership is what matters.
+		if ( ! self::is_managed_backup_table( $table_name ) ) {
 			return array(
 				'success' => false,
 				'message' => __( 'Not a backup table', 'mhm-rentiva' ),
 			);
 		}
 
-		// Verify table exists
-		$table_exists = $wpdb->get_var(
-			$wpdb->prepare(
-				'
-            SHOW TABLES LIKE %s
-        ',
-				$table_name
-			)
-		);
-
-		if ( ! $table_exists ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Backup table not found', 'mhm-rentiva' ),
-			);
-		}
-
 		// Delete table
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Backup table name is validated for existence via SHOW TABLES LIKE before deletion.
+		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
 		$deleted = $wpdb->query( "DROP TABLE IF EXISTS `{$table_name}`" );
 
 		return array(

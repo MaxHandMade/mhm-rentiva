@@ -449,5 +449,4 @@ abstract class AbstractMetaBox {
 			delete_post_meta( $post_id, $key );
 		}
 	}
-
 }
