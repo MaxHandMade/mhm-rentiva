@@ -494,13 +494,18 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
-		// Deliberately edit_posts, not manage_options. The T4 round settled this:
-		// booking creation is staff work, and the new-customer path carries the
-		// stricter create_users check separately (see ManualBookingMetaBoxCapabilityTest).
-		// The vehicle_booking post type does declare create_posts => manage_options,
-		// which is a real inconsistency with this handler, but it is pre-existing,
-		// already reviewed, and tightening it here would silently remove a capability
-		// the product intends staff to have.
+		// Deliberately edit_posts, not manage_options, and kept that way for
+		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the T4
+		// round's decision that the new-customer path -- not booking creation itself
+		// -- is what needs create_users.
+		//
+		// Be clear about what this check does NOT do: it does not currently let a
+		// "staff, not admin" role in. The nonce is only ever printed on
+		// post-new.php?post_type=vehicle_booking, and vehicle_booking declares
+		// create_posts => manage_options, so WordPress blocks that screen one layer
+		// above this handler. Anyone who reaches here already has manage_options.
+		// A real booking-clerk role would mean loosening the post type's own
+		// capabilities, which is a product decision, not a change to make here.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
@@ -582,13 +587,18 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
-		// Deliberately edit_posts, not manage_options. The T4 round settled this:
-		// booking creation is staff work, and the new-customer path carries the
-		// stricter create_users check separately (see ManualBookingMetaBoxCapabilityTest).
-		// The vehicle_booking post type does declare create_posts => manage_options,
-		// which is a real inconsistency with this handler, but it is pre-existing,
-		// already reviewed, and tightening it here would silently remove a capability
-		// the product intends staff to have.
+		// Deliberately edit_posts, not manage_options, and kept that way for
+		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the T4
+		// round's decision that the new-customer path -- not booking creation itself
+		// -- is what needs create_users.
+		//
+		// Be clear about what this check does NOT do: it does not currently let a
+		// "staff, not admin" role in. The nonce is only ever printed on
+		// post-new.php?post_type=vehicle_booking, and vehicle_booking declares
+		// create_posts => manage_options, so WordPress blocks that screen one layer
+		// above this handler. Anyone who reaches here already has manage_options.
+		// A real booking-clerk role would mean loosening the post type's own
+		// capabilities, which is a product decision, not a change to make here.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
