@@ -268,13 +268,20 @@ final class BlockedDatesMetaBox {
 		) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
-		}
-
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
+		}
+
+		// This writes blocked-date meta on EVERY published vehicle, so the blanket
+		// edit_posts was the wrong gate: the vehicle CPT registers with
+		// map_meta_cap and the default 'post' capability_type, which means a stock
+		// Author who owns one listing holds edit_posts and is handed a real nonce on
+		// their own vehicle's edit screen -- enough to rewrite the whole fleet's
+		// availability. A fleet-wide write needs the capability that actually means
+		// "may edit content you do not own".
+		if ( ! current_user_can( 'edit_post', $source_id ) || ! current_user_can( 'edit_others_posts' ) ) {
+			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.
@@ -326,13 +333,20 @@ final class BlockedDatesMetaBox {
 		) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
-		}
-
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
 		if ( $source_id <= 0 ) {
 			wp_send_json_error( __( 'Invalid vehicle ID.', 'mhm-rentiva' ) );
+		}
+
+		// This writes blocked-date meta on EVERY published vehicle, so the blanket
+		// edit_posts was the wrong gate: the vehicle CPT registers with
+		// map_meta_cap and the default 'post' capability_type, which means a stock
+		// Author who owns one listing holds edit_posts and is handed a real nonce on
+		// their own vehicle's edit screen -- enough to rewrite the whole fleet's
+		// availability. A fleet-wide write needs the capability that actually means
+		// "may edit content you do not own".
+		if ( ! current_user_can( 'edit_post', $source_id ) || ! current_user_can( 'edit_others_posts' ) ) {
+			wp_send_json_error( __( 'Insufficient permissions.', 'mhm-rentiva' ) );
 		}
 
 		// Prefer dates from browser payload (unsaved state); fall back to DB.

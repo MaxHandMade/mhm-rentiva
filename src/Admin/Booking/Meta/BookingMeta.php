@@ -672,23 +672,22 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
-		// Permission check
-		if (! current_user_can('edit_posts')) {
-			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
-		}
-
 		$req = VerifiedRequest::from($_POST);
 
 		$booking_id = $req->int('booking_id');
+
+		// edit_post on the booking the request actually names, not the blanket
+		// edit_posts: this handler acts on whichever booking_id arrives, so a
+		// generic "can edit something" check was not a check on this object.
+		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
+			wp_die(esc_html__('You do not have permission to send emails.', 'mhm-rentiva'));
+		}
+
 		$email_type = $req->text('email_type');
 		$subject    = $req->text('email_subject');
 		// wp_kses_post rather than sanitize_text_field: the body is authored in a
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
-
-		if (! $booking_id) {
-			wp_die(esc_html__('Invalid booking ID.', 'mhm-rentiva'));
-		}
 
 		$customer_email = get_post_meta($booking_id, '_mhm_customer_email', true);
 		$customer_name  = get_post_meta($booking_id, '_mhm_customer_name', true);
@@ -944,18 +943,21 @@ final class BookingMeta extends AbstractMetaBox {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
-		// Permission check
-		if (! current_user_can('edit_posts')) {
-			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
-		}
-
 		$req = VerifiedRequest::from($_POST);
 
 		$booking_id = $req->int('booking_id');
-		$note       = $req->textarea('history_note');
-		$type       = $req->text('history_type', 'note');
 
-		if (! $booking_id || ! $note) {
+		// edit_post on the booking the request actually names, not the blanket
+		// edit_posts: this handler acts on whichever booking_id arrives, so a
+		// generic "can edit something" check was not a check on this object.
+		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
+			wp_die(esc_html__('You do not have permission to add notes.', 'mhm-rentiva'));
+		}
+
+		$note = $req->textarea('history_note');
+		$type = $req->text('history_type', 'note');
+
+		if (! $note) {
 			wp_die(esc_html__('Invalid booking ID or empty note.', 'mhm-rentiva'));
 		}
 
@@ -1428,12 +1430,6 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function ajax_get_email_template()
 	{
-		// Permission check
-		if (! current_user_can('edit_posts')) {
-			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
-			return;
-		}
-
 		// Nonce check
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
 		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_email' ) ) {
@@ -1444,6 +1440,15 @@ final class BookingMeta extends AbstractMetaBox {
 		$req = VerifiedRequest::from($_POST);
 
 		$booking_id = $req->int('booking_id');
+
+		// edit_post on the booking the request actually names, not the blanket
+		// edit_posts: this handler acts on whichever booking_id arrives, so a
+		// generic "can edit something" check was not a check on this object.
+		if ($booking_id && ! current_user_can('edit_post', $booking_id)) {
+			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
+			return;
+		}
+
 		$email_type = $req->text('email_type');
 
 		if (! $booking_id || ! $email_type) {
@@ -1471,22 +1476,25 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Permission check
-		if (! current_user_can('edit_posts')) {
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+
+		// edit_post on the booking the request actually names, not the blanket
+		// edit_posts: this handler acts on whichever booking_id arrives, so a
+		// generic "can edit something" check was not a check on this object.
+		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
 		}
 
-		$req = VerifiedRequest::from($_POST);
-
-		$booking_id = $req->int('booking_id');
 		$email_type = $req->text('email_type');
 		$subject    = $req->text('email_subject');
 		// wp_kses_post rather than sanitize_text_field: the body is authored in a
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
-		if (! $booking_id || ! $email_type) {
+		if (! $email_type) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}
@@ -1549,19 +1557,22 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Permission check
-		if (! current_user_can('edit_posts')) {
+		$req = VerifiedRequest::from($_POST);
+
+		$booking_id = $req->int('booking_id');
+
+		// edit_post on the booking the request actually names, not the blanket
+		// edit_posts: this handler acts on whichever booking_id arrives, so a
+		// generic "can edit something" check was not a check on this object.
+		if (! $booking_id || ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(__('You do not have permission to perform this action.', 'mhm-rentiva'));
 			return;
 		}
 
-		$req = VerifiedRequest::from($_POST);
-
-		$booking_id   = $req->int('booking_id');
 		$note_type    = $req->text('note_type', 'manual');
 		$note_content = $req->textarea('note_content');
 
-		if (! $booking_id || ! $note_content) {
+		if (! $note_content) {
 			wp_send_json_error(__('Missing required fields.', 'mhm-rentiva'));
 			return;
 		}

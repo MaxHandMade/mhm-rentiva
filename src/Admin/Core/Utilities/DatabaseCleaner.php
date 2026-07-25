@@ -1564,10 +1564,37 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Is this path inside the plugin's own backup directory?
+	 *
+	 * The containment check used to live only in the AJAX callers, re-derived at
+	 * each one. That made the invariant a property of the callers rather than of
+	 * the class that executes the file, so the next entry point to call
+	 * restore_full_backup() without copying the check would get arbitrary SQL
+	 * execution from an arbitrary file. It belongs here.
+	 */
+	private static function is_contained_backup_file( string $file_path ): bool {
+		$real_file = realpath( $file_path );
+		$real_dir  = realpath( WP_CONTENT_DIR . '/mhm-rentiva-backups' );
+
+		if ( false === $real_file || false === $real_dir ) {
+			return false;
+		}
+
+		return strpos( $real_file, $real_dir . DIRECTORY_SEPARATOR ) === 0;
+	}
+
+	/**
 	 * Restore full backup from SQL file
 	 */
 	public static function restore_full_backup( string $file_path ): array {
 		global $wpdb;
+
+		if ( ! self::is_contained_backup_file( $file_path ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Invalid backup file path', 'mhm-rentiva' ),
+			);
+		}
 
 		if ( ! self::init_filesystem() ) {
 			return array(
@@ -1641,19 +1668,14 @@ final class DatabaseCleaner {
 		$file_path    = $backup_dir . '/' . $backup_name . '.sql';
 		$backup_table = $wpdb->prefix . 'mhm_backup_records';
 
-		// Security: contain the resolved path to the backup directory before deleting
-		// (same realpath() containment pattern used by the download/restore callers
-		// in DatabaseCleanupPage.php). Skip the check only when the target does not
-		// exist -- there is nothing on disk to traverse to in that case.
-		$real_file_path = realpath( $file_path );
-		if ( $real_file_path !== false ) {
-			$real_backup_dir = realpath( $backup_dir );
-			if ( $real_backup_dir === false || strpos( $real_file_path, $real_backup_dir . DIRECTORY_SEPARATOR ) !== 0 ) {
-				return array(
-					'success' => false,
-					'message' => __( 'Invalid backup file path', 'mhm-rentiva' ),
-				);
-			}
+		// Contain the resolved path to the backup directory before deleting. A target
+		// that does not resolve is allowed through: there is nothing on disk to
+		// traverse to, and the DB bookkeeping below still needs to run.
+		if ( file_exists( $file_path ) && ! self::is_contained_backup_file( $file_path ) ) {
+			return array(
+				'success' => false,
+				'message' => __( 'Invalid backup file path', 'mhm-rentiva' ),
+			);
 		}
 
 		// Initialize filesystem
