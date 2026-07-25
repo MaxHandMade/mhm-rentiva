@@ -66,11 +66,6 @@ final class SettingsCore {
 		if (class_exists(\MHMRentiva\Admin\Auth\SessionManager::class)) {
 			\MHMRentiva\Admin\Auth\SessionManager::init();
 		}
-
-		// Rate Limiting Logic (Separated Service)
-		if (class_exists(RateLimiter::class) && RateLimiter::is_enabled()) {
-			self::setup_rate_limiting_hooks();
-		}
 	}
 
 	/**
@@ -599,38 +594,5 @@ final class SettingsCore {
 					),
 				)
 			);
-	}
-
-	/**
-	 * Private helper for rate limit hooks to keep register() clean
-	 */
-	private static function setup_rate_limiting_hooks(): void
-	{
-		$actions = array( 'mhm_booking_request', 'mhm_payment_request' );
-		foreach ($actions as $action) {
-			add_action("wp_ajax_{$action}", array( self::class, 'enforce_rate_limit' ), 1);
-			add_action("wp_ajax_nopriv_{$action}", array( self::class, 'enforce_rate_limit' ), 1);
-		}
-	}
-
-	/**
-	 * Enforce Rate Limiting Logic
-	 */
-	public static function enforce_rate_limit(): void
-	{
-		if (current_user_can('manage_options')) {
-			return;
-		}
-
-		// Logic handled by RateLimiter service
-		if (class_exists(RateLimiter::class) && ! RateLimiter::is_allowed('general')) {
-			wp_send_json_error(
-				array(
-					'message' => __('Too many requests. Please wait.', 'mhm-rentiva'),
-					'retry'   => 3600,
-				),
-				429
-			);
-		}
 	}
 }

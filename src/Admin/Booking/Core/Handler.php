@@ -376,14 +376,24 @@ final class Handler {
 					// This ensures auto-cancellation works for all bookings
 					'_mhm_payment_deadline'      => self::get_payment_deadline(),
 					'_mhm_pickup_location_id'    => (int) ( $booking_data['pickup_location_id'] ?? 0 ),
-
-					// The customer, as the rest of the codebase identifies them. post_author
-					// above is deliberately the admin (this endpoint accepts guests), so it
-					// is not an ownership signal; RemainingPaymentHandler and the account
-					// receipt endpoints both key off this meta, and a booking created here
-					// without it would be unreachable by its own customer.
-					'_mhm_customer_user_id'      => get_current_user_id(),
 				);
+
+				// The customer, as the rest of the codebase identifies them. post_author
+				// above is deliberately the admin (this endpoint accepts guests), so it is
+				// not an ownership signal; RemainingPaymentHandler and the account receipt
+				// endpoints both key off this meta, and a booking created here without it
+				// would be unreachable by its own customer.
+				//
+				// Written only when there IS a user. Storing a literal 0 for guests would
+				// read as "user ID zero" rather than "no user", and its safety would rest
+				// on every reader independently gating on login or on > 0. Leaving the meta
+				// absent keeps "no user" unrepresentable, so a future meta_query written by
+				// someone who reasonably reads this key as "the customer" cannot match every
+				// guest booking on the site.
+				$customer_user_id = get_current_user_id();
+				if ( $customer_user_id > 0 ) {
+					$meta_fields['_mhm_customer_user_id'] = $customer_user_id;
+				}
 
 				foreach ($meta_fields as $key => $value) {
 					update_post_meta($booking_id, $key, $value);
