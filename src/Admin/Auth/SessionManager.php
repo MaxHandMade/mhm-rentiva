@@ -94,7 +94,7 @@ final class SessionManager {
 			return;
 		}
 		update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
-		update_user_meta($user_id, 'last_login', current_time('mysql'));
+		update_user_meta($user_id, 'mhm_rentiva_last_login', current_time('mysql'));
 	}
 
 	/**

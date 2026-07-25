@@ -424,7 +424,7 @@ final class Mailer {
 	 */
 	public static function getEmailStats( string $key = '', int $days = 30 ): array {
 		// Create cache key
-		$cache_key = 'email_stats_' . md5( $key . '_' . $days );
+		$cache_key = 'mhm_rentiva_email_stats_' . md5( $key . '_' . $days );
 
 		// Check cache
 		$cached_stats = get_transient( $cache_key );

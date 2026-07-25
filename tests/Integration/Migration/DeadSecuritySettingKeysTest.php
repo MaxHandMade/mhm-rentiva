@@ -61,7 +61,39 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	{
 		delete_option( self::SETTINGS_OPTION );
 		delete_option( 'mhm_rentiva_db_version' );
+		delete_option( 'mhm_rentiva_api_keys' );
 		parent::tearDown();
+	}
+
+	/**
+	 * The same cleanup, for the credentials the removed API-key manager stored.
+	 *
+	 * The Integration tab issued keys with READ / WRITE / ADMIN ("Full system
+	 * control") levels while `APIKeyManager::verify_api_key()` had no caller,
+	 * so no endpoint ever honoured one. The surface is gone; the rows it wrote
+	 * describe grants with nothing behind them and go with it.
+	 */
+	public function test_the_migration_removes_the_dead_api_key_option(): void
+	{
+		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option(
+			'mhm_rentiva_api_keys',
+			array(
+				'key_abc' => array(
+					'name'        => 'Android App',
+					'key_hash'    => 'deadbeef',
+					'permissions' => array( 'read', 'write', 'admin' ),
+					'status'      => 'active',
+				),
+			)
+		);
+
+		DatabaseMigrator::run_migrations();
+
+		$this->assertFalse(
+			get_option( 'mhm_rentiva_api_keys', false ),
+			'The stored API keys survived; they describe ADMIN grants nothing implements.'
+		);
 	}
 
 	/**

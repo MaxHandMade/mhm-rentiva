@@ -494,9 +494,10 @@ final class DatabaseCleanupPage {
 			wp_die(esc_html__('Backup file not found', 'mhm-rentiva'));
 		}
 
-		// Verify it's in backup directory
-		$backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
-		if (strpos(realpath($file_path), realpath($backup_dir) . DIRECTORY_SEPARATOR) !== 0) {
+		// Verify it's in a backup directory. The check lives on DatabaseCleaner so
+		// every entry point shares one definition of "inside the backup directory"
+		// -- including the legacy wp-content location, whose files are still listed.
+		if (! \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::is_backup_file($file_path)) {
 			wp_die(esc_html__('Invalid backup file path', 'mhm-rentiva'));
 		}
 
@@ -545,17 +546,12 @@ final class DatabaseCleanupPage {
 			wp_send_json_error(esc_html__('Backup file path required', 'mhm-rentiva'));
 		}
 
-		// Verify it's in backup directory. realpath() returns false for a path that
-		// does not resolve, and passing that to strpos() is a deprecation in PHP 8.1
-		// (WP.org requires a notice-free run under WP_DEBUG), so both ends are
-		// resolved and checked before they are compared.
-		$real_file   = realpath($file_path);
-		$real_backup = realpath(WP_CONTENT_DIR . '/mhm-rentiva-backups');
-		if (
-			false === $real_file
-			|| false === $real_backup
-			|| strpos($real_file, $real_backup . DIRECTORY_SEPARATOR) !== 0
-		) {
+		// Verify it's in a backup directory. DatabaseCleaner::is_backup_file()
+		// resolves both ends with realpath() before comparing -- which is what
+		// collapses a `..` traversal, and what keeps an unresolvable path from
+		// reaching strpos() as `false` (a PHP 8.1 deprecation; WP.org requires a
+		// notice-free run under WP_DEBUG).
+		if (! \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::is_backup_file($file_path)) {
 			wp_send_json_error(esc_html__('Invalid backup file path', 'mhm-rentiva'));
 		}
 

@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.12.0';
+	private const CURRENT_VERSION = '3.13.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -98,6 +98,10 @@ final class DatabaseMigrator {
 			self::delete_dead_country_restriction_option();
 			// Settings -> Security tab removed — drop the rows it left behind.
 			self::delete_dead_security_setting_keys();
+			// API-key management removed — drop the credentials it stored.
+			self::delete_dead_api_key_option();
+			// The notification cron was renamed to carry the plugin's prefix.
+			self::unschedule_legacy_notification_cron();
 			// Vendor Reports / Appeals (v4.35.0)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
@@ -1166,6 +1170,53 @@ final class DatabaseMigrator {
 	 * the run-once. The write is skipped entirely when there is nothing to
 	 * remove, so a clean install is not rewritten.
 	 */
+	/**
+	 * Remove the API keys the deleted key manager stored.
+	 *
+	 * The Integration tab offered "Secure API Access Tokens" with READ / WRITE /
+	 * ADMIN ("Full system control") levels. `APIKeyManager::verify_api_key()`
+	 * had no caller anywhere in either edition: every REST route authenticates
+	 * through `AuthHelper::verifyAuth()`, which accepts a WordPress nonce and
+	 * nothing else. A key issued there opened no endpoint, and the stored
+	 * permission was never evaluated. The whole surface is gone.
+	 *
+	 * The option holds hashes rather than the keys themselves, so leaving it
+	 * would not expose a credential — but it would leave a row describing
+	 * ADMIN-level grants that no longer have any machinery behind them, which
+	 * is the same misleading state the sibling method above exists to clear.
+	 *
+	 * Same version gate, same reasoning about run-once flags as
+	 * `delete_dead_country_restriction_option()`; `delete_option()` on an absent
+	 * option is a harmless no-op.
+	 */
+	/**
+	 * Drop the notification cron's pre-5.2.0 event.
+	 *
+	 * The hook was `mhm_send_scheduled_notifications` -- prefixed with `mhm`
+	 * rather than the plugin's own `mhm_rentiva`, which is the collision
+	 * WordPress.org's prefix rule exists to prevent. Renaming the registration
+	 * is not enough: a scheduled event lives in the `cron` option and survives
+	 * independently of the code that scheduled it, so an upgraded site would
+	 * carry an event under the old name that nothing listens for, firing on
+	 * every cron run for the rest of the install's life. The new event is
+	 * scheduled by NotificationManager on its own terms.
+	 */
+	private static function unschedule_legacy_notification_cron(): void
+	{
+		$legacy_hook = 'mhm_send_scheduled_notifications';
+
+		$timestamp = wp_next_scheduled($legacy_hook);
+		while ($timestamp) {
+			wp_unschedule_event($timestamp, $legacy_hook);
+			$timestamp = wp_next_scheduled($legacy_hook);
+		}
+	}
+
+	private static function delete_dead_api_key_option(): void
+	{
+		delete_option('mhm_rentiva_api_keys');
+	}
+
 	private static function delete_dead_security_setting_keys(): void
 	{
 		$dead_keys = array(

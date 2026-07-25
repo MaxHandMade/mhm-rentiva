@@ -107,7 +107,7 @@
 			$result.hide();
 
 			$.post(
-				window.ajaxurl || '/wp-admin/admin-ajax.php',
+				window.ajaxurl,
 				{
 					action:     'mhm_rentiva_apply_blocked_dates_to_all',
 					nonce:      nonce,
@@ -150,7 +150,7 @@
 			$result.hide();
 
 			$.post(
-				window.ajaxurl || '/wp-admin/admin-ajax.php',
+				window.ajaxurl,
 				{
 					action:     'mhm_rentiva_remove_blocked_dates_from_all',
 					nonce:      nonce,

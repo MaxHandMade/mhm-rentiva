@@ -119,9 +119,14 @@ final class StructuredLogger {
             $line = '{"level":"error","message":"StructuredLogger: json_encode failed"}';
         }
 
-        // Primary: PHP error log (always available).
-        // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-        error_log('[MHM-Rentiva] ' . $line);
+        // Primary: PHP error log, but only when the site asked for debug logging.
+        // The transient accumulator below is the in-dashboard view and stays
+        // unconditional, so nothing is lost on a production install -- what stops
+        // is writing to a log file the site owner did not opt into.
+        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+            error_log('[MHM-Rentiva] ' . $line);
+        }
 
         // Secondary: transient accumulator for in-dashboard viewing.
         self::accumulate($channel, $entry);

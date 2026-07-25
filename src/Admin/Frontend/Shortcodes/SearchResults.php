@@ -65,7 +65,11 @@ final class SearchResults extends AbstractShortcode {
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
-		'keyword', // No current template/JS URL-builder emits this; kept registered for external callers/back-compat -- do not remove.
+		// No template or JS URL-builder emits this, but SearchResults::build_query()
+		// does read it (it becomes the WP_Query `s` parameter) and the results
+		// template prints "Results for: ...", so an externally-built ?keyword= URL
+		// works today. Registered deliberately -- do not remove.
+		'keyword',
 		'pickup_date',
 		'return_date',
 		'start_date',
@@ -79,7 +83,6 @@ final class SearchResults extends AbstractShortcode {
 		'year_min',
 		'year_max',
 		'mileage_max',
-		'category', // No current template/JS URL-builder emits this either; same as 'keyword' above.
 		'sort',
 		'pickup_location',
 	);
@@ -380,7 +383,6 @@ final class SearchResults extends AbstractShortcode {
 			'year_min'        => self::get_int('year_min'),
 			'year_max'        => self::get_int('year_max'),
 			'mileage_max'     => self::get_int('mileage_max'),
-			'category'        => self::get_text('category'),
 			'sort'            => self::get_text('sort', 'relevance'),
 			'page'            => self::get_int('page', 1),
 			'pickup_location' => self::get_int_array('pickup_location'),

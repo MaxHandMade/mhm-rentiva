@@ -72,7 +72,7 @@
       "Düzeltme: dışa aktarma ekranının Dışa Aktar düğmesi güvenlik nonce'unu \"nonce\" alan adıyla gönderiyordu; oysa işleyici check_admin_referer() ile doğrulama yapıyor ve _wpnonce alanını okuyor — bu yüzden CSV dahil her dışa aktarma \"bağlantının süresi doldu\" hatasıyla başarısız oluyordu. Artık _wpnonce olarak gönderiliyor.",
       "Yeni: dışa aktarma geçmişi tablosu, her girdinin hangi biçimde (CSV veya JSON) dışa aktarıldığını gösteriyor.",
       "i18n: yeni dışa aktarma ekranı metinleri için Türkçe çeviri güncellendi.",
-      "Belgeler: README.md ve README-tr.md artık Lite/Pro karşılaştırması içeriyor (yalnızca GitHub; ikisi de eklenti ZIP'inden hariç)."
+      "Belgeler: README.md ve README-tr.md özellik özeti genişletildi (yalnızca GitHub; ikisi de eklenti ZIP'ine girmiyor)."
     ],
     "notice": "Ücretsiz eklentinin davranışı değişmez; işlem gerekmez."
   },

@@ -73,13 +73,10 @@
                 return window.mhm_rentiva_config.ajaxUrl;
             }
 
-            // Fallback: construct from current location
-            const pathname = window.location.pathname;
-            const adminPath = pathname.includes('/wp-admin/')
-                ? pathname.substring(0, pathname.indexOf('/wp-admin/') + '/wp-admin'.length)
-                : '/wp-admin';
-
-            return window.location.origin + adminPath + '/admin-ajax.php';
+            // Nothing to fall back to. A guessed path is wrong on any install that
+            // is not at the domain root, and a request to the wrong URL fails in a
+            // way that is much harder to read than a missing one.
+            return '';
         },
 
         /**
@@ -93,7 +90,7 @@
             if (window.mhm_rentiva_config) {
                 $.extend(this.config, window.mhm_rentiva_config);
                 // Ensure ajaxUrl is set correctly after merge
-                if (!this.config.ajaxUrl || this.config.ajaxUrl === '/wp-admin/admin-ajax.php') {
+                if (!this.config.ajaxUrl) {
                     this.config.ajaxUrl = this.getAjaxUrl();
                 }
             }

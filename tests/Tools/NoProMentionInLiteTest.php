@@ -25,6 +25,28 @@ use RecursiveIteratorIterator;
  */
 final class NoProMentionInLiteTest extends TestCase
 {
+    /**
+     * Every shipped file that carries user-visible prose about the product.
+     *
+     * The changelogs are here because leaving them out is how an edition
+     * comparison shipped anyway: `changelog.json` entry 75 read "README.md and
+     * README-tr.md now carry a Lite/Pro edition comparison (GitHub only; both are
+     * excluded from the plugin ZIP)" -- the entry documenting the exclusion was
+     * itself the leak, and it renders in wp-admin under About -> Support
+     * (`SupportTab::get_changelog()`), which is as user-facing as the README this
+     * guard was written for. They cannot simply be added to .distignore for the
+     * same reason: that screen reads them at runtime.
+     *
+     * @var list<string>
+     */
+    private const DOC_CANDIDATES = array(
+        'README.md',
+        'README-tr.md',
+        'readme.txt',
+        'changelog.json',
+        'changelog-tr.json',
+    );
+
 
     /**
      * Copy patterns that sell Pro. Deliberately narrow: this must not fire on the
@@ -162,7 +184,10 @@ final class NoProMentionInLiteTest extends TestCase
     public function crippleware_claim_provider(): array
     {
         return array(
-            'Lite vs Pro table'  => array( '/lite\s*(vs\.?|ve|and|&)\s*pro/i', 'an edition comparison table' ),
+            // The separator list includes "/" because "Lite/Pro comparison" is how
+            // the copy that slipped through was actually written -- the pattern
+            // read only the spelled-out separators and missed it.
+            'Lite vs Pro table'  => array( '#lite\s*(vs\.?|ve|and|&|/)\s*pro#i', 'an edition comparison table' ),
             'maximum N things'   => array( '/\bmaximum\s+\d+\s+\w/i', 'a hard cap on some quantity' ),
             'N vehicles max'     => array( '/\b\d+\s+vehicles?\s*\|/i', 'a vehicle cap in a comparison table' ),
             'unlimited upsell'   => array( '/unlimited\s+(in|with)\s+pro/i', 'that a cap lifts in Pro' ),
@@ -204,7 +229,7 @@ final class NoProMentionInLiteTest extends TestCase
     {
         $excluded = $this->distignore_entries();
 
-        foreach (array( 'README.md', 'README-tr.md', 'readme.txt' ) as $name) {
+        foreach (self::DOC_CANDIDATES as $name) {
             if (in_array($name, $excluded, true)) {
                 continue;
             }
@@ -251,7 +276,7 @@ final class NoProMentionInLiteTest extends TestCase
      */
     public function test_the_scan_actually_reads_the_docs(): void
     {
-        $candidates = array( 'README.md', 'README-tr.md', 'readme.txt' );
+        $candidates = self::DOC_CANDIDATES;
         $files      = iterator_to_array($this->doc_files(), false);
         $scanned    = array_map('basename', $files);
         $excluded   = $this->distignore_entries();

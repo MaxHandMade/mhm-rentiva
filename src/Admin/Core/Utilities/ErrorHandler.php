@@ -187,8 +187,13 @@ final class ErrorHandler {
 				$message
 			);
 
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fallback logger for fatal paths when custom logger is unavailable.
-			error_log( $log_message );
+			// Debug-gated: this is the fallback for fatal paths when the custom
+			// logger is unavailable, but a shipped plugin must not write to the PHP
+			// error log on a production install.
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fallback logger for fatal paths when custom logger is unavailable.
+				error_log( $log_message );
+			}
 		}
 	}
 

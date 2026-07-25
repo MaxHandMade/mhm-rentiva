@@ -10,8 +10,12 @@
 
     // Create default values if JavaScript object doesn't exist
     if (typeof window.mhmRentivaAvailability === 'undefined') {
-        // Use WordPress global ajaxurl variable
-        const ajaxUrl = window.ajaxurl || (window.location.origin + '/wp-admin/admin-ajax.php');
+        // This branch only runs when the localized object is missing entirely, so
+        // there is no plugin-supplied URL to read. window.ajaxurl exists in
+        // wp-admin and nowhere else; a path built from window.location would be
+        // wrong on any install that is not at the domain root, so nothing is
+        // guessed and the warning below is what the developer sees instead.
+        const ajaxUrl = window.ajaxurl || '';
 
         window.mhmRentivaAvailability = {
             ajaxUrl: ajaxUrl,

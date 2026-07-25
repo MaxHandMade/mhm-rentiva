@@ -697,8 +697,10 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 					'role'         => $default_role,
 				)
 			);
-			if ( is_wp_error( $update_result ) ) {
-				// Non-fatal: log but don't abort booking creation
+			if ( is_wp_error( $update_result ) && defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				// Non-fatal: log but don't abort booking creation. Debug-gated: a
+				// shipped plugin must not write to the PHP error log on a production
+				// install.
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log( 'mhm-rentiva: wp_update_user failed for user ' . $user_id . ': ' . $update_result->get_error_message() );
 			}

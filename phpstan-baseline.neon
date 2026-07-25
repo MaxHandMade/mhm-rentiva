@@ -1039,12 +1039,6 @@ parameters:
 			path: src/Admin/PostTypes/Logs/PostType.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
-			identifier: identical.alwaysFalse
-			count: 1
-			path: src/Admin/REST/APIKeyManager.php
-
-		-
 			message: '#^Offset ''days'' does not exist on array\{ok\: true, message\: string, alternatives\?\: array, code\?\: string\}\.$#'
 			identifier: offsetAccess.notFound
 			count: 1

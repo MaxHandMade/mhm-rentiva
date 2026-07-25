@@ -50,7 +50,6 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
             'year_min',
             'year_max',
             'mileage_max',
-            'category',
             'sort',
             'pickup_location',
         );
@@ -58,6 +57,17 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         foreach ($expected as $var) {
             $this->assertContains($var, $result, "query_vars must include '{$var}'.");
         }
+
+        // `category` was registered as a public query var and collected into the
+        // search params, but no code path ever read it -- and the name collides
+        // with core's own category handling, which is precisely what the prefix
+        // rule exists to prevent. Registering a public var the plugin does not
+        // consume only widens the surface WordPress parses on every request.
+        $this->assertNotContains(
+            'category',
+            $result,
+            'A public query var nothing reads must not be registered.'
+        );
     }
 
     /**

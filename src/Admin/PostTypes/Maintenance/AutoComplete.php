@@ -145,7 +145,7 @@ final class AutoComplete {
 				do_action('mhm_rentiva_booking_auto_completed', $bid);
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
-				if (function_exists('error_log')) {
+				if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
 					// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 					error_log('[mhm-rentiva] auto-complete skipped booking ' . $bid . ': ' . $e->getMessage());
 				}

@@ -330,7 +330,7 @@ final class AutoCancel {
 
 			do_action('mhm_rentiva_booking_auto_cancelled', $bid, $new_status);
 		} catch (\Throwable $e) {
-			if (function_exists('error_log')) {
+			if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
 				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 				error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
 			}

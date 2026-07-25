@@ -227,7 +227,7 @@
 
 
             $.ajax({
-                url: window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php'),
+                url: window.mhmVehicleRating?.ajaxUrl || '',
                 type: 'POST',
                 data: formData,
                 timeout: 10000,
@@ -274,7 +274,7 @@
             const vehicleId = $button.attr('data-vehicle-id');
 
             $.ajax({
-                url: window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php'),
+                url: window.mhmVehicleRating?.ajaxUrl || '',
                 type: 'POST',
                 data: {
                     action: 'mhm_rentiva_delete_rating',
@@ -346,7 +346,7 @@
                 return;
             }
 
-            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
+            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || '';
 
             if (!ajaxUrl || ajaxUrl === 'undefined') {
                 return;
@@ -499,7 +499,7 @@
                 return;
             }
 
-            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || (window.location.pathname.split('/')[1] ? '/' + window.location.pathname.split('/')[1] + '/wp-admin/admin-ajax.php' : '/wp-admin/admin-ajax.php');
+            const ajaxUrl = window.mhmVehicleRating?.ajaxUrl || '';
 
             // Get nonce from form
             const nonce = $('.rv-rating-form-content input[name="nonce"]').val() || window.mhmVehicleRating?.nonce;

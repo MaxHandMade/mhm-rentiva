@@ -24,11 +24,6 @@ final class CronMonitor {
 	 * Get all plugin-related cron jobs
 	 */
 	public static function get_all_cron_jobs(): array {
-		// Ensure all plugin hooks are loaded (some hooks register on 'init')
-		if ( ! did_action( 'init' ) ) {
-			do_action( 'init' );
-		}
-
 		$crons        = _get_cron_array();
 		$plugin_crons = array();
 
@@ -38,23 +33,23 @@ final class CronMonitor {
 
 		// Define all plugin cron hooks with verification info
 		$plugin_hooks = array(
-			'mhm_rentiva_auto_cancel_event'     => array(
+			'mhm_rentiva_auto_cancel_event'            => array(
 				'name'        => __( 'Auto Cancel Bookings', 'mhm-rentiva' ),
 				'description' => __( 'Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva' ),
 			),
-			'mhm_send_scheduled_notifications'  => array(
+			'mhm_rentiva_send_scheduled_notifications' => array(
 				'name'        => __( 'Scheduled Notifications', 'mhm-rentiva' ),
 				'description' => __( 'Sends scheduled email notifications', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_email_log_purge_event' => array(
+			'mhm_rentiva_email_log_purge_event'        => array(
 				'name'        => __( 'Email Log Retention', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old email logs', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_log_purge_event'       => array(
+			'mhm_rentiva_log_purge_event'              => array(
 				'name'        => __( 'System Log Retention (Classic)', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old system logs (mhm_app_log post type)', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_daily_log_cleanup'     => array(
+			'mhm_rentiva_daily_log_cleanup'            => array(
 				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
 				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
@@ -174,7 +169,7 @@ final class CronMonitor {
 			array(
 				'mhm_rentiva_auto_cancel_event',
 				'mhm_data_retention_cleanup',
-				'mhm_send_scheduled_notifications',
+				'mhm_rentiva_send_scheduled_notifications',
 				'mhm_rentiva_email_log_purge_event',
 				'mhm_rentiva_log_purge_event',
 				'mhm_rentiva_daily_log_cleanup',
@@ -188,27 +183,15 @@ final class CronMonitor {
 			);
 		}
 
-		// Verify hook is registered before running
-		$hook_exists = has_action( $hook );
-
-		if ( ! $hook_exists ) {
-			return array(
-				'success' => false,
-				/* translators: Dynamic value. */
-				'message' => sprintf( __( 'Cron hook "%s" is not registered. The function may not be active.', 'mhm-rentiva' ), $hook ),
-			);
-		}
-
-		// Ensure all plugin hooks are loaded (some hooks register on 'init')
-		// Trigger 'init' if not already fired to ensure hooks are registered
-		if ( ! did_action( 'init' ) ) {
-			do_action( 'init' );
-		}
-
-		// Verify hook is registered again after init
-		$hook_exists_after_init = has_action( $hook );
-
-		if ( ! $hook_exists_after_init ) {
+		// Verify the hook is registered before running it. This used to be checked
+		// twice, once before and once after the monitor fired `do_action('init')`
+		// itself to "make sure hooks are loaded". Re-firing a core lifecycle action
+		// re-runs every other plugin's init callbacks -- duplicate post-type and
+		// shortcode registration, arbitrary third-party side effects -- and it was
+		// never needed: this screen only runs in wp-admin, where `init` has always
+		// fired, so the guard around it meant the call was dead as well as unsafe.
+		// With it gone the two checks are the same check.
+		if ( false === has_action( $hook ) ) {
 			return array(
 				'success' => false,
 				'message' => sprintf(
@@ -272,17 +255,12 @@ final class CronMonitor {
 			array(
 				'mhm_rentiva_auto_cancel_event',
 				'mhm_data_retention_cleanup',
-				'mhm_send_scheduled_notifications',
+				'mhm_rentiva_send_scheduled_notifications',
 				'mhm_rentiva_email_log_purge_event',
 				'mhm_rentiva_log_purge_event',
 				'mhm_rentiva_daily_log_cleanup',
 			)
 		);
-
-		// Ensure all plugin hooks are loaded
-		if ( ! did_action( 'init' ) ) {
-			do_action( 'init' );
-		}
 
 		foreach ( $plugin_hooks as $hook ) {
 			$is_scheduled  = wp_next_scheduled( $hook ) > 0;

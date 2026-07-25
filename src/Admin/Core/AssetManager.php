@@ -879,49 +879,32 @@ final class AssetManager {
 				);
 			}
 
-			// Enqueue REST API Keys JS for Integration Tab
+			// Enqueue the Integration tab's script: the endpoint reference list and
+			// the settings reset. It used to drive an API-key manager too; that
+			// surface was removed because no endpoint ever validated the keys it
+			// issued.
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selection from query string.
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'integration') {
 				wp_enqueue_script(
-					'mhm-rest-api-keys',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/rest-api-keys.js',
+					'mhm-rentiva-rest-integration',
+					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/rest-integration.js',
 					array( 'jquery' ),
-					self::get_file_version('assets/js/admin/rest-api-keys.js'),
+					self::get_file_version('assets/js/admin/rest-integration.js'),
 					true
 				);
 
 				wp_localize_script(
-					'mhm-rest-api-keys',
-					'mhmRestApiKeys',
+					'mhm-rentiva-rest-integration',
+					'mhmRestIntegration',
 					array(
 						'ajax_url' => admin_url('admin-ajax.php'),
 						'nonce'    => wp_create_nonce('mhm_rest_api_keys_nonce'),
 						'strings'  => array(
-							'key_name_required'    => __('API key name is required.', 'mhm-rentiva'),
-							'permissions_required' => __('Please select at least one permission.', 'mhm-rentiva'),
-							'create_key'           => __('Create API Key', 'mhm-rentiva'),
-							'failed_create'        => __('Failed to create API key.', 'mhm-rentiva'),
-							'error_occurred'       => __('An error occurred. Please try again.', 'mhm-rentiva'),
-							'copy'                 => __('Copy', 'mhm-rentiva'),
-							'close'                => __('Close', 'mhm-rentiva'),
-							'key_copied'           => __('API key copied to clipboard!', 'mhm-rentiva'),
-							'confirm_revoke'       => __('Are you sure you want to revoke this API key? This will immediately stop access for any application using this key.', 'mhm-rentiva'),
-							'confirm_delete'       => __('Are you sure you want to delete this API key? This action is permanent and cannot be undone.', 'mhm-rentiva'),
-							'failed_revoke'        => __('Failed to revoke API key.', 'mhm-rentiva'),
-							'failed_delete'        => __('Failed to delete API key.', 'mhm-rentiva'),
-							'no_keys'              => __('No API keys found.', 'mhm-rentiva'),
-							'key_name'             => __('Key Name', 'mhm-rentiva'),
-							'permissions'          => __('Permissions', 'mhm-rentiva'),
-							'created'              => __('Created', 'mhm-rentiva'),
-							'last_used'            => __('Last Used', 'mhm-rentiva'),
-							'status'               => __('Status', 'mhm-rentiva'),
-							'actions'              => __('Actions', 'mhm-rentiva'),
-							'revoke'               => __('Revoke', 'mhm-rentiva'),
-							'delete'               => __('Delete', 'mhm-rentiva'),
-							'confirm_reset'        => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
-							'resetting'            => __('Resetting...', 'mhm-rentiva'),
-							'reset_success'        => __('Settings reset to defaults successfully. Page will reload...', 'mhm-rentiva'),
-							'reset_failed'         => __('Failed to reset settings to defaults.', 'mhm-rentiva'),
+							'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
+							'confirm_reset'  => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
+							'resetting'      => __('Resetting...', 'mhm-rentiva'),
+							'reset_success'  => __('Settings reset to defaults successfully. Page will reload...', 'mhm-rentiva'),
+							'reset_failed'   => __('Failed to reset settings to defaults.', 'mhm-rentiva'),
 						),
 					)
 				);

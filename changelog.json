@@ -72,7 +72,7 @@
       "Fixed: the export screen's Export button posted its security nonce under the field name \"nonce\", but the handler verifies with check_admin_referer(), which reads _wpnonce — so every export, CSV included, failed with a \"the link you followed has expired\" error. It is now posted as _wpnonce.",
       "New: the export history table shows which format (CSV or JSON) each entry was exported as.",
       "i18n: Turkish translation updated for the new export-screen strings.",
-      "Docs: README.md and README-tr.md now carry a Lite/Pro edition comparison (GitHub only; both are excluded from the plugin ZIP)."
+      "Docs: expanded the README.md and README-tr.md feature overview (GitHub only; neither file ships in the plugin ZIP)."
     ],
     "notice": "The free plugin's behaviour is unchanged; no action required."
   },

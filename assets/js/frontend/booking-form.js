@@ -480,7 +480,7 @@
 
             var ajaxUrl = ( window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.ajax_url )
                 ? window.mhmRentivaBookingForm.ajax_url
-                : '/wp-admin/admin-ajax.php';
+                : '';
 
             $.ajax( {
                 url:    ajaxUrl,
@@ -624,7 +624,7 @@
             const finalData = requestData.toString();
 
             $.ajax({
-                url: window.mhmRentivaBookingForm?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php',
+                url: window.mhmRentivaBookingForm?.ajax_url || '',
                 type: 'POST',
                 data: finalData,
                 contentType: 'application/x-www-form-urlencoded',
@@ -1084,7 +1084,7 @@
             }
 
             $.ajax({
-                url: window.mhmRentivaBookingForm?.ajax_url || window.location.origin + '/wp-admin/admin-ajax.php',
+                url: window.mhmRentivaBookingForm?.ajax_url || '',
                 type: 'POST',
                 data: requestData.toString(),
                 contentType: 'application/x-www-form-urlencoded',
@@ -1163,7 +1163,7 @@
             };
 
             $.ajax({
-                url: window.mhmRentivaBookingForm?.ajaxUrl || window.location.origin + '/wp-admin/admin-ajax.php',
+                url: window.mhmRentivaBookingForm?.ajaxUrl || '',
                 type: 'POST',
                 data: ajaxData,
                 success: (response) => {
@@ -1437,7 +1437,7 @@
         }
 
         getAjaxUrl() {
-            return window.mhmRentivaBookingForm?.ajax_url || '/wp-admin/admin-ajax.php';
+            return window.mhmRentivaBookingForm?.ajax_url || '';
         }
 
         calculateDays(start, end) {

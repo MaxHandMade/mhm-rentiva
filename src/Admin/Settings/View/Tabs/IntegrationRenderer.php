@@ -59,7 +59,6 @@ final class IntegrationRenderer extends AbstractTabRenderer {
 					RESTSettings::render_settings_section();
 
 					// Detailed management sections
-					$this->render_api_keys_section();
 					$this->render_endpoints_section();
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'REST Integration core service is missing.', 'mhm-rentiva' ) . '</p></div>';
@@ -70,55 +69,6 @@ final class IntegrationRenderer extends AbstractTabRenderer {
 					<?php submit_button( __( 'Commit API Configuration', 'mhm-rentiva' ), 'primary', 'submit', true, array( 'id' => 'mhm-save-integration-btn' ) ); ?>
 				</div>
 			</form>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Renders the Key Management UI
-	 */
-	private function render_api_keys_section(): void {
-		?>
-		<div class="mhm-integration-section mhm-api-keys-wrapper" style="margin-top: 50px; border-top: 1px solid #eee; padding-top: 30px;">
-			<h3><?php esc_html_e( 'Secure API Access Tokens', 'mhm-rentiva' ); ?></h3>
-			<p class="description"><?php esc_html_e( 'Issue and revoke tokens to allow your custom apps to interact with rental data.', 'mhm-rentiva' ); ?></p>
-
-			<div id="mhm-api-keys-list-container" class="mhm-dynamic-container" style="margin: 20px 0;">
-				<div id="mhm-api-keys-list">
-					<div class="mhm-placeholder-spinner" style="text-align: center; padding: 30px;">
-						<span class="dashicons dashicons-update spin"></span>
-						<p><?php esc_html_e( 'Synchronizing access tokens...', 'mhm-rentiva' ); ?></p>
-					</div>
-				</div>
-			</div>
-
-			<div class="mhm-creator-box">
-				<h4 style="margin-top: 0;"><?php esc_html_e( 'Issue New Credentials', 'mhm-rentiva' ); ?></h4>
-				<table class="form-table" role="presentation">
-					<tr>
-						<th scope="row"><label for="new_key_name"><?php esc_html_e( 'Client Identity', 'mhm-rentiva' ); ?></label></th>
-						<td>
-							<input type="text" id="new_key_name" placeholder="<?php esc_attr_e( 'e.g. Android App / External Portal', 'mhm-rentiva' ); ?>" class="regular-text">
-						</td>
-					</tr>
-					<tr>
-						<th scope="row"><?php esc_html_e( 'Authorization Level', 'mhm-rentiva' ); ?></th>
-						<td>
-							<label><input type="checkbox" name="new_key_permissions[]" value="read" checked disabled> <span class="badge">READ</span> <?php esc_html_e( 'Access public/private data', 'mhm-rentiva' ); ?></label><br>
-							<label><input type="checkbox" name="new_key_permissions[]" value="write"> <span class="badge">WRITE</span> <?php esc_html_e( 'Modify resources', 'mhm-rentiva' ); ?></label><br>
-							<label><input type="checkbox" name="new_key_permissions[]" value="admin"> <span class="badge badge-critical">ADMIN</span> <?php esc_html_e( 'Full system control', 'mhm-rentiva' ); ?></label>
-						</td>
-					</tr>
-				</table>
-				<div class="mhm-action-bar" style="margin-top: 15px;">
-					<button type="button" id="mhm-create-api-key-btn" class="button button-primary button-large">
-						<span class="dashicons dashicons-key"></span> <?php esc_html_e( 'Generate Access Key', 'mhm-rentiva' ); ?>
-					</button>
-					<button type="button" id="mhm-refresh-keys-btn" class="button button-large">
-						<span class="dashicons dashicons-update"></span> <?php esc_html_e( 'Refresh Data', 'mhm-rentiva' ); ?>
-					</button>
-				</div>
-			</div>
 		</div>
 		<?php
 	}

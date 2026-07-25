@@ -111,6 +111,10 @@ final class Uninstaller {
 		$crons        = _get_cron_array();
 		$plugin_crons = array(
 			'mhm_rentiva_auto_cancel_event',
+			'mhm_rentiva_send_scheduled_notifications',
+			// The notification cron's pre-5.2.0 name. An event scheduled under it
+			// survives in wp_cron independently of the code that scheduled it, so
+			// uninstall has to clear both or it leaves an orphan behind.
 			'mhm_send_scheduled_notifications',
 			'mhm_email_log_retention',
 			'mhm_log_retention',
@@ -141,12 +145,18 @@ final class Uninstaller {
 		);
 		$stats['transients'] = (int) $transients;
 
-		// Count backup files
-		$backup_dir   = WP_CONTENT_DIR . '/mhm-rentiva-backups';
+		// Count backup files in both directories: the number is shown to the site
+		// owner before they confirm deletion, so it has to match what deletion will
+		// actually remove -- including backups written before the directory moved
+		// out of wp-content.
 		$backup_files = 0;
 		if ( self::init_filesystem() ) {
 			global $wp_filesystem;
-			if ( $wp_filesystem->exists( $backup_dir ) && $wp_filesystem->is_dir( $backup_dir ) ) {
+			foreach ( \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::backup_dirs() as $backup_dir ) {
+				if ( ! $wp_filesystem->exists( $backup_dir ) || ! $wp_filesystem->is_dir( $backup_dir ) ) {
+					continue;
+				}
+
 				$file_list = $wp_filesystem->dirlist( $backup_dir );
 				if ( is_array( $file_list ) ) {
 					foreach ( $file_list as $file ) {
@@ -296,6 +306,10 @@ final class Uninstaller {
 		// 6. Clear all cron jobs
 		$plugin_crons = array(
 			'mhm_rentiva_auto_cancel_event',
+			'mhm_rentiva_send_scheduled_notifications',
+			// The notification cron's pre-5.2.0 name. An event scheduled under it
+			// survives in wp_cron independently of the code that scheduled it, so
+			// uninstall has to clear both or it leaves an orphan behind.
 			'mhm_send_scheduled_notifications',
 			'mhm_email_log_retention',
 			'mhm_log_retention',
@@ -329,12 +343,16 @@ final class Uninstaller {
 			}
 		}
 
-		// 8. Delete backup files (optional)
+		// 8. Delete backup files (optional). Both directories, to match the count
+		// the site owner was shown.
 		if ( $delete_backups && self::init_filesystem() ) {
 			global $wp_filesystem;
-			$backup_dir = WP_CONTENT_DIR . '/mhm-rentiva-backups';
 
-			if ( $wp_filesystem->exists( $backup_dir ) ) {
+			foreach ( \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::backup_dirs() as $backup_dir ) {
+				if ( ! $wp_filesystem->exists( $backup_dir ) ) {
+					continue;
+				}
+
 				// Delete directory recursively (handles files inside)
 				if ( $wp_filesystem->delete( $backup_dir, true ) ) {
 					// We can assume files were deleted if directory gone, but let's be conservative with stats

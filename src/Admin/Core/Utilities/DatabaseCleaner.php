@@ -1303,7 +1303,7 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		$backup_name = 'mhm_rentiva_full_backup_' . gmdate( 'Ymd_His' );
-		$backup_dir  = WP_CONTENT_DIR . '/mhm-rentiva-backups';
+		$backup_dir  = self::backup_dir();
 
 		// Initialize Filesystem
 		if ( ! self::init_filesystem() ) {
@@ -1464,7 +1464,6 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		$backups      = array();
-		$backup_dir   = WP_CONTENT_DIR . '/mhm-rentiva-backups';
 		$backup_table = $wpdb->prefix . 'mhm_backup_records';
 
 		// Get backups from database records
@@ -1504,48 +1503,53 @@ final class DatabaseCleaner {
 			}
 		}
 
-		// Also check backup directory for files not in database
+		// Also check the backup directories for files not in the database. Both are
+		// scanned: an install that took a backup before the directory moved out of
+		// wp-content still has real files in the old place, and a backup that stops
+		// being listed is indistinguishable from a backup that was lost.
 		if ( self::init_filesystem() ) {
 			global $wp_filesystem;
 
-			if ( $wp_filesystem->exists( $backup_dir ) && $wp_filesystem->is_dir( $backup_dir ) ) {
-				// WP_Filesystem doesn't have a direct glob() alternative that works consistently across all methods.
-				// However, dirlist() works for FTP/Direct etc.
-				$file_list = $wp_filesystem->dirlist( $backup_dir );
+			foreach ( self::backup_dirs() as $backup_dir ) {
+				if ( $wp_filesystem->exists( $backup_dir ) && $wp_filesystem->is_dir( $backup_dir ) ) {
+					// WP_Filesystem doesn't have a direct glob() alternative that works consistently across all methods.
+					// However, dirlist() works for FTP/Direct etc.
+					$file_list = $wp_filesystem->dirlist( $backup_dir );
 
-				if ( is_array( $file_list ) ) {
-					foreach ( $file_list as $file_info ) {
-						if ( strpos( $file_info['name'], 'mhm_rentiva_full_backup_' ) !== 0 || substr( $file_info['name'], -4 ) !== '.sql' ) {
-							continue;
-						}
-
-						$file_path   = $backup_dir . '/' . $file_info['name'];
-						$file_name   = $file_info['name'];
-						$backup_name = str_replace( '.sql', '', $file_name );
-
-						// Check if already in database
-						$exists_in_db = false;
-						foreach ( $backups as $backup ) {
-							if ( $backup['backup_name'] === $backup_name ) {
-								$exists_in_db = true;
-								break;
+					if ( is_array( $file_list ) ) {
+						foreach ( $file_list as $file_info ) {
+							if ( strpos( $file_info['name'], 'mhm_rentiva_full_backup_' ) !== 0 || substr( $file_info['name'], -4 ) !== '.sql' ) {
+								continue;
 							}
-						}
 
-						if ( ! $exists_in_db ) {
-							$backups[] = array(
-								'id'           => 0,
-								'backup_name'  => $backup_name,
-								'type'         => 'full',
-								'file_path'    => $file_path,
-								'file_exists'  => true,
-								'file_size'    => isset( $file_info['size'] ) ? (int) $file_info['size'] : 0,
-								'file_size_mb' => isset( $file_info['size'] ) ? round( $file_info['size'] / 1024 / 1024, 2 ) : 0,
-								'tables_count' => 0, // Unknown
-								'rows_count'   => 0, // Unknown
-								'created_at'   => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
-								'date'         => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
-							);
+							$file_path   = $backup_dir . '/' . $file_info['name'];
+							$file_name   = $file_info['name'];
+							$backup_name = str_replace( '.sql', '', $file_name );
+
+							// Check if already in database
+							$exists_in_db = false;
+							foreach ( $backups as $backup ) {
+								if ( $backup['backup_name'] === $backup_name ) {
+									$exists_in_db = true;
+									break;
+								}
+							}
+
+							if ( ! $exists_in_db ) {
+								$backups[] = array(
+									'id'           => 0,
+									'backup_name'  => $backup_name,
+									'type'         => 'full',
+									'file_path'    => $file_path,
+									'file_exists'  => true,
+									'file_size'    => isset( $file_info['size'] ) ? (int) $file_info['size'] : 0,
+									'file_size_mb' => isset( $file_info['size'] ) ? round( $file_info['size'] / 1024 / 1024, 2 ) : 0,
+									'tables_count' => 0, // Unknown
+									'rows_count'   => 0, // Unknown
+									'created_at'   => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
+									'date'         => isset( $file_info['lastmod'] ) ? gmdate( 'Y-m-d H:i:s', $file_info['lastmod'] ) : '',
+								);
+							}
 						}
 					}
 				}
@@ -1564,23 +1568,78 @@ final class DatabaseCleaner {
 	}
 
 	/**
-	 * Is this path inside the plugin's own backup directory?
+	 * Where backups are written.
+	 *
+	 * Under the uploads directory, not straight into `WP_CONTENT_DIR`. Uploads
+	 * is the one location WordPress guarantees is writable and lets the owner
+	 * configure (it honours the `UPLOADS` constant and the multisite per-blog
+	 * path), and it is where hosts, backup tools and security scanners expect a
+	 * plugin's generated files to be. The WordPress.org preflight rule forbids
+	 * building the path from `WP_CONTENT_DIR`.
+	 */
+	public static function backup_dir(): string {
+		$uploads = wp_upload_dir();
+
+		return $uploads['basedir'] . '/mhm-rentiva-backups';
+	}
+
+	/**
+	 * Where backups written by earlier versions still are.
+	 *
+	 * Kept for reading only. An install that took a backup before the move has
+	 * real SQL files in the old place, and they have to stay listable,
+	 * restorable and deletable; silently ignoring them would look to the site
+	 * owner exactly like losing them.
+	 */
+	private static function legacy_backup_dir(): string {
+		return WP_CONTENT_DIR . '/mhm-rentiva-backups';
+	}
+
+	/**
+	 * Every directory a backup file may legitimately live in.
+	 *
+	 * @return list<string>
+	 */
+	public static function backup_dirs(): array {
+		return array( self::backup_dir(), self::legacy_backup_dir() );
+	}
+
+	/**
+	 * Is this path inside one of the plugin's own backup directories?
 	 *
 	 * The containment check used to live only in the AJAX callers, re-derived at
 	 * each one. That made the invariant a property of the callers rather than of
 	 * the class that executes the file, so the next entry point to call
 	 * restore_full_backup() without copying the check would get arbitrary SQL
 	 * execution from an arbitrary file. It belongs here.
+	 *
+	 * Both ends are resolved with realpath() before comparison: that is what
+	 * collapses a `..` traversal, and realpath() returns false for a path that
+	 * does not resolve, which must be rejected rather than compared.
 	 */
-	private static function is_contained_backup_file( string $file_path ): bool {
+	public static function is_backup_file( string $file_path ): bool {
 		$real_file = realpath( $file_path );
-		$real_dir  = realpath( WP_CONTENT_DIR . '/mhm-rentiva-backups' );
 
-		if ( false === $real_file || false === $real_dir ) {
+		if ( false === $real_file ) {
 			return false;
 		}
 
-		return strpos( $real_file, $real_dir . DIRECTORY_SEPARATOR ) === 0;
+		foreach ( self::backup_dirs() as $dir ) {
+			$real_dir = realpath( $dir );
+
+			if ( false !== $real_dir && strpos( $real_file, $real_dir . DIRECTORY_SEPARATOR ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * @deprecated Kept as the private name the class used internally.
+	 */
+	private static function is_contained_backup_file( string $file_path ): bool {
+		return self::is_backup_file( $file_path );
 	}
 
 	/**
@@ -1664,8 +1723,19 @@ final class DatabaseCleaner {
 	public static function delete_full_backup( string $backup_name ): array {
 		global $wpdb;
 
-		$backup_dir   = WP_CONTENT_DIR . '/mhm-rentiva-backups';
-		$file_path    = $backup_dir . '/' . $backup_name . '.sql';
+		// Resolve against both directories: a backup taken before the directory
+		// moved out of wp-content is still listed, so it must still be deletable.
+		// Falls back to the current location when the file is absent from both,
+		// because the DB bookkeeping below has to run either way.
+		$file_path = self::backup_dir() . '/' . $backup_name . '.sql';
+		foreach ( self::backup_dirs() as $dir ) {
+			$candidate = $dir . '/' . $backup_name . '.sql';
+			if ( file_exists( $candidate ) ) {
+				$file_path = $candidate;
+				break;
+			}
+		}
+
 		$backup_table = $wpdb->prefix . 'mhm_backup_records';
 
 		// Contain the resolved path to the backup directory before deleting. A target

@@ -55,7 +55,7 @@
 		var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl :
 			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl :
 				(window.mhm_rentiva_config && window.mhm_rentiva_config.ajax_url ? window.mhm_rentiva_config.ajax_url :
-					'/wp-admin/admin-ajax.php'));
+					''));
 
 		$.ajax({
 			url: ajaxUrl,
@@ -91,8 +91,7 @@
 		}
 
 		var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl :
-			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl :
-				'/wp-admin/admin-ajax.php');
+			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl : '');
 
 		$.ajax({
 			url: ajaxUrl,

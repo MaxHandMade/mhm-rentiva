@@ -171,7 +171,7 @@ class Testimonials {
 
         // AJAX request
         jQuery.ajax({
-            url: window.mhmRentivaTestimonials?.ajaxUrl || ajaxurl || window.location.origin + '/wp-admin/admin-ajax.php',
+            url: window.mhmRentivaTestimonials?.ajaxUrl || window.ajaxurl || '',
             type: 'POST',
             data: {
                 action: 'mhm_rentiva_load_testimonials',

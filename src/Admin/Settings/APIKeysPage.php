@@ -11,7 +11,6 @@ if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-use MHMRentiva\Admin\REST\APIKeyManager;
 use MHMRentiva\Admin\REST\EndpointListHelper;
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
 
@@ -53,10 +52,6 @@ final class APIKeysPage {
 	public static function register(): void
 	{
 		$actions = array(
-			'create_api_key',
-			'list_api_keys',
-			'revoke_api_key',
-			'delete_api_key',
 			'list_endpoints',
 			'reset_rest_settings',
 		);
@@ -105,11 +100,7 @@ final class APIKeysPage {
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
 			match ($action) {
-				'mhm_rentiva_create_api_key'     => self::ajax_create_api_key($req),
-				'mhm_rentiva_list_api_keys'      => self::ajax_list_api_keys(),
-				'mhm_rentiva_revoke_api_key'     => self::ajax_revoke_api_key($req),
-				'mhm_rentiva_delete_api_key'     => self::ajax_delete_api_key($req),
-				'mhm_rentiva_list_endpoints'     => self::ajax_list_endpoints(),
+				'mhm_rentiva_list_endpoints'      => self::ajax_list_endpoints(),
 				'mhm_rentiva_reset_rest_settings' => self::ajax_reset_rest_settings(),
 				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
 			};
@@ -120,86 +111,6 @@ final class APIKeysPage {
 			}
 			wp_send_json_error(array( 'message' => esc_html($e->getMessage()) ));
 		}
-	}
-
-	/**
-	 * Create API Key AJAX handler.
-	 */
-	private static function ajax_create_api_key(VerifiedRequest $req): void
-	{
-		$name        = $req->text('name');
-		$permissions = $req->arr('permissions');
-		$permissions = ! empty($permissions) ? array_map('sanitize_text_field', $permissions) : array( 'read' );
-		$expires_at  = $req->int('expires_at');
-		$expires_at  = $expires_at > 0 ? $expires_at : null;
-
-		if (empty($name)) {
-			throw new \Exception(esc_html__('API key name is required.', 'mhm-rentiva'));
-		}
-
-		$result = APIKeyManager::create_api_key($name, $permissions, $expires_at);
-
-		if (false === $result) {
-			throw new \Exception(esc_html__('Failed to create API key.', 'mhm-rentiva'));
-		}
-
-		wp_send_json_success(
-			array(
-				'message' => esc_html__('API key created successfully.', 'mhm-rentiva'),
-				'key'     => $result,
-			)
-		);
-	}
-
-	/**
-	 * List API Keys AJAX handler.
-	 */
-	private static function ajax_list_api_keys(): void
-	{
-		$keys = APIKeyManager::list_api_keys();
-
-		wp_send_json_success(
-			array(
-				'keys'  => $keys,
-				'count' => count($keys),
-			)
-		);
-	}
-
-	/**
-	 * Revoke API Key AJAX handler.
-	 */
-	private static function ajax_revoke_api_key(VerifiedRequest $req): void
-	{
-		$key_id = $req->text('key_id');
-
-		if (empty($key_id)) {
-			throw new \Exception(esc_html__('API key ID is required to revoke.', 'mhm-rentiva'));
-		}
-
-		if (! APIKeyManager::revoke_api_key($key_id)) {
-			throw new \Exception(esc_html__('Failed to revoke API key.', 'mhm-rentiva'));
-		}
-
-		wp_send_json_success(array( 'message' => esc_html__('API key revoked successfully.', 'mhm-rentiva') ));
-	}
-
-	/**
-	 * Delete API Key AJAX handler.
-	 */
-	private static function ajax_delete_api_key(VerifiedRequest $req): void
-	{
-		$key_id = $req->text('key_id');
-
-		if (empty($key_id)) {
-			throw new \Exception(esc_html__('API key ID is required to delete.', 'mhm-rentiva'));
-		}
-
-		if (! APIKeyManager::delete_api_key($key_id)) {
-			throw new \Exception(esc_html__('Failed to delete API key.', 'mhm-rentiva'));
-		}
-
-		wp_send_json_success(array( 'message' => esc_html__('API key deleted successfully.', 'mhm-rentiva') ));
 	}
 
 	/**

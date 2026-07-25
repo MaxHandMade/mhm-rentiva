@@ -30,7 +30,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **16 Shortcodes:** Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
 *   **16 Gutenberg Blocks:** One for each frontend shortcode, built on a Render Parity architecture — a block, its Elementor widget and its shortcode all delegate to the same renderer, so they produce identical output.
 *   **17 Elementor Widgets:** The same components as Elementor widgets, with Elementor's own controls and live preview.
-*   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data, with API key management.
+*   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
 *   **Translation Ready:** Ships with a full Turkish translation.
 
 **Requirements:** WooCommerce is required for frontend booking payments.

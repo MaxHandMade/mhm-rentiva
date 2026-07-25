@@ -260,7 +260,7 @@
 
         // Send to server via AJAX
         $.ajax({
-            url: window.ajaxurl || (window.mhmVehicleMeta?.ajaxUrl || window.location.origin + '/wp-admin/admin-ajax.php'),
+            url: window.ajaxurl || window.mhmVehicleMeta?.ajaxUrl,
             type: 'POST',
             data: {
                 action: 'mhm_rentiva_save_item_order',

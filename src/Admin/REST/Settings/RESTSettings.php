@@ -30,12 +30,6 @@ final class RESTSettings {
 				'burst_limit'    => 100,
 				'burst_window'   => 300,
 			),
-			'tokens'        => array(
-				'default_expiry_hours'   => 24,
-				'max_expiry_hours'       => 168,
-				'refresh_enabled'        => true,
-				'auto_refresh_threshold' => 2,
-			),
 			'api'           => array(
 				'version'              => 'v1',
 				'base_namespace'       => 'mhm-rentiva/v1',
@@ -43,21 +37,6 @@ final class RESTSettings {
 				'cors_origins'         => array(),
 				'request_logging'      => true,
 				'response_compression' => true,
-			),
-			'cache'         => array(
-				'enabled'               => true,
-				'duration_seconds'      => 300,
-				'long_duration_seconds' => 1800,
-				'cache_headers'         => true,
-				'etag_enabled'          => true,
-			),
-			'development'   => array(
-				'debug_mode'           => false,
-				'cors_all_origins'     => false,
-				'rate_limit_bypass'    => false,
-				'security_bypass'      => false,
-				'verbose_logging'      => false,
-				'auto_enable_on_debug' => true,
 			),
 		);
 	}
@@ -101,34 +80,10 @@ final class RESTSettings {
 	{
 		return self::get_setting('rate_limiting', array());
 	}
-	public static function get_token_settings(): array
-	{
-		return self::get_setting('tokens', array());
-	}
 	public static function get_api_settings(): array
 	{
 		return self::get_setting('api', array());
 	}
-	public static function get_cache_settings(): array
-	{
-		return self::get_setting('cache', array());
-	}
-	public static function get_development_settings(): array
-	{
-		return self::get_setting('development', array());
-	}
-
-	public static function is_wp_debug_enabled(): bool
-	{
-		return defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG;
-	}
-
-	public static function is_development_mode(): bool
-	{
-		$dev = self::get_development_settings();
-		return ( $dev['debug_mode'] ?? false ) || self::is_wp_debug_enabled();
-	}
-
 	public static function register(): void
 	{
 		register_setting(
@@ -168,42 +123,6 @@ final class RESTSettings {
 			);
 		}
 
-		// 2. Token Settings
-		if (isset($input['tokens']) && is_array($input['tokens'])) {
-			$tokens              = $input['tokens'];
-			$sanitized['tokens'] = array(
-				'default_expiry_hours'   => max(1, min(168, (int) ( $tokens['default_expiry_hours'] ?? 24 ))),
-				'max_expiry_hours'       => 168,
-				'refresh_enabled'        => ! empty($tokens['refresh_enabled']),
-				'auto_refresh_threshold' => 2,
-			);
-		}
-
-		// 3. Cache Settings
-		if (isset($input['cache']) && is_array($input['cache'])) {
-			$cache              = $input['cache'];
-			$sanitized['cache'] = array(
-				'enabled'               => ! empty($cache['enabled']),
-				'duration_seconds'      => max(60, (int) ( $cache['duration_seconds'] ?? 300 )),
-				'long_duration_seconds' => 1800,
-				'cache_headers'         => true,
-				'etag_enabled'          => true,
-			);
-		}
-
-		// 4. Development Settings
-		if (isset($input['development']) && is_array($input['development'])) {
-			$dev                      = $input['development'];
-			$sanitized['development'] = array(
-				'debug_mode'           => ! empty($dev['debug_mode']),
-				'cors_all_origins'     => ! empty($dev['cors_all_origins']),
-				'rate_limit_bypass'    => ! empty($dev['rate_limit_bypass']),
-				'security_bypass'      => ! empty($dev['security_bypass']),
-				'verbose_logging'      => ! empty($dev['verbose_logging']),
-				'auto_enable_on_debug' => ! empty($dev['auto_enable_on_debug']),
-			);
-		}
-
 		return $sanitized;
 	}
 
@@ -212,10 +131,7 @@ final class RESTSettings {
 	 */
 	public static function render_settings_section(): void
 	{
-		$rate   = self::get_rate_limit_settings();
-		$tokens = self::get_token_settings();
-		$cache  = self::get_cache_settings();
-		$dev    = self::get_development_settings();
+		$rate = self::get_rate_limit_settings();
 
 		echo '<table class="form-table">';
 
@@ -232,35 +148,6 @@ final class RESTSettings {
 		echo '<label for="rest_strict_limit">' . esc_html__('Public Request Limit', 'mhm-rentiva') . '</label><br>';
 		echo '<input type="number" id="rest_strict_limit" name="mhm_rentiva_rest_settings[rate_limiting][strict_limit]" value="' . esc_attr($rate['strict_limit']) . '" min="1" max="100" style="width: 100px;">';
 		echo '<p class="description">' . esc_html__('Max requests per minute for public (anonymous) visitors.', 'mhm-rentiva') . '</p>';
-		echo '</td></tr>';
-
-		// --- TOKEN SETTINGS ---
-		echo '<tr><th scope="row">' . esc_html__('Token Configuration', 'mhm-rentiva') . '</th><td>';
-		echo '<label for="rest_token_expiry">' . esc_html__('Token Duration (Hours)', 'mhm-rentiva') . '</label><br>';
-		echo '<input type="number" id="rest_token_expiry" name="mhm_rentiva_rest_settings[tokens][default_expiry_hours]" value="' . esc_attr($tokens['default_expiry_hours']) . '" min="1" max="168" style="width: 100px;">';
-		echo '<p class="description">' . esc_html__('How long the issued API tokens remain valid.', 'mhm-rentiva') . '</p><br>';
-
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[tokens][refresh_enabled]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[tokens][refresh_enabled]" value="1" ' . checked($tokens['refresh_enabled'] ?? false, true, false) . '> ' . esc_html__('Allow Token Refresh', 'mhm-rentiva') . '</label>';
-		echo '</td></tr>';
-
-		// --- CACHE ---
-		echo '<tr><th scope="row">' . esc_html__('API Caching', 'mhm-rentiva') . '</th><td>';
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[cache][enabled]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[cache][enabled]" value="1" ' . checked($cache['enabled'] ?? false, true, false) . '> ' . esc_html__('Enable Caching', 'mhm-rentiva') . '</label><br><br>';
-		echo '<label for="rest_cache_duration">' . esc_html__('Cache Life (Seconds)', 'mhm-rentiva') . '</label><br>';
-		echo '<input type="number" id="rest_cache_duration" name="mhm_rentiva_rest_settings[cache][duration_seconds]" value="' . esc_attr($cache['duration_seconds']) . '" min="60" max="3600" style="width: 100px;">';
-		echo '</td></tr>';
-
-		// --- DEVELOPER MODE ---
-		echo '<tr><th scope="row">' . esc_html__('Development Diagnostics', 'mhm-rentiva') . '</th><td>';
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[development][debug_mode]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[development][debug_mode]" value="1" ' . checked($dev['debug_mode'] ?? false, true, false) . '> ' . esc_html__('Debug Operations', 'mhm-rentiva') . '</label>';
-		echo '<p class="description">' . esc_html__('Show detailed error messages and performance traces. (Turn off on live sites).', 'mhm-rentiva') . '</p><br>';
-
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[development][cors_all_origins]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[development][cors_all_origins]" value="1" ' . checked($dev['cors_all_origins'] ?? false, true, false) . '> ' . esc_html__('Allow Global CORS (*)', 'mhm-rentiva') . '</label>';
-		echo '<p class="description">' . esc_html__('Permit API requests from any domain (Development only).', 'mhm-rentiva') . '</p>';
 		echo '</td></tr>';
 
 		echo '</table>';
