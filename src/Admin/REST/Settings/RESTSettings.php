@@ -36,15 +36,6 @@ final class RESTSettings {
 				'refresh_enabled'        => true,
 				'auto_refresh_threshold' => 2,
 			),
-			'security'      => array(
-				'require_https'         => true,
-				'ip_whitelist_enabled'  => false,
-				'ip_whitelist'          => array(),
-				'ip_blacklist_enabled'  => true,
-				'ip_blacklist'          => array(),
-				'user_agent_validation' => true,
-				'blocked_user_agents'   => array( 'curl', 'wget', 'python', 'bot', 'spider', 'crawler' ),
-			),
 			'api'           => array(
 				'version'              => 'v1',
 				'base_namespace'       => 'mhm-rentiva/v1',
@@ -113,10 +104,6 @@ final class RESTSettings {
 	public static function get_token_settings(): array
 	{
 		return self::get_setting('tokens', array());
-	}
-	public static function get_security_settings(): array
-	{
-		return self::get_setting('security', array());
 	}
 	public static function get_api_settings(): array
 	{
@@ -192,36 +179,7 @@ final class RESTSettings {
 			);
 		}
 
-		// 3. Security Settings
-		if (isset($input['security']) && is_array($input['security'])) {
-			$sec = $input['security'];
-
-			// Helper to convert list-like input to array
-			$to_array = function ($val) {
-				if (is_array($val)) {
-					return $val;
-				}
-				if (is_string($val)) {
-					return array_filter(array_map('trim', explode(',', $val)));
-				}
-				return array();
-			};
-
-			$ip_whitelist = $to_array($sec['ip_whitelist'] ?? array());
-			$ip_blacklist = $to_array($sec['ip_blacklist'] ?? array());
-
-			$sanitized['security'] = array(
-				'require_https'         => ! empty($sec['require_https']),
-				'ip_whitelist_enabled'  => ! empty($sec['ip_whitelist_enabled']),
-				'ip_whitelist'          => array_map('sanitize_text_field', (array) $ip_whitelist),
-				'ip_blacklist_enabled'  => ! empty($sec['ip_blacklist_enabled']),
-				'ip_blacklist'          => array_map('sanitize_text_field', (array) $ip_blacklist),
-				'user_agent_validation' => ! empty($sec['user_agent_validation']),
-				'blocked_user_agents'   => $defaults['security']['blocked_user_agents'],
-			);
-		}
-
-		// 4. Cache Settings
+		// 3. Cache Settings
 		if (isset($input['cache']) && is_array($input['cache'])) {
 			$cache              = $input['cache'];
 			$sanitized['cache'] = array(
@@ -233,7 +191,7 @@ final class RESTSettings {
 			);
 		}
 
-		// 5. Development Settings
+		// 4. Development Settings
 		if (isset($input['development']) && is_array($input['development'])) {
 			$dev                      = $input['development'];
 			$sanitized['development'] = array(
@@ -256,7 +214,6 @@ final class RESTSettings {
 	{
 		$rate   = self::get_rate_limit_settings();
 		$tokens = self::get_token_settings();
-		$sec    = self::get_security_settings();
 		$cache  = self::get_cache_settings();
 		$dev    = self::get_development_settings();
 
@@ -285,21 +242,6 @@ final class RESTSettings {
 
 		echo '<input type="hidden" name="mhm_rentiva_rest_settings[tokens][refresh_enabled]" value="0">';
 		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[tokens][refresh_enabled]" value="1" ' . checked($tokens['refresh_enabled'] ?? false, true, false) . '> ' . esc_html__('Allow Token Refresh', 'mhm-rentiva') . '</label>';
-		echo '</td></tr>';
-
-		// --- SECURITY ---
-		echo '<tr><th scope="row">' . esc_html__('Security Settings', 'mhm-rentiva') . '</th><td>';
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[security][require_https]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[security][require_https]" value="1" ' . checked($sec['require_https'] ?? false, true, false) . '> ' . esc_html__('Mandatory HTTPS', 'mhm-rentiva') . '</label>';
-		echo '<p class="description">' . esc_html__('Require SSL encryption for all API communication.', 'mhm-rentiva') . '</p><br>';
-
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[security][user_agent_validation]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[security][user_agent_validation]" value="1" ' . checked($sec['user_agent_validation'] ?? false, true, false) . '> ' . esc_html__('User Agent Filter', 'mhm-rentiva') . '</label>';
-		echo '<p class="description">' . esc_html__('Blocks known bots and scraping tools (curl, wget, bot etc.).', 'mhm-rentiva') . '</p><br>';
-
-		echo '<label for="rest_ip_whitelist">' . esc_html__('IP Whitelist', 'mhm-rentiva') . '</label><br>';
-		echo '<textarea id="rest_ip_whitelist" name="mhm_rentiva_rest_settings[security][ip_whitelist]" rows="2" cols="50" class="regular-text" placeholder="' . esc_attr__('1.2.3.4, 5.6.7.8', 'mhm-rentiva') . '">' . esc_textarea(implode(', ', (array) ( $sec['ip_whitelist'] ?? array() ))) . '</textarea>';
-		echo '<p class="description">' . esc_html__('Comma separated list of allowed IP addresses.', 'mhm-rentiva') . '</p>';
 		echo '</td></tr>';
 
 		// --- CACHE ---

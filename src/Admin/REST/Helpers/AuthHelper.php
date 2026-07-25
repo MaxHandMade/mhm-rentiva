@@ -139,23 +139,6 @@ final class AuthHelper {
 	}
 
 	/**
-	 * IP whitelist check
-	 *
-	 * @param string $ip IP address to check
-	 * @return bool Is IP in whitelist?
-	 */
-	public static function isIpWhitelisted(string $ip): bool
-	{
-		$whitelist = get_option('mhm_rentiva_ip_whitelist', array());
-
-		if (empty($whitelist) || ! is_array($whitelist)) {
-			return true; // Allow all IPs if no whitelist
-		}
-
-		return in_array($ip, $whitelist, true);
-	}
-
-	/**
 	 * Create secure token
 	 *
 	 * @param array $data Data to store in token

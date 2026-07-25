@@ -282,40 +282,19 @@ final class SettingsSanitizer {
 	private static function sanitize_system_settings( array $input, array $defaults ): array {
 		return array(
 			// Cache Settings.
-			'mhm_rentiva_cache_enabled'                  => self::get_bool( $input, 'mhm_rentiva_cache_enabled' ),
-			'mhm_rentiva_cache_default_ttl'              => max( 0.5, floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ) ),
-			'mhm_rentiva_cache_lists_ttl'                => self::get_int( $input, 'mhm_rentiva_cache_lists_ttl', 5, 1, 60 ),
-			'mhm_rentiva_cache_reports_ttl'              => self::get_int( $input, 'mhm_rentiva_cache_reports_ttl', 15, 1, 1440 ),
-			'mhm_rentiva_cache_charts_ttl'               => self::get_int( $input, 'mhm_rentiva_cache_charts_ttl', 10, 1, 1440 ),
-			'mhm_rentiva_wp_meta_query_limit'            => self::get_int( $input, 'mhm_rentiva_wp_meta_query_limit', 5, 1, 50 ),
-
-			// IP Control.
-			'mhm_rentiva_ip_whitelist_enabled'           => self::get_bool( $input, 'mhm_rentiva_ip_whitelist_enabled' ),
-			'mhm_rentiva_ip_whitelist'                   => \sanitize_textarea_field( $input['mhm_rentiva_ip_whitelist'] ?? '' ),
-			'mhm_rentiva_ip_blacklist_enabled'           => self::get_bool( $input, 'mhm_rentiva_ip_blacklist_enabled' ),
-			'mhm_rentiva_ip_blacklist'                   => \sanitize_textarea_field( $input['mhm_rentiva_ip_blacklist'] ?? '' ),
-
-			// Security Hardening.
-			'mhm_rentiva_brute_force_protection'         => self::get_bool( $input, 'mhm_rentiva_brute_force_protection' ),
-			'mhm_rentiva_max_login_attempts'             => self::get_int( $input, 'mhm_rentiva_max_login_attempts', 5, 3, 20 ),
-			'mhm_rentiva_login_lockout_duration'         => self::get_int( $input, 'mhm_rentiva_login_lockout_duration', 30, 5, 1440 ),
-			'mhm_rentiva_sql_injection_protection'       => self::get_bool( $input, 'mhm_rentiva_sql_injection_protection' ),
-			'mhm_rentiva_xss_protection'                 => self::get_bool( $input, 'mhm_rentiva_xss_protection' ),
-			'mhm_rentiva_csrf_protection'                => self::get_bool( $input, 'mhm_rentiva_csrf_protection' ),
-
-			// Rate Limiting.
-			'mhm_rentiva_rate_limit_enabled'             => self::get_bool( $input, 'mhm_rentiva_rate_limit_enabled' ),
-			'mhm_rentiva_rate_limit_block_duration'      => self::get_int( $input, 'mhm_rentiva_rate_limit_block_duration', 15, 1, 1440 ),
-			'mhm_rentiva_rate_limit_requests_per_minute' => self::get_int( $input, 'mhm_rentiva_rate_limit_requests_per_minute', 60, 10, 1000 ),
-			'mhm_rentiva_rate_limit_booking_per_minute'  => self::get_int( $input, 'mhm_rentiva_rate_limit_booking_per_minute', 5, 1, 100 ),
-			'mhm_rentiva_rate_limit_payment_per_minute'  => self::get_int( $input, 'mhm_rentiva_rate_limit_payment_per_minute', 3, 1, 50 ),
+			'mhm_rentiva_cache_enabled'           => self::get_bool( $input, 'mhm_rentiva_cache_enabled' ),
+			'mhm_rentiva_cache_default_ttl'       => max( 0.5, floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ) ),
+			'mhm_rentiva_cache_lists_ttl'         => self::get_int( $input, 'mhm_rentiva_cache_lists_ttl', 5, 1, 60 ),
+			'mhm_rentiva_cache_reports_ttl'       => self::get_int( $input, 'mhm_rentiva_cache_reports_ttl', 15, 1, 1440 ),
+			'mhm_rentiva_cache_charts_ttl'        => self::get_int( $input, 'mhm_rentiva_cache_charts_ttl', 10, 1, 1440 ),
+			'mhm_rentiva_wp_meta_query_limit'     => self::get_int( $input, 'mhm_rentiva_wp_meta_query_limit', 5, 1, 50 ),
 
 			// Maintenance.
-			'mhm_rentiva_log_level'                      => self::validate_enum( $input['mhm_rentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
-			'mhm_rentiva_log_cleanup_enabled'            => self::get_bool( $input, 'mhm_rentiva_log_cleanup_enabled' ),
-			'mhm_rentiva_log_retention_days'             => self::get_int( $input, 'mhm_rentiva_log_retention_days', 30, 1, 365 ),
-			'mhm_rentiva_debug_mode'                     => self::get_bool( $input, 'mhm_rentiva_debug_mode' ),
-			'mhm_rentiva_clean_data_on_uninstall'        => self::get_bool( $input, 'mhm_rentiva_clean_data_on_uninstall' ),
+			'mhm_rentiva_log_level'               => self::validate_enum( $input['mhm_rentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
+			'mhm_rentiva_log_cleanup_enabled'     => self::get_bool( $input, 'mhm_rentiva_log_cleanup_enabled' ),
+			'mhm_rentiva_log_retention_days'      => self::get_int( $input, 'mhm_rentiva_log_retention_days', 30, 1, 365 ),
+			'mhm_rentiva_debug_mode'              => self::get_bool( $input, 'mhm_rentiva_debug_mode' ),
+			'mhm_rentiva_clean_data_on_uninstall' => self::get_bool( $input, 'mhm_rentiva_clean_data_on_uninstall' ),
 		);
 	}
 

@@ -71,7 +71,6 @@ final class Settings {
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
 		self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
 		self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
-		self::register_provider('security', \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class);
 		// 'vendor-marketplace' (add-on) is no longer hardcoded here (Task A6b seam
 		// inversion) -- the add-on registers it via the do_action() below, the same
 		// extension point it already had.

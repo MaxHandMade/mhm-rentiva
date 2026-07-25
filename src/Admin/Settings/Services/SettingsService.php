@@ -83,9 +83,6 @@ final class SettingsService {
 			if ( class_exists( \MHMRentiva\Admin\Settings\Groups\CoreSettings::class ) ) {
 				$defaults = array_merge( $defaults, \MHMRentiva\Admin\Settings\Groups\CoreSettings::get_default_settings() );
 			}
-			if ( class_exists( \MHMRentiva\Admin\Settings\Groups\SecuritySettings::class ) ) {
-				$defaults = array_merge( $defaults, \MHMRentiva\Admin\Settings\Groups\SecuritySettings::get_default_settings() );
-			}
 		}
 		// Standard single provider logic
 		elseif ( $provider_class && class_exists( $provider_class ) && method_exists( $provider_class, 'get_default_settings' ) ) {
@@ -196,7 +193,6 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
-			\MHMRentiva\Admin\Settings\Groups\SecuritySettings::class,
 		);
 
 		// Add-on-owned providers that also write to the master option (Task A6b

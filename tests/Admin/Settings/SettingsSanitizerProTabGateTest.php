@@ -71,11 +71,11 @@ final class SettingsSanitizerProTabGateTest extends WP_UnitTestCase
     public function test_core_tab_save_still_persists(): void
     {
         $result = SettingsSanitizer::sanitize(array(
-            'current_active_tab'            => 'system',
-            'mhm_rentiva_max_login_attempts' => '10',
+            'current_active_tab'     => 'system',
+            'mhm_rentiva_log_level'  => 'debug',
         ));
 
-        $this->assertSame(10, $result['mhm_rentiva_max_login_attempts'], 'A core settings tab must still save.');
+        $this->assertSame('debug', $result['mhm_rentiva_log_level'], 'A core settings tab must still save.');
     }
 
     // -- Y3: reset is a WRITE too, and it bypasses the sanitizer -----------------

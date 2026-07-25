@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.11.0';
+	private const CURRENT_VERSION = '3.12.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -96,6 +96,8 @@ final class DatabaseMigrator {
 			self::drop_orchestration_tables();
 			// Geo-blocking removed — drop the option that promised it was ON.
 			self::delete_dead_country_restriction_option();
+			// Settings -> Security tab removed — drop the rows it left behind.
+			self::delete_dead_security_setting_keys();
 			// Vendor Reports / Appeals (v4.35.0)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
@@ -1091,10 +1093,11 @@ final class DatabaseMigrator {
 	 *
 	 * A leftover `mhm_rentiva_country_restriction_enabled = 1` row therefore states
 	 * that geo-restriction is ON while nothing whatsoever enforces it. That is a
-	 * false security promise, and this project has shipped that exact bug before
-	 * (the "Brute Force Protection" toggle that reads ON while
-	 * `LockoutManager::init()` is never called). A control that claims to be on and
-	 * is not is worse than an absent one: it is relied upon. So the row goes.
+	 * false security promise, and this project has shipped that exact bug before:
+	 * the "Brute Force Protection" toggle read ON while nothing enforced it,
+	 * which is why the whole Security tab was removed and is cleaned up by
+	 * `delete_dead_security_setting_keys()` below. A control that claims to be on
+	 * and is not is worse than an absent one: it is relied upon. So the row goes.
 	 *
 	 * WHY NO SEPARATE run-once FLAG
 	 * -----------------------------
@@ -1127,5 +1130,78 @@ final class DatabaseMigrator {
 	private static function delete_dead_country_restriction_option(): void
 	{
 		delete_option('mhm_rentiva_country_restriction_enabled');
+	}
+
+	/**
+	 * Remove the rows the deleted Settings -> Security tab left in
+	 * `mhm_rentiva_settings`.
+	 *
+	 * WHY
+	 * ---
+	 * That screen rendered seventeen controls under headings like "Brute Force
+	 * Protection", "SQL Injection Protection" and "Enable Rate Limiting". None
+	 * was wired to anything: `LockoutManager`, `WafManager` and
+	 * `SecurityManager` autoloaded and registered zero hooks, so each toggle
+	 * wrote a row that nothing ever read. The screen and those three classes
+	 * are gone.
+	 *
+	 * Deleting the UI is only half of it. Wherever an administrator saved that
+	 * tab, the option still carries `..._brute_force_protection = '1'` and its
+	 * siblings: rows asserting that protections are ON while nothing enforces
+	 * them. This is the same false-security-promise bug as the dead
+	 * `..._country_restriction_enabled` row handled directly above, and it is
+	 * settled the same way.
+	 *
+	 * SCOPE
+	 * -----
+	 * Exactly the fifteen keys that tab owned, and only inside the settings
+	 * array it wrote to. `mhm_rentiva_ip_whitelist` also existed as a
+	 * standalone option read by `AuthHelper::isIpWhitelisted()` — both the
+	 * reader and the method's only caller were absent, so the method went with
+	 * the tab; no standalone row is touched here because the tab never wrote
+	 * one.
+	 *
+	 * Like the method above, this needs no run-once flag: `run_migrations()` is
+	 * version-gated, and the CURRENT_VERSION bump that carries this method IS
+	 * the run-once. The write is skipped entirely when there is nothing to
+	 * remove, so a clean install is not rewritten.
+	 */
+	private static function delete_dead_security_setting_keys(): void
+	{
+		$dead_keys = array(
+			'mhm_rentiva_ip_whitelist_enabled',
+			'mhm_rentiva_ip_whitelist',
+			'mhm_rentiva_ip_blacklist_enabled',
+			'mhm_rentiva_ip_blacklist',
+			'mhm_rentiva_brute_force_protection',
+			'mhm_rentiva_max_login_attempts',
+			'mhm_rentiva_login_lockout_duration',
+			'mhm_rentiva_sql_injection_protection',
+			'mhm_rentiva_xss_protection',
+			'mhm_rentiva_csrf_protection',
+			'mhm_rentiva_rate_limit_enabled',
+			'mhm_rentiva_rate_limit_block_duration',
+			'mhm_rentiva_rate_limit_requests_per_minute',
+			'mhm_rentiva_rate_limit_booking_per_minute',
+			'mhm_rentiva_rate_limit_payment_per_minute',
+		);
+
+		$settings = get_option('mhm_rentiva_settings');
+
+		if (! is_array($settings)) {
+			return;
+		}
+
+		$removed = false;
+		foreach ($dead_keys as $key) {
+			if (array_key_exists($key, $settings)) {
+				unset($settings[ $key ]);
+				$removed = true;
+			}
+		}
+
+		if ($removed) {
+			update_option('mhm_rentiva_settings', $settings);
+		}
 	}
 }

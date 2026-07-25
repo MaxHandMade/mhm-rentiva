@@ -1135,18 +1135,6 @@ parameters:
 			path: src/Admin/Settings/ShortcodePages.php
 
 		-
-			message: '#^Call to function is_bool\(\) with bool will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 2
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
 			message: '#^Call to function method_exists\(\) with ''\\\\MHMRentiva\\\\Admin…'' and ''get_cache_default…'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1

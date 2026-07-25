@@ -7,7 +7,13 @@ use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 use WP_UnitTestCase;
 
 /**
- * Tests for SettingsSanitizer system/security tab.
+ * Tests for SettingsSanitizer system tab.
+ *
+ * This file used to cover the security half of the tab too — login attempts,
+ * lockout duration, rate limits, the protection checkboxes. Those keys are gone
+ * along with the Settings -> Security screen that wrote them: none was ever read
+ * by anything, so the sanitizer was clamping values into rows no code consulted.
+ * `DeadSecuritySettingKeysTest` covers removing them from existing installs.
  */
 class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
 {
@@ -15,52 +21,6 @@ class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
     {
         $input = array_merge(['current_active_tab' => 'system'], $fields);
         return SettingsSanitizer::sanitize($input);
-    }
-
-    // max_login_attempts — min=3, max=20, default=5
-
-    public function test_login_attempts_accepts_valid_value()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_max_login_attempts' => '10']);
-        $this->assertSame(10, $result['mhm_rentiva_max_login_attempts']);
-    }
-
-    public function test_login_attempts_clamps_below_min()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_max_login_attempts' => '1']);
-        $this->assertSame(3, $result['mhm_rentiva_max_login_attempts']);
-    }
-
-    public function test_login_attempts_clamps_above_max()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_max_login_attempts' => '100']);
-        $this->assertSame(20, $result['mhm_rentiva_max_login_attempts']);
-    }
-
-    public function test_login_attempts_uses_default_when_absent()
-    {
-        $result = $this->sanitize_system([]);
-        $this->assertSame(5, $result['mhm_rentiva_max_login_attempts']);
-    }
-
-    // login_lockout_duration — min=5, max=1440, default=30
-
-    public function test_lockout_duration_accepts_valid_value()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_login_lockout_duration' => '60']);
-        $this->assertSame(60, $result['mhm_rentiva_login_lockout_duration']);
-    }
-
-    public function test_lockout_duration_clamps_below_min()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_login_lockout_duration' => '1']);
-        $this->assertSame(5, $result['mhm_rentiva_login_lockout_duration']);
-    }
-
-    public function test_lockout_duration_clamps_above_max()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_login_lockout_duration' => '9999']);
-        $this->assertSame(1440, $result['mhm_rentiva_login_lockout_duration']);
     }
 
     // log_level — enum: error|warning|info|debug, default=error
@@ -79,31 +39,30 @@ class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
         $this->assertSame('error', $result['mhm_rentiva_log_level']);
     }
 
-    // rate_limit_booking_per_minute — min=1, max=100, default=5
-
-    public function test_rate_limit_booking_accepts_valid_value()
+    /**
+     * The removed screen must not come back through the sanitizer: a key it
+     * still accepted would recreate the row the migration deletes.
+     */
+    public function test_the_removed_security_keys_are_not_sanitized_back_in()
     {
-        $result = $this->sanitize_system(['mhm_rentiva_rate_limit_booking_per_minute' => '10']);
-        $this->assertSame(10, $result['mhm_rentiva_rate_limit_booking_per_minute']);
-    }
+        $result = $this->sanitize_system([
+            'mhm_rentiva_brute_force_protection' => '1',
+            'mhm_rentiva_max_login_attempts'     => '10',
+            'mhm_rentiva_rate_limit_enabled'     => '1',
+            'mhm_rentiva_ip_whitelist'           => '1.2.3.4',
+        ]);
 
-    public function test_rate_limit_booking_clamps_above_max()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_rate_limit_booking_per_minute' => '999']);
-        $this->assertSame(100, $result['mhm_rentiva_rate_limit_booking_per_minute']);
-    }
-
-    // Security checkboxes
-
-    public function test_brute_force_protection_enabled()
-    {
-        $result = $this->sanitize_system(['mhm_rentiva_brute_force_protection' => '1']);
-        $this->assertSame('1', $result['mhm_rentiva_brute_force_protection']);
-    }
-
-    public function test_security_checkbox_absent_returns_zero_string()
-    {
-        $result = $this->sanitize_system([]);
-        $this->assertSame('0', $result['mhm_rentiva_brute_force_protection']);
+        foreach ([
+            'mhm_rentiva_brute_force_protection',
+            'mhm_rentiva_max_login_attempts',
+            'mhm_rentiva_rate_limit_enabled',
+            'mhm_rentiva_ip_whitelist',
+        ] as $key) {
+            $this->assertArrayNotHasKey(
+                $key,
+                $result,
+                $key . ' is still accepted; the removed Security tab would write it again.'
+            );
+        }
     }
 }

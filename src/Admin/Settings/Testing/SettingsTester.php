@@ -31,20 +31,18 @@ final class SettingsTester {
 	 */
 	public static function test_all_settings(): array {
 		$results = array(
-			'general'                         => self::test_general_settings(),
-			'vehicle'                         => self::test_vehicle_settings(),
-			'booking'                         => self::test_booking_settings(),
-			'customer'                        => self::test_customer_settings(),
-			'payment'                         => self::test_payment_settings(),
-			'email'                           => self::test_email_settings(),
-			'system'                          => self::test_system_settings(),
-			'frontend'                        => self::test_frontend_settings(),
-			'notification'                    => self::test_notification_settings(),
-			'security'                        => self::test_security_settings(),
-			'dark_mode'                       => self::test_dark_mode(),
-			'rate_limiting'                   => self::test_rate_limiting(),
-			'form_validation'                 => self::test_form_validation(),
-			'security_performance_functional' => self::test_security_performance_functional(),
+			'general'                => self::test_general_settings(),
+			'vehicle'                => self::test_vehicle_settings(),
+			'booking'                => self::test_booking_settings(),
+			'customer'               => self::test_customer_settings(),
+			'payment'                => self::test_payment_settings(),
+			'email'                  => self::test_email_settings(),
+			'system'                 => self::test_system_settings(),
+			'frontend'               => self::test_frontend_settings(),
+			'notification'           => self::test_notification_settings(),
+			'dark_mode'              => self::test_dark_mode(),
+			'form_validation'        => self::test_form_validation(),
+			'performance_functional' => self::test_performance_functional(),
 		);
 
 		// Transfer is an add-on module and its tables are deliberately absent without it
@@ -436,36 +434,6 @@ final class SettingsTester {
 	}
 
 	/**
-	 * Test security settings
-	 */
-	private static function test_security_settings(): array {
-		$results = array();
-
-		// Test if security settings are registered
-		$results['settings_registered'] = self::check_settings_registered( 'mhm_rentiva_settings' );
-
-		// Test if security defaults are set
-		$results['defaults_set'] = self::check_defaults_set(
-			array(
-				'mhm_rentiva_rate_limit_enabled',
-				'mhm_rentiva_brute_force_protection',
-				'mhm_rentiva_xss_protection',
-			)
-		);
-
-		// Test if security settings can be saved
-		$results['can_save'] = self::test_settings_save(
-			array(
-				'mhm_rentiva_rate_limit_enabled'     => '1',
-				'mhm_rentiva_brute_force_protection' => '1',
-				'mhm_rentiva_xss_protection'         => '1',
-			)
-		);
-
-		return $results;
-	}
-
-	/**
 	 * Test transfer settings
 	 */
 	private static function test_transfer_settings(): array {
@@ -536,34 +504,6 @@ final class SettingsTester {
 
 		// Test if JS file exists
 		$results['js_file_exists'] = file_exists( MHM_RENTIVA_PLUGIN_PATH . 'assets/js/admin/dark-mode.js' );
-
-		return $results;
-	}
-
-	/**
-	 * Test rate limiting functionality
-	 */
-	private static function test_rate_limiting(): array {
-		$results = array();
-
-		// Test if RateLimiter class exists
-		$results['class_exists'] = class_exists( '\MHMRentiva\Admin\Settings\Core\RateLimiter' );
-
-		if ( $results['class_exists'] ) {
-			$rate_limiter = new \MHMRentiva\Admin\Settings\Core\RateLimiter();
-
-			// Test if rate limiting is enabled by default
-			$results['enabled_by_default'] = \MHMRentiva\Admin\Settings\Core\RateLimiter::is_enabled();
-
-			// Test if we can check rate limits
-			$results['can_check_limits'] = is_bool( \MHMRentiva\Admin\Settings\Core\RateLimiter::is_allowed( 'test', 10 ) );
-
-			// Test if we can get remaining requests
-			$results['can_get_remaining'] = is_int( \MHMRentiva\Admin\Settings\Core\RateLimiter::get_remaining_requests( 'test', 10 ) );
-
-			// Test if we can get limits
-			$results['can_get_limits'] = is_int( \MHMRentiva\Admin\Settings\Core\RateLimiter::get_general_limit() );
-		}
 
 		return $results;
 	}
@@ -972,21 +912,19 @@ final class SettingsTester {
 	 */
 	private static function get_category_label( string $category ): string {
 		$labels = array(
-			'general'                         => __( 'General', 'mhm-rentiva' ),
-			'vehicle'                         => __( 'Vehicle', 'mhm-rentiva' ),
-			'booking'                         => __( 'Booking', 'mhm-rentiva' ),
-			'customer'                        => __( 'Customer', 'mhm-rentiva' ),
-			'payment'                         => __( 'Payment', 'mhm-rentiva' ),
-			'email'                           => __( 'Email', 'mhm-rentiva' ),
-			'system'                          => __( 'System', 'mhm-rentiva' ),
-			'frontend'                        => __( 'Frontend', 'mhm-rentiva' ),
-			'notification'                    => __( 'Notification', 'mhm-rentiva' ),
-			'security'                        => __( 'Security', 'mhm-rentiva' ),
-			'transfer'                        => __( 'Transfer', 'mhm-rentiva' ),
-			'dark_mode'                       => __( 'Dark mode', 'mhm-rentiva' ),
-			'rate_limiting'                   => __( 'Rate limiting', 'mhm-rentiva' ),
-			'form_validation'                 => __( 'Form validation', 'mhm-rentiva' ),
-			'security_performance_functional' => __( 'Security & Performance', 'mhm-rentiva' ),
+			'general'                => __( 'General', 'mhm-rentiva' ),
+			'vehicle'                => __( 'Vehicle', 'mhm-rentiva' ),
+			'booking'                => __( 'Booking', 'mhm-rentiva' ),
+			'customer'               => __( 'Customer', 'mhm-rentiva' ),
+			'payment'                => __( 'Payment', 'mhm-rentiva' ),
+			'email'                  => __( 'Email', 'mhm-rentiva' ),
+			'system'                 => __( 'System', 'mhm-rentiva' ),
+			'frontend'               => __( 'Frontend', 'mhm-rentiva' ),
+			'notification'           => __( 'Notification', 'mhm-rentiva' ),
+			'transfer'               => __( 'Transfer', 'mhm-rentiva' ),
+			'dark_mode'              => __( 'Dark mode', 'mhm-rentiva' ),
+			'form_validation'        => __( 'Form validation', 'mhm-rentiva' ),
+			'performance_functional' => __( 'Performance', 'mhm-rentiva' ),
 		);
 
 		return $labels[ $category ] ?? ucfirst( str_replace( '_', ' ', $category ) );
@@ -1063,7 +1001,7 @@ final class SettingsTester {
 	 * Functional Test: Security & Performance Settings
 	 * Verifies if settings changes are reflected in getter methods and DB.
 	 */
-	private static function test_security_performance_functional(): array {
+	private static function test_performance_functional(): array {
 		$results     = array();
 		$option_name = 'mhm_rentiva_settings';
 
@@ -1084,18 +1022,12 @@ final class SettingsTester {
 		// Note: SettingsCore::get uses wp_cache_get. update_option clears cache.
 		$results['cache_disable_works'] = ( $is_disabled === false );
 
-		// 2. Test IP Whitelist Storage
-		$test_ip                                       = '1.2.3.4';
-		$original_settings['mhm_rentiva_ip_whitelist'] = $test_ip;
-		update_option( $option_name, $original_settings );
-
-		$stored_ip                             = \MHMRentiva\Admin\Settings\Groups\SecuritySettings::get_ip_whitelist();
-		$results['ip_whitelist_storage_works'] = ( strpos( $stored_ip, $test_ip ) !== false );
-
-		// 3. Test Database Persistence (Raw Check)
-		$raw_db_settings                 = get_option( $option_name );
-		$results['db_persistence_works'] = isset( $raw_db_settings['mhm_rentiva_ip_whitelist'] ) &&
-			$raw_db_settings['mhm_rentiva_ip_whitelist'] === $test_ip;
+		// 2. Test Database Persistence (Raw Check). The cache toggle above is a
+		// live setting, so a raw read of it proves the write reached the database
+		// rather than only the object cache.
+		$raw_db_settings                 = (array) get_option( $option_name, array() );
+		$results['db_persistence_works'] = isset( $raw_db_settings['mhm_rentiva_cache_enabled'] ) &&
+			$raw_db_settings['mhm_rentiva_cache_enabled'] === '0';
 
 		// Restore original settings (Clean up)
 		// We re-fetch original because we modified the array above
@@ -1110,9 +1042,8 @@ final class SettingsTester {
 		// Since I modified $original_settings variable, I cannot use it to restore.
 		// In a real test, I would clone it.
 		// For this simple check, I will set cache to 1 (default) and empty IP list.
-		$cleanup_settings                              = get_option( $option_name, array() );
+		$cleanup_settings                              = (array) get_option( $option_name, array() );
 		$cleanup_settings['mhm_rentiva_cache_enabled'] = '1';
-		$cleanup_settings['mhm_rentiva_ip_whitelist']  = '';
 		update_option( $option_name, $cleanup_settings );
 
 		return $results;

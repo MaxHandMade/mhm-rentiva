@@ -74,12 +74,12 @@ final class UXHelper {
 				'booking_failed'        => __( 'An error occurred while creating reservation. Please check your information and try again.', 'mhm-rentiva' ),
 				'invalid_dates'         => __( 'Invalid date range. Start date must be before end date.', 'mhm-rentiva' ),
 				'past_date'             => __( 'You cannot select a past date. Please select a date after today.', 'mhm-rentiva' ),
-				/* translators: %days% is replaced with a runtime value. */
-				'too_far_future'        => __( 'Reservation date is too far in the future. You can make reservations up to %days% days in advance.', 'mhm-rentiva' ),
+				/* translators: %num_days% is replaced with a runtime value. */
+				'too_far_future'        => __( 'Reservation date is too far in the future. You can make reservations up to %num_days% days in advance.', 'mhm-rentiva' ),
 				/* translators: %hours% is replaced with a runtime value. */
 				'minimum_duration'      => __( 'Minimum reservation duration is %hours% hours.', 'mhm-rentiva' ),
-				/* translators: %days% is replaced with a runtime value. */
-				'maximum_duration'      => __( 'Maximum reservation duration is %days% days.', 'mhm-rentiva' ),
+				/* translators: %num_days% is replaced with a runtime value. */
+				'maximum_duration'      => __( 'Maximum reservation duration is %num_days% days.', 'mhm-rentiva' ),
 				'booking_limit_reached' => __( 'You can make a maximum of %limit% reservations at once.', 'mhm-rentiva' ),
 				'customer_not_found'    => __( 'Customer information not found. Please log in or register.', 'mhm-rentiva' ),
 				'payment_required'      => __( 'Payment is required for reservation. Please select your payment method.', 'mhm-rentiva' ),
@@ -199,8 +199,8 @@ final class UXHelper {
 			'payment_due'           => __( 'Your payment must be made on %date%.', 'mhm-rentiva' ),
 			/* translators: %date% is replaced with a runtime value. */
 			'vehicle_return_due'    => __( 'You must return the vehicle on %date%.', 'mhm-rentiva' ),
-			/* translators: %days% is replaced with a runtime value. */
-			'license_expiring'      => __( 'Your license will expire in %days% days.', 'mhm-rentiva' ),
+			/* translators: %num_days% is replaced with a runtime value. */
+			'license_expiring'      => __( 'Your license will expire in %num_days% days.', 'mhm-rentiva' ),
 			/* translators: %date% is replaced with a runtime value. */
 			'maintenance_scheduled' => __( 'Vehicle maintenance is scheduled for %date%.', 'mhm-rentiva' ),
 			/* translators: %date% is replaced with a runtime value. */

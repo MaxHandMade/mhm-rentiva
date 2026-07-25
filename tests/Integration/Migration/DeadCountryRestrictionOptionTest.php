@@ -14,8 +14,9 @@ use WP_UnitTestCase;
  * country check was removed in Faz 2a; Pro's inherited `CountryRestriction` was
  * deleted in Faz 2b Task 9). A surviving `..._country_restriction_enabled = 1`
  * row therefore claims geo-restriction is ON while nothing enforces it — the same
- * false-security-promise bug as the "Brute Force Protection" toggle that reads ON
- * while `LockoutManager::init()` is never called.
+ * false-security-promise bug as the "Brute Force Protection" toggle, which read ON
+ * while nothing enforced it and took the whole Security tab down with it (see
+ * DeadSecuritySettingKeysTest).
  *
  * These tests drive the REAL version-gated `run_migrations()` path rather than the
  * private cleanup method, because the version gate is precisely what has bitten
