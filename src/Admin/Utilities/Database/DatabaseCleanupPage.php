@@ -121,8 +121,7 @@ final class DatabaseCleanupPage {
 			</div>
 
 			<?php
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo DatabaseCleaner::render_cleanup_buttons();
+			\MHMRentiva\Helpers\Html::echo_markup( DatabaseCleaner::render_cleanup_buttons() );
 			?>
 
 			<div id="mhm-cleanup-results" style="margin-top: 20px;"></div>
@@ -350,7 +349,9 @@ final class DatabaseCleanupPage {
 		header('Content-Disposition: attachment; filename="' . esc_attr($table_name) . '.sql"');
 		header('Content-Length: ' . strlen($sql));
 
-		echo $sql; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		// Not markup: Content-Type: application/sql + Content-Disposition: attachment
+		// are set above, so this is a file body and escaping would corrupt it.
+		echo $sql; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download body, not HTML; see headers above.
 		exit;
 	}
 
@@ -512,7 +513,10 @@ final class DatabaseCleanupPage {
 		}
 
 		if ($wp_filesystem->exists($file_path)) {
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Outputting SQL file content for download.
+			// Not markup: this response carries Content-Type: application/sql and a
+			// Content-Disposition: attachment header set above, so the bytes are a
+			// file body. HTML-escaping them would corrupt the download.
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download body, not HTML; see headers above.
 			echo $wp_filesystem->get_contents($file_path);
 		} else {
 			// Fallback if filesystem fails (should normally work)

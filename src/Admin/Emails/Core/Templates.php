@@ -419,8 +419,11 @@ final class Templates {
 				</div>
 				<div class="content">
 					<?php
-                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					echo $content; // already kses-filtered
+					// $content is the return value of wp_kses( $innerHtml, $allowed ) on
+					// line 274 of this same method -- the sniff simply cannot follow the
+					// variable. Escaping again would double-encode the email body.
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already wp_kses()'d at line 274 of this method.
+					echo $content;
 					?>
 				</div>
 				<div class="footer">

@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+use MHMRentiva\Helpers\Html;
+
 final class EmailPreview {
 
 
@@ -161,8 +163,10 @@ final class EmailPreview {
 		echo '<h3>' . esc_html__( 'Subject:', 'mhm-rentiva' ) . ' ' . esc_html( $subject ) . '</h3>';
 		echo '<hr>';
 		echo '<div style="background: white; border: 1px solid #ccc; padding: 15px;">';
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		echo $html; // Body already escaped in template or rendered as HTML intentionally
+		// The preview renders the same body the customer would receive, so it has
+		// to keep its markup; running it through the admin allowlist strips script
+		// and event handlers without touching the layout.
+		Html::echo_markup( $html );
 		echo '</div>';
 		echo '</div>';
 	}

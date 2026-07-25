@@ -22,7 +22,7 @@ $renderer    = $args['renderer'] ?? null;
 	<div class="mhm-settings-header">
 		<?php
 		if (isset($args['header_html'])) {
-			echo $args['header_html']; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			\MHMRentiva\Helpers\Html::echo_markup( (string) $args['header_html'] );
 		} else {
 			echo '<h1>' . esc_html(get_admin_page_title()) . '</h1>';
 		}
@@ -70,7 +70,7 @@ $renderer    = $args['renderer'] ?? null;
 
 								$form_content = ob_get_clean();
 								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Internal fields are escaped, we must allow form tags here.
-								echo \MHMRentiva\Admin\Settings\View\SettingsViewHelper::remove_nested_forms( (string) $form_content);
+								\MHMRentiva\Helpers\Html::echo_markup( \MHMRentiva\Admin\Settings\View\SettingsViewHelper::remove_nested_forms( (string) $form_content) );
 								?>
 
 								<div class="submit-section">

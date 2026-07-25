@@ -13,6 +13,8 @@ use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
 
 
+use MHMRentiva\Helpers\Html;
+
 final class SetupWizard {
 
 	use \MHMRentiva\Admin\Core\Traits\AdminHelperTrait;
@@ -170,7 +172,7 @@ final class SetupWizard {
 						<td><?php echo esc_html($check['expected']); ?></td>
 						<td>
 							<?php
-							echo self::format_status_badge($check['status']); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+							Html::echo_markup( self::format_status_badge($check['status']) );
 							?>
 							<?php if (! empty($check['message'])) : ?>
 								<div class="mhm-system-note"><?php echo esc_html($check['message']); ?></div>
@@ -469,7 +471,7 @@ final class SetupWizard {
 						<td><?php echo esc_html($label); ?></td>
 						<td>
 							<?php
-							echo self::format_status_badge(self::is_step_completed($slug) ? 'ok' : 'warning'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped 
+							Html::echo_markup( self::format_status_badge(self::is_step_completed($slug) ? 'ok' : 'warning') );
 							?>
 						</td>
 					</tr>

@@ -313,8 +313,9 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 					<?php if (! empty($vehicles)) : ?>
 						<?php foreach ($vehicles as $vehicle) : ?>
 							<?php
-							// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Template output is escaped internally at field level.
-							echo \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::render_vehicle_card($vehicle, $active_layout, $atts);
+							\MHMRentiva\Helpers\Html::echo_markup(
+								\MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::render_vehicle_card($vehicle, $active_layout, $atts)
+							);
 							?>
 						<?php endforeach; ?>
 					<?php else : ?>

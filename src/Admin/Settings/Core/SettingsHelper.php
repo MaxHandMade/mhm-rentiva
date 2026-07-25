@@ -203,7 +203,7 @@ final class SettingsHelper {
 			$name,
 			$label,
 			static function () use ( $name, $description ) {
-				echo self::render_media_field_html( $name ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped within.
+				\MHMRentiva\Helpers\Html::echo_markup( self::render_media_field_html( $name ) );
 				if ( $description ) {
 					printf( '<p class="description">%s</p>', esc_html( $description ) );
 				}
@@ -217,19 +217,21 @@ final class SettingsHelper {
 	 * Pure HTML for the media field: hidden ID input + preview + select/remove + wp.media script.
 	 */
 	public static function render_media_field_html( string $name ): string {
-		$id      = (int) SettingsCore::get( $name, 0 );
-		$url     = $id > 0 ? (string) ( wp_get_attachment_url( $id ) ?: '' ) : '';
-		$key     = esc_attr( self::SETTINGS_KEY );
-		$field   = esc_attr( $name );
-		$preview = $url !== ''
-			? '<img src="' . esc_url( $url ) . '" alt="" style="max-width:200px;max-height:80px;display:block;margin-bottom:6px;">'
-			: '';
+		$id  = (int) SettingsCore::get( $name, 0 );
+		$url = $id > 0 ? (string) ( wp_get_attachment_url( $id ) ?: '' ) : '';
 
+		// Escaped at the point of output rather than pre-escaped into variables:
+		// the old shape produced three `echo $already_escaped` lines that each
+		// needed a phpcs:ignore asserting work done further up.
 		ob_start();
 		?>
-		<div class="mhm-media-field" data-mhm-media-field="<?php echo $field; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>">
-			<div class="mhm-media-preview"><?php echo $preview; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- built from esc_url above. ?></div>
-			<input type="hidden" name="<?php echo $key; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>[<?php echo $field; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- esc_attr'd above. ?>]" class="mhm-media-id" value="<?php echo esc_attr( (string) $id ); ?>">
+		<div class="mhm-media-field" data-mhm-media-field="<?php echo esc_attr( $name ); ?>">
+			<div class="mhm-media-preview">
+				<?php if ( '' !== $url ) : ?>
+					<img src="<?php echo esc_url( $url ); ?>" alt="" style="max-width:200px;max-height:80px;display:block;margin-bottom:6px;">
+				<?php endif; ?>
+			</div>
+			<input type="hidden" name="<?php echo esc_attr( self::SETTINGS_KEY ); ?>[<?php echo esc_attr( $name ); ?>]" class="mhm-media-id" value="<?php echo esc_attr( (string) $id ); ?>">
 			<button type="button" class="button" data-mhm-media-select><?php esc_html_e( 'Select image', 'mhm-rentiva' ); ?></button>
 			<button type="button" class="button" data-mhm-media-remove<?php echo $url === '' ? ' style="display:none;"' : ''; ?>><?php esc_html_e( 'Remove', 'mhm-rentiva' ); ?></button>
 		</div>

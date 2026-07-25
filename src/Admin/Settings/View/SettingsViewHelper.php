@@ -14,6 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Helper class for Settings View operations
  */
+use MHMRentiva\Helpers\Html;
+
 final class SettingsViewHelper {
 
 
@@ -72,6 +74,6 @@ final class SettingsViewHelper {
 		$content = ob_get_clean();
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Content is scrubbed for forms above.
-		echo self::remove_nested_forms( (string) $content );
+		Html::echo_markup( self::remove_nested_forms( (string) $content ) );
 	}
 }

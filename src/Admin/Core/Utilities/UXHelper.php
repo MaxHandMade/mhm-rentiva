@@ -17,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Central class for user experience and error handling
  */
+use MHMRentiva\Helpers\Html;
+
 final class UXHelper {
 
 
@@ -503,7 +505,7 @@ final class UXHelper {
 		);
 
 		if ( $echo ) {
-			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			Html::echo_markup( $html );
 		}
 
 		return $html;

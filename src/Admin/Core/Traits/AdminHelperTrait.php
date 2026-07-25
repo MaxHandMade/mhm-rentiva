@@ -16,6 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Centralizes repeated code in admin pages
  */
+use MHMRentiva\Helpers\Html;
+
 trait AdminHelperTrait {
 
 
@@ -190,7 +192,7 @@ trait AdminHelperTrait {
 		}
 
 		if ( $echo ) {
-			echo $html; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+			Html::echo_markup( $html );
 		}
 
 		return $html;

@@ -45,9 +45,7 @@ if (empty($top_vehicles)) {
                         <td><?php echo esc_html(number_format( (float) ( $veh['occupancy_rate'] ?? 0 ), 1)) . '%'; ?></td>
                         <td><?php echo esc_html( (string) ( $veh['cancellation_count'] ?? 0 )); ?></td>
                         <td class="mini-sparkline" style="min-width: 100px;">
-                            <?php // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-							echo SparklineRenderer::render($sparkline, 100, 30, '#4ade80');
-							?>
+                            <?php \MHMRentiva\Helpers\Html::echo_markup( SparklineRenderer::render($sparkline, 100, 30, '#4ade80') ); ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
