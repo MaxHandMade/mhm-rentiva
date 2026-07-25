@@ -934,38 +934,6 @@ final class AssetManager {
 			);
 		}
 
-		// Monitoring
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-monitoring') {
-			wp_enqueue_script(
-				'mhm-monitoring',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/monitoring.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/monitoring.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-monitoring',
-				'mhmMonitoring',
-				array(
-					'nonce'   => wp_create_nonce('mhm_monitoring_nonce'),
-					'logsUrl' => admin_url('admin.php?page=mhm-rentiva-logs'),
-					'strings' => array(
-						'reportPrinted'    => __('Performance report printed to console', 'mhm-rentiva'),
-						'reportFailed'     => __('Failed to get performance report', 'mhm-rentiva'),
-						'confirmClearPerf' => __('Are you sure you want to clear performance data?', 'mhm-rentiva'),
-						'perfCleared'      => __('Performance data cleared', 'mhm-rentiva'),
-						'clearFailed'      => __('Failed to clear data', 'mhm-rentiva'),
-						'confirmClearLogs' => __('Are you sure you want to clear logs older than 7 days?', 'mhm-rentiva'),
-						'error'            => __('Error', 'mhm-rentiva'),
-						'exportSoon'       => __('Log export feature coming soon', 'mhm-rentiva'),
-						'noLogs'           => __('No logs found', 'mhm-rentiva'),
-						'page'             => __('Page', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Settings
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-settings') {
 			wp_enqueue_script(
