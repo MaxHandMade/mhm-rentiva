@@ -1,5 +1,22 @@
 [
   {
+    "version": "5.2.0",
+    "date": "2026-07-25",
+    "type": "minor",
+    "title": "Güvenlik sertleştirmesi ve yeniden tasarlanan yönetim ekranları",
+    "summary": "Yetki kontrolleri artık genel bir yetki yerine isteğin adını verdiği rezervasyon ya da aracı denetliyor; eklentinin ürettiği HTML ise basılırken süzülüyor. Kontrol Paneli ve Araç Ayarları ekranları yeniden tasarlandı.",
+    "changes": [
+      "Güvenlik: rezervasyon, kapora, araç galerisi ve bloke tarih işlemleri artık çağıranı “içerik düzenleyebilir” gibi genel bir yetkiyle değil, isteğin adını verdiği kayıtla birlikte denetliyor. Çok yazarlı sitelerde bir kullanıcının başkasının rezervasyonuna, galerisine veya müsaitliğine müdahale edebildiği yollar kapandı.",
+      "Güvenlik: rezervasyonu düzenleyiciden kaydetmek artık her durumda geçerli bir güvenlik anahtarı gerektiriyor; bir form alanının var olması artık anahtarın yerini tutmuyor.",
+      "Güvenlik: veritabanı yedek ekranı yalnızca bu eklentinin oluşturduğu yedek tablolarını dışa aktarıyor, geri yüklüyor ve siliyor. Veritabanındaki diğer tablolar bu isteklerde artık adlandırılamıyor.",
+      "Güvenlik: eklentinin ürettiği HTML, “daha önce kaçış uygulandı” varsayımı yerine basıldığı anda açık bir izin listesinden geçiriliyor.",
+      "Arayüzü olmayan ve hiçbir iş yapmayan bir rezervasyon-durumu uç noktası ile onu çağıran betik kaldırıldı.",
+      "Düzeltme: çeviri kataloğu artık hatasız derleniyor. %days% gibi yer tutucular içeren metinler yanlışlıkla printf biçimi sayılıyordu.",
+      "Yeni: Kontrol Paneli ve Araç Ayarları ekranları yeniden tasarlandı. Araç Ayarları varsayılan olarak yeni düzende açılıyor; bu sürüm için sayfa adresine ?ui=legacy ekleyerek eski düzeni kullanabilirsiniz."
+    ],
+    "notice": "Herhangi bir işlem gerekmiyor. Yöneticiler yetki değişikliklerinden etkilenmez; editör veya yazar rolü bulunan sitelerde bu kullanıcılar artık yalnızca hak sahibi oldukları kayıtlar üzerinde işlem yapabilir."
+  },
+  {
     "version": "5.1.1",
     "date": "2026-07-21",
     "type": "patch",

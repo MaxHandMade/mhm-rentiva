@@ -1,5 +1,22 @@
 [
   {
+    "version": "5.2.0",
+    "date": "2026-07-25",
+    "type": "minor",
+    "title": "Security hardening and redesigned admin screens",
+    "summary": "Permission checks now test the specific booking or vehicle a request names rather than a general capability, and plugin-generated markup is filtered as it is printed. The Dashboard and Vehicle Settings screens have been redesigned.",
+    "changes": [
+      "Security: booking, deposit, vehicle-gallery and blocked-date handlers check the caller against the specific record the request names, instead of a general \"can edit content\" capability. On multi-author sites this closes paths where one contributor could act on another contributor’s bookings, galleries or availability.",
+      "Security: saving a booking from the editor now always requires a valid security token; the presence of a form field is no longer accepted in its place.",
+      "Security: the database backup screen exports, restores and deletes only backup tables created by this plugin. Other tables in the database can no longer be named in those requests.",
+      "Security: markup the plugin generates is filtered through an explicit allowlist as it is printed, replacing places that relied on the output having been escaped earlier.",
+      "Removed a booking-status endpoint and the script that called it: neither had an interface and the endpoint performed no action.",
+      "Fixed: the translation catalogue now compiles without errors. Strings containing placeholders such as %days% were mis-flagged as printf formats.",
+      "New: redesigned Dashboard and Vehicle Settings screens. Vehicle Settings opens in the new layout by default; add ?ui=legacy to the page URL to use the previous one for this release."
+    ],
+    "notice": "No action required. Site administrators are unaffected by the permission changes; on sites with editor or author roles, those users can now only act on records they are entitled to."
+  },
+  {
     "version": "5.1.1",
     "date": "2026-07-21",
     "type": "patch",
