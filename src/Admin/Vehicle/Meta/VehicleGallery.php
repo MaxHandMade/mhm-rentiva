@@ -209,14 +209,19 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$post_id = intval( $_POST['post_id'] ?? 0 );
+
+		// edit_post on the vehicle the request names, not the blanket edit_posts:
+		// this writes gallery meta on whichever post_id arrives, and the vehicle CPT
+		// uses the default 'post' capability_type, so edit_posts alone let any
+		// Author who owns one listing rewrite another vendor's gallery.
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
-		$post_id   = intval( $_POST['post_id'] ?? 0 );
 		$image_ids = array_map( 'intval', $_POST['image_ids'] ?? array() );
 
-		if ( ! $post_id || empty( $image_ids ) ) {
+		if ( empty( $image_ids ) ) {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
@@ -261,14 +266,17 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$post_id = intval( $_POST['post_id'] ?? 0 );
+
+		// See the note on ajax_add_gallery_image(): the capability has to be about
+		// the vehicle being modified.
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
-		$post_id  = intval( $_POST['post_id'] ?? 0 );
 		$image_id = intval( $_POST['image_id'] ?? 0 );
 
-		if ( ! $post_id || ! $image_id ) {
+		if ( ! $image_id ) {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 
@@ -300,14 +308,17 @@ final class VehicleGallery extends AbstractMetaBox {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$post_id = intval( $_POST['post_id'] ?? 0 );
+
+		// See the note on ajax_add_gallery_image(): the capability has to be about
+		// the vehicle being modified.
+		if ( ! $post_id || ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_send_json_error( __( 'Permission error', 'mhm-rentiva' ) );
 		}
 
-		$post_id     = intval( $_POST['post_id'] ?? 0 );
 		$image_order = array_map( 'intval', $_POST['image_order'] ?? array() );
 
-		if ( ! $post_id || empty( $image_order ) ) {
+		if ( empty( $image_order ) ) {
 			wp_send_json_error( __( 'Invalid data', 'mhm-rentiva' ) );
 		}
 

@@ -494,6 +494,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
+		// Deliberately edit_posts, not manage_options. The T4 round settled this:
+		// booking creation is staff work, and the new-customer path carries the
+		// stricter create_users check separately (see ManualBookingMetaBoxCapabilityTest).
+		// The vehicle_booking post type does declare create_posts => manage_options,
+		// which is a real inconsistency with this handler, but it is pre-existing,
+		// already reviewed, and tightening it here would silently remove a capability
+		// the product intends staff to have.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
@@ -575,6 +582,13 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
+		// Deliberately edit_posts, not manage_options. The T4 round settled this:
+		// booking creation is staff work, and the new-customer path carries the
+		// stricter create_users check separately (see ManualBookingMetaBoxCapabilityTest).
+		// The vehicle_booking post type does declare create_posts => manage_options,
+		// which is a real inconsistency with this handler, but it is pre-existing,
+		// already reviewed, and tightening it here would silently remove a capability
+		// the product intends staff to have.
 		if ( ! current_user_can( 'edit_posts' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
