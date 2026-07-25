@@ -66,7 +66,6 @@ final class Settings {
 	public static function init(): void
 	{
 		// AJAX Actions
-		add_action('wp_ajax_mhm_rentiva_reset_settings_tab', array( self::class, 'ajax_reset_settings_tab' ));
 
 		// Register default providers from Groups
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
@@ -163,43 +162,6 @@ final class Settings {
 		$header_html = ob_get_clean();
 
 		SettingsView::render_settings_page($current_tab, $tabs, $renderer, $header_html);
-	}
-
-	/**
-	 * Reset a specific settings tab to defaults (AJAX).
-	 */
-	public static function ajax_reset_settings_tab(): void
-	{
-		// 1. Security Check
-		if (! check_ajax_referer('mhm_rentiva_settings_nonce', 'security', false)) {
-			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ), 403);
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array( 'message' => __('Insufficient permissions for this action.', 'mhm-rentiva') ));
-		}
-
-		// 2. Parameter Validation
-		$tab          = isset($_POST['tab']) ? sanitize_key(wp_unslash( (string) $_POST['tab'])) : '';
-		$redirect_url = isset($_POST['redirect_url']) ? esc_url_raw(wp_unslash( (string) $_POST['redirect_url'])) : admin_url('admin.php?page=mhm-rentiva-settings');
-
-		if (empty($tab)) {
-			wp_send_json_error(array( 'message' => __('Invalid settings tab.', 'mhm-rentiva') ));
-		}
-
-		// 3. Execute reset via Service
-		$updated = \MHMRentiva\Admin\Settings\Services\SettingsService::reset_defaults($tab);
-
-		if ($updated) {
-			wp_send_json_success(
-				array(
-					'message'      => __('Settings successfully reset to defaults.', 'mhm-rentiva'),
-					'redirect_url' => $redirect_url,
-				)
-			);
-		}
-
-		wp_send_json_error(array( 'message' => __('Settings are already at default values.', 'mhm-rentiva') ));
 	}
 
 	/**

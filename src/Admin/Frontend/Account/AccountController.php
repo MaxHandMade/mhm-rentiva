@@ -566,9 +566,12 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
-		// Ownership check
-		$booking_author = (int) get_post_field('post_author', $booking_id);
-		if ($booking_author !== $user_id && ! current_user_can('edit_post', $booking_id)) {
+		// Ownership check. NOT post_author: Handler::create_booking() writes
+		// 'post_author' => 1 for every online booking and a manual booking belongs
+		// to the staff member who entered it, so post_author is never the customer.
+		// _mhm_customer_user_id is the field that tracks them.
+		$booking_customer = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
 
@@ -650,9 +653,12 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('Invalid booking ID.', 'mhm-rentiva') ), 400);
 		}
 
-		// Ownership check
-		$booking_author = (int) get_post_field('post_author', $booking_id);
-		if ($booking_author !== $user_id && ! current_user_can('edit_post', $booking_id)) {
+		// Ownership check. NOT post_author: Handler::create_booking() writes
+		// 'post_author' => 1 for every online booking and a manual booking belongs
+		// to the staff member who entered it, so post_author is never the customer.
+		// _mhm_customer_user_id is the field that tracks them.
+		$booking_customer = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 

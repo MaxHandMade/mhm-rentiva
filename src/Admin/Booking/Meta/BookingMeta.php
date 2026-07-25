@@ -247,7 +247,11 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	private static function email_customer_receipt_status(int $booking_id, string $status): void
 	{
-		$user_id = (int) get_post_field('post_author', $booking_id);
+		// Same confusion as the receipt endpoints used to have: post_author on a
+		// vehicle_booking is the admin (or the staff member who created it), never
+		// the customer. Without this the receipt-status email went to the site
+		// owner instead of the person who uploaded the receipt.
+		$user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
 		$user    = get_user_by('id', $user_id);
 		if (! $user) {
 			return;

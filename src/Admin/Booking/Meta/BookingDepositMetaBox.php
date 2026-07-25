@@ -52,9 +52,6 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 
 		// AJAX handlers
-		add_action( 'wp_ajax_mhm_rentiva_process_deposit_payment', array( self::class, 'ajax_process_deposit_payment' ) );
-		add_action( 'wp_ajax_mhm_rentiva_process_full_payment', array( self::class, 'ajax_process_full_payment' ) );
-		add_action( 'wp_ajax_mhm_rentiva_process_refund', array( self::class, 'ajax_process_refund' ) );
 	}
 
 	/**

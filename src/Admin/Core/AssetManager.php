@@ -692,142 +692,8 @@ final class AssetManager {
 	 */
 	private static function enqueue_screen_specific_scripts($screen): void
 	{
-		// Manual Booking Meta
-		if ($screen->id === 'booking') {
-			wp_enqueue_script(
-				'mhm-manual-booking-meta',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/manual-booking-meta.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-manual-booking-meta',
-				'mhmManualBooking',
-				array(
-					'ajaxUrl'  => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhm_manual_booking_nonce'),
-					'currency' => CurrencyHelper::get_currency_symbol(),
-					'locale'   => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'text'     => array(
-						'calculating'        => __('Calculating...', 'mhm-rentiva'),
-						'error'              => __('An error occurred', 'mhm-rentiva'),
-						'priceCalculated'    => __('Price calculated', 'mhm-rentiva'),
-						'dropoffAfterPickup' => __('Dropoff date must be after pickup date', 'mhm-rentiva'),
-						'fillAllFields'      => __('Please fill all required fields', 'mhm-rentiva'),
-						'calculatePrice'     => __('Calculate Price', 'mhm-rentiva'),
-						'creating'           => __('Creating...', 'mhm-rentiva'),
-						'createBooking'      => __('Create Booking', 'mhm-rentiva'),
-						'selectedVehicle'    => __('Selected Vehicle', 'mhm-rentiva'),
-						'vehicle'            => __('Vehicle', 'mhm-rentiva'),
-						'dailyPrice'         => __('Daily Price', 'mhm-rentiva'),
-						'notSpecified'       => __('Not specified', 'mhm-rentiva'),
-						'rentalDays'         => __('Rental Days', 'mhm-rentiva'),
-						'days'               => __('days', 'mhm-rentiva'),
-						'vehicleTotal'       => __('Vehicle Total', 'mhm-rentiva'),
-						'addons'             => __('Add-ons', 'mhm-rentiva'),
-						'grandTotal'         => __('Grand Total', 'mhm-rentiva'),
-						'deposit'            => __('Deposit', 'mhm-rentiva'),
-						'remaining'          => __('Remaining', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Booking Edit Meta
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only screen routing check from query string.
-		if ($screen->id === 'booking' && isset($_GET['action']) && sanitize_text_field(wp_unslash($_GET['action'])) === 'edit') {
-			wp_enqueue_script(
-				'mhm-booking-edit-meta',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-edit-meta.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/booking-edit-meta.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-booking-edit-meta',
-				'mhmBookingEdit',
-				array(
-					'strings'      => array(
-						/* translators: %s: status label. */
-						'confirmStatusChange'  => sprintf(__('Are you sure you want to change the booking status to "%s"?', 'mhm-rentiva'), '%s'),
-						'changing'             => __('Changing status...', 'mhm-rentiva'),
-						'required_field'       => __('This field is required', 'mhm-rentiva'),
-						'invalid_email'        => __('Please enter a valid email address', 'mhm-rentiva'),
-						'invalid_phone'        => __('Please enter a valid phone number', 'mhm-rentiva'),
-						'value_range'          => __('Value must be between %min and %max', 'mhm-rentiva'),
-						'dropoff_after_pickup' => __('Dropoff date must be after pickup date', 'mhm-rentiva'),
-						'pickup_not_past'      => __('Pickup date cannot be in the past', 'mhm-rentiva'),
-						'dismiss'              => __('Dismiss this notice', 'mhm-rentiva'),
-					),
-					'statusLabels' => array(
-						'pending'     => __('Pending', 'mhm-rentiva'),
-						'confirmed'   => __('Confirmed', 'mhm-rentiva'),
-						'in_progress' => __('In Progress', 'mhm-rentiva'),
-						'completed'   => __('Completed', 'mhm-rentiva'),
-						'cancelled'   => __('Cancelled', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Deposit Management
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view detection from query string.
-		if ($screen->id === 'booking' && isset($_GET['deposit_management'])) {
-			wp_enqueue_script(
-				'mhm-deposit-management',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/deposit-management.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-deposit-management',
-				'mhmDepositManagement',
-				array(
-					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhm_deposit_nonce'),
-					'strings' => array(
-						'confirmRemainingPayment' => __('Are you sure you want to process the remaining payment?', 'mhm-rentiva'),
-						'confirmApprovePayment'   => __('Are you sure you want to approve this payment?', 'mhm-rentiva'),
-						'confirmCancelBooking'    => __('Are you sure you want to cancel this booking?', 'mhm-rentiva'),
-						'confirmRefund'           => __('Are you sure you want to process this refund?', 'mhm-rentiva'),
-						'error'                   => __('An error occurred', 'mhm-rentiva'),
-						'dismiss'                 => __('Dismiss this notice', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
-		// Shortcode Settings
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-shortcode-settings') {
-			wp_enqueue_script(
-				'mhm-shortcode-settings',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/shortcode-settings.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/shortcode-settings.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-shortcode-settings',
-				'mhmRentivaShortcodeSettings',
-				array(
-					'i18n' => array(
-						'copied'          => __('Copied to clipboard', 'mhm-rentiva'),
-						'copy_failed'     => __('Failed to copy', 'mhm-rentiva'),
-						'confirm_reset'   => __('Are you sure you want to reset all settings to default?', 'mhm-rentiva'),
-						'disable_all'     => __('Disable All', 'mhm-rentiva'),
-						'enable_all'      => __('Enable All', 'mhm-rentiva'),
-						'unsaved_changes' => __('You have unsaved changes. Are you sure you want to leave this page?', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Vehicle Gallery & Meta
 		if ($screen->id === 'vehicle' || $screen->post_type === 'vehicle') {
 			wp_enqueue_media();
@@ -885,28 +751,6 @@ final class AssetManager {
 		// part of the add-on asset carve-out (WP.org T4 Phase B, Task B-A1).
 
 		// Booking Calendar
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin view selection from query string.
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-bookings' && isset($_GET['view']) && sanitize_text_field(wp_unslash($_GET['view'])) === 'calendar') {
-			wp_enqueue_script(
-				'mhm-booking-calendar',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-calendar.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/booking-calendar.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-booking-calendar',
-				'mhmBookingCalendar',
-				array(
-					'locale'  => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'strings' => array(
-						'selectedDate' => __('Selected date', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Bookings List (CPT list) - ensure bulk actions work reliably
 		if ($screen->id === 'edit-vehicle_booking') {
 			wp_enqueue_script(
@@ -1245,40 +1089,6 @@ final class AssetManager {
 			);
 		}
 
-		// Addon List
-		if ($screen->id === 'edit-addon' || $screen->post_type === 'addon') {
-			wp_enqueue_script(
-				'mhm-addon-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/addon-list.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-addon-list',
-				'mhm_addon_list_vars',
-				array(
-					'ajax_url'          => admin_url('admin-ajax.php'),
-					'nonce'             => wp_create_nonce('mhm_addon_list_nonce'),
-					'currency'          => CurrencyHelper::get_currency_symbol(),
-					'locale'            => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-					'no_items_selected' => __('Please select at least one item', 'mhm-rentiva'),
-					'items_selected'    => __('selected', 'mhm-rentiva'),
-					'confirm_enable'    => __('Enable selected add-ons?', 'mhm-rentiva'),
-					'confirm_disable'   => __('Disable selected add-ons?', 'mhm-rentiva'),
-					'confirm_delete'    => __('Delete selected add-ons? This action cannot be undone.', 'mhm-rentiva'),
-					'processing'        => __('Processing...', 'mhm-rentiva'),
-					'error_occurred'    => __('An error occurred', 'mhm-rentiva'),
-					'strings'           => array(
-						'invalidPrice'     => __('Invalid price value!', 'mhm-rentiva'),
-						'priceUpdateError' => __('Error updating price', 'mhm-rentiva'),
-						'unknownError'     => __('Unknown error', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
-
 		// Email Templates
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates') {
 			wp_enqueue_script(
@@ -1329,52 +1139,6 @@ final class AssetManager {
 		// \MHMRentiva\Admin\Utilities\Export\Export::enqueue_scripts() now enqueues
 		// this handle itself from its own plugin directory, alongside the React
 		// bundle it already served (WP.org T4 Phase B, Task B-A1).
-
-		// Booking Meta
-		if ($screen->id === 'booking' || $screen->post_type === 'booking') {
-			wp_enqueue_style(
-				'mhm-booking-meta',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-meta.css',
-				array(),
-				MHM_RENTIVA_VERSION
-			);
-
-			wp_enqueue_script(
-				'mhm-booking-meta',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-meta.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/booking-meta.js'),
-				true
-			);
-
-			// Addon Booking Component
-			self::enqueue_component_js('addon-booking');
-		}
-
-		// Addon Admin
-		if ($screen->id === 'addon') {
-			wp_enqueue_script(
-				'mhm-addon-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-admin.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/addon-admin.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-addon-admin',
-				'mhmAddonAdmin',
-				array(
-					'ajax_url' => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhm_addon_admin_nonce'),
-					'strings'  => array(
-						'confirm_bulk_enable' => __('Enable selected add-ons?', 'mhm-rentiva'),
-						'confirm_delete'      => __('Are you sure you want to delete this?', 'mhm-rentiva'),
-						'invalidPrice'        => __('Enter a valid price (0 or greater)', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
 	}
 
 

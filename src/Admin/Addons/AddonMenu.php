@@ -33,7 +33,6 @@ final class AddonMenu {
 	{
 		add_action('admin_notices', array( self::class, 'admin_notices' ));
 		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
-		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_admin_scripts' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_page_title_style' ));
 	}
 
@@ -123,48 +122,6 @@ final class AddonMenu {
 		}
 	}
 
-
-	/**
-	 * Enqueue admin scripts.
-	 *
-	 * @param string $hook Admin page hook.
-	 */
-	public static function enqueue_admin_scripts(string $hook): void
-	{
-		// Only load on addon pages.
-		if (false === strpos($hook, 'vehicle_addon')) {
-			return;
-		}
-
-		wp_enqueue_style(
-			'mhm-rentiva-addon-admin',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-admin.css',
-			array(),
-			MHM_RENTIVA_VERSION
-		);
-
-		wp_enqueue_script(
-			'mhm-rentiva-addon-admin',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-admin.js',
-			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
-			true
-		);
-
-		wp_localize_script(
-			'mhm-rentiva-addon-admin',
-			'mhmAddonAdmin',
-			array(
-				'ajax_url' => admin_url('admin-ajax.php'),
-				'nonce'    => wp_create_nonce('mhm_addon_admin'),
-				'strings'  => array(
-					'confirm_delete'       => __('Are you sure you want to delete this additional service?', 'mhm-rentiva'),
-					'confirm_bulk_enable'  => __('Are you sure you want to enable selected additional services?', 'mhm-rentiva'),
-					'confirm_bulk_disable' => __('Are you sure you want to disable selected additional services?', 'mhm-rentiva'),
-				),
-			)
-		);
-	}
 
 	/**
 	 * Enqueue the CSS that hides the default WP Title & Add New button on
