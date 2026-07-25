@@ -111,7 +111,10 @@ final class BookingMeta extends AbstractMetaBox {
 		// Auto note adding hooks
 		// Note: "Booking created" note is added manually (in ManualBookingMetaBox and BookingForm)
 		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'auto_add_status_change_note' ), 10, 3);
-		add_action('mhm_payment_status_changed', array( self::class, 'auto_add_payment_note' ), 10, 3);
+		// `mhm_payment_status_changed` was listened for here but fired by nothing in
+		// either edition, so `auto_add_payment_note()` never ran and no payment note
+		// was ever written. Rather than invent a firing site, the listener goes; the
+		// method stays available for a caller that means it.
 
 		// Show admin notices
 		add_action('admin_notices', array( self::class, 'show_admin_notices' ));

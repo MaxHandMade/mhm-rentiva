@@ -22,7 +22,7 @@ final class PerformanceHelper {
 	/**
 	 * Cache key prefix
 	 */
-	private const CACHE_PREFIX = 'mhm_shortcode_';
+	private const CACHE_PREFIX = 'mhm_rentiva_shortcode_';
 
 	/**
 	 * Default cache duration (1 hour)

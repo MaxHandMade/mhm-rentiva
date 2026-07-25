@@ -21,7 +21,7 @@ final class Cache {
 	 * Generate cache key
 	 */
 	private static function generateKey( int $vehicle_id, int $start_ts, int $end_ts ): string {
-		return sprintf( 'mhm_avail_%d_%d_%d', $vehicle_id, $start_ts, $end_ts );
+		return sprintf( 'mhm_rentiva_avail_%d_%d_%d', $vehicle_id, $start_ts, $end_ts );
 	}
 
 	/**
@@ -50,7 +50,7 @@ final class Cache {
 	public static function invalidateVehicle( int $vehicle_id ): void {
 		global $wpdb;
 
-		$pattern = '%' . $wpdb->esc_like( 'mhm_avail_' . $vehicle_id . '_' ) . '%';
+		$pattern = '%' . $wpdb->esc_like( 'mhm_rentiva_avail_' . $vehicle_id . '_' ) . '%';
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -67,7 +67,7 @@ final class Cache {
 		global $wpdb;
 
 		// Find and delete all keys containing this date range
-		$pattern = '%mhm_avail_%';
+		$pattern = '%mhm_rentiva_avail_%';
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -98,7 +98,7 @@ final class Cache {
 	public static function clearAll(): void {
 		global $wpdb;
 
-		$pattern = '%' . $wpdb->esc_like( 'mhm_avail_' ) . '%';
+		$pattern = '%' . $wpdb->esc_like( 'mhm_rentiva_avail_' ) . '%';
 
 		$wpdb->query(
 			$wpdb->prepare(
@@ -114,7 +114,7 @@ final class Cache {
 	public static function getStats(): array {
 		global $wpdb;
 
-		$pattern = '%' . $wpdb->esc_like( 'mhm_avail_' ) . '%';
+		$pattern = '%' . $wpdb->esc_like( 'mhm_rentiva_avail_' ) . '%';
 
 		$count = $wpdb->get_var(
 			$wpdb->prepare(

@@ -505,7 +505,7 @@ abstract class AbstractShortcode {
 			'v'        => $version,
 		);
 
-		return 'mhm_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
+		return 'mhm_rentiva_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
 	}
 
 	/**
