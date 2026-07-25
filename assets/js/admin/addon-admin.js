@@ -21,9 +21,6 @@
 
 		// Price validation
 		initPriceValidation();
-
-		// Auto-save draft
-		initAutoSave();
 	}
 
 	function initBulkActions() {
@@ -109,26 +106,6 @@
 		);
 	}
 
-	function initAutoSave() {
-		// Auto-save draft on form changes
-		var autoSaveTimer;
-
-		$( '#post input, #post textarea, #post select' ).on(
-			'change',
-			function () {
-				clearTimeout( autoSaveTimer );
-				autoSaveTimer = setTimeout(
-					function () {
-						if ($( '#post_status' ).val() === 'draft') {
-							autoSaveDraft();
-						}
-					},
-					2000
-				);
-			}
-		);
-	}
-
 	function formatPrice(value) {
 		// Remove non-numeric characters except decimal point
 		value = value.replace( /[^\d.,]/g, '' );
@@ -154,55 +131,6 @@
 
 	function hideFieldError(field) {
 		field.siblings( '.field-error' ).remove();
-	}
-
-	function autoSaveDraft() {
-		// Auto-save functionality
-		var formData = {
-			action: 'mhm_auto_save_addon',
-			post_id: $( '#post_ID' ).val(),
-			post_title: $( '#title' ).val(),
-			post_content: $( '#content' ).val(),
-			addon_price: $( 'input[name="addon_price"]' ).val(),
-			addon_enabled: $( 'input[name="addon_enabled"]' ).is( ':checked' ) ? '1' : '0',
-			addon_required: $( 'input[name="addon_required"]' ).is( ':checked' ) ? '1' : '0',
-			nonce: mhmAddonAdmin.nonce
-		};
-
-		$.post(
-			mhmAddonAdmin.ajax_url,
-			formData,
-			function (response) {
-				if (response.success) {
-					const savedMsg = (mhmAddonAdmin.strings && mhmAddonAdmin.strings.autoSaved) || 'Auto-saved';
-					showAutoSaveNotice( savedMsg, 'success' );
-				}
-			}
-		).fail(
-			function () {
-				const failedMsg = (mhmAddonAdmin.strings && mhmAddonAdmin.strings.autoSaveFailed) || 'Auto-save failed';
-				showAutoSaveNotice( failedMsg, 'error' );
-			}
-		);
-	}
-
-	function showAutoSaveNotice(message, type) {
-		var noticeClass = type === 'success' ? 'notice-success' : 'notice-error';
-		var notice      = $( '<div class="notice ' + noticeClass + ' is-dismissible auto-save-notice" style="position: fixed; top: 32px; right: 20px; z-index: 9999; max-width: 300px;"><p>' + message + '</p></div>' );
-
-		$( '.auto-save-notice' ).remove();
-		$( 'body' ).append( notice );
-
-		setTimeout(
-			function () {
-				notice.fadeOut(
-					function () {
-						notice.remove();
-					}
-				);
-			},
-			3000
-		);
 	}
 
 	// Utility functions

@@ -1371,8 +1371,6 @@ final class AssetManager {
 						'confirm_bulk_enable' => __('Enable selected add-ons?', 'mhm-rentiva'),
 						'confirm_delete'      => __('Are you sure you want to delete this?', 'mhm-rentiva'),
 						'invalidPrice'        => __('Enter a valid price (0 or greater)', 'mhm-rentiva'),
-						'autoSaved'           => __('Auto-saved', 'mhm-rentiva'),
-						'autoSaveFailed'      => __('Auto-save failed', 'mhm-rentiva'),
 					),
 				)
 			);

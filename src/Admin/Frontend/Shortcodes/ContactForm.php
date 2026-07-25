@@ -745,7 +745,7 @@ final class ContactForm extends AbstractShortcode {
 		$allowed_types  = array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' );
 		$file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-		if (! in_array($file_extension, $allowed_types)) {
+		if (! in_array($file_extension, $allowed_types, true)) {
 			return array(
 				'success' => false,
 				'message' => __('Invalid file type.', 'mhm-rentiva'),

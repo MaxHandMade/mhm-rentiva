@@ -74,7 +74,7 @@ $unique_id = uniqid('rv_booking_');
 
 <div class="rv-booking-form-wrapper mhm-rentiva-booking-form alignwide <?php echo esc_attr($class); ?>"
 	data-testid="booking-form-wrapper"
-	data-redirect-url="<?php echo esc_attr($redirect_url); ?>"
+	data-redirect-url="<?php echo esc_url($redirect_url); ?>"
 	<?php
 	if (! empty($selected_vehicle['id'])) :
 		?>
@@ -398,7 +398,7 @@ $unique_id = uniqid('rv_booking_');
 					// Default to deposit payment
 					?>
 					<input type="hidden" name="payment_type" value="deposit">
-					<input type="hidden" name="redirect_url" value="<?php echo esc_attr($redirect_url); ?>">
+					<input type="hidden" name="redirect_url" value="<?php echo esc_url($redirect_url); ?>">
 
 					<!-- Form Buttons -->
 
