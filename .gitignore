@@ -344,6 +344,15 @@ bin/*
 # Quality-gate script: `composer check-guarded-refs` requires it at runtime
 # and Task 3 wires it into CI, so it must ship in every clone.
 !bin/check-guarded-refs.php
+# Audit helpers for the defect classes WordPress.org's review kept surfacing.
+# Deliberately REPORTS, not CI gates -- each prints what it cannot see before
+# what it found, because a tool that under-reports while printing "0 found" is
+# the same false confidence that let 500 phpcs suppressions read as clean.
+# Tracked because the next submission (this plugin or another) has to be able to
+# re-run them; see standards/wporg-submission-guidelines.md -> KANUN 0.
+!bin/audit-object-capabilities.php
+!bin/audit-control-classes.php
+!bin/audit-phantom-callbacks.php
 # Quality-gate script: `composer crippleware` / `composer carve-gates` require
 # it at runtime; must ship in every clone (carve-out Task 1).
 !bin/check-crippleware.php
