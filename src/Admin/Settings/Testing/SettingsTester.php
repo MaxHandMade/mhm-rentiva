@@ -645,7 +645,7 @@ final class SettingsTester {
 		$full_option_snapshot  = (array) get_option( $option_name, array() );
 		$all_settings          = $full_option_snapshot;
 		$original_values       = array();
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Test harness captures/restores raw globals to simulate form submissions.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Diagnostic self-test; reached only via SettingsCore's AJAX endpoint, which checks the nonce and manage_options first. Captures $_POST so it can restore it afterwards.
 		$original_post = $_POST ?? array();
 
 		// Store original values from main settings array
@@ -728,7 +728,7 @@ final class SettingsTester {
 		}
 
 		// Also set $_REQUEST for compatibility
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Test harness mirrors raw form payload.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Diagnostic self-test; entry point (SettingsCore AJAX) verified nonce + manage_options. The payload is written and read back by this method only, never persisted.
 		$_REQUEST['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
 
 		// Prepare input for sanitization
@@ -750,7 +750,7 @@ final class SettingsTester {
 		}
 		// Also add as 'mhm_rentiva_settings' key for extraction process
 		// (but only with values that would be in real $_POST - checked checkboxes)
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Test harness mirrors raw form payload.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotValidated,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Diagnostic self-test; entry point (SettingsCore AJAX) verified nonce + manage_options. The payload is written and read back by this method only, never persisted.
 		$input_for_sanitize['mhm_rentiva_settings'] = $_POST['mhm_rentiva_settings'];
 
 		// Update settings - this will trigger sanitization

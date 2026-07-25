@@ -268,13 +268,13 @@ final class ContactForm extends AbstractShortcode {
 				sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), (int) ceil($limit_time / 60))
 			);
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is already verified by verify_ajax_request_or_die() above.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- SecurityHelper::verify_ajax_request_or_die('mhm_rentiva_contact_form_nonce') runs at the top of this method and wp_send_json_error()s on failure; the sniff cannot see through the wrapper.
 			$form_data = self::sanitize_contact_form_data(wp_unslash(isset($_POST) && is_array($_POST) ? $_POST : array()));
 
 			// Handle file upload
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is already verified by verify_ajax_request_or_die() above.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- SecurityHelper::verify_ajax_request_or_die('mhm_rentiva_contact_form_nonce') runs at the top of this method and wp_send_json_error()s on failure; the sniff cannot see through the wrapper.
 			if (! empty($_FILES['attachment']['name'])) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is already verified by verify_ajax_request_or_die(); file array is validated in handle_file_upload().
+				// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified at the top of this method (see above); the $_FILES array is validated by handle_file_upload() before anything is read from it.
 				$upload_result = self::handle_file_upload($_FILES['attachment']);
 
 				if ($upload_result['success']) {
@@ -332,19 +332,19 @@ final class ContactForm extends AbstractShortcode {
 	{
 		try {
 			// Nonce check
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is validated via verify_nonce() in this condition.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This line IS the nonce check: self::verify_nonce() on the submitted value, failing closed on the next line.
 			if (! self::verify_nonce(isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '')) {
 				self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
 				return;
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is validated via verify_nonce() above.
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked by the self::verify_nonce() guard a few lines above, which returns on failure.
 			if (! isset($_FILES['attachment'])) {
 				self::ajax_error(__('File not found.', 'mhm-rentiva'));
 				return;
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce is validated via verify_nonce() above; file array is validated in handle_file_upload().
+			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked by the self::verify_nonce() guard above; the $_FILES array is validated by handle_file_upload().
 			$file          = $_FILES['attachment'];
 			$upload_result = self::handle_file_upload($file);
 
