@@ -33,7 +33,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
 *   **Translation Ready:** Ships with a full Turkish translation.
 
-**Requirements:** WooCommerce is required for frontend booking payments.
+**Requirements:** WooCommerce. It is declared in the plugin header and checked on activation, so the plugin will not activate without it. WooCommerce provides the cart, checkout and payment gateways used for frontend bookings.
 
 = External services =
 
@@ -51,7 +51,7 @@ A separate paid Rentiva plugin adds a multi-vendor marketplace, VIP transfers wi
 
 1. Upload the plugin files to the `/wp-content/plugins/mhm-rentiva` directory, or install the plugin through the WordPress plugins screen directly.
 2. Activate the plugin through the 'Plugins' screen in WordPress.
-3. Install and activate WooCommerce if you want customers to book and pay from the frontend.
+3. Install and activate WooCommerce first. It is a required dependency: activation is refused without it.
 4. Use the Settings menu to configure your vehicle features, equipment, and module preferences.
 
 == Source code ==
@@ -83,7 +83,9 @@ Neither library is modified from its upstream release; their full source is publ
 == Frequently Asked Questions ==
 
 = Does it work with WooCommerce? =
-Yes. WooCommerce handles frontend payment processing and checkout, so your existing payment gateways work as they are. Admin-created manual bookings can also be handled offline without WooCommerce.
+It requires it. WooCommerce handles frontend checkout and payment, so your existing payment gateways
+work as they are, and the plugin will not activate without it. Bookings an administrator creates by
+hand can still be settled offline, without going through checkout.
 
 = Can I add custom features to vehicles? =
 Absolutely. You can add, rename, or remove custom features and equipment via the Vehicle Settings page.
@@ -100,13 +102,6 @@ Yes, all frontend components and admin settings are fully responsive.
 = Which page builders are supported? =
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
-== Screenshots ==
-
-1.  **Dashboard:** Overview of your rental business.
-2.  **Vehicle List:** Manage your fleet easily.
-3.  **Booking Calendar:** Visual calendar for managing reservations.
-4.  **Settings:** Comprehensive configuration options.
-
 == Changelog ==
 
 = 5.2.0 =
@@ -117,9 +112,20 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Removed a booking-status endpoint and its script that had no interface and performed no action.
 * Fixed the translation catalogue so it compiles cleanly; strings using placeholders such as %days% were mis-flagged as printf formats.
 * New: redesigned Dashboard and Vehicle Settings screens. Vehicle Settings opens in the new layout by default; append ?ui=legacy to the page URL for the previous one.
+* Removed the Settings > Security tab. Its seventeen controls - "Brute Force Protection", "SQL Injection Protection", "XSS Protection", "CSRF Protection", "Enable Rate Limiting" and the IP lists - were connected to nothing, so switching them on changed nothing. A control that reports a protection as active while nothing enforces it is worse than no control, because it gets relied on. Saved values are cleaned up on update.
+* Removed the "Secure API Access Tokens" section from Integration settings. It issued keys labelled READ, WRITE and ADMIN, but nothing in the plugin ever validated them, so a key created there opened nothing. Stored keys are deleted on update. The REST API itself is unchanged.
+* Removed the Integration settings that were likewise not wired to anything: token duration, token refresh, API caching, debug output and "Allow Global CORS". Rate limiting, which does work, stays.
+* Removed the "Scheduled Notifications" background job. It ran hourly against a queue nothing ever added to, while the Cron Monitor reported it healthy. Booking confirmations, reminders and refund notices are sent by the e-mail system and are unaffected.
+* Fixed: "delete all data on uninstall" stopped partway through, leaving tables, scheduled jobs and terms behind even with the setting enabled.
+* Fixed: the database backups screen could go blank - any .sql file in the backup folder without a matching database record caused a fatal error while the list was built.
+* Backups are now written under the uploads folder instead of directly into wp-content. Backups taken by earlier versions stay listed, restorable and deletable.
+* Fixed: vehicle quick edit accepted values the full editor rejects - a negative daily price, which multiplied into rental totals, and a seat count of zero or above the configured maximum.
+* Fixed: the vehicle search request accepted any page size, so one request could ask the site to render the entire fleet. Search and testimonials now enforce the limits their own settings advertise.
+* Internal: temporary cache entries, the last-login record and background job names now carry the plugin's prefix so they cannot collide with another plugin's. Existing values are migrated on update.
+* Internal: removed about 2,000 lines of unreferenced code, including a file registering database-maintenance commands and one that would have exposed protected vehicle and booking fields over the REST API had it ever been enabled.
 
 = 5.1.1 =
-* Internal: the REST API-key and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate registration of the API-key handlers was removed so each action is handled exactly once.
+* Internal: the REST and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate handler registration was removed so each action is handled exactly once. (The API-key management this refers to was removed entirely in 5.2.0.)
 * Internal: removed a leftover reference to a settings class that is not part of the free plugin, unreachable deposit-calculation code, and developer debug logging from the block-editor and search scripts.
 * Internal: the customer privacy controls now render only when their handlers are available (they ship with the paid add-on), so the free plugin shows no non-functional buttons; add-on-only scripts were also removed from the free plugin.
 * No feature or behaviour change; your settings and data are unaffected.

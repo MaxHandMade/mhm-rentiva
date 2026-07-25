@@ -12,7 +12,18 @@
       "Security: markup the plugin generates is filtered through an explicit allowlist as it is printed, replacing places that relied on the output having been escaped earlier.",
       "Removed a booking-status endpoint and the script that called it: neither had an interface and the endpoint performed no action.",
       "Fixed: the translation catalogue now compiles without errors. Strings containing placeholders such as %days% were mis-flagged as printf formats.",
-      "New: redesigned Dashboard and Vehicle Settings screens. Vehicle Settings opens in the new layout by default; add ?ui=legacy to the page URL to use the previous one for this release."
+      "New: redesigned Dashboard and Vehicle Settings screens. Vehicle Settings opens in the new layout by default; add ?ui=legacy to the page URL to use the previous one for this release.",
+      "Removed the Settings → Security tab. Its seventeen controls — \"Brute Force Protection\", \"SQL Injection Protection\", \"XSS Protection\", \"CSRF Protection\", \"Enable Rate Limiting\" and the IP lists — were not connected to anything: switching them on changed nothing. A control that says a protection is active while nothing enforces it is worse than no control at all, because it gets relied on. The saved values are cleaned up automatically when you update.",
+      "Removed the \"Secure API Access Tokens\" section from Integration settings. It issued keys labelled READ, WRITE and ADMIN, but no part of the plugin ever checked them — a key created there opened nothing. Stored keys are removed when you update. The REST API itself is unchanged and still authenticates normally.",
+      "Removed the Integration settings that were also not wired to anything: token duration, token refresh, API caching, debug output and \"Allow Global CORS\". Rate limiting, which does work, stays.",
+      "Removed the \"Scheduled Notifications\" background job. It ran every hour on a queue that no part of the plugin ever added anything to, and the Cron Monitor reported it as healthy. Booking confirmations, reminders and refund notices are sent by the e-mail system and are unaffected.",
+      "Fixed: choosing \"delete all data on uninstall\" stopped partway through. Removing the plugin left tables, scheduled jobs and taxonomy terms behind even though the setting was on.",
+      "Fixed: the database backups screen could go blank. Any .sql file in the backup folder without a matching database record triggered a fatal error while the list was being built.",
+      "Database backups are now written under your uploads folder instead of directly into wp-content. Backups taken by earlier versions stay listed, restorable and deletable — nothing is moved or lost.",
+      "Fixed: vehicle quick edit accepted values the full vehicle editor rejects. A daily price could be saved as a negative number, which then multiplied into rental totals, and the seat count could be set to zero or above the configured maximum.",
+      "Fixed: the vehicle search request accepted any page size, so a single request could ask the site to render the whole fleet. Search and testimonials now cap the page size at the limit their own settings advertise.",
+      "Internal: temporary cache entries, the user's last-login record and background job names now all carry the plugin's own prefix, so they cannot collide with another plugin storing something under the same name. Existing values are migrated on update.",
+      "Internal: removed around 2,000 lines of code that nothing referenced, including one file that registered database-maintenance commands and one that would have exposed protected vehicle and booking fields over the REST API if it had ever been switched on."
     ],
     "notice": "No action required. Site administrators are unaffected by the permission changes; on sites with editor or author roles, those users can now only act on records they are entitled to."
   },
