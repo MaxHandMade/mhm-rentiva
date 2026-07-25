@@ -25,12 +25,6 @@ parameters:
 			path: src/Admin/About/SystemInfo.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/About/Tabs/DeveloperTab.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -515,12 +509,6 @@ parameters:
 			identifier: method.unused
 			count: 1
 			path: src/Admin/Emails/Templates/EmailPreview.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 2
-			path: src/Admin/Frontend/Account/AccountAssets.php
 
 		-
 			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
@@ -1069,12 +1057,6 @@ parameters:
 			path: src/Admin/REST/Availability.php
 
 		-
-			message: '#^Call to function is_int\(\) with int will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/REST/Helpers/ValidationHelper.php
-
-		-
 			message: '#^Call to function method_exists\(\) with ''\\\\MHMRentiva\\\\Admin…'' and ''get_all'' will always evaluate to true\.$#'
 			identifier: function.alreadyNarrowedType
 			count: 1
@@ -1217,12 +1199,6 @@ parameters:
 			identifier: deadCode.unreachable
 			count: 7
 			path: src/Admin/Utilities/Dashboard/DashboardPage.php
-
-		-
-			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Admin/Utilities/Database/MetaKeysDocumentation.php
 
 		-
 			message: '#^Property WP_Screen\:\:\$post_type \(string\) on left side of \?\? is not nullable\.$#'

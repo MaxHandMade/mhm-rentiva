@@ -114,12 +114,15 @@ final class RESTSettings {
 			$rl                         = $input['rate_limiting'];
 			$sanitized['rate_limiting'] = array(
 				'enabled'        => ! empty($rl['enabled']),
-				'default_limit'  => max(1, (int) ( $rl['default_limit'] ?? 60 )),
-				'default_window' => max(1, (int) ( $rl['default_window'] ?? 60 )),
-				'strict_limit'   => max(1, (int) ( $rl['strict_limit'] ?? 10 )),
-				'strict_window'  => max(1, (int) ( $rl['strict_window'] ?? 60 )),
-				'burst_limit'    => max(1, (int) ( $rl['burst_limit'] ?? 100 )),
-				'burst_window'   => max(1, (int) ( $rl['burst_window'] ?? 300 )),
+				// Upper bounds mirror the max attributes the form declares; a crafted
+				// POST that only had to clear a floor could store a limit high enough
+				// to disable rate limiting while the UI still showed a cap.
+				'default_limit'  => max(1, min(1000, (int) ( $rl['default_limit'] ?? 60 ))),
+				'default_window' => max(1, min(3600, (int) ( $rl['default_window'] ?? 60 ))),
+				'strict_limit'   => max(1, min(100, (int) ( $rl['strict_limit'] ?? 10 ))),
+				'strict_window'  => max(1, min(3600, (int) ( $rl['strict_window'] ?? 60 ))),
+				'burst_limit'    => max(1, min(1000, (int) ( $rl['burst_limit'] ?? 100 ))),
+				'burst_window'   => max(1, min(3600, (int) ( $rl['burst_window'] ?? 300 ))),
 			);
 		}
 

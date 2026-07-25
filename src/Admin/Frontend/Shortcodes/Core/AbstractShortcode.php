@@ -488,10 +488,10 @@ abstract class AbstractShortcode {
 		$tag = static::get_shortcode_tag();
 
 		// Use versioning for mass invalidation (The WordPress Way)
-		$version = get_transient('mhm_rv_cache_v_' . $tag);
+		$version = get_transient('mhm_rentiva_rv_cache_v_' . $tag);
 		if (false === $version) {
 			$version = (string) time();
-			set_transient('mhm_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
+			set_transient('mhm_rentiva_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
 		}
 
 		// Include page ID, user status and other factors
@@ -736,7 +736,7 @@ abstract class AbstractShortcode {
 		// Invalidate all caches for this shortcode by deleting the version key
 		// This is the standard WP way to mass-invalidate transients without direct SQL
 		if (static::is_caching_enabled()) {
-			delete_transient('mhm_rv_cache_v_' . $tag);
+			delete_transient('mhm_rentiva_rv_cache_v_' . $tag);
 		}
 
 		// Cache tracking cleanup

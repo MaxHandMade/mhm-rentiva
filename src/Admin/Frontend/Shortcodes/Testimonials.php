@@ -446,8 +446,10 @@ final class Testimonials extends AbstractShortcode {
 				return;
 			}
 
-			$page       = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
-			$limit      = isset($_POST['limit']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))) : 5;
+			$page = isset($_POST['page']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['page']))) : 1;
+			// Clamped to the 50 the testimonials widget declares: this endpoint is
+			// nopriv and the value decides how many entries are rendered.
+			$limit      = isset($_POST['limit']) ? min(50, max(1, absint(sanitize_text_field(wp_unslash( (string) $_POST['limit']))))) : 5;
 			$rating     = isset($_POST['rating']) ? sanitize_text_field(wp_unslash( (string) $_POST['rating'])) : '';
 			$vehicle_id = isset($_POST['vehicle_id']) ? sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id'])) : '';
 

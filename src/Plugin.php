@@ -172,11 +172,6 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler')) {
 			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
 		}
-
-		// Notification Management
-		if ($this->is_class_available('\MHMRentiva\Admin\Notifications\NotificationManager')) {
-			\MHMRentiva\Admin\Notifications\NotificationManager::init();
-		}
 	}
 
 	/**

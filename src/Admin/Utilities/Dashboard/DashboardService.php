@@ -351,7 +351,7 @@ final class DashboardService {
 	 * Get recent bookings - Cached
 	 */
 	public static function get_recent_bookings(): array {
-		$cache_key = 'mhm_dashboard_recent_bookings_v4';
+		$cache_key = 'mhm_rentiva_dashboard_recent_bookings_v4';
 		$cached    = get_transient( $cache_key );
 		if ( $cached !== false ) {
 			return $cached;
@@ -926,7 +926,7 @@ final class DashboardService {
 	 * Get recent messages - Cached
 	 */
 	public static function get_recent_messages(): array {
-		$cache_key = 'mhm_recent_messages_' . get_current_user_id();
+		$cache_key = 'mhm_rentiva_recent_messages_' . get_current_user_id();
 		$cached    = get_transient( $cache_key );
 		if ( $cached !== false ) {
 			return $cached;

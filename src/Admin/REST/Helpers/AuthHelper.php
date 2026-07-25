@@ -10,7 +10,6 @@ if (! defined('ABSPATH')) {
 use WP_Error;
 use WP_REST_Request;
 use Exception;
-use MHMRentiva\Admin\REST\Helpers\SecureToken;
 
 
 
@@ -69,50 +68,5 @@ final class AuthHelper {
 			__('Authorization failed. Please refresh the page and try again.', 'mhm-rentiva'),
 			array( 'status' => 403 )
 		);
-	}
-
-	/**
-	 * Customer token validation
-	 *
-	 * @param string $token Customer token
-	 * @param string $post_type Post type to check (default: 'vehicle_booking')
-	 * @param string $email_meta_key Email meta key (default: '_booking_customer_email')
-	 * @return array|null Customer information or null
-	 */
-	public static function verifyCustomerToken(string $token, string $post_type = 'vehicle_booking', string $email_meta_key = '_booking_customer_email'): ?array
-	{
-		// ✅ Use secure token validation system
-		return SecureToken::verify_customer_token($token, $post_type, $email_meta_key);
-	}
-
-	/**
-	 * @deprecated Use dynamic checkRateLimit
-	 * Old hardcoded rate limiting system
-	 */
-	public static function checkRateLimitLegacy(string $identifier, int $limit = 60, int $window = 60): bool
-	{
-		$cache_key = 'mhm_rate_limit_' . md5($identifier);
-		$requests  = get_transient($cache_key) ?: array();
-
-		$now = time();
-
-		// Clean old requests
-		$requests = array_filter(
-			$requests,
-			function ($timestamp) use ($now, $window) {
-				return ( $now - $timestamp ) < $window;
-			}
-		);
-
-		// Limit check
-		if (count($requests) >= $limit) {
-			return false; // Rate limit exceeded
-		}
-
-		// Save new request
-		$requests[] = $now;
-		set_transient($cache_key, $requests, $window);
-
-		return true; // Rate limit not exceeded
 	}
 }

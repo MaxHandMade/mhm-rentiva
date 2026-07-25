@@ -92,6 +92,24 @@ final class VerifiedRequest {
 	}
 
 	/**
+	 * Integer clamped to a range.
+	 *
+	 * For values that come from a request and then size something -- a page
+	 * size, a limit, a count. `int()` alone is a floor of zero and no ceiling,
+	 * which on a nopriv endpoint means the caller chooses how much work the
+	 * server does. Where a form already declares a max, pass that same max here
+	 * so the declared bound is enforced on the side that can be trusted.
+	 */
+	public function intRange(string $key, int $fallback, int $min, int $max): int
+	{
+		if (! isset($this->data[ $key ]) || is_array($this->data[ $key ])) {
+			return $fallback;
+		}
+
+		return max($min, min($max, absint(wp_unslash( (string) $this->data[ $key ]))));
+	}
+
+	/**
 	 * Non-negative integer.
 	 */
 	public function int(string $key, int $fallback = 0): int

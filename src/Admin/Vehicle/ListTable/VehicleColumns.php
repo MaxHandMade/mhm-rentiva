@@ -647,7 +647,7 @@ final class VehicleColumns {
 		global $wpdb;
 
 		// Remove cache completely - get real data
-		// $cache_key = 'mhm_vehicle_stats_' . get_current_user_id();
+		// $cache_key = 'mhm_rentiva_vehicle_stats_' . get_current_user_id();
 		// $stats = get_transient($cache_key);
 
 		// if ($stats !== false && is_array($stats)) {
@@ -1575,6 +1575,27 @@ final class VehicleColumns {
 	/**
 	 * Save quick edit data
 	 */
+	/**
+	 * Daily price, clamped the way the full editor clamps it.
+	 *
+	 * A negative price is not a display problem: it flows straight into
+	 * Util::total_price() and produces negative rental totals.
+	 */
+	private static function sanitize_price_per_day($value): float
+	{
+		return max(0.0, (float) $value);
+	}
+
+	/**
+	 * Seat count, clamped to the same range the full editor enforces.
+	 */
+	private static function sanitize_seats($value): int
+	{
+		$max = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_max_seats();
+
+		return max(1, min($max, (int) $value));
+	}
+
 	public static function save_quick_edit(int $post_id): void
 	{
 		// Security: Nonce check
@@ -1606,13 +1627,18 @@ final class VehicleColumns {
 				'key'      => '_mhm_rentiva_license_plate',
 				'sanitize' => 'sanitize_text_field',
 			),
+			// Bounds mirror VehicleMeta::sanitize_field() for the same meta keys.
+			// Quick edit writes what the full editor writes, so it has to accept
+			// only what the full editor accepts -- otherwise the row list is a way
+			// around the editor's validation, and a negative daily price
+			// multiplies into every rental total.
 			'mhm_price_per_day' => array(
 				'key'      => '_mhm_rentiva_price_per_day',
-				'sanitize' => 'floatval',
+				'sanitize' => array( self::class, 'sanitize_price_per_day' ),
 			),
 			'mhm_seats'         => array(
 				'key'      => '_mhm_rentiva_seats',
-				'sanitize' => 'intval',
+				'sanitize' => array( self::class, 'sanitize_seats' ),
 			),
 			'mhm_transmission'  => array(
 				'key'      => '_mhm_rentiva_transmission',
@@ -1637,11 +1663,11 @@ final class VehicleColumns {
 			$raw_value = wp_unslash($_POST[ $field_name ]);
 			$value     = is_array($raw_value) ? array_map('sanitize_text_field', $raw_value) : sanitize_text_field( (string) $raw_value);
 
-			if ($config['sanitize'] === 'sanitize_text_field') {
-				$sanitized_value = sanitize_text_field( (string) ( $value ?: '' ));
-			} else {
-				$sanitized_value = call_user_func($config['sanitize'], $value);
-			}
+			// Array callables are this class's own clamps (price, seats); everything
+			// else in the map is the plain text sanitizer.
+			$sanitized_value = is_array($config['sanitize'])
+				? call_user_func($config['sanitize'], $value)
+				: sanitize_text_field( (string) ( $value ?: '' ));
 
 			if ($field_name === 'mhm_available') {
 				$normalized_status = self::normalize_availability($sanitized_value);

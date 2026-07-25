@@ -253,7 +253,7 @@ final class ShortcodeUrlManager {
 			return;
 		}
 
-		$transient_key = 'mhm_miss_sc_' . md5( $shortcode );
+		$transient_key = 'mhm_rentiva_miss_sc_' . md5( $shortcode );
 		if ( get_transient( $transient_key ) ) {
 			return;
 		}
@@ -300,7 +300,7 @@ final class ShortcodeUrlManager {
 
 		foreach ( $shortcodes as $sc ) {
 			wp_cache_delete( 'page_id_' . $sc, self::CACHE_GROUP );
-			delete_transient( 'mhm_miss_sc_' . md5( $sc ) );
+			delete_transient( 'mhm_rentiva_miss_sc_' . md5( $sc ) );
 		}
 
 		self::$runtime_cache = array();

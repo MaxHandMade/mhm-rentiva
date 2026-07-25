@@ -106,7 +106,7 @@ final class BookingNotifications {
 		}
 
 		// Fallback: avoid duplicates for guests within 30 days
-		$tkey = 'mhm_welcome_sent_' . md5( strtolower( $email ) );
+		$tkey = 'mhm_rentiva_welcome_sent_' . md5( strtolower( $email ) );
 		if ( get_transient( $tkey ) ) {
 			return;
 		}

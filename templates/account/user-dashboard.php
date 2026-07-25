@@ -74,7 +74,15 @@ if (! $user_display_name) {
 				<div class="mhm-rentiva-dashboard__user-info">
 					<div class="mhm-rentiva-dashboard__user-name"><?php echo esc_html($user_display_name); ?></div>
 					<?php
-					$last_login_raw = (string) get_user_meta($user->ID, 'last_login', true);
+					// The prefixed key is what SessionManager writes from 5.2.0. The bare
+					// key is still read as a fallback: a site upgrading from an earlier
+					// version has the value only under the old name until the user logs
+					// in again, and showing a frozen date would be worse than showing
+					// the real one.
+					$last_login_raw = (string) get_user_meta($user->ID, 'mhm_rentiva_last_login', true);
+					if ($last_login_raw === '') {
+						$last_login_raw = (string) get_user_meta($user->ID, 'last_login', true);
+					}
 					if ($last_login_raw !== '') {
 						$last_login_ts = strtotime($last_login_raw);
 						if ($last_login_ts) {

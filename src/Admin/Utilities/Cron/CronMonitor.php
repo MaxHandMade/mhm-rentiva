@@ -33,23 +33,19 @@ final class CronMonitor {
 
 		// Define all plugin cron hooks with verification info
 		$plugin_hooks = array(
-			'mhm_rentiva_auto_cancel_event'            => array(
+			'mhm_rentiva_auto_cancel_event'     => array(
 				'name'        => __( 'Auto Cancel Bookings', 'mhm-rentiva' ),
 				'description' => __( 'Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_send_scheduled_notifications' => array(
-				'name'        => __( 'Scheduled Notifications', 'mhm-rentiva' ),
-				'description' => __( 'Sends scheduled email notifications', 'mhm-rentiva' ),
-			),
-			'mhm_rentiva_email_log_purge_event'        => array(
+			'mhm_rentiva_email_log_purge_event' => array(
 				'name'        => __( 'Email Log Retention', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old email logs', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_log_purge_event'              => array(
+			'mhm_rentiva_log_purge_event'       => array(
 				'name'        => __( 'System Log Retention (Classic)', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old system logs (mhm_app_log post type)', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_daily_log_cleanup'            => array(
+			'mhm_rentiva_daily_log_cleanup'     => array(
 				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
 				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
@@ -168,8 +164,6 @@ final class CronMonitor {
 			'mhm_rentiva_known_cron_hooks',
 			array(
 				'mhm_rentiva_auto_cancel_event',
-				'mhm_data_retention_cleanup',
-				'mhm_rentiva_send_scheduled_notifications',
 				'mhm_rentiva_email_log_purge_event',
 				'mhm_rentiva_log_purge_event',
 				'mhm_rentiva_daily_log_cleanup',
@@ -254,8 +248,6 @@ final class CronMonitor {
 			'mhm_rentiva_known_cron_hooks',
 			array(
 				'mhm_rentiva_auto_cancel_event',
-				'mhm_data_retention_cleanup',
-				'mhm_rentiva_send_scheduled_notifications',
 				'mhm_rentiva_email_log_purge_event',
 				'mhm_rentiva_log_purge_event',
 				'mhm_rentiva_daily_log_cleanup',

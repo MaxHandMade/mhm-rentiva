@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.13.0';
+	private const CURRENT_VERSION = '3.14.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -44,7 +44,6 @@ final class DatabaseMigrator {
 
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
 			self::create_transfer_tables(); // VIP Transfer Tables
-			self::create_table('notification_queue');
 
 			// Payout governance schema (the `payout_audit` table + the seven
 			// `mhm_rentiva_*` capabilities added to the administrator role)
@@ -100,8 +99,9 @@ final class DatabaseMigrator {
 			self::delete_dead_security_setting_keys();
 			// API-key management removed — drop the credentials it stored.
 			self::delete_dead_api_key_option();
-			// The notification cron was renamed to carry the plugin's prefix.
-			self::unschedule_legacy_notification_cron();
+			// The scheduled-notification queue had no producer; the cron and its
+			// table go with the class.
+			self::remove_dead_notification_queue();
 			// Vendor Reports / Appeals (v4.35.0)
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
@@ -678,7 +678,9 @@ final class DatabaseMigrator {
 		// 2. Transient Data Cleaning
 		$wpdb->query(
 			"DELETE FROM {$wpdb->options} 
-             WHERE option_name LIKE '_transient_mhm_rate_limit_%' 
+             WHERE option_name LIKE '_transient_mhm_rentiva_rate_limit_%'
+             OR option_name LIKE '_transient_timeout_mhm_rentiva_rate_limit_%'
+             OR option_name LIKE '_transient_mhm_rate_limit_%'
              OR option_name LIKE '_transient_timeout_mhm_rate_limit_%'"
 		);
 	}
@@ -722,12 +724,6 @@ final class DatabaseMigrator {
 			case 'message_logs':
 			case 'mhm_message_logs':
 				self::create_message_logs_table();
-				return true;
-			case 'notification_queue':
-			case 'mhm_notification_queue':
-				if (class_exists(\MHMRentiva\Admin\Notifications\NotificationManager::class)) {
-					\MHMRentiva\Admin\Notifications\NotificationManager::create_notification_queue_table();
-				}
 				return true;
 			case 'payout_audit':
 			case 'mhm_rentiva_payout_audit':
@@ -1190,25 +1186,38 @@ final class DatabaseMigrator {
 	 * option is a harmless no-op.
 	 */
 	/**
-	 * Drop the notification cron's pre-5.2.0 event.
+	 * Remove the scheduled-notification queue.
 	 *
-	 * The hook was `mhm_send_scheduled_notifications` -- prefixed with `mhm`
-	 * rather than the plugin's own `mhm_rentiva`, which is the collision
-	 * WordPress.org's prefix rule exists to prevent. Renaming the registration
-	 * is not enough: a scheduled event lives in the `cron` option and survives
-	 * independently of the code that scheduled it, so an upgraded site would
-	 * carry an event under the old name that nothing listens for, firing on
-	 * every cron run for the rest of the install's life. The new event is
-	 * scheduled by NotificationManager on its own terms.
+	 * `NotificationManager` registered an hourly cron, drained a queue table and
+	 * reported itself in Cron Monitor as a healthy "Scheduled Notifications"
+	 * job. Nothing ever filled that queue: `send_notification()` and
+	 * `queue_notification()` had no callers in either edition, so the job ran
+	 * forever over an empty table while the monitor showed it working. Real
+	 * email never went through it -- booking confirmations, reminders and
+	 * refunds are sent synchronously by the Emails module.
+	 *
+	 * Deleting the class is not enough. A scheduled event lives in the `cron`
+	 * option and outlives the code that scheduled it, so both the current hook
+	 * name and its pre-5.2.0 spelling are cleared here, and the queue table --
+	 * which nothing has written since it was introduced -- is dropped.
 	 */
-	private static function unschedule_legacy_notification_cron(): void
+	private static function remove_dead_notification_queue(): void
 	{
-		$legacy_hook = 'mhm_send_scheduled_notifications';
+		global $wpdb;
 
-		$timestamp = wp_next_scheduled($legacy_hook);
-		while ($timestamp) {
-			wp_unschedule_event($timestamp, $legacy_hook);
-			$timestamp = wp_next_scheduled($legacy_hook);
+		foreach (array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ) as $hook) {
+			$timestamp = wp_next_scheduled($hook);
+			while ($timestamp) {
+				wp_unschedule_event($timestamp, $hook);
+				$timestamp = wp_next_scheduled($hook);
+			}
+		}
+
+		$table = self::sanitize_table_identifier($wpdb->prefix . 'mhm_notification_queue');
+
+		if ('' !== $table) {
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Identifier built from the WordPress table prefix and a literal, passed through the class's own identifier filter; DROP cannot take a placeholder.
+			$wpdb->query("DROP TABLE IF EXISTS `{$table}`");
 		}
 	}
 

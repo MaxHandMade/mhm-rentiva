@@ -223,9 +223,9 @@ PHP;
 	 * $class_name );` -- nothing else), so a bare string missing the
 	 * 'MHMRentiva\' prefix can never resolve at runtime. The guard is
 	 * permanently false and the code behind it never runs. This must be
-	 * reported, not silently skipped. 'Admin\REST\ErrorHandler' is used
+	 * reported, not silently skipped. 'Admin\REST\Availability' is used
 	 * because it names a REAL class in this repository
-	 * (src/Admin/REST/ErrorHandler.php) -- that's what proves this is a
+	 * (src/Admin/REST/Availability.php) -- that's what proves this is a
 	 * missing-prefix bug, not a legitimate third-party reference.
 	 */
 	public function test_reports_dead_guard_missing_mhmrentiva_prefix_via_forwarding_wrapper(): void {
@@ -239,7 +239,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -249,7 +249,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -297,7 +297,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -307,7 +307,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -326,7 +326,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -336,7 +336,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -359,7 +359,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -369,7 +369,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -388,7 +388,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -398,7 +398,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -417,7 +417,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -427,7 +427,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -447,7 +447,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -457,7 +457,7 @@ PHP;
 		$found = ( $this->collector() )( $code );
 
 		$this->assertCount( 1, $found );
-		$this->assertSame( 'MHMRentiva\Admin\REST\ErrorHandler', $found[0]['class'] );
+		$this->assertSame( 'MHMRentiva\Admin\REST\Availability', $found[0]['class'] );
 		$this->assertSame( 'dead', $found[0]['kind'] );
 	}
 
@@ -467,7 +467,7 @@ PHP;
 	 * the class does NOT exist), so it must NOT be treated as forwarding --
 	 * unlike the paired `!!` case above. The dead-guard check must stay
 	 * silent for its call sites (treating it as forwarding here would
-	 * produce a false positive on 'Admin\REST\ErrorHandler', which is a
+	 * produce a false positive on 'Admin\REST\Availability', which is a
 	 * real class).
 	 */
 	public function test_rejects_wrapper_with_single_negation_as_non_forwarding(): void {
@@ -481,7 +481,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -537,7 +537,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}
@@ -566,7 +566,7 @@ final class Plugin {
 	}
 
 	public function boot(): void {
-		if ( $this->is_class_available( 'Admin\REST\ErrorHandler' ) ) {
+		if ( $this->is_class_available( 'Admin\REST\Availability' ) ) {
 			echo 'never runs';
 		}
 	}

@@ -161,7 +161,7 @@ final class SecurityHelper {
 			$user_id = self::get_client_ip();
 		}
 
-		$key      = "mhm_rate_limit_{$action}_{$user_id}";
+		$key      = "mhm_rentiva_rate_limit_{$action}_{$user_id}";
 		$attempts = get_transient($key);
 		if (false === $attempts) {
 			$attempts = 0;

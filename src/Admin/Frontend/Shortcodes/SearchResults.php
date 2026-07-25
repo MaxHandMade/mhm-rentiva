@@ -871,7 +871,10 @@ final class SearchResults extends AbstractShortcode {
 
 			$atts = array(
 				'layout'               => $req->text('layout', 'grid'),
-				'results_per_page'     => $req->int('per_page', 12),
+				// Clamped to the range the search widget declares (1-100). This
+				// endpoint is nopriv and the value becomes posts_per_page, so an
+				// unbounded page size lets any visitor ask for the whole catalogue.
+				'results_per_page'     => $req->intRange('per_page', 12, 1, 100),
 				'show_favorite_button' => $req->text('show_favorite_button', '1'),
 				'show_compare_button'  => $req->text('show_compare_button', '1'),
 				'show_booking_button'  => $req->text('show_booking_button', '1'),

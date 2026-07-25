@@ -17,6 +17,31 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
+/**
+ * WordPress includes this file with the plugin NOT loaded, so the PSR-4
+ * autoloader registered in mhm-rentiva.php does not exist here. Requiring
+ * Uninstaller.php alone is not enough: anything it reaches for -- today
+ * DatabaseCleaner, tomorrow whatever else -- has to resolve, or deletion fatals
+ * partway through and every later step (table drops, cron clearing, taxonomy
+ * cleanup) silently never runs, leaving behind exactly the data the site owner
+ * asked to be removed. Registering the namespace here fixes the class of bug
+ * rather than one instance of it.
+ */
+spl_autoload_register(
+	function ( $class_name ) {
+		if ( strpos( $class_name, 'MHMRentiva\\' ) !== 0 ) {
+			return;
+		}
+
+		$relative = str_replace( array( 'MHMRentiva\\', '\\' ), array( '', '/' ), $class_name ) . '.php';
+		$path     = __DIR__ . '/src/' . $relative;
+
+		if ( file_exists( $path ) ) {
+			require_once $path;
+		}
+	}
+);
+
 // Check if user wants to clean data on uninstall
 $settings = get_option( 'mhm_rentiva_settings', array() );
 if ( ! is_array( $settings ) ) {

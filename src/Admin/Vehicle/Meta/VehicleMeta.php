@@ -18,8 +18,11 @@ final class VehicleMeta extends AbstractMetaBox {
 
 	/**
 	 * ⭐ Get maximum seats limit (configurable from settings, default: 100)
+	 *
+	 * Public because quick edit writes the same meta key and has to enforce the
+	 * same ceiling; two surfaces writing one key must agree on what it may hold.
 	 */
-	private static function get_max_seats(): int
+	public static function get_max_seats(): int
 	{
 		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
 			'mhm_rentiva_vehicle_max_seats',
