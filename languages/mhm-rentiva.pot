@@ -6063,7 +6063,7 @@ msgstr ""
 
 #. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:71
-#, php-format
+#, no-php-format
 msgid "The selected vehicle is not available on %date%. Please select a different date."
 msgstr ""
 
@@ -6081,7 +6081,7 @@ msgstr ""
 
 #. translators: %days% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:76
-#, php-format
+#, no-php-format
 msgid "Reservation date is too far in the future. You can make reservations up to %days% days in advance."
 msgstr ""
 
@@ -6092,7 +6092,7 @@ msgstr ""
 
 #. translators: %days% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:80
-#, php-format
+#, no-php-format
 msgid "Maximum reservation duration is %days% days."
 msgstr ""
 
@@ -6150,7 +6150,7 @@ msgstr ""
 
 #. translators: %duration% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:99
-#, php-format
+#, no-php-format
 msgid "Vehicle is under maintenance. Estimated duration: %duration%."
 msgstr ""
 
@@ -6200,7 +6200,7 @@ msgstr ""
 
 #. translators: %duration% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:116
-#, php-format
+#, no-php-format
 msgid "System is under maintenance. Estimated duration: %duration%."
 msgstr ""
 
@@ -6210,7 +6210,7 @@ msgstr ""
 
 #. translators: %seconds% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:119
-#, php-format
+#, no-php-format
 msgid "Too many requests. Please wait %seconds% seconds."
 msgstr ""
 
@@ -6248,7 +6248,7 @@ msgstr ""
 
 #. translators: %size% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:131
-#, php-format
+#, no-php-format
 msgid "File size is too large. Maximum size: %size%."
 msgstr ""
 
@@ -6290,7 +6290,7 @@ msgstr ""
 
 #. translators: %booking_id% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:166
-#, php-format
+#, no-php-format
 msgid "Your reservation has been successfully created. Your reservation number: %booking_id%"
 msgstr ""
 
@@ -6333,31 +6333,31 @@ msgstr ""
 
 #. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:197
-#, php-format
+#, no-php-format
 msgid "Your payment must be made on %date%."
 msgstr ""
 
 #. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:199
-#, php-format
+#, no-php-format
 msgid "You must return the vehicle on %date%."
 msgstr ""
 
 #. translators: %days% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:201
-#, php-format
+#, no-php-format
 msgid "Your license will expire in %days% days."
 msgstr ""
 
 #. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:203
-#, php-format
+#, no-php-format
 msgid "Vehicle maintenance is scheduled for %date%."
 msgstr ""
 
 #. translators: %date% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:205
-#, php-format
+#, no-php-format
 msgid "Vehicle price will increase from %date%."
 msgstr ""
 
@@ -6383,7 +6383,7 @@ msgstr ""
 
 #. translators: %feature% is replaced with a runtime value.
 #: src/Admin/Core/Utilities/UXHelper.php:231
-#, php-format
+#, no-php-format
 msgid "New feature: %feature%. Click for details."
 msgstr ""
 
