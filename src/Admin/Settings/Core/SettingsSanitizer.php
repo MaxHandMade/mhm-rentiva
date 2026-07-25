@@ -283,7 +283,9 @@ final class SettingsSanitizer {
 		return array(
 			// Cache Settings.
 			'mhm_rentiva_cache_enabled'           => self::get_bool( $input, 'mhm_rentiva_cache_enabled' ),
-			'mhm_rentiva_cache_default_ttl'       => max( 0.5, floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ) ),
+			// Bounds mirror the number_field() declaration in CoreSettings; the
+			// browser enforces them, a crafted POST does not.
+			'mhm_rentiva_cache_default_ttl'       => self::clamp_value( floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ), 0.5, 24.0 ),
 			'mhm_rentiva_cache_lists_ttl'         => self::get_int( $input, 'mhm_rentiva_cache_lists_ttl', 5, 1, 60 ),
 			'mhm_rentiva_cache_reports_ttl'       => self::get_int( $input, 'mhm_rentiva_cache_reports_ttl', 15, 1, 1440 ),
 			'mhm_rentiva_cache_charts_ttl'        => self::get_int( $input, 'mhm_rentiva_cache_charts_ttl', 10, 1, 1440 ),
@@ -302,8 +304,11 @@ final class SettingsSanitizer {
 		$url_base = \sanitize_title( $input['mhm_rentiva_vehicle_url_base'] ?? ( $defaults['mhm_rentiva_vehicle_url_base'] ?? 'vehicle' ) );
 		$out      = array(
 			'mhm_rentiva_vehicle_url_base'             => $url_base ?: 'vehicle',
-			'mhm_rentiva_vehicle_base_price'           => max( 0.1, floatval( $input['mhm_rentiva_vehicle_base_price'] ?? ( $defaults['mhm_rentiva_vehicle_base_price'] ?? 1.0 ) ) ),
-			'mhm_rentiva_vehicle_weekend_multiplier'   => max( 0.1, floatval( $input['mhm_rentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ) ),
+			// Both fields declare max="100" in VehicleManagementSettings. The lower
+			// bound stays at 0.1 rather than the declared 0: these multiply a price,
+			// and a zero multiplier makes every rental free.
+			'mhm_rentiva_vehicle_base_price'           => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_base_price'] ?? ( $defaults['mhm_rentiva_vehicle_base_price'] ?? 1.0 ) ), 0.1, 100.0 ),
+			'mhm_rentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
 			'mhm_rentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhm_rentiva_vehicle_tax_inclusive' ),
 			'mhm_rentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
 			'mhm_rentiva_vehicle_cards_per_page'       => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 100 ),
@@ -363,7 +368,10 @@ final class SettingsSanitizer {
 						continue;
 					}
 					if ( isset( $season['multiplier'] ) ) {
-						$current_pricing['seasonal_multipliers'][ $safe_key ]['multiplier'] = floatval( $season['multiplier'] );
+						// Declared min="0.1" max="5.0" on the seasonal-multiplier input.
+						// Unclamped this accepted a negative value, which multiplies
+						// straight into the rental price.
+						$current_pricing['seasonal_multipliers'][ $safe_key ]['multiplier'] = self::clamp_value( floatval( $season['multiplier'] ), 0.1, 5.0 );
 					}
 				}
 			}
