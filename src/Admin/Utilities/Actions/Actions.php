@@ -40,7 +40,6 @@ final class Actions {
 		add_action( 'admin_post_mhm_rentiva_purge_logs', array( self::class, 'purge_logs' ) );
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
 		add_action( 'admin_post_mhm_rentiva_refund_booking', array( self::class, 'refund_booking' ) );
-		add_action( 'wp_ajax_mhm_rentiva_create_my_account_page', array( self::class, 'create_my_account_page' ) );
 	}
 
 	public static function refund_booking(): void {

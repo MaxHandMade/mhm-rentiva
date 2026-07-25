@@ -39,7 +39,6 @@ final class LogRetentionDefaultParityTest extends WP_UnitTestCase
 	public function runtimeFilesProvider(): array
 	{
 		return array(
-			'admin-actions'            => array('src/Admin/Actions/Actions.php'),
 			'admin-utilities-actions'  => array('src/Admin/Utilities/Actions/Actions.php'),
 			'maintenance-log-retention'=> array('src/Admin/PostTypes/Maintenance/LogRetention.php'),
 		);

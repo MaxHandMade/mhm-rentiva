@@ -376,6 +376,13 @@ final class Handler {
 					// This ensures auto-cancellation works for all bookings
 					'_mhm_payment_deadline'      => self::get_payment_deadline(),
 					'_mhm_pickup_location_id'    => (int) ( $booking_data['pickup_location_id'] ?? 0 ),
+
+					// The customer, as the rest of the codebase identifies them. post_author
+					// above is deliberately the admin (this endpoint accepts guests), so it
+					// is not an ownership signal; RemainingPaymentHandler and the account
+					// receipt endpoints both key off this meta, and a booking created here
+					// without it would be unreachable by its own customer.
+					'_mhm_customer_user_id'      => get_current_user_id(),
 				);
 
 				foreach ($meta_fields as $key => $value) {
