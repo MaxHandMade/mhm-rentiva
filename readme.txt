@@ -123,6 +123,13 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Fixed: the vehicle search request accepted any page size, so one request could ask the site to render the entire fleet. Search and testimonials now enforce the limits their own settings advertise.
 * Internal: temporary cache entries, the last-login record, background job names and the JavaScript objects our admin screens read now carry the plugin's prefix so they cannot collide with another plugin's. Caches expire and are rebuilt; the last-login value is written under the new name from this version on, and the old entry is left alone because that name is shared with other plugins.
 * Internal: removed about 2,000 lines of unreferenced code, including a file registering database-maintenance commands and one that would have exposed protected vehicle and booking fields over the REST API had it ever been enabled.
+* Removed the "Add Vehicle" control from the vehicle comparison: the button had no handler, its endpoints were never registered, and the Elementor switch for it had no effect. Selecting a vehicle and pressing it did nothing.
+* Fixed: "Auto Cleanup Logs" and "Log Retention (Days)" were ignored by the daily purge, which permanently deleted entries older than thirty days regardless of either setting.
+* Fixed: saving the Vehicle settings tab silently reset two Frontend-tab fields it does not display.
+* Fixed: the dashboard's recent-bookings panel could stay up to twelve hours stale after a booking changed.
+* Fixed: the customers screen re-ran every query on each load - its cache type was never registered, so nothing was stored or read.
+* Internal: every registered script and stylesheet now carries the full plugin prefix, so another plugin using the same short name cannot displace it.
+* Internal: settings posted from an unrecognised tab are no longer written to the database unchecked.
 
 = 5.1.1 =
 * Internal: the REST and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate handler registration was removed so each action is handled exactly once. (The API-key management this refers to was removed entirely in 5.2.0.)
