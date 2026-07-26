@@ -393,3 +393,8 @@ UI_CONTRACTS.md
 
 # WordPress.org submission drafts (banners, icons, copy drafts) — local-only.
 drafts/wporg-assets/
+
+# Internal working directories — these belong in the private Pro repo, never here.
+# Both were tracked in the public repo until 2026-07-26 and were removed from history.
+carveout/
+.superpowers/
