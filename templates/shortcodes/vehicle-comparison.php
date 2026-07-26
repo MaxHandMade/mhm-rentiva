@@ -17,13 +17,13 @@ if (! defined('ABSPATH')) {
 }
 
 // Get template data
-$atts             = $atts ?? array();
-$vehicles         = $vehicles ?? array();
-$features         = $features ?? array();
-$all_vehicles     = $all_vehicles ?? array();
-$max_vehicles     = $max_vehicles ?? 3;
-$has_vehicles     = $has_vehicles ?? false;
-$can_add_more     = $can_add_more ?? false;
+$atts         = $atts ?? array();
+$vehicles     = $vehicles ?? array();
+$features     = $features ?? array();
+$all_vehicles = $all_vehicles ?? array();
+$max_vehicles = $max_vehicles ?? 3;
+$has_vehicles = $has_vehicles ?? false;
+$can_add_more = $can_add_more ?? false;
 
 
 // Layout settings

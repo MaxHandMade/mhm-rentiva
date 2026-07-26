@@ -537,5 +537,4 @@ final class VehicleComparison extends AbstractShortcode {
 
 		return get_permalink($page_id);
 	}
-
 }
