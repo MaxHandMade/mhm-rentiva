@@ -274,8 +274,11 @@ final class VehiclesList extends AbstractShortcode {
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
+		// `mhm_rentiva_toggle_favorite` is registered by FavoritesService, which
+		// owns the behaviour. This class registered it twice more, pointing at a
+		// method that only proxies back to that service -- three registrations for
+		// one action, resolved by whichever hook happened to run first. Removed;
+		// the proxy method stays for any direct caller.
 		// Rating functions moved to VehicleRatingForm
 		// add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
 		// add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
@@ -717,8 +720,6 @@ final class VehiclesList extends AbstractShortcode {
 	 */
 	protected static function register_ajax_handlers(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ));
 	}
 
 	/**

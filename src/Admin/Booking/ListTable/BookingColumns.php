@@ -1813,58 +1813,6 @@ final class BookingColumns {
 	}
 
 	/**
-	 * AJAX: Retrieve customer information payload.
-	 */
-	public static function ajax_get_booking_customer_info(): void {
-		// Nonce validation
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_booking_list_nonce' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security error', 'mhm-rentiva' ) ) );
-		}
-
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
-			wp_die();
-		}
-
-		$booking_id = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
-
-		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID', 'mhm-rentiva' ) ) );
-		}
-
-		// Pull customer meta fields
-		$customer_name = get_post_meta( $booking_id, '_booking_customer_name', true ) ?:
-			get_post_meta( $booking_id, '_mhm_customer_name', true );
-
-		$customer_email = get_post_meta( $booking_id, '_booking_customer_email', true ) ?:
-			get_post_meta( $booking_id, '_mhm_customer_email', true );
-
-		$customer_phone = get_post_meta( $booking_id, '_booking_customer_phone', true ) ?:
-			get_post_meta( $booking_id, '_mhm_customer_phone', true );
-
-		// If meta empty, try resolving via user account
-		if ( ! $customer_name ) {
-			$user_id = get_post_meta( $booking_id, '_mhm_customer_user_id', true );
-			if ( $user_id ) {
-				$user = get_userdata( $user_id );
-				if ( $user ) {
-					$customer_name  = $user->display_name ?: $user->first_name . ' ' . $user->last_name;
-					$customer_email = $user->user_email;
-					$customer_phone = get_user_meta( $user_id, 'phone', true );
-				}
-			}
-		}
-
-		wp_send_json_success(
-			array(
-				'customer_name'  => $customer_name ?: __( 'Unknown Customer', 'mhm-rentiva' ),
-				'customer_email' => $customer_email ?: '',
-				'customer_phone' => $customer_phone ?: '',
-			)
-		);
-	}
-
-	/**
 	 * Get booking title display text for list table
 	 */
 	public static function get_booking_title_display( int $post_id ): string {

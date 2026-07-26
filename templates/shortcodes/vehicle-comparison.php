@@ -24,7 +24,6 @@ $all_vehicles     = $all_vehicles ?? array();
 $max_vehicles     = $max_vehicles ?? 3;
 $has_vehicles     = $has_vehicles ?? false;
 $can_add_more     = $can_add_more ?? false;
-$show_add_vehicle = $show_add_vehicle ?? false;
 
 
 // Layout settings
@@ -40,27 +39,6 @@ $custom_class         = trim($atts['class'] ?? '');
 ?>
 
 <div class="rv-vehicle-comparison rv-vehicle-comparison-container rv-layout-table" data-max-vehicles="<?php echo esc_attr($max_vehicles); ?>" data-features='<?php echo esc_attr(wp_json_encode($features)); ?>' data-all-vehicles='<?php echo esc_attr(wp_json_encode($all_vehicles)); ?>'>
-
-	<!-- Add Vehicle Section (Gated) -->
-	<?php if ($show_add_vehicle) : ?>
-		<div class="rv-add-vehicle-section">
-			<div class="rv-add-vehicle-form">
-				<div class="rv-form-row">
-					<select id="rv-add-vehicle-select" class="rv-vehicle-select">
-						<option value=""><?php echo esc_html__('Select a vehicle to compare', 'mhm-rentiva'); ?></option>
-						<?php foreach ($all_vehicles as $vehicle) : ?>
-							<option value="<?php echo esc_attr($vehicle['id']); ?>">
-								<?php echo esc_html($vehicle['title']); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-					<button type="button" id="rv-add-vehicle-btn" class="rv-add-vehicle-btn">
-						<?php echo esc_html__('Add Vehicle', 'mhm-rentiva'); ?>
-					</button>
-				</div>
-			</div>
-		</div>
-	<?php endif; ?>
 
 	<!-- Comparison Content -->
 	<?php if ($has_vehicles) : ?>

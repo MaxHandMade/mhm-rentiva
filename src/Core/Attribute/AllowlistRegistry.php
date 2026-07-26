@@ -1071,16 +1071,6 @@ final class AllowlistRegistry {
             'group'   => 'workflow',
             'aliases' => [ 'autoReply' ],
         ],
-        'manual_add'               => [
-            'type'    => 'bool',
-            'group'   => 'workflow',
-            'aliases' => [ 'manualAdd' ],
-        ],
-        'show_add_vehicle'         => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showAddVehicle' ],
-        ],
         'show_remove_buttons'      => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -1364,11 +1354,9 @@ final class AllowlistRegistry {
             'show_transmission'    => [ 'default' => '1' ],
             'show_seats'           => [ 'default' => '1' ],
             'show_features'        => [ 'default' => 'all' ],
-            'show_add_vehicle'     => [ 'default' => '1' ],
             'show_remove_buttons'  => [ 'default' => '1' ],
             'layout'               => [ 'default' => 'table' ],
             'title'                => [ 'default' => '' ],
-            'manual_add'           => [ 'default' => '0' ],
         ],
         'rentiva_contact'               => [
             'type',

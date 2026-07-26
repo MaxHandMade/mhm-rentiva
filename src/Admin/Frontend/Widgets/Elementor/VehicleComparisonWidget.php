@@ -137,18 +137,6 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 		);
 
 		$this->add_control(
-			'show_add_vehicle',
-			array(
-				'label'        => __( 'Show Add Vehicle Button', 'mhm-rentiva' ),
-				'type'         => Controls_Manager::SWITCHER,
-				'default'      => '1',
-				'label_on'     => __( 'Show', 'mhm-rentiva' ),
-				'label_off'    => __( 'Hide', 'mhm-rentiva' ),
-				'return_value' => '1',
-			)
-		);
-
-		$this->add_control(
 			'show_remove_buttons',
 			array(
 				'label'        => __( 'Show Remove Buttons', 'mhm-rentiva' ),
@@ -176,7 +164,6 @@ class VehicleComparisonWidget extends ElementorWidgetBase {
 			'show_images'          => $this->convert_switcher_to_boolean( $settings['show_images'] ?? '1' ),
 			'show_prices'          => $this->convert_switcher_to_boolean( $settings['show_prices'] ?? '1' ),
 			'show_booking_buttons' => $this->convert_switcher_to_boolean( $settings['show_booking_buttons'] ?? '1' ),
-			'show_add_vehicle'     => $this->convert_switcher_to_boolean( $settings['show_add_vehicle'] ?? '1' ),
 			'show_remove_buttons'  => $this->convert_switcher_to_boolean( $settings['show_remove_buttons'] ?? '1' ),
 		);
 	}

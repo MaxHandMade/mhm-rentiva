@@ -211,12 +211,6 @@ parameters:
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -753,12 +747,6 @@ parameters:
 		-
 			message: '#^Strict comparison using \=\=\= between mixed and false will always evaluate to false\.$#'
 			identifier: identical.alwaysFalse
-			count: 2
-			path: src/Admin/Frontend/Shortcodes/VehicleComparison.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/VehicleComparison.php
 

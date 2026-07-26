@@ -53,14 +53,12 @@ final class VehicleComparison extends AbstractShortcode {
 			'vehicle_ids'          => '', // Vehicle IDs (comma-separated)
 			'show_features'        => 'all', // Features to show: all, basic, detailed
 			'max_vehicles'         => '4', // Maximum number of vehicles
-			'show_add_vehicle'     => '1', // Show add vehicle button
 			'show_remove_buttons'  => '1', // Show remove buttons
 			'show_prices'          => '1', // Show prices
 			'show_images'          => '1', // Show vehicle images
 			'show_booking_buttons' => '1', // Show booking buttons
 			'layout'               => 'table', // table, cards
 			'title'                => '', // Custom title
-			'manual_add'           => '0', // Manual vehicle selection flag
 			'class'                => '', // Custom CSS class
 		);
 	}
@@ -137,103 +135,20 @@ final class VehicleComparison extends AbstractShortcode {
 
 		$vehicles     = self::get_vehicles_data($vehicle_ids);
 		$features     = self::get_comparison_features($atts['show_features'], $vehicles);
-		$all_vehicles = $atts['manual_add'] === '1' ? self::get_all_available_vehicles() : array();
+		$all_vehicles = array();
 
 		return array(
-			'atts'             => $atts,
-			'vehicles'         => $vehicles,
-			'features'         => $features,
-			'all_vehicles'     => $all_vehicles,
-			'max_vehicles'     => $max_vehicles,
-			'has_vehicles'     => count($vehicles) >= 2, // At least 2 vehicles needed for comparison UX
-			'can_add_more'     => count($vehicles) < $max_vehicles,
-			'show_add_vehicle' => $atts['manual_add'] === '1' && count($vehicles) < $max_vehicles,
+			'atts'         => $atts,
+			'vehicles'     => $vehicles,
+			'features'     => $features,
+			'all_vehicles' => $all_vehicles,
+			'max_vehicles' => $max_vehicles,
+			'has_vehicles' => count($vehicles) >= 2, // At least 2 vehicles needed for comparison UX
+			'can_add_more' => count($vehicles) < $max_vehicles,
 		);
 	}
 	// ...
 	// ...
-	/**
-	 * Add vehicle via AJAX
-	 *
-	 * @return void
-	 */
-	public static function ajax_add_vehicle(): void
-	{
-		try {
-			// Security check
-			if (! check_ajax_referer('mhm_rentiva_vehicle_comparison_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-
-			if ($vehicle_id <= 0) {
-				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
-			}
-
-			// Use Service
-			if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
-				try {
-					\MHMRentiva\Admin\Services\CompareService::add($vehicle_id);
-				} catch (\Exception $e) {
-					wp_send_json_error(array( 'message' => $e->getMessage() ));
-				}
-			}
-
-			// Get vehicle data
-			$vehicle_data = self::get_vehicle_data($vehicle_id);
-			if (! $vehicle_data) {
-				wp_send_json_error(array( 'message' => __('Vehicle not found.', 'mhm-rentiva') ));
-			}
-
-			wp_send_json_success(
-				array(
-					'vehicle' => $vehicle_data,
-					'message' => __('Vehicle added to comparison.', 'mhm-rentiva'),
-				)
-			);
-		} catch (\Exception $e) {
-			wp_send_json_error(array( 'message' => __('An error occurred while adding vehicle.', 'mhm-rentiva') ));
-		}
-	}
-
-	/**
-	 * Remove vehicle via AJAX
-	 *
-	 * @return void
-	 */
-	public static function ajax_remove_vehicle(): void
-	{
-		try {
-			// Security check
-			if (! check_ajax_referer('mhm_rentiva_vehicle_comparison_nonce', 'nonce', false)) {
-				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
-				return;
-			}
-
-			$vehicle_id = intval(isset($_POST['vehicle_id']) ? wp_unslash($_POST['vehicle_id']) : 0);
-
-			if ($vehicle_id <= 0) {
-				wp_send_json_error(array( 'message' => __('Invalid vehicle ID.', 'mhm-rentiva') ));
-			}
-
-			// Use Service
-			if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
-				\MHMRentiva\Admin\Services\CompareService::remove($vehicle_id);
-			}
-
-			wp_send_json_success(
-				array(
-					'vehicle_id' => $vehicle_id,
-					'message'    => __('Vehicle removed from comparison.', 'mhm-rentiva'),
-				)
-			);
-		} catch (\Exception $e) {
-			wp_send_json_error(array( 'message' => __('An error occurred while removing vehicle.', 'mhm-rentiva') ));
-		}
-	}
-
 	/**
 	 * Flatten stored comparison_fields into a de-duplicated key list, dropping Passive fields
 	 * (truthfulness): a field removed in Field Definitions must not appear in comparison. Unknown
@@ -623,34 +538,4 @@ final class VehicleComparison extends AbstractShortcode {
 		return get_permalink($page_id);
 	}
 
-	/**
-	 * Get all available vehicles for dropdown
-	 */
-	private static function get_all_available_vehicles(): array
-	{
-		$args = array(
-			'post_type'      => 'vehicle',
-			'post_status'    => 'publish',
-			'posts_per_page' => -1,
-			'fields'         => 'ids',
-			// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
-			'meta_query'     => array(
-				\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query(),
-			),
-		);
-
-		$query    = new \WP_Query($args);
-		$vehicles = array();
-
-		if ($query->have_posts()) {
-			foreach ($query->posts as $id) {
-				$vehicles[] = array(
-					'id'   => $id,
-					'text' => get_the_title($id),
-				);
-			}
-		}
-
-		return $vehicles;
-	}
 }

@@ -15,12 +15,21 @@ class VehicleComparisonTest extends WP_UnitTestCase
         $this->assertStringContainsString('rv-vehicle-comparison', $output);
     }
 
-    public function test_renders_add_vehicle_section()
+    /**
+     * The Add Vehicle control is gone, and must not come back by accident.
+     *
+     * It was wired to nothing in three layers at once: the button had no JS
+     * handler, the two AJAX methods behind it were registered on no hook, and
+     * the Elementor switcher that claimed to toggle it was overwritten before it
+     * reached the template. A visitor picked a vehicle, pressed the button and
+     * nothing happened -- no request, no error, ever.
+     */
+    public function test_the_dead_add_vehicle_control_is_not_rendered()
     {
-        // show_add_vehicle requires manual_add="1" and fewer vehicles than max_vehicles
         $output = do_shortcode('[rentiva_vehicle_comparison manual_add="1"]');
 
-        $this->assertStringContainsString('rv-add-vehicle-section', $output);
+        $this->assertStringNotContainsString('rv-add-vehicle-section', $output);
+        $this->assertStringNotContainsString('rv-add-vehicle-btn', $output);
     }
 
     public function test_renders_with_vehicle_ids()
