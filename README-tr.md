@@ -506,7 +506,6 @@ REST API, `AuthHelper` sınıfı üzerinden yönetilen çok katmanlı bir güven
 ```text
 mhm-rentiva/
 ├── assets/                 # CSS, JS, Grafikler (Minify edilmiş)
-├── docs/                   # Teknik dokümantasyon ve API kılavuzları
 ├── languages/              # Dil dosyaları (.pot, .po, .mo)
 ├── src/                    # PSR-4 Çekirdek PHP (MHMRentiva\*)
 │   ├── Admin/              # Yönetim Paneli Kontrolcüleri ve Servisler

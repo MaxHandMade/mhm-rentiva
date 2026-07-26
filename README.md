@@ -681,7 +681,6 @@ mhm-rentiva/
 ├── build/                  # Webpack-built React admin bundles + CSS
 ├── src-react/              # React source — admin SPA components (Webpack input)
 ├── bin/                    # Build tooling (build-release.py for WP.org ZIP)
-├── docs/                   # Technical documentation, plans, API guides
 ├── languages/              # i18n: .pot, .po, .mo, .l10n.php, JED .json
 ├── src/                    # PSR-4 PHP source (MHMRentiva\*)
 │   ├── Admin/              # Admin module controllers & services
