@@ -26,19 +26,19 @@ final class DatepickerAssets {
         wp_enqueue_script('jquery-ui-datepicker');
 
         // 2. Enqueue Global Datepicker Style (Core Variables)
-        wp_enqueue_style('mhm-css-variables');
+        wp_enqueue_style('mhm-rentiva-css-variables');
 
         // 3. Enqueue Custom CSS Overrides (Glassmorphism / Premium UI)
         wp_enqueue_style(
             'mhm-rentiva-datepicker-custom',
             MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-            array( 'mhm-css-variables' ),
+            array( 'mhm-rentiva-css-variables' ),
             MHM_RENTIVA_VERSION
         );
 
         // 4. Enqueue Centralized Init Script
         wp_enqueue_script(
-            'mhm-datepicker-init',
+            'mhm-rentiva-datepicker-init',
             MHM_RENTIVA_PLUGIN_URL . 'assets/js/core/datepicker-init.js',
             array( 'jquery', 'jquery-ui-datepicker' ),
             MHM_RENTIVA_VERSION,
@@ -46,7 +46,7 @@ final class DatepickerAssets {
         );
 
         // 5. Pass localized datepicker options to JS
-        wp_localize_script('mhm-datepicker-init', 'mhmDatepickerL10n', self::get_localized_options());
+        wp_localize_script('mhm-rentiva-datepicker-init', 'mhmDatepickerL10n', self::get_localized_options());
     }
 
     /**

@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * printed -- and it is never enqueued directly. It rides in as a dependency of
  * `mhm-css-variables`, which makes it uniquely easy to lose SILENTLY:
  *
- *   wp_enqueue_style('mhm-css-variables', $src, array('mhm-rentiva-fonts'), $v);
+ *   wp_enqueue_style('mhm-rentiva-css-variables', $src, array('mhm-rentiva-fonts'), $v);
  *
  * ...does NOT attach that dependency if the handle is already registered.
  * WP_Dependencies::add() returns false for a known handle and drops $src, $deps
@@ -88,13 +88,13 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
         $styles = wp_styles();
 
         $this->assertTrue(
-            wp_style_is('mhm-css-variables', 'registered'),
+            wp_style_is('mhm-rentiva-css-variables', 'registered'),
             'Premise failed: mhm-css-variables is not registered at all.'
         );
 
         $this->assertContains(
             'mhm-rentiva-fonts',
-            $styles->registered['mhm-css-variables']->deps,
+            $styles->registered['mhm-rentiva-css-variables']->deps,
             'mhm-css-variables lost its bundled-font dependency -- something re-registered '
             . 'the handle with different deps and WP discarded them silently.'
         );
@@ -133,7 +133,7 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
         $styles = wp_styles();
 
         $this->assertContains(
-            'mhm-css-variables',
+            'mhm-rentiva-css-variables',
             $styles->queue,
             'Premise failed: core CSS did not enqueue, so the font check below would be vacuous.'
         );
@@ -166,7 +166,7 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
         $order = array_values($styles->to_do);
 
         $this->assertLessThan(
-            array_search('mhm-css-variables', $order, true),
+            array_search('mhm-rentiva-css-variables', $order, true),
             array_search('mhm-rentiva-fonts', $order, true),
             'The webfont must be printed before the stylesheet that references it.'
         );

@@ -80,7 +80,7 @@ final class CronMonitorRenderer extends AbstractTabRenderer {
 		$url     = defined( 'MHM_RENTIVA_PLUGIN_URL' ) ? (string) MHM_RENTIVA_PLUGIN_URL : '';
 
 		wp_enqueue_script(
-			'mhm-cron-monitor',
+			'mhm-rentiva-cron-monitor',
 			esc_url( $url . 'assets/js/admin/cron-monitor.js' ),
 			array( 'jquery' ),
 			$version,
@@ -88,7 +88,7 @@ final class CronMonitorRenderer extends AbstractTabRenderer {
 		);
 
 		wp_localize_script(
-			'mhm-cron-monitor',
+			'mhm-rentiva-cron-monitor',
 			'mhm_rentiva_cron_vars',
 			array(
 				'nonce'                         => wp_create_nonce( 'mhm_cron_monitor' ),

@@ -165,7 +165,7 @@ final class BookingMeta extends AbstractMetaBox {
 		// Load only on booking edit screen
 		if ($hook === 'post.php' && $post_type === 'vehicle_booking') {
 			wp_enqueue_script(
-				'mhm-booking-email-send',
+				'mhm-rentiva-booking-email-send',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-email-send.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -178,7 +178,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 			// Localize script
 			wp_localize_script(
-				'mhm-booking-email-send',
+				'mhm-rentiva-booking-email-send',
 				'mhmBookingEmail',
 				array(
 					'ajaxUrl'              => admin_url( 'admin-ajax.php' ),

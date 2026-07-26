@@ -128,7 +128,7 @@ class ElementorIntegration {
 			wp_enqueue_style(
 				'mhm-rentiva-elementor',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/elementor-widgets.css',
-				array( 'elementor-frontend', 'mhm-core-css' ),
+				array( 'elementor-frontend', 'mhm-rentiva-core-css' ),
 				MHM_RENTIVA_VERSION
 			);
 		}
@@ -148,7 +148,7 @@ class ElementorIntegration {
 			wp_enqueue_script(
 				'mhm-rentiva-elementor',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/elementor-widgets.js',
-				array( 'elementor-frontend', 'mhm-core-js' ),
+				array( 'elementor-frontend', 'mhm-rentiva-core-js' ),
 				MHM_RENTIVA_VERSION,
 				true
 			);
@@ -241,8 +241,8 @@ class ElementorIntegration {
 		}
 
 		// Featured Vehicles slider (default layout) — Swiper is registered by AssetManager.
-		wp_enqueue_style( 'mhm-swiper-css' );
-		wp_enqueue_script( 'mhm-swiper' );
+		wp_enqueue_style( 'mhm-rentiva-swiper-css' );
+		wp_enqueue_script( 'mhm-rentiva-swiper' );
 		wp_enqueue_style(
 			'mhm-rentiva-featured-vehicles-preview',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/featured-vehicles.css',
@@ -252,7 +252,7 @@ class ElementorIntegration {
 		wp_enqueue_script(
 			'mhm-rentiva-featured-vehicles-preview',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/featured-vehicles.js',
-			array( 'jquery', 'mhm-swiper' ),
+			array( 'jquery', 'mhm-rentiva-swiper' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);

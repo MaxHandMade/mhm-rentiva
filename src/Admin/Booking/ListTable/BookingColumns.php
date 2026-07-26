@@ -143,14 +143,14 @@ final class BookingColumns {
 		// Load only on booking list page
 		if ( $hook === 'edit.php' && $post_type === 'vehicle_booking' ) {
 			wp_enqueue_style(
-				'mhm-booking-list',
+				'mhm-rentiva-booking-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
-				'mhm-booking-calendar',
+				'mhm-rentiva-booking-calendar',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -158,7 +158,7 @@ final class BookingColumns {
 
 			// Load statistics cards CSS
 			wp_enqueue_style(
-				'mhm-stats-cards',
+				'mhm-rentiva-stats-cards',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -173,7 +173,7 @@ final class BookingColumns {
 
 			// Load simple calendar CSS
 			wp_enqueue_style(
-				'mhm-simple-calendars',
+				'mhm-rentiva-simple-calendars',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -181,7 +181,7 @@ final class BookingColumns {
 
 			// Calendar JavaScript file
 			wp_enqueue_script(
-				'mhm-booking-calendar',
+				'mhm-rentiva-booking-calendar',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-calendar.js',
 				array(),
 				MHM_RENTIVA_VERSION,
@@ -190,7 +190,7 @@ final class BookingColumns {
 
 			// Localization
 			wp_localize_script(
-				'mhm-booking-calendar',
+				'mhm-rentiva-booking-calendar',
 				'mhmBookingCalendar',
 				array(
 					'strings' => array(
@@ -206,7 +206,7 @@ final class BookingColumns {
 
 			// Filters UX: auto-submit on change
 			wp_enqueue_script(
-				'mhm-booking-list-filters',
+				'mhm-rentiva-booking-list-filters',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-list-filters.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -215,7 +215,7 @@ final class BookingColumns {
 
 			// Calendar day popup behavior (rendered by add_booking_calendar()).
 			wp_enqueue_script(
-				'mhm-booking-popup',
+				'mhm-rentiva-booking-popup',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-popup.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -223,7 +223,7 @@ final class BookingColumns {
 			);
 
 			wp_localize_script(
-				'mhm-booking-popup',
+				'mhm-rentiva-booking-popup',
 				'mhmBookingPopup',
 				array(
 					'i18n' => array(

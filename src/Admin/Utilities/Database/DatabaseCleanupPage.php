@@ -64,14 +64,14 @@ final class DatabaseCleanupPage {
 		}
 
 		wp_enqueue_style(
-			'mhm-database-cleanup',
+			'mhm-rentiva-database-cleanup',
 			esc_url(plugin_dir_url(dirname(__DIR__, 3)) . 'assets/css/admin/database-cleanup.css'),
 			array(),
 			'1.0.0'
 		);
 
 		wp_enqueue_script(
-			'mhm-database-cleanup',
+			'mhm-rentiva-database-cleanup',
 			esc_url(plugin_dir_url(dirname(__DIR__, 3)) . 'assets/js/admin/database-cleanup.js'),
 			array( 'jquery' ),
 			'1.0.0',
@@ -79,7 +79,7 @@ final class DatabaseCleanupPage {
 		);
 
 		wp_localize_script(
-			'mhm-database-cleanup',
+			'mhm-rentiva-database-cleanup',
 			'mhm_rentiva_db_cleanup_vars',
 			array(
 				'nonce'                  => wp_create_nonce('mhm_db_cleanup'),

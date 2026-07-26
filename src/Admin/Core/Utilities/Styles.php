@@ -31,7 +31,7 @@ class Styles {
 	/**
 	 * CSS handle name - Compatible with AssetManager
 	 */
-	const CSS_HANDLE = 'mhm-core-css';
+	const CSS_HANDLE = 'mhm-rentiva-core-css';
 
 	/**
 	 * Constructor
@@ -57,7 +57,7 @@ class Styles {
 	 */
 	public function enqueueCoreCss() {
 		// If AssetManager is already loaded, don't load again
-		if ( wp_style_is( 'mhm-core-css', 'enqueued' ) || wp_style_is( 'mhm-core-css', 'done' ) ) {
+		if ( wp_style_is( 'mhm-rentiva-core-css', 'enqueued' ) || wp_style_is( 'mhm-rentiva-core-css', 'done' ) ) {
 			return;
 		}
 
@@ -95,7 +95,7 @@ class Styles {
 
 		$css_vars_url = $this->plugin_url . 'assets/css/core/css-variables.css';
 		wp_enqueue_style(
-			'mhm-css-variables',
+			'mhm-rentiva-css-variables',
 			$css_vars_url,
 			array( 'mhm-rentiva-fonts' ),
 			$version,
@@ -105,9 +105,9 @@ class Styles {
 		// Also load Animations
 		$animations_url = $this->plugin_url . 'assets/css/core/animations.css';
 		wp_enqueue_style(
-			'mhm-animations',
+			'mhm-rentiva-animations',
 			$animations_url,
-			array( 'mhm-css-variables' ),
+			array( 'mhm-rentiva-css-variables' ),
 			$version,
 			'all'
 		);

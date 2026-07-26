@@ -264,14 +264,14 @@ final class AddonManager {
 		// Only enqueue on addon list page.
 		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
 			wp_enqueue_style(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -280,7 +280,7 @@ final class AddonManager {
 
 			// Localize JavaScript variables.
 			wp_localize_script(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				'mhm_rentiva_addon_list_vars',
 				array(
 					'ajax_url'          => admin_url( 'admin-ajax.php' ),
@@ -302,14 +302,14 @@ final class AddonManager {
 			&& 'vehicle_addon' === $post_type
 		) {
 			wp_enqueue_script(
-				'mhm-addon-context',
+				'mhm-rentiva-addon-context',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-context.js',
 				array(),
 				MHM_RENTIVA_VERSION . '.' . filemtime( MHM_RENTIVA_PLUGIN_PATH . 'assets/js/admin/addon-context.js' ),
 				true
 			);
 			wp_localize_script(
-				'mhm-addon-context',
+				'mhm-rentiva-addon-context',
 				'mhmRentivaAddonContextI18n',
 				array(
 					'incompatible' => __( ' (incompatible with context)', 'mhm-rentiva' ),

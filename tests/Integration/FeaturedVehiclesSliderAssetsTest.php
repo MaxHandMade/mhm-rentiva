@@ -16,7 +16,7 @@ final class FeaturedVehiclesSliderAssetsTest extends \WP_UnitTestCase
         // Reset PHP-level static caches that persist across test methods.
         AbstractShortcode::reset_enqueued_assets_for_tests();
         FeaturedVehicles::reset_layout_enqueued_for_tests();
-        // Register vendor assets (Swiper) so wp_enqueue_script('mhm-swiper') has a registered src.
+        // Register vendor assets (Swiper) so wp_enqueue_script('mhm-rentiva-swiper') has a registered src.
         AssetManager::register_vendor_assets();
     }
 
@@ -34,7 +34,7 @@ final class FeaturedVehiclesSliderAssetsTest extends \WP_UnitTestCase
             'limit'  => '1',
         ]);
 
-        $this->assertTrue(wp_script_is('mhm-swiper', 'enqueued'), 'Expected mhm-swiper to be enqueued for slider variant.');
+        $this->assertTrue(wp_script_is('mhm-rentiva-swiper', 'enqueued'), 'Expected mhm-swiper to be enqueued for slider variant.');
 
         $has_featured_slider_script = false;
         $wp_scripts = $GLOBALS['wp_scripts'] ?? null;
@@ -60,7 +60,7 @@ final class FeaturedVehiclesSliderAssetsTest extends \WP_UnitTestCase
             'limit'  => '1',
         ]);
 
-        $this->assertTrue(wp_script_is('mhm-swiper', 'enqueued'), 'Expected mhm-swiper to be enqueued for carousel alias.');
+        $this->assertTrue(wp_script_is('mhm-rentiva-swiper', 'enqueued'), 'Expected mhm-swiper to be enqueued for carousel alias.');
 
         $has_featured_slider_script = false;
         $wp_scripts = $GLOBALS['wp_scripts'] ?? null;

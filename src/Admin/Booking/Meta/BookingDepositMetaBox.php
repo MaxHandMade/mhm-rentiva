@@ -82,14 +82,14 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		if ( ( $hook === 'post.php' || $hook === 'post-new.php' ) && $post_type === 'vehicle_booking' ) {
 			// Enqueue CSS
 			wp_enqueue_style(
-				'mhm-deposit-management',
+				'mhm-rentiva-deposit-management',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-deposit-management',
+				'mhm-rentiva-deposit-management',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -98,7 +98,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 			// Localization
 			wp_localize_script(
-				'mhm-deposit-management',
+				'mhm-rentiva-deposit-management',
 				'mhmDepositManagement',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),

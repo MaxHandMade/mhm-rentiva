@@ -368,7 +368,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // "before" the enqueued mhm-vehicle-meta handle so the globals exist when it runs
 // (replaces a former inline script data block for WordPress.org compliance).
 wp_add_inline_script(
-	'mhm-vehicle-meta',
+	'mhm-rentiva-vehicle-meta',
 	'window.availableVehicleDetails = ' . wp_json_encode( $available_details ) . ';'
 	. 'window.availableVehicleFeatures = ' . wp_json_encode( $available_features ) . ';'
 	. 'window.availableVehicleEquipment = ' . wp_json_encode( $available_equipment ) . ';',

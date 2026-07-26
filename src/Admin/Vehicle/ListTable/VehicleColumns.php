@@ -504,7 +504,7 @@ final class VehicleColumns {
 
 		if ($post_type === 'vehicle' && $hook === 'edit.php') {
 			wp_enqueue_script(
-				'mhm-vehicle-quick-edit',
+				'mhm-rentiva-vehicle-quick-edit',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -513,7 +513,7 @@ final class VehicleColumns {
 
 			// Load statistics cards CSS
 			wp_enqueue_style(
-				'mhm-stats-cards',
+				'mhm-rentiva-stats-cards',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -528,7 +528,7 @@ final class VehicleColumns {
 
 			// Load calendar CSS
 			wp_enqueue_style(
-				'mhm-calendars',
+				'mhm-rentiva-calendars',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -536,14 +536,14 @@ final class VehicleColumns {
 
 			// Load booking calendar CSS (popup + legend styles)
 			wp_enqueue_style(
-				'mhm-booking-calendar',
+				'mhm-rentiva-booking-calendar',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			// Inline critical popup styles — guarantees correct rendering regardless of cache
-			wp_add_inline_style( 'mhm-booking-calendar', '
+			wp_add_inline_style( 'mhm-rentiva-booking-calendar', '
 				#mhm-booking-popup { position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; display:none; }
 				#mhm-booking-popup .mhm-popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); cursor:pointer; }
 				#mhm-booking-popup .mhm-popup-content { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; width:560px; max-width:calc(100vw - 40px); max-height:90vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; z-index:100000; box-sizing:border-box; }
@@ -559,7 +559,7 @@ final class VehicleColumns {
 			// Monthly calendar popup + quick block/unblock toggle (rendered by
 			// add_monthly_calendar()). Replaces the former inline script block.
 			wp_enqueue_script(
-				'mhm-vehicle-calendar-popup',
+				'mhm-rentiva-vehicle-calendar-popup',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -567,7 +567,7 @@ final class VehicleColumns {
 			);
 
 			wp_localize_script(
-				'mhm-vehicle-calendar-popup',
+				'mhm-rentiva-vehicle-calendar-popup',
 				'mhmVehicleCalendar',
 				array(
 					'nonce' => wp_create_nonce( 'mhm_rentiva_toggle_blocked_date' ),

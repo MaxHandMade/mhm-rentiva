@@ -95,7 +95,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		wp_enqueue_media();
 
 		wp_enqueue_script(
-			'mhm-vehicle-gallery',
+			'mhm-rentiva-vehicle-gallery',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
 			array( 'jquery', 'jquery-ui-sortable', 'media-upload', 'media-views' ),
 			MHM_RENTIVA_VERSION,
@@ -103,7 +103,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		);
 
 		wp_enqueue_style(
-			'mhm-vehicle-gallery',
+			'mhm-rentiva-vehicle-gallery',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-gallery.css',
 			array(),
 			MHM_RENTIVA_VERSION
@@ -116,7 +116,7 @@ final class VehicleGallery extends AbstractMetaBox {
 		);
 
 		wp_localize_script(
-			'mhm-vehicle-gallery',
+			'mhm-rentiva-vehicle-gallery',
 			'mhmVehicleGallery',
 			array(
 				'ajaxUrl'   => admin_url( 'admin-ajax.php' ),

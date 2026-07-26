@@ -85,7 +85,7 @@ class ShortcodePagesTest extends WP_UnitTestCase
         $_GET['page'] = 'mhm-rentiva-shortcode-pages';
         $this->orchestrator->enqueue_assets( 'some-hook-suffix' );
 
-        $this->assertTrue( wp_style_is( 'mhm-shortcode-pages', 'enqueued' ) );
+        $this->assertTrue( wp_style_is( 'mhm-rentiva-shortcode-pages', 'enqueued' ) );
         $this->assertTrue( wp_script_is( 'mhm-rentiva-react-shortcode-pages', 'enqueued' ) );
     }
 

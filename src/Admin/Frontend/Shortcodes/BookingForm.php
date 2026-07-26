@@ -174,7 +174,7 @@ final class BookingForm extends AbstractShortcode {
 
 	protected static function get_css_dependencies(): array
 	{
-		return array( 'mhm-css-variables' ); // Ensure CSS variables are loaded
+		return array( 'mhm-rentiva-css-variables' ); // Ensure CSS variables are loaded
 	}
 
 	protected static function get_js_dependencies(): array

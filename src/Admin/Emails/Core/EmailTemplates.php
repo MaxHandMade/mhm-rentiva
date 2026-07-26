@@ -602,21 +602,21 @@ final class EmailTemplates {
 		// Load on email templates page OR settings page (when email tab is active)
 		if (strpos($hook, 'mhm-rentiva-email-templates') !== false || strpos($hook, 'mhm-rentiva-settings') !== false) {
 			wp_enqueue_style(
-				'mhm-stats-cards',
+				'mhm-rentiva-stats-cards',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
 				\MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
-				'mhm-email-templates',
+				'mhm-rentiva-email-templates',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/email-templates.css',
 				array(),
 				\MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-email-templates',
+				'mhm-rentiva-email-templates',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
 				array( 'jquery' ),
 				\MHM_RENTIVA_VERSION,
@@ -625,7 +625,7 @@ final class EmailTemplates {
 
 			// ⭐ Localize JavaScript variables (includes data for send test email functionality)
 			wp_localize_script(
-				'mhm-email-templates',
+				'mhm-rentiva-email-templates',
 				'mhm_rentiva_email_templates_vars',
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),

@@ -504,7 +504,7 @@ final class AddonListTable extends AbstractListTable {
 		// Only enqueue on addon list page.
 		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
 			wp_enqueue_style(
-				'mhm-stats-cards',
+				'mhm-rentiva-stats-cards',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -518,14 +518,14 @@ final class AddonListTable extends AbstractListTable {
 			);
 
 			wp_enqueue_style(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -534,7 +534,7 @@ final class AddonListTable extends AbstractListTable {
 
 			// Localize JavaScript variables
 			wp_localize_script(
-				'mhm-addon-list',
+				'mhm-rentiva-addon-list',
 				'mhm_rentiva_addon_list_vars',
 				array(
 					'ajax_url'          => admin_url( 'admin-ajax.php' ),

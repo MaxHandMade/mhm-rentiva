@@ -326,7 +326,7 @@ class VehiclesGrid extends AbstractShortcode {
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
-			array( 'mhm-vehicle-card-css' ), // Depend on core card logic
+			array( 'mhm-rentiva-vehicle-card-css' ), // Depend on core card logic
 			MHM_RENTIVA_VERSION
 		);
 
@@ -538,7 +538,7 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'mhm-vehicle-interactions' );
+		return array( 'jquery', 'mhm-rentiva-vehicle-interactions' );
 	}
 
 	/**

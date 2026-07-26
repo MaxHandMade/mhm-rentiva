@@ -462,7 +462,7 @@ final class BlockedDatesMetaBox {
 			'4.6.13'
 		);
 		wp_enqueue_style(
-			'mhm-blocked-dates',
+			'mhm-rentiva-blocked-dates',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/blocked-dates.css',
 			array( 'flatpickr' ),
 			MHM_RENTIVA_VERSION
@@ -488,13 +488,13 @@ final class BlockedDatesMetaBox {
 		}
 
 		wp_enqueue_script(
-			'mhm-blocked-dates',
+			'mhm-rentiva-blocked-dates',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/blocked-dates.js',
 			array( 'jquery', 'flatpickr' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
-		wp_localize_script( 'mhm-blocked-dates', 'mhmBlockedDatesL10n', array(
+		wp_localize_script( 'mhm-rentiva-blocked-dates', 'mhmBlockedDatesL10n', array(
 			'confirmApply'    => __( 'All blocked dates selected for this vehicle will be applied to all other vehicles, overwriting their existing blocked dates. Do you want to continue?', 'mhm-rentiva' ),
 			'confirmRemove'   => __( 'All blocked dates selected for this vehicle will be removed from all other vehicles. Do you want to continue?', 'mhm-rentiva' ),
 			/* translators: %d: number of vehicles */

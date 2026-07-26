@@ -220,8 +220,8 @@ final class FeaturedVehicles extends AbstractShortcode {
 		$layout = $atts['layout'] ?? 'slider';
 
 		if ($layout === 'slider' || $layout === 'carousel') {
-			wp_enqueue_style('mhm-swiper-css');
-			wp_enqueue_script('mhm-swiper');
+			wp_enqueue_style('mhm-rentiva-swiper-css');
+			wp_enqueue_script('mhm-rentiva-swiper');
 		}
 
 		// Module specific styles
@@ -232,7 +232,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 
 	protected static function get_css_dependencies(): array
 	{
-		return array( 'mhm-vehicle-card-css' );
+		return array( 'mhm-rentiva-vehicle-card-css' );
 	}
 
 	protected static function get_js_files(array $atts = array()): array
@@ -248,7 +248,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'mhm-vehicle-interactions', 'mhm-swiper' );
+		return array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-swiper' );
 	}
 
 	protected static function get_js_config(): array

@@ -125,6 +125,6 @@ class MyFavorites extends AbstractShortcode {
 
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'mhm-vehicle-interactions' );
+		return array( 'jquery', 'mhm-rentiva-vehicle-interactions' );
 	}
 }

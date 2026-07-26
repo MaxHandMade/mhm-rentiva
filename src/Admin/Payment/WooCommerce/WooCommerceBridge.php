@@ -130,7 +130,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Enqueue globally on frontend for Mini-Cart support
 		if (! is_admin()) {
 			wp_enqueue_script(
-				'mhm-woocommerce-cart-block',
+				'mhm-rentiva-woocommerce-cart-block',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/payment/woocommerce-cart-block.js',
 				array(),
 				MHM_RENTIVA_VERSION,
@@ -139,13 +139,13 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 			// Pass vehicle images to JavaScript
 			$cart_images = self::get_cart_vehicle_images();
-			wp_localize_script('mhm-woocommerce-cart-block', 'mhmRentivaCartImages', $cart_images);
+			wp_localize_script('mhm-rentiva-woocommerce-cart-block', 'mhmRentivaCartImages', $cart_images);
 		}
 
 		// Cart page
 		if ($is_cart_page) {
 			wp_enqueue_style(
-				'mhm-woocommerce-cart',
+				'mhm-rentiva-woocommerce-cart',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-cart.css',
 				array(),
 				MHM_RENTIVA_VERSION
@@ -155,14 +155,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// Checkout page
 		if (function_exists('is_checkout') && \is_checkout()) {
 			wp_enqueue_style(
-				'mhm-woocommerce-checkout',
+				'mhm-rentiva-woocommerce-checkout',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/payment/woocommerce-checkout.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-woocommerce-checkout-js',
+				'mhm-rentiva-woocommerce-checkout-js',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/payment/woocommerce-checkout.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -1456,14 +1456,14 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// asset guard does not (e.g. page-builder checkouts). in_footer, so a late enqueue
 		// during the order-review render still prints. Replaces a former inline script block.
 		wp_enqueue_script(
-			'mhm-checkout-payment-type',
+			'mhm-rentiva-checkout-payment-type',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/checkout-payment-type.js',
 			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
 			true
 		);
 		wp_localize_script(
-			'mhm-checkout-payment-type',
+			'mhm-rentiva-checkout-payment-type',
 			'mhmCheckoutPaymentType',
 			array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),

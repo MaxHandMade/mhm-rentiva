@@ -78,7 +78,7 @@ final class SettingsTestingRenderer extends AbstractTabRenderer {
 		$url     = defined( 'MHM_RENTIVA_PLUGIN_URL' ) ? (string) MHM_RENTIVA_PLUGIN_URL : '';
 
 		wp_enqueue_script(
-			'mhm-settings-testing',
+			'mhm-rentiva-settings-testing',
 			esc_url( $url . 'assets/js/admin/settings-testing.js' ),
 			array( 'jquery' ),
 			$version,
@@ -86,7 +86,7 @@ final class SettingsTestingRenderer extends AbstractTabRenderer {
 		);
 
 		wp_localize_script(
-			'mhm-settings-testing',
+			'mhm-rentiva-settings-testing',
 			'mhm_rentiva_settings_testing',
 			array(
 				'nonce'        => wp_create_nonce( 'mhm_settings_test_nonce' ),

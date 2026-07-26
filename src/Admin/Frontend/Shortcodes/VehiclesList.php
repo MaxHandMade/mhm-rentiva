@@ -302,7 +302,7 @@ final class VehiclesList extends AbstractShortcode {
 	 */
 	protected static function get_css_dependencies(): array
 	{
-		return array( 'mhm-css-variables', 'mhm-vehicle-card-css' );
+		return array( 'mhm-rentiva-css-variables', 'mhm-rentiva-vehicle-card-css' );
 	}
 
 	/**
@@ -310,7 +310,7 @@ final class VehiclesList extends AbstractShortcode {
 	 */
 	public static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'mhm-vehicle-interactions' );
+		return array( 'jquery', 'mhm-rentiva-vehicle-interactions' );
 	}
 
 	// ... (skipping to next method)

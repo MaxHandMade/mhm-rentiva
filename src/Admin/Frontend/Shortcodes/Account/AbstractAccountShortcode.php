@@ -33,7 +33,7 @@ abstract class AbstractAccountShortcode extends AbstractShortcode {
 
 		// Core vehicle card CSS (required for favorites page and any page showing vehicles)
 		wp_enqueue_style(
-			'mhm-vehicle-card-css',
+			'mhm-rentiva-vehicle-card-css',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
 			array(),
 			MHM_RENTIVA_VERSION

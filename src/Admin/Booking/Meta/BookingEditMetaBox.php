@@ -96,14 +96,14 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// Load assets only on the booking edit screen
 		if ( $hook === 'post.php' && $post_type === 'vehicle_booking' ) {
 			wp_enqueue_style(
-				'mhm-booking-edit-meta',
+				'mhm-rentiva-booking-edit-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-edit-meta.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-booking-edit-meta',
+				'mhm-rentiva-booking-edit-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-edit-meta.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -112,7 +112,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 			// Localize script for AJAX usage
 			wp_localize_script(
-				'mhm-booking-edit-meta',
+				'mhm-rentiva-booking-edit-meta',
 				'mhmBookingEdit',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),

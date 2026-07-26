@@ -89,14 +89,14 @@ final class MetaBox {
 		$plugin_url = untrailingslashit( plugin_dir_url( MHM_RENTIVA_PLUGIN_FILE ) );
 
 		wp_enqueue_style(
-			'mhm-log-metabox-css',
+			'mhm-rentiva-log-metabox-css',
 			$plugin_url . '/assets/css/admin/log-metabox.css',
 			array(),
 			MHM_RENTIVA_VERSION
 		);
 
 		wp_enqueue_script(
-			'mhm-log-metabox-js',
+			'mhm-rentiva-log-metabox-js',
 			$plugin_url . '/assets/js/admin/log-metabox.js',
 			array( 'jquery' ),
 			MHM_RENTIVA_VERSION,
@@ -104,7 +104,7 @@ final class MetaBox {
 		);
 
 		wp_localize_script(
-			'mhm-log-metabox-js',
+			'mhm-rentiva-log-metabox-js',
 			'mhmLogMetabox',
 			array(
 				'copied' => __( 'Copied', 'mhm-rentiva' ),

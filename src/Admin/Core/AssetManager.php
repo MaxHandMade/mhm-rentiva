@@ -40,7 +40,7 @@ final class AssetManager {
 	 * Core CSS files
 	 */
 	private static array $core_css = array(
-		'mhm-css-variables'         => array(
+		'mhm-rentiva-css-variables'         => array(
 			'url'  => 'assets/css/core/css-variables.css',
 			// Depends on the LOCALLY BUNDLED webfont (not a CDN) -- see
 			// register_vendor_assets(). css-variables.css declares
@@ -48,21 +48,21 @@ final class AssetManager {
 			// defined before this stylesheet's consumers render.
 			'deps' => array( 'mhm-rentiva-fonts' ),
 		),
-		'mhm-golden-ratio-contract' => array(
+		'mhm-rentiva-golden-ratio-contract' => array(
 			'url'  => 'assets/css/core/golden-ratio-contract.css',
-			'deps' => array( 'mhm-css-variables' ),
+			'deps' => array( 'mhm-rentiva-css-variables' ),
 		),
-		'mhm-core-css'              => array(
+		'mhm-rentiva-core-css'              => array(
 			'url'  => 'assets/css/core/core.css',
-			'deps' => array( 'mhm-css-variables', 'mhm-golden-ratio-contract' ),
+			'deps' => array( 'mhm-rentiva-css-variables', 'mhm-rentiva-golden-ratio-contract' ),
 		),
-		'mhm-animations'            => array(
+		'mhm-rentiva-animations'            => array(
 			'url'  => 'assets/css/core/animations.css',
-			'deps' => array( 'mhm-css-variables' ),
+			'deps' => array( 'mhm-rentiva-css-variables' ),
 		),
-		'mhm-rentiva-notifications' => array(
+		'mhm-rentiva-notifications'         => array(
 			'url'  => 'assets/css/frontend/notifications.css',
-			'deps' => array( 'mhm-css-variables' ),
+			'deps' => array( 'mhm-rentiva-css-variables' ),
 		),
 	);
 
@@ -70,13 +70,13 @@ final class AssetManager {
 	 * Component CSS files
 	 */
 	private static array $component_css = array(
-		'mhm-stats-cards' => array(
+		'mhm-rentiva-stats-cards' => array(
 			'url'  => 'assets/css/components/stats-cards.css',
-			'deps' => array( 'mhm-core-css' ),
+			'deps' => array( 'mhm-rentiva-core-css' ),
 		),
-		'mhm-calendars'   => array(
+		'mhm-rentiva-calendars'   => array(
 			'url'  => 'assets/css/components/calendars.css',
-			'deps' => array( 'mhm-core-css' ),
+			'deps' => array( 'mhm-rentiva-core-css' ),
 		),
 	);
 
@@ -84,29 +84,29 @@ final class AssetManager {
 	 * Core JS files
 	 */
 	private static array $core_js = array(
-		'mhm-core-js'       => array(
+		'mhm-rentiva-core-js'       => array(
 			'url'       => 'assets/js/core/core.js',
 			'deps'      => array( 'jquery' ),
 			'in_footer' => true,
 		),
-		'mhm-utilities'     => array(
+		'mhm-rentiva-utilities'     => array(
 			'url'       => 'assets/js/core/utilities.js',
-			'deps'      => array( 'jquery', 'mhm-core-js' ),
+			'deps'      => array( 'jquery', 'mhm-rentiva-core-js' ),
 			'in_footer' => true,
 		),
-		'mhm-i18n'          => array(
+		'mhm-rentiva-i18n'          => array(
 			'url'       => 'assets/js/core/i18n.js',
-			'deps'      => array( 'jquery', 'mhm-core-js' ),
+			'deps'      => array( 'jquery', 'mhm-rentiva-core-js' ),
 			'in_footer' => true,
 		),
-		'mhm-performance'   => array(
+		'mhm-rentiva-performance'   => array(
 			'url'       => 'assets/js/core/performance.js',
-			'deps'      => array( 'jquery', 'mhm-utilities' ),
+			'deps'      => array( 'jquery', 'mhm-rentiva-utilities' ),
 			'in_footer' => true,
 		),
-		'mhm-module-loader' => array(
+		'mhm-rentiva-module-loader' => array(
 			'url'       => 'assets/js/core/module-loader.js',
-			'deps'      => array( 'jquery', 'mhm-core-js' ),
+			'deps'      => array( 'jquery', 'mhm-rentiva-core-js' ),
 			'in_footer' => true,
 		),
 	);
@@ -212,9 +212,9 @@ final class AssetManager {
 	public static function register_vendor_assets(): void
 	{
 		// Swiper JS
-		if (! wp_script_is('mhm-swiper', 'registered')) {
+		if (! wp_script_is('mhm-rentiva-swiper', 'registered')) {
 			wp_register_script(
-				'mhm-swiper',
+				'mhm-rentiva-swiper',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.js',
 				array(),
 				'11.0.0',
@@ -223,9 +223,9 @@ final class AssetManager {
 		}
 
 		// Swiper CSS
-		if (! wp_style_is('mhm-swiper-css', 'registered')) {
+		if (! wp_style_is('mhm-rentiva-swiper-css', 'registered')) {
 			wp_register_style(
-				'mhm-swiper-css',
+				'mhm-rentiva-swiper-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
 				array(),
 				'11.0.0'
@@ -242,11 +242,11 @@ final class AssetManager {
 	public static function register_common_assets(): void
 	{
 		// Vehicle Card CSS
-		if (! wp_style_is('mhm-vehicle-card-css', 'registered')) {
+		if (! wp_style_is('mhm-rentiva-vehicle-card-css', 'registered')) {
 			wp_register_style(
-				'mhm-vehicle-card-css',
+				'mhm-rentiva-vehicle-card-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-				array( 'mhm-css-variables', 'mhm-core-css' ),
+				array( 'mhm-rentiva-css-variables', 'mhm-rentiva-core-css' ),
 				self::get_file_version('assets/css/core/vehicle-card.css')
 			);
 		}
@@ -256,15 +256,15 @@ final class AssetManager {
 			wp_register_style(
 				'mhm-rentiva-datepicker-custom',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
-				array( 'mhm-css-variables' ),
+				array( 'mhm-rentiva-css-variables' ),
 				self::get_file_version('assets/css/frontend/datepicker-custom.css')
 			);
 		}
 
 		// mhm-core-js must be registered before mhm-vehicle-interactions (WP 6.9.1 strict dep check).
-		if (! wp_script_is('mhm-core-js', 'registered')) {
+		if (! wp_script_is('mhm-rentiva-core-js', 'registered')) {
 			wp_register_script(
-				'mhm-core-js',
+				'mhm-rentiva-core-js',
 				self::get_asset_url('assets/js/core/core.js'),
 				array( 'jquery' ),
 				self::get_file_version('assets/js/core/core.js'),
@@ -273,11 +273,11 @@ final class AssetManager {
 		}
 
 		// Vehicle Interactions JS (Favorites & Compare)
-		if (! wp_script_is('mhm-vehicle-interactions', 'registered')) {
+		if (! wp_script_is('mhm-rentiva-vehicle-interactions', 'registered')) {
 			wp_register_script(
-				'mhm-vehicle-interactions',
+				'mhm-rentiva-vehicle-interactions',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-interactions.js',
-				array( 'jquery', 'mhm-core-js', 'mhm-rentiva-toast' ),
+				array( 'jquery', 'mhm-rentiva-core-js', 'mhm-rentiva-toast' ),
 				self::get_file_version('assets/js/frontend/vehicle-interactions.js'),
 				true
 			);
@@ -316,10 +316,10 @@ final class AssetManager {
 		self::enqueue_frontend_specific_assets();
 
 		// Enqueue Vehicle Interactions (Favorites & Compare)
-		if (wp_script_is('mhm-vehicle-interactions', 'registered')) {
-			wp_enqueue_script('mhm-vehicle-interactions');
+		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'registered')) {
+			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
 			wp_localize_script(
-				'mhm-vehicle-interactions',
+				'mhm-rentiva-vehicle-interactions',
 				'mhm_rentiva_vars',
 				array(
 					'ajax_url'           => admin_url('admin-ajax.php'),
@@ -490,7 +490,7 @@ final class AssetManager {
 		if (isset($components[ $component ])) {
 			$asset = $components[ $component ];
 			wp_enqueue_script(
-				'mhm-' . $component,
+				'mhm-rentiva-' . $component,
 				self::get_asset_url($asset['url']),
 				$asset['deps'],
 				self::get_file_version($asset['url']),
@@ -510,7 +510,7 @@ final class AssetManager {
 		switch ($component) {
 			case 'addon-booking':
 				wp_localize_script(
-					'mhm-addon-booking',
+					'mhm-rentiva-addon-booking',
 					'mhmAddonBooking',
 					array(
 						'currency' => CurrencyHelper::get_currency_symbol(),
@@ -525,7 +525,7 @@ final class AssetManager {
 
 			case 'vehicle-meta':
 				wp_localize_script(
-					'mhm-vehicle-meta',
+					'mhm-rentiva-vehicle-meta',
 					'mhmVehicleMeta',
 					array(
 						'ajaxUrl' => admin_url('admin-ajax.php'),
@@ -556,7 +556,7 @@ final class AssetManager {
 
 			case 'vehicle-quick-edit':
 				wp_localize_script(
-					'mhm-vehicle-quick-edit',
+					'mhm-rentiva-vehicle-quick-edit',
 					'mhmVehicleQuickEdit',
 					array(
 						'labels' => array(
@@ -637,7 +637,7 @@ final class AssetManager {
 			)
 		);
 		wp_localize_script(
-			'mhm-core-js',
+			'mhm-rentiva-core-js',
 			'mhmRentivaAdmin',
 			array(
 				'ajaxUrl'          => admin_url('admin-ajax.php'),
@@ -698,7 +698,7 @@ final class AssetManager {
 		if ($screen->id === 'vehicle' || $screen->post_type === 'vehicle') {
 			wp_enqueue_media();
 			wp_enqueue_script(
-				'mhm-vehicle-gallery',
+				'mhm-rentiva-vehicle-gallery',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
 				array( 'jquery', 'jquery-ui-sortable' ),
 				self::get_file_version('assets/js/admin/vehicle-gallery.js'),
@@ -712,7 +712,7 @@ final class AssetManager {
 			);
 
 			wp_localize_script(
-				'mhm-vehicle-gallery',
+				'mhm-rentiva-vehicle-gallery',
 				'mhmVehicleGallery',
 				array(
 					'ajaxUrl'   => admin_url('admin-ajax.php'),
@@ -754,14 +754,14 @@ final class AssetManager {
 		// Bookings List (CPT list) - ensure bulk actions work reliably
 		if ($screen->id === 'edit-vehicle_booking') {
 			wp_enqueue_script(
-				'mhm-booking-bulk-actions',
+				'mhm-rentiva-booking-bulk-actions',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',
 				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-bulk-actions.js'),
 				true
 			);
 			wp_localize_script(
-				'mhm-booking-bulk-actions',
+				'mhm-rentiva-booking-bulk-actions',
 				'mhmBookingBulkActions',
 				array(
 					'strings' => array(
@@ -781,7 +781,7 @@ final class AssetManager {
 		// Settings
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-settings') {
 			wp_enqueue_script(
-				'mhm-settings',
+				'mhm-rentiva-settings',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
 				array( 'jquery' ),
 				time(), // Force fresh load with current timestamp
@@ -789,14 +789,14 @@ final class AssetManager {
 			);
 
 			wp_enqueue_style(
-				'mhm-notifications',
+				'mhm-rentiva-notifications',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 				array(),
 				MHM_RENTIVA_VERSION . '.toast2'
 			);
 
 			wp_localize_script(
-				'mhm-settings',
+				'mhm-rentiva-settings',
 				'mhmRentivaSettings',
 				array(
 					'ajaxUrl'    => admin_url('admin-ajax.php'),
@@ -844,7 +844,7 @@ final class AssetManager {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selection from query string.
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'email_preview') {
 				wp_enqueue_script(
-					'mhm-email-templates',
+					'mhm-rentiva-email-templates',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
 					array( 'jquery' ),
 					self::get_file_version('assets/js/admin/email-templates.js'),
@@ -852,7 +852,7 @@ final class AssetManager {
 				);
 
 				wp_localize_script(
-					'mhm-email-templates',
+					'mhm-rentiva-email-templates',
 					'mhm_rentiva_email_templates_vars',
 					array(
 						'ajax_url'          => admin_url('admin-ajax.php'),
@@ -915,9 +915,9 @@ final class AssetManager {
 		if ($screen->id === 'mhm-rentiva_page_vehicle-settings') {
 			// Dedicated CSS for Vehicle Settings
 			wp_enqueue_style(
-				'mhm-vehicle-settings-css',
+				'mhm-rentiva-vehicle-settings-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings.css',
-				array( 'mhm-core-css' ),
+				array( 'mhm-rentiva-core-css' ),
 				self::get_file_version('assets/css/admin/vehicle-settings.css')
 			);
 
@@ -927,14 +927,14 @@ final class AssetManager {
 				// Redesigned UI is self-contained: it does NOT load the legacy scripts, so it can
 				// own the whole page (including the Reset button) without double-bound handlers.
 				wp_enqueue_style(
-					'mhm-vehicle-settings-v2',
+					'mhm-rentiva-vehicle-settings-v2',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
-					array( 'mhm-vehicle-settings-css' ),
+					array( 'mhm-rentiva-vehicle-settings-css' ),
 					self::get_file_version('assets/css/admin/vehicle-settings-v2.css')
 				);
 
 				wp_enqueue_script(
-					'mhm-vehicle-settings-v2',
+					'mhm-rentiva-vehicle-settings-v2',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-settings-v2.js'),
@@ -942,7 +942,7 @@ final class AssetManager {
 				);
 			} else {
 				wp_enqueue_script(
-					'mhm-vehicle-card-fields',
+					'mhm-rentiva-vehicle-card-fields',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
@@ -952,7 +952,7 @@ final class AssetManager {
 				// Settings-page behavior (reset, display tab, definitions tab + rename modal).
 				// Replaces the three inline <script> blocks in VehicleSettings render methods.
 				wp_enqueue_script(
-					'mhm-vehicle-settings',
+					'mhm-rentiva-vehicle-settings',
 					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-settings.js'),
@@ -963,7 +963,7 @@ final class AssetManager {
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
 			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
 			wp_localize_script(
-				$vs_is_v2 ? 'mhm-vehicle-settings-v2' : 'mhm-vehicle-settings',
+				$vs_is_v2 ? 'mhm-rentiva-vehicle-settings-v2' : 'mhm-rentiva-vehicle-settings',
 				'mhmVehicleSettings',
 				array(
 					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
@@ -1075,7 +1075,7 @@ final class AssetManager {
 		// Email Templates
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates') {
 			wp_enqueue_script(
-				'mhm-email-templates',
+				'mhm-rentiva-email-templates',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
 				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/email-templates.js'),
@@ -1083,7 +1083,7 @@ final class AssetManager {
 			);
 
 			wp_localize_script(
-				'mhm-email-templates',
+				'mhm-rentiva-email-templates',
 				'mhm_rentiva_email_templates_vars',
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),
@@ -1139,7 +1139,7 @@ final class AssetManager {
 
 		// Configuration for Core JS
 		wp_localize_script(
-			'mhm-core-js',
+			'mhm-rentiva-core-js',
 			'mhm_rentiva_config',
 			array(
 				'ajax_url'    => admin_url('admin-ajax.php'),
@@ -1156,7 +1156,7 @@ final class AssetManager {
 
 		// Localize translations for i18n
 		wp_localize_script(
-			'mhm-i18n',
+			'mhm-rentiva-i18n',
 			'mhm_rentiva_i18n_translations',
 			array(
 				'mhm-rentiva' => self::get_translations(),
@@ -1224,7 +1224,7 @@ final class AssetManager {
 		if ($css_variables) {
 			// Keep the original wp_strip_all_tags() guard (the inline block had it):
 			// defense-in-depth in case an option ever feeds a raw value into the CSS.
-			wp_add_inline_style( 'mhm-css-variables', wp_strip_all_tags( (string) $css_variables ) );
+			wp_add_inline_style( 'mhm-rentiva-css-variables', wp_strip_all_tags( (string) $css_variables ) );
 		}
 	}
 

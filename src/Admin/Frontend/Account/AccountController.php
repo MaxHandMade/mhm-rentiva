@@ -157,7 +157,7 @@ final class AccountController {
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');
 		if ($endpoint === 'favorites' || get_query_var($favorites_slug) !== '') {
-			wp_enqueue_script('mhm-vehicle-interactions');
+			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
 		}
 
 		// Enqueue Account Privacy JS on Dashboard.

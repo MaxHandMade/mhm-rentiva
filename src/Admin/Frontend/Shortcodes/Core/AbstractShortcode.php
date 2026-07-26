@@ -401,7 +401,9 @@ abstract class AbstractShortcode {
 	 */
 	protected static function get_asset_handle(): string
 	{
-		return 'mhm-rentiva-' . str_replace('_', '-', static::get_shortcode_tag());
+		// The tag already begins `rentiva_`, so only `mhm-` is added -- prefixing
+		// with the full `mhm-rentiva-` would yield `mhm-rentiva-rentiva-…`.
+		return 'mhm-' . str_replace('_', '-', static::get_shortcode_tag());
 	}
 
 	/**

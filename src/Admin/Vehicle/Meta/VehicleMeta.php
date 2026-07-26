@@ -153,14 +153,14 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		if ($post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			wp_enqueue_style(
-				'mhm-vehicle-meta-css',
+				'mhm-rentiva-vehicle-meta-css',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
 				array(),
 				\MHM_RENTIVA_VERSION . '-' . time()
 			);
 
 			wp_enqueue_script(
-				'mhm-vehicle-meta-js',
+				'mhm-rentiva-vehicle-meta-js',
 				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
 				array( 'jquery', 'jquery-ui-sortable' ),
 				\MHM_RENTIVA_VERSION,
@@ -168,7 +168,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			);
 
 			wp_localize_script(
-				'mhm-vehicle-meta-js',
+				'mhm-rentiva-vehicle-meta-js',
 				'mhmVehicleMeta',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),

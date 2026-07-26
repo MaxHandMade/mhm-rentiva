@@ -107,11 +107,11 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 		$url     = defined( 'MHM_RENTIVA_PLUGIN_URL' ) ? (string) MHM_RENTIVA_PLUGIN_URL : '';
 		$version = defined( 'MHM_RENTIVA_VERSION' ) ? (string) MHM_RENTIVA_VERSION : '1.0.0';
 
-		wp_enqueue_style( 'mhm-database-cleanup', esc_url( $url . 'assets/css/admin/database-cleanup.css' ), array(), $version );
-		wp_enqueue_script( 'mhm-database-cleanup', esc_url( $url . 'assets/js/admin/database-cleanup.js' ), array( 'jquery' ), $version, true );
+		wp_enqueue_style( 'mhm-rentiva-database-cleanup', esc_url( $url . 'assets/css/admin/database-cleanup.css' ), array(), $version );
+		wp_enqueue_script( 'mhm-rentiva-database-cleanup', esc_url( $url . 'assets/js/admin/database-cleanup.js' ), array( 'jquery' ), $version, true );
 
 		wp_localize_script(
-			'mhm-database-cleanup',
+			'mhm-rentiva-database-cleanup',
 			'mhm_rentiva_db_cleanup_vars',
 			array(
 				'nonce'                            => wp_create_nonce( 'mhm_db_cleanup' ),

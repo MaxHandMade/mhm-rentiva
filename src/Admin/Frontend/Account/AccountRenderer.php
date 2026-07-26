@@ -216,18 +216,18 @@ final class AccountRenderer {
 		);
 
 		// Ensure standardized card styles are available on My Account favorites endpoint.
-		if (! wp_style_is('mhm-vehicle-card-css', 'registered')) {
+		if (! wp_style_is('mhm-rentiva-vehicle-card-css', 'registered')) {
 			wp_register_style(
-				'mhm-vehicle-card-css',
+				'mhm-rentiva-vehicle-card-css',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
-				array( 'mhm-css-variables' ),
+				array( 'mhm-rentiva-css-variables' ),
 				MHM_RENTIVA_VERSION
 			);
 		}
-		wp_enqueue_style('mhm-vehicle-card-css');
+		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 
 		// Enqueue global interactions (v1.3.3)
-		wp_enqueue_script('mhm-vehicle-interactions');
+		wp_enqueue_script('mhm-rentiva-vehicle-interactions');
 
 		// Localize (grid/list ortak)
 		wp_localize_script(

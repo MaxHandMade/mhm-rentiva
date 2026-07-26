@@ -84,7 +84,25 @@ final class SettingsSanitizer {
 			'transfer'    => self::sanitize_transfer_settings( $input, $defaults ),
 			'comments'           => self::sanitize_comments_settings( $input, $current_values ),
 			'addons'             => self::sanitize_addon_settings( $input, $defaults ),
-			default              => $input, // Fallback for programmatic updates
+			// Two different callers land here and they need opposite treatment.
+			//
+			// A programmatic update -- SettingsCore's dark-mode toggle, a WP-CLI
+			// write -- arrives through `update_option()` with no
+			// `current_active_tab` at all, carrying the whole settings array it
+			// just modified. Dropping it would discard the change.
+			//
+			// A form POST always carries the tab, so a tab name this match does
+			// not recognise is a typo, a renamed tab or a forged field. Returning
+			// `$input` for that case wrote the raw request into the option: every
+			// declared bound, enum and text sanitizer in this plugin lives inside
+			// the arms above, so an unrecognised tab bypassed all of them at once.
+			//
+			// The add-on's own tabs are unaffected either way: they are dispatched
+			// by the filter below, and an extension-owned tab whose extension is
+			// absent was already refused earlier in this method.
+			default              => '' === $current_tab
+				? self::sanitize_programmatic_update( $input, $current_values )
+				: array(),
 		};
 
 		// 3b. Extensible per-tab dispatch (Task A6 seam inversion). Lite's match
@@ -135,6 +153,40 @@ final class SettingsSanitizer {
 			self::sanitize_site_info_settings( $input, $defaults ),
 			self::sanitize_datetime_settings( $input, $defaults )
 		);
+	}
+
+	/**
+	 * A write that did not come from a settings form.
+	 *
+	 * Only keys the plugin already knows are accepted -- anything the caller
+	 * invented is dropped -- and scalars go through WordPress's text sanitizer.
+	 * That is deliberately weaker than a tab's own branch, which knows each
+	 * field's type and bounds; it is the strongest thing available when the
+	 * caller has not said which screen the values came from, and it is strictly
+	 * stronger than the previous behaviour of writing the array untouched.
+	 *
+	 * @param array<string, mixed> $input
+	 * @param array<string, mixed> $current
+	 * @return array<string, mixed>
+	 */
+	private static function sanitize_programmatic_update( array $input, array $current ): array {
+		$known = array_keys( array_merge( SettingsCore::get_defaults(), $current ) );
+		$out   = array();
+
+		foreach ( $input as $key => $value ) {
+			if ( ! in_array( $key, $known, true ) ) {
+				continue;
+			}
+
+			if ( is_array( $value ) ) {
+				$out[ $key ] = $value;
+				continue;
+			}
+
+			$out[ $key ] = is_scalar( $value ) ? \sanitize_text_field( (string) $value ) : '';
+		}
+
+		return $out;
 	}
 
 	/**

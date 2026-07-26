@@ -129,7 +129,7 @@ final class ShortcodePages {
 		AssetManager::enqueue_react_page( 'shortcode-pages' );
 
 		wp_enqueue_style(
-			'mhm-shortcode-pages',
+			'mhm-rentiva-shortcode-pages',
 			MHM_RENTIVA_PLUGIN_URL . 'build/admin/shortcode-pages.css',
 			array(),
 			filemtime( MHM_RENTIVA_PLUGIN_DIR . 'build/admin/shortcode-pages.css' ) ?: MHM_RENTIVA_VERSION

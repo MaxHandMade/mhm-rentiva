@@ -164,14 +164,14 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Load only on new booking creation page
 		if ($hook === 'post-new.php' && $post_type === 'vehicle_booking') {
 			wp_enqueue_style(
-				'mhm-manual-booking-meta',
+				'mhm-rentiva-manual-booking-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/manual-booking-meta.css',
 				array(),
 				MHM_RENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
-				'mhm-manual-booking-meta',
+				'mhm-rentiva-manual-booking-meta',
 				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/manual-booking-meta.js',
 				array( 'jquery' ),
 				MHM_RENTIVA_VERSION,
@@ -180,7 +180,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 			// Localize for AJAX
 			wp_localize_script(
-				'mhm-manual-booking-meta',
+				'mhm-rentiva-manual-booking-meta',
 				'mhmManualBooking',
 				array(
 					'ajaxUrl'  => admin_url('admin-ajax.php'),

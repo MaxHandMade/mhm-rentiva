@@ -279,17 +279,17 @@ final class SearchResults extends AbstractShortcode {
 		} elseif (class_exists('\MHMRentiva\Admin\Core\Utilities\Styles')) {
 			// Fallback for older versions if AssetManager doesn't exist
 			wp_enqueue_style(\MHMRentiva\Admin\Core\Utilities\Styles::getCssHandle());
-			wp_enqueue_style('mhm-vehicle-card-css');
+			wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 		} else {
 			// Last resort fallback
-			wp_enqueue_style('mhm-vehicle-card-css');
+			wp_enqueue_style('mhm-rentiva-vehicle-card-css');
 		}
 
 		// Search results CSS
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
-			array( 'mhm-vehicle-card-css' ),
+			array( 'mhm-rentiva-vehicle-card-css' ),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
@@ -298,15 +298,15 @@ final class SearchResults extends AbstractShortcode {
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
-			array( 'jquery', 'mhm-vehicle-interactions' ),
+			array( 'jquery', 'mhm-rentiva-vehicle-interactions' ),
 			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);
 
 		// Ensure vehicle interaction globals are available on block-only pages.
-		if (wp_script_is('mhm-vehicle-interactions', 'enqueued')) {
+		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'enqueued')) {
 			wp_localize_script(
-				'mhm-vehicle-interactions',
+				'mhm-rentiva-vehicle-interactions',
 				'mhm_rentiva_vars',
 				array(
 					'ajax_url'           => admin_url('admin-ajax.php'),

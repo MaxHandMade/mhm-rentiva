@@ -53,13 +53,13 @@ class BlockRegistry {
 			'tag'   => 'rentiva_search_results',
 			'title' => 'Search Results',
 			'css'   => 'search-results.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'vehicle-comparison'    => array(
 			'tag'   => 'rentiva_vehicle_comparison',
 			'title' => 'Vehicle Comparison',
 			'css'   => 'vehicle-comparison.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'testimonials'          => array(
 			'tag'   => 'rentiva_testimonials',
@@ -80,19 +80,19 @@ class BlockRegistry {
 			'tag'   => 'rentiva_vehicles_grid',
 			'title' => 'Vehicles Grid',
 			'css'   => 'vehicles-grid.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'vehicles-list'         => array(
 			'tag'   => 'rentiva_vehicles_list',
 			'title' => 'Vehicles List',
 			'css'   => 'vehicles-list.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'featured-vehicles'     => array(
 			'tag'   => 'rentiva_featured_vehicles',
 			'title' => 'Featured Vehicles',
 			'css'   => 'featured-vehicles.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'contact'               => array(
 			'tag'   => 'rentiva_contact',
@@ -113,7 +113,7 @@ class BlockRegistry {
 			'tag'   => 'rentiva_my_favorites',
 			'title' => 'My Favorites',
 			'css'   => 'my-account.css',
-			'deps'  => array( 'mhm-vehicle-card-css' ),
+			'deps'  => array( 'mhm-rentiva-vehicle-card-css' ),
 		),
 		'payment-history'       => array(
 			'tag'   => 'rentiva_payment_history',
@@ -158,11 +158,11 @@ class BlockRegistry {
 	public static function enqueue_block_assets(): void
 	{
 		// Ensure core variables are available inside the editor iframe AND frontend
-		wp_enqueue_style('mhm-css-variables');
+		wp_enqueue_style('mhm-rentiva-css-variables');
 		wp_enqueue_style(
-			'mhm-golden-ratio-contract',
+			'mhm-rentiva-golden-ratio-contract',
 			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css',
-			array( 'mhm-css-variables' ),
+			array( 'mhm-rentiva-css-variables' ),
 			self::get_asset_version('assets/css/core/golden-ratio-contract.css')
 		);
 
@@ -333,7 +333,7 @@ class BlockRegistry {
 					$style_handle = 'mhm-vehicle-card-css';
 				} elseif (isset($config['tag']) && $index === 0) {
 					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
-					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', $config['tag']);
+					$style_handle = 'mhm-' . str_replace('_', '-', $config['tag']);
 				} else {
 					// Fallback to block slug
 					$style_handle = ( count($css_files) === 1 )
@@ -342,7 +342,7 @@ class BlockRegistry {
 				}
 
 				// Merge dependencies: Core variables + Specific block deps
-				$deps = array_merge(array( 'mhm-css-variables' ), $config['deps'] ?? array());
+				$deps = array_merge(array( 'mhm-rentiva-css-variables' ), $config['deps'] ?? array());
 
 				// Only register if not already registered (especially for shared handles)
 				if (! wp_style_is($style_handle, 'registered')) {
@@ -418,7 +418,7 @@ class BlockRegistry {
 					$style_handle = 'mhm-vehicle-card-css';
 				} elseif (isset($config['tag']) && $index === 0) {
 					// Use Shortcode Tag driven handle if available to ensure parity with AbstractShortcode
-					$style_handle = 'mhm-rentiva-' . str_replace('_', '-', $config['tag']);
+					$style_handle = 'mhm-' . str_replace('_', '-', $config['tag']);
 				} else {
 					// Fallback to block slug
 					$style_handle = ( count($css_files) === 1 )
