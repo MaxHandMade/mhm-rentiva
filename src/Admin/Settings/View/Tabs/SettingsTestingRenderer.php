@@ -87,7 +87,7 @@ final class SettingsTestingRenderer extends AbstractTabRenderer {
 
 		wp_localize_script(
 			'mhm-settings-testing',
-			'mhm_settings_testing',
+			'mhm_rentiva_settings_testing',
 			array(
 				'nonce'        => wp_create_nonce( 'mhm_settings_test_nonce' ),
 				'run_text'     => __( 'Run All Diagnostics', 'mhm-rentiva' ),

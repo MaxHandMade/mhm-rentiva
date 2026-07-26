@@ -288,8 +288,6 @@ final class SettingsSanitizer {
 			'mhm_rentiva_cache_default_ttl'       => self::clamp_value( floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ), 0.5, 24.0 ),
 			'mhm_rentiva_cache_lists_ttl'         => self::get_int( $input, 'mhm_rentiva_cache_lists_ttl', 5, 1, 60 ),
 			'mhm_rentiva_cache_reports_ttl'       => self::get_int( $input, 'mhm_rentiva_cache_reports_ttl', 15, 1, 1440 ),
-			'mhm_rentiva_cache_charts_ttl'        => self::get_int( $input, 'mhm_rentiva_cache_charts_ttl', 10, 1, 1440 ),
-			'mhm_rentiva_wp_meta_query_limit'     => self::get_int( $input, 'mhm_rentiva_wp_meta_query_limit', 5, 1, 50 ),
 
 			// Maintenance.
 			'mhm_rentiva_log_level'               => self::validate_enum( $input['mhm_rentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),

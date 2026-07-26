@@ -89,7 +89,7 @@ final class CronMonitorRenderer extends AbstractTabRenderer {
 
 		wp_localize_script(
 			'mhm-cron-monitor',
-			'mhm_cron_vars',
+			'mhm_rentiva_cron_vars',
 			array(
 				'nonce'                         => wp_create_nonce( 'mhm_cron_monitor' ),
 				'run_text'                      => __( 'Run Now', 'mhm-rentiva' ),

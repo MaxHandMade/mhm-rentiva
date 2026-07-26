@@ -626,7 +626,7 @@ final class EmailTemplates {
 			// ⭐ Localize JavaScript variables (includes data for send test email functionality)
 			wp_localize_script(
 				'mhm-email-templates',
-				'mhm_email_templates_vars',
+				'mhm_rentiva_email_templates_vars',
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),
 					'admin_post_url'    => admin_url('admin-post.php'),

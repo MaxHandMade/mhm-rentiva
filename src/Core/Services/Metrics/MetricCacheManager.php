@@ -18,7 +18,7 @@ final class MetricCacheManager {
     /**
      * Prefix for all metric caching.
      */
-    public const PREFIX = 'mhm_metric_';
+    public const PREFIX = 'mhm_rentiva_metric_';
 
     /**
      * 15-minute fallback TTL to ensure edge-cases do not persist anomalies infinitely.

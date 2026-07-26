@@ -508,8 +508,8 @@
 	};
 
 	// Use translations from WordPress
-	if (window.mhm_i18n_translations && window.mhm_i18n_translations['mhm-rentiva']) {
-		MHMRentiva.i18n.loadTranslations( window.mhm_i18n_translations );
+	if (window.mhm_rentiva_i18n_translations && window.mhm_rentiva_i18n_translations['mhm-rentiva']) {
+		MHMRentiva.i18n.loadTranslations( window.mhm_rentiva_i18n_translations );
 	} else {
 		// Load default translations as fallback
 		MHMRentiva.i18n.loadTranslations( defaultTranslations, 'en_US' );

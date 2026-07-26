@@ -970,9 +970,9 @@ final class DatabaseMigrator {
 			if ($old_val !== null && ! isset($settings[ $new_key ])) {
 				$settings[ $new_key ] = $old_val;
 				$migrated             = true;
-				// Ideally we delete old option, but for safety lets keep it for a while or rename usages?
-				// The instruction says "Update calls to get_option".
-				// I will add the new key.
+				// The old standalone option is deliberately left in place: this copy is
+				// additive, and deleting the source would make the migration
+				// unrepeatable if it were ever interrupted.
 			} elseif (! isset($settings[ $new_key ])) {
 				// Set default if not set
 				$settings[ $new_key ] = $defaults[ $new_key ] ?? '';
@@ -1216,7 +1216,7 @@ final class DatabaseMigrator {
 		$table = self::sanitize_table_identifier($wpdb->prefix . 'mhm_notification_queue');
 
 		if ('' !== $table) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Identifier built from the WordPress table prefix and a literal, passed through the class's own identifier filter; DROP cannot take a placeholder.
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Identifier is built from the WordPress table prefix plus a literal and passed through this class's own identifier filter, and DROP takes no placeholder. A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
 			$wpdb->query("DROP TABLE IF EXISTS `{$table}`");
 		}
 	}

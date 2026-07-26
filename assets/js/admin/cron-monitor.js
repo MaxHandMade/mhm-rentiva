@@ -41,33 +41,33 @@ jQuery( document ).ready(
 					return;
 				}
 
-				if ( ! confirm( mhm_cron_vars.confirm_run_text || 'This will execute the cron job immediately. Continue?' )) {
+				if ( ! confirm( mhm_rentiva_cron_vars.confirm_run_text || 'This will execute the cron job immediately. Continue?' )) {
 					return;
 				}
 
 				const btn          = $( this );
 				const originalText = btn.html();
-				btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_cron_vars.running_text || 'Running...') );
+				btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_cron_vars.running_text || 'Running...') );
 
 				$.post(
 					ajaxurl,
 					{
 						action: 'mhm_rentiva_run_cron_job',
-						nonce: mhm_cron_vars.nonce,
+						nonce: mhm_rentiva_cron_vars.nonce,
 						hook: hook
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_cron_vars.success_text + ' ' + response.data.message );
+							alert( mhm_rentiva_cron_vars.success_text + ' ' + response.data.message );
 							refreshCronList(); // Refresh to update next run time
 						} else {
-							alert( mhm_cron_vars.error_text + ' ' + response.data );
+							alert( mhm_rentiva_cron_vars.error_text + ' ' + response.data );
 						}
 						btn.prop( 'disabled', false ).html( originalText );
 					}
 				).fail(
 					function () {
-						alert( mhm_cron_vars.error_text + ' Network error occurred' );
+						alert( mhm_rentiva_cron_vars.error_text + ' Network error occurred' );
 						btn.prop( 'disabled', false ).html( originalText );
 					}
 				);
@@ -80,25 +80,25 @@ jQuery( document ).ready(
 		function refreshCronList() {
 			const btn          = $( '#mhm-refresh-cron-list-btn' );
 			const originalText = btn.html();
-			btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_cron_vars.loading_text || 'Loading...') );
+			btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_cron_vars.loading_text || 'Loading...') );
 
 			$.post(
 				ajaxurl,
 				{
 					action: 'mhm_rentiva_list_cron_jobs',
-					nonce: mhm_cron_vars.nonce
+					nonce: mhm_rentiva_cron_vars.nonce
 				},
 				function (response) {
 					if (response.success) {
 						renderCronList( response.data.crons || [] );
 					} else {
-						$( '#mhm-cron-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_cron_vars.error_text) + '</p></div>' );
+						$( '#mhm-cron-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_rentiva_cron_vars.error_text) + '</p></div>' );
 					}
 					btn.prop( 'disabled', false ).html( originalText );
 				}
 			).fail(
 				function () {
-					$( '#mhm-cron-list' ).html( '<div class="notice notice-error"><p>' + mhm_cron_vars.error_text + ' Network error occurred</p></div>' );
+					$( '#mhm-cron-list' ).html( '<div class="notice notice-error"><p>' + mhm_rentiva_cron_vars.error_text + ' Network error occurred</p></div>' );
 					btn.prop( 'disabled', false ).html( originalText );
 				}
 			);
@@ -116,12 +116,12 @@ jQuery( document ).ready(
 			let html = '<table class="wp-list-table widefat fixed striped">';
 			html    += '<thead>';
 			html    += '<tr>';
-			html    += '<th>' + (mhm_cron_vars.name_text || 'Name') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.description_text || 'Description') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.schedule_text || 'Schedule') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.next_run_text || 'Next Run') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.status_text || 'Status') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.actions_text || 'Actions') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.name_text || 'Name') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.description_text || 'Description') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.schedule_text || 'Schedule') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.next_run_text || 'Next Run') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.status_text || 'Status') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.actions_text || 'Actions') + '</th>';
 			html    += '</tr>';
 			html    += '</thead>';
 			html    += '<tbody>';
@@ -130,8 +130,8 @@ jQuery( document ).ready(
 				function (cron) {
 					const statusClass = cron.is_scheduled ? 'status-scheduled' : 'status-not-scheduled';
 					const statusText  = cron.is_scheduled
-					? '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' + (mhm_cron_vars.scheduled_text || 'Scheduled')
-					: '<span class="dashicons dashicons-dismiss" style="color: #dc3232;"></span> ' + (mhm_cron_vars.not_scheduled_text || 'Not Scheduled');
+					? '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' + (mhm_rentiva_cron_vars.scheduled_text || 'Scheduled')
+					: '<span class="dashicons dashicons-dismiss" style="color: #dc3232;"></span> ' + (mhm_rentiva_cron_vars.not_scheduled_text || 'Not Scheduled');
 
 					// Add hook registration status indicator
 					let hookStatus = '';
@@ -152,12 +152,12 @@ jQuery( document ).ready(
 					html += '<td>';
 					// Only disable if hook is not registered. Registered but not scheduled hooks can still be run manually.
 					if (cron.is_registered === false) {
-						html += '<button type="button" class="button button-small" disabled title="' + (mhm_cron_vars.hook_not_registered_text || 'Hook is not registered - cannot run') + '">';
-						html += '<span class="dashicons dashicons-dismiss"></span> ' + (mhm_cron_vars.run_text || 'Run Now');
+						html += '<button type="button" class="button button-small" disabled title="' + (mhm_rentiva_cron_vars.hook_not_registered_text || 'Hook is not registered - cannot run') + '">';
+						html += '<span class="dashicons dashicons-dismiss"></span> ' + (mhm_rentiva_cron_vars.run_text || 'Run Now');
 						html += '</button>';
 					} else {
 						html += '<button type="button" class="button button-small mhm-run-cron-btn" data-hook="' + escapeHtml( cron.hook ) + '">';
-						html += '<span class="dashicons dashicons-controls-play"></span> ' + (mhm_cron_vars.run_text || 'Run Now');
+						html += '<span class="dashicons dashicons-controls-play"></span> ' + (mhm_rentiva_cron_vars.run_text || 'Run Now');
 						html += '</button>';
 					}
 					html += '</td>';
@@ -182,7 +182,7 @@ jQuery( document ).ready(
 			}
 
 			const originalText = btn.html();
-			btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_cron_vars.testing_text || 'Testing...') );
+			btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_cron_vars.testing_text || 'Testing...') );
 
 			// Clear previous results and hide if already shown
 			$( '#mhm-cron-test-results' ).hide().html( '' );
@@ -191,21 +191,21 @@ jQuery( document ).ready(
 				ajaxurl,
 				{
 					action: 'mhm_rentiva_test_cron_jobs',
-					nonce: mhm_cron_vars.nonce
+					nonce: mhm_rentiva_cron_vars.nonce
 				},
 				function (response) {
 					if (response.success) {
 						renderTestResults( response.data.results || {} );
 						$( '#mhm-cron-test-results' ).fadeIn(); // Ensure visibility
 					} else {
-						$( '#mhm-cron-test-results' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_cron_vars.error_text || 'Error') + '</p></div>' ).show();
+						$( '#mhm-cron-test-results' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_rentiva_cron_vars.error_text || 'Error') + '</p></div>' ).show();
 					}
 					btn.prop( 'disabled', false ).html( originalText );
 				}
 			).fail(
 				function (xhr, status, error) {
 					console.error( 'AJAX Error:', status, error );
-					$( '#mhm-cron-test-results' ).html( '<div class="notice notice-error"><p>' + (mhm_cron_vars.error_text || 'Error') + ': Network error occurred (' + error + ')</p></div>' );
+					$( '#mhm-cron-test-results' ).html( '<div class="notice notice-error"><p>' + (mhm_rentiva_cron_vars.error_text || 'Error') + ': Network error occurred (' + error + ')</p></div>' );
 					btn.prop( 'disabled', false ).html( originalText );
 				}
 			);
@@ -220,14 +220,14 @@ jQuery( document ).ready(
 				return;
 			}
 
-			let html = '<div class="notice notice-info"><p><strong>' + (mhm_cron_vars.test_results_text || 'Test Results') + ':</strong></p></div>';
+			let html = '<div class="notice notice-info"><p><strong>' + (mhm_rentiva_cron_vars.test_results_text || 'Test Results') + ':</strong></p></div>';
 			html    += '<table class="wp-list-table widefat fixed striped">';
 			html    += '<thead>';
 			html    += '<tr>';
-			html    += '<th>' + (mhm_cron_vars.hook_text || 'Hook') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.status_text || 'Status') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.schedule_text || 'Schedule') + '</th>';
-			html    += '<th>' + (mhm_cron_vars.next_run_text || 'Next Run') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.hook_text || 'Hook') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.status_text || 'Status') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.schedule_text || 'Schedule') + '</th>';
+			html    += '<th>' + (mhm_rentiva_cron_vars.next_run_text || 'Next Run') + '</th>';
 			html    += '</tr>';
 			html    += '</thead>';
 			html    += '<tbody>';
@@ -239,13 +239,13 @@ jQuery( document ).ready(
 					let statusClass = '';
 
 					if (result.status === 'active') {
-						statusHtml  = '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' + escapeHtml( mhm_cron_vars.active_text || 'Active' );
+						statusHtml  = '<span class="dashicons dashicons-yes-alt" style="color: #46b450;"></span> ' + escapeHtml( mhm_rentiva_cron_vars.active_text || 'Active' );
 						statusClass = 'status-active';
 					} else if (result.status === 'registered_but_not_scheduled') {
-						statusHtml  = '<span class="dashicons dashicons-warning" style="color: #f56e28;"></span> ' + escapeHtml( mhm_cron_vars.registered_not_scheduled_text || 'Registered but not scheduled' );
+						statusHtml  = '<span class="dashicons dashicons-warning" style="color: #f56e28;"></span> ' + escapeHtml( mhm_rentiva_cron_vars.registered_not_scheduled_text || 'Registered but not scheduled' );
 						statusClass = 'status-warning';
 					} else {
-						statusHtml  = '<span class="dashicons dashicons-dismiss" style="color: #dc3232;"></span> ' + escapeHtml( mhm_cron_vars.not_registered_text || 'Not registered' );
+						statusHtml  = '<span class="dashicons dashicons-dismiss" style="color: #dc3232;"></span> ' + escapeHtml( mhm_rentiva_cron_vars.not_registered_text || 'Not registered' );
 						statusClass = 'status-error';
 					}
 

@@ -121,7 +121,7 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Backups are now written under the uploads folder instead of directly into wp-content. Backups taken by earlier versions stay listed, restorable and deletable.
 * Fixed: vehicle quick edit accepted values the full editor rejects - a negative daily price, which multiplied into rental totals, and a seat count of zero or above the configured maximum.
 * Fixed: the vehicle search request accepted any page size, so one request could ask the site to render the entire fleet. Search and testimonials now enforce the limits their own settings advertise.
-* Internal: temporary cache entries, the last-login record and background job names now carry the plugin's prefix so they cannot collide with another plugin's. Existing values are migrated on update.
+* Internal: temporary cache entries, the last-login record, background job names and the JavaScript objects our admin screens read now carry the plugin's prefix so they cannot collide with another plugin's. Caches expire and are rebuilt; the last-login value is written under the new name from this version on, and the old entry is left alone because that name is shared with other plugins.
 * Internal: removed about 2,000 lines of unreferenced code, including a file registering database-maintenance commands and one that would have exposed protected vehicle and booking fields over the REST API had it ever been enabled.
 
 = 5.1.1 =

@@ -80,7 +80,7 @@ final class DatabaseCleanupPage {
 
 		wp_localize_script(
 			'mhm-database-cleanup',
-			'mhm_db_cleanup_vars',
+			'mhm_rentiva_db_cleanup_vars',
 			array(
 				'nonce'                  => wp_create_nonce('mhm_db_cleanup'),
 				'analyzing_text'         => esc_html__('Analyzing...', 'mhm-rentiva'),

@@ -853,7 +853,7 @@ final class AssetManager {
 
 				wp_localize_script(
 					'mhm-email-templates',
-					'mhm_email_templates_vars',
+					'mhm_rentiva_email_templates_vars',
 					array(
 						'ajax_url'          => admin_url('admin-ajax.php'),
 						'nonce'             => wp_create_nonce('mhm_email_templates_nonce'),
@@ -1084,7 +1084,7 @@ final class AssetManager {
 
 			wp_localize_script(
 				'mhm-email-templates',
-				'mhm_email_templates_vars',
+				'mhm_rentiva_email_templates_vars',
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),
 					'nonce'             => wp_create_nonce('mhm_email_templates_nonce'),
@@ -1157,7 +1157,7 @@ final class AssetManager {
 		// Localize translations for i18n
 		wp_localize_script(
 			'mhm-i18n',
-			'mhm_i18n_translations',
+			'mhm_rentiva_i18n_translations',
 			array(
 				'mhm-rentiva' => self::get_translations(),
 			)

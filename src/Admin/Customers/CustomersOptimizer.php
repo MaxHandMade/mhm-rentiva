@@ -34,7 +34,7 @@ final class CustomersOptimizer {
 
 
 
-	private const CACHE_PREFIX = 'mhm_customers_';
+	private const CACHE_PREFIX = 'mhm_rentiva_customers_';
 	private const CACHE_TTL    = 900; // 15 minutes
 	private const BATCH_SIZE   = 50;
 

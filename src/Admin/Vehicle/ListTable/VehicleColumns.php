@@ -1782,7 +1782,13 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Clear all vehicle statistics caches
+	 * Clear all vehicle statistics caches.
+	 *
+	 * The writer this pairs with is currently commented out at get_vehicle_stats(),
+	 * so today this deletes nothing. The patterns are still kept aligned with the
+	 * key that writer would produce: a cleaner that silently stops matching is
+	 * invisible at runtime, and leaving the pre-rename spelling here would hand
+	 * that failure to whoever re-enables the cache.
 	 */
 	public static function clear_vehicle_stats_cache(): void
 	{
@@ -1792,13 +1798,13 @@ final class VehicleColumns {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhm_vehicle_stats_%'
+				'_transient_mhm_rentiva_vehicle_stats_%'
 			)
 		);
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_timeout_mhm_vehicle_stats_%'
+				'_transient_timeout_mhm_rentiva_vehicle_stats_%'
 			)
 		);
 	}

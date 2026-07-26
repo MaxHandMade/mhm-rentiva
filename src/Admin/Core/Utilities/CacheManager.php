@@ -57,6 +57,11 @@ final class CacheManager {
 		'addon_list'      => 'mhm_rentiva_addon_list',
 		'vehicle_list'    => 'rv_vlist_',
 		'system_info'     => 'mhm_rentiva_system_info',
+		// CustomersOptimizer caches through this type at ten sites. It was absent
+		// from this map, so every read missed, every write was discarded and the
+		// class ran its full query set on every customers-page load while
+		// reporting nothing wrong.
+		'customers'       => 'mhm_rentiva_customers_',
 	);
 
 	/**
@@ -82,6 +87,7 @@ final class CacheManager {
 			'addon_list'      => self::get_cache_duration_lists(),
 			'vehicle_list'    => self::get_cache_duration_lists(),
 			'system_info'     => self::get_cache_duration_system(),
+			'customers'       => self::get_cache_duration_lists(),
 		);
 	}
 

@@ -72,7 +72,7 @@ jQuery( document ).ready(
 				var newPrice = parseFloat( $input.val() );
 
 				if (isNaN( newPrice ) || newPrice < 0) {
-					const invalidMsg = (mhm_addon_list_vars.strings && mhm_addon_list_vars.strings.invalidPrice) || 'Invalid price value!';
+					const invalidMsg = (mhm_rentiva_addon_list_vars.strings && mhm_rentiva_addon_list_vars.strings.invalidPrice) || 'Invalid price value!';
 					showNotice( invalidMsg, 'error' );
 					inlineEdit.cancelEdit( $input );
 					return;
@@ -81,20 +81,20 @@ jQuery( document ).ready(
 				// AJAX ile fiyatı güncelle
 				$.ajax(
 					{
-						url: mhm_addon_list_vars.ajax_url,
+						url: mhm_rentiva_addon_list_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_rentiva_update_addon_price',
 							addon_id: addonId,
 							price: newPrice,
-							nonce: mhm_addon_list_vars.nonce
+							nonce: mhm_rentiva_addon_list_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
 								// Başarılı güncelleme
-								var currency       = mhm_addon_list_vars.currency;
+								var currency       = mhm_rentiva_addon_list_vars.currency;
 								var formattedPrice = newPrice.toLocaleString(
-									mhm_addon_list_vars.locale || 'en-US',
+									mhm_rentiva_addon_list_vars.locale || 'en-US',
 									{
 										minimumFractionDigits: 2,
 										maximumFractionDigits: 2
@@ -103,14 +103,14 @@ jQuery( document ).ready(
 								$element.html( formattedPrice );
 								$element.data( 'price', newPrice );
 							} else {
-								const errorMsg   = (mhm_addon_list_vars.strings && mhm_addon_list_vars.strings.priceUpdateError) || 'Error updating price';
-								const unknownMsg = (mhm_addon_list_vars.strings && mhm_addon_list_vars.strings.unknownError) || 'Unknown error';
+								const errorMsg   = (mhm_rentiva_addon_list_vars.strings && mhm_rentiva_addon_list_vars.strings.priceUpdateError) || 'Error updating price';
+								const unknownMsg = (mhm_rentiva_addon_list_vars.strings && mhm_rentiva_addon_list_vars.strings.unknownError) || 'Unknown error';
 								showNotice( errorMsg + ': ' + (response.data.message || unknownMsg), 'error' );
 								inlineEdit.cancelEdit( $input );
 							}
 						},
 						error: function () {
-							const errorMsg = (mhm_addon_list_vars.strings && mhm_addon_list_vars.strings.priceUpdateError) || 'Error updating price!';
+							const errorMsg = (mhm_rentiva_addon_list_vars.strings && mhm_rentiva_addon_list_vars.strings.priceUpdateError) || 'Error updating price!';
 							showNotice( errorMsg, 'error' );
 							inlineEdit.cancelEdit( $input );
 						}
@@ -121,11 +121,11 @@ jQuery( document ).ready(
 			cancelEdit: function ($input) {
 				var $element      = $input.closest( '.addon-price-display' );
 				var originalPrice = $element.data( 'price' );
-				var currency      = mhm_addon_list_vars.currency || 'USD';
+				var currency      = mhm_rentiva_addon_list_vars.currency || 'USD';
 
 				// Orijinal fiyatı geri yükle
 				var formattedPrice = originalPrice.toLocaleString(
-					mhm_addon_list_vars.locale || 'en-US',
+					mhm_rentiva_addon_list_vars.locale || 'en-US',
 					{
 						minimumFractionDigits: 2,
 						maximumFractionDigits: 2
@@ -164,7 +164,7 @@ jQuery( document ).ready(
 						var selectedItems = $( 'input[name="addon[]"]:checked' );
 
 						if (selectedItems.length === 0) {
-							showNotice( mhm_addon_list_vars.no_items_selected, 'warning' );
+							showNotice( mhm_rentiva_addon_list_vars.no_items_selected, 'warning' );
 							return;
 						}
 
@@ -203,7 +203,7 @@ jQuery( document ).ready(
 
 				if (selectedCount > 0) {
 					$( '.bulk-actions .button' ).prop( 'disabled', false );
-					$( '.bulk-actions .selected-count' ).text( selectedCount + ' ' + mhm_addon_list_vars.items_selected );
+					$( '.bulk-actions .selected-count' ).text( selectedCount + ' ' + mhm_rentiva_addon_list_vars.items_selected );
 				} else {
 					$( '.bulk-actions .button' ).prop( 'disabled', true );
 					$( '.bulk-actions .selected-count' ).text( '' );
@@ -220,7 +220,7 @@ jQuery( document ).ready(
 			},
 
 			enableAddons: function (selectedItems) {
-				if ( ! confirm( mhm_addon_list_vars.confirm_enable )) {
+				if ( ! confirm( mhm_rentiva_addon_list_vars.confirm_enable )) {
 					return;
 				}
 
@@ -234,7 +234,7 @@ jQuery( document ).ready(
 			},
 
 			disableAddons: function (selectedItems) {
-				if ( ! confirm( mhm_addon_list_vars.confirm_disable )) {
+				if ( ! confirm( mhm_rentiva_addon_list_vars.confirm_disable )) {
 					return;
 				}
 
@@ -248,7 +248,7 @@ jQuery( document ).ready(
 			},
 
 			deleteAddons: function (selectedItems) {
-				if ( ! confirm( mhm_addon_list_vars.confirm_delete )) {
+				if ( ! confirm( mhm_rentiva_addon_list_vars.confirm_delete )) {
 					return;
 				}
 
@@ -265,28 +265,28 @@ jQuery( document ).ready(
 				var $button      = $( '.bulk-actions .button' );
 				var originalText = $button.text();
 
-				$button.prop( 'disabled', true ).text( mhm_addon_list_vars.processing );
+				$button.prop( 'disabled', true ).text( mhm_rentiva_addon_list_vars.processing );
 
 				$.ajax(
 					{
-						url: mhm_addon_list_vars.ajax_url,
+						url: mhm_rentiva_addon_list_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_rentiva_bulk_addon_action',
 							bulk_action: action,
 							addon_ids: addonIds,
-							nonce: mhm_addon_list_vars.nonce
+							nonce: mhm_rentiva_addon_list_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
 								// Sayfayı yenile
 								location.reload();
 							} else {
-								showNotice( response.data || mhm_addon_list_vars.error_occurred, 'error' );
+								showNotice( response.data || mhm_rentiva_addon_list_vars.error_occurred, 'error' );
 							}
 						},
 						error: function () {
-							showNotice( mhm_addon_list_vars.error_occurred, 'error' );
+							showNotice( mhm_rentiva_addon_list_vars.error_occurred, 'error' );
 						},
 						complete: function () {
 							$button.prop( 'disabled', false ).text( originalText );
@@ -440,7 +440,7 @@ jQuery( document ).ready(
 
 			checkLicenseLimits: function () {
 				// Lisans limitlerini kontrol et
-				if (typeof mhm_addon_list_vars !== 'undefined' && mhm_addon_list_vars.license_limit_reached) {
+				if (typeof mhm_rentiva_addon_list_vars !== 'undefined' && mhm_rentiva_addon_list_vars.license_limit_reached) {
 					this.showLicenseWarning();
 				}
 			},
@@ -448,8 +448,8 @@ jQuery( document ).ready(
 			showLicenseWarning: function () {
 				var warning = $(
 					'<div class="notice notice-warning is-dismissible">' +
-					'<p><strong>' + mhm_addon_list_vars.license_warning_title + '</strong> ' +
-					mhm_addon_list_vars.license_warning_message + '</p>' +
+					'<p><strong>' + mhm_rentiva_addon_list_vars.license_warning_title + '</strong> ' +
+					mhm_rentiva_addon_list_vars.license_warning_message + '</p>' +
 					'</div>'
 				);
 
@@ -494,7 +494,7 @@ jQuery( document ).ready(
 			);
 		}
 
-		if (typeof mhm_addon_list_vars !== 'undefined' && mhm_addon_list_vars.auto_refresh) {
+		if (typeof mhm_rentiva_addon_list_vars !== 'undefined' && mhm_rentiva_addon_list_vars.auto_refresh) {
 			setInterval(
 				function () {
 					// İstatistikleri otomatik güncelle (isteğe bağlı)

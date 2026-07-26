@@ -88,13 +88,51 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		'mhm_marketing_emails'         => 'user meta: per-user e-mail preference',
 		'mhm_dashboard_widget_order'   => 'user meta: dashboard layout',
 
-		// Post types and post statuses stored on every existing post.
+		// Post types. Every row in wp_posts carries the type string, so renaming
+		// one orphans that site's entire log history. Registered names, and the
+		// reason the reply names them explicitly.
+		'mhm_app_log'                  => 'post type: rows exist on every install',
+		'mhm_email_log'                => 'post type: rows exist on every install',
+
+		// Comment meta on published reviews.
+		'mhm_rating'                   => 'comment meta: the rating itself, on every review ever left',
+		'mhm_verified_review'          => 'comment meta: verified-booking flag on existing reviews',
+
+		// Post meta written since 1.x. Renaming needs a migration over every
+		// booking and vehicle on the site.
+		'mhm_pickup_time'              => 'booking post meta',
+		'mhm_dropoff_time'             => 'booking post meta',
+		'mhm_start_time'               => 'booking post meta',
+		'mhm_booking_id'               => 'order meta linking a WooCommerce order to its booking',
+		'mhm_contact_email'            => 'booking post meta',
+		'mhm_contact_name'             => 'booking post meta',
+		'mhm_is_transfer'              => 'booking post meta',
+		'mhm_status'                   => 'booking post meta',
+		'mhm_addon_pricing_type'       => 'add-on post meta, read by a one-time migration',
+		'mhm_removed_details'          => 'vehicle post meta',
+
+		// Nonce actions and per-screen JS object names. Scoped to one request or
+		// one admin screen, not to a registry shared with other plugins. Listed
+		// rather than excluded so the scan stays strict: loosening it to skip
+		// "things that look like nonces" is how a real name gets through.
+		'mhm_blocked_dates_nonce'      => 'nonce action, not storage',
+		'mhm_blocked_dates_save'       => 'nonce action, not storage',
+		'mhm_dark_mode_nonce'          => 'nonce action, not storage',
+		'mhm_rest_api_keys_nonce'      => 'nonce action, not storage',
+		'mhm_settings_test_nonce'      => 'nonce action, not storage',
+		'mhm_cron_monitor'             => 'admin screen slug, not storage',
+		'mhm_db_cleanup'               => 'admin screen slug, not storage',
+		'mhm_search_context'           => 'request-scoped filter context, not storage',
+
+		// A bare fragment, not a name: `'mhm_' . $suffix` built at the call site.
+		'mhm_'                         => 'prefix fragment concatenated at the call site',
+
 
 		// Legacy names retained only so cleanup can still find old rows.
 		'mhm_send_scheduled_notifications' => 'legacy cron name, cleared by migration and uninstall',
-		'mhm_transfer_deposit_type'    => 'legacy option name, migrated away by DatabaseMigrator',
+		'mhm_transfer_deposit_type'    => 'settings key written by SettingsSanitizer and read by the add-on',
 		'mhm_message'                  => 'table-name fragment in the System Info report',
-		'mhm_data_consent_given'       => 'booking post meta, written since 1.x',
+		'mhm_data_consent_given'       => 'user meta: consent flag, written by the add-on, read here',
 		'mhm_log_retention'            => 'legacy cron name, cleared by uninstall',
 
 		// Nonce actions that happen to sit beside an option read in the same
@@ -109,9 +147,10 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	/**
 	 * APIs whose nearby literals are registered or stored names.
 	 */
-	private const STORAGE_API = '/(?:set|get|delete)_transient|(?:get|update|add|delete)_option'
-		. '|register_setting|\$wpdb->prefix|(?:update|get|delete|add)_user_meta'
-		. '|register_post_type|register_taxonomy|wp_schedule_event|wp_next_scheduled/';
+	private const STORAGE_API = '/(?:set|get|delete)_(?:site_)?transient|(?:get|update|add|delete)_option'
+		. '|register_setting|\$wpdb->prefix|(?:update|get|delete|add)_(?:user|comment|term)_meta'
+		. '|register_post_type|register_post_status|register_taxonomy|wp_localize_script'
+		. '|wp_schedule_(?:event|single_event)|wp_next_scheduled|wp_cache_(?:set|get|delete)/';
 
 	/**
 	 * @return array<string, list<string>> literal => file:line list
@@ -137,12 +176,20 @@ final class NoBareMhmStorageKeysTest extends TestCase
 						continue;
 					}
 
-					if ( ! preg_match_all( '/[\'"](mhm_(?!rentiva)[a-z0-9_]*)/i', $line, $m ) ) {
+					if ( ! preg_match_all( '/[\'"]_?(?:transient_)?(mhm_(?!rentiva)[a-z0-9_]*)/i', $line, $m ) ) {
 						continue;
 					}
 
+					// A key held in a class constant sits arbitrarily far from the call
+					// that stores it: MetricCacheManager::PREFIX is declared on line 21
+					// and reaches set_transient() on line 64. No window connects those,
+					// which is exactly how a live bare-prefixed transient family survived
+					// the first version of this gate. A constant whose value starts `mhm_`
+					// is therefore in scope wherever it is declared, window or not.
+					$is_constant = 1 === preg_match( '/\\bconst\\s+\\w+\\s*=\\s*[\'"]mhm_/i', $line );
+
 					$window = implode( "\n", array_slice( $lines, max( 0, $i - 4 ), 9 ) );
-					if ( ! preg_match( self::STORAGE_API, $window ) ) {
+					if ( ! $is_constant && ! preg_match( self::STORAGE_API, $window ) ) {
 						continue;
 					}
 

@@ -23,7 +23,7 @@ class MetricCacheManagerTest extends WP_UnitTestCase
     public function test_cache_key_generation(): void
     {
         $key = MetricCacheManager::build_key('customer', 'total_bookings', '15');
-        $this->assertSame('mhm_metric_customer_total_bookings_15', $key);
+        $this->assertSame('mhm_rentiva_metric_customer_total_bookings_15', $key);
     }
 
     public function test_get_set_operations(): void
@@ -57,13 +57,17 @@ class MetricCacheManagerTest extends WP_UnitTestCase
         $this->assertFalse(MetricCacheManager::get('vendor', 'revenue_7d', '10'));
 
         // Manually inject cache bypassing the `set()` flush block wrapper via direct core transient helper.
-        set_transient('mhm_metric_vendor_revenue_7d_10', array('val' => 2), 300);
+        // The key must carry the CURRENT prefix: with the old spelling the flush
+        // below could not have matched it under any circumstances, and the
+        // survives-the-second-flush assertion would pass without testing the
+        // debounce it is named for.
+        set_transient(MetricCacheManager::PREFIX . 'vendor_revenue_7d_10', array('val' => 2), 300);
 
         // Demand flush again (simulating sequential hook firings in same request lifecycle)
         MetricCacheManager::flush_subject_metric('vendor', 'revenue_7d', '10');
 
         // Since ledger tracked the first flush, the second delete request is aborted. Transient must survive.
-        $this->assertNotEmpty(get_transient('mhm_metric_vendor_revenue_7d_10'));
+        $this->assertNotEmpty(get_transient(MetricCacheManager::PREFIX . 'vendor_revenue_7d_10'));
     }
 
     public function test_wildcard_subject_flush(): void

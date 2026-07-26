@@ -50,7 +50,7 @@ jQuery( document ).ready(
 					'<div class="email-preview-modal active">' +
 					'<div class="email-preview-content">' +
 					'<div class="email-preview-header">' +
-					'<h3 class="email-preview-title">' + mhm_email_templates_vars.preview_email + '</h3>' +
+					'<h3 class="email-preview-title">' + mhm_rentiva_email_templates_vars.preview_email + '</h3>' +
 					'<button class="email-preview-close">&times;</button>' +
 					'</div>' +
 					'<div class="email-preview-body">' +
@@ -99,7 +99,7 @@ jQuery( document ).ready(
 						var email       = form.find( 'input[name="test_email"]' ).val();
 
 						if ( ! email) {
-							const alertMsg = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.enterEmail) || 'Please enter email address';
+							const alertMsg = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.enterEmail) || 'Please enter email address';
 							showNotice( alertMsg, 'warning' );
 							return;
 						}
@@ -120,9 +120,9 @@ jQuery( document ).ready(
 			},
 
 			showTestForm: function (templateKey) {
-				const sendTestTitle = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.sendTestEmail) || 'Send Test Email';
-				const emailLabel    = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.emailAddress) || 'Email Address';
-				const cancelText    = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.cancel) || 'Cancel';
+				const sendTestTitle = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.sendTestEmail) || 'Send Test Email';
+				const emailLabel    = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.emailAddress) || 'Email Address';
+				const cancelText    = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.cancel) || 'Cancel';
 
 				var form = $(
 					'<div class="test-email-form" data-template-key="' + templateKey + '">' +
@@ -132,7 +132,7 @@ jQuery( document ).ready(
 					'<input type="email" name="test_email" required placeholder="test@example.com">' +
 					'</div>' +
 					'<div class="form-actions">' +
-					'<button type="submit" class="button button-primary">' + mhm_email_templates_vars.send_test + '</button>' +
+					'<button type="submit" class="button button-primary">' + mhm_rentiva_email_templates_vars.send_test + '</button>' +
 					'<button type="button" class="button close-test-form">' + cancelText + '</button>' +
 					'</div>' +
 					'</div>'
@@ -149,28 +149,28 @@ jQuery( document ).ready(
 				var submitBtn    = form.find( 'button[type="submit"]' );
 				var originalText = submitBtn.text();
 
-				submitBtn.prop( 'disabled', true ).text( mhm_email_templates_vars.processing );
+				submitBtn.prop( 'disabled', true ).text( mhm_rentiva_email_templates_vars.processing );
 
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_send_test_email',
 							template_key: templateKey,
 							test_email: email,
-							nonce: mhm_email_templates_vars.nonce
+							nonce: mhm_rentiva_email_templates_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
-								showNotice( mhm_email_templates_vars.test_email_sent, 'success' );
+								showNotice( mhm_rentiva_email_templates_vars.test_email_sent, 'success' );
 								form.remove();
 							} else {
-								showNotice( response.data || mhm_email_templates_vars.test_email_failed, 'error' );
+								showNotice( response.data || mhm_rentiva_email_templates_vars.test_email_failed, 'error' );
 							}
 						},
 						error: function () {
-							showNotice( mhm_email_templates_vars.error_occurred, 'error' );
+							showNotice( mhm_rentiva_email_templates_vars.error_occurred, 'error' );
 						},
 						complete: function () {
 							submitBtn.prop( 'disabled', false ).text( originalText );
@@ -222,11 +222,11 @@ jQuery( document ).ready(
 			},
 
 			editTemplate: function (templateKey) {
-				const editTitle    = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.editTemplate) || 'Edit Template';
-				const subjectLabel = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.subject) || 'Subject';
-				const contentLabel = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.content) || 'Content';
-				const saveText     = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.save) || 'Save';
-				const cancelText   = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.cancel) || 'Cancel';
+				const editTitle    = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.editTemplate) || 'Edit Template';
+				const subjectLabel = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.subject) || 'Subject';
+				const contentLabel = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.content) || 'Content';
+				const saveText     = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.save) || 'Save';
+				const cancelText   = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.cancel) || 'Cancel';
 
 				// Show template editing modal
 				var modal = $(
@@ -265,12 +265,12 @@ jQuery( document ).ready(
 			loadTemplateData: function (templateKey, modal) {
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_get_template_data',
 							template_key: templateKey,
-							nonce: mhm_email_templates_vars.nonce
+							nonce: mhm_rentiva_email_templates_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
@@ -287,31 +287,31 @@ jQuery( document ).ready(
 				var originalText = submitBtn.text();
 				var templateKey  = form.data( 'template-key' );
 
-				submitBtn.prop( 'disabled', true ).text( mhm_email_templates_vars.processing );
+				submitBtn.prop( 'disabled', true ).text( mhm_rentiva_email_templates_vars.processing );
 
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_save_template',
 							template_key: templateKey,
 							subject: form.find( 'input[name="subject"]' ).val(),
 							content: form.find( 'textarea[name="content"]' ).val(),
-							nonce: mhm_email_templates_vars.nonce
+							nonce: mhm_rentiva_email_templates_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
-								const successMsg = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.templateSaved) || 'Template saved successfully!';
+								const successMsg = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.templateSaved) || 'Template saved successfully!';
 								showNotice( successMsg, 'success' );
 								$( '.template-edit-modal' ).remove();
 								location.reload();
 							} else {
-								showNotice( response.data || mhm_email_templates_vars.error_occurred, 'error' );
+								showNotice( response.data || mhm_rentiva_email_templates_vars.error_occurred, 'error' );
 							}
 						},
 						error: function () {
-							showNotice( mhm_email_templates_vars.error_occurred, 'error' );
+							showNotice( mhm_rentiva_email_templates_vars.error_occurred, 'error' );
 						},
 						complete: function () {
 							submitBtn.prop( 'disabled', false ).text( originalText );
@@ -323,24 +323,24 @@ jQuery( document ).ready(
 			resetTemplate: function (templateKey) {
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_reset_template',
 							template_key: templateKey,
-							nonce: mhm_email_templates_vars.nonce
+							nonce: mhm_rentiva_email_templates_vars.nonce
 						},
 						success: function (response) {
 							if (response.success) {
-								const successMsg = (mhm_email_templates_vars.strings && mhm_email_templates_vars.strings.templateReset) || 'Template reset to default!';
+								const successMsg = (mhm_rentiva_email_templates_vars.strings && mhm_rentiva_email_templates_vars.strings.templateReset) || 'Template reset to default!';
 								showNotice( successMsg, 'success' );
 								location.reload();
 							} else {
-								showNotice( response.data || mhm_email_templates_vars.error_occurred, 'error' );
+								showNotice( response.data || mhm_rentiva_email_templates_vars.error_occurred, 'error' );
 							}
 						},
 						error: function () {
-							showNotice( mhm_email_templates_vars.error_occurred, 'error' );
+							showNotice( mhm_rentiva_email_templates_vars.error_occurred, 'error' );
 						}
 					}
 				);
@@ -435,8 +435,8 @@ jQuery( document ).ready(
 			},
 
 			submitForm: function (templateKeyId, bookingIdId, statusId, toId) {
-				const actionUrl = mhm_email_templates_vars.admin_post_url;
-				const nonce     = mhm_email_templates_vars.send_test_nonce;
+				const actionUrl = mhm_rentiva_email_templates_vars.admin_post_url;
+				const nonce     = mhm_rentiva_email_templates_vars.send_test_nonce;
 				const tpl       = document.getElementById( templateKeyId ).value;
 				const bid       = document.getElementById( bookingIdId ).value;
 				const st        = document.getElementById( statusId ).value;
@@ -512,7 +512,7 @@ jQuery( document ).ready(
 
 				// Loading State
 				btn.data( 'original-text', originalText ); // Store for restoration
-				btn.prop( 'disabled', true ).text( mhm_email_templates_vars.processing || 'Loading...' );
+				btn.prop( 'disabled', true ).text( mhm_rentiva_email_templates_vars.processing || 'Loading...' );
 				container.css( 'opacity', '0.5' );
 
 				// Optional: Add spinner to container
@@ -520,7 +520,7 @@ jQuery( document ).ready(
 
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_rentiva_preview_email_ajax',
@@ -569,11 +569,11 @@ jQuery( document ).ready(
 				}
 
 				// Loading State
-				btn.prop( 'disabled', true ).text( mhm_email_templates_vars.processing || 'Sending...' );
+				btn.prop( 'disabled', true ).text( mhm_rentiva_email_templates_vars.processing || 'Sending...' );
 
 				$.ajax(
 					{
-						url: mhm_email_templates_vars.ajax_url,
+						url: mhm_rentiva_email_templates_vars.ajax_url,
 						type: 'POST',
 						data: {
 							action: 'mhm_rentiva_send_test_email_ajax',
@@ -661,7 +661,7 @@ jQuery( document ).ready(
 			);
 		}
 
-		if (typeof mhm_email_templates_vars !== 'undefined' && mhm_email_templates_vars.auto_refresh) {
+		if (typeof mhm_rentiva_email_templates_vars !== 'undefined' && mhm_rentiva_email_templates_vars.auto_refresh) {
 			setInterval(
 				function () {
 					// Auto-update statistics (optional)

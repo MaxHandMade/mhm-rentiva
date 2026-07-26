@@ -13,7 +13,7 @@ jQuery( document ).ready(
 		runBtn.on(
 			'click',
 			function () {
-				runBtn.prop( 'disabled', true ).addClass( 'updating-message' ).text( mhm_settings_testing.running_text );
+				runBtn.prop( 'disabled', true ).addClass( 'updating-message' ).text( mhm_rentiva_settings_testing.running_text );
 				testResults.hide().empty();
 
 				$.ajax(
@@ -22,21 +22,21 @@ jQuery( document ).ready(
 						type: 'POST',
 						data: {
 							action: 'mhm_rentiva_run_settings_tests',
-							nonce: mhm_settings_testing.nonce
+							nonce: mhm_rentiva_settings_testing.nonce
 						},
 						success: function (response) {
 							if (response.success) {
 								testResults.html( response.data ).fadeIn();
 							} else {
-								const errorMsg = response.data || mhm_settings_testing.error_text;
+								const errorMsg = response.data || mhm_rentiva_settings_testing.error_text;
 								testResults.html( '<div class="notice notice-error"><p>' + errorMsg + '</p></div>' ).fadeIn();
 							}
 						},
 						error: function () {
-							testResults.html( '<div class="notice notice-error"><p>' + mhm_settings_testing.error_text + '</p></div>' ).fadeIn();
+							testResults.html( '<div class="notice notice-error"><p>' + mhm_rentiva_settings_testing.error_text + '</p></div>' ).fadeIn();
 						},
 						complete: function () {
-							runBtn.prop( 'disabled', false ).removeClass( 'updating-message' ).text( mhm_settings_testing.run_text );
+							runBtn.prop( 'disabled', false ).removeClass( 'updating-message' ).text( mhm_rentiva_settings_testing.run_text );
 						}
 					}
 				);

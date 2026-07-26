@@ -112,7 +112,7 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 
 		wp_localize_script(
 			'mhm-database-cleanup',
-			'mhm_db_cleanup_vars',
+			'mhm_rentiva_db_cleanup_vars',
 			array(
 				'nonce'                            => wp_create_nonce( 'mhm_db_cleanup' ),
 				'analyzing_text'                   => __( 'Inspecting Data...', 'mhm-rentiva' ),

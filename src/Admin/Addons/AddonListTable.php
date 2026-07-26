@@ -535,7 +535,7 @@ final class AddonListTable extends AbstractListTable {
 			// Localize JavaScript variables
 			wp_localize_script(
 				'mhm-addon-list',
-				'mhm_addon_list_vars',
+				'mhm_rentiva_addon_list_vars',
 				array(
 					'ajax_url'          => admin_url( 'admin-ajax.php' ),
 					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
