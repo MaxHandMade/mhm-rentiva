@@ -120,8 +120,8 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		'mhm_dark_mode_nonce'          => 'nonce action, not storage',
 		'mhm_rest_api_keys_nonce'      => 'nonce action, not storage',
 		'mhm_settings_test_nonce'      => 'nonce action, not storage',
-		'mhm_cron_monitor'             => 'admin screen slug, not storage',
-		'mhm_db_cleanup'               => 'admin screen slug, not storage',
+		'mhm_cron_monitor'             => 'nonce action for the cron-monitor screen, not storage',
+		'mhm_db_cleanup'               => 'nonce action for the database-cleanup screen, not storage',
 		'mhm_search_context'           => 'request-scoped filter context, not storage',
 
 		// A bare fragment, not a name: `'mhm_' . $suffix` built at the call site.
@@ -131,9 +131,11 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		// Legacy names retained only so cleanup can still find old rows.
 		'mhm_send_scheduled_notifications' => 'legacy cron name, cleared by migration and uninstall',
 		'mhm_transfer_deposit_type'    => 'settings key written by SettingsSanitizer and read by the add-on',
-		'mhm_message'                  => 'table-name fragment in the System Info report',
+		'mhm_message'                  => 'the add-on post type for messages; Lite queries it for dashboard metrics',
 		'mhm_data_consent_given'       => 'user meta: consent flag, written by the add-on, read here',
 		'mhm_log_retention'            => 'legacy cron name, cleared by uninstall',
+		'mhm_rate_limit_'              => 'legacy transient prefix, swept by the migrator alongside the current one',
+		'mhm_revenue_report_'          => 'the add-on reports cache, cleared here so one screen does not show two numbers',
 
 		// Nonce actions that happen to sit beside an option read in the same
 		// localize call. A nonce action is scoped to one request, not to a
@@ -145,12 +147,93 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	);
 
 	/**
+	 * Registered names that carry no `mhm` prefix at all.
+	 *
+	 * The scan above hunts for `mhm_`, so by construction it can never see a name
+	 * that has no prefix whatsoever — and those are the more dangerous ones.
+	 * `vehicle` is a slug any other rental plugin might choose; `addon_context`
+	 * is two generic words. A post-type collision is not loud: whichever plugin
+	 * registers first wins and every row the loser wrote becomes unreachable.
+	 *
+	 * They are not renamed for the same reason as the tables and the log post
+	 * types: the slug is written into every `wp_posts` row and every term this
+	 * plugin has ever created since 1.x, so a rename is a migration over the
+	 * site's entire content, and a migration that half-runs loses it. The list is
+	 * here so the decision is visible, and so the reply to WordPress.org names
+	 * them rather than presenting a storage list that a grep can show is short.
+	 *
+	 * @var array<string, string>
+	 */
+	private const UNPREFIXED_REGISTERED = array(
+		'vehicle'          => 'post type: every vehicle row on every install',
+		'vehicle_booking'  => 'post type: every booking row on every install',
+		'vehicle_addon'    => 'post type: every add-on row on every install',
+		'vehicle_category' => 'taxonomy: every vehicle category term',
+		'addon_category'   => 'taxonomy: every add-on category term',
+		'addon_context'    => 'taxonomy: every add-on context term',
+	);
+
+	/**
+	 * The list above must describe the code: a registered name that is not in it
+	 * and does not start with the plugin prefix is a new one, and needs a
+	 * decision rather than silence.
+	 */
+	public function test_no_new_unprefixed_post_type_or_taxonomy_is_registered(): void
+	{
+		$root      = dirname( __DIR__, 2 );
+		$offenders = array();
+
+		$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root . '/src' ) );
+		foreach ( $it as $file ) {
+			if ( 'php' !== $file->getExtension() ) {
+				continue;
+			}
+
+			$code = (string) file_get_contents( $file->getPathname() );
+
+			// Both the direct call and the constant these classes register through.
+			preg_match_all(
+				// The constant names are anchored on a word boundary so that a field-type
+				// constant such as TYPE_TAXONOMY is not read as a taxonomy registration.
+				'/(?:register_(?:post_type|taxonomy)\(\s*|\b(?:POST_TYPE|TYPE|TAXONOMY)\s+=\s*)[\'"]([a-z][a-z0-9_]*)[\'"]/',
+				$code,
+				$m
+			);
+
+			foreach ( $m[1] as $name ) {
+				if ( str_starts_with( $name, 'mhm' ) || isset( self::UNPREFIXED_REGISTERED[ $name ] ) ) {
+					continue;
+				}
+
+				$offenders[] = $name . '  (' . str_replace( $root . DIRECTORY_SEPARATOR, '', $file->getPathname() ) . ')';
+			}
+		}
+
+		$offenders = array_values( array_unique( $offenders ) );
+		sort( $offenders );
+
+		$this->assertSame(
+			array(),
+			$offenders,
+			"A post type or taxonomy is registered under a name carrying no plugin prefix.
+"
+				. "Prefix it, or add it to UNPREFIXED_REGISTERED with the reason — and to the
+"
+				. "reply to WordPress.org, which enumerates these:
+  "
+				. implode( "
+  ", $offenders )
+		);
+	}
+
+	/**
 	 * APIs whose nearby literals are registered or stored names.
 	 */
 	private const STORAGE_API = '/(?:set|get|delete)_(?:site_)?transient|(?:get|update|add|delete)_option'
-		. '|register_setting|\$wpdb->prefix|(?:update|get|delete|add)_(?:user|comment|term)_meta'
+		. '|register_setting|\$wpdb->prefix|\$wpdb->options|esc_like|(?:update|get|delete|add)_(?:user|comment|term)_meta'
 		. '|register_post_type|register_post_status|register_taxonomy|wp_localize_script'
-		. '|wp_schedule_(?:event|single_event)|wp_next_scheduled|wp_cache_(?:set|get|delete)/';
+		. '|wp_schedule_(?:event|single_event)|wp_next_scheduled|wp_cache_(?:set|get|delete)'
+		. '|wp_(?:register|enqueue)_(?:script|style)|CACHE_KEYS|_transient_/';
 
 	/**
 	 * @return array<string, list<string>> literal => file:line list
@@ -160,6 +243,23 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		$root  = dirname( __DIR__, 2 );
 		$found = array();
 
+		// The two root files register and store as well: `mhm-rentiva.php` writes
+		// post meta and `uninstall.php` clears options. Leaving them out of the
+		// scan is the difference between "everything shipped" and "everything
+		// under src/".
+		foreach ( array( '/mhm-rentiva.php', '/uninstall.php' ) as $single ) {
+			$path = $root . $single;
+			if ( ! is_file( $path ) ) {
+				continue;
+			}
+
+			foreach ( $this->literals_in( $path, $root ) as $literal => $sites ) {
+				foreach ( $sites as $site ) {
+					$found[ $literal ][] = $site;
+				}
+			}
+		}
+
 		foreach ( array( '/src', '/templates' ) as $dir ) {
 			$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root . $dir ) );
 
@@ -168,7 +268,28 @@ final class NoBareMhmStorageKeysTest extends TestCase
 					continue;
 				}
 
-				$lines = preg_split( '/\R/', (string) file_get_contents( $file->getPathname() ) ) ?: array();
+				foreach ( $this->literals_in( $file->getPathname(), $root ) as $literal => $sites ) {
+					foreach ( $sites as $site ) {
+						$found[ $literal ][] = $site;
+					}
+				}
+			}
+		}
+
+		return $found;
+	}
+
+	/**
+	 * Bare `mhm_` literals in one file that sit next to something that stores or
+	 * registers.
+	 *
+	 * @return array<string, list<string>>
+	 */
+	private function literals_in( string $path, string $root ): array
+	{
+		$found = array();
+		$lines = preg_split( '/\R/', (string) file_get_contents( $path ) ) ?: array();
+		{
 
 				foreach ( $lines as $i => $line ) {
 					$trimmed = ltrim( $line );
@@ -194,11 +315,10 @@ final class NoBareMhmStorageKeysTest extends TestCase
 					}
 
 					foreach ( $m[1] as $literal ) {
-						$found[ $literal ][] = str_replace( $root . DIRECTORY_SEPARATOR, '', $file->getPathname() )
+						$found[ $literal ][] = str_replace( $root . DIRECTORY_SEPARATOR, '', $path )
 							. ':' . ( $i + 1 );
 					}
 				}
-			}
 		}
 
 		return $found;

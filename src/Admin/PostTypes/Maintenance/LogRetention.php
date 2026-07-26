@@ -33,7 +33,19 @@ final class LogRetention {
 	}
 
 	public static function run(): void {
-		$days = (int) get_option( 'mhm_rentiva_log_retention_days', 30 );
+		// Both values live in the `mhm_rentiva_settings` array, which is where the
+		// settings screen writes them. This read used to go to a STANDALONE option
+		// of the same name that nothing has ever written, so it always fell back to
+		// thirty days and never consulted the toggle -- and `purge()` force-deletes,
+		// so an administrator who switched cleanup off, or raised retention to keep
+		// an audit trail, still lost everything older than thirty days, daily, while
+		// the screen showed their setting intact. The sibling cron and the e-mail
+		// log purge both read through SettingsCore already.
+		if ( ! \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_cleanup_enabled', '1' ) ) {
+			return;
+		}
+
+		$days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 );
 		if ( $days <= 0 ) {
 			return; // keep forever, do nothing
 		}

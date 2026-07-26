@@ -65,7 +65,7 @@ final class Actions {
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = self::post_int( 'days', (int) get_option( 'mhm_rentiva_log_retention_days', 30 ) );
+		$days = self::post_int( 'days', (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 ) );
 		if ( $days <= 0 ) {
 			$days = 30;
 		}

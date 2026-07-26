@@ -318,22 +318,29 @@ final class DashboardPage {
 	public static function clear_dashboard_cache(): void
 	{
 		global $wpdb;
+		// Spellings must match what DashboardService and CacheManager actually
+		// write. They did not: the writers were renamed to carry the plugin's full
+		// prefix and this list kept the old names, so a booking change deleted
+		// nothing and the recent-bookings widget stayed stale for up to twelve
+		// hours. A cleanup that silently stops matching raises no error anywhere,
+		// which is why the names are listed beside their writers here.
 		$cache_keys = array(
-			'mhm_dashboard_stats',
-			'mhm_dashboard_recent_bookings',
-			'mhm_revenue_data',
-			'mhm_vehicle_stats',
-			'mhm_customer_stats',
-			'mhm_message_stats',
-			'mhm_recent_messages',
-			'mhm_deposit_stats',
-			'mhm_pending_payments',
-			// WP Dashboard widget caches (CacheManager keys)
+			// DashboardService::get_recent_bookings() -- 12 hour TTL.
+			'mhm_rentiva_dashboard_recent_bookings_v4',
+			// DashboardService::get_recent_messages() -- per user.
+			'mhm_rentiva_recent_messages_',
+			// CacheManager::CACHE_KEYS entries touched by dashboard widgets.
 			'mhm_rentiva_dashboard_stats',
-			// Revenue report caches
+			'mhm_rentiva_revenue_report_',
+			'mhm_rentiva_booking_report_',
+			'mhm_rentiva_customer_report_',
+			'mhm_rentiva_vehicle_report_',
+			'mhm_rentiva_vlist_',
+			// The add-on's reports cache. Kept deliberately: Reports.php writes
+			// `mhm_revenue_report_` and the dashboard shows figures derived from
+			// the same data, so clearing one without the other shows two different
+			// numbers on one screen.
 			'mhm_revenue_report_',
-			'mhm_rentiva_reports_revenue',
-			'mhm_rentiva_reports_bookings',
 		);
 		foreach ($cache_keys as $key_prefix) {
 			$prefix_like = $wpdb->esc_like('_transient_' . $key_prefix) . '%';

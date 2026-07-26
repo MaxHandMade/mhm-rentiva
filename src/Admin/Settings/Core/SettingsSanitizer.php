@@ -309,8 +309,13 @@ final class SettingsSanitizer {
 			'mhm_rentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
 			'mhm_rentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhm_rentiva_vehicle_tax_inclusive' ),
 			'mhm_rentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
-			'mhm_rentiva_vehicle_cards_per_page'       => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 100 ),
-			'mhm_rentiva_vehicle_default_sort'         => self::validate_enum( $input['mhm_rentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
+			// `..._cards_per_page` and `..._default_sort` are NOT listed here even
+			// though their names begin `vehicle_`: they render on the Frontend tab,
+			// not this one. Naming a key in a tab's branch writes it with its
+			// default whenever the form does not contain it, so listing them made
+			// every Vehicle-tab save silently reset two fields the administrator
+			// had set on another screen. Same trap the card/detail field guard
+			// below already documents.
 			'mhm_rentiva_vehicle_min_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_min_rental_days', 1, 1, 365 ),
 			'mhm_rentiva_vehicle_max_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_max_rental_days', 365, 1, 365 ),
 			'mhm_rentiva_vehicle_advance_booking_days' => self::get_int( $input, 'mhm_rentiva_vehicle_advance_booking_days', 365, 1, 365 ),

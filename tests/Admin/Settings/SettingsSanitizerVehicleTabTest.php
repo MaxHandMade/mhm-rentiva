@@ -32,16 +32,29 @@ class SettingsSanitizerVehicleTabTest extends WP_UnitTestCase
     }
 
     // vehicle_default_sort — enum: price_asc|price_desc|name_asc|name_desc|year_desc|year_asc
+    //
+    // These two used to run against the VEHICLE tab, which is how the field ended
+    // up named in that tab's sanitizer despite rendering only on the Frontend tab:
+    // any Vehicle-tab save then rewrote it with its default, silently resetting a
+    // choice made on another screen. The tests pinned the defect in place. They
+    // now run against the tab that actually shows the field; CrossTabClobberTest
+    // covers the other half.
 
     public function test_sort_accepts_valid_enum_value()
     {
-        $result = $this->sanitize_vehicle(['mhm_rentiva_vehicle_default_sort' => 'name_desc']);
+        $result = SettingsSanitizer::sanitize([
+            'current_active_tab'               => 'frontend',
+            'mhm_rentiva_vehicle_default_sort' => 'name_desc',
+        ]);
         $this->assertSame('name_desc', $result['mhm_rentiva_vehicle_default_sort']);
     }
 
     public function test_sort_invalid_value_falls_back_to_price_asc()
     {
-        $result = $this->sanitize_vehicle(['mhm_rentiva_vehicle_default_sort' => 'totally_invalid']);
+        $result = SettingsSanitizer::sanitize([
+            'current_active_tab'               => 'frontend',
+            'mhm_rentiva_vehicle_default_sort' => 'totally_invalid',
+        ]);
         $this->assertSame('price_asc', $result['mhm_rentiva_vehicle_default_sort']);
     }
 

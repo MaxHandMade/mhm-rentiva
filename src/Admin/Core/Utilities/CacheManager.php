@@ -55,7 +55,7 @@ final class CacheManager {
 		'vehicle_report'  => 'mhm_rentiva_vehicle_report_',
 		'revenue_report'  => 'mhm_rentiva_revenue_report_',
 		'addon_list'      => 'mhm_rentiva_addon_list',
-		'vehicle_list'    => 'rv_vlist_',
+		'vehicle_list'    => 'mhm_rentiva_vlist_',
 		'system_info'     => 'mhm_rentiva_system_info',
 		// CustomersOptimizer caches through this type at ten sites. It was absent
 		// from this map, so every read missed, every write was discarded and the
