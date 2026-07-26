@@ -39,13 +39,13 @@ final class VehicleSettingsRemoveCustomFieldTest extends WP_Ajax_UnitTestCase {
 			'keep_me'     => array( 'type' => 'text', 'options' => '' ),
 		) );
 
-		$_POST['action']     = 'mhmrentiva_remove_custom_field';
+		$_POST['action']     = 'mhm_rentiva_remove_custom_field';
 		$_POST['nonce']      = wp_create_nonce( 'vehicle_settings_nonce' );
 		$_POST['field_key']  = 'custom_boot';
 		$_POST['field_type'] = 'details';
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_remove_custom_field' );
+			$this->_handleAjax( 'mhm_rentiva_remove_custom_field' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected: wp_send_json_success() dies in the test suite.
 		}

@@ -60,7 +60,7 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
-		$_POST['action']     = 'mhmrentiva_save_vehicle_settings';
+		$_POST['action']     = 'mhm_rentiva_save_vehicle_settings';
 		$_POST['nonce']      = wp_create_nonce( 'vehicle_settings_nonce' );
 		$_POST['sub_action'] = 'save_all';
 
@@ -78,7 +78,7 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		) );
 
 		try {
-			$this->_handleAjax( 'mhmrentiva_save_vehicle_settings' );
+			$this->_handleAjax( 'mhm_rentiva_save_vehicle_settings' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected: wp_send_json_success() dies in the test suite.
 		}

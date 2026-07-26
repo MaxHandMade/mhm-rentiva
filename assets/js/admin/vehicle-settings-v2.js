@@ -291,7 +291,7 @@
 
 			var p = buildSavePayload();
 			var body = new URLSearchParams();
-			body.append( 'action', 'mhmrentiva_save_vehicle_settings' );
+			body.append( 'action', 'mhm_rentiva_save_vehicle_settings' );
 			body.append( 'nonce', payload.nonce );
 			body.append( 'sub_action', 'save_all' );
 
@@ -381,7 +381,7 @@
 					if ( ! window.confirm( T.removeConfirm.replace( '%s', field.label ) ) ) {
 						return;
 					}
-					postAjax( 'mhmrentiva_remove_custom_field', {
+					postAjax( 'mhm_rentiva_remove_custom_field', {
 						field_key: field.key,
 						field_type: typeToCategory( field.type )
 					} ).then( function ( res ) {
@@ -546,7 +546,7 @@
 					params.type = addForm.type;
 					params.options = addForm.options;
 				}
-				postAjax( 'mhmrentiva_add_custom_field', params ).then( function ( res ) {
+				postAjax( 'mhm_rentiva_add_custom_field', params ).then( function ( res ) {
 					if ( ! res || ! res.success || ! res.data || ! res.data.key ) {
 						failNotice( T.addFailed );
 						return;
@@ -891,7 +891,7 @@
 					close();
 					return;
 				}
-				postAjax( 'mhmrentiva_update_field_labels', {
+				postAjax( 'mhm_rentiva_update_field_labels', {
 					type: typeToCategory( type ),
 					labels: labels
 				} ).then( function ( res ) {
@@ -996,7 +996,7 @@
 				if ( ! window.confirm( T.resetConfirm ) ) {
 					return;
 				}
-				postAjax( 'mhmrentiva_reset_vehicle_settings', {
+				postAjax( 'mhm_rentiva_reset_vehicle_settings', {
 					tab: state.tab === 'display' ? 'display' : 'definitions'
 				} ).then( function ( res ) {
 					if ( res && res.success ) {
