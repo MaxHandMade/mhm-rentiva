@@ -1345,8 +1345,16 @@ final class AssetManager {
 	 *                                 boilerplate, it just no longer assumes the bundle is Lite's own.
 	 * @param string|null $base_url    Absolute plugin URL counterpart to $base_dir. Defaults to
 	 *                                 MHM_RENTIVA_PLUGIN_URL.
+	 * @param string|null $text_domain Text domain the bundle's __() calls use, for
+	 *                                 wp_set_script_translations(). Defaults to Lite's 'mhm-rentiva'.
+	 *                                 This was hardcoded until 2026-07-28, which meant the add-on's 5
+	 *                                 relocated bundles asked WordPress for 'mhm-rentiva' JSON inside
+	 *                                 the add-on's own languages/ directory -- a lookup that can never
+	 *                                 succeed, because the add-on compiles its catalogues under
+	 *                                 'mhm-rentiva-pro'. $base_dir was already a parameter; the domain
+	 *                                 has to travel with it or the pair is inconsistent.
 	 */
-	public static function enqueue_react_page( string $page_handle, array $extra_deps = [], ?string $base_dir = null, ?string $base_url = null ): void
+	public static function enqueue_react_page( string $page_handle, array $extra_deps = [], ?string $base_dir = null, ?string $base_url = null, ?string $text_domain = null ): void
 	{
 		if ( ! self::$react_nonce_added ) {
 			wp_add_inline_script(
@@ -1383,7 +1391,7 @@ final class AssetManager {
 
 		wp_set_script_translations(
 			"mhm-rentiva-react-{$page_handle}",
-			'mhm-rentiva',
+			$text_domain ?? 'mhm-rentiva',
 			$base_dir . 'languages/'
 		);
 	}
