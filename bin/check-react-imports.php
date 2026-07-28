@@ -70,25 +70,28 @@ const EXTERNALISED_EXACT = array(
 );
 
 /**
- * Repos audited beyond this one, and what is known about them.
+ * Sibling repos whose src-react/ this gate also audits when they are checked
+ * out beside this one.
  *
- * mhm-rentiva-pro received 5 React screens in Task A11a (78e9cf4) -- reports,
- * messages, export, vendor-reports, vendor-management -- and Lite's
- * webpack.config.js dropped their entries at the same time. Pro therefore
- * tracks 54 source files under src-react/ that NOTHING can rebuild: no
- * package.json, no package-lock.json, no webpack.config.js, no node_modules.
- * Its build/admin/*.js are frozen artefacts produced by Lite's toolchain
- * before the carve.
- *
- * This is DECLARED PENDING, not accepted: the gate prints it on every run and
- * exits 0, because deciding between "give Pro a build chain" and "freeze the
- * sources and say so" is a scope call that has not been made. When it is
- * made, delete this entry -- if Pro gets a manifest the audit below covers it
- * automatically.
+ * mhm-rentiva-pro is here because Task A11a (78e9cf4) moved 5 React screens
+ * into it -- reports, messages, export, vendor-reports, vendor-management --
+ * and their imports must be declared just as Lite's are. It gained its own
+ * package.json + webpack.config.js on 2026-07-28; before that it had 54
+ * tracked sources that nothing could rebuild.
  */
-const PENDING_TARGETS = array(
-    'mhm-rentiva-pro' => 'sources tracked, no manifest and no builder (Task A11a carve); rebuild path undecided',
+const SIBLING_TARGETS = array(
+    'mhm-rentiva-pro',
 );
+
+/**
+ * Declared exemptions: sibling => reason. Deliberately empty.
+ *
+ * Kept as a mechanism rather than deleted, because the alternative when a
+ * sibling cannot pass is to quietly drop it from SIBLING_TARGETS -- which
+ * reads as "covered" on a green run. An entry here is printed loudly on every
+ * run and still exits 0; absence of an entry means nothing was waived.
+ */
+const PENDING_TARGETS = array();
 
 $root = dirname(__DIR__);
 
@@ -373,8 +376,9 @@ if ($note === 'no src-react/ directory') {
 
 // --- Sibling repos --------------------------------------------------------
 
-foreach (PENDING_TARGETS as $sibling => $reason) {
+foreach (SIBLING_TARGETS as $sibling) {
     $siblingRoot = dirname($root) . '/' . $sibling;
+    $reason      = PENDING_TARGETS[$sibling] ?? null;
 
     echo "TARGET: {$sibling}\n";
 
@@ -393,13 +397,19 @@ foreach (PENDING_TARGETS as $sibling => $reason) {
         echo "    {$package}  <- " . implode(', ', array_keys($usedIn)) . "\n";
     }
 
-    if ($siblingNote === 'NO package.json') {
-        echo "\n  DECLARED PENDING (exit 0, on purpose):\n";
-        echo "    {$reason}\n";
-        echo "  Consequence today: editing those sources changes nothing users receive --\n";
-        echo "  the shipped build/admin/*.js cannot be regenerated from them.\n";
-        echo "  This entry is temporary. Delete it from PENDING_TARGETS once the scope\n";
-        echo "  call is made; a Pro package.json makes the audit above cover it.\n\n";
+    if ($siblingNote !== '' && $siblingNote !== 'no src-react/ directory') {
+        if ($reason !== null) {
+            echo "\n  DECLARED PENDING (exit 0, on purpose): {$siblingNote}\n";
+            echo "    {$reason}\n";
+            echo "  Printed on every run so a green result is never read as coverage.\n\n";
+            continue;
+        }
+
+        $failed = true;
+        echo "\n  FAIL: {$siblingNote}. Sources are tracked here but no manifest declares\n";
+        echo "  what they import, so nothing can rebuild them -- an edit to these files\n";
+        echo "  would never reach a user. Add a package.json (and a webpack config), or\n";
+        echo "  waive it explicitly in PENDING_TARGETS with a reason.\n\n";
         continue;
     }
 
