@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.2.0
+Stable tag:        5.2.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -73,12 +73,18 @@ The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scr
 
 = Bundled third-party libraries =
 
-Two front-end libraries ship pre-built (minified) under `assets/vendor/`, both permissively licensed and with public upstream source:
+Three front-end libraries ship with the plugin, all permissively licensed and with public upstream source.
+
+Two are pre-built (minified) under `assets/vendor/`:
 
 *   **flatpickr** v4.6.13 — date picker, MIT License. Source: https://github.com/flatpickr/flatpickr
 *   **Swiper** 11.2.10 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
 
-Neither library is modified from its upstream release; their full source is public on the repositories linked above.
+One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by the build described above, and is declared as a dependency in `package.json`:
+
+*   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: https://github.com/chartjs/Chart.js
+
+None of these libraries is modified from its upstream release; their full source is public on the repositories linked above.
 
 == Frequently Asked Questions ==
 
@@ -103,6 +109,13 @@ Yes, all frontend components and admin settings are fully responsive.
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
 == Changelog ==
+
+= 5.2.1 =
+* Fixed: the dashboard chart was labelled "Revenue (Last 7 Days)" but sums the value of bookings CREATED in those days, not rental income earned in them — which is why it could read as empty while the table beside it listed upcoming rentals. It is now "New Bookings Value (Last 7 Days)", and the daily series is "Daily Bookings Value". The figures themselves are unchanged.
+* Fixed: five admin strings were translated but shipped in English, because the React translation catalogues could not be regenerated and the ones being shipped were four months old. Affects "Pending Payments", "Upcoming Operations", their empty-state messages, and the notice shown if an admin screen fails to load.
+* Removed: eleven translation catalogues belonging to screens and blocks that are no longer part of this plugin. Nothing loaded them.
+* Docs: the readme now lists Chart.js among the bundled third-party libraries, with its version, licence and upstream source.
+* Internal: the translation-catalogue build is deterministic again, and a continuous-integration check now fails if the shipped catalogues fall out of step with the translation source instead of silently going stale.
 
 = 5.2.0 =
 * Security: the booking, deposit, vehicle-gallery and blocked-date screens now check permissions against the specific booking or vehicle a request names, instead of a general "can edit content" capability. On multi-author sites this closes paths where one contributor could act on another's records.

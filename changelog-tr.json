@@ -1,5 +1,20 @@
 [
   {
+    "version": "5.2.1",
+    "date": "2026-07-28",
+    "type": "patch",
+    "title": "Kontrol panelinde dürüst grafik etiketi ve gerçekten sevk edilen çeviriler",
+    "summary": "Kontrol panelindeki gelir grafiği ölçmediği bir şeyin adını taşıyordu ve beş yönetim dizesi çevrili olduğu hâlde İngilizce sevk ediliyordu. İkisi de düzeltildi; ikincisine yol açan çeviri derlemesi artık her gönderimde denetleniyor.",
+    "changes": [
+      "Düzeltildi: kontrol panelindeki grafik \"Gelir (Son 7 Gün)\" diyordu, oysa o günlerde OLUŞTURULAN rezervasyonların tutarını topluyor — kazanılan kiralama gelirini değil. Grafiğin yanındaki tablo yaklaşan kiralamaları listelerken grafiğin boş görünmesinin nedeni buydu. Etiket artık \"Yeni Rezervasyon Tutarı (Son 7 Gün)\", günlük seri ise \"Günlük Rezervasyon Tutarı\". Rakamların kendisi değişmedi.",
+      "Düzeltildi: beş yönetim dizesi çevrili olduğu hâlde İngilizce sevk ediliyordu; React çeviri katalogları yeniden üretilemiyordu ve sevk edilenler dört aylıktı. Etkilenenler: \"Bekleyen Ödemeler\", \"Yaklaşan Operasyonlar\", bunların boş durum mesajları ve bir yönetim ekranı yüklenemediğinde gösterilen uyarı.",
+      "Kaldırıldı: artık bu eklentinin parçası olmayan ekran ve bloklara ait on bir çeviri kataloğu. Hiçbiri yüklenmiyordu.",
+      "Belgeler: readme artık paketlenen üçüncü taraf kütüphaneler arasında Chart.js'i de sürümü, lisansı ve kaynak adresiyle listeliyor.",
+      "İç: çeviri kataloğu derlemesi yeniden belirlenimli hâle geldi ve sürekli entegrasyon denetimi, sevk edilen kataloglar çeviri kaynağıyla uyumsuz düştüğünde sessizce bayatlamak yerine artık başarısız oluyor."
+    ],
+    "notice": "Herhangi bir işlem gerekmiyor. Yalnızca ifadeler ve çeviriler değişti; hiçbir rakam, ayar ya da kayıtlı veri etkilenmedi."
+  },
+  {
     "version": "5.2.0",
     "date": "2026-07-25",
     "type": "minor",

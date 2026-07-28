@@ -156,14 +156,24 @@ def po_revision_date(po_path: Path) -> str:
     return ""
 
 
-def po_msgids_by_bundle(po_path: Path, entries: list[str]) -> dict[str, set[str]]:
+def po_msgids_by_bundle(
+    po_path: Path, entries: list[str]
+) -> tuple[dict[str, set[str]], set[str]]:
     """Every Jed key the .po contributes to each bundle, derived from `#:` refs.
 
     Jed keys are `msgid`, or `msgctxt \\x04 msgid` when a context is present —
     the same shape make-json writes, so the two sets are directly comparable.
+
+    Returns (keys_by_bundle, unroutable_prefixes). Only `src-react/admin/<entry>/`
+    and `src-react/shared/` can be routed to a bundle; any OTHER `src-react/`
+    prefix is returned so the caller can fail on it. Silently ignoring one would
+    be fail-open in the worst way: the string would be dropped by the map AND by
+    this check, so the catalog would be incomplete and the gate still green —
+    the same shape as the bug this whole gate exists to catch.
     """
     text = po_path.read_text(encoding="utf-8")
     by_bundle: dict[str, set[str]] = {e: set() for e in entries}
+    unroutable: set[str] = set()
 
     def unquote(chunk: str) -> str:
         out = []
@@ -193,11 +203,15 @@ def po_msgids_by_bundle(po_path: Path, entries: list[str]) -> dict[str, set[str]
                 entry = source.split("/")[2]
                 if entry in by_bundle:
                     by_bundle[entry].add(key)
+                else:
+                    unroutable.add("src-react/admin/%s/" % entry)
             elif source.startswith("src-react/shared/"):
                 for entry in by_bundle:
                     by_bundle[entry].add(key)
+            elif source.startswith("src-react/"):
+                unroutable.add("/".join(source.split("/")[:2]) + "/")
 
-    return by_bundle
+    return by_bundle, unroutable
 
 
 def verify_react_catalogs(
@@ -215,12 +229,17 @@ def verify_react_catalogs(
     Returns (problems, po_revision_date, bundle_msgid_pairs_checked). An empty
     problem list is the only PASS.
     """
-    want_by_bundle = po_msgids_by_bundle(po_path, entries)
+    want_by_bundle, unroutable = po_msgids_by_bundle(po_path, entries)
     po_date = po_revision_date(po_path)
     if not po_date:
         return ([f"{po_path.name} has no PO-Revision-Date to verify against"], "", 0)
 
     problems: list[str] = []
+    for prefix in sorted(unroutable):
+        problems.append(
+            f"{prefix} is referenced by the .po but maps to no bundle — teach "
+            f"source_to_bundles()/po_msgids_by_bundle() about it, or its strings "
+            f"ship untranslated while this gate stays green")
     for entry in entries:
         fn = canonical_react_filename(entry, locale)
         path = LANGUAGES / fn
@@ -288,6 +307,11 @@ def main() -> int:
         print("       the sources (that is make-pot's job), the non-React")
         print("       assets/blocks catalogs, and locales other than "
               f"{locale}.")
+        print("       Also NOT checked: translation QUALITY. Freshness is date")
+        print("       equality and completeness is msgid presence, so an edited")
+        print("       msgstr that left PO-Revision-Date alone, or a msgid present")
+        print("       with an EMPTY msgstr, both pass. Use msgfmt --statistics")
+        print("       for that.")
         problems, po_date, covered = verify_react_catalogs(
             entries, locale, ROOT / po_rel)
         if problems:

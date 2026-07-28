@@ -1,5 +1,20 @@
 [
   {
+    "version": "5.2.1",
+    "date": "2026-07-28",
+    "type": "patch",
+    "title": "Truthful dashboard chart label, and translations that actually ship",
+    "summary": "The dashboard revenue chart was named after something it does not measure, and five admin strings shipped in English despite being translated. Both are fixed, and the translation build that caused the second one is now checked on every push.",
+    "changes": [
+      "Fixed: the dashboard chart was labelled \"Revenue (Last 7 Days)\" but sums the value of bookings CREATED in those days, not rental income earned in them — which is why it could read as empty while the table beside it listed upcoming rentals. It is now \"New Bookings Value (Last 7 Days)\", and the daily series is \"Daily Bookings Value\". The figures themselves are unchanged.",
+      "Fixed: five admin strings were translated but shipped in English, because the React translation catalogues could not be regenerated and the stale ones were four months old. Affects \"Pending Payments\", \"Upcoming Operations\", their empty-state messages, and the notice shown if an admin screen fails to load.",
+      "Removed: eleven translation catalogues belonging to screens and blocks that are no longer part of this plugin. Nothing loaded them.",
+      "Docs: the readme now lists Chart.js among the bundled third-party libraries, with its version, licence and upstream source.",
+      "Internal: the translation-catalogue build is deterministic again, and a continuous-integration check now fails if the shipped catalogues fall out of step with the translation source instead of silently going stale."
+    ],
+    "notice": "No action required. Only wording and translations changed; no figure, setting or stored data is affected."
+  },
+  {
     "version": "5.2.0",
     "date": "2026-07-25",
     "type": "minor",

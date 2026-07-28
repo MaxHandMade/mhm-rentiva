@@ -90,21 +90,17 @@ build/
 # "build" segment, including this one; un-ignore it explicitly.
 !tests/Unit/Build/
 !tests/Unit/Build/**
+# A11a moved reports / messages / export / vendor-reports / vendor-management to
+# the Pro add-on. Their un-ignore lines were removed in 5.2.1: with the sources
+# gone, they could only ever re-track a stale local bundle into this PUBLIC repo.
 !build/admin/dashboard.js
 !build/admin/dashboard.asset.php
 !build/admin/dashboard.css
 !build/admin/dashboard-rtl.css
-!build/admin/reports.js
-!build/admin/reports.asset.php
-!build/admin/reports.css
 !build/admin/customers.js
 !build/admin/customers.asset.php
 !build/admin/customers.css
 !build/admin/customers-rtl.css
-!build/admin/messages.js
-!build/admin/messages.asset.php
-!build/admin/messages.css
-!build/admin/messages-rtl.css
 !build/admin/about.js
 !build/admin/about.asset.php
 !build/admin/about.css
@@ -113,18 +109,6 @@ build/
 !build/admin/shortcode-pages.asset.php
 !build/admin/shortcode-pages.css
 !build/admin/shortcode-pages-rtl.css
-!build/admin/vendor-reports.js
-!build/admin/vendor-reports.asset.php
-!build/admin/vendor-reports.css
-!build/admin/vendor-reports-rtl.css
-!build/admin/vendor-management.js
-!build/admin/vendor-management.asset.php
-!build/admin/vendor-management.css
-!build/admin/vendor-management-rtl.css
-!build/admin/export.js
-!build/admin/export.asset.php
-!build/admin/export.css
-!build/admin/export-rtl.css
 dist/
 .cache/
 
