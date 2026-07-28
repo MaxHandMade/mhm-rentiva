@@ -24,7 +24,11 @@ export default function RevenueChart( { revenueData, currency } ) {
 			data: {
 				labels,
 				datasets: [ {
-					label:           __( 'Daily Revenue', 'mhm-rentiva' ),
+					// "Revenue" DEĞİL: DashboardService::get_revenue_data() günleri DATE(p.post_date)
+					// ile, yani rezervasyonun OLUŞTURULMA tarihiyle kovalıyor -- kiralama tarihiyle
+					// değil. Etiket ölçtüğü şeyi söylüyor; tabanı 5 kardeş metot paylaştığı için
+					// taban değiştirilmedi (bkz. docs/plans/2026-07-28-pro-admin-i18n-plan.md T7).
+					label:           __( 'Daily Bookings Value', 'mhm-rentiva' ),
 					data:            amounts,
 					backgroundColor: 'rgba(54, 162, 235, 0.5)',
 					borderColor:     'rgba(54, 162, 235, 1)',
@@ -57,7 +61,7 @@ export default function RevenueChart( { revenueData, currency } ) {
 
 	return (
 		<div className="mhm-widget mhm-revenue-chart">
-			<h3><span className="dashicons dashicons-chart-bar" />{ __( 'Revenue (Last 7 Days)', 'mhm-rentiva' ) }</h3>
+			<h3><span className="dashicons dashicons-chart-bar" />{ __( 'New Bookings Value (Last 7 Days)', 'mhm-rentiva' ) }</h3>
 			<canvas ref={ canvasRef } height="200" />
 			<p className="mhm-revenue-chart__weekly">
 				{ __( 'This week:', 'mhm-rentiva' ) }{ ' ' }

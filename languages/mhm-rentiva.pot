@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-26T02:07:20+00:00\n"
+"POT-Creation-Date: 2026-07-28T09:19:27+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -16550,15 +16550,15 @@ msgstr ""
 msgid "← Prev"
 msgstr ""
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:27
-msgid "Daily Revenue"
+#: src-react/admin/dashboard/components/RevenueChart.jsx:31
+msgid "Daily Bookings Value"
 msgstr ""
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:60
-msgid "Revenue (Last 7 Days)"
+#: src-react/admin/dashboard/components/RevenueChart.jsx:64
+msgid "New Bookings Value (Last 7 Days)"
 msgstr ""
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:63
+#: src-react/admin/dashboard/components/RevenueChart.jsx:67
 msgid "This week:"
 msgstr ""
 

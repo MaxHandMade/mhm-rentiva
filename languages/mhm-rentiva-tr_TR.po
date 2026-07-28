@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 4.4.5\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-07-26T02:07:20+00:00\n"
-"PO-Revision-Date: 2026-04-14 23:17+0000\n"
+"POT-Creation-Date: 2026-07-28T09:19:27+00:00\n"
+"PO-Revision-Date: 2026-07-28 09:19+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -17081,15 +17081,15 @@ msgstr "Henüz rezervasyon yok."
 msgid "← Prev"
 msgstr "← Önceki"
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:27
-msgid "Daily Revenue"
-msgstr "Günlük Gelir"
+#: src-react/admin/dashboard/components/RevenueChart.jsx:31
+msgid "Daily Bookings Value"
+msgstr "Günlük Rezervasyon Tutarı"
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:60
-msgid "Revenue (Last 7 Days)"
-msgstr "Gelir (Son 7 Gün)"
+#: src-react/admin/dashboard/components/RevenueChart.jsx:64
+msgid "New Bookings Value (Last 7 Days)"
+msgstr "Yeni Rezervasyon Tutarı (Son 7 Gün)"
 
-#: src-react/admin/dashboard/components/RevenueChart.jsx:63
+#: src-react/admin/dashboard/components/RevenueChart.jsx:67
 msgid "This week:"
 msgstr "Bu hafta:"
 
@@ -17382,3 +17382,5 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+
