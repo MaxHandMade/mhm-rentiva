@@ -259,6 +259,11 @@ languages/*.l10n.php
 # The old handle-named `*-mhm-rentiva-react-*.json` files were vestigial —
 # WP never loaded them (md5 resolution only) — and have been removed.
 languages/mhm-rentiva-en_US.*
+# `wp i18n make-json --use-map` input: maps every src-react source to the
+# build/admin/<entry>.js bundle it compiles into. Deliberately NOT committed —
+# bin/build-i18n.py regenerates it from webpack's entry list on every run, so
+# it cannot drift the way a checked-in copy would.
+.i18n-map.json
 
 # ============================================================================
 # SECTION 9: Archives & Releases

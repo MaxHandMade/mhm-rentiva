@@ -10,14 +10,34 @@ Usage:
 What it does:
     1. (optional, --build-js) Runs `npm ci` + `npm run build` on the host so
        build/admin/*.js exist for every React admin entry.
-    2. Runs `wp i18n make-json languages/<domain>-<locale>.po languages/ --no-purge`
-       inside the WP-CLI container, **with cwd = plugin root**.
-    3. Removes any stray non-canonical JSON (source path not plugin-root
+    2. Writes .i18n-map.json — every src-react/**/*.{js,jsx} source mapped to
+       the build/admin/<entry>.js bundle webpack compiles it into.
+    3. Runs `wp i18n make-json languages/<domain>-<locale>.po languages/
+       --no-purge --extensions=jsx --use-map=.i18n-map.json` inside the WP-CLI
+       container, **with cwd = plugin root**.
+    4. Removes any stray non-canonical JSON (source path not plugin-root
        relative) — the historical garbage caused by running make-json from
        inconsistent working directories (build/zip-staging, wp-content, ...).
-    4. Asserts the 9 React canonical files exist and that
-       md5('build/admin/<page>.js') == the WP runtime-resolved filename.
-       Fails loudly if the set is incomplete (the bug this script prevents).
+    5. Asserts, per React entry, that md5('build/admin/<page>.js') names an
+       existing file, that its `source` is that bundle, that this run actually
+       rewrote it (translation-revision-date == the .po's PO-Revision-Date),
+       and that it carries EVERY msgid the .po references from that bundle's
+       sources. Fails loudly otherwise.
+
+Why steps 2 and 5 are not optional (measured 2026-07-28):
+    `make-json` searches ".min.js and .js extensions" by default and keys its
+    output on md5(<reference path>). Every React reference in our .pot is a
+    `src-react/**/*.jsx` path, so a bare run matches NOTHING for the React
+    admin — it prints a success line and writes zero React files. Because we
+    (correctly) pass --no-purge, the previously generated files survive
+    untouched, so an existence-only assertion stays green forever. That is
+    exactly what happened: all four React catalogs sat frozen at
+    `2026-04-14 23:17+0000` while five already-translated strings
+    ("Pending Payments", "Upcoming Operations", "No pending payments.",
+    "No upcoming operations in the next 7 days.", "An error occurred. Please
+    refresh the page.") shipped in English. The docblock below used to claim
+    --use-map was "unnecessary"; it is required, and the assertion has to
+    compare CONTENT, not existence, or it cannot see this failure at all.
 
 Why this script exists (the bug it fixes):
     WordPress core's load_script_textdomain() resolves a script handle's
@@ -29,8 +49,9 @@ Why this script exists (the bug it fixes):
     These files are generated artifacts. Historically they were:
       - never committed (`.gitignore: languages/*-*.json`), so a fresh clone
         shipped an untranslated React admin;
-      - produced by an unnecessary `--use-map` + copy-to-handle-name recipe
-        whose handle-named output WP never loads (vestigial);
+      - produced by a `--use-map` + copy-to-handle-name recipe whose
+        handle-named half WP never loads (that copy step was vestigial — but
+        the --use-map half was load-bearing and dropping it broke regeneration);
       - accumulated as duplicates because make-json was run from 3 different
         working directories over time (plugin root, build/zip-staging,
         wp-content) → 3 different md5s for the same script.
@@ -46,6 +67,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -57,6 +79,9 @@ LANGUAGES = ROOT / "languages"
 BUILD_ADMIN = ROOT / "build" / "admin"
 CONTAINER_PLUGIN_DIR = f"/var/www/html/wp-content/plugins/{PLUGIN_SLUG}"
 DEFAULT_CONTAINER = "rentiva-dev-wpcli-1"
+MAP_FILE = ROOT / ".i18n-map.json"
+# Jed/gettext context separator (EOT): how a msgctxt entry is keyed in the JSON.
+CONTEXT_SEP = "\x04"
 
 
 def run(cmd: list[str], *, cwd: Path | None = None) -> str:
@@ -85,6 +110,139 @@ def canonical_react_filename(entry: str, locale: str) -> str:
     """The ONLY filename WordPress will load for handle mhm-rentiva-react-<entry>."""
     rel = f"build/admin/{entry}.js"
     return f"{DOMAIN}-{locale}-{hashlib.md5(rel.encode()).hexdigest()}.json"
+
+
+def source_to_bundles(entries: list[str]) -> dict[str, list[str]]:
+    """Map every React source file to the bundle(s) webpack compiles it into.
+
+    make-json keys its output on md5(<reference path>), and our .pot references
+    are `src-react/**` source paths — never `build/admin/*.js`. Without this map
+    the React half of the catalog cannot be generated at all (see module
+    docblock). `src-react/shared/**` is reachable from every entry, so it maps
+    to all of them; an extra key in a bundle catalog costs bytes, a missing one
+    costs a silent English fallback.
+    """
+    mapping: dict[str, list[str]] = {}
+    all_bundles = [f"build/admin/{e}.js" for e in entries]
+
+    for entry in entries:
+        entry_dir = ROOT / "src-react" / "admin" / entry
+        for path in sorted(entry_dir.rglob("*")):
+            if path.suffix in (".js", ".jsx"):
+                mapping[path.relative_to(ROOT).as_posix()] = [f"build/admin/{entry}.js"]
+
+    shared_dir = ROOT / "src-react" / "shared"
+    for path in sorted(shared_dir.rglob("*")):
+        if path.suffix in (".js", ".jsx"):
+            mapping[path.relative_to(ROOT).as_posix()] = list(all_bundles)
+
+    return mapping
+
+
+def po_revision_date(po_path: Path) -> str:
+    """The .po header's PO-Revision-Date, which make-json copies into every JSON
+    it writes. Comparing it to the JSON is how we detect a file this run did not
+    actually rewrite."""
+    for line in po_path.read_text(encoding="utf-8").splitlines():
+        if line.startswith('"PO-Revision-Date:'):
+            return line.split("PO-Revision-Date:", 1)[1].rstrip('\\n"').strip()
+        if line and not line.startswith(('"', "msgid", "msgstr", "#")):
+            break
+    return ""
+
+
+def po_msgids_by_bundle(po_path: Path, entries: list[str]) -> dict[str, set[str]]:
+    """Every Jed key the .po contributes to each bundle, derived from `#:` refs.
+
+    Jed keys are `msgid`, or `msgctxt \\x04 msgid` when a context is present —
+    the same shape make-json writes, so the two sets are directly comparable.
+    """
+    text = po_path.read_text(encoding="utf-8")
+    by_bundle: dict[str, set[str]] = {e: set() for e in entries}
+
+    def unquote(chunk: str) -> str:
+        out = []
+        for raw in re.findall(r'^(?:msgid|msgctxt|msgstr)?\s*"(.*)"$', chunk, re.M):
+            out.append(raw.replace('\\"', '"').replace("\\\\", "\\").replace("\\n", "\n"))
+        return "".join(out)
+
+    for block in text.split("\n\n"):
+        if block.lstrip().startswith("#~") or "\nmsgid " not in "\n" + block:
+            continue
+        refs = [r for line in re.findall(r"^#: (.+)$", block, re.M) for r in line.split()]
+        if not refs:
+            continue
+        msgid_part = re.search(r'^msgid ((?:".*"\n?)+)', block, re.M)
+        if not msgid_part:
+            continue
+        key = unquote(msgid_part.group(1))
+        if not key:
+            continue  # header entry
+        ctxt_part = re.search(r'^msgctxt ((?:".*"\n?)+)', block, re.M)
+        if ctxt_part:
+            key = unquote(ctxt_part.group(1)) + CONTEXT_SEP + key
+
+        for ref in refs:
+            source = ref.rsplit(":", 1)[0]
+            if source.startswith("src-react/admin/"):
+                entry = source.split("/")[2]
+                if entry in by_bundle:
+                    by_bundle[entry].add(key)
+            elif source.startswith("src-react/shared/"):
+                for entry in by_bundle:
+                    by_bundle[entry].add(key)
+
+    return by_bundle
+
+
+def verify_react_catalogs(
+    entries: list[str], locale: str, po_path: Path
+) -> tuple[list[str], str, int]:
+    """Check every React canonical catalog against the .po it must mirror.
+
+    Existence is NOT enough: --no-purge means a file this run failed to write
+    survives from the previous one, so an existence-only check cannot tell
+    "regenerated" from "four months stale" — the exact reason the old check
+    stayed green for four months. Hence three checks per entry: the `source`
+    field, freshness (revision-date must equal the .po's), and completeness
+    (every msgid the .po references from this bundle's sources must be present).
+
+    Returns (problems, po_revision_date, bundle_msgid_pairs_checked). An empty
+    problem list is the only PASS.
+    """
+    want_by_bundle = po_msgids_by_bundle(po_path, entries)
+    po_date = po_revision_date(po_path)
+    if not po_date:
+        return ([f"{po_path.name} has no PO-Revision-Date to verify against"], "", 0)
+
+    problems: list[str] = []
+    for entry in entries:
+        fn = canonical_react_filename(entry, locale)
+        path = LANGUAGES / fn
+        if not path.exists():
+            problems.append(f"{entry} -> {fn} (absent)")
+            continue
+        data = json.loads(path.read_text(encoding="utf-8"))
+        src = data.get("source", "")
+        if src != f"build/admin/{entry}.js":
+            problems.append(f"{entry} -> {fn} (source={src!r})")
+            continue
+        json_date = (data.get("translation-revision-date") or "").strip()
+        if json_date != po_date:
+            problems.append(
+                f"{entry} -> {fn} (STALE: revision-date {json_date!r} != "
+                f".po {po_date!r} — make-json wrote nothing for this bundle)")
+            continue
+        have = set(data.get("locale_data", {}).get("messages", {}))
+        absent = want_by_bundle[entry] - have
+        if absent:
+            sample = ", ".join(repr(m) for m in sorted(absent)[:5])
+            problems.append(
+                f"{entry} -> {fn} ({len(absent)} msgid(s) in the .po but not in "
+                f"the catalog: {sample})")
+
+    covered = sum(len(want_by_bundle[e]) for e in entries)
+    return (problems, po_date, covered)
 
 
 def main() -> int:
@@ -117,13 +275,23 @@ def main() -> int:
                  "or `npm run build` first (make-json needs the built bundles)")
     print(f"[i18n] React     : {len(entries)} entries ({', '.join(entries)})")
 
-    # The proven canonical recipe: plain make-json from the committed .po,
-    # WITH cwd = plugin root, so md5(source) matches WP's runtime resolution.
-    print("[i18n] make-json (plugin-root cwd, no --use-map) ...")
+    # The map is regenerated every run rather than committed, so it cannot drift
+    # out of step with webpack's entry list the way a checked-in copy would.
+    mapping = source_to_bundles(entries)
+    if not mapping:
+        sys.exit("ERROR: src-react/ produced an empty source->bundle map")
+    MAP_FILE.write_text(json.dumps(mapping, indent=1), encoding="utf-8")
+    print(f"[i18n] Map       : {MAP_FILE.name} ({len(mapping)} sources)")
+
+    # --use-map + --extensions=jsx are BOTH load-bearing: our .pot references are
+    # src-react/**/*.jsx paths, and make-json's default extension set is .js /
+    # .min.js only. Drop either flag and the React half silently produces nothing.
+    print("[i18n] make-json (plugin-root cwd, --use-map, --extensions=jsx) ...")
     out = run([
         "docker", "exec", args.container, "bash", "-c",
         f"cd {CONTAINER_PLUGIN_DIR} && "
-        f"wp i18n make-json {po_rel} languages/ --no-purge --allow-root",
+        f"wp i18n make-json {po_rel} languages/ --no-purge --allow-root "
+        f"--extensions=jsx --use-map={MAP_FILE.name}",
     ])
     print("       " + out.strip().splitlines()[-1] if out.strip() else "")
 
@@ -143,25 +311,15 @@ def main() -> int:
             removed += 1
     print(f"[i18n] Cleaned   : {removed} stray non-canonical JSON")
 
-    # Hard assertion: every React entry MUST have its canonical file with the
-    # correct source, or the React admin ships untranslated (the original bug).
-    missing: list[str] = []
-    for entry in entries:
-        fn = canonical_react_filename(entry, locale)
-        path = LANGUAGES / fn
-        if not path.exists():
-            missing.append(f"{entry} -> {fn} (absent)")
-            continue
-        src = json.loads(path.read_text(encoding="utf-8")).get("source", "")
-        if src != f"build/admin/{entry}.js":
-            missing.append(f"{entry} -> {fn} (source={src!r})")
-    if missing:
+    problems, po_date, covered = verify_react_catalogs(entries, locale, ROOT / po_rel)
+    if problems:
         sys.exit("ERROR: canonical React i18n set incomplete:\n  "
-                 + "\n  ".join(missing))
+                 + "\n  ".join(problems))
 
     total = len(list(LANGUAGES.glob(f"{DOMAIN}-{locale}-*.json")))
-    print(f"[i18n] Verified  : {len(entries)}/{len(entries)} React canonical "
-          f"files OK; {total} total {locale} JSON")
+    print(f"[i18n] Verified  : {len(entries)}/{len(entries)} React canonical files "
+          f"fresh ({po_date}) and complete ({covered} bundle-msgid pairs); "
+          f"{total} total {locale} JSON")
     print("[i18n] SUCCESS   : commit languages/ — clean clone is now reproducible")
     return 0
 
