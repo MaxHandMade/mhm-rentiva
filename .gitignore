@@ -346,9 +346,15 @@ bin/*
 # it at runtime; must ship in every clone (carve-out Task 1).
 !bin/check-crippleware.php
 # Quality-gate script: `composer check-manifest` / `composer carve-gates` require
-# it at runtime; it asserts src/ == carveout/lite-manifest-final.txt in both
+# it at runtime; it asserts src/ == bin/lite-manifest-final.txt in both
 # directions, so it must ship in every clone (carve-out Task 5c).
 !bin/check-manifest.php
+# ...and its INPUT, which is the half that was missing. The manifest used to be
+# read from carveout/, which this file excludes, so the gate above shipped to
+# every clone with nothing to compare against: it exited 1 for a missing file
+# rather than a real mismatch, and no CI job ran it. Tracking the script but not
+# the list it needs is the same as not having the gate.
+!bin/lite-manifest-final.txt
 # Quality-gate script: `composer check-unguarded-pro-refs` / `composer carve-gates`
 # require it at runtime; it is the inverse of check-guarded-refs.php (proves every
 # Pro reference sits behind a guard, incl. in templates/ which PHPStan never

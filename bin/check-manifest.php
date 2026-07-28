@@ -24,11 +24,30 @@
 
 declare(strict_types=1);
 
-$root     = dirname(__DIR__);
-$manifest = $root . '/carveout/lite-manifest-final.txt';
+$root = dirname(__DIR__);
+
+/*
+ * The manifest lives next to this gate, in bin/, and is tracked.
+ *
+ * It used to be read from carveout/ -- a directory .gitignore excludes. The
+ * effect was that this gate could not run at all outside one developer's
+ * working copy: a clean clone had no manifest, so the gate exited 1 for a
+ * missing input rather than a real mismatch, and no CI job invoked it. A gate
+ * whose input is not in the repository is not coverage, it is a script.
+ *
+ * Pro's bin/check-no-lite-overlap.php learned this first, and its docblock
+ * records why: the manifest kept travelling with the carve-out DOCUMENTS, and
+ * each move broke the gate. It is not a document -- it is this gate's input.
+ * Both plugins now keep their copy where their gate lives.
+ */
+$manifest = getenv('MHM_LITE_MANIFEST');
+if ($manifest === false || $manifest === '') {
+    $manifest = $root . '/bin/lite-manifest-final.txt';
+}
 
 if (! is_file($manifest)) {
-    fwrite(STDERR, "Manifest not found: carveout/lite-manifest-final.txt\n");
+    fwrite(STDERR, "[ERROR] Manifest not found: {$manifest}\n");
+    fwrite(STDERR, "        Cannot verify the carve-out whitelist. Refusing to report success.\n");
     exit(1);
 }
 

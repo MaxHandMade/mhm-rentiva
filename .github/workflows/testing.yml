@@ -99,6 +99,19 @@ jobs:
       - name: WP.org compliance oracle (zero edition/license/gating tokens)
         run: composer check-no-pro-refs
 
+      # Carve-out whitelist invariant: src/ must be EXACTLY the Lite keep-list,
+      # in both directions. A file in src/ but not in the manifest is a Pro file
+      # that crept back -- the silent regression the carve-out exists to prevent,
+      # and one a blacklist cannot detect. A file in the manifest but not in src/
+      # means the manifest is lying about what Lite ships.
+      #
+      # This gate existed but could never run: it read carveout/, a directory
+      # .gitignore excludes, so a clean clone had no input and it exited 1 for a
+      # missing file rather than a real mismatch -- and no job invoked it. The
+      # manifest is now tracked in bin/, next to the gate that consumes it.
+      - name: Carve-out manifest invariant (src/ == Lite keep-list)
+        run: composer check-manifest
+
       # Reproducible-build gate. Runs here rather than in a Node job on purpose:
       # it needs no node_modules, and the defect it catches is precisely one an
       # `npm ci` would have caught but nobody ever ran on a clean tree.
