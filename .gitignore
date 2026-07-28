@@ -377,6 +377,12 @@ bin/*
 # ships zero edition/license/gating tokens, so it must ship in every clone
 # (Task A12).
 !bin/check-no-pro-refs.php
+# Quality-gate script: `composer check-react-imports` requires it at runtime and
+# the static-analysis CI job wires it in, so it must ship in every clone. It
+# asserts every third-party module src-react/ imports is declared in
+# package.json -- the gap that let chart.js build from an `extraneous`
+# node_modules install for two months (fixed in b534cb53).
+!bin/check-react-imports.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

@@ -99,6 +99,14 @@ jobs:
       - name: WP.org compliance oracle (zero edition/license/gating tokens)
         run: composer check-no-pro-refs
 
+      # Reproducible-build gate. Runs here rather than in a Node job on purpose:
+      # it needs no node_modules, and the defect it catches is precisely one an
+      # `npm ci` would have caught but nobody ever ran on a clean tree.
+      # Single-repo checkout means it reports mhm-rentiva-pro as NOT AUDITED --
+      # that is stated in its output, not hidden.
+      - name: React import declarations (src-react/ imports vs package.json)
+        run: composer check-react-imports
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest
