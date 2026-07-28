@@ -1620,9 +1620,21 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce checkout processing validates request nonce before this hook runs.
 		$payment_type = sanitize_text_field(wp_unslash($_POST['mhm_booking_payment_type']));
 
-		// Always save to order meta
-		update_post_meta($order_id, '_mhm_wc_payment_type', $payment_type);
-		update_post_meta($order_id, '_mhm_booking_payment_type', $payment_type);
+		// Always save to order meta -- through the ORDER, not through post meta.
+		//
+		// Under High-Performance Order Storage (WooCommerce's custom order tables,
+		// the default for new installs since 8.2) an order is not a post, so
+		// update_post_meta( $order_id, ... ) writes a row keyed to a post that is not
+		// the order; $order->get_meta() would never read it back. update_meta_data()
+		// writes to whichever store is active, and on a non-HPOS site that store IS
+		// postmeta -- so existing installs keep finding this value in exactly the
+		// place it has always been, with no migration and no discontinuity.
+		$order = wc_get_order($order_id);
+		if ($order) {
+			$order->update_meta_data('_mhm_wc_payment_type', $payment_type);
+			$order->update_meta_data('_mhm_booking_payment_type', $payment_type);
+			$order->save();
+		}
 
 		// ⭐ Handle existing booking (has booking_id)
 		$booking_id = self::get_booking_id_from_cart();

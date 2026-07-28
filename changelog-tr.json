@@ -1,5 +1,18 @@
 [
   {
+    "version": "5.2.2",
+    "date": "2026-07-28",
+    "type": "patch",
+    "title": "WooCommerce uyumluluğu: beyan edildi ve düzeltildi",
+    "summary": "Eklenti artık WooCommerce'in uyumluluk sorularını boş bırakmak yerine cevaplıyor ve bir sipariş verisi, iki depolama düzeninde de doğru olacak şekilde sipariş nesnesi üzerinden yazılıyor.",
+    "changes": [
+      "Düzeltildi: eklenti artık WooCommerce'e hangi depolama özellikleriyle çalıştığını söylüyor. Bu beyan olmadan WooCommerce uyumluluğu doğrulayamıyordu ve Yüksek Başarımlı Sipariş Depolama'yı — WooCommerce 8.2'den beri yeni mağazalarda varsayılan — açan site sahipleri bu eklenti hakkında adıyla uyarılıyordu.",
+      "Düzeltildi: ödeme sırasında seçilen ödeme tipi, sipariş deposuna yalnızca eski düzende çalışan bir yolla yazılıyordu. Artık WooCommerce'in kendi sipariş nesnesi üzerinden yazılıyor, yani mağaza hangi depolamayı kullanırsa kullansın doğru yere iniyor. Mevcut mağazalarda değer tam olarak hep bulunduğu yerde kalır; hiçbir şey taşınmaz, göç gerekmez.",
+      "Beyan edildi: bu eklenti blok tabanlı sepet ve ödeme sayfasıyla UYUMLU DEĞİL ve artık bunu cevapsız bırakmak yerine açıkça söylüyor. Blok ödeme sayfasında ödeme tipi seçici, özel vergi satırı ve sepete dön bağlantısı görünmez; ve en önemlisi, iki müşterinin aynı aracı aynı tarihlere rezerve etmesini engelleyen müsaitlik kontrolü çalışmaz. Bu eklentiyle klasik ödeme sayfasını kullanın."
+    ],
+    "notice": "Yapmanız gereken bir şey yok, göç de gerekmiyor. Mağazanız blok tabanlı ödeme sayfasını kullanıyorsa üçüncü maddeye dikkat: müsaitlik kontrolünü ve ödeme tipi seçiciyi korumak için klasik ödeme sayfasına geçin."
+  },
+  {
     "version": "5.2.1",
     "date": "2026-07-28",
     "type": "patch",

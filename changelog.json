@@ -1,5 +1,18 @@
 [
   {
+    "version": "5.2.2",
+    "date": "2026-07-28",
+    "type": "patch",
+    "title": "WooCommerce compatibility, declared and corrected",
+    "summary": "The plugin now answers WooCommerce's compatibility questions instead of leaving them blank, and one piece of order data is written through the order object so it is correct on both storage layouts.",
+    "changes": [
+      "Fixed: the plugin now tells WooCommerce which of its storage features it works with. Without that declaration WooCommerce could not confirm compatibility, and site owners turning on High-Performance Order Storage — the default for new stores since WooCommerce 8.2 — were warned about this plugin by name.",
+      "Fixed: the payment type chosen at checkout was written to order storage in a way that only works on the older layout. It is now written through WooCommerce's own order object, so it lands in the right place whichever storage a store uses. On existing stores the value stays exactly where it has always been; nothing is moved and nothing needs migrating.",
+      "Declared: this plugin is NOT compatible with the block-based cart and checkout, and now says so instead of leaving it unanswered. On a block checkout the payment-type selector, the custom tax row and the return-to-cart link do not appear, and — the part that matters most — the availability check that prevents two customers booking the same vehicle for the same dates does not run. Use the classic checkout with this plugin."
+    ],
+    "notice": "No action required and nothing to migrate. If your store uses the block-based checkout, note the third item: switch to the classic checkout to keep the availability check and the payment-type selector."
+  },
+  {
     "version": "5.2.1",
     "date": "2026-07-28",
     "type": "patch",

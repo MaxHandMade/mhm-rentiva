@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.2.1
+Stable tag:        5.2.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -109,6 +109,11 @@ Yes, all frontend components and admin settings are fully responsive.
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
 == Changelog ==
+
+= 5.2.2 =
+* Fixed: the plugin now tells WooCommerce which of its storage features it works with. Without that declaration WooCommerce could not confirm compatibility, and site owners turning on High-Performance Order Storage — the default for new stores since WooCommerce 8.2 — were warned about this plugin by name.
+* Fixed: the payment type chosen at checkout was written to order storage in a way that only works on the older layout. It is now written through WooCommerce's own order object, so it lands in the right place whichever storage a store uses. On existing stores the value stays exactly where it has always been; nothing is moved and nothing needs migrating.
+* Declared: this plugin is NOT compatible with the block-based cart and checkout, and now says so instead of leaving it unanswered. On a block checkout the payment-type selector, the custom tax row and the return-to-cart link do not appear, and — the part that matters most — the availability check that prevents two customers booking the same vehicle for the same dates does not run. Use the classic checkout with this plugin.
 
 = 5.2.1 =
 * Fixed: the dashboard chart was labelled "Revenue (Last 7 Days)" but sums the value of bookings CREATED in those days, not rental income earned in them — which is why it could read as empty while the table beside it listed upcoming rentals. It is now "New Bookings Value (Last 7 Days)", and the daily series is "Daily Bookings Value". The figures themselves are unchanged.

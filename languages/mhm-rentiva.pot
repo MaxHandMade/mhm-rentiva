@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 5.2.1\n"
+"Project-Id-Version: MHM Rentiva 5.2.2\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-28T15:43:15+00:00\n"
+"POT-Creation-Date: 2026-07-28T19:43:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -1223,8 +1223,8 @@ msgstr ""
 #: src/Admin/Frontend/Account/AccountController.php:566
 #: src/Admin/Frontend/Account/AccountController.php:653
 #: src/Admin/Frontend/Account/AccountController.php:854
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2220
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2279
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2232
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2291
 msgid "Invalid booking ID."
 msgstr ""
 
@@ -9296,7 +9296,7 @@ msgstr ""
 msgid "Pay full amount now"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1657
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1669
 #: src/Admin/Settings/APIKeysPage.php:81
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
@@ -9323,79 +9323,79 @@ msgstr ""
 msgid "Invalid security nonce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1666
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1678
 msgid "Cart not available"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1761
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1773
 msgid "Booking not found in cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1770
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1782
 msgid "Payment type updated"
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1864
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1876
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). Please select different dates or another vehicle."
 msgstr ""
 
 #. translators: %s: Vehicle title
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1913
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2007
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1925
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2019
 #, php-format
 msgid "Sorry, booking for vehicle \"%s\" has been cancelled. Please select another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1953
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1965
 msgid "Invalid booking dates. Please try again."
 msgstr ""
 
 #. translators: 1: Vehicle title, 2: Pickup date, 3: Dropoff date
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1972
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1984
 #, php-format
 msgid "Sorry, the vehicle \"%1$s\" is no longer available for the selected dates (%2$s - %3$s). The vehicle may have been booked by another customer. Please select different dates or another vehicle."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2175
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2187
 #: src/Admin/Setup/SetupWizard.php:891
 msgid "WooCommerce"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2231
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2243
 msgid "Payment already processed by WooCommerce."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2249
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2261
 msgid "Redirecting to checkout..."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2256
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2268
 msgid "Failed to add booking to cart."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2272
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2284
 msgid "WooCommerce is not installed or activated."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2287
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2299
 msgid "Invalid payment amount."
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2326
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2338
 msgid "City"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2334
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2346
 msgid "District / Neighborhood"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2376
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2388
 msgid "Return to Cart"
 msgstr ""
 
-#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2415
+#: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2427
 msgid "(incl. tax)"
 msgstr ""
 

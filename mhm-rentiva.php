@@ -4,7 +4,7 @@
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
  * Description:       MHM Rentiva is a powerful and flexible vehicle rental management plugin with secure WooCommerce integration for all frontend bookings.
- * Version:           5.2.1
+ * Version:           5.2.2
  * Requires at least: 6.7
  * Tested up to:      7.0
  * Requires PHP:      8.1
@@ -89,7 +89,7 @@ function mhm_rentiva_initial_avatar_letter(string $name): string
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '5.2.1');
+define('MHM_RENTIVA_VERSION', '5.2.2');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
@@ -449,6 +449,67 @@ if (class_exists('MHMRentiva\\Admin\\Core\\ShortcodeServiceProvider')) {
 if (class_exists('MHMRentiva\\Blocks\\BlockRegistry')) {
 	\MHMRentiva\Blocks\BlockRegistry::init();
 }
+
+/*
+ * WooCommerce feature compatibility.
+ *
+ * WooCommerce asks every plugin that touches orders to say which of its newer
+ * storage/UI features it works with. A plugin that says nothing is listed as
+ * INCOMPATIBLE on WooCommerce > Settings > Advanced > Features, and the site
+ * owner is warned by name when they try to turn High-Performance Order Storage
+ * on -- which has been the default for new installs since WooCommerce 8.2.
+ *
+ * Declaring it is not a promise made lightly; it is true of this plugin:
+ *   - orders are read through wc_get_order(), never through wp_posts SQL or a
+ *     WP_Query on 'shop_order';
+ *   - order meta is written through the order object, so it lands in whichever
+ *     store is active;
+ *   - no order is created or updated with wp_insert_post()/wp_update_post().
+ * If any of those stop being true, this declaration has to be removed in the
+ * same change -- an untrue compatibility claim is worse than none.
+ *
+ * `before_woocommerce_init` is the only hook that fires early enough for the
+ * declaration to be recorded, and the class_exists() guard keeps this harmless
+ * on a WooCommerce version that predates FeaturesUtil.
+ */
+add_action(
+	'before_woocommerce_init',
+	function () {
+		if (! class_exists(\Automattic\WooCommerce\Utilities\FeaturesUtil::class)) {
+			return;
+		}
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('custom_order_tables', __FILE__, true);
+
+		/*
+		 * Block-based cart/checkout: declared INCOMPATIBLE, deliberately.
+		 *
+		 * WooCommerce files an undeclared plugin as "uncertain", not "incompatible";
+		 * both are surfaced when someone tries to switch checkout over, but they are
+		 * not the same claim. This one is measured.
+		 *
+		 * Visible surfaces that simply would not render, all printed from
+		 * classic-checkout hooks the block checkout never runs:
+		 *   woocommerce_review_order_before_payment      -> payment-type selector
+		 *   woocommerce_review_order_before_order_total  -> custom tax row
+		 *   woocommerce_checkout_before_order_review     -> return-to-cart link
+		 *
+		 * And the part that matters more than any of those, because it fails without
+		 * showing anything:
+		 *   woocommerce_checkout_process        -> availability validation. This is
+		 *       what stops two customers buying the same vehicle for the same dates.
+		 *       Block checkout does not run it, so that window is open.
+		 *   woocommerce_checkout_order_processed -> booking creation, leaving only
+		 *       the woocommerce_thankyou fallback.
+		 *   woocommerce_checkout_fields / _update_order_meta -> not run by the
+		 *       Store API either.
+		 *
+		 * So "false" is not conservatism, it is the accurate answer. Making it true
+		 * means porting these to the Additional Checkout Fields API and a Store API
+		 * integration -- a feature, not a flag.
+		 */
+		\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility('cart_checkout_blocks', __FILE__, false);
+	}
+);
 
 // Deactivation hook - rewrite flush + scheduled-log cleanup
 register_deactivation_hook(
