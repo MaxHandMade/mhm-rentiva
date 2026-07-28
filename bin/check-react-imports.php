@@ -30,8 +30,14 @@
  *   - Anything outside src-react/. Imports in assets/js/ are hand-written
  *     browser scripts with no bundler; they are out of scope by design.
  *   - Transitive imports inside node_modules.
- *   - An import statement that does not begin its own line. This is the price
- *     of not inventing packages out of JSX prose; see $specifiers below.
+ *   - An import/export STATEMENT that does not begin its own line. ES module
+ *     imports must be top-level, and src-react/ is hand-written, so this trades
+ *     a hypothetical false negative for a real false-positive class.
+ *     (require()/import() CALLS need no anchor and are found anywhere.)
+ *   - A line inside a multi-line template literal that itself begins with
+ *     `import`/`export` followed by a `from '<x>'` clause would be read as a
+ *     real statement. Comments and ordinary string literals are excluded by
+ *     position, but this one shape survives; no code here does it.
  *
  * Exit codes: 0 = every import is declared (or declared-pending), 1 = an
  * undeclared import, an unreadable manifest, or a malformed package.json.
@@ -160,33 +166,128 @@ $sources = static function (string $dir) use ($normalise): array {
  * @return string[] Specifiers exactly as written.
  */
 $specifiers = static function (string $code): array {
-    // Strip comments first, so commented-out imports and prose about imports
-    // cannot contribute. Order matters: block comments before line comments.
-    $stripped = preg_replace('#/\*[\s\S]*?\*/#', '', $code);
-    $stripped = $stripped === null ? $code : $stripped;
-    $stripped = preg_replace('#^[ \t]*//.*$#m', '', $stripped);
-    $stripped = $stripped === null ? $code : $stripped;
+    // Nothing is physically stripped. An earlier version removed comments and
+    // blanked string literals line by line, and that rewriting is what broke it:
+    // the multi-line `import {\n a\n} from 'pkg'` shape has its specifier on a
+    // line that does NOT start with `import`, so blanking "ordinary" literals
+    // ate the specifier and the gate stopped seeing a real import. A fix for a
+    // false-positive class had produced a false-negative class.
+    //
+    // So instead: scan once, record where comments and string literals live, and
+    // judge each candidate by WHERE it sits. No offsets ever shift.
+    $len       = strlen($code);
+    $literals  = array();   // [start, end] of each string/template literal
+    $comments  = array();   // [start, end] of each comment
+    $i         = 0;
 
-    $patterns = array(
-        // Line-anchored `import ... from '<x>'`, including the multi-line
-        // `import {\n a,\n b\n} from '<x>'` shape.
+    while ($i < $len) {
+        $c    = $code[ $i ];
+        $next = $i + 1 < $len ? $code[ $i + 1 ] : '';
+
+        if ($c === '/' && $next === '*') {
+            $end = strpos($code, '*/', $i + 2);
+            $end = $end === false ? $len - 1 : $end + 1;
+            $comments[] = array( $i, $end );
+            $i          = $end + 1;
+            continue;
+        }
+
+        if ($c === '/' && $next === '/') {
+            $end        = strpos($code, "\n", $i);
+            $end        = $end === false ? $len - 1 : $end - 1;
+            $comments[] = array( $i, $end );
+            $i          = $end + 1;
+            continue;
+        }
+
+        if ($c === '"' || $c === "'" || $c === '`') {
+            $start = $i;
+            ++$i;
+
+            while ($i < $len) {
+                if ($code[ $i ] === '\\') {
+                    $i += 2;
+                    continue;
+                }
+
+                if ($code[ $i ] === $c) {
+                    break;
+                }
+
+                // An unescaped newline ends a normal (non-template) literal --
+                // treat it as unterminated rather than swallowing the file.
+                if ($code[ $i ] === "\n" && $c !== '`') {
+                    break;
+                }
+
+                ++$i;
+            }
+
+            $literals[] = array( $start, min($i, $len - 1) );
+            ++$i;
+            continue;
+        }
+
+        ++$i;
+    }
+
+    /**
+     * True when an offset falls inside one of the given ranges.
+     */
+    $within = static function (int $pos, array $ranges): bool {
+        foreach ($ranges as $range) {
+            if ($pos >= $range[0] && $pos <= $range[1]) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    // Line-anchored statement forms. Their own specifier IS a string literal, so
+    // these are accepted whenever the statement keyword is not commented out.
+    $statementPatterns = array(
+        // import ... from '<x>' -- including the multi-line brace shape.
         '/^[ \t]*import\b[^;\'"]{0,400}?\bfrom[ \t]*[\'"]([^\'"\s]+)[\'"]/m',
-        // Line-anchored `export ... from '<x>'` re-exports.
+        // export ... from '<x>' re-exports.
         '/^[ \t]*export\b[^;\'"]{0,400}?\bfrom[ \t]*[\'"]([^\'"\s]+)[\'"]/m',
-        // Line-anchored side-effect import with no binding: import '<x>';
+        // Side-effect import with no binding: import '<x>';
         '/^[ \t]*import[ \t]*[\'"]([^\'"\s]+)[\'"]/m',
-        // require('<x>') and dynamic import('<x>') -- call syntax is specific
-        // enough that it needs no line anchor.
-        '/\b(?:require|import)[ \t]*\([ \t]*[\'"]([^\'"\s]+)[\'"][ \t]*\)/',
     );
 
     $found = array();
 
-    foreach ($patterns as $pattern) {
-        if (preg_match_all($pattern, $stripped, $matches) > 0) {
-            foreach ($matches[1] as $specifier) {
-                $found[] = $specifier;
+    foreach ($statementPatterns as $pattern) {
+        if (preg_match_all($pattern, $code, $matches, PREG_OFFSET_CAPTURE) > 0) {
+            foreach ($matches[0] as $index => $whole) {
+                if ($within((int) $whole[1], $comments)) {
+                    continue;
+                }
+
+                $found[] = $matches[1][ $index ][0];
             }
+        }
+    }
+
+    // require('<x>') / import('<x>') are call-shaped, so they need no line
+    // anchor -- but that is exactly why they used to match inside prose:
+    // `const help = "run require('pkg')"` and `const x = 1; // require('pkg')`
+    // both invented a package (proven by fixture). Rejected here by position:
+    // the keyword must sit outside every literal AND every comment.
+    if (preg_match_all(
+        '/\b(?:require|import)[ \t]*\([ \t]*[\'"]([^\'"\s]+)[\'"][ \t]*\)/',
+        $code,
+        $matches,
+        PREG_OFFSET_CAPTURE
+    ) > 0) {
+        foreach ($matches[0] as $index => $whole) {
+            $offset = (int) $whole[1];
+
+            if ($within($offset, $comments) || $within($offset, $literals)) {
+                continue;
+            }
+
+            $found[] = $matches[1][ $index ][0];
         }
     }
 
@@ -330,7 +431,8 @@ echo "  - whether a declared version range matches the bundled version\n";
 echo "  - dead declarations (declared but no longer imported)\n";
 echo "  - whether a builder (webpack config) exists at all\n";
 echo "  - imports outside src-react/, and imports inside node_modules\n";
-echo "  - an import statement that does not begin its own line\n\n";
+echo "  - an import/export STATEMENT not beginning its own line (calls are found anywhere)\n";
+echo "  - a template-literal line that itself looks like an import statement\n\n";
 
 echo 'Treated as WordPress-provided, so deliberately NOT required in package.json: ';
 echo implode(', ', EXTERNALISED_PREFIXES) . '* plus ' . implode(', ', EXTERNALISED_EXACT) . "\n\n";
