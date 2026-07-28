@@ -7,6 +7,13 @@ Produces / refreshes: languages/mhm-rentiva-<locale>-<md5>.json
 Usage:
     python bin/build-i18n.py [--build-js] [--locale tr_TR] [--container NAME]
     python bin/build-i18n.py --verify-only     # CI mode: no Docker, no Node
+    python bin/build-i18n.py --verify-only --plugin-dir ../mhm-rentiva-pro
+
+`--plugin-dir` points every path at another plugin, so the Pro add-on is checked
+by THIS implementation rather than a copy of it — the same cross-repo pattern
+Pro's composer `react-imports` script already uses. The text domain is read from
+the target's own plugin header, never guessed from the directory name: the JSON
+filenames WordPress resolves are built from that string.
 
 `--verify-only` runs step 5 alone. It reads the .po and languages/*.json and
 nothing else, which is why CI can run it: the generating half needs WP-CLI in
@@ -77,16 +84,56 @@ import subprocess
 import sys
 from pathlib import Path
 
-PLUGIN_SLUG = "mhm-rentiva"
-DOMAIN = "mhm-rentiva"
-ROOT = Path(__file__).resolve().parent.parent
-LANGUAGES = ROOT / "languages"
-BUILD_ADMIN = ROOT / "build" / "admin"
-CONTAINER_PLUGIN_DIR = f"/var/www/html/wp-content/plugins/{PLUGIN_SLUG}"
 DEFAULT_CONTAINER = "rentiva-dev-wpcli-1"
-MAP_FILE = ROOT / ".i18n-map.json"
 # Jed/gettext context separator (EOT): how a msgctxt entry is keyed in the JSON.
 CONTEXT_SEP = "\x04"
+
+# Resolved by configure() before anything else runs. They are module globals
+# rather than a threaded-through config object on purpose: this is a
+# single-target CLI, and keeping the signatures flat keeps the mutation tests
+# that drive these functions directly readable.
+PLUGIN_SLUG = ""
+DOMAIN = ""
+ROOT = Path()
+LANGUAGES = Path()
+BUILD_ADMIN = Path()
+CONTAINER_PLUGIN_DIR = ""
+MAP_FILE = Path()
+
+
+def read_text_domain(plugin_dir: Path, slug: str) -> str:
+    """The plugin's declared Text Domain, read from its main file's header.
+
+    Derived, not assumed: the JSON filenames WordPress resolves are built from
+    this string, so guessing it (e.g. from the directory name) would silently
+    produce catalogs WP never loads — exactly the failure this script exists to
+    prevent. The directory name is only a fallback, and it is reported.
+    """
+    main_file = plugin_dir / f"{slug}.php"
+    if main_file.exists():
+        for line in main_file.read_text(encoding="utf-8", errors="replace").splitlines()[:60]:
+            m = re.match(r"^\s*\*?\s*Text Domain:\s*(\S+)", line)
+            if m:
+                return m.group(1)
+    return slug
+
+
+def configure(plugin_dir: Path) -> None:
+    """Point every path at the plugin being processed.
+
+    Pro calls this script across the repo boundary the same way it already calls
+    Lite's check-react-imports.php, so the checking logic has exactly one
+    implementation. Duplicating it into Pro would recreate the drift class this
+    whole gate exists to catch.
+    """
+    global PLUGIN_SLUG, DOMAIN, ROOT, LANGUAGES, BUILD_ADMIN, CONTAINER_PLUGIN_DIR, MAP_FILE
+    ROOT = plugin_dir.resolve()
+    PLUGIN_SLUG = ROOT.name
+    DOMAIN = read_text_domain(ROOT, PLUGIN_SLUG)
+    LANGUAGES = ROOT / "languages"
+    BUILD_ADMIN = ROOT / "build" / "admin"
+    CONTAINER_PLUGIN_DIR = f"/var/www/html/wp-content/plugins/{PLUGIN_SLUG}"
+    MAP_FILE = ROOT / ".i18n-map.json"
 
 
 def run(cmd: list[str], *, cwd: Path | None = None) -> str:
@@ -104,7 +151,7 @@ def run(cmd: list[str], *, cwd: Path | None = None) -> str:
 
 def react_entries() -> list[str]:
     """React admin entry basenames, derived from build/admin/*.js (the
-    webpack output). These map 1:1 to handle `mhm-rentiva-react-<entry>`
+    webpack output). These map 1:1 to handle `<slug>-react-<entry>`
     and to WP's md5 basis `build/admin/<entry>.js`."""
     if not BUILD_ADMIN.exists():
         return []
@@ -112,7 +159,7 @@ def react_entries() -> list[str]:
 
 
 def canonical_react_filename(entry: str, locale: str) -> str:
-    """The ONLY filename WordPress will load for handle mhm-rentiva-react-<entry>."""
+    """The ONLY filename WordPress will load for handle <slug>-react-<entry>."""
     rel = f"build/admin/{entry}.js"
     return f"{DOMAIN}-{locale}-{hashlib.md5(rel.encode()).hexdigest()}.json"
 
@@ -272,6 +319,10 @@ def verify_react_catalogs(
 def main() -> int:
     ap = argparse.ArgumentParser(description="Regenerate deterministic i18n JSON")
     ap.add_argument("--locale", default="tr_TR")
+    ap.add_argument("--plugin-dir", default=None,
+                    help="Plugin root to process. Defaults to this script's own "
+                         "plugin. The Pro add-on passes its own directory so both "
+                         "plugins share one implementation of these checks.")
     ap.add_argument("--container", default=DEFAULT_CONTAINER,
                     help="WP-CLI Docker container name")
     ap.add_argument("--build-js", action="store_true",
@@ -283,12 +334,20 @@ def main() -> int:
                          "mode CI runs.")
     args = ap.parse_args()
 
+    plugin_dir = (Path(args.plugin_dir) if args.plugin_dir
+                  else Path(__file__).resolve().parent.parent)
+    if not plugin_dir.is_dir():
+        sys.exit(f"ERROR: --plugin-dir {plugin_dir} is not a directory")
+    configure(plugin_dir)
+
     locale = args.locale
     po_rel = f"languages/{DOMAIN}-{locale}.po"
     if not (ROOT / po_rel).exists():
-        sys.exit(f"ERROR: {po_rel} not found (the committed translation source)")
+        sys.exit(f"ERROR: {po_rel} not found under {ROOT} "
+                 f"(the committed translation source for text domain {DOMAIN!r})")
 
     print(f"[i18n] Plugin    : {PLUGIN_SLUG}")
+    print(f"[i18n] Domain    : {DOMAIN}")
     print(f"[i18n] Locale    : {locale}")
 
     if args.verify_only:
