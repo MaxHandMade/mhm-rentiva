@@ -107,6 +107,23 @@ jobs:
       - name: React import declarations (src-react/ imports vs package.json)
         run: composer check-react-imports
 
+      # React translation catalogs. Runs here for the same reason as the gate
+      # above: the CHECKING half of bin/build-i18n.py reads only the .po and
+      # languages/*.json, so it needs no Docker, no Node and no network — only
+      # the GENERATING half needs WP-CLI in a container. Invoked directly rather
+      # than through a composer script because ubuntu ships `python3` while the
+      # Windows dev boxes ship `python`, and a script that works on one and not
+      # the other is worse than an explicit line here.
+      #
+      # Why this exists: for four months make-json silently produced zero React
+      # files (its default extension set is .js/.min.js; every reference in our
+      # .pot is a .jsx path) while --no-purge kept the stale ones alive and the
+      # old assertion checked only that a file existed. Five already-translated
+      # strings shipped in English. An existence check cannot see that; this one
+      # compares the catalogs' revision date and contents against the .po.
+      - name: React translation catalogs (languages/*.json vs the committed .po)
+        run: python3 bin/build-i18n.py --verify-only
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest

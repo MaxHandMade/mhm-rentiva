@@ -6,6 +6,11 @@ Produces / refreshes: languages/mhm-rentiva-<locale>-<md5>.json
 
 Usage:
     python bin/build-i18n.py [--build-js] [--locale tr_TR] [--container NAME]
+    python bin/build-i18n.py --verify-only     # CI mode: no Docker, no Node
+
+`--verify-only` runs step 5 alone. It reads the .po and languages/*.json and
+nothing else, which is why CI can run it: the generating half needs WP-CLI in
+Docker, but the checking half needs neither Docker nor Node nor the network.
 
 What it does:
     1. (optional, --build-js) Runs `npm ci` + `npm run build` on the host so
@@ -252,6 +257,11 @@ def main() -> int:
                     help="WP-CLI Docker container name")
     ap.add_argument("--build-js", action="store_true",
                     help="Run npm ci + npm run build on the host first")
+    ap.add_argument("--verify-only", action="store_true",
+                    help="Only check the committed catalogs; generate nothing. "
+                         "Reads .po + languages/*.json and nothing else, so it "
+                         "needs no Docker, no Node and no network — this is the "
+                         "mode CI runs.")
     args = ap.parse_args()
 
     locale = args.locale
@@ -261,6 +271,35 @@ def main() -> int:
 
     print(f"[i18n] Plugin    : {PLUGIN_SLUG}")
     print(f"[i18n] Locale    : {locale}")
+
+    if args.verify_only:
+        if args.build_js:
+            sys.exit("ERROR: --verify-only and --build-js are contradictory")
+        entries = react_entries()
+        if not entries:
+            sys.exit("ERROR: build/admin/*.js not found — nothing to verify. The "
+                     "React bundles are committed, so an empty build/admin/ means "
+                     "a broken checkout, not a clean tree.")
+        print(f"[i18n] React     : {len(entries)} entries ({', '.join(entries)})")
+        print("[i18n] Mode      : VERIFY ONLY — generating nothing")
+        # Declare the blind spots rather than letting a green line imply more
+        # than it checked (the failure this whole gate exists to prevent).
+        print("       Not checked here: whether the .po itself is up to date with")
+        print("       the sources (that is make-pot's job), the non-React")
+        print("       assets/blocks catalogs, and locales other than "
+              f"{locale}.")
+        problems, po_date, covered = verify_react_catalogs(
+            entries, locale, ROOT / po_rel)
+        if problems:
+            sys.exit("ERROR: canonical React i18n set is stale or incomplete.\n  "
+                     + "\n  ".join(problems)
+                     + "\n\nRegenerate with: python bin/build-i18n.py "
+                       "(needs Docker), then commit languages/.")
+        print(f"[i18n] Verified  : {len(entries)}/{len(entries)} React canonical "
+              f"files fresh ({po_date}) and complete ({covered} bundle-msgid pairs)")
+        print("[i18n] SUCCESS   : committed catalogs match the committed .po")
+        return 0
+
     print(f"[i18n] Container : {args.container}")
 
     if args.build_js:
