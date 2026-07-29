@@ -32,7 +32,10 @@ final class Menu {
 			'mhm-rentiva',
 			array( new \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage(), 'render' ),
 			'dashicons-car',
-			58
+			// Below Tools (75) and above Settings (80). This used to be 58, which
+			// put the plugin directly above Appearance and drew a review flag for
+			// competing with core menu items.
+			76
 		);
 
 		// 1. Dashboard

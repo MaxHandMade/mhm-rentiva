@@ -353,20 +353,6 @@ final class SettingsHelper {
 	}
 
 	/**
-	 * Register a setting with safe callbacks.
-	 */
-	public static function register_setting( string $group, string $name, string $type = 'text' ): void {
-		register_setting(
-			$group,
-			$name,
-			array(
-				'type'              => 'string',
-				'sanitize_callback' => static fn( $val ) => self::sanitize_field( $val, $type ),
-			)
-		);
-	}
-
-	/**
 	 * Render radio buttons for enabled/disabled options.
 	 */
 	public static function render_radio_enabled( string $name, string $current_value, string $description = '' ): void {
