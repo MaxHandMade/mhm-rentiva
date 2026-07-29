@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MHM Rentiva 5.2.3\n"
+"Project-Id-Version: MHM Rentiva 5.2.4\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-28T21:28:40+00:00\n"
+"POT-Creation-Date: 2026-07-29T04:18:44+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -103,8 +103,8 @@ msgstr ""
 #: src/Admin/Frontend/Widgets/Elementor/UserDashboardWidget.php:34
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:38
 #: src/Admin/Frontend/Widgets/Elementor/VehicleRatingWidget.php:37
-#: src/Admin/Utilities/Menu/Menu.php:108
-#: src/Admin/Utilities/Menu/Menu.php:109
+#: src/Admin/Utilities/Menu/Menu.php:111
+#: src/Admin/Utilities/Menu/Menu.php:112
 #: src-react/admin/dashboard/components/QuickActions.jsx:15
 msgid "Settings"
 msgstr ""
@@ -1038,8 +1038,8 @@ msgstr ""
 #: src/Admin/Booking/Addons/AddonBooking.php:162
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:260
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:393
-#: src/Admin/Utilities/Menu/Menu.php:86
-#: src/Admin/Utilities/Menu/Menu.php:87
+#: src/Admin/Utilities/Menu/Menu.php:89
+#: src/Admin/Utilities/Menu/Menu.php:90
 #: src/Admin/Vehicle/Settings/VehiclePricingSettings.php:357
 #: templates/account/booking-detail.php:211
 #: templates/shortcodes/booking-form.php:288
@@ -3321,8 +3321,8 @@ msgid "Booking created successfully."
 msgstr ""
 
 #: src/Admin/Booking/PostType/Booking.php:27
-#: src/Admin/Utilities/Menu/Menu.php:77
-#: src/Admin/Utilities/Menu/Menu.php:78
+#: src/Admin/Utilities/Menu/Menu.php:80
+#: src/Admin/Utilities/Menu/Menu.php:81
 #: src-react/admin/customers/components/CustomerTable.jsx:6
 msgid "Bookings"
 msgstr ""
@@ -4033,8 +4033,8 @@ msgid "Error: Field names could not be saved!"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:997
-#: src/Admin/Utilities/Menu/Menu.php:67
-#: src/Admin/Utilities/Menu/Menu.php:68
+#: src/Admin/Utilities/Menu/Menu.php:70
+#: src/Admin/Utilities/Menu/Menu.php:71
 msgid "Vehicle Settings"
 msgstr ""
 
@@ -6821,8 +6821,8 @@ msgid "You do not have permission to view this booking."
 msgstr ""
 
 #: src/Admin/Frontend/Account/AccountRenderer.php:453
-#: src/Admin/Utilities/Menu/Menu.php:41
-#: src/Admin/Utilities/Menu/Menu.php:42
+#: src/Admin/Utilities/Menu/Menu.php:44
+#: src/Admin/Utilities/Menu/Menu.php:45
 #: templates/account/booking-detail.php:100
 #: src-react/admin/dashboard/DashboardPage.jsx:40
 msgid "Dashboard"
@@ -10968,8 +10968,8 @@ msgstr ""
 
 #: src/Admin/Settings/ShortcodePages.php:101
 #: src/Admin/Settings/ShortcodePages.php:102
-#: src/Admin/Utilities/Menu/Menu.php:119
-#: src/Admin/Utilities/Menu/Menu.php:120
+#: src/Admin/Utilities/Menu/Menu.php:122
+#: src/Admin/Utilities/Menu/Menu.php:123
 msgid "Shortcode Pages"
 msgstr ""
 
@@ -11723,8 +11723,8 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:46
 #: src/Admin/Setup/SetupWizard.php:47
-#: src/Admin/Utilities/Menu/Menu.php:131
-#: src/Admin/Utilities/Menu/Menu.php:132
+#: src/Admin/Utilities/Menu/Menu.php:134
+#: src/Admin/Utilities/Menu/Menu.php:135
 msgid "Setup Wizard"
 msgstr ""
 
@@ -12362,29 +12362,29 @@ msgstr ""
 msgid "%d old log records cleaned."
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:51
-#: src/Admin/Utilities/Menu/Menu.php:52
+#: src/Admin/Utilities/Menu/Menu.php:54
+#: src/Admin/Utilities/Menu/Menu.php:55
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1021
 #: src/Admin/Vehicle/PostType/Vehicle.php:30
 #: templates/single-vehicle.php:26
 msgid "Vehicles"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:59
-#: src/Admin/Utilities/Menu/Menu.php:60
+#: src/Admin/Utilities/Menu/Menu.php:62
+#: src/Admin/Utilities/Menu/Menu.php:63
 #: src/Admin/Vehicle/Taxonomies/VehicleCategory.php:57
 msgid "Vehicle Categories"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:98
-#: src/Admin/Utilities/Menu/Menu.php:99
+#: src/Admin/Utilities/Menu/Menu.php:101
+#: src/Admin/Utilities/Menu/Menu.php:102
 #: src-react/admin/dashboard/components/QuickActions.jsx:16
 #: src-react/admin/dashboard/components/StatsCards.jsx:42
 msgid "Customers"
 msgstr ""
 
-#: src/Admin/Utilities/Menu/Menu.php:143
-#: src/Admin/Utilities/Menu/Menu.php:144
+#: src/Admin/Utilities/Menu/Menu.php:146
+#: src/Admin/Utilities/Menu/Menu.php:147
 msgid "About"
 msgstr ""
 

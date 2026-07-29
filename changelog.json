@@ -1,5 +1,17 @@
 [
   {
+    "version": "5.2.4",
+    "date": "2026-07-29",
+    "type": "patch",
+    "title": "Admin menu moved out of the way, and every outbound link documented",
+    "summary": "Two changes aimed at fitting into WordPress rather than competing with it: the plugin's top-level menu no longer sits above Appearance, and the readme now lists the external pages its admin screens link to.",
+    "changes": [
+      "Changed: the plugin's top-level admin menu now sits between Tools and Settings instead of directly above Appearance. Nothing else about the menu changes -- the same screens are in the same order underneath it -- but it no longer pushes past WordPress's own items.",
+      "Docs: the readme's \"External services\" section now lists every page outside your site that the admin screens link to (the documentation site, the issue tracker, wpalemi.com with its terms and privacy pages, this plugin's WordPress.org support forum, the wp-mail-smtp and fluent-smtp plugin pages, and a YouTube channel). The plugin still makes no request to any of them -- these are links a user may click. A build check guards against reintroducing the third-party services earlier versions used (geolocation, CDN fonts and scripts, analytics, Gravatar)."
+    ],
+    "notice": "No action required. If you navigate by muscle memory, the MHM Rentiva menu is now lower down the admin sidebar, just above Settings."
+  },
+  {
     "version": "5.2.3",
     "date": "2026-07-29",
     "type": "patch",

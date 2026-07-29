@@ -1,5 +1,17 @@
 [
   {
+    "version": "5.2.4",
+    "date": "2026-07-29",
+    "type": "patch",
+    "title": "Yönetim menüsü yoldan çekildi, dışarı giden her bağlantı belgelendi",
+    "summary": "WordPress ile yarışmak yerine ona uymayı hedefleyen iki değişiklik: eklentinin üst düzey menüsü artık Görünüm'ün üstünde durmuyor ve readme, yönetim ekranlarının bağlantı verdiği dış sayfaları listeliyor.",
+    "changes": [
+      "Değişti: eklentinin üst düzey yönetim menüsü artık Görünüm'ün hemen üstünde değil, Araçlar ile Ayarlar arasında. Menünün başka hiçbir yanı değişmedi -- altındaki ekranlar aynı sırada -- ama artık WordPress'in kendi öğelerinin önüne geçmiyor.",
+      "Belge: readme'nin \"External services\" bölümü artık yönetim ekranlarının bağlantı verdiği sitenizin dışındaki her sayfayı listeliyor (belge sitesi, hata takip sayfası, wpalemi.com ile şartlar ve gizlilik sayfaları, bu eklentinin WordPress.org destek forumu, wp-mail-smtp ve fluent-smtp eklenti sayfaları ve bir YouTube kanalı). Eklenti bunların hiçbirine istek göndermiyor -- bunlar kullanıcının tıklayabileceği bağlantılar. Derlememizdeki bir denetim ise eski sürümlerin kullandığı üçüncü taraf servislerin (konum sorgusu, CDN yazı tipi ve betikleri, analitik, Gravatar) geri gelmesine karşı koruyor."
+    ],
+    "notice": "Yapmanız gereken bir şey yok. Menüde alışkanlıkla geziniyorsanız, MHM Rentiva artık kenar çubuğunda daha aşağıda, Ayarlar'ın hemen üstünde."
+  },
+  {
     "version": "5.2.3",
     "date": "2026-07-29",
     "type": "patch",

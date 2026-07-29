@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.2.3
+Stable tag:        5.2.4
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -37,7 +37,17 @@ Everything described below works in full. There are no vehicle, booking or listi
 
 = External services =
 
-This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfont, is served from your own site.
+This plugin does not send your data anywhere. It makes no requests to any third-party service: no analytics, no geolocation lookups, no remotely-hosted fonts or scripts. Every asset it loads, including its webfont, is served from your own site. Nothing about your site, your bookings or your customers leaves your server.
+
+For completeness, the plugin's admin screens do contain ordinary hyperlinks to pages outside your site, which open only if you click them and send nothing when you do:
+
+*   Its documentation at https://maxhandmade.github.io/mhm-rentiva-docs/ (source: https://github.com/MaxHandMade/mhm-rentiva-docs)
+*   Its issue tracker at https://github.com/MaxHandMade/mhm-rentiva/issues, linked from the About screen
+*   The author's site and support page at https://wpalemi.com/ — terms: https://wpalemi.com/terms/ , privacy policy: https://wpalemi.com/privacy/
+*   This plugin's own support forum at https://wordpress.org/support/plugin/mhm-rentiva/ and, in the setup wizard's e-mail step, links to the wp-mail-smtp and fluent-smtp plugin pages on WordPress.org
+*   The author's YouTube channel
+
+These are links, not integrations: the plugin performs no HTTP request to any of them. A check in our build guards against reintroducing the specific third-party services earlier versions used — geolocation lookups, CDN-hosted fonts and scripts, analytics and Gravatar — by failing if any of those hosts reappears in the PHP we ship.
 
 = Privacy =
 
@@ -125,6 +135,10 @@ Yes, all frontend components and admin settings are fully responsive.
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
 == Changelog ==
+
+= 5.2.4 =
+* Changed: the plugin's top-level admin menu now sits between Tools and Settings instead of directly above Appearance. Nothing else about the menu changes — the same screens are in the same order underneath it — but it no longer pushes past WordPress's own items.
+* Docs: the readme's "External services" section now lists every page outside your site that the admin screens link to (the documentation site, the issue tracker, wpalemi.com with its terms and privacy pages, this plugin's WordPress.org support forum, the wp-mail-smtp and fluent-smtp plugin pages, and a YouTube channel). The plugin still makes no request to any of them — these are links a user may click. A build check guards against reintroducing the third-party services earlier versions used (geolocation, CDN fonts and scripts, analytics, Gravatar).
 
 = 5.2.3 =
 * Fixed: the plugin's background-job table was created with "CREATE TABLE IF NOT EXISTS". WordPress reads the words after CREATE TABLE as the table's name, so its schema updater had been tracking a table called "IF" — a table it cannot describe, and therefore skipped entirely. The real table was created correctly by the database itself and no data was lost, but any column added to it in a later release would silently never have been applied. Measured on a live database: before the fix a newly added column was ignored; after it, the same column was created. Existing tables are updated in place and no data is touched.
