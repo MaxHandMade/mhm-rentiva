@@ -132,8 +132,11 @@ languages/*-backup-*.l10n.php
 .i18n-map.json
 
 # Temp
+# Named files first, then the class: a scratch file that matched neither
+# (dead-catalogs.tmp) shipped inside the 5.2.1 and 5.2.2 release ZIPs.
 .tmp_scan.csv
 .tmp_phpscan.csv
+*.tmp
 *.log
 *.zip
 build_debug.txt

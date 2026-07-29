@@ -251,6 +251,38 @@ def main() -> int:
     if roots != {PLUGIN_SLUG}:
         sys.exit(f"ERROR: ZIP has unexpected top-level dirs: {sorted(roots)}")
     print(f"[build] Verified : single root '{PLUGIN_SLUG}/'")
+
+    # Every file sitting directly in that root is named here. `.distignore` is
+    # a deny-list, so anything it does not anticipate ships silently -- which is
+    # how a scratch file (dead-catalogs.tmp) reached the 5.2.1 and 5.2.2
+    # releases. An allow-list fails on the file nobody thought to exclude.
+    allowed_root_files = {
+        "LICENSE",
+        "changelog-tr.json",
+        "changelog.json",
+        "composer.json",
+        f"{PLUGIN_SLUG}.php",
+        "readme.txt",
+        "uninstall.php",
+    }
+    with zipfile.ZipFile(zip_path) as zf:
+        root_files = {
+            name.split("/", 1)[1]
+            for name in zf.namelist()
+            if name.count("/") == 1 and not name.endswith("/")
+        }
+    unexpected = sorted(root_files - allowed_root_files)
+    if unexpected:
+        sys.exit(
+            "ERROR: unexpected file(s) in the ZIP root: "
+            + ", ".join(unexpected)
+            + "\n  Exclude them in .distignore, or add them to "
+              "allowed_root_files in this script if they belong."
+        )
+    missing = sorted(allowed_root_files - root_files)
+    if missing:
+        sys.exit(f"ERROR: expected root file(s) absent from the ZIP: {missing}")
+    print(f"[build] Verified : {len(root_files)} root files, all expected")
     return 0
 
 
