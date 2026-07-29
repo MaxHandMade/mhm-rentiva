@@ -99,6 +99,26 @@ jobs:
       - name: WP.org compliance oracle (zero edition/license/gating tokens)
         run: composer check-no-pro-refs
 
+      # The three gates below live in `composer carve-gates` but no job invoked
+      # them, so they only ran when somebody chose to run carve-gates by hand.
+      # A gate nobody is obliged to run is a gate that is not enforcing anything
+      # -- and the crippleware one backs a public promise, which makes the gap
+      # worse than internal: the plugin page states there are no vehicle,
+      # booking or listing caps, and until now nothing on the automated path
+      # would have caught a limit creeping back in.
+      - name: Crippleware oracle (no artificial vehicle/booking/listing caps)
+        run: composer crippleware
+
+      - name: Unguarded Pro-class references (allowlisted classes must be guarded)
+        run: composer check-unguarded-pro-refs
+
+      # Deny-list, not a discovery tool: it fails if one of the third-party
+      # hosts earlier versions used reappears in the PHP we ship. readme.txt
+      # cites it under "External services", so it belongs on the path that
+      # always runs, not one that has to be remembered.
+      - name: Third-party host regression fence (no reintroduced external services)
+        run: composer check-external-http
+
       # Carve-out whitelist invariant: src/ must be EXACTLY the Lite keep-list,
       # in both directions. A file in src/ but not in the manifest is a Pro file
       # that crept back -- the silent regression the carve-out exists to prevent,
