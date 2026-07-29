@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.2.2
+Stable tag:        5.2.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -41,7 +41,23 @@ This plugin does not send your data anywhere. It makes no requests to any third-
 
 = Privacy =
 
-MHM Rentiva stores its booking and customer records (such as names, e-mail addresses and phone numbers) locally in your WordPress database and does not transmit them anywhere. It registers no personal-data exporter or eraser of its own; advanced GDPR export and erasure tooling is provided by the separate paid Rentiva add-on.
+MHM Rentiva stores its booking and customer records (such as names, e-mail addresses and phone numbers) locally in your WordPress database and does not transmit them anywhere.
+
+Four other things it keeps are worth naming, because in most jurisdictions an IP address counts as personal data in its own right.
+
+If you publish the plugin's **contact form**, each submission is saved as a private record holding the sender's name, e-mail address, telephone number, company, the message itself, a link to any file they attached, and the **IP address** and **browser user-agent** it was sent from. These records have no retention setting and are never removed automatically. The attached file itself is placed in your site's ordinary uploads folder, where it is reachable by anyone who has the URL, and it stays there even if you delete the message.
+
+If you publish the plugin's **rating form**, each review is stored as an ordinary WordPress comment, so WordPress itself records the reviewer's IP address and browser user-agent alongside it, exactly as it does for any comment — and for a review left by someone who is not logged in, the name and e-mail address they typed. Those guest reviews are reachable through Tools → Export/Erase Personal Data, which matches comments by e-mail address. A review left by a logged-in customer is saved against their user ID without an e-mail address on the comment, so those tools will not find it; delete it from the Comments screen instead.
+
+The **activity log** records, for each entry, the IP address and browser user-agent of the request that produced it, along with the WordPress user ID where there is one. Unlike contact messages, log entries are deleted automatically after a retention period you set in the plugin's settings (30 days by default).
+
+The **e-mail log** records, for each message sent through the plugin's notification system, the recipient address, the subject, whether delivery succeeded, and the booking details the message was built from — which for a booking e-mail means the customer's name, contact details and rental dates. The assembled message body itself is not stored. This log has its own retention setting on the same terms (also 30 days by default).
+
+Booking records themselves do not store an IP address on the current booking flow: bookings placed through WooCommerce checkout, and those an administrator enters by hand, record none. A direct booking endpoint that no part of the current interface posts to does write one, so records created by older versions or by custom integrations may carry an IP address and user-agent; where they exist they have no expiry and go only when the booking is permanently deleted.
+
+If you keep a privacy policy, these are the parts of the plugin it should describe.
+
+The plugin registers no personal-data exporter or eraser of its own; advanced GDPR export and erasure tooling is provided by the separate paid Rentiva add-on.
 
 = A paid version exists =
 
@@ -109,6 +125,10 @@ Yes, all frontend components and admin settings are fully responsive.
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
 == Changelog ==
+
+= 5.2.3 =
+* Fixed: the plugin's background-job table was created with "CREATE TABLE IF NOT EXISTS". WordPress reads the words after CREATE TABLE as the table's name, so its schema updater had been tracking a table called "IF" — a table it cannot describe, and therefore skipped entirely. The real table was created correctly by the database itself and no data was lost, but any column added to it in a later release would silently never have been applied. Measured on a live database: before the fix a newly added column was ignored; after it, the same column was created. Existing tables are updated in place and no data is touched.
+* Docs: the Privacy section has been corrected. It now discloses that every contact-form submission is stored with the sender's name, e-mail, telephone, message and the IP address and browser user-agent it came from, and that those records have no retention setting at all. It also notes that reviews left through the rating form are stored as WordPress comments, so WordPress records the reviewer's IP with them, and describes what the activity log and the e-mail log each hold and how long they keep it, and states that bookings placed through WooCommerce checkout record no IP address. What the plugin stores has not changed; the description of it was incomplete.
 
 = 5.2.2 =
 * Fixed: the plugin now tells WooCommerce which of its storage features it works with. Without that declaration WooCommerce could not confirm compatibility, and site owners turning on High-Performance Order Storage — the default for new stores since WooCommerce 8.2 — were warned about this plugin by name.

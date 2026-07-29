@@ -1,5 +1,17 @@
 [
   {
+    "version": "5.2.3",
+    "date": "2026-07-29",
+    "type": "patch",
+    "title": "A table definition WordPress could not read",
+    "summary": "The background-job table was created with a statement WordPress's schema updater cannot read, which would have made any later change to that table silently fail to apply. Fixed, and the readme's Privacy section has been corrected and expanded.",
+    "changes": [
+      "Fixed: the background-job table was created with \"CREATE TABLE IF NOT EXISTS\". WordPress reads the words after CREATE TABLE as the table's name, so its schema updater had been tracking a table called \"IF\" — a table it cannot describe, and therefore skipped entirely. The real table was created correctly by the database itself and no data was lost, but any column added to it in a later release would silently never have been applied. Measured on a live database: before the fix a newly added column was ignored; after it, the same column was created. Existing tables are updated in place and no data is touched.",
+      "Docs: the readme's Privacy section has been corrected. It now discloses that every contact-form submission is stored with the sender's name, e-mail, telephone, message and the IP address and browser user-agent it came from, and that those records have no retention setting at all. It also notes that reviews left through the rating form are stored as WordPress comments, so WordPress records the reviewer's IP with them, and describes what the activity log and the e-mail log each hold and how long they keep it, and states that bookings placed through WooCommerce checkout record no IP address. What the plugin stores has not changed; the description of it was incomplete."
+    ],
+    "notice": "No action required. No column is pending for this table, so nothing changes on your site today; the fix is what makes the next schema change to it actually apply."
+  },
+  {
     "version": "5.2.2",
     "date": "2026-07-28",
     "type": "patch",

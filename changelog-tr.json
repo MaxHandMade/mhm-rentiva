@@ -1,5 +1,17 @@
 [
   {
+    "version": "5.2.3",
+    "date": "2026-07-29",
+    "type": "patch",
+    "title": "WordPress'in okuyamadığı bir tablo tanımı",
+    "summary": "Arka plan iş tablosu, WordPress'in şema güncelleyicisinin okuyamadığı bir ifadeyle oluşturulmuştu; bu yüzden o tabloya sonradan yapılacak her değişiklik sessizce uygulanmayacaktı. Düzeltildi ve readme'nin Gizlilik bölümü düzeltilip genişletildi.",
+    "changes": [
+      "Düzeltildi: arka plan iş tablosu \"CREATE TABLE IF NOT EXISTS\" ile oluşturuluyordu. WordPress, CREATE TABLE'dan sonraki kelimeleri tablonun adı olarak okur; yani şema güncelleyicisi \"IF\" adlı, tarif edemediği ve bu yüzden tamamen atladığı bir tabloyu izliyordu. Gerçek tabloyu veritabanının kendisi doğru oluşturdu ve kaybolan veri yok, ama sonraki bir sürümde o tabloya eklenecek her sütun sessizce uygulanmayacaktı. Canlı veritabanında ölçüldü: düzeltmeden önce yeni eklenen bir sütun yok sayıldı, sonra aynı sütun oluşturuldu. Mevcut tablolar yerinde güncellenir, hiçbir veriye dokunulmaz.",
+      "Belge: readme'nin Gizlilik bölümü düzeltildi. Artık her iletişim formu gönderiminin gönderenin adı, e-postası, telefonu, mesajı ve geldiği IP adresi ile tarayıcı bilgisiyle saklandığını ve bu kayıtların hiçbir saklama süresi ayarı olmadığını açıkça söylüyor. Değerlendirme formundan gelen yorumların WordPress yorumu olarak saklandığını, dolayısıyla IP'yi WordPress'in kendisinin kaydettiğini de belirtiyor. Etkinlik günlüğü ile e-posta günlüğünün her birinin neyi ne kadar tuttuğunu da anlatıyor ve WooCommerce ödeme sayfasından geçen rezervasyonların IP adresi kaydetmediğini belirtiyor. Eklentinin ne sakladığı değişmedi; eksik olan bu tarifti."
+    ],
+    "notice": "Yapmanız gereken bir şey yok. Bu tablo için bekleyen bir sütun yok, yani bugün sitenizde bir şey değişmez; düzeltme, o tabloya yapılacak bir sonraki şema değişikliğinin gerçekten uygulanmasını sağlar."
+  },
+  {
     "version": "5.2.2",
     "date": "2026-07-28",
     "type": "patch",
