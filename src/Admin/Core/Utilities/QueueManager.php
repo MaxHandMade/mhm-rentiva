@@ -66,7 +66,29 @@ final class QueueManager {
 
 		$charset_collate = $wpdb->get_charset_collate();
 
-		$sql = "CREATE TABLE IF NOT EXISTS {$table_name} (
+		/*
+		 * No IF NOT EXISTS, and no two-space quirk left to chance.
+		 *
+		 * dbDelta() does not execute this string, it PARSES it: it reads the table
+		 * name out of the statement, describes the live table and emits the ALTERs
+		 * that reconcile the two. "IF NOT EXISTS" sits exactly where dbDelta expects
+		 * the table name, so it read the name as "IF" -- measured, it returns
+		 * array( 'IF' => 'Created table IF' ). The table still appeared, because
+		 * MySQL ran the raw statement; but every later run then issued
+		 * "DESCRIBE IF", which fails, and dbDelta skips a table it cannot
+		 * describe outright (upgrade.php: `if ( ! $tablefields ) { continue; }`).
+		 * So no column added here after the first release would ever have been
+		 * applied. Verified by adding a column and re-running: dbDelta reported
+		 * success and SHOW COLUMNS was unchanged.
+		 *
+		 * The formatting below matters for the same parser: one field per line,
+		 * and a single space between a field's name and its type, which is what
+		 * the field regex keys on. The two spaces after PRIMARY KEY are the
+		 * handbook's convention rather than a requirement -- core normalises
+		 * runs of whitespace and treats INDEX as a synonym for KEY -- but they
+		 * are kept so every CREATE TABLE we ship reads the same way.
+		 */
+		$sql = "CREATE TABLE {$table_name} (
             id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
             job_type varchar(100) NOT NULL,
             job_data longtext NOT NULL,
@@ -83,7 +105,7 @@ final class QueueManager {
             total_items int(11) NOT NULL DEFAULT 0,
             processed_items int(11) NOT NULL DEFAULT 0,
             user_id bigint(20) unsigned NULL,
-            PRIMARY KEY (id),
+            PRIMARY KEY  (id),
             KEY status (status),
             KEY job_type (job_type),
             KEY priority (priority),
