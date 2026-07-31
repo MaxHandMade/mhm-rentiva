@@ -378,6 +378,14 @@ bin/*
 # package.json -- the gap that let chart.js build from an `extraneous`
 # node_modules install for two months (fixed in b534cb53).
 !bin/check-react-imports.php
+# Quality-gate script: `php bin/check-shape-zero.php` requires it at runtime; it
+# is Gate G-A (WP.org T7 remediation) -- zero visible NonceVerification.Missing /
+# EscapeOutput / ValidatedSanitizedInput shapes under --ignore-annotations,
+# with one narrow allowed residual (NonceVerification.Recommended on four
+# named admin list-table display files, under a ceiling). The static-analysis
+# CI job wires it in with continue-on-error while it is red; it must ship in
+# every clone (WP.org T7 remediation, Task 1).
+!bin/check-shape-zero.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

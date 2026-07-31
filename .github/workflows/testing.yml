@@ -157,6 +157,18 @@ jobs:
       - name: React translation catalogs (languages/*.json vs the committed .po)
         run: python3 bin/build-i18n.py --verify-only
 
+      # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
+      # (missing nonces / unescaped output / unsanitized input) under phpcs
+      # --ignore-annotations, with one narrow allowed residual class (see the
+      # script's own docblock). Deliberately `continue-on-error: true` for
+      # now -- this gate is EXPECTED RED today (no fixes have landed yet); it
+      # is wired in unenforced so the count is visible in every CI run from
+      # the start of the remediation, and becomes blocking once Task 10 drives
+      # the hard count to zero.
+      - name: "Security shape gate (G-A: nonce/escape/sanitize, red baseline)"
+        run: php bin/check-shape-zero.php
+        continue-on-error: true
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest
