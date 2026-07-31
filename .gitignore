@@ -386,6 +386,15 @@ bin/*
 # CI job wires it in with continue-on-error while it is red; it must ship in
 # every clone (WP.org T7 remediation, Task 1).
 !bin/check-shape-zero.php
+# Quality-gate script: `php bin/check-instrument-gaps.php` requires it at
+# runtime; it is Gate G-B (WP.org T7 remediation, Task 2) -- five grep-based
+# probes for shapes phpcs/WPCS is structurally blind to but WP.org's reviewer
+# flagged anyway (filter_input UNSAFE_RAW/DEFAULT, CSS-context strip_tags,
+# unkeyed array_map into update_option, third-party host strings, and the
+# multiline compound-nonce-condition shape). Complementary to G-A, not a
+# duplicate of it. Wired into CI with continue-on-error while it is red; must
+# ship in every clone.
+!bin/check-instrument-gaps.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

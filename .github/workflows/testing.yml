@@ -169,6 +169,21 @@ jobs:
         run: php bin/check-shape-zero.php
         continue-on-error: true
 
+      # Gate G-B (WP.org T7 remediation, Task 2): five grep-based probes for
+      # classes WPCS is structurally blind to but WP.org's reviewer flagged
+      # anyway (filter_input UNSAFE_RAW/DEFAULT, CSS-context strip_tags,
+      # unkeyed array_map into update_option, third-party host strings, and
+      # the multiline compound-nonce-condition shape). Complementary to G-A,
+      # not a replacement -- G-A is phpcs-based and can only ever see what a
+      # sniff is written to detect. Deliberately `continue-on-error: true` for
+      # now -- this gate is EXPECTED RED today (no fixes have landed yet); it
+      # is wired in unenforced so the count is visible in every CI run from
+      # the start of the remediation, and becomes blocking once a later task
+      # drives every probe to zero.
+      - name: "Instrument-gap gate (G-B: five WPCS-blind probes, red baseline)"
+        run: php bin/check-instrument-gaps.php
+        continue-on-error: true
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest
