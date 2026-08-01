@@ -200,6 +200,24 @@ jobs:
         run: php bin/check-prefix-inventory.php
         continue-on-error: true
 
+      # Gate G-D (WP.org T7 remediation, Task 7.5): Plugin Check parity -- the
+      # REAL WP.org acceptance bar, not a narrow proxy for it. G-A/G-B/G-C
+      # above only look at three security sniff families plus five WPCS-blind
+      # grep probes plus prefix-map completeness; none of them run WP.org's
+      # own Plugin Check ruleset (bin/plugin-check.ruleset.xml, a vendored
+      # runnable copy -- see that file's header for provenance) or count its
+      # entire WordPress.DB.PreparedSQL* family, which the controller found
+      # fires 101 times at ERROR severity and which none of the other gates
+      # were watching. Deliberately `continue-on-error: true` for now -- this
+      # gate is EXPECTED RED today (measured baseline: 31 errors / 158
+      # warnings across 53 files); it is wired in unenforced so the count is
+      # visible in every CI run from the start of this measurement, and
+      # becomes blocking once a later task drives both counts to zero (the
+      # user's stated acceptance bar is 0 errors AND 0 warnings).
+      - name: "Plugin Check parity gate (G-D: WP.org's own ruleset, red baseline 31/158)"
+        run: php bin/check-plugin-check-parity.php
+        continue-on-error: true
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest

@@ -410,6 +410,21 @@ bin/*
 # the same gap check-manifest.php's missing lite-manifest-final.txt already
 # taught this repo to avoid -- see that entry above.
 !bin/prefix-inventory-baseline.txt
+# Quality-gate script: `php bin/check-plugin-check-parity.php` requires it at
+# runtime; it is Gate G-D (WP.org T7 remediation, Task 7.5) -- runs WP.org's
+# own Plugin Check ruleset via phpcs and counts ERRORS/WARNINGS separately.
+# This is the REAL acceptance bar (0 errors AND 0 warnings); G-A/G-B/G-C above
+# are narrower probes that sit under it. Wired into CI with continue-on-error
+# while red (measured baseline: 31 errors / 158 warnings); must ship in every
+# clone.
+!bin/check-plugin-check-parity.php
+# INPUT to the gate above: a vendored, runnable copy of WP.org's Plugin Check
+# plugin's own PHPCS ruleset (four PluginCheck.* sniff refs stripped -- they
+# only resolve when the plugin-check plugin itself is installed; see this
+# file's own header comment for exact provenance/version/date). Tracking the
+# gate but not the ruleset it runs would be the same gap
+# bin/prefix-inventory-baseline.txt's entry above already describes.
+!bin/plugin-check.ruleset.xml
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which

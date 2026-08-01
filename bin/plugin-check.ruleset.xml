@@ -1,0 +1,212 @@
+<?xml version="1.0"?>
+<!--
+  Vendored copy of WP.org's Plugin Check (PCP) plugin's own PHPCS ruleset.
+
+  Source:  wp-content/plugins/plugin-check/phpcs-rulesets/plugin-check.ruleset.xml
+           inside the RELEASE stack (container rentiva-release-wpcli-1), i.e.
+           https://github.com/WordPress/plugin-check
+  Plugin-Check version vendored from: 2.0.0 (Plugin Check (PCP), plugin.php
+           header: `Version: 2.0.0`, WP_PLUGIN_CHECK_VERSION constant)
+  Date vendored: 2026-08-01
+
+  Why a copy exists at all: this is the GATE that measures WP.org's actual
+  acceptance bar (Gate G-D, WP.org T7 remediation, Task 7.5), the earlier
+  gates (G-A/G-B/G-C in this same bin/ directory) only look at three security
+  sniff families and are structurally blind to what Plugin Check itself
+  reports (e.g. the entire WordPress.DB.PreparedSQL* family, ~101 findings,
+  which none of them watch). Running Plugin Check's OWN ruleset against our
+  code with phpcs directly is the only way to measure that bar without
+  installing the plugin-check plugin itself into the dev stack.
+
+  What was stripped and why: four `<rule ref="PluginCheck.*">` blocks were
+  removed from the upstream file. Those four sniffs (PluginCheck.CodeAnalysis.
+  Heredoc, PluginCheck.CodeAnalysis.ShortURL, PluginCheck.CodeAnalysis.
+  RequiredFunctionParameters, PluginCheck.CodeAnalysis.DiscouragedFunctions)
+  are implemented BY the plugin-check plugin's own PHPCS sniff classes, which
+  only register on PHPCS's sniff path when the plugin-check plugin itself is
+  installed. Running this ruleset standalone (vendor/bin/phpcs, no plugin-check
+  install) makes phpcs fail immediately with:
+    ERROR: Referenced sniff "PluginCheck.CodeAnalysis.Heredoc" does not exist
+  Every other rule in the file is byte-identical to the upstream source
+  (preserved verbatim, including comments, severities and type overrides).
+  The stripped rules are commented out below (not deleted) so a future
+  re-vendor can diff against them; they are excluded, not silently forgotten.
+
+  Drift warning for future readers: this file does NOT auto-update when
+  WP.org ships a new Plugin Check release. If the "0 errors AND 0 warnings"
+  acceptance bar this gate measures ever seems to disagree with what WP.org's
+  own reviewer/tool reports, re-pull the ruleset from a current plugin-check
+  install, re-diff against this copy, and bump the version note above.
+-->
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="WPPluginCheck" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/PHPCSStandards/PHP_CodeSniffer/master/phpcs.xsd">
+
+	<!-- For more information: https://make.wordpress.org/plugins/handbook/review/ -->
+	<description>Standards any plugin to be published on wordpress.org should comply with.</description>
+
+	<!-- All SQL queries should be prepared as close to the time of querying the database as possible. -->
+	<rule ref="WordPress.DB.PreparedSQL"/>
+	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
+		<!-- Ideally this wouldn't trigger on "safe" items, but it's triggered on any variable in the SQL. -->
+		<type>warning</type>
+	</rule>
+
+	<!-- Verify that placeholders in prepared queries are used correctly. -->
+	<rule ref="WordPress.DB.PreparedSQLPlaceholders"/>
+
+	<!-- Nonces. These are triggered on any GET/POST access items. -->
+	<rule ref="WordPress.Security.NonceVerification">
+		<!-- This is triggered on all GET/POST access, it can't be an error. -->
+		<type>warning</type>
+	</rule>
+
+	<!-- Sanitized Input rules -->
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<type>warning</type>
+	</rule>
+
+	<!-- Prohibit the use of the backtick operator. -->
+	<rule ref="Generic.PHP.BacktickOperator">
+		<severity>7</severity>
+	</rule>
+
+	<!--
+	  STRIPPED (2026-08-01, only resolves when the plugin-check plugin is
+	  installed, see file header):
+	  <rule ref="PluginCheck.CodeAnalysis.Heredoc">
+	  	<severity>7</severity>
+	  </rule>
+	-->
+
+	<!--
+	  STRIPPED (2026-08-01, only resolves when the plugin-check plugin is
+	  installed, see file header):
+	  <rule ref="PluginCheck.CodeAnalysis.ShortURL">
+	  	<severity>6</severity>
+	  </rule>
+	-->
+
+	<!-- Prohibit the use of the `goto` PHP language construct. -->
+	<rule ref="Generic.PHP.DiscourageGoto.Found">
+		<type>error</type>
+		<severity>7</severity>
+		<message>The "goto" language construct should not be used.</message>
+	</rule>
+
+	<!-- Check for error logs in plugin -->
+	<rule ref="WordPress.PHP.DevelopmentFunctions">
+		<type>warning</type>
+	</rule>
+
+	<!-- No PHP short open tags allowed. -->
+	<rule ref="Generic.PHP.DisallowShortOpenTag"/>
+	<rule ref="Generic.PHP.DisallowShortOpenTag.Found">
+		<severity>7</severity>
+	</rule>
+	<rule ref="Generic.PHP.DisallowShortOpenTag.EchoFound">
+		<severity>7</severity>
+	</rule>
+
+	<!-- Alternative PHP open tags not allowed. -->
+	<rule ref="Generic.PHP.DisallowAlternativePHPTags">
+		<severity>7</severity>
+	</rule>
+
+	<!-- Prevent path disclosure when using add_theme_page(). -->
+	<rule ref="WordPress.Security.PluginMenuSlug">
+		<severity>6</severity>
+	</rule>
+
+	<!-- While most plugins shouldn't query the database directly, if they do, it should be done correctly. -->
+	<!-- Don't use the PHP database functions and classes, use the WP abstraction layer instead. -->
+	<rule ref="WordPress.DB.RestrictedClasses">
+		<severity>7</severity>
+	</rule>
+
+	<rule ref="WordPress.DB.RestrictedFunctions">
+		<severity>7</severity>
+	</rule>
+
+	<!-- Check for code WP does better -->
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<type>error</type>
+		<exclude name="WordPress.WP.AlternativeFunctions.json_encode_json_encode"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
+		<exclude name="WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents"/>
+	</rule>
+
+	<rule ref="Generic.PHP.ForbiddenFunctions">
+		<properties>
+			<property name="forbiddenFunctions" type="array">
+				<element key="move_uploaded_file" value="null"/>
+				<element key="passthru" value="null"/>
+				<element key="proc_open" value="null"/>
+				<element key="create_function" value="null"/>
+				<element key="eval" value="null"/>
+				<element key="str_rot13" value="null"/>
+				<element key="_cleanup_header_comment" value="null"/>
+				<element key="_get_plugin_data_markup_translate" value="null"/>
+				<element key="_transition_post_status" value="null"/>
+				<element key="_wp_post_revision_fields" value="null"/>
+				<element key="do_shortcode_tag" value="null"/>
+				<element key="get_post_type_labels" value="null"/>
+				<element key="wp_get_sidebars_widgets" value="null"/>
+				<element key="wp_get_widget_defaults" value="null"/>
+			</property>
+		</properties>
+		<type>error</type>
+		<severity>7</severity>
+	</rule>
+
+	<rule ref="Squiz.PHP.DiscouragedFunctions">
+		<properties>
+			<property name="forbiddenFunctions" type="array">
+				<element key="set_time_limit" value="null"/>
+				<element key="ini_set" value="null"/>
+				<element key="ini_alter" value="null"/>
+				<element key="dl" value="null"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Check for use of deprecated WordPress classes, functions and function parameters. -->
+	<rule ref="WordPress.WP.DeprecatedClasses"/>
+	<rule ref="WordPress.WP.DeprecatedFunctions"/>
+	<rule ref="WordPress.WP.DeprecatedParameters"/>
+	<rule ref="WordPress.DateTime.RestrictedFunctions"/>
+
+	<!-- Check for deprecated WordPress constants. -->
+	<rule ref="WordPress.WP.DiscouragedConstants">
+		<type>error</type>
+		<severity>7</severity>
+	</rule>
+
+	<!-- Check for discouraged WordPress functions. -->
+	<rule ref="WordPress.WP.DiscouragedFunctions">
+		<severity>6</severity>
+	</rule>
+
+	<!-- Check for usage of deprecated parameter values in WP functions and provide alternative based on the parameter passed. -->
+	<rule ref="WordPress.WP.DeprecatedParameterValues">
+		<severity>7</severity>
+	</rule>
+
+	<!-- No ByteOrderMark allowed - important to prevent issues with content being sent before headers. -->
+	<rule ref="Generic.Files.ByteOrderMark">
+		<severity>7</severity>
+	</rule>
+
+	<!--
+	  STRIPPED (2026-08-01, only resolves when the plugin-check plugin is
+	  installed, see file header):
+	  <rule ref="PluginCheck.CodeAnalysis.RequiredFunctionParameters">
+	  	<severity>7</severity>
+	  </rule>
+	-->
+
+	<!--
+	  STRIPPED (2026-08-01, only resolves when the plugin-check plugin is
+	  installed, see file header):
+	  <rule ref="PluginCheck.CodeAnalysis.DiscouragedFunctions"/>
+	-->
+
+</ruleset>
