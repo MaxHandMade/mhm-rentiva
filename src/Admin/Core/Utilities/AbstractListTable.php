@@ -458,27 +458,30 @@ abstract class AbstractListTable extends \WP_List_Table {
 	/**
 	 * Read a display parameter of the current list screen.
 	 *
-	 * These are sort/search/filter params of a bookmarkable admin URL: they change
-	 * no state, so nonce-gating them would break shareable links, and reaching into
-	 * $_GET here would be an unverifiable superglobal read inside a shared helper.
-	 * They are therefore read off WordPress's own `query_vars` whitelist, which
-	 * WP::parse_request() fills for the list screen -- the same mechanism
-	 * BookingColumns/VehicleColumns/AddonListTable use, and the fix WP.org accepted
-	 * for T4 #11. `s`, `orderby`, `order` and `page` are core public query vars;
-	 * a subclass's own filter params must be registered by that subclass (see
-	 * AddonListTable::register_query_var_filter()).
+	 * The sort/search/filter params of a bookmarkable admin URL. They change no
+	 * state, and nonce-gating them would break shareable sorted/filtered links,
+	 * so WPCS reports NonceVerification.Recommended on the reads below. That
+	 * finding is inherent to the shape rather than a missing check; it is
+	 * reported to WordPress.org as-is (Görev 17 letter), never annotated away.
 	 *
-	 * WP::parse_request() preserves arrays for registered query vars, so a
-	 * `?orderby[]=x` request hands an array to a reader typed as string; the
-	 * is_array() guard keeps that from raising "Array to string conversion".
+	 * `get_query_var()` is NOT an option here, unlike in BookingColumns /
+	 * VehicleColumns / AddonListTable's own readers. Those three live on
+	 * `edit.php`, where wp_edit_posts_query() calls wp() and therefore
+	 * WP::parse_request() populates the query vars. This base class builds its
+	 * redirect as `admin.php?page=...` (see handle_bulk_actions()), and
+	 * wp-admin/admin.php never calls wp() -- so on the screen type this class
+	 * exists for, every query var would read back empty and sorting, search and
+	 * the preserved filters would all silently stop working.
+	 *
+	 * The is_array() guard keeps `?orderby[]=x` from raising a live
+	 * "Array to string conversion" warning on the cast.
 	 */
 	protected static function get_text_param( string $key, string $default = '' ): string {
-		$value = get_query_var( $key, null );
-		if ( null === $value || is_array( $value ) ) {
+		if ( ! isset( $_GET[ $key ] ) || is_array( $_GET[ $key ] ) ) {
 			return $default;
 		}
 
-		return self::sanitize_text_field_safe( wp_unslash( (string) $value ) );
+		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
 	}
 
 	/**

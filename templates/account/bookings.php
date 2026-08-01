@@ -18,21 +18,17 @@ if (! defined('ABSPATH')) {
 
 
 // Filtering with proper sanitization.
-// The filter form below already emits a nonce (`filter_nonce`); verify it here
-// so both params are read in a scope that has checked it, the same gate
-// AddonListTable applies to its admin-side filters. An absent or stale nonce
-// simply renders the unfiltered list.
-$filter_nonce  = isset($_GET['filter_nonce']) && ! is_array($_GET['filter_nonce'])
-	? sanitize_text_field(wp_unslash( (string) $_GET['filter_nonce']))
-	: '';
-$filters_valid = (bool) wp_verify_nonce($filter_nonce, 'mhm_rentiva_filter_bookings');
-
-$status_filter = $filters_valid && isset($_GET['status_filter']) && ! is_array($_GET['status_filter'])
-	? sanitize_text_field(wp_unslash( (string) $_GET['status_filter']))
-	: '';
-$search_query  = $filters_valid && isset($_GET['search_booking']) && ! is_array($_GET['search_booking'])
-	? sanitize_text_field(wp_unslash( (string) $_GET['search_booking']))
-	: '';
+// Both params are read off WordPress's `query_vars` whitelist, where
+// AccountController::PUBLIC_QUERY_VARS registers them; this is a front-end
+// screen, so wp() runs WP::parse_request() and fills them. No superglobal is
+// touched, and the filters keep working from a bookmarked or shared URL.
+// WP::parse_request() preserves arrays for registered query vars, so the
+// is_array() guard keeps `?mhm_status_filter[]=x` from raising a live
+// "Array to string conversion" on the cast.
+$status_filter_raw = get_query_var('mhm_status_filter', null);
+$search_query_raw  = get_query_var('mhm_search_booking', null);
+$status_filter     = ( null === $status_filter_raw || is_array($status_filter_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $status_filter_raw));
+$search_query      = ( null === $search_query_raw || is_array($search_query_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $search_query_raw));
 
 // Filter bookings
 $bookings      = $data['bookings'] ?? array();
@@ -114,11 +110,10 @@ if ($is_integrated) { // Use the already determined $is_integrated
 				<h3><?php esc_html_e('Filter', 'mhm-rentiva'); ?></h3>
 
 				<form method="get" action="<?php echo esc_url($current_page_url); ?>" class="rv-filter-form" data-testid="bookings-filter-form">
-					<?php wp_nonce_field('mhm_rentiva_filter_bookings', 'filter_nonce'); ?>
 					<input type="hidden" name="endpoint" value="bookings">
 
 					<div class="rv-filter-row">
-						<select name="status_filter" class="rv-filter-select" data-testid="bookings-status-filter">
+						<select name="mhm_status_filter" class="rv-filter-select" data-testid="bookings-status-filter">
 							<option value="all" <?php selected($status_filter, 'all'); ?>><?php esc_html_e('All Status', 'mhm-rentiva'); ?></option>
 							<option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
 							<option value="confirmed" <?php selected($status_filter, 'confirmed'); ?>><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></option>
@@ -131,7 +126,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					<div class="rv-filter-row">
 						<input
 							type="text"
-							name="search_booking"
+							name="mhm_search_booking"
 							class="rv-search-input"
 							placeholder="<?php esc_attr_e('Search by Reservation ID', 'mhm-rentiva'); ?>"
 							value="<?php echo esc_attr($search_query); ?>">

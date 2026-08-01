@@ -8,14 +8,28 @@
  * fails if a new one appears or if any other family fires at all.
  *
  * 🔴 AbstractListTable.php is DELIBERATELY EXCLUDED from $allowedFiles even
- * though its get_text_param()/get_key_param() are display-only GET reads of
- * the same shape as the other four files below. Reason: AbstractListTable.php:450
- * is one of the FIVE shown examples in the T7 rejection letter itself. Leaving
- * a reviewer-named file in a residual class this gate never surfaces again
- * risks the exact "same category resurfaces" outcome T4 said ends the review
- * permanently. This file's warnings must reach zero like everything else, or
- * — if truly unfixable without breaking bookmarkable sort/pagination links —
- * be named explicitly in the Görev 17 response letter (see that task's Adım 1).
+ * though its get_text_param() is a display-only GET read of the same shape as
+ * the four files below. Reason: AbstractListTable.php:450 is one of the FIVE
+ * shown examples in the T7 rejection letter itself. Leaving a reviewer-named
+ * file in a residual class this gate never surfaces again risks the exact
+ * "same category resurfaces" outcome T4 said ends the review permanently.
+ *
+ * Görev 9 resolved the OTHER two families in that file to zero (the
+ * filter_input() readers became canonical reads; the $_SERVER and $_POST reads
+ * are sanitized on their own lines, the latter next to the nonce check in
+ * handle_bulk_actions()). What remains, and what this gate now counts as HARD,
+ * is NonceVerification.Recommended on the single surviving $_GET reader:
+ *
+ *   AbstractListTable::get_text_param()  ->  3 hits over 2 lines
+ *
+ * It cannot be resolved by the get_query_var() mechanism the four allowed files
+ * use. Those live on edit.php, where wp_edit_posts_query() calls wp() and so
+ * WP::parse_request() fills the query vars; this base class serves
+ * `admin.php?page=...` screens, and wp-admin/admin.php never calls wp() — a
+ * query var would read back empty and sorting/search/filter preservation would
+ * silently die. Nor can it be nonce-gated: these are bookmarkable display
+ * params. It is therefore named explicitly in the Görev 17 response letter
+ * (see that task's Adım 1), never annotated away.
  * Rationale: recorded in docs/plans/2026-07-31-wporg-t7-duzeltme-turu.md.
  */
 $families = [

@@ -63,9 +63,51 @@ final class AccountController {
 		return self::$instance;
 	}
 
+	/**
+	 * Filter params of the My Account bookings list, registered on WordPress's
+	 * `query_vars` whitelist so the template can read them with get_query_var()
+	 * instead of reaching into $_GET.
+	 *
+	 * Same mechanism SearchResults/BookingForm use for their public filter
+	 * params -- the fix WP.org accepted for T4 #11 -- and it works here because
+	 * this is a front-end screen, where wp() does run WP::parse_request().
+	 * These are display parameters of a bookmarkable URL: they change no state,
+	 * so nonce-gating them would break shareable filtered links and strand
+	 * anyone whose tab (or page cache) outlived the nonce.
+	 *
+	 * The names carry the plugin prefix because an unprefixed `status_filter`
+	 * on a global whitelist would collide with any other plugin doing the same.
+	 *
+	 * Known side effect of registering ANY public query var, inherited from
+	 * core and shared with the vars SearchResults already registers: appending
+	 * one to the SITE ROOT makes WP::parse_request() serve the blog index
+	 * rather than a static front page. Inner pages -- including every URL these
+	 * two params actually appear on -- resolve unchanged.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'mhm_status_filter',
+		'mhm_search_booking',
+	);
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Registered public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars(array $vars): array
+	{
+		return array_values(array_unique(array_merge($vars, self::PUBLIC_QUERY_VARS)));
+	}
+
 	public static function register(): void
 	{
 		$instance = self::instance();
+
+		// Must be in place before WP::parse_request() runs for the account screen.
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
 
 		// AJAX handlers
 		add_action('wp_ajax_mhm_rentiva_update_account', array( self::class, 'ajax_update_account' ));
@@ -580,53 +622,49 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('No file uploaded.', 'mhm-rentiva') ), 400);
 		}
 
-		// Allow only images/pdf
+		// Allow only images/pdf. Keyed extension => mime type, the orientation
+		// wp_check_filetype_and_ext() expects, because this array is handed to
+		// _wp_handle_upload() as $overrides['mimes'] (the previous
+		// mime => extension shape was only ever an isset() lookup table here and
+		// silently rejects every upload if passed to core as-is).
 		$allowed_mimes = array(
-			'image/jpeg'      => 'jpg',
-			'image/png'       => 'png',
-			'application/pdf' => 'pdf',
+			'jpg|jpeg' => 'image/jpeg',
+			'png'      => 'image/png',
+			'pdf'      => 'application/pdf',
 		);
 
-		// Build the upload array field by field, each cleaned on the line that
-		// reads it, instead of handing wp_handle_upload() a raw $_FILES entry.
-		$file = array();
-		if (isset($_FILES['receipt']) && is_array($_FILES['receipt'])) {
-			$file = array(
-				'name'     => isset($_FILES['receipt']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['receipt']['name'])) : '',
-				'type'     => isset($_FILES['receipt']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['receipt']['type'])) : '',
-				'tmp_name' => isset($_FILES['receipt']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['receipt']['tmp_name'])) : '',
-				'error'    => isset($_FILES['receipt']['error']) ? absint(wp_unslash($_FILES['receipt']['error'])) : UPLOAD_ERR_NO_FILE,
-				'size'     => isset($_FILES['receipt']['size']) ? absint(wp_unslash($_FILES['receipt']['size'])) : 0,
-			);
-		}
-		if (empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
-			wp_send_json_error(array( 'message' => __('Upload error.', 'mhm-rentiva') ), 400);
-		}
-
-		$filetype = wp_check_filetype_and_ext($file['tmp_name'], $file['name']);
-		if (empty($filetype['type']) || ! isset($allowed_mimes[ $filetype['type'] ])) {
-			wp_send_json_error(array( 'message' => __('Invalid file type. Allowed: JPG, PNG, PDF.', 'mhm-rentiva') ), 400);
-		}
-
+		// The upload is handed to core by FIELD NAME, so this plugin never reads
+		// $_FILES itself. That is deliberate and it is the only shape here that is
+		// both correct and clean:
+		//
+		//   - wp_magic_quotes() slashes $_GET/$_POST/$_COOKIE/$_SERVER but leaves
+		//     $_FILES alone, so wp_unslash() on a member would eat real
+		//     backslashes out of a filename;
+		//   - `tmp_name` is a path PHP generated, not user text, so running it
+		//     through sanitize_text_field() would corrupt a legitimate path (that
+		//     function strips %XX sequences and trims) -- yet leaving it raw is a
+		//     ValidatedSanitizedInput error, since a sanitizer is exactly what the
+		//     sniff looks for.
+		//
+		// media_handle_upload() reads the superglobal inside core, applies the
+		// same allow-list through $overrides['mimes'] (wp_check_filetype_and_ext()
+		// runs inside _wp_handle_upload()), and creates the attachment plus its
+		// metadata -- which is precisely what this handler used to do by hand.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
-		$overrides = array( 'test_form' => false );
-		$upload    = wp_handle_upload($file, $overrides);
-		if (isset($upload['error'])) {
-			wp_send_json_error(array( 'message' => $upload['error'] ), 400);
-		}
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
 
-		// Create attachment
-		$attachment = array(
-			'post_mime_type' => $upload['type'],
-			'post_title'     => sanitize_file_name($file['name']),
-			'post_content'   => '',
-			'post_status'    => 'inherit',
+		$attach_id = media_handle_upload(
+			'receipt',
+			0,
+			array(),
+			array(
+				'test_form' => false,
+				'mimes'     => $allowed_mimes,
+			)
 		);
-		$attach_id  = wp_insert_attachment($attachment, $upload['file']);
-		if (! is_wp_error($attach_id)) {
-			require_once ABSPATH . 'wp-admin/includes/image.php';
-			$attach_data = wp_generate_attachment_metadata($attach_id, $upload['file']);
-			wp_update_attachment_metadata($attach_id, $attach_data);
+		if (is_wp_error($attach_id)) {
+			wp_send_json_error(array( 'message' => $attach_id->get_error_message() ), 400);
 		}
 
 		// Save to booking meta
