@@ -26,16 +26,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Actions {
 
 
-	/**
-	 * Safe sanitize text field that handles null values
-	 */
-	public static function sanitize_text_field_safe( $value ) {
-		if ( $value === null || $value === '' ) {
-			return '';
-		}
-		return sanitize_text_field( (string) $value );
-	}
-
 	public static function register(): void {
 		add_action( 'admin_post_mhm_rentiva_purge_logs', array( self::class, 'purge_logs' ) );
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
