@@ -220,9 +220,20 @@ final class MetaQueryHelper {
 	public static function build_meta_where(string $alias, string $value, string $operator = '='): string
 	{
 		global $wpdb;
-		$safe_alias    = self::sanitize_alias($alias);
-		$safe_operator = self::normalize_operator($operator);
-		return (string) $wpdb->prepare("{$safe_alias}.meta_value {$safe_operator} %s", $value); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias/operator are whitelisted.
+		$safe_alias = self::sanitize_alias($alias);
+
+		// A comparison operator cannot be a placeholder, so each supported
+		// operator gets its own literal fragment. The alias goes through %i and
+		// the value through %s, so neither can carry SQL of its own.
+		return (string) match (self::normalize_operator($operator)) {
+			'!='    => $wpdb->prepare('%i.meta_value != %s', $safe_alias, $value),
+			'>'     => $wpdb->prepare('%i.meta_value > %s', $safe_alias, $value),
+			'<'     => $wpdb->prepare('%i.meta_value < %s', $safe_alias, $value),
+			'>='    => $wpdb->prepare('%i.meta_value >= %s', $safe_alias, $value),
+			'<='    => $wpdb->prepare('%i.meta_value <= %s', $safe_alias, $value),
+			'LIKE'  => $wpdb->prepare('%i.meta_value LIKE %s', $safe_alias, $value),
+			default => $wpdb->prepare('%i.meta_value = %s', $safe_alias, $value),
+		};
 	}
 
 	/**

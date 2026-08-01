@@ -138,48 +138,94 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		$indexes = array(
-			// 1. Composite index for status queries
-			'idx_mhm_status_lookup'    => "CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
+		// Every statement is written out in full at its own $wpdb->query() call
+		// rather than looped over a table of SQL strings. The index name and the
+		// column list are fixed text and the only interpolation is $wpdb's own
+		// table properties, so nothing here can originate from a request -- and
+		// that is readable at the line that runs the query.
 
-			// 2. Timestamp index for date range queries
-			'idx_mhm_timestamp_range'  => "CREATE INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))",
-
-			// 3. Index for vehicle booking lookups
-			'idx_mhm_vehicle_bookings' => "CREATE INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)",
-
-			// 4. Index for post date queries
-			'idx_posts_date_type'      => "CREATE INDEX idx_posts_date_type ON {$wpdb->posts} (post_date, post_type(20), post_status(20))",
-
-			// 5. Index for booking meta queries
-			'idx_mhm_booking_meta'     => "CREATE INDEX idx_mhm_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))",
-
-			// 6. Index for customer email lookups
-			'idx_mhm_customer_email'   => "CREATE INDEX idx_mhm_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))",
-
-			// 7. Index for price range queries
-			'idx_mhm_price_range'      => "CREATE INDEX idx_mhm_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))",
-
-			// 8. Index for combined booking lookup
-			'idx_mhm_booking_combined' => "CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
+		// 1. Composite index for status queries
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_status_lookup',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
 		);
 
-		foreach ($indexes as $index_name => $sql) {
-			try {
-				$table = ( strpos($index_name, 'idx_posts_') === 0 ) ? $wpdb->posts : $wpdb->postmeta;
+		// 2. Timestamp index for date range queries
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_timestamp_range',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))")
+		);
 
-				if (self::index_exists($table, $index_name)) {
-					continue;
-				}
+		// 3. Index for vehicle booking lookups
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_vehicle_bookings',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)")
+		);
 
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$result = $wpdb->query($sql);
-				if ($result === false) {
-					self::log_index_error($sql, (string) $wpdb->last_error);
-				}
-			} catch (\Exception $e) {
-				self::log_index_error($sql, $e->getMessage());
+		// 4. Index for post date queries
+		self::create_index_if_missing(
+			$wpdb->posts,
+			'idx_posts_date_type',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_posts_date_type ON {$wpdb->posts} (post_date, post_type(20), post_status(20))")
+		);
+
+		// 5. Index for booking meta queries
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_booking_meta',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))")
+		);
+
+		// 6. Index for customer email lookups
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_customer_email',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))")
+		);
+
+		// 7. Index for price range queries
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_price_range',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))")
+		);
+
+		// 8. Index for combined booking lookup
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_mhm_booking_combined',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
+		);
+	}
+
+	/**
+	 * Run one CREATE INDEX statement unless the index is already there.
+	 *
+	 * The statement itself is passed as a closure so it stays a literal at its
+	 * own call site; this helper only owns the "does it exist / did it fail"
+	 * bookkeeping that used to be duplicated per loop iteration.
+	 *
+	 * @param string          $table      Table the index belongs to.
+	 * @param string          $index_name Index name, also used in the error log.
+	 * @param callable():bool $run        Runs the statement, true when it succeeded.
+	 */
+	private static function create_index_if_missing(string $table, string $index_name, callable $run): void
+	{
+		global $wpdb;
+
+		try {
+			if (self::index_exists($table, $index_name)) {
+				return;
 			}
+
+			if (! $run()) {
+				self::log_index_error($index_name, (string) $wpdb->last_error);
+			}
+		} catch (\Exception $e) {
+			self::log_index_error($index_name, $e->getMessage());
 		}
 	}
 
@@ -190,19 +236,17 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		// Run index analysis
-		$analysis_queries = array(
-			"ANALYZE TABLE {$wpdb->posts}",
-			"ANALYZE TABLE {$wpdb->postmeta}",
-		);
+		// Both statements are literals naming $wpdb's own tables.
+		try {
+			$wpdb->query("ANALYZE TABLE {$wpdb->posts}");
+		} catch (\Exception $e) {
+			self::log_index_error('ANALYZE TABLE posts', $e->getMessage());
+		}
 
-		foreach ($analysis_queries as $sql) {
-			try {
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-				$wpdb->query($sql);
-			} catch (\Exception $e) {
-				self::log_index_error($sql, $e->getMessage());
-			}
+		try {
+			$wpdb->query("ANALYZE TABLE {$wpdb->postmeta}");
+		} catch (\Exception $e) {
+			self::log_index_error('ANALYZE TABLE postmeta', $e->getMessage());
 		}
 	}
 
@@ -213,36 +257,30 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		// Detect missing indexes
-		$missing_indexes = self::detect_missing_indexes();
-
-		foreach ($missing_indexes as $index_name => $index_sql) {
-			try {
-				if (self::index_exists($wpdb->postmeta, $index_name)) {
-					continue;
-				}
-
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- DDL is generated internally from vetted table/meta constants.
-				$result = $wpdb->query($index_sql);
-				if ($result === false) {
-					self::log_index_error($index_sql, (string) $wpdb->last_error);
-				}
-			} catch (\Exception $e) {
-				self::log_index_error($index_sql, $e->getMessage());
-			}
+		// One statement shape for all of them: only the index name varies, and it
+		// is bound through %i rather than pasted into the SQL.
+		foreach (self::missing_index_names() as $index_name) {
+			self::create_index_if_missing(
+				$wpdb->postmeta,
+				$index_name,
+				static fn (): bool => false !== $wpdb->query(
+					$wpdb->prepare(
+						'CREATE INDEX %i ON %i (meta_key(50), meta_value(50), post_id)',
+						$index_name,
+						$wpdb->postmeta
+					)
+				)
+			);
 		}
 	}
 
 	/**
-	 * Detect missing metadata indexes
+	 * Names of the per-meta-key postmeta indexes this plugin maintains.
+	 *
+	 * @return list<string>
 	 */
-	private static function detect_missing_indexes(): array
+	private static function missing_index_names(): array
 	{
-		global $wpdb;
-
-		$missing_indexes = array();
-
-		// Special indexes for MHM Rentiva specific meta keys
 		$mhm_meta_keys = array(
 			'_mhm_status',
 			'_mhm_vehicle_id',
@@ -254,13 +292,10 @@ final class DatabaseMigrator {
 			'_mhm_customer_id',
 		);
 
-		foreach ($mhm_meta_keys as $meta_key) {
-			// Create a specific index for each meta key
-			$index_name                     = 'idx_mhm_' . str_replace('_mhm_', '', $meta_key);
-			$missing_indexes[ $index_name ] = "CREATE INDEX {$index_name} ON {$wpdb->postmeta} (meta_key(50), meta_value(50), post_id)";
-		}
-
-		return $missing_indexes;
+		return array_map(
+			static fn (string $meta_key): string => 'idx_mhm_' . str_replace('_mhm_', '', $meta_key),
+			$mhm_meta_keys
+		);
 	}
 
 	/**
@@ -319,46 +354,45 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		$results = array();
-
-		// Test query'leri
-		$test_queries = array(
-			'status_lookup'    => "
-                SELECT COUNT(*) FROM {$wpdb->postmeta} 
-                WHERE meta_key = '_mhm_status' 
-                AND meta_value = 'confirmed'
-            ",
-			'date_range'       => "
-                SELECT COUNT(*) FROM {$wpdb->postmeta} 
-                WHERE meta_key = '_mhm_start_ts' 
-                AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))
-            ",
-			'vehicle_bookings' => "
-                SELECT COUNT(*) FROM {$wpdb->postmeta} 
-                WHERE meta_key = '_mhm_vehicle_id' 
-                AND meta_value = '123'
-            ",
-			'post_date_query'  => "
-                SELECT COUNT(*) FROM {$wpdb->posts} 
-                WHERE post_type = 'vehicle_booking' 
-                AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)
-            ",
+		// Each probe is timed around its own literal statement. Looping over a
+		// table of SQL strings hid the query text from the line that ran it.
+		return array(
+			'status_lookup'    => self::time_probe(
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_status' AND meta_value = 'confirmed'"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_status' AND meta_value = 'confirmed'"
+			),
+			'date_range'       => self::time_probe(
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"
+			),
+			'vehicle_bookings' => self::time_probe(
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_vehicle_id' AND meta_value = '123'"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_vehicle_id' AND meta_value = '123'"
+			),
+			'post_date_query'  => self::time_probe(
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"),
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
+			),
 		);
+	}
 
-		foreach ($test_queries as $test_name => $query) {
-			$start_time = microtime(true);
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: Constant test queries defined in code, safe from user input.
-			$result   = $wpdb->get_var($query);
-			$end_time = microtime(true);
+	/**
+	 * Time one probe and report it the way test_index_performance() always has.
+	 *
+	 * @param callable $run   Runs the probe.
+	 * @param string   $query The statement text, for the report.
+	 */
+	private static function time_probe(callable $run, string $query): array
+	{
+		$start_time = microtime(true);
+		$result     = $run();
+		$end_time   = microtime(true);
 
-			$results[ $test_name ] = array(
-				'execution_time' => round(( $end_time - $start_time ) * 1000, 2), // ms
-				'result'         => $result,
-				'query'          => $query,
-			);
-		}
-
-		return $results;
+		return array(
+			'execution_time' => round(( $end_time - $start_time ) * 1000, 2), // ms
+			'result'         => $result,
+			'query'          => $query,
+		);
 	}
 
 	/**
@@ -376,10 +410,8 @@ final class DatabaseMigrator {
 
 			foreach ($tables as $table) {
 				$start_time = microtime(true);
-				$table_name = esc_sql(self::sanitize_table_identifier($table));
-				// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table identifiers cannot be prepared; identifier is strictly sanitized and SQL-escaped.
-				$result   = $wpdb->query(sprintf('OPTIMIZE TABLE `%s`', $table_name));
-				$end_time = microtime(true);
+				$result     = $wpdb->query($wpdb->prepare('OPTIMIZE TABLE %i', $table));
+				$end_time   = microtime(true);
 
 				$results['optimize'][ $table ] = array(
 					'success'        => $result !== false,
@@ -404,61 +436,70 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		$results = array();
-
-		// Rebuild critical indexes
-		$critical_indexes = array(
-			array(
-				'action' => 'DROP',
-				'name'   => 'idx_mhm_status_lookup',
-				'table'  => $wpdb->postmeta,
-				'sql'    => "DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}",
+		// Drop-then-recreate for the two indexes worth rebuilding. Each statement
+		// is a literal at its own call site; only the existence bookkeeping is
+		// shared.
+		return array_values(array_filter(array(
+			self::rebuild_index(
+				'DROP',
+				$wpdb->postmeta,
+				'idx_mhm_status_lookup',
+				"DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}",
+				static fn () => $wpdb->query("DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}")
 			),
-			array(
-				'action' => 'CREATE',
-				'name'   => 'idx_mhm_status_lookup',
-				'table'  => $wpdb->postmeta,
-				'sql'    => "CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
+			self::rebuild_index(
+				'CREATE',
+				$wpdb->postmeta,
+				'idx_mhm_status_lookup',
+				"CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
+				static fn () => $wpdb->query("CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
 			),
-			array(
-				'action' => 'DROP',
-				'name'   => 'idx_mhm_booking_combined',
-				'table'  => $wpdb->postmeta,
-				'sql'    => "DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}",
+			self::rebuild_index(
+				'DROP',
+				$wpdb->postmeta,
+				'idx_mhm_booking_combined',
+				"DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}",
+				static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}")
 			),
-			array(
-				'action' => 'CREATE',
-				'name'   => 'idx_mhm_booking_combined',
-				'table'  => $wpdb->postmeta,
-				'sql'    => "CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
+			self::rebuild_index(
+				'CREATE',
+				$wpdb->postmeta,
+				'idx_mhm_booking_combined',
+				"CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
+				static fn () => $wpdb->query("CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
 			),
-		);
+		)));
+	}
 
-		foreach ($critical_indexes as $index) {
-			$start_time = microtime(true);
+	/**
+	 * Run one rebuild step, skipping it when the index is already in the wanted state.
+	 *
+	 * @param string   $action DROP or CREATE.
+	 * @param string   $table  Table the index belongs to.
+	 * @param string   $name   Index name.
+	 * @param string   $sql    Statement text, for the report.
+	 * @param callable $run    Runs the statement.
+	 * @return array|null The report row, or null when the step was skipped.
+	 */
+	private static function rebuild_index(string $action, string $table, string $name, string $sql, callable $run): ?array
+	{
+		global $wpdb;
 
-			// Check existence for safety
-			$exists = self::index_exists($index['table'], $index['name']);
-			if ('DROP' === $index['action'] && ! $exists) {
-				continue;
-			}
-			if ('CREATE' === $index['action'] && $exists) {
-				continue;
-			}
-
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-			$result   = $wpdb->query($index['sql']);
-			$end_time = microtime(true);
-
-			$results[] = array(
-				'sql'            => $index['sql'],
-				'success'        => $result !== false,
-				'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
-				'error'          => $result === false ? (string) $wpdb->last_error : null,
-			);
+		$exists = self::index_exists($table, $name);
+		if (( 'DROP' === $action && ! $exists ) || ( 'CREATE' === $action && $exists )) {
+			return null;
 		}
 
-		return $results;
+		$start_time = microtime(true);
+		$result     = $run();
+		$end_time   = microtime(true);
+
+		return array(
+			'sql'            => $sql,
+			'success'        => $result !== false,
+			'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
+			'error'          => $result === false ? (string) $wpdb->last_error : null,
+		);
 	}
 
 	/**
@@ -488,48 +529,17 @@ final class DatabaseMigrator {
 		global $wpdb;
 
 		try {
-			// Delete MHM Rentiva indexes
-			$drop_indexes = array(
-				'idx_mhm_status_lookup'    => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}",
-				),
-				'idx_mhm_timestamp_range'  => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta}",
-				),
-				'idx_mhm_vehicle_bookings' => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta}",
-				),
-				'idx_posts_date_type'      => array(
-					'table' => $wpdb->posts,
-					'sql'   => "DROP INDEX idx_posts_date_type ON {$wpdb->posts}",
-				),
-				'idx_mhm_booking_meta'     => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_booking_meta ON {$wpdb->postmeta}",
-				),
-				'idx_mhm_customer_email'   => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_customer_email ON {$wpdb->postmeta}",
-				),
-				'idx_mhm_price_range'      => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_price_range ON {$wpdb->postmeta}",
-				),
-				'idx_mhm_booking_combined' => array(
-					'table' => $wpdb->postmeta,
-					'sql'   => "DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}",
-				),
-			);
-
-			foreach ($drop_indexes as $index_name => $index_data) {
-				if (self::index_exists($index_data['table'], $index_name)) {
-					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DDL statement using system prefix, strictly server-side.
-					$wpdb->query($index_data['sql']);
-				}
-			}
+			// Delete MHM Rentiva indexes. Each DROP is a literal at its own call
+			// site; only the "is it there" check is shared, so an absent index
+			// stays a silent no-op exactly as before.
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_status_lookup', static fn () => $wpdb->query("DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_timestamp_range', static fn () => $wpdb->query("DROP INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_vehicle_bookings', static fn () => $wpdb->query("DROP INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->posts, 'idx_posts_date_type', static fn () => $wpdb->query("DROP INDEX idx_posts_date_type ON {$wpdb->posts}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_booking_meta', static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_meta ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_customer_email', static fn () => $wpdb->query("DROP INDEX idx_mhm_customer_email ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_price_range', static fn () => $wpdb->query("DROP INDEX idx_mhm_price_range ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_booking_combined', static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}"));
 
 			// Reset version to original state
 			update_option('mhm_rentiva_db_version', '1.0.0');
@@ -550,6 +560,20 @@ final class DatabaseMigrator {
 				);
 			}
 			return false;
+		}
+	}
+
+	/**
+	 * Run one DROP INDEX statement, but only when the index is actually there.
+	 *
+	 * @param string   $table Table the index belongs to.
+	 * @param string   $name  Index name.
+	 * @param callable $run   Runs the statement.
+	 */
+	private static function drop_index_if_present(string $table, string $name, callable $run): void
+	{
+		if (self::index_exists($table, $name)) {
+			$run();
 		}
 	}
 
@@ -665,15 +689,16 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		// 1. Orphan Post Meta Cleaning
-		$meta_sql = "DELETE pm
+		// 1. Orphan Post Meta Cleaning. The `%%` was a leftover from a prepare()
+		// this statement never went through -- MySQL matched a literal percent
+		// sign, so the clause only ever hit keys starting `_mhm_%`.
+		$wpdb->query(
+			"DELETE pm
         FROM {$wpdb->postmeta} pm
         LEFT JOIN {$wpdb->posts} wp ON wp.ID = pm.post_id
         WHERE wp.ID IS NULL
-        AND pm.meta_key LIKE '_mhm_%%'";
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Reason: DELETE query using system table identifiers, safely escaped LIKE.
-		$wpdb->query($meta_sql);
+        AND pm.meta_key LIKE '_mhm_%'"
+		);
 
 		// 2. Transient Data Cleaning
 		$wpdb->query(
@@ -759,7 +784,6 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhm_rentiva_payout_audit';
-		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (
@@ -784,8 +808,13 @@ final class DatabaseMigrator {
 
 		// Add unique payout-action idempotency key once; dbDelta re-add attempts can emit duplicate-key warnings on reruns.
 		if (! self::index_exists($table_name, 'payout_action_tx')) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Table identifier cannot be prepared and is strictly sanitized.
-			$wpdb->query("ALTER TABLE `{$table_escaped}` ADD UNIQUE KEY `payout_action_tx` (`tenant_id`, `payout_id`, `action`, `tx_uuid`)");
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Adding the idempotency key IS this migration.
+			$wpdb->query(
+				$wpdb->prepare(
+					'ALTER TABLE %i ADD UNIQUE KEY `payout_action_tx` (`tenant_id`, `payout_id`, `action`, `tx_uuid`)',
+					$table_name
+				)
+			);
 		}
 	}
 
@@ -997,8 +1026,9 @@ final class DatabaseMigrator {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table identifiers cannot be prepared; identifier is strictly sanitized and index name run through esc_sql().
-		$results = $wpdb->get_results(sprintf('SHOW INDEX FROM `%s` WHERE Key_name = \'%s\'', $table_name, esc_sql($index_name)));
+		$results = $wpdb->get_results(
+			$wpdb->prepare('SHOW INDEX FROM %i WHERE Key_name = %s', $table_name, $index_name)
+		);
 
 		return ! empty($results);
 	}
@@ -1213,12 +1243,8 @@ final class DatabaseMigrator {
 			}
 		}
 
-		$table = self::sanitize_table_identifier($wpdb->prefix . 'mhm_notification_queue');
-
-		if ('' !== $table) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Identifier is built from the WordPress table prefix plus a literal and passed through this class's own identifier filter, and DROP takes no placeholder. A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
-			$wpdb->query("DROP TABLE IF EXISTS `{$table}`");
-		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
+		$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mhm_notification_queue'));
 	}
 
 	private static function delete_dead_api_key_option(): void

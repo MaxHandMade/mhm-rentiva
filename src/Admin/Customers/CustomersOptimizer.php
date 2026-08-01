@@ -60,16 +60,18 @@ final class CustomersOptimizer {
 	 * @return array
 	 */
 	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '', string $sort_by = 'last_booking', string $sort_dir = 'desc' ): array {
+		// The sort key is mapped to a SELECT alias, never to a raw expression, so
+		// the value bound to the %i below is always one of these six identifiers.
 		$column_map = array(
-			'name'         => 'u.display_name',
-			'email'        => 'u.user_email',
+			'name'         => 'customer_name',
+			'email'        => 'customer_email',
 			'bookings'     => 'booking_count',
 			'total_spent'  => 'total_spent',
 			'last_booking' => 'last_booking',
-			'date'         => 'u.user_registered',
+			'date'         => 'created_date',
 		);
 		$order_col  = $column_map[ $sort_by ] ?? 'last_booking';
-		$order_dir  = 'asc' === strtolower( $sort_dir ) ? 'ASC' : 'DESC';
+		$order_asc  = 'asc' === strtolower( $sort_dir );
 		$cache_key  = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
 
 		// Check cache
@@ -83,12 +85,18 @@ final class CustomersOptimizer {
 		// Calculate offset
 		$offset = ( $page - 1 ) * $per_page;
 
+		// An empty search term is expressed as a value rather than as a missing
+		// clause: `LIKE '%%'` matches every row of a NOT NULL column, which is
+		// what the old unfiltered branch of this query returned. One statement
+		// instead of two near-identical copies.
 		$search_like = '%' . $wpdb->esc_like( $search ) . '%';
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- ORDER BY column name whitelisted from $column_map static PHP array, not user input.
-		if ( $search !== '' ) {
-			$results_query = $wpdb->prepare(
-				"
+		// ASC and DESC cannot be placeholders, so the direction picks between two
+		// literal statements; everything else, the ORDER BY column included, is
+		// bound.
+		$results = $order_asc
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the whole result is cached below.
+			? $wpdb->get_results( $wpdb->prepare( "
             SELECT
                 u.ID as user_id,
                 u.display_name as customer_name,
@@ -115,18 +123,10 @@ final class CustomersOptimizer {
                 AND u.user_login != 'admin'
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            ORDER BY {$order_col} {$order_dir}
+            ORDER BY %i ASC
             LIMIT %d OFFSET %d
-
-            ",
-				$search_like,
-				$search_like,
-				(int) $per_page,
-				(int) $offset
-			);
-		} else {
-			$results_query = $wpdb->prepare(
-				"
+            ", $search_like, $search_like, $order_col, (int) $per_page, (int) $offset ) )
+			: $wpdb->get_results( $wpdb->prepare( "
             SELECT
                 u.ID as user_id,
                 u.display_name as customer_name,
@@ -151,19 +151,11 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhm_rentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND (u.display_name LIKE %s OR u.user_email LIKE %s)
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
-            ORDER BY {$order_col} {$order_dir}
+            ORDER BY %i DESC
             LIMIT %d OFFSET %d
-
-            ",
-				(int) $per_page,
-				(int) $offset
-			);
-		}
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- ORDER BY column name whitelisted from static PHP array, not user input; values via $wpdb->prepare().
-		$results = $wpdb->get_results( $results_query );
+            ", $search_like, $search_like, $order_col, (int) $per_page, (int) $offset ) );
 
 		if ( empty( $results ) ) {
 			$data = array(
@@ -174,8 +166,9 @@ final class CustomersOptimizer {
 			return $data;
 		}
 
-		if ( $search !== '' ) {
-			$total_query = $wpdb->prepare(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Counterpart of the SELECT above; cached with it.
+		$total = (int) $wpdb->get_var(
+			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
             WHERE u.ID > 1
@@ -183,16 +176,8 @@ final class CustomersOptimizer {
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)",
 				$search_like,
 				$search_like
-			);
-		} else {
-			$total_query = "SELECT COUNT(DISTINCT u.ID)
-            FROM {$wpdb->users} u
-            WHERE u.ID > 1
-                AND u.user_login != 'admin'";
-		}
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared conditionally above.
-		$total = (int) $wpdb->get_var( $total_query );
+			)
+		);
 
 		// Format data
 		$currency  = CurrencyHelper::get_currency_symbol();
@@ -244,8 +229,10 @@ final class CustomersOptimizer {
 		global $wpdb;
 
 		// Customer statistics from WordPress users.
-		$query = $wpdb->prepare(
-			"
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
+		$result = $wpdb->get_row(
+			$wpdb->prepare(
+				"
             SELECT 
                 COUNT(DISTINCT u.ID) as total_customers,
                 COUNT(DISTINCT CASE 
@@ -268,11 +255,9 @@ final class CustomersOptimizer {
                 AND u.user_email != '' 
                 AND u.user_email IS NOT NULL
         ",
-			gmdate( 'Y-m-01 00:00:00' )
+				gmdate( 'Y-m-01 00:00:00' )
+			)
 		);
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$result = $wpdb->get_row( $query );
 
 		// Calculate monthly average (last 3 months)
 		$monthly_avg = self::calculate_monthly_average();
@@ -314,8 +299,10 @@ final class CustomersOptimizer {
 		}
 
 		// Customer details and booking statistics in single query
-		$query = $wpdb->prepare(
-			"
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cross-table aggregate with no core API; the result is cached below.
+		$result = $wpdb->get_row(
+			$wpdb->prepare(
+				"
             SELECT 
                 u.ID,
                 u.display_name,
@@ -342,11 +329,9 @@ final class CustomersOptimizer {
             WHERE u.ID = %d
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
         ",
-			$customer_id
+				$customer_id
+			)
 		);
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$result = $wpdb->get_row( $query );
 
 		if ( ! $result ) {
 			return null;
@@ -395,8 +380,10 @@ final class CustomersOptimizer {
 		$start_date = sprintf( '%04d-%02d-01', $year, $month );
 		$end_date   = sprintf( '%04d-%02d-%02d', $year, $month, gmdate( 't', (int) mktime( 0, 0, 0, $month, 1, $year ) ) );
 
-		$query = $wpdb->prepare(
-			"
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Date aggregate over booking posts; the result is cached below.
+		$results = $wpdb->get_col(
+			$wpdb->prepare(
+				"
             SELECT DISTINCT DAY(p.post_date) as day
             FROM {$wpdb->posts} p
             WHERE p.post_type = 'vehicle_booking'
@@ -405,12 +392,10 @@ final class CustomersOptimizer {
                 AND p.post_date <= %s
             ORDER BY day
         ",
-			$start_date,
-			$end_date . ' 23:59:59'
+				$start_date,
+				$end_date . ' 23:59:59'
+			)
 		);
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$results = $wpdb->get_col( $query );
 		$days    = array_map( 'intval', $results );
 
 		// Save to cache (1 hour)
@@ -519,7 +504,9 @@ final class CustomersOptimizer {
 		global $wpdb;
 
 		// Get customer registration counts for last 3 months (WordPress user registration dates).
-		$query = "
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate report query; cached by the caller.
+		$results = $wpdb->get_results(
+			"
             SELECT 
                 YEAR(u.user_registered) as year,
                 MONTH(u.user_registered) as month,
@@ -536,10 +523,8 @@ final class CustomersOptimizer {
                 AND u.user_registered >= DATE_SUB(NOW(), INTERVAL 3 MONTH)
             GROUP BY YEAR(u.user_registered), MONTH(u.user_registered)
             ORDER BY year DESC, month DESC
-        ";
-
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Read-only aggregate report query.
-		$results = $wpdb->get_results( $query );
+        "
+		);
 
 		if ( empty( $results ) ) {
 			return 0.0;
@@ -562,8 +547,10 @@ final class CustomersOptimizer {
 		global $wpdb;
 
 		// Compare this month and last month customer registration counts.
-		$current_month_query = $wpdb->prepare(
-			"
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate report query; cached by the caller.
+		$current_month = $wpdb->get_var(
+			$wpdb->prepare(
+				"
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
@@ -576,13 +563,14 @@ final class CustomersOptimizer {
                 AND u.user_login != 'admin'
                 AND u.user_registered >= %s
         ",
-			gmdate( 'Y-m-01 00:00:00' )
+				gmdate( 'Y-m-01 00:00:00' )
+			)
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$current_month = $wpdb->get_var( $current_month_query );
 
-		$last_month_query = $wpdb->prepare(
-			"
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only aggregate report query; cached by the caller.
+		$last_month = $wpdb->get_var(
+			$wpdb->prepare(
+				"
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
@@ -596,10 +584,9 @@ final class CustomersOptimizer {
                 AND u.user_registered >= DATE_FORMAT(DATE_SUB(NOW(), INTERVAL 1 MONTH), '%%Y-%%m-01')
                 AND u.user_registered < %s
         ",
-			gmdate( 'Y-m-01 00:00:00' )
+				gmdate( 'Y-m-01 00:00:00' )
+			)
 		);
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with $wpdb->prepare().
-		$last_month = $wpdb->get_var( $last_month_query );
 
 		if ( $last_month > 0 ) {
 			$trend = ( ( $current_month - $last_month ) / $last_month ) * 100;
@@ -618,22 +605,20 @@ final class CustomersOptimizer {
 	public static function create_database_indexes(): bool {
 		global $wpdb;
 
-		$indexes = array(
-			"CREATE INDEX IF NOT EXISTS idx_postmeta_customer_email ON {$wpdb->postmeta} (meta_key, meta_value(50))",
-			"CREATE INDEX IF NOT EXISTS idx_postmeta_booking_price ON {$wpdb->postmeta} (post_id, meta_key)",
-			"CREATE INDEX IF NOT EXISTS idx_usermeta_customer_phone ON {$wpdb->usermeta} (user_id, meta_key)",
-			"CREATE INDEX IF NOT EXISTS idx_posts_booking_date ON {$wpdb->posts} (post_type, post_status, post_date)",
+		// DDL cannot be parameterised, so each statement is written out in full
+		// where it runs: index names and column lists are fixed text and the only
+		// interpolation is $wpdb's own table properties.
+		$results = array(
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
+			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_postmeta_customer_email ON {$wpdb->postmeta} (meta_key, meta_value(50))" ),
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
+			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_postmeta_booking_price ON {$wpdb->postmeta} (post_id, meta_key)" ),
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
+			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_usermeta_customer_phone ON {$wpdb->usermeta} (user_id, meta_key)" ),
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
+			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_posts_booking_date ON {$wpdb->posts} (post_type, post_status, post_date)" ),
 		);
 
-		$success = true;
-		foreach ( $indexes as $index_query ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- DDL statement (CREATE INDEX) cannot use prepare.
-			$result = $wpdb->query( $index_query );
-			if ( $result === false ) {
-				$success = false;
-			}
-		}
-
-		return $success;
+		return ! in_array( false, $results, true );
 	}
 }

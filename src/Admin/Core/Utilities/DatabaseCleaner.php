@@ -366,8 +366,7 @@ final class DatabaseCleaner {
 	public static function find_invalid_meta_keys(): array {
 		global $wpdb;
 
-		$valid_keys   = self::get_valid_meta_keys();
-		$placeholders = implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) );
+		$valid_keys = self::get_valid_meta_keys();
 
 		$invalid_keys = $wpdb->get_results(
 			$wpdb->prepare(
@@ -375,11 +374,11 @@ final class DatabaseCleaner {
             SELECT DISTINCT meta_key, COUNT(*) as count
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s
-            AND meta_key NOT IN ({$placeholders})
+            AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $valid_keys ), '%s' ) ) . ')
             GROUP BY meta_key
             ORDER BY count DESC
             LIMIT 50
-        ",
+        ',
 				array_merge( array( '_mhm%' ), $valid_keys )
 			),
 			ARRAY_A
@@ -417,38 +416,33 @@ final class DatabaseCleaner {
 		}
 
 		// Create backup table
-		$backup_table         = $wpdb->prefix . 'mhm_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
-		$backup_table_escaped = esc_sql( $backup_table );
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names cannot be prepared, $backup_table_escaped and $wpdb->postmeta are safe.
-		$wpdb->query( "CREATE TABLE `{$backup_table_escaped}` LIKE `{$wpdb->postmeta}`" );
+		$backup_table = $wpdb->prefix . 'mhm_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
+		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 		// Extract meta keys
 		$invalid_keys = array_column( $invalid_data['keys'], 'meta_key' );
-		$placeholders = implode( ',', array_fill( 0, count( $invalid_keys ), '%s' ) );
 
 		// Backup invalid meta data
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names cannot be prepared, variables are safe.
 		$wpdb->query(
 			$wpdb->prepare(
 				"
-            INSERT INTO `{$backup_table}`
+            INSERT INTO %i
             SELECT pm.*
-            FROM `{$wpdb->postmeta}` pm
-            WHERE pm.meta_key IN ({$placeholders})
-        ",
-				$invalid_keys
+            FROM {$wpdb->postmeta} pm
+            WHERE pm.meta_key IN (" . implode( ',', array_fill( 0, count( $invalid_keys ), '%s' ) ) . ')
+        ',
+				array_merge( array( $backup_table ), $invalid_keys )
 			)
 		);
 
 		// Delete invalid meta keys
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name and keys are safe.
 		$deleted = $wpdb->query(
 			$wpdb->prepare(
 				"
             DELETE pm
-            FROM `{$wpdb->postmeta}` pm
-            WHERE pm.meta_key IN ({$placeholders})
-        ",
+            FROM {$wpdb->postmeta} pm
+            WHERE pm.meta_key IN (" . implode( ',', array_fill( 0, count( $invalid_keys ), '%s' ) ) . ')
+        ',
 				$invalid_keys
 			)
 		);
@@ -497,7 +491,7 @@ final class DatabaseCleaner {
 			}
 
 			// Get table information
-			$row_count  = $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name}" );
+			$row_count  = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name ) );
 			$table_size = $wpdb->get_var(
 				$wpdb->prepare(
 					'
@@ -541,23 +535,25 @@ final class DatabaseCleaner {
 		if ( ! $dry_run && $count > 0 ) {
 			// Create backup table
 			$backup_table = $wpdb->prefix . 'mhm_postmeta_backup_' . gmdate( 'Ymd_His' );
-			// Cannot use prepare() for table names
-			$wpdb->query( "CREATE TABLE `{$backup_table}` LIKE `{$wpdb->postmeta}`" );
+			$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 			// Backup orphaned data
 			$wpdb->query(
-				"
-                INSERT INTO `{$backup_table}`
+				$wpdb->prepare(
+					"
+                INSERT INTO %i
                 SELECT pm.*
-                FROM `{$wpdb->postmeta}` pm
-                LEFT JOIN `{$wpdb->posts}` p ON pm.post_id = p.ID
+                FROM {$wpdb->postmeta} pm
+                LEFT JOIN {$wpdb->posts} p ON pm.post_id = p.ID
                 WHERE p.ID IS NULL
-                AND pm.meta_key LIKE '_mhm%'
-            "
+                AND pm.meta_key LIKE %s
+            ",
+					$backup_table,
+					'_mhm%'
+				)
 			);
 
 			// Delete orphaned meta
-			// Cannot use prepare() for table names in DELETE queries
 			$deleted = $wpdb->query(
 				"
                 DELETE pm
@@ -677,42 +673,28 @@ final class DatabaseCleaner {
 				continue;
 			}
 
-			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table/column are constrained by internal whitelist.
 			$count = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(*) FROM `{$table_name}` WHERE `{$date_column}` < %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Dynamic identifiers are internally constrained.
-					$cutoff_date
-				)
+				$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE %i < %s', $table_name, $date_column, $cutoff_date )
 			);
 
 			if ( ! $dry_run && $count > 0 ) {
 				// Create backup
-				$backup_table         = $table_name . '_backup_' . gmdate( 'Ymd_His' );
-				$backup_table_escaped = esc_sql( $backup_table );
-				$table_name_escaped   = esc_sql( $table_name );
-				$date_column_escaped  = esc_sql( $date_column );
+				$backup_table = $table_name . '_backup_' . gmdate( 'Ymd_His' );
 
-				$wpdb->query( "CREATE TABLE `{$backup_table_escaped}` LIKE `{$table_name_escaped}`" );
+				$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $table_name ) );
 				$wpdb->query(
 					$wpdb->prepare(
-						"
-                    INSERT INTO `{$backup_table_escaped}`
-                    SELECT * FROM `{$table_name_escaped}`
-                    WHERE `{$date_column_escaped}` < %s
-                ",
+						'INSERT INTO %i SELECT * FROM %i WHERE %i < %s',
+						$backup_table,
+						$table_name,
+						$date_column,
 						$cutoff_date
 					)
 				);
 
 				// Delete old records
 				$deleted = $wpdb->query(
-					$wpdb->prepare(
-						"
-                    DELETE FROM `{$table_name_escaped}`
-                    WHERE `{$date_column_escaped}` < %s
-                ",
-						$cutoff_date
-					)
+					$wpdb->prepare( 'DELETE FROM %i WHERE %i < %s', $table_name, $date_column, $cutoff_date )
 				);
 
 				$results[ $key ] = array(
@@ -813,17 +795,14 @@ final class DatabaseCleaner {
 
 		foreach ( $tables as $table ) {
 			// Check if table exists
-			// Cannot use prepare() for table names - escape manually
-			$table_escaped = esc_sql( $table );
-			$table_exists  = $wpdb->get_var( "SHOW TABLES LIKE '{$table_escaped}'" );
+			$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
 
 			if ( ! $table_exists ) {
 				continue;
 			}
 
-			$start_time = microtime( true );
-			// Cannot use prepare() for table names in OPTIMIZE TABLE
-			$result         = $wpdb->query( "OPTIMIZE TABLE `{$table_escaped}`" );
+			$start_time     = microtime( true );
+			$result         = $wpdb->query( $wpdb->prepare( 'OPTIMIZE TABLE %i', $table ) );
 			$execution_time = microtime( true ) - $start_time;
 
 			$results[ $table ] = array(
@@ -1098,16 +1077,17 @@ final class DatabaseCleaner {
 
 		foreach ( $backup_tables as $table_name ) {
 			// Get table info
-			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Backup table names are discovered from database and treated as trusted maintenance identifiers.
-			$row_count = $wpdb->get_var( "SELECT COUNT(*) FROM `{$table_name}`" );
-			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Backup table names are discovered from database and treated as trusted maintenance identifiers.
+			$row_count  = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table_name ) );
 			$table_size = $wpdb->get_var(
-				"
+				$wpdb->prepare(
+					'
                 SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) as size_mb
                 FROM information_schema.TABLES
                 WHERE table_schema = DATABASE()
-                AND table_name = '{$table_name}'
-            "
+                AND table_name = %s
+            ',
+					$table_name
+				)
 			);
 
 			// Parse backup type from table name
@@ -1181,16 +1161,14 @@ final class DatabaseCleaner {
 		}
 
 		// Get table structure
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
-		$create_table = $wpdb->get_row( "SHOW CREATE TABLE `{$table_name}`", ARRAY_A );
+		$create_table = $wpdb->get_row( $wpdb->prepare( 'SHOW CREATE TABLE %i', $table_name ), ARRAY_A );
 		$sql          = "-- Backup Export: {$table_name}\n";
 		$sql         .= '-- Generated: ' . gmdate( 'Y-m-d H:i:s' ) . "\n\n";
 		$sql         .= "DROP TABLE IF EXISTS `{$table_name}`;\n";
 		$sql         .= $create_table['Create Table'] . ";\n\n";
 
 		// Get all rows
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
-		$rows = $wpdb->get_results( "SELECT * FROM `{$table_name}`", ARRAY_A );
+		$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i', $table_name ), ARRAY_A );
 
 		if ( ! empty( $rows ) ) {
 			$sql   .= "INSERT INTO `{$table_name}` VALUES\n";
@@ -1245,17 +1223,20 @@ final class DatabaseCleaner {
 		}
 
 		// Restore data
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Source and target table names are derived from vetted backup naming conventions and existence checks.
 		$restored = $wpdb->query(
-			"
-            INSERT INTO `{$target_table}`
-            SELECT * FROM `{$backup_table}`
+			$wpdb->prepare(
+				'
+            INSERT INTO %i
+            SELECT * FROM %i
             ON DUPLICATE KEY UPDATE
                 meta_id = VALUES(meta_id),
                 post_id = VALUES(post_id),
                 meta_key = VALUES(meta_key),
                 meta_value = VALUES(meta_value)
-        "
+        ',
+				$target_table,
+				$backup_table
+			)
 		);
 
 		return array(
@@ -1287,8 +1268,7 @@ final class DatabaseCleaner {
 		}
 
 		// Delete table
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Name matched in full against list_backups(), the plugin's own {prefix}mhm_%_backup% enumeration.
-		$deleted = $wpdb->query( "DROP TABLE IF EXISTS `{$table_name}`" );
+		$deleted = $wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table_name ) );
 
 		return array(
 			'success' => $deleted !== false,
@@ -1363,8 +1343,7 @@ final class DatabaseCleaner {
 
 		foreach ( $existing_tables as $table ) {
 			// Table structure
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names cannot be prepared and are verified existing tables above.
-			$create_table = $wpdb->get_row( "SHOW CREATE TABLE `{$table}`", ARRAY_A );
+			$create_table = $wpdb->get_row( $wpdb->prepare( 'SHOW CREATE TABLE %i', $table ), ARRAY_A );
 			if ( ! $create_table ) {
 				continue;
 			}
@@ -1374,7 +1353,7 @@ final class DatabaseCleaner {
 			$sql_content .= $create_table['Create Table'] . ";\n\n";
 
 			// Table data
-			$rows = $wpdb->get_results( "SELECT * FROM `{$table}`", ARRAY_A );
+			$rows = $wpdb->get_results( $wpdb->prepare( 'SELECT * FROM %i', $table ), ARRAY_A );
 			if ( ! empty( $rows ) ) {
 				$sql_content .= "INSERT INTO `{$table}` VALUES\n";
 				$values       = array();
@@ -1409,9 +1388,9 @@ final class DatabaseCleaner {
 		$backup_table = $wpdb->prefix . 'mhm_backup_records';
 
 		// Create backup records table if it doesn't exist
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Internal maintenance table name based on plugin prefix.
 		$wpdb->query(
-			"CREATE TABLE IF NOT EXISTS `{$backup_table}` (
+			$wpdb->prepare(
+				"CREATE TABLE IF NOT EXISTS %i (
             `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
             `backup_name` varchar(255) NOT NULL,
             `backup_type` varchar(50) NOT NULL DEFAULT 'full',
@@ -1423,7 +1402,9 @@ final class DatabaseCleaner {
             PRIMARY KEY (`id`),
             KEY `backup_name` (`backup_name`),
             KEY `backup_type` (`backup_type`)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci",
+				$backup_table
+			)
 		);
 
 		// Insert record
@@ -1470,13 +1451,15 @@ final class DatabaseCleaner {
 		$backup_table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $backup_table ) );
 
 		if ( $backup_table_exists ) {
-			// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- Internal maintenance table name based on plugin prefix and existence check.
 			$records = $wpdb->get_results(
-				"
-                SELECT * FROM `{$backup_table}`
+				$wpdb->prepare(
+					"
+                SELECT * FROM %i
                 WHERE backup_type = 'full'
                 ORDER BY created_at DESC
             ",
+					$backup_table
+				),
 				ARRAY_A
 			);
 

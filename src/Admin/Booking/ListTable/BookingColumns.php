@@ -1817,23 +1817,21 @@ final class BookingColumns {
 
 			if ( ! empty( $vehicle_ids ) ) {
 				// Collect bookings for those vehicles
-				$vehicle_ids             = array_values( array_map( 'intval', $vehicle_ids ) );
-				$vehicle_ids_placeholder = implode( ', ', array_fill( 0, count( $vehicle_ids ), '%d' ) );
-				$booking_query_sql       = "
+				$vehicle_ids = array_values( array_map( 'intval', $vehicle_ids ) );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin list-table filter lookup; there is no core API for a meta-value IN () search.
+				$booking_ids = $wpdb->get_col(
+					$wpdb->prepare(
+						"
 					SELECT DISTINCT p.ID
 					FROM {$wpdb->posts} p
 					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
 					WHERE p.post_type = 'vehicle_booking'
 						AND p.post_status = 'publish'
 						AND pm.meta_key IN ('_booking_vehicle_id', '_mhm_vehicle_id')
-						AND pm.meta_value IN ({$vehicle_ids_placeholder})
-				";
-				$prepared_booking_query  =
-					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Dynamic IN placeholder list is prepared with integer-only values.
-					$wpdb->prepare( $booking_query_sql, $vehicle_ids );
-				$booking_ids = $wpdb->get_col(
-					// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Prepared dynamic IN query for admin list filter lookup.
-					$prepared_booking_query
+						AND pm.meta_value IN (" . implode( ', ', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
+				',
+						$vehicle_ids
+					)
 				);
 
 				if ( ! empty( $booking_ids ) ) {

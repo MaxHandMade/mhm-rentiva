@@ -156,15 +156,14 @@ final class QueueManager {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		$job = $wpdb->get_row(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
-				"SELECT * FROM {$table_name}
-             WHERE status = %s 
+				'SELECT * FROM %i
+             WHERE status = %s
              AND attempts < max_attempts
-             ORDER BY priority ASC, created_at ASC 
-             LIMIT 1",
+             ORDER BY priority ASC, created_at ASC
+             LIMIT 1',
+				$table_name,
 				self::STATUS_PENDING
 			),
 			ARRAY_A
@@ -280,13 +279,8 @@ final class QueueManager {
 
 		$table_name = self::get_table_name();
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		$job = $wpdb->get_row(
-			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
-				"SELECT * FROM {$table_name} WHERE id = %d",
-				$job_id
-			),
+			$wpdb->prepare( 'SELECT * FROM %i WHERE id = %d', $table_name, $job_id ),
 			ARRAY_A
 		);
 
@@ -309,14 +303,13 @@ final class QueueManager {
 		$table_name = self::get_table_name();
 
 		if ( $status !== '' ) {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 			$jobs = $wpdb->get_results(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
-					"SELECT * FROM {$table_name}
+					'SELECT * FROM %i
 					 WHERE user_id = %d AND status = %s
 					 ORDER BY created_at DESC
-					 LIMIT %d",
+					 LIMIT %d',
+					$table_name,
 					$user_id,
 					$status,
 					$limit
@@ -324,14 +317,13 @@ final class QueueManager {
 				ARRAY_A
 			);
 		} else {
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 			$jobs = $wpdb->get_results(
 				$wpdb->prepare(
-					// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
-					"SELECT * FROM {$table_name}
+					'SELECT * FROM %i
 					 WHERE user_id = %d
 					 ORDER BY created_at DESC
-					 LIMIT %d",
+					 LIMIT %d',
+					$table_name,
 					$user_id,
 					$limit
 				),
@@ -355,8 +347,9 @@ final class QueueManager {
 
 		$table_name = self::get_table_name();
 
-		$stats_query = $wpdb->prepare(
-			"SELECT 
+		$stats = $wpdb->get_row(
+			$wpdb->prepare(
+				"SELECT
                 COUNT(*) as total_jobs,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending_jobs,
                 SUM(CASE WHEN status = 'processing' THEN 1 ELSE 0 END) as processing_jobs,
@@ -365,11 +358,8 @@ final class QueueManager {
                 SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_jobs,
                 AVG(progress_percent) as avg_progress
              FROM %i",
-			$table_name
-		);
-
-		$stats = $wpdb->get_row(
-			$stats_query, // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is already prepared with %i placeholder above.
+				$table_name
+			),
 			ARRAY_A
 		);
 
@@ -385,13 +375,12 @@ final class QueueManager {
 		$table_name  = self::get_table_name();
 		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized in get_table_name().
 		return $wpdb->query(
 			$wpdb->prepare(
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Table name is sanitized.
-				"DELETE FROM {$table_name}
-             WHERE status IN (%s, %s) 
-             AND completed_at < %s",
+				'DELETE FROM %i
+             WHERE status IN (%s, %s)
+             AND completed_at < %s',
+				$table_name,
 				self::STATUS_COMPLETED,
 				self::STATUS_CANCELLED,
 				$cutoff_date

@@ -124,28 +124,22 @@ class QueryHelper {
         }
 
         if ($loc_table !== null) {
-            $id_placeholders = implode(',', array_fill(0, count($ids), '%d'));
-            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($ids); table name passed via %i; values via prepare().
+            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Add-on table has no core API; the result feeds a single request's search.
             $cities = $wpdb->get_col(
                 $wpdb->prepare(
-                    "SELECT DISTINCT city FROM %i WHERE id IN ({$id_placeholders}) AND city <> ''",
-                    $loc_table,
-                    ...$ids
+                    'SELECT DISTINCT city FROM %i WHERE id IN (' . implode(',', array_fill(0, count($ids), '%d')) . ") AND city <> ''",
+                    array_merge(array( $loc_table ), $ids)
                 )
             );
-            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
             if (! empty($cities)) {
-                $city_placeholders = implode(',', array_fill(0, count($cities), '%s'));
-                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Dynamic IN placeholder list generated from count($cities); table name passed via %i; values via prepare().
+                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Add-on table has no core API; the result feeds a single request's search.
                 $expanded_ids = $wpdb->get_col(
                     $wpdb->prepare(
-                        "SELECT id FROM %i WHERE city IN ({$city_placeholders})",
-                        $loc_table,
-                        ...$cities
+                        'SELECT id FROM %i WHERE city IN (' . implode(',', array_fill(0, count($cities), '%s')) . ')',
+                        array_merge(array( $loc_table ), $cities)
                     )
                 );
-                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
                 if (! empty($expanded_ids)) {
                     $ids = array_map('intval', $expanded_ids);
                 }
@@ -156,7 +150,6 @@ class QueryHelper {
         $vendor_loc_key = MetaKeys::VENDOR_LOCATION_ID;
         $global_default = (int) SettingsCore::get('mhm_rentiva_default_rental_location', 0);
 
-        $in_clause    = implode(', ', array_fill(0, count($ids), '%d'));
         $prepare_args = array_merge(
             array( $loc_meta_key ),
             $ids,
@@ -173,7 +166,9 @@ class QueryHelper {
          * 2. OR: If vehicle has NO location meta, inherit from author (vendor) meta (_mhm_rentiva_vendor_location_id)
          * 3. OR: If neither vehicle nor author has location meta, inherit from Global Default (Option)
          */
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN placeholder lists are generated from count($ids); all values are passed via $wpdb->prepare().
+        // Each IN list is generated inline from count($ids) so the number of
+        // placeholders is visibly tied to the number of values, and every value
+        // -- including the global-default id -- goes through prepare().
         return $wpdb->prepare(
             " AND (
                 /* 1. Direct match on vehicle meta */
@@ -181,7 +176,7 @@ class QueryHelper {
                     SELECT 1 FROM {$wpdb->postmeta} as loc_meta
                     WHERE loc_meta.post_id = {$wpdb->posts}.ID
                     AND loc_meta.meta_key = %s
-                    AND loc_meta.meta_value IN ({$in_clause})
+                    AND loc_meta.meta_value IN (" . implode(', ', array_fill(0, count($ids), '%d')) . ")
                 )
                 /* 2. Inherit from Vendor (Author) if vehicle meta is empty/missing */
                 OR (
@@ -196,7 +191,7 @@ class QueryHelper {
                             SELECT 1 FROM {$wpdb->usermeta} as vendor_meta
                             WHERE vendor_meta.user_id = {$wpdb->posts}.post_author
                             AND vendor_meta.meta_key = %s
-                            AND vendor_meta.meta_value IN ({$in_clause})
+                            AND vendor_meta.meta_value IN (" . implode(', ', array_fill(0, count($ids), '%d')) . ")
                         )
                         /* 3. Fallback to Global Default if no vendor meta exists */
                         OR (
@@ -206,13 +201,12 @@ class QueryHelper {
                                 AND vendor_exists.meta_key = %s
                                 AND vendor_exists.meta_value != ''
                             )
-                            AND %d IN ({$in_clause})
+                            AND %d IN (" . implode(', ', array_fill(0, count($ids), '%d')) . ')
                         )
                     )
                 )
-            )",
-            ...$prepare_args
+            )',
+            $prepare_args
         );
-        // phpcs:enable
     }
 }

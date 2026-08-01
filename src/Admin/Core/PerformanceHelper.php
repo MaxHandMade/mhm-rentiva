@@ -116,20 +116,26 @@ final class PerformanceHelper {
 			return 0;
 		}
 
-		$tag_conditions = array();
+		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
+		$deleted     = 0;
+
+		// One statement per tag rather than an OR-list glued together in PHP:
+		// the OR-list made the query text depend on a variable, and a row that
+		// carries two of the tags is already gone by the second pass, so the
+		// total is the same set of rows and the same count as the single
+		// combined DELETE returned.
 		foreach ( $tags as $tag ) {
-			$tag_conditions[] = $wpdb->prepare( 'option_value LIKE %s', '%"' . $tag . '"%' );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache index invalidation requires direct transient row cleanup.
+			$deleted += (int) $wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND option_value LIKE %s",
+					$prefix_like,
+					'%"' . $tag . '"%'
+				)
+			);
 		}
 
-		$prefix_like = $wpdb->esc_like( '_transient_' . self::CACHE_PREFIX ) . '%';
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Cache index invalidation requires direct transient row cleanup.
-		return $wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s AND (" . implode( ' OR ', $tag_conditions ) . ')', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared
-				$prefix_like
-			)
-		);
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		return $deleted;
 	}
 
 	/**
@@ -194,34 +200,31 @@ final class PerformanceHelper {
 			return array();
 		}
 
-		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
-		$posts = $wpdb->get_results(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loader exists precisely to replace per-post queries; caching is done by the caller.
+		$posts       = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT ID, post_title, post_excerpt, post_name, post_status
             FROM {$wpdb->posts}
-            WHERE ID IN ({$ids_placeholders})
+            WHERE ID IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
             AND post_type = 'vehicle'
         ",
-				...$vehicle_ids
+				$vehicle_ids
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$posts_by_id = array();
 		foreach ( $posts as $post ) {
 			$posts_by_id[ $post['ID'] ] = $post;
 		}
 
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
-		$meta_data = $wpdb->get_results(
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loader exists precisely to replace per-post queries; caching is done by the caller.
+		$meta_data       = $wpdb->get_results(
 			$wpdb->prepare(
 				"
             SELECT post_id, meta_key, meta_value
             FROM {$wpdb->postmeta}
-            WHERE post_id IN ({$ids_placeholders})
+            WHERE post_id IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
             AND meta_key IN (
                 '_mhm_rentiva_daily_price',
                 '_mhm_rentiva_price_per_day',
@@ -237,11 +240,10 @@ final class PerformanceHelper {
                 '_thumbnail_id'
             )
         ",
-				...$vehicle_ids
+				$vehicle_ids
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$meta_by_post_id = array();
 		foreach ( $meta_data as $meta ) {
 			$meta_by_post_id[ $meta['post_id'] ][ $meta['meta_key'] ] = $meta['meta_value'];
@@ -283,11 +285,9 @@ final class PerformanceHelper {
 
 		global $wpdb;
 
-		$ids_placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Placeholder list is generated from trusted integer ID array length.
 		$prepare_params = array_merge( $vehicle_ids, array( $end_date, $start_date ) );
 
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loader exists precisely to replace per-vehicle queries; caching is done by the caller.
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"
@@ -305,16 +305,15 @@ final class PerformanceHelper {
             LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhm_payment_status'
             WHERE p.post_type = 'vehicle_booking'
             AND p.post_status IN ('publish', 'pending', 'confirmed')
-            AND pm_vehicle.meta_value IN ({$ids_placeholders})
+            AND pm_vehicle.meta_value IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
             AND pm_start.meta_value <= %s
             AND pm_end.meta_value >= %s
             ORDER BY pm_vehicle.meta_value, pm_start.meta_value ASC
-        ",
-				...$prepare_params
+        ',
+				$prepare_params
 			),
 			ARRAY_A
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare,WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 
 		// Group by vehicle ID
 		$availability_by_vehicle = array();

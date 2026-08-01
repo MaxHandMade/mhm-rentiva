@@ -606,21 +606,19 @@ final class Util {
 
 		if (! empty($vehicle_ids)) {
 			global $wpdb;
-			$ids_placeholder = implode(',', array_fill(0, count($vehicle_ids), '%d'));
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Dynamic placeholder list is built from integer-only vehicle IDs.
-			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholders are generated from integer-only vehicle IDs.
+			// The IN list is generated inline from count($vehicle_ids) so the
+			// placeholder count is visibly tied to the argument count, and the
+			// IDs go through prepare() as the single replacement array.
 			$meta_results = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT post_id, meta_key, meta_value
                  FROM {$wpdb->postmeta}
-                 WHERE post_id IN ({$ids_placeholder})
+                 WHERE post_id IN (" . implode(',', array_fill(0, count($vehicle_ids), '%d')) . ")
                  AND meta_key IN ('_mhm_rentiva_price_per_day', '_mhm_rentiva_features', '_mhm_rentiva_seats', '_mhm_rentiva_transmission', '_mhm_rentiva_fuel_type')",
-					...$vehicle_ids
+					$vehicle_ids
 				),
 				ARRAY_A
 			);
-			// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
-			// phpcs:enable
 
 			// Organize meta
 			foreach ($meta_results as $meta) {

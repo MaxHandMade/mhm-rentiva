@@ -298,4 +298,93 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'Should return empty array for vehicle_id = 0'
         );
     }
+
+    /**
+     * Test: a guest review is verified through the booking's contact e-mail alone.
+     *
+     * Every other test in this file attaches BOTH `_mhm_customer_user_id` and
+     * `_mhm_contact_email` to its booking, so all of them pass on the user-id
+     * match alone and none of them can tell whether the e-mail match works at
+     * all. This one deliberately leaves the booking without a customer user id
+     * and posts the review as a guest (user_id 0), so the e-mail match is the
+     * only route to "verified".
+     *
+     * @since WP.org T7 Task 9.5
+     */
+    public function test_verified_by_contact_email_when_review_has_no_user(): void
+    {
+        $guest_email = 'guest-reviewer@test.com';
+
+        $booking_id = $this->factory->post->create(array(
+            'post_type'   => 'vehicle_booking',
+            'post_status' => 'publish',
+            'post_title'  => 'Guest Booking',
+        ));
+
+        update_post_meta($booking_id, '_mhm_vehicle_id', $this->vehicle_id);
+        update_post_meta($booking_id, '_mhm_status', Status::COMPLETED);
+        // Deliberately NO _mhm_customer_user_id: e-mail is the only link.
+        update_post_meta($booking_id, '_mhm_contact_email', $guest_email);
+
+        $comment_id = wp_insert_comment(array(
+            'comment_post_ID'      => $this->vehicle_id,
+            'user_id'              => 0,
+            'comment_content'      => 'Booked as a guest.',
+            'comment_approved'     => 1,
+            'comment_type'         => 'review',
+            'comment_author_email' => $guest_email,
+            'comment_author'       => 'Guest Reviewer',
+        ));
+        add_comment_meta($comment_id, 'mhm_rating', 5);
+
+        VerifiedReviewHelper::invalidate_cache($this->vehicle_id);
+
+        $this->assertContains(
+            $comment_id,
+            VerifiedReviewHelper::get_verified_comment_ids_for_vehicle($this->vehicle_id),
+            'A guest review must be verified when a completed booking carries the same contact e-mail.'
+        );
+    }
+
+    /**
+     * Test: the e-mail match is scoped to the vehicle being reviewed.
+     *
+     * Guards the companion risk to the test above: an e-mail-only match that
+     * ignored `_mhm_vehicle_id` would verify a guest review on every vehicle.
+     *
+     * @since WP.org T7 Task 9.5
+     */
+    public function test_contact_email_match_does_not_cross_vehicles(): void
+    {
+        $guest_email = 'other-vehicle-guest@test.com';
+
+        $booking_id = $this->factory->post->create(array(
+            'post_type'   => 'vehicle_booking',
+            'post_status' => 'publish',
+            'post_title'  => 'Guest Booking On Another Vehicle',
+        ));
+
+        update_post_meta($booking_id, '_mhm_vehicle_id', $this->other_vehicle_id);
+        update_post_meta($booking_id, '_mhm_status', Status::COMPLETED);
+        update_post_meta($booking_id, '_mhm_contact_email', $guest_email);
+
+        $comment_id = wp_insert_comment(array(
+            'comment_post_ID'      => $this->vehicle_id,
+            'user_id'              => 0,
+            'comment_content'      => 'Reviewing a vehicle I never booked.',
+            'comment_approved'     => 1,
+            'comment_type'         => 'review',
+            'comment_author_email' => $guest_email,
+            'comment_author'       => 'Guest Reviewer',
+        ));
+        add_comment_meta($comment_id, 'mhm_rating', 5);
+
+        VerifiedReviewHelper::invalidate_cache($this->vehicle_id);
+
+        $this->assertNotContains(
+            $comment_id,
+            VerifiedReviewHelper::get_verified_comment_ids_for_vehicle($this->vehicle_id),
+            'A booking on a different vehicle must not verify this review.'
+        );
+    }
 }

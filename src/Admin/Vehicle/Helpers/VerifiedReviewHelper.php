@@ -194,109 +194,79 @@ class VerifiedReviewHelper {
 			return $override_ids;
 		}
 
-		// Step 4: Single query to find qualifying bookings
-		$status_placeholders = implode( ',', array_fill( 0, count( self::VALID_STATUSES ), '%s' ) );
-
-		// Build conditions for user_id match OR email match
-		$conditions = array();
-		$params     = array();
-
-		// Vehicle ID condition (always)
-		$params[] = $vehicle_id;
+		// Step 4: find qualifying bookings.
+		//
+		// The user-id match and the e-mail match run as two separate statements
+		// rather than one query whose JOINs and WHERE clause are glued together
+		// from PHP fragments. Each statement is a literal, so its
+		// parameterisation is readable where the query is built. The result set
+		// is unchanged: Step 5 credited every returned row additively and
+		// de-duplicated at the end, so a booking that matched on both a user id
+		// and an e-mail is still credited for both -- it simply arrives as one
+		// row in each statement instead of one row carrying both columns. The
+		// LEFT JOINs become INNER JOINs for the same reason: each statement now
+		// requires its own match, and an unmatched row could never satisfy the
+		// IN () test anyway.
+		$matched_user_ids = array();
+		$matched_emails   = array();
 
 		if ( ! empty( $user_ids ) ) {
-			$uid_placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
-			$conditions[]     = "pm_user.meta_value IN ($uid_placeholders)";
-			$params           = array_merge( $params, $user_ids );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking status lives in postmeta; the caller caches the whole result in a transient.
+			$matched_user_ids = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT DISTINCT CAST(pm_user.meta_value AS UNSIGNED)
+					 FROM {$wpdb->posts} p
+					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
+					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+					 INNER JOIN {$wpdb->postmeta} pm_user ON p.ID = pm_user.post_id AND pm_user.meta_key = '_mhm_customer_user_id'
+					 WHERE p.post_type = 'vehicle_booking'
+					   AND p.post_status = 'publish'
+					   AND pm_vid.meta_value = %d
+					   AND pm_user.meta_value IN (" . implode( ',', array_fill( 0, count( $user_ids ), '%d' ) ) . ')
+					   AND pm_status.meta_value IN (' . implode( ',', array_fill( 0, count( self::VALID_STATUSES ), '%s' ) ) . ')',
+					array_merge( array( $vehicle_id ), $user_ids, self::VALID_STATUSES )
+				)
+			);
 		}
 
 		if ( ! empty( $emails ) ) {
-			$email_placeholders = implode( ',', array_fill( 0, count( $emails ), '%s' ) );
-			$conditions[]       = "pm_email.meta_value IN ($email_placeholders)";
-			$params             = array_merge( $params, $emails );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking status lives in postmeta; the caller caches the whole result in a transient.
+			$matched_emails = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT DISTINCT LOWER(pm_email.meta_value)
+					 FROM {$wpdb->posts} p
+					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
+					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+					 INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhm_contact_email'
+					 WHERE p.post_type = 'vehicle_booking'
+					   AND p.post_status = 'publish'
+					   AND pm_vid.meta_value = %d
+					   AND LOWER(pm_email.meta_value) IN (" . implode( ',', array_fill( 0, count( $emails ), '%s' ) ) . ')
+					   AND pm_status.meta_value IN (' . implode( ',', array_fill( 0, count( self::VALID_STATUSES ), '%s' ) ) . ')',
+					array_merge( array( $vehicle_id ), array_map( 'strtolower', $emails ), self::VALID_STATUSES )
+				)
+			);
 		}
 
-		// Status params
-		$params = array_merge( $params, self::VALID_STATUSES );
-
-		// Build query with LEFT JOINs for both user_id and email matching
-		$user_join  = '';
-		$email_join = '';
-		$where_or   = array();
-
-		if ( ! empty( $user_ids ) ) {
-			$uid_placeholders = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
-			$user_join        = "LEFT JOIN {$wpdb->postmeta} pm_user
-				ON p.ID = pm_user.post_id AND pm_user.meta_key = '_mhm_customer_user_id'";
-			$where_or[]       = "pm_user.meta_value IN ($uid_placeholders)";
-		}
-
-		if ( ! empty( $emails ) ) {
-			$email_placeholders = implode( ',', array_fill( 0, count( $emails ), '%s' ) );
-			$email_join         = "LEFT JOIN {$wpdb->postmeta} pm_email
-				ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhm_contact_email'";
-			$where_or[]         = "LOWER(pm_email.meta_value) IN ($email_placeholders)";
-		}
-
-		$or_clause = '(' . implode( ' OR ', $where_or ) . ')';
-
-		// Reset params for clean prepare
-		$query_params   = array();
-		$query_params[] = $vehicle_id; // pm_vid.meta_value
-
-		if ( ! empty( $user_ids ) ) {
-			$query_params = array_merge( $query_params, $user_ids );
-		}
-		if ( ! empty( $emails ) ) {
-			$query_params = array_merge( $query_params, array_map( 'strtolower', $emails ) );
-		}
-		$query_params = array_merge( $query_params, self::VALID_STATUSES );
-
-        // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "
-			SELECT DISTINCT
-				CASE
-					WHEN pm_user.meta_value IS NOT NULL THEN CAST(pm_user.meta_value AS UNSIGNED)
-					ELSE 0
-				END AS matched_user_id,
-				CASE
-					WHEN pm_email.meta_value IS NOT NULL THEN LOWER(pm_email.meta_value)
-					ELSE ''
-				END AS matched_email
-			FROM {$wpdb->posts} p
-			INNER JOIN {$wpdb->postmeta} pm_vid
-				ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
-			INNER JOIN {$wpdb->postmeta} pm_status
-				ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-			{$user_join}
-			{$email_join}
-			WHERE p.post_type = 'vehicle_booking'
-				AND p.post_status = 'publish'
-				AND pm_vid.meta_value = %d
-				AND {$or_clause}
-				AND pm_status.meta_value IN ({$status_placeholders})
-		";
-        // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared and placeholders are bound safely.
-		$results = $wpdb->get_results( $wpdb->prepare( $sql, $query_params ) );
-
-		if ( empty( $results ) ) {
+		if ( empty( $matched_user_ids ) && empty( $matched_emails ) ) {
 			return $override_ids;
 		}
 
 		// Step 5: Map results back to comment IDs
 		$verified_from_booking = array();
 
-		foreach ( $results as $row ) {
-			$matched_uid   = (int) $row->matched_user_id;
-			$matched_email = strtolower( trim( $row->matched_email ) );
+		foreach ( $matched_user_ids as $matched_uid ) {
+			$matched_uid = (int) $matched_uid;
 
 			if ( $matched_uid > 0 && isset( $comment_map_by_user[ $matched_uid ] ) ) {
 				$verified_from_booking = array_merge( $verified_from_booking, $comment_map_by_user[ $matched_uid ] );
 			}
+		}
 
-			if ( ! empty( $matched_email ) && isset( $comment_map_by_email[ $matched_email ] ) ) {
+		foreach ( $matched_emails as $matched_email ) {
+			$matched_email = strtolower( trim( (string) $matched_email ) );
+
+			if ( '' !== $matched_email && isset( $comment_map_by_email[ $matched_email ] ) ) {
 				$verified_from_booking = array_merge( $verified_from_booking, $comment_map_by_email[ $matched_email ] );
 			}
 		}

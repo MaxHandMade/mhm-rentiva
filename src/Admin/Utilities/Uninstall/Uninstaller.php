@@ -99,10 +99,8 @@ final class Uninstaller {
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			if ( $exists ) {
-				// Table name is from internal array, sanitize with esc_sql for safety
-				$safe_table = esc_sql( $table );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe/sanitized.
-				$rows                             = $wpdb->get_var( "SELECT COUNT(*) FROM `{$safe_table}`" );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Plugin-owned table; %i quotes the identifier.
+				$rows                             = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 				$stats['custom_tables'][ $table ] = (int) $rows;
 			}
 		}
@@ -277,10 +275,8 @@ final class Uninstaller {
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			if ( $exists ) {
-				// Table name is from internal array, sanitize with esc_sql for safety
-				$safe_table = esc_sql( $table );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table name is safe/sanitized.
-				$wpdb->query( "DROP TABLE IF EXISTS `{$safe_table}`" );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Uninstall drops the plugin's own tables; %i quotes the identifier.
+				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
 				++$results['tables_dropped'];
 			}
 		}
@@ -296,9 +292,8 @@ final class Uninstaller {
 		foreach ( $orphan_patterns as $pattern ) {
 			$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pattern ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			foreach ( $orphans as $orphan_table ) {
-				$safe_orphan = esc_sql( $orphan_table );
-				// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.DirectDatabaseQuery -- Table identifier sanitized.
-				$wpdb->query( "DROP TABLE IF EXISTS `{$safe_orphan}`" );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Uninstall drops the plugin's own orphan tables; %i quotes the identifier.
+				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $orphan_table ) );
 				++$results['tables_dropped'];
 			}
 		}

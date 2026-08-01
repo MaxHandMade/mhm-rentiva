@@ -485,14 +485,15 @@ final class DashboardService {
 			: $old_loc_table;
 		$locations_table_exists = ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $locations_table ) ) === $locations_table );
 
-		$location_select = $locations_table_exists
-			? ', loc_veh.name as vehicle_location'
-			: ', NULL as vehicle_location';
-		$location_joins  = $locations_table_exists
-			? "LEFT JOIN {$locations_table} loc_veh ON pm_veh_loc.meta_value = loc_veh.id"
-			: '';
-
-		$sql = "SELECT
+		// Two literal statements rather than one whose SELECT list and JOINs are
+		// glued together from PHP fragments: the transfer-locations table is an
+		// add-on feature that may simply not exist, and a JOIN cannot be made
+		// conditional in SQL. Where it does exist its name is bound through %i.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Paginated dashboard list; no core API can express this join.
+		$bookings = $locations_table_exists
+			? $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT
                 p.ID as id,
                 p_veh.post_title as vehicle_title,
                 pm_plate.meta_value as vehicle_plate,
@@ -505,7 +506,7 @@ final class DashboardService {
                 pm_pickup.meta_value as pickup_date,
                 pm_status.meta_value as status,
                 pm_total.meta_value as total_price
-                {$location_select}
+                , loc_veh.name as vehicle_location
              FROM {$wpdb->posts} p
              LEFT JOIN {$wpdb->postmeta} pm_vid     ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
              LEFT JOIN {$wpdb->posts}    p_veh      ON pm_vid.meta_value = p_veh.ID
@@ -518,28 +519,69 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_pickup  ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_status  ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhm_total_price'
-             {$location_joins}
+             LEFT JOIN %i loc_veh ON pm_veh_loc.meta_value = loc_veh.id
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
              ORDER BY pm_pickup.meta_value DESC, p.post_date DESC
-             LIMIT %d OFFSET %d";
-
-		// phpcs:ignore PluginCheck.Security.DirectDB.UnescapedDBParameter -- SQL built from core table names and %s/%d placeholders; values via $wpdb->prepare().
-		$bookings = $wpdb->get_results(
-			$wpdb->prepare(
-				$sql, // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQL.NotPrepared -- SQL is built from safe interpolated table/column strings and %s placeholders only.
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
-				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
-				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_FIRST_NAME,
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
-				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking',
-				$per_page,
-				$offset
-			),
-			ARRAY_A
-		);
+             LIMIT %d OFFSET %d",
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
+					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_FIRST_NAME,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+					$locations_table,
+					'vehicle_booking',
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			)
+			: $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT
+                p.ID as id,
+                p_veh.post_title as vehicle_title,
+                pm_plate.meta_value as vehicle_plate,
+                COALESCE(
+                    NULLIF(TRIM(CONCAT(COALESCE(pm_first.meta_value,''), ' ', COALESCE(pm_last.meta_value,''))), ''),
+                    pm_name.meta_value,
+                    pm_name2.meta_value,
+                    ''
+                ) as customer_name,
+                pm_pickup.meta_value as pickup_date,
+                pm_status.meta_value as status,
+                pm_total.meta_value as total_price
+                , NULL as vehicle_location
+             FROM {$wpdb->posts} p
+             LEFT JOIN {$wpdb->postmeta} pm_vid     ON p.ID = pm_vid.post_id    AND pm_vid.meta_key    = %s
+             LEFT JOIN {$wpdb->posts}    p_veh      ON pm_vid.meta_value = p_veh.ID
+             LEFT JOIN {$wpdb->postmeta} pm_plate   ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_veh_loc ON p_veh.ID = pm_veh_loc.post_id AND pm_veh_loc.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_first   ON p.ID = pm_first.post_id  AND pm_first.meta_key  = %s
+             LEFT JOIN {$wpdb->postmeta} pm_last    ON p.ID = pm_last.post_id   AND pm_last.meta_key   = %s
+             LEFT JOIN {$wpdb->postmeta} pm_name    ON p.ID = pm_name.post_id   AND pm_name.meta_key   = '_mhm_customer_name'
+             LEFT JOIN {$wpdb->postmeta} pm_name2   ON p.ID = pm_name2.post_id  AND pm_name2.meta_key  = '_mhm_contact_name'
+             LEFT JOIN {$wpdb->postmeta} pm_pickup  ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_status  ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+             LEFT JOIN {$wpdb->postmeta} pm_total   ON p.ID = pm_total.post_id  AND pm_total.meta_key  = '_mhm_total_price'
+             
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
+             ORDER BY pm_pickup.meta_value DESC, p.post_date DESC
+             LIMIT %d OFFSET %d",
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
+					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE,
+					\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_FIRST_NAME,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
+					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+					'vehicle_booking',
+					$per_page,
+					$offset
+				),
+				ARRAY_A
+			);
 
 		$bookings = $bookings ?: array();
 

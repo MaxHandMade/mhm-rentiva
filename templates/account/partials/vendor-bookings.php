@@ -124,19 +124,15 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 		<?php
 		global $wpdb;
 
-		$placeholders = implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) );
+		// The status filter is a VALUE, not a clause: an empty string means "no
+		// filter" and is compared in SQL, so the WHERE list stays one literal
+		// string instead of being assembled from PHP fragments. An unrecognised
+		// status is normalised to '' here, which is how the old
+		// isset($status_labels[...]) guard behaved.
+		$status_filter = ( $filter_status !== '' && isset( $status_labels[ $filter_status ] ) ) ? $filter_status : '';
 
-		// Build optional status filter.
-		$status_where = '';
-		$query_params = $vehicle_ids;
-		if ( $filter_status !== '' && isset( $status_labels[ $filter_status ] ) ) {
-			$status_where   = ' AND sm.meta_value = %s';
-			$query_params[] = $filter_status;
-		}
+		$query_params = array_merge( $vehicle_ids, array( $status_filter, $status_filter ) );
 
-		$query_params[] = 50; // LIMIT
-
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- $placeholders and $status_where are assembled only from fixed placeholder fragments above; values passed through $wpdb->prepare().
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT DISTINCT p.ID,
@@ -153,14 +149,13 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 				 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhm_total_price'
 				 WHERE p.post_type = 'vehicle_booking'
 				 AND p.post_status NOT IN ('trash','auto-draft')
-				 AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
-				 {$status_where}
+				 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
+				 AND ( %s = '' OR sm.meta_value = %s )
 				 ORDER BY p.ID DESC
-				 LIMIT %d",
-				...$query_params
+				 LIMIT 50",
+				$query_params
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Count stats (use PHP since we already have results — avoids extra queries).
 		$stats = array(
@@ -172,7 +167,6 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 
 		// For stats, we need unfiltered counts if a filter is active.
 		if ( $filter_status !== '' ) {
-			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- $placeholders is assembled only from fixed %d fragments above.
 			$all_statuses = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT sm.meta_value AS booking_status, tm.meta_value AS total_price
@@ -182,12 +176,11 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // 
 					 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhm_total_price'
 					 WHERE p.post_type = 'vehicle_booking'
 					 AND p.post_status NOT IN ('trash','auto-draft')
-					 AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
-					 LIMIT 500",
-					...$vehicle_ids
+					 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
+					 LIMIT 500',
+					$vehicle_ids
 				)
 			);
-			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 		} else {
 			$all_statuses = $bookings;
 		}

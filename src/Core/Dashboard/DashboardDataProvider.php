@@ -121,8 +121,6 @@ final class DashboardDataProvider {
 				if (empty($vehicle_ids)) {
 					return array( 'total' => 0 );
 				}
-				$placeholders = implode(', ', array_fill(0, count($vehicle_ids), '%d'));
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholder list is generated from the vehicle count; values are passed via $wpdb->prepare().
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregated dashboard metrics are intentionally queried live for the current request.
 				$count = (int) $wpdb->get_var(
 					$wpdb->prepare(
@@ -132,11 +130,10 @@ final class DashboardDataProvider {
 						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status' AND sm.meta_value = 'pending'
 						WHERE p.post_type = 'vehicle_booking'
 						AND p.post_status NOT IN ('trash','auto-draft')
-						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)",
+						AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode(', ', array_fill(0, count($vehicle_ids), '%d')) . ')',
 						$vehicle_ids
 					)
 				);
-				// phpcs:enable
 				return array( 'total' => $count );
 			},
 			'upcoming_rentals'  => static function (string $context, int $user_id, string $user_email): array {
@@ -153,28 +150,24 @@ final class DashboardDataProvider {
 				if (empty($vehicle_ids)) {
 					return array( 'total' => 0 );
 				}
-				$placeholders = implode(', ', array_fill(0, count($vehicle_ids), '%d'));
-				$today        = gmdate('Y-m-d');
-				$active       = array( 'confirmed', 'pending_payment', 'in_progress', 'pending' );
-				$status_ph    = implode(', ', array_fill(0, count($active), '%s'));
-				$args         = array_merge($active, $vehicle_ids, array( $today ));
-				// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN placeholder lists are generated from bounded status/vehicle arrays; values are passed via $wpdb->prepare().
+				$today  = gmdate('Y-m-d');
+				$active = array( 'confirmed', 'pending_payment', 'in_progress', 'pending' );
+				$args   = array_merge($active, $vehicle_ids, array( $today ));
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregated dashboard metrics are intentionally queried live for the current request.
 				$count = (int) $wpdb->get_var(
 					$wpdb->prepare(
 						"SELECT COUNT(DISTINCT p.ID)
 						FROM {$wpdb->posts} p
 						INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
-						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status' AND sm.meta_value IN ($status_ph)
+						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status' AND sm.meta_value IN (" . implode(', ', array_fill(0, count($active), '%s')) . ")
 						INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key IN ('_mhm_pickup_date','_booking_pickup_date')
 						WHERE p.post_type = 'vehicle_booking'
 						AND p.post_status NOT IN ('trash','auto-draft')
-						AND CAST(vm.meta_value AS UNSIGNED) IN ($placeholders)
-						AND dm.meta_value >= %s",
+						AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode(', ', array_fill(0, count($vehicle_ids), '%d')) . ')
+						AND dm.meta_value >= %s',
 						$args
 					)
 				);
-				// phpcs:enable
 				return array( 'total' => $count );
 			},
 			'occupancy_rate'    => static function (string $context, int $user_id, string $user_email): array {
