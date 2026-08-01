@@ -250,14 +250,16 @@ final class ContactForm extends AbstractShortcode {
 
 	public static function ajax_submit_contact_form(): void
 	{
-		try {
-			// Security checks
-			\MHMRentiva\Admin\Core\SecurityHelper::verify_ajax_request_or_die(
-				'mhm_rentiva_contact_form_nonce',
-				'read',
-				__('Security check failed.', 'mhm-rentiva')
-			);
+		// Nonce check is the literal first statement -- before any $_POST/$_FILES
+		// access -- so both the security guarantee and WPCS's own static analysis
+		// can see it directly in this file, with no wrapper indirection to see
+		// through (WP.org T7 finding).
+		if (! check_ajax_referer('mhm_rentiva_contact_form_nonce', 'nonce', false)) {
+			self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
+			return;
+		}
 
+		try {
 			// Rate limiting check
 			$limit_time = 300; // 5 minutes
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
@@ -268,14 +270,43 @@ final class ContactForm extends AbstractShortcode {
 				sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), (int) ceil($limit_time / 60))
 			);
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- SecurityHelper::verify_ajax_request_or_die('mhm_rentiva_contact_form_nonce') runs at the top of this method and wp_send_json_error()s on failure; the sniff cannot see through the wrapper.
-			$form_data = self::sanitize_contact_form_data(wp_unslash(isset($_POST) && is_array($_POST) ? $_POST : array()));
+			// Field-by-field reads: each expected POST key is individually
+			// checked and sanitized here (rather than bulk-passing the whole
+			// $_POST superglobal into a helper the sniff cannot see through).
+			// Sanitizer choice per field mirrors what sanitize_contact_form_data()
+			// itself already applies internally (see that method below) --
+			// this is deliberate double-sanitization-at-the-boundary, not a
+			// change to the real business-logic sanitizers/validators.
+			$post_data = array(
+				'type'           => isset($_POST['type']) ? sanitize_text_field(wp_unslash( (string) $_POST['type'])) : 'general',
+				'name'           => isset($_POST['name']) ? sanitize_text_field(wp_unslash( (string) $_POST['name'])) : '',
+				'email'          => isset($_POST['email']) ? sanitize_email(wp_unslash( (string) $_POST['email'])) : '',
+				'phone'          => isset($_POST['phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['phone'])) : '',
+				'company'        => isset($_POST['company']) ? sanitize_text_field(wp_unslash( (string) $_POST['company'])) : '',
+				'vehicle_id'     => isset($_POST['vehicle_id']) ? absint(wp_unslash($_POST['vehicle_id'])) : 0,
+				'preferred_date' => isset($_POST['preferred_date']) ? sanitize_text_field(wp_unslash( (string) $_POST['preferred_date'])) : '',
+				'priority'       => isset($_POST['priority']) ? sanitize_text_field(wp_unslash( (string) $_POST['priority'])) : '',
+				'rating'         => isset($_POST['rating']) ? absint(wp_unslash($_POST['rating'])) : 0,
+				'message'        => isset($_POST['message']) ? sanitize_textarea_field(wp_unslash( (string) $_POST['message'])) : '',
+				'attachment'     => isset($_POST['attachment']) ? sanitize_text_field(wp_unslash( (string) $_POST['attachment'])) : '',
+				'auto_reply'     => isset($_POST['auto_reply']) ? sanitize_text_field(wp_unslash( (string) $_POST['auto_reply'])) : '1',
+			);
 
-			// Handle file upload
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- SecurityHelper::verify_ajax_request_or_die('mhm_rentiva_contact_form_nonce') runs at the top of this method and wp_send_json_error()s on failure; the sniff cannot see through the wrapper.
+			$form_data = self::sanitize_contact_form_data($post_data);
+
+			// Handle file upload. Each leaf of the $_FILES sub-array is read and
+			// sanitized/cast individually at the point of access (rather than
+			// passing the raw superglobal slice through), matching the same
+			// field-by-field discipline used for $_POST above.
 			if (! empty($_FILES['attachment']['name'])) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce verified at the top of this method (see above); the $_FILES array is validated by handle_file_upload() before anything is read from it.
-				$upload_result = self::handle_file_upload($_FILES['attachment']);
+				$attachment_file = array(
+					'name'     => isset($_FILES['attachment']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['attachment']['name'])) : '',
+					'type'     => isset($_FILES['attachment']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['attachment']['type'])) : '',
+					'tmp_name' => isset($_FILES['attachment']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['attachment']['tmp_name'])) : '',
+					'error'    => isset($_FILES['attachment']['error']) ? (int) $_FILES['attachment']['error'] : UPLOAD_ERR_NO_FILE,
+					'size'     => isset($_FILES['attachment']['size']) ? (int) $_FILES['attachment']['size'] : 0,
+				);
+				$upload_result   = self::handle_file_upload($attachment_file);
 
 				if ($upload_result['success']) {
 					$form_data['attachment'] = $upload_result['url'];
@@ -330,22 +361,38 @@ final class ContactForm extends AbstractShortcode {
 
 	public static function ajax_upload_attachment(): void
 	{
-		try {
-			// Nonce check
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This line IS the nonce check: self::verify_nonce() on the submitted value, failing closed on the next line.
-			if (! self::verify_nonce(isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '')) {
-				self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
-				return;
-			}
+		// Nonce check is the literal first statement -- before any $_FILES
+		// access. The former self::verify_nonce() wrapper indirection (and the
+		// late $_FILES check that used to sit a few lines below it) is gone;
+		// check_ajax_referer() is called directly here so WPCS's own static
+		// analysis can see the guard in this file (WP.org T7 finding). Uses
+		// the same nonce action as ajax_submit_contact_form() -- the one
+		// actually created client-side by get_localized_data() -- rather than
+		// AbstractShortcode::verify_nonce()'s unrelated default action name,
+		// which this dead-from-the-UI (but still wp_ajax_nopriv_-registered,
+		// hence still reachable) endpoint was never actually checking against.
+		if (! check_ajax_referer('mhm_rentiva_contact_form_nonce', 'nonce', false)) {
+			self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
+			return;
+		}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce checked by the self::verify_nonce() guard a few lines above, which returns on failure.
+		try {
 			if (! isset($_FILES['attachment'])) {
 				self::ajax_error(__('File not found.', 'mhm-rentiva'));
 				return;
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Nonce checked by the self::verify_nonce() guard above; the $_FILES array is validated by handle_file_upload().
-			$file          = $_FILES['attachment'];
+			// Each leaf of the $_FILES sub-array is read and sanitized/cast
+			// individually at the point of access (see ajax_submit_contact_form()
+			// for the same pattern), rather than passing the raw superglobal
+			// slice into handle_file_upload().
+			$file          = array(
+				'name'     => isset($_FILES['attachment']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['attachment']['name'])) : '',
+				'type'     => isset($_FILES['attachment']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['attachment']['type'])) : '',
+				'tmp_name' => isset($_FILES['attachment']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['attachment']['tmp_name'])) : '',
+				'error'    => isset($_FILES['attachment']['error']) ? (int) $_FILES['attachment']['error'] : UPLOAD_ERR_NO_FILE,
+				'size'     => isset($_FILES['attachment']['size']) ? (int) $_FILES['attachment']['size'] : 0,
+			);
 			$upload_result = self::handle_file_upload($file);
 
 			if ($upload_result['success']) {
@@ -741,16 +788,23 @@ final class ContactForm extends AbstractShortcode {
 			);
 		}
 
-		// File type check
-		$allowed_types  = array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' );
-		$file_extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+		// Sanitize the client-supplied filename before trusting any part of it.
+		$sanitized_name = sanitize_file_name( (string) ( $file['name'] ?? '' ));
 
-		if (! in_array($file_extension, $allowed_types, true)) {
+		// File type check: never trust $file['type'] (the client-supplied MIME
+		// type) -- validate the real extension via wp_check_filetype() instead.
+		$allowed_types  = array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' );
+		$filetype       = wp_check_filetype($sanitized_name);
+		$file_extension = ! empty($filetype['ext']) ? strtolower($filetype['ext']) : '';
+
+		if ('' === $file_extension || ! in_array($file_extension, $allowed_types, true)) {
 			return array(
 				'success' => false,
 				'message' => __('Invalid file type.', 'mhm-rentiva'),
 			);
 		}
+
+		$file['name'] = $sanitized_name;
 
 		// WordPress upload fonksiyonunu kullan
 		$upload = wp_handle_upload($file, array( 'test_form' => false ));
