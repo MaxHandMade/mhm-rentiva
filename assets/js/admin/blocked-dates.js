@@ -192,9 +192,19 @@
 		} );
 	}
 
+	/**
+	 * JSON.stringify() leaves "<" literal. The save handler runs the notes blob
+	 * through sanitize_textarea_field(), whose strip_tags() would truncate the
+	 * JSON at an unclosed "<" and silently drop every note, so emit "<" as its
+	 * unicode escape instead -- json_decode() turns it back into "<".
+	 */
+	function toSafeJson( value ) {
+		return JSON.stringify( value ).replace( /</g, '\\u003C' );
+	}
+
 	function syncHiddenFields() {
-		$( '#mhm_blocked_dates_value' ).val( JSON.stringify( blockedDates ) );
-		$( '#mhm_blocked_dates_notes_value' ).val( JSON.stringify( blockedNotes ) );
+		$( '#mhm_blocked_dates_value' ).val( toSafeJson( blockedDates ) );
+		$( '#mhm_blocked_dates_notes_value' ).val( toSafeJson( blockedNotes ) );
 	}
 
 	function formatDisplayDate( dateStr ) {

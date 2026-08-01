@@ -89,15 +89,23 @@ final class AddonListTable extends AbstractListTable {
 	}
 
 	/**
+	 * Carry this screen's own filter params across the post-bulk-action redirect,
+	 * on top of the core sort/search vars the base class preserves.
+	 *
+	 * @return array<int, string>
+	 */
+	protected function get_preserved_filter_params(): array {
+		return array_merge( parent::get_preserved_filter_params(), self::PUBLIC_QUERY_VARS );
+	}
+
+	/**
 	 * Validate filter form nonce.
 	 */
 	private static function has_valid_filter_nonce(): bool {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Explicit verification is performed in this method.
 		if ( ! isset( $_GET['mhm_addon_filter_nonce'] ) ) {
 			return false;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Explicit verification is performed in this method.
 		$nonce = sanitize_text_field( wp_unslash( (string) $_GET['mhm_addon_filter_nonce'] ) );
 		return (bool) wp_verify_nonce( $nonce, 'mhm_addon_filter' );
 	}

@@ -1211,7 +1211,6 @@ final class VehicleSettings {
 		if ( $settings_updated ) {
 			update_option( 'mhm_rentiva_settings', $settings );
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -1227,9 +1226,14 @@ final class VehicleSettings {
 	 * dropped from the card/detail selection by sanitize_card_field_selection()).
 	 */
 	private static function save_definitions_payload( VerifiedRequest $req ): void {
-		// phpcs:disable WordPress.Security.NonceVerification.Missing -- Nonce verification is enforced by the caller, ajax_save_settings(), before this helper runs.
+		// Every payload below goes through sanitize_array_option(), which cleans the
+		// array KEY with sanitize_key() as well as the value -- array_map() only ever
+		// reached the values, so a submitted key such as `<script>k</script>` used to
+		// reach update_option() raw (WP.org T4 #6). The same helper is the registered
+		// sanitize_callback for these six options, so the write path and the option
+		// filter now normalize identically instead of one relying on the other.
 		// Save selected fields (Definitions Tab)
-		$selected_details = array_map( 'sanitize_text_field', $req->arr( 'selected_details' ) );
+		$selected_details = self::sanitize_array_option( $req->arr( 'selected_details' ) );
 		// Core fields are always selected - enforce even if disabled checkboxes weren't submitted
 		$core_fields_list = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_core_fields();
 		foreach ( $core_fields_list as $core_key ) {
@@ -1237,13 +1241,13 @@ final class VehicleSettings {
 				$selected_details[] = $core_key;
 			}
 		}
-		$selected_features  = array_map( 'sanitize_text_field', $req->arr( 'selected_features' ) );
-		$selected_equipment = array_map( 'sanitize_text_field', $req->arr( 'selected_equipment' ) );
+		$selected_features  = self::sanitize_array_option( $req->arr( 'selected_features' ) );
+		$selected_equipment = self::sanitize_array_option( $req->arr( 'selected_equipment' ) );
 
 		// Save custom fields
-		$custom_details   = array_map( 'sanitize_text_field', $req->arr( 'custom_details' ) );
-		$custom_features  = array_map( 'sanitize_text_field', $req->arr( 'custom_features' ) );
-		$custom_equipment = array_map( 'sanitize_text_field', $req->arr( 'custom_equipment' ) );
+		$custom_details   = self::sanitize_array_option( $req->arr( 'custom_details' ) );
+		$custom_features  = self::sanitize_array_option( $req->arr( 'custom_features' ) );
+		$custom_equipment = self::sanitize_array_option( $req->arr( 'custom_equipment' ) );
 
 		// REMOVED destructive updated_labels logic.
 		// Renaming is handled by the dedicated ajax_update_field_labels method.
@@ -1264,7 +1268,6 @@ final class VehicleSettings {
 		if ( $req->has( 'custom_equipment' ) ) {
 			update_option( 'mhm_custom_equipment', $custom_equipment );
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Missing
 	}
 
 	/**
@@ -1280,17 +1283,15 @@ final class VehicleSettings {
 		$req = VerifiedRequest::from( $_POST );
 
 		$type = $req->text( 'type' );
-		// Sanitize labels array properly
-		$labels = $req->arr( 'labels' );
 
-		// Sanitize labels
+		// Same key+value sanitizer the definitions payload and the registered
+		// sanitize_callback use: the KEY is an internal field slug, so sanitize_key()
+		// both closes the injection vector and normalizes the spelling the isset()
+		// lookups below match on.
 		$sanitized_labels = array();
-		foreach ( $labels as $key => $label ) {
-			$sanitized_key   = self::sanitize_text_field_safe( $key );
-			$sanitized_label = self::sanitize_text_field_safe( $label );
+		foreach ( self::sanitize_array_option( $req->arr( 'labels' ) ) as $key => $label ) {
 			// Encoding fix - For Turkish characters
-			$sanitized_label                    = mb_convert_encoding( $sanitized_label, 'UTF-8', 'auto' );
-			$sanitized_labels[ $sanitized_key ] = $sanitized_label;
+			$sanitized_labels[ $key ] = mb_convert_encoding( $label, 'UTF-8', 'auto' );
 		}
 
 		// Get existing fields (updated ones)

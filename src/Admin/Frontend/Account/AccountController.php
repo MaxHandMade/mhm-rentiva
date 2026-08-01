@@ -587,9 +587,19 @@ final class AccountController {
 			'application/pdf' => 'pdf',
 		);
 
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File array is validated by wp_handle_upload().
-		$file = isset($_FILES['receipt']) ? wp_unslash($_FILES['receipt']) : array();
-		if (empty($file) || ! isset($file['error']) || $file['error'] !== UPLOAD_ERR_OK) {
+		// Build the upload array field by field, each cleaned on the line that
+		// reads it, instead of handing wp_handle_upload() a raw $_FILES entry.
+		$file = array();
+		if (isset($_FILES['receipt']) && is_array($_FILES['receipt'])) {
+			$file = array(
+				'name'     => isset($_FILES['receipt']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['receipt']['name'])) : '',
+				'type'     => isset($_FILES['receipt']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['receipt']['type'])) : '',
+				'tmp_name' => isset($_FILES['receipt']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['receipt']['tmp_name'])) : '',
+				'error'    => isset($_FILES['receipt']['error']) ? absint(wp_unslash($_FILES['receipt']['error'])) : UPLOAD_ERR_NO_FILE,
+				'size'     => isset($_FILES['receipt']['size']) ? absint(wp_unslash($_FILES['receipt']['size'])) : 0,
+			);
+		}
+		if (empty($file) || $file['error'] !== UPLOAD_ERR_OK) {
 			wp_send_json_error(array( 'message' => __('Upload error.', 'mhm-rentiva') ), 400);
 		}
 

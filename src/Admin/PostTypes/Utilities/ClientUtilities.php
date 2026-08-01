@@ -83,26 +83,23 @@ final class ClientUtilities {
 	 */
 	public static function get_client_info(): array
 	{
-		$request_uri    = '';
-		$request_method = 'GET';
+		// Cleaned on the line that reads the superglobal, so the returned array
+		// never carries a raw value and the check is verifiable where it happens.
+		$request_uri = isset( $_SERVER['REQUEST_URI'] )
+			? esc_url_raw( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) )
+			: '';
 
-		if ( isset( $_SERVER['REQUEST_URI'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is unslashed then escaped with esc_url_raw() on output.
-			$request_uri = wp_unslash( (string) $_SERVER['REQUEST_URI'] );
-		}
-
-		if ( isset( $_SERVER['REQUEST_METHOD'] ) ) {
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Value is unslashed then sanitized with sanitize_text_field() on output.
-			$request_method = wp_unslash( (string) $_SERVER['REQUEST_METHOD'] );
-		}
+		$request_method = isset( $_SERVER['REQUEST_METHOD'] )
+			? sanitize_text_field( wp_unslash( (string) $_SERVER['REQUEST_METHOD'] ) )
+			: 'GET';
 
 		return array(
 			'ip_address'     => self::get_client_ip(),
 			'user_agent'     => self::get_user_agent(),
 			'referer'        => self::get_referer(),
 			'timestamp'      => current_time('mysql'),
-			'request_uri'    => esc_url_raw($request_uri),
-			'request_method' => sanitize_text_field($request_method),
+			'request_uri'    => $request_uri,
+			'request_method' => $request_method,
 		);
 	}
 

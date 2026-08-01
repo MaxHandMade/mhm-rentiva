@@ -26,7 +26,36 @@ final class LogColumns {
 		return sanitize_text_field( (string) $value );
 	}
 
+	/**
+	 * Filter params of the payment-log list screen, registered on WordPress's
+	 * `query_vars` whitelist so get_text() can read them with get_query_var()
+	 * instead of reaching into $_GET.
+	 *
+	 * Same mechanism BookingColumns/VehicleColumns use -- the fix WP.org accepted
+	 * for T4 #11. These are display parameters of a bookmarkable admin URL: they
+	 * change no state, so nonce-gating them would break shareable filtered links,
+	 * and an annotation over a raw superglobal read is not a resolution.
+	 * `post_type` and `orderby`, also read here, are core public query vars.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'mhm_log_gateway',
+		'mhm_log_status',
+	);
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Registered public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars( array $vars ): array {
+		return array_values( array_unique( array_merge( $vars, self::PUBLIC_QUERY_VARS ) ) );
+	}
+
 	public static function register(): void {
+		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'manage_edit-' . PostType::TYPE . '_columns', array( self::class, 'columns' ) );
 		add_action( 'manage_' . PostType::TYPE . '_posts_custom_column', array( self::class, 'render' ), 10, 2 );
 		add_action( 'restrict_manage_posts', array( self::class, 'filters' ) );
@@ -164,13 +193,21 @@ final class LogColumns {
 		}
 	}
 
+	/**
+	 * Read a filter param off the `query_vars` whitelist (see PUBLIC_QUERY_VARS).
+	 *
+	 * WP::parse_request() preserves arrays for registered query vars, so a
+	 * `?mhm_log_status[]=x` request would hand an array to a reader typed as
+	 * string; the is_array() guard keeps that from raising a live
+	 * "Array to string conversion" warning.
+	 */
 	private static function get_text( string $key, string $default = '' ): string {
-		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw || false === $raw ) {
+		$value = get_query_var( $key, null );
+		if ( null === $value || is_array( $value ) ) {
 			return $default;
 		}
 
-		return self::sanitize_text_field_safe( (string) $raw );
+		return self::sanitize_text_field_safe( wp_unslash( (string) $value ) );
 	}
 
 	public static function sortable( array $cols ): array {

@@ -151,7 +151,9 @@ abstract class AbstractListTable extends \WP_List_Table {
 	 * Handle bulk actions (public so it can be triggered externally)
 	 */
 	public function handle_bulk_actions(): void {
-		if ( ! isset( $_POST[ $this->get_bulk_action_name() ] ) || ! is_array( $_POST[ $this->get_bulk_action_name() ] ) ) {
+		$bulk_key = $this->get_bulk_action_name();
+
+		if ( ! isset( $_POST[ $bulk_key ] ) || ! is_array( $_POST[ $bulk_key ] ) ) {
 			return;
 		}
 
@@ -161,11 +163,17 @@ abstract class AbstractListTable extends \WP_List_Table {
 			return;
 		}
 
-		$action = self::post_key_param( 'action' );
+		// Read the submitted fields here, in the scope that just verified the nonce,
+		// so the check and the reads stay verifiable side by side.
+		$action = isset( $_POST['action'] ) && ! is_array( $_POST['action'] )
+			? sanitize_key( wp_unslash( (string) $_POST['action'] ) )
+			: '';
 		if ( '' === $action ) {
-			$action = self::post_key_param( 'action2' );
+			$action = isset( $_POST['action2'] ) && ! is_array( $_POST['action2'] )
+				? sanitize_key( wp_unslash( (string) $_POST['action2'] ) )
+				: '';
 		}
-		$item_ids = array_map( 'intval', self::post_array_param( $this->get_bulk_action_name() ) );
+		$item_ids = array_map( 'intval', map_deep( wp_unslash( $_POST[ $bulk_key ] ), 'sanitize_text_field' ) );
 
 		if ( empty( $item_ids ) ) {
 			return;
@@ -185,7 +193,9 @@ abstract class AbstractListTable extends \WP_List_Table {
 
 			if ( empty( $current_page ) ) {
 				// Fallback: try to get from REQUEST_URI
-				$request_uri = self::server_text_param( 'REQUEST_URI' );
+				$request_uri = isset( $_SERVER['REQUEST_URI'] )
+					? sanitize_text_field( wp_unslash( (string) $_SERVER['REQUEST_URI'] ) )
+					: '';
 				if ( preg_match( '/[?&]page=([^&]+)/', $request_uri, $matches ) ) {
 					$current_page = $matches[1];
 				}
@@ -210,7 +220,7 @@ abstract class AbstractListTable extends \WP_List_Table {
 			);
 
 			// Preserve other GET parameters (filters, search, etc.)
-			foreach ( array( 's', 'status_filter', 'category_filter', 'thread_id', 'unread_only', 'orderby', 'order' ) as $param ) {
+			foreach ( $this->get_preserved_filter_params() as $param ) {
 				$param_value = self::get_text_param( $param );
 				if ( '' !== $param_value ) {
 					$redirect_url = add_query_arg( $param, $param_value, $redirect_url );
@@ -446,19 +456,33 @@ abstract class AbstractListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Safely read text from $_GET.
+	 * Read a display parameter of the current list screen.
+	 *
+	 * These are sort/search/filter params of a bookmarkable admin URL: they change
+	 * no state, so nonce-gating them would break shareable links, and reaching into
+	 * $_GET here would be an unverifiable superglobal read inside a shared helper.
+	 * They are therefore read off WordPress's own `query_vars` whitelist, which
+	 * WP::parse_request() fills for the list screen -- the same mechanism
+	 * BookingColumns/VehicleColumns/AddonListTable use, and the fix WP.org accepted
+	 * for T4 #11. `s`, `orderby`, `order` and `page` are core public query vars;
+	 * a subclass's own filter params must be registered by that subclass (see
+	 * AddonListTable::register_query_var_filter()).
+	 *
+	 * WP::parse_request() preserves arrays for registered query vars, so a
+	 * `?orderby[]=x` request hands an array to a reader typed as string; the
+	 * is_array() guard keeps that from raising "Array to string conversion".
 	 */
 	protected static function get_text_param( string $key, string $default = '' ): string {
-		$raw_value = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw_value || false === $raw_value ) {
+		$value = get_query_var( $key, null );
+		if ( null === $value || is_array( $value ) ) {
 			return $default;
 		}
 
-		return self::sanitize_text_field_safe( (string) $raw_value );
+		return self::sanitize_text_field_safe( wp_unslash( (string) $value ) );
 	}
 
 	/**
-	 * Safely read key-like value from $_GET.
+	 * Read a slug-shaped display parameter of the current list screen.
 	 */
 	protected static function get_key_param( string $key, string $default = '' ): string {
 		$value = self::get_text_param( $key, $default );
@@ -466,40 +490,14 @@ abstract class AbstractListTable extends \WP_List_Table {
 	}
 
 	/**
-	 * Safely read key-like value from $_POST.
-	 */
-	protected static function post_key_param( string $key, string $default = '' ): string {
-		$raw_value = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw_value || false === $raw_value ) {
-			return $default;
-		}
-
-		return sanitize_key( self::sanitize_text_field_safe( (string) $raw_value ) );
-	}
-
-	/**
-	 * Safely read array value from $_POST.
+	 * Filter params to carry across the post-bulk-action redirect.
 	 *
-	 * @return array<int|string,mixed>
+	 * Only the core sort/search vars are preserved by default; a subclass that
+	 * registers its own filter params should list them here so they survive too.
+	 *
+	 * @return array<int, string>
 	 */
-	protected static function post_array_param( string $key ): array {
-		$raw_value = filter_input( INPUT_POST, $key, FILTER_DEFAULT, FILTER_REQUIRE_ARRAY );
-		if ( ! is_array( $raw_value ) ) {
-			return array();
-		}
-
-		return wp_unslash( $raw_value );
-	}
-
-	/**
-	 * Safely read text from $_SERVER.
-	 */
-	protected static function server_text_param( string $key, string $default = '' ): string {
-		$raw_value = filter_input( INPUT_SERVER, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw_value || false === $raw_value ) {
-			return $default;
-		}
-
-		return self::sanitize_text_field_safe( (string) $raw_value );
+	protected function get_preserved_filter_params(): array {
+		return array( 's', 'orderby', 'order' );
 	}
 }

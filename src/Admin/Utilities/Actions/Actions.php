@@ -43,18 +43,22 @@ final class Actions {
 	}
 
 	public static function refund_booking(): void {
-		$bid = self::post_int( 'booking_id' );
+		// Nonce first, so every read below happens in an already-verified scope.
+		check_admin_referer( 'mhm_rentiva_refund_booking' );
+
+		$bid = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
 
 		// ✅ SECURITY: Granular permission control
 		if ( ! self::checkGranularPermission( 'refund_booking', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
-		check_admin_referer( 'mhm_rentiva_refund_booking' );
-		$amount = self::post_int( 'amount_kurus' );
-		$reason = self::post_text( 'reason' );
+		$amount = isset( $_POST['amount_kurus'] ) ? absint( wp_unslash( $_POST['amount_kurus'] ) ) : 0;
+		$reason = isset( $_POST['reason'] ) && ! is_array( $_POST['reason'] )
+			? sanitize_text_field( wp_unslash( (string) $_POST['reason'] ) )
+			: '';
 		$res    = RefundService::process( $bid, $amount, $reason );
-		wp_safe_redirect( add_query_arg( $res, get_edit_post_link( $bid, '' ) ?: admin_url( 'edit.php?post_type=vehicle_booking' ) ) );
+		wp_safe_redirect( self::notice_url( $res, get_edit_post_link( $bid, '' ) ?: admin_url( 'edit.php?post_type=vehicle_booking' ) ) );
 		exit;
 	}
 
@@ -65,7 +69,9 @@ final class Actions {
 		}
 		check_admin_referer( 'mhm_rentiva_purge_logs' );
 
-		$days = self::post_int( 'days', (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 ) );
+		$days = isset( $_POST['days'] )
+			? absint( wp_unslash( $_POST['days'] ) )
+			: (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 );
 		if ( $days <= 0 ) {
 			$days = 30;
 		}
@@ -76,10 +82,10 @@ final class Actions {
 		if ( ! $ref ) {
 			$ref = admin_url( 'options-general.php' );
 		}
-		$url = add_query_arg(
+		$url = self::notice_url(
 			array(
 				'mhm_purged'      => '1',
-				'mhm_purge_count' => (int) $deleted,
+				'mhm_purge_count' => (string) (int) $deleted,
 			),
 			$ref
 		);
@@ -87,25 +93,68 @@ final class Actions {
 		exit;
 	}
 
+	/**
+	 * Nonce action for the one-shot result params this class puts on its own
+	 * post-action redirects.
+	 */
+	private const NOTICE_NONCE_ACTION = 'mhm_rentiva_action_notice';
+
+	/**
+	 * Query arg carrying the notice nonce.
+	 */
+	private const NOTICE_NONCE_ARG = 'mhm_rentiva_notice_nonce';
+
+	/**
+	 * Sign a redirect that carries result params for notices().
+	 *
+	 * The params below are not navigation: they are a one-shot report from an
+	 * action this class just performed. Signing them means notices() can verify
+	 * the nonce in the same scope it reads them -- so the reads are provably
+	 * authorised on the line, no annotation needed -- and a crafted link cannot
+	 * make someone's admin display "Refund processed."
+	 *
+	 * @param array<string,string> $args Result params.
+	 * @param string               $url  Redirect target.
+	 */
+	private static function notice_url( array $args, string $url ): string {
+		$args[ self::NOTICE_NONCE_ARG ] = wp_create_nonce( self::NOTICE_NONCE_ACTION );
+		return add_query_arg( $args, $url );
+	}
+
 	public static function notices(): void {
 		if ( ! is_admin() ) {
 			return;
 		}
+
+		$nonce = isset( $_GET[ self::NOTICE_NONCE_ARG ] ) && ! is_array( $_GET[ self::NOTICE_NONCE_ARG ] )
+			? sanitize_text_field( wp_unslash( (string) $_GET[ self::NOTICE_NONCE_ARG ] ) )
+			: '';
+		if ( ! wp_verify_nonce( $nonce, self::NOTICE_NONCE_ACTION ) ) {
+			return;
+		}
+
 		// Refund result
-		$refund = self::get_text( 'mhm_refund' );
+		$refund = isset( $_GET['mhm_refund'] ) && ! is_array( $_GET['mhm_refund'] )
+			? sanitize_text_field( wp_unslash( (string) $_GET['mhm_refund'] ) )
+			: '';
 		if ( '' !== $refund ) {
 			$ok   = $refund === '1';
-			$msg  = self::get_text( 'mhm_refund_msg' );
+			$msg  = isset( $_GET['mhm_refund_msg'] ) && ! is_array( $_GET['mhm_refund_msg'] )
+				? sanitize_text_field( wp_unslash( (string) $_GET['mhm_refund_msg'] ) )
+				: '';
 			$type = $ok ? 'success' : 'error';
 			$base = $ok ? esc_html__( 'Refund processed.', 'mhm-rentiva' ) : esc_html__( 'Refund failed.', 'mhm-rentiva' );
 			$full = $msg ? $base . ' ' . $msg : $base;
 			echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible"><p>' . esc_html( $full ) . '</p></div>';
 		}
 
-		if ( self::get_text( 'mhm_purged' ) !== '1' ) {
+		$purged = isset( $_GET['mhm_purged'] ) && ! is_array( $_GET['mhm_purged'] )
+			? sanitize_text_field( wp_unslash( (string) $_GET['mhm_purged'] ) )
+			: '';
+		if ( '1' !== $purged ) {
 			return;
 		}
-		$count = self::get_int( 'mhm_purge_count' );
+		$count = isset( $_GET['mhm_purge_count'] ) ? absint( wp_unslash( $_GET['mhm_purge_count'] ) ) : 0;
 		/* translators: %d: number of deleted records */
 		echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( '%d old records deleted.', 'mhm-rentiva' ), (int) $count ) . '</p></div>';
 	}
@@ -217,8 +266,8 @@ final class Actions {
 					'resource_id' => $resource_id,
 					'user_id'     => get_current_user_id(),
 					'user_caps'   => wp_get_current_user()->allcaps,
-					'ip_address'  => self::server_text( 'REMOTE_ADDR' ),
-					'user_agent'  => self::server_text( 'HTTP_USER_AGENT' ),
+					'ip_address'  => isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : '',
+					'user_agent'  => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['HTTP_USER_AGENT'] ) ) : '',
 				),
 				AdvancedLogger::CATEGORY_SECURITY
 			);
@@ -261,42 +310,5 @@ final class Actions {
 		}
 
 		return false;
-	}
-
-	private static function post_text( string $key, string $default = '' ): string {
-		$raw = filter_input( INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw || false === $raw ) {
-			return $default;
-		}
-
-		return self::sanitize_text_field_safe( (string) $raw );
-	}
-
-	private static function post_int( string $key, int $default = 0 ): int {
-		$value = self::post_text( $key, '' );
-		return '' === $value ? $default : (int) $value;
-	}
-
-	private static function get_text( string $key, string $default = '' ): string {
-		$raw = filter_input( INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw || false === $raw ) {
-			return $default;
-		}
-
-		return self::sanitize_text_field_safe( (string) $raw );
-	}
-
-	private static function get_int( string $key, int $default = 0 ): int {
-		$value = self::get_text( $key, '' );
-		return '' === $value ? $default : (int) $value;
-	}
-
-	private static function server_text( string $key, string $default = '' ): string {
-		$raw = filter_input( INPUT_SERVER, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE );
-		if ( null === $raw || false === $raw ) {
-			return $default;
-		}
-
-		return self::sanitize_text_field_safe( (string) $raw );
 	}
 }

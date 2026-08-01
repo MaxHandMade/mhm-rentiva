@@ -140,9 +140,15 @@ final class BlockedDatesMetaBox {
 		update_post_meta( $post_id, self::META_KEY, wp_json_encode( $clean ) );
 
 		// Save notes — decode JSON first, then sanitize each value individually
-		$notes_clean   = array();
+		$notes_clean = array();
+		// Cleaned on the read, like the dates payload above. sanitize_textarea_field()
+		// strips tags, and PHP's strip_tags() truncates everything after an unclosed
+		// "<" -- which would silently destroy the whole notes payload. The picker
+		// therefore emits every "<" as its JSON unicode escape (see
+		// assets/js/admin/blocked-dates.js), so the blob reaching this line has no
+		// literal "<" to trip over. Each decoded note is sanitized again below.
 		$raw_notes_str = isset( $_POST[ self::META_KEY_NOTES ] )
-			? wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- JSON payload is sanitized after decoding per note value.
+			? sanitize_textarea_field( wp_unslash( (string) $_POST[ self::META_KEY_NOTES ] ) )
 			: '{}';
 		$notes_raw     = json_decode( $raw_notes_str, true );
 		if ( is_array( $notes_raw ) ) {

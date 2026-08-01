@@ -587,9 +587,10 @@ final class SetupWizard {
 			$settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
 		}
 
-		$default_days = self::post_int('default_days', 1);
-		$min_days     = self::post_int('min_days', 1);
-		$max_days     = self::post_int('max_days', 30);
+		// Read in the scope that verified the nonce above, like the other fields here.
+		$default_days = isset($_POST['default_days']) ? absint(wp_unslash($_POST['default_days'])) : 1;
+		$min_days     = isset($_POST['min_days']) ? absint(wp_unslash($_POST['min_days'])) : 1;
+		$max_days     = isset($_POST['max_days']) ? absint(wp_unslash($_POST['max_days'])) : 30;
 
 		$settings['mhm_rentiva_default_rental_days']     = (string) max(1, min(30, $default_days));
 		$settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
@@ -725,7 +726,10 @@ final class SetupWizard {
 
 	private static function is_wizard_page(): bool
 	{
-		return self::get_text('page') === self::PAGE_SLUG;
+		// wp-admin/admin.php resolves $_GET['page'] into the $plugin_page global
+		// before admin_init runs, so the screen can be identified without this
+		// class reaching into the request itself.
+		return isset($GLOBALS['plugin_page']) && $GLOBALS['plugin_page'] === self::PAGE_SLUG;
 	}
 
 	private static function get_steps(): array
@@ -739,46 +743,29 @@ final class SetupWizard {
 		);
 	}
 
+	/**
+	 * Which wizard step the request asks for.
+	 *
+	 * `step` is a display parameter of the wizard's own navigation links: it
+	 * changes no state and the value is validated against the known step list
+	 * below, so an unknown or hostile value can only land on step one. It cannot
+	 * be read off the `query_vars` whitelist the way the list-table filters are,
+	 * because WP::parse_request() never runs for an admin.php page; and putting a
+	 * nonce on plain "next step" links would break the wizard for anyone who
+	 * reloads it later. WPCS therefore reports NonceVerification.Recommended on
+	 * the read below -- reported to WordPress.org as-is, not annotated away.
+	 */
 	private static function get_current_step(): string
 	{
-		$steps     = array_keys(self::get_steps());
-		$requested = self::get_key('step');
-		if ($requested && in_array($requested, $steps, true)) {
+		$steps = array_keys(self::get_steps());
+		// sanitize_key() returns '' for a non-scalar, so `?step[]=x` needs no
+		// separate array guard and the read stays a single expression.
+		$requested = sanitize_key(wp_unslash($_GET['step'] ?? ''));
+
+		if ($requested !== '' && in_array($requested, $steps, true)) {
 			return $requested;
 		}
 		return $steps[0];
-	}
-
-	private static function get_text(string $key, string $default = ''): string
-	{
-		$raw = filter_input(INPUT_GET, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
-		if ($raw === null || $raw === false) {
-			return $default;
-		}
-
-		return sanitize_text_field( (string) $raw);
-	}
-
-	private static function get_key(string $key, string $default = ''): string
-	{
-		$value = self::get_text($key, $default);
-		return $value === '' ? $default : sanitize_key($value);
-	}
-
-	private static function post_text(string $key, string $default = ''): string
-	{
-		$raw = filter_input(INPUT_POST, $key, FILTER_UNSAFE_RAW, FILTER_NULL_ON_FAILURE);
-		if ($raw === null || $raw === false) {
-			return $default;
-		}
-
-		return sanitize_text_field( (string) $raw);
-	}
-
-	private static function post_int(string $key, int $default = 0): int
-	{
-		$value = self::post_text($key, '');
-		return $value === '' ? $default : (int) $value;
 	}
 
 	private static function step_url(string $step, array $args = array()): string

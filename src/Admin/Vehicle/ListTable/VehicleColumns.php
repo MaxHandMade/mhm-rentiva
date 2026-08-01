@@ -1711,9 +1711,9 @@ final class VehicleColumns {
 				continue;
 			}
 
-			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Dynamic field is unslashed and sanitized immediately.
-			$raw_value = wp_unslash($_POST[ $field_name ]);
-			$value     = is_array($raw_value) ? array_map('sanitize_text_field', $raw_value) : sanitize_text_field( (string) $raw_value);
+			// map_deep() sanitizes on the same line as the read, scalar or array,
+			// so the dynamic field name needs no annotation to be provably clean.
+			$value = map_deep(wp_unslash($_POST[ $field_name ]), 'sanitize_text_field');
 
 			// Array callables are this class's own clamps (price, seats); everything
 			// else in the map is the plain text sanitizer.

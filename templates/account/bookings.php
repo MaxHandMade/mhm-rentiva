@@ -18,10 +18,21 @@ if (! defined('ABSPATH')) {
 
 
 // Filtering with proper sanitization.
-$status_filter_raw = filter_input(INPUT_GET, 'status_filter', FILTER_SANITIZE_SPECIAL_CHARS);
-$search_query_raw  = filter_input(INPUT_GET, 'search_booking', FILTER_SANITIZE_SPECIAL_CHARS);
-$status_filter     = is_string($status_filter_raw) ? sanitize_text_field(wp_unslash($status_filter_raw)) : '';
-$search_query      = is_string($search_query_raw) ? sanitize_text_field(wp_unslash($search_query_raw)) : '';
+// The filter form below already emits a nonce (`filter_nonce`); verify it here
+// so both params are read in a scope that has checked it, the same gate
+// AddonListTable applies to its admin-side filters. An absent or stale nonce
+// simply renders the unfiltered list.
+$filter_nonce  = isset($_GET['filter_nonce']) && ! is_array($_GET['filter_nonce'])
+	? sanitize_text_field(wp_unslash( (string) $_GET['filter_nonce']))
+	: '';
+$filters_valid = (bool) wp_verify_nonce($filter_nonce, 'mhm_rentiva_filter_bookings');
+
+$status_filter = $filters_valid && isset($_GET['status_filter']) && ! is_array($_GET['status_filter'])
+	? sanitize_text_field(wp_unslash( (string) $_GET['status_filter']))
+	: '';
+$search_query  = $filters_valid && isset($_GET['search_booking']) && ! is_array($_GET['search_booking'])
+	? sanitize_text_field(wp_unslash( (string) $_GET['search_booking']))
+	: '';
 
 // Filter bookings
 $bookings      = $data['bookings'] ?? array();
