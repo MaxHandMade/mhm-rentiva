@@ -40,7 +40,6 @@ src/Admin/Core/AssetManager.php
 src/Admin/Core/Assets/DatepickerAssets.php
 src/Admin/Core/CurrencyHelper.php
 src/Admin/Core/Exceptions/MHMException.php
-src/Admin/Core/Governance.php
 src/Admin/Core/Helpers/Sanitizer.php
 src/Admin/Core/LanguageHelper.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
@@ -64,6 +63,7 @@ src/Admin/Core/Utilities/ErrorHandler.php
 src/Admin/Core/Utilities/LogMaintenanceScheduler.php
 src/Admin/Core/Utilities/MetaQueryHelper.php
 src/Admin/Core/Utilities/ObjectCache.php
+src/Admin/Core/Utilities/PrefixMigrationMap.php
 src/Admin/Core/Utilities/QueueManager.php
 src/Admin/Core/Utilities/RateLimiter.php
 src/Admin/Core/Utilities/Styles.php
