@@ -1234,8 +1234,14 @@ final class AssetManager {
 	 */
 	private static function get_css_variables(): string
 	{
-		$primary_color   = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_primary_color', '#2271b1') ) ?: '#2271b1';
-		$secondary_color = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_secondary_color', '#00a32a') ) ?: '#00a32a';
+		// '' is the helper's only rejection signal, so the fallback tests for it
+		// explicitly. A `?:` here would also discard '0', which the helper accepts
+		// as a valid unitless declaration value.
+		$primary   = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_primary_color', '#2271b1') );
+		$secondary = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_secondary_color', '#00a32a') );
+
+		$primary_color   = '' !== $primary ? $primary : '#2271b1';
+		$secondary_color = '' !== $secondary ? $secondary : '#00a32a';
 
 		return "
         :root {

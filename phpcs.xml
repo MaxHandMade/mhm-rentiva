@@ -94,18 +94,25 @@
 		- base64_encode/decode: payload signing for HMAC tokens (license + webhook)
 		- serialize: legacy WP options API compatibility
 		- urlencode: explicit RFC 3986 encoding (rawurlencode would change behavior)
-		- file_get_contents: HTTP-less local file reads (asset versioning, template loading)
-		- error_log: structured logging in admin/dev environments only
 		- parse_url, unlink, json_encode: replaced where it matters; rest are intentional
 		WordPress core itself uses all of these — flagging them in plugins is overzealous.
+
+		WordPress.PHP.DevelopmentFunctions.error_log_error_log and
+		WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents used to
+		be excluded here too. Both are families Görev 10's Adım 5 names, and a ruleset
+		exclusion is a suppression with GREATER reach than any inline annotation while
+		being invisible to the "grep phpcs:ignore" that step measures with. Having
+		driven error_log() to zero calls, keeping the exclusion would have meant our
+		own gate could never detect its reintroduction, which is the exact failure
+		mode this round exists to prevent. The old justification ("error_log:
+		structured logging in admin/dev environments only") had also become a claim
+		that a grep disproves.
 		-->
 		<exclude name="WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode"/>
 		<exclude name="WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode"/>
 		<exclude name="WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize"/>
 		<exclude name="WordPress.PHP.DiscouragedPHPFunctions.urlencode_urlencode"/>
 		<exclude name="WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_error_reporting"/>
-		<exclude name="WordPress.PHP.DevelopmentFunctions.error_log_error_log"/>
-		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents"/>
 
 		<!--
 		Performance heuristic warnings — actionable but not blocking.

@@ -9,7 +9,7 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded customer queries delegated to optimizer.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded customer queries delegated to optimizer.
 
 final class CustomersRestController {
 

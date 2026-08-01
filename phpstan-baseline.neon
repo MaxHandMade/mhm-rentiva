@@ -37,12 +37,6 @@ parameters:
 			path: src/Admin/Addons/AddonListTable.php
 
 		-
-			message: '#^PHPDoc tag @param references unknown parameter\: \$default$#'
-			identifier: parameter.notFound
-			count: 1
-			path: src/Admin/Addons/AddonListTable.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -643,12 +637,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
-			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/ContactForm.php
-
-		-
 			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
@@ -657,12 +645,6 @@ parameters:
 		-
 			message: '#^Strict comparison using \!\=\= between mixed and null will always evaluate to true\.$#'
 			identifier: notIdentical.alwaysTrue
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/ContactForm.php
-
-		-
-			message: '#^Variable \$_POST in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.variable
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
 
@@ -1099,36 +1081,6 @@ parameters:
 			path: src/Admin/Settings/ShortcodePages.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''\\\\MHMRentiva\\\\Admin…'' and ''get_cache_default…'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
-			message: '#^Call to function method_exists\(\) with ''\\\\MHMRentiva\\\\Admin…'' and ''is_cache_enabled'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
-			identifier: constant.notFound
-			count: 5
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
-			message: '#^Offset ''mhm_rentiva_settings'' on non\-empty\-array\<mixed\> in isset\(\) always exists and is not nullable\.$#'
-			identifier: isset.offset
-			count: 1
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
-			message: '#^Variable \$_POST on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: src/Admin/Settings/Testing/SettingsTester.php
-
-		-
 			message: '#^Call to function class_exists\(\) with ''FluentMail\\\\App…''\|''Mail_Bank''\|''Postman''\|''PostmanWpMailBinder''\|''Sendgrid_For…'' will always evaluate to false\.$#'
 			identifier: function.impossibleType
 			count: 1
@@ -1233,24 +1185,6 @@ parameters:
 		-
 			message: '#^Parameter \#2 \$gmt of function current_time expects bool, int given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Variable \$_GET on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 3
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Variable \$monthly_avg_revenue on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Variable \$revenue_trend on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
 			count: 1
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
@@ -1481,3 +1415,15 @@ parameters:
 			identifier: booleanNot.alwaysTrue
 			count: 1
 			path: src/Plugin.php
+
+		-
+			message: '#^Variable \$monthly_avg_revenue on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
+
+		-
+			message: '#^Variable \$revenue_trend on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Admin/Vehicle/ListTable/VehicleColumns.php

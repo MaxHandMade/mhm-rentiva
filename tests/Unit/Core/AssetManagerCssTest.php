@@ -95,6 +95,21 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Guards the helper's contract against the caller's fallback: '0' is a value
+	 * the helper accepts (see accepted_values), so a falsy `?:` test in
+	 * get_css_variables() would silently replace it with the default and make the
+	 * two disagree.
+	 */
+	public function test_a_falsy_but_accepted_value_is_not_replaced_by_the_default(): void {
+		update_option( 'mhm_rentiva_primary_color', '0' );
+
+		$css = $this->inline_css();
+
+		$this->assertStringContainsString( '--mhm-primary: 0;', $css );
+		$this->assertStringNotContainsString( '--mhm-primary: #2271b1;', $css );
+	}
+
 	public function test_a_legitimate_colour_still_reaches_the_stylesheet(): void {
 		update_option( 'mhm_rentiva_primary_color', '#ff0000' );
 		update_option( 'mhm_rentiva_secondary_color', '#0f0' );

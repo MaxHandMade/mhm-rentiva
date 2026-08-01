@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This helper intentionally builds reusable meta/tax SQL fragments for centralized query composition.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- This helper intentionally builds reusable meta/tax SQL fragments for centralized query composition.
 
 
 

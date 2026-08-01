@@ -64,11 +64,13 @@ class LayoutImportCommand {
             return;
         }
 
-        $raw_content = file_get_contents($file_path);
-        $manifest    = json_decode( (string) $raw_content, true);
+        // Core's JSON file reader instead of file_get_contents() + json_decode():
+        // it returns null on an unreadable file or malformed JSON, which is the only
+        // distinction this command needs.
+        $manifest = wp_json_file_decode($file_path, array( 'associative' => true ));
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->log_error(sprintf('Invalid JSON: %s', json_last_error_msg()));
+        if (! is_array($manifest)) {
+            $this->log_error(sprintf('Invalid JSON: %s', $file_path));
             return;
         }
 

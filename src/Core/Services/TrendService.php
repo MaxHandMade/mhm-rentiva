@@ -199,7 +199,6 @@ final class TrendService {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 				'meta_query'     => array(
 					array(
 						'key'   => '_mhm_customer_user_id',
@@ -231,7 +230,6 @@ final class TrendService {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 				'meta_query'     => array(
 					array(
 						'key'   => '_mhm_customer_user_id',
@@ -257,7 +255,6 @@ final class TrendService {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 				'meta_query'     => array(
 					array(
 						'key'   => '_mhm_customer_user_id',
@@ -327,7 +324,6 @@ final class TrendService {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
@@ -372,7 +368,6 @@ final class TrendService {
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'no_found_rows'  => true,
-				// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- meta_query accepted; custom-table migration is out of scope for this release.
 				'meta_query'     => array(
 					'relation' => 'AND',
 					array(

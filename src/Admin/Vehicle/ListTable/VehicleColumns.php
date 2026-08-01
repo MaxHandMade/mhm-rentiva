@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Vehicle admin list-table metrics/filtering intentionally use controlled meta SQL.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Vehicle admin list-table metrics/filtering intentionally use controlled meta SQL.
 
 /**
  * Custom columns for the Vehicle admin list table.
@@ -379,7 +379,7 @@ final class VehicleColumns {
 		// rather than rendered as a lone "All locations" option that filters nothing.
 		if (self::has_locations()) {
 			$locations   = apply_filters('mhm_rentiva_locations', array(), 'rental');
-			$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
+			$current_loc = self::get_query_int('mhm_location_filter');
 			echo '<select name="mhm_location_filter" class="postform">';
 			echo '<option value="">' . esc_html__('All locations', 'mhm-rentiva') . '</option>';
 			foreach ($locations as $loc) {
@@ -391,7 +391,7 @@ final class VehicleColumns {
 		}
 
 		// Lifecycle / archive filter dropdown.
-		$current_lc = isset($request['mhm_lifecycle_filter']) ? sanitize_text_field( (string) $request['mhm_lifecycle_filter']) : '';
+		$current_lc = self::get_query_text('mhm_lifecycle_filter');
 		$lc_options = array(
 			''          => __('All lifecycle states', 'mhm-rentiva'),
 			'active'    => __('Active', 'mhm-rentiva'),
@@ -407,7 +407,7 @@ final class VehicleColumns {
 		echo '</select>';
 
 		// Owner filter dropdown (vendor-added vs operator-added).
-		$current_owner = isset($request['mhm_owner_filter']) ? sanitize_text_field( (string) $request['mhm_owner_filter']) : '';
+		$current_owner = self::get_query_text('mhm_owner_filter');
 		$owner_options = array(
 			''         => __('All owners', 'mhm-rentiva'),
 			'vendor'   => __('Vendor', 'mhm-rentiva'),

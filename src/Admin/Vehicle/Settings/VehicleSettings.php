@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Manage vehicle features and equipment in admin panel
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Vehicle settings screens rely on controlled analytical/meta queries for admin management.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Vehicle settings screens rely on controlled analytical/meta queries for admin management.
 use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 final class VehicleSettings {

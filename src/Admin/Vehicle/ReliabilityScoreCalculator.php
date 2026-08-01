@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Bounded queries for score calculation.
 
 use MHMRentiva\Admin\Core\MetaKeys;
 

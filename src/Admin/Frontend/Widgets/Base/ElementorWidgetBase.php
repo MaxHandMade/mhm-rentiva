@@ -314,13 +314,10 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			return;
 		}
 
-		// Local file read for plugin-owned block metadata.
-		$raw = file_get_contents( $json_path );
-		if ( false === $raw ) {
-			return;
-		}
-
-		$block_json = json_decode( $raw, true );
+		// Local read of plugin-owned block metadata, through core's own block.json
+		// reader rather than file_get_contents() + json_decode(). Same result, one
+		// call, and it is the API WordPress uses for exactly this file.
+		$block_json = wp_json_file_decode( $json_path, array( 'associative' => true ) );
 		if ( ! is_array( $block_json ) || empty( $block_json['attributes'] ) || ! is_array( $block_json['attributes'] ) ) {
 			return;
 		}

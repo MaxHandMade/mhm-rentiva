@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;

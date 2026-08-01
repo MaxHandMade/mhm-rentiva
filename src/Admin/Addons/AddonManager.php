@@ -14,7 +14,7 @@ if (!defined('ABSPATH')) {
  */
 
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded application queries are intentional in this module.
 
 
 
@@ -219,7 +219,6 @@ final class AddonManager {
 	 * @param int    $post_id Post ID.
 	 */
 	public static function render_context_pricing_column( string $column, int $post_id ): void {
-		// phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query -- bounded query for single addon context.
 		if ( 'mhm_addon_context' === $column ) {
 			$terms = wp_get_object_terms( $post_id, AddonContextTaxonomy::TAXONOMY, array( 'fields' => 'slugs' ) );
 			$slug  = ( ! is_wp_error( $terms ) && ! empty( $terms ) ) ? (string) $terms[0] : '';

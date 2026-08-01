@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralizes all raw SQL queries used in reports.
  * Modernized to use custom `mhm_bookings` table for high performance.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_tax_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Reporting repository intentionally executes aggregate SQL for analytics across bookings/meta dimensions.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reporting repository intentionally executes aggregate SQL for analytics across bookings/meta dimensions.
 class ReportRepository {
 
 

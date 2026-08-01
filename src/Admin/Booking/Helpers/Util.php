@@ -8,7 +8,7 @@ if (! defined('ABSPATH')) {
 }
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.SlowDBQuery -- Booking availability checks require controlled SQL and meta/tax queries for date overlap detection.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking availability checks require controlled SQL and meta/tax queries for date overlap detection.
 
 
 

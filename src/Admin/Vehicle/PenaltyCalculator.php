@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.SlowDBQuery.slow_db_query_meta_key,WordPress.DB.SlowDBQuery.slow_db_query_meta_value -- Bounded query for penalty calculation.
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Direct query for aggregated ledger data.
 
 use MHMRentiva\Admin\Core\MetaKeys;

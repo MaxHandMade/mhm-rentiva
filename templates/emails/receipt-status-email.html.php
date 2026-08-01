@@ -26,6 +26,9 @@ $status_text = ( $status === 'approved' )
 	? esc_html__( 'Your payment receipt has been approved', 'mhm-rentiva' )
 	: esc_html__( 'Your payment receipt has been rejected', 'mhm-rentiva' );
 
+// Both branches are literals, so this value is not attacker-controlled; it is
+// validated at the output site anyway because it lands inside a <style> block,
+// where esc_attr() is the wrong instrument (it leaves `;` and `}` intact).
 $status_color = ( $status === 'approved' ) ? '#28a745' : '#dc3545';
 $status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
 ?>
@@ -71,7 +74,7 @@ $status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
 
 		.status-badge {
 			display: inline-block;
-			background: <?php echo esc_attr( $status_color ); ?>;
+			background: <?php echo sanitize_hex_color( $status_color ); ?>;
 			color: white;
 			padding: 8px 16px;
 			border-radius: 20px;

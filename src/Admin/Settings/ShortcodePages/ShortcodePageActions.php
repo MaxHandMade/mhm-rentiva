@@ -319,7 +319,7 @@ final class ShortcodePageActions {
 	 *
 	 * @return array{ scanned_pages: int, results: list<array{slug: string, label: string, found_in: list<array{page_id: int, page_title: string, page_url: string}>}> }
 	 */
-	// phpcs:disable WordPress.DB.SlowDBQuery.slow_db_query_meta_query,WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded admin-only debug scan; no user-facing cache needed.
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Bounded admin-only debug scan; no user-facing cache needed.
 	public static function debug_search(): array {
 		global $wpdb;
 

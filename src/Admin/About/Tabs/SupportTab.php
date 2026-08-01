@@ -210,10 +210,11 @@ final class SupportTab extends AbstractTab {
 			}
 		}
 
-		$changelog = json_decode(file_get_contents($changelog_file), true);
+		// Core's JSON file reader instead of file_get_contents() + json_decode().
+		$changelog = wp_json_file_decode($changelog_file, array( 'associative' => true ));
 
-		if (json_last_error() !== JSON_ERROR_NONE) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Changelog JSON Error', array( 'error' => json_last_error_msg() ));
+		if (! is_array($changelog)) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error('Changelog JSON Error', array( 'file' => $changelog_filename ));
 			return self::get_default_changelog();
 		}
 
