@@ -40,7 +40,7 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 		// post_author = 1 is what the production booking path writes.
 		$this->booking_id = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle_booking',
+				'post_type'   => 'mhmrentiva_booking',
 				'post_status' => 'publish',
 				'post_author' => 1,
 			)

@@ -47,7 +47,7 @@ final class CancellationHandler {
 
 		// Validate booking exists
 		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
+		if ( ! $booking || $booking->post_type !== 'mhmrentiva_booking' ) {
 			return new \WP_Error(
 				'invalid_booking',
 				__( 'Invalid booking ID.', 'mhm-rentiva' )

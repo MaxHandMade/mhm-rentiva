@@ -48,8 +48,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'mhmrentiva_rentiva%',
-				'_mhmrentiva_rentiva%'
+				'mhmrentiva%',
+				'_mhmrentiva%'
 			)
 		);
 		$stats['options'] = (int) $options;
@@ -62,7 +62,7 @@ final class Uninstaller {
             FROM {$wpdb->posts}
             WHERE post_type = %s
         ",
-				'vehicle'
+				'mhmrentiva_vehicle'
 			)
 		);
 		$stats['post_types']['vehicles'] = (int) $vehicles;
@@ -75,20 +75,20 @@ final class Uninstaller {
             FROM {$wpdb->posts}
             WHERE post_type = %s
         ",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 		$stats['post_types']['bookings'] = (int) $bookings;
 
 		// Count postmeta - using prepare for LIKE pattern. Scoped to this
-		// plugin's own '_mhmrentiva_rentiva%' prefix (not the broader '_mhm%') so a
+		// plugin's own '_mhmrentiva%' prefix (not the broader '_mhm%') so a
 		// sibling MHM plugin's postmeta on a shared post is never counted.
 		$postmeta          = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*)
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhmrentiva_rentiva%'
+				'_mhmrentiva%'
 			)
 		);
 		$stats['postmeta'] = (int) $postmeta;
@@ -136,8 +136,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE (option_name LIKE %s 
             OR option_name LIKE %s)",
-				'_transient_mhmrentiva_rentiva%',
-				'_transient_timeout_mhmrentiva_rentiva%'
+				'_transient_mhmrentiva%',
+				'_transient_timeout_mhmrentiva%'
 			)
 		);
 		$stats['transients'] = (int) $transients;
@@ -209,8 +209,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'mhmrentiva_rentiva%',
-				'_mhmrentiva_rentiva%'
+				'mhmrentiva%',
+				'_mhmrentiva%'
 			)
 		);
 
@@ -228,7 +228,7 @@ final class Uninstaller {
             FROM {$wpdb->posts}
             WHERE post_type = %s
         ",
-				'vehicle'
+				'mhmrentiva_vehicle'
 			)
 		);
 
@@ -245,7 +245,7 @@ final class Uninstaller {
             FROM {$wpdb->posts}
             WHERE post_type = %s
         ",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -255,15 +255,15 @@ final class Uninstaller {
 		}
 
 		// 4. Delete all postmeta - using prepare for LIKE pattern. Scoped to
-		// this plugin's own '_mhmrentiva_rentiva%' prefix (every other step in this
-		// method already scopes to 'mhmrentiva_rentiva%'/'_mhmrentiva_rentiva%'; the
+		// this plugin's own '_mhmrentiva%' prefix (every other step in this
+		// method already scopes to 'mhmrentiva%'/'_mhmrentiva%'; the
 		// broader '_mhm%' would also delete a sibling MHM plugin's postmeta
 		// on a shared post, e.g. a WooCommerce order).
 		$postmeta_deleted            = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhmrentiva_rentiva%'
+				'_mhmrentiva%'
 			)
 		);
 		$results['postmeta_deleted'] = (int) $postmeta_deleted;
@@ -323,8 +323,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'_transient_mhmrentiva_rentiva%',
-				'_transient_timeout_mhmrentiva_rentiva%'
+				'_transient_mhmrentiva%',
+				'_transient_timeout_mhmrentiva%'
 			)
 		);
 
@@ -355,7 +355,7 @@ final class Uninstaller {
 		}
 
 		// 9. Delete taxonomies and terms
-		$taxonomies = array( 'vehicle_category', 'vehicle_cat' ); // vehicle_cat is deprecated
+		$taxonomies = array( 'mhmrentiva_vehicle_category', 'vehicle_category', 'vehicle_cat' ); // old names kept: uninstall must clear terms written before the 6.0.0 rename too
 		foreach ( $taxonomies as $taxonomy ) {
 			if ( ! taxonomy_exists( $taxonomy ) ) {
 				continue;

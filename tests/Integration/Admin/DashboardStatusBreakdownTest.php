@@ -10,7 +10,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 
 	private function booking( string $status ): int {
 		$id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 		) );
 		update_post_meta( $id, '_mhmrentiva_status', $status );
@@ -24,7 +24,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 	 */
 	private function booking_without_status(): int {
 		return (int) self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 		) );
 	}
@@ -48,7 +48,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 
 	public function test_excludes_trashed(): void {
 		$id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'trash',
 		) );
 		update_post_meta( $id, '_mhmrentiva_status', 'confirmed' );
@@ -73,7 +73,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 
 		// A trashed booking must never be counted, regardless of status.
 		$trashed_id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'trash',
 		) );
 		update_post_meta( $trashed_id, '_mhmrentiva_status', 'confirmed' );
@@ -94,7 +94,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts}
                  WHERE post_type = %s AND post_status IN ('publish','private','pending') AND post_status != 'trash'",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 

@@ -153,7 +153,7 @@ final class SystemInfo {
 		global $wpdb;
 
 		$plugin_tables = array(
-			'vehicle_booking' => $wpdb->prefix . 'posts', // In posts table as CPT
+			'mhmrentiva_booking' => $wpdb->prefix . 'posts', // In posts table as CPT
 			'mhmrentiva_payment_log' => $wpdb->prefix . 'mhmrentiva_payment_log',
 			'mhmrentiva_message'     => $wpdb->prefix . 'posts', // For messages
 		);
@@ -180,7 +180,7 @@ final class SystemInfo {
 							)
 						);
 					} else {
-						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ( 'mhmrentiva_message' === $key ? 'mhmrentiva_message' : '' );
+						$post_type = 'mhmrentiva_booking' === $key ? 'mhmrentiva_booking' : ( 'mhmrentiva_message' === $key ? 'mhmrentiva_message' : '' );
 						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
 						$count = $wpdb->get_var(
 							$wpdb->prepare(

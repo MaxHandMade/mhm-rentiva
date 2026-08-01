@@ -43,7 +43,7 @@ final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 
 		$this->own_vehicle = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_author' => $this->author_id,
 			)
@@ -51,7 +51,7 @@ final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 
 		$this->other_vehicle = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_author' => self::factory()->user->create( array( 'role' => 'administrator' ) ),
 			)

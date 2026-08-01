@@ -62,7 +62,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     public function test_pause_reduces_score(): void
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Pause Test',
@@ -82,7 +82,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     public function test_completed_bookings_add_bonus(): void
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Bonus Test Vehicle',
@@ -101,7 +101,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     public function test_completion_bonus_capped_at_max(): void
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Bonus Test Vehicle',
@@ -128,7 +128,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     public function test_combined_demerits_and_bonuses(): void
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Combined Test',
@@ -202,7 +202,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     private function create_withdrawn_vehicle(string $withdrawn_at): int
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'draft',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Withdrawn Vehicle',
@@ -217,7 +217,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
     private function create_booking(int $vehicle_id, string $status): int
     {
         $booking_id = wp_insert_post(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Test Booking',
         ));

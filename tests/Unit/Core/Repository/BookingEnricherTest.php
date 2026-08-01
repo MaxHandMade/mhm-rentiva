@@ -22,7 +22,7 @@ class BookingEnricherTest extends \WP_UnitTestCase
     private function make_booking(): int
     {
         return self::factory()->post->create([
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ]);
     }

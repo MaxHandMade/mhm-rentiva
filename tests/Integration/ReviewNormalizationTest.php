@@ -16,7 +16,7 @@ class ReviewNormalizationTest extends \WP_UnitTestCase
 
         // Create a vehicle
         $this->vehicle_id = $this->factory->post->create([
-            'post_type' => 'vehicle',
+            'post_type' => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title' => 'Test Vehicle for Normalization'
         ]);

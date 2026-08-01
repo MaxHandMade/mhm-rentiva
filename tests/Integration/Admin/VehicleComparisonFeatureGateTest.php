@@ -36,7 +36,7 @@ final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
 			'comparison_fields' => array( 'features' => array( 'bluetooth', 'navigation' ) ),
 		) );
 
-		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'vehicle', 'post_status' => 'publish' ) );
+		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish' ) );
 		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth', 'navigation' ) );
 
 		$data = self::call_private( 'get_vehicle_data', array( $vehicle_id ) );

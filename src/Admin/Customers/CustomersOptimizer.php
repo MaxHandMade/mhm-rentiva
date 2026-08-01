@@ -111,7 +111,7 @@ final class CustomersOptimizer {
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
                 AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
@@ -141,7 +141,7 @@ final class CustomersOptimizer {
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
                 AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
@@ -247,7 +247,7 @@ final class CustomersOptimizer {
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
                 AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
             WHERE u.ID > 1 
@@ -318,7 +318,7 @@ final class CustomersOptimizer {
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
                 AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
                 AND price_meta.meta_key = '_mhmrentiva_total_price'
@@ -386,7 +386,7 @@ final class CustomersOptimizer {
 				"
             SELECT DISTINCT DAY(p.post_date) as day
             FROM {$wpdb->posts} p
-            WHERE p.post_type = 'vehicle_booking'
+            WHERE p.post_type = 'mhmrentiva_booking'
                 AND p.post_status = 'publish'
                 AND p.post_date >= %s
                 AND p.post_date <= %s
@@ -515,7 +515,7 @@ final class CustomersOptimizer {
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
                 AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
             WHERE u.ID > 1 
@@ -556,7 +556,7 @@ final class CustomersOptimizer {
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
                 AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
             WHERE u.ID > 1 
@@ -576,7 +576,7 @@ final class CustomersOptimizer {
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
                 AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
-                AND p.post_type = 'vehicle_booking'
+                AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
             WHERE u.ID > 1 

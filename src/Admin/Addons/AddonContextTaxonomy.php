@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class AddonContextTaxonomy {
 
-    public const TAXONOMY = 'addon_context';
+    public const TAXONOMY = 'mhmrentiva_addon_context';
 
     public const TERM_RENTAL   = 'rental';
     public const TERM_TRANSFER = 'transfer';

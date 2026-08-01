@@ -19,7 +19,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 
 	protected static function get_post_type(): string {
-		return 'vehicle_booking';
+		return 'mhmrentiva_booking';
 	}
 
 	protected static function get_meta_box_id(): string {
@@ -79,7 +79,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		global $post_type;
 
 		// Load assets only on booking edit screen
-		if ( ( $hook === 'post.php' || $hook === 'post-new.php' ) && $post_type === 'vehicle_booking' ) {
+		if ( ( $hook === 'post.php' || $hook === 'post-new.php' ) && $post_type === 'mhmrentiva_booking' ) {
 			// Enqueue CSS
 			wp_enqueue_style(
 				'mhm-rentiva-deposit-management',

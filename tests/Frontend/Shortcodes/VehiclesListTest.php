@@ -18,8 +18,8 @@ class VehiclesListTest extends WP_UnitTestCase
         parent::setUp();
 
         // Ensure post type is registered
-        if (!post_type_exists('vehicle')) {
-            register_post_type('vehicle', array(
+        if (!post_type_exists('mhmrentiva_vehicle')) {
+            register_post_type('mhmrentiva_vehicle', array(
                 'public'      => true,
                 'has_archive' => true,
                 'supports'    => array('title', 'editor', 'thumbnail', 'excerpt'),
@@ -31,7 +31,7 @@ class VehiclesListTest extends WP_UnitTestCase
 
         // Create a dummy vehicle
         $this->vehicle_id = $this->factory->post->create([
-            'post_type' => 'vehicle',
+            'post_type' => 'mhmrentiva_vehicle',
             'post_title' => 'Test Vehicle',
             'post_excerpt' => 'Test vehicle excerpt for description visibility checks.',
             'post_status' => 'publish',

@@ -56,7 +56,7 @@ final class AddonContextMetaBox {
     }
 
     /**
-     * Persist the radio selection. Hooked on `save_post_vehicle_addon`.
+     * Persist the radio selection. Hooked on `save_post_mhmrentiva_addon`.
      */
     public static function save( int $post_id ): void {
         if ( ! isset( $_POST['mhmrentiva_addon_context_nonce'] ) ) {

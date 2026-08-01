@@ -356,7 +356,7 @@ final class VehiclePricingSettings {
 
 		echo '<tr><th scope="row">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</th><td>';
 		echo '<p class="description">' . esc_html__( 'Additional services are managed from the "Additional Services" menu. No default addon settings here.', 'mhm-rentiva' ) . '</p>';
-		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=vehicle_addon' ) ) . '" class="button">' . esc_html__( 'Manage Additional Services', 'mhm-rentiva' ) . '</a>';
+		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=mhmrentiva_addon' ) ) . '" class="button">' . esc_html__( 'Manage Additional Services', 'mhm-rentiva' ) . '</a>';
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row">' . esc_html__( 'Currency Settings', 'mhm-rentiva' ) . '</th><td>';

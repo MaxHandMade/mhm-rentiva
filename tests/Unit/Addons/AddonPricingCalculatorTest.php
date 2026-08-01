@@ -10,8 +10,8 @@ use WP_UnitTestCase;
 final class AddonPricingCalculatorTest extends WP_UnitTestCase {
 
     private function make_addon( float $price, string $type ): int {
-        $id = self::factory()->post->create( array( 'post_type' => 'vehicle_addon' ) );
-        update_post_meta( $id, 'addon_price', (string) $price );
+        $id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_addon' ) );
+        update_post_meta( $id, 'mhmrentiva_addon_price', (string) $price );
         update_post_meta( $id, '_mhmrentiva_addon_pricing_type', $type );
         return $id;
     }

@@ -245,7 +245,7 @@ final class ReliabilityScoreCalculator {
 
 		// Get all vehicle IDs owned by this vendor.
 		$vehicle_ids = get_posts(array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'any',
 			'author'         => $vendor_id,
 			'posts_per_page' => -1,
@@ -262,7 +262,7 @@ final class ReliabilityScoreCalculator {
 		// - cancellation was recent
 		// - cancelled_by was the vendor (check cancellation_data)
 		$cancelled_bookings = get_posts(array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'any',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -309,7 +309,7 @@ final class ReliabilityScoreCalculator {
 	private static function count_recent_pauses(int $vendor_id): int
 	{
 		$vehicle_ids = get_posts(array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'any',
 			'author'         => $vendor_id,
 			'posts_per_page' => -1,
@@ -354,7 +354,7 @@ final class ReliabilityScoreCalculator {
 		$cutoff        = gmdate('Y-m-d H:i:s', strtotime('-' . $months_window . ' months'));
 
 		$vehicle_ids = get_posts(array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'any',
 			'author'         => $vendor_id,
 			'posts_per_page' => -1,
@@ -367,7 +367,7 @@ final class ReliabilityScoreCalculator {
 		}
 
 		$completed = get_posts(array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'any',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',

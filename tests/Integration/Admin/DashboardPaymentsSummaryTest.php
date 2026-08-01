@@ -27,7 +27,7 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 	 */
 	private function full_payment_booking( string $status, float $total, ?string $date = null ): int {
 		$id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
 		) );
@@ -45,7 +45,7 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 	 */
 	private function deposit_booking( string $status, float $deposit, float $remaining, ?string $date = null ): int {
 		$id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
 		) );

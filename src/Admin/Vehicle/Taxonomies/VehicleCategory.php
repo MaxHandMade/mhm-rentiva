@@ -15,7 +15,7 @@ final class VehicleCategory {
 
 
 
-	public const TAXONOMY = 'vehicle_category';
+	public const TAXONOMY = 'mhmrentiva_vehicle_category';
 
 	/**
 	 * Safe sanitize text field that handles null values
@@ -127,8 +127,8 @@ final class VehicleCategory {
 	 */
 	public static function add_admin_features(): void {
 		add_action( 'restrict_manage_posts', array( self::class, 'add_category_filter' ) );
-		add_filter( 'manage_edit-vehicle_columns', array( self::class, 'add_category_column' ) );
-		add_action( 'manage_vehicle_posts_custom_column', array( self::class, 'display_category_column' ), 10, 2 );
+		add_filter( 'manage_edit-mhmrentiva_vehicle_columns', array( self::class, 'add_category_column' ) );
+		add_action( 'manage_mhmrentiva_vehicle_posts_custom_column', array( self::class, 'display_category_column' ), 10, 2 );
 
 		// Security: Add nonce field for admin actions
 		add_action( 'admin_init', array( self::class, 'add_admin_nonce' ) );
@@ -154,7 +154,7 @@ final class VehicleCategory {
 			return;
 		}
 
-		if ( $typenow === 'vehicle' ) {
+		if ( $typenow === 'mhmrentiva_vehicle' ) {
 			$taxonomy = get_taxonomy( self::TAXONOMY );
 			if ( $taxonomy ) {
 				// Security: Sanitize selected value
@@ -218,7 +218,7 @@ final class VehicleCategory {
 
 					$term_links[] = sprintf(
 						'<a href="%1$s">%2$s</a>',
-						esc_url( add_query_arg( self::TAXONOMY, self::sanitize_text_field_safe( $term->slug ), admin_url( 'edit.php?post_type=vehicle' ) ) ),
+						esc_url( add_query_arg( self::TAXONOMY, self::sanitize_text_field_safe( $term->slug ), admin_url( 'edit.php?post_type=mhmrentiva_vehicle' ) ) ),
 						esc_html( $term->name )
 					);
 				}

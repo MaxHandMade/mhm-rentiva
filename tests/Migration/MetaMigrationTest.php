@@ -32,7 +32,7 @@ class MetaMigrationTest extends WP_UnitTestCase
         $this->migration_script = rtrim(dirname(dirname(__DIR__)), '/\\') . '/bin/mhm-migrate-meta.php';
 
         // Clean up any existing vehicles to ensure isolation
-        $existing = get_posts(['post_type' => 'vehicle', 'posts_per_page' => -1, 'fields' => 'ids']);
+        $existing = get_posts(['post_type' => 'mhmrentiva_vehicle', 'posts_per_page' => -1, 'fields' => 'ids']);
         foreach ($existing as $id) {
             wp_delete_post($id, true);
         }
@@ -56,16 +56,16 @@ class MetaMigrationTest extends WP_UnitTestCase
      */
     public function test_enum_mapping_strict()
     {
-        $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'yes');
 
-        $v2 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v2 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v2, '_mhmrentiva_availability', 'no');
 
-        $v3 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v3 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v3, '_mhmrentiva_vehicle_availability', '1');
 
-        $v4 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v4 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v4, '_mhmrentiva_vehicle_availability', 'unknown'); // Should be skipped
 
         $this->run_migration(false);
@@ -81,7 +81,7 @@ class MetaMigrationTest extends WP_UnitTestCase
      */
     public function test_conflict_resolution_standard_wins()
     {
-        $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v1, '_mhmrentiva_vehicle_status', 'maintenance'); // Standard
         update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'active'); // Legacy conflict
 
@@ -97,7 +97,7 @@ class MetaMigrationTest extends WP_UnitTestCase
      */
     public function test_idempotency()
     {
-        $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
         update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'active');
 
         // First run
@@ -119,7 +119,7 @@ class MetaMigrationTest extends WP_UnitTestCase
         // Create 10 vehicles
         $ids = [];
         for ($i = 0; $i < 10; $i++) {
-            $id = $this->factory->post->create(['post_type' => 'vehicle']);
+            $id = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
             update_post_meta($id, '_mhmrentiva_vehicle_availability', 'active');
             $ids[] = $id;
         }

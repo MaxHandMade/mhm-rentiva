@@ -31,7 +31,7 @@ final class BookingPortalMetaBox {
 			'mhmrentiva_booking_customer_account',
 			__( 'Customer Account', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
-			'vehicle_booking',
+			'mhmrentiva_booking',
 			'side',
 			'default'
 		);
@@ -137,7 +137,7 @@ final class BookingPortalMetaBox {
 
 		// Verify booking exists and is the correct post type
 		$booking = get_post( $booking_id );
-		if ( ! $booking || 'vehicle_booking' !== $booking->post_type ) {
+		if ( ! $booking || 'mhmrentiva_booking' !== $booking->post_type ) {
 			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return;
 		}

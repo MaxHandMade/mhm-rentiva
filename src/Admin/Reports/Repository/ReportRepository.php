@@ -26,7 +26,7 @@ class ReportRepository {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status != %s",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash'
 			)
 		);
@@ -53,7 +53,7 @@ class ReportRepository {
              AND p.post_date < %s",
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date,
 				$end_date
 			)
@@ -75,7 +75,7 @@ class ReportRepository {
              AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('confirmed', 'in_progress')",
 				$meta_status,
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 	}
@@ -88,7 +88,7 @@ class ReportRepository {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish'
 			)
 		);
@@ -116,7 +116,7 @@ class ReportRepository {
              ORDER BY date",
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -145,7 +145,7 @@ class ReportRepository {
              ORDER BY date",
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -177,7 +177,7 @@ class ReportRepository {
              ORDER BY revenue DESC",
 				$meta_price,
 				$meta_gateway,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -208,7 +208,7 @@ class ReportRepository {
              ORDER BY month",
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -247,7 +247,7 @@ class ReportRepository {
 				$date_format,
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -282,7 +282,7 @@ class ReportRepository {
 				$meta_vid,
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59',
 				$limit
@@ -307,15 +307,15 @@ class ReportRepository {
             LEFT JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id
             LEFT JOIN {$wpdb->term_relationships} tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
             LEFT JOIN {$wpdb->posts} v ON tr.object_id = v.ID 
-                AND v.post_type = 'vehicle' 
+                AND v.post_type = 'mhmrentiva_vehicle' 
                 AND v.post_status = 'publish'
             LEFT JOIN {$wpdb->postmeta} pm_vid ON v.ID = pm_vid.meta_value AND pm_vid.meta_key = %s
             LEFT JOIN {$wpdb->posts} p_booking ON pm_vid.post_id = p_booking.ID 
-                AND p_booking.post_type = 'vehicle_booking'
+                AND p_booking.post_type = 'mhmrentiva_booking'
                 AND p_booking.post_status != 'trash'
                 AND p_booking.post_date >= %s AND p_booking.post_date <= %s
             LEFT JOIN {$wpdb->postmeta} pm_status ON p_booking.ID = pm_status.post_id AND pm_status.meta_key = %s
-            WHERE tt.taxonomy = 'vehicle_category'
+            WHERE tt.taxonomy = 'mhmrentiva_vehicle_category'
             AND (pm_status.meta_value IS NULL OR pm_status.meta_value != 'trash')
             GROUP BY t.term_id, t.name
             ORDER BY booking_count DESC",
@@ -361,7 +361,7 @@ class ReportRepository {
 				$meta_name,
 				$meta_price,
 				$meta_status,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59'
 			)
@@ -453,7 +453,7 @@ class ReportRepository {
                 LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhmrentiva_customer_name'
                 LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhmrentiva_contact_name'
                 LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhmrentiva_customer_phone'
-                LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_booking_customer_phone'
+                LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_mhmrentiva_booking_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhmrentiva_start_time'
                 LEFT JOIN {$wpdb->postmeta} pm_return ON p.ID = pm_return.post_id AND pm_return.meta_key = %s
@@ -480,7 +480,7 @@ class ReportRepository {
 						$locations_table,
 						$locations_table,
 						$locations_table,
-						'vehicle_booking',
+						'mhmrentiva_booking',
 						$now,
 						$upper
 					),
@@ -516,7 +516,7 @@ class ReportRepository {
                 LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhmrentiva_customer_name'
                 LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhmrentiva_contact_name'
                 LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhmrentiva_customer_phone'
-                LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_booking_customer_phone'
+                LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_mhmrentiva_booking_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhmrentiva_start_time'
                 LEFT JOIN {$wpdb->postmeta} pm_return ON p.ID = pm_return.post_id AND pm_return.meta_key = %s
@@ -535,7 +535,7 @@ class ReportRepository {
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_RETURN_DATE,
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-						'vehicle_booking',
+						'mhmrentiva_booking',
 						$now,
 						$upper
 					),

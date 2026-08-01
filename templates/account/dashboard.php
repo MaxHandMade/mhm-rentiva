@@ -105,14 +105,14 @@ if ($is_integrated) {
 								$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 							}
 							if (! $pickup_time) {
-								$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
+								$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
 							}
 							$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_end_time', true);
 							if (! $dropoff_time) {
 								$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_dropoff_time', true);
 							}
 							if (! $dropoff_time) {
-								$dropoff_time = get_post_meta($booking->ID, '_booking_dropoff_time', true);
+								$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_booking_dropoff_time', true);
 							}
 							$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
@@ -234,7 +234,7 @@ if ($is_integrated) {
 							<?php
 							$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 							if (! $vehicles_url) {
-								$vehicles_url = get_post_type_archive_link('vehicle');
+								$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
 								if (! $vehicles_url) {
 									$vehicles_url = home_url('/');
 								}
@@ -260,7 +260,7 @@ if ($is_integrated) {
 				<?php
 				$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 				if (! $vehicles_url) {
-					$vehicles_url = get_post_type_archive_link('vehicle');
+					$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
 					if (! $vehicles_url) {
 						$vehicles_url = home_url('/');
 					}

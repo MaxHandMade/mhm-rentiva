@@ -273,7 +273,7 @@ final class AddonBooking {
             FROM {$wpdb->postmeta} pm
             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
             WHERE pm.meta_key = '_mhmrentiva_addon_details'
-            AND p.post_type = 'vehicle_booking'
+            AND p.post_type = 'mhmrentiva_booking'
             AND p.post_status IN ('confirmed', 'completed')
             AND p.post_date BETWEEN %s AND %s
         ",
@@ -293,7 +293,7 @@ final class AddonBooking {
 				foreach ( $addon_details as $addon ) {
 					$addon_id    = $addon['id'] ?? 0;
 					$addon_title = $addon['title'] ?? 'Unknown';
-					$addon_price = (float) ( $addon['price'] ?? 0 );
+					$mhmrentiva_addon_price = (float) ( $addon['price'] ?? 0 );
 
 					if ( ! isset( $addon_stats[ $addon_id ] ) ) {
 						$addon_stats[ $addon_id ] = array(
@@ -304,8 +304,8 @@ final class AddonBooking {
 					}
 
 					++$addon_stats[ $addon_id ]['count'];
-					$addon_stats[ $addon_id ]['revenue'] += $addon_price;
-					$total_revenue                       += $addon_price;
+					$addon_stats[ $addon_id ]['revenue'] += $mhmrentiva_addon_price;
+					$total_revenue                       += $mhmrentiva_addon_price;
 				}
 			}
 		}

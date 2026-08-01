@@ -126,7 +126,7 @@ final class PenaltyCalculator {
 		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-' . self::rolling_window_months() . ' months'));
 
 		$withdrawn_vehicles = get_posts(array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'any',
 			'author'         => $vendor_id,
 			'posts_per_page' => -1,

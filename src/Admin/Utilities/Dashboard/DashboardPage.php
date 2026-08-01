@@ -41,9 +41,9 @@ final class DashboardPage {
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhmrentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
 
-		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
+		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
-		add_action('save_post_vehicle', array( self::class, 'clear_cache_on_vehicle_change' ));
+		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_cache_on_vehicle_change' ));
 		add_action('save_post_mhmrentiva_message', array( self::class, 'clear_cache_on_message_change' ));
 		add_action('mhmrentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
 		add_action('updated_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
@@ -272,19 +272,19 @@ final class DashboardPage {
 	 */
 	public static function clear_cache_on_booking_change(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'vehicle_booking') {
+		if (get_post_type($post_id) === 'mhmrentiva_booking') {
 			self::clear_dashboard_cache();
 		}
 	}
 	public static function clear_cache_on_booking_delete(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'vehicle_booking') {
+		if (get_post_type($post_id) === 'mhmrentiva_booking') {
 			self::clear_dashboard_cache();
 		}
 	}
 	public static function clear_cache_on_vehicle_change(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'vehicle') {
+		if (get_post_type($post_id) === 'mhmrentiva_vehicle') {
 			self::clear_dashboard_cache();
 		}
 	}
@@ -309,7 +309,7 @@ final class DashboardPage {
 			return;
 		}
 		$watched_keys = array( '_mhmrentiva_status', '_mhmrentiva_payment_status', '_mhmrentiva_total_price' );
-		if ( in_array( $meta_key, $watched_keys, true ) && get_post_type( $post_id ) === 'vehicle_booking' ) {
+		if ( in_array( $meta_key, $watched_keys, true ) && get_post_type( $post_id ) === 'mhmrentiva_booking' ) {
 			$cleared = true;
 			self::clear_dashboard_cache();
 		}

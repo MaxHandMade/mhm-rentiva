@@ -63,7 +63,7 @@ $rows = $wpdb->get_results($wpdb->prepare(
      LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhmrentiva_dropoff_date'
      LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhmrentiva_dropoff_time'
      LEFT  JOIN {$wpdb->postmeta} v   ON v.post_id   = p.ID AND v.meta_key   = '_mhmrentiva_vehicle_id'
-     WHERE p.post_type     = 'vehicle_booking'
+     WHERE p.post_type     = 'mhmrentiva_booking'
        AND s.meta_value    = 'completed'
        AND CAST(ets.meta_value AS UNSIGNED) > %d",
     $now_ts

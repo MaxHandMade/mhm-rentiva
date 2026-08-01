@@ -1120,7 +1120,7 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 
 		// Create booking post
 		$post_data = array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 			'post_title'  => sprintf(
 				/* translators: %s: vehicle title */

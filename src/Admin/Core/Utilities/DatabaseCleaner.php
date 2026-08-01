@@ -148,6 +148,28 @@ final class DatabaseCleaner {
 		return false === $old ? null : (string) $old;
 	}
 
+	/**
+	 * Every OLD prefix that the map rewrites into $new_prefix.
+	 *
+	 * @param string $new_prefix Post-rename prefix.
+	 * @return array<int,string> Legacy prefixes.
+	 */
+	private static function legacy_prefixes_for( string $new_prefix ): array {
+		$rules = array_merge(
+			PrefixMigrationMap::POSTMETA_PREFIX_RULES,
+			PrefixMigrationMap::USERMETA_PREFIX_RULES
+		);
+
+		$legacy = array();
+		foreach ( $rules as $old => $new ) {
+			if ( $new === $new_prefix && $old !== $new_prefix ) {
+				$legacy[] = $old;
+			}
+		}
+
+		return array_values( array_unique( $legacy ) );
+	}
+
 	private static function legacy_meta_keys(): array {
 		$rules = array_merge(
 			PrefixMigrationMap::POSTMETA_PREFIX_RULES,
@@ -430,21 +452,77 @@ final class DatabaseCleaner {
 			'_mhmrentiva_woocommerce_order_id',
 			'_mhmrentiva_workflow_state',
 
+			// Görev 12 moved four families that the LIKE '_mhm%' pattern could
+			// never previously reach -- '_booking_*', '_contact_*', '_rentiva_*'
+			// and the visible 'addon_*' keys -- onto the '_mhmrentiva_' prefix.
+			// That is exactly the day the entry below anticipated: they are now
+			// INSIDE the DELETE's reach for the first time, so every one of them
+			// has to be protected explicitly or the next cleanup removes it.
+			// Found by the drift gate, not by inspection.
+			'_mhmrentiva_booking_customer_email',
+			'_mhmrentiva_booking_customer_first_name',
+			'_mhmrentiva_booking_customer_name',
+			'_mhmrentiva_booking_customer_phone',
+			'_mhmrentiva_booking_dropoff_date',
+			'_mhmrentiva_booking_dropoff_time',
+			'_mhmrentiva_booking_guests',
+			'_mhmrentiva_booking_offline_receipt_id',
+			'_mhmrentiva_booking_order_id',
+			'_mhmrentiva_booking_payment_amount',
+			'_mhmrentiva_booking_payment_currency',
+			'_mhmrentiva_booking_payment_gateway',
+			'_mhmrentiva_booking_payment_status',
+			'_mhmrentiva_booking_pickup_date',
+			'_mhmrentiva_booking_pickup_time',
+			'_mhmrentiva_booking_rental_days',
+			'_mhmrentiva_booking_return_date',
+			'_mhmrentiva_booking_start_ts',
+			'_mhmrentiva_booking_status',
+			'_mhmrentiva_booking_total_price',
+			'_mhmrentiva_booking_vehicle_id',
+			'_mhmrentiva_contact_attachment',
+			'_mhmrentiva_contact_company',
+			'_mhmrentiva_contact_email',
+			'_mhmrentiva_contact_ip_address',
+			'_mhmrentiva_contact_name',
+			'_mhmrentiva_contact_phone',
+			'_mhmrentiva_contact_preferred_date',
+			'_mhmrentiva_contact_priority',
+			'_mhmrentiva_contact_rating',
+			'_mhmrentiva_contact_status',
+			'_mhmrentiva_contact_timestamp',
+			'_mhmrentiva_contact_type',
+			'_mhmrentiva_contact_user_agent',
+			'_mhmrentiva_contact_vehicle_id',
+			'_mhmrentiva_vehicle_service_type',
+			'_mhmrentiva_vendor_avatar_id',
+			'_mhmrentiva_vendor_city',
+			'_mhmrentiva_vendor_reliability_score',
+			'_mhmrentiva_vendor_reliability_updated_at',
+			'_mhmrentiva_vendor_score_history',
+			'_mhmrentiva_vendor_slug',
+			'_mhmrentiva_vendor_slug_history',
+			'_mhmrentiva_vendor_status',
+			'mhmrentiva_addon_description',
+			'mhmrentiva_addon_enabled',
+			'mhmrentiva_addon_price',
+			'mhmrentiva_addon_required',
+			'mhmrentiva_addon_type',
 			// Legacy families kept for documentation and for the day the
 			// LIKE pattern widens; none of them can match '_mhm%' today.
-			'_booking_customer_email',
-			'_booking_customer_name',
-			'_booking_customer_phone',
-			'_booking_payment_gateway',
-			'_booking_payment_status',
-			'_booking_pickup_date',
-			'_booking_rental_days',
-			'_booking_return_date',
-			'_booking_total_price',
-			'_booking_vehicle_id',
-			'addon_description',
-			'addon_price',
-			'addon_type',
+			'_mhmrentiva_booking_customer_email',
+			'_mhmrentiva_booking_customer_name',
+			'_mhmrentiva_booking_customer_phone',
+			'_mhmrentiva_booking_payment_gateway',
+			'_mhmrentiva_booking_payment_status',
+			'_mhmrentiva_booking_pickup_date',
+			'_mhmrentiva_booking_rental_days',
+			'_mhmrentiva_booking_return_date',
+			'_mhmrentiva_booking_total_price',
+			'_mhmrentiva_booking_vehicle_id',
+			'mhmrentiva_addon_description',
+			'mhmrentiva_addon_price',
+			'mhmrentiva_addon_type',
 		);
 	}
 
@@ -499,9 +577,19 @@ final class DatabaseCleaner {
 					$keys[] = '_mhmrentiva_' . $field_key;
 					// Same transition window: the ROWS for these fields were
 					// written under the old prefix and stay that way until the
-					// migration runs.
-					$keys[] = '_mhmrentiva_' . $field_key;
-					$keys[] = '_mhmrentiva_' . $field_key;
+					// migration runs, so both spellings must be protected.
+					//
+					// DERIVED from the map rather than written as literals. The
+					// first version of this hardcoded the two pre-rename prefixes
+					// -- and the next run of the rename tool swept them straight
+					// into duplicates of the line above, silently removing the
+					// protection they existed to provide. Anything spelled in a
+					// pre-rename prefix is, by construction, something the sweep
+					// rewrites; only a derivation survives re-running the tool.
+					// (Which is also why this comment names no old prefix.)
+					foreach ( self::legacy_prefixes_for( '_mhmrentiva_' ) as $legacy_prefix ) {
+						$keys[] = $legacy_prefix . $field_key;
+					}
 				}
 			}
 		}
@@ -542,30 +630,52 @@ final class DatabaseCleaner {
 			array_unique( array_merge( self::static_meta_keys(), self::legacy_meta_keys() ) )
 		);
 
+		$likes = array();
+		foreach ( self::custom_field_prefixes() as $prefix ) {
+			$likes[] = $wpdb->esc_like( $prefix ) . '%';
+		}
+
 		return $wpdb->get_col(
 			$wpdb->prepare(
 				"
             SELECT DISTINCT meta_key
             FROM {$wpdb->postmeta}
-            WHERE ( meta_key LIKE %s OR meta_key LIKE %s )
-            AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $static_keys ), '%s' ) ) . ')
+            WHERE ( " . implode( ' OR ', array_fill( 0, count( $likes ), 'meta_key LIKE %s' ) ) . ' )
+            AND meta_key NOT IN (' . implode( ',', array_fill( 0, count( $static_keys ), '%s' ) ) . ')
             LIMIT 20
         ',
-				array_merge(
-					// Admin-defined vehicle fields are stored as
-					// \'<prefix><field>\'. Both spellings are live during the
-					// transition window, and BOTH must be asked about -- but only
-					// these two: widening to \'_mhm%\' would treat any unrelated
-					// junk meta row as an at-risk custom field and abort the
-					// cleanup permanently, turning a safety net into an off switch.
-					array(
-						$wpdb->esc_like( '_mhmrentiva_' ) . '%',
-						$wpdb->esc_like( '_mhmrentiva_' ) . '%',
-					),
-					$static_keys
-				)
+				array_merge( $likes, $static_keys )
 			)
 		);
+	}
+
+	/**
+	 * The prefixes admin-defined vehicle fields are stored under, current first.
+	 *
+	 * DERIVED, for the same reason legacy_prefixes_for() exists: the previous
+	 * version of this probe spelled the pre-rename prefix as a literal, the
+	 * rename tool rewrote it into a duplicate of the current one, and the probe
+	 * quietly stopped asking about the old family at all -- while the DELETE it
+	 * guards still reached those rows. A test caught it; nothing else would have.
+	 *
+	 * Only the LONGEST legacy prefix is used. Several old prefixes collapse onto
+	 * '_mhmrentiva_', but custom fields were only ever written under the longest
+	 * of them; including the short ones would make any unrelated meta row look
+	 * like an at-risk custom field and abort the cleanup permanently, turning a
+	 * safety net into an off switch.
+	 *
+	 * @return array<int,string>
+	 */
+	private static function custom_field_prefixes(): array {
+		$legacy = self::legacy_prefixes_for( '_mhmrentiva_' );
+		usort( $legacy, static fn( $a, $b ) => strlen( $b ) <=> strlen( $a ) );
+
+		$prefixes = array( '_mhmrentiva_' );
+		if ( array() !== $legacy ) {
+			$prefixes[] = $legacy[0];
+		}
+
+		return $prefixes;
 	}
 
 	/**
@@ -627,7 +737,7 @@ final class DatabaseCleaner {
             AND um.meta_key LIKE %s
             LIMIT 100
         ",
-				'mhmrentiva_rentiva%%'
+				'mhmrentiva%%'
 			),
 			ARRAY_A
 		);
@@ -681,7 +791,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva%'
             AND option_name NOT LIKE '_transient%'
         ",
 			ARRAY_A
@@ -692,7 +802,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva%'
             AND autoload = 'yes'
         ",
 			ARRAY_A
@@ -1101,7 +1211,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva%'
             AND autoload = 'yes'
             AND LENGTH(option_value) > 1024
             ORDER BY size DESC

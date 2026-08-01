@@ -44,7 +44,7 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 
 		$this->booking_id = (int) self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle_booking',
+				'post_type'   => 'mhmrentiva_booking',
 				'post_status' => 'publish',
 			)
 		);
@@ -119,7 +119,7 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 		// TransferCartIntegration.php's full_payment branch).
 		$transfer_booking_id = (int) self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle_booking',
+				'post_type'   => 'mhmrentiva_booking',
 				'post_status' => 'publish',
 			)
 		);

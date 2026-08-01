@@ -218,7 +218,7 @@ final class Util {
             -- Payment Deadline
             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
             
-            WHERE p.post_type = 'vehicle_booking'
+            WHERE p.post_type = 'mhmrentiva_booking'
             AND p.post_status = 'publish'
             AND pm_vid.meta_value = %d
             AND (
@@ -311,7 +311,7 @@ final class Util {
              -- Payment Deadline
              LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
              
-             WHERE p.post_type = 'vehicle_booking'
+             WHERE p.post_type = 'mhmrentiva_booking'
              AND p.post_status = 'publish'
              AND pm_vid.meta_value = %d
              AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress')
@@ -394,7 +394,7 @@ final class Util {
 	public static function check_availability(int $vehicle_id, string $pickup_date, string $pickup_time, string $dropoff_date, string $dropoff_time): array
 	{
 		// Validate vehicle existence
-		if (get_post_type($vehicle_id) !== 'vehicle') {
+		if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
 			return array(
 				'ok'      => false,
 				'code'    => 'vehicle_not_found',
@@ -514,7 +514,7 @@ final class Util {
 		$original_location = '';
 
 		// Check for vehicle category taxonomy
-		$vehicle_categories = wp_get_post_terms($original_vehicle_id, 'vehicle_category', array( 'fields' => 'ids' ));
+		$vehicle_categories = wp_get_post_terms($original_vehicle_id, 'mhmrentiva_vehicle_category', array( 'fields' => 'ids' ));
 		if (! empty($vehicle_categories) && ! is_wp_error($vehicle_categories)) {
 			$original_category = $vehicle_categories[0];
 		}
@@ -533,7 +533,7 @@ final class Util {
 
 		// ⚡ Optimized: fetch only active vehicles with a sane limit
 		$query_args = array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => 20, // Limit to at most 20 vehicles
 			'meta_query'     => array(
@@ -651,7 +651,7 @@ final class Util {
 				$vehicle_category = '';
 				$vehicle_location = '';
 
-				$vehicle_categories = wp_get_post_terms($vehicle->ID, 'vehicle_category', array( 'fields' => 'ids' ));
+				$vehicle_categories = wp_get_post_terms($vehicle->ID, 'mhmrentiva_vehicle_category', array( 'fields' => 'ids' ));
 				if (! empty($vehicle_categories) && ! is_wp_error($vehicle_categories)) {
 					$vehicle_category = $vehicle_categories[0];
 				}
@@ -774,7 +774,7 @@ final class Util {
 			$vehicle_id,
 			function () use ($vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time) {
 				// Validate vehicle existence
-				if (get_post_type($vehicle_id) !== 'vehicle') {
+				if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
 					return array(
 						'ok'      => false,
 						'code'    => 'vehicle_not_found',

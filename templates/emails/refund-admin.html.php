@@ -38,6 +38,6 @@
 	</table>
 
 	<div style="text-align: center; margin-top: 20px;">
-		<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=vehicle_booking' ) ); ?>" style="display: inline-block; background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;"><?php esc_html_e( 'View Bookings', 'mhm-rentiva' ); ?></a>
+		<a href="<?php echo esc_url( admin_url( 'edit.php?post_type=mhmrentiva_booking' ) ); ?>" style="display: inline-block; background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;"><?php esc_html_e( 'View Bookings', 'mhm-rentiva' ); ?></a>
 	</div>
 </div>

@@ -79,6 +79,43 @@ class PrefixRenamerTest extends TestCase {
 	}
 
 	/**
+	 * 🔴 The regression that got furthest before being caught.
+	 *
+	 * 'mhm_rentiva' with NO trailing underscore is real, load-bearing text: it is
+	 * the SQL LIKE prefix uninstall.php and DatabaseCleaner use to find this
+	 * plugin's options ('mhm_rentiva%'), and it is an object-cache group name.
+	 * The map only carries 'mhm_rentiva_' and 'mhm_rentiva/', so the bare
+	 * catch-all 'mhm_' fired instead and produced 'mhmrentiva_rentiva%' -- a
+	 * prefix that matches nothing, which would have made uninstall and the
+	 * option cleanup silently stop deleting anything at all.
+	 *
+	 * My own adversarial fixtures missed it because every one of them followed
+	 * 'mhm_rentiva' with an underscore. This is the case that was not imagined.
+	 *
+	 * @dataProvider bareRentivaProvider
+	 *
+	 * @param string $in       Input.
+	 * @param string $expected Expected output.
+	 */
+	public function test_bare_mhm_rentiva_without_trailing_underscore( string $in, string $expected ): void {
+		$this->assertSame( $expected, $this->t( $in ), 'the bare mhm_ catch-all fired inside mhm_rentiva' );
+	}
+
+	/**
+	 * @return array<string, array{0:string,1:string}>
+	 */
+	public function bareRentivaProvider(): array {
+		return array(
+			'sql like prefix'      => array( "'mhm_rentiva%'", "'mhmrentiva%'" ),
+			'sql like underscored' => array( "'_mhm_rentiva%'", "'_mhmrentiva%'" ),
+			'transient like'       => array( "'_transient_mhm_rentiva%'", "'_transient_mhmrentiva%'" ),
+			'cache group'          => array( "wp_cache_get( \$key, 'mhm_rentiva' )", "wp_cache_get( \$key, 'mhmrentiva' )" ),
+			'phpcs prefix config'  => array( '<element value="mhm_rentiva"/>', '<element value="mhmrentiva"/>' ),
+			'doubled escape'       => array( "'mhm_rentiva%%'", "'mhmrentiva%%'" ),
+		);
+	}
+
+	/**
 	 * A shorter key that is a strict prefix of a longer one must not truncate it.
 	 */
 	public function test_shorter_key_does_not_truncate_longer_sibling(): void {
@@ -119,8 +156,18 @@ class PrefixRenamerTest extends TestCase {
 		$mismatches = array();
 		foreach ( $families as $familyName => $family ) {
 			foreach ( $family as $old => $new ) {
-				$got = $this->t( "'" . $old . "'" );
-				if ( "'" . $new . "'" !== $got ) {
+				// CPT and taxonomy names are only renamed on POSITIVE evidence
+				// that the literal is a registration -- a bare quoted 'vehicle'
+				// is deliberately left alone, because in this tree it is just as
+				// likely to be an array key or the rewrite-slug default. So the
+				// fixture has to supply the evidence a real call site supplies.
+				$fixture = in_array( $familyName, array( 'POST_TYPES', 'TAXONOMIES' ), true )
+					? "register_post_type( '" . $old . "' )"
+					: "'" . $old . "'";
+				$expected = str_replace( "'" . $old . "'", "'" . $new . "'", $fixture );
+
+				$got = $this->t( $fixture );
+				if ( $expected !== $got ) {
 					$mismatches[] = sprintf( "%s: '%s' -> %s (map says '%s')", $familyName, $old, $got, $new );
 				}
 			}
@@ -201,6 +248,26 @@ class PrefixRenamerTest extends TestCase {
 			'canonical POST_TYPE const'  => array( "public const POST_TYPE = 'vehicle';", "public const POST_TYPE = 'mhmrentiva_vehicle';" ),
 			'canonical POST_TYPE addon'  => array( "public const POST_TYPE = 'vehicle_addon';", "public const POST_TYPE = 'mhmrentiva_addon';" ),
 			'canonical TAXONOMY const'   => array( "public const TAXONOMY = 'addon_context';", "public const TAXONOMY = 'mhmrentiva_addon_context';" ),
+			'post_type query arg'        => array( "'post_type' => 'vehicle',", "'post_type' => 'mhmrentiva_vehicle'," ),
+			'post_type comparison'       => array( "if ( \$post->post_type === 'vehicle' ) {}", "if ( \$post->post_type === 'mhmrentiva_vehicle' ) {}" ),
+			'is_singular'                => array( "is_singular( 'vehicle' )", "is_singular( 'mhmrentiva_vehicle' )" ),
+			// Admin URL query strings. Found by clicking the admin menu, not by
+			// any static check -- every Rentiva menu item pointed at the old post
+			// type, i.e. at a screen that no longer exists.
+			'menu url post_type'         => array( "'edit.php?post_type=vehicle'", "'edit.php?post_type=mhmrentiva_vehicle'" ),
+			'menu url booking'           => array( "'edit.php?post_type=vehicle_booking'", "'edit.php?post_type=mhmrentiva_booking'" ),
+			'menu url taxonomy'          => array( "'edit-tags.php?taxonomy=vehicle_category&post_type=vehicle'", "'edit-tags.php?taxonomy=mhmrentiva_vehicle_category&post_type=mhmrentiva_vehicle'" ),
+			// Right-anchored, so the shorter name cannot eat the longer one's URL.
+			'query var not truncated'    => array( "'post_type=vehicle_addon'", "'post_type=mhmrentiva_addon'" ),
+			// WP dynamic hooks. A column callback bound to a hook that no longer
+			// fires does not error -- the column just silently disappears, which
+			// is how this survived a green test suite.
+			'manage columns hook'        => array( "'manage_vehicle_posts_columns'", "'manage_mhmrentiva_vehicle_posts_columns'" ),
+			'manage columns booking'     => array( "'manage_vehicle_booking_posts_columns'", "'manage_mhmrentiva_booking_posts_columns'" ),
+			'sortable columns hook'      => array( "'manage_edit-vehicle_addon_sortable_columns'", "'manage_edit-mhmrentiva_addon_sortable_columns'" ),
+			'save_post hook'             => array( "'save_post_vehicle'", "'save_post_mhmrentiva_vehicle'" ),
+			'save_post booking hook'     => array( "'save_post_vehicle_booking'", "'save_post_mhmrentiva_booking'" ),
+			'add_meta_boxes hook'        => array( "'add_meta_boxes_vehicle'", "'add_meta_boxes_mhmrentiva_vehicle'" ),
 			'wp_meta_boxes is post-type keyed' => array( "isset( \$wp_meta_boxes['vehicle']['side'] )", "isset( \$wp_meta_boxes['mhmrentiva_vehicle']['side'] )" ),
 		);
 	}
@@ -229,6 +296,12 @@ class PrefixRenamerTest extends TestCase {
 			'error enum'          => array( "public const ERROR_TYPE_VEHICLE    = 'vehicle';", 'UX error-type enum value' ),
 			'log category enum'   => array( "public const CATEGORY_VEHICLE     = 'vehicle';", 'log category enum value' ),
 			'rewrite slug default' => array( "\$url_base = sanitize_title( SettingsCore::get( 'mhmrentiva_vehicle_url_base', 'vehicle' ) ) ?: 'vehicle';", 'public URLs must not change' ),
+			// The two below are the sites a deny-by-default design missed and a
+			// real test caught: SettingsSanitizer's rewrite-slug fallbacks. If
+			// these move, every vehicle URL on every site moves with them.
+			'sanitizer slug fallback'   => array( "\$url_base = \\sanitize_title( \$input['mhmrentiva_vehicle_url_base'] ?? ( \$defaults['mhmrentiva_vehicle_url_base'] ?? 'vehicle' ) );", 'rewrite-slug default' ),
+			'sanitizer slug elvis'      => array( "'mhmrentiva_vehicle_url_base' => \$url_base ?: 'vehicle',", 'rewrite-slug default' ),
+			'settings default slug'     => array( "'mhmrentiva_vehicle_url_base'             => 'vehicle',", 'rewrite-slug default' ),
 			'metric subject'      => array( "self::flush_subject_metric('vehicle', 'perf', (string) \$vehicle_id);", 'internal metric subject' ),
 			'provider key'        => array( "self::register_provider('vehicle', VehicleManagementSettings::class);", 'internal settings-provider key' ),
 		);

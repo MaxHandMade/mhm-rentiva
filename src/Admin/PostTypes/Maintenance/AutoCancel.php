@@ -175,7 +175,7 @@ final class AutoCancel {
 		// Find unpaid bookings created before the time limit
 		$q = new WP_Query(
 			array(
-				'post_type'      => 'vehicle_booking',
+				'post_type'      => 'mhmrentiva_booking',
 				'post_status'    => 'any', // Check all statuses to be safe, filter later
 				'fields'         => 'ids',
 				'posts_per_page' => $limit,
@@ -232,7 +232,7 @@ final class AutoCancel {
 	private static function sweep_past_pickup_unpaid( int $limit = 50 ): int {
 		$today = wp_date( 'Y-m-d' );
 		$q     = new WP_Query(array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'any',
 			'fields'         => 'ids',
 			'posts_per_page' => $limit,
@@ -298,7 +298,7 @@ final class AutoCancel {
 				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
 					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
 					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
-					?: get_post_meta($bid, '_booking_order_id', true) ),
+					?: get_post_meta($bid, '_mhmrentiva_booking_order_id', true) ),
 				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 
@@ -370,7 +370,7 @@ final class AutoCancel {
 		}
 
 		$q = new \WP_Query(array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'posts_per_page' => -1,
 			'post_status'    => 'any',
 			'fields'         => 'ids',
@@ -397,7 +397,7 @@ final class AutoCancel {
 				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
 					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
 					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
-					?: get_post_meta($bid, '_booking_order_id', true) ),
+					?: get_post_meta($bid, '_mhmrentiva_booking_order_id', true) ),
 				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 

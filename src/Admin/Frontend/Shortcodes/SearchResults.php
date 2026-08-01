@@ -407,12 +407,12 @@ final class SearchResults extends AbstractShortcode {
 		$args['meta_query'][] = array(
 			'relation' => 'OR',
 			array(
-				'key'     => '_rentiva_vehicle_service_type',
+				'key'     => '_mhmrentiva_vehicle_service_type',
 				'value'   => 'transfer',
 				'compare' => '!=',
 			),
 			array(
-				'key'     => '_rentiva_vehicle_service_type',
+				'key'     => '_mhmrentiva_vehicle_service_type',
 				'compare' => 'NOT EXISTS',
 			),
 		);

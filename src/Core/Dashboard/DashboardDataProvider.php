@@ -96,7 +96,7 @@ final class DashboardDataProvider {
 			'active_listings'   => static function (string $context, int $user_id, string $user_email): array {
 				unset($context, $user_email);
 				$count = count(get_posts(array(
-					'post_type'      => 'vehicle',
+					'post_type'      => 'mhmrentiva_vehicle',
 					'author'         => $user_id,
 					'post_status'    => 'publish',
 					'posts_per_page' => -1,
@@ -111,7 +111,7 @@ final class DashboardDataProvider {
 				// Status meta: '_mhmrentiva_status'. We count bookings on this vendor's vehicles with status 'pending'.
 				global $wpdb;
 				$vehicle_ids = array_map('intval', get_posts(array(
-					'post_type'      => 'vehicle',
+					'post_type'      => 'mhmrentiva_vehicle',
 					'author'         => $user_id,
 					'post_status'    => array( 'publish', 'pending' ),
 					'posts_per_page' => -1,
@@ -128,7 +128,7 @@ final class DashboardDataProvider {
 						FROM {$wpdb->posts} p
 						INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
 						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status' AND sm.meta_value = 'pending'
-						WHERE p.post_type = 'vehicle_booking'
+						WHERE p.post_type = 'mhmrentiva_booking'
 						AND p.post_status NOT IN ('trash','auto-draft')
 						AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode(', ', array_fill(0, count($vehicle_ids), '%d')) . ')',
 						$vehicle_ids
@@ -140,7 +140,7 @@ final class DashboardDataProvider {
 				unset($context, $user_email);
 				global $wpdb;
 				$vehicle_ids = array_map('intval', get_posts(array(
-					'post_type'      => 'vehicle',
+					'post_type'      => 'mhmrentiva_vehicle',
 					'author'         => $user_id,
 					'post_status'    => array( 'publish', 'pending' ),
 					'posts_per_page' => -1,
@@ -160,8 +160,8 @@ final class DashboardDataProvider {
 						FROM {$wpdb->posts} p
 						INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
 						INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status' AND sm.meta_value IN (" . implode(', ', array_fill(0, count($active), '%s')) . ")
-						INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key IN ('_mhmrentiva_pickup_date','_booking_pickup_date')
-						WHERE p.post_type = 'vehicle_booking'
+						INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key IN ('_mhmrentiva_pickup_date','_mhmrentiva_booking_pickup_date')
+						WHERE p.post_type = 'mhmrentiva_booking'
 						AND p.post_status NOT IN ('trash','auto-draft')
 						AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode(', ', array_fill(0, count($vehicle_ids), '%d')) . ')
 						AND dm.meta_value >= %s',
@@ -319,7 +319,7 @@ final class DashboardDataProvider {
 	private static function get_vendor_recent_bookings(int $user_id): array
 	{
 		$vehicle_ids = get_posts(array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'author'         => $user_id,
 			'post_status'    => array( 'publish', 'pending' ),
 			'posts_per_page' => -1,
@@ -332,7 +332,7 @@ final class DashboardDataProvider {
 		}
 
 		$bookings = get_posts(array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => array( 'publish', 'private' ),
 			'posts_per_page' => 5,
 			'orderby'        => 'date',

@@ -12,7 +12,7 @@ $vendor_id = get_current_user_id();
 
 // Query vendor's vehicles.
 $vehicles = get_posts( array(
-	'post_type'      => 'vehicle',
+	'post_type'      => 'mhmrentiva_vehicle',
 	'author'         => $vendor_id,
 	'post_status'    => array( 'publish', 'pending', 'draft' ),
 	'posts_per_page' => 50,
@@ -105,7 +105,7 @@ $resolve_operational_state = static function ( int $vehicle_id ): string {
 			 INNER JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_dropoff_date'
 			 LEFT JOIN  {$wpdb->postmeta} stm ON stm.post_id = p.ID AND stm.meta_key = '_mhmrentiva_service_type'
 			 LEFT JOIN  {$wpdb->postmeta} trm ON trm.post_id = p.ID AND trm.meta_key = '_mhmrentiva_transfer_origin_id'
-			 WHERE p.post_type = 'vehicle_booking'
+			 WHERE p.post_type = 'mhmrentiva_booking'
 			 AND p.post_status NOT IN ('trash','auto-draft')
 			 AND CAST(vm.meta_value AS UNSIGNED) = %d
 			 AND dm.meta_value <= %s

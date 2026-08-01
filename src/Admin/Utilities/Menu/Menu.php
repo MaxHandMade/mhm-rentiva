@@ -54,7 +54,7 @@ final class Menu {
 			__('Vehicles', 'mhm-rentiva'),
 			__('Vehicles', 'mhm-rentiva'),
 			'manage_options',
-			'edit.php?post_type=vehicle'
+			'edit.php?post_type=mhmrentiva_vehicle'
 		);
 
 		add_submenu_page(
@@ -62,7 +62,7 @@ final class Menu {
 			__('Vehicle Categories', 'mhm-rentiva'),
 			__('Vehicle Categories', 'mhm-rentiva'),
 			'manage_options',
-			'edit-tags.php?taxonomy=vehicle_category&post_type=vehicle'
+			'edit-tags.php?taxonomy=mhmrentiva_vehicle_category&post_type=mhmrentiva_vehicle'
 		);
 
 		add_submenu_page(
@@ -80,7 +80,7 @@ final class Menu {
 			__('Bookings', 'mhm-rentiva'),
 			__('Bookings', 'mhm-rentiva'),
 			'manage_options',
-			'edit.php?post_type=vehicle_booking'
+			'edit.php?post_type=mhmrentiva_booking'
 		);
 
 		// 5. Additional Services (Addons)
@@ -89,7 +89,7 @@ final class Menu {
 			__('Additional Services', 'mhm-rentiva'),
 			__('Additional Services', 'mhm-rentiva'),
 			'manage_options',
-			'edit.php?post_type=vehicle_addon'
+			'edit.php?post_type=mhmrentiva_addon'
 		);
 
 		// 6. Customers — gated on `edit_users`, the capability that matches the data
@@ -184,17 +184,17 @@ final class Menu {
 		}
 
 		// When in Vehicle post type editor
-		if ($current_screen->post_type === 'vehicle') {
+		if ($current_screen->post_type === 'mhmrentiva_vehicle') {
 			return 'mhm-rentiva';
 		}
 
 		// When in Vehicle addon post type editor
-		if ($current_screen->post_type === 'vehicle_addon') {
+		if ($current_screen->post_type === 'mhmrentiva_addon') {
 			return 'mhm-rentiva';
 		}
 
 		// When in Booking post type editor
-		if ($current_screen->post_type === 'vehicle_booking') {
+		if ($current_screen->post_type === 'mhmrentiva_booking') {
 			return 'mhm-rentiva';
 		}
 
@@ -213,18 +213,18 @@ final class Menu {
 		}
 
 		// When in Vehicle post type editor, make "Vehicles" active
-		if ($current_screen->post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
-			return 'edit.php?post_type=vehicle';
+		if ($current_screen->post_type === 'mhmrentiva_vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
+			return 'edit.php?post_type=mhmrentiva_vehicle';
 		}
 
 		// When in Vehicle addon editor, make "Additional Services" active
-		if ($current_screen->post_type === 'vehicle_addon' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
-			return 'edit.php?post_type=vehicle_addon';
+		if ($current_screen->post_type === 'mhmrentiva_addon' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
+			return 'edit.php?post_type=mhmrentiva_addon';
 		}
 
 		// When in Booking editor, make "Bookings" active
-		if ($current_screen->post_type === 'vehicle_booking' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
-			return 'edit.php?post_type=vehicle_booking';
+		if ($current_screen->post_type === 'mhmrentiva_booking' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
+			return 'edit.php?post_type=mhmrentiva_booking';
 		}
 
 		return $submenu_file;

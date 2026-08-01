@@ -20,7 +20,7 @@ $date_format = get_option( 'date_format' );
 
 // Fetch vendor's vehicle IDs.
 $vehicle_ids = get_posts( array(
-	'post_type'      => 'vehicle',
+	'post_type'      => 'mhmrentiva_vehicle',
 	'author'         => $vendor_id,
 	'post_status'    => array( 'publish', 'pending' ),
 	'posts_per_page' => -1,
@@ -147,7 +147,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 				 LEFT JOIN  {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhmrentiva_pickup_date'
 				 LEFT JOIN  {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_dropoff_date'
 				 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhmrentiva_total_price'
-				 WHERE p.post_type = 'vehicle_booking'
+				 WHERE p.post_type = 'mhmrentiva_booking'
 				 AND p.post_status NOT IN ('trash','auto-draft')
 				 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
 				 AND ( %s = '' OR sm.meta_value = %s )
@@ -174,7 +174,7 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 					 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
 					 LEFT JOIN  {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
 					 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhmrentiva_total_price'
-					 WHERE p.post_type = 'vehicle_booking'
+					 WHERE p.post_type = 'mhmrentiva_booking'
 					 AND p.post_status NOT IN ('trash','auto-draft')
 					 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
 					 LIMIT 500',

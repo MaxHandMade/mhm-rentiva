@@ -98,7 +98,7 @@ export default function CustomerPanel( { panelId, onClose } ) {
 								{ __( 'Edit', 'mhm-rentiva' ) }
 							</a>
 							<a
-								href={ `edit.php?post_type=vehicle_booking&customer_email=${ encodeURIComponent( detail.email ) }` }
+								href={ `edit.php?post_type=mhmrentiva_booking&customer_email=${ encodeURIComponent( detail.email ) }` }
 								className="button"
 							>
 								{ __( 'View Bookings', 'mhm-rentiva' ) }

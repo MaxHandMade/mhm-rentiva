@@ -17,7 +17,7 @@ class VehicleRatingFormTest extends WP_UnitTestCase
         VehicleRatingForm::reset_enqueued_assets_for_tests();
 
         $this->vehicle_id = $this->factory->post->create([
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Rating Test Vehicle',
         ]);

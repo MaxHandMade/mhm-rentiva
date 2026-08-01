@@ -13,7 +13,7 @@ class VehicleDetailsTest extends WP_UnitTestCase
     {
         parent::setUp();
         $this->vehicle_id = $this->factory->post->create([
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Details Test Vehicle',
             'meta_input'  => [

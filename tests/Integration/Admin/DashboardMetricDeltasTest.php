@@ -14,7 +14,7 @@ final class DashboardMetricDeltasTest extends WP_UnitTestCase {
 
 	private function make_booking( string $date, string $status, string $price, string $email ): int {
 		$id = self::factory()->post->create( array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 			'post_date'   => $date,
 		) );

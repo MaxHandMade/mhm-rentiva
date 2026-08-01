@@ -194,7 +194,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		$vehicles = get_posts(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'numberposts' => -1,
 				'orderby'     => 'title',
@@ -512,20 +512,20 @@ final class ContactForm extends AbstractShortcode {
 			'post_status'  => 'private',
 			'post_author'  => 1,
 			'meta_input'   => array(
-				'_contact_type'           => $data['type'],
-				'_contact_name'           => $data['name'],
-				'_contact_email'          => $data['email'],
-				'_contact_phone'          => $data['phone'],
-				'_contact_company'        => $data['company'],
-				'_contact_vehicle_id'     => $data['vehicle_id'],
-				'_contact_preferred_date' => $data['preferred_date'],
-				'_contact_priority'       => $data['priority'],
-				'_contact_rating'         => $data['rating'],
-				'_contact_attachment'     => $data['attachment'],
-				'_contact_ip_address'     => $data['ip_address'],
-				'_contact_user_agent'     => $data['user_agent'],
-				'_contact_timestamp'      => $data['timestamp'],
-				'_contact_status'         => 'new',
+				'_mhmrentiva_contact_type'           => $data['type'],
+				'_mhmrentiva_contact_name'           => $data['name'],
+				'_mhmrentiva_contact_email'          => $data['email'],
+				'_mhmrentiva_contact_phone'          => $data['phone'],
+				'_mhmrentiva_contact_company'        => $data['company'],
+				'_mhmrentiva_contact_vehicle_id'     => $data['vehicle_id'],
+				'_mhmrentiva_contact_preferred_date' => $data['preferred_date'],
+				'_mhmrentiva_contact_priority'       => $data['priority'],
+				'_mhmrentiva_contact_rating'         => $data['rating'],
+				'_mhmrentiva_contact_attachment'     => $data['attachment'],
+				'_mhmrentiva_contact_ip_address'     => $data['ip_address'],
+				'_mhmrentiva_contact_user_agent'     => $data['user_agent'],
+				'_mhmrentiva_contact_timestamp'      => $data['timestamp'],
+				'_mhmrentiva_contact_status'         => 'new',
 			),
 		);
 

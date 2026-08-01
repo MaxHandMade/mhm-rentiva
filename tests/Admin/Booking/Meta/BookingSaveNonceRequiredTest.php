@@ -34,7 +34,7 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 		parent::setUp();
 
 		$this->booking_id = self::factory()->post->create(
-			array( 'post_type' => 'vehicle_booking' )
+			array( 'post_type' => 'mhmrentiva_booking' )
 		);
 
 		wp_set_current_user(

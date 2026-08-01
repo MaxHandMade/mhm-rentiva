@@ -231,14 +231,63 @@ class PrefixRenamer {
 	 *
 	 * @var array<string,string> regex => why it is really the registered name
 	 */
-	public const QUOTED_ALLOW_CONTEXTS = array(
-		'/\$wp_meta_boxes\[\s*\'%s\'\s*\]/' => 'WP core keys $wp_meta_boxes by post type',
-		// Any constant whose NAME ends in POST_TYPE/TAXONOMY holds the registered
-		// name itself. Established by inventory, not by sample: the seven
-		// constants in src/ assigned one of these literals are POST_TYPE (x2),
-		// TAXONOMY (x2), BOOKING_POST_TYPE, and the two that must NOT move --
-		// ERROR_TYPE_VEHICLE and CATEGORY_VEHICLE, which end in VEHICLE.
+	/**
+	 * Contexts that are decisive enough to beat a deny pattern.
+	 *
+	 * Both entries LOOK like something they are not: WordPress keys the global
+	 * $wp_meta_boxes by post type, so a post-type usage is spelled exactly like
+	 * an ordinary array index; and a class constant named POST_TYPE holds the
+	 * registered name while being spelled exactly like the ERROR_TYPE_VEHICLE
+	 * enum that must not move. Checked before the deny list for that reason.
+	 *
+	 * @var array<string,string>
+	 */
+	public const QUOTED_OVERRIDE_CONTEXTS = array(
+		'/\$wp_meta_boxes\[\s*\'%s\'\s*\]/'                       => 'WP core keys $wp_meta_boxes by post type',
 		'/const\s+[A-Z0-9_]*(?:POST_TYPE|TAXONOMY)\s*=\s*\'%s\'/' => 'canonical registered-name constant',
+	);
+
+	public const QUOTED_ALLOW_CONTEXTS = array(
+		// --- the literal is being REGISTERED ---
+		'/register_post_type\(\s*\'%s\'/'                          => 'register_post_type()',
+		'/register_taxonomy\(\s*\'%s\'/'                           => 'register_taxonomy()',
+
+		// --- the literal is being used AS a post type / taxonomy ---
+		'/\'post_type\'\s*=>\s*\'%s\'/'                            => "'post_type' query arg",
+		'/\'taxonomy\'\s*=>\s*\'%s\'/'                             => "'taxonomy' query arg",
+		'/post_type\s*(?:===?|!==?)\s*\'%s\'/'                     => 'post_type comparison',
+		'/\'%s\'\s*(?:===?|!==?)\s*\$[A-Za-z_][A-Za-z0-9_]*(?:->)?(?:post_type)?/' => 'reversed post_type comparison',
+		'/\$typenow\s*(?:===?|!==?)\s*\'%s\'/'                     => '$typenow comparison',
+		'/get_post_type\([^)]*\)\s*(?:===?|!==?)\s*\'%s\'/'        => 'get_post_type() comparison',
+		'/(?:is_singular|is_post_type_archive|get_post_type_archive_link|wp_count_posts|post_type_exists|taxonomy_exists|get_post_type_object|get_taxonomy)\(\s*\'%s\'/' => 'post-type/taxonomy API call',
+		'/(?:remove_meta_box|add_meta_box)\([^;]*\'%s\'/'          => 'meta-box screen argument',
+		'/\$wp_meta_boxes\[\s*\'%s\'\s*\]/'                        => 'WP core keys $wp_meta_boxes by post type',
+		'/(?:get_terms|wp_get_post_terms|wp_set_object_terms|has_term|get_the_terms|wp_dropdown_categories)\([^;]*\'%s\'/' => 'taxonomy API call',
+		'/\'%s\'\s*,\s*\'objects\'/'                               => 'get_object_taxonomies()-style call',
+		'/screen->(?:id|post_type)\s*(?:===?|!==?)\s*\'%s\'/'      => 'admin screen comparison',
+		'/(?:in_array|array)\([^;]*post_type[^;]*\'%s\'/'          => 'post-type membership list',
+
+		// --- shapes found by auditing the residue this design deliberately
+		// --- produces. Each was added only after reading the call site.
+		'/post_type\s*=\s*\'%s\'/'                                 => 'raw SQL post_type predicate',
+		'/post_types?\s*=\s*array\([^;]*\'%s\'/'                   => 'post-type list assignment',
+		'/get\(\s*\'post_type\'\s*\)[^;]*(?:===?|!==?)\s*\'%s\'/'  => 'WP_Query->get(post_type) comparison',
+		'/term_exists\([^;]*\'%s\'/'                               => 'term_exists() taxonomy argument',
+		'/get_post_type\(\)[\s\S]{0,160}return\s+\'%s\'\s*;/'      => 'get_post_type() override returning the name',
+		'/get_taxonomy\w*\(\)[\s\S]{0,160}return\s+\'%s\'\s*;/'    => 'get_taxonomy() override returning the name',
+		'/\'post_type\'\s*=>\s*(?:array\()?[^;]{0,200}\'%s\'/'     => "'post_type' arg spanning lines",
+		'/\'taxonomy\'\s*=>\s*(?:array\()?[^;]{0,200}\'%s\'/'      => "'taxonomy' arg spanning lines",
+		'/(?:post_types|POST_TYPES)[\s\S]{0,200}\'%s\'/'           => 'post-type collection',
+		'/register_post_meta\(\s*\'%s\'/'                          => 'register_post_meta() post-type argument',
+		'/taxonomy\s*=\s*\'%s\'/'                                  => 'raw SQL taxonomy predicate',
+		'/name="post_type"\s+value="%s"/'                          => 'admin form post_type field',
+		// The dominant shape in the reporting/dashboard layer: the post type is a
+		// PLACEHOLDER in the SQL and arrives as a positional $wpdb->prepare()
+		// argument, so the only evidence is the `post_type = %s` a few lines up.
+		// NOTE the doubled %%s: that one is the literal SQL placeholder and must
+		// survive sprintf(), which fills the single %s with the rule's name.
+		'/post_type\s*(?:=|!=|<>)\s*%%s[\s\S]{0,400}\'%s\'/'       => 'post_type placeholder + prepare() argument',
+		'/post_type\s+IN\s*\([^)]*%%s[\s\S]{0,400}\'%s\'/'         => 'post_type IN placeholder + prepare() argument',
 	);
 
 	/**
@@ -249,7 +298,10 @@ class PrefixRenamer {
 	public const QUOTED_DENY_CONTEXTS = array(
 		'/\[\s*\'%s\'\s*\]/'                    => 'array index, not a post type',
 		'/\'%s\'\s*=>/'                         => 'array key, not a post type',
-		'/const\s+[A-Z_][A-Z0-9_]*\s*=\s*\'%s\'/' => 'enum-style class constant value',
+		// Excludes constants NAMED *POST_TYPE/*TAXONOMY, which hold the
+		// registered name itself and are handled by the allow list.
+		'/const\s+(?![A-Z0-9_]*(?:POST_TYPE|TAXONOMY)\s*=)[A-Z_][A-Z0-9_]*\s*=\s*\'%s\'/' => 'enum-style class constant value',
+		'/\?\?\s*\'%s\'|\?:\s*\'%s\'/'          => 'null-coalesce/elvis fallback: a DEFAULT VALUE, not a registration',
 		'/register_provider\(\s*\'%s\'/'        => 'internal settings-provider key',
 		'/flush_subject_metric\(\s*\'%s\'/'     => 'internal metric subject',
 		'/url_base\'\s*,\s*\'%s\'/'             => 'default value of the rewrite-slug setting',
@@ -341,7 +393,29 @@ class PrefixRenamer {
 
 		// Substring rules: every map rule whose OLD key contains an 'mhm'/'MHM'
 		// token. These cannot false-positive and must fire mid-identifier.
-		$substring = array();
+		$substring = array(
+			// 🔴 NOT in PrefixMigrationMap, and it has to be here.
+			//
+			// The map carries 'mhm_rentiva_' and 'mhm_rentiva/' but not the bare
+			// stem. Real code uses the bare stem as a SQL LIKE prefix
+			// ('mhm_rentiva%' in uninstall.php and DatabaseCleaner, where the next
+			// character is '%' and not '_') and as an object-cache group name. On
+			// those, the two mapped rules do not match, the bare 'mhm_' catch-all
+			// fires instead, and 'mhm_rentiva%' becomes 'mhmrentiva%' --
+			// a prefix that matches no option on any site, silently turning
+			// uninstall and the option cleanup into no-ops.
+			//
+			// This is a SWEEP rule, not a map entry: it changes no stored key, it
+			// only spells the same prefix correctly. Length-DESC ordering puts it
+			// after 'mhm_rentiva_'/'mhm_rentiva/' (12) and before 'mhm_' (4), so
+			// it can neither pre-empt the specific rules nor be pre-empted by the
+			// catch-all.
+			'mhm_rentiva'  => 'mhmrentiva',
+			// Same shape with the hidden-meta leading underscore: '_mhm_rentiva%'
+			// and '_transient_mhm_rentiva%'. Without this, '_mhm_' wins the offset
+			// and yields '_mhmrentiva%'.
+			'_mhm_rentiva' => '_mhmrentiva',
+		);
 		foreach ( array( Map::RUNTIME_STRING_RULES, Map::POSTMETA_PREFIX_RULES, Map::USERMETA_PREFIX_RULES ) as $family ) {
 			foreach ( $family as $old => $new ) {
 				if ( false !== stripos( $old, 'mhm' ) ) {
@@ -358,6 +432,67 @@ class PrefixRenamer {
 				'left'  => false,
 				'right' => false,
 			);
+		}
+
+		// 🔴 Post types and taxonomies embedded in admin URL QUERY STRINGS:
+		// 'edit.php?post_type=vehicle', 'edit-tags.php?taxonomy=vehicle_category'.
+		//
+		// The quoted_exact rules cannot see these -- the name is a fragment of a
+		// longer string, never a complete literal -- and --list-skips filtered the
+		// refusal out as structural noise, so they were invisible in BOTH
+		// directions. They only surfaced by clicking the admin menu in a browser
+		// and noticing every Rentiva menu item still pointed at the old post type,
+		// i.e. at screens that no longer exist. 25 occurrences across 13 files.
+		//
+		// Safe as plain substrings: 'post_type=' / 'taxonomy=' followed by the
+		// exact old name is unambiguous -- it is a WordPress admin query var and
+		// nothing else in this tree spells that.
+		foreach ( array_merge( Map::POST_TYPES, Map::TAXONOMIES ) as $old => $new ) {
+			if ( false !== stripos( $old, 'mhm' ) ) {
+				continue; // already covered by a substring rule.
+			}
+			$param = isset( Map::POST_TYPES[ $old ] ) ? 'post_type' : 'taxonomy';
+			$rules[] = array(
+				'id'    => 'queryvar:' . $param . '=' . $old,
+				'old'   => $param . '=' . $old,
+				'new'   => $param . '=' . $new,
+				'kind'  => 'substring',
+				'left'  => false,
+				'right' => true,
+			);
+		}
+
+		// 🔴 WordPress DYNAMIC HOOK names that embed the post type or taxonomy:
+		// manage_{$post_type}_posts_columns, save_post_{$post_type},
+		// add_meta_boxes_{$post_type}, manage_edit-{$post_type}_sortable_columns.
+		//
+		// Invisible to every other rule for the same reason as the query vars --
+		// the name is a fragment, never a whole literal. And invisible to the
+		// TESTS too, because a column callback that is never called does not fail,
+		// it just renders nothing. Found by opening the bookings list in a browser
+		// and seeing it had lost every custom column except Title and Date.
+		// 25 occurrences.
+		//
+		// No right-anchor: the hook continues with '_posts_columns' etc., so the
+		// next character is legitimately an identifier character. Correctness
+		// rests on length-DESC ordering instead -- 'manage_vehicle_booking' (22)
+		// is tried before 'manage_vehicle' (14), so the shorter post type can
+		// never claim the longer one's hook.
+		$hookPrefixes = array( 'manage_', 'manage_edit-', 'save_post_', 'add_meta_boxes_', 'views_edit-', 'bulk_actions-edit-' );
+		foreach ( array_merge( Map::POST_TYPES, Map::TAXONOMIES ) as $old => $new ) {
+			if ( false !== stripos( $old, 'mhm' ) ) {
+				continue;
+			}
+			foreach ( $hookPrefixes as $prefix ) {
+				$rules[] = array(
+					'id'    => 'hook:' . $prefix . $old,
+					'old'   => $prefix . $old,
+					'new'   => $prefix . $new,
+					'kind'  => 'substring',
+					'left'  => false,
+					'right' => false,
+				);
+			}
 		}
 
 		// Concrete meta keys resolved out of the four non-mhm prefix rules.
@@ -519,18 +654,70 @@ class PrefixRenamer {
 		if ( ! in_array( $before, array( "'", '"' ), true ) || $after !== $before ) {
 			return 'not a complete quoted string literal';
 		}
-		$line = $this->lineAt( $text, $i );
-		foreach ( self::QUOTED_ALLOW_CONTEXTS as $pattern => $unused ) {
-			if ( 1 === preg_match( sprintf( $pattern, preg_quote( $rule['old'], '/' ) ), $line ) ) {
+		// 🔴 DEFAULT IS "DO NOT RENAME". This started out the other way round --
+		// rename unless a deny pattern objects -- and that put the burden of proof
+		// on the wrong side. 'vehicle' appears ~220 times and is simultaneously a
+		// post type, an array key, an enum value, a settings-tab id, a metric
+		// subject AND the default value of the rewrite slug; with rename as the
+		// default, every context nobody had thought of yet was silently renamed.
+		// It cost a real public-URL break: SettingsSanitizer's two
+		// `?: 'vehicle'` rewrite-slug fallbacks were rewritten to
+		// 'mhmrentiva_vehicle', which changes every vehicle URL on every site.
+		// A test caught it, which is luck, not method.
+		//
+		// Inverted, the failure mode is a leftover rather than a silent break,
+		// and every leftover is printed by --list-skips for a human to resolve.
+		$quoted = preg_quote( $rule['old'], '/' );
+		$line   = $this->lineAt( $text, $i );
+
+		foreach ( self::QUOTED_OVERRIDE_CONTEXTS as $pattern => $why ) {
+			if ( 1 === preg_match( sprintf( $pattern, $quoted, $quoted ), $line ) ) {
 				return null;
 			}
 		}
+
+		// DENY first, and only ever against the single line the literal is on.
+		// These patterns describe the immediate syntax around it -- an array key,
+		// an index, an enum constant, a `?:` default -- and that reading must not
+		// be overturned by something several lines away.
 		foreach ( self::QUOTED_DENY_CONTEXTS as $pattern => $reason ) {
-			if ( 1 === preg_match( sprintf( $pattern, preg_quote( $rule['old'], '/' ) ), $line ) ) {
+			if ( 1 === preg_match( sprintf( $pattern, $quoted, $quoted ), $line ) ) {
 				return $reason;
 			}
 		}
-		return null;
+
+		// ALLOW against the line, then against a small window. The window exists
+		// because real call sites wrap: add_meta_box(), in_array() lists and
+		// register_post_type() argument arrays routinely put the literal on a line
+		// of its own, where no single-line pattern can ever see the evidence.
+		foreach ( self::QUOTED_ALLOW_CONTEXTS as $pattern => $why ) {
+			if ( 1 === preg_match( sprintf( $pattern, $quoted, $quoted ), $line ) ) {
+				return null;
+			}
+		}
+		$window = $this->windowAt( $text, $i, 5, 3 );
+		foreach ( self::QUOTED_ALLOW_CONTEXTS as $pattern => $why ) {
+			if ( 1 === preg_match( sprintf( $pattern, $quoted, $quoted ), $window ) ) {
+				return null;
+			}
+		}
+
+		return 'NO POSITIVE EVIDENCE this is a registered post type/taxonomy -- needs a human decision';
+	}
+
+	/**
+	 * The lines around offset $i, joined, for multi-line context matching.
+	 *
+	 * @param string $text   Text.
+	 * @param int    $i      Offset.
+	 * @param int    $before Lines of leading context.
+	 * @param int    $after  Lines of trailing context.
+	 * @return string
+	 */
+	private function windowAt( string $text, int $i, int $before, int $after ): string {
+		$lines = preg_split( '/\R/', $text ) ?: array();
+		$n     = substr_count( $text, "\n", 0, $i );
+		return implode( "\n", array_slice( $lines, max( 0, $n - $before ), $before + $after + 1 ) );
 	}
 
 	/**

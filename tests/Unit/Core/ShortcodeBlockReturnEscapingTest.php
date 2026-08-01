@@ -90,13 +90,13 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
         parent::setUp();
 
         $this->vehicle_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Test Vehicle',
         ));
 
         $this->booking_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Test Booking',
         ));

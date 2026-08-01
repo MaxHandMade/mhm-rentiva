@@ -505,7 +505,7 @@ final class BookingForm extends AbstractShortcode {
 	private static function prepare_selected_vehicle(int $vehicle_id, array $atts = array()): ?array
 	{
 		$vehicle_post = get_post($vehicle_id);
-		if (! $vehicle_post || $vehicle_post->post_type !== 'vehicle') {
+		if (! $vehicle_post || $vehicle_post->post_type !== 'mhmrentiva_vehicle') {
 			return null;
 		}
 
@@ -605,7 +605,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		$addons = get_posts(
 			array(
-				'post_type'      => 'vehicle_addon',
+				'post_type'      => 'mhmrentiva_addon',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'menu_order',
@@ -620,7 +620,7 @@ final class BookingForm extends AbstractShortcode {
 					$result[] = array(
 						'id'          => $addon->ID,
 						'title'       => $addon->post_title,
-						'price'       => (string) get_post_meta($addon->ID, 'addon_price', true),
+						'price'       => (string) get_post_meta($addon->ID, 'mhmrentiva_addon_price', true),
 						'description' => $addon->post_excerpt,
 					);
 				}

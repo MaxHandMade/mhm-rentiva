@@ -38,7 +38,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
         $order_id           = $order->get_id();
 
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
@@ -64,7 +64,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
         $order_id           = $order->get_id();
 
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
@@ -86,7 +86,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
         $order->save();
 
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
@@ -111,7 +111,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
         $remaining_order->save();
 
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
@@ -134,7 +134,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
         $order->save();
 
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'pending');
@@ -155,7 +155,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
     public function test_sync_stale_skips_already_paid_booking(): void
     {
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'completed');
@@ -173,7 +173,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
     public function test_sync_stale_skips_future_pickup_booking(): void
     {
         $booking_id = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
         update_post_meta($booking_id, '_mhmrentiva_status', 'pending');

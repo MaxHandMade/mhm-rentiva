@@ -22,8 +22,8 @@ final class BlockedDatesMetaBox {
 	private const NONCE_NAME     = 'mhmrentiva_blocked_dates_nonce';
 
 	public static function register(): void {
-		add_action( 'add_meta_boxes_vehicle', array( self::class, 'add_meta_box' ) );
-		add_action( 'save_post_vehicle', array( self::class, 'save' ), 10, 1 );
+		add_action( 'add_meta_boxes_mhmrentiva_vehicle', array( self::class, 'add_meta_box' ) );
+		add_action( 'save_post_mhmrentiva_vehicle', array( self::class, 'save' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_mhmrentiva_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
 		add_action( 'wp_ajax_mhmrentiva_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
@@ -35,7 +35,7 @@ final class BlockedDatesMetaBox {
 			'mhmrentiva_blocked_dates',
 			__( 'Blocked Dates', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'normal',
 			'default'
 		);
@@ -304,7 +304,7 @@ final class BlockedDatesMetaBox {
 		update_post_meta( $source_id, self::META_KEY_NOTES, $notes_json );
 
 		$vehicles = get_posts( array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -356,7 +356,7 @@ final class BlockedDatesMetaBox {
 		}
 
 		$vehicles = get_posts( array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -439,7 +439,7 @@ final class BlockedDatesMetaBox {
 			return;
 		}
 		global $post_type;
-		if ( $post_type !== 'vehicle' ) {
+		if ( $post_type !== 'mhmrentiva_vehicle' ) {
 			return;
 		}
 		wp_enqueue_style(

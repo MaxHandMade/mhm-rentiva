@@ -59,7 +59,7 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
             'lifecycle'        => array( 'mhmrentiva_lifecycle_filter', 'archive' ),
             'owner'            => array( 'mhmrentiva_owner_filter', 'vendor' ),
             'addon status'     => array( 'addon_status', 'active' ),
-            'addon category'   => array( 'addon_category', 'insurance' ),
+            'addon category'   => array( 'mhmrentiva_addon_category', 'insurance' ),
             'addon price min'  => array( 'price_min', '10' ),
             'addon price max'  => array( 'price_max', '99' ),
             // Calendar navigation on both list screens. Prefixed on purpose: an

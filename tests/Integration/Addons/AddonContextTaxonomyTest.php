@@ -16,13 +16,13 @@ final class AddonContextTaxonomyTest extends WP_UnitTestCase {
 
     public function test_taxonomy_is_registered(): void {
         AddonContextTaxonomy::register();
-        $this->assertTrue( taxonomy_exists( 'addon_context' ) );
+        $this->assertTrue( taxonomy_exists( 'mhmrentiva_addon_context' ) );
     }
 
     public function test_taxonomy_is_attached_to_vehicle_addon(): void {
         AddonContextTaxonomy::register();
-        $tax = get_taxonomy( 'addon_context' );
-        $this->assertContains( 'vehicle_addon', $tax->object_type );
+        $tax = get_taxonomy( 'mhmrentiva_addon_context' );
+        $this->assertContains( 'mhmrentiva_addon', $tax->object_type );
     }
 
     public function test_three_default_terms_are_seeded(): void {
@@ -30,7 +30,7 @@ final class AddonContextTaxonomyTest extends WP_UnitTestCase {
         AddonContextTaxonomy::seed_default_terms();
         foreach ( array( 'rental', 'transfer', 'both' ) as $slug ) {
             $this->assertNotFalse(
-                term_exists( $slug, 'addon_context' ),
+                term_exists( $slug, 'mhmrentiva_addon_context' ),
                 "Term '$slug' should exist"
             );
         }
@@ -42,7 +42,7 @@ final class AddonContextTaxonomyTest extends WP_UnitTestCase {
         AddonContextTaxonomy::seed_default_terms();
         $terms = get_terms(
             array(
-                'taxonomy'   => 'addon_context',
+                'taxonomy'   => 'mhmrentiva_addon_context',
                 'hide_empty' => false,
                 'fields'     => 'slugs',
             )
@@ -53,7 +53,7 @@ final class AddonContextTaxonomyTest extends WP_UnitTestCase {
 
     public function test_show_in_rest_is_enabled(): void {
         AddonContextTaxonomy::register();
-        $tax = get_taxonomy( 'addon_context' );
+        $tax = get_taxonomy( 'mhmrentiva_addon_context' );
         $this->assertTrue( $tax->show_in_rest );
     }
 

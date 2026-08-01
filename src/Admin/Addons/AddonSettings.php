@@ -209,7 +209,7 @@ final class AddonSettings {
 		echo '<h2>' . esc_html__( 'Default Additional Services', 'mhm-rentiva' ) . '</h2>';
 		echo '<p class="description">' . esc_html__( 'Automatically create default additional services for new installations.', 'mhm-rentiva' ) . '</p>';
 
-		$existing_count = wp_count_posts( 'vehicle_addon' )->publish;
+		$existing_count = wp_count_posts( 'mhmrentiva_addon' )->publish;
 		if ( $existing_count > 0 ) {
 			/* translators: %d: existing additional services count. */
 			echo '<p class="description">' . esc_html( sprintf( __( 'There are already %d additional services. Click the button below to create new default services.', 'mhm-rentiva' ), $existing_count ) ) . '</p>';

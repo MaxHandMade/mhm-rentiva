@@ -49,7 +49,7 @@ class DashboardContextVendorStatesTest extends \WP_UnitTestCase
         $user_id = $this->factory()->user->create();
         $user = new \WP_User($user_id);
         $user->add_role('rentiva_vendor');
-        update_user_meta($user_id, '_rentiva_vendor_status', 'suspended');
+        update_user_meta($user_id, '_mhmrentiva_vendor_status', 'suspended');
         wp_set_current_user($user_id);
 
         $this->assertSame('vendor_suspended', DashboardContext::resolve());
@@ -60,7 +60,7 @@ class DashboardContextVendorStatesTest extends \WP_UnitTestCase
         $user_id = $this->factory()->user->create();
         $user = new \WP_User($user_id);
         $user->add_role('rentiva_vendor');
-        update_user_meta($user_id, '_rentiva_vendor_status', 'active');
+        update_user_meta($user_id, '_mhmrentiva_vendor_status', 'active');
         wp_set_current_user($user_id);
 
         $this->assertSame('vendor', DashboardContext::resolve());

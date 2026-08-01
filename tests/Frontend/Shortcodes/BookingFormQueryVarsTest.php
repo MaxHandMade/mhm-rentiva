@@ -25,8 +25,8 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         BookingForm::register();
         VehiclesList::register();
 
-        if (! post_type_exists('vehicle')) {
-            register_post_type('vehicle', array(
+        if (! post_type_exists('mhmrentiva_vehicle')) {
+            register_post_type('mhmrentiva_vehicle', array(
                 'public'      => true,
                 'has_archive' => true,
                 'supports'    => array('title', 'editor', 'thumbnail', 'excerpt'),
@@ -35,7 +35,7 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
         }
 
         $this->vehicle_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_title'  => 'Booking Query Var Test Vehicle',
             'post_status' => 'publish',
             'meta_input'  => array(

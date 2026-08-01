@@ -53,7 +53,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		VehicleMeta::register();
 		$vehicle_id = (int) $this->factory->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_title'  => 'Featured Meta Box Vehicle',
 			)
@@ -62,17 +62,17 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$post = get_post($vehicle_id);
 		$this->assertNotNull($post);
 
-		do_action('add_meta_boxes_vehicle', $post);
+		do_action('add_meta_boxes_mhmrentiva_vehicle', $post);
 
 		global $wp_meta_boxes;
-		$this->assertTrue(isset($wp_meta_boxes['vehicle']['side']['default']['mhmrentiva_vehicle_featured']));
+		$this->assertTrue(isset($wp_meta_boxes['mhmrentiva_vehicle']['side']['default']['mhmrentiva_vehicle_featured']));
 	}
 
 	public function test_vehicle_featured_meta_save_requires_valid_nonce_and_capability(): void
 	{
 		$vehicle_id = (int) $this->factory->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_title'  => 'Featured Save Vehicle',
 			)
@@ -101,7 +101,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 	{
 		$featured_id = (int) $this->factory->post->create(
 			array(
-				'post_type'    => 'vehicle',
+				'post_type'    => 'mhmrentiva_vehicle',
 				'post_status'  => 'publish',
 				'post_title'   => 'Featured Vehicle A',
 				'post_excerpt' => 'Featured A',
@@ -109,7 +109,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		);
 		$normal_id   = (int) $this->factory->post->create(
 			array(
-				'post_type'    => 'vehicle',
+				'post_type'    => 'mhmrentiva_vehicle',
 				'post_status'  => 'publish',
 				'post_title'   => 'Normal Vehicle B',
 				'post_excerpt' => 'Normal B',

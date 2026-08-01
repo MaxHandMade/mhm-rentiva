@@ -47,7 +47,7 @@ class ReviewEnforcer {
 
 		$post_type = get_post_type( $post_id );
 
-		if ( $post_type !== 'vehicle' ) {
+		if ( $post_type !== 'mhmrentiva_vehicle' ) {
 			return $commentdata;
 		}
 

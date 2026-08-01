@@ -45,7 +45,7 @@ final class EmailAjaxHandler {
 			$new_status   = isset( $_POST['new_status'] ) ? sanitize_text_field( wp_unslash( $_POST['new_status'] ) ) : '';
 
 			// If a booking ID is provided, verify it exists
-			if ( $booking_id > 0 && get_post_type( $booking_id ) !== 'vehicle_booking' ) {
+			if ( $booking_id > 0 && get_post_type( $booking_id ) !== 'mhmrentiva_booking' ) {
 				wp_send_json_error( __( 'Booking not found.', 'mhm-rentiva' ) );
 			}
 

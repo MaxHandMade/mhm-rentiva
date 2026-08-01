@@ -55,7 +55,7 @@ final class DashboardService {
 		$total_bookings = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -65,7 +65,7 @@ final class DashboardService {
 				"SELECT COUNT(*) FROM {$wpdb->posts} 
              WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'
              AND post_date >= %s AND post_date <= %s",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$current_month_start,
 				$current_month_end
 			)
@@ -82,7 +82,7 @@ final class DashboardService {
              AND pm.meta_key = %s
              AND pm_status.meta_key = %s
              AND pm_status.meta_value IN (%s, %s)",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'_mhmrentiva_total_price',
 				'_mhmrentiva_status',
 				'completed',
@@ -102,7 +102,7 @@ final class DashboardService {
              AND pm.meta_key = %s
              AND pm_status.meta_key = %s
              AND pm_status.meta_value IN (%s, %s)",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$current_month_start,
 				$current_month_end,
 				'_mhmrentiva_total_price',
@@ -116,7 +116,7 @@ final class DashboardService {
 		$total_vehicles = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'",
-				'vehicle'
+				'mhmrentiva_vehicle'
 			)
 		);
 
@@ -128,7 +128,7 @@ final class DashboardService {
              WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND (pm_status.meta_value = 'active' OR pm_status.meta_value IS NULL OR pm_status.meta_value = '')",
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'vehicle'
+				'mhmrentiva_vehicle'
 			)
 		);
 
@@ -140,7 +140,7 @@ final class DashboardService {
                 COUNT(DISTINCT CASE WHEN p.post_date >= %s THEN pm_email.meta_value END) as new_customers
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_customer_email'
-             WHERE p.post_type = 'vehicle_booking' 
+             WHERE p.post_type = 'mhmrentiva_booking' 
              AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND p.post_date >= %s AND p.post_date <= %s
              AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
@@ -163,7 +163,7 @@ final class DashboardService {
              AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
 				'_mhmrentiva_customer_email',
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -242,7 +242,7 @@ final class DashboardService {
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts}
-                 WHERE post_type = 'vehicle_booking'
+                 WHERE post_type = 'mhmrentiva_booking'
                  AND post_status IN ('publish','private','pending') AND post_status != 'trash'
                  AND post_date >= %s AND post_date <= %s",
 				$start,
@@ -259,7 +259,7 @@ final class DashboardService {
                  FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
                  INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = 'vehicle_booking'
+                 WHERE p.post_type = 'mhmrentiva_booking'
                  AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
                  AND p.post_date >= %s AND p.post_date <= %s
                  AND pm.meta_key = '_mhmrentiva_total_price'
@@ -278,7 +278,7 @@ final class DashboardService {
 				"SELECT COUNT(DISTINCT pm_email.meta_value)
                  FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_customer_email'
-                 WHERE p.post_type = 'vehicle_booking'
+                 WHERE p.post_type = 'mhmrentiva_booking'
                  AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
                  AND p.post_date >= %s AND p.post_date <= %s
                  AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
@@ -311,7 +311,7 @@ final class DashboardService {
                  AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
                  GROUP BY COALESCE(NULLIF(pm.meta_value, ''), 'pending')
                  ORDER BY cnt DESC",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			),
 			ARRAY_A
 		) ?: array();
@@ -399,7 +399,7 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_PHONE,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			),
 			ARRAY_A
 		);
@@ -417,7 +417,7 @@ final class DashboardService {
 				$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true )
 					?: get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true )
 					?: get_post_meta( $booking_id, '_mhmrentiva_order_id', true )
-					?: get_post_meta( $booking_id, '_booking_order_id', true );
+					?: get_post_meta( $booking_id, '_mhmrentiva_booking_order_id', true );
 
 				if ( $order_id ) {
 					$order = wc_get_order( $order_id );
@@ -473,7 +473,7 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts}
              WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending')",
-				'vehicle_booking'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -530,7 +530,7 @@ final class DashboardService {
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 					$locations_table,
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					$per_page,
 					$offset
 				),
@@ -575,7 +575,7 @@ final class DashboardService {
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_CUSTOMER_LAST_NAME,
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 					\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					$per_page,
 					$offset
 				),
@@ -625,7 +625,7 @@ final class DashboardService {
 				$month_start,
 				$month_end,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash'
 			)
 		);
@@ -660,7 +660,7 @@ final class DashboardService {
 				'inactive',
 				'maintenance',
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish'
 			)
 		);
@@ -697,7 +697,7 @@ final class DashboardService {
 				'_mhmrentiva_dropoff_date',
 				'_mhmrentiva_end_date',
 				'_mhmrentiva_status',
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				$current_month_start,
 				$current_month_end,
 				'confirmed',
@@ -738,7 +738,7 @@ final class DashboardService {
                 OR pm_status.meta_value = ''
              )",
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish',
 				'active'
 			)
@@ -775,7 +775,7 @@ final class DashboardService {
                  AND pm.meta_key = %s
                  AND pm_status.meta_key = %s
                  AND pm_status.meta_value IN (%s, %s)",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
 					'private',
 					'pending',
@@ -809,7 +809,7 @@ final class DashboardService {
              AND pm.meta_key = %s
              AND pm_status.meta_key = %s
              AND pm_status.meta_value IN (%s, %s)",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish',
 				'private',
 				'pending',
@@ -837,7 +837,7 @@ final class DashboardService {
              AND pm.meta_key = %s
              AND pm_status.meta_key = %s
              AND pm_status.meta_value IN (%s, %s)",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish',
 				'private',
 				'pending',
@@ -892,7 +892,7 @@ final class DashboardService {
              AND pm.meta_key = %s
              AND pm_status.meta_key = %s
              AND pm_status.meta_value IN (%s, %s)",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish',
 				'private',
 				'pending',
@@ -918,7 +918,7 @@ final class DashboardService {
              AND pm_email.meta_value != '' AND pm_email.meta_value IS NOT NULL",
 				'_mhmrentiva_customer_email',
 				'_mhmrentiva_status',
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish',
 				'private',
 				'pending',
@@ -1062,7 +1062,7 @@ final class DashboardService {
              WHERE p.post_type = %s AND p.post_status != %s
              AND pm.meta_key = %s AND pm.meta_value = %s
              AND p.post_date >= %s AND p.post_date <= %s",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash',
 				'_mhmrentiva_payment_type',
 				'deposit',
@@ -1087,7 +1087,7 @@ final class DashboardService {
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_REMAINING_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash'
 			)
 		);
@@ -1107,7 +1107,7 @@ final class DashboardService {
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_DEPOSIT_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash'
 			)
 		);
@@ -1175,7 +1175,7 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'_mhmrentiva_woocommerce_order_id',
 				'_mhmrentiva_remaining_order_id',
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'trash'
 			),
 			ARRAY_A
@@ -1304,7 +1304,7 @@ final class DashboardService {
              INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = '_mhmrentiva_payment_type' AND pm_type.meta_value = 'deposit'
              INNER JOIN {$wpdb->postmeta} pm_dep ON p.ID = pm_dep.post_id AND pm_dep.meta_key = '_mhmrentiva_deposit_amount'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-             WHERE p.post_type = 'vehicle_booking'
+             WHERE p.post_type = 'mhmrentiva_booking'
              AND p.post_status IN ('publish','private','pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('confirmed','in_progress')"
 		);

@@ -178,7 +178,7 @@ final class CacheManager {
 
 		// Use Object Cache (if available)
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_set( $cache_key, $data, 'mhmrentiva_rentiva', $duration );
+			return wp_cache_set( $cache_key, $data, 'mhmrentiva', $duration );
 		}
 
 		// Fallback: Transient cache
@@ -197,7 +197,7 @@ final class CacheManager {
 
 		// Use Object Cache (if available)
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_get( $cache_key, 'mhmrentiva_rentiva' );
+			return wp_cache_get( $cache_key, 'mhmrentiva' );
 		}
 
 		// Fallback: Transient cache
@@ -212,7 +212,7 @@ final class CacheManager {
 	 */
 	public static function get_cache_object( string $key ) {
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_get( $key, 'mhmrentiva_rentiva' );
+			return wp_cache_get( $key, 'mhmrentiva' );
 		}
 		return get_transient( $key );
 	}
@@ -234,7 +234,7 @@ final class CacheManager {
 		$ttl = $ttl ?? self::get_cache_duration_default();
 
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_set( $key, $data, 'mhmrentiva_rentiva', $ttl );
+			return wp_cache_set( $key, $data, 'mhmrentiva', $ttl );
 		}
 		return set_transient( $key, $data, $ttl );
 	}
@@ -247,7 +247,7 @@ final class CacheManager {
 	 */
 	public static function delete_cache_object( string $key ): bool {
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_delete( $key, 'mhmrentiva_rentiva' );
+			return wp_cache_delete( $key, 'mhmrentiva' );
 		}
 		return delete_transient( $key );
 	}

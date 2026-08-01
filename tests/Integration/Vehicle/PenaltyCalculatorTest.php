@@ -113,7 +113,7 @@ class PenaltyCalculatorTest extends \WP_UnitTestCase
     private function create_active_vehicle(): int
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Penalty Test Vehicle',
@@ -127,7 +127,7 @@ class PenaltyCalculatorTest extends \WP_UnitTestCase
     private function create_withdrawn_vehicle(string $withdrawn_at): int
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'draft',
             'post_author' => $this->vendor_id,
             'post_title'  => 'Withdrawn Vehicle',

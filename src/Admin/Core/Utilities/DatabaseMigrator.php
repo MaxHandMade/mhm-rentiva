@@ -401,8 +401,8 @@ final class DatabaseMigrator {
 				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_vehicle_id' AND meta_value = '123'"
 			),
 			'post_date_query'  => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"),
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'mhmrentiva_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"),
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'mhmrentiva_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
 			),
 		);
 	}
@@ -1097,7 +1097,7 @@ final class DatabaseMigrator {
 		$vehicle_ids = $wpdb->get_col(
 			"SELECT p.ID FROM {$wpdb->posts} p
 			 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhmrentiva_vehicle_lifecycle_status'
-			 WHERE p.post_type = 'vehicle' AND pm.meta_id IS NULL"
+			 WHERE p.post_type = 'mhmrentiva_vehicle' AND pm.meta_id IS NULL"
 		);
 
 		if (empty($vehicle_ids)) {

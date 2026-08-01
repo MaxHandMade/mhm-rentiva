@@ -85,7 +85,7 @@ final class AutoComplete {
 				 LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhmrentiva_dropoff_date'
 				 LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhmrentiva_dropoff_time'
 				 LEFT  JOIN {$wpdb->postmeta} ed  ON ed.post_id  = p.ID AND ed.meta_key  = '_mhmrentiva_end_date'
-				 WHERE p.post_type = 'vehicle_booking'
+				 WHERE p.post_type = 'mhmrentiva_booking'
 				   AND p.post_status NOT IN ('trash', 'auto-draft')
 				   AND st.meta_value IN ('confirmed', 'in_progress')
 				   AND (

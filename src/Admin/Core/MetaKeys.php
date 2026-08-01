@@ -44,14 +44,14 @@ final class MetaKeys {
 	public const VENDOR_LOCATION_ID       = '_mhmrentiva_vendor_location_id';
 
 	// Vendor Profile (v4.37.0)
-	public const VENDOR_SLUG         = '_rentiva_vendor_slug';
-	public const VENDOR_SLUG_HISTORY = '_rentiva_vendor_slug_history';
-	public const VENDOR_AVATAR_ID    = '_rentiva_vendor_avatar_id';
+	public const VENDOR_SLUG         = '_mhmrentiva_vendor_slug';
+	public const VENDOR_SLUG_HISTORY = '_mhmrentiva_vendor_slug_history';
+	public const VENDOR_AVATAR_ID    = '_mhmrentiva_vendor_avatar_id';
 
 	// Canonical vendor base-city user meta. Written by VendorOnboardingController on
 	// approval and by VendorProfileSettingsSave on self-edit; read by the vendor vehicle
 	// form and the admin transfer meta box. Single source of truth to avoid key drift.
-	public const VENDOR_CITY = '_rentiva_vendor_city';
+	public const VENDOR_CITY = '_mhmrentiva_vendor_city';
 
 	// Vehicle Lifecycle Meta Keys
 	public const VEHICLE_LIFECYCLE_STATUS    = '_mhmrentiva_vehicle_lifecycle_status';
@@ -71,9 +71,9 @@ final class MetaKeys {
 	public const VEHICLE_BLOCKED_DATES      = '_mhmrentiva_vehicle_blocked_dates';
 
 	// Vendor Reliability Meta Keys
-	public const VENDOR_RELIABILITY_SCORE      = '_rentiva_vendor_reliability_score';
-	public const VENDOR_RELIABILITY_UPDATED_AT = '_rentiva_vendor_reliability_updated_at';
-	public const VENDOR_SCORE_HISTORY          = '_rentiva_vendor_score_history';
+	public const VENDOR_RELIABILITY_SCORE      = '_mhmrentiva_vendor_reliability_score';
+	public const VENDOR_RELIABILITY_UPDATED_AT = '_mhmrentiva_vendor_reliability_updated_at';
+	public const VENDOR_SCORE_HISTORY          = '_mhmrentiva_vendor_score_history';
 
 	// Booking Meta Keys
 	public const BOOKING_STATUS              = '_mhmrentiva_status';

@@ -32,7 +32,7 @@ final class VehicleGallery extends AbstractMetaBox {
 	}
 
 	protected static function get_post_type(): string {
-		return 'vehicle';
+		return 'mhmrentiva_vehicle';
 	}
 
 	protected static function get_meta_box_id(): string {
@@ -59,7 +59,7 @@ final class VehicleGallery extends AbstractMetaBox {
 
 		add_action( 'init', array( self::class, 'register_meta_fields' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
-		add_action( 'save_post_vehicle', array( self::class, 'save_gallery_images' ) );
+		add_action( 'save_post_mhmrentiva_vehicle', array( self::class, 'save_gallery_images' ) );
 
 		add_action( 'wp_ajax_mhmrentiva_add_gallery_image', array( self::class, 'ajax_add_gallery_image' ) );
 		add_action( 'wp_ajax_mhmrentiva_remove_gallery_image', array( self::class, 'ajax_remove_gallery_image' ) );
@@ -71,7 +71,7 @@ final class VehicleGallery extends AbstractMetaBox {
 	 */
 	public static function register_meta_fields(): void {
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_gallery_images',
 			array(
 				'type'              => 'string',
@@ -88,7 +88,7 @@ final class VehicleGallery extends AbstractMetaBox {
 	public static function enqueue_scripts(): void {
 		global $post_type;
 
-		if ( $post_type !== 'vehicle' ) {
+		if ( $post_type !== 'mhmrentiva_vehicle' ) {
 			return;
 		}
 

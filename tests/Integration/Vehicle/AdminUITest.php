@@ -32,7 +32,7 @@ class AdminUITest extends \WP_UnitTestCase
         get_userdata($vendor_id)->add_role('rentiva_vendor');
 
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $vendor_id,
             'post_title'  => 'Column Test Vehicle',
@@ -59,7 +59,7 @@ class AdminUITest extends \WP_UnitTestCase
         // must NOT render because operator vehicles do not expire.
         $admin_id   = $this->factory()->user->create(array('role' => 'administrator'));
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_author' => $admin_id,
             'post_title'  => 'Operator Column Test Vehicle',
@@ -82,7 +82,7 @@ class AdminUITest extends \WP_UnitTestCase
     public function test_lifecycle_column_renders_withdrawn_status(): void
     {
         $vehicle_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'draft',
             'post_title'  => 'Withdrawn Column Test',
         ));

@@ -75,7 +75,7 @@ final class EmailTemplateTestAction {
 
 	private static function buildBookingContext( int $booking_id ): array {
 		$post = get_post( $booking_id );
-		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
+		if ( ! $post || $post->post_type !== 'mhmrentiva_booking' ) {
 			return array();
 		}
 

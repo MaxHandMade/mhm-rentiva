@@ -207,7 +207,7 @@ final class PerformanceHelper {
             SELECT ID, post_title, post_excerpt, post_name, post_status
             FROM {$wpdb->posts}
             WHERE ID IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
-            AND post_type = 'vehicle'
+            AND post_type = 'mhmrentiva_vehicle'
         ",
 				$vehicle_ids
 			),
@@ -303,7 +303,7 @@ final class PerformanceHelper {
             INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_end_date'
             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhmrentiva_payment_status'
-            WHERE p.post_type = 'vehicle_booking'
+            WHERE p.post_type = 'mhmrentiva_booking'
             AND p.post_status IN ('publish', 'pending', 'confirmed')
             AND pm_vehicle.meta_value IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
             AND pm_start.meta_value <= %s

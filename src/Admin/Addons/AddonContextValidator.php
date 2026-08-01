@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class AddonContextValidator {
 
 	/**
-	 * Register the validator hook on `save_post_vehicle_addon`.
+	 * Register the validator hook on `save_post_mhmrentiva_addon`.
 	 * Runs at priority 20 (after AddonContextMetaBox::save at priority 10).
 	 */
 	public static function register(): void {

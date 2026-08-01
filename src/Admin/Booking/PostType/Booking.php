@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class Booking extends AbstractPostType {
 
 	protected static function get_post_type(): string {
-		return 'vehicle_booking';
+		return 'mhmrentiva_booking';
 	}
 
 	protected static function get_singular_name(): string {

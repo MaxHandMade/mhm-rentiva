@@ -14,7 +14,7 @@ class FavoritesServiceTest extends WP_UnitTestCase
     {
         parent::setUp();
         $this->user_id = (int) $this->factory->user->create();
-        $this->vehicle_id = (int) $this->factory->post->create(['post_type' => 'vehicle']);
+        $this->vehicle_id = (int) $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
 
         // Ensure meta is clean
         delete_user_meta($this->user_id, 'mhmrentiva_favorites');
@@ -50,8 +50,8 @@ class FavoritesServiceTest extends WP_UnitTestCase
 
     public function test_get_user_favorites()
     {
-        $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
-        $v2 = $this->factory->post->create(['post_type' => 'vehicle']);
+        $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
+        $v2 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
 
         FavoritesService::add($this->user_id, $v1);
         FavoritesService::add($this->user_id, $v2);

@@ -262,7 +262,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	protected function get_vehicle_options(): array {
 		$vehicles = get_posts(
 			array(
-				'post_type'      => 'vehicle',
+				'post_type'      => 'mhmrentiva_vehicle',
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
 			)

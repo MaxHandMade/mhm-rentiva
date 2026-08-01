@@ -217,7 +217,7 @@ final class Mailer {
 		}
 
 		$post = get_post( $booking_id );
-		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
+		if ( ! $post || $post->post_type !== 'mhmrentiva_booking' ) {
 			return null;
 		}
 

@@ -109,7 +109,7 @@ class ReviewNormalization {
 
 		// 1. Check Context: Must be a vehicle
 		$post_id = (int) $comment->comment_post_ID;
-		if ( get_post_type( $post_id ) !== 'vehicle' ) {
+		if ( get_post_type( $post_id ) !== 'mhmrentiva_vehicle' ) {
 			return;
 		}
 

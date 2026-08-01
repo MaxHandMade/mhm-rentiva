@@ -35,7 +35,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 
 		$this->booking_id = (int) self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle_booking',
+				'post_type'   => 'mhmrentiva_booking',
 				'post_status' => 'publish',
 			)
 		);

@@ -107,7 +107,7 @@ final class VehicleDetails extends AbstractShortcode {
 		// }
 
 		$vehicle = get_post( $vehicle_id );
-		if ( ! $vehicle || $vehicle->post_type !== 'vehicle' ) {
+		if ( ! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle' ) {
 			return self::get_default_template_data( $atts );
 		}
 
@@ -173,7 +173,7 @@ final class VehicleDetails extends AbstractShortcode {
 			// Use get_posts() instead of get_page_by_path() — the latter is designed for
 			// hierarchical post types and can return unexpected results for CPTs.
 			$matches = get_posts( array(
-				'post_type'      => 'vehicle',
+				'post_type'      => 'mhmrentiva_vehicle',
 				'post_status'    => 'publish',
 				'name'           => $get_slug,
 				'posts_per_page' => 1,
@@ -188,11 +188,11 @@ final class VehicleDetails extends AbstractShortcode {
 			}
 		}
 		global $post;
-		if ( $post && $post->post_type === 'vehicle' ) {
+		if ( $post && $post->post_type === 'mhmrentiva_vehicle' ) {
 			return $post->ID;
 		}
 		$current_id = get_the_ID();
-		if ( $current_id && get_post_type( $current_id ) === 'vehicle' ) {
+		if ( $current_id && get_post_type( $current_id ) === 'mhmrentiva_vehicle' ) {
 			return $current_id;
 		}
 		return 0;
@@ -257,7 +257,7 @@ final class VehicleDetails extends AbstractShortcode {
              INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhmrentiva_pickup_date'
              INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
-             WHERE p.post_type = 'vehicle_booking' AND p.post_status = 'publish'
+             WHERE p.post_type = 'mhmrentiva_booking' AND p.post_status = 'publish'
              AND pm_v.meta_value = %d AND pm_status.meta_value IN ('confirmed', 'pending', 'completed')
              AND ((pm_start.meta_value <= %s AND pm_end.meta_value >= %s) OR (pm_start.meta_value >= %s AND pm_start.meta_value <= %s))",
 				$vehicle_id,
@@ -623,7 +623,7 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_categories( int $vehicle_id ): array {
-		$terms = get_the_terms( $vehicle_id, 'vehicle_category' );
+		$terms = get_the_terms( $vehicle_id, 'mhmrentiva_vehicle_category' );
 		if ( ! $terms || is_wp_error( $terms ) ) {
 			return array();
 		}

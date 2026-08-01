@@ -25,7 +25,7 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     {
         parent::setUp();
 
-        $this->vehicle_id = self::factory()->post->create(array( 'post_type' => 'vehicle' ));
+        $this->vehicle_id = self::factory()->post->create(array( 'post_type' => 'mhmrentiva_vehicle' ));
         update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_status', 'active');
         update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100');
 

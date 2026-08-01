@@ -41,7 +41,7 @@ final class TaxonomyMigrator {
 		// Convert vehicle_cat taxonomy to vehicle_category
 		$updated = $wpdb->update(
 			$wpdb->term_taxonomy,
-			array( 'taxonomy' => 'vehicle_category' ),
+			array( 'taxonomy' => 'mhmrentiva_vehicle_category' ),
 			array( 'taxonomy' => 'vehicle_cat' ),
 			array( '%s' ),
 			array( '%s' )
@@ -67,7 +67,7 @@ final class TaxonomyMigrator {
 		$wpdb->update(
 			$wpdb->term_taxonomy,
 			array( 'taxonomy' => 'vehicle_cat' ),
-			array( 'taxonomy' => 'vehicle_category' ),
+			array( 'taxonomy' => 'mhmrentiva_vehicle_category' ),
 			array( '%s' ),
 			array( '%s' )
 		);

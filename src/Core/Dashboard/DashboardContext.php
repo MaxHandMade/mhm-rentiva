@@ -26,7 +26,7 @@ final class DashboardContext {
 		$user = wp_get_current_user();
 
 		if (in_array('rentiva_vendor', (array) $user->roles, true)) {
-			$status = get_user_meta($user->ID, '_rentiva_vendor_status', true);
+			$status = get_user_meta($user->ID, '_mhmrentiva_vendor_status', true);
 			if ($status === 'suspended') {
 				return 'vendor_suspended';
 			}

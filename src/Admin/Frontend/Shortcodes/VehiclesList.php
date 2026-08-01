@@ -203,7 +203,7 @@ final class VehiclesList extends AbstractShortcode {
 	private static function get_vehicles(array $atts): array
 	{
 		$args = array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => intval($atts['limit'] ?? 12),
 			'orderby'        => $atts['orderby'] ?? 'title',
@@ -217,7 +217,7 @@ final class VehiclesList extends AbstractShortcode {
 		if (! empty($atts['category'])) {
 			$args['tax_query'] = array(
 				array(
-					'taxonomy' => 'vehicle_category',
+					'taxonomy' => 'mhmrentiva_vehicle_category',
 					'field'    => 'slug',
 					'terms'    => $atts['category'],
 				),
@@ -324,7 +324,7 @@ final class VehiclesList extends AbstractShortcode {
 	public static function get_vehicle_data_for_shortcode(int $vehicle_id, array $atts): array
 	{
 		$vehicle = get_post($vehicle_id);
-		if (! $vehicle || $vehicle->post_type !== 'vehicle') {
+		if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
 			return array();
 		}
 
@@ -496,7 +496,7 @@ final class VehiclesList extends AbstractShortcode {
 			return $category;
 		}
 
-		$terms = get_the_terms($vehicle_id, 'vehicle_category');
+		$terms = get_the_terms($vehicle_id, 'mhmrentiva_vehicle_category');
 		if (is_array($terms) && ! empty($terms)) {
 			$first = reset($terms);
 			if ($first instanceof \WP_Term && $first->name !== '') {
@@ -513,7 +513,7 @@ final class VehiclesList extends AbstractShortcode {
 	public static function get_vehicle_data(int $vehicle_id): ?array
 	{
 		$vehicle_post = get_post($vehicle_id);
-		if (! $vehicle_post || $vehicle_post->post_type !== 'vehicle') {
+		if (! $vehicle_post || $vehicle_post->post_type !== 'mhmrentiva_vehicle') {
 			return null;
 		}
 

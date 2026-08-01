@@ -31,8 +31,8 @@ final class AddonContextFilterTest extends WP_UnitTestCase {
 				'post_status' => 'publish',
 			)
 		);
-		update_post_meta( $id, 'addon_price', 10.0 );
-		update_post_meta( $id, 'addon_enabled', '1' );
+		update_post_meta( $id, 'mhmrentiva_addon_price', 10.0 );
+		update_post_meta( $id, 'mhmrentiva_addon_enabled', '1' );
 		wp_set_object_terms( $id, $context, AddonContextTaxonomy::TAXONOMY, false );
 		return $id;
 	}
@@ -70,7 +70,7 @@ final class AddonContextFilterTest extends WP_UnitTestCase {
 
 	public function test_disabled_addons_are_excluded_from_both_contexts(): void {
 		$id = $this->make_addon( 'Disabled', AddonContextTaxonomy::TERM_BOTH );
-		update_post_meta( $id, 'addon_enabled', '0' );
+		update_post_meta( $id, 'mhmrentiva_addon_enabled', '0' );
 
 		$rental_ids   = array_column( AddonManager::get_available_addons( 'rental' ), 'id' );
 		$transfer_ids = array_column( AddonManager::get_available_addons( 'transfer' ), 'id' );

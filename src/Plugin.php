@@ -304,11 +304,11 @@ final class Plugin {
 				}
 
 				$mhmrentiva_pages = array(
-					'vehicle',
-					'vehicle_booking',
+					'mhmrentiva_vehicle',
+					'mhmrentiva_booking',
 				);
 
-				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'mhmrentiva_vehicle_category' === $screen->taxonomy) {
 					echo '<div class="mhm-docs-btn-global">';
 					\MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button();
 					echo '</div>';
@@ -328,11 +328,11 @@ final class Plugin {
 				}
 
 				$mhmrentiva_pages = array(
-					'vehicle',
-					'vehicle_booking',
+					'mhmrentiva_vehicle',
+					'mhmrentiva_booking',
 				);
 
-				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'mhmrentiva_vehicle_category' === $screen->taxonomy) {
 					wp_enqueue_style(
 						'mhm-rentiva-hide-wp-chrome',
 						MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
@@ -672,7 +672,7 @@ final class Plugin {
 	 */
 	public function load_vehicle_templates(): void
 	{
-		if (! is_singular('vehicle')) {
+		if (! is_singular('mhmrentiva_vehicle')) {
 			return;
 		}
 
@@ -758,7 +758,7 @@ final class Plugin {
 	{
 		$post_type = get_post_type($post_id);
 
-		if ($post_type === 'vehicle') {
+		if ($post_type === 'mhmrentiva_vehicle') {
 			// Clear vehicle caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
@@ -771,7 +771,7 @@ final class Plugin {
 			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
 			delete_transient('mhmrentiva_search_filters_v1');
-		} elseif ($post_type === 'vehicle_booking') {
+		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
@@ -789,7 +789,7 @@ final class Plugin {
 	{
 		$post_type = get_post_type($post_id);
 
-		if ($post_type === 'vehicle') {
+		if ($post_type === 'mhmrentiva_vehicle') {
 			// Clear vehicle caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
@@ -802,7 +802,7 @@ final class Plugin {
 			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
 			delete_transient('mhmrentiva_search_filters_v1');
-		} elseif ($post_type === 'vehicle_booking') {
+		} elseif ($post_type === 'mhmrentiva_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
@@ -823,7 +823,7 @@ final class Plugin {
 		$post_type = get_post_type($post_id);
 
 		// Vehicle meta changes
-		if ($post_type === 'vehicle' && strpos($meta_key, '_mhmrentiva_') === 0) {
+		if ($post_type === 'mhmrentiva_vehicle' && strpos($meta_key, '_mhmrentiva_') === 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
 					'vehicles',
@@ -840,7 +840,7 @@ final class Plugin {
 		}
 
 		// Booking meta changes
-		if ($post_type === 'vehicle_booking' && strpos($meta_key, '_mhmrentiva_') === 0) {
+		if ($post_type === 'mhmrentiva_booking' && strpos($meta_key, '_mhmrentiva_') === 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
 					'availability',

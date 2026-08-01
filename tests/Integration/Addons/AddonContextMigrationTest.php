@@ -33,7 +33,7 @@ final class AddonContextMigrationTest extends WP_UnitTestCase {
 			)
 		);
 		if ( $price !== null ) {
-			update_post_meta( $id, 'addon_price', $price );
+			update_post_meta( $id, 'mhmrentiva_addon_price', $price );
 		}
 		wp_remove_object_terms( $id, array( 'rental', 'transfer', 'both' ), AddonContextTaxonomy::TAXONOMY );
 		delete_post_meta( $id, '_mhmrentiva_addon_pricing_type' );

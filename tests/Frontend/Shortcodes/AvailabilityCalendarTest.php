@@ -25,7 +25,7 @@ class AvailabilityCalendarTest extends WP_UnitTestCase
     public function test_renders_calendar_wrapper_with_valid_vehicle()
     {
         $vehicle_id = $this->factory->post->create([
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Calendar Test Vehicle',
         ]);

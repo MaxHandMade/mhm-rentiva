@@ -45,7 +45,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 		$opts = array_merge($defaults, $opts);
 
 		$booking_id = (int) self::factory()->post->create(array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 		));
 

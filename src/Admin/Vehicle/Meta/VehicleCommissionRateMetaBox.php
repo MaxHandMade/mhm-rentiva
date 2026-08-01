@@ -25,7 +25,7 @@ final class VehicleCommissionRateMetaBox extends AbstractMetaBox {
 
     protected static function get_post_type(): string
     {
-        return 'vehicle';
+        return 'mhmrentiva_vehicle';
     }
 
     protected static function get_meta_box_id(): string

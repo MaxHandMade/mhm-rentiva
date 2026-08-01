@@ -21,7 +21,7 @@ final class BookingColumnsTitleEscapingTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->booking_id = self::factory()->post->create(array('post_type' => 'vehicle_booking'));
+        $this->booking_id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
 
         // In production this is wired via Plugin::initialize_admin_services(),
         // which only runs when is_admin() is already true at bootstrap time —
@@ -63,7 +63,7 @@ final class BookingColumnsTitleEscapingTest extends WP_UnitTestCase
         update_post_meta($this->booking_id, '_mhmrentiva_customer_first_name', '<script>alert(1)</script>');
         update_post_meta($this->booking_id, '_mhmrentiva_customer_last_name', 'Doe');
 
-        set_current_screen('edit-vehicle_booking');
+        set_current_screen('edit-mhmrentiva_booking');
 
         // get_the_title() applies the `the_title` filter internally.
         $filtered = get_the_title($this->booking_id);

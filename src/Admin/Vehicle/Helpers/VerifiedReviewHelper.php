@@ -218,7 +218,7 @@ class VerifiedReviewHelper {
 					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
 					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
 					 INNER JOIN {$wpdb->postmeta} pm_user ON p.ID = pm_user.post_id AND pm_user.meta_key = '_mhmrentiva_customer_user_id'
-					 WHERE p.post_type = 'vehicle_booking'
+					 WHERE p.post_type = 'mhmrentiva_booking'
 					   AND p.post_status = 'publish'
 					   AND pm_vid.meta_value = %d
 					   AND pm_user.meta_value IN (" . implode( ',', array_fill( 0, count( $user_ids ), '%d' ) ) . ')
@@ -236,7 +236,7 @@ class VerifiedReviewHelper {
 					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
 					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
 					 INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_contact_email'
-					 WHERE p.post_type = 'vehicle_booking'
+					 WHERE p.post_type = 'mhmrentiva_booking'
 					   AND p.post_status = 'publish'
 					   AND pm_vid.meta_value = %d
 					   AND LOWER(pm_email.meta_value) IN (" . implode( ',', array_fill( 0, count( $emails ), '%s' ) ) . ')

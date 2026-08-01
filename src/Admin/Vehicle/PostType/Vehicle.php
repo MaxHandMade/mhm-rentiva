@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class Vehicle extends AbstractPostType {
 
-	public const POST_TYPE = 'vehicle';
+	public const POST_TYPE = 'mhmrentiva_vehicle';
 
 	protected static function get_post_type(): string {
 		return self::POST_TYPE;

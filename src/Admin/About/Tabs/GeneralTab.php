@@ -84,7 +84,7 @@ final class GeneralTab extends AbstractTab {
 			$vehicle_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-					'vehicle',
+					'mhmrentiva_vehicle',
 					'publish'
 				)
 			);
@@ -93,7 +93,7 @@ final class GeneralTab extends AbstractTab {
 			$booking_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish'
 				)
 			);
@@ -233,7 +233,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 			$vehicle_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-					'vehicle',
+					'mhmrentiva_vehicle',
 					'publish'
 				)
 			);
@@ -241,7 +241,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 			$booking_count = (int) $wpdb->get_var(
 				$wpdb->prepare(
 					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish'
 				)
 			);

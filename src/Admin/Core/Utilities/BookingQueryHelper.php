@@ -37,7 +37,7 @@ final class BookingQueryHelper {
 	public static function findBookingByMeta(
 		string $meta_key,
 		string $meta_value,
-		string $post_type = 'vehicle_booking',
+		string $post_type = 'mhmrentiva_booking',
 		string $post_status = 'any'
 	): int {
 		if ( empty( $meta_key ) || empty( $meta_value ) ) {
@@ -83,13 +83,13 @@ final class BookingQueryHelper {
 		}
 
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $statuses,
 			'posts_per_page' => $limit,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				array(
-					'key'     => '_booking_customer_email',
+					'key'     => '_mhmrentiva_booking_customer_email',
 					'value'   => $email,
 					'compare' => '=',
 				),
@@ -121,13 +121,13 @@ final class BookingQueryHelper {
 		}
 
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $statuses,
 			'posts_per_page' => $limit,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				array(
-					'key'     => '_booking_vehicle_id',
+					'key'     => '_mhmrentiva_booking_vehicle_id',
 					'value'   => $vehicle_id,
 					'compare' => '=',
 				),
@@ -161,21 +161,21 @@ final class BookingQueryHelper {
 		}
 
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $statuses,
 			'posts_per_page' => $limit,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_booking_pickup_date',
+					'key'     => '_mhmrentiva_booking_pickup_date',
 					'value'   => array( $start_date, $end_date ),
 					'compare' => 'BETWEEN',
 					'type'    => 'DATE',
 				),
 			),
 			'orderby'        => 'meta_value',
-			'meta_key'       => '_booking_pickup_date',
+			'meta_key'       => '_mhmrentiva_booking_pickup_date',
 			'order'          => 'ASC',
 		);
 
@@ -202,14 +202,14 @@ final class BookingQueryHelper {
 		}
 
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $post_statuses,
 			'posts_per_page' => $limit,
 			'fields'         => 'ids',
 			'meta_query'     => array(
 				'relation' => 'OR',
 				array(
-					'key'     => '_booking_payment_status',
+					'key'     => '_mhmrentiva_booking_payment_status',
 					'value'   => $payment_status,
 					'compare' => '=',
 				),
@@ -240,7 +240,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try new meta key
-		$gateway = get_post_meta( $booking_id, '_booking_payment_gateway', true );
+		$gateway = get_post_meta( $booking_id, '_mhmrentiva_booking_payment_gateway', true );
 		if ( ! empty( $gateway ) ) {
 			return $gateway;
 		}
@@ -266,7 +266,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try new meta key
-		$status = get_post_meta( $booking_id, '_booking_payment_status', true );
+		$status = get_post_meta( $booking_id, '_mhmrentiva_booking_payment_status', true );
 		if ( ! empty( $status ) ) {
 			return $status;
 		}
@@ -292,7 +292,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try new meta key
-		$price = get_post_meta( $booking_id, '_booking_total_price', true );
+		$price = get_post_meta( $booking_id, '_mhmrentiva_booking_total_price', true );
 		if ( is_numeric( $price ) ) {
 			return (float) $price;
 		}
@@ -325,12 +325,12 @@ final class BookingQueryHelper {
 
 		// If no data in new keys, try old keys
 		if ( empty( $first_name ) ) {
-			$first_name = get_post_meta( $booking_id, '_booking_customer_first_name', true );
+			$first_name = get_post_meta( $booking_id, '_mhmrentiva_booking_customer_first_name', true );
 		}
 
 		// If still empty, try full name fields
 		if ( empty( $first_name ) && empty( $last_name ) ) {
-			$full_name = get_post_meta( $booking_id, '_booking_customer_name', true ) ?:
+			$full_name = get_post_meta( $booking_id, '_mhmrentiva_booking_customer_name', true ) ?:
 						get_post_meta( $booking_id, '_mhmrentiva_customer_name', true ) ?:
 						get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
 
@@ -347,12 +347,12 @@ final class BookingQueryHelper {
 		}
 
 		if ( empty( $email ) ) {
-			$email = get_post_meta( $booking_id, '_booking_customer_email', true ) ?:
+			$email = get_post_meta( $booking_id, '_mhmrentiva_booking_customer_email', true ) ?:
 					get_post_meta( $booking_id, '_mhmrentiva_contact_email', true ) ?: '';
 		}
 
 		if ( empty( $phone ) ) {
-			$phone = get_post_meta( $booking_id, '_booking_customer_phone', true ) ?:
+			$phone = get_post_meta( $booking_id, '_mhmrentiva_booking_customer_phone', true ) ?:
 					get_post_meta( $booking_id, '_mhmrentiva_contact_phone', true ) ?: '';
 		}
 
@@ -362,7 +362,7 @@ final class BookingQueryHelper {
 			$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true ) ?:
 						get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true ) ?:
 						get_post_meta( $booking_id, '_mhmrentiva_order_id', true ) ?:
-						get_post_meta( $booking_id, '_booking_order_id', true );
+						get_post_meta( $booking_id, '_mhmrentiva_booking_order_id', true );
 
 			if ( $order_id ) {
 				$order = wc_get_order( $order_id );
@@ -424,7 +424,7 @@ final class BookingQueryHelper {
 			return array();
 		}
 
-		$vehicle_id = (int) ( get_post_meta( $booking_id, '_booking_vehicle_id', true ) ?:
+		$vehicle_id = (int) ( get_post_meta( $booking_id, '_mhmrentiva_booking_vehicle_id', true ) ?:
 							get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true ) ?: 0 );
 
 		if ( $vehicle_id <= 0 ) {
@@ -453,11 +453,11 @@ final class BookingQueryHelper {
 		}
 
 		return array(
-			'pickup_date' => get_post_meta( $booking_id, '_booking_pickup_date', true ) ?:
+			'pickup_date' => get_post_meta( $booking_id, '_mhmrentiva_booking_pickup_date', true ) ?:
 							get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true ) ?: '',
-			'return_date' => get_post_meta( $booking_id, '_booking_return_date', true ) ?:
+			'return_date' => get_post_meta( $booking_id, '_mhmrentiva_booking_return_date', true ) ?:
 							get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true ) ?: '',
-			'rental_days' => (int) ( get_post_meta( $booking_id, '_booking_rental_days', true ) ?:
+			'rental_days' => (int) ( get_post_meta( $booking_id, '_mhmrentiva_booking_rental_days', true ) ?:
 									get_post_meta( $booking_id, '_mhmrentiva_rental_days', true ) ?: 0 ),
 		);
 	}
@@ -470,7 +470,7 @@ final class BookingQueryHelper {
 	 */
 	public static function getBookingStats( array $filters = array() ): array {
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $filters['post_status'] ?? array( 'publish' ),
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -483,7 +483,7 @@ final class BookingQueryHelper {
 			$meta_query[] = array(
 				'relation' => 'OR',
 				array(
-					'key'     => '_booking_payment_status',
+					'key'     => '_mhmrentiva_booking_payment_status',
 					'value'   => $filters['payment_status'],
 					'compare' => '=',
 				),
@@ -497,7 +497,7 @@ final class BookingQueryHelper {
 
 		if ( ! empty( $filters['date_range'] ) ) {
 			$meta_query[] = array(
-				'key'     => '_booking_pickup_date',
+				'key'     => '_mhmrentiva_booking_pickup_date',
 				'value'   => $filters['date_range'],
 				'compare' => 'BETWEEN',
 				'type'    => 'DATE',

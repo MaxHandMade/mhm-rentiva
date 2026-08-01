@@ -49,9 +49,6 @@
     Include WordPress standard but exclude "Noise" rules.
     -->
 	<rule ref="WordPress">
-		<!-- Exclude variable prefix enforcement (too noisy for local variables) -->
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound"/>
-
 		<!-- Exclude variable name format (snake_case vs camelCase flexibility) -->
 		<exclude name="WordPress.NamingConventions.ValidVariableName"/>
 
@@ -171,8 +168,6 @@
 		-->
 		<exclude name="Squiz.ControlStructures.ControlSignature.SpaceAfterCloseBrace"/>
 		<exclude name="Squiz.PHP.CommentedOutCode.Found"/>
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound"/>
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound"/>
 
 		<!--
 		Cron intervals shorter than 15 minutes are required for time-sensitive
@@ -212,8 +207,9 @@
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
-				<element value="mhmrentiva_rentiva"/>
+				<element value="mhmrentiva"/>
 				<element value="MHMRentiva"/>
+				<element value="MHMRENTIVA"/>
 			</property>
 		</properties>
 	</rule>

@@ -42,7 +42,7 @@ final class BookingEnricher {
 				$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true )
 					?: get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true )
 					?: get_post_meta( $booking_id, '_mhmrentiva_order_id', true )
-					?: get_post_meta( $booking_id, '_booking_order_id', true );
+					?: get_post_meta( $booking_id, '_mhmrentiva_booking_order_id', true );
 
 				if ( $order_id ) {
 					$order = wc_get_order( $order_id );

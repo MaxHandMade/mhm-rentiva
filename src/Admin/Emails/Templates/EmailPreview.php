@@ -172,7 +172,7 @@ final class EmailPreview {
 
 	private static function get_booking_data( int $booking_id ): ?array {
 		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
+		if ( ! $booking || $booking->post_type !== 'mhmrentiva_booking' ) {
 			return null;
 		}
 

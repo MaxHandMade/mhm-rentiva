@@ -17,7 +17,7 @@ use MHMRentiva\Core\Services\Metrics\MetricRegistry;
  */
 final class TrendService {
 
-	private const BOOKING_POST_TYPE = 'vehicle_booking';
+	private const BOOKING_POST_TYPE = 'mhmrentiva_booking';
 	private const MESSAGE_POST_TYPE = 'mhmrentiva_message';
 
 	/**
@@ -280,7 +280,7 @@ final class TrendService {
 
 			$pickup_date = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
 			if ($pickup_date === '') {
-				$pickup_date = (string) get_post_meta($booking_id, '_booking_pickup_date', true);
+				$pickup_date = (string) get_post_meta($booking_id, '_mhmrentiva_booking_pickup_date', true);
 			}
 			if ($pickup_date === '') {
 				$pickup_date = (string) get_post_meta($booking_id, '_mhmrentiva_start_date', true);
@@ -291,7 +291,7 @@ final class TrendService {
 				$pickup_time = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true);
 			}
 			if ($pickup_time === '') {
-				$pickup_time = (string) get_post_meta($booking_id, '_booking_pickup_time', true);
+				$pickup_time = (string) get_post_meta($booking_id, '_mhmrentiva_booking_pickup_time', true);
 			}
 
 			if ($pickup_date === '') {

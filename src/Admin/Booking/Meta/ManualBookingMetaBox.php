@@ -40,7 +40,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 	protected static function get_post_type(): string
 	{
-		return 'vehicle_booking';
+		return 'mhmrentiva_booking';
 	}
 
 	protected static function get_meta_box_id(): string
@@ -99,22 +99,22 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		global $post, $pagenow;
 
 		// Only on new vehicle_booking page
-		if ($pagenow !== 'post-new.php' || ! $post || $post->post_type !== 'vehicle_booking' || $post->post_status !== 'auto-draft') {
+		if ($pagenow !== 'post-new.php' || ! $post || $post->post_type !== 'mhmrentiva_booking' || $post->post_status !== 'auto-draft') {
 			return;
 		}
 
 		// Remove default meta boxes
-		remove_meta_box('submitdiv', 'vehicle_booking', 'side');
-		remove_meta_box('slugdiv', 'vehicle_booking', 'normal');
-		remove_meta_box('authordiv', 'vehicle_booking', 'normal');
-		remove_meta_box('postcustom', 'vehicle_booking', 'normal');
-		remove_meta_box('postexcerpt', 'vehicle_booking', 'normal');
-		remove_meta_box('trackbacksdiv', 'vehicle_booking', 'normal');
-		remove_meta_box('commentstatusdiv', 'vehicle_booking', 'normal');
-		remove_meta_box('commentsdiv', 'vehicle_booking', 'normal');
-		remove_meta_box('revisionsdiv', 'vehicle_booking', 'normal');
-		remove_meta_box('pageparentdiv', 'vehicle_booking', 'side');
-		remove_meta_box('postimagediv', 'vehicle_booking', 'side');
+		remove_meta_box('submitdiv', 'mhmrentiva_booking', 'side');
+		remove_meta_box('slugdiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('authordiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('postcustom', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('postexcerpt', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('trackbacksdiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('commentstatusdiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('commentsdiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('revisionsdiv', 'mhmrentiva_booking', 'normal');
+		remove_meta_box('pageparentdiv', 'mhmrentiva_booking', 'side');
+		remove_meta_box('postimagediv', 'mhmrentiva_booking', 'side');
 
 		// Hide title field
 		add_filter(
@@ -138,7 +138,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Post type check
-		if (! $post || $post->post_type !== 'vehicle_booking') {
+		if (! $post || $post->post_type !== 'mhmrentiva_booking') {
 			return;
 		}
 
@@ -162,7 +162,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		global $post_type;
 
 		// Load only on new booking creation page
-		if ($hook === 'post-new.php' && $post_type === 'vehicle_booking') {
+		if ($hook === 'post-new.php' && $post_type === 'mhmrentiva_booking') {
 			wp_enqueue_style(
 				'mhm-rentiva-manual-booking-meta',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/manual-booking-meta.css',
@@ -222,7 +222,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Get available vehicles - first without meta query
 		$vehicles = get_posts(
 			array(
-				'post_type'      => 'vehicle',
+				'post_type'      => 'mhmrentiva_vehicle',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'title',
@@ -366,7 +366,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Get existing additional services (same as frontend form)
 		$addons = get_posts(
 			array(
-				'post_type'      => 'vehicle_addon',
+				'post_type'      => 'mhmrentiva_addon',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'menu_order',
@@ -379,9 +379,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			$available_addons[] = array(
 				'id'          => $addon->ID,
 				'title'       => $addon->post_title,
-				'price'       => get_post_meta( $addon->ID, 'addon_price', true ) ?: '0',
+				'price'       => get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ) ?: '0',
 				'description' => $addon->post_excerpt,
-				'required'    => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
+				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 			);
 		}
 
@@ -501,7 +501,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		//
 		// Be clear about what this check does NOT do: it does not currently let a
 		// "staff, not admin" role in. The nonce is only ever printed on
-		// post-new.php?post_type=vehicle_booking, and vehicle_booking declares
+		// post-new.php?post_type=mhmrentiva_booking, and vehicle_booking declares
 		// create_posts => manage_options, so WordPress blocks that screen one layer
 		// above this handler. Anyone who reaches here already has manage_options.
 		// A real booking-clerk role would mean loosening the post type's own
@@ -594,7 +594,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		//
 		// Be clear about what this check does NOT do: it does not currently let a
 		// "staff, not admin" role in. The nonce is only ever printed on
-		// post-new.php?post_type=vehicle_booking, and vehicle_booking declares
+		// post-new.php?post_type=mhmrentiva_booking, and vehicle_booking declares
 		// create_posts => manage_options, so WordPress blocks that screen one layer
 		// above this handler. Anyone who reaches here already has manage_options.
 		// A real booking-clerk role would mean loosening the post type's own
@@ -767,12 +767,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 					array( 'rental_days' => (int) $days )
 				);
 				$addon_total += $line_total;
-				$addon_price  = floatval(get_post_meta($addon_id, 'addon_price', true) ?: 0);
+				$mhmrentiva_addon_price  = floatval(get_post_meta($addon_id, 'mhmrentiva_addon_price', true) ?: 0);
 
 				$addon_details[] = array(
 					'id'    => $addon_id,
 					'title' => get_the_title($addon_id),
-					'price' => $addon_price,
+					'price' => $mhmrentiva_addon_price,
 				);
 			}
 		}
@@ -786,7 +786,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 
 		// Create booking
 		$booking_data = array(
-			'post_type'    => 'vehicle_booking',
+			'post_type'    => 'mhmrentiva_booking',
 			'post_status'  => 'publish',
 			/* translators: %s: vehicle title */
 			'post_title'   => sprintf(__('Manual Booking - %s', 'mhm-rentiva'), get_the_title( (int) $vehicle_id)),

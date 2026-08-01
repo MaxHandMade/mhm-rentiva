@@ -67,7 +67,7 @@ class RepairRatingsCommand {
                 $wpdb->comments,
                 $wpdb->posts,
                 $wpdb->commentmeta,
-                'vehicle',
+                'mhmrentiva_vehicle',
                 'mhmrentiva_rating',
                 0,
                 'review'
@@ -121,7 +121,7 @@ class RepairRatingsCommand {
             WHERE post_type = %s
             AND post_status = %s',
                 $wpdb->posts,
-                'vehicle',
+                'mhmrentiva_vehicle',
                 'publish'
             )
         );

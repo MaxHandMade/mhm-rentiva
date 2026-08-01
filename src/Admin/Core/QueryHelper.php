@@ -60,7 +60,7 @@ class QueryHelper {
                 INNER JOIN {$wpdb->postmeta} as m1 ON (bookings.ID = m1.post_id AND m1.meta_key = '_mhmrentiva_vehicle_id')
                 INNER JOIN {$wpdb->postmeta} as m2 ON (bookings.ID = m2.post_id AND m2.meta_key = '_mhmrentiva_start_ts')
                 INNER JOIN {$wpdb->postmeta} as m3 ON (bookings.ID = m3.post_id AND m3.meta_key = '_mhmrentiva_end_ts')
-                WHERE bookings.post_type = 'vehicle_booking'
+                WHERE bookings.post_type = 'mhmrentiva_booking'
                 AND bookings.post_status IN ('publish', 'mhm-confirmed', 'mhm-pending')
                 AND m1.meta_value = {$wpdb->posts}.ID
                 AND (CAST(m2.meta_value AS SIGNED) <= %d)

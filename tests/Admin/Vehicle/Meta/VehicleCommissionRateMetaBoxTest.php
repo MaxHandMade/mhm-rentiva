@@ -16,7 +16,7 @@ class VehicleCommissionRateMetaBoxTest extends WP_UnitTestCase
     {
         parent::setUp();
         $this->admin_id   = self::factory()->user->create(array('role' => 'administrator'));
-        $this->vehicle_id = self::factory()->post->create(array('post_type' => 'vehicle'));
+        $this->vehicle_id = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle'));
         wp_set_current_user($this->admin_id);
     }
 
@@ -24,12 +24,12 @@ class VehicleCommissionRateMetaBoxTest extends WP_UnitTestCase
     {
         $reflection = new \ReflectionMethod(VehicleCommissionRateMetaBox::class, 'get_post_type');
         $reflection->setAccessible(true);
-        $this->assertSame('vehicle', $reflection->invoke(null));
+        $this->assertSame('mhmrentiva_vehicle', $reflection->invoke(null));
     }
 
     public function test_saving_the_field_persists_the_rate(): void
     {
-        $nonce_name = 'vehicle_mhmrentiva_vehicle_commission_rate_nonce';
+        $nonce_name = 'mhmrentiva_vehicle_mhmrentiva_vehicle_commission_rate_nonce';
 
         $_POST[ $nonce_name ]                          = wp_create_nonce($nonce_name);
         $_POST['_mhmrentiva_vendor_commission_rate']          = '9.5';
@@ -43,7 +43,7 @@ class VehicleCommissionRateMetaBoxTest extends WP_UnitTestCase
 
     public function test_saving_an_out_of_range_high_value_is_clamped_to_100(): void
     {
-        $nonce_name = 'vehicle_mhmrentiva_vehicle_commission_rate_nonce';
+        $nonce_name = 'mhmrentiva_vehicle_mhmrentiva_vehicle_commission_rate_nonce';
 
         $_POST[ $nonce_name ]                 = wp_create_nonce($nonce_name);
         $_POST['_mhmrentiva_vendor_commission_rate'] = '500';
@@ -57,7 +57,7 @@ class VehicleCommissionRateMetaBoxTest extends WP_UnitTestCase
 
     public function test_saving_a_negative_value_is_clamped_to_0(): void
     {
-        $nonce_name = 'vehicle_mhmrentiva_vehicle_commission_rate_nonce';
+        $nonce_name = 'mhmrentiva_vehicle_mhmrentiva_vehicle_commission_rate_nonce';
 
         $_POST[ $nonce_name ]                 = wp_create_nonce($nonce_name);
         $_POST['_mhmrentiva_vendor_commission_rate'] = '-10';
@@ -71,7 +71,7 @@ class VehicleCommissionRateMetaBoxTest extends WP_UnitTestCase
 
     public function test_saving_a_non_numeric_value_stores_an_empty_string(): void
     {
-        $nonce_name = 'vehicle_mhmrentiva_vehicle_commission_rate_nonce';
+        $nonce_name = 'mhmrentiva_vehicle_mhmrentiva_vehicle_commission_rate_nonce';
 
         $_POST[ $nonce_name ]                 = wp_create_nonce($nonce_name);
         $_POST['_mhmrentiva_vendor_commission_rate'] = 'abc';

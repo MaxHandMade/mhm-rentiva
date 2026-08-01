@@ -52,7 +52,7 @@ final class AddonMenu {
 		global $pagenow, $post_type;
 
 		// Only show on addon list page.
-		if ('edit.php' !== $pagenow || 'vehicle_addon' !== $post_type) {
+		if ('edit.php' !== $pagenow || 'mhmrentiva_addon' !== $post_type) {
 			return;
 		}
 
@@ -73,7 +73,7 @@ final class AddonMenu {
 					array(
 						array(
 							'text'  => esc_html__('Add New', 'mhm-rentiva'),
-							'url'   => admin_url('post-new.php?post_type=vehicle_addon'),
+							'url'   => admin_url('post-new.php?post_type=mhmrentiva_addon'),
 							'class' => 'button button-primary',
 							'icon'  => 'dashicons-plus',
 						),
@@ -131,7 +131,7 @@ final class AddonMenu {
 		global $pagenow, $post_type;
 
 		// Only show on addon list page.
-		if ('edit.php' !== $pagenow || 'vehicle_addon' !== $post_type) {
+		if ('edit.php' !== $pagenow || 'mhmrentiva_addon' !== $post_type) {
 			return;
 		}
 

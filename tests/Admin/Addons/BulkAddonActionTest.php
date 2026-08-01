@@ -29,11 +29,11 @@ final class BulkAddonActionTest extends WP_Ajax_UnitTestCase
 
 		$this->addon_id = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle_addon',
+				'post_type'   => 'mhmrentiva_addon',
 				'post_status' => 'publish',
 			)
 		);
-		update_post_meta( $this->addon_id, 'addon_enabled', '1' );
+		update_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled', '1' );
 
 		wp_set_current_user(
 			self::factory()->user->create( array( 'role' => 'administrator' ) )
@@ -94,7 +94,7 @@ final class BulkAddonActionTest extends WP_Ajax_UnitTestCase
 
 		$this->assertSame(
 			'0',
-			(string) get_post_meta( $this->addon_id, 'addon_enabled', true ),
+			(string) get_post_meta( $this->addon_id, 'mhmrentiva_addon_enabled', true ),
 			'A bulk disable should have switched the add-on off. Response: ' . $this->_last_response
 		);
 	}

@@ -72,6 +72,6 @@ final class AdminOptimizer {
 
 		// Check if it's a Rentiva post type editor
 		$post_type = $screen->post_type ?? null;
-		return in_array( $post_type, array( 'vehicle', 'vehicle_booking', 'vehicle_addon' ), true );
+		return in_array( $post_type, array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon' ), true );
 	}
 }

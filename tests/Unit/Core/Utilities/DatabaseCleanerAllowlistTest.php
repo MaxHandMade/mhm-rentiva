@@ -71,6 +71,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			'plugin' => 'lite',
 			'why'    => 'PrefixMigrationMap docblock: collision example for the rename',
 		),
+		// Deliberately the DOUBLED spelling. PrefixMigrationMap's docblock cites
+		// '_mhmrentiva_rentiva_welcome_sent' as what a wrong rule ORDER produces,
+		// so that exact string is present in the source and must be excused here.
+		// It is a counter-example in prose, not a meta key anything writes.
 		'_mhmrentiva_rentiva_welcome_sent' => array(
 			'plugin' => 'lite',
 			'why'    => 'PrefixMigrationMap docblock: rule-order counter-example',
@@ -146,7 +150,20 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_vehicle_max_small_luggage',
 		'_mhm_vehicle_penalty_blocked_dates',
 		'_mhm_vehicle_price_per_km',
-		'_mhm_vehicle_service_type',
+		// '_mhm_vehicle_service_type' was here and is deliberately NOT any more.
+		//
+		// 🔴 It is the one place the 6.0.0 map MERGES two distinct legacy keys.
+		// Pro writes '_mhm_vehicle_service_type' in one place and
+		// '_rentiva_vehicle_service_type' in another (VehicleSubmit.php), and
+		// Lite reads the second one too. The map's prefix rules send '_mhm_' and
+		// '_rentiva_' both to '_mhmrentiva_', so BOTH canonicalise to
+		// '_mhmrentiva_vehicle_service_type' -- the key stops being Pro-exclusive,
+		// which is why it no longer belongs in this freeze.
+		//
+		// Görev 13 needs to know: on a post carrying both rows, a prefix-based
+		// migration writes one over the other. G-C mode 1 does not catch this --
+		// it checks uniqueness within the exact-key families only, and this
+		// collision is between two PREFIX rules. Reported, not silently absorbed.
 		'_mhm_vehicle_suspended_by_vendor_ban',
 		'_mhm_vendor_payout_freeze',
 		'_mhm_workflow_state',

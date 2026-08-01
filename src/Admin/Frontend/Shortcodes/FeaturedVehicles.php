@@ -154,7 +154,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 		if (! empty($atts['category'])) {
 			$args['tax_query'] = array(
 				array(
-					'taxonomy' => 'vehicle_category',
+					'taxonomy' => 'mhmrentiva_vehicle_category',
 					'field'    => 'slug',
 					'terms'    => sanitize_text_field( (string) $atts['category']),
 				),
@@ -168,12 +168,12 @@ final class FeaturedVehicles extends AbstractShortcode {
 		$args['meta_query'][] = array(
 			'relation' => 'OR',
 			array(
-				'key'     => '_rentiva_vehicle_service_type',
+				'key'     => '_mhmrentiva_vehicle_service_type',
 				'value'   => 'transfer',
 				'compare' => '!=',
 			),
 			array(
-				'key'     => '_rentiva_vehicle_service_type',
+				'key'     => '_mhmrentiva_vehicle_service_type',
 				'compare' => 'NOT EXISTS',
 			),
 		);

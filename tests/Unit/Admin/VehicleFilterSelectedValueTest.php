@@ -11,7 +11,7 @@ use WP_UnitTestCase;
  * WP.org T7 round, Görev 10 review follow-up.
  *
  * VehicleColumns::availability_filter() renders four list-screen dropdowns on
- * edit.php?post_type=vehicle. Three of them -- location, lifecycle and owner --
+ * edit.php?post_type=mhmrentiva_vehicle. Three of them -- location, lifecycle and owner --
  * read their current value from a `$request` array that is never assigned
  * anywhere in the class. `isset()` on an undefined variable raises nothing in
  * PHP 8, so the bug is silent: the dropdowns render, submit and filter, but the
@@ -51,7 +51,7 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 		}
 
 		ob_start();
-		VehicleColumns::availability_filter( 'vehicle' );
+		VehicleColumns::availability_filter( 'mhmrentiva_vehicle' );
 
 		return (string) ob_get_clean();
 	}

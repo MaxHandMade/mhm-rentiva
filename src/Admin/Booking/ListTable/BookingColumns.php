@@ -117,9 +117,9 @@ final class BookingColumns {
 
 	public static function register(): void {
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
-		add_filter( 'manage_vehicle_booking_posts_columns', array( self::class, 'columns' ) );
-		add_action( 'manage_vehicle_booking_posts_custom_column', array( self::class, 'render' ), 10, 2 );
-		add_filter( 'manage_edit-vehicle_booking_sortable_columns', array( self::class, 'sortable' ) );
+		add_filter( 'manage_mhmrentiva_booking_posts_columns', array( self::class, 'columns' ) );
+		add_action( 'manage_mhmrentiva_booking_posts_custom_column', array( self::class, 'render' ), 10, 2 );
+		add_filter( 'manage_edit-mhmrentiva_booking_sortable_columns', array( self::class, 'sortable' ) );
 		add_action( 'pre_get_posts', array( self::class, 'apply_sorting' ) );
 		add_action( 'restrict_manage_posts', array( self::class, 'status_filter' ) );
 		add_action( 'pre_get_posts', array( self::class, 'apply_status_filter' ) );
@@ -145,7 +145,7 @@ final class BookingColumns {
 	 * @return string[]
 	 */
 	public static function add_completed_row_class( array $classes, array $css_class, int $post_id ): array {
-		if ( get_post_type( $post_id ) !== 'vehicle_booking' ) {
+		if ( get_post_type( $post_id ) !== 'mhmrentiva_booking' ) {
 			return $classes;
 		}
 		$status = get_post_meta( $post_id, '_mhmrentiva_status', true );
@@ -182,7 +182,7 @@ final class BookingColumns {
 		global $post_type;
 
 		// Load only on booking list page
-		if ( $hook === 'edit.php' && $post_type === 'vehicle_booking' ) {
+		if ( $hook === 'edit.php' && $post_type === 'mhmrentiva_booking' ) {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
@@ -292,7 +292,7 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_vehicle':
 				// Check both old and new meta keys
-				$vehicle_id = (int) ( get_post_meta( $post_id, '_booking_vehicle_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
+				$vehicle_id = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_vehicle_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
 				if ( $vehicle_id ) {
 					$vehicle_title = get_the_title( $vehicle_id );
 					$vehicle_link  = get_edit_post_link( $vehicle_id );
@@ -315,7 +315,7 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_license_plate':
 				// Check both old and new meta keys
-				$vehicle_id = (int) ( get_post_meta( $post_id, '_booking_vehicle_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
+				$vehicle_id = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_vehicle_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
 				if ( $vehicle_id ) {
 					$license_plate = get_post_meta( $vehicle_id, '_mhmrentiva_license_plate', true );
 					if ( $license_plate ) {
@@ -330,10 +330,10 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_dates':
 				// Check both old and new meta keys
-				$pickup_date  = get_post_meta( $post_id, '_booking_pickup_date', true ) ?: get_post_meta( $post_id, '_mhmrentiva_pickup_date', true );
-				$pickup_time  = get_post_meta( $post_id, '_booking_pickup_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_start_time', true );
-				$dropoff_date = get_post_meta( $post_id, '_booking_dropoff_date', true ) ?: get_post_meta( $post_id, '_mhmrentiva_dropoff_date', true );
-				$dropoff_time = get_post_meta( $post_id, '_booking_dropoff_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_end_time', true );
+				$pickup_date  = get_post_meta( $post_id, '_mhmrentiva_booking_pickup_date', true ) ?: get_post_meta( $post_id, '_mhmrentiva_pickup_date', true );
+				$pickup_time  = get_post_meta( $post_id, '_mhmrentiva_booking_pickup_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_start_time', true );
+				$dropoff_date = get_post_meta( $post_id, '_mhmrentiva_booking_dropoff_date', true ) ?: get_post_meta( $post_id, '_mhmrentiva_dropoff_date', true );
+				$dropoff_time = get_post_meta( $post_id, '_mhmrentiva_booking_dropoff_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post_id, '_mhmrentiva_end_time', true );
 
 				if ( $pickup_date && $dropoff_date ) {
 					// Normalize date format (convert to DD.MM.YYYY format)
@@ -361,13 +361,13 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_days':
 				// Check both old and new meta keys
-				$days = (int) ( get_post_meta( $post_id, '_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhmrentiva_rental_days', true ) );
+				$days = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhmrentiva_rental_days', true ) );
 				echo $days > 0 ? esc_html( (string) $days ) : '—';
 				break;
 
 			case 'mhmrentiva_booking_total':
 				// Check both old and new meta keys
-				$total = (float) ( get_post_meta( $post_id, '_booking_total_price', true ) ?: get_post_meta( $post_id, '_mhmrentiva_total_price', true ) );
+				$total = (float) ( get_post_meta( $post_id, '_mhmrentiva_booking_total_price', true ) ?: get_post_meta( $post_id, '_mhmrentiva_total_price', true ) );
 				if ( $total > 0 ) {
 					echo '<span class="total-amount">' . esc_html( self::format_price( $total ) ) . '</span>';
 				} else {
@@ -421,11 +421,11 @@ final class BookingColumns {
 
 			case 'mhmrentiva_booking_payment':
 				// Check both old and new meta keys
-				$status    = (string) ( get_post_meta( $post_id, '_booking_payment_status', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_status', true ) );
-				$amount    = (int) ( get_post_meta( $post_id, '_booking_payment_amount', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_amount', true ) );
-				$currency  = (string) ( get_post_meta( $post_id, '_booking_payment_currency', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_currency', true ) );
-				$gateway   = (string) ( get_post_meta( $post_id, '_booking_payment_gateway', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_gateway', true ) );
-				$receiptId = (int) ( get_post_meta( $post_id, '_booking_offline_receipt_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_offline_receipt_id', true ) );
+				$status    = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_status', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_status', true ) );
+				$amount    = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_amount', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_amount', true ) );
+				$currency  = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_currency', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_currency', true ) );
+				$gateway   = (string) ( get_post_meta( $post_id, '_mhmrentiva_booking_payment_gateway', true ) ?: get_post_meta( $post_id, '_mhmrentiva_payment_gateway', true ) );
+				$receiptId = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_offline_receipt_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_offline_receipt_id', true ) );
 
 				if ( '' === $currency ) {
 					$currency = is_callable( array( Settings::class, 'get' ) ) ? (string) Settings::get( 'currency', 'USD' ) : 'USD';
@@ -477,7 +477,7 @@ final class BookingColumns {
 		if ( ! is_admin() || ! $q->is_main_query() ) {
 			return;
 		}
-		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'vehicle_booking' ) {
+		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -489,7 +489,7 @@ final class BookingColumns {
 				array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_booking_total_price',
+						'key'     => '_mhmrentiva_booking_total_price',
 						'compare' => 'EXISTS',
 					),
 					array(
@@ -506,7 +506,7 @@ final class BookingColumns {
 				array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_booking_start_ts',
+						'key'     => '_mhmrentiva_booking_start_ts',
 						'compare' => 'EXISTS',
 					),
 					array(
@@ -523,7 +523,7 @@ final class BookingColumns {
 				array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_booking_payment_amount',
+						'key'     => '_mhmrentiva_booking_payment_amount',
 						'compare' => 'EXISTS',
 					),
 					array(
@@ -537,7 +537,7 @@ final class BookingColumns {
 	}
 
 	public static function status_filter( string $post_type ): void {
-		if ( $post_type !== 'vehicle_booking' ) {
+		if ( $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -581,7 +581,7 @@ final class BookingColumns {
 		if ( ! is_admin() || ! $q->is_main_query() ) {
 			return;
 		}
-		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'vehicle_booking' ) {
+		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -595,7 +595,7 @@ final class BookingColumns {
 				$meta[] = array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_booking_status',
+						'key'     => '_mhmrentiva_booking_status',
 						'value'   => $val,
 						'compare' => '=',
 					),
@@ -615,7 +615,7 @@ final class BookingColumns {
 				$meta[] = array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_booking_payment_status',
+						'key'     => '_mhmrentiva_booking_payment_status',
 						'value'   => $val,
 						'compare' => '=',
 					),
@@ -756,7 +756,7 @@ final class BookingColumns {
 		global $pagenow, $post_type;
 
 		// Show only on booking list page
-		if ( $pagenow !== 'edit.php' || $post_type !== 'vehicle_booking' ) {
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -822,9 +822,9 @@ final class BookingColumns {
                  INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'pending',
 					'_mhmrentiva_status',
 					'pending'
@@ -838,9 +838,9 @@ final class BookingColumns {
                  INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'confirmed',
 					'_mhmrentiva_status',
 					'confirmed'
@@ -854,9 +854,9 @@ final class BookingColumns {
                  INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'completed',
 					'_mhmrentiva_status',
 					'completed'
@@ -871,9 +871,9 @@ final class BookingColumns {
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))
                  AND p.post_date >= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'pending',
 					'_mhmrentiva_status',
 					'pending',
@@ -889,9 +889,9 @@ final class BookingColumns {
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))
                  AND p.post_date >= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'confirmed',
 					'_mhmrentiva_status',
 					'confirmed',
@@ -907,9 +907,9 @@ final class BookingColumns {
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))
                  AND p.post_date >= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
-					'_booking_status',
+					'_mhmrentiva_booking_status',
 					'completed',
 					'_mhmrentiva_status',
 					'completed',
@@ -929,7 +929,7 @@ final class BookingColumns {
                  AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'_mhmrentiva_total_price',
 					gmdate( 'Y-m-01' )
 				)
@@ -981,7 +981,7 @@ final class BookingColumns {
              AND pm_status.meta_key = '_mhmrentiva_status'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'_mhmrentiva_total_price',
 				$current_period_start,
 				$current_period_end
@@ -1000,7 +1000,7 @@ final class BookingColumns {
              AND pm_status.meta_key = '_mhmrentiva_status'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s",
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'_mhmrentiva_total_price',
 				$previous_period_start,
 				$previous_period_end
@@ -1025,7 +1025,7 @@ final class BookingColumns {
 		global $pagenow, $post_type;
 
 		// Show only on booking list page
-		if ( $pagenow !== 'edit.php' || $post_type !== 'vehicle_booking' ) {
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -1445,7 +1445,7 @@ final class BookingColumns {
 				"SELECT p.ID, p.post_title, pm_customer.meta_value as customer_name
             FROM {$wpdb->posts} p
             LEFT JOIN {$wpdb->postmeta} pm_customer ON p.ID = pm_customer.post_id AND pm_customer.meta_key = %s
-            WHERE p.post_type = 'vehicle_booking'
+            WHERE p.post_type = 'mhmrentiva_booking'
                 AND p.post_status = 'publish'
                 AND p.post_date >= %s
                 AND p.post_date <= %s
@@ -1511,11 +1511,11 @@ final class BookingColumns {
                 p.post_date as created_date
             FROM {$wpdb->posts} p
             LEFT JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id 
-                AND (pm_vehicle.meta_key = '_mhmrentiva_vehicle_id' OR pm_vehicle.meta_key = '_booking_vehicle_id')
+                AND (pm_vehicle.meta_key = '_mhmrentiva_vehicle_id' OR pm_vehicle.meta_key = '_mhmrentiva_booking_vehicle_id')
             LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id 
-                AND (pm_start.meta_key = '_mhmrentiva_pickup_date' OR pm_start.meta_key = '_booking_pickup_date')
+                AND (pm_start.meta_key = '_mhmrentiva_pickup_date' OR pm_start.meta_key = '_mhmrentiva_booking_pickup_date')
             LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id 
-                AND (pm_end.meta_key = '_mhmrentiva_dropoff_date' OR pm_end.meta_key = '_booking_dropoff_date')
+                AND (pm_end.meta_key = '_mhmrentiva_dropoff_date' OR pm_end.meta_key = '_mhmrentiva_booking_dropoff_date')
             LEFT JOIN {$wpdb->postmeta} pm_customer ON p.ID = pm_customer.post_id 
                 AND (pm_customer.meta_key = '_mhmrentiva_customer_name' OR pm_customer.meta_key = '_customer_name')
             LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id 
@@ -1525,8 +1525,8 @@ final class BookingColumns {
             LEFT JOIN {$wpdb->postmeta} pm_total_price ON p.ID = pm_total_price.post_id 
                 AND (pm_total_price.meta_key = '_mhmrentiva_total_price' OR pm_total_price.meta_key = '_total_price')
             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                AND (pm_status.meta_key = '_mhmrentiva_status' OR pm_status.meta_key = '_booking_status')
-            WHERE p.post_type = 'vehicle_booking'
+                AND (pm_status.meta_key = '_mhmrentiva_status' OR pm_status.meta_key = '_mhmrentiva_booking_status')
+            WHERE p.post_type = 'mhmrentiva_booking'
                 AND p.post_status = 'publish'
                 AND pm_start.meta_value >= %s
                 AND pm_start.meta_value <= %s
@@ -1750,7 +1750,7 @@ final class BookingColumns {
 	 * Render booking ID filter input.
 	 */
 	public static function booking_id_filter( string $post_type ): void {
-		if ( $post_type !== 'vehicle_booking' ) {
+		if ( $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -1763,7 +1763,7 @@ final class BookingColumns {
 	 * Render vehicle license plate filter.
 	 */
 	public static function license_plate_filter( string $post_type ): void {
-		if ( $post_type !== 'vehicle_booking' ) {
+		if ( $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -1779,7 +1779,7 @@ final class BookingColumns {
 		if ( ! is_admin() || ! $q->is_main_query() ) {
 			return;
 		}
-		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'vehicle_booking' ) {
+		if ( ( $q->get( 'post_type' ) ?? '' ) !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -1806,7 +1806,7 @@ final class BookingColumns {
                 SELECT DISTINCT p.ID 
                 FROM {$wpdb->posts} p
                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                WHERE p.post_type = 'vehicle'
+                WHERE p.post_type = 'mhmrentiva_vehicle'
                     AND p.post_status = 'publish'
                     AND pm.meta_key = '_mhmrentiva_license_plate'
                     AND pm.meta_value LIKE %s
@@ -1824,9 +1824,9 @@ final class BookingColumns {
 					SELECT DISTINCT p.ID
 					FROM {$wpdb->posts} p
 					INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-					WHERE p.post_type = 'vehicle_booking'
+					WHERE p.post_type = 'mhmrentiva_booking'
 						AND p.post_status = 'publish'
-						AND pm.meta_key IN ('_booking_vehicle_id', '_mhmrentiva_vehicle_id')
+						AND pm.meta_key IN ('_mhmrentiva_booking_vehicle_id', '_mhmrentiva_vehicle_id')
 						AND pm.meta_value IN (" . implode( ', ', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
 				',
 						$vehicle_ids
@@ -1874,7 +1874,7 @@ final class BookingColumns {
 			$customer_name = $customer_last_name;
 		} else {
 			// Fallback to legacy meta fields
-			$customer_name = get_post_meta( $post_id, '_booking_customer_name', true ) ?:
+			$customer_name = get_post_meta( $post_id, '_mhmrentiva_booking_customer_name', true ) ?:
 				get_post_meta( $post_id, '_mhmrentiva_customer_name', true ) ?:
 				get_post_meta( $post_id, '_mhmrentiva_contact_name', true );
 		}
@@ -1901,7 +1901,7 @@ final class BookingColumns {
 			// Try multiple order ID meta keys
 			$order_id = get_post_meta( $post_id, '_mhmrentiva_order_id', true ) ?:
 				get_post_meta( $post_id, '_mhmrentiva_wc_order_id', true ) ?:
-				get_post_meta( $post_id, '_booking_order_id', true );
+				get_post_meta( $post_id, '_mhmrentiva_booking_order_id', true );
 
 			if ( $order_id ) {
 				$order = wc_get_order( $order_id );
@@ -1979,7 +1979,7 @@ final class BookingColumns {
 		}
 
 		$screen = get_current_screen();
-		if ( ! $screen || $screen->post_type !== 'vehicle_booking' || $screen->base !== 'edit' ) {
+		if ( ! $screen || $screen->post_type !== 'mhmrentiva_booking' || $screen->base !== 'edit' ) {
 			return $title;
 		}
 

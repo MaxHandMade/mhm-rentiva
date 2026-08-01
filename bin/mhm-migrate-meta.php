@@ -89,7 +89,7 @@ if ($table_status && strtolower($table_status->Engine) === 'myisam') {
 
 while (true) {
     $vehicles = $wpdb->get_results($wpdb->prepare(
-        "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'vehicle' ORDER BY ID ASC LIMIT %d OFFSET %d",
+        "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'mhmrentiva_vehicle' ORDER BY ID ASC LIMIT %d OFFSET %d",
         $batch_size,
         $offset
     ));

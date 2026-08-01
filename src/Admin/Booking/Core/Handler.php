@@ -121,7 +121,7 @@ final class Handler {
 		}
 
 		// Check vehicle existence
-		if (get_post_type($vehicle_id) !== 'vehicle') {
+		if (get_post_type($vehicle_id) !== 'mhmrentiva_vehicle') {
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_VEHICLE,
 				'vehicle_not_found',
@@ -322,7 +322,7 @@ final class Handler {
 						$booking_data['dropoff_date']
 					),
 					'post_status'  => 'publish',
-					'post_type'    => 'vehicle_booking',
+					'post_type'    => 'mhmrentiva_booking',
 					'post_author'  => 1, // Admin user
 				);
 

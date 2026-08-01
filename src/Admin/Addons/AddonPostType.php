@@ -31,7 +31,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class AddonPostType extends AbstractPostType {
 
 
-	public const POST_TYPE = 'vehicle_addon';
+	public const POST_TYPE = 'mhmrentiva_addon';
 
 	/**
 	 * Get post type name.
@@ -94,7 +94,7 @@ final class AddonPostType extends AbstractPostType {
 			array( 'labels' => $labels )
 		);
 
-		register_taxonomy( 'addon_category', array( self::POST_TYPE ), $args );
+		register_taxonomy( 'mhmrentiva_addon_category', array( self::POST_TYPE ), $args );
 
 		AddonContextTaxonomy::register();
 		AddonContextTaxonomy::seed_default_terms();

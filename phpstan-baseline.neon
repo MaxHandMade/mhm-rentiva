@@ -97,7 +97,7 @@ parameters:
 			path: src/Admin/Booking/Helpers/CancellationHandler.php
 
 		-
-			message: '#^Offset ''tax_query'' on array\{post_type\: ''vehicle'', post_status\: ''publish'', posts_per_page\: 20, meta_query\: array\{relation\: ''AND'', 0\: array\{key\: ''_mhmrentiva_vehicle…'', value\: ''active'', compare\: ''\=''\}, 1\: array\{key\: ''_mhmrentiva_price…'', value\: 0, compare\: ''\>''\}\}\} in isset\(\) does not exist\.$#'
+			message: '#^Offset ''tax_query'' on array\{post_type\: ''mhmrentiva_vehicle'', post_status\: ''publish'', posts_per_page\: 20, meta_query\: array\{relation\: ''AND'', 0\: array\{key\: ''_mhmrentiva_vehicle…'', value\: ''active'', compare\: ''\=''\}, 1\: array\{key\: ''_mhmrentiva_price…'', value\: 0, compare\: ''\>''\}\}\} in isset\(\) does not exist\.$#'
 			identifier: isset.offset
 			count: 1
 			path: src/Admin/Booking/Helpers/Util.php
@@ -667,7 +667,7 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
 
 		-
-			message: '#^Offset ''meta_query'' on array\{post_type\: ''vehicle'', post_status\: ''publish'', posts_per_page\: int, orderby\: ''post__in'', order\: mixed, fields\: ''ids'', meta_query\: array\{array\}, post__in\: array, \.\.\.\}\|array\{post_type\: ''vehicle'', post_status\: ''publish'', posts_per_page\: int, orderby\: mixed, order\: mixed, fields\: ''ids'', meta_query\: array\{array, array\}, tax_query\?\: array\{array\{taxonomy\: ''vehicle_category'', field\: ''slug'', terms\: mixed\}\}\} in isset\(\) always exists and is not nullable\.$#'
+			message: '#^Offset ''meta_query'' on array\{post_type\: ''mhmrentiva_vehicle'', post_status\: ''publish'', posts_per_page\: int, orderby\: ''post__in'', order\: mixed, fields\: ''ids'', meta_query\: array\{array\}, post__in\: array, \.\.\.\}\|array\{post_type\: ''mhmrentiva_vehicle'', post_status\: ''publish'', posts_per_page\: int, orderby\: mixed, order\: mixed, fields\: ''ids'', meta_query\: array\{array, array\}, tax_query\?\: array\{array\{taxonomy\: ''mhmrentiva_vehicle…'', field\: ''slug'', terms\: mixed\}\}\} in isset\(\) always exists and is not nullable\.$#'
 			identifier: isset.offset
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/FeaturedVehicles.php

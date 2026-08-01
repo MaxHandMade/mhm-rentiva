@@ -37,13 +37,13 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
 
         // Create vehicles
         $this->vehicle_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Test Vehicle for Verified Badge',
         ));
 
         $this->other_vehicle_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Other Vehicle',
         ));
@@ -75,7 +75,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
     private function create_booking(int $vehicle_id, int $user_id, string $status = 'completed', string $email = ''): int
     {
         $booking_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Test Booking',
         ));
@@ -316,7 +316,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
         $guest_email = 'guest-reviewer@test.com';
 
         $booking_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Guest Booking',
         ));
@@ -359,7 +359,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
         $guest_email = 'other-vehicle-guest@test.com';
 
         $booking_id = $this->factory->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Guest Booking On Another Vehicle',
         ));

@@ -38,7 +38,7 @@ final class StatusTransitionTest extends WP_UnitTestCase
 	public function test_update_status_completed_to_in_progress_fires_status_change_action(): void
 	{
 		$booking_id = (int) self::factory()->post->create(array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 		));
 		update_post_meta($booking_id, '_mhmrentiva_status', Status::COMPLETED);

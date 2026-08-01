@@ -43,7 +43,7 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 		$_GET  = array();
 
 		$this->vehicle_id = (int) self::factory()->post->create(array(
-			'post_type'   => 'vehicle',
+			'post_type'   => 'mhmrentiva_vehicle',
 			'post_status' => 'publish',
 		));
 		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', 100);

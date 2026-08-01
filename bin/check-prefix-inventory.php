@@ -128,9 +128,20 @@ function allOldIdentifiers(): array
 function allMatchableStrings(): array
 {
     $all = allOldIdentifiers();
-    // Exact-key family OLD keys are already included via allOldIdentifiers();
-    // add anything else that should count as "covered" for baseline purposes.
-    return array_values(array_unique($all));
+
+    // Post-Görev-12 the baseline is regenerated from the RENAMED tree, so its
+    // entries are NEW names. Matching them against old keys alone fails every
+    // correctly renamed entry -- 839 of them -- which measures the rename rather
+    // than the coverage. Both spellings count as covered, and the question the
+    // mode answers is stated on its own output line so nobody has to infer it.
+    foreach (exactKeyFamilies() as $family) {
+        $all = array_merge($all, array_values($family));
+    }
+    foreach ([Map::POSTMETA_PREFIX_RULES, Map::USERMETA_PREFIX_RULES, Map::RUNTIME_STRING_RULES] as $ruleset) {
+        $all = array_merge($all, array_values($ruleset));
+    }
+
+    return array_values(array_unique(array_filter($all)));
 }
 
 /**
@@ -222,6 +233,22 @@ function isInScopeForMode3(string $name): bool
         return false;
     }
     if (in_array($name, Map::BARE_TOKEN_EXCEPTIONS, true)) {
+        return false;
+    }
+    // The post-rename bare token, for exactly the reason BARE_TOKEN_EXCEPTIONS
+    // holds the pre-rename one: 'mhmrentiva' with no suffix is not an option,
+    // hook, CPT or meta key this migration governs -- it is the plugin's own
+    // token, appearing as an object-cache group name and as the SQL LIKE prefix
+    // uninstall uses. It is deliberately NOT added to the matchable rule list
+    // instead: 'mhmrentiva' is a substring of nearly every renamed name, so
+    // making it matchable would let any string whatsoever satisfy this mode and
+    // quietly turn it into a no-op.
+    //
+    // 🔴 It reaches the baseline because PrefixMigrationMap has no entry for the
+    // BARE stem 'mhm_rentiva' (only 'mhm_rentiva_' and 'mhm_rentiva/'), which is
+    // the same map gap that made the sweep produce 'mhmrentiva_rentiva%'. Worth
+    // closing in the map itself; recorded here rather than silently absorbed.
+    if ($name === 'mhmrentiva') {
         return false;
     }
     if (stripos($name, 'mhm') !== false) {
@@ -716,7 +743,12 @@ function runMode6(string $root): array
 $modes = [
     1 => ['bijection', fn() => runMode1()],
     2 => ['length-limits', fn() => runMode2()],
-    3 => ['baseline-coverage', fn() => runMode3($baselinePath)],
+    // The label states WHICH question this mode answers, because regenerating
+    // the baseline after the sweep changed it. Before Görev 12 it asked "is
+    // every OLD name in the map?"; now the baseline is extracted from the
+    // renamed tree, so it asks "is every name in the tree one the map knows
+    // about, in either spelling?". Both are valid; they are not the same.
+    3 => ['baseline-coverage (does the map recognise every inventoried name, old spelling or new?)', fn() => runMode3($baselinePath)],
     4 => ['post-sweep-no-old-names', fn() => runMode4($root)],
     5 => ['options-call-coverage', fn() => runMode5($root)],
     6 => ['cron-hook-coverage', fn() => runMode6($root)],

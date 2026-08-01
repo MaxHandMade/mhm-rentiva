@@ -42,14 +42,14 @@ final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 		$this->author_id   = self::factory()->user->create( array( 'role' => 'author' ) );
 		$this->own_vehicle = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_author' => $this->author_id,
 			)
 		);
 		$this->other_vehicle = self::factory()->post->create(
 			array(
-				'post_type'   => 'vehicle',
+				'post_type'   => 'mhmrentiva_vehicle',
 				'post_status' => 'publish',
 				'post_author' => self::factory()->user->create( array( 'role' => 'administrator' ) ),
 			)

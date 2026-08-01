@@ -100,12 +100,32 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	 * @var array<string, string>
 	 */
 	private const UNPREFIXED_REGISTERED = array(
-		'vehicle'          => 'post type: every vehicle row on every install',
-		'vehicle_booking'  => 'post type: every booking row on every install',
-		'vehicle_addon'    => 'post type: every add-on row on every install',
-		'vehicle_category' => 'taxonomy: every vehicle category term',
-		'addon_category'   => 'taxonomy: every add-on category term',
-		'addon_context'    => 'taxonomy: every add-on context term',
+		// EMPTY, for the same reason INVENTORY above is: Görev 12 renamed all six.
+		//
+		// The docblock above argued they could not be renamed because the slug is
+		// written into every wp_posts row and every term since 1.x, so a rename is
+		// a migration over the site's whole content. That is still true -- it is
+		// why Görev 13 exists -- but WordPress.org's T7 review named these slugs
+		// specifically, so "too expensive to migrate" stopped being an option and
+		// the migration is being written instead.
+		//
+		//   vehicle          -> mhmrentiva_vehicle       (18 chars)
+		//   vehicle_booking  -> mhmrentiva_booking       (18)
+		//   vehicle_addon    -> mhmrentiva_addon         (16)
+		//   vehicle_category -> mhmrentiva_vehicle_category (27)
+		//   addon_category   -> mhmrentiva_addon_category   (25)
+		//   addon_context    -> mhmrentiva_addon_context    (24)
+		//
+		// all within WordPress' hard limits (post_type 20, taxonomy 32), which
+		// G-C mode 2 checks on every run.
+		//
+		// No public URL moves with them: Booking and Addon register with
+		// rewrite => false, Vehicle's slug comes from the separate
+		// mhmrentiva_vehicle_url_base setting (whose 'vehicle' DEFAULT is
+		// deliberately left alone), the one place that derived a slug from the
+		// post type -- AbstractPostType::get_public_args() -- is dead code, and
+		// every post type registers with capability_type => 'post', so no role
+		// or capability changes either.
 	);
 
 	/**

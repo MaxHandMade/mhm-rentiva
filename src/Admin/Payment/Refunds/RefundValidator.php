@@ -27,7 +27,7 @@ final class RefundValidator {
 		}
 
 		$post = get_post( $bookingId );
-		if ( ! $post || $post->post_type !== 'vehicle_booking' ) {
+		if ( ! $post || $post->post_type !== 'mhmrentiva_booking' ) {
 			return array(
 				'valid'   => false,
 				'message' => __( 'Invalid booking type', 'mhm-rentiva' ),

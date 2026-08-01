@@ -48,7 +48,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 		parent::setUp();
 
 		$this->vehicle_id = (int) self::factory()->post->create(array(
-			'post_type'   => 'vehicle',
+			'post_type'   => 'mhmrentiva_vehicle',
 			'post_status' => 'publish',
 			'post_title'  => 'Test Vehicle',
 		));
@@ -119,7 +119,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 			// Prove ordering: no vehicle_booking post exists yet for this
 			// customer email at the moment the hook fires.
 			$post_existed_at_hook_time = get_posts(array(
-				'post_type'   => 'vehicle_booking',
+				'post_type'   => 'mhmrentiva_booking',
 				'post_status' => 'any',
 				'meta_key'    => '_mhmrentiva_customer_email',
 				'meta_value'  => 'jane@example.com',
@@ -164,7 +164,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 			throw new \RuntimeException('halted:consent_required');
 		});
 
-		$before_count = wp_count_posts('vehicle_booking')->publish ?? 0;
+		$before_count = wp_count_posts('mhmrentiva_booking')->publish ?? 0;
 
 		try {
 			$this->invoke_create_booking_from_data($booking_data, 999);
@@ -173,7 +173,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 			$this->assertSame('halted:consent_required', $e->getMessage());
 		}
 
-		$after_count = wp_count_posts('vehicle_booking')->publish ?? 0;
+		$after_count = wp_count_posts('mhmrentiva_booking')->publish ?? 0;
 		$this->assertSame($before_count, $after_count, 'No booking post may be created when a subscriber halts on mhmrentiva_before_booking_creation.');
 	}
 

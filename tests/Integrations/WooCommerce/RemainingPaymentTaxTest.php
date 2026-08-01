@@ -73,7 +73,7 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
         // Customer + booking.
         $this->customer_id = (int) self::factory()->user->create(array( 'role' => 'customer' ));
         $this->booking_id  = (int) self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
         ));
 

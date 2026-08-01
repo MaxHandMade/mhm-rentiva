@@ -42,7 +42,7 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	private const PUBLIC_QUERY_VARS = array(
 		'addon_status',
-		'addon_category',
+		'mhmrentiva_addon_category',
 		'price_min',
 		'price_max',
 	);
@@ -160,7 +160,7 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	protected function get_data_query_args(): array {
 		return array(
-			'post_type'      => 'vehicle_addon',
+			'post_type'      => 'mhmrentiva_addon',
 			'post_status'    => 'any',
 			'posts_per_page' => $this->default_per_page,
 			'orderby'        => 'date',
@@ -184,7 +184,7 @@ final class AddonListTable extends AbstractListTable {
 	 * @return int Total count.
 	 */
 	protected function get_total_count(): int {
-		$counts = wp_count_posts( 'vehicle_addon' );
+		$counts = wp_count_posts( 'mhmrentiva_addon' );
 		return ( $counts->publish ?? 0 ) + ( $counts->draft ?? 0 );
 	}
 
@@ -197,9 +197,9 @@ final class AddonListTable extends AbstractListTable {
 		return array(
 			'cb'             => '<input type="checkbox" />',
 			'title'          => __( 'Title', 'mhm-rentiva' ),
-			'addon_price'    => __( 'Price', 'mhm-rentiva' ),
-			'addon_enabled'  => __( 'Status', 'mhm-rentiva' ),
-			'addon_required' => __( 'Required', 'mhm-rentiva' ),
+			'mhmrentiva_addon_price'    => __( 'Price', 'mhm-rentiva' ),
+			'mhmrentiva_addon_enabled'  => __( 'Status', 'mhm-rentiva' ),
+			'mhmrentiva_addon_required' => __( 'Required', 'mhm-rentiva' ),
 			'date'           => __( 'Date', 'mhm-rentiva' ),
 		);
 	}
@@ -212,8 +212,8 @@ final class AddonListTable extends AbstractListTable {
 	public function get_sortable_columns(): array {
 		return array(
 			'title'         => array( 'title', false ),
-			'addon_price'   => array( 'addon_price', false ),
-			'addon_enabled' => array( 'addon_enabled', false ),
+			'mhmrentiva_addon_price'   => array( 'mhmrentiva_addon_price', false ),
+			'mhmrentiva_addon_enabled' => array( 'mhmrentiva_addon_enabled', false ),
 			'date'          => array( 'date', false ),
 		);
 	}
@@ -227,8 +227,8 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
-			case 'addon_price':
-				$price           = get_post_meta( $item->ID, 'addon_price', true );
+			case 'mhmrentiva_addon_price':
+				$price           = get_post_meta( $item->ID, 'mhmrentiva_addon_price', true );
 				$currency_code   = AddonManager::get_default_currency();
 				$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
 				$formatted_price = number_format( (float) $price, 2, ',', '.' ) . ' ' . $currency_symbol;
@@ -241,14 +241,14 @@ final class AddonListTable extends AbstractListTable {
 					esc_html( $formatted_price )
 				);
 
-			case 'addon_enabled':
-				$enabled = get_post_meta( $item->ID, 'addon_enabled', true );
+			case 'mhmrentiva_addon_enabled':
+				$enabled = get_post_meta( $item->ID, 'mhmrentiva_addon_enabled', true );
 				$status  = $enabled ? __( 'Active', 'mhm-rentiva' ) : __( 'Inactive', 'mhm-rentiva' );
 				$class   = $enabled ? 'status-active' : 'status-inactive';
 				return '<span class="' . esc_attr( $class ) . '">' . esc_html( $status ) . '</span>';
 
-			case 'addon_required':
-				$required = get_post_meta( $item->ID, 'addon_required', true );
+			case 'mhmrentiva_addon_required':
+				$required = get_post_meta( $item->ID, 'mhmrentiva_addon_required', true );
 				return $required ? '<span class="dashicons dashicons-yes" style="color: #46b450;"></span>' : '<span class="dashicons dashicons-no" style="color: #dc3232;"></span>';
 
 			default:
@@ -334,13 +334,13 @@ final class AddonListTable extends AbstractListTable {
 
 			if ( 'enabled' === $status ) {
 				$args['meta_query'][] = array(
-					'key'     => 'addon_enabled',
+					'key'     => 'mhmrentiva_addon_enabled',
 					'value'   => '1',
 					'compare' => '=',
 				);
 			} elseif ( 'disabled' === $status ) {
 				$args['meta_query'][] = array(
-					'key'     => 'addon_enabled',
+					'key'     => 'mhmrentiva_addon_enabled',
 					'value'   => '0',
 					'compare' => '=',
 				);
@@ -348,12 +348,12 @@ final class AddonListTable extends AbstractListTable {
 		}
 
 		// Category filter.
-		$addon_category = self::request_text( 'addon_category' );
+		$addon_category = self::request_text( 'mhmrentiva_addon_category' );
 		if ( '' !== $addon_category ) {
 			$category          = $addon_category;
 			$args['tax_query'] = array(
 				array(
-					'taxonomy' => 'addon_category',
+					'taxonomy' => 'mhmrentiva_addon_category',
 					'field'    => 'slug',
 					'terms'    => $category,
 				),
@@ -367,7 +367,7 @@ final class AddonListTable extends AbstractListTable {
 			$args['meta_query'] = $args['meta_query'] ?? array();
 
 			$price_query = array(
-				'key'  => 'addon_price',
+				'key'  => 'mhmrentiva_addon_price',
 				'type' => 'NUMERIC',
 			);
 
@@ -403,7 +403,7 @@ final class AddonListTable extends AbstractListTable {
 		echo '<br><br>';
 		printf(
 			'<a href="%s" class="button button-primary">%s</a>',
-			esc_url( admin_url( 'post-new.php?post_type=vehicle_addon' ) ),
+			esc_url( admin_url( 'post-new.php?post_type=mhmrentiva_addon' ) ),
 			esc_html__( 'Create First Additional Service', 'mhm-rentiva' )
 		);
 	}
@@ -420,7 +420,7 @@ final class AddonListTable extends AbstractListTable {
 		// All.
 		$class        = ( 'all' === $current ) ? ' class="current"' : '';
 		$all_url      = remove_query_arg( 'addon_status' );
-		$all_count    = wp_count_posts( 'vehicle_addon' )->publish + wp_count_posts( 'vehicle_addon' )->draft;
+		$all_count    = wp_count_posts( 'mhmrentiva_addon' )->publish + wp_count_posts( 'mhmrentiva_addon' )->draft;
 		$views['all'] = sprintf(
 			'<a href="%s"%s>%s <span class="count">(%d)</span></a>',
 			esc_url( $all_url ),
@@ -471,8 +471,8 @@ final class AddonListTable extends AbstractListTable {
             SELECT COUNT(*)
             FROM {$wpdb->posts} p
             INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-            WHERE p.post_type = 'vehicle_addon'
-            AND pm.meta_key = 'addon_enabled'
+            WHERE p.post_type = 'mhmrentiva_addon'
+            AND pm.meta_key = 'mhmrentiva_addon_enabled'
             AND pm.meta_value = %s
         ",
 				$status
@@ -489,7 +489,7 @@ final class AddonListTable extends AbstractListTable {
 		echo '<div class="alignleft actions">';
 
 		// Add new button.
-		echo '<a href="' . esc_url( admin_url( 'post-new.php?post_type=vehicle_addon' ) ) . '" class="button button-primary">';
+		echo '<a href="' . esc_url( admin_url( 'post-new.php?post_type=mhmrentiva_addon' ) ) . '" class="button button-primary">';
 		echo esc_html__( 'Add New Additional Service', 'mhm-rentiva' );
 		echo '</a>';
 
@@ -498,7 +498,7 @@ final class AddonListTable extends AbstractListTable {
 		// Filtering controls.
 		echo '<div class="alignright actions">';
 		echo '<form method="get" class="filter-form">';
-		echo '<input type="hidden" name="post_type" value="vehicle_addon" />';
+		echo '<input type="hidden" name="post_type" value="mhmrentiva_addon" />';
 		wp_nonce_field( 'mhmrentiva_addon_filter', 'mhmrentiva_addon_filter_nonce' );
 
 		// Status filter.
@@ -510,13 +510,13 @@ final class AddonListTable extends AbstractListTable {
 		echo '</select>';
 
 		// Category filter.
-		$current_category = self::request_text( 'addon_category' );
-		echo '<select name="addon_category" class="postform">';
+		$current_category = self::request_text( 'mhmrentiva_addon_category' );
+		echo '<select name="mhmrentiva_addon_category" class="postform">';
 		echo '<option value="">' . esc_html__( 'All categories', 'mhm-rentiva' ) . '</option>';
 
 		$categories = get_terms(
 			array(
-				'taxonomy'   => 'addon_category',
+				'taxonomy'   => 'mhmrentiva_addon_category',
 				'hide_empty' => false,
 			)
 		);
@@ -534,7 +534,7 @@ final class AddonListTable extends AbstractListTable {
 		echo '<input type="number" name="price_max" placeholder="' . esc_attr__( 'Max price', 'mhm-rentiva' ) . '" value="' . esc_attr( $current_price_max ) . '" class="postform" style="width: 100px;" />';
 
 		echo '<input type="submit" class="button" value="' . esc_attr__( 'Filter', 'mhm-rentiva' ) . '" />';
-		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=vehicle_addon' ) ) . '" class="button">' . esc_html__( 'Clear', 'mhm-rentiva' ) . '</a>';
+		echo '<a href="' . esc_url( admin_url( 'edit.php?post_type=mhmrentiva_addon' ) ) . '" class="button">' . esc_html__( 'Clear', 'mhm-rentiva' ) . '</a>';
 		echo '</form>';
 		echo '</div>';
 	}
@@ -548,7 +548,7 @@ final class AddonListTable extends AbstractListTable {
 		global $post_type;
 
 		// Only enqueue on addon list page.
-		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
+		if ( 'edit.php' === $hook && 'mhmrentiva_addon' === $post_type ) {
 			wp_enqueue_style(
 				'mhm-rentiva-stats-cards',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
@@ -606,7 +606,7 @@ final class AddonListTable extends AbstractListTable {
 
 		// Only show on addon list page.
 		// Only show on addon list page.
-		if ( 'edit.php' !== $pagenow || 'vehicle_addon' !== $post_type ) {
+		if ( 'edit.php' !== $pagenow || 'mhmrentiva_addon' !== $post_type ) {
 			return;
 		}
 
@@ -665,7 +665,7 @@ final class AddonListTable extends AbstractListTable {
 		$total_addons = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'vehicle_addon',
+				'mhmrentiva_addon',
 				'publish'
 			)
 		);
@@ -676,8 +676,8 @@ final class AddonListTable extends AbstractListTable {
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
              WHERE p.post_type = %s AND p.post_status = %s
-             AND pm.meta_key = 'addon_enabled' AND pm.meta_value = '1'",
-				'vehicle_addon',
+             AND pm.meta_key = 'mhmrentiva_addon_enabled' AND pm.meta_value = '1'",
+				'mhmrentiva_addon',
 				'publish'
 			)
 		);
@@ -689,8 +689,8 @@ final class AddonListTable extends AbstractListTable {
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
              WHERE p.post_type = %s AND p.post_status = %s
-             AND pm.meta_key = 'addon_price'",
-				'vehicle_addon',
+             AND pm.meta_key = 'mhmrentiva_addon_price'",
+				'mhmrentiva_addon',
 				'publish'
 			)
 		);
@@ -702,8 +702,8 @@ final class AddonListTable extends AbstractListTable {
              FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
              WHERE p.post_type = %s AND p.post_status = %s
-             AND pm.meta_key = 'addon_price'",
-				'vehicle_addon',
+             AND pm.meta_key = 'mhmrentiva_addon_price'",
+				'mhmrentiva_addon',
 				'publish'
 			)
 		);

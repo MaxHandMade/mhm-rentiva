@@ -63,7 +63,7 @@ class VehicleCardWidget extends ElementorWidgetBase {
 		return array_merge(
 			$this->widget_keywords,
 			array(
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'card',
 				'car',
 				'rental',

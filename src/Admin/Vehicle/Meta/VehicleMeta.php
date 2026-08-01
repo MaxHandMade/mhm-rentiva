@@ -105,7 +105,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 	protected static function get_post_type(): string
 	{
-		return 'vehicle';
+		return 'mhmrentiva_vehicle';
 	}
 
 	protected static function get_meta_box_id(): string
@@ -137,8 +137,8 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		add_action('init', array( self::class, 'register_meta_fields' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
-		add_action('add_meta_boxes_vehicle', array( self::class, 'add_featured_meta_box' ));
-		add_action('save_post_vehicle', array( self::class, 'save_featured_meta_box' ));
+		add_action('add_meta_boxes_mhmrentiva_vehicle', array( self::class, 'add_featured_meta_box' ));
+		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'save_featured_meta_box' ));
 
 		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
@@ -151,7 +151,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	{
 		global $post_type, $pagenow;
 
-		if ($post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
+		if ($post_type === 'mhmrentiva_vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-meta-css',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
@@ -194,8 +194,8 @@ final class VehicleMeta extends AbstractMetaBox {
 
 	public static function add_meta_boxes(): void
 	{
-		remove_meta_box('postexcerpt', 'vehicle', 'normal');
-		remove_meta_box('slugdiv', 'vehicle', 'normal');
+		remove_meta_box('postexcerpt', 'mhmrentiva_vehicle', 'normal');
+		remove_meta_box('slugdiv', 'mhmrentiva_vehicle', 'normal');
 
 		parent::add_meta_boxes();
 	}
@@ -209,7 +209,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			'mhmrentiva_vehicle_featured',
 			__('Featured', 'mhm-rentiva'),
 			array( self::class, 'render_featured_meta_box' ),
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'side',
 			'default'
 		);
@@ -275,7 +275,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	{
 		global $post_type;
 
-		if ($post_type === 'vehicle') {
+		if ($post_type === 'mhmrentiva_vehicle') {
 			wp_enqueue_style(
 				'mhm-rentiva-hide-wp-chrome',
 				\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
@@ -524,7 +524,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 	public static function save_meta(int $post_id, \WP_Post $post): void
 	{
-		if (! in_array($post->post_type, array( 'vehicle', 'vehicle_booking' ), true)) {
+		if (! in_array($post->post_type, array( 'mhmrentiva_vehicle', 'mhmrentiva_booking' ), true)) {
 			return;
 		}
 
@@ -832,7 +832,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	{
 		// Vehicle Status
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
 			array(
 				'type'              => 'string',
@@ -847,7 +847,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED,
 			array(
 				'type'              => 'string',
@@ -860,7 +860,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_price_per_day',
 			array(
 				'type'              => 'number',
@@ -873,7 +873,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_seats',
 			array(
 				'type'              => 'integer',
@@ -886,7 +886,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_doors',
 			array(
 				'type'              => 'integer',
@@ -899,7 +899,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_transmission',
 			array(
 				'type'              => 'string',
@@ -913,7 +913,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_fuel_type',
 			array(
 				'type'              => 'string',
@@ -927,7 +927,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_engine_size',
 			array(
 				'type'              => 'number',
@@ -943,7 +943,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_color',
 			array(
 				'type'              => 'string',
@@ -956,7 +956,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_license_plate',
 			array(
 				'type'              => 'string',
@@ -970,7 +970,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		// Legacy Availability (Maintained for read fallback in Phase 1)
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_vehicle_availability',
 			array(
 				'type'              => 'string',
@@ -993,7 +993,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_features',
 			array(
 				'type'              => 'array',
@@ -1021,7 +1021,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		);
 
 		register_post_meta(
-			'vehicle',
+			'mhmrentiva_vehicle',
 			'_mhmrentiva_equipment',
 			array(
 				'type'              => 'array',
@@ -1304,7 +1304,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	{
 		global $wp_meta_boxes;
 
-		if (! isset($wp_meta_boxes['vehicle']['side'])) {
+		if (! isset($wp_meta_boxes['mhmrentiva_vehicle']['side'])) {
 			return;
 		}
 
@@ -1319,7 +1319,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		// Flatten all priority buckets into a single map.
 		$all_boxes = array();
-		foreach ($wp_meta_boxes['vehicle']['side'] as $boxes) {
+		foreach ($wp_meta_boxes['mhmrentiva_vehicle']['side'] as $boxes) {
 			foreach ($boxes as $id => $box) {
 				$all_boxes[ $id ] = $box;
 			}
@@ -1341,6 +1341,6 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Reordering side meta boxes requires writing back to the core global registry.
-		$wp_meta_boxes['vehicle']['side'] = $reordered;
+		$wp_meta_boxes['mhmrentiva_vehicle']['side'] = $reordered;
 	}
 }

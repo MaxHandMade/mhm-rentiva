@@ -65,7 +65,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		add_action('wp_ajax_nopriv_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
 
 		// Cache invalidation
-		add_action('save_post_vehicle_booking', array( self::class, 'clear_availability_cache' ), 10, 3);
+		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_availability_cache' ), 10, 3);
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -353,14 +353,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 		if (! empty($atts['vehicle_id'])) {
 			$vehicle = get_post($atts['vehicle_id']);
-			if ($vehicle && $vehicle->post_type === 'vehicle') {
+			if ($vehicle && $vehicle->post_type === 'mhmrentiva_vehicle') {
 				$vehicle_id = intval($atts['vehicle_id']);
 			}
 		} else {
 			// If vehicle ID not provided, get first available vehicle
 			$vehicles = get_posts(
 				array(
-					'post_type'   => 'vehicle',
+					'post_type'   => 'mhmrentiva_vehicle',
 					'post_status' => array( 'publish', 'draft', 'private' ),
 					'numberposts' => 1,
 					'orderby'     => 'date',
@@ -421,7 +421,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	private static function get_selected_vehicle_data(int $vehicle_id): ?array
 	{
 		$vehicle = get_post($vehicle_id);
-		if (! $vehicle || $vehicle->post_type !== 'vehicle') {
+		if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
 			return null;
 		}
 
@@ -519,7 +519,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			function () {
 				$vehicles = get_posts(
 					array(
-						'post_type'   => 'vehicle',
+						'post_type'   => 'mhmrentiva_vehicle',
 						'post_status' => array( 'publish', 'draft', 'private' ),
 						'numberposts' => -1,
 						'orderby'     => 'title',
@@ -619,7 +619,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
                 INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key IN ('_mhmrentiva_end_date', '_mhmrentiva_return_date', '_mhmrentiva_dropoff_date')
                 LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
                 LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhmrentiva_payment_status'
-                WHERE p.post_type = 'vehicle_booking'
+                WHERE p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'pending', 'confirmed')
                 AND pm_vehicle.meta_value = %d
                 AND pm_start.meta_value <= %s
@@ -956,7 +956,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			}
 
 			$vehicle = get_post($vehicle_id);
-			if (! $vehicle || $vehicle->post_type !== 'vehicle') {
+			if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
 				wp_send_json_error(__('Vehicle not found', 'mhm-rentiva'));
 				return;
 			}
@@ -1102,7 +1102,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 */
 	public static function clear_availability_cache($post_id, $post, $update): void
 	{
-		if ($post->post_type !== 'vehicle_booking') {
+		if ($post->post_type !== 'mhmrentiva_booking') {
 			return;
 		}
 

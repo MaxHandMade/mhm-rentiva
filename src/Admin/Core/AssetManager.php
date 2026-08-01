@@ -402,7 +402,7 @@ final class AssetManager {
 		}
 
 		// Plugin's custom post types that don't carry the 'mhm' prefix in their slug.
-		$plugin_post_types = array( 'vehicle', 'vehicle_booking', 'vehicle_addon', 'mhmrentiva_vendor_app' );
+		$plugin_post_types = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon', 'mhmrentiva_vendor_app' );
 
 		return (
 			str_contains( $screen->id, 'mhm' ) ||
@@ -697,7 +697,7 @@ final class AssetManager {
 		// Booking Edit Meta
 		// Deposit Management
 		// Vehicle Gallery & Meta
-		if ($screen->id === 'vehicle' || $screen->post_type === 'vehicle') {
+		if ($screen->id === 'mhmrentiva_vehicle' || $screen->post_type === 'mhmrentiva_vehicle') {
 			wp_enqueue_media();
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-gallery',
@@ -740,7 +740,7 @@ final class AssetManager {
 		}
 
 		// Vehicle Quick Edit
-		if ($screen->id === 'edit-vehicle' || $screen->post_type === 'vehicle') {
+		if ($screen->id === 'edit-mhmrentiva_vehicle' || $screen->post_type === 'mhmrentiva_vehicle') {
 			self::enqueue_component_js('vehicle-quick-edit');
 		}
 
@@ -754,7 +754,7 @@ final class AssetManager {
 
 		// Booking Calendar
 		// Bookings List (CPT list) - ensure bulk actions work reliably
-		if ($screen->id === 'edit-vehicle_booking') {
+		if ($screen->id === 'edit-mhmrentiva_booking') {
 			wp_enqueue_script(
 				'mhm-rentiva-booking-bulk-actions',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',

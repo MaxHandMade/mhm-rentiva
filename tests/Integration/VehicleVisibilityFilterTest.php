@@ -16,21 +16,21 @@ class VehicleVisibilityFilterTest extends \WP_UnitTestCase
         parent::setUp();
 
         $this->active_vehicle = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Active Vehicle',
         ));
         update_post_meta($this->active_vehicle, '_mhmrentiva_vehicle_status', 'active');
 
         $this->maintenance_vehicle = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Maintenance Vehicle',
         ));
         update_post_meta($this->maintenance_vehicle, '_mhmrentiva_vehicle_status', 'maintenance');
 
         $this->no_status_vehicle = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Legacy Vehicle (no status meta)',
         ));
@@ -65,7 +65,7 @@ class VehicleVisibilityFilterTest extends \WP_UnitTestCase
     public function test_inactive_vehicle_excluded(): void
     {
         $inactive_id = wp_insert_post(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Inactive Vehicle',
         ));
@@ -80,7 +80,7 @@ class VehicleVisibilityFilterTest extends \WP_UnitTestCase
     private function query_with_active_filter(): array
     {
         $query = new \WP_Query(array(
-            'post_type'      => 'vehicle',
+            'post_type'      => 'mhmrentiva_vehicle',
             'post_status'    => 'publish',
             'posts_per_page' => -1,
             'fields'         => 'ids',

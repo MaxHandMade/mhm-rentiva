@@ -379,7 +379,7 @@ final class AccountRenderer {
 	{
 		$booking = get_post($booking_id);
 
-		if (! $booking || $booking->post_type !== 'vehicle_booking') {
+		if (! $booking || $booking->post_type !== 'mhmrentiva_booking') {
 			return array( 'error' => '<p>' . __('Booking not found.', 'mhm-rentiva') . '</p>' );
 		}
 
@@ -541,7 +541,7 @@ final class AccountRenderer {
 		}
 
 		$query_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
 			'posts_per_page' => (int) $args['limit'],
 			'orderby'        => self::sanitize_text_field_safe($args['orderby']),
@@ -606,7 +606,7 @@ final class AccountRenderer {
 			// Build date with time if available
 			$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
 			if (empty($pickup_date)) {
-				$pickup_date = get_post_meta($booking->ID, '_booking_pickup_date', true);
+				$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_date', true);
 			}
 
 			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
@@ -614,7 +614,7 @@ final class AccountRenderer {
 				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 			}
 			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
+				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_booking_pickup_time', true);
 			}
 
 			$date_str       = trim($pickup_date . ' ' . ( ! empty($pickup_time) ? $pickup_time : '' ));

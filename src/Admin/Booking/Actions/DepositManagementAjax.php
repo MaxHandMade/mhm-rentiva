@@ -45,7 +45,7 @@ final class DepositManagementAjax {
 		}
 
 		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'vehicle_booking' ) {
+		if ( ! $booking || $booking->post_type !== 'mhmrentiva_booking' ) {
 			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
 			return 0;
 		}

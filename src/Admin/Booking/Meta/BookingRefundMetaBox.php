@@ -23,7 +23,7 @@ final class BookingRefundMetaBox {
 			'mhmrentiva_booking_refund',
 			__( 'Refund', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
-			'vehicle_booking',
+			'mhmrentiva_booking',
 			'side',
 			'high'
 		);

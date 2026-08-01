@@ -195,7 +195,7 @@ class VehiclesGrid extends AbstractShortcode {
 		$atts = wp_parse_args($atts, self::get_default_attributes());
 
 		$args = array(
-			'post_type'      => 'vehicle',
+			'post_type'      => 'mhmrentiva_vehicle',
 			'post_status'    => 'publish',
 			'posts_per_page' => intval($atts['limit'] ?? 12),
 			'orderby'        => (string) ( $atts['orderby'] ?? 'title' ),
@@ -209,7 +209,7 @@ class VehiclesGrid extends AbstractShortcode {
 		if (! empty($atts['category'])) {
 			$args['tax_query'] = array(
 				array(
-					'taxonomy' => 'vehicle_category',
+					'taxonomy' => 'mhmrentiva_vehicle_category',
 					'field'    => 'slug',
 					'terms'    => $atts['category'],
 				),
@@ -465,7 +465,7 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	private static function get_vehicle_category(int $vehicle_id): array
 	{
-		$terms = get_the_terms($vehicle_id, 'vehicle_category');
+		$terms = get_the_terms($vehicle_id, 'mhmrentiva_vehicle_category');
 
 		if (empty($terms) || is_wp_error($terms)) {
 			return array(
@@ -627,7 +627,7 @@ class VehiclesGrid extends AbstractShortcode {
 		parent::register_hooks();
 
 		// Clear cache when vehicle data changes, not on every page load.
-		add_action('save_post_vehicle', array( self::class, 'clear_page_cache' ));
+		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_page_cache' ));
 		add_action('deleted_post', array( self::class, 'clear_page_cache' ));
 	}
 

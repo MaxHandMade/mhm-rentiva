@@ -247,7 +247,7 @@ final class CustomersPage {
 
 		echo '<p class="submit">';
 		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="button button-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
-		echo ' <a href="' . esc_url(admin_url('edit.php?post_type=vehicle_booking&customer_email=' . $customer->user_email)) . '" class="button">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
+		echo ' <a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $customer->user_email)) . '" class="button">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
 		echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="button">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
 		echo '</p>';
 

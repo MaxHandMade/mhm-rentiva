@@ -23,7 +23,7 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     {
         parent::setUp();
 
-        $this->booking_id = self::factory()->post->create(array('post_type' => 'vehicle_booking'));
+        $this->booking_id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
 
         remove_role('mhmrentiva_test_editposts_only');
         add_role(

@@ -120,7 +120,7 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
         $this->drop_locations_table();
 
         $vehicle_id = self::factory()->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Recent Parity Vehicle',
         ));
@@ -129,7 +129,7 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
         // This query has no date window and accepts any of publish/private/pending,
         // so a plain published booking is enough to guarantee a non-empty result.
         $this->booking_id = self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Recent Parity Booking',
         ));

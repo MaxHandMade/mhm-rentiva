@@ -34,15 +34,15 @@ class VehicleComparisonTest extends WP_UnitTestCase
 
     public function test_renders_with_vehicle_ids()
     {
-        if (!post_type_exists('vehicle')) {
-            register_post_type('vehicle', [
+        if (!post_type_exists('mhmrentiva_vehicle')) {
+            register_post_type('mhmrentiva_vehicle', [
                 'public'     => true,
                 'supports'   => ['title', 'thumbnail'],
             ]);
         }
 
-        $v1 = $this->factory->post->create(['post_type' => 'vehicle', 'post_status' => 'publish']);
-        $v2 = $this->factory->post->create(['post_type' => 'vehicle', 'post_status' => 'publish']);
+        $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish']);
+        $v2 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle', 'post_status' => 'publish']);
 
         $output = do_shortcode('[rentiva_vehicle_comparison vehicle_ids="' . $v1 . ',' . $v2 . '"]');
 

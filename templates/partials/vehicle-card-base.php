@@ -100,7 +100,7 @@ if (is_array($brand_raw)) {
 $location_name = (string) ( $vehicle['location_name'] ?? '' );
 
 // Service type badge — rental / transfer / both.
-$service_type = $vehicle_id > 0 ? (string) get_post_meta($vehicle_id, '_rentiva_vehicle_service_type', true) : '';
+$service_type = $vehicle_id > 0 ? (string) get_post_meta($vehicle_id, '_mhmrentiva_vehicle_service_type', true) : '';
 
 // Vendor badge — check if vehicle author has rentiva_vendor role.
 $is_vendor_vehicle = false;

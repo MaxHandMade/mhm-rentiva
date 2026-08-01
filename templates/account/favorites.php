@@ -52,7 +52,7 @@ if (empty($navigation)) {
 				<?php
 				$vehicles_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 				if (! $vehicles_url) {
-					$vehicles_url = get_post_type_archive_link('vehicle');
+					$vehicles_url = get_post_type_archive_link('mhmrentiva_vehicle');
 					if (! $vehicles_url) {
 						$vehicles_url = home_url('/');
 					}

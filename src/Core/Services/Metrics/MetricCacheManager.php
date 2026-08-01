@@ -122,7 +122,7 @@ final class MetricCacheManager {
     public static function boot(): void
     {
         // Booking Entity Modifications affecting all contexts
-        add_action('save_post_vehicle_booking', array( self::class, 'on_booking_saved' ), 10, 3);
+        add_action('save_post_mhmrentiva_booking', array( self::class, 'on_booking_saved' ), 10, 3);
         add_action('delete_post', array( self::class, 'on_booking_deleted' ), 10, 2);
         add_action('mhmrentiva_booking_status_changed', array( self::class, 'on_booking_status_changed' ), 10, 3);
 
@@ -140,7 +140,7 @@ final class MetricCacheManager {
 
     public static function on_booking_saved(int $post_id, \WP_Post $post, bool $update): void
     {
-        if ($post->post_type !== 'vehicle_booking') {
+        if ($post->post_type !== 'mhmrentiva_booking') {
             return;
         }
         self::flush_booking_cache_for_participants($post_id);
@@ -148,7 +148,7 @@ final class MetricCacheManager {
 
     public static function on_booking_deleted(int $post_id, \WP_Post $post): void
     {
-        if ($post->post_type !== 'vehicle_booking') {
+        if ($post->post_type !== 'mhmrentiva_booking') {
             return;
         }
         self::flush_booking_cache_for_participants($post_id);

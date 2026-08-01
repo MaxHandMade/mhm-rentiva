@@ -89,7 +89,7 @@ final class DashboardRecentEndpointsTest extends WP_UnitTestCase
     public function test_recent_bookings_items_have_required_keys(): void
     {
         // Create a booking post so items is not empty.
-        $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        $this->factory->post->create( array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ) );
 
         wp_set_current_user( $this->admin_id );
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/dashboard/recent-bookings' );
@@ -115,13 +115,13 @@ final class DashboardRecentEndpointsTest extends WP_UnitTestCase
     {
         $mk = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE;
 
-        $mid = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        $mid = $this->factory->post->create( array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ) );
         update_post_meta( $mid, $mk, '2026-05-20 10:00:00' );
 
-        $new = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        $new = $this->factory->post->create( array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ) );
         update_post_meta( $new, $mk, '2026-07-05 10:00:00' );
 
-        $old = $this->factory->post->create( array( 'post_type' => 'vehicle_booking', 'post_status' => 'publish' ) );
+        $old = $this->factory->post->create( array( 'post_type' => 'mhmrentiva_booking', 'post_status' => 'publish' ) );
         update_post_meta( $old, $mk, '2026-01-10 10:00:00' );
 
         wp_set_current_user( $this->admin_id );

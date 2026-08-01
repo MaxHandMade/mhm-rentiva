@@ -23,7 +23,7 @@ final class HasOverlapStatusFilterTest extends WP_UnitTestCase
 	private function create_booking(string $status, int $start_ts, int $end_ts): int
 	{
 		$booking_id = (int) self::factory()->post->create(array(
-			'post_type'   => 'vehicle_booking',
+			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
 		));
 

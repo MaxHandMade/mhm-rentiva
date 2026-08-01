@@ -29,7 +29,7 @@ final class ReviewEnforcerTest extends WP_UnitTestCase
     {
         parent::setUp();
         ReviewEnforcer::register();
-        $this->vehicle_id = self::factory()->post->create( array( 'post_type' => 'vehicle' ) );
+        $this->vehicle_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
     }
 
     public function tearDown(): void

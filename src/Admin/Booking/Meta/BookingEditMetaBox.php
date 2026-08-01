@@ -25,7 +25,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 
 
 	protected static function get_post_type(): string {
-		return 'vehicle_booking';
+		return 'mhmrentiva_booking';
 	}
 
 	protected static function get_meta_box_id(): string {
@@ -48,7 +48,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		global $post, $pagenow;
 
 		// Display only when editing an existing booking
-		if ( $pagenow !== 'post.php' || ! $post || ! $post->ID || $post->post_type !== 'vehicle_booking' ) {
+		if ( $pagenow !== 'post.php' || ! $post || ! $post->ID || $post->post_type !== 'mhmrentiva_booking' ) {
 			return array();
 		}
 
@@ -77,7 +77,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		global $post, $pagenow;
 
 		// Display only when editing an existing booking
-		if ( $pagenow !== 'post.php' || ! $post || ! $post->ID || $post->post_type !== 'vehicle_booking' ) {
+		if ( $pagenow !== 'post.php' || ! $post || ! $post->ID || $post->post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -95,7 +95,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		global $post_type;
 
 		// Load assets only on the booking edit screen
-		if ( $hook === 'post.php' && $post_type === 'vehicle_booking' ) {
+		if ( $hook === 'post.php' && $post_type === 'mhmrentiva_booking' ) {
 			wp_enqueue_style(
 				'mhm-rentiva-booking-edit-meta',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-edit-meta.css',
@@ -132,13 +132,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		wp_nonce_field( 'mhmrentiva_booking_edit_action', 'mhmrentiva_booking_edit_meta_nonce' );
 
 		// Fetch current booking data
-		$vehicle_id   = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_booking_vehicle_id', true );
-		$pickup_date  = get_post_meta( $post->ID, '_mhmrentiva_pickup_date', true ) ?: get_post_meta( $post->ID, '_booking_pickup_date', true );
-		$pickup_time  = get_post_meta( $post->ID, '_mhmrentiva_start_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post->ID, '_booking_pickup_time', true );
-		$dropoff_date = get_post_meta( $post->ID, '_mhmrentiva_dropoff_date', true ) ?: get_post_meta( $post->ID, '_booking_dropoff_date', true );
-		$dropoff_time = get_post_meta( $post->ID, '_mhmrentiva_end_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post->ID, '_booking_dropoff_time', true );
+		$vehicle_id   = get_post_meta( $post->ID, '_mhmrentiva_vehicle_id', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_vehicle_id', true );
+		$pickup_date  = get_post_meta( $post->ID, '_mhmrentiva_pickup_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_date', true );
+		$pickup_time  = get_post_meta( $post->ID, '_mhmrentiva_start_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_pickup_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_pickup_time', true );
+		$dropoff_date = get_post_meta( $post->ID, '_mhmrentiva_dropoff_date', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_date', true );
+		$dropoff_time = get_post_meta( $post->ID, '_mhmrentiva_end_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_dropoff_time', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_dropoff_time', true );
 
-		$guests = get_post_meta( $post->ID, '_mhmrentiva_guests', true ) ?: get_post_meta( $post->ID, '_booking_guests', true ) ?: 1;
+		$guests = get_post_meta( $post->ID, '_mhmrentiva_guests', true ) ?: get_post_meta( $post->ID, '_mhmrentiva_booking_guests', true ) ?: 1;
 		$status = Status::get( $post->ID );
 
 		// Additional booking information
@@ -186,7 +186,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// Get all available vehicles
 		$vehicles = get_posts(
 			array(
-				'post_type'      => 'vehicle',
+				'post_type'      => 'mhmrentiva_vehicle',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'title',
@@ -263,7 +263,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		// Fetch current add-ons
 		$addons = get_posts(
 			array(
-				'post_type'      => 'vehicle_addon',
+				'post_type'      => 'mhmrentiva_addon',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'orderby'        => 'menu_order',
@@ -276,9 +276,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			$available_addons[] = array(
 				'id'          => $addon->ID,
 				'title'       => $addon->post_title,
-				'price'       => get_post_meta( $addon->ID, 'addon_price', true ) ?: '0',
+				'price'       => get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ) ?: '0',
 				'description' => $addon->post_excerpt,
-				'required'    => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
+				'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 			);
 		}
 
@@ -391,7 +391,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Ensure post type is vehicle_booking
-		if ( get_post_type( $post_id ) !== 'vehicle_booking' ) {
+		if ( get_post_type( $post_id ) !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
@@ -412,9 +412,9 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		if ( $new_vehicle_id > 0 && $new_vehicle_id != $old_vehicle_id ) {
 			// Verify vehicle exists
 			$vehicle_post = get_post( $new_vehicle_id );
-			if ( $vehicle_post && $vehicle_post->post_type === 'vehicle' ) {
+			if ( $vehicle_post && $vehicle_post->post_type === 'mhmrentiva_vehicle' ) {
 				update_post_meta( $post_id, '_mhmrentiva_vehicle_id', $new_vehicle_id );
-				update_post_meta( $post_id, '_booking_vehicle_id', $new_vehicle_id ); // Legacy support
+				update_post_meta( $post_id, '_mhmrentiva_booking_vehicle_id', $new_vehicle_id ); // Legacy support
 
 				// Update booking title to reflect new vehicle
 				$new_title = sprintf(
@@ -444,8 +444,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		if ( ! empty( $selected_addons ) ) {
 			foreach ( $selected_addons as $addon_id ) {
 				$addon_post = get_post( $addon_id );
-				if ( $addon_post && $addon_post->post_type === 'vehicle_addon' ) {
-					$price           = (float) get_post_meta( $addon_id, 'addon_price', true );
+				if ( $addon_post && $addon_post->post_type === 'mhmrentiva_addon' ) {
+					$price           = (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true );
 					$addon_details[] = array(
 						'id'    => $addon_id,
 						'title' => $addon_post->post_title,
@@ -489,10 +489,10 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Update legacy meta keys for backward compatibility
-		update_post_meta( $post_id, '_booking_pickup_date', $pickup_date );
-		update_post_meta( $post_id, '_booking_pickup_time', $pickup_time );
-		update_post_meta( $post_id, '_booking_dropoff_date', $dropoff_date );
-		update_post_meta( $post_id, '_booking_dropoff_time', $dropoff_time );
-		update_post_meta( $post_id, '_booking_guests', $guests );
+		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_date', $pickup_date );
+		update_post_meta( $post_id, '_mhmrentiva_booking_pickup_time', $pickup_time );
+		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_date', $dropoff_date );
+		update_post_meta( $post_id, '_mhmrentiva_booking_dropoff_time', $dropoff_time );
+		update_post_meta( $post_id, '_mhmrentiva_booking_guests', $guests );
 	}
 }

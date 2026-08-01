@@ -382,7 +382,7 @@ $custom_class         = trim($atts['class'] ?? '');
 			<h4 style="margin-bottom: 12px; font-size: 1.4em; color: #333;"><?php echo esc_html__('Comparison list is ready!', 'mhm-rentiva'); ?></h4>
 			<p style="color: #666; font-size: 1.1em; line-height: 1.6;"><?php echo esc_html__('Please add at least 2 vehicles to see the detailed comparison table.', 'mhm-rentiva'); ?></p>
 			<?php
-			$search_url = get_post_type_archive_link('vehicle') ?: home_url('/');
+			$search_url = get_post_type_archive_link('mhmrentiva_vehicle') ?: home_url('/');
 			?>
 			<?php if ($show_booking_buttons) : ?>
 				<a href="<?php echo esc_url($search_url); ?>" class="rv-book-now-btn" style="display: inline-block; margin-top: 25px; padding: 12px 30px; font-size: 1.1em; text-decoration: none; border-radius: 8px;">

@@ -362,7 +362,7 @@ final class VehicleComparison extends AbstractShortcode {
 	private static function get_vehicle_data(int $vehicle_id): ?array
 	{
 		$post = get_post($vehicle_id);
-		if (! $post || $post->post_type !== 'vehicle' || $post->post_status !== 'publish') {
+		if (! $post || $post->post_type !== 'mhmrentiva_vehicle' || $post->post_status !== 'publish') {
 			return null;
 		}
 

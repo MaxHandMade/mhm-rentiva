@@ -38,7 +38,7 @@ $flag = static function ($value, bool $default = true): bool {
 };
 
 // Service type check: transfer-only vehicles cannot be rented.
-$service_type     = $vehicle_id ? get_post_meta($vehicle_id, '_rentiva_vehicle_service_type', true) : '';
+$service_type     = $vehicle_id ? get_post_meta($vehicle_id, '_mhmrentiva_vehicle_service_type', true) : '';
 $is_transfer_only = ( $service_type === 'transfer' );
 
 $show_gallery_section = $flag($atts['show_gallery'] ?? '1', true);

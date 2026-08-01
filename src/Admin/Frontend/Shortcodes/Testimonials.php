@@ -222,7 +222,7 @@ final class Testimonials extends AbstractShortcode {
 	private static function get_booking_reviews(array $atts): array
 	{
 		$args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'meta_query'     => array(
@@ -284,7 +284,7 @@ final class Testimonials extends AbstractShortcode {
 	private static function get_vehicle_comments(array $atts): array
 	{
 		$comment_args = array(
-			'post_type' => 'vehicle',
+			'post_type' => 'mhmrentiva_vehicle',
 			'status'    => 'approve',
 			'number'    => 0,
 		);
@@ -358,7 +358,7 @@ final class Testimonials extends AbstractShortcode {
 	{
 		// Count booking reviews
 		$booking_args = array(
-			'post_type'      => 'vehicle_booking',
+			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => 'publish',
 			'posts_per_page' => -1,
 			'fields'         => 'ids',
@@ -397,7 +397,7 @@ final class Testimonials extends AbstractShortcode {
 
 		// Count vehicle comments
 		$comment_args = array(
-			'post_type' => 'vehicle',
+			'post_type' => 'mhmrentiva_vehicle',
 			'status'    => 'approve',
 			'count'     => true,
 		);

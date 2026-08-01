@@ -87,13 +87,13 @@ final class AddonManager {
 		AddonMeta::register();
 
 		// Add price column to WordPress post list.
-		add_filter( 'manage_vehicle_addon_posts_columns', array( self::class, 'add_price_column' ) );
-		add_action( 'manage_vehicle_addon_posts_custom_column', array( self::class, 'render_price_column' ), 10, 2 );
-		add_filter( 'manage_edit-vehicle_addon_sortable_columns', array( self::class, 'make_price_sortable' ) );
+		add_filter( 'manage_mhmrentiva_addon_posts_columns', array( self::class, 'add_price_column' ) );
+		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_price_column' ), 10, 2 );
+		add_filter( 'manage_edit-mhmrentiva_addon_sortable_columns', array( self::class, 'make_price_sortable' ) );
 
 		// Add context and pricing type columns (v4.36.0 Task 9).
-		add_filter( 'manage_vehicle_addon_posts_columns', array( self::class, 'add_context_pricing_columns' ) );
-		add_action( 'manage_vehicle_addon_posts_custom_column', array( self::class, 'render_context_pricing_column' ), 10, 2 );
+		add_filter( 'manage_mhmrentiva_addon_posts_columns', array( self::class, 'add_context_pricing_columns' ) );
+		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_context_pricing_column' ), 10, 2 );
 
 		// Enqueue script and style.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
@@ -127,9 +127,9 @@ final class AddonManager {
 	 */
 	public static function admin_menu_order( array $menu_order ): array {
 		// Insert addon menu after vehicles but before bookings.
-		$addon_menu    = 'edit.php?post_type=vehicle_addon';
-		$vehicles_menu = 'edit.php?post_type=vehicle';
-		$bookings_menu = 'edit.php?post_type=vehicle_booking';
+		$addon_menu    = 'edit.php?post_type=mhmrentiva_addon';
+		$vehicles_menu = 'edit.php?post_type=mhmrentiva_vehicle';
+		$bookings_menu = 'edit.php?post_type=mhmrentiva_booking';
 
 		if ( in_array( $vehicles_menu, $menu_order, true ) && in_array( $bookings_menu, $menu_order, true ) ) {
 			$vehicles_pos = array_search( $vehicles_menu, $menu_order, true );
@@ -157,7 +157,7 @@ final class AddonManager {
 
 			// Add price column after title column.
 			if ( 'title' === $key ) {
-				$new_columns['addon_price'] = __( 'Price', 'mhm-rentiva' );
+				$new_columns['mhmrentiva_addon_price'] = __( 'Price', 'mhm-rentiva' );
 			}
 		}
 
@@ -171,8 +171,8 @@ final class AddonManager {
 	 * @param int    $post_id Post ID.
 	 */
 	public static function render_price_column( string $column, int $post_id ): void {
-		if ( 'addon_price' === $column ) {
-			$price           = get_post_meta( $post_id, 'addon_price', true );
+		if ( 'mhmrentiva_addon_price' === $column ) {
+			$price           = get_post_meta( $post_id, 'mhmrentiva_addon_price', true );
 			$currency_code   = self::get_default_currency();
 			$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency_code );
 
@@ -204,7 +204,7 @@ final class AddonManager {
 		$new = array();
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
-			if ( 'addon_price' === $key ) {
+			if ( 'mhmrentiva_addon_price' === $key ) {
 				$new['mhmrentiva_addon_context']      = __( 'Context', 'mhm-rentiva' );
 				$new['mhmrentiva_addon_pricing_type'] = __( 'Pricing Type', 'mhm-rentiva' );
 			}
@@ -253,7 +253,7 @@ final class AddonManager {
 	 * @return array Modified sortable columns.
 	 */
 	public static function make_price_sortable( array $columns ): array {
-		$columns['addon_price'] = 'addon_price';
+		$columns['mhmrentiva_addon_price'] = 'mhmrentiva_addon_price';
 		return $columns;
 	}
 
@@ -266,7 +266,7 @@ final class AddonManager {
 		global $post_type;
 
 		// Only enqueue on addon list page.
-		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
+		if ( 'edit.php' === $hook && 'mhmrentiva_addon' === $post_type ) {
 			wp_enqueue_style(
 				'mhm-rentiva-addon-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
@@ -303,7 +303,7 @@ final class AddonManager {
 
 		// Enqueue context↔pricing-type constraint script on addon edit screens (v4.36.0 Task 10).
 		if ( in_array( $hook, array( 'post.php', 'post-new.php' ), true )
-			&& 'vehicle_addon' === $post_type
+			&& 'mhmrentiva_addon' === $post_type
 		) {
 			wp_enqueue_script(
 				'mhm-rentiva-addon-context',
@@ -331,11 +331,11 @@ final class AddonManager {
 	 */
 	public static function get_available_addons( string $context = 'rental' ): array {
 		$args = array(
-			'post_type'      => 'vehicle_addon',
+			'post_type'      => 'mhmrentiva_addon',
 			'post_status'    => 'publish',
 			'meta_query'     => array(
 				array(
-					'key'     => 'addon_enabled',
+					'key'     => 'mhmrentiva_addon_enabled',
 					'value'   => '1',
 					'compare' => '=',
 				),
@@ -364,11 +364,11 @@ final class AddonManager {
 				'id'           => $addon->ID,
 				'title'        => $addon->post_title,
 				'description'  => $description,
-				'price'        => (float) get_post_meta( $addon->ID, 'addon_price', true ),
+				'price'        => (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ),
 				'pricing_type' => AddonPricingType::sanitize(
 					get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true )
 				),
-				'required'     => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
+				'required'     => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 			);
 		}
 
@@ -384,7 +384,7 @@ final class AddonManager {
 	public static function get_addon_by_id( int $addon_id ): ?array {
 		$addon = get_post( $addon_id );
 
-		if ( ! $addon || 'vehicle_addon' !== $addon->post_type ) {
+		if ( ! $addon || 'mhmrentiva_addon' !== $addon->post_type ) {
 			return null;
 		}
 
@@ -397,9 +397,9 @@ final class AddonManager {
 			'id'          => $addon->ID,
 			'title'       => $addon->post_title,
 			'description' => $description,
-			'price'       => (float) get_post_meta( $addon->ID, 'addon_price', true ),
-			'enabled'     => (bool) get_post_meta( $addon->ID, 'addon_enabled', true ),
-			'required'    => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
+			'price'       => (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true ),
+			'enabled'     => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true ),
+			'required'    => (bool) get_post_meta( $addon->ID, 'mhmrentiva_addon_required', true ),
 		);
 	}
 
@@ -541,11 +541,11 @@ final class AddonManager {
 
 			switch ( $action ) {
 				case 'enable_addons':
-					$result = update_post_meta( $addon_id, 'addon_enabled', '1' );
+					$result = update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '1' );
 					break;
 
 				case 'disable_addons':
-					$result = update_post_meta( $addon_id, 'addon_enabled', '0' );
+					$result = update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '0' );
 					break;
 
 				case 'delete':
@@ -693,13 +693,13 @@ final class AddonManager {
 
 		// Check if addon exists.
 		$addon = get_post( $addon_id );
-		if ( ! $addon || 'vehicle_addon' !== $addon->post_type ) {
+		if ( ! $addon || 'mhmrentiva_addon' !== $addon->post_type ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Additional service not found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
 		// Update price.
-		$result = update_post_meta( $addon_id, 'addon_price', $price );
+		$result = update_post_meta( $addon_id, 'mhmrentiva_addon_price', $price );
 
 		if ( false !== $result ) {
 			$currency_code   = self::get_default_currency();
@@ -754,9 +754,9 @@ final class AddonManager {
 			);
 
 			if ( $post_id ) {
-				update_post_meta( $post_id, 'addon_price', $addon_data['price'] );
-				update_post_meta( $post_id, 'addon_enabled', '1' );
-				update_post_meta( $post_id, 'addon_required', '0' );
+				update_post_meta( $post_id, 'mhmrentiva_addon_price', $addon_data['price'] );
+				update_post_meta( $post_id, 'mhmrentiva_addon_enabled', '1' );
+				update_post_meta( $post_id, 'mhmrentiva_addon_required', '0' );
 			}
 		}
 	}

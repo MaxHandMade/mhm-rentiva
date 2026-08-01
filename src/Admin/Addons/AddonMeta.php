@@ -70,7 +70,7 @@ final class AddonMeta extends AbstractMetaBox {
 				'context'  => 'normal',
 				'priority' => 'high',
 				'fields'   => array(
-					'addon_price'             => array(
+					'mhmrentiva_addon_price'             => array(
 						'type'              => 'number',
 						'label'             => __( 'Price', 'mhm-rentiva' ),
 						/* translators: %s placeholder. */
@@ -101,13 +101,13 @@ final class AddonMeta extends AbstractMetaBox {
 				'context'  => 'side',
 				'priority' => 'default',
 				'fields'   => array(
-					'addon_enabled'  => array(
+					'mhmrentiva_addon_enabled'  => array(
 						'type'        => 'checkbox',
 						'label'       => __( 'Active', 'mhm-rentiva' ),
 						'label_text'  => __( 'Enable this additional service', 'mhm-rentiva' ),
 						'description' => __( 'Only active additional services are visible in booking form.', 'mhm-rentiva' ),
 					),
-					'addon_required' => array(
+					'mhmrentiva_addon_required' => array(
 						'type'        => 'checkbox',
 						'label'       => __( 'Required', 'mhm-rentiva' ),
 						'label_text'  => __( 'This additional service is required', 'mhm-rentiva' ),
@@ -177,9 +177,9 @@ final class AddonMeta extends AbstractMetaBox {
 	 */
 	public static function get_addon_meta( int $addon_id ): array {
 		return array(
-			'price'    => (float) get_post_meta( $addon_id, 'addon_price', true ),
-			'enabled'  => (bool) get_post_meta( $addon_id, 'addon_enabled', true ),
-			'required' => (bool) get_post_meta( $addon_id, 'addon_required', true ),
+			'price'    => (float) get_post_meta( $addon_id, 'mhmrentiva_addon_price', true ),
+			'enabled'  => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_enabled', true ),
+			'required' => (bool) get_post_meta( $addon_id, 'mhmrentiva_addon_required', true ),
 		);
 	}
 
@@ -194,17 +194,17 @@ final class AddonMeta extends AbstractMetaBox {
 		$updated = true;
 
 		if ( isset( $meta['price'] ) ) {
-			$updated &= update_post_meta( $addon_id, 'addon_price', floatval( $meta['price'] ) ) !== false;
+			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_price', floatval( $meta['price'] ) ) !== false;
 		}
 
 		if ( isset( $meta['enabled'] ) ) {
 			$enabled  = $meta['enabled'] ? '1' : '0';
-			$updated &= update_post_meta( $addon_id, 'addon_enabled', $enabled ) !== false;
+			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', $enabled ) !== false;
 		}
 
 		if ( isset( $meta['required'] ) ) {
 			$required = $meta['required'] ? '1' : '0';
-			$updated &= update_post_meta( $addon_id, 'addon_required', $required ) !== false;
+			$updated &= update_post_meta( $addon_id, 'mhmrentiva_addon_required', $required ) !== false;
 		}
 
 		return (bool) $updated;
@@ -216,8 +216,8 @@ final class AddonMeta extends AbstractMetaBox {
 	 * @param int $addon_id Addon ID.
 	 */
 	public static function delete_addon_meta( int $addon_id ): void {
-		delete_post_meta( $addon_id, 'addon_price' );
-		delete_post_meta( $addon_id, 'addon_enabled' );
-		delete_post_meta( $addon_id, 'addon_required' );
+		delete_post_meta( $addon_id, 'mhmrentiva_addon_price' );
+		delete_post_meta( $addon_id, 'mhmrentiva_addon_enabled' );
+		delete_post_meta( $addon_id, 'mhmrentiva_addon_required' );
 	}
 }

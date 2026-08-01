@@ -121,7 +121,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
         $this->drop_locations_table();
 
         $vehicle_id = self::factory()->post->create(array(
-            'post_type'   => 'vehicle',
+            'post_type'   => 'mhmrentiva_vehicle',
             'post_status' => 'publish',
             'post_title'  => 'Parity Test Vehicle',
         ));
@@ -130,7 +130,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
         // A booking inside the window the method asks for: today or later, and
         // in one of the three statuses the WHERE clause accepts.
         $this->booking_id = self::factory()->post->create(array(
-            'post_type'   => 'vehicle_booking',
+            'post_type'   => 'mhmrentiva_booking',
             'post_status' => 'publish',
             'post_title'  => 'Parity Test Booking',
         ));

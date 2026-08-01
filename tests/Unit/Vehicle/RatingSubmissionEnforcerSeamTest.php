@@ -40,7 +40,7 @@ final class RatingSubmissionEnforcerSeamTest extends WP_Ajax_UnitTestCase
 
         $this->vehicle_id = self::factory()->post->create(
             array(
-                'post_type'   => 'vehicle',
+                'post_type'   => 'mhmrentiva_vehicle',
                 'post_status' => 'publish',
             )
         );

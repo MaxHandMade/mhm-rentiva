@@ -108,9 +108,9 @@ final class VehicleColumns {
 	public static function register(): void
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
-		add_filter('manage_vehicle_posts_columns', array( self::class, 'columns' ));
-		add_action('manage_vehicle_posts_custom_column', array( self::class, 'render' ), 10, 2);
-		add_filter('manage_edit-vehicle_sortable_columns', array( self::class, 'sortable' ));
+		add_filter('manage_mhmrentiva_vehicle_posts_columns', array( self::class, 'columns' ));
+		add_action('manage_mhmrentiva_vehicle_posts_custom_column', array( self::class, 'render' ), 10, 2);
+		add_filter('manage_edit-mhmrentiva_vehicle_sortable_columns', array( self::class, 'sortable' ));
 		add_action('pre_get_posts', array( self::class, 'apply_sorting' ));
 		add_action('restrict_manage_posts', array( self::class, 'availability_filter' ));
 		add_action('pre_get_posts', array( self::class, 'apply_availability_filter' ));
@@ -121,9 +121,9 @@ final class VehicleColumns {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
 		// Cache clearing hooks
-		add_action('save_post_vehicle', array( self::class, 'clear_vehicle_cache' ));
+		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_vehicle_cache' ));
 		add_action('delete_post', array( self::class, 'clear_vehicle_cache_on_delete' ));
-		add_action('save_post_vehicle_booking', array( self::class, 'clear_vehicle_cache' ));
+		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_vehicle_cache' ));
 
 		// Add statistics cards
 		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
@@ -332,7 +332,7 @@ final class VehicleColumns {
 		if (! is_admin() || ! $q->is_main_query()) {
 			return;
 		}
-		if (( $q->get('post_type') ?? '' ) !== 'vehicle') {
+		if (( $q->get('post_type') ?? '' ) !== 'mhmrentiva_vehicle') {
 			return;
 		}
 		$orderby = $q->get('orderby');
@@ -350,7 +350,7 @@ final class VehicleColumns {
 
 	public static function availability_filter(string $post_type): void
 	{
-		if ($post_type !== 'vehicle') {
+		if ($post_type !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -425,7 +425,7 @@ final class VehicleColumns {
 		if (! is_admin() || ! $q->is_main_query()) {
 			return;
 		}
-		if (( $q->get('post_type') ?? '' ) !== 'vehicle') {
+		if (( $q->get('post_type') ?? '' ) !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -560,7 +560,7 @@ final class VehicleColumns {
 	{
 		global $post_type;
 
-		if ($post_type === 'vehicle' && $hook === 'edit.php') {
+		if ($post_type === 'mhmrentiva_vehicle' && $hook === 'edit.php') {
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-quick-edit',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
@@ -649,7 +649,7 @@ final class VehicleColumns {
 		global $pagenow, $post_type;
 
 		// Show only on vehicle list page
-		if ($pagenow !== 'edit.php' || $post_type !== 'vehicle') {
+		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -724,7 +724,7 @@ final class VehicleColumns {
             ORDER BY v.ID
         ",
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish'
 			)
 		);
@@ -753,10 +753,10 @@ final class VehicleColumns {
 				gmdate('Y-m-d', strtotime('-7 days')), // reserved_this_week
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
 				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish'
 			)
 		);
@@ -803,7 +803,7 @@ final class VehicleColumns {
 				'_mhmrentiva_dropoff_date',
 				'_mhmrentiva_end_date',
 				'_mhmrentiva_status',
-				'vehicle_booking',
+				'mhmrentiva_booking',
 				'publish'
 			)
 		);
@@ -849,7 +849,7 @@ final class VehicleColumns {
                  AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
 					'_mhmrentiva_total_price',
 					gmdate('Y-m-01')
@@ -871,7 +871,7 @@ final class VehicleColumns {
                  AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s AND p.post_date <= %s",
-					'vehicle_booking',
+					'mhmrentiva_booking',
 					'publish',
 					'_mhmrentiva_total_price',
 					$last_month_start,
@@ -959,7 +959,7 @@ final class VehicleColumns {
 		global $pagenow, $post_type;
 
 		// Show only on vehicle list page
-		if ($pagenow !== 'edit.php' || $post_type !== 'vehicle') {
+		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -1298,7 +1298,7 @@ final class VehicleColumns {
              WHERE p.post_type = %s AND p.post_status = %s
              ORDER BY p.post_title ASC",
 				'_mhmrentiva_license_plate',
-				'vehicle',
+				'mhmrentiva_vehicle',
 				'publish'
 			)
 		);
@@ -1372,7 +1372,7 @@ final class VehicleColumns {
                 AND pm_status.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id
                 AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
-            WHERE p.post_type = 'vehicle_booking'
+            WHERE p.post_type = 'mhmrentiva_booking'
                 AND p.post_status = 'publish'
                 AND pm_start.meta_value <= %s
                 AND pm_end.meta_value >= %s
@@ -1491,7 +1491,7 @@ final class VehicleColumns {
 	 */
 	public static function quick_edit_fields(string $column_name, string $post_type): void
 	{
-		if ($post_type !== 'vehicle') {
+		if ($post_type !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -1661,7 +1661,7 @@ final class VehicleColumns {
 		}
 
 		// Post type check
-		if (get_post_type($post_id) !== 'vehicle') {
+		if (get_post_type($post_id) !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
@@ -1815,7 +1815,7 @@ final class VehicleColumns {
 	 */
 	public static function clear_vehicle_cache(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'vehicle') {
+		if (get_post_type($post_id) === 'mhmrentiva_vehicle') {
 			self::clear_vehicle_stats_cache();
 		}
 	}
@@ -1825,7 +1825,7 @@ final class VehicleColumns {
 	 */
 	public static function clear_vehicle_cache_on_delete(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'vehicle') {
+		if (get_post_type($post_id) === 'mhmrentiva_vehicle') {
 			self::clear_vehicle_stats_cache();
 		}
 	}
