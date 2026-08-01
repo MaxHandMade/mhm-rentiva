@@ -4,43 +4,42 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Admin\Reports;
 
-use MHMRentiva\Admin\Reports\Repository\ReportRepository;
+use MHMRentiva\Admin\Utilities\Dashboard\DashboardService;
 
 if (! defined('ABSPATH')) {
     exit;
 }
 
 /**
- * Locks the two branches of `get_upcoming_operations_paginated()` against each other.
+ * Locks the two branches of `DashboardService::get_recent_bookings_paginated()`
+ * against each other.
  *
  * WHY THIS TEST EXISTS
  * --------------------
- * The rentals query exists as two near-identical literal statements, chosen by
- * whether the Transfer add-on's locations table is present. Only one of the two
- * carries the three `%i` JOINs, so only one has a different placeholder order --
- * and in the first cut of WP.org T7 Task 9.5 that one had its `prepare()`
- * arguments transposed: the three meta keys landed in the `%i` slots and the
- * table name landed in three `meta_key = %s` slots. MySQL raised 1146 (unknown
- * table `_mhm_pickup_date`), `$wpdb->suppress_errors()` at the top of the method
- * swallowed it, the surrounding try/catch swallowed what was left, and the
- * Upcoming Operations panel silently returned nothing on every site that HAS the
- * add-on.
+ * This method has the same two-literal-branch shape as
+ * `ReportRepository::get_upcoming_operations_paginated()`: one statement carries
+ * a `%i` JOIN against the Transfer add-on's locations table, the other does not,
+ * and only one of the two therefore has a different placeholder order. In that
+ * sibling, the WP.org T7 Task 9.5 rewrite transposed the argument list and the
+ * panel silently returned nothing on every site that had the add-on -- swallowed
+ * by `suppress_errors()` and a try/catch.
  *
- * Nothing caught it: the false branch is correct, the dev database's newest
- * pickup date is in the past so both branches legitimately returned zero rows,
- * and a row-count comparison of 0 against 0 passes.
+ * This method's argument order is correct today. It was also correct in the
+ * sibling's *other* branch, which is precisely why the bug survived: correctness
+ * here proves nothing about tomorrow. Nothing in `tests/` covered these two
+ * branches, so the exact class of bug just fixed next door was unprotected here.
  *
- * So this test does two things a count assertion cannot:
- *   1. it seeds a booking that MUST come back, so an empty result is a failure
- *      rather than a vacuous pass;
- *   2. it compares the two branches' row IDS, not their sizes.
+ * The assertions are deliberately not count-based. Both branches return the same
+ * number of rows when the result set is empty, which is how a 0-against-0
+ * comparison passed a broken query once already.
  *
- * MUTATION-PROVEN (WP.org T7 Task 9.5 fix round): re-transposing the argument
- * list turns this test red.
+ * MUTATION-PROVEN (WP.org T7 Task 9.5, fix round 2): moving `$locations_table`
+ * ahead of the meta-key arguments -- the same transposition that broke the
+ * sibling -- turns both tests red.
  *
  * @package MHMRentiva\Tests\Integration\Admin\Reports
  */
-class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
+class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
 {
     private int $booking_id = 0;
 
@@ -123,23 +122,23 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
         $vehicle_id = self::factory()->post->create(array(
             'post_type'   => 'vehicle',
             'post_status' => 'publish',
-            'post_title'  => 'Parity Test Vehicle',
+            'post_title'  => 'Recent Parity Vehicle',
         ));
-        update_post_meta($vehicle_id, '_mhm_rentiva_license_plate', '34PAR100');
+        update_post_meta($vehicle_id, '_mhm_rentiva_license_plate', '34REC200');
 
-        // A booking inside the window the method asks for: today or later, and
-        // in one of the three statuses the WHERE clause accepts.
+        // This query has no date window and accepts any of publish/private/pending,
+        // so a plain published booking is enough to guarantee a non-empty result.
         $this->booking_id = self::factory()->post->create(array(
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
-            'post_title'  => 'Parity Test Booking',
+            'post_title'  => 'Recent Parity Booking',
         ));
 
         update_post_meta($this->booking_id, '_mhm_vehicle_id', $vehicle_id);
         update_post_meta($this->booking_id, '_mhm_status', 'confirmed');
-        update_post_meta($this->booking_id, '_mhm_pickup_date', gmdate('Y-m-d', strtotime('+2 days')));
-        update_post_meta($this->booking_id, '_mhm_return_date', gmdate('Y-m-d', strtotime('+4 days')));
-        update_post_meta($this->booking_id, '_mhm_customer_name', 'Parity Customer');
+        update_post_meta($this->booking_id, '_mhm_pickup_date', gmdate('Y-m-d'));
+        update_post_meta($this->booking_id, '_mhm_customer_name', 'Recent Parity Customer');
+        update_post_meta($this->booking_id, '_mhm_total_price', '1250');
     }
 
     public function tearDown(): void
@@ -150,11 +149,11 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
     }
 
     /**
-     * @return list<int> Booking IDs the report returned, sorted.
+     * @return list<int> Booking IDs the dashboard returned, sorted.
      */
-    private function operation_ids(): array
+    private function booking_ids(): array
     {
-        $items = ReportRepository::get_upcoming_operations_paginated(1, 50, 30)['items'];
+        $items = DashboardService::get_recent_bookings_paginated(1, 50)['items'];
         $ids   = array_map(static fn (array $row): int => (int) $row['id'], $items);
         sort($ids);
 
@@ -166,7 +165,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
      */
     public function test_both_location_branches_return_the_same_bookings(): void
     {
-        $without_table = $this->operation_ids();
+        $without_table = $this->booking_ids();
 
         $this->assertContains(
             $this->booking_id,
@@ -175,7 +174,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
         );
 
         $this->create_locations_table();
-        $with_table = $this->operation_ids();
+        $with_table = $this->booking_ids();
 
         $this->assertContains(
             $this->booking_id,
@@ -192,39 +191,30 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
 
     /**
      * The bound values must land in the slots their placeholders occupy.
-     *
-     * This reads the statement the server was actually given, because that is
-     * the only place a transposition is visible. `$wpdb->last_error` cannot do
-     * this job: wpdb clears it at the start of every query, and this method
-     * runs several more (the transfers probe, BookingEnricher) after the
-     * rentals SELECT, so the error is gone before a test can read it. That is
-     * exactly how the original bug survived a `last_error` assertion.
      */
     public function test_locations_table_is_bound_as_a_table_not_as_a_meta_key(): void
     {
-        global $wpdb;
-
         $this->create_locations_table();
 
-        $rentals = $this->capture_query(fn () => $this->operation_ids(), 'loc_origin');
+        $recent = $this->capture_query(fn () => $this->booking_ids(), 'loc_veh');
 
-        $this->assertNotSame('', $rentals, 'Fixture sanity: the locations-branch statement was never issued.');
+        $this->assertNotSame('', $recent, 'Fixture sanity: the locations-branch statement was never issued.');
 
         $table = $this->locations_table();
 
         $this->assertStringContainsString(
-            'LEFT JOIN `' . $table . '` loc_origin',
-            $rentals,
+            'LEFT JOIN `' . $table . '` loc_veh',
+            $recent,
             'The locations table must be bound into the JOIN slot.'
         );
         $this->assertStringNotContainsString(
             "meta_key = '" . $table . "'",
-            $rentals,
+            $recent,
             'The locations table name was bound into a meta_key slot -- the arguments are transposed.'
         );
         $this->assertStringContainsString(
-            "pm_pickup.post_id AND pm_pickup.meta_key = '_mhm_pickup_date'",
-            $rentals,
+            "pm_pickup.meta_key = '_mhm_pickup_date'",
+            $recent,
             'The pickup-date meta key must be bound into the pm_pickup slot.'
         );
     }
