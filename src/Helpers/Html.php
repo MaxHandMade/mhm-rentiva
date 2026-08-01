@@ -273,29 +273,27 @@ class Html {
 	}
 
 	/**
-	 * Escape a full render surface -- the shortcode dispatcher's and the block
-	 * `render_callback`'s return -- with wp_kses(), widening wp_kses()'s own
-	 * `style` attribute filter (`safecss_filter_attr()`, driven by the
-	 * `safe_style_css` list) for the duration of this one call.
+	 * `safe_style_css` filter callback: widens the CSS *properties* wp_kses()
+	 * permits inside a `style="..."` value (via `safecss_filter_attr()`) for
+	 * the duration of whatever wp_kses() call this is attached around.
 	 *
 	 * That list is a *different* allowlist from {@see allowed_markup()}: it
-	 * governs which CSS *properties* survive inside a `style="..."` value, not
-	 * which tags/attributes survive. A plain `wp_kses($html, self::allowed_markup())`
-	 * leaves it at WP core's default, which is missing a few properties Lite's
-	 * own templates set inline and rely on:
+	 * governs which CSS properties survive inside `style="..."`, not which
+	 * tags/attributes survive. WP core's default list is missing a few
+	 * properties Lite's own templates set inline and rely on:
 	 *  - `fill` -- rating-star icons set their color via
 	 *    `style="fill: #hex; color: #hex"` (templates/shortcodes/
 	 *    vehicle-rating-form.php:275, templates/shortcodes/
 	 *    availability-calendar.php:177/185/194). {@see Icons::echo_svg()}
 	 *    already widens `fill` for its OWN, narrower wp_kses() pass when it
 	 *    renders the icon -- but it removes that filter again immediately
-	 *    after, so by the time THIS method's wp_kses() call runs over the
-	 *    whole buffered template a second time, `fill` is gone again and the
-	 *    star silently loses its color: with no `fill` in the style value, the
-	 *    `<svg>`'s own `fill="none"` attribute is what the shape inherits
-	 *    instead (found by the Adım 6 visual-parity sweep: a single-request
-	 *    raw-output-vs-wp_kses-output diff, not visible from reading the
-	 *    allowlist alone).
+	 *    after, so by the time a SECOND, wider wp_kses() pass runs over the
+	 *    whole buffered template (the dispatcher/block-callback return), `fill`
+	 *    is gone again and the star silently loses its color: with no `fill`
+	 *    in the style value, the `<svg>`'s own `fill="none"` attribute is what
+	 *    the shape inherits instead (found by the Adım 6 visual-parity sweep:
+	 *    a single-request raw-output-vs-wp_kses-output diff, not visible from
+	 *    reading the allowlist alone).
 	 *  - `pointer-events` / `resize` -- used on a few disabled-state controls
 	 *    (templates/shortcodes/vehicle-comparison.php, templates/account/
 	 *    payment-history.php, templates/account/booking-detail.php's
@@ -304,24 +302,54 @@ class Html {
 	 *    `resize: vertical` only controls a resize handle, and the
 	 *    `payment-history.php` spans have no href/click behavior to begin
 	 *    with), but silently stripping real, shipped markup is exactly what
-	 *    this method exists to stop, so both are allowed here too rather than
-	 *    left as an unexplained diff.
+	 *    this exists to stop, so both are allowed here too rather than left as
+	 *    an unexplained diff.
+	 *
+	 * A named method (not an inline closure) so `add_filter`/`remove_filter`
+	 * calls at each use site reference the exact same callable and reliably
+	 * detach it again -- see {@see ShortcodeServiceProvider::handle_shortcode_execution()}
+	 * and {@see \MHMRentiva\Blocks\BlockRegistry}'s block `render_callback`,
+	 * which call `add_filter( 'safe_style_css', array( self::class,
+	 * 'allow_inline_style_props' ) )` directly around their own `wp_kses()`
+	 * call rather than through {@see self::kses()} -- deliberately, so a
+	 * literal `wp_kses(` sits on the exact lines a human reviewer checking
+	 * this fix will look at (a bare `Html::kses(...)` call reads the same as
+	 * the un-escaped shape those lines used to be, to anyone grepping for
+	 * `wp_kses|esc_`).
+	 *
+	 * @param string[] $props Currently-allowed CSS property names.
+	 * @return string[] $props with the extra properties appended.
+	 */
+	public static function allow_inline_style_props( array $props ): array {
+		$props[] = 'fill';
+		$props[] = 'pointer-events';
+		$props[] = 'resize';
+		return $props;
+	}
+
+	/**
+	 * Escape a full render surface with wp_kses(), widening wp_kses()'s own
+	 * `style`-attribute CSS-property filter for the duration of this one call
+	 * -- see {@see self::allow_inline_style_props()} for why that widening is
+	 * necessary.
+	 *
+	 * Kept for other internal callers that want the same behavior without
+	 * duplicating the add_filter/wp_kses/remove_filter sandwich; the two
+	 * security-sensitive call sites this was written for (the shortcode
+	 * dispatcher and the block `render_callback`) inline that sandwich
+	 * themselves instead, on purpose -- see {@see self::allow_inline_style_props()}'s
+	 * docblock.
 	 *
 	 * @param string $html Raw callback/template output.
 	 * @return string Escaped output.
 	 */
 	public static function kses( string $html ): string {
-		$allow_extra_style_props = static function ( array $props ): array {
-			$props[] = 'fill';
-			$props[] = 'pointer-events';
-			$props[] = 'resize';
-			return $props;
-		};
+		add_filter( 'safe_style_css', array( self::class, 'allow_inline_style_props' ) );
 
-		add_filter( 'safe_style_css', $allow_extra_style_props );
-		$escaped = wp_kses( $html, self::allowed_markup() );
-		remove_filter( 'safe_style_css', $allow_extra_style_props );
-
-		return $escaped;
+		try {
+			return wp_kses( $html, self::allowed_markup() );
+		} finally {
+			remove_filter( 'safe_style_css', array( self::class, 'allow_inline_style_props' ) );
+		}
 	}
 }

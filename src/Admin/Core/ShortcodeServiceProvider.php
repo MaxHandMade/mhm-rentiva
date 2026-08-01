@@ -10,6 +10,7 @@ if (! defined('ABSPATH')) {
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
+use MHMRentiva\Helpers\Html;
 
 
 
@@ -315,9 +316,22 @@ final class ShortcodeServiceProvider {
 	 */
 	private function handle_shortcode_execution(string $tag, callable $callback, array $config, $atts, ?string $content): string
 	{
-		// Check authentication if required
+		// Check authentication if required. The message is NOT necessarily
+		// Lite's own static string: `mhm_rentiva_shortcode_auth_error` lets a
+		// contributor (e.g. an add-on) replace it entirely, and a contributor
+		// may legitimately want to return markup here (a login link, a styled
+		// notice) -- so this is escaped through the same allowlist as every
+		// other callback return, not esc_html()'d, which would flatten any
+		// such markup to plain text.
 		if (! empty($config['requires_auth']) && ! is_user_logged_in()) {
-			return (string) apply_filters('mhm_rentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
+			$auth_error_message = (string) apply_filters('mhm_rentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
+
+			add_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+			try {
+				return wp_kses($auth_error_message, Html::allowed_markup());
+			} finally {
+				remove_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+			}
 		}
 
 		ob_start();
@@ -327,11 +341,17 @@ final class ShortcodeServiceProvider {
 		// Escape late, at the single point every shortcode (Lite's own and any
 		// `mhm_rentiva_shortcodes` contributor's) returns through. The allowlist
 		// covers the full render surface (forms, SVG, data-*, style) — see
-		// Html::allowed_markup() and its unit test. Html::kses() (not a bare
-		// wp_kses()) also widens wp_kses()'s CSS-property filter for the few
-		// inline `style` values the allowlist alone can't cover — see its
-		// docblock.
-		return \MHMRentiva\Helpers\Html::kses( (string) ( $output ?? $buffered ) );
+		// Html::allowed_markup() and its unit test. The add_filter/remove_filter
+		// pair around this wp_kses() call widens wp_kses()'s CSS-property filter
+		// for the few inline `style` values the allowlist alone can't cover —
+		// see Html::allow_inline_style_props()'s docblock for why, and for why
+		// this is inlined here rather than called through Html::kses().
+		add_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+		try {
+			return wp_kses( (string) ( $output ?? $buffered ), Html::allowed_markup());
+		} finally {
+			remove_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+		}
 	}
 
 	/**

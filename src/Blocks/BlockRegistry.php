@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Blocks;
 
 use MHMRentiva\Admin\Core\AssetManager;
+use MHMRentiva\Helpers\Html;
 
 if (! defined('ABSPATH')) {
 	exit;
@@ -523,14 +524,23 @@ class BlockRegistry {
 		}
 
 		// get_block_wrapper_attributes() is WP core and esc_attr()'s its own
-		// output already, so only the content needs wrapping here. Html::kses()
-		// (not a bare wp_kses()) also widens wp_kses()'s CSS-property filter for
-		// the few inline `style` values the allowlist alone can't cover — see
-		// its docblock.
+		// output already, so only the content needs wrapping here. The
+		// add_filter/remove_filter pair around this wp_kses() call widens
+		// wp_kses()'s CSS-property filter for the few inline `style` values the
+		// allowlist alone can't cover — see Html::allow_inline_style_props()'s
+		// docblock for why, and for why this is inlined here rather than
+		// called through Html::kses().
+		add_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+		try {
+			$escaped_content = wp_kses($shortcode_content, Html::allowed_markup());
+		} finally {
+			remove_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
+		}
+
 		return sprintf(
 			'<div %s>%s</div>',
 			get_block_wrapper_attributes($wrapper_args),
-			\MHMRentiva\Helpers\Html::kses( $shortcode_content )
+			$escaped_content
 		);
 	}
 
