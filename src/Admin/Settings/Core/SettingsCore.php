@@ -45,7 +45,6 @@ final class SettingsCore {
 
 		// AJAX Handlers
 		add_action('wp_ajax_mhm_rentiva_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
-		add_action('wp_ajax_mhm_rentiva_run_settings_tests', array( self::class, 'ajax_run_settings_tests' ));
 
 		// Service Initializers (Delegated to specialized managers)
 		add_action('init', array( self::class, 'initialize_services' ));
@@ -477,27 +476,6 @@ final class SettingsCore {
 		update_option(self::OPTION_NAME, $settings);
 
 		wp_send_json_success(array( 'message' => __('Settings updated', 'mhm-rentiva') ));
-	}
-
-	/**
-	 * AJAX: Run settings diagnostic tests
-	 */
-	public static function ajax_run_settings_tests(): void
-	{
-		if (! check_ajax_referer('mhm_settings_test_nonce', 'nonce', false)) {
-			wp_send_json_error(__('Invalid nonce', 'mhm-rentiva'), 403);
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Permission denied', 'mhm-rentiva'));
-		}
-
-		if (! class_exists(\MHMRentiva\Admin\Settings\Testing\SettingsTester::class)) {
-			wp_send_json_error(__('Diagnostic testing engine not found.', 'mhm-rentiva'));
-		}
-
-		$report = \MHMRentiva\Admin\Settings\Testing\SettingsTester::generate_report();
-		wp_send_json_success($report);
 	}
 
 	/**

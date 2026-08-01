@@ -54,6 +54,19 @@ class TabRendererRegistryTest extends WP_UnitTestCase
     /**
      * @test
      */
+    public function it_does_not_register_the_settings_testing_tab()
+    {
+        // The Settings Testing diagnostics tab shipped a developer-only
+        // screen (raw superglobal handling flagged by WP.org review) that
+        // has no place in a production build. It must never come back.
+        $tabs = $this->registry->get_all();
+
+        $this->assertArrayNotHasKey('testing', $tabs);
+    }
+
+    /**
+     * @test
+     */
     public function it_is_extensible_via_actions()
     {
         // Mock a new renderer and register it via action

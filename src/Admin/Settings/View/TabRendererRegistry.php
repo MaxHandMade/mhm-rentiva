@@ -69,7 +69,6 @@ final class TabRendererRegistry {
 				'integration',
 				'database-cleanup',
 				'cron-monitor',
-				'testing',
 			)
 		);
 
@@ -211,7 +210,6 @@ final class TabRendererRegistry {
 		// Transfer's tab renderer — extension-point inversion (Task A6): Lite no longer
 		// registers this renderer itself. The add-on's SettingsExtensions registers it via
 		// the `mhm_rentiva_settings_register_renderers` action below.
-		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\SettingsTestingRenderer() );
 
 		/**
 		 * Allow modifying renderers after defaults are registered.

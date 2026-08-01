@@ -119,7 +119,6 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		'mhm_blocked_dates_save'       => 'nonce action, not storage',
 		'mhm_dark_mode_nonce'          => 'nonce action, not storage',
 		'mhm_rest_api_keys_nonce'      => 'nonce action, not storage',
-		'mhm_settings_test_nonce'      => 'nonce action, not storage',
 		'mhm_cron_monitor'             => 'nonce action for the cron-monitor screen, not storage',
 		'mhm_db_cleanup'               => 'nonce action for the database-cleanup screen, not storage',
 		'mhm_search_context'           => 'request-scoped filter context, not storage',

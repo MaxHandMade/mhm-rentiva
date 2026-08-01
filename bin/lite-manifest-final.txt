@@ -179,7 +179,6 @@ src/Admin/Settings/SettingsView.php
 src/Admin/Settings/ShortcodePages.php
 src/Admin/Settings/ShortcodePages/REST/ShortcodePagesController.php
 src/Admin/Settings/ShortcodePages/ShortcodePageActions.php
-src/Admin/Settings/Testing/SettingsTester.php
 src/Admin/Settings/View/AbstractTabRenderer.php
 src/Admin/Settings/View/SettingsViewHelper.php
 src/Admin/Settings/View/TabRendererInterface.php
@@ -189,7 +188,6 @@ src/Admin/Settings/View/Tabs/CronMonitorRenderer.php
 src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php
 src/Admin/Settings/View/Tabs/GeneralSettingsRenderer.php
 src/Admin/Settings/View/Tabs/IntegrationRenderer.php
-src/Admin/Settings/View/Tabs/SettingsTestingRenderer.php
 src/Admin/Setup/SetupWizard.php
 src/Admin/Utilities/Actions/Actions.php
 src/Admin/Utilities/Cron/CronMonitor.php
