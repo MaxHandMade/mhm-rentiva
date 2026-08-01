@@ -149,6 +149,7 @@ src/Admin/PostTypes/Maintenance/EmailLogRetention.php
 src/Admin/PostTypes/Maintenance/LogRetention.php
 src/Admin/PostTypes/Utilities/ClientUtilities.php
 src/Admin/REST/Availability.php
+src/Admin/REST/BlockedDates.php
 src/Admin/REST/EndpointListHelper.php
 src/Admin/REST/Helpers/AuthHelper.php
 src/Admin/REST/Settings/RESTSettings.php

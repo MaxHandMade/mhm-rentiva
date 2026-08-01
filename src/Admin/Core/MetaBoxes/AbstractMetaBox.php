@@ -321,7 +321,8 @@ abstract class AbstractMetaBox {
 			$nonce_name = static::get_nonce_name( $meta_box_id );
 
 			// Nonce check
-			if ( ! isset( $_POST[ $nonce_name ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $nonce_name ] ) ), $nonce_name ) ) {
+			$nonce = sanitize_text_field( wp_unslash( $_POST[ $nonce_name ] ?? '' ) );
+			if ( ! wp_verify_nonce( $nonce, $nonce_name ) ) {
 				continue;
 			}
 

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
@@ -34,51 +35,44 @@ final class SettingsHandler {
 			return;
 		}
 
-		// This method is a router, not a handler: manage_options is already checked
-		// above, and the only use made of the request below is picking which of the
-		// three branches to enter. Each branch re-reads the request and verifies its
-		// own nonce as a positive condition that must pass -- handle_reset_defaults()
-		// wp_die()s on failure, handle_email_templates() and handle_rest_settings()
-		// fall through without writing -- so all three are fail-closed and no state
-		// can change on the strength of the routing read alone.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Routing read only; every dispatched branch verifies its own nonce fail-closed.
-		$post = wp_unslash( $_POST );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Routing read only; see above.
-		$get = wp_unslash( $_GET );
-
-		// Modern Dispatcher using PHP 8.2 match
-		match ( true ) {
-			isset( $post['email_templates_action'] ) && $post['email_templates_action'] === 'save' => self::handle_email_templates(),
-			isset( $post['option_page'] ) && $post['option_page'] === 'mhm_rentiva_rest_settings' => self::handle_rest_settings(),
-			isset( $get['reset_defaults'] ) && $get['reset_defaults'] === 'true' => self::handle_reset_defaults(),
-			default => null,
-		};
+		// There is deliberately no routing read here. This used to copy $_POST and
+		// $_GET wholesale to decide which branch to enter, which meant the request
+		// was inspected in a scope that verifies nothing. Each handler below now
+		// starts from its own trigger field and its own nonce and returns without
+		// writing when either is absent, so every superglobal access in this class
+		// sits in the same function as the verification that authorises it.
+		self::handle_email_templates();
+		self::handle_rest_settings();
+		self::handle_reset_defaults();
 	}
 
 	/**
 	 * Handle Reset Defaults Action
 	 */
 	private static function handle_reset_defaults(): void {
-		$get = wp_unslash( $_GET );
+		// Trigger field first: without it this is an ordinary settings page load,
+		// not a reset request, and nothing below applies.
+		if ( 'true' !== sanitize_key( wp_unslash( $_GET['reset_defaults'] ?? '' ) ) ) {
+			return;
+		}
+
+		$target_tab = sanitize_key( wp_unslash( $_GET['tab'] ?? '' ) );
 
 		// 🔍 LOGGING: Start reset attempt
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Reset defaults attempt for tab: ' . ( $get['tab'] ?? 'all' ) );
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Reset defaults attempt for tab: ' . ( '' !== $target_tab ? $target_tab : 'all' ) );
 		}
 
-		if (
-			! isset( $get['reset_defaults'] ) ||
-			$get['reset_defaults'] !== 'true' ||
-			! isset( $get['_wpnonce'] ) ||
-			! wp_verify_nonce( sanitize_key( $get['_wpnonce'] ), 'mhm_rentiva_reset_defaults' )
-		) {
+		$nonce = sanitize_key( wp_unslash( $_GET['_wpnonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_reset_defaults' ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Reset defaults FAILED at nonce verification phase. Nonce: ' . ( $get['_wpnonce'] ?? 'missing' ) );
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Reset defaults FAILED at nonce verification phase. Nonce: ' . ( '' !== $nonce ? $nonce : 'missing' ) );
 			}
 			wp_die( esc_html__( 'Security check failed. Please refresh the page and try again.', 'mhm-rentiva' ) );
 		}
 
-		$target_tab = sanitize_key( $get['tab'] ?? '' );
+		$view = sanitize_text_field( wp_unslash( $_GET['view'] ?? '' ) );
+
 		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Executing reset for tab: ' . $target_tab );
 		}
@@ -92,8 +86,8 @@ final class SettingsHandler {
 			$redirect_url = add_query_arg( 'tab', $target_tab, $redirect_url );
 		}
 
-		if ( isset( $get['view'] ) ) {
-			$redirect_url = add_query_arg( 'view', sanitize_text_field( $get['view'] ), $redirect_url );
+		if ( '' !== $view ) {
+			$redirect_url = add_query_arg( 'view', $view, $redirect_url );
 		}
 
 		$redirect_url = add_query_arg(
@@ -112,50 +106,52 @@ final class SettingsHandler {
 	 * Handle Email Templates Save Action
 	 */
 	private static function handle_email_templates(): void {
-		$post = wp_unslash( $_POST );
-
-		if (
-			isset( $post['email_templates_action'] ) &&
-			sanitize_key( $post['email_templates_action'] ) === 'save' &&
-			isset( $post['_wpnonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( $post['_wpnonce'] ), \MHMRentiva\Admin\Settings\Core\SettingsCore::GROUP . '-options' )
-		) {
-			EmailTemplates::handle_save_templates();
-			add_settings_error(
-				'mhm_rentiva_messages',
-				'email_templates_saved',
-				__( 'Email templates saved successfully!', 'mhm-rentiva' ),
-				'success'
-			);
+		if ( 'save' !== sanitize_key( wp_unslash( $_POST['email_templates_action'] ?? '' ) ) ) {
+			return;
 		}
+
+		$nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, \MHMRentiva\Admin\Settings\Core\SettingsCore::GROUP . '-options' ) ) {
+			return;
+		}
+
+		EmailTemplates::handle_save_templates();
+		add_settings_error(
+			'mhm_rentiva_messages',
+			'email_templates_saved',
+			__( 'Email templates saved successfully!', 'mhm-rentiva' ),
+			'success'
+		);
 	}
 
 	/**
 	 * Handle REST Settings Save Action
 	 */
 	private static function handle_rest_settings(): void {
-		$post = wp_unslash( $_POST );
+		if ( 'mhm_rentiva_rest_settings' !== sanitize_key( wp_unslash( $_POST['option_page'] ?? '' ) ) ) {
+			return;
+		}
+		if ( 'update' !== sanitize_key( wp_unslash( $_POST['action'] ?? '' ) ) ) {
+			return;
+		}
 
-		if (
-			isset( $post['option_page'] ) &&
-			$post['option_page'] === 'mhm_rentiva_rest_settings' &&
-			isset( $post['action'] ) &&
-			$post['action'] === 'update' &&
-			isset( $post['_wpnonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( $post['_wpnonce'] ), 'mhm_rentiva_rest_settings-options' )
-		) {
-			if ( isset( $post['mhm_rentiva_rest_settings'] ) && is_array( $post['mhm_rentiva_rest_settings'] ) ) {
-				$success = \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings( $post['mhm_rentiva_rest_settings'] );
+		$nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_rest_settings-options' ) ) {
+			return;
+		}
 
-				if ( $success ) {
-					add_settings_error(
-						'mhm_rentiva_messages',
-						'rest_settings_saved',
-						__( 'REST API Settings saved successfully!', 'mhm-rentiva' ),
-						'success'
-					);
-				}
-			}
+		$request = VerifiedRequest::from( $_POST );
+		if ( ! $request->has( 'mhm_rentiva_rest_settings' ) ) {
+			return;
+		}
+
+		if ( \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings( $request->arr( 'mhm_rentiva_rest_settings' ) ) ) {
+			add_settings_error(
+				'mhm_rentiva_messages',
+				'rest_settings_saved',
+				__( 'REST API Settings saved successfully!', 'mhm-rentiva' ),
+				'success'
+			);
 		}
 	}
 }

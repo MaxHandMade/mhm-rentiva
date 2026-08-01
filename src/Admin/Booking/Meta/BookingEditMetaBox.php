@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Booking\Helpers\Util;
 use MHMRentiva\Admin\Booking\Core\Status;
 
@@ -336,6 +337,36 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 	}
 
 	/**
+	 * The submitted booking edit, or null when this request carries no nonce
+	 * that authorises editing this booking.
+	 *
+	 * Two forms can legitimately reach save_post: the metabox's own form (which
+	 * renders mhm_booking_edit_meta_nonce) and the classic editor's Update button
+	 * (which sends _wpnonce for one of core's update-post actions). Both answers
+	 * live here, each as its own early return, so the caller keeps a single `if`
+	 * instead of accumulating a validity flag across branching conditions.
+	 *
+	 * The verified payload comes back with the verdict rather than being read
+	 * again by the caller: that keeps the nonce check and the superglobal access
+	 * in one scope, which is the property VerifiedRequest exists to preserve.
+	 */
+	private static function verified_edit_request( int $post_id ): ?VerifiedRequest {
+		$own_nonce = sanitize_text_field( wp_unslash( $_POST['mhm_booking_edit_meta_nonce'] ?? '' ) );
+		if ( wp_verify_nonce( $own_nonce, 'mhm_booking_edit_action' ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+
+		$core_nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
+		foreach ( array( 'update-post_' . $post_id, 'update-post', 'post_' . $post_id ) as $core_action ) {
+			if ( wp_verify_nonce( $core_nonce, $core_action ) ) {
+				return VerifiedRequest::from( $_POST );
+			}
+		}
+
+		return null;
+	}
+
+	/**
 	 * Persist booking edits.
 	 */
 	public static function save_booking_details( int $post_id ): void {
@@ -344,36 +375,13 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 			return;
 		}
 
-		// Nonce validation - Check if this is our form or WordPress standard form
-		$nonce_valid = false;
-
-		// Check our custom nonce
-		if (
-			isset( $_POST['mhm_booking_edit_meta_nonce'] ) &&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_booking_edit_meta_nonce'] ) ), 'mhm_booking_edit_action' )
-		) {
-			$nonce_valid = true;
-		}
-
-		// Check WordPress standard nonce (for standard Update button)
-		if ( ! $nonce_valid && isset( $_POST['_wpnonce'] ) ) {
-			$wpnonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) );
-			// Try different WordPress nonce formats
-			if (
-				wp_verify_nonce( $wpnonce, 'update-post_' . $post_id ) ||
-				wp_verify_nonce( $wpnonce, 'update-post' ) ||
-				wp_verify_nonce( $wpnonce, 'post_' . $post_id )
-			) {
-				$nonce_valid = true;
-			}
-		}
-
 		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
 		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
 		// carrying those field names could persist booking edits on behalf of a logged-in editor
 		// (CSRF). The metabox always renders wp_nonce_field() (see render()), and the classic
 		// editor additionally sends _wpnonce, so every legitimate save has one of the two.
-		if ( ! $nonce_valid ) {
+		$request = self::verified_edit_request( $post_id );
+		if ( null === $request ) {
 			return;
 		}
 
@@ -388,16 +396,16 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Fetch and persist data
-		$new_vehicle_id = isset( $_POST['mhm_edit_vehicle_id'] ) ? absint( wp_unslash( $_POST['mhm_edit_vehicle_id'] ) ) : 0;
-		$pickup_date    = isset( $_POST['mhm_edit_pickup_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_pickup_date'] ) ) : '';
-		$pickup_time    = isset( $_POST['mhm_edit_pickup_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_pickup_time'] ) ) : '';
-		$dropoff_date   = isset( $_POST['mhm_edit_dropoff_date'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_dropoff_date'] ) ) : '';
-		$dropoff_time   = isset( $_POST['mhm_edit_dropoff_time'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_dropoff_time'] ) ) : '';
-		$guests         = max( 1, isset( $_POST['mhm_edit_guests'] ) ? absint( wp_unslash( $_POST['mhm_edit_guests'] ) ) : 1 );
-		$status         = isset( $_POST['mhm_edit_status'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['mhm_edit_status'] ) ) : 'pending';
+		$new_vehicle_id = $request->int( 'mhm_edit_vehicle_id' );
+		$pickup_date    = $request->text( 'mhm_edit_pickup_date' );
+		$pickup_time    = $request->text( 'mhm_edit_pickup_time' );
+		$dropoff_date   = $request->text( 'mhm_edit_dropoff_date' );
+		$dropoff_time   = $request->text( 'mhm_edit_dropoff_time' );
+		$guests         = max( 1, $request->int( 'mhm_edit_guests', 1 ) );
+		$status         = $request->text( 'mhm_edit_status', 'pending' );
 
 		// Get special notes - always save if field exists
-		$special_notes = isset( $_POST['mhm_edit_special_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['mhm_edit_special_notes'] ) ) : '';
+		$special_notes = $request->textarea( 'mhm_edit_special_notes' );
 
 		// Update vehicle if changed
 		$old_vehicle_id = get_post_meta( $post_id, '_mhm_vehicle_id', true );
@@ -429,7 +437,7 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 		}
 
 		// Process selected add-ons
-		$selected_addons = isset( $_POST['mhm_edit_selected_addons'] ) ? array_map( 'absint', wp_unslash( $_POST['mhm_edit_selected_addons'] ) ) : array();
+		$selected_addons = $request->intList( 'mhm_edit_selected_addons' );
 		$addon_details   = array();
 		$addon_total     = 0;
 

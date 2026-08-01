@@ -155,7 +155,8 @@ abstract class AbstractListTable extends \WP_List_Table {
 			return;
 		}
 
-		if ( ! isset( $_POST[ $this->nonce_name ] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ $this->nonce_name ] ) ), $this->nonce_action ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST[ $this->nonce_name ] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, $this->nonce_action ) ) {
 			$this->show_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 			return;
 		}

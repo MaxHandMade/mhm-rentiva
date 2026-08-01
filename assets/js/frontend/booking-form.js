@@ -478,14 +478,18 @@
                 return;
             }
 
-            var ajaxUrl = ( window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.ajax_url )
-                ? window.mhmRentivaBookingForm.ajax_url
+            var restUrl = ( window.mhmRentivaBookingForm && window.mhmRentivaBookingForm.restUrl )
+                ? window.mhmRentivaBookingForm.restUrl
                 : '';
+            if ( ! restUrl ) {
+                this.blockedDates = [];
+                this.refreshDatepickerBlockedDates();
+                return;
+            }
 
             $.ajax( {
-                url:    ajaxUrl,
+                url:    restUrl + 'vehicles/' + parseInt( vehicleId, 10 ) + '/blocked-dates',
                 method: 'GET',
-                data:   { action: 'mhm_rentiva_get_blocked_dates', vehicle_id: parseInt( vehicleId, 10 ) },
                 success: ( response ) => {
                     if ( response && response.success && Array.isArray( response.data ) ) {
                         this.blockedDates = response.data;

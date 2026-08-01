@@ -526,8 +526,8 @@ final class AccountController {
 	 */
 	public static function ajax_clear_favorites(): void
 	{
-		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
-		if (empty($nonce) || ! wp_verify_nonce($nonce, 'mhm_rentiva_account')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_account')) {
 			wp_send_json_error(array( 'message' => __('Security error.', 'mhm-rentiva') ), 400);
 		}
 
@@ -556,7 +556,8 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You must be logged in.', 'mhm-rentiva') ), 403);
 		}
 
-		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_upload_receipt')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_upload_receipt')) {
 			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
@@ -642,7 +643,8 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => __('You must be logged in.', 'mhm-rentiva') ), 403);
 		}
 
-		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_rentiva_upload_receipt')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_upload_receipt')) {
 			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
@@ -837,7 +839,8 @@ final class AccountController {
 		}
 
 		// Verify nonce
-		if (! isset($_POST['nonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'mhm_cancel_booking_nonce')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_cancel_booking_nonce')) {
 			wp_send_json_error(
 				array(
 					'message' => __('Security verification failed. Please refresh and try again.', 'mhm-rentiva'),

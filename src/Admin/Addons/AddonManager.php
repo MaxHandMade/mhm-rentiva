@@ -100,6 +100,11 @@ final class AddonManager {
 
 		// Register list table for enhanced functionality.
 		if ( class_exists( AddonListTable::class ) ) {
+			// Admin-only: the filter params are read through get_query_var(), which
+			// needs them on the query_vars whitelist before WP::parse_request()
+			// runs for the list screen (edit.php calls it from prepare_items(),
+			// after admin_init).
+			AddonListTable::register_query_var_filter();
 			new AddonListTable();
 		}
 

@@ -51,24 +51,17 @@ class ReviewEnforcer {
 			return $commentdata;
 		}
 
-		// This filter runs inside WordPress core's own comment submission pipeline
-		// (wp_handle_comment_submission -> wp_new_comment). Public comment forms
-		// carry no nonce -- core does not add one -- so there is none for this hook
-		// to verify. Everything read below is used only to REJECT the submission;
-		// this method persists nothing, and the rating that is ultimately stored is
-		// written by core from $commentdata['comment_meta'].
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Core comment pipeline has no nonce to verify; read-only validation, nothing is persisted here.
-		$submitted = (array) wp_unslash( $_POST );
+		// This filter used to reach into $_POST for the rating. It ran inside
+		// WordPress core's comment pipeline, which carries no nonce of its own, so
+		// the read could never be justified in the scope that performed it -- only
+		// annotated. It does not need the request at all: the submitted rating is
+		// part of the comment being filtered, and the one caller that creates
+		// vehicle reviews (VehicleRatingForm::ajax_submit_rating(), which verifies
+		// its own nonce) hands it over in comment_meta. Validating the argument
+		// instead of ambient request state is also what makes this filter testable.
 
 		// 1. Mandatory Rating Check
-		$rating = 0;
-		if ( isset( $submitted['rating'] ) ) {
-			$rating = (int) $submitted['rating'];
-		} elseif ( isset( $submitted['mhm_rating'] ) ) {
-			$rating = (int) $submitted['mhm_rating'];
-		} elseif ( isset( $commentdata['comment_meta']['rating'] ) ) {
-			$rating = (int) $commentdata['comment_meta']['rating'];
-		}
+		$rating = (int) ( $commentdata['comment_meta']['rating'] ?? 0 );
 
 		if ( $rating < 1 || $rating > 5 ) {
 			$msg = esc_html__( 'Error: You must provide a valid rating (1-5 stars) for this vehicle.', 'mhm-rentiva' );
@@ -87,8 +80,9 @@ class ReviewEnforcer {
 		$user_id      = (int) ( $commentdata['user_id'] ?? 0 );
 		$author_email = sanitize_email( $commentdata['comment_author_email'] ?? '' );
 
-		// If user is editing their own existing comment via AJAX/Admin, the comment_ID might be passed.
-		$existing_comment_id = isset( $submitted['comment_ID'] ) ? (int) $submitted['comment_ID'] : 0;
+		// If user is editing their own existing comment, the comment_ID travels
+		// with the comment data itself.
+		$existing_comment_id = (int) ( $commentdata['comment_ID'] ?? 0 );
 
 		if ( ! $existing_comment_id ) {
 			$args = array(

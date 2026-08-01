@@ -46,8 +46,10 @@ final class AddCustomerPage {
 			return;
 		}
 
-		// Form processing.
-		if ( isset( $_POST['submit'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_add_customer_nonce'] ?? '' ) ), 'mhm_rentiva_add_customer' ) ) {
+		// Form processing. The nonce field is the submission signal: only this
+		// page's own form carries it, so its validity is the whole test.
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_add_customer_nonce'] ?? '' ) );
+		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_add_customer' ) ) {
 			$customer_name    = sanitize_text_field( wp_unslash( $_POST['customer_name'] ?? '' ) );
 			$customer_email   = sanitize_email( wp_unslash( $_POST['customer_email'] ?? '' ) );
 			$customer_phone   = sanitize_text_field( wp_unslash( $_POST['customer_phone'] ?? '' ) );

@@ -14,6 +14,7 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 
@@ -1607,18 +1608,47 @@ final class WooCommerceBridge implements PaymentGatewayInterface {
 	}
 
 	/**
+	 * The checkout submission, or null when this request carries no valid
+	 * WooCommerce checkout nonce.
+	 *
+	 * The woocommerce_checkout_update_order_meta hook fires from inside
+	 * WC_Checkout::process_checkout(), which has already verified this nonce.
+	 * Verifying it again here is what lets the field read stand on its own: an
+	 * annotation asserting "the caller checked" is not something a reviewer --
+	 * or a scanner -- can confirm from this file. WooCommerce accepts the nonce
+	 * under either field name (class-wc-checkout.php:1286), so both are tried,
+	 * each as its own early return.
+	 */
+	private static function verified_checkout_request(): ?VerifiedRequest
+	{
+		$checkout_nonce = sanitize_text_field(wp_unslash($_POST['woocommerce-process-checkout-nonce'] ?? ''));
+		if (wp_verify_nonce($checkout_nonce, 'woocommerce-process_checkout')) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		$fallback_nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? ''));
+		if (wp_verify_nonce($fallback_nonce, 'woocommerce-process_checkout')) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		return null;
+	}
+
+	/**
 	 * Save payment type from checkout
 	 * ⭐ Supports both existing bookings and pending bookings (cart data)
 	 */
 	public static function save_checkout_payment_type($order_id, $data)
 	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce checkout processing validates request nonce before this hook runs.
-		if (! isset($_POST['mhm_booking_payment_type'])) {
+		$request = self::verified_checkout_request();
+		if (null === $request) {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WooCommerce checkout processing validates request nonce before this hook runs.
-		$payment_type = sanitize_text_field(wp_unslash($_POST['mhm_booking_payment_type']));
+		$payment_type = $request->text('mhm_booking_payment_type');
+		if ('' === $payment_type) {
+			return;
+		}
 
 		// Always save to order meta -- through the ORDER, not through post meta.
 		//

@@ -42,20 +42,61 @@ final class BookingColumns {
 	}
 
 	/**
+	 * Filter and calendar params of the bookings list screen, registered on
+	 * WordPress's `query_vars` whitelist (see register_query_vars()) so the
+	 * readers below can use get_query_var() instead of reaching into $_GET.
+	 *
+	 * Same mechanism SearchResults uses for its public filter params — the fix
+	 * WP.org accepted for T4 #11. It matters here because these are display
+	 * parameters of a bookmarkable admin URL: they change no state, and
+	 * nonce-gating them would break shareable sorted/filtered links, so neither
+	 * a nonce nor an annotation over a raw $_GET read is the right answer.
+	 *
+	 * `mhm_month`/`mhm_year` drive the booking calendar's prev/next navigation.
+	 * They carry the plugin prefix rather than the bare `month`/`year` they used
+	 * to: registering an unprefixed `month` on a global whitelist would collide
+	 * with any other plugin doing the same, and `year` is already one of core's
+	 * own public query vars (it filters the query by date).
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'mhm_booking_status',
+		'mhm_payment_status',
+		'mhm_payment_gateway',
+		'mhm_booking_id',
+		'mhm_license_plate',
+		'mhm_month',
+		'mhm_year',
+	);
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Registered public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars( array $vars ): array {
+		return array_values( array_unique( array_merge( $vars, self::PUBLIC_QUERY_VARS ) ) );
+	}
+
+	/**
 	 * Read sanitized query string value.
+	 *
+	 * A `null` sentinel default distinguishes "param absent from the request"
+	 * from "param present but empty", matching the previous isset() semantics.
 	 *
 	 * @param string $key Query parameter key.
 	 * @param string $default Default value.
 	 * @return string
 	 */
 	private static function get_query_text( string $key, string $default = '' ): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
-		if ( ! isset( $_GET[ $key ] ) ) {
+		$value = get_query_var( $key, null );
+		if ( null === $value || is_array( $value ) ) {
 			return $default;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
-		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+		return sanitize_text_field( wp_unslash( (string) $value ) );
 	}
 
 	/**
@@ -66,16 +107,16 @@ final class BookingColumns {
 	 * @return int
 	 */
 	private static function get_query_int( string $key, int $default = 0 ): int {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
-		if ( ! isset( $_GET[ $key ] ) ) {
+		$value = get_query_var( $key, null );
+		if ( null === $value || is_array( $value ) || '' === $value ) {
 			return $default;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter parameter.
-		return absint( wp_unslash( $_GET[ $key ] ) );
+		return absint( wp_unslash( (string) $value ) );
 	}
 
 	public static function register(): void {
+		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'manage_vehicle_booking_posts_columns', array( self::class, 'columns' ) );
 		add_action( 'manage_vehicle_booking_posts_custom_column', array( self::class, 'render' ), 10, 2 );
 		add_filter( 'manage_edit-vehicle_booking_sortable_columns', array( self::class, 'sortable' ) );
@@ -989,8 +1030,8 @@ final class BookingColumns {
 		}
 
 		// Get month and year from URL parameters, otherwise use current month/year
-		$current_month = self::get_query_int( 'month', (int) gmdate( 'n' ) );
-		$current_year  = self::get_query_int( 'year', (int) gmdate( 'Y' ) );
+		$current_month = self::get_query_int( 'mhm_month', (int) gmdate( 'n' ) );
+		$current_year  = self::get_query_int( 'mhm_year', (int) gmdate( 'Y' ) );
 
 		// Check for invalid values
 		if ( $current_month < 1 || $current_month > 12 ) {
@@ -1050,8 +1091,8 @@ final class BookingColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'month' => $prev_month,
-								'year'  => $prev_year,
+								'mhm_month' => $prev_month,
+								'mhm_year'  => $prev_year,
 							)
 						)
 					);
@@ -1071,8 +1112,8 @@ final class BookingColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'month' => $next_month,
-								'year'  => $next_year,
+								'mhm_month' => $next_month,
+								'mhm_year'  => $next_year,
 							)
 						)
 					);

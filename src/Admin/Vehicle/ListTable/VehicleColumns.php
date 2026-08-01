@@ -37,8 +37,77 @@ final class VehicleColumns {
 	 *
 	 * @since 4.20.0
 	 */
+	/**
+	 * Filter and calendar params of the vehicles list screen, registered on
+	 * WordPress's `query_vars` whitelist (see register_query_vars()) so the
+	 * readers below can use get_query_var() instead of copying $_GET wholesale.
+	 *
+	 * Same mechanism SearchResults uses for its public filter params — the fix
+	 * WP.org accepted for T4 #11. These are display parameters of a bookmarkable
+	 * admin URL: they change no state, so nonce-gating them would only break
+	 * shareable filtered links, and an annotation over a raw $_GET read is not a
+	 * resolution either.
+	 *
+	 * `mhm_month`/`mhm_year` drive the availability calendar's prev/next
+	 * navigation. They carry the plugin prefix rather than the bare
+	 * `month`/`year` they used to: registering an unprefixed `month` on a global
+	 * whitelist would collide with any other plugin doing the same, and `year`
+	 * is already one of core's own public query vars (it filters by date).
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'mhm_available',
+		'mhm_location_filter',
+		'mhm_lifecycle_filter',
+		'mhm_owner_filter',
+		'mhm_month',
+		'mhm_year',
+	);
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Registered public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars(array $vars): array
+	{
+		return array_values(array_unique(array_merge($vars, self::PUBLIC_QUERY_VARS)));
+	}
+
+	/**
+	 * Read a sanitized list-screen param from the query_vars whitelist.
+	 *
+	 * A `null` sentinel default distinguishes "param absent from the request"
+	 * from "param present but empty", matching the previous isset() semantics.
+	 */
+	private static function get_query_text(string $key, string $default = ''): string
+	{
+		$value = get_query_var($key, null);
+		if (null === $value || is_array($value)) {
+			return $default;
+		}
+
+		return sanitize_text_field(wp_unslash( (string) $value));
+	}
+
+	/**
+	 * Read a non-negative integer list-screen param from the query_vars whitelist.
+	 */
+	private static function get_query_int(string $key, int $default = 0): int
+	{
+		$value = get_query_var($key, null);
+		if (null === $value || is_array($value) || '' === $value) {
+			return $default;
+		}
+
+		return absint(wp_unslash( (string) $value));
+	}
+
 	public static function register(): void
 	{
+		add_filter('query_vars', array( self::class, 'register_query_vars' ));
 		add_filter('manage_vehicle_posts_columns', array( self::class, 'columns' ));
 		add_action('manage_vehicle_posts_custom_column', array( self::class, 'render' ), 10, 2);
 		add_filter('manage_edit-vehicle_sortable_columns', array( self::class, 'sortable' ));
@@ -285,13 +354,7 @@ final class VehicleColumns {
 			return;
 		}
 
-		// Security: Sanitize GET parameter
-		$current = '';
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
-		$request = wp_unslash( (array) ( $_GET ?? array() ));
-		if (isset($request['mhm_available'])) {
-			$current = sanitize_text_field( (string) $request['mhm_available']);
-		}
+		$current = self::get_query_text('mhm_available');
 
 		// Dynamic status values
 		$status_values = self::get_vehicle_status_values();
@@ -374,12 +437,10 @@ final class VehicleColumns {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
-		$request    = wp_unslash( (array) ( $_GET ?? array() ));
 		$meta_query = array();
 
 		// Availability status filter
-		$val = isset($request['mhm_available']) ? sanitize_text_field( (string) $request['mhm_available']) : '';
+		$val = self::get_query_text('mhm_available');
 		if ($val !== '') {
 			// Dynamic status values validation
 			$status_values  = array_keys(self::get_vehicle_status_values());
@@ -392,7 +453,7 @@ final class VehicleColumns {
 		}
 
 		// Location filter
-		$location_filter = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
+		$location_filter = self::get_query_int('mhm_location_filter');
 		if ($location_filter > 0) {
 			$meta_query[] = array(
 				'key'     => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
@@ -402,7 +463,7 @@ final class VehicleColumns {
 		}
 
 		// Lifecycle / archive filter (expired + withdrawn listings).
-		$lifecycle      = isset($request['mhm_lifecycle_filter']) ? sanitize_text_field( (string) $request['mhm_lifecycle_filter']) : '';
+		$lifecycle      = self::get_query_text('mhm_lifecycle_filter');
 		$lifecycle_args = self::lifecycle_filter_args($lifecycle);
 		if (! empty($lifecycle_args)) {
 			$meta_query[] = $lifecycle_args['meta_query'][0];
@@ -415,7 +476,7 @@ final class VehicleColumns {
 		}
 
 		// Owner filter (vendor-added vs operator-added) — translated to author query vars.
-		$owner      = isset($request['mhm_owner_filter']) ? sanitize_text_field( (string) $request['mhm_owner_filter']) : '';
+		$owner      = self::get_query_text('mhm_owner_filter');
 		$owner_args = self::owner_filter_args($owner);
 		foreach ($owner_args as $key => $value) {
 			$q->set($key, $value);
@@ -905,24 +966,17 @@ final class VehicleColumns {
 			return;
 		}
 
-		// Security: Sanitize URL parameters
 		$current_month = (int) gmdate('n');
 		$current_year  = (int) gmdate('Y');
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin screen query filters.
-		$request = wp_unslash( (array) ( $_GET ?? array() ));
-		if (isset($request['month'])) {
-			$month = absint(sanitize_text_field( (string) $request['month']));
-			if ($month >= 1 && $month <= 12) {
-				$current_month = $month;
-			}
+		$month = self::get_query_int('mhm_month');
+		if ($month >= 1 && $month <= 12) {
+			$current_month = $month;
 		}
 
-		if (isset($request['year'])) {
-			$year = absint(sanitize_text_field( (string) $request['year']));
-			if ($year >= 2020 && $year <= 2030) {
-				$current_year = $year;
-			}
+		$year = self::get_query_int('mhm_year');
+		if ($year >= 2020 && $year <= 2030) {
+			$current_year = $year;
 		}
 
 		// Dynamic month names (i18n supported)
@@ -977,8 +1031,8 @@ final class VehicleColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'month' => $prev_month,
-								'year'  => $prev_year,
+								'mhm_month' => $prev_month,
+								'mhm_year'  => $prev_year,
 							)
 						)
 					);
@@ -998,8 +1052,8 @@ final class VehicleColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'month' => $next_month,
-								'year'  => $next_year,
+								'mhm_month' => $next_month,
+								'mhm_year'  => $next_year,
 							)
 						)
 					);
@@ -1599,10 +1653,8 @@ final class VehicleColumns {
 	public static function save_quick_edit(int $post_id): void
 	{
 		// Security: Nonce check
-		if (
-			! isset($_POST['mhm_vehicle_quick_edit_nonce']) ||
-			! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_vehicle_quick_edit_nonce'])), 'mhm_vehicle_quick_edit')
-		) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_vehicle_quick_edit_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_vehicle_quick_edit')) {
 			return;
 		}
 

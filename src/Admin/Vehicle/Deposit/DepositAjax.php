@@ -45,8 +45,8 @@ class DepositAjax {
 	 * Booking deposit calculation AJAX handler
 	 */
 	public static function ajax_calculate_booking_deposit(): void {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( '' === $nonce || ! wp_verify_nonce( $nonce, 'mhm_rentiva_booking_action' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_booking_action' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 

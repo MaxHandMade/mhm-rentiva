@@ -69,10 +69,8 @@ final class VehicleSettings {
 	 */
 	public static function update_global_vehicle_settings( int $post_id, \WP_Post $post ): void {
 		// Nonce check
-		if (
-			! isset( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_vehicle_meta_nonce'] ) ), 'mhm_rentiva_vehicle_meta_action' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_vehicle_meta_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_vehicle_meta_action' ) ) {
 			return;
 		}
 

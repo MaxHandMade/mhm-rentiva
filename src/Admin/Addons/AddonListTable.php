@@ -29,25 +29,59 @@ use MHMRentiva\Admin\Addons\AddonManager;
 final class AddonListTable extends AbstractListTable {
 
 	/**
-	 * Read sanitized request parameter (GET/POST).
+	 * Filter params of the add-ons list screen, registered on WordPress's
+	 * `query_vars` whitelist (see register_query_vars()) so request_text() can
+	 * read them with get_query_var() instead of reaching into $_GET.
+	 *
+	 * Same mechanism SearchResults uses for its public filter params — the fix
+	 * WP.org accepted for T4 #11. It matters here because these are display
+	 * parameters of a bookmarkable admin URL: nonce-gating them is not a real
+	 * option, and an annotation over a raw superglobal read is not a resolution.
+	 *
+	 * @var array<int, string>
+	 */
+	private const PUBLIC_QUERY_VARS = array(
+		'addon_status',
+		'addon_category',
+		'price_min',
+		'price_max',
+	);
+
+	/**
+	 * Register this screen's filter params on the `query_vars` whitelist.
+	 */
+	public static function register_query_var_filter(): void {
+		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
+	}
+
+	/**
+	 * `query_vars` filter callback.
+	 *
+	 * @param array<int, string> $vars Registered public query vars.
+	 * @return array<int, string>
+	 */
+	public static function register_query_vars( array $vars ): array {
+		return array_values( array_unique( array_merge( $vars, self::PUBLIC_QUERY_VARS ) ) );
+	}
+
+	/**
+	 * Read sanitized request parameter.
 	 *
 	 * @param string $key Request key.
-	 * @param string $default Default value.
+	 * @param string $fallback Default value.
 	 * @return string
 	 */
 	private static function request_text( string $key, string $fallback = '' ): string {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only key existence check; filter values are nonce-gated below.
-		if ( ! isset( $_GET[ $key ] ) ) {
+		$value = get_query_var( $key, null );
+		if ( null === $value ) {
 			return $fallback;
 		}
 
-		$filter_keys = array( 'addon_status', 'addon_category', 'price_min', 'price_max' );
-		if ( in_array( $key, $filter_keys, true ) && ! self::has_valid_filter_nonce() ) {
+		if ( in_array( $key, self::PUBLIC_QUERY_VARS, true ) && ! self::has_valid_filter_nonce() ) {
 			return $fallback;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce is validated through has_valid_filter_nonce() for mutable filter controls.
-		return sanitize_text_field( wp_unslash( (string) $_GET[ $key ] ) );
+		return sanitize_text_field( wp_unslash( (string) $value ) );
 	}
 
 	/**

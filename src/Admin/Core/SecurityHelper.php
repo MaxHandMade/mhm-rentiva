@@ -76,23 +76,20 @@ final class SecurityHelper {
 	 */
 	public static function verify_ajax_request(string $nonce_name, string $capability = 'read'): bool
 	{
-		// Read $_POST/$_GET directly rather than through $GLOBALS. The indirection
-		// resolved to the same arrays, but it also happened to hide the access from
-		// static analysis, which reads as evasion; this method IS the nonce check,
-		// so the one thing it cannot do is verify a nonce before looking for it.
-		// phpcs:ignore WordPress.Security.NonceVerification -- This method is the nonce verification; the read below is the nonce itself.
-		$post = $_POST;
-		// phpcs:ignore WordPress.Security.NonceVerification -- See above.
-		$get   = $_GET;
+		// Read the candidate nonce field by field, in this method, right where it is
+		// verified below. Copying whole superglobals into local arrays first hid the
+		// access from static analysis (which reads as evasion) and let the value
+		// travel; a single-key read that is unslashed and sanitized on the spot is
+		// the shape WordPress documents, and the verification is three lines down.
 		$nonce = '';
 
 		foreach (array( 'nonce', 'security', '_ajax_nonce' ) as $key) {
-			if (isset($post[ $key ])) {
-				$nonce = self::sanitize_text_field_safe( (string) wp_unslash($post[ $key ]));
+			if (isset($_POST[ $key ])) {
+				$nonce = sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
 				break;
 			}
-			if (isset($get[ $key ])) {
-				$nonce = self::sanitize_text_field_safe( (string) wp_unslash($get[ $key ]));
+			if (isset($_GET[ $key ])) {
+				$nonce = sanitize_text_field(wp_unslash( (string) $_GET[ $key ]));
 				if ($nonce !== '') {
 					break;
 				}

@@ -7,6 +7,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Emails\Core\Templates;
 use MHMRentiva\Admin\Emails\Core\EmailTemplates;
@@ -73,16 +74,35 @@ final class EmailAjaxHandler {
 	}
 
 	/**
+	 * The test-send submission, or null when it carries neither of the two
+	 * nonces that authorise it.
+	 *
+	 * The template test screen and the general connection test mint different
+	 * actions against the same `nonce` field; each gets its own early return
+	 * rather than being combined into one compound condition at the call site.
+	 * The verified payload travels back with the verdict so the nonce check and
+	 * the superglobal access stay in one scope.
+	 */
+	private static function verified_test_email_request(): ?VerifiedRequest {
+		if ( false !== check_ajax_referer( 'mhm_rentiva_send_template_test', 'nonce', false ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+
+		if ( false !== check_ajax_referer( 'mhm_rentiva_send_test_email', 'nonce', false ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+
+		return null;
+	}
+
+	/**
 	 * Handle sending test email
 	 */
 	public static function handle_send_test_email(): void {
-		// Verify nonce (either the specific template test or the general connection test).
-		// Written as an explicit positive check that must be true to proceed, so the guard
-		// fails closed when the nonce is missing entirely.
-		$nonce_valid = check_ajax_referer( 'mhm_rentiva_send_template_test', 'nonce', false )
-			|| check_ajax_referer( 'mhm_rentiva_send_test_email', 'nonce', false );
-
-		if ( ! $nonce_valid ) {
+		// Verify nonce (either the specific template test or the general connection
+		// test). Fails closed when the nonce is missing entirely.
+		$request = self::verified_test_email_request();
+		if ( null === $request ) {
 			wp_send_json_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 		}
 
@@ -90,9 +110,9 @@ final class EmailAjaxHandler {
 			wp_send_json_error( __( 'Permission denied.', 'mhm-rentiva' ) );
 		}
 
-		$template_key = isset( $_POST['template_key'] ) ? sanitize_text_field( wp_unslash( $_POST['template_key'] ) ) : 'booking_created_admin';
-		$to           = isset( $_POST['to'] ) ? sanitize_email( wp_unslash( $_POST['to'] ) ) : '';
-		$booking_id   = isset( $_POST['booking_id'] ) ? absint( $_POST['booking_id'] ) : 0;
+		$template_key = $request->text( 'template_key', 'booking_created_admin' );
+		$to           = sanitize_email( (string) ( $request->raw( 'to' ) ?? '' ) );
+		$booking_id   = $request->int( 'booking_id' );
 
 		// Fallback for 'to' if empty (General Connection Test)
 		if ( empty( $to ) ) {

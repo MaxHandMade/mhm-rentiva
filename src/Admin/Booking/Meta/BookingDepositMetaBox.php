@@ -371,10 +371,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	public static function save_meta( int $post_id, \WP_Post $post ): void {
 		// Nonce check
-		if (
-			! isset( $_POST['mhm_rentiva_deposit_management_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_deposit_management_nonce'] ) ), 'mhm_rentiva_deposit_management_action' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_deposit_management_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_deposit_management_action' ) ) {
 			return;
 		}
 

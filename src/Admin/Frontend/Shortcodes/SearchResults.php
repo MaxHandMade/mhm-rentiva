@@ -214,16 +214,14 @@ final class SearchResults extends AbstractShortcode {
 		$search_params = self::get_search_params_from_url();
 
 		// If no explicit sort in request, apply shortcode's default_sort attribute.
+		//
+		// There used to be a separate $_POST['sort'] fallback here for "public search
+		// forms may submit by POST". It was doing nothing: `sort` is a registered
+		// public query var (see PUBLIC_QUERY_VARS) and WP::parse_request() fills
+		// registered vars from $_POST as well as $_GET, so get_text() already
+		// answers for a POSTed sort -- through the query_vars whitelist rather than
+		// a raw superglobal read (WP.org T4 #11).
 		$request_sort = self::get_text('sort');
-		if ('' === $request_sort) {
-			// Public search forms may submit by POST. There is no nonce on a public
-			// search (adding one would break caching and bookmarking, and WordPress
-			// core does not nonce its own search form either). The value is only ever
-			// used to pick a sort order and is validated against the allowed set
-			// downstream; nothing is written on the strength of it.
-			// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Public search form has no nonce by design; read-only sort selector.
-			$request_sort = isset($_POST['sort']) ? sanitize_text_field(wp_unslash( (string) $_POST['sort'])) : '';
-		}
 
 		if ('' === $request_sort) {
 			$search_params['sort'] = $atts['default_sort'] ?? 'relevance';

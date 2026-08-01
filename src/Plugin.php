@@ -353,6 +353,9 @@ final class Plugin {
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\REST\\Availability')) {
 			\MHMRentiva\Admin\REST\Availability::register();
 		}
+		if ($this->is_class_available('\\MHMRentiva\\Admin\\REST\\BlockedDates')) {
+			\MHMRentiva\Admin\REST\BlockedDates::register();
+		}
 
 		// Logs
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\PostTypes\\Logs\\PostType')) {

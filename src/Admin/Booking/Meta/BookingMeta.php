@@ -471,6 +471,31 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '</div>';
 	}
 
+	/**
+	 * The submitted booking meta, or null when this request carries no nonce
+	 * that authorises saving this booking.
+	 *
+	 * Both accepted forms answer here, each as its own early return: the
+	 * metabox's own form (mhm_rentiva_booking_meta_main_nonce) and the classic
+	 * editor's Update button (_wpnonce for core's update-post_{id}). The
+	 * verified payload travels back with the verdict so the nonce check and the
+	 * superglobal access stay in one scope.
+	 */
+	private static function verified_save_request(int $post_id): ?VerifiedRequest
+	{
+		$own_nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_meta_main_nonce'] ?? ''));
+		if (wp_verify_nonce($own_nonce, 'mhm_rentiva_booking_meta_action')) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		$core_nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? ''));
+		if (wp_verify_nonce($core_nonce, 'update-post_' . $post_id)) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		return null;
+	}
+
 	public static function save_meta(int $post_id, \WP_Post $post): void
 	{
 		// Autosave and revision check
@@ -478,30 +503,13 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Nonce validation - Check if this is our form or WordPress standard form
-		$nonce_valid = false;
-
-		// Check our custom nonce
-		if (
-			isset($_POST['mhm_rentiva_booking_meta_main_nonce']) &&
-			wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_meta_main_nonce'])), 'mhm_rentiva_booking_meta_action')
-		) {
-			$nonce_valid = true;
-		}
-
-		if (
-			! $nonce_valid && isset($_POST['_wpnonce']) &&
-			wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_wpnonce'])), 'update-post_' . $post_id)
-		) {
-			$nonce_valid = true;
-		}
-
 		// A valid nonce is REQUIRED. There used to be a "if our form fields are present, save
 		// anyway" fallback here; it made the nonce effectively optional, so any cross-site POST
 		// naming our fields wrote booking data on behalf of a logged-in editor (CSRF). The
 		// metabox always renders wp_nonce_field() and the classic editor additionally sends
 		// _wpnonce, so every legitimate save carries one of the two.
-		if (! $nonce_valid) {
+		$req = self::verified_save_request($post_id);
+		if (null === $req) {
 			return;
 		}
 
@@ -509,8 +517,6 @@ final class BookingMeta extends AbstractMetaBox {
 		if (! current_user_can('edit_post', $post_id)) {
 			return;
 		}
-
-		$req = VerifiedRequest::from($_POST);
 
 		// Status update - Handle both field names from different meta boxes
 		$new_status = $req->text('mhm_edit_status');
@@ -672,10 +678,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function handle_send_customer_email(): void
 	{
 		// Nonce check
-		if (
-			! isset($_POST['mhm_rentiva_email_nonce']) ||
-			! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_nonce'])), 'mhm_rentiva_send_email')
-		) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_email')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
@@ -943,10 +947,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function handle_add_booking_history_note(): void
 	{
 		// Nonce check
-		if (
-			! isset($_POST['mhm_rentiva_history_nonce']) ||
-			! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'])), 'mhm_rentiva_add_history_note')
-		) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhm_rentiva_add_history_note')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 

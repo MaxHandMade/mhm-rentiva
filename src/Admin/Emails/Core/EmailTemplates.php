@@ -296,14 +296,18 @@ final class EmailTemplates {
 			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
 		}
 
-		// Nonce verification - Check specifically for email templates nonce
-		$nonce = self::submitted_nonce('mhm_rentiva_email_templates_nonce');
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_save_email_templates')) {
-			// Fallback: Check for generic settings nonce (some settings pages might use this)
-			$fallback_nonce = self::submitted_nonce('_wpnonce');
-			if (! wp_verify_nonce($fallback_nonce, 'mhm_rentiva_settings-options')) {
-				wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
-			}
+		// Nonce verification. Both accepted nonces are read and verified here, in
+		// the same scope, rather than through a shared reader: a helper that reads
+		// the nonce field cannot verify it, so the read would sit in a function
+		// with nothing to justify it. The two forms are the email-templates screen
+		// (its own nonce) and the generic settings screen (_wpnonce).
+		$own_nonce      = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_templates_nonce'] ?? ''));
+		$settings_nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? ''));
+		if (
+			! wp_verify_nonce($own_nonce, 'mhm_rentiva_save_email_templates')
+			&& ! wp_verify_nonce($settings_nonce, 'mhm_rentiva_settings-options')
+		) {
+			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
 		$req = VerifiedRequest::from($_POST);
@@ -832,21 +836,5 @@ final class EmailTemplates {
 	{
 		$value = self::get_text($key, $default);
 		return '' === $value ? $default : sanitize_key($value);
-	}
-
-	/**
-	 * Read the submitted nonce field itself. Kept separate from the verified
-	 * readers below precisely because it runs BEFORE verification -- it is the
-	 * value being verified.
-	 */
-	private static function submitted_nonce(string $key): string
-	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- This is the nonce being verified; it cannot be read after its own check.
-		if (! isset($_POST[ $key ])) {
-			return '';
-		}
-
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- See above.
-		return sanitize_text_field(wp_unslash( (string) $_POST[ $key ]));
 	}
 }

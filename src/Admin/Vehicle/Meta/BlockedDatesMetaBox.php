@@ -25,8 +25,6 @@ final class BlockedDatesMetaBox {
 		add_action( 'add_meta_boxes_vehicle', array( self::class, 'add_meta_box' ) );
 		add_action( 'save_post_vehicle', array( self::class, 'save' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
-		add_action( 'wp_ajax_mhm_rentiva_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
-		add_action( 'wp_ajax_nopriv_mhm_rentiva_get_blocked_dates', array( self::class, 'ajax_get_blocked_dates' ) );
 		add_action( 'wp_ajax_mhm_rentiva_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
 		add_action( 'wp_ajax_mhm_rentiva_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
 		add_action( 'wp_ajax_mhm_rentiva_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
@@ -118,10 +116,8 @@ final class BlockedDatesMetaBox {
 		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			return;
 		}
-		if (
-			! isset( $_POST[ self::NONCE_NAME ] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ) ), self::NONCE_ACTION )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST[ self::NONCE_NAME ] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
 			return;
 		}
 		if ( ! isset( $_POST[ self::META_KEY ] ) ) {
@@ -221,10 +217,8 @@ final class BlockedDatesMetaBox {
 	 * AJAX: toggle a single blocked date from the monthly reservation calendar.
 	 */
 	public static function ajax_toggle_blocked_date(): void {
-		if (
-			! isset( $_POST['nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_rentiva_toggle_blocked_date' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_blocked_date' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 
@@ -262,10 +256,8 @@ final class BlockedDatesMetaBox {
 	 * AJAX: Apply blocked dates of this vehicle to all other vehicles.
 	 */
 	public static function ajax_apply_to_all(): void {
-		if (
-			! isset( $_POST['nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_apply_blocked_to_all' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_apply_blocked_to_all' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
@@ -327,10 +319,8 @@ final class BlockedDatesMetaBox {
 	 * Only removes the intersection — does not touch other blocked dates.
 	 */
 	public static function ajax_remove_from_all(): void {
-		if (
-			! isset( $_POST['nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_remove_blocked_from_all' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_remove_blocked_from_all' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
@@ -436,15 +426,6 @@ final class BlockedDatesMetaBox {
 			}
 		}
 		return $clean;
-	}
-
-	public static function ajax_get_blocked_dates(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read endpoint; no state change.
-		$vehicle_id = isset( $_GET['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_GET['vehicle_id'] ) ) : 0;
-		if ( $vehicle_id <= 0 ) {
-			wp_send_json_error( 'Invalid vehicle ID' );
-		}
-		wp_send_json_success( self::get_blocked_dates( $vehicle_id ) );
 	}
 
 	public static function enqueue_scripts( string $hook ): void {

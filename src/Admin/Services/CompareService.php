@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Services;
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -188,21 +190,40 @@ class CompareService {
 	}
 
 	/**
+	 * The submitted toggle request, or null when it carries no nonce that
+	 * authorises it.
+	 *
+	 * The compare toggle is reachable from the vehicle card and from the
+	 * vehicles list screen, which mint different nonces; either is accepted, one
+	 * early return each. The verified payload travels back with the verdict so
+	 * the nonce check and the superglobal access stay in one scope.
+	 */
+	private static function verified_toggle_request(): ?VerifiedRequest {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+
+		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_compare' ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+
+		return null;
+	}
+
+	/**
 	 * AJAX: Toggle Compare
 	 */
 	public static function ajax_toggle_compare(): void {
 		try {
 			// 1. Verify Nonce
-			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-			if ( empty( $nonce ) || (
-				! wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_compare' ) &&
-				! wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' )
-			) ) {
+			$request = self::verified_toggle_request();
+			if ( null === $request ) {
 				throw new \Exception( __( 'Security check failed', 'mhm-rentiva' ) );
 			}
 
 			// 2. Input
-			$vehicle_id = isset( $_POST['vehicle_id'] ) ? intval( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+			$vehicle_id = $request->int( 'vehicle_id' );
 			if ( $vehicle_id <= 0 ) {
 				throw new \Exception( __( 'Invalid vehicle ID', 'mhm-rentiva' ) );
 			}

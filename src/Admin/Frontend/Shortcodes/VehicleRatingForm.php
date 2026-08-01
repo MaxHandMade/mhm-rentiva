@@ -237,6 +237,10 @@ final class VehicleRatingForm extends AbstractShortcode {
 			'comment_content'  => $comment,
 			'comment_type'     => 'review',
 			'comment_approved' => ! empty($comments_settings['approval']['auto_approve']) ? 1 : 0,
+			// ReviewEnforcer (preprocess_comment) enforces the 1-5 rating. It reads
+			// this value from the comment data rather than from $_POST, so the
+			// nonce-verified handler that owns the request has to pass it along.
+			'comment_meta'     => array( 'rating' => $rating ),
 		);
 
 		// === UPDATE existing rating ===

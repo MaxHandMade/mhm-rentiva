@@ -131,7 +131,8 @@ final class EmailPreview {
 
 	private static function show_preview_result(): void {
 		// Nonce doğrulaması
-		if ( ! isset( $_POST['mhm_email_preview_nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_email_preview_nonce'] ) ), 'mhm_email_preview_action' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_email_preview_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_email_preview_action' ) ) {
 			// AJAX isteği değilse sessizce dön, ancak burada genellikle AJAX render edilir.
 			// Bu metodun nasıl çağrıldığına bağlı olarak die() veya return kullanabiliriz.
 			// Şimdilik güvenli bir şekilde return ediyoruz.

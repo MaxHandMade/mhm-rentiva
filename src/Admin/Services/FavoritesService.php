@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Services;
 
+use MHMRentiva\Admin\Core\Security\VerifiedRequest;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -115,17 +117,35 @@ class FavoritesService {
 	}
 
 	/**
+	 * The submitted toggle request, or null when it carries no nonce that
+	 * authorises it.
+	 *
+	 * The favourite toggle is reachable from the vehicle card and from the
+	 * vehicles list screen, which mint different nonces; either is accepted, one
+	 * early return each. The verified payload travels back with the verdict so
+	 * the nonce check and the superglobal access stay in one scope.
+	 */
+	private static function verified_toggle_request(): ?VerifiedRequest {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+
+		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_favorite' ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' ) ) {
+			return VerifiedRequest::from( $_POST );
+		}
+
+		return null;
+	}
+
+	/**
 	 * AJAX Handler for toggling favorite
 	 */
 	public static function ajax_toggle_favorite(): void {
 		try {
 			// 1. Verify Nonce
-			// Accept either standard toggle nonce OR global booking nonce fallback (for flexibility)
-			$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-			if ( empty( $nonce ) || (
-				! wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_favorite' ) &&
-				! wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' )
-			) ) {
+			$request = self::verified_toggle_request();
+			if ( null === $request ) {
 				throw new \Exception( __( 'Security check failed', 'mhm-rentiva' ) );
 			}
 
@@ -135,7 +155,7 @@ class FavoritesService {
 			}
 
 			// 3. Input Validation
-			$vehicle_id = isset( $_POST['vehicle_id'] ) ? intval( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
+			$vehicle_id = $request->int( 'vehicle_id' );
 			if ( $vehicle_id <= 0 ) {
 				throw new \Exception( __( 'Invalid vehicle ID', 'mhm-rentiva' ) );
 			}

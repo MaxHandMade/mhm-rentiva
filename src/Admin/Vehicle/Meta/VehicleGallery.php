@@ -160,10 +160,8 @@ final class VehicleGallery extends AbstractMetaBox {
 			return;
 		}
 
-		if (
-			! isset( $_POST['mhm_rentiva_gallery_images_nonce'] ) ||
-			! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_gallery_images_nonce'] ) ), 'mhm_rentiva_gallery_images' )
-		) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_gallery_images_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_gallery_images' ) ) {
 			return;
 		}
 
@@ -205,7 +203,8 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * AJAX: Add gallery image
 	 */
 	public static function ajax_add_gallery_image(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_vehicle_gallery_nonce' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_vehicle_gallery_nonce' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
@@ -262,7 +261,8 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * AJAX: Remove gallery image
 	 */
 	public static function ajax_remove_gallery_image(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_vehicle_gallery_nonce' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_vehicle_gallery_nonce' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
@@ -304,7 +304,8 @@ final class VehicleGallery extends AbstractMetaBox {
 	 * AJAX: Reorder gallery images
 	 */
 	public static function ajax_reorder_gallery_images(): void {
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'mhm_vehicle_gallery_nonce' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhm_vehicle_gallery_nonce' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
