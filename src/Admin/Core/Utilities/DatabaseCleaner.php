@@ -430,6 +430,48 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * Custom-field meta that is live on this site but that nothing can vouch for.
+	 *
+	 * An empty derivation means two very different things, and
+	 * runtime_custom_field_meta_keys() cannot tell them apart: this site has no
+	 * custom vehicle fields, or this site's field definitions have been wiped,
+	 * reset or re-imported while the '_mhm_rentiva_<field>' rows they describe
+	 * are still in the database. The
+	 * first is ordinary; the second means the derivation has silently stopped
+	 * protecting real data, and the caller's next statement is a DELETE.
+	 *
+	 * Telling them apart is cheap: ask the database whether any
+	 * '_mhm_rentiva_%' rows exist that the static list does not already cover.
+	 * If some do while the derivation is empty, the definitions are gone and the
+	 * cleanup must refuse to run rather than delete what it cannot identify.
+	 *
+	 * @return array<string> Meta keys that would be deleted without cover; empty when it is safe to proceed.
+	 */
+	private static function unvouched_custom_field_meta_keys(): array {
+		global $wpdb;
+
+		if ( array() !== self::runtime_custom_field_meta_keys() ) {
+			// The definitions are readable, so the derivation speaks for them.
+			return array();
+		}
+
+		$static_keys = self::static_meta_keys();
+
+		return $wpdb->get_col(
+			$wpdb->prepare(
+				"
+            SELECT DISTINCT meta_key
+            FROM {$wpdb->postmeta}
+            WHERE meta_key LIKE %s
+            AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $static_keys ), '%s' ) ) . ')
+            LIMIT 20
+        ',
+				array_merge( array( $wpdb->esc_like( '_mhm_rentiva_' ) . '%' ), $static_keys )
+			)
+		);
+	}
+
+	/**
 	 * Create cleanup report (pre-backup analysis)
 	 */
 	public static function analyze_database(): array {
@@ -611,6 +653,22 @@ final class DatabaseCleaner {
 	 */
 	public static function cleanup_invalid_meta_keys( bool $dry_run = true ): array {
 		global $wpdb;
+
+		// Fail closed. If the custom-field definitions cannot vouch for meta that
+		// is demonstrably live on this site, delete nothing and say so: a wrong
+		// answer here is destroyed customer data, and "do nothing" is always the
+		// recoverable half of the mistake.
+		$unvouched = self::unvouched_custom_field_meta_keys();
+
+		if ( array() !== $unvouched ) {
+			return array(
+				'dry_run'      => $dry_run,
+				'aborted'      => true,
+				'deleted'      => 0,
+				'keys_removed' => array(),
+				'at_risk_keys' => $unvouched,
+			);
+		}
 
 		// Get invalid meta keys first
 		$invalid_data = self::find_invalid_meta_keys();

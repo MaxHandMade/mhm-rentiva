@@ -23,6 +23,11 @@ use WP_UnitTestCase;
  * either plugin's source, and test_no_meta_key_literal_in_the_source_is_missing
  * re-derives that superset from the source tree on every run so it cannot drift.
  *
+ * The Pro add-on is a sibling checkout, not a dependency: CI clones this repo
+ * alone, so the scan cannot see Pro there. PRO_ONLY_META_KEYS freezes what Pro
+ * contributes so CI still guards it, and test_the_frozen_pro_inventory_matches
+ * re-checks that freeze against Pro's real source wherever Pro is present.
+ *
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::valid_meta_keys
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::find_invalid_meta_keys
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::cleanup_invalid_meta_keys
@@ -32,30 +37,129 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	/**
 	 * String literals that match the scan pattern but are not meta keys.
 	 *
+	 * Each entry names the plugin it lives in, because staleness can only be
+	 * asserted for a plugin that was actually scanned -- Pro is absent in CI.
 	 * Every entry is a positive identification, not a "did not fit" bucket:
-	 * three are concatenation bases that only ever appear glued to a suffix,
-	 * five belong to the 6.0.0 prefix-rename map (they are target-side names
-	 * that nothing writes yet -- see PrefixMigrationMap), one is a nonce field
-	 * name and two are illustrations inside DatabaseCleaner's own filter
-	 * docblock.
+	 * two are concatenation bases that only ever appear glued to a suffix, five
+	 * belong to the 6.0.0 prefix-rename map (target-side names that nothing
+	 * writes yet -- see PrefixMigrationMap) and one is a nonce field name.
 	 *
-	 * @var array<string, string>
+	 * @var array<string, array{plugin: string, why: string}>
 	 */
 	private const NON_META_LITERALS = array(
-		'_mhm_'                            => 'concatenation base: "_mhm_" . $key (TransferBookingHandler, VehicleMeta grid order)',
-		'_mhm_rentiva_'                    => 'concatenation base: "_mhm_rentiva_" . $key (vehicle custom fields)',
-		'_mhmrentiva_'                     => 'PrefixMigrationMap target prefix, not written by any code yet',
-		'_mhmrentiva_booking_'             => 'PrefixMigrationMap target prefix, not written by any code yet',
-		'_mhmrentiva_contact_'             => 'PrefixMigrationMap target prefix, not written by any code yet',
-		'_mhmrentiva_deposit'              => 'PrefixMigrationMap docblock: collision example for the rename',
-		'_mhmrentiva_rentiva_welcome_sent' => 'PrefixMigrationMap docblock: rule-order counter-example',
-		'_mhm_vr_nonce'                    => 'nonce field name (VendorReportsAdminPage::check_admin_referer)',
-		'_mhm_custom_addon_meta'           => 'DatabaseCleaner filter docblock @example',
-		'_mhm_payment_custom_field'        => 'DatabaseCleaner filter docblock @example',
+		'_mhm_'                            => array(
+			'plugin' => 'lite',
+			'why'    => 'concatenation base: "_mhm_" . $key (TransferBookingHandler, VehicleMeta grid order)',
+		),
+		'_mhm_rentiva_'                    => array(
+			'plugin' => 'lite',
+			'why'    => 'concatenation base: "_mhm_rentiva_" . $key (vehicle custom fields)',
+		),
+		'_mhmrentiva_'                     => array(
+			'plugin' => 'lite',
+			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
+		),
+		'_mhmrentiva_booking_'             => array(
+			'plugin' => 'lite',
+			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
+		),
+		'_mhmrentiva_contact_'             => array(
+			'plugin' => 'lite',
+			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
+		),
+		'_mhmrentiva_deposit'              => array(
+			'plugin' => 'lite',
+			'why'    => 'PrefixMigrationMap docblock: collision example for the rename',
+		),
+		'_mhmrentiva_rentiva_welcome_sent' => array(
+			'plugin' => 'lite',
+			'why'    => 'PrefixMigrationMap docblock: rule-order counter-example',
+		),
+		'_mhm_vr_nonce'                    => array(
+			'plugin' => 'pro',
+			'why'    => 'nonce field name (VendorReportsAdminPage::check_admin_referer)',
+		),
 	);
+
+	/**
+	 * Meta keys that exist ONLY in the Pro add-on's source.
+	 *
+	 * CI clones this repository on its own, so the scanner never sees Pro there
+	 * and would happily stay green while protecting none of the commission,
+	 * payout and statement keys that made this a data-loss defect in the first
+	 * place. Freezing them here gives CI something real to check.
+	 *
+	 * This list cannot rot unnoticed: wherever Pro IS checked out beside Lite,
+	 * test_the_frozen_pro_inventory_matches_pros_real_source asserts it equals
+	 * the live scan exactly, in both directions.
+	 *
+	 * @var list<string>
+	 */
+	private const PRO_ONLY_META_KEYS = array(
+		'_mhm_attachments',
+		'_mhm_bypass_reason',
+		'_mhm_cooling_policy_version',
+		'_mhm_ip_address',
+		'_mhm_listing_action',
+		'_mhm_listing_vehicle_id',
+		'_mhm_lock_status',
+		'_mhm_log_code',
+		'_mhm_log_message',
+		'_mhm_log_oid',
+		'_mhm_message_type',
+		'_mhm_payout_amount',
+		'_mhm_payout_external_ref',
+		'_mhm_payout_maker_id',
+		'_mhm_payout_rejection_reason',
+		'_mhm_payout_status',
+		'_mhm_read_at',
+		'_mhm_release_after',
+		'_mhm_rentiva_price_per_month',
+		'_mhm_rentiva_price_per_week',
+		'_mhm_rentiva_transfer_locations',
+		'_mhm_rentiva_transfer_route_prices',
+		'_mhm_rentiva_transfer_routes',
+		'_mhm_rentiva_vehicle_insurance_doc',
+		'_mhm_rentiva_vehicle_registration_doc',
+		'_mhm_statement_carried_balance',
+		'_mhm_statement_commission_total',
+		'_mhm_statement_currency',
+		'_mhm_statement_emailed_at',
+		'_mhm_statement_generated_at',
+		'_mhm_statement_gross',
+		'_mhm_statement_last_entry_id',
+		'_mhm_statement_lines',
+		'_mhm_statement_net_activity',
+		'_mhm_statement_number',
+		'_mhm_statement_paid',
+		'_mhm_statement_penalties',
+		'_mhm_statement_period_end',
+		'_mhm_statement_period_start',
+		'_mhm_statement_vendor_snapshot',
+		'_mhm_transfer_max_luggage_score',
+		'_mhm_transfer_max_pax',
+		'_mhm_transfer_price_multiplier',
+		'_mhm_vehicle_base_price',
+		'_mhm_vehicle_expiry_warning_first_sent',
+		'_mhm_vehicle_expiry_warning_second_sent',
+		'_mhm_vehicle_max_big_luggage',
+		'_mhm_vehicle_max_small_luggage',
+		'_mhm_vehicle_penalty_blocked_dates',
+		'_mhm_vehicle_price_per_km',
+		'_mhm_vehicle_service_type',
+		'_mhm_vehicle_suspended_by_vendor_ban',
+		'_mhm_vendor_payout_freeze',
+		'_mhm_workflow_state',
+	);
+
+	/** Source subdirectories expected to exist and be scanned, per plugin. */
+	private const SCANNED_SUBDIRS = array( 'src', 'templates', 'assets', 'bin' );
 
 	/** @var list<int> */
 	private array $seeded_posts = array();
+
+	/** @var list<string> */
+	private array $seeded_options = array();
 
 	public function tearDown(): void
 	{
@@ -66,9 +170,20 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		}
 		$this->seeded_posts = array();
 
-		// cleanup_invalid_meta_keys() issues a CREATE TABLE, which commits the
-		// transaction WP_UnitTestCase relies on for isolation. Drop whatever it
-		// left behind by hand so the next test starts from a clean schema.
+		// In production cleanup_invalid_meta_keys() issues a real CREATE TABLE,
+		// which implicitly commits and would strand everything written before it.
+		// Under WP_UnitTestCase that does not happen: the suite filters `query`
+		// and rewrites CREATE TABLE into CREATE TEMPORARY TABLE
+		// (wordpress-tests-lib/includes/abstract-testcase.php:498), so the
+		// isolation transaction survives and the rollback still covers these
+		// writes -- measured, not assumed. Both cleanups below are therefore
+		// belt-and-braces: cheap, explicit, and the difference between "isolated"
+		// and "isolated by an accident of the harness we do not control".
+		foreach ( $this->seeded_options as $option_name ) {
+			delete_option( $option_name );
+		}
+		$this->seeded_options = array();
+
 		$leftovers = $wpdb->get_col(
 			$wpdb->prepare(
 				'SHOW TABLES LIKE %s',
@@ -84,7 +199,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 
 	private function seed_post_with_meta( array $meta ): int
 	{
-		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
+		$post_id              = self::factory()->post->create( array( 'post_type' => 'post' ) );
 		$this->seeded_posts[] = $post_id;
 
 		foreach ( $meta as $key => $value ) {
@@ -92,6 +207,12 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		}
 
 		return $post_id;
+	}
+
+	private function seed_option( string $option_name, array $value ): void
+	{
+		$this->seeded_options[] = $option_name;
+		update_option( $option_name, $value );
 	}
 
 	/**
@@ -131,17 +252,19 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	{
 		$post_id = $this->seed_post_with_meta(
 			array(
-				'_mhm_booking_id'           => '4242',
-				'_mhm_is_remaining_payment' => 'yes',
-				'_mhm_original_order_id'    => '99',
-				'_mhm_remaining_order_id'   => '100',
-				'_mhm_auto_cancelled'       => '1',
-				'_mhm_vendor_commission_rate' => '15',
+				'_mhm_booking_id'                    => '4242',
+				'_mhm_is_remaining_payment'          => 'yes',
+				'_mhm_original_order_id'             => '99',
+				'_mhm_remaining_order_id'            => '100',
+				'_mhm_auto_cancelled'                => '1',
+				'_mhm_vendor_commission_rate'        => '15',
 				'_mhm_not_a_real_rentiva_key_at_all' => 'garbage',
 			)
 		);
 
 		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey( 'aborted', $result, 'the cleanup should have run, not refused' );
 
 		$this->assertSame( '4242', get_post_meta( $post_id, '_mhm_booking_id', true ) );
 		$this->assertSame( 'yes', get_post_meta( $post_id, '_mhm_is_remaining_payment', true ) );
@@ -168,12 +291,6 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	{
 		$found = $this->scan_source_for_meta_key_literals();
 
-		$this->assertGreaterThan(
-			200,
-			count( $found ),
-			'the scanner found almost nothing -- it is pointed at the wrong tree and would pass vacuously'
-		);
-
 		$valid   = DatabaseCleaner::valid_meta_keys();
 		$missing = array();
 
@@ -195,20 +312,122 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
+	 * The drift gate is only worth its green if it really read the source.
+	 *
+	 * A total-literals threshold cannot show that: DatabaseCleaner.php's own
+	 * list would clear any threshold single-handedly, which is exactly why the
+	 * scanner skips that file. So assert coverage positively, directory by
+	 * directory, and require the ones that must yield literals to have done so.
+	 */
+	public function test_the_drift_gate_actually_scanned_every_expected_source_root(): void
+	{
+		$scanned = $this->roots_scanned();
+
+		foreach ( self::SCANNED_SUBDIRS as $subdir ) {
+			$this->assertArrayHasKey(
+				"lite/$subdir",
+				$scanned,
+				"the drift gate did not scan this plugin's $subdir/ -- it is not watching what it claims to"
+			);
+		}
+
+		$this->assertGreaterThan(
+			0,
+			$scanned['lite/src'],
+			'lite/src was scanned but yielded no meta-key literals, which cannot be true'
+		);
+		$this->assertGreaterThan(
+			0,
+			$scanned['lite/templates'],
+			'lite/templates was scanned but yielded no meta-key literals, which cannot be true'
+		);
+
+		if ( ! $this->pro_is_present() ) {
+			// Nothing more to assert here: Pro's contribution is covered by the
+			// frozen PRO_ONLY_META_KEYS list, which is checked unconditionally.
+			return;
+		}
+
+		$this->assertArrayHasKey( 'pro/src', $scanned, 'Pro is checked out but its src/ was not scanned' );
+		$this->assertGreaterThan( 0, $scanned['pro/src'] );
+	}
+
+	/**
+	 * Pro's keys must be protected even where Pro cannot be seen -- i.e. in CI.
+	 */
+	public function test_the_frozen_pro_only_keys_are_protected(): void
+	{
+		$valid = DatabaseCleaner::valid_meta_keys();
+
+		foreach ( self::PRO_ONLY_META_KEYS as $key ) {
+			$this->assertContains(
+				$key,
+				$valid,
+				"$key is written by the Pro add-on but is not protected -- the Lite cleanup deletes Pro's rows"
+			);
+		}
+	}
+
+	/**
+	 * ...and the freeze must not drift away from Pro's real source, wherever
+	 * Pro can actually be read.
+	 */
+	public function test_the_frozen_pro_inventory_matches_pros_real_source(): void
+	{
+		if ( ! $this->pro_is_present() ) {
+			$this->markTestSkipped( 'the Pro add-on is not checked out beside this plugin' );
+		}
+
+		$lite_literals = array_keys( $this->scan_roots( $this->roots_for( 'lite' ) ) );
+		$pro_literals  = array_keys( $this->scan_roots( $this->roots_for( 'pro' ) ) );
+
+		$pro_only = array_values(
+			array_filter(
+				array_diff( $pro_literals, $lite_literals ),
+				static function ( string $literal ): bool {
+					return ! isset( self::NON_META_LITERALS[ $literal ] );
+				}
+			)
+		);
+
+		sort( $pro_only );
+		$frozen = self::PRO_ONLY_META_KEYS;
+		sort( $frozen );
+
+		$this->assertSame(
+			$frozen,
+			$pro_only,
+			"PRO_ONLY_META_KEYS no longer matches Pro's source. Added in Pro: "
+			. implode( ', ', array_diff( $pro_only, $frozen ) )
+			. ' | gone from Pro: ' . implode( ', ', array_diff( $frozen, $pro_only ) )
+		);
+	}
+
+	/**
 	 * Every declared exception must still be present in the source, otherwise
-	 * the exception list itself rots into a place to hide a real key.
+	 * the exception list itself rots into a place to hide a real key. Only
+	 * entries whose plugin was actually scanned can be judged.
 	 */
 	public function test_the_non_meta_exception_list_has_no_stale_entries(): void
 	{
-		$found = $this->scan_source_for_meta_key_literals();
+		$found      = $this->scan_source_for_meta_key_literals();
+		$pro_absent = ! $this->pro_is_present();
+		$checked    = 0;
 
-		foreach ( array_keys( self::NON_META_LITERALS ) as $literal ) {
+		foreach ( self::NON_META_LITERALS as $literal => $meta ) {
+			if ( 'pro' === $meta['plugin'] && $pro_absent ) {
+				continue;
+			}
+
+			++$checked;
 			$this->assertArrayHasKey(
 				$literal,
 				$found,
 				"$literal is excused as a non-meta literal but no longer appears in the source -- drop the exception"
 			);
 		}
+
+		$this->assertGreaterThan( 0, $checked, 'no exception entry was checked at all' );
 	}
 
 	/**
@@ -217,7 +436,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 */
 	public function test_admin_defined_custom_vehicle_fields_are_protected(): void
 	{
-		update_option( 'mhm_custom_details', array( 'engine_torque' => 'Engine torque' ) );
+		$this->seed_option( 'mhm_custom_details', array( 'engine_torque' => 'Engine torque' ) );
 
 		$this->assertContains( '_mhm_rentiva_engine_torque', DatabaseCleaner::valid_meta_keys() );
 
@@ -226,6 +445,47 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		DatabaseCleaner::cleanup_invalid_meta_keys( false );
 
 		$this->assertSame( '400 Nm', get_post_meta( $post_id, '_mhm_rentiva_engine_torque', true ) );
+	}
+
+	/**
+	 * When the field definitions are gone but their rows are not, the cleanup
+	 * must refuse to run rather than delete meta it can no longer identify.
+	 */
+	public function test_the_cleanup_aborts_when_custom_field_definitions_have_vanished(): void
+	{
+		// No mhm_custom_* / mhm_vehicle_* options are set, so the derivation
+		// comes back empty exactly as it would after a reset or failed import.
+		$post_id = $this->seed_post_with_meta( array( '_mhm_rentiva_engine_torque' => '400 Nm' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertTrue( $result['aborted'] ?? false, 'the cleanup must fail closed, not delete' );
+		$this->assertSame( 0, $result['deleted'] );
+		$this->assertContains( '_mhm_rentiva_engine_torque', $result['at_risk_keys'] );
+		$this->assertSame(
+			'400 Nm',
+			get_post_meta( $post_id, '_mhm_rentiva_engine_torque', true ),
+			'the abort must actually spare the row, not merely report it'
+		);
+	}
+
+	/**
+	 * The abort must not become a way to disable the feature: an empty
+	 * derivation on a site that simply has no custom-field rows is normal, and
+	 * the cleanup has to carry on doing its job there.
+	 */
+	public function test_an_empty_derivation_alone_does_not_abort_the_cleanup(): void
+	{
+		$post_id = $this->seed_post_with_meta( array( '_mhm_not_a_real_rentiva_key_at_all' => 'garbage' ) );
+
+		$result = DatabaseCleaner::cleanup_invalid_meta_keys( false );
+
+		$this->assertArrayNotHasKey(
+			'aborted',
+			$result,
+			'no unvouched custom-field rows exist, so there is nothing to fail closed about'
+		);
+		$this->assertSame( '', get_post_meta( $post_id, '_mhm_not_a_real_rentiva_key_at_all', true ) );
 	}
 
 	/**
@@ -249,25 +509,83 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		$this->assertContains( '_mhm_status', $valid, 'a filter must not be able to remove built-in protection' );
 	}
 
+	// ---------------------------------------------------------------- scanning
+
+	private function lite_dir(): string
+	{
+		return dirname( __DIR__, 4 );
+	}
+
+	private function pro_dir(): string
+	{
+		return dirname( $this->lite_dir() ) . '/mhm-rentiva-pro';
+	}
+
+	private function pro_is_present(): bool
+	{
+		return is_dir( $this->pro_dir() . '/src' );
+	}
+
 	/**
-	 * Collect every '_mhm...' string literal in both plugins' shipped source.
+	 * @return array<string, string> "lite/src" => absolute path
+	 */
+	private function roots_for( string $plugin ): array
+	{
+		$base   = 'lite' === $plugin ? $this->lite_dir() : $this->pro_dir();
+		$subs   = self::SCANNED_SUBDIRS;
+		$subs[] = 'src-react';
+
+		$roots = array();
+		foreach ( $subs as $sub ) {
+			if ( is_dir( "$base/$sub" ) ) {
+				$roots[ "$plugin/$sub" ] = "$base/$sub";
+			}
+		}
+
+		return $roots;
+	}
+
+	/**
+	 * Every '_mhm...' literal in both plugins' shipped source.
 	 *
 	 * @return array<string, string> literal => "first file it was seen in"
 	 */
 	private function scan_source_for_meta_key_literals(): array
 	{
-		$lite = dirname( __DIR__, 4 );
-		$pro  = dirname( $lite ) . '/mhm-rentiva-pro';
+		$roots = $this->roots_for( 'lite' );
 
-		$roots = array();
-		foreach ( array( $lite, $pro ) as $plugin ) {
-			foreach ( array( 'src', 'templates', 'assets', 'src-react', 'bin' ) as $sub ) {
-				if ( is_dir( "$plugin/$sub" ) ) {
-					$roots[] = "$plugin/$sub";
-				}
-			}
+		if ( $this->pro_is_present() ) {
+			$roots += $this->roots_for( 'pro' );
 		}
 
+		return $this->scan_roots( $roots );
+	}
+
+	/**
+	 * @return array<string, int> "lite/src" => number of literals it yielded
+	 */
+	private function roots_scanned(): array
+	{
+		$roots = $this->roots_for( 'lite' );
+
+		if ( $this->pro_is_present() ) {
+			$roots += $this->roots_for( 'pro' );
+		}
+
+		$counts = array();
+		foreach ( $roots as $label => $path ) {
+			$counts[ $label ] = count( $this->scan_roots( array( $label => $path ) ) );
+		}
+
+		return $counts;
+	}
+
+	/**
+	 * @param array<string, string> $roots
+	 * @return array<string, string> literal => "first file it was seen in"
+	 */
+	private function scan_roots( array $roots ): array
+	{
 		$found = array();
 
 		foreach ( $roots as $root ) {
@@ -282,6 +600,13 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 					continue;
 				}
 				if ( ! in_array( $file->getExtension(), array( 'php', 'js', 'jsx' ), true ) ) {
+					continue;
+				}
+				// The protection list itself is not evidence that a key is used.
+				// Scanning it would let the list vouch for its own entries, and
+				// would clear any "did the scanner find anything?" threshold on
+				// its own -- hiding the absence of every other file.
+				if ( str_ends_with( $path, '/Admin/Core/Utilities/DatabaseCleaner.php' ) ) {
 					continue;
 				}
 

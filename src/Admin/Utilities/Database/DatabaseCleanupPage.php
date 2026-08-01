@@ -282,6 +282,18 @@ final class DatabaseCleanupPage {
 
 		$result = DatabaseCleaner::cleanup_invalid_meta_keys(false); // Execute cleanup
 
+		// The cleaner refuses to run when it cannot identify live custom-field
+		// meta. Report that as a failure so the admin sees why nothing happened,
+		// rather than a success message reading "0 records cleaned".
+		if (! empty($result['aborted'])) {
+			wp_send_json_error(
+				array(
+					'message' => __('Cleanup cancelled: the vehicle custom field definitions could not be read, so custom field data cannot be told apart from stale meta. Nothing was deleted.', 'mhm-rentiva'),
+					'result'  => $result,
+				)
+			);
+		}
+
 		wp_send_json_success(
 			array(
 				'message' => sprintf(
