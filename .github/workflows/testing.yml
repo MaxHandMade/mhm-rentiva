@@ -184,6 +184,22 @@ jobs:
         run: php bin/check-instrument-gaps.php
         continue-on-error: true
 
+      # Gate G-C (WP.org T7 remediation, Task 3): prefix-inventory bijection +
+      # migration-map completeness. Six modes -- bijection/uniqueness, post_type/
+      # taxonomy length limits, baseline-inventory coverage, post-sweep no-old-
+      # names, option-call coverage, and cron-hook coverage -- verify
+      # PrefixMigrationMap.php (the single source of truth Task 12's rename
+      # sweep and Task 13's DB migration both read) is complete before either
+      # of those later tasks may rely on it. Deliberately `continue-on-error:
+      # true` for now -- mode 4 (post-sweep) is EXPECTED RED today because no
+      # sweep has run yet; the other five modes are green and stay green as
+      # this gate's own exit code (count of failing modes) is visible in every
+      # CI run from the start of the remediation. Becomes blocking once Task 12
+      # lands and mode 4 goes green too.
+      - name: "Prefix inventory gate (G-C: bijection + migration-map completeness)"
+        run: php bin/check-prefix-inventory.php
+        continue-on-error: true
+
   phpunit:
     name: Run PHPUnit
     runs-on: ubuntu-latest

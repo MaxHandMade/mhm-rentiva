@@ -348,8 +348,109 @@ function extractOptionCandidatesFromFile(string $file): array
             }
         }
     }
+    // (g) foreach-over-array-literal: `$arr = array(...)` (or `[...]`) whose
+    // elements are option-shaped string literals, consumed via
+    // `foreach ($arr as $k => $v) { ...option_fn($k or $v...); }`. Added in
+    // fix round 1 (2026-08-01) after an independent reviewer's re-trace
+    // found two real misses this shape produced: DatabaseMigrator::
+    // migrate_standalone_settings()'s `$standalone_mapping = array('mhm_transfer_deposit_type'
+    // => 'rentiva_transfer_deposit_type', ...); foreach ($standalone_mapping as $old_key => $new_key)
+    // { get_option($old_key, ...); }` (KEYS are the option names) and
+    // SettingsService::reset_to_defaults_by_tab()'s `$legacy_keys = array('mhm_rentiva_sender_name',
+    // ...); foreach ($legacy_keys as $key) { delete_option($key); }` (each
+    // plain VALUE is an option name).
+    $names = array_merge($names, extractForeachArrayLiteralOptionCandidates($src));
 
     return array_values(array_unique($names));
+}
+
+/**
+ * Best-effort, single-file, non-nested-array detector for shape (g). KNOWN
+ * LIMITATIONS (documented here rather than silently -- a narrower shape this
+ * cannot catch is a residual risk, not a solved problem):
+ *   - Only matches a FLAT array literal (`array(...)` or `[...]`) with no
+ *     nested array/parenthesis inside it; a nested structure would break the
+ *     "first closing `)`/`]`" boundary this uses and either truncate or miss
+ *     entries entirely.
+ *   - Only resolves the loop variable(s) declared on the SAME `foreach` that
+ *     iterates the matched array variable, and only within the same file;
+ *     it does not follow the variable across function boundaries or
+ *     require-once'd files.
+ *   - Requires the option-function call to use the loop variable's exact
+ *     name literally (e.g. `get_option($old_key`) -- an intermediate
+ *     reassignment (`$x = $old_key; get_option($x)`) is not traced.
+ * These limitations mirror shape (d)'s scalar-variable tracer above; both
+ * are grep/regex-based by design (matching this gate's existing style), not
+ * a full PHP parse. If a future array-driven option cleanup uses a shape
+ * outside what's described above, mode 5 will not see it -- the same class
+ * of gap this fix round closed for the two cases above, not a guarantee
+ * against every possible future case.
+ */
+function extractForeachArrayLiteralOptionCandidates(string $src): array
+{
+    $names = [];
+    $optionFnPattern = '(?:update_option|get_option|add_option|delete_option)';
+
+    // Find every `$var = array(` or `$var = [` ... up to its first closing
+    // `)`/`]` (flat-array assumption -- see limitations above).
+    if (! preg_match_all(
+        "/\\\$([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*(?:array\\(|\\[)([^()\\[\\]]*)(?:\\)|\\])/",
+        $src,
+        $arrMatches,
+        PREG_SET_ORDER
+    )) {
+        return $names;
+    }
+
+    foreach ($arrMatches as $arrMatch) {
+        [, $arrVarName, $arrBody] = $arrMatch;
+
+        // Does a foreach over this exact array variable exist?
+        if (! preg_match(
+            "/foreach\\s*\\(\\s*\\\${$arrVarName}\\s+as\\s+\\\$([A-Za-z_][A-Za-z0-9_]*)(?:\\s*=>\\s*\\\$([A-Za-z_][A-Za-z0-9_]*))?\\s*\\)/",
+            $src,
+            $foreachMatch
+        )) {
+            continue;
+        }
+        // `foreach ($arr as $x)` -> $keyVar is null, $soleVar = $x (iterates VALUES).
+        // `foreach ($arr as $k => $v)` -> $keyVar = $k, $soleVar = $v (iterates
+        // key=>value pairs; PHP's own semantics, not this script's choice).
+        $hasArrow = isset($foreachMatch[2]) && $foreachMatch[2] !== '';
+        $keyVar   = $hasArrow ? $foreachMatch[1] : null;
+        $soleVar  = $hasArrow ? $foreachMatch[2] : $foreachMatch[1];
+
+        $keyVarIsUsed  = $keyVar !== null && (bool) preg_match("/{$optionFnPattern}\\(\\s*\\\${$keyVar}\\b/", $src);
+        $soleVarIsUsed = (bool) preg_match("/{$optionFnPattern}\\(\\s*\\\${$soleVar}\\b/", $src);
+        if (! $keyVarIsUsed && ! $soleVarIsUsed) {
+            continue;
+        }
+
+        if ($keyVarIsUsed) {
+            // The KEY side of 'key' => 'value' pairs is what reaches the
+            // option function (DatabaseMigrator::migrate_standalone_settings()'s
+            // `foreach ($standalone_mapping as $old_key => $new_key) { get_option($old_key...) }`).
+            if (preg_match_all("/'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'\\s*=>/", $arrBody, $keyMatches)) {
+                $names = array_merge($names, $keyMatches[1]);
+            }
+        }
+        if ($soleVarIsUsed) {
+            // Either a plain-list array (`'x', 'y', 'z'`, no `=>` at all --
+            // SettingsService::reset_to_defaults_by_tab()'s `$legacy_keys`)
+            // where every item is a candidate, or a key=>value array whose
+            // VALUE side (not key side) is the one actually used.
+            if (preg_match_all("/=>\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $valMatches)) {
+                $names = array_merge($names, $valMatches[1]);
+            }
+            if (! str_contains($arrBody, '=>')) {
+                if (preg_match_all("/'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $plainMatches)) {
+                    $names = array_merge($names, $plainMatches[1]);
+                }
+            }
+        }
+    }
+
+    return $names;
 }
 
 function runMode5(string $root): array

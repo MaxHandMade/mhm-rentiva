@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) { exit; }
  * bin/prefix-inventory-baseline.txt and the Task 3 report), not by copying
  * the illustrative stub this file started from. In particular:
  *
- * - OPTIONS lists all 125 distinct option-shaped names this plugin's own
+ * - OPTIONS lists all 135 distinct option-shaped names this plugin's own
  *   code actually passes to update_option()/get_option()/add_option()/
  *   delete_option()/register_setting() -- including 73+ names only reached
  *   through a variable (Templates.php's getSubjectOverride()/getBodyOverride()
@@ -94,12 +94,23 @@ final class PrefixMigrationMap {
      * register_setting() arguments, `$opt = '...'`-style variable
      * assignments (Templates.php's per-template-key switch statements),
      * and the ('name' => 'checkbox'|'text'|'email'|'html') field-definition
-     * arrays EmailTemplates::save_email_fields() consumes. 125 entries (five
-     * of the 125 -- the WooCommerce-endpoint version/hash flags
+     * arrays EmailTemplates::save_email_fields() consumes. 135 entries.
+     * Five of them -- the WooCommerce-endpoint version/hash flags
      * (WooCommerceIntegration::maybe_flush_rewrite_rules()) and the
      * v4271/v4272/v4641 one-time migration-marker flags -- were found only
      * by running bin/check-prefix-inventory.php's own mode 5 against this
-     * file, not by the initial manual enumeration).
+     * file, not by the initial manual enumeration. A further TEN (fix round
+     * 1, 2026-08-01, from an independent reviewer's re-trace) were reached
+     * only through a 5th shape mode 5 did not originally detect: option
+     * names living as keys/values INSIDE an `array(...)` literal, consumed
+     * via `foreach` -- DatabaseMigrator::migrate_standalone_settings()'s
+     * `$standalone_mapping` (3 bare mhm_transfer_* keys, read via
+     * `foreach ($standalone_mapping as $old_key => $new_key) { get_option($old_key, ...); }`)
+     * and SettingsService::reset_to_defaults_by_tab()'s `$legacy_keys` (7
+     * mhm_rentiva_* entries, read via `foreach ($legacy_keys as $key) {
+     * delete_option($key); }`). See mode 5's
+     * detectForeachArrayLiteralOptionCandidates() in
+     * bin/check-prefix-inventory.php for the added detection.
      *
      * Deliberately INCLUDES the many vendor/message/payout/vehicle-lifecycle
      * notification subject+body overrides Lite's own Templates.php reads
@@ -122,6 +133,15 @@ final class PrefixMigrationMap {
         'mhm_rentiva_api_keys'                              => 'mhmrentiva_api_keys',
         'mhm_rentiva_auto_cancel_email_content'             => 'mhmrentiva_auto_cancel_email_content',
         'mhm_rentiva_auto_cancel_email_subject'             => 'mhmrentiva_auto_cancel_email_subject',
+        // Fix round 1 (2026-08-01): these 7 were found by an independent
+        // reviewer's re-trace, not by the original enumeration -- they are
+        // read/written via SettingsService::reset_to_defaults_by_tab()'s
+        // `$legacy_keys = array(...); foreach ($legacy_keys as $key) {
+        // delete_option($key); }` shape (the "foreach over an array literal"
+        // shape mode 5 did not detect until this fix round; see the
+        // detectForeachArrayLiteralOptionCandidates() addition in
+        // bin/check-prefix-inventory.php).
+        'mhm_rentiva_base_color'                            => 'mhmrentiva_base_color',
         'mhm_rentiva_booking_admin_body'                    => 'mhmrentiva_booking_admin_body',
         'mhm_rentiva_booking_admin_enabled'                 => 'mhmrentiva_booking_admin_enabled',
         'mhm_rentiva_booking_admin_subject'                 => 'mhmrentiva_booking_admin_subject',
@@ -153,6 +173,8 @@ final class PrefixMigrationMap {
         'mhm_rentiva_default_payment'                       => 'mhmrentiva_default_payment',
         'mhm_rentiva_enable_deposit'                        => 'mhmrentiva_enable_deposit',
         'mhm_rentiva_feedback_email'                        => 'mhmrentiva_feedback_email',
+        'mhm_rentiva_footer_text'                           => 'mhmrentiva_footer_text',       // fix round 1
+        'mhm_rentiva_header_image'                          => 'mhmrentiva_header_image',      // fix round 1
         'mhm_rentiva_iban_change_approved_body'             => 'mhmrentiva_iban_change_approved_body',
         'mhm_rentiva_iban_change_approved_subject'          => 'mhmrentiva_iban_change_approved_subject',
         'mhm_rentiva_iban_change_rejected_body'             => 'mhmrentiva_iban_change_rejected_body',
@@ -181,11 +203,15 @@ final class PrefixMigrationMap {
         'mhm_rentiva_refund_customer_subject'               => 'mhmrentiva_refund_customer_subject',
         'mhm_rentiva_rest_settings'                         => 'mhmrentiva_rest_settings',
         'mhm_rentiva_secondary_color'                       => 'mhmrentiva_secondary_color',
+        'mhm_rentiva_sender_email'                          => 'mhmrentiva_sender_email',       // fix round 1
+        'mhm_rentiva_sender_name'                           => 'mhmrentiva_sender_name',         // fix round 1
         'mhm_rentiva_settings'                              => 'mhmrentiva_settings',
         'mhm_rentiva_setup_completed'                       => 'mhmrentiva_setup_completed',
         'mhm_rentiva_setup_redirect'                        => 'mhmrentiva_setup_redirect',
         'mhm_rentiva_support_email'                         => 'mhmrentiva_support_email',
         'mhm_rentiva_taxonomy_migrated'                     => 'mhmrentiva_taxonomy_migrated',
+        'mhm_rentiva_test_email_address'                    => 'mhmrentiva_test_email_address', // fix round 1
+        'mhm_rentiva_test_mode'                             => 'mhmrentiva_test_mode',           // fix round 1
         'mhm_rentiva_vehicle_activated_body'                => 'mhmrentiva_vehicle_activated_body',
         'mhm_rentiva_vehicle_activated_subject'             => 'mhmrentiva_vehicle_activated_subject',
         'mhm_rentiva_vehicle_approved_body'                 => 'mhmrentiva_vehicle_approved_body',
@@ -237,6 +263,19 @@ final class PrefixMigrationMap {
         'mhm_selected_details'                              => 'mhmrentiva_selected_details',
         'mhm_selected_equipment'                            => 'mhmrentiva_selected_equipment',
         'mhm_selected_features'                             => 'mhmrentiva_selected_features',
+        // Fix round 1 (2026-08-01): DatabaseMigrator::migrate_standalone_settings()
+        // (runs UNCONDITIONALLY from run_migrations() on every version bump)
+        // reads these 3 bare mhm_ options via `$standalone_mapping = array('mhm_transfer_deposit_type'
+        // => 'rentiva_transfer_deposit_type', ...); foreach ($standalone_mapping as $old_key => $new_key)
+        // { get_option($old_key, null); ... }` -- the foreach-over-array-literal
+        // shape this fix round added mode 5 detection for. Only the LEFT-hand
+        // (old, bare-mhm_) keys are migration targets here; the right-hand
+        // 'rentiva_transfer_*' values are the destination keys that same
+        // method writes them INTO inside 'mhm_rentiva_settings' -- a
+        // different, already-renamed family, out of scope for this map.
+        'mhm_transfer_custom_types'                         => 'mhmrentiva_transfer_custom_types',
+        'mhm_transfer_deposit_rate'                         => 'mhmrentiva_transfer_deposit_rate',
+        'mhm_transfer_deposit_type'                         => 'mhmrentiva_transfer_deposit_type',
         'mhm_vehicle_details'                               => 'mhmrentiva_vehicle_details',
         'mhm_vehicle_equipment'                              => 'mhmrentiva_vehicle_equipment',
         'mhm_vehicle_features'                              => 'mhmrentiva_vehicle_features',
@@ -278,6 +317,37 @@ final class PrefixMigrationMap {
      * \MHMRentiva\Admin\Reports\BackgroundProcessor behind a class_exists()
      * gate, and that class does not exist in this repository either
      * (src/Admin/Reports/ contains only Repository/). Same reasoning.
+     *
+     * UNRESOLVED PRODUCT DECISION (fix round 1, 2026-08-01, flagged by an
+     * independent reviewer -- deliberately left open here, not decided by
+     * this map): even though Lite never CREATES
+     * `mhm_rentiva_transfer_locations`, three of Lite's OWN read paths still
+     * PROBE for it by bare literal string, as a legacy fallback when the
+     * current-name table `rentiva_transfer_locations` is absent:
+     *   - QueryHelper.php:116 -- `foreach (['rentiva_transfer_locations',
+     *     'mhm_rentiva_transfer_locations'] as $candidate) { ... SHOW TABLES
+     *     LIKE ... }` (that file's own docblock: "the legacy name -- which
+     *     was previously assumed rather than probed -- must be probed too")
+     *   - ReportRepository.php:401-402 -- `$old_loc_table = $wpdb->prefix .
+     *     'mhm_rentiva_transfer_locations';` used when the new-name table
+     *     misses.
+     *   - DashboardService.php:481-482 -- identical fallback pattern.
+     * All three literals match RUNTIME_STRING_RULES' generic 'mhm_rentiva_'
+     * rule, so Görev 12's code sweep WILL rename them to
+     * 'mhmrentiva_transfer_locations' by default -- silently breaking this
+     * fallback for any site that genuinely still has the legacy physical
+     * table from history (not a data-loss bug -- the table itself isn't
+     * touched -- but a real regression: the probe would stop finding a
+     * table that is actually still there). This map does NOT decide which
+     * way to resolve it. Whoever executes Görev 12 must choose explicitly:
+     * (a) let the generic rule rename all three literals (accepting that the
+     * legacy-table fallback stops working for old installs -- arguably fine
+     * if Transfer's Pro migration already renamed the physical table
+     * everywhere it matters), or (b) carve these three specific literal
+     * occurrences out into a BARE_TOKEN_EXCEPTIONS-style exemption (same
+     * pattern already used above for the bare 'mhm' token) so the legacy
+     * probe keeps working. Do not let the generic rule resolve this
+     * silently either way.
      */
     public const TABLES = [
         'mhm_rentiva_queue'        => 'mhmrentiva_queue',        // QueueManager::create_table()
