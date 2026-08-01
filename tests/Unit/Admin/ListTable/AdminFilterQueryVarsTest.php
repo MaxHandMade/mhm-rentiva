@@ -84,6 +84,66 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * @return array<string, array{0: class-string, 1: string, 2: string, 3: bool}>
+     */
+    public function arrayValuedParamProvider(): array
+    {
+        return array(
+            'bookings list' => array( BookingColumns::class, 'get_query_text', 'mhm_booking_status', false ),
+            'vehicles list' => array( VehicleColumns::class, 'get_query_text', 'mhm_available', false ),
+            // The add-ons reader drops filter values that arrive without a valid
+            // filter nonce, and that early return sits AFTER the array guard. Send
+            // a real nonce, or the reader never reaches the cast and the test
+            // passes with the guard deleted (measured: it did).
+            'add-ons list'  => array( AddonListTable::class, 'request_text', 'addon_status', true ),
+        );
+    }
+
+    /**
+     * WP::parse_request() keeps arrays intact for registered query vars, so
+     * `?addon_status[]=x` reaches a reader typed as string. Each reader must
+     * fall back rather than cast, or the screen prints a live PHP
+     * "Array to string conversion" warning into the admin page.
+     *
+     * The readers are private (they are an implementation detail of each screen,
+     * and the add-ons screen has no live filter UI to drive them through), so
+     * this guard is pinned directly.
+     *
+     * @dataProvider arrayValuedParamProvider
+     * @param class-string $class
+     */
+    public function test_an_array_valued_filter_param_falls_back_instead_of_casting( string $class, string $method, string $key, bool $needs_addon_filter_nonce ): void
+    {
+        $params = array( $key => array( 'x', 'y' ) );
+        if ( $needs_addon_filter_nonce ) {
+            $params['mhm_addon_filter_nonce'] = wp_create_nonce( 'mhm_addon_filter' );
+        }
+
+        $this->requestAdminUrl( $params );
+        $this->assertIsArray( get_query_var( $key ), 'Fixture must actually deliver an array, or this proves nothing.' );
+
+        $raised = array();
+        set_error_handler(
+            static function ( int $errno, string $errstr ) use ( &$raised ): bool {
+                $raised[] = $errstr;
+                return true;
+            },
+            E_ALL
+        );
+
+        try {
+            $reader = new \ReflectionMethod( $class, $method );
+            $reader->setAccessible( true );
+            $result = $reader->invoke( null, $key, 'FALLBACK' );
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame( 'FALLBACK', $result );
+        $this->assertSame( array(), $raised, 'Reading an array-valued param must not raise a PHP diagnostic.' );
+    }
+
     public function test_unregistered_param_does_not_survive_the_round_trip(): void
     {
         // Negative control: proves the assertions above measure the registration

@@ -85,6 +85,69 @@ final class BlockedDatesTest extends WP_UnitTestCase
         $this->assertFalse( $response->get_data()['success'] );
     }
 
+    /**
+     * @return array<string, array{0: array<string, string>}>
+     */
+    public function nonPublicVehicleProvider(): array
+    {
+        return array(
+            'draft'              => array( array( 'post_status' => 'draft' ) ),
+            'pending'            => array( array( 'post_status' => 'pending' ) ),
+            'private'            => array( array( 'post_status' => 'private' ) ),
+            'trashed'            => array( array( 'post_status' => 'trash' ) ),
+            // A scheduled post keeps post_status 'future' only when its date is
+            // actually in the future; without that wp_insert_post() normalises it
+            // to 'publish' and the case would pass while testing nothing.
+            'future'             => array(
+                array(
+                    'post_status'   => 'future',
+                    'post_date'     => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+                    'post_date_gmt' => gmdate( 'Y-m-d H:i:s', time() + DAY_IN_SECONDS ),
+                ),
+            ),
+            'password protected' => array( array( 'post_status' => 'publish', 'post_password' => 'hunter2' ) ),
+        );
+    }
+
+    /**
+     * A vehicle with no page a logged-out visitor could read must not have its
+     * schedule read either — otherwise the route's own "returns only what the
+     * public vehicle page already shows" justification is false, and 200-vs-404
+     * lets an anonymous caller enumerate unpublished vehicles.
+     *
+     * @dataProvider nonPublicVehicleProvider
+     * @param array<string, string> $overrides
+     */
+    public function test_route_refuses_a_vehicle_with_no_public_page( array $overrides ): void
+    {
+        $vehicle_id = self::factory()->post->create( array_merge( array( 'post_type' => 'vehicle' ), $overrides ) );
+        update_post_meta( $vehicle_id, '_mhm_blocked_dates', wp_json_encode( array( '2026-09-01' ) ) );
+        wp_set_current_user( 0 );
+
+        // Guard against a fixture that WordPress silently normalised into a
+        // published post -- that would make the assertions below vacuous.
+        $this->assertSame( $overrides['post_status'], get_post_status( $vehicle_id ) );
+
+        $response = self::$server->dispatch( new WP_REST_Request( 'GET', '/mhm-rentiva/v1/vehicles/' . $vehicle_id . '/blocked-dates' ) );
+
+        $this->assertSame( 404, $response->get_status() );
+        $this->assertFalse( $response->get_data()['success'] );
+        $this->assertStringNotContainsString( '2026-09-01', (string) wp_json_encode( $response->get_data() ) );
+    }
+
+    public function test_a_non_public_vehicle_is_refused_even_for_an_administrator(): void
+    {
+        // The gate is about what the route publishes, not about who is asking:
+        // it has no permission_callback to fall back on, so it must not start
+        // answering differently once a privileged session happens to exist.
+        $vehicle_id = self::factory()->post->create( array( 'post_type' => 'vehicle', 'post_status' => 'draft' ) );
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+        $response = self::$server->dispatch( new WP_REST_Request( 'GET', '/mhm-rentiva/v1/vehicles/' . $vehicle_id . '/blocked-dates' ) );
+
+        $this->assertSame( 404, $response->get_status() );
+    }
+
     public function test_blocked_dates_are_no_longer_served_over_admin_ajax(): void
     {
         BlockedDatesMetaBox::register();

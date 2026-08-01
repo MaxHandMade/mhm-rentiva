@@ -289,6 +289,33 @@ final class EmailTemplates {
 		exit;
 	}
 
+	/**
+	 * The submitted templates form, or null when it carries neither of the two
+	 * nonces that authorise saving it.
+	 *
+	 * Two screens can post here: the email-templates screen (its own nonce) and
+	 * the generic settings screen (_wpnonce for the settings group). Each gets
+	 * its own early return rather than being combined into one compound
+	 * condition at the call site. The verified payload travels back with the
+	 * verdict so the nonce check and the superglobal access stay in one scope --
+	 * a helper that only answered true/false would move wp_verify_nonce() out of
+	 * the caller and leave every read there unjustified.
+	 */
+	private static function verified_save_request(): ?VerifiedRequest
+	{
+		$own_nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_templates_nonce'] ?? ''));
+		if (wp_verify_nonce($own_nonce, 'mhm_rentiva_save_email_templates')) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		$settings_nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? ''));
+		if (wp_verify_nonce($settings_nonce, 'mhm_rentiva_settings-options')) {
+			return VerifiedRequest::from($_POST);
+		}
+
+		return null;
+	}
+
 	public static function handle_save_templates(): void
 	{
 
@@ -296,21 +323,11 @@ final class EmailTemplates {
 			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
 		}
 
-		// Nonce verification. Both accepted nonces are read and verified here, in
-		// the same scope, rather than through a shared reader: a helper that reads
-		// the nonce field cannot verify it, so the read would sit in a function
-		// with nothing to justify it. The two forms are the email-templates screen
-		// (its own nonce) and the generic settings screen (_wpnonce).
-		$own_nonce      = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_templates_nonce'] ?? ''));
-		$settings_nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce'] ?? ''));
-		if (
-			! wp_verify_nonce($own_nonce, 'mhm_rentiva_save_email_templates')
-			&& ! wp_verify_nonce($settings_nonce, 'mhm_rentiva_settings-options')
-		) {
+		// Nonce verification.
+		$req = self::verified_save_request();
+		if (null === $req) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
-
-		$req = VerifiedRequest::from($_POST);
 
 		// Get active tab information. Unlike the render path this value arrives from
 		// POST, so it must be validated against the tabs this build actually offers

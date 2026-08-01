@@ -114,10 +114,15 @@
 			function (e) {
 				e.preventDefault();
 
+				// Param names must match VehicleColumns::PUBLIC_QUERY_VARS -- the PHP
+				// side reads them through get_query_var(), which only answers for
+				// names registered on WordPress's query_vars whitelist. Bare
+				// month/year cannot be registered there (an unprefixed `month`
+				// would collide globally and `year` is already a core query var).
 				const action     = $( this ).data( 'action' );
 				const currentUrl = new URL( window.location.href );
-				let currentMonth = parseInt( currentUrl.searchParams.get( 'month' ) ) || new Date().getMonth() + 1;
-				let currentYear  = parseInt( currentUrl.searchParams.get( 'year' ) ) || new Date().getFullYear();
+				let currentMonth = parseInt( currentUrl.searchParams.get( 'mhm_month' ) ) || new Date().getMonth() + 1;
+				let currentYear  = parseInt( currentUrl.searchParams.get( 'mhm_year' ) ) || new Date().getFullYear();
 
 				if (action === 'prev') {
 					currentMonth--;
@@ -134,8 +139,8 @@
 				}
 
 				// Update URL parameters
-				currentUrl.searchParams.set( 'month', currentMonth );
-				currentUrl.searchParams.set( 'year', currentYear );
+				currentUrl.searchParams.set( 'mhm_month', currentMonth );
+				currentUrl.searchParams.set( 'mhm_year', currentYear );
 
 				// Reload page
 				window.location.href = currentUrl.toString();

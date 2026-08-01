@@ -72,8 +72,12 @@ final class AddonListTable extends AbstractListTable {
 	 * @return string
 	 */
 	private static function request_text( string $key, string $fallback = '' ): string {
+		// WP::parse_request() preserves arrays for registered query vars, so
+		// `?addon_status[]=x` hands an array to a reader typed as string. Without
+		// this guard the cast below raises a live "Array to string conversion"
+		// warning -- the same guard the two sibling list tables carry.
 		$value = get_query_var( $key, null );
-		if ( null === $value ) {
+		if ( null === $value || is_array( $value ) ) {
 			return $fallback;
 		}
 
