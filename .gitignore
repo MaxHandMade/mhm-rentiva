@@ -395,6 +395,21 @@ bin/*
 # duplicate of it. Wired into CI with continue-on-error while it is red; must
 # ship in every clone.
 !bin/check-instrument-gaps.php
+# Quality-gate script: `php bin/check-prefix-inventory.php` requires it at
+# runtime; it is Gate G-C (WP.org T7 remediation, Task 3) -- six modes
+# (bijection, post_type/taxonomy length limits, baseline-coverage, post-sweep
+# no-old-names, options-call coverage, cron-hook coverage) that verify
+# PrefixMigrationMap.php (the single source of truth Task 12's rename sweep
+# and Task 13's DB migration both read) is complete before either of those
+# later tasks may rely on it. Wired into CI with continue-on-error while
+# mode 4 is red (no sweep has run yet); must ship in every clone.
+!bin/check-prefix-inventory.php
+# INPUT to the gate above and to Task 12/13: the raw prefix-name inventory
+# extracted straight from source (bin/check-prefix-inventory.php's mode 3
+# reads it). Tracking the gate but not the data it checks against would be
+# the same gap check-manifest.php's missing lite-manifest-final.txt already
+# taught this repo to avoid -- see that entry above.
+!bin/prefix-inventory-baseline.txt
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
