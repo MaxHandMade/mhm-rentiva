@@ -25,7 +25,7 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.14.0';
+	private const CURRENT_VERSION = '3.15.0';
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -198,6 +198,37 @@ final class DatabaseMigrator {
 			$wpdb->postmeta,
 			'idx_mhm_booking_combined',
 			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
+		);
+
+		// 9-12. Customers screen indexes. These used to live in
+		// CustomersOptimizer::create_database_indexes(), fired from admin_init and
+		// bookkept with its own `mhm_rentiva_customers_indexes_created` option --
+		// schema changes run by a read-model class on a page load. They belong
+		// here, where index creation is already the subject and where
+		// create_index_if_missing() replaces their `CREATE INDEX IF NOT EXISTS`
+		// (unsupported before MySQL 8.0.29) with a portable existence check.
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_postmeta_customer_email',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_postmeta_customer_email ON {$wpdb->postmeta} (meta_key, meta_value(50))")
+		);
+
+		self::create_index_if_missing(
+			$wpdb->postmeta,
+			'idx_postmeta_booking_price',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_postmeta_booking_price ON {$wpdb->postmeta} (post_id, meta_key)")
+		);
+
+		self::create_index_if_missing(
+			$wpdb->usermeta,
+			'idx_usermeta_customer_phone',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_usermeta_customer_phone ON {$wpdb->usermeta} (user_id, meta_key)")
+		);
+
+		self::create_index_if_missing(
+			$wpdb->posts,
+			'idx_posts_booking_date',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_posts_booking_date ON {$wpdb->posts} (post_type, post_status, post_date)")
 		);
 	}
 

@@ -24,11 +24,6 @@ final class ErrorHandler {
 
 
 	/**
-	 * Error log prefix
-	 */
-	private const LOG_PREFIX = 'MHM Rentiva';
-
-	/**
 	 * Error types
 	 */
 	public const TYPE_SECURITY   = 'security';
@@ -86,11 +81,13 @@ final class ErrorHandler {
 	 */
 	public static function database_error( string $message, ?\Exception $previous = null ): void {
 		self::log_error( $message, self::TYPE_DATABASE, self::LEVEL_HIGH );
-		// The message -- the only argument that can reach a human -- is escaped. The sniff
-		// also inspects the third argument, but that is the previous Exception object; there
-		// is no string in it to escape and it cannot be passed any other way.
-		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the flagged argument is the previous-exception object.
-		throw new \Exception( esc_html( $message ), 0, $previous );
+		// Built first, thrown second: the message is escaped on the line that
+		// assembles it, which is where both PHPCS and a human reviewer look for
+		// it. Inlining the constructor into the `throw` made the sniff examine
+		// every argument -- including the previous-exception object, which holds
+		// no string to escape and cannot be passed any other way.
+		$error = new \Exception( esc_html( $message ), 0, $previous );
+		throw $error;
 	}
 
 	/**
@@ -98,7 +95,7 @@ final class ErrorHandler {
 	 */
 	public static function business_error( string $message, string $code = '' ): void {
 		self::log_error( $message, self::TYPE_BUSINESS, self::LEVEL_MEDIUM );
-		throw new \Exception( esc_html( $message ) ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		throw new \Exception( esc_html( $message ) );
 	}
 
 	/**
@@ -106,11 +103,10 @@ final class ErrorHandler {
 	 */
 	public static function system_error( string $message, ?\Exception $previous = null ): void {
 		self::log_error( $message, self::TYPE_SYSTEM, self::LEVEL_CRITICAL );
-		// The message -- the only argument that can reach a human -- is escaped. The sniff
-		// also inspects the third argument, but that is the previous Exception object; there
-		// is no string in it to escape and it cannot be passed any other way.
-		// phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the flagged argument is the previous-exception object.
-		throw new \Exception( esc_html( $message ), 0, $previous );
+		// See database_error(): built first, thrown second, message escaped where
+		// it is assembled.
+		$error = new \Exception( esc_html( $message ), 0, $previous );
+		throw $error;
 	}
 
 	/**
@@ -149,6 +145,11 @@ final class ErrorHandler {
 
 	/**
 	 * Log error message.
+	 *
+	 * AdvancedLogger is the only sink. There is deliberately no fallback: the
+	 * branch that used to run when AdvancedLogger was absent wrote to the site's
+	 * PHP error log, which a distributed plugin must not do, and AdvancedLogger
+	 * ships with this plugin so the branch was unreachable in practice anyway.
 	 */
 	public static function log_error( string $message, string $type = self::TYPE_SYSTEM, string $level = self::LEVEL_MEDIUM ): void {
 		if ( class_exists( '\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger' ) ) {
@@ -177,22 +178,6 @@ final class ErrorHandler {
 				default:
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info( $message, $context, $type );
 					break;
-			}
-		} else {
-			$log_message = sprintf(
-				'[%s] [%s] [%s] %s',
-				self::LOG_PREFIX,
-				strtoupper( $type ),
-				strtoupper( $level ),
-				$message
-			);
-
-			// Debug-gated: this is the fallback for fatal paths when the custom
-			// logger is unavailable, but a shipped plugin must not write to the PHP
-			// error log on a production install.
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fallback logger for fatal paths when custom logger is unavailable.
-				error_log( $log_message );
 			}
 		}
 	}

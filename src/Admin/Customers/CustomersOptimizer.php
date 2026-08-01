@@ -596,29 +596,4 @@ final class CustomersOptimizer {
 
 		return $current_month > 0 ? '+100%' : '0%';
 	}
-
-	/**
-	 * Create database indexes
-	 *
-	 * @return bool
-	 */
-	public static function create_database_indexes(): bool {
-		global $wpdb;
-
-		// DDL cannot be parameterised, so each statement is written out in full
-		// where it runs: index names and column lists are fixed text and the only
-		// interpolation is $wpdb's own table properties.
-		$results = array(
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
-			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_postmeta_customer_email ON {$wpdb->postmeta} (meta_key, meta_value(50))" ),
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
-			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_postmeta_booking_price ON {$wpdb->postmeta} (post_id, meta_key)" ),
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
-			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_usermeta_customer_phone ON {$wpdb->usermeta} (user_id, meta_key)" ),
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Index creation is the purpose of this method.
-			$wpdb->query( "CREATE INDEX IF NOT EXISTS idx_posts_booking_date ON {$wpdb->posts} (post_type, post_status, post_date)" ),
-		);
-
-		return ! in_array( false, $results, true );
-	}
 }

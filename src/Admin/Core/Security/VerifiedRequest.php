@@ -13,10 +13,10 @@ if (! defined('ABSPATH')) {
  *
  * The point of this class is that it NEVER touches a superglobal. Request
  * readers that reach into $_POST from inside a shared helper force every
- * such helper to carry a `phpcs:ignore WordPress.Security.NonceVerification`
- * annotation whose justification ("verified in the caller") cannot be
- * checked by anyone reading the helper -- including WordPress.org's scanner,
- * which does not honour our annotations at all.
+ * such helper to carry a nonce-verification suppression whose justification
+ * ("verified in the caller") cannot be checked by anyone reading the helper
+ * -- including WordPress.org's scanner, which does not honour our
+ * annotations at all.
  *
  * By taking the array as an argument, the superglobal access moves up into
  * the handler that actually performs the nonce check, so the check and the

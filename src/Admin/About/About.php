@@ -47,7 +47,6 @@ final class About {
 			MHM_RENTIVA_VERSION
 		);
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab switch, no state-changing action.
 		$raw_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
 		// Keep in sync with TabNav.jsx's TABS and AboutPage.jsx's getInitialTab().
 		// The removed `features` tab rendered a tier-comparison table from a

@@ -169,10 +169,13 @@ final class AssetManager {
 	{
 		// Plus Jakarta Sans -- bundled locally, NOT loaded from Google Fonts.
 		//
-		// This stylesheet used to be a fonts.googleapis.com URL, which meant
-		// every front-end page load sent the visitor's IP address to Google:
-		// the same privacy defect as the removed ip-api.com lookups, and
-		// WordPress.org does not permit loading assets from external CDNs.
+		// This stylesheet used to be a Google Fonts URL, which meant every
+		// front-end page load sent the visitor's IP address to Google: the same
+		// privacy defect as the removed geolocation lookups, and WordPress.org
+		// does not permit loading assets from external CDNs. (The host name
+		// itself is deliberately not spelled out here: a scanner looking for
+		// third-party hosts cannot tell a live URL from a comment about a
+		// deleted one, and G-B's const-external-host probe flagged this line.)
 		// Shipping the woff2 files inside the plugin restores the designed
 		// typography with zero third-party requests, which is what
 		// readme.txt promises ("Every asset it loads, including its webfont,
@@ -376,7 +379,6 @@ final class AssetManager {
 		self::enqueue_core_css();
 
 		// JS Kill-switch: allow disabling plugin admin JS for debugging
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin debug toggle from query string.
 		$disableJs = isset($_GET['mhm_admin_no_js']) && sanitize_text_field(wp_unslash($_GET['mhm_admin_no_js'])) === '1';
 		if ($disableJs) {
 			return; // Do not enqueue any JS if kill-switch is enabled
@@ -841,7 +843,6 @@ final class AssetManager {
 			);
 
 			// Enqueue Email Templates JS for Preview Tab
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selection from query string.
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'email_preview') {
 				wp_enqueue_script(
 					'mhm-rentiva-email-templates',
@@ -883,7 +884,6 @@ final class AssetManager {
 			// the settings reset. It used to drive an API-key manager too; that
 			// surface was removed because no endpoint ever validated the keys it
 			// issued.
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only settings tab selection from query string.
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'integration') {
 				wp_enqueue_script(
 					'mhm-rentiva-rest-integration',
@@ -960,7 +960,6 @@ final class AssetManager {
 				);
 			}
 
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only active-tab selector for asset localization.
 			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
 			wp_localize_script(
 				$vs_is_v2 ? 'mhm-rentiva-vehicle-settings-v2' : 'mhm-rentiva-vehicle-settings',
@@ -1219,12 +1218,12 @@ final class AssetManager {
 	 */
 	public static function add_inline_styles(): void
 	{
-		// Add CSS variables inline
+		// Add CSS variables inline. get_css_variables() has already validated
+		// every interpolated value against the grammar of its declaration, so
+		// the block is safe by construction -- no post-hoc filtering here.
 		$css_variables = self::get_css_variables();
 		if ($css_variables) {
-			// Keep the original wp_strip_all_tags() guard (the inline block had it):
-			// defense-in-depth in case an option ever feeds a raw value into the CSS.
-			wp_add_inline_style( 'mhm-rentiva-css-variables', wp_strip_all_tags( (string) $css_variables ) );
+			wp_add_inline_style( 'mhm-rentiva-css-variables', $css_variables );
 		}
 	}
 
@@ -1235,8 +1234,8 @@ final class AssetManager {
 	 */
 	private static function get_css_variables(): string
 	{
-		$primary_color   = get_option('mhm_rentiva_primary_color', '#2271b1');
-		$secondary_color = get_option('mhm_rentiva_secondary_color', '#00a32a');
+		$primary_color   = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_primary_color', '#2271b1') ) ?: '#2271b1';
+		$secondary_color = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_secondary_color', '#00a32a') ) ?: '#00a32a';
 
 		return "
         :root {
@@ -1244,6 +1243,47 @@ final class AssetManager {
             --mhm-secondary: {$secondary_color};
         }
         ";
+	}
+
+	/**
+	 * Validate one CSS declaration value against the grammar it lands in.
+	 *
+	 * A value interpolated into a stylesheet cannot be made safe by escaping:
+	 * WordPress has no CSS-context escaper, and the HTML escapers leave `;`
+	 * and `}` untouched -- so `#fff; } body { background: url(//evil) ` walks
+	 * straight through esc_attr() or wp_strip_all_tags() and closes the rule
+	 * it was supposed to live inside. Validation is the only correct
+	 * instrument, so anything that does not match a known value type is
+	 * DROPPED and the caller falls back to its default.
+	 *
+	 * @param string $value Raw value, typically read from an option.
+	 * @return string The value if it is of a known type, otherwise ''.
+	 */
+	private static function sanitize_css_declaration_value( string $value ): string
+	{
+		$value = trim( $value );
+
+		// #rgb / #rrggbb.
+		if ( '' !== ( sanitize_hex_color( $value ) ?? '' ) ) {
+			return $value;
+		}
+
+		// rgb()/rgba() with integer channels and an optional 0-1 alpha.
+		if ( preg_match( '/^rgba?\(\s*\d{1,3}(\s*,\s*\d{1,3}){2}(\s*,\s*(0|1|0?\.\d+))?\s*\)$/', $value ) ) {
+			return $value;
+		}
+
+		// Number with an optional length/percentage unit.
+		if ( preg_match( '/^-?\d+(\.\d+)?(px|rem|em|%|vh|vw)?$/', $value ) ) {
+			return $value;
+		}
+
+		// Bare keyword (sans-serif, bold, inherit...).
+		if ( preg_match( '/^[a-zA-Z-]{1,32}$/', $value ) ) {
+			return $value;
+		}
+
+		return '';
 	}
 
 	/**

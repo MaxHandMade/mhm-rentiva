@@ -330,9 +330,18 @@ final class AutoCancel {
 
 			do_action('mhm_rentiva_booking_auto_cancelled', $bid, $new_status);
 		} catch (\Throwable $e) {
-			if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-				// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-				error_log('[mhm-rentiva] auto-cancel skipped booking ' . $bid . ': ' . $e->getMessage());
+			// Routed to the plugin's own logger instead of the site's PHP error
+			// log, so the record is visible in the admin Logs screen and a
+			// distributed plugin does not write to a file the owner never opted into.
+			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning(
+					'Auto-cancel skipped a booking',
+					array(
+						'booking_id' => $bid,
+						'error'      => $e->getMessage(),
+					),
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+				);
 			}
 		}
 	}

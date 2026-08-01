@@ -24,9 +24,7 @@ final class CustomerExporter {
 			wp_die( esc_html__( 'Unauthorized.', 'mhm-rentiva' ), 403 );
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified above via check_admin_referer.
-		$search = sanitize_text_field( wp_unslash( $_POST['search'] ?? '' ) );
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified above via check_admin_referer.
+		$search  = sanitize_text_field( wp_unslash( $_POST['search'] ?? '' ) );
 		$raw_ids = array_map( 'absint', (array) wp_unslash( $_POST['ids'] ?? array() ) );
 		$ids     = array_values( array_filter( $raw_ids, fn( $id ) => $id > 0 ) );
 
@@ -39,22 +37,29 @@ final class CustomerExporter {
 		header( 'Expires: 0' );
 
 		// UTF-8 BOM for Excel compatibility.
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Raw CSV binary output.
 		echo "\xEF\xBB\xBF";
 
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen -- WP_Filesystem does not support php://output stream; raw fopen required for CSV streaming.
+		// php://output is the HTTP response body, not a file, so WP_Filesystem
+		// does not apply -- WPCS agrees and exempts this exact stream from its
+		// file-operation checks (see AlternativeFunctionsSniff's
+		// $allowed_local_streams). The handle is deliberately NOT fclose()d: the
+		// response body is closed by PHP when the request ends, and calling
+		// fclose() on it bought nothing except a WP_Filesystem warning.
 		$handle = fopen( 'php://output', 'w' );
 		if ( $handle ) {
 			foreach ( $rows as $row ) {
 				$row = array_map( array( self::class, 'guard_csv_cell' ), $row );
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- fputcsv escapes properly for CSV format.
 				fputcsv( $handle, $row );
 			}
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fclose -- matches fopen above; WP_Filesystem has no equivalent for php://output.
-			fclose( $handle );
 		}
 
-		wp_die();
+		// exit, not wp_die(): a bare wp_die() runs the default die handler, which
+		// sends a 500 status and Content-Type: text/html over the CSV headers set
+		// above. Chrome refuses the download outright ("ERR_INVALID_RESPONSE"), so
+		// the Export CSV button has never produced a file -- verified in the
+		// browser against the pre-fix code. This is the same
+		// `header(...) + echo + exit` shape the SQL download endpoints use.
+		exit;
 	}
 
 	/**

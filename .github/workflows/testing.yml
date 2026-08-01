@@ -160,12 +160,19 @@ jobs:
       # Gate G-A (WP.org T7 remediation, Task 1): zero visible security shapes
       # (missing nonces / unescaped output / unsanitized input) under phpcs
       # --ignore-annotations, with one narrow allowed residual class (see the
-      # script's own docblock). Deliberately `continue-on-error: true` for
-      # now -- this gate is EXPECTED RED today (no fixes have landed yet); it
-      # is wired in unenforced so the count is visible in every CI run from
-      # the start of the remediation, and becomes blocking once Task 10 drives
-      # the hard count to zero.
-      - name: "Security shape gate (G-A: nonce/escape/sanitize, red baseline)"
+      # script's own docblock). STILL `continue-on-error: true` after Task 10,
+      # and this is a deliberate, escalated state rather than an oversight:
+      # Task 10 drove EscapeOutput 7 -> 2 and NonceVerification.Missing /
+      # ValidatedSanitizedInput to 0, but 56 NonceVerification.Recommended hits
+      # remain on read-only, bookmarkable admin display params (?tab=, ?paged=,
+      # ?page=, ?message=). No canonical shape silences that sniff for such a
+      # param -- a nonce cannot gate a bookmarkable URL and get_query_var() is
+      # unavailable on `admin.php?page=` screens -- so they are left
+      # UNSUPPRESSED and named in the Görev 17 response letter instead. The
+      # gate stays wired and honest; flipping it to blocking would require
+      # either a new residual ceiling (the exemption the user revoked) or a
+      # suppression (what T7 punished). See task-10-report.md.
+      - name: "Security shape gate (G-A: nonce/escape/sanitize, 56 display-param nonce warnings remain)"
         run: php bin/check-shape-zero.php
         continue-on-error: true
 
@@ -175,14 +182,13 @@ jobs:
       # unkeyed array_map into update_option, third-party host strings, and
       # the multiline compound-nonce-condition shape). Complementary to G-A,
       # not a replacement -- G-A is phpcs-based and can only ever see what a
-      # sniff is written to detect. Deliberately `continue-on-error: true` for
-      # now -- this gate is EXPECTED RED today (no fixes have landed yet); it
-      # is wired in unenforced so the count is visible in every CI run from
-      # the start of the remediation, and becomes blocking once a later task
-      # drives every probe to zero.
-      - name: "Instrument-gap gate (G-B: five WPCS-blind probes, red baseline)"
+      # sniff is written to detect. BLOCKING as of Task 10: all five probes
+      # read 0. The last to fall was const-external-host, which was firing on
+      # a comment explaining a URL that had already been deleted -- the probe
+      # cannot tell a live host string from a description of a removed one, so
+      # the comment was reworded rather than the probe narrowed.
+      - name: "Instrument-gap gate (G-B: five WPCS-blind probes)"
         run: php bin/check-instrument-gaps.php
-        continue-on-error: true
 
       # Gate G-C (WP.org T7 remediation, Task 3): prefix-inventory bijection +
       # migration-map completeness. Six modes -- bijection/uniqueness, post_type/
@@ -208,13 +214,14 @@ jobs:
       # runnable copy -- see that file's header for provenance) or count its
       # entire WordPress.DB.PreparedSQL* family, which the controller found
       # fires 101 times at ERROR severity and which none of the other gates
-      # were watching. Deliberately `continue-on-error: true` for now -- this
-      # gate is EXPECTED RED today (measured baseline: 31 errors / 158
-      # warnings across 53 files); it is wired in unenforced so the count is
-      # visible in every CI run from the start of this measurement, and
-      # becomes blocking once a later task drives both counts to zero (the
-      # user's stated acceptance bar is 0 errors AND 0 warnings).
-      - name: "Plugin Check parity gate (G-D: WP.org's own ruleset, red baseline 31/158)"
+      # were watching. Baseline when this gate landed: 31 errors / 158 warnings
+      # across 53 files. After Task 10: 1 error / 56 warnings. The single error
+      # is DatabaseCleaner::restore_full_backup() (PreparedSQL.NotPrepared),
+      # left untouched pending a product decision; the 56 warnings are the
+      # NonceVerification.Recommended display-param class described on the G-A
+      # step above. Still `continue-on-error: true` for exactly those two
+      # reasons -- it becomes blocking when both are resolved.
+      - name: "Plugin Check parity gate (G-D: WP.org's own ruleset, 1 error / 56 warnings)"
         run: php bin/check-plugin-check-parity.php
         continue-on-error: true
 

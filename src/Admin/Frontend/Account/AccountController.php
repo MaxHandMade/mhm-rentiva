@@ -182,12 +182,10 @@ final class AccountController {
 		// Enqueue Notifications (v1.3.3)
 		wp_enqueue_style('mhm-rentiva-notifications');
 
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only endpoint hint used only for conditional asset loading.
 		$endpoint = get_query_var('endpoint');
 		if (! is_string($endpoint) || '' === $endpoint) {
 			$endpoint = isset($_GET['endpoint']) ? sanitize_text_field(wp_unslash($_GET['endpoint'])) : '';
 		}
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		// The messages-endpoint asset enqueue (dequeue guard + the account-messages
 		// script + localize) used to live here unconditionally. Messaging is a
@@ -477,9 +475,7 @@ final class AccountController {
 		}
 
 		// Allow specific actions that need wp-login.php (password reset, registration, logout confirmation)
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only wp-login routing parameter; no state change occurs here.
-		$action = isset($_GET['action']) ? sanitize_text_field(wp_unslash($_GET['action'])) : '';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
+		$action          = isset($_GET['action']) ? sanitize_text_field(wp_unslash($_GET['action'])) : '';
 		$allowed_actions = array( 'logout', 'lostpassword', 'rp', 'resetpass', 'confirmaction' );
 		if (in_array($action, $allowed_actions, true)) {
 			return;
@@ -496,9 +492,7 @@ final class AccountController {
 		}
 
 		// Preserve redirect_to parameter
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only wp-login redirect hint; no state change occurs here.
 		$redirect_to = isset($_GET['redirect_to']) ? sanitize_url(wp_unslash($_GET['redirect_to'])) : '';
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 		if ($redirect_to !== '') {
 			$wc_login = add_query_arg('redirect_to', rawurlencode($redirect_to), $wc_login);
 		}

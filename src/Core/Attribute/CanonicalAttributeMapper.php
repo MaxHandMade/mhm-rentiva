@@ -69,8 +69,18 @@ final class CanonicalAttributeMapper {
      */
     private static function log_unknown(string $tag, string $key): void
     {
-        if (defined('WP_DEBUG') && WP_DEBUG) {
-            error_log(sprintf('[CAM] Dropped unknown attribute "%s" for tag "%s".', $key, $tag)); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+        // Routed to the plugin's own logger instead of the site's PHP error log.
+        // Still debug-gated: an unknown attribute is an author typo, not a fault
+        // worth recording on every page view of a production site.
+        if (defined('WP_DEBUG') && WP_DEBUG && class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+            \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
+                'Dropped unknown shortcode attribute',
+                array(
+                    'tag'       => $tag,
+                    'attribute' => $key,
+                ),
+                \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+            );
         }
     }
 }

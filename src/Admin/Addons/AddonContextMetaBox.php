@@ -47,7 +47,7 @@ final class AddonContextMetaBox {
             printf(
                 '<label class="mhm-addon-context-option"><input type="radio" name="mhm_addon_context" value="%s" %s> %s</label><br>',
                 esc_attr( $slug ),
-                checked( $current, $slug, false ), // phpcs:ignore WordPress.Security.EscapingOutput.OutputNotEscaped
+                checked( $current, $slug, false ),
                 esc_html( $label )
             );
         }

@@ -248,11 +248,9 @@ class LayoutImportCommand {
             }, array_slice($events, -10));
 
             if (function_exists('\WP_CLI\Utils\format_items')) {
-                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
                 \WP_CLI\Utils\format_items('table', $table_events, [ 'Date', 'Operation', 'Actor', 'Result' ]);
             }
         } elseif (function_exists('\WP_CLI\Utils\format_items')) {
-                // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI formatter handles serialization, not direct browser output.
                 \WP_CLI\Utils\format_items($format, $events, array_keys($events[0] ?? []));
         }
     }
@@ -340,7 +338,6 @@ class LayoutImportCommand {
     private function log(string $msg): void
     {
         if (class_exists('WP_CLI')) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::log($msg);
         }
     }
@@ -348,7 +345,6 @@ class LayoutImportCommand {
     private function log_success(string $msg): void
     {
         if (class_exists('WP_CLI')) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::success($msg);
         }
     }
@@ -356,10 +352,8 @@ class LayoutImportCommand {
     private function log_error(string $msg): void
     {
         if (class_exists('WP_CLI')) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- WP-CLI handles terminal-safe output.
             WP_CLI::error($msg);
         } else {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages should be sanitized before throw.
             throw new Exception(esc_html($msg));
         }
     }

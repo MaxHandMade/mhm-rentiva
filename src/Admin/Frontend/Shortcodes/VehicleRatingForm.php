@@ -343,7 +343,6 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_send_json_error(array( 'message' => __('Security check failed', 'mhm-rentiva') ));
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce is verified above in this handler.
 		$vid = isset($_POST['vehicle_id']) ? absint(sanitize_text_field(wp_unslash( (string) $_POST['vehicle_id']))) : 0;
 		if (! $vid) {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));

@@ -840,12 +840,10 @@ final class EmailTemplates {
 	 */
 	private static function get_text(string $key, string $default = ''): string
 	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Admin screen navigation value; render-only, nothing is written.
 		if (! isset($_GET[ $key ])) {
 			return $default;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- See above.
 		return sanitize_text_field(wp_unslash( (string) $_GET[ $key ]));
 	}
 

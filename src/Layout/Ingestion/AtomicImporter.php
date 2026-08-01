@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Exception messages are internal control flow, not direct HTML output.
 
 
 
@@ -126,10 +125,12 @@ class AtomicImporter {
             if ($e instanceof Exception) {
                 throw $e;
             }
-            // The third argument is the previous Throwable, which is an object and so has
-            // nothing to escape; only the message reaches a human, and it is escaped here.
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the unescapable argument is the previous-exception object.
-            throw new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
+            // Built first, thrown second: the message is escaped on the line that
+            // assembles it. Inlining the constructor into the `throw` made the
+            // sniff examine the previous-Throwable argument too, which is an
+            // object with nothing to escape and no other way to pass it.
+            $wrapped = new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
+            throw $wrapped;
         }
 
         return $summary;
@@ -181,12 +182,9 @@ class AtomicImporter {
             if ($existing) {
                 return [
                     'status'       => 'update',
-                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal state read from existing page object.
                     'post_id'      => $existing->ID,
-                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal state read from existing page object.
                     'title'        => $existing->post_title,
                     'slug'         => $existing->post_name,
-                    // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata read, not directly rendered.
                     'current_hash' => get_post_meta($existing->ID, '_mhm_layout_hash', true),
                 ];
             }
@@ -241,7 +239,6 @@ class AtomicImporter {
             'timestamp'      => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
             'template'       => get_post_meta($post_id, '_wp_page_template', true),
             // Previous set for full restore if needed
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal metadata snapshot for rollback.
             'manifest_prev'  => get_post_meta($post_id, '_mhm_layout_manifest_previous', true),
             'hash_prev'      => get_post_meta($post_id, '_mhm_layout_hash_previous', true),
             'timestamp_prev' => get_post_meta($post_id, '_mhm_layout_version_timestamp_previous', true),
@@ -268,7 +265,6 @@ class AtomicImporter {
 
         // 4. Audit Log (Task: Observability)
         if (empty($options['suppress_audit'])) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Internal telemetry call, no direct output.
             LayoutAuditService::log_import($post_id, $this->snapshots[ $post_id ]['hash'] ?? '', $hash, false);
         }
     }

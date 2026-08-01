@@ -69,7 +69,6 @@ $renderer    = $args['renderer'] ?? null;
 								$renderer->render();
 
 								$form_content = ob_get_clean();
-								// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Internal fields are escaped, we must allow form tags here.
 								\MHMRentiva\Helpers\Html::echo_markup( \MHMRentiva\Admin\Settings\View\SettingsViewHelper::remove_nested_forms( (string) $form_content) );
 								?>
 

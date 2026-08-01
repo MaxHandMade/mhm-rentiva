@@ -50,7 +50,9 @@ final class CustomersPage {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		// REST routes are registered in Plugin.php (context-agnostic path) — not here.
 		add_action( 'admin_post_mhm_rentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
-		add_action( 'admin_init', array( self::class, 'maybe_create_database_indexes' ) );
+		// The four indexes this screen relies on are created by DatabaseMigrator's
+		// add_performance_indexes(), with the rest of the plugin's schema. They used
+		// to be issued from admin_init by a read-model class.
 		AddCustomerPage::register();
 	}
 
@@ -67,7 +69,6 @@ final class CustomersPage {
 		}
 
 		// Check action parameters.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Viewing page action, no data processing.
 		$action = sanitize_text_field(wp_unslash($_GET['action'] ?? ''));
 		if ('' !== $action) {
 			switch ($action) {
@@ -151,12 +152,10 @@ final class CustomersPage {
 	 */
 	private function render_customer_view(): void
 	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only customer detail view in admin UI.
 		if (! isset($_GET['customer_id']) || empty($_GET['customer_id'])) {
 			wp_die(esc_html__('Invalid customer ID.', 'mhm-rentiva'));
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only customer detail view in admin UI.
 		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$customer    = get_user_by('id', $customer_id);
 
@@ -291,12 +290,10 @@ final class CustomersPage {
 			wp_die(esc_html__('You do not have permission to edit customers.', 'mhm-rentiva'));
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
 		if (! isset($_GET['customer_id']) || empty($_GET['customer_id'])) {
 			wp_die(esc_html__('Invalid customer ID.', 'mhm-rentiva'));
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- ID from URL for edit view only.
 		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
 		$customer    = get_user_by('id', $customer_id);
 
@@ -387,26 +384,5 @@ final class CustomersPage {
 
 		echo '</form>';
 		echo '</div>';
-	}
-
-	/**
-	 * Create database indexes (runs once)
-	 *
-	 * @return void
-	 */
-	public static function maybe_create_database_indexes(): void
-	{
-		// Only for admin users and runs once
-		if (! current_user_can('manage_options') || get_option('mhm_rentiva_customers_indexes_created')) {
-			return;
-		}
-
-		// Create indexes
-		$success = \MHMRentiva\Admin\Customers\CustomersOptimizer::create_database_indexes();
-
-		if ($success) {
-			// Mark that indexes have been created
-			update_option('mhm_rentiva_customers_indexes_created', true);
-		}
 	}
 }

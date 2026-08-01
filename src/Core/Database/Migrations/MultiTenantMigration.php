@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Controlled migration file intentionally performs schema changes.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Controlled migration file intentionally performs schema changes.
 final class MultiTenantMigration {
 
     /**

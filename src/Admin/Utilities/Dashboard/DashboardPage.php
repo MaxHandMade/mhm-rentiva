@@ -344,10 +344,10 @@ final class DashboardPage {
 		);
 		foreach ($cache_keys as $key_prefix) {
 			$prefix_like = $wpdb->esc_like('_transient_' . $key_prefix) . '%';
-			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $prefix_like)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $prefix_like));
 
 			$timeout_like = $wpdb->esc_like('_transient_timeout_' . $key_prefix) . '%';
-			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $timeout_like)); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$wpdb->query($wpdb->prepare("DELETE FROM `{$wpdb->options}` WHERE option_name LIKE %s", $timeout_like));
 		}
 	}
 

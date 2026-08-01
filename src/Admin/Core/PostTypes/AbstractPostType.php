@@ -158,9 +158,7 @@ abstract class AbstractPostType {
 			$singular = static::get_singular_name();
 
 			$revision_id = 0;
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core-managed revision query arg in edit screen context.
 			if ( isset( $_GET['revision'] ) ) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only revision id used for admin message text.
 				$revision_id = (int) sanitize_text_field( wp_unslash( $_GET['revision'] ) );
 			}
 

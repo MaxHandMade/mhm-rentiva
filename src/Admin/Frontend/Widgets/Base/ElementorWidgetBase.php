@@ -315,7 +315,6 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		// Local file read for plugin-owned block metadata.
-		// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
 		$raw = file_get_contents( $json_path );
 		if ( false === $raw ) {
 			return;

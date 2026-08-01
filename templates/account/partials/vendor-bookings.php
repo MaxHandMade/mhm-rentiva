@@ -71,7 +71,7 @@ $format_currency = static function ( float $amount ): string {
 };
 
 // Status filter from URL.
-$filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+$filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 ?>
 
 <div class="mhm-vendor-bookings-page">

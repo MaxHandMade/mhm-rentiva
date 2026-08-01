@@ -225,7 +225,14 @@ final class Templates {
 		$title    = esc_html( $subject );
 		$brand    = esc_html( $siteName );
 		// Branding settings
-		$baseColor   = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_base_color();
+		// This value is interpolated into the <style> block below. A colour that
+		// lands inside a stylesheet cannot be made safe by esc_attr(): that leaves
+		// `;` and `}` intact, so a malformed value would close the declaration and
+		// open a rule of its own -- the same instrument mismatch WP.org's T7 review
+		// named at AssetManager's inline :root block. Validate it to a hex colour,
+		// which is the only thing this setting is ever meant to hold, and fall back
+		// to the default rather than emitting an empty declaration.
+		$baseColor   = sanitize_hex_color( (string) \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_base_color() ) ?: '#1e88e5';
 		$headerImage = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_header_image();
 		$footerText  = \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_footer_text();
 
@@ -271,8 +278,6 @@ final class Templates {
 				'style'  => array(),
 			),
 		);
-		$content = wp_kses( $innerHtml, $allowed );
-
 		// Compute a darker gradient end-stop from the base color
 		$gradientEnd = $baseColor;
 		$hexVal      = ltrim( $baseColor, '#' );
@@ -317,8 +322,8 @@ final class Templates {
 				}
 
 				.header {
-					background: <?php echo esc_attr( $baseColor ); ?>;
-					background: linear-gradient(135deg, <?php echo esc_attr( $baseColor ); ?> 0%, <?php echo esc_attr( $gradientEnd ); ?> 100%);
+					background: <?php echo sanitize_hex_color( $baseColor ); ?>;
+					background: linear-gradient(135deg, <?php echo sanitize_hex_color( $baseColor ); ?> 0%, <?php echo sanitize_hex_color( $gradientEnd ); ?> 100%);
 					color: #ffffff;
 					padding: 32px 36px;
 					text-align: center;
@@ -419,11 +424,10 @@ final class Templates {
 				</div>
 				<div class="content">
 					<?php
-					// $content is the return value of wp_kses( $innerHtml, $allowed ) on
-					// line 274 of this same method -- the sniff simply cannot follow the
-					// variable. Escaping again would double-encode the email body.
-					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Already wp_kses()'d at line 274 of this method.
-					echo $content;
+					// Filtered on the line that prints it. This used to be assigned to
+					// $content 150 lines up, which left the output site looking like a
+					// raw echo to PHPCS and to anyone reading it.
+					echo wp_kses( $innerHtml, $allowed );
 					?>
 				</div>
 				<div class="footer">

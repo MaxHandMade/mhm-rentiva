@@ -147,10 +147,12 @@ final class LayoutRollbackService {
             if ($e instanceof Exception) {
                 throw $e;
             }
-            // The third argument is the previous Throwable, which is an object and so has
-            // nothing to escape; only the message reaches a human, and it is escaped here.
-            // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped -- Message is escaped; the unescapable argument is the previous-exception object.
-            throw new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
+            // Built first, thrown second: the message is escaped on the line that
+            // assembles it. Inlining the constructor into the `throw` made the
+            // sniff examine the previous-Throwable argument too, which is an
+            // object with nothing to escape and no other way to pass it.
+            $wrapped = new Exception(esc_html($e->getMessage()), (int) $e->getCode(), $e);
+            throw $wrapped;
         }
     }
 

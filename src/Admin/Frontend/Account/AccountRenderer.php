@@ -279,8 +279,7 @@ final class AccountRenderer {
 	{
 		$user     = wp_get_current_user();
 		$per_page = 10;
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination parameter.
-		$page = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+		$page     = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
 
 		$result = self::get_user_payments($user->ID, $per_page, $page);
 

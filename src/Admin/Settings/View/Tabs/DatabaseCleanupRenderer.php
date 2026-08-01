@@ -53,7 +53,6 @@ final class DatabaseCleanupRenderer extends AbstractTabRenderer {
 			<div class="mhm-cleanup-dashboard">
 				<?php
 				// Handled via separate logic class for high performance
-				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				\MHMRentiva\Helpers\Html::echo_markup( \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::render_cleanup_buttons() );
 				?>
 				<div id="mhm-cleanup-results" style="margin-top: 15px;"></div>

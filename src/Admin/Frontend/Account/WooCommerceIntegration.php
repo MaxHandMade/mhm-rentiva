@@ -275,7 +275,6 @@ final class WooCommerceIntegration {
 		$user_id = get_current_user_id();
 
 		// Success notice after form submission (redirect with ?applied=1)
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 		if ( isset( $_GET['applied'] ) && '1' === sanitize_key( wp_unslash( $_GET['applied'] ?? '' ) ) ) {
 			echo '<div class="woocommerce-message">'
 				. esc_html__( 'Your application has been submitted! Our team will review it and notify you by email. This process typically takes 1–3 business days.', 'mhm-rentiva' )

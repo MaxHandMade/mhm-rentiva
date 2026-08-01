@@ -1198,7 +1198,6 @@ final class BookingMeta extends AbstractMetaBox {
 		// Read-only: selects which canned admin notice to print after our own
 		// post-save redirect. No state changes here, so no nonce is involved;
 		// the value is only ever compared against the literal cases below.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice selector, no state change.
 		$message = isset($_GET['message']) ? sanitize_text_field(wp_unslash( (string) $_GET['message'])) : '';
 
 		switch ($message) {

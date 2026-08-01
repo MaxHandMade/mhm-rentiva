@@ -159,7 +159,7 @@ final class UserDashboard {
 	 */
 	private static function resolve_tab(): string
 	{
-		$requested_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash( (string) $_GET['tab'])) : 'overview'; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab state.
+		$requested_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash( (string) $_GET['tab'])) : 'overview';
 		$context       = DashboardContext::resolve();
 		$allowed_tabs  = array_keys(DashboardNavigation::get_items($context));
 		if ($allowed_tabs === array()) {

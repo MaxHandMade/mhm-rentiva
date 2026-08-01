@@ -378,8 +378,7 @@ final class VehicleColumns {
 		// Location filter dropdown — withheld entirely without the Location feature,
 		// rather than rendered as a lone "All locations" option that filters nothing.
 		if (self::has_locations()) {
-			$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
+			$locations   = apply_filters('mhm_rentiva_locations', array(), 'rental');
 			$current_loc = isset($request['mhm_location_filter']) ? (int) $request['mhm_location_filter'] : 0;
 			echo '<select name="mhm_location_filter" class="postform">';
 			echo '<option value="">' . esc_html__('All locations', 'mhm-rentiva') . '</option>';
@@ -392,7 +391,6 @@ final class VehicleColumns {
 		}
 
 		// Lifecycle / archive filter dropdown.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
 		$current_lc = isset($request['mhm_lifecycle_filter']) ? sanitize_text_field( (string) $request['mhm_lifecycle_filter']) : '';
 		$lc_options = array(
 			''          => __('All lifecycle states', 'mhm-rentiva'),
@@ -409,7 +407,6 @@ final class VehicleColumns {
 		echo '</select>';
 
 		// Owner filter dropdown (vendor-added vs operator-added).
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only admin list filter parameter.
 		$current_owner = isset($request['mhm_owner_filter']) ? sanitize_text_field( (string) $request['mhm_owner_filter']) : '';
 		$owner_options = array(
 			''         => __('All owners', 'mhm-rentiva'),

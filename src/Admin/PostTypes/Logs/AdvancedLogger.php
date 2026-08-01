@@ -70,9 +70,13 @@ final class AdvancedLogger {
 	 *  vehicle_id?: int,
 	 *  customer_id?: int,
 	 *  execution_time?: float,
-	 *  memory_usage?: int,
-	 *  stack_trace?: bool
+	 *  memory_usage?: int
 	 * } $args
+	 *
+	 * Note: log entries no longer carry a PHP stack trace. debug_backtrace()
+	 * ran on every error()/critical() call, including on production installs,
+	 * and stored absolute server paths in a database post -- path disclosure in
+	 * exchange for a trace nothing in the admin UI ever read.
 	 */
 	public static function log( array $args ): int {
 		// Bail early if WordPress is not fully loaded yet (e.g., logging from
@@ -96,16 +100,15 @@ final class AdvancedLogger {
 			return 0;
 		}
 
-		$context             = (array) ( $args['context'] ?? array() );
-		$user_id             = isset( $args['user_id'] ) ? (int) $args['user_id'] : get_current_user_id();
-		$ip_address          = ClientUtilities::get_client_ip();
-		$user_agent          = self::get_user_agent();
-		$booking_id          = isset( $args['booking_id'] ) ? (int) $args['booking_id'] : 0;
-		$vehicle_id          = isset( $args['vehicle_id'] ) ? (int) $args['vehicle_id'] : 0;
-		$customer_id         = isset( $args['customer_id'] ) ? (int) $args['customer_id'] : 0;
-		$execution_time      = isset( $args['execution_time'] ) ? (float) $args['execution_time'] : 0;
-		$memory_usage        = isset( $args['memory_usage'] ) ? (int) $args['memory_usage'] : memory_get_usage( true );
-		$include_stack_trace = (bool) ( $args['stack_trace'] ?? false );
+		$context        = (array) ( $args['context'] ?? array() );
+		$user_id        = isset( $args['user_id'] ) ? (int) $args['user_id'] : get_current_user_id();
+		$ip_address     = ClientUtilities::get_client_ip();
+		$user_agent     = self::get_user_agent();
+		$booking_id     = isset( $args['booking_id'] ) ? (int) $args['booking_id'] : 0;
+		$vehicle_id     = isset( $args['vehicle_id'] ) ? (int) $args['vehicle_id'] : 0;
+		$customer_id    = isset( $args['customer_id'] ) ? (int) $args['customer_id'] : 0;
+		$execution_time = isset( $args['execution_time'] ) ? (float) $args['execution_time'] : 0;
+		$memory_usage   = isset( $args['memory_usage'] ) ? (int) $args['memory_usage'] : memory_get_usage( true );
 
 		// Create post title.
 		$title_parts = array(
@@ -141,11 +144,6 @@ final class AdvancedLogger {
 
 		if ( ! empty( $context ) ) {
 			$content_parts[] = 'Context: ' . wp_json_encode( $context, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
-		}
-
-		if ( $include_stack_trace && in_array( $level, array( self::LEVEL_ERROR, self::LEVEL_CRITICAL ), true ) ) {
-			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_debug_backtrace -- Intentional for error logging in production
-			$content_parts[] = 'Stack Trace: ' . wp_json_encode( debug_backtrace( DEBUG_BACKTRACE_IGNORE_ARGS ), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE );
 		}
 
 		$content = implode( "\n", $content_parts );
@@ -245,11 +243,10 @@ final class AdvancedLogger {
 	public static function error( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
-				'level'       => self::LEVEL_ERROR,
-				'category'    => $category,
-				'message'     => $message,
-				'context'     => $context,
-				'stack_trace' => true,
+				'level'    => self::LEVEL_ERROR,
+				'category' => $category,
+				'message'  => $message,
+				'context'  => $context,
 			)
 		);
 	}
@@ -260,11 +257,10 @@ final class AdvancedLogger {
 	public static function critical( string $message, array $context = array(), string $category = self::CATEGORY_SYSTEM ): int {
 		return self::log(
 			array(
-				'level'       => self::LEVEL_CRITICAL,
-				'category'    => $category,
-				'message'     => $message,
-				'context'     => $context,
-				'stack_trace' => true,
+				'level'    => self::LEVEL_CRITICAL,
+				'category' => $category,
+				'message'  => $message,
+				'context'  => $context,
 			)
 		);
 	}

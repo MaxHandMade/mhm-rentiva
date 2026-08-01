@@ -662,7 +662,7 @@ final class SetupWizard {
 		// WordPress sets `activate-multi` on bulk activation, and the admin should
 		// stay on the bulk-activation results screen. (Presence check only; the
 		// value is never used, so no nonce/sanitization is required here.)
-		if (isset($_GET['activate-multi'])) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		if (isset($_GET['activate-multi'])) {
 			return;
 		}
 

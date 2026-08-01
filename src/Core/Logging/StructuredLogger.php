@@ -15,7 +15,7 @@ if (! defined('ABSPATH')) {
  * Behaviour:
  *   - WP_DEBUG = true  → all levels written
  *   - WP_DEBUG = false → only 'warning' and 'error' written
- *   - Output target: PHP error_log() (formatted as JSON) + optional WP transient accumulator
+ *   - Output target: WP transient accumulator, read back via get_recent()
  *
  * Log entry format (single line JSON):
  *   {"level":"error","channel":"payout","message":"Ledger write failed",
@@ -114,21 +114,10 @@ final class StructuredLogger {
             'ts'      => gmdate('Y-m-d\TH:i:s\Z'),
         );
 
-        $line = wp_json_encode($entry, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        if ($line === false) {
-            $line = '{"level":"error","message":"StructuredLogger: json_encode failed"}';
-        }
-
-        // Primary: PHP error log, but only when the site asked for debug logging.
-        // The transient accumulator below is the in-dashboard view and stays
-        // unconditional, so nothing is lost on a production install -- what stops
-        // is writing to a log file the site owner did not opt into.
-        if (defined('WP_DEBUG') && WP_DEBUG && defined('WP_DEBUG_LOG') && WP_DEBUG_LOG) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
-            error_log('[MHM-Rentiva] ' . $line);
-        }
-
-        // Secondary: transient accumulator for in-dashboard viewing.
+        // Transient accumulator for in-dashboard viewing (read back by
+        // get_recent()). This is now the only sink: a distributed plugin has no
+        // business writing to the site's PHP error log, so the former
+        // error_log() write was removed rather than left debug-gated.
         self::accumulate($channel, $entry);
     }
 

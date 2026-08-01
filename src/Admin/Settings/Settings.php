@@ -129,8 +129,7 @@ final class Settings {
 	 */
 	public static function render_settings_page(): void
 	{
-		$registry = new TabRendererRegistry();
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector for settings UI rendering.
+		$registry    = new TabRendererRegistry();
 		$current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash( (string) $_GET['tab'])) : 'general';
 		$renderer    = $registry->get($current_tab) ?: $registry->get('general');
 

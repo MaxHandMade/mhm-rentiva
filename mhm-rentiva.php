@@ -375,9 +375,7 @@ register_activation_hook(
 
 		if (is_multisite()) {
 			// Network-wide activation
-			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Activation hooks are triggered by WordPress core without custom nonces in this context.
 			if (isset($_GET['networkwide']) && '1' === sanitize_text_field(wp_unslash($_GET['networkwide']))) {
-				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Activation hooks are triggered by WordPress core without custom nonces in this context.
 
 				// Fetch blog IDs using get_sites() instead of direct database query
 				$blog_ids = wp_cache_get('mhm_rentiva_network_blogs');

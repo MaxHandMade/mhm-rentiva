@@ -111,7 +111,6 @@ final class AddonMenu {
 	 */
 	public static function admin_notices(): void
 	{
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only notice flags from redirect query params.
 		$addon_created = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
 
 		// Show success message for addon creation.

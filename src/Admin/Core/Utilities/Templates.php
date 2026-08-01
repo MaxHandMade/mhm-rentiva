@@ -34,7 +34,6 @@ final class Templates {
 	 * @param string $shortcode Full shortcode string, e.g. '[rentiva_vehicles_list columns="3"]'.
 	 */
 	public static function output_shortcode( string $shortcode ): void {
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- See docblock: do_shortcode() returns assembled HTML whose dynamic values are each escaped at their own output site; re-escaping here would print markup as text.
 		echo do_shortcode( $shortcode );
 	}
 

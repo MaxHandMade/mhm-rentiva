@@ -57,7 +57,6 @@ final class DatabaseCleanupPage {
 		}
 
 		// Only enqueue if database-cleanup tab is active
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector for script enqueue gating.
 		$current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
 		if ($current_tab !== 'database-cleanup') {
 			return;
@@ -351,7 +350,7 @@ final class DatabaseCleanupPage {
 
 		// Not markup: Content-Type: application/sql + Content-Disposition: attachment
 		// are set above, so this is a file body and escaping would corrupt it.
-		echo $sql; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download body, not HTML; see headers above.
+		echo $sql;
 		exit;
 	}
 
@@ -513,17 +512,19 @@ final class DatabaseCleanupPage {
 			WP_Filesystem();
 		}
 
-		if ($wp_filesystem->exists($file_path)) {
-			// Not markup: this response carries Content-Type: application/sql and a
-			// Content-Disposition: attachment header set above, so the bytes are a
-			// file body. HTML-escaping them would corrupt the download.
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- File download body, not HTML; see headers above.
-			echo $wp_filesystem->get_contents($file_path);
-		} else {
-			// Fallback if filesystem fails (should normally work)
-			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_readfile
-			readfile($file_path);
+		// Single read path. The former readfile() fallback could not add anything:
+		// the file's existence is already established by the file_exists() check
+		// above, and dropping to a raw filesystem call on the one host where
+		// WP_Filesystem cannot read is exactly the case WP_Filesystem exists for.
+		$contents = $wp_filesystem->get_contents($file_path);
+		if (false === $contents) {
+			wp_die(esc_html__('Backup file could not be read.', 'mhm-rentiva'));
 		}
+
+		// Not markup: this response carries Content-Type: application/sql and a
+		// Content-Disposition: attachment header set above, so the bytes are a
+		// file body. HTML-escaping them would corrupt the download.
+		echo $contents;
 		exit;
 	}
 

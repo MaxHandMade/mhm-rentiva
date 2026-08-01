@@ -41,13 +41,11 @@ final class VehicleSettings {
 	 * Read a sanitized key from $_GET.
 	 */
 	private static function get_key( string $key, string $default = '' ): string {
-		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only GET access for tab/filter values.
 		if ( ! isset( $_GET[ $key ] ) ) {
 			return $default;
 		}
 
 		$value = sanitize_key( wp_unslash( $_GET[ $key ] ) );
-		// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 		return $value;
 	}
@@ -178,7 +176,6 @@ final class VehicleSettings {
 	}
 
 	public function render_settings_page(): void {
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selector in admin page rendering.
 		$active_tab = self::get_key( 'tab', 'definitions' );
 
 		$buttons = array(
