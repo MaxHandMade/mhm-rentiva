@@ -36,6 +36,15 @@
                 }
             });
 
+            // Mobile accordion toggle (replaces the inline `onclick` the template
+            // used to carry -- wp_kses() now strips all `on*` attributes at the
+            // dispatcher, so this delegated handler is the only way the mobile
+            // "Show Features" accordion opens/closes).
+            this.container.on('click', '.rv-mobile-accordion-toggle', (e) => {
+                const $toggle = $(e.currentTarget);
+                $toggle.closest('.rv-mobile-card-item').toggleClass('active');
+            });
+
             // Window resize event
             $(window).on('resize', () => {
                 this.adjustTableWidth();

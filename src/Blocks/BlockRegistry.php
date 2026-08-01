@@ -522,28 +522,15 @@ class BlockRegistry {
 			$wrapper_args['style'] = implode(';', $wrapper_styles);
 		}
 
-		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Both
-		// interpolated values are already escaped at their own source, not here:
-		// (1) get_block_wrapper_attributes() is WP core (wp-includes/
-		// class-wp-block-supports.php) and esc_attr()'s every attribute value it
-		// emits before returning the string; (2) $shortcode_content is the output
-		// of do_shortcode(), which resolves through
-		// ShortcodeServiceProvider::handle_shortcode_execution() -- see the
-		// documented ignore there for the precise, scoped guarantee: all 17 of
-		// Lite's own shortcode templates escape every dynamic field at output,
-		// and any `mhm_rentiva_shortcodes` filter contributor (e.g. an add-on) is
-		// responsible for its own per-field escaping, same as $blocks here is
-		// itself open to a `mhm_rentiva_blocks` filter contributor whose `tag`
-		// resolves through that same do_shortcode() call and inherits that same
-		// contract. This ignore does not audit or vouch for any contributor's
-		// rendering, only Lite's own. Wrapping this whole return in
-		// wp_kses_post() would risk stripping legitimate markup (SVG icons,
-		// style attributes, data-* used by the frontend JS) that the per-field
-		// escaping already accounts for.
+		// get_block_wrapper_attributes() is WP core and esc_attr()'s its own
+		// output already, so only the content needs wrapping here. Html::kses()
+		// (not a bare wp_kses()) also widens wp_kses()'s CSS-property filter for
+		// the few inline `style` values the allowlist alone can't cover — see
+		// its docblock.
 		return sprintf(
 			'<div %s>%s</div>',
 			get_block_wrapper_attributes($wrapper_args),
-			$shortcode_content
+			\MHMRentiva\Helpers\Html::kses( $shortcode_content )
 		);
 	}
 

@@ -111,8 +111,16 @@ $custom_class         = trim($atts['class'] ?? '');
 											if (! $is_available) {
 												$btn_style .= ' background: #95a5a6 !important; opacity: 0.6; pointer-events: none; cursor: not-allowed;';
 												$btn_class .= ' rv-btn-disabled';
-												$btn_href   = 'javascript:void(0);';
-												$btn_attrs  = 'aria-disabled="true" tabindex="-1"';
+												// '#' instead of 'javascript:void(0);' -- wp_kses_bad_protocol()
+												// (invoked once the dispatcher wraps this template's output in
+												// wp_kses(), see ShortcodeServiceProvider::handle_shortcode_execution())
+												// would strip a javascript: URL unconditionally anyway; fixing it
+												// here makes that explicit instead of relying on the side effect.
+												// The `.rv-btn-disabled` class already sets `pointer-events: none`
+												// (assets/css/frontend/vehicle-comparison.css), so the link is
+												// inert regardless of its href.
+												$btn_href  = '#';
+												$btn_attrs = 'aria-disabled="true" tabindex="-1"';
 											}
 											?>
 											<?php if ($show_booking_buttons) : ?>
@@ -208,7 +216,18 @@ $custom_class         = trim($atts['class'] ?? '');
 								</button>
 							</div>
 
-							<button type="button" class="rv-mobile-accordion-toggle" onclick="this.parentElement.classList.toggle('active');">
+							<?php
+							// No inline `onclick` -- wp_kses() (now wrapping this template's
+							// output at the dispatcher, see
+							// ShortcodeServiceProvider::handle_shortcode_execution()) strips
+							// every `on*` attribute unconditionally. The toggle is bound via
+							// event delegation in assets/js/frontend/vehicle-comparison.js
+							// (VehicleComparison.bindEvents()), which toggles the `active`
+							// class on the closest `.rv-mobile-card-item` -- the same element
+							// and class the removed inline handler targeted via
+							// `this.parentElement`.
+							?>
+							<button type="button" class="rv-mobile-accordion-toggle">
 								<span><?php echo esc_html__('Show Features', 'mhm-rentiva'); ?></span>
 								<?php
                                 Icons::render('chevron-down', [
@@ -327,8 +346,12 @@ $custom_class         = trim($atts['class'] ?? '');
 
 								if (! $is_available) {
 									$btn_class .= ' rv-btn-disabled';
-									$btn_href   = 'javascript:void(0);';
-									$btn_attrs  = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
+									// '#' instead of 'javascript:void(0);' -- see the matching comment
+									// above for the other disabled-state link in this template; same
+									// wp_kses_bad_protocol() rationale, same `.rv-btn-disabled`
+									// `pointer-events: none` (also set inline here) keeping it inert.
+									$btn_href  = '#';
+									$btn_attrs = 'aria-disabled="true" tabindex="-1" style="opacity: 0.6; pointer-events: none; cursor: not-allowed;"';
 								}
 								?>
 								<?php if ($show_booking_buttons) : ?>

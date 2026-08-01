@@ -81,7 +81,20 @@ $unique_id = uniqid('rv_booking_');
 	data-vehicle-id="<?php echo esc_attr($selected_vehicle['id']); ?>" <?php endif; ?>>
 
 	<div class="rv-booking-form">
-		<form class="rv-booking-form-content rv-checkout-layout" id="rv-booking-form-<?php echo esc_attr($unique_id); ?>" method="post" onsubmit="return false;">
+		<?php
+		// No inline `onsubmit` -- wp_kses() (now wrapping this template's output
+		// at the dispatcher, see
+		// ShortcodeServiceProvider::handle_shortcode_execution()) strips every
+		// `on*` attribute unconditionally. The redundant client-side guard this
+		// removed (`onsubmit="return false;"`) was belt-and-suspenders: the real,
+		// only submission path is assets/js/frontend/booking-form.js's
+		// `this.form.on('submit', ...)` handler, which already calls
+		// `e.preventDefault()` before doing its own AJAX submit -- this form has
+		// no non-JS fallback regardless (addon pricing, availability checks,
+		// etc. all require the JS to run), so nothing relied on the inline
+		// fallback.
+		?>
+		<form class="rv-booking-form-content rv-checkout-layout" id="rv-booking-form-<?php echo esc_attr($unique_id); ?>" method="post">
 			<?php if ($pickup_location_id > 0) : ?>
 				<input type="hidden" name="pickup_location_id" value="<?php echo esc_attr( (string) $pickup_location_id); ?>">
 			<?php endif; ?>

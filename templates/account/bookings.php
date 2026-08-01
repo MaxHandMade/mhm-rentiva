@@ -107,7 +107,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					<input type="hidden" name="endpoint" value="bookings">
 
 					<div class="rv-filter-row">
-						<select name="status_filter" class="rv-filter-select" data-testid="bookings-status-filter" onchange="this.form.submit()">
+						<select name="status_filter" class="rv-filter-select" data-testid="bookings-status-filter">
 							<option value="all" <?php selected($status_filter, 'all'); ?>><?php esc_html_e('All Status', 'mhm-rentiva'); ?></option>
 							<option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
 							<option value="confirmed" <?php selected($status_filter, 'confirmed'); ?>><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></option>
@@ -124,6 +124,21 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							class="rv-search-input"
 							placeholder="<?php esc_attr_e('Search by Reservation ID', 'mhm-rentiva'); ?>"
 							value="<?php echo esc_attr($search_query); ?>">
+					</div>
+
+					<div class="rv-filter-row">
+						<?php
+						// This form used to auto-submit on <select> change via an inline
+						// `onchange="this.form.submit()"` handler. wp_kses() -- now wrapping
+						// this template's output at the dispatcher (see
+						// ShortcodeServiceProvider::handle_shortcode_execution()) -- strips
+						// every `on*` attribute unconditionally, same as it must for any
+						// inline event handler; the fix is a real submit control, not an
+						// allowlist exception (inline JS execution is exactly what that
+						// escaping closes off). Without this button the form had no other
+						// way to submit at all.
+						?>
+						<button type="submit" class="rv-filter-submit button"><?php esc_html_e('Filter', 'mhm-rentiva'); ?></button>
 					</div>
 				</form>
 			</div>

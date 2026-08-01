@@ -57,10 +57,38 @@ class Html {
 			'tabindex' => true,
 			'hidden'   => true,
 			'data-*'   => true,
-			'aria-*'   => true,
-		);
+		) + self::aria_attributes();
 
 		$allowed = wp_kses_allowed_html( 'post' );
+
+		// WP core's 'post' context gives generic tags like `a` only a fixed,
+		// narrow global attribute set -- no `tabindex`, no wildcard `aria-*`.
+		// Shipped templates render exactly these on `<a>` for disabled-state
+		// booking links and decorative image-wrap links (see
+		// templates/shortcodes/vehicle-comparison.php:115,331 and
+		// templates/partials/vehicle-card.php:41; pinned by
+		// tests/Unit/Helpers/HtmlAllowedMarkupTest.php). Only `a` is widened
+		// here, not every tag via a global wildcard -- the surface that
+		// deliberately exceeds core's default stays small and documented.
+		$allowed['a'] = ( $allowed['a'] ?? array() ) + array(
+			'tabindex'      => true,
+			'aria-disabled' => true,
+			'aria-hidden'   => true,
+			'aria-selected' => true,
+			'aria-current'  => true,
+			'aria-expanded' => true,
+		);
+
+		// Same gap, a different core default: wp_kses_allowed_html('post') gives
+		// `img` no `srcset`/`sizes` at all, even though WP has shipped responsive
+		// images since 4.4. templates/partials/vehicle-card.php:51-57 relies on
+		// both (retina/wide vehicle photos) -- found by the Adım 6 visual-parity
+		// sweep, where every vehicle card's <img> silently lost its srcset/sizes
+		// and fell back to whatever `src` alone resolves to.
+		$allowed['img'] = ( $allowed['img'] ?? array() ) + array(
+			'srcset' => true,
+			'sizes'  => true,
+		);
 
 		$allowed['form']     = $common + array(
 			'action'  => true,
@@ -95,6 +123,15 @@ class Html {
 			'size'     => true,
 			'disabled' => true,
 			'required' => true,
+			// Not a real HTML attribute for `<select>` (the spec only defines
+			// `readonly` for `input`/`textarea`; browsers ignore it here, and
+			// `disabled` already does the actual work) -- but
+			// templates/shortcodes/booking-form.php's dropoff-time select emits
+			// it anyway, and wp_kses() would otherwise strip it silently.
+			// Allowing it keeps the escaped output byte-identical to the
+			// pre-wp_kses dispatcher (Adım 6 visual-parity sweep) rather than
+			// leaving an unexplained, if harmless, diff.
+			'readonly' => true,
 		);
 		$allowed['option']   = $common + array(
 			'value'    => true,
@@ -129,7 +166,13 @@ class Html {
 			'max'   => true,
 		);
 
-		// Inline SVG is used for the plugin's own icons and sparklines.
+		// Inline SVG is used for the plugin's own icons and sparklines. Icons::get()
+		// (src/Helpers/Icons.php) puts `stroke-linecap`/`stroke-linejoin` on the
+		// outer <svg> element itself, not only on its path/line/etc. children --
+		// confirmed by the visual-parity sweep (Adım 6): without these two here,
+		// wp_kses() silently rounded every icon's stroke caps/joins back to the
+		// browser default on the SAME shipped icon markup Icons::allowed_svg()
+		// already permits on <svg> for its own, narrower echo_svg() pass.
 		$allowed['svg'] = $common + array(
 			'xmlns'               => true,
 			'viewbox'             => true,
@@ -139,6 +182,8 @@ class Html {
 			'fill'                => true,
 			'stroke'              => true,
 			'stroke-width'        => true,
+			'stroke-linecap'      => true,
+			'stroke-linejoin'     => true,
 			'preserveaspectratio' => true,
 			'overflow'            => true,
 			'focusable'           => true,
@@ -172,7 +217,48 @@ class Html {
 			$allowed[ $shape ] = $svg_shape;
 		}
 
+		// wp_kses_allowed_html('post')'s own per-tag aria-* sets are inconsistent
+		// (e.g. `div` gets aria-label/aria-hidden/etc. but not `aria-modal`,
+		// which templates/shortcodes/transfer-results.php's dialog wrapper
+		// needs) and several tags this plugin uses get none at all. Rather than
+		// track that inconsistency tag by tag, merge the same curated aria-*
+		// set onto every tag already in the array -- attribute keys already
+		// present (from core or from an override above) are left alone; only
+		// missing aria-* keys are added. Found by the Adım 6 visual-parity
+		// sweep, which is also what the assertion in
+		// tests/Unit/Helpers/HtmlAllowedMarkupTest.php pins.
+		$aria = self::aria_attributes();
+		foreach ( $allowed as $tag => $attrs ) {
+			$allowed[ $tag ] = $attrs + $aria;
+		}
+
 		return $allowed;
+	}
+
+	/**
+	 * The real, enumerated `aria-*` attributes this plugin's own templates use
+	 * (grepped out of templates/ and src/). `'aria-*' => true` is NOT a real
+	 * wildcard for wp_kses() -- unlike `data-*`, WP core's kses.php has no
+	 * special-cased prefix handling for `aria-` (only 'data-*' gets that
+	 * treatment); a wildcard-shaped entry there is silently inert, and every
+	 * aria attribute must be its own literal key or wp_kses() strips it with
+	 * no warning.
+	 *
+	 * @return array<string, bool>
+	 */
+	private static function aria_attributes(): array {
+		return array(
+			'aria-controls'   => true,
+			'aria-current'    => true,
+			'aria-disabled'   => true,
+			'aria-expanded'   => true,
+			'aria-hidden'     => true,
+			'aria-label'      => true,
+			'aria-labelledby' => true,
+			'aria-modal'      => true,
+			'aria-pressed'    => true,
+			'aria-selected'   => true,
+		);
 	}
 
 	/**
@@ -184,5 +270,58 @@ class Html {
 	 */
 	public static function echo_markup( string $html ): void {
 		echo wp_kses( $html, self::allowed_markup() );
+	}
+
+	/**
+	 * Escape a full render surface -- the shortcode dispatcher's and the block
+	 * `render_callback`'s return -- with wp_kses(), widening wp_kses()'s own
+	 * `style` attribute filter (`safecss_filter_attr()`, driven by the
+	 * `safe_style_css` list) for the duration of this one call.
+	 *
+	 * That list is a *different* allowlist from {@see allowed_markup()}: it
+	 * governs which CSS *properties* survive inside a `style="..."` value, not
+	 * which tags/attributes survive. A plain `wp_kses($html, self::allowed_markup())`
+	 * leaves it at WP core's default, which is missing a few properties Lite's
+	 * own templates set inline and rely on:
+	 *  - `fill` -- rating-star icons set their color via
+	 *    `style="fill: #hex; color: #hex"` (templates/shortcodes/
+	 *    vehicle-rating-form.php:275, templates/shortcodes/
+	 *    availability-calendar.php:177/185/194). {@see Icons::echo_svg()}
+	 *    already widens `fill` for its OWN, narrower wp_kses() pass when it
+	 *    renders the icon -- but it removes that filter again immediately
+	 *    after, so by the time THIS method's wp_kses() call runs over the
+	 *    whole buffered template a second time, `fill` is gone again and the
+	 *    star silently loses its color: with no `fill` in the style value, the
+	 *    `<svg>`'s own `fill="none"` attribute is what the shape inherits
+	 *    instead (found by the Adım 6 visual-parity sweep: a single-request
+	 *    raw-output-vs-wp_kses-output diff, not visible from reading the
+	 *    allowlist alone).
+	 *  - `pointer-events` / `resize` -- used on a few disabled-state controls
+	 *    (templates/shortcodes/vehicle-comparison.php, templates/account/
+	 *    payment-history.php, templates/account/booking-detail.php's
+	 *    cancellation textarea). Neither is load-bearing today (`.rv-btn-disabled`
+	 *    already sets `pointer-events: none !important` in CSS; the textarea's
+	 *    `resize: vertical` only controls a resize handle, and the
+	 *    `payment-history.php` spans have no href/click behavior to begin
+	 *    with), but silently stripping real, shipped markup is exactly what
+	 *    this method exists to stop, so both are allowed here too rather than
+	 *    left as an unexplained diff.
+	 *
+	 * @param string $html Raw callback/template output.
+	 * @return string Escaped output.
+	 */
+	public static function kses( string $html ): string {
+		$allow_extra_style_props = static function ( array $props ): array {
+			$props[] = 'fill';
+			$props[] = 'pointer-events';
+			$props[] = 'resize';
+			return $props;
+		};
+
+		add_filter( 'safe_style_css', $allow_extra_style_props );
+		$escaped = wp_kses( $html, self::allowed_markup() );
+		remove_filter( 'safe_style_css', $allow_extra_style_props );
+
+		return $escaped;
 	}
 }
