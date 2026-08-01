@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
  *
  * Automatically creates critical indexes for performance optimization
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.PreparedSQL.NotPrepared -- Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {
 
 
@@ -689,9 +689,20 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		// 1. Orphan Post Meta Cleaning. The `%%` was a leftover from a prepare()
-		// this statement never went through -- MySQL matched a literal percent
-		// sign, so the clause only ever hit keys starting `_mhm_%`.
+		// 1. Orphan Post Meta Cleaning.
+		//
+		// The pattern was `_mhm_%%`, a leftover from a prepare() this statement
+		// never went through. Measured rather than assumed: in MySQL LIKE, `%%`
+		// is simply two wildcards and behaves identically to `%` (verified over
+		// `_mhm_status`, `_mhm_%_legacy`, `_mhm_`, `xmhm_foo`, `_mhmX_foo` --
+		// all match both patterns). So this is a no-op cleanup, NOT a bug fix:
+		// the doubling only becomes wrong the day someone wraps this statement
+		// in prepare(), where `%%` means a literal percent sign and the clause
+		// would silently stop matching. Written singly so that trap is gone.
+		//
+		// Note the leading `_` is itself a single-character wildcard, so this
+		// also reaches e.g. `xmhm_foo`. Pre-existing and deliberately left
+		// alone here; escaping it would change which rows get deleted.
 		$wpdb->query(
 			"DELETE pm
         FROM {$wpdb->postmeta} pm
@@ -1103,7 +1114,6 @@ final class DatabaseMigrator {
 	private static function drop_orchestration_tables(): void
 	{
 		global $wpdb;
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- table names derived from trusted $wpdb->prefix.
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");

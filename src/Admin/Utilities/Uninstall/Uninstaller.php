@@ -99,7 +99,6 @@ final class Uninstaller {
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			if ( $exists ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Plugin-owned table; %i quotes the identifier.
 				$rows                             = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 				$stats['custom_tables'][ $table ] = (int) $rows;
 			}
@@ -275,7 +274,6 @@ final class Uninstaller {
 		foreach ( $custom_tables as $table ) {
 			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			if ( $exists ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Uninstall drops the plugin's own tables; %i quotes the identifier.
 				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
 				++$results['tables_dropped'];
 			}
@@ -292,7 +290,6 @@ final class Uninstaller {
 		foreach ( $orphan_patterns as $pattern ) {
 			$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pattern ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			foreach ( $orphans as $orphan_table ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery -- Uninstall drops the plugin's own orphan tables; %i quotes the identifier.
 				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $orphan_table ) );
 				++$results['tables_dropped'];
 			}

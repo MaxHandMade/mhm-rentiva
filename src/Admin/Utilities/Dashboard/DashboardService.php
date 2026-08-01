@@ -489,7 +489,6 @@ final class DashboardService {
 		// glued together from PHP fragments: the transfer-locations table is an
 		// add-on feature that may simply not exist, and a JOIN cannot be made
 		// conditional in SQL. Where it does exist its name is bound through %i.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Paginated dashboard list; no core API can express this join.
 		$bookings = $locations_table_exists
 			? $wpdb->get_results(
 				$wpdb->prepare(

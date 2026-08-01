@@ -211,7 +211,6 @@ class VerifiedReviewHelper {
 		$matched_emails   = array();
 
 		if ( ! empty( $user_ids ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking status lives in postmeta; the caller caches the whole result in a transient.
 			$matched_user_ids = $wpdb->get_col(
 				$wpdb->prepare(
 					"SELECT DISTINCT CAST(pm_user.meta_value AS UNSIGNED)
@@ -230,7 +229,6 @@ class VerifiedReviewHelper {
 		}
 
 		if ( ! empty( $emails ) ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Booking status lives in postmeta; the caller caches the whole result in a transient.
 			$matched_emails = $wpdb->get_col(
 				$wpdb->prepare(
 					"SELECT DISTINCT LOWER(pm_email.meta_value)

@@ -26,8 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Cleans orphaned data, expired transients and unused meta keys
  */
-// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Maintenance operations require dynamic table/placeholder composition with strict internal whitelisting.
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
 
@@ -1682,8 +1681,17 @@ final class DatabaseCleaner {
 			if ( empty( trim( $query ) ) ) {
 				continue;
 			}
-			// Security: $query is from a trusted backup file.
-			// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared,PluginCheck.Security.DirectDB.UnescapedDBParameter -- The query variable contains a full SQL statement restored from trusted backup input.
+			// DELIBERATELY NOT SUPPRESSED (WP.org T7 Task 9.5).
+			//
+			// $query is one statement split out of a .sql dump this plugin wrote
+			// itself, and the file path is contained by is_contained_backup_file()
+			// -> is_backup_file(), which resolves both ends with realpath() before
+			// comparing. There is no placeholder form for "execute this arbitrary
+			// statement", so no amount of prepare() removes the finding -- and a
+			// phpcs:ignore here would only hide it from our own gate while a human
+			// reviewer still sees it. It stays visible until the owner decides
+			// between rewriting the backup format, dropping the feature, or
+			// explaining it to WP.org.
 			$result = $wpdb->query( $query );
 			if ( $result === false ) {
 				$errors[] = $wpdb->last_error;
@@ -1869,5 +1877,5 @@ final class DatabaseCleaner {
 		return ! empty( $wp_filesystem );
 	}
 }
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange,WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
 // phpcs:enable

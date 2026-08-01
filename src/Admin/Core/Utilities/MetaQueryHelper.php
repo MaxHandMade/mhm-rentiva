@@ -242,14 +242,21 @@ final class MetaQueryHelper {
 	public static function build_meta_in(string $alias, array $values): string
 	{
 		global $wpdb;
-		$safe_alias   = self::sanitize_alias($alias);
-		$placeholders = implode(',', array_fill(0, count($values), '%s'));
-		$args         = array_merge(
-			array( "{$safe_alias}.meta_value IN ({$placeholders})" ), // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Alias and generated placeholders are controlled.
-			array_values($values)
-		);
 
-		return (string) call_user_func_array(array( $wpdb, 'prepare' ), $args);
+		// An empty list would have produced `IN ()`, which is a syntax error.
+		if (empty($values)) {
+			return '';
+		}
+
+		// Called on $wpdb->prepare() directly rather than through
+		// call_user_func_array(). The indirect call hid this query from the
+		// sniffs completely, which is not the same thing as being safe -- it is
+		// the evasion this round exists to remove. The alias binds through %i
+		// and the IN list is generated inline from count($values).
+		return (string) $wpdb->prepare(
+			'%i.meta_value IN (' . implode(',', array_fill(0, count($values), '%s')) . ')',
+			array_merge(array( self::sanitize_alias($alias) ), array_values($values))
+		);
 	}
 
 	/**

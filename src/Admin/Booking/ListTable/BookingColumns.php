@@ -1818,7 +1818,6 @@ final class BookingColumns {
 			if ( ! empty( $vehicle_ids ) ) {
 				// Collect bookings for those vehicles
 				$vehicle_ids = array_values( array_map( 'intval', $vehicle_ids ) );
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin list-table filter lookup; there is no core API for a meta-value IN () search.
 				$booking_ids = $wpdb->get_col(
 					$wpdb->prepare(
 						"

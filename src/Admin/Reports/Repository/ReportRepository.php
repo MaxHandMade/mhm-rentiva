@@ -422,7 +422,6 @@ class ReportRepository {
 			// is an add-on feature that may not exist at all, and a JOIN cannot be
 			// made conditional in SQL. Where it does exist its name is bound
 			// through %i.
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Operations report; no core API can express this join.
 			$rentals = $locations_table_exists
 				? $wpdb->get_results(
 					$wpdb->prepare(
@@ -469,15 +468,18 @@ class ReportRepository {
                 AND pm_pickup.meta_value >= %s
                 AND pm_pickup.meta_value <= %s
                 ORDER BY pm_pickup.meta_value ASC",
+						// Argument order follows the placeholders down the statement:
+						// the three %i JOINs sit BELOW pm_pickup/pm_return/pm_status,
+						// so the meta keys come first and the table name last.
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_VEHICLE_ID,
 						$vehicle_plate_key,
 						$vehicle_location_key,
-						$locations_table,
-						$locations_table,
-						$locations_table,
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_PICKUP_DATE,
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_RETURN_DATE,
 						\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+						$locations_table,
+						$locations_table,
+						$locations_table,
 						'vehicle_booking',
 						$now,
 						$upper
@@ -550,7 +552,6 @@ class ReportRepository {
 		// 2. Transfers (if table exists)
 		$transfer_table = $wpdb->prefix . 'mhm_transfers';
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $transfer_table ) ) === $transfer_table ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Add-on transfers table has no core API; the report is built per request.
 			$transfers = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT
