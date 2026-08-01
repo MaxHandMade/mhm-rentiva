@@ -152,29 +152,4 @@ final class ExternalHttpGateTest extends TestCase {
 		$this->assertStringContainsString( 'src/Probe.php:2', $out );
 	}
 
-	/**
-	 * The Governance.php exemption must be scoped to that exact path -- a
-	 * same-named file elsewhere must not inherit it.
-	 */
-	public function test_exemption_is_path_scoped(): void {
-		$out = $this->run_gate(
-			array(
-				'src/Governance.php' => "<?php\nwp_register_style( 'x', 'https://cdn.jsdelivr.net/npm/x', array(), '1' );\n",
-			)
-		);
-
-		$this->assertStringNotContainsString( '[OK]', $out );
-		$this->assertStringContainsString( 'src/Governance.php:2', $out );
-	}
-
-	/** The real Governance.php path stays exempt: it blocks CDNs by naming them. */
-	public function test_governance_denylist_file_is_exempt(): void {
-		$out = $this->run_gate(
-			array(
-				'src/Admin/Core/Governance.php' => "<?php\nconst FORBIDDEN_URLS = array( 'cdn.tailwindcss.com', 'unpkg.com/tailwindcss' );\n",
-			)
-		);
-
-		$this->assertStringContainsString( '[OK]', $out );
-	}
 }

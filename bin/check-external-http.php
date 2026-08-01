@@ -90,13 +90,7 @@ $denied_hosts = array(
  *
  * Repo-relative, forward slashes.
  */
-$exempt_files = array(
-	// Governance.php is itself a deny-list: it blocks Tailwind CDN handles and
-	// URLs at wp_enqueue_scripts. Its FORBIDDEN_URLS entries name a CDN in
-	// order to REFUSE it, which is the opposite of egress. Without this
-	// exemption, this gate would flag a sibling gate for doing its job.
-	'src/Admin/Core/Governance.php' => 'anti-CDN deny-list; names hosts in order to block them',
-);
+$exempt_files = array();
 
 $scan_targets = array(
 	$root . '/src',

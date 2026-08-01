@@ -130,10 +130,6 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\AssetManager::init();
 		}
 
-		// Governance Enforcement
-		if ($this->is_class_available('\MHMRentiva\Admin\Core\Governance')) {
-			( new \MHMRentiva\Admin\Core\Governance() )->register();
-		}
 
 		// WordPress optimizer
 		if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer')) {
