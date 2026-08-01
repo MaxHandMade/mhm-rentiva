@@ -130,7 +130,6 @@ final class Plugin {
 			\MHMRentiva\Admin\Core\AssetManager::init();
 		}
 
-
 		// WordPress optimizer
 		if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer')) {
 			\MHMRentiva\Admin\Core\Utilities\WordPressOptimizer::register();
