@@ -265,23 +265,174 @@ function runMode3(string $baselinePath): array
 // except the two BOOTSTRAP_FALLBACK_ALLOWLIST names. Expected RED until
 // Görev 12's sweep has actually run.
 // ---------------------------------------------------------------------------
-function runMode4(string $root): array
+/**
+ * Every OLD identifier paired with the NEW name it becomes.
+ *
+ * @return array<int, array{0:string,1:string}>
+ */
+function allOldNewPairs(): array
+{
+    $pairs = [];
+    foreach (exactKeyFamilies() as $family) {
+        foreach ($family as $old => $new) {
+            $pairs[] = [$old, $new];
+        }
+    }
+    foreach ([Map::POSTMETA_PREFIX_RULES, Map::USERMETA_PREFIX_RULES, Map::RUNTIME_STRING_RULES] as $ruleset) {
+        foreach ($ruleset as $old => $new) {
+            $pairs[] = [$old, $new];
+        }
+    }
+    return $pairs;
+}
+
+/**
+ * Literals that deliberately survive the sweep and must not be read as
+ * unconverted leftovers.
+ *
+ * @return array<int, string>
+ */
+function deliberateSurvivors(): array
+{
+    return array_merge(
+        Map::BOOTSTRAP_FALLBACK_ALLOWLIST,
+        // Görev 12 decision: legacy Transfer table names. Lite never CREATEs
+        // these tables and TABLES does not map them, so Görev 13 never renames
+        // the physical table either -- the probe literal must keep matching what
+        // is actually on disk. See PrefixRenamer::CARVE_OUT_TABLE_LITERALS.
+        ['mhm_rentiva_transfer_locations', 'mhm_rentiva_transfer_routes']
+    );
+}
+
+/**
+ * Mode 4, half A -- INDEPENDENT raw search, valid only for self-identifying
+ * names.
+ *
+ * Every old identifier containing an 'mhm' token is unambiguous: no English
+ * word, PHP identifier or third-party name in this tree contains it by
+ * accident, so finding one is proof of an unconverted leftover. This half owes
+ * nothing to the rename tool and would catch a sweep that simply missed files.
+ *
+ * Two corrections were needed before it could tell the truth at all:
+ *   - Three rules have a NEW value CONTAINING their OLD key ('_booking_' ->
+ *     '_mhmrentiva_booking_', '_contact_', 'addon_'). Searching raw for the old
+ *     key matches the CORRECTLY renamed output, so this mode could never go
+ *     green however perfect the sweep. The new value is masked out first.
+ *   - Files that hold old names as DATA (PrefixMigrationMap.php above all) are
+ *     excluded. The map is the record of the old names; it is supposed to
+ *     contain them, and reading it as a leftover made the gate permanently red.
+ *
+ * @param string $root Plugin root.
+ * @return array<int,string>
+ */
+function runMode4a(string $root): array
 {
     $violations = [];
-    $allowlist = Map::BOOTSTRAP_FALLBACK_ALLOWLIST;
-    foreach (allOldIdentifiers() as $old) {
-        if ($old === '' || in_array($old, $allowlist, true)) {
+    $contents   = mode4Sources($root);
+    $survivors  = deliberateSurvivors();
+
+    foreach (allOldNewPairs() as [$old, $new]) {
+        if ($old === '' || stripos($old, 'mhm') === false) {
+            continue; // half B's territory.
+        }
+        if (in_array($old, Map::BOOTSTRAP_FALLBACK_ALLOWLIST, true)) {
             continue;
         }
-        $pattern = preg_quote($old, '/');
-        $cmd = 'grep -rlF ' . escapeshellarg($old) . ' ' . escapeshellarg($root . '/src') . ' ' . escapeshellarg($root . '/templates') . ' --include=*.php';
-        exec($cmd, $out);
-        if (! empty($out)) {
-            $violations[] = "old identifier '$old' still present in: " . implode(', ', array_slice($out, 0, 3)) . (count($out) > 3 ? ' (+' . (count($out) - 3) . ' more)' : '');
+        $hits = [];
+        foreach ($contents as $file => $src) {
+            $masked = $src;
+            if ($new !== '' && $new !== $old && str_contains($new, $old)) {
+                $masked = str_replace($new, "\x00", $masked);
+            }
+            foreach ($survivors as $survivor) {
+                $masked = str_replace($survivor, "\x00", $masked);
+            }
+            if (str_contains($masked, $old)) {
+                $hits[] = substr($file, strlen($root) + 1);
+            }
         }
-        $out = [];
+        if (! empty($hits)) {
+            $violations[] = "old identifier '$old' still present in: " . implode(', ', array_slice($hits, 0, 3)) . (count($hits) > 3 ? ' (+' . (count($hits) - 3) . ' more)' : '');
+        }
     }
     return $violations;
+}
+
+/**
+ * Mode 4, half B -- residual check for the names a raw search CANNOT test.
+ *
+ * The bare CPT/taxonomy tokens ('vehicle', 'addon_context', ...) and the four
+ * non-mhm meta prefixes ('_booking_', 'addon_', ...) are ordinary English and
+ * ordinary PHP. A raw substring search for 'vehicle' matches $vehicle_id, the
+ * word "vehicle" in a comment, and VehicleListingAdapter -- so half A cannot
+ * express the question. This half asks the rename tool whether it would still
+ * change anything, which is precisely "is any unconverted old name left?".
+ *
+ * 🔴 LIMITATION, STATED RATHER THAN HIDDEN: this half shares its definition of
+ * "an old name" with the tool it is checking, so it proves the sweep is
+ * complete BY ITS OWN RULES -- not that the rules are right. A name neither the
+ * map nor the tool knows about is invisible to both. Half A, mode 3 and mode 5
+ * are the independent checks; this one is a consistency check only.
+ *
+ * @param string $root Plugin root.
+ * @return array<int,string>
+ */
+function runMode4b(string $root): array
+{
+    $renamerPath = $root . '/bin/prefix-rename.php';
+    if (! is_file($renamerPath)) {
+        return ['rename tool not found at bin/prefix-rename.php -- cannot verify residual coverage'];
+    }
+    require_once $renamerPath;
+
+    $violations = [];
+    foreach (mode4Sources($root) as $file => $src) {
+        $renamer = new \MHMRentiva\Tools\PrefixRenamer();
+        [$out]   = $renamer->transform($src, $file);
+        if ($out !== $src) {
+            $violations[] = 'rename tool would still change ' . substr($file, strlen($root) + 1);
+        }
+    }
+    return $violations;
+}
+
+/**
+ * The files mode 4 judges: src/ + templates/ PHP, minus the files that carry
+ * old names as data by design.
+ *
+ * @param string $root Plugin root.
+ * @return array<string,string> path => contents
+ */
+function mode4Sources(string $root): array
+{
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+    $files = [];
+    exec('find ' . escapeshellarg($root . '/src') . ' ' . escapeshellarg($root . '/templates') . ' -name "*.php"', $files);
+
+    $excluded = [
+        // The single source of truth for the OLD names. It must contain them.
+        $root . '/src/Admin/Core/Utilities/PrefixMigrationMap.php',
+    ];
+
+    $cache = [];
+    foreach ($files as $f) {
+        if (in_array($f, $excluded, true)) {
+            continue;
+        }
+        $src = file_get_contents($f);
+        if ($src !== false) {
+            $cache[$f] = $src;
+        }
+    }
+    return $cache;
+}
+
+function runMode4(string $root): array
+{
+    return array_merge(runMode4a($root), runMode4b($root));
 }
 
 // ---------------------------------------------------------------------------
@@ -298,16 +449,16 @@ function extractOptionCandidatesFromFile(string $file): array
     $names = [];
 
     // (a) direct literal first-arg calls.
-    if (preg_match_all("/(?:update_option|get_option|add_option|delete_option)\\(\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
+    if (preg_match_all("/(?:update_option|get_option|add_option|delete_option)\\(\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
     // (b) register_setting() 2nd arg (the actual option name).
-    if (preg_match_all("/register_setting\\(\\s*'[^']*'\\s*,\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
+    if (preg_match_all("/register_setting\\(\\s*'[^']*'\\s*,\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
     // (c) register_setting() 1st arg (settings group -- often reused as the
     // option name in this codebase, e.g. AddonSettings::PAGE).
-    if (preg_match_all("/register_setting\\(\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
+    if (preg_match_all("/register_setting\\(\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
     // (d) `$var = '...';`-style variable assignment that ACTUALLY flows into
@@ -325,7 +476,7 @@ function extractOptionCandidatesFromFile(string $file): array
     // (EndpointHelperTrait's $option_key reads $settings[$option_key], it
     // never calls get_option($option_key) itself -- that key lives inside
     // the already-covered 'mhm_rentiva_settings' option's array value).
-    if (preg_match_all("/\\\$([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m, PREG_SET_ORDER)) {
+    if (preg_match_all("/\\\$([A-Za-z_][A-Za-z0-9_]*)\\s*=\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m, PREG_SET_ORDER)) {
         foreach ($m as $varMatch) {
             [, $varName, $varValue] = $varMatch;
             if (preg_match("/(?:update_option|get_option|add_option|delete_option)\\(\\s*\\\${$varName}\\b/", $src)) {
@@ -335,12 +486,12 @@ function extractOptionCandidatesFromFile(string $file): array
     }
     // (e) field-definition array shape: 'name' => 'checkbox'|'text'|'email'|'html'
     // (EmailTemplates::save_email_fields() consumers).
-    if (preg_match_all("/'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'\\s*=>\\s*'(?:checkbox|text|email|html)'/", $src, $m)) {
+    if (preg_match_all("/'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'\\s*=>\\s*'(?:checkbox|text|email|html)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
     // (f) class constants assigned an option-shaped literal, IF the same file
     // also calls one of the five functions with self::THAT_CONST.
-    if (preg_match_all("/const\\s+([A-Z_][A-Z0-9_]*)\\s*=\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m, PREG_SET_ORDER)) {
+    if (preg_match_all("/const\\s+([A-Z_][A-Z0-9_]*)\\s*=\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m, PREG_SET_ORDER)) {
         foreach ($m as $constMatch) {
             [, $constName, $constValue] = $constMatch;
             if (preg_match("/(?:update_option|get_option|add_option|delete_option|register_setting)\\(\\s*self::{$constName}\\b/", $src)) {
@@ -430,7 +581,7 @@ function extractForeachArrayLiteralOptionCandidates(string $src): array
             // The KEY side of 'key' => 'value' pairs is what reaches the
             // option function (DatabaseMigrator::migrate_standalone_settings()'s
             // `foreach ($standalone_mapping as $old_key => $new_key) { get_option($old_key...) }`).
-            if (preg_match_all("/'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'\\s*=>/", $arrBody, $keyMatches)) {
+            if (preg_match_all("/'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'\\s*=>/", $arrBody, $keyMatches)) {
                 $names = array_merge($names, $keyMatches[1]);
             }
         }
@@ -439,11 +590,11 @@ function extractForeachArrayLiteralOptionCandidates(string $src): array
             // SettingsService::reset_to_defaults_by_tab()'s `$legacy_keys`)
             // where every item is a candidate, or a key=>value array whose
             // VALUE side (not key side) is the one actually used.
-            if (preg_match_all("/=>\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $valMatches)) {
+            if (preg_match_all("/=>\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $valMatches)) {
                 $names = array_merge($names, $valMatches[1]);
             }
             if (! str_contains($arrBody, '=>')) {
-                if (preg_match_all("/'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $plainMatches)) {
+                if (preg_match_all("/'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $arrBody, $plainMatches)) {
                     $names = array_merge($names, $plainMatches[1]);
                 }
             }
@@ -476,7 +627,13 @@ function runMode5(string $root): array
         if (in_array($name, $allowlist, true)) {
             continue;
         }
-        if (array_key_exists($name, $options)) {
+        // Accept the name as an OLD key or as the NEW value it maps to. Before
+        // the Görev 12 sweep the tree holds old keys; after it, the tree holds
+        // new values -- and this mode's detector now sees both prefixes, so
+        // without the value side it would flag every correctly renamed option.
+        // The question is unchanged: is this option-shaped name accounted for
+        // in the migration map at all?
+        if (array_key_exists($name, $options) || in_array($name, $options, true)) {
             continue;
         }
         // A captured value ending in '_' is a dynamic-prefix fragment (the
@@ -488,15 +645,13 @@ function runMode5(string $root): array
         // features/equipment/settings, all already in OPTIONS) -- so this is
         // not a gap, it is the same family already covered.
         if (str_ends_with($name, '_')) {
-            foreach (array_keys($options) as $existingKey) {
-                if (str_starts_with($existingKey, $name)) {
+            foreach (array_merge(array_keys($options), array_values($options)) as $existing) {
+                if (str_starts_with($existing, $name)) {
                     continue 2;
                 }
             }
         }
-        if (! array_key_exists($name, $options)) {
-            $violations[] = "option '$name' is read/written via an option function but has no explicit PrefixMigrationMap::OPTIONS key";
-        }
+        $violations[] = "option '$name' is read/written via an option function but has no explicit PrefixMigrationMap::OPTIONS entry (neither old key nor new value)";
     }
     return $violations;
 }
@@ -514,17 +669,17 @@ function extractCronHookCandidatesFromFile(string $file): array
     $names = [];
     // Direct literal hook name as 3rd arg of wp_schedule_event() or 2nd arg
     // of wp_schedule_single_event().
-    if (preg_match_all("/wp_schedule_event\\([^,]+,\\s*[^,]+,\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
+    if (preg_match_all("/wp_schedule_event\\([^,]+,\\s*[^,]+,\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
-    if (preg_match_all("/wp_schedule_single_event\\([^,]+,\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
+    if (preg_match_all("/wp_schedule_single_event\\([^,]+,\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $m)) {
         $names = array_merge($names, $m[1]);
     }
     // self::CONST resolution: wp_schedule_event(..., self::EVENT) where
     // `const EVENT = '...'` lives in the same file.
     if (preg_match_all("/wp_schedule_(?:single_)?event\\([^;]*self::([A-Z_][A-Z0-9_]*)/", $src, $m)) {
         foreach ($m[1] as $constName) {
-            if (preg_match("/const\\s+{$constName}\\s*=\\s*'((?:mhm_rentiva_|mhm_)[a-z0-9_]*)'/", $src, $cm)) {
+            if (preg_match("/const\\s+{$constName}\\s*=\\s*'((?:mhm_rentiva_|mhmrentiva_|mhm_)[a-z0-9_]*)'/", $src, $cm)) {
                 $names[] = $cm[1];
             }
         }
@@ -547,8 +702,9 @@ function runMode6(string $root): array
     $allFound = array_values(array_unique($allFound));
 
     foreach ($allFound as $name) {
-        if (! array_key_exists($name, $cronHooks)) {
-            $violations[] = "cron hook '$name' is scheduled via wp_schedule_event()/wp_schedule_single_event() but has no PrefixMigrationMap::CRON_HOOKS entry";
+        // Old key or new value -- same reasoning as mode 5.
+        if (! array_key_exists($name, $cronHooks) && ! in_array($name, $cronHooks, true)) {
+            $violations[] = "cron hook '$name' is scheduled via wp_schedule_event()/wp_schedule_single_event() but has no PrefixMigrationMap::CRON_HOOKS entry (neither old key nor new value)";
         }
     }
     return $violations;

@@ -609,6 +609,20 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				if ( str_ends_with( $path, '/Admin/Core/Utilities/DatabaseCleaner.php' ) ) {
 					continue;
 				}
+				// Same reasoning, second instance: bin/prefix-rename.php IS the
+				// 6.0.0 rename -- it necessarily carries old meta-key literals as
+				// data (PrefixRenamer::RESOLVED_META_KEYS), exactly as the
+				// protection list above carries them. Scanning it would feed the
+				// tool's own inventory back in as "evidence that a key is used"
+				// and drift this gate against Pro's frozen list. A file that IS
+				// the inventory must not BE the evidence.
+				//
+				// Deliberately narrow: every OTHER file under bin/ is still
+				// scanned, so a stray meta-key literal introduced in a sibling
+				// script still turns this gate red (mutation-proven).
+				if ( str_ends_with( $path, '/bin/prefix-rename.php' ) ) {
+					continue;
+				}
 
 				$code = (string) file_get_contents( $path );
 
