@@ -65,7 +65,7 @@ jQuery( document ).ready(
 						url: mhmRentivaCancellation.ajaxUrl,
 						type: 'POST',
 						data: {
-							action: 'mhm_rentiva_cancel_booking',
+							action: 'mhmrentiva_cancel_booking',
 							booking_id: bookingId,
 							reason: reason,
 							nonce: mhmRentivaCancellation.nonce

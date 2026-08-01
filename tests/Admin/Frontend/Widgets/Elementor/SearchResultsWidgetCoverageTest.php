@@ -61,7 +61,7 @@ final class SearchResultsWidgetCoverageTest extends WP_UnitTestCase
 
 	private function read_source_file(string $relativePath): string
 	{
-		$path = trailingslashit(MHM_RENTIVA_PLUGIN_PATH) . $relativePath;
+		$path = trailingslashit(MHMRENTIVA_PLUGIN_PATH) . $relativePath;
 		$this->assertFileExists($path, sprintf('Expected source file not found: %s', $relativePath));
 
 		$source = file_get_contents($path);

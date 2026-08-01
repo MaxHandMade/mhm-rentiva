@@ -35,7 +35,7 @@ final class Vehicle extends AbstractPostType {
 	}
 
 	protected static function get_custom_args(): array {
-		$url_base = sanitize_title( SettingsCore::get( 'mhm_rentiva_vehicle_url_base', 'vehicle' ) ) ?: 'vehicle';
+		$url_base = sanitize_title( SettingsCore::get( 'mhmrentiva_vehicle_url_base', 'vehicle' ) ) ?: 'vehicle';
 		return array(
 			'public'              => true,
 			'publicly_queryable'  => true,

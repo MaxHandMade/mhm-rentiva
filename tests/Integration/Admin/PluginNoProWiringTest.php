@@ -40,8 +40,8 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
 {
     private function plugin_php_source(): string
     {
-        $path = defined('MHM_RENTIVA_PLUGIN_DIR')
-            ? constant('MHM_RENTIVA_PLUGIN_DIR') . 'src/Plugin.php'
+        $path = defined('MHMRENTIVA_PLUGIN_DIR')
+            ? constant('MHMRENTIVA_PLUGIN_DIR') . 'src/Plugin.php'
             : dirname(__DIR__, 3) . '/src/Plugin.php';
 
         $src = @file_get_contents($path);
@@ -52,8 +52,8 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
 
     private function main_file_source(): string
     {
-        $path = defined('MHM_RENTIVA_PLUGIN_DIR')
-            ? constant('MHM_RENTIVA_PLUGIN_DIR') . 'mhm-rentiva.php'
+        $path = defined('MHMRENTIVA_PLUGIN_DIR')
+            ? constant('MHMRENTIVA_PLUGIN_DIR') . 'mhm-rentiva.php'
             : dirname(__DIR__, 3) . '/mhm-rentiva.php';
 
         $src = @file_get_contents($path);
@@ -220,7 +220,7 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
     public function test_no_gdpr_retention_cron_is_scheduled(): void
     {
         $this->assertFalse(
-            wp_next_scheduled('mhm_data_retention_cleanup'),
+            wp_next_scheduled('mhmrentiva_data_retention_cleanup'),
             'A standalone Lite install must never schedule the Pro GDPR retention cron.'
         );
     }
@@ -279,7 +279,7 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
     public function test_no_integrity_check_cron_is_scheduled(): void
     {
         $this->assertFalse(
-            wp_next_scheduled('mhm_rentiva_daily_integrity_check'),
+            wp_next_scheduled('mhmrentiva_daily_integrity_check'),
             'A standalone Lite install must never schedule the Pro IntegrityVerificationJob cron.'
         );
     }

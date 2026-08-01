@@ -31,17 +31,17 @@ final class DatepickerAssets {
         // 3. Enqueue Custom CSS Overrides (Glassmorphism / Premium UI)
         wp_enqueue_style(
             'mhm-rentiva-datepicker-custom',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
+            MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
             array( 'mhm-rentiva-css-variables' ),
-            MHM_RENTIVA_VERSION
+            MHMRENTIVA_VERSION
         );
 
         // 4. Enqueue Centralized Init Script
         wp_enqueue_script(
             'mhm-rentiva-datepicker-init',
-            MHM_RENTIVA_PLUGIN_URL . 'assets/js/core/datepicker-init.js',
+            MHMRENTIVA_PLUGIN_URL . 'assets/js/core/datepicker-init.js',
             array( 'jquery', 'jquery-ui-datepicker' ),
-            MHM_RENTIVA_VERSION,
+            MHMRENTIVA_VERSION,
             true
         );
 

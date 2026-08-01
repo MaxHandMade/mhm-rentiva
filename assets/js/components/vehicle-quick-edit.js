@@ -20,28 +20,28 @@
 					setTimeout(
 						function () {
 							// License plate
-							var license_plate = $row.find( '.column-mhm_license_plate' ).text().trim();
+							var license_plate = $row.find( '.column-mhmrentiva_license_plate' ).text().trim();
 							if (license_plate !== '—') {
-								$( '.mhm_license_plate' ).val( license_plate );
+								$( '.mhmrentiva_license_plate' ).val( license_plate );
 							}
 
 							// Price/Day
-							var price_per_day = $row.find( '.column-mhm_price_per_day' ).text().trim();
+							var price_per_day = $row.find( '.column-mhmrentiva_price_per_day' ).text().trim();
 							if (price_per_day !== '—') {
 								// Get numeric value (extract only digits, removing all formatting and currency symbols)
 								// This handles formats like "2.000 ₺", "1,000 $", "500 €", etc.
 								var numeric_price = price_per_day.replace( /[^\d]/g, '' ); // Keep only digits
-								$( '.mhm_price_per_day' ).val( numeric_price );
+								$( '.mhmrentiva_price_per_day' ).val( numeric_price );
 							}
 
 							// Seats
-							var seats = $row.find( '.column-mhm_seats' ).text().trim();
+							var seats = $row.find( '.column-mhmrentiva_seats' ).text().trim();
 							if (seats !== '—') {
-								$( '.mhm_seats' ).val( seats );
+								$( '.mhmrentiva_seats' ).val( seats );
 							}
 
 							// Transmission - Get labels from localized data
-							var transmission = $row.find( '.column-mhm_transmission' ).text().trim();
+							var transmission = $row.find( '.column-mhmrentiva_transmission' ).text().trim();
 							if (transmission !== '—') {
 								var transmission_value = 'auto'; // default
 								const labels           = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
@@ -53,11 +53,11 @@
 								} else if (transmission === autoLabel) {
 									transmission_value = 'auto';
 								}
-								$( '.mhm_transmission' ).val( transmission_value );
+								$( '.mhmrentiva_transmission' ).val( transmission_value );
 							}
 
 							// Fuel
-							var fuel_type = $row.find( '.column-mhm_fuel_type' ).text().trim();
+							var fuel_type = $row.find( '.column-mhmrentiva_fuel_type' ).text().trim();
 							if (fuel_type !== '—') {
 								var fuel_value = 'petrol'; // default
 								const labels   = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
@@ -71,29 +71,29 @@
 								} else if (fuel_type === (labels.petrol || 'Petrol')) {
 									fuel_value = 'petrol';
 								}
-								$( '.mhm_fuel_type' ).val( fuel_value );
+								$( '.mhmrentiva_fuel_type' ).val( fuel_value );
 							}
 
 							// Available
-							var availableElement = $row.find( '.column-mhm_available span.vehicle-status' );
+							var availableElement = $row.find( '.column-mhmrentiva_available span.vehicle-status' );
 							if (availableElement.length) {
 								var availableValue = availableElement.data( 'status' );
 								if (availableValue) {
-									$( '.mhm_available' ).val( availableValue );
+									$( '.mhmrentiva_available' ).val( availableValue );
 								}
 							}
 
 							// Location
-							var locationId = $row.find( '.column-mhm_location span' ).data( 'location-id' );
+							var locationId = $row.find( '.column-mhmrentiva_location span' ).data( 'location-id' );
 							if (locationId !== undefined) {
-								$( '.mhm_location' ).val( String( locationId ) );
+								$( '.mhmrentiva_location' ).val( String( locationId ) );
 							}
 
 							// Featured
 							var featuredLabels = (window.mhmVehicleQuickEdit && window.mhmVehicleQuickEdit.labels) || {};
-							var featuredText   = $row.find( '.column-mhm_featured' ).text().trim();
+							var featuredText   = $row.find( '.column-mhmrentiva_featured' ).text().trim();
 							var yesLabel       = featuredLabels.yes || 'Yes';
-							$( '.mhm_featured' ).prop( 'checked', featuredText === yesLabel );
+							$( '.mhmrentiva_featured' ).prop( 'checked', featuredText === yesLabel );
 
 						},
 						100
@@ -121,8 +121,8 @@
 				// would collide globally and `year` is already a core query var).
 				const action     = $( this ).data( 'action' );
 				const currentUrl = new URL( window.location.href );
-				let currentMonth = parseInt( currentUrl.searchParams.get( 'mhm_month' ) ) || new Date().getMonth() + 1;
-				let currentYear  = parseInt( currentUrl.searchParams.get( 'mhm_year' ) ) || new Date().getFullYear();
+				let currentMonth = parseInt( currentUrl.searchParams.get( 'mhmrentiva_month' ) ) || new Date().getMonth() + 1;
+				let currentYear  = parseInt( currentUrl.searchParams.get( 'mhmrentiva_year' ) ) || new Date().getFullYear();
 
 				if (action === 'prev') {
 					currentMonth--;
@@ -139,8 +139,8 @@
 				}
 
 				// Update URL parameters
-				currentUrl.searchParams.set( 'mhm_month', currentMonth );
-				currentUrl.searchParams.set( 'mhm_year', currentYear );
+				currentUrl.searchParams.set( 'mhmrentiva_month', currentMonth );
+				currentUrl.searchParams.set( 'mhmrentiva_year', currentYear );
 
 				// Reload page
 				window.location.href = currentUrl.toString();

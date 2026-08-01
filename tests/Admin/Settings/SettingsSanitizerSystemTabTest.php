@@ -28,15 +28,15 @@ class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
     public function test_log_level_accepts_valid_enum_values()
     {
         foreach (['error', 'warning', 'info', 'debug'] as $level) {
-            $result = $this->sanitize_system(['mhm_rentiva_log_level' => $level]);
-            $this->assertSame($level, $result['mhm_rentiva_log_level'], "Failed for level: $level");
+            $result = $this->sanitize_system(['mhmrentiva_log_level' => $level]);
+            $this->assertSame($level, $result['mhmrentiva_log_level'], "Failed for level: $level");
         }
     }
 
     public function test_log_level_invalid_value_falls_back_to_error()
     {
-        $result = $this->sanitize_system(['mhm_rentiva_log_level' => 'verbose']);
-        $this->assertSame('error', $result['mhm_rentiva_log_level']);
+        $result = $this->sanitize_system(['mhmrentiva_log_level' => 'verbose']);
+        $this->assertSame('error', $result['mhmrentiva_log_level']);
     }
 
     /**
@@ -46,17 +46,17 @@ class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
     public function test_the_removed_security_keys_are_not_sanitized_back_in()
     {
         $result = $this->sanitize_system([
-            'mhm_rentiva_brute_force_protection' => '1',
-            'mhm_rentiva_max_login_attempts'     => '10',
-            'mhm_rentiva_rate_limit_enabled'     => '1',
-            'mhm_rentiva_ip_whitelist'           => '1.2.3.4',
+            'mhmrentiva_brute_force_protection' => '1',
+            'mhmrentiva_max_login_attempts'     => '10',
+            'mhmrentiva_rate_limit_enabled'     => '1',
+            'mhmrentiva_ip_whitelist'           => '1.2.3.4',
         ]);
 
         foreach ([
-            'mhm_rentiva_brute_force_protection',
-            'mhm_rentiva_max_login_attempts',
-            'mhm_rentiva_rate_limit_enabled',
-            'mhm_rentiva_ip_whitelist',
+            'mhmrentiva_brute_force_protection',
+            'mhmrentiva_max_login_attempts',
+            'mhmrentiva_rate_limit_enabled',
+            'mhmrentiva_ip_whitelist',
         ] as $key) {
             $this->assertArrayNotHasKey(
                 $key,

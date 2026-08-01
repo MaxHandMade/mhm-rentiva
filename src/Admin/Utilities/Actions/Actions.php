@@ -27,14 +27,14 @@ final class Actions {
 
 
 	public static function register(): void {
-		add_action( 'admin_post_mhm_rentiva_purge_logs', array( self::class, 'purge_logs' ) );
+		add_action( 'admin_post_mhmrentiva_purge_logs', array( self::class, 'purge_logs' ) );
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
-		add_action( 'admin_post_mhm_rentiva_refund_booking', array( self::class, 'refund_booking' ) );
+		add_action( 'admin_post_mhmrentiva_refund_booking', array( self::class, 'refund_booking' ) );
 	}
 
 	public static function refund_booking(): void {
 		// Nonce first, so every read below happens in an already-verified scope.
-		check_admin_referer( 'mhm_rentiva_refund_booking' );
+		check_admin_referer( 'mhmrentiva_refund_booking' );
 
 		$bid = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
 
@@ -57,15 +57,15 @@ final class Actions {
 		if ( ! self::checkGranularPermission( 'purge_logs' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
-		check_admin_referer( 'mhm_rentiva_purge_logs' );
+		check_admin_referer( 'mhmrentiva_purge_logs' );
 
 		$days = isset( $_POST['days'] )
 			? absint( wp_unslash( $_POST['days'] ) )
-			: (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 );
+			: (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_log_retention_days', 30 );
 		if ( $days <= 0 ) {
 			$days = 30;
 		}
-		$limit   = (int) apply_filters( 'mhm_rentiva_log_purge_limit_manual', 1000 );
+		$limit   = (int) apply_filters( 'mhmrentiva_log_purge_limit_manual', 1000 );
 		$deleted = LogRetention::purge( $days, $limit );
 
 		$ref = wp_get_referer();
@@ -74,8 +74,8 @@ final class Actions {
 		}
 		$url = self::notice_url(
 			array(
-				'mhm_purged'      => '1',
-				'mhm_purge_count' => (string) (int) $deleted,
+				'mhmrentiva_purged'      => '1',
+				'mhmrentiva_purge_count' => (string) (int) $deleted,
 			),
 			$ref
 		);
@@ -87,12 +87,12 @@ final class Actions {
 	 * Nonce action for the one-shot result params this class puts on its own
 	 * post-action redirects.
 	 */
-	private const NOTICE_NONCE_ACTION = 'mhm_rentiva_action_notice';
+	private const NOTICE_NONCE_ACTION = 'mhmrentiva_action_notice';
 
 	/**
 	 * Query arg carrying the notice nonce.
 	 */
-	private const NOTICE_NONCE_ARG = 'mhm_rentiva_notice_nonce';
+	private const NOTICE_NONCE_ARG = 'mhmrentiva_notice_nonce';
 
 	/**
 	 * Sign a redirect that carries result params for notices().
@@ -124,13 +124,13 @@ final class Actions {
 		}
 
 		// Refund result
-		$refund = isset( $_GET['mhm_refund'] ) && ! is_array( $_GET['mhm_refund'] )
-			? sanitize_text_field( wp_unslash( (string) $_GET['mhm_refund'] ) )
+		$refund = isset( $_GET['mhmrentiva_refund'] ) && ! is_array( $_GET['mhmrentiva_refund'] )
+			? sanitize_text_field( wp_unslash( (string) $_GET['mhmrentiva_refund'] ) )
 			: '';
 		if ( '' !== $refund ) {
 			$ok   = $refund === '1';
-			$msg  = isset( $_GET['mhm_refund_msg'] ) && ! is_array( $_GET['mhm_refund_msg'] )
-				? sanitize_text_field( wp_unslash( (string) $_GET['mhm_refund_msg'] ) )
+			$msg  = isset( $_GET['mhmrentiva_refund_msg'] ) && ! is_array( $_GET['mhmrentiva_refund_msg'] )
+				? sanitize_text_field( wp_unslash( (string) $_GET['mhmrentiva_refund_msg'] ) )
 				: '';
 			$type = $ok ? 'success' : 'error';
 			$base = $ok ? esc_html__( 'Refund processed.', 'mhm-rentiva' ) : esc_html__( 'Refund failed.', 'mhm-rentiva' );
@@ -138,13 +138,13 @@ final class Actions {
 			echo '<div class="notice notice-' . esc_attr( $type ) . ' is-dismissible"><p>' . esc_html( $full ) . '</p></div>';
 		}
 
-		$purged = isset( $_GET['mhm_purged'] ) && ! is_array( $_GET['mhm_purged'] )
-			? sanitize_text_field( wp_unslash( (string) $_GET['mhm_purged'] ) )
+		$purged = isset( $_GET['mhmrentiva_purged'] ) && ! is_array( $_GET['mhmrentiva_purged'] )
+			? sanitize_text_field( wp_unslash( (string) $_GET['mhmrentiva_purged'] ) )
 			: '';
 		if ( '1' !== $purged ) {
 			return;
 		}
-		$count = isset( $_GET['mhm_purge_count'] ) ? absint( wp_unslash( $_GET['mhm_purge_count'] ) ) : 0;
+		$count = isset( $_GET['mhmrentiva_purge_count'] ) ? absint( wp_unslash( $_GET['mhmrentiva_purge_count'] ) ) : 0;
 		/* translators: %d: number of deleted records */
 		echo '<div class="notice notice-success is-dismissible"><p>' . sprintf( esc_html__( '%d old records deleted.', 'mhm-rentiva' ), (int) $count ) . '</p></div>';
 	}
@@ -169,7 +169,7 @@ final class Actions {
 				}
 
 				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
 					return $booking_user_id === $user->ID;
 				}
 
@@ -186,7 +186,7 @@ final class Actions {
 				}
 
 				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
 					return $booking_user_id === $user->ID;
 				}
 
@@ -223,7 +223,7 @@ final class Actions {
 				}
 
 				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
 					return $booking_user_id === $user->ID;
 				}
 
@@ -294,7 +294,7 @@ final class Actions {
 		// Subscriber - very limited access (own bookings only)
 		if ( current_user_can( 'read' ) ) {
 			if ( $resource_id && in_array( $capability, array( 'view_booking', 'view_customers' ), true ) ) {
-				$booking_user_id = (int) get_post_meta( $resource_id, '_mhm_user_id', true );
+				$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
 				return $booking_user_id === $user->ID;
 			}
 		}

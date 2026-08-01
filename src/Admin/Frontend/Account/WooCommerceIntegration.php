@@ -44,7 +44,7 @@ final class WooCommerceIntegration {
 		add_filter( 'woocommerce_get_query_vars', array( self::class, 'add_query_vars' ) );
 
 		// Filter shortcode URLs to provide WooCommerce endpoints
-		add_filter( 'mhm_rentiva_shortcode_url', array( self::class, 'filter_shortcode_url' ), 10, 2 );
+		add_filter( 'mhmrentiva_shortcode_url', array( self::class, 'filter_shortcode_url' ), 10, 2 );
 
 		// Filter WooCommerce endpoint URLs to use translated slugs if available
 		add_filter( 'woocommerce_get_endpoint_url', array( self::class, 'filter_woocommerce_endpoint_url' ), 10, 4 );
@@ -104,7 +104,7 @@ final class WooCommerceIntegration {
 	 *
 	 * Lite supplies only its own tabs (bookings, favorites, payment_history).
 	 * The messages tab and the vendor tab(s) are extension points filled by
-	 * the add-on: its AccountExtensions subscribes to `mhm_rentiva_account_nav_items` to add
+	 * the add-on: its AccountExtensions subscribes to `mhmrentiva_account_nav_items` to add
 	 * them back, including the active-vendor "Vendor Panel" vs.
 	 * "Become a Vendor" branching this method used to do inline (Task A8a
 	 * seam inversion). Lite no longer names the deleted mode-routing class's
@@ -135,7 +135,7 @@ final class WooCommerceIntegration {
 		 *
 		 * @param array<string, array{slug: string, label: string}> $items Keyed by semantic item key.
 		 */
-		return apply_filters( 'mhm_rentiva_account_nav_items', $items );
+		return apply_filters( 'mhmrentiva_account_nav_items', $items );
 	}
 
 	/**
@@ -221,9 +221,9 @@ final class WooCommerceIntegration {
 
 		// Security: Early Ownership Check (customer | vendor | admin)
 		if ( $id > 0 ) {
-			$booking_owner_id = (int) get_post_meta( $id, '_mhm_customer_user_id', true );
+			$booking_owner_id = (int) get_post_meta( $id, '_mhmrentiva_customer_user_id', true );
 			$current_user_id  = (int) get_current_user_id();
-			$vehicle_id       = (int) get_post_meta( $id, '_mhm_vehicle_id', true );
+			$vehicle_id       = (int) get_post_meta( $id, '_mhmrentiva_vehicle_id', true );
 			$vendor_id        = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
 
 			$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
@@ -264,7 +264,7 @@ final class WooCommerceIntegration {
 		// at all -- no notice, no mention of the add-on (owner decision 2026-07-16). The
 		// My Account menu already omits this endpoint's link in that case, so the
 		// only way here is a hand-typed URL. The guard defers to the same
-		// `mhm_rentiva_account_nav_items` filter that decides whether the tab is
+		// `mhmrentiva_account_nav_items` filter that decides whether the tab is
 		// registered at all (Task A8a seam inversion) -- Lite no longer names
 		// the deleted mode-routing class's vendor-marketplace gate.
 		$nav_items = self::get_account_nav_items();
@@ -349,9 +349,9 @@ final class WooCommerceIntegration {
 	 */
 	public static function maybe_flush_rewrite_rules(): void {
 		// Check if we need to flush rewrite rules
-		$flush_key   = 'mhm_rentiva_woocommerce_endpoints_flushed';
-		$version_key = 'mhm_rentiva_woocommerce_endpoints_version';
-		$hash_key    = 'mhm_rentiva_woocommerce_endpoints_hash';
+		$flush_key   = 'mhmrentiva_woocommerce_endpoints_flushed';
+		$version_key = 'mhmrentiva_woocommerce_endpoints_version';
+		$hash_key    = 'mhmrentiva_woocommerce_endpoints_hash';
 
 		$current_version = '4.21.3'; // Forced flush — vendor_apply endpoint added
 

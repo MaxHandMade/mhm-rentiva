@@ -26,7 +26,7 @@ class SettingsHandlerTest extends WP_UnitTestCase
     /** @test */
     public function it_handles_reset_defaults_action()
     {
-        $nonce = wp_create_nonce('mhm_rentiva_reset_defaults');
+        $nonce = wp_create_nonce('mhmrentiva_reset_defaults');
 
         $_GET['reset_defaults'] = 'true';
         $_GET['_wpnonce'] = $nonce;
@@ -55,7 +55,7 @@ class SettingsHandlerTest extends WP_UnitTestCase
         // Missing _wpnonce
 
         // Setting a value that should be reset if it worked
-        update_option('mhm_rentiva_settings', ['mhm_rentiva_sender_name' => 'Should Stay']);
+        update_option('mhmrentiva_settings', ['mhmrentiva_sender_name' => 'Should Stay']);
 
         try {
             SettingsHandler::handle();
@@ -64,8 +64,8 @@ class SettingsHandlerTest extends WP_UnitTestCase
             $this->assertStringContainsString('Security check failed', $e->getMessage());
         }
 
-        $settings = get_option('mhm_rentiva_settings');
-        $this->assertEquals('Should Stay', $settings['mhm_rentiva_sender_name'] ?? '');
+        $settings = get_option('mhmrentiva_settings');
+        $this->assertEquals('Should Stay', $settings['mhmrentiva_sender_name'] ?? '');
     }
 
     /** @test */
@@ -75,7 +75,7 @@ class SettingsHandlerTest extends WP_UnitTestCase
         wp_set_current_user($subscriber_id);
 
         $_GET['reset_defaults'] = 'true';
-        $_GET['_wpnonce'] = wp_create_nonce('mhm_rentiva_reset_defaults');
+        $_GET['_wpnonce'] = wp_create_nonce('mhmrentiva_reset_defaults');
 
         SettingsHandler::handle();
 
@@ -89,17 +89,17 @@ class SettingsHandlerTest extends WP_UnitTestCase
         wp_set_current_user($this->admin_user_id);
 
         $_POST['email_templates_action'] = 'save';
-        $_POST['_wpnonce'] = wp_create_nonce('mhm_rentiva_settings-options'); // Handler expects this
-        $_POST['mhm_rentiva_email_templates_nonce'] = wp_create_nonce('mhm_rentiva_save_email_templates'); // EmailTemplates expects this
+        $_POST['_wpnonce'] = wp_create_nonce('mhmrentiva_settings-options'); // Handler expects this
+        $_POST['mhmrentiva_email_templates_nonce'] = wp_create_nonce('mhmrentiva_save_email_templates'); // EmailTemplates expects this
         $_POST['current_tab'] = 'booking_notifications';
-        $_POST['mhm_rentiva_booking_created_subject'] = 'Updated Subject';
+        $_POST['mhmrentiva_booking_created_subject'] = 'Updated Subject';
 
         try {
             SettingsHandler::handle();
         } catch (\WPDieException $e) {
         }
 
-        $this->assertEquals('Updated Subject', get_option('mhm_rentiva_booking_created_subject'));
+        $this->assertEquals('Updated Subject', get_option('mhmrentiva_booking_created_subject'));
     }
 
     /** @test */
@@ -107,10 +107,10 @@ class SettingsHandlerTest extends WP_UnitTestCase
     {
         wp_set_current_user($this->admin_user_id);
 
-        $_POST['option_page'] = 'mhm_rentiva_rest_settings';
+        $_POST['option_page'] = 'mhmrentiva_rest_settings';
         $_POST['action'] = 'update';
-        $_POST['_wpnonce'] = wp_create_nonce('mhm_rentiva_rest_settings-options');
-        $_POST['mhm_rentiva_rest_settings'] = [
+        $_POST['_wpnonce'] = wp_create_nonce('mhmrentiva_rest_settings-options');
+        $_POST['mhmrentiva_rest_settings'] = [
             'rate_limiting' => [
                 'enabled' => '1',
                 'default_limit' => '100'
@@ -122,7 +122,7 @@ class SettingsHandlerTest extends WP_UnitTestCase
         } catch (\WPDieException $e) {
         }
 
-        $saved = get_option('mhm_rentiva_rest_settings');
+        $saved = get_option('mhmrentiva_rest_settings');
         $this->assertTrue($saved['rate_limiting']['enabled']);
         $this->assertEquals(100, $saved['rate_limiting']['default_limit']);
     }

@@ -137,9 +137,9 @@ final class AddonMenu {
 
 		wp_enqueue_style(
 			'mhm-rentiva-hide-wp-chrome',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 	}
 }

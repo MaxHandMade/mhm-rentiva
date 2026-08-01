@@ -24,7 +24,7 @@ $total_count      = $total_count ?? 0;
 $has_testimonials = $has_testimonials ?? false;
 
 // Shortcode attributes
-$limit         = intval($atts['limit'] ?? apply_filters('mhm_rentiva/testimonials/limit', 5));
+$limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva/testimonials/limit', 5));
 $show_rating   = ( $atts['show_rating'] ?? '1' ) === '1';
 $show_date     = ( $atts['show_date'] ?? '1' ) === '1';
 $show_vehicle  = ( $atts['show_vehicle'] ?? '1' ) === '1';
@@ -108,7 +108,7 @@ $format_name = static function (string $full_name): string {
 											<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 												<div class="rv-author-avatar">
 													<span class="rv-avatar-placeholder" aria-hidden="true">
-														<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
+														<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 													</span>
 												</div>
 												<div class="rv-author-info">
@@ -193,7 +193,7 @@ $format_name = static function (string $full_name): string {
 									<?php if ($show_customer && ! empty($testimonial['customer_name'])) : ?>
 										<div class="rv-author-avatar">
 											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html(mhm_rentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
+												<?php echo esc_html(mhmrentiva_initial_avatar_letter( (string) $testimonial['customer_name'])); ?>
 											</span>
 										</div>
 										<div class="rv-author-info">

@@ -13,7 +13,7 @@ final class CustomerExporter {
 
 	public static function handle(): void
 	{
-		if (! check_admin_referer( 'mhm_rentiva_export_customers', 'nonce' )) {
+		if (! check_admin_referer( 'mhmrentiva_export_customers', 'nonce' )) {
 			wp_die( esc_html__( 'Invalid security token.', 'mhm-rentiva' ), 403 );
 		}
 

@@ -81,7 +81,7 @@ final class AddonMeta extends AbstractMetaBox {
 						'class'             => 'regular-text',
 						'sanitize_callback' => array( self::class, 'sanitize_price' ),
 					),
-					'_mhm_addon_pricing_type' => array(
+					'_mhmrentiva_addon_pricing_type' => array(
 						'type'              => 'select',
 						'label'             => __( 'Pricing Type', 'mhm-rentiva' ),
 						'description'       => __( 'How should the price apply? Context-compatible options are enabled.', 'mhm-rentiva' ),

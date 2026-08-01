@@ -26,7 +26,7 @@
 		var emailType = container.find('#email_type').val() || '';
 		var emailSubject = container.find('#email_subject').val() || '';
 		var emailMessage = container.find('#email_message').val() || '';
-		var emailNonce = container.find('input[name="mhm_rentiva_email_nonce"]').val() || '';
+		var emailNonce = container.find('input[name="mhmrentiva_email_nonce"]').val() || '';
 
 		if (!emailNonce) {
 			alert('Security check failed. Please refresh the page.');
@@ -43,18 +43,18 @@
 
 		// Prepare AJAX data
 		var ajaxData = {
-			action: 'mhm_rentiva_send_customer_email',
+			action: 'mhmrentiva_send_customer_email',
 			booking_id: bookingId,
 			email_type: emailType,
 			email_subject: emailSubject,
 			email_message: emailMessage,
-			mhm_rentiva_email_nonce: emailNonce
+			mhmrentiva_email_nonce: emailNonce
 		};
 
 		// Get AJAX URL
 		var ajaxUrl = typeof ajaxurl !== 'undefined' ? ajaxurl :
 			(window.mhmBookingEmail && window.mhmBookingEmail.ajaxUrl ? window.mhmBookingEmail.ajaxUrl :
-				(window.mhm_rentiva_config && window.mhm_rentiva_config.ajax_url ? window.mhm_rentiva_config.ajax_url :
+				(window.mhmrentiva_config && window.mhmrentiva_config.ajax_url ? window.mhmrentiva_config.ajax_url :
 					''));
 
 		$.ajax({
@@ -97,7 +97,7 @@
 			url: ajaxUrl,
 			type: 'POST',
 			data: {
-				action:     'mhm_rentiva_get_email_template',
+				action:     'mhmrentiva_get_email_template',
 				booking_id: bookingId,
 				email_type: emailType,
 				nonce:      ( window.mhmBookingEmail && window.mhmBookingEmail.emailNonce ) ? window.mhmBookingEmail.emailNonce : '',
@@ -130,7 +130,7 @@
 			var bookingId = $container.find('form').data('booking-id') || $('#post_ID').val();
 			var noteContent = $container.find('#note_content').val();
 			var noteType = $container.find('#note_type').val();
-			var nonce = $container.find('input[name="mhm_rentiva_history_nonce"]').val();
+			var nonce = $container.find('input[name="mhmrentiva_history_nonce"]').val();
 
 			if (!noteContent) {
 				alert('Please enter a note.');
@@ -144,11 +144,11 @@
 				url: ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_rentiva_add_booking_history_note',
+					action: 'mhmrentiva_add_booking_history_note',
 					booking_id: bookingId,
 					note_content: noteContent,
 					note_type: noteType,
-					mhm_rentiva_history_nonce: nonce
+					mhmrentiva_history_nonce: nonce
 				},
 				success: function (response) {
 					if (response.success) {
@@ -218,7 +218,7 @@
 		$.post(
 			ajaxurl,
 			{
-				action:     'mhm_rentiva_create_customer_account_manual',
+				action:     'mhmrentiva_create_customer_account_manual',
 				booking_id: bookingId,
 				email:      email,
 				name:       name,
@@ -249,7 +249,7 @@
 		if ( ! isFinite( kurus ) || kurus < 0 ) {
 			kurus = 0;
 		}
-		$( '#mhm_amount_kurus' ).val( String( kurus ) );
+		$( '#mhmrentiva_amount_kurus' ).val( String( kurus ) );
 	} );
 
 } )( jQuery );

@@ -129,9 +129,9 @@ final class ShortcodePages {
 
 		wp_enqueue_style(
 			'mhm-rentiva-shortcode-pages',
-			MHM_RENTIVA_PLUGIN_URL . 'build/admin/shortcode-pages.css',
+			MHMRENTIVA_PLUGIN_URL . 'build/admin/shortcode-pages.css',
 			array(),
-			filemtime( MHM_RENTIVA_PLUGIN_DIR . 'build/admin/shortcode-pages.css' ) ?: MHM_RENTIVA_VERSION
+			filemtime( MHMRENTIVA_PLUGIN_DIR . 'build/admin/shortcode-pages.css' ) ?: MHMRENTIVA_VERSION
 		);
 
 		wp_localize_script(

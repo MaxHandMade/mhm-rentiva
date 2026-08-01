@@ -40,11 +40,11 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 			)
 		);
 
-		update_post_meta( $this->booking_id, '_mhm_payment_type', 'deposit' );
-		update_post_meta( $this->booking_id, '_mhm_total_price', 1000 );
-		update_post_meta( $this->booking_id, '_mhm_deposit_amount', 200 );
-		update_post_meta( $this->booking_id, '_mhm_remaining_amount', 800 );
-		update_post_meta( $this->booking_id, '_mhm_customer_user_id', 0 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_payment_type', 'deposit' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_total_price', 1000 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_deposit_amount', 200 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', 800 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_customer_user_id', 0 );
 
 		RemainingPaymentHandler::register();
 	}
@@ -55,10 +55,10 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$this->assertNotInstanceOf( \WP_Error::class, $order );
 		$this->assertInstanceOf( \WC_Order::class, $order );
 		$this->assertSame( 800.0, (float) $order->get_total() );
-		$this->assertSame( '1', $order->get_meta( '_mhm_is_remaining_payment' ) );
+		$this->assertSame( '1', $order->get_meta( '_mhmrentiva_is_remaining_payment' ) );
 		$this->assertSame(
 			$order->get_id(),
-			(int) get_post_meta( $this->booking_id, '_mhm_remaining_order_id', true )
+			(int) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_order_id', true )
 		);
 	}
 
@@ -76,7 +76,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_get_or_create_remaining_order_rejects_non_deposit_booking(): void {
-		update_post_meta( $this->booking_id, '_mhm_payment_type', 'full' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_payment_type', 'full' );
 
 		$order = RemainingPaymentHandler::get_or_create_remaining_order( $this->booking_id );
 
@@ -84,7 +84,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_get_or_create_remaining_order_rejects_zero_remaining(): void {
-		update_post_meta( $this->booking_id, '_mhm_remaining_amount', 0 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', 0 );
 
 		$order = RemainingPaymentHandler::get_or_create_remaining_order( $this->booking_id );
 
@@ -93,15 +93,15 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 
 	public function test_customer_ajax_create_remaining_order_still_works_after_refactor(): void {
 		$customer_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-		update_post_meta( $this->booking_id, '_mhm_customer_user_id', $customer_id );
+		update_post_meta( $this->booking_id, '_mhmrentiva_customer_user_id', $customer_id );
 		wp_set_current_user( $customer_id );
 
-		$_POST['action']     = 'mhm_rentiva_pay_remaining';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_pay_remaining_' . $this->booking_id );
+		$_POST['action']     = 'mhmrentiva_pay_remaining';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_pay_remaining_' . $this->booking_id );
 		$_POST['booking_id'] = $this->booking_id;
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_pay_remaining' );
+			$this->_handleAjax( 'mhmrentiva_pay_remaining' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected — wp_send_json_*() always wp_die()s.
 		}
@@ -118,12 +118,12 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
-		$_POST['action']     = 'mhm_rentiva_send_remaining_payment_link';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_deposit_management_action' );
+		$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
 		$_POST['booking_id'] = $this->booking_id;
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_send_remaining_payment_link' );
+			$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected — wp_send_json_*() always wp_die()s.
 		}
@@ -133,7 +133,7 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$this->assertTrue( $response['success'] );
 		$this->assertNotEmpty( $response['data']['payment_url'] );
 
-		$logs = get_post_meta( $this->booking_id, '_mhm_booking_logs', true );
+		$logs = get_post_meta( $this->booking_id, '_mhmrentiva_booking_logs', true );
 		$this->assertIsArray( $logs );
 		$this->assertSame( 'remaining_payment_link_sent', end( $logs )['action'] );
 	}
@@ -144,14 +144,14 @@ final class RemainingPaymentLinkTest extends WP_Ajax_UnitTestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
-		update_post_meta( $this->booking_id, '_mhm_payment_type', 'full' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_payment_type', 'full' );
 
-		$_POST['action']     = 'mhm_rentiva_send_remaining_payment_link';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_deposit_management_action' );
+		$_POST['action']     = 'mhmrentiva_send_remaining_payment_link';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_deposit_management_action' );
 		$_POST['booking_id'] = $this->booking_id;
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_send_remaining_payment_link' );
+			$this->_handleAjax( 'mhmrentiva_send_remaining_payment_link' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected.
 		}

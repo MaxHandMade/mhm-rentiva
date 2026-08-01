@@ -12,9 +12,9 @@ use WP_UnitTestCase;
  *
  *  - ShortcodeServiceProvider::handle_shortcode_execution() (the generic
  *    `add_shortcode()` wrapper shared by every shortcode, Lite's own and any
- *    `mhm_rentiva_shortcodes` contributor's)
+ *    `mhmrentiva_shortcodes` contributor's)
  *  - BlockRegistry::render_callback() (the shared Gutenberg render_callback
- *    for every dynamic block, Lite's own and any `mhm_rentiva_blocks`
+ *    for every dynamic block, Lite's own and any `mhmrentiva_blocks`
  *    contributor's)
  *
  * As of the T7 K2 fix both sites now wrap their WHOLE return in
@@ -38,7 +38,7 @@ use WP_UnitTestCase;
  * site left every test in this class green. `test_dispatcher_strips_a_raw_
  * unescaped_callback_return()` and `test_block_callback_strips_a_raw_
  * unescaped_shortcode_return()` close that gap: they register a synthetic
- * shortcode (via the real `mhm_rentiva_shortcodes` filter, exactly how a
+ * shortcode (via the real `mhmrentiva_shortcodes` filter, exactly how a
  * contributor would) whose callback returns a RAW, un-escaped payload with NO
  * per-field escaping of its own, so the ONLY thing that can neutralize it is
  * the dispatcher's/callback's own wp_kses() wrap. Both were confirmed to
@@ -63,10 +63,10 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     private const RAW_PAYLOAD = '<script>alert(1)</script><a onclick="evil()">click me</a>Safe Text';
 
     // Used by test_dispatcher_strips_a_raw_unescaped_callback_return(): registered
-    // through the real `mhm_rentiva_shortcodes` filter, exactly how a contributor
+    // through the real `mhmrentiva_shortcodes` filter, exactly how a contributor
     // would, so it goes through ShortcodeServiceProvider::handle_shortcode_execution()
     // itself.
-    private const RAW_TAG = 'mhm_test_raw_return';
+    private const RAW_TAG = 'mhmrentiva_test_raw_return';
 
     // Used by test_block_callback_strips_a_raw_unescaped_shortcode_return():
     // registered with WP core's own add_shortcode() directly, deliberately
@@ -79,7 +79,7 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     // dispatcher's OWN escaping would neutralize the payload first and the
     // test would stay green even if BlockRegistry's own wp_kses() wrap were
     // deleted -- exactly the false-confidence gap this suite exists to close.
-    private const RAW_BLOCK_TAG  = 'mhm_test_raw_block_return';
+    private const RAW_BLOCK_TAG  = 'mhmrentiva_test_raw_block_return';
     private const RAW_BLOCK_NAME = 'mhm-rentiva/test-raw-return';
 
     private int $vehicle_id;
@@ -101,18 +101,18 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
             'post_title'  => 'Test Booking',
         ));
 
-        update_post_meta($this->booking_id, '_mhm_rentiva_customer_review', self::REVIEW_PAYLOAD);
-        update_post_meta($this->booking_id, '_mhm_rentiva_review_approved', '1');
-        update_post_meta($this->booking_id, '_mhm_rentiva_customer_rating', 5);
-        update_post_meta($this->booking_id, '_mhm_rentiva_customer_name', self::NAME_PAYLOAD);
-        update_post_meta($this->booking_id, '_mhm_rentiva_customer_email', 'reviewer@example.com');
-        update_post_meta($this->booking_id, '_mhm_rentiva_vehicle_id', $this->vehicle_id);
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_review', self::REVIEW_PAYLOAD);
+        update_post_meta($this->booking_id, '_mhmrentiva_review_approved', '1');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_rating', 5);
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_name', self::NAME_PAYLOAD);
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_email', 'reviewer@example.com');
+        update_post_meta($this->booking_id, '_mhmrentiva_vehicle_id', $this->vehicle_id);
     }
 
     protected function tearDown(): void
     {
-        remove_filter('mhm_rentiva_shortcodes', array($this, 'contribute_raw_test_shortcode'));
-        remove_filter('mhm_rentiva_blocks', array($this, 'contribute_raw_test_block'));
+        remove_filter('mhmrentiva_shortcodes', array($this, 'contribute_raw_test_shortcode'));
+        remove_filter('mhmrentiva_blocks', array($this, 'contribute_raw_test_block'));
         remove_shortcode(self::RAW_TAG);
         remove_shortcode(self::RAW_BLOCK_TAG);
         if (\WP_Block_Type_Registry::get_instance()->is_registered(self::RAW_BLOCK_NAME)) {
@@ -169,14 +169,14 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
      * THE lock on ShortcodeServiceProvider::handle_shortcode_execution()'s own
      * escaping -- see the class docblock for why the testimonials-based test
      * above is not this. A contributor's callback (registered the real way,
-     * through `mhm_rentiva_shortcodes`) hands back a raw payload with no
+     * through `mhmrentiva_shortcodes`) hands back a raw payload with no
      * escaping of its own; only the dispatcher's own wp_kses() wrap stands
      * between it and the page. Confirmed by mutation testing (see this
      * task's report) to FAIL if that wrap is removed.
      */
     public function test_dispatcher_strips_a_raw_unescaped_callback_return(): void
     {
-        add_filter('mhm_rentiva_shortcodes', array($this, 'contribute_raw_test_shortcode'));
+        add_filter('mhmrentiva_shortcodes', array($this, 'contribute_raw_test_shortcode'));
         \MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 
         $output = do_shortcode('[' . self::RAW_TAG . ']');
@@ -196,7 +196,7 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     public function test_block_callback_strips_a_raw_unescaped_shortcode_return(): void
     {
         add_shortcode(self::RAW_BLOCK_TAG, array($this, 'render_raw_return_payload'));
-        add_filter('mhm_rentiva_blocks', array($this, 'contribute_raw_test_block'));
+        add_filter('mhmrentiva_blocks', array($this, 'contribute_raw_test_block'));
         register_block_type(self::RAW_BLOCK_NAME, array(
             'attributes'      => array(),
             'render_callback' => array(\MHMRentiva\Blocks\BlockRegistry::class, 'render_callback'),
@@ -214,7 +214,7 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     }
 
     /**
-     * `mhm_rentiva_shortcodes` filter callback for
+     * `mhmrentiva_shortcodes` filter callback for
      * test_dispatcher_strips_a_raw_unescaped_callback_return(): contributes a
      * synthetic tag exactly the way a real add-on would.
      *
@@ -236,7 +236,7 @@ final class ShortcodeBlockReturnEscapingTest extends WP_UnitTestCase
     }
 
     /**
-     * `mhm_rentiva_blocks` filter callback for
+     * `mhmrentiva_blocks` filter callback for
      * test_block_callback_strips_a_raw_unescaped_shortcode_return(): contributes
      * a synthetic block config whose `tag` points at RAW_BLOCK_TAG (registered
      * with plain add_shortcode(), not through ShortcodeServiceProvider).

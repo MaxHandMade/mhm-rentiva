@@ -25,9 +25,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class VehicleManagementSettings {
 
 
-	public const SECTION_PRICING      = 'mhm_rentiva_vehicle_pricing_section';
-	public const SECTION_AVAILABILITY = 'mhm_rentiva_vehicle_availability_section';
-	public const SECTION_URLS         = 'mhm_rentiva_vehicle_urls_section';
+	public const SECTION_PRICING      = 'mhmrentiva_vehicle_pricing_section';
+	public const SECTION_AVAILABILITY = 'mhmrentiva_vehicle_availability_section';
+	public const SECTION_URLS         = 'mhmrentiva_vehicle_urls_section';
 
 	/**
 	 * Get default settings.
@@ -37,20 +37,20 @@ final class VehicleManagementSettings {
 	public static function get_default_settings(): array {
 		return array(
 			// URLs
-			'mhm_rentiva_vehicle_url_base'             => 'vehicle',
+			'mhmrentiva_vehicle_url_base'             => 'vehicle',
 
 			// Pricing
-			'mhm_rentiva_vehicle_base_price'           => 1.0,
-			'mhm_rentiva_vehicle_weekend_multiplier'   => 1.2,
-			'mhm_rentiva_vehicle_tax_inclusive'        => '0',
-			'mhm_rentiva_vehicle_tax_rate'             => 18.0,
+			'mhmrentiva_vehicle_base_price'           => 1.0,
+			'mhmrentiva_vehicle_weekend_multiplier'   => 1.2,
+			'mhmrentiva_vehicle_tax_inclusive'        => '0',
+			'mhmrentiva_vehicle_tax_rate'             => 18.0,
 
 			// Availability
-			'mhm_rentiva_vehicle_min_rental_days'      => 1,
-			'mhm_rentiva_vehicle_max_rental_days'      => 30,
-			'mhm_rentiva_vehicle_advance_booking_days' => 365,
-			'mhm_rentiva_vehicle_allow_same_day'       => '1',
-			'mhm_rentiva_default_rental_location'      => '',
+			'mhmrentiva_vehicle_min_rental_days'      => 1,
+			'mhmrentiva_vehicle_max_rental_days'      => 30,
+			'mhmrentiva_vehicle_advance_booking_days' => 365,
+			'mhmrentiva_vehicle_allow_same_day'       => '1',
+			'mhmrentiva_default_rental_location'      => '',
 		);
 	}
 
@@ -81,7 +81,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::text_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_url_base',
+			'mhmrentiva_vehicle_url_base',
 			__( 'Vehicle URL Base', 'mhm-rentiva' ),
 			self::SECTION_URLS,
 			__( 'URL segment used for vehicle detail pages. Default: vehicle → example.com/vehicle/car-name/', 'mhm-rentiva' ),
@@ -98,7 +98,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_base_price',
+			'mhmrentiva_vehicle_base_price',
 			__( 'Base Price Multiplier', 'mhm-rentiva' ),
 			0,
 			100,
@@ -108,7 +108,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_weekend_multiplier',
+			'mhmrentiva_vehicle_weekend_multiplier',
 			__( 'Weekend Price Multiplier', 'mhm-rentiva' ),
 			0,
 			100,
@@ -118,7 +118,7 @@ final class VehicleManagementSettings {
 
 		// Custom Render for Tax (WooCommerce check)
 		add_settings_field(
-			'mhm_rentiva_vehicle_tax_inclusive',
+			'mhmrentiva_vehicle_tax_inclusive',
 			__( 'Tax Inclusive Pricing', 'mhm-rentiva' ),
 			array( self::class, 'render_tax_inclusive_field' ),
 			$page_slug,
@@ -127,7 +127,7 @@ final class VehicleManagementSettings {
 
 		// Custom Render for Tax Rate (WooCommerce check)
 		add_settings_field(
-			'mhm_rentiva_vehicle_tax_rate',
+			'mhmrentiva_vehicle_tax_rate',
 			__( 'Tax Rate (%)', 'mhm-rentiva' ),
 			array( self::class, 'render_tax_rate_field' ),
 			$page_slug,
@@ -144,7 +144,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_min_rental_days',
+			'mhmrentiva_vehicle_min_rental_days',
 			__( 'Minimum Rental Days', 'mhm-rentiva' ),
 			1,
 			365,
@@ -154,7 +154,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_max_rental_days',
+			'mhmrentiva_vehicle_max_rental_days',
 			__( 'Maximum Rental Days', 'mhm-rentiva' ),
 			1,
 			365,
@@ -164,7 +164,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_advance_booking_days',
+			'mhmrentiva_vehicle_advance_booking_days',
 			__( 'Advance Booking Days', 'mhm-rentiva' ),
 			1,
 			365,
@@ -174,7 +174,7 @@ final class VehicleManagementSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_vehicle_allow_same_day',
+			'mhmrentiva_vehicle_allow_same_day',
 			__( 'Allow Same Day Booking', 'mhm-rentiva' ),
 			__( 'Enable to allow customers to book for the same day.', 'mhm-rentiva' ),
 			self::SECTION_AVAILABILITY
@@ -183,7 +183,7 @@ final class VehicleManagementSettings {
 		// Global Default Location. Locations come from an add-on via the filter:
 		// without one the setting has no selectable value and nothing to fall back
 		// to, so the field is withheld instead of offering only "Default (None)".
-		$locations = apply_filters( 'mhm_rentiva_locations', array(), 'rental' );
+		$locations = apply_filters( 'mhmrentiva_locations', array(), 'rental' );
 		if ( ! empty( $locations ) ) {
 			$options = array( '' => __( 'Default (None)', 'mhm-rentiva' ) );
 			foreach ( $locations as $loc ) {
@@ -192,7 +192,7 @@ final class VehicleManagementSettings {
 
 			SettingsHelper::select_field(
 				$page_slug,
-				'mhm_rentiva_default_rental_location',
+				'mhmrentiva_default_rental_location',
 				__( 'Default Rental Location', 'mhm-rentiva' ),
 				$options,
 				__( 'This location will be used as a fallback if a vehicle has no specific location and its owner (vendor) has no default location set.', 'mhm-rentiva' ),
@@ -210,9 +210,9 @@ final class VehicleManagementSettings {
 			return;
 		}
 
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_tax_inclusive', '0' );
-		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_vehicle_tax_inclusive]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_vehicle_tax_inclusive]" value="1"' . checked( $value, '1', false ) . '> ' . esc_html__( 'Include tax in displayed prices', 'mhm-rentiva' ) . '</label>';
+		$value = SettingsCore::get( 'mhmrentiva_vehicle_tax_inclusive', '0' );
+		echo '<input type="hidden" name="mhmrentiva_settings[mhmrentiva_vehicle_tax_inclusive]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[mhmrentiva_vehicle_tax_inclusive]" value="1"' . checked( $value, '1', false ) . '> ' . esc_html__( 'Include tax in displayed prices', 'mhm-rentiva' ) . '</label>';
 	}
 
 	/**
@@ -224,8 +224,8 @@ final class VehicleManagementSettings {
 			return;
 		}
 
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_tax_rate', 18.0 );
-		echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_vehicle_tax_rate]" value="' . esc_attr( (string) $value ) . '" step="0.01" min="0" max="100" class="regular-text" />';
+		$value = SettingsCore::get( 'mhmrentiva_vehicle_tax_rate', 18.0 );
+		echo '<input type="number" name="mhmrentiva_settings[mhmrentiva_vehicle_tax_rate]" value="' . esc_attr( (string) $value ) . '" step="0.01" min="0" max="100" class="regular-text" />';
 		echo '<p class="description">' . esc_html__( 'Tax rate percentage (e.g., 18 for 18%)', 'mhm-rentiva' ) . '</p>';
 	}
 }

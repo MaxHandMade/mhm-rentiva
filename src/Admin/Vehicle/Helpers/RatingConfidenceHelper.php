@@ -28,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *   - 3–9   → "Reliable"
  *   - 10+   → "Highly Reliable"
  *
- * Override via filter: mhm_rentiva_rating_confidence_thresholds
+ * Override via filter: mhmrentiva_rating_confidence_thresholds
  *
  * @since 1.3.1
  * @package MHMRentiva\Admin\Vehicle\Helpers
@@ -71,7 +71,7 @@ final class RatingConfidenceHelper {
 		 *   - count > thresholds[1]  → "Highly Reliable"
 		 */
 		$thresholds = apply_filters(
-			'mhm_rentiva_rating_confidence_thresholds',
+			'mhmrentiva_rating_confidence_thresholds',
 			self::DEFAULT_THRESHOLDS
 		);
 

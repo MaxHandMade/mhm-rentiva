@@ -53,8 +53,8 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 	}
 
 	protected function tearDown(): void {
-		delete_option( 'mhm_rentiva_primary_color' );
-		delete_option( 'mhm_rentiva_secondary_color' );
+		delete_option( 'mhmrentiva_primary_color' );
+		delete_option( 'mhmrentiva_secondary_color' );
 		wp_deregister_style( self::HANDLE );
 		parent::tearDown();
 	}
@@ -71,7 +71,7 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 	}
 
 	public function test_css_variable_values_are_context_validated(): void {
-		update_option( 'mhm_rentiva_primary_color', '#fff; } body { background: url(//evil) ' );
+		update_option( 'mhmrentiva_primary_color', '#fff; } body { background: url(//evil) ' );
 
 		$css = $this->inline_css();
 
@@ -86,7 +86,7 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 	}
 
 	public function test_a_rejected_value_falls_back_to_the_default(): void {
-		update_option( 'mhm_rentiva_primary_color', 'red; } body { display: none' );
+		update_option( 'mhmrentiva_primary_color', 'red; } body { display: none' );
 
 		$this->assertStringContainsString(
 			'--mhm-primary: #2271b1;',
@@ -102,7 +102,7 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 	 * two disagree.
 	 */
 	public function test_a_falsy_but_accepted_value_is_not_replaced_by_the_default(): void {
-		update_option( 'mhm_rentiva_primary_color', '0' );
+		update_option( 'mhmrentiva_primary_color', '0' );
 
 		$css = $this->inline_css();
 
@@ -111,8 +111,8 @@ final class AssetManagerCssTest extends WP_UnitTestCase {
 	}
 
 	public function test_a_legitimate_colour_still_reaches_the_stylesheet(): void {
-		update_option( 'mhm_rentiva_primary_color', '#ff0000' );
-		update_option( 'mhm_rentiva_secondary_color', '#0f0' );
+		update_option( 'mhmrentiva_primary_color', '#ff0000' );
+		update_option( 'mhmrentiva_secondary_color', '#0f0' );
 
 		$css = $this->inline_css();
 

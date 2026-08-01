@@ -77,11 +77,11 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
             'post_status' => 'publish',
         ));
 
-        update_post_meta($this->booking_id, '_mhm_customer_user_id', $this->customer_id);
-        update_post_meta($this->booking_id, '_mhm_payment_type', 'deposit');
-        update_post_meta($this->booking_id, '_mhm_total_price', 10605);
-        update_post_meta($this->booking_id, '_mhm_deposit_amount', 1060.5);
-        update_post_meta($this->booking_id, '_mhm_remaining_amount', 9544.5);
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_user_id', $this->customer_id);
+        update_post_meta($this->booking_id, '_mhmrentiva_payment_type', 'deposit');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', 10605);
+        update_post_meta($this->booking_id, '_mhmrentiva_deposit_amount', 1060.5);
+        update_post_meta($this->booking_id, '_mhmrentiva_remaining_amount', 9544.5);
 
         // Register handler so the ajax action is wired up.
         RemainingPaymentHandler::register();
@@ -106,12 +106,12 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
      */
     public function test_remaining_order_total_is_not_double_taxed(): void
     {
-        $_POST['action']     = 'mhm_rentiva_pay_remaining';
+        $_POST['action']     = 'mhmrentiva_pay_remaining';
         $_POST['booking_id'] = $this->booking_id;
-        $_POST['nonce']      = wp_create_nonce('mhm_pay_remaining_' . $this->booking_id);
+        $_POST['nonce']      = wp_create_nonce('mhmrentiva_pay_remaining_' . $this->booking_id);
 
         try {
-            $this->_handleAjax('mhm_rentiva_pay_remaining');
+            $this->_handleAjax('mhmrentiva_pay_remaining');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected — WC AJAX handlers always wp_die after sending JSON.
         }
@@ -123,7 +123,7 @@ final class RemainingPaymentTaxTest extends WP_Ajax_UnitTestCase
             'AJAX call did not succeed: ' . wp_json_encode($response)
         );
 
-        $order_id = (int) get_post_meta($this->booking_id, '_mhm_remaining_order_id', true);
+        $order_id = (int) get_post_meta($this->booking_id, '_mhmrentiva_remaining_order_id', true);
         $this->assertGreaterThan(0, $order_id, 'Remaining order ID was not persisted.');
 
         $order = wc_get_order($order_id);

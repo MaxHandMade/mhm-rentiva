@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
  * and in the first cut of WP.org T7 Task 9.5 that one had its `prepare()`
  * arguments transposed: the three meta keys landed in the `%i` slots and the
  * table name landed in three `meta_key = %s` slots. MySQL raised 1146 (unknown
- * table `_mhm_pickup_date`), `$wpdb->suppress_errors()` at the top of the method
+ * table `_mhmrentiva_pickup_date`), `$wpdb->suppress_errors()` at the top of the method
  * swallowed it, the surrounding try/catch swallowed what was left, and the
  * Upcoming Operations panel silently returned nothing on every site that HAS the
  * add-on.
@@ -125,7 +125,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
             'post_status' => 'publish',
             'post_title'  => 'Parity Test Vehicle',
         ));
-        update_post_meta($vehicle_id, '_mhm_rentiva_license_plate', '34PAR100');
+        update_post_meta($vehicle_id, '_mhmrentiva_license_plate', '34PAR100');
 
         // A booking inside the window the method asks for: today or later, and
         // in one of the three statuses the WHERE clause accepts.
@@ -135,11 +135,11 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
             'post_title'  => 'Parity Test Booking',
         ));
 
-        update_post_meta($this->booking_id, '_mhm_vehicle_id', $vehicle_id);
-        update_post_meta($this->booking_id, '_mhm_status', 'confirmed');
-        update_post_meta($this->booking_id, '_mhm_pickup_date', gmdate('Y-m-d', strtotime('+2 days')));
-        update_post_meta($this->booking_id, '_mhm_return_date', gmdate('Y-m-d', strtotime('+4 days')));
-        update_post_meta($this->booking_id, '_mhm_customer_name', 'Parity Customer');
+        update_post_meta($this->booking_id, '_mhmrentiva_vehicle_id', $vehicle_id);
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($this->booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d', strtotime('+2 days')));
+        update_post_meta($this->booking_id, '_mhmrentiva_return_date', gmdate('Y-m-d', strtotime('+4 days')));
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_name', 'Parity Customer');
     }
 
     public function tearDown(): void
@@ -223,7 +223,7 @@ class UpcomingOperationsLocationBranchParityTest extends \WP_UnitTestCase
             'The locations table name was bound into a meta_key slot -- the arguments are transposed.'
         );
         $this->assertStringContainsString(
-            "pm_pickup.post_id AND pm_pickup.meta_key = '_mhm_pickup_date'",
+            "pm_pickup.post_id AND pm_pickup.meta_key = '_mhmrentiva_pickup_date'",
             $rentals,
             'The pickup-date meta key must be bound into the pm_pickup slot.'
         );

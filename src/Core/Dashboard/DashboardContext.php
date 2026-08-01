@@ -37,7 +37,7 @@ final class DashboardContext {
 		// answers whether this user has a pending vendor application. Lite's own
 		// default is false, so an install with no add-on active (or a downgrade, where
 		// vendor-role users already exist in the DB) always routes to 'customer'.
-		if (apply_filters('mhm_rentiva_dashboard_vendor_application_pending', false, $user->ID)) {
+		if (apply_filters('mhmrentiva_dashboard_vendor_application_pending', false, $user->ID)) {
 			return 'vendor_application_pending';
 		}
 

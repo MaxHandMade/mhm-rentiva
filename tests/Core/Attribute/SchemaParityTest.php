@@ -66,7 +66,7 @@ class SchemaParityTest extends WP_UnitTestCase
      */
     public function test_block_json_attributes_are_in_registry()
     {
-        $block_dir = MHM_RENTIVA_PLUGIN_PATH . 'assets/blocks';
+        $block_dir = MHMRENTIVA_PLUGIN_PATH . 'assets/blocks';
         $it        = new \RecursiveDirectoryIterator($block_dir);
         $display   = new \RecursiveIteratorIterator($it);
 
@@ -121,7 +121,7 @@ class SchemaParityTest extends WP_UnitTestCase
             }
         }
 
-        // The `mhm_rentiva_blocks` seam inversion moved 6 Pro block.json files
+        // The `mhmrentiva_blocks` seam inversion moved 6 Pro block.json files
         // (transfer-results, transfer-search, popular-routes, messages,
         // vendor-profile, vendor-directory) to mhm-rentiva-pro's own assets/blocks/.
         // Lite's tree now ships only its own 16.
@@ -152,7 +152,7 @@ class SchemaParityTest extends WP_UnitTestCase
      */
     public function test_allowlist_has_no_duplicate_keys(): void
     {
-        $file = file_get_contents(MHM_RENTIVA_PLUGIN_PATH . 'src/Core/Attribute/AllowlistRegistry.php');
+        $file = file_get_contents(MHMRENTIVA_PLUGIN_PATH . 'src/Core/Attribute/AllowlistRegistry.php');
 
         // Extract ONLY the ALLOWLIST constant section (before TAG_MAPPING starts)
         if (! preg_match('/public const ALLOWLIST = \[(.*?)private const TAG_MAPPING = \[/s', $file, $section_match)) {

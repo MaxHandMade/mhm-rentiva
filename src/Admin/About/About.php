@@ -42,9 +42,9 @@ final class About {
 
 		wp_enqueue_style(
 			'mhm-rentiva-about',
-			MHM_RENTIVA_PLUGIN_URL . 'build/admin/about.css',
+			MHMRENTIVA_PLUGIN_URL . 'build/admin/about.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		$raw_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
@@ -81,7 +81,7 @@ final class About {
 		$title = sprintf(
 			'%s <span class="version-badge">v%s</span>',
 			esc_html__( 'About MHM Rentiva', 'mhm-rentiva' ),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 		?>
 		<div class="wrap mhm-rentiva-about-wrap">

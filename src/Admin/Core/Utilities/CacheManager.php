@@ -29,7 +29,7 @@ final class CacheManager {
 	/**
 	 * Cache prefix constant
 	 */
-	private const CACHE_PREFIX = 'mhm_rentiva_';
+	private const CACHE_PREFIX = 'mhmrentiva_';
 
 	/**
 	 * Create multisite-safe cache key
@@ -49,19 +49,19 @@ final class CacheManager {
 	 * Cache keys
 	 */
 	private const CACHE_KEYS = array(
-		'dashboard_stats' => 'mhm_rentiva_dashboard_stats',
-		'booking_report'  => 'mhm_rentiva_booking_report_',
-		'customer_report' => 'mhm_rentiva_customer_report_',
-		'vehicle_report'  => 'mhm_rentiva_vehicle_report_',
-		'revenue_report'  => 'mhm_rentiva_revenue_report_',
-		'addon_list'      => 'mhm_rentiva_addon_list',
-		'vehicle_list'    => 'mhm_rentiva_vlist_',
-		'system_info'     => 'mhm_rentiva_system_info',
+		'dashboard_stats' => 'mhmrentiva_dashboard_stats',
+		'booking_report'  => 'mhmrentiva_booking_report_',
+		'customer_report' => 'mhmrentiva_customer_report_',
+		'vehicle_report'  => 'mhmrentiva_vehicle_report_',
+		'revenue_report'  => 'mhmrentiva_revenue_report_',
+		'addon_list'      => 'mhmrentiva_addon_list',
+		'vehicle_list'    => 'mhmrentiva_vlist_',
+		'system_info'     => 'mhmrentiva_system_info',
 		// CustomersOptimizer caches through this type at ten sites. It was absent
 		// from this map, so every read missed, every write was discarded and the
 		// class ran its full query set on every customers-page load while
 		// reporting nothing wrong.
-		'customers'       => 'mhm_rentiva_customers_',
+		'customers'       => 'mhmrentiva_customers_',
 	);
 
 	/**
@@ -178,7 +178,7 @@ final class CacheManager {
 
 		// Use Object Cache (if available)
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_set( $cache_key, $data, 'mhm_rentiva', $duration );
+			return wp_cache_set( $cache_key, $data, 'mhmrentiva_rentiva', $duration );
 		}
 
 		// Fallback: Transient cache
@@ -197,7 +197,7 @@ final class CacheManager {
 
 		// Use Object Cache (if available)
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_get( $cache_key, 'mhm_rentiva' );
+			return wp_cache_get( $cache_key, 'mhmrentiva_rentiva' );
 		}
 
 		// Fallback: Transient cache
@@ -212,7 +212,7 @@ final class CacheManager {
 	 */
 	public static function get_cache_object( string $key ) {
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_get( $key, 'mhm_rentiva' );
+			return wp_cache_get( $key, 'mhmrentiva_rentiva' );
 		}
 		return get_transient( $key );
 	}
@@ -234,7 +234,7 @@ final class CacheManager {
 		$ttl = $ttl ?? self::get_cache_duration_default();
 
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_set( $key, $data, 'mhm_rentiva', $ttl );
+			return wp_cache_set( $key, $data, 'mhmrentiva_rentiva', $ttl );
 		}
 		return set_transient( $key, $data, $ttl );
 	}
@@ -247,7 +247,7 @@ final class CacheManager {
 	 */
 	public static function delete_cache_object( string $key ): bool {
 		if ( wp_using_ext_object_cache() ) {
-			return wp_cache_delete( $key, 'mhm_rentiva' );
+			return wp_cache_delete( $key, 'mhmrentiva_rentiva' );
 		}
 		return delete_transient( $key );
 	}
@@ -271,19 +271,19 @@ final class CacheManager {
 		 * @return array Modified cache types array
 		 *
 		 * @example
-		 * add_filter('mhm_rentiva_clear_booking_cache_types', function($types, $booking_id) {
+		 * add_filter('mhmrentiva_clear_booking_cache_types', function($types, $booking_id) {
 		 *     $types[] = 'custom_booking_report';
 		 *     return $types;
 		 * }, 10, 2);
 		 */
-		$additional_types = apply_filters( 'mhm_rentiva_clear_booking_cache_types', array(), $booking_id );
+		$additional_types = apply_filters( 'mhmrentiva_clear_booking_cache_types', array(), $booking_id );
 
 		$types = array_merge( $base_types, $additional_types );
 
 		// Only clear customer_report and revenue_report if booking status changed to completed/confirmed
 		// This prevents unnecessary cache clearing on every booking update
 		if ( $booking_id > 0 ) {
-			$status = get_post_meta( $booking_id, '_mhm_status', true );
+			$status = get_post_meta( $booking_id, '_mhmrentiva_status', true );
 			if ( in_array( $status, array( 'completed', 'confirmed' ), true ) ) {
 				$types[] = 'customer_report';
 				$types[] = 'revenue_report';
@@ -294,7 +294,7 @@ final class CacheManager {
 
 		// Also clear vehicle cache (only for related vehicle)
 		if ( $booking_id > 0 ) {
-			$vehicle_id = get_post_meta( $booking_id, '_mhm_vehicle_id', true );
+			$vehicle_id = get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
 			if ( $vehicle_id ) {
 				// Clear only vehicle-specific report cache, not all vehicle reports
 				self::clear_cache( array( 'vehicle_report' ) );
@@ -320,7 +320,7 @@ final class CacheManager {
 		 * @param int           $vehicle_id       Vehicle ID
 		 * @return array Modified cache types array
 		 */
-		$additional_types = apply_filters( 'mhm_rentiva_clear_vehicle_cache_types', array(), $vehicle_id );
+		$additional_types = apply_filters( 'mhmrentiva_clear_vehicle_cache_types', array(), $vehicle_id );
 
 		$types = array_merge( $base_types, $additional_types );
 

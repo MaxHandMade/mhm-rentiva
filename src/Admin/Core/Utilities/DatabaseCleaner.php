@@ -68,6 +68,7 @@ final class DatabaseCleaner {
 	private static function get_valid_meta_keys(): array {
 		$valid_keys = array_merge(
 			self::static_meta_keys(),
+			self::legacy_meta_keys(),
 			self::runtime_custom_field_meta_keys()
 		);
 
@@ -81,13 +82,13 @@ final class DatabaseCleaner {
 		 * @return array Modified valid meta keys array
 		 *
 		 * @example
-		 * add_filter('mhm_rentiva_valid_meta_keys', function($keys) {
-		 *     $keys[] = '_mhm_custom_addon_meta';
-		 *     $keys[] = '_mhm_payment_custom_field';
+		 * add_filter('mhmrentiva_valid_meta_keys', function($keys) {
+		 *     $keys[] = '_mhmrentiva_custom_addon_meta';
+		 *     $keys[] = '_mhmrentiva_payment_custom_field';
 		 *     return $keys;
 		 * });
 		 */
-		$filtered = apply_filters( 'mhm_rentiva_valid_meta_keys', $valid_keys );
+		$filtered = apply_filters( 'mhmrentiva_valid_meta_keys', $valid_keys );
 
 		// The filter may ADD protection, never remove it. On a destructive
 		// operation an extension point that can shrink the protection list turns
@@ -103,268 +104,331 @@ final class DatabaseCleaner {
 	}
 
 	/**
+	 * The pre-6.0.0 spelling of every key in static_meta_keys().
+	 *
+	 * 🔴 THE TRANSITION WINDOW. The 6.0.0 rename moves this plugin's meta keys
+	 * from '_mhmrentiva_*' to '_mhmrentiva_*', but the code and the DATABASE do not move
+	 * at the same instant: the code changes when the plugin file updates, the
+	 * rows change when Görev 13's migration runs, and between those two moments
+	 * a site holds OLD rows while running NEW code. The list above is the list
+	 * the cleanup PROTECTS -- `meta_key LIKE '_mhm%' AND meta_key NOT IN (list)`,
+	 * unscoped across the whole postmeta table -- and '_mhmrentiva_x' and
+	 * '_mhmrentiva_x' both still match that LIKE. So a protection list holding only the
+	 * new spelling makes every un-migrated row unprotected, and the next cleanup
+	 * run deletes the site's entire booking, vehicle and payment meta.
+	 *
+	 * Both spellings therefore have to be live simultaneously, for as long as any
+	 * site can still be un-migrated -- which is forever, since nothing forces a
+	 * site to run the migration before running the cleanup.
+	 *
+	 * Derived rather than hand-listed, so it cannot drift from the list above.
+	 * The derivation runs the map's prefix rules BACKWARDS and keeps EVERY
+	 * pre-image, not the single "most likely" one: '_mhmrentiva_booking_id' could
+	 * have been '_mhmrentiva_booking_id', '_mhmrentiva_booking_id', '_rentiva_booking_id'
+	 * or '_booking_id', and there is no way to tell which from the new name alone.
+	 * Keeping all four is correct here precisely because this list's errors are
+	 * asymmetric: an over-inclusion leaves one row unswept, an omission destroys
+	 * live data.
+	 *
+	 * @return array<string> Array of legacy meta key strings.
+	 */
+	/**
+	 * The pre-6.0.0 name of an option, or null if the map does not know it.
+	 *
+	 * Unlike the meta-key direction above this is unambiguous: OPTIONS is an
+	 * exact old => new table whose uniqueness G-C mode 1 enforces, so a reverse
+	 * lookup has at most one answer.
+	 *
+	 * @param string $new_name Current option name.
+	 * @return string|null Legacy name, or null.
+	 */
+	private static function legacy_option_name( string $new_name ): ?string {
+		$old = array_search( $new_name, PrefixMigrationMap::OPTIONS, true );
+
+		return false === $old ? null : (string) $old;
+	}
+
+	private static function legacy_meta_keys(): array {
+		$rules = array_merge(
+			PrefixMigrationMap::POSTMETA_PREFIX_RULES,
+			PrefixMigrationMap::USERMETA_PREFIX_RULES
+		);
+
+		$legacy = array();
+		foreach ( self::static_meta_keys() as $key ) {
+			foreach ( $rules as $old_prefix => $new_prefix ) {
+				if ( str_starts_with( $key, $new_prefix ) ) {
+					$legacy[] = $old_prefix . substr( $key, strlen( $new_prefix ) );
+				}
+			}
+		}
+
+		return array_values( array_unique( $legacy ) );
+	}
+
+	/**
 	 * The statically known meta keys, derived from a literal scan of both plugins.
 	 *
 	 * @return array<string> Array of valid meta key strings
 	 */
 	private static function static_meta_keys(): array {
 		return array(
-			'_mhm_additional_services_price',
-			'_mhm_addon_details',
-			'_mhm_addon_pricing_type',
-			'_mhm_addon_total',
-			'_mhm_attachments',
-			'_mhm_auto_cancelled',
-			'_mhm_auto_cancelled_reason',
-			'_mhm_auto_created',
-			'_mhm_blocked_dates',
-			'_mhm_blocked_dates_notes',
-			'_mhm_booking_created',
-			'_mhm_booking_data',
-			'_mhm_booking_history',
-			'_mhm_booking_id',
-			'_mhm_booking_logs',
-			'_mhm_booking_payment_type',
-			'_mhm_booking_pending',
-			'_mhm_booking_price',
-			'_mhm_booking_type',
-			'_mhm_bypass_reason',
-			'_mhm_cancellation_data',
-			'_mhm_cancellation_deadline',
-			'_mhm_cancellation_policy',
-			'_mhm_client_ip',
-			'_mhm_contact_email',
-			'_mhm_contact_name',
-			'_mhm_contact_phone',
-			'_mhm_cooling_policy_version',
-			'_mhm_created_by',
-			'_mhm_created_via',
-			'_mhm_custom_details',
-			'_mhm_customer_email',
-			'_mhm_customer_first_name',
-			'_mhm_customer_id',
-			'_mhm_customer_last_name',
-			'_mhm_customer_name',
-			'_mhm_customer_phone',
-			'_mhm_customer_user_id',
-			'_mhm_deposit',
-			'_mhm_deposit_amount',
-			'_mhm_deposit_percentage',
-			'_mhm_deposit_type',
-			'_mhm_details_order',
-			'_mhm_dropoff_date',
-			'_mhm_dropoff_time',
-			'_mhm_email_context',
-			'_mhm_email_key',
-			'_mhm_email_status',
-			'_mhm_email_subject',
-			'_mhm_email_to',
-			'_mhm_end_date',
-			'_mhm_end_time',
-			'_mhm_end_ts',
-			'_mhm_equipment_order',
-			'_mhm_features_order',
-			'_mhm_gallery_images',
-			'_mhm_guests',
-			'_mhm_ip_address',
-			'_mhm_is_read',
-			'_mhm_is_remaining_payment',
-			'_mhm_is_transfer',
-			'_mhm_layout_audit_log',
-			'_mhm_layout_hash',
-			'_mhm_layout_hash_previous',
-			'_mhm_layout_manifest',
-			'_mhm_layout_manifest_previous',
-			'_mhm_layout_version_timestamp',
-			'_mhm_layout_version_timestamp_previous',
-			'_mhm_listing_action',
-			'_mhm_listing_vehicle_id',
-			'_mhm_lock_status',
-			'_mhm_log_action',
-			'_mhm_log_amount_kurus',
-			'_mhm_log_booking_id',
-			'_mhm_log_category',
-			'_mhm_log_code',
-			'_mhm_log_context',
-			'_mhm_log_currency',
-			'_mhm_log_customer_id',
-			'_mhm_log_execution_time',
-			'_mhm_log_gateway',
-			'_mhm_log_ip_address',
-			'_mhm_log_level',
-			'_mhm_log_memory_usage',
-			'_mhm_log_message',
-			'_mhm_log_oid',
-			'_mhm_log_status',
-			'_mhm_log_user_agent',
-			'_mhm_log_user_id',
-			'_mhm_log_vehicle_id',
-			'_mhm_message_category',
-			'_mhm_message_priority',
-			'_mhm_message_status',
-			'_mhm_message_type',
-			'_mhm_offline_receipt_id',
-			'_mhm_order_id',
-			'_mhm_original_order_id',
-			'_mhm_parent_message_id',
-			'_mhm_payment_amount',
-			'_mhm_payment_currency',
-			'_mhm_payment_deadline',
-			'_mhm_payment_display',
-			'_mhm_payment_gateway',
-			'_mhm_payment_method',
-			'_mhm_payment_status',
-			'_mhm_payment_type',
-			'_mhm_payout_amount',
-			'_mhm_payout_external_ref',
-			'_mhm_payout_maker_id',
-			'_mhm_payout_rejection_reason',
-			'_mhm_payout_status',
-			'_mhm_pickup_date',
-			'_mhm_pickup_location_id',
-			'_mhm_pickup_time',
-			'_mhm_price_per_day',
-			'_mhm_read_at',
-			'_mhm_receipt_attachment_id',
-			'_mhm_receipt_note',
-			'_mhm_receipt_status',
-			'_mhm_receipt_uploaded_at',
-			'_mhm_receipt_uploaded_by',
-			'_mhm_recipient_id',
-			'_mhm_refund_date',
-			'_mhm_refund_processed_by',
-			'_mhm_refund_reason',
-			'_mhm_refund_requested_at',
-			'_mhm_refund_requested_by',
-			'_mhm_refund_status',
-			'_mhm_refund_txn_id',
-			'_mhm_refunded_amount',
-			'_mhm_release_after',
-			'_mhm_remaining_amount',
-			'_mhm_remaining_order_id',
-			'_mhm_removed_details',
-			'_mhm_rental_days',
-			'_mhm_rentiva_availability',
-			'_mhm_rentiva_average_rating',
-			'_mhm_rentiva_blocked_dates',
-			'_mhm_rentiva_brand',
-			'_mhm_rentiva_category',
-			'_mhm_rentiva_color',
-			'_mhm_rentiva_confidence_score',
-			'_mhm_rentiva_customer_email',
-			'_mhm_rentiva_customer_name',
-			'_mhm_rentiva_customer_rating',
-			'_mhm_rentiva_customer_review',
-			'_mhm_rentiva_daily_price',
-			'_mhm_rentiva_deposit',
-			'_mhm_rentiva_doors',
-			'_mhm_rentiva_engine_power',
-			'_mhm_rentiva_engine_size',
-			'_mhm_rentiva_equipment',
-			'_mhm_rentiva_featured',
-			'_mhm_rentiva_features',
-			'_mhm_rentiva_fuel_type',
-			'_mhm_rentiva_gallery',
-			'_mhm_rentiva_gallery_images',
-			'_mhm_rentiva_is_featured',
-			'_mhm_rentiva_license_plate',
-			'_mhm_rentiva_location',
-			'_mhm_rentiva_location_id',
-			'_mhm_rentiva_mileage',
-			'_mhm_rentiva_model',
-			'_mhm_rentiva_model_year',
-			'_mhm_rentiva_plate',
-			'_mhm_rentiva_price',
-			'_mhm_rentiva_price_per_day',
-			'_mhm_rentiva_price_per_month',
-			'_mhm_rentiva_price_per_week',
-			'_mhm_rentiva_rating_average',
-			'_mhm_rentiva_rating_count',
-			'_mhm_rentiva_review_approved',
-			'_mhm_rentiva_seats',
-			'_mhm_rentiva_transfer_locations',
-			'_mhm_rentiva_transfer_route_prices',
-			'_mhm_rentiva_transfer_routes',
-			'_mhm_rentiva_transmission',
-			'_mhm_rentiva_vehicle_city',
-			'_mhm_rentiva_vehicle_id',
-			'_mhm_rentiva_vehicle_insurance_doc',
-			'_mhm_rentiva_vehicle_registration_doc',
-			'_mhm_rentiva_vendor_location_id',
-			'_mhm_rentiva_welcome_sent',
-			'_mhm_rentiva_year',
-			'_mhm_return_date',
-			'_mhm_selected_addons',
-			'_mhm_service_type',
-			'_mhm_shortcode',
-			'_mhm_special_notes',
-			'_mhm_start_date',
-			'_mhm_start_time',
-			'_mhm_start_ts',
-			'_mhm_statement_carried_balance',
-			'_mhm_statement_commission_total',
-			'_mhm_statement_currency',
-			'_mhm_statement_emailed_at',
-			'_mhm_statement_generated_at',
-			'_mhm_statement_gross',
-			'_mhm_statement_last_entry_id',
-			'_mhm_statement_lines',
-			'_mhm_statement_net_activity',
-			'_mhm_statement_number',
-			'_mhm_statement_paid',
-			'_mhm_statement_penalties',
-			'_mhm_statement_period_end',
-			'_mhm_statement_period_start',
-			'_mhm_statement_vendor_snapshot',
-			'_mhm_status',
-			'_mhm_thread_id',
-			'_mhm_total_price',
-			'_mhm_transfer_adults',
-			'_mhm_transfer_children',
-			'_mhm_transfer_destination_id',
-			'_mhm_transfer_distance_km',
-			'_mhm_transfer_duration_min',
-			'_mhm_transfer_luggage_big',
-			'_mhm_transfer_luggage_small',
-			'_mhm_transfer_max_luggage_score',
-			'_mhm_transfer_max_pax',
-			'_mhm_transfer_origin_id',
-			'_mhm_transfer_price_multiplier',
-			'_mhm_user_agent',
-			'_mhm_user_id',
-			'_mhm_vehicle_availability',
-			'_mhm_vehicle_base_price',
-			'_mhm_vehicle_blocked_dates',
-			'_mhm_vehicle_cooldown_ends_at',
-			'_mhm_vehicle_deferred_penalty',
-			'_mhm_vehicle_expiry_warning_first_sent',
-			'_mhm_vehicle_expiry_warning_second_sent',
-			'_mhm_vehicle_id',
-			'_mhm_vehicle_lifecycle_status',
-			'_mhm_vehicle_listing_expires_at',
-			'_mhm_vehicle_listing_renewal_count',
-			'_mhm_vehicle_listing_renewed_at',
-			'_mhm_vehicle_listing_started_at',
-			'_mhm_vehicle_max_big_luggage',
-			'_mhm_vehicle_max_small_luggage',
-			'_mhm_vehicle_pause_count_month',
-			'_mhm_vehicle_paused_at',
-			'_mhm_vehicle_penalty_blocked_dates',
-			'_mhm_vehicle_penalty_uuid',
-			'_mhm_vehicle_plate',
-			'_mhm_vehicle_price_per_km',
-			'_mhm_vehicle_service_type',
-			'_mhm_vehicle_status',
-			'_mhm_vehicle_suspended_by_vendor_ban',
-			'_mhm_vehicle_withdrawal_excused',
-			'_mhm_vehicle_withdrawn_at',
-			'_mhm_vehicle_year',
-			'_mhm_vendor_commission_rate',
-			'_mhm_vendor_payout_freeze',
-			'_mhm_wc_order_id',
-			'_mhm_wc_payment_type',
-			'_mhm_woocommerce_order_id',
-			'_mhm_workflow_state',
+			'_mhmrentiva_additional_services_price',
+			'_mhmrentiva_addon_details',
+			'_mhmrentiva_addon_pricing_type',
+			'_mhmrentiva_addon_total',
+			'_mhmrentiva_attachments',
+			'_mhmrentiva_auto_cancelled',
+			'_mhmrentiva_auto_cancelled_reason',
+			'_mhmrentiva_auto_created',
+			'_mhmrentiva_blocked_dates',
+			'_mhmrentiva_blocked_dates_notes',
+			'_mhmrentiva_booking_created',
+			'_mhmrentiva_booking_data',
+			'_mhmrentiva_booking_history',
+			'_mhmrentiva_booking_id',
+			'_mhmrentiva_booking_logs',
+			'_mhmrentiva_booking_payment_type',
+			'_mhmrentiva_booking_pending',
+			'_mhmrentiva_booking_price',
+			'_mhmrentiva_booking_type',
+			'_mhmrentiva_bypass_reason',
+			'_mhmrentiva_cancellation_data',
+			'_mhmrentiva_cancellation_deadline',
+			'_mhmrentiva_cancellation_policy',
+			'_mhmrentiva_client_ip',
+			'_mhmrentiva_contact_email',
+			'_mhmrentiva_contact_name',
+			'_mhmrentiva_contact_phone',
+			'_mhmrentiva_cooling_policy_version',
+			'_mhmrentiva_created_by',
+			'_mhmrentiva_created_via',
+			'_mhmrentiva_custom_details',
+			'_mhmrentiva_customer_email',
+			'_mhmrentiva_customer_first_name',
+			'_mhmrentiva_customer_id',
+			'_mhmrentiva_customer_last_name',
+			'_mhmrentiva_customer_name',
+			'_mhmrentiva_customer_phone',
+			'_mhmrentiva_customer_user_id',
+			'_mhmrentiva_deposit',
+			'_mhmrentiva_deposit_amount',
+			'_mhmrentiva_deposit_percentage',
+			'_mhmrentiva_deposit_type',
+			'_mhmrentiva_details_order',
+			'_mhmrentiva_dropoff_date',
+			'_mhmrentiva_dropoff_time',
+			'_mhmrentiva_email_context',
+			'_mhmrentiva_email_key',
+			'_mhmrentiva_email_status',
+			'_mhmrentiva_email_subject',
+			'_mhmrentiva_email_to',
+			'_mhmrentiva_end_date',
+			'_mhmrentiva_end_time',
+			'_mhmrentiva_end_ts',
+			'_mhmrentiva_equipment_order',
+			'_mhmrentiva_features_order',
+			'_mhmrentiva_gallery_images',
+			'_mhmrentiva_guests',
+			'_mhmrentiva_ip_address',
+			'_mhmrentiva_is_read',
+			'_mhmrentiva_is_remaining_payment',
+			'_mhmrentiva_is_transfer',
+			'_mhmrentiva_layout_audit_log',
+			'_mhmrentiva_layout_hash',
+			'_mhmrentiva_layout_hash_previous',
+			'_mhmrentiva_layout_manifest',
+			'_mhmrentiva_layout_manifest_previous',
+			'_mhmrentiva_layout_version_timestamp',
+			'_mhmrentiva_layout_version_timestamp_previous',
+			'_mhmrentiva_listing_action',
+			'_mhmrentiva_listing_vehicle_id',
+			'_mhmrentiva_lock_status',
+			'_mhmrentiva_log_action',
+			'_mhmrentiva_log_amount_kurus',
+			'_mhmrentiva_log_booking_id',
+			'_mhmrentiva_log_category',
+			'_mhmrentiva_log_code',
+			'_mhmrentiva_log_context',
+			'_mhmrentiva_log_currency',
+			'_mhmrentiva_log_customer_id',
+			'_mhmrentiva_log_execution_time',
+			'_mhmrentiva_log_gateway',
+			'_mhmrentiva_log_ip_address',
+			'_mhmrentiva_log_level',
+			'_mhmrentiva_log_memory_usage',
+			'_mhmrentiva_log_message',
+			'_mhmrentiva_log_oid',
+			'_mhmrentiva_log_status',
+			'_mhmrentiva_log_user_agent',
+			'_mhmrentiva_log_user_id',
+			'_mhmrentiva_log_vehicle_id',
+			'_mhmrentiva_message_category',
+			'_mhmrentiva_message_priority',
+			'_mhmrentiva_message_status',
+			'_mhmrentiva_message_type',
+			'_mhmrentiva_offline_receipt_id',
+			'_mhmrentiva_order_id',
+			'_mhmrentiva_original_order_id',
+			'_mhmrentiva_parent_message_id',
+			'_mhmrentiva_payment_amount',
+			'_mhmrentiva_payment_currency',
+			'_mhmrentiva_payment_deadline',
+			'_mhmrentiva_payment_display',
+			'_mhmrentiva_payment_gateway',
+			'_mhmrentiva_payment_method',
+			'_mhmrentiva_payment_status',
+			'_mhmrentiva_payment_type',
+			'_mhmrentiva_payout_amount',
+			'_mhmrentiva_payout_external_ref',
+			'_mhmrentiva_payout_maker_id',
+			'_mhmrentiva_payout_rejection_reason',
+			'_mhmrentiva_payout_status',
+			'_mhmrentiva_pickup_date',
+			'_mhmrentiva_pickup_location_id',
+			'_mhmrentiva_pickup_time',
+			'_mhmrentiva_price_per_day',
+			'_mhmrentiva_read_at',
+			'_mhmrentiva_receipt_attachment_id',
+			'_mhmrentiva_receipt_note',
+			'_mhmrentiva_receipt_status',
+			'_mhmrentiva_receipt_uploaded_at',
+			'_mhmrentiva_receipt_uploaded_by',
+			'_mhmrentiva_recipient_id',
+			'_mhmrentiva_refund_date',
+			'_mhmrentiva_refund_processed_by',
+			'_mhmrentiva_refund_reason',
+			'_mhmrentiva_refund_requested_at',
+			'_mhmrentiva_refund_requested_by',
+			'_mhmrentiva_refund_status',
+			'_mhmrentiva_refund_txn_id',
+			'_mhmrentiva_refunded_amount',
+			'_mhmrentiva_release_after',
+			'_mhmrentiva_remaining_amount',
+			'_mhmrentiva_remaining_order_id',
+			'_mhmrentiva_removed_details',
+			'_mhmrentiva_rental_days',
+			'_mhmrentiva_availability',
+			'_mhmrentiva_average_rating',
+			'_mhmrentiva_blocked_dates',
+			'_mhmrentiva_brand',
+			'_mhmrentiva_category',
+			'_mhmrentiva_color',
+			'_mhmrentiva_confidence_score',
+			'_mhmrentiva_customer_email',
+			'_mhmrentiva_customer_name',
+			'_mhmrentiva_customer_rating',
+			'_mhmrentiva_customer_review',
+			'_mhmrentiva_daily_price',
+			'_mhmrentiva_deposit',
+			'_mhmrentiva_doors',
+			'_mhmrentiva_engine_power',
+			'_mhmrentiva_engine_size',
+			'_mhmrentiva_equipment',
+			'_mhmrentiva_featured',
+			'_mhmrentiva_features',
+			'_mhmrentiva_fuel_type',
+			'_mhmrentiva_gallery',
+			'_mhmrentiva_gallery_images',
+			'_mhmrentiva_is_featured',
+			'_mhmrentiva_license_plate',
+			'_mhmrentiva_location',
+			'_mhmrentiva_location_id',
+			'_mhmrentiva_mileage',
+			'_mhmrentiva_model',
+			'_mhmrentiva_model_year',
+			'_mhmrentiva_plate',
+			'_mhmrentiva_price',
+			'_mhmrentiva_price_per_day',
+			'_mhmrentiva_price_per_month',
+			'_mhmrentiva_price_per_week',
+			'_mhmrentiva_rating_average',
+			'_mhmrentiva_rating_count',
+			'_mhmrentiva_review_approved',
+			'_mhmrentiva_seats',
+			'_mhmrentiva_transfer_locations',
+			'_mhmrentiva_transfer_route_prices',
+			'_mhmrentiva_transfer_routes',
+			'_mhmrentiva_transmission',
+			'_mhmrentiva_vehicle_city',
+			'_mhmrentiva_vehicle_id',
+			'_mhmrentiva_vehicle_insurance_doc',
+			'_mhmrentiva_vehicle_registration_doc',
+			'_mhmrentiva_vendor_location_id',
+			'_mhmrentiva_welcome_sent',
+			'_mhmrentiva_year',
+			'_mhmrentiva_return_date',
+			'_mhmrentiva_selected_addons',
+			'_mhmrentiva_service_type',
+			'_mhmrentiva_shortcode',
+			'_mhmrentiva_special_notes',
+			'_mhmrentiva_start_date',
+			'_mhmrentiva_start_time',
+			'_mhmrentiva_start_ts',
+			'_mhmrentiva_statement_carried_balance',
+			'_mhmrentiva_statement_commission_total',
+			'_mhmrentiva_statement_currency',
+			'_mhmrentiva_statement_emailed_at',
+			'_mhmrentiva_statement_generated_at',
+			'_mhmrentiva_statement_gross',
+			'_mhmrentiva_statement_last_entry_id',
+			'_mhmrentiva_statement_lines',
+			'_mhmrentiva_statement_net_activity',
+			'_mhmrentiva_statement_number',
+			'_mhmrentiva_statement_paid',
+			'_mhmrentiva_statement_penalties',
+			'_mhmrentiva_statement_period_end',
+			'_mhmrentiva_statement_period_start',
+			'_mhmrentiva_statement_vendor_snapshot',
+			'_mhmrentiva_status',
+			'_mhmrentiva_thread_id',
+			'_mhmrentiva_total_price',
+			'_mhmrentiva_transfer_adults',
+			'_mhmrentiva_transfer_children',
+			'_mhmrentiva_transfer_destination_id',
+			'_mhmrentiva_transfer_distance_km',
+			'_mhmrentiva_transfer_duration_min',
+			'_mhmrentiva_transfer_luggage_big',
+			'_mhmrentiva_transfer_luggage_small',
+			'_mhmrentiva_transfer_max_luggage_score',
+			'_mhmrentiva_transfer_max_pax',
+			'_mhmrentiva_transfer_origin_id',
+			'_mhmrentiva_transfer_price_multiplier',
+			'_mhmrentiva_user_agent',
+			'_mhmrentiva_user_id',
+			'_mhmrentiva_vehicle_availability',
+			'_mhmrentiva_vehicle_base_price',
+			'_mhmrentiva_vehicle_blocked_dates',
+			'_mhmrentiva_vehicle_cooldown_ends_at',
+			'_mhmrentiva_vehicle_deferred_penalty',
+			'_mhmrentiva_vehicle_expiry_warning_first_sent',
+			'_mhmrentiva_vehicle_expiry_warning_second_sent',
+			'_mhmrentiva_vehicle_id',
+			'_mhmrentiva_vehicle_lifecycle_status',
+			'_mhmrentiva_vehicle_listing_expires_at',
+			'_mhmrentiva_vehicle_listing_renewal_count',
+			'_mhmrentiva_vehicle_listing_renewed_at',
+			'_mhmrentiva_vehicle_listing_started_at',
+			'_mhmrentiva_vehicle_max_big_luggage',
+			'_mhmrentiva_vehicle_max_small_luggage',
+			'_mhmrentiva_vehicle_pause_count_month',
+			'_mhmrentiva_vehicle_paused_at',
+			'_mhmrentiva_vehicle_penalty_blocked_dates',
+			'_mhmrentiva_vehicle_penalty_uuid',
+			'_mhmrentiva_vehicle_plate',
+			'_mhmrentiva_vehicle_price_per_km',
+			'_mhmrentiva_vehicle_service_type',
+			'_mhmrentiva_vehicle_status',
+			'_mhmrentiva_vehicle_suspended_by_vendor_ban',
+			'_mhmrentiva_vehicle_withdrawal_excused',
+			'_mhmrentiva_vehicle_withdrawn_at',
+			'_mhmrentiva_vehicle_year',
+			'_mhmrentiva_vendor_commission_rate',
+			'_mhmrentiva_vendor_payout_freeze',
+			'_mhmrentiva_wc_order_id',
+			'_mhmrentiva_wc_payment_type',
+			'_mhmrentiva_woocommerce_order_id',
+			'_mhmrentiva_workflow_state',
 
 			// Legacy families kept for documentation and for the day the
 			// LIKE pattern widens; none of them can match '_mhm%' today.
@@ -388,7 +452,7 @@ final class DatabaseCleaner {
 	 * Meta keys that only exist at runtime, so no literal scan can find them.
 	 *
 	 * Vehicle detail/feature/equipment fields are admin-defined: VehicleMeta and
-	 * VehicleSubmit store each one as '_mhm_rentiva_' . $field_key, where
+	 * VehicleSubmit store each one as '_mhmrentiva_' . $field_key, where
 	 * $field_key comes from these options or from a feature/equipment taxonomy
 	 * term. Without this derivation, every custom field an admin has ever added
 	 * is "invalid" to the cleanup and gets deleted.
@@ -398,18 +462,29 @@ final class DatabaseCleaner {
 	private static function runtime_custom_field_meta_keys(): array {
 		$field_maps = array();
 
-		// mhm_vehicle_* hold the standard field definitions (an admin can extend
-		// them); mhm_custom_* hold the fields an admin added outright. Both are
+		// mhmrentiva_vehicle_* hold the standard field definitions (an admin can extend
+		// them); mhmrentiva_custom_* hold the fields an admin added outright. Both are
 		// read back by VehicleMeta::save_meta() to decide which meta to write.
 		foreach ( array(
-			'mhm_vehicle_details',
-			'mhm_vehicle_features',
-			'mhm_vehicle_equipment',
-			'mhm_custom_details',
-			'mhm_custom_features',
-			'mhm_custom_equipment',
+			'mhmrentiva_vehicle_details',
+			'mhmrentiva_vehicle_features',
+			'mhmrentiva_vehicle_equipment',
+			'mhmrentiva_custom_details',
+			'mhmrentiva_custom_features',
+			'mhmrentiva_custom_equipment',
 		) as $option_name ) {
 			$field_maps[] = (array) get_option( $option_name, array() );
+
+			// Transition window: on a site that has not run the 6.0.0 migration
+			// yet, the definitions still live under the OLD option name. Reading
+			// only the new one yields an empty derivation, and an empty
+			// derivation means every admin-defined custom field looks invalid --
+			// i.e. deletable. The old name is read too, not instead, because a
+			// half-migrated site can legitimately have both.
+			$legacy_option = self::legacy_option_name( $option_name );
+			if ( null !== $legacy_option ) {
+				$field_maps[] = (array) get_option( $legacy_option, array() );
+			}
 		}
 
 		$field_maps[] = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_features();
@@ -421,7 +496,12 @@ final class DatabaseCleaner {
 			foreach ( array_keys( $field_map ) as $field_key ) {
 				$field_key = (string) $field_key;
 				if ( '' !== $field_key ) {
-					$keys[] = '_mhm_rentiva_' . $field_key;
+					$keys[] = '_mhmrentiva_' . $field_key;
+					// Same transition window: the ROWS for these fields were
+					// written under the old prefix and stay that way until the
+					// migration runs.
+					$keys[] = '_mhmrentiva_' . $field_key;
+					$keys[] = '_mhmrentiva_' . $field_key;
 				}
 			}
 		}
@@ -435,13 +515,13 @@ final class DatabaseCleaner {
 	 * An empty derivation means two very different things, and
 	 * runtime_custom_field_meta_keys() cannot tell them apart: this site has no
 	 * custom vehicle fields, or this site's field definitions have been wiped,
-	 * reset or re-imported while the '_mhm_rentiva_<field>' rows they describe
+	 * reset or re-imported while the '_mhmrentiva_<field>' rows they describe
 	 * are still in the database. The
 	 * first is ordinary; the second means the derivation has silently stopped
 	 * protecting real data, and the caller's next statement is a DELETE.
 	 *
 	 * Telling them apart is cheap: ask the database whether any
-	 * '_mhm_rentiva_%' rows exist that the static list does not already cover.
+	 * '_mhmrentiva_%' rows exist that the static list does not already cover.
 	 * If some do while the derivation is empty, the definitions are gone and the
 	 * cleanup must refuse to run rather than delete what it cannot identify.
 	 *
@@ -455,18 +535,35 @@ final class DatabaseCleaner {
 			return array();
 		}
 
-		$static_keys = self::static_meta_keys();
+		// Must be judged against the SAME cover the DELETE uses, old spellings
+		// included: after the 6.0.0 rename the two families coexist, and a probe
+		// that only knows the new one reports every un-migrated row as at risk.
+		$static_keys = array_values(
+			array_unique( array_merge( self::static_meta_keys(), self::legacy_meta_keys() ) )
+		);
 
 		return $wpdb->get_col(
 			$wpdb->prepare(
 				"
             SELECT DISTINCT meta_key
             FROM {$wpdb->postmeta}
-            WHERE meta_key LIKE %s
+            WHERE ( meta_key LIKE %s OR meta_key LIKE %s )
             AND meta_key NOT IN (" . implode( ',', array_fill( 0, count( $static_keys ), '%s' ) ) . ')
             LIMIT 20
         ',
-				array_merge( array( $wpdb->esc_like( '_mhm_rentiva_' ) . '%' ), $static_keys )
+				array_merge(
+					// Admin-defined vehicle fields are stored as
+					// \'<prefix><field>\'. Both spellings are live during the
+					// transition window, and BOTH must be asked about -- but only
+					// these two: widening to \'_mhm%\' would treat any unrelated
+					// junk meta row as an at-risk custom field and abort the
+					// cleanup permanently, turning a safety net into an off switch.
+					array(
+						$wpdb->esc_like( '_mhmrentiva_' ) . '%',
+						$wpdb->esc_like( '_mhmrentiva_' ) . '%',
+					),
+					$static_keys
+				)
 			)
 		);
 	}
@@ -530,7 +627,7 @@ final class DatabaseCleaner {
             AND um.meta_key LIKE %s
             LIMIT 100
         ",
-				'mhm_rentiva%%'
+				'mhmrentiva_rentiva%%'
 			),
 			ARRAY_A
 		);
@@ -584,7 +681,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhm_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva_rentiva%'
             AND option_name NOT LIKE '_transient%'
         ",
 			ARRAY_A
@@ -595,7 +692,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhm_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva_rentiva%'
             AND autoload = 'yes'
         ",
 			ARRAY_A
@@ -633,7 +730,13 @@ final class DatabaseCleaner {
             ORDER BY count DESC
             LIMIT 50
         ',
-				array_merge( array( '_mhm%' ), $valid_keys )
+				// esc_like() escapes the leading underscore. Unescaped, '_' is
+				// MySQL's single-character wildcard, so '_mhm%' also matched
+				// 'Xmhm...' for any X -- rows belonging to nobody in particular,
+				// on a statement that DELETEs. Task 11 deferred this here because
+				// it is one half of the rename hazard. Escaping only ever NARROWS
+				// what the DELETE can reach, which is the safe direction.
+				array_merge( array( $wpdb->esc_like( '_mhm' ) . '%' ), $valid_keys )
 			),
 			ARRAY_A
 		);
@@ -690,7 +793,7 @@ final class DatabaseCleaner {
 		}
 
 		// Create backup table
-		$backup_table = $wpdb->prefix . 'mhm_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
+		$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_' . gmdate( 'Ymd_His' );
 		$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 		// Extract meta keys
@@ -736,14 +839,14 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		$tables = array(
-			'payment_log'        => $wpdb->prefix . 'mhm_payment_log',
-			'sessions'           => $wpdb->prefix . 'mhm_sessions',
+			'payment_log'        => $wpdb->prefix . 'mhmrentiva_payment_log',
+			'sessions'           => $wpdb->prefix . 'mhmrentiva_sessions',
 			'transfer_routes'    => $wpdb->prefix . 'rentiva_transfer_routes',
 			'transfer_locations' => $wpdb->prefix . 'rentiva_transfer_locations',
-			'queue'              => $wpdb->prefix . 'mhm_rentiva_queue',
-			'ratings'            => $wpdb->prefix . 'mhm_rentiva_ratings',
-			'report_queue'       => $wpdb->prefix . 'mhm_rentiva_background_jobs',
-			'message_logs'       => $wpdb->prefix . 'mhm_message_logs',
+			'queue'              => $wpdb->prefix . 'mhmrentiva_queue',
+			'ratings'            => $wpdb->prefix . 'mhmrentiva_ratings',
+			'report_queue'       => $wpdb->prefix . 'mhmrentiva_background_jobs',
+			'message_logs'       => $wpdb->prefix . 'mhmrentiva_message_logs',
 		);
 
 		$stats = array();
@@ -808,7 +911,7 @@ final class DatabaseCleaner {
 
 		if ( ! $dry_run && $count > 0 ) {
 			// Create backup table
-			$backup_table = $wpdb->prefix . 'mhm_postmeta_backup_' . gmdate( 'Ymd_His' );
+			$backup_table = $wpdb->prefix . 'mhmrentiva_postmeta_backup_' . gmdate( 'Ymd_His' );
 			$wpdb->query( $wpdb->prepare( 'CREATE TABLE %i LIKE %i', $backup_table, $wpdb->postmeta ) );
 
 			// Backup orphaned data
@@ -922,9 +1025,9 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		$tables = array(
-			'queue'        => $wpdb->prefix . 'mhm_rentiva_queue',
-			'report_queue' => $wpdb->prefix . 'mhm_rentiva_background_jobs',
-			'message_logs' => $wpdb->prefix . 'mhm_message_logs',
+			'queue'        => $wpdb->prefix . 'mhmrentiva_queue',
+			'report_queue' => $wpdb->prefix . 'mhmrentiva_background_jobs',
+			'message_logs' => $wpdb->prefix . 'mhmrentiva_message_logs',
 		);
 
 		$results     = array();
@@ -998,7 +1101,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhm_rentiva%'
+            WHERE option_name LIKE 'mhmrentiva_rentiva%'
             AND autoload = 'yes'
             AND LENGTH(option_value) > 1024
             ORDER BY size DESC
@@ -1059,10 +1162,10 @@ final class DatabaseCleaner {
 			$wpdb->posts,
 			$wpdb->postmeta,
 			$wpdb->options,
-			$wpdb->prefix . 'mhm_rentiva_queue',
-			$wpdb->prefix . 'mhm_rentiva_ratings',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
-			$wpdb->prefix . 'mhm_message_logs',
+			$wpdb->prefix . 'mhmrentiva_queue',
+			$wpdb->prefix . 'mhmrentiva_ratings',
+			$wpdb->prefix . 'mhmrentiva_background_jobs',
+			$wpdb->prefix . 'mhmrentiva_message_logs',
 		);
 
 		$results = array();
@@ -1343,7 +1446,7 @@ final class DatabaseCleaner {
 		// Find all backup tables
 		$backup_tables = $wpdb->get_col(
 			"
-            SHOW TABLES LIKE '{$wpdb->prefix}mhm_%_backup%'
+            SHOW TABLES LIKE '{$wpdb->prefix}mhmrentiva_%_backup%'
         "
 		);
 
@@ -1407,7 +1510,7 @@ final class DatabaseCleaner {
 	 * that the table EXISTS is not a scope check -- every table in the database
 	 * exists, so an existence test admitted wp_users as readily as one of our
 	 * own backups. Membership is decided against the same enumeration the UI
-	 * lists, which is scoped to the plugin's `{prefix}mhm_%_backup%` naming,
+	 * lists, which is scoped to the plugin's `{prefix}mhmrentiva_%_backup%` naming,
 	 * and compared as a whole string so no LIKE wildcard can widen it.
 	 */
 	public static function is_managed_backup_table( string $table_name ): bool {
@@ -1556,7 +1659,7 @@ final class DatabaseCleaner {
 	public static function create_full_backup(): array {
 		global $wpdb;
 
-		$backup_name = 'mhm_rentiva_full_backup_' . gmdate( 'Ymd_His' );
+		$backup_name = 'mhmrentiva_full_backup_' . gmdate( 'Ymd_His' );
 		$backup_dir  = self::backup_dir();
 
 		// Initialize Filesystem
@@ -1585,11 +1688,11 @@ final class DatabaseCleaner {
 			$wpdb->options,
 
 			// Plugin custom tables
-			$wpdb->prefix . 'mhm_rentiva_queue',
-			$wpdb->prefix . 'mhm_rentiva_ratings',
-			$wpdb->prefix . 'mhm_rentiva_report_queue',
-			$wpdb->prefix . 'mhm_message_logs',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
+			$wpdb->prefix . 'mhmrentiva_queue',
+			$wpdb->prefix . 'mhmrentiva_ratings',
+			$wpdb->prefix . 'mhmrentiva_report_queue',
+			$wpdb->prefix . 'mhmrentiva_message_logs',
+			$wpdb->prefix . 'mhmrentiva_background_jobs',
 		);
 
 		// Filter existing tables only
@@ -1659,7 +1762,7 @@ final class DatabaseCleaner {
 		}
 
 		// Also create a record in database for management
-		$backup_table = $wpdb->prefix . 'mhm_backup_records';
+		$backup_table = $wpdb->prefix . 'mhmrentiva_backup_records';
 
 		// Create backup records table if it doesn't exist
 		$wpdb->query(
@@ -1719,7 +1822,7 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		$backups      = array();
-		$backup_table = $wpdb->prefix . 'mhm_backup_records';
+		$backup_table = $wpdb->prefix . 'mhmrentiva_backup_records';
 
 		// Get backups from database records
 		$backup_table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $backup_table ) );
@@ -1775,7 +1878,7 @@ final class DatabaseCleaner {
 
 					if ( is_array( $file_list ) ) {
 						foreach ( $file_list as $file_info ) {
-							if ( strpos( $file_info['name'], 'mhm_rentiva_full_backup_' ) !== 0 || substr( $file_info['name'], -4 ) !== '.sql' ) {
+							if ( strpos( $file_info['name'], 'mhmrentiva_full_backup_' ) !== 0 || substr( $file_info['name'], -4 ) !== '.sql' ) {
 								continue;
 							}
 
@@ -2006,7 +2109,7 @@ final class DatabaseCleaner {
 			}
 		}
 
-		$backup_table = $wpdb->prefix . 'mhm_backup_records';
+		$backup_table = $wpdb->prefix . 'mhmrentiva_backup_records';
 
 		// Contain the resolved path to the backup directory before deleting. A target
 		// that does not resolve is allowed through: there is nothing on disk to

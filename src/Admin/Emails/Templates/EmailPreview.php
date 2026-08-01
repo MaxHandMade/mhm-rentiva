@@ -29,8 +29,8 @@ final class EmailPreview {
 		echo '<p class="description">' . esc_html__( 'Send a test and see a live preview side-by-side.', 'mhm-rentiva' ) . '</p>';
 
 		$registry      = \MHMRentiva\Admin\Emails\Core\Templates::registry();
-		$send_nonce    = wp_create_nonce( 'mhm_rentiva_send_template_test' );
-		$preview_nonce = wp_create_nonce( 'mhm_email_preview_action' );
+		$send_nonce    = wp_create_nonce( 'mhmrentiva_send_template_test' );
+		$preview_nonce = wp_create_nonce( 'mhmrentiva_email_preview_action' );
 		$admin_post    = admin_url( 'admin-post.php' );
 		$current_url   = esc_url_raw( add_query_arg( array() ) );
 		$default_to    = \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode() ? \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address() : get_option( 'admin_email' );
@@ -103,8 +103,8 @@ final class EmailPreview {
 		echo '</div>';
 		echo '</div>';
 
-		if ( isset( $_GET['mhm_template_test'] ) ) {
-			$st = sanitize_text_field( wp_unslash( $_GET['mhm_template_test'] ) );
+		if ( isset( $_GET['mhmrentiva_template_test'] ) ) {
+			$st = sanitize_text_field( wp_unslash( $_GET['mhmrentiva_template_test'] ) );
 			if ( $st === 'success' ) {
 				echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__( 'Template email sent.', 'mhm-rentiva' ) . '</p></div>';
 			} elseif ( $st === 'failed' ) {
@@ -129,8 +129,8 @@ final class EmailPreview {
 
 	private static function show_preview_result(): void {
 		// Nonce doğrulaması
-		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_email_preview_nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_email_preview_action' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_email_preview_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_email_preview_action' ) ) {
 			// AJAX isteği değilse sessizce dön, ancak burada genellikle AJAX render edilir.
 			// Bu metodun nasıl çağrıldığına bağlı olarak die() veya return kullanabiliriz.
 			// Şimdilik güvenli bir şekilde return ediyoruz.
@@ -257,7 +257,7 @@ final class EmailPreview {
 			$symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 			$formatted_amount = number_format( $amount, 2 );
-			$pos              = get_option( 'mhm_rentiva_currency_position', 'right_space' );
+			$pos              = get_option( 'mhmrentiva_currency_position', 'right_space' );
 
 			switch ( $pos ) {
 				case 'left':

@@ -18,17 +18,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class ReminderScheduler {
 
 	public static function register(): void {
-		add_action( 'mhm_rentiva_booking_created', array( self::class, 'schedule_reminder' ) );
-		add_action( 'mhm_rentiva_send_booking_reminder', array( self::class, 'send_reminder' ) );
+		add_action( 'mhmrentiva_booking_created', array( self::class, 'schedule_reminder' ) );
+		add_action( 'mhmrentiva_send_booking_reminder', array( self::class, 'send_reminder' ) );
 	}
 
 	public static function schedule_reminder( int $booking_id ): void {
 		// Toggle off entirely if reminders disabled
-		if ( SettingsCore::get( 'mhm_rentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
+		if ( SettingsCore::get( 'mhmrentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
 			return;
 		}
 
-		$hours_before = (int) SettingsCore::get( 'mhm_rentiva_booking_reminder_hours_before', 24 );
+		$hours_before = (int) SettingsCore::get( 'mhmrentiva_booking_reminder_hours_before', 24 );
 		if ( $hours_before <= 0 ) {
 			return;
 		}
@@ -40,7 +40,7 @@ final class ReminderScheduler {
 			$pickup   = (string) ( $dateInfo['pickup_date'] ?? '' );
 		}
 		if ( $pickup === '' ) {
-			$pickup = (string) get_post_meta( $booking_id, '_mhm_pickup_date', true );
+			$pickup = (string) get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
 		}
 		if ( $pickup === '' ) {
 			return;
@@ -57,7 +57,7 @@ final class ReminderScheduler {
 		}
 
 		// Schedule single reminder event
-		wp_schedule_single_event( $when, 'mhm_rentiva_send_booking_reminder', array( $booking_id ) );
+		wp_schedule_single_event( $when, 'mhmrentiva_send_booking_reminder', array( $booking_id ) );
 	}
 
 	public static function send_reminder( int $booking_id ): void {
@@ -81,7 +81,7 @@ final class ReminderScheduler {
 	 * @return bool
 	 */
 	public static function should_send_reminder( int $booking_id ): bool {
-		if ( SettingsCore::get( 'mhm_rentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
+		if ( SettingsCore::get( 'mhmrentiva_booking_send_reminder_emails', '1' ) !== '1' ) {
 			return false;
 		}
 

@@ -72,8 +72,8 @@ final class VehicleFeatureHelper {
 	/**
 	 * Is a field currently active (in use), for RENDER decisions.
 	 *
-	 * Details are active when core or selected in mhm_selected_details; features/equipment
-	 * when selected in their mhm_selected_* option. Taxonomy and unknown types pass through
+	 * Details are active when core or selected in mhmrentiva_selected_details; features/equipment
+	 * when selected in their mhmrentiva_selected_* option. Taxonomy and unknown types pass through
 	 * (D5 dormant taxonomy is unchanged). This mirrors get_available_fields_map()'s detail
 	 * gating but is a standalone predicate so it can gate feature/equipment rendering without
 	 * touching the (save-side) availability map.
@@ -85,13 +85,13 @@ final class VehicleFeatureHelper {
 				if ( in_array( $key, self::get_core_fields(), true ) ) {
 					return true;
 				}
-				$selected = (array) get_option( 'mhm_selected_details', VehicleSettings::get_default_selected_details() );
+				$selected = (array) get_option( 'mhmrentiva_selected_details', VehicleSettings::get_default_selected_details() );
 				break;
 			case self::TYPE_FEATURE:
-				$selected = (array) get_option( 'mhm_selected_features', VehicleSettings::get_default_selected_features() );
+				$selected = (array) get_option( 'mhmrentiva_selected_features', VehicleSettings::get_default_selected_features() );
 				break;
 			case self::TYPE_EQUIPMENT:
-				$selected = (array) get_option( 'mhm_selected_equipment', VehicleSettings::get_default_selected_equipment() );
+				$selected = (array) get_option( 'mhmrentiva_selected_equipment', VehicleSettings::get_default_selected_equipment() );
 				break;
 			default:
 				return true; // taxonomy (D5) and unknown types are never hidden here
@@ -149,7 +149,7 @@ final class VehicleFeatureHelper {
 	 */
 	public static function get_selected_card_fields(): array
 	{
-		$raw = SettingsCore::get('mhm_rentiva_vehicle_card_fields', self::get_default_card_fields());
+		$raw = SettingsCore::get('mhmrentiva_vehicle_card_fields', self::get_default_card_fields());
 		return self::sanitize_card_field_selection($raw);
 	}
 
@@ -173,11 +173,11 @@ final class VehicleFeatureHelper {
 	 */
 	public static function get_selected_detail_fields(): array
 	{
-		if (! SettingsCore::has('mhm_rentiva_vehicle_detail_fields')) {
+		if (! SettingsCore::has('mhmrentiva_vehicle_detail_fields')) {
 			return self::get_selected_card_fields();
 		}
 
-		$raw = SettingsCore::get('mhm_rentiva_vehicle_detail_fields', array());
+		$raw = SettingsCore::get('mhmrentiva_vehicle_detail_fields', array());
 
 		return self::sanitize_card_field_selection($raw);
 	}
@@ -253,9 +253,9 @@ final class VehicleFeatureHelper {
 		);
 
 		// Details
-		$selected_details = (array) get_option('mhm_selected_details', VehicleSettings::get_default_selected_details());
-		$default_details  = (array) get_option('mhm_vehicle_details', VehicleSettings::get_default_details());
-		$custom_details   = (array) get_option('mhm_custom_details', array());
+		$selected_details = (array) get_option('mhmrentiva_selected_details', VehicleSettings::get_default_selected_details());
+		$default_details  = (array) get_option('mhmrentiva_vehicle_details', VehicleSettings::get_default_details());
+		$custom_details   = (array) get_option('mhmrentiva_custom_details', array());
 		$all_details      = array_merge($default_details, $custom_details);
 
 		// If no details are selected, we must at least allow core fields as available
@@ -278,8 +278,8 @@ final class VehicleFeatureHelper {
 		}
 
 		// Features (Standard + Custom)
-		$default_features = (array) get_option('mhm_vehicle_features', VehicleSettings::get_default_features());
-		$custom_features  = (array) get_option('mhm_custom_features', array());
+		$default_features = (array) get_option('mhmrentiva_vehicle_features', VehicleSettings::get_default_features());
+		$custom_features  = (array) get_option('mhmrentiva_custom_features', array());
 		$all_features     = array_merge($default_features, $custom_features);
 
 		foreach ($all_features as $key => $label) {
@@ -287,22 +287,22 @@ final class VehicleFeatureHelper {
 			$key                                  = sanitize_key($key);
 			$result[ self::TYPE_FEATURE ][ $key ] = array(
 				'label'    => self::sanitize_label($label, $key),
-				'meta_key' => '', // meta key is generic _mhm_rentiva_features array check
+				'meta_key' => '', // meta key is generic _mhmrentiva_features array check
 				'type'     => self::TYPE_FEATURE,
 				'key'      => $key,
 			);
 		}
 
 		// Equipment (Standard + Custom)
-		$default_equipment = (array) get_option('mhm_vehicle_equipment', VehicleSettings::get_default_equipment());
-		$custom_equipment  = (array) get_option('mhm_custom_equipment', array());
+		$default_equipment = (array) get_option('mhmrentiva_vehicle_equipment', VehicleSettings::get_default_equipment());
+		$custom_equipment  = (array) get_option('mhmrentiva_custom_equipment', array());
 		$all_equipment     = array_merge($default_equipment, $custom_equipment);
 
 		foreach ($all_equipment as $key => $label) {
 			$key                                    = sanitize_key($key);
 			$result[ self::TYPE_EQUIPMENT ][ $key ] = array(
 				'label'    => self::sanitize_label($label, $key),
-				'meta_key' => '', // meta key is generic _mhm_rentiva_equipment array check
+				'meta_key' => '', // meta key is generic _mhmrentiva_equipment array check
 				'type'     => self::TYPE_EQUIPMENT,
 				'key'      => $key,
 			);
@@ -322,7 +322,7 @@ final class VehicleFeatureHelper {
 			// We can retrieve taxonomy name from parts if needed.
 
 			// Try to parse taxonomy and slug if possible, or just store without strict term checking if not needed
-			// vehicle_feature vs mhm_rentiva_feature.
+			// vehicle_feature vs mhmrentiva_feature.
 			// Simple parsing:
 			$parts = explode('_', $key);
 			// parts[0] is 'tax'.
@@ -357,8 +357,8 @@ final class VehicleFeatureHelper {
 
 		$available      = self::get_available_fields_map();
 		$details_meta   = self::preload_detail_meta($vehicle_id);
-		$features_meta  = self::preload_multi_meta($vehicle_id, '_mhm_rentiva_features');
-		$equipment_meta = self::preload_multi_meta($vehicle_id, '_mhm_rentiva_equipment');
+		$features_meta  = self::preload_multi_meta($vehicle_id, '_mhmrentiva_features');
+		$equipment_meta = self::preload_multi_meta($vehicle_id, '_mhmrentiva_equipment');
 
 		$items = array();
 
@@ -381,7 +381,7 @@ final class VehicleFeatureHelper {
 				$meta_key = $available[ $type ][ $key ]['meta_key'];
 				$raw      = $details_meta[ $meta_key ] ?? '';
 				if (( $raw === '' || $raw === null ) && $key === 'year') {
-					$raw = $details_meta['_mhm_rentiva_model_year'] ?? $details_meta['_mhm_rentiva_year'] ?? '';
+					$raw = $details_meta['_mhmrentiva_model_year'] ?? $details_meta['_mhmrentiva_year'] ?? '';
 				}
 				$formatted = self::format_detail_value($key, $raw, $details_meta);
 
@@ -456,21 +456,21 @@ final class VehicleFeatureHelper {
 	private static function map_detail_meta_key(string $key): string
 	{
 		$map = array(
-			'price_per_day' => '_mhm_rentiva_price_per_day',
-			'year'          => '_mhm_rentiva_year',
-			'model_year'    => '_mhm_rentiva_model_year',
-			'mileage'       => '_mhm_rentiva_mileage',
-			'license_plate' => '_mhm_rentiva_license_plate',
-			'color'         => '_mhm_rentiva_color',
-			'brand'         => '_mhm_rentiva_brand',
-			'model'         => '_mhm_rentiva_model',
-			'seats'         => '_mhm_rentiva_seats',
-			'doors'         => '_mhm_rentiva_doors',
-			'transmission'  => '_mhm_rentiva_transmission',
-			'fuel_type'     => '_mhm_rentiva_fuel_type',
-			'engine_size'   => '_mhm_rentiva_engine_size',
-			'availability'  => '_mhm_vehicle_status',
-			'deposit'       => '_mhm_rentiva_deposit',
+			'price_per_day' => '_mhmrentiva_price_per_day',
+			'year'          => '_mhmrentiva_year',
+			'model_year'    => '_mhmrentiva_model_year',
+			'mileage'       => '_mhmrentiva_mileage',
+			'license_plate' => '_mhmrentiva_license_plate',
+			'color'         => '_mhmrentiva_color',
+			'brand'         => '_mhmrentiva_brand',
+			'model'         => '_mhmrentiva_model',
+			'seats'         => '_mhmrentiva_seats',
+			'doors'         => '_mhmrentiva_doors',
+			'transmission'  => '_mhmrentiva_transmission',
+			'fuel_type'     => '_mhmrentiva_fuel_type',
+			'engine_size'   => '_mhmrentiva_engine_size',
+			'availability'  => '_mhmrentiva_vehicle_status',
+			'deposit'       => '_mhmrentiva_deposit',
 		);
 
 		if (isset($map[ $key ])) {
@@ -478,7 +478,7 @@ final class VehicleFeatureHelper {
 		}
 
 		// Custom details fallback
-		return '_mhm_rentiva_' . $key;
+		return '_mhmrentiva_' . $key;
 	}
 
 	/**
@@ -489,21 +489,21 @@ final class VehicleFeatureHelper {
 	private static function preload_detail_meta(int $vehicle_id): array
 	{
 		$meta_keys = array(
-			'_mhm_rentiva_price_per_day',
-			'_mhm_rentiva_model_year',
-			'_mhm_rentiva_year',
-			'_mhm_rentiva_mileage',
-			'_mhm_rentiva_license_plate',
-			'_mhm_rentiva_color',
-			'_mhm_rentiva_brand',
-			'_mhm_rentiva_model',
-			'_mhm_rentiva_seats',
-			'_mhm_rentiva_doors',
-			'_mhm_rentiva_transmission',
-			'_mhm_rentiva_fuel_type',
-			'_mhm_rentiva_engine_size',
-			'_mhm_rentiva_deposit',
-			'_mhm_vehicle_status',
+			'_mhmrentiva_price_per_day',
+			'_mhmrentiva_model_year',
+			'_mhmrentiva_year',
+			'_mhmrentiva_mileage',
+			'_mhmrentiva_license_plate',
+			'_mhmrentiva_color',
+			'_mhmrentiva_brand',
+			'_mhmrentiva_model',
+			'_mhmrentiva_seats',
+			'_mhmrentiva_doors',
+			'_mhmrentiva_transmission',
+			'_mhmrentiva_fuel_type',
+			'_mhmrentiva_engine_size',
+			'_mhmrentiva_deposit',
+			'_mhmrentiva_vehicle_status',
 		);
 
 		$meta = array();
@@ -512,14 +512,14 @@ final class VehicleFeatureHelper {
 
 			// Legacy key check if empty
 			if (empty($val)) {
-				$legacy_key = str_replace('_mhm_rentiva_', '_', $key);
+				$legacy_key = str_replace('_mhmrentiva_', '_', $key);
 				if ($legacy_key !== $key) {
 					$val = get_post_meta($vehicle_id, $legacy_key, true);
 				}
 
 				// Second level legacy check (no prefix)
 				if (empty($val)) {
-					$clean_key = str_replace('_mhm_rentiva_', '', $key);
+					$clean_key = str_replace('_mhmrentiva_', '', $key);
 					if ($clean_key !== $key) {
 						$val = get_post_meta($vehicle_id, $clean_key, true);
 					}
@@ -529,9 +529,9 @@ final class VehicleFeatureHelper {
 			$meta[ $key ] = $val;
 		}
 
-		$custom_details = (array) get_option('mhm_custom_details', array());
+		$custom_details = (array) get_option('mhmrentiva_custom_details', array());
 		foreach (array_keys($custom_details) as $custom_key) {
-			$meta[ '_mhm_rentiva_' . $custom_key ] = get_post_meta($vehicle_id, '_mhm_rentiva_' . $custom_key, true);
+			$meta[ '_mhmrentiva_' . $custom_key ] = get_post_meta($vehicle_id, '_mhmrentiva_' . $custom_key, true);
 		}
 
 		return $meta;
@@ -636,7 +636,7 @@ final class VehicleFeatureHelper {
 
 				// If DepositCalculator exists, use it for calculation
 				if (class_exists('\MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator')) {
-					$daily_price = floatval($context['_mhm_rentiva_price_per_day'] ?? 0);
+					$daily_price = floatval($context['_mhmrentiva_price_per_day'] ?? 0);
 					$calc        = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::calculate_deposit($deposit_val, $daily_price, 1);
 
 					if ($calc['deposit_amount'] > 0) {
@@ -698,7 +698,7 @@ final class VehicleFeatureHelper {
 	private static function format_price(float $price): string
 	{
 		$symbol    = CurrencyHelper::get_currency_symbol();
-		$position  = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
+		$position  = SettingsCore::get('mhmrentiva_currency_position', 'right_space');
 		$formatted = number_format($price, 0, ',', '.');
 
 		switch ($position) {

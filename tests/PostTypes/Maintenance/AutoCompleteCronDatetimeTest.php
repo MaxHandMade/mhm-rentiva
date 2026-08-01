@@ -11,14 +11,14 @@ use WP_UnitTestCase;
  * when deciding which confirmed/in_progress bookings to mark "completed".
  *
  * Bug (2026-05-21, booking #3810): cron's WP_Query meta_query compared
- * _mhm_dropoff_date < NOW() with type=DATETIME. The date meta has no time
+ * _mhmrentiva_dropoff_date < NOW() with type=DATETIME. The date meta has no time
  * portion, so MySQL cast '2026-05-21' to '2026-05-21 00:00:00'. Any
  * confirmed booking returning later TODAY (e.g., 16:00) was auto-completed
  * at gece 00:00 — long before the real return time. has_overlap() then
  * skipped the booking (completed not in its IN-list), allowing the same
  * vehicle to be double-booked for the remaining hours of the day.
  *
- * After fix: cron uses _mhm_end_ts (UNIX timestamp, primary) with
+ * After fix: cron uses _mhmrentiva_end_ts (UNIX timestamp, primary) with
  * CONCAT(dropoff_date, dropoff_time) fallback when end_ts is missing.
  */
 final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
@@ -49,22 +49,22 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 			'post_status' => 'publish',
 		));
 
-		update_post_meta($booking_id, '_mhm_status', $opts['status']);
-		update_post_meta($booking_id, '_mhm_vehicle_id', self::VEHICLE_ID);
-		update_post_meta($booking_id, '_mhm_pickup_date', wp_date('Y-m-d', $opts['start_ts']));
-		update_post_meta($booking_id, '_mhm_pickup_time', wp_date('H:i', $opts['start_ts']));
-		update_post_meta($booking_id, '_mhm_start_ts', $opts['start_ts']);
+		update_post_meta($booking_id, '_mhmrentiva_status', $opts['status']);
+		update_post_meta($booking_id, '_mhmrentiva_vehicle_id', self::VEHICLE_ID);
+		update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', $opts['start_ts']));
+		update_post_meta($booking_id, '_mhmrentiva_pickup_time', wp_date('H:i', $opts['start_ts']));
+		update_post_meta($booking_id, '_mhmrentiva_start_ts', $opts['start_ts']);
 
 		$dropoff_date = $opts['dropoff_date'] ?? wp_date('Y-m-d', $opts['end_ts']);
-		update_post_meta($booking_id, '_mhm_dropoff_date', $dropoff_date);
-		update_post_meta($booking_id, '_mhm_end_date', $dropoff_date);
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', $dropoff_date);
+		update_post_meta($booking_id, '_mhmrentiva_end_date', $dropoff_date);
 
 		if ($opts['set_end_ts']) {
-			update_post_meta($booking_id, '_mhm_end_ts', $opts['end_ts']);
+			update_post_meta($booking_id, '_mhmrentiva_end_ts', $opts['end_ts']);
 		}
 		if ($opts['set_dropoff_time']) {
 			$dropoff_time = $opts['dropoff_time'] ?? wp_date('H:i', $opts['end_ts']);
-			update_post_meta($booking_id, '_mhm_dropoff_time', $dropoff_time);
+			update_post_meta($booking_id, '_mhmrentiva_dropoff_time', $dropoff_time);
 		}
 
 		return $booking_id;
@@ -91,7 +91,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'confirmed',
-			get_post_meta($booking_id, '_mhm_status', true),
+			get_post_meta($booking_id, '_mhmrentiva_status', true),
 			'Booking with end_ts in the future must not be auto-completed, even when dropoff_date is today.'
 		);
 	}
@@ -112,13 +112,13 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'completed',
-			get_post_meta($booking_id, '_mhm_status', true),
+			get_post_meta($booking_id, '_mhmrentiva_status', true),
 			'Booking with end_ts in the past must be auto-completed.'
 		);
 	}
 
 	/**
-	 * Fallback: confirmed, no _mhm_end_ts, dropoff datetime in past → completed.
+	 * Fallback: confirmed, no _mhmrentiva_end_ts, dropoff datetime in past → completed.
 	 */
 	public function test_cron_uses_dropoff_datetime_fallback_when_end_ts_missing(): void
 	{
@@ -136,7 +136,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'completed',
-			get_post_meta($booking_id, '_mhm_status', true),
+			get_post_meta($booking_id, '_mhmrentiva_status', true),
 			'Booking without end_ts but with past dropoff datetime must be completed via fallback.'
 		);
 	}
@@ -171,7 +171,7 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'confirmed',
-			get_post_meta($booking_id, '_mhm_status', true),
+			get_post_meta($booking_id, '_mhmrentiva_status', true),
 			'Booking with today dropoff and future dropoff_time, no end_ts, must not be completed.'
 		);
 	}
@@ -203,11 +203,11 @@ final class AutoCompleteCronDatetimeTest extends WP_UnitTestCase
 
 		AutoComplete::run();
 
-		$this->assertSame('pending', get_post_meta($pending, '_mhm_status', true),
+		$this->assertSame('pending', get_post_meta($pending, '_mhmrentiva_status', true),
 			'pending booking must not be touched by AutoComplete cron.');
-		$this->assertSame('cancelled', get_post_meta($cancelled, '_mhm_status', true),
+		$this->assertSame('cancelled', get_post_meta($cancelled, '_mhmrentiva_status', true),
 			'cancelled booking must not be touched by AutoComplete cron.');
-		$this->assertSame('completed', get_post_meta($confirmed, '_mhm_status', true),
+		$this->assertSame('completed', get_post_meta($confirmed, '_mhmrentiva_status', true),
 			'confirmed expired booking must be auto-completed.');
 	}
 }

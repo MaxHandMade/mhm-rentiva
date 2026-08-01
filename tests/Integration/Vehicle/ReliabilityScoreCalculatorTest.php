@@ -69,7 +69,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
         ));
 
         $current_month = gmdate('Y-m');
-        update_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', $current_month . ':1');
+        update_post_meta($vehicle_id, '_mhmrentiva_vehicle_pause_count_month', $current_month . ':1');
 
         $score = ReliabilityScoreCalculator::calculate($this->vendor_id);
         $this->assertSame(100 - ReliabilityScoreCalculator::PAUSE_PENALTY, $score);
@@ -138,7 +138,7 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
         $withdrawn = $this->create_withdrawn_vehicle(gmdate('Y-m-d H:i:s', strtotime('-2 months')));
 
         $current_month = gmdate('Y-m');
-        update_post_meta($vehicle_id, '_mhm_vehicle_pause_count_month', $current_month . ':1');
+        update_post_meta($vehicle_id, '_mhmrentiva_vehicle_pause_count_month', $current_month . ':1');
 
         $this->create_booking($vehicle_id, 'completed');
 
@@ -222,8 +222,8 @@ class ReliabilityScoreCalculatorTest extends \WP_UnitTestCase
             'post_title'  => 'Test Booking',
         ));
 
-        update_post_meta($booking_id, '_mhm_vehicle_id', $vehicle_id);
-        update_post_meta($booking_id, '_mhm_status', $status);
+        update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $vehicle_id);
+        update_post_meta($booking_id, '_mhmrentiva_status', $status);
 
         return $booking_id;
     }

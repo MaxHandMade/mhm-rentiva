@@ -76,8 +76,8 @@ final class CronMonitorRenderer extends AbstractTabRenderer {
 	 * Enqueue assets for cron monitoring
 	 */
 	private function enqueue_cron_assets(): void {
-		$version = defined( 'MHM_RENTIVA_VERSION' ) ? (string) MHM_RENTIVA_VERSION : '1.0.0';
-		$url     = defined( 'MHM_RENTIVA_PLUGIN_URL' ) ? (string) MHM_RENTIVA_PLUGIN_URL : '';
+		$version = defined( 'MHMRENTIVA_VERSION' ) ? (string) MHMRENTIVA_VERSION : '1.0.0';
+		$url     = defined( 'MHMRENTIVA_PLUGIN_URL' ) ? (string) MHMRENTIVA_PLUGIN_URL : '';
 
 		wp_enqueue_script(
 			'mhm-rentiva-cron-monitor',
@@ -89,9 +89,9 @@ final class CronMonitorRenderer extends AbstractTabRenderer {
 
 		wp_localize_script(
 			'mhm-rentiva-cron-monitor',
-			'mhm_rentiva_cron_vars',
+			'mhmrentiva_cron_vars',
 			array(
-				'nonce'                         => wp_create_nonce( 'mhm_cron_monitor' ),
+				'nonce'                         => wp_create_nonce( 'mhmrentiva_cron_monitor' ),
 				'run_text'                      => __( 'Run Now', 'mhm-rentiva' ),
 				'running_text'                  => __( 'Executing...', 'mhm-rentiva' ),
 				'refresh_text'                  => __( 'Refresh List', 'mhm-rentiva' ),

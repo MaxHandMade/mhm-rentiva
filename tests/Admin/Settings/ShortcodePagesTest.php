@@ -74,11 +74,11 @@ class ShortcodePagesTest extends WP_UnitTestCase
      */
     public function it_enqueues_assets_standardly()
     {
-        if ( ! defined( 'MHM_RENTIVA_VERSION' ) ) {
-            define( 'MHM_RENTIVA_VERSION', '1.0.0' );
+        if ( ! defined( 'MHMRENTIVA_VERSION' ) ) {
+            define( 'MHMRENTIVA_VERSION', '1.0.0' );
         }
-        if ( ! defined( 'MHM_RENTIVA_PLUGIN_URL' ) ) {
-            define( 'MHM_RENTIVA_PLUGIN_URL', 'http://example.com/wp-content/plugins/mhm-rentiva/' );
+        if ( ! defined( 'MHMRENTIVA_PLUGIN_URL' ) ) {
+            define( 'MHMRENTIVA_PLUGIN_URL', 'http://example.com/wp-content/plugins/mhm-rentiva/' );
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Recommended

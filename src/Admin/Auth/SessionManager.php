@@ -46,18 +46,18 @@ final class SessionManager {
 		}
 
 		$user_id         = get_current_user_id();
-		$session_timeout = SettingsCore::get('mhm_rentiva_customer_session_timeout', self::DEFAULT_SESSION_TIMEOUT);
+		$session_timeout = SettingsCore::get('mhmrentiva_customer_session_timeout', self::DEFAULT_SESSION_TIMEOUT);
 		$timeout_hours   = (int) $session_timeout;
 
 		// Convert hours to seconds
 		$timeout_seconds = $timeout_hours * 3600;
 
 		// Get last activity time
-		$last_activity = get_user_meta($user_id, 'mhm_rentiva_last_activity', true);
+		$last_activity = get_user_meta($user_id, 'mhmrentiva_last_activity', true);
 
 		if (empty($last_activity)) {
 			// Set initial activity time
-			update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
+			update_user_meta($user_id, 'mhmrentiva_last_activity', time());
 			return;
 		}
 
@@ -72,7 +72,7 @@ final class SessionManager {
 		}
 
 		// Update last activity time
-		update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
+		update_user_meta($user_id, 'mhmrentiva_last_activity', time());
 	}
 
 	/**
@@ -93,8 +93,8 @@ final class SessionManager {
 		if (! $user_id) {
 			return;
 		}
-		update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
-		update_user_meta($user_id, 'mhm_rentiva_last_login', current_time('mysql'));
+		update_user_meta($user_id, 'mhmrentiva_last_activity', time());
+		update_user_meta($user_id, 'mhmrentiva_last_login', current_time('mysql'));
 	}
 
 	/**
@@ -104,7 +104,7 @@ final class SessionManager {
 	{
 		$user_id = get_current_user_id();
 		if ($user_id) {
-			delete_user_meta($user_id, 'mhm_rentiva_last_activity');
+			delete_user_meta($user_id, 'mhmrentiva_last_activity');
 		}
 	}
 
@@ -118,11 +118,11 @@ final class SessionManager {
 		}
 
 		$user_id         = get_current_user_id();
-		$session_timeout = SettingsCore::get('mhm_rentiva_customer_session_timeout', self::DEFAULT_SESSION_TIMEOUT);
+		$session_timeout = SettingsCore::get('mhmrentiva_customer_session_timeout', self::DEFAULT_SESSION_TIMEOUT);
 		$timeout_hours   = (int) $session_timeout;
 		$timeout_seconds = $timeout_hours * 3600;
 
-		$last_activity = get_user_meta($user_id, 'mhm_rentiva_last_activity', true);
+		$last_activity = get_user_meta($user_id, 'mhmrentiva_last_activity', true);
 
 		if (empty($last_activity)) {
 			return $timeout_hours * 60; // Return full timeout in minutes
@@ -141,7 +141,7 @@ final class SessionManager {
 	{
 		if (is_user_logged_in()) {
 			$user_id = get_current_user_id();
-			update_user_meta($user_id, 'mhm_rentiva_last_activity', time());
+			update_user_meta($user_id, 'mhmrentiva_last_activity', time());
 		}
 	}
 }

@@ -99,8 +99,8 @@ final class VehicleComparison extends AbstractShortcode {
 	{
 		return array(
 			'ajax_url'                   => admin_url('admin-ajax.php'),
-			'nonce'                      => wp_create_nonce('mhm_rentiva_vehicle_comparison_nonce'),
-			'toggle_nonce'               => wp_create_nonce('mhm_rentiva_toggle_compare'),
+			'nonce'                      => wp_create_nonce('mhmrentiva_vehicle_comparison_nonce'),
+			'toggle_nonce'               => wp_create_nonce('mhmrentiva_toggle_compare'),
 			'loading'                    => __('Loading...', 'mhm-rentiva'),
 			'error'                      => __('An error occurred', 'mhm-rentiva'),
 			'vehicleAdded'               => __('Vehicle added to comparison', 'mhm-rentiva'),
@@ -189,7 +189,7 @@ final class VehicleComparison extends AbstractShortcode {
 	private static function get_dynamic_features(array $vehicles = array()): array
 	{
 		// Get selected fields from settings
-		$settings            = get_option('mhm_rentiva_settings', array());
+		$settings            = get_option('mhmrentiva_settings', array());
 		$selected_fields_map = $settings['comparison_fields'] ?? array();
 
 		// If no selection is made in the settings, return empty flat array
@@ -372,7 +372,7 @@ final class VehicleComparison extends AbstractShortcode {
 			return null;
 		}
 
-		$price           = get_post_meta($post->ID, '_mhm_rentiva_price_per_day', true);
+		$price           = get_post_meta($post->ID, '_mhmrentiva_price_per_day', true);
 		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
 		// Canonical data structure expected by template
@@ -395,7 +395,7 @@ final class VehicleComparison extends AbstractShortcode {
 		);
 
 		// Dynamically fetch ALL admin-selected comparison fields
-		$settings            = get_option('mhm_rentiva_settings', array());
+		$settings            = get_option('mhmrentiva_settings', array());
 		$selected_fields_map = $settings['comparison_fields'] ?? array();
 
 		// Flatten selected keys, dropping Passive fields so the per-vehicle value map matches the
@@ -403,11 +403,11 @@ final class VehicleComparison extends AbstractShortcode {
 		$all_selected_keys = self::flatten_gated_selected_keys($selected_fields_map);
 
 		// Pre-fetch features and equipment arrays for this vehicle
-		$features_array = get_post_meta($post->ID, '_mhm_rentiva_features', true);
+		$features_array = get_post_meta($post->ID, '_mhmrentiva_features', true);
 		$features_array = is_array($features_array) ? $features_array : maybe_unserialize($features_array);
 		$features_array = is_array($features_array) ? $features_array : array();
 
-		$equipment_array = get_post_meta($post->ID, '_mhm_rentiva_equipment', true);
+		$equipment_array = get_post_meta($post->ID, '_mhmrentiva_equipment', true);
 		$equipment_array = is_array($equipment_array) ? $equipment_array : maybe_unserialize($equipment_array);
 		$equipment_array = is_array($equipment_array) ? $equipment_array : array();
 
@@ -418,7 +418,7 @@ final class VehicleComparison extends AbstractShortcode {
 			}
 
 			// 1. Direct meta check (Details)
-			$meta_key = '_mhm_rentiva_' . $key;
+			$meta_key = '_mhmrentiva_' . $key;
 			$value    = get_post_meta($post->ID, $meta_key, true);
 
 			// 2. If empty or not found as direct meta, check Features/Equipment arrays
@@ -502,7 +502,7 @@ final class VehicleComparison extends AbstractShortcode {
 	 */
 	public static function get_comparison_page_url(): string
 	{
-		$settings = get_option('mhm_rentiva_settings', array());
+		$settings = get_option('mhmrentiva_settings', array());
 
 		// 1. Try to get from setting first (Direct Link / Most Stable)
 		if (! empty($settings['comparison_page_id'])) {

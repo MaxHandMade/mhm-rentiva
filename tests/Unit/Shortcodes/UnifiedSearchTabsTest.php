@@ -18,10 +18,10 @@ use WP_UnitTestCase;
  *
  * Task A10 removed the unified-search transfer TAB entirely (Lite ships
  * rental-only; transfer search is the standalone `rentiva_transfer_search`
- * shortcode/block), and with it `mhm_rentiva_search_extra_tabs`,
- * `mhm_rentiva_search_enqueue_assets` and `mhm_rentiva_search_script_deps` --
+ * shortcode/block), and with it `mhmrentiva_search_extra_tabs`,
+ * `mhmrentiva_search_enqueue_assets` and `mhmrentiva_search_script_deps` --
  * none of them have any reader left in UnifiedSearch. Only
- * `mhm_rentiva_search_locations` survives, because the rental panel's own
+ * `mhmrentiva_search_locations` survives, because the rental panel's own
  * pickup/dropoff selects read it too.
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch
@@ -30,7 +30,7 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
 {
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_search_locations');
+        remove_all_filters('mhmrentiva_search_locations');
         parent::tearDown();
     }
 
@@ -52,9 +52,9 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
 
         // Task A10: the transfer TAB is gone, and with it every hook that only
         // ever served it.
-        $this->assertStringNotContainsString('mhm_rentiva_search_extra_tabs', $source, 'UnifiedSearch.php must not read the removed extra-tab filter any more.');
-        $this->assertStringNotContainsString('mhm_rentiva_search_enqueue_assets', $source, 'UnifiedSearch.php must not fire the removed transfer-only enqueue action any more.');
-        $this->assertStringNotContainsString('mhm_rentiva_search_script_deps', $source, 'UnifiedSearch.php must not read the removed transfer-only script-deps filter any more.');
+        $this->assertStringNotContainsString('mhmrentiva_search_extra_tabs', $source, 'UnifiedSearch.php must not read the removed extra-tab filter any more.');
+        $this->assertStringNotContainsString('mhmrentiva_search_enqueue_assets', $source, 'UnifiedSearch.php must not fire the removed transfer-only enqueue action any more.');
+        $this->assertStringNotContainsString('mhmrentiva_search_script_deps', $source, 'UnifiedSearch.php must not read the removed transfer-only script-deps filter any more.');
         $this->assertStringNotContainsString('show_transfer_tab', $source, 'UnifiedSearch.php must not carry the removed transfer-tab visibility key any more.');
     }
 
@@ -84,7 +84,7 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     }
 
     /**
-     * With no subscriber, `mhm_rentiva_search_locations` defaults to empty -- so
+     * With no subscriber, `mhmrentiva_search_locations` defaults to empty -- so
      * Lite offers no locations, purely from the filter default, with nothing left
      * in UnifiedSearch itself to ask a class or a licence. There is no extra
      * ("transfer") tab left to default at all as of Task A10.
@@ -98,12 +98,12 @@ final class UnifiedSearchTabsTest extends WP_UnitTestCase
     }
 
     /**
-     * A subscriber CAN contribute locations -- proves `mhm_rentiva_search_locations`
+     * A subscriber CAN contribute locations -- proves `mhmrentiva_search_locations`
      * is load-bearing, not just always-empty.
      */
     public function test_a_subscriber_can_contribute_locations(): void
     {
-        add_filter('mhm_rentiva_search_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
+        add_filter('mhmrentiva_search_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
 
         $data = $this->template_data();
 

@@ -78,7 +78,7 @@ if ($vehicle_id > 0) {
 			WHERE c.comment_post_ID = %d
 				AND c.comment_approved = '1'
 				AND c.comment_type = 'review'
-				AND cm.meta_key = 'mhm_rating'
+				AND cm.meta_key = 'mhmrentiva_rating'
 				AND cm.meta_value IN ('3','4','5')
 			GROUP BY rating_value",
 			$vehicle_id
@@ -214,7 +214,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 							$is_current_user    = ! empty($comment->comment_author_email) &&
 								$comment->comment_author_email === $guest_email_cookie;
 						}
-						$rating = get_comment_meta($comment->comment_ID, 'mhm_rating', true);
+						$rating = get_comment_meta($comment->comment_ID, 'mhmrentiva_rating', true);
 
 						// Get author name with fallback
 						$full_name = $comment->comment_author;
@@ -242,7 +242,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 									<?php if ($display_settings['show_avatars'] ?? true) : ?>
 										<div class="rv-review-avatar">
 											<span class="rv-avatar-placeholder" aria-hidden="true">
-												<?php echo esc_html(mhm_rentiva_initial_avatar_letter($masked_name)); ?>
+												<?php echo esc_html(mhmrentiva_initial_avatar_letter($masked_name)); ?>
 											</span>
 										</div>
 									<?php endif; ?>
@@ -322,7 +322,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 			<h4 class="rv-rating-form-title"><?php echo esc_html__('Rate This Vehicle', 'mhm-rentiva'); ?></h4>
 
 			<form class="rv-rating-form-content" id="rating-form-<?php echo esc_attr($vehicle_id); ?>">
-				<?php wp_nonce_field('mhm_rentiva_nonce', 'rating_nonce'); ?>
+				<?php wp_nonce_field('mhmrentiva_nonce', 'rating_nonce'); ?>
 				<input type="hidden" name="vehicle_id" value="<?php echo esc_attr($vehicle_id); ?>">
 
 				<?php if (! $is_logged_in && $allow_guest_comments) : ?>
@@ -388,7 +388,7 @@ if (defined('WP_DEBUG') && WP_DEBUG) {
 				</div>
 
 				<!-- Nonce Field -->
-				<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_rating_nonce')); ?>">
+				<input type="hidden" name="nonce" value="<?php echo esc_attr(wp_create_nonce('mhmrentiva_rating_nonce')); ?>">
 
 				<!-- Submit Button -->
 				<div class="rv-rating-submit">

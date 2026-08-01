@@ -22,8 +22,8 @@ final class RefundCalculator {
 	 * Calculates refundable amount
 	 */
 	public static function calculateRemainingAmount( int $bookingId ): int {
-		$paidAmount     = (int) get_post_meta( $bookingId, '_mhm_payment_amount', true );
-		$refundedAmount = (int) get_post_meta( $bookingId, '_mhm_refunded_amount', true );
+		$paidAmount     = (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
+		$refundedAmount = (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
 
 		return max( 0, $paidAmount - $refundedAmount );
 	}
@@ -32,14 +32,14 @@ final class RefundCalculator {
 	 * Gets paid amount
 	 */
 	public static function getPaidAmount( int $bookingId ): int {
-		return (int) get_post_meta( $bookingId, '_mhm_payment_amount', true );
+		return (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
 	}
 
 	/**
 	 * Gets previously refunded amount
 	 */
 	public static function getRefundedAmount( int $bookingId ): int {
-		return (int) get_post_meta( $bookingId, '_mhm_refunded_amount', true );
+		return (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
 	}
 
 	/**
@@ -106,7 +106,7 @@ final class RefundCalculator {
 		$currentRefunded   = self::getRefundedAmount( $bookingId );
 		$newRefundedAmount = $currentRefunded + $refundAmount;
 
-		return update_post_meta( $bookingId, '_mhm_refunded_amount', $newRefundedAmount );
+		return update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $newRefundedAmount );
 	}
 
 	/**

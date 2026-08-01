@@ -9,13 +9,13 @@ use WP_UnitTestCase;
 
 /**
  * Correction of finding H1 (whole-branch audit, second pass): the first fix
- * fired `mhm_rentiva_before_booking_creation` only from
- * Handler::handle() (admin_post_mhm_rentiva_booking), but a deeper trace
+ * fired `mhmrentiva_before_booking_creation` only from
+ * Handler::handle() (admin_post_mhmrentiva_booking), but a deeper trace
  * showed that entry point has NO live UI trigger — no template or JS ever
- * posts to admin-post.php?action=mhm_rentiva_booking. The real customer
+ * posts to admin-post.php?action=mhmrentiva_booking. The real customer
  * booking-creation flow is:
  *
- *   [rentiva_booking_form] shortcode -> AJAX mhm_rentiva_booking_form
+ *   [rentiva_booking_form] shortcode -> AJAX mhmrentiva_booking_form
  *   -> BookingForm::ajax_booking_form() -> WooCommerceBridge::add_booking_to_payment()
  *   -> cart -> WC checkout -> woocommerce_checkout_order_processed
  *   -> WooCommerceBridge::create_booking_from_order()
@@ -25,7 +25,7 @@ use WP_UnitTestCase;
  * subscribed to this same action) was still dead for every real booking.
  *
  * Fix: create_booking_from_data() now fires
- * `do_action('mhm_rentiva_before_booking_creation', $payload)` immediately
+ * `do_action('mhmrentiva_before_booking_creation', $payload)` immediately
  * before the `wp_insert_post()` call that creates the booking post, using
  * the same neutral payload key shape as Handler.php:92 (vehicle_id,
  * pickup_date/time, dropoff_date/time, contact_name/email/phone,
@@ -52,7 +52,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 			'post_status' => 'publish',
 			'post_title'  => 'Test Vehicle',
 		));
-		update_post_meta($this->vehicle_id, '_mhm_rentiva_price_per_day', 100);
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', 100);
 	}
 
 	/**
@@ -110,18 +110,18 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 	{
 		$booking_data = $this->valid_booking_data();
 
-		$before = did_action('mhm_rentiva_before_booking_creation');
+		$before = did_action('mhmrentiva_before_booking_creation');
 
 		$captured        = null;
 		$post_existed_at_hook_time = null;
-		add_action('mhm_rentiva_before_booking_creation', function ($payload) use (&$captured, &$post_existed_at_hook_time) {
+		add_action('mhmrentiva_before_booking_creation', function ($payload) use (&$captured, &$post_existed_at_hook_time) {
 			$captured = $payload;
 			// Prove ordering: no vehicle_booking post exists yet for this
 			// customer email at the moment the hook fires.
 			$post_existed_at_hook_time = get_posts(array(
 				'post_type'   => 'vehicle_booking',
 				'post_status' => 'any',
-				'meta_key'    => '_mhm_customer_email',
+				'meta_key'    => '_mhmrentiva_customer_email',
 				'meta_value'  => 'jane@example.com',
 				'fields'      => 'ids',
 			));
@@ -133,8 +133,8 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 
 		$this->assertSame(
 			$before + 1,
-			did_action('mhm_rentiva_before_booking_creation'),
-			'create_booking_from_data() must fire mhm_rentiva_before_booking_creation exactly once on the live checkout path.'
+			did_action('mhmrentiva_before_booking_creation'),
+			'create_booking_from_data() must fire mhmrentiva_before_booking_creation exactly once on the live checkout path.'
 		);
 
 		$this->assertIsArray($captured, 'Subscriber must receive the booking context payload.');
@@ -160,7 +160,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 	{
 		$booking_data = $this->valid_booking_data();
 
-		add_action('mhm_rentiva_before_booking_creation', function () {
+		add_action('mhmrentiva_before_booking_creation', function () {
 			throw new \RuntimeException('halted:consent_required');
 		});
 
@@ -174,7 +174,7 @@ final class CreateBookingFromDataBeforeBookingCreationHookTest extends WP_UnitTe
 		}
 
 		$after_count = wp_count_posts('vehicle_booking')->publish ?? 0;
-		$this->assertSame($before_count, $after_count, 'No booking post may be created when a subscriber halts on mhm_rentiva_before_booking_creation.');
+		$this->assertSame($before_count, $after_count, 'No booking post may be created when a subscriber halts on mhmrentiva_before_booking_creation.');
 	}
 
 	/**

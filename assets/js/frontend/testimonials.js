@@ -174,7 +174,7 @@ class Testimonials {
             url: window.mhmRentivaTestimonials?.ajaxUrl || window.ajaxurl || '',
             type: 'POST',
             data: {
-                action: 'mhm_rentiva_load_testimonials',
+                action: 'mhmrentiva_load_testimonials',
                 nonce: window.mhmRentivaTestimonials?.nonce || '',
                 page: this.currentPage + 1,
                 limit: limit,

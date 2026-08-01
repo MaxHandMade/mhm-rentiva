@@ -14,8 +14,8 @@ use MHMRentiva\Admin\Booking\Core\Status;
 
 final class AutoComplete {
 
-	public const EVENT    = 'mhm_rentiva_auto_complete_event';
-	public const SCHEDULE = 'mhm_rentiva_15min';
+	public const EVENT    = 'mhmrentiva_auto_complete_event';
+	public const SCHEDULE = 'mhmrentiva_15min';
 
 	public static function register(): void
 	{
@@ -26,8 +26,8 @@ final class AutoComplete {
 
 	public static function schedules(array $schedules): array
 	{
-		if (! isset($schedules['mhm_rentiva_15min'])) {
-			$schedules['mhm_rentiva_15min'] = array(
+		if (! isset($schedules['mhmrentiva_15min'])) {
+			$schedules['mhmrentiva_15min'] = array(
 				'interval' => 900, // 15 dakika
 				'display'  => __('Every 15 Minutes (Rentiva)', 'mhm-rentiva'),
 			);
@@ -54,7 +54,7 @@ final class AutoComplete {
 
 	public static function run(): void
 	{
-		$enabled = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_auto_complete_enabled', '1') === '1';
+		$enabled = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_auto_complete_enabled', '1') === '1';
 
 		if (! $enabled) {
 			return;
@@ -62,16 +62,16 @@ final class AutoComplete {
 
 		$limit     = 50;
 		$now_ts    = (int) current_time('timestamp');
-		$now_local = current_time('mysql'); // Local time — consistent with _mhm_dropoff_date
+		$now_local = current_time('mysql'); // Local time — consistent with _mhmrentiva_dropoff_date
 
 		global $wpdb;
 
 		/*
-		 * Datetime-based selection: _mhm_end_ts (UNIX) is authoritative when present.
+		 * Datetime-based selection: _mhmrentiva_end_ts (UNIX) is authoritative when present.
 		 * Fallback: CONCAT(dropoff_date, ' ', dropoff_time) — defaults to '23:59:59'
 		 *           when dropoff_time meta is missing/empty (treat as end-of-day,
 		 *           never auto-complete mid-day).
-		 * Legacy fallback: _mhm_end_date (parallel field for pre-checkout-rewrite data).
+		 * Legacy fallback: _mhmrentiva_end_date (parallel field for pre-checkout-rewrite data).
 		 *
 		 * Direct SQL because WP_Query meta_query cannot compose CONCAT across two meta keys.
 		 */
@@ -80,11 +80,11 @@ final class AutoComplete {
 			$wpdb->prepare(
 				"SELECT DISTINCT p.ID
 				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} st  ON st.post_id  = p.ID AND st.meta_key  = '_mhm_status'
-				 LEFT  JOIN {$wpdb->postmeta} ets ON ets.post_id = p.ID AND ets.meta_key = '_mhm_end_ts'
-				 LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhm_dropoff_date'
-				 LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhm_dropoff_time'
-				 LEFT  JOIN {$wpdb->postmeta} ed  ON ed.post_id  = p.ID AND ed.meta_key  = '_mhm_end_date'
+				 INNER JOIN {$wpdb->postmeta} st  ON st.post_id  = p.ID AND st.meta_key  = '_mhmrentiva_status'
+				 LEFT  JOIN {$wpdb->postmeta} ets ON ets.post_id = p.ID AND ets.meta_key = '_mhmrentiva_end_ts'
+				 LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhmrentiva_dropoff_date'
+				 LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhmrentiva_dropoff_time'
+				 LEFT  JOIN {$wpdb->postmeta} ed  ON ed.post_id  = p.ID AND ed.meta_key  = '_mhmrentiva_end_date'
 				 WHERE p.post_type = 'vehicle_booking'
 				   AND p.post_status NOT IN ('trash', 'auto-draft')
 				   AND st.meta_value IN ('confirmed', 'in_progress')
@@ -128,7 +128,7 @@ final class AutoComplete {
 				}
 
 				// Clear availability cache
-				$vehicle_id = (int) get_post_meta($bid, '_mhm_vehicle_id', true);
+				$vehicle_id = (int) get_post_meta($bid, '_mhmrentiva_vehicle_id', true);
 				if ($vehicle_id && class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
 					\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
 				}
@@ -141,8 +141,8 @@ final class AutoComplete {
 					);
 				}
 
-				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhm_rentiva_` matches Text Domain; Plugin Check false positive.
-				do_action('mhm_rentiva_booking_auto_completed', $bid);
+				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhmrentiva_` matches Text Domain; Plugin Check false positive.
+				do_action('mhmrentiva_booking_auto_completed', $bid);
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.
 				// Routed to the plugin's own logger instead of the site's PHP error log.

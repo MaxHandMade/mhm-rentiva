@@ -22,13 +22,13 @@ final class CommentsSettingsGroup {
 
 
 	// Use consistent constants
-	public const SECTION_ID   = 'mhm_rentiva_comments_section';
-	public const OPTION_GROUP = 'mhm_rentiva_settings';
-	public const SUB_KEY      = 'mhm_rentiva_comments_settings';
+	public const SECTION_ID   = 'mhmrentiva_comments_section';
+	public const OPTION_GROUP = 'mhmrentiva_settings';
+	public const SUB_KEY      = 'mhmrentiva_comments_settings';
 
 	/**
 	 * Get default settings for this group.
-	 * Returns the keys as they are stored in the master 'mhm_rentiva_settings' option.
+	 * Returns the keys as they are stored in the master 'mhmrentiva_settings' option.
 	 *
 	 * @return array
 	 */
@@ -309,7 +309,7 @@ final class CommentsSettingsGroup {
 		$rl_enabled = isset( $settings['spam_protection']['rate_limiting']['enabled'] ) ? (bool) $settings['spam_protection']['rate_limiting']['enabled'] : true;
 		// Dynamic name construction for 3rd level depth
 		$name_rl_enabled = self::OPTION_GROUP . '[' . self::SUB_KEY . '][spam_protection][rate_limiting][enabled]';
-		$id_rl_enabled   = 'mhm_rentiva_spam_protection_rate_limiting_enabled';
+		$id_rl_enabled   = 'mhmrentiva_spam_protection_rate_limiting_enabled';
 
 		echo '<div class="mhm-form-group mhm-checkbox-group">';
 		echo '<label for="' . esc_attr( $id_rl_enabled ) . '">';
@@ -436,7 +436,7 @@ final class CommentsSettingsGroup {
 	 */
 	private static function render_checkbox_field( string $group, string $field, string $label, string $description, array $settings, bool $default = false ): void {
 		$value = isset( $settings[ $group ][ $field ] ) ? (bool) $settings[ $group ][ $field ] : $default;
-		$id    = 'mhm_rentiva_' . $group . '_' . $field;
+		$id    = 'mhmrentiva_' . $group . '_' . $field;
 		$name  = self::OPTION_GROUP . '[' . self::SUB_KEY . '][' . esc_attr( $group ) . '][' . esc_attr( $field ) . ']';
 
 		echo '<div class="mhm-form-group mhm-checkbox-group">';

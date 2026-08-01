@@ -60,8 +60,8 @@ final class Testimonials extends AbstractShortcode {
 	{
 		parent::register();
 
-		add_action('wp_ajax_mhm_rentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
+		add_action('wp_ajax_mhmrentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_load_testimonials', array( self::class, 'ajax_load_testimonials' ));
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -77,19 +77,19 @@ final class Testimonials extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'         => apply_filters('mhm_rentiva/testimonials/limit', '5'),
-			'rating'        => apply_filters('mhm_rentiva/testimonials/rating', ''),
-			'vehicle_id'    => apply_filters('mhm_rentiva/testimonials/vehicle_id', ''),
-			'orderby'       => apply_filters('mhm_rentiva/testimonials/orderby', 'date'),
-			'order'         => apply_filters('mhm_rentiva/testimonials/order', 'DESC'),
-			'show_rating'   => apply_filters('mhm_rentiva/testimonials/show_rating', '1'),
-			'show_date'     => apply_filters('mhm_rentiva/testimonials/show_date', '1'),
-			'show_vehicle'  => apply_filters('mhm_rentiva/testimonials/show_vehicle', '1'),
-			'show_customer' => apply_filters('mhm_rentiva/testimonials/show_customer', '1'),
-			'layout'        => apply_filters('mhm_rentiva/testimonials/layout', 'grid'),
-			'columns'       => apply_filters('mhm_rentiva/testimonials/columns', '3'),
-			'auto_rotate'   => apply_filters('mhm_rentiva/testimonials/auto_rotate', '0'),
-			'class'         => apply_filters('mhm_rentiva/testimonials/class', ''),
+			'limit'         => apply_filters('mhmrentiva/testimonials/limit', '5'),
+			'rating'        => apply_filters('mhmrentiva/testimonials/rating', ''),
+			'vehicle_id'    => apply_filters('mhmrentiva/testimonials/vehicle_id', ''),
+			'orderby'       => apply_filters('mhmrentiva/testimonials/orderby', 'date'),
+			'order'         => apply_filters('mhmrentiva/testimonials/order', 'DESC'),
+			'show_rating'   => apply_filters('mhmrentiva/testimonials/show_rating', '1'),
+			'show_date'     => apply_filters('mhmrentiva/testimonials/show_date', '1'),
+			'show_vehicle'  => apply_filters('mhmrentiva/testimonials/show_vehicle', '1'),
+			'show_customer' => apply_filters('mhmrentiva/testimonials/show_customer', '1'),
+			'layout'        => apply_filters('mhmrentiva/testimonials/layout', 'grid'),
+			'columns'       => apply_filters('mhmrentiva/testimonials/columns', '3'),
+			'auto_rotate'   => apply_filters('mhmrentiva/testimonials/auto_rotate', '0'),
+			'class'         => apply_filters('mhmrentiva/testimonials/class', ''),
 		);
 	}
 
@@ -111,17 +111,17 @@ final class Testimonials extends AbstractShortcode {
 		// CSS
 		wp_enqueue_style(
 			'mhm-rentiva-testimonials',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/testimonials.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/testimonials.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// JavaScript
 		wp_enqueue_script(
 			'mhm-rentiva-testimonials',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/testimonials.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/testimonials.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -228,11 +228,11 @@ final class Testimonials extends AbstractShortcode {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_rentiva_customer_review',
+					'key'     => '_mhmrentiva_customer_review',
 					'compare' => 'EXISTS',
 				),
 				array(
-					'key'     => '_mhm_rentiva_review_approved',
+					'key'     => '_mhmrentiva_review_approved',
 					'value'   => '1',
 					'compare' => '=',
 				),
@@ -241,7 +241,7 @@ final class Testimonials extends AbstractShortcode {
 
 		if (! empty($atts['rating'])) {
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_customer_rating',
+				'key'     => '_mhmrentiva_customer_rating',
 				'value'   => (int) $atts['rating'],
 				'compare' => '>=',
 			);
@@ -249,7 +249,7 @@ final class Testimonials extends AbstractShortcode {
 
 		if (! empty($atts['vehicle_id'])) {
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_vehicle_id',
+				'key'     => '_mhmrentiva_vehicle_id',
 				'value'   => (int) $atts['vehicle_id'],
 				'compare' => '=',
 			);
@@ -259,13 +259,13 @@ final class Testimonials extends AbstractShortcode {
 		$testimonials = array();
 
 		foreach ($bookings as $booking) {
-			$vid            = (int) get_post_meta($booking->ID, '_mhm_rentiva_vehicle_id', true);
+			$vid            = (int) get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 			$testimonials[] = array(
 				'id'             => $booking->ID,
-				'review'         => get_post_meta($booking->ID, '_mhm_rentiva_customer_review', true),
-				'rating'         => (int) get_post_meta($booking->ID, '_mhm_rentiva_customer_rating', true),
-				'customer_name'  => get_post_meta($booking->ID, '_mhm_rentiva_customer_name', true),
-				'customer_email' => get_post_meta($booking->ID, '_mhm_rentiva_customer_email', true),
+				'review'         => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
+				'rating'         => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
+				'customer_name'  => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
+				'customer_email' => get_post_meta($booking->ID, '_mhmrentiva_customer_email', true),
 				'date'           => $booking->post_date,
 				'vehicle_id'     => $vid,
 				'vehicle_name'   => self::get_vehicle_name($vid),
@@ -296,7 +296,7 @@ final class Testimonials extends AbstractShortcode {
 		if (! empty($atts['rating'])) {
 			$comment_args['meta_query'] = array(
 				array(
-					'key'     => 'mhm_rating',
+					'key'     => 'mhmrentiva_rating',
 					'value'   => (int) $atts['rating'],
 					'compare' => '>=',
 					'type'    => 'NUMERIC',
@@ -308,7 +308,7 @@ final class Testimonials extends AbstractShortcode {
 		$testimonials = array();
 
 		foreach ($comments as $comment) {
-			$rating     = (int) get_comment_meta($comment->comment_ID, 'mhm_rating', true);
+			$rating     = (int) get_comment_meta($comment->comment_ID, 'mhmrentiva_rating', true);
 			$vehicle_id = (int) $comment->comment_post_ID;
 
 			// Prefer comment_author; fallback to WP user display_name.
@@ -365,11 +365,11 @@ final class Testimonials extends AbstractShortcode {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_rentiva_customer_review',
+					'key'     => '_mhmrentiva_customer_review',
 					'compare' => 'EXISTS',
 				),
 				array(
-					'key'     => '_mhm_rentiva_review_approved',
+					'key'     => '_mhmrentiva_review_approved',
 					'value'   => '1',
 					'compare' => '=',
 				),
@@ -378,7 +378,7 @@ final class Testimonials extends AbstractShortcode {
 
 		if (! empty($atts['rating'])) {
 			$booking_args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_customer_rating',
+				'key'     => '_mhmrentiva_customer_rating',
 				'value'   => (int) $atts['rating'],
 				'compare' => '>=',
 			);
@@ -386,7 +386,7 @@ final class Testimonials extends AbstractShortcode {
 
 		if (! empty($atts['vehicle_id'])) {
 			$booking_args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_vehicle_id',
+				'key'     => '_mhmrentiva_vehicle_id',
 				'value'   => (int) $atts['vehicle_id'],
 				'compare' => '=',
 			);
@@ -409,7 +409,7 @@ final class Testimonials extends AbstractShortcode {
 		if (! empty($atts['rating'])) {
 			$comment_args['meta_query'] = array(
 				array(
-					'key'     => 'mhm_rating',
+					'key'     => 'mhmrentiva_rating',
 					'value'   => (int) $atts['rating'],
 					'compare' => '>=',
 					'type'    => 'NUMERIC',
@@ -441,7 +441,7 @@ final class Testimonials extends AbstractShortcode {
 	{
 		try {
 			// Security check
-			if (! check_ajax_referer('mhm_rentiva_testimonials_nonce', 'nonce', false)) {
+			if (! check_ajax_referer('mhmrentiva_testimonials_nonce', 'nonce', false)) {
 				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}

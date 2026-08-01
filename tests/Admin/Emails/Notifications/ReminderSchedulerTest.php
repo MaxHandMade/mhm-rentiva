@@ -21,7 +21,7 @@ class ReminderSchedulerTest extends WP_UnitTestCase
     private function booking(string $status): int
     {
         $id = (int) self::factory()->post->create();
-        update_post_meta($id, '_mhm_status', $status);
+        update_post_meta($id, '_mhmrentiva_status', $status);
         return $id;
     }
 

@@ -28,8 +28,8 @@ abstract class AbstractListTable extends \WP_List_Table {
 
 
 	protected int $default_per_page = 20;
-	protected string $nonce_action  = 'mhm_listtable_bulk_action';
-	protected string $nonce_name    = 'mhm_listtable_nonce';
+	protected string $nonce_action  = 'mhmrentiva_listtable_bulk_action';
+	protected string $nonce_name    = 'mhmrentiva_listtable_nonce';
 
 	/**
 	 * Safe sanitize text field that handles null values

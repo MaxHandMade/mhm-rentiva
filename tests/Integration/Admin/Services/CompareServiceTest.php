@@ -21,7 +21,7 @@ class CompareServiceTest extends \WP_UnitTestCase
         $property->setValue(null, null);
 
         // Clear any existing meta
-        delete_user_meta($this->user_id, 'mhm_rentiva_compare');
+        delete_user_meta($this->user_id, 'mhmrentiva_compare');
     }
 
     public function test_add_and_get_list()

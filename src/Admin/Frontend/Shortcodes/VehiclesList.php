@@ -274,14 +274,14 @@ final class VehiclesList extends AbstractShortcode {
 		parent::register();
 
 		// AJAX handlers
-		// `mhm_rentiva_toggle_favorite` is registered by FavoritesService, which
+		// `mhmrentiva_toggle_favorite` is registered by FavoritesService, which
 		// owns the behaviour. This class registered it twice more, pointing at a
 		// method that only proxies back to that service -- three registrations for
 		// one action, resolved by whichever hook happened to run first. Removed;
 		// the proxy method stays for any direct caller.
 		// Rating functions moved to VehicleRatingForm
-		// add_action('wp_ajax_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
-		// add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', [self::class, 'ajax_submit_rating']);
+		// add_action('wp_ajax_mhmrentiva_submit_rating', [self::class, 'ajax_submit_rating']);
+		// add_action('wp_ajax_nopriv_mhmrentiva_submit_rating', [self::class, 'ajax_submit_rating']);
 	}
 
 	/**
@@ -350,7 +350,7 @@ final class VehiclesList extends AbstractShortcode {
 			'url'  => '#',
 		);
 
-		$brand = get_post_meta($vehicle_id, '_mhm_rentiva_brand', true) ?: '';
+		$brand = get_post_meta($vehicle_id, '_mhmrentiva_brand', true) ?: '';
 
 		// Resolve location name for display on vehicle card. Locations come from an
 		// add-on via the filter: without one the map stays empty and the card falls
@@ -358,15 +358,15 @@ final class VehiclesList extends AbstractShortcode {
 		static $location_map = null;
 		if ($location_map === null) {
 			$location_map = array();
-			foreach (apply_filters('mhm_rentiva_locations', array(), 'rental') as $loc) {
+			foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
 				$location_map[ (int) $loc->id ] = (string) $loc->name;
 			}
 		}
-		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
+		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true);
 		$vehicle_location_name = $location_map[ $vehicle_location_id ] ?? '';
 		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
 		if ('' === $vehicle_location_name) {
-			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);
+			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhmrentiva_vehicle_city', true);
 		}
 
 		return array(
@@ -423,9 +423,9 @@ final class VehiclesList extends AbstractShortcode {
 		);
 
 		foreach ($possible_files as $filename) {
-			$file_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
+			$file_path = MHMRENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
 			if (file_exists($file_path)) {
-				return MHM_RENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
+				return MHMRENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
 			}
 		}
 
@@ -441,7 +441,7 @@ final class VehiclesList extends AbstractShortcode {
 		// Check price meta keys in order using Helper
 		$daily_price = VehicleDataHelper::get_price_per_day($vehicle_id);
 
-		$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
+		$currency        = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
 		$currency_symbol = CurrencyHelper::get_currency_symbol();
 
 		// Use default value if price is 0
@@ -569,7 +569,7 @@ final class VehiclesList extends AbstractShortcode {
 
 		// Fallback for older data or if status is not set (DEV MODE ONLY)
 		if (empty($status) && \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
-			$old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+			$old_availability = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_availability', true);
 			// Handle legacy values
 			if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
 				$status = 'inactive';
@@ -635,7 +635,7 @@ final class VehiclesList extends AbstractShortcode {
 		}
 
 		// First check from settings
-		$url = SettingsCore::get('mhm_rentiva_booking_url', '');
+		$url = SettingsCore::get('mhmrentiva_booking_url', '');
 		if (empty($url)) {
 			// Check from ShortcodeUrlManager
 			if (class_exists('\MHMRentiva\Admin\Core\ShortcodeUrlManager')) {
@@ -653,7 +653,7 @@ final class VehiclesList extends AbstractShortcode {
 	private static function get_login_url(): string
 	{
 		// First check from settings
-		$login_url = SettingsCore::get('mhm_rentiva_login_url', '');
+		$login_url = SettingsCore::get('mhmrentiva_login_url', '');
 		if (! empty($login_url)) {
 			return $login_url;
 		}
@@ -676,11 +676,11 @@ final class VehiclesList extends AbstractShortcode {
 	private static function get_text(): array
 	{
 		return array(
-			'book_now'               => SettingsCore::get('mhm_rentiva_text_book_now', '') ?: __('Book Now', 'mhm-rentiva'),
-			'view_details'           => SettingsCore::get('mhm_rentiva_text_view_details', '') ?: __('View Details', 'mhm-rentiva'),
-			'added_to_favorites'     => SettingsCore::get('mhm_rentiva_text_added_to_favorites', '') ?: __('Added to favorites', 'mhm-rentiva'),
-			'removed_from_favorites' => SettingsCore::get('mhm_rentiva_text_removed_from_favorites', '') ?: __('Removed from favorites', 'mhm-rentiva'),
-			'login_required'         => SettingsCore::get('mhm_rentiva_text_login_required', '') ?: __('You must be logged in to add to favorites', 'mhm-rentiva'),
+			'book_now'               => SettingsCore::get('mhmrentiva_text_book_now', '') ?: __('Book Now', 'mhm-rentiva'),
+			'view_details'           => SettingsCore::get('mhmrentiva_text_view_details', '') ?: __('View Details', 'mhm-rentiva'),
+			'added_to_favorites'     => SettingsCore::get('mhmrentiva_text_added_to_favorites', '') ?: __('Added to favorites', 'mhm-rentiva'),
+			'removed_from_favorites' => SettingsCore::get('mhmrentiva_text_removed_from_favorites', '') ?: __('Removed from favorites', 'mhm-rentiva'),
+			'login_required'         => SettingsCore::get('mhmrentiva_text_login_required', '') ?: __('You must be logged in to add to favorites', 'mhm-rentiva'),
 		);
 	}
 
@@ -740,7 +740,7 @@ final class VehiclesList extends AbstractShortcode {
 			return false;
 		}
 
-		$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true) ?: array();
+		$favorites = get_user_meta($user_id, 'mhmrentiva_favorites', true) ?: array();
 		return in_array($vehicle_id, $favorites);
 	}
 
@@ -773,7 +773,7 @@ final class VehiclesList extends AbstractShortcode {
 	protected static function is_caching_enabled(): bool
 	{
 		// Disable if caching is explicitly turned off via constant
-		if (defined('MHM_RENTIVA_DISABLE_CACHE') && \MHM_RENTIVA_DISABLE_CACHE) {
+		if (defined('MHMRENTIVA_DISABLE_CACHE') && \MHMRENTIVA_DISABLE_CACHE) {
 			return false;
 		}
 
@@ -783,7 +783,7 @@ final class VehiclesList extends AbstractShortcode {
 		}
 
 		// Check if caching is enabled in settings
-		if (! SettingsCore::get('mhm_rentiva_enable_shortcode_cache', '1')) {
+		if (! SettingsCore::get('mhmrentiva_enable_shortcode_cache', '1')) {
 			return false;
 		}
 

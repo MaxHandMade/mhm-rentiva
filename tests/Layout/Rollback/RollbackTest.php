@@ -60,7 +60,7 @@ class RollbackTest extends WP_UnitTestCase
         $importer      = new AtomicImporter();
         $summary       = $importer->import($manifest_v1, ['create' => true]);
         $this->page_id = $summary[0]['post_id'];
-        $this->hash_v1 = get_post_meta($this->page_id, '_mhm_layout_hash', true);
+        $this->hash_v1 = get_post_meta($this->page_id, '_mhmrentiva_layout_hash', true);
 
         // 2. Update to Layout V2 (Triggers Shift in AtomicImporter)
         $manifest_v2 = [
@@ -89,7 +89,7 @@ class RollbackTest extends WP_UnitTestCase
         ];
 
         $importer->import($manifest_v2);
-        $this->hash_v2 = get_post_meta($this->page_id, '_mhm_layout_hash', true);
+        $this->hash_v2 = get_post_meta($this->page_id, '_mhmrentiva_layout_hash', true);
 
         $this->assertNotEquals($this->hash_v1, $this->hash_v2, 'Hashes must differ for test to work');
 
@@ -109,8 +109,8 @@ class RollbackTest extends WP_UnitTestCase
         $this->assertEquals($this->hash_v1, $result['new_hash']);
 
         // Verify DB State (Flip)
-        $this->assertEquals($this->hash_v1, get_post_meta($this->page_id, '_mhm_layout_hash', true));
-        $this->assertEquals($this->hash_v2, get_post_meta($this->page_id, '_mhm_layout_hash_previous', true));
+        $this->assertEquals($this->hash_v1, get_post_meta($this->page_id, '_mhmrentiva_layout_hash', true));
+        $this->assertEquals($this->hash_v2, get_post_meta($this->page_id, '_mhmrentiva_layout_hash_previous', true));
 
         // Verify Content (Instance ID should be v1-hero)
         $content = get_post($this->page_id)->post_content;
@@ -130,7 +130,7 @@ class RollbackTest extends WP_UnitTestCase
         $this->assertEquals($this->hash_v1, $result['target_hash']);
 
         // Ensure no writes
-        $this->assertEquals($this->hash_v2, get_post_meta($this->page_id, '_mhm_layout_hash', true));
+        $this->assertEquals($this->hash_v2, get_post_meta($this->page_id, '_mhmrentiva_layout_hash', true));
         $this->assertEquals($content_before, get_post($this->page_id)->post_content);
     }
 
@@ -139,7 +139,7 @@ class RollbackTest extends WP_UnitTestCase
      */
     public function test_rollback_hash_mismatch(): void
     {
-        update_post_meta($this->page_id, '_mhm_layout_hash_previous', 'wrong');
+        update_post_meta($this->page_id, '_mhmrentiva_layout_hash_previous', 'wrong');
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Hash mismatch');

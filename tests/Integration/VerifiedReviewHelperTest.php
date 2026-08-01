@@ -80,12 +80,12 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'post_title'  => 'Test Booking',
         ));
 
-        update_post_meta($booking_id, '_mhm_vehicle_id', $vehicle_id);
-        update_post_meta($booking_id, '_mhm_status', $status);
-        update_post_meta($booking_id, '_mhm_customer_user_id', $user_id);
+        update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $vehicle_id);
+        update_post_meta($booking_id, '_mhmrentiva_status', $status);
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $user_id);
 
         if (! empty($email)) {
-            update_post_meta($booking_id, '_mhm_contact_email', $email);
+            update_post_meta($booking_id, '_mhmrentiva_contact_email', $email);
         }
 
         return $booking_id;
@@ -106,7 +106,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'comment_author'  => 'Test User',
         ));
 
-        add_comment_meta($comment_id, 'mhm_rating', $rating);
+        add_comment_meta($comment_id, 'mhmrentiva_rating', $rating);
 
         return $comment_id;
     }
@@ -240,7 +240,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
         $comment_id = $this->create_review($this->vehicle_id, $this->user_id);
 
         // No booking exists, but admin overrides
-        update_comment_meta($comment_id, 'mhm_verified_review', '1');
+        update_comment_meta($comment_id, 'mhmrentiva_verified_review', '1');
 
         $this->assertTrue(
             VerifiedReviewHelper::is_verified($comment_id, $this->vehicle_id, $this->user_id),
@@ -302,8 +302,8 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
     /**
      * Test: a guest review is verified through the booking's contact e-mail alone.
      *
-     * Every other test in this file attaches BOTH `_mhm_customer_user_id` and
-     * `_mhm_contact_email` to its booking, so all of them pass on the user-id
+     * Every other test in this file attaches BOTH `_mhmrentiva_customer_user_id` and
+     * `_mhmrentiva_contact_email` to its booking, so all of them pass on the user-id
      * match alone and none of them can tell whether the e-mail match works at
      * all. This one deliberately leaves the booking without a customer user id
      * and posts the review as a guest (user_id 0), so the e-mail match is the
@@ -321,10 +321,10 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'post_title'  => 'Guest Booking',
         ));
 
-        update_post_meta($booking_id, '_mhm_vehicle_id', $this->vehicle_id);
-        update_post_meta($booking_id, '_mhm_status', Status::COMPLETED);
-        // Deliberately NO _mhm_customer_user_id: e-mail is the only link.
-        update_post_meta($booking_id, '_mhm_contact_email', $guest_email);
+        update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $this->vehicle_id);
+        update_post_meta($booking_id, '_mhmrentiva_status', Status::COMPLETED);
+        // Deliberately NO _mhmrentiva_customer_user_id: e-mail is the only link.
+        update_post_meta($booking_id, '_mhmrentiva_contact_email', $guest_email);
 
         $comment_id = wp_insert_comment(array(
             'comment_post_ID'      => $this->vehicle_id,
@@ -335,7 +335,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'comment_author_email' => $guest_email,
             'comment_author'       => 'Guest Reviewer',
         ));
-        add_comment_meta($comment_id, 'mhm_rating', 5);
+        add_comment_meta($comment_id, 'mhmrentiva_rating', 5);
 
         VerifiedReviewHelper::invalidate_cache($this->vehicle_id);
 
@@ -350,7 +350,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
      * Test: the e-mail match is scoped to the vehicle being reviewed.
      *
      * Guards the companion risk to the test above: an e-mail-only match that
-     * ignored `_mhm_vehicle_id` would verify a guest review on every vehicle.
+     * ignored `_mhmrentiva_vehicle_id` would verify a guest review on every vehicle.
      *
      * @since WP.org T7 Task 9.5
      */
@@ -364,9 +364,9 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'post_title'  => 'Guest Booking On Another Vehicle',
         ));
 
-        update_post_meta($booking_id, '_mhm_vehicle_id', $this->other_vehicle_id);
-        update_post_meta($booking_id, '_mhm_status', Status::COMPLETED);
-        update_post_meta($booking_id, '_mhm_contact_email', $guest_email);
+        update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $this->other_vehicle_id);
+        update_post_meta($booking_id, '_mhmrentiva_status', Status::COMPLETED);
+        update_post_meta($booking_id, '_mhmrentiva_contact_email', $guest_email);
 
         $comment_id = wp_insert_comment(array(
             'comment_post_ID'      => $this->vehicle_id,
@@ -377,7 +377,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
             'comment_author_email' => $guest_email,
             'comment_author'       => 'Guest Reviewer',
         ));
-        add_comment_meta($comment_id, 'mhm_rating', 5);
+        add_comment_meta($comment_id, 'mhmrentiva_rating', 5);
 
         VerifiedReviewHelper::invalidate_cache($this->vehicle_id);
 

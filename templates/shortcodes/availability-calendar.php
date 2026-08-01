@@ -28,18 +28,18 @@ $current_user      = $current_user ?? null;
 
 
 // Shortcode parameters
-$show_pricing         = $atts['show_pricing'] ?? apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1');
-$show_seasonal_prices = $atts['show_seasonal_prices'] ?? apply_filters('mhm_rentiva/availability_calendar/show_seasonal_prices', '1');
-$show_discounts       = $atts['show_discounts'] ?? apply_filters('mhm_rentiva/availability_calendar/show_discounts', '1');
+$show_pricing         = $atts['show_pricing'] ?? apply_filters('mhmrentiva/availability_calendar/show_pricing', '1');
+$show_seasonal_prices = $atts['show_seasonal_prices'] ?? apply_filters('mhmrentiva/availability_calendar/show_seasonal_prices', '1');
+$show_discounts       = $atts['show_discounts'] ?? apply_filters('mhmrentiva/availability_calendar/show_discounts', '1');
 $show_booking_btn     = $atts['show_booking_button']
 	?? $atts['show_booking_btn']
 	?? apply_filters(
-		'mhm_rentiva/availability_calendar/show_booking_button',
-		apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1')
+		'mhmrentiva/availability_calendar/show_booking_button',
+		apply_filters('mhmrentiva/availability_calendar/show_booking_btn', '1')
 	);
-$theme                = $atts['theme'] ?? apply_filters('mhm_rentiva/availability_calendar/theme', 'default');
+$theme                = $atts['theme'] ?? apply_filters('mhmrentiva/availability_calendar/theme', 'default');
 $class                = $atts['class'] ?? '';
-$integrate_pricing    = $atts['integrate_pricing'] ?? apply_filters('mhm_rentiva/availability_calendar/integrate_pricing', '1');
+$integrate_pricing    = $atts['integrate_pricing'] ?? apply_filters('mhmrentiva/availability_calendar/integrate_pricing', '1');
 
 // If vehicle_id is provided, get the vehicle object
 if ($vehicle_id > 0 && ! $vehicle) {
@@ -71,12 +71,12 @@ $is_available        = true;
 $status_text         = '';
 
 if ($vehicle_id > 0) {
-	$vehicle_price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
+	$vehicle_price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) ?: 0);
 
 	// Check Status
-	$status = get_post_meta($vehicle_id, '_mhm_vehicle_status', true);
+	$status = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_status', true);
 	if (empty($status)) {
-		$old_availability = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+		$old_availability = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_availability', true);
 		if ($old_availability === '0' || $old_availability === 'passive' || $old_availability === 'inactive') {
 			$status = 'inactive';
 		} elseif ($old_availability === '1' || $old_availability === 'active') {
@@ -90,7 +90,7 @@ if ($vehicle_id > 0) {
 
 	$is_available        = ( $status === 'active' );
 	$status_text         = $is_available ? __('Available', 'mhm-rentiva') : __('Out of Order', 'mhm-rentiva');
-	$vehicle_location_id = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
+	$vehicle_location_id = (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true);
 }
 ?>
 

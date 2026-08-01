@@ -48,7 +48,7 @@ final class A10TemplateCarveTest extends WP_UnitTestCase {
 	public function test_none_of_the_carved_templates_ship_in_lite(): void {
 		foreach ( $this->removed_templates() as $relative ) {
 			$this->assertFileDoesNotExist(
-				MHM_RENTIVA_PLUGIN_PATH . $relative,
+				MHMRENTIVA_PLUGIN_PATH . $relative,
 				"Lite must not ship {$relative} any more (Task A10)."
 			);
 		}
@@ -60,7 +60,7 @@ final class A10TemplateCarveTest extends WP_UnitTestCase {
 	 * Pro-only files above were removed from it.
 	 */
 	public function test_account_templates_directory_still_exists_with_lite_owned_files(): void {
-		$this->assertDirectoryExists( MHM_RENTIVA_PLUGIN_PATH . 'templates/account' );
-		$this->assertFileExists( MHM_RENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php' );
+		$this->assertDirectoryExists( MHMRENTIVA_PLUGIN_PATH . 'templates/account' );
+		$this->assertFileExists( MHMRENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php' );
 	}
 }

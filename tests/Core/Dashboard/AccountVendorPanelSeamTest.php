@@ -19,7 +19,7 @@ use WP_UnitTestCase;
  * every Lite site the moment a 'vendor' context reached the dashboard.
  *
  * The fix replaces the direct call with
- * `apply_filters('mhm_rentiva_account_vendor_panel', '', $context)`. Pro's
+ * `apply_filters('mhmrentiva_account_vendor_panel', '', $context)`. Pro's
  * AccountExtensions is the only thing left that can return non-empty markup
  * for it; Lite's own (and this filter's default) contribution is always ''.
  *
@@ -30,18 +30,18 @@ final class AccountVendorPanelSeamTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        remove_all_filters('mhm_rentiva_account_vendor_panel');
+        remove_all_filters('mhmrentiva_account_vendor_panel');
     }
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_account_vendor_panel');
+        remove_all_filters('mhmrentiva_account_vendor_panel');
         parent::tearDown();
     }
 
     public function test_filter_default_is_empty_string_without_a_subscriber(): void
     {
-        $this->assertSame('', apply_filters('mhm_rentiva_account_vendor_panel', '', 'vendor'));
+        $this->assertSame('', apply_filters('mhmrentiva_account_vendor_panel', '', 'vendor'));
     }
 
     /**
@@ -66,7 +66,7 @@ final class AccountVendorPanelSeamTest extends WP_UnitTestCase
      */
     public function test_a_subscriber_can_add_the_vendor_panel_back(): void
     {
-        add_filter('mhm_rentiva_account_vendor_panel', static function (string $html, string $context): string {
+        add_filter('mhmrentiva_account_vendor_panel', static function (string $html, string $context): string {
             return 'vendor' === $context ? '<div class="stand-in-vendor-panel">Contact Administrator</div>' : $html;
         }, 10, 2);
 
@@ -82,7 +82,7 @@ final class AccountVendorPanelSeamTest extends WP_UnitTestCase
      */
     public function test_customer_context_never_receives_the_vendor_panel(): void
     {
-        add_filter('mhm_rentiva_account_vendor_panel', static function (string $html, string $context): string {
+        add_filter('mhmrentiva_account_vendor_panel', static function (string $html, string $context): string {
             return 'vendor' === $context ? '<div class="stand-in-vendor-panel">Contact Administrator</div>' : $html;
         }, 10, 2);
 

@@ -14,7 +14,7 @@ use WP_UnitTestCase;
  * `$input` unchanged. Every declared bound, enum and text sanitizer in the
  * plugin lives inside the named arms, so a value the match does not recognise —
  * a typo, a renamed tab, a field a caller invented — bypassed all of them at
- * once and was merged straight into `mhm_rentiva_settings`.
+ * once and was merged straight into `mhmrentiva_settings`.
  *
  * `register_setting`'s nonce and `manage_options` limit who can reach it, so
  * this is not a privilege hole. It is still the one write path where "the
@@ -31,7 +31,7 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 {
 	public function tearDown(): void
 	{
-		delete_option( 'mhm_rentiva_settings' );
+		delete_option( 'mhmrentiva_settings' );
 		parent::tearDown();
 	}
 
@@ -58,7 +58,7 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 	 */
 	public function test_an_unknown_tab_preserves_the_stored_settings(): void
 	{
-		update_option( 'mhm_rentiva_settings', array( 'mhm_rentiva_cache_enabled' => '0' ) );
+		update_option( 'mhmrentiva_settings', array( 'mhmrentiva_cache_enabled' => '0' ) );
 
 		$result = SettingsSanitizer::sanitize(
 			array(
@@ -67,7 +67,7 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 			)
 		);
 
-		$this->assertSame( '0', $result['mhm_rentiva_cache_enabled'] );
+		$this->assertSame( '0', $result['mhmrentiva_cache_enabled'] );
 	}
 
 	/**
@@ -79,10 +79,10 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 		$result = SettingsSanitizer::sanitize(
 			array(
 				'current_active_tab'     => 'system',
-				'mhm_rentiva_log_level'  => 'debug',
+				'mhmrentiva_log_level'  => 'debug',
 			)
 		);
 
-		$this->assertSame( 'debug', $result['mhm_rentiva_log_level'] );
+		$this->assertSame( 'debug', $result['mhmrentiva_log_level'] );
 	}
 }

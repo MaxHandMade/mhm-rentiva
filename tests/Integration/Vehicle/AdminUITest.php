@@ -21,7 +21,7 @@ class AdminUITest extends \WP_UnitTestCase
     public function test_lifecycle_column_added_to_vehicle_list(): void
     {
         $columns = VehicleColumns::columns(array('title' => 'Title', 'date' => 'Date'));
-        $this->assertArrayHasKey('mhm_lifecycle', $columns);
+        $this->assertArrayHasKey('mhmrentiva_lifecycle', $columns);
     }
 
     public function test_lifecycle_column_renders_active_status(): void
@@ -42,7 +42,7 @@ class AdminUITest extends \WP_UnitTestCase
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, gmdate('Y-m-d H:i:s', strtotime('+45 days')));
 
         ob_start();
-        VehicleColumns::render('mhm_lifecycle', $vehicle_id);
+        VehicleColumns::render('mhmrentiva_lifecycle', $vehicle_id);
         $output = ob_get_clean();
 
         $this->assertStringContainsString('Active', $output);
@@ -69,7 +69,7 @@ class AdminUITest extends \WP_UnitTestCase
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LISTING_EXPIRES_AT, gmdate('Y-m-d H:i:s', strtotime('+45 days')));
 
         ob_start();
-        VehicleColumns::render('mhm_lifecycle', $vehicle_id);
+        VehicleColumns::render('mhmrentiva_lifecycle', $vehicle_id);
         $output = ob_get_clean();
 
         $this->assertStringContainsString('Active', $output, 'badge still shows Active');
@@ -90,7 +90,7 @@ class AdminUITest extends \WP_UnitTestCase
         update_post_meta($vehicle_id, MetaKeys::VEHICLE_LIFECYCLE_STATUS, VehicleLifecycleStatus::WITHDRAWN);
 
         ob_start();
-        VehicleColumns::render('mhm_lifecycle', $vehicle_id);
+        VehicleColumns::render('mhmrentiva_lifecycle', $vehicle_id);
         $output = ob_get_clean();
 
         $this->assertStringContainsString('Withdrawn', $output);

@@ -49,17 +49,17 @@ class QueryHelper {
          * Logic: We want vehicles that do NOT have a booking overlapping with the range.
          * Overlap definition: (start1 < end2) AND (end1 > start2)
          *
-         * IMPORTANT: We must also exclude bookings where _mhm_status = 'cancelled'.
+         * IMPORTANT: We must also exclude bookings where _mhmrentiva_status = 'cancelled'.
          * WordPress post_status stays as 'publish' even after plugin-level cancellation;
-         * the actual status is stored in the _mhm_status postmeta field.
+         * the actual status is stored in the _mhmrentiva_status postmeta field.
          */
         return $wpdb->prepare(
             " AND NOT EXISTS (
                 SELECT 1 
                 FROM {$wpdb->posts} as bookings
-                INNER JOIN {$wpdb->postmeta} as m1 ON (bookings.ID = m1.post_id AND m1.meta_key = '_mhm_vehicle_id')
-                INNER JOIN {$wpdb->postmeta} as m2 ON (bookings.ID = m2.post_id AND m2.meta_key = '_mhm_start_ts')
-                INNER JOIN {$wpdb->postmeta} as m3 ON (bookings.ID = m3.post_id AND m3.meta_key = '_mhm_end_ts')
+                INNER JOIN {$wpdb->postmeta} as m1 ON (bookings.ID = m1.post_id AND m1.meta_key = '_mhmrentiva_vehicle_id')
+                INNER JOIN {$wpdb->postmeta} as m2 ON (bookings.ID = m2.post_id AND m2.meta_key = '_mhmrentiva_start_ts')
+                INNER JOIN {$wpdb->postmeta} as m3 ON (bookings.ID = m3.post_id AND m3.meta_key = '_mhmrentiva_end_ts')
                 WHERE bookings.post_type = 'vehicle_booking'
                 AND bookings.post_status IN ('publish', 'mhm-confirmed', 'mhm-pending')
                 AND m1.meta_value = {$wpdb->posts}.ID
@@ -68,7 +68,7 @@ class QueryHelper {
                 AND NOT EXISTS (
                     SELECT 1 FROM {$wpdb->postmeta} as ms
                     WHERE ms.post_id = bookings.ID
-                    AND ms.meta_key = '_mhm_status'
+                    AND ms.meta_key = '_mhmrentiva_status'
                     AND ms.meta_value IN ('cancelled', 'refunded')
                 )
             )",
@@ -148,7 +148,7 @@ class QueryHelper {
 
         $loc_meta_key   = MetaKeys::VEHICLE_LOCATION_ID;
         $vendor_loc_key = MetaKeys::VENDOR_LOCATION_ID;
-        $global_default = (int) SettingsCore::get('mhm_rentiva_default_rental_location', 0);
+        $global_default = (int) SettingsCore::get('mhmrentiva_default_rental_location', 0);
 
         $prepare_args = array_merge(
             array( $loc_meta_key ),
@@ -162,8 +162,8 @@ class QueryHelper {
         /**
          * SQL Logic for Hybrid Location (Full Hierarchy):
          *
-         * 1. Direct match on vehicle meta (_mhm_rentiva_location_id)
-         * 2. OR: If vehicle has NO location meta, inherit from author (vendor) meta (_mhm_rentiva_vendor_location_id)
+         * 1. Direct match on vehicle meta (_mhmrentiva_location_id)
+         * 2. OR: If vehicle has NO location meta, inherit from author (vendor) meta (_mhmrentiva_vendor_location_id)
          * 3. OR: If neither vehicle nor author has location meta, inherit from Global Default (Option)
          */
         // Each IN list is generated inline from count($ids) so the number of

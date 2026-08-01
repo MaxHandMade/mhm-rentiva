@@ -39,8 +39,8 @@ class BookingFormQueryVarsTest extends WP_UnitTestCase
             'post_title'  => 'Booking Query Var Test Vehicle',
             'post_status' => 'publish',
             'meta_input'  => array(
-                '_mhm_rentiva_price_per_day' => '100',
-                '_mhm_vehicle_status'        => 'active',
+                '_mhmrentiva_price_per_day' => '100',
+                '_mhmrentiva_vehicle_status'        => 'active',
             ),
         ));
 

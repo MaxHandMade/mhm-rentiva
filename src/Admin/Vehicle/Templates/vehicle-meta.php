@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 <div class="mhm-vehicle-meta-container">
 	<!-- Nonce field -->
-	<?php wp_nonce_field( 'vehicle_mhm_rentiva_vehicle_details_nonce', 'vehicle_mhm_rentiva_vehicle_details_nonce' ); ?>
+	<?php wp_nonce_field( 'vehicle_mhmrentiva_vehicle_details_nonce', 'vehicle_mhmrentiva_vehicle_details_nonce' ); ?>
 
 	<div class="mhm-meta-content">
 		<!-- Vehicle Details Section -->
@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<div class="mhm-detail-item availability-status" data-detail-key="availability">
 					<div class="mhm-detail-content">
 						<label class="mhm-detail-label"><?php esc_html_e( 'Availability Status', 'mhm-rentiva' ); ?></label>
-						<select id="_mhm_vehicle_status" name="_mhm_vehicle_status" class="mhm-availability-dropdown">
+						<select id="_mhmrentiva_vehicle_status" name="_mhmrentiva_vehicle_status" class="mhm-availability-dropdown">
 							<option value="active" <?php selected( $available, 'active' ); ?> data-icon="✅"><?php esc_html_e( 'Active', 'mhm-rentiva' ); ?></option>
 							<option value="maintenance" <?php selected( $available, 'maintenance' ); ?> data-icon="🔧"><?php esc_html_e( 'Maintenance', 'mhm-rentiva' ); ?></option>
 						</select>
@@ -48,7 +48,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<div class="mhm-detail-item vehicle-location" data-detail-key="location">
 						<div class="mhm-detail-content">
 							<label class="mhm-detail-label"><?php esc_html_e( 'Location', 'mhm-rentiva' ); ?></label>
-							<select id="_mhm_rentiva_location_id" name="_mhm_rentiva_location_id" class="mhm-detail-select">
+							<select id="_mhmrentiva_location_id" name="_mhmrentiva_location_id" class="mhm-detail-select">
 								<option value=""><?php esc_html_e( 'Inherit (Vendor/Global)', 'mhm-rentiva' ); ?></option>
 								<?php foreach ( $available_locations as $loc ) : ?>
 									<option value="<?php echo esc_attr( $loc->id ); ?>" <?php selected( $location_id, $loc->id ); ?>><?php echo esc_html( $loc->name ); ?></option>
@@ -78,7 +78,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					// Save synchronized order
 					if ( $synced_order !== $saved_order ) {
-						update_post_meta( $post->ID, '_mhm_details_order', $synced_order );
+						update_post_meta( $post->ID, '_mhmrentiva_details_order', $synced_order );
 						$saved_order = $synced_order;
 					}
 
@@ -99,28 +99,28 @@ if ( ! defined( 'ABSPATH' ) ) {
 						echo '<label class="mhm-detail-label">' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
 							// ⭐ Get max seats from settings (default: 100)
-							$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_seats', 100 );
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="' . esc_attr( $max_seats ) . '" placeholder="5" class="mhm-detail-input" />';
+							$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_max_seats', 100 );
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="' . esc_attr( $max_seats ) . '" placeholder="5" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Person', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'doors' ) {
 							// ⭐ Get max doors from settings (default: 20)
-							$max_doors = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_doors', 20 );
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '4' ) . '" min="2" max="' . esc_attr( $max_doors ) . '" placeholder="4" class="mhm-detail-input" />';
+							$max_doors = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_max_doors', 20 );
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '4' ) . '" min="2" max="' . esc_attr( $max_doors ) . '" placeholder="4" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Pieces', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'engine_size' ) {
 							// ⭐ Get engine size limits from settings (default: 0.0-20.0L)
-							$min_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_min_engine_size', 0.0 );
-							$max_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_vehicle_max_engine_size', 20.0 );
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="' . esc_attr( $min_engine ) . '" max="' . esc_attr( $max_engine ) . '" step="0.1" placeholder="1.6" class="mhm-detail-input" />';
+							$min_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_min_engine_size', 0.0 );
+							$max_engine = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_vehicle_max_engine_size', 20.0 );
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="' . esc_attr( $min_engine ) . '" max="' . esc_attr( $max_engine ) . '" step="0.1" placeholder="1.6" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'L', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'transmission' ) {
 							// ⭐ Get transmission types dynamically
 							$transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
-							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+							echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							foreach ( $transmission_types as $type_key => $type_label ) {
 								echo '<option value="' . esc_attr( $type_key ) . '"' . selected( $value, $type_key, false ) . '>' . esc_html( $type_label ) . '</option>';
 							}
@@ -128,7 +128,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 						} elseif ( $key === 'fuel_type' ) {
 							// ⭐ Get fuel types dynamically
 							$fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
-							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+							echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							foreach ( $fuel_types as $fuel_key => $fuel_label ) {
 								echo '<option value="' . esc_attr( $fuel_key ) . '"' . selected( $value, $fuel_key, false ) . '>' . esc_html( $fuel_label ) . '</option>';
 							}
@@ -138,7 +138,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$meta_type = $field_meta[ $key ]['type'];
 
 							if ( $meta_type === 'select' ) {
-								echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+								echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 								$options_str = $field_meta[ $key ]['options'] ?? '';
 								$options     = array_map( 'trim', explode( ',', $options_str ) );
 								foreach ( $options as $opt ) {
@@ -146,15 +146,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 								}
 								echo '</select>';
 							} elseif ( $meta_type === 'number' ) {
-								echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="mhm-detail-input" />';
+								echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="mhm-detail-input" />';
 							} else {
-								echo '<input type="text" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
+								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
 						} elseif ( $key === 'deposit' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';
 						} else {
-							echo '<input type="text" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
+							echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 						}
 
 						echo '</div>';
@@ -174,24 +174,24 @@ if ( ! defined( 'ABSPATH' ) ) {
 						echo '<label class="mhm-detail-label">' . esc_html( $label ) . '</label>';
 
 						if ( $key === 'price_per_day' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0" step="1" placeholder="0" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
 						} elseif ( $key === 'seats' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="20" placeholder="5" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '5' ) . '" min="1" max="20" placeholder="5" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Person', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'doors' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '4' ) . '" min="2" max="8" placeholder="4" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ?: '4' ) . '" min="2" max="8" placeholder="4" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'Pieces', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'engine_size' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0.8" max="8.0" step="0.1" placeholder="1.6" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" min="0.8" max="8.0" step="0.1" placeholder="1.6" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">' . esc_html__( 'L', 'mhm-rentiva' ) . '</span>';
 						} elseif ( $key === 'transmission' ) {
-							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+							echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							echo '<option value="auto"' . selected( $value, 'auto', false ) . '>' . esc_html__( 'Automatic', 'mhm-rentiva' ) . '</option>';
 							echo '<option value="manual"' . selected( $value, 'manual', false ) . '>' . esc_html__( 'Manual', 'mhm-rentiva' ) . '</option>';
 							echo '</select>';
 						} elseif ( $key === 'fuel_type' ) {
-							echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+							echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 							echo '<option value="petrol"' . selected( $value, 'petrol', false ) . '>' . esc_html__( 'Petrol', 'mhm-rentiva' ) . '</option>';
 							echo '<option value="diesel"' . selected( $value, 'diesel', false ) . '>' . esc_html__( 'Diesel', 'mhm-rentiva' ) . '</option>';
 							echo '<option value="hybrid"' . selected( $value, 'hybrid', false ) . '>' . esc_html__( 'Hybrid', 'mhm-rentiva' ) . '</option>';
@@ -202,7 +202,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 							$meta_type = $field_meta[ $key ]['type'];
 
 							if ( $meta_type === 'select' ) {
-								echo '<select id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
+								echo '<select id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" class="mhm-detail-select">';
 								$options_str = $field_meta[ $key ]['options'] ?? '';
 								$options     = array_map( 'trim', explode( ',', $options_str ) );
 								foreach ( $options as $opt ) {
@@ -210,15 +210,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 								}
 								echo '</select>';
 							} elseif ( $meta_type === 'number' ) {
-								echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="mhm-detail-input" />';
+								echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" class="mhm-detail-input" />';
 							} else {
-								echo '<input type="text" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
+								echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 							}
 						} elseif ( $key === 'deposit' ) {
-							echo '<input type="number" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
+							echo '<input type="number" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( str_replace( '%', '', (string) $value ) ) . '" min="0" max="100" step="0.1" placeholder="10" class="mhm-detail-input" />';
 							echo '<span class="mhm-detail-unit">%</span>';
 						} else {
-							echo '<input type="text" id="mhm_rentiva_' . esc_attr( $key ) . '" name="mhm_rentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
+							echo '<input type="text" id="mhmrentiva_' . esc_attr( $key ) . '" name="mhmrentiva_' . esc_attr( $key ) . '" value="' . esc_attr( $value ) . '" placeholder="' . esc_attr( $label ) . '" class="mhm-detail-input" />';
 						}
 
 						echo '</div>';
@@ -258,7 +258,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					// Save synchronized order
 					if ( $synced_features_order !== $saved_features_order ) {
-						update_post_meta( $post->ID, '_mhm_features_order', $synced_features_order );
+						update_post_meta( $post->ID, '_mhmrentiva_features_order', $synced_features_order );
 						$saved_features_order = $synced_features_order;
 					}
 
@@ -273,7 +273,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-feature-item" data-feature-key="' . esc_attr( $key ) . '">';
 						echo '<label class="mhm-ui-checkbox">';
-						echo '<input type="checkbox" name="mhm_rentiva_features[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
+						echo '<input type="checkbox" name="mhmrentiva_features[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
 						echo '<span>' . esc_html( $label ) . '</span>';
 						echo '</label>';
 						echo '</div>';
@@ -285,7 +285,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-feature-item" data-feature-key="' . esc_attr( $key ) . '">';
 						echo '<label class="mhm-ui-checkbox">';
-						echo '<input type="checkbox" name="mhm_rentiva_features[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
+						echo '<input type="checkbox" name="mhmrentiva_features[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
 						echo '<span>' . esc_html( $label ) . '</span>';
 						echo '</label>';
 						echo '</div>';
@@ -323,7 +323,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 					// Save synchronized order
 					if ( $synced_equipment_order !== $saved_equipment_order ) {
-						update_post_meta( $post->ID, '_mhm_equipment_order', $synced_equipment_order );
+						update_post_meta( $post->ID, '_mhmrentiva_equipment_order', $synced_equipment_order );
 						$saved_equipment_order = $synced_equipment_order;
 					}
 
@@ -338,7 +338,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-equipment-item" data-equipment-key="' . esc_attr( $key ) . '">';
 						echo '<label class="mhm-ui-checkbox">';
-						echo '<input type="checkbox" name="mhm_rentiva_equipment[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
+						echo '<input type="checkbox" name="mhmrentiva_equipment[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
 						echo '<span>' . esc_html( $label ) . '</span>';
 						echo '</label>';
 						echo '</div>';
@@ -350,7 +350,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 						echo '<div class="mhm-equipment-item" data-equipment-key="' . esc_attr( $key ) . '">';
 						echo '<label class="mhm-ui-checkbox">';
-						echo '<input type="checkbox" name="mhm_rentiva_equipment[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
+						echo '<input type="checkbox" name="mhmrentiva_equipment[]" value="' . esc_attr( $key ) . '" ' . esc_attr( $checked ) . ' />';
 						echo '<span>' . esc_html( $label ) . '</span>';
 						echo '</label>';
 						echo '</div>';

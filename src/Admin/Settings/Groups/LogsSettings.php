@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class LogsSettings {
 
-	public const SECTION_LOGS = 'mhm_rentiva_logs_section';
+	public const SECTION_LOGS = 'mhmrentiva_logs_section';
 
 	/**
 	 * Get default settings for logs
@@ -31,10 +31,10 @@ final class LogsSettings {
 	 */
 	public static function get_default_settings(): array {
 		return array(
-			'mhm_rentiva_log_level'           => 'error',
-			'mhm_rentiva_log_cleanup_enabled' => '1',
-			'mhm_rentiva_log_retention_days'  => 30,
-			'mhm_rentiva_debug_mode'          => '0',
+			'mhmrentiva_log_level'           => 'error',
+			'mhmrentiva_log_cleanup_enabled' => '1',
+			'mhmrentiva_log_retention_days'  => 30,
+			'mhmrentiva_debug_mode'          => '0',
 		);
 	}
 
@@ -62,7 +62,7 @@ final class LogsSettings {
 
 		SettingsHelper::select_field(
 			$page_slug,
-			'mhm_rentiva_log_level',
+			'mhmrentiva_log_level',
 			__( 'Log Level', 'mhm-rentiva' ),
 			array(
 				'error'   => __( 'Error (Recommended)', 'mhm-rentiva' ),
@@ -76,7 +76,7 @@ final class LogsSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_debug_mode',
+			'mhmrentiva_debug_mode',
 			__( 'Debug Mode', 'mhm-rentiva' ),
 			__( 'Displays additional technical details in error messages. Not recommended for live sites.', 'mhm-rentiva' ),
 			self::SECTION_LOGS
@@ -84,7 +84,7 @@ final class LogsSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_log_cleanup_enabled',
+			'mhmrentiva_log_cleanup_enabled',
 			__( 'Auto Cleanup Logs', 'mhm-rentiva' ),
 			__( 'Automatically delete old logs based on retention period.', 'mhm-rentiva' ),
 			self::SECTION_LOGS
@@ -92,7 +92,7 @@ final class LogsSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_log_retention_days',
+			'mhmrentiva_log_retention_days',
 			__( 'Log Retention (Days)', 'mhm-rentiva' ),
 			1,
 			365,
@@ -107,15 +107,15 @@ final class LogsSettings {
 
 	// Static Accessors
 	public static function get_log_level(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_log_level', 'error' );
+		return (string) SettingsCore::get( 'mhmrentiva_log_level', 'error' );
 	}
 	public static function is_log_cleanup_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_log_cleanup_enabled', '1' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_log_cleanup_enabled', '1' ) === '1';
 	}
 	public static function get_log_retention_days(): int {
-		return (int) SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 );
+		return (int) SettingsCore::get( 'mhmrentiva_log_retention_days', 30 );
 	}
 	public static function is_debug_mode_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_debug_mode', '0' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_debug_mode', '0' ) === '1';
 	}
 }

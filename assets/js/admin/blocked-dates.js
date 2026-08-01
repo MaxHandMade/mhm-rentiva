@@ -7,7 +7,7 @@
 	var fp           = null;
 
 	function init() {
-		var $hidden = $( '#mhm_blocked_dates_value' );
+		var $hidden = $( '#mhmrentiva_blocked_dates_value' );
 		if ( ! $hidden.length ) {
 			return;
 		}
@@ -19,7 +19,7 @@
 		}
 
 		try {
-			var parsedNotes = JSON.parse( $( '#mhm_blocked_dates_notes_value' ).val() );
+			var parsedNotes = JSON.parse( $( '#mhmrentiva_blocked_dates_notes_value' ).val() );
 			blockedNotes = ( parsedNotes && ! Array.isArray( parsedNotes ) && typeof parsedNotes === 'object' ) ? parsedNotes : {};
 		} catch ( e ) {
 			blockedNotes = {};
@@ -53,7 +53,7 @@
 			fpOptions.locale = window.mhmBlockedDatesL10n.flatpickrLocale;
 		}
 
-		fp = flatpickr( '#mhm_blocked_dates_picker', fpOptions );
+		fp = flatpickr( '#mhmrentiva_blocked_dates_picker', fpOptions );
 
 		renderChips();
 
@@ -96,8 +96,8 @@
 		$( document ).on( 'click', '#mhm-apply-blocked-to-all', function () {
 			var $btn    = $( this );
 			var $result = $( '#mhm-apply-result' );
-			var nonce   = $( '#mhm_apply_to_all_nonce' ).val();
-			var vid     = $( '#mhm_current_vehicle_id' ).val();
+			var nonce   = $( '#mhmrentiva_apply_to_all_nonce' ).val();
+			var vid     = $( '#mhmrentiva_current_vehicle_id' ).val();
 
 			if ( ! confirm( mhmBlockedDatesL10n.confirmApply ) ) {
 				return;
@@ -109,7 +109,7 @@
 			$.post(
 				window.ajaxurl,
 				{
-					action:     'mhm_rentiva_apply_blocked_dates_to_all',
+					action:     'mhmrentiva_apply_blocked_dates_to_all',
 					nonce:      nonce,
 					vehicle_id: vid,
 					dates:      JSON.stringify( blockedDates ),
@@ -139,8 +139,8 @@
 		$( document ).on( 'click', '#mhm-remove-blocked-from-all', function () {
 			var $btn    = $( this );
 			var $result = $( '#mhm-apply-result' );
-			var nonce   = $( '#mhm_remove_from_all_nonce' ).val();
-			var vid     = $( '#mhm_current_vehicle_id' ).val();
+			var nonce   = $( '#mhmrentiva_remove_from_all_nonce' ).val();
+			var vid     = $( '#mhmrentiva_current_vehicle_id' ).val();
 
 			if ( ! confirm( mhmBlockedDatesL10n.confirmRemove ) ) {
 				return;
@@ -152,7 +152,7 @@
 			$.post(
 				window.ajaxurl,
 				{
-					action:     'mhm_rentiva_remove_blocked_dates_from_all',
+					action:     'mhmrentiva_remove_blocked_dates_from_all',
 					nonce:      nonce,
 					vehicle_id: vid,
 					dates:      JSON.stringify( blockedDates ),
@@ -203,8 +203,8 @@
 	}
 
 	function syncHiddenFields() {
-		$( '#mhm_blocked_dates_value' ).val( toSafeJson( blockedDates ) );
-		$( '#mhm_blocked_dates_notes_value' ).val( toSafeJson( blockedNotes ) );
+		$( '#mhmrentiva_blocked_dates_value' ).val( toSafeJson( blockedDates ) );
+		$( '#mhmrentiva_blocked_dates_notes_value' ).val( toSafeJson( blockedNotes ) );
 	}
 
 	function formatDisplayDate( dateStr ) {

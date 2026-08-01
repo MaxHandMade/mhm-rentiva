@@ -65,7 +65,7 @@ class M5_Benchmark
         $any_product = get_posts(['post_type' => 'product', 'posts_per_page' => 1]);
         if (!empty($any_product)) {
             $p = $any_product[0];
-            wp_set_object_terms($p->ID, 'mhm_vehicle_rental', 'product_type'); // Ensure it's a rental
+            wp_set_object_terms($p->ID, 'mhmrentiva_vehicle_rental', 'product_type'); // Ensure it's a rental
             return $p->ID;
         }
         return null; // Should not happen in dev env

@@ -9,9 +9,9 @@ use WP_UnitTestCase;
 
 /**
  * WP.org T4 #6 (Task B-G1f): VehicleSettings::register_settings() registered
- * a `sanitize_callback` for six array-shaped options (`mhm_selected_details`,
- * `mhm_selected_features`, `mhm_selected_equipment`, `mhm_custom_details`,
- * `mhm_custom_features`, `mhm_custom_equipment`) that ran every VALUE through
+ * a `sanitize_callback` for six array-shaped options (`mhmrentiva_selected_details`,
+ * `mhmrentiva_selected_features`, `mhmrentiva_selected_equipment`, `mhmrentiva_custom_details`,
+ * `mhmrentiva_custom_features`, `mhmrentiva_custom_equipment`) that ran every VALUE through
  * `sanitize_text_field()` via `array_map()` but never touched the array
  * KEYS. `array_map()` cannot see keys, so an attacker-controlled key (e.g.
  * submitted through the Settings API's options.php, or reaching
@@ -19,8 +19,8 @@ use WP_UnitTestCase;
  * through the registered callback for) could persist raw markup as an
  * option array key.
  *
- * The `mhm_custom_*` keys are internal slugs: they gate `isset()` lookups,
- * get suffixed onto postmeta keys (`_mhm_rentiva_<key>`), and are normally
+ * The `mhmrentiva_custom_*` keys are internal slugs: they gate `isset()` lookups,
+ * get suffixed onto postmeta keys (`_mhmrentiva_<key>`), and are normally
  * server-generated (`custom_<time>_<rand>`) or taxonomy-derived
  * (`tax_<taxonomy>_<slug>`) -- both already `[a-z0-9_-]`. `sanitize_key()`
  * is therefore lossless for real data and closes the injection vector.
@@ -45,12 +45,12 @@ final class VehicleSettingsArrayKeySanitizationTest extends WP_UnitTestCase
     public static function arrayOptionNameProvider(): array
     {
         return array(
-            'mhm_selected_details'   => array( 'mhm_selected_details' ),
-            'mhm_selected_features'  => array( 'mhm_selected_features' ),
-            'mhm_selected_equipment' => array( 'mhm_selected_equipment' ),
-            'mhm_custom_details'     => array( 'mhm_custom_details' ),
-            'mhm_custom_features'    => array( 'mhm_custom_features' ),
-            'mhm_custom_equipment'   => array( 'mhm_custom_equipment' ),
+            'mhmrentiva_selected_details'   => array( 'mhmrentiva_selected_details' ),
+            'mhmrentiva_selected_features'  => array( 'mhmrentiva_selected_features' ),
+            'mhmrentiva_selected_equipment' => array( 'mhmrentiva_selected_equipment' ),
+            'mhmrentiva_custom_details'     => array( 'mhmrentiva_custom_details' ),
+            'mhmrentiva_custom_features'    => array( 'mhmrentiva_custom_features' ),
+            'mhmrentiva_custom_equipment'   => array( 'mhmrentiva_custom_equipment' ),
         );
     }
 
@@ -92,7 +92,7 @@ final class VehicleSettingsArrayKeySanitizationTest extends WP_UnitTestCase
 
     /**
      * Legitimate keys must round-trip unmangled -- proves the fix does not
-     * over-sanitize real data. mhm_custom_* keys mirror the two real-world
+     * over-sanitize real data. mhmrentiva_custom_* keys mirror the two real-world
      * shapes: server-generated ('custom_<time>_<rand>') and taxonomy-derived
      * ('tax_<taxonomy>_<slug>'), both already [a-z0-9_-].
      *

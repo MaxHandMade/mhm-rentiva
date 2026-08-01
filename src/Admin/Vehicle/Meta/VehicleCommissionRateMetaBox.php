@@ -12,7 +12,7 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
 /**
  * Vehicle-level commission rate override.
  *
- * Writes `_mhm_vendor_commission_rate` post meta — the same key
+ * Writes `_mhmrentiva_vendor_commission_rate` post meta — the same key
  * CommissionResolver::calculate() reads for its highest-priority
  * override layer (see CommissionResolver.php, Layer 1). An empty
  * field means "no override", falling back to the vendor/tier/global
@@ -30,7 +30,7 @@ final class VehicleCommissionRateMetaBox extends AbstractMetaBox {
 
     protected static function get_meta_box_id(): string
     {
-        return 'mhm_rentiva_vehicle_commission_rate';
+        return 'mhmrentiva_vehicle_commission_rate';
     }
 
     protected static function get_title(): string
@@ -46,7 +46,7 @@ final class VehicleCommissionRateMetaBox extends AbstractMetaBox {
                 'context'  => 'side',
                 'priority' => 'default',
                 'fields'   => array(
-                    '_mhm_vendor_commission_rate' => array(
+                    '_mhmrentiva_vendor_commission_rate' => array(
                         'type'              => 'number',
                         'label'             => __('Commission Rate (%)', 'mhm-rentiva'),
                         'description'       => __('Leave empty to use the vendor or platform-wide rate.', 'mhm-rentiva'),

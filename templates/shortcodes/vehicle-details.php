@@ -155,7 +155,7 @@ $allowed_svg_tags = array(
 							<?php if ($show_favorite_button) : ?>
 								<button class="rv-vd2-action-btn rv-vd2-favorite mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
 									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>"
+									data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
 									title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
 									aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
@@ -166,7 +166,7 @@ $allowed_svg_tags = array(
 							<?php if ($show_compare_button) : ?>
 								<button class="rv-vd2-action-btn rv-vd2-compare mhm-card-compare mhm-vehicle-compare-btn <?php echo esc_attr($is_in_compare ? 'is-active active' : ''); ?>"
 									data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-									data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_compare')); ?>"
+									data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_compare')); ?>"
 									title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
 									aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">

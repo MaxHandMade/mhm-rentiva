@@ -17,7 +17,7 @@ if (! defined('ABSPATH')) {
  */
 class LayoutAuditService {
 
-    private const META_KEY      = '_mhm_layout_audit_log';
+    private const META_KEY      = '_mhmrentiva_layout_audit_log';
     private const RETENTION_CAP = 200;
 
     /**

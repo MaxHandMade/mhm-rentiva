@@ -8,7 +8,7 @@
 
     const RentivaInteractions = {
         init: function () {
-            if (typeof mhm_rentiva_vars === 'undefined') {
+            if (typeof mhmrentiva_vars === 'undefined') {
                 // Expected on FSE pages where vehicle interactions data is not localized
                 return;
             }
@@ -20,7 +20,7 @@
             e.preventDefault();
             const $btn = $(this);
             const vehicleId = $btn.data('vehicle-id');
-            const nonce = $btn.data('nonce') || mhm_rentiva_vars.nonce;
+            const nonce = $btn.data('nonce') || mhmrentiva_vars.nonce;
 
             if ($btn.hasClass('loading')) return;
             $btn.addClass('loading');
@@ -31,7 +31,7 @@
 
             // Show optimistic toast (Two-Stage)
             const isAdd = !isActive;
-            const optimisticMsg = isAdd ? mhm_rentiva_vars.i18n.adding_favorite : mhm_rentiva_vars.i18n.removing_favorite;
+            const optimisticMsg = isAdd ? mhmrentiva_vars.i18n.adding_favorite : mhmrentiva_vars.i18n.removing_favorite;
             const idempotencyKey = isAdd ? `fav:add:${vehicleId}` : `fav:remove:${vehicleId}`;
 
             const toastId = MHMRentivaToast.show(optimisticMsg, {
@@ -41,10 +41,10 @@
             });
 
             $.ajax({
-                url: mhm_rentiva_vars.ajax_url,
+                url: mhmrentiva_vars.ajax_url,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_toggle_favorite',
+                    action: 'mhmrentiva_toggle_favorite',
                     vehicle_id: vehicleId,
                     nonce: nonce
                 },
@@ -57,11 +57,11 @@
                         if (isFavorited) {
                             $btn.addClass('is-active');
                             $btn.attr('aria-pressed', 'true');
-                            $btn.find('.text-label').text(mhm_rentiva_vars.i18n.remove_favorite || 'Remove from Favorites');
+                            $btn.find('.text-label').text(mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites');
                         } else {
                             $btn.removeClass('is-active');
                             $btn.attr('aria-pressed', 'false');
-                            $btn.find('.text-label').text(mhm_rentiva_vars.i18n.add_favorite || 'Add to Favorites');
+                            $btn.find('.text-label').text(mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
 
                             // Handling "My Favorites" page: Remove card from DOM
                             const $wrapper = $btn.closest('.mhm-my-favorites-container, .rv-my-favorites-wrapper');
@@ -82,14 +82,14 @@
                             duration: 3000
                         };
 
-                        if (isFavorited && mhm_rentiva_vars.favorites_page_url) {
+                        if (isFavorited && mhmrentiva_vars.favorites_page_url) {
                             options.action = {
-                                label: mhm_rentiva_vars.i18n.go_to_favorites || 'Go to My Favorites',
-                                href: mhm_rentiva_vars.favorites_page_url
+                                label: mhmrentiva_vars.i18n.go_to_favorites || 'Go to My Favorites',
+                                href: mhmrentiva_vars.favorites_page_url
                             };
                         }
 
-                        const finalMsg = isFavorited ? mhm_rentiva_vars.i18n.added_favorite : mhm_rentiva_vars.i18n.removed_favorite;
+                        const finalMsg = isFavorited ? mhmrentiva_vars.i18n.added_favorite : mhmrentiva_vars.i18n.removed_favorite;
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure
@@ -109,14 +109,14 @@
             e.preventDefault();
             const $btn = $(this);
             const vehicleId = $btn.data('vehicle-id');
-            const nonce = $btn.data('nonce') || mhm_rentiva_vars.nonce;
+            const nonce = $btn.data('nonce') || mhmrentiva_vars.nonce;
 
             if ($btn.hasClass('loading')) return;
 
             const isCurrentlyActive = $btn.hasClass('is-active') || $btn.hasClass('active');
             // Show optimistic toast (Two-Stage)
             const isAdd = !isCurrentlyActive;
-            const optimisticMessage = isAdd ? mhm_rentiva_vars.i18n.adding_compare : mhm_rentiva_vars.i18n.removing_compare;
+            const optimisticMessage = isAdd ? mhmrentiva_vars.i18n.adding_compare : mhmrentiva_vars.i18n.removing_compare;
             const idempotencyKey = isAdd ? `compare:add:${vehicleId}` : `compare:remove:${vehicleId}`;
 
             MHMRentivaToast.show(optimisticMessage, {
@@ -126,10 +126,10 @@
             });
 
             $.ajax({
-                url: mhm_rentiva_vars.ajax_url,
+                url: mhmrentiva_vars.ajax_url,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_toggle_compare',
+                    action: 'mhmrentiva_toggle_compare',
                     vehicle_id: vehicleId,
                     nonce: nonce
                 },
@@ -152,14 +152,14 @@
                             duration: 3000
                         };
 
-                        if (isInCompare && mhm_rentiva_vars.compare_page_url) {
+                        if (isInCompare && mhmrentiva_vars.compare_page_url) {
                             options.action = {
-                                label: mhm_rentiva_vars.i18n.view_comparison || 'View Comparison',
-                                href: mhm_rentiva_vars.compare_page_url
+                                label: mhmrentiva_vars.i18n.view_comparison || 'View Comparison',
+                                href: mhmrentiva_vars.compare_page_url
                             };
                         }
 
-                        const finalMsg = isInCompare ? mhm_rentiva_vars.i18n.added_to_compare : mhm_rentiva_vars.i18n.removed_from_compare;
+                        const finalMsg = isInCompare ? mhmrentiva_vars.i18n.added_to_compare : mhmrentiva_vars.i18n.removed_from_compare;
                         MHMRentivaToast.show(finalMsg || response.data.message, options);
                     } else {
                         // Revert on failure

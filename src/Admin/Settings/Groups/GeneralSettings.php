@@ -25,8 +25,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class GeneralSettings {
 
 
-	public const SECTION_GENERAL   = 'mhm_rentiva_general_section';
-	public const SECTION_SITE_INFO = 'mhm_rentiva_site_info_section';
+	public const SECTION_GENERAL   = 'mhmrentiva_general_section';
+	public const SECTION_SITE_INFO = 'mhmrentiva_site_info_section';
 
 	/**
 	 * Get default settings
@@ -39,15 +39,15 @@ final class GeneralSettings {
 
 		return array(
 			// General
-			'mhm_rentiva_currency'          => $currency,
-			'mhm_rentiva_currency_position' => 'right_space',
-			'mhm_rentiva_dark_mode'         => 'auto',
+			'mhmrentiva_currency'          => $currency,
+			'mhmrentiva_currency_position' => 'right_space',
+			'mhmrentiva_dark_mode'         => 'auto',
 
 			// Site Info
-			'mhm_rentiva_brand_name'        => get_bloginfo( 'name' ),
-			'mhm_rentiva_support_email'     => get_option( 'admin_email' ),
-			'mhm_rentiva_contact_phone'     => '',
-			'mhm_rentiva_contact_hours'     => '',
+			'mhmrentiva_brand_name'        => get_bloginfo( 'name' ),
+			'mhmrentiva_support_email'     => get_option( 'admin_email' ),
+			'mhmrentiva_contact_phone'     => '',
+			'mhmrentiva_contact_hours'     => '',
 		);
 	}
 
@@ -77,7 +77,7 @@ final class GeneralSettings {
 
 		// Currency (Custom Render due to WooCommerce check)
 		add_settings_field(
-			'mhm_rentiva_currency',
+			'mhmrentiva_currency',
 			__( 'Currency', 'mhm-rentiva' ),
 			array( self::class, 'render_currency_field' ),
 			$page_slug,
@@ -86,7 +86,7 @@ final class GeneralSettings {
 
 		// Currency Position (Custom Render due to WooCommerce check)
 		add_settings_field(
-			'mhm_rentiva_currency_position',
+			'mhmrentiva_currency_position',
 			__( 'Currency Position', 'mhm-rentiva' ),
 			array( self::class, 'render_currency_position_field' ),
 			$page_slug,
@@ -95,7 +95,7 @@ final class GeneralSettings {
 
 		SettingsHelper::select_field(
 			$page_slug,
-			'mhm_rentiva_dark_mode',
+			'mhmrentiva_dark_mode',
 			__( 'Dark Mode', 'mhm-rentiva' ),
 			array(
 				'auto'  => __( 'Auto (System)', 'mhm-rentiva' ),
@@ -116,7 +116,7 @@ final class GeneralSettings {
 
 		SettingsHelper::text_field(
 			$page_slug,
-			'mhm_rentiva_brand_name',
+			'mhmrentiva_brand_name',
 			__( 'Brand Name', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO,
 			__( 'Your company or brand name', 'mhm-rentiva' ),
@@ -125,7 +125,7 @@ final class GeneralSettings {
 
 		SettingsHelper::email_field(
 			$page_slug,
-			'mhm_rentiva_support_email',
+			'mhmrentiva_support_email',
 			__( 'Support Email', 'mhm-rentiva' ),
 			__( 'Email address to be used for customer support', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO
@@ -133,7 +133,7 @@ final class GeneralSettings {
 
 		SettingsHelper::text_field(
 			$page_slug,
-			'mhm_rentiva_contact_phone',
+			'mhmrentiva_contact_phone',
 			__( 'Contact Phone', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO,
 			__( 'Customer service phone number', 'mhm-rentiva' ),
@@ -142,7 +142,7 @@ final class GeneralSettings {
 
 		SettingsHelper::text_field(
 			$page_slug,
-			'mhm_rentiva_contact_hours',
+			'mhmrentiva_contact_hours',
 			__( 'Support Hours', 'mhm-rentiva' ),
 			self::SECTION_SITE_INFO,
 			__( 'Business hours for customer support', 'mhm-rentiva' ),
@@ -159,7 +159,7 @@ final class GeneralSettings {
 			return;
 		}
 
-		$currency   = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+		$currency   = SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 		$currencies = class_exists( '\MHMRentiva\Admin\Core\CurrencyHelper' )
 			? \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_list_for_dropdown()
 			: array(
@@ -168,7 +168,7 @@ final class GeneralSettings {
 				'TRY' => 'Turkish Lira',
 			);
 
-		echo '<select name="mhm_rentiva_settings[mhm_rentiva_currency]">';
+		echo '<select name="mhmrentiva_settings[mhmrentiva_currency]">';
 		foreach ( $currencies as $code => $name ) {
 			echo '<option value="' . esc_attr( $code ) . '"' . selected( $currency, $code, false ) . '>' . esc_html( $name ) . '</option>';
 		}
@@ -185,7 +185,7 @@ final class GeneralSettings {
 			return;
 		}
 
-		$position  = SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$position  = SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' );
 		$positions = array(
 			'left'        => __( 'Left ($100)', 'mhm-rentiva' ),
 			'left_space'  => __( 'Left Space ($ 100)', 'mhm-rentiva' ),
@@ -193,7 +193,7 @@ final class GeneralSettings {
 			'right_space' => __( 'Right Space (100 $)', 'mhm-rentiva' ),
 		);
 
-		echo '<select name="mhm_rentiva_settings[mhm_rentiva_currency_position]">';
+		echo '<select name="mhmrentiva_settings[mhmrentiva_currency_position]">';
 		foreach ( $positions as $pos => $name ) {
 			echo '<option value="' . esc_attr( $pos ) . '"' . selected( $position, $pos, false ) . '>' . esc_html( $name ) . '</option>';
 		}

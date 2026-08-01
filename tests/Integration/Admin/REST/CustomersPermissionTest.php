@@ -45,9 +45,9 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
         // Has manage_options but NOT list_users/delete_users. Proves the old
         // catch-all no longer clears the list/detail/bulk-delete route gates.
-        remove_role( 'mhm_test_perm_options_only' );
+        remove_role( 'mhmrentiva_test_perm_options_only' );
         add_role(
-            'mhm_test_perm_options_only',
+            'mhmrentiva_test_perm_options_only',
             'MHM Test Perm Options Only',
             array(
                 'read'           => true,
@@ -58,9 +58,9 @@ final class CustomersPermissionTest extends WP_UnitTestCase
         // Has list_users but NOT edit_users. Proves the list/detail routes no
         // longer settle for the browse-the-users-table capability now that they
         // return private PII (WP.org T6).
-        remove_role( 'mhm_test_perm_list_users' );
+        remove_role( 'mhmrentiva_test_perm_list_users' );
         add_role(
-            'mhm_test_perm_list_users',
+            'mhmrentiva_test_perm_list_users',
             'MHM Test Perm List Users',
             array(
                 'read'       => true,
@@ -70,9 +70,9 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
         // Has edit_users but NOT manage_options. Proves the list/detail routes
         // accept the operation-specific capability on its own.
-        remove_role( 'mhm_test_perm_edit_users' );
+        remove_role( 'mhmrentiva_test_perm_edit_users' );
         add_role(
-            'mhm_test_perm_edit_users',
+            'mhmrentiva_test_perm_edit_users',
             'MHM Test Perm Edit Users',
             array(
                 'read'       => true,
@@ -82,9 +82,9 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
         // Has delete_users but NOT manage_options. Proves the bulk-delete
         // route accepts the operation-specific capability on its own.
-        remove_role( 'mhm_test_perm_delete_users' );
+        remove_role( 'mhmrentiva_test_perm_delete_users' );
         add_role(
-            'mhm_test_perm_delete_users',
+            'mhmrentiva_test_perm_delete_users',
             'MHM Test Perm Delete Users',
             array(
                 'read'         => true,
@@ -95,10 +95,10 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
     public function tearDown(): void
     {
-        remove_role( 'mhm_test_perm_options_only' );
-        remove_role( 'mhm_test_perm_list_users' );
-        remove_role( 'mhm_test_perm_edit_users' );
-        remove_role( 'mhm_test_perm_delete_users' );
+        remove_role( 'mhmrentiva_test_perm_options_only' );
+        remove_role( 'mhmrentiva_test_perm_list_users' );
+        remove_role( 'mhmrentiva_test_perm_edit_users' );
+        remove_role( 'mhmrentiva_test_perm_delete_users' );
         wp_set_current_user( 0 );
         remove_action( 'rest_api_init', array( CustomersRestController::class, 'register_routes' ) );
         remove_action( 'rest_api_init', array( Availability::class, 'register_routes' ) );
@@ -111,7 +111,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
     public function test_list_route_denies_manage_options_only_user(): void
     {
-        $id = self::factory()->user->create( array( 'role' => 'mhm_test_perm_options_only' ) );
+        $id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_options_only' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
@@ -126,7 +126,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
     public function test_list_route_denies_list_users_only_user(): void
     {
-        $id = self::factory()->user->create( array( 'role' => 'mhm_test_perm_list_users' ) );
+        $id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_list_users' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
@@ -141,7 +141,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
 
     public function test_list_route_allows_edit_users_capability(): void
     {
-        $id = self::factory()->user->create( array( 'role' => 'mhm_test_perm_edit_users' ) );
+        $id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_edit_users' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
@@ -155,7 +155,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     public function test_detail_route_denies_manage_options_only_user(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_options_only' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_options_only' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );
@@ -167,7 +167,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     public function test_detail_route_denies_list_users_only_user(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_list_users' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_list_users' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );
@@ -183,7 +183,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     public function test_detail_route_allows_edit_users_capability(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_edit_users' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_edit_users' ) );
         wp_set_current_user( $id );
 
         $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $target_id );
@@ -200,7 +200,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     public function test_bulk_delete_route_denies_manage_options_only_user_before_reaching_handler(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_options_only' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_options_only' ) );
         wp_set_current_user( $id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );
@@ -228,7 +228,7 @@ final class CustomersPermissionTest extends WP_UnitTestCase
     public function test_bulk_delete_route_allows_delete_users_capability(): void
     {
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $id        = self::factory()->user->create( array( 'role' => 'mhm_test_perm_delete_users' ) );
+        $id        = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_perm_delete_users' ) );
         wp_set_current_user( $id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );

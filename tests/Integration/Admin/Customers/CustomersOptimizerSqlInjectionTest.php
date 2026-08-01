@@ -62,7 +62,7 @@ class CustomersOptimizerSqlInjectionTest extends \WP_UnitTestCase
         parent::setUp();
 
         // Three customers, each with one booking: the list query only returns
-        // users that have a `_mhm_customer_email` booking meta row.
+        // users that have a `_mhmrentiva_customer_email` booking meta row.
         foreach (array( 'alice', 'bob', 'carol' ) as $index => $login) {
             $email = $login . '@example.test';
 
@@ -79,8 +79,8 @@ class CustomersOptimizerSqlInjectionTest extends \WP_UnitTestCase
                 'post_title'  => 'Booking ' . $login,
             ));
 
-            update_post_meta($booking_id, '_mhm_customer_email', $email);
-            update_post_meta($booking_id, '_mhm_total_price', (string) ( 100 + $index ));
+            update_post_meta($booking_id, '_mhmrentiva_customer_email', $email);
+            update_post_meta($booking_id, '_mhmrentiva_total_price', (string) ( 100 + $index ));
         }
 
         // The list is cached per argument set; a stale entry would let a query

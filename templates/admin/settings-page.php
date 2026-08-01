@@ -64,7 +64,7 @@ $renderer    = $args['renderer'] ?? null;
 								settings_fields(\MHMRentiva\Admin\Settings\Core\SettingsCore::PAGE);
 
 								// Track active tab for specific sanitization logic
-								echo '<input type="hidden" name="mhm_rentiva_settings[current_active_tab]" value="' . esc_attr($renderer->get_slug()) . '">';
+								echo '<input type="hidden" name="mhmrentiva_settings[current_active_tab]" value="' . esc_attr($renderer->get_slug()) . '">';
 
 								$renderer->render();
 
@@ -86,7 +86,7 @@ $renderer    = $args['renderer'] ?? null;
 					<p><?php esc_html_e('Custom or unknown tab detected. Attempting legacy hook dispatch.', 'mhm-rentiva'); ?></p>
 					<?php
 					$handled = false;
-					do_action_ref_array('mhm_rentiva_render_settings_tab', array( &$current_tab, &$handled ));
+					do_action_ref_array('mhmrentiva_render_settings_tab', array( &$current_tab, &$handled ));
 					if (! $handled) {
 						echo '<p>' . esc_html__('No content available for this tab.', 'mhm-rentiva') . '</p>';
 					}

@@ -55,7 +55,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 	protected static function get_meta_box_id(): string
 	{
-		return 'mhm_rentiva_booking_status';
+		return 'mhmrentiva_booking_status';
 	}
 
 	protected static function get_title(): string
@@ -66,7 +66,7 @@ final class BookingMeta extends AbstractMetaBox {
 	protected static function get_fields(): array
 	{
 		return array(
-			'mhm_rentiva_booking_status' => array(
+			'mhmrentiva_booking_status' => array(
 				'title'    => __('Booking Status', 'mhm-rentiva'),
 				'context'  => 'side',
 				'priority' => 'high',
@@ -97,21 +97,21 @@ final class BookingMeta extends AbstractMetaBox {
 		add_action('save_post', array( self::class, 'save_meta' ), 10, 2);
 
 		// Email sending handler
-		add_action('admin_post_mhm_rentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
+		add_action('admin_post_mhmrentiva_send_customer_email', array( self::class, 'handle_send_customer_email' ));
 
 		// History note adding handler
-		add_action('admin_post_mhm_rentiva_add_booking_history_note', array( self::class, 'handle_add_booking_history_note' ));
+		add_action('admin_post_mhmrentiva_add_booking_history_note', array( self::class, 'handle_add_booking_history_note' ));
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_send_customer_email', array( self::class, 'ajax_send_customer_email' ));
-		add_action('wp_ajax_mhm_rentiva_get_email_template', array( self::class, 'ajax_get_email_template' ));
-		add_action('wp_ajax_mhm_rentiva_add_booking_history_note', array( self::class, 'ajax_add_booking_history_note' ));
-		add_action('wp_ajax_mhm_rentiva_update_booking', array( self::class, 'ajax_update_booking' ));
+		add_action('wp_ajax_mhmrentiva_send_customer_email', array( self::class, 'ajax_send_customer_email' ));
+		add_action('wp_ajax_mhmrentiva_get_email_template', array( self::class, 'ajax_get_email_template' ));
+		add_action('wp_ajax_mhmrentiva_add_booking_history_note', array( self::class, 'ajax_add_booking_history_note' ));
+		add_action('wp_ajax_mhmrentiva_update_booking', array( self::class, 'ajax_update_booking' ));
 
 		// Auto note adding hooks
 		// Note: "Booking created" note is added manually (in ManualBookingMetaBox and BookingForm)
-		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'auto_add_status_change_note' ), 10, 3);
-		// `mhm_payment_status_changed` was listened for here but fired by nothing in
+		add_action('mhmrentiva_booking_status_changed', array( self::class, 'auto_add_status_change_note' ), 10, 3);
+		// `mhmrentiva_payment_status_changed` was listened for here but fired by nothing in
 		// either edition, so `auto_add_payment_note()` never ran and no payment note
 		// was ever written. Rather than invent a firing site, the listener goes; the
 		// method stays available for a caller that means it.
@@ -120,7 +120,7 @@ final class BookingMeta extends AbstractMetaBox {
 		add_action('admin_notices', array( self::class, 'show_admin_notices' ));
 
 		// ✅ Auto calculation hook
-		add_action('mhm_rentiva_booking_meta_updated', array( self::class, 'on_booking_meta_updated' ), 10, 3);
+		add_action('mhmrentiva_booking_meta_updated', array( self::class, 'on_booking_meta_updated' ), 10, 3);
 	}
 
 	/**
@@ -139,7 +139,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Customer email meta box
 		add_meta_box(
-			'mhm_rentiva_customer_email_box',
+			'mhmrentiva_customer_email_box',
 			__('Send Email to Customer', 'mhm-rentiva'),
 			array( self::class, 'render_customer_email_box' ),
 			self::get_post_type(),
@@ -149,7 +149,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Receipt review meta box
 		add_meta_box(
-			'mhm_rentiva_receipt_box',
+			'mhmrentiva_receipt_box',
 			__('Payment Receipt', 'mhm-rentiva'),
 			array( self::class, 'render_receipt_box' ),
 			self::get_post_type(),
@@ -166,9 +166,9 @@ final class BookingMeta extends AbstractMetaBox {
 		if ($hook === 'post.php' && $post_type === 'vehicle_booking') {
 			wp_enqueue_script(
 				'mhm-rentiva-booking-email-send',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-email-send.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-email-send.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -183,7 +183,7 @@ final class BookingMeta extends AbstractMetaBox {
 				array(
 					'ajaxUrl'              => admin_url( 'admin-ajax.php' ),
 					'bookingId'            => $booking_id,
-					'emailNonce'           => wp_create_nonce( 'mhm_rentiva_send_email' ),
+					'emailNonce'           => wp_create_nonce( 'mhmrentiva_send_email' ),
 					'confirmCreateAccount' => __( 'Create a WordPress account for this customer?', 'mhm-rentiva' ),
 					'confirmRefund'        => __( 'Proceed with refund?', 'mhm-rentiva' ),
 					'strings'              => array(
@@ -204,12 +204,12 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function render_receipt_box(\WP_Post $post): void
 	{
-		$attach_id = (int) get_post_meta($post->ID, '_mhm_receipt_attachment_id', true);
-		$status    = get_post_meta($post->ID, '_mhm_receipt_status', true);
+		$attach_id = (int) get_post_meta($post->ID, '_mhmrentiva_receipt_attachment_id', true);
+		$status    = get_post_meta($post->ID, '_mhmrentiva_receipt_status', true);
 		$url       = $attach_id ? wp_get_attachment_url($attach_id) : '';
-		$note      = get_post_meta($post->ID, '_mhm_receipt_note', true);
+		$note      = get_post_meta($post->ID, '_mhmrentiva_receipt_note', true);
 
-		wp_nonce_field('mhm_rentiva_receipt_review', 'mhm_receipt_nonce');
+		wp_nonce_field('mhmrentiva_receipt_review', 'mhmrentiva_receipt_nonce');
 
 		// Template kullan
 		$template_data = array(
@@ -233,11 +233,11 @@ final class BookingMeta extends AbstractMetaBox {
 			}
 			$receipt_status = '' !== (string) $status ? $status : '-';
 			echo '<p><strong>' . esc_html__('Status:', 'mhm-rentiva') . '</strong> ' . esc_html($receipt_status) . '</p>';
-			echo '<p><label for="mhm_receipt_note"><strong>' . esc_html__('Admin Note', 'mhm-rentiva') . '</strong></label><br/>';
-			echo '<textarea id="mhm_receipt_note" name="mhm_receipt_note" rows="3" style="width:100%">' . esc_textarea($note) . '</textarea></p>';
+			echo '<p><label for="mhmrentiva_receipt_note"><strong>' . esc_html__('Admin Note', 'mhm-rentiva') . '</strong></label><br/>';
+			echo '<textarea id="mhmrentiva_receipt_note" name="mhmrentiva_receipt_note" rows="3" style="width:100%">' . esc_textarea($note) . '</textarea></p>';
 			echo '<p>';
-			echo '<button type="submit" name="mhm_receipt_action" value="approve" class="button button-primary">' . esc_html__('Approve Receipt', 'mhm-rentiva') . '</button> ';
-			echo '<button type="submit" name="mhm_receipt_action" value="reject" class="button">' . esc_html__('Reject Receipt', 'mhm-rentiva') . '</button>';
+			echo '<button type="submit" name="mhmrentiva_receipt_action" value="approve" class="button button-primary">' . esc_html__('Approve Receipt', 'mhm-rentiva') . '</button> ';
+			echo '<button type="submit" name="mhmrentiva_receipt_action" value="reject" class="button">' . esc_html__('Reject Receipt', 'mhm-rentiva') . '</button>';
 			echo '</p>';
 			echo '</div>';
 		}
@@ -254,14 +254,14 @@ final class BookingMeta extends AbstractMetaBox {
 		// vehicle_booking is the admin (or the staff member who created it), never
 		// the customer. Without this the receipt-status email went to the site
 		// owner instead of the person who uploaded the receipt.
-		$user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		$user_id = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
 		$user    = get_user_by('id', $user_id);
 		if (! $user) {
 			return;
 		}
 
 		// Get customer name from booking meta
-		$customer_name = get_post_meta($booking_id, '_mhm_customer_name', true);
+		$customer_name = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
 		if (! $customer_name) {
 			$customer_name = $user->display_name;
 			if (! $customer_name) {
@@ -273,7 +273,7 @@ final class BookingMeta extends AbstractMetaBox {
 			? __('Your payment receipt has been approved', 'mhm-rentiva')
 			: __('Your payment receipt has been rejected', 'mhm-rentiva');
 
-		$note          = get_post_meta($booking_id, '_mhm_receipt_note', true);
+		$note          = get_post_meta($booking_id, '_mhmrentiva_receipt_note', true);
 		$booking_title = get_the_title($booking_id);
 		$account_url   = \MHMRentiva\Admin\Frontend\Account\AccountController::get_account_url();
 		$link          = add_query_arg(array( 'endpoint' => 'payment-history' ), $account_url);
@@ -288,7 +288,7 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		// Load HTML template
-		$template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/emails/receipt-status-email.html.php';
+		$template_path = MHMRENTIVA_PLUGIN_PATH . 'templates/emails/receipt-status-email.html.php';
 		if (file_exists($template_path)) {
 			ob_start();
 			// Pass template data as $args for template
@@ -339,21 +339,21 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function render_meta_box(\WP_Post $post, array $args = array()): void
 	{
 		// Nonce field
-		wp_nonce_field('mhm_rentiva_booking_meta_action', 'mhm_rentiva_booking_meta_main_nonce');
+		wp_nonce_field('mhmrentiva_booking_meta_action', 'mhmrentiva_booking_meta_main_nonce');
 
 		// Mevcut durum
 		$current_status = Status::get($post->ID);
 
 		// Booking details
-		$vehicle_id    = (int) get_post_meta($post->ID, '_mhm_vehicle_id', true);
-		$pickup_date   = get_post_meta($post->ID, '_mhm_pickup_date', true);
-		$pickup_time   = get_post_meta($post->ID, '_mhm_pickup_time', true);
-		$dropoff_date  = get_post_meta($post->ID, '_mhm_dropoff_date', true);
-		$dropoff_time  = get_post_meta($post->ID, '_mhm_dropoff_time', true);
-		$rental_days   = (int) get_post_meta($post->ID, '_mhm_rental_days', true);
-		$total_price   = (float) get_post_meta($post->ID, '_mhm_total_price', true);
-		$contact_name  = get_post_meta($post->ID, '_mhm_contact_name', true);
-		$contact_email = get_post_meta($post->ID, '_mhm_contact_email', true);
+		$vehicle_id    = (int) get_post_meta($post->ID, '_mhmrentiva_vehicle_id', true);
+		$pickup_date   = get_post_meta($post->ID, '_mhmrentiva_pickup_date', true);
+		$pickup_time   = get_post_meta($post->ID, '_mhmrentiva_pickup_time', true);
+		$dropoff_date  = get_post_meta($post->ID, '_mhmrentiva_dropoff_date', true);
+		$dropoff_time  = get_post_meta($post->ID, '_mhmrentiva_dropoff_time', true);
+		$rental_days   = (int) get_post_meta($post->ID, '_mhmrentiva_rental_days', true);
+		$total_price   = (float) get_post_meta($post->ID, '_mhmrentiva_total_price', true);
+		$contact_name  = get_post_meta($post->ID, '_mhmrentiva_contact_name', true);
+		$contact_email = get_post_meta($post->ID, '_mhmrentiva_contact_email', true);
 
 		echo '<div class="mhm-rentiva-wrap">';
 
@@ -380,7 +380,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Editable booking details
-		$guests = get_post_meta($post->ID, '_mhm_guests', true);
+		$guests = get_post_meta($post->ID, '_mhmrentiva_guests', true);
 		if (! $guests) {
 			$guests = get_post_meta($post->ID, '_booking_guests', true);
 		}
@@ -389,17 +389,17 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Get time data from correct meta keys
-		$pickup_time_correct = get_post_meta($post->ID, '_mhm_start_time', true);
+		$pickup_time_correct = get_post_meta($post->ID, '_mhmrentiva_start_time', true);
 		if (! $pickup_time_correct) {
-			$pickup_time_correct = get_post_meta($post->ID, '_mhm_pickup_time', true);
+			$pickup_time_correct = get_post_meta($post->ID, '_mhmrentiva_pickup_time', true);
 		}
 		if (! $pickup_time_correct) {
 			$pickup_time_correct = get_post_meta($post->ID, '_booking_pickup_time', true);
 		}
 
-		$dropoff_time_correct = get_post_meta($post->ID, '_mhm_end_time', true);
+		$dropoff_time_correct = get_post_meta($post->ID, '_mhmrentiva_end_time', true);
 		if (! $dropoff_time_correct) {
-			$dropoff_time_correct = get_post_meta($post->ID, '_mhm_dropoff_time', true);
+			$dropoff_time_correct = get_post_meta($post->ID, '_mhmrentiva_dropoff_time', true);
 		}
 		if (! $dropoff_time_correct) {
 			$dropoff_time_correct = get_post_meta($post->ID, '_booking_dropoff_time', true);
@@ -410,31 +410,31 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<div class="field-row">';
 		echo '<div class="field-group">';
-		echo '<label for="mhm_edit_pickup_date">' . esc_html__('Pickup Date', 'mhm-rentiva') . '</label>';
-		echo '<input type="date" id="mhm_edit_pickup_date" name="mhm_edit_pickup_date" value="' . esc_attr($pickup_date) . '" class="regular-text">';
+		echo '<label for="mhmrentiva_edit_pickup_date">' . esc_html__('Pickup Date', 'mhm-rentiva') . '</label>';
+		echo '<input type="date" id="mhmrentiva_edit_pickup_date" name="mhmrentiva_edit_pickup_date" value="' . esc_attr($pickup_date) . '" class="regular-text">';
 		echo '</div>';
 
 		echo '<div class="field-group">';
-		echo '<label for="mhm_edit_pickup_time">' . esc_html__('Pickup Time', 'mhm-rentiva') . '</label>';
-		echo '<input type="time" id="mhm_edit_pickup_time" name="mhm_edit_pickup_time" value="' . esc_attr($pickup_time_correct) . '" class="regular-text">';
+		echo '<label for="mhmrentiva_edit_pickup_time">' . esc_html__('Pickup Time', 'mhm-rentiva') . '</label>';
+		echo '<input type="time" id="mhmrentiva_edit_pickup_time" name="mhmrentiva_edit_pickup_time" value="' . esc_attr($pickup_time_correct) . '" class="regular-text">';
 		echo '</div>';
 		echo '</div>';
 
 		echo '<div class="field-row">';
 		echo '<div class="field-group">';
-		echo '<label for="mhm_edit_dropoff_date">' . esc_html__('Return Date', 'mhm-rentiva') . '</label>';
-		echo '<input type="date" id="mhm_edit_dropoff_date" name="mhm_edit_dropoff_date" value="' . esc_attr($dropoff_date) . '" class="regular-text">';
+		echo '<label for="mhmrentiva_edit_dropoff_date">' . esc_html__('Return Date', 'mhm-rentiva') . '</label>';
+		echo '<input type="date" id="mhmrentiva_edit_dropoff_date" name="mhmrentiva_edit_dropoff_date" value="' . esc_attr($dropoff_date) . '" class="regular-text">';
 		echo '</div>';
 
 		echo '<div class="field-group">';
-		echo '<label for="mhm_edit_dropoff_time">' . esc_html__('Return Time', 'mhm-rentiva') . '</label>';
-		echo '<input type="time" id="mhm_edit_dropoff_time" name="mhm_edit_dropoff_time" value="' . esc_attr($dropoff_time_correct) . '" class="regular-text">';
+		echo '<label for="mhmrentiva_edit_dropoff_time">' . esc_html__('Return Time', 'mhm-rentiva') . '</label>';
+		echo '<input type="time" id="mhmrentiva_edit_dropoff_time" name="mhmrentiva_edit_dropoff_time" value="' . esc_attr($dropoff_time_correct) . '" class="regular-text">';
 		echo '</div>';
 		echo '</div>';
 
 		echo '<div class="field-group">';
-		echo '<label for="mhm_edit_guests">' . esc_html__('Number of Guests', 'mhm-rentiva') . '</label>';
-		echo '<input type="number" id="mhm_edit_guests" name="mhm_edit_guests" value="' . esc_attr($guests) . '" min="1" max="10" class="small-text">';
+		echo '<label for="mhmrentiva_edit_guests">' . esc_html__('Number of Guests', 'mhm-rentiva') . '</label>';
+		echo '<input type="number" id="mhmrentiva_edit_guests" name="mhmrentiva_edit_guests" value="' . esc_attr($guests) . '" min="1" max="10" class="small-text">';
 		echo '</div>';
 		echo '</div>';
 
@@ -457,12 +457,12 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Days count (read-only) - Can be updated via JavaScript
 		if ($rental_days > 0) {
-			echo '<p><strong>' . esc_html__('Days:', 'mhm-rentiva') . '</strong> <span id="mhm_rental_days_display">' . esc_html( (string) $rental_days) . '</span></p>';
+			echo '<p><strong>' . esc_html__('Days:', 'mhm-rentiva') . '</strong> <span id="mhmrentiva_rental_days_display">' . esc_html( (string) $rental_days) . '</span></p>';
 		}
 
 		// Total price (read-only) - Can be updated via JavaScript
 		if ($total_price > 0) {
-			echo '<p><strong>' . esc_html__('Total:', 'mhm-rentiva') . '</strong> <span id="mhm_total_price_display">' . esc_html(self::format_price($total_price)) . '</span></p>';
+			echo '<p><strong>' . esc_html__('Total:', 'mhm-rentiva') . '</strong> <span id="mhmrentiva_total_price_display">' . esc_html(self::format_price($total_price)) . '</span></p>';
 		}
 		echo '</div>';
 
@@ -476,15 +476,15 @@ final class BookingMeta extends AbstractMetaBox {
 	 * that authorises saving this booking.
 	 *
 	 * Both accepted forms answer here, each as its own early return: the
-	 * metabox's own form (mhm_rentiva_booking_meta_main_nonce) and the classic
+	 * metabox's own form (mhmrentiva_booking_meta_main_nonce) and the classic
 	 * editor's Update button (_wpnonce for core's update-post_{id}). The
 	 * verified payload travels back with the verdict so the nonce check and the
 	 * superglobal access stay in one scope.
 	 */
 	private static function verified_save_request(int $post_id): ?VerifiedRequest
 	{
-		$own_nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_meta_main_nonce'] ?? ''));
-		if (wp_verify_nonce($own_nonce, 'mhm_rentiva_booking_meta_action')) {
+		$own_nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_booking_meta_main_nonce'] ?? ''));
+		if (wp_verify_nonce($own_nonce, 'mhmrentiva_booking_meta_action')) {
 			return VerifiedRequest::from($_POST);
 		}
 
@@ -519,9 +519,9 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Status update - Handle both field names from different meta boxes
-		$new_status = $req->text('mhm_edit_status');
+		$new_status = $req->text('mhmrentiva_edit_status');
 		if ($new_status === '') {
-			$new_status = $req->text('mhm_booking_status');
+			$new_status = $req->text('mhmrentiva_booking_status');
 		}
 		if ($new_status) {
 			$actor_user_id = get_current_user_id();
@@ -530,20 +530,20 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$pickup_date   = $req->text('mhm_edit_pickup_date');
-		$pickup_time   = $req->text('mhm_edit_pickup_time');
-		$dropoff_date  = $req->text('mhm_edit_dropoff_date');
-		$dropoff_time  = $req->text('mhm_edit_dropoff_time');
-		$guests        = max(1, $req->int('mhm_edit_guests', 1));
-		$special_notes = $req->textarea('mhm_edit_special_notes');
+		$pickup_date   = $req->text('mhmrentiva_edit_pickup_date');
+		$pickup_time   = $req->text('mhmrentiva_edit_pickup_time');
+		$dropoff_date  = $req->text('mhmrentiva_edit_dropoff_date');
+		$dropoff_time  = $req->text('mhmrentiva_edit_dropoff_time');
+		$guests        = max(1, $req->int('mhmrentiva_edit_guests', 1));
+		$special_notes = $req->textarea('mhmrentiva_edit_special_notes');
 
 		// Update meta data
-		update_post_meta($post_id, '_mhm_pickup_date', $pickup_date);
-		update_post_meta($post_id, '_mhm_start_time', $pickup_time); // Correct meta key
-		update_post_meta($post_id, '_mhm_dropoff_date', $dropoff_date);
-		update_post_meta($post_id, '_mhm_end_time', $dropoff_time); // Correct meta key
-		update_post_meta($post_id, '_mhm_guests', $guests);
-		update_post_meta($post_id, '_mhm_special_notes', $special_notes);
+		update_post_meta($post_id, '_mhmrentiva_pickup_date', $pickup_date);
+		update_post_meta($post_id, '_mhmrentiva_start_time', $pickup_time); // Correct meta key
+		update_post_meta($post_id, '_mhmrentiva_dropoff_date', $dropoff_date);
+		update_post_meta($post_id, '_mhmrentiva_end_time', $dropoff_time); // Correct meta key
+		update_post_meta($post_id, '_mhmrentiva_guests', $guests);
+		update_post_meta($post_id, '_mhmrentiva_special_notes', $special_notes);
 
 		// ✅ Auto calculation - When date is changed
 		if ($pickup_date && $dropoff_date) {
@@ -551,11 +551,11 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update old meta keys for compatibility
-		update_post_meta($post_id, '_mhm_pickup_time', $pickup_time);
-		update_post_meta($post_id, '_mhm_dropoff_time', $dropoff_time);
+		update_post_meta($post_id, '_mhmrentiva_pickup_time', $pickup_time);
+		update_post_meta($post_id, '_mhmrentiva_dropoff_time', $dropoff_time);
 
 		// ✅ WordPress hook with auto calculation
-		do_action('mhm_rentiva_booking_meta_updated', $post_id, $pickup_date, $dropoff_date);
+		do_action('mhmrentiva_booking_meta_updated', $post_id, $pickup_date, $dropoff_date);
 		update_post_meta($post_id, '_booking_pickup_date', $pickup_date);
 		update_post_meta($post_id, '_booking_pickup_time', $pickup_time);
 		update_post_meta($post_id, '_booking_dropoff_date', $dropoff_date);
@@ -563,18 +563,18 @@ final class BookingMeta extends AbstractMetaBox {
 		update_post_meta($post_id, '_booking_guests', $guests);
 
 		// Receipt review processing
-		$receipt_nonce = $req->text('mhm_receipt_nonce');
-		if ($receipt_nonce !== '' && wp_verify_nonce($receipt_nonce, 'mhm_rentiva_receipt_review')) {
-			if ($req->has('mhm_receipt_note')) {
-				update_post_meta($post_id, '_mhm_receipt_note', $req->textarea('mhm_receipt_note'));
+		$receipt_nonce = $req->text('mhmrentiva_receipt_nonce');
+		if ($receipt_nonce !== '' && wp_verify_nonce($receipt_nonce, 'mhmrentiva_receipt_review')) {
+			if ($req->has('mhmrentiva_receipt_note')) {
+				update_post_meta($post_id, '_mhmrentiva_receipt_note', $req->textarea('mhmrentiva_receipt_note'));
 			}
-			$action = $req->text('mhm_receipt_action');
+			$action = $req->text('mhmrentiva_receipt_action');
 			if ($action !== '') {
 				if ($action === 'approve') {
-					update_post_meta($post_id, '_mhm_receipt_status', 'approved');
+					update_post_meta($post_id, '_mhmrentiva_receipt_status', 'approved');
 					self::email_customer_receipt_status($post_id, 'approved');
 				} elseif ($action === 'reject') {
-					update_post_meta($post_id, '_mhm_receipt_status', 'rejected');
+					update_post_meta($post_id, '_mhmrentiva_receipt_status', 'rejected');
 					self::email_customer_receipt_status($post_id, 'rejected');
 				}
 			}
@@ -593,12 +593,12 @@ final class BookingMeta extends AbstractMetaBox {
 		$customer_last_name  = $customer_info['last_name'] ?? '';
 		$customer_name       = trim($customer_first_name . ' ' . $customer_last_name);
 		if (! $customer_name) {
-			$customer_name = get_post_meta($post->ID, '_mhm_customer_name', true);
+			$customer_name = get_post_meta($post->ID, '_mhmrentiva_customer_name', true);
 		}
 
 		// Also try to get from WooCommerce order if available
 		if (empty($customer_email) && class_exists('WooCommerce') && function_exists('wc_get_order')) {
-			$order_id = get_post_meta($post->ID, '_mhm_wc_order_id', true);
+			$order_id = get_post_meta($post->ID, '_mhmrentiva_wc_order_id', true);
 			if ($order_id) {
 				$order = call_user_func('wc_get_order', $order_id);
 				if ($order) {
@@ -610,7 +610,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		// Also try to get from customer user ID
 		if (empty($customer_email)) {
-			$customer_user_id = (int) get_post_meta($post->ID, '_mhm_customer_user_id', true);
+			$customer_user_id = (int) get_post_meta($post->ID, '_mhmrentiva_customer_user_id', true);
 			if ($customer_user_id > 0) {
 				$user = get_user_by('id', $customer_user_id);
 				if ($user) {
@@ -641,7 +641,7 @@ final class BookingMeta extends AbstractMetaBox {
 		echo '<h4>' . esc_html__('Send Email', 'mhm-rentiva') . '</h4>';
 
 		echo '<div class="mhm-customer-email-box mhm-email-form" data-booking-id="' . (int) $post->ID . '">';
-		wp_nonce_field('mhm_rentiva_send_email', 'mhm_rentiva_email_nonce');
+		wp_nonce_field('mhmrentiva_send_email', 'mhmrentiva_email_nonce');
 
 		echo '<p>';
 		echo '<label for="email_type">' . esc_html__('Email Type:', 'mhm-rentiva') . '</label><br/>';
@@ -678,8 +678,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function handle_send_customer_email(): void
 	{
 		// Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_email_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_email')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_email_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_send_email')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
@@ -700,8 +700,8 @@ final class BookingMeta extends AbstractMetaBox {
 		// rich-text field and its HTML formatting has to survive into the email.
 		$message = wp_kses_post( (string) ( $req->raw('email_message') ?? '' ) );
 
-		$customer_email = get_post_meta($booking_id, '_mhm_customer_email', true);
-		$customer_name  = get_post_meta($booking_id, '_mhm_customer_name', true);
+		$customer_email = get_post_meta($booking_id, '_mhmrentiva_customer_email', true);
+		$customer_name  = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
 
 		if (! $customer_email) {
 			wp_die(esc_html__('Customer email not found.', 'mhm-rentiva'));
@@ -760,13 +760,13 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	private static function prepare_email_content(int $booking_id, string $email_type, string $subject, string $message): array
 	{
-		$customer_name = get_post_meta($booking_id, '_mhm_customer_name', true);
-		$vehicle_id    = get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$customer_name = get_post_meta($booking_id, '_mhmrentiva_customer_name', true);
+		$vehicle_id    = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 		$vehicle_name  = $vehicle_id ? get_the_title($vehicle_id) : __('Unknown Vehicle', 'mhm-rentiva');
 
-		$pickup_date  = get_post_meta($booking_id, '_mhm_pickup_date', true);
-		$dropoff_date = get_post_meta($booking_id, '_mhm_dropoff_date', true);
-		$total_amount = (float) get_post_meta($booking_id, '_mhm_total_price', true);
+		$pickup_date  = get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+		$dropoff_date = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true);
+		$total_amount = (float) get_post_meta($booking_id, '_mhmrentiva_total_price', true);
 
 		// Default subjects
 		$default_subjects = array(
@@ -830,7 +830,7 @@ final class BookingMeta extends AbstractMetaBox {
 	 */
 	public static function render_booking_history_box(\WP_Post $post): void
 	{
-		$history = get_post_meta($post->ID, '_mhm_booking_history', true);
+		$history = get_post_meta($post->ID, '_mhmrentiva_booking_history', true);
 		if (! is_array($history)) {
 			$history = array();
 		}
@@ -843,7 +843,7 @@ final class BookingMeta extends AbstractMetaBox {
 
 		echo '<div class="mhm-add-history-note" data-booking-id="' . (int) $post->ID . '">';
 
-		wp_nonce_field('mhm_rentiva_add_history_note', 'mhm_rentiva_history_nonce');
+		wp_nonce_field('mhmrentiva_add_history_note', 'mhmrentiva_history_nonce');
 
 		echo '<p>';
 		echo '<label for="note_content">' . esc_html__('Note:', 'mhm-rentiva') . '</label><br/>';
@@ -947,8 +947,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function handle_add_booking_history_note(): void
 	{
 		// Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_history_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_add_history_note')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_history_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_add_history_note')) {
 			wp_die(esc_html__('Security check failed.', 'mhm-rentiva'));
 		}
 
@@ -971,7 +971,7 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Get existing history
-		$history = get_post_meta($booking_id, '_mhm_booking_history', true);
+		$history = get_post_meta($booking_id, '_mhmrentiva_booking_history', true);
 		if (! is_array($history)) {
 			$history = array();
 		}
@@ -986,7 +986,7 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		// Save history
-		update_post_meta($booking_id, '_mhm_booking_history', $history);
+		update_post_meta($booking_id, '_mhmrentiva_booking_history', $history);
 
 		$redirect_url = add_query_arg(
 			array(
@@ -1010,7 +1010,7 @@ final class BookingMeta extends AbstractMetaBox {
 			$user_id = get_current_user_id();
 		}
 
-		$history = get_post_meta($booking_id, '_mhm_booking_history', true);
+		$history = get_post_meta($booking_id, '_mhmrentiva_booking_history', true);
 		if (! is_array($history)) {
 			$history = array();
 		}
@@ -1023,7 +1023,7 @@ final class BookingMeta extends AbstractMetaBox {
 			'timestamp' => $timestamp,
 		);
 
-		return update_post_meta($booking_id, '_mhm_booking_history', $history) !== false;
+		return update_post_meta($booking_id, '_mhmrentiva_booking_history', $history) !== false;
 	}
 
 	/**
@@ -1044,14 +1044,14 @@ final class BookingMeta extends AbstractMetaBox {
 		$days = max(1, ceil(( $dropoff_timestamp - $pickup_timestamp ) / ( 24 * 60 * 60 )));
 
 		// Get vehicle ID
-		$vehicle_id = get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$vehicle_id = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 
 		if (! $vehicle_id) {
 			return;
 		}
 
 		// Get vehicle daily price - CORRECT META KEY
-		$daily_price = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
+		$daily_price = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
 
 		if ($daily_price <= 0) {
 			return;
@@ -1061,17 +1061,17 @@ final class BookingMeta extends AbstractMetaBox {
 		$total_price = $daily_price * $days;
 
 		// Get additional services price
-		$additional_services_price = (float) get_post_meta($booking_id, '_mhm_additional_services_price', true);
+		$additional_services_price = (float) get_post_meta($booking_id, '_mhmrentiva_additional_services_price', true);
 		$total_price              += $additional_services_price;
 
 		// ✅ Deposit calculation
-		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
+		$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 		$deposit_amount   = 0;
 		$remaining_amount = $total_price;
 
 		if ($payment_type === 'deposit') {
 			// Get deposit percentage (default 20%)
-			$deposit_percentage = (float) get_post_meta($booking_id, '_mhm_deposit_percentage', true);
+			$deposit_percentage = (float) get_post_meta($booking_id, '_mhmrentiva_deposit_percentage', true);
 			if ($deposit_percentage <= 0) {
 				$deposit_percentage = 20.0; // Default 20%
 			}
@@ -1081,13 +1081,13 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update meta keys
-		update_post_meta($booking_id, '_mhm_rental_days', $days);
-		update_post_meta($booking_id, '_mhm_total_price', $total_price);
+		update_post_meta($booking_id, '_mhmrentiva_rental_days', $days);
+		update_post_meta($booking_id, '_mhmrentiva_total_price', $total_price);
 
 		// ✅ Update deposit meta keys
 		if ($payment_type === 'deposit') {
-			update_post_meta($booking_id, '_mhm_deposit_amount', $deposit_amount);
-			update_post_meta($booking_id, '_mhm_remaining_amount', $remaining_amount);
+			update_post_meta($booking_id, '_mhmrentiva_deposit_amount', $deposit_amount);
+			update_post_meta($booking_id, '_mhmrentiva_remaining_amount', $remaining_amount);
 		}
 
 		// Update old meta keys for compatibility
@@ -1118,7 +1118,7 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$already_created = get_post_meta($post_id, '_mhm_booking_created', true);
+		$already_created = get_post_meta($post_id, '_mhmrentiva_booking_created', true);
 
 		// When new booking is created
 		if ($post->post_status === 'publish' && $already_created !== '1') {
@@ -1127,7 +1127,7 @@ final class BookingMeta extends AbstractMetaBox {
 				__('Booking created', 'mhm-rentiva'),
 				'system'
 			);
-			update_post_meta($post_id, '_mhm_booking_created', '1');
+			update_post_meta($post_id, '_mhmrentiva_booking_created', '1');
 		}
 	}
 
@@ -1259,52 +1259,52 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Update booking details
-		$customer_first_name = $req->text('mhm_edit_customer_first_name');
-		$customer_last_name  = $req->text('mhm_edit_customer_last_name');
-		$customer_email      = sanitize_email( (string) ( $req->raw('mhm_edit_customer_email') ?? '' ) );
-		$customer_phone      = $req->text('mhm_edit_customer_phone');
-		$pickup_date         = $req->text('mhm_edit_pickup_date');
-		$pickup_time         = $req->text('mhm_edit_pickup_time');
-		$dropoff_date        = $req->text('mhm_edit_dropoff_date');
-		$dropoff_time        = $req->text('mhm_edit_dropoff_time');
-		$guests              = $req->int('mhm_edit_guests');
-		$payment_method      = $req->text('mhm_edit_payment_method');
-		$status              = $req->text('mhm_edit_status');
-		$notes               = $req->textarea('mhm_edit_notes');
-		$special_notes       = $req->textarea('mhm_edit_special_notes');
-		$new_vehicle_id      = $req->int('mhm_edit_vehicle_id');
+		$customer_first_name = $req->text('mhmrentiva_edit_customer_first_name');
+		$customer_last_name  = $req->text('mhmrentiva_edit_customer_last_name');
+		$customer_email      = sanitize_email( (string) ( $req->raw('mhmrentiva_edit_customer_email') ?? '' ) );
+		$customer_phone      = $req->text('mhmrentiva_edit_customer_phone');
+		$pickup_date         = $req->text('mhmrentiva_edit_pickup_date');
+		$pickup_time         = $req->text('mhmrentiva_edit_pickup_time');
+		$dropoff_date        = $req->text('mhmrentiva_edit_dropoff_date');
+		$dropoff_time        = $req->text('mhmrentiva_edit_dropoff_time');
+		$guests              = $req->int('mhmrentiva_edit_guests');
+		$payment_method      = $req->text('mhmrentiva_edit_payment_method');
+		$status              = $req->text('mhmrentiva_edit_status');
+		$notes               = $req->textarea('mhmrentiva_edit_notes');
+		$special_notes       = $req->textarea('mhmrentiva_edit_special_notes');
+		$new_vehicle_id      = $req->int('mhmrentiva_edit_vehicle_id');
 
 		// Get old values (for change detection)
-		$old_pickup_date    = get_post_meta($booking_id, '_mhm_pickup_date', true);
-		$old_pickup_time    = get_post_meta($booking_id, '_mhm_start_time', true);
-		$old_dropoff_date   = get_post_meta($booking_id, '_mhm_dropoff_date', true);
-		$old_dropoff_time   = get_post_meta($booking_id, '_mhm_end_time', true);
-		$old_guests         = get_post_meta($booking_id, '_mhm_guests', true);
-		$old_payment_method = get_post_meta($booking_id, '_mhm_payment_method', true);
+		$old_pickup_date    = get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+		$old_pickup_time    = get_post_meta($booking_id, '_mhmrentiva_start_time', true);
+		$old_dropoff_date   = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true);
+		$old_dropoff_time   = get_post_meta($booking_id, '_mhmrentiva_end_time', true);
+		$old_guests         = get_post_meta($booking_id, '_mhmrentiva_guests', true);
+		$old_payment_method = get_post_meta($booking_id, '_mhmrentiva_payment_method', true);
 
 		// Update meta data
-		update_post_meta($booking_id, '_mhm_customer_first_name', $customer_first_name);
-		update_post_meta($booking_id, '_mhm_customer_last_name', $customer_last_name);
-		update_post_meta($booking_id, '_mhm_customer_name', $customer_first_name . ' ' . $customer_last_name);
-		update_post_meta($booking_id, '_mhm_customer_email', $customer_email);
-		update_post_meta($booking_id, '_mhm_customer_phone', $customer_phone);
-		update_post_meta($booking_id, '_mhm_pickup_date', $pickup_date);
-		update_post_meta($booking_id, '_mhm_start_time', $pickup_time);
-		update_post_meta($booking_id, '_mhm_pickup_time', $pickup_time);
-		update_post_meta($booking_id, '_mhm_dropoff_date', $dropoff_date);
-		update_post_meta($booking_id, '_mhm_end_time', $dropoff_time);
-		update_post_meta($booking_id, '_mhm_dropoff_time', $dropoff_time);
-		update_post_meta($booking_id, '_mhm_guests', $guests);
-		update_post_meta($booking_id, '_mhm_payment_method', $payment_method);
-		update_post_meta($booking_id, '_mhm_special_notes', $special_notes);
+		update_post_meta($booking_id, '_mhmrentiva_customer_first_name', $customer_first_name);
+		update_post_meta($booking_id, '_mhmrentiva_customer_last_name', $customer_last_name);
+		update_post_meta($booking_id, '_mhmrentiva_customer_name', $customer_first_name . ' ' . $customer_last_name);
+		update_post_meta($booking_id, '_mhmrentiva_customer_email', $customer_email);
+		update_post_meta($booking_id, '_mhmrentiva_customer_phone', $customer_phone);
+		update_post_meta($booking_id, '_mhmrentiva_pickup_date', $pickup_date);
+		update_post_meta($booking_id, '_mhmrentiva_start_time', $pickup_time);
+		update_post_meta($booking_id, '_mhmrentiva_pickup_time', $pickup_time);
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', $dropoff_date);
+		update_post_meta($booking_id, '_mhmrentiva_end_time', $dropoff_time);
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_time', $dropoff_time);
+		update_post_meta($booking_id, '_mhmrentiva_guests', $guests);
+		update_post_meta($booking_id, '_mhmrentiva_payment_method', $payment_method);
+		update_post_meta($booking_id, '_mhmrentiva_special_notes', $special_notes);
 
 		// Update vehicle if changed
 		if ($new_vehicle_id > 0) {
-			$old_vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+			$old_vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 			if ($new_vehicle_id !== $old_vehicle_id) {
 				$vehicle_post = get_post($new_vehicle_id);
 				if ($vehicle_post && $vehicle_post->post_type === 'vehicle') {
-					update_post_meta($booking_id, '_mhm_vehicle_id', $new_vehicle_id);
+					update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $new_vehicle_id);
 					update_post_meta($booking_id, '_booking_vehicle_id', $new_vehicle_id);
 
 					// Update booking title
@@ -1329,19 +1329,19 @@ final class BookingMeta extends AbstractMetaBox {
 		}
 
 		// Status update (Admin manual change - bypass transition control)
-		$old_status = get_post_meta($booking_id, '_mhm_status', true);
-		update_post_meta($booking_id, '_mhm_status', $status);
+		$old_status = get_post_meta($booking_id, '_mhmrentiva_status', true);
+		update_post_meta($booking_id, '_mhmrentiva_status', $status);
 
 		// Trigger action
 		if ($old_status !== $status) {
-			do_action('mhm_rentiva_booking_status_changed', $booking_id, $old_status, $status);
+			do_action('mhmrentiva_booking_status_changed', $booking_id, $old_status, $status);
 		}
 
 		// ✅ Get updated data (for AJAX response)
-		$updated_rental_days      = get_post_meta($booking_id, '_mhm_rental_days', true);
-		$updated_total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
-		$updated_deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
-		$updated_remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
+		$updated_rental_days      = get_post_meta($booking_id, '_mhmrentiva_rental_days', true);
+		$updated_total_price      = get_post_meta($booking_id, '_mhmrentiva_total_price', true);
+		$updated_deposit_amount   = get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
+		$updated_remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
 
 		// Format data
 		$formatted_total_price      = self::format_price( (float) $updated_total_price);
@@ -1440,7 +1440,7 @@ final class BookingMeta extends AbstractMetaBox {
 	{
 		// Nonce check
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_email' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_send_email' ) ) {
 			wp_send_json_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 			return;
 		}
@@ -1478,8 +1478,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function ajax_send_customer_email()
 	{
 		// Nonce check
-		$nonce = isset($_POST['mhm_rentiva_email_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_email_nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_send_email')) {
+		$nonce = isset($_POST['mhmrentiva_email_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhmrentiva_email_nonce'])) : '';
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_send_email')) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}
@@ -1511,7 +1511,7 @@ final class BookingMeta extends AbstractMetaBox {
 		$email_content = self::prepare_email_content($booking_id, $email_type, $subject, $message);
 
 		// Get customer information
-		$customer_email = get_post_meta($booking_id, '_mhm_customer_email', true);
+		$customer_email = get_post_meta($booking_id, '_mhmrentiva_customer_email', true);
 
 		if (! $customer_email) {
 			wp_send_json_error(__('Customer email not found.', 'mhm-rentiva'));
@@ -1559,8 +1559,8 @@ final class BookingMeta extends AbstractMetaBox {
 	public static function ajax_add_booking_history_note()
 	{
 		// Nonce check
-		$nonce = isset($_POST['mhm_rentiva_history_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_history_nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_add_history_note')) {
+		$nonce = isset($_POST['mhmrentiva_history_nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['mhmrentiva_history_nonce'])) : '';
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_add_history_note')) {
 			wp_send_json_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}

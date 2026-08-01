@@ -31,10 +31,10 @@ final class Util {
 			// Date format check
 			// Use default times if time values are empty
 			if (empty($pickup_time)) {
-				$pickup_time = apply_filters('mhm_rentiva_default_pickup_time', '10:00');
+				$pickup_time = apply_filters('mhmrentiva_default_pickup_time', '10:00');
 			}
 			if (empty($dropoff_time)) {
-				$dropoff_time = apply_filters('mhm_rentiva_default_dropoff_time', '10:00');
+				$dropoff_time = apply_filters('mhmrentiva_default_dropoff_time', '10:00');
 			}
 
 			if (
@@ -105,8 +105,8 @@ final class Util {
 	{
 		$days = self::rental_days($start_ts, $end_ts);
 
-		$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1);
-		$max_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30);
+		$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
+		$max_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
 
 		if ($days < $min_days) {
 			/* translators: %d: number of days */
@@ -136,12 +136,12 @@ final class Util {
 		// However, user wants multiplier logic.
 
 		// Apply Base Price Multiplier
-		$base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_base_price', 1.0);
+		$base_multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
 		if ($base_multiplier > 0 && 1.0 != $base_multiplier) {
 			$price_per_day = $price_per_day * $base_multiplier;
 		}
 
-		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.2);
+		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
 
 		// Safety check for multiplier
 		if ($multiplier <= 1.0) {
@@ -195,7 +195,7 @@ final class Util {
 		$current_time_gmt   = current_time('mysql', 1);
 
 		// ⭐ Get buffer time (default 60 minutes) and convert to seconds
-		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
+		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
 		// ⭐ OMNI-QUERY: Support legacy, manual, and new frontend bookings simultaneously
@@ -204,19 +204,19 @@ final class Util {
 				"
             SELECT COUNT(*) 
             FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
-            INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+            INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
+            INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
             -- Date Source (Common between all types)
-            INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhm_pickup_date'
-            INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhm_dropoff_date'
+            INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhmrentiva_pickup_date'
+            INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhmrentiva_dropoff_date'
             -- Time Source (Fallbacks for different sources)
-            LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhm_pickup_time', '_mhm_start_time')
-            LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhm_dropoff_time', '_mhm_end_time')
+            LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhmrentiva_pickup_time', '_mhmrentiva_start_time')
+            LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhmrentiva_dropoff_time', '_mhmrentiva_end_time')
             -- Fast TS Source (If exists)
-            LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhm_start_ts'
-            LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhm_end_ts'
+            LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhmrentiva_start_ts'
+            LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhmrentiva_end_ts'
             -- Payment Deadline
-            LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhm_payment_deadline'
+            LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
             
             WHERE p.post_type = 'vehicle_booking'
             AND p.post_status = 'publish'
@@ -276,7 +276,7 @@ final class Util {
              WHERE post_id = %d AND meta_key LIKE %s
              FOR UPDATE",
 				$vehicle_id,
-				$wpdb->esc_like('_mhm_') . '%'
+				$wpdb->esc_like('_mhmrentiva_') . '%'
 			)
 		);
 
@@ -291,25 +291,25 @@ final class Util {
 
 		$current_time_gmt = current_time('mysql', 1);
 
-		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_buffer_time', '60');
+		$buffer_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_buffer_time', '60');
 		$buffer_seconds = $buffer_minutes * 60;
 
 		$count = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+             INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
              -- Date Source
-             INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhm_pickup_date'
-             INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhm_dropoff_date'
+             INNER JOIN {$wpdb->postmeta} pm_date_s ON p.ID = pm_date_s.post_id AND pm_date_s.meta_key = '_mhmrentiva_pickup_date'
+             INNER JOIN {$wpdb->postmeta} pm_date_e ON p.ID = pm_date_e.post_id AND pm_date_e.meta_key = '_mhmrentiva_dropoff_date'
              -- Time Source Fallbacks
-             LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhm_pickup_time', '_mhm_start_time')
-             LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhm_dropoff_time', '_mhm_end_time')
+             LEFT JOIN {$wpdb->postmeta} pm_time_s ON p.ID = pm_time_s.post_id AND pm_time_s.meta_key IN ('_mhmrentiva_pickup_time', '_mhmrentiva_start_time')
+             LEFT JOIN {$wpdb->postmeta} pm_time_e ON p.ID = pm_time_e.post_id AND pm_time_e.meta_key IN ('_mhmrentiva_dropoff_time', '_mhmrentiva_end_time')
              -- TS Source
-             LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhm_start_ts'
-             LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhm_end_ts'
+             LEFT JOIN {$wpdb->postmeta} pm_ts_s ON p.ID = pm_ts_s.post_id AND pm_ts_s.meta_key = '_mhmrentiva_start_ts'
+             LEFT JOIN {$wpdb->postmeta} pm_ts_e ON p.ID = pm_ts_e.post_id AND pm_ts_e.meta_key = '_mhmrentiva_end_ts'
              -- Payment Deadline
-             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhm_payment_deadline'
+             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
              
              WHERE p.post_type = 'vehicle_booking'
              AND p.post_status = 'publish'
@@ -506,7 +506,7 @@ final class Util {
 		}
 
 		$original_price    = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($original_vehicle_id);
-		$original_features = get_post_meta($original_vehicle_id, '_mhm_rentiva_features', true);
+		$original_features = get_post_meta($original_vehicle_id, '_mhmrentiva_features', true);
 		$original_features = is_array($original_features) ? $original_features : array();
 
 		// ⭐ Get original vehicle category and location (if available)
@@ -520,7 +520,7 @@ final class Util {
 		}
 
 		// Check for vehicle location (meta or taxonomy)
-		$original_location = get_post_meta($original_vehicle_id, '_mhm_rentiva_location', true);
+		$original_location = get_post_meta($original_vehicle_id, '_mhmrentiva_location', true);
 		if (empty($original_location)) {
 			// Try taxonomy
 			$vehicle_locations = wp_get_post_terms($original_vehicle_id, 'vehicle_location', array( 'fields' => 'ids' ));
@@ -539,12 +539,12 @@ final class Util {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_vehicle_status',
+					'key'     => '_mhmrentiva_vehicle_status',
 					'value'   => 'active',
 					'compare' => '=',
 				),
 				array(
-					'key'     => '_mhm_rentiva_price_per_day',
+					'key'     => '_mhmrentiva_price_per_day',
 					'value'   => 0,
 					'compare' => '>',
 				),
@@ -571,7 +571,7 @@ final class Util {
 			} else {
 				// If location is a meta value
 				$query_args['meta_query'][] = array(
-					'key'     => '_mhm_rentiva_location',
+					'key'     => '_mhmrentiva_location',
 					'value'   => $original_location,
 					'compare' => '=',
 				);
@@ -614,7 +614,7 @@ final class Util {
 					"SELECT post_id, meta_key, meta_value
                  FROM {$wpdb->postmeta}
                  WHERE post_id IN (" . implode(',', array_fill(0, count($vehicle_ids), '%d')) . ")
-                 AND meta_key IN ('_mhm_rentiva_price_per_day', '_mhm_rentiva_features', '_mhm_rentiva_seats', '_mhm_rentiva_transmission', '_mhm_rentiva_fuel_type')",
+                 AND meta_key IN ('_mhmrentiva_price_per_day', '_mhmrentiva_features', '_mhmrentiva_seats', '_mhmrentiva_transmission', '_mhmrentiva_fuel_type')",
 					$vehicle_ids
 				),
 				ARRAY_A
@@ -632,11 +632,11 @@ final class Util {
 
 			if (! $has_overlap) {
 				// ⚡ Optimized: reuse batch meta result
-				$price_per_day = (float) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_price_per_day'] ?? 0 );
+				$price_per_day = (float) ( $vehicle_meta[ $vehicle->ID ]['_mhmrentiva_price_per_day'] ?? 0 );
 				$total_price   = $price_per_day * $days;
 
 				// Extract vehicle features from batch results
-				$features_raw = $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_features'] ?? '';
+				$features_raw = $vehicle_meta[ $vehicle->ID ]['_mhmrentiva_features'] ?? '';
 				$features     = array();
 
 				if (is_array($features_raw)) {
@@ -656,7 +656,7 @@ final class Util {
 					$vehicle_category = $vehicle_categories[0];
 				}
 
-				$vehicle_location_meta = get_post_meta($vehicle->ID, '_mhm_rentiva_location', true);
+				$vehicle_location_meta = get_post_meta($vehicle->ID, '_mhmrentiva_location', true);
 				if (! empty($vehicle_location_meta)) {
 					$vehicle_location = $vehicle_location_meta;
 				} else {
@@ -686,9 +686,9 @@ final class Util {
 					'total_price'      => $total_price,
 					'days'             => $days,
 					'features'         => $features,
-					'seats'            => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_seats'] ?? '' ),
-					'transmission'     => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_transmission'] ?? '' ),
-					'fuel_type'        => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhm_rentiva_fuel_type'] ?? '' ),
+					'seats'            => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhmrentiva_seats'] ?? '' ),
+					'transmission'     => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhmrentiva_transmission'] ?? '' ),
+					'fuel_type'        => (string) ( $vehicle_meta[ $vehicle->ID ]['_mhmrentiva_fuel_type'] ?? '' ),
 					'similarity_score' => $similarity_score,
 					'image'            => get_the_post_thumbnail_url($vehicle->ID, 'medium'),
 					'currency_symbol'  => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
@@ -816,7 +816,7 @@ final class Util {
 
 				// Calculate rental days and pricing
 				$days          = self::rental_days($start_ts, $end_ts);
-				$price_per_day = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
+				$price_per_day = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
 				$total_price   = self::total_price($vehicle_id, $days, $start_ts);
 
 				return array(

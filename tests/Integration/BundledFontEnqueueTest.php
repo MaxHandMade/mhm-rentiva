@@ -126,7 +126,7 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
      */
     public function test_the_font_lands_in_the_print_queue_on_wp_enqueue_scripts(): void
     {
-        add_filter('mhm_rentiva_force_load_assets', '__return_true');
+        add_filter('mhmrentiva_force_load_assets', '__return_true');
 
         do_action('wp_enqueue_scripts');
 
@@ -147,7 +147,7 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
             . 'readme.txt claims the webfont is served from the user\'s own site.'
         );
 
-        remove_filter('mhm_rentiva_force_load_assets', '__return_true');
+        remove_filter('mhmrentiva_force_load_assets', '__return_true');
     }
 
     /**
@@ -156,7 +156,7 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
      */
     public function test_the_font_is_printed_before_css_variables(): void
     {
-        add_filter('mhm_rentiva_force_load_assets', '__return_true');
+        add_filter('mhmrentiva_force_load_assets', '__return_true');
 
         do_action('wp_enqueue_scripts');
 
@@ -171,6 +171,6 @@ class BundledFontEnqueueTest extends WP_UnitTestCase
             'The webfont must be printed before the stylesheet that references it.'
         );
 
-        remove_filter('mhm_rentiva_force_load_assets', '__return_true');
+        remove_filter('mhmrentiva_force_load_assets', '__return_true');
     }
 }

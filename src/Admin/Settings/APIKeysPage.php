@@ -32,7 +32,7 @@ final class APIKeysPage {
 	/**
 	 * Nonce action for REST settings operations.
 	 */
-	private const ACTION_NONCE = 'mhm_rest_api_keys_nonce';
+	private const ACTION_NONCE = 'mhmrentiva_rest_api_keys_nonce';
 
 	/**
 	 * Required capability for REST settings operations.
@@ -57,7 +57,7 @@ final class APIKeysPage {
 		);
 
 		foreach ($actions as $action) {
-			add_action("wp_ajax_mhm_rentiva_{$action}", array( self::class, 'handle_request' ));
+			add_action("wp_ajax_mhmrentiva_{$action}", array( self::class, 'handle_request' ));
 		}
 	}
 
@@ -100,8 +100,8 @@ final class APIKeysPage {
 		// 2. Dispatching (PHP 8.0+ Match)
 		try {
 			match ($action) {
-				'mhm_rentiva_list_endpoints'      => self::ajax_list_endpoints(),
-				'mhm_rentiva_reset_rest_settings' => self::ajax_reset_rest_settings(),
+				'mhmrentiva_list_endpoints'      => self::ajax_list_endpoints(),
+				'mhmrentiva_reset_rest_settings' => self::ajax_reset_rest_settings(),
 				default                  => throw new \Exception(esc_html__('Invalid operation.', 'mhm-rentiva')),
 			};
 		} catch (\Throwable $e) {

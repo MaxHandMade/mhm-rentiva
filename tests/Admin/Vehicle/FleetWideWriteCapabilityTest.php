@@ -29,7 +29,7 @@ use WP_Ajax_UnitTestCase;
  */
 final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 {
-	private const META_KEY = '_mhm_blocked_dates';
+	private const META_KEY = '_mhmrentiva_blocked_dates';
 
 	private int $author_id;
 	private int $own_vehicle;
@@ -81,13 +81,13 @@ final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 		);
 
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhm_apply_blocked_to_all' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_apply_blocked_to_all' ),
 			'vehicle_id' => $this->own_vehicle,
 			'dates'      => wp_json_encode( array( '2031-05-05', '2031-05-06' ) ),
 		);
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_apply_blocked_dates_to_all' );
+			$this->_handleAjax( 'mhmrentiva_apply_blocked_dates_to_all' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// wp_send_json_* terminates; the meta assertion below is the check.
 		}
@@ -104,13 +104,13 @@ final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->author_id );
 
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhm_remove_blocked_from_all' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_remove_blocked_from_all' ),
 			'vehicle_id' => $this->own_vehicle,
 			'dates'      => wp_json_encode( array( '2030-01-01' ) ),
 		);
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_remove_blocked_dates_from_all' );
+			$this->_handleAjax( 'mhmrentiva_remove_blocked_dates_from_all' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// see above
 		}
@@ -130,13 +130,13 @@ final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhm_apply_blocked_to_all' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_apply_blocked_to_all' ),
 			'vehicle_id' => $this->own_vehicle,
 			'dates'      => wp_json_encode( array( '2031-05-05' ) ),
 		);
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_apply_blocked_dates_to_all' );
+			$this->_handleAjax( 'mhmrentiva_apply_blocked_dates_to_all' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// see above
 		}

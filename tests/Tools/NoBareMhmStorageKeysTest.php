@@ -55,94 +55,30 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	 * @var array<string, string>
 	 */
 	private const INVENTORY = array(
-		// Options holding each site's vehicle field configuration since 1.x.
-		// Renaming means a migration on every install; a migration that
-		// half-runs loses the configuration, which is worse for the user than a
-		// short name.
-		'mhm_selected_details'         => 'option: site vehicle-field configuration',
-		'mhm_selected_features'        => 'option: site vehicle-field configuration',
-		'mhm_selected_equipment'       => 'option: site vehicle-field configuration',
-		'mhm_custom_details'           => 'option: site vehicle-field configuration',
-		'mhm_custom_features'          => 'option: site vehicle-field configuration',
-		'mhm_custom_equipment'         => 'option: site vehicle-field configuration',
-		'mhm_custom_field_meta'        => 'option: site vehicle-field configuration',
-		'mhm_vehicle_details'          => 'option: site vehicle-field configuration',
-		'mhm_vehicle_features'         => 'option: site vehicle-field configuration',
-		'mhm_vehicle_equipment'        => 'option: site vehicle-field configuration',
-		'mhm_vehicle_settings'         => 'settings group for the options above',
-		'mhm_vehicle_'                 => 'prefix fragment of the options above',
-
-		// Tables. Same argument, with more at stake.
-		'mhm_message_logs'             => 'table',
-		'mhm_backup_records'           => 'table',
-		'mhm_payment_log'              => 'table',
-		'mhm_sessions'                 => 'table',
-		'mhm_transfers'                => 'table',
-		'mhm_notification_queue'       => 'table: dropped by migration, name kept for the drop and for uninstall',
-		'mhm_postmeta_backup_'         => 'table prefix',
-		'mhm_postmeta_backup_invalid_' => 'table prefix',
-
-		// Per-user e-mail preferences and dashboard layout, written since 1.x.
-		'mhm_welcome_email'            => 'user meta: per-user e-mail preference',
-		'mhm_booking_notifications'    => 'user meta: per-user e-mail preference',
-		'mhm_marketing_emails'         => 'user meta: per-user e-mail preference',
-		'mhm_dashboard_widget_order'   => 'user meta: dashboard layout',
-
-		// Post types. Every row in wp_posts carries the type string, so renaming
-		// one orphans that site's entire log history. Registered names, and the
-		// reason the reply names them explicitly.
-		'mhm_app_log'                  => 'post type: rows exist on every install',
-		'mhm_email_log'                => 'post type: rows exist on every install',
-
-		// Comment meta on published reviews.
-		'mhm_rating'                   => 'comment meta: the rating itself, on every review ever left',
-		'mhm_verified_review'          => 'comment meta: verified-booking flag on existing reviews',
-
-		// Post meta written since 1.x. Renaming needs a migration over every
-		// booking and vehicle on the site.
-		'mhm_pickup_time'              => 'booking post meta',
-		'mhm_dropoff_time'             => 'booking post meta',
-		'mhm_start_time'               => 'booking post meta',
-		'mhm_booking_id'               => 'order meta linking a WooCommerce order to its booking',
-		'mhm_contact_email'            => 'booking post meta',
-		'mhm_contact_name'             => 'booking post meta',
-		'mhm_is_transfer'              => 'booking post meta',
-		'mhm_status'                   => 'booking post meta',
-		'mhm_addon_pricing_type'       => 'add-on post meta, read by a one-time migration',
-		'mhm_removed_details'          => 'vehicle post meta',
-
-		// Nonce actions and per-screen JS object names. Scoped to one request or
-		// one admin screen, not to a registry shared with other plugins. Listed
-		// rather than excluded so the scan stays strict: loosening it to skip
-		// "things that look like nonces" is how a real name gets through.
-		'mhm_blocked_dates_nonce'      => 'nonce action, not storage',
-		'mhm_blocked_dates_save'       => 'nonce action, not storage',
-		'mhm_dark_mode_nonce'          => 'nonce action, not storage',
-		'mhm_rest_api_keys_nonce'      => 'nonce action, not storage',
-		'mhm_cron_monitor'             => 'nonce action for the cron-monitor screen, not storage',
-		'mhm_db_cleanup'               => 'nonce action for the database-cleanup screen, not storage',
-		'mhm_search_context'           => 'request-scoped filter context, not storage',
-
-		// A bare fragment, not a name: `'mhm_' . $suffix` built at the call site.
-		'mhm_'                         => 'prefix fragment concatenated at the call site',
-
-
-		// Legacy names retained only so cleanup can still find old rows.
-		'mhm_send_scheduled_notifications' => 'legacy cron name, cleared by migration and uninstall',
-		'mhm_transfer_deposit_type'    => 'settings key written by SettingsSanitizer and read by the add-on',
-		'mhm_message'                  => 'the add-on post type for messages; Lite queries it for dashboard metrics',
-		'mhm_data_consent_given'       => 'user meta: consent flag, written by the add-on, read here',
-		'mhm_log_retention'            => 'legacy cron name, cleared by uninstall',
-		'mhm_rate_limit_'              => 'legacy transient prefix, swept by the migrator alongside the current one',
-		'mhm_revenue_report_'          => 'the add-on reports cache, cleared here so one screen does not show two numbers',
-
-		// Nonce actions that happen to sit beside an option read in the same
-		// localize call. A nonce action is scoped to one request, not to a
-		// registry shared with other plugins; listed so the scan stays strict
-		// rather than being loosened to let a real name through with them.
-		'mhm_admin_nonce'              => 'nonce action, not storage',
-		'mhm_ajax_nonce'               => 'nonce action, not storage',
-		'mhm_email_preview_action'     => 'nonce action, not storage',
+		// EMPTY, AND THAT IS THE RESULT OF Görev 12, NOT AN OVERSIGHT.
+		//
+		// Every entry that stood here was a bare `mhm_` name this plugin had
+		// decided it could not safely rename -- the vehicle field-configuration
+		// options carried since 1.x, the cache and transient families, the log
+		// post types, a handful of nonce actions. WordPress.org's T7 review
+		// rejected that position by name: "'mhm' only as prefix is not
+		// acceptable". Their tokenizer splits at the first underscore, so
+		// `mhm_rentiva_*` reads as the three-letter prefix `mhm` exactly as
+		// `mhm_*` does, and the reasoning that protected this list protected
+		// nothing.
+		//
+		// The 6.0.0 rename moves all of them to the single token `mhmrentiva_`,
+		// with PrefixMigrationMap as the contract and Görev 13's migration
+		// carrying the stored values across. So there is no longer a bare `mhm_`
+		// name reaching a storage or registry API, and the honest inventory is
+		// the empty one.
+		//
+		// The gate below is NOT weaker for being empty -- it is stricter. It now
+		// says "no bare `mhm_` storage name may exist at all", and any new one
+		// fails the build instead of being waved through by an entry someone
+		// added to make the suite green. test_the_scan_reads_the_plugin_source
+		// separately proves the scanner is still reading the tree, so an empty
+		// result here means absence, not blindness.
 	);
 
 	/**
@@ -235,9 +171,24 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		. '|wp_(?:register|enqueue)_(?:script|style)|CACHE_KEYS|_transient_/';
 
 	/**
+	 * The bare, four-character prefix this gate was built to hunt.
+	 *
+	 * '(?!rentiva)' kept it from matching the plugin's own 'mhm_rentiva_' names.
+	 * After the 6.0.0 single-token rename there is no 'mhm_' in this codebase at
+	 * all, so it now matches nothing -- which is the point, and which is exactly
+	 * why the scanner's own sanity guard can no longer be "did it find some".
+	 */
+	private const BARE_MHM_PATTERN = '/[\'"]_?(?:transient_)?(mhm_(?!rentiva)[a-z0-9_]*)/i';
+
+	/**
+	 * The post-rename prefix. Used only to prove the scanner still works.
+	 */
+	private const PREFIXED_PATTERN = '/[\'"]_?(?:transient_)?(mhmrentiva_[a-z0-9_]*)/i';
+
+	/**
 	 * @return array<string, list<string>> literal => file:line list
 	 */
-	private function storage_literals(): array
+	private function storage_literals( string $name_pattern = self::BARE_MHM_PATTERN ): array
 	{
 		$root  = dirname( __DIR__, 2 );
 		$found = array();
@@ -252,7 +203,7 @@ final class NoBareMhmStorageKeysTest extends TestCase
 				continue;
 			}
 
-			foreach ( $this->literals_in( $path, $root ) as $literal => $sites ) {
+			foreach ( $this->literals_in( $path, $root, $name_pattern ) as $literal => $sites ) {
 				foreach ( $sites as $site ) {
 					$found[ $literal ][] = $site;
 				}
@@ -267,7 +218,21 @@ final class NoBareMhmStorageKeysTest extends TestCase
 					continue;
 				}
 
-				foreach ( $this->literals_in( $file->getPathname(), $root ) as $literal => $sites ) {
+				// PrefixMigrationMap is the RECORD of the old names -- it has to
+				// spell every one of them out, on the left of a `=>`, or Görev 13
+				// has nothing to migrate from. Reading it as evidence that a bare
+				// name still reaches storage inverts its purpose: the one file
+				// guaranteed to contain the old names would permanently fail the
+				// gate that exists to prove they are gone from the code. Narrow by
+				// design -- every other file under src/ is still scanned.
+				if ( str_ends_with(
+					str_replace( '\\', '/', $file->getPathname() ),
+					'/Admin/Core/Utilities/PrefixMigrationMap.php'
+				) ) {
+					continue;
+				}
+
+				foreach ( $this->literals_in( $file->getPathname(), $root, $name_pattern ) as $literal => $sites ) {
 					foreach ( $sites as $site ) {
 						$found[ $literal ][] = $site;
 					}
@@ -284,7 +249,7 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	 *
 	 * @return array<string, list<string>>
 	 */
-	private function literals_in( string $path, string $root ): array
+	private function literals_in( string $path, string $root, string $name_pattern = self::BARE_MHM_PATTERN ): array
 	{
 		$found = array();
 		$lines = preg_split( '/\R/', (string) file_get_contents( $path ) ) ?: array();
@@ -296,7 +261,7 @@ final class NoBareMhmStorageKeysTest extends TestCase
 						continue;
 					}
 
-					if ( ! preg_match_all( '/[\'"]_?(?:transient_)?(mhm_(?!rentiva)[a-z0-9_]*)/i', $line, $m ) ) {
+					if ( ! preg_match_all( $name_pattern, $line, $m ) ) {
 						continue;
 					}
 
@@ -386,9 +351,19 @@ final class NoBareMhmStorageKeysTest extends TestCase
 	 */
 	public function test_the_scan_reads_the_plugin_source(): void
 	{
+		// This guard used to count BARE 'mhm_' storage literals and demand more
+		// than 15. The 6.0.0 rename drives that count to zero on purpose, so
+		// keeping the old assertion would mean either a permanently red gate or
+		// -- far worse -- relaxing the threshold to 0 and leaving behind a check
+		// that a completely broken iterator would also satisfy.
+		//
+		// The guard therefore runs the SAME scanner over the prefix the code now
+		// uses. It still proves what it was there to prove -- the iterator walks
+		// the tree, the window logic works, the pattern matches real lines -- but
+		// it no longer needs violations to exist in order to prove it.
 		$this->assertGreaterThan(
 			15,
-			count( $this->storage_literals() ),
+			count( $this->storage_literals( self::PREFIXED_PATTERN ) ),
 			'The storage-literal scan matched implausibly little; the window or the pattern is broken.'
 		);
 	}

@@ -18,7 +18,7 @@ if (! defined('ABSPATH')) {
 // Dynamic currency symbol (plugin settings)
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-$currency_code   = SettingsCore::get('mhm_rentiva_currency', 'USD');
+$currency_code   = SettingsCore::get('mhmrentiva_currency', 'USD');
 $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 $payments          = $data['payments'] ?? array();
@@ -28,7 +28,7 @@ $total_pages       = $data['total_pages'] ?? 1;
 $current_page      = $data['current_page'] ?? 1;
 $vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
-$vehicles_page_url = (string) apply_filters('mhm_rentiva/vehicles_page_url', $vehicles_page_url);
+$vehicles_page_url = (string) apply_filters('mhmrentiva/vehicles_page_url', $vehicles_page_url);
 
 $wrapper_class = 'mhm-rentiva-account-page';
 if (empty($navigation)) {

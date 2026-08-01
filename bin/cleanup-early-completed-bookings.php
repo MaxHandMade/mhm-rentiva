@@ -3,14 +3,14 @@
  * One-shot maintenance script: revert prematurely auto-completed bookings.
  *
  * Background: prior to fix 6b51cb0, AutoComplete cron compared
- * _mhm_dropoff_date < NOW() with date-only granularity. Any confirmed
+ * _mhmrentiva_dropoff_date < NOW() with date-only granularity. Any confirmed
  * booking returning later TODAY was auto-completed at midnight — long
  * before the actual return time. has_overlap() then skipped these
  * wrongly-completed bookings, allowing double-booking.
  *
  * This script identifies such contaminated rows (status='completed' but
- * _mhm_end_ts > NOW()) and reverts them to 'in_progress' via the audited
- * Status::update_status() chain so that mhm_rentiva_booking_status_changed
+ * _mhmrentiva_end_ts > NOW()) and reverts them to 'in_progress' via the audited
+ * Status::update_status() chain so that mhmrentiva_booking_status_changed
  * fires for log/cache invalidation.
  *
  * Usage:
@@ -58,11 +58,11 @@ $rows = $wpdb->get_results($wpdb->prepare(
             dt.meta_value  AS dropoff_time,
             v.meta_value   AS vehicle_id
      FROM {$wpdb->posts} p
-     INNER JOIN {$wpdb->postmeta} s   ON s.post_id   = p.ID AND s.meta_key   = '_mhm_status'
-     INNER JOIN {$wpdb->postmeta} ets ON ets.post_id = p.ID AND ets.meta_key = '_mhm_end_ts'
-     LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhm_dropoff_date'
-     LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhm_dropoff_time'
-     LEFT  JOIN {$wpdb->postmeta} v   ON v.post_id   = p.ID AND v.meta_key   = '_mhm_vehicle_id'
+     INNER JOIN {$wpdb->postmeta} s   ON s.post_id   = p.ID AND s.meta_key   = '_mhmrentiva_status'
+     INNER JOIN {$wpdb->postmeta} ets ON ets.post_id = p.ID AND ets.meta_key = '_mhmrentiva_end_ts'
+     LEFT  JOIN {$wpdb->postmeta} dd  ON dd.post_id  = p.ID AND dd.meta_key  = '_mhmrentiva_dropoff_date'
+     LEFT  JOIN {$wpdb->postmeta} dt  ON dt.post_id  = p.ID AND dt.meta_key  = '_mhmrentiva_dropoff_time'
+     LEFT  JOIN {$wpdb->postmeta} v   ON v.post_id   = p.ID AND v.meta_key   = '_mhmrentiva_vehicle_id'
      WHERE p.post_type     = 'vehicle_booking'
        AND s.meta_value    = 'completed'
        AND CAST(ets.meta_value AS UNSIGNED) > %d",

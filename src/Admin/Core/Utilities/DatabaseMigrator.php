@@ -46,7 +46,7 @@ final class DatabaseMigrator {
 			self::create_transfer_tables(); // VIP Transfer Tables
 
 			// Payout governance schema (the `payout_audit` table + the seven
-			// `mhm_rentiva_*` capabilities added to the administrator role)
+			// `mhmrentiva_*` capabilities added to the administrator role)
 			// belongs to the add-on's GovernanceService -- the class that actually
 			// reads/writes the audit trail and enforces those capabilities.
 			// Gated on its presence rather than a registration check for the same
@@ -57,7 +57,7 @@ final class DatabaseMigrator {
 			// run_migrations() is version-gated it would not re-run after
 			// activation -- leaving the add-on with a half-built schema.
 			if (class_exists(\MHMRentiva\Core\Financial\GovernanceService::class)) {
-				self::create_table('mhm_rentiva_payout_audit');
+				self::create_table('mhmrentiva_payout_audit');
 				self::register_governance_capabilities();
 			}
 
@@ -147,22 +147,22 @@ final class DatabaseMigrator {
 		// 1. Composite index for status queries
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_status_lookup',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
+			'idx_mhmrentiva_status_lookup',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
 		);
 
 		// 2. Timestamp index for date range queries
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_timestamp_range',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))")
+			'idx_mhmrentiva_timestamp_range',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))")
 		);
 
 		// 3. Index for vehicle booking lookups
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_vehicle_bookings',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)")
+			'idx_mhmrentiva_vehicle_bookings',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)")
 		);
 
 		// 4. Index for post date queries
@@ -175,34 +175,34 @@ final class DatabaseMigrator {
 		// 5. Index for booking meta queries
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_booking_meta',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))")
+			'idx_mhmrentiva_booking_meta',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))")
 		);
 
 		// 6. Index for customer email lookups
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_customer_email',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))")
+			'idx_mhmrentiva_customer_email',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))")
 		);
 
 		// 7. Index for price range queries
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_price_range',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))")
+			'idx_mhmrentiva_price_range',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))")
 		);
 
 		// 8. Index for combined booking lookup
 		self::create_index_if_missing(
 			$wpdb->postmeta,
-			'idx_mhm_booking_combined',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
+			'idx_mhmrentiva_booking_combined',
+			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
 		);
 
 		// 9-12. Customers screen indexes. These used to live in
 		// CustomersOptimizer::create_database_indexes(), fired from admin_init and
-		// bookkept with its own `mhm_rentiva_customers_indexes_created` option --
+		// bookkept with its own `mhmrentiva_customers_indexes_created` option --
 		// schema changes run by a read-model class on a page load. They belong
 		// here, where index creation is already the subject and where
 		// create_index_if_missing() replaces their `CREATE INDEX IF NOT EXISTS`
@@ -312,20 +312,20 @@ final class DatabaseMigrator {
 	 */
 	private static function missing_index_names(): array
 	{
-		$mhm_meta_keys = array(
-			'_mhm_status',
-			'_mhm_vehicle_id',
-			'_mhm_start_ts',
-			'_mhm_end_ts',
-			'_mhm_total_price',
-			'_mhm_contact_email',
-			'_mhm_contact_name',
-			'_mhm_customer_id',
+		$mhmrentiva_meta_keys = array(
+			'_mhmrentiva_status',
+			'_mhmrentiva_vehicle_id',
+			'_mhmrentiva_start_ts',
+			'_mhmrentiva_end_ts',
+			'_mhmrentiva_total_price',
+			'_mhmrentiva_contact_email',
+			'_mhmrentiva_contact_name',
+			'_mhmrentiva_customer_id',
 		);
 
 		return array_map(
-			static fn (string $meta_key): string => 'idx_mhm_' . str_replace('_mhm_', '', $meta_key),
-			$mhm_meta_keys
+			static fn (string $meta_key): string => 'idx_mhmrentiva_' . str_replace('_mhmrentiva_', '', $meta_key),
+			$mhmrentiva_meta_keys
 		);
 	}
 
@@ -338,7 +338,7 @@ final class DatabaseMigrator {
 
 		$status = array(
 			'total_indexes'     => 0,
-			'mhm_indexes'       => 0,
+			'mhmrentiva_indexes'       => 0,
 			'performance_score' => 0,
 			'missing_indexes'   => array(),
 			'recommendations'   => array(),
@@ -355,16 +355,16 @@ final class DatabaseMigrator {
 
 			// Count MHM Rentiva indexes
 			foreach ($postmeta_indexes as $index) {
-				if (strpos($index->Key_name, 'idx_mhm_') === 0) {
-					++$status['mhm_indexes'];
+				if (strpos($index->Key_name, 'idx_mhmrentiva_') === 0) {
+					++$status['mhmrentiva_indexes'];
 				}
 			}
 
 			// Calculate performance score
-			$status['performance_score'] = min(100, ( $status['mhm_indexes'] / 8 ) * 100);
+			$status['performance_score'] = min(100, ( $status['mhmrentiva_indexes'] / 8 ) * 100);
 
 			// Recommendations
-			if ($status['mhm_indexes'] < 5) {
+			if ($status['mhmrentiva_indexes'] < 5) {
 				$status['recommendations'][] = 'More MHM Rentiva indexes should be added';
 			}
 
@@ -389,16 +389,16 @@ final class DatabaseMigrator {
 		// table of SQL strings hid the query text from the line that ran it.
 		return array(
 			'status_lookup'    => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_status' AND meta_value = 'confirmed'"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_status' AND meta_value = 'confirmed'"
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_status' AND meta_value = 'confirmed'"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_status' AND meta_value = 'confirmed'"
 			),
 			'date_range'       => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"
 			),
 			'vehicle_bookings' => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_vehicle_id' AND meta_value = '123'"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhm_vehicle_id' AND meta_value = '123'"
+				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_vehicle_id' AND meta_value = '123'"),
+				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_vehicle_id' AND meta_value = '123'"
 			),
 			'post_date_query'  => self::time_probe(
 				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'vehicle_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"),
@@ -474,30 +474,30 @@ final class DatabaseMigrator {
 			self::rebuild_index(
 				'DROP',
 				$wpdb->postmeta,
-				'idx_mhm_status_lookup',
-				"DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}",
-				static fn () => $wpdb->query("DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}")
+				'idx_mhmrentiva_status_lookup',
+				"DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}",
+				static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}")
 			),
 			self::rebuild_index(
 				'CREATE',
 				$wpdb->postmeta,
-				'idx_mhm_status_lookup',
-				"CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
-				static fn () => $wpdb->query("CREATE INDEX idx_mhm_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
+				'idx_mhmrentiva_status_lookup',
+				"CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
+				static fn () => $wpdb->query("CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
 			),
 			self::rebuild_index(
 				'DROP',
 				$wpdb->postmeta,
-				'idx_mhm_booking_combined',
-				"DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}",
-				static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}")
+				'idx_mhmrentiva_booking_combined',
+				"DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}",
+				static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}")
 			),
 			self::rebuild_index(
 				'CREATE',
 				$wpdb->postmeta,
-				'idx_mhm_booking_combined',
-				"CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
-				static fn () => $wpdb->query("CREATE INDEX idx_mhm_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
+				'idx_mhmrentiva_booking_combined',
+				"CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
+				static fn () => $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
 			),
 		)));
 	}
@@ -548,7 +548,7 @@ final class DatabaseMigrator {
 			'needs_migration'  => version_compare($current_version, self::CURRENT_VERSION, '<'),
 			'index_status'     => $index_status,
 			'performance_test' => $performance_test,
-			'last_migration'   => get_option('mhm_rentiva_last_migration', 'Never'),
+			'last_migration'   => get_option('mhmrentiva_last_migration', 'Never'),
 		);
 	}
 
@@ -563,14 +563,14 @@ final class DatabaseMigrator {
 			// Delete MHM Rentiva indexes. Each DROP is a literal at its own call
 			// site; only the "is it there" check is shared, so an absent index
 			// stays a silent no-op exactly as before.
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_status_lookup', static fn () => $wpdb->query("DROP INDEX idx_mhm_status_lookup ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_timestamp_range', static fn () => $wpdb->query("DROP INDEX idx_mhm_timestamp_range ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_vehicle_bookings', static fn () => $wpdb->query("DROP INDEX idx_mhm_vehicle_bookings ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_status_lookup', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_timestamp_range', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_timestamp_range ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_vehicle_bookings', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_vehicle_bookings ON {$wpdb->postmeta}"));
 			self::drop_index_if_present($wpdb->posts, 'idx_posts_date_type', static fn () => $wpdb->query("DROP INDEX idx_posts_date_type ON {$wpdb->posts}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_booking_meta', static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_meta ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_customer_email', static fn () => $wpdb->query("DROP INDEX idx_mhm_customer_email ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_price_range', static fn () => $wpdb->query("DROP INDEX idx_mhm_price_range ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhm_booking_combined', static fn () => $wpdb->query("DROP INDEX idx_mhm_booking_combined ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_booking_meta', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_meta ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_customer_email', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_customer_email ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_price_range', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_price_range ON {$wpdb->postmeta}"));
+			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_booking_combined', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}"));
 
 			// Reset version to original state
 			update_option('mhm_rentiva_db_version', '1.0.0');
@@ -687,7 +687,7 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		$table_name = $wpdb->prefix . 'mhm_rentiva_ratings';
+		$table_name = $wpdb->prefix . 'mhmrentiva_ratings';
 
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -722,33 +722,33 @@ final class DatabaseMigrator {
 
 		// 1. Orphan Post Meta Cleaning.
 		//
-		// The pattern was `_mhm_%%`, a leftover from a prepare() this statement
+		// The pattern was `_mhmrentiva_%%`, a leftover from a prepare() this statement
 		// never went through. Measured rather than assumed: in MySQL LIKE, `%%`
 		// is simply two wildcards and behaves identically to `%` (verified over
-		// `_mhm_status`, `_mhm_%_legacy`, `_mhm_`, `xmhm_foo`, `_mhmX_foo` --
+		// `_mhmrentiva_status`, `_mhmrentiva_%_legacy`, `_mhmrentiva_`, `xmhmrentiva_foo`, `_mhmX_foo` --
 		// all match both patterns). So this is a no-op cleanup, NOT a bug fix:
 		// the doubling only becomes wrong the day someone wraps this statement
 		// in prepare(), where `%%` means a literal percent sign and the clause
 		// would silently stop matching. Written singly so that trap is gone.
 		//
 		// Note the leading `_` is itself a single-character wildcard, so this
-		// also reaches e.g. `xmhm_foo`. Pre-existing and deliberately left
+		// also reaches e.g. `xmhmrentiva_foo`. Pre-existing and deliberately left
 		// alone here; escaping it would change which rows get deleted.
 		$wpdb->query(
 			"DELETE pm
         FROM {$wpdb->postmeta} pm
         LEFT JOIN {$wpdb->posts} wp ON wp.ID = pm.post_id
         WHERE wp.ID IS NULL
-        AND pm.meta_key LIKE '_mhm_%'"
+        AND pm.meta_key LIKE '_mhmrentiva_%'"
 		);
 
 		// 2. Transient Data Cleaning
 		$wpdb->query(
 			"DELETE FROM {$wpdb->options} 
-             WHERE option_name LIKE '_transient_mhm_rentiva_rate_limit_%'
-             OR option_name LIKE '_transient_timeout_mhm_rentiva_rate_limit_%'
-             OR option_name LIKE '_transient_mhm_rate_limit_%'
-             OR option_name LIKE '_transient_timeout_mhm_rate_limit_%'"
+             WHERE option_name LIKE '_transient_mhmrentiva_rate_limit_%'
+             OR option_name LIKE '_transient_timeout_mhmrentiva_rate_limit_%'
+             OR option_name LIKE '_transient_mhmrentiva_rate_limit_%'
+             OR option_name LIKE '_transient_timeout_mhmrentiva_rate_limit_%'"
 		);
 	}
 	/**
@@ -758,11 +758,11 @@ final class DatabaseMigrator {
 	{
 		switch ($table_key) {
 			case 'payment_log':
-			case 'mhm_payment_log':
+			case 'mhmrentiva_payment_log':
 				self::create_payment_log_table();
 				return true;
 			case 'sessions':
-			case 'mhm_sessions':
+			case 'mhmrentiva_sessions':
 				self::create_sessions_table();
 				return true;
 			// Report the real outcome: without the Transfer module these tables are
@@ -776,24 +776,24 @@ final class DatabaseMigrator {
 			case 'rentiva_transfer_routes':
 				return self::create_transfer_tables();
 			case 'ratings':
-			case 'mhm_rentiva_ratings':
+			case 'mhmrentiva_ratings':
 				self::create_rating_table();
 				return true;
 			case 'queue':
-			case 'mhm_rentiva_queue':
+			case 'mhmrentiva_queue':
 				self::create_queue_table();
 				return true;
 			case 'report_queue':
 			case 'background_jobs':
-			case 'mhm_rentiva_background_jobs':
+			case 'mhmrentiva_background_jobs':
 				self::create_background_jobs_table();
 				return true;
 			case 'message_logs':
-			case 'mhm_message_logs':
+			case 'mhmrentiva_message_logs':
 				self::create_message_logs_table();
 				return true;
 			case 'payout_audit':
-			case 'mhm_rentiva_payout_audit':
+			case 'mhmrentiva_payout_audit':
 				self::create_payout_audit_table();
 				return true;
 		}
@@ -807,15 +807,15 @@ final class DatabaseMigrator {
 	{
 		$role = get_role('administrator');
 		if ($role instanceof \WP_Role) {
-			$role->add_cap('mhm_rentiva_approve_payout');
-			$role->add_cap('mhm_rentiva_freeze_payouts');
-			$role->add_cap('mhm_rentiva_view_financial_audit');
+			$role->add_cap('mhmrentiva_approve_payout');
+			$role->add_cap('mhmrentiva_freeze_payouts');
+			$role->add_cap('mhmrentiva_view_financial_audit');
 
 			// Sprint 10: Multi-Actor Workflow Capabilities
-			$role->add_cap('mhm_rentiva_create_payout');
-			$role->add_cap('mhm_rentiva_review_payout');
-			$role->add_cap('mhm_rentiva_finalize_payout');
-			$role->add_cap('mhm_rentiva_override_maker_checker');
+			$role->add_cap('mhmrentiva_create_payout');
+			$role->add_cap('mhmrentiva_review_payout');
+			$role->add_cap('mhmrentiva_finalize_payout');
+			$role->add_cap('mhmrentiva_override_maker_checker');
 		}
 	}
 
@@ -825,7 +825,7 @@ final class DatabaseMigrator {
 	public static function create_payout_audit_table(): void
 	{
 		global $wpdb;
-		$table_name      = $wpdb->prefix . 'mhm_rentiva_payout_audit';
+		$table_name      = $wpdb->prefix . 'mhmrentiva_payout_audit';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE $table_name (
@@ -866,7 +866,7 @@ final class DatabaseMigrator {
 	public static function create_payment_log_table(): void
 	{
 		global $wpdb;
-		$table_name      = $wpdb->prefix . 'mhm_payment_log';
+		$table_name      = $wpdb->prefix . 'mhmrentiva_payment_log';
 		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -898,7 +898,7 @@ final class DatabaseMigrator {
 	public static function create_sessions_table(): void
 	{
 		global $wpdb;
-		$table_name      = $wpdb->prefix . 'mhm_sessions';
+		$table_name      = $wpdb->prefix . 'mhmrentiva_sessions';
 		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -941,7 +941,7 @@ final class DatabaseMigrator {
 	public static function create_message_logs_table(): void
 	{
 		global $wpdb;
-		$table_name      = $wpdb->prefix . 'mhm_message_logs';
+		$table_name      = $wpdb->prefix . 'mhmrentiva_message_logs';
 		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -970,7 +970,7 @@ final class DatabaseMigrator {
 	public static function create_key_registry_table(): void
 	{
 		global $wpdb;
-		$table_name      = $wpdb->prefix . 'mhm_rentiva_key_registry';
+		$table_name      = $wpdb->prefix . 'mhmrentiva_key_registry';
 		$table_escaped   = esc_sql($table_name);
 		$charset_collate = $wpdb->get_charset_collate();
 
@@ -1015,13 +1015,13 @@ final class DatabaseMigrator {
 	 */
 	private static function migrate_standalone_settings(): void
 	{
-		$settings = (array) get_option('mhm_rentiva_settings', array());
+		$settings = (array) get_option('mhmrentiva_settings', array());
 
-		// Map old mhm_ keys to new rentiva_ keys in the settings array
+		// Map old mhmrentiva_ keys to new rentiva_ keys in the settings array
 		$standalone_mapping = array(
-			'mhm_transfer_deposit_type' => 'rentiva_transfer_deposit_type',
-			'mhm_transfer_deposit_rate' => 'rentiva_transfer_deposit_rate',
-			'mhm_transfer_custom_types' => 'rentiva_transfer_custom_types',
+			'mhmrentiva_transfer_deposit_type' => 'rentiva_transfer_deposit_type',
+			'mhmrentiva_transfer_deposit_rate' => 'rentiva_transfer_deposit_rate',
+			'mhmrentiva_transfer_custom_types' => 'rentiva_transfer_custom_types',
 		);
 
 		// Defaults
@@ -1052,7 +1052,7 @@ final class DatabaseMigrator {
 		}
 
 		if ($migrated) {
-			update_option('mhm_rentiva_settings', $settings);
+			update_option('mhmrentiva_settings', $settings);
 		}
 	}
 
@@ -1079,14 +1079,14 @@ final class DatabaseMigrator {
 	 * Migrate existing vehicles to the new lifecycle status meta key.
 	 *
 	 * Maps: active → active, maintenance → paused, inactive → withdrawn (draft).
-	 * Vehicles without _mhm_vehicle_status get 'active' (legacy default).
+	 * Vehicles without _mhmrentiva_vehicle_status get 'active' (legacy default).
 	 * Also sets initial listing_started_at and listing_expires_at for published vehicles.
 	 *
-	 * Idempotent — skips vehicles that already have _mhm_vehicle_lifecycle_status set.
+	 * Idempotent — skips vehicles that already have _mhmrentiva_vehicle_lifecycle_status set.
 	 */
 	private static function migrate_vehicle_lifecycle_status(): void
 	{
-		if (get_option('mhm_rentiva_lifecycle_migration_done') === '1') {
+		if (get_option('mhmrentiva_lifecycle_migration_done') === '1') {
 			return;
 		}
 
@@ -1096,12 +1096,12 @@ final class DatabaseMigrator {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 		$vehicle_ids = $wpdb->get_col(
 			"SELECT p.ID FROM {$wpdb->posts} p
-			 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhm_vehicle_lifecycle_status'
+			 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhmrentiva_vehicle_lifecycle_status'
 			 WHERE p.post_type = 'vehicle' AND pm.meta_id IS NULL"
 		);
 
 		if (empty($vehicle_ids)) {
-			update_option('mhm_rentiva_lifecycle_migration_done', '1', false);
+			update_option('mhmrentiva_lifecycle_migration_done', '1', false);
 			return;
 		}
 
@@ -1115,24 +1115,24 @@ final class DatabaseMigrator {
 
 		foreach ($vehicle_ids as $vid) {
 			$vid        = (int) $vid;
-			$old_status = get_post_meta($vid, '_mhm_vehicle_status', true);
+			$old_status = get_post_meta($vid, '_mhmrentiva_vehicle_status', true);
 			$new_status = $status_map[ $old_status ] ?? 'active';
 
-			update_post_meta($vid, '_mhm_vehicle_lifecycle_status', $new_status);
+			update_post_meta($vid, '_mhmrentiva_vehicle_lifecycle_status', $new_status);
 
 			// Set listing timer for active/published vehicles.
 			$post_status = get_post_status($vid);
 			if ($new_status === 'active' && $post_status === 'publish') {
 				$published = get_post_field('post_date_gmt', $vid);
 				if (! empty($published) && $published !== '0000-00-00 00:00:00') {
-					update_post_meta($vid, '_mhm_vehicle_listing_started_at', $published);
+					update_post_meta($vid, '_mhmrentiva_vehicle_listing_started_at', $published);
 					$expires = gmdate('Y-m-d H:i:s', strtotime($now . ' +90 days'));
-					update_post_meta($vid, '_mhm_vehicle_listing_expires_at', $expires);
+					update_post_meta($vid, '_mhmrentiva_vehicle_listing_expires_at', $expires);
 				}
 			}
 		}
 
-		update_option('mhm_rentiva_lifecycle_migration_done', '1', false);
+		update_option('mhmrentiva_lifecycle_migration_done', '1', false);
 	}
 
 	/**
@@ -1146,13 +1146,13 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
-		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
-		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_usage_metrics");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_tenants");
 		// phpcs:enable
 	}
 
 	/**
-	 * Delete the dead `mhm_rentiva_country_restriction_enabled` option.
+	 * Delete the dead `mhmrentiva_country_restriction_enabled` option.
 	 *
 	 * WHAT WAS WRONG
 	 * --------------
@@ -1162,7 +1162,7 @@ final class DatabaseMigrator {
 	 * Task 9 — zero callers, no UI, absent from the monolith. No code reads this
 	 * option any more.
 	 *
-	 * A leftover `mhm_rentiva_country_restriction_enabled = 1` row therefore states
+	 * A leftover `mhmrentiva_country_restriction_enabled = 1` row therefore states
 	 * that geo-restriction is ON while nothing whatsoever enforces it. That is a
 	 * false security promise, and this project has shipped that exact bug before:
 	 * the "Brute Force Protection" toggle read ON while nothing enforced it,
@@ -1186,13 +1186,13 @@ final class DatabaseMigrator {
 	 *
 	 * SCOPE — deliberately exactly one key
 	 * ------------------------------------
-	 * Only the standalone `mhm_rentiva_country_restriction_enabled` row is deleted:
+	 * Only the standalone `mhmrentiva_country_restriction_enabled` row is deleted:
 	 * it is the one that makes the false ON claim. Two related leftovers are
 	 * KNOWINGLY left alone, as they are not this bug and removing user data needs
 	 * its own decision:
-	 *   - the standalone `mhm_rentiva_allowed_countries` row (a value list; claims
+	 *   - the standalone `mhmrentiva_allowed_countries` row (a value list; claims
 	 *     nothing on its own);
-	 *   - the same two keys inside the `mhm_rentiva_settings` array, where
+	 *   - the same two keys inside the `mhmrentiva_settings` array, where
 	 *     `SettingsCore::get()` actually reads and where the enabled key is already
 	 *     `'0'`. (This is why the feature was doubly dead: even when
 	 *     `CountryRestriction` existed, it read `'0'` from the array and never saw
@@ -1200,12 +1200,12 @@ final class DatabaseMigrator {
 	 */
 	private static function delete_dead_country_restriction_option(): void
 	{
-		delete_option('mhm_rentiva_country_restriction_enabled');
+		delete_option('mhmrentiva_country_restriction_enabled');
 	}
 
 	/**
 	 * Remove the rows the deleted Settings -> Security tab left in
-	 * `mhm_rentiva_settings`.
+	 * `mhmrentiva_settings`.
 	 *
 	 * WHY
 	 * ---
@@ -1226,7 +1226,7 @@ final class DatabaseMigrator {
 	 * SCOPE
 	 * -----
 	 * Exactly the fifteen keys that tab owned, and only inside the settings
-	 * array it wrote to. `mhm_rentiva_ip_whitelist` also existed as a
+	 * array it wrote to. `mhmrentiva_ip_whitelist` also existed as a
 	 * standalone option read by `AuthHelper::isIpWhitelisted()` — both the
 	 * reader and the method's only caller were absent, so the method went with
 	 * the tab; no standalone row is touched here because the tab never wrote
@@ -1276,7 +1276,7 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		foreach (array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ) as $hook) {
+		foreach (array( 'mhmrentiva_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ) as $hook) {
 			$timestamp = wp_next_scheduled($hook);
 			while ($timestamp) {
 				wp_unschedule_event($timestamp, $hook);
@@ -1285,35 +1285,35 @@ final class DatabaseMigrator {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
-		$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mhm_notification_queue'));
+		$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mhmrentiva_notification_queue'));
 	}
 
 	private static function delete_dead_api_key_option(): void
 	{
-		delete_option('mhm_rentiva_api_keys');
+		delete_option('mhmrentiva_api_keys');
 	}
 
 	private static function delete_dead_security_setting_keys(): void
 	{
 		$dead_keys = array(
-			'mhm_rentiva_ip_whitelist_enabled',
-			'mhm_rentiva_ip_whitelist',
-			'mhm_rentiva_ip_blacklist_enabled',
-			'mhm_rentiva_ip_blacklist',
-			'mhm_rentiva_brute_force_protection',
-			'mhm_rentiva_max_login_attempts',
-			'mhm_rentiva_login_lockout_duration',
-			'mhm_rentiva_sql_injection_protection',
-			'mhm_rentiva_xss_protection',
-			'mhm_rentiva_csrf_protection',
-			'mhm_rentiva_rate_limit_enabled',
-			'mhm_rentiva_rate_limit_block_duration',
-			'mhm_rentiva_rate_limit_requests_per_minute',
-			'mhm_rentiva_rate_limit_booking_per_minute',
-			'mhm_rentiva_rate_limit_payment_per_minute',
+			'mhmrentiva_ip_whitelist_enabled',
+			'mhmrentiva_ip_whitelist',
+			'mhmrentiva_ip_blacklist_enabled',
+			'mhmrentiva_ip_blacklist',
+			'mhmrentiva_brute_force_protection',
+			'mhmrentiva_max_login_attempts',
+			'mhmrentiva_login_lockout_duration',
+			'mhmrentiva_sql_injection_protection',
+			'mhmrentiva_xss_protection',
+			'mhmrentiva_csrf_protection',
+			'mhmrentiva_rate_limit_enabled',
+			'mhmrentiva_rate_limit_block_duration',
+			'mhmrentiva_rate_limit_requests_per_minute',
+			'mhmrentiva_rate_limit_booking_per_minute',
+			'mhmrentiva_rate_limit_payment_per_minute',
 		);
 
-		$settings = get_option('mhm_rentiva_settings');
+		$settings = get_option('mhmrentiva_settings');
 
 		if (! is_array($settings)) {
 			return;
@@ -1328,7 +1328,7 @@ final class DatabaseMigrator {
 		}
 
 		if ($removed) {
-			update_option('mhm_rentiva_settings', $settings);
+			update_option('mhmrentiva_settings', $settings);
 		}
 	}
 }

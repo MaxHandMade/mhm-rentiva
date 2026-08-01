@@ -139,7 +139,7 @@ final class VehicleCategory {
 	 */
 	public static function add_admin_nonce(): void {
 		if ( current_user_can( 'edit_posts' ) ) {
-			wp_nonce_field( 'mhm_vehicle_category_admin', 'mhm_vehicle_category_nonce' );
+			wp_nonce_field( 'mhmrentiva_vehicle_category_admin', 'mhmrentiva_vehicle_category_nonce' );
 		}
 	}
 

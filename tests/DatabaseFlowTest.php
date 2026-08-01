@@ -20,7 +20,7 @@ class DatabaseFlowTest extends WP_UnitTestCase
      */
     public function test_can_save_and_retrieve_option()
     {
-        $test_key   = 'mhm_rentiva_test_data';
+        $test_key   = 'mhmrentiva_test_data';
         $test_value = 'Test Başarılı - ' . time();
 
         // Veriyi Kaydet

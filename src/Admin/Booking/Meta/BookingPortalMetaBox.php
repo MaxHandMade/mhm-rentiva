@@ -23,12 +23,12 @@ final class BookingPortalMetaBox {
 
 	public static function register(): void {
 		add_action( 'add_meta_boxes', array( self::class, 'add' ) );
-		add_action( 'wp_ajax_mhm_rentiva_create_customer_account_manual', array( self::class, 'ajax_create_customer_account' ) );
+		add_action( 'wp_ajax_mhmrentiva_create_customer_account_manual', array( self::class, 'ajax_create_customer_account' ) );
 	}
 
 	public static function add(): void {
 		add_meta_box(
-			'mhm_booking_customer_account',
+			'mhmrentiva_booking_customer_account',
 			__( 'Customer Account', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
 			'vehicle_booking',
@@ -39,9 +39,9 @@ final class BookingPortalMetaBox {
 
 	public static function render( \WP_Post $post ): void {
 		$booking_id       = (int) $post->ID;
-		$customer_email   = get_post_meta( $booking_id, '_mhm_customer_email', true );
-		$customer_name    = get_post_meta( $booking_id, '_mhm_customer_name', true );
-		$customer_user_id = (int) get_post_meta( $booking_id, '_mhm_customer_user_id', true );
+		$customer_email   = get_post_meta( $booking_id, '_mhmrentiva_customer_email', true );
+		$customer_name    = get_post_meta( $booking_id, '_mhmrentiva_customer_name', true );
+		$customer_user_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 
 		echo '<div class="mhm-customer-account-info">';
 
@@ -93,7 +93,7 @@ final class BookingPortalMetaBox {
 				echo '<p><strong>' . esc_html__( 'Email:', 'mhm-rentiva' ) . '</strong><br>';
 				echo esc_html( $customer_email ) . '</p>';
 
-				$nonce = wp_create_nonce( 'mhm_create_customer_account' );
+				$nonce = wp_create_nonce( 'mhmrentiva_create_customer_account' );
 
 				echo '<p><button type="button" class="button button-primary mhm-portal-action-btn mhm-create-customer-account-btn"';
 				echo ' data-booking-id="' . esc_attr( (string) $booking_id ) . '"';
@@ -120,7 +120,7 @@ final class BookingPortalMetaBox {
 
 		// Nonce check
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_create_customer_account' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_create_customer_account' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return;
 		}
@@ -145,7 +145,7 @@ final class BookingPortalMetaBox {
 		// Check if user already exists with this email
 		$existing_user = get_user_by( 'email', $email );
 		if ( $existing_user ) {
-			update_post_meta( $booking_id, '_mhm_customer_user_id', $existing_user->ID );
+			update_post_meta( $booking_id, '_mhmrentiva_customer_user_id', $existing_user->ID );
 			wp_send_json_success( array(
 				'message' => __( 'Existing account linked to booking.', 'mhm-rentiva' ),
 			) );
@@ -184,7 +184,7 @@ final class BookingPortalMetaBox {
 		}
 
 		// Link the new user to the booking
-		update_post_meta( $booking_id, '_mhm_customer_user_id', $user_id );
+		update_post_meta( $booking_id, '_mhmrentiva_customer_user_id', $user_id );
 
 		wp_send_json_success( array(
 			'message' => __( 'Customer account created and linked to booking.', 'mhm-rentiva' ),

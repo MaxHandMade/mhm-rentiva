@@ -262,7 +262,7 @@
         const settings = getInstanceSettings($scope);
 
         const data = {
-            action: 'mhm_rentiva_filter_results',
+            action: 'mhmrentiva_filter_results',
             nonce: mhmRentivaSearchResults.nonce,
             layout: currentLayout,
             per_page: settings.per_page,
@@ -366,7 +366,7 @@
             url: mhmRentivaSearchResults.ajax_url,
             type: 'POST',
             data: {
-                action: 'mhm_rentiva_toggle_favorite',
+                action: 'mhmrentiva_toggle_favorite',
                 vehicle_id: vehicleId,
                 nonce: mhmRentivaSearchResults.favorite_nonce
             },

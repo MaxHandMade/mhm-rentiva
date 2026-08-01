@@ -13,12 +13,12 @@ final class LogRetentionDefaultParityTest extends WP_UnitTestCase
 	 */
 	public function test_runtime_paths_do_not_use_90_day_fallback(string $relativePath): void
 	{
-		$file = MHM_RENTIVA_PLUGIN_PATH . $relativePath;
+		$file = MHMRENTIVA_PLUGIN_PATH . $relativePath;
 		$this->assertFileExists($file);
 
 		$contents = (string) file_get_contents($file);
 		$this->assertStringNotContainsString(
-			"mhm_rentiva_log_retention_days', 90",
+			"mhmrentiva_log_retention_days', 90",
 			$contents,
 			$relativePath . ' still uses 90-day fallback and conflicts with settings default.'
 		);
@@ -26,11 +26,11 @@ final class LogRetentionDefaultParityTest extends WP_UnitTestCase
 
 	public function test_logs_settings_default_is_30_days(): void
 	{
-		$file = MHM_RENTIVA_PLUGIN_PATH . 'src/Admin/Settings/Groups/LogsSettings.php';
+		$file = MHMRENTIVA_PLUGIN_PATH . 'src/Admin/Settings/Groups/LogsSettings.php';
 		$this->assertFileExists($file);
 		$contents = (string) file_get_contents($file);
 
-		$this->assertStringContainsString("'mhm_rentiva_log_retention_days'  => 30", $contents);
+		$this->assertStringContainsString("'mhmrentiva_log_retention_days'  => 30", $contents);
 	}
 
 	/**

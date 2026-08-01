@@ -24,8 +24,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 // Get booking total (if available)
-$total_amount   = get_post_meta( $booking_id, '_mhm_total_price', true );
-$payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
+$total_amount   = get_post_meta( $booking_id, '_mhmrentiva_total_price', true );
+$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 ?>
 <div class="booking-cancelled-email">
 	<!-- Greeting -->
@@ -59,7 +59,7 @@ $payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
 							<strong><?php esc_html_e( 'Booking ID:', 'mhm-rentiva' ); ?></strong>
 						</td>
 						<td style="padding: 8px 0; color: #333;">
-							#<?php echo esc_html( mhm_rentiva_get_display_id( (int) $booking_id ) ); ?>
+							#<?php echo esc_html( mhmrentiva_get_display_id( (int) $booking_id ) ); ?>
 						</td>
 					</tr>
 					<tr>
@@ -144,7 +144,7 @@ $payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
 	<table width="100%" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
 		<tr>
 			<td align="center">
-				<a href="<?php echo esc_url( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_my_account_url', home_url( '/my-account/' ) ) ); ?>"
+				<a href="<?php echo esc_url( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_my_account_url', home_url( '/my-account/' ) ) ); ?>"
 					style="display: inline-block; padding: 14px 35px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: 600; font-size: 15px;">
 					<?php esc_html_e( 'View My Account', 'mhm-rentiva' ); ?>
 				</a>

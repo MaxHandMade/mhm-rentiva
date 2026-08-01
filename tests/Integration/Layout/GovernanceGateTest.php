@@ -50,12 +50,12 @@ final class GovernanceGateTest extends TestCase
     public function prohibited_patterns_provider(): array
     {
         return [
-            'Direct Tailwind Prefix'       => ['tw-bg-blue-500', 'mhm_rentiva_tailwind_leakage'],
-            'Tailwind Keyword'             => ['tailwind-test', 'mhm_rentiva_tailwind_leakage'],
-            'Unprefixed Utility (Flex)'    => ['flex-row', 'mhm_rentiva_utility_leakage'],
-            'Unprefixed Utility (Padding)' => ['p-4', 'mhm_rentiva_utility_leakage'],
-            'Unprefixed Utility (Margin)'  => ['m-2', 'mhm_rentiva_utility_leakage'],
-            'Unprefixed Utility (Grid)'    => ['grid-cols-3', 'mhm_rentiva_utility_leakage'],
+            'Direct Tailwind Prefix'       => ['tw-bg-blue-500', 'mhmrentiva_tailwind_leakage'],
+            'Tailwind Keyword'             => ['tailwind-test', 'mhmrentiva_tailwind_leakage'],
+            'Unprefixed Utility (Flex)'    => ['flex-row', 'mhmrentiva_utility_leakage'],
+            'Unprefixed Utility (Padding)' => ['p-4', 'mhmrentiva_utility_leakage'],
+            'Unprefixed Utility (Margin)'  => ['m-2', 'mhmrentiva_utility_leakage'],
+            'Unprefixed Utility (Grid)'    => ['grid-cols-3', 'mhmrentiva_utility_leakage'],
         ];
     }
 

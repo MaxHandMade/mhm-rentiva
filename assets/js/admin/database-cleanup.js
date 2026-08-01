@@ -14,21 +14,21 @@ jQuery( document ).ready(
 			'click',
 			function () {
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.analyzing_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.analyzing_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_analyze_database',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_analyze_database',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
 							$( '#mhm-cleanup-results' ).html( response.data.html );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-search"></span> ' + mhm_rentiva_db_cleanup_vars.analyze_text );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-search"></span> ' + mhmrentiva_db_cleanup_vars.analyze_text );
 					}
 				);
 			}
@@ -38,28 +38,28 @@ jQuery( document ).ready(
 		$( '#mhm-cleanup-orphaned-btn' ).on(
 			'click',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_orphaned_text )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_orphaned_text )) {
 					return;
 				}
 
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.cleaning_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.cleaning_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_cleanup_orphaned',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_cleanup_orphaned',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-analyze-db-btn' ).trigger( 'click' ); // Re-analyze
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + mhm_rentiva_db_cleanup_vars.clean_orphaned_text );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + mhmrentiva_db_cleanup_vars.clean_orphaned_text );
 					}
 				);
 			}
@@ -70,23 +70,23 @@ jQuery( document ).ready(
 			'click',
 			function () {
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.cleaning_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.cleaning_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_cleanup_transients',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_cleanup_transients',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-analyze-db-btn' ).trigger( 'click' ); // Re-analyze
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + mhm_rentiva_db_cleanup_vars.clean_transients_text );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + mhmrentiva_db_cleanup_vars.clean_transients_text );
 					}
 				);
 			}
@@ -97,23 +97,23 @@ jQuery( document ).ready(
 			'click',
 			function () {
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.optimizing_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.optimizing_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_optimize_autoload',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_optimize_autoload',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-analyze-db-btn' ).trigger( 'click' ); // Re-analyze
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-performance"></span> ' + mhm_rentiva_db_cleanup_vars.optimize_autoload_text );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-performance"></span> ' + mhmrentiva_db_cleanup_vars.optimize_autoload_text );
 					}
 				);
 			}
@@ -123,27 +123,27 @@ jQuery( document ).ready(
 		$( '#mhm-optimize-tables-btn' ).on(
 			'click',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_tables_text )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_tables_text )) {
 					return;
 				}
 
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.optimizing_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.optimizing_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_optimize_tables',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_optimize_tables',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-database"></span> ' + mhm_rentiva_db_cleanup_vars.optimize_tables_text );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-database"></span> ' + mhmrentiva_db_cleanup_vars.optimize_tables_text );
 					}
 				);
 			}
@@ -153,28 +153,28 @@ jQuery( document ).ready(
 		$( '#mhm-cleanup-logs-btn' ).on(
 			'click',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_old_logs_text || 'This will delete logs and queue records older than 30 days. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_old_logs_text || 'This will delete logs and queue records older than 30 days. Continue?' )) {
 					return;
 				}
 
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.cleaning_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.cleaning_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_cleanup_logs',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_cleanup_logs',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-analyze-db-btn' ).trigger( 'click' ); // Re-analyze
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-calendar-alt"></span> ' + (mhm_rentiva_db_cleanup_vars.purge_logs_text || 'Purge Old Logs') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-calendar-alt"></span> ' + (mhmrentiva_db_cleanup_vars.purge_logs_text || 'Purge Old Logs') );
 					}
 				);
 			}
@@ -186,28 +186,28 @@ jQuery( document ).ready(
 			'click',
 			'#mhm-cleanup-invalid-meta-btn',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_invalid_meta_text || 'This will delete invalid meta keys. A backup will be created. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_invalid_meta_text || 'This will delete invalid meta keys. A backup will be created. Continue?' )) {
 					return;
 				}
 
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.cleaning_text );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.cleaning_text );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_cleanup_invalid_meta',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_cleanup_invalid_meta',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-analyze-db-btn' ).trigger( 'click' ); // Re-analyze
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' ); // Refresh backup list
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhm_rentiva_db_cleanup_vars.clean_invalid_meta_text || 'Clean') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhmrentiva_db_cleanup_vars.clean_invalid_meta_text || 'Clean') );
 					}
 				);
 			}
@@ -218,21 +218,21 @@ jQuery( document ).ready(
 			'click',
 			function () {
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.loading_text || 'Loading...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.loading_text || 'Loading...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_list_backups',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_list_backups',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
 							renderBackupList( response.data.backups || [] );
 						} else {
-							$( '#mhm-backup-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_rentiva_db_cleanup_vars.error_text) + '</p></div>' );
+							$( '#mhm-backup-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhmrentiva_db_cleanup_vars.error_text) + '</p></div>' );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_db_cleanup_vars.refresh_text || 'Refresh Backup List') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + (mhmrentiva_db_cleanup_vars.refresh_text || 'Refresh Backup List') );
 					}
 				);
 			}
@@ -257,7 +257,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'action',
-							value: 'mhm_rentiva_download_backup'
+							value: 'mhmrentiva_download_backup'
 						}
 					)
 				);
@@ -267,7 +267,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'nonce',
-							value: mhm_rentiva_db_cleanup_vars.nonce
+							value: mhmrentiva_db_cleanup_vars.nonce
 						}
 					)
 				);
@@ -292,29 +292,29 @@ jQuery( document ).ready(
 			'click',
 			'.mhm-restore-backup-btn',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_restore_text || 'This will restore the backup data. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_restore_text || 'This will restore the backup data. Continue?' )) {
 					return;
 				}
 
 				const btn       = $( this );
 				const tableName = btn.data( 'table' );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.restoring_text || 'Restoring...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.restoring_text || 'Restoring...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_restore_backup',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce,
+						action: 'mhmrentiva_restore_backup',
+						nonce: mhmrentiva_db_cleanup_vars.nonce,
 						table_name: tableName
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-undo"></span> ' + (mhm_rentiva_db_cleanup_vars.restore_text || 'Restore') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore') );
 					}
 				);
 			}
@@ -325,29 +325,29 @@ jQuery( document ).ready(
 			'click',
 			'.mhm-delete-backup-btn',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?' )) {
 					return;
 				}
 
 				const btn       = $( this );
 				const tableName = btn.data( 'table' );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.deleting_text || 'Deleting...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.deleting_text || 'Deleting...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_delete_backup',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce,
+						action: 'mhmrentiva_delete_backup',
+						nonce: mhmrentiva_db_cleanup_vars.nonce,
 						table_name: tableName
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-backups-btn' ).trigger( 'click' );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhm_rentiva_db_cleanup_vars.delete_text || 'Delete') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhmrentiva_db_cleanup_vars.delete_text || 'Delete') );
 					}
 				);
 			}
@@ -356,26 +356,26 @@ jQuery( document ).ready(
 		// Render backup list
 		function renderBackupList(backups) {
 			if (backups.length === 0) {
-				$( '#mhm-backup-list' ).html( '<div class="notice notice-info"><p>' + (mhm_rentiva_db_cleanup_vars.no_backups_text || 'No backups found.') + '</p></div>' );
+				$( '#mhm-backup-list' ).html( '<div class="notice notice-info"><p>' + (mhmrentiva_db_cleanup_vars.no_backups_text || 'No backups found.') + '</p></div>' );
 				return;
 			}
 
 			let html = '<table class="widefat striped">';
 			html    += '<thead><tr>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_table_text || 'Table Name') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_type_text || 'Type') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_date_text || 'Date') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_rows_text || 'Rows') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_size_text || 'Size') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.actions_text || 'Actions') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_table_text || 'Table Name') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_type_text || 'Type') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_date_text || 'Date') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_rows_text || 'Rows') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_size_text || 'Size') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.actions_text || 'Actions') + '</th>';
 			html    += '</tr></thead><tbody>';
 
 			backups.forEach(
 				function (backup) {
 					const typeLabels = {
-						'invalid_meta': mhm_rentiva_db_cleanup_vars.type_invalid_meta_text || 'Invalid Meta',
-						'orphaned_meta': mhm_rentiva_db_cleanup_vars.type_orphaned_meta_text || 'Orphaned Meta',
-						'custom': mhm_rentiva_db_cleanup_vars.type_custom_text || 'Custom'
+						'invalid_meta': mhmrentiva_db_cleanup_vars.type_invalid_meta_text || 'Invalid Meta',
+						'orphaned_meta': mhmrentiva_db_cleanup_vars.type_orphaned_meta_text || 'Orphaned Meta',
+						'custom': mhmrentiva_db_cleanup_vars.type_custom_text || 'Custom'
 					};
 
 					const dateFormatted = backup.date !== 'unknown'
@@ -390,13 +390,13 @@ jQuery( document ).ready(
 					html += '<td>' + backup.size_mb.toFixed( 2 ) + ' MB</td>';
 					html += '<td>';
 					html += '<button type="button" class="button button-small mhm-download-backup-btn" data-table="' + backup.table_name + '" style="margin-right: 5px;">';
-					html += '<span class="dashicons dashicons-download"></span> ' + (mhm_rentiva_db_cleanup_vars.download_text || 'Download');
+					html += '<span class="dashicons dashicons-download"></span> ' + (mhmrentiva_db_cleanup_vars.download_text || 'Download');
 					html += '</button>';
 					html += '<button type="button" class="button button-small mhm-restore-backup-btn" data-table="' + backup.table_name + '" style="margin-right: 5px;">';
-					html += '<span class="dashicons dashicons-undo"></span> ' + (mhm_rentiva_db_cleanup_vars.restore_text || 'Restore');
+					html += '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore');
 					html += '</button>';
 					html += '<button type="button" class="button button-small mhm-delete-backup-btn" data-table="' + backup.table_name + '">';
-					html += '<span class="dashicons dashicons-trash"></span> ' + (mhm_rentiva_db_cleanup_vars.delete_text || 'Delete');
+					html += '<span class="dashicons dashicons-trash"></span> ' + (mhmrentiva_db_cleanup_vars.delete_text || 'Delete');
 					html += '</button>';
 					html += '</td>';
 					html += '</tr>';
@@ -414,27 +414,27 @@ jQuery( document ).ready(
 		$( '#mhm-create-full-backup-btn' ).on(
 			'click',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_create_full_backup_text || 'This will create a full backup of all plugin-related tables. This may take a few minutes. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_create_full_backup_text || 'This will create a full backup of all plugin-related tables. This may take a few minutes. Continue?' )) {
 					return;
 				}
 
 				const btn = $( this );
-				btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_db_cleanup_vars.creating_backup_text || 'Creating Backup...') );
+				btn.prop( 'disabled', true ).html( '<span class="dashicons dashicons-update"></span> ' + (mhmrentiva_db_cleanup_vars.creating_backup_text || 'Creating Backup...') );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_create_full_backup',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_create_full_backup',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-full-backups-btn' ).trigger( 'click' );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-database-add"></span> ' + (mhm_rentiva_db_cleanup_vars.create_full_backup_text || 'Create Full Backup') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-database-add"></span> ' + (mhmrentiva_db_cleanup_vars.create_full_backup_text || 'Create Full Backup') );
 					}
 				);
 			}
@@ -445,21 +445,21 @@ jQuery( document ).ready(
 			'click',
 			function () {
 				const btn = $( this );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.loading_text || 'Loading...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.loading_text || 'Loading...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_list_full_backups',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce
+						action: 'mhmrentiva_list_full_backups',
+						nonce: mhmrentiva_db_cleanup_vars.nonce
 					},
 					function (response) {
 						if (response.success) {
 							renderFullBackupList( response.data.backups || [] );
 						} else {
-							$( '#mhm-full-backup-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhm_rentiva_db_cleanup_vars.error_text) + '</p></div>' );
+							$( '#mhm-full-backup-list' ).html( '<div class="notice notice-error"><p>' + (response.data || mhmrentiva_db_cleanup_vars.error_text) + '</p></div>' );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + (mhm_rentiva_db_cleanup_vars.refresh_text || 'Refresh List') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-update"></span> ' + (mhmrentiva_db_cleanup_vars.refresh_text || 'Refresh List') );
 					}
 				);
 			}
@@ -484,7 +484,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'action',
-							value: 'mhm_rentiva_download_full_backup'
+							value: 'mhmrentiva_download_full_backup'
 						}
 					)
 				);
@@ -494,7 +494,7 @@ jQuery( document ).ready(
 						{
 							type: 'hidden',
 							name: 'nonce',
-							value: mhm_rentiva_db_cleanup_vars.nonce
+							value: mhmrentiva_db_cleanup_vars.nonce
 						}
 					)
 				);
@@ -519,29 +519,29 @@ jQuery( document ).ready(
 			'click',
 			'.mhm-restore-full-backup-btn',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_restore_full_backup_text || 'WARNING: This will restore the backup and may overwrite existing data. This operation is irreversible. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_restore_full_backup_text || 'WARNING: This will restore the backup and may overwrite existing data. This operation is irreversible. Continue?' )) {
 					return;
 				}
 
 				const btn      = $( this );
 				const filePath = btn.data( 'file' );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.restoring_text || 'Restoring...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.restoring_text || 'Restoring...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_restore_full_backup',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce,
+						action: 'mhmrentiva_restore_full_backup',
+						nonce: mhmrentiva_db_cleanup_vars.nonce,
 						file_path: filePath
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-full-backups-btn' ).trigger( 'click' );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-undo"></span> ' + (mhm_rentiva_db_cleanup_vars.restore_text || 'Restore') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore') );
 					}
 				);
 			}
@@ -552,29 +552,29 @@ jQuery( document ).ready(
 			'click',
 			'.mhm-delete-full-backup-btn',
 			function () {
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?' )) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_delete_backup_text || 'This will permanently delete the backup. This action cannot be undone. Continue?' )) {
 					return;
 				}
 
 				const btn        = $( this );
 				const backupName = btn.data( 'backup' );
-				btn.prop( 'disabled', true ).text( mhm_rentiva_db_cleanup_vars.deleting_text || 'Deleting...' );
+				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.deleting_text || 'Deleting...' );
 
 				$.post(
 					ajaxurl,
 					{
-						action: 'mhm_rentiva_delete_full_backup',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce,
+						action: 'mhmrentiva_delete_full_backup',
+						nonce: mhmrentiva_db_cleanup_vars.nonce,
 						backup_name: backupName
 					},
 					function (response) {
 						if (response.success) {
-							alert( mhm_rentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
+							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
 							$( '#mhm-refresh-full-backups-btn' ).trigger( 'click' );
 						} else {
-							alert( mhm_rentiva_db_cleanup_vars.error_text + ' ' + response.data );
+							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
 						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhm_rentiva_db_cleanup_vars.delete_text || 'Delete') );
+						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-trash"></span> ' + (mhmrentiva_db_cleanup_vars.delete_text || 'Delete') );
 					}
 				);
 			}
@@ -583,19 +583,19 @@ jQuery( document ).ready(
 		// Render full backup list
 		function renderFullBackupList(backups) {
 			if (backups.length === 0) {
-				$( '#mhm-full-backup-list' ).html( '<div class="notice notice-info"><p>' + (mhm_rentiva_db_cleanup_vars.no_backups_text || 'No full backups found. Create one to get started.') + '</p></div>' );
+				$( '#mhm-full-backup-list' ).html( '<div class="notice notice-info"><p>' + (mhmrentiva_db_cleanup_vars.no_backups_text || 'No full backups found. Create one to get started.') + '</p></div>' );
 				return;
 			}
 
 			let html = '<table class="widefat striped">';
 			html    += '<thead><tr>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_name_text || 'Backup Name') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_date_text || 'Date') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_tables_text || 'Tables') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_rows_text || 'Rows') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_size_text || 'Size') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.backup_status_text || 'Status') + '</th>';
-			html    += '<th>' + (mhm_rentiva_db_cleanup_vars.actions_text || 'Actions') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_name_text || 'Backup Name') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_date_text || 'Date') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_tables_text || 'Tables') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_rows_text || 'Rows') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_size_text || 'Size') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.backup_status_text || 'Status') + '</th>';
+			html    += '<th>' + (mhmrentiva_db_cleanup_vars.actions_text || 'Actions') + '</th>';
 			html    += '</tr></thead><tbody>';
 
 			backups.forEach(
@@ -610,22 +610,22 @@ jQuery( document ).ready(
 					html += '<td>' + backup.file_size_mb.toFixed( 2 ) + ' MB</td>';
 					html += '<td>';
 					if (backup.file_exists) {
-						html += '<span class="dashicons dashicons-yes-alt" style="color: green;" title="File exists"></span> ' + (mhm_rentiva_db_cleanup_vars.file_exists_text || 'Available');
+						html += '<span class="dashicons dashicons-yes-alt" style="color: green;" title="File exists"></span> ' + (mhmrentiva_db_cleanup_vars.file_exists_text || 'Available');
 					} else {
-						html += '<span class="dashicons dashicons-warning" style="color: orange;" title="File not found"></span> ' + (mhm_rentiva_db_cleanup_vars.file_missing_text || 'Missing');
+						html += '<span class="dashicons dashicons-warning" style="color: orange;" title="File not found"></span> ' + (mhmrentiva_db_cleanup_vars.file_missing_text || 'Missing');
 					}
 					html += '</td>';
 					html += '<td>';
 					if (backup.file_exists) {
 						html += '<button type="button" class="button button-small mhm-download-full-backup-btn" data-file="' + backup.file_path + '" style="margin-right: 5px;">';
-						html += '<span class="dashicons dashicons-download"></span> ' + (mhm_rentiva_db_cleanup_vars.download_text || 'Download');
+						html += '<span class="dashicons dashicons-download"></span> ' + (mhmrentiva_db_cleanup_vars.download_text || 'Download');
 						html += '</button>';
 						html += '<button type="button" class="button button-small mhm-restore-full-backup-btn" data-file="' + backup.file_path + '" style="margin-right: 5px;">';
-						html += '<span class="dashicons dashicons-undo"></span> ' + (mhm_rentiva_db_cleanup_vars.restore_text || 'Restore');
+						html += '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore');
 						html += '</button>';
 					}
 					html += '<button type="button" class="button button-small mhm-delete-full-backup-btn" data-backup="' + backup.backup_name + '">';
-					html += '<span class="dashicons dashicons-trash"></span> ' + (mhm_rentiva_db_cleanup_vars.delete_text || 'Delete');
+					html += '<span class="dashicons dashicons-trash"></span> ' + (mhmrentiva_db_cleanup_vars.delete_text || 'Delete');
 					html += '</button>';
 					html += '</td>';
 					html += '</tr>';
@@ -649,17 +649,17 @@ jQuery( document ).ready(
 				var table        = btn.data( 'table' );
 				var originalText = btn.text();
 
-				if ( ! confirm( mhm_rentiva_db_cleanup_vars.confirm_repair_text ) ) {
+				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_repair_text ) ) {
 					return;
 				}
 
 				btn.prop( 'disabled', true ).text( 'Processing...' );
 
 				$.post(
-					mhm_rentiva_db_cleanup_vars.ajaxurl || ajaxurl,
+					mhmrentiva_db_cleanup_vars.ajaxurl || ajaxurl,
 					{
-						action: 'mhm_rentiva_repair_table',
-						nonce: mhm_rentiva_db_cleanup_vars.nonce,
+						action: 'mhmrentiva_repair_table',
+						nonce: mhmrentiva_db_cleanup_vars.nonce,
 						table_name: table
 					},
 					function( response ) {

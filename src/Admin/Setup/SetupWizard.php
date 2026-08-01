@@ -22,8 +22,8 @@ final class SetupWizard {
 
 
 	private const PAGE_SLUG        = 'mhm-rentiva-setup';
-	private const OPTION_COMPLETED = 'mhm_rentiva_setup_completed';
-	private const OPTION_REDIRECT  = 'mhm_rentiva_setup_redirect';
+	private const OPTION_COMPLETED = 'mhmrentiva_setup_completed';
+	private const OPTION_REDIRECT  = 'mhmrentiva_setup_redirect';
 
 	public static function register(): void
 	{
@@ -31,12 +31,12 @@ final class SetupWizard {
 		add_action('admin_notices', array( self::class, 'show_permalink_notice' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 
-		add_action('admin_post_mhm_rentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
-		add_action('admin_post_mhm_rentiva_setup_save_email', array( self::class, 'handle_save_email' ));
-		add_action('admin_post_mhm_rentiva_setup_save_frontend', array( self::class, 'handle_save_frontend' ));
-		add_action('admin_post_mhm_rentiva_setup_finish', array( self::class, 'handle_finish' ));
-		add_action('admin_post_mhm_rentiva_setup_skip', array( self::class, 'handle_skip' ));
-		add_action('admin_post_mhm_rentiva_dismiss_permalink_notice', array( self::class, 'handle_dismiss_permalink_notice' ));
+		add_action('admin_post_mhmrentiva_setup_create_pages', array( self::class, 'handle_create_pages' ));
+		add_action('admin_post_mhmrentiva_setup_save_email', array( self::class, 'handle_save_email' ));
+		add_action('admin_post_mhmrentiva_setup_save_frontend', array( self::class, 'handle_save_frontend' ));
+		add_action('admin_post_mhmrentiva_setup_finish', array( self::class, 'handle_finish' ));
+		add_action('admin_post_mhmrentiva_setup_skip', array( self::class, 'handle_skip' ));
+		add_action('admin_post_mhmrentiva_dismiss_permalink_notice', array( self::class, 'handle_dismiss_permalink_notice' ));
 	}
 
 	public static function register_menu(): void
@@ -57,13 +57,13 @@ final class SetupWizard {
 			return;
 		}
 
-		$css_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/css/admin/setup-wizard.css';
+		$css_path = MHMRENTIVA_PLUGIN_DIR . 'assets/css/admin/setup-wizard.css';
 		if (file_exists($css_path)) {
 			wp_enqueue_style(
 				'mhm-rentiva-setup-wizard',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/setup-wizard.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/setup-wizard.css',
 				array(),
-				MHM_RENTIVA_VERSION . '.' . filemtime($css_path)
+				MHMRENTIVA_VERSION . '.' . filemtime($css_path)
 			);
 		}
 	}
@@ -90,7 +90,7 @@ final class SetupWizard {
 		$title = sprintf(
 			'%s <span class="version-badge">v%s</span>',
 			esc_html( (string) get_admin_page_title()),
-			esc_html(MHM_RENTIVA_VERSION)
+			esc_html(MHMRENTIVA_VERSION)
 		);
 
 		echo '<div class="wrap mhm-setup-wrapper">';
@@ -235,8 +235,8 @@ final class SetupWizard {
 			</tbody>
 		</table>
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" style="margin-top:20px;">
-			<?php wp_nonce_field('mhm_rentiva_setup_pages'); ?>
-			<input type="hidden" name="action" value="mhm_rentiva_setup_create_pages">
+			<?php wp_nonce_field('mhmrentiva_setup_pages'); ?>
+			<input type="hidden" name="action" value="mhmrentiva_setup_create_pages">
 			<?php submit_button(__('Create Missing Pages', 'mhm-rentiva')); ?>
 			<a class="button" href="<?php echo esc_url(admin_url('admin.php?page=mhm-rentiva-shortcode-pages')); ?>" target="_blank">
 				<?php esc_html_e('Open Shortcode Pages', 'mhm-rentiva'); ?>
@@ -251,14 +251,14 @@ final class SetupWizard {
 
 	private static function render_step_email(): void
 	{
-		$sender_name   = SettingsCore::get('mhm_rentiva_email_from_name', get_bloginfo('name'));
-		$sender_email  = SettingsCore::get('mhm_rentiva_email_from_address', get_option('admin_email'));
-		$reply_address = SettingsCore::get('mhm_rentiva_email_reply_to', get_option('admin_email'));
-		$test_mode     = SettingsCore::get('mhm_rentiva_email_test_mode', '0');
-		$test_address  = SettingsCore::get('mhm_rentiva_email_test_address', get_option('admin_email'));
-		$send_enabled  = SettingsCore::get('mhm_rentiva_email_send_enabled', '1');
-		$auto_enabled  = SettingsCore::get('mhm_rentiva_email_auto_send', '1');
-		$log_enabled   = SettingsCore::get('mhm_rentiva_email_log_enabled', '1');
+		$sender_name   = SettingsCore::get('mhmrentiva_email_from_name', get_bloginfo('name'));
+		$sender_email  = SettingsCore::get('mhmrentiva_email_from_address', get_option('admin_email'));
+		$reply_address = SettingsCore::get('mhmrentiva_email_reply_to', get_option('admin_email'));
+		$test_mode     = SettingsCore::get('mhmrentiva_email_test_mode', '0');
+		$test_address  = SettingsCore::get('mhmrentiva_email_test_address', get_option('admin_email'));
+		$send_enabled  = SettingsCore::get('mhmrentiva_email_send_enabled', '1');
+		$auto_enabled  = SettingsCore::get('mhmrentiva_email_auto_send', '1');
+		$log_enabled   = SettingsCore::get('mhmrentiva_email_log_enabled', '1');
 		?>
 		<h2><?php esc_html_e('Step 3: Email & Notifications', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Configure the sender information and enable automatic notifications for bookings.', 'mhm-rentiva'); ?></p>
@@ -279,8 +279,8 @@ final class SetupWizard {
 		</div>
 
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-			<?php wp_nonce_field('mhm_rentiva_setup_email'); ?>
-			<input type="hidden" name="action" value="mhm_rentiva_setup_save_email">
+			<?php wp_nonce_field('mhmrentiva_setup_email'); ?>
+			<input type="hidden" name="action" value="mhmrentiva_setup_save_email">
 			<table class="form-table">
 				<tr>
 					<th scope="row"><?php esc_html_e('Sender Name', 'mhm-rentiva'); ?></th>
@@ -331,11 +331,11 @@ final class SetupWizard {
 			$currency                = get_woocommerce_currency();
 			$is_woocommerce_currency = true;
 		} else {
-			$currency                = SettingsCore::get('mhm_rentiva_currency', 'USD');
+			$currency                = SettingsCore::get('mhmrentiva_currency', 'USD');
 			$is_woocommerce_currency = false;
 		}
 
-		$currency_position = SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
+		$currency_position = SettingsCore::get('mhmrentiva_currency_position', 'right_space');
 		$currencies        = CurrencyHelper::get_currency_list_for_dropdown();
 
 		// Get currency symbol for position examples
@@ -351,17 +351,17 @@ final class SetupWizard {
 			/* translators: %s: currency symbol */
 			'right_space' => sprintf(__('Right Space (100 %s)', 'mhm-rentiva'), $currency_symbol),
 		);
-		$default_days      = (int) SettingsCore::get('mhm_rentiva_default_rental_days', 1);
-		$min_days          = (int) SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1);
-		$max_days          = (int) SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30);
-		$show_features     = SettingsCore::get('mhm_rentiva_vehicle_show_features', '1');
-		$show_availability = SettingsCore::get('mhm_rentiva_vehicle_show_availability', '1');
+		$default_days      = (int) SettingsCore::get('mhmrentiva_default_rental_days', 1);
+		$min_days          = (int) SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1);
+		$max_days          = (int) SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30);
+		$show_features     = SettingsCore::get('mhmrentiva_vehicle_show_features', '1');
+		$show_availability = SettingsCore::get('mhmrentiva_vehicle_show_availability', '1');
 		?>
 		<h2><?php esc_html_e('Step 4: Frontend & Display', 'mhm-rentiva'); ?></h2>
 		<p><?php esc_html_e('Fine tune the visible defaults that appear on booking forms and vehicle cards.', 'mhm-rentiva'); ?></p>
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-			<?php wp_nonce_field('mhm_rentiva_setup_frontend'); ?>
-			<input type="hidden" name="action" value="mhm_rentiva_setup_save_frontend">
+			<?php wp_nonce_field('mhmrentiva_setup_frontend'); ?>
+			<input type="hidden" name="action" value="mhmrentiva_setup_save_frontend">
 			<table class="form-table">
 				<tr>
 					<th><?php esc_html_e('Currency', 'mhm-rentiva'); ?></th>
@@ -509,8 +509,8 @@ final class SetupWizard {
 		<?php endif; ?>
 
 		<form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-			<?php wp_nonce_field('mhm_rentiva_setup_finish'); ?>
-			<input type="hidden" name="action" value="mhm_rentiva_setup_finish">
+			<?php wp_nonce_field('mhmrentiva_setup_finish'); ?>
+			<input type="hidden" name="action" value="mhmrentiva_setup_finish">
 			<?php
 			if ($completed) {
 				echo '<p>' . esc_html__('Setup wizard was completed previously. You can still finish again to return to the dashboard.', 'mhm-rentiva') . '</p>';
@@ -530,7 +530,7 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_setup_pages');
+		check_admin_referer('mhmrentiva_setup_pages');
 
 		$created = 0;
 		foreach (self::get_required_pages() as $page) {
@@ -552,18 +552,18 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_setup_email');
+		check_admin_referer('mhmrentiva_setup_email');
 
-		$settings                                   = get_option('mhm_rentiva_settings', array());
-		$settings['mhm_rentiva_email_from_name']    = sanitize_text_field(wp_unslash($_POST['sender_name'] ?? ''));
-		$settings['mhm_rentiva_email_from_address'] = sanitize_email(wp_unslash($_POST['sender_email'] ?? ''));
-		$settings['mhm_rentiva_email_reply_to']     = sanitize_email(wp_unslash($_POST['reply_address'] ?? ''));
-		$settings['mhm_rentiva_email_test_mode']    = isset($_POST['test_mode']) ? '1' : '0';
-		$settings['mhm_rentiva_email_test_address'] = sanitize_email(wp_unslash($_POST['test_address'] ?? ''));
-		$settings['mhm_rentiva_email_send_enabled'] = isset($_POST['send_enabled']) ? '1' : '0';
-		$settings['mhm_rentiva_email_auto_send']    = isset($_POST['auto_enabled']) ? '1' : '0';
-		$settings['mhm_rentiva_email_log_enabled']  = isset($_POST['log_enabled']) ? '1' : '0';
-		update_option('mhm_rentiva_settings', $settings);
+		$settings                                   = get_option('mhmrentiva_settings', array());
+		$settings['mhmrentiva_email_from_name']    = sanitize_text_field(wp_unslash($_POST['sender_name'] ?? ''));
+		$settings['mhmrentiva_email_from_address'] = sanitize_email(wp_unslash($_POST['sender_email'] ?? ''));
+		$settings['mhmrentiva_email_reply_to']     = sanitize_email(wp_unslash($_POST['reply_address'] ?? ''));
+		$settings['mhmrentiva_email_test_mode']    = isset($_POST['test_mode']) ? '1' : '0';
+		$settings['mhmrentiva_email_test_address'] = sanitize_email(wp_unslash($_POST['test_address'] ?? ''));
+		$settings['mhmrentiva_email_send_enabled'] = isset($_POST['send_enabled']) ? '1' : '0';
+		$settings['mhmrentiva_email_auto_send']    = isset($_POST['auto_enabled']) ? '1' : '0';
+		$settings['mhmrentiva_email_log_enabled']  = isset($_POST['log_enabled']) ? '1' : '0';
+		update_option('mhmrentiva_settings', $settings);
 
 		wp_safe_redirect(self::step_url('frontend', array( 'saved' => '1' )));
 		exit;
@@ -574,17 +574,17 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_setup_frontend');
+		check_admin_referer('mhmrentiva_setup_frontend');
 
-		$settings                         = get_option('mhm_rentiva_settings', array());
-		$settings['mhm_rentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
+		$settings                         = get_option('mhmrentiva_settings', array());
+		$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
 
 		if (class_exists('WooCommerce')) {
-			$settings['mhm_rentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
+			$settings['mhmrentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
 		} else {
 			$currency_position                         = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
 			$allowed_positions                         = array( 'left', 'left_space', 'right', 'right_space' );
-			$settings['mhm_rentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
+			$settings['mhmrentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
 		}
 
 		// Read in the scope that verified the nonce above, like the other fields here.
@@ -592,14 +592,14 @@ final class SetupWizard {
 		$min_days     = isset($_POST['min_days']) ? absint(wp_unslash($_POST['min_days'])) : 1;
 		$max_days     = isset($_POST['max_days']) ? absint(wp_unslash($_POST['max_days'])) : 30;
 
-		$settings['mhm_rentiva_default_rental_days']     = (string) max(1, min(30, $default_days));
-		$settings['mhm_rentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
-		$settings['mhm_rentiva_vehicle_max_rental_days'] = (string) max( (int) $settings['mhm_rentiva_vehicle_min_rental_days'], min(365, $max_days));
+		$settings['mhmrentiva_default_rental_days']     = (string) max(1, min(30, $default_days));
+		$settings['mhmrentiva_vehicle_min_rental_days'] = (string) max(1, min(365, $min_days));
+		$settings['mhmrentiva_vehicle_max_rental_days'] = (string) max( (int) $settings['mhmrentiva_vehicle_min_rental_days'], min(365, $max_days));
 
-		$settings['mhm_rentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
-		$settings['mhm_rentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
+		$settings['mhmrentiva_vehicle_show_features']     = isset($_POST['show_features']) ? '1' : '0';
+		$settings['mhmrentiva_vehicle_show_availability'] = isset($_POST['show_availability']) ? '1' : '0';
 
-		update_option('mhm_rentiva_settings', $settings);
+		update_option('mhmrentiva_settings', $settings);
 
 		wp_safe_redirect(self::step_url('summary', array( 'saved' => '1' )));
 		exit;
@@ -610,7 +610,7 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_setup_finish');
+		check_admin_referer('mhmrentiva_setup_finish');
 
 		update_option(self::OPTION_COMPLETED, '1');
 		delete_option(self::OPTION_REDIRECT);
@@ -618,7 +618,7 @@ final class SetupWizard {
 		// Check permalink structure and set a transient notice if needed
 		$permalink_structure = get_option('permalink_structure');
 		if (empty($permalink_structure)) {
-			set_transient('mhm_rentiva_permalink_notice', '1', HOUR_IN_SECONDS);
+			set_transient('mhmrentiva_permalink_notice', '1', HOUR_IN_SECONDS);
 		}
 
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
@@ -630,7 +630,7 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_setup_skip');
+		check_admin_referer('mhmrentiva_setup_skip');
 		update_option(self::OPTION_COMPLETED, '1');
 		delete_option(self::OPTION_REDIRECT);
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
@@ -642,8 +642,8 @@ final class SetupWizard {
 		if (! current_user_can('manage_options')) {
 			wp_die(esc_html__('You are not allowed to perform this action.', 'mhm-rentiva'));
 		}
-		check_admin_referer('mhm_rentiva_dismiss_permalink_notice');
-		delete_transient('mhm_rentiva_permalink_notice');
+		check_admin_referer('mhmrentiva_dismiss_permalink_notice');
+		delete_transient('mhmrentiva_permalink_notice');
 		wp_safe_redirect(admin_url('admin.php?page=mhm-rentiva-dashboard'));
 		exit;
 	}
@@ -685,7 +685,7 @@ final class SetupWizard {
 		}
 
 		// Only show notice if transient is set (after setup completion)
-		if (! get_transient('mhm_rentiva_permalink_notice')) {
+		if (! get_transient('mhmrentiva_permalink_notice')) {
 			return;
 		}
 
@@ -693,7 +693,7 @@ final class SetupWizard {
 		$permalink_structure = get_option('permalink_structure');
 		if (! empty($permalink_structure)) {
 			// Permalink is already set, delete transient
-			delete_transient('mhm_rentiva_permalink_notice');
+			delete_transient('mhmrentiva_permalink_notice');
 			return;
 		}
 
@@ -716,7 +716,7 @@ final class SetupWizard {
 				<a class="button button-primary" href="<?php echo esc_url($permalink_url); ?>">
 					<?php esc_html_e('Open Permalink Settings', 'mhm-rentiva'); ?>
 				</a>
-				<a class="button button-link" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhm_rentiva_dismiss_permalink_notice'), 'mhm_rentiva_dismiss_permalink_notice')); ?>">
+				<a class="button button-link" href="<?php echo esc_url(wp_nonce_url(admin_url('admin-post.php?action=mhmrentiva_dismiss_permalink_notice'), 'mhmrentiva_dismiss_permalink_notice')); ?>">
 					<?php esc_html_e('Dismiss', 'mhm-rentiva'); ?>
 				</a>
 			</p>
@@ -786,8 +786,8 @@ final class SetupWizard {
 	private static function skip_url(): string
 	{
 		return wp_nonce_url(
-			admin_url('admin-post.php?action=mhm_rentiva_setup_skip'),
-			'mhm_rentiva_setup_skip'
+			admin_url('admin-post.php?action=mhmrentiva_setup_skip'),
+			'mhmrentiva_setup_skip'
 		);
 	}
 
@@ -1072,9 +1072,9 @@ final class SetupWizard {
 			case 'pages':
 				return self::are_required_pages_present();
 			case 'email':
-				return (bool) SettingsCore::get('mhm_rentiva_email_from_address', '');
+				return (bool) SettingsCore::get('mhmrentiva_email_from_address', '');
 			case 'frontend':
-				return (bool) SettingsCore::get('mhm_rentiva_currency', 'USD');
+				return (bool) SettingsCore::get('mhmrentiva_currency', 'USD');
 			case 'summary':
 				return get_option(self::OPTION_COMPLETED, '0') === '1';
 			default:

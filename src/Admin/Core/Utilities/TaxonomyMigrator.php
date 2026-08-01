@@ -32,7 +32,7 @@ final class TaxonomyMigrator {
 		global $wpdb;
 
 		// Check if migration is already done
-		$migration_done = get_option( 'mhm_rentiva_taxonomy_migrated', false );
+		$migration_done = get_option( 'mhmrentiva_taxonomy_migrated', false );
 
 		if ( $migration_done ) {
 			return; // Already done
@@ -49,7 +49,7 @@ final class TaxonomyMigrator {
 
 		if ( $updated !== false ) {
 			// Migration successful, mark it
-			update_option( 'mhm_rentiva_taxonomy_migrated', true, false );
+			update_option( 'mhmrentiva_taxonomy_migrated', true, false );
 
 			// Flush rewrite rules
 			flush_rewrite_rules();
@@ -72,7 +72,7 @@ final class TaxonomyMigrator {
 			array( '%s' )
 		);
 
-		delete_option( 'mhm_rentiva_taxonomy_migrated' );
+		delete_option( 'mhmrentiva_taxonomy_migrated' );
 		flush_rewrite_rules();
 	}
 }

@@ -34,7 +34,7 @@ final class CustomersOptimizer {
 
 
 
-	private const CACHE_PREFIX = 'mhm_rentiva_customers_';
+	private const CACHE_PREFIX = 'mhmrentiva_customers_';
 	private const CACHE_TTL    = 900; // 15 minutes
 	private const BATCH_SIZE   = 50;
 
@@ -109,16 +109,16 @@ final class CustomersOptimizer {
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhm_customer_email'
+                AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
-                AND price_meta.meta_key = '_mhm_total_price'
+                AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhm_rentiva_phone'
+                AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhm_rentiva_address'
+                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
@@ -139,16 +139,16 @@ final class CustomersOptimizer {
                 MAX(p.post_date) as last_booking
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhm_customer_email'
+                AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
-                AND price_meta.meta_key = '_mhm_total_price'
+                AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhm_rentiva_phone'
+                AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhm_rentiva_address'
+                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
@@ -245,7 +245,7 @@ final class CustomersOptimizer {
                 END) as active_customers
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhm_customer_email'
+                AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
@@ -316,16 +316,16 @@ final class CustomersOptimizer {
                 MIN(p.post_date) as first_booking
             FROM {$wpdb->users} u
             LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
-                AND email_meta.meta_key = '_mhm_customer_email'
+                AND email_meta.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
             LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
-                AND price_meta.meta_key = '_mhm_total_price'
+                AND price_meta.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->usermeta} um_phone ON u.ID = um_phone.user_id
-                AND um_phone.meta_key = 'mhm_rentiva_phone'
+                AND um_phone.meta_key = 'mhmrentiva_phone'
             LEFT JOIN {$wpdb->usermeta} um_address ON u.ID = um_address.user_id
-                AND um_address.meta_key = 'mhm_rentiva_address'
+                AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID = %d
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
         ",
@@ -485,11 +485,11 @@ final class CustomersOptimizer {
 
 		// Update meta data
 		if ( isset( $updates['phone'] ) ) {
-			update_user_meta( $customer_id, 'mhm_rentiva_phone', self::sanitize_text_field_safe( $updates['phone'] ) );
+			update_user_meta( $customer_id, 'mhmrentiva_phone', self::sanitize_text_field_safe( $updates['phone'] ) );
 		}
 
 		if ( isset( $updates['address'] ) ) {
-			update_user_meta( $customer_id, 'mhm_rentiva_address', sanitize_textarea_field( (string) ( $updates['address'] ?? '' ) ) );
+			update_user_meta( $customer_id, 'mhmrentiva_address', sanitize_textarea_field( (string) ( $updates['address'] ?? '' ) ) );
 		}
 
 		return true;
@@ -513,7 +513,7 @@ final class CustomersOptimizer {
                 COUNT(DISTINCT u.ID) as customer_count
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhm_customer_email'
+                AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
@@ -554,7 +554,7 @@ final class CustomersOptimizer {
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhm_customer_email'
+                AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
@@ -574,7 +574,7 @@ final class CustomersOptimizer {
             SELECT COUNT(DISTINCT u.ID)
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
-                AND pm_email.meta_key = '_mhm_customer_email'
+                AND pm_email.meta_key = '_mhmrentiva_customer_email'
             INNER JOIN {$wpdb->posts} p ON p.ID = pm_email.post_id
                 AND p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')

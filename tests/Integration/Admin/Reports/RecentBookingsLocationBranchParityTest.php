@@ -124,7 +124,7 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
             'post_status' => 'publish',
             'post_title'  => 'Recent Parity Vehicle',
         ));
-        update_post_meta($vehicle_id, '_mhm_rentiva_license_plate', '34REC200');
+        update_post_meta($vehicle_id, '_mhmrentiva_license_plate', '34REC200');
 
         // This query has no date window and accepts any of publish/private/pending,
         // so a plain published booking is enough to guarantee a non-empty result.
@@ -134,11 +134,11 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
             'post_title'  => 'Recent Parity Booking',
         ));
 
-        update_post_meta($this->booking_id, '_mhm_vehicle_id', $vehicle_id);
-        update_post_meta($this->booking_id, '_mhm_status', 'confirmed');
-        update_post_meta($this->booking_id, '_mhm_pickup_date', gmdate('Y-m-d'));
-        update_post_meta($this->booking_id, '_mhm_customer_name', 'Recent Parity Customer');
-        update_post_meta($this->booking_id, '_mhm_total_price', '1250');
+        update_post_meta($this->booking_id, '_mhmrentiva_vehicle_id', $vehicle_id);
+        update_post_meta($this->booking_id, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($this->booking_id, '_mhmrentiva_pickup_date', gmdate('Y-m-d'));
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_name', 'Recent Parity Customer');
+        update_post_meta($this->booking_id, '_mhmrentiva_total_price', '1250');
     }
 
     public function tearDown(): void
@@ -213,7 +213,7 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
             'The locations table name was bound into a meta_key slot -- the arguments are transposed.'
         );
         $this->assertStringContainsString(
-            "pm_pickup.meta_key = '_mhm_pickup_date'",
+            "pm_pickup.meta_key = '_mhmrentiva_pickup_date'",
             $recent,
             'The pickup-date meta key must be bound into the pm_pickup slot.'
         );

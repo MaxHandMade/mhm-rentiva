@@ -53,13 +53,13 @@ final class VehicleSettings {
 	public static function register(): void {
 		// Menu registration is now done centrally in Menu.php
 		add_action( 'admin_init', array( self::class, 'register_settings' ) );
-		add_action( 'wp_ajax_mhm_rentiva_save_vehicle_settings', array( self::class, 'ajax_save_settings' ) );
-		add_action( 'wp_ajax_mhm_rentiva_update_field_labels', array( self::class, 'ajax_update_field_labels' ) );
-		add_action( 'wp_ajax_mhm_rentiva_remove_custom_field', array( self::class, 'ajax_remove_custom_field' ) );
-		add_action( 'wp_ajax_mhm_rentiva_add_custom_field', array( self::class, 'ajax_add_custom_field' ) );
+		add_action( 'wp_ajax_mhmrentiva_save_vehicle_settings', array( self::class, 'ajax_save_settings' ) );
+		add_action( 'wp_ajax_mhmrentiva_update_field_labels', array( self::class, 'ajax_update_field_labels' ) );
+		add_action( 'wp_ajax_mhmrentiva_remove_custom_field', array( self::class, 'ajax_remove_custom_field' ) );
+		add_action( 'wp_ajax_mhmrentiva_add_custom_field', array( self::class, 'ajax_add_custom_field' ) );
 
 		// Reset Settings
-		add_action( 'wp_ajax_mhm_rentiva_reset_vehicle_settings', array( self::class, 'ajax_reset_settings' ) );
+		add_action( 'wp_ajax_mhmrentiva_reset_vehicle_settings', array( self::class, 'ajax_reset_settings' ) );
 	}
 
 	/**
@@ -67,8 +67,8 @@ final class VehicleSettings {
 	 */
 	public static function update_global_vehicle_settings( int $post_id, \WP_Post $post ): void {
 		// Nonce check
-		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_vehicle_meta_nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_vehicle_meta_action' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_vehicle_meta_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_vehicle_meta_action' ) ) {
 			return;
 		}
 
@@ -83,10 +83,10 @@ final class VehicleSettings {
 		}
 
 		// Sanitize and validate custom details array from POST
-		$custom_details = VerifiedRequest::from( $_POST )->arr( 'mhm_rentiva_custom_details' );
+		$custom_details = VerifiedRequest::from( $_POST )->arr( 'mhmrentiva_custom_details' );
 
 		if ( ! empty( $custom_details ) ) {
-			$available_details = get_option( 'mhm_vehicle_details', array() );
+			$available_details = get_option( 'mhmrentiva_vehicle_details', array() );
 			$option_updated    = false;
 
 			foreach ( $custom_details as $key => $detail_data ) {
@@ -99,7 +99,7 @@ final class VehicleSettings {
 
 			// Update option
 			if ( $option_updated ) {
-				update_option( 'mhm_vehicle_details', $available_details );
+				update_option( 'mhmrentiva_vehicle_details', $available_details );
 			}
 		}
 	}
@@ -108,10 +108,10 @@ final class VehicleSettings {
 	 * Sanitize an array-shaped option: `sanitize_key()` on the KEY, `sanitize_text_field()`
 	 * on the VALUE.
 	 *
-	 * Used for `mhm_selected_*` (selected field-key lists) and `mhm_custom_*`
+	 * Used for `mhmrentiva_selected_*` (selected field-key lists) and `mhmrentiva_custom_*`
 	 * (custom field slug => label maps). In both cases the array KEY is an
-	 * internal slug -- for `mhm_custom_*` it gates `isset()` lookups and is
-	 * suffixed onto a postmeta key (`_mhm_rentiva_<key>`); it is normally
+	 * internal slug -- for `mhmrentiva_custom_*` it gates `isset()` lookups and is
+	 * suffixed onto a postmeta key (`_mhmrentiva_<key>`); it is normally
 	 * server-generated (`custom_<time>_<rand>`, see ajax_add_custom_field())
 	 * or taxonomy-derived (`tax_<taxonomy>_<slug>`), both already
 	 * `[a-z0-9_-]`, so `sanitize_key()` is lossless for real data. The VALUE
@@ -151,14 +151,14 @@ final class VehicleSettings {
 		$sanitize_callback = array( self::class, 'sanitize_array_option' );
 
 		// Selected fields (checkbox states)
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_details', array( 'sanitize_callback' => $sanitize_callback ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_features', array( 'sanitize_callback' => $sanitize_callback ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_selected_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_selected_details', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_selected_features', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_selected_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
 
 		// Custom fields
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_details', array( 'sanitize_callback' => $sanitize_callback ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_features', array( 'sanitize_callback' => $sanitize_callback ) );
-		register_setting( 'mhm_vehicle_settings', 'mhm_custom_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_custom_details', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_custom_features', array( 'sanitize_callback' => $sanitize_callback ) );
+		register_setting( 'mhmrentiva_vehicle_settings', 'mhmrentiva_custom_equipment', array( 'sanitize_callback' => $sanitize_callback ) );
 	}
 
 	/**
@@ -332,7 +332,7 @@ final class VehicleSettings {
 		$detail_hidden_value = esc_attr( wp_json_encode( $detail_selected_rows ) );
 
 		// 2. Comparison Fields
-		$settings                    = get_option( 'mhm_rentiva_settings', array() );
+		$settings                    = get_option( 'mhmrentiva_settings', array() );
 		$selected_comparison_fields  = $settings['comparison_fields'] ?? array();
 		$available_comparison_fields = self::get_comparison_available_fields();
 		$show_defaults               = empty( $selected_comparison_fields );
@@ -343,7 +343,7 @@ final class VehicleSettings {
 			<div class="mhm-settings-section">
 				<h2><?php echo esc_html__( 'Visible Card Items', 'mhm-rentiva' ); ?></h2>
 				<div class="mhm-card-fields-wrapper">
-					<input type="hidden" id="mhm-vehicle-card-fields-input" name="mhm_rentiva_vehicle_card_fields" value="<?php echo esc_attr( $hidden_value ); ?>" />
+					<input type="hidden" id="mhm-vehicle-card-fields-input" name="mhmrentiva_vehicle_card_fields" value="<?php echo esc_attr( $hidden_value ); ?>" />
 
 					<div class="mhm-card-fields-columns">
 
@@ -385,7 +385,7 @@ final class VehicleSettings {
 			<div class="mhm-settings-section">
 				<h2><?php echo esc_html__( 'Vehicle Detail Highlighted Features', 'mhm-rentiva' ); ?></h2>
 				<div class="mhm-card-fields-wrapper mhm-detail-fields-wrapper">
-					<input type="hidden" id="mhm-vehicle-detail-fields-input" name="mhm_rentiva_vehicle_detail_fields" value="<?php echo esc_attr( $detail_hidden_value ); ?>" />
+					<input type="hidden" id="mhm-vehicle-detail-fields-input" name="mhmrentiva_vehicle_detail_fields" value="<?php echo esc_attr( $detail_hidden_value ); ?>" />
 
 					<div class="mhm-card-fields-columns">
 						<div class="mhm-card-fields-column">
@@ -470,7 +470,7 @@ final class VehicleSettings {
 			</div>
 
 			<div class="mhm-display-save-actions submit-section">
-				<input type="hidden" name="action" value="mhm_rentiva_save_vehicle_settings">
+				<input type="hidden" name="action" value="mhmrentiva_save_vehicle_settings">
 				<input type="hidden" name="sub_action" value="save_display_settings">
 				<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'vehicle_settings_nonce' ) ); ?>">
 				<button type="submit" id="save-display-settings" class="button button-primary button-large"><?php echo esc_html__( 'Save Display Settings', 'mhm-rentiva' ); ?></button>
@@ -484,14 +484,14 @@ final class VehicleSettings {
 	 * Render Definitions Tab (Original Content)
 	 */
 	public static function render_definitions_tab(): void {
-		$selected_details   = get_option( 'mhm_selected_details', self::get_default_selected_details() );
-		$selected_features  = get_option( 'mhm_selected_features', self::get_default_selected_features() );
-		$selected_equipment = get_option( 'mhm_selected_equipment', self::get_default_selected_equipment() );
+		$selected_details   = get_option( 'mhmrentiva_selected_details', self::get_default_selected_details() );
+		$selected_features  = get_option( 'mhmrentiva_selected_features', self::get_default_selected_features() );
+		$selected_equipment = get_option( 'mhmrentiva_selected_equipment', self::get_default_selected_equipment() );
 
 		// Get custom fields
-		$custom_details   = get_option( 'mhm_custom_details', array() );
-		$custom_features  = get_option( 'mhm_custom_features', array() );
-		$custom_equipment = get_option( 'mhm_custom_equipment', array() );
+		$custom_details   = get_option( 'mhmrentiva_custom_details', array() );
+		$custom_features  = get_option( 'mhmrentiva_custom_features', array() );
+		$custom_equipment = get_option( 'mhmrentiva_custom_equipment', array() );
 
 		// Get all existing fields (standard + custom)
 		$all_details   = self::get_all_available_details();
@@ -690,7 +690,7 @@ final class VehicleSettings {
 				</div>
 
 				<div class="mhm-settings-footer-actions">
-					<input type="hidden" name="action" value="mhm_rentiva_save_vehicle_settings">
+					<input type="hidden" name="action" value="mhmrentiva_save_vehicle_settings">
 					<input type="hidden" name="nonce" value="<?php echo esc_attr( wp_create_nonce( 'vehicle_settings_nonce' ) ); ?>">
 					<button type="submit" id="save-settings" class="button button-primary button-large"><?php echo esc_html__( 'Save Settings', 'mhm-rentiva' ); ?></button>
 				</div>
@@ -850,7 +850,7 @@ final class VehicleSettings {
 	 */
 	public static function get_taxonomy_features(): array {
 		$taxonomy_features = array();
-		$taxonomies        = array( 'mhm_rentiva_feature', 'vehicle_feature', 'vehicle_features' );
+		$taxonomies        = array( 'mhmrentiva_feature', 'vehicle_feature', 'vehicle_features' );
 		foreach ( $taxonomies as $tax ) {
 			if ( taxonomy_exists( $tax ) ) {
 				$terms = get_terms(
@@ -877,7 +877,7 @@ final class VehicleSettings {
 	 */
 	public static function get_taxonomy_equipment(): array {
 		$taxonomy_equipment = array();
-		$taxonomies         = array( 'mhm_rentiva_equipment', 'vehicle_equipment' );
+		$taxonomies         = array( 'mhmrentiva_equipment', 'vehicle_equipment' );
 		foreach ( $taxonomies as $tax ) {
 			if ( taxonomy_exists( $tax ) ) {
 				$terms = get_terms(
@@ -902,14 +902,14 @@ final class VehicleSettings {
 	 */
 	public static function get_all_available_details(): array {
 		$details        = self::get_default_details();
-		$stored_details = (array) get_option( 'mhm_vehicle_details', array() );
+		$stored_details = (array) get_option( 'mhmrentiva_vehicle_details', array() );
 		foreach ( $stored_details as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$details[ $key ] = $label;
 			}
 		}
 
-		$custom_details = (array) get_option( 'mhm_custom_details', array() );
+		$custom_details = (array) get_option( 'mhmrentiva_custom_details', array() );
 		foreach ( $custom_details as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$details[ $key ] = $label;
@@ -924,14 +924,14 @@ final class VehicleSettings {
 	 */
 	public static function get_all_available_features(): array {
 		$features        = self::get_default_features();
-		$stored_features = (array) get_option( 'mhm_vehicle_features', array() );
+		$stored_features = (array) get_option( 'mhmrentiva_vehicle_features', array() );
 		foreach ( $stored_features as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$features[ $key ] = $label;
 			}
 		}
 
-		$custom_features = (array) get_option( 'mhm_custom_features', array() );
+		$custom_features = (array) get_option( 'mhmrentiva_custom_features', array() );
 		foreach ( $custom_features as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$features[ $key ] = $label;
@@ -947,14 +947,14 @@ final class VehicleSettings {
 	 */
 	public static function get_all_available_equipment(): array {
 		$equipment        = self::get_default_equipment();
-		$stored_equipment = (array) get_option( 'mhm_vehicle_equipment', array() );
+		$stored_equipment = (array) get_option( 'mhmrentiva_vehicle_equipment', array() );
 		foreach ( $stored_equipment as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$equipment[ $key ] = $label;
 			}
 		}
 
-		$custom_equipment = (array) get_option( 'mhm_custom_equipment', array() );
+		$custom_equipment = (array) get_option( 'mhmrentiva_custom_equipment', array() );
 		foreach ( $custom_equipment as $key => $label ) {
 			if ( ! empty( $label ) ) {
 				$equipment[ $key ] = $label;
@@ -1015,9 +1015,9 @@ final class VehicleSettings {
 		}
 
 		$custom = array(
-			'detail'    => (array) get_option( 'mhm_custom_details', array() ),
-			'feature'   => (array) get_option( 'mhm_custom_features', array() ),
-			'equipment' => (array) get_option( 'mhm_custom_equipment', array() ),
+			'detail'    => (array) get_option( 'mhmrentiva_custom_details', array() ),
+			'feature'   => (array) get_option( 'mhmrentiva_custom_features', array() ),
+			'equipment' => (array) get_option( 'mhmrentiva_custom_equipment', array() ),
 		);
 
 		// Trap 4: REQUIRED rows are core keys that actually exist as detail fields.
@@ -1026,7 +1026,7 @@ final class VehicleSettings {
 			array_keys( $universes['detail'] )
 		) );
 
-		$custom_meta = (array) get_option( 'mhm_custom_field_meta', array() );
+		$custom_meta = (array) get_option( 'mhmrentiva_custom_field_meta', array() );
 
 		$card_ids   = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_card_fields() );
 		$detail_ids = self::selection_to_ids( \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_selected_detail_fields() );
@@ -1034,7 +1034,7 @@ final class VehicleSettings {
 		// The comparison table renders exactly the keys stored in comparison_fields
 		// (VehicleComparison::get_dynamic_features()); an empty set renders NO comparison rows, so
 		// there is no "empty means all" default -- an empty selection means nothing compares.
-		$settings   = (array) get_option( 'mhm_rentiva_settings', array() );
+		$settings   = (array) get_option( 'mhmrentiva_settings', array() );
 		$comparison = ( isset( $settings['comparison_fields'] ) && is_array( $settings['comparison_fields'] ) )
 			? $settings['comparison_fields']
 			: array();
@@ -1083,9 +1083,9 @@ final class VehicleSettings {
 		// The single editing order (spec §6) is persisted explicitly so it round-trips exactly;
 		// two filtered subsets (card/detail) cannot reconstruct one merged order. Empty until
 		// the first v2 save -- the UI then derives one from card/detail order as a fallback.
-		$stored_settings = (array) get_option( 'mhm_rentiva_settings', array() );
-		$matrix_order    = ( isset( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) && is_array( $stored_settings['mhm_rentiva_vehicle_matrix_order'] ) )
-			? array_map( 'strval', $stored_settings['mhm_rentiva_vehicle_matrix_order'] )
+		$stored_settings = (array) get_option( 'mhmrentiva_settings', array() );
+		$matrix_order    = ( isset( $stored_settings['mhmrentiva_vehicle_matrix_order'] ) && is_array( $stored_settings['mhmrentiva_vehicle_matrix_order'] ) )
+			? array_map( 'strval', $stored_settings['mhmrentiva_vehicle_matrix_order'] )
 			: array();
 
 		return array(
@@ -1140,24 +1140,24 @@ final class VehicleSettings {
 	 * which drops any entry not in get_available_fields_map() -- the same availability truth the
 	 * frontend renders from. Comparison is stored as submitted (the frontend gates Passive keys at
 	 * render, VehicleComparison::flatten_gated_selected_keys()), so a Passive-field compare flag
-	 * may persist as harmless storage cruft. The matrix order (mhm_rentiva_vehicle_matrix_order)
+	 * may persist as harmless storage cruft. The matrix order (mhmrentiva_vehicle_matrix_order)
 	 * is stored as the id list so the single editing order round-trips exactly (spec §6).
 	 */
 	private static function save_display_payload( VerifiedRequest $req ): void {
-		$settings         = get_option( 'mhm_rentiva_settings', array() );
+		$settings         = get_option( 'mhmrentiva_settings', array() );
 		$settings_updated = false;
 
 		// Save Card Fields
-		if ( $req->has( 'mhm_rentiva_vehicle_card_fields' ) ) {
+		if ( $req->has( 'mhmrentiva_vehicle_card_fields' ) ) {
 			// It comes as a JSON string from the hidden input
-			$json_value = $req->text( 'mhm_rentiva_vehicle_card_fields' );
+			$json_value = $req->text( 'mhmrentiva_vehicle_card_fields' );
 			$decoded    = json_decode( $json_value, true );
 
 			// Validate structure. sanitize_card_field_selection() gates every entry through
 			// get_available_fields_map() -- the same availability truth the frontend renders from --
 			// so an unavailable (disabled) detail is dropped here, while features/equipment pass.
 			if ( is_array( $decoded ) ) {
-				$settings['mhm_rentiva_vehicle_card_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
+				$settings['mhmrentiva_vehicle_card_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
 				$settings_updated                            = true;
 			}
 		}
@@ -1165,12 +1165,12 @@ final class VehicleSettings {
 		// JS submits "[]" for an explicit empty selection; missing field means "no change".
 
 		// Save Vehicle Detail Highlighted Fields
-		if ( $req->has( 'mhm_rentiva_vehicle_detail_fields' ) ) {
-			$json_value = $req->text( 'mhm_rentiva_vehicle_detail_fields' );
+		if ( $req->has( 'mhmrentiva_vehicle_detail_fields' ) ) {
+			$json_value = $req->text( 'mhmrentiva_vehicle_detail_fields' );
 			$decoded    = json_decode( $json_value, true );
 
 			if ( is_array( $decoded ) ) {
-				$settings['mhm_rentiva_vehicle_detail_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
+				$settings['mhmrentiva_vehicle_detail_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
 				$settings_updated                              = true;
 			}
 		}
@@ -1193,10 +1193,10 @@ final class VehicleSettings {
 
 		// Persist the single editing order (spec §6) as a "type:key" id list, so it round-trips
 		// exactly instead of being re-inferred from the card/detail subsets.
-		if ( $req->has( 'mhm_rentiva_vehicle_matrix_order' ) ) {
-			$decoded_order = json_decode( $req->text( 'mhm_rentiva_vehicle_matrix_order' ), true );
+		if ( $req->has( 'mhmrentiva_vehicle_matrix_order' ) ) {
+			$decoded_order = json_decode( $req->text( 'mhmrentiva_vehicle_matrix_order' ), true );
 			if ( is_array( $decoded_order ) ) {
-				$settings['mhm_rentiva_vehicle_matrix_order'] = array_values( array_filter( array_map(
+				$settings['mhmrentiva_vehicle_matrix_order'] = array_values( array_filter( array_map(
 					static function ( $id ) {
 						return is_string( $id ) ? preg_replace( '/[^a-z0-9_:]/', '', $id ) : '';
 					},
@@ -1206,14 +1206,14 @@ final class VehicleSettings {
 		}
 
 		if ( $settings_updated ) {
-			update_option( 'mhm_rentiva_settings', $settings );
+			update_option( 'mhmrentiva_settings', $settings );
 		}
 	}
 
 	/**
 	 * Persist the "Definitions" tab payload (which fields exist / are enabled + custom fields).
 	 *
-	 * Contract: the three `selected_*` writes below (`mhm_selected_details/features/equipment`)
+	 * Contract: the three `selected_*` writes below (`mhmrentiva_selected_details/features/equipment`)
 	 * are UNCONDITIONAL -- each is taken from `post_array()`, which yields `array()` when the
 	 * corresponding POST key is absent, unlike the `isset()`-guarded `custom_*` writes further
 	 * down. A caller that invokes `sub_action=save_all` MUST submit a complete definitions
@@ -1250,20 +1250,20 @@ final class VehicleSettings {
 		// Renaming is handled by the dedicated ajax_update_field_labels method.
 
 		// Save to database
-		update_option( 'mhm_selected_details', $selected_details );
-		update_option( 'mhm_selected_features', $selected_features );
-		update_option( 'mhm_selected_equipment', $selected_equipment );
+		update_option( 'mhmrentiva_selected_details', $selected_details );
+		update_option( 'mhmrentiva_selected_features', $selected_features );
+		update_option( 'mhmrentiva_selected_equipment', $selected_equipment );
 
 		// FIXED: Only update custom fields if they were actually sent in the POST.
 		// Usually custom fields are only managed via the specific Add/Remove AJAX calls.
 		if ( $req->has( 'custom_details' ) ) {
-			update_option( 'mhm_custom_details', $custom_details );
+			update_option( 'mhmrentiva_custom_details', $custom_details );
 		}
 		if ( $req->has( 'custom_features' ) ) {
-			update_option( 'mhm_custom_features', $custom_features );
+			update_option( 'mhmrentiva_custom_features', $custom_features );
 		}
 		if ( $req->has( 'custom_equipment' ) ) {
-			update_option( 'mhm_custom_equipment', $custom_equipment );
+			update_option( 'mhmrentiva_custom_equipment', $custom_equipment );
 		}
 	}
 
@@ -1293,8 +1293,8 @@ final class VehicleSettings {
 
 		// Get existing fields (updated ones)
 		if ( $type === 'details' ) {
-			$current_details = get_option( 'mhm_vehicle_details', self::get_default_details() );
-			$custom_details  = get_option( 'mhm_custom_details', array() );
+			$current_details = get_option( 'mhmrentiva_vehicle_details', self::get_default_details() );
+			$custom_details  = get_option( 'mhmrentiva_custom_details', array() );
 
 			foreach ( $sanitized_labels as $key => $new_label ) {
 				// Update standard fields
@@ -1307,11 +1307,11 @@ final class VehicleSettings {
 				}
 			}
 
-			update_option( 'mhm_vehicle_details', $current_details );
-			update_option( 'mhm_custom_details', $custom_details );
+			update_option( 'mhmrentiva_vehicle_details', $current_details );
+			update_option( 'mhmrentiva_custom_details', $custom_details );
 		} elseif ( $type === 'features' ) {
-			$current_features = get_option( 'mhm_vehicle_features', self::get_default_features() );
-			$custom_features  = get_option( 'mhm_custom_features', array() );
+			$current_features = get_option( 'mhmrentiva_vehicle_features', self::get_default_features() );
+			$custom_features  = get_option( 'mhmrentiva_custom_features', array() );
 
 			foreach ( $sanitized_labels as $key => $new_label ) {
 				// Update standard fields
@@ -1324,11 +1324,11 @@ final class VehicleSettings {
 				}
 			}
 
-			update_option( 'mhm_vehicle_features', $current_features );
-			update_option( 'mhm_custom_features', $custom_features );
+			update_option( 'mhmrentiva_vehicle_features', $current_features );
+			update_option( 'mhmrentiva_custom_features', $custom_features );
 		} elseif ( $type === 'equipment' ) {
-			$current_equipment = get_option( 'mhm_vehicle_equipment', self::get_default_equipment() );
-			$custom_equipment  = get_option( 'mhm_custom_equipment', array() );
+			$current_equipment = get_option( 'mhmrentiva_vehicle_equipment', self::get_default_equipment() );
+			$custom_equipment  = get_option( 'mhmrentiva_custom_equipment', array() );
 
 			foreach ( $sanitized_labels as $key => $new_label ) {
 				// Update standard fields
@@ -1341,8 +1341,8 @@ final class VehicleSettings {
 				}
 			}
 
-			update_option( 'mhm_vehicle_equipment', $current_equipment );
-			update_option( 'mhm_custom_equipment', $custom_equipment );
+			update_option( 'mhmrentiva_vehicle_equipment', $current_equipment );
+			update_option( 'mhmrentiva_custom_equipment', $custom_equipment );
 		}
 
 		wp_send_json_success( __( 'Field names updated successfully!', 'mhm-rentiva' ) );
@@ -1377,34 +1377,34 @@ final class VehicleSettings {
 			}
 
 			// 2. Try removing from Standard Details
-			$current_details = get_option( 'mhm_vehicle_details', self::get_default_details() );
+			$current_details = get_option( 'mhmrentiva_vehicle_details', self::get_default_details() );
 			if ( isset( $current_details[ $field_key ] ) ) {
 				unset( $current_details[ $field_key ] );
-				update_option( 'mhm_vehicle_details', $current_details );
+				update_option( 'mhmrentiva_vehicle_details', $current_details );
 				wp_send_json_success( __( 'Field removed successfully.', 'mhm-rentiva' ) );
 				return;
 			}
 
 			// 3. Try removing from Custom Details
-			$custom_details = get_option( 'mhm_custom_details', array() );
+			$custom_details = get_option( 'mhmrentiva_custom_details', array() );
 			if ( isset( $custom_details[ $field_key ] ) ) {
 				unset( $custom_details[ $field_key ] );
-				update_option( 'mhm_custom_details', $custom_details );
+				update_option( 'mhmrentiva_custom_details', $custom_details );
 
 				// Clean related post meta
 				global $wpdb;
 				$wpdb->delete(
 					$wpdb->postmeta,
 					array(
-						'meta_key' => '_mhm_rentiva_' . $field_key,
+						'meta_key' => '_mhmrentiva_' . $field_key,
 					)
 				);
 
 				// Clean the custom-field meta (type/options) so it does not orphan.
-				$field_meta = get_option( 'mhm_custom_field_meta', array() );
+				$field_meta = get_option( 'mhmrentiva_custom_field_meta', array() );
 				if ( isset( $field_meta[ $field_key ] ) ) {
 					unset( $field_meta[ $field_key ] );
-					update_option( 'mhm_custom_field_meta', $field_meta );
+					update_option( 'mhmrentiva_custom_field_meta', $field_meta );
 				}
 
 				wp_send_json_success( __( 'Custom detail removed successfully', 'mhm-rentiva' ) );
@@ -1413,26 +1413,26 @@ final class VehicleSettings {
 			}
 		} elseif ( $field_type === 'features' ) {
 			// 1. Try removing from Standard Features
-			$current_features = get_option( 'mhm_vehicle_features', self::get_default_features() );
+			$current_features = get_option( 'mhmrentiva_vehicle_features', self::get_default_features() );
 			if ( isset( $current_features[ $field_key ] ) ) {
 				unset( $current_features[ $field_key ] );
-				update_option( 'mhm_vehicle_features', $current_features );
+				update_option( 'mhmrentiva_vehicle_features', $current_features );
 				wp_send_json_success( __( 'Feature removed successfully', 'mhm-rentiva' ) );
 				return;
 			}
 
 			// 2. Try removing from Custom Features
-			$custom_features = get_option( 'mhm_custom_features', array() );
+			$custom_features = get_option( 'mhmrentiva_custom_features', array() );
 			if ( isset( $custom_features[ $field_key ] ) ) {
 				unset( $custom_features[ $field_key ] );
-				update_option( 'mhm_custom_features', $custom_features );
+				update_option( 'mhmrentiva_custom_features', $custom_features );
 
 				// Clean related post meta
 				global $wpdb;
 				$wpdb->delete(
 					$wpdb->postmeta,
 					array(
-						'meta_key' => '_mhm_rentiva_' . $field_key,
+						'meta_key' => '_mhmrentiva_' . $field_key,
 					)
 				);
 
@@ -1442,26 +1442,26 @@ final class VehicleSettings {
 			}
 		} elseif ( $field_type === 'equipment' ) {
 			// 1. Try removing from Standard Equipment
-			$current_equipment = get_option( 'mhm_vehicle_equipment', self::get_default_equipment() );
+			$current_equipment = get_option( 'mhmrentiva_vehicle_equipment', self::get_default_equipment() );
 			if ( isset( $current_equipment[ $field_key ] ) ) {
 				unset( $current_equipment[ $field_key ] );
-				update_option( 'mhm_vehicle_equipment', $current_equipment );
+				update_option( 'mhmrentiva_vehicle_equipment', $current_equipment );
 				wp_send_json_success( __( 'Equipment removed successfully', 'mhm-rentiva' ) );
 				return;
 			}
 
 			// 2. Try removing from Custom Equipment
-			$custom_equipment = get_option( 'mhm_custom_equipment', array() );
+			$custom_equipment = get_option( 'mhmrentiva_custom_equipment', array() );
 			if ( isset( $custom_equipment[ $field_key ] ) ) {
 				unset( $custom_equipment[ $field_key ] );
-				update_option( 'mhm_custom_equipment', $custom_equipment );
+				update_option( 'mhmrentiva_custom_equipment', $custom_equipment );
 
 				// Clean related post meta
 				global $wpdb;
 				$wpdb->delete(
 					$wpdb->postmeta,
 					array(
-						'meta_key' => '_mhm_rentiva_' . $field_key,
+						'meta_key' => '_mhmrentiva_' . $field_key,
 					)
 				);
 
@@ -1500,18 +1500,18 @@ final class VehicleSettings {
 		$field_label = mb_convert_encoding( $field_label, 'UTF-8', 'auto' );
 
 		if ( 'details' === $field_type ) {
-			$custom_details               = get_option( 'mhm_custom_details', array() );
+			$custom_details               = get_option( 'mhmrentiva_custom_details', array() );
 			$custom_details[ $field_key ] = $field_label;
-			update_option( 'mhm_custom_details', $custom_details );
+			update_option( 'mhmrentiva_custom_details', $custom_details );
 
 			// Save extended meta (Type & Options)
 			if ( '' !== $req->text( 'type' ) ) {
-				$field_meta               = get_option( 'mhm_custom_field_meta', array() );
+				$field_meta               = get_option( 'mhmrentiva_custom_field_meta', array() );
 				$field_meta[ $field_key ] = array(
 					'type'    => $req->text( 'type' ),
 					'options' => $req->text( 'options' ),
 				);
-				update_option( 'mhm_custom_field_meta', $field_meta );
+				update_option( 'mhmrentiva_custom_field_meta', $field_meta );
 			}
 
 			wp_send_json_success( array(
@@ -1519,18 +1519,18 @@ final class VehicleSettings {
 				'message' => esc_html__( 'Custom detail added successfully', 'mhm-rentiva' ),
 			) );
 		} elseif ( 'features' === $field_type ) {
-			$custom_features               = get_option( 'mhm_custom_features', array() );
+			$custom_features               = get_option( 'mhmrentiva_custom_features', array() );
 			$custom_features[ $field_key ] = $field_label;
-			update_option( 'mhm_custom_features', $custom_features );
+			update_option( 'mhmrentiva_custom_features', $custom_features );
 
 			wp_send_json_success( array(
 				'key'     => $field_key,
 				'message' => esc_html__( 'Custom feature added successfully', 'mhm-rentiva' ),
 			) );
 		} elseif ( 'equipment' === $field_type ) {
-			$custom_equipment               = get_option( 'mhm_custom_equipment', array() );
+			$custom_equipment               = get_option( 'mhmrentiva_custom_equipment', array() );
 			$custom_equipment[ $field_key ] = $field_label;
-			update_option( 'mhm_custom_equipment', $custom_equipment );
+			update_option( 'mhmrentiva_custom_equipment', $custom_equipment );
 
 			wp_send_json_success( array(
 				'key'     => $field_key,
@@ -1555,16 +1555,16 @@ final class VehicleSettings {
 
 		if ( $tab === 'display' ) {
 			// Reset Display Options to empty arrays
-			$settings                                      = get_option( 'mhm_rentiva_settings', array() );
-			$settings['mhm_rentiva_vehicle_card_fields']   = array();
-			$settings['mhm_rentiva_vehicle_detail_fields'] = array();
+			$settings                                      = get_option( 'mhmrentiva_settings', array() );
+			$settings['mhmrentiva_vehicle_card_fields']   = array();
+			$settings['mhmrentiva_vehicle_detail_fields'] = array();
 			$settings['comparison_fields']                 = array();
-			update_option( 'mhm_rentiva_settings', $settings );
+			update_option( 'mhmrentiva_settings', $settings );
 		} else {
 			// Reset Selection Options (Checkboxes) to default values (Definitions Tab)
-			update_option( 'mhm_selected_details', self::get_default_selected_details() );
-			update_option( 'mhm_selected_features', self::get_default_selected_features() );
-			update_option( 'mhm_selected_equipment', self::get_default_selected_equipment() );
+			update_option( 'mhmrentiva_selected_details', self::get_default_selected_details() );
+			update_option( 'mhmrentiva_selected_features', self::get_default_selected_features() );
+			update_option( 'mhmrentiva_selected_equipment', self::get_default_selected_equipment() );
 		}
 
 		wp_send_json_success( array( 'message' => esc_html__( 'Settings reset to defaults.', 'mhm-rentiva' ) ) );

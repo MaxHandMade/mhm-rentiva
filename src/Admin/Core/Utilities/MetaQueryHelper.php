@@ -30,7 +30,7 @@ final class MetaQueryHelper {
 	public static function is_migration_fallback_active(): bool
 	{
 		// Active if WP_DEBUG is on OR explicitly enabled via constant.
-		return ( defined('WP_DEBUG') && WP_DEBUG ) || defined('MHM_RENTIVA_MIGRATION_FALLBACK');
+		return ( defined('WP_DEBUG') && WP_DEBUG ) || defined('MHMRENTIVA_MIGRATION_FALLBACK');
 	}
 
 	/**
@@ -111,42 +111,42 @@ final class MetaQueryHelper {
 	{
 		$meta_fields = array(
 			'pm_customer_name'  => array(
-				'meta_key'      => '_mhm_customer_name',
+				'meta_key'      => '_mhmrentiva_customer_name',
 				'select_alias'  => 'customer_name',
 				'default_value' => '',
 			),
 			'pm_customer_email' => array(
-				'meta_key'      => '_mhm_customer_email',
+				'meta_key'      => '_mhmrentiva_customer_email',
 				'select_alias'  => 'customer_email',
 				'default_value' => '',
 			),
 			'pm_category'       => array(
-				'meta_key'      => '_mhm_message_category',
+				'meta_key'      => '_mhmrentiva_message_category',
 				'select_alias'  => 'category',
 				'default_value' => 'general',
 			),
 			'pm_status'         => array(
-				'meta_key'      => '_mhm_message_status',
+				'meta_key'      => '_mhmrentiva_message_status',
 				'select_alias'  => 'status',
 				'default_value' => 'pending',
 			),
 			'pm_thread'         => array(
-				'meta_key'      => '_mhm_thread_id',
+				'meta_key'      => '_mhmrentiva_thread_id',
 				'select_alias'  => 'thread_id',
 				'default_value' => 'p.ID',
 			),
 			'pm_read'           => array(
-				'meta_key'      => '_mhm_is_read',
+				'meta_key'      => '_mhmrentiva_is_read',
 				'select_alias'  => 'is_read',
 				'default_value' => '0',
 			),
 			'pm_parent'         => array(
-				'meta_key'      => '_mhm_parent_message_id',
+				'meta_key'      => '_mhmrentiva_parent_message_id',
 				'select_alias'  => 'parent_message_id',
 				'default_value' => '0',
 			),
 			'pm_priority'       => array(
-				'meta_key'      => '_mhm_message_priority',
+				'meta_key'      => '_mhmrentiva_message_priority',
 				'select_alias'  => 'priority',
 				'default_value' => 'normal',
 			),
@@ -162,22 +162,22 @@ final class MetaQueryHelper {
 	{
 		$meta_fields = array(
 			'email_meta' => array(
-				'meta_key'      => 'mhm_rentiva_customer_email',
+				'meta_key'      => 'mhmrentiva_customer_email',
 				'select_alias'  => 'customer_email',
 				'default_value' => '',
 			),
 			'name_meta'  => array(
-				'meta_key'      => 'mhm_rentiva_customer_name',
+				'meta_key'      => 'mhmrentiva_customer_name',
 				'select_alias'  => 'customer_name',
 				'default_value' => '',
 			),
 			'phone_meta' => array(
-				'meta_key'      => 'mhm_rentiva_customer_phone',
+				'meta_key'      => 'mhmrentiva_customer_phone',
 				'select_alias'  => 'customer_phone',
 				'default_value' => '',
 			),
 			'price_meta' => array(
-				'meta_key'      => 'mhm_rentiva_total_price',
+				'meta_key'      => 'mhmrentiva_total_price',
 				'select_alias'  => 'total_price',
 				'default_value' => '0',
 			),
@@ -295,7 +295,7 @@ final class MetaQueryHelper {
 	 * Get meta query that filters only active vehicles for frontend display.
 	 *
 	 * Checks the new lifecycle status meta first; falls back to the legacy
-	 * `_mhm_vehicle_status` key for vehicles not yet migrated.
+	 * `_mhmrentiva_vehicle_status` key for vehicles not yet migrated.
 	 * Vehicles without either meta are treated as active (legacy default).
 	 *
 	 * @return array WP_Query meta_query fragment (relation OR).

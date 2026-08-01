@@ -77,7 +77,7 @@ final class BackupDirectoryLocationTest extends WP_UnitTestCase
 	 */
 	public function test_a_file_in_the_new_directory_is_contained(): void
 	{
-		$file = $this->touch_file( DatabaseCleaner::backup_dir(), 'mhm_rentiva_full_backup_new.sql' );
+		$file = $this->touch_file( DatabaseCleaner::backup_dir(), 'mhmrentiva_full_backup_new.sql' );
 
 		$this->assertTrue( DatabaseCleaner::is_backup_file( $file ) );
 	}
@@ -88,7 +88,7 @@ final class BackupDirectoryLocationTest extends WP_UnitTestCase
 	 */
 	public function test_a_file_in_the_legacy_directory_is_still_contained(): void
 	{
-		$file = $this->touch_file( WP_CONTENT_DIR . '/mhm-rentiva-backups', 'mhm_rentiva_full_backup_old.sql' );
+		$file = $this->touch_file( WP_CONTENT_DIR . '/mhm-rentiva-backups', 'mhmrentiva_full_backup_old.sql' );
 
 		$this->assertTrue(
 			DatabaseCleaner::is_backup_file( $file ),
@@ -101,18 +101,18 @@ final class BackupDirectoryLocationTest extends WP_UnitTestCase
 	 */
 	public function test_a_file_outside_both_directories_is_rejected(): void
 	{
-		$file = $this->touch_file( WP_CONTENT_DIR, 'mhm_not_a_backup.sql' );
+		$file = $this->touch_file( WP_CONTENT_DIR, 'mhmrentiva_not_a_backup.sql' );
 
 		$this->assertFalse( DatabaseCleaner::is_backup_file( $file ) );
 	}
 
 	public function test_a_traversal_out_of_the_backup_directory_is_rejected(): void
 	{
-		$this->touch_file( WP_CONTENT_DIR, 'mhm_traversal_target.sql' );
+		$this->touch_file( WP_CONTENT_DIR, 'mhmrentiva_traversal_target.sql' );
 
 		$this->assertFalse(
 			DatabaseCleaner::is_backup_file(
-				DatabaseCleaner::backup_dir() . '/../../mhm_traversal_target.sql'
+				DatabaseCleaner::backup_dir() . '/../../mhmrentiva_traversal_target.sql'
 			)
 		);
 	}

@@ -44,7 +44,7 @@ class MetricRegistryTest extends WP_UnitTestCase
 	 * context and read the messaging tables or the financial ledger — all of which
 	 * ship with Pro. Naming them here would put a compile-time reference to an
 	 * absent class in the Lite package. Pro registers them via the
-	 * 'mhm_rentiva_registered_metrics' filter instead (see the seam test below).
+	 * 'mhmrentiva_registered_metrics' filter instead (see the seam test below).
 	 */
 	public function test_registry_does_not_hardcode_pro_metrics(): void
 	{
@@ -72,7 +72,7 @@ class MetricRegistryTest extends WP_UnitTestCase
 	public function test_pro_can_register_a_metric_through_the_filter(): void
 	{
 		add_filter(
-			'mhm_rentiva_registered_metrics',
+			'mhmrentiva_registered_metrics',
 			static function (array $metrics): array {
 				$metrics['seam_probe'] = TotalBookingsMetric::class;
 				return $metrics;

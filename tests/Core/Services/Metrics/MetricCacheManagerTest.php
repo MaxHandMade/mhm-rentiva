@@ -23,7 +23,7 @@ class MetricCacheManagerTest extends WP_UnitTestCase
     public function test_cache_key_generation(): void
     {
         $key = MetricCacheManager::build_key('customer', 'total_bookings', '15');
-        $this->assertSame('mhm_rentiva_metric_customer_total_bookings_15', $key);
+        $this->assertSame('mhmrentiva_metric_customer_total_bookings_15', $key);
     }
 
     public function test_get_set_operations(): void

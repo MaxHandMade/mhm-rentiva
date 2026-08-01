@@ -27,7 +27,7 @@ use WP_UnitTestCase;
  * is NOT this test's concern. This test only proves the sanitizer itself
  * can no longer persist a dirty key if/when that path is ever driven by
  * real input (Settings API form, or any future direct `update_option()`
- * call on `mhm_rentiva_settings`).
+ * call on `mhmrentiva_settings`).
  *
  * @covers \MHMRentiva\Admin\Settings\Core\SettingsSanitizer
  */
@@ -35,7 +35,7 @@ final class SettingsSanitizerVehiclePricingArrayKeySanitizationTest extends WP_U
 {
     protected function tearDown(): void
     {
-        delete_option( 'mhm_rentiva_settings' );
+        delete_option( 'mhmrentiva_settings' );
         parent::tearDown();
     }
 

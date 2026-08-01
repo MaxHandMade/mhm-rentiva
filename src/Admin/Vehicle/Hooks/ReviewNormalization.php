@@ -83,7 +83,7 @@ class ReviewNormalization {
 	}
 
 	/**
-	 * Handle comment meta updates (specifically mhm_rating)
+	 * Handle comment meta updates (specifically mhmrentiva_rating)
 	 *
 	 * @param int $meta_id
 	 * @param int $comment_id
@@ -91,7 +91,7 @@ class ReviewNormalization {
 	 * @param mixed $meta_value
 	 */
 	public static function handle_meta_update( int $meta_id, int $comment_id, string $meta_key, $meta_value ): void {
-		if ( $meta_key === 'mhm_rating' ) {
+		if ( $meta_key === 'mhmrentiva_rating' ) {
 			self::process_comment( $comment_id );
 		}
 	}
@@ -114,7 +114,7 @@ class ReviewNormalization {
 		}
 
 		// 2. Get Meta: Check for rating
-		$rating = (int) get_comment_meta( $comment_ID, 'mhm_rating', true );
+		$rating = (int) get_comment_meta( $comment_ID, 'mhmrentiva_rating', true );
 
 		// 3. Normalize: If rated but not 'review', force 'review'
 		if ( $rating > 0 && $comment->comment_type !== 'review' ) {
@@ -167,6 +167,6 @@ class ReviewNormalization {
 		}
 
 		// Note: Individual vehicle page cache is handled by Plugin::invalidate_cache_on_meta_update
-		// when RatingHelper updates the _mhm_rentiva_rating_* meta.
+		// when RatingHelper updates the _mhmrentiva_rating_* meta.
 	}
 }

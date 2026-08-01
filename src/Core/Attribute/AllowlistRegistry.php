@@ -1571,7 +1571,7 @@ final class AllowlistRegistry {
             $registry[ $tag ] = $tag_schema;
         }
 
-        return apply_filters('mhm_rentiva_attribute_registry', $registry);
+        return apply_filters('mhmrentiva_attribute_registry', $registry);
     }
 
     /**

@@ -184,7 +184,7 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Internal: settings posted from an unrecognised tab are no longer written to the database unchecked.
 
 = 5.1.1 =
-* Internal: the REST and deposit-management AJAX actions now use the full mhm_rentiva_ prefix, and a duplicate handler registration was removed so each action is handled exactly once. (The API-key management this refers to was removed entirely in 5.2.0.)
+* Internal: the REST and deposit-management AJAX actions now use the full mhmrentiva_ prefix, and a duplicate handler registration was removed so each action is handled exactly once. (The API-key management this refers to was removed entirely in 5.2.0.)
 * Internal: removed a leftover reference to a settings class that is not part of the free plugin, unreachable deposit-calculation code, and developer debug logging from the block-editor and search scripts.
 * Internal: the customer privacy controls now render only when their handlers are available (they ship with the paid add-on), so the free plugin shows no non-functional buttons; add-on-only scripts were also removed from the free plugin.
 * No feature or behaviour change; your settings and data are unaffected.

@@ -8,8 +8,8 @@
 	};
 
 	function applyConstraints() {
-		const radios = document.querySelectorAll('input[name="mhm_addon_context"]');
-		const select = document.querySelector('select[name="_mhm_addon_pricing_type"]');
+		const radios = document.querySelectorAll('input[name="mhmrentiva_addon_context"]');
+		const select = document.querySelector('select[name="_mhmrentiva_addon_pricing_type"]');
 		if (!radios.length || !select) {
 			return;
 		}
@@ -42,7 +42,7 @@
 
 	document.addEventListener('DOMContentLoaded', function () {
 		applyConstraints();
-		document.querySelectorAll('input[name="mhm_addon_context"]').forEach((r) => {
+		document.querySelectorAll('input[name="mhmrentiva_addon_context"]').forEach((r) => {
 			r.addEventListener('change', applyConstraints);
 		});
 	});

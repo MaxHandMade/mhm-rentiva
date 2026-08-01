@@ -65,7 +65,7 @@ final class BlueprintSchemaTest extends TestCase
 
         $result = $this->validator->validate($manifest);
         $this->assertInstanceOf(\WP_Error::class, $result);
-        $this->assertEquals('mhm_rentiva_invalid_blueprint', $result->get_error_code());
+        $this->assertEquals('mhmrentiva_invalid_blueprint', $result->get_error_code());
         $this->assertStringContainsString('Manifest root key missing', $result->get_error_message());
     }
 
@@ -82,7 +82,7 @@ final class BlueprintSchemaTest extends TestCase
 
         $result = $this->validator->validate($manifest);
         $this->assertInstanceOf(\WP_Error::class, $result);
-        $this->assertEquals('mhm_rentiva_forbidden_pattern', $result->get_error_code());
+        $this->assertEquals('mhmrentiva_forbidden_pattern', $result->get_error_code());
     }
 
     public function test_unsupported_version_fails(): void
@@ -98,6 +98,6 @@ final class BlueprintSchemaTest extends TestCase
 
         $result = $this->validator->validate($manifest);
         $this->assertInstanceOf(\WP_Error::class, $result);
-        $this->assertEquals('mhm_rentiva_unsupported_version', $result->get_error_code());
+        $this->assertEquals('mhmrentiva_unsupported_version', $result->get_error_code());
     }
 }

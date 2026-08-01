@@ -47,14 +47,14 @@ final class Mailer {
 			 * @return BookingDataProviderInterface Modified booking data provider instance
 			 *
 			 * @example
-			 * add_filter('mhm_rentiva_booking_data_provider', function($provider) {
+			 * add_filter('mhmrentiva_booking_data_provider', function($provider) {
 			 *     if (class_exists('MyCustomBookingProvider')) {
 			 *         return new MyCustomBookingProvider();
 			 *     }
 			 *     return $provider;
 			 * });
 			 */
-			$provider = apply_filters( 'mhm_rentiva_booking_data_provider', null );
+			$provider = apply_filters( 'mhmrentiva_booking_data_provider', null );
 
 			if ( $provider instanceof BookingDataProviderInterface ) {
 				self::$booking_data_provider = $provider;
@@ -97,7 +97,7 @@ final class Mailer {
 				// Welcome email check - both global setting and user preference
 				if ( $key === 'welcome' ) {
 					$global_enabled = self::is_welcome_email_enabled();
-					$user_enabled   = get_user_meta( $user->ID, 'mhm_welcome_email', true );
+					$user_enabled   = get_user_meta( $user->ID, 'mhmrentiva_welcome_email', true );
 					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
@@ -106,7 +106,7 @@ final class Mailer {
 				// Booking notification check - both global setting and user preference
 				if ( in_array( $key, array( 'booking_confirmation', 'booking_reminder', 'booking_cancellation' ) ) ) {
 					$global_enabled = self::is_booking_notifications_enabled();
-					$user_enabled   = get_user_meta( $user->ID, 'mhm_booking_notifications', true );
+					$user_enabled   = get_user_meta( $user->ID, 'mhmrentiva_booking_notifications', true );
 					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
@@ -115,7 +115,7 @@ final class Mailer {
 				// Marketing email check - both global setting and user preference
 				if ( $key === 'marketing' ) {
 					$global_enabled = self::is_marketing_emails_enabled();
-					$user_enabled   = get_user_meta( $user->ID, 'mhm_marketing_emails', true );
+					$user_enabled   = get_user_meta( $user->ID, 'mhmrentiva_marketing_emails', true );
 					if ( ! $global_enabled || $user_enabled === '0' ) {
 						return false;
 					}
@@ -160,7 +160,7 @@ final class Mailer {
 		$ok = wp_mail( $to, $subject, $body, $headers );
 
 		// Action hook for logging/monitoring
-		do_action( 'mhm_rentiva_email_sent', $key, $to, $ok, $subject, $context );
+		do_action( 'mhmrentiva_email_sent', $key, $to, $ok, $subject, $context );
 
 		return $ok;
 	}
@@ -231,17 +231,17 @@ final class Mailer {
 		$total_price     = $provider->getBookingTotalPrice( $booking_id );
 
 		// Get payment information
-		$payment_type     = get_post_meta( $booking_id, '_mhm_payment_type', true );
-		$payment_method   = get_post_meta( $booking_id, '_mhm_payment_method', true );
-		$deposit_amount   = get_post_meta( $booking_id, '_mhm_deposit_amount', true );
-		$remaining_amount = get_post_meta( $booking_id, '_mhm_remaining_amount', true );
-		$payment_deadline = get_post_meta( $booking_id, '_mhm_payment_deadline', true );
-		$wc_order_id      = (int) get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true );
+		$payment_type     = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
+		$payment_method   = get_post_meta( $booking_id, '_mhmrentiva_payment_method', true );
+		$deposit_amount   = get_post_meta( $booking_id, '_mhmrentiva_deposit_amount', true );
+		$remaining_amount = get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true );
+		$payment_deadline = get_post_meta( $booking_id, '_mhmrentiva_payment_deadline', true );
+		$wc_order_id      = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
 
 		// Service type: 'rental' (default) or 'transfer'
-		$service_type  = (string) get_post_meta( $booking_id, '_mhm_service_type', true );
-		$transfer_flag = (string) get_post_meta( $booking_id, '_mhm_is_transfer', true );
-		if ( $service_type === '' && (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true ) > 0 ) {
+		$service_type  = (string) get_post_meta( $booking_id, '_mhmrentiva_service_type', true );
+		$transfer_flag = (string) get_post_meta( $booking_id, '_mhmrentiva_is_transfer', true );
+		if ( $service_type === '' && (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_origin_id', true ) > 0 ) {
 			$service_type = 'transfer';
 		}
 		if ( $service_type === '' && in_array( $transfer_flag, array( '1', 'yes', 'true' ), true ) ) {
@@ -254,24 +254,24 @@ final class Mailer {
 		// Transfer route context (origin + destination + meta)
 		$transfer_context = array();
 		if ( $service_type === 'transfer' ) {
-			$origin_id      = (int) get_post_meta( $booking_id, '_mhm_transfer_origin_id', true );
-			$destination_id = (int) get_post_meta( $booking_id, '_mhm_transfer_destination_id', true );
+			$origin_id      = (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_origin_id', true );
+			$destination_id = (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_destination_id', true );
 			// Locations come from an add-on via the filter. This whole branch only
 			// runs for transfer bookings, which Lite cannot create; if it is ever
 			// reached without a subscriber the names degrade to empty strings below.
-			$origin_loc       = $origin_id > 0 ? apply_filters( 'mhm_rentiva_location_by_id', null, $origin_id ) : null;
-			$dest_loc         = $destination_id > 0 ? apply_filters( 'mhm_rentiva_location_by_id', null, $destination_id ) : null;
+			$origin_loc       = $origin_id > 0 ? apply_filters( 'mhmrentiva_location_by_id', null, $origin_id ) : null;
+			$dest_loc         = $destination_id > 0 ? apply_filters( 'mhmrentiva_location_by_id', null, $destination_id ) : null;
 			$transfer_context = array(
 				'origin_name'      => $origin_loc ? (string) $origin_loc->name : '',
 				'origin_city'      => $origin_loc && ! empty( $origin_loc->city ) ? (string) $origin_loc->city : '',
 				'destination_name' => $dest_loc ? (string) $dest_loc->name : '',
 				'destination_city' => $dest_loc && ! empty( $dest_loc->city ) ? (string) $dest_loc->city : '',
-				'distance_km'      => (int) get_post_meta( $booking_id, '_mhm_transfer_distance_km', true ),
-				'duration_min'     => (int) get_post_meta( $booking_id, '_mhm_transfer_duration_min', true ),
-				'adults'           => (int) get_post_meta( $booking_id, '_mhm_transfer_adults', true ),
-				'children'         => (int) get_post_meta( $booking_id, '_mhm_transfer_children', true ),
-				'luggage_big'      => (int) get_post_meta( $booking_id, '_mhm_transfer_luggage_big', true ),
-				'luggage_small'    => (int) get_post_meta( $booking_id, '_mhm_transfer_luggage_small', true ),
+				'distance_km'      => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_distance_km', true ),
+				'duration_min'     => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_duration_min', true ),
+				'adults'           => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_adults', true ),
+				'children'         => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_children', true ),
+				'luggage_big'      => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_luggage_big', true ),
+				'luggage_small'    => (int) get_post_meta( $booking_id, '_mhmrentiva_transfer_luggage_small', true ),
 			);
 		}
 
@@ -357,17 +357,17 @@ final class Mailer {
 		}
 
 		$post = get_post( $message_id );
-		if ( ! $post || $post->post_type !== 'mhm_message' ) {
+		if ( ! $post || $post->post_type !== 'mhmrentiva_message' ) {
 			return null;
 		}
 
-		$customer_name  = get_post_meta( $message_id, '_mhm_customer_name', true );
-		$customer_email = get_post_meta( $message_id, '_mhm_customer_email', true );
-		$category       = get_post_meta( $message_id, '_mhm_message_category', true );
-		$status         = get_post_meta( $message_id, '_mhm_message_status', true );
-		$thread_id      = get_post_meta( $message_id, '_mhm_thread_id', true );
-		$msg_booking_id = (int) get_post_meta( $message_id, '_mhm_booking_id', true );
-		$msg_order_id   = $msg_booking_id ? (int) get_post_meta( $msg_booking_id, '_mhm_woocommerce_order_id', true ) : 0;
+		$customer_name  = get_post_meta( $message_id, '_mhmrentiva_customer_name', true );
+		$customer_email = get_post_meta( $message_id, '_mhmrentiva_customer_email', true );
+		$category       = get_post_meta( $message_id, '_mhmrentiva_message_category', true );
+		$status         = get_post_meta( $message_id, '_mhmrentiva_message_status', true );
+		$thread_id      = get_post_meta( $message_id, '_mhmrentiva_thread_id', true );
+		$msg_booking_id = (int) get_post_meta( $message_id, '_mhmrentiva_booking_id', true );
+		$msg_order_id   = $msg_booking_id ? (int) get_post_meta( $msg_booking_id, '_mhmrentiva_woocommerce_order_id', true ) : 0;
 
 		return array(
 			'message'  => array(
@@ -424,7 +424,7 @@ final class Mailer {
 	 */
 	public static function getEmailStats( string $key = '', int $days = 30 ): array {
 		// Create cache key
-		$cache_key = 'mhm_rentiva_email_stats_' . md5( $key . '_' . $days );
+		$cache_key = 'mhmrentiva_email_stats_' . md5( $key . '_' . $days );
 
 		// Check cache
 		$cached_stats = get_transient( $cache_key );
@@ -452,7 +452,7 @@ final class Mailer {
 		// Build meta query
 		$meta_query = array(
 			array(
-				'key'     => '_mhm_email_status',
+				'key'     => '_mhmrentiva_email_status',
 				'compare' => 'EXISTS',
 			),
 		);
@@ -460,7 +460,7 @@ final class Mailer {
 		// Filter by template key if provided
 		if ( ! empty( $key ) ) {
 			$meta_query[] = array(
-				'key'     => '_mhm_email_key',
+				'key'     => '_mhmrentiva_email_key',
 				'value'   => $key,
 				'compare' => 'LIKE',
 			);
@@ -469,7 +469,7 @@ final class Mailer {
 		// Query for all emails in date range
 		$query = new \WP_Query(
 			array(
-				'post_type'      => 'mhm_email_log',
+				'post_type'      => 'mhmrentiva_email_log',
 				'post_status'    => 'publish',
 				'posts_per_page' => -1,
 				'fields'         => 'ids',
@@ -491,7 +491,7 @@ final class Mailer {
 
 		if ( $query->have_posts() ) {
 			foreach ( $query->posts as $post_id ) {
-				$status = get_post_meta( $post_id, '_mhm_email_status', true );
+				$status = get_post_meta( $post_id, '_mhmrentiva_email_status', true );
 				if ( $status === 'success' ) {
 					++$successful;
 				} elseif ( $status === 'failed' ) {
@@ -523,14 +523,14 @@ final class Mailer {
 	 * Customer communication settings helper methods
 	 */
 	private static function is_welcome_email_enabled(): bool {
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_welcome_email', '1' ) === '1';
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_welcome_email', '1' ) === '1';
 	}
 
 	private static function is_booking_notifications_enabled(): bool {
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_booking_notifications', '1' ) === '1';
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_booking_notifications', '1' ) === '1';
 	}
 
 	private static function is_marketing_emails_enabled(): bool {
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_marketing_emails', '0' ) === '1';
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_marketing_emails', '0' ) === '1';
 	}
 }

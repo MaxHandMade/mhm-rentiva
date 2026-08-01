@@ -16,7 +16,7 @@
 			// On select change → submit (dates, status, payment, gateway)
 			$form.on(
 				'change',
-				'select[name="m"], select[name="mhm_booking_status"], select[name="mhm_payment_status"], select[name="mhm_payment_gateway"]',
+				'select[name="m"], select[name="mhmrentiva_booking_status"], select[name="mhmrentiva_payment_status"], select[name="mhmrentiva_payment_gateway"]',
 				function () {
 					$form.trigger( 'submit' );
 				}
@@ -25,7 +25,7 @@
 			// On Enter in Booking ID / License Plate → submit
 			$form.on(
 				'keydown',
-				'input[name="mhm_booking_id"], input[name="mhm_license_plate"]',
+				'input[name="mhmrentiva_booking_id"], input[name="mhmrentiva_license_plate"]',
 				function (e) {
 					if (e.key === 'Enter') {
 						e.preventDefault();

@@ -1,49 +1,49 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/About/About.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/About/REST/AboutController.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/About/SystemInfo.php
 
 		-
-			message: '#^Strict comparison using \=\=\= between ''mhm_message'' and ''mhm_message'' will always evaluate to true\.$#'
+			message: '#^Strict comparison using \=\=\= between ''mhmrentiva_message'' and ''mhmrentiva_message'' will always evaluate to true\.$#'
 			identifier: identical.alwaysTrue
 			count: 1
 			path: src/Admin/About/SystemInfo.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/About/Tabs/SupportTab.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 4
 			path: src/Admin/Addons/AddonListTable.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Addons/AddonManager.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Addons/AddonManager.php
@@ -55,7 +55,7 @@ parameters:
 			path: src/Admin/Addons/AddonManager.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Addons/AddonMenu.php
@@ -79,13 +79,13 @@ parameters:
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Booking/Addons/AddonBooking.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Booking/Helpers/CancellationHandler.php
@@ -97,7 +97,7 @@ parameters:
 			path: src/Admin/Booking/Helpers/CancellationHandler.php
 
 		-
-			message: '#^Offset ''tax_query'' on array\{post_type\: ''vehicle'', post_status\: ''publish'', posts_per_page\: 20, meta_query\: array\{relation\: ''AND'', 0\: array\{key\: ''_mhm_vehicle_status'', value\: ''active'', compare\: ''\=''\}, 1\: array\{key\: ''_mhm_rentiva_price…'', value\: 0, compare\: ''\>''\}\}\} in isset\(\) does not exist\.$#'
+			message: '#^Offset ''tax_query'' on array\{post_type\: ''vehicle'', post_status\: ''publish'', posts_per_page\: 20, meta_query\: array\{relation\: ''AND'', 0\: array\{key\: ''_mhmrentiva_vehicle…'', value\: ''active'', compare\: ''\=''\}, 1\: array\{key\: ''_mhmrentiva_price…'', value\: 0, compare\: ''\>''\}\}\} in isset\(\) does not exist\.$#'
 			identifier: isset.offset
 			count: 1
 			path: src/Admin/Booking/Helpers/Util.php
@@ -121,7 +121,7 @@ parameters:
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 8
 			path: src/Admin/Booking/ListTable/BookingColumns.php
@@ -205,13 +205,13 @@ parameters:
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Booking/Meta/BookingDepositMetaBox.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Booking/Meta/BookingEditMetaBox.php
@@ -223,13 +223,13 @@ parameters:
 			path: src/Admin/Booking/Meta/BookingEditMetaBox.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Booking/Meta/BookingMeta.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Booking/Meta/BookingMeta.php
@@ -253,7 +253,7 @@ parameters:
 			path: src/Admin/Booking/Meta/BookingPortalMetaBox.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Booking/Meta/ManualBookingMetaBox.php
@@ -289,13 +289,13 @@ parameters:
 			path: src/Admin/CLI/RepairRatingsCommand.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Core/AssetManager.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 24
 			path: src/Admin/Core/AssetManager.php
@@ -319,7 +319,7 @@ parameters:
 			path: src/Admin/Core/AssetManager.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Core/Assets/DatepickerAssets.php
@@ -421,7 +421,7 @@ parameters:
 			path: src/Admin/Core/Utilities/ObjectCache.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Core/Utilities/Templates.php
@@ -439,13 +439,13 @@ parameters:
 			path: src/Admin/Customers/AddCustomerPage.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Customers/CustomersPage.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Emails/Core/EmailTemplates.php
@@ -463,7 +463,7 @@ parameters:
 			path: src/Admin/Emails/Core/Mailer.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Emails/Core/Templates.php
@@ -505,7 +505,7 @@ parameters:
 			path: src/Admin/Frontend/Account/AccountController.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 8
 			path: src/Admin/Frontend/Account/AccountController.php
@@ -523,7 +523,7 @@ parameters:
 			path: src/Admin/Frontend/Account/AccountRenderer.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Account/AccountRenderer.php
@@ -541,19 +541,19 @@ parameters:
 			path: src/Admin/Frontend/Account/AccountRenderer.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/Account/MyBookings.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 5
 			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
@@ -565,7 +565,7 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 4
 			path: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
@@ -637,7 +637,7 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/BookingForm.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
@@ -655,13 +655,13 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/ContactForm.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
@@ -673,13 +673,13 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/SearchResults.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/SearchResults.php
@@ -697,7 +697,7 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/SearchResults.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Frontend/Shortcodes/Testimonials.php
@@ -715,7 +715,7 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/Testimonials.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Frontend/Shortcodes/UnifiedSearch.php
@@ -763,19 +763,19 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
@@ -787,13 +787,13 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
@@ -823,7 +823,7 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php
@@ -835,13 +835,13 @@ parameters:
 			path: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 4
 			path: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 6
 			path: src/Admin/Frontend/Widgets/Elementor/ElementorIntegration.php
@@ -937,7 +937,7 @@ parameters:
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 5
 			path: src/Admin/Payment/WooCommerce/WooCommerceBridge.php
@@ -1033,7 +1033,7 @@ parameters:
 			path: src/Admin/Settings/Comments/CommentsSettings.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 5
 			path: src/Admin/Settings/Core/SettingsCore.php
@@ -1051,19 +1051,19 @@ parameters:
 			path: src/Admin/Settings/Groups/CommentsSettingsGroup.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Settings/SettingsView.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Settings/ShortcodePages.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Settings/ShortcodePages.php
@@ -1087,13 +1087,13 @@ parameters:
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Setup/SetupWizard.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Setup/SetupWizard.php
@@ -1129,7 +1129,7 @@ parameters:
 			path: src/Admin/Utilities/Actions/Actions.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Utilities/Dashboard/DashboardPage.php
@@ -1165,7 +1165,7 @@ parameters:
 			path: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 6
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
@@ -1189,7 +1189,19 @@ parameters:
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Variable \$monthly_avg_revenue on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
+
+		-
+			message: '#^Variable \$revenue_trend on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.variable
+			count: 1
+			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 5
 			path: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php
@@ -1201,25 +1213,25 @@ parameters:
 			path: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Vehicle/Meta/VehicleGallery.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Admin/Vehicle/Meta/VehicleGallery.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Admin/Vehicle/Meta/VehicleMeta.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Admin/Vehicle/Meta/VehicleMeta.php
@@ -1351,13 +1363,13 @@ parameters:
 			path: src/Admin/Vehicle/Templates/vehicle-meta.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Blocks/BlockRegistry.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 8
 			path: src/Blocks/BlockRegistry.php
@@ -1369,7 +1381,7 @@ parameters:
 			path: src/Core/Attribute/AllowlistRegistry.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Core/Dashboard/CustomerDashboard.php
@@ -1393,19 +1405,19 @@ parameters:
 			path: src/Layout/Versioning/LayoutNormalization.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_DIR not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
 			identifier: constant.notFound
 			count: 2
 			path: src/Plugin.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_PATH not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
 			path: src/Plugin.php
 
 		-
-			message: '#^Constant MHM_RENTIVA_PLUGIN_URL not found\.$#'
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 3
 			path: src/Plugin.php
@@ -1415,15 +1427,3 @@ parameters:
 			identifier: booleanNot.alwaysTrue
 			count: 1
 			path: src/Plugin.php
-
-		-
-			message: '#^Variable \$monthly_avg_revenue on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
-
-		-
-			message: '#^Variable \$revenue_trend on left side of \?\? always exists and is not nullable\.$#'
-			identifier: nullCoalesce.variable
-			count: 1
-			path: src/Admin/Vehicle/ListTable/VehicleColumns.php

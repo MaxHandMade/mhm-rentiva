@@ -16,12 +16,12 @@ use WP_UnitTestCase;
  * \MHMRentiva\Admin\Licensing\Mode directly for the transfer/
  * vendor-marketplace/messages tab gates -- both read the shared
  * SettingsCore::settings_tabs() helper, which is a thin wrapper over
- * apply_filters('mhm_rentiva_settings_tabs', array()). Lite's own default is
+ * apply_filters('mhmrentiva_settings_tabs', array()). Lite's own default is
  * an empty array; only Pro's SettingsExtensions subscribes.
  *
  * TabRendererRegistry no longer registers the Vendor Marketplace/Messages/
  * Transfer tab renderers itself either -- that moved to Pro, wired through
- * the pre-existing `mhm_rentiva_settings_register_renderers` action.
+ * the pre-existing `mhmrentiva_settings_register_renderers` action.
  *
  * @covers \MHMRentiva\Admin\Settings\Core\SettingsCore::settings_tabs
  * @covers \MHMRentiva\Admin\Settings\Services\SettingsService::reset_defaults
@@ -33,15 +33,15 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        remove_all_filters('mhm_rentiva_settings_tabs');
-        remove_all_filters('mhm_rentiva_sanitize_settings_tab');
+        remove_all_filters('mhmrentiva_settings_tabs');
+        remove_all_filters('mhmrentiva_sanitize_settings_tab');
     }
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_settings_tabs');
-        remove_all_filters('mhm_rentiva_sanitize_settings_tab');
-        delete_option('mhm_rentiva_settings');
+        remove_all_filters('mhmrentiva_settings_tabs');
+        remove_all_filters('mhmrentiva_sanitize_settings_tab');
+        delete_option('mhmrentiva_settings');
         wp_set_current_user(0);
         parent::tearDown();
     }
@@ -53,7 +53,7 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
 
     public function test_a_subscriber_can_enable_a_tab(): void
     {
-        add_filter('mhm_rentiva_settings_tabs', static function (array $tabs): array {
+        add_filter('mhmrentiva_settings_tabs', static function (array $tabs): array {
             $tabs['transfer'] = true;
             return $tabs;
         });
@@ -93,12 +93,12 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
     /**
      * A subscriber to the renderer-registration action can add a tab the
      * removed Lite blocks used to add directly -- proves the seam (the
-     * `mhm_rentiva_settings_register_renderers` action) still works exactly
+     * `mhmrentiva_settings_register_renderers` action) still works exactly
      * as before, only the subscriber moved.
      */
     public function test_a_subscriber_can_register_the_transfer_renderer_slug(): void
     {
-        add_action('mhm_rentiva_settings_register_renderers', function ($registry): void {
+        add_action('mhmrentiva_settings_register_renderers', function ($registry): void {
             $mock = $this->createMock(\MHMRentiva\Admin\Settings\View\TabRendererInterface::class);
             $mock->method('get_slug')->willReturn('transfer');
             $registry->register($mock);
@@ -108,7 +108,7 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
 
         $this->assertContains('transfer', $slugs);
 
-        remove_all_actions('mhm_rentiva_settings_register_renderers');
+        remove_all_actions('mhmrentiva_settings_register_renderers');
     }
 
     /**
@@ -119,14 +119,14 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
      */
     public function test_unlicensed_shaped_transfer_save_is_still_a_no_op_without_a_subscriber(): void
     {
-        update_option('mhm_rentiva_settings', array( 'mhm_transfer_deposit_rate' => 33 ));
+        update_option('mhmrentiva_settings', array( 'mhmrentiva_transfer_deposit_rate' => 33 ));
 
         $result = SettingsSanitizer::sanitize(array(
             'current_active_tab'        => 'transfer',
-            'mhm_transfer_deposit_rate' => '77',
+            'mhmrentiva_transfer_deposit_rate' => '77',
         ));
 
-        $this->assertSame(33, $result['mhm_transfer_deposit_rate']);
+        $this->assertSame(33, $result['mhmrentiva_transfer_deposit_rate']);
     }
 
     /**
@@ -136,19 +136,19 @@ final class SettingsTabsFilterTest extends WP_UnitTestCase
      */
     public function test_a_subscriber_enabling_transfer_lifts_the_sanitizer_gate(): void
     {
-        add_filter('mhm_rentiva_settings_tabs', static function (array $tabs): array {
+        add_filter('mhmrentiva_settings_tabs', static function (array $tabs): array {
             $tabs['transfer'] = true;
             return $tabs;
         });
 
-        update_option('mhm_rentiva_settings', array( 'mhm_transfer_deposit_rate' => 33 ));
+        update_option('mhmrentiva_settings', array( 'mhmrentiva_transfer_deposit_rate' => 33 ));
 
         $result = SettingsSanitizer::sanitize(array(
             'current_active_tab'        => 'transfer',
-            'mhm_transfer_deposit_rate' => '77',
+            'mhmrentiva_transfer_deposit_rate' => '77',
         ));
 
-        $this->assertSame(77, $result['mhm_transfer_deposit_rate']);
+        $this->assertSame(77, $result['mhmrentiva_transfer_deposit_rate']);
     }
 
     /**

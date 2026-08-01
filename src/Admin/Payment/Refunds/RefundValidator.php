@@ -71,7 +71,7 @@ final class RefundValidator {
 	 * Checks payment status
 	 */
 	public static function validatePaymentStatus( int $bookingId ): array {
-		$paymentStatus = (string) get_post_meta( $bookingId, '_mhm_payment_status', true );
+		$paymentStatus = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_status', true );
 
 		if ( empty( $paymentStatus ) ) {
 			return array(
@@ -114,12 +114,12 @@ final class RefundValidator {
 	public static function validateGatewaySpecific( int $bookingId, string $gateway ): array {
 		if ( $gateway === 'woocommerce' ) {
 			// ⭐ For WooCommerce, check if order exists and can be refunded
-			$order_id = (int) get_post_meta( $bookingId, '_mhm_woocommerce_order_id', true );
+			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
 			if ( empty( $order_id ) ) {
 				// Try alternative meta keys for backward compatibility
-				$order_id = (int) get_post_meta( $bookingId, '_mhm_wc_order_id', true );
+				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
 				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhm_order_id', true );
+					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
 				}
 			}
 
@@ -171,7 +171,7 @@ final class RefundValidator {
 		}
 
 		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhm_payment_gateway', true );
+		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
 		$gatewayValidation = self::validateGateway( $gateway );
 		if ( ! $gatewayValidation['valid'] ) {
 			return $gatewayValidation;
@@ -214,7 +214,7 @@ final class RefundValidator {
 		}
 
 		// Gateway validation
-		$gateway           = (string) get_post_meta( $bookingId, '_mhm_payment_gateway', true );
+		$gateway           = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_gateway', true );
 		$gatewayValidation = self::validateGateway( $gateway );
 		if ( ! $gatewayValidation['valid'] ) {
 			return $gatewayValidation;

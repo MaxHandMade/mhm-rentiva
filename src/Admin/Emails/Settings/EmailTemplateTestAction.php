@@ -19,7 +19,7 @@ final class EmailTemplateTestAction {
 
 
 	public static function register(): void {
-		add_action( 'admin_post_mhm_rentiva_send_template_test', array( self::class, 'handle' ) );
+		add_action( 'admin_post_mhmrentiva_send_template_test', array( self::class, 'handle' ) );
 	}
 
 	public static function handle(): void {
@@ -28,7 +28,7 @@ final class EmailTemplateTestAction {
 		}
 
 		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_template_test' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_send_template_test' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ), 403 );
 		}
 
@@ -123,7 +123,7 @@ final class EmailTemplateTestAction {
 				'page'              => 'mhm-rentiva-settings',
 				'tab'               => 'email-templates',
 				'type'              => sanitize_key( isset( $_GET['type'] ) ? wp_unslash( $_GET['type'] ) : 'booking_notifications' ),
-				'mhm_template_test' => $status,
+				'mhmrentiva_template_test' => $status,
 			),
 			admin_url( 'admin.php' )
 		);

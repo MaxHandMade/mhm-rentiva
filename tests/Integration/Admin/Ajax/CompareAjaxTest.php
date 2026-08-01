@@ -44,8 +44,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_ajax_add_compare_success(): void {
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_toggle_compare' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
 		$this->dispatch_ajax();
@@ -60,8 +60,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	public function test_ajax_remove_compare_success(): void {
 		CompareService::add( $this->vehicle_id );
 
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_toggle_compare' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
 		$this->dispatch_ajax();
@@ -74,8 +74,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_ajax_accepts_secondary_nonce_context(): void {
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_vehicles_list' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_vehicles_list' );
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
 		$this->dispatch_ajax();
@@ -87,7 +87,7 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_ajax_rejects_invalid_nonce(): void {
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
 		$_POST['nonce']      = 'invalid_nonce';
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
@@ -100,8 +100,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_ajax_rejects_invalid_vehicle_id(): void {
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_toggle_compare' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
 		$_POST['vehicle_id'] = 0;
 
 		$this->dispatch_ajax();
@@ -117,8 +117,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 		CompareService::add( 1002 );
 		CompareService::add( 1003 );
 
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_toggle_compare' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
 		$this->dispatch_ajax();
@@ -133,8 +133,8 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 		wp_logout();
 		$this->reset_compare_state();
 
-		$_POST['action']     = 'mhm_rentiva_toggle_compare';
-		$_POST['nonce']      = wp_create_nonce( 'mhm_rentiva_toggle_compare' );
+		$_POST['action']     = 'mhmrentiva_toggle_compare';
+		$_POST['nonce']      = wp_create_nonce( 'mhmrentiva_toggle_compare' );
 		$_POST['vehicle_id'] = $this->vehicle_id;
 
 		$this->dispatch_ajax();
@@ -148,7 +148,7 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 
 	private function dispatch_ajax(): void {
 		try {
-			$this->_handleAjax( 'mhm_rentiva_toggle_compare' );
+			$this->_handleAjax( 'mhmrentiva_toggle_compare' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected path for WP_Ajax_UnitTestCase.
 		}
@@ -156,10 +156,10 @@ class CompareAjaxTest extends WP_Ajax_UnitTestCase {
 
 	private function reset_compare_state(): void {
 		if ( $this->user_id ) {
-			delete_user_meta( $this->user_id, 'mhm_rentiva_compare' );
+			delete_user_meta( $this->user_id, 'mhmrentiva_compare' );
 		}
 
-		unset( $_COOKIE['mhm_rentiva_compare'] );
+		unset( $_COOKIE['mhmrentiva_compare'] );
 
 		$cached_list = new \ReflectionProperty( CompareService::class, 'cached_list' );
 		$cached_list->setAccessible( true );

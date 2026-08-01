@@ -225,7 +225,7 @@
         updateVehicleInfo(vehicleId) {
             // Update vehicle info via AJAX
             const data = {
-                action: 'mhm_rentiva_get_vehicle_info',
+                action: 'mhmrentiva_get_vehicle_info',
                 vehicle_id: vehicleId,
                 nonce: window.mhmRentivaAvailability.nonce
             };
@@ -595,7 +595,7 @@
             this.isLoading = true;
 
             const data = {
-                action: 'mhm_rentiva_availability_unified',
+                action: 'mhmrentiva_availability_unified',
                 nonce: window.mhmRentivaAvailability.nonce,
                 vehicle_id: this.currentVehicleId,
                 start_month: this.currentStartMonth,
@@ -922,7 +922,7 @@
             const $icon = $btn.find('.rv-heart-icon');
 
             const data = {
-                action: 'mhm_rentiva_toggle_favorite',
+                action: 'mhmrentiva_toggle_favorite',
                 vehicle_id: vehicleId,
                 nonce: window.mhmRentivaAvailability.favoriteNonce || window.mhmRentivaAvailability.nonce
             };

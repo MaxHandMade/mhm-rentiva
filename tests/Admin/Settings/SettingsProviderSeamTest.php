@@ -16,7 +16,7 @@ use WP_UnitTestCase;
  *
  * - Settings::init() no longer hardcodes 'vendor-marketplace' =>
  *   VendorMarketplaceSettings; Pro registers it via the pre-existing
- *   `mhm_rentiva_register_settings_providers` action.
+ *   `mhmrentiva_register_settings_providers` action.
  * - SettingsService::match() resolves the transfer/vendor-marketplace/
  *   messages provider class through Settings::get_provider() (the same
  *   registry `register_provider()` writes to) instead of a hardcoded
@@ -35,9 +35,9 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
 {
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_settings_groups');
-        remove_all_filters('mhm_rentiva_settings_tabs');
-        delete_option('mhm_rentiva_settings');
+        remove_all_filters('mhmrentiva_settings_groups');
+        remove_all_filters('mhmrentiva_settings_tabs');
+        delete_option('mhmrentiva_settings');
         wp_set_current_user(0);
         parent::tearDown();
     }
@@ -55,7 +55,7 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
 
     /**
      * register_provider() is the same mechanism Pro's
-     * `mhm_rentiva_register_settings_providers` subscriber calls -- proves
+     * `mhmrentiva_register_settings_providers` subscriber calls -- proves
      * the registry SettingsService::match() reads is genuinely writable by a
      * third party, not just a stub.
      */
@@ -75,7 +75,7 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
     {
         wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 
-        update_option('mhm_rentiva_settings', array( 'mhm_rentiva_max_login_attempts' => '999' ));
+        update_option('mhmrentiva_settings', array( 'mhmrentiva_max_login_attempts' => '999' ));
 
         $this->assertTrue(SettingsService::reset_defaults('system'));
     }
@@ -93,7 +93,7 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
     {
         wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 
-        add_filter('mhm_rentiva_settings_tabs', static function (array $tabs): array {
+        add_filter('mhmrentiva_settings_tabs', static function (array $tabs): array {
             $tabs['transfer'] = true;
             return $tabs;
         });
@@ -104,7 +104,7 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
     }
 
     /**
-     * The `mhm_rentiva_settings_groups` filter (SettingsCore) is applied:
+     * The `mhmrentiva_settings_groups` filter (SettingsCore) is applied:
      * a subscriber-added group class gets its register() method invoked
      * during the central settings registration pass, exactly like Pro's
      * TransferSettings/VendorMarketplaceSettings used to be hardcoded.
@@ -113,14 +113,14 @@ final class SettingsProviderSeamTest extends WP_UnitTestCase
     {
         FakeGroupForSeamTest::$registered = false;
 
-        add_filter('mhm_rentiva_settings_groups', static function (array $groups): array {
+        add_filter('mhmrentiva_settings_groups', static function (array $groups): array {
             $groups[] = FakeGroupForSeamTest::class;
             return $groups;
         });
 
         SettingsCore::init_settings_registration();
 
-        $this->assertTrue(FakeGroupForSeamTest::$registered, 'A group added via the mhm_rentiva_settings_groups filter must have register() invoked.');
+        $this->assertTrue(FakeGroupForSeamTest::$registered, 'A group added via the mhmrentiva_settings_groups filter must have register() invoked.');
     }
 }
 

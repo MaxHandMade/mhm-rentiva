@@ -241,8 +241,8 @@ final class ShortcodePageActions {
 		);
 
 		if ( $page_id && ! is_wp_error( $page_id ) ) {
-			update_post_meta( $page_id, '_mhm_shortcode', $shortcode );
-			update_post_meta( $page_id, '_mhm_auto_created', true );
+			update_post_meta( $page_id, '_mhmrentiva_shortcode', $shortcode );
+			update_post_meta( $page_id, '_mhmrentiva_auto_created', true );
 			return (int) $page_id;
 		}
 
@@ -292,7 +292,7 @@ final class ShortcodePageActions {
 	 */
 	public function reset_pages(): int {
 		$shortcodes    = array_keys( $this->get_config() );
-		$settings      = get_option( 'mhm_rentiva_settings', array() );
+		$settings      = get_option( 'mhmrentiva_settings', array() );
 		$deleted_count = 0;
 
 		foreach ( $shortcodes as $sc ) {
@@ -308,7 +308,7 @@ final class ShortcodePageActions {
 			}
 		}
 
-		update_option( 'mhm_rentiva_settings', $settings );
+		update_option( 'mhmrentiva_settings', $settings );
 		\MHMRentiva\Admin\Core\ShortcodeUrlManager::clear_cache();
 
 		return $deleted_count;
@@ -369,17 +369,17 @@ final class ShortcodePageActions {
 	 */
 	private function get_setting_key_for_sc( string $shortcode ): ?string {
 		$mapping = array(
-			'rentiva_booking_form'          => 'mhm_rentiva_booking_url',
-			'rentiva_my_bookings'           => 'mhm_rentiva_my_bookings_url',
-			'rentiva_my_favorites'          => 'mhm_rentiva_my_favorites_url',
-			'rentiva_payment_history'       => 'mhm_rentiva_payment_history_url',
-			'rentiva_messages'              => 'mhm_rentiva_messages_url',
-			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
-			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
-			'rentiva_unified_search'        => 'mhm_rentiva_unified_search_url',
-			'rentiva_search_results'        => 'mhm_rentiva_search_results_url',
-			'rentiva_contact'               => 'mhm_rentiva_contact_url',
-			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
+			'rentiva_booking_form'          => 'mhmrentiva_booking_url',
+			'rentiva_my_bookings'           => 'mhmrentiva_my_bookings_url',
+			'rentiva_my_favorites'          => 'mhmrentiva_my_favorites_url',
+			'rentiva_payment_history'       => 'mhmrentiva_payment_history_url',
+			'rentiva_messages'              => 'mhmrentiva_messages_url',
+			'rentiva_vehicles_list'         => 'mhmrentiva_vehicles_list_url',
+			'rentiva_vehicles_grid'         => 'mhmrentiva_vehicles_grid_url',
+			'rentiva_unified_search'        => 'mhmrentiva_unified_search_url',
+			'rentiva_search_results'        => 'mhmrentiva_search_results_url',
+			'rentiva_contact'               => 'mhmrentiva_contact_url',
+			'rentiva_availability_calendar' => 'mhmrentiva_availability_calendar_url',
 		);
 
 		return $mapping[ $shortcode ] ?? null;

@@ -98,11 +98,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	<!-- Hidden Input for Form Submission -->
 	<input type="hidden" 
-			name="mhm_rentiva_gallery_images" 
-			id="mhm_rentiva_gallery_images" 
+			name="mhmrentiva_gallery_images" 
+			id="mhmrentiva_gallery_images" 
 			value="<?php echo esc_attr( wp_json_encode( $gallery_images ) ); ?>" />
 	
 	<!-- Nonce for Security -->
-	<?php wp_nonce_field( 'mhm_rentiva_gallery_images', 'mhm_rentiva_gallery_images_nonce' ); ?>
+	<?php wp_nonce_field( 'mhmrentiva_gallery_images', 'mhmrentiva_gallery_images_nonce' ); ?>
 
 </div>

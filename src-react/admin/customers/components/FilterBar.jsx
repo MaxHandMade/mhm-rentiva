@@ -17,7 +17,7 @@ export default function FilterBar( { search, selectedIds, nonce, adminUrl, addCu
 				{ __( 'Export CSV', 'mhm-rentiva' ) }
 			</button>
 			<form ref={ formRef } method="POST" action={ `${ adminUrl }admin-post.php` } style={ { display: 'none' } }>
-				<input type="hidden" name="action" value="mhm_rentiva_export_customers" />
+				<input type="hidden" name="action" value="mhmrentiva_export_customers" />
 				<input type="hidden" name="nonce"  value={ nonce } />
 				<input type="hidden" name="search" value={ search } />
 				{ selectedIds.map( ( id ) => (

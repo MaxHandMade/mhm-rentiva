@@ -26,15 +26,15 @@ final class Handler {
 
 	public static function register(): void
 	{
-		add_action('admin_post_mhm_rentiva_booking', array( self::class, 'handle' ));
-		add_action('admin_post_nopriv_mhm_rentiva_booking', array( self::class, 'handle' ));
+		add_action('admin_post_mhmrentiva_booking', array( self::class, 'handle' ));
+		add_action('admin_post_nopriv_mhmrentiva_booking', array( self::class, 'handle' ));
 	}
 
 	public static function handle(): void
 	{
 		// Nonce verification
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_booking_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_booking_action')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_booking_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_booking_action')) {
 			$error_message = UXHelper::get_user_friendly_error(
 				UXHelper::ERROR_TYPE_PERMISSION,
 				'access_denied',
@@ -78,7 +78,7 @@ final class Handler {
 
 		// Neutral extension point: fires immediately before the booking record
 		// is created, on the frontend customer booking path only (this handler
-		// is registered for admin_post_mhm_rentiva_booking / admin_post_nopriv_*,
+		// is registered for admin_post_mhmrentiva_booking / admin_post_nopriv_*,
 		// i.e. the public booking form — never the wp-admin manual booking path).
 		// Fired as soon as the required fields are known and valid (before the
 		// payment-method/vehicle-existence checks and before the DB lock in
@@ -87,7 +87,7 @@ final class Handler {
 		// never leaves an open DB transaction. No-op by default; the add-on's
 		// GDPRManager only enforces when GDPR + consent-required are both
 		// explicitly enabled by the admin.
-		do_action('mhm_rentiva_before_booking_creation', array(
+		do_action('mhmrentiva_before_booking_creation', array(
 			'vehicle_id'      => $vehicle_id,
 			'pickup_date'     => $pickup_date,
 			'pickup_time'     => $pickup_time,
@@ -133,7 +133,7 @@ final class Handler {
 
 		// Extension point for add-ons
 		do_action(
-			'mhm_rentiva_before_booking_create',
+			'mhmrentiva_before_booking_create',
 			$vehicle_id,
 			array(
 				'pickup_date'     => $pickup_date,
@@ -180,9 +180,9 @@ final class Handler {
 			// Success redirection
 			if (class_exists('WooCommerce')) {
 				// Get payment details from booking meta
-				$deposit_amount = floatval(get_post_meta($booking_id, '_mhm_deposit_amount', true));
-				$total_amount   = floatval(get_post_meta($booking_id, '_mhm_total_price', true));
-				$payment_type   = get_post_meta($booking_id, '_mhm_payment_type', true);
+				$deposit_amount = floatval(get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true));
+				$total_amount   = floatval(get_post_meta($booking_id, '_mhmrentiva_total_price', true));
+				$payment_type   = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
 
 				$amount_to_pay = $payment_type === 'deposit' ? $deposit_amount : $total_amount;
 
@@ -229,7 +229,7 @@ final class Handler {
 	private static function redirect_success(int $booking_id): void
 	{
 		// Check for custom thank you page from settings
-		$thank_you_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_thank_you_page', '');
+		$thank_you_page = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_thank_you_page', '');
 		if (! empty($thank_you_page) && is_numeric($thank_you_page)) {
 			$thank_you_url = get_permalink( (int) $thank_you_page);
 			if ($thank_you_url) {
@@ -340,40 +340,40 @@ final class Handler {
 
 				// Save meta fields
 				$meta_fields = array(
-					'_mhm_vehicle_id'            => $booking_data['vehicle_id'],
-					'_mhm_start_ts'              => $start_ts,
-					'_mhm_end_ts'                => $end_ts,
-					'_mhm_start_date'            => $booking_data['pickup_date'], // Added for compatibility
-					'_mhm_end_date'              => $booking_data['dropoff_date'], // Added for compatibility
-					'_mhm_pickup_date'           => $booking_data['pickup_date'],
-					'_mhm_pickup_time'           => $booking_data['pickup_time'],
-					'_mhm_dropoff_date'          => $booking_data['dropoff_date'],
-					'_mhm_dropoff_time'          => $booking_data['dropoff_time'],
-					'_mhm_contact_name'          => $booking_data['contact_name'],
-					'_mhm_contact_email'         => $booking_data['contact_email'],
-					'_mhm_contact_phone'         => $booking_data['contact_phone'],
-					'_mhm_rental_days'           => $rental_days,
-					'_mhm_total_price'           => $total_price,
-					'_mhm_status'                => 'pending',
-					'_mhm_client_ip'             => $booking_data['client_ip'],
-					'_mhm_user_agent'            => $booking_data['user_agent'],
+					'_mhmrentiva_vehicle_id'            => $booking_data['vehicle_id'],
+					'_mhmrentiva_start_ts'              => $start_ts,
+					'_mhmrentiva_end_ts'                => $end_ts,
+					'_mhmrentiva_start_date'            => $booking_data['pickup_date'], // Added for compatibility
+					'_mhmrentiva_end_date'              => $booking_data['dropoff_date'], // Added for compatibility
+					'_mhmrentiva_pickup_date'           => $booking_data['pickup_date'],
+					'_mhmrentiva_pickup_time'           => $booking_data['pickup_time'],
+					'_mhmrentiva_dropoff_date'          => $booking_data['dropoff_date'],
+					'_mhmrentiva_dropoff_time'          => $booking_data['dropoff_time'],
+					'_mhmrentiva_contact_name'          => $booking_data['contact_name'],
+					'_mhmrentiva_contact_email'         => $booking_data['contact_email'],
+					'_mhmrentiva_contact_phone'         => $booking_data['contact_phone'],
+					'_mhmrentiva_rental_days'           => $rental_days,
+					'_mhmrentiva_total_price'           => $total_price,
+					'_mhmrentiva_status'                => 'pending',
+					'_mhmrentiva_client_ip'             => $booking_data['client_ip'],
+					'_mhmrentiva_user_agent'            => $booking_data['user_agent'],
 
 					// Deposit system meta fields
-					'_mhm_payment_type'          => $booking_data['payment_type'],
-					'_mhm_payment_method'        => $booking_data['payment_method'],
-					'_mhm_deposit_amount'        => $deposit_result['deposit_amount'],
-					'_mhm_remaining_amount'      => $deposit_result['remaining_amount'],
-					'_mhm_deposit_type'          => $deposit_result['deposit_type'],
-					'_mhm_payment_display'       => $deposit_result['payment_display'],
+					'_mhmrentiva_payment_type'          => $booking_data['payment_type'],
+					'_mhmrentiva_payment_method'        => $booking_data['payment_method'],
+					'_mhmrentiva_deposit_amount'        => $deposit_result['deposit_amount'],
+					'_mhmrentiva_remaining_amount'      => $deposit_result['remaining_amount'],
+					'_mhmrentiva_deposit_type'          => $deposit_result['deposit_type'],
+					'_mhmrentiva_payment_display'       => $deposit_result['payment_display'],
 
 					// ⭐ Cancellation policy from settings (default: 24 hours)
-					'_mhm_cancellation_policy'   => self::get_cancellation_policy(),
-					'_mhm_cancellation_deadline' => self::get_cancellation_deadline(),
+					'_mhmrentiva_cancellation_policy'   => self::get_cancellation_policy(),
+					'_mhmrentiva_cancellation_deadline' => self::get_cancellation_deadline(),
 
 					// ⭐ Payment deadline from settings (default: 30 minutes)
 					// This ensures auto-cancellation works for all bookings
-					'_mhm_payment_deadline'      => self::get_payment_deadline(),
-					'_mhm_pickup_location_id'    => (int) ( $booking_data['pickup_location_id'] ?? 0 ),
+					'_mhmrentiva_payment_deadline'      => self::get_payment_deadline(),
+					'_mhmrentiva_pickup_location_id'    => (int) ( $booking_data['pickup_location_id'] ?? 0 ),
 				);
 
 				// The customer, as the rest of the codebase identifies them. post_author
@@ -390,7 +390,7 @@ final class Handler {
 				// guest booking on the site.
 				$customer_user_id = get_current_user_id();
 				if ( $customer_user_id > 0 ) {
-					$meta_fields['_mhm_customer_user_id'] = $customer_user_id;
+					$meta_fields['_mhmrentiva_customer_user_id'] = $customer_user_id;
 				}
 
 				foreach ($meta_fields as $key => $value) {
@@ -398,17 +398,17 @@ final class Handler {
 				}
 
 				// Directly persist selected add-ons as postmeta.
-				// AddonManager::save_booking_addons() also runs via mhm_rentiva_booking_created below,
+				// AddonManager::save_booking_addons() also runs via mhmrentiva_booking_created below,
 				// but saving here ensures data is always stored even if that hook fires with an empty list.
 				if (! empty($booking_data['selected_addons']) && is_array($booking_data['selected_addons'])) {
-					update_post_meta($booking_id, '_mhm_selected_addons', array_values($booking_data['selected_addons']));
+					update_post_meta($booking_id, '_mhmrentiva_selected_addons', array_values($booking_data['selected_addons']));
 				}
 
 				// ⭐ Ensure payment_deadline is set (double-check)
-				$payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+				$payment_deadline = get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
 				if (empty($payment_deadline)) {
 					$deadline = self::get_payment_deadline();
-					update_post_meta($booking_id, '_mhm_payment_deadline', $deadline);
+					update_post_meta($booking_id, '_mhmrentiva_payment_deadline', $deadline);
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Payment deadline was missing for booking', array(
 						'booking_id' => $booking_id,
 						'deadline'   => $deadline,
@@ -430,7 +430,7 @@ final class Handler {
 					'pickup_date'     => $booking_data['pickup_date'],
 					'dropoff_date'    => $booking_data['dropoff_date'],
 				);
-				do_action('mhm_rentiva_booking_created', $booking_id, $booking_data_for_action);
+				do_action('mhmrentiva_booking_created', $booking_id, $booking_data_for_action);
 
 				return $booking_id;
 			}
@@ -469,7 +469,7 @@ final class Handler {
 	{
 		// Get deadline hours from settings (consistent with SettingsCore)
 		$deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_booking_cancellation_deadline_hours',
+			'mhmrentiva_booking_cancellation_deadline_hours',
 			24 // Default: 24 hours
 		);
 
@@ -486,7 +486,7 @@ final class Handler {
 			$policy = '24_hours';
 		}
 
-		return apply_filters('mhm_rentiva_cancellation_policy', $policy, $deadline_hours);
+		return apply_filters('mhmrentiva_cancellation_policy', $policy, $deadline_hours);
 	}
 
 	/**
@@ -498,7 +498,7 @@ final class Handler {
 	{
 		// Get deadline hours from settings (consistent with SettingsCore)
 		$deadline_hours = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_booking_cancellation_deadline_hours',
+			'mhmrentiva_booking_cancellation_deadline_hours',
 			24 // Default: 24 hours
 		);
 
@@ -519,12 +519,12 @@ final class Handler {
 	{
 		// Get payment deadline minutes from settings (default: 30 minutes)
 		$deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_booking_payment_deadline_minutes',
+			'mhmrentiva_booking_payment_deadline_minutes',
 			30
 		);
 
 		// Minimum 5 minutes (filterable)
-		$min_minutes = apply_filters('mhm_rentiva_min_payment_deadline', 5);
+		$min_minutes = apply_filters('mhmrentiva_min_payment_deadline', 5);
 
 		if ($deadline_minutes < $min_minutes) {
 			$deadline_minutes = $min_minutes;

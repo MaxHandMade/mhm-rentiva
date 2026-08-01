@@ -38,13 +38,13 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
     {
         wp_set_current_user(0);
 
-        $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
+        $_POST['nonce'] = wp_create_nonce('mhmrentiva_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_rentiva_list_endpoints';
-        $_REQUEST['action'] = 'mhm_rentiva_list_endpoints';
+        $_POST['action'] = 'mhmrentiva_list_endpoints';
+        $_REQUEST['action'] = 'mhmrentiva_list_endpoints';
 
         try {
-            $this->_handleAjax('mhm_rentiva_list_endpoints');
+            $this->_handleAjax('mhmrentiva_list_endpoints');
             $this->fail('Expected wp_send_json_error to trigger wp_die');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
@@ -66,11 +66,11 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
 
         $_POST['nonce'] = 'not-a-real-nonce';
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_rentiva_list_endpoints';
-        $_REQUEST['action'] = 'mhm_rentiva_list_endpoints';
+        $_POST['action'] = 'mhmrentiva_list_endpoints';
+        $_REQUEST['action'] = 'mhmrentiva_list_endpoints';
 
         try {
-            $this->_handleAjax('mhm_rentiva_list_endpoints');
+            $this->_handleAjax('mhmrentiva_list_endpoints');
             $this->fail('Expected wp_send_json_error to trigger wp_die');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
@@ -90,13 +90,13 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
     {
         wp_set_current_user($this->admin_id);
 
-        $_POST['nonce'] = wp_create_nonce('mhm_rest_api_keys_nonce');
+        $_POST['nonce'] = wp_create_nonce('mhmrentiva_rest_api_keys_nonce');
         $_REQUEST['nonce'] = $_POST['nonce'];
-        $_POST['action'] = 'mhm_rentiva_list_endpoints';
-        $_REQUEST['action'] = 'mhm_rentiva_list_endpoints';
+        $_POST['action'] = 'mhmrentiva_list_endpoints';
+        $_REQUEST['action'] = 'mhmrentiva_list_endpoints';
 
         try {
-            $this->_handleAjax('mhm_rentiva_list_endpoints');
+            $this->_handleAjax('mhmrentiva_list_endpoints');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected
         } catch (\WPAjaxDieStopException $e) {
@@ -117,10 +117,10 @@ class APIKeysPageTest extends \WP_Ajax_UnitTestCase
     public function the_removed_api_key_actions_are_no_longer_registered()
     {
         foreach ([
-            'mhm_rentiva_create_api_key',
-            'mhm_rentiva_list_api_keys',
-            'mhm_rentiva_revoke_api_key',
-            'mhm_rentiva_delete_api_key',
+            'mhmrentiva_create_api_key',
+            'mhmrentiva_list_api_keys',
+            'mhmrentiva_revoke_api_key',
+            'mhmrentiva_delete_api_key',
         ] as $action) {
             $this->assertFalse(
                 has_action('wp_ajax_' . $action),

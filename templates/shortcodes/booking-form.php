@@ -419,14 +419,14 @@ $unique_id = uniqid('rv_booking_');
 						<button type="button" class="rv-submit-btn rv-btn rv-btn-primary rv-cta-primary" data-testid="booking-submit-btn">
 							<span class="rv-btn-text">
 								<?php
-								$make_booking_text = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_make_booking', '');
+								$make_booking_text = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_text_make_booking', '');
 								$make_booking_text = ! empty($make_booking_text) ? $make_booking_text : __('Make Booking', 'mhm-rentiva');
 								echo esc_html($make_booking_text);
 								?>
 							</span>
 							<span class="rv-btn-loading rv-hidden">
 								<span class="rv-spinner"></span>
-								<?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
+								<?php echo esc_html(\MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_text_processing', __('Processing...', 'mhm-rentiva'))); ?>
 							</span>
 						</button>
 						<p class="rv-payment-disclaimer">

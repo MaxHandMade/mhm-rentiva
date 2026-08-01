@@ -21,12 +21,12 @@ final class DashboardFeaturesFilterTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        remove_all_filters('mhm_rentiva_dashboard_features');
+        remove_all_filters('mhmrentiva_dashboard_features');
     }
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_dashboard_features');
+        remove_all_filters('mhmrentiva_dashboard_features');
         wp_dequeue_script('mhm-rentiva-react-dashboard');
         wp_deregister_script('mhm-rentiva-react-dashboard');
         wp_set_current_user(0);
@@ -36,17 +36,17 @@ final class DashboardFeaturesFilterTest extends WP_UnitTestCase
 
     public function test_features_filter_default_is_empty_without_a_subscriber(): void
     {
-        $this->assertSame(array(), apply_filters('mhm_rentiva_dashboard_features', array()));
+        $this->assertSame(array(), apply_filters('mhmrentiva_dashboard_features', array()));
     }
 
     public function test_a_subscriber_can_add_a_feature_key(): void
     {
-        add_filter('mhm_rentiva_dashboard_features', static function (array $features): array {
+        add_filter('mhmrentiva_dashboard_features', static function (array $features): array {
             $features['reports'] = true;
             return $features;
         });
 
-        $features = apply_filters('mhm_rentiva_dashboard_features', array());
+        $features = apply_filters('mhmrentiva_dashboard_features', array());
 
         $this->assertTrue($features['reports'] ?? false);
     }
@@ -70,7 +70,7 @@ final class DashboardFeaturesFilterTest extends WP_UnitTestCase
 
     public function test_localized_caps_map_carries_a_subscribers_key(): void
     {
-        add_filter('mhm_rentiva_dashboard_features', static function (array $features): array {
+        add_filter('mhmrentiva_dashboard_features', static function (array $features): array {
             $features['transfer'] = true;
             return $features;
         });

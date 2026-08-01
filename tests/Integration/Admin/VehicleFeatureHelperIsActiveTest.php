@@ -9,24 +9,24 @@ use WP_UnitTestCase;
 final class VehicleFeatureHelperIsActiveTest extends WP_UnitTestCase {
 
 	public function test_core_detail_is_active_even_when_none_selected(): void {
-		update_option( 'mhm_selected_details', array() );
+		update_option( 'mhmrentiva_selected_details', array() );
 		$this->assertTrue( VehicleFeatureHelper::is_field_active( 'detail', 'brand' ) );
 	}
 
 	public function test_detail_active_only_when_selected_or_core(): void {
-		update_option( 'mhm_selected_details', array( 'fuel_type' ) );
+		update_option( 'mhmrentiva_selected_details', array( 'fuel_type' ) );
 		$this->assertTrue( VehicleFeatureHelper::is_field_active( 'detail', 'fuel_type' ) );
 		$this->assertFalse( VehicleFeatureHelper::is_field_active( 'detail', 'transmission' ) );
 	}
 
 	public function test_feature_active_only_when_selected(): void {
-		update_option( 'mhm_selected_features', array( 'bluetooth' ) );
+		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) );
 		$this->assertTrue( VehicleFeatureHelper::is_field_active( 'feature', 'bluetooth' ) );
 		$this->assertFalse( VehicleFeatureHelper::is_field_active( 'feature', 'navigation' ) );
 	}
 
 	public function test_equipment_active_only_when_selected(): void {
-		update_option( 'mhm_selected_equipment', array( 'spare_tire' ) );
+		update_option( 'mhmrentiva_selected_equipment', array( 'spare_tire' ) );
 		$this->assertTrue( VehicleFeatureHelper::is_field_active( 'equipment', 'spare_tire' ) );
 		$this->assertFalse( VehicleFeatureHelper::is_field_active( 'equipment', 'jack' ) );
 	}

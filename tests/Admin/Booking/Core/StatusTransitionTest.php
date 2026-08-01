@@ -14,7 +14,7 @@ use WP_UnitTestCase;
  * Bug context: AutoComplete cron marked booking #3810 "completed" at gece 00:00
  * on the dropoff day, even though dropoff_time was 16:00. To restore correct
  * state via data-cleanup script, we need a sanctioned transition path that
- * fires the audit hook (mhm_rentiva_booking_status_changed) — direct
+ * fires the audit hook (mhmrentiva_booking_status_changed) — direct
  * update_post_meta bypass would skip the audit trail.
  */
 final class StatusTransitionTest extends WP_UnitTestCase
@@ -41,11 +41,11 @@ final class StatusTransitionTest extends WP_UnitTestCase
 			'post_type'   => 'vehicle_booking',
 			'post_status' => 'publish',
 		));
-		update_post_meta($booking_id, '_mhm_status', Status::COMPLETED);
+		update_post_meta($booking_id, '_mhmrentiva_status', Status::COMPLETED);
 
 		$captured = array();
 		add_action(
-			'mhm_rentiva_booking_status_changed',
+			'mhmrentiva_booking_status_changed',
 			static function ($id, $old, $new) use (&$captured) {
 				$captured[] = array( $id, $old, $new );
 			},
@@ -58,7 +58,7 @@ final class StatusTransitionTest extends WP_UnitTestCase
 		$this->assertTrue($result, 'update_status must succeed for completed → in_progress.');
 		$this->assertSame(
 			Status::IN_PROGRESS,
-			get_post_meta($booking_id, '_mhm_status', true),
+			get_post_meta($booking_id, '_mhmrentiva_status', true),
 			'Meta must reflect new status.'
 		);
 		$this->assertCount(1, $captured, 'status_changed action must fire exactly once.');

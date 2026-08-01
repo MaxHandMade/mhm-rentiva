@@ -10,7 +10,7 @@ use WP_UnitTestCase;
 /**
  * Regression test for the v4.64.1 second-pass pollution cleanup.
  *
- * On mhmrentiva.com the v4.27.2 migration flag (mhm_rentiva_v4272_test_pollution_cleaned)
+ * On mhmrentiva.com the v4.27.2 migration flag (mhmrentiva_v4272_test_pollution_cleaned)
  * was already stamped "done" before the collateral '1' pollution actually
  * happened, so SettingsCore::migrate_clean_test_pollution() never ran again to
  * catch it. SettingsCore::migrate_reclean_test_pollution() reuses the same
@@ -19,9 +19,9 @@ use WP_UnitTestCase;
  */
 class SettingsTestReCleanPollutionMigrationTest extends WP_UnitTestCase
 {
-    private const OLD_FLAG_OPTION = 'mhm_rentiva_v4272_test_pollution_cleaned';
-    private const NEW_FLAG_OPTION = 'mhm_rentiva_v4641_test_pollution_recleaned';
-    private const OPTION_NAME     = 'mhm_rentiva_settings';
+    private const OLD_FLAG_OPTION = 'mhmrentiva_v4272_test_pollution_cleaned';
+    private const NEW_FLAG_OPTION = 'mhmrentiva_v4641_test_pollution_recleaned';
+    private const OPTION_NAME     = 'mhmrentiva_settings';
 
     protected function tearDown(): void
     {
@@ -41,15 +41,15 @@ class SettingsTestReCleanPollutionMigrationTest extends WP_UnitTestCase
     {
         update_option(self::OLD_FLAG_OPTION, '1');
         update_option(self::OPTION_NAME, array(
-            'mhm_rentiva_brand_name'    => '1',
-            'mhm_rentiva_contact_phone' => '1',
+            'mhmrentiva_brand_name'    => '1',
+            'mhmrentiva_contact_phone' => '1',
         ));
 
         SettingsCore::migrate_reclean_test_pollution();
 
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertArrayNotHasKey('mhm_rentiva_brand_name', $stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_contact_phone', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_brand_name', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_contact_phone', $stored);
     }
 
     /**
@@ -58,15 +58,15 @@ class SettingsTestReCleanPollutionMigrationTest extends WP_UnitTestCase
     public function test_preserves_genuine_user_values(): void
     {
         update_option(self::OPTION_NAME, array(
-            'mhm_rentiva_brand_name'    => 'Otokira Rent a Car',
-            'mhm_rentiva_contact_phone' => '+90 555 123 45 67',
+            'mhmrentiva_brand_name'    => 'Otokira Rent a Car',
+            'mhmrentiva_contact_phone' => '+90 555 123 45 67',
         ));
 
         SettingsCore::migrate_reclean_test_pollution();
 
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertSame('Otokira Rent a Car', $stored['mhm_rentiva_brand_name']);
-        $this->assertSame('+90 555 123 45 67', $stored['mhm_rentiva_contact_phone']);
+        $this->assertSame('Otokira Rent a Car', $stored['mhmrentiva_brand_name']);
+        $this->assertSame('+90 555 123 45 67', $stored['mhmrentiva_contact_phone']);
     }
 
     /**
@@ -75,15 +75,15 @@ class SettingsTestReCleanPollutionMigrationTest extends WP_UnitTestCase
      */
     public function test_is_idempotent_via_its_own_flag(): void
     {
-        update_option(self::OPTION_NAME, array( 'mhm_rentiva_brand_name' => '1' ));
+        update_option(self::OPTION_NAME, array( 'mhmrentiva_brand_name' => '1' ));
 
         SettingsCore::migrate_reclean_test_pollution();
         $this->assertSame('1', get_option(self::NEW_FLAG_OPTION));
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertArrayNotHasKey('mhm_rentiva_brand_name', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_brand_name', $stored);
 
-        update_option(self::OPTION_NAME, array( 'mhm_rentiva_brand_name' => '1' ));
+        update_option(self::OPTION_NAME, array( 'mhmrentiva_brand_name' => '1' ));
         SettingsCore::migrate_reclean_test_pollution();
-        $this->assertSame('1', get_option(self::OPTION_NAME)['mhm_rentiva_brand_name']);
+        $this->assertSame('1', get_option(self::OPTION_NAME)['mhmrentiva_brand_name']);
     }
 }

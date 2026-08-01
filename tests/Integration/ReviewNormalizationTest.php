@@ -42,12 +42,12 @@ class ReviewNormalizationTest extends \WP_UnitTestCase
         $comment_id = wp_insert_comment($data);
 
         // Add meta separately
-        add_comment_meta($comment_id, 'mhm_rating', 5);
+        add_comment_meta($comment_id, 'mhmrentiva_rating', 5);
 
         // Manual Hook Trigger: In integration tests, added_comment_meta might not fire consistently
         // for internal updates depending on the factory/env setup.
         // We manually invoke the handler to verify the LOGIC.
-        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhm_rating', 5);
+        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhmrentiva_rating', 5);
 
         // Check if it got normalized
         $comment = get_comment($comment_id);
@@ -58,7 +58,7 @@ class ReviewNormalizationTest extends \WP_UnitTestCase
             echo "\nComment Type: " . $comment->comment_type;
             echo "\nPost ID: " . $comment->comment_post_ID;
             echo "\nPost Type: " . get_post_type($comment->comment_post_ID);
-            echo "\nRating Meta: " . get_comment_meta($comment_id, 'mhm_rating', true);
+            echo "\nRating Meta: " . get_comment_meta($comment_id, 'mhmrentiva_rating', true);
         }
 
         $this->assertEquals('review', $comment->comment_type, 'Comment type should be normalized to review after adding rating meta');
@@ -80,10 +80,10 @@ class ReviewNormalizationTest extends \WP_UnitTestCase
         ]);
 
         // 2. Add rating via meta update
-        update_comment_meta($comment_id, 'mhm_rating', 4);
+        update_comment_meta($comment_id, 'mhmrentiva_rating', 4);
 
         // Manual Hook Trigger
-        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhm_rating', 4);
+        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhmrentiva_rating', 4);
 
         // Check Normalization
         $comment = get_comment($comment_id);
@@ -111,10 +111,10 @@ class ReviewNormalizationTest extends \WP_UnitTestCase
             'comment_approved' => 1,
         ]);
 
-        add_comment_meta($comment_id, 'mhm_rating', 5);
+        add_comment_meta($comment_id, 'mhmrentiva_rating', 5);
 
         // Manually invoke the normalization/recalc pipeline
-        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhm_rating', 5);
+        ReviewNormalization::handle_meta_update(0, $comment_id, 'mhmrentiva_rating', 5);
 
         // Guaranteed side effect: rating aggregate must be recalculated
         $rating = \MHMRentiva\Admin\Vehicle\Helpers\RatingHelper::get_rating($this->vehicle_id);

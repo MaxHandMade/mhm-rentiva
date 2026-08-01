@@ -87,10 +87,10 @@ final class UnifiedSearch extends AbstractShortcode {
 		// requested for 'rental': the same filter also feeds an add-on's
 		// pickup/dropoff branch selects on the rental form itself, so it must
 		// stay live even though the transfer tab is gone.
-		$locations = apply_filters('mhm_rentiva_search_locations', array(), 'rental');
+		$locations = apply_filters('mhmrentiva_search_locations', array(), 'rental');
 
 		// Resolve initial visibility
-		$show_rental = self::resolve_bool($atts['show_rental_tab'], 'mhm_rentiva_show_rental_tab', true);
+		$show_rental = self::resolve_bool($atts['show_rental_tab'], 'mhmrentiva_show_rental_tab', true);
 
 		// Resolve layout: Check search_layout first (Block), then layout (Shortcode)
 		$layout = ! empty($atts['search_layout']) ? $atts['search_layout'] : $atts['layout'];
@@ -99,7 +99,7 @@ final class UnifiedSearch extends AbstractShortcode {
 			'locations'             => $locations,
 			'default_tab'           => 'rental',
 			'wrapper_id'            => uniqid('rv_unified_'),
-			'nonce'                 => wp_create_nonce('mhm_rentiva_unified_search'),
+			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
 
 			// Visibility controls
 			'show_rental_tab'       => $show_rental,
@@ -107,17 +107,17 @@ final class UnifiedSearch extends AbstractShortcode {
 			// defaults to true, so without this the Lite rental form would render an
 			// empty (and, when location_required, unsubmittable) picker.
 			'show_location_select'  => $locations !== array()
-				&& self::resolve_bool($atts['show_location_select'], 'mhm_rentiva_enable_location_select', true),
-			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhm_rentiva_enable_time_select', true),
-			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhm_rentiva_enable_date_picker', true),
-			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhm_rentiva_enable_dropoff', true),
-			'location_required'     => self::resolve_bool($atts['location_required'], 'mhm_rentiva_location_required', true),
-			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhm_rentiva_fields_required', true),
+				&& self::resolve_bool($atts['show_location_select'], 'mhmrentiva_enable_location_select', true),
+			'show_time_select'      => self::resolve_bool($atts['show_time_select'], 'mhmrentiva_enable_time_select', true),
+			'show_date_picker'      => self::resolve_bool($atts['show_date_picker'], 'mhmrentiva_enable_date_picker', true),
+			'show_dropoff_location' => self::resolve_bool($atts['show_dropoff_location'], 'mhmrentiva_enable_dropoff', true),
+			'location_required'     => self::resolve_bool($atts['location_required'], 'mhmrentiva_location_required', true),
+			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
 
 			// Query filters
 			'service_type'          => $atts['service_type'],
 			'filter_categories'     => $atts['filter_categories'],
-			'redirect_page'         => self::resolve_default($atts['redirect_page'], 'mhm_rentiva_search_results_page'),
+			'redirect_page'         => self::resolve_default($atts['redirect_page'], 'mhmrentiva_search_results_page'),
 			'layout'                => $layout,
 		);
 	}
@@ -130,9 +130,9 @@ final class UnifiedSearch extends AbstractShortcode {
 		// Base unified-search styles (layout and component foundations).
 		wp_enqueue_style(
 			'mhm-rentiva-unified-search-base',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/unified-search.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/unified-search.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// Premium search overlay styles. Versioned by file modification time,
@@ -141,7 +141,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		// so the file on disk and the file being rendered could differ.
 		wp_enqueue_style(
 			'mhm-rentiva-search-premium',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
 			array( 'mhm-rentiva-unified-search-base' ),
 			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-premium.css' )
 		);
@@ -155,9 +155,9 @@ final class UnifiedSearch extends AbstractShortcode {
 
 		wp_enqueue_script(
 			'mhm-rentiva-unified-search',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/unified-search.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/unified-search.js',
 			$search_deps,
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -178,8 +178,8 @@ final class UnifiedSearch extends AbstractShortcode {
 				'restNonce'       => wp_create_nonce('wp_rest'),
 				'initial_service' => $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental',
 				'settings'        => array(
-					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_min_rental_days', 1),
-					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1),
+					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1),
+					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1),
 				),
 			)
 		);

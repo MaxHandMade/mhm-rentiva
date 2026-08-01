@@ -24,35 +24,35 @@ final class LocationHooksDefaultTest extends WP_UnitTestCase
 {
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_locations');
-        remove_all_filters('mhm_rentiva_location_by_id');
-        remove_all_filters('mhm_rentiva_has_locations');
+        remove_all_filters('mhmrentiva_locations');
+        remove_all_filters('mhmrentiva_location_by_id');
+        remove_all_filters('mhmrentiva_has_locations');
         parent::tearDown();
     }
 
-    public function test_mhm_rentiva_locations_defaults_to_empty(): void
+    public function test_mhmrentiva_locations_defaults_to_empty(): void
     {
-        $this->assertSame(array(), apply_filters('mhm_rentiva_locations', array(), 'rental'));
+        $this->assertSame(array(), apply_filters('mhmrentiva_locations', array(), 'rental'));
     }
 
-    public function test_mhm_rentiva_location_by_id_defaults_to_null(): void
+    public function test_mhmrentiva_location_by_id_defaults_to_null(): void
     {
-        $this->assertNull(apply_filters('mhm_rentiva_location_by_id', null, 42));
+        $this->assertNull(apply_filters('mhmrentiva_location_by_id', null, 42));
     }
 
-    public function test_mhm_rentiva_has_locations_defaults_to_false(): void
+    public function test_mhmrentiva_has_locations_defaults_to_false(): void
     {
-        $this->assertFalse(apply_filters('mhm_rentiva_has_locations', false));
+        $this->assertFalse(apply_filters('mhmrentiva_has_locations', false));
     }
 
     public function test_a_subscriber_can_override_all_three_defaults(): void
     {
-        add_filter('mhm_rentiva_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
-        add_filter('mhm_rentiva_location_by_id', static fn ($loc, $id) => (object) array( 'id' => $id, 'name' => 'Demo' ), 10, 2);
-        add_filter('mhm_rentiva_has_locations', static fn () => true);
+        add_filter('mhmrentiva_locations', static fn ($locations, $type) => array( (object) array( 'id' => 1, 'name' => 'Demo' ) ), 10, 2);
+        add_filter('mhmrentiva_location_by_id', static fn ($loc, $id) => (object) array( 'id' => $id, 'name' => 'Demo' ), 10, 2);
+        add_filter('mhmrentiva_has_locations', static fn () => true);
 
-        $this->assertNotSame(array(), apply_filters('mhm_rentiva_locations', array(), 'rental'));
-        $this->assertNotNull(apply_filters('mhm_rentiva_location_by_id', null, 42));
-        $this->assertTrue(apply_filters('mhm_rentiva_has_locations', false));
+        $this->assertNotSame(array(), apply_filters('mhmrentiva_locations', array(), 'rental'));
+        $this->assertNotNull(apply_filters('mhmrentiva_location_by_id', null, 42));
+        $this->assertTrue(apply_filters('mhmrentiva_has_locations', false));
     }
 }

@@ -39,7 +39,7 @@ final class PayoutMenuGatingTest extends \WP_UnitTestCase
         parent::setUp();
         $admin = self::factory()->user->create(['role' => 'administrator']);
         wp_set_current_user($admin);
-        wp_get_current_user()->add_cap('mhm_rentiva_approve_payout');
+        wp_get_current_user()->add_cap('mhmrentiva_approve_payout');
 
         // The parent menu must exist for add_submenu_page() to attach to it.
         add_menu_page('MHM Rentiva', 'MHM Rentiva', 'manage_options', 'mhm-rentiva', '__return_null');

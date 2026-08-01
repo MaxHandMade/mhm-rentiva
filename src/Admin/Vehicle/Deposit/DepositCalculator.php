@@ -145,7 +145,7 @@ final class DepositCalculator {
 	 */
 	public static function calculate_vehicle_deposit(int $vehicle_id, int $rental_days = 1): array
 	{
-		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true));
+		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
 		$deposit_value = self::get_vehicle_deposit_value($vehicle_id);
 
 		return self::calculate_deposit($deposit_value, $daily_price, $rental_days);
@@ -176,7 +176,7 @@ final class DepositCalculator {
 	 */
 	public static function calculate_booking_deposit(int $vehicle_id, int $rental_days = 1, string $payment_type = 'deposit', array $addons = array(), int $start_ts = 0): array
 	{
-		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true));
+		$daily_price   = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true));
 		$deposit_value = self::get_vehicle_deposit_value($vehicle_id);
 
 		if ($daily_price <= 0) {
@@ -318,12 +318,12 @@ final class DepositCalculator {
 	 */
 	public static function get_booking_payment_info(int $booking_id): array
 	{
-		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
-		$payment_method   = get_post_meta($booking_id, '_mhm_payment_method', true);
-		$deposit_amount   = floatval(get_post_meta($booking_id, '_mhm_deposit_amount', true));
-		$total_amount     = floatval(get_post_meta($booking_id, '_mhm_total_price', true));
-		$remaining_amount = floatval(get_post_meta($booking_id, '_mhm_remaining_amount', true));
-		$payment_deadline = get_post_meta($booking_id, '_mhm_payment_deadline', true);
+		$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
+		$payment_method   = get_post_meta($booking_id, '_mhmrentiva_payment_method', true);
+		$deposit_amount   = floatval(get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true));
+		$total_amount     = floatval(get_post_meta($booking_id, '_mhmrentiva_total_price', true));
+		$remaining_amount = floatval(get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true));
+		$payment_deadline = get_post_meta($booking_id, '_mhmrentiva_payment_deadline', true);
 
 		return array(
 			'payment_type'     => $payment_type,
@@ -345,7 +345,7 @@ final class DepositCalculator {
 	 */
 	public static function get_vehicle_deposit_value(int $vehicle_id): string
 	{
-		$value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+		$value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
 
 		// Universal Default: 10% (v4.9.0)
 		if ($value === '' || $value === null || $value === '0' || $value === 0) {

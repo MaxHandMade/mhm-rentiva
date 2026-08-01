@@ -12,27 +12,27 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Blocked Dates Meta Box for Vehicles
  *
  * Stores dates when a vehicle is unavailable for reservations.
- * Data is saved as JSON array in postmeta key `_mhm_blocked_dates`.
+ * Data is saved as JSON array in postmeta key `_mhmrentiva_blocked_dates`.
  */
 final class BlockedDatesMetaBox {
 
-	private const META_KEY       = '_mhm_blocked_dates';
-	private const META_KEY_NOTES = '_mhm_blocked_dates_notes';
-	private const NONCE_ACTION   = 'mhm_blocked_dates_save';
-	private const NONCE_NAME     = 'mhm_blocked_dates_nonce';
+	private const META_KEY       = '_mhmrentiva_blocked_dates';
+	private const META_KEY_NOTES = '_mhmrentiva_blocked_dates_notes';
+	private const NONCE_ACTION   = 'mhmrentiva_blocked_dates_save';
+	private const NONCE_NAME     = 'mhmrentiva_blocked_dates_nonce';
 
 	public static function register(): void {
 		add_action( 'add_meta_boxes_vehicle', array( self::class, 'add_meta_box' ) );
 		add_action( 'save_post_vehicle', array( self::class, 'save' ), 10, 1 );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
-		add_action( 'wp_ajax_mhm_rentiva_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
-		add_action( 'wp_ajax_mhm_rentiva_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
-		add_action( 'wp_ajax_mhm_rentiva_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
+		add_action( 'wp_ajax_mhmrentiva_apply_blocked_dates_to_all', array( self::class, 'ajax_apply_to_all' ) );
+		add_action( 'wp_ajax_mhmrentiva_remove_blocked_dates_from_all', array( self::class, 'ajax_remove_from_all' ) );
+		add_action( 'wp_ajax_mhmrentiva_toggle_blocked_date', array( self::class, 'ajax_toggle_blocked_date' ) );
 	}
 
 	public static function add_meta_box(): void {
 		add_meta_box(
-			'mhm_blocked_dates',
+			'mhmrentiva_blocked_dates',
 			__( 'Blocked Dates', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
 			'vehicle',
@@ -60,7 +60,7 @@ final class BlockedDatesMetaBox {
 
 			<div class="blocked-dates-body">
 				<div class="blocked-dates-calendar-col">
-					<div id="mhm_blocked_dates_picker"></div>
+					<div id="mhmrentiva_blocked_dates_picker"></div>
 				</div>
 				<div class="blocked-dates-chips-col">
 					<div class="blocked-dates-chips-header">
@@ -81,18 +81,18 @@ final class BlockedDatesMetaBox {
 			<input
 				type="hidden"
 				name="<?php echo esc_attr( self::META_KEY ); ?>"
-				id="mhm_blocked_dates_value"
+				id="mhmrentiva_blocked_dates_value"
 				value="<?php echo esc_attr( wp_json_encode( $blocked ) ); ?>"
 			>
 			<input
 				type="hidden"
 				name="<?php echo esc_attr( self::META_KEY_NOTES ); ?>"
-				id="mhm_blocked_dates_notes_value"
+				id="mhmrentiva_blocked_dates_notes_value"
 				value="<?php echo esc_attr( wp_json_encode( self::get_blocked_notes( $post->ID ) ) ); ?>"
 			>
-			<input type="hidden" id="mhm_apply_to_all_nonce" value="<?php echo esc_attr( wp_create_nonce( 'mhm_apply_blocked_to_all' ) ); ?>">
-			<input type="hidden" id="mhm_remove_from_all_nonce" value="<?php echo esc_attr( wp_create_nonce( 'mhm_remove_blocked_from_all' ) ); ?>">
-			<input type="hidden" id="mhm_current_vehicle_id" value="<?php echo esc_attr( (string) $post->ID ); ?>">
+			<input type="hidden" id="mhmrentiva_apply_to_all_nonce" value="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_apply_blocked_to_all' ) ); ?>">
+			<input type="hidden" id="mhmrentiva_remove_from_all_nonce" value="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_remove_blocked_from_all' ) ); ?>">
+			<input type="hidden" id="mhmrentiva_current_vehicle_id" value="<?php echo esc_attr( (string) $post->ID ); ?>">
 
 			<div class="blocked-dates-footer">
 				<button type="button" id="mhm-apply-blocked-to-all" class="button blocked-dates-apply-all-btn" <?php echo empty( $blocked ) ? 'disabled' : ''; ?>>
@@ -224,7 +224,7 @@ final class BlockedDatesMetaBox {
 	 */
 	public static function ajax_toggle_blocked_date(): void {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_blocked_date' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_toggle_blocked_date' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 
@@ -263,7 +263,7 @@ final class BlockedDatesMetaBox {
 	 */
 	public static function ajax_apply_to_all(): void {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_apply_blocked_to_all' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_apply_blocked_to_all' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
@@ -326,7 +326,7 @@ final class BlockedDatesMetaBox {
 	 */
 	public static function ajax_remove_from_all(): void {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_remove_blocked_from_all' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_remove_blocked_from_all' ) ) {
 			wp_send_json_error( __( 'Security error.', 'mhm-rentiva' ) );
 		}
 		$source_id = isset( $_POST['vehicle_id'] ) ? (int) sanitize_text_field( wp_unslash( $_POST['vehicle_id'] ) ) : 0;
@@ -444,19 +444,19 @@ final class BlockedDatesMetaBox {
 		}
 		wp_enqueue_style(
 			'flatpickr',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
 			array(),
 			'4.6.13'
 		);
 		wp_enqueue_style(
 			'mhm-rentiva-blocked-dates',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/blocked-dates.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/blocked-dates.css',
 			array( 'flatpickr' ),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 		wp_enqueue_script(
 			'flatpickr',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
 			array(),
 			'4.6.13',
 			true
@@ -467,7 +467,7 @@ final class BlockedDatesMetaBox {
 		if ( $flatpickr_locale !== null ) {
 			wp_enqueue_script(
 				'flatpickr-l10n-' . $flatpickr_locale,
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
 				array( 'flatpickr' ),
 				'4.6.13',
 				true
@@ -476,9 +476,9 @@ final class BlockedDatesMetaBox {
 
 		wp_enqueue_script(
 			'mhm-rentiva-blocked-dates',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/blocked-dates.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/blocked-dates.js',
 			array( 'jquery', 'flatpickr' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 		wp_localize_script( 'mhm-rentiva-blocked-dates', 'mhmBlockedDatesL10n', array(

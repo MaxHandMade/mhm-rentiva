@@ -135,7 +135,7 @@ final class RateLimiter {
 	private static function getCacheKey(string $identifier, string $action, string $timeframe): string
 	{
 		$hash = hash('sha256', $identifier);
-		return "mhm_rentiva_rate_limit_{$action}_{$timeframe}_{$hash}";
+		return "mhmrentiva_rate_limit_{$action}_{$timeframe}_{$hash}";
 	}
 
 	/**
@@ -365,7 +365,7 @@ final class RateLimiter {
 		$transients = $wpdb->get_results(
 			"SELECT option_name, option_value 
              FROM {$wpdb->options} 
-             WHERE option_name LIKE '_transient_mhm_rentiva_rate_limit_%' 
+             WHERE option_name LIKE '_transient_mhmrentiva_rate_limit_%' 
              AND option_value > 0",
 			ARRAY_A
 		);

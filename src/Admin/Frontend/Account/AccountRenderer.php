@@ -135,7 +135,7 @@ final class AccountRenderer {
 		$active_bookings = array_filter(
 			$bookings,
 			function ($booking) {
-				$status = get_post_meta($booking->ID, '_mhm_status', true);
+				$status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
 				return in_array($status, array( 'confirmed', 'in_progress' ), true);
 			}
 		);
@@ -146,9 +146,9 @@ final class AccountRenderer {
 			'active_bookings_count' => count($active_bookings),
 			'recent_bookings'       => array_slice($bookings, 0, 5),
 			'navigation'            => self::get_navigation(),
-			'favorites'             => SettingsCore::get('mhm_rentiva_customer_favorites', '1'),
-			'booking_history'       => SettingsCore::get('mhm_rentiva_customer_booking_history', '1'),
-			'welcome_message'       => SettingsCore::get('mhm_rentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
+			'favorites'             => SettingsCore::get('mhmrentiva_customer_favorites', '1'),
+			'booking_history'       => SettingsCore::get('mhmrentiva_customer_booking_history', '1'),
+			'welcome_message'       => SettingsCore::get('mhmrentiva_customer_dashboard_welcome', __('Welcome to your dashboard. From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.', 'mhm-rentiva')),
 		);
 
 		return array( 'data' => $data );
@@ -201,7 +201,7 @@ final class AccountRenderer {
 	public static function get_favorites_data(array $atts = array()): array
 	{
 		$user      = wp_get_current_user();
-		$favorites = get_user_meta($user->ID, 'mhm_rentiva_favorites', true);
+		$favorites = get_user_meta($user->ID, 'mhmrentiva_favorites', true);
 
 		if (! is_array($favorites) || empty($favorites)) {
 			$favorites = array();
@@ -210,18 +210,18 @@ final class AccountRenderer {
 		// Load Vehicles Grid CSS (for grid view)
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// Ensure standardized card styles are available on My Account favorites endpoint.
 		if (! wp_style_is('mhm-rentiva-vehicle-card-css', 'registered')) {
 			wp_register_style(
 				'mhm-rentiva-vehicle-card-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
 				array( 'mhm-rentiva-css-variables' ),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 		}
 		wp_enqueue_style('mhm-rentiva-vehicle-card-css');
@@ -235,7 +235,7 @@ final class AccountRenderer {
 			'mhmRentivaVehiclesList',
 			array(
 				'ajaxUrl'    => admin_url('admin-ajax.php'),
-				'nonce'      => wp_create_nonce('mhm_rentiva_vehicles_list'),
+				'nonce'      => wp_create_nonce('mhmrentiva_vehicles_list'),
 				'bookingUrl' => ShortcodeUrlManager::get_page_url('rentiva_booking_form'),
 				'loginUrl'   => wp_login_url(),
 				'icons'      => array(
@@ -319,7 +319,7 @@ final class AccountRenderer {
 		// a feature Lite does not have simply does not render). The empty 'error'
 		// keeps the caller's existing short-circuit, which is shared with the
 		// booking-detail path and must stay intact. The decision now comes from
-		// the same `mhm_rentiva_account_nav_items` mechanism that decides whether
+		// the same `mhmrentiva_account_nav_items` mechanism that decides whether
 		// the WC My Account "Messages" tab itself registers (Task A8a seam
 		// inversion) -- Lite no longer names the deleted mode-routing class's messages gate.
 		$nav_items = WooCommerceIntegration::get_account_nav_items();
@@ -339,7 +339,7 @@ final class AccountRenderer {
 		// filenames, handles, or Lite-hosted paths. The add-on performs the actual
 		// enqueue itself, at the exact point this render happens (WP.org T4 Phase B,
 		// Task B-A1).
-		do_action('mhm_rentiva_account_messages_render_assets', $user, $customer_name);
+		do_action('mhmrentiva_account_messages_render_assets', $user, $customer_name);
 
 		$data = array(
 			'user'           => $user,
@@ -385,8 +385,8 @@ final class AccountRenderer {
 
 		// User check — customer, vendor (vehicle owner), or admin may view
 		$user            = wp_get_current_user();
-		$booking_user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
-		$vehicle_id      = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$booking_user_id = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
+		$vehicle_id      = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 		$vendor_user_id  = $vehicle_id > 0 ? (int) get_post_field('post_author', $vehicle_id) : 0;
 
 		$is_customer = ( $booking_user_id > 0 && $booking_user_id === (int) $user->ID );
@@ -525,7 +525,7 @@ final class AccountRenderer {
 		// Meta query
 		$meta_query = array(
 			array(
-				'key'     => '_mhm_customer_user_id',
+				'key'     => '_mhmrentiva_customer_user_id',
 				'value'   => $user_id,
 				'compare' => '=',
 			),
@@ -534,7 +534,7 @@ final class AccountRenderer {
 		// Status filter
 		if (! empty($args['status'])) {
 			$meta_query[] = array(
-				'key'     => '_mhm_status',
+				'key'     => '_mhmrentiva_status',
 				'value'   => self::sanitize_text_field_safe($args['status']),
 				'compare' => '=',
 			);
@@ -565,12 +565,12 @@ final class AccountRenderer {
 		$payments = array();
 
 		foreach ($bookings as $booking) {
-			$payment_status  = get_post_meta($booking->ID, '_mhm_payment_status', true);
-			$payment_method  = get_post_meta($booking->ID, '_mhm_payment_method', true);
-			$payment_gateway = get_post_meta($booking->ID, '_mhm_payment_gateway', true);
-			$total_price     = (float) get_post_meta($booking->ID, '_mhm_total_price', true);
-			$deposit_amount  = (float) get_post_meta($booking->ID, '_mhm_deposit_amount', true);
-			$payment_type    = get_post_meta($booking->ID, '_mhm_payment_type', true);
+			$payment_status  = get_post_meta($booking->ID, '_mhmrentiva_payment_status', true);
+			$payment_method  = get_post_meta($booking->ID, '_mhmrentiva_payment_method', true);
+			$payment_gateway = get_post_meta($booking->ID, '_mhmrentiva_payment_gateway', true);
+			$total_price     = (float) get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
+			$deposit_amount  = (float) get_post_meta($booking->ID, '_mhmrentiva_deposit_amount', true);
+			$payment_type    = get_post_meta($booking->ID, '_mhmrentiva_payment_type', true);
 
 			// Normalize status values from various sources
 			$status_key = strtolower( (string) $payment_status);
@@ -604,14 +604,14 @@ final class AccountRenderer {
 			}
 
 			// Build date with time if available
-			$pickup_date = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+			$pickup_date = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
 			if (empty($pickup_date)) {
 				$pickup_date = get_post_meta($booking->ID, '_booking_pickup_date', true);
 			}
 
-			$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
+			$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
 			if (empty($pickup_time)) {
-				$pickup_time = get_post_meta($booking->ID, '_mhm_pickup_time', true);
+				$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 			}
 			if (empty($pickup_time)) {
 				$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
@@ -633,7 +633,7 @@ final class AccountRenderer {
 				$woocommerce_method_title = '';
 
 				// Try to get method title from WooCommerce Order if exists
-				$wc_order_id = get_post_meta($booking->ID, '_mhm_woocommerce_order_id', true);
+				$wc_order_id = get_post_meta($booking->ID, '_mhmrentiva_woocommerce_order_id', true);
 				if ($wc_order_id && function_exists('wc_get_order')) {
 					$order = wc_get_order($wc_order_id);
 					if ($order instanceof \WC_Order && method_exists($order, 'get_payment_method_title')) {
@@ -652,7 +652,7 @@ final class AccountRenderer {
 					$method_display = $payment_gateway === 'woocommerce' ? 'WooCommerce' : ucfirst($payment_gateway);
 				}
 
-				$receipt_attachment_id = (int) get_post_meta($booking->ID, '_mhm_receipt_attachment_id', true);
+				$receipt_attachment_id = (int) get_post_meta($booking->ID, '_mhmrentiva_receipt_attachment_id', true);
 
 				$payments[] = array(
 					'booking_id'    => $booking->ID,
@@ -667,7 +667,7 @@ final class AccountRenderer {
 					'type'          => $payment_type,
 					'receipt'       => array(
 						'attachment_id' => $receipt_attachment_id,
-						'status'        => get_post_meta($booking->ID, '_mhm_receipt_status', true),
+						'status'        => get_post_meta($booking->ID, '_mhmrentiva_receipt_status', true),
 						'url'           => $receipt_attachment_id > 0 ? wp_get_attachment_url($receipt_attachment_id) : '',
 					),
 				);

@@ -25,8 +25,8 @@ final class AutoCancel {
 
 
 
-	public const EVENT    = 'mhm_rentiva_auto_cancel_event';
-	public const SCHEDULE = 'mhm_rentiva_5min'; // Changed to 5min to match DatabaseInitialization
+	public const EVENT    = 'mhmrentiva_auto_cancel_event';
+	public const SCHEDULE = 'mhmrentiva_5min'; // Changed to 5min to match DatabaseInitialization
 
 	public static function register(): void
 	{
@@ -55,15 +55,15 @@ final class AutoCancel {
 
 	public static function schedules(array $schedules): array
 	{
-		if (! isset($schedules['mhm_rentiva_5min'])) {
-			$schedules['mhm_rentiva_5min'] = array(
+		if (! isset($schedules['mhmrentiva_5min'])) {
+			$schedules['mhmrentiva_5min'] = array(
 				'interval' => 300, // 5 min
 				'display'  => __('Every 5 Minutes (Rentiva)', 'mhm-rentiva'),
 			);
 		}
 
-		if (! isset($schedules['mhm_rentiva_15min'])) {
-			$schedules['mhm_rentiva_15min'] = array(
+		if (! isset($schedules['mhmrentiva_15min'])) {
+			$schedules['mhmrentiva_15min'] = array(
 				'interval' => 900, // 15 min
 				'display'  => __('Every 15 Minutes (Rentiva)', 'mhm-rentiva'),
 			);
@@ -147,14 +147,14 @@ final class AutoCancel {
 	public static function run(): void
 	{
 		// Read from unified settings array
-		$enabled = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_auto_cancel_enabled', '0') === '1';
+		$enabled = (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_auto_cancel_enabled', '0') === '1';
 
 		if (! $enabled) {
 			return;
 		}
 
 		// Use Booking Management setting: payment deadline minutes
-		$minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_booking_payment_deadline_minutes', 30); // Default 30 min
+		$minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_booking_payment_deadline_minutes', 30); // Default 30 min
 		if ($minutes < 5) {
 			$minutes = 5; // Minimum 5 minutes
 		}
@@ -190,12 +190,12 @@ final class AutoCancel {
 				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
-						'key'     => '_mhm_payment_status',
+						'key'     => '_mhmrentiva_payment_status',
 						'value'   => array( 'pending', 'pending_payment' ),
 						'compare' => 'IN',
 					),
 					array(
-						'key'     => '_mhm_status',
+						'key'     => '_mhmrentiva_status',
 						'value'   => array( 'pending', 'pending_payment' ), // Also check booking status
 						'compare' => 'IN',
 					),
@@ -240,18 +240,18 @@ final class AutoCancel {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_pickup_date',
+					'key'     => '_mhmrentiva_pickup_date',
 					'value'   => $today,
 					'compare' => '<',
 					'type'    => 'DATE',
 				),
 				array(
-					'key'     => '_mhm_payment_status',
+					'key'     => '_mhmrentiva_payment_status',
 					'value'   => array( 'paid', 'completed', 'refunded', 'cancelled' ),
 					'compare' => 'NOT IN',
 				),
 				array(
-					'key'     => '_mhm_status',
+					'key'     => '_mhmrentiva_status',
 					'value'   => array( 'cancelled', 'refunded' ),
 					'compare' => 'NOT IN',
 				),
@@ -271,7 +271,7 @@ final class AutoCancel {
 	 * Centralised cancellation for a single booking: updates booking meta,
 	 * sends notification email, cancels both linked WC orders (deposit +
 	 * remaining), clears availability cache and fires the
-	 * `mhm_rentiva_booking_auto_cancelled` action.
+	 * `mhmrentiva_booking_auto_cancelled` action.
 	 *
 	 * Used by both cron sweeps and backfill helpers so the cancellation
 	 * side-effects stay identical.
@@ -282,10 +282,10 @@ final class AutoCancel {
 	private static function cancel_booking_with_orders( int $bid, string $reason ): void {
 		try {
 			$new_status = 'cancelled';
-			update_post_meta($bid, '_mhm_status', $new_status);
-			update_post_meta($bid, '_mhm_payment_status', 'cancelled');
-			update_post_meta($bid, '_mhm_auto_cancelled', current_time('timestamp'));
-			update_post_meta($bid, '_mhm_auto_cancelled_reason', $reason);
+			update_post_meta($bid, '_mhmrentiva_status', $new_status);
+			update_post_meta($bid, '_mhmrentiva_payment_status', 'cancelled');
+			update_post_meta($bid, '_mhmrentiva_auto_cancelled', current_time('timestamp'));
+			update_post_meta($bid, '_mhmrentiva_auto_cancelled_reason', $reason);
 
 			if (class_exists('\MHMRentiva\Helpers\NotificationHelper')) {
 				\MHMRentiva\Helpers\NotificationHelper::send_auto_cancel_email($bid);
@@ -295,11 +295,11 @@ final class AutoCancel {
 			// Lookup chain mirrors ReportRepository / RemainingPaymentHandler —
 			// historical key drift left several aliases in production data.
 			$wc_orders_to_cancel = array_filter(array(
-				(int) ( get_post_meta($bid, '_mhm_woocommerce_order_id', true)
-					?: get_post_meta($bid, '_mhm_wc_order_id', true)
-					?: get_post_meta($bid, '_mhm_order_id', true)
+				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
+					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
+					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
 					?: get_post_meta($bid, '_booking_order_id', true) ),
-				(int) get_post_meta($bid, '_mhm_remaining_order_id', true),
+				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 
 			if ($wc_orders_to_cancel && function_exists('wc_get_order')) {
@@ -311,7 +311,7 @@ final class AutoCancel {
 				}
 			}
 
-			$vehicle_id = (int) get_post_meta($bid, '_mhm_vehicle_id', true);
+			$vehicle_id = (int) get_post_meta($bid, '_mhmrentiva_vehicle_id', true);
 			if ($vehicle_id && class_exists('MHMRentiva\Admin\Booking\Helpers\Cache')) {
 				\MHMRentiva\Admin\Booking\Helpers\Cache::invalidateVehicle($vehicle_id);
 			}
@@ -327,7 +327,7 @@ final class AutoCancel {
 				);
 			}
 
-			do_action('mhm_rentiva_booking_auto_cancelled', $bid, $new_status);
+			do_action('mhmrentiva_booking_auto_cancelled', $bid, $new_status);
 		} catch (\Throwable $e) {
 			// Routed to the plugin's own logger instead of the site's PHP error
 			// log, so the record is visible in the admin Logs screen and a
@@ -378,12 +378,12 @@ final class AutoCancel {
 			'meta_query'     => array(
 				'relation' => 'OR',
 				array(
-					'key'     => '_mhm_status',
+					'key'     => '_mhmrentiva_status',
 					'value'   => 'cancelled',
 					'compare' => '=',
 				),
 				array(
-					'key'     => '_mhm_auto_cancelled',
+					'key'     => '_mhmrentiva_auto_cancelled',
 					'compare' => 'EXISTS',
 				),
 			),
@@ -394,11 +394,11 @@ final class AutoCancel {
 			$bid = (int) $bid;
 
 			$candidate_ids = array_filter(array(
-				(int) ( get_post_meta($bid, '_mhm_woocommerce_order_id', true)
-					?: get_post_meta($bid, '_mhm_wc_order_id', true)
-					?: get_post_meta($bid, '_mhm_order_id', true)
+				(int) ( get_post_meta($bid, '_mhmrentiva_woocommerce_order_id', true)
+					?: get_post_meta($bid, '_mhmrentiva_wc_order_id', true)
+					?: get_post_meta($bid, '_mhmrentiva_order_id', true)
 					?: get_post_meta($bid, '_booking_order_id', true) ),
-				(int) get_post_meta($bid, '_mhm_remaining_order_id', true),
+				(int) get_post_meta($bid, '_mhmrentiva_remaining_order_id', true),
 			));
 
 			if (! $candidate_ids) {

@@ -23,7 +23,7 @@ final class BlockRegistryFilterTest extends WP_UnitTestCase {
         $this->assertArrayHasKey( 'search-results', $blocks );
     }
     public function test_filter_admits_a_subscriber_block(): void {
-        add_filter( 'mhm_rentiva_blocks', static fn( $b ) => $b + array( 'x-demo' => array( 'tag' => 'rentiva_x_demo', 'title' => 'X', 'css' => 'x.css', 'base_url' => 'https://pro.example/', 'base_dir' => '/pro/' ) ) );
+        add_filter( 'mhmrentiva_blocks', static fn( $b ) => $b + array( 'x-demo' => array( 'tag' => 'rentiva_x_demo', 'title' => 'X', 'css' => 'x.css', 'base_url' => 'https://pro.example/', 'base_dir' => '/pro/' ) ) );
         $this->assertArrayHasKey( 'x-demo', $this->config() );
     }
 }

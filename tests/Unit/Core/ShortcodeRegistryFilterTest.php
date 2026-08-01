@@ -10,7 +10,7 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
- * `mhm_rentiva_shortcodes` seam inversion (companion to BlockRegistryFilterTest).
+ * `mhmrentiva_shortcodes` seam inversion (companion to BlockRegistryFilterTest).
  *
  * Lite no longer declares the 11 Pro shortcode tags (the whole `vendor` group,
  * `transfer` group, `rentiva_commission_resolver`/`rentiva_vendor_ledger` in
@@ -38,7 +38,7 @@ final class ShortcodeRegistryFilterTest extends WP_UnitTestCase
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_shortcodes');
+        remove_all_filters('mhmrentiva_shortcodes');
         parent::tearDown();
     }
 
@@ -79,7 +79,7 @@ final class ShortcodeRegistryFilterTest extends WP_UnitTestCase
     public function test_filter_admits_a_subscriber_shortcode(): void
     {
         add_filter(
-            'mhm_rentiva_shortcodes',
+            'mhmrentiva_shortcodes',
             static function (array $registry): array {
                 $registry['demo']['rentiva_x_demo'] = array(
                     'class'         => \MHMRentiva\Admin\Frontend\Shortcodes\ContactForm::class,

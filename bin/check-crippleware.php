@@ -30,7 +30,7 @@ $forbidden = [
     '::\\s*allowedGateways\\s*\\(' => 'gateway restriction', 'MAX_ADDONS_LITE' => 'addon cap const',
     'get_comparison_table_data' => 'upsell comparison', 'render_comparison_table' => 'upsell comparison',
     'get_pro_features_list' => 'Pro feature upsell list', '::\\s*featureEnabled\\s*\\(' => 'deprecated insecure gate',
-    'mhm_rentiva_lite_' => 'artificial-limit filter',
+    'mhmrentiva_lite_' => 'artificial-limit filter',
     '\\bRestrictions::' => 'license restriction engine',
 ];
 $hits = [];

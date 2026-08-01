@@ -83,7 +83,7 @@ abstract class AbstractTabRenderer implements TabRendererInterface {
 			array(
 				'reset_defaults' => 'true',
 				'tab'            => $this->slug,
-				'_wpnonce'       => wp_create_nonce( 'mhm_rentiva_reset_defaults' ),
+				'_wpnonce'       => wp_create_nonce( 'mhmrentiva_reset_defaults' ),
 			),
 			admin_url( 'admin.php?page=mhm-rentiva-settings' )
 		);

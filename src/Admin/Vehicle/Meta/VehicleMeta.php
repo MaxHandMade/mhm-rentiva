@@ -25,7 +25,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	public static function get_max_seats(): int
 	{
 		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_vehicle_max_seats',
+			'mhmrentiva_vehicle_max_seats',
 			100 // Supports larger vehicles such as buses.
 		);
 	}
@@ -36,7 +36,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function get_max_doors(): int
 	{
 		return (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_vehicle_max_doors',
+			'mhmrentiva_vehicle_max_doors',
 			20 // Default: 20
 		);
 	}
@@ -47,7 +47,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function get_min_engine_size(): float
 	{
 		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_vehicle_min_engine_size',
+			'mhmrentiva_vehicle_min_engine_size',
 			0.0 // Default: 0.0 (supports electric vehicles)
 		);
 	}
@@ -58,7 +58,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function get_max_engine_size(): float
 	{
 		return (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_vehicle_max_engine_size',
+			'mhmrentiva_vehicle_max_engine_size',
 			20.0 // Default: 20.0 (supports large engines)
 		);
 	}
@@ -110,7 +110,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 	protected static function get_meta_box_id(): string
 	{
-		return 'mhm_rentiva_vehicle_details';
+		return 'mhmrentiva_vehicle_details';
 	}
 
 	protected static function get_title(): string
@@ -121,7 +121,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	protected static function get_fields(): array
 	{
 		return array(
-			'mhm_rentiva_vehicle_details' => array(
+			'mhmrentiva_vehicle_details' => array(
 				'title'        => __('Vehicle Details', 'mhm-rentiva'),
 				'context'      => 'advanced',
 				'priority'     => 'high',
@@ -142,7 +142,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		add_action('admin_enqueue_scripts', array( self::class, 'hide_default_meta_boxes' ));
 
-		add_action('wp_ajax_mhm_rentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
+		add_action('wp_ajax_mhmrentiva_save_item_order', array( self::class, 'ajax_save_item_order' ));
 
 		add_action('add_meta_boxes', array( self::class, 'reorder_meta_boxes' ), 999);
 	}
@@ -154,16 +154,16 @@ final class VehicleMeta extends AbstractMetaBox {
 		if ($post_type === 'vehicle' && ( $pagenow === 'post.php' || $pagenow === 'post-new.php' )) {
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-meta-css',
-				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
+				\MHMRENTIVA_PLUGIN_URL . 'assets/css/components/vehicle-meta.css',
 				array(),
-				\MHM_RENTIVA_VERSION . '-' . time()
+				\MHMRENTIVA_VERSION . '-' . time()
 			);
 
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-meta-js',
-				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
+				\MHMRENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
 				array( 'jquery', 'jquery-ui-sortable' ),
-				\MHM_RENTIVA_VERSION,
+				\MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -172,7 +172,7 @@ final class VehicleMeta extends AbstractMetaBox {
 				'mhmVehicleMeta',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhm_vehicle_meta_nonce'),
+					'nonce'   => wp_create_nonce('mhmrentiva_vehicle_meta_nonce'),
 					'strings' => array(
 						'orderUpdated'           => __('Order updated!', 'mhm-rentiva'),
 						'orderSaveError'         => __('Failed to save order', 'mhm-rentiva'),
@@ -206,7 +206,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	public static function add_featured_meta_box(): void
 	{
 		add_meta_box(
-			'mhm_rentiva_vehicle_featured',
+			'mhmrentiva_vehicle_featured',
 			__('Featured', 'mhm-rentiva'),
 			array( self::class, 'render_featured_meta_box' ),
 			'vehicle',
@@ -220,12 +220,12 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function render_featured_meta_box(\WP_Post $post): void
 	{
-		wp_nonce_field('mhm_rentiva_vehicle_featured_action', 'mhm_rentiva_vehicle_featured_nonce');
+		wp_nonce_field('mhmrentiva_vehicle_featured_action', 'mhmrentiva_vehicle_featured_nonce');
 		$is_featured = get_post_meta($post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, true) === '1';
 		?>
 		<p>
-			<label for="mhm_rentiva_is_featured">
-				<input type="checkbox" id="mhm_rentiva_is_featured" name="mhm_rentiva_is_featured" value="1" <?php checked($is_featured); ?> />
+			<label for="mhmrentiva_is_featured">
+				<input type="checkbox" id="mhmrentiva_is_featured" name="mhmrentiva_is_featured" value="1" <?php checked($is_featured); ?> />
 				<?php esc_html_e('Featured vehicle', 'mhm-rentiva'); ?>
 			</label>
 		</p>
@@ -237,10 +237,10 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function save_featured_meta_box(int $post_id): void
 	{
-		$nonce = isset($_POST['mhm_rentiva_vehicle_featured_nonce'])
-			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_featured_nonce']))
+		$nonce = isset($_POST['mhmrentiva_vehicle_featured_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhmrentiva_vehicle_featured_nonce']))
 			: '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_featured_action')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_featured_action')) {
 			return;
 		}
 
@@ -252,7 +252,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$is_featured = VerifiedRequest::from($_POST)->has('mhm_rentiva_is_featured') ? '1' : '0';
+		$is_featured = VerifiedRequest::from($_POST)->has('mhmrentiva_is_featured') ? '1' : '0';
 		update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, $is_featured);
 
 		// Keep frontend featured/list outputs consistent immediately after admin save.
@@ -278,20 +278,20 @@ final class VehicleMeta extends AbstractMetaBox {
 		if ($post_type === 'vehicle') {
 			wp_enqueue_style(
 				'mhm-rentiva-hide-wp-chrome',
-				\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+				\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
 				array(),
-				\MHM_RENTIVA_VERSION
+				\MHMRENTIVA_VERSION
 			);
 		}
 	}
 
 	public static function render_meta_box(\WP_Post $post, array $args = array()): void
 	{
-		wp_nonce_field('mhm_rentiva_vehicle_meta_action', 'mhm_rentiva_vehicle_meta_nonce');
+		wp_nonce_field('mhmrentiva_vehicle_meta_action', 'mhmrentiva_vehicle_meta_nonce');
 
 		$template_data = self::prepare_template_data($post);
 
-		$template_path = \MHM_RENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Templates/vehicle-meta.php';
+		$template_path = \MHMRENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Templates/vehicle-meta.php';
 
 		if (file_exists($template_path)) {
 			self::include_template_with_vars($template_path, $template_data);
@@ -333,16 +333,16 @@ final class VehicleMeta extends AbstractMetaBox {
 		$available_equipment = self::build_available_fields($field_settings['selected_equipment'], $field_settings['default_equipment'], $field_settings['custom_equipment']);
 
 		// Custom Field Meta (Type & Options)
-		$field_meta = get_option('mhm_custom_field_meta', array());
+		$field_meta = get_option('mhmrentiva_custom_field_meta', array());
 
 		self::ensure_default_options($available_details, $available_features, $available_equipment);
 
-		$removed_details = $meta_data['_mhm_removed_details'] ?? array();
+		$removed_details = $meta_data['_mhmrentiva_removed_details'] ?? array();
 		if (! is_array($removed_details)) {
 			$removed_details = array();
 		}
 
-		$custom_details = $meta_data['_mhm_custom_details'] ?? array();
+		$custom_details = $meta_data['_mhmrentiva_custom_details'] ?? array();
 		if (! is_array($custom_details)) {
 			$custom_details = array();
 		}
@@ -353,12 +353,12 @@ final class VehicleMeta extends AbstractMetaBox {
 			}
 		}
 
-		$features = $meta_data['_mhm_rentiva_features'] ?? array();
+		$features = $meta_data['_mhmrentiva_features'] ?? array();
 		if (! is_array($features)) {
 			$features = array();
 		}
 
-		$equipment = $meta_data['_mhm_rentiva_equipment'] ?? array();
+		$equipment = $meta_data['_mhmrentiva_equipment'] ?? array();
 		if (! is_array($equipment)) {
 			$equipment = array();
 		}
@@ -366,7 +366,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		$available_value = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post->ID);
 
 		foreach ($available_details as $key => $label) {
-			$detail_values[ $key ] = $meta_data[ '_mhm_rentiva_' . $key ] ?? '';
+			$detail_values[ $key ] = $meta_data[ '_mhmrentiva_' . $key ] ?? '';
 
 			// Default Deposit: 10% (v4.9.0)
 			// Treat empty, null, or '0' as 10 to ensure persistence and visual clarity
@@ -378,18 +378,18 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		return array(
 			'post'                  => $post,
-			'price_per_day'         => $meta_data['_mhm_rentiva_price_per_day'] ?? '',
-			'year'                  => $meta_data['_mhm_rentiva_year'] ?? '',
-			'mileage'               => $meta_data['_mhm_rentiva_mileage'] ?? '',
-			'license_plate'         => $meta_data['_mhm_rentiva_license_plate'] ?? '',
-			'color'                 => $meta_data['_mhm_rentiva_color'] ?? '',
-			'brand'                 => $meta_data['_mhm_rentiva_brand'] ?? '',
-			'model'                 => $meta_data['_mhm_rentiva_model'] ?? '',
-			'seats'                 => $meta_data['_mhm_rentiva_seats'] ?? '',
-			'doors'                 => $meta_data['_mhm_rentiva_doors'] ?? '',
-			'transmission'          => $meta_data['_mhm_rentiva_transmission'] ?? '',
-			'fuel_type'             => $meta_data['_mhm_rentiva_fuel_type'] ?? '',
-			'engine_size'           => $meta_data['_mhm_rentiva_engine_size'] ?? '',
+			'price_per_day'         => $meta_data['_mhmrentiva_price_per_day'] ?? '',
+			'year'                  => $meta_data['_mhmrentiva_year'] ?? '',
+			'mileage'               => $meta_data['_mhmrentiva_mileage'] ?? '',
+			'license_plate'         => $meta_data['_mhmrentiva_license_plate'] ?? '',
+			'color'                 => $meta_data['_mhmrentiva_color'] ?? '',
+			'brand'                 => $meta_data['_mhmrentiva_brand'] ?? '',
+			'model'                 => $meta_data['_mhmrentiva_model'] ?? '',
+			'seats'                 => $meta_data['_mhmrentiva_seats'] ?? '',
+			'doors'                 => $meta_data['_mhmrentiva_doors'] ?? '',
+			'transmission'          => $meta_data['_mhmrentiva_transmission'] ?? '',
+			'fuel_type'             => $meta_data['_mhmrentiva_fuel_type'] ?? '',
+			'engine_size'           => $meta_data['_mhmrentiva_engine_size'] ?? '',
 			'available'             => $available_value,
 			'features'              => $features,
 			'equipment'             => $equipment,
@@ -398,16 +398,16 @@ final class VehicleMeta extends AbstractMetaBox {
 			'available_equipment'   => $available_equipment,
 			'removed_details'       => $removed_details,
 			'custom_details'        => $custom_details,
-			'saved_order'           => $meta_data['_mhm_details_order'] ?? array(),
-			'saved_features_order'  => $meta_data['_mhm_features_order'] ?? array(),
-			'saved_equipment_order' => $meta_data['_mhm_equipment_order'] ?? array(),
+			'saved_order'           => $meta_data['_mhmrentiva_details_order'] ?? array(),
+			'saved_features_order'  => $meta_data['_mhmrentiva_features_order'] ?? array(),
+			'saved_equipment_order' => $meta_data['_mhmrentiva_equipment_order'] ?? array(),
 			'detail_values'         => $detail_values,
 			'field_meta'            => $field_meta,
 			'location_id'           => get_post_meta($post->ID, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true),
 			// Locations come from an add-on via the filter. Empty here hides the
 			// Location field in vehicle-meta.php; the save handler is isset()-guarded
 			// on the field, so an existing location_id survives untouched.
-			'available_locations'   => apply_filters('mhm_rentiva_locations', array(), 'rental'),
+			'available_locations'   => apply_filters('mhmrentiva_locations', array(), 'rental'),
 		);
 	}
 
@@ -416,7 +416,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	 *
 	 * Earlier builds persisted the output of {@see self::get_default_details()},
 	 * {@see self::get_default_features()}, and {@see self::get_default_equipment()}
-	 * — arrays of {@see __()} strings — into the `mhm_vehicle_{details,features,
+	 * — arrays of {@see __()} strings — into the `mhmrentiva_vehicle_{details,features,
 	 * equipment}` options on first admin load. The saved translations then took
 	 * precedence over live `__()` calls on every later render, so a site whose
 	 * locale changed (or whose database was restored from a different-locale
@@ -425,23 +425,23 @@ final class VehicleMeta extends AbstractMetaBox {
 	 * This migration clears those three options so the canonical rendering path
 	 * (English source → current-locale translation from the .mo/.l10n.php file
 	 * → optional user override) works as intended. User custom fields live in
-	 * `mhm_custom_{details,features,equipment}` and are untouched.
+	 * `mhmrentiva_custom_{details,features,equipment}` and are untouched.
 	 *
 	 * A user who had manually renamed a built-in default (e.g. "Daily Price" →
 	 * "Rental Rate") via the "Edit Names" control will need to re-apply that
 	 * rename once. The trade-off is acceptable because those overrides are rare
 	 * while the locale-leakage bug affected every install.
 	 *
-	 * Idempotent via the `mhm_rentiva_v4271_labels_migrated` flag option.
+	 * Idempotent via the `mhmrentiva_v4271_labels_migrated` flag option.
 	 */
 	public static function migrate_remove_auto_populated_labels(): void
 	{
-		$flag = 'mhm_rentiva_v4271_labels_migrated';
+		$flag = 'mhmrentiva_v4271_labels_migrated';
 		if (get_option($flag)) {
 			return;
 		}
 
-		foreach (array( 'mhm_vehicle_details', 'mhm_vehicle_features', 'mhm_vehicle_equipment' ) as $option_key) {
+		foreach (array( 'mhmrentiva_vehicle_details', 'mhmrentiva_vehicle_features', 'mhmrentiva_vehicle_equipment' ) as $option_key) {
 			$stored = get_option($option_key, null);
 			if (is_array($stored) && ! empty($stored)) {
 				delete_option($option_key);
@@ -528,10 +528,10 @@ final class VehicleMeta extends AbstractMetaBox {
 			return;
 		}
 
-		$nonce = isset($_POST['mhm_rentiva_vehicle_meta_nonce'])
-			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_meta_nonce']))
+		$nonce = isset($_POST['mhmrentiva_vehicle_meta_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhmrentiva_vehicle_meta_nonce']))
 			: '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_meta_action')) {
 			return;
 		}
 
@@ -545,14 +545,14 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		$req = VerifiedRequest::from($_POST);
 
-		$available_details   = get_option('mhm_vehicle_details', self::get_default_details());
-		$available_features  = get_option('mhm_vehicle_features', self::get_default_features());
-		$available_equipment = get_option('mhm_vehicle_equipment', self::get_default_equipment());
+		$available_details   = get_option('mhmrentiva_vehicle_details', self::get_default_details());
+		$available_features  = get_option('mhmrentiva_vehicle_features', self::get_default_features());
+		$available_equipment = get_option('mhmrentiva_vehicle_equipment', self::get_default_equipment());
 
 		$details_order = json_decode($req->text('details-grid_order'), true);
 
 		if ($details_order && is_array($details_order)) {
-			update_post_meta($post_id, '_mhm_details_order', $details_order);
+			update_post_meta($post_id, '_mhmrentiva_details_order', $details_order);
 		}
 
 		$removed_details = json_decode($req->text('removed_details'), true);
@@ -563,10 +563,10 @@ final class VehicleMeta extends AbstractMetaBox {
 		$meta_updates = array();
 
 		$status_to_save = '';
-		if ($req->has('_mhm_vehicle_status')) {
-			$status_to_save = $req->text('_mhm_vehicle_status');
-		} elseif ($req->has('mhm_rentiva_available')) {
-			$status_to_save = $req->text('mhm_rentiva_available');
+		if ($req->has('_mhmrentiva_vehicle_status')) {
+			$status_to_save = $req->text('_mhmrentiva_vehicle_status');
+		} elseif ($req->has('mhmrentiva_available')) {
+			$status_to_save = $req->text('mhmrentiva_available');
 		}
 
 		if (! empty($status_to_save)) {
@@ -579,15 +579,15 @@ final class VehicleMeta extends AbstractMetaBox {
 				continue;
 			}
 
-			$field_name = 'mhm_rentiva_' . $key;
-			$meta_key   = '_mhm_rentiva_' . $key;
+			$field_name = 'mhmrentiva_' . $key;
+			$meta_key   = '_mhmrentiva_' . $key;
 			// Sanitize value from POST
 			$value                     = $req->text($field_name);
 			$sanitized_value           = self::sanitize_field($field_name, $value);
 			$meta_updates[ $meta_key ] = $sanitized_value;
 		}
 
-		$meta_updates['_mhm_removed_details'] = $removed_details;
+		$meta_updates['_mhmrentiva_removed_details'] = $removed_details;
 
 		if (! empty($removed_details)) {
 			foreach ($removed_details as $removed_key) {
@@ -596,9 +596,9 @@ final class VehicleMeta extends AbstractMetaBox {
 			$option_updated = true;
 		}
 
-		$custom_details   = get_option('mhm_custom_details', array());
-		$custom_features  = get_option('mhm_custom_features', array());
-		$custom_equipment = get_option('mhm_custom_equipment', array());
+		$custom_details   = get_option('mhmrentiva_custom_details', array());
+		$custom_features  = get_option('mhmrentiva_custom_features', array());
+		$custom_equipment = get_option('mhmrentiva_custom_equipment', array());
 
 		// Include Taxonomy Terms in Save Logic
 		$taxonomy_features  = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_features();
@@ -610,8 +610,8 @@ final class VehicleMeta extends AbstractMetaBox {
 		$all_custom_fields = array_merge($custom_details, $custom_features, $custom_equipment);
 
 		foreach ($all_custom_fields as $field_key => $field_label) {
-			$meta_key   = '_mhm_rentiva_' . $field_key;
-			$field_name = 'mhm_rentiva_' . $field_key;
+			$meta_key   = '_mhmrentiva_' . $field_key;
+			$field_name = 'mhmrentiva_' . $field_key;
 
 			if ($req->has($field_name)) {
 				$value                     = $req->text($field_name);
@@ -621,7 +621,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		}
 
 		// Sanitize legacy custom details array
-		$legacy_custom_details = $req->arr('mhm_rentiva_custom_details');
+		$legacy_custom_details = $req->arr('mhmrentiva_custom_details');
 
 		$sanitized_custom_details = array();
 
@@ -639,7 +639,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			}
 		}
 
-		$meta_updates['_mhm_custom_details'] = $sanitized_custom_details;
+		$meta_updates['_mhmrentiva_custom_details'] = $sanitized_custom_details;
 
 		foreach ($meta_updates as $meta_key => $meta_value) {
 			update_post_meta($post_id, $meta_key, $meta_value);
@@ -649,22 +649,22 @@ final class VehicleMeta extends AbstractMetaBox {
 		$equipment_order = json_decode($req->text('equipment-grid_order'), true);
 
 		if ($features_order && is_array($features_order)) {
-			update_post_meta($post_id, '_mhm_features_order', $features_order);
+			update_post_meta($post_id, '_mhmrentiva_features_order', $features_order);
 		}
 
 		if ($equipment_order && is_array($equipment_order)) {
-			update_post_meta($post_id, '_mhm_equipment_order', $equipment_order);
+			update_post_meta($post_id, '_mhmrentiva_equipment_order', $equipment_order);
 		}
 
 		// Sanitize features array before processing
-		$features           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhm_rentiva_features'));
+		$features           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhmrentiva_features'));
 		$sanitized_features = self::sanitize_array($features);
-		update_post_meta($post_id, '_mhm_rentiva_features', $sanitized_features);
+		update_post_meta($post_id, '_mhmrentiva_features', $sanitized_features);
 
 		// Sanitize equipment array before processing
-		$equipment           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhm_rentiva_equipment'));
+		$equipment           = array_map(array( self::class, 'sanitize_text_field_safe' ), $req->arr('mhmrentiva_equipment'));
 		$sanitized_equipment = self::sanitize_array($equipment);
-		update_post_meta($post_id, '_mhm_rentiva_equipment', $sanitized_equipment);
+		update_post_meta($post_id, '_mhmrentiva_equipment', $sanitized_equipment);
 
 		// Save vehicle location (field name is the meta key itself, empty = Inherit/Vendor/Global)
 		$location_key = \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID;
@@ -684,41 +684,41 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function sanitize_field(string $field_name, $value)
 	{
 		switch ($field_name) {
-			case 'mhm_rentiva_license_plate':
+			case 'mhmrentiva_license_plate':
 				return strtoupper(self::sanitize_text_field_safe($value));
 
-			case 'mhm_rentiva_price_per_day':
+			case 'mhmrentiva_price_per_day':
 				$price = floatval($value);
 				return max(0, $price);
 
-			case 'mhm_rentiva_seats':
+			case 'mhmrentiva_seats':
 				$seats     = intval($value);
 				$max_seats = self::get_max_seats();
 				return max(1, min($max_seats, $seats));
 
-			case 'mhm_rentiva_doors':
+			case 'mhmrentiva_doors':
 				$doors     = intval($value);
 				$max_doors = self::get_max_doors();
 				return max(2, min($max_doors, $doors));
 
-			case 'mhm_rentiva_transmission':
+			case 'mhmrentiva_transmission':
 				$allowed = array_keys(self::get_transmission_types());
 				return in_array($value, $allowed, true) ? $value : 'auto';
 
-			case 'mhm_rentiva_fuel_type':
+			case 'mhmrentiva_fuel_type':
 				$allowed = array_keys(self::get_fuel_types());
 				return in_array($value, $allowed, true) ? $value : 'petrol';
 
-			case 'mhm_rentiva_engine_size':
+			case 'mhmrentiva_engine_size':
 				$engine     = floatval($value);
 				$min_engine = self::get_min_engine_size();
 				$max_engine = self::get_max_engine_size();
 				return max($min_engine, min($max_engine, $engine));
 
-			case 'mhm_rentiva_color':
+			case 'mhmrentiva_color':
 				return self::sanitize_text_field_safe($value);
 
-			case 'mhm_rentiva_deposit':
+			case 'mhmrentiva_deposit':
 				$clean_value = str_replace(array( '%', ' ' ), '', (string) $value);
 
 				// If empty, force the default deposit value.
@@ -729,7 +729,7 @@ final class VehicleMeta extends AbstractMetaBox {
 				$deposit = floatval($clean_value);
 				return max(0, min(50, $deposit));
 
-			case 'mhm_rentiva_available':
+			case 'mhmrentiva_available':
 				return self::normalize_availability($value);
 
 			default:
@@ -781,10 +781,10 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	public static function save_vehicle_meta(int $post_id, array $field_config): void
 	{
-		$nonce = isset($_POST['mhm_rentiva_vehicle_meta_nonce'])
-			? sanitize_text_field(wp_unslash( (string) $_POST['mhm_rentiva_vehicle_meta_nonce']))
+		$nonce = isset($_POST['mhmrentiva_vehicle_meta_nonce'])
+			? sanitize_text_field(wp_unslash( (string) $_POST['mhmrentiva_vehicle_meta_nonce']))
 			: '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_meta_action')) {
 			return;
 		}
 
@@ -792,28 +792,28 @@ final class VehicleMeta extends AbstractMetaBox {
 		// current_user_can('edit_post', $post_id) before dispatching here.
 		$req = VerifiedRequest::from($_POST);
 
-		if ($req->has('_mhm_vehicle_status') || $req->has('mhm_rentiva_available')) {
-			$status_val = $req->has('_mhm_vehicle_status')
-				? $req->text('_mhm_vehicle_status')
-				: $req->text('mhm_rentiva_available');
+		if ($req->has('_mhmrentiva_vehicle_status') || $req->has('mhmrentiva_available')) {
+			$status_val = $req->has('_mhmrentiva_vehicle_status')
+				? $req->text('_mhmrentiva_vehicle_status')
+				: $req->text('mhmrentiva_available');
 			$normalized = self::normalize_availability($status_val);
 			update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, $normalized);
 		}
 
 		$meta_fields = array(
-			'_mhm_rentiva_price_per_day',
-			'_mhm_rentiva_seats',
-			'_mhm_rentiva_doors',
-			'_mhm_rentiva_transmission',
-			'_mhm_rentiva_fuel_type',
-			'_mhm_rentiva_engine_size',
-			'_mhm_rentiva_color',
-			'_mhm_rentiva_brand',
-			'_mhm_rentiva_model',
-			'_mhm_rentiva_model_year',
-			'_mhm_rentiva_mileage',
-			'_mhm_rentiva_license_plate',
-			'_mhm_rentiva_deposit',
+			'_mhmrentiva_price_per_day',
+			'_mhmrentiva_seats',
+			'_mhmrentiva_doors',
+			'_mhmrentiva_transmission',
+			'_mhmrentiva_fuel_type',
+			'_mhmrentiva_engine_size',
+			'_mhmrentiva_color',
+			'_mhmrentiva_brand',
+			'_mhmrentiva_model',
+			'_mhmrentiva_model_year',
+			'_mhmrentiva_mileage',
+			'_mhmrentiva_license_plate',
+			'_mhmrentiva_deposit',
 			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
 		);
 
@@ -861,7 +861,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_price_per_day',
+			'_mhmrentiva_price_per_day',
 			array(
 				'type'              => 'number',
 				'single'            => true,
@@ -874,7 +874,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_seats',
+			'_mhmrentiva_seats',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -887,7 +887,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_doors',
+			'_mhmrentiva_doors',
 			array(
 				'type'              => 'integer',
 				'single'            => true,
@@ -900,7 +900,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_transmission',
+			'_mhmrentiva_transmission',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -914,7 +914,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_fuel_type',
+			'_mhmrentiva_fuel_type',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -928,7 +928,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_engine_size',
+			'_mhmrentiva_engine_size',
 			array(
 				'type'              => 'number',
 				'single'            => true,
@@ -944,7 +944,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_color',
+			'_mhmrentiva_color',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -957,7 +957,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_license_plate',
+			'_mhmrentiva_license_plate',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -971,7 +971,7 @@ final class VehicleMeta extends AbstractMetaBox {
 		// Legacy Availability (Maintained for read fallback in Phase 1)
 		register_post_meta(
 			'vehicle',
-			'_mhm_vehicle_availability',
+			'_mhmrentiva_vehicle_availability',
 			array(
 				'type'              => 'string',
 				'single'            => true,
@@ -994,7 +994,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_features',
+			'_mhmrentiva_features',
 			array(
 				'type'              => 'array',
 				'single'            => true,
@@ -1022,7 +1022,7 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		register_post_meta(
 			'vehicle',
-			'_mhm_rentiva_equipment',
+			'_mhmrentiva_equipment',
 			array(
 				'type'              => 'array',
 				'single'            => true,
@@ -1054,8 +1054,8 @@ final class VehicleMeta extends AbstractMetaBox {
 	 */
 	private static function get_field_settings(): array
 	{
-		$custom_features  = (array) get_option('mhm_custom_features', array());
-		$custom_equipment = (array) get_option('mhm_custom_equipment', array());
+		$custom_features  = (array) get_option('mhmrentiva_custom_features', array());
+		$custom_equipment = (array) get_option('mhmrentiva_custom_equipment', array());
 
 		$taxonomy_features  = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_features();
 		$taxonomy_equipment = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_equipment();
@@ -1065,17 +1065,17 @@ final class VehicleMeta extends AbstractMetaBox {
 		$custom_equipment = array_merge($custom_equipment, $taxonomy_equipment);
 
 		return array(
-			'selected_details'   => (array) get_option('mhm_selected_details', array()),
-			'selected_features'  => (array) get_option('mhm_selected_features', array()),
-			'selected_equipment' => (array) get_option('mhm_selected_equipment', array()),
-			'custom_details'     => (array) get_option('mhm_custom_details', array()),
+			'selected_details'   => (array) get_option('mhmrentiva_selected_details', array()),
+			'selected_features'  => (array) get_option('mhmrentiva_selected_features', array()),
+			'selected_equipment' => (array) get_option('mhmrentiva_selected_equipment', array()),
+			'custom_details'     => (array) get_option('mhmrentiva_custom_details', array()),
 			'custom_features'    => $custom_features,
 			'custom_equipment'   => $custom_equipment,
-			'default_details'    => (array) get_option('mhm_vehicle_details', self::get_default_details()),
-			'default_features'   => (array) get_option('mhm_vehicle_features', self::get_default_features()),
-			'default_equipment'  => (array) get_option('mhm_vehicle_equipment', self::get_default_equipment()),
+			'default_details'    => (array) get_option('mhmrentiva_vehicle_details', self::get_default_details()),
+			'default_features'   => (array) get_option('mhmrentiva_vehicle_features', self::get_default_features()),
+			'default_equipment'  => (array) get_option('mhmrentiva_vehicle_equipment', self::get_default_equipment()),
 			'custom_fields'      => array_merge(
-				(array) get_option('mhm_custom_details', array()),
+				(array) get_option('mhmrentiva_custom_details', array()),
 				$custom_features,
 				$custom_equipment
 			),
@@ -1088,32 +1088,32 @@ final class VehicleMeta extends AbstractMetaBox {
 	private static function get_vehicle_meta_data(int $post_id, array $custom_fields): array
 	{
 		$meta_keys = array(
-			'_mhm_rentiva_price_per_day',
-			'_mhm_rentiva_year',
-			'_mhm_rentiva_mileage',
-			'_mhm_rentiva_license_plate',
-			'_mhm_rentiva_color',
-			'_mhm_rentiva_brand',
-			'_mhm_rentiva_model',
-			'_mhm_rentiva_seats',
-			'_mhm_rentiva_doors',
-			'_mhm_rentiva_transmission',
-			'_mhm_rentiva_fuel_type',
-			'_mhm_rentiva_engine_size',
-			'_mhm_rentiva_deposit',
-			'_mhm_vehicle_status',
+			'_mhmrentiva_price_per_day',
+			'_mhmrentiva_year',
+			'_mhmrentiva_mileage',
+			'_mhmrentiva_license_plate',
+			'_mhmrentiva_color',
+			'_mhmrentiva_brand',
+			'_mhmrentiva_model',
+			'_mhmrentiva_seats',
+			'_mhmrentiva_doors',
+			'_mhmrentiva_transmission',
+			'_mhmrentiva_fuel_type',
+			'_mhmrentiva_engine_size',
+			'_mhmrentiva_deposit',
+			'_mhmrentiva_vehicle_status',
 			\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED,
-			'_mhm_rentiva_features',
-			'_mhm_rentiva_equipment',
-			'_mhm_removed_details',
-			'_mhm_custom_details',
-			'_mhm_details_order',
-			'_mhm_features_order',
-			'_mhm_equipment_order',
+			'_mhmrentiva_features',
+			'_mhmrentiva_equipment',
+			'_mhmrentiva_removed_details',
+			'_mhmrentiva_custom_details',
+			'_mhmrentiva_details_order',
+			'_mhmrentiva_features_order',
+			'_mhmrentiva_equipment_order',
 		);
 
 		foreach ($custom_fields as $field_key => $field_label) {
-			$meta_keys[] = '_mhm_rentiva_' . $field_key;
+			$meta_keys[] = '_mhmrentiva_' . $field_key;
 		}
 
 		$meta_data = array();
@@ -1166,14 +1166,14 @@ final class VehicleMeta extends AbstractMetaBox {
 	 * locale switch, a language-pack update, or a cross-locale DB restore.
 	 *
 	 * Canonical rule:
-	 *   - `mhm_vehicle_{details,features,equipment}` holds ONLY user-renamed
+	 *   - `mhmrentiva_vehicle_{details,features,equipment}` holds ONLY user-renamed
 	 *     overrides (Edit Names + Add Custom on the Vehicle Settings page).
 	 *   - The full list of labels is composed at render time by
 	 *     {@see VehicleSettings::get_all_available_*()}, which already starts
 	 *     from `get_default_*()` and overlays the stored overrides on top.
 	 *
 	 * What this method still guarantees:
-	 *   - `mhm_selected_{details,features,equipment}` is seeded on fresh
+	 *   - `mhmrentiva_selected_{details,features,equipment}` is seeded on fresh
 	 *     installs with all keys enabled (these arrays are plain KEY lists, no
 	 *     translatable strings — safe to persist).
 	 */
@@ -1184,22 +1184,22 @@ final class VehicleMeta extends AbstractMetaBox {
 		$default_equipment = self::get_default_equipment();
 
 		// Ensure selected keys are populated; otherwise fall back to defaults
-		$selected_details = (array) get_option('mhm_selected_details', array());
+		$selected_details = (array) get_option('mhmrentiva_selected_details', array());
 		if (empty($selected_details)) {
 			$selected_details = array_keys($default_details);
-			update_option('mhm_selected_details', $selected_details);
+			update_option('mhmrentiva_selected_details', $selected_details);
 		}
 
-		$selected_features = (array) get_option('mhm_selected_features', array());
+		$selected_features = (array) get_option('mhmrentiva_selected_features', array());
 		if (empty($selected_features)) {
 			$selected_features = array_keys($default_features);
-			update_option('mhm_selected_features', $selected_features);
+			update_option('mhmrentiva_selected_features', $selected_features);
 		}
 
-		$selected_equipment = (array) get_option('mhm_selected_equipment', array());
+		$selected_equipment = (array) get_option('mhmrentiva_selected_equipment', array());
 		if (empty($selected_equipment)) {
 			$selected_equipment = array_keys($default_equipment);
-			update_option('mhm_selected_equipment', $selected_equipment);
+			update_option('mhmrentiva_selected_equipment', $selected_equipment);
 		}
 
 		// Populate available arrays when empty (fresh install fallback)
@@ -1246,7 +1246,7 @@ final class VehicleMeta extends AbstractMetaBox {
 	public static function ajax_save_item_order(): void
 	{
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_vehicle_meta_action')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_meta_action')) {
 			wp_send_json_error(__('Security error', 'mhm-rentiva'));
 		}
 
@@ -1278,10 +1278,10 @@ final class VehicleMeta extends AbstractMetaBox {
 			wp_send_json_error(__('Invalid data', 'mhm-rentiva'));
 		}
 
-		$meta_key = '_mhm_' . $grid_type . '_order';
+		$meta_key = '_mhmrentiva_' . $grid_type . '_order';
 		update_post_meta($post_id, $meta_key, $order);
 
-		$option_key   = 'mhm_vehicle_' . $grid_type;
+		$option_key   = 'mhmrentiva_vehicle_' . $grid_type;
 		$current_data = get_option($option_key, array());
 
 		if (! empty($current_data)) {
@@ -1312,9 +1312,9 @@ final class VehicleMeta extends AbstractMetaBox {
 			'submitdiv',
 			'vehicle_categorydiv',
 			'postimagediv',
-			'mhm_rentiva_vehicle_gallery',
-			'mhm_rentiva_vehicle_featured',
-			'mhm_rentiva_vehicle_transfer_settings',
+			'mhmrentiva_vehicle_gallery',
+			'mhmrentiva_vehicle_featured',
+			'mhmrentiva_vehicle_transfer_settings',
 		);
 
 		// Flatten all priority buckets into a single map.

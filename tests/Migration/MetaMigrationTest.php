@@ -22,10 +22,10 @@ class MetaMigrationTest extends WP_UnitTestCase
         parent::setUp();
 
         // Bypass Lite version limit for tests
-        add_filter('mhm_rentiva_lite_max_vehicles', function () {
+        add_filter('mhmrentiva_lite_max_vehicles', function () {
             return 999;
         });
-        add_filter('mhm_rentiva_lite_max_bookings', function () {
+        add_filter('mhmrentiva_lite_max_bookings', function () {
             return 999;
         });
 
@@ -57,23 +57,23 @@ class MetaMigrationTest extends WP_UnitTestCase
     public function test_enum_mapping_strict()
     {
         $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v1, '_mhm_vehicle_availability', 'yes');
+        update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'yes');
 
         $v2 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v2, '_mhm_rentiva_availability', 'no');
+        update_post_meta($v2, '_mhmrentiva_availability', 'no');
 
         $v3 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v3, '_mhm_vehicle_availability', '1');
+        update_post_meta($v3, '_mhmrentiva_vehicle_availability', '1');
 
         $v4 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v4, '_mhm_vehicle_availability', 'unknown'); // Should be skipped
+        update_post_meta($v4, '_mhmrentiva_vehicle_availability', 'unknown'); // Should be skipped
 
         $this->run_migration(false);
 
-        $this->assertEquals('active', get_post_meta($v1, '_mhm_vehicle_status', true));
-        $this->assertEquals('inactive', get_post_meta($v2, '_mhm_vehicle_status', true));
-        $this->assertEquals('active', get_post_meta($v3, '_mhm_vehicle_status', true));
-        $this->assertEquals('', get_post_meta($v4, '_mhm_vehicle_status', true)); // Skipped
+        $this->assertEquals('active', get_post_meta($v1, '_mhmrentiva_vehicle_status', true));
+        $this->assertEquals('inactive', get_post_meta($v2, '_mhmrentiva_vehicle_status', true));
+        $this->assertEquals('active', get_post_meta($v3, '_mhmrentiva_vehicle_status', true));
+        $this->assertEquals('', get_post_meta($v4, '_mhmrentiva_vehicle_status', true)); // Skipped
     }
 
     /**
@@ -82,14 +82,14 @@ class MetaMigrationTest extends WP_UnitTestCase
     public function test_conflict_resolution_standard_wins()
     {
         $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v1, '_mhm_vehicle_status', 'maintenance'); // Standard
-        update_post_meta($v1, '_mhm_vehicle_availability', 'active'); // Legacy conflict
+        update_post_meta($v1, '_mhmrentiva_vehicle_status', 'maintenance'); // Standard
+        update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'active'); // Legacy conflict
 
         $this->run_migration(false);
 
         // Standard should remain 'maintenance', legacy should be deleted
-        $this->assertEquals('maintenance', get_post_meta($v1, '_mhm_vehicle_status', true));
-        $this->assertEquals('', get_post_meta($v1, '_mhm_vehicle_availability', true));
+        $this->assertEquals('maintenance', get_post_meta($v1, '_mhmrentiva_vehicle_status', true));
+        $this->assertEquals('', get_post_meta($v1, '_mhmrentiva_vehicle_availability', true));
     }
 
     /**
@@ -98,12 +98,12 @@ class MetaMigrationTest extends WP_UnitTestCase
     public function test_idempotency()
     {
         $v1 = $this->factory->post->create(['post_type' => 'vehicle']);
-        update_post_meta($v1, '_mhm_vehicle_availability', 'active');
+        update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'active');
 
         // First run
         $output1 = $this->run_migration(false);
         $this->assertStringContainsString('Status migrated:          1', $output1);
-        $this->assertEquals('active', get_post_meta($v1, '_mhm_vehicle_status', true));
+        $this->assertEquals('active', get_post_meta($v1, '_mhmrentiva_vehicle_status', true));
 
         // Second run
         $output2 = $this->run_migration(false);
@@ -120,14 +120,14 @@ class MetaMigrationTest extends WP_UnitTestCase
         $ids = [];
         for ($i = 0; $i < 10; $i++) {
             $id = $this->factory->post->create(['post_type' => 'vehicle']);
-            update_post_meta($id, '_mhm_vehicle_availability', 'active');
+            update_post_meta($id, '_mhmrentiva_vehicle_availability', 'active');
             $ids[] = $id;
         }
 
         // Manually migrate 5 of them
         for ($i = 0; $i < 5; $i++) {
-            update_post_meta($ids[$i], '_mhm_vehicle_status', 'active');
-            delete_post_meta($ids[$i], '_mhm_vehicle_availability');
+            update_post_meta($ids[$i], '_mhmrentiva_vehicle_status', 'active');
+            delete_post_meta($ids[$i], '_mhmrentiva_vehicle_availability');
         }
 
         // Run migration for the remaining
@@ -138,8 +138,8 @@ class MetaMigrationTest extends WP_UnitTestCase
 
         // All 10 should now have the status
         foreach ($ids as $id) {
-            $this->assertEquals('active', get_post_meta($id, '_mhm_vehicle_status', true));
-            $this->assertEquals('', get_post_meta($id, '_mhm_vehicle_availability', true));
+            $this->assertEquals('active', get_post_meta($id, '_mhmrentiva_vehicle_status', true));
+            $this->assertEquals('', get_post_meta($id, '_mhmrentiva_vehicle_availability', true));
         }
     }
 }

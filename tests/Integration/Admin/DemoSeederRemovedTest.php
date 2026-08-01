@@ -32,8 +32,8 @@ final class DemoSeederRemovedTest extends WP_UnitTestCase
 {
     private function plugin_dir(): string
     {
-        return defined('MHM_RENTIVA_PLUGIN_DIR')
-            ? constant('MHM_RENTIVA_PLUGIN_DIR')
+        return defined('MHMRENTIVA_PLUGIN_DIR')
+            ? constant('MHMRENTIVA_PLUGIN_DIR')
             : dirname(__DIR__, 3) . '/';
     }
 
@@ -78,7 +78,7 @@ final class DemoSeederRemovedTest extends WP_UnitTestCase
     public function test_no_demo_seed_ajax_action_is_registered(): void
     {
         $this->assertFalse(
-            has_action('wp_ajax_mhm_rentiva_demo_seed'),
+            has_action('wp_ajax_mhmrentiva_demo_seed'),
             'The demo-seed AJAX action must not be registered -- DemoAjaxHandler is gone.'
         );
     }
@@ -86,7 +86,7 @@ final class DemoSeederRemovedTest extends WP_UnitTestCase
     public function test_no_demo_cleanup_ajax_action_is_registered(): void
     {
         $this->assertFalse(
-            has_action('wp_ajax_mhm_rentiva_demo_cleanup'),
+            has_action('wp_ajax_mhmrentiva_demo_cleanup'),
             'The demo-cleanup AJAX action must not be registered -- DemoAjaxHandler is gone.'
         );
     }

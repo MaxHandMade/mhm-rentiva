@@ -20,7 +20,7 @@ if (! defined('ABSPATH')) {
 final class Plugin {
 
 
-	public const VERSION = MHM_RENTIVA_VERSION;
+	public const VERSION = MHMRENTIVA_VERSION;
 
 	private static ?self $instance = null;
 
@@ -140,8 +140,8 @@ final class Plugin {
 		if (! $this->is_class_available('MHMRentiva\Admin\Core\AssetManager')) {
 			if ($this->is_class_available('MHMRentiva\Admin\Core\Utilities\Styles')) {
 				$styles = new \MHMRentiva\Admin\Core\Utilities\Styles(
-					MHM_RENTIVA_PLUGIN_DIR,
-					MHM_RENTIVA_PLUGIN_URL
+					MHMRENTIVA_PLUGIN_DIR,
+					MHMRENTIVA_PLUGIN_URL
 				);
 				$styles->register();
 			}
@@ -285,7 +285,7 @@ final class Plugin {
 		}
 		// REST API Settings AJAX handlers are registered by APIKeysPage::register()
 		// below (single source of truth). The dispatcher there verifies nonce +
-		// capability and routes each `wp_ajax_mhm_rentiva_{action}` hook.
+		// capability and routes each `wp_ajax_mhmrentiva_{action}` hook.
 
 		// Add Documentation button to standard WP list screens that don't ship
 		// their own custom header.
@@ -303,12 +303,12 @@ final class Plugin {
 					return;
 				}
 
-				$mhm_pages = array(
+				$mhmrentiva_pages = array(
 					'vehicle',
 					'vehicle_booking',
 				);
 
-				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'vehicle_category' === $screen->taxonomy) {
 					echo '<div class="mhm-docs-btn-global">';
 					\MHMRentiva\Admin\Core\Utilities\UXHelper::render_docs_button();
 					echo '</div>';
@@ -327,17 +327,17 @@ final class Plugin {
 					return;
 				}
 
-				$mhm_pages = array(
+				$mhmrentiva_pages = array(
 					'vehicle',
 					'vehicle_booking',
 				);
 
-				if (in_array($screen->post_type, $mhm_pages, true) || 'vehicle_category' === $screen->taxonomy) {
+				if (in_array($screen->post_type, $mhmrentiva_pages, true) || 'vehicle_category' === $screen->taxonomy) {
 					wp_enqueue_style(
 						'mhm-rentiva-hide-wp-chrome',
-						MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
+						MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/hide-wp-chrome.css',
 						array(),
-						MHM_RENTIVA_VERSION
+						MHMRENTIVA_VERSION
 					);
 				}
 			}
@@ -452,7 +452,7 @@ final class Plugin {
 		}
 
 		// Direct require to ensure it loads
-		require_once MHM_RENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
+		require_once MHMRENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
 		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
 
 		// â­ New Account System (WordPress Login)
@@ -629,7 +629,7 @@ final class Plugin {
 	 * with the vehicle_slug query var set, so the shortcode can look up the vehicle.
 	 * Example: /vehicles/bmw-3-series-320i/ → page_id=X &vehicle_slug=bmw-3-series-320i
 	 *
-	 * Flush trigger: settings save (mhm_rentiva_vehicle_url_base change) or
+	 * Flush trigger: settings save (mhmrentiva_vehicle_url_base change) or
 	 * manually via Settings → Permalinks when the shortcode page slug changes.
 	 */
 	public function register_vehicle_rewrite_rules(): void
@@ -691,15 +691,15 @@ final class Plugin {
 		}
 
 		// Fallback: no shortcode page configured — use bundled single-vehicle template.
-		$template_path = MHM_RENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
+		$template_path = MHMRENTIVA_PLUGIN_PATH . 'templates/single-vehicle.php';
 		if (file_exists($template_path)) {
 			// Template styles (were an inline <style> in the template). Enqueued before
 			// the include so get_header()'s wp_head prints the stylesheet.
 			wp_enqueue_style(
 				'mhm-rentiva-single-vehicle',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/single-vehicle.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/single-vehicle.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 			include $template_path;
 			exit;
@@ -768,9 +768,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 		} elseif ($post_type === 'vehicle_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -799,9 +799,9 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 		} elseif ($post_type === 'vehicle_booking') {
 			// Clear booking caches
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
@@ -823,7 +823,7 @@ final class Plugin {
 		$post_type = get_post_type($post_id);
 
 		// Vehicle meta changes
-		if ($post_type === 'vehicle' && strpos($meta_key, '_mhm_rentiva_') === 0) {
+		if ($post_type === 'vehicle' && strpos($meta_key, '_mhmrentiva_') === 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
 					'vehicles',
@@ -832,15 +832,15 @@ final class Plugin {
 				)
 			);
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 			// Invalidate Search Filters Cache
-			delete_transient('mhm_rentiva_search_filters_v1');
+			delete_transient('mhmrentiva_search_filters_v1');
 		}
 
 		// Booking meta changes
-		if ($post_type === 'vehicle_booking' && strpos($meta_key, '_mhm_') === 0) {
+		if ($post_type === 'vehicle_booking' && strpos($meta_key, '_mhmrentiva_') === 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(
 				array(
 					'availability',

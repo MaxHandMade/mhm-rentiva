@@ -86,7 +86,7 @@ final class ShortcodeServiceProvider {
 	 * Returns Lite's own shortcode registry, open for extension.
 	 *
 	 * Lite ships its own shortcodes only. The add-on (or any other consumer)
-	 * contributes its shortcodes by hooking `mhm_rentiva_shortcodes` -- Lite
+	 * contributes its shortcodes by hooking `mhmrentiva_shortcodes` -- Lite
 	 * carries no knowledge of the add-on's shortcode tags, classes, or feature
 	 * names. A contributor is responsible for its own presence/registration
 	 * gating inside its filter callback: the filter simply returns whatever
@@ -98,11 +98,11 @@ final class ShortcodeServiceProvider {
 	{
 		$registry = $this->get_raw_shortcode_registry();
 
-		return (array) apply_filters('mhm_rentiva_shortcodes', $registry);
+		return (array) apply_filters('mhmrentiva_shortcodes', $registry);
 	}
 
 	/**
-	 * Lite's own declared registry, before the `mhm_rentiva_shortcodes` filter runs.
+	 * Lite's own declared registry, before the `mhmrentiva_shortcodes` filter runs.
 	 *
 	 * Split out from get_registry() so Lite's own table can be inspected as data,
 	 * independent of whatever a contributor's filter callback adds.
@@ -317,14 +317,14 @@ final class ShortcodeServiceProvider {
 	private function handle_shortcode_execution(string $tag, callable $callback, array $config, $atts, ?string $content): string
 	{
 		// Check authentication if required. The message is NOT necessarily
-		// Lite's own static string: `mhm_rentiva_shortcode_auth_error` lets a
+		// Lite's own static string: `mhmrentiva_shortcode_auth_error` lets a
 		// contributor (e.g. an add-on) replace it entirely, and a contributor
 		// may legitimately want to return markup here (a login link, a styled
 		// notice) -- so this is escaped through the same allowlist as every
 		// other callback return, not esc_html()'d, which would flatten any
 		// such markup to plain text.
 		if (! empty($config['requires_auth']) && ! is_user_logged_in()) {
-			$auth_error_message = (string) apply_filters('mhm_rentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
+			$auth_error_message = (string) apply_filters('mhmrentiva_shortcode_auth_error', __('Please login to view this content.', 'mhm-rentiva'), $tag);
 
 			add_filter('safe_style_css', array( Html::class, 'allow_inline_style_props' ));
 			try {
@@ -339,7 +339,7 @@ final class ShortcodeServiceProvider {
 		$buffered = ob_get_clean();
 
 		// Escape late, at the single point every shortcode (Lite's own and any
-		// `mhm_rentiva_shortcodes` contributor's) returns through. The allowlist
+		// `mhmrentiva_shortcodes` contributor's) returns through. The allowlist
 		// covers the full render surface (forms, SVG, data-*, style) — see
 		// Html::allowed_markup() and its unit test. The add_filter/remove_filter
 		// pair around this wp_kses() call widens wp_kses()'s CSS-property filter

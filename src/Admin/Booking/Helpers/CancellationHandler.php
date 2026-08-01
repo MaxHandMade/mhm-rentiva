@@ -89,7 +89,7 @@ final class CancellationHandler {
 
 		// Check user permission (user can only cancel their own bookings)
 		if ( $user_id > 0 ) {
-			$booking_customer_id = (int) get_post_meta( $booking_id, '_mhm_customer_id', true );
+			$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
 			if ( $user_id !== $booking_customer_id && ! current_user_can( 'manage_options' ) ) {
 				return new \WP_Error(
 					'permission_denied',
@@ -109,9 +109,9 @@ final class CancellationHandler {
 				'cancellation_reason' => $reason,
 			);
 
-			update_post_meta( $booking_id, '_mhm_cancellation_data', $cancellation_data );
+			update_post_meta( $booking_id, '_mhmrentiva_cancellation_data', $cancellation_data );
 
-			// Update booking status to cancelled (fires mhm_rentiva_booking_status_changed)
+			// Update booking status to cancelled (fires mhmrentiva_booking_status_changed)
 			$status_updated = Status::update_status( $booking_id, Status::CANCELLED, $user_id );
 
 			if ( ! $status_updated ) {
@@ -126,7 +126,7 @@ final class CancellationHandler {
 
 			// Clear cache
 			if ( class_exists( 'MHMRentiva\Admin\Booking\Helpers\Cache' ) ) {
-				$vehicle_id = (int) get_post_meta( $booking_id, '_mhm_vehicle_id', true );
+				$vehicle_id = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
 				if ( $vehicle_id > 0 ) {
 					Cache::invalidateVehicle( $vehicle_id );
 				}
@@ -142,7 +142,7 @@ final class CancellationHandler {
 			self::process_refund( $booking_id, $user_id );
 
 			// Trigger action for other plugins/integrations
-			do_action( 'mhm_rentiva_booking_cancelled', $booking_id, $user_id, $reason );
+			do_action( 'mhmrentiva_booking_cancelled', $booking_id, $user_id, $reason );
 
 			return true;
 		} catch ( \Exception $e ) {
@@ -168,11 +168,11 @@ final class CancellationHandler {
 	 */
 	public static function check_cancellation_deadline( int $booking_id ) {
 		// Get cancellation deadline setting (in hours)
-		$deadline_hours = (int) SettingsCore::get( 'mhm_rentiva_booking_cancellation_deadline_hours', 24 );
+		$deadline_hours = (int) SettingsCore::get( 'mhmrentiva_booking_cancellation_deadline_hours', 24 );
 
 		// Get booking pickup date/time
-		$pickup_date = get_post_meta( $booking_id, '_mhm_pickup_date', true );
-		$pickup_time = get_post_meta( $booking_id, '_mhm_pickup_time', true );
+		$pickup_date = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
+		$pickup_time = get_post_meta( $booking_id, '_mhmrentiva_pickup_time', true );
 
 		if ( empty( $pickup_date ) ) {
 			return new \WP_Error(
@@ -236,9 +236,9 @@ final class CancellationHandler {
 	 * @return true|\WP_Error True on success, WP_Error on failure
 	 */
 	private static function free_vehicle_availability( int $booking_id ) {
-		$vehicle_id   = (int) get_post_meta( $booking_id, '_mhm_vehicle_id', true );
-		$pickup_date  = get_post_meta( $booking_id, '_mhm_pickup_date', true );
-		$dropoff_date = get_post_meta( $booking_id, '_mhm_dropoff_date', true );
+		$vehicle_id   = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
+		$pickup_date  = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
+		$dropoff_date = get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true );
 
 		if ( $vehicle_id === 0 || empty( $pickup_date ) || empty( $dropoff_date ) ) {
 			return new \WP_Error(
@@ -248,7 +248,7 @@ final class CancellationHandler {
 		}
 
 		// Get blocked dates
-		$blocked_dates = get_post_meta( $vehicle_id, '_mhm_rentiva_blocked_dates', true );
+		$blocked_dates = get_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', true );
 		if ( ! is_array( $blocked_dates ) ) {
 			$blocked_dates = array();
 		}
@@ -269,7 +269,7 @@ final class CancellationHandler {
 		}
 
 		// Update vehicle meta
-		update_post_meta( $vehicle_id, '_mhm_rentiva_blocked_dates', array_values( $blocked_dates ) );
+		update_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', array_values( $blocked_dates ) );
 
 		return true;
 	}
@@ -283,22 +283,22 @@ final class CancellationHandler {
 	 */
 	private static function send_cancellation_email( int $booking_id, string $reason = '' ): bool {
 		// Check if cancellation emails are enabled
-		if ( ! SettingsCore::get( 'mhm_rentiva_booking_send_confirmation_emails', '1' ) ) {
+		if ( ! SettingsCore::get( 'mhmrentiva_booking_send_confirmation_emails', '1' ) ) {
 			return false;
 		}
 
 		// Get customer email
-		$customer_email = get_post_meta( $booking_id, '_mhm_customer_email', true );
+		$customer_email = get_post_meta( $booking_id, '_mhmrentiva_customer_email', true );
 		if ( empty( $customer_email ) ) {
 			return false;
 		}
 
 		// Get booking details
-		$vehicle_id    = (int) get_post_meta( $booking_id, '_mhm_vehicle_id', true );
+		$vehicle_id    = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
 		$vehicle_name  = get_the_title( $vehicle_id );
-		$pickup_date   = get_post_meta( $booking_id, '_mhm_pickup_date', true );
-		$dropoff_date  = get_post_meta( $booking_id, '_mhm_dropoff_date', true );
-		$customer_name = get_post_meta( $booking_id, '_mhm_customer_name', true );
+		$pickup_date   = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
+		$dropoff_date  = get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true );
+		$customer_name = get_post_meta( $booking_id, '_mhmrentiva_customer_name', true );
 
 		// Email subject
 		$subject = sprintf(
@@ -308,7 +308,7 @@ final class CancellationHandler {
 		);
 
 		// Email template
-		$template_path = MHM_RENTIVA_PLUGIN_DIR . 'templates/emails/booking-cancelled.html.php';
+		$template_path = MHMRENTIVA_PLUGIN_DIR . 'templates/emails/booking-cancelled.html.php';
 
 		// Fallback to simple HTML if template doesn't exist
 		if ( file_exists( $template_path ) ) {
@@ -335,7 +335,7 @@ final class CancellationHandler {
 		$sent = wp_mail( $customer_email, $subject, $message, $headers );
 
 		// Send copy to admin if admin notifications are enabled
-		$admin_notifications = SettingsCore::get( 'mhm_rentiva_booking_admin_notifications', '1' );
+		$admin_notifications = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' );
 		if ( '1' === $admin_notifications ) {
 			$admin_email   = get_option( 'admin_email' );
 			$admin_subject = sprintf(
@@ -404,7 +404,7 @@ final class CancellationHandler {
 	 */
 	private static function process_refund( int $booking_id, int $user_id ): bool {
 		// Get payment status
-		$payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
+		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 
 		if ( 'paid' !== $payment_status ) {
 			// No payment to refund
@@ -412,15 +412,15 @@ final class CancellationHandler {
 		}
 
 		// Get payment gateway
-		$payment_gateway = get_post_meta( $booking_id, '_mhm_payment_gateway', true );
+		$payment_gateway = get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
 
 		// Mark as pending refund
-		update_post_meta( $booking_id, '_mhm_refund_status', 'pending' );
-		update_post_meta( $booking_id, '_mhm_refund_requested_at', current_time( 'mysql' ) );
-		update_post_meta( $booking_id, '_mhm_refund_requested_by', $user_id );
+		update_post_meta( $booking_id, '_mhmrentiva_refund_status', 'pending' );
+		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_at', current_time( 'mysql' ) );
+		update_post_meta( $booking_id, '_mhmrentiva_refund_requested_by', $user_id );
 
 		// Trigger refund action for payment gateway handlers
-		do_action( 'mhm_rentiva_process_refund', $booking_id, $payment_gateway, $user_id );
+		do_action( 'mhmrentiva_process_refund', $booking_id, $payment_gateway, $user_id );
 
 		// Note: Actual refund processing depends on payment gateway implementation
 		// For now, we just mark it as pending refund and trigger the action
@@ -447,7 +447,7 @@ final class CancellationHandler {
 		}
 
 		// Check if user owns the booking
-		$booking_customer_id = (int) get_post_meta( $booking_id, '_mhm_customer_id', true );
+		$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
 		if ( $booking_customer_id !== $user_id ) {
 			return false;
 		}
@@ -471,10 +471,10 @@ final class CancellationHandler {
 	 * @return array{can_cancel: bool, deadline: string, hours_remaining: float, message: string}
 	 */
 	public static function get_cancellation_info( int $booking_id ): array {
-		$deadline_hours = (int) SettingsCore::get( 'mhm_rentiva_booking_cancellation_deadline_hours', 24 );
+		$deadline_hours = (int) SettingsCore::get( 'mhmrentiva_booking_cancellation_deadline_hours', 24 );
 
-		$pickup_date = get_post_meta( $booking_id, '_mhm_pickup_date', true );
-		$pickup_time = get_post_meta( $booking_id, '_mhm_pickup_time', true );
+		$pickup_date = get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true );
+		$pickup_time = get_post_meta( $booking_id, '_mhmrentiva_pickup_time', true );
 
 		if ( empty( $pickup_date ) ) {
 			return array(

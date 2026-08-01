@@ -36,7 +36,7 @@ final class AddonContextMigrationTest extends WP_UnitTestCase {
 			update_post_meta( $id, 'addon_price', $price );
 		}
 		wp_remove_object_terms( $id, array( 'rental', 'transfer', 'both' ), AddonContextTaxonomy::TAXONOMY );
-		delete_post_meta( $id, '_mhm_addon_pricing_type' );
+		delete_post_meta( $id, '_mhmrentiva_addon_pricing_type' );
 		return $id;
 	}
 
@@ -55,7 +55,7 @@ final class AddonContextMigrationTest extends WP_UnitTestCase {
 		AddonContextMigration::run();
 		$this->assertSame(
 			AddonPricingType::PER_BOOKING,
-			get_post_meta( $id, '_mhm_addon_pricing_type', true )
+			get_post_meta( $id, '_mhmrentiva_addon_pricing_type', true )
 		);
 	}
 
@@ -65,7 +65,7 @@ final class AddonContextMigrationTest extends WP_UnitTestCase {
 
 		// Operator manually flipped to transfer + per_passenger.
 		wp_set_object_terms( $id, 'transfer', AddonContextTaxonomy::TAXONOMY, false );
-		update_post_meta( $id, '_mhm_addon_pricing_type', AddonPricingType::PER_PASSENGER );
+		update_post_meta( $id, '_mhmrentiva_addon_pricing_type', AddonPricingType::PER_PASSENGER );
 
 		// Re-run should not overwrite operator's choice.
 		delete_option( AddonContextMigration::FLAG_OPTION ); // simulate manual reset
@@ -75,7 +75,7 @@ final class AddonContextMigrationTest extends WP_UnitTestCase {
 		$this->assertFalse( has_term( 'rental', AddonContextTaxonomy::TAXONOMY, $id ) );
 		$this->assertSame(
 			AddonPricingType::PER_PASSENGER,
-			get_post_meta( $id, '_mhm_addon_pricing_type', true )
+			get_post_meta( $id, '_mhmrentiva_addon_pricing_type', true )
 		);
 	}
 

@@ -41,7 +41,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_reset_rest_settings',
+                    action: 'mhmrentiva_reset_rest_settings',
                     nonce: this.nonce
                 },
                 success: (response) => {
@@ -70,7 +70,7 @@
                 url: this.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_list_endpoints',
+                    action: 'mhmrentiva_list_endpoints',
                     nonce: this.nonce
                 },
                 success: (response) => {

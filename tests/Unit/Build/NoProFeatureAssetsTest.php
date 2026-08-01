@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
  * reference it from source. Before this task, 15 asset files that exist only
  * to serve Pro-only surfaces (messaging, VIP transfer, vendor marketplace,
  * export) shipped inside Lite's own `assets/` tree, and four Lite classes
- * enqueued them via `MHM_RENTIVA_PLUGIN_URL` -- even though Pro is the only
+ * enqueued them via `MHMRENTIVA_PLUGIN_URL` -- even though Pro is the only
  * install that ever renders the screens that need them. That is a leftover
  * paid-tier shell in the free ZIP, exactly the class of finding that got Lite
  * rejected by WordPress.org twice already.
@@ -73,7 +73,7 @@ final class NoProFeatureAssetsTest extends TestCase
 
     private function plugin_root(): string
     {
-        return rtrim((string) (defined('MHM_RENTIVA_PLUGIN_DIR') ? MHM_RENTIVA_PLUGIN_DIR : dirname(__DIR__, 3) . '/'), '/\\') . '/';
+        return rtrim((string) (defined('MHMRENTIVA_PLUGIN_DIR') ? MHMRENTIVA_PLUGIN_DIR : dirname(__DIR__, 3) . '/'), '/\\') . '/';
     }
 
     /**
@@ -100,7 +100,7 @@ final class NoProFeatureAssetsTest extends TestCase
 
     /**
      * The four Lite classes that used to enqueue these assets (by filename or
-     * by the `MHM_RENTIVA_PLUGIN_URL`-relative path) must no longer mention
+     * by the `MHMRENTIVA_PLUGIN_URL`-relative path) must no longer mention
      * any of them -- the screens that need them are Pro-only, so Pro is now
      * the sole class that enqueues its own copy.
      */

@@ -24,7 +24,7 @@ final class LogMaintenanceScheduler {
 	/**
 	 * Cron event hook name.
 	 */
-	public const CRON_HOOK = 'mhm_rentiva_daily_log_cleanup';
+	public const CRON_HOOK = 'mhmrentiva_daily_log_cleanup';
 
 	/**
 	 * Initialize the scheduler.
@@ -43,13 +43,13 @@ final class LogMaintenanceScheduler {
 	 */
 	public static function run_log_cleanup(): void {
 		// Check if cleanup is enabled
-		$enabled = SettingsCore::get( 'mhm_rentiva_log_cleanup_enabled', '0' );
+		$enabled = SettingsCore::get( 'mhmrentiva_log_cleanup_enabled', '0' );
 		if ( $enabled !== '1' ) {
 			return;
 		}
 
 		// Get retention days
-		$retention_days = (int) SettingsCore::get( 'mhm_rentiva_log_retention_days', 30 );
+		$retention_days = (int) SettingsCore::get( 'mhmrentiva_log_retention_days', 30 );
 
 		// Safety check: Don't delete logs newer than 1 day just in case configuration is wrong
 		$retention_days = max( 1, $retention_days );

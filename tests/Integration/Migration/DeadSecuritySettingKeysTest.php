@@ -18,8 +18,8 @@ use WP_UnitTestCase;
  * those classes are gone.
  *
  * Removing the UI is not the whole fix. On any site where an administrator had
- * saved that screen, `mhm_rentiva_settings` still carries
- * `mhm_rentiva_brute_force_protection = '1'` and its twelve siblings -- rows
+ * saved that screen, `mhmrentiva_settings` still carries
+ * `mhmrentiva_brute_force_protection = '1'` and its twelve siblings -- rows
  * stating that protections are ON while nothing enforces them. That is the same
  * false-security-promise bug as the dead `..._country_restriction_enabled` row
  * that [[DeadCountryRestrictionOptionTest]] covers, and it is settled here the
@@ -34,34 +34,34 @@ use WP_UnitTestCase;
  */
 final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 {
-	private const SETTINGS_OPTION = 'mhm_rentiva_settings';
+	private const SETTINGS_OPTION = 'mhmrentiva_settings';
 
 	/**
 	 * Every key the removed tab owned.
 	 */
 	private const DEAD_KEYS = array(
-		'mhm_rentiva_ip_whitelist_enabled',
-		'mhm_rentiva_ip_whitelist',
-		'mhm_rentiva_ip_blacklist_enabled',
-		'mhm_rentiva_ip_blacklist',
-		'mhm_rentiva_brute_force_protection',
-		'mhm_rentiva_max_login_attempts',
-		'mhm_rentiva_login_lockout_duration',
-		'mhm_rentiva_sql_injection_protection',
-		'mhm_rentiva_xss_protection',
-		'mhm_rentiva_csrf_protection',
-		'mhm_rentiva_rate_limit_enabled',
-		'mhm_rentiva_rate_limit_block_duration',
-		'mhm_rentiva_rate_limit_requests_per_minute',
-		'mhm_rentiva_rate_limit_booking_per_minute',
-		'mhm_rentiva_rate_limit_payment_per_minute',
+		'mhmrentiva_ip_whitelist_enabled',
+		'mhmrentiva_ip_whitelist',
+		'mhmrentiva_ip_blacklist_enabled',
+		'mhmrentiva_ip_blacklist',
+		'mhmrentiva_brute_force_protection',
+		'mhmrentiva_max_login_attempts',
+		'mhmrentiva_login_lockout_duration',
+		'mhmrentiva_sql_injection_protection',
+		'mhmrentiva_xss_protection',
+		'mhmrentiva_csrf_protection',
+		'mhmrentiva_rate_limit_enabled',
+		'mhmrentiva_rate_limit_block_duration',
+		'mhmrentiva_rate_limit_requests_per_minute',
+		'mhmrentiva_rate_limit_booking_per_minute',
+		'mhmrentiva_rate_limit_payment_per_minute',
 	);
 
 	public function tearDown(): void
 	{
 		delete_option( self::SETTINGS_OPTION );
 		delete_option( 'mhm_rentiva_db_version' );
-		delete_option( 'mhm_rentiva_api_keys' );
+		delete_option( 'mhmrentiva_api_keys' );
 		parent::tearDown();
 	}
 
@@ -77,7 +77,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	{
 		update_option( 'mhm_rentiva_db_version', '1.0.0' );
 		update_option(
-			'mhm_rentiva_api_keys',
+			'mhmrentiva_api_keys',
 			array(
 				'key_abc' => array(
 					'name'        => 'Android App',
@@ -91,7 +91,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 		DatabaseMigrator::run_migrations();
 
 		$this->assertFalse(
-			get_option( 'mhm_rentiva_api_keys', false ),
+			get_option( 'mhmrentiva_api_keys', false ),
 			'The stored API keys survived; they describe ADMIN grants nothing implements.'
 		);
 	}
@@ -106,7 +106,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 
 		$settings = array(
 			// A live setting, to prove the cleanup is surgical.
-			'mhm_rentiva_cache_enabled' => '1',
+			'mhmrentiva_cache_enabled' => '1',
 		);
 		foreach ( self::DEAD_KEYS as $key ) {
 			$settings[ $key ] = '1';
@@ -145,7 +145,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'1',
-			$settings['mhm_rentiva_cache_enabled'] ?? null,
+			$settings['mhmrentiva_cache_enabled'] ?? null,
 			'The cleanup removed a setting that is still read.'
 		);
 	}
@@ -164,7 +164,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 		$settings = (array) get_option( self::SETTINGS_OPTION, array() );
 
 		$this->assertArrayNotHasKey(
-			'mhm_rentiva_brute_force_protection',
+			'mhmrentiva_brute_force_protection',
 			$settings,
 			'An install one version behind was not migrated; the version constant was not bumped.'
 		);
@@ -179,7 +179,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	public function test_a_clean_install_gains_no_dead_keys(): void
 	{
 		update_option( 'mhm_rentiva_db_version', '1.0.0' );
-		update_option( self::SETTINGS_OPTION, array( 'mhm_rentiva_cache_enabled' => '0' ) );
+		update_option( self::SETTINGS_OPTION, array( 'mhmrentiva_cache_enabled' => '0' ) );
 
 		DatabaseMigrator::run_migrations();
 
@@ -191,7 +191,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			'0',
-			$settings['mhm_rentiva_cache_enabled'] ?? null,
+			$settings['mhmrentiva_cache_enabled'] ?? null,
 			'A live setting was altered on an install with nothing to clean.'
 		);
 	}

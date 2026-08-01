@@ -34,9 +34,9 @@ final class BookingColumnsTitleEscapingTest extends WP_UnitTestCase
 
     public function test_get_booking_title_display_escapes_malicious_customer_name(): void
     {
-        update_post_meta($this->booking_id, '_mhm_customer_first_name', '<script>alert(1)</script>');
-        update_post_meta($this->booking_id, '_mhm_customer_last_name', 'Doe');
-        update_post_meta($this->booking_id, '_mhm_customer_phone', '<b>555</b>');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_first_name', '<script>alert(1)</script>');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_last_name', 'Doe');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_phone', '<b>555</b>');
 
         $title = BookingColumns::get_booking_title_display($this->booking_id);
 
@@ -48,8 +48,8 @@ final class BookingColumnsTitleEscapingTest extends WP_UnitTestCase
 
     public function test_get_booking_title_display_does_not_double_escape(): void
     {
-        update_post_meta($this->booking_id, '_mhm_customer_first_name', 'Marks & Spencer');
-        update_post_meta($this->booking_id, '_mhm_customer_last_name', '');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_first_name', 'Marks & Spencer');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_last_name', '');
 
         $title = BookingColumns::get_booking_title_display($this->booking_id);
 
@@ -60,8 +60,8 @@ final class BookingColumnsTitleEscapingTest extends WP_UnitTestCase
 
     public function test_the_title_filter_output_is_escaped_for_booking_list_screen(): void
     {
-        update_post_meta($this->booking_id, '_mhm_customer_first_name', '<script>alert(1)</script>');
-        update_post_meta($this->booking_id, '_mhm_customer_last_name', 'Doe');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_first_name', '<script>alert(1)</script>');
+        update_post_meta($this->booking_id, '_mhmrentiva_customer_last_name', 'Doe');
 
         set_current_screen('edit-vehicle_booking');
 

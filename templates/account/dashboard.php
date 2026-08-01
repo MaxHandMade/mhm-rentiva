@@ -68,7 +68,7 @@ if ($is_integrated) {
 				<div class="stat-content">
 					<?php
 					if ($data['favorites'] === '1') {
-						$favorites_data  = get_user_meta($data['user']->ID, 'mhm_rentiva_favorites', true);
+						$favorites_data  = get_user_meta($data['user']->ID, 'mhmrentiva_favorites', true);
 						$favorites_count = is_array($favorites_data) ? count($favorites_data) : 0;
 					} else {
 						$favorites_count = 0;
@@ -94,27 +94,27 @@ if ($is_integrated) {
 					<div class="bookings-list">
 						<?php
 						foreach ($data['recent_bookings'] as $booking) :
-							$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+							$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 							$vehicle        = get_post($vehicle_id);
-							$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
-							$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
-							$dropoff_date   = get_post_meta($booking->ID, '_mhm_dropoff_date', true);
+							$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
+							$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
+							$dropoff_date   = get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true);
 							// Get pickup and dropoff times with fallbacks
-							$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
+							$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
 							if (! $pickup_time) {
-								$pickup_time = get_post_meta($booking->ID, '_mhm_pickup_time', true);
+								$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 							}
 							if (! $pickup_time) {
 								$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
 							}
-							$dropoff_time = get_post_meta($booking->ID, '_mhm_end_time', true);
+							$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_end_time', true);
 							if (! $dropoff_time) {
-								$dropoff_time = get_post_meta($booking->ID, '_mhm_dropoff_time', true);
+								$dropoff_time = get_post_meta($booking->ID, '_mhmrentiva_dropoff_time', true);
 							}
 							if (! $dropoff_time) {
 								$dropoff_time = get_post_meta($booking->ID, '_booking_dropoff_time', true);
 							}
-							$total_price = get_post_meta($booking->ID, '_mhm_total_price', true);
+							$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
 							$status_class = '';
 							$status_label = '';
@@ -191,9 +191,9 @@ if ($is_integrated) {
 										if (function_exists('wc_price')) {
 											echo wp_kses_post(wc_price($total_price));
 										} else {
-											$currency_code     = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
+											$currency_code     = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
 											$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-											$currency_position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency_position', 'right_space');
+											$currency_position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency_position', 'right_space');
 											$formatted_amount  = number_format( (float) $total_price, 2, ',', '.');
 
 											switch ($currency_position) {
@@ -316,8 +316,8 @@ if ($is_integrated) {
 		// add-on is active (its handlers are registered); on the free plugin alone
 		// they would be non-functional, so we omit them entirely rather than show
 		// dead buttons.
-		$gdpr_enabled = SettingsCore::get('mhm_rentiva_customer_gdpr_compliance', '1');
-		if ($gdpr_enabled === '1' && has_action('wp_ajax_mhm_rentiva_data_export')) :
+		$gdpr_enabled = SettingsCore::get('mhmrentiva_customer_gdpr_compliance', '1');
+		if ($gdpr_enabled === '1' && has_action('wp_ajax_mhmrentiva_data_export')) :
 			?>
 			<div class="account-section">
 				<div class="section-header">

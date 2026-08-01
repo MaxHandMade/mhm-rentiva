@@ -22,8 +22,8 @@ final class EmailAjaxHandler {
 	 * Register AJAX actions
 	 */
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_rentiva_preview_email_ajax', array( self::class, 'handle_preview_email' ) );
-		add_action( 'wp_ajax_mhm_rentiva_send_test_email_ajax', array( self::class, 'handle_send_test_email' ) );
+		add_action( 'wp_ajax_mhmrentiva_preview_email_ajax', array( self::class, 'handle_preview_email' ) );
+		add_action( 'wp_ajax_mhmrentiva_send_test_email_ajax', array( self::class, 'handle_send_test_email' ) );
 	}
 
 	/**
@@ -31,7 +31,7 @@ final class EmailAjaxHandler {
 	 */
 	public static function handle_preview_email(): void {
 		// Verify nonce
-		if ( ! check_ajax_referer( 'mhm_email_preview_action', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'mhmrentiva_email_preview_action', 'nonce', false ) ) {
 			wp_send_json_error( __( 'Security check failed.', 'mhm-rentiva' ) );
 		}
 
@@ -84,11 +84,11 @@ final class EmailAjaxHandler {
 	 * the superglobal access stay in one scope.
 	 */
 	private static function verified_test_email_request(): ?VerifiedRequest {
-		if ( false !== check_ajax_referer( 'mhm_rentiva_send_template_test', 'nonce', false ) ) {
+		if ( false !== check_ajax_referer( 'mhmrentiva_send_template_test', 'nonce', false ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
 
-		if ( false !== check_ajax_referer( 'mhm_rentiva_send_test_email', 'nonce', false ) ) {
+		if ( false !== check_ajax_referer( 'mhmrentiva_send_test_email', 'nonce', false ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
 

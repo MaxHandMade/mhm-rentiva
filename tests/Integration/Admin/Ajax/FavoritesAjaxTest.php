@@ -30,7 +30,7 @@ class FavoritesAjaxTest extends WP_Ajax_UnitTestCase
             FavoritesService::register();
             self::$service_registered = true;
         }
-        delete_user_meta($this->user_id, 'mhm_rentiva_favorites');
+        delete_user_meta($this->user_id, 'mhmrentiva_favorites');
     }
 
     public function tearDown(): void
@@ -41,12 +41,12 @@ class FavoritesAjaxTest extends WP_Ajax_UnitTestCase
 
     public function test_ajax_add_favorite()
     {
-        $_POST['action'] = 'mhm_rentiva_toggle_favorite';
-        $_POST['nonce'] = wp_create_nonce('mhm_rentiva_toggle_favorite');
+        $_POST['action'] = 'mhmrentiva_toggle_favorite';
+        $_POST['nonce'] = wp_create_nonce('mhmrentiva_toggle_favorite');
         $_POST['vehicle_id'] = $this->vehicle_id;
 
         try {
-            $this->_handleAjax('mhm_rentiva_toggle_favorite');
+            $this->_handleAjax('mhmrentiva_toggle_favorite');
         } catch (\WPAjaxDieContinueException $e) {
             // Good
         }
@@ -63,12 +63,12 @@ class FavoritesAjaxTest extends WP_Ajax_UnitTestCase
     {
         FavoritesService::add($this->user_id, $this->vehicle_id);
 
-        $_POST['action'] = 'mhm_rentiva_toggle_favorite';
-        $_POST['nonce'] = wp_create_nonce('mhm_rentiva_toggle_favorite');
+        $_POST['action'] = 'mhmrentiva_toggle_favorite';
+        $_POST['nonce'] = wp_create_nonce('mhmrentiva_toggle_favorite');
         $_POST['vehicle_id'] = $this->vehicle_id;
 
         try {
-            $this->_handleAjax('mhm_rentiva_toggle_favorite');
+            $this->_handleAjax('mhmrentiva_toggle_favorite');
         } catch (\WPAjaxDieContinueException $e) {
             // Success
         }
@@ -82,12 +82,12 @@ class FavoritesAjaxTest extends WP_Ajax_UnitTestCase
 
     public function test_ajax_invalid_nonce()
     {
-        $_POST['action'] = 'mhm_rentiva_toggle_favorite';
+        $_POST['action'] = 'mhmrentiva_toggle_favorite';
         $_POST['nonce'] = 'invalid_nonce';
         $_POST['vehicle_id'] = $this->vehicle_id;
 
         try {
-            $this->_handleAjax('mhm_rentiva_toggle_favorite');
+            $this->_handleAjax('mhmrentiva_toggle_favorite');
         } catch (\WPAjaxDieContinueException $e) {
             // Failure
         }
@@ -101,12 +101,12 @@ class FavoritesAjaxTest extends WP_Ajax_UnitTestCase
     {
         wp_logout();
 
-        $_POST['action'] = 'mhm_rentiva_toggle_favorite';
-        $_POST['nonce'] = wp_create_nonce('mhm_rentiva_toggle_favorite');
+        $_POST['action'] = 'mhmrentiva_toggle_favorite';
+        $_POST['nonce'] = wp_create_nonce('mhmrentiva_toggle_favorite');
         $_POST['vehicle_id'] = $this->vehicle_id;
 
         try {
-            $this->_handleAjax('mhm_rentiva_toggle_favorite');
+            $this->_handleAjax('mhmrentiva_toggle_favorite');
         } catch (\WPAjaxDieContinueException $e) {
             // Failure
         }

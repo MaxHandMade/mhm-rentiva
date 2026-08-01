@@ -24,7 +24,7 @@ if (! defined('ABSPATH')) {
  *       return new WP_Error('rate_limited', 'Too many requests.', ['status' => 429]);
  *   }
  *
- * Transient key: mhm_rentiva_rl_{sha256(identifier)}
+ * Transient key: mhmrentiva_rl_{sha256(identifier)}
  * TTL = $window_seconds per window.
  *
  * Race condition note: WP transients lack atomic increment. Two near-simultaneous
@@ -50,7 +50,7 @@ final class WebhookRateLimiter {
         int $max_requests = 10,
         int $window_seconds = 60
     ): bool {
-        $key   = 'mhm_rentiva_rl_' . hash('sha256', $identifier);
+        $key   = 'mhmrentiva_rl_' . hash('sha256', $identifier);
         $count = (int) get_transient($key);
 
         if ($count === 0) {
@@ -94,7 +94,7 @@ final class WebhookRateLimiter {
      */
     public static function reset(string $identifier): void
     {
-        delete_transient('mhm_rentiva_rl_' . hash('sha256', $identifier));
+        delete_transient('mhmrentiva_rl_' . hash('sha256', $identifier));
     }
 
     /**
@@ -105,6 +105,6 @@ final class WebhookRateLimiter {
      */
     public static function get_count(string $identifier): int
     {
-        return (int) get_transient('mhm_rentiva_rl_' . hash('sha256', $identifier));
+        return (int) get_transient('mhmrentiva_rl_' . hash('sha256', $identifier));
     }
 }

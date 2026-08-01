@@ -23,8 +23,8 @@ final class RemainingPaymentHandler {
 	 */
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
+		add_action('wp_ajax_mhmrentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_pay_remaining', array( self::class, 'ajax_create_remaining_order' ));
 	}
 
 	/**
@@ -41,7 +41,7 @@ final class RemainingPaymentHandler {
 
 		// Nonce verification
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_pay_remaining_' . $booking_id)) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_pay_remaining_' . $booking_id)) {
 			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 		}
 
@@ -51,7 +51,7 @@ final class RemainingPaymentHandler {
 		}
 
 		$current_user_id  = get_current_user_id();
-		$customer_user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		$customer_user_id = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
 		$is_admin         = current_user_can('manage_options');
 
 		// Ownership check
@@ -81,15 +81,15 @@ final class RemainingPaymentHandler {
 	public static function get_or_create_remaining_order(int $booking_id): \WC_Order|\WP_Error
 	{
 		// Must be a deposit booking with remaining amount > 0
-		$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
-		$remaining_amount = (float) get_post_meta($booking_id, '_mhm_remaining_amount', true);
+		$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
+		$remaining_amount = (float) get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
 
 		if ($payment_type !== 'deposit' || $remaining_amount <= 0) {
-			return new \WP_Error('mhm_no_remaining_amount', __('No remaining amount due for this booking.', 'mhm-rentiva'));
+			return new \WP_Error('mhmrentiva_no_remaining_amount', __('No remaining amount due for this booking.', 'mhm-rentiva'));
 		}
 
 		// Check for an existing pending remaining-payment order to avoid duplicates
-		$existing_remaining_order_id = (int) get_post_meta($booking_id, '_mhm_remaining_order_id', true);
+		$existing_remaining_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_remaining_order_id', true);
 		if ($existing_remaining_order_id) {
 			$existing_order = wc_get_order($existing_remaining_order_id);
 			if ($existing_order && in_array($existing_order->get_status(), array( 'pending', 'on-hold' ), true)) {
@@ -100,23 +100,23 @@ final class RemainingPaymentHandler {
 		// Resolve the booking product by SKU
 		$product_id = wc_get_product_id_by_sku(WooCommerceBridge::PRODUCT_SKU);
 		if (! $product_id) {
-			return new \WP_Error('mhm_no_booking_product', __('Booking product not found. Please contact support.', 'mhm-rentiva'));
+			return new \WP_Error('mhmrentiva_no_booking_product', __('Booking product not found. Please contact support.', 'mhm-rentiva'));
 		}
 
 		$product = wc_get_product($product_id);
 		if (! $product) {
-			return new \WP_Error('mhm_booking_product_load_failed', __('Booking product could not be loaded.', 'mhm-rentiva'));
+			return new \WP_Error('mhmrentiva_booking_product_load_failed', __('Booking product could not be loaded.', 'mhm-rentiva'));
 		}
 
-		$customer_user_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		$customer_user_id = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
 
 		// Vehicle name for line item label
-		$vehicle_id   = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+		$vehicle_id   = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 		$vehicle      = $vehicle_id ? get_post($vehicle_id) : null;
 		$vehicle_name = $vehicle ? $vehicle->post_title : __('Vehicle', 'mhm-rentiva');
 
 		// Original WC order ID
-		$original_order_id = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
+		$original_order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
 
 		// -----------------------------------------------------------------------
 		// Create the WC order
@@ -127,7 +127,7 @@ final class RemainingPaymentHandler {
 		));
 
 		if (is_wp_error($order)) {
-			return new \WP_Error('mhm_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
+			return new \WP_Error('mhmrentiva_order_create_failed', __('Failed to create payment order. Please try again.', 'mhm-rentiva'));
 		}
 
 		// Add line item: use the booking product but override name & price
@@ -162,7 +162,7 @@ final class RemainingPaymentHandler {
 		$item->set_total($net_amount);
 
 		// Item meta so handle_order_status_change can pick up the booking
-		$item->add_meta_data('_mhm_booking_id', $booking_id, true);
+		$item->add_meta_data('_mhmrentiva_booking_id', $booking_id, true);
 
 		$order->add_item($item);
 
@@ -180,17 +180,17 @@ final class RemainingPaymentHandler {
 		}
 
 		// HPOS-compatible order meta
-		$order->update_meta_data('_mhm_booking_id', $booking_id);
-		$order->update_meta_data('_mhm_is_remaining_payment', '1');
+		$order->update_meta_data('_mhmrentiva_booking_id', $booking_id);
+		$order->update_meta_data('_mhmrentiva_is_remaining_payment', '1');
 		if ($original_order_id) {
-			$order->update_meta_data('_mhm_original_order_id', $original_order_id);
+			$order->update_meta_data('_mhmrentiva_original_order_id', $original_order_id);
 		}
 
 		$order->calculate_totals();
 		$order->save();
 
 		// Persist remaining order ID on the booking so we can reuse it
-		update_post_meta($booking_id, '_mhm_remaining_order_id', $order->get_id());
+		update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $order->get_id());
 
 		return $order;
 	}

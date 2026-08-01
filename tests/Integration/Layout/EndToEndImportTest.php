@@ -65,7 +65,7 @@ final class EndToEndImportTest extends TestCase
         $this->assertStringContainsString('[rentiva_unified_search', $post->post_content);
 
         // 2. Verify Post Meta (SSOT Manifest)
-        $meta = get_post_meta($this->test_post_id, '_mhm_layout_manifest', true);
+        $meta = get_post_meta($this->test_post_id, '_mhmrentiva_layout_manifest', true);
         $this->assertIsArray($meta);
         $this->assertEquals('1.0.0', $meta['version']);
         $this->assertEquals('proj_e2e', $meta['source']['stitch_project_id']);

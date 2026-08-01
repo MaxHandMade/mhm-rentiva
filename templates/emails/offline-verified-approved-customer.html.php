@@ -123,7 +123,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				printf( esc_html__( 'Your payment for Reservation #%s has been successfully verified.', 'mhm-rentiva' ), esc_html( $data['booking']['id'] ?? '' ) );
 				?>
 			</p>
-			<p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></p>
+			<p style="margin-top: 15px; font-size: 14px; opacity: 0.9;"><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></p>
 		</div>
 
 		<div class="content">
@@ -161,7 +161,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Amount Paid:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value"><?php echo esc_html( apply_filters( 'mhm_rentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
+					<span class="detail-value"><?php echo esc_html( apply_filters( 'mhmrentiva/currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
 				</div>
 			</div>
 
@@ -180,7 +180,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="footer">
-			<p><strong><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></strong></p>
+			<p><strong><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></strong></p>
 			<p><?php esc_html_e( 'This email was sent automatically. Please do not reply.', 'mhm-rentiva' ); ?></p>
 		</div>
 	</div>

@@ -211,7 +211,7 @@
 
 
             const formData = {
-                action: 'mhm_rentiva_submit_rating',
+                action: 'mhmrentiva_submit_rating',
                 vehicle_id: vehicleId,
                 rating: rating,
                 comment: comment,
@@ -277,7 +277,7 @@
                 url: window.mhmVehicleRating?.ajaxUrl || '',
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_delete_rating',
+                    action: 'mhmrentiva_delete_rating',
                     vehicle_id: vehicleId,
                     nonce: $('input[name="nonce"]').val() || window.mhmVehicleRating?.nonce
                 },
@@ -358,7 +358,7 @@
                 url: ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_get_vehicle_rating_list',
+                    action: 'mhmrentiva_get_vehicle_rating_list',
                     vehicle_id: vehicleId
                 },
                 timeout: 10000,
@@ -508,7 +508,7 @@
                 url: ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_delete_rating',
+                    action: 'mhmrentiva_delete_rating',
                     comment_id: commentId,
                     nonce: nonce
                 },

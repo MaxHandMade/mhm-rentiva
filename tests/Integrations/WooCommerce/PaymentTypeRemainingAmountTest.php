@@ -9,17 +9,17 @@ use WP_Ajax_UnitTestCase;
 
 /**
  * Regression test: switching the checkout payment-type radio from "full"
- * back to "deposit" must restore _mhm_remaining_amount, not leave it at 0.
+ * back to "deposit" must restore _mhmrentiva_remaining_amount, not leave it at 0.
  *
  * Bug (found 2026-07-02, live on mhmrentiva.com): the checkout page's own
  * JS fires an on-load "sync selected payment type" AJAX call using whatever
  * radio is currently checked (WooCommerceBridge.php ~line 1572) — including
  * a stale "full" selection left over from an unrelated cart item. That call
- * zeroes _mhm_remaining_amount for every booking in the cart
+ * zeroes _mhmrentiva_remaining_amount for every booking in the cart
  * (ajax_update_payment_type()'s 'full' branch). When the customer then
  * switches (or the code switches) the radio to "deposit", the 'deposit'
  * branch recalculates the amount to charge now but never restores
- * _mhm_remaining_amount — so the booking is left showing "0 remaining" even
+ * _mhmrentiva_remaining_amount — so the booking is left showing "0 remaining" even
  * though only the deposit was ever paid. Reproduced independently of any
  * payment gateway; this is a pre-existing WooCommerceBridge defect.
  */
@@ -49,10 +49,10 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 			)
 		);
 
-		update_post_meta( $this->booking_id, '_mhm_payment_type', 'deposit' );
-		update_post_meta( $this->booking_id, '_mhm_total_price', 1000 );
-		update_post_meta( $this->booking_id, '_mhm_deposit_amount', 200 );
-		update_post_meta( $this->booking_id, '_mhm_remaining_amount', 800 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_payment_type', 'deposit' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_total_price', 1000 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_deposit_amount', 200 );
+		update_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', 800 );
 
 		WooCommerceBridge::register();
 
@@ -74,7 +74,7 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 		$this->dispatch_payment_type( 'full' );
 		$this->assertSame(
 			0.0,
-			(float) get_post_meta( $this->booking_id, '_mhm_remaining_amount', true ),
+			(float) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', true ),
 			'Sanity check: switching to full should zero remaining.'
 		);
 
@@ -83,7 +83,7 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertSame(
 			800.0,
-			(float) get_post_meta( $this->booking_id, '_mhm_remaining_amount', true ),
+			(float) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', true ),
 			'Switching back to deposit must restore remaining_amount (total - deposit), not leave it at 0.'
 		);
 	}
@@ -96,17 +96,17 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertSame(
 			800.0,
-			(float) get_post_meta( $this->booking_id, '_mhm_remaining_amount', true )
+			(float) get_post_meta( $this->booking_id, '_mhmrentiva_remaining_amount', true )
 		);
 	}
 
 	private function dispatch_payment_type( string $payment_type ): void {
-		$_POST['action']       = 'mhm_rentiva_update_booking_payment_type';
+		$_POST['action']       = 'mhmrentiva_update_booking_payment_type';
 		$_POST['payment_type'] = $payment_type;
-		$_POST['nonce']        = wp_create_nonce( 'mhm_booking_payment_type' );
+		$_POST['nonce']        = wp_create_nonce( 'mhmrentiva_booking_payment_type' );
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_update_booking_payment_type' );
+			$this->_handleAjax( 'mhmrentiva_update_booking_payment_type' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected — the AJAX handler always wp_send_json_*()s + wp_die()s.
 		}
@@ -123,10 +123,10 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 				'post_status' => 'publish',
 			)
 		);
-		update_post_meta( $transfer_booking_id, '_mhm_payment_type', 'full' );
-		update_post_meta( $transfer_booking_id, '_mhm_total_price', 1025 );
-		update_post_meta( $transfer_booking_id, '_mhm_deposit_amount', 1025 );
-		update_post_meta( $transfer_booking_id, '_mhm_remaining_amount', 0 );
+		update_post_meta( $transfer_booking_id, '_mhmrentiva_payment_type', 'full' );
+		update_post_meta( $transfer_booking_id, '_mhmrentiva_total_price', 1025 );
+		update_post_meta( $transfer_booking_id, '_mhmrentiva_deposit_amount', 1025 );
+		update_post_meta( $transfer_booking_id, '_mhmrentiva_remaining_amount', 0 );
 
 		$this->assertTrue(
 			WooCommerceBridge::add_booking_to_cart( $transfer_booking_id, 1025 ),
@@ -139,17 +139,17 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 
 		$this->assertSame(
 			'deposit',
-			get_post_meta( $this->booking_id, '_mhm_payment_type', true ),
+			get_post_meta( $this->booking_id, '_mhmrentiva_payment_type', true ),
 			'The genuinely deposit-eligible booking must still become deposit.'
 		);
 		$this->assertSame(
 			'full',
-			get_post_meta( $transfer_booking_id, '_mhm_payment_type', true ),
+			get_post_meta( $transfer_booking_id, '_mhmrentiva_payment_type', true ),
 			'A full-payment-only booking (deposit_amount === total_price) must not be relabeled deposit just because the cart-wide radio selected it.'
 		);
 		$this->assertSame(
 			0.0,
-			(float) get_post_meta( $transfer_booking_id, '_mhm_remaining_amount', true )
+			(float) get_post_meta( $transfer_booking_id, '_mhmrentiva_remaining_amount', true )
 		);
 	}
 
@@ -174,14 +174,14 @@ final class PaymentTypeRemainingAmountTest extends WP_Ajax_UnitTestCase {
 
 		$pending_item = null;
 		foreach ( WC()->cart->get_cart() as $cart_item ) {
-			if ( isset( $cart_item['mhm_booking_pending'] ) && $cart_item['mhm_booking_pending'] ) {
+			if ( isset( $cart_item['mhmrentiva_booking_pending'] ) && $cart_item['mhmrentiva_booking_pending'] ) {
 				$pending_item = $cart_item;
 				break;
 			}
 		}
 
 		$this->assertNotNull( $pending_item, 'Pending cart item not found.' );
-		$this->assertSame( 'full', $pending_item['mhm_booking_data']['payment_type'] );
-		$this->assertSame( 0.0, (float) $pending_item['mhm_booking_data']['remaining_amount'] );
+		$this->assertSame( 'full', $pending_item['mhmrentiva_booking_data']['payment_type'] );
+		$this->assertSame( 0.0, (float) $pending_item['mhmrentiva_booking_data']['remaining_amount'] );
 	}
 }

@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class PaymentSettings {
 
-	public const SECTION_GENERAL = 'mhm_rentiva_general_payment_section';
+	public const SECTION_GENERAL = 'mhmrentiva_general_payment_section';
 
 	/**
 	 * Get default settings for payment

@@ -13,8 +13,8 @@
  *
  * @since 4.35.0
  *
- * @var string $vendor_report_nonce  Nonce token for `mhm_rentiva_vendor_report`.
- * @var string $lifecycle_nonce      Nonce token for `mhm_rentiva_vehicle_lifecycle`.
+ * @var string $vendor_report_nonce  Nonce token for `mhmrentiva_vendor_report`.
+ * @var string $lifecycle_nonce      Nonce token for `mhmrentiva_vehicle_lifecycle`.
  */
 
 if (! defined('ABSPATH')) {

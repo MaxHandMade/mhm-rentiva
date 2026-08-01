@@ -21,7 +21,7 @@ use WP_Ajax_UnitTestCase;
  * The handler is invoked directly rather than through `_handleAjax()` ON
  * PURPOSE: `_handleAjax()` fires `admin_init`, which runs
  * VehicleSettings::register_settings() and installs the
- * `sanitize_option_mhm_custom_*` filters. Those filters would sanitize the
+ * `sanitize_option_mhmrentiva_custom_*` filters. Those filters would sanitize the
  * keys on the way into the database no matter what the handler did, so a test
  * that went through `_handleAjax()` stayed green with the handler's own
  * sanitization deleted -- it would have locked nothing. Calling
@@ -76,7 +76,7 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
     {
         wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 
-        $_POST['action']     = 'mhm_rentiva_save_vehicle_settings';
+        $_POST['action']     = 'mhmrentiva_save_vehicle_settings';
         $_POST['nonce']      = wp_create_nonce('vehicle_settings_nonce');
         $_POST['sub_action'] = 'save_all';
         $_POST[ $post_key ]  = $payload;
@@ -89,9 +89,9 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
     public static function customOptionProvider(): array
     {
         return array(
-            'custom_details'   => array( 'custom_details', 'mhm_custom_details' ),
-            'custom_features'  => array( 'custom_features', 'mhm_custom_features' ),
-            'custom_equipment' => array( 'custom_equipment', 'mhm_custom_equipment' ),
+            'custom_details'   => array( 'custom_details', 'mhmrentiva_custom_details' ),
+            'custom_features'  => array( 'custom_features', 'mhmrentiva_custom_features' ),
+            'custom_equipment' => array( 'custom_equipment', 'mhmrentiva_custom_equipment' ),
         );
     }
 
@@ -133,7 +133,7 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
      */
     public function test_values_stay_sanitized_and_legitimate_keys_round_trip(): void
     {
-        delete_option('mhm_custom_details');
+        delete_option('mhmrentiva_custom_details');
 
         $this->seed_request(
             'custom_details',
@@ -146,7 +146,7 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
 
         $this->invoke_save_settings();
 
-        $saved = get_option('mhm_custom_details');
+        $saved = get_option('mhmrentiva_custom_details');
 
         $this->assertIsArray($saved);
         $this->assertSame('Roof Rack', $saved['custom_1721488091_1234'] ?? null);
@@ -169,11 +169,11 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
      */
     public function test_field_label_keys_are_normalized_before_lookup(): void
     {
-        update_option('mhm_custom_details', array( 'ok_key' => 'Old' ));
+        update_option('mhmrentiva_custom_details', array( 'ok_key' => 'Old' ));
 
         wp_set_current_user(self::factory()->user->create(array( 'role' => 'administrator' )));
 
-        $_POST['action'] = 'mhm_rentiva_update_field_labels';
+        $_POST['action'] = 'mhmrentiva_update_field_labels';
         $_POST['nonce']  = wp_create_nonce('vehicle_settings_nonce');
         $_POST['type']   = 'details';
         $_POST['labels'] = array( 'OK_KEY' => 'New Label' );
@@ -183,7 +183,7 @@ final class VehicleSettingsDefinitionsPayloadKeySanitizationTest extends WP_Ajax
             VehicleSettings::ajax_update_field_labels();
         });
 
-        $stored = get_option('mhm_custom_details');
+        $stored = get_option('mhmrentiva_custom_details');
 
         $this->assertIsArray($stored);
         $this->assertSame('New Label', $stored['ok_key'] ?? null, 'The rename must land on the sanitize_key() slug.');

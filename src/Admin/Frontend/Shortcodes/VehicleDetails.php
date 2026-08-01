@@ -36,8 +36,8 @@ final class VehicleDetails extends AbstractShortcode {
 
 	public static function register(): void {
 		parent::register();
-		add_action( 'wp_ajax_mhm_rentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
-		add_action( 'wp_ajax_nopriv_mhm_rentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
+		add_action( 'wp_ajax_mhmrentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_get_calendar', array( self::class, 'ajax_get_calendar' ) );
 	}
 
 	protected static function get_shortcode_tag(): string {
@@ -88,7 +88,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 	protected static function get_localized_data(): array {
 		$data          = parent::get_localized_data();
-		$data['nonce'] = wp_create_nonce( 'mhm_rentiva_calendar_nonce' );
+		$data['nonce'] = wp_create_nonce( 'mhmrentiva_calendar_nonce' );
 		return $data;
 	}
 
@@ -125,16 +125,16 @@ final class VehicleDetails extends AbstractShortcode {
 			'excerpt'                 => $vehicle->post_excerpt,
 			'featured_image'          => self::get_featured_image( $vehicle_id ),
 			'gallery'                 => self::get_gallery( $vehicle_id ),
-			'brand'                   => get_post_meta( $vehicle_id, '_mhm_rentiva_brand', true ),
-			'model'                   => get_post_meta( $vehicle_id, '_mhm_rentiva_model', true ),
-			'year'                    => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_year', 'year' ) ),
-			'fuel_type'               => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_fuel_type', 'fuel_type' ) ),
-			'transmission'            => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_transmission', 'transmission' ) ),
-			'seats'                   => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_seats', 'seats' ) ),
-			'doors'                   => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_doors', 'doors' ) ),
-			'mileage'                 => self::get_meta_with_fallback( $vehicle_id, array( '_mhm_rentiva_mileage', 'mileage' ) ),
-			'price_per_day'           => get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_day', true ),
-			'price_per_day_formatted' => CurrencyHelper::format_price( (float) get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_day', true ), 0 ),
+			'brand'                   => get_post_meta( $vehicle_id, '_mhmrentiva_brand', true ),
+			'model'                   => get_post_meta( $vehicle_id, '_mhmrentiva_model', true ),
+			'year'                    => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_year', 'year' ) ),
+			'fuel_type'               => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_fuel_type', 'fuel_type' ) ),
+			'transmission'            => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_transmission', 'transmission' ) ),
+			'seats'                   => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_seats', 'seats' ) ),
+			'doors'                   => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_doors', 'doors' ) ),
+			'mileage'                 => self::get_meta_with_fallback( $vehicle_id, array( '_mhmrentiva_mileage', 'mileage' ) ),
+			'price_per_day'           => get_post_meta( $vehicle_id, '_mhmrentiva_price_per_day', true ),
+			'price_per_day_formatted' => CurrencyHelper::format_price( (float) get_post_meta( $vehicle_id, '_mhmrentiva_price_per_day', true ), 0 ),
 			'currency_symbol'         => CurrencyHelper::get_currency_symbol(),
 			'features'                => self::get_features( $vehicle_id ),
 			'card_features'           => VehicleFeatureHelper::collect_items( $vehicle_id ),
@@ -253,10 +253,10 @@ final class VehicleDetails extends AbstractShortcode {
 			$wpdb->prepare(
 				"SELECT pm_start.meta_value as start_date, pm_end.meta_value as end_date
              FROM {$wpdb->posts} p
-             INNER JOIN {$wpdb->postmeta} pm_v ON p.ID = pm_v.post_id AND pm_v.meta_key = '_mhm_vehicle_id'
-             INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhm_pickup_date'
-             INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhm_dropoff_date'
-             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
+             INNER JOIN {$wpdb->postmeta} pm_v ON p.ID = pm_v.post_id AND pm_v.meta_key = '_mhmrentiva_vehicle_id'
+             INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhmrentiva_pickup_date'
+             INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
+             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
              WHERE p.post_type = 'vehicle_booking' AND p.post_status = 'publish'
              AND pm_v.meta_value = %d AND pm_status.meta_value IN ('confirmed', 'pending', 'completed')
              AND ((pm_start.meta_value <= %s AND pm_end.meta_value >= %s) OR (pm_start.meta_value >= %s AND pm_start.meta_value <= %s))",
@@ -300,7 +300,7 @@ final class VehicleDetails extends AbstractShortcode {
 
 	private static function get_gallery( int $vehicle_id ): array {
 		// Try multiple possible meta keys for compatibility
-		$keys         = array( '_mhm_rentiva_gallery_images', '_mhm_gallery_images', '_mhm_rentiva_gallery' );
+		$keys         = array( '_mhmrentiva_gallery_images', '_mhmrentiva_gallery_images', '_mhmrentiva_gallery' );
 		$gallery_data = '';
 
 		foreach ( $keys as $key ) {
@@ -338,7 +338,7 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_features( int $vehicle_id ): array {
-		$features = get_post_meta( $vehicle_id, '_mhm_rentiva_features', true );
+		$features = get_post_meta( $vehicle_id, '_mhmrentiva_features', true );
 		if ( ! is_array( $features ) ) {
 			return array();
 		}
@@ -639,7 +639,7 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_booking_url( int $vehicle_id ): string {
-		$url = (string) SettingsCore::get( 'mhm_rentiva_booking_url', '' );
+		$url = (string) SettingsCore::get( 'mhmrentiva_booking_url', '' );
 		if ( ! $url && class_exists( '\MHMRentiva\Admin\Core\ShortcodeUrlManager' ) ) {
 			$url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url( 'rentiva_booking_form' );
 		}
@@ -647,13 +647,13 @@ final class VehicleDetails extends AbstractShortcode {
 		$params = array( 'vehicle_id' => $vehicle_id );
 
 		// Resolve pickup location: vehicle → vendor → global default (same hierarchy as QueryHelper).
-		$location_id = (int) get_post_meta( $vehicle_id, '_mhm_rentiva_location_id', true );
+		$location_id = (int) get_post_meta( $vehicle_id, '_mhmrentiva_location_id', true );
 		if ( ! $location_id ) {
 			$vendor_id   = (int) get_post_field( 'post_author', $vehicle_id );
-			$location_id = (int) get_user_meta( $vendor_id, '_mhm_rentiva_vendor_location_id', true );
+			$location_id = (int) get_user_meta( $vendor_id, '_mhmrentiva_vendor_location_id', true );
 		}
 		if ( ! $location_id ) {
-			$location_id = (int) SettingsCore::get( 'mhm_rentiva_default_rental_location', 0 );
+			$location_id = (int) SettingsCore::get( 'mhmrentiva_default_rental_location', 0 );
 		}
 		if ( $location_id > 0 ) {
 			$params['pickup_location'] = $location_id;
@@ -684,7 +684,7 @@ final class VehicleDetails extends AbstractShortcode {
 	 */
 	public static function ajax_get_calendar(): void {
 		// Security check
-		if ( ! check_ajax_referer( 'mhm_rentiva_calendar_nonce', 'nonce', false ) ) {
+		if ( ! check_ajax_referer( 'mhmrentiva_calendar_nonce', 'nonce', false ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return;
 		}

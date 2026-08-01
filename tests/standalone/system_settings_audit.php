@@ -24,45 +24,45 @@ echo "<tr style='background:#f0f0f0;'><th>Key</th><th>Test Value</th><th>DB Valu
 
 $settings_to_test = [
     // Cache & Performance
-    'mhm_rentiva_cache_enabled' => '1',
-    'mhm_rentiva_cache_default_ttl' => 12.5,
-    'mhm_rentiva_cache_lists_ttl' => 65,
-    'mhm_rentiva_cache_reports_ttl' => 45,
-    'mhm_rentiva_cache_charts_ttl' => 20,
-    'mhm_rentiva_db_auto_optimize' => '0',
-    'mhm_rentiva_db_performance_threshold' => 250,
-    'mhm_rentiva_wp_optimization_enabled' => '0',
-    'mhm_rentiva_wp_memory_limit' => 512,
+    'mhmrentiva_cache_enabled' => '1',
+    'mhmrentiva_cache_default_ttl' => 12.5,
+    'mhmrentiva_cache_lists_ttl' => 65,
+    'mhmrentiva_cache_reports_ttl' => 45,
+    'mhmrentiva_cache_charts_ttl' => 20,
+    'mhmrentiva_db_auto_optimize' => '0',
+    'mhmrentiva_db_performance_threshold' => 250,
+    'mhmrentiva_wp_optimization_enabled' => '0',
+    'mhmrentiva_wp_memory_limit' => 512,
 
     // Security
-    'mhm_rentiva_ip_whitelist_enabled' => '1',
-    'mhm_rentiva_ip_whitelist' => "127.0.0.1\n192.168.1.100",
-    'mhm_rentiva_ip_blacklist_enabled' => '1',
-    'mhm_rentiva_ip_blacklist' => "10.0.0.5\n10.0.0.6",
-    'mhm_rentiva_brute_force_protection' => '1',
-    'mhm_rentiva_max_login_attempts' => 8,
-    'mhm_rentiva_login_lockout_duration' => 45,
-    'mhm_rentiva_sql_injection_protection' => '1',
-    'mhm_rentiva_xss_protection' => '1',
-    'mhm_rentiva_csrf_protection' => '0',
+    'mhmrentiva_ip_whitelist_enabled' => '1',
+    'mhmrentiva_ip_whitelist' => "127.0.0.1\n192.168.1.100",
+    'mhmrentiva_ip_blacklist_enabled' => '1',
+    'mhmrentiva_ip_blacklist' => "10.0.0.5\n10.0.0.6",
+    'mhmrentiva_brute_force_protection' => '1',
+    'mhmrentiva_max_login_attempts' => 8,
+    'mhmrentiva_login_lockout_duration' => 45,
+    'mhmrentiva_sql_injection_protection' => '1',
+    'mhmrentiva_xss_protection' => '1',
+    'mhmrentiva_csrf_protection' => '0',
 
     // Logging
-    'mhm_rentiva_log_level' => 'debug',
-    'mhm_rentiva_log_cleanup_enabled' => '0',
-    'mhm_rentiva_log_retention_days' => 60,
-    'mhm_rentiva_log_max_size' => 25,
+    'mhmrentiva_log_level' => 'debug',
+    'mhmrentiva_log_cleanup_enabled' => '0',
+    'mhmrentiva_log_retention_days' => 60,
+    'mhmrentiva_log_max_size' => 25,
 
     // Debugging
-    'mhm_rentiva_debug_mode' => '1',
+    'mhmrentiva_debug_mode' => '1',
 
     // DB Cleanup
-    'mhm_rentiva_clean_data_on_uninstall' => '1',
+    'mhmrentiva_clean_data_on_uninstall' => '1',
 
     // Reconciliation
-    'mhm_rentiva_reconcile_enabled' => '1',
-    'mhm_rentiva_reconcile_frequency' => 'hourly',
-    'mhm_rentiva_reconcile_timeout' => 45,
-    'mhm_rentiva_reconcile_notify_errors' => '0',
+    'mhmrentiva_reconcile_enabled' => '1',
+    'mhmrentiva_reconcile_frequency' => 'hourly',
+    'mhmrentiva_reconcile_timeout' => 45,
+    'mhmrentiva_reconcile_notify_errors' => '0',
 ];
 
 foreach ($settings_to_test as $key => $test_val) {

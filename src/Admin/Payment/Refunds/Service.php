@@ -24,8 +24,8 @@ final class Service {
 		$validation = RefundValidator::validatePartialRefund( $bookingId, $amountKurus );
 		if ( ! $validation['valid'] ) {
 			return array(
-				'mhm_refund'     => '0',
-				'mhm_refund_msg' => $validation['message'],
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => $validation['message'],
 			);
 		}
 
@@ -48,8 +48,8 @@ final class Service {
 			);
 
 			return array(
-				'mhm_refund'     => '0',
-				'mhm_refund_msg' => $result['message'] ?? __( 'Refund failed', 'mhm-rentiva' ),
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => $result['message'] ?? __( 'Refund failed', 'mhm-rentiva' ),
 			);
 		}
 
@@ -75,8 +75,8 @@ final class Service {
 		);
 
 		return array(
-			'mhm_refund'     => '1',
-			'mhm_refund_msg' => '',
+			'mhmrentiva_refund'     => '1',
+			'mhmrentiva_refund_msg' => '',
 		);
 	}
 
@@ -88,8 +88,8 @@ final class Service {
 		$validation = RefundValidator::validateFullRefund( $bookingId );
 		if ( ! $validation['valid'] ) {
 			return array(
-				'mhm_refund'     => '0',
-				'mhm_refund_msg' => $validation['message'],
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => $validation['message'],
 			);
 		}
 
@@ -112,8 +112,8 @@ final class Service {
 			);
 
 			return array(
-				'mhm_refund'     => '0',
-				'mhm_refund_msg' => $result['message'] ?? __( 'Full refund failed', 'mhm-rentiva' ),
+				'mhmrentiva_refund'     => '0',
+				'mhmrentiva_refund_msg' => $result['message'] ?? __( 'Full refund failed', 'mhm-rentiva' ),
 			);
 		}
 
@@ -139,8 +139,8 @@ final class Service {
 		);
 
 		return array(
-			'mhm_refund'     => '1',
-			'mhm_refund_msg' => '',
+			'mhmrentiva_refund'     => '1',
+			'mhmrentiva_refund_msg' => '',
 		);
 	}
 
@@ -163,12 +163,12 @@ final class Service {
 			// This method is called when admin manually processes refund from Rentiva panel
 			// We'll create a WooCommerce refund programmatically
 
-			$order_id = (int) get_post_meta( $bookingId, '_mhm_woocommerce_order_id', true );
+			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
 			if ( empty( $order_id ) ) {
 				// Try alternative meta keys
-				$order_id = (int) get_post_meta( $bookingId, '_mhm_wc_order_id', true );
+				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
 				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhm_order_id', true );
+					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
 				}
 			}
 
@@ -250,12 +250,12 @@ final class Service {
 		if ( $gateway === 'woocommerce' ) {
 			// ⭐ For WooCommerce, process full refund through WooCommerce
 
-			$order_id = (int) get_post_meta( $bookingId, '_mhm_woocommerce_order_id', true );
+			$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
 			if ( empty( $order_id ) ) {
 				// Try alternative meta keys
-				$order_id = (int) get_post_meta( $bookingId, '_mhm_wc_order_id', true );
+				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
 				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhm_order_id', true );
+					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
 				}
 			}
 
@@ -322,19 +322,19 @@ final class Service {
 	 * Updates booking meta
 	 */
 	private static function updateBookingMeta( int $bookingId, int $amount, array $result ): void {
-		$refundedAmount    = (int) get_post_meta( $bookingId, '_mhm_refunded_amount', true );
+		$refundedAmount    = (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
 		$newRefundedAmount = $refundedAmount + $amount;
 
-		update_post_meta( $bookingId, '_mhm_refunded_amount', $newRefundedAmount );
+		update_post_meta( $bookingId, '_mhmrentiva_refunded_amount', $newRefundedAmount );
 
-		$paidAmount       = (int) get_post_meta( $bookingId, '_mhm_payment_amount', true );
+		$paidAmount       = (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
 		$newPaymentStatus = $newRefundedAmount >= $paidAmount ? 'refunded' : 'partially_refunded';
 
-		update_post_meta( $bookingId, '_mhm_payment_status', $newPaymentStatus );
+		update_post_meta( $bookingId, '_mhmrentiva_payment_status', $newPaymentStatus );
 
 		// Save refund transaction ID
 		if ( ! empty( $result['id'] ) ) {
-			add_post_meta( $bookingId, '_mhm_refund_txn_id', (string) $result['id'] );
+			add_post_meta( $bookingId, '_mhmrentiva_refund_txn_id', (string) $result['id'] );
 		}
 	}
 
@@ -344,16 +344,16 @@ final class Service {
 	private static function sendRefundNotification( int $bookingId, int $amount, string $reason ): void {
 		try {
 			// ⭐ Get currency dynamically - prioritize WooCommerce, then booking meta, then plugin settings
-			$currency = (string) get_post_meta( $bookingId, '_mhm_payment_currency', true );
+			$currency = (string) get_post_meta( $bookingId, '_mhmrentiva_payment_currency', true );
 
 			if ( empty( $currency ) ) {
 				// Try to get from WooCommerce order
-				$order_id = (int) get_post_meta( $bookingId, '_mhm_woocommerce_order_id', true );
+				$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_woocommerce_order_id', true );
 				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhm_wc_order_id', true );
+					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_wc_order_id', true );
 				}
 				if ( empty( $order_id ) ) {
-					$order_id = (int) get_post_meta( $bookingId, '_mhm_order_id', true );
+					$order_id = (int) get_post_meta( $bookingId, '_mhmrentiva_order_id', true );
 				}
 
 				if ( $order_id && class_exists( 'WooCommerce' ) ) {
@@ -369,12 +369,12 @@ final class Service {
 				if ( function_exists( 'get_woocommerce_currency' ) ) {
 					$currency = get_woocommerce_currency();
 				} else {
-					$currency = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+					$currency = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 				}
 			}
 
-			$refundedAmount = (int) get_post_meta( $bookingId, '_mhm_refunded_amount', true );
-			$paidAmount     = (int) get_post_meta( $bookingId, '_mhm_payment_amount', true );
+			$refundedAmount = (int) get_post_meta( $bookingId, '_mhmrentiva_refunded_amount', true );
+			$paidAmount     = (int) get_post_meta( $bookingId, '_mhmrentiva_payment_amount', true );
 			$paymentStatus  = $refundedAmount >= $paidAmount ? 'refunded' : 'partially_refunded';
 
 			RefundNotifications::notify( $bookingId, $amount, $currency, $paymentStatus, $reason );

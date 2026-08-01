@@ -116,7 +116,7 @@ jQuery(document).ready(
 						url: ajaxurl,
 						type: 'POST',
 						data: {
-							action: 'mhm_rentiva_send_test_email_ajax',
+							action: 'mhmrentiva_send_test_email_ajax',
 							nonce: nonce,
 							template_key: 'booking_created_admin' // General connection test template
 						},

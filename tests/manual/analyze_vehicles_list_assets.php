@@ -31,7 +31,7 @@ class M5_Asset_Analyzer
         $log = "=== M5 Asset Audit: Vehicles List ===\n\n";
 
         $queue = $wp_styles->queue;
-        $mhm_assets = [];
+        $mhmrentiva_assets = [];
         $other_assets = [];
 
         foreach ($queue as $handle) {
@@ -40,17 +40,17 @@ class M5_Asset_Analyzer
 
             $src = $obj->src;
             if (is_string($src) && strpos($src, 'mhm-rentiva') !== false) {
-                $mhm_assets[] = $this->analyze_handle($handle, $obj);
+                $mhmrentiva_assets[] = $this->analyze_handle($handle, $obj);
             } else {
                 $other_assets[] = $handle;
             }
         }
 
-        $log .= "Total MHM Assets: " . count($mhm_assets) . "\n";
+        $log .= "Total MHM Assets: " . count($mhmrentiva_assets) . "\n";
         $log .= "Total Other Assets: " . count($other_assets) . "\n\n";
 
         $log .= "--- Plugin CSS Details ---\n";
-        foreach ($mhm_assets as $asset) {
+        foreach ($mhmrentiva_assets as $asset) {
             $log .= "[{$asset['handle']}]\n";
             $log .= "    File: {$asset['file']}\n";
             $log .= "    Status: {$asset['status']}\n";

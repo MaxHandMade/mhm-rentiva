@@ -29,7 +29,7 @@ if (! defined('ABSPATH')) {
 /**
  * Safe sanitize text field that handles null values
  */
-function mhm_rentiva_sanitize_text_field_safe($value)
+function mhmrentiva_sanitize_text_field_safe($value)
 {
 	// Use central Sanitizer if available (PSR-4 autoloader might not be ready yet in some hooks)
 	if (class_exists('MHMRentiva\Admin\Core\Helpers\Sanitizer')) {
@@ -56,9 +56,9 @@ function mhm_rentiva_sanitize_text_field_safe($value)
  * @param int $booking_id Booking post ID.
  * @return int Display ID (WC order ID preferred).
  */
-function mhm_rentiva_get_display_id(int $booking_id): int
+function mhmrentiva_get_display_id(int $booking_id): int
 {
-	$order_id = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
+	$order_id = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
 	return $order_id ? $order_id : $booking_id;
 }
 
@@ -67,7 +67,7 @@ function mhm_rentiva_get_display_id(int $booking_id): int
  *
  * @param string $message Notice body text.
  */
-function mhm_rentiva_render_admin_error_notice(string $message): void
+function mhmrentiva_render_admin_error_notice(string $message): void
 {
 	printf(
 		'<div class="notice notice-error"><p>%s</p></div>',
@@ -83,20 +83,20 @@ function mhm_rentiva_render_admin_error_notice(string $message): void
  * @param string $name Full display name to take the initial from.
  * @return string Single uppercase letter, or '' if $name has no content.
  */
-function mhm_rentiva_initial_avatar_letter(string $name): string
+function mhmrentiva_initial_avatar_letter(string $name): string
 {
 	return mb_strtoupper(mb_substr(trim($name), 0, 1, 'UTF-8'), 'UTF-8');
 }
 
 // Define Version (Updated via build script)
-define('MHM_RENTIVA_VERSION', '5.2.4');
+define('MHMRENTIVA_VERSION', '5.2.4');
 
 // PHP version check
 if (version_compare(PHP_VERSION, '8.1', '<')) {
 	add_action(
 		'admin_notices',
 		function () {
-			mhm_rentiva_render_admin_error_notice(
+			mhmrentiva_render_admin_error_notice(
 				sprintf(
 					/* translators: %s: detected PHP version number. */
 					__('MHM Rentiva plugin requires PHP 8.1 or higher. Your version: %s', 'mhm-rentiva'),
@@ -109,29 +109,29 @@ if (version_compare(PHP_VERSION, '8.1', '<')) {
 }
 
 // Version constant
-if (! defined('MHM_RENTIVA_DISABLE_CACHE')) {
-	define('MHM_RENTIVA_DISABLE_CACHE', false);
+if (! defined('MHMRENTIVA_DISABLE_CACHE')) {
+	define('MHMRENTIVA_DISABLE_CACHE', false);
 }
 
 
 // Plugin file constant
-if (! defined('MHM_RENTIVA_PLUGIN_FILE')) {
-	define('MHM_RENTIVA_PLUGIN_FILE', __FILE__);
+if (! defined('MHMRENTIVA_PLUGIN_FILE')) {
+	define('MHMRENTIVA_PLUGIN_FILE', __FILE__);
 }
 
 // Plugin URL constant
-if (! defined('MHM_RENTIVA_PLUGIN_URL')) {
-	define('MHM_RENTIVA_PLUGIN_URL', plugin_dir_url(__FILE__));
+if (! defined('MHMRENTIVA_PLUGIN_URL')) {
+	define('MHMRENTIVA_PLUGIN_URL', plugin_dir_url(__FILE__));
 }
 
 // Plugin PATH constant
-if (! defined('MHM_RENTIVA_PLUGIN_PATH')) {
-	define('MHM_RENTIVA_PLUGIN_PATH', plugin_dir_path(__FILE__));
+if (! defined('MHMRENTIVA_PLUGIN_PATH')) {
+	define('MHMRENTIVA_PLUGIN_PATH', plugin_dir_path(__FILE__));
 }
 
 // Plugin directory constant
-if (! defined('MHM_RENTIVA_PLUGIN_DIR')) {
-	define('MHM_RENTIVA_PLUGIN_DIR', plugin_dir_path(__FILE__));
+if (! defined('MHMRENTIVA_PLUGIN_DIR')) {
+	define('MHMRENTIVA_PLUGIN_DIR', plugin_dir_path(__FILE__));
 }
 
 // Developer mode now works only with automatic detection (for security)
@@ -203,7 +203,7 @@ add_action(
 				add_action(
 					'admin_notices',
 					function () use ($e) {
-						mhm_rentiva_render_admin_error_notice(
+						mhmrentiva_render_admin_error_notice(
 							sprintf(
 								/* translators: %s: startup exception message. */
 								__('MHM Rentiva plugin error on startup: %s', 'mhm-rentiva'),
@@ -217,7 +217,7 @@ add_action(
 			add_action(
 				'admin_notices',
 				function () {
-					mhm_rentiva_render_admin_error_notice(
+					mhmrentiva_render_admin_error_notice(
 						__('MHM Rentiva plugin failed to load. Please reinstall the plugin.', 'mhm-rentiva')
 					);
 				}
@@ -236,16 +236,16 @@ add_action(
  *
  *  Lane A — schema migrations driven by the stored version stamp.
  *    Runs `DatabaseMigrator::run_migrations()` only when the plugin file
- *    constant (MHM_RENTIVA_VERSION) differs from the stored option
+ *    constant (MHMRENTIVA_VERSION) differs from the stored option
  *    (mhm_rentiva_plugin_version). DatabaseMigrator is itself idempotent
  *    (guarded by mhm_rentiva_db_version), so re-running on every drift is
  *    cheap; the outer check just skips the call entirely on steady state.
  *
  *  Lane B — one-time data cleanups that carry their own per-migration flag
  *    option. These MUST run outside the version-drift guard. Reason:
- *    `mhm_rentiva_single_site_activation()` stamps the version BEFORE the
+ *    `mhmrentiva_single_site_activation()` stamps the version BEFORE the
  *    next `plugins_loaded` fires, so a ZIP-replace upgrade (the most common
- *    deploy path) lands with `stored_version === MHM_RENTIVA_VERSION`
+ *    deploy path) lands with `stored_version === MHMRENTIVA_VERSION`
  *    already true. The drift check would short-circuit and the new data
  *    cleanup would never run — which is exactly the v4.27.2 →
  *    migrate_clean_test_pollution → never-executed bug reported on
@@ -263,9 +263,9 @@ add_action(
 
 		// Lane A — schema drift.
 		$stored_version = get_option( 'mhm_rentiva_plugin_version', '' );
-		if ($stored_version !== MHM_RENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
+		if ($stored_version !== MHMRENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
 			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
-			update_option('mhm_rentiva_plugin_version', MHM_RENTIVA_VERSION);
+			update_option('mhm_rentiva_plugin_version', MHMRENTIVA_VERSION);
 		}
 
 		// Lane B — one-time data cleanups.
@@ -274,15 +274,15 @@ add_action(
 		//
 		// v4.27.1 — legacy installs persisted translated field labels into
 		// wp_options, where they outranked live __() calls after a locale
-		// switch. Flag: mhm_rentiva_v4271_labels_migrated.
+		// switch. Flag: mhmrentiva_v4271_labels_migrated.
 		if (class_exists('MHMRentiva\\Admin\\Vehicle\\Meta\\VehicleMeta')) {
 			\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::migrate_remove_auto_populated_labels();
 		}
 
 		// v4.27.2 — Settings Testing "Run All Diagnostics" could leak
 		// '1' / '0' test payloads into free-text, email, URL and currency
-		// fields inside mhm_rentiva_settings. Flag:
-		// mhm_rentiva_v4272_test_pollution_cleaned.
+		// fields inside mhmrentiva_settings. Flag:
+		// mhmrentiva_v4272_test_pollution_cleaned.
 		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
 			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_clean_test_pollution();
 		}
@@ -291,7 +291,7 @@ add_action(
 		// v4.27.2 flag was already stamped "done" before the pollution
 		// actually happened (e.g. the ajax_save_dark_mode() clobber bug,
 		// fixed in the same release) never got re-cleaned. Flag:
-		// mhm_rentiva_v4641_test_pollution_recleaned.
+		// mhmrentiva_v4641_test_pollution_recleaned.
 		if (class_exists('MHMRentiva\\Admin\\Settings\\Core\\SettingsCore')) {
 			\MHMRentiva\Admin\Settings\Core\SettingsCore::migrate_reclean_test_pollution();
 		}
@@ -302,7 +302,7 @@ add_action(
 /**
  * Single site activation operations
  */
-function mhm_rentiva_single_site_activation()
+function mhmrentiva_single_site_activation()
 {
 	// Register CPT and taxonomy
 	if (class_exists('MHMRentiva\\Admin\\Vehicle\\PostType\\Vehicle')) {
@@ -344,10 +344,10 @@ function mhm_rentiva_single_site_activation()
 	}
 
 	// Trigger setup wizard redirect on new installations
-	update_option('mhm_rentiva_setup_redirect', '1');
+	update_option('mhmrentiva_setup_redirect', '1');
 
 	// Seed plugin version so version drift hook does not fire on fresh install.
-	update_option('mhm_rentiva_plugin_version', MHM_RENTIVA_VERSION);
+	update_option('mhm_rentiva_plugin_version', MHMRENTIVA_VERSION);
 }
 
 // Activation hook - CPT and taxonomy registration + rewrite flush + Multisite support
@@ -360,7 +360,7 @@ register_activation_hook(
 		}
 
 		// Check for WooCommerce dependency (production default, filterable for tests).
-		$skip_dependency_check = (bool) apply_filters('mhm_rentiva_skip_dependency_check', false);
+		$skip_dependency_check = (bool) apply_filters('mhmrentiva_skip_dependency_check', false);
 		if (! $skip_dependency_check && ! class_exists('WooCommerce')) {
 			wp_die(
 				sprintf(
@@ -378,20 +378,20 @@ register_activation_hook(
 			if (isset($_GET['networkwide']) && '1' === sanitize_text_field(wp_unslash($_GET['networkwide']))) {
 
 				// Fetch blog IDs using get_sites() instead of direct database query
-				$blog_ids = wp_cache_get('mhm_rentiva_network_blogs');
+				$blog_ids = wp_cache_get('mhmrentiva_network_blogs');
 				if (false === $blog_ids) {
 					$sites    = get_sites( array( 'public' => 1 ) );
 					$blog_ids = array();
 					foreach ($sites as $site) {
 						$blog_ids[] = $site->blog_id;
 					}
-					wp_cache_set('mhm_rentiva_network_blogs', $blog_ids, '', 3600);
+					wp_cache_set('mhmrentiva_network_blogs', $blog_ids, '', 3600);
 				}
 
 				if (! empty($blog_ids)) {
 					foreach ($blog_ids as $blog_id) {
 						switch_to_blog( (int) $blog_id );
-						mhm_rentiva_single_site_activation();
+						mhmrentiva_single_site_activation();
 						restore_current_blog();
 					}
 				}
@@ -400,7 +400,7 @@ register_activation_hook(
 		}
 
 		// Single site activation
-		mhm_rentiva_single_site_activation();
+		mhmrentiva_single_site_activation();
 	}
 );
 
@@ -430,7 +430,7 @@ add_action(
 	function ($blog_id) {
 		if (is_plugin_active_for_network('mhm-rentiva/mhm-rentiva.php')) {
 			switch_to_blog($blog_id);
-			mhm_rentiva_single_site_activation();
+			mhmrentiva_single_site_activation();
 			restore_current_blog();
 		}
 	},

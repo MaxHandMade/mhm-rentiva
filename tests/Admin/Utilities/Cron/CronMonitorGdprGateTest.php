@@ -13,7 +13,7 @@ use WP_UnitTestCase;
  * Task A9c seam inversion: CronMonitor::get_all_cron_jobs() no longer
  * hardcodes these descriptions gated on Mode::canUseGdpr() / a class_exists()
  * check for Pro's license-manager class. It now filters
- * `mhm_rentiva_cron_descriptions`, and only Pro's CronExtensions subscriber
+ * `mhmrentiva_cron_descriptions`, and only Pro's CronExtensions subscriber
  * (absent from this tree) would add them back. This tree has no Pro classes,
  * so the filter's default (Lite's own five-cron map) applies unchanged.
  *
@@ -34,7 +34,7 @@ final class CronMonitorGdprGateTest extends WP_UnitTestCase
         $hooks = array_column(CronMonitor::get_all_cron_jobs(), 'hook');
 
         $this->assertNotContains(
-            'mhm_data_retention_cleanup',
+            'mhmrentiva_data_retention_cleanup',
             $hooks,
             'The Cron Monitor listed the Pro data-retention cron without Pro contributing it.'
         );
@@ -44,30 +44,30 @@ final class CronMonitorGdprGateTest extends WP_UnitTestCase
     {
         $hooks = array_column(CronMonitor::get_all_cron_jobs(), 'hook');
 
-        $this->assertNotContains('mhm_rentiva_license_daily', $hooks);
-        $this->assertNotContains('mhm_rentiva_instance_checkin', $hooks);
+        $this->assertNotContains('mhmrentiva_license_daily', $hooks);
+        $this->assertNotContains('mhmrentiva_instance_checkin', $hooks);
     }
 
     public function test_a_subscriber_can_add_a_cron_description(): void
     {
         $add_description = static function (array $descriptions): array {
-            $descriptions['mhm_data_retention_cleanup'] = array(
+            $descriptions['mhmrentiva_data_retention_cleanup'] = array(
                 'name'        => 'Data Retention Cleanup',
                 'description' => 'Cleans up expired data according to retention policies',
             );
             return $descriptions;
         };
 
-        add_filter('mhm_rentiva_cron_descriptions', $add_description);
+        add_filter('mhmrentiva_cron_descriptions', $add_description);
 
         $hooks = array_column(CronMonitor::get_all_cron_jobs(), 'hook');
 
-        remove_filter('mhm_rentiva_cron_descriptions', $add_description);
+        remove_filter('mhmrentiva_cron_descriptions', $add_description);
 
         $this->assertContains(
-            'mhm_data_retention_cleanup',
+            'mhmrentiva_data_retention_cleanup',
             $hooks,
-            'A subscriber on mhm_rentiva_cron_descriptions must be able to add a cron description.'
+            'A subscriber on mhmrentiva_cron_descriptions must be able to add a cron description.'
         );
     }
 
@@ -77,18 +77,18 @@ final class CronMonitorGdprGateTest extends WP_UnitTestCase
         wp_set_current_user($admin_id);
 
         $add_hook = static function (array $hooks): array {
-            $hooks[] = 'mhm_rentiva_license_daily';
+            $hooks[] = 'mhmrentiva_license_daily';
             return $hooks;
         };
 
-        add_filter('mhm_rentiva_known_cron_hooks', $add_hook);
+        add_filter('mhmrentiva_known_cron_hooks', $add_hook);
 
         // Not registered, so run_cron_job() must fail past the whitelist
         // check with the "not registered" message, not the "invalid cron
         // hook" message -- proving the hook passed the whitelist.
-        $result = CronMonitor::run_cron_job('mhm_rentiva_license_daily');
+        $result = CronMonitor::run_cron_job('mhmrentiva_license_daily');
 
-        remove_filter('mhm_rentiva_known_cron_hooks', $add_hook);
+        remove_filter('mhmrentiva_known_cron_hooks', $add_hook);
         wp_set_current_user(0);
 
         $this->assertFalse($result['success']);

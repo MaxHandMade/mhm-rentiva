@@ -108,7 +108,7 @@ foreach ( $files as $path ) {
 foreach ( $files as $path ) {
 	$src   = (string) file_get_contents( $path );
 	$short = substr( $path, strlen( $root ) + 1 );
-	// Match the CALL, not the substring: `mhm_rentiva_register_settings_providers`
+	// Match the CALL, not the substring: `mhmrentiva_register_settings_providers`
 	// contains "register_setting" and would otherwise be reported four times.
 	if ( preg_match_all( '/\bregister_setting\s*\(/', $src, $mm, PREG_OFFSET_CAPTURE ) ) {
 		foreach ( $mm[0] as $hit ) {

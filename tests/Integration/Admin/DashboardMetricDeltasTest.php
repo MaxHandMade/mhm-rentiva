@@ -18,9 +18,9 @@ final class DashboardMetricDeltasTest extends WP_UnitTestCase {
 			'post_status' => 'publish',
 			'post_date'   => $date,
 		) );
-		update_post_meta( $id, '_mhm_status', $status );
-		update_post_meta( $id, '_mhm_total_price', $price );
-		update_post_meta( $id, '_mhm_customer_email', $email );
+		update_post_meta( $id, '_mhmrentiva_status', $status );
+		update_post_meta( $id, '_mhmrentiva_total_price', $price );
+		update_post_meta( $id, '_mhmrentiva_customer_email', $email );
 		return $id;
 	}
 

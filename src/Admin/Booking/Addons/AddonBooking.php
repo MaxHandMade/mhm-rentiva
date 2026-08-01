@@ -21,10 +21,10 @@ final class AddonBooking {
 
 
 	public static function register(): void {
-		add_action( 'mhm_rentiva_booking_form_after_vehicle', array( self::class, 'render_addon_checkboxes' ) );
-		add_filter( 'mhm_rentiva_booking_validation', array( self::class, 'validate_addon_selection' ), 10, 2 );
-		add_action( 'mhm_rentiva_booking_summary_addons', array( self::class, 'render_booking_summary_addons' ) );
-		add_action( 'mhm_rentiva_admin_booking_meta_addons', array( self::class, 'render_admin_booking_meta' ) );
+		add_action( 'mhmrentiva_booking_form_after_vehicle', array( self::class, 'render_addon_checkboxes' ) );
+		add_filter( 'mhmrentiva_booking_validation', array( self::class, 'validate_addon_selection' ), 10, 2 );
+		add_action( 'mhmrentiva_booking_summary_addons', array( self::class, 'render_booking_summary_addons' ) );
+		add_action( 'mhmrentiva_admin_booking_meta_addons', array( self::class, 'render_admin_booking_meta' ) );
 		add_action( 'wp_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
 	}
 
@@ -146,12 +146,12 @@ final class AddonBooking {
 	}
 
 	public static function render_admin_booking_meta( int $booking_id ): void {
-		$selected_addons = get_post_meta( $booking_id, '_mhm_selected_addons', true )
-		    ?: get_post_meta( $booking_id, 'mhm_selected_addons', true );
-		$addon_details   = get_post_meta( $booking_id, '_mhm_addon_details', true )
-		    ?: get_post_meta( $booking_id, 'mhm_addon_details', true );
-		$addon_total     = get_post_meta( $booking_id, '_mhm_addon_total', true )
-		    ?: get_post_meta( $booking_id, 'mhm_addon_total', true );
+		$selected_addons = get_post_meta( $booking_id, '_mhmrentiva_selected_addons', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_selected_addons', true );
+		$addon_details   = get_post_meta( $booking_id, '_mhmrentiva_addon_details', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_addon_details', true );
+		$addon_total     = get_post_meta( $booking_id, '_mhmrentiva_addon_total', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_addon_total', true );
 
 		if ( empty( $selected_addons ) && empty( $addon_details ) ) {
 			echo '<p>' . esc_html__( 'No additional services selected.', 'mhm-rentiva' ) . '</p>';
@@ -201,12 +201,12 @@ final class AddonBooking {
 	}
 
 	public static function get_booking_addons( int $booking_id ): array {
-		$selected_addons = get_post_meta( $booking_id, '_mhm_selected_addons', true )
-		    ?: get_post_meta( $booking_id, 'mhm_selected_addons', true );
-		$addon_details   = get_post_meta( $booking_id, '_mhm_addon_details', true )
-		    ?: get_post_meta( $booking_id, 'mhm_addon_details', true );
-		$addon_total     = (float) ( get_post_meta( $booking_id, '_mhm_addon_total', true )
-		    ?: get_post_meta( $booking_id, 'mhm_addon_total', true ) );
+		$selected_addons = get_post_meta( $booking_id, '_mhmrentiva_selected_addons', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_selected_addons', true );
+		$addon_details   = get_post_meta( $booking_id, '_mhmrentiva_addon_details', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_addon_details', true );
+		$addon_total     = (float) ( get_post_meta( $booking_id, '_mhmrentiva_addon_total', true )
+		    ?: get_post_meta( $booking_id, 'mhmrentiva_addon_total', true ) );
 
 		return array(
 			'selected_addons' => $selected_addons ?: array(),
@@ -224,17 +224,17 @@ final class AddonBooking {
 		// Enqueue CSS file
 		wp_enqueue_style(
 			'mhm-rentiva-addons',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/addon-booking.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/components/addon-booking.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// Enqueue JavaScript file
 		wp_enqueue_script(
 			'mhm-rentiva-addons',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/addon-booking.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/components/addon-booking.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -243,16 +243,16 @@ final class AddonBooking {
 			'mhm-rentiva-addons',
 			'mhmRentivaAddons',
 			array(
-				'currency'         => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' ),
+				'currency'         => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' ),
 				'currencySymbol'   => \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol(),
-				'currencyPosition' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' ),
+				'currencyPosition' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' ),
 				'currencyFormat'   => array(
 					'decimals'          => 2,
 					'decimalSeparator'  => ',',
 					'thousandSeparator' => '.',
 				),
 				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-				'nonce'            => wp_create_nonce( 'mhm_addon_booking_nonce' ),
+				'nonce'            => wp_create_nonce( 'mhmrentiva_addon_booking_nonce' ),
 			)
 		);
 	}
@@ -272,7 +272,7 @@ final class AddonBooking {
                 p.post_date as booking_date
             FROM {$wpdb->postmeta} pm
             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
-            WHERE pm.meta_key = '_mhm_addon_details'
+            WHERE pm.meta_key = '_mhmrentiva_addon_details'
             AND p.post_type = 'vehicle_booking'
             AND p.post_status IN ('confirmed', 'completed')
             AND p.post_date BETWEEN %s AND %s
@@ -325,7 +325,7 @@ final class AddonBooking {
 	 */
 	private static function format_addon_price( float $price ): string {
 		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' );
 		$formatted_amount = number_format( $price, 2, ',', '.' );
 
 		switch ( $position ) {

@@ -13,11 +13,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class EmailLog {
 
-	public const TYPE = 'mhm_email_log';
+	public const TYPE = 'mhmrentiva_email_log';
 
 	public static function register(): void {
 		add_action( 'init', array( self::class, 'cpt' ) );
-		add_action( 'mhm_rentiva_email_sent', array( self::class, 'handle_email_sent' ), 10, 5 );
+		add_action( 'mhmrentiva_email_sent', array( self::class, 'handle_email_sent' ), 10, 5 );
 	}
 
 	public static function cpt(): void {
@@ -76,10 +76,10 @@ final class EmailLog {
 			return;
 		}
 
-		update_post_meta( $post_id, '_mhm_email_key', sanitize_text_field( $key ) );
-		update_post_meta( $post_id, '_mhm_email_to', sanitize_email( $to ) );
-		update_post_meta( $post_id, '_mhm_email_subject', sanitize_text_field( $subject ) );
-		update_post_meta( $post_id, '_mhm_email_status', $ok ? 'success' : 'failed' );
-		update_post_meta( $post_id, '_mhm_email_context', wp_json_encode( $context ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_key', sanitize_text_field( $key ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_to', sanitize_email( $to ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_subject', sanitize_text_field( $subject ) );
+		update_post_meta( $post_id, '_mhmrentiva_email_status', $ok ? 'success' : 'failed' );
+		update_post_meta( $post_id, '_mhmrentiva_email_context', wp_json_encode( $context ) );
 	}
 }

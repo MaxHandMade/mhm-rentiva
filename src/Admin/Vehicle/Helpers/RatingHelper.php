@@ -16,12 +16,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Central/Canonical logic for Vehicle Ratings.
  * Standardizes meta keys:
- * - _mhm_rentiva_rating_average (float)
- * - _mhm_rentiva_rating_count (int)
+ * - _mhmrentiva_rating_average (float)
+ * - _mhmrentiva_rating_count (int)
  *
  * Source of Truth for calculation:
  * - wp_comments (type='review', status='approve')
- * - comment_meta (key='mhm_rating')
+ * - comment_meta (key='mhmrentiva_rating')
  *
  * @package MHMRentiva\Admin\Vehicle\Helpers
  */
@@ -34,8 +34,8 @@ class RatingHelper {
 	 * @return array { average: float, count: int, stars: string }
 	 */
 	public static function get_rating( int $vehicle_id ): array {
-		$average    = (float) get_post_meta( $vehicle_id, '_mhm_rentiva_rating_average', true );
-		$count      = (int) get_post_meta( $vehicle_id, '_mhm_rentiva_rating_count', true );
+		$average    = (float) get_post_meta( $vehicle_id, '_mhmrentiva_rating_average', true );
+		$count      = (int) get_post_meta( $vehicle_id, '_mhmrentiva_rating_count', true );
 		$confidence = RatingConfidenceHelper::from_count( $count );
 
 		return array(
@@ -69,7 +69,7 @@ class RatingHelper {
 
 		if ( $count > 0 ) {
 			foreach ( $comments as $comment ) {
-				$rating = get_comment_meta( $comment->comment_ID, 'mhm_rating', true );
+				$rating = get_comment_meta( $comment->comment_ID, 'mhmrentiva_rating', true );
 				if ( $rating ) {
 					$total_rating += (float) $rating;
 				}
@@ -82,16 +82,16 @@ class RatingHelper {
 		$average = round( $average, 1 );
 
 		// Update the Standard Canonical Keys
-		update_post_meta( $vehicle_id, '_mhm_rentiva_rating_average', $average );
-		update_post_meta( $vehicle_id, '_mhm_rentiva_rating_count', $count );
+		update_post_meta( $vehicle_id, '_mhmrentiva_rating_average', $average );
+		update_post_meta( $vehicle_id, '_mhmrentiva_rating_count', $count );
 		update_post_meta(
 			$vehicle_id,
-			'_mhm_rentiva_confidence_score',
+			'_mhmrentiva_confidence_score',
 			RatingSortHelper::compute_score( (float) $average, $count )
 		);
 
 		// Clean up legacy/typo keys if they exist
-		delete_post_meta( $vehicle_id, '_mhm_rentiva_average_rating' );
+		delete_post_meta( $vehicle_id, '_mhmrentiva_average_rating' );
 	}
 
 	/**
@@ -137,7 +137,7 @@ class RatingHelper {
 
 		$c = $comments[0];
 		return array(
-			'rating'     => get_comment_meta( $c->comment_ID, 'mhm_rating', true ),
+			'rating'     => get_comment_meta( $c->comment_ID, 'mhmrentiva_rating', true ),
 			'comment'    => $c->comment_content,
 			'comment_id' => $c->comment_ID,
 			'status'     => $c->comment_approved,

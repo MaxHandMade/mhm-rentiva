@@ -50,7 +50,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_process_remaining_payment',
+                    action: 'mhmrentiva_process_remaining_payment',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },
@@ -82,7 +82,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_send_remaining_payment_link',
+                    action: 'mhmrentiva_send_remaining_payment_link',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },
@@ -139,7 +139,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_approve_payment',
+                    action: 'mhmrentiva_approve_payment',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },
@@ -175,7 +175,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_deposit_cancel_booking',
+                    action: 'mhmrentiva_deposit_cancel_booking',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },
@@ -211,7 +211,7 @@
                 url: mhmDepositManagement.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_deposit_process_refund',
+                    action: 'mhmrentiva_deposit_process_refund',
                     nonce: mhmDepositManagement.nonce,
                     booking_id: bookingId
                 },

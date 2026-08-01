@@ -46,9 +46,9 @@ class EndpointHelperTest extends WP_UnitTestCase
     public function test_get_endpoint_slug_db_priority()
     {
         $settings = array(
-            'mhm_rentiva_endpoint_bookings' => 'custom-bookings-slug'
+            'mhmrentiva_endpoint_bookings' => 'custom-bookings-slug'
         );
-        update_option('mhm_rentiva_settings', $settings);
+        update_option('mhmrentiva_settings', $settings);
 
         $this->tester::clear_slug_cache();
         $slug = $this->tester::get_endpoint_slug('bookings');
@@ -66,9 +66,9 @@ class EndpointHelperTest extends WP_UnitTestCase
 
         // Change DB option
         $settings = array(
-            'mhm_rentiva_endpoint_favorites' => 'new-favorites'
+            'mhmrentiva_endpoint_favorites' => 'new-favorites'
         );
-        update_option('mhm_rentiva_settings', $settings);
+        update_option('mhmrentiva_settings', $settings);
 
         // Second call (should still return old value due to cache)
         $slug2 = $this->tester::get_endpoint_slug('favorites');
@@ -88,9 +88,9 @@ class EndpointHelperTest extends WP_UnitTestCase
     public function test_slug_sanitization()
     {
         $settings = array(
-            'mhm_rentiva_endpoint_payment_history' => 'Payment History !!!'
+            'mhmrentiva_endpoint_payment_history' => 'Payment History !!!'
         );
-        update_option('mhm_rentiva_settings', $settings);
+        update_option('mhmrentiva_settings', $settings);
 
         $this->tester::clear_slug_cache();
         $slug = $this->tester::get_endpoint_slug('payment_history');

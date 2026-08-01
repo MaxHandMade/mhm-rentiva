@@ -15,8 +15,8 @@ final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
 	}
 
 	public function test_passive_feature_is_not_a_comparison_row(): void {
-		update_option( 'mhm_selected_features', array( 'bluetooth' ) ); // navigation Passive
-		update_option( 'mhm_rentiva_settings', array(
+		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) ); // navigation Passive
+		update_option( 'mhmrentiva_settings', array(
 			'comparison_fields' => array( 'features' => array( 'bluetooth', 'navigation' ) ),
 		) );
 
@@ -26,18 +26,18 @@ final class VehicleComparisonFeatureGateTest extends WP_UnitTestCase {
 		$this->assertArrayNotHasKey( 'navigation', $rows, 'Passive feature must not be a comparison row' );
 
 		// Stored comparison selection is preserved (render-gate, not strip).
-		$stored = get_option( 'mhm_rentiva_settings' );
+		$stored = get_option( 'mhmrentiva_settings' );
 		$this->assertContains( 'navigation', $stored['comparison_fields']['features'] );
 	}
 
 	public function test_passive_feature_excluded_from_per_vehicle_value_map(): void {
-		update_option( 'mhm_selected_features', array( 'bluetooth' ) ); // navigation Passive
-		update_option( 'mhm_rentiva_settings', array(
+		update_option( 'mhmrentiva_selected_features', array( 'bluetooth' ) ); // navigation Passive
+		update_option( 'mhmrentiva_settings', array(
 			'comparison_fields' => array( 'features' => array( 'bluetooth', 'navigation' ) ),
 		) );
 
 		$vehicle_id = self::factory()->post->create( array( 'post_type' => 'vehicle', 'post_status' => 'publish' ) );
-		update_post_meta( $vehicle_id, '_mhm_rentiva_features', array( 'bluetooth', 'navigation' ) );
+		update_post_meta( $vehicle_id, '_mhmrentiva_features', array( 'bluetooth', 'navigation' ) );
 
 		$data = self::call_private( 'get_vehicle_data', array( $vehicle_id ) );
 

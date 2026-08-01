@@ -24,9 +24,9 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class BookingSettings {
 
-	public const SECTION_BASIC        = 'mhm_rentiva_booking_basic_section';
-	public const SECTION_TIME         = 'mhm_rentiva_booking_time_section';
-	public const SECTION_NOTIFICATION = 'mhm_rentiva_booking_notification_section';
+	public const SECTION_BASIC        = 'mhmrentiva_booking_basic_section';
+	public const SECTION_TIME         = 'mhmrentiva_booking_time_section';
+	public const SECTION_NOTIFICATION = 'mhmrentiva_booking_notification_section';
 
 	/**
 	 * Get default settings
@@ -35,15 +35,15 @@ final class BookingSettings {
 	 */
 	public static function get_default_settings(): array {
 		return array(
-			'mhm_rentiva_booking_cancellation_deadline_hours' => 24,
-			'mhm_rentiva_booking_payment_deadline_minutes' => 30,
-			'mhm_rentiva_booking_auto_cancel_enabled'      => '1',
-			'mhm_rentiva_booking_send_confirmation_emails' => '1',
-			'mhm_rentiva_booking_send_reminder_emails'     => '1',
-			'mhm_rentiva_booking_admin_notifications'      => '1',
-			'mhm_rentiva_send_auto_cancel_email'           => '0',
-			'mhm_rentiva_default_rental_days'              => 1,
-			'mhm_rentiva_booking_buffer_time'              => 60,
+			'mhmrentiva_booking_cancellation_deadline_hours' => 24,
+			'mhmrentiva_booking_payment_deadline_minutes' => 30,
+			'mhmrentiva_booking_auto_cancel_enabled'      => '1',
+			'mhmrentiva_booking_send_confirmation_emails' => '1',
+			'mhmrentiva_booking_send_reminder_emails'     => '1',
+			'mhmrentiva_booking_admin_notifications'      => '1',
+			'mhmrentiva_send_auto_cancel_email'           => '0',
+			'mhmrentiva_default_rental_days'              => 1,
+			'mhmrentiva_booking_buffer_time'              => 60,
 		);
 	}
 
@@ -74,7 +74,7 @@ final class BookingSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_default_rental_days',
+			'mhmrentiva_default_rental_days',
 			__( 'Default Rental Days', 'mhm-rentiva' ),
 			1,
 			365,
@@ -92,7 +92,7 @@ final class BookingSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_booking_cancellation_deadline_hours',
+			'mhmrentiva_booking_cancellation_deadline_hours',
 			__( 'Cancellation Deadline (Hours)', 'mhm-rentiva' ),
 			1,
 			168,
@@ -102,7 +102,7 @@ final class BookingSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_booking_payment_deadline_minutes',
+			'mhmrentiva_booking_payment_deadline_minutes',
 			__( 'Payment Deadline (Minutes)', 'mhm-rentiva' ),
 			0,
 			1440,
@@ -112,7 +112,7 @@ final class BookingSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_booking_auto_cancel_enabled',
+			'mhmrentiva_booking_auto_cancel_enabled',
 			__( 'Enable Auto Cancel', 'mhm-rentiva' ),
 			__( 'Automatically cancel bookings that exceed payment deadline', 'mhm-rentiva' ),
 			self::SECTION_TIME
@@ -120,7 +120,7 @@ final class BookingSettings {
 
 		SettingsHelper::number_field(
 			$page_slug,
-			'mhm_rentiva_booking_buffer_time',
+			'mhmrentiva_booking_buffer_time',
 			__( 'Buffer Time (Minutes)', 'mhm-rentiva' ),
 			0,
 			1440,
@@ -138,7 +138,7 @@ final class BookingSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_booking_send_confirmation_emails',
+			'mhmrentiva_booking_send_confirmation_emails',
 			__( 'Send Confirmation Emails', 'mhm-rentiva' ),
 			__( 'Send confirmation emails to customers when bookings are confirmed', 'mhm-rentiva' ),
 			self::SECTION_NOTIFICATION
@@ -146,7 +146,7 @@ final class BookingSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_booking_send_reminder_emails',
+			'mhmrentiva_booking_send_reminder_emails',
 			__( 'Send Reminder Emails', 'mhm-rentiva' ),
 			__( 'Send reminder emails to customers before booking start time', 'mhm-rentiva' ),
 			self::SECTION_NOTIFICATION
@@ -154,7 +154,7 @@ final class BookingSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_booking_admin_notifications',
+			'mhmrentiva_booking_admin_notifications',
 			__( 'Admin Notifications', 'mhm-rentiva' ),
 			__( 'Send email notifications to admin when new bookings are created', 'mhm-rentiva' ),
 			self::SECTION_NOTIFICATION
@@ -162,7 +162,7 @@ final class BookingSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_send_auto_cancel_email',
+			'mhmrentiva_send_auto_cancel_email',
 			__( 'Send Auto Cancel Email', 'mhm-rentiva' ),
 			__( 'Send notification to customer when booking is auto-cancelled due to timeout.', 'mhm-rentiva' ),
 			self::SECTION_NOTIFICATION

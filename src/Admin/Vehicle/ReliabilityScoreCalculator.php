@@ -270,12 +270,12 @@ final class ReliabilityScoreCalculator {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_vehicle_id',
+					'key'     => '_mhmrentiva_vehicle_id',
 					'value'   => $vehicle_ids,
 					'compare' => 'IN',
 				),
 				array(
-					'key'   => '_mhm_status',
+					'key'   => '_mhmrentiva_status',
 					'value' => 'cancelled',
 				),
 			),
@@ -289,7 +289,7 @@ final class ReliabilityScoreCalculator {
 		$count = 0;
 
 		foreach ($cancelled_bookings as $booking_id) {
-			$cancellation_data = get_post_meta( (int) $booking_id, '_mhm_cancellation_data', true);
+			$cancellation_data = get_post_meta( (int) $booking_id, '_mhmrentiva_cancellation_data', true);
 
 			if (is_array($cancellation_data) && isset($cancellation_data['cancelled_by'])) {
 				if ( (int) $cancellation_data['cancelled_by'] === $vendor_id) {
@@ -328,7 +328,7 @@ final class ReliabilityScoreCalculator {
 			$month_key = $current_month->format('Y-m');
 
 			foreach ($vehicle_ids as $vid) {
-				$stored = get_post_meta( (int) $vid, '_mhm_vehicle_pause_count_month', true);
+				$stored = get_post_meta( (int) $vid, '_mhmrentiva_vehicle_pause_count_month', true);
 				if (is_string($stored) && strpos($stored, $month_key . ':') === 0) {
 					$total += (int) substr($stored, strlen($month_key) + 1);
 				}
@@ -375,12 +375,12 @@ final class ReliabilityScoreCalculator {
 			'meta_query'     => array(
 				'relation' => 'AND',
 				array(
-					'key'     => '_mhm_vehicle_id',
+					'key'     => '_mhmrentiva_vehicle_id',
 					'value'   => $vehicle_ids,
 					'compare' => 'IN',
 				),
 				array(
-					'key'   => '_mhm_status',
+					'key'   => '_mhmrentiva_status',
 					'value' => 'completed',
 				),
 			),
@@ -395,7 +395,7 @@ final class ReliabilityScoreCalculator {
 	}
 
 	/**
-	 * Filter callback for `mhm_rentiva_vendor_completed_bookings_count`.
+	 * Filter callback for `mhmrentiva_vendor_completed_bookings_count`.
 	 *
 	 * Bridges the 2-arg WP filter signature into {@see count_completed_bookings()}
 	 * with a lifetime window so the badge eligibility evaluator (v4.37.0+) sees

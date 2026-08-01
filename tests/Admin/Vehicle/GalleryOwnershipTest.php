@@ -12,7 +12,7 @@ use WP_Ajax_UnitTestCase;
  * pre-ZIP audit round after a systematic sweep of every AJAX handler.
  *
  * The three gallery handlers checked the blanket edit_posts and then wrote
- * _mhm_rentiva_gallery_images on whichever post_id the request named. Because
+ * _mhmrentiva_gallery_images on whichever post_id the request named. Because
  * the vehicle CPT registers with map_meta_cap and the default 'post'
  * capability_type, a stock Author who owns one listing holds edit_posts and is
  * handed a genuine nonce on their own vehicle's edit screen -- so they could
@@ -28,7 +28,7 @@ use WP_Ajax_UnitTestCase;
  */
 final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 {
-	private const META_KEY = '_mhm_rentiva_gallery_images';
+	private const META_KEY = '_mhmrentiva_gallery_images';
 
 	private int $author_id;
 	private int $own_vehicle;
@@ -90,11 +90,11 @@ final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 		$this->assertTrue( current_user_can( 'edit_posts' ), 'Precondition: the old gate would pass.' );
 
 		$_POST = array(
-			'nonce'     => wp_create_nonce( 'mhm_vehicle_gallery_nonce' ),
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'   => $this->other_vehicle,
 			'image_ids' => array( 9999 ),
 		);
-		$this->call( 'mhm_rentiva_add_gallery_image' );
+		$this->call( 'mhmrentiva_add_gallery_image' );
 
 		$this->assertSame(
 			$this->original,
@@ -107,11 +107,11 @@ final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->author_id );
 
 		$_POST = array(
-			'nonce'    => wp_create_nonce( 'mhm_vehicle_gallery_nonce' ),
+			'nonce'    => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'  => $this->other_vehicle,
 			'image_id' => 4242,
 		);
-		$this->call( 'mhm_rentiva_remove_gallery_image' );
+		$this->call( 'mhmrentiva_remove_gallery_image' );
 
 		$this->assertSame(
 			$this->original,
@@ -124,11 +124,11 @@ final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->author_id );
 
 		$_POST = array(
-			'nonce'     => wp_create_nonce( 'mhm_vehicle_gallery_nonce' ),
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'   => $this->other_vehicle,
 			'image_ids' => array( 1, 2, 3 ),
 		);
-		$this->call( 'mhm_rentiva_reorder_gallery_images' );
+		$this->call( 'mhmrentiva_reorder_gallery_images' );
 
 		$this->assertSame(
 			$this->original,
@@ -144,11 +144,11 @@ final class GalleryOwnershipTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->author_id );
 
 		$_POST = array(
-			'nonce'     => wp_create_nonce( 'mhm_vehicle_gallery_nonce' ),
+			'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 			'post_id'   => $this->own_vehicle,
 			'image_ids' => array( self::factory()->attachment->create() ),
 		);
-		$this->call( 'mhm_rentiva_add_gallery_image' );
+		$this->call( 'mhmrentiva_add_gallery_image' );
 
 		$this->assertNotEmpty(
 			get_post_meta( $this->own_vehicle, self::META_KEY, true ),

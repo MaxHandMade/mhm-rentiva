@@ -140,7 +140,7 @@
 
             // Collect form data
             const formData = new FormData(form);
-            formData.append('action', 'mhm_rentiva_submit_contact_form');
+            formData.append('action', 'mhmrentiva_submit_contact_form');
             formData.append('nonce', mhmContactForm.nonce);
 
             // Submit via AJAX

@@ -35,17 +35,17 @@ final class DashboardPage {
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_rentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
+		add_action('wp_ajax_mhmrentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_rentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
+		add_action('wp_ajax_mhmrentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
 		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhm_rentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
+		add_action('wp_ajax_mhmrentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
 
 		add_action('save_post_vehicle_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
 		add_action('save_post_vehicle', array( self::class, 'clear_cache_on_vehicle_change' ));
-		add_action('save_post_mhm_message', array( self::class, 'clear_cache_on_message_change' ));
-		add_action('mhm_rentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
+		add_action('save_post_mhmrentiva_message', array( self::class, 'clear_cache_on_message_change' ));
+		add_action('mhmrentiva_booking_status_changed', array( self::class, 'clear_dashboard_cache' ));
 		add_action('updated_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
 		add_action('added_post_meta', array( self::class, 'clear_cache_on_meta_change' ), 10, 4);
 	}
@@ -142,7 +142,7 @@ final class DashboardPage {
 	{
 		return array_map(
 			function ( array $op ): array {
-				$op['display_id']   = mhm_rentiva_get_display_id( (int) ( $op['id'] ?? 0 ) );
+				$op['display_id']   = mhmrentiva_get_display_id( (int) ( $op['id'] ?? 0 ) );
 				$op['status_label'] = \MHMRentiva\Admin\Booking\Core\Status::get_label( $op['status'] ?? '' );
 				return $op;
 			},
@@ -167,7 +167,7 @@ final class DashboardPage {
 	public static function ajax_save_dashboard_order(): void
 	{
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_dashboard_nonce')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
 		}
@@ -183,7 +183,7 @@ final class DashboardPage {
 			return;
 		}
 
-		update_user_meta(get_current_user_id(), 'mhm_dashboard_widget_order', $order);
+		update_user_meta(get_current_user_id(), 'mhmrentiva_dashboard_widget_order', $order);
 		wp_send_json_success(__('Order saved successfully', 'mhm-rentiva'));
 	}
 
@@ -193,7 +193,7 @@ final class DashboardPage {
 	public static function ajax_reset_dashboard_layout(): void
 	{
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_dashboard_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_dashboard_nonce')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
 		}
@@ -203,7 +203,7 @@ final class DashboardPage {
 			return;
 		}
 
-		delete_user_meta(get_current_user_id(), 'mhm_dashboard_widget_order');
+		delete_user_meta(get_current_user_id(), 'mhmrentiva_dashboard_widget_order');
 		wp_send_json_success(__('Dashboard layout reset successfully', 'mhm-rentiva'));
 	}
 
@@ -225,7 +225,7 @@ final class DashboardPage {
 
 		wp_enqueue_style(
 			'mhm-rentiva-dashboard',
-			MHM_RENTIVA_PLUGIN_URL . 'build/admin/dashboard.css',
+			MHMRENTIVA_PLUGIN_URL . 'build/admin/dashboard.css',
 			array(),
 			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'build/admin/dashboard.css' )
 		);
@@ -250,7 +250,7 @@ final class DashboardPage {
 			// reports/vendors/messages/export; QuickActions.jsx already reads
 			// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
 			// key behaves identically to an explicit `false`.
-			'caps'                        => apply_filters( 'mhm_rentiva_dashboard_features', array() ),
+			'caps'                        => apply_filters( 'mhmrentiva_dashboard_features', array() ),
 		);
 
 		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
@@ -258,7 +258,7 @@ final class DashboardPage {
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
 		// the add-on is active. The React app already guards its
 		// TransferWidget render on `transfer_stats` being truthy.
-		$data = apply_filters( 'mhm_rentiva_dashboard_localize', $data );
+		$data = apply_filters( 'mhmrentiva_dashboard_localize', $data );
 
 		wp_localize_script(
 			'mhm-rentiva-react-dashboard',
@@ -290,7 +290,7 @@ final class DashboardPage {
 	}
 	public static function clear_cache_on_message_change(int $post_id): void
 	{
-		if (get_post_type($post_id) === 'mhm_message') {
+		if (get_post_type($post_id) === 'mhmrentiva_message') {
 			self::clear_dashboard_cache();
 		}
 	}
@@ -308,7 +308,7 @@ final class DashboardPage {
 		if ( $cleared ) {
 			return;
 		}
-		$watched_keys = array( '_mhm_status', '_mhm_payment_status', '_mhm_total_price' );
+		$watched_keys = array( '_mhmrentiva_status', '_mhmrentiva_payment_status', '_mhmrentiva_total_price' );
 		if ( in_array( $meta_key, $watched_keys, true ) && get_post_type( $post_id ) === 'vehicle_booking' ) {
 			$cleared = true;
 			self::clear_dashboard_cache();
@@ -326,21 +326,21 @@ final class DashboardPage {
 		// which is why the names are listed beside their writers here.
 		$cache_keys = array(
 			// DashboardService::get_recent_bookings() -- 12 hour TTL.
-			'mhm_rentiva_dashboard_recent_bookings_v4',
+			'mhmrentiva_dashboard_recent_bookings_v4',
 			// DashboardService::get_recent_messages() -- per user.
-			'mhm_rentiva_recent_messages_',
+			'mhmrentiva_recent_messages_',
 			// CacheManager::CACHE_KEYS entries touched by dashboard widgets.
-			'mhm_rentiva_dashboard_stats',
-			'mhm_rentiva_revenue_report_',
-			'mhm_rentiva_booking_report_',
-			'mhm_rentiva_customer_report_',
-			'mhm_rentiva_vehicle_report_',
-			'mhm_rentiva_vlist_',
+			'mhmrentiva_dashboard_stats',
+			'mhmrentiva_revenue_report_',
+			'mhmrentiva_booking_report_',
+			'mhmrentiva_customer_report_',
+			'mhmrentiva_vehicle_report_',
+			'mhmrentiva_vlist_',
 			// The add-on's reports cache. Kept deliberately: Reports.php writes
-			// `mhm_revenue_report_` and the dashboard shows figures derived from
+			// `mhmrentiva_revenue_report_` and the dashboard shows figures derived from
 			// the same data, so clearing one without the other shows two different
 			// numbers on one screen.
-			'mhm_revenue_report_',
+			'mhmrentiva_revenue_report_',
 		);
 		foreach ($cache_keys as $key_prefix) {
 			$prefix_like = $wpdb->esc_like('_transient_' . $key_prefix) . '%';
@@ -354,7 +354,7 @@ final class DashboardPage {
 	public static function ajax_clear_dashboard_cache(): void
 	{
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_clear_cache')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_clear_cache')) {
 			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 			return;
 		}

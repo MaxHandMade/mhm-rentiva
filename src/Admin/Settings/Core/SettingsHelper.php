@@ -29,7 +29,7 @@ final class SettingsHelper {
 	/**
 	 * Settings option name constant for consistency.
 	 */
-	private const SETTINGS_KEY = 'mhm_rentiva_settings';
+	private const SETTINGS_KEY = 'mhmrentiva_settings';
 
 	/**
 	 * Text field helper for settings.

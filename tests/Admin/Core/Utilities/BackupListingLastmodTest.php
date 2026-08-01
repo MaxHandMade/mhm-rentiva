@@ -18,7 +18,7 @@ use WP_UnitTestCase;
  * down the whole backups screen.
  *
  * The path is reachable in normal use: the directory scan exists precisely to
- * surface .sql files that are on disk but absent from `mhm_backup_records` --
+ * surface .sql files that are on disk but absent from `mhmrentiva_backup_records` --
  * a backup restored from another site, a file copied in by hand, or a record
  * lost while its file survived. Found by taking a real backup and listing it.
  *
@@ -43,21 +43,21 @@ final class BackupListingLastmodTest extends WP_UnitTestCase
 			wp_mkdir_p( $dir );
 		}
 
-		$this->file = $dir . '/mhm_rentiva_full_backup_20260101_010101.sql';
+		$this->file = $dir . '/mhmrentiva_full_backup_20260101_010101.sql';
 		file_put_contents( $this->file, "-- test backup\n" );
 
 		$backups = DatabaseCleaner::list_full_backups();
 
 		$names = array_column( $backups, 'backup_name' );
 		$this->assertContains(
-			'mhm_rentiva_full_backup_20260101_010101',
+			'mhmrentiva_full_backup_20260101_010101',
 			$names,
 			'A .sql file on disk with no database record should still be listed.'
 		);
 
 		$entry = null;
 		foreach ( $backups as $backup ) {
-			if ( 'mhm_rentiva_full_backup_20260101_010101' === $backup['backup_name'] ) {
+			if ( 'mhmrentiva_full_backup_20260101_010101' === $backup['backup_name'] ) {
 				$entry = $backup;
 				break;
 			}

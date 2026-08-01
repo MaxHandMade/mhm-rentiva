@@ -17,12 +17,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Data lane: assigns the `rental` term and `per_booking` pricing type
  * to every legacy `vehicle_addon` post that has neither.
  *
- * Gated by the option flag `mhm_rentiva_addon_context_migrated_4_36_0`.
+ * Gated by the option flag `mhmrentiva_addon_context_migrated_4_36_0`.
  * Idempotent: never overwrites a value the operator has already set.
  */
 final class AddonContextMigration {
 
-	public const FLAG_OPTION = 'mhm_rentiva_addon_context_migrated_4_36_0';
+	public const FLAG_OPTION = 'mhmrentiva_addon_context_migrated_4_36_0';
 
 	public static function register(): void {
 		add_action( 'init', array( self::class, 'maybe_run' ), 20 );
@@ -55,8 +55,8 @@ final class AddonContextMigration {
 				wp_set_object_terms( $addon_id, AddonContextTaxonomy::TERM_RENTAL, AddonContextTaxonomy::TAXONOMY, false );
 			}
 
-			if ( get_post_meta( $addon_id, '_mhm_addon_pricing_type', true ) === '' ) {
-				update_post_meta( $addon_id, '_mhm_addon_pricing_type', AddonPricingType::PER_BOOKING );
+			if ( get_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', true ) === '' ) {
+				update_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', AddonPricingType::PER_BOOKING );
 			}
 		}
 

@@ -10,7 +10,7 @@ use WP_Ajax_UnitTestCase;
  * reject a missing/invalid nonce as its literal first action, before any
  * $_POST or $_FILES field is read/sanitized/validated.
  *
- * (The separate mhm_rentiva_upload_attachment endpoint this file used to
+ * (The separate mhmrentiva_upload_attachment endpoint this file used to
  * also cover was deleted in a follow-up fix round -- nothing in this plugin
  * or Pro ever called it; the attachment field rides along in the same
  * submit request's multipart $_FILES instead. See ajax_submit_contact_form()
@@ -37,7 +37,7 @@ class ContactFormAjaxTest extends WP_Ajax_UnitTestCase {
 
 	public function test_submit_rejects_before_touching_fields_when_nonce_missing(): void {
 		unset( $_POST['nonce'] );
-		$_POST['action']  = 'mhm_rentiva_submit_contact_form';
+		$_POST['action']  = 'mhmrentiva_submit_contact_form';
 		$_POST['name']    = 'Test User';
 		// Deliberately invalid: if fields were ever sanitized/validated before
 		// the nonce check, this would surface as an email-validation error
@@ -45,7 +45,7 @@ class ContactFormAjaxTest extends WP_Ajax_UnitTestCase {
 		$_POST['email']   = 'not-an-email';
 		$_POST['message'] = 'Hello';
 
-		$this->dispatch_ajax( 'mhm_rentiva_submit_contact_form' );
+		$this->dispatch_ajax( 'mhmrentiva_submit_contact_form' );
 		$response = $this->decode_response();
 
 		$this->assertFalse( $response['success'] );
@@ -53,13 +53,13 @@ class ContactFormAjaxTest extends WP_Ajax_UnitTestCase {
 	}
 
 	public function test_submit_rejects_invalid_nonce_before_touching_fields(): void {
-		$_POST['action']  = 'mhm_rentiva_submit_contact_form';
+		$_POST['action']  = 'mhmrentiva_submit_contact_form';
 		$_POST['nonce']   = 'clearly-invalid-nonce';
 		$_POST['name']    = 'Test User';
 		$_POST['email']   = 'not-an-email';
 		$_POST['message'] = 'Hello';
 
-		$this->dispatch_ajax( 'mhm_rentiva_submit_contact_form' );
+		$this->dispatch_ajax( 'mhmrentiva_submit_contact_form' );
 		$response = $this->decode_response();
 
 		$this->assertFalse( $response['success'] );

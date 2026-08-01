@@ -20,7 +20,7 @@ final class MetaBox {
 
 	public static function add(): void {
 		add_meta_box(
-			'mhm_log_context',
+			'mhmrentiva_log_context',
 			__( 'Context', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
 			PostType::TYPE,
@@ -30,7 +30,7 @@ final class MetaBox {
 	}
 
 	public static function render( \WP_Post $post ): void {
-		$raw    = (string) get_post_meta( $post->ID, '_mhm_log_context', true );
+		$raw    = (string) get_post_meta( $post->ID, '_mhmrentiva_log_context', true );
 		$pretty = '—';
 		if ( $raw !== '' ) {
 			$decoded = json_decode( $raw, true );
@@ -41,13 +41,13 @@ final class MetaBox {
 			}
 		}
 		// Legacy helper metas for backward compatibility.
-		$gateway = strtoupper( (string) get_post_meta( $post->ID, '_mhm_log_gateway', true ) );
-		$action  = (string) get_post_meta( $post->ID, '_mhm_log_action', true );
-		$status  = (string) get_post_meta( $post->ID, '_mhm_log_status', true );
-		$bid     = (int) get_post_meta( $post->ID, '_mhm_log_booking_id', true );
+		$gateway = strtoupper( (string) get_post_meta( $post->ID, '_mhmrentiva_log_gateway', true ) );
+		$action  = (string) get_post_meta( $post->ID, '_mhmrentiva_log_action', true );
+		$status  = (string) get_post_meta( $post->ID, '_mhmrentiva_log_status', true );
+		$bid     = (int) get_post_meta( $post->ID, '_mhmrentiva_log_booking_id', true );
 
-		$ak  = (int) get_post_meta( $post->ID, '_mhm_log_amount_kurus', true );
-		$cur = (string) get_post_meta( $post->ID, '_mhm_log_currency', true );
+		$ak  = (int) get_post_meta( $post->ID, '_mhmrentiva_log_amount_kurus', true );
+		$cur = (string) get_post_meta( $post->ID, '_mhmrentiva_log_currency', true );
 
 		echo '<p style="margin:0 0 8px;">';
 		if ( $gateway ) {
@@ -86,20 +86,20 @@ final class MetaBox {
 			return;
 		}
 
-		$plugin_url = untrailingslashit( plugin_dir_url( MHM_RENTIVA_PLUGIN_FILE ) );
+		$plugin_url = untrailingslashit( plugin_dir_url( MHMRENTIVA_PLUGIN_FILE ) );
 
 		wp_enqueue_style(
 			'mhm-rentiva-log-metabox-css',
 			$plugin_url . '/assets/css/admin/log-metabox.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		wp_enqueue_script(
 			'mhm-rentiva-log-metabox-js',
 			$plugin_url . '/assets/js/admin/log-metabox.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 

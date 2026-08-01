@@ -26,14 +26,14 @@ class FavoritesService {
 	/**
 	 * Meta key for storing favorites
 	 */
-	private const META_KEY = 'mhm_rentiva_favorites';
+	private const META_KEY = 'mhmrentiva_favorites';
 
 	/**
 	 * Register service
 	 */
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ) );
-		add_action( 'wp_ajax_nopriv_mhm_rentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ) );
+		add_action( 'wp_ajax_mhmrentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_toggle_favorite', array( self::class, 'ajax_toggle_favorite' ) );
 	}
 
 	/**
@@ -128,10 +128,10 @@ class FavoritesService {
 	private static function verified_toggle_request(): ?VerifiedRequest {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
 
-		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_favorite' ) ) {
+		if ( wp_verify_nonce( $nonce, 'mhmrentiva_toggle_favorite' ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
-		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' ) ) {
+		if ( wp_verify_nonce( $nonce, 'mhmrentiva_vehicles_list' ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
 

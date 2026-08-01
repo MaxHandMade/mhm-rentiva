@@ -27,9 +27,9 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
         // Role that has manage_options but NOT the WP user-management caps.
         // Proves the guard checks the specific capability, not manage_options.
-        remove_role( 'mhm_test_options_only' );
+        remove_role( 'mhmrentiva_test_options_only' );
         add_role(
-            'mhm_test_options_only',
+            'mhmrentiva_test_options_only',
             'MHM Test Options Only',
             array(
                 'read'           => true,
@@ -41,9 +41,9 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         // so REST-route-level access — still gated on manage_options until
         // B-G1e — is unaffected by this task). Proves the operation succeeds
         // once the matching capability is present.
-        remove_role( 'mhm_test_user_manager' );
+        remove_role( 'mhmrentiva_test_user_manager' );
         add_role(
-            'mhm_test_user_manager',
+            'mhmrentiva_test_user_manager',
             'MHM Test User Manager',
             array(
                 'read'           => true,
@@ -57,10 +57,10 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
     public function tearDown(): void
     {
-        remove_role( 'mhm_test_options_only' );
-        remove_role( 'mhm_test_user_manager' );
+        remove_role( 'mhmrentiva_test_options_only' );
+        remove_role( 'mhmrentiva_test_user_manager' );
         wp_set_current_user( 0 );
-        unset( $_POST['submit'], $_POST['mhm_rentiva_add_customer_nonce'], $_POST['mhm_rentiva_edit_customer_nonce'], $_POST['nonce'], $_POST['customer_name'], $_POST['customer_email'], $_GET['customer_id'] );
+        unset( $_POST['submit'], $_POST['mhmrentiva_add_customer_nonce'], $_POST['mhmrentiva_edit_customer_nonce'], $_POST['nonce'], $_POST['customer_name'], $_POST['customer_email'], $_GET['customer_id'] );
         parent::tearDown();
     }
 
@@ -81,13 +81,13 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
     public function test_add_customer_denied_without_create_users_capability(): void
     {
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhm_test_options_only' ) );
+        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
         wp_set_current_user( $capped_id );
 
         $count_before = count( get_users( array( 'fields' => 'ID' ) ) );
 
         $_POST['submit']                            = 'submit';
-        $_POST['mhm_rentiva_add_customer_nonce']     = wp_create_nonce( 'mhm_rentiva_add_customer' );
+        $_POST['mhmrentiva_add_customer_nonce']     = wp_create_nonce( 'mhmrentiva_add_customer' );
         $_POST['customer_name']                      = 'Denied Customer';
         $_POST['customer_email']                     = 'denied-customer@example.com';
 
@@ -103,11 +103,11 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
     public function test_add_customer_allowed_with_create_users_capability(): void
     {
-        $manager_id = self::factory()->user->create( array( 'role' => 'mhm_test_user_manager' ) );
+        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
 
         $_POST['submit']                        = 'submit';
-        $_POST['mhm_rentiva_add_customer_nonce'] = wp_create_nonce( 'mhm_rentiva_add_customer' );
+        $_POST['mhmrentiva_add_customer_nonce'] = wp_create_nonce( 'mhmrentiva_add_customer' );
         $_POST['customer_name']                  = 'Allowed Customer';
         $_POST['customer_email']                 = 'allowed-customer@example.com';
 
@@ -129,10 +129,10 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
 
     public function test_ajax_add_customer_denied_without_create_users_capability(): void
     {
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhm_test_options_only' ) );
+        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
         wp_set_current_user( $capped_id );
 
-        $_POST['nonce']         = wp_create_nonce( 'mhm_rentiva_add_customer' );
+        $_POST['nonce']         = wp_create_nonce( 'mhmrentiva_add_customer' );
         $_POST['customer_name'] = 'Denied Ajax Customer';
         $_POST['customer_email'] = 'denied-ajax-customer@example.com';
 
@@ -159,12 +159,12 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
                 'display_name' => 'Original Name',
             )
         );
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhm_test_options_only' ) );
+        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
         wp_set_current_user( $capped_id );
 
         $_GET['customer_id']                      = (string) $target_id;
         $_POST['submit']                           = 'submit';
-        $_POST['mhm_rentiva_edit_customer_nonce']  = wp_create_nonce( 'mhm_rentiva_edit_customer' );
+        $_POST['mhmrentiva_edit_customer_nonce']  = wp_create_nonce( 'mhmrentiva_edit_customer' );
         $_POST['customer_name']                    = 'Hacked Name';
         $_POST['customer_email']                   = 'hacked@example.com';
 
@@ -192,12 +192,12 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
                 'display_name' => 'Original Name',
             )
         );
-        $manager_id = self::factory()->user->create( array( 'role' => 'mhm_test_user_manager' ) );
+        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
 
         $_GET['customer_id']                      = (string) $target_id;
         $_POST['submit']                           = 'submit';
-        $_POST['mhm_rentiva_edit_customer_nonce']  = wp_create_nonce( 'mhm_rentiva_edit_customer' );
+        $_POST['mhmrentiva_edit_customer_nonce']  = wp_create_nonce( 'mhmrentiva_edit_customer' );
         $_POST['customer_name']                    = 'Updated Name';
         $_POST['customer_email']                   = 'updated@example.com';
 
@@ -221,7 +221,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
                 'display_name' => 'Original Batch Name',
             )
         );
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhm_test_options_only' ) );
+        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
         wp_set_current_user( $capped_id );
 
         $result = CustomersOptimizer::batch_update_customers( array( $target_id ), array( 'name' => 'Hacked Batch Name' ) );
@@ -239,7 +239,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
                 'display_name' => 'Original Batch Name',
             )
         );
-        $manager_id = self::factory()->user->create( array( 'role' => 'mhm_test_user_manager' ) );
+        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
 
         $result = CustomersOptimizer::batch_update_customers( array( $target_id ), array( 'name' => 'Updated Batch Name' ) );
@@ -269,7 +269,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $this->setUpRestServer();
 
         $target_id = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhm_test_options_only' ) );
+        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
         wp_set_current_user( $capped_id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );
@@ -290,7 +290,7 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $this->setUpRestServer();
 
         $target_id  = self::factory()->user->create( array( 'role' => 'customer' ) );
-        $manager_id = self::factory()->user->create( array( 'role' => 'mhm_test_user_manager' ) );
+        $manager_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_user_manager' ) );
         wp_set_current_user( $manager_id );
 
         $request = new WP_REST_Request( 'DELETE', '/mhm-rentiva/v1/customers/bulk' );

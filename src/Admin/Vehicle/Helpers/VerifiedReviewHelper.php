@@ -36,7 +36,7 @@ class VerifiedReviewHelper {
 	 *
 	 * @var string
 	 */
-	private const CACHE_PREFIX = 'mhm_rentiva_verified_reviews_';
+	private const CACHE_PREFIX = 'mhmrentiva_verified_reviews_';
 
 	/**
 	 * Cache TTL in seconds (1 hour).
@@ -64,7 +64,7 @@ class VerifiedReviewHelper {
 	 */
 	public static function register(): void {
 		add_action(
-			'mhm_rentiva_booking_status_changed',
+			'mhmrentiva_booking_status_changed',
 			array( self::class, 'on_booking_status_changed' ),
 			10,
 			3
@@ -83,8 +83,8 @@ class VerifiedReviewHelper {
 	 * @return bool
 	 */
 	public static function is_verified( int $comment_id, int $vehicle_id, int $user_id ): bool {
-		// 1. Admin override: comment meta mhm_verified_review = 1
-		$override = get_comment_meta( $comment_id, 'mhm_verified_review', true );
+		// 1. Admin override: comment meta mhmrentiva_verified_review = 1
+		$override = get_comment_meta( $comment_id, 'mhmrentiva_verified_review', true );
 		if ( $override === '1' || $override === 1 ) {
 			return true;
 		}
@@ -156,7 +156,7 @@ class VerifiedReviewHelper {
 		// Step 2: Check for admin overrides first
 		$override_ids = array();
 		foreach ( $comments as $comment_id ) {
-			$override = get_comment_meta( (int) $comment_id, 'mhm_verified_review', true );
+			$override = get_comment_meta( (int) $comment_id, 'mhmrentiva_verified_review', true );
 			if ( $override === '1' || $override === 1 ) {
 				$override_ids[] = (int) $comment_id;
 			}
@@ -215,9 +215,9 @@ class VerifiedReviewHelper {
 				$wpdb->prepare(
 					"SELECT DISTINCT CAST(pm_user.meta_value AS UNSIGNED)
 					 FROM {$wpdb->posts} p
-					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
-					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-					 INNER JOIN {$wpdb->postmeta} pm_user ON p.ID = pm_user.post_id AND pm_user.meta_key = '_mhm_customer_user_id'
+					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
+					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
+					 INNER JOIN {$wpdb->postmeta} pm_user ON p.ID = pm_user.post_id AND pm_user.meta_key = '_mhmrentiva_customer_user_id'
 					 WHERE p.post_type = 'vehicle_booking'
 					   AND p.post_status = 'publish'
 					   AND pm_vid.meta_value = %d
@@ -233,9 +233,9 @@ class VerifiedReviewHelper {
 				$wpdb->prepare(
 					"SELECT DISTINCT LOWER(pm_email.meta_value)
 					 FROM {$wpdb->posts} p
-					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhm_vehicle_id'
-					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-					 INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhm_contact_email'
+					 INNER JOIN {$wpdb->postmeta} pm_vid ON p.ID = pm_vid.post_id AND pm_vid.meta_key = '_mhmrentiva_vehicle_id'
+					 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
+					 INNER JOIN {$wpdb->postmeta} pm_email ON p.ID = pm_email.post_id AND pm_email.meta_key = '_mhmrentiva_contact_email'
 					 WHERE p.post_type = 'vehicle_booking'
 					   AND p.post_status = 'publish'
 					   AND pm_vid.meta_value = %d
@@ -291,7 +291,7 @@ class VerifiedReviewHelper {
 	/**
 	 * Handle booking status change — invalidate the related vehicle's verified review cache.
 	 *
-	 * Hooked to: mhm_rentiva_booking_status_changed
+	 * Hooked to: mhmrentiva_booking_status_changed
 	 *
 	 * @since 1.3.0
 	 * @param int    $booking_id Booking ID.
@@ -300,7 +300,7 @@ class VerifiedReviewHelper {
 	 * @return void
 	 */
 	public static function on_booking_status_changed( int $booking_id, string $old_status, string $new_status ): void {
-		$vehicle_id = (int) get_post_meta( $booking_id, '_mhm_vehicle_id', true );
+		$vehicle_id = (int) get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true );
 		if ( $vehicle_id > 0 ) {
 			self::invalidate_cache( $vehicle_id );
 		}

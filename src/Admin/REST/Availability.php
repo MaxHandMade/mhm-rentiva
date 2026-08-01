@@ -45,7 +45,7 @@ final class Availability {
 	 * (`assets/js/frontend/booking-form.js`,
 	 * `assets/js/frontend/availability-calendar.js`) goes through
 	 * `admin-ajax.php` instead, using its own separate nonce actions
-	 * (`mhm_rentiva_booking_form_nonce`, `mhm_rentiva_availability_nonce`) —
+	 * (`mhmrentiva_booking_form_nonce`, `mhmrentiva_availability_nonce`) —
 	 * not this route. This REST endpoint is reachable only by a caller that
 	 * independently obtains a `wp_rest` nonce (e.g. any other logged-in-or-
 	 * not page context that WordPress issues one for) or by a future
@@ -162,8 +162,8 @@ final class Availability {
 		$result = Util::check_availability( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 
 		// Add currency information
-		$currency          = Settings::get( 'mhm_rentiva_currency', 'USD' );
-		$currency_position = Settings::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$currency          = Settings::get( 'mhmrentiva_currency', 'USD' );
+		$currency_position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
 		$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency );
 
 		$response_data = array(
@@ -204,8 +204,8 @@ final class Availability {
 		$result = Util::check_availability_with_alternatives( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 
 		// Add currency information
-		$currency          = Settings::get( 'mhm_rentiva_currency', 'USD' );
-		$currency_position = Settings::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$currency          = Settings::get( 'mhmrentiva_currency', 'USD' );
+		$currency_position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
 		$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency );
 
 		$response_data = array(

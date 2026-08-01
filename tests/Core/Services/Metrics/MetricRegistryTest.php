@@ -62,7 +62,7 @@ class MetricRegistryTest extends WP_UnitTestCase
             }
         });
 
-        add_filter('mhm_rentiva_registered_metrics', function ($metrics) use ($fakeClass) {
+        add_filter('mhmrentiva_registered_metrics', function ($metrics) use ($fakeClass) {
             $metrics['vendor_revenue_pro'] = $fakeClass;
             return $metrics;
         });

@@ -81,17 +81,17 @@ final class ContactForm extends AbstractShortcode {
 		// CSS
 		wp_enqueue_style(
 			'mhm-rentiva-contact-form',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/contact-form.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/contact-form.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// JavaScript
 		wp_enqueue_script(
 			'mhm-rentiva-contact-form',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/contact-form.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/contact-form.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -102,14 +102,14 @@ final class ContactForm extends AbstractShortcode {
 	protected static function register_ajax_handlers(): void
 	{
 		// AJAX handlers. (There used to be a second, standalone
-		// mhm_rentiva_upload_attachment endpoint here -- removed: nothing in
+		// mhmrentiva_upload_attachment endpoint here -- removed: nothing in
 		// this plugin or Pro ever called it, the attachment field rides
 		// along in this same submit request's multipart $_FILES instead, and
 		// a publicly wp_ajax_nopriv_-reachable, purposeless upload endpoint
 		// is exactly the kind of unprotected input surface a reviewer flags
 		// next round. See ajax_submit_contact_form()'s own $_FILES handling.)
-		add_action('wp_ajax_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
+		add_action('wp_ajax_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 	}
 
 	/**
@@ -144,9 +144,9 @@ final class ContactForm extends AbstractShortcode {
 			'priorities'       => $priorities,
 			'email_recipients' => $email_recipients,
 			'current_user'     => wp_get_current_user(),
-			'support_phone'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_contact_phone', '+90 555 555 55 55'),
-			'support_hours'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
-			'support_email'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_support_email', get_option('admin_email')),
+			'support_phone'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_phone', '+90 555 555 55 55'),
+			'support_hours'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_contact_hours', __('7/24 Support', 'mhm-rentiva')),
+			'support_email'    => (string) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_support_email', get_option('admin_email')),
 		);
 	}
 
@@ -243,9 +243,9 @@ final class ContactForm extends AbstractShortcode {
 
 		$default_emails = array(
 			'general'  => get_option('admin_email'),
-			'booking'  => get_option('mhm_rentiva_booking_email', get_option('admin_email')),
-			'support'  => get_option('mhm_rentiva_support_email', get_option('admin_email')),
-			'feedback' => get_option('mhm_rentiva_feedback_email', get_option('admin_email')),
+			'booking'  => get_option('mhmrentiva_booking_email', get_option('admin_email')),
+			'support'  => get_option('mhmrentiva_support_email', get_option('admin_email')),
+			'feedback' => get_option('mhmrentiva_feedback_email', get_option('admin_email')),
 		);
 
 		return array( $default_emails[ $type ] ?? get_option('admin_email') );
@@ -257,7 +257,7 @@ final class ContactForm extends AbstractShortcode {
 		// access -- so both the security guarantee and WPCS's own static analysis
 		// can see it directly in this file, with no wrapper indirection to see
 		// through (WP.org T7 finding).
-		if (! check_ajax_referer('mhm_rentiva_contact_form_nonce', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_contact_form_nonce', 'nonce', false)) {
 			self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
 		}
@@ -378,7 +378,7 @@ final class ContactForm extends AbstractShortcode {
 	{
 		return array(
 			'ajaxUrl'          => admin_url('admin-ajax.php'),
-			'nonce'            => wp_create_nonce('mhm_rentiva_contact_form_nonce'),
+			'nonce'            => wp_create_nonce('mhmrentiva_contact_form_nonce'),
 			'maxFileSize'      => wp_max_upload_size(),
 			'allowedFileTypes' => array( 'jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx' ),
 			'messages'         => array(
@@ -505,7 +505,7 @@ final class ContactForm extends AbstractShortcode {
 	private static function save_contact_message(array $data): int
 	{
 		$post_data = array(
-			'post_type'    => 'mhm_contact_message',
+			'post_type'    => 'mhmrentiva_contact_message',
 			/* translators: %s: customer name. */
 			'post_title'   => sprintf(__('Contact Message - %s', 'mhm-rentiva'), $data['name']),
 			'post_content' => $data['message'],

@@ -8,7 +8,7 @@ use ReflectionMethod;
 use WP_UnitTestCase;
 
 /**
- * `mhm_rentiva_elementor_widgets` seam inversion (companion to
+ * `mhmrentiva_elementor_widgets` seam inversion (companion to
  * BlockRegistryFilterTest / ShortcodeRegistryFilterTest).
  *
  * Lite no longer declares the 6 Pro Elementor widget classes at all -- they are
@@ -35,7 +35,7 @@ final class ElementorWidgetFilterTest extends WP_UnitTestCase {
 	);
 
 	protected function tearDown(): void {
-		remove_all_filters( 'mhm_rentiva_elementor_widgets' );
+		remove_all_filters( 'mhmrentiva_elementor_widgets' );
 		parent::tearDown();
 	}
 
@@ -62,7 +62,7 @@ final class ElementorWidgetFilterTest extends WP_UnitTestCase {
 
 	public function test_filter_admits_a_subscriber_widget(): void {
 		add_filter(
-			'mhm_rentiva_elementor_widgets',
+			'mhmrentiva_elementor_widgets',
 			static function ( array $widgets ): array {
 				$widgets[] = 'MHMRentiva\Tests\Fixtures\DemoElementorWidget';
 				return $widgets;

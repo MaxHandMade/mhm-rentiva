@@ -25,9 +25,9 @@ final class FrontendSettings {
 
 
 
-	public const SECTION_VEHICLE_DISPLAY = 'mhm_rentiva_vehicle_display_section';
-	public const SECTION_TEXTS_LABELS    = 'mhm_rentiva_texts_labels_section';
-	public const SECTION_PERMALINKS      = 'mhm_rentiva_permalinks_section';
+	public const SECTION_VEHICLE_DISPLAY = 'mhmrentiva_vehicle_display_section';
+	public const SECTION_TEXTS_LABELS    = 'mhmrentiva_texts_labels_section';
+	public const SECTION_PERMALINKS      = 'mhmrentiva_permalinks_section';
 
 	/**
 	 * Get default settings
@@ -37,56 +37,56 @@ final class FrontendSettings {
 	public static function get_default_settings(): array {
 		return array(
 			// Vehicle Display
-			'mhm_rentiva_vehicle_cards_per_page'      => 12,
-			'mhm_rentiva_vehicle_default_sort'        => 'price_asc',
-			'mhm_rentiva_vehicle_card_fields'         => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
-			'mhm_rentiva_vehicle_detail_fields'       => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
+			'mhmrentiva_vehicle_cards_per_page'      => 12,
+			'mhmrentiva_vehicle_default_sort'        => 'price_asc',
+			'mhmrentiva_vehicle_card_fields'         => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
+			'mhmrentiva_vehicle_detail_fields'       => class_exists( '\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper' ) ? \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::get_default_card_fields() : array(),
 
 			// Texts & Labels - General Buttons
-			'mhm_rentiva_text_book_now'               => '',
-			'mhm_rentiva_text_view_details'           => '',
-			'mhm_rentiva_text_make_booking'           => '',
-			'mhm_rentiva_text_cancel_booking'         => '',
+			'mhmrentiva_text_book_now'               => '',
+			'mhmrentiva_text_view_details'           => '',
+			'mhmrentiva_text_make_booking'           => '',
+			'mhmrentiva_text_cancel_booking'         => '',
 
 			// Texts & Labels - Notifications
-			'mhm_rentiva_text_added_to_favorites'     => '',
-			'mhm_rentiva_text_removed_from_favorites' => '',
-			'mhm_rentiva_text_login_required'         => '',
-			'mhm_rentiva_text_login_here'             => '',
-			'mhm_rentiva_text_processing'             => '',
-			'mhm_rentiva_text_loading'                => '',
-			'mhm_rentiva_text_error'                  => '',
-			'mhm_rentiva_text_booking_success'        => '',
+			'mhmrentiva_text_added_to_favorites'     => '',
+			'mhmrentiva_text_removed_from_favorites' => '',
+			'mhmrentiva_text_login_required'         => '',
+			'mhmrentiva_text_login_here'             => '',
+			'mhmrentiva_text_processing'             => '',
+			'mhmrentiva_text_loading'                => '',
+			'mhmrentiva_text_error'                  => '',
+			'mhmrentiva_text_booking_success'        => '',
 
 			// Texts & Labels - Form Labels
-			'mhm_rentiva_text_first_name'             => '',
-			'mhm_rentiva_text_last_name'              => '',
-			'mhm_rentiva_text_email'                  => '',
-			'mhm_rentiva_text_phone'                  => '',
+			'mhmrentiva_text_first_name'             => '',
+			'mhmrentiva_text_last_name'              => '',
+			'mhmrentiva_text_email'                  => '',
+			'mhmrentiva_text_phone'                  => '',
 
 			// Texts & Labels - Validation
-			'mhm_rentiva_text_select_vehicle'         => '',
-			'mhm_rentiva_text_select_dates'           => '',
-			'mhm_rentiva_text_invalid_dates'          => '',
-			'mhm_rentiva_text_select_payment_type'    => '',
-			'mhm_rentiva_text_select_payment_method'  => '',
+			'mhmrentiva_text_select_vehicle'         => '',
+			'mhmrentiva_text_select_dates'           => '',
+			'mhmrentiva_text_invalid_dates'          => '',
+			'mhmrentiva_text_select_payment_type'    => '',
+			'mhmrentiva_text_select_payment_method'  => '',
 
 			// Texts & Labels - Payment
-			'mhm_rentiva_text_calculating'            => '',
-			'mhm_rentiva_text_payment_redirect'       => '',
-			'mhm_rentiva_text_payment_success'        => '',
-			'mhm_rentiva_text_payment_cancelled'      => '',
-			'mhm_rentiva_text_popup_blocked'          => '',
+			'mhmrentiva_text_calculating'            => '',
+			'mhmrentiva_text_payment_redirect'       => '',
+			'mhmrentiva_text_payment_success'        => '',
+			'mhmrentiva_text_payment_cancelled'      => '',
+			'mhmrentiva_text_popup_blocked'          => '',
 
 			// Texts & Labels - Account
-			'mhm_rentiva_text_view_dashboard'         => '',
-			'mhm_rentiva_text_back_to_bookings'       => '',
-			'mhm_rentiva_text_already_have_account'   => '',
+			'mhmrentiva_text_view_dashboard'         => '',
+			'mhmrentiva_text_back_to_bookings'       => '',
+			'mhmrentiva_text_already_have_account'   => '',
 
 			// Permalinks
-			'mhm_rentiva_booking_url'                 => '',
-			'mhm_rentiva_login_url'                   => '',
-			'mhm_rentiva_register_url'                => '',
+			'mhmrentiva_booking_url'                 => '',
+			'mhmrentiva_login_url'                   => '',
+			'mhmrentiva_register_url'                => '',
 		);
 	}
 
@@ -120,7 +120,7 @@ final class FrontendSettings {
 
 		// Display Fields
 		add_settings_field(
-			'mhm_rentiva_vehicle_cards_per_page',
+			'mhmrentiva_vehicle_cards_per_page',
 			__( 'Vehicles Per Page', 'mhm-rentiva' ),
 			array( self::class, 'render_cards_per_page_field' ),
 			SettingsCore::PAGE,
@@ -128,7 +128,7 @@ final class FrontendSettings {
 		);
 
 		add_settings_field(
-			'mhm_rentiva_vehicle_default_sort',
+			'mhmrentiva_vehicle_default_sort',
 			__( 'Default Sort Order', 'mhm-rentiva' ),
 			array( self::class, 'render_default_sort_field' ),
 			SettingsCore::PAGE,
@@ -207,7 +207,7 @@ final class FrontendSettings {
 
 		\MHMRentiva\Admin\Settings\Core\SettingsHelper::url_field(
 			SettingsCore::PAGE,
-			'mhm_rentiva_booking_url',
+			'mhmrentiva_booking_url',
 			__( 'Booking Form URL', 'mhm-rentiva' ),
 			__( 'The URL of the page containing the [rentiva_booking_form] shortcode.', 'mhm-rentiva' ),
 			self::SECTION_PERMALINKS
@@ -215,7 +215,7 @@ final class FrontendSettings {
 
 		\MHMRentiva\Admin\Settings\Core\SettingsHelper::url_field(
 			SettingsCore::PAGE,
-			'mhm_rentiva_login_url',
+			'mhmrentiva_login_url',
 			__( 'Login Page URL', 'mhm-rentiva' ),
 			__( 'The URL of your custom login page.', 'mhm-rentiva' ),
 			self::SECTION_PERMALINKS
@@ -223,7 +223,7 @@ final class FrontendSettings {
 
 		\MHMRentiva\Admin\Settings\Core\SettingsHelper::url_field(
 			SettingsCore::PAGE,
-			'mhm_rentiva_register_url',
+			'mhmrentiva_register_url',
 			__( 'Registration Page URL', 'mhm-rentiva' ),
 			__( 'The URL of your custom registration page.', 'mhm-rentiva' ),
 			self::SECTION_PERMALINKS
@@ -241,8 +241,8 @@ final class FrontendSettings {
 	 * Cards per page field
 	 */
 	public static function render_cards_per_page_field(): void {
-		$value = SettingsCore::get( 'mhm_rentiva_vehicle_cards_per_page', 12 );
-		echo '<input type="number" name="mhm_rentiva_settings[mhm_rentiva_vehicle_cards_per_page]" value="' . esc_attr( $value ) . '" min="1" max="50" class="regular-text" />';
+		$value = SettingsCore::get( 'mhmrentiva_vehicle_cards_per_page', 12 );
+		echo '<input type="number" name="mhmrentiva_settings[mhmrentiva_vehicle_cards_per_page]" value="' . esc_attr( $value ) . '" min="1" max="50" class="regular-text" />';
 		echo '<p class="description">' . esc_html__( 'Number of vehicles to display per page', 'mhm-rentiva' ) . '</p>';
 	}
 
@@ -250,7 +250,7 @@ final class FrontendSettings {
 	 * Default sort field
 	 */
 	public static function render_default_sort_field(): void {
-		$value   = SettingsCore::get( 'mhm_rentiva_vehicle_default_sort', 'price_asc' );
+		$value   = SettingsCore::get( 'mhmrentiva_vehicle_default_sort', 'price_asc' );
 		$options = array(
 			'price_asc'  => __( 'Price: Low to High', 'mhm-rentiva' ),
 			'price_desc' => __( 'Price: High to Low', 'mhm-rentiva' ),
@@ -260,7 +260,7 @@ final class FrontendSettings {
 			'year_asc'   => __( 'Year: Oldest First', 'mhm-rentiva' ),
 		);
 
-		echo '<select name="mhm_rentiva_settings[mhm_rentiva_vehicle_default_sort]" class="regular-text">';
+		echo '<select name="mhmrentiva_settings[mhmrentiva_vehicle_default_sort]" class="regular-text">';
 		foreach ( $options as $option_value => $option_label ) {
 			echo '<option value="' . esc_attr( $option_value ) . '" ' . selected( $value, $option_value, false ) . '>' . esc_html( $option_label ) . '</option>';
 		}
@@ -286,10 +286,10 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_book_now', __( 'Book Now Button', 'mhm-rentiva' ), __( 'Book Now', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_view_details', __( 'View Details Button', 'mhm-rentiva' ), __( 'View Details', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_make_booking', __( 'Make Booking Button', 'mhm-rentiva' ), __( 'Make Booking', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_cancel_booking', __( 'Cancel Booking Button', 'mhm-rentiva' ), __( 'Cancel Booking', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_book_now', __( 'Book Now Button', 'mhm-rentiva' ), __( 'Book Now', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_view_details', __( 'View Details Button', 'mhm-rentiva' ), __( 'View Details', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_make_booking', __( 'Make Booking Button', 'mhm-rentiva' ), __( 'Make Booking', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_cancel_booking', __( 'Cancel Booking Button', 'mhm-rentiva' ), __( 'Cancel Booking', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -305,14 +305,14 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_added_to_favorites', __( 'Added to Favorites Message', 'mhm-rentiva' ), __( 'Added to favorites', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_removed_from_favorites', __( 'Removed from Favorites Message', 'mhm-rentiva' ), __( 'Removed from favorites', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_login_required', __( 'Login Required Message', 'mhm-rentiva' ), __( 'You must be logged in to add to favorites', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_login_here', __( 'Login Here Text', 'mhm-rentiva' ), __( 'Login Here', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_processing', __( 'Processing Message', 'mhm-rentiva' ), __( 'Processing', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_loading', __( 'Loading Message', 'mhm-rentiva' ), __( 'Loading', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_error', __( 'Error Message', 'mhm-rentiva' ), __( 'Error', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_booking_success', __( 'Booking Success Message', 'mhm-rentiva' ), __( 'Booking Success', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_added_to_favorites', __( 'Added to Favorites Message', 'mhm-rentiva' ), __( 'Added to favorites', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_removed_from_favorites', __( 'Removed from Favorites Message', 'mhm-rentiva' ), __( 'Removed from favorites', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_login_required', __( 'Login Required Message', 'mhm-rentiva' ), __( 'You must be logged in to add to favorites', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_login_here', __( 'Login Here Text', 'mhm-rentiva' ), __( 'Login Here', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_processing', __( 'Processing Message', 'mhm-rentiva' ), __( 'Processing', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_loading', __( 'Loading Message', 'mhm-rentiva' ), __( 'Loading', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_error', __( 'Error Message', 'mhm-rentiva' ), __( 'Error', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_booking_success', __( 'Booking Success Message', 'mhm-rentiva' ), __( 'Booking Success', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -328,10 +328,10 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_first_name', __( 'First Name Label', 'mhm-rentiva' ), __( 'First Name', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_last_name', __( 'Last Name Label', 'mhm-rentiva' ), __( 'Last Name', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_email', __( 'Email Label', 'mhm-rentiva' ), __( 'Email', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_phone', __( 'Phone Label', 'mhm-rentiva' ), __( 'Phone', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_first_name', __( 'First Name Label', 'mhm-rentiva' ), __( 'First Name', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_last_name', __( 'Last Name Label', 'mhm-rentiva' ), __( 'Last Name', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_email', __( 'Email Label', 'mhm-rentiva' ), __( 'Email', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_phone', __( 'Phone Label', 'mhm-rentiva' ), __( 'Phone', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -347,11 +347,11 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_select_vehicle', __( 'Select Vehicle Message', 'mhm-rentiva' ), __( 'Select Vehicle', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_select_dates', __( 'Select Dates Message', 'mhm-rentiva' ), __( 'Select Dates', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_invalid_dates', __( 'Invalid Dates Message', 'mhm-rentiva' ), __( 'Invalid Dates', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_select_payment_type', __( 'Select Payment Type Message', 'mhm-rentiva' ), __( 'Select Payment Type', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_select_payment_method', __( 'Select Payment Method Message', 'mhm-rentiva' ), __( 'Select Payment Method', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_select_vehicle', __( 'Select Vehicle Message', 'mhm-rentiva' ), __( 'Select Vehicle', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_select_dates', __( 'Select Dates Message', 'mhm-rentiva' ), __( 'Select Dates', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_invalid_dates', __( 'Invalid Dates Message', 'mhm-rentiva' ), __( 'Invalid Dates', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_select_payment_type', __( 'Select Payment Type Message', 'mhm-rentiva' ), __( 'Select Payment Type', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_select_payment_method', __( 'Select Payment Method Message', 'mhm-rentiva' ), __( 'Select Payment Method', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -367,11 +367,11 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_calculating', __( 'Calculating Message', 'mhm-rentiva' ), __( 'Calculating', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_payment_redirect', __( 'Payment Redirect Message', 'mhm-rentiva' ), __( 'Payment Redirect', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_payment_success', __( 'Payment Success Message', 'mhm-rentiva' ), __( 'Payment Success', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_payment_cancelled', __( 'Payment Cancelled Message', 'mhm-rentiva' ), __( 'Payment Cancelled', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_popup_blocked', __( 'Popup Blocked Message', 'mhm-rentiva' ), __( 'Popup Blocked', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_calculating', __( 'Calculating Message', 'mhm-rentiva' ), __( 'Calculating', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_payment_redirect', __( 'Payment Redirect Message', 'mhm-rentiva' ), __( 'Payment Redirect', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_payment_success', __( 'Payment Success Message', 'mhm-rentiva' ), __( 'Payment Success', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_payment_cancelled', __( 'Payment Cancelled Message', 'mhm-rentiva' ), __( 'Payment Cancelled', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_popup_blocked', __( 'Popup Blocked Message', 'mhm-rentiva' ), __( 'Popup Blocked', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -387,9 +387,9 @@ final class FrontendSettings {
 		echo '</div>';
 		echo '<div class="mhm-accordion-content">';
 
-		self::render_input_field( 'mhm_rentiva_text_view_dashboard', __( 'View Dashboard Text', 'mhm-rentiva' ), __( 'View Dashboard', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_back_to_bookings', __( 'Back to Bookings Text', 'mhm-rentiva' ), __( 'Back to Bookings', 'mhm-rentiva' ) );
-		self::render_input_field( 'mhm_rentiva_text_already_have_account', __( 'Already Have Account Text', 'mhm-rentiva' ), __( 'Already have account?', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_view_dashboard', __( 'View Dashboard Text', 'mhm-rentiva' ), __( 'View Dashboard', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_back_to_bookings', __( 'Back to Bookings Text', 'mhm-rentiva' ), __( 'Back to Bookings', 'mhm-rentiva' ) );
+		self::render_input_field( 'mhmrentiva_text_already_have_account', __( 'Already Have Account Text', 'mhm-rentiva' ), __( 'Already have account?', 'mhm-rentiva' ) );
 
 		echo '</div></div>';
 	}
@@ -402,7 +402,7 @@ final class FrontendSettings {
 
 		echo '<div class="mhm-form-group">';
 		echo '<label>' . esc_html( $label ) . '</label>';
-		echo '<input type="text" name="mhm_rentiva_settings[' . esc_attr( $option_name ) . ']" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr( $default_placeholder ) . '" />';
+		echo '<input type="text" name="mhmrentiva_settings[' . esc_attr( $option_name ) . ']" value="' . esc_attr( $value ) . '" class="regular-text" placeholder="' . esc_attr( $default_placeholder ) . '" />';
 		/* translators: %s: default value placeholder */
 		echo '<p class="description">' . esc_html( sprintf( /* translators: %s: default value */__( 'Default: "%s"', 'mhm-rentiva' ), $default_placeholder ) ) . '</p>';
 		echo '</div>';

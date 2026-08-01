@@ -112,7 +112,7 @@ final class Templates {
 			);
 		}
 
-		return apply_filters( 'mhm_rentiva_email_registry', $registry );
+		return apply_filters( 'mhmrentiva_email_registry', $registry );
 	}
 
 	public static function locate_template( string $slug ): ?string {
@@ -128,13 +128,13 @@ final class Templates {
 		if ( file_exists( $parentPath ) ) {
 			return $parentPath;
 		}
-		$plugin = MHM_RENTIVA_PLUGIN_PATH . 'templates/emails/' . $slug . '.html.php';
+		$plugin = MHMRENTIVA_PLUGIN_PATH . 'templates/emails/' . $slug . '.html.php';
 		if ( file_exists( $plugin ) ) {
 			return $plugin;
 		}
 		// Additional template directories registered by other extensions (e.g. an
 		// active extension ships its own email templates and registers its path here).
-		foreach ( apply_filters( 'mhm_rentiva_email_template_dirs', array() ) as $dir ) {
+		foreach ( apply_filters( 'mhmrentiva_email_template_dirs', array() ) as $dir ) {
 			$candidate = trailingslashit( (string) $dir ) . $slug . '.html.php';
 			if ( file_exists( $candidate ) ) {
 				return $candidate;
@@ -158,8 +158,8 @@ final class Templates {
 		// (variable first argument) — pass the value through as-is.
 		$tpl = $reg[ $key ]['subject'] ?? ( 'Notification: ' . $key );
 		$sub = self::replace_placeholders( $tpl, $context );
-		$sub = apply_filters( 'mhm_rentiva_email_subject', $sub, $key, $context );
-		$sub = apply_filters( 'mhm_rentiva_email_subject_' . $key, $sub, $context );
+		$sub = apply_filters( 'mhmrentiva_email_subject', $sub, $key, $context );
+		$sub = apply_filters( 'mhmrentiva_email_subject_' . $key, $sub, $context );
 		return $sub;
 	}
 
@@ -173,16 +173,16 @@ final class Templates {
 				$subject = self::compile_subject( $key, $context );
 				$html    = self::wrapWithLayout( $context, $subject, $html );
 			}
-			$html = apply_filters( 'mhm_rentiva_email_body', $html, $key, $context );
-			$html = apply_filters( 'mhm_rentiva_email_body_' . $key, $html, $context );
+			$html = apply_filters( 'mhmrentiva_email_body', $html, $key, $context );
+			$html = apply_filters( 'mhmrentiva_email_body_' . $key, $html, $context );
 			return $html;
 		}
 
 		$reg  = self::registry();
 		$slug = $reg[ $key ]['file'] ?? $key;
 		$path = self::locate_template( $slug );
-		$ctx  = apply_filters( 'mhm_rentiva_email_context', $context, $key );
-		$ctx  = apply_filters( 'mhm_rentiva_email_context_' . $key, $ctx );
+		$ctx  = apply_filters( 'mhmrentiva_email_context', $context, $key );
+		$ctx  = apply_filters( 'mhmrentiva_email_context_' . $key, $ctx );
 		if ( $path ) {
 			ob_start();
 			$data = $ctx;
@@ -202,7 +202,7 @@ final class Templates {
 		}
 
 		// Filter valid HTML
-		$html = apply_filters( 'mhm_rentiva_email_body', $html, $key, $ctx );
+		$html = apply_filters( 'mhmrentiva_email_body', $html, $key, $ctx );
 
 		// Check if allow partials or strict full HTML
 		// If the template does NOT start with <!DOCTYPE or <html, we wrap it.
@@ -452,112 +452,112 @@ final class Templates {
 		switch ( $key ) {
 
 			case 'refund_customer':
-				$opt = 'mhm_rentiva_refund_customer_subject';
+				$opt = 'mhmrentiva_refund_customer_subject';
 				break;
 			case 'refund_admin':
-				$opt = 'mhm_rentiva_refund_admin_subject';
+				$opt = 'mhmrentiva_refund_admin_subject';
 				break;
 			case 'booking_created_admin':
-				$opt = 'mhm_rentiva_booking_admin_subject';
+				$opt = 'mhmrentiva_booking_admin_subject';
 				break;
 			case 'booking_created_customer':
-				$opt = 'mhm_rentiva_booking_created_subject';
+				$opt = 'mhmrentiva_booking_created_subject';
 				break;
 			case 'booking_created_vendor':
-				$opt = 'mhm_rentiva_booking_created_vendor_subject';
+				$opt = 'mhmrentiva_booking_created_vendor_subject';
 				break;
 			case 'booking_status_changed_customer':
-				$opt = 'mhm_rentiva_booking_status_subject';
+				$opt = 'mhmrentiva_booking_status_subject';
 				break;
 			case 'booking_status_changed_admin':
-				$opt = 'mhm_rentiva_booking_status_admin_subject';
+				$opt = 'mhmrentiva_booking_status_admin_subject';
 				break;
 			case 'booking_status_changed_vendor':
-				$opt = 'mhm_rentiva_booking_status_vendor_subject';
+				$opt = 'mhmrentiva_booking_status_vendor_subject';
 				break;
 			case 'booking_reminder_customer':
-				$opt = 'mhm_rentiva_booking_reminder_subject';
+				$opt = 'mhmrentiva_booking_reminder_subject';
 				break;
 			case 'welcome_customer':
-				$opt = 'mhm_rentiva_welcome_email_subject';
+				$opt = 'mhmrentiva_welcome_email_subject';
 				break;
 			case 'auto_cancel':
-				$opt = 'mhm_rentiva_auto_cancel_email_subject';
+				$opt = 'mhmrentiva_auto_cancel_email_subject';
 				break;
 			case 'message_received_admin':
-				$opt = 'mhm_rentiva_message_received_admin_subject';
+				$opt = 'mhmrentiva_message_received_admin_subject';
 				break;
 			case 'message_replied_customer':
-				$opt = 'mhm_rentiva_message_replied_customer_subject';
+				$opt = 'mhmrentiva_message_replied_customer_subject';
 				break;
 			case 'message_auto_reply':
-				$opt = 'mhm_rentiva_message_auto_reply_subject';
+				$opt = 'mhmrentiva_message_auto_reply_subject';
 				break;
 			case 'vendor_approved':
-				$opt = 'mhm_rentiva_vendor_approved_subject';
+				$opt = 'mhmrentiva_vendor_approved_subject';
 				break;
 			case 'vendor_rejected':
-				$opt = 'mhm_rentiva_vendor_rejected_subject';
+				$opt = 'mhmrentiva_vendor_rejected_subject';
 				break;
 			case 'vendor_suspended':
-				$opt = 'mhm_rentiva_vendor_suspended_subject';
+				$opt = 'mhmrentiva_vendor_suspended_subject';
 				break;
 			case 'vendor_application_received':
-				$opt = 'mhm_rentiva_vendor_application_received_subject';
+				$opt = 'mhmrentiva_vendor_application_received_subject';
 				break;
 			case 'vendor_application_new_admin':
-				$opt = 'mhm_rentiva_vendor_application_new_admin_subject';
+				$opt = 'mhmrentiva_vendor_application_new_admin_subject';
 				break;
 			case 'vehicle_approved':
-				$opt = 'mhm_rentiva_vehicle_approved_subject';
+				$opt = 'mhmrentiva_vehicle_approved_subject';
 				break;
 			case 'vehicle_rejected':
-				$opt = 'mhm_rentiva_vehicle_rejected_subject';
+				$opt = 'mhmrentiva_vehicle_rejected_subject';
 				break;
 			case 'vehicle_submitted_admin':
-				$opt = 'mhm_rentiva_vehicle_submitted_admin_subject';
+				$opt = 'mhmrentiva_vehicle_submitted_admin_subject';
 				break;
 			case 'vehicle_rereview_admin':
-				$opt = 'mhm_rentiva_vehicle_rereview_admin_subject';
+				$opt = 'mhmrentiva_vehicle_rereview_admin_subject';
 				break;
 			case 'vehicle_activated':
-				$opt = 'mhm_rentiva_vehicle_activated_subject';
+				$opt = 'mhmrentiva_vehicle_activated_subject';
 				break;
 			case 'vehicle_paused':
-				$opt = 'mhm_rentiva_vehicle_paused_subject';
+				$opt = 'mhmrentiva_vehicle_paused_subject';
 				break;
 			case 'vehicle_resumed':
-				$opt = 'mhm_rentiva_vehicle_resumed_subject';
+				$opt = 'mhmrentiva_vehicle_resumed_subject';
 				break;
 			case 'vehicle_expired':
-				$opt = 'mhm_rentiva_vehicle_expired_subject';
+				$opt = 'mhmrentiva_vehicle_expired_subject';
 				break;
 			case 'vehicle_withdrawn':
-				$opt = 'mhm_rentiva_vehicle_withdrawn_subject';
+				$opt = 'mhmrentiva_vehicle_withdrawn_subject';
 				break;
 			case 'vehicle_renewed':
-				$opt = 'mhm_rentiva_vehicle_renewed_subject';
+				$opt = 'mhmrentiva_vehicle_renewed_subject';
 				break;
 			case 'vehicle_relisted':
-				$opt = 'mhm_rentiva_vehicle_relisted_subject';
+				$opt = 'mhmrentiva_vehicle_relisted_subject';
 				break;
 			case 'vehicle_expiry_warning_first':
-				$opt = 'mhm_rentiva_vehicle_expiry_warning_first_subject';
+				$opt = 'mhmrentiva_vehicle_expiry_warning_first_subject';
 				break;
 			case 'vehicle_expiry_warning_second':
-				$opt = 'mhm_rentiva_vehicle_expiry_warning_second_subject';
+				$opt = 'mhmrentiva_vehicle_expiry_warning_second_subject';
 				break;
 			case 'payout_approved':
-				$opt = 'mhm_rentiva_payout_approved_subject';
+				$opt = 'mhmrentiva_payout_approved_subject';
 				break;
 			case 'payout_rejected':
-				$opt = 'mhm_rentiva_payout_rejected_subject';
+				$opt = 'mhmrentiva_payout_rejected_subject';
 				break;
 			case 'iban_change_approved':
-				$opt = 'mhm_rentiva_iban_change_approved_subject';
+				$opt = 'mhmrentiva_iban_change_approved_subject';
 				break;
 			case 'iban_change_rejected':
-				$opt = 'mhm_rentiva_iban_change_rejected_subject';
+				$opt = 'mhmrentiva_iban_change_rejected_subject';
 				break;
 			default:
 				$opt = '';
@@ -583,115 +583,115 @@ final class Templates {
 		switch ( $key ) {
 
 			case 'refund_customer':
-				$opt = 'mhm_rentiva_refund_customer_body';
+				$opt = 'mhmrentiva_refund_customer_body';
 				break;
 			case 'refund_admin':
-				$opt = 'mhm_rentiva_refund_admin_body';
+				$opt = 'mhmrentiva_refund_admin_body';
 				break;
 			case 'booking_created_admin':
-				$opt = 'mhm_rentiva_booking_admin_body';
+				$opt = 'mhmrentiva_booking_admin_body';
 				break;
 			case 'booking_created_customer':
-				$opt = 'mhm_rentiva_booking_created_body';
+				$opt = 'mhmrentiva_booking_created_body';
 				break;
 			case 'booking_created_vendor':
-				$opt = 'mhm_rentiva_booking_created_vendor_body';
+				$opt = 'mhmrentiva_booking_created_vendor_body';
 				break;
 			case 'booking_status_changed_customer':
-				$opt = 'mhm_rentiva_booking_status_body';
+				$opt = 'mhmrentiva_booking_status_body';
 				break;
 			case 'booking_status_changed_admin':
-				$opt = 'mhm_rentiva_booking_status_admin_body';
+				$opt = 'mhmrentiva_booking_status_admin_body';
 				break;
 			case 'booking_status_changed_vendor':
-				$opt = 'mhm_rentiva_booking_status_vendor_body';
+				$opt = 'mhmrentiva_booking_status_vendor_body';
 				break;
 			case 'booking_reminder_customer':
-				$opt = 'mhm_rentiva_booking_reminder_body';
+				$opt = 'mhmrentiva_booking_reminder_body';
 				break;
 			case 'welcome_customer':
-				$opt = 'mhm_rentiva_welcome_email_body';
+				$opt = 'mhmrentiva_welcome_email_body';
 				break;
 			case 'auto_cancel':
-				$opt = 'mhm_rentiva_auto_cancel_email_content';
+				$opt = 'mhmrentiva_auto_cancel_email_content';
 				break;
 			case 'message_received_admin':
-				$opt = 'mhm_rentiva_message_received_admin_body';
+				$opt = 'mhmrentiva_message_received_admin_body';
 				break;
 			case 'message_replied_customer':
-				$opt = 'mhm_rentiva_message_replied_customer_body';
+				$opt = 'mhmrentiva_message_replied_customer_body';
 				break;
 			case 'message_auto_reply':
-				$opt = 'mhm_rentiva_message_auto_reply_body';
+				$opt = 'mhmrentiva_message_auto_reply_body';
 				break;
 			case 'booking_cancelled':
-				$opt = 'mhm_rentiva_booking_cancelled_body';
+				$opt = 'mhmrentiva_booking_cancelled_body';
 				break;
 			case 'vendor_approved':
-				$opt = 'mhm_rentiva_vendor_approved_body';
+				$opt = 'mhmrentiva_vendor_approved_body';
 				break;
 			case 'vendor_rejected':
-				$opt = 'mhm_rentiva_vendor_rejected_body';
+				$opt = 'mhmrentiva_vendor_rejected_body';
 				break;
 			case 'vendor_suspended':
-				$opt = 'mhm_rentiva_vendor_suspended_body';
+				$opt = 'mhmrentiva_vendor_suspended_body';
 				break;
 			case 'vendor_application_received':
-				$opt = 'mhm_rentiva_vendor_application_received_body';
+				$opt = 'mhmrentiva_vendor_application_received_body';
 				break;
 			case 'vendor_application_new_admin':
-				$opt = 'mhm_rentiva_vendor_application_new_admin_body';
+				$opt = 'mhmrentiva_vendor_application_new_admin_body';
 				break;
 			case 'vehicle_approved':
-				$opt = 'mhm_rentiva_vehicle_approved_body';
+				$opt = 'mhmrentiva_vehicle_approved_body';
 				break;
 			case 'vehicle_rejected':
-				$opt = 'mhm_rentiva_vehicle_rejected_body';
+				$opt = 'mhmrentiva_vehicle_rejected_body';
 				break;
 			case 'vehicle_submitted_admin':
-				$opt = 'mhm_rentiva_vehicle_submitted_admin_body';
+				$opt = 'mhmrentiva_vehicle_submitted_admin_body';
 				break;
 			case 'vehicle_rereview_admin':
-				$opt = 'mhm_rentiva_vehicle_rereview_admin_body';
+				$opt = 'mhmrentiva_vehicle_rereview_admin_body';
 				break;
 			case 'vehicle_activated':
-				$opt = 'mhm_rentiva_vehicle_activated_body';
+				$opt = 'mhmrentiva_vehicle_activated_body';
 				break;
 			case 'vehicle_paused':
-				$opt = 'mhm_rentiva_vehicle_paused_body';
+				$opt = 'mhmrentiva_vehicle_paused_body';
 				break;
 			case 'vehicle_resumed':
-				$opt = 'mhm_rentiva_vehicle_resumed_body';
+				$opt = 'mhmrentiva_vehicle_resumed_body';
 				break;
 			case 'vehicle_expired':
-				$opt = 'mhm_rentiva_vehicle_expired_body';
+				$opt = 'mhmrentiva_vehicle_expired_body';
 				break;
 			case 'vehicle_withdrawn':
-				$opt = 'mhm_rentiva_vehicle_withdrawn_body';
+				$opt = 'mhmrentiva_vehicle_withdrawn_body';
 				break;
 			case 'vehicle_renewed':
-				$opt = 'mhm_rentiva_vehicle_renewed_body';
+				$opt = 'mhmrentiva_vehicle_renewed_body';
 				break;
 			case 'vehicle_relisted':
-				$opt = 'mhm_rentiva_vehicle_relisted_body';
+				$opt = 'mhmrentiva_vehicle_relisted_body';
 				break;
 			case 'vehicle_expiry_warning_first':
-				$opt = 'mhm_rentiva_vehicle_expiry_warning_first_body';
+				$opt = 'mhmrentiva_vehicle_expiry_warning_first_body';
 				break;
 			case 'vehicle_expiry_warning_second':
-				$opt = 'mhm_rentiva_vehicle_expiry_warning_second_body';
+				$opt = 'mhmrentiva_vehicle_expiry_warning_second_body';
 				break;
 			case 'payout_approved':
-				$opt = 'mhm_rentiva_payout_approved_body';
+				$opt = 'mhmrentiva_payout_approved_body';
 				break;
 			case 'payout_rejected':
-				$opt = 'mhm_rentiva_payout_rejected_body';
+				$opt = 'mhmrentiva_payout_rejected_body';
 				break;
 			case 'iban_change_approved':
-				$opt = 'mhm_rentiva_iban_change_approved_body';
+				$opt = 'mhmrentiva_iban_change_approved_body';
 				break;
 			case 'iban_change_rejected':
-				$opt = 'mhm_rentiva_iban_change_rejected_body';
+				$opt = 'mhmrentiva_iban_change_rejected_body';
 				break;
 			default:
 				$opt = '';
@@ -826,7 +826,7 @@ final class Templates {
 		}
 
 		// Fallback: Use plugin currency settings
-		$currency_symbol = apply_filters( 'mhm_rentiva/currency_symbol', '₺' );
+		$currency_symbol = apply_filters( 'mhmrentiva/currency_symbol', '₺' );
 		$decimals        = 2;
 		$dec_sep         = ',';
 		$thousands_sep   = '.';

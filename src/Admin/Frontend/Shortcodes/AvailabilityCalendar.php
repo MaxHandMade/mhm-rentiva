@@ -58,11 +58,11 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
+		add_action('wp_ajax_mhmrentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_availability_unified', array( self::class, 'ajax_unified_availability' ));
 
-		add_action('wp_ajax_mhm_rentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
+		add_action('wp_ajax_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_get_vehicle_info', array( self::class, 'ajax_get_vehicle_info' ));
 
 		// Cache invalidation
 		add_action('save_post_vehicle_booking', array( self::class, 'clear_availability_cache' ), 10, 3);
@@ -82,14 +82,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	{
 		return array(
 			'vehicle_id'           => '',
-			'show_pricing'         => apply_filters('mhm_rentiva/availability_calendar/show_pricing', '1'),
-			'show_seasonal_prices' => apply_filters('mhm_rentiva/availability_calendar/show_seasonal_prices', '1'),
-			'show_discounts'       => apply_filters('mhm_rentiva/availability_calendar/show_discounts', '1'),
+			'show_pricing'         => apply_filters('mhmrentiva/availability_calendar/show_pricing', '1'),
+			'show_seasonal_prices' => apply_filters('mhmrentiva/availability_calendar/show_seasonal_prices', '1'),
+			'show_discounts'       => apply_filters('mhmrentiva/availability_calendar/show_discounts', '1'),
 			'show_booking_button'  => apply_filters(
-				'mhm_rentiva/availability_calendar/show_booking_button',
-				apply_filters('mhm_rentiva/availability_calendar/show_booking_btn', '1')
+				'mhmrentiva/availability_calendar/show_booking_button',
+				apply_filters('mhmrentiva/availability_calendar/show_booking_btn', '1')
 			),
-			'theme'                => apply_filters('mhm_rentiva/availability_calendar/theme', 'default'),
+			'theme'                => apply_filters('mhmrentiva/availability_calendar/theme', 'default'),
 			'start_date'           => '',
 			// `months_ahead` used to sit beside `months_to_show` but nothing ever
 			// read it -- the render span comes from `months_to_show` alone. Its
@@ -97,9 +97,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			// their declared defaults ('1'/'0') contradicted what the calendar
 			// actually renders, so honouring them would have silently changed every
 			// existing calendar. All three are gone rather than back-fitted.
-			'months_to_show'       => apply_filters('mhm_rentiva/availability_calendar/months_to_show', '1'),
+			'months_to_show'       => apply_filters('mhmrentiva/availability_calendar/months_to_show', '1'),
 			'start_month'          => '',
-			'integrate_pricing'    => apply_filters('mhm_rentiva/availability_calendar/integrate_pricing', '1'),
+			'integrate_pricing'    => apply_filters('mhmrentiva/availability_calendar/integrate_pricing', '1'),
 			'class'                => '',
 		);
 	}
@@ -149,7 +149,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 				// Check for minified version
 				$minified_file = str_replace('.css', '.min.css', $css_file);
-				$css_url       = MHM_RENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $css_file );
+				$css_url       = MHMRENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $css_file );
 
 				wp_enqueue_style(
 					$handle,
@@ -174,7 +174,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 				// Check for minified version
 				$minified_file = str_replace('.js', '.min.js', $js_file);
-				$js_url        = MHM_RENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $js_file );
+				$js_url        = MHMRENTIVA_PLUGIN_URL . ( self::asset_exists($minified_file) ? $minified_file : $js_file );
 
 				wp_enqueue_script(
 					$handle,
@@ -209,9 +209,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		// Enqueue Global Notifications System CSS (Forced for reliability)
 		wp_enqueue_style(
 			'mhm-rentiva-notifications',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 			array(),
-			MHM_RENTIVA_VERSION . '.toast2'
+			MHMRENTIVA_VERSION . '.toast2'
 		);
 
 		// Load CSS
@@ -295,7 +295,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		$data['isUserLoggedIn']   = is_user_logged_in();
 		$data['currencySymbol']   = CurrencyHelper::get_currency_symbol();
 		$data['currencyPosition'] = CurrencyHelper::get_currency_position();
-		$data['pluginUrl']        = MHM_RENTIVA_PLUGIN_URL;
+		$data['pluginUrl']        = MHMRENTIVA_PLUGIN_URL;
 		$data['dateFormat']       = get_option('date_format', 'd.m.Y');
 		$data['timeFormat']       = get_option('time_format', 'H:i');
 		$data['locale']           = get_locale();
@@ -337,11 +337,11 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 		/**
 		 * Nonce mapping for Availability Calendar
-		 * 1. nonce: Used for data loading (mhm_rentiva_availability_nonce)
-		 * 2. favoriteNonce: Used for favorite toggling (mhm_rentiva_vehicles_list)
+		 * 1. nonce: Used for data loading (mhmrentiva_availability_nonce)
+		 * 2. favoriteNonce: Used for favorite toggling (mhmrentiva_vehicles_list)
 		 */
-		$data['nonce']         = wp_create_nonce('mhm_rentiva_availability_nonce');
-		$data['favoriteNonce'] = wp_create_nonce('mhm_rentiva_toggle_favorite'); // Use toggle_favorite specifically
+		$data['nonce']         = wp_create_nonce('mhmrentiva_availability_nonce');
+		$data['favoriteNonce'] = wp_create_nonce('mhmrentiva_toggle_favorite'); // Use toggle_favorite specifically
 		$data['accountNonce']  = $data['favoriteNonce'];
 
 		return $data;
@@ -614,11 +614,11 @@ final class AvailabilityCalendar extends AbstractShortcode {
                     pm_status.meta_value as status,
                     pm_payment.meta_value as payment_status
                 FROM {$wpdb->posts} p
-                INNER JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-                INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key IN ('_mhm_start_date', '_mhm_pickup_date')
-                INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key IN ('_mhm_end_date', '_mhm_return_date', '_mhm_dropoff_date')
-                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-                LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhm_payment_status'
+                INNER JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhmrentiva_vehicle_id'
+                INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key IN ('_mhmrentiva_start_date', '_mhmrentiva_pickup_date')
+                INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key IN ('_mhmrentiva_end_date', '_mhmrentiva_return_date', '_mhmrentiva_dropoff_date')
+                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
+                LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhmrentiva_payment_status'
                 WHERE p.post_type = 'vehicle_booking'
                 AND p.post_status IN ('publish', 'pending', 'confirmed')
                 AND pm_vehicle.meta_value = %d
@@ -862,7 +862,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 	private static function get_vehicle_base_price(int $vehicle_id): float
 	{
-		$price = floatval(get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true) ?: 0);
+		$price = floatval(get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true) ?: 0);
 		return $price;
 	}
 
@@ -870,7 +870,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	{
 		$base_price = self::get_vehicle_base_price($vehicle_id);
 		// Get multiplier from settings, default to 1.2
-		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.2);
+		$multiplier = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.2);
 
 		return $base_price * $multiplier;
 	}
@@ -901,7 +901,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	public static function ajax_unified_availability(): void
 	{
 		// Security check
-		if (! check_ajax_referer('mhm_rentiva_availability_nonce', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 			return;
 		}
@@ -943,7 +943,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	{
 		try {
 			// Security check
-			if (! check_ajax_referer('mhm_rentiva_availability_nonce', 'nonce', false)) {
+			if (! check_ajax_referer('mhmrentiva_availability_nonce', 'nonce', false)) {
 				wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
 				return;
 			}
@@ -969,9 +969,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 			// Vehicle features (Unified with SVGs)
 			$features     = array();
-			$fuel_type    = get_post_meta($vehicle_id, '_mhm_rentiva_fuel_type', true);
-			$transmission = get_post_meta($vehicle_id, '_mhm_rentiva_transmission', true);
-			$seats        = get_post_meta($vehicle_id, '_mhm_rentiva_seats', true);
+			$fuel_type    = get_post_meta($vehicle_id, '_mhmrentiva_fuel_type', true);
+			$transmission = get_post_meta($vehicle_id, '_mhmrentiva_transmission', true);
+			$seats        = get_post_meta($vehicle_id, '_mhmrentiva_seats', true);
 
 			if ($fuel_type) {
 				$features[] = array(
@@ -996,7 +996,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				);
 			}
 			// Add default features if needed or more meta
-			$yearValue = get_post_meta($vehicle_id, '_mhm_rentiva_year', true);
+			$yearValue = get_post_meta($vehicle_id, '_mhmrentiva_year', true);
 			if ($yearValue) {
 				$features[] = array(
 					'icon' => 'calendar',
@@ -1030,12 +1030,12 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				'currency_symbol' => CurrencyHelper::get_currency_symbol(),
 				'rating'          => $rating,
 				'is_favorite'     => false,
-				'location_id'     => (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true),
+				'location_id'     => (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true),
 			);
 
 			if (is_user_logged_in()) {
 				$user_id   = get_current_user_id();
-				$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+				$favorites = get_user_meta($user_id, 'mhmrentiva_favorites', true);
 				if (is_array($favorites) && in_array($vehicle_id, $favorites)) {
 					$data['is_favorite'] = true;
 				}
@@ -1106,7 +1106,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 			return;
 		}
 
-		$vehicle_id = (int) get_post_meta( (int) $post_id, '_mhm_vehicle_id', true);
+		$vehicle_id = (int) get_post_meta( (int) $post_id, '_mhmrentiva_vehicle_id', true);
 		if ($vehicle_id > 0) {
 			\MHMRentiva\Admin\Core\PerformanceHelper::cache_invalidate_tags(array( "vehicle_{$vehicle_id}" ));
 		}

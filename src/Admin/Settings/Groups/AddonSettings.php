@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class AddonSettings {
 
-	public const SECTION_ID = 'mhm_rentiva_addons_section';
+	public const SECTION_ID = 'mhmrentiva_addons_section';
 
 	/**
 	 * Get default settings for addons.
@@ -33,9 +33,9 @@ final class AddonSettings {
 	 */
 	public static function get_default_settings(): array {
 		return array(
-			'mhm_rentiva_addon_require_confirmation'    => '0',
-			'mhm_rentiva_addon_show_prices_in_calendar' => '1',
-			'mhm_rentiva_addon_display_order'           => 'menu_order',
+			'mhmrentiva_addon_require_confirmation'    => '0',
+			'mhmrentiva_addon_show_prices_in_calendar' => '1',
+			'mhmrentiva_addon_display_order'           => 'menu_order',
 		);
 	}
 
@@ -63,7 +63,7 @@ final class AddonSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_addon_require_confirmation',
+			'mhmrentiva_addon_require_confirmation',
 			__( 'Require Confirmation', 'mhm-rentiva' ),
 			__( 'Require manual confirmation when customers select additional services.', 'mhm-rentiva' ),
 			self::SECTION_ID
@@ -71,7 +71,7 @@ final class AddonSettings {
 
 		SettingsHelper::checkbox_field(
 			$page_slug,
-			'mhm_rentiva_addon_show_prices_in_calendar',
+			'mhmrentiva_addon_show_prices_in_calendar',
 			__( 'Show Prices in Calendar', 'mhm-rentiva' ),
 			__( 'Display additional service prices in the booking calendar.', 'mhm-rentiva' ),
 			self::SECTION_ID
@@ -79,7 +79,7 @@ final class AddonSettings {
 
 		SettingsHelper::select_field(
 			$page_slug,
-			'mhm_rentiva_addon_display_order',
+			'mhmrentiva_addon_display_order',
 			__( 'Display Order', 'mhm-rentiva' ),
 			array(
 				'menu_order'   => __( 'Menu Order (Default)', 'mhm-rentiva' ),
@@ -100,12 +100,12 @@ final class AddonSettings {
 
 	// Static Accessors
 	public static function require_confirmation(): bool {
-		return SettingsCore::get( 'mhm_rentiva_addon_require_confirmation', '0' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_addon_require_confirmation', '0' ) === '1';
 	}
 	public static function show_prices_in_calendar(): bool {
-		return SettingsCore::get( 'mhm_rentiva_addon_show_prices_in_calendar', '1' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_addon_show_prices_in_calendar', '1' ) === '1';
 	}
 	public static function get_display_order(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_addon_display_order', 'menu_order' );
+		return (string) SettingsCore::get( 'mhmrentiva_addon_display_order', 'menu_order' );
 	}
 }

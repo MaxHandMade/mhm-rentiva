@@ -21,8 +21,8 @@ final class RefundNotifications {
 	}
 
 	public static function notify( int $booking_id, int $amount_kurus, string $currency, string $newPayStatus, string $reason = '' ): void {
-		$email = (string) get_post_meta( $booking_id, '_mhm_contact_email', true );
-		$name  = (string) get_post_meta( $booking_id, '_mhm_contact_name', true );
+		$email = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_email', true );
+		$name  = (string) get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
 		$admin = get_option( 'admin_email' );
 
 		if ( function_exists( 'wc_price' ) ) {
@@ -30,7 +30,7 @@ final class RefundNotifications {
 		} else {
 			$symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $currency ?: null );
 			$amount = number_format_i18n( $amount_kurus / 100, 2 );
-			$pos    = get_option( 'mhm_rentiva_currency_position', 'right_space' );
+			$pos    = get_option( 'mhmrentiva_currency_position', 'right_space' );
 
 			switch ( $pos ) {
 				case 'left':
@@ -50,18 +50,18 @@ final class RefundNotifications {
 		}
 		$statusText = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );
 
-		$wc_order_id = (int) get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true );
+		$wc_order_id = (int) get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true );
 
 		$context = array(
 			'booking'  => array(
 				'id'       => (int) $booking_id,
 				'order_id' => $wc_order_id ?: (int) $booking_id,
 				'title'    => get_the_title( $booking_id ),
-				'status'   => (string) get_post_meta( $booking_id, '_mhm_status', true ),
+				'status'   => (string) get_post_meta( $booking_id, '_mhmrentiva_status', true ),
 				'payment'  => array(
 					'status'   => $newPayStatus,
-					'amount'   => (int) get_post_meta( $booking_id, '_mhm_payment_amount', true ),
-					'currency' => (string) get_post_meta( $booking_id, '_mhm_payment_currency', true ) ?: 'TRY',
+					'amount'   => (int) get_post_meta( $booking_id, '_mhmrentiva_payment_amount', true ),
+					'currency' => (string) get_post_meta( $booking_id, '_mhmrentiva_payment_currency', true ) ?: 'TRY',
 				),
 			),
 			'amount'   => $amountHuman,

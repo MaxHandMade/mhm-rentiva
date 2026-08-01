@@ -50,7 +50,7 @@ final class MultiPageAtomicImportTest extends TestCase
 
         $this->assertNotNull($alpha);
         $this->assertNotNull($beta);
-        $this->assertEquals($this->manifest, get_post_meta($alpha->ID, '_mhm_layout_manifest', true));
+        $this->assertEquals($this->manifest, get_post_meta($alpha->ID, '_mhmrentiva_layout_manifest', true));
     }
 
     public function test_successful_multi_page_update(): void

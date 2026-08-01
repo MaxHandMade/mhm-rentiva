@@ -22,7 +22,7 @@ class SecurityHelperTest extends WP_UnitTestCase
         parent::setUp();
         
         // Clear any existing transients
-        delete_transient('mhm_rate_limit_test_action_1');
+        delete_transient('mhmrentiva_rate_limit_test_action_1');
         
         // Reset superglobals
         $_POST = [];
@@ -39,7 +39,7 @@ class SecurityHelperTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Clean up transients
-        delete_transient('mhm_rate_limit_test_action_1');
+        delete_transient('mhmrentiva_rate_limit_test_action_1');
         
         // Reset superglobals
         $_POST = [];

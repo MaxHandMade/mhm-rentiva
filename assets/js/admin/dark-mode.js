@@ -16,7 +16,7 @@
 
 		bindEvents: function () {
 			// Dark mode toggle change
-			$( '#mhm_rentiva_dark_mode' ).on(
+			$( '#mhmrentiva_dark_mode' ).on(
 				'change',
 				function () {
 					DarkModeManager.saveDarkMode( $( this ).val() );
@@ -51,14 +51,14 @@
 					url: mhmDarkMode.ajaxUrl,
 					type: 'POST',
 					data: {
-						action: 'mhm_rentiva_save_dark_mode',
+						action: 'mhmrentiva_save_dark_mode',
 						mode: mode,
 						nonce: mhmDarkMode.nonce
 					},
 					success: function (response) {
 						if (response.success) {
 							// Update the select field value after successful save
-							$( '#mhm_rentiva_dark_mode' ).val( mode );
+							$( '#mhmrentiva_dark_mode' ).val( mode );
 							DarkModeManager.applyDarkModeDirect( mode );
 							DarkModeManager.updateStatus( mode );
 							DarkModeManager.showNotice( 'Dark mode preference saved successfully!', 'success' );

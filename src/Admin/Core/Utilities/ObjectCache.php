@@ -36,12 +36,12 @@ final class ObjectCache {
 	/**
 	 * Cache groups
 	 */
-	public const GROUP_BOOKINGS  = 'mhm_rentiva_bookings';
-	public const GROUP_VEHICLES  = 'mhm_rentiva_vehicles';
-	public const GROUP_CUSTOMERS = 'mhm_rentiva_customers';
-	public const GROUP_REPORTS   = 'mhm_rentiva_reports';
-	private const GROUP_SETTINGS = 'mhm_rentiva_settings';
-	private const GROUP_QUERIES  = 'mhm_rentiva_queries';
+	public const GROUP_BOOKINGS  = 'mhmrentiva_bookings';
+	public const GROUP_VEHICLES  = 'mhmrentiva_vehicles';
+	public const GROUP_CUSTOMERS = 'mhmrentiva_customers';
+	public const GROUP_REPORTS   = 'mhmrentiva_reports';
+	private const GROUP_SETTINGS = 'mhmrentiva_settings';
+	private const GROUP_QUERIES  = 'mhmrentiva_queries';
 
 	/**
 	 * Cache durations - Retrieved from settings
@@ -84,7 +84,7 @@ final class ObjectCache {
 		// Redis check
 		if ( class_exists( 'Redis' ) && function_exists( 'wp_cache_get' ) && wp_using_ext_object_cache() ) {
 			try {
-				$test_key = 'mhm_rentiva_redis_test_' . time();
+				$test_key = 'mhmrentiva_redis_test_' . time();
 				wp_cache_set( $test_key, 'test', self::GROUP_SETTINGS, 60 );
 				$result = wp_cache_get( $test_key, self::GROUP_SETTINGS );
 				wp_cache_delete( $test_key, self::GROUP_SETTINGS );
@@ -101,7 +101,7 @@ final class ObjectCache {
 		// Memcached check
 		if ( class_exists( 'Memcached' ) && function_exists( 'wp_cache_get' ) && wp_using_ext_object_cache() ) {
 			try {
-				$test_key = 'mhm_rentiva_memcached_test_' . time();
+				$test_key = 'mhmrentiva_memcached_test_' . time();
 				wp_cache_set( $test_key, 'test', self::GROUP_SETTINGS, 60 );
 				$result = wp_cache_get( $test_key, self::GROUP_SETTINGS );
 				wp_cache_delete( $test_key, self::GROUP_SETTINGS );
@@ -220,7 +220,7 @@ final class ObjectCache {
 					return (bool) wp_cache_flush_group( $group );
 				}
 
-				$fallback = apply_filters( 'mhm_rentiva_object_cache_flush_group', null, $group, $backend );
+				$fallback = apply_filters( 'mhmrentiva_object_cache_flush_group', null, $group, $backend );
 				if ( $fallback !== null ) {
 					return (bool) $fallback;
 				}
@@ -276,7 +276,7 @@ final class ObjectCache {
 					return true;
 				}
 
-				if ( apply_filters( 'mhm_rentiva_object_cache_allow_global_flush', false, $backend ) ) {
+				if ( apply_filters( 'mhmrentiva_object_cache_allow_global_flush', false, $backend ) ) {
 					$result = function_exists( 'wp_cache_flush' ) ? wp_cache_flush() : false;
 
 					self::log_cache_notice(
@@ -301,7 +301,7 @@ final class ObjectCache {
 
 			case self::BACKEND_TRANSIENT:
 				// Only clear MHM Rentiva caches
-				return self::flush_mhm_transients();
+				return self::flush_mhmrentiva_transients();
 
 			default:
 				return false;
@@ -450,7 +450,7 @@ final class ObjectCache {
 	 * Cache performance test
 	 */
 	public static function performance_test( int $iterations = 100 ): array {
-		$test_key  = 'mhm_rentiva_perf_test_' . time();
+		$test_key  = 'mhmrentiva_perf_test_' . time();
 		$test_data = array(
 			'timestamp' => current_time( 'timestamp' ),
 			'data'      => str_repeat( 'test_data_', 100 ), // ~1KB data
@@ -499,7 +499,7 @@ final class ObjectCache {
 	 * Create transient key
 	 */
 	private static function get_transient_key( string $key, string $group ): string {
-		return 'mhm_rentiva_' . $group . '_' . md5( $key );
+		return 'mhmrentiva_' . $group . '_' . md5( $key );
 	}
 
 	/**
@@ -508,7 +508,7 @@ final class ObjectCache {
 	private static function flush_group_pattern( string $group ): bool {
 		global $wpdb;
 
-		$pattern = 'mhm_rentiva_' . $group . '_%';
+		$pattern = 'mhmrentiva_' . $group . '_%';
 
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -534,7 +534,7 @@ final class ObjectCache {
 	/**
 	 * Clear MHM Rentiva transients
 	 */
-	private static function flush_mhm_transients(): bool {
+	private static function flush_mhmrentiva_transients(): bool {
 		global $wpdb;
 
 		$results = $wpdb->get_results(
@@ -542,7 +542,7 @@ final class ObjectCache {
 				"SELECT option_name FROM {$wpdb->options} 
              WHERE option_name LIKE %s 
              AND option_name LIKE %s",
-				'%' . $wpdb->esc_like( 'mhm_rentiva_' ) . '%',
+				'%' . $wpdb->esc_like( 'mhmrentiva_' ) . '%',
 				$wpdb->esc_like( '_transient_' ) . '%'
 			)
 		);
@@ -597,7 +597,7 @@ final class ObjectCache {
 		$temperatures = array();
 
 		foreach ( $groups as $group ) {
-			$test_key   = 'mhm_temp_test_' . time();
+			$test_key   = 'mhmrentiva_temp_test_' . time();
 			$start_time = microtime( true );
 
 			// Write to cache and read

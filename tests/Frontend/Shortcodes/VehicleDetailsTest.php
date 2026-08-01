@@ -17,8 +17,8 @@ class VehicleDetailsTest extends WP_UnitTestCase
             'post_status' => 'publish',
             'post_title'  => 'Details Test Vehicle',
             'meta_input'  => [
-                '_mhm_rentiva_price_per_day' => '200',
-                '_mhm_vehicle_status'        => 'active',
+                '_mhmrentiva_price_per_day' => '200',
+                '_mhmrentiva_vehicle_status'        => 'active',
             ],
         ]);
         wp_cache_delete($this->vehicle_id, 'post_meta');

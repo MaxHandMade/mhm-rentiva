@@ -48,7 +48,7 @@ final class VehicleColumns {
 	 * shareable filtered links, and an annotation over a raw $_GET read is not a
 	 * resolution either.
 	 *
-	 * `mhm_month`/`mhm_year` drive the availability calendar's prev/next
+	 * `mhmrentiva_month`/`mhmrentiva_year` drive the availability calendar's prev/next
 	 * navigation. They carry the plugin prefix rather than the bare
 	 * `month`/`year` they used to: registering an unprefixed `month` on a global
 	 * whitelist would collide with any other plugin doing the same, and `year`
@@ -57,12 +57,12 @@ final class VehicleColumns {
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
-		'mhm_available',
-		'mhm_location_filter',
-		'mhm_lifecycle_filter',
-		'mhm_owner_filter',
-		'mhm_month',
-		'mhm_year',
+		'mhmrentiva_available',
+		'mhmrentiva_location_filter',
+		'mhmrentiva_lifecycle_filter',
+		'mhmrentiva_owner_filter',
+		'mhmrentiva_month',
+		'mhmrentiva_year',
 	);
 
 	/**
@@ -141,14 +141,14 @@ final class VehicleColumns {
 	/**
 	 * Whether the Location feature is available.
 	 *
-	 * Locations come from an add-on via the `mhm_rentiva_has_locations` filter;
+	 * Locations come from an add-on via the `mhmrentiva_has_locations` filter;
 	 * Lite has no location list or CRUD UI of its own, so the default is false and
 	 * every location affordance in this list table is withheld rather than
 	 * rendered empty.
 	 */
 	private static function has_locations(): bool
 	{
-		return (bool) apply_filters('mhm_rentiva_has_locations', false);
+		return (bool) apply_filters('mhmrentiva_has_locations', false);
 	}
 
 	public static function columns(array $cols): array
@@ -157,18 +157,18 @@ final class VehicleColumns {
 		$date = $cols['date'] ?? null;
 		unset($cols['date']);
 
-		$cols['mhm_owner']         = __('Added by', 'mhm-rentiva');
-		$cols['mhm_license_plate'] = __('License Plate', 'mhm-rentiva');
+		$cols['mhmrentiva_owner']         = __('Added by', 'mhm-rentiva');
+		$cols['mhmrentiva_license_plate'] = __('License Plate', 'mhm-rentiva');
 		if (self::has_locations()) {
-			$cols['mhm_location'] = __('Location', 'mhm-rentiva');
+			$cols['mhmrentiva_location'] = __('Location', 'mhm-rentiva');
 		}
-		$cols['mhm_price_per_day'] = __('Price/Day', 'mhm-rentiva');
-		$cols['mhm_seats']         = __('Seats', 'mhm-rentiva');
-		$cols['mhm_transmission']  = __('Transmission', 'mhm-rentiva');
-		$cols['mhm_fuel_type']     = __('Fuel', 'mhm-rentiva');
-		$cols['mhm_available']     = __('Available', 'mhm-rentiva');
-		$cols['mhm_lifecycle']     = __('Lifecycle', 'mhm-rentiva');
-		$cols['mhm_featured']      = __('Featured', 'mhm-rentiva');
+		$cols['mhmrentiva_price_per_day'] = __('Price/Day', 'mhm-rentiva');
+		$cols['mhmrentiva_seats']         = __('Seats', 'mhm-rentiva');
+		$cols['mhmrentiva_transmission']  = __('Transmission', 'mhm-rentiva');
+		$cols['mhmrentiva_fuel_type']     = __('Fuel', 'mhm-rentiva');
+		$cols['mhmrentiva_available']     = __('Available', 'mhm-rentiva');
+		$cols['mhmrentiva_lifecycle']     = __('Lifecycle', 'mhm-rentiva');
+		$cols['mhmrentiva_featured']      = __('Featured', 'mhm-rentiva');
 
 		if ($date !== null) {
 			$cols['date'] = $date;
@@ -185,7 +185,7 @@ final class VehicleColumns {
 	public static function render(string $column, int $post_id): void
 	{
 		switch ($column) {
-			case 'mhm_owner':
+			case 'mhmrentiva_owner':
 				if (\MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($post_id)) {
 					$author_id = (int) get_post_field('post_author', $post_id);
 					$author    = get_userdata($author_id);
@@ -198,18 +198,18 @@ final class VehicleColumns {
 				}
 				break;
 
-			case 'mhm_license_plate':
+			case 'mhmrentiva_license_plate':
 				$v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
 				echo ! empty($v) ? esc_html($v) : '—';
 				break;
 
-			case 'mhm_location':
+			case 'mhmrentiva_location':
 				$location_id   = (int) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, true);
 				$location_name = '';
 				// Locations come from an add-on via the filter; the default is empty,
 				// so the lookup below simply finds nothing without one.
 				if ($location_id > 0) {
-					$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
+					$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
 					foreach ($locations as $loc) {
 						if ( (int) $loc->id === $location_id) {
 							$location_name = $loc->name;
@@ -220,7 +220,7 @@ final class VehicleColumns {
 				echo '<span data-location-id="' . esc_attr( (string) $location_id ) . '">' . ( $location_name ? esc_html( $location_name ) : '&mdash;' ) . '</span>';
 				break;
 
-			case 'mhm_price_per_day':
+			case 'mhmrentiva_price_per_day':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($post_id);
 				if ($v > 0) {
 					$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
@@ -230,24 +230,24 @@ final class VehicleColumns {
 				}
 				break;
 
-			case 'mhm_seats':
+			case 'mhmrentiva_seats':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
 				echo $v > 0 ? esc_html( (string) $v) : '—';
 				break;
 
-			case 'mhm_transmission':
+			case 'mhmrentiva_transmission':
 				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
 				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
 				break;
 
-			case 'mhm_fuel_type':
+			case 'mhmrentiva_fuel_type':
 				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FUEL_TYPE, true);
 				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
 				break;
 
-			case 'mhm_available':
+			case 'mhmrentiva_available':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post_id);
 
 				// UI Consistency: Use CSS variables
@@ -283,7 +283,7 @@ final class VehicleColumns {
 				echo '</span>';
 				break;
 
-			case 'mhm_lifecycle':
+			case 'mhmrentiva_lifecycle':
 				$lifecycle = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get($post_id);
 				$label     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_label($lifecycle);
 				$color     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_color($lifecycle);
@@ -303,7 +303,7 @@ final class VehicleColumns {
 				}
 				break;
 
-			case 'mhm_featured':
+			case 'mhmrentiva_featured':
 				$is_featured = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_featured($post_id);
 				echo $is_featured ? esc_html__('Yes', 'mhm-rentiva') : esc_html__('No', 'mhm-rentiva');
 				break;
@@ -318,11 +318,11 @@ final class VehicleColumns {
 	 */
 	public static function sortable(array $cols): array
 	{
-		$cols['mhm_price_per_day'] = 'mhm_price_per_day';
-		$cols['mhm_seats']         = 'mhm_seats';
+		$cols['mhmrentiva_price_per_day'] = 'mhmrentiva_price_per_day';
+		$cols['mhmrentiva_seats']         = 'mhmrentiva_seats';
 		// Only sortable when the Location column is actually registered.
 		if (self::has_locations()) {
-			$cols['mhm_location'] = 'mhm_location';
+			$cols['mhmrentiva_location'] = 'mhmrentiva_location';
 		}
 		return $cols;
 	}
@@ -336,13 +336,13 @@ final class VehicleColumns {
 			return;
 		}
 		$orderby = $q->get('orderby');
-		if ($orderby === 'mhm_price_per_day') {
+		if ($orderby === 'mhmrentiva_price_per_day') {
 			$q->set('meta_key', \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY);
 			$q->set('orderby', 'meta_value_num');
-		} elseif ($orderby === 'mhm_seats') {
+		} elseif ($orderby === 'mhmrentiva_seats') {
 			$q->set('meta_key', \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_SEATS);
 			$q->set('orderby', 'meta_value_num');
-		} elseif ($orderby === 'mhm_location') {
+		} elseif ($orderby === 'mhmrentiva_location') {
 			$q->set('meta_key', \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID);
 			$q->set('orderby', 'meta_value_num');
 		}
@@ -354,13 +354,13 @@ final class VehicleColumns {
 			return;
 		}
 
-		$current = self::get_query_text('mhm_available');
+		$current = self::get_query_text('mhmrentiva_available');
 
 		// Dynamic status values
 		$status_values = self::get_vehicle_status_values();
 		$legacy_values = self::get_legacy_status_values();
 
-		echo '<select name="mhm_available" class="postform">';
+		echo '<select name="mhmrentiva_available" class="postform">';
 		echo '  <option value="">' . esc_html__('All availability statuses', 'mhm-rentiva') . '</option>';
 
 		// New status values
@@ -378,9 +378,9 @@ final class VehicleColumns {
 		// Location filter dropdown — withheld entirely without the Location feature,
 		// rather than rendered as a lone "All locations" option that filters nothing.
 		if (self::has_locations()) {
-			$locations   = apply_filters('mhm_rentiva_locations', array(), 'rental');
-			$current_loc = self::get_query_int('mhm_location_filter');
-			echo '<select name="mhm_location_filter" class="postform">';
+			$locations   = apply_filters('mhmrentiva_locations', array(), 'rental');
+			$current_loc = self::get_query_int('mhmrentiva_location_filter');
+			echo '<select name="mhmrentiva_location_filter" class="postform">';
 			echo '<option value="">' . esc_html__('All locations', 'mhm-rentiva') . '</option>';
 			foreach ($locations as $loc) {
 				$loc_id   = (int) $loc->id;
@@ -391,7 +391,7 @@ final class VehicleColumns {
 		}
 
 		// Lifecycle / archive filter dropdown.
-		$current_lc = self::get_query_text('mhm_lifecycle_filter');
+		$current_lc = self::get_query_text('mhmrentiva_lifecycle_filter');
 		$lc_options = array(
 			''          => __('All lifecycle states', 'mhm-rentiva'),
 			'active'    => __('Active', 'mhm-rentiva'),
@@ -400,20 +400,20 @@ final class VehicleColumns {
 			'withdrawn' => __('Withdrawn', 'mhm-rentiva'),
 			'archive'   => __('Archive (expired + withdrawn)', 'mhm-rentiva'),
 		);
-		echo '<select name="mhm_lifecycle_filter" class="postform">';
+		echo '<select name="mhmrentiva_lifecycle_filter" class="postform">';
 		foreach ($lc_options as $value => $label) {
 			echo '<option value="' . esc_attr($value) . '"' . selected($current_lc, $value, false) . '>' . esc_html($label) . '</option>';
 		}
 		echo '</select>';
 
 		// Owner filter dropdown (vendor-added vs operator-added).
-		$current_owner = self::get_query_text('mhm_owner_filter');
+		$current_owner = self::get_query_text('mhmrentiva_owner_filter');
 		$owner_options = array(
 			''         => __('All owners', 'mhm-rentiva'),
 			'vendor'   => __('Vendor', 'mhm-rentiva'),
 			'operator' => __('Operator', 'mhm-rentiva'),
 		);
-		echo '<select name="mhm_owner_filter" class="postform">';
+		echo '<select name="mhmrentiva_owner_filter" class="postform">';
 		foreach ($owner_options as $value => $label) {
 			echo '<option value="' . esc_attr($value) . '"' . selected($current_owner, $value, false) . '>' . esc_html($label) . '</option>';
 		}
@@ -437,7 +437,7 @@ final class VehicleColumns {
 		$meta_query = array();
 
 		// Availability status filter
-		$val = self::get_query_text('mhm_available');
+		$val = self::get_query_text('mhmrentiva_available');
 		if ($val !== '') {
 			// Dynamic status values validation
 			$status_values  = array_keys(self::get_vehicle_status_values());
@@ -450,7 +450,7 @@ final class VehicleColumns {
 		}
 
 		// Location filter
-		$location_filter = self::get_query_int('mhm_location_filter');
+		$location_filter = self::get_query_int('mhmrentiva_location_filter');
 		if ($location_filter > 0) {
 			$meta_query[] = array(
 				'key'     => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID,
@@ -460,7 +460,7 @@ final class VehicleColumns {
 		}
 
 		// Lifecycle / archive filter (expired + withdrawn listings).
-		$lifecycle      = self::get_query_text('mhm_lifecycle_filter');
+		$lifecycle      = self::get_query_text('mhmrentiva_lifecycle_filter');
 		$lifecycle_args = self::lifecycle_filter_args($lifecycle);
 		if (! empty($lifecycle_args)) {
 			$meta_query[] = $lifecycle_args['meta_query'][0];
@@ -473,7 +473,7 @@ final class VehicleColumns {
 		}
 
 		// Owner filter (vendor-added vs operator-added) — translated to author query vars.
-		$owner      = self::get_query_text('mhm_owner_filter');
+		$owner      = self::get_query_text('mhmrentiva_owner_filter');
 		$owner_args = self::owner_filter_args($owner);
 		foreach ($owner_args as $key => $value) {
 			$q->set($key, $value);
@@ -563,41 +563,41 @@ final class VehicleColumns {
 		if ($post_type === 'vehicle' && $hook === 'edit.php') {
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-quick-edit',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
 			// Load statistics cards CSS
 			wp_enqueue_style(
 				'mhm-rentiva-stats-cards',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
+				MHMRENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			// Load calendar CSS
 			wp_enqueue_style(
 				'mhm-rentiva-calendars',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			// Load booking calendar CSS (popup + legend styles)
 			wp_enqueue_style(
 				'mhm-rentiva-booking-calendar',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			// Inline critical popup styles — guarantees correct rendering regardless of cache
@@ -618,9 +618,9 @@ final class VehicleColumns {
 			// add_monthly_calendar()). Replaces the former inline script block.
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-calendar-popup',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -628,7 +628,7 @@ final class VehicleColumns {
 				'mhm-rentiva-vehicle-calendar-popup',
 				'mhmVehicleCalendar',
 				array(
-					'nonce' => wp_create_nonce( 'mhm_rentiva_toggle_blocked_date' ),
+					'nonce' => wp_create_nonce( 'mhmrentiva_toggle_blocked_date' ),
 					'i18n'  => array(
 						'blockedTitle' => __( 'Blocked — click to open', 'mhm-rentiva' ),
 						'availTitle'   => __( 'Available — click to close', 'mhm-rentiva' ),
@@ -705,7 +705,7 @@ final class VehicleColumns {
 		global $wpdb;
 
 		// Remove cache completely - get real data
-		// $cache_key = 'mhm_rentiva_vehicle_stats_' . get_current_user_id();
+		// $cache_key = 'mhmrentiva_vehicle_stats_' . get_current_user_id();
 		// $stats = get_transient($cache_key);
 
 		// if ($stats !== false && is_array($stats)) {
@@ -797,12 +797,12 @@ final class VehicleColumns {
 				 AND pm_vehicle.meta_value IS NOT NULL AND pm_vehicle.meta_value != ''
 				 AND pm_pickup.meta_value IS NOT NULL AND pm_pickup.meta_value != ''
 				 AND (pm_return1.meta_value IS NOT NULL OR pm_return2.meta_value IS NOT NULL OR pm_return3.meta_value IS NOT NULL)",
-				'_mhm_vehicle_id',
-				'_mhm_pickup_date',
-				'_mhm_return_date',
-				'_mhm_dropoff_date',
-				'_mhm_end_date',
-				'_mhm_status',
+				'_mhmrentiva_vehicle_id',
+				'_mhmrentiva_pickup_date',
+				'_mhmrentiva_return_date',
+				'_mhmrentiva_dropoff_date',
+				'_mhmrentiva_end_date',
+				'_mhmrentiva_status',
 				'vehicle_booking',
 				'publish'
 			)
@@ -846,12 +846,12 @@ final class VehicleColumns {
                  INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND pm.meta_key = %s
-                 AND pm_status.meta_key = '_mhm_status'
+                 AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s",
 					'vehicle_booking',
 					'publish',
-					'_mhm_total_price',
+					'_mhmrentiva_total_price',
 					gmdate('Y-m-01')
 				)
 			);
@@ -868,12 +868,12 @@ final class VehicleColumns {
                  INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
                  WHERE p.post_type = %s AND p.post_status = %s 
                  AND pm.meta_key = %s
-                 AND pm_status.meta_key = '_mhm_status'
+                 AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s AND p.post_date <= %s",
 					'vehicle_booking',
 					'publish',
-					'_mhm_total_price',
+					'_mhmrentiva_total_price',
 					$last_month_start,
 					$last_month_end . ' 23:59:59'
 				)
@@ -966,12 +966,12 @@ final class VehicleColumns {
 		$current_month = (int) gmdate('n');
 		$current_year  = (int) gmdate('Y');
 
-		$month = self::get_query_int('mhm_month');
+		$month = self::get_query_int('mhmrentiva_month');
 		if ($month >= 1 && $month <= 12) {
 			$current_month = $month;
 		}
 
-		$year = self::get_query_int('mhm_year');
+		$year = self::get_query_int('mhmrentiva_year');
 		if ($year >= 2020 && $year <= 2030) {
 			$current_year = $year;
 		}
@@ -996,10 +996,10 @@ final class VehicleColumns {
 		// even when WP-Cron is unreliable (localhost / Docker environments).
 		// Rate-limited to once per 60 seconds to avoid overhead on rapid refreshes.
 		if (class_exists(\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::class)
-			&& ! get_transient('mhm_rentiva_autocancel_ran')
+			&& ! get_transient('mhmrentiva_autocancel_ran')
 		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::run();
-			set_transient('mhm_rentiva_autocancel_ran', 1, 60);
+			set_transient('mhmrentiva_autocancel_ran', 1, 60);
 		}
 
 		// Get vehicles
@@ -1028,8 +1028,8 @@ final class VehicleColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'mhm_month' => $prev_month,
-								'mhm_year'  => $prev_year,
+								'mhmrentiva_month' => $prev_month,
+								'mhmrentiva_year'  => $prev_year,
 							)
 						)
 					);
@@ -1049,8 +1049,8 @@ final class VehicleColumns {
 					echo esc_url(
 						add_query_arg(
 							array(
-								'mhm_month' => $next_month,
-								'mhm_year'  => $next_year,
+								'mhmrentiva_month' => $next_month,
+								'mhmrentiva_year'  => $next_year,
 							)
 						)
 					);
@@ -1297,7 +1297,7 @@ final class VehicleColumns {
              LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
              WHERE p.post_type = %s AND p.post_status = %s
              ORDER BY p.post_title ASC",
-				'_mhm_rentiva_license_plate',
+				'_mhmrentiva_license_plate',
 				'vehicle',
 				'publish'
 			)
@@ -1351,27 +1351,27 @@ final class VehicleColumns {
                 p.post_date as created_date
             FROM {$wpdb->posts} p
             LEFT JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id
-                AND pm_vehicle.meta_key = '_mhm_vehicle_id'
+                AND pm_vehicle.meta_key = '_mhmrentiva_vehicle_id'
             LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id
-                AND pm_start.meta_key = '_mhm_pickup_date'
+                AND pm_start.meta_key = '_mhmrentiva_pickup_date'
             LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id
-                AND pm_end.meta_key = '_mhm_dropoff_date'
+                AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
             LEFT JOIN {$wpdb->postmeta} pm_start_time ON p.ID = pm_start_time.post_id
-                AND pm_start_time.meta_key = '_mhm_start_time'
+                AND pm_start_time.meta_key = '_mhmrentiva_start_time'
             LEFT JOIN {$wpdb->postmeta} pm_end_time ON p.ID = pm_end_time.post_id
-                AND pm_end_time.meta_key = '_mhm_end_time'
+                AND pm_end_time.meta_key = '_mhmrentiva_end_time'
             LEFT JOIN {$wpdb->postmeta} pm_customer ON p.ID = pm_customer.post_id
-                AND pm_customer.meta_key = '_mhm_customer_name'
+                AND pm_customer.meta_key = '_mhmrentiva_customer_name'
             LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id
-                AND pm_customer_email.meta_key = '_mhm_customer_email'
+                AND pm_customer_email.meta_key = '_mhmrentiva_customer_email'
             LEFT JOIN {$wpdb->postmeta} pm_customer_phone ON p.ID = pm_customer_phone.post_id
-                AND pm_customer_phone.meta_key = '_mhm_customer_phone'
+                AND pm_customer_phone.meta_key = '_mhmrentiva_customer_phone'
             LEFT JOIN {$wpdb->postmeta} pm_total_price ON p.ID = pm_total_price.post_id
-                AND pm_total_price.meta_key = '_mhm_total_price'
+                AND pm_total_price.meta_key = '_mhmrentiva_total_price'
             LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                AND pm_status.meta_key = '_mhm_status'
+                AND pm_status.meta_key = '_mhmrentiva_status'
             LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id
-                AND pm_deadline.meta_key = '_mhm_payment_deadline'
+                AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
             WHERE p.post_type = 'vehicle_booking'
                 AND p.post_status = 'publish'
                 AND pm_start.meta_value <= %s
@@ -1497,52 +1497,52 @@ final class VehicleColumns {
 
 		static $nonce_added = false;
 		if (! $nonce_added) {
-			wp_nonce_field('mhm_vehicle_quick_edit', 'mhm_vehicle_quick_edit_nonce');
+			wp_nonce_field('mhmrentiva_vehicle_quick_edit', 'mhmrentiva_vehicle_quick_edit_nonce');
 			$nonce_added = true;
 		}
 
 		switch ($column_name) {
-			case 'mhm_license_plate':
+			case 'mhmrentiva_license_plate':
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('License Plate', 'mhm-rentiva') . '</span>';
-				echo '<input type="text" name="mhm_license_plate" class="mhm_license_plate" value="" />';
+				echo '<input type="text" name="mhmrentiva_license_plate" class="mhmrentiva_license_plate" value="" />';
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_price_per_day':
+			case 'mhmrentiva_price_per_day':
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Price/Day', 'mhm-rentiva') . '</span>';
-				echo '<input type="number" name="mhm_price_per_day" class="mhm_price_per_day" value="" step="1" min="0" />';
+				echo '<input type="number" name="mhmrentiva_price_per_day" class="mhmrentiva_price_per_day" value="" step="1" min="0" />';
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_seats':
-				$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_seats', 100);
+			case 'mhmrentiva_seats':
+				$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_seats', 100);
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Seats', 'mhm-rentiva') . '</span>';
-				echo '<input type="number" name="mhm_seats" class="mhm_seats" value="" min="1" max="' . esc_attr($max_seats) . '" />';
+				echo '<input type="number" name="mhmrentiva_seats" class="mhmrentiva_seats" value="" min="1" max="' . esc_attr($max_seats) . '" />';
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_transmission':
+			case 'mhmrentiva_transmission':
 				$transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Transmission', 'mhm-rentiva') . '</span>';
-				echo '<select name="mhm_transmission" class="mhm_transmission">';
+				echo '<select name="mhmrentiva_transmission" class="mhmrentiva_transmission">';
 				foreach ($transmission_types as $type_key => $type_label) {
 					echo '<option value="' . esc_attr($type_key) . '">' . esc_html($type_label) . '</option>';
 				}
@@ -1552,13 +1552,13 @@ final class VehicleColumns {
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_fuel_type':
+			case 'mhmrentiva_fuel_type':
 				$fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Fuel', 'mhm-rentiva') . '</span>';
-				echo '<select name="mhm_fuel_type" class="mhm_fuel_type">';
+				echo '<select name="mhmrentiva_fuel_type" class="mhmrentiva_fuel_type">';
 				foreach ($fuel_types as $fuel_key => $fuel_label) {
 					echo '<option value="' . esc_attr($fuel_key) . '">' . esc_html($fuel_label) . '</option>';
 				}
@@ -1568,12 +1568,12 @@ final class VehicleColumns {
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_available':
+			case 'mhmrentiva_available':
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Available', 'mhm-rentiva') . '</span>';
-				echo '<select name="mhm_available" class="mhm_available">';
+				echo '<select name="mhmrentiva_available" class="mhmrentiva_available">';
 
 				// Dynamic status values
 				$status_values = self::get_vehicle_status_values();
@@ -1588,29 +1588,29 @@ final class VehicleColumns {
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_featured':
+			case 'mhmrentiva_featured':
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label class="alignleft">';
-				echo '<input type="checkbox" name="mhm_featured" class="mhm_featured" value="1" />';
+				echo '<input type="checkbox" name="mhmrentiva_featured" class="mhmrentiva_featured" value="1" />';
 				echo '<span class="checkbox-title">' . esc_html__( 'Featured', 'mhm-rentiva' ) . '</span>';
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
 				break;
 
-			case 'mhm_location':
+			case 'mhmrentiva_location':
 				// Defensive: WP only calls this for registered columns, and columns()
-				// withholds mhm_location without the Location feature.
+				// withholds mhmrentiva_location without the Location feature.
 				if (! self::has_locations()) {
 					break;
 				}
-				$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
+				$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';
 				echo '<span class="title">' . esc_html__('Location', 'mhm-rentiva') . '</span>';
-				echo '<select name="mhm_location" class="mhm_location">';
+				echo '<select name="mhmrentiva_location" class="mhmrentiva_location">';
 				echo '<option value="0">' . esc_html__('— No Location —', 'mhm-rentiva') . '</option>';
 				foreach ($locations as $loc) {
 					echo '<option value="' . esc_attr( (string) (int) $loc->id) . '">' . esc_html($loc->name) . '</option>';
@@ -1650,8 +1650,8 @@ final class VehicleColumns {
 	public static function save_quick_edit(int $post_id): void
 	{
 		// Security: Nonce check
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_vehicle_quick_edit_nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_vehicle_quick_edit')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_vehicle_quick_edit_nonce'] ?? ''));
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_vehicle_quick_edit')) {
 			return;
 		}
 
@@ -1672,8 +1672,8 @@ final class VehicleColumns {
 
 		// Save meta values securely
 		$meta_fields = array(
-			'mhm_license_plate' => array(
-				'key'      => '_mhm_rentiva_license_plate',
+			'mhmrentiva_license_plate' => array(
+				'key'      => '_mhmrentiva_license_plate',
 				'sanitize' => 'sanitize_text_field',
 			),
 			// Bounds mirror VehicleMeta::sanitize_field() for the same meta keys.
@@ -1681,23 +1681,23 @@ final class VehicleColumns {
 			// only what the full editor accepts -- otherwise the row list is a way
 			// around the editor's validation, and a negative daily price
 			// multiplies into every rental total.
-			'mhm_price_per_day' => array(
-				'key'      => '_mhm_rentiva_price_per_day',
+			'mhmrentiva_price_per_day' => array(
+				'key'      => '_mhmrentiva_price_per_day',
 				'sanitize' => array( self::class, 'sanitize_price_per_day' ),
 			),
-			'mhm_seats'         => array(
-				'key'      => '_mhm_rentiva_seats',
+			'mhmrentiva_seats'         => array(
+				'key'      => '_mhmrentiva_seats',
 				'sanitize' => array( self::class, 'sanitize_seats' ),
 			),
-			'mhm_transmission'  => array(
-				'key'      => '_mhm_rentiva_transmission',
+			'mhmrentiva_transmission'  => array(
+				'key'      => '_mhmrentiva_transmission',
 				'sanitize' => 'sanitize_text_field',
 			),
-			'mhm_fuel_type'     => array(
-				'key'      => '_mhm_rentiva_fuel_type',
+			'mhmrentiva_fuel_type'     => array(
+				'key'      => '_mhmrentiva_fuel_type',
 				'sanitize' => 'sanitize_text_field',
 			),
-			'mhm_available'     => array(
+			'mhmrentiva_available'     => array(
 				'key'      => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
 				'sanitize' => 'sanitize_text_field',
 			),
@@ -1718,7 +1718,7 @@ final class VehicleColumns {
 				? call_user_func($config['sanitize'], $value)
 				: sanitize_text_field( (string) ( $value ?: '' ));
 
-			if ($field_name === 'mhm_available') {
+			if ($field_name === 'mhmrentiva_available') {
 				$normalized_status = self::normalize_availability($sanitized_value);
 				update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS, $normalized_status);
 				continue;
@@ -1730,8 +1730,8 @@ final class VehicleColumns {
 		}
 
 		// Location — 0 means unset
-		if (isset($_POST['mhm_location'])) {
-			$location_id = intval(wp_unslash($_POST['mhm_location']));
+		if (isset($_POST['mhmrentiva_location'])) {
+			$location_id = intval(wp_unslash($_POST['mhmrentiva_location']));
 			if ($location_id > 0) {
 				update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LOCATION_ID, $location_id);
 			} else {
@@ -1739,7 +1739,7 @@ final class VehicleColumns {
 			}
 		}
 		// Featured checkbox — not in $meta_fields loop because unchecked = absent from POST
-		if (isset($_POST['mhm_featured']) && '1' === sanitize_text_field(wp_unslash($_POST['mhm_featured']))) {
+		if (isset($_POST['mhmrentiva_featured']) && '1' === sanitize_text_field(wp_unslash($_POST['mhmrentiva_featured']))) {
 			update_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED, '1');
 		} else {
 			delete_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FEATURED);
@@ -1847,13 +1847,13 @@ final class VehicleColumns {
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhm_rentiva_vehicle_stats_%'
+				'_transient_mhmrentiva_vehicle_stats_%'
 			)
 		);
 		$wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_timeout_mhm_rentiva_vehicle_stats_%'
+				'_transient_timeout_mhmrentiva_vehicle_stats_%'
 			)
 		);
 	}

@@ -92,10 +92,10 @@ final class SystemInfo {
 	private static function get_plugin_info(): array
 	{
 		return array(
-			'version'      => \MHM_RENTIVA_VERSION,
+			'version'      => \MHMRENTIVA_VERSION,
 			'file_size'    => self::get_plugin_file_size(),
-			'install_date' => get_option('mhm_rentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
-			'last_update'  => get_option('mhm_rentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
+			'install_date' => get_option('mhmrentiva_install_date', esc_html__('Unknown', 'mhm-rentiva')),
+			'last_update'  => get_option('mhmrentiva_last_update', esc_html__('Unknown', 'mhm-rentiva')),
 		);
 	}
 
@@ -119,7 +119,7 @@ final class SystemInfo {
 	 */
 	private static function get_plugin_file_size(): string
 	{
-		$plugin_dir = \MHM_RENTIVA_PLUGIN_DIR;
+		$plugin_dir = \MHMRENTIVA_PLUGIN_DIR;
 
 		try {
 			$size = self::calculate_directory_size($plugin_dir);
@@ -154,8 +154,8 @@ final class SystemInfo {
 
 		$plugin_tables = array(
 			'vehicle_booking' => $wpdb->prefix . 'posts', // In posts table as CPT
-			'mhm_payment_log' => $wpdb->prefix . 'mhm_payment_log',
-			'mhm_message'     => $wpdb->prefix . 'posts', // For messages
+			'mhmrentiva_payment_log' => $wpdb->prefix . 'mhmrentiva_payment_log',
+			'mhmrentiva_message'     => $wpdb->prefix . 'posts', // For messages
 		);
 
 		$tables_info = array();
@@ -171,7 +171,7 @@ final class SystemInfo {
 				);
 
 				if ($exists) {
-					if ('mhm_payment_log' === $key) {
+					if ('mhmrentiva_payment_log' === $key) {
 						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
 						$count = $wpdb->get_var(
 							$wpdb->prepare(
@@ -180,7 +180,7 @@ final class SystemInfo {
 							)
 						);
 					} else {
-						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ( 'mhm_message' === $key ? 'mhm_message' : '' );
+						$post_type = 'vehicle_booking' === $key ? 'vehicle_booking' : ( 'mhmrentiva_message' === $key ? 'mhmrentiva_message' : '' );
 						// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only system diagnostics query.
 						$count = $wpdb->get_var(
 							$wpdb->prepare(

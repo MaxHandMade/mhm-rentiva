@@ -55,23 +55,23 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 	 */
 	public function test_booking_meta_save_is_refused_without_a_nonce(): void
 	{
-		update_post_meta( $this->booking_id, '_mhm_pickup_date', '2026-01-01' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', '2026-01-01' );
 
 		$_POST = array(
-			'mhm_edit_pickup_date'   => '2030-12-31',
-			'mhm_edit_special_notes' => 'injected by a cross-site form',
+			'mhmrentiva_edit_pickup_date'   => '2030-12-31',
+			'mhmrentiva_edit_special_notes' => 'injected by a cross-site form',
 		);
 
 		BookingMeta::save_meta( $this->booking_id, get_post( $this->booking_id ) );
 
 		$this->assertSame(
 			'2026-01-01',
-			get_post_meta( $this->booking_id, '_mhm_pickup_date', true ),
+			get_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', true ),
 			'A POST carrying our field names but no nonce must not write booking meta.'
 		);
 		$this->assertSame(
 			'',
-			get_post_meta( $this->booking_id, '_mhm_special_notes', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_special_notes', true )
 		);
 	}
 
@@ -80,18 +80,18 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 	 */
 	public function test_booking_meta_save_is_refused_with_an_invalid_nonce(): void
 	{
-		update_post_meta( $this->booking_id, '_mhm_pickup_date', '2026-01-01' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', '2026-01-01' );
 
 		$_POST = array(
-			'mhm_rentiva_booking_meta_main_nonce' => 'not-a-real-nonce',
-			'mhm_edit_pickup_date'                => '2030-12-31',
+			'mhmrentiva_booking_meta_main_nonce' => 'not-a-real-nonce',
+			'mhmrentiva_edit_pickup_date'                => '2030-12-31',
 		);
 
 		BookingMeta::save_meta( $this->booking_id, get_post( $this->booking_id ) );
 
 		$this->assertSame(
 			'2026-01-01',
-			get_post_meta( $this->booking_id, '_mhm_pickup_date', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', true )
 		);
 	}
 
@@ -101,20 +101,20 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 	public function test_booking_meta_save_succeeds_with_a_valid_nonce(): void
 	{
 		$_POST = array(
-			'mhm_rentiva_booking_meta_main_nonce' => wp_create_nonce( 'mhm_rentiva_booking_meta_action' ),
-			'mhm_edit_pickup_date'                => '2030-12-31',
-			'mhm_edit_special_notes'              => 'legitimate note',
+			'mhmrentiva_booking_meta_main_nonce' => wp_create_nonce( 'mhmrentiva_booking_meta_action' ),
+			'mhmrentiva_edit_pickup_date'                => '2030-12-31',
+			'mhmrentiva_edit_special_notes'              => 'legitimate note',
 		);
 
 		BookingMeta::save_meta( $this->booking_id, get_post( $this->booking_id ) );
 
 		$this->assertSame(
 			'2030-12-31',
-			get_post_meta( $this->booking_id, '_mhm_pickup_date', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', true )
 		);
 		$this->assertSame(
 			'legitimate note',
-			get_post_meta( $this->booking_id, '_mhm_special_notes', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_special_notes', true )
 		);
 	}
 
@@ -125,14 +125,14 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 	{
 		$_POST = array(
 			'_wpnonce'             => wp_create_nonce( 'update-post_' . $this->booking_id ),
-			'mhm_edit_pickup_date' => '2031-06-15',
+			'mhmrentiva_edit_pickup_date' => '2031-06-15',
 		);
 
 		BookingMeta::save_meta( $this->booking_id, get_post( $this->booking_id ) );
 
 		$this->assertSame(
 			'2031-06-15',
-			get_post_meta( $this->booking_id, '_mhm_pickup_date', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', true )
 		);
 	}
 
@@ -141,18 +141,18 @@ final class BookingSaveNonceRequiredTest extends WP_UnitTestCase
 	 */
 	public function test_booking_edit_metabox_save_is_refused_without_a_nonce(): void
 	{
-		update_post_meta( $this->booking_id, '_mhm_pickup_date', '2026-01-01' );
+		update_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', '2026-01-01' );
 
 		$_POST = array(
-			'mhm_booking_pickup_date' => '2030-12-31',
-			'mhm_edit_pickup_date'    => '2030-12-31',
+			'mhmrentiva_booking_pickup_date' => '2030-12-31',
+			'mhmrentiva_edit_pickup_date'    => '2030-12-31',
 		);
 
 		BookingEditMetaBox::save_booking_details( $this->booking_id );
 
 		$this->assertSame(
 			'2026-01-01',
-			get_post_meta( $this->booking_id, '_mhm_pickup_date', true )
+			get_post_meta( $this->booking_id, '_mhmrentiva_pickup_date', true )
 		);
 	}
 }

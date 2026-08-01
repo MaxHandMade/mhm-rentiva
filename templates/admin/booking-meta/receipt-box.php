@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 ?>
 
 <div class="mhm-receipt-box">
-	<?php wp_nonce_field( 'mhm_rentiva_receipt_action', 'mhm_receipt_nonce' ); ?>
+	<?php wp_nonce_field( 'mhmrentiva_receipt_action', 'mhmrentiva_receipt_nonce' ); ?>
 
 	<?php if ( $attach_id && $url ) : ?>
 		<p>
@@ -36,19 +36,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</p>
 
 	<p>
-		<label for="mhm_receipt_note">
+		<label for="mhmrentiva_receipt_note">
 			<strong><?php esc_html_e( 'Admin Note', 'mhm-rentiva' ); ?></strong>
 		</label><br />
-		<textarea id="mhm_receipt_note" name="mhm_receipt_note" rows="3" style="width:100%">
+		<textarea id="mhmrentiva_receipt_note" name="mhmrentiva_receipt_note" rows="3" style="width:100%">
 			<?php echo esc_textarea( $note ); ?>
 		</textarea>
 	</p>
 
 	<p>
-		<button type="submit" name="mhm_receipt_action" value="approve" class="button button-primary">
+		<button type="submit" name="mhmrentiva_receipt_action" value="approve" class="button button-primary">
 			<?php esc_html_e( 'Approve Receipt', 'mhm-rentiva' ); ?>
 		</button>
-		<button type="submit" name="mhm_receipt_action" value="reject" class="button">
+		<button type="submit" name="mhmrentiva_receipt_action" value="reject" class="button">
 			<?php esc_html_e( 'Reject Receipt', 'mhm-rentiva' ); ?>
 		</button>
 	</p>

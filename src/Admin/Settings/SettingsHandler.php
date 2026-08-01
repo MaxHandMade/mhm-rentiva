@@ -64,7 +64,7 @@ final class SettingsHandler {
 		}
 
 		$nonce = sanitize_key( wp_unslash( $_GET['_wpnonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_reset_defaults' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_reset_defaults' ) ) {
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::debug( 'Reset defaults FAILED at nonce verification phase. Nonce: ' . ( '' !== $nonce ? $nonce : 'missing' ) );
 			}
@@ -117,7 +117,7 @@ final class SettingsHandler {
 
 		EmailTemplates::handle_save_templates();
 		add_settings_error(
-			'mhm_rentiva_messages',
+			'mhmrentiva_messages',
 			'email_templates_saved',
 			__( 'Email templates saved successfully!', 'mhm-rentiva' ),
 			'success'
@@ -128,7 +128,7 @@ final class SettingsHandler {
 	 * Handle REST Settings Save Action
 	 */
 	private static function handle_rest_settings(): void {
-		if ( 'mhm_rentiva_rest_settings' !== sanitize_key( wp_unslash( $_POST['option_page'] ?? '' ) ) ) {
+		if ( 'mhmrentiva_rest_settings' !== sanitize_key( wp_unslash( $_POST['option_page'] ?? '' ) ) ) {
 			return;
 		}
 		if ( 'update' !== sanitize_key( wp_unslash( $_POST['action'] ?? '' ) ) ) {
@@ -136,18 +136,18 @@ final class SettingsHandler {
 		}
 
 		$nonce = sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_rest_settings-options' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_rest_settings-options' ) ) {
 			return;
 		}
 
 		$request = VerifiedRequest::from( $_POST );
-		if ( ! $request->has( 'mhm_rentiva_rest_settings' ) ) {
+		if ( ! $request->has( 'mhmrentiva_rest_settings' ) ) {
 			return;
 		}
 
-		if ( \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings( $request->arr( 'mhm_rentiva_rest_settings' ) ) ) {
+		if ( \MHMRentiva\Admin\Settings\Services\SettingsService::save_rest_settings( $request->arr( 'mhmrentiva_rest_settings' ) ) ) {
 			add_settings_error(
-				'mhm_rentiva_messages',
+				'mhmrentiva_messages',
 				'rest_settings_saved',
 				__( 'REST API Settings saved successfully!', 'mhm-rentiva' ),
 				'success'

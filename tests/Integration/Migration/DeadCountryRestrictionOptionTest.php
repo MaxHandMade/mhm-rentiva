@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
 use WP_UnitTestCase;
 
 /**
- * Regression test for the dead `mhm_rentiva_country_restriction_enabled` cleanup.
+ * Regression test for the dead `mhmrentiva_country_restriction_enabled` cleanup.
  *
  * The geo-blocking feature is gone from both editions (the free core's ip-api.com
  * country check was removed in Faz 2a; Pro's inherited `CountryRestriction` was
@@ -24,7 +24,7 @@ use WP_UnitTestCase;
  */
 final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
 {
-    private const DEAD_OPTION = 'mhm_rentiva_country_restriction_enabled';
+    private const DEAD_OPTION = 'mhmrentiva_country_restriction_enabled';
 
     /** @var string|false */
     private $previous_version;
@@ -43,7 +43,7 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
             update_option('mhm_rentiva_db_version', $this->previous_version);
         }
         delete_option(self::DEAD_OPTION);
-        delete_option('mhm_rentiva_allowed_countries');
+        delete_option('mhmrentiva_allowed_countries');
         parent::tearDown();
     }
 
@@ -122,19 +122,19 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
     /**
      * Scope guard: exactly one key dies.
      *
-     * `mhm_rentiva_allowed_countries` is a value list that claims nothing on its
-     * own, and the `mhm_rentiva_settings` array is user data read by
+     * `mhmrentiva_allowed_countries` is a value list that claims nothing on its
+     * own, and the `mhmrentiva_settings` array is user data read by
      * SettingsCore::get(). Removing either is a separate decision the owner has
      * not made. If a later edit widens the cleanup, this test fails.
      */
     public function test_migration_touches_nothing_but_the_one_dead_key(): void
     {
         update_option(self::DEAD_OPTION, '1');
-        update_option('mhm_rentiva_allowed_countries', 'TR,US,DE');
-        update_option('mhm_rentiva_settings', array(
-            'mhm_rentiva_country_restriction_enabled' => '0',
-            'mhm_rentiva_allowed_countries'           => '',
-            'mhm_rentiva_brand_name'                  => 'Otokira Rent a Car',
+        update_option('mhmrentiva_allowed_countries', 'TR,US,DE');
+        update_option('mhmrentiva_settings', array(
+            'mhmrentiva_country_restriction_enabled' => '0',
+            'mhmrentiva_allowed_countries'           => '',
+            'mhmrentiva_brand_name'                  => 'Otokira Rent a Car',
         ));
 
         $this->run_migrations_from_scratch();
@@ -142,20 +142,20 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
         $this->assertFalse(get_option(self::DEAD_OPTION), 'The one dead key must go.');
         $this->assertSame(
             'TR,US,DE',
-            get_option('mhm_rentiva_allowed_countries'),
+            get_option('mhmrentiva_allowed_countries'),
             'The standalone allowed-countries list is out of scope and must survive.'
         );
 
-        $settings = get_option('mhm_rentiva_settings');
+        $settings = get_option('mhmrentiva_settings');
         $this->assertIsArray($settings);
         $this->assertSame(
             '0',
-            $settings['mhm_rentiva_country_restriction_enabled'] ?? null,
+            $settings['mhmrentiva_country_restriction_enabled'] ?? null,
             'The settings-array copy is user data and is out of scope.'
         );
         $this->assertSame(
             'Otokira Rent a Car',
-            $settings['mhm_rentiva_brand_name'] ?? null,
+            $settings['mhmrentiva_brand_name'] ?? null,
             'Unrelated settings must be untouched.'
         );
     }

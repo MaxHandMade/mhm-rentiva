@@ -43,11 +43,11 @@ spl_autoload_register(
 );
 
 // Check if user wants to clean data on uninstall
-$settings = get_option( 'mhm_rentiva_settings', array() );
+$settings = get_option( 'mhmrentiva_settings', array() );
 if ( ! is_array( $settings ) ) {
 	$settings = array();
 }
-$clean_on_uninstall = isset( $settings['mhm_rentiva_clean_data_on_uninstall'] ) && $settings['mhm_rentiva_clean_data_on_uninstall'] === '1';
+$clean_on_uninstall = isset( $settings['mhmrentiva_clean_data_on_uninstall'] ) && $settings['mhmrentiva_clean_data_on_uninstall'] === '1';
 
 // If user hasn't enabled this option, exit without cleaning
 if ( ! $clean_on_uninstall ) {

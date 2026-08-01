@@ -135,7 +135,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_rentiva_add_gallery_image',
+					action: 'mhmrentiva_add_gallery_image',
 					post_id: currentPostId,
 					image_ids: imageIds,
 					nonce: window.mhmVehicleGallery?.nonce
@@ -174,7 +174,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_rentiva_remove_gallery_image',
+					action: 'mhmrentiva_remove_gallery_image',
 					post_id: currentPostId,
 					image_id: imageId,
 					nonce: window.mhmVehicleGallery?.nonce
@@ -221,7 +221,7 @@
 				url: window.mhmVehicleGallery?.ajaxUrl || ajaxurl,
 				type: 'POST',
 				data: {
-					action: 'mhm_rentiva_reorder_gallery_images',
+					action: 'mhmrentiva_reorder_gallery_images',
 					post_id: currentPostId,
 					image_order: imageOrder,
 					nonce: window.mhmVehicleGallery?.nonce
@@ -463,7 +463,7 @@
  *
  * Extracted from the inline block previously echoed by templates/../vehicle-gallery.php.
  * It listens for the galleryUpdated event that the picker above triggers and keeps
- * #mhm_rentiva_gallery_images in sync so save_gallery_images() persists the order.
+ * #mhmrentiva_gallery_images in sync so save_gallery_images() persists the order.
  */
 jQuery(document).ready(function($) {
 	function updateGalleryHiddenInput() {
@@ -484,7 +484,7 @@ jQuery(document).ready(function($) {
 			}
 		});
 
-		$('#mhm_rentiva_gallery_images').val(JSON.stringify(galleryImages));
+		$('#mhmrentiva_gallery_images').val(JSON.stringify(galleryImages));
 	}
 
 	// Listen for gallery changes

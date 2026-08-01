@@ -14,7 +14,7 @@ use WP_UnitTestCase;
  * toggle that says a protection is on while nothing enforces it.
  *
  * Found while verifying the Security-tab removal in the browser: saving the
- * System tab with `mhm_rentiva_cache_default_ttl = 53` stored 53, though the
+ * System tab with `mhmrentiva_cache_default_ttl = 53` stored 53, though the
  * field declares `max="24"`. The sweep for that shape across
  * `SettingsSanitizer` turned up three more, one of which had no clamp at all.
  *
@@ -32,20 +32,20 @@ final class SettingsSanitizerNumericBoundsTest extends WP_UnitTestCase
 	 */
 	public function test_cache_default_ttl_is_clamped_to_its_declared_max(): void
 	{
-		$result = $this->sanitize( 'system', array( 'mhm_rentiva_cache_default_ttl' => '53' ) );
+		$result = $this->sanitize( 'system', array( 'mhmrentiva_cache_default_ttl' => '53' ) );
 
 		$this->assertSame(
 			24.0,
-			(float) $result['mhm_rentiva_cache_default_ttl'],
+			(float) $result['mhmrentiva_cache_default_ttl'],
 			'The field declares max="24"; a POST of 53 must not be stored.'
 		);
 	}
 
 	public function test_cache_default_ttl_still_clamps_its_min(): void
 	{
-		$result = $this->sanitize( 'system', array( 'mhm_rentiva_cache_default_ttl' => '0.1' ) );
+		$result = $this->sanitize( 'system', array( 'mhmrentiva_cache_default_ttl' => '0.1' ) );
 
-		$this->assertSame( 0.5, (float) $result['mhm_rentiva_cache_default_ttl'] );
+		$this->assertSame( 0.5, (float) $result['mhmrentiva_cache_default_ttl'] );
 	}
 
 	/**
@@ -56,13 +56,13 @@ final class SettingsSanitizerNumericBoundsTest extends WP_UnitTestCase
 		$result = $this->sanitize(
 			'vehicle',
 			array(
-				'mhm_rentiva_vehicle_base_price'         => '9999',
-				'mhm_rentiva_vehicle_weekend_multiplier' => '9999',
+				'mhmrentiva_vehicle_base_price'         => '9999',
+				'mhmrentiva_vehicle_weekend_multiplier' => '9999',
 			)
 		);
 
-		$this->assertSame( 100.0, (float) $result['mhm_rentiva_vehicle_base_price'] );
-		$this->assertSame( 100.0, (float) $result['mhm_rentiva_vehicle_weekend_multiplier'] );
+		$this->assertSame( 100.0, (float) $result['mhmrentiva_vehicle_base_price'] );
+		$this->assertSame( 100.0, (float) $result['mhmrentiva_vehicle_weekend_multiplier'] );
 	}
 
 	/**
@@ -72,7 +72,7 @@ final class SettingsSanitizerNumericBoundsTest extends WP_UnitTestCase
 	public function test_seasonal_multiplier_cannot_be_negative(): void
 	{
 		update_option(
-			'mhm_rentiva_settings',
+			'mhmrentiva_settings',
 			array(
 				'vehicle_pricing' => array(
 					'seasonal_multipliers' => array(
@@ -115,7 +115,7 @@ final class SettingsSanitizerNumericBoundsTest extends WP_UnitTestCase
 	public function test_seasonal_multiplier_is_clamped_to_its_declared_max(): void
 	{
 		update_option(
-			'mhm_rentiva_settings',
+			'mhmrentiva_settings',
 			array(
 				'vehicle_pricing' => array(
 					'seasonal_multipliers' => array(

@@ -26,14 +26,14 @@ final class EmailLayoutCssContextTest extends WP_UnitTestCase {
 	private const DEFAULT_BASE_COLOR = '#1e88e5';
 
 	protected function tearDown(): void {
-		delete_option( 'mhm_rentiva_settings' );
+		delete_option( 'mhmrentiva_settings' );
 		parent::tearDown();
 	}
 
 	private function set_base_color( string $value ): void {
-		$settings = (array) get_option( 'mhm_rentiva_settings', array() );
-		$settings['mhm_rentiva_email_base_color'] = $value;
-		update_option( 'mhm_rentiva_settings', $settings );
+		$settings = (array) get_option( 'mhmrentiva_settings', array() );
+		$settings['mhmrentiva_email_base_color'] = $value;
+		update_option( 'mhmrentiva_settings', $settings );
 	}
 
 	private function layout(): string {

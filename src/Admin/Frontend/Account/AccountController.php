@@ -87,8 +87,8 @@ final class AccountController {
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
-		'mhm_status_filter',
-		'mhm_search_booking',
+		'mhmrentiva_status_filter',
+		'mhmrentiva_search_booking',
 	);
 
 	/**
@@ -110,15 +110,15 @@ final class AccountController {
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_update_account', array( self::class, 'ajax_update_account' ));
-		add_action('wp_ajax_mhm_rentiva_add_favorite', array( self::class, 'ajax_add_favorite' ));
-		add_action('wp_ajax_mhm_rentiva_remove_favorite', array( self::class, 'ajax_remove_favorite' ));
-		add_action('wp_ajax_mhm_rentiva_clear_favorites', array( self::class, 'ajax_clear_favorites' ));
-		add_action('wp_ajax_mhm_rentiva_cancel_booking', array( self::class, 'ajax_cancel_booking' ));
+		add_action('wp_ajax_mhmrentiva_update_account', array( self::class, 'ajax_update_account' ));
+		add_action('wp_ajax_mhmrentiva_add_favorite', array( self::class, 'ajax_add_favorite' ));
+		add_action('wp_ajax_mhmrentiva_remove_favorite', array( self::class, 'ajax_remove_favorite' ));
+		add_action('wp_ajax_mhmrentiva_clear_favorites', array( self::class, 'ajax_clear_favorites' ));
+		add_action('wp_ajax_mhmrentiva_cancel_booking', array( self::class, 'ajax_cancel_booking' ));
 
 		// Receipt management
-		add_action('wp_ajax_mhm_rentiva_upload_receipt', array( self::class, 'ajax_upload_receipt' ));
-		add_action('wp_ajax_mhm_rentiva_remove_receipt', array( self::class, 'ajax_remove_receipt' ));
+		add_action('wp_ajax_mhmrentiva_upload_receipt', array( self::class, 'ajax_upload_receipt' ));
+		add_action('wp_ajax_mhmrentiva_remove_receipt', array( self::class, 'ajax_remove_receipt' ));
 
 		// Assets
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
@@ -161,9 +161,9 @@ final class AccountController {
 		// The 'messages' endpoint used to register here unconditionally. Messaging
 		// is a feature of the add-on (the `message` CPT only exists when the add-on
 		// is active), so the add-on now registers its own endpoint via
-		// `mhm_rentiva_account_endpoints` -- Lite carries no knowledge of the
+		// `mhmrentiva_account_endpoints` -- Lite carries no knowledge of the
 		// messages endpoint slug any more (WP.org T4 Phase B, Task B-A1).
-		foreach ( (array) apply_filters('mhm_rentiva_account_endpoints', array()) as $extra_endpoint) {
+		foreach ( (array) apply_filters('mhmrentiva_account_endpoints', array()) as $extra_endpoint) {
 			if (is_string($extra_endpoint) && '' !== $extra_endpoint) {
 				add_rewrite_endpoint($extra_endpoint, EP_ROOT | EP_PAGES);
 			}
@@ -205,12 +205,12 @@ final class AccountController {
 		// handlers that ship with the separate add-on; when it is not installed the
 		// free plugin registers none of them, so we neither render the controls
 		// (see templates/account/dashboard.php) nor load their script — no dead UI.
-		if (( $endpoint === 'dashboard' || empty($endpoint) ) && has_action('wp_ajax_mhm_rentiva_data_export')) {
+		if (( $endpoint === 'dashboard' || empty($endpoint) ) && has_action('wp_ajax_mhmrentiva_data_export')) {
 			wp_enqueue_script(
 				'mhm-rentiva-account-privacy',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -219,7 +219,7 @@ final class AccountController {
 				'mhmRentivaPrivacy',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhm_gdpr_nonce'),
+					'nonce'   => wp_create_nonce('mhmrentiva_gdpr_nonce'),
 					'homeUrl' => home_url(),
 					'i18n'    => array(
 						'confirmExport'       => __('Are you sure you want to export your data? This may take a few minutes.', 'mhm-rentiva'),
@@ -247,9 +247,9 @@ final class AccountController {
 		if ($endpoint === 'booking-detail' || get_query_var($view_booking_slug) !== '') {
 			wp_enqueue_script(
 				'mhm-rentiva-booking-cancellation',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/booking-cancellation.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -258,7 +258,7 @@ final class AccountController {
 				'mhmRentivaCancellation',
 				array(
 					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhm_cancel_booking_nonce'),
+					'nonce'   => wp_create_nonce('mhmrentiva_cancel_booking_nonce'),
 					'i18n'    => array(
 						'cancelling' => __('Cancelling...', 'mhm-rentiva'),
 						'error'      => __('An error occurred. Please try again.', 'mhm-rentiva'),
@@ -270,9 +270,9 @@ final class AccountController {
 			// The booking id + nonce ride on the button's data attributes.
 			wp_enqueue_script(
 				'mhm-rentiva-pay-remaining',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/account-pay-remaining.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/account-pay-remaining.js',
 				array(),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -301,39 +301,39 @@ final class AccountController {
 			// Load CSS file
 			wp_enqueue_style(
 				'mhm-rentiva-my-account',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			// Load Stats Cards CSS
 			wp_enqueue_style(
 				'mhm-rentiva-stats-cards',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-booking-detail',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/booking-detail.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-bookings-page',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/bookings-page.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 		}
 
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -343,8 +343,8 @@ final class AccountController {
 			array(
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
 				'restUrl'     => rest_url('mhm-rentiva/v1/'),
-				'nonce'       => wp_create_nonce('mhm_rentiva_account'),
-				'uploadNonce' => wp_create_nonce('mhm_rentiva_upload_receipt'),
+				'nonce'       => wp_create_nonce('mhmrentiva_account'),
+				'uploadNonce' => wp_create_nonce('mhmrentiva_upload_receipt'),
 				'restNonce'   => wp_create_nonce('wp_rest'),
 				'i18n'        => array(
 					'loading'                => __('Loading...', 'mhm-rentiva'),
@@ -422,7 +422,7 @@ final class AccountController {
 		}
 
 		// Customers go to My Account
-		if (get_user_meta($user->ID, 'mhm_rentiva_customer', true)) {
+		if (get_user_meta($user->ID, 'mhmrentiva_customer', true)) {
 			return self::get_account_url();
 		}
 
@@ -563,7 +563,7 @@ final class AccountController {
 	public static function ajax_clear_favorites(): void
 	{
 		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_account')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_account')) {
 			wp_send_json_error(array( 'message' => __('Security error.', 'mhm-rentiva') ), 400);
 		}
 
@@ -572,7 +572,7 @@ final class AccountController {
 		}
 
 		$user_id = get_current_user_id();
-		delete_user_meta($user_id, 'mhm_rentiva_favorites');
+		delete_user_meta($user_id, 'mhmrentiva_favorites');
 
 		wp_send_json_success(
 			array(
@@ -593,7 +593,7 @@ final class AccountController {
 		}
 
 		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_upload_receipt')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_upload_receipt')) {
 			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
@@ -606,8 +606,8 @@ final class AccountController {
 		// Ownership check. NOT post_author: Handler::create_booking() writes
 		// 'post_author' => 1 for every online booking and a manual booking belongs
 		// to the staff member who entered it, so post_author is never the customer.
-		// _mhm_customer_user_id is the field that tracks them.
-		$booking_customer = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		// _mhmrentiva_customer_user_id is the field that tracks them.
+		$booking_customer = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
 		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to upload for this booking.', 'mhm-rentiva') ), 403);
 		}
@@ -662,10 +662,10 @@ final class AccountController {
 		}
 
 		// Save to booking meta
-		update_post_meta($booking_id, '_mhm_receipt_attachment_id', $attach_id);
-		update_post_meta($booking_id, '_mhm_receipt_status', 'submitted');
-		update_post_meta($booking_id, '_mhm_receipt_uploaded_by', $user_id);
-		update_post_meta($booking_id, '_mhm_receipt_uploaded_at', current_time('mysql'));
+		update_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', $attach_id);
+		update_post_meta($booking_id, '_mhmrentiva_receipt_status', 'submitted');
+		update_post_meta($booking_id, '_mhmrentiva_receipt_uploaded_by', $user_id);
+		update_post_meta($booking_id, '_mhmrentiva_receipt_uploaded_at', current_time('mysql'));
 
 		wp_send_json_success(
 			array(
@@ -686,7 +686,7 @@ final class AccountController {
 		}
 
 		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_upload_receipt')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_upload_receipt')) {
 			wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ), 400);
 		}
 
@@ -700,13 +700,13 @@ final class AccountController {
 		// Ownership check. NOT post_author: Handler::create_booking() writes
 		// 'post_author' => 1 for every online booking and a manual booking belongs
 		// to the staff member who entered it, so post_author is never the customer.
-		// _mhm_customer_user_id is the field that tracks them.
-		$booking_customer = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+		// _mhmrentiva_customer_user_id is the field that tracks them.
+		$booking_customer = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
 		if ($booking_customer !== $user_id && ! current_user_can('edit_post', $booking_id)) {
 			wp_send_json_error(array( 'message' => __('You are not allowed to remove receipt for this booking.', 'mhm-rentiva') ), 403);
 		}
 
-		$attachment_id = (int) get_post_meta($booking_id, '_mhm_receipt_attachment_id', true);
+		$attachment_id = (int) get_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', true);
 		if (! $attachment_id) {
 			wp_send_json_error(array( 'message' => __('No receipt found to remove.', 'mhm-rentiva') ), 404);
 		}
@@ -716,10 +716,10 @@ final class AccountController {
 
 		if ($deleted) {
 			// Clean up meta
-			delete_post_meta($booking_id, '_mhm_receipt_attachment_id');
-			delete_post_meta($booking_id, '_mhm_receipt_status');
-			delete_post_meta($booking_id, '_mhm_receipt_uploaded_by');
-			delete_post_meta($booking_id, '_mhm_receipt_uploaded_at');
+			delete_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id');
+			delete_post_meta($booking_id, '_mhmrentiva_receipt_status');
+			delete_post_meta($booking_id, '_mhmrentiva_receipt_uploaded_by');
+			delete_post_meta($booking_id, '_mhmrentiva_receipt_uploaded_at');
 
 			wp_send_json_success(array( 'message' => __('Receipt removed successfully.', 'mhm-rentiva') ));
 		} else {
@@ -735,7 +735,7 @@ final class AccountController {
 	{
 		try {
 			// Nonce verification
-			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhm_rentiva_account')) {
+			if (! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'] ?? '')), 'mhmrentiva_account')) {
 				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 			}
 
@@ -745,7 +745,7 @@ final class AccountController {
 			}
 
 			// Profile editing check
-			$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_customer_profile_editable', '1');
+			$profile_editable = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
 			if ($profile_editable !== '1') {
 				wp_send_json_error(array( 'message' => __('Profile editing is currently disabled.', 'mhm-rentiva') ));
 			}
@@ -782,10 +782,10 @@ final class AccountController {
 
 			// Update meta information
 			if (! empty($phone)) {
-				update_user_meta($user_id, 'mhm_rentiva_phone', $phone);
+				update_user_meta($user_id, 'mhmrentiva_phone', $phone);
 			}
 			if (! empty($address)) {
-				update_user_meta($user_id, 'mhm_rentiva_address', $address);
+				update_user_meta($user_id, 'mhmrentiva_address', $address);
 			}
 
 			wp_send_json_success(
@@ -804,7 +804,7 @@ final class AccountController {
 	/**
 	 * AJAX: Add favorite
 	 *
-	 * @deprecated 1.3.3 Use mhm_rentiva_toggle_favorite via FavoritesService
+	 * @deprecated 1.3.3 Use mhmrentiva_toggle_favorite via FavoritesService
 	 */
 	public static function ajax_add_favorite(): void
 	{
@@ -820,7 +820,7 @@ final class AccountController {
 	/**
 	 * AJAX: Remove favorite
 	 *
-	 * @deprecated 1.3.3 Use mhm_rentiva_toggle_favorite via FavoritesService
+	 * @deprecated 1.3.3 Use mhmrentiva_toggle_favorite via FavoritesService
 	 */
 	public static function ajax_remove_favorite(): void
 	{
@@ -855,9 +855,9 @@ final class AccountController {
 		$booking_notifications = isset($_POST['booking_notifications']) ? '1' : '0';
 		$marketing_emails      = isset($_POST['marketing_emails']) ? '1' : '0';
 
-		update_user_meta($user_id, 'mhm_welcome_email', $welcome_email);
-		update_user_meta($user_id, 'mhm_booking_notifications', $booking_notifications);
-		update_user_meta($user_id, 'mhm_marketing_emails', $marketing_emails);
+		update_user_meta($user_id, 'mhmrentiva_welcome_email', $welcome_email);
+		update_user_meta($user_id, 'mhmrentiva_booking_notifications', $booking_notifications);
+		update_user_meta($user_id, 'mhmrentiva_marketing_emails', $marketing_emails);
 
 		// Redirect back to dashboard with success message
 		wp_safe_redirect(add_query_arg('comm_prefs_updated', '1', self::get_account_url()));
@@ -882,7 +882,7 @@ final class AccountController {
 
 		// Verify nonce
 		$nonce = sanitize_text_field(wp_unslash($_POST['nonce'] ?? ''));
-		if (! wp_verify_nonce($nonce, 'mhm_cancel_booking_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_cancel_booking_nonce')) {
 			wp_send_json_error(
 				array(
 					'message' => __('Security verification failed. Please refresh and try again.', 'mhm-rentiva'),

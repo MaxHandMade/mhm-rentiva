@@ -40,7 +40,7 @@ final class CurrencyHelper {
 			}
 		}
 
-		return (string) SettingsCore::get( 'mhm_rentiva_currency_position', 'right_space' );
+		return (string) SettingsCore::get( 'mhmrentiva_currency_position', 'right_space' );
 	}
 
 	/**
@@ -100,7 +100,7 @@ final class CurrencyHelper {
 	 * Get all supported currency codes and symbols
 	 *
 	 * This list must match exactly with SettingsCore::render_currency_field()
-	 * Can be extended via 'mhm_rentiva_currency_symbols' filter hook
+	 * Can be extended via 'mhmrentiva_currency_symbols' filter hook
 	 *
 	 * @return array<string, string> Currency code => Symbol mapping
 	 */
@@ -165,13 +165,13 @@ final class CurrencyHelper {
 		 * @return array Modified currency symbols array
 		 *
 		 * @example
-		 * add_filter('mhm_rentiva_currency_symbols', function($symbols) {
+		 * add_filter('mhmrentiva_currency_symbols', function($symbols) {
 		 *     $symbols['BTC'] = '\u{20BF}';
 		 *     $symbols['ETH'] = '\u{039E}';
 		 *     return $symbols;
 		 * });
 		 */
-		return apply_filters( 'mhm_rentiva_currency_symbols', $symbols );
+		return apply_filters( 'mhmrentiva_currency_symbols', $symbols );
 	}
 
 	/**
@@ -186,7 +186,7 @@ final class CurrencyHelper {
 			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
 				return html_entity_decode( get_woocommerce_currency_symbol(), ENT_HTML5, 'UTF-8' );
 			}
-			$currency_code = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+			$currency_code = SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 		}
 
 		$currency_code = strtoupper( trim( $currency_code ) );
@@ -242,11 +242,11 @@ final class CurrencyHelper {
 	 */
 	public static function register_hooks(): void {
 		// Register filter for template usage.
-		add_filter( 'mhm_rentiva/currency_symbol', array( self::class, 'filter_currency_symbol' ), 10, 1 );
+		add_filter( 'mhmrentiva/currency_symbol', array( self::class, 'filter_currency_symbol' ), 10, 1 );
 	}
 
 	/**
-	 * Filter callback for mhm_rentiva/currency_symbol
+	 * Filter callback for mhmrentiva/currency_symbol
 	 *
 	 * @param string $default_symbol Default symbol (ignored, we use settings)
 	 * @return string Currency symbol from settings
@@ -259,7 +259,7 @@ final class CurrencyHelper {
 	 * Get currency list for dropdowns (code => display name with symbol)
 	 *
 	 * This matches SettingsCore::render_currency_field() format
-	 * Can be extended via 'mhm_rentiva_currency_list' filter hook
+	 * Can be extended via 'mhmrentiva_currency_list' filter hook
 	 *
 	 * @return array<string, string> Currency code => Display name mapping
 	 */
@@ -321,12 +321,12 @@ final class CurrencyHelper {
 		 * @return array Modified currency list array
 		 *
 		 * @example
-		 * add_filter('mhm_rentiva_currency_list', function($currencies) {
+		 * add_filter('mhmrentiva_currency_list', function($currencies) {
 		 *     $currencies['BTC'] = 'Bitcoin (' . "\u{20BF}" . ')';
 		 *     $currencies['ETH'] = 'Ethereum (' . "\u{039E}" . ')';
 		 *     return $currencies;
 		 * });
 		 */
-		return apply_filters( 'mhm_rentiva_currency_list', $currencies );
+		return apply_filters( 'mhmrentiva_currency_list', $currencies );
 	}
 }

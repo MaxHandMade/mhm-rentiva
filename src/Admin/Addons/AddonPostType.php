@@ -101,13 +101,13 @@ final class AddonPostType extends AbstractPostType {
 	}
 
 	/**
-	 * Register the `_mhm_addon_pricing_type` post meta with REST exposure
+	 * Register the `_mhmrentiva_addon_pricing_type` post meta with REST exposure
 	 * and a sanitize callback delegating to the AddonPricingType enum.
 	 */
 	public static function register_pricing_type_meta(): void {
 		register_post_meta(
 			self::POST_TYPE,
-			'_mhm_addon_pricing_type',
+			'_mhmrentiva_addon_pricing_type',
 			array(
 				'type'              => 'string',
 				'single'            => true,

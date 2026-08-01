@@ -49,7 +49,7 @@ final class CustomersPage {
 	{
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		// REST routes are registered in Plugin.php (context-agnostic path) — not here.
-		add_action( 'admin_post_mhm_rentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
+		add_action( 'admin_post_mhmrentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
 		// The four indexes this screen relies on are created by DatabaseMigrator's
 		// add_performance_indexes(), with the rest of the plugin's schema. They used
 		// to be issued from admin_init by a read-model class.
@@ -117,9 +117,9 @@ final class CustomersPage {
 
 		wp_enqueue_style(
 			'mhm-rentiva-customers',
-			MHM_RENTIVA_PLUGIN_URL . 'build/admin/customers.css',
+			MHMRENTIVA_PLUGIN_URL . 'build/admin/customers.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		$stats    = CustomersOptimizer::get_customer_stats_optimized();
@@ -137,7 +137,7 @@ final class CustomersPage {
 				),
 				'currency'         => $currency,
 				'admin_url'        => admin_url(),
-				'export_nonce'     => wp_create_nonce( 'mhm_rentiva_export_customers' ),
+				'export_nonce'     => wp_create_nonce( 'mhmrentiva_export_customers' ),
 				'add_customer_url' => admin_url( 'admin.php?page=mhm-rentiva-customers&action=add-customer' ),
 			)
 		);
@@ -188,7 +188,7 @@ final class CustomersPage {
 		echo '<td><a href="mailto:' . esc_attr($customer->user_email) . '">' . esc_html($customer->user_email) . '</a></td>';
 		echo '</tr>';
 
-		$phone = get_user_meta($customer_id, 'mhm_rentiva_phone', true);
+		$phone = get_user_meta($customer_id, 'mhmrentiva_phone', true);
 		if ($phone) {
 			echo '<tr>';
 			echo '<th scope="row">' . esc_html__('Phone', 'mhm-rentiva') . '</th>';
@@ -196,7 +196,7 @@ final class CustomersPage {
 			echo '</tr>';
 		}
 
-		$address = get_user_meta($customer_id, 'mhm_rentiva_address', true);
+		$address = get_user_meta($customer_id, 'mhmrentiva_address', true);
 		if ($address) {
 			echo '<tr>';
 			echo '<th scope="row">' . esc_html__('Address', 'mhm-rentiva') . '</th>';
@@ -303,8 +303,8 @@ final class CustomersPage {
 
 		// Form processing. The nonce field is the submission signal: only this
 		// page's own form carries it, so its validity is the whole test.
-		$nonce = sanitize_text_field(wp_unslash($_POST['mhm_rentiva_edit_customer_nonce'] ?? ''));
-		if (wp_verify_nonce($nonce, 'mhm_rentiva_edit_customer')) {
+		$nonce = sanitize_text_field(wp_unslash($_POST['mhmrentiva_edit_customer_nonce'] ?? ''));
+		if (wp_verify_nonce($nonce, 'mhmrentiva_edit_customer')) {
 			$customer_name    = isset($_POST['customer_name']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_name'])) : '';
 			$customer_email   = sanitize_email(wp_unslash($_POST['customer_email'] ?? ''));
 			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_phone'])) : '';
@@ -324,8 +324,8 @@ final class CustomersPage {
 				);
 
 				// Update meta information
-				update_user_meta($customer_id, 'mhm_rentiva_phone', $customer_phone);
-				update_user_meta($customer_id, 'mhm_rentiva_address', $customer_address);
+				update_user_meta($customer_id, 'mhmrentiva_phone', $customer_phone);
+				update_user_meta($customer_id, 'mhmrentiva_address', $customer_address);
 
 				// Clear cache
 				\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache($customer_id);
@@ -349,7 +349,7 @@ final class CustomersPage {
 		$this->render_admin_header(esc_html__('Edit Customer', 'mhm-rentiva'), $buttons);
 
 		echo '<form method="post" action="">';
-		wp_nonce_field('mhm_rentiva_edit_customer', 'mhm_rentiva_edit_customer_nonce');
+		wp_nonce_field('mhmrentiva_edit_customer', 'mhmrentiva_edit_customer_nonce');
 
 		echo '<table class="form-table">';
 		echo '<tbody>';
@@ -366,12 +366,12 @@ final class CustomersPage {
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . '</label></th>';
-		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhm_rentiva_phone', true)) . '" class="regular-text" /></td>';
+		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" class="regular-text" /></td>';
 		echo '</tr>';
 
 		echo '<tr>';
 		echo '<th scope="row"><label for="customer_address">' . esc_html__('Address', 'mhm-rentiva') . '</label></th>';
-		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea(get_user_meta($customer_id, 'mhm_rentiva_address', true)) . '</textarea></td>';
+		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea(get_user_meta($customer_id, 'mhmrentiva_address', true)) . '</textarea></td>';
 		echo '</tr>';
 
 		echo '</tbody>';

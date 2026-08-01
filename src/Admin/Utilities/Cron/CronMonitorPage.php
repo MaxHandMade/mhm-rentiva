@@ -15,9 +15,9 @@ final class CronMonitorPage {
 
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_list_cron_jobs', array( self::class, 'ajax_list_cron_jobs' ));
-		add_action('wp_ajax_mhm_rentiva_run_cron_job', array( self::class, 'ajax_run_cron_job' ));
-		add_action('wp_ajax_mhm_rentiva_test_cron_jobs', array( self::class, 'ajax_test_cron_jobs' ));
+		add_action('wp_ajax_mhmrentiva_list_cron_jobs', array( self::class, 'ajax_list_cron_jobs' ));
+		add_action('wp_ajax_mhmrentiva_run_cron_job', array( self::class, 'ajax_run_cron_job' ));
+		add_action('wp_ajax_mhmrentiva_test_cron_jobs', array( self::class, 'ajax_test_cron_jobs' ));
 	}
 
 	/**
@@ -25,7 +25,7 @@ final class CronMonitorPage {
 	 */
 	public static function ajax_list_cron_jobs(): void
 	{
-		if (! check_ajax_referer('mhm_cron_monitor', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_cron_monitor', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
@@ -48,7 +48,7 @@ final class CronMonitorPage {
 	 */
 	public static function ajax_run_cron_job(): void
 	{
-		if (! check_ajax_referer('mhm_cron_monitor', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_cron_monitor', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
@@ -83,7 +83,7 @@ final class CronMonitorPage {
 	 */
 	public static function ajax_test_cron_jobs(): void
 	{
-		if (! check_ajax_referer('mhm_cron_monitor', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_cron_monitor', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 

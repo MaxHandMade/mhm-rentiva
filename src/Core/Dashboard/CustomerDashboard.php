@@ -22,7 +22,7 @@ final class CustomerDashboard {
 		ob_start();
 
 		$dashboard_data = $data;
-		include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php';
+		include MHMRENTIVA_PLUGIN_PATH . 'templates/account/user-dashboard.php';
 
 		return (string) ob_get_clean();
 	}

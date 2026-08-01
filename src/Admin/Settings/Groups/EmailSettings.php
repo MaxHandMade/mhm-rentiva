@@ -24,71 +24,71 @@ final class EmailSettings {
 
 
 
-	public const SECTION_ID            = 'mhm_rentiva_email_section';
-	public const SECTION_NOTIFICATIONS = 'mhm_rentiva_email_notifications_section';
+	public const SECTION_ID            = 'mhmrentiva_email_section';
+	public const SECTION_NOTIFICATIONS = 'mhmrentiva_email_notifications_section';
 
 	/**
 	 * Get default settings for email
 	 */
 	public static function get_default_settings(): array {
 		return array(
-			'mhm_rentiva_email_from_name'                  => get_bloginfo( 'name' ),
-			'mhm_rentiva_email_from_address'               => get_option( 'admin_email' ),
-			'mhm_rentiva_email_reply_to'                   => get_option( 'admin_email' ),
-			'mhm_rentiva_email_send_enabled'               => '1',
-			'mhm_rentiva_email_test_mode'                  => '0',
-			'mhm_rentiva_email_test_address'               => get_option( 'admin_email' ),
-			'mhm_rentiva_email_template_path'              => 'mhm-rentiva/emails/',
-			'mhm_rentiva_email_auto_send'                  => '1',
-			'mhm_rentiva_email_log_enabled'                => '1',
-			'mhm_rentiva_email_log_retention_days'         => 30,
+			'mhmrentiva_email_from_name'                  => get_bloginfo( 'name' ),
+			'mhmrentiva_email_from_address'               => get_option( 'admin_email' ),
+			'mhmrentiva_email_reply_to'                   => get_option( 'admin_email' ),
+			'mhmrentiva_email_send_enabled'               => '1',
+			'mhmrentiva_email_test_mode'                  => '0',
+			'mhmrentiva_email_test_address'               => get_option( 'admin_email' ),
+			'mhmrentiva_email_template_path'              => 'mhm-rentiva/emails/',
+			'mhmrentiva_email_auto_send'                  => '1',
+			'mhmrentiva_email_log_enabled'                => '1',
+			'mhmrentiva_email_log_retention_days'         => 30,
 
 			// Branding
-			'mhm_rentiva_email_base_color'                 => '#1e88e5',
-			'mhm_rentiva_email_header_image'               => '',
-			'mhm_rentiva_email_footer_text'                => sprintf(
+			'mhmrentiva_email_base_color'                 => '#1e88e5',
+			'mhmrentiva_email_header_image'               => '',
+			'mhmrentiva_email_footer_text'                => sprintf(
 				/* translators: %s: site name */
 				__( '%s - Powered by MHM Rentiva', 'mhm-rentiva' ),
 				get_bloginfo( 'name' )
 			),
 
 			// Customer Booking Confirmation
-			'mhm_rentiva_booking_created_subject'          => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
-			'mhm_rentiva_booking_created_body'             => self::get_default_customer_confirmation_body(),
+			'mhmrentiva_booking_created_subject'          => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_created_body'             => self::get_default_customer_confirmation_body(),
 
 			// Booking Status Change (Customer)
-			'mhm_rentiva_booking_status_subject'           => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
-			'mhm_rentiva_booking_status_body'              => self::get_default_booking_status_body(),
+			'mhmrentiva_booking_status_subject'           => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
+			'mhmrentiva_booking_status_body'              => self::get_default_booking_status_body(),
 
 			// Admin Booking Alert
-			'mhm_rentiva_booking_admin_subject'            => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
-			'mhm_rentiva_booking_admin_body'               => self::get_default_admin_notification_body(),
+			'mhmrentiva_booking_admin_subject'            => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_admin_body'               => self::get_default_admin_notification_body(),
 
 			// Auto Cancel Email
-			'mhm_rentiva_auto_cancel_email_subject'        => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
-			'mhm_rentiva_auto_cancel_email_content'        => self::get_default_auto_cancel_body(),
+			'mhmrentiva_auto_cancel_email_subject'        => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_auto_cancel_email_content'        => self::get_default_auto_cancel_body(),
 
 			// Booking Reminder
-			'mhm_rentiva_booking_reminder_subject'         => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
-			'mhm_rentiva_booking_reminder_body'            => self::get_default_booking_reminder_body(),
+			'mhmrentiva_booking_reminder_subject'         => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
+			'mhmrentiva_booking_reminder_body'            => self::get_default_booking_reminder_body(),
 
 			// Refund Emails
-			'mhm_rentiva_refund_customer_subject'          => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhm_rentiva_refund_customer_body'             => self::get_default_refund_customer_body(),
-			'mhm_rentiva_refund_admin_subject'             => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhm_rentiva_refund_admin_body'                => self::get_default_refund_admin_body(),
+			'mhmrentiva_refund_customer_subject'          => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_customer_body'             => self::get_default_refund_customer_body(),
+			'mhmrentiva_refund_admin_subject'             => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_admin_body'                => self::get_default_refund_admin_body(),
 
 			// Customer Notification Toggles
-			'mhm_rentiva_customer_welcome_email'           => '1',
-			'mhm_rentiva_customer_booking_notifications'   => '1',
+			'mhmrentiva_customer_welcome_email'           => '1',
+			'mhmrentiva_customer_booking_notifications'   => '1',
 
 			// Message Emails
-			'mhm_rentiva_message_received_admin_subject'   => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
-			'mhm_rentiva_message_received_admin_body'      => self::get_default_message_admin_body(),
-			'mhm_rentiva_message_replied_customer_subject' => __( 'New Reply for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhm_rentiva_message_replied_customer_body'    => self::get_default_message_customer_body(),
-			'mhm_rentiva_message_auto_reply_subject'       => __( 'We received your message - {site_name}', 'mhm-rentiva' ),
-			'mhm_rentiva_message_auto_reply_body'          => self::get_default_message_auto_reply_body(),
+			'mhmrentiva_message_received_admin_subject'   => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
+			'mhmrentiva_message_received_admin_body'      => self::get_default_message_admin_body(),
+			'mhmrentiva_message_replied_customer_subject' => __( 'New Reply for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_message_replied_customer_body'    => self::get_default_message_customer_body(),
+			'mhmrentiva_message_auto_reply_subject'       => __( 'We received your message - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_message_auto_reply_body'          => self::get_default_message_auto_reply_body(),
 		);
 	}
 
@@ -249,29 +249,29 @@ final class EmailSettings {
 			$page_slug
 		);
 
-		SettingsHelper::text_field( $page_slug, 'mhm_rentiva_email_from_name', __( 'Sender Name', 'mhm-rentiva' ), self::SECTION_ID );
-		SettingsHelper::email_field( $page_slug, 'mhm_rentiva_email_from_address', __( 'Sender Email', 'mhm-rentiva' ), '', self::SECTION_ID );
-		SettingsHelper::email_field( $page_slug, 'mhm_rentiva_email_reply_to', __( 'Reply-To Address', 'mhm-rentiva' ), '', self::SECTION_ID );
+		SettingsHelper::text_field( $page_slug, 'mhmrentiva_email_from_name', __( 'Sender Name', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::email_field( $page_slug, 'mhmrentiva_email_from_address', __( 'Sender Email', 'mhm-rentiva' ), '', self::SECTION_ID );
+		SettingsHelper::email_field( $page_slug, 'mhmrentiva_email_reply_to', __( 'Reply-To Address', 'mhm-rentiva' ), '', self::SECTION_ID );
 
 		add_settings_field(
-			'mhm_rentiva_email_base_color',
+			'mhmrentiva_email_base_color',
 			__( 'Base Color', 'mhm-rentiva' ),
 			array( self::class, 'render_color_field' ),
 			$page_slug,
 			self::SECTION_ID
 		);
 
-		SettingsHelper::url_field( $page_slug, 'mhm_rentiva_email_header_image', __( 'Header Image (Logo URL)', 'mhm-rentiva' ), self::SECTION_ID );
-		SettingsHelper::textarea_field( $page_slug, 'mhm_rentiva_email_footer_text', __( 'Footer Text', 'mhm-rentiva' ), 3, '', self::SECTION_ID );
+		SettingsHelper::url_field( $page_slug, 'mhmrentiva_email_header_image', __( 'Header Image (Logo URL)', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::textarea_field( $page_slug, 'mhmrentiva_email_footer_text', __( 'Footer Text', 'mhm-rentiva' ), 3, '', self::SECTION_ID );
 
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_send_enabled', __( 'Enable Outgoing Emails', 'mhm-rentiva' ), __( 'Allow system to send automated transaction emails.', 'mhm-rentiva' ), self::SECTION_ID );
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_test_mode', __( 'Production Sandbox (Test Mode)', 'mhm-rentiva' ), __( 'Redirect all outgoing mails to the test address below.', 'mhm-rentiva' ), self::SECTION_ID );
-		SettingsHelper::email_field( $page_slug, 'mhm_rentiva_email_test_address', __( 'Test Email Address', 'mhm-rentiva' ), '', self::SECTION_ID );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_email_send_enabled', __( 'Enable Outgoing Emails', 'mhm-rentiva' ), __( 'Allow system to send automated transaction emails.', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_email_test_mode', __( 'Production Sandbox (Test Mode)', 'mhm-rentiva' ), __( 'Redirect all outgoing mails to the test address below.', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::email_field( $page_slug, 'mhmrentiva_email_test_address', __( 'Test Email Address', 'mhm-rentiva' ), '', self::SECTION_ID );
 
-		SettingsHelper::text_field( $page_slug, 'mhm_rentiva_email_template_path', __( 'Template Override Path', 'mhm-rentiva' ), self::SECTION_ID );
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_auto_send', __( 'Automatic Background Sending', 'mhm-rentiva' ), '', self::SECTION_ID );
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_email_log_enabled', __( 'Enable Communication Logs', 'mhm-rentiva' ), '', self::SECTION_ID );
-		SettingsHelper::number_field( $page_slug, 'mhm_rentiva_email_log_retention_days', __( 'Log Retention (Days)', 'mhm-rentiva' ), 1, 365, '', self::SECTION_ID );
+		SettingsHelper::text_field( $page_slug, 'mhmrentiva_email_template_path', __( 'Template Override Path', 'mhm-rentiva' ), self::SECTION_ID );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_email_auto_send', __( 'Automatic Background Sending', 'mhm-rentiva' ), '', self::SECTION_ID );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_email_log_enabled', __( 'Enable Communication Logs', 'mhm-rentiva' ), '', self::SECTION_ID );
+		SettingsHelper::number_field( $page_slug, 'mhmrentiva_email_log_retention_days', __( 'Log Retention (Days)', 'mhm-rentiva' ), 1, 365, '', self::SECTION_ID );
 
 		// Customer Notification Toggles section
 		add_settings_section(
@@ -281,8 +281,8 @@ final class EmailSettings {
 			$page_slug
 		);
 
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_customer_welcome_email', __( 'Send Welcome Email', 'mhm-rentiva' ), __( 'Send a one-time welcome email to customers on their first booking.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
-		SettingsHelper::checkbox_field( $page_slug, 'mhm_rentiva_customer_booking_notifications', __( 'Send Booking Notifications', 'mhm-rentiva' ), __( 'Send booking confirmation, reminder, and cancellation emails to customers.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_customer_welcome_email', __( 'Send Welcome Email', 'mhm-rentiva' ), __( 'Send a one-time welcome email to customers on their first booking.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
+		SettingsHelper::checkbox_field( $page_slug, 'mhmrentiva_customer_booking_notifications', __( 'Send Booking Notifications', 'mhm-rentiva' ), __( 'Send booking confirmation, reminder, and cancellation emails to customers.', 'mhm-rentiva' ), self::SECTION_NOTIFICATIONS );
 	}
 
 	public static function render_section_description(): void {
@@ -291,54 +291,54 @@ final class EmailSettings {
 		}
 
 		if ( current_user_can( 'manage_options' ) ) {
-			$nonce = wp_create_nonce( 'mhm_rentiva_send_test_email' );
+			$nonce = wp_create_nonce( 'mhmrentiva_send_test_email' );
 			echo '<div style="margin: 15px 0;"><button type="button" class="button button-secondary mhm-send-test-email" data-nonce="' . esc_attr( $nonce ) . '"><span class="dashicons dashicons-email-alt" style="vertical-align: middle;"></span> ' . esc_html__( 'Send Test Connection Email', 'mhm-rentiva' ) . '</button></div>';
 		}
 	}
 
 	public static function render_color_field(): void {
-		$val = esc_attr( (string) SettingsCore::get( 'mhm_rentiva_email_base_color', '#1e88e5' ) );
+		$val = esc_attr( (string) SettingsCore::get( 'mhmrentiva_email_base_color', '#1e88e5' ) );
 		printf(
-			'<input type="color" name="mhm_rentiva_settings[mhm_rentiva_email_base_color]" value="%s" style="height:38px; width:70px; padding:2px; border:1px solid #ccc; border-radius:4px;"/>',
+			'<input type="color" name="mhmrentiva_settings[mhmrentiva_email_base_color]" value="%s" style="height:38px; width:70px; padding:2px; border:1px solid #ccc; border-radius:4px;"/>',
 			esc_attr( (string) $val )
 		);
 	}
 
 	// Static Accessors (Cached/High Performance)
 	public static function get_from_name(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_from_name', get_bloginfo( 'name' ) );
+		return (string) SettingsCore::get( 'mhmrentiva_email_from_name', get_bloginfo( 'name' ) );
 	}
 	public static function get_from_address(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_from_address', get_option( 'admin_email' ) );
+		return (string) SettingsCore::get( 'mhmrentiva_email_from_address', get_option( 'admin_email' ) );
 	}
 	public static function get_base_color(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_base_color', '#1e88e5' );
+		return (string) SettingsCore::get( 'mhmrentiva_email_base_color', '#1e88e5' );
 	}
 	public static function get_header_image(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_header_image', '' );
+		return (string) SettingsCore::get( 'mhmrentiva_email_header_image', '' );
 	}
 	public static function get_footer_text(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_footer_text', '' );
+		return (string) SettingsCore::get( 'mhmrentiva_email_footer_text', '' );
 	}
 	public static function is_send_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_email_send_enabled', '1' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_email_send_enabled', '1' ) === '1';
 	}
 	public static function is_test_mode(): bool {
-		return SettingsCore::get( 'mhm_rentiva_email_test_mode', '0' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_email_test_mode', '0' ) === '1';
 	}
 	public static function get_test_address(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_test_address', get_option( 'admin_email' ) );
+		return (string) SettingsCore::get( 'mhmrentiva_email_test_address', get_option( 'admin_email' ) );
 	}
 	public static function get_template_path(): string {
-		return (string) SettingsCore::get( 'mhm_rentiva_email_template_path', 'mhm-rentiva/emails/' );
+		return (string) SettingsCore::get( 'mhmrentiva_email_template_path', 'mhm-rentiva/emails/' );
 	}
 	public static function is_auto_send_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_email_auto_send', '1' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_email_auto_send', '1' ) === '1';
 	}
 	public static function is_log_enabled(): bool {
-		return SettingsCore::get( 'mhm_rentiva_email_log_enabled', '1' ) === '1';
+		return SettingsCore::get( 'mhmrentiva_email_log_enabled', '1' ) === '1';
 	}
 	public static function get_log_retention_days(): int {
-		return (int) SettingsCore::get( 'mhm_rentiva_email_log_retention_days', 30 );
+		return (int) SettingsCore::get( 'mhmrentiva_email_log_retention_days', 30 );
 	}
 }

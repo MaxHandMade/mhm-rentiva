@@ -50,7 +50,7 @@ final class TabRendererRegistry {
 	public function get_all(): array {
 		// Sort according to a predefined order
 		$order = (array) apply_filters(
-			'mhm_rentiva_settings_tabs_order',
+			'mhmrentiva_settings_tabs_order',
 			array(
 				'general',
 				'vehicle',
@@ -102,13 +102,13 @@ final class TabRendererRegistry {
 				'vehicle',
 				__( 'Configure vehicle pricing, display options, and availability settings.', 'mhm-rentiva' ),
 				'\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings',
-				array( 'mhm_rentiva_vehicle_pricing_section', 'mhm_rentiva_vehicle_display_section', 'mhm_rentiva_vehicle_availability_section', 'mhm_rentiva_vehicle_comparison_section' )
+				array( 'mhmrentiva_vehicle_pricing_section', 'mhmrentiva_vehicle_display_section', 'mhmrentiva_vehicle_availability_section', 'mhmrentiva_vehicle_comparison_section' )
 			)
 		);
 
 		// Vendor Marketplace — extension-point inversion (Task A6): Lite no longer
 		// registers this renderer itself. The add-on's SettingsExtensions registers it
-		// via the `mhm_rentiva_settings_register_renderers` action below.
+		// via the `mhmrentiva_settings_register_renderers` action below.
 
 		$this->register(
 			new BaseSettingsTabRenderer(
@@ -155,7 +155,7 @@ final class TabRendererRegistry {
 				'email',
 				__( 'Configure outgoing mail server and sender information.', 'mhm-rentiva' ),
 				null,
-				array( 'mhm_rentiva_email_section', 'mhm_rentiva_email_notifications_section' )
+				array( 'mhmrentiva_email_section', 'mhmrentiva_email_notifications_section' )
 			)
 		);
 
@@ -178,7 +178,7 @@ final class TabRendererRegistry {
 
 		// Messages — extension-point inversion (Task A6): Lite no longer registers this
 		// renderer itself. The add-on's SettingsExtensions registers it via the
-		// `mhm_rentiva_settings_register_renderers` action below.
+		// `mhmrentiva_settings_register_renderers` action below.
 
 		// System
 		$this->register(
@@ -187,7 +187,7 @@ final class TabRendererRegistry {
 				'system',
 				__( 'Monitor and configure system health, security, and performance.', 'mhm-rentiva' ),
 				null,
-				array( 'mhm_rentiva_ip_control_section', 'mhm_rentiva_security_rules_section', 'mhm_rentiva_authentication_section', 'mhm_rentiva_maintenance_section' )
+				array( 'mhmrentiva_ip_control_section', 'mhmrentiva_security_rules_section', 'mhmrentiva_authentication_section', 'mhmrentiva_maintenance_section' )
 			)
 		);
 
@@ -209,13 +209,13 @@ final class TabRendererRegistry {
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
 		// Transfer's tab renderer — extension-point inversion (Task A6): Lite no longer
 		// registers this renderer itself. The add-on's SettingsExtensions registers it via
-		// the `mhm_rentiva_settings_register_renderers` action below.
+		// the `mhmrentiva_settings_register_renderers` action below.
 
 		/**
 		 * Allow modifying renderers after defaults are registered.
 		 *
 		 * @param TabRendererRegistry $registry This registry instance.
 		 */
-		do_action( 'mhm_rentiva_settings_register_renderers', $this );
+		do_action( 'mhmrentiva_settings_register_renderers', $this );
 	}
 }

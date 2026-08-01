@@ -30,9 +30,9 @@ final class MultiTenantMigration {
         global $wpdb;
 
         $tables = [
-            $wpdb->prefix . 'mhm_rentiva_ledger',
-            $wpdb->prefix . 'mhm_rentiva_key_registry',
-            $wpdb->prefix . 'mhm_rentiva_payout_audit',
+            $wpdb->prefix . 'mhmrentiva_ledger',
+            $wpdb->prefix . 'mhmrentiva_key_registry',
+            $wpdb->prefix . 'mhmrentiva_payout_audit',
         ];
 
         $success = true;
@@ -63,7 +63,7 @@ final class MultiTenantMigration {
             }
 
             // ADD COMPOSITE INDEXES (V1.8 HARDENING)
-            if ($table === $wpdb->prefix . 'mhm_rentiva_ledger' || $table === $wpdb->prefix . 'mhm_rentiva_payout_audit') {
+            if ($table === $wpdb->prefix . 'mhmrentiva_ledger' || $table === $wpdb->prefix . 'mhmrentiva_payout_audit') {
                 $index_name   = 'tenant_created_idx';
                 $index_exists = (int) $wpdb->get_var(
                     $wpdb->prepare(
@@ -120,7 +120,7 @@ final class MultiTenantMigration {
      */
     private static function enforce_key_registry_tenant_constraint(\wpdb $wpdb): void
     {
-        $table = $wpdb->prefix . 'mhm_rentiva_key_registry';
+        $table = $wpdb->prefix . 'mhmrentiva_key_registry';
 
         // Drop legacy single-tenant "one active key" index if it exists.
         $old_index_exists = $wpdb->get_var(

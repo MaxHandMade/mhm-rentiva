@@ -35,7 +35,7 @@ final class BlueprintValidator {
         foreach ($required_keys as $key) {
             if (! isset($manifest[ $key ])) {
                 return new WP_Error(
-                    'mhm_rentiva_invalid_blueprint',
+                    'mhmrentiva_invalid_blueprint',
                     /* translators: %s: missing root key in manifest. */
                     sprintf(__('Manifest root key missing: %s', 'mhm-rentiva'), $key)
                 );
@@ -48,7 +48,7 @@ final class BlueprintValidator {
             version_compare( (string) $manifest['version'], '2.0.0', '>=')
         ) {
             return new WP_Error(
-                'mhm_rentiva_unsupported_version',
+                'mhmrentiva_unsupported_version',
                 /* translators: %s: blueprint version string. */
                 sprintf(__('Unsupported blueprint version: %s', 'mhm-rentiva'), $manifest['version'])
             );
@@ -65,7 +65,7 @@ final class BlueprintValidator {
         foreach (ContractRules::FORBIDDEN_PATTERNS as $pattern) {
             if (stripos($json_to_scan, $pattern) !== false) {
                 return new WP_Error(
-                    'mhm_rentiva_forbidden_pattern',
+                    'mhmrentiva_forbidden_pattern',
                     /* translators: %s: forbidden pattern name. */
                     sprintf(__('Forbidden pattern detected in manifest: %s', 'mhm-rentiva'), $pattern)
                 );
@@ -75,7 +75,7 @@ final class BlueprintValidator {
         // 3. Pages validation
         if (! is_array($manifest['pages']) || empty($manifest['pages'])) {
             return new WP_Error(
-                'mhm_rentiva_no_pages',
+                'mhmrentiva_no_pages',
                 __('Manifest contains no pages.', 'mhm-rentiva')
             );
         }
@@ -90,7 +90,7 @@ final class BlueprintValidator {
         // 4. Components validation
         if (! is_array($manifest['components'])) {
             return new WP_Error(
-                'mhm_rentiva_invalid_components',
+                'mhmrentiva_invalid_components',
                 __('Manifest components section must be an object/array.', 'mhm-rentiva')
             );
         }
@@ -111,7 +111,7 @@ final class BlueprintValidator {
         foreach ($required_keys as $key) {
             if (! isset($page[ $key ])) {
                 return new WP_Error(
-                    'mhm_rentiva_invalid_page',
+                    'mhmrentiva_invalid_page',
                     /* translators: 1: page index, 2: missing key. */
                     sprintf(__('Page #%1$d is missing key: %2$s', 'mhm-rentiva'), $index, $key)
                 );
@@ -130,7 +130,7 @@ final class BlueprintValidator {
                 // Here we just ensure basic instance metadata exists.
                 if (! isset($instance['instance_id'])) {
                     return new WP_Error(
-                        'mhm_rentiva_invalid_instance',
+                        'mhmrentiva_invalid_instance',
                         /* translators: 1: component index, 2: page index. */
                         sprintf(__('Component instance #%1$d in page #%2$d missing instance_id', 'mhm-rentiva'), $comp_idx, $index)
                     );

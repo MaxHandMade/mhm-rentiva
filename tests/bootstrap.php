@@ -39,7 +39,7 @@ if (! defined('SECURE_AUTH_SALT')) {
  *
  * @return bool
  */
-function mhm_is_test_discovery_mode(): bool
+function mhmrentiva_is_test_discovery_mode(): bool
 {
 	$argv = $_SERVER['argv'] ?? array();
 	if (! is_array($argv)) {
@@ -65,7 +65,7 @@ function mhm_is_test_discovery_mode(): bool
  * This avoids noisy "table already exists / duplicate entry" messages when
  * multiple test runs share the same DB.
  */
-$is_discovery_mode = mhm_is_test_discovery_mode();
+$is_discovery_mode = mhmrentiva_is_test_discovery_mode();
 $is_ci = 'true' === strtolower((string) getenv('CI'));
 $isolation_flag = strtolower((string) getenv('WP_TESTS_ISOLATE_DB'));
 $isolation_explicitly_enabled = in_array($isolation_flag, array('1', 'true', 'yes'), true);
@@ -144,7 +144,7 @@ require_once "{$_tests_dir}/includes/functions.php";
  * deterministic plugin lifecycle activation tests in CI.
  */
 tests_add_filter('muplugins_loaded', static function () {
-	add_filter('mhm_rentiva_skip_dependency_check', '__return_true', 1);
+	add_filter('mhmrentiva_skip_dependency_check', '__return_true', 1);
 }, 1);
 
 /**
@@ -214,7 +214,7 @@ tests_add_filter('muplugins_loaded', static function () {
  * Force valid Tenant ID for all tests to satisfy v1.9 Orchestration requirements.
  */
 tests_add_filter('muplugins_loaded', function () {
-	add_filter('mhm_rentiva_filter_tenant_id', function () {
+	add_filter('mhmrentiva_filter_tenant_id', function () {
 		return 1;
 	}, 1);
 }, 11);

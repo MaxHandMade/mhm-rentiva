@@ -66,7 +66,7 @@ if (! $user_display_name) {
 					} else {
 						printf(
 							'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
-							esc_html(mhm_rentiva_initial_avatar_letter( (string) $user_display_name))
+							esc_html(mhmrentiva_initial_avatar_letter( (string) $user_display_name))
 						);
 					}
 					?>
@@ -79,7 +79,7 @@ if (! $user_display_name) {
 					// version has the value only under the old name until the user logs
 					// in again, and showing a frozen date would be worse than showing
 					// the real one.
-					$last_login_raw = (string) get_user_meta($user->ID, 'mhm_rentiva_last_login', true);
+					$last_login_raw = (string) get_user_meta($user->ID, 'mhmrentiva_last_login', true);
 					if ($last_login_raw === '') {
 						$last_login_raw = (string) get_user_meta($user->ID, 'last_login', true);
 					}
@@ -233,15 +233,15 @@ if (! $user_display_name) {
 										<?php foreach ($recent_bookings as $booking) : ?>
 											<?php
 											$booking_id    = (int) ( $booking->ID ?? 0 );
-											$vehicle_id    = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+											$vehicle_id    = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 											$vehicle_title = $vehicle_id > 0 ? get_the_title($vehicle_id) : __('N/A', 'mhm-rentiva');
-											$pickup_date   = (string) get_post_meta($booking_id, '_mhm_pickup_date', true);
-											$pickup_time   = (string) get_post_meta($booking_id, '_mhm_pickup_time', true);
-											$service_type  = (string) get_post_meta($booking_id, '_mhm_service_type', true);
-											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhm_transfer_origin_id', true) > 0) {
+											$pickup_date   = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+											$pickup_time   = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true);
+											$service_type  = (string) get_post_meta($booking_id, '_mhmrentiva_service_type', true);
+											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhmrentiva_transfer_origin_id', true) > 0) {
 												$service_type = 'transfer';
 											}
-											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhm_is_transfer', true) === 1) {
+											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true) === 1) {
 												$service_type = 'transfer';
 											}
 											$is_transfer    = ( $service_type === 'transfer' );
@@ -249,7 +249,7 @@ if (! $user_display_name) {
 											if ($pickup_date !== '' && $pickup_time !== '') {
 												$pickup_display .= ' · ' . date_i18n(get_option('time_format'), strtotime($pickup_date . ' ' . $pickup_time));
 											}
-											$booking_status     = (string) get_post_meta($booking_id, '_mhm_status', true);
+											$booking_status     = (string) get_post_meta($booking_id, '_mhmrentiva_status', true);
 											$booking_status_key = sanitize_key($booking_status);
 											$status_class       = 'mhm-rentiva-dashboard__status';
 											$status_map         = array(
@@ -283,7 +283,7 @@ if (! $user_display_name) {
 																<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
 															<?php endif; ?>
 														</span>
-														<span>#<?php echo esc_html( (string) mhm_rentiva_get_display_id( (int) $booking_id)); ?></span>
+														<span>#<?php echo esc_html( (string) mhmrentiva_get_display_id( (int) $booking_id)); ?></span>
 													</a>
 												</td>
 												<td data-label="<?php esc_attr_e('Service', 'mhm-rentiva'); ?>"><?php echo esc_html( (string) $vehicle_title); ?></td>
@@ -309,7 +309,7 @@ if (! $user_display_name) {
 			<?php elseif ($active_tab === 'bookings') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
 					<?php if ($context === 'vendor') : ?>
-						<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-bookings.php'; ?>
+						<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-bookings.php'; ?>
 					<?php else : ?>
 						<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]' ) ); ?>
 					<?php endif; ?>
@@ -328,7 +328,7 @@ if (! $user_display_name) {
 				</div>
 			<?php elseif ($active_tab === 'listings') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
+					<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 				</div>
 				<?php // The vendor 'ledger', 'settings' and 'profil' tabs belong to the add-on: ?>
 				<?php // their partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
@@ -337,7 +337,7 @@ if (! $user_display_name) {
 				<?php // wiring change away from a fatal. The add-on restores tabs and partials together. ?>
 			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php include MHM_RENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
+					<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
 				</div>
 			<?php endif; ?>
 
@@ -350,7 +350,7 @@ if (! $user_display_name) {
 			// add-on subscribes to this filter and returns the markup only when the
 			// vendor marketplace is available and $context is 'vendor'; Lite's own
 			// default is the empty string, i.e. no panel at all.
-			$vendor_panel_html = (string) apply_filters('mhm_rentiva_account_vendor_panel', '', $context);
+			$vendor_panel_html = (string) apply_filters('mhmrentiva_account_vendor_panel', '', $context);
 			if ('' !== $vendor_panel_html) {
 				// Escape at the point of output, even though the markup comes from a trusted
 				// add-on: the allowlist keeps post-level HTML plus the form controls a vendor

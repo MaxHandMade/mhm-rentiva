@@ -35,12 +35,12 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		}
 
 		// get_available_fields_map() caches in a static that persists across tests in the shared
-		// process; reset it so this test sees the mhm_selected_* options the save writes below.
+		// process; reset it so this test sees the mhmrentiva_selected_* options the save writes below.
 		self::reset_fields_map_cache();
 	}
 
 	public function tearDown(): void {
-		foreach ( array( 'action', 'nonce', 'sub_action', 'selected_details', 'selected_features', 'selected_equipment', 'mhm_rentiva_vehicle_card_fields' ) as $key ) {
+		foreach ( array( 'action', 'nonce', 'sub_action', 'selected_details', 'selected_features', 'selected_equipment', 'mhmrentiva_vehicle_card_fields' ) as $key ) {
 			unset( $_POST[ $key ] );
 		}
 		wp_set_current_user( 0 );
@@ -60,7 +60,7 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
-		$_POST['action']     = 'mhm_rentiva_save_vehicle_settings';
+		$_POST['action']     = 'mhmrentiva_save_vehicle_settings';
 		$_POST['nonce']      = wp_create_nonce( 'vehicle_settings_nonce' );
 		$_POST['sub_action'] = 'save_all';
 
@@ -71,14 +71,14 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		$_POST['selected_equipment'] = array();
 
 		// Display: card still tries to keep the disabled detail AND the "unselected" feature.
-		$_POST['mhm_rentiva_vehicle_card_fields'] = wp_json_encode( array(
+		$_POST['mhmrentiva_vehicle_card_fields'] = wp_json_encode( array(
 			array( 'type' => 'detail', 'key' => 'transmission' ),
 			array( 'type' => 'detail', 'key' => 'fuel_type' ),
 			array( 'type' => 'feature', 'key' => 'navigation' ),
 		) );
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_save_vehicle_settings' );
+			$this->_handleAjax( 'mhmrentiva_save_vehicle_settings' );
 		} catch ( \WPAjaxDieContinueException $e ) {
 			// Expected: wp_send_json_success() dies in the test suite.
 		}
@@ -86,12 +86,12 @@ final class VehicleSettingsSaveCascadeTest extends WP_Ajax_UnitTestCase {
 		$response = json_decode( trim( (string) $this->_last_response ), true );
 		$this->assertTrue( $response['success'] );
 
-		$settings = get_option( 'mhm_rentiva_settings' );
+		$settings = get_option( 'mhmrentiva_settings' );
 		$ids      = array_map(
 			static function ( $f ) {
 				return $f['type'] . ':' . $f['key'];
 			},
-			$settings['mhm_rentiva_vehicle_card_fields']
+			$settings['mhmrentiva_vehicle_card_fields']
 		);
 
 		$this->assertNotContains( 'detail:transmission', $ids, 'a disabled detail must be dropped by the availability gate' );

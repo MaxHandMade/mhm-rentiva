@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
  *   {"level":"error","channel":"payout","message":"Ledger write failed",
  *    "context":{"payout_id":123},"ts":"2026-02-25T18:00:00Z"}
  *
- * Transient accumulator key: mhm_rentiva_log_{channel} (last 50 entries, 1h TTL)
+ * Transient accumulator key: mhmrentiva_log_{channel} (last 50 entries, 1h TTL)
  * This enables lightweight in-dashboard log viewing without a custom table.
  *
  * @since 4.21.0
@@ -142,7 +142,7 @@ final class StructuredLogger {
      */
     private static function accumulate(string $channel, array $entry): void
     {
-        $key      = 'mhm_rentiva_log_' . sanitize_key($channel);
+        $key      = 'mhmrentiva_log_' . sanitize_key($channel);
         $existing = get_transient($key);
         $log      = is_array($existing) ? $existing : array();
 
@@ -162,7 +162,7 @@ final class StructuredLogger {
      */
     public static function get_recent(string $channel = 'rentiva', int $limit = 20): array
     {
-        $key = 'mhm_rentiva_log_' . sanitize_key($channel);
+        $key = 'mhmrentiva_log_' . sanitize_key($channel);
         $log = get_transient($key);
 
         if (! is_array($log)) {

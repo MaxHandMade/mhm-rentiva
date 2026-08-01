@@ -74,7 +74,7 @@ final class GeneralTab extends AbstractTab {
 		}
 
 		// Try to get statistics from cache.
-		$stats_cache_key = 'mhm_rentiva_about_stats';
+		$stats_cache_key = 'mhmrentiva_about_stats';
 		$stats           = get_transient($stats_cache_key);
 
 		if (false === $stats) {
@@ -103,7 +103,7 @@ final class GeneralTab extends AbstractTab {
 				$wpdb->prepare(
 					"SELECT COUNT(DISTINCT meta_value) FROM {$wpdb->postmeta}
 WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
-					'_mhm_customer_user_id'
+					'_mhmrentiva_customer_user_id'
 				)
 			);
 
@@ -131,7 +131,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 		$plugin_info[] = array(
 			'type'     => 'key-value',
 			'label'    => __('Version:', 'mhm-rentiva'),
-			'value'    => 'v' . MHM_RENTIVA_VERSION,
+			'value'    => 'v' . MHMRENTIVA_VERSION,
 			'data_key' => '',
 		);
 		$plugin_info[] = array(
@@ -224,7 +224,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 	 */
 	public static function get_data(): array
 	{
-		$stats_cache_key = 'mhm_rentiva_about_stats';
+		$stats_cache_key = 'mhmrentiva_about_stats';
 		$stats           = get_transient( $stats_cache_key );
 
 		if ( false === $stats ) {
@@ -250,7 +250,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 				$wpdb->prepare(
 					"SELECT COUNT(DISTINCT meta_value) FROM {$wpdb->postmeta}
 WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
-					'_mhm_customer_user_id'
+					'_mhmrentiva_customer_user_id'
 				)
 			);
 
@@ -269,7 +269,7 @@ WHERE meta_key = %s AND meta_value != '' AND meta_value != '0'",
 			),
 			array(
 				'label' => __( 'Version', 'mhm-rentiva' ),
-				'value' => 'v' . MHM_RENTIVA_VERSION,
+				'value' => 'v' . MHMRENTIVA_VERSION,
 			),
 			array(
 				'label' => __( 'Developer', 'mhm-rentiva' ),

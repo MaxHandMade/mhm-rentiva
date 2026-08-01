@@ -36,7 +36,7 @@ final class CustomerExporterTest extends WP_UnitTestCase
     {
         wp_set_current_user( $this->admin_id );
         $_POST = array(
-            'action' => 'mhm_rentiva_export_customers',
+            'action' => 'mhmrentiva_export_customers',
             'nonce'  => 'bad_nonce',
             'search' => '',
         );

@@ -26,25 +26,25 @@ abstract class AbstractAccountShortcode extends AbstractShortcode {
 		// Main account CSS
 		wp_enqueue_style(
 			'mhm-rentiva-my-account',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/my-account.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// Core vehicle card CSS (required for favorites page and any page showing vehicles)
 		wp_enqueue_style(
 			'mhm-rentiva-vehicle-card-css',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// Account JS
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -54,8 +54,8 @@ abstract class AbstractAccountShortcode extends AbstractShortcode {
 			array(
 				'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
 				'restUrl'     => rest_url( 'mhm-rentiva/v1/' ),
-				'nonce'       => wp_create_nonce( 'mhm_rentiva_account' ),
-				'uploadNonce' => wp_create_nonce( 'mhm_rentiva_upload_receipt' ),
+				'nonce'       => wp_create_nonce( 'mhmrentiva_account' ),
+				'uploadNonce' => wp_create_nonce( 'mhmrentiva_upload_receipt' ),
 				'restNonce'   => wp_create_nonce( 'wp_rest' ),
 				'i18n'        => array(
 					'loading'                => __( 'Loading...', 'mhm-rentiva' ),

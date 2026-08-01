@@ -30,14 +30,14 @@ use WP_UnitTestCase;
  */
 final class DeadNotificationQueueTest extends WP_UnitTestCase
 {
-	private const HOOK        = 'mhm_rentiva_send_scheduled_notifications';
-	private const LEGACY_HOOK = 'mhm_send_scheduled_notifications';
+	private const HOOK        = 'mhmrentiva_send_scheduled_notifications';
+	private const LEGACY_HOOK = 'mhmrentiva_send_scheduled_notifications';
 
 	private function queue_table(): string
 	{
 		global $wpdb;
 
-		return $wpdb->prefix . 'mhm_notification_queue';
+		return $wpdb->prefix . 'mhmrentiva_notification_queue';
 	}
 
 	public function tearDown(): void

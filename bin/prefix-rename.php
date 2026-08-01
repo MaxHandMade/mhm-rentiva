@@ -84,6 +84,13 @@ class PrefixRenamer {
 		'src/Admin/Core/Utilities/PrefixMigrationMap.php',
 		'bin/prefix-rename.php',
 		'bin/prefix-inventory-baseline.txt',
+		// G-C itself. Its detectors deliberately match BOTH the old and the new
+		// prefix, because both are live during the transition window. Sweeping
+		// it collapses the alternation 'mhm_rentiva_|mhmrentiva_|mhm_' into
+		// three copies of the new prefix, and the gate silently stops being able
+		// to see an unconverted name at all -- the instrument would be blinded
+		// by the very change it exists to measure.
+		'bin/check-prefix-inventory.php',
 		// These three carry OLD names as data. Sweeping them rewrites both
 		// sides of every fixture and every inventory entry, so the assertions
 		// keep passing while proving nothing -- the tautological-test trap.
@@ -125,6 +132,17 @@ class PrefixRenamer {
 		// reading the map.
 		'mhm_rentiva_db_version',
 		'mhm_rentiva_plugin_version',
+		// mhm-ui-core's public API. Defined in vendor/mhm/ui-core/register.php
+		// (composer dependency "mhm/ui-core": "^0.1"), NOT by this plugin, so
+		// this prefix is not ours to change: renaming our call site leaves the
+		// definition where it was and the call becomes fatal. Caught by the test
+		// bootstrap dying on "Call to undefined function
+		// mhmrentiva_ui_core_register()" after the first mechanical sweep --
+		// a reminder that a bare 'mhm_' catch-all reaches sibling PRODUCTS, not
+		// just this codebase. If ui-core is itself shipped inside vendor/, its
+		// 3-letter prefix is a separate T7 exposure belonging to that repo,
+		// exactly like Pro's lockstep in Görev 14.
+		'mhm_ui_core_',
 	);
 
 	/**
@@ -251,8 +269,37 @@ class PrefixRenamer {
 	 */
 	private $skips = array();
 
-	public function __construct() {
-		$this->rules = $this->buildRules();
+	/**
+	 * Which rule kinds this instance may apply.
+	 *
+	 * The sweep lands in two commits, because the two halves fail differently.
+	 * 'mechanical' is every rule carrying an 'mhm' token: unambiguous, unable to
+	 * false-positive, and the bulk of the T7 mandate. 'identifiers' adds the CPT/
+	 * taxonomy names and the meta keys resolved out of the four non-mhm prefix
+	 * rules -- the half where the same literal is also an array key, an enum
+	 * value and a rewrite-slug default, and where a wrong call is silent.
+	 * Reviewing them in one diff is how 'vehicle' array keys get renamed unnoticed.
+	 *
+	 * @var string
+	 */
+	private $phase;
+
+	/**
+	 * @param string $phase 'mechanical' or 'all'.
+	 */
+	public function __construct( string $phase = 'all' ) {
+		$this->phase = $phase;
+		$this->rules = array_values(
+			array_filter(
+				$this->buildRules(),
+				function ( array $rule ): bool {
+					if ( 'all' === $this->phase ) {
+						return true;
+					}
+					return in_array( $rule['kind'], array( 'protect', 'substring' ), true );
+				}
+			)
+		);
 	}
 
 	/**
@@ -507,14 +554,15 @@ class PrefixRenamer {
 // ---------------------------------------------------------------------------
 if ( PHP_SAPI === 'cli' && isset( $argv[0] ) && realpath( $argv[0] ) === realpath( __FILE__ ) ) {
 	$root = dirname( __DIR__ );
-	$opts = getopt( '', array( 'apply', 'list-skips', 'diff::', 'only::' ) );
+	$opts = getopt( '', array( 'apply', 'list-skips', 'diff::', 'only::', 'phase::' ) );
 
 	$apply     = isset( $opts['apply'] );
 	$listSkips = isset( $opts['list-skips'] );
 	$diffDir   = $opts['diff'] ?? null;
 	$only      = $opts['only'] ?? null;
 
-	$renamer = new PrefixRenamer();
+	$phase   = $opts['phase'] ?? 'all';
+	$renamer = new PrefixRenamer( $phase );
 
 	$targets = array( 'src', 'templates', 'assets/js', 'src-react', 'tests', 'bin' );
 	$files   = array();
@@ -530,7 +578,11 @@ if ( PHP_SAPI === 'cli' && isset( $argv[0] ) && realpath( $argv[0] ) === realpat
 			}
 		}
 	}
-	foreach ( array( 'mhm-rentiva.php', 'uninstall.php', 'phpcs.xml', 'readme.txt' ) as $rootFile ) {
+	// phpstan.neon carries the old names inside ignoreErrors regexes. Leaving it
+	// out makes PHPStan report 244 "constant not found" errors for constants that
+	// were merely renamed, and -- worse -- silently unignores two real findings
+	// whose patterns no longer match, which reads as the sweep having caused them.
+	foreach ( array( 'mhm-rentiva.php', 'uninstall.php', 'phpcs.xml', 'phpstan.neon', 'readme.txt' ) as $rootFile ) {
 		if ( is_file( $root . '/' . $rootFile ) ) {
 			$files[] = $root . '/' . $rootFile;
 		}
@@ -588,7 +640,12 @@ if ( PHP_SAPI === 'cli' && isset( $argv[0] ) && realpath( $argv[0] ) === realpat
 		}
 	}
 
-	echo $apply ? "MODE: APPLY (files written)\n" : "MODE: DRY-RUN (nothing written)\n";
+	printf(
+		"MODE: %s   PHASE: %s   RULES ACTIVE: %d\n",
+		$apply ? 'APPLY (files written)' : 'DRY-RUN (nothing written)',
+		$phase,
+		count( $renamer->rules() )
+	);
 	echo str_repeat( '-', 72 ) . "\n";
 	printf( "files scanned : %d\n", count( $files ) );
 	printf( "files changed : %d\n", $changedFiles );

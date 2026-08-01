@@ -66,7 +66,7 @@ trait EndpointHelperTrait {
 	 *
 	 * Priority:
 	 * 1. Physical page existence (via ShortcodeUrlManager)
-	 * 2. Database option (mhm_rentiva_settings)
+	 * 2. Database option (mhmrentiva_settings)
 	 * 3. Translation (_x context based)
 	 * 4. Hardcoded fallback
 	 */
@@ -99,8 +99,8 @@ trait EndpointHelperTrait {
 		}
 
 		// 3. BACKUP: Database Option
-		$settings   = get_option( 'mhm_rentiva_settings', array() );
-		$option_key = 'mhm_rentiva_endpoint_' . $key;
+		$settings   = get_option( 'mhmrentiva_settings', array() );
+		$option_key = 'mhmrentiva_endpoint_' . $key;
 		$user_slug  = $settings[ $option_key ] ?? '';
 
 		if ( ! empty( $user_slug ) ) {

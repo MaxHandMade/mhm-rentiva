@@ -13,7 +13,7 @@ use WP_Ajax_UnitTestCase;
  * customer. Handler::create_booking() hardcodes 'post_author' => 1 for every
  * online booking, and a manually created one belongs to the staff member who
  * entered it. The field that actually tracks the customer is
- * _mhm_customer_user_id, which is what the rest of the codebase uses.
+ * _mhmrentiva_customer_user_id, which is what the rest of the codebase uses.
  *
  * The consequence is not an authorisation hole -- it fails closed -- but the
  * feature does not work: every real customer is denied upload and removal of
@@ -45,7 +45,7 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 				'post_author' => 1,
 			)
 		);
-		update_post_meta( $this->booking_id, '_mhm_customer_user_id', $this->customer_id );
+		update_post_meta( $this->booking_id, '_mhmrentiva_customer_user_id', $this->customer_id );
 
 		// A real attachment: a fabricated id makes the handler fail at deletion for
 		// reasons unrelated to the ownership gate this test is about.
@@ -56,7 +56,7 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 				'post_mime_type' => 'application/pdf',
 			)
 		);
-		update_post_meta( $this->booking_id, '_mhm_receipt_attachment_id', $this->attachment_id );
+		update_post_meta( $this->booking_id, '_mhmrentiva_receipt_attachment_id', $this->attachment_id );
 
 		AccountController::register();
 	}
@@ -89,11 +89,11 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->customer_id );
 
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhm_rentiva_upload_receipt' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_upload_receipt' ),
 			'booking_id' => $this->booking_id,
 		);
 
-		$res = $this->call( 'mhm_rentiva_remove_receipt' );
+		$res = $this->call( 'mhmrentiva_remove_receipt' );
 
 		// Assert on what happened, not on the absence of a phrase: a wrong nonce
 		// would also produce a message without "not allowed" and let this pass while
@@ -105,7 +105,7 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 		);
 		$this->assertSame(
 			'',
-			(string) get_post_meta( $this->booking_id, '_mhm_receipt_attachment_id', true ),
+			(string) get_post_meta( $this->booking_id, '_mhmrentiva_receipt_attachment_id', true ),
 			'The receipt should have been detached for its own customer.'
 		);
 	}
@@ -118,16 +118,16 @@ final class ReceiptOwnershipTest extends WP_Ajax_UnitTestCase
 		wp_set_current_user( $this->stranger_id );
 
 		$_POST = array(
-			'nonce'      => wp_create_nonce( 'mhm_rentiva_upload_receipt' ),
+			'nonce'      => wp_create_nonce( 'mhmrentiva_upload_receipt' ),
 			'booking_id' => $this->booking_id,
 		);
 
-		$res = $this->call( 'mhm_rentiva_remove_receipt' );
+		$res = $this->call( 'mhmrentiva_remove_receipt' );
 
 		$this->assertFalse( (bool) ( $res['success'] ?? true ) );
 		$this->assertSame(
 			$this->attachment_id,
-			(int) get_post_meta( $this->booking_id, '_mhm_receipt_attachment_id', true ),
+			(int) get_post_meta( $this->booking_id, '_mhmrentiva_receipt_attachment_id', true ),
 			'A stranger must not be able to detach another customer\'s receipt.'
 		);
 	}

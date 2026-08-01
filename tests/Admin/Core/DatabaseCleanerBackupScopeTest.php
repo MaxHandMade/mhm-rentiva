@@ -20,7 +20,7 @@ use WP_UnitTestCase;
  * anywhere in the name, which reaches other plugins' tables.
  *
  * The scope that was meant all along is the enumeration the UI itself lists:
- * tables this plugin created, matching {prefix}mhm_%_backup%.
+ * tables this plugin created, matching {prefix}mhmrentiva_%_backup%.
  *
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::is_managed_backup_table
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::delete_backup
@@ -37,7 +37,7 @@ final class DatabaseCleanerBackupScopeTest extends WP_UnitTestCase
 		global $wpdb;
 		parent::setUp();
 
-		$this->ours    = $wpdb->prefix . 'mhm_postmeta_backup_20260101_120000';
+		$this->ours    = $wpdb->prefix . 'mhmrentiva_postmeta_backup_20260101_120000';
 		$this->foreign = $wpdb->prefix . 'someplugin_backup_data';
 
 		// The test bootstrap filters every query to rewrite CREATE TABLE into

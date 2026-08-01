@@ -38,7 +38,7 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	}
 
 	public function test_empty_comparison_means_nothing_compares(): void {
-		update_option( 'mhm_rentiva_settings', array() ); // no comparison_fields at all
+		update_option( 'mhmrentiva_settings', array() ); // no comparison_fields at all
 
 		$state = VehicleSettings::build_settings_state();
 
@@ -50,7 +50,7 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	}
 
 	public function test_explicit_comparison_selection_is_respected(): void {
-		update_option( 'mhm_rentiva_settings', array(
+		update_option( 'mhmrentiva_settings', array(
 			'comparison_fields' => array( 'details' => array( 'fuel_type' ) ),
 		) );
 
@@ -61,10 +61,10 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	}
 
 	public function test_enabled_reflects_selected_set_for_all_types(): void {
-		// Details gated by mhm_selected_details; features/equipment now gated the same way.
-		update_option( 'mhm_selected_details', array( 'fuel_type' ) );          // transmission NOT selected
-		update_option( 'mhm_selected_features', array( 'bluetooth', 'my_custom_feat' ) ); // navigation NOT selected
-		update_option( 'mhm_custom_features', array( 'my_custom_feat' => 'My Custom Feat' ) );
+		// Details gated by mhmrentiva_selected_details; features/equipment now gated the same way.
+		update_option( 'mhmrentiva_selected_details', array( 'fuel_type' ) );          // transmission NOT selected
+		update_option( 'mhmrentiva_selected_features', array( 'bluetooth', 'my_custom_feat' ) ); // navigation NOT selected
+		update_option( 'mhmrentiva_custom_features', array( 'my_custom_feat' => 'My Custom Feat' ) );
 
 		$state = VehicleSettings::build_settings_state();
 
@@ -84,7 +84,7 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	public function test_core_details_are_the_availability_fallback_when_none_selected(): void {
 		// Mirrors get_available_fields_map(): when NO details are selected, the core fields are the
 		// available (enabled) set. A non-core detail is then disabled; a core detail is enabled.
-		update_option( 'mhm_selected_details', array() );
+		update_option( 'mhmrentiva_selected_details', array() );
 
 		$state = VehicleSettings::build_settings_state();
 
@@ -97,8 +97,8 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 	}
 
 	public function test_custom_detail_meta_is_exposed(): void {
-		update_option( 'mhm_custom_details', array( 'boot_size' => 'Boot Size' ) );
-		update_option( 'mhm_custom_field_meta', array(
+		update_option( 'mhmrentiva_custom_details', array( 'boot_size' => 'Boot Size' ) );
+		update_option( 'mhmrentiva_custom_field_meta', array(
 			'boot_size' => array( 'type' => 'select', 'options' => array( 'S', 'M', 'L' ) ),
 		) );
 
@@ -112,12 +112,12 @@ final class VehicleSettingsStateBuilderTest extends WP_UnitTestCase {
 
 	public function test_matrix_order_round_trips_filtered_to_known_ids(): void {
 		// Absent by default (pre-v2 installs) -> empty, so the UI derives a fallback order.
-		update_option( 'mhm_rentiva_settings', array() );
+		update_option( 'mhmrentiva_settings', array() );
 		$this->assertSame( array(), VehicleSettings::build_settings_state()['matrixOrder'] );
 
 		// Stored order is returned verbatim, minus any id that is not an actual row.
-		update_option( 'mhm_rentiva_settings', array(
-			'mhm_rentiva_vehicle_matrix_order' => array( 'detail:fuel_type', 'feature:bluetooth', 'detail:not_a_real_field' ),
+		update_option( 'mhmrentiva_settings', array(
+			'mhmrentiva_vehicle_matrix_order' => array( 'detail:fuel_type', 'feature:bluetooth', 'detail:not_a_real_field' ),
 		) );
 		$this->assertSame(
 			array( 'detail:fuel_type', 'feature:bluetooth' ),

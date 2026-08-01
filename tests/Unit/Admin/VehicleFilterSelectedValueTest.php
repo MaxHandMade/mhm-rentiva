@@ -24,7 +24,7 @@ use WP_UnitTestCase;
  *
  * All three keys were already registered in VehicleColumns::PUBLIC_QUERY_VARS,
  * so the fix is the get_query_var() readers the same method already uses for
- * `mhm_available`. That also keeps the read out of $_GET, so it adds no
+ * `mhmrentiva_available`. That also keeps the read out of $_GET, so it adds no
  * NonceVerification finding.
  */
 final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
@@ -57,7 +57,7 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 	}
 
 	public function test_lifecycle_filter_marks_the_active_value_selected(): void {
-		$html = $this->render_with( array( 'mhm_lifecycle_filter' => 'paused' ) );
+		$html = $this->render_with( array( 'mhmrentiva_lifecycle_filter' => 'paused' ) );
 
 		$this->assertStringContainsString(
 			'<option value="paused" selected=\'selected\'>',
@@ -67,7 +67,7 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 	}
 
 	public function test_owner_filter_marks_the_active_value_selected(): void {
-		$html = $this->render_with( array( 'mhm_owner_filter' => 'vendor' ) );
+		$html = $this->render_with( array( 'mhmrentiva_owner_filter' => 'vendor' ) );
 
 		$this->assertStringContainsString(
 			'<option value="vendor" selected=\'selected\'>',
@@ -88,7 +88,7 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 	 * NonceVerification.Recommended shape this round is eliminating.
 	 */
 	public function test_the_readers_ignore_a_raw_get_parameter(): void {
-		$_GET['mhm_lifecycle_filter'] = 'expired';
+		$_GET['mhmrentiva_lifecycle_filter'] = 'expired';
 
 		try {
 			$this->assertStringNotContainsString(
@@ -97,7 +97,7 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 				'The dropdowns must read registered query vars, not $_GET directly.'
 			);
 		} finally {
-			unset( $_GET['mhm_lifecycle_filter'] );
+			unset( $_GET['mhmrentiva_lifecycle_filter'] );
 		}
 	}
 }

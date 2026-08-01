@@ -41,8 +41,8 @@ class ObservabilityTest extends WP_UnitTestCase
      */
     public function test_history_service()
     {
-        update_post_meta($this->post_id, '_mhm_layout_hash', 'current-hash');
-        update_post_meta($this->post_id, '_mhm_layout_hash_previous', 'prev-hash');
+        update_post_meta($this->post_id, '_mhmrentiva_layout_hash', 'current-hash');
+        update_post_meta($this->post_id, '_mhmrentiva_layout_hash_previous', 'prev-hash');
 
         $summary = LayoutHistoryService::get_summary($this->post_id);
 

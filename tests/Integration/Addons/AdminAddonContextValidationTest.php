@@ -29,13 +29,13 @@ final class AdminAddonContextValidationTest extends WP_UnitTestCase {
 			array( 'post_type' => AddonPostType::POST_TYPE )
 		);
 		wp_set_object_terms( $id, AddonContextTaxonomy::TERM_RENTAL, AddonContextTaxonomy::TAXONOMY, false );
-		update_post_meta( $id, '_mhm_addon_pricing_type', AddonPricingType::PER_PASSENGER );
+		update_post_meta( $id, '_mhmrentiva_addon_pricing_type', AddonPricingType::PER_PASSENGER );
 
 		AddonContextValidator::enforce_combination( $id );
 
 		$this->assertSame(
 			AddonPricingType::PER_BOOKING,
-			get_post_meta( $id, '_mhm_addon_pricing_type', true )
+			get_post_meta( $id, '_mhmrentiva_addon_pricing_type', true )
 		);
 	}
 
@@ -44,13 +44,13 @@ final class AdminAddonContextValidationTest extends WP_UnitTestCase {
 			array( 'post_type' => AddonPostType::POST_TYPE )
 		);
 		wp_set_object_terms( $id, AddonContextTaxonomy::TERM_TRANSFER, AddonContextTaxonomy::TAXONOMY, false );
-		update_post_meta( $id, '_mhm_addon_pricing_type', AddonPricingType::PER_PASSENGER );
+		update_post_meta( $id, '_mhmrentiva_addon_pricing_type', AddonPricingType::PER_PASSENGER );
 
 		AddonContextValidator::enforce_combination( $id );
 
 		$this->assertSame(
 			AddonPricingType::PER_PASSENGER,
-			get_post_meta( $id, '_mhm_addon_pricing_type', true )
+			get_post_meta( $id, '_mhmrentiva_addon_pricing_type', true )
 		);
 	}
 
@@ -61,9 +61,9 @@ final class AdminAddonContextValidationTest extends WP_UnitTestCase {
 		wp_set_object_terms( $id, AddonContextTaxonomy::TERM_BOTH, AddonContextTaxonomy::TAXONOMY, false );
 
 		foreach ( AddonPricingType::all() as $type ) {
-			update_post_meta( $id, '_mhm_addon_pricing_type', $type );
+			update_post_meta( $id, '_mhmrentiva_addon_pricing_type', $type );
 			AddonContextValidator::enforce_combination( $id );
-			$this->assertSame( $type, get_post_meta( $id, '_mhm_addon_pricing_type', true ) );
+			$this->assertSame( $type, get_post_meta( $id, '_mhmrentiva_addon_pricing_type', true ) );
 		}
 	}
 }

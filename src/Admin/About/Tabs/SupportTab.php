@@ -120,7 +120,7 @@ final class SupportTab extends AbstractTab {
 
 		echo '<div class="contact-info">';
 		echo '<p><strong>' . esc_html__('Email:', 'mhm-rentiva') . '</strong> ' . esc_html($support_email) . '</p>';
-		$phone_number = apply_filters('mhm_rentiva_contact_phone', __('+90 538 556 4158', 'mhm-rentiva'));
+		$phone_number = apply_filters('mhmrentiva_contact_phone', __('+90 538 556 4158', 'mhm-rentiva'));
 		echo '<p><strong>' . esc_html__('Phone:', 'mhm-rentiva') . '</strong> ' . esc_html($phone_number) . '</p>';
 		echo '</div>';
 		echo '</div>';
@@ -199,11 +199,11 @@ final class SupportTab extends AbstractTab {
 			$changelog_filename = 'changelog-tr.json';
 		}
 
-		$changelog_file = MHM_RENTIVA_PLUGIN_DIR . $changelog_filename;
+		$changelog_file = MHMRENTIVA_PLUGIN_DIR . $changelog_filename;
 
 		if (! file_exists($changelog_file)) {
 			// Fallback to default changelog.json if localized version doesn't exist
-			$changelog_file = MHM_RENTIVA_PLUGIN_DIR . 'changelog.json';
+			$changelog_file = MHMRENTIVA_PLUGIN_DIR . 'changelog.json';
 
 			if (! file_exists($changelog_file)) {
 				return self::get_default_changelog();
@@ -228,7 +228,7 @@ final class SupportTab extends AbstractTab {
 	{
 		return array(
 			array(
-				'version' => MHM_RENTIVA_VERSION,
+				'version' => MHMRENTIVA_VERSION,
 				'date'    => gmdate('Y-m-d'),
 				'type'    => 'current',
 				'changes' => array(

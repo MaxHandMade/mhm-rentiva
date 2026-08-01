@@ -40,7 +40,7 @@ final class SettingsView {
 	public static function render_settings_page(string $current_tab, array $tabs, $renderer = null, string $header_html = ''): void
 	{
 		// Use the plugin path constant for template loading.
-		$template_file = MHM_RENTIVA_PLUGIN_DIR . 'templates/admin/settings-page.php';
+		$template_file = MHMRENTIVA_PLUGIN_DIR . 'templates/admin/settings-page.php';
 
 		// Check file existence and load safely.
 		if (! file_exists($template_file)) {

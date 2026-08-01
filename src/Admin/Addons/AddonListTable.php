@@ -102,12 +102,12 @@ final class AddonListTable extends AbstractListTable {
 	 * Validate filter form nonce.
 	 */
 	private static function has_valid_filter_nonce(): bool {
-		if ( ! isset( $_GET['mhm_addon_filter_nonce'] ) ) {
+		if ( ! isset( $_GET['mhmrentiva_addon_filter_nonce'] ) ) {
 			return false;
 		}
 
-		$nonce = sanitize_text_field( wp_unslash( (string) $_GET['mhm_addon_filter_nonce'] ) );
-		return (bool) wp_verify_nonce( $nonce, 'mhm_addon_filter' );
+		$nonce = sanitize_text_field( wp_unslash( (string) $_GET['mhmrentiva_addon_filter_nonce'] ) );
+		return (bool) wp_verify_nonce( $nonce, 'mhmrentiva_addon_filter' );
 	}
 
 
@@ -118,8 +118,8 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function __construct() {
 		parent::__construct();
-		$this->nonce_action = 'mhm_addon_bulk_action';
-		$this->nonce_name   = 'mhm_addon_nonce';
+		$this->nonce_action = 'mhmrentiva_addon_bulk_action';
+		$this->nonce_name   = 'mhmrentiva_addon_nonce';
 
 		// Add statistics cards and styles.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
@@ -272,8 +272,8 @@ final class AddonListTable extends AbstractListTable {
 			'duplicate' => sprintf(
 				'<a href="%s">%s</a>',
 				wp_nonce_url(
-					admin_url( 'admin-post.php?action=mhm_duplicate_addon&post_id=' . $item->ID ),
-					'mhm_duplicate_addon_' . $item->ID
+					admin_url( 'admin-post.php?action=mhmrentiva_duplicate_addon&post_id=' . $item->ID ),
+					'mhmrentiva_duplicate_addon_' . $item->ID
 				),
 				__( 'Duplicate', 'mhm-rentiva' )
 			),
@@ -499,7 +499,7 @@ final class AddonListTable extends AbstractListTable {
 		echo '<div class="alignright actions">';
 		echo '<form method="get" class="filter-form">';
 		echo '<input type="hidden" name="post_type" value="vehicle_addon" />';
-		wp_nonce_field( 'mhm_addon_filter', 'mhm_addon_filter_nonce' );
+		wp_nonce_field( 'mhmrentiva_addon_filter', 'mhmrentiva_addon_filter_nonce' );
 
 		// Status filter.
 		$current_status = self::request_text( 'addon_status' );
@@ -551,40 +551,40 @@ final class AddonListTable extends AbstractListTable {
 		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
 			wp_enqueue_style(
 				'mhm-rentiva-stats-cards',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
-				MHM_RENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
+				MHMRENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-addon-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
 				'mhm-rentiva-addon-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
 			// Localize JavaScript variables
 			wp_localize_script(
 				'mhm-rentiva-addon-list',
-				'mhm_rentiva_addon_list_vars',
+				'mhmrentiva_addon_list_vars',
 				array(
 					'ajax_url'          => admin_url( 'admin-ajax.php' ),
-					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
+					'nonce'             => wp_create_nonce( 'mhmrentiva_addon_list_nonce' ),
 					'no_items_selected' => __( 'No items selected.', 'mhm-rentiva' ),
 					'items_selected'    => __( 'items selected', 'mhm-rentiva' ),
 					'confirm_enable'    => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),

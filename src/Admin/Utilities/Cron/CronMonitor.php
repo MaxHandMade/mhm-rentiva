@@ -33,19 +33,19 @@ final class CronMonitor {
 
 		// Define all plugin cron hooks with verification info
 		$plugin_hooks = array(
-			'mhm_rentiva_auto_cancel_event'     => array(
+			'mhmrentiva_auto_cancel_event'     => array(
 				'name'        => __( 'Auto Cancel Bookings', 'mhm-rentiva' ),
 				'description' => __( 'Automatically cancels unpaid bookings after payment deadline', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_email_log_purge_event' => array(
+			'mhmrentiva_email_log_purge_event' => array(
 				'name'        => __( 'Email Log Retention', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old email logs', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_log_purge_event'       => array(
+			'mhmrentiva_log_purge_event'       => array(
 				'name'        => __( 'System Log Retention (Classic)', 'mhm-rentiva' ),
-				'description' => __( 'Cleans up old system logs (mhm_app_log post type)', 'mhm-rentiva' ),
+				'description' => __( 'Cleans up old system logs (mhmrentiva_app_log post type)', 'mhm-rentiva' ),
 			),
-			'mhm_rentiva_daily_log_cleanup'     => array(
+			'mhmrentiva_daily_log_cleanup'     => array(
 				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
 				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
@@ -65,7 +65,7 @@ final class CronMonitor {
 		 *
 		 * @param array<string, array{name: string, description: string}> $plugin_hooks
 		 */
-		$plugin_hooks = (array) apply_filters( 'mhm_rentiva_cron_descriptions', $plugin_hooks );
+		$plugin_hooks = (array) apply_filters( 'mhmrentiva_cron_descriptions', $plugin_hooks );
 
 		foreach ( $crons as $timestamp => $cron ) {
 			foreach ( $cron as $hook => $dings ) {
@@ -161,12 +161,12 @@ final class CronMonitor {
 		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
 		// them back via this filter.
 		$plugin_hooks = (array) apply_filters(
-			'mhm_rentiva_known_cron_hooks',
+			'mhmrentiva_known_cron_hooks',
 			array(
-				'mhm_rentiva_auto_cancel_event',
-				'mhm_rentiva_email_log_purge_event',
-				'mhm_rentiva_log_purge_event',
-				'mhm_rentiva_daily_log_cleanup',
+				'mhmrentiva_auto_cancel_event',
+				'mhmrentiva_email_log_purge_event',
+				'mhmrentiva_log_purge_event',
+				'mhmrentiva_daily_log_cleanup',
 			)
 		);
 
@@ -245,12 +245,12 @@ final class CronMonitor {
 		// Task A9c seam inversion: same filterable "known hooks" list as
 		// run_cron_job() above.
 		$plugin_hooks = (array) apply_filters(
-			'mhm_rentiva_known_cron_hooks',
+			'mhmrentiva_known_cron_hooks',
 			array(
-				'mhm_rentiva_auto_cancel_event',
-				'mhm_rentiva_email_log_purge_event',
-				'mhm_rentiva_log_purge_event',
-				'mhm_rentiva_daily_log_cleanup',
+				'mhmrentiva_auto_cancel_event',
+				'mhmrentiva_email_log_purge_event',
+				'mhmrentiva_log_purge_event',
+				'mhmrentiva_daily_log_cleanup',
 			)
 		);
 

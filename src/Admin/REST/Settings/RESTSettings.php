@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
 final class RESTSettings {
 
 
-	public const OPTION_NAME = 'mhm_rentiva_rest_settings';
+	public const OPTION_NAME = 'mhmrentiva_rest_settings';
 
 	/**
 	 * Default settings
@@ -87,7 +87,7 @@ final class RESTSettings {
 	public static function register(): void
 	{
 		register_setting(
-			'mhm_rentiva_rest_settings',
+			'mhmrentiva_rest_settings',
 			self::OPTION_NAME,
 			array(
 				'sanitize_callback' => array( self::class, 'sanitize_settings' ),
@@ -140,16 +140,16 @@ final class RESTSettings {
 
 		// --- RATE LIMITING ---
 		echo '<tr><th scope="row">' . esc_html__('Rate Limiting', 'mhm-rentiva') . '</th><td>';
-		echo '<input type="hidden" name="mhm_rentiva_rest_settings[rate_limiting][enabled]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_rest_settings[rate_limiting][enabled]" value="1" ' . checked($rate['enabled'] ?? false, true, false) . '> ' . esc_html__('Enable API Rate Limiting', 'mhm-rentiva') . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_rest_settings[rate_limiting][enabled]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_rest_settings[rate_limiting][enabled]" value="1" ' . checked($rate['enabled'] ?? false, true, false) . '> ' . esc_html__('Enable API Rate Limiting', 'mhm-rentiva') . '</label>';
 		echo '<p class="description">' . esc_html__('Prevents API abuse by limiting request frequency.', 'mhm-rentiva') . '</p><br>';
 
 		echo '<label for="rest_default_limit">' . esc_html__('General Request Limit', 'mhm-rentiva') . '</label><br>';
-		echo '<input type="number" id="rest_default_limit" name="mhm_rentiva_rest_settings[rate_limiting][default_limit]" value="' . esc_attr($rate['default_limit']) . '" min="1" max="1000" style="width: 100px;">';
+		echo '<input type="number" id="rest_default_limit" name="mhmrentiva_rest_settings[rate_limiting][default_limit]" value="' . esc_attr($rate['default_limit']) . '" min="1" max="1000" style="width: 100px;">';
 		echo '<p class="description">' . esc_html__('Max requests per minute for authenticated users.', 'mhm-rentiva') . '</p><br>';
 
 		echo '<label for="rest_strict_limit">' . esc_html__('Public Request Limit', 'mhm-rentiva') . '</label><br>';
-		echo '<input type="number" id="rest_strict_limit" name="mhm_rentiva_rest_settings[rate_limiting][strict_limit]" value="' . esc_attr($rate['strict_limit']) . '" min="1" max="100" style="width: 100px;">';
+		echo '<input type="number" id="rest_strict_limit" name="mhmrentiva_rest_settings[rate_limiting][strict_limit]" value="' . esc_attr($rate['strict_limit']) . '" min="1" max="100" style="width: 100px;">';
 		echo '<p class="description">' . esc_html__('Max requests per minute for public (anonymous) visitors.', 'mhm-rentiva') . '</p>';
 		echo '</td></tr>';
 

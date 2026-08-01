@@ -22,7 +22,7 @@ final class PerformanceHelper {
 	/**
 	 * Cache key prefix
 	 */
-	private const CACHE_PREFIX = 'mhm_rentiva_shortcode_';
+	private const CACHE_PREFIX = 'mhmrentiva_shortcode_';
 
 	/**
 	 * Default cache duration (1 hour)
@@ -226,17 +226,17 @@ final class PerformanceHelper {
             FROM {$wpdb->postmeta}
             WHERE post_id IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
             AND meta_key IN (
-                '_mhm_rentiva_daily_price',
-                '_mhm_rentiva_price_per_day',
-                '_mhm_rentiva_featured',
-                '_mhm_rentiva_category',
-                '_mhm_rentiva_brand',
-                '_mhm_rentiva_model',
-                '_mhm_rentiva_transmission',
-                '_mhm_rentiva_fuel_type',
-                '_mhm_rentiva_seats',
-                '_mhm_rentiva_year',
-                '_mhm_rentiva_engine_power',
+                '_mhmrentiva_daily_price',
+                '_mhmrentiva_price_per_day',
+                '_mhmrentiva_featured',
+                '_mhmrentiva_category',
+                '_mhmrentiva_brand',
+                '_mhmrentiva_model',
+                '_mhmrentiva_transmission',
+                '_mhmrentiva_fuel_type',
+                '_mhmrentiva_seats',
+                '_mhmrentiva_year',
+                '_mhmrentiva_engine_power',
                 '_thumbnail_id'
             )
         ",
@@ -298,11 +298,11 @@ final class PerformanceHelper {
                 pm_status.meta_value as status,
                 pm_payment.meta_value as payment_status
             FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhm_vehicle_id'
-            INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhm_start_date'
-            INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhm_end_date'
-            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhm_status'
-            LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhm_payment_status'
+            INNER JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id AND pm_vehicle.meta_key = '_mhmrentiva_vehicle_id'
+            INNER JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id AND pm_start.meta_key = '_mhmrentiva_start_date'
+            INNER JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id AND pm_end.meta_key = '_mhmrentiva_end_date'
+            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = '_mhmrentiva_status'
+            LEFT JOIN {$wpdb->postmeta} pm_payment ON p.ID = pm_payment.post_id AND pm_payment.meta_key = '_mhmrentiva_payment_status'
             WHERE p.post_type = 'vehicle_booking'
             AND p.post_status IN ('publish', 'pending', 'confirmed')
             AND pm_vehicle.meta_value IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')

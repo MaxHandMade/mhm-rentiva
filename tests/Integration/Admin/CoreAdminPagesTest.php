@@ -65,7 +65,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		do_action('add_meta_boxes_vehicle', $post);
 
 		global $wp_meta_boxes;
-		$this->assertTrue(isset($wp_meta_boxes['vehicle']['side']['default']['mhm_rentiva_vehicle_featured']));
+		$this->assertTrue(isset($wp_meta_boxes['vehicle']['side']['default']['mhmrentiva_vehicle_featured']));
 	}
 
 	public function test_vehicle_featured_meta_save_requires_valid_nonce_and_capability(): void
@@ -80,21 +80,21 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 
 		update_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, '0');
 
-		$_POST['mhm_rentiva_vehicle_featured_nonce'] = 'invalid';
-		$_POST['mhm_rentiva_is_featured']            = '1';
+		$_POST['mhmrentiva_vehicle_featured_nonce'] = 'invalid';
+		$_POST['mhmrentiva_is_featured']            = '1';
 		VehicleMeta::save_featured_meta_box($vehicle_id);
 		$this->assertSame('0', (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true));
 
-		$_POST['mhm_rentiva_vehicle_featured_nonce'] = wp_create_nonce('mhm_rentiva_vehicle_featured_action');
-		$_POST['mhm_rentiva_is_featured']            = '1';
+		$_POST['mhmrentiva_vehicle_featured_nonce'] = wp_create_nonce('mhmrentiva_vehicle_featured_action');
+		$_POST['mhmrentiva_is_featured']            = '1';
 		VehicleMeta::save_featured_meta_box($vehicle_id);
 		$this->assertSame('1', (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true));
 
-		unset($_POST['mhm_rentiva_is_featured']);
+		unset($_POST['mhmrentiva_is_featured']);
 		VehicleMeta::save_featured_meta_box($vehicle_id);
 		$this->assertSame('0', (string) get_post_meta($vehicle_id, MetaKeys::VEHICLE_FEATURED, true));
 
-		unset($_POST['mhm_rentiva_vehicle_featured_nonce']);
+		unset($_POST['mhmrentiva_vehicle_featured_nonce']);
 	}
 
 	public function test_featured_vehicles_shortcode_filters_only_featured_items(): void
@@ -166,7 +166,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
 
-		$submenu_slugs = $this->get_mhm_submenu_slugs();
+		$submenu_slugs = $this->get_mhmrentiva_submenu_slugs();
 
 		$this->assertContains('mhm-rentiva-setup', $submenu_slugs);
 		$this->assertContains('mhm-rentiva-about', $submenu_slugs);
@@ -177,7 +177,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
 
-		$submenu_slugs = $this->get_mhm_submenu_slugs();
+		$submenu_slugs = $this->get_mhmrentiva_submenu_slugs();
 
 		$this->assertContains('mhm-rentiva-settings', $submenu_slugs);
 	}
@@ -192,7 +192,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		$this->reset_admin_menu_globals();
 		Menu::add_menu();
 
-		$this->assertNotContains('mhm-rentiva-license', $this->get_mhm_submenu_slugs());
+		$this->assertNotContains('mhm-rentiva-license', $this->get_mhmrentiva_submenu_slugs());
 	}
 
 	/**
@@ -218,7 +218,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 		// The renderer and the admin-post handler must be gone, not merely unlinked.
 		$this->assertFalse(method_exists(SetupWizard::class, 'render_step_license'));
 		$this->assertFalse(method_exists(SetupWizard::class, 'handle_save_license'));
-		$this->assertFalse(has_action('admin_post_mhm_rentiva_setup_save_license'));
+		$this->assertFalse(has_action('admin_post_mhmrentiva_setup_save_license'));
 	}
 
 	/**
@@ -288,8 +288,8 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 
 		// The License submenu is a Pro seam and is absent here; see
 		// test_menu_has_no_license_submenu_in_lite().
-		$setup_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-setup');
-		$about_item = $this->get_mhm_submenu_item_by_slug('mhm-rentiva-about');
+		$setup_item = $this->get_mhmrentiva_submenu_item_by_slug('mhm-rentiva-setup');
+		$about_item = $this->get_mhmrentiva_submenu_item_by_slug('mhm-rentiva-about');
 
 		$this->assertIsArray($setup_item);
 		$this->assertIsArray($about_item);
@@ -317,7 +317,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 	/**
 	 * @return list<string>
 	 */
-	private function get_mhm_submenu_slugs(): array
+	private function get_mhmrentiva_submenu_slugs(): array
 	{
 		global $submenu;
 
@@ -338,7 +338,7 @@ final class CoreAdminPagesTest extends WP_UnitTestCase
 	/**
 	 * @return array<int,mixed>|null
 	 */
-	private function get_mhm_submenu_item_by_slug(string $slug): ?array
+	private function get_mhmrentiva_submenu_item_by_slug(string $slug): ?array
 	{
 		global $submenu;
 

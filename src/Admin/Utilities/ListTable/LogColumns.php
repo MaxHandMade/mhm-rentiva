@@ -40,8 +40,8 @@ final class LogColumns {
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
-		'mhm_log_gateway',
-		'mhm_log_status',
+		'mhmrentiva_log_gateway',
+		'mhmrentiva_log_status',
 	);
 
 	/**
@@ -84,18 +84,18 @@ final class LogColumns {
 	public static function render( string $col, int $post_id ): void {
 		switch ( $col ) {
 			case 'gateway':
-				echo esc_html( strtoupper( (string) get_post_meta( $post_id, '_mhm_log_gateway', true ) ) );
+				echo esc_html( strtoupper( (string) get_post_meta( $post_id, '_mhmrentiva_log_gateway', true ) ) );
 				break;
 			case 'action':
-				echo esc_html( (string) get_post_meta( $post_id, '_mhm_log_action', true ) );
+				echo esc_html( (string) get_post_meta( $post_id, '_mhmrentiva_log_action', true ) );
 				break;
 			case 'status':
-				$s     = (string) get_post_meta( $post_id, '_mhm_log_status', true );
+				$s     = (string) get_post_meta( $post_id, '_mhmrentiva_log_status', true );
 				$label = $s ? ucfirst( $s ) : '';
 				echo esc_html( $label );
 				break;
 			case 'booking':
-				$bid = (int) get_post_meta( $post_id, '_mhm_log_booking_id', true );
+				$bid = (int) get_post_meta( $post_id, '_mhmrentiva_log_booking_id', true );
 				if ( $bid ) {
 					$link = get_edit_post_link( $bid, '' );
 					echo '<a href="' . esc_url( $link ) . '">#' . (int) $bid . '</a>';
@@ -104,8 +104,8 @@ final class LogColumns {
 				}
 				break;
 			case 'amount':
-				$ak  = (int) get_post_meta( $post_id, '_mhm_log_amount_kurus', true );
-				$cur = (string) get_post_meta( $post_id, '_mhm_log_currency', true );
+				$ak  = (int) get_post_meta( $post_id, '_mhmrentiva_log_amount_kurus', true );
+				$cur = (string) get_post_meta( $post_id, '_mhmrentiva_log_currency', true );
 				if ( $ak > 0 ) {
 					$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $cur ?: null );
 					echo esc_html( number_format_i18n( $ak / 100, 2 ) . ' ' . $currency_symbol );
@@ -129,11 +129,11 @@ final class LogColumns {
 		if ( $typenow !== PostType::TYPE ) {
 			return;
 		}
-		$selGateway = self::get_text( 'mhm_log_gateway' );
-		$selStatus  = self::get_text( 'mhm_log_status' );
+		$selGateway = self::get_text( 'mhmrentiva_log_gateway' );
+		$selStatus  = self::get_text( 'mhmrentiva_log_status' );
 
-		echo '<label for="mhm_log_gateway" class="screen-reader-text">' . esc_html__( 'Gateway', 'mhm-rentiva' ) . '</label>';
-		echo '<select name="mhm_log_gateway" id="mhm_log_gateway">';
+		echo '<label for="mhmrentiva_log_gateway" class="screen-reader-text">' . esc_html__( 'Gateway', 'mhm-rentiva' ) . '</label>';
+		echo '<select name="mhmrentiva_log_gateway" id="mhmrentiva_log_gateway">';
 		echo '<option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
 		$allowedGateways = function_exists( 'WC' ) ? array_keys( WC()->payment_gateways()->payment_gateways() ) : array();
 		foreach ( $allowedGateways as $gw ) {
@@ -141,8 +141,8 @@ final class LogColumns {
 		}
 		echo '</select> ';
 
-		echo '<label for="mhm_log_status" class="screen-reader-text">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
-		echo '<select name="mhm_log_status" id="mhm_log_status">';
+		echo '<label for="mhmrentiva_log_status" class="screen-reader-text">' . esc_html__( 'Status', 'mhm-rentiva' ) . '</label>';
+		echo '<select name="mhmrentiva_log_status" id="mhmrentiva_log_status">';
 		echo '<option value="">' . esc_html__( 'All statuses', 'mhm-rentiva' ) . '</option>';
 		foreach ( array( 'success', 'error' ) as $st ) {
 			echo '<option value="' . esc_attr( $st ) . '"' . selected( $selStatus, $st, false ) . '>' . esc_html( ucfirst( $st ) ) . '</option>';
@@ -168,18 +168,18 @@ final class LogColumns {
 			$metaQuery = array( 'relation' => 'AND' );
 		}
 
-		$gw = self::get_text( 'mhm_log_gateway' );
+		$gw = self::get_text( 'mhmrentiva_log_gateway' );
 		if ( $gw !== '' ) {
 			$metaQuery[] = array(
-				'key'     => '_mhm_log_gateway',
+				'key'     => '_mhmrentiva_log_gateway',
 				'value'   => $gw,
 				'compare' => '=',
 			);
 		}
-		$st = self::get_text( 'mhm_log_status' );
+		$st = self::get_text( 'mhmrentiva_log_status' );
 		if ( $st !== '' ) {
 			$metaQuery[] = array(
-				'key'     => '_mhm_log_status',
+				'key'     => '_mhmrentiva_log_status',
 				'value'   => $st,
 				'compare' => '=',
 			);
@@ -188,7 +188,7 @@ final class LogColumns {
 
 		$orderby = self::get_text( 'orderby' );
 		if ( $orderby === 'amount' ) {
-			$q->set( 'meta_key', '_mhm_log_amount_kurus' );
+			$q->set( 'meta_key', '_mhmrentiva_log_amount_kurus' );
 			$q->set( 'orderby', 'meta_value_num' );
 		}
 	}
@@ -197,7 +197,7 @@ final class LogColumns {
 	 * Read a filter param off the `query_vars` whitelist (see PUBLIC_QUERY_VARS).
 	 *
 	 * WP::parse_request() preserves arrays for registered query vars, so a
-	 * `?mhm_log_status[]=x` request would hand an array to a reader typed as
+	 * `?mhmrentiva_log_status[]=x` request would hand an array to a reader typed as
 	 * string; the is_array() guard keeps that from raising a live
 	 * "Array to string conversion" warning.
 	 */

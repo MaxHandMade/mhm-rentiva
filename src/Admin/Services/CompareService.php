@@ -26,7 +26,7 @@ class CompareService {
 	/**
 	 * Meta key/Cookie name
 	 */
-	private const STORAGE_KEY = 'mhm_rentiva_compare';
+	private const STORAGE_KEY = 'mhmrentiva_compare';
 
 	/**
 	 * Max items in compare list
@@ -47,8 +47,8 @@ class CompareService {
 	 * Register service actions
 	 */
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_rentiva_toggle_compare', array( self::class, 'ajax_toggle_compare' ) );
-		add_action( 'wp_ajax_nopriv_mhm_rentiva_toggle_compare', array( self::class, 'ajax_toggle_compare' ) );
+		add_action( 'wp_ajax_mhmrentiva_toggle_compare', array( self::class, 'ajax_toggle_compare' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_toggle_compare', array( self::class, 'ajax_toggle_compare' ) );
 	}
 
 	/**
@@ -201,10 +201,10 @@ class CompareService {
 	private static function verified_toggle_request(): ?VerifiedRequest {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
 
-		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_toggle_compare' ) ) {
+		if ( wp_verify_nonce( $nonce, 'mhmrentiva_toggle_compare' ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
-		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_vehicles_list' ) ) {
+		if ( wp_verify_nonce( $nonce, 'mhmrentiva_vehicles_list' ) ) {
 			return VerifiedRequest::from( $_POST );
 		}
 

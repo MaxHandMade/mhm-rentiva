@@ -174,7 +174,7 @@
 
 		/**
 		 * ONE matrix order drives BOTH surfaces (spec §6 "one order, not two"). It is persisted
-		 * explicitly (mhm_rentiva_vehicle_matrix_order) and hydrated back here, so the admin's
+		 * explicitly (mhmrentiva_vehicle_matrix_order) and hydrated back here, so the admin's
 		 * editing order round-trips exactly. When it is absent (pre-existing installs), fall back
 		 * to deriving it: stored card order, then detail-only ids, then the rest.
 		 */
@@ -291,7 +291,7 @@
 
 			var p = buildSavePayload();
 			var body = new URLSearchParams();
-			body.append( 'action', 'mhm_rentiva_save_vehicle_settings' );
+			body.append( 'action', 'mhmrentiva_save_vehicle_settings' );
 			body.append( 'nonce', payload.nonce );
 			body.append( 'sub_action', 'save_all' );
 
@@ -303,10 +303,10 @@
 					body.append( 'comparison_fields[' + cat + '][]', k );
 				} );
 			} );
-			body.append( 'mhm_rentiva_vehicle_card_fields', JSON.stringify( p.card ) );
-			body.append( 'mhm_rentiva_vehicle_detail_fields', JSON.stringify( p.detail ) );
+			body.append( 'mhmrentiva_vehicle_card_fields', JSON.stringify( p.card ) );
+			body.append( 'mhmrentiva_vehicle_detail_fields', JSON.stringify( p.detail ) );
 			// Persist the single editing order so it round-trips exactly (spec §6).
-			body.append( 'mhm_rentiva_vehicle_matrix_order', JSON.stringify( state.matrixOrder ) );
+			body.append( 'mhmrentiva_vehicle_matrix_order', JSON.stringify( state.matrixOrder ) );
 
 			window.fetch( window.ajaxurl, {
 				method: 'POST',
@@ -381,7 +381,7 @@
 					if ( ! window.confirm( T.removeConfirm.replace( '%s', field.label ) ) ) {
 						return;
 					}
-					postAjax( 'mhm_rentiva_remove_custom_field', {
+					postAjax( 'mhmrentiva_remove_custom_field', {
 						field_key: field.key,
 						field_type: typeToCategory( field.type )
 					} ).then( function ( res ) {
@@ -510,7 +510,7 @@
 				groupSelect
 			];
 
-			// Field type + options apply to DETAILS only (that is where mhm_custom_field_meta is read).
+			// Field type + options apply to DETAILS only (that is where mhmrentiva_custom_field_meta is read).
 			if ( addForm.group === 'detail' ) {
 				var typeSelect = h( 'select', { class: 'rv-vs__select' } );
 				[ [ 'text', T.typeText ], [ 'number', T.typeNumber ], [ 'select', T.typeSelect ] ].forEach( function ( o ) {
@@ -546,7 +546,7 @@
 					params.type = addForm.type;
 					params.options = addForm.options;
 				}
-				postAjax( 'mhm_rentiva_add_custom_field', params ).then( function ( res ) {
+				postAjax( 'mhmrentiva_add_custom_field', params ).then( function ( res ) {
 					if ( ! res || ! res.success || ! res.data || ! res.data.key ) {
 						failNotice( T.addFailed );
 						return;
@@ -571,7 +571,7 @@
 					state.matrixOrder.push( newField.id );
 					addForm.label = '';
 					addForm.options = '';
-					// The new field is enabled in state but not yet in mhm_selected_*; Save persists it.
+					// The new field is enabled in state but not yet in mhmrentiva_selected_*; Save persists it.
 					markDirty();
 					state.notice = { type: 'ok', text: T.addedOk };
 					render();
@@ -891,7 +891,7 @@
 					close();
 					return;
 				}
-				postAjax( 'mhm_rentiva_update_field_labels', {
+				postAjax( 'mhmrentiva_update_field_labels', {
 					type: typeToCategory( type ),
 					labels: labels
 				} ).then( function ( res ) {
@@ -996,7 +996,7 @@
 				if ( ! window.confirm( T.resetConfirm ) ) {
 					return;
 				}
-				postAjax( 'mhm_rentiva_reset_vehicle_settings', {
+				postAjax( 'mhmrentiva_reset_vehicle_settings', {
 					tab: state.tab === 'display' ? 'display' : 'definitions'
 				} ).then( function ( res ) {
 					if ( res && res.success ) {

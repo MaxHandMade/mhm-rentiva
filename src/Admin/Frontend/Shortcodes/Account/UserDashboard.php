@@ -27,7 +27,7 @@ final class UserDashboard {
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
-		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhm_rentiva_fetch_vendor_stats)
+		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhmrentiva_fetch_vendor_stats)
 		// used to be registered from here, gated by the licensing router's
 		// vendor-marketplace gate. That registration moved to the add-on's own
 		// Bootstrap::register_vendor_marketplace() (Task A8a seam inversion) --
@@ -207,16 +207,16 @@ final class UserDashboard {
 
 		wp_enqueue_style(
 			'flatpickr',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
 			array(),
 			'4.6.13'
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-user-dashboard',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
 			array( 'flatpickr' ),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// The vendor-forms stylesheet enqueue used to live here directly. It styles the
@@ -231,7 +231,7 @@ final class UserDashboard {
 
 		wp_enqueue_script(
 			'flatpickr',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
 			array(),
 			'4.6.13',
 			true
@@ -242,7 +242,7 @@ final class UserDashboard {
 		if ( $flatpickr_locale !== null ) {
 			wp_enqueue_script(
 				'flatpickr-l10n-' . $flatpickr_locale,
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
 				array( 'flatpickr' ),
 				'4.6.13',
 				true
@@ -251,16 +251,16 @@ final class UserDashboard {
 
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
 			array( 'flatpickr', 'jquery' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 
 		wp_localize_script('mhm-rentiva-dashboard', 'mhmRentivaAnalytics', array(
 			'ajaxUrl'         => admin_url('admin-ajax.php'),
-			'nonce'           => wp_create_nonce('mhm_rentiva_vendor_nonce'),
-			'lifecycleNonce'  => wp_create_nonce('mhm_rentiva_vehicle_lifecycle'),
+			'nonce'           => wp_create_nonce('mhmrentiva_vendor_nonce'),
+			'lifecycleNonce'  => wp_create_nonce('mhmrentiva_vehicle_lifecycle'),
 			'flatpickrLocale' => $flatpickr_locale,
 			'i18n'            => array(
 				'loading'         => __('Loading...', 'mhm-rentiva'),

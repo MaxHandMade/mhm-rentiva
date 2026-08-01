@@ -34,7 +34,7 @@
             $button.prop('disabled', true).addClass('is-loading');
 
             this.sendRequest({
-                action: 'mhm_rentiva_clear_favorites',
+                action: 'mhmrentiva_clear_favorites',
                 nonce: window.mhmRentivaAccount?.nonce || ''
             })
                 .done((response) => {
@@ -189,7 +189,7 @@
             if (!file || !bookingId) return;
 
             const formData = new FormData();
-            formData.append('action', 'mhm_rentiva_upload_receipt');
+            formData.append('action', 'mhmrentiva_upload_receipt');
             formData.append('nonce', this.config.uploadNonce);
             formData.append('booking_id', bookingId);
             formData.append('receipt', file);
@@ -244,7 +244,7 @@
                 url: this.config.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_remove_receipt',
+                    action: 'mhmrentiva_remove_receipt',
                     nonce: this.config.uploadNonce,
                     booking_id: bookingId
                 },
@@ -285,7 +285,7 @@
                 url: this.config.ajaxUrl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_cancel_booking',
+                    action: 'mhmrentiva_cancel_booking',
                     nonce: this.config.nonce,
                     booking_id: bookingId,
                 },

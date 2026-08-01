@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class PostType {
 
-	public const TYPE = 'mhm_app_log';
+	public const TYPE = 'mhmrentiva_app_log';
 
 	public static function register(): void {
 		add_action( 'init', array( self::class, 'cpt' ) );

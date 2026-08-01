@@ -15,8 +15,8 @@ final class UninstallPage {
 
 	public static function register(): void
 	{
-		add_action('wp_ajax_mhm_rentiva_get_uninstall_stats', array( self::class, 'ajax_get_uninstall_stats' ));
-		add_action('wp_ajax_mhm_rentiva_uninstall_plugin', array( self::class, 'ajax_uninstall_plugin' ));
+		add_action('wp_ajax_mhmrentiva_get_uninstall_stats', array( self::class, 'ajax_get_uninstall_stats' ));
+		add_action('wp_ajax_mhmrentiva_uninstall_plugin', array( self::class, 'ajax_uninstall_plugin' ));
 	}
 
 	/**
@@ -24,7 +24,7 @@ final class UninstallPage {
 	 */
 	public static function ajax_get_uninstall_stats(): void
 	{
-		if (! check_ajax_referer('mhm_uninstall', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_uninstall', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 
@@ -42,7 +42,7 @@ final class UninstallPage {
 	 */
 	public static function ajax_uninstall_plugin(): void
 	{
-		if (! check_ajax_referer('mhm_uninstall', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_uninstall', 'nonce', false)) {
 			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
 		}
 

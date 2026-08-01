@@ -22,12 +22,12 @@ final class VehicleRatingForm extends AbstractShortcode {
 	public static function register(): void
 	{
 		parent::register();
-		add_action('wp_ajax_mhm_rentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
-		add_action('wp_ajax_mhm_rentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
-		add_action('wp_ajax_mhm_rentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
+		add_action('wp_ajax_mhmrentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_submit_rating', array( self::class, 'ajax_submit_rating' ));
+		add_action('wp_ajax_mhmrentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_get_vehicle_rating_list', array( self::class, 'ajax_get_vehicle_rating_list' ));
+		add_action('wp_ajax_mhmrentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_delete_rating', array( self::class, 'ajax_delete_rating' ));
 	}
 
 	protected static function get_shortcode_tag(): string
@@ -75,7 +75,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		return array_merge(
 			$data,
 			array(
-				'nonce'        => wp_create_nonce('mhm_rentiva_rating_nonce'),
+				'nonce'        => wp_create_nonce('mhmrentiva_rating_nonce'),
 				'is_logged_in' => is_user_logged_in(),
 				'settings'     => array(
 					'allow_editing'  => $display_settings['allow_editing'] ?? true,
@@ -151,7 +151,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		}
 		$c = $comments[0];
 		return array(
-			'rating'     => get_comment_meta($c->comment_ID, 'mhm_rating', true),
+			'rating'     => get_comment_meta($c->comment_ID, 'mhmrentiva_rating', true),
 			'comment'    => $c->comment_content,
 			'comment_id' => $c->comment_ID,
 		);
@@ -160,7 +160,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	public static function ajax_submit_rating(): void
 	{
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash($_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_rating_nonce')) {
 			wp_send_json_error(array( 'message' => __('Security check failed', 'mhm-rentiva') ));
 		}
 
@@ -248,7 +248,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 			$comment_data['comment_ID'] = $existing['comment_id'];
 			$comment_data['user_id']    = $uid;
 			wp_update_comment($comment_data);
-			update_comment_meta($existing['comment_id'], 'mhm_rating', $rating);
+			update_comment_meta($existing['comment_id'], 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
 			wp_send_json_success(array( 'message' => __('Rating updated successfully', 'mhm-rentiva') ));
 		}
@@ -267,7 +267,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 
 		$cid = wp_new_comment($comment_data, true);
 		if ($cid && ! is_wp_error($cid)) {
-			update_comment_meta($cid, 'mhm_rating', $rating);
+			update_comment_meta($cid, 'mhmrentiva_rating', $rating);
 			self::update_vehicle_rating_meta($vid);
 
 			$message = $comment_data['comment_approved']
@@ -286,7 +286,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	public static function ajax_delete_rating(): void
 	{
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_rating_nonce')) {
 			wp_send_json_error(array( 'message' => __('Security check failed', 'mhm-rentiva') ));
 		}
 
@@ -339,7 +339,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 	public static function ajax_get_vehicle_rating_list(): void
 	{
 		$nonce = isset($_POST['nonce']) ? sanitize_text_field(wp_unslash( (string) $_POST['nonce'])) : '';
-		if (! wp_verify_nonce($nonce, 'mhm_rentiva_rating_nonce')) {
+		if (! wp_verify_nonce($nonce, 'mhmrentiva_rating_nonce')) {
 			wp_send_json_error(array( 'message' => __('Security check failed', 'mhm-rentiva') ));
 		}
 
@@ -362,7 +362,7 @@ final class VehicleRatingForm extends AbstractShortcode {
 		foreach ($comments as $c) {
 			$ratings[] = array(
 				'display_name' => $c->comment_author,
-				'rating'       => (int) get_comment_meta($c->comment_ID, 'mhm_rating', true),
+				'rating'       => (int) get_comment_meta($c->comment_ID, 'mhmrentiva_rating', true),
 				'comment'      => $c->comment_content,
 				'date'         => $c->comment_date,
 			);

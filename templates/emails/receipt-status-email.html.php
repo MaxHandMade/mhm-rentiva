@@ -13,9 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Template variables - sanitized and escaped
-$status        = isset( $args['status'] ) ? mhm_rentiva_sanitize_text_field_safe( $args['status'] ) : 'approved';
-$customer_name = isset( $args['customer_name'] ) ? mhm_rentiva_sanitize_text_field_safe( $args['customer_name'] ) : '';
-$booking_title = isset( $args['booking_title'] ) ? mhm_rentiva_sanitize_text_field_safe( $args['booking_title'] ) : '';
+$status        = isset( $args['status'] ) ? mhmrentiva_sanitize_text_field_safe( $args['status'] ) : 'approved';
+$customer_name = isset( $args['customer_name'] ) ? mhmrentiva_sanitize_text_field_safe( $args['customer_name'] ) : '';
+$booking_title = isset( $args['booking_title'] ) ? mhmrentiva_sanitize_text_field_safe( $args['booking_title'] ) : '';
 $admin_note    = isset( $args['admin_note'] ) ? sanitize_textarea_field( $args['admin_note'] ) : '';
 $account_url   = isset( $args['account_url'] ) ? esc_url_raw( $args['account_url'] ) : '';
 $site_name     = get_bloginfo( 'name' );
@@ -209,7 +209,7 @@ $status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
 	<div class="email-container">
 		<!-- Header -->
 		<div class="email-header">
-			<h1><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></h1>
+			<h1><?php echo esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_brand_name', get_bloginfo( 'name' ) ) ); ?></h1>
 			<div class="status-badge">
 				<?php echo esc_html( $status_icon . ' ' . $status_text ); ?>
 			</div>
@@ -289,7 +289,7 @@ $status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
 				printf(
 					/* translators: %s placeholder. */
 					esc_html__( 'This email was sent from %s', 'mhm-rentiva' ),
-					'<a href="' . esc_url( $site_url ) . '" style="color: #667eea;">' . esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_brand_name', get_bloginfo( 'name' ) ) ) . '</a>'
+					'<a href="' . esc_url( $site_url ) . '" style="color: #667eea;">' . esc_html( \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_brand_name', get_bloginfo( 'name' ) ) ) . '</a>'
 				);
 				?>
 			</p>

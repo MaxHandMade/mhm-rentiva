@@ -48,8 +48,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'mhm_rentiva%',
-				'_mhm_rentiva%'
+				'mhmrentiva_rentiva%',
+				'_mhmrentiva_rentiva%'
 			)
 		);
 		$stats['options'] = (int) $options;
@@ -81,14 +81,14 @@ final class Uninstaller {
 		$stats['post_types']['bookings'] = (int) $bookings;
 
 		// Count postmeta - using prepare for LIKE pattern. Scoped to this
-		// plugin's own '_mhm_rentiva%' prefix (not the broader '_mhm%') so a
+		// plugin's own '_mhmrentiva_rentiva%' prefix (not the broader '_mhm%') so a
 		// sibling MHM plugin's postmeta on a shared post is never counted.
 		$postmeta          = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*)
             FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhm_rentiva%'
+				'_mhmrentiva_rentiva%'
 			)
 		);
 		$stats['postmeta'] = (int) $postmeta;
@@ -107,14 +107,14 @@ final class Uninstaller {
 		// Count cron jobs
 		$crons        = _get_cron_array();
 		$plugin_crons = array(
-			'mhm_rentiva_auto_cancel_event',
-			'mhm_rentiva_send_scheduled_notifications',
+			'mhmrentiva_auto_cancel_event',
+			'mhmrentiva_send_scheduled_notifications',
 			// The notification cron's pre-5.2.0 name. An event scheduled under it
 			// survives in wp_cron independently of the code that scheduled it, so
 			// uninstall has to clear both or it leaves an orphan behind.
-			'mhm_send_scheduled_notifications',
-			'mhm_email_log_retention',
-			'mhm_log_retention',
+			'mhmrentiva_send_scheduled_notifications',
+			'mhmrentiva_email_log_retention',
+			'mhmrentiva_log_retention',
 		);
 
 		$cron_count = 0;
@@ -136,8 +136,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE (option_name LIKE %s 
             OR option_name LIKE %s)",
-				'_transient_mhm_rentiva%',
-				'_transient_timeout_mhm_rentiva%'
+				'_transient_mhmrentiva_rentiva%',
+				'_transient_timeout_mhmrentiva_rentiva%'
 			)
 		);
 		$stats['transients'] = (int) $transients;
@@ -209,8 +209,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'mhm_rentiva%',
-				'_mhm_rentiva%'
+				'mhmrentiva_rentiva%',
+				'_mhmrentiva_rentiva%'
 			)
 		);
 
@@ -255,15 +255,15 @@ final class Uninstaller {
 		}
 
 		// 4. Delete all postmeta - using prepare for LIKE pattern. Scoped to
-		// this plugin's own '_mhm_rentiva%' prefix (every other step in this
-		// method already scopes to 'mhm_rentiva%'/'_mhm_rentiva%'; the
+		// this plugin's own '_mhmrentiva_rentiva%' prefix (every other step in this
+		// method already scopes to 'mhmrentiva_rentiva%'/'_mhmrentiva_rentiva%'; the
 		// broader '_mhm%' would also delete a sibling MHM plugin's postmeta
 		// on a shared post, e.g. a WooCommerce order).
 		$postmeta_deleted            = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s",
-				'_mhm_rentiva%'
+				'_mhmrentiva_rentiva%'
 			)
 		);
 		$results['postmeta_deleted'] = (int) $postmeta_deleted;
@@ -281,10 +281,10 @@ final class Uninstaller {
 
 		// 5b. Safety net: drop any remaining orphan tables that match plugin prefixes.
 		// This catches tables from removed subsystems that were never added to the whitelist.
-		// Patterns are plugin-unique (mhm_rentiva_*, mhm_postmeta_backup_invalid_*), so no cross-plugin risk.
+		// Patterns are plugin-unique (mhmrentiva_*, mhmrentiva_postmeta_backup_invalid_*), so no cross-plugin risk.
 		$orphan_patterns = array(
-			$wpdb->prefix . 'mhm_rentiva_%',
-			$wpdb->prefix . 'mhm_postmeta_backup_invalid_%',
+			$wpdb->prefix . 'mhmrentiva_%',
+			$wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_%',
 		);
 
 		foreach ( $orphan_patterns as $pattern ) {
@@ -297,14 +297,14 @@ final class Uninstaller {
 
 		// 6. Clear all cron jobs
 		$plugin_crons = array(
-			'mhm_rentiva_auto_cancel_event',
-			'mhm_rentiva_send_scheduled_notifications',
+			'mhmrentiva_auto_cancel_event',
+			'mhmrentiva_send_scheduled_notifications',
 			// The notification cron's pre-5.2.0 name. An event scheduled under it
 			// survives in wp_cron independently of the code that scheduled it, so
 			// uninstall has to clear both or it leaves an orphan behind.
-			'mhm_send_scheduled_notifications',
-			'mhm_email_log_retention',
-			'mhm_log_retention',
+			'mhmrentiva_send_scheduled_notifications',
+			'mhmrentiva_email_log_retention',
+			'mhmrentiva_log_retention',
 		);
 
 		foreach ( $plugin_crons as $hook ) {
@@ -323,8 +323,8 @@ final class Uninstaller {
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
             OR option_name LIKE %s",
-				'_transient_mhm_rentiva%',
-				'_transient_timeout_mhm_rentiva%'
+				'_transient_mhmrentiva_rentiva%',
+				'_transient_timeout_mhmrentiva_rentiva%'
 			)
 		);
 
@@ -404,40 +404,40 @@ final class Uninstaller {
 
 		return array(
 			// --- Active tables (created by DatabaseMigrator / QueueManager / etc.) ---
-			$wpdb->prefix . 'mhm_rentiva_queue',
-			$wpdb->prefix . 'mhm_rentiva_ratings',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
-			$wpdb->prefix . 'mhm_rentiva_payout_audit',
-			$wpdb->prefix . 'mhm_rentiva_ledger',
-			$wpdb->prefix . 'mhm_rentiva_commission_policy',
-			$wpdb->prefix . 'mhm_rentiva_tenants',
-			$wpdb->prefix . 'mhm_rentiva_usage_metrics',
-			$wpdb->prefix . 'mhm_rentiva_key_registry',
-			$wpdb->prefix . 'mhm_message_logs',
-			$wpdb->prefix . 'mhm_notification_queue',
-			$wpdb->prefix . 'mhm_payment_log',
-			$wpdb->prefix . 'mhm_sessions',
-			$wpdb->prefix . 'mhm_backup_records',
+			$wpdb->prefix . 'mhmrentiva_queue',
+			$wpdb->prefix . 'mhmrentiva_ratings',
+			$wpdb->prefix . 'mhmrentiva_background_jobs',
+			$wpdb->prefix . 'mhmrentiva_payout_audit',
+			$wpdb->prefix . 'mhmrentiva_ledger',
+			$wpdb->prefix . 'mhmrentiva_commission_policy',
+			$wpdb->prefix . 'mhmrentiva_tenants',
+			$wpdb->prefix . 'mhmrentiva_usage_metrics',
+			$wpdb->prefix . 'mhmrentiva_key_registry',
+			$wpdb->prefix . 'mhmrentiva_message_logs',
+			$wpdb->prefix . 'mhmrentiva_notification_queue',
+			$wpdb->prefix . 'mhmrentiva_payment_log',
+			$wpdb->prefix . 'mhmrentiva_sessions',
+			$wpdb->prefix . 'mhmrentiva_backup_records',
 			$wpdb->prefix . 'rentiva_transfer_locations',
 			$wpdb->prefix . 'rentiva_transfer_routes',
 
 			// --- Legacy names before rename migration ---
 			$wpdb->prefix . 'mhm_rentiva_transfer_locations',
 			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
-			$wpdb->prefix . 'mhm_rentiva_report_queue',
+			$wpdb->prefix . 'mhmrentiva_report_queue',
 
 			// --- Orphan tables from removed subsystems (kept for cleanup on historic installs) ---
-			$wpdb->prefix . 'mhm_rentiva_subscriptions',
-			$wpdb->prefix . 'mhm_rentiva_usage_billing_feature_flags',
-			$wpdb->prefix . 'mhm_rentiva_payment_events_raw',
-			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregates',
-			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregate_windows',
-			$wpdb->prefix . 'mhm_rentiva_payment_registry',
-			$wpdb->prefix . 'mhm_rentiva_alert_state',
-			$wpdb->prefix . 'mhm_rentiva_alert_dispatch_state',
-			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_queue',
-			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_circuit',
-			$wpdb->prefix . 'mhm_rentiva_event_queue',
+			$wpdb->prefix . 'mhmrentiva_subscriptions',
+			$wpdb->prefix . 'mhmrentiva_usage_billing_feature_flags',
+			$wpdb->prefix . 'mhmrentiva_payment_events_raw',
+			$wpdb->prefix . 'mhmrentiva_payment_event_aggregates',
+			$wpdb->prefix . 'mhmrentiva_payment_event_aggregate_windows',
+			$wpdb->prefix . 'mhmrentiva_payment_registry',
+			$wpdb->prefix . 'mhmrentiva_alert_state',
+			$wpdb->prefix . 'mhmrentiva_alert_dispatch_state',
+			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_queue',
+			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_circuit',
+			$wpdb->prefix . 'mhmrentiva_event_queue',
 		);
 	}
 

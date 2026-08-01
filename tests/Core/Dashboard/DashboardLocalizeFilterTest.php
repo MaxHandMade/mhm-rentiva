@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * `recent_transfers`, `recent_transfers_total_pages`) no longer ships from
  * Lite at all. Lite's own localized array carries none of those keys -- a
  * subscriber (Pro's DashboardExtensions, gated on Edition::isPro()) is the
- * only thing that can add them back, via the `mhm_rentiva_dashboard_localize`
+ * only thing that can add them back, via the `mhmrentiva_dashboard_localize`
  * filter applied just before `wp_localize_script()`.
  *
  * @covers \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage
@@ -22,12 +22,12 @@ final class DashboardLocalizeFilterTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        remove_all_filters('mhm_rentiva_dashboard_localize');
+        remove_all_filters('mhmrentiva_dashboard_localize');
     }
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_dashboard_localize');
+        remove_all_filters('mhmrentiva_dashboard_localize');
         wp_dequeue_script('mhm-rentiva-react-dashboard');
         wp_deregister_script('mhm-rentiva-react-dashboard');
         wp_set_current_user(0);
@@ -49,9 +49,9 @@ final class DashboardLocalizeFilterTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('recent_transfers', $data, 'Lite must not localize recent_transfers without a subscriber.');
     }
 
-    public function test_mhm_rentiva_dashboard_localize_filter_is_applied(): void
+    public function test_mhmrentiva_dashboard_localize_filter_is_applied(): void
     {
-        add_filter('mhm_rentiva_dashboard_localize', static function (array $data): array {
+        add_filter('mhmrentiva_dashboard_localize', static function (array $data): array {
             $data['transfer_stats'] = array( 'total' => 42 );
             return $data;
         });

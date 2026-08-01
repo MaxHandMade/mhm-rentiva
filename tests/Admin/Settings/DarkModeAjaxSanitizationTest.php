@@ -25,8 +25,8 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 
 	public function tearDown(): void
 	{
-		delete_option('mhm_rentiva_dark_mode');
-		delete_option('mhm_rentiva_settings');
+		delete_option('mhmrentiva_dark_mode');
+		delete_option('mhmrentiva_settings');
 		parent::tearDown();
 	}
 
@@ -35,34 +35,34 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 		$response = $this->run_dark_mode_ajax('on');
 
 		$this->assertTrue($response['success'] ?? false);
-		$this->assertSame('dark', get_option('mhm_rentiva_dark_mode', 'auto'));
+		$this->assertSame('dark', get_option('mhmrentiva_dark_mode', 'auto'));
 
-		$settings = (array) get_option('mhm_rentiva_settings', array());
-		$this->assertSame('dark', $settings['mhm_rentiva_dark_mode'] ?? null);
+		$settings = (array) get_option('mhmrentiva_settings', array());
+		$this->assertSame('dark', $settings['mhmrentiva_dark_mode'] ?? null);
 	}
 
 	public function test_ajax_falls_back_to_auto_for_invalid_value(): void
 	{
-		update_option('mhm_rentiva_dark_mode', 'auto');
+		update_option('mhmrentiva_dark_mode', 'auto');
 		update_option(
-			'mhm_rentiva_settings',
+			'mhmrentiva_settings',
 			array(
-				'mhm_rentiva_dark_mode' => 'auto',
+				'mhmrentiva_dark_mode' => 'auto',
 			)
 		);
 
 		$response = $this->run_dark_mode_ajax('<script>alert(1)</script>');
 
 		$this->assertTrue($response['success'] ?? false);
-		$this->assertSame('auto', get_option('mhm_rentiva_dark_mode', 'light'));
+		$this->assertSame('auto', get_option('mhmrentiva_dark_mode', 'light'));
 
-		$settings = (array) get_option('mhm_rentiva_settings', array());
-		$this->assertSame('auto', $settings['mhm_rentiva_dark_mode'] ?? null);
+		$settings = (array) get_option('mhmrentiva_settings', array());
+		$this->assertSame('auto', $settings['mhmrentiva_dark_mode'] ?? null);
 	}
 
 	/**
 	 * Regression test: toggling dark mode via the quick AJAX switcher must
-	 * only touch mhm_rentiva_dark_mode. It previously routed through
+	 * only touch mhmrentiva_dark_mode. It previously routed through
 	 * SettingsSanitizer::sanitize() with 'current_active_tab' => 'general',
 	 * which re-ran the entire General/Site-Info sanitizer on an input array
 	 * that only contained the dark mode key — silently blanking
@@ -72,13 +72,13 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 	public function test_ajax_does_not_clobber_unrelated_site_info_fields(): void
 	{
 		update_option(
-			'mhm_rentiva_settings',
+			'mhmrentiva_settings',
 			array(
-				'mhm_rentiva_dark_mode'     => 'auto',
-				'mhm_rentiva_brand_name'    => 'Custom Brand',
-				'mhm_rentiva_contact_phone' => '+90 555 123 45 67',
-				'mhm_rentiva_contact_hours' => '09:00 - 18:00',
-				'mhm_rentiva_support_email' => 'support@example.com',
+				'mhmrentiva_dark_mode'     => 'auto',
+				'mhmrentiva_brand_name'    => 'Custom Brand',
+				'mhmrentiva_contact_phone' => '+90 555 123 45 67',
+				'mhmrentiva_contact_hours' => '09:00 - 18:00',
+				'mhmrentiva_support_email' => 'support@example.com',
 			)
 		);
 
@@ -86,12 +86,12 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 
 		$this->assertTrue($response['success'] ?? false);
 
-		$settings = (array) get_option('mhm_rentiva_settings', array());
-		$this->assertSame('dark', $settings['mhm_rentiva_dark_mode'] ?? null);
-		$this->assertSame('Custom Brand', $settings['mhm_rentiva_brand_name'] ?? null);
-		$this->assertSame('+90 555 123 45 67', $settings['mhm_rentiva_contact_phone'] ?? null);
-		$this->assertSame('09:00 - 18:00', $settings['mhm_rentiva_contact_hours'] ?? null);
-		$this->assertSame('support@example.com', $settings['mhm_rentiva_support_email'] ?? null);
+		$settings = (array) get_option('mhmrentiva_settings', array());
+		$this->assertSame('dark', $settings['mhmrentiva_dark_mode'] ?? null);
+		$this->assertSame('Custom Brand', $settings['mhmrentiva_brand_name'] ?? null);
+		$this->assertSame('+90 555 123 45 67', $settings['mhmrentiva_contact_phone'] ?? null);
+		$this->assertSame('09:00 - 18:00', $settings['mhmrentiva_contact_hours'] ?? null);
+		$this->assertSame('support@example.com', $settings['mhmrentiva_support_email'] ?? null);
 	}
 
 	/**
@@ -101,16 +101,16 @@ final class DarkModeAjaxSanitizationTest extends WP_Ajax_UnitTestCase
 	{
 		wp_set_current_user($this->admin_id);
 
-		$nonce = wp_create_nonce('mhm_dark_mode_nonce');
+		$nonce = wp_create_nonce('mhmrentiva_dark_mode_nonce');
 
-		$_POST['action'] = 'mhm_rentiva_save_dark_mode';
+		$_POST['action'] = 'mhmrentiva_save_dark_mode';
 		$_POST['nonce']  = $nonce;
 		$_POST['mode']   = $mode;
 
 		$_REQUEST = $_POST;
 
 		try {
-			$this->_handleAjax('mhm_rentiva_save_dark_mode');
+			$this->_handleAjax('mhmrentiva_save_dark_mode');
 		} catch (WPAjaxDieContinueException | WPAjaxDieStopException $e) {
 			// Expected in AJAX test context.
 		}

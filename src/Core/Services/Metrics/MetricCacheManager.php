@@ -18,7 +18,7 @@ final class MetricCacheManager {
     /**
      * Prefix for all metric caching.
      */
-    public const PREFIX = 'mhm_rentiva_metric_';
+    public const PREFIX = 'mhmrentiva_metric_';
 
     /**
      * 15-minute fallback TTL to ensure edge-cases do not persist anomalies infinitely.
@@ -124,7 +124,7 @@ final class MetricCacheManager {
         // Booking Entity Modifications affecting all contexts
         add_action('save_post_vehicle_booking', array( self::class, 'on_booking_saved' ), 10, 3);
         add_action('delete_post', array( self::class, 'on_booking_deleted' ), 10, 2);
-        add_action('mhm_rentiva_booking_status_changed', array( self::class, 'on_booking_status_changed' ), 10, 3);
+        add_action('mhmrentiva_booking_status_changed', array( self::class, 'on_booking_status_changed' ), 10, 3);
 
         // Profiles & Users (Favorites are generally mapped to customer namespace explicitly)
         add_action('updated_user_meta', array( self::class, 'on_user_meta_updated' ), 10, 4);
@@ -132,8 +132,8 @@ final class MetricCacheManager {
         add_action('deleted_user_meta', array( self::class, 'on_user_meta_updated' ), 10, 4);
 
         // Internal Communication Message events affecting unread metrics on both role namespaces
-        add_action('mhm_message_status_changed', array( self::class, 'on_message_updated' ), 10, 3);
-        add_action('mhm_message_created', array( self::class, 'on_message_created' ), 10, 2);
+        add_action('mhmrentiva_message_status_changed', array( self::class, 'on_message_updated' ), 10, 3);
+        add_action('mhmrentiva_message_created', array( self::class, 'on_message_created' ), 10, 2);
     }
 
     // === Event Dispatches (Hook Callbacks) ===
@@ -164,7 +164,7 @@ final class MetricCacheManager {
      */
     public static function on_user_meta_updated(int|array $meta_id, int $user_id, string $meta_key, $meta_value): void
     {
-        if ($meta_key === 'mhm_rentiva_favorites' && $user_id > 0) {
+        if ($meta_key === 'mhmrentiva_favorites' && $user_id > 0) {
             self::flush_subject_metric('customer', 'saved_favorites', (string) $user_id);
         }
     }
@@ -176,7 +176,7 @@ final class MetricCacheManager {
     {
         // Since message status is agnostic of sender vs receiver in this generic hook, safest isolation is flushing entire wildcard
         // based upon exact parent mapping, but for MVP isolating just known recipients is preferred if easily obtainable
-        $recipient_id = (int) get_post_meta($message_id, '_mhm_recipient_id', true);
+        $recipient_id = (int) get_post_meta($message_id, '_mhmrentiva_recipient_id', true);
         if ($recipient_id > 0) {
             self::flush_subject_metric('customer', 'unread_messages', (string) $recipient_id);
             self::flush_subject_metric('vendor', 'unread_messages', (string) $recipient_id);
@@ -188,8 +188,8 @@ final class MetricCacheManager {
      */
     public static function on_message_created(int $message_id, array $data): void
     {
-        // The `mhm_message_created` hook array payload contains 'recipient_id' OR we extract meta.
-        $recipient_id = (int) ( $data['recipient_id'] ?? get_post_meta($message_id, '_mhm_recipient_id', true) );
+        // The `mhmrentiva_message_created` hook array payload contains 'recipient_id' OR we extract meta.
+        $recipient_id = (int) ( $data['recipient_id'] ?? get_post_meta($message_id, '_mhmrentiva_recipient_id', true) );
         if ($recipient_id > 0) {
             self::flush_subject_metric('customer', 'unread_messages', (string) $recipient_id);
             self::flush_subject_metric('vendor', 'unread_messages', (string) $recipient_id);
@@ -201,12 +201,12 @@ final class MetricCacheManager {
      */
     private static function flush_booking_cache_for_participants(int $booking_id): void
     {
-        $customer_id = (int) get_post_meta($booking_id, '_mhm_customer_user_id', true);
+        $customer_id = (int) get_post_meta($booking_id, '_mhmrentiva_customer_user_id', true);
         if ($customer_id > 0) {
             self::flush_subject_all_metrics( (string) $customer_id);
         }
 
-        $vehicle_id = (int) get_post_meta($booking_id, '_mhm_vehicle_id', true);
+        $vehicle_id = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
         if ($vehicle_id > 0) {
             // Locate owner of the vehicle (Vendor)
             $vendor_id = (int) get_post_field('post_author', $vehicle_id);

@@ -60,7 +60,7 @@ final class BlockedDatesTest extends WP_UnitTestCase
     public function test_route_returns_the_vehicles_blocked_dates_to_a_logged_out_visitor(): void
     {
         $vehicle_id = self::factory()->post->create( array( 'post_type' => 'vehicle' ) );
-        update_post_meta( $vehicle_id, '_mhm_blocked_dates', wp_json_encode( array( '2026-09-01', '2026-09-02' ) ) );
+        update_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', wp_json_encode( array( '2026-09-01', '2026-09-02' ) ) );
         wp_set_current_user( 0 );
 
         $response = self::$server->dispatch( new WP_REST_Request( 'GET', '/mhm-rentiva/v1/vehicles/' . $vehicle_id . '/blocked-dates' ) );
@@ -121,7 +121,7 @@ final class BlockedDatesTest extends WP_UnitTestCase
     public function test_route_refuses_a_vehicle_with_no_public_page( array $overrides ): void
     {
         $vehicle_id = self::factory()->post->create( array_merge( array( 'post_type' => 'vehicle' ), $overrides ) );
-        update_post_meta( $vehicle_id, '_mhm_blocked_dates', wp_json_encode( array( '2026-09-01' ) ) );
+        update_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', wp_json_encode( array( '2026-09-01' ) ) );
         wp_set_current_user( 0 );
 
         // Guard against a fixture that WordPress silently normalised into a
@@ -153,11 +153,11 @@ final class BlockedDatesTest extends WP_UnitTestCase
         BlockedDatesMetaBox::register();
 
         $this->assertFalse(
-            has_action( 'wp_ajax_mhm_rentiva_get_blocked_dates' ),
+            has_action( 'wp_ajax_mhmrentiva_get_blocked_dates' ),
             'The authenticated AJAX read was replaced by the REST route.'
         );
         $this->assertFalse(
-            has_action( 'wp_ajax_nopriv_mhm_rentiva_get_blocked_dates' ),
+            has_action( 'wp_ajax_nopriv_mhmrentiva_get_blocked_dates' ),
             'The nopriv AJAX read was replaced by the REST route; a nopriv action is the shape T7 objected to.'
         );
         $this->assertFalse(

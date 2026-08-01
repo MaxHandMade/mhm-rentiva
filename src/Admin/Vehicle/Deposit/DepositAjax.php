@@ -32,12 +32,12 @@ class DepositAjax {
 	 * Register AJAX handlers
 	 */
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_rentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
-		add_action( 'wp_ajax_nopriv_mhm_rentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
+		add_action( 'wp_ajax_mhmrentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
+		add_action( 'wp_ajax_nopriv_mhmrentiva_calculate_deposit', array( self::class, 'ajax_calculate_booking_deposit' ) );
 	}
 
 	// Removed: ajax_calculate_vehicle_deposit(). It was never registered on any wp_ajax_*
-	// hook and its nonce action ('mhm_vehicle_deposit_calculation') was referenced nowhere
+	// hook and its nonce action ('mhmrentiva_vehicle_deposit_calculation') was referenced nowhere
 	// else in PHP or JS -- dead code. The live deposit endpoint is
 	// ajax_calculate_booking_deposit() below.
 
@@ -46,7 +46,7 @@ class DepositAjax {
 	 */
 	public static function ajax_calculate_booking_deposit(): void {
 		$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_booking_action' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_booking_action' ) ) {
 			wp_send_json_error( __( 'Security error', 'mhm-rentiva' ) );
 		}
 
@@ -64,7 +64,7 @@ class DepositAjax {
 		}
 
 		// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
-		$deposit_meta = get_post_meta( $vehicle_id, '_mhm_rentiva_deposit', true );
+		$deposit_meta = get_post_meta( $vehicle_id, '_mhmrentiva_deposit', true );
 		if ( empty( $deposit_meta ) ) {
 			$payment_type = 'full';
 		}

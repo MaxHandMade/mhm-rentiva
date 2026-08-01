@@ -27,17 +27,17 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 {
 	public function tearDown(): void
 	{
-		delete_option( 'mhm_rentiva_settings' );
+		delete_option( 'mhmrentiva_settings' );
 		parent::tearDown();
 	}
 
 	public function test_saving_the_vehicle_tab_keeps_the_frontend_page_size(): void
 	{
 		update_option(
-			'mhm_rentiva_settings',
+			'mhmrentiva_settings',
 			array(
-				'mhm_rentiva_vehicle_cards_per_page' => 24,
-				'mhm_rentiva_vehicle_default_sort'   => 'year_desc',
+				'mhmrentiva_vehicle_cards_per_page' => 24,
+				'mhmrentiva_vehicle_default_sort'   => 'year_desc',
 			)
 		);
 
@@ -46,7 +46,7 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 		$result = SettingsSanitizer::sanitize(
 			array(
 				'current_active_tab'            => 'vehicle',
-				'mhm_rentiva_vehicle_tax_rate'  => '18',
+				'mhmrentiva_vehicle_tax_rate'  => '18',
 			)
 		);
 
@@ -56,12 +56,12 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 		// show the field.
 		$this->assertSame(
 			24,
-			(int) $result['mhm_rentiva_vehicle_cards_per_page'],
+			(int) $result['mhmrentiva_vehicle_cards_per_page'],
 			'A Vehicle-tab save reset a Frontend-tab field it never displayed.'
 		);
 		$this->assertSame(
 			'year_desc',
-			$result['mhm_rentiva_vehicle_default_sort'],
+			$result['mhmrentiva_vehicle_default_sort'],
 			'A Vehicle-tab save reset a Frontend-tab field it never displayed.'
 		);
 	}
@@ -74,13 +74,13 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 		$result = SettingsSanitizer::sanitize(
 			array(
 				'current_active_tab'                 => 'frontend',
-				'mhm_rentiva_vehicle_cards_per_page' => '24',
-				'mhm_rentiva_vehicle_default_sort'   => 'year_desc',
+				'mhmrentiva_vehicle_cards_per_page' => '24',
+				'mhmrentiva_vehicle_default_sort'   => 'year_desc',
 			)
 		);
 
-		$this->assertSame( 24, $result['mhm_rentiva_vehicle_cards_per_page'] );
-		$this->assertSame( 'year_desc', $result['mhm_rentiva_vehicle_default_sort'] );
+		$this->assertSame( 24, $result['mhmrentiva_vehicle_cards_per_page'] );
+		$this->assertSame( 'year_desc', $result['mhmrentiva_vehicle_default_sort'] );
 	}
 
 	/**
@@ -92,10 +92,10 @@ final class CrossTabClobberTest extends WP_UnitTestCase
 		$result = SettingsSanitizer::sanitize(
 			array(
 				'current_active_tab'                 => 'frontend',
-				'mhm_rentiva_vehicle_cards_per_page' => '999',
+				'mhmrentiva_vehicle_cards_per_page' => '999',
 			)
 		);
 
-		$this->assertSame( 50, $result['mhm_rentiva_vehicle_cards_per_page'] );
+		$this->assertSame( 50, $result['mhmrentiva_vehicle_cards_per_page'] );
 	}
 }

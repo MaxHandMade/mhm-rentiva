@@ -39,7 +39,7 @@ jQuery(document).ready(
 						url: ajaxurl,
 						type: 'POST',
 						data: {
-							action: 'mhm_rentiva_data_export',
+							action: 'mhmrentiva_data_export',
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {
@@ -91,7 +91,7 @@ jQuery(document).ready(
 						url: ajaxurl,
 						type: 'POST',
 						data: {
-							action: 'mhm_rentiva_consent_withdrawal',
+							action: 'mhmrentiva_consent_withdrawal',
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {
@@ -144,7 +144,7 @@ jQuery(document).ready(
 						url: ajaxurl,
 						type: 'POST',
 						data: {
-							action: 'mhm_rentiva_data_deletion',
+							action: 'mhmrentiva_data_deletion',
 							nonce: mhmRentivaPrivacy.nonce
 						},
 						success: function (response) {

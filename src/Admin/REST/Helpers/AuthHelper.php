@@ -38,7 +38,7 @@ final class AuthHelper {
 	 *
 	 * This method supports two different authorization methods:
 	 * 1. WordPress REST nonce (X-WP-Nonce header)
-	 * 2. MHM custom nonce (mhm_nonce in request body)
+	 * 2. MHM custom nonce (mhmrentiva_nonce in request body)
 	 *
 	 * @param WP_REST_Request $request REST request object
 	 * @param int             $booking_id Booking ID (for nonce validation)
@@ -56,9 +56,9 @@ final class AuthHelper {
 		// 2. MHM custom nonce check (guest users)
 		if ($booking_id > 0 && ! empty($gateway_prefix)) {
 			$body     = $request->get_json_params();
-			$mhmNonce = is_array($body) ? (string) ( $body['mhm_nonce'] ?? '' ) : '';
+			$mhmNonce = is_array($body) ? (string) ( $body['mhmrentiva_nonce'] ?? '' ) : '';
 
-			if ($mhmNonce && wp_verify_nonce($mhmNonce, 'mhm_' . $gateway_prefix . '_' . $booking_id)) {
+			if ($mhmNonce && wp_verify_nonce($mhmNonce, 'mhmrentiva_' . $gateway_prefix . '_' . $booking_id)) {
 				return true;
 			}
 		}

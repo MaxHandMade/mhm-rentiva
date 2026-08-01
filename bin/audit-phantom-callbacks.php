@@ -57,7 +57,7 @@ foreach ( $roots as $label => $root ) {
 		// add_action( "wp_ajax_{$action}", ... ), so the actions such a loop
 		// registers never appear in any grep-built inventory of this plugin's
 		// endpoints. That is not hypothetical: two such sites hid four dead
-		// unauthenticated actions -- one pair carrying the bare `mhm_` prefix --
+		// unauthenticated actions -- one pair carrying the bare `mhmrentiva_` prefix --
 		// through five audit rounds. Surfaced for reading rather than omitted.
 		// Three shapes build a hook name at runtime: "wp_ajax_{$a}" interpolation,
 		// 'wp_ajax_' . $a concatenation, and a bare variable. All are invisible to a

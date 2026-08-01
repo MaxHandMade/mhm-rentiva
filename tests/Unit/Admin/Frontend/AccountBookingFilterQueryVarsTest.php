@@ -40,8 +40,8 @@ final class AccountBookingFilterQueryVarsTest extends WP_UnitTestCase
     public function accountFilterParamProvider(): array
     {
         return array(
-            'status filter' => array( 'mhm_status_filter', 'completed' ),
-            'search query'  => array( 'mhm_search_booking', '3726' ),
+            'status filter' => array( 'mhmrentiva_status_filter', 'completed' ),
+            'search query'  => array( 'mhmrentiva_search_booking', '3726' ),
         );
     }
 
@@ -70,7 +70,7 @@ final class AccountBookingFilterQueryVarsTest extends WP_UnitTestCase
 
         $this->assertNotEmpty($added);
         foreach ($added as $var) {
-            $this->assertStringStartsWith('mhm_', $var, "Public query var '$var' must carry the plugin prefix.");
+            $this->assertStringStartsWith('mhmrentiva_', $var, "Public query var '$var' must carry the plugin prefix.");
         }
     }
 
@@ -107,8 +107,8 @@ final class AccountBookingFilterQueryVarsTest extends WP_UnitTestCase
 
         $this->go_to(add_query_arg(
             array(
-                'mhm_status_filter'  => 'completed',
-                'mhm_search_booking' => '3726',
+                'mhmrentiva_status_filter'  => 'completed',
+                'mhmrentiva_search_booking' => '3726',
             ),
             $permalink
         ));

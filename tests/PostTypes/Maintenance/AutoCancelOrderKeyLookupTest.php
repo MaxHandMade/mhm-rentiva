@@ -11,8 +11,8 @@ use WP_UnitTestCase;
  * Regression test: AutoCancel must lookup the WC order ID using the same
  * fallback chain as ReportRepository / RemainingPaymentHandler.
  *
- * Bug (2026-05-15): only `_mhm_wc_order_id` was queried — every booking
- * created via the current checkout (which writes `_mhm_woocommerce_order_id`)
+ * Bug (2026-05-15): only `_mhmrentiva_wc_order_id` was queried — every booking
+ * created via the current checkout (which writes `_mhmrentiva_woocommerce_order_id`)
  * had its WC order silently skipped, leaving "pending" orders forever even
  * after the booking was cancelled.
  */
@@ -27,7 +27,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
     }
 
     /**
-     * Booking has only the new key (`_mhm_woocommerce_order_id`).
+     * Booking has only the new key (`_mhmrentiva_woocommerce_order_id`).
      * Backfill helper must find the order and cancel it.
      */
     public function test_sync_orphan_uses_woocommerce_order_id_meta(): void
@@ -41,8 +41,8 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'cancelled');
-        update_post_meta($booking_id, '_mhm_woocommerce_order_id', $order_id);
+        update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order_id);
 
         $result = AutoCancel::sync_orphan_wc_orders();
 
@@ -53,7 +53,7 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
     }
 
     /**
-     * Legacy compat: booking with only the old `_mhm_wc_order_id` key
+     * Legacy compat: booking with only the old `_mhmrentiva_wc_order_id` key
      * (pre-checkout-rewrite data) must still be found.
      */
     public function test_sync_orphan_falls_back_to_legacy_wc_order_id_meta(): void
@@ -67,9 +67,9 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'cancelled');
+        update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
         // Only legacy key set.
-        update_post_meta($booking_id, '_mhm_wc_order_id', $order_id);
+        update_post_meta($booking_id, '_mhmrentiva_wc_order_id', $order_id);
 
         AutoCancel::sync_orphan_wc_orders();
 
@@ -89,8 +89,8 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'cancelled');
-        update_post_meta($booking_id, '_mhm_woocommerce_order_id', $order->get_id());
+        update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
 
         $result = AutoCancel::sync_orphan_wc_orders();
 
@@ -114,9 +114,9 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'cancelled');
-        update_post_meta($booking_id, '_mhm_woocommerce_order_id', $deposit_order->get_id());
-        update_post_meta($booking_id, '_mhm_remaining_order_id', $remaining_order->get_id());
+        update_post_meta($booking_id, '_mhmrentiva_status', 'cancelled');
+        update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $deposit_order->get_id());
+        update_post_meta($booking_id, '_mhmrentiva_remaining_order_id', $remaining_order->get_id());
 
         AutoCancel::sync_orphan_wc_orders();
 
@@ -137,15 +137,15 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'pending');
-        update_post_meta($booking_id, '_mhm_payment_status', 'pending');
-        update_post_meta($booking_id, '_mhm_pickup_date', wp_date('Y-m-d', strtotime('-7 days')));
-        update_post_meta($booking_id, '_mhm_woocommerce_order_id', $order->get_id());
+        update_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', strtotime('-7 days')));
+        update_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', $order->get_id());
 
         $result = AutoCancel::sync_stale_past_bookings();
 
         $this->assertGreaterThanOrEqual(1, $result['cancelled']);
-        $this->assertSame('cancelled', get_post_meta($booking_id, '_mhm_status', true));
+        $this->assertSame('cancelled', get_post_meta($booking_id, '_mhmrentiva_status', true));
         $this->assertSame('cancelled', wc_get_order($order->get_id())->get_status());
     }
 
@@ -158,13 +158,13 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'completed');
-        update_post_meta($booking_id, '_mhm_payment_status', 'paid');
-        update_post_meta($booking_id, '_mhm_pickup_date', wp_date('Y-m-d', strtotime('-7 days')));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'completed');
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'paid');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', strtotime('-7 days')));
 
         AutoCancel::sync_stale_past_bookings();
 
-        $this->assertSame('completed', get_post_meta($booking_id, '_mhm_status', true));
+        $this->assertSame('completed', get_post_meta($booking_id, '_mhmrentiva_status', true));
     }
 
     /**
@@ -176,12 +176,12 @@ final class AutoCancelOrderKeyLookupTest extends WP_UnitTestCase
             'post_type'   => 'vehicle_booking',
             'post_status' => 'publish',
         ));
-        update_post_meta($booking_id, '_mhm_status', 'pending');
-        update_post_meta($booking_id, '_mhm_payment_status', 'pending');
-        update_post_meta($booking_id, '_mhm_pickup_date', wp_date('Y-m-d', strtotime('+5 days')));
+        update_post_meta($booking_id, '_mhmrentiva_status', 'pending');
+        update_post_meta($booking_id, '_mhmrentiva_payment_status', 'pending');
+        update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', strtotime('+5 days')));
 
         AutoCancel::sync_stale_past_bookings();
 
-        $this->assertSame('pending', get_post_meta($booking_id, '_mhm_status', true));
+        $this->assertSame('pending', get_post_meta($booking_id, '_mhmrentiva_status', true));
     }
 }

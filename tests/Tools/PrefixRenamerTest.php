@@ -271,6 +271,18 @@ class PrefixRenamerTest extends TestCase {
 	}
 
 	/**
+	 * mhm-ui-core is a separate composer package. Its function is defined in
+	 * vendor/, so renaming our call site produces a fatal.
+	 */
+	public function test_sibling_product_api_is_not_renamed(): void {
+		$this->assertSame(
+			'mhm_ui_core_register( $version, $file );',
+			$this->t( 'mhm_ui_core_register( $version, $file );' ),
+			"a bare 'mhm_' rule reached another product's API"
+		);
+	}
+
+	/**
 	 * The carve-out is a TABLE-name carve-out. The identically stemmed POSTMETA
 	 * key (leading underscore) is a different family and must still be renamed
 	 * -- if the carve-out is written as a naive substring skip it swallows this

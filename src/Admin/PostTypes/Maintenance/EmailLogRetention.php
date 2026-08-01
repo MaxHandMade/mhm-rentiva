@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 final class EmailLogRetention {
 
-	public const EVENT = 'mhm_rentiva_email_log_purge_event';
+	public const EVENT = 'mhmrentiva_email_log_purge_event';
 
 	public static function register(): void {
 		add_action( 'init', array( self::class, 'maybe_schedule' ) );
@@ -34,7 +34,7 @@ final class EmailLogRetention {
 			return;
 		}
 		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Legacy filter retained for backward compatibility.
-		$limit = (int) apply_filters( 'mhm_rentiva_email_log_purge_limit', 200 );
+		$limit = (int) apply_filters( 'mhmrentiva_email_log_purge_limit', 200 );
 		self::purge( $days, $limit );
 	}
 
@@ -54,7 +54,7 @@ final class EmailLogRetention {
 
 		$q = new WP_Query(
 			array(
-				'post_type'      => 'mhm_email_log',
+				'post_type'      => 'mhmrentiva_email_log',
 				'post_status'    => 'any',
 				'fields'         => 'ids',
 				'posts_per_page' => $limit,

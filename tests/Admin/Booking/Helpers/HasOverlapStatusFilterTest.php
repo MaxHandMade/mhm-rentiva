@@ -27,14 +27,14 @@ final class HasOverlapStatusFilterTest extends WP_UnitTestCase
 			'post_status' => 'publish',
 		));
 
-		update_post_meta($booking_id, '_mhm_status', $status);
-		update_post_meta($booking_id, '_mhm_vehicle_id', self::VEHICLE_ID);
-		update_post_meta($booking_id, '_mhm_pickup_date', wp_date('Y-m-d', $start_ts));
-		update_post_meta($booking_id, '_mhm_pickup_time', wp_date('H:i', $start_ts));
-		update_post_meta($booking_id, '_mhm_dropoff_date', wp_date('Y-m-d', $end_ts));
-		update_post_meta($booking_id, '_mhm_dropoff_time', wp_date('H:i', $end_ts));
-		update_post_meta($booking_id, '_mhm_start_ts', $start_ts);
-		update_post_meta($booking_id, '_mhm_end_ts', $end_ts);
+		update_post_meta($booking_id, '_mhmrentiva_status', $status);
+		update_post_meta($booking_id, '_mhmrentiva_vehicle_id', self::VEHICLE_ID);
+		update_post_meta($booking_id, '_mhmrentiva_pickup_date', wp_date('Y-m-d', $start_ts));
+		update_post_meta($booking_id, '_mhmrentiva_pickup_time', wp_date('H:i', $start_ts));
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_date', wp_date('Y-m-d', $end_ts));
+		update_post_meta($booking_id, '_mhmrentiva_dropoff_time', wp_date('H:i', $end_ts));
+		update_post_meta($booking_id, '_mhmrentiva_start_ts', $start_ts);
+		update_post_meta($booking_id, '_mhmrentiva_end_ts', $end_ts);
 
 		return $booking_id;
 	}

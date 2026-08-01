@@ -14,7 +14,7 @@ use WP_UnitTestCase;
  * the "Messages" tab and the vendor tab(s) ("Become a Vendor" / "Vendor
  * Panel") are re-added exclusively by Pro's
  * mhm-rentiva-pro/src/Pro/Extensions/AccountExtensions.php, subscribed to the
- * neutral `mhm_rentiva_account_nav_items` filter -- the same pattern as
+ * neutral `mhmrentiva_account_nav_items` filter -- the same pattern as
  * Task A7's MenuExtensions.
  *
  * render_vendor_apply()'s access guard is covered here too: it now defers to
@@ -28,12 +28,12 @@ final class AccountNavNoProTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        remove_all_filters('mhm_rentiva_account_nav_items');
+        remove_all_filters('mhmrentiva_account_nav_items');
     }
 
     protected function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_account_nav_items');
+        remove_all_filters('mhmrentiva_account_nav_items');
         parent::tearDown();
     }
 
@@ -87,7 +87,7 @@ final class AccountNavNoProTest extends WP_UnitTestCase
 
     public function test_a_subscriber_can_add_a_nav_item_back(): void
     {
-        add_filter('mhm_rentiva_account_nav_items', static function (array $items): array {
+        add_filter('mhmrentiva_account_nav_items', static function (array $items): array {
             $items['messages'] = array(
                 'slug'  => 'rentiva-messages',
                 'label' => 'Messages',
@@ -108,7 +108,7 @@ final class AccountNavNoProTest extends WP_UnitTestCase
      */
     public function test_malformed_subscriber_contribution_is_dropped(): void
     {
-        add_filter('mhm_rentiva_account_nav_items', static function (array $items): array {
+        add_filter('mhmrentiva_account_nav_items', static function (array $items): array {
             $items['broken_one'] = array( 'slug' => 'broken-slug' ); // missing label
             $items['broken_two'] = 'not-an-array';
             return $items;

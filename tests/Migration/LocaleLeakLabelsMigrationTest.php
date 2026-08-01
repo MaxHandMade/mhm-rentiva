@@ -20,12 +20,12 @@ use WP_UnitTestCase;
  */
 class LocaleLeakLabelsMigrationTest extends WP_UnitTestCase
 {
-    private const FLAG_OPTION = 'mhm_rentiva_v4271_labels_migrated';
+    private const FLAG_OPTION = 'mhmrentiva_v4271_labels_migrated';
 
     private const LEGACY_OPTIONS = array(
-        'mhm_vehicle_details',
-        'mhm_vehicle_features',
-        'mhm_vehicle_equipment',
+        'mhmrentiva_vehicle_details',
+        'mhmrentiva_vehicle_features',
+        'mhmrentiva_vehicle_equipment',
     );
 
     protected function tearDown(): void
@@ -58,15 +58,15 @@ class LocaleLeakLabelsMigrationTest extends WP_UnitTestCase
             'jack'       => 'Jack',
         );
 
-        update_option('mhm_vehicle_details', $turkish_details);
-        update_option('mhm_vehicle_features', $english_features);
-        update_option('mhm_vehicle_equipment', $mixed_equipment);
+        update_option('mhmrentiva_vehicle_details', $turkish_details);
+        update_option('mhmrentiva_vehicle_features', $english_features);
+        update_option('mhmrentiva_vehicle_equipment', $mixed_equipment);
 
         VehicleMeta::migrate_remove_auto_populated_labels();
 
-        $this->assertFalse(get_option('mhm_vehicle_details'), 'Turkish-leaked details should be removed.');
-        $this->assertFalse(get_option('mhm_vehicle_features'), 'English-leaked features should be removed.');
-        $this->assertFalse(get_option('mhm_vehicle_equipment'), 'Mixed-locale equipment should be removed.');
+        $this->assertFalse(get_option('mhmrentiva_vehicle_details'), 'Turkish-leaked details should be removed.');
+        $this->assertFalse(get_option('mhmrentiva_vehicle_features'), 'English-leaked features should be removed.');
+        $this->assertFalse(get_option('mhmrentiva_vehicle_equipment'), 'Mixed-locale equipment should be removed.');
     }
 
     /**
@@ -75,21 +75,21 @@ class LocaleLeakLabelsMigrationTest extends WP_UnitTestCase
      */
     public function test_migration_is_idempotent(): void
     {
-        update_option('mhm_vehicle_details', array( 'price_per_day' => 'Günlük Fiyat' ));
+        update_option('mhmrentiva_vehicle_details', array( 'price_per_day' => 'Günlük Fiyat' ));
 
         VehicleMeta::migrate_remove_auto_populated_labels();
         $this->assertSame('1', get_option(self::FLAG_OPTION));
-        $this->assertFalse(get_option('mhm_vehicle_details'));
+        $this->assertFalse(get_option('mhmrentiva_vehicle_details'));
 
         // A user might legitimately rename a default label after the migration
         // runs. Re-running the migration must NOT clobber that new value.
-        update_option('mhm_vehicle_details', array( 'price_per_day' => 'Rental Rate' ));
+        update_option('mhmrentiva_vehicle_details', array( 'price_per_day' => 'Rental Rate' ));
 
         VehicleMeta::migrate_remove_auto_populated_labels();
 
         $this->assertSame(
             array( 'price_per_day' => 'Rental Rate' ),
-            get_option('mhm_vehicle_details'),
+            get_option('mhmrentiva_vehicle_details'),
             'Second invocation must be a no-op once the flag is set.'
         );
     }
@@ -113,7 +113,7 @@ class LocaleLeakLabelsMigrationTest extends WP_UnitTestCase
     }
 
     /**
-     * Custom-field options (mhm_custom_details etc.) must be left alone — they
+     * Custom-field options (mhmrentiva_custom_details etc.) must be left alone — they
      * hold user-added fields that never went through the locale-leak codepath.
      */
     public function test_migration_does_not_touch_custom_field_options(): void
@@ -122,18 +122,18 @@ class LocaleLeakLabelsMigrationTest extends WP_UnitTestCase
         $custom_features = array( 'premium_sound' => 'Premium Sound System' );
         $custom_equipment = array( 'ski_rack' => 'Ski Rack' );
 
-        update_option('mhm_custom_details', $custom_details);
-        update_option('mhm_custom_features', $custom_features);
-        update_option('mhm_custom_equipment', $custom_equipment);
+        update_option('mhmrentiva_custom_details', $custom_details);
+        update_option('mhmrentiva_custom_features', $custom_features);
+        update_option('mhmrentiva_custom_equipment', $custom_equipment);
 
         VehicleMeta::migrate_remove_auto_populated_labels();
 
-        $this->assertSame($custom_details, get_option('mhm_custom_details'));
-        $this->assertSame($custom_features, get_option('mhm_custom_features'));
-        $this->assertSame($custom_equipment, get_option('mhm_custom_equipment'));
+        $this->assertSame($custom_details, get_option('mhmrentiva_custom_details'));
+        $this->assertSame($custom_features, get_option('mhmrentiva_custom_features'));
+        $this->assertSame($custom_equipment, get_option('mhmrentiva_custom_equipment'));
 
-        delete_option('mhm_custom_details');
-        delete_option('mhm_custom_features');
-        delete_option('mhm_custom_equipment');
+        delete_option('mhmrentiva_custom_details');
+        delete_option('mhmrentiva_custom_features');
+        delete_option('mhmrentiva_custom_equipment');
     }
 }

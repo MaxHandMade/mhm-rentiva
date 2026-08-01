@@ -10,14 +10,14 @@ use WP_UnitTestCase;
  * Regression test for finding H1 (whole-branch audit): Pro's GDPR
  * booking-consent enforcement (GDPRManager::check_booking_consent(), Pro
  * src/Admin/Privacy/GDPRManager.php:83) subscribes to the
- * `mhm_rentiva_before_booking_creation` action, but nothing in Lite ever
+ * `mhmrentiva_before_booking_creation` action, but nothing in Lite ever
  * fired that action — so the consent gate was permanently dead.
  *
  * Fix: Handler::handle() (the frontend customer booking-submission entry
- * point — registered for admin_post_mhm_rentiva_booking and
- * admin_post_nopriv_mhm_rentiva_booking, i.e. the public booking form, never
+ * point — registered for admin_post_mhmrentiva_booking and
+ * admin_post_nopriv_mhmrentiva_booking, i.e. the public booking form, never
  * the wp-admin manual booking meta box) now fires
- * `do_action('mhm_rentiva_before_booking_creation', $booking_data)` as soon
+ * `do_action('mhmrentiva_before_booking_creation', $booking_data)` as soon
  * as the required fields are validated, before any booking record is
  * created.
  *
@@ -46,12 +46,12 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 			'post_type'   => 'vehicle',
 			'post_status' => 'publish',
 		));
-		update_post_meta($this->vehicle_id, '_mhm_rentiva_price_per_day', 100);
+		update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', 100);
 	}
 
 	private function fill_valid_post(): void
 	{
-		$_POST['mhm_rentiva_booking_nonce'] = wp_create_nonce('mhm_rentiva_booking_action');
+		$_POST['mhmrentiva_booking_nonce'] = wp_create_nonce('mhmrentiva_booking_action');
 		$_POST['vehicle_id']                = (string) $this->vehicle_id;
 		$_POST['pickup_date']               = gmdate('Y-m-d', strtotime('+1 day'));
 		$_POST['pickup_time']               = '10:00';
@@ -62,7 +62,7 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * RED with the pre-fix code: `mhm_rentiva_before_booking_creation` is
+	 * RED with the pre-fix code: `mhmrentiva_before_booking_creation` is
 	 * never fired anywhere in Lite, so did_action() never increments no
 	 * matter what a customer submits.
 	 *
@@ -77,10 +77,10 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 	{
 		$this->fill_valid_post();
 
-		$before = did_action('mhm_rentiva_before_booking_creation');
+		$before = did_action('mhmrentiva_before_booking_creation');
 
 		$captured = null;
-		add_action('mhm_rentiva_before_booking_creation', function ($booking_data) use (&$captured) {
+		add_action('mhmrentiva_before_booking_creation', function ($booking_data) use (&$captured) {
 			$captured = $booking_data;
 		});
 
@@ -98,8 +98,8 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			$before + 1,
-			did_action('mhm_rentiva_before_booking_creation'),
-			'Handler::handle() must fire mhm_rentiva_before_booking_creation exactly once on a valid frontend submission.'
+			did_action('mhmrentiva_before_booking_creation'),
+			'Handler::handle() must fire mhmrentiva_before_booking_creation exactly once on a valid frontend submission.'
 		);
 
 		$this->assertIsArray($captured, 'Subscriber must receive the booking data payload.');
@@ -138,10 +138,10 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 	public function test_handle_does_not_fire_hook_when_required_fields_missing(): void
 	{
 		// Missing pickup/dropoff fields entirely — only nonce + vehicle_id set.
-		$_POST['mhm_rentiva_booking_nonce'] = wp_create_nonce('mhm_rentiva_booking_action');
+		$_POST['mhmrentiva_booking_nonce'] = wp_create_nonce('mhmrentiva_booking_action');
 		$_POST['vehicle_id']                = (string) $this->vehicle_id;
 
-		$before = did_action('mhm_rentiva_before_booking_creation');
+		$before = did_action('mhmrentiva_before_booking_creation');
 
 		add_filter('wp_redirect', function ($location) {
 			throw new \RuntimeException('redirected:' . $location);
@@ -156,7 +156,7 @@ final class HandlerBeforeBookingCreationHookTest extends WP_UnitTestCase
 
 		$this->assertSame(
 			$before,
-			did_action('mhm_rentiva_before_booking_creation'),
+			did_action('mhmrentiva_before_booking_creation'),
 			'Hook must not fire when required-field validation fails first.'
 		);
 	}

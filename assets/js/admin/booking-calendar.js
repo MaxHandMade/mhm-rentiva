@@ -21,8 +21,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // core query var).
     function getCurrentDateFromParams() {
         const params = new URLSearchParams(window.location.search);
-        const m = parseInt(params.get('mhm_month'), 10);
-        const y = parseInt(params.get('mhm_year'), 10);
+        const m = parseInt(params.get('mhmrentiva_month'), 10);
+        const y = parseInt(params.get('mhmrentiva_year'), 10);
         if (!isNaN(m) && !isNaN(y)) {
             return new Date(y, m - 1, 1);
         }
@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function navigateTo(month, year) {
         const url = new URL(window.location);
         // Var olan tüm filtre parametrelerini koru
-        url.searchParams.set('mhm_month', month);
-        url.searchParams.set('mhm_year', year);
+        url.searchParams.set('mhmrentiva_month', month);
+        url.searchParams.set('mhmrentiva_year', year);
         window.location.href = url.toString();
     }
     // Not re-rendering the grid; we keep server-rendered colored cells intact

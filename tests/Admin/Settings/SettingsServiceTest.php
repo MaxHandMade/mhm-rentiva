@@ -26,30 +26,30 @@ class SettingsServiceTest extends WP_UnitTestCase
     public function it_resets_email_templates_correctly()
     {
         // 1. Manually set some custom template values
-        update_option('mhm_rentiva_booking_created_subject', 'Custom Subject');
-        update_option('mhm_rentiva_booking_created_body', 'Custom Body');
+        update_option('mhmrentiva_booking_created_subject', 'Custom Subject');
+        update_option('mhmrentiva_booking_created_body', 'Custom Body');
 
         // 2. Mock defaults
         $defaults = EmailSettings::get_default_settings();
-        $expected_subject = $defaults['mhm_rentiva_booking_created_subject'] ?? '';
+        $expected_subject = $defaults['mhmrentiva_booking_created_subject'] ?? '';
 
         // 3. Trigger Reset
         $result = SettingsService::reset_defaults('email-templates');
 
         // 4. Assertions
         $this->assertTrue($result);
-        $this->assertEquals($expected_subject, get_option('mhm_rentiva_booking_created_subject'));
+        $this->assertEquals($expected_subject, get_option('mhmrentiva_booking_created_subject'));
     }
 
     /** @test */
     public function it_resets_general_email_settings_correctly()
     {
         // 1. Setup master option with custom value
-        $settings = ['mhm_rentiva_sender_name' => 'Custom Provider'];
-        update_option('mhm_rentiva_settings', $settings);
+        $settings = ['mhmrentiva_sender_name' => 'Custom Provider'];
+        update_option('mhmrentiva_settings', $settings);
 
         // Standalone legacy option
-        update_option('mhm_rentiva_sender_name', 'Legacy Provider');
+        update_option('mhmrentiva_sender_name', 'Legacy Provider');
 
         // 2. Trigger Reset
         $result = SettingsService::reset_defaults('email');
@@ -57,13 +57,13 @@ class SettingsServiceTest extends WP_UnitTestCase
         // 3. Assertions
         $this->assertTrue($result);
 
-        $master_settings = get_option('mhm_rentiva_settings');
+        $master_settings = get_option('mhmrentiva_settings');
         $defaults = EmailSettings::get_default_settings();
 
-        $this->assertArrayHasKey('mhm_rentiva_email_header_image', $defaults);
+        $this->assertArrayHasKey('mhmrentiva_email_header_image', $defaults);
 
         // Legacy option should be deleted
-        $this->assertFalse(get_option('mhm_rentiva_sender_name'));
+        $this->assertFalse(get_option('mhmrentiva_sender_name'));
     }
 
     /** @test */

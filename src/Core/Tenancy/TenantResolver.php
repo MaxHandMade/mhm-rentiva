@@ -53,7 +53,7 @@ final class TenantResolver {
          * @since 4.23.0
          * @param int|null $tenant_id The resolved site/blog ID.
          */
-        $tenant_id = (int) apply_filters('mhm_rentiva_filter_tenant_id', $tenant_id);
+        $tenant_id = (int) apply_filters('mhmrentiva_filter_tenant_id', $tenant_id);
 
         if ($tenant_id <= 0) {
             // Fallback for Test Environment / CI / CLI
@@ -66,9 +66,9 @@ final class TenantResolver {
         }
 
         // 2. Resolve metadata (can be customized per-tenant)
-        $tenant_key         = (string) apply_filters('mhm_rentiva_filter_tenant_key', 'tenant_' . $tenant_id, $tenant_id);
-        $compliance_profile = (string) apply_filters('mhm_rentiva_filter_tenant_compliance_profile', 'global', $tenant_id);
-        $locale             = (string) apply_filters('mhm_rentiva_filter_tenant_locale', get_locale(), $tenant_id);
+        $tenant_key         = (string) apply_filters('mhmrentiva_filter_tenant_key', 'tenant_' . $tenant_id, $tenant_id);
+        $compliance_profile = (string) apply_filters('mhmrentiva_filter_tenant_compliance_profile', 'global', $tenant_id);
+        $locale             = (string) apply_filters('mhmrentiva_filter_tenant_locale', get_locale(), $tenant_id);
 
         self::$resolved_context = new TenantContext(
             $tenant_id,

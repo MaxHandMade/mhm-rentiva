@@ -39,7 +39,7 @@ final class CommentsSettings {
 	 *
 	 * @var string
 	 */
-	const OPTION_NAME = 'mhm_rentiva_comments_settings';
+	const OPTION_NAME = 'mhmrentiva_comments_settings';
 
 	/**
 	 * Runtime cache to store settings during a single request lifecycle.
@@ -55,7 +55,7 @@ final class CommentsSettings {
 	 */
 	public static function get_default_settings(): array {
 		return apply_filters(
-			'mhm_rentiva_comments_default_settings',
+			'mhmrentiva_comments_default_settings',
 			array(
 				'approval'        => array(
 					'auto_approve'         => false,
@@ -87,7 +87,7 @@ final class CommentsSettings {
 						'check_content'  => true,
 					),
 					'spam_words'          => apply_filters(
-						'mhm_rentiva_spam_words',
+						'mhmrentiva_spam_words',
 						array(
 							'spam',
 							'viagra',

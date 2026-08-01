@@ -30,7 +30,7 @@ class NotificationHelper {
 	public static function send_auto_cancel_email(int $booking_id): bool
 	{
 		// 1. Check if the feature is enabled
-		$enabled = SettingsCore::get('mhm_rentiva_send_auto_cancel_email', '0');
+		$enabled = SettingsCore::get('mhmrentiva_send_auto_cancel_email', '0');
 		if ($enabled !== '1') {
 			return false;
 		}

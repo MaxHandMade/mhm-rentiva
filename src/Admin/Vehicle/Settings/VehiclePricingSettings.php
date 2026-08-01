@@ -21,7 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class VehiclePricingSettings {
 
 
-	const OPTION_NAME = 'mhm_rentiva_vehicle_pricing_settings';
+	const OPTION_NAME = 'mhmrentiva_vehicle_pricing_settings';
 
 	/**
 	 * Default settings
@@ -320,7 +320,7 @@ final class VehiclePricingSettings {
 			echo '<div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">';
 			echo '<h4>' . esc_html( $season['name'] ) . '</h4>';
 			echo '<label for="season_' . esc_attr( $key ) . '_multiplier">' . esc_html__( 'Multiplier', 'mhm-rentiva' ) . '</label><br>';
-			echo '<input type="number" id="season_' . esc_attr( $key ) . '_multiplier" name="mhm_rentiva_settings[vehicle_pricing][seasonal_multipliers][' . esc_attr( $key ) . '][multiplier]" value="' . esc_attr( $season['multiplier'] ) . '" min="0.1" max="5.0" step="0.1" style="width: 100px;">';
+			echo '<input type="number" id="season_' . esc_attr( $key ) . '_multiplier" name="mhmrentiva_settings[vehicle_pricing][seasonal_multipliers][' . esc_attr( $key ) . '][multiplier]" value="' . esc_attr( $season['multiplier'] ) . '" min="0.1" max="5.0" step="0.1" style="width: 100px;">';
 			echo '<p class="description">' . esc_html( $season['description'] ) . '</p>';
 			echo '</div>';
 		}
@@ -334,20 +334,20 @@ final class VehiclePricingSettings {
 		foreach ( $discount_options as $key => $discount ) {
 			echo '<div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">';
 			echo '<h4>' . esc_html( $discount['name'] ) . '</h4>';
-			echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][enabled]" value="1"' . checked( $discount['enabled'], true, false ) . '> ' . esc_html__( 'Active', 'mhm-rentiva' ) . '</label><br><br>';
+			echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][enabled]" value="1"' . checked( $discount['enabled'], true, false ) . '> ' . esc_html__( 'Active', 'mhm-rentiva' ) . '</label><br><br>';
 
 			if ( isset( $discount['min_days'] ) ) {
 				echo '<label for="discount_' . esc_attr( $key ) . '_min_days">' . esc_html__( 'Minimum Days', 'mhm-rentiva' ) . '</label><br>';
-				echo '<input type="number" id="discount_' . esc_attr( $key ) . '_min_days" name="mhm_rentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][min_days]" value="' . esc_attr( $discount['min_days'] ) . '" min="1" style="width: 100px;"><br><br>';
+				echo '<input type="number" id="discount_' . esc_attr( $key ) . '_min_days" name="mhmrentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][min_days]" value="' . esc_attr( $discount['min_days'] ) . '" min="1" style="width: 100px;"><br><br>';
 			}
 
 			if ( isset( $discount['advance_days'] ) ) {
 				echo '<label for="discount_' . esc_attr( $key ) . '_advance_days">' . esc_html__( 'Advance Booking (Days)', 'mhm-rentiva' ) . '</label><br>';
-				echo '<input type="number" id="discount_' . esc_attr( $key ) . '_advance_days" name="mhm_rentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][advance_days]" value="' . esc_attr( $discount['advance_days'] ) . '" min="1" style="width: 100px;"><br><br>';
+				echo '<input type="number" id="discount_' . esc_attr( $key ) . '_advance_days" name="mhmrentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][advance_days]" value="' . esc_attr( $discount['advance_days'] ) . '" min="1" style="width: 100px;"><br><br>';
 			}
 
 			echo '<label for="discount_' . esc_attr( $key ) . '_percent">' . esc_html__( 'Discount Percentage', 'mhm-rentiva' ) . '</label><br>';
-			echo '<input type="number" id="discount_' . esc_attr( $key ) . '_percent" name="mhm_rentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][discount_percent]" value="' . esc_attr( $discount['discount_percent'] ) . '" min="1" max="100" style="width: 100px;">%';
+			echo '<input type="number" id="discount_' . esc_attr( $key ) . '_percent" name="mhmrentiva_settings[vehicle_pricing][discount_options][' . esc_attr( $key ) . '][discount_percent]" value="' . esc_attr( $discount['discount_percent'] ) . '" min="1" max="100" style="width: 100px;">%';
 			echo '<p class="description">' . esc_html( $discount['description'] ) . '</p>';
 			echo '</div>';
 		}
@@ -361,10 +361,10 @@ final class VehiclePricingSettings {
 
 		echo '<tr><th scope="row">' . esc_html__( 'Currency Settings', 'mhm-rentiva' ) . '</th><td>';
 
-		$current_currency = SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+		$current_currency = SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 
 		echo '<label for="default_currency">' . esc_html__( 'Default Currency', 'mhm-rentiva' ) . '</label><br>';
-		echo '<select id="default_currency" name="mhm_rentiva_settings[mhm_rentiva_currency]" style="width: 150px;">';
+		echo '<select id="default_currency" name="mhmrentiva_settings[mhmrentiva_currency]" style="width: 150px;">';
 		// Use centralized currency list from CurrencyHelper
 		$currencies = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_list_for_dropdown();
 		foreach ( $currencies as $code => $name ) {
@@ -380,13 +380,13 @@ final class VehiclePricingSettings {
 		$general_settings = self::get_general_settings();
 
 		echo '<label for="min_rental_days">' . esc_html__( 'Minimum Rental Period (Days)', 'mhm-rentiva' ) . '</label><br>';
-		echo '<input type="number" id="min_rental_days" name="mhm_rentiva_settings[vehicle_pricing][general_settings][min_rental_days]" value="' . esc_attr( $general_settings['min_rental_days'] ) . '" min="1" style="width: 100px;"><br><br>';
+		echo '<input type="number" id="min_rental_days" name="mhmrentiva_settings[vehicle_pricing][general_settings][min_rental_days]" value="' . esc_attr( $general_settings['min_rental_days'] ) . '" min="1" style="width: 100px;"><br><br>';
 
 		echo '<label for="max_rental_days">' . esc_html__( 'Maximum Rental Period (Days)', 'mhm-rentiva' ) . '</label><br>';
-		echo '<input type="number" id="max_rental_days" name="mhm_rentiva_settings[vehicle_pricing][general_settings][max_rental_days]" value="' . esc_attr( $general_settings['max_rental_days'] ) . '" min="1" max="365" style="width: 100px;"><br><br>';
+		echo '<input type="number" id="max_rental_days" name="mhmrentiva_settings[vehicle_pricing][general_settings][max_rental_days]" value="' . esc_attr( $general_settings['max_rental_days'] ) . '" min="1" max="365" style="width: 100px;"><br><br>';
 
 		echo '<label for="decimal_places">' . esc_html__( 'Decimal Places', 'mhm-rentiva' ) . '</label><br>';
-		echo '<input type="number" id="decimal_places" name="mhm_rentiva_settings[vehicle_pricing][general_settings][decimal_places]" value="' . esc_attr( $general_settings['decimal_places'] ) . '" min="0" max="4" style="width: 100px;">';
+		echo '<input type="number" id="decimal_places" name="mhmrentiva_settings[vehicle_pricing][general_settings][decimal_places]" value="' . esc_attr( $general_settings['decimal_places'] ) . '" min="0" max="4" style="width: 100px;">';
 
 		echo '</td></tr>';
 
@@ -395,14 +395,14 @@ final class VehiclePricingSettings {
 		$deposit_settings = self::get_deposit_settings();
 
 		echo '<div style="margin-bottom: 15px;">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][enable_deposit]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][enable_deposit]" value="1"' . checked( $deposit_settings['enable_deposit'], true, false ) . '> ' . esc_html__( 'Enable Deposit System', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][enable_deposit]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][enable_deposit]" value="1"' . checked( $deposit_settings['enable_deposit'], true, false ) . '> ' . esc_html__( 'Enable Deposit System', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Enable deposit collection feature for vehicle rentals.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
 		echo '<label for="deposit_type">' . esc_html__( 'Deposit Type', 'mhm-rentiva' ) . '</label><br>';
-		echo '<select id="deposit_type" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][deposit_type]" style="width: 200px;">';
+		echo '<select id="deposit_type" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][deposit_type]" style="width: 200px;">';
 		echo '<option value="fixed"' . selected( $deposit_settings['deposit_type'], 'fixed', false ) . '>' . esc_html__( 'Fixed Amount Only', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="percentage"' . selected( $deposit_settings['deposit_type'], 'percentage', false ) . '>' . esc_html__( 'Percentage Only', 'mhm-rentiva' ) . '</option>';
 		echo '<option value="both"' . selected( $deposit_settings['deposit_type'], 'both', false ) . '>' . esc_html__( 'Both', 'mhm-rentiva' ) . '</option>';
@@ -411,40 +411,40 @@ final class VehiclePricingSettings {
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][allow_no_deposit]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][allow_no_deposit]" value="1"' . checked( $deposit_settings['allow_no_deposit'], true, false ) . '> ' . esc_html__( 'Allow Rental Without Deposit', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][allow_no_deposit]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][allow_no_deposit]" value="1"' . checked( $deposit_settings['allow_no_deposit'], true, false ) . '> ' . esc_html__( 'Allow Rental Without Deposit', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Allow vehicle rental without deposit.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][required_for_booking]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][required_for_booking]" value="1"' . checked( $deposit_settings['required_for_booking'], true, false ) . '> ' . esc_html__( 'Required for Booking', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][required_for_booking]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][required_for_booking]" value="1"' . checked( $deposit_settings['required_for_booking'], true, false ) . '> ' . esc_html__( 'Required for Booking', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Make deposit payment mandatory to complete booking.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_listing]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_listing]" value="1"' . checked( $deposit_settings['show_deposit_in_listing'], true, false ) . '> ' . esc_html__( 'Show in Listing Page', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_listing]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_listing]" value="1"' . checked( $deposit_settings['show_deposit_in_listing'], true, false ) . '> ' . esc_html__( 'Show in Listing Page', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Display deposit information in vehicle list.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_detail]" value="0">';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_detail]" value="1"' . checked( $deposit_settings['show_deposit_in_detail'], true, false ) . '> ' . esc_html__( 'Show in Detail Page', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_detail]" value="0">';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][show_deposit_in_detail]" value="1"' . checked( $deposit_settings['show_deposit_in_detail'], true, false ) . '> ' . esc_html__( 'Show in Detail Page', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Display deposit information on vehicle detail page.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
 		echo '<label for="deposit_refund_policy">' . esc_html__( 'Deposit Refund Policy', 'mhm-rentiva' ) . '</label><br>';
-		echo '<textarea id="deposit_refund_policy" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][deposit_refund_policy]" rows="3" style="width: 100%;">' . esc_textarea( $deposit_settings['deposit_refund_policy'] ) . '</textarea>';
+		echo '<textarea id="deposit_refund_policy" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][deposit_refund_policy]" rows="3" style="width: 100%;">' . esc_textarea( $deposit_settings['deposit_refund_policy'] ) . '</textarea>';
 		echo '<p class="description">' . esc_html__( 'Explain your deposit refund policy.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 
 		echo '<div style="margin-bottom: 15px;">';
 		echo '<label for="deposit_payment_methods">' . esc_html__( 'Accepted Payment Methods', 'mhm-rentiva' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="credit_card"' . checked( in_array( 'credit_card', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Credit Card', 'mhm-rentiva' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="cash"' . checked( in_array( 'cash', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Cash', 'mhm-rentiva' ) . '</label><br>';
-		echo '<label><input type="checkbox" name="mhm_rentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="bank_transfer"' . checked( in_array( 'bank_transfer', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Bank Transfer', 'mhm-rentiva' ) . '</label>';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="credit_card"' . checked( in_array( 'credit_card', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Credit Card', 'mhm-rentiva' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="cash"' . checked( in_array( 'cash', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Cash', 'mhm-rentiva' ) . '</label><br>';
+		echo '<label><input type="checkbox" name="mhmrentiva_settings[vehicle_pricing][deposit_settings][deposit_payment_methods][]" value="bank_transfer"' . checked( in_array( 'bank_transfer', $deposit_settings['deposit_payment_methods'] ), true, false ) . '> ' . esc_html__( 'Bank Transfer', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'Select accepted payment methods for deposit payment.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 

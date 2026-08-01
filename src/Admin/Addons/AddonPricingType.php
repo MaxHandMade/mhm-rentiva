@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Pricing-type enum for vehicle add-ons.
- * Constants are the canonical strings stored in `_mhm_addon_pricing_type` post meta.
+ * Constants are the canonical strings stored in `_mhmrentiva_addon_pricing_type` post meta.
  */
 final class AddonPricingType {
 

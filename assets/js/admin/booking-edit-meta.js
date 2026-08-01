@@ -20,12 +20,12 @@
         });
 
         // Date validation
-        $('#mhm_edit_pickup_date, #mhm_edit_dropoff_date').on('change', function () {
+        $('#mhmrentiva_edit_pickup_date, #mhmrentiva_edit_dropoff_date').on('change', function () {
             validateDateRange();
         });
 
         // Status change notification
-        $('#mhm_edit_status').on('change', function () {
+        $('#mhmrentiva_edit_status').on('change', function () {
             const status = $(this).val();
             const statusLabels = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.statusLabels) || {
                 'pending': 'Pending',
@@ -49,12 +49,12 @@
         });
 
         // Store previous value for status select
-        $('#mhm_edit_status').each(function () {
+        $('#mhmrentiva_edit_status').each(function () {
             $(this).data('previous-value', $(this).val());
         });
 
         // Update license plate display when vehicle is changed
-        $('#mhm_booking_edit_vehicle_id').on('change', function () {
+        $('#mhmrentiva_booking_edit_vehicle_id').on('change', function () {
             const selectedOption = $(this).find('option:selected');
             const optionText = selectedOption.text();
             
@@ -79,7 +79,7 @@
         });
         
         // Trigger on page load to show current plate
-        $('#mhm_booking_edit_vehicle_id').trigger('change');
+        $('#mhmrentiva_booking_edit_vehicle_id').trigger('change');
     });
 
     /**
@@ -128,7 +128,7 @@
         }
 
         // Phone validation
-        if (fieldName === 'mhm_edit_customer_phone' && value && !isValidPhone(value)) {
+        if (fieldName === 'mhmrentiva_edit_customer_phone' && value && !isValidPhone(value)) {
             showFieldError($field, strings.invalid_phone || 'Please enter a valid phone number.');
             return false;
         }
@@ -153,8 +153,8 @@
      * Validate date range
      */
     function validateDateRange() {
-        const pickupDate = $('#mhm_edit_pickup_date').val();
-        const dropoffDate = $('#mhm_edit_dropoff_date').val();
+        const pickupDate = $('#mhmrentiva_edit_pickup_date').val();
+        const dropoffDate = $('#mhmrentiva_edit_dropoff_date').val();
 
         if (pickupDate && dropoffDate) {
             const pickup = new Date(pickupDate);
@@ -163,7 +163,7 @@
             const strings = (window.mhmRentivaAdmin && window.mhmRentivaAdmin.strings) || {};
 
             if (dropoff <= pickup) {
-                showFieldError($('#mhm_edit_dropoff_date'), strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
+                showFieldError($('#mhmrentiva_edit_dropoff_date'), strings.dropoff_after_pickup || 'Dropoff date must be after pickup date.');
                 return false;
             }
 
@@ -172,7 +172,7 @@
             today.setHours(0, 0, 0, 0);
 
             if (pickup < today) {
-                showFieldError($('#mhm_edit_pickup_date'), strings.pickup_not_past || 'Pickup date cannot be in the past.');
+                showFieldError($('#mhmrentiva_edit_pickup_date'), strings.pickup_not_past || 'Pickup date cannot be in the past.');
                 return false;
             }
         }

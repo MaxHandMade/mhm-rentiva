@@ -20,7 +20,7 @@ final class BookingRefundMetaBox {
 
 	public static function add(): void {
 		add_meta_box(
-			'mhm_booking_refund',
+			'mhmrentiva_booking_refund',
 			__( 'Refund', 'mhm-rentiva' ),
 			array( self::class, 'render' ),
 			'vehicle_booking',
@@ -31,11 +31,11 @@ final class BookingRefundMetaBox {
 
 	public static function render( \WP_Post $post ): void {
 		$bid       = (int) $post->ID;
-		$gateway   = (string) get_post_meta( $bid, '_mhm_payment_gateway', true );
-		$payStatus = (string) get_post_meta( $bid, '_mhm_payment_status', true );
-		$paidKurus = (int) get_post_meta( $bid, '_mhm_payment_amount', true );
-		$currency  = (string) get_post_meta( $bid, '_mhm_payment_currency', true ) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
-		$refunded  = (int) get_post_meta( $bid, '_mhm_refunded_amount', true );
+		$gateway   = (string) get_post_meta( $bid, '_mhmrentiva_payment_gateway', true );
+		$payStatus = (string) get_post_meta( $bid, '_mhmrentiva_payment_status', true );
+		$paidKurus = (int) get_post_meta( $bid, '_mhmrentiva_payment_amount', true );
+		$currency  = (string) get_post_meta( $bid, '_mhmrentiva_payment_currency', true ) ?: \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+		$refunded  = (int) get_post_meta( $bid, '_mhmrentiva_refunded_amount', true );
 		$remaining = max( 0, $paidKurus - $refunded );
 
 		// Only show when refundable
@@ -48,7 +48,7 @@ final class BookingRefundMetaBox {
 			return;
 		}
 		$action = esc_url( admin_url( 'admin-post.php' ) );
-		$nonce  = wp_create_nonce( 'mhm_rentiva_refund_booking' );
+		$nonce  = wp_create_nonce( 'mhmrentiva_refund_booking' );
 		$defAmt = $remaining > 0 ? $remaining : 0;
 		echo '<p><strong>' . esc_html__( 'Gateway', 'mhm-rentiva' ) . ':</strong> ' . esc_html( strtoupper( $gateway ) ) . '</p>';
 		echo '<p><strong>' . esc_html__( 'Paid', 'mhm-rentiva' ) . ':</strong> ' . esc_html( number_format_i18n( $paidKurus / 100, 2 ) . ' ' . strtoupper( $currency ) ) . '</p>';
@@ -59,13 +59,13 @@ final class BookingRefundMetaBox {
 			return;
 		}
 		echo '<form action="' . esc_url( $action ) . '" method="post">';
-		echo '<input type="hidden" name="action" value="mhm_rentiva_refund_booking" />';
+		echo '<input type="hidden" name="action" value="mhmrentiva_refund_booking" />';
 		echo '<input type="hidden" name="booking_id" value="' . (int) $bid . '" />';
 		echo '<input type="hidden" name="_wpnonce" value="' . esc_attr( $nonce ) . '" />';
 
 		echo '<p><label>' . esc_html__( 'Refund amount', 'mhm-rentiva' ) . '</label><br />';
 		echo '<input type="number" name="amount_visible" min="0" step="0.01" value="' . esc_attr( number_format( $defAmt / 100, 2, '.', '' ) ) . '" class="small-text" /> ' . esc_html( strtoupper( $currency ) ) . '</p>';
-		echo '<input type="hidden" name="amount_kurus" id="mhm_amount_kurus" value="' . (int) $defAmt . '" />';
+		echo '<input type="hidden" name="amount_kurus" id="mhmrentiva_amount_kurus" value="' . (int) $defAmt . '" />';
 		echo '<p><label>' . esc_html__( 'Reason (optional)', 'mhm-rentiva' ) . '</label><br />';
 		echo '<select name="reason">';
 		foreach ( array( 'customer_request', 'vehicle_unavailable', 'duplicate', 'fraud_suspected', 'other' ) as $r ) {

@@ -247,7 +247,7 @@
                 url: favoritesConfig.ajaxUrl || this.getAjaxUrl(),
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_toggle_favorite',
+                    action: 'mhmrentiva_toggle_favorite',
                     vehicle_id: vehicleId,
                     nonce: nonce
                 },
@@ -597,7 +597,7 @@
                 : [0];  // Send [0] instead of empty, backend filters it
 
             const ajaxData = {
-                action: 'mhm_rentiva_calculate_price',
+                action: 'mhmrentiva_calculate_price',
                 nonce: window.mhmRentivaBookingForm?.nonce || '',
                 vehicle_id: formData.vehicle_id,
                 pickup_date: formData.pickup_date,
@@ -1067,7 +1067,7 @@
             // Build request using URLSearchParams to ensure addons array is serialized correctly
             // ($.ajaxSetup traditional:true would break addons[] serialization with spread operator)
             let requestData = new URLSearchParams();
-            requestData.append('action', 'mhm_rentiva_booking_form');
+            requestData.append('action', 'mhmrentiva_booking_form');
             requestData.append('nonce', window.mhmRentivaBookingForm?.nonce || '');
 
             // Append all scalar fields (skip undefined/null like jQuery does)
@@ -1157,7 +1157,7 @@
 
             // Debug log for AJAX data
             const ajaxData = {
-                action: 'mhm_rentiva_check_availability',
+                action: 'mhmrentiva_check_availability',
                 vehicle_id: formData.vehicle_id,
                 pickup_date: formData.pickup_date,
                 pickup_time: formData.pickup_time || '09:00',

@@ -62,7 +62,7 @@
                 url: this.config.ajax_url || ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'mhm_rentiva_toggle_compare',
+                    action: 'mhmrentiva_toggle_compare',
                     nonce: this.config.toggle_nonce || this.config.nonce,
                     vehicle_id: vehicleId
                 },

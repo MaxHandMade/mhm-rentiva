@@ -18,7 +18,7 @@ final class EmailTestAction {
 
 
 	public static function register(): void {
-		add_action( 'admin_post_mhm_rentiva_send_test_email', array( self::class, 'handle' ) );
+		add_action( 'admin_post_mhmrentiva_send_test_email', array( self::class, 'handle' ) );
 	}
 
 	public static function handle(): void {
@@ -27,7 +27,7 @@ final class EmailTestAction {
 		}
 
 		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_send_test_email' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_send_test_email' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ), 403 );
 		}
 
@@ -52,7 +52,7 @@ final class EmailTestAction {
 			array(
 				'page'           => 'mhm-rentiva-settings',
 				'tab'            => 'email-settings',
-				'mhm_email_test' => $ok ? 'success' : 'failed',
+				'mhmrentiva_email_test' => $ok ? 'success' : 'failed',
 			),
 			admin_url( 'admin.php' )
 		);

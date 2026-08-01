@@ -9,13 +9,13 @@ use WP_UnitTestCase;
 /**
  * Fixtures mirror real production writes.
  *
- * DepositCalculator::calculate_booking_deposit() writes `_mhm_deposit_amount`
- * = the FULL total (and `_mhm_remaining_amount` = 0) for `payment_type ===
+ * DepositCalculator::calculate_booking_deposit() writes `_mhmrentiva_deposit_amount`
+ * = the FULL total (and `_mhmrentiva_remaining_amount` = 0) for `payment_type ===
  * 'full'` bookings -- see its `full` branch, and
  * \MHMRentiva\Admin\Booking\Core\Handler::create_booking() (~line 366) which
  * persists `$deposit_result['deposit_amount']` verbatim regardless of
  * payment type. The previous version of this suite instead omitted
- * `_mhm_deposit_amount` entirely on its "full-payment" fixture -- a fixture
+ * `_mhmrentiva_deposit_amount` entirely on its "full-payment" fixture -- a fixture
  * that does not occur in production -- so the suite stayed green while
  * `deposit_blocked` silently counted full-payment bookings as deposits held.
  */
@@ -31,12 +31,12 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 			'post_status' => 'publish',
 			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
 		) );
-		update_post_meta( $id, '_mhm_status', $status );
-		update_post_meta( $id, '_mhm_payment_type', 'full' );
+		update_post_meta( $id, '_mhmrentiva_status', $status );
+		update_post_meta( $id, '_mhmrentiva_payment_type', 'full' );
 		// 'full' branch: deposit_amount = total_amount, remaining_amount = 0.
-		update_post_meta( $id, '_mhm_deposit_amount', (string) $total );
-		update_post_meta( $id, '_mhm_remaining_amount', '0' );
-		update_post_meta( $id, '_mhm_total_price', (string) $total );
+		update_post_meta( $id, '_mhmrentiva_deposit_amount', (string) $total );
+		update_post_meta( $id, '_mhmrentiva_remaining_amount', '0' );
+		update_post_meta( $id, '_mhmrentiva_total_price', (string) $total );
 		return $id;
 	}
 
@@ -49,18 +49,18 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 			'post_status' => 'publish',
 			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
 		) );
-		update_post_meta( $id, '_mhm_status', $status );
-		update_post_meta( $id, '_mhm_payment_type', 'deposit' );
-		update_post_meta( $id, '_mhm_deposit_amount', (string) $deposit );
-		update_post_meta( $id, '_mhm_remaining_amount', (string) $remaining );
-		update_post_meta( $id, '_mhm_total_price', (string) ( $deposit + $remaining ) );
+		update_post_meta( $id, '_mhmrentiva_status', $status );
+		update_post_meta( $id, '_mhmrentiva_payment_type', 'deposit' );
+		update_post_meta( $id, '_mhmrentiva_deposit_amount', (string) $deposit );
+		update_post_meta( $id, '_mhmrentiva_remaining_amount', (string) $remaining );
+		update_post_meta( $id, '_mhmrentiva_total_price', (string) ( $deposit + $remaining ) );
 		return $id;
 	}
 
 	/**
-	 * Fix A regression guard. A full-payment booking's `_mhm_deposit_amount`
+	 * Fix A regression guard. A full-payment booking's `_mhmrentiva_deposit_amount`
 	 * equals its FULL total (per DepositCalculator::calculate_booking_deposit()),
-	 * so if `deposit_blocked` ever loses its `_mhm_payment_type = 'deposit'`
+	 * so if `deposit_blocked` ever loses its `_mhmrentiva_payment_type = 'deposit'`
 	 * join, this test fails by picking up the full-payment booking's 2000 on
 	 * top of the deposit booking's 500.
 	 */
@@ -108,7 +108,7 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 	 * `markTestSkipped()`s all 7 of its assertions via
 	 * `class_exists('WooCommerce')` for the same reason. Here,
 	 * `function_exists('wc_get_order')` is false, so no booking -- regardless
-	 * of its `_mhm_*_order_id` meta -- can ever contribute to `pending_total`.
+	 * of its `_mhmrentiva_*_order_id` meta -- can ever contribute to `pending_total`.
 	 *
 	 * The assertion below documents what IS true in this environment (the
 	 * value is deterministically 0.0, and fixture data with attached
@@ -124,7 +124,7 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 		// the mere presence of an order id does not spuriously inflate the
 		// total when WooCommerce cannot resolve it.
 		$id = $this->deposit_booking( 'pending', 200.0, 800.0 );
-		update_post_meta( $id, '_mhm_woocommerce_order_id', 999999 );
+		update_post_meta( $id, '_mhmrentiva_woocommerce_order_id', 999999 );
 
 		$s = DashboardService::get_payments_summary();
 

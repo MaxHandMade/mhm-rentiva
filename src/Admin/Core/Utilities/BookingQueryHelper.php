@@ -214,7 +214,7 @@ final class BookingQueryHelper {
 					'compare' => '=',
 				),
 				array(
-					'key'     => '_mhm_payment_status',
+					'key'     => '_mhmrentiva_payment_status',
 					'value'   => $payment_status,
 					'compare' => '=',
 				),
@@ -246,7 +246,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try old meta key
-		$gateway = get_post_meta( $booking_id, '_mhm_payment_gateway', true );
+		$gateway = get_post_meta( $booking_id, '_mhmrentiva_payment_gateway', true );
 		if ( ! empty( $gateway ) ) {
 			return $gateway;
 		}
@@ -272,7 +272,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try old meta key
-		$status = get_post_meta( $booking_id, '_mhm_payment_status', true );
+		$status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 		if ( ! empty( $status ) ) {
 			return $status;
 		}
@@ -298,7 +298,7 @@ final class BookingQueryHelper {
 		}
 
 		// Try old meta key
-		$price = get_post_meta( $booking_id, '_mhm_total_price', true );
+		$price = get_post_meta( $booking_id, '_mhmrentiva_total_price', true );
 		if ( is_numeric( $price ) ) {
 			return (float) $price;
 		}
@@ -318,10 +318,10 @@ final class BookingQueryHelper {
 		}
 
 		// Get from new meta keys (first/last name separate)
-		$first_name = get_post_meta( $booking_id, '_mhm_customer_first_name', true );
-		$last_name  = get_post_meta( $booking_id, '_mhm_customer_last_name', true );
-		$email      = get_post_meta( $booking_id, '_mhm_customer_email', true );
-		$phone      = get_post_meta( $booking_id, '_mhm_customer_phone', true );
+		$first_name = get_post_meta( $booking_id, '_mhmrentiva_customer_first_name', true );
+		$last_name  = get_post_meta( $booking_id, '_mhmrentiva_customer_last_name', true );
+		$email      = get_post_meta( $booking_id, '_mhmrentiva_customer_email', true );
+		$phone      = get_post_meta( $booking_id, '_mhmrentiva_customer_phone', true );
 
 		// If no data in new keys, try old keys
 		if ( empty( $first_name ) ) {
@@ -331,8 +331,8 @@ final class BookingQueryHelper {
 		// If still empty, try full name fields
 		if ( empty( $first_name ) && empty( $last_name ) ) {
 			$full_name = get_post_meta( $booking_id, '_booking_customer_name', true ) ?:
-						get_post_meta( $booking_id, '_mhm_customer_name', true ) ?:
-						get_post_meta( $booking_id, '_mhm_contact_name', true );
+						get_post_meta( $booking_id, '_mhmrentiva_customer_name', true ) ?:
+						get_post_meta( $booking_id, '_mhmrentiva_contact_name', true );
 
 			if ( $full_name ) {
 				// Try to split full name into first and last name
@@ -348,20 +348,20 @@ final class BookingQueryHelper {
 
 		if ( empty( $email ) ) {
 			$email = get_post_meta( $booking_id, '_booking_customer_email', true ) ?:
-					get_post_meta( $booking_id, '_mhm_contact_email', true ) ?: '';
+					get_post_meta( $booking_id, '_mhmrentiva_contact_email', true ) ?: '';
 		}
 
 		if ( empty( $phone ) ) {
 			$phone = get_post_meta( $booking_id, '_booking_customer_phone', true ) ?:
-					get_post_meta( $booking_id, '_mhm_contact_phone', true ) ?: '';
+					get_post_meta( $booking_id, '_mhmrentiva_contact_phone', true ) ?: '';
 		}
 
 		// If still empty, try WooCommerce order
 		if ( ( empty( $first_name ) || empty( $email ) ) && function_exists( 'wc_get_order' ) ) {
 			// ⭐ Check multiple order ID meta keys (WooCommerce integration)
-			$order_id = get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true ) ?:
-						get_post_meta( $booking_id, '_mhm_wc_order_id', true ) ?:
-						get_post_meta( $booking_id, '_mhm_order_id', true ) ?:
+			$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true ) ?:
+						get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true ) ?:
+						get_post_meta( $booking_id, '_mhmrentiva_order_id', true ) ?:
 						get_post_meta( $booking_id, '_booking_order_id', true );
 
 			if ( $order_id ) {
@@ -385,7 +385,7 @@ final class BookingQueryHelper {
 
 		// If still empty, try WordPress user
 		if ( empty( $first_name ) || empty( $email ) ) {
-			$user_id = get_post_meta( $booking_id, '_mhm_customer_user_id', true );
+			$user_id = get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 			if ( $user_id ) {
 				$user = get_userdata( $user_id );
 				if ( $user ) {
@@ -425,7 +425,7 @@ final class BookingQueryHelper {
 		}
 
 		$vehicle_id = (int) ( get_post_meta( $booking_id, '_booking_vehicle_id', true ) ?:
-							get_post_meta( $booking_id, '_mhm_vehicle_id', true ) ?: 0 );
+							get_post_meta( $booking_id, '_mhmrentiva_vehicle_id', true ) ?: 0 );
 
 		if ( $vehicle_id <= 0 ) {
 			return array();
@@ -436,7 +436,7 @@ final class BookingQueryHelper {
 		return array(
 			'id'             => $vehicle_id,
 			'title'          => $vehicle ? $vehicle->post_title : '',
-			'price_per_day'  => get_post_meta( $vehicle_id, '_mhm_rentiva_price_per_day', true ) ?: 0,
+			'price_per_day'  => get_post_meta( $vehicle_id, '_mhmrentiva_price_per_day', true ) ?: 0,
 			'featured_image' => get_the_post_thumbnail_url( $vehicle_id, 'medium' ) ?: '',
 		);
 	}
@@ -454,11 +454,11 @@ final class BookingQueryHelper {
 
 		return array(
 			'pickup_date' => get_post_meta( $booking_id, '_booking_pickup_date', true ) ?:
-							get_post_meta( $booking_id, '_mhm_pickup_date', true ) ?: '',
+							get_post_meta( $booking_id, '_mhmrentiva_pickup_date', true ) ?: '',
 			'return_date' => get_post_meta( $booking_id, '_booking_return_date', true ) ?:
-							get_post_meta( $booking_id, '_mhm_dropoff_date', true ) ?: '',
+							get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true ) ?: '',
 			'rental_days' => (int) ( get_post_meta( $booking_id, '_booking_rental_days', true ) ?:
-									get_post_meta( $booking_id, '_mhm_rental_days', true ) ?: 0 ),
+									get_post_meta( $booking_id, '_mhmrentiva_rental_days', true ) ?: 0 ),
 		);
 	}
 
@@ -488,7 +488,7 @@ final class BookingQueryHelper {
 					'compare' => '=',
 				),
 				array(
-					'key'     => '_mhm_payment_status',
+					'key'     => '_mhmrentiva_payment_status',
 					'value'   => $filters['payment_status'],
 					'compare' => '=',
 				),

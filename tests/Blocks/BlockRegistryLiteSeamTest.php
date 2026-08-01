@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  *
  * Every block delegates to its shortcode through do_shortcode(), so a block whose
  * backing shortcode class is carved out of Lite has nothing to render. Since the
- * `mhm_rentiva_blocks` seam inversion, Lite no longer declares these 6 blocks at
+ * `mhmrentiva_blocks` seam inversion, Lite no longer declares these 6 blocks at
  * all (they are contributed by Pro's own BlockExtensions filter subscriber) --
  * previously Lite declared them with a `pro_seam` marker and dropped them via
  * class_exists()+licence gating in get_available_blocks(). This suite runs
@@ -94,7 +94,7 @@ class BlockRegistryLiteSeamTest extends WP_UnitTestCase
 
     /**
      * Lite's own declared blocks (self::$blocks) must not carry `pro_seam`
-     * anymore — that gating moved to Pro's own `mhm_rentiva_blocks` filter
+     * anymore — that gating moved to Pro's own `mhmrentiva_blocks` filter
      * subscriber (BlockExtensions). See BlockRegistryFilterTest for the
      * `get_block_config()` filter-accessor coverage.
      */

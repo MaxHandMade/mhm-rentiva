@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 final class MaintenanceSettings {
 
-	public const SECTION_ID = 'mhm_rentiva_maintenance_section';
+	public const SECTION_ID = 'mhmrentiva_maintenance_section';
 
 	/**
 	 * Get default settings for maintenance
@@ -31,8 +31,8 @@ final class MaintenanceSettings {
 	 */
 	public static function get_default_settings(): array {
 		return array(
-			'mhm_rentiva_clean_data_on_uninstall' => '0',
-			'mhm_rentiva_log_max_size'            => 10,
+			'mhmrentiva_clean_data_on_uninstall' => '0',
+			'mhmrentiva_log_max_size'            => 10,
 		);
 	}
 
@@ -139,11 +139,11 @@ final class MaintenanceSettings {
 		echo '<div class="mhm-accordion-header"><span>' . esc_html__( 'Cleanup & Uninstall', 'mhm-rentiva' ) . '</span><span class="dashicons dashicons-arrow-down"></span></div>';
 		echo '<div class="mhm-accordion-content">';
 
-		$clean = SettingsCore::get( 'mhm_rentiva_clean_data_on_uninstall', '0' );
+		$clean = SettingsCore::get( 'mhmrentiva_clean_data_on_uninstall', '0' );
 
 		echo '<div class="mhm-form-group">';
-		echo '<input type="hidden" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="0">';
-		echo '<label class="mhm-danger-label"><input type="checkbox" name="mhm_rentiva_settings[mhm_rentiva_clean_data_on_uninstall]" value="1" style="width:auto;"' . checked( $clean, '1', false ) . '> ' . esc_html__( 'WIPE ALL DATA ON UNINSTALL', 'mhm-rentiva' ) . '</label>';
+		echo '<input type="hidden" name="mhmrentiva_settings[mhmrentiva_clean_data_on_uninstall]" value="0">';
+		echo '<label class="mhm-danger-label"><input type="checkbox" name="mhmrentiva_settings[mhmrentiva_clean_data_on_uninstall]" value="1" style="width:auto;"' . checked( $clean, '1', false ) . '> ' . esc_html__( 'WIPE ALL DATA ON UNINSTALL', 'mhm-rentiva' ) . '</label>';
 		echo '<p class="description">' . esc_html__( 'If enabled, all MHM Rentiva database tables and settings will be permanently deleted when the plugin is uninstalled.', 'mhm-rentiva' ) . '</p>';
 		echo '</div>';
 

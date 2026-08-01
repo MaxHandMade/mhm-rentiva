@@ -32,7 +32,7 @@
         config: {
             debug: false,
             ajaxUrl: '',
-            nonce: window.mhm_ajax_nonce || '',
+            nonce: window.mhmrentiva_ajax_nonce || '',
             locale: 'en-US',
             currency: 'USD',
             dateFormat: 'MM/DD/YYYY',
@@ -69,8 +69,8 @@
             }
 
             // Check for config URL
-            if (window.mhm_rentiva_config && window.mhm_rentiva_config.ajaxUrl) {
-                return window.mhm_rentiva_config.ajaxUrl;
+            if (window.mhmrentiva_config && window.mhmrentiva_config.ajaxUrl) {
+                return window.mhmrentiva_config.ajaxUrl;
             }
 
             // Nothing to fall back to. A guessed path is wrong on any install that
@@ -87,8 +87,8 @@
             this.config.ajaxUrl = this.getAjaxUrl();
 
             // Get data from WordPress
-            if (window.mhm_rentiva_config) {
-                $.extend(this.config, window.mhm_rentiva_config);
+            if (window.mhmrentiva_config) {
+                $.extend(this.config, window.mhmrentiva_config);
                 // Ensure ajaxUrl is set correctly after merge
                 if (!this.config.ajaxUrl) {
                     this.config.ajaxUrl = this.getAjaxUrl();
@@ -96,7 +96,7 @@
             }
 
             // Check debug mode
-            if (window.location.search.indexOf('mhm_debug=1') !== -1) {
+            if (window.location.search.indexOf('mhmrentiva_debug=1') !== -1) {
                 this.config.debug = true;
             }
         },
@@ -142,8 +142,8 @@
          */
         getBaseUrl: function () {
             // Get from config first, otherwise use fallback
-            if (window.mhm_rentiva_config?.baseUrl) {
-                return window.mhm_rentiva_config.baseUrl;
+            if (window.mhmrentiva_config?.baseUrl) {
+                return window.mhmrentiva_config.baseUrl;
             }
 
             // Fallback: Extract base URL from current script's URL
@@ -214,10 +214,10 @@
             // Skip error handling for messages-related AJAX calls on My Account page
             // These are handled by the template's REST API code
             if (settings.url && (
-                settings.url.indexOf('mhm_customer_get_messages') !== -1 ||
-                settings.url.indexOf('mhm_customer_send_message') !== -1 ||
-                settings.url.indexOf('mhm_get_customer_messages') !== -1 ||
-                settings.url.indexOf('mhm_send_customer_message') !== -1
+                settings.url.indexOf('mhmrentiva_customer_get_messages') !== -1 ||
+                settings.url.indexOf('mhmrentiva_customer_send_message') !== -1 ||
+                settings.url.indexOf('mhmrentiva_get_customer_messages') !== -1 ||
+                settings.url.indexOf('mhmrentiva_send_customer_message') !== -1
             )) {
                 return; // Silent fail for messages AJAX calls
             }

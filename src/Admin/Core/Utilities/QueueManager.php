@@ -24,7 +24,7 @@ final class QueueManager {
 	/**
 	 * Queue table name
 	 */
-	private const QUEUE_TABLE = 'mhm_rentiva_queue';
+	private const QUEUE_TABLE = 'mhmrentiva_queue';
 
 	/**
 	 * Job statuses
@@ -416,8 +416,8 @@ final class QueueManager {
 	 */
 	public static function maybe_start_processing(): void {
 		// If cron job is not running, start manually
-		if ( ! wp_next_scheduled( 'mhm_rentiva_process_queue' ) ) {
-			wp_schedule_single_event( time(), 'mhm_rentiva_process_queue' );
+		if ( ! wp_next_scheduled( 'mhmrentiva_process_queue' ) ) {
+			wp_schedule_single_event( time(), 'mhmrentiva_process_queue' );
 		}
 	}
 

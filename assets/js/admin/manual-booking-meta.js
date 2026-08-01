@@ -20,30 +20,30 @@
 			$( document ).on( 'click', '#mhm-create-booking', this.createBooking );
 
 			// Araç seçimi değiştiğinde
-			$( document ).on( 'change', '#mhm_manual_vehicle_id', this.onVehicleChange );
+			$( document ).on( 'change', '#mhmrentiva_manual_vehicle_id', this.onVehicleChange );
 
 			// Tarih değişikliklerinde otomatik hesaplama
-			$( document ).on( 'change', '#mhm_manual_pickup_date, #mhm_manual_dropoff_date', this.onDateChange );
+			$( document ).on( 'change', '#mhmrentiva_manual_pickup_date, #mhmrentiva_manual_dropoff_date', this.onDateChange );
 
 			// Ödeme türü değiştiğinde
-			$( document ).on( 'change', '#mhm_manual_payment_type', this.onPaymentTypeChange );
+			$( document ).on( 'change', '#mhmrentiva_manual_payment_type', this.onPaymentTypeChange );
 
 			// Ek hizmetler seçimi değiştiğinde
 			$( document ).on( 'change', '.mhm-addon-checkbox', this.onAddonChange );
 
 			// Müşteri seçimi değiştiğinde
-			$( document ).on( 'change', '#mhm_manual_customer_id', this.onCustomerChange );
+			$( document ).on( 'change', '#mhmrentiva_manual_customer_id', this.onCustomerChange );
 		},
 
 		setupDateDefaults: function () {
 			// Bugünün tarihini alış tarihi olarak ayarla
 			const today = new Date().toISOString().split( 'T' )[0];
-			$( '#mhm_manual_pickup_date' ).val( today );
+			$( '#mhmrentiva_manual_pickup_date' ).val( today );
 
 			// Yarının tarihini teslim tarihi olarak ayarla
 			const tomorrow = new Date();
 			tomorrow.setDate( tomorrow.getDate() + 1 );
-			$( '#mhm_manual_dropoff_date' ).val( tomorrow.toISOString().split( 'T' )[0] );
+			$( '#mhmrentiva_manual_dropoff_date' ).val( tomorrow.toISOString().split( 'T' )[0] );
 		},
 
 		onVehicleChange: function () {
@@ -63,8 +63,8 @@
 		},
 
 		onDateChange: function () {
-			const pickupDate  = $( '#mhm_manual_pickup_date' ).val();
-			const dropoffDate = $( '#mhm_manual_dropoff_date' ).val();
+			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
+			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
 
 			if (pickupDate && dropoffDate) {
 				// Tarih doğrulama
@@ -74,7 +74,7 @@
 				}
 
 				// Otomatik fiyat hesaplama (eğer araç seçilmişse)
-				if ($( '#mhm_manual_vehicle_id' ).val()) {
+				if ($( '#mhmrentiva_manual_vehicle_id' ).val()) {
 					ManualBooking.calculatePrice();
 				}
 			}
@@ -82,7 +82,7 @@
 
 		onPaymentTypeChange: function () {
 			// Ödeme türü değiştiğinde fiyat hesaplama alanını güncelle
-			if ($( '#mhm_manual_vehicle_id' ).val()) {
+			if ($( '#mhmrentiva_manual_vehicle_id' ).val()) {
 				ManualBooking.calculatePrice();
 			}
 		},
@@ -92,14 +92,14 @@
 			ManualBooking.calculateAddonTotal();
 
 			// Eğer araç seçilmişse genel fiyat hesaplamasını da güncelle
-			if ($( '#mhm_manual_vehicle_id' ).val()) {
+			if ($( '#mhmrentiva_manual_vehicle_id' ).val()) {
 				ManualBooking.calculatePrice();
 			}
 		},
 
 		onCustomerChange: function () {
-			const customerId        = $( '#mhm_manual_customer_id' ).val();
-			const newCustomerFields = $( '#mhm_new_customer_fields' );
+			const customerId        = $( '#mhmrentiva_manual_customer_id' ).val();
+			const newCustomerFields = $( '#mhmrentiva_new_customer_fields' );
 
 			if (customerId === 'new_customer') {
 				newCustomerFields.removeClass( 'mhm-hidden' );
@@ -117,8 +117,8 @@
 			const $selectedAddons = $( '.mhm-addon-checkbox:checked' );
 
 			// Gün sayısını hesapla
-			const pickupDate  = $( '#mhm_manual_pickup_date' ).val();
-			const dropoffDate = $( '#mhm_manual_dropoff_date' ).val();
+			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
+			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
 			let days          = 1;
 
 			if (pickupDate && dropoffDate) {
@@ -183,12 +183,12 @@
 		},
 
 		calculatePrice: function () {
-			const vehicleId   = $( '#mhm_manual_vehicle_id' ).val();
-			const pickupDate  = $( '#mhm_manual_pickup_date' ).val();
-			const pickupTime  = $( '#mhm_manual_pickup_time' ).val();
-			const dropoffDate = $( '#mhm_manual_dropoff_date' ).val();
-			const dropoffTime = $( '#mhm_manual_dropoff_time' ).val();
-			const paymentType = $( '#mhm_manual_payment_type' ).val();
+			const vehicleId   = $( '#mhmrentiva_manual_vehicle_id' ).val();
+			const pickupDate  = $( '#mhmrentiva_manual_pickup_date' ).val();
+			const pickupTime  = $( '#mhmrentiva_manual_pickup_time' ).val();
+			const dropoffDate = $( '#mhmrentiva_manual_dropoff_date' ).val();
+			const dropoffTime = $( '#mhmrentiva_manual_dropoff_time' ).val();
+			const paymentType = $( '#mhmrentiva_manual_payment_type' ).val();
 
 			if ( ! vehicleId || ! pickupDate || ! dropoffDate) {
 				ManualBooking.showMessage( 'error', mhmManualBooking.text.fillAllFields || 'Please fill all required fields.' );
@@ -212,7 +212,7 @@
 					url: mhmManualBooking.ajaxUrl,
 					type: 'POST',
 					data: {
-						action: 'mhm_rentiva_calculate_manual_booking',
+						action: 'mhmrentiva_calculate_manual_booking',
 						nonce: mhmManualBooking.nonce,
 						vehicle_id: vehicleId,
 						pickup_date: pickupDate,
@@ -308,28 +308,28 @@
 			);
 
 			const formData = {
-				action: 'mhm_rentiva_create_manual_booking',
+				action: 'mhmrentiva_create_manual_booking',
 				nonce: mhmManualBooking.nonce,
-				vehicle_id: $( '#mhm_manual_vehicle_id' ).val(),
-				customer_id: $( '#mhm_manual_customer_id' ).val(),
-				pickup_date: $( '#mhm_manual_pickup_date' ).val(),
-				pickup_time: $( '#mhm_manual_pickup_time' ).val(),
-				dropoff_date: $( '#mhm_manual_dropoff_date' ).val(),
-				dropoff_time: $( '#mhm_manual_dropoff_time' ).val(),
-				guests: $( '#mhm_manual_guests' ).val(),
-				payment_type: $( '#mhm_manual_payment_type' ).val(),
-				payment_method: $( '#mhm_manual_payment_method' ).val(),
-				status: $( '#mhm_manual_status' ).val(),
-				notes: $( '#mhm_manual_notes' ).val(),
+				vehicle_id: $( '#mhmrentiva_manual_vehicle_id' ).val(),
+				customer_id: $( '#mhmrentiva_manual_customer_id' ).val(),
+				pickup_date: $( '#mhmrentiva_manual_pickup_date' ).val(),
+				pickup_time: $( '#mhmrentiva_manual_pickup_time' ).val(),
+				dropoff_date: $( '#mhmrentiva_manual_dropoff_date' ).val(),
+				dropoff_time: $( '#mhmrentiva_manual_dropoff_time' ).val(),
+				guests: $( '#mhmrentiva_manual_guests' ).val(),
+				payment_type: $( '#mhmrentiva_manual_payment_type' ).val(),
+				payment_method: $( '#mhmrentiva_manual_payment_method' ).val(),
+				status: $( '#mhmrentiva_manual_status' ).val(),
+				notes: $( '#mhmrentiva_manual_notes' ).val(),
 				selected_addons: selectedAddons
 			};
 
 			// Eğer yeni müşteri seçildiyse bilgilerini ekle
-			if ($( '#mhm_manual_customer_id' ).val() === 'new_customer') {
-				formData.new_customer_first_name = $( '#mhm_new_customer_first_name' ).val();
-				formData.new_customer_last_name  = $( '#mhm_new_customer_last_name' ).val();
-				formData.new_customer_email      = $( '#mhm_new_customer_email' ).val();
-				formData.new_customer_phone      = $( '#mhm_new_customer_phone' ).val();
+			if ($( '#mhmrentiva_manual_customer_id' ).val() === 'new_customer') {
+				formData.new_customer_first_name = $( '#mhmrentiva_new_customer_first_name' ).val();
+				formData.new_customer_last_name  = $( '#mhmrentiva_new_customer_last_name' ).val();
+				formData.new_customer_email      = $( '#mhmrentiva_new_customer_email' ).val();
+				formData.new_customer_phone      = $( '#mhmrentiva_new_customer_phone' ).val();
 			}
 
 			// Loading state
@@ -372,10 +372,10 @@
 
 			// Gerekli alanları kontrol et
 			const requiredFields = [
-				'#mhm_manual_vehicle_id',
-				'#mhm_manual_customer_id',
-				'#mhm_manual_pickup_date',
-				'#mhm_manual_dropoff_date'
+				'#mhmrentiva_manual_vehicle_id',
+				'#mhmrentiva_manual_customer_id',
+				'#mhmrentiva_manual_pickup_date',
+				'#mhmrentiva_manual_dropoff_date'
 			];
 
 			requiredFields.forEach(
@@ -391,8 +391,8 @@
 			);
 
 			// Tarih doğrulama
-			const pickupDate  = new Date( $( '#mhm_manual_pickup_date' ).val() );
-			const dropoffDate = new Date( $( '#mhm_manual_dropoff_date' ).val() );
+			const pickupDate  = new Date( $( '#mhmrentiva_manual_pickup_date' ).val() );
+			const dropoffDate = new Date( $( '#mhmrentiva_manual_dropoff_date' ).val() );
 
 			if (dropoffDate <= pickupDate) {
 				ManualBooking.showMessage( 'error', mhmManualBooking.text.dropoffAfterPickup || 'Dropoff date must be after pickup date.' );

@@ -51,7 +51,7 @@ class RepairRatingsCommand {
 
         \WP_CLI::log('Starting Rating Repair...');
 
-        // 1. Find all comments on vehicles with mhm_rating meta
+        // 1. Find all comments on vehicles with mhmrentiva_rating meta
         // We join with posts table to ensure post_type is vehicle
         // And check if comment_type is NOT 'review'
         $results = $wpdb->get_results(
@@ -68,7 +68,7 @@ class RepairRatingsCommand {
                 $wpdb->posts,
                 $wpdb->commentmeta,
                 'vehicle',
-                'mhm_rating',
+                'mhmrentiva_rating',
                 0,
                 'review'
             )

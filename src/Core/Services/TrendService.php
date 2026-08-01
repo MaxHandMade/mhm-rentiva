@@ -18,7 +18,7 @@ use MHMRentiva\Core\Services\Metrics\MetricRegistry;
 final class TrendService {
 
 	private const BOOKING_POST_TYPE = 'vehicle_booking';
-	private const MESSAGE_POST_TYPE = 'mhm_message';
+	private const MESSAGE_POST_TYPE = 'mhmrentiva_message';
 
 	/**
 	 * Generic public API.
@@ -201,7 +201,7 @@ final class TrendService {
 				'no_found_rows'  => true,
 				'meta_query'     => array(
 					array(
-						'key'   => '_mhm_customer_user_id',
+						'key'   => '_mhmrentiva_customer_user_id',
 						'value' => $user_id,
 					),
 				),
@@ -232,7 +232,7 @@ final class TrendService {
 				'no_found_rows'  => true,
 				'meta_query'     => array(
 					array(
-						'key'   => '_mhm_customer_user_id',
+						'key'   => '_mhmrentiva_customer_user_id',
 						'value' => $user_id,
 					),
 				),
@@ -257,7 +257,7 @@ final class TrendService {
 				'no_found_rows'  => true,
 				'meta_query'     => array(
 					array(
-						'key'   => '_mhm_customer_user_id',
+						'key'   => '_mhmrentiva_customer_user_id',
 						'value' => $user_id,
 					),
 				),
@@ -273,22 +273,22 @@ final class TrendService {
 				continue;
 			}
 
-			$status = sanitize_key( (string) get_post_meta($booking_id, '_mhm_status', true));
+			$status = sanitize_key( (string) get_post_meta($booking_id, '_mhmrentiva_status', true));
 			if (in_array($status, $excluded_statuses, true)) {
 				continue;
 			}
 
-			$pickup_date = (string) get_post_meta($booking_id, '_mhm_pickup_date', true);
+			$pickup_date = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
 			if ($pickup_date === '') {
 				$pickup_date = (string) get_post_meta($booking_id, '_booking_pickup_date', true);
 			}
 			if ($pickup_date === '') {
-				$pickup_date = (string) get_post_meta($booking_id, '_mhm_start_date', true);
+				$pickup_date = (string) get_post_meta($booking_id, '_mhmrentiva_start_date', true);
 			}
 
-			$pickup_time = (string) get_post_meta($booking_id, '_mhm_start_time', true);
+			$pickup_time = (string) get_post_meta($booking_id, '_mhmrentiva_start_time', true);
 			if ($pickup_time === '') {
-				$pickup_time = (string) get_post_meta($booking_id, '_mhm_pickup_time', true);
+				$pickup_time = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true);
 			}
 			if ($pickup_time === '') {
 				$pickup_time = (string) get_post_meta($booking_id, '_booking_pickup_time', true);
@@ -327,17 +327,17 @@ final class TrendService {
 				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
-						'key'   => '_mhm_customer_email',
+						'key'   => '_mhmrentiva_customer_email',
 						'value' => $email,
 					),
 					array(
 						'relation' => 'OR',
 						array(
-							'key'     => '_mhm_is_read',
+							'key'     => '_mhmrentiva_is_read',
 							'compare' => 'NOT EXISTS',
 						),
 						array(
-							'key'     => '_mhm_is_read',
+							'key'     => '_mhmrentiva_is_read',
 							'value'   => '1',
 							'compare' => '!=',
 						),
@@ -371,17 +371,17 @@ final class TrendService {
 				'meta_query'     => array(
 					'relation' => 'AND',
 					array(
-						'key'   => '_mhm_customer_email',
+						'key'   => '_mhmrentiva_customer_email',
 						'value' => $email,
 					),
 					array(
 						'relation' => 'OR',
 						array(
-							'key'     => '_mhm_is_read',
+							'key'     => '_mhmrentiva_is_read',
 							'compare' => 'NOT EXISTS',
 						),
 						array(
-							'key'     => '_mhm_is_read',
+							'key'     => '_mhmrentiva_is_read',
 							'value'   => '1',
 							'compare' => '!=',
 						),

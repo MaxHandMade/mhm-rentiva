@@ -37,10 +37,10 @@ final class RatingSortHelper {
 	 * @var array<string, string>
 	 */
 	private const ORDERBY_META_MAP = array(
-		'rating'         => '_mhm_rentiva_rating_average',
-		'rating_average' => '_mhm_rentiva_rating_average',
-		'rating_count'   => '_mhm_rentiva_rating_count',
-		'confidence'     => '_mhm_rentiva_confidence_score',
+		'rating'         => '_mhmrentiva_rating_average',
+		'rating_average' => '_mhmrentiva_rating_average',
+		'rating_count'   => '_mhmrentiva_rating_count',
+		'confidence'     => '_mhmrentiva_confidence_score',
 	);
 
 	/**
@@ -106,7 +106,7 @@ final class RatingSortHelper {
 		$args['meta_query'] = array_merge(
 			$args['meta_query'] ?? array(),
 			array(
-				'mhm_rating_sort' => array(
+				'mhmrentiva_rating_sort' => array(
 					'key'     => $meta_key,
 					'type'    => 'NUMERIC',
 					'compare' => 'EXISTS',
@@ -116,7 +116,7 @@ final class RatingSortHelper {
 
 		// Compound orderby with tie-breakers
 		$args['orderby'] = array(
-			'mhm_rating_sort' => $order,
+			'mhmrentiva_rating_sort' => $order,
 			'date'            => 'DESC',
 			'ID'              => 'DESC',
 		);

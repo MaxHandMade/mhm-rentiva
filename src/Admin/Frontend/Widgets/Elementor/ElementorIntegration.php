@@ -45,7 +45,7 @@ class ElementorIntegration {
 	/**
 	 * Lite's own widget classes, plus whatever the add-on's `ElementorExtensions`
 	 * subscriber (or any other subscriber) hands back via the
-	 * `mhm_rentiva_elementor_widgets` filter -- the seam inversion. Lite no
+	 * `mhmrentiva_elementor_widgets` filter -- the seam inversion. Lite no
 	 * longer knows the 6 add-on widget classes or their registration state
 	 * exist; gating them is entirely the add-on's own responsibility now
 	 * (mirrors `BlockRegistry::get_block_config()` and
@@ -75,7 +75,7 @@ class ElementorIntegration {
 		);
 
 		/** @var array<int, class-string> $widgets */
-		$widgets = apply_filters( 'mhm_rentiva_elementor_widgets', $widgets );
+		$widgets = apply_filters( 'mhmrentiva_elementor_widgets', $widgets );
 
 		return $widgets;
 	}
@@ -123,13 +123,13 @@ class ElementorIntegration {
 		}
 
 		// Load CSS file if exists
-		$css_file = MHM_RENTIVA_PLUGIN_DIR . 'assets/css/frontend/elementor-widgets.css';
+		$css_file = MHMRENTIVA_PLUGIN_DIR . 'assets/css/frontend/elementor-widgets.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'mhm-rentiva-elementor',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/elementor-widgets.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/elementor-widgets.css',
 				array( 'elementor-frontend', 'mhm-rentiva-core-css' ),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 		}
 	}
@@ -143,13 +143,13 @@ class ElementorIntegration {
 		}
 
 		// Load JS file if exists
-		$js_file = MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/elementor-widgets.js';
+		$js_file = MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/elementor-widgets.js';
 		if ( file_exists( $js_file ) ) {
 			wp_enqueue_script(
 				'mhm-rentiva-elementor',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/elementor-widgets.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/elementor-widgets.js',
 				array( 'elementor-frontend', 'mhm-rentiva-core-js' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -159,7 +159,7 @@ class ElementorIntegration {
 				'mhmRentivaElementor',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhm_rentiva_elementor' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_elementor' ),
 					'i18n'    => array(
 						'loading' => __( 'Loading...', 'mhm-rentiva' ),
 						'error'   => __( 'An error occurred', 'mhm-rentiva' ),
@@ -179,13 +179,13 @@ class ElementorIntegration {
 		}
 
 		// Load CSS file if exists
-		$css_file = MHM_RENTIVA_PLUGIN_DIR . 'assets/css/admin/elementor-editor.css';
+		$css_file = MHMRENTIVA_PLUGIN_DIR . 'assets/css/admin/elementor-editor.css';
 		if ( file_exists( $css_file ) ) {
 			wp_enqueue_style(
 				'mhm-rentiva-elementor-editor',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/elementor-editor.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/elementor-editor.css',
 				array( 'elementor-editor' ),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 		}
 	}
@@ -199,13 +199,13 @@ class ElementorIntegration {
 		}
 
 		// Load JS file if exists
-		$js_file = MHM_RENTIVA_PLUGIN_DIR . 'assets/js/admin/elementor-editor.js';
+		$js_file = MHMRENTIVA_PLUGIN_DIR . 'assets/js/admin/elementor-editor.js';
 		if ( file_exists( $js_file ) ) {
 			wp_enqueue_script(
 				'mhm-rentiva-elementor-editor',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/elementor-editor.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/elementor-editor.js',
 				array( 'elementor-editor' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -215,7 +215,7 @@ class ElementorIntegration {
 				'mhmRentivaElementorEditor',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhm_rentiva_elementor_editor' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_elementor_editor' ),
 					'i18n'    => array(
 						'select_vehicle' => __( 'Select Vehicle', 'mhm-rentiva' ),
 						'no_vehicles'    => __( 'No vehicles found', 'mhm-rentiva' ),
@@ -245,15 +245,15 @@ class ElementorIntegration {
 		wp_enqueue_script( 'mhm-rentiva-swiper' );
 		wp_enqueue_style(
 			'mhm-rentiva-featured-vehicles-preview',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/featured-vehicles.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/featured-vehicles.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 		wp_enqueue_script(
 			'mhm-rentiva-featured-vehicles-preview',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/featured-vehicles.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/featured-vehicles.js',
 			array( 'jquery', 'mhm-rentiva-swiper' ),
-			MHM_RENTIVA_VERSION,
+			MHMRENTIVA_VERSION,
 			true
 		);
 	}

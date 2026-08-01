@@ -33,7 +33,7 @@ final class DepositManagementAjax {
 	 */
 	private static function authorize_booking_action(): int {
 		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhm_deposit_management_action' ) ) {
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_deposit_management_action' ) ) {
 			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return 0;
 		}
@@ -59,11 +59,11 @@ final class DepositManagementAjax {
 	}
 
 	public static function register(): void {
-		add_action( 'wp_ajax_mhm_rentiva_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
-		add_action( 'wp_ajax_mhm_rentiva_send_remaining_payment_link', array( self::class, 'send_remaining_payment_link' ) );
-		add_action( 'wp_ajax_mhm_rentiva_approve_payment', array( self::class, 'approve_payment' ) );
-		add_action( 'wp_ajax_mhm_rentiva_deposit_cancel_booking', array( self::class, 'cancel_booking' ) );
-		add_action( 'wp_ajax_mhm_rentiva_deposit_process_refund', array( self::class, 'process_refund' ) );
+		add_action( 'wp_ajax_mhmrentiva_process_remaining_payment', array( self::class, 'process_remaining_payment' ) );
+		add_action( 'wp_ajax_mhmrentiva_send_remaining_payment_link', array( self::class, 'send_remaining_payment_link' ) );
+		add_action( 'wp_ajax_mhmrentiva_approve_payment', array( self::class, 'approve_payment' ) );
+		add_action( 'wp_ajax_mhmrentiva_deposit_cancel_booking', array( self::class, 'cancel_booking' ) );
+		add_action( 'wp_ajax_mhmrentiva_deposit_process_refund', array( self::class, 'process_refund' ) );
 	}
 
 	public static function process_remaining_payment(): void {
@@ -73,27 +73,27 @@ final class DepositManagementAjax {
 		}
 
 		// Deposit system check
-		$payment_type = get_post_meta( $booking_id, '_mhm_payment_type', true );
+		$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
 		if ( $payment_type !== 'deposit' ) {
 			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
-		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhm_remaining_amount', true ) );
+		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
 		if ( $remaining_amount <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
 		// Reset remaining amount
-		update_post_meta( $booking_id, '_mhm_remaining_amount', 0 );
+		update_post_meta( $booking_id, '_mhmrentiva_remaining_amount', 0 );
 
 		// Update payment status
-		update_post_meta( $booking_id, '_mhm_payment_status', 'paid' );
+		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
 
 		// If rental end date has already passed, mark as completed; otherwise confirmed
-		$dropoff       = get_post_meta( $booking_id, '_mhm_dropoff_date', true )
-			?: get_post_meta( $booking_id, '_mhm_end_date', true );
+		$dropoff       = get_post_meta( $booking_id, '_mhmrentiva_dropoff_date', true )
+			?: get_post_meta( $booking_id, '_mhmrentiva_end_date', true );
 		$target_status = ( $dropoff && strtotime( $dropoff ) < time() ) ? 'completed' : 'confirmed';
 		Status::update_status( $booking_id, $target_status, get_current_user_id() );
 
@@ -121,13 +121,13 @@ final class DepositManagementAjax {
 		}
 
 		// Deposit system check (same guard as process_remaining_payment())
-		$payment_type = get_post_meta( $booking_id, '_mhm_payment_type', true );
+		$payment_type = get_post_meta( $booking_id, '_mhmrentiva_payment_type', true );
 		if ( $payment_type !== 'deposit' ) {
 			wp_send_json_error( array( 'message' => __( 'This booking does not use deposit system.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
-		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhm_remaining_amount', true ) );
+		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
 		if ( $remaining_amount <= 0 ) {
 			wp_send_json_error( array( 'message' => __( 'No remaining amount found.', 'mhm-rentiva' ) ) );
 			return;
@@ -174,14 +174,14 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
+		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 		if ( ! in_array( $payment_status, array( 'pending', 'unpaid', 'pending_verification', '' ), true ) ) {
 			wp_send_json_error( array( 'message' => __( 'This booking is not awaiting payment.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
 		// Update payment status to confirmed
-		update_post_meta( $booking_id, '_mhm_payment_status', 'paid' );
+		update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'paid' );
 
 		// Update booking status to confirmed
 		Status::update_status( $booking_id, 'confirmed', get_current_user_id() );
@@ -239,7 +239,7 @@ final class DepositManagementAjax {
 			return;
 		}
 
-		$payment_status = get_post_meta( $booking_id, '_mhm_payment_status', true );
+		$payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true );
 		$booking_status = Status::get( $booking_id );
 
 		if ( $payment_status !== 'paid' || $booking_status !== 'cancelled' ) {
@@ -248,12 +248,12 @@ final class DepositManagementAjax {
 		}
 
 		// Calculate refund amount
-		$deposit_amount   = floatval( get_post_meta( $booking_id, '_mhm_deposit_amount', true ) );
-		$total_amount     = floatval( get_post_meta( $booking_id, '_mhm_total_price', true ) );
-		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhm_remaining_amount', true ) );
+		$deposit_amount   = floatval( get_post_meta( $booking_id, '_mhmrentiva_deposit_amount', true ) );
+		$total_amount     = floatval( get_post_meta( $booking_id, '_mhmrentiva_total_price', true ) );
+		$remaining_amount = floatval( get_post_meta( $booking_id, '_mhmrentiva_remaining_amount', true ) );
 
 		// Cancellation policy check
-		$cancellation_deadline = get_post_meta( $booking_id, '_mhm_cancellation_deadline', true );
+		$cancellation_deadline = get_post_meta( $booking_id, '_mhmrentiva_cancellation_deadline', true );
 		$refund_amount         = 0;
 
 		if ( $cancellation_deadline ) {
@@ -274,10 +274,10 @@ final class DepositManagementAjax {
 
 		// Update refund status
 		if ( $refund_amount > 0 ) {
-			update_post_meta( $booking_id, '_mhm_payment_status', 'refunded' );
-			update_post_meta( $booking_id, '_mhm_refunded_amount', $refund_amount );
-			update_post_meta( $booking_id, '_mhm_refund_date', gmdate( 'Y-m-d H:i:s' ) );
-			update_post_meta( $booking_id, '_mhm_refund_processed_by', get_current_user_id() );
+			update_post_meta( $booking_id, '_mhmrentiva_payment_status', 'refunded' );
+			update_post_meta( $booking_id, '_mhmrentiva_refunded_amount', $refund_amount );
+			update_post_meta( $booking_id, '_mhmrentiva_refund_date', gmdate( 'Y-m-d H:i:s' ) );
+			update_post_meta( $booking_id, '_mhmrentiva_refund_processed_by', get_current_user_id() );
 		}
 
 		// Add log
@@ -307,7 +307,7 @@ final class DepositManagementAjax {
 	}
 
 	private static function add_booking_log( int $booking_id, string $action, array $data = array() ): void {
-		$logs_meta = get_post_meta( $booking_id, '_mhm_booking_logs', true );
+		$logs_meta = get_post_meta( $booking_id, '_mhmrentiva_booking_logs', true );
 		$logs      = is_array( $logs_meta ) ? $logs_meta : array();
 
 		$logs[] = array(
@@ -317,12 +317,12 @@ final class DepositManagementAjax {
 			'data'      => $data,
 		);
 
-		update_post_meta( $booking_id, '_mhm_booking_logs', $logs );
+		update_post_meta( $booking_id, '_mhmrentiva_booking_logs', $logs );
 	}
 
 	private static function format_price( float $price ): string {
 		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
 		$amount   = number_format_i18n( $price, 2 );
 
 		switch ( $position ) {

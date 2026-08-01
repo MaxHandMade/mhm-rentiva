@@ -12,9 +12,9 @@ use WP_UnitTestCase;
  * Task A8b seam inversion: the email-settings screen's tab list, render
  * dispatch and save dispatch no longer name MessageEmails/VendorEmails
  * directly -- Lite exposes three neutral seams instead:
- *   - `mhm_rentiva_email_types` (filter) for the tab list
- *   - `mhm_rentiva_render_email_type` (action) for rendering an unowned tab
- *   - `mhm_rentiva_save_email_type` (action) for saving an unowned tab
+ *   - `mhmrentiva_email_types` (filter) for the tab list
+ *   - `mhmrentiva_render_email_type` (action) for rendering an unowned tab
+ *   - `mhmrentiva_save_email_type` (action) for saving an unowned tab
  *
  * @covers \MHMRentiva\Admin\Emails\Core\EmailTemplates
  */
@@ -22,15 +22,15 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 
 	protected function setUp(): void {
 		parent::setUp();
-		remove_all_filters( 'mhm_rentiva_email_types' );
-		remove_all_actions( 'mhm_rentiva_render_email_type' );
-		remove_all_actions( 'mhm_rentiva_save_email_type' );
+		remove_all_filters( 'mhmrentiva_email_types' );
+		remove_all_actions( 'mhmrentiva_render_email_type' );
+		remove_all_actions( 'mhmrentiva_save_email_type' );
 	}
 
 	protected function tearDown(): void {
-		remove_all_filters( 'mhm_rentiva_email_types' );
-		remove_all_actions( 'mhm_rentiva_render_email_type' );
-		remove_all_actions( 'mhm_rentiva_save_email_type' );
+		remove_all_filters( 'mhmrentiva_email_types' );
+		remove_all_actions( 'mhmrentiva_render_email_type' );
+		remove_all_actions( 'mhmrentiva_save_email_type' );
 		parent::tearDown();
 	}
 
@@ -66,7 +66,7 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 	 */
 	public function test_subscriber_can_add_an_email_type_before_preview(): void {
 		add_filter(
-			'mhm_rentiva_email_types',
+			'mhmrentiva_email_types',
 			static function ( array $types ): array {
 				$types['message_emails'] = 'Message Notifications';
 				return $types;
@@ -83,13 +83,13 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The render dispatch fires `mhm_rentiva_render_email_type` for any tab
+	 * The render dispatch fires `mhmrentiva_render_email_type` for any tab
 	 * Lite does not own, passing the active type through -- this is the seam
 	 * Pro's EmailExtensions::render_email_type() hangs off.
 	 */
 	public function test_render_content_only_fires_render_action_for_unowned_tab(): void {
 		add_filter(
-			'mhm_rentiva_email_types',
+			'mhmrentiva_email_types',
 			static function ( array $types ): array {
 				$types['message_emails'] = 'Message Notifications';
 				return $types;
@@ -98,7 +98,7 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 
 		$fired_with = null;
 		add_action(
-			'mhm_rentiva_render_email_type',
+			'mhmrentiva_render_email_type',
 			static function ( string $type ) use ( &$fired_with ): void {
 				$fired_with = $type;
 			}
@@ -122,7 +122,7 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 	public function test_render_content_only_does_not_fire_render_action_for_lites_own_tab(): void {
 		$fired = false;
 		add_action(
-			'mhm_rentiva_render_email_type',
+			'mhmrentiva_render_email_type',
 			static function () use ( &$fired ): void {
 				$fired = true;
 			}
@@ -140,13 +140,13 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * The save dispatch fires `mhm_rentiva_save_email_type` for any tab Lite
+	 * The save dispatch fires `mhmrentiva_save_email_type` for any tab Lite
 	 * does not own -- this is the seam Pro's EmailExtensions::save_email_type()
 	 * hangs off. Uses handle_save_templates() end-to-end, the real POST path.
 	 */
 	public function test_handle_save_templates_fires_save_action_for_unowned_tab(): void {
 		add_filter(
-			'mhm_rentiva_email_types',
+			'mhmrentiva_email_types',
 			static function ( array $types ): array {
 				$types['message_emails'] = 'Message Notifications';
 				return $types;
@@ -155,7 +155,7 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 
 		$fired_with = null;
 		add_action(
-			'mhm_rentiva_save_email_type',
+			'mhmrentiva_save_email_type',
 			static function ( string $tab ) use ( &$fired_with ): void {
 				$fired_with = $tab;
 			}
@@ -164,13 +164,13 @@ final class EmailTemplatesSeamTest extends WP_UnitTestCase {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );
 
-		$_POST['mhm_rentiva_email_templates_nonce'] = wp_create_nonce( 'mhm_rentiva_save_email_templates' );
+		$_POST['mhmrentiva_email_templates_nonce'] = wp_create_nonce( 'mhmrentiva_save_email_templates' );
 		$_POST['current_tab']                       = 'message_emails';
 		$_POST['email_templates_action']            = 'save';
 
 		EmailTemplates::handle_save_templates();
 
-		unset( $_POST['mhm_rentiva_email_templates_nonce'], $_POST['current_tab'], $_POST['email_templates_action'] );
+		unset( $_POST['mhmrentiva_email_templates_nonce'], $_POST['current_tab'], $_POST['email_templates_action'] );
 		wp_set_current_user( 0 );
 
 		$this->assertSame( 'message_emails', $fired_with );

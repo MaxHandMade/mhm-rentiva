@@ -62,8 +62,8 @@ final class AddonContextTaxonomyTest extends WP_UnitTestCase {
         \MHMRentiva\Admin\Addons\AddonPostType::register_pricing_type_meta();
 
         $registered = get_registered_meta_keys( 'post', \MHMRentiva\Admin\Addons\AddonPostType::POST_TYPE );
-        $this->assertArrayHasKey( '_mhm_addon_pricing_type', $registered );
-        $this->assertTrue( $registered['_mhm_addon_pricing_type']['show_in_rest'] );
-        $this->assertSame( 'per_booking', $registered['_mhm_addon_pricing_type']['default'] );
+        $this->assertArrayHasKey( '_mhmrentiva_addon_pricing_type', $registered );
+        $this->assertTrue( $registered['_mhmrentiva_addon_pricing_type']['show_in_rest'] );
+        $this->assertSame( 'per_booking', $registered['_mhmrentiva_addon_pricing_type']['default'] );
     }
 }

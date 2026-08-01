@@ -176,7 +176,7 @@ abstract class AbstractShortcode {
 			static::cache_html($cache_key, $html);
 
 			// Filter hook
-			$html = apply_filters('mhm_rentiva/shortcodes/' . $tag . '/html', $html, $atts, $content);
+			$html = apply_filters('mhmrentiva/shortcodes/' . $tag . '/html', $html, $atts, $content);
 
 			// Performance logging - disabled to reduce debug log noise
 			// $render_time = microtime(true) - $start_time;
@@ -213,9 +213,9 @@ abstract class AbstractShortcode {
 			// Enqueue Global Notifications System (Must be here to ensure it loads even if child overrides enqueue_assets)
 			wp_enqueue_style(
 				'mhm-rentiva-notifications',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 				array(),
-				MHM_RENTIVA_VERSION . '.toast2'
+				MHMRENTIVA_VERSION . '.toast2'
 			);
 
 			static::enqueue_assets($atts);
@@ -230,7 +230,7 @@ abstract class AbstractShortcode {
 	protected static function should_load_assets_conditionally(): bool
 	{
 		// Default to true (optimize performance) but allow easy disabling via filter
-		return apply_filters('mhm_rentiva_shortcode_load_assets_conditionally', true, static::get_shortcode_tag());
+		return apply_filters('mhmrentiva_shortcode_load_assets_conditionally', true, static::get_shortcode_tag());
 	}
 
 	/**
@@ -264,7 +264,7 @@ abstract class AbstractShortcode {
 
 				wp_enqueue_style(
 					$final_handle,
-					MHM_RENTIVA_PLUGIN_URL . $css_file,
+					MHMRENTIVA_PLUGIN_URL . $css_file,
 					static::get_css_dependencies(),
 					static::get_asset_version($css_file)
 				);
@@ -292,7 +292,7 @@ abstract class AbstractShortcode {
 
 				wp_enqueue_script(
 					$final_handle,
-					MHM_RENTIVA_PLUGIN_URL . $js_file,
+					MHMRENTIVA_PLUGIN_URL . $js_file,
 					static::get_js_dependencies(),
 					static::get_asset_version($js_file),
 					true
@@ -316,11 +316,11 @@ abstract class AbstractShortcode {
 	 */
 	protected static function get_asset_version(string $file_path): string
 	{
-		$full_path = MHM_RENTIVA_PLUGIN_PATH . $file_path;
+		$full_path = MHMRENTIVA_PLUGIN_PATH . $file_path;
 		if (file_exists($full_path)) {
 			return (string) filemtime($full_path);
 		}
-		return defined('MHM_RENTIVA_VERSION') ? (string) MHM_RENTIVA_VERSION : '1.0.0';
+		return defined('MHMRENTIVA_VERSION') ? (string) MHMRENTIVA_VERSION : '1.0.0';
 	}
 
 	/**
@@ -453,7 +453,7 @@ abstract class AbstractShortcode {
 			'ajaxUrl'  => admin_url('admin-ajax.php'),
 			'ajax_url' => admin_url('admin-ajax.php'),
 			'restUrl'  => rest_url('mhm-rentiva/v1/'),
-			'nonce'    => wp_create_nonce('mhm_rentiva_' . static::get_shortcode_tag() . '_nonce'),
+			'nonce'    => wp_create_nonce('mhmrentiva_' . static::get_shortcode_tag() . '_nonce'),
 			'strings'  => static::get_localized_strings(),
 			'config'   => static::get_js_config(),
 		);
@@ -490,10 +490,10 @@ abstract class AbstractShortcode {
 		$tag = static::get_shortcode_tag();
 
 		// Use versioning for mass invalidation (The WordPress Way)
-		$version = get_transient('mhm_rentiva_rv_cache_v_' . $tag);
+		$version = get_transient('mhmrentiva_rv_cache_v_' . $tag);
 		if (false === $version) {
 			$version = (string) time();
-			set_transient('mhm_rentiva_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
+			set_transient('mhmrentiva_rv_cache_v_' . $tag, $version, DAY_IN_SECONDS * 30);
 		}
 
 		// Include page ID, user status and other factors
@@ -507,7 +507,7 @@ abstract class AbstractShortcode {
 			'v'        => $version,
 		);
 
-		return 'mhm_rentiva_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
+		return 'mhmrentiva_shc_' . substr(md5($tag), 0, 8) . '_' . md5(serialize($cache_factors));
 	}
 
 	/**
@@ -556,7 +556,7 @@ abstract class AbstractShortcode {
 	 */
 	protected static function asset_exists(string $file_path): bool
 	{
-		$full_path = MHM_RENTIVA_PLUGIN_PATH . $file_path;
+		$full_path = MHMRENTIVA_PLUGIN_PATH . $file_path;
 		return file_exists($full_path);
 	}
 
@@ -606,7 +606,7 @@ abstract class AbstractShortcode {
 	protected static function verify_nonce(string $nonce, string $action = ''): bool
 	{
 		if (empty($action)) {
-			$action = 'mhm_rentiva_' . static::get_shortcode_tag() . '_nonce';
+			$action = 'mhmrentiva_' . static::get_shortcode_tag() . '_nonce';
 		}
 
 		return wp_verify_nonce($nonce, $action);
@@ -738,7 +738,7 @@ abstract class AbstractShortcode {
 		// Invalidate all caches for this shortcode by deleting the version key
 		// This is the standard WP way to mass-invalidate transients without direct SQL
 		if (static::is_caching_enabled()) {
-			delete_transient('mhm_rentiva_rv_cache_v_' . $tag);
+			delete_transient('mhmrentiva_rv_cache_v_' . $tag);
 		}
 
 		// Cache tracking cleanup

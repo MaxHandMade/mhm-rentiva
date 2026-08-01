@@ -13,7 +13,7 @@ use WP_Ajax_UnitTestCase;
  *
  * Here the registration says `handle_bulk_action` and the method is
  * `handle_bulk_actions`. addon-list.js really does call
- * wp_ajax_mhm_rentiva_bulk_addon_action, so bulk enable/disable/delete on the
+ * wp_ajax_mhmrentiva_bulk_addon_action, so bulk enable/disable/delete on the
  * Additional Services list has never worked -- WordPress finds no callable and
  * the request dies with 0.
  *
@@ -54,11 +54,11 @@ final class BulkAddonActionTest extends WP_Ajax_UnitTestCase
 	public function test_the_registered_callback_exists(): void
 	{
 		$this->assertNotFalse(
-			has_action( 'wp_ajax_mhm_rentiva_bulk_addon_action' ),
+			has_action( 'wp_ajax_mhmrentiva_bulk_addon_action' ),
 			'The bulk-action endpoint should be registered.'
 		);
 
-		$callbacks = $GLOBALS['wp_filter']['wp_ajax_mhm_rentiva_bulk_addon_action']->callbacks ?? array();
+		$callbacks = $GLOBALS['wp_filter']['wp_ajax_mhmrentiva_bulk_addon_action']->callbacks ?? array();
 		$found     = false;
 		foreach ( $callbacks as $priority ) {
 			foreach ( $priority as $cb ) {
@@ -81,13 +81,13 @@ final class BulkAddonActionTest extends WP_Ajax_UnitTestCase
 	public function test_bulk_disable_turns_the_addon_off(): void
 	{
 		$_POST = array(
-			'nonce'       => wp_create_nonce( 'mhm_addon_list_nonce' ),
+			'nonce'       => wp_create_nonce( 'mhmrentiva_addon_list_nonce' ),
 			'bulk_action' => 'disable_addons',
 			'addon_ids'   => array( $this->addon_id ),
 		);
 
 		try {
-			$this->_handleAjax( 'mhm_rentiva_bulk_addon_action' );
+			$this->_handleAjax( 'mhmrentiva_bulk_addon_action' );
 		} catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
 			// wp_send_json_* terminates; the meta assertion below is the check.
 		}

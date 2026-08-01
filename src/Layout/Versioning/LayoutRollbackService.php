@@ -43,8 +43,8 @@ final class LayoutRollbackService {
             throw new Exception(esc_html__('Post not found.', 'mhm-rentiva'));
         }
 
-        $prev_manifest = get_post_meta($post_id, '_mhm_layout_manifest_previous', true);
-        $prev_hash     = get_post_meta($post_id, '_mhm_layout_hash_previous', true);
+        $prev_manifest = get_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', true);
+        $prev_hash     = get_post_meta($post_id, '_mhmrentiva_layout_hash_previous', true);
 
         if (empty($prev_manifest) || empty($prev_hash)) {
             throw new Exception(esc_html__('No rollback version available for this post.', 'mhm-rentiva'));
@@ -57,12 +57,12 @@ final class LayoutRollbackService {
                 'post_content'   => $post->post_content,
                 'post_title'     => $post->post_title,
                 'post_status'    => $post->post_status,
-                'manifest'       => get_post_meta($post_id, '_mhm_layout_manifest', true),
-                'hash'           => get_post_meta($post_id, '_mhm_layout_hash', true),
-                'timestamp'      => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
+                'manifest'       => get_post_meta($post_id, '_mhmrentiva_layout_manifest', true),
+                'hash'           => get_post_meta($post_id, '_mhmrentiva_layout_hash', true),
+                'timestamp'      => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true),
                 'manifest_prev'  => $prev_manifest,
                 'hash_prev'      => $prev_hash,
-                'timestamp_prev' => get_post_meta($post_id, '_mhm_layout_version_timestamp_previous', true),
+                'timestamp_prev' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', true),
                 'template'       => get_post_meta($post_id, '_wp_page_template', true),
             );
         }
@@ -100,7 +100,7 @@ final class LayoutRollbackService {
                     'status'       => 'possible',
                     'post_id'      => $post_id,
                     'target_hash'  => $prev_hash,
-                    'current_hash' => get_post_meta($post_id, '_mhm_layout_hash', true),
+                    'current_hash' => get_post_meta($post_id, '_mhmrentiva_layout_hash', true),
                     'message'      => __('Rollback is possible and valid.', 'mhm-rentiva'),
                     'gates'        => 'PASS',
                 );
@@ -119,13 +119,13 @@ final class LayoutRollbackService {
             // Meta Flip on Success:
             // new current = old previous
             // new previous = old current
-            update_post_meta($post_id, '_mhm_layout_manifest', $snapshot['manifest_prev']);
-            update_post_meta($post_id, '_mhm_layout_hash', $snapshot['hash_prev']);
-            update_post_meta($post_id, '_mhm_layout_version_timestamp', $snapshot['timestamp_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest', $snapshot['manifest_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_hash', $snapshot['hash_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $snapshot['timestamp_prev']);
 
-            update_post_meta($post_id, '_mhm_layout_manifest_previous', $snapshot['manifest']);
-            update_post_meta($post_id, '_mhm_layout_hash_previous', $snapshot['hash']);
-            update_post_meta($post_id, '_mhm_layout_version_timestamp_previous', $snapshot['timestamp']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $snapshot['manifest']);
+            update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $snapshot['hash']);
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $snapshot['timestamp']);
 
             clean_post_cache($post_id);
 
@@ -171,13 +171,13 @@ final class LayoutRollbackService {
             )
         );
 
-        update_post_meta($post_id, '_mhm_layout_manifest', $snapshot['manifest']);
-        update_post_meta($post_id, '_mhm_layout_hash', $snapshot['hash']);
-        update_post_meta($post_id, '_mhm_layout_version_timestamp', $snapshot['timestamp']);
+        update_post_meta($post_id, '_mhmrentiva_layout_manifest', $snapshot['manifest']);
+        update_post_meta($post_id, '_mhmrentiva_layout_hash', $snapshot['hash']);
+        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $snapshot['timestamp']);
 
-        update_post_meta($post_id, '_mhm_layout_manifest_previous', $snapshot['manifest_prev']);
-        update_post_meta($post_id, '_mhm_layout_hash_previous', $snapshot['hash_prev']);
-        update_post_meta($post_id, '_mhm_layout_version_timestamp_previous', $snapshot['timestamp_prev']);
+        update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $snapshot['manifest_prev']);
+        update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $snapshot['hash_prev']);
+        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $snapshot['timestamp_prev']);
 
         update_post_meta($post_id, '_wp_page_template', $snapshot['template']);
         clean_post_cache($post_id);

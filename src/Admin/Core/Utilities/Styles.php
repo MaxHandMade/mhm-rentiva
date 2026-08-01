@@ -65,7 +65,7 @@ class Styles {
 		$css_url  = $this->plugin_url . 'assets/css/core/core.css';
 
 		// Same versioning system as AssetManager
-		$version = defined( 'MHM_RENTIVA_VERSION' ) ? MHM_RENTIVA_VERSION : '1.0.0';
+		$version = defined( 'MHMRENTIVA_VERSION' ) ? MHMRENTIVA_VERSION : '1.0.0';
 
 		// Enqueue CSS - Compatible with AssetManager dependency order
 		wp_enqueue_style(

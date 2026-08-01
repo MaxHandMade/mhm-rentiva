@@ -2,7 +2,7 @@ import { __ } from '@wordpress/i18n';
 
 export default function QuickActions( { adminUrl, caps = {} } ) {
 	// Add-on actions carry a `cap` key; they are hidden unless an active extension
-	// registers that capability via `mhm_rentiva_dashboard_features`, so the dashboard
+	// registers that capability via `mhmrentiva_dashboard_features`, so the dashboard
 	// never links to a page that does not exist without it. Core actions have no `cap`
 	// and always show.
 	const actions = [

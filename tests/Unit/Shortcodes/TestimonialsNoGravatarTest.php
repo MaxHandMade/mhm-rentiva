@@ -61,12 +61,12 @@ final class TestimonialsNoGravatarTest extends WP_UnitTestCase
             'post_title'  => 'Test Booking',
         ));
 
-        update_post_meta($booking_id, '_mhm_rentiva_customer_review', 'Great car, would rent again!');
-        update_post_meta($booking_id, '_mhm_rentiva_review_approved', '1');
-        update_post_meta($booking_id, '_mhm_rentiva_customer_rating', 5);
-        update_post_meta($booking_id, '_mhm_rentiva_customer_name', 'Zeynep Kaya');
-        update_post_meta($booking_id, '_mhm_rentiva_customer_email', 'zeynep@example.com');
-        update_post_meta($booking_id, '_mhm_rentiva_vehicle_id', $vehicle_id);
+        update_post_meta($booking_id, '_mhmrentiva_customer_review', 'Great car, would rent again!');
+        update_post_meta($booking_id, '_mhmrentiva_review_approved', '1');
+        update_post_meta($booking_id, '_mhmrentiva_customer_rating', 5);
+        update_post_meta($booking_id, '_mhmrentiva_customer_name', 'Zeynep Kaya');
+        update_post_meta($booking_id, '_mhmrentiva_customer_email', 'zeynep@example.com');
+        update_post_meta($booking_id, '_mhmrentiva_vehicle_id', $vehicle_id);
 
         $output = Testimonials::render();
 

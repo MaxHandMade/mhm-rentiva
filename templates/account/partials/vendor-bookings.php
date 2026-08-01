@@ -142,11 +142,11 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 						em.meta_value AS dropoff_date,
 						tm.meta_value AS total_price
 				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
-				 LEFT JOIN  {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status'
-				 LEFT JOIN  {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhm_pickup_date'
-				 LEFT JOIN  {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhm_dropoff_date'
-				 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhm_total_price'
+				 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
+				 LEFT JOIN  {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
+				 LEFT JOIN  {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhmrentiva_pickup_date'
+				 LEFT JOIN  {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_dropoff_date'
+				 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhmrentiva_total_price'
 				 WHERE p.post_type = 'vehicle_booking'
 				 AND p.post_status NOT IN ('trash','auto-draft')
 				 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ")
@@ -171,9 +171,9 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 				$wpdb->prepare(
 					"SELECT sm.meta_value AS booking_status, tm.meta_value AS total_price
 					 FROM {$wpdb->posts} p
-					 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
-					 LEFT JOIN  {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status'
-					 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhm_total_price'
+					 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
+					 LEFT JOIN  {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
+					 LEFT JOIN  {$wpdb->postmeta} tm ON tm.post_id = p.ID AND tm.meta_key = '_mhmrentiva_total_price'
 					 WHERE p.post_type = 'vehicle_booking'
 					 AND p.post_status NOT IN ('trash','auto-draft')
 					 AND CAST(vm.meta_value AS UNSIGNED) IN (" . implode( ',', array_fill( 0, count( $vehicle_ids ), '%d' ) ) . ')
@@ -263,11 +263,11 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 					}
 
 					// Service type detection (transfer vs rental).
-					$service_type = (string) get_post_meta( $booking->ID, '_mhm_service_type', true );
-					if ( $service_type === '' && (string) get_post_meta( $booking->ID, '_mhm_is_transfer', true ) === 'yes' ) {
+					$service_type = (string) get_post_meta( $booking->ID, '_mhmrentiva_service_type', true );
+					if ( $service_type === '' && (string) get_post_meta( $booking->ID, '_mhmrentiva_is_transfer', true ) === 'yes' ) {
 						$service_type = 'transfer';
 					}
-					if ( $service_type === '' && (int) get_post_meta( $booking->ID, '_mhm_transfer_origin_id', true ) > 0 ) {
+					if ( $service_type === '' && (int) get_post_meta( $booking->ID, '_mhmrentiva_transfer_origin_id', true ) > 0 ) {
 						$service_type = 'transfer';
 					}
 					if ( $service_type === '' ) {
@@ -277,18 +277,18 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 						? __( 'Transfer', 'mhm-rentiva' )
 						: __( 'Car Rental', 'mhm-rentiva' );
 
-					$pickup_time = (string) get_post_meta( $booking->ID, '_mhm_start_time', true );
+					$pickup_time = (string) get_post_meta( $booking->ID, '_mhmrentiva_start_time', true );
 					if ( $pickup_time === '' ) {
-						$pickup_time = (string) get_post_meta( $booking->ID, '_mhm_pickup_time', true );
+						$pickup_time = (string) get_post_meta( $booking->ID, '_mhmrentiva_pickup_time', true );
 					}
-					$dropoff_time = (string) get_post_meta( $booking->ID, '_mhm_end_time', true );
+					$dropoff_time = (string) get_post_meta( $booking->ID, '_mhmrentiva_end_time', true );
 					if ( $dropoff_time === '' ) {
-						$dropoff_time = (string) get_post_meta( $booking->ID, '_mhm_dropoff_time', true );
+						$dropoff_time = (string) get_post_meta( $booking->ID, '_mhmrentiva_dropoff_time', true );
 					}
 
 					// Vehicle info.
-					$vehicle_brand = (string) get_post_meta( $b_vehicle_id, '_mhm_rentiva_brand', true );
-					$vehicle_model = (string) get_post_meta( $b_vehicle_id, '_mhm_rentiva_model', true );
+					$vehicle_brand = (string) get_post_meta( $b_vehicle_id, '_mhmrentiva_brand', true );
+					$vehicle_model = (string) get_post_meta( $b_vehicle_id, '_mhmrentiva_model', true );
 					$vehicle_name  = trim( $vehicle_brand . ' ' . $vehicle_model );
 					if ( $vehicle_name === '' ) {
 						$vehicle_title = get_the_title( $b_vehicle_id );
@@ -332,8 +332,8 @@ $filter_status = sanitize_key( (string) ( $_GET['booking_status'] ?? '' ) );
 					}
 
 					// Display ID.
-					$display_id = function_exists( 'mhm_rentiva_get_display_id' )
-						? mhm_rentiva_get_display_id( (int) $booking->ID )
+					$display_id = function_exists( 'mhmrentiva_get_display_id' )
+						? mhmrentiva_get_display_id( (int) $booking->ID )
 						: '#' . $booking->ID;
 
 					$is_pending = in_array( $b_status, array( 'pending', 'pending_payment' ), true );

@@ -23,9 +23,9 @@ class LayoutHistoryService {
     public static function get_current(int $post_id): array
     {
         return [
-            'hash'      => get_post_meta($post_id, '_mhm_layout_hash', true),
-            'timestamp' => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
-            'manifest'  => get_post_meta($post_id, '_mhm_layout_manifest', true),
+            'hash'      => get_post_meta($post_id, '_mhmrentiva_layout_hash', true),
+            'timestamp' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true),
+            'manifest'  => get_post_meta($post_id, '_mhmrentiva_layout_manifest', true),
         ];
     }
 
@@ -35,9 +35,9 @@ class LayoutHistoryService {
     public static function get_previous(int $post_id): array
     {
         return [
-            'hash'      => get_post_meta($post_id, '_mhm_layout_hash_previous', true),
-            'timestamp' => get_post_meta($post_id, '_mhm_layout_version_timestamp_previous', true),
-            'manifest'  => get_post_meta($post_id, '_mhm_layout_manifest_previous', true),
+            'hash'      => get_post_meta($post_id, '_mhmrentiva_layout_hash_previous', true),
+            'timestamp' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', true),
+            'manifest'  => get_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', true),
         ];
     }
 

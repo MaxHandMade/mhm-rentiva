@@ -32,7 +32,7 @@ final class AddCustomerPage {
 	 */
 	public static function register(): void {
 		// Hooks for AJAX operations.
-		add_action( 'wp_ajax_mhm_rentiva_add_customer', array( self::class, 'ajax_add_customer' ) );
+		add_action( 'wp_ajax_mhmrentiva_add_customer', array( self::class, 'ajax_add_customer' ) );
 	}
 
 	/**
@@ -48,8 +48,8 @@ final class AddCustomerPage {
 
 		// Form processing. The nonce field is the submission signal: only this
 		// page's own form carries it, so its validity is the whole test.
-		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_add_customer_nonce'] ?? '' ) );
-		if ( wp_verify_nonce( $nonce, 'mhm_rentiva_add_customer' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_add_customer_nonce'] ?? '' ) );
+		if ( wp_verify_nonce( $nonce, 'mhmrentiva_add_customer' ) ) {
 			$customer_name    = sanitize_text_field( wp_unslash( $_POST['customer_name'] ?? '' ) );
 			$customer_email   = sanitize_email( wp_unslash( $_POST['customer_email'] ?? '' ) );
 			$customer_phone   = sanitize_text_field( wp_unslash( $_POST['customer_phone'] ?? '' ) );
@@ -81,7 +81,7 @@ final class AddCustomerPage {
 
 				if ( ! is_wp_error( $user_id ) ) {
 					// Determine safe default role
-					$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_default_role', 'customer' );
+					$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_default_role', 'customer' );
 					if ( ! get_role( $default_role ) ) {
 						$default_role = 'customer';
 					}
@@ -103,8 +103,8 @@ final class AddCustomerPage {
 					}
 
 					// Add meta information
-					update_user_meta( $user_id, 'mhm_rentiva_phone', $customer_phone );
-					update_user_meta( $user_id, 'mhm_rentiva_address', $customer_address );
+					update_user_meta( $user_id, 'mhmrentiva_phone', $customer_phone );
+					update_user_meta( $user_id, 'mhmrentiva_address', $customer_address );
 
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
@@ -120,7 +120,7 @@ final class AddCustomerPage {
 		echo '<h1>' . esc_html__( 'Add New Customer', 'mhm-rentiva' ) . '</h1>';
 
 		echo '<form method="post" action="">';
-		wp_nonce_field( 'mhm_rentiva_add_customer', 'mhm_rentiva_add_customer_nonce' );
+		wp_nonce_field( 'mhmrentiva_add_customer', 'mhmrentiva_add_customer_nonce' );
 
 		echo '<table class="form-table">';
 		echo '<tbody>';
@@ -169,7 +169,7 @@ final class AddCustomerPage {
 	 */
 	public static function ajax_add_customer(): void {
 		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_rentiva_add_customer' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_add_customer' ) ) {
 			wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ) );
 		}
 
@@ -216,7 +216,7 @@ final class AddCustomerPage {
 		}
 
 		// Determine safe default role
-		$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_customer_default_role', 'customer' );
+		$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_default_role', 'customer' );
 		if ( ! get_role( $default_role ) ) {
 			$default_role = 'customer';
 		}
@@ -238,8 +238,8 @@ final class AddCustomerPage {
 		}
 
 		// Add meta information
-		update_user_meta( $user_id, 'mhm_rentiva_phone', $customer_phone );
-		update_user_meta( $user_id, 'mhm_rentiva_address', $customer_address );
+		update_user_meta( $user_id, 'mhmrentiva_phone', $customer_phone );
+		update_user_meta( $user_id, 'mhmrentiva_address', $customer_address );
 
 		// Clear cache
 		\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();

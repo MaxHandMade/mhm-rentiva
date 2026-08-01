@@ -27,8 +27,8 @@ usort( $vehicles, static function ( $a, $b ) {
 		'expired'   => 1,
 		'withdrawn' => 1,
 	);
-	$la       = (string) get_post_meta( $a->ID, '_mhm_vehicle_lifecycle_status', true );
-	$lb       = (string) get_post_meta( $b->ID, '_mhm_vehicle_lifecycle_status', true );
+	$la       = (string) get_post_meta( $a->ID, '_mhmrentiva_vehicle_lifecycle_status', true );
+	$lb       = (string) get_post_meta( $b->ID, '_mhmrentiva_vehicle_lifecycle_status', true );
 	return ( isset( $archived[ $la ] ) ? 1 : 0 ) <=> ( isset( $archived[ $lb ] ) ? 1 : 0 );
 } );
 
@@ -98,13 +98,13 @@ $resolve_operational_state = static function ( int $vehicle_id ): string {
 				stm.meta_value AS service_type,
 				trm.meta_value AS transfer_origin
 			 FROM {$wpdb->posts} p
-			 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhm_vehicle_id'
-			 INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhm_status'
+			 INNER JOIN {$wpdb->postmeta} vm ON vm.post_id = p.ID AND vm.meta_key = '_mhmrentiva_vehicle_id'
+			 INNER JOIN {$wpdb->postmeta} sm ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
 			   AND sm.meta_value IN ('pending_payment','confirmed','in_progress')
-			 INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhm_pickup_date'
-			 INNER JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhm_dropoff_date'
-			 LEFT JOIN  {$wpdb->postmeta} stm ON stm.post_id = p.ID AND stm.meta_key = '_mhm_service_type'
-			 LEFT JOIN  {$wpdb->postmeta} trm ON trm.post_id = p.ID AND trm.meta_key = '_mhm_transfer_origin_id'
+			 INNER JOIN {$wpdb->postmeta} dm ON dm.post_id = p.ID AND dm.meta_key = '_mhmrentiva_pickup_date'
+			 INNER JOIN {$wpdb->postmeta} em ON em.post_id = p.ID AND em.meta_key = '_mhmrentiva_dropoff_date'
+			 LEFT JOIN  {$wpdb->postmeta} stm ON stm.post_id = p.ID AND stm.meta_key = '_mhmrentiva_service_type'
+			 LEFT JOIN  {$wpdb->postmeta} trm ON trm.post_id = p.ID AND trm.meta_key = '_mhmrentiva_transfer_origin_id'
 			 WHERE p.post_type = 'vehicle_booking'
 			 AND p.post_status NOT IN ('trash','auto-draft')
 			 AND CAST(vm.meta_value AS UNSIGNED) = %d
@@ -211,7 +211,7 @@ $vehicle_count = count( $vehicles );
 			<?php foreach ( $vehicles as $vehicle ) : ?>
 				<?php
 				$review_status    = (string) get_post_meta( $vehicle->ID, '_vehicle_review_status', true );
-				$lifecycle_status = (string) get_post_meta( $vehicle->ID, '_mhm_vehicle_lifecycle_status', true );
+				$lifecycle_status = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_vehicle_lifecycle_status', true );
 				// Auto-correct: published vehicle with stale pending_review meta (e.g. published directly via admin).
 				if ( $vehicle->post_status === 'publish' && $review_status === 'pending_review' ) {
 					update_post_meta( $vehicle->ID, '_vehicle_review_status', 'approved' );
@@ -230,12 +230,12 @@ $vehicle_count = count( $vehicles );
 						. '</h3><div class="mhm-vendor-listings-page__list">';
 				}
 				$rejection_note = (string) get_post_meta( $vehicle->ID, '_vehicle_rejection_note', true );
-				$brand          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_brand', true );
-				$model          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_model', true );
-				$vehicle_year   = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_year', true );
-				$price          = (float) get_post_meta( $vehicle->ID, '_mhm_rentiva_price_per_day', true );
-				$city           = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_vehicle_city', true );
-				$plate          = (string) get_post_meta( $vehicle->ID, '_mhm_rentiva_plate', true );
+				$brand          = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_brand', true );
+				$model          = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_model', true );
+				$vehicle_year   = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_year', true );
+				$price          = (float) get_post_meta( $vehicle->ID, '_mhmrentiva_price_per_day', true );
+				$city           = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_vehicle_city', true );
+				$plate          = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_plate', true );
 				// For approved vehicles, show lifecycle status badge instead of review status.
 				$status_fallback_label = __( 'Draft', 'mhm-rentiva' );
 				if ( $review_status !== '' ) {
@@ -343,7 +343,7 @@ $vehicle_count = count( $vehicles );
 						<?php
 						// Withdrawal cooldown badge (shown on the withdrawn vehicle card).
 						if ( $lifecycle_status === 'withdrawn' ) :
-							$cooldown_ends_at = (string) get_post_meta( $vehicle->ID, '_mhm_vehicle_cooldown_ends_at', true );
+							$cooldown_ends_at = (string) get_post_meta( $vehicle->ID, '_mhmrentiva_vehicle_cooldown_ends_at', true );
 							if ( $cooldown_ends_at ) :
 								$cooldown_ts        = strtotime( $cooldown_ends_at );
 								$cooldown_remaining = (int) ceil( ( $cooldown_ts - time() ) / DAY_IN_SECONDS );
@@ -363,8 +363,8 @@ $vehicle_count = count( $vehicles );
 
 						// Remaining listing time display
 						if ( in_array( $lifecycle_status, array( 'active', 'paused' ), true ) ) :
-							$expires_at = get_post_meta( $vehicle->ID, '_mhm_vehicle_listing_expires_at', true );
-							$started_at = get_post_meta( $vehicle->ID, '_mhm_vehicle_listing_started_at', true );
+							$expires_at = get_post_meta( $vehicle->ID, '_mhmrentiva_vehicle_listing_expires_at', true );
+							$started_at = get_post_meta( $vehicle->ID, '_mhmrentiva_vehicle_listing_started_at', true );
 
 							if ( $expires_at ) :
 								$now            = time();

@@ -23,10 +23,10 @@ jQuery(document).ready(function($) {
 	// Initial visual state + one-time sync of the pre-selected type with the cart session.
 	updateSelectedState();
 
-	var $initialSelected = $('input[name="mhm_booking_payment_type"]:checked');
+	var $initialSelected = $('input[name="mhmrentiva_booking_payment_type"]:checked');
 	if ($initialSelected.length) {
 		$.post(ajaxUrl(), {
-			action: 'mhm_rentiva_update_booking_payment_type',
+			action: 'mhmrentiva_update_booking_payment_type',
 			payment_type: $initialSelected.val(),
 			nonce: cfg.nonce
 		});
@@ -36,7 +36,7 @@ jQuery(document).ready(function($) {
 	$(document.body).on('updated_checkout', updateSelectedState);
 
 	// Delegated so it keeps working after the order review is re-rendered.
-	$(document).on('change', 'input[name="mhm_booking_payment_type"]', function() {
+	$(document).on('change', 'input[name="mhmrentiva_booking_payment_type"]', function() {
 		var paymentType = $(this).val();
 
 		// Update selected state immediately for better UX
@@ -47,7 +47,7 @@ jQuery(document).ready(function($) {
 			url: ajaxUrl(),
 			type: 'POST',
 			data: {
-				action: 'mhm_rentiva_update_booking_payment_type',
+				action: 'mhmrentiva_update_booking_payment_type',
 				payment_type: paymentType,
 				nonce: cfg.nonce
 			},

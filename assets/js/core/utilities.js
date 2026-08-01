@@ -110,7 +110,7 @@
             if (isNaN(number)) return '0';
 
             const num = parseFloat(number);
-            const locale = (window.mhm_rentiva_config && window.mhm_rentiva_config.locale) || 'en-US';
+            const locale = (window.mhmrentiva_config && window.mhmrentiva_config.locale) || 'en-US';
             return num.toLocaleString(locale, {
                 minimumFractionDigits: decimals,
                 maximumFractionDigits: decimals
@@ -127,8 +127,8 @@
             if (isNaN(amount)) return '0.00 ' + (currency || 'USD');
 
             const num = parseFloat(amount);
-            const currencyCode = currency || (window.mhm_rentiva_config && window.mhm_rentiva_config.currency) || 'USD';
-            const locale = (window.mhm_rentiva_config && window.mhm_rentiva_config.locale) || 'en-US';
+            const currencyCode = currency || (window.mhmrentiva_config && window.mhmrentiva_config.currency) || 'USD';
+            const locale = (window.mhmrentiva_config && window.mhmrentiva_config.locale) || 'en-US';
 
             return num.toLocaleString(locale, {
                 style: 'currency',
@@ -150,7 +150,7 @@
             const d = new Date(date);
             if (isNaN(d.getTime())) return '';
 
-            const locale = (window.mhm_rentiva_config && window.mhm_rentiva_config.locale) || 'en-US';
+            const locale = (window.mhmrentiva_config && window.mhmrentiva_config.locale) || 'en-US';
 
             const options = {
                 default: {
@@ -393,8 +393,8 @@
             }
 
             // Check for config URL
-            if (window.mhm_rentiva_config && window.mhm_rentiva_config.ajaxUrl) {
-                return window.mhm_rentiva_config.ajaxUrl;
+            if (window.mhmrentiva_config && window.mhmrentiva_config.ajaxUrl) {
+                return window.mhmrentiva_config.ajaxUrl;
             }
 
             // Nothing to fall back to. A guessed path is wrong on any install that
@@ -427,7 +427,7 @@
             // Add nonce
             if (!settings.data) settings.data = {};
             if (!settings.data.nonce) {
-                settings.data.nonce = window.mhm_ajax_nonce || '';
+                settings.data.nonce = window.mhmrentiva_ajax_nonce || '';
             }
 
             return $.ajax(settings).fail(function (xhr, status, error) {

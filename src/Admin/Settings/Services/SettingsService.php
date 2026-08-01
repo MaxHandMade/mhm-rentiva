@@ -54,7 +54,7 @@ final class SettingsService {
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
 			// Extension-owned tabs (Task A6b seam inversion): Lite no longer names these
 			// classes. The extension registers its provider class for each via the existing
-			// `mhm_rentiva_register_settings_providers` action (Settings::init()),
+			// `mhmrentiva_register_settings_providers` action (Settings::init()),
 			// and this reads that same registry -- returns null with no subscriber,
 			// exactly like every other unregistered tab below.
 			'transfer', 'vendor-marketplace', 'messages' => \MHMRentiva\Admin\Settings\Settings::get_provider( $target_tab ),
@@ -101,17 +101,17 @@ final class SettingsService {
 		}
 
 		// 2. Handle Separate Option Storage (e.g. Messages)
-		$target_option_name = 'mhm_rentiva_settings';
+		$target_option_name = 'mhmrentiva_settings';
 		if ( $provider_class && defined( "$provider_class::OPTION_NAME" ) ) {
 			$target_option_name = constant( "$provider_class::OPTION_NAME" );
 		}
 
-		if ( $target_option_name !== 'mhm_rentiva_settings' ) {
+		if ( $target_option_name !== 'mhmrentiva_settings' ) {
 			update_option( $target_option_name, $defaults );
 			return true;
 		}
 
-		$master_option = (array) get_option( 'mhm_rentiva_settings', array() );
+		$master_option = (array) get_option( 'mhmrentiva_settings', array() );
 		$changed       = false;
 
 		// 3. DEFINE SCOPES for Email specific logic
@@ -142,19 +142,19 @@ final class SettingsService {
 
 		// 4. Commit changes to master application settings
 		if ( $changed && ! $is_template_scope ) {
-			update_option( 'mhm_rentiva_settings', $master_option );
+			update_option( 'mhmrentiva_settings', $master_option );
 		}
 
 		// 5. Cleanup legacy standalone options for Email
 		if ( $is_general_email_scope ) {
 			$legacy_keys = array(
-				'mhm_rentiva_sender_name',
-				'mhm_rentiva_sender_email',
-				'mhm_rentiva_base_color',
-				'mhm_rentiva_header_image',
-				'mhm_rentiva_footer_text',
-				'mhm_rentiva_test_mode',
-				'mhm_rentiva_test_email_address',
+				'mhmrentiva_sender_name',
+				'mhmrentiva_sender_email',
+				'mhmrentiva_base_color',
+				'mhmrentiva_header_image',
+				'mhmrentiva_footer_text',
+				'mhmrentiva_test_mode',
+				'mhmrentiva_test_email_address',
 			);
 			foreach ( $legacy_keys as $key ) {
 				delete_option( $key );
@@ -183,7 +183,7 @@ final class SettingsService {
 			return;
 		}
 
-		// All providers that write to the master mhm_rentiva_settings option.
+		// All providers that write to the master mhmrentiva_settings option.
 		$provider_classes = array(
 			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
@@ -198,7 +198,7 @@ final class SettingsService {
 		// Add-on-owned providers that also write to the master option (Task A6b
 		// seam inversion): Lite no longer names the Transfer settings-group
 		// class here. The add-on adds its own provider class(es) back via this filter.
-		$provider_classes = (array) apply_filters( 'mhm_rentiva_settings_activation_providers', $provider_classes );
+		$provider_classes = (array) apply_filters( 'mhmrentiva_settings_activation_providers', $provider_classes );
 
 		$defaults = array();
 		foreach ( $provider_classes as $class ) {

@@ -25,9 +25,9 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
         $this->booking_id = self::factory()->post->create(array('post_type' => 'vehicle_booking'));
 
-        remove_role('mhm_test_editposts_only');
+        remove_role('mhmrentiva_test_editposts_only');
         add_role(
-            'mhm_test_editposts_only',
+            'mhmrentiva_test_editposts_only',
             'MHM Test EditPosts Only',
             array(
                 'read'       => true,
@@ -44,14 +44,14 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function tearDown(): void
     {
-        remove_role('mhm_test_editposts_only');
+        remove_role('mhmrentiva_test_editposts_only');
         parent::tearDown();
     }
 
     private function dispatch_ajax(): void
     {
         try {
-            $this->_handleAjax('mhm_rentiva_create_customer_account_manual');
+            $this->_handleAjax('mhmrentiva_create_customer_account_manual');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected path for WP_Ajax_UnitTestCase.
         }
@@ -65,10 +65,10 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function test_ajax_create_customer_account_denied_without_create_users_capability(): void
     {
-        $capped_id = self::factory()->user->create(array( 'role' => 'mhm_test_editposts_only' ));
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
         wp_set_current_user($capped_id);
 
-        $_POST['nonce']      = wp_create_nonce('mhm_create_customer_account');
+        $_POST['nonce']      = wp_create_nonce('mhmrentiva_create_customer_account');
         $_POST['booking_id'] = (string) $this->booking_id;
         $_POST['email']      = 'denied-portal-customer@example.com';
         $_POST['name']       = 'Denied Portal Customer';
@@ -85,7 +85,7 @@ final class BookingPortalMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         $manager_id = self::factory()->user->create(array( 'role' => 'administrator' ));
         wp_set_current_user($manager_id);
 
-        $_POST['nonce']      = wp_create_nonce('mhm_create_customer_account');
+        $_POST['nonce']      = wp_create_nonce('mhmrentiva_create_customer_account');
         $_POST['booking_id'] = (string) $this->booking_id;
         $_POST['email']      = 'allowed-portal-customer@example.com';
         $_POST['name']       = 'Allowed Portal Customer';

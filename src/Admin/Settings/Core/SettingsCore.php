@@ -27,9 +27,9 @@ final class SettingsCore {
 	/**
 	 * Settings Group and Page constants
 	 */
-	public const GROUP       = 'mhm_rentiva_settings';
-	public const PAGE        = 'mhm_rentiva_settings';
-	public const OPTION_NAME = 'mhm_rentiva_settings';
+	public const GROUP       = 'mhmrentiva_settings';
+	public const PAGE        = 'mhmrentiva_settings';
+	public const OPTION_NAME = 'mhmrentiva_settings';
 
 	/**
 	 * Register all core settings hooks
@@ -44,7 +44,7 @@ final class SettingsCore {
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_dark_mode_styles' ));
 
 		// AJAX Handlers
-		add_action('wp_ajax_mhm_rentiva_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
+		add_action('wp_ajax_mhmrentiva_save_dark_mode', array( self::class, 'ajax_save_dark_mode' ));
 
 		// Service Initializers (Delegated to specialized managers)
 		add_action('init', array( self::class, 'initialize_services' ));
@@ -85,7 +85,7 @@ final class SettingsCore {
 
 		register_setting(
 			self::GROUP,
-			'mhm_rentiva_dark_mode',
+			'mhmrentiva_dark_mode',
 			array(
 				'type'              => 'string',
 				'sanitize_callback' => array( \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_dark_mode_option' ),
@@ -95,8 +95,8 @@ final class SettingsCore {
 		);
 
 		register_setting(
-			'mhm_rentiva_addon_settings',
-			'mhm_rentiva_addon_settings',
+			'mhmrentiva_addon_settings',
+			'mhmrentiva_addon_settings',
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::class, 'sanitize_addon_settings_option' ),
@@ -133,7 +133,7 @@ final class SettingsCore {
 		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
 		// The add-on adds its own group class(es) back via this filter.
-		$groups = (array) apply_filters( 'mhm_rentiva_settings_groups', $groups );
+		$groups = (array) apply_filters( 'mhmrentiva_settings_groups', $groups );
 
 		foreach ($groups as $group) {
 			if (class_exists($group) && method_exists($group, 'register')) {
@@ -189,11 +189,11 @@ final class SettingsCore {
 	 * fix in v4.27.2 prevents the pollution from recurring; this migration
 	 * just cleans up the already-affected installs.
 	 *
-	 * Idempotent via the `mhm_rentiva_v4272_test_pollution_cleaned` flag.
+	 * Idempotent via the `mhmrentiva_v4272_test_pollution_cleaned` flag.
 	 */
 	public static function migrate_clean_test_pollution(): void
 	{
-		$flag = 'mhm_rentiva_v4272_test_pollution_cleaned';
+		$flag = 'mhmrentiva_v4272_test_pollution_cleaned';
 		if (get_option($flag)) {
 			return;
 		}
@@ -211,11 +211,11 @@ final class SettingsCore {
 	 * original migration never re-ran to catch the collateral '1' values.
 	 *
 	 * Reuses the same fingerprint check as {@see self::migrate_clean_test_pollution()}.
-	 * Idempotent via its own `mhm_rentiva_v4641_test_pollution_recleaned` flag.
+	 * Idempotent via its own `mhmrentiva_v4641_test_pollution_recleaned` flag.
 	 */
 	public static function migrate_reclean_test_pollution(): void
 	{
-		$flag = 'mhm_rentiva_v4641_test_pollution_recleaned';
+		$flag = 'mhmrentiva_v4641_test_pollution_recleaned';
 		if (get_option($flag)) {
 			return;
 		}
@@ -241,25 +241,25 @@ final class SettingsCore {
 
 		$polluted_keys = array(
 			// Free-text labels that can never legitimately equal '0' or '1'.
-			'mhm_rentiva_brand_name',
-			'mhm_rentiva_email_from_name',
-			'mhm_rentiva_contact_phone',
-			'mhm_rentiva_contact_hours',
-			'mhm_rentiva_email_footer_text',
+			'mhmrentiva_brand_name',
+			'mhmrentiva_email_from_name',
+			'mhmrentiva_contact_phone',
+			'mhmrentiva_contact_hours',
+			'mhmrentiva_email_footer_text',
 			// Email fields.
-			'mhm_rentiva_email_from_address',
-			'mhm_rentiva_support_email',
-			'mhm_rentiva_email_reply_to',
+			'mhmrentiva_email_from_address',
+			'mhmrentiva_support_email',
+			'mhmrentiva_email_reply_to',
 			// URL fields.
-			'mhm_rentiva_booking_url',
-			'mhm_rentiva_login_url',
-			'mhm_rentiva_register_url',
-			'mhm_rentiva_vehicles_list_url',
-			'mhm_rentiva_my_bookings_url',
-			'mhm_rentiva_brand_logo_url',
-			'mhm_rentiva_email_header_image',
+			'mhmrentiva_booking_url',
+			'mhmrentiva_login_url',
+			'mhmrentiva_register_url',
+			'mhmrentiva_vehicles_list_url',
+			'mhmrentiva_my_bookings_url',
+			'mhmrentiva_brand_logo_url',
+			'mhmrentiva_email_header_image',
 			// Currency codes — three-letter ISO; '0' / '1' is pollution.
-			'mhm_rentiva_currency',
+			'mhmrentiva_currency',
 		);
 
 		$changed = false;
@@ -351,7 +351,7 @@ final class SettingsCore {
 	 */
 	public static function get_support_email(): string
 	{
-		return (string) self::get('mhm_rentiva_support_email', 'support@wpalemi.com');
+		return (string) self::get('mhmrentiva_support_email', 'support@wpalemi.com');
 	}
 
 	/**
@@ -369,7 +369,7 @@ final class SettingsCore {
 	 */
 	public static function settings_tabs(): array
 	{
-		return (array) apply_filters('mhm_rentiva_settings_tabs', array());
+		return (array) apply_filters('mhmrentiva_settings_tabs', array());
 	}
 
 	/**
@@ -384,13 +384,13 @@ final class SettingsCore {
 		}
 
 		$merged_defaults = array(
-			'mhm_rentiva_endpoint_bookings'        => 'rentiva-bookings',
-			'mhm_rentiva_endpoint_favorites'       => 'rentiva-favorites',
-			'mhm_rentiva_endpoint_payment_history' => 'rentiva-payment-history',
-			'mhm_rentiva_endpoint_edit_account'    => 'rentiva-edit-account',
-			'mhm_rentiva_endpoint_messages'        => 'rentiva-messages',
-			'mhm_rentiva_vehicle_base_price'       => 1.0,
-			'mhm_rentiva_brand_name'               => get_bloginfo('name'),
+			'mhmrentiva_endpoint_bookings'        => 'rentiva-bookings',
+			'mhmrentiva_endpoint_favorites'       => 'rentiva-favorites',
+			'mhmrentiva_endpoint_payment_history' => 'rentiva-payment-history',
+			'mhmrentiva_endpoint_edit_account'    => 'rentiva-edit-account',
+			'mhmrentiva_endpoint_messages'        => 'rentiva-messages',
+			'mhmrentiva_vehicle_base_price'       => 1.0,
+			'mhmrentiva_brand_name'               => get_bloginfo('name'),
 		);
 
 		// Collect defaults from other modules
@@ -414,7 +414,7 @@ final class SettingsCore {
 		// The add-on adds its own group class(es) back via this filter (same filter as
 		// register_sub_groups() above -- both lists carried the same two
 		// classes before the carve).
-		$sub_modules = (array) apply_filters( 'mhm_rentiva_settings_groups', $sub_modules );
+		$sub_modules = (array) apply_filters( 'mhmrentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {
 			if (class_exists($module) && method_exists($module, 'get_default_settings')) {
@@ -431,7 +431,7 @@ final class SettingsCore {
 	public static function enqueue_dark_mode_styles(): void
 	{
 		// Use central getter to respect settings page saves
-		$mode = self::get('mhm_rentiva_dark_mode', 'auto');
+		$mode = self::get('mhmrentiva_dark_mode', 'auto');
 
 		if ('auto' !== $mode) {
 			return;
@@ -439,9 +439,9 @@ final class SettingsCore {
 
 		wp_enqueue_style(
 			'mhm-rentiva-auto-dark-mode',
-			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/auto-dark-mode.css',
+			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/auto-dark-mode.css',
 			array(),
-			\MHM_RENTIVA_VERSION
+			\MHMRENTIVA_VERSION
 		);
 	}
 
@@ -450,7 +450,7 @@ final class SettingsCore {
 	 */
 	public static function ajax_save_dark_mode(): void
 	{
-		if (! check_ajax_referer('mhm_dark_mode_nonce', 'nonce', false)) {
+		if (! check_ajax_referer('mhmrentiva_dark_mode_nonce', 'nonce', false)) {
 			wp_send_json_error(__('Invalid nonce', 'mhm-rentiva'), 403);
 		}
 
@@ -462,17 +462,17 @@ final class SettingsCore {
 		$mode     = \MHMRentiva\Admin\Settings\Core\SettingsSanitizer::sanitize_dark_mode_option($raw_mode);
 
 		// 1. Update standalone option (for quick frontend access)
-		update_option('mhm_rentiva_dark_mode', $mode);
+		update_option('mhmrentiva_dark_mode', $mode);
 
 		// 2. Sync with Main Settings Array (so the Settings Form reflects the change).
 		// Only touch the dark mode key here — routing this through the full
 		// SettingsSanitizer::sanitize() with an input array that only contains
-		// 'mhm_rentiva_dark_mode' used to re-run the entire General/Site-Info
+		// 'mhmrentiva_dark_mode' used to re-run the entire General/Site-Info
 		// sanitizer, which silently blanked contact_phone/contact_hours/
 		// support_email and reset brand_name to get_bloginfo('name') on every
 		// dark mode toggle.
 		$settings                          = self::get_all();
-		$settings['mhm_rentiva_dark_mode'] = $mode;
+		$settings['mhmrentiva_dark_mode'] = $mode;
 		update_option(self::OPTION_NAME, $settings);
 
 		wp_send_json_success(array( 'message' => __('Settings updated', 'mhm-rentiva') ));
@@ -484,11 +484,11 @@ final class SettingsCore {
 	public static function handle_rewrite_flushing(mixed $old_value, mixed $new_value): void
 	{
 		$slug_keys = array(
-			'mhm_rentiva_vehicle_url_base',
-			'mhm_rentiva_endpoint_bookings',
-			'mhm_rentiva_endpoint_favorites',
-			'mhm_rentiva_endpoint_payment_history',
-			'mhm_rentiva_endpoint_messages',
+			'mhmrentiva_vehicle_url_base',
+			'mhmrentiva_endpoint_bookings',
+			'mhmrentiva_endpoint_favorites',
+			'mhmrentiva_endpoint_payment_history',
+			'mhmrentiva_endpoint_messages',
 		);
 
 		$changed = false;
@@ -501,7 +501,7 @@ final class SettingsCore {
 
 		if ($changed) {
 			flush_rewrite_rules();
-			update_option('mhm_rentiva_woocommerce_endpoints_flushed', false);
+			update_option('mhmrentiva_woocommerce_endpoints_flushed', false);
 		}
 	}
 
@@ -521,23 +521,23 @@ final class SettingsCore {
 
 		wp_enqueue_style(
 			'mhm-rentiva-settings',
-			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
+			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/settings.css',
 			array(),
-			\MHM_RENTIVA_VERSION . '.toast2'
+			\MHMRENTIVA_VERSION . '.toast2'
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-dark-mode',
-			\MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
+			\MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/dark-mode.css',
 			array(),
-			\MHM_RENTIVA_VERSION
+			\MHMRENTIVA_VERSION
 		);
 
 		wp_enqueue_script(
 			'mhm-rentiva-dark-mode',
-			\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
+			\MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/dark-mode.js',
 			array( 'jquery' ),
-			\MHM_RENTIVA_VERSION,
+			\MHMRENTIVA_VERSION,
 			true
 		);
 
@@ -546,8 +546,8 @@ final class SettingsCore {
 			'mhmDarkMode',
 			array(
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
-				'nonce'       => wp_create_nonce('mhm_dark_mode_nonce'),
-				'currentMode' => self::get('mhm_rentiva_dark_mode', 'auto'),
+				'nonce'       => wp_create_nonce('mhmrentiva_dark_mode_nonce'),
+				'currentMode' => self::get('mhmrentiva_dark_mode', 'auto'),
 			)
 		);
 
@@ -555,9 +555,9 @@ final class SettingsCore {
 			// in SettingsHelper::render_media_field_html().
 			wp_enqueue_script(
 				'mhm-rentiva-settings-media-field',
-				\MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings-media-field.js',
+				\MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/settings-media-field.js',
 				array( 'media-editor' ),
-				\MHM_RENTIVA_VERSION,
+				\MHMRENTIVA_VERSION,
 				true
 			);
 

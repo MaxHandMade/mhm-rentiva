@@ -10,7 +10,7 @@ use WP_UnitTestCase;
 /**
  * A page-size taken from an anonymous request must carry a ceiling.
  *
- * `wp_ajax_nopriv_mhm_rentiva_filter_results` reads `per_page` and passes it
+ * `wp_ajax_nopriv_mhmrentiva_filter_results` reads `per_page` and passes it
  * straight to `posts_per_page`; the nonce it checks is printed on every public
  * search page, so it is not a barrier to anyone who can load the site. Without
  * an upper bound, `per_page=1000000` makes one request query and render the

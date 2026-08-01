@@ -127,6 +127,6 @@ final class DashboardConfig {
 		 *
 		 * @param array<string, array<string, mixed>> $kpis Default KPI configuration mapping.
 		 */
-		return apply_filters("mhm_rentiva_dashboard_kpi_{$context}", $kpis);
+		return apply_filters("mhmrentiva_dashboard_kpi_{$context}", $kpis);
 	}
 }

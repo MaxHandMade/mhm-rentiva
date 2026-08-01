@@ -44,7 +44,7 @@ class BookingEnricherTest extends \WP_UnitTestCase
             'last_name'  => 'Lovelace',
         ]);
         $booking_id = $this->make_booking();
-        update_post_meta($booking_id, '_mhm_customer_user_id', $user_id);
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $user_id);
 
         $rows = [
             ['id' => $booking_id, 'customer_name' => ''],
@@ -63,7 +63,7 @@ class BookingEnricherTest extends \WP_UnitTestCase
         ]);
         update_user_meta($user_id, 'phone', '555-0100');
         $booking_id = $this->make_booking();
-        update_post_meta($booking_id, '_mhm_customer_user_id', $user_id);
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $user_id);
 
         $rows = [
             ['id' => $booking_id, 'customer_name' => ''],
@@ -87,7 +87,7 @@ class BookingEnricherTest extends \WP_UnitTestCase
         ]);
         update_user_meta($user_id, 'phone', '555-0199');
         $booking_id = $this->make_booking();
-        update_post_meta($booking_id, '_mhm_customer_user_id', $user_id);
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $user_id);
 
         $rows = [
             ['id' => $booking_id, 'customer_name' => '', 'customer_phone' => ''],
@@ -106,7 +106,7 @@ class BookingEnricherTest extends \WP_UnitTestCase
         ]);
         update_user_meta($user_id, 'phone', '555-9999');
         $booking_id = $this->make_booking();
-        update_post_meta($booking_id, '_mhm_customer_user_id', $user_id);
+        update_post_meta($booking_id, '_mhmrentiva_customer_user_id', $user_id);
 
         $rows = [
             ['id' => $booking_id, 'customer_name' => '', 'customer_phone' => '555-0001'],

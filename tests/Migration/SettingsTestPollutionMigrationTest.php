@@ -24,8 +24,8 @@ use WP_UnitTestCase;
  */
 class SettingsTestPollutionMigrationTest extends WP_UnitTestCase
 {
-    private const FLAG_OPTION   = 'mhm_rentiva_v4272_test_pollution_cleaned';
-    private const OPTION_NAME   = 'mhm_rentiva_settings';
+    private const FLAG_OPTION   = 'mhmrentiva_v4272_test_pollution_cleaned';
+    private const OPTION_NAME   = 'mhmrentiva_settings';
 
     protected function tearDown(): void
     {
@@ -41,22 +41,22 @@ class SettingsTestPollutionMigrationTest extends WP_UnitTestCase
     public function test_migration_removes_flip_pollution_from_text_fields(): void
     {
         update_option(self::OPTION_NAME, array(
-            'mhm_rentiva_brand_name'          => '1',
-            'mhm_rentiva_email_from_name'     => '1',
-            'mhm_rentiva_email_from_address'  => '1',
-            'mhm_rentiva_booking_url'         => '1',
-            'mhm_rentiva_currency'            => '1',
+            'mhmrentiva_brand_name'          => '1',
+            'mhmrentiva_email_from_name'     => '1',
+            'mhmrentiva_email_from_address'  => '1',
+            'mhmrentiva_booking_url'         => '1',
+            'mhmrentiva_currency'            => '1',
         ));
 
         SettingsCore::migrate_clean_test_pollution();
 
         $stored = get_option(self::OPTION_NAME, array());
         $this->assertIsArray($stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_brand_name', $stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_email_from_name', $stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_email_from_address', $stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_booking_url', $stored);
-        $this->assertArrayNotHasKey('mhm_rentiva_currency', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_brand_name', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_email_from_name', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_email_from_address', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_booking_url', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_currency', $stored);
     }
 
     /**
@@ -65,21 +65,21 @@ class SettingsTestPollutionMigrationTest extends WP_UnitTestCase
     public function test_migration_preserves_genuine_user_values(): void
     {
         update_option(self::OPTION_NAME, array(
-            'mhm_rentiva_brand_name'          => 'Otokira Rent a Car',
-            'mhm_rentiva_email_from_name'     => 'Support Team',
-            'mhm_rentiva_email_from_address'  => 'support@example.com',
-            'mhm_rentiva_booking_url'         => '/reservations',
-            'mhm_rentiva_currency'            => 'EUR',
+            'mhmrentiva_brand_name'          => 'Otokira Rent a Car',
+            'mhmrentiva_email_from_name'     => 'Support Team',
+            'mhmrentiva_email_from_address'  => 'support@example.com',
+            'mhmrentiva_booking_url'         => '/reservations',
+            'mhmrentiva_currency'            => 'EUR',
         ));
 
         SettingsCore::migrate_clean_test_pollution();
 
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertSame('Otokira Rent a Car', $stored['mhm_rentiva_brand_name']);
-        $this->assertSame('Support Team', $stored['mhm_rentiva_email_from_name']);
-        $this->assertSame('support@example.com', $stored['mhm_rentiva_email_from_address']);
-        $this->assertSame('/reservations', $stored['mhm_rentiva_booking_url']);
-        $this->assertSame('EUR', $stored['mhm_rentiva_currency']);
+        $this->assertSame('Otokira Rent a Car', $stored['mhmrentiva_brand_name']);
+        $this->assertSame('Support Team', $stored['mhmrentiva_email_from_name']);
+        $this->assertSame('support@example.com', $stored['mhmrentiva_email_from_address']);
+        $this->assertSame('/reservations', $stored['mhmrentiva_booking_url']);
+        $this->assertSame('EUR', $stored['mhmrentiva_currency']);
     }
 
     /**
@@ -89,17 +89,17 @@ class SettingsTestPollutionMigrationTest extends WP_UnitTestCase
     public function test_migration_leaves_numeric_fields_alone(): void
     {
         update_option(self::OPTION_NAME, array(
-            'mhm_rentiva_booking_cancellation_deadline_hours' => 1,
-            'mhm_rentiva_booking_payment_deadline_minutes'    => 1,
-            'mhm_rentiva_brand_name'                          => '1',
+            'mhmrentiva_booking_cancellation_deadline_hours' => 1,
+            'mhmrentiva_booking_payment_deadline_minutes'    => 1,
+            'mhmrentiva_brand_name'                          => '1',
         ));
 
         SettingsCore::migrate_clean_test_pollution();
 
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertSame(1, $stored['mhm_rentiva_booking_cancellation_deadline_hours']);
-        $this->assertSame(1, $stored['mhm_rentiva_booking_payment_deadline_minutes']);
-        $this->assertArrayNotHasKey('mhm_rentiva_brand_name', $stored, 'Text field pollution still removed.');
+        $this->assertSame(1, $stored['mhmrentiva_booking_cancellation_deadline_hours']);
+        $this->assertSame(1, $stored['mhmrentiva_booking_payment_deadline_minutes']);
+        $this->assertArrayNotHasKey('mhmrentiva_brand_name', $stored, 'Text field pollution still removed.');
     }
 
     /**
@@ -108,18 +108,18 @@ class SettingsTestPollutionMigrationTest extends WP_UnitTestCase
      */
     public function test_migration_is_idempotent(): void
     {
-        update_option(self::OPTION_NAME, array( 'mhm_rentiva_brand_name' => '1' ));
+        update_option(self::OPTION_NAME, array( 'mhmrentiva_brand_name' => '1' ));
 
         SettingsCore::migrate_clean_test_pollution();
         $this->assertSame('1', get_option(self::FLAG_OPTION));
         $stored = get_option(self::OPTION_NAME, array());
-        $this->assertArrayNotHasKey('mhm_rentiva_brand_name', $stored);
+        $this->assertArrayNotHasKey('mhmrentiva_brand_name', $stored);
 
         // Simulate a later legitimate brand name of "1" (rare but valid edge
         // case). The migration must not clobber it because the flag is set.
-        update_option(self::OPTION_NAME, array( 'mhm_rentiva_brand_name' => '1' ));
+        update_option(self::OPTION_NAME, array( 'mhmrentiva_brand_name' => '1' ));
         SettingsCore::migrate_clean_test_pollution();
-        $this->assertSame('1', get_option(self::OPTION_NAME)['mhm_rentiva_brand_name']);
+        $this->assertSame('1', get_option(self::OPTION_NAME)['mhmrentiva_brand_name']);
     }
 
     /**

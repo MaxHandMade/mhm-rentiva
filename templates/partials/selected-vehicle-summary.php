@@ -26,9 +26,9 @@ require 'vehicle-card-base.php';
 $show_compare  = false;
 $show_booking  = false;
 $display_title = $title ?? ( $vehicle_title ?? ( $vehicle['title'] ?? '' ) );
-$model_year    = (string) ( $vehicle['year'] ?? get_post_meta( (int) $vehicle_id, 'mhm_vehicle_year', true) );
+$model_year    = (string) ( $vehicle['year'] ?? get_post_meta( (int) $vehicle_id, 'mhmrentiva_vehicle_year', true) );
 if ($model_year === '') {
-	$model_year = (string) get_post_meta( (int) $vehicle_id, '_mhm_vehicle_year', true);
+	$model_year = (string) get_post_meta( (int) $vehicle_id, '_mhmrentiva_vehicle_year', true);
 }
 
 $display_category = '';
@@ -72,7 +72,7 @@ if (! empty($category_name)) {
 		<?php if ($show_fav) : ?>
 			<button class="rv-sv__favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
 				data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
-				data-nonce="<?php echo esc_attr(wp_create_nonce('mhm_rentiva_toggle_favorite')); ?>"
+				data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
 				aria-label="<?php echo esc_attr__('Toggle favorite', 'mhm-rentiva'); ?>">
 				<?php Icons::render('heart', array( 'class' => 'rv-heart-icon' )); ?>
 			</button>

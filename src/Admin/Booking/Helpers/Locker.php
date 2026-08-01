@@ -32,7 +32,7 @@ final class Locker {
                  WHERE post_id = %d AND meta_key LIKE %s
                  FOR UPDATE",
 					$vehicle_id,
-					$wpdb->esc_like( '_mhm_' ) . '%'
+					$wpdb->esc_like( '_mhmrentiva_' ) . '%'
 				)
 			);
 
@@ -66,7 +66,7 @@ final class Locker {
                  WHERE post_id = %d AND meta_key LIKE %s
                  FOR UPDATE",
 					$booking_id,
-					$wpdb->esc_like( '_mhm_' ) . '%'
+					$wpdb->esc_like( '_mhmrentiva_' ) . '%'
 				)
 			);
 

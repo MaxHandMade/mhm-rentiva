@@ -33,7 +33,7 @@ final class ShortcodeUrlManager {
 	/**
 	 * Cache group for shortcode mappings.
 	 */
-	private const CACHE_GROUP = 'mhm_rentiva_shortcodes';
+	private const CACHE_GROUP = 'mhmrentiva_shortcodes';
 
 	/**
 	 * Static cache for the current request.
@@ -62,7 +62,7 @@ final class ShortcodeUrlManager {
 		}
 
 		// 2. PRIORITY: Check Plugin Settings for manual URL override
-		$settings    = get_option( 'mhm_rentiva_settings', array() );
+		$settings    = get_option( 'mhmrentiva_settings', array() );
 		$setting_key = self::get_setting_key_for_shortcode( $shortcode );
 
 		if ( $setting_key && ! empty( $settings[ $setting_key ] ) ) {
@@ -89,7 +89,7 @@ final class ShortcodeUrlManager {
 		 * @param string|null $dynamic_url The URL provided by external modules. Default null.
 		 * @param string      $shortcode   The shortcode tag being requested.
 		 */
-		$dynamic_url = apply_filters( 'mhm_rentiva_shortcode_url', null, $shortcode );
+		$dynamic_url = apply_filters( 'mhmrentiva_shortcode_url', null, $shortcode );
 
 		if ( ! empty( $dynamic_url ) ) {
 			// Ensure it's a valid URL
@@ -226,18 +226,18 @@ final class ShortcodeUrlManager {
 	 */
 	private static function get_setting_key_for_shortcode( string $shortcode ): ?string {
 		$mapping = array(
-			'rentiva_booking_form'          => 'mhm_rentiva_booking_url',
-			'rentiva_my_bookings'           => 'mhm_rentiva_my_bookings_url',
-			'rentiva_my_favorites'          => 'mhm_rentiva_my_favorites_url',
-			'rentiva_payment_history'       => 'mhm_rentiva_payment_history_url',
-			'rentiva_messages'              => 'mhm_rentiva_messages_url',
-			'rentiva_vehicles_list'         => 'mhm_rentiva_vehicles_list_url',
-			'rentiva_vehicles_grid'         => 'mhm_rentiva_vehicles_grid_url',
-			'rentiva_unified_search'        => 'mhm_rentiva_unified_search_url',
-			'rentiva_search_results'        => 'mhm_rentiva_search_results_url',
-			'rentiva_contact'               => 'mhm_rentiva_contact_url',
-			'rentiva_availability_calendar' => 'mhm_rentiva_availability_calendar_url',
-			'rentiva_transfer_results'      => 'mhm_rentiva_transfer_results_url',
+			'rentiva_booking_form'          => 'mhmrentiva_booking_url',
+			'rentiva_my_bookings'           => 'mhmrentiva_my_bookings_url',
+			'rentiva_my_favorites'          => 'mhmrentiva_my_favorites_url',
+			'rentiva_payment_history'       => 'mhmrentiva_payment_history_url',
+			'rentiva_messages'              => 'mhmrentiva_messages_url',
+			'rentiva_vehicles_list'         => 'mhmrentiva_vehicles_list_url',
+			'rentiva_vehicles_grid'         => 'mhmrentiva_vehicles_grid_url',
+			'rentiva_unified_search'        => 'mhmrentiva_unified_search_url',
+			'rentiva_search_results'        => 'mhmrentiva_search_results_url',
+			'rentiva_contact'               => 'mhmrentiva_contact_url',
+			'rentiva_availability_calendar' => 'mhmrentiva_availability_calendar_url',
+			'rentiva_transfer_results'      => 'mhmrentiva_transfer_results_url',
 		);
 
 		return $mapping[ $shortcode ] ?? null;
@@ -253,7 +253,7 @@ final class ShortcodeUrlManager {
 			return;
 		}
 
-		$transient_key = 'mhm_rentiva_miss_sc_' . md5( $shortcode );
+		$transient_key = 'mhmrentiva_miss_sc_' . md5( $shortcode );
 		if ( get_transient( $transient_key ) ) {
 			return;
 		}
@@ -300,7 +300,7 @@ final class ShortcodeUrlManager {
 
 		foreach ( $shortcodes as $sc ) {
 			wp_cache_delete( 'page_id_' . $sc, self::CACHE_GROUP );
-			delete_transient( 'mhm_rentiva_miss_sc_' . md5( $sc ) );
+			delete_transient( 'mhmrentiva_miss_sc_' . md5( $sc ) );
 		}
 
 		self::$runtime_cache = array();

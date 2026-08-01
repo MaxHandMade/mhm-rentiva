@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * The log purge must obey the two settings the UI offers for it.
  *
  * "Auto Cleanup Logs" and "Log Retention (Days)" are written into the
- * `mhm_rentiva_settings` array, like every other setting on that screen.
+ * `mhmrentiva_settings` array, like every other setting on that screen.
  * `LogRetention::run()` read a *standalone* option of the same name that no code
  * has ever written, so it always fell back to its 30-day default and never
  * checked the toggle at all.
@@ -32,13 +32,13 @@ final class LogRetentionHonoursSettingsTest extends WP_UnitTestCase
 {
 	public function tearDown(): void
 	{
-		delete_option( 'mhm_rentiva_settings' );
+		delete_option( 'mhmrentiva_settings' );
 		parent::tearDown();
 	}
 
 	private function settings( array $values ): void
 	{
-		update_option( 'mhm_rentiva_settings', $values );
+		update_option( 'mhmrentiva_settings', $values );
 	}
 
 	private function make_old_log( int $days_old ): int
@@ -57,8 +57,8 @@ final class LogRetentionHonoursSettingsTest extends WP_UnitTestCase
 	{
 		$this->settings(
 			array(
-				'mhm_rentiva_log_cleanup_enabled' => '0',
-				'mhm_rentiva_log_retention_days'  => 30,
+				'mhmrentiva_log_cleanup_enabled' => '0',
+				'mhmrentiva_log_retention_days'  => 30,
 			)
 		);
 
@@ -76,8 +76,8 @@ final class LogRetentionHonoursSettingsTest extends WP_UnitTestCase
 	{
 		$this->settings(
 			array(
-				'mhm_rentiva_log_cleanup_enabled' => '1',
-				'mhm_rentiva_log_retention_days'  => 365,
+				'mhmrentiva_log_cleanup_enabled' => '1',
+				'mhmrentiva_log_retention_days'  => 365,
 			)
 		);
 
@@ -98,8 +98,8 @@ final class LogRetentionHonoursSettingsTest extends WP_UnitTestCase
 	{
 		$this->settings(
 			array(
-				'mhm_rentiva_log_cleanup_enabled' => '1',
-				'mhm_rentiva_log_retention_days'  => 30,
+				'mhmrentiva_log_cleanup_enabled' => '1',
+				'mhmrentiva_log_retention_days'  => 30,
 			)
 		);
 

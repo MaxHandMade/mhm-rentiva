@@ -189,7 +189,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-fonts', 'registered')) {
 			wp_register_style(
 				'mhm-rentiva-fonts',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/fonts/plus-jakarta-sans.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/fonts/plus-jakarta-sans.css',
 				array(),
 				self::get_file_version('assets/vendor/fonts/plus-jakarta-sans.css')
 			);
@@ -218,7 +218,7 @@ final class AssetManager {
 		if (! wp_script_is('mhm-rentiva-swiper', 'registered')) {
 			wp_register_script(
 				'mhm-rentiva-swiper',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.js',
 				array(),
 				'11.0.0',
 				true
@@ -229,7 +229,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-swiper-css', 'registered')) {
 			wp_register_style(
 				'mhm-rentiva-swiper-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/swiper-bundle.min.css',
 				array(),
 				'11.0.0'
 			);
@@ -248,7 +248,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-vehicle-card-css', 'registered')) {
 			wp_register_style(
 				'mhm-rentiva-vehicle-card-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/core/vehicle-card.css',
 				array( 'mhm-rentiva-css-variables', 'mhm-rentiva-core-css' ),
 				self::get_file_version('assets/css/core/vehicle-card.css')
 			);
@@ -258,7 +258,7 @@ final class AssetManager {
 		if (! wp_style_is('mhm-rentiva-datepicker-custom', 'registered')) {
 			wp_register_style(
 				'mhm-rentiva-datepicker-custom',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
 				array( 'mhm-rentiva-css-variables' ),
 				self::get_file_version('assets/css/frontend/datepicker-custom.css')
 			);
@@ -279,7 +279,7 @@ final class AssetManager {
 		if (! wp_script_is('mhm-rentiva-vehicle-interactions', 'registered')) {
 			wp_register_script(
 				'mhm-rentiva-vehicle-interactions',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-interactions.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicle-interactions.js',
 				array( 'jquery', 'mhm-rentiva-core-js', 'mhm-rentiva-toast' ),
 				self::get_file_version('assets/js/frontend/vehicle-interactions.js'),
 				true
@@ -290,7 +290,7 @@ final class AssetManager {
 		if (! wp_script_is('mhm-rentiva-toast', 'registered')) {
 			wp_register_script(
 				'mhm-rentiva-toast',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/toast.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/toast.js',
 				array(),
 				self::get_file_version('assets/js/frontend/toast.js'),
 				true
@@ -323,12 +323,12 @@ final class AssetManager {
 			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
 			wp_localize_script(
 				'mhm-rentiva-vehicle-interactions',
-				'mhm_rentiva_vars',
+				'mhmrentiva_vars',
 				array(
 					'ajax_url'           => admin_url('admin-ajax.php'),
-					'nonce'              => wp_create_nonce('mhm_rentiva_toggle_favorite'), // Fallback generic
-					'fav_nonce'          => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'compare_nonce'      => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'), // Fallback generic
+					'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
+					'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
 					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
 					'i18n'               => array(
@@ -379,7 +379,7 @@ final class AssetManager {
 		self::enqueue_core_css();
 
 		// JS Kill-switch: allow disabling plugin admin JS for debugging
-		$disableJs = isset($_GET['mhm_admin_no_js']) && sanitize_text_field(wp_unslash($_GET['mhm_admin_no_js'])) === '1';
+		$disableJs = isset($_GET['mhmrentiva_admin_no_js']) && sanitize_text_field(wp_unslash($_GET['mhmrentiva_admin_no_js'])) === '1';
 		if ($disableJs) {
 			return; // Do not enqueue any JS if kill-switch is enabled
 		}
@@ -402,7 +402,7 @@ final class AssetManager {
 		}
 
 		// Plugin's custom post types that don't carry the 'mhm' prefix in their slug.
-		$plugin_post_types = array( 'vehicle', 'vehicle_booking', 'vehicle_addon', 'mhm_vendor_app' );
+		$plugin_post_types = array( 'vehicle', 'vehicle_booking', 'vehicle_addon', 'mhmrentiva_vendor_app' );
 
 		return (
 			str_contains( $screen->id, 'mhm' ) ||
@@ -531,7 +531,7 @@ final class AssetManager {
 					'mhmVehicleMeta',
 					array(
 						'ajaxUrl' => admin_url('admin-ajax.php'),
-						'nonce'   => wp_create_nonce('mhm_vehicle_meta_nonce'),
+						'nonce'   => wp_create_nonce('mhmrentiva_vehicle_meta_nonce'),
 						'strings' => array(
 							'orderUpdated'           => __('Order updated!', 'mhm-rentiva'),
 							'orderSaveError'         => __('Failed to save order', 'mhm-rentiva'),
@@ -634,8 +634,8 @@ final class AssetManager {
 			'mhmDarkMode',
 			array(
 				'ajaxUrl'     => admin_url('admin-ajax.php'),
-				'nonce'       => wp_create_nonce('mhm_dark_mode_nonce'),
-				'currentMode' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_dark_mode', 'auto'),
+				'nonce'       => wp_create_nonce('mhmrentiva_dark_mode_nonce'),
+				'currentMode' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_dark_mode', 'auto'),
 			)
 		);
 		wp_localize_script(
@@ -643,9 +643,9 @@ final class AssetManager {
 			'mhmRentivaAdmin',
 			array(
 				'ajaxUrl'          => admin_url('admin-ajax.php'),
-				'nonce'            => wp_create_nonce('mhm_admin_nonce'),
+				'nonce'            => wp_create_nonce('mhmrentiva_admin_nonce'),
 				'locale'           => get_locale(),
-				'currency'         => get_option('mhm_rentiva_currency', 'USD'),
+				'currency'         => get_option('mhmrentiva_currency', 'USD'),
 				'currencySymbol'   => CurrencyHelper::get_currency_symbol(),
 				'currencyPosition' => CurrencyHelper::get_currency_position(),
 				'decimalSep'       => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',',
@@ -701,7 +701,7 @@ final class AssetManager {
 			wp_enqueue_media();
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-gallery',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-gallery.js',
 				array( 'jquery', 'jquery-ui-sortable' ),
 				self::get_file_version('assets/js/admin/vehicle-gallery.js'),
 				true
@@ -709,7 +709,7 @@ final class AssetManager {
 
 			// ⭐ Get max gallery images from settings (default: 50)
 			$max_gallery_images = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-				'mhm_rentiva_vehicle_max_gallery_images',
+				'mhmrentiva_vehicle_max_gallery_images',
 				50
 			);
 
@@ -718,7 +718,7 @@ final class AssetManager {
 				'mhmVehicleGallery',
 				array(
 					'ajaxUrl'   => admin_url('admin-ajax.php'),
-					'nonce'     => wp_create_nonce('mhm_gallery_nonce'),
+					'nonce'     => wp_create_nonce('mhmrentiva_gallery_nonce'),
 					'maxImages' => $max_gallery_images,
 					'strings'   => array(
 						/* translators: %d: maximum number of images allowed. */
@@ -757,7 +757,7 @@ final class AssetManager {
 		if ($screen->id === 'edit-vehicle_booking') {
 			wp_enqueue_script(
 				'mhm-rentiva-booking-bulk-actions',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-bulk-actions.js',
 				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/booking-bulk-actions.js'),
 				true
@@ -784,7 +784,7 @@ final class AssetManager {
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-settings') {
 			wp_enqueue_script(
 				'mhm-rentiva-settings',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/settings.js',
 				array( 'jquery' ),
 				time(), // Force fresh load with current timestamp
 				true
@@ -792,9 +792,9 @@ final class AssetManager {
 
 			wp_enqueue_style(
 				'mhm-rentiva-notifications',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/notifications.css',
 				array(),
-				MHM_RENTIVA_VERSION . '.toast2'
+				MHMRENTIVA_VERSION . '.toast2'
 			);
 
 			wp_localize_script(
@@ -802,8 +802,8 @@ final class AssetManager {
 				'mhmRentivaSettings',
 				array(
 					'ajaxUrl'    => admin_url('admin-ajax.php'),
-					'nonce'      => wp_create_nonce('mhm_rentiva_settings'),
-					'resetNonce' => wp_create_nonce('mhm_rentiva_reset_defaults'),
+					'nonce'      => wp_create_nonce('mhmrentiva_settings'),
+					'resetNonce' => wp_create_nonce('mhmrentiva_reset_defaults'),
 					'strings'    => array(
 						'categoryEmpty'         => __('Category name cannot be empty', 'mhm-rentiva'),
 						'categoryExists'        => __('This category already exists', 'mhm-rentiva'),
@@ -846,7 +846,7 @@ final class AssetManager {
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'email_preview') {
 				wp_enqueue_script(
 					'mhm-rentiva-email-templates',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
+					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
 					array( 'jquery' ),
 					self::get_file_version('assets/js/admin/email-templates.js'),
 					true
@@ -854,10 +854,10 @@ final class AssetManager {
 
 				wp_localize_script(
 					'mhm-rentiva-email-templates',
-					'mhm_rentiva_email_templates_vars',
+					'mhmrentiva_email_templates_vars',
 					array(
 						'ajax_url'          => admin_url('admin-ajax.php'),
-						'nonce'             => wp_create_nonce('mhm_email_templates_nonce'),
+						'nonce'             => wp_create_nonce('mhmrentiva_email_templates_nonce'),
 						'preview_email'     => __('Email Preview', 'mhm-rentiva'),
 						'send_test'         => __('Send Test Email', 'mhm-rentiva'),
 						'processing'        => __('Processing...', 'mhm-rentiva'),
@@ -887,7 +887,7 @@ final class AssetManager {
 			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'integration') {
 				wp_enqueue_script(
 					'mhm-rentiva-rest-integration',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/rest-integration.js',
+					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/rest-integration.js',
 					array( 'jquery' ),
 					self::get_file_version('assets/js/admin/rest-integration.js'),
 					true
@@ -898,7 +898,7 @@ final class AssetManager {
 					'mhmRestIntegration',
 					array(
 						'ajax_url' => admin_url('admin-ajax.php'),
-						'nonce'    => wp_create_nonce('mhm_rest_api_keys_nonce'),
+						'nonce'    => wp_create_nonce('mhmrentiva_rest_api_keys_nonce'),
 						'strings'  => array(
 							'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
 							'confirm_reset'  => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
@@ -916,7 +916,7 @@ final class AssetManager {
 			// Dedicated CSS for Vehicle Settings
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-settings-css',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings.css',
 				array( 'mhm-rentiva-core-css' ),
 				self::get_file_version('assets/css/admin/vehicle-settings.css')
 			);
@@ -928,14 +928,14 @@ final class AssetManager {
 				// own the whole page (including the Reset button) without double-bound handlers.
 				wp_enqueue_style(
 					'mhm-rentiva-vehicle-settings-v2',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
+					MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-settings-v2.css',
 					array( 'mhm-rentiva-vehicle-settings-css' ),
 					self::get_file_version('assets/css/admin/vehicle-settings-v2.css')
 				);
 
 				wp_enqueue_script(
 					'mhm-rentiva-vehicle-settings-v2',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
+					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings-v2.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-settings-v2.js'),
 					true
@@ -943,7 +943,7 @@ final class AssetManager {
 			} else {
 				wp_enqueue_script(
 					'mhm-rentiva-vehicle-card-fields',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
+					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-card-fields.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-card-fields.js'),
 					true
@@ -953,7 +953,7 @@ final class AssetManager {
 				// Replaces the three inline <script> blocks in VehicleSettings render methods.
 				wp_enqueue_script(
 					'mhm-rentiva-vehicle-settings',
-					MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
+					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-settings.js',
 					array( 'jquery', 'jquery-ui-sortable' ),
 					self::get_file_version('assets/js/admin/vehicle-settings.js'),
 					true
@@ -1075,7 +1075,7 @@ final class AssetManager {
 		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates') {
 			wp_enqueue_script(
 				'mhm-rentiva-email-templates',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
 				array( 'jquery' ),
 				self::get_file_version('assets/js/admin/email-templates.js'),
 				true
@@ -1083,10 +1083,10 @@ final class AssetManager {
 
 			wp_localize_script(
 				'mhm-rentiva-email-templates',
-				'mhm_rentiva_email_templates_vars',
+				'mhmrentiva_email_templates_vars',
 				array(
 					'ajax_url'          => admin_url('admin-ajax.php'),
-					'nonce'             => wp_create_nonce('mhm_email_templates_nonce'),
+					'nonce'             => wp_create_nonce('mhmrentiva_email_templates_nonce'),
 					'preview_email'     => __('Email Preview', 'mhm-rentiva'),
 					'send_test'         => __('Send Test Email', 'mhm-rentiva'),
 					'processing'        => __('Processing...', 'mhm-rentiva'),
@@ -1111,7 +1111,7 @@ final class AssetManager {
 
 		// Message List enqueue used to live here, guarded on
 		// `$screen->post_type === 'message'` -- but the `message` CPT the add-on
-		// actually registers is `mhm_message` (see \MHMRentiva\Admin\PostTypes\Message\Message
+		// actually registers is `mhmrentiva_message` (see \MHMRentiva\Admin\PostTypes\Message\Message
 		// ::POST_TYPE in the add-on), so this guard never matched and the block
 		// never fired. Removed as part of the add-on asset carve-out (WP.org T4
 		// Phase B, Task B-A1) along with the file it enqueued.
@@ -1139,14 +1139,14 @@ final class AssetManager {
 		// Configuration for Core JS
 		wp_localize_script(
 			'mhm-rentiva-core-js',
-			'mhm_rentiva_config',
+			'mhmrentiva_config',
 			array(
 				'ajax_url'    => admin_url('admin-ajax.php'),
-				'nonce'       => wp_create_nonce('mhm_ajax_nonce'),
-				'baseUrl'     => MHM_RENTIVA_PLUGIN_URL, // Fixed as camelCase
-				'base_url'    => MHM_RENTIVA_PLUGIN_URL, // backward compatibility
+				'nonce'       => wp_create_nonce('mhmrentiva_ajax_nonce'),
+				'baseUrl'     => MHMRENTIVA_PLUGIN_URL, // Fixed as camelCase
+				'base_url'    => MHMRENTIVA_PLUGIN_URL, // backward compatibility
 				'locale'      => get_locale(),
-				'currency'    => get_option('mhm_rentiva_currency', 'USD'),
+				'currency'    => get_option('mhmrentiva_currency', 'USD'),
 				'date_format' => get_option('date_format', 'd/m/Y'),
 				'time_format' => get_option('time_format', 'H:i'),
 				'debug'       => defined('WP_DEBUG') && WP_DEBUG,
@@ -1156,7 +1156,7 @@ final class AssetManager {
 		// Localize translations for i18n
 		wp_localize_script(
 			'mhm-rentiva-i18n',
-			'mhm_rentiva_i18n_translations',
+			'mhmrentiva_i18n_translations',
 			array(
 				'mhm-rentiva' => self::get_translations(),
 			)
@@ -1237,8 +1237,8 @@ final class AssetManager {
 		// '' is the helper's only rejection signal, so the fallback tests for it
 		// explicitly. A `?:` here would also discard '0', which the helper accepts
 		// as a valid unitless declaration value.
-		$primary   = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_primary_color', '#2271b1') );
-		$secondary = self::sanitize_css_declaration_value( (string) get_option('mhm_rentiva_secondary_color', '#00a32a') );
+		$primary   = self::sanitize_css_declaration_value( (string) get_option('mhmrentiva_primary_color', '#2271b1') );
+		$secondary = self::sanitize_css_declaration_value( (string) get_option('mhmrentiva_secondary_color', '#00a32a') );
 
 		$primary_color   = '' !== $primary ? $primary : '#2271b1';
 		$secondary_color = '' !== $secondary ? $secondary : '#00a32a';
@@ -1337,7 +1337,7 @@ final class AssetManager {
 	 */
 	public static function get_file_version(string $file_path): string
 	{
-		$full_path = MHM_RENTIVA_PLUGIN_DIR . $file_path;
+		$full_path = MHMRENTIVA_PLUGIN_DIR . $file_path;
 
 		// If file exists, use file modification time for cache busting
 		if (file_exists($full_path)) {
@@ -1348,7 +1348,7 @@ final class AssetManager {
 		}
 
 		// Fallback to plugin version if file doesn't exist or filemtime fails
-		return MHM_RENTIVA_VERSION;
+		return MHMRENTIVA_VERSION;
 	}
 
 	/**
@@ -1359,7 +1359,7 @@ final class AssetManager {
 	{
 
 		// Always load if filtering enabled via hook
-		if (apply_filters('mhm_rentiva_force_load_assets', false)) {
+		if (apply_filters('mhmrentiva_force_load_assets', false)) {
 			return true;
 		}
 
@@ -1383,14 +1383,14 @@ final class AssetManager {
 	 * @param string      $page_handle Basename of the bundle under build/admin/ (e.g. 'dashboard').
 	 * @param array       $extra_deps  Optional array of additional script dependencies.
 	 * @param string|null $base_dir    Absolute plugin dir the bundle lives under (trailing slash).
-	 *                                 Defaults to Lite's own MHM_RENTIVA_PLUGIN_DIR. The add-on's admin
-	 *                                 pages pass MHM_RENTIVA_PRO_PATH here for the 5 bundles that
+	 *                                 Defaults to Lite's own MHMRENTIVA_PLUGIN_DIR. The add-on's admin
+	 *                                 pages pass MHMRENTIVA_PRO_PATH here for the 5 bundles that
 	 *                                 moved to the add-on's build/admin/ (Task A11a, WP.org T4 seam
 	 *                                 inversion) -- this Lite class stays the single call site for
 	 *                                 the shared wp-api-fetch nonce middleware + wp_enqueue_script
 	 *                                 boilerplate, it just no longer assumes the bundle is Lite's own.
 	 * @param string|null $base_url    Absolute plugin URL counterpart to $base_dir. Defaults to
-	 *                                 MHM_RENTIVA_PLUGIN_URL.
+	 *                                 MHMRENTIVA_PLUGIN_URL.
 	 * @param string|null $text_domain Text domain the bundle's __() calls use, for
 	 *                                 wp_set_script_translations(). Defaults to Lite's 'mhm-rentiva'.
 	 *                                 This was hardcoded until 2026-07-28, which meant the add-on's 5
@@ -1416,15 +1416,15 @@ final class AssetManager {
 
 		wp_enqueue_style( 'wp-components' );
 
-		$base_dir = $base_dir ?? MHM_RENTIVA_PLUGIN_DIR;
-		$base_url = $base_url ?? MHM_RENTIVA_PLUGIN_URL;
+		$base_dir = $base_dir ?? MHMRENTIVA_PLUGIN_DIR;
+		$base_url = $base_url ?? MHMRENTIVA_PLUGIN_URL;
 
 		$asset_file = $base_dir . "build/admin/{$page_handle}.asset.php";
 		$asset      = file_exists( $asset_file )
 			? include $asset_file
 			: array(
 				'dependencies' => array(),
-				'version'      => MHM_RENTIVA_VERSION,
+				'version'      => MHMRENTIVA_VERSION,
 			);
 
 		wp_enqueue_script(
@@ -1457,12 +1457,12 @@ final class AssetManager {
 
 			if ($extension && $dirname && $filename) {
 				$min_path = $dirname . '/' . $filename . '.min.' . $extension;
-				if (file_exists(MHM_RENTIVA_PLUGIN_DIR . $min_path)) {
-					return MHM_RENTIVA_PLUGIN_URL . $min_path;
+				if (file_exists(MHMRENTIVA_PLUGIN_DIR . $min_path)) {
+					return MHMRENTIVA_PLUGIN_URL . $min_path;
 				}
 			}
 		}
 
-		return MHM_RENTIVA_PLUGIN_URL . $path;
+		return MHMRENTIVA_PLUGIN_URL . $path;
 	}
 }

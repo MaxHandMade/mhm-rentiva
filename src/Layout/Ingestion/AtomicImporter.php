@@ -172,7 +172,7 @@ class AtomicImporter {
                     'post_id'      => $post->ID,
                     'title'        => $post->post_title,
                     'slug'         => $post->post_name,
-                    'current_hash' => get_post_meta($post->ID, '_mhm_layout_hash', true),
+                    'current_hash' => get_post_meta($post->ID, '_mhmrentiva_layout_hash', true),
                 ];
             }
         }
@@ -185,7 +185,7 @@ class AtomicImporter {
                     'post_id'      => $existing->ID,
                     'title'        => $existing->post_title,
                     'slug'         => $existing->post_name,
-                    'current_hash' => get_post_meta($existing->ID, '_mhm_layout_hash', true),
+                    'current_hash' => get_post_meta($existing->ID, '_mhmrentiva_layout_hash', true),
                 ];
             }
         }
@@ -234,23 +234,23 @@ class AtomicImporter {
             'post_content'   => $post->post_content,
             'post_title'     => $post->post_title,
             'post_status'    => $post->post_status,
-            'manifest'       => get_post_meta($post_id, '_mhm_layout_manifest', true),
-            'hash'           => get_post_meta($post_id, '_mhm_layout_hash', true),
-            'timestamp'      => get_post_meta($post_id, '_mhm_layout_version_timestamp', true),
+            'manifest'       => get_post_meta($post_id, '_mhmrentiva_layout_manifest', true),
+            'hash'           => get_post_meta($post_id, '_mhmrentiva_layout_hash', true),
+            'timestamp'      => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true),
             'template'       => get_post_meta($post_id, '_wp_page_template', true),
             // Previous set for full restore if needed
-            'manifest_prev'  => get_post_meta($post_id, '_mhm_layout_manifest_previous', true),
-            'hash_prev'      => get_post_meta($post_id, '_mhm_layout_hash_previous', true),
-            'timestamp_prev' => get_post_meta($post_id, '_mhm_layout_version_timestamp_previous', true),
+            'manifest_prev'  => get_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', true),
+            'hash_prev'      => get_post_meta($post_id, '_mhmrentiva_layout_hash_previous', true),
+            'timestamp_prev' => get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', true),
         ];
 
         // 2. State Shifting (Current -> Previous) - ONLY if NOT a rollback
         if (! $is_rollback) {
-            $current_manifest = get_post_meta($post_id, '_mhm_layout_manifest', true);
+            $current_manifest = get_post_meta($post_id, '_mhmrentiva_layout_manifest', true);
             if (! empty($current_manifest)) {
-                update_post_meta($post_id, '_mhm_layout_manifest_previous', $current_manifest);
-                update_post_meta($post_id, '_mhm_layout_hash_previous', get_post_meta($post_id, '_mhm_layout_hash', true));
-                update_post_meta($post_id, '_mhm_layout_version_timestamp_previous', get_post_meta($post_id, '_mhm_layout_version_timestamp', true));
+                update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $current_manifest);
+                update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', get_post_meta($post_id, '_mhmrentiva_layout_hash', true));
+                update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', get_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', true));
             }
         }
 
@@ -259,9 +259,9 @@ class AtomicImporter {
 			'ID'           => $post_id,
 			'post_content' => $markup,
 		], true);
-        update_post_meta($post_id, '_mhm_layout_manifest', $manifest);
-        update_post_meta($post_id, '_mhm_layout_hash', $hash);
-        update_post_meta($post_id, '_mhm_layout_version_timestamp', current_time('mysql', true));
+        update_post_meta($post_id, '_mhmrentiva_layout_manifest', $manifest);
+        update_post_meta($post_id, '_mhmrentiva_layout_hash', $hash);
+        update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
 
         // 4. Audit Log (Task: Observability)
         if (empty($options['suppress_audit'])) {
@@ -287,9 +287,9 @@ class AtomicImporter {
         }
 
         $this->undo_stack[] = $new_id;
-        update_post_meta($new_id, '_mhm_layout_manifest', $manifest);
-        update_post_meta($new_id, '_mhm_layout_hash', $hash);
-        update_post_meta($new_id, '_mhm_layout_version_timestamp', current_time('mysql', true));
+        update_post_meta($new_id, '_mhmrentiva_layout_manifest', $manifest);
+        update_post_meta($new_id, '_mhmrentiva_layout_hash', $hash);
+        update_post_meta($new_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
 
         // Audit Log for creation
         LayoutAuditService::log_import($new_id, '', $hash);
@@ -306,13 +306,13 @@ class AtomicImporter {
                 'post_title'   => $data['post_title'],
                 'post_status'  => $data['post_status'],
             ]);
-            update_post_meta($post_id, '_mhm_layout_manifest', $data['manifest']);
-            update_post_meta($post_id, '_mhm_layout_hash', $data['hash']);
-            update_post_meta($post_id, '_mhm_layout_version_timestamp', $data['timestamp']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest', $data['manifest']);
+            update_post_meta($post_id, '_mhmrentiva_layout_hash', $data['hash']);
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', $data['timestamp']);
 
-            update_post_meta($post_id, '_mhm_layout_manifest_previous', $data['manifest_prev']);
-            update_post_meta($post_id, '_mhm_layout_hash_previous', $data['hash_prev']);
-            update_post_meta($post_id, '_mhm_layout_version_timestamp_previous', $data['timestamp_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_manifest_previous', $data['manifest_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_hash_previous', $data['hash_prev']);
+            update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp_previous', $data['timestamp_prev']);
             update_post_meta($post_id, '_wp_page_template', $data['template']);
             clean_post_cache($post_id);
         }

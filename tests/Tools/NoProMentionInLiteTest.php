@@ -69,7 +69,7 @@ final class NoProMentionInLiteTest extends TestCase
             'get a license'      => array( '/get a licen[sc]e/i', 'is a purchase CTA' ),
             'purchase page'      => array( '#wpalemi\.com/rentiva#i', 'links the product purchase page' ),
             'buy a license'      => array( '/buy a licen[sc]e/i', 'is a purchase CTA' ),
-            'product url helper' => array( '/get_product_url|mhm_rentiva_product_url/', 'is the purchase-URL helper' ),
+            'product url helper' => array( '/get_product_url|mhmrentiva_product_url/', 'is the purchase-URL helper' ),
         );
     }
 

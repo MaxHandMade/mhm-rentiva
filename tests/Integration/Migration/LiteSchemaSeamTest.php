@@ -61,7 +61,7 @@ final class LiteSchemaSeamTest extends WP_UnitTestCase
      * Pro-era database -- exactly the case that matters -- the table is present, so
      * the ungated code issues no CREATE TABLE and a CREATE-only assertion passes
      * while the dead-schema work still runs. Verified against the dev database,
-     * where wp_mhm_rentiva_key_registry exists and the ungated migrator emitted
+     * where wp_mhmrentiva_key_registry exists and the ungated migrator emitted
      * only DESCRIBE/SHOW INDEX/INFORMATION_SCHEMA probes.
      *
      * @dataProvider pro_table_provider
@@ -83,9 +83,9 @@ final class LiteSchemaSeamTest extends WP_UnitTestCase
     public function pro_table_provider(): array
     {
         return array(
-            'key registry'      => array( 'mhm_rentiva_key_registry' ),
-            'ledger'            => array( 'mhm_rentiva_ledger' ),
-            'commission policy' => array( 'mhm_rentiva_commission_policy' ),
+            'key registry'      => array( 'mhmrentiva_key_registry' ),
+            'ledger'            => array( 'mhmrentiva_ledger' ),
+            'commission policy' => array( 'mhmrentiva_commission_policy' ),
         );
     }
 

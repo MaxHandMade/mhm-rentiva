@@ -17,7 +17,7 @@ class FavoritesServiceTest extends WP_UnitTestCase
         $this->vehicle_id = (int) $this->factory->post->create(['post_type' => 'vehicle']);
 
         // Ensure meta is clean
-        delete_user_meta($this->user_id, 'mhm_rentiva_favorites');
+        delete_user_meta($this->user_id, 'mhmrentiva_favorites');
     }
 
     public function test_add_favorite()
@@ -25,7 +25,7 @@ class FavoritesServiceTest extends WP_UnitTestCase
         $result = FavoritesService::add($this->user_id, $this->vehicle_id);
         $this->assertTrue($result);
 
-        $favorites = get_user_meta($this->user_id, 'mhm_rentiva_favorites', true);
+        $favorites = get_user_meta($this->user_id, 'mhmrentiva_favorites', true);
         $this->assertContains($this->vehicle_id, $favorites);
     }
 
@@ -36,7 +36,7 @@ class FavoritesServiceTest extends WP_UnitTestCase
         $result = FavoritesService::remove($this->user_id, $this->vehicle_id);
         $this->assertTrue($result);
 
-        $favorites = get_user_meta($this->user_id, 'mhm_rentiva_favorites', true);
+        $favorites = get_user_meta($this->user_id, 'mhmrentiva_favorites', true);
         $this->assertNotContains($this->vehicle_id, $favorites);
     }
 

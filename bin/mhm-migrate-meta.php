@@ -49,12 +49,12 @@ $status_mapping = [
 
 $meta_mappings = [
     'featured' => [
-        'target' => '_mhm_rentiva_featured',
-        'legacy' => ['_mhm_rentiva_is_featured']
+        'target' => '_mhmrentiva_featured',
+        'legacy' => ['_mhmrentiva_is_featured']
     ],
     'status'   => [
-        'target' => '_mhm_vehicle_status',
-        'legacy' => ['_mhm_vehicle_availability', '_mhm_rentiva_availability']
+        'target' => '_mhmrentiva_vehicle_status',
+        'legacy' => ['_mhmrentiva_vehicle_availability', '_mhmrentiva_availability']
     ]
 ];
 

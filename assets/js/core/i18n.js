@@ -37,8 +37,8 @@
 			this.locale       = locale;
 
 			// Use locale from WordPress
-			if (window.mhm_rentiva_config && window.mhm_rentiva_config.locale) {
-				this.locale = window.mhm_rentiva_config.locale;
+			if (window.mhmrentiva_config && window.mhmrentiva_config.locale) {
+				this.locale = window.mhmrentiva_config.locale;
 			}
 		},
 
@@ -221,7 +221,7 @@
 		 */
 		getCurrencyFormat: function (currency) {
 			// Get from config first
-			const configCurrency = (window.mhm_rentiva_config && window.mhm_rentiva_config.currency) || 'USD';
+			const configCurrency = (window.mhmrentiva_config && window.mhmrentiva_config.currency) || 'USD';
 			const currencyCode   = currency || configCurrency;
 
 			const formats = {
@@ -508,8 +508,8 @@
 	};
 
 	// Use translations from WordPress
-	if (window.mhm_rentiva_i18n_translations && window.mhm_rentiva_i18n_translations['mhm-rentiva']) {
-		MHMRentiva.i18n.loadTranslations( window.mhm_rentiva_i18n_translations );
+	if (window.mhmrentiva_i18n_translations && window.mhmrentiva_i18n_translations['mhm-rentiva']) {
+		MHMRentiva.i18n.loadTranslations( window.mhmrentiva_i18n_translations );
 	} else {
 		// Load default translations as fallback
 		MHMRentiva.i18n.loadTranslations( defaultTranslations, 'en_US' );

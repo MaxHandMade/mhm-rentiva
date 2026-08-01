@@ -378,20 +378,35 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			$this->markTestSkipped( 'the Pro add-on is not checked out beside this plugin' );
 		}
 
-		$lite_literals = array_keys( $this->scan_roots( $this->roots_for( 'lite' ) ) );
-		$pro_literals  = array_keys( $this->scan_roots( $this->roots_for( 'pro' ) ) );
+		// Lite and Pro are renamed in separate commits (Görev 12 then Görev 14),
+		// so for the whole window between them Lite spells a key
+		// '_mhmrentiva_payout_status' while Pro still spells the SAME key
+		// '_mhm_payout_status'. Diffing raw literals would then report every one
+		// of Pro's keys as Pro-only and this test would measure the spelling gap
+		// instead of the inventory. Both sides are canonicalised to the post-rename
+		// spelling first, so the comparison is about which KEYS Pro contributes --
+		// the question the freeze actually exists to answer -- and it keeps
+		// working unchanged once Pro is swept too.
+		$lite_literals = array_map( array( $this, 'canonical_meta_key' ), array_keys( $this->scan_roots( $this->roots_for( 'lite' ) ) ) );
+		$pro_literals  = array_map( array( $this, 'canonical_meta_key' ), array_keys( $this->scan_roots( $this->roots_for( 'pro' ) ) ) );
+
+		// The exception list is written in the pre-rename spelling too, so it has
+		// to be canonicalised on the same terms or it stops matching.
+		$exceptions = array_map( array( $this, 'canonical_meta_key' ), array_keys( self::NON_META_LITERALS ) );
 
 		$pro_only = array_values(
-			array_filter(
-				array_diff( $pro_literals, $lite_literals ),
-				static function ( string $literal ): bool {
-					return ! isset( self::NON_META_LITERALS[ $literal ] );
-				}
+			array_unique(
+				array_filter(
+					array_diff( $pro_literals, $lite_literals ),
+					static function ( string $literal ) use ( $exceptions ): bool {
+						return ! in_array( $literal, $exceptions, true );
+					}
+				)
 			)
 		);
 
 		sort( $pro_only );
-		$frozen = self::PRO_ONLY_META_KEYS;
+		$frozen = array_values( array_unique( array_map( array( $this, 'canonical_meta_key' ), self::PRO_ONLY_META_KEYS ) ) );
 		sort( $frozen );
 
 		$this->assertSame(
@@ -401,6 +416,34 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			. implode( ', ', array_diff( $pro_only, $frozen ) )
 			. ' | gone from Pro: ' . implode( ', ', array_diff( $frozen, $pro_only ) )
 		);
+	}
+
+	/**
+	 * A meta key in its post-6.0.0 spelling, whichever spelling it arrives in.
+	 *
+	 * Longest matching prefix wins, exactly as PrefixMigrationMap documents and
+	 * as DatabaseCleaner::legacy_meta_keys() applies in the opposite direction.
+	 * Already-renamed keys are returned unchanged, because no old prefix matches
+	 * them -- so this is safe to apply to both sides of a comparison.
+	 *
+	 * @param string $key Meta key in either spelling.
+	 * @return string Canonical (post-rename) spelling.
+	 */
+	private function canonical_meta_key( string $key ): string
+	{
+		$rules = array_merge(
+			\MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap::POSTMETA_PREFIX_RULES,
+			\MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap::USERMETA_PREFIX_RULES
+		);
+		uksort( $rules, static fn( $a, $b ) => strlen( $b ) <=> strlen( $a ) );
+
+		foreach ( $rules as $old => $new ) {
+			if ( str_starts_with( $key, $old ) ) {
+				return $new . substr( $key, strlen( $old ) );
+			}
+		}
+
+		return $key;
 	}
 
 	/**
@@ -489,7 +532,7 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	}
 
 	/**
-	 * mhm_rentiva_valid_meta_keys is an extension point on a DESTRUCTIVE
+	 * mhmrentiva_valid_meta_keys is an extension point on a DESTRUCTIVE
 	 * operation. A filter that can shrink it is a filter that can make any
 	 * third party's bug delete this plugin's data, so the built-in entries are
 	 * unioned back in and only additions survive.
@@ -500,9 +543,9 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			return array( '_mhm_only_this_one' );
 		};
 
-		add_filter( 'mhm_rentiva_valid_meta_keys', $shrink );
+		add_filter( 'mhmrentiva_valid_meta_keys', $shrink );
 		$valid = DatabaseCleaner::valid_meta_keys();
-		remove_filter( 'mhm_rentiva_valid_meta_keys', $shrink );
+		remove_filter( 'mhmrentiva_valid_meta_keys', $shrink );
 
 		$this->assertContains( '_mhm_only_this_one', $valid, 'a filter must still be able to add keys' );
 		$this->assertContains( '_mhm_booking_id', $valid, 'a filter must not be able to remove built-in protection' );

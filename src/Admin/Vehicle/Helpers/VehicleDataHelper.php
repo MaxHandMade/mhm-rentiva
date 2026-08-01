@@ -38,12 +38,12 @@ class VehicleDataHelper {
 		// 2. Legacy fallback (DEV MODE ONLY)
 		if (\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
 			$meta_keys = array(
-				'_mhm_rentiva_daily_price',
-				'_mhm_rentiva_price',
+				'_mhmrentiva_daily_price',
+				'_mhmrentiva_price',
 				'daily_price',
 				'price_per_day',
 				'_price_per_day',
-				'_mhm_price_per_day',
+				'_mhmrentiva_price_per_day',
 				'price',
 			);
 
@@ -139,7 +139,7 @@ class VehicleDataHelper {
 		}
 
 		if (\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
-			return get_post_meta($vehicle_id, '_mhm_rentiva_is_featured', true) === '1';
+			return get_post_meta($vehicle_id, '_mhmrentiva_is_featured', true) === '1';
 		}
 
 		return false;
@@ -156,9 +156,9 @@ class VehicleDataHelper {
 		}
 
 		if (\MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::is_migration_fallback_active()) {
-			$old = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+			$old = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_availability', true);
 			if (empty($old)) {
-				$old = get_post_meta($vehicle_id, '_mhm_vehicle_availability', true);
+				$old = get_post_meta($vehicle_id, '_mhmrentiva_vehicle_availability', true);
 			}
 
 			$mapping = array(

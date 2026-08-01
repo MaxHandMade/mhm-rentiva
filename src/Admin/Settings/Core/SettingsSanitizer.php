@@ -33,7 +33,7 @@ final class SettingsSanitizer {
 	 */
 	public static function sanitize( mixed $input ): array {
 		// 1. Initialize with current DB values to preserve untargeted settings.
-		$current_values = (array) \get_option( 'mhm_rentiva_settings', array() );
+		$current_values = (array) \get_option( 'mhmrentiva_settings', array() );
 		$defaults       = SettingsCore::get_defaults();
 
 		if ( ! \is_array( $input ) ) {
@@ -112,7 +112,7 @@ final class SettingsSanitizer {
 		// nothing subscribes: the write itself is already blocked above (step 2b)
 		// for an extension-owned tab with no registered extension, so this filter
 		// only ever reaches a real subscriber once that gate has already passed.
-		$sanitized_batch = apply_filters( 'mhm_rentiva_sanitize_settings_tab', $sanitized_batch, $current_tab, $input, $defaults );
+		$sanitized_batch = apply_filters( 'mhmrentiva_sanitize_settings_tab', $sanitized_batch, $current_tab, $input, $defaults );
 
 		$out = array_merge( $out, $sanitized_batch );
 
@@ -133,19 +133,19 @@ final class SettingsSanitizer {
 	private static function process_general_tab( array $input, array $defaults ): array {
 		$out = array();
 
-		if ( isset( $input['mhm_rentiva_currency'] ) ) {
-			$out['mhm_rentiva_currency'] = strtoupper( substr( self::safe_text( $input['mhm_rentiva_currency'] ), 0, 4 ) );
+		if ( isset( $input['mhmrentiva_currency'] ) ) {
+			$out['mhmrentiva_currency'] = strtoupper( substr( self::safe_text( $input['mhmrentiva_currency'] ), 0, 4 ) );
 		}
 
-		$fields = array( 'mhm_rentiva_currency_position', 'mhm_rentiva_date_format', 'mhm_rentiva_time_format' );
+		$fields = array( 'mhmrentiva_currency_position', 'mhmrentiva_date_format', 'mhmrentiva_time_format' );
 		foreach ( $fields as $field ) {
 			if ( isset( $input[ $field ] ) ) {
 				$out[ $field ] = self::safe_text( $input[ $field ] );
 			}
 		}
 
-		if ( isset( $input['mhm_rentiva_dark_mode'] ) ) {
-			$out['mhm_rentiva_dark_mode'] = self::sanitize_dark_mode_option( $input['mhm_rentiva_dark_mode'] );
+		if ( isset( $input['mhmrentiva_dark_mode'] ) ) {
+			$out['mhmrentiva_dark_mode'] = self::sanitize_dark_mode_option( $input['mhmrentiva_dark_mode'] );
 		}
 
 		return array_merge(
@@ -198,12 +198,12 @@ final class SettingsSanitizer {
 	 * @return array Modified output.
 	 */
 	private static function apply_global_constraints( array $input, array $out, string $tab ): array {
-		if ( isset( $input['mhm_rentiva_booking_payment_deadline_minutes'] ) && 'booking' === $tab ) {
-			$out['mhm_rentiva_booking_payment_deadline_minutes'] = self::clamp_value( (int) $input['mhm_rentiva_booking_payment_deadline_minutes'], 0, 1440 );
+		if ( isset( $input['mhmrentiva_booking_payment_deadline_minutes'] ) && 'booking' === $tab ) {
+			$out['mhmrentiva_booking_payment_deadline_minutes'] = self::clamp_value( (int) $input['mhmrentiva_booking_payment_deadline_minutes'], 0, 1440 );
 		}
 
-		if ( isset( $input['mhm_rentiva_booking_payment_gateway_timeout_minutes'] ) ) {
-			$out['mhm_rentiva_booking_payment_gateway_timeout_minutes'] = self::clamp_value( (int) $input['mhm_rentiva_booking_payment_gateway_timeout_minutes'], 0, 60 );
+		if ( isset( $input['mhmrentiva_booking_payment_gateway_timeout_minutes'] ) ) {
+			$out['mhmrentiva_booking_payment_gateway_timeout_minutes'] = self::clamp_value( (int) $input['mhmrentiva_booking_payment_gateway_timeout_minutes'], 0, 60 );
 		}
 
 		return $out;
@@ -273,7 +273,7 @@ final class SettingsSanitizer {
 	}
 
 	/**
-	 * Sanitize standalone addon option array (`mhm_rentiva_addon_settings`).
+	 * Sanitize standalone addon option array (`mhmrentiva_addon_settings`).
 	 *
 	 * @param mixed $input Raw option payload.
 	 * @return array<string,string>
@@ -334,33 +334,33 @@ final class SettingsSanitizer {
 	private static function sanitize_system_settings( array $input, array $defaults ): array {
 		return array(
 			// Cache Settings.
-			'mhm_rentiva_cache_enabled'           => self::get_bool( $input, 'mhm_rentiva_cache_enabled' ),
+			'mhmrentiva_cache_enabled'           => self::get_bool( $input, 'mhmrentiva_cache_enabled' ),
 			// Bounds mirror the number_field() declaration in CoreSettings; the
 			// browser enforces them, a crafted POST does not.
-			'mhm_rentiva_cache_default_ttl'       => self::clamp_value( floatval( $input['mhm_rentiva_cache_default_ttl'] ?? 1.0 ), 0.5, 24.0 ),
-			'mhm_rentiva_cache_lists_ttl'         => self::get_int( $input, 'mhm_rentiva_cache_lists_ttl', 5, 1, 60 ),
-			'mhm_rentiva_cache_reports_ttl'       => self::get_int( $input, 'mhm_rentiva_cache_reports_ttl', 15, 1, 1440 ),
+			'mhmrentiva_cache_default_ttl'       => self::clamp_value( floatval( $input['mhmrentiva_cache_default_ttl'] ?? 1.0 ), 0.5, 24.0 ),
+			'mhmrentiva_cache_lists_ttl'         => self::get_int( $input, 'mhmrentiva_cache_lists_ttl', 5, 1, 60 ),
+			'mhmrentiva_cache_reports_ttl'       => self::get_int( $input, 'mhmrentiva_cache_reports_ttl', 15, 1, 1440 ),
 
 			// Maintenance.
-			'mhm_rentiva_log_level'               => self::validate_enum( $input['mhm_rentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
-			'mhm_rentiva_log_cleanup_enabled'     => self::get_bool( $input, 'mhm_rentiva_log_cleanup_enabled' ),
-			'mhm_rentiva_log_retention_days'      => self::get_int( $input, 'mhm_rentiva_log_retention_days', 30, 1, 365 ),
-			'mhm_rentiva_debug_mode'              => self::get_bool( $input, 'mhm_rentiva_debug_mode' ),
-			'mhm_rentiva_clean_data_on_uninstall' => self::get_bool( $input, 'mhm_rentiva_clean_data_on_uninstall' ),
+			'mhmrentiva_log_level'               => self::validate_enum( $input['mhmrentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
+			'mhmrentiva_log_cleanup_enabled'     => self::get_bool( $input, 'mhmrentiva_log_cleanup_enabled' ),
+			'mhmrentiva_log_retention_days'      => self::get_int( $input, 'mhmrentiva_log_retention_days', 30, 1, 365 ),
+			'mhmrentiva_debug_mode'              => self::get_bool( $input, 'mhmrentiva_debug_mode' ),
+			'mhmrentiva_clean_data_on_uninstall' => self::get_bool( $input, 'mhmrentiva_clean_data_on_uninstall' ),
 		);
 	}
 
 	private static function sanitize_vehicle_management_settings( array $input, array $defaults ): array {
-		$url_base = \sanitize_title( $input['mhm_rentiva_vehicle_url_base'] ?? ( $defaults['mhm_rentiva_vehicle_url_base'] ?? 'vehicle' ) );
+		$url_base = \sanitize_title( $input['mhmrentiva_vehicle_url_base'] ?? ( $defaults['mhmrentiva_vehicle_url_base'] ?? 'vehicle' ) );
 		$out      = array(
-			'mhm_rentiva_vehicle_url_base'             => $url_base ?: 'vehicle',
+			'mhmrentiva_vehicle_url_base'             => $url_base ?: 'vehicle',
 			// Both fields declare max="100" in VehicleManagementSettings. The lower
 			// bound stays at 0.1 rather than the declared 0: these multiply a price,
 			// and a zero multiplier makes every rental free.
-			'mhm_rentiva_vehicle_base_price'           => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_base_price'] ?? ( $defaults['mhm_rentiva_vehicle_base_price'] ?? 1.0 ) ), 0.1, 100.0 ),
-			'mhm_rentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhm_rentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
-			'mhm_rentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhm_rentiva_vehicle_tax_inclusive' ),
-			'mhm_rentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhm_rentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
+			'mhmrentiva_vehicle_base_price'           => self::clamp_value( floatval( $input['mhmrentiva_vehicle_base_price'] ?? ( $defaults['mhmrentiva_vehicle_base_price'] ?? 1.0 ) ), 0.1, 100.0 ),
+			'mhmrentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhmrentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhmrentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
+			'mhmrentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhmrentiva_vehicle_tax_inclusive' ),
+			'mhmrentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhmrentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
 			// `..._cards_per_page` and `..._default_sort` are NOT listed here even
 			// though their names begin `vehicle_`: they render on the Frontend tab,
 			// not this one. Naming a key in a tab's branch writes it with its
@@ -368,27 +368,27 @@ final class SettingsSanitizer {
 			// every Vehicle-tab save silently reset two fields the administrator
 			// had set on another screen. Same trap the card/detail field guard
 			// below already documents.
-			'mhm_rentiva_vehicle_min_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_min_rental_days', 1, 1, 365 ),
-			'mhm_rentiva_vehicle_max_rental_days'      => self::get_int( $input, 'mhm_rentiva_vehicle_max_rental_days', 365, 1, 365 ),
-			'mhm_rentiva_vehicle_advance_booking_days' => self::get_int( $input, 'mhm_rentiva_vehicle_advance_booking_days', 365, 1, 365 ),
-			'mhm_rentiva_vehicle_allow_same_day'       => self::get_bool( $input, 'mhm_rentiva_vehicle_allow_same_day' ),
+			'mhmrentiva_vehicle_min_rental_days'      => self::get_int( $input, 'mhmrentiva_vehicle_min_rental_days', 1, 1, 365 ),
+			'mhmrentiva_vehicle_max_rental_days'      => self::get_int( $input, 'mhmrentiva_vehicle_max_rental_days', 365, 1, 365 ),
+			'mhmrentiva_vehicle_advance_booking_days' => self::get_int( $input, 'mhmrentiva_vehicle_advance_booking_days', 365, 1, 365 ),
+			'mhmrentiva_vehicle_allow_same_day'       => self::get_bool( $input, 'mhmrentiva_vehicle_allow_same_day' ),
 		);
 
 		// Only overwrite card/detail field selections when the key is explicitly present in the POST.
 		// If absent (e.g. all checkboxes unchecked or form submitted from a different section),
 		// omit it so array_merge() preserves the existing DB value instead of clearing it.
-		if ( isset( $input['mhm_rentiva_vehicle_card_fields'] ) ) {
-			$out['mhm_rentiva_vehicle_card_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $input['mhm_rentiva_vehicle_card_fields'] );
+		if ( isset( $input['mhmrentiva_vehicle_card_fields'] ) ) {
+			$out['mhmrentiva_vehicle_card_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $input['mhmrentiva_vehicle_card_fields'] );
 		}
-		if ( isset( $input['mhm_rentiva_vehicle_detail_fields'] ) ) {
-			$out['mhm_rentiva_vehicle_detail_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $input['mhm_rentiva_vehicle_detail_fields'] );
+		if ( isset( $input['mhmrentiva_vehicle_detail_fields'] ) ) {
+			$out['mhmrentiva_vehicle_detail_fields'] = VehicleFeatureHelper::sanitize_card_field_selection( $input['mhmrentiva_vehicle_detail_fields'] );
 		}
 
 		return $out;
 	}
 
 	private static function sanitize_vehicle_pricing_settings( array $input, array $defaults ): array {
-		$current_settings = (array) \get_option( 'mhm_rentiva_settings', array() );
+		$current_settings = (array) \get_option( 'mhmrentiva_settings', array() );
 		$current_pricing  = $current_settings['vehicle_pricing'] ?? ( $defaults['vehicle_pricing'] ?? array() );
 
 		if ( isset( $input['vehicle_pricing'] ) && \is_array( $input['vehicle_pricing'] ) ) {
@@ -455,15 +455,15 @@ final class SettingsSanitizer {
 
 	private static function sanitize_booking_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_booking_cancellation_deadline_hours' => self::get_int( $input, 'mhm_rentiva_booking_cancellation_deadline_hours', 24, 1, 168 ),
-			'mhm_rentiva_booking_payment_deadline_minutes' => self::get_int( $input, 'mhm_rentiva_booking_payment_deadline_minutes', 30, 0, 1440 ),
-			'mhm_rentiva_booking_auto_cancel_enabled'      => self::get_bool( $input, 'mhm_rentiva_booking_auto_cancel_enabled' ),
-			'mhm_rentiva_booking_buffer_time'              => self::get_int( $input, 'mhm_rentiva_booking_buffer_time', 60, 0, 1440 ),
-			'mhm_rentiva_booking_send_confirmation_emails' => self::get_bool( $input, 'mhm_rentiva_booking_send_confirmation_emails' ),
-			'mhm_rentiva_booking_send_reminder_emails'     => self::get_bool( $input, 'mhm_rentiva_booking_send_reminder_emails' ),
-			'mhm_rentiva_booking_admin_notifications'      => self::get_bool( $input, 'mhm_rentiva_booking_admin_notifications' ),
-			'mhm_rentiva_send_auto_cancel_email'           => self::get_bool( $input, 'mhm_rentiva_send_auto_cancel_email' ),
-			'mhm_rentiva_default_rental_days'              => self::get_int( $input, 'mhm_rentiva_default_rental_days', 1, 1, 365 ),
+			'mhmrentiva_booking_cancellation_deadline_hours' => self::get_int( $input, 'mhmrentiva_booking_cancellation_deadline_hours', 24, 1, 168 ),
+			'mhmrentiva_booking_payment_deadline_minutes' => self::get_int( $input, 'mhmrentiva_booking_payment_deadline_minutes', 30, 0, 1440 ),
+			'mhmrentiva_booking_auto_cancel_enabled'      => self::get_bool( $input, 'mhmrentiva_booking_auto_cancel_enabled' ),
+			'mhmrentiva_booking_buffer_time'              => self::get_int( $input, 'mhmrentiva_booking_buffer_time', 60, 0, 1440 ),
+			'mhmrentiva_booking_send_confirmation_emails' => self::get_bool( $input, 'mhmrentiva_booking_send_confirmation_emails' ),
+			'mhmrentiva_booking_send_reminder_emails'     => self::get_bool( $input, 'mhmrentiva_booking_send_reminder_emails' ),
+			'mhmrentiva_booking_admin_notifications'      => self::get_bool( $input, 'mhmrentiva_booking_admin_notifications' ),
+			'mhmrentiva_send_auto_cancel_email'           => self::get_bool( $input, 'mhmrentiva_send_auto_cancel_email' ),
+			'mhmrentiva_default_rental_days'              => self::get_int( $input, 'mhmrentiva_default_rental_days', 1, 1, 365 ),
 		);
 	}
 
@@ -472,96 +472,96 @@ final class SettingsSanitizer {
 	}
 
 	private static function sanitize_email_brand_settings( array $input, array $defaults ): array {
-		$from_name = self::safe_text( $input['mhm_rentiva_email_from_name'] ?? \get_bloginfo( 'name' ) );
+		$from_name = self::safe_text( $input['mhmrentiva_email_from_name'] ?? \get_bloginfo( 'name' ) );
 		// Fix: Prevent boolean 'true' casted to '1' from being saved as sender name
 		if ( '1' === $from_name || '0' === $from_name ) {
 			$from_name = \get_bloginfo( 'name' );
 		}
 
-		$from_address = SettingsHelper::sanitize_field( $input['mhm_rentiva_email_from_address'] ?? \get_option( 'admin_email' ), 'email' );
+		$from_address = SettingsHelper::sanitize_field( $input['mhmrentiva_email_from_address'] ?? \get_option( 'admin_email' ), 'email' );
 		// Fix: Prevent invalid emails or boolean casts
 		if ( '1' === $from_address || ! \is_email( $from_address ) ) {
 			$from_address = \get_option( 'admin_email' );
 		}
 
 		return array(
-			'mhm_rentiva_email_from_name'     => $from_name,
-			'mhm_rentiva_email_from_address'  => $from_address,
-			'mhm_rentiva_brand_name'          => self::safe_text( $input['mhm_rentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
-			'mhm_rentiva_brand_logo_url'      => \esc_url_raw( $input['mhm_rentiva_brand_logo_url'] ?? '' ),
-			'mhm_rentiva_email_header_image'  => \esc_url_raw( $input['mhm_rentiva_email_header_image'] ?? '' ),
-			'mhm_rentiva_email_primary_color' => \sanitize_hex_color( $input['mhm_rentiva_email_primary_color'] ?? '#1e88e5' ),
-			'mhm_rentiva_email_base_color'    => \sanitize_hex_color( $input['mhm_rentiva_email_base_color'] ?? '#667eea' ),
-			'mhm_rentiva_email_footer_text'   => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_footer_text'] ?? '', 'textarea' ),
+			'mhmrentiva_email_from_name'     => $from_name,
+			'mhmrentiva_email_from_address'  => $from_address,
+			'mhmrentiva_brand_name'          => self::safe_text( $input['mhmrentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
+			'mhmrentiva_brand_logo_url'      => \esc_url_raw( $input['mhmrentiva_brand_logo_url'] ?? '' ),
+			'mhmrentiva_email_header_image'  => \esc_url_raw( $input['mhmrentiva_email_header_image'] ?? '' ),
+			'mhmrentiva_email_primary_color' => \sanitize_hex_color( $input['mhmrentiva_email_primary_color'] ?? '#1e88e5' ),
+			'mhmrentiva_email_base_color'    => \sanitize_hex_color( $input['mhmrentiva_email_base_color'] ?? '#667eea' ),
+			'mhmrentiva_email_footer_text'   => SettingsHelper::sanitize_field( $input['mhmrentiva_email_footer_text'] ?? '', 'textarea' ),
 		);
 	}
 
 	private static function sanitize_email_sending_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_email_reply_to'                 => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_reply_to'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhm_rentiva_email_send_enabled'             => self::get_bool( $input, 'mhm_rentiva_email_send_enabled' ),
-			'mhm_rentiva_email_test_mode'                => self::get_bool( $input, 'mhm_rentiva_email_test_mode' ),
-			'mhm_rentiva_email_test_address'             => SettingsHelper::sanitize_field( $input['mhm_rentiva_email_test_address'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhm_rentiva_email_template_path'            => self::safe_text( $input['mhm_rentiva_email_template_path'] ?? 'mhm-rentiva/emails/' ),
-			'mhm_rentiva_email_auto_send'                => self::get_bool( $input, 'mhm_rentiva_email_auto_send' ),
-			'mhm_rentiva_email_log_enabled'              => self::get_bool( $input, 'mhm_rentiva_email_log_enabled' ),
-			'mhm_rentiva_email_log_retention_days'       => self::get_int( $input, 'mhm_rentiva_email_log_retention_days', 30, 1, 365 ),
-			'mhm_rentiva_customer_welcome_email'         => self::get_bool( $input, 'mhm_rentiva_customer_welcome_email' ),
-			'mhm_rentiva_customer_booking_notifications' => self::get_bool( $input, 'mhm_rentiva_customer_booking_notifications' ),
+			'mhmrentiva_email_reply_to'                 => SettingsHelper::sanitize_field( $input['mhmrentiva_email_reply_to'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhmrentiva_email_send_enabled'             => self::get_bool( $input, 'mhmrentiva_email_send_enabled' ),
+			'mhmrentiva_email_test_mode'                => self::get_bool( $input, 'mhmrentiva_email_test_mode' ),
+			'mhmrentiva_email_test_address'             => SettingsHelper::sanitize_field( $input['mhmrentiva_email_test_address'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhmrentiva_email_template_path'            => self::safe_text( $input['mhmrentiva_email_template_path'] ?? 'mhm-rentiva/emails/' ),
+			'mhmrentiva_email_auto_send'                => self::get_bool( $input, 'mhmrentiva_email_auto_send' ),
+			'mhmrentiva_email_log_enabled'              => self::get_bool( $input, 'mhmrentiva_email_log_enabled' ),
+			'mhmrentiva_email_log_retention_days'       => self::get_int( $input, 'mhmrentiva_email_log_retention_days', 30, 1, 365 ),
+			'mhmrentiva_customer_welcome_email'         => self::get_bool( $input, 'mhmrentiva_customer_welcome_email' ),
+			'mhmrentiva_customer_booking_notifications' => self::get_bool( $input, 'mhmrentiva_customer_booking_notifications' ),
 		);
 	}
 
 	private static function sanitize_offline_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_offline_instructions' => SettingsHelper::sanitize_field( $input['mhm_rentiva_offline_instructions'] ?? '', 'textarea' ),
-			'mhm_rentiva_offline_accounts'     => \wp_kses_post( $input['mhm_rentiva_offline_accounts'] ?? '' ),
+			'mhmrentiva_offline_instructions' => SettingsHelper::sanitize_field( $input['mhmrentiva_offline_instructions'] ?? '', 'textarea' ),
+			'mhmrentiva_offline_accounts'     => \wp_kses_post( $input['mhmrentiva_offline_accounts'] ?? '' ),
 		);
 	}
 
 	private static function sanitize_frontend_settings( array $input, array $defaults ): array {
 		$out   = array(
-			'mhm_rentiva_vehicle_cards_per_page' => self::get_int( $input, 'mhm_rentiva_vehicle_cards_per_page', 12, 1, 50 ),
-			'mhm_rentiva_vehicle_default_sort'   => self::validate_enum( $input['mhm_rentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
+			'mhmrentiva_vehicle_cards_per_page' => self::get_int( $input, 'mhmrentiva_vehicle_cards_per_page', 12, 1, 50 ),
+			'mhmrentiva_vehicle_default_sort'   => self::validate_enum( $input['mhmrentiva_vehicle_default_sort'] ?? '', array( 'price_asc', 'price_desc', 'name_asc', 'name_desc', 'year_desc', 'year_asc' ), 'price_asc' ),
 		);
-		$slugs = array( 'mhm_rentiva_endpoint_bookings', 'mhm_rentiva_endpoint_favorites', 'mhm_rentiva_endpoint_payment_history', 'mhm_rentiva_endpoint_messages', 'mhm_rentiva_endpoint_edit_account' );
+		$slugs = array( 'mhmrentiva_endpoint_bookings', 'mhmrentiva_endpoint_favorites', 'mhmrentiva_endpoint_payment_history', 'mhmrentiva_endpoint_messages', 'mhmrentiva_endpoint_edit_account' );
 		foreach ( $slugs as $s ) {
 			$out[ $s ] = \sanitize_title( $input[ $s ] ?? ( $defaults[ $s ] ?? '' ) );
 		}
 
-		$urls = array( 'mhm_rentiva_booking_url', 'mhm_rentiva_login_url', 'mhm_rentiva_register_url', 'mhm_rentiva_vehicles_list_url', 'mhm_rentiva_search_url', 'mhm_rentiva_contact_url' );
+		$urls = array( 'mhmrentiva_booking_url', 'mhmrentiva_login_url', 'mhmrentiva_register_url', 'mhmrentiva_vehicles_list_url', 'mhmrentiva_search_url', 'mhmrentiva_contact_url' );
 		foreach ( $urls as $u ) {
 			$out[ $u ] = self::safe_text( $input[ $u ] ?? '' );
 		}
 
 		$texts = array(
-			'mhm_rentiva_text_book_now',
-			'mhm_rentiva_text_view_details',
-			'mhm_rentiva_text_make_booking',
-			'mhm_rentiva_text_cancel_booking',
-			'mhm_rentiva_text_added_to_favorites',
-			'mhm_rentiva_text_removed_from_favorites',
-			'mhm_rentiva_text_login_here',
-			'mhm_rentiva_text_processing',
-			'mhm_rentiva_text_loading',
-			'mhm_rentiva_text_error',
-			'mhm_rentiva_text_booking_success',
-			'mhm_rentiva_text_first_name',
-			'mhm_rentiva_text_last_name',
-			'mhm_rentiva_text_email',
-			'mhm_rentiva_text_phone',
-			'mhm_rentiva_text_select_vehicle',
-			'mhm_rentiva_text_select_dates',
-			'mhm_rentiva_text_invalid_dates',
-			'mhm_rentiva_text_select_payment_type',
-			'mhm_rentiva_text_select_payment_method',
-			'mhm_rentiva_text_calculating',
-			'mhm_rentiva_text_payment_redirect',
-			'mhm_rentiva_text_payment_success',
-			'mhm_rentiva_text_payment_cancelled',
-			'mhm_rentiva_text_popup_blocked',
-			'mhm_rentiva_text_view_dashboard',
-			'mhm_rentiva_text_back_to_bookings',
-			'mhm_rentiva_text_already_have_account',
+			'mhmrentiva_text_book_now',
+			'mhmrentiva_text_view_details',
+			'mhmrentiva_text_make_booking',
+			'mhmrentiva_text_cancel_booking',
+			'mhmrentiva_text_added_to_favorites',
+			'mhmrentiva_text_removed_from_favorites',
+			'mhmrentiva_text_login_here',
+			'mhmrentiva_text_processing',
+			'mhmrentiva_text_loading',
+			'mhmrentiva_text_error',
+			'mhmrentiva_text_booking_success',
+			'mhmrentiva_text_first_name',
+			'mhmrentiva_text_last_name',
+			'mhmrentiva_text_email',
+			'mhmrentiva_text_phone',
+			'mhmrentiva_text_select_vehicle',
+			'mhmrentiva_text_select_dates',
+			'mhmrentiva_text_invalid_dates',
+			'mhmrentiva_text_select_payment_type',
+			'mhmrentiva_text_select_payment_method',
+			'mhmrentiva_text_calculating',
+			'mhmrentiva_text_payment_redirect',
+			'mhmrentiva_text_payment_success',
+			'mhmrentiva_text_payment_cancelled',
+			'mhmrentiva_text_popup_blocked',
+			'mhmrentiva_text_view_dashboard',
+			'mhmrentiva_text_back_to_bookings',
+			'mhmrentiva_text_already_have_account',
 		);
 		foreach ( $texts as $t ) {
 			if ( isset( $input[ $t ] ) ) {
@@ -569,17 +569,17 @@ final class SettingsSanitizer {
 			}
 		}
 
-		$out['mhm_rentiva_text_login_required'] = \sanitize_textarea_field( $input['mhm_rentiva_text_login_required'] ?? '' );
+		$out['mhmrentiva_text_login_required'] = \sanitize_textarea_field( $input['mhmrentiva_text_login_required'] ?? '' );
 
 		return $out;
 	}
 
 	private static function sanitize_comments_settings( array $input, array $current ): array {
-		if ( ! isset( $input['mhm_rentiva_comments_settings'] ) || ! \is_array( $input['mhm_rentiva_comments_settings'] ) ) {
+		if ( ! isset( $input['mhmrentiva_comments_settings'] ) || ! \is_array( $input['mhmrentiva_comments_settings'] ) ) {
 			return array();
 		}
 
-		$in = $input['mhm_rentiva_comments_settings'];
+		$in = $input['mhmrentiva_comments_settings'];
 
 		// Process spam_words - can be textarea (comma-separated) or array
 		$spam_words_raw = $in['spam_protection']['spam_words'] ?? '';
@@ -672,9 +672,9 @@ final class SettingsSanitizer {
 	 */
 	private static function sanitize_addon_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_addon_require_confirmation'    => self::get_bool( $input, 'mhm_rentiva_addon_require_confirmation' ),
-			'mhm_rentiva_addon_show_prices_in_calendar' => self::get_bool( $input, 'mhm_rentiva_addon_show_prices_in_calendar' ),
-			'mhm_rentiva_addon_display_order'           => self::validate_enum( $input['mhm_rentiva_addon_display_order'] ?? '', array( 'menu_order', 'title', 'price_asc', 'price_desc', 'date_created' ), 'menu_order' ),
+			'mhmrentiva_addon_require_confirmation'    => self::get_bool( $input, 'mhmrentiva_addon_require_confirmation' ),
+			'mhmrentiva_addon_show_prices_in_calendar' => self::get_bool( $input, 'mhmrentiva_addon_show_prices_in_calendar' ),
+			'mhmrentiva_addon_display_order'           => self::validate_enum( $input['mhmrentiva_addon_display_order'] ?? '', array( 'menu_order', 'title', 'price_asc', 'price_desc', 'date_created' ), 'menu_order' ),
 		);
 	}
 
@@ -683,30 +683,30 @@ final class SettingsSanitizer {
 	 */
 	private static function sanitize_transfer_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_transfer_deposit_type' => self::validate_enum( $input['mhm_transfer_deposit_type'] ?? '', array( 'full_payment', 'percentage' ), 'full_payment' ),
-			'mhm_transfer_deposit_rate' => self::get_int( $input, 'mhm_transfer_deposit_rate', 20, 1, 100 ),
-			'mhm_transfer_custom_types' => \sanitize_textarea_field( $input['mhm_transfer_custom_types'] ?? '' ),
+			'mhmrentiva_transfer_deposit_type' => self::validate_enum( $input['mhmrentiva_transfer_deposit_type'] ?? '', array( 'full_payment', 'percentage' ), 'full_payment' ),
+			'mhmrentiva_transfer_deposit_rate' => self::get_int( $input, 'mhmrentiva_transfer_deposit_rate', 20, 1, 100 ),
+			'mhmrentiva_transfer_custom_types' => \sanitize_textarea_field( $input['mhmrentiva_transfer_custom_types'] ?? '' ),
 		);
 	}
 
 	private static function sanitize_site_info_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_brand_name'    => self::safe_text( $input['mhm_rentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
-			'mhm_rentiva_site_url'      => \esc_url_raw( $input['mhm_rentiva_site_url'] ?? \get_option( 'siteurl' ) ),
-			'mhm_rentiva_home_url'      => \esc_url_raw( $input['mhm_rentiva_home_url'] ?? \get_option( 'home' ) ),
-			'mhm_rentiva_admin_email'   => SettingsHelper::sanitize_field( $input['mhm_rentiva_admin_email'] ?? \get_option( 'admin_email' ), 'email' ),
-			'mhm_rentiva_site_language' => self::safe_text( $input['mhm_rentiva_site_language'] ?? \get_locale() ),
-			'mhm_rentiva_timezone'      => self::safe_text( $input['mhm_rentiva_timezone'] ?? \wp_timezone_string() ),
-			'mhm_rentiva_support_email' => SettingsHelper::sanitize_field( $input['mhm_rentiva_support_email'] ?? '', 'email' ),
-			'mhm_rentiva_contact_phone' => self::safe_text( $input['mhm_rentiva_contact_phone'] ?? '' ),
-			'mhm_rentiva_contact_hours' => self::safe_text( $input['mhm_rentiva_contact_hours'] ?? '' ),
+			'mhmrentiva_brand_name'    => self::safe_text( $input['mhmrentiva_brand_name'] ?? \get_bloginfo( 'name' ) ),
+			'mhmrentiva_site_url'      => \esc_url_raw( $input['mhmrentiva_site_url'] ?? \get_option( 'siteurl' ) ),
+			'mhmrentiva_home_url'      => \esc_url_raw( $input['mhmrentiva_home_url'] ?? \get_option( 'home' ) ),
+			'mhmrentiva_admin_email'   => SettingsHelper::sanitize_field( $input['mhmrentiva_admin_email'] ?? \get_option( 'admin_email' ), 'email' ),
+			'mhmrentiva_site_language' => self::safe_text( $input['mhmrentiva_site_language'] ?? \get_locale() ),
+			'mhmrentiva_timezone'      => self::safe_text( $input['mhmrentiva_timezone'] ?? \wp_timezone_string() ),
+			'mhmrentiva_support_email' => SettingsHelper::sanitize_field( $input['mhmrentiva_support_email'] ?? '', 'email' ),
+			'mhmrentiva_contact_phone' => self::safe_text( $input['mhmrentiva_contact_phone'] ?? '' ),
+			'mhmrentiva_contact_hours' => self::safe_text( $input['mhmrentiva_contact_hours'] ?? '' ),
 		);
 	}
 
 	private static function sanitize_datetime_settings( array $input, array $defaults ): array {
 		return array(
-			'mhm_rentiva_time_format'   => self::safe_text( $input['mhm_rentiva_time_format'] ?? 'H:i' ),
-			'mhm_rentiva_start_of_week' => self::get_int( $input, 'mhm_rentiva_start_of_week', 1, 0, 6 ),
+			'mhmrentiva_time_format'   => self::safe_text( $input['mhmrentiva_time_format'] ?? 'H:i' ),
+			'mhmrentiva_start_of_week' => self::get_int( $input, 'mhmrentiva_start_of_week', 1, 0, 6 ),
 		);
 	}
 

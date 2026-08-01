@@ -309,7 +309,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			return;
 		}
 
-		$json_path = trailingslashit( MHM_RENTIVA_PLUGIN_DIR ) . 'assets/blocks/' . $block_slug . '/block.json';
+		$json_path = trailingslashit( MHMRENTIVA_PLUGIN_DIR ) . 'assets/blocks/' . $block_slug . '/block.json';
 		if ( ! file_exists( $json_path ) ) {
 			return;
 		}
@@ -353,7 +353,7 @@ abstract class ElementorWidgetBase extends Widget_Base {
 		}
 
 		$this->start_controls_section(
-			'mhm_parity_section',
+			'mhmrentiva_parity_section',
 			array(
 				'label' => __( 'Parity Controls', 'mhm-rentiva' ),
 				'tab'   => 'content',

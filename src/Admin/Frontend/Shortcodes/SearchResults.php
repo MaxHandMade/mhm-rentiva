@@ -39,7 +39,7 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Context key for the availability injector filter.
 	 */
-	private const SEARCH_CONTEXT_KEY = 'mhm_search_context';
+	private const SEARCH_CONTEXT_KEY = 'mhmrentiva_search_context';
 
 
 	public const SHORTCODE = 'rentiva_search_results';
@@ -152,8 +152,8 @@ final class SearchResults extends AbstractShortcode {
 		parent::register();
 
 		// AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_filter_results', array( self::class, 'ajax_filter_results' ));
+		add_action('wp_ajax_mhmrentiva_filter_results', array( self::class, 'ajax_filter_results' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_filter_results', array( self::class, 'ajax_filter_results' ));
 	}
 
 	/**
@@ -248,7 +248,7 @@ final class SearchResults extends AbstractShortcode {
 			'filter_options'  => $filter_options,
 			'pagination'      => $results['pagination'] ?? array(),
 			'sorting_options' => self::get_sorting_options(),
-			'nonce_field'     => wp_nonce_field('mhm_rentiva_search_results', 'mhm_rentiva_search_results_nonce', true, false),
+			'nonce_field'     => wp_nonce_field('mhmrentiva_search_results', 'mhmrentiva_search_results_nonce', true, false),
 		);
 	}
 
@@ -286,18 +286,18 @@ final class SearchResults extends AbstractShortcode {
 		// Search results CSS
 		wp_enqueue_style(
 			'mhm-rentiva-search-results-css',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-results.css',
 			array( 'mhm-rentiva-vehicle-card-css' ),
-			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
+			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/css/frontend/search-results.css'),
 			'all'
 		);
 
 		// Search results JavaScript
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
 			array( 'jquery', 'mhm-rentiva-vehicle-interactions' ),
-			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
+			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);
 
@@ -305,12 +305,12 @@ final class SearchResults extends AbstractShortcode {
 		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'enqueued')) {
 			wp_localize_script(
 				'mhm-rentiva-vehicle-interactions',
-				'mhm_rentiva_vars',
+				'mhmrentiva_vars',
 				array(
 					'ajax_url'           => admin_url('admin-ajax.php'),
-					'nonce'              => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'fav_nonce'          => wp_create_nonce('mhm_rentiva_toggle_favorite'),
-					'compare_nonce'      => wp_create_nonce('mhm_rentiva_toggle_compare'),
+					'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'),
+					'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
+					'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
 					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
 					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
 				)
@@ -323,7 +323,7 @@ final class SearchResults extends AbstractShortcode {
 			'mhmRentivaSearchResults',
 			array(
 				'ajax_url'        => admin_url('admin-ajax.php'),
-				'nonce'           => wp_create_nonce('mhm_rentiva_search_results'),
+				'nonce'           => wp_create_nonce('mhmrentiva_search_results'),
 				'current_url'     => home_url(add_query_arg(null, null)),
 				'search_page_url' => ShortcodeUrlManager::get_page_url('rentiva_search'),
 				'i18n'            => array(
@@ -352,7 +352,7 @@ final class SearchResults extends AbstractShortcode {
 					/* translators: %d: number of vehicles. */
 					'vehicles_found'         => __('%d vehicles found', 'mhm-rentiva'),
 				),
-				'favorite_nonce'  => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+				'favorite_nonce'  => wp_create_nonce('mhmrentiva_toggle_favorite'),
 				'icons'           => array(
 					'heart' => \MHMRentiva\Helpers\Icons::get('heart'),
 				),
@@ -422,7 +422,7 @@ final class SearchResults extends AbstractShortcode {
 		$return_date = ! empty($params['return_date']) ? $params['return_date'] : ( ! empty($params['end_date']) ? $params['end_date'] : '' );
 
 		if (! empty($pickup_date) && ! empty($return_date)) {
-			$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_min_rental_days', 1);
+			$min_days = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1);
 			$start_ts = strtotime($pickup_date);
 			$end_ts   = strtotime($return_date);
 
@@ -444,7 +444,7 @@ final class SearchResults extends AbstractShortcode {
 		// Price range
 		if ($params['min_price'] > 0 || $params['max_price'] > 0) {
 			$price_query = array(
-				'key'  => '_mhm_rentiva_price_per_day',
+				'key'  => '_mhmrentiva_price_per_day',
 				'type' => 'NUMERIC',
 			);
 
@@ -466,7 +466,7 @@ final class SearchResults extends AbstractShortcode {
 		if (! empty($params['fuel_type'])) {
 			$fuel_values          = is_array($params['fuel_type']) ? $params['fuel_type'] : array( $params['fuel_type'] );
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_fuel_type',
+				'key'     => '_mhmrentiva_fuel_type',
 				'value'   => $fuel_values,
 				'compare' => 'IN',
 			);
@@ -476,7 +476,7 @@ final class SearchResults extends AbstractShortcode {
 		if (! empty($params['transmission'])) {
 			$transmission_values  = is_array($params['transmission']) ? $params['transmission'] : array( $params['transmission'] );
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_transmission',
+				'key'     => '_mhmrentiva_transmission',
 				'value'   => $transmission_values,
 				'compare' => 'IN',
 			);
@@ -486,7 +486,7 @@ final class SearchResults extends AbstractShortcode {
 		if (! empty($params['seats'])) {
 			$seats_values         = is_array($params['seats']) ? $params['seats'] : array( $params['seats'] );
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_seats',
+				'key'     => '_mhmrentiva_seats',
 				'value'   => $seats_values,
 				'compare' => 'IN',
 			);
@@ -496,7 +496,7 @@ final class SearchResults extends AbstractShortcode {
 		if (! empty($params['brand'])) {
 			$brand_values         = is_array($params['brand']) ? $params['brand'] : array( $params['brand'] );
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_brand',
+				'key'     => '_mhmrentiva_brand',
 				'value'   => $brand_values,
 				'compare' => 'IN',
 			);
@@ -505,7 +505,7 @@ final class SearchResults extends AbstractShortcode {
 		// Year range
 		if ($params['year_min'] > 0 || $params['year_max'] > 0) {
 			$year_query = array(
-				'key'  => '_mhm_rentiva_year',
+				'key'  => '_mhmrentiva_year',
 				'type' => 'NUMERIC',
 			);
 
@@ -526,7 +526,7 @@ final class SearchResults extends AbstractShortcode {
 		// Mileage
 		if ($params['mileage_max'] > 0) {
 			$args['meta_query'][] = array(
-				'key'     => '_mhm_rentiva_mileage',
+				'key'     => '_mhmrentiva_mileage',
 				'value'   => $params['mileage_max'],
 				'type'    => 'NUMERIC',
 				'compare' => '<=',
@@ -536,12 +536,12 @@ final class SearchResults extends AbstractShortcode {
 		// Sorting
 		switch ($params['sort']) {
 			case 'price_asc':
-				$args['meta_key'] = '_mhm_rentiva_price_per_day';
+				$args['meta_key'] = '_mhmrentiva_price_per_day';
 				$args['orderby']  = 'meta_value_num';
 				$args['order']    = 'ASC';
 				break;
 			case 'price_desc':
-				$args['meta_key'] = '_mhm_rentiva_price_per_day';
+				$args['meta_key'] = '_mhmrentiva_price_per_day';
 				$args['orderby']  = 'meta_value_num';
 				$args['order']    = 'DESC';
 				break;
@@ -554,7 +554,7 @@ final class SearchResults extends AbstractShortcode {
 				$args['order']   = 'DESC';
 				break;
 			case 'year_desc':
-				$args['meta_key'] = '_mhm_rentiva_year';
+				$args['meta_key'] = '_mhmrentiva_year';
 				$args['orderby']  = 'meta_value_num';
 				$args['order']    = 'DESC';
 				break;
@@ -687,7 +687,7 @@ final class SearchResults extends AbstractShortcode {
 	{
 		// Caching Strategy: Search filters are global and expensive to compute.
 		// We cache them for 24 hours, invalidated on vehicle save/update.
-		$cache_key = 'mhm_rentiva_search_filters_v1';
+		$cache_key = 'mhmrentiva_search_filters_v1';
 		$cached    = get_transient($cache_key);
 
 		if (false !== $cached && is_array($cached)) {
@@ -704,7 +704,7 @@ final class SearchResults extends AbstractShortcode {
 			"
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_fuel_type' 
+            WHERE meta_key = '_mhmrentiva_fuel_type' 
             AND meta_value != '' 
             ORDER BY meta_value ASC
         "
@@ -727,7 +727,7 @@ final class SearchResults extends AbstractShortcode {
 			"
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_transmission' 
+            WHERE meta_key = '_mhmrentiva_transmission' 
             AND meta_value != '' 
             ORDER BY meta_value ASC
         "
@@ -750,7 +750,7 @@ final class SearchResults extends AbstractShortcode {
 			"
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_seats' 
+            WHERE meta_key = '_mhmrentiva_seats' 
             AND meta_value != '' 
             ORDER BY CAST(meta_value AS UNSIGNED) ASC
         "
@@ -761,7 +761,7 @@ final class SearchResults extends AbstractShortcode {
 			"
             SELECT DISTINCT meta_value 
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_brand' 
+            WHERE meta_key = '_mhmrentiva_brand' 
             AND meta_value != '' 
             ORDER BY meta_value ASC
         "
@@ -774,7 +774,7 @@ final class SearchResults extends AbstractShortcode {
                 MIN(CAST(meta_value AS UNSIGNED)) as min_year,
                 MAX(CAST(meta_value AS UNSIGNED)) as max_year
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_year' 
+            WHERE meta_key = '_mhmrentiva_year' 
             AND meta_value != '' 
             AND meta_value REGEXP '^[0-9]+$'
         "
@@ -787,14 +787,14 @@ final class SearchResults extends AbstractShortcode {
                 MIN(CAST(meta_value AS DECIMAL(10,2))) as min_price,
                 MAX(CAST(meta_value AS DECIMAL(10,2))) as max_price
             FROM {$wpdb->postmeta} 
-            WHERE meta_key = '_mhm_rentiva_price_per_day' 
+            WHERE meta_key = '_mhmrentiva_price_per_day' 
             AND meta_value != '' 
             AND meta_value REGEXP '^[0-9]+(\.[0-9]+)?$'
         "
 		);
 
 		// Rental locations come from an add-on via the filter.
-		$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
+		$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
 
 		$data = array(
 			'fuel_types'    => $fuel_types ?: array(),
@@ -843,7 +843,7 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	public static function ajax_filter_results(): void
 	{
-		check_ajax_referer('mhm_rentiva_search_results', 'nonce');
+		check_ajax_referer('mhmrentiva_search_results', 'nonce');
 
 		$req = VerifiedRequest::from($_POST);
 

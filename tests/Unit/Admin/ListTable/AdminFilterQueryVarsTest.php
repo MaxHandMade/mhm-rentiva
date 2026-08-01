@@ -49,15 +49,15 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
     public function filterParamProvider(): array
     {
         return array(
-            'booking status'   => array( 'mhm_booking_status', 'confirmed' ),
-            'payment status'   => array( 'mhm_payment_status', 'paid' ),
-            'payment gateway'  => array( 'mhm_payment_gateway', 'woocommerce' ),
-            'booking id'       => array( 'mhm_booking_id', '4242' ),
-            'license plate'    => array( 'mhm_license_plate', '34ABC34' ),
-            'availability'     => array( 'mhm_available', 'available' ),
-            'location'         => array( 'mhm_location_filter', '7' ),
-            'lifecycle'        => array( 'mhm_lifecycle_filter', 'archive' ),
-            'owner'            => array( 'mhm_owner_filter', 'vendor' ),
+            'booking status'   => array( 'mhmrentiva_booking_status', 'confirmed' ),
+            'payment status'   => array( 'mhmrentiva_payment_status', 'paid' ),
+            'payment gateway'  => array( 'mhmrentiva_payment_gateway', 'woocommerce' ),
+            'booking id'       => array( 'mhmrentiva_booking_id', '4242' ),
+            'license plate'    => array( 'mhmrentiva_license_plate', '34ABC34' ),
+            'availability'     => array( 'mhmrentiva_available', 'available' ),
+            'location'         => array( 'mhmrentiva_location_filter', '7' ),
+            'lifecycle'        => array( 'mhmrentiva_lifecycle_filter', 'archive' ),
+            'owner'            => array( 'mhmrentiva_owner_filter', 'vendor' ),
             'addon status'     => array( 'addon_status', 'active' ),
             'addon category'   => array( 'addon_category', 'insurance' ),
             'addon price min'  => array( 'price_min', '10' ),
@@ -65,8 +65,8 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
             // Calendar navigation on both list screens. Prefixed on purpose: an
             // unprefixed `month` on a global whitelist would collide with any
             // other plugin registering it, and `year` is already core's own.
-            'calendar month'   => array( 'mhm_month', '3' ),
-            'calendar year'    => array( 'mhm_year', '2027' ),
+            'calendar month'   => array( 'mhmrentiva_month', '3' ),
+            'calendar year'    => array( 'mhmrentiva_year', '2027' ),
         );
     }
 
@@ -90,8 +90,8 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
     public function arrayValuedParamProvider(): array
     {
         return array(
-            'bookings list' => array( BookingColumns::class, 'get_query_text', 'mhm_booking_status', false ),
-            'vehicles list' => array( VehicleColumns::class, 'get_query_text', 'mhm_available', false ),
+            'bookings list' => array( BookingColumns::class, 'get_query_text', 'mhmrentiva_booking_status', false ),
+            'vehicles list' => array( VehicleColumns::class, 'get_query_text', 'mhmrentiva_available', false ),
             // The add-ons reader drops filter values that arrive without a valid
             // filter nonce, and that early return sits AFTER the array guard. Send
             // a real nonce, or the reader never reaches the cast and the test
@@ -117,7 +117,7 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
     {
         $params = array( $key => array( 'x', 'y' ) );
         if ( $needs_addon_filter_nonce ) {
-            $params['mhm_addon_filter_nonce'] = wp_create_nonce( 'mhm_addon_filter' );
+            $params['mhmrentiva_addon_filter_nonce'] = wp_create_nonce( 'mhmrentiva_addon_filter' );
         }
 
         $this->requestAdminUrl( $params );
@@ -148,8 +148,8 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
     {
         // Negative control: proves the assertions above measure the registration
         // and not merely that go_to() copies the query string somewhere readable.
-        $this->requestAdminUrl( array( 'mhm_not_registered_param' => 'value' ) );
+        $this->requestAdminUrl( array( 'mhmrentiva_not_registered_param' => 'value' ) );
 
-        $this->assertSame( '', (string) get_query_var( 'mhm_not_registered_param' ) );
+        $this->assertSame( '', (string) get_query_var( 'mhmrentiva_not_registered_param' ) );
     }
 }

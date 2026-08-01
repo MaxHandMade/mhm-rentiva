@@ -88,14 +88,14 @@ final class BookingForm extends AbstractShortcode {
 	{
 		parent::register();
 
-		add_action('wp_ajax_mhm_rentiva_booking_form', array( self::class, 'ajax_booking_form' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_booking_form', array( self::class, 'ajax_booking_form' ));
-		add_action('wp_ajax_mhm_rentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
+		add_action('wp_ajax_mhmrentiva_booking_form', array( self::class, 'ajax_booking_form' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_booking_form', array( self::class, 'ajax_booking_form' ));
+		add_action('wp_ajax_mhmrentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_calculate_price', array( self::class, 'ajax_calculate_price' ));
 
 		// Availability check AJAX handlers
-		add_action('wp_ajax_mhm_rentiva_check_availability', array( self::class, 'ajax_check_availability' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_check_availability', array( self::class, 'ajax_check_availability' ));
+		add_action('wp_ajax_mhmrentiva_check_availability', array( self::class, 'ajax_check_availability' ));
+		add_action('wp_ajax_nopriv_mhmrentiva_check_availability', array( self::class, 'ajax_check_availability' ));
 
 		// Payment processing AJAX handlers
 	}
@@ -138,9 +138,9 @@ final class BookingForm extends AbstractShortcode {
 			'start_date'            => '',        // Start date
 			'end_date'              => '',        // End date
 			'show_vehicle_selector' => '1',       // Show vehicle selector
-			'default_days'          => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1), // Default number of days from settings
-			'min_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1), // Minimum number of days from settings
-			'max_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30), // Maximum number of days from settings
+			'default_days'          => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1), // Default number of days from settings
+			'min_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1), // Minimum number of days from settings
+			'max_days'              => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30), // Maximum number of days from settings
 			'show_payment_options'  => '1',       // Show payment options
 			'show_addons'           => '1',       // Show add-ons
 			'class'                 => '',        // Custom CSS class
@@ -188,7 +188,7 @@ final class BookingForm extends AbstractShortcode {
 			'ajax_url'           => admin_url('admin-ajax.php'), // ⭐ Changed from ajaxUrl to ajax_url for consistency
 			'ajaxUrl'            => admin_url('admin-ajax.php'), // Keep both for backward compatibility
 			'restUrl'            => rest_url('mhm-rentiva/v1/'),
-			'nonce'              => wp_create_nonce('mhm_rentiva_booking_form_nonce'), // Correct nonce
+			'nonce'              => wp_create_nonce('mhmrentiva_booking_form_nonce'), // Correct nonce
 			'strings'            => self::get_localized_strings(),
 			'config'             => self::get_js_config(),
 			'datepicker_options' => self::get_datepicker_options(),
@@ -283,11 +283,11 @@ final class BookingForm extends AbstractShortcode {
 			'currency_symbol'      => CurrencyHelper::get_currency_symbol(),
 			'currency_position'    => CurrencyHelper::get_currency_position(),
 			'locale'               => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-			'enable_deposit'       => get_option('mhm_rentiva_enable_deposit', '1') === '1',
-			'default_payment'      => get_option('mhm_rentiva_default_payment', 'deposit'),
-			'min_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1),
-			'max_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30),
-			'advance_booking_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_advance_booking_days', 365),
+			'enable_deposit'       => get_option('mhmrentiva_enable_deposit', '1') === '1',
+			'default_payment'      => get_option('mhmrentiva_default_payment', 'deposit'),
+			'min_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1),
+			'max_days'             => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30),
+			'advance_booking_days' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365),
 		);
 	}
 
@@ -333,7 +333,7 @@ final class BookingForm extends AbstractShortcode {
 		// Locations come from an add-on via the filter. Without one the name stays
 		// empty and the form simply shows no pick-up location.
 		if ($pickup_location_id > 0) {
-			$locations = apply_filters('mhm_rentiva_locations', array(), 'rental');
+			$locations = apply_filters('mhmrentiva_locations', array(), 'rental');
 			foreach ($locations as $loc) {
 				if ( (int) $loc->id === $pickup_location_id) {
 					$pickup_location_name = (string) $loc->name;
@@ -396,9 +396,9 @@ final class BookingForm extends AbstractShortcode {
 			'show_payment_options'  => filter_var($atts['show_payment_options'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_vehicle_info'     => filter_var($atts['show_vehicle_info'] ?? '1', FILTER_VALIDATE_BOOLEAN),
 			'show_time_select'      => filter_var($atts['show_time_select'] ?? '1', FILTER_VALIDATE_BOOLEAN),
-			'default_days'          => (int) ( $atts['default_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_default_rental_days', 1) ),
-			'min_days'              => (int) ( $atts['min_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_min_rental_days', 1) ),
-			'max_days'              => (int) ( $atts['max_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_max_rental_days', 30) ),
+			'default_days'          => (int) ( $atts['default_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1) ),
+			'min_days'              => (int) ( $atts['min_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_min_rental_days', 1) ),
+			'max_days'              => (int) ( $atts['max_days'] ?? \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_rental_days', 30) ),
 			// ⭐ User data and validation (moved from template)
 			'user_data'             => $user_data,
 			'validation_error'      => $validation_result['error'] ?? null,
@@ -442,7 +442,7 @@ final class BookingForm extends AbstractShortcode {
 			'user_id'      => $is_logged_in ? $current_user->ID : 0,
 			'user_name'    => $is_logged_in ? $current_user->display_name : '',
 			'user_email'   => $is_logged_in ? $current_user->user_email : '',
-			'user_phone'   => $is_logged_in ? get_user_meta($current_user->ID, 'mhm_rentiva_phone', true) : '',
+			'user_phone'   => $is_logged_in ? get_user_meta($current_user->ID, 'mhmrentiva_phone', true) : '',
 			'first_name'   => $is_logged_in ? $current_user->first_name : '',
 			'last_name'    => $is_logged_in ? $current_user->last_name : '',
 		);
@@ -455,12 +455,12 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	private static function validate_user_access(): array
 	{
-		$data_consent_required = SettingsCore::get('mhm_rentiva_customer_data_consent', '0');
+		$data_consent_required = SettingsCore::get('mhmrentiva_customer_data_consent', '0');
 
 		// Check data consent requirement for logged-in users
 		if (is_user_logged_in() && $data_consent_required === '1') {
 			$user_id       = get_current_user_id();
-			$consent_given = get_user_meta($user_id, 'mhm_data_consent_given', true);
+			$consent_given = get_user_meta($user_id, 'mhmrentiva_data_consent_given', true);
 
 			if ($consent_given !== '1') {
 				return array(
@@ -479,7 +479,7 @@ final class BookingForm extends AbstractShortcode {
 	 */
 	private static function get_customer_settings(): array
 	{
-		$terms_text = SettingsCore::get('mhm_rentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
+		$terms_text = SettingsCore::get('mhmrentiva_customer_terms_text', __('I accept the terms of use and privacy policy.', 'mhm-rentiva'));
 
 		// ⭐ If the saved text is the default English text, use the translated version
 		if ($terms_text === 'I accept the terms of use and privacy policy.') {
@@ -487,11 +487,11 @@ final class BookingForm extends AbstractShortcode {
 		}
 
 		return array(
-			'registration_required' => SettingsCore::get('mhm_rentiva_customer_registration_required', '0'),
-			'phone_required'        => SettingsCore::get('mhm_rentiva_customer_phone_required', '0'),
-			'terms_required'        => SettingsCore::get('mhm_rentiva_customer_terms_required', '0'),
+			'registration_required' => SettingsCore::get('mhmrentiva_customer_registration_required', '0'),
+			'phone_required'        => SettingsCore::get('mhmrentiva_customer_phone_required', '0'),
+			'terms_required'        => SettingsCore::get('mhmrentiva_customer_terms_required', '0'),
 			'terms_text'            => $terms_text,
-			'data_consent_required' => SettingsCore::get('mhm_rentiva_customer_data_consent', '0'),
+			'data_consent_required' => SettingsCore::get('mhmrentiva_customer_data_consent', '0'),
 		);
 	}
 
@@ -567,7 +567,7 @@ final class BookingForm extends AbstractShortcode {
 			$result[] = array(
 				'id'             => $vehicle->ID,
 				'title'          => $vehicle->post_title,
-				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhm_rentiva_price_per_day', true),
+				'price_per_day'  => (string) get_post_meta($vehicle->ID, '_mhmrentiva_price_per_day', true),
 				'category_name'  => \MHMRentiva\Admin\Frontend\Shortcodes\VehiclesList::get_vehicle_category($vehicle->ID),
 				'featured_image' => get_the_post_thumbnail_url($vehicle->ID, 'large'),
 				'features'       => $feature_labels,
@@ -639,7 +639,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		try {
 			// Security checks
-			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
 				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
@@ -692,7 +692,7 @@ final class BookingForm extends AbstractShortcode {
 				// hand-crafting the request, since Lite renders no location picker)
 				// is rejected rather than trusted.
 				$valid_location = false;
-				foreach (apply_filters('mhm_rentiva_locations', array(), 'rental') as $loc) {
+				foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
 					if ( (int) $loc->id === $pickup_location_id) {
 						$valid_location = true;
 						break;
@@ -723,7 +723,7 @@ final class BookingForm extends AbstractShortcode {
 				$customer_email      = $current_user->user_email;
 				$customer_phone      = (string) get_user_meta($current_user->ID, 'billing_phone', true);
 				if ($customer_phone === '') {
-					$customer_phone = (string) get_user_meta($current_user->ID, 'mhm_rentiva_phone', true);
+					$customer_phone = (string) get_user_meta($current_user->ID, 'mhmrentiva_phone', true);
 				}
 			}
 
@@ -757,7 +757,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures we fallback to full payment instead of 0-deposit (free) booking
-			$deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+			$deposit_check_value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
 			if (empty($deposit_check_value)) {
 				$payment_type = 'full';
 			}
@@ -820,7 +820,7 @@ final class BookingForm extends AbstractShortcode {
 				if ($customer_phone === '') {
 					$customer_phone = (string) get_user_meta($current_user->ID, 'billing_phone', true);
 					if ($customer_phone === '') {
-						$customer_phone = (string) get_user_meta($current_user->ID, 'mhm_rentiva_phone', true);
+						$customer_phone = (string) get_user_meta($current_user->ID, 'mhmrentiva_phone', true);
 					}
 				}
 				$customer_name = trim($customer_first_name . ' ' . $customer_last_name);
@@ -1011,7 +1011,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		try {
 			// Security checks
-			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
 				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
@@ -1067,7 +1067,7 @@ final class BookingForm extends AbstractShortcode {
 			$days = \MHMRentiva\Admin\Booking\Helpers\Util::rental_days($start_ts, $end_ts);
 
 			// Get vehicle price
-			$vehicle_price = (float) get_post_meta($vehicle_id, '_mhm_rentiva_price_per_day', true);
+			$vehicle_price = (float) get_post_meta($vehicle_id, '_mhmrentiva_price_per_day', true);
 
 			// Restore DateTime objects for the pricing loop below
 			$start_date = new \DateTime();
@@ -1076,8 +1076,8 @@ final class BookingForm extends AbstractShortcode {
 			$end_date->setTimestamp($end_ts);
 
 			// ⭐ Apply Vehicle Management Settings
-			$base_price_multiplier = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_base_price', 1.0);
-			$weekend_multiplier    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_weekend_multiplier', 1.0);
+			$base_price_multiplier = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_base_price', 1.0);
+			$weekend_multiplier    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_weekend_multiplier', 1.0);
 
 			// ⭐ Tax settings - check WooCommerce first if available
 			$tax_enabled   = false;
@@ -1100,14 +1100,14 @@ final class BookingForm extends AbstractShortcode {
 				}
 			} else {
 				// WooCommerce not active - use plugin settings
-				$tax_inclusive = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_tax_inclusive', '0') === '1';
-				$tax_rate      = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_tax_rate', 0);
+				$tax_inclusive = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_tax_inclusive', '0') === '1';
+				$tax_rate      = (float) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_tax_rate', 0);
 				$tax_enabled   = $tax_rate > 0;
 			}
 
 			// Calculate pricing per day (weekend and seasonal multipliers included)
 			// Calculate pricing per day (weekend and seasonal multipliers included)
-			$seasonal_enabled    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_seasonal_pricing', '0') === '1';
+			$seasonal_enabled    = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_seasonal_pricing', '0') === '1';
 			$vehicle_total       = 0.0;
 			$weekend_extra_total = 0.0;
 
@@ -1188,7 +1188,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// ⭐ SAFETY CHECK: Force Full Payment if Deposit field is removed/empty
 			// This ensures calculations reflect "No Deposit" as "Full Payment Required"
-			$deposit_check_value = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+			$deposit_check_value = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
 			if (empty($deposit_check_value)) {
 				$payment_type = 'full';
 			}
@@ -1200,7 +1200,7 @@ final class BookingForm extends AbstractShortcode {
 
 			// ⭐ Calculate deposit based on FINAL total_price (with tax included)
 			// This ensures deposit and remaining amounts are calculated correctly
-			$deposit_value    = get_post_meta($vehicle_id, '_mhm_rentiva_deposit', true);
+			$deposit_value    = get_post_meta($vehicle_id, '_mhmrentiva_deposit', true);
 			$deposit_type     = \MHMRentiva\Admin\Vehicle\Deposit\DepositCalculator::get_deposit_type($deposit_value);
 			$deposit_amount   = 0;
 			$remaining_amount = $total_price;
@@ -1230,7 +1230,7 @@ final class BookingForm extends AbstractShortcode {
 			);
 
 			// Currency
-			$currency          = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_currency', 'USD');
+			$currency          = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
 			$currency_symbol   = CurrencyHelper::get_currency_symbol();
 			$currency_position = CurrencyHelper::get_currency_position();
 
@@ -1290,14 +1290,14 @@ final class BookingForm extends AbstractShortcode {
 		 * @return PaymentGatewayInterface|null Modified payment gateway instance
 		 *
 		 * @example
-		 * add_filter('mhm_rentiva_payment_gateway', function($gateway) {
+		 * add_filter('mhmrentiva_payment_gateway', function($gateway) {
 		 *     if (class_exists('MyCustomPaymentGateway')) {
 		 *         return new MyCustomPaymentGateway();
 		 *     }
 		 *     return $gateway;
 		 * });
 		 */
-		$gateway = apply_filters('mhm_rentiva_payment_gateway', null);
+		$gateway = apply_filters('mhmrentiva_payment_gateway', null);
 
 		if ($gateway instanceof \MHMRentiva\Admin\Payment\Core\PaymentGatewayInterface) {
 			return $gateway;
@@ -1325,7 +1325,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		// Get payment deadline minutes from settings (default: 30 minutes)
 		$deadline_minutes = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get(
-			'mhm_rentiva_booking_payment_deadline_minutes',
+			'mhmrentiva_booking_payment_deadline_minutes',
 			30
 		);
 
@@ -1348,7 +1348,7 @@ final class BookingForm extends AbstractShortcode {
 	{
 		try {
 			// Security checks
-			if (! check_ajax_referer('mhm_rentiva_booking_form_nonce', 'nonce', false)) {
+			if (! check_ajax_referer('mhmrentiva_booking_form_nonce', 'nonce', false)) {
 				wp_send_json_error(array( 'message' => __('Security check failed.', 'mhm-rentiva') ));
 				return;
 			}
@@ -1440,8 +1440,8 @@ final class BookingForm extends AbstractShortcode {
 		$js_format = self::map_php_to_datepicker_format($wp_format);
 
 		// Apply booking constraints from Vehicle Management Settings
-		$allow_same_day = '1' === \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_allow_same_day', '1');
-		$advance_days   = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_vehicle_advance_booking_days', 365);
+		$allow_same_day = '1' === \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_allow_same_day', '1');
+		$advance_days   = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_advance_booking_days', 365);
 
 		// `minDate` uses jQuery UI Datepicker offsets: `0` for today, `1` for tomorrow.
 		$min_date = $allow_same_day ? 0 : 1;

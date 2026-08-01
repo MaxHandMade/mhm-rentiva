@@ -83,7 +83,7 @@ final class Templates {
 			$candidates[] = $parent_theme;
 		}
 		// 3) Plugin templates - correct path
-		$plugin_templates = MHM_RENTIVA_PLUGIN_PATH . 'templates/' . $relative;
+		$plugin_templates = MHMRENTIVA_PLUGIN_PATH . 'templates/' . $relative;
 
 		// Debug logs disabled (for performance)
 		// Add .php extension if not present
@@ -95,12 +95,12 @@ final class Templates {
 		// Debug logs removed
 
 		// Alternative paths can be added via filter
-		$candidates = apply_filters( 'mhm_rentiva/template_candidates', $candidates, $relative );
+		$candidates = apply_filters( 'mhmrentiva/template_candidates', $candidates, $relative );
 
 		foreach ( $candidates as $path ) {
 			if ( is_file( $path ) ) {
 				$located = (string) $path;
-				return apply_filters( 'mhm_rentiva/locate_template', $located, $relative );
+				return apply_filters( 'mhmrentiva/locate_template', $located, $relative );
 			}
 		}
 
@@ -109,14 +109,14 @@ final class Templates {
 
 	// Price HTML helper method (usable in templates)
 	public static function price_html( int $post_id ): string {
-		$meta_key = apply_filters( 'mhm_rentiva/vehicle/price_meta_key', '_mhm_rentiva_price_per_day' );
+		$meta_key = apply_filters( 'mhmrentiva/vehicle/price_meta_key', '_mhmrentiva_price_per_day' );
 		$raw      = get_post_meta( $post_id, $meta_key, true );
 		if ( $raw === '' || ! is_numeric( $raw ) ) {
 			return '';
 		}
 		$price     = (float) $raw;
-		$currency  = apply_filters( 'mhm_rentiva/currency_code', 'TRY' );
-		$formatted = apply_filters( 'mhm_rentiva/format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
+		$currency  = apply_filters( 'mhmrentiva/currency_code', 'TRY' );
+		$formatted = apply_filters( 'mhmrentiva/format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
 		return sprintf(
 			'<span class="amount">%s</span> <span class="unit">%s</span>',
 			esc_html( (string) $formatted ),
@@ -125,9 +125,9 @@ final class Templates {
 	}
 
 	private static function plugin_file(): string {
-		// Use MHM_RENTIVA_PLUGIN_FILE constant (more reliable)
-		if ( defined( 'MHM_RENTIVA_PLUGIN_FILE' ) ) {
-			return MHM_RENTIVA_PLUGIN_FILE;
+		// Use MHMRENTIVA_PLUGIN_FILE constant (more reliable)
+		if ( defined( 'MHMRENTIVA_PLUGIN_FILE' ) ) {
+			return MHMRENTIVA_PLUGIN_FILE;
 		}
 
 		// Fallback: Reach plugin root from this class directory

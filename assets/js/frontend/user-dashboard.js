@@ -82,7 +82,7 @@ function initVendorListingsPanel() {
     }
 
     // After successful vehicle submit, hide the form and reload the listing
-    document.addEventListener('mhm_vehicle_submitted', function () {
+    document.addEventListener('mhmrentiva_vehicle_submitted', function () {
         panel.style.display = 'none';
         btn.setAttribute('aria-expanded', 'false');
         setTimeout(function () { window.location.reload(); }, 1500);
@@ -115,7 +115,7 @@ function initVendorLifecycleActions() {
         btn.style.opacity = '0.6';
 
         var data = new URLSearchParams();
-        data.append('action', 'mhm_vehicle_lifecycle_' + action);
+        data.append('action', 'mhmrentiva_vehicle_lifecycle_' + action);
         data.append('vehicle_id', vehicleId);
         data.append('nonce', mhmRentivaAnalytics.lifecycleNonce);
 
@@ -171,13 +171,13 @@ function initPayoutDashboardAjax() {
         spinner.style.display = 'inline-block';
 
         const amount = document.getElementById('payout_amount').value;
-        const nonce = document.getElementById('mhm_payout_request_nonce').value;
+        const nonce = document.getElementById('mhmrentiva_payout_request_nonce').value;
 
         const data = new URLSearchParams();
-        data.append('action', 'mhm_request_payout');
+        data.append('action', 'mhmrentiva_request_payout');
         data.append('nonce', mhmRentivaAnalytics.nonce); // General dashboard nonce
         data.append('payout_amount', amount);
-        // Note: we can also send the form nonce, but the endpoint checks 'mhm_rentiva_vendor_nonce' 
+        // Note: we can also send the form nonce, but the endpoint checks 'mhmrentiva_vendor_nonce' 
         // which is passed globally via mhmRentivaAnalytics.nonce.
 
         fetch(mhmRentivaAnalytics.ajaxUrl, {
@@ -285,7 +285,7 @@ function initAnalyticsDashboard() {
         container.style.pointerEvents = 'none';
 
         const data = new URLSearchParams();
-        data.append('action', 'mhm_rentiva_fetch_vendor_stats');
+        data.append('action', 'mhmrentiva_fetch_vendor_stats');
         data.append('nonce', mhmRentivaAnalytics.nonce);
 
         const formatData = (d) => {

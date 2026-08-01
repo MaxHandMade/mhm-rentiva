@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Single source of truth for add-on price calculation across rental and transfer flows.
- * Reads `addon_price` and `_mhm_addon_pricing_type` from post meta.
+ * Reads `addon_price` and `_mhmrentiva_addon_pricing_type` from post meta.
  *
  * Context shape: array{rental_days?:int, adults?:int, children?:int}
  */
@@ -26,7 +26,7 @@ final class AddonPricingCalculator {
      */
     public static function calculate( int $addon_id, array $context ): float {
         $price = max( 0.0, (float) get_post_meta( $addon_id, 'addon_price', true ) );
-        $type  = AddonPricingType::sanitize( get_post_meta( $addon_id, '_mhm_addon_pricing_type', true ) );
+        $type  = AddonPricingType::sanitize( get_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', true ) );
 
         switch ( $type ) {
             case AddonPricingType::PER_DAY:

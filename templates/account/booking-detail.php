@@ -28,23 +28,23 @@ if (! $booking) {
 	return;
 }
 
-$vehicle_id   = get_post_meta($booking_id, '_mhm_vehicle_id', true);
+$vehicle_id   = get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
 $vehicle      = $vehicle_id ? get_post($vehicle_id) : null;
 $vehicle_name = $vehicle ? $vehicle->post_title : __( 'Unknown Vehicle', 'mhm-rentiva' );
 
-$pickup_date      = get_post_meta($booking_id, '_mhm_pickup_date', true);
-$dropoff_date     = get_post_meta($booking_id, '_mhm_dropoff_date', true);
-$pickup_time      = get_post_meta($booking_id, '_mhm_start_time', true);
-$dropoff_time     = get_post_meta($booking_id, '_mhm_end_time', true);
-$total_price      = get_post_meta($booking_id, '_mhm_total_price', true);
-$booking_status   = get_post_meta($booking_id, '_mhm_status', true);
-$payment_type     = get_post_meta($booking_id, '_mhm_payment_type', true);
-$deposit_amount   = get_post_meta($booking_id, '_mhm_deposit_amount', true);
-$remaining_amount = get_post_meta($booking_id, '_mhm_remaining_amount', true);
-$selected_addons  = get_post_meta($booking_id, '_mhm_selected_addons', true);
+$pickup_date      = get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+$dropoff_date     = get_post_meta($booking_id, '_mhmrentiva_dropoff_date', true);
+$pickup_time      = get_post_meta($booking_id, '_mhmrentiva_start_time', true);
+$dropoff_time     = get_post_meta($booking_id, '_mhmrentiva_end_time', true);
+$total_price      = get_post_meta($booking_id, '_mhmrentiva_total_price', true);
+$booking_status   = get_post_meta($booking_id, '_mhmrentiva_status', true);
+$payment_type     = get_post_meta($booking_id, '_mhmrentiva_payment_type', true);
+$deposit_amount   = get_post_meta($booking_id, '_mhmrentiva_deposit_amount', true);
+$remaining_amount = get_post_meta($booking_id, '_mhmrentiva_remaining_amount', true);
+$selected_addons  = get_post_meta($booking_id, '_mhmrentiva_selected_addons', true);
 
 // Payment method from WooCommerce order
-$wc_order_id          = (int) get_post_meta($booking_id, '_mhm_woocommerce_order_id', true);
+$wc_order_id          = (int) get_post_meta($booking_id, '_mhmrentiva_woocommerce_order_id', true);
 $payment_method_title = '';
 if ($wc_order_id && function_exists('wc_get_order')) {
 	$wc_order = wc_get_order($wc_order_id);
@@ -56,12 +56,12 @@ if ($wc_order_id && function_exists('wc_get_order')) {
 // Vehicle image
 $vehicle_image = $vehicle_id ? get_the_post_thumbnail_url($vehicle_id, 'medium') : false;
 if (! $vehicle_image) {
-	$vehicle_image = MHM_RENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+	$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
 }
 
 // Currency
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-$currency_symbol = apply_filters('mhm_rentiva/currency_symbol', '');
+$currency_symbol = apply_filters('mhmrentiva/currency_symbol', '');
 
 // Date format
 $wp_date_fmt            = get_option('date_format');
@@ -118,7 +118,7 @@ if ($is_integrated) {
 				<!-- Booking Reference -->
 				<div class="rv-detail-row">
 					<div class="rv-detail-label"><?php esc_html_e('Booking Reference', 'mhm-rentiva'); ?></div>
-					<div class="rv-detail-value">#<?php echo esc_html(mhm_rentiva_get_display_id( (int) $booking_id)); ?></div>
+					<div class="rv-detail-value">#<?php echo esc_html(mhmrentiva_get_display_id( (int) $booking_id)); ?></div>
 				</div>
 
 				<!-- Vehicle -->
@@ -195,7 +195,7 @@ if ($is_integrated) {
 								type="button"
 								class="rv-btn rv-btn-primary rv-pay-remaining-btn"
 								data-booking-id="<?php echo esc_attr( (string) $booking_id ); ?>"
-								data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhm_pay_remaining_' . $booking_id ) ); ?>"
+								data-nonce="<?php echo esc_attr( wp_create_nonce( 'mhmrentiva_pay_remaining_' . $booking_id ) ); ?>"
 							>
 								<?php esc_html_e( 'Pay Remaining Amount', 'mhm-rentiva' ); ?>
 							</button>
@@ -261,7 +261,7 @@ if ($is_integrated) {
 					<?php echo esc_html($cancellation_info['message']); ?>
 				</p>
 				<?php
-				$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhm_rentiva_text_refund_policy', '');
+				$refund_policy = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_text_refund_policy', '');
 				if (! empty($refund_policy)) :
 					?>
 					<p style="margin: 10px 0 0 0; font-size: 13px; color: #856404; font-style: italic;">

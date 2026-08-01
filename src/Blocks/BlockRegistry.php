@@ -162,7 +162,7 @@ class BlockRegistry {
 		wp_enqueue_style('mhm-rentiva-css-variables');
 		wp_enqueue_style(
 			'mhm-rentiva-golden-ratio-contract',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css',
 			array( 'mhm-rentiva-css-variables' ),
 			self::get_asset_version('assets/css/core/golden-ratio-contract.css')
 		);
@@ -172,10 +172,10 @@ class BlockRegistry {
 
 		// Apply editor styles for better iframe coverage
 		if (is_admin()) {
-			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
-			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css');
+			add_editor_style(MHMRENTIVA_PLUGIN_URL . 'assets/css/core/css-variables.css');
+			add_editor_style(MHMRENTIVA_PLUGIN_URL . 'assets/css/core/golden-ratio-contract.css');
 			// We might still want datepicker styles in the editor for UX if they use it
-			add_editor_style(MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
+			add_editor_style(MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css');
 		}
 	}
 
@@ -195,21 +195,21 @@ class BlockRegistry {
 		// This will load in BOTH the parent and the iframe if registered correctly
 		wp_enqueue_style(
 			'mhm-rentiva-block-editor-fixes',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/editor/block-editor-fixes.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/editor/block-editor-fixes.css',
 			array(),
 			self::get_asset_version('assets/css/editor/block-editor-fixes.css')
 		);
 
 		wp_enqueue_style(
 			'mhm-rentiva-datepicker-custom-editor',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/datepicker-custom.css',
 			array(),
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		wp_enqueue_script(
 			'mhm-rentiva-block-editor-fixes-js',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/editor/block-editor-fixes.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/editor/block-editor-fixes.js',
 			array( 'jquery', 'jquery-ui-datepicker', 'wp-blocks', 'wp-element', 'wp-data', 'wp-editor' ),
 			self::get_asset_version('assets/js/editor/block-editor-fixes.js'),
 			true
@@ -262,7 +262,7 @@ class BlockRegistry {
 	 * The full block configuration, open for extension.
 	 *
 	 * Lite ships its own blocks only. The add-on (or any other consumer)
-	 * contributes its blocks by hooking `mhm_rentiva_blocks` -- Lite carries no
+	 * contributes its blocks by hooking `mhmrentiva_blocks` -- Lite carries no
 	 * knowledge of the add-on's block slugs, classes, or feature names. A
 	 * contributor is responsible for its own presence/registration gating
 	 * inside its filter callback: the filter simply returns whatever the
@@ -276,7 +276,7 @@ class BlockRegistry {
 	 */
 	private static function get_block_config(): array
 	{
-		return (array) apply_filters( 'mhm_rentiva_blocks', self::$blocks );
+		return (array) apply_filters( 'mhmrentiva_blocks', self::$blocks );
 	}
 
 	/**
@@ -308,8 +308,8 @@ class BlockRegistry {
 			// being true once the add-on's own CSS carve-out moved those files out of
 			// Lite, so CSS now honours base_url exactly like the editor script does
 			// (WP.org T4 Phase B, Task B-A1; mirrors Task A1's script handling).
-			$base_url = $config['base_url'] ?? MHM_RENTIVA_PLUGIN_URL;
-			$base_dir = $config['base_dir'] ?? MHM_RENTIVA_PLUGIN_DIR;
+			$base_url = $config['base_url'] ?? MHMRENTIVA_PLUGIN_URL;
+			$base_dir = $config['base_dir'] ?? MHMRENTIVA_PLUGIN_DIR;
 
 			$script_handle = 'mhm-rentiva-block-' . $slug . '-editor';
 
@@ -396,7 +396,7 @@ class BlockRegistry {
 
 		// Resolve through the FILTERED map, not self::$blocks directly: an
 		// add-on-contributed block (e.g. transfer-results) has no entry in Lite's
-		// own array any more, only in the `mhm_rentiva_blocks` filter result.
+		// own array any more, only in the `mhmrentiva_blocks` filter result.
 		// Reading self::$blocks here would make every add-on block render empty.
 		$blocks = self::get_block_config();
 
@@ -577,7 +577,7 @@ class BlockRegistry {
 	 */
 	private static function get_asset_version(string $relative_path, ?string $base_dir = null): string
 	{
-		$base_dir  = $base_dir ?? MHM_RENTIVA_PLUGIN_DIR;
+		$base_dir  = $base_dir ?? MHMRENTIVA_PLUGIN_DIR;
 		$cache_key = $base_dir . $relative_path;
 
 		if (isset(self::$asset_version_cache[ $cache_key ])) {
@@ -594,7 +594,7 @@ class BlockRegistry {
 			}
 		}
 
-		self::$asset_version_cache[ $cache_key ] = MHM_RENTIVA_VERSION;
-		return MHM_RENTIVA_VERSION;
+		self::$asset_version_cache[ $cache_key ] = MHMRENTIVA_VERSION;
+		return MHMRENTIVA_VERSION;
 	}
 }

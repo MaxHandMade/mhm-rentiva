@@ -13,12 +13,12 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 			'post_type'   => 'vehicle_booking',
 			'post_status' => 'publish',
 		) );
-		update_post_meta( $id, '_mhm_status', $status );
+		update_post_meta( $id, '_mhmrentiva_status', $status );
 		return $id;
 	}
 
 	/**
-	 * A booking with NO `_mhm_status` meta at all -- the canonical accessor
+	 * A booking with NO `_mhmrentiva_status` meta at all -- the canonical accessor
 	 * \MHMRentiva\Admin\Booking\Core\Status::get() treats missing/invalid
 	 * status as 'pending'.
 	 */
@@ -51,7 +51,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 			'post_type'   => 'vehicle_booking',
 			'post_status' => 'trash',
 		) );
-		update_post_meta( $id, '_mhm_status', 'confirmed' );
+		update_post_meta( $id, '_mhmrentiva_status', 'confirmed' );
 
 		$rows = DashboardService::get_status_breakdown();
 
@@ -76,7 +76,7 @@ final class DashboardStatusBreakdownTest extends WP_UnitTestCase {
 			'post_type'   => 'vehicle_booking',
 			'post_status' => 'trash',
 		) );
-		update_post_meta( $trashed_id, '_mhm_status', 'confirmed' );
+		update_post_meta( $trashed_id, '_mhmrentiva_status', 'confirmed' );
 
 		$rows = DashboardService::get_status_breakdown();
 

@@ -56,17 +56,17 @@ final class AddonManager {
 		add_action( 'admin_init', array( self::class, 'admin_init' ) );
 
 		// Hook into booking system.
-		add_filter( 'mhm_rentiva_booking_data', array( self::class, 'process_booking_addons' ), 10, 2 );
-		add_filter( 'mhm_rentiva_booking_total', array( self::class, 'calculate_addon_total' ), 10, 2 );
-		add_action( 'mhm_rentiva_booking_created', array( self::class, 'save_booking_addons' ), 10, 2 );
+		add_filter( 'mhmrentiva_booking_data', array( self::class, 'process_booking_addons' ), 10, 2 );
+		add_filter( 'mhmrentiva_booking_total', array( self::class, 'calculate_addon_total' ), 10, 2 );
+		add_action( 'mhmrentiva_booking_created', array( self::class, 'save_booking_addons' ), 10, 2 );
 
 		// Admin hooks.
 		if ( is_admin() ) {
-			add_filter( 'mhm_rentiva_admin_submenu_order', array( self::class, 'admin_menu_order' ) );
+			add_filter( 'mhmrentiva_admin_submenu_order', array( self::class, 'admin_menu_order' ) );
 
 			// AJAX handlers.
-			add_action( 'wp_ajax_mhm_rentiva_bulk_addon_action', array( self::class, 'handle_bulk_actions' ) );
-			add_action( 'wp_ajax_mhm_rentiva_update_addon_price', array( self::class, 'handle_update_price' ) );
+			add_action( 'wp_ajax_mhmrentiva_bulk_addon_action', array( self::class, 'handle_bulk_actions' ) );
+			add_action( 'wp_ajax_mhmrentiva_update_addon_price', array( self::class, 'handle_update_price' ) );
 		}
 	}
 
@@ -205,8 +205,8 @@ final class AddonManager {
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
 			if ( 'addon_price' === $key ) {
-				$new['mhm_addon_context']      = __( 'Context', 'mhm-rentiva' );
-				$new['mhm_addon_pricing_type'] = __( 'Pricing Type', 'mhm-rentiva' );
+				$new['mhmrentiva_addon_context']      = __( 'Context', 'mhm-rentiva' );
+				$new['mhmrentiva_addon_pricing_type'] = __( 'Pricing Type', 'mhm-rentiva' );
 			}
 		}
 		return $new;
@@ -219,7 +219,7 @@ final class AddonManager {
 	 * @param int    $post_id Post ID.
 	 */
 	public static function render_context_pricing_column( string $column, int $post_id ): void {
-		if ( 'mhm_addon_context' === $column ) {
+		if ( 'mhmrentiva_addon_context' === $column ) {
 			$terms = wp_get_object_terms( $post_id, AddonContextTaxonomy::TAXONOMY, array( 'fields' => 'slugs' ) );
 			$slug  = ( ! is_wp_error( $terms ) && ! empty( $terms ) ) ? (string) $terms[0] : '';
 
@@ -240,8 +240,8 @@ final class AddonManager {
 			return;
 		}
 
-		if ( 'mhm_addon_pricing_type' === $column ) {
-			$type = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhm_addon_pricing_type', true ) );
+		if ( 'mhmrentiva_addon_pricing_type' === $column ) {
+			$type = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhmrentiva_addon_pricing_type', true ) );
 			echo esc_html( AddonPricingType::label( $type ) );
 		}
 	}
@@ -269,26 +269,26 @@ final class AddonManager {
 		if ( 'edit.php' === $hook && 'vehicle_addon' === $post_type ) {
 			wp_enqueue_style(
 				'mhm-rentiva-addon-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/addon-list.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
 				'mhm-rentiva-addon-list',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addon-list.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
 			// Localize JavaScript variables.
 			wp_localize_script(
 				'mhm-rentiva-addon-list',
-				'mhm_rentiva_addon_list_vars',
+				'mhmrentiva_addon_list_vars',
 				array(
 					'ajax_url'          => admin_url( 'admin-ajax.php' ),
-					'nonce'             => wp_create_nonce( 'mhm_addon_list_nonce' ),
+					'nonce'             => wp_create_nonce( 'mhmrentiva_addon_list_nonce' ),
 					'no_items_selected' => __( 'No items selected.', 'mhm-rentiva' ),
 					'items_selected'    => __( 'items selected', 'mhm-rentiva' ),
 					'confirm_enable'    => __( 'Are you sure you want to enable selected additional services?', 'mhm-rentiva' ),
@@ -307,9 +307,9 @@ final class AddonManager {
 		) {
 			wp_enqueue_script(
 				'mhm-rentiva-addon-context',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/addon-context.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addon-context.js',
 				array(),
-				MHM_RENTIVA_VERSION . '.' . filemtime( MHM_RENTIVA_PLUGIN_PATH . 'assets/js/admin/addon-context.js' ),
+				MHMRENTIVA_VERSION . '.' . filemtime( MHMRENTIVA_PLUGIN_PATH . 'assets/js/admin/addon-context.js' ),
 				true
 			);
 			wp_localize_script(
@@ -366,7 +366,7 @@ final class AddonManager {
 				'description'  => $description,
 				'price'        => (float) get_post_meta( $addon->ID, 'addon_price', true ),
 				'pricing_type' => AddonPricingType::sanitize(
-					get_post_meta( $addon->ID, '_mhm_addon_pricing_type', true )
+					get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true )
 				),
 				'required'     => (bool) get_post_meta( $addon->ID, 'addon_required', true ),
 			);
@@ -481,7 +481,7 @@ final class AddonManager {
 			}
 			$line_total = AddonPricingCalculator::calculate( (int) $addon_id, $context );
 			$type       = AddonPricingType::sanitize(
-				get_post_meta( (int) $addon_id, '_mhm_addon_pricing_type', true )
+				get_post_meta( (int) $addon_id, '_mhmrentiva_addon_pricing_type', true )
 			);
 			$multiplier = AddonPricingCalculator::multiplier( $type, $context );
 
@@ -496,9 +496,9 @@ final class AddonManager {
 			);
 		}
 
-		update_post_meta( $booking_id, '_mhm_selected_addons', $selected_addons );
-		update_post_meta( $booking_id, '_mhm_addon_total', $addon_total );
-		update_post_meta( $booking_id, '_mhm_addon_details', $addon_details );
+		update_post_meta( $booking_id, '_mhmrentiva_selected_addons', $selected_addons );
+		update_post_meta( $booking_id, '_mhmrentiva_addon_total', $addon_total );
+		update_post_meta( $booking_id, '_mhmrentiva_addon_details', $addon_details );
 	}
 
 	/**
@@ -516,7 +516,7 @@ final class AddonManager {
 	 */
 	public static function handle_bulk_actions(): void {
 		// Nonce check.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_addon_list_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
 			wp_send_json_error( esc_html__( 'Security check failed.', 'mhm-rentiva' ) );
 			return;
 		}
@@ -596,7 +596,7 @@ final class AddonManager {
 		if ( function_exists( 'get_woocommerce_currency' ) ) {
 			return get_woocommerce_currency();
 		}
-		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_currency', 'USD' );
+		return \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_currency', 'USD' );
 	}
 
 	/**
@@ -623,7 +623,7 @@ final class AddonManager {
 	 * @return bool True if required.
 	 */
 	public static function require_confirmation_for_addons(): bool {
-		return (bool) self::get_setting( 'mhm_rentiva_addon_require_confirmation', false );
+		return (bool) self::get_setting( 'mhmrentiva_addon_require_confirmation', false );
 	}
 
 	/**
@@ -632,7 +632,7 @@ final class AddonManager {
 	 * @return bool True if should show.
 	 */
 	public static function show_prices_in_calendar(): bool {
-		return (bool) self::get_setting( 'mhm_rentiva_addon_show_prices_in_calendar', true );
+		return (bool) self::get_setting( 'mhmrentiva_addon_show_prices_in_calendar', true );
 	}
 
 	/**
@@ -641,7 +641,7 @@ final class AddonManager {
 	 * @return string Display order.
 	 */
 	public static function get_display_order(): string {
-		return self::get_setting( 'mhm_rentiva_addon_display_order', 'menu_order' );
+		return self::get_setting( 'mhmrentiva_addon_display_order', 'menu_order' );
 	}
 
 	/**
@@ -650,7 +650,7 @@ final class AddonManager {
 	 * @return bool True if inclusive.
 	 */
 	public static function is_tax_inclusive(): bool {
-		return (bool) self::get_setting( 'mhm_rentiva_addon_tax_inclusive', true );
+		return (bool) self::get_setting( 'mhmrentiva_addon_tax_inclusive', true );
 	}
 
 	/**
@@ -659,7 +659,7 @@ final class AddonManager {
 	 * @return float Tax rate.
 	 */
 	public static function get_tax_rate(): float {
-		return (float) self::get_setting( 'mhm_rentiva_addon_tax_rate', 20.00 );
+		return (float) self::get_setting( 'mhmrentiva_addon_tax_rate', 20.00 );
 	}
 
 	/**
@@ -667,7 +667,7 @@ final class AddonManager {
 	 */
 	public static function handle_update_price(): void {
 		// Nonce check.
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhm_addon_list_nonce' ) ) {
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_addon_list_nonce' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Security check failed.', 'mhm-rentiva' ) ) );
 			return;
 		}

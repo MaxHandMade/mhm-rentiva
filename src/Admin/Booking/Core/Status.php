@@ -36,7 +36,7 @@ final class Status {
 
 	public static function get(int $booking_id): string
 	{
-		$status = get_post_meta($booking_id, '_mhm_status', true);
+		$status = get_post_meta($booking_id, '_mhmrentiva_status', true);
 		return in_array($status, self::allowed(), true) ? $status : self::PENDING;
 	}
 
@@ -92,11 +92,11 @@ final class Status {
 		}
 
 		// Update meta
-		$updated = update_post_meta($booking_id, '_mhm_status', $new_status);
+		$updated = update_post_meta($booking_id, '_mhmrentiva_status', $new_status);
 
 		if ($updated) {
 			// Trigger status change action
-			do_action('mhm_rentiva_booking_status_changed', $booking_id, $old_status, $new_status);
+			do_action('mhmrentiva_booking_status_changed', $booking_id, $old_status, $new_status);
 			return true;
 		}
 

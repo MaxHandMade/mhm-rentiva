@@ -55,7 +55,7 @@
             }
 
             // Save to LocalStorage
-            localStorage.setItem('mhm_active_tab', targetTab);
+            localStorage.setItem('mhmrentiva_active_tab', targetTab);
         });
 
         // Restore saved tab
@@ -66,7 +66,7 @@
      * Restore saved active tab
      */
     function restoreActiveTab() {
-        const savedTab = localStorage.getItem('mhm_active_tab');
+        const savedTab = localStorage.getItem('mhmrentiva_active_tab');
         if (savedTab) {
             const savedButton = $(`[data-tab="${savedTab}"]`);
             const savedPane = $('#' + savedTab + '-tab');
@@ -84,7 +84,7 @@
      * Availability status dropdown functionality
      */
     function initializeAvailabilityDropdown() {
-        $('#mhm_rentiva_available').on('change', function () {
+        $('#mhmrentiva_available').on('change', function () {
             const value = $(this).val();
             const $select = $(this);
 
@@ -111,9 +111,9 @@
         });
 
         // Apply style based on current value when page loads
-        const currentValue = $('#mhm_rentiva_available').val();
+        const currentValue = $('#mhmrentiva_available').val();
         if (currentValue) {
-            $('#mhm_rentiva_available').trigger('change');
+            $('#mhmrentiva_available').trigger('change');
         }
     }
 
@@ -142,7 +142,7 @@
      * Price field validation
      */
     function initializePriceField() {
-        const priceInput = $('#mhm_rentiva_price_per_day');
+        const priceInput = $('#mhmrentiva_price_per_day');
         if (priceInput.length) {
             priceInput.on('input', function () {
                 const value = parseFloat($(this).val());
@@ -159,7 +159,7 @@
      * Seats field validation
      */
     function initializeSeatsField() {
-        const seatsInput = $('#mhm_rentiva_seats');
+        const seatsInput = $('#mhmrentiva_seats');
         if (seatsInput.length) {
             seatsInput.on('input', function () {
                 const value = parseInt($(this).val());
@@ -263,11 +263,11 @@
             url: window.ajaxurl || window.mhmVehicleMeta?.ajaxUrl,
             type: 'POST',
             data: {
-                action: 'mhm_rentiva_save_item_order',
+                action: 'mhmrentiva_save_item_order',
                 grid_type: gridId.replace('-grid', ''),
                 order: order,
                 post_id: $('#post_ID').val(),
-                nonce: window.mhmVehicleMeta?.nonce || $('#mhm_rentiva_vehicle_meta_nonce').val()
+                nonce: window.mhmVehicleMeta?.nonce || $('#mhmrentiva_vehicle_meta_nonce').val()
             },
             success: function (response) {
                 if (response.success) {
@@ -476,7 +476,7 @@
         const newItem = $('<div>').addClass('mhm-checkbox-item')
             .attr('data-feature-key', key)
             .html(`
-                                    <input type="checkbox" id="feature_${key}" name="mhm_rentiva_features[]" value="${key}" checked />
+                                    <input type="checkbox" id="feature_${key}" name="mhmrentiva_features[]" value="${key}" checked />
                                     <label for="feature_${key}">${safeLabel}</label>
                                     <button type="button" class="remove-feature-btn" data-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="margin-left: auto; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer;">×</button>
                                  `);
@@ -496,7 +496,7 @@
         const newItem = $('<div>').addClass('mhm-checkbox-item')
             .attr('data-equipment-key', key)
             .html(`
-                                    <input type="checkbox" id="equipment_${key}" name="mhm_rentiva_equipment[]" value="${key}" checked />
+                                    <input type="checkbox" id="equipment_${key}" name="mhmrentiva_equipment[]" value="${key}" checked />
                                     <label for="equipment_${key}">${safeLabel}</label>
                                     <button type="button" class="remove-equipment-btn" data-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="margin-left: auto; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 2px 6px; font-size: 10px; cursor: pointer;">×</button>
                                  `);
@@ -518,8 +518,8 @@
             .html(`
                                     <div class="mhm-detail-content">
                                         <label class="mhm-detail-label">${safeName}</label>
-                                        <input type="hidden" name="mhm_rentiva_custom_details[${key}][label]" value="${safeName}" />
-                                        <input type="text" name="mhm_rentiva_custom_details[${key}][value]" placeholder="${window.mhmVehicleMeta?.strings?.enterValue || 'Enter value'}" class="mhm-detail-input" />
+                                        <input type="hidden" name="mhmrentiva_custom_details[${key}][label]" value="${safeName}" />
+                                        <input type="text" name="mhmrentiva_custom_details[${key}][value]" placeholder="${window.mhmVehicleMeta?.strings?.enterValue || 'Enter value'}" class="mhm-detail-input" />
                                         <button type="button" class="remove-detail-btn" data-detail-key="${key}" title="${window.mhmVehicleMeta?.strings?.remove || 'Remove'}" style="position: absolute; top: 8px; right: 8px; background: #dc3545; color: white; border: none; border-radius: 3px; padding: 4px 8px; font-size: 12px; cursor: pointer; z-index: 10;">×</button>
                                     </div>
                                  `);

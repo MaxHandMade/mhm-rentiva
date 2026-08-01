@@ -162,26 +162,26 @@ final class AdvancedLogger {
 		}
 
 		// Save meta data.
-		update_post_meta( $post_id, '_mhm_log_level', $level );
-		update_post_meta( $post_id, '_mhm_log_category', $category );
-		update_post_meta( $post_id, '_mhm_log_user_id', $user_id );
-		update_post_meta( $post_id, '_mhm_log_ip_address', $ip_address );
-		update_post_meta( $post_id, '_mhm_log_user_agent', $user_agent );
+		update_post_meta( $post_id, '_mhmrentiva_log_level', $level );
+		update_post_meta( $post_id, '_mhmrentiva_log_category', $category );
+		update_post_meta( $post_id, '_mhmrentiva_log_user_id', $user_id );
+		update_post_meta( $post_id, '_mhmrentiva_log_ip_address', $ip_address );
+		update_post_meta( $post_id, '_mhmrentiva_log_user_agent', $user_agent );
 
 		if ( $booking_id > 0 ) {
-			update_post_meta( $post_id, '_mhm_log_booking_id', $booking_id );
+			update_post_meta( $post_id, '_mhmrentiva_log_booking_id', $booking_id );
 		}
 		if ( $vehicle_id > 0 ) {
-			update_post_meta( $post_id, '_mhm_log_vehicle_id', $vehicle_id );
+			update_post_meta( $post_id, '_mhmrentiva_log_vehicle_id', $vehicle_id );
 		}
 		if ( $customer_id > 0 ) {
-			update_post_meta( $post_id, '_mhm_log_customer_id', $customer_id );
+			update_post_meta( $post_id, '_mhmrentiva_log_customer_id', $customer_id );
 		}
 		if ( $execution_time > 0 ) {
-			update_post_meta( $post_id, '_mhm_log_execution_time', $execution_time );
+			update_post_meta( $post_id, '_mhmrentiva_log_execution_time', $execution_time );
 		}
 		if ( $memory_usage > 0 ) {
-			update_post_meta( $post_id, '_mhm_log_memory_usage', $memory_usage );
+			update_post_meta( $post_id, '_mhmrentiva_log_memory_usage', $memory_usage );
 		}
 
 		// Update performance metrics.
@@ -418,8 +418,8 @@ final class AdvancedLogger {
                 pm2.meta_value as category,
                 COUNT(*) as count
              FROM {$wpdb->posts} p
-             LEFT JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_mhm_log_level'
-             LEFT JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_mhm_log_category'
+             LEFT JOIN {$wpdb->postmeta} pm1 ON p.ID = pm1.post_id AND pm1.meta_key = '_mhmrentiva_log_level'
+             LEFT JOIN {$wpdb->postmeta} pm2 ON p.ID = pm2.post_id AND pm2.meta_key = '_mhmrentiva_log_category'
              WHERE p.post_type = %s
              AND p.post_date >= %s
              GROUP BY pm1.meta_value, pm2.meta_value
@@ -501,7 +501,7 @@ final class AdvancedLogger {
 
 		// 3. Get configured level from settings (default: error)
 		// Defaults to 'error' (3) to be safe/quiet in production
-		$configured_level_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_log_level', self::LEVEL_ERROR );
+		$configured_level_slug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_log_level', self::LEVEL_ERROR );
 
 		// Ensure the configured level exists in our map, fallback to 'error'
 		if ( ! isset( $levels[ $configured_level_slug ] ) ) {
@@ -519,7 +519,7 @@ final class AdvancedLogger {
 
 		// 5. Special check for Debug: Must also have WP_DEBUG or Force Debug Mode
 		if ( self::LEVEL_DEBUG === $level ) {
-			$plugin_debug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhm_rentiva_debug_mode', '0' ) === '1';
+			$plugin_debug = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_debug_mode', '0' ) === '1';
 			$wp_debug     = defined( 'WP_DEBUG' ) && WP_DEBUG;
 
 			// If neither Plugin Debug Mode nor WP_DEBUG is on, skip debug logs

@@ -26,12 +26,12 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         parent::setUp();
 
         $this->vehicle_id = self::factory()->post->create(array( 'post_type' => 'vehicle' ));
-        update_post_meta($this->vehicle_id, '_mhm_vehicle_status', 'active');
-        update_post_meta($this->vehicle_id, '_mhm_rentiva_price_per_day', '100');
+        update_post_meta($this->vehicle_id, '_mhmrentiva_vehicle_status', 'active');
+        update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100');
 
-        remove_role('mhm_test_editposts_only');
+        remove_role('mhmrentiva_test_editposts_only');
         add_role(
-            'mhm_test_editposts_only',
+            'mhmrentiva_test_editposts_only',
             'MHM Test EditPosts Only',
             array(
                 'read'       => true,
@@ -48,14 +48,14 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function tearDown(): void
     {
-        remove_role('mhm_test_editposts_only');
+        remove_role('mhmrentiva_test_editposts_only');
         parent::tearDown();
     }
 
     private function dispatch_ajax(): void
     {
         try {
-            $this->_handleAjax('mhm_rentiva_create_manual_booking');
+            $this->_handleAjax('mhmrentiva_create_manual_booking');
         } catch (\WPAjaxDieContinueException $e) {
             // Expected path for WP_Ajax_UnitTestCase.
         }
@@ -69,10 +69,10 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function test_ajax_create_booking_denied_new_customer_without_create_users_capability(): void
     {
-        $capped_id = self::factory()->user->create(array( 'role' => 'mhm_test_editposts_only' ));
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
         wp_set_current_user($capped_id);
 
-        $_POST['nonce']                   = wp_create_nonce('mhm_manual_booking_nonce');
+        $_POST['nonce']                   = wp_create_nonce('mhmrentiva_manual_booking_nonce');
         $_POST['vehicle_id']              = (string) $this->vehicle_id;
         $_POST['customer_id']             = 'new_customer';
         $_POST['pickup_date']             = '2099-01-01';
@@ -94,7 +94,7 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         $manager_id = self::factory()->user->create(array( 'role' => 'administrator' ));
         wp_set_current_user($manager_id);
 
-        $_POST['nonce']                   = wp_create_nonce('mhm_manual_booking_nonce');
+        $_POST['nonce']                   = wp_create_nonce('mhmrentiva_manual_booking_nonce');
         $_POST['vehicle_id']              = (string) $this->vehicle_id;
         $_POST['customer_id']             = 'new_customer';
         $_POST['pickup_date']             = '2099-01-01';
@@ -119,12 +119,12 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     {
         // The targeted guard only applies to the new_customer branch; an
         // existing-customer booking must not be denied by the create_users gate.
-        $capped_id = self::factory()->user->create(array( 'role' => 'mhm_test_editposts_only' ));
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
         wp_set_current_user($capped_id);
 
         $existing_customer_id = self::factory()->user->create(array( 'role' => 'customer' ));
 
-        $_POST['nonce']        = wp_create_nonce('mhm_manual_booking_nonce');
+        $_POST['nonce']        = wp_create_nonce('mhmrentiva_manual_booking_nonce');
         $_POST['vehicle_id']   = (string) $this->vehicle_id;
         $_POST['customer_id']  = (string) $existing_customer_id;
         $_POST['pickup_date']  = '2099-02-01';

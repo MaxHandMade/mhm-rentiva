@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Read-only blocked-date lookup for the public availability calendar.
  *
- * This used to be `wp_ajax_nopriv_mhm_rentiva_get_blocked_dates`, where the
+ * This used to be `wp_ajax_nopriv_mhmrentiva_get_blocked_dates`, where the
  * only place the "anyone may call this" decision was written down was a
  * `phpcs:ignore` comment above the `$_GET` read. Moving it to REST lets the
  * route itself carry the decision: the vehicle id is a validated route

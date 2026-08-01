@@ -24,7 +24,7 @@ class RatingConfidenceHelperTest extends WP_UnitTestCase
      */
     public function tearDown(): void
     {
-        remove_all_filters('mhm_rentiva_rating_confidence_thresholds');
+        remove_all_filters('mhmrentiva_rating_confidence_thresholds');
         parent::tearDown();
     }
 
@@ -130,7 +130,7 @@ class RatingConfidenceHelperTest extends WP_UnitTestCase
      */
     public function test_filter_override_thresholds(): void
     {
-        add_filter('mhm_rentiva_rating_confidence_thresholds', function (): array {
+        add_filter('mhmrentiva_rating_confidence_thresholds', function (): array {
             return array(5, 20);
         });
 

@@ -63,7 +63,7 @@ final class AboutController {
 	{
 		return array(
 			'support_email' => 'support@wpalemi.com',
-			'phone'         => apply_filters( 'mhm_rentiva_contact_phone', self::CONTACT_PHONE ),
+			'phone'         => apply_filters( 'mhmrentiva_contact_phone', self::CONTACT_PHONE ),
 			'links'         => array(
 				'docs'          => 'https://maxhandmade.github.io/mhm-rentiva-docs/',
 				'api_docs'      => 'https://maxhandmade.github.io/mhm-rentiva-docs/docs/api/overview',
@@ -81,8 +81,8 @@ final class AboutController {
 		return array(
 			'company_website' => 'https://wpalemi.com',
 			'support_email'   => 'support@wpalemi.com',
-			'phone'           => apply_filters( 'mhm_rentiva_contact_phone', self::CONTACT_PHONE ),
-			'logo_url'        => MHM_RENTIVA_PLUGIN_URL . 'assets/images/mhm-logo.png',
+			'phone'           => apply_filters( 'mhmrentiva_contact_phone', self::CONTACT_PHONE ),
+			'logo_url'        => MHMRENTIVA_PLUGIN_URL . 'assets/images/mhm-logo.png',
 		);
 	}
 }

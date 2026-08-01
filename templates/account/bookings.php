@@ -23,10 +23,10 @@ if (! defined('ABSPATH')) {
 // screen, so wp() runs WP::parse_request() and fills them. No superglobal is
 // touched, and the filters keep working from a bookmarked or shared URL.
 // WP::parse_request() preserves arrays for registered query vars, so the
-// is_array() guard keeps `?mhm_status_filter[]=x` from raising a live
+// is_array() guard keeps `?mhmrentiva_status_filter[]=x` from raising a live
 // "Array to string conversion" on the cast.
-$status_filter_raw = get_query_var('mhm_status_filter', null);
-$search_query_raw  = get_query_var('mhm_search_booking', null);
+$status_filter_raw = get_query_var('mhmrentiva_status_filter', null);
+$search_query_raw  = get_query_var('mhmrentiva_search_booking', null);
 $status_filter     = ( null === $status_filter_raw || is_array($status_filter_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $status_filter_raw));
 $search_query      = ( null === $search_query_raw || is_array($search_query_raw) ) ? '' : sanitize_text_field(wp_unslash( (string) $search_query_raw));
 
@@ -41,7 +41,7 @@ if ($status_filter && $status_filter !== 'all') {
 	$filtered_bookings = array_filter(
 		$filtered_bookings,
 		function ($booking) use ($status_filter) {
-			$status = get_post_meta($booking->ID, '_mhm_status', true);
+			$status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
 			return $status === $status_filter;
 		}
 	);
@@ -62,7 +62,7 @@ $upcoming_bookings = array();
 $past_bookings     = array();
 
 foreach ($filtered_bookings as $booking) {
-	$dropoff_date = get_post_meta($booking->ID, '_mhm_dropoff_date', true);
+	$dropoff_date = get_post_meta($booking->ID, '_mhmrentiva_dropoff_date', true);
 	if ($dropoff_date >= $today) {
 		$upcoming_bookings[] = $booking;
 	} else {
@@ -73,7 +73,7 @@ foreach ($filtered_bookings as $booking) {
 // Dynamic currency symbol (plugin settings)
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-$currency_code   = SettingsCore::get('mhm_rentiva_currency', 'USD');
+$currency_code   = SettingsCore::get('mhmrentiva_currency', 'USD');
 $currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
 
 // Booking form page URL
@@ -113,7 +113,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					<input type="hidden" name="endpoint" value="bookings">
 
 					<div class="rv-filter-row">
-						<select name="mhm_status_filter" class="rv-filter-select" data-testid="bookings-status-filter">
+						<select name="mhmrentiva_status_filter" class="rv-filter-select" data-testid="bookings-status-filter">
 							<option value="all" <?php selected($status_filter, 'all'); ?>><?php esc_html_e('All Status', 'mhm-rentiva'); ?></option>
 							<option value="pending" <?php selected($status_filter, 'pending'); ?>><?php esc_html_e('Pending', 'mhm-rentiva'); ?></option>
 							<option value="confirmed" <?php selected($status_filter, 'confirmed'); ?>><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></option>
@@ -126,7 +126,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 					<div class="rv-filter-row">
 						<input
 							type="text"
-							name="mhm_search_booking"
+							name="mhmrentiva_search_booking"
 							class="rv-search-input"
 							placeholder="<?php esc_attr_e('Search by Reservation ID', 'mhm-rentiva'); ?>"
 							value="<?php echo esc_attr($search_query); ?>">
@@ -174,24 +174,24 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<tbody>
 								<?php
 								foreach ($upcoming_bookings as $booking) :
-									$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+									$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 									$vehicle        = get_post($vehicle_id);
-									$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
-									$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+									$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
+									$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
 									// Get pickup time with fallbacks
-									$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
+									$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
 									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhm_pickup_time', true);
+										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 									}
 									if (! $pickup_time) {
 										$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
 									}
-									$total_price = get_post_meta($booking->ID, '_mhm_total_price', true);
+									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
 									// Vehicle image
 									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
 									if (! $vehicle_image) {
-										$vehicle_image = MHM_RENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+										$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
 									}
 
 									// Status badge
@@ -282,24 +282,24 @@ if ($is_integrated) { // Use the already determined $is_integrated
 							<tbody>
 								<?php
 								foreach ($past_bookings as $booking) :
-									$vehicle_id     = get_post_meta($booking->ID, '_mhm_vehicle_id', true);
+									$vehicle_id     = get_post_meta($booking->ID, '_mhmrentiva_vehicle_id', true);
 									$vehicle        = get_post($vehicle_id);
-									$booking_status = get_post_meta($booking->ID, '_mhm_status', true);
-									$pickup_date    = get_post_meta($booking->ID, '_mhm_pickup_date', true);
+									$booking_status = get_post_meta($booking->ID, '_mhmrentiva_status', true);
+									$pickup_date    = get_post_meta($booking->ID, '_mhmrentiva_pickup_date', true);
 									// Get pickup time with fallbacks
-									$pickup_time = get_post_meta($booking->ID, '_mhm_start_time', true);
+									$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_start_time', true);
 									if (! $pickup_time) {
-										$pickup_time = get_post_meta($booking->ID, '_mhm_pickup_time', true);
+										$pickup_time = get_post_meta($booking->ID, '_mhmrentiva_pickup_time', true);
 									}
 									if (! $pickup_time) {
 										$pickup_time = get_post_meta($booking->ID, '_booking_pickup_time', true);
 									}
-									$total_price = get_post_meta($booking->ID, '_mhm_total_price', true);
+									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
 									// Vehicle image
 									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
 									if (! $vehicle_image) {
-										$vehicle_image = MHM_RENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+										$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
 									}
 
 									// Status badge

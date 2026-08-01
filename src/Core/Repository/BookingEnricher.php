@@ -39,9 +39,9 @@ final class BookingEnricher {
 
 			// Try WooCommerce order.
 			if ( function_exists( 'wc_get_order' ) ) {
-				$order_id = get_post_meta( $booking_id, '_mhm_woocommerce_order_id', true )
-					?: get_post_meta( $booking_id, '_mhm_wc_order_id', true )
-					?: get_post_meta( $booking_id, '_mhm_order_id', true )
+				$order_id = get_post_meta( $booking_id, '_mhmrentiva_woocommerce_order_id', true )
+					?: get_post_meta( $booking_id, '_mhmrentiva_wc_order_id', true )
+					?: get_post_meta( $booking_id, '_mhmrentiva_order_id', true )
 					?: get_post_meta( $booking_id, '_booking_order_id', true );
 
 				if ( $order_id ) {
@@ -61,7 +61,7 @@ final class BookingEnricher {
 			}
 
 			// Try WordPress user.
-			$user_id = get_post_meta( $booking_id, '_mhm_customer_user_id', true );
+			$user_id = get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 			if ( $user_id ) {
 				$user = get_userdata( (int) $user_id );
 				if ( $user ) {

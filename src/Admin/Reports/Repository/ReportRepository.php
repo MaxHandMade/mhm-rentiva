@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Repository for Report Data
  *
  * Centralizes all raw SQL queries used in reports.
- * Modernized to use custom `mhm_bookings` table for high performance.
+ * Modernized to use custom `mhmrentiva_bookings` table for high performance.
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reporting repository intentionally executes aggregate SQL for analytics across bookings/meta dimensions.
 class ReportRepository {
@@ -158,8 +158,8 @@ class ReportRepository {
 	public static function get_payment_method_distribution( string $start_date, string $end_date ): array {
 		global $wpdb;
 		$meta_price = \MHMRentiva\Admin\Core\MetaKeys::BOOKING_TOTAL_PRICE;
-		// Payment method usually stored in _mhm_payment_gateway
-		$meta_gateway = '_mhm_payment_gateway';
+		// Payment method usually stored in _mhmrentiva_payment_gateway
+		$meta_gateway = '_mhmrentiva_payment_gateway';
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -415,7 +415,7 @@ class ReportRepository {
 		$upper = $upper ?? '9999-12-31';
 
 		try {
-			// Fetch all upcoming bookings from wp_posts; detect transfers by _mhm_transfer_origin_id.
+			// Fetch all upcoming bookings from wp_posts; detect transfers by _mhmrentiva_transfer_origin_id.
 			//
 			// Two literal statements rather than one whose SELECT list and JOINs
 			// are glued together from PHP fragments: the transfer-locations table
@@ -448,18 +448,18 @@ class ReportRepository {
                 LEFT JOIN {$wpdb->posts} p_veh ON pm_vid.meta_value = p_veh.ID
                 LEFT JOIN {$wpdb->postmeta} pm_plate ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_veh_loc ON p_veh.ID = pm_veh_loc.post_id AND pm_veh_loc.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_first ON p.ID = pm_first.post_id AND pm_first.meta_key = '_mhm_customer_first_name'
-                LEFT JOIN {$wpdb->postmeta} pm_last ON p.ID = pm_last.post_id AND pm_last.meta_key = '_mhm_customer_last_name'
-                LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhm_customer_name'
-                LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhm_contact_name'
-                LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhm_customer_phone'
+                LEFT JOIN {$wpdb->postmeta} pm_first ON p.ID = pm_first.post_id AND pm_first.meta_key = '_mhmrentiva_customer_first_name'
+                LEFT JOIN {$wpdb->postmeta} pm_last ON p.ID = pm_last.post_id AND pm_last.meta_key = '_mhmrentiva_customer_last_name'
+                LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhmrentiva_customer_name'
+                LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhmrentiva_contact_name'
+                LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhmrentiva_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_booking_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhm_start_time'
+                LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhmrentiva_start_time'
                 LEFT JOIN {$wpdb->postmeta} pm_return ON p.ID = pm_return.post_id AND pm_return.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_transfer ON p.ID = pm_transfer.post_id AND pm_transfer.meta_key = '_mhm_transfer_origin_id'
-                LEFT JOIN {$wpdb->postmeta} pm_dest ON p.ID = pm_dest.post_id AND pm_dest.meta_key = '_mhm_transfer_destination_id'
+                LEFT JOIN {$wpdb->postmeta} pm_transfer ON p.ID = pm_transfer.post_id AND pm_transfer.meta_key = '_mhmrentiva_transfer_origin_id'
+                LEFT JOIN {$wpdb->postmeta} pm_dest ON p.ID = pm_dest.post_id AND pm_dest.meta_key = '_mhmrentiva_transfer_destination_id'
                 LEFT JOIN %i loc_origin ON pm_transfer.meta_value = loc_origin.id
                 LEFT JOIN %i loc_dest ON pm_dest.meta_value = loc_dest.id
                 LEFT JOIN %i loc_veh ON pm_veh_loc.meta_value = loc_veh.id
@@ -511,18 +511,18 @@ class ReportRepository {
                 LEFT JOIN {$wpdb->posts} p_veh ON pm_vid.meta_value = p_veh.ID
                 LEFT JOIN {$wpdb->postmeta} pm_plate ON p_veh.ID = pm_plate.post_id AND pm_plate.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_veh_loc ON p_veh.ID = pm_veh_loc.post_id AND pm_veh_loc.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_first ON p.ID = pm_first.post_id AND pm_first.meta_key = '_mhm_customer_first_name'
-                LEFT JOIN {$wpdb->postmeta} pm_last ON p.ID = pm_last.post_id AND pm_last.meta_key = '_mhm_customer_last_name'
-                LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhm_customer_name'
-                LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhm_contact_name'
-                LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhm_customer_phone'
+                LEFT JOIN {$wpdb->postmeta} pm_first ON p.ID = pm_first.post_id AND pm_first.meta_key = '_mhmrentiva_customer_first_name'
+                LEFT JOIN {$wpdb->postmeta} pm_last ON p.ID = pm_last.post_id AND pm_last.meta_key = '_mhmrentiva_customer_last_name'
+                LEFT JOIN {$wpdb->postmeta} pm_name ON p.ID = pm_name.post_id AND pm_name.meta_key = '_mhmrentiva_customer_name'
+                LEFT JOIN {$wpdb->postmeta} pm_name2 ON p.ID = pm_name2.post_id AND pm_name2.meta_key = '_mhmrentiva_contact_name'
+                LEFT JOIN {$wpdb->postmeta} pm_phone ON p.ID = pm_phone.post_id AND pm_phone.meta_key = '_mhmrentiva_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_phone2 ON p.ID = pm_phone2.post_id AND pm_phone2.meta_key = '_booking_customer_phone'
                 LEFT JOIN {$wpdb->postmeta} pm_pickup ON p.ID = pm_pickup.post_id AND pm_pickup.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhm_start_time'
+                LEFT JOIN {$wpdb->postmeta} pm_time ON p.ID = pm_time.post_id AND pm_time.meta_key = '_mhmrentiva_start_time'
                 LEFT JOIN {$wpdb->postmeta} pm_return ON p.ID = pm_return.post_id AND pm_return.meta_key = %s
                 LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_transfer ON p.ID = pm_transfer.post_id AND pm_transfer.meta_key = '_mhm_transfer_origin_id'
-                LEFT JOIN {$wpdb->postmeta} pm_dest ON p.ID = pm_dest.post_id AND pm_dest.meta_key = '_mhm_transfer_destination_id'
+                LEFT JOIN {$wpdb->postmeta} pm_transfer ON p.ID = pm_transfer.post_id AND pm_transfer.meta_key = '_mhmrentiva_transfer_origin_id'
+                LEFT JOIN {$wpdb->postmeta} pm_dest ON p.ID = pm_dest.post_id AND pm_dest.meta_key = '_mhmrentiva_transfer_destination_id'
                 
                 WHERE p.post_type = %s
                 AND pm_status.meta_value IN ('confirmed', 'pending', 'active')
@@ -550,7 +550,7 @@ class ReportRepository {
 		}
 
 		// 2. Transfers (if table exists)
-		$transfer_table = $wpdb->prefix . 'mhm_transfers';
+		$transfer_table = $wpdb->prefix . 'mhmrentiva_transfers';
 		if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $transfer_table ) ) === $transfer_table ) {
 			$transfers = $wpdb->get_results(
 				$wpdb->prepare(

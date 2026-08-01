@@ -21,14 +21,14 @@ use WP_UnitTestCase;
  * The Task A4 seam inversion removed that mechanism entirely, and Task A10
  * went further: the unified-search transfer TAB itself is gone (Lite ships
  * rental-only; transfer search is the standalone `rentiva_transfer_search`
- * shortcode/block). `show_transfer_tab` and `mhm_rentiva_search_extra_tabs`
+ * shortcode/block). `show_transfer_tab` and `mhmrentiva_search_extra_tabs`
  * no longer exist anywhere in UnifiedSearch -- there is nothing left to gate.
  *
  * What remains here are the premises that are still true regardless of
  * mechanism: the visibility keys the (now rental-only) template contract
  * exposes, and the positive control that the rental tab always renders. See
  * mhm-rentiva/tests/Unit/Shortcodes/UnifiedSearchTabsTest.php for the current,
- * filter-based coverage of the surviving `mhm_rentiva_search_locations` seam
+ * filter-based coverage of the surviving `mhmrentiva_search_locations` seam
  * (defaults empty without a subscriber; a subscriber can turn locations on;
  * the source has no more Mode::/isPro/LocationProvider reference).
  *

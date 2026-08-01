@@ -19,8 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class BookingNotifications {
 
 	public static function register(): void {
-		add_action( 'mhm_rentiva_booking_created', array( self::class, 'on_created' ) );
-		add_action( 'mhm_rentiva_booking_status_changed', array( self::class, 'on_status_changed' ), 10, 3 );
+		add_action( 'mhmrentiva_booking_created', array( self::class, 'on_created' ) );
+		add_action( 'mhmrentiva_booking_status_changed', array( self::class, 'on_status_changed' ), 10, 3 );
 	}
 
 	/**
@@ -58,7 +58,7 @@ final class BookingNotifications {
 	 */
 	private static function send_new_booking_emails( int $booking_id ): void {
 		// Customer email (confirmation)
-		$send_customer = SettingsCore::get( 'mhm_rentiva_booking_send_confirmation_emails', '1' ) === '1';
+		$send_customer = SettingsCore::get( 'mhmrentiva_booking_send_confirmation_emails', '1' ) === '1';
 		if ( $send_customer ) {
 			Mailer::sendBookingEmail( 'booking_created_customer', $booking_id, 'customer' );
 		}
@@ -67,13 +67,13 @@ final class BookingNotifications {
 		self::send_welcome_if_applicable( $booking_id );
 
 		// Admin email (notifications)
-		$send_admin = SettingsCore::get( 'mhm_rentiva_booking_admin_notifications', '1' ) === '1';
+		$send_admin = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' ) === '1';
 		if ( $send_admin ) {
 			Mailer::sendBookingEmail( 'booking_created_admin', $booking_id, 'admin' );
 		}
 
 		// Vendor email — notify the marketplace vehicle owner
-		$send_vendor = SettingsCore::get( 'mhm_rentiva_booking_vendor_notifications', '1' ) === '1';
+		$send_vendor = SettingsCore::get( 'mhmrentiva_booking_vendor_notifications', '1' ) === '1';
 		if ( $send_vendor ) {
 			Mailer::sendBookingEmail( 'booking_created_vendor', $booking_id, 'vendor' );
 		}
@@ -84,7 +84,7 @@ final class BookingNotifications {
 	 */
 	private static function send_welcome_if_applicable( int $booking_id ): void {
 		// Optional global toggle; default on
-		$enabled = SettingsCore::get( 'mhm_rentiva_customer_welcome_email', '1' ) === '1';
+		$enabled = SettingsCore::get( 'mhmrentiva_customer_welcome_email', '1' ) === '1';
 		if ( ! $enabled ) {
 			return;
 		}
@@ -97,16 +97,16 @@ final class BookingNotifications {
 
 		$user = get_user_by( 'email', $email );
 		if ( $user ) {
-			if ( get_user_meta( $user->ID, '_mhm_rentiva_welcome_sent', true ) === '1' ) {
+			if ( get_user_meta( $user->ID, '_mhmrentiva_welcome_sent', true ) === '1' ) {
 				return;
 			}
 			Mailer::sendBookingEmail( 'welcome_customer', $booking_id, 'customer' );
-			update_user_meta( $user->ID, '_mhm_rentiva_welcome_sent', '1' );
+			update_user_meta( $user->ID, '_mhmrentiva_welcome_sent', '1' );
 			return;
 		}
 
 		// Fallback: avoid duplicates for guests within 30 days
-		$tkey = 'mhm_rentiva_welcome_sent_' . md5( strtolower( $email ) );
+		$tkey = 'mhmrentiva_welcome_sent_' . md5( strtolower( $email ) );
 		if ( get_transient( $tkey ) ) {
 			return;
 		}
@@ -133,21 +133,21 @@ final class BookingNotifications {
 
 		// Include cancellation reason when booking is cancelled
 		if ( $new_status === 'cancelled' ) {
-			$cancellation_data                         = get_post_meta( $booking_id, '_mhm_cancellation_data', true );
+			$cancellation_data                         = get_post_meta( $booking_id, '_mhmrentiva_cancellation_data', true );
 			$additional_context['cancellation_reason'] = is_array( $cancellation_data ) ? ( $cancellation_data['cancellation_reason'] ?? '' ) : '';
 		}
 
-		$send_customer = SettingsCore::get( 'mhm_rentiva_booking_send_confirmation_emails', '1' ) === '1';
+		$send_customer = SettingsCore::get( 'mhmrentiva_booking_send_confirmation_emails', '1' ) === '1';
 		if ( $send_customer ) {
 			Mailer::sendBookingEmail( 'booking_status_changed_customer', $booking_id, 'customer', $additional_context );
 		}
 
-		$send_admin = SettingsCore::get( 'mhm_rentiva_booking_admin_notifications', '1' ) === '1';
+		$send_admin = SettingsCore::get( 'mhmrentiva_booking_admin_notifications', '1' ) === '1';
 		if ( $send_admin ) {
 			Mailer::sendBookingEmail( 'booking_status_changed_admin', $booking_id, 'admin', $additional_context );
 		}
 
-		$send_vendor = SettingsCore::get( 'mhm_rentiva_booking_vendor_notifications', '1' ) === '1';
+		$send_vendor = SettingsCore::get( 'mhmrentiva_booking_vendor_notifications', '1' ) === '1';
 		if ( $send_vendor ) {
 			Mailer::sendBookingEmail( 'booking_status_changed_vendor', $booking_id, 'vendor', $additional_context );
 		}

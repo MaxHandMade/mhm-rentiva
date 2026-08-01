@@ -164,7 +164,7 @@ final class PenaltyCalculator {
 	{
 		global $wpdb;
 
-		$table  = $wpdb->prefix . 'mhm_rentiva_ledger';
+		$table  = $wpdb->prefix . 'mhmrentiva_ledger';
 		$cutoff = gmdate('Y-m-d H:i:s', strtotime('-6 months'));
 
 		$result = $wpdb->get_row(

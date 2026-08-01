@@ -21,9 +21,9 @@ if (! defined('ABSPATH')) {
 // Get customer management settings
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
 
-$profile_editable    = SettingsCore::get('mhm_rentiva_customer_profile_editable', '1');
-$password_min_length = SettingsCore::get('mhm_rentiva_customer_password_min_length', 8);
-$password_special    = SettingsCore::get('mhm_rentiva_customer_password_require_special', '0');
+$profile_editable    = SettingsCore::get('mhmrentiva_customer_profile_editable', '1');
+$password_min_length = SettingsCore::get('mhmrentiva_customer_password_min_length', 8);
+$password_special    = SettingsCore::get('mhmrentiva_customer_password_require_special', '0');
 
 $navigation    = $data['navigation'] ?? array();
 $is_integrated = empty($navigation);
@@ -190,7 +190,7 @@ if ($profile_editable !== '1') {
 				</button>
 			</div>
 
-			<?php wp_nonce_field('mhm_rentiva_update_account', 'mhm_account_nonce'); ?>
+			<?php wp_nonce_field('mhmrentiva_update_account', 'mhmrentiva_account_nonce'); ?>
 
 		</form>
 

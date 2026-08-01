@@ -44,7 +44,7 @@ final class CompositionBuilder {
             $component_config = $components_map[ $component_id ] ?? null;
             if (! $component_config) {
                 return new WP_Error(
-                    'mhm_rentiva_unknown_component',
+                    'mhmrentiva_unknown_component',
                     /* translators: %s: unknown component ID. */
                     sprintf(__('Unknown component reference: %s', 'mhm-rentiva'), $component_id)
                 );
@@ -56,7 +56,7 @@ final class CompositionBuilder {
             $adapter = AdapterRegistry::get_adapter($type);
             if (! $adapter) {
                 return new WP_Error(
-                    'mhm_rentiva_missing_adapter',
+                    'mhmrentiva_missing_adapter',
                     /* translators: %s: missing adapter type name. */
                     sprintf(__('No adapter found for component type: %s', 'mhm-rentiva'), $type)
                 );
@@ -107,7 +107,7 @@ final class CompositionBuilder {
         foreach ($forbidden as $pattern) {
             if (stripos($markup, $pattern) !== false) {
                 return new WP_Error(
-                    'mhm_rentiva_tailwind_leakage',
+                    'mhmrentiva_tailwind_leakage',
                     /* translators: %s: forbidden pattern found in rendered markup. */
                     sprintf(__('Tailwind leakage detected in rendered markup: %s', 'mhm-rentiva'), $pattern)
                 );
@@ -119,7 +119,7 @@ final class CompositionBuilder {
         // We use negative lookbehind to ensure we don't block classes already prefixed with mhm-
         if (preg_match('/class=["\'][^"\']*(?<!\bmhm-)\b(bg-|p-|m-|flex-|grid-|w-)([a-z0-9-]+)[^"\']*["\']/', $markup, $matches)) {
             return new WP_Error(
-                'mhm_rentiva_utility_leakage',
+                'mhmrentiva_utility_leakage',
                 /* translators: %s: utility class fragment. */
                 sprintf(__('Unprefixed utility class detected: %s', 'mhm-rentiva'), $matches[1] . $matches[2])
             );

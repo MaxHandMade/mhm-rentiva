@@ -179,11 +179,11 @@ class VehiclesGrid extends AbstractShortcode {
 	private static function get_text(): array
 	{
 		return array(
-			'book_now'               => SettingsCore::get('mhm_rentiva_text_book_now', '') ?: __('Book Now', 'mhm-rentiva'),
-			'view_details'           => SettingsCore::get('mhm_rentiva_text_view_details', '') ?: __('View Details', 'mhm-rentiva'),
-			'added_to_favorites'     => SettingsCore::get('mhm_rentiva_text_added_to_favorites', '') ?: __('Added to favorites', 'mhm-rentiva'),
-			'removed_from_favorites' => SettingsCore::get('mhm_rentiva_text_removed_from_favorites', '') ?: __('Removed from favorites', 'mhm-rentiva'),
-			'login_required'         => SettingsCore::get('mhm_rentiva_text_login_required', '') ?: __('You must be logged in to add to favorites', 'mhm-rentiva'),
+			'book_now'               => SettingsCore::get('mhmrentiva_text_book_now', '') ?: __('Book Now', 'mhm-rentiva'),
+			'view_details'           => SettingsCore::get('mhmrentiva_text_view_details', '') ?: __('View Details', 'mhm-rentiva'),
+			'added_to_favorites'     => SettingsCore::get('mhmrentiva_text_added_to_favorites', '') ?: __('Added to favorites', 'mhm-rentiva'),
+			'removed_from_favorites' => SettingsCore::get('mhmrentiva_text_removed_from_favorites', '') ?: __('Removed from favorites', 'mhm-rentiva'),
+			'login_required'         => SettingsCore::get('mhmrentiva_text_login_required', '') ?: __('You must be logged in to add to favorites', 'mhm-rentiva'),
 		);
 	}
 
@@ -220,7 +220,7 @@ class VehiclesGrid extends AbstractShortcode {
 		if (( $atts['featured'] ?? '0' ) === '1') {
 			$args['meta_query'] = array(
 				array(
-					'key'     => '_mhm_rentiva_featured',
+					'key'     => '_mhmrentiva_featured',
 					'value'   => '1',
 					'compare' => '=',
 				),
@@ -240,7 +240,7 @@ class VehiclesGrid extends AbstractShortcode {
 			$args['orderby']  = 'meta_value_num';
 			$args['order']    = $sort_order;
 		} elseif ( $orderby_key === 'featured' ) {
-			$args['meta_key'] = '_mhm_rentiva_featured';
+			$args['meta_key'] = '_mhmrentiva_featured';
 			$args['orderby']  = 'meta_value';
 			$args['order']    = $sort_order;
 		}
@@ -279,15 +279,15 @@ class VehiclesGrid extends AbstractShortcode {
 		static $location_map = null;
 		if ($location_map === null) {
 			$location_map = array();
-			foreach (apply_filters('mhm_rentiva_locations', array(), 'rental') as $loc) {
+			foreach (apply_filters('mhmrentiva_locations', array(), 'rental') as $loc) {
 				$location_map[ (int) $loc->id ] = (string) $loc->name;
 			}
 		}
-		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhm_rentiva_location_id', true);
+		$vehicle_location_id   = (int) get_post_meta($vehicle_id, '_mhmrentiva_location_id', true);
 		$vehicle_location_name = $location_map[ $vehicle_location_id ] ?? '';
 		// Fallback to city meta for vendor-submitted vehicles that have no location_id.
 		if ('' === $vehicle_location_name) {
-			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhm_rentiva_vehicle_city', true);
+			$vehicle_location_name = (string) get_post_meta($vehicle_id, '_mhmrentiva_vehicle_city', true);
 		}
 
 		$data = array(
@@ -298,7 +298,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'price'         => self::get_vehicle_price($vehicle_id),
 			'features'      => self::get_vehicle_features($vehicle_id),
 			'category'      => self::get_vehicle_category($vehicle_id),
-			'brand'         => get_post_meta($vehicle_id, '_mhm_rentiva_brand', true) ?: '',
+			'brand'         => get_post_meta($vehicle_id, '_mhmrentiva_brand', true) ?: '',
 			'rating'        => self::get_vehicle_rating($vehicle_id),
 			'meta'          => self::get_vehicle_meta($vehicle_id),
 			'availability'  => self::check_vehicle_availability($vehicle_id),
@@ -325,17 +325,17 @@ class VehiclesGrid extends AbstractShortcode {
 		// CSS
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/vehicles-grid.css',
 			array( 'mhm-rentiva-vehicle-card-css' ), // Depend on core card logic
-			MHM_RENTIVA_VERSION
+			MHMRENTIVA_VERSION
 		);
 
 		// JavaScript
 		wp_enqueue_script(
 			'mhm-rentiva-vehicles-grid',
-			MHM_RENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
 			array( 'jquery' ),
-			MHM_RENTIVA_VERSION . '-' . filemtime(MHM_RENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
+			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
 			true
 		);
 
@@ -345,7 +345,7 @@ class VehiclesGrid extends AbstractShortcode {
 			'mhmRentivaVehiclesGrid',
 			array(
 				'ajaxUrl'        => admin_url('admin-ajax.php'),
-				'nonce'          => wp_create_nonce('mhm_rentiva_toggle_favorite'),
+				'nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
 				'bookingUrl'     => self::get_booking_url(),
 				'loginUrl'       => self::get_login_url(),
 				'isUserLoggedIn' => is_user_logged_in(),
@@ -421,9 +421,9 @@ class VehiclesGrid extends AbstractShortcode {
 		);
 
 		foreach ($possible_files as $filename) {
-			$file_path = MHM_RENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
+			$file_path = MHMRENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
 			if (file_exists($file_path)) {
-				return MHM_RENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
+				return MHMRENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
 			}
 		}
 
@@ -568,7 +568,7 @@ class VehiclesGrid extends AbstractShortcode {
 	private static function get_booking_url(): string
 	{
 		// First check from settings
-		$booking_url = SettingsCore::get('mhm_rentiva_booking_url', '');
+		$booking_url = SettingsCore::get('mhmrentiva_booking_url', '');
 		if (! empty($booking_url)) {
 			return $booking_url;
 		}
@@ -591,7 +591,7 @@ class VehiclesGrid extends AbstractShortcode {
 	private static function get_login_url(): string
 	{
 		// First check from settings
-		$login_url = SettingsCore::get('mhm_rentiva_login_url', '');
+		$login_url = SettingsCore::get('mhmrentiva_login_url', '');
 		if (! empty($login_url)) {
 			return $login_url;
 		}
@@ -685,7 +685,7 @@ class VehiclesGrid extends AbstractShortcode {
 			return false;
 		}
 
-		$favorites = get_user_meta($user_id, 'mhm_rentiva_favorites', true);
+		$favorites = get_user_meta($user_id, 'mhmrentiva_favorites', true);
 
 		if (! is_array($favorites)) {
 			$favorites = array_filter(array_map('intval', (array) $favorites));

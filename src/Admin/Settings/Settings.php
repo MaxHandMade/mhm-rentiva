@@ -35,7 +35,7 @@ final class Settings {
 	/**
 	 * Option key for central settings storage.
 	 */
-	public const OPTION_NAME = 'mhm_rentiva_settings';
+	public const OPTION_NAME = 'mhmrentiva_settings';
 
 	/**
 	 * Registry for settings providers.
@@ -76,7 +76,7 @@ final class Settings {
 		// extension point it already had.
 
 		// Allow third-party extensions to register providers
-		do_action('mhm_rentiva_register_settings_providers');
+		do_action('mhmrentiva_register_settings_providers');
 	}
 
 	/**
@@ -98,7 +98,7 @@ final class Settings {
 	 * Used by SettingsService::match() (Task A6b seam inversion) to resolve
 	 * the provider class for the add-on-owned tabs (transfer/vendor-marketplace/
 	 * messages) Lite no longer hardcodes by name -- the add-on registers its class
-	 * via the existing `mhm_rentiva_register_settings_providers` action
+	 * via the existing `mhmrentiva_register_settings_providers` action
 	 * (see self::init()), and this reads that same registry instead of a
 	 * second, parallel extension point.
 	 *

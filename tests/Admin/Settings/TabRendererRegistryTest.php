@@ -70,7 +70,7 @@ class TabRendererRegistryTest extends WP_UnitTestCase
     public function it_is_extensible_via_actions()
     {
         // Mock a new renderer and register it via action
-        add_action('mhm_rentiva_settings_register_renderers', function ($registry) {
+        add_action('mhmrentiva_settings_register_renderers', function ($registry) {
             $mock_renderer = $this->createMock(TabRendererInterface::class);
             $mock_renderer->method('get_slug')->willReturn('custom_tab');
             $mock_renderer->method('get_label')->willReturn('Custom Tab');

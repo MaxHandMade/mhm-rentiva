@@ -18,8 +18,8 @@ final class VehicleOwnerColumnTest extends WP_UnitTestCase {
 
 	public function test_columns_include_owner_column(): void {
 		$cols = VehicleColumns::columns( array( 'title' => 'Title', 'date' => 'Date' ) );
-		$this->assertArrayHasKey( 'mhm_owner', $cols, 'Vehicle list must expose an owner column.' );
-		$this->assertNotEmpty( $cols['mhm_owner'] );
+		$this->assertArrayHasKey( 'mhmrentiva_owner', $cols, 'Vehicle list must expose an owner column.' );
+		$this->assertNotEmpty( $cols['mhmrentiva_owner'] );
 	}
 
 	public function test_owner_filter_args_vendor_targets_vendor_authors(): void {

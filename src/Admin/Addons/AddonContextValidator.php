@@ -51,18 +51,18 @@ final class AddonContextValidator {
 			: AddonContextTaxonomy::TERM_RENTAL;
 
 		// Read the pricing-type meta; sanitize to a known value.
-		$current = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhm_addon_pricing_type', true ) );
+		$current = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhmrentiva_addon_pricing_type', true ) );
 
 		// Get the allow-list for this context.
 		$allowed = AddonPricingType::allowed_for_context( $context );
 
 		// If pricing-type is not in the allow-list, reset to per_booking.
 		if ( ! in_array( $current, $allowed, true ) ) {
-			update_post_meta( $post_id, '_mhm_addon_pricing_type', AddonPricingType::PER_BOOKING );
+			update_post_meta( $post_id, '_mhmrentiva_addon_pricing_type', AddonPricingType::PER_BOOKING );
 
 			if ( function_exists( 'add_settings_error' ) ) {
 				add_settings_error(
-					'mhm_rentiva_addon',
+					'mhmrentiva_addon',
 					'invalid_combo',
 					__(
 						'Invalid pricing/context combination — pricing type reset to "per booking".',

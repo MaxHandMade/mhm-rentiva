@@ -23,7 +23,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 	}
 
 	protected static function get_meta_box_id(): string {
-		return 'mhm_rentiva_booking_deposit';
+		return 'mhmrentiva_booking_deposit';
 	}
 
 	protected static function get_title(): string {
@@ -32,7 +32,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	protected static function get_fields(): array {
 		return array(
-			'mhm_rentiva_deposit_management' => array(
+			'mhmrentiva_deposit_management' => array(
 				'title'    => __( 'Deposit Management', 'mhm-rentiva' ),
 				'context'  => 'normal',
 				'priority' => 'high',
@@ -83,16 +83,16 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 			// Enqueue CSS
 			wp_enqueue_style(
 				'mhm-rentiva-deposit-management',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/deposit-management.css',
 				array(),
-				MHM_RENTIVA_VERSION
+				MHMRENTIVA_VERSION
 			);
 
 			wp_enqueue_script(
 				'mhm-rentiva-deposit-management',
-				MHM_RENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/deposit-management.js',
 				array( 'jquery' ),
-				MHM_RENTIVA_VERSION,
+				MHMRENTIVA_VERSION,
 				true
 			);
 
@@ -102,7 +102,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 				'mhmDepositManagement',
 				array(
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhm_deposit_management_action' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_deposit_management_action' ),
 					'strings' => array(
 						'confirmRefund'           => __( 'Do you confirm this action?', 'mhm-rentiva' ),
 						'confirmRemainingPayment' => __( 'Confirm receipt of remaining payment?', 'mhm-rentiva' ),
@@ -122,23 +122,23 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	public static function render_deposit_management( \WP_Post $post ): void {
 		// Nonce field
-		wp_nonce_field( 'mhm_rentiva_deposit_management_action', 'mhm_rentiva_deposit_management_nonce' );
+		wp_nonce_field( 'mhmrentiva_deposit_management_action', 'mhmrentiva_deposit_management_nonce' );
 
 		// Fetch deposit details
-		$payment_type          = get_post_meta( $post->ID, '_mhm_payment_type', true );
-		$payment_method        = get_post_meta( $post->ID, '_mhm_payment_method', true );
-		$deposit_amount        = floatval( get_post_meta( $post->ID, '_mhm_deposit_amount', true ) );
-		$total_amount          = floatval( get_post_meta( $post->ID, '_mhm_total_price', true ) );
-		$remaining_amount      = floatval( get_post_meta( $post->ID, '_mhm_remaining_amount', true ) );
-		$deposit_type          = get_post_meta( $post->ID, '_mhm_deposit_type', true );
-		$payment_display       = get_post_meta( $post->ID, '_mhm_payment_display', true );
-		$cancellation_policy   = get_post_meta( $post->ID, '_mhm_cancellation_policy', true );
-		$cancellation_deadline = get_post_meta( $post->ID, '_mhm_cancellation_deadline', true );
-		$payment_deadline      = get_post_meta( $post->ID, '_mhm_payment_deadline', true );
+		$payment_type          = get_post_meta( $post->ID, '_mhmrentiva_payment_type', true );
+		$payment_method        = get_post_meta( $post->ID, '_mhmrentiva_payment_method', true );
+		$deposit_amount        = floatval( get_post_meta( $post->ID, '_mhmrentiva_deposit_amount', true ) );
+		$total_amount          = floatval( get_post_meta( $post->ID, '_mhmrentiva_total_price', true ) );
+		$remaining_amount      = floatval( get_post_meta( $post->ID, '_mhmrentiva_remaining_amount', true ) );
+		$deposit_type          = get_post_meta( $post->ID, '_mhmrentiva_deposit_type', true );
+		$payment_display       = get_post_meta( $post->ID, '_mhmrentiva_payment_display', true );
+		$cancellation_policy   = get_post_meta( $post->ID, '_mhmrentiva_cancellation_policy', true );
+		$cancellation_deadline = get_post_meta( $post->ID, '_mhmrentiva_cancellation_deadline', true );
+		$payment_deadline      = get_post_meta( $post->ID, '_mhmrentiva_payment_deadline', true );
 
 		// Booking/payment status
-		$booking_status = get_post_meta( $post->ID, '_mhm_status', true );
-		$payment_status = get_post_meta( $post->ID, '_mhm_payment_status', true );
+		$booking_status = get_post_meta( $post->ID, '_mhmrentiva_status', true );
+		$payment_status = get_post_meta( $post->ID, '_mhmrentiva_payment_status', true );
 
 		echo '<div class="deposit-management-metabox">';
 
@@ -199,7 +199,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		}
 
 		// Rental days
-		$rental_days = (int) get_post_meta( $post->ID, '_mhm_rental_days', true );
+		$rental_days = (int) get_post_meta( $post->ID, '_mhmrentiva_rental_days', true );
 		if ( $rental_days > 0 ) {
 			echo '<div class="deposit-info-item">';
 			echo '<div class="deposit-info-label">' . esc_html__( 'Rental Days', 'mhm-rentiva' ) . '</div>';
@@ -282,7 +282,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		}
 
 		// Payment state
-		$payment_status = get_post_meta( $post_id, '_mhm_payment_status', true );
+		$payment_status = get_post_meta( $post_id, '_mhmrentiva_payment_status', true );
 		if ( $payment_status === 'paid' ) {
 			echo '<div class="deposit-timeline-item completed">';
 			echo '<div class="deposit-timeline-content">';
@@ -301,7 +301,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 		}
 
 		// Remaining balance payment
-		$remaining_amount = floatval( get_post_meta( $post_id, '_mhm_remaining_amount', true ) );
+		$remaining_amount = floatval( get_post_meta( $post_id, '_mhmrentiva_remaining_amount', true ) );
 		if ( $remaining_amount > 0 ) {
 			echo '<div class="deposit-timeline-item pending">';
 			echo '<div class="deposit-timeline-content">';
@@ -371,8 +371,8 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	public static function save_meta( int $post_id, \WP_Post $post ): void {
 		// Nonce check
-		$nonce = sanitize_text_field( wp_unslash( $_POST['mhm_rentiva_deposit_management_nonce'] ?? '' ) );
-		if ( ! wp_verify_nonce( $nonce, 'mhm_rentiva_deposit_management_action' ) ) {
+		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_deposit_management_nonce'] ?? '' ) );
+		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_deposit_management_action' ) ) {
 			return;
 		}
 
@@ -391,7 +391,7 @@ final class BookingDepositMetaBox extends AbstractMetaBox {
 
 	private static function format_price( float $price ): string {
 		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhm_rentiva_currency_position', 'right_space' );
+		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
 		$amount   = number_format_i18n( $price, 2 );
 
 		switch ( $position ) {

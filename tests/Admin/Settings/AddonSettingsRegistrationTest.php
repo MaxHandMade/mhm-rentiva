@@ -20,10 +20,10 @@ final class AddonSettingsRegistrationTest extends WP_UnitTestCase
 			: ( $GLOBALS['wp_registered_settings'] ?? array() );
 
 		$this->assertIsArray($registered);
-		$this->assertArrayHasKey('mhm_rentiva_addon_settings', $registered);
+		$this->assertArrayHasKey('mhmrentiva_addon_settings', $registered);
 		$this->assertSame(
 			array(SettingsSanitizer::class, 'sanitize_addon_settings_option'),
-			$registered['mhm_rentiva_addon_settings']['sanitize_callback'] ?? null
+			$registered['mhmrentiva_addon_settings']['sanitize_callback'] ?? null
 		);
 	}
 

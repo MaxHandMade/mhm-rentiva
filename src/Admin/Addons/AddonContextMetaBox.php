@@ -35,7 +35,7 @@ final class AddonContextMetaBox {
             AddonContextTaxonomy::TERM_BOTH     => __( 'Both', 'mhm-rentiva' ),
         );
 
-        wp_nonce_field( 'mhm_addon_context_save', 'mhm_addon_context_nonce' );
+        wp_nonce_field( 'mhmrentiva_addon_context_save', 'mhmrentiva_addon_context_nonce' );
 
         echo '<div class="mhm-addon-context-radio">';
         echo '<p class="description">' . esc_html__(
@@ -45,7 +45,7 @@ final class AddonContextMetaBox {
 
         foreach ( $options as $slug => $label ) {
             printf(
-                '<label class="mhm-addon-context-option"><input type="radio" name="mhm_addon_context" value="%s" %s> %s</label><br>',
+                '<label class="mhm-addon-context-option"><input type="radio" name="mhmrentiva_addon_context" value="%s" %s> %s</label><br>',
                 esc_attr( $slug ),
                 checked( $current, $slug, false ),
                 esc_html( $label )
@@ -59,12 +59,12 @@ final class AddonContextMetaBox {
      * Persist the radio selection. Hooked on `save_post_vehicle_addon`.
      */
     public static function save( int $post_id ): void {
-        if ( ! isset( $_POST['mhm_addon_context_nonce'] ) ) {
+        if ( ! isset( $_POST['mhmrentiva_addon_context_nonce'] ) ) {
             return;
         }
         if ( ! wp_verify_nonce(
-            sanitize_text_field( wp_unslash( (string) $_POST['mhm_addon_context_nonce'] ) ),
-            'mhm_addon_context_save'
+            sanitize_text_field( wp_unslash( (string) $_POST['mhmrentiva_addon_context_nonce'] ) ),
+            'mhmrentiva_addon_context_save'
         ) ) {
             return;
         }
@@ -72,8 +72,8 @@ final class AddonContextMetaBox {
             return;
         }
 
-        $value = isset( $_POST['mhm_addon_context'] )
-            ? sanitize_key( wp_unslash( (string) $_POST['mhm_addon_context'] ) )
+        $value = isset( $_POST['mhmrentiva_addon_context'] )
+            ? sanitize_key( wp_unslash( (string) $_POST['mhmrentiva_addon_context'] ) )
             : AddonContextTaxonomy::TERM_RENTAL;
 
         $allowed = array(

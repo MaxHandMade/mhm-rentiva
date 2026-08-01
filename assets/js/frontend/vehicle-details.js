@@ -98,7 +98,7 @@
 				url: ajaxConfig.ajaxUrl,
 				type: 'POST',
 				data: {
-					action: 'mhm_rentiva_get_calendar',
+					action: 'mhmrentiva_get_calendar',
 					vehicle_id: vehicleId,
 					month: currentMonth,
 					year: currentYear,

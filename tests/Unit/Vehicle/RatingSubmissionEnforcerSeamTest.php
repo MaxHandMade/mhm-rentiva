@@ -62,14 +62,14 @@ final class RatingSubmissionEnforcerSeamTest extends WP_Ajax_UnitTestCase
         wp_set_current_user( $this->user_id );
 
         $_POST = array(
-            'nonce'      => wp_create_nonce( 'mhm_rentiva_rating_nonce' ),
+            'nonce'      => wp_create_nonce( 'mhmrentiva_rating_nonce' ),
             'vehicle_id' => $this->vehicle_id,
             'rating'     => $rating,
             'comment'    => 'A perfectly ordinary review body, long enough to pass the minimum length rule.',
         );
 
         try {
-            $this->_handleAjax( 'mhm_rentiva_submit_rating' );
+            $this->_handleAjax( 'mhmrentiva_submit_rating' );
         } catch ( \WPAjaxDieContinueException | \WPAjaxDieStopException $e ) {
             // wp_send_json_* terminates; the response is read below.
         }
@@ -104,7 +104,7 @@ final class RatingSubmissionEnforcerSeamTest extends WP_Ajax_UnitTestCase
         $this->assertCount( 1, $comments, 'The review must actually reach the database.' );
         $this->assertSame(
             '4',
-            (string) get_comment_meta( (int) $comments[0]->comment_ID, 'mhm_rating', true )
+            (string) get_comment_meta( (int) $comments[0]->comment_ID, 'mhmrentiva_rating', true )
         );
     }
 

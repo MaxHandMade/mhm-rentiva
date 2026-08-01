@@ -118,7 +118,7 @@ final class SystemTab extends AbstractTab {
 								array(
 									'type'     => 'key-value',
 									'label'    => __( 'Version:', 'mhm-rentiva' ),
-									'value'    => 'v' . MHM_RENTIVA_VERSION,
+									'value'    => 'v' . MHMRENTIVA_VERSION,
 									'data_key' => '',
 								),
 								array(
@@ -130,13 +130,13 @@ final class SystemTab extends AbstractTab {
 								array(
 									'type'     => 'key-value',
 									'label'    => __( 'Installation Date:', 'mhm-rentiva' ),
-									'value'    => self::get_formatted_date_option( 'mhm_rentiva_installed' ),
+									'value'    => self::get_formatted_date_option( 'mhmrentiva_installed' ),
 									'data_key' => '',
 								),
 								array(
 									'type'     => 'key-value',
 									'label'    => __( 'Last Update:', 'mhm-rentiva' ),
-									'value'    => self::get_formatted_date_option( 'mhm_rentiva_last_update' ),
+									'value'    => self::get_formatted_date_option( 'mhmrentiva_last_update' ),
 									'data_key' => '',
 								),
 							),
@@ -266,7 +266,7 @@ final class SystemTab extends AbstractTab {
 			'plugin'    => array(
 				array(
 					'label'    => __( 'Version', 'mhm-rentiva' ),
-					'value'    => 'v' . MHM_RENTIVA_VERSION,
+					'value'    => 'v' . MHMRENTIVA_VERSION,
 					'copyable' => true,
 				),
 				array(
