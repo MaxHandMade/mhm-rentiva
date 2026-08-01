@@ -32,174 +32,43 @@ final class DatabaseCleaner {
 
 
 	/**
-	 * Get valid meta keys list (with filter hook support)
+	 * Public, read-only view of the invalid-meta cleanup's protection list.
+	 *
+	 * Exists so the list can be asserted against without reflection; the
+	 * private, filtered mechanism below is unchanged.
+	 *
+	 * @return array<string> Array of protected meta key strings
+	 */
+	public static function valid_meta_keys(): array {
+		return self::get_valid_meta_keys();
+	}
+
+	/**
+	 * Meta keys the invalid-meta cleanup must NEVER delete.
+	 *
+	 * This is a PROTECTION list, not a deletion list. find_invalid_meta_keys()
+	 * uses it as `meta_key LIKE '_mhm%' AND meta_key NOT IN (<this list>)`
+	 * across the entire postmeta table -- it is scoped to no post type -- and
+	 * cleanup_invalid_meta_keys( false ) DELETEs every row it returns. A key
+	 * that is missing here is therefore destroyed on the next cleanup run.
+	 *
+	 * Because omission costs live data and over-inclusion costs nothing but an
+	 * unswept row, membership is deliberately generous: every meta-key literal
+	 * that appears in either this plugin's or the Pro add-on's source is listed,
+	 * whether it is written today, only read for backward compatibility, or
+	 * lives in a different meta table entirely. The cleanup ships in Lite but
+	 * deletes Pro's rows too, so Pro's keys are not optional here.
+	 *
+	 * DatabaseCleanerAllowlistTest re-derives the same inventory from the source
+	 * tree on every run, so a newly introduced key fails the build instead of
+	 * silently becoming deletable.
 	 *
 	 * @return array<string> Array of valid meta key strings
 	 */
 	private static function get_valid_meta_keys(): array {
-		// Base valid meta keys
-		$valid_keys = array(
-			// Vehicle meta keys
-			'_mhm_vehicle_availability',
-			'_mhm_vehicle_status',
-			'_mhm_rentiva_availability', // Deprecated but still valid
-			'_mhm_rentiva_price_per_day',
-			'_mhm_rentiva_brand',
-			'_mhm_rentiva_model',
-			'_mhm_rentiva_year',
-			'_mhm_rentiva_color',
-			'_mhm_rentiva_seats',
-			'_mhm_rentiva_doors',
-			'_mhm_rentiva_transmission',
-			'_mhm_rentiva_fuel_type',
-			'_mhm_rentiva_engine_size',
-			'_mhm_rentiva_mileage',
-			'_mhm_rentiva_license_plate',
-			'_mhm_rentiva_deposit',
-			'_mhm_rentiva_features',
-			'_mhm_rentiva_equipment',
-			'_mhm_rentiva_gallery_images',
-			'_mhm_rentiva_rating_average',
-			'_mhm_rentiva_rating_count',
-
-			// Booking meta keys
-			'_mhm_vehicle_id',
-			'_mhm_status',
-			'_mhm_booking_type',
-			'_mhm_created_via',
-			'_mhm_created_by',
-			'_mhm_booking_created',
-			'_mhm_start_date',
-			'_mhm_start_time',
-			'_mhm_start_ts',
-			'_mhm_end_date',
-			'_mhm_end_time',
-			'_mhm_end_ts',
-			'_mhm_pickup_date',
-			'_mhm_pickup_time',
-			'_mhm_dropoff_date',
-			'_mhm_dropoff_time',
-			'_mhm_rental_days',
-			'_mhm_guests',
-
-			// Customer meta keys
-			'_mhm_customer_user_id',
-			'_mhm_customer_name',
-			'_mhm_customer_first_name',
-			'_mhm_customer_last_name',
-			'_mhm_customer_email',
-			'_mhm_customer_phone',
-
-			// Payment meta keys
-			'_mhm_payment_method',
-			'_mhm_payment_gateway',
-			'_mhm_payment_type',
-			'_mhm_payment_status',
-			'_mhm_payment_deadline',
-			'_mhm_payment_display',
-			'_mhm_total_price',
-			'_mhm_deposit_amount',
-			'_mhm_deposit_type',
-			'_mhm_remaining_amount',
-			'_mhm_selected_addons',
-
-			// Receipt meta keys
-			'_mhm_receipt_status',
-			'_mhm_receipt_attachment_id',
-			'_mhm_receipt_uploaded_at',
-			'_mhm_receipt_uploaded_by',
-
-			// System meta keys
-			'_mhm_shortcode',
-			'_mhm_auto_created',
-			'_mhm_booking_history',
-			'_mhm_booking_logs',
-			'_mhm_cancellation_deadline',
-			'_mhm_cancellation_policy',
-			'_mhm_removed_details',
-			'_mhm_custom_details',
-
-			// Core Booking Meta
-			'_mhm_vehicle_id',
-			'_mhm_start_date',
-			'_mhm_end_date',
-			'_mhm_start_time',
-			'_mhm_end_time',
-			'_mhm_start_ts',
-			'_mhm_end_ts',
-			'_mhm_pickup_date',
-			'_mhm_dropoff_date',
-			'_mhm_pickup_time',
-			'_mhm_dropoff_time',
-			'_mhm_status',
-			'_mhm_booking_type',
-			'_mhm_created_via',
-			'_mhm_created_by',
-			'_mhm_booking_created',
-			'_mhm_guests',
-
-			// Customer Meta
-			'_mhm_customer_user_id',
-			'_mhm_customer_first_name',
-			'_mhm_customer_last_name',
-			'_mhm_customer_name',
-			'_mhm_customer_email',
-			'_mhm_customer_phone',
-			'_mhm_contact_name',
-			'_mhm_contact_email',
-			'_mhm_contact_phone',
-			'_mhm_client_ip',
-			'_mhm_user_agent',
-			'_mhm_customer_id',
-
-			// Payment & Pricing Meta
-			'_mhm_total_price',
-			'_mhm_rental_days',
-			'_mhm_deposit_amount',
-			'_mhm_remaining_amount',
-			'_mhm_deposit_type',
-			'_mhm_payment_display',
-			'_mhm_payment_type',
-			'_mhm_payment_method',
-			'_mhm_payment_gateway',
-			'_mhm_payment_status',
-			'_mhm_payment_amount',
-			'_mhm_payment_deadline',
-			'_mhm_refunded_amount',
-			'_mhm_payment_currency',
-			'_mhm_offline_receipt_id',
-			'_mhm_vehicle_plate',
-			'_mhm_rentiva_license_plate',
-			'_mhm_selected_addons',
-
-			// WooCommerce Integration
-			'_mhm_wc_order_id',
-			'_mhm_woocommerce_order_id',
-			'_mhm_order_id',
-			'_mhm_refund_txn_id',
-
-			// Addon meta keys
-			'addon_price',
-			'addon_type',
-			'addon_description',
-
-			// Legacy booking meta keys
-			'_booking_vehicle_id',
-			'_booking_customer_email',
-			'_booking_customer_name',
-			'_booking_customer_phone',
-			'_booking_pickup_date',
-			'_booking_return_date',
-			'_booking_rental_days',
-			'_booking_total_price',
-			'_booking_payment_status',
-			'_booking_payment_gateway',
-
-			// Message meta keys
-			'_mhm_message_category',
-			'_mhm_message_status',
-			'_mhm_thread_id',
-			'_mhm_is_read',
+		$valid_keys = array_merge(
+			self::static_meta_keys(),
+			self::runtime_custom_field_meta_keys()
 		);
 
 		/**
@@ -218,7 +87,346 @@ final class DatabaseCleaner {
 		 *     return $keys;
 		 * });
 		 */
-		return apply_filters( 'mhm_rentiva_valid_meta_keys', $valid_keys );
+		$filtered = apply_filters( 'mhm_rentiva_valid_meta_keys', $valid_keys );
+
+		// The filter may ADD protection, never remove it. On a destructive
+		// operation an extension point that can shrink the protection list turns
+		// any third party's bug -- a filter that returns the wrong variable, or
+		// an empty array on an early return -- into deletion of this plugin's
+		// data. Unioning the built-in list back in keeps the extension point
+		// useful and makes that failure mode impossible.
+		return array_values(
+			array_unique(
+				array_merge( $valid_keys, array_filter( (array) $filtered, 'is_string' ) )
+			)
+		);
+	}
+
+	/**
+	 * The statically known meta keys, derived from a literal scan of both plugins.
+	 *
+	 * @return array<string> Array of valid meta key strings
+	 */
+	private static function static_meta_keys(): array {
+		return array(
+			'_mhm_additional_services_price',
+			'_mhm_addon_details',
+			'_mhm_addon_pricing_type',
+			'_mhm_addon_total',
+			'_mhm_attachments',
+			'_mhm_auto_cancelled',
+			'_mhm_auto_cancelled_reason',
+			'_mhm_auto_created',
+			'_mhm_blocked_dates',
+			'_mhm_blocked_dates_notes',
+			'_mhm_booking_created',
+			'_mhm_booking_data',
+			'_mhm_booking_history',
+			'_mhm_booking_id',
+			'_mhm_booking_logs',
+			'_mhm_booking_payment_type',
+			'_mhm_booking_pending',
+			'_mhm_booking_price',
+			'_mhm_booking_type',
+			'_mhm_bypass_reason',
+			'_mhm_cancellation_data',
+			'_mhm_cancellation_deadline',
+			'_mhm_cancellation_policy',
+			'_mhm_client_ip',
+			'_mhm_contact_email',
+			'_mhm_contact_name',
+			'_mhm_contact_phone',
+			'_mhm_cooling_policy_version',
+			'_mhm_created_by',
+			'_mhm_created_via',
+			'_mhm_custom_details',
+			'_mhm_customer_email',
+			'_mhm_customer_first_name',
+			'_mhm_customer_id',
+			'_mhm_customer_last_name',
+			'_mhm_customer_name',
+			'_mhm_customer_phone',
+			'_mhm_customer_user_id',
+			'_mhm_deposit',
+			'_mhm_deposit_amount',
+			'_mhm_deposit_percentage',
+			'_mhm_deposit_type',
+			'_mhm_details_order',
+			'_mhm_dropoff_date',
+			'_mhm_dropoff_time',
+			'_mhm_email_context',
+			'_mhm_email_key',
+			'_mhm_email_status',
+			'_mhm_email_subject',
+			'_mhm_email_to',
+			'_mhm_end_date',
+			'_mhm_end_time',
+			'_mhm_end_ts',
+			'_mhm_equipment_order',
+			'_mhm_features_order',
+			'_mhm_gallery_images',
+			'_mhm_guests',
+			'_mhm_ip_address',
+			'_mhm_is_read',
+			'_mhm_is_remaining_payment',
+			'_mhm_is_transfer',
+			'_mhm_layout_audit_log',
+			'_mhm_layout_hash',
+			'_mhm_layout_hash_previous',
+			'_mhm_layout_manifest',
+			'_mhm_layout_manifest_previous',
+			'_mhm_layout_version_timestamp',
+			'_mhm_layout_version_timestamp_previous',
+			'_mhm_listing_action',
+			'_mhm_listing_vehicle_id',
+			'_mhm_lock_status',
+			'_mhm_log_action',
+			'_mhm_log_amount_kurus',
+			'_mhm_log_booking_id',
+			'_mhm_log_category',
+			'_mhm_log_code',
+			'_mhm_log_context',
+			'_mhm_log_currency',
+			'_mhm_log_customer_id',
+			'_mhm_log_execution_time',
+			'_mhm_log_gateway',
+			'_mhm_log_ip_address',
+			'_mhm_log_level',
+			'_mhm_log_memory_usage',
+			'_mhm_log_message',
+			'_mhm_log_oid',
+			'_mhm_log_status',
+			'_mhm_log_user_agent',
+			'_mhm_log_user_id',
+			'_mhm_log_vehicle_id',
+			'_mhm_message_category',
+			'_mhm_message_priority',
+			'_mhm_message_status',
+			'_mhm_message_type',
+			'_mhm_offline_receipt_id',
+			'_mhm_order_id',
+			'_mhm_original_order_id',
+			'_mhm_parent_message_id',
+			'_mhm_payment_amount',
+			'_mhm_payment_currency',
+			'_mhm_payment_deadline',
+			'_mhm_payment_display',
+			'_mhm_payment_gateway',
+			'_mhm_payment_method',
+			'_mhm_payment_status',
+			'_mhm_payment_type',
+			'_mhm_payout_amount',
+			'_mhm_payout_external_ref',
+			'_mhm_payout_maker_id',
+			'_mhm_payout_rejection_reason',
+			'_mhm_payout_status',
+			'_mhm_pickup_date',
+			'_mhm_pickup_location_id',
+			'_mhm_pickup_time',
+			'_mhm_price_per_day',
+			'_mhm_read_at',
+			'_mhm_receipt_attachment_id',
+			'_mhm_receipt_note',
+			'_mhm_receipt_status',
+			'_mhm_receipt_uploaded_at',
+			'_mhm_receipt_uploaded_by',
+			'_mhm_recipient_id',
+			'_mhm_refund_date',
+			'_mhm_refund_processed_by',
+			'_mhm_refund_reason',
+			'_mhm_refund_requested_at',
+			'_mhm_refund_requested_by',
+			'_mhm_refund_status',
+			'_mhm_refund_txn_id',
+			'_mhm_refunded_amount',
+			'_mhm_release_after',
+			'_mhm_remaining_amount',
+			'_mhm_remaining_order_id',
+			'_mhm_removed_details',
+			'_mhm_rental_days',
+			'_mhm_rentiva_availability',
+			'_mhm_rentiva_average_rating',
+			'_mhm_rentiva_blocked_dates',
+			'_mhm_rentiva_brand',
+			'_mhm_rentiva_category',
+			'_mhm_rentiva_color',
+			'_mhm_rentiva_confidence_score',
+			'_mhm_rentiva_customer_email',
+			'_mhm_rentiva_customer_name',
+			'_mhm_rentiva_customer_rating',
+			'_mhm_rentiva_customer_review',
+			'_mhm_rentiva_daily_price',
+			'_mhm_rentiva_deposit',
+			'_mhm_rentiva_doors',
+			'_mhm_rentiva_engine_power',
+			'_mhm_rentiva_engine_size',
+			'_mhm_rentiva_equipment',
+			'_mhm_rentiva_featured',
+			'_mhm_rentiva_features',
+			'_mhm_rentiva_fuel_type',
+			'_mhm_rentiva_gallery',
+			'_mhm_rentiva_gallery_images',
+			'_mhm_rentiva_is_featured',
+			'_mhm_rentiva_license_plate',
+			'_mhm_rentiva_location',
+			'_mhm_rentiva_location_id',
+			'_mhm_rentiva_mileage',
+			'_mhm_rentiva_model',
+			'_mhm_rentiva_model_year',
+			'_mhm_rentiva_plate',
+			'_mhm_rentiva_price',
+			'_mhm_rentiva_price_per_day',
+			'_mhm_rentiva_price_per_month',
+			'_mhm_rentiva_price_per_week',
+			'_mhm_rentiva_rating_average',
+			'_mhm_rentiva_rating_count',
+			'_mhm_rentiva_review_approved',
+			'_mhm_rentiva_seats',
+			'_mhm_rentiva_transfer_locations',
+			'_mhm_rentiva_transfer_route_prices',
+			'_mhm_rentiva_transfer_routes',
+			'_mhm_rentiva_transmission',
+			'_mhm_rentiva_vehicle_city',
+			'_mhm_rentiva_vehicle_id',
+			'_mhm_rentiva_vehicle_insurance_doc',
+			'_mhm_rentiva_vehicle_registration_doc',
+			'_mhm_rentiva_vendor_location_id',
+			'_mhm_rentiva_welcome_sent',
+			'_mhm_rentiva_year',
+			'_mhm_return_date',
+			'_mhm_selected_addons',
+			'_mhm_service_type',
+			'_mhm_shortcode',
+			'_mhm_special_notes',
+			'_mhm_start_date',
+			'_mhm_start_time',
+			'_mhm_start_ts',
+			'_mhm_statement_carried_balance',
+			'_mhm_statement_commission_total',
+			'_mhm_statement_currency',
+			'_mhm_statement_emailed_at',
+			'_mhm_statement_generated_at',
+			'_mhm_statement_gross',
+			'_mhm_statement_last_entry_id',
+			'_mhm_statement_lines',
+			'_mhm_statement_net_activity',
+			'_mhm_statement_number',
+			'_mhm_statement_paid',
+			'_mhm_statement_penalties',
+			'_mhm_statement_period_end',
+			'_mhm_statement_period_start',
+			'_mhm_statement_vendor_snapshot',
+			'_mhm_status',
+			'_mhm_thread_id',
+			'_mhm_total_price',
+			'_mhm_transfer_adults',
+			'_mhm_transfer_children',
+			'_mhm_transfer_destination_id',
+			'_mhm_transfer_distance_km',
+			'_mhm_transfer_duration_min',
+			'_mhm_transfer_luggage_big',
+			'_mhm_transfer_luggage_small',
+			'_mhm_transfer_max_luggage_score',
+			'_mhm_transfer_max_pax',
+			'_mhm_transfer_origin_id',
+			'_mhm_transfer_price_multiplier',
+			'_mhm_user_agent',
+			'_mhm_user_id',
+			'_mhm_vehicle_availability',
+			'_mhm_vehicle_base_price',
+			'_mhm_vehicle_blocked_dates',
+			'_mhm_vehicle_cooldown_ends_at',
+			'_mhm_vehicle_deferred_penalty',
+			'_mhm_vehicle_expiry_warning_first_sent',
+			'_mhm_vehicle_expiry_warning_second_sent',
+			'_mhm_vehicle_id',
+			'_mhm_vehicle_lifecycle_status',
+			'_mhm_vehicle_listing_expires_at',
+			'_mhm_vehicle_listing_renewal_count',
+			'_mhm_vehicle_listing_renewed_at',
+			'_mhm_vehicle_listing_started_at',
+			'_mhm_vehicle_max_big_luggage',
+			'_mhm_vehicle_max_small_luggage',
+			'_mhm_vehicle_pause_count_month',
+			'_mhm_vehicle_paused_at',
+			'_mhm_vehicle_penalty_blocked_dates',
+			'_mhm_vehicle_penalty_uuid',
+			'_mhm_vehicle_plate',
+			'_mhm_vehicle_price_per_km',
+			'_mhm_vehicle_service_type',
+			'_mhm_vehicle_status',
+			'_mhm_vehicle_suspended_by_vendor_ban',
+			'_mhm_vehicle_withdrawal_excused',
+			'_mhm_vehicle_withdrawn_at',
+			'_mhm_vehicle_year',
+			'_mhm_vendor_commission_rate',
+			'_mhm_vendor_payout_freeze',
+			'_mhm_wc_order_id',
+			'_mhm_wc_payment_type',
+			'_mhm_woocommerce_order_id',
+			'_mhm_workflow_state',
+
+			// Legacy families kept for documentation and for the day the
+			// LIKE pattern widens; none of them can match '_mhm%' today.
+			'_booking_customer_email',
+			'_booking_customer_name',
+			'_booking_customer_phone',
+			'_booking_payment_gateway',
+			'_booking_payment_status',
+			'_booking_pickup_date',
+			'_booking_rental_days',
+			'_booking_return_date',
+			'_booking_total_price',
+			'_booking_vehicle_id',
+			'addon_description',
+			'addon_price',
+			'addon_type',
+		);
+	}
+
+	/**
+	 * Meta keys that only exist at runtime, so no literal scan can find them.
+	 *
+	 * Vehicle detail/feature/equipment fields are admin-defined: VehicleMeta and
+	 * VehicleSubmit store each one as '_mhm_rentiva_' . $field_key, where
+	 * $field_key comes from these options or from a feature/equipment taxonomy
+	 * term. Without this derivation, every custom field an admin has ever added
+	 * is "invalid" to the cleanup and gets deleted.
+	 *
+	 * @return array<string> Array of valid meta key strings
+	 */
+	private static function runtime_custom_field_meta_keys(): array {
+		$field_maps = array();
+
+		// mhm_vehicle_* hold the standard field definitions (an admin can extend
+		// them); mhm_custom_* hold the fields an admin added outright. Both are
+		// read back by VehicleMeta::save_meta() to decide which meta to write.
+		foreach ( array(
+			'mhm_vehicle_details',
+			'mhm_vehicle_features',
+			'mhm_vehicle_equipment',
+			'mhm_custom_details',
+			'mhm_custom_features',
+			'mhm_custom_equipment',
+		) as $option_name ) {
+			$field_maps[] = (array) get_option( $option_name, array() );
+		}
+
+		$field_maps[] = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_features();
+		$field_maps[] = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_taxonomy_equipment();
+
+		$keys = array();
+
+		foreach ( $field_maps as $field_map ) {
+			foreach ( array_keys( $field_map ) as $field_key ) {
+				$field_key = (string) $field_key;
+				if ( '' !== $field_key ) {
+					$keys[] = '_mhm_rentiva_' . $field_key;
+				}
+			}
+		}
+
+		return $keys;
 	}
 
 	/**
@@ -360,7 +568,12 @@ final class DatabaseCleaner {
 	}
 
 	/**
-	 * Detect invalid meta keys (not in VALID_META_KEYS list)
+	 * Detect meta keys the protection list does not cover.
+	 *
+	 * There is no VALID_META_KEYS constant; the list comes from
+	 * get_valid_meta_keys() and is used here with NOT IN, so it protects rather
+	 * than selects. The scan spans the whole postmeta table and is limited to
+	 * neither this plugin's post types nor its own rows.
 	 */
 	public static function find_invalid_meta_keys(): array {
 		global $wpdb;
@@ -390,7 +603,11 @@ final class DatabaseCleaner {
 	}
 
 	/**
-	 * Clean invalid meta keys (not in VALID_META_KEYS list)
+	 * DELETE every postmeta row whose key the protection list does not cover.
+	 *
+	 * Destructive with $dry_run = false. Rows are copied to a timestamped backup
+	 * table first, but the only thing standing between live data and this DELETE
+	 * is get_valid_meta_keys(), so a key missing from that list is data lost.
 	 */
 	public static function cleanup_invalid_meta_keys( bool $dry_run = true ): array {
 		global $wpdb;
