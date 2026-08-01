@@ -101,12 +101,15 @@ final class ContactForm extends AbstractShortcode {
 
 	protected static function register_ajax_handlers(): void
 	{
-		// AJAX handlers
+		// AJAX handlers. (There used to be a second, standalone
+		// mhm_rentiva_upload_attachment endpoint here -- removed: nothing in
+		// this plugin or Pro ever called it, the attachment field rides
+		// along in this same submit request's multipart $_FILES instead, and
+		// a publicly wp_ajax_nopriv_-reachable, purposeless upload endpoint
+		// is exactly the kind of unprotected input surface a reviewer flags
+		// next round. See ajax_submit_contact_form()'s own $_FILES handling.)
 		add_action('wp_ajax_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 		add_action('wp_ajax_nopriv_mhm_rentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
-
-		add_action('wp_ajax_mhm_rentiva_upload_attachment', array( self::class, 'ajax_upload_attachment' ));
-		add_action('wp_ajax_nopriv_mhm_rentiva_upload_attachment', array( self::class, 'ajax_upload_attachment' ));
 	}
 
 	/**
@@ -356,58 +359,6 @@ final class ContactForm extends AbstractShortcode {
 				$debug_mode
 			);
 			self::ajax_error($message);
-		}
-	}
-
-	public static function ajax_upload_attachment(): void
-	{
-		// Nonce check is the literal first statement -- before any $_FILES
-		// access. The former self::verify_nonce() wrapper indirection (and the
-		// late $_FILES check that used to sit a few lines below it) is gone;
-		// check_ajax_referer() is called directly here so WPCS's own static
-		// analysis can see the guard in this file (WP.org T7 finding). Uses
-		// the same nonce action as ajax_submit_contact_form() -- the one
-		// actually created client-side by get_localized_data() -- rather than
-		// AbstractShortcode::verify_nonce()'s unrelated default action name,
-		// which this dead-from-the-UI (but still wp_ajax_nopriv_-registered,
-		// hence still reachable) endpoint was never actually checking against.
-		if (! check_ajax_referer('mhm_rentiva_contact_form_nonce', 'nonce', false)) {
-			self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
-			return;
-		}
-
-		try {
-			if (! isset($_FILES['attachment'])) {
-				self::ajax_error(__('File not found.', 'mhm-rentiva'));
-				return;
-			}
-
-			// Each leaf of the $_FILES sub-array is read and sanitized/cast
-			// individually at the point of access (see ajax_submit_contact_form()
-			// for the same pattern), rather than passing the raw superglobal
-			// slice into handle_file_upload().
-			$file          = array(
-				'name'     => isset($_FILES['attachment']['name']) ? sanitize_file_name(wp_unslash( (string) $_FILES['attachment']['name'])) : '',
-				'type'     => isset($_FILES['attachment']['type']) ? sanitize_mime_type(wp_unslash( (string) $_FILES['attachment']['type'])) : '',
-				'tmp_name' => isset($_FILES['attachment']['tmp_name']) ? sanitize_text_field(wp_unslash( (string) $_FILES['attachment']['tmp_name'])) : '',
-				'error'    => isset($_FILES['attachment']['error']) ? (int) $_FILES['attachment']['error'] : UPLOAD_ERR_NO_FILE,
-				'size'     => isset($_FILES['attachment']['size']) ? (int) $_FILES['attachment']['size'] : 0,
-			);
-			$upload_result = self::handle_file_upload($file);
-
-			if ($upload_result['success']) {
-				self::ajax_success(
-					array(
-						'file_url'  => $upload_result['url'],
-						'file_name' => $upload_result['name'],
-					),
-					__('File uploaded successfully.', 'mhm-rentiva')
-				);
-			} else {
-				self::ajax_error($upload_result['message']);
-			}
-		} catch (Exception $e) {
-			self::ajax_error(__('An error occurred while uploading file.', 'mhm-rentiva'));
 		}
 	}
 

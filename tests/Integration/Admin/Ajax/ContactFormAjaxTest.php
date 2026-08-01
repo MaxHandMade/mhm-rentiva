@@ -6,9 +6,15 @@ use MHMRentiva\Admin\Frontend\Shortcodes\ContactForm;
 use WP_Ajax_UnitTestCase;
 
 /**
- * Locks the T7 nonce-first fix: both ContactForm AJAX endpoints must reject a
- * missing/invalid nonce as their literal first action, before any $_POST or
- * $_FILES field is read/sanitized/validated.
+ * Locks the T7 nonce-first fix: ContactForm's AJAX submit endpoint must
+ * reject a missing/invalid nonce as its literal first action, before any
+ * $_POST or $_FILES field is read/sanitized/validated.
+ *
+ * (The separate mhm_rentiva_upload_attachment endpoint this file used to
+ * also cover was deleted in a follow-up fix round -- nothing in this plugin
+ * or Pro ever called it; the attachment field rides along in the same
+ * submit request's multipart $_FILES instead. See ajax_submit_contact_form()
+ * and its own $_FILES handling.)
  *
  * `test_submit_rejects_before_touching_fields_when_nonce_missing` deliberately
  * submits an invalid email address alongside the missing nonce. If the nonce
@@ -18,11 +24,6 @@ use WP_Ajax_UnitTestCase;
  * on ordering, not just a lock on "the endpoint checks a nonce somewhere".
  */
 class ContactFormAjaxTest extends WP_Ajax_UnitTestCase {
-	/**
-	 * @var string
-	 */
-	protected $_last_response;
-
 	public function setUp(): void {
 		parent::setUp();
 		ContactForm::register();
@@ -59,28 +60,6 @@ class ContactFormAjaxTest extends WP_Ajax_UnitTestCase {
 		$_POST['message'] = 'Hello';
 
 		$this->dispatch_ajax( 'mhm_rentiva_submit_contact_form' );
-		$response = $this->decode_response();
-
-		$this->assertFalse( $response['success'] );
-		$this->assertStringContainsString( 'Security check failed', $response['data']['message'] );
-	}
-
-	public function test_upload_attachment_rejects_before_touching_files_when_nonce_missing(): void {
-		unset( $_POST['nonce'] );
-		$_POST['action'] = 'mhm_rentiva_upload_attachment';
-
-		$this->dispatch_ajax( 'mhm_rentiva_upload_attachment' );
-		$response = $this->decode_response();
-
-		$this->assertFalse( $response['success'] );
-		$this->assertStringContainsString( 'Security check failed', $response['data']['message'] );
-	}
-
-	public function test_upload_attachment_rejects_invalid_nonce(): void {
-		$_POST['action'] = 'mhm_rentiva_upload_attachment';
-		$_POST['nonce']  = 'clearly-invalid-nonce';
-
-		$this->dispatch_ajax( 'mhm_rentiva_upload_attachment' );
 		$response = $this->decode_response();
 
 		$this->assertFalse( $response['success'] );
