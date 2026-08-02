@@ -611,6 +611,31 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_queue',
 			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_circuit',
 			$wpdb->prefix . 'mhmrentiva_event_queue',
+			$wpdb->prefix . 'mhmrentiva_vendor_reports',
+
+			// --- PRE-6.0.0 spellings of the orphan family above ---
+			//
+			// None of these tables is in PrefixMigrationMap::TABLES, so the
+			// migration never renames them: the name a real install carries is
+			// the OLD one, and the new-spelling list above matched nothing.
+			// Measured on the dev database -- eleven of them were sitting there
+			// after a full migration, invisible to both the migration and
+			// uninstall. WP.org reads uninstall closely and orphan tables are
+			// not cosmetic.
+			// prefix-rename:ignore-start
+			$wpdb->prefix . 'mhm_rentiva_subscriptions',
+			$wpdb->prefix . 'mhm_rentiva_usage_billing_feature_flags',
+			$wpdb->prefix . 'mhm_rentiva_payment_events_raw',
+			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregates',
+			$wpdb->prefix . 'mhm_rentiva_payment_event_aggregate_windows',
+			$wpdb->prefix . 'mhm_rentiva_payment_registry',
+			$wpdb->prefix . 'mhm_rentiva_alert_state',
+			$wpdb->prefix . 'mhm_rentiva_alert_dispatch_state',
+			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_queue',
+			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_circuit',
+			$wpdb->prefix . 'mhm_rentiva_event_queue',
+			$wpdb->prefix . 'mhm_rentiva_vendor_reports',
+			// prefix-rename:ignore-end
 		);
 	}
 

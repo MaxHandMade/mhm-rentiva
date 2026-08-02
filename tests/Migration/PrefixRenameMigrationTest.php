@@ -846,6 +846,86 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
     }
 
     /**
+     * The contact-message bucket: 26 characters into a varchar(20) column.
+     *
+     * Nobody calls register_post_type() for it, so it had no POST_TYPES entry
+     * and never met the map's "<= 20" check; the bare `mhm_` catch-all rewrote
+     * the literal instead, and that rule has no length rule to break. Every
+     * submission would have truncated on a non-strict server and ERRORED on a
+     * strict one -- and, having no map entry, the existing rows belonged to no
+     * migration family at all.
+     */
+    public function test_the_contact_message_bucket_migrates_and_fits_its_column(): void
+    {
+        global $wpdb;
+
+        $post_id = self::factory()->post->create(array( 'post_type' => 'mhm_contact_message' ));
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        // Read the column, not the cache: truncation is invisible through
+        // get_post() once the object is in memory.
+        $stored = $wpdb->get_var($wpdb->prepare("SELECT post_type FROM {$wpdb->posts} WHERE ID = %d", $post_id));
+
+        $this->assertSame('mhmrentiva_contact', $stored, 'The contact-message rows were stranded or truncated.');
+        $this->assertLessThanOrEqual(20, strlen((string) $stored), 'The stored post type does not fit wp_posts.post_type.');
+    }
+
+    /**
+     * What ContactForm actually writes has to survive the round trip.
+     *
+     * A length assertion on the constant is vacuous -- it would pass on the
+     * broken name too if the column were wider. This inserts the literal the
+     * shortcode uses and reads the column back.
+     */
+    public function test_a_new_contact_message_survives_the_column_round_trip(): void
+    {
+        global $wpdb;
+
+        $post_id = wp_insert_post(array(
+            'post_type'   => 'mhmrentiva_contact',
+            'post_title'  => 'Contact Message - round trip',
+            'post_status' => 'private',
+        ));
+
+        $this->assertIsInt($post_id);
+        $this->assertGreaterThan(0, $post_id, 'The insert failed outright -- strict mode rejects an over-long post_type.');
+
+        $stored = $wpdb->get_var($wpdb->prepare("SELECT post_type FROM {$wpdb->posts} WHERE ID = %d", $post_id));
+        $this->assertSame('mhmrentiva_contact', $stored, 'The post type was truncated on the way in.');
+    }
+
+    /**
+     * Dead orchestration schema is dropped under BOTH spellings.
+     *
+     * Neither table is in PrefixMigrationMap::TABLES, so no rename ever produces
+     * the new names -- the table a real install has carries the old one, and
+     * dropping only the new name dropped nothing at all.
+     */
+    public function test_dead_orchestration_tables_are_dropped_under_both_spellings(): void
+    {
+        global $wpdb;
+
+        $this->use_real_tables();
+
+        $legacy = $this->table('mhm_rentiva_tenants');
+        $this->create_temp_table($legacy);
+        $this->assertNotNull(
+            $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($legacy))),
+            'Premise: the legacy-named table must exist before the migration runs.'
+        );
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertNull(
+            $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($legacy))),
+            'The pre-6.0.0 spelling of a dead table survived the migration.'
+        );
+    }
+
+    /**
      * Hazard 2, tables arm -- measured, not hypothetical: the dev database
      * carried an EMPTY `wp_mhmrentiva_key_registry` (planted by the renamed
      * code) next to a populated `wp_mhm_rentiva_key_registry` with 12 rows.
@@ -914,13 +994,19 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
      */
     public function test_a_legacy_version_stamp_is_adopted_and_does_not_replay_earlier_steps(): void
     {
+        // Read the constant rather than repeating it: hard-coding the current
+        // version made this test fail on the next bump for a reason that had
+        // nothing to do with what it asserts.
+        $current = (string) (new \ReflectionClass(DatabaseMigrator::class))->getConstant('CURRENT_VERSION');
+        $this->assertNotSame('', $current, 'Could not read CURRENT_VERSION.');
+
         delete_option(self::DB_VERSION);
         delete_option(self::LIFECYCLE_FLAG);
-        update_option(self::LEGACY_DB_VERSION, '4.0.0');
+        update_option(self::LEGACY_DB_VERSION, $current);
 
         DatabaseMigrator::run_migrations();
 
-        $this->assertSame('4.0.0', get_option(self::DB_VERSION), 'The legacy stamp was not adopted under the new name.');
+        $this->assertSame($current, get_option(self::DB_VERSION), 'The legacy stamp was not adopted under the new name.');
         $this->assertFalse(get_option(self::LEGACY_DB_VERSION), 'The legacy stamp survived, so the next load reads two sources of truth.');
         $this->assertFalse(
             get_option(self::LIFECYCLE_FLAG),

@@ -39,14 +39,17 @@ STAGING_DIR = BUILD_DIR / "zip-staging" / PLUGIN_SLUG
 DISTIGNORE = ROOT / ".distignore"
 MAIN_PLUGIN_FILE = ROOT / f"{PLUGIN_SLUG}.php"
 
-VERSION_RE = re.compile(r"define\(\s*'MHM_RENTIVA_VERSION'\s*,\s*'([^']+)'\s*\)\s*;")
+# The constant was renamed to MHMRENTIVA_VERSION by the 6.0.0 prefix sweep.
+# Left unfixed, read_version() finds nothing and the release build exits --
+# at ZIP time, which is the worst place to discover a rename.
+VERSION_RE = re.compile(r"define\(\s*'MHMRENTIVA_VERSION'\s*,\s*'([^']+)'\s*\)\s*;")
 
 
 def read_version() -> str:
     text = MAIN_PLUGIN_FILE.read_text(encoding="utf-8")
     match = VERSION_RE.search(text)
     if not match:
-        sys.exit(f"ERROR: could not find MHM_RENTIVA_VERSION in {MAIN_PLUGIN_FILE}")
+        sys.exit(f"ERROR: could not find MHMRENTIVA_VERSION in {MAIN_PLUGIN_FILE}")
     return match.group(1)
 
 

@@ -92,11 +92,30 @@ final class PrefixMigrationMap {
      * entry is owed here since Lite creates no rows of that type.
      */
     public const POST_TYPES = [
-        'vehicle'         => 'mhmrentiva_vehicle',     // 18 <= 20
-        'vehicle_booking' => 'mhmrentiva_booking',     // 18
-        'vehicle_addon'   => 'mhmrentiva_addon',       // 16
-        'mhm_app_log'     => 'mhmrentiva_app_log',     // 18
-        'mhm_email_log'   => 'mhmrentiva_email_log',   // 20 -- exact limit
+        'vehicle'             => 'mhmrentiva_vehicle',   // 18 <= 20
+        'vehicle_booking'     => 'mhmrentiva_booking',   // 18
+        'vehicle_addon'       => 'mhmrentiva_addon',     // 16
+        'mhm_app_log'         => 'mhmrentiva_app_log',   // 18
+        'mhm_email_log'       => 'mhmrentiva_email_log', // 20 -- exact limit
+        // 🔴 ADDED 2026-08-02, and the reason it was missing is the point.
+        //
+        // Nobody calls register_post_type() for this one -- it is an
+        // unregistered storage bucket that ContactForm::save_contact_message()
+        // writes straight into wp_posts. Because it was not a POST_TYPES entry
+        // it never met the "<= 20" check above; the bare 'mhm_' catch-all in
+        // RUNTIME_STRING_RULES rewrote the literal instead, and THAT rule has no
+        // length rule to break. The result was
+        // 'mhmrentiva_contact_message' -- 26 characters into a varchar(20) --
+        // so every contact submission would truncate on a non-strict server and
+        // ERROR on a strict one, which is the WP 6.x default on many hosts.
+        //
+        // Being unregistered is exactly why it needs an entry: it is still a
+        // post_type VALUE, so it needs the length check AND a migration. Without
+        // one its rows belong to no family and are stranded -- owned_post_types()
+        // named it only to scope META, never to rewrite the type itself.
+        //
+        // 'mhmrentiva_contact' is 18. 'mhmrentiva_contact_msg' (22) does not fit.
+        'mhm_contact_message' => 'mhmrentiva_contact',   // 18 -- see note above
     ];
 
     /**

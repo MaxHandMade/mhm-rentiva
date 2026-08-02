@@ -203,6 +203,70 @@ function runMode2(): array
             $violations[] = "TAXONOMIES: '$new' is " . strlen($new) . " chars (> 32), old='$old'";
         }
     }
+
+    return array_merge($violations, runMode2SourceLiterals());
+}
+
+/**
+ * The half of the length check the map could not do.
+ *
+ * Checking Map::POST_TYPES only certifies the names the map DECLARES. It said
+ * nothing about a name a generic RUNTIME_STRING_RULES rule produced, and that is
+ * exactly where the failure came from: 'mhm_contact_message' had no POST_TYPES
+ * entry because nobody calls register_post_type() for it, so the bare 'mhm_'
+ * catch-all rewrote the literal into 'mhmrentiva_contact_message' -- 26 chars
+ * into a varchar(20) column, truncating on a non-strict server and ERRORING on a
+ * strict one, which is the WP 6.x default on many hosts. The map's own entries
+ * were all checked and all fit; the check was pointed at the wrong set.
+ *
+ * The rule is therefore: any post-type or taxonomy LITERAL in the swept source
+ * that our own rules could have produced -- it carries the new prefix -- must fit
+ * its column, whether or not the map declares it. An unregistered storage bucket
+ * is still a post_type value.
+ *
+ * Deliberately a length check on concrete literals, not a resolver: array-valued
+ * and variable-valued arguments are skipped rather than guessed at.
+ *
+ * @return array<int,string>
+ */
+function runMode2SourceLiterals(): array
+{
+    $root       = dirname(__DIR__);
+    $violations = [];
+    $quote      = '[\'"]';
+
+    $patterns = [
+        20 => '/(?:' . $quote . 'post_type' . $quote . '\s*=>\s*|register_post_type\s*\(\s*)' . $quote . '([A-Za-z0-9_-]+)' . $quote . '/',
+        32 => '/(?:' . $quote . 'taxonomy' . $quote . '\s*=>\s*|register_taxonomy\s*\(\s*)' . $quote . '([A-Za-z0-9_-]+)' . $quote . '/',
+    ];
+
+    foreach (mode4Sources($root) as $file => $src) {
+        foreach ($patterns as $limit => $pattern) {
+            if (! preg_match_all($pattern, $src, $matches)) {
+                continue;
+            }
+
+            foreach (array_unique($matches[1]) as $name) {
+                // Only names our own rules can have produced. Another plugin's
+                // post type is not this gate's business.
+                if (false === strpos($name, 'mhmrentiva')) {
+                    continue;
+                }
+
+                if (strlen($name) > $limit) {
+                    $violations[] = sprintf(
+                        "SOURCE LITERAL: %s '%s' is %d chars (> %d) in %s -- produced by a rule, not a checked map entry",
+                        20 === $limit ? 'post_type' : 'taxonomy',
+                        $name,
+                        strlen($name),
+                        $limit,
+                        substr($file, strlen($root) + 1)
+                    );
+                }
+            }
+        }
+    }
+
     return $violations;
 }
 

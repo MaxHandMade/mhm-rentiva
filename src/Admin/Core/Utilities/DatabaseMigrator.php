@@ -24,8 +24,16 @@ final class DatabaseMigrator {
 	 *
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
+	 *
+	 * 4.1.0 (2026-08-02): PrefixMigrationMap::POST_TYPES gained the
+	 * contact-message type, so the 6.0.0 rename step now moves a family it did
+	 * not move at 4.0.0. 4.0.0 has never shipped, so no install can be sitting
+	 * on it -- but the standing law is that the stamp moves in the same commit
+	 * as the step, and bumping also reaches the dev and CI stacks that already
+	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
+	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.0.0';
+	private const CURRENT_VERSION = '4.1.0';
 
 	/**
 	 * Rows rewritten per statement by the 6.0.0 rename.
@@ -1240,6 +1248,16 @@ final class DatabaseMigrator {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_tenants");
+		// And the PRE-6.0.0 spellings, which are the ones a real install
+		// actually has. Neither table is in PrefixMigrationMap::TABLES, so no
+		// rename ever produces the names above -- dropping only those meant
+		// dropping nothing at all on every existing site, leaving dead schema
+		// behind forever. Same both-spellings lesson as legacy_option_name()
+		// next door.
+		// prefix-rename:ignore-start
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
+		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");
+		// prefix-rename:ignore-end
 		// phpcs:enable WordPress.DB.DirectDatabaseQuery.SchemaChange -- the bare
 		// form of this line also cancelled the FILE-level disable at the top, so
 		// every direct query below it was reported despite that declaration.
@@ -2787,18 +2805,23 @@ final class DatabaseMigrator {
 	 * spellings of every renamed type appear, because the post_type rewrite has
 	 * already run and because a resumed run may find either.
 	 *
-	 * The four trailing types are the add-on's CPTs. Lite neither registers nor
+	 * The three trailing types are the add-on's CPTs. Lite neither registers nor
 	 * renames them, but Lite's own renamed code reads their meta under the new
 	 * names (MetaQueryHelper, Mailer, TrendService, DatabaseCleaner), so their
 	 * rows have to move with everything else -- the same reasoning that puts
 	 * add-on-populated options in PrefixMigrationMap::OPTIONS.
+	 *
+	 * The contact-message type used to be a FOURTH hard-coded entry here. It is
+	 * now a real POST_TYPES entry, so both spellings arrive through the map and
+	 * repeating it here would only duplicate them -- and naming it here was
+	 * never enough anyway: this list scopes META, it does not rewrite the type.
 	 *
 	 * @return list<string>
 	 */
 	private static function owned_post_types(): array
 	{
 		// prefix-rename:ignore-start
-		$addon_post_types = array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app', 'mhm_contact_message' );
+		$addon_post_types = array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' );
 		// prefix-rename:ignore-end
 
 		return array_values(

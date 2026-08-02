@@ -505,7 +505,10 @@ final class ContactForm extends AbstractShortcode {
 	private static function save_contact_message(array $data): int
 	{
 		$post_data = array(
-			'post_type'    => 'mhmrentiva_contact_message',
+			// 18 chars. wp_posts.post_type is varchar(20); the pre-fix literal
+			// was 26 and truncated or errored on every submission. Mapped in
+			// PrefixMigrationMap::POST_TYPES so the length is gate-checked.
+			'post_type'    => 'mhmrentiva_contact',
 			/* translators: %s: customer name. */
 			'post_title'   => sprintf(__('Contact Message - %s', 'mhm-rentiva'), $data['name']),
 			'post_content' => $data['message'],
