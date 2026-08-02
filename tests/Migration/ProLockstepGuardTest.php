@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Migration;
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
-use WP_UnitTestCase;
+use PHPUnit\Framework\TestCase;
 
 /**
  * The lockstep is two-sided: Lite refuses to migrate under an old add-on.
@@ -24,9 +24,23 @@ use WP_UnitTestCase;
  * machine with a current one. That is exactly how Pro's own floor constant spent
  * its whole life as a declaration nothing enforced.
  *
+ * 🔴 EXTENDS TestCase, NOT WP_UnitTestCase, and that is load-bearing rather than
+ * a style choice. pro_satisfies() is pure -- version_compare() and nothing else
+ * -- so it needs no WordPress. The first version of this class extended
+ * WP_UnitTestCase anyway, and its per-test fixture/transaction lifecycle
+ * destabilised the whole suite from inside tests/Migration/: the full run went
+ * from a steady 7 failures to 25, then 16, then 19, then 9, flapping across
+ * unrelated classes, with these eight tests passing every time. Bisected --
+ * baseline code 7, my source changes alone 7, source plus this file 9-25, this
+ * file converted to TestCase 7 again, all at 1349 tests.
+ *
+ * The suite has a latent order-dependence that this class merely perturbed; that
+ * weakness is real and is reported separately. The rule this leaves behind: a
+ * test for a pure function has no business paying for a WordPress fixture.
+ *
  * @covers \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::pro_satisfies
  */
-final class ProLockstepGuardTest extends WP_UnitTestCase
+final class ProLockstepGuardTest extends TestCase
 {
     /**
      * @dataProvider incompatibleProvider
