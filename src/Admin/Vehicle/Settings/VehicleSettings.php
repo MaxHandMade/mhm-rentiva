@@ -118,7 +118,7 @@ final class VehicleSettings {
 	 * is a plain label/selection string, so `sanitize_text_field()` (as
 	 * before) is correct there.
 	 *
-	 * WP.org T4 #6: `array_map( 'sanitize_text_field', $input )` sanitized
+	 * `array_map( 'sanitize_text_field', $input )` sanitized
 	 * VALUES only -- `array_map()` never touches keys -- so a dirty array key
 	 * (e.g. submitted through the Settings API, or any `update_option()`
 	 * call, since core's `sanitize_option()` always routes through the
@@ -1226,7 +1226,7 @@ final class VehicleSettings {
 		// Every payload below goes through sanitize_array_option(), which cleans the
 		// array KEY with sanitize_key() as well as the value -- array_map() only ever
 		// reached the values, so a submitted key such as `<script>k</script>` used to
-		// reach update_option() raw (WP.org T4 #6). The same helper is the registered
+		// reach update_option() raw. The same helper is the registered
 		// sanitize_callback for these six options, so the write path and the option
 		// filter now normalize identically instead of one relying on the other.
 		// Save selected fields (Definitions Tab)

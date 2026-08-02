@@ -416,7 +416,7 @@ final class PrefixMigrationMap {
         // the bare spellings survive only in the cleanup's protection list.
         '_mhmrentiva_price_per_day'              => '_mhm_rentiva_price_per_day',
         '_mhmrentiva_deposit'                    => '_mhm_rentiva_deposit',
-        // EIGHTH pair, owner decision 2026-08-02 (the migration). This one collides
+        // EIGHTH pair. This one collides
         // between the '_mhm_' and '_rentiva_' rules rather than between '_mhm_'
         // and '_mhm_rentiva_', which is why neither the bijection check nor the
         // original seven-pair analysis saw it; the rename sweep named it in
@@ -441,7 +441,7 @@ final class PrefixMigrationMap {
         // Note this is the mirror image of vehicle_id: there the BARE spelling was
         // the writer, here the qualified one is. Same rule, opposite-looking answer.
         '_mhmrentiva_vehicle_service_type'       => '_rentiva_vehicle_service_type',
-        // SEVEN more, owner decision 2026-08-02, from the add-on's transfer and
+        // SEVEN more, from the add-on's transfer and
         // pricing families. Derived twice independently -- by the add-on agent
         // from its pre-sweep source, and by this map's own structural scan --
         // and the two agreed.
@@ -537,7 +537,7 @@ final class PrefixMigrationMap {
      * delegates to \MHMRentiva\Core\Database\Migrations\TransferMigration
      * behind a class_exists() gate, and that class does not exist anywhere
      * in this repository -- confirmed by a repo-wide search. Lite ships no
-     * Transfer module (owner decision 2026-07-16, per that method's own
+     * Transfer module (by design, per that method's own
      * docblock) and creates neither table. They are Pro's tables to map,
      * not Lite's.
      *
@@ -602,21 +602,20 @@ final class PrefixMigrationMap {
         // Found in the architecture audit (2026-07-31) -- both were missing:
         'mhm_rentiva_send_booking_reminder' => 'mhmrentiva_send_booking_reminder', // per-booking single event (ReminderScheduler.php); NO self-heal -- rows already scheduled under the old name before upgrade silently never fire unless migrated/cleared
         'mhm_rentiva_auto_complete_event'   => 'mhmrentiva_auto_complete_event',   // recurring; AutoComplete::maybe_schedule() re-schedules itself on init (self-heal exists, low priority -- only the old row lingers, harmless)
-        // Found independently during this task's own Adim 1 verification
-        // (2026-08-01) -- named by neither prior audit nor the brief:
+        // Found independently while verifying the inventory, and named by
+        // neither prior audit:
         'mhm_rentiva_process_queue'         => 'mhmrentiva_process_queue',         // ad-hoc single event (QueueManager::maybe_start_processing(), wp_schedule_single_event()); self-checks wp_next_scheduled() before re-scheduling, so low risk, but it IS a real scheduled hook name and belongs in this map like any other
     ];
 
     /**
-     * '_mhm_rentiva_' KURALI '_mhm_' kuralindan ONCE ve ayri satirda -- ayni
-     * POSTMETA_PREFIX_RULES'daki çakışma-önleme mantığı burada da geçerli.
-     * Fable mimari denetimi bu ikinci satırı eksik buldu: gerçek kullanıcı
-     * meta'sı '_mhm_rentiva_welcome_sent' (BookingNotifications.php:100,104),
-     * yalnız '_mhm_' kuralıyla '_mhmrentiva_rentiva_welcome_sent' diye
-     * BOZULURDU (SUBSTRING kesme noktası yanlış konumdan başlar).
+     * The '_mhm_rentiva_' rule must come BEFORE the '_mhm_' rule, on its own
+     * line -- the same collision-avoidance ordering as POSTMETA_PREFIX_RULES.
+     * Without that second line the real user meta '_mhm_rentiva_welcome_sent'
+     * (BookingNotifications.php:100,104) would be CORRUPTED into
+     * '_mhmrentiva_rentiva_welcome_sent', because the bare '_mhm_' rule cuts the
+     * substring at the wrong position.
      *
-     * 🔴 CORRECTION (2026-08-02, owner-approved). This docblock used to
-     * claim that the bare 'mhm_' rule "additionally covers" the underscore-less
+     * 🔴 CORRECTION. This docblock used to claim that the bare 'mhm_' rule "additionally covers" the underscore-less
      * user-meta keys -- CompareService::STORAGE_KEY ('mhm_rentiva_compare'),
      * FavoritesService::META_KEY ('mhm_rentiva_favorites') -- and that they
      * "both correctly collapse via this bare rule". They do not. The bare rule
@@ -679,16 +678,14 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * Yorum meta ailesi -- araç değerlendirmeleri WP comment olarak saklanıyor
-     * (VehicleRatingForm.php:247,266), meta anahtarı bare 'mhm_rating'. Fable
-     * mimari denetimi bu aileyi haritada TAMAMEN eksik buldu; RUNTIME_STRING_RULES
-     * içindeki hiçbir kural 'mhm_rating' literal'ini yakalamadığı için hem kod
-     * sweep'i hem migration bu alanı atlıyordu.
+     * Comment meta family -- vehicle reviews are stored as WordPress comments
+     * (VehicleRatingForm.php:247,266) under the bare meta key 'mhm_rating'. No
+     * rule in RUNTIME_STRING_RULES matches that literal, so without this family
+     * both the code sweep and the migration skipped the field entirely.
      */
     public const COMMENTMETA = [
         'mhm_rating' => 'mhmrentiva_rating',
-        // Added by owner decision, 2026-08-02. The rename
-        // sweep renamed this literal in VerifiedReviewHelper while COMMENTMETA
+        // The rename sweep renamed this literal in VerifiedReviewHelper while COMMENTMETA
         // held only the key above -- so nothing would have migrated the rows, and
         // every review an admin had manually flagged as verified would silently
         // revert to unverified. That is data loss, not cosmetics. The code is

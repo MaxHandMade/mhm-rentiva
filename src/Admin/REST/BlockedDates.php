@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * `phpcs:ignore` comment above the `$_GET` read. Moving it to REST lets the
  * route itself carry the decision: the vehicle id is a validated route
  * parameter, and the permission gate is an explicit `__return_true` with the
- * reason next to it (WP.org T7).
+ * reason next to it.
  */
 final class BlockedDates {
 

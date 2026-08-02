@@ -30,7 +30,7 @@ final class UserDashboard {
 		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhmrentiva_fetch_vendor_stats)
 		// used to be registered from here, gated by the licensing router's
 		// vendor-marketplace gate. That registration moved to the add-on's own
-		// Bootstrap::register_vendor_marketplace() (Task A8a seam inversion) --
+		// Bootstrap::register_vendor_marketplace() (seam inversion) --
 		// this CORE customer dashboard shortcode no longer names
 		// AnalyticsController or the licensing router at all, so it cannot
 		// fatal once that router class is deleted (B2).
@@ -223,7 +223,7 @@ final class UserDashboard {
 		// vendor-application/vendor-panel markup the add-on renders into this page
 		// (the vendor marketplace is a feature of the add-on) -- Lite no longer
 		// ships the file or knows its handle. The add-on enqueues it itself on this
-		// same page (WP.org T4 Phase B, Task B-A1).
+		// same page.
 
 		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
 		wp_enqueue_style('select2', null); // WC registers this

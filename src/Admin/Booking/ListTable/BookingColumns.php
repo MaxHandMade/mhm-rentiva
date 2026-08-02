@@ -47,7 +47,7 @@ final class BookingColumns {
 	 * readers below can use get_query_var() instead of reaching into $_GET.
 	 *
 	 * Same mechanism SearchResults uses for its public filter params — the fix
-	 * WP.org accepted for T4 #11. It matters here because these are display
+	 * the accepted approach. It matters here because these are display
 	 * parameters of a bookmarkable admin URL: they change no state, and
 	 * nonce-gating them would break shareable sorted/filtered links, so neither
 	 * a nonce nor an annotation over a raw $_GET read is the right answer.

@@ -52,7 +52,7 @@ final class BookingForm extends AbstractShortcode {
 	 * "Book Now" URL (e.g. `?vehicle_id=123&pickup_date=2026-08-01&pickup_time=10:00`).
 	 *
 	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
-	 * so they are read via get_query_var() instead of raw $_GET -- WP.org T4 #11.
+	 * so they are read via get_query_var() instead of raw $_GET.
 	 *
 	 * `pickup_date`, `return_date` and `pickup_location` are intentionally NOT
 	 * listed here: SearchResults::PUBLIC_QUERY_VARS already registers them

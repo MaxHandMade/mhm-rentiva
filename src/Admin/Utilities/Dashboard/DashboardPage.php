@@ -34,11 +34,11 @@ final class DashboardPage {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
-		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
+		// Reserved: drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhmrentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
-		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
+		// Reserved: drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhmrentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
-		// Reserved: Faz 2 drag-and-drop / cache-clear UI.
+		// Reserved: drag-and-drop / cache-clear UI.
 		add_action('wp_ajax_mhmrentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
 
 		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_cache_on_booking_change' ));
@@ -253,7 +253,7 @@ final class DashboardPage {
 			'caps'                        => apply_filters( 'mhmrentiva_dashboard_features', array() ),
 		);
 
-		// Seam inversion (Task A5b): Lite ships no transfer data at all -- a
+		// Seam inversion: Lite ships no transfer data at all -- a
 		// subscriber (the add-on's DashboardExtensions) adds `transfer_stats` /
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
 		// the add-on is active. The React app already guards its

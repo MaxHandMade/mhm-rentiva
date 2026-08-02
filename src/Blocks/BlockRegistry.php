@@ -306,8 +306,7 @@ class BlockRegistry {
 			// resolve from THIS plugin's URL regardless of base_url, on the theory
 			// that a contributor's stylesheets stayed Lite-hosted; that stopped
 			// being true once the add-on's own CSS carve-out moved those files out of
-			// Lite, so CSS now honours base_url exactly like the editor script does
-			// (WP.org T4 Phase B, Task B-A1; mirrors Task A1's script handling).
+			// Lite, so CSS now honours base_url exactly like the editor script does.
 			$base_url = $config['base_url'] ?? MHMRENTIVA_PLUGIN_URL;
 			$base_dir = $config['base_dir'] ?? MHMRENTIVA_PLUGIN_DIR;
 

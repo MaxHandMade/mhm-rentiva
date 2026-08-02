@@ -41,7 +41,7 @@ final class AddCustomerPage {
 	public static function render(): void {
 		// Creating a customer creates a real WordPress user account, so this
 		// surface is gated on the WP user-management capability that matches
-		// the operation — not manage_options, not a role (WP.org T4 #5).
+		// the operation — not manage_options, not a role.
 		if ( ! current_user_can( 'create_users' ) ) {
 			return;
 		}
@@ -174,7 +174,7 @@ final class AddCustomerPage {
 		}
 
 		// Permission check — creating a customer creates a real WordPress user
-		// account, so this is gated on create_users, not manage_options (WP.org T4 #5).
+		// account, so this is gated on create_users, not manage_options.
 		if ( ! current_user_can( 'create_users' ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}

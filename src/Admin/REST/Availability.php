@@ -21,7 +21,7 @@ final class Availability {
 	}
 
 	/**
-	 * Permission callback — deliberately PUBLIC, not capability-gated (WP.org T4 #7).
+	 * Permission callback — deliberately PUBLIC, not capability-gated.
 	 *
 	 * `/availability` and `/availability/with-alternatives` answer "is this
 	 * vehicle free for these dates." The response contains only availability

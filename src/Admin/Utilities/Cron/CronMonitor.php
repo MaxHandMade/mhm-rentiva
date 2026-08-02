@@ -7,18 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// NOTE: a file-wide `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals`
-// used to sit here, justified as "Public/legacy hook names kept stable for
-// compatibility". That was not true either. Measured with the directive stripped,
-// this file produced exactly ONE finding: the `do_action( $hook, ...$args )` call
-// in run_cron_job(), and that is a VARIABLE re-firing a cron hook WP-Cron has
-// already registered, not a legacy name of ours being preserved. The suppression
-// now sits on that one call, with the reason the code actually has.
-//
-// (The symbol is named rather than a line number -- see the same note in
-// Plugin.php. This one cited "line 201", which had drifted to 209 and left a
-// stray `),` at the address a reader would have checked.)
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -62,7 +50,7 @@ final class CronMonitor {
 		);
 
 		/**
-		 * Task A9c seam inversion: the subscription-validation, activation-server
+		 * Seam inversion: the subscription-validation, activation-server
 		 * check-in and GDPR data-retention crons used to be hardcoded here,
 		 * gated on a class_exists() check for the add-on's activation-manager
 		 * class and an add-on GDPR capability gate. Their labels ("Validates
@@ -167,7 +155,7 @@ final class CronMonitor {
 			);
 		}
 
-		// Check if hook is a plugin hook. Task A9c seam inversion: the two
+		// Check if hook is a plugin hook. Seam inversion: the two
 		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
 		// them back via this filter.
 		$plugin_hooks = (array) apply_filters(
@@ -253,7 +241,7 @@ final class CronMonitor {
 	 */
 	public static function test_all_cron_jobs(): array {
 		$results = array();
-		// Task A9c seam inversion: same filterable "known hooks" list as
+		// Seam inversion: same filterable "known hooks" list as
 		// run_cron_job() above.
 		$plugin_hooks = (array) apply_filters(
 			'mhmrentiva_known_cron_hooks',

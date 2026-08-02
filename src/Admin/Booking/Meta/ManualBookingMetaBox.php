@@ -634,7 +634,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// this branch — there is no fallback path; $customer stays null and
 			// the later wp_insert_post() meta_input reads $customer->ID. Deny
 			// the whole operation up front if the caller lacks the specific WP
-			// user-management capability (T4 #5 — least-privilege for user
+			// user-management capability (least-privilege for user
 			// creation). The general edit_posts check above stays as-is for the
 			// existing-customer branch, which does not create any WP user.
 			if (! current_user_can('create_users')) {

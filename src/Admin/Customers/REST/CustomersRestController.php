@@ -87,8 +87,7 @@ final class CustomersRestController {
 				'callback'            => array( self::class, 'bulk_delete' ),
 				// Deletes real WordPress user accounts, so the route-level gate
 				// matches the operation's WP capability directly (mirrors the
-				// handler-body defense-in-depth guard added in WP.org T4 #5;
-				// WP.org T4 #7).
+				// handler-body defense-in-depth guard below).
 				'permission_callback' => fn() => current_user_can( 'delete_users' ),
 			)
 		);
@@ -147,7 +146,7 @@ final class CustomersRestController {
 	{
 		// Deleting customers deletes real WordPress user accounts. Defense-in-depth
 		// operation guard on delete_users, independent of the route's
-		// permission_callback (WP.org T4 #5; route-level mapping is a separate task).
+		// permission_callback.
 		if ( ! current_user_can( 'delete_users' ) ) {
 			return new \WP_Error(
 				'rest_forbidden',

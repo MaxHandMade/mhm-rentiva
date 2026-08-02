@@ -49,7 +49,7 @@ final class SearchResults extends AbstractShortcode {
 	 * search-results URL (e.g. `?min_price=100&fuel_type=diesel&sort=price_asc`).
 	 *
 	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
-	 * so they are read via get_query_var() instead of raw $_GET -- WP.org T4 #11.
+	 * so they are read via get_query_var() instead of raw $_GET.
 	 *
 	 * Names are the EXISTING (unprefixed) param names, kept deliberately: renaming
 	 * to a `mhmrentiva_`-prefixed form would break already-shared search URLs and
@@ -104,7 +104,7 @@ final class SearchResults extends AbstractShortcode {
 	/**
 	 * Reads a public search-filter param via WordPress's query_vars whitelist.
 	 *
-	 * WP.org T4 #11: public GET URL filter params must be registered on
+	 * Public GET URL filter params must be registered on
 	 * `query_vars` (see register_query_vars()) and read via get_query_var(),
 	 * not raw $_GET. A `null` sentinel default distinguishes "param absent from
 	 * the request" from "param present but empty", matching the previous
@@ -220,7 +220,7 @@ final class SearchResults extends AbstractShortcode {
 		// public query var (see PUBLIC_QUERY_VARS) and WP::parse_request() fills
 		// registered vars from $_POST as well as $_GET, so get_text() already
 		// answers for a POSTed sort -- through the query_vars whitelist rather than
-		// a raw superglobal read (WP.org T4 #11).
+		// a raw superglobal read.
 		$request_sort = self::get_text('sort');
 
 		if ('' === $request_sort) {

@@ -132,7 +132,7 @@ if (class_exists('\MHMRentiva\Admin\Services\CompareService')) {
 $booking_base_url = $vehicle['booking_url'] ?? ( $atts['booking_url'] ?? '' );
 
 // Forward search context params to booking URL if present in current request.
-// Read via the query_vars whitelist (WP.org T4 #11), not raw $_GET -- these are
+// Read via the query_vars whitelist, not raw $_GET -- these are
 // all registered public GET params: pickup_location/pickup_date/return_date by
 // SearchResults::PUBLIC_QUERY_VARS, pickup_time/return_time by
 // BookingForm::PUBLIC_QUERY_VARS.

@@ -34,7 +34,7 @@ final class AddonListTable extends AbstractListTable {
 	 * read them with get_query_var() instead of reaching into $_GET.
 	 *
 	 * Same mechanism SearchResults uses for its public filter params — the fix
-	 * WP.org accepted for T4 #11. It matters here because these are display
+	 * the accepted approach. It matters here because these are display
 	 * parameters of a bookmarkable admin URL: nonce-gating them is not a real
 	 * option, and an annotation over a raw superglobal read is not a resolution.
 	 *

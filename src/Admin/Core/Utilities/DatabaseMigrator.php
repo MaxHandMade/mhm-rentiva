@@ -866,12 +866,12 @@ final class DatabaseMigrator {
 	 * Creates VIP Transfer tables (locations + routes).
 	 *
 	 * Both tables belong to the Transfer add-on module. Lite has no location search
-	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
+	 * and no Transfer module, so it must not ship the
 	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
 	 * read is dead schema, which is WP.org-unclean (cf. the exit decisions
 	 * REQUIREMENT 2).
 	 *
-	 * Task A9c seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
+	 * Seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
 	 * verbatim to the add-on's `\MHMRentiva\Core\Database\Migrations\TransferMigration`
 	 * (same "Migrations" cluster as LedgerMigration/VendorReportsMigration below),
 	 * so this file no longer names any class from the Transfer module itself.
@@ -1389,8 +1389,8 @@ final class DatabaseMigrator {
 	 * WHAT WAS WRONG
 	 * --------------
 	 * The geo-blocking feature is gone: the free core's country check was removed
-	 * in Faz 2a (it sent the visitor's IP to ip-api.com over plain HTTP), and the
-	 * add-on's `CountryRestriction` that inherited that call was deleted in Faz 2b
+	 * in an earlier release (it sent the visitor's IP to ip-api.com over plain HTTP), and the
+	 * add-on's `CountryRestriction` that inherited that call was deleted in a later one
 	 * Zero callers, no UI, absent from the monolith. No code reads this
 	 * option any more.
 	 *

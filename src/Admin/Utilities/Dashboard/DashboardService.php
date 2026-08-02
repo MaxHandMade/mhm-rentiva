@@ -1277,7 +1277,7 @@ final class DashboardService {
 	/**
 	 * Two aggregate payment figures for the dashboard Payments summary card.
 	 *
-	 * `this_month_collected` was removed (owner decision) — true cash
+	 * `this_month_collected` was removed — true cash
 	 * collected cannot be computed reliably; it depended on the same
 	 * drifting `_mhmrentiva_remaining_amount` field that `pending_total` no longer
 	 * uses (see below).

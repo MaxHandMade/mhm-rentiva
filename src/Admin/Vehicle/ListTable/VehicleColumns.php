@@ -43,7 +43,7 @@ final class VehicleColumns {
 	 * readers below can use get_query_var() instead of copying $_GET wholesale.
 	 *
 	 * Same mechanism SearchResults uses for its public filter params — the fix
-	 * WP.org accepted for T4 #11. These are display parameters of a bookmarkable
+	 * the accepted approach. These are display parameters of a bookmarkable
 	 * admin URL: they change no state, so nonce-gating them would only break
 	 * shareable filtered links, and an annotation over a raw $_GET read is not a
 	 * resolution either.

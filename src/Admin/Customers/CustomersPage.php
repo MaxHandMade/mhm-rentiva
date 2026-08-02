@@ -285,7 +285,7 @@ final class CustomersPage {
 	private function render_customer_edit(): void
 	{
 		// Editing a customer updates a real WordPress user account, so this is
-		// gated on edit_users, not manage_options (WP.org T4 #5).
+		// gated on edit_users, not manage_options.
 		if (! current_user_can('edit_users')) {
 			wp_die(esc_html__('You do not have permission to edit customers.', 'mhm-rentiva'));
 		}

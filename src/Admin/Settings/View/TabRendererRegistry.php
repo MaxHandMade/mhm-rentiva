@@ -106,7 +106,7 @@ final class TabRendererRegistry {
 			)
 		);
 
-		// Vendor Marketplace — extension-point inversion (Task A6): Lite no longer
+		// Vendor Marketplace — extension-point inversion: Lite no longer
 		// registers this renderer itself. The add-on's SettingsExtensions registers it
 		// via the `mhmrentiva_settings_register_renderers` action below.
 
@@ -176,7 +176,7 @@ final class TabRendererRegistry {
 			}
 		);
 
-		// Messages — extension-point inversion (Task A6): Lite no longer registers this
+		// Messages — extension-point inversion: Lite no longer registers this
 		// renderer itself. The add-on's SettingsExtensions registers it via the
 		// `mhmrentiva_settings_register_renderers` action below.
 
@@ -207,7 +207,7 @@ final class TabRendererRegistry {
 		// Utilities
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\DatabaseCleanupRenderer() );
 		$this->register( new \MHMRentiva\Admin\Settings\View\Tabs\CronMonitorRenderer() );
-		// Transfer's tab renderer — extension-point inversion (Task A6): Lite no longer
+		// Transfer's tab renderer — extension-point inversion: Lite no longer
 		// registers this renderer itself. The add-on's SettingsExtensions registers it via
 		// the `mhmrentiva_settings_register_renderers` action below.
 

@@ -315,12 +315,12 @@ final class AccountRenderer {
 	public static function get_messages_data(array $atts = array()): array
 	{
 		// Messaging is provided by the add-on. When it is absent this renders NOTHING at all:
-		// no notice, no placeholder, no mention of the add-on (owner decision 2026-07-16 --
+		// no notice, no placeholder, no mention of the add-on --
 		// a feature Lite does not have simply does not render). The empty 'error'
 		// keeps the caller's existing short-circuit, which is shared with the
 		// booking-detail path and must stay intact. The decision now comes from
 		// the same `mhmrentiva_account_nav_items` mechanism that decides whether
-		// the WC My Account "Messages" tab itself registers (Task A8a seam
+		// the WC My Account "Messages" tab itself registers (seam
 		// inversion) -- Lite no longer names the deleted mode-routing class's messages gate.
 		$nav_items = WooCommerceIntegration::get_account_nav_items();
 		if ( ! isset( $nav_items['messages'] ) ) {
@@ -337,8 +337,7 @@ final class AccountRenderer {
 		// used to live here directly. Both assets belong to the add-on now
 		// (messaging is a feature of the add-on) -- Lite no longer knows their
 		// filenames, handles, or Lite-hosted paths. The add-on performs the actual
-		// enqueue itself, at the exact point this render happens (WP.org T4 Phase B,
-		// Task B-A1).
+		// enqueue itself, at the exact point this render happens.
 		do_action('mhmrentiva_account_messages_render_assets', $user, $customer_name);
 
 		$data = array(

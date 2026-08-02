@@ -5,7 +5,7 @@
  * Template: Unified Search Widget
  *
  * Rental-only in Lite. Transfer search is a separate add-on surface (the
- * `rentiva_transfer_search` shortcode/block), not a tab here -- see Task A10.
+ * `rentiva_transfer_search` shortcode/block), not a tab here -- see the transfer add-on.
  *
  * @var array  $locations            Location options for select dropdowns
  * @var string $default_tab          Default active tab (always 'rental')
@@ -186,7 +186,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
             </form>
         </div>
 
-        <!-- Rental-only: the transfer panel was removed in Task A10. Transfer -->
+        <!-- Rental-only: the transfer panel was removed from Lite. Transfer -->
         <!-- search is served by the standalone `rentiva_transfer_search` -->
         <!-- shortcode/block (add-on), not a tab here. -->
 

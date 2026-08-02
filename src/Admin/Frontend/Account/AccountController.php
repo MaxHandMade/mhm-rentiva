@@ -69,7 +69,7 @@ final class AccountController {
 	 * instead of reaching into $_GET.
 	 *
 	 * Same mechanism SearchResults/BookingForm use for their public filter
-	 * params -- the fix WP.org accepted for T4 #11 -- and it works here because
+	 * params -- the accepted fix -- and it works here because
 	 * this is a front-end screen, where wp() does run WP::parse_request().
 	 * These are display parameters of a bookmarkable URL: they change no state,
 	 * so nonce-gating them would break shareable filtered links and strand
@@ -193,7 +193,7 @@ final class AccountController {
 		// is a feature of the add-on (the `message` CPT only exists when the add-on
 		// is active), so the add-on now registers its own endpoint via
 		// `mhmrentiva_account_endpoints` -- Lite carries no knowledge of the
-		// messages endpoint slug any more (WP.org T4 Phase B, Task B-A1).
+		// messages endpoint slug any more.
 		foreach ( (array) apply_filters('mhmrentiva_account_endpoints', array()) as $extra_endpoint) {
 			if (is_string($extra_endpoint) && '' !== $extra_endpoint) {
 				add_rewrite_endpoint($extra_endpoint, EP_ROOT | EP_PAGES);
@@ -222,8 +222,7 @@ final class AccountController {
 		// script + localize) used to live here unconditionally. Messaging is a
 		// feature of the add-on -- Lite carries no knowledge of its assets or
 		// handles any more. The add-on hooks `wp_enqueue_scripts` itself and
-		// repeats the same endpoint detection independently (WP.org T4 Phase B,
-		// Task B-A1).
+		// repeats the same endpoint detection independently.
 
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');

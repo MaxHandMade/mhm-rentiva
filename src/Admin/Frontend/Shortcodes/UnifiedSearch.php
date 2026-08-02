@@ -19,7 +19,7 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 /**
  * Unified Search Shortcode
  *
- * Rental vehicle search widget. Lite ships rental-only (Task A10) -- transfer
+ * Rental vehicle search widget. Lite ships rental-only -- transfer
  * search is the separate `rentiva_transfer_search` shortcode/block (add-on).
  *
  * @since 4.0.0
@@ -81,7 +81,7 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		// Lite is rental-only (Task A10): the unified-search widget no longer
+		// Lite is rental-only: the unified-search widget no longer
 		// offers a transfer tab -- transfer search is the separate
 		// `rentiva_transfer_search` shortcode/block (add-on). Locations are still
 		// requested for 'rental': the same filter also feeds an add-on's
@@ -146,7 +146,7 @@ final class UnifiedSearch extends AbstractShortcode {
 			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-premium.css' )
 		);
 
-		// Lite is rental-only (Task A10): the search-enqueue action and
+		// Lite is rental-only: the search-enqueue action and
 		// script-deps filter this method used to fire/apply existed solely to let
 		// an add-on's extra (transfer) search tab enqueue its own assets and
 		// script dependency for that tab's now-removed panel. Neither has any
@@ -168,7 +168,7 @@ final class UnifiedSearch extends AbstractShortcode {
 		// ajaxUrl/nonce('rentiva_transfer_nonce')/routes/i18n (same_location_error,
 		// no_route_error, searching_text, error_text, server_error) were dropped:
 		// they fed the TransferShortcodes AJAX handler and route-validation table,
-		// neither of which Lite ships (Task A10 -- transfer is a separate add-on
+		// neither of which Lite ships (transfer is a separate add-on
 		// shortcode/block). Nothing in unified-search.js reads them.
 		wp_localize_script(
 			'mhm-rentiva-unified-search',

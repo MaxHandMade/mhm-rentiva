@@ -130,7 +130,7 @@ final class SettingsCore {
 			\MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 		);
 
-		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
 		// The add-on adds its own group class(es) back via this filter.
 		$groups = (array) apply_filters( 'mhmrentiva_settings_groups', $groups );
@@ -361,7 +361,7 @@ final class SettingsCore {
 	 * Lite's own default is an empty array -- a missing key means "not
 	 * registered", not "visible". Only an active extension's SettingsExtensions
 	 * subscribes, reporting its own per-tab availability state
-	 * (Task A6 seam inversion). Shared by SettingsService::reset_defaults()
+	 * (seam inversion). Shared by SettingsService::reset_defaults()
 	 * and SettingsSanitizer::sanitize() so both fail-closed gates read the
 	 * exact same source instead of duplicating the filter call.
 	 *
@@ -409,7 +409,7 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\PaymentSettings::class,
 		);
 
-		// Add-on-owned settings groups (Task A6b seam inversion): Lite no longer
+		// Add-on-owned settings groups (seam inversion): Lite no longer
 		// names the Transfer / Vendor-Marketplace settings-group classes here.
 		// The add-on adds its own group class(es) back via this filter (same filter as
 		// register_sub_groups() above -- both lists carried the same two

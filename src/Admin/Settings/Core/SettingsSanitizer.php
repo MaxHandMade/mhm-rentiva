@@ -55,8 +55,8 @@ final class SettingsSanitizer {
 		// Transfer is a whole-add-on extension point; vendor-marketplace has its
 		// own registration key. Messages saves through its own gated handler, not
 		// here.
-		// Registration state comes from SettingsCore::settings_tabs() (Task A6
-		// seam inversion): Lite's own default is an empty array, so a missing key
+		// Registration state comes from SettingsCore::settings_tabs() (seam
+		// inversion): Lite's own default is an empty array, so a missing key
 		// -- exactly the "no extension registered this tab" state -- is treated
 		// as absent via empty(), not skipped.
 		$extension_only_tabs = array( 'transfer', 'vendor-marketplace' );
@@ -105,7 +105,7 @@ final class SettingsSanitizer {
 				: array(),
 		};
 
-		// 3b. Extensible per-tab dispatch (Task A6 seam inversion). Lite's match
+		// 3b. Extensible per-tab dispatch (seam inversion). Lite's match
 		// above only knows its own tabs; 'vendor-marketplace' now falls to the
 		// fallback ($input, unsanitized) until an extension's SettingsExtensions
 		// subscribes and supplies its own sanitizer for that tab. Harmless when
@@ -416,7 +416,7 @@ final class SettingsSanitizer {
 				// look up $current_pricing['seasonal_multipliers'][ $key ] --
 				// sanitize_key() to prevent an attacker-controlled dirty key
 				// (e.g. '<script>x') from persisting markup into the option
-				// (WP.org T4 #6 -- same defect class as VehicleSettings.php).
+				// (same defect class as VehicleSettings.php).
 				foreach ( $in['seasonal_multipliers'] as $key => $season ) {
 					$safe_key = \sanitize_key( (string) $key );
 					if ( '' === $safe_key ) {

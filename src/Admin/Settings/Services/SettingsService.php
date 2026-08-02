@@ -52,7 +52,7 @@ final class SettingsService {
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			// Extension-owned tabs (Task A6b seam inversion): Lite no longer names these
+			// Extension-owned tabs (seam inversion): Lite no longer names these
 			// classes. The extension registers its provider class for each via the existing
 			// `mhmrentiva_register_settings_providers` action (Settings::init()),
 			// and this reads that same registry -- returns null with no subscriber,
@@ -65,10 +65,10 @@ final class SettingsService {
 		// with no registered extension, but this reset path bypasses the sanitizer
 		// (it calls update_option directly), so it must apply the same gate or an
 		// admin without the extension active could overwrite extension-owned
-		// settings with defaults (Fable Y3). Same tab set as SettingsSanitizer,
+		// settings with defaults. Same tab set as SettingsSanitizer,
 		// plus Messages (which resets through here, unlike its save handler).
-		// Registration state comes from SettingsCore::settings_tabs() (Task A6
-		// seam inversion): Lite's own default is an empty array, so a missing key
+		// Registration state comes from SettingsCore::settings_tabs() (seam
+		// inversion): Lite's own default is an empty array, so a missing key
 		// -- exactly the "no extension registered this tab" state -- is treated
 		// as absent via empty(), not skipped.
 		$extension_only_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
@@ -195,8 +195,8 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 		);
 
-		// Add-on-owned providers that also write to the master option (Task A6b
-		// seam inversion): Lite no longer names the Transfer settings-group
+		// Add-on-owned providers that also write to the master option (seam
+		// inversion): Lite no longer names the Transfer settings-group
 		// class here. The add-on adds its own provider class(es) back via this filter.
 		$provider_classes = (array) apply_filters( 'mhmrentiva_settings_activation_providers', $provider_classes );
 

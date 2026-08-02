@@ -82,7 +82,7 @@ class Html {
 		// Same gap, a different core default: wp_kses_allowed_html('post') gives
 		// `img` no `srcset`/`sizes` at all, even though WP has shipped responsive
 		// images since 4.4. templates/partials/vehicle-card.php:51-57 relies on
-		// both (retina/wide vehicle photos) -- found by the Adım 6 visual-parity
+		// both (retina/wide vehicle photos) -- found by the visual-parity
 		// sweep, where every vehicle card's <img> silently lost its srcset/sizes
 		// and fell back to whatever `src` alone resolves to.
 		$allowed['img'] = ( $allowed['img'] ?? array() ) + array(
@@ -129,7 +129,7 @@ class Html {
 			// templates/shortcodes/booking-form.php's dropoff-time select emits
 			// it anyway, and wp_kses() would otherwise strip it silently.
 			// Allowing it keeps the escaped output byte-identical to the
-			// pre-wp_kses dispatcher (Adım 6 visual-parity sweep) rather than
+			// pre-wp_kses dispatcher (visual-parity sweep) rather than
 			// leaving an unexplained, if harmless, diff.
 			'readonly' => true,
 		);
@@ -169,7 +169,7 @@ class Html {
 		// Inline SVG is used for the plugin's own icons and sparklines. Icons::get()
 		// (src/Helpers/Icons.php) puts `stroke-linecap`/`stroke-linejoin` on the
 		// outer <svg> element itself, not only on its path/line/etc. children --
-		// confirmed by the visual-parity sweep (Adım 6): without these two here,
+		// confirmed by the visual-parity sweep: without these two here,
 		// wp_kses() silently rounded every icon's stroke caps/joins back to the
 		// browser default on the SAME shipped icon markup Icons::allowed_svg()
 		// already permits on <svg> for its own, narrower echo_svg() pass.
@@ -224,7 +224,7 @@ class Html {
 		// track that inconsistency tag by tag, merge the same curated aria-*
 		// set onto every tag already in the array -- attribute keys already
 		// present (from core or from an override above) are left alone; only
-		// missing aria-* keys are added. Found by the Adım 6 visual-parity
+		// missing aria-* keys are added. Found by the visual-parity
 		// sweep, which is also what the assertion in
 		// tests/Unit/Helpers/HtmlAllowedMarkupTest.php pins.
 		$aria = self::aria_attributes();
@@ -291,7 +291,7 @@ class Html {
 	 *    whole buffered template (the dispatcher/block-callback return), `fill`
 	 *    is gone again and the star silently loses its color: with no `fill`
 	 *    in the style value, the `<svg>`'s own `fill="none"` attribute is what
-	 *    the shape inherits instead (found by the Adım 6 visual-parity sweep:
+	 *    the shape inherits instead (found by the visual-parity sweep:
 	 *    a single-request raw-output-vs-wp_kses-output diff, not visible from
 	 *    reading the allowlist alone).
 	 *  - `pointer-events` / `resize` -- used on a few disabled-state controls

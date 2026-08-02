@@ -256,7 +256,7 @@ final class ContactForm extends AbstractShortcode {
 		// Nonce check is the literal first statement -- before any $_POST/$_FILES
 		// access -- so both the security guarantee and WPCS's own static analysis
 		// can see it directly in this file, with no wrapper indirection to see
-		// through (WP.org T7 finding).
+		// through.
 		if (! check_ajax_referer('mhmrentiva_contact_form_nonce', 'nonce', false)) {
 			self::ajax_error(__('Security check failed.', 'mhm-rentiva'));
 			return;
@@ -580,7 +580,7 @@ final class ContactForm extends AbstractShortcode {
 	 * guaranteed to be the URL `wp_handle_upload()` produced. It is
 	 * resolved via `wp_upload_dir()` (baseurl -> basedir mapping) rather
 	 * than string surgery on `site_url()`/`ABSPATH`, which breaks on
-	 * subdirectory, multisite, and mapped-domain installs (WP.org T4 #10).
+	 * subdirectory, multisite, and mapped-domain installs.
 	 *
 	 * Anything that is not verifiably inside this site's own uploads
 	 * directory is rejected outright (never guessed at) to avoid SSRF/LFI:
