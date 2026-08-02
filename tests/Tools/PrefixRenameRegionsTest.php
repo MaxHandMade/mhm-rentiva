@@ -64,30 +64,56 @@ final class PrefixRenameRegionsTest extends TestCase {
 		$root  = dirname( __DIR__, 2 );
 		$found = array();
 
-		foreach ( array( 'src', 'templates', 'assets', 'src-react' ) as $dir ) {
+		// Walk the same set the TOOL sweeps -- six directories plus the five root
+		// files -- not a subset of it. A region placed in uninstall.php or
+		// mhm-rentiva.php would otherwise be honoured by the tool and invisible to
+		// every test in this file. That is the same blind spot mode4Sources() had
+		// to be widened for, one layer up.
+		$paths = array();
+		foreach ( array( 'src', 'templates', 'assets', 'src-react', 'tests', 'bin' ) as $dir ) {
 			$path = $root . '/' . $dir;
 			if ( ! is_dir( $path ) ) {
 				continue;
 			}
 			$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ) );
 			foreach ( $it as $file ) {
-				if ( ! $file->isFile() || ! preg_match( '/\.(php|js|jsx|css)$/', $file->getFilename() ) ) {
-					continue;
+				if ( $file->isFile() && preg_match( '/\.(php|js|jsx|css)$/', $file->getFilename() ) ) {
+					$paths[] = $file->getPathname();
 				}
-				$rel = str_replace( '\\', '/', substr( $file->getPathname(), strlen( $root ) + 1 ) );
-				if ( str_contains( $rel, 'node_modules/' ) || in_array( $rel, self::MARKER_TEXT_ONLY, true ) ) {
+			}
+		}
+		foreach ( array( 'mhm-rentiva.php', 'uninstall.php', 'phpcs.xml', 'phpstan.neon', 'readme.txt' ) as $rootFile ) {
+			if ( is_file( $root . '/' . $rootFile ) ) {
+				$paths[] = $root . '/' . $rootFile;
+			}
+		}
+
+		{
+			foreach ( $paths as $pathname ) {
+				$rel = str_replace( '\\', '/', substr( $pathname, strlen( $root ) + 1 ) );
+				if ( str_contains( $rel, 'node_modules/' ) || str_contains( $rel, 'vendor/' ) || in_array( $rel, self::MARKER_TEXT_ONLY, true ) ) {
 					continue;
 				}
 
-				$lines = file( $file->getPathname() );
-				$open  = null;
+				$lines   = file( $pathname );
+				$open    = null;
+				$ordinal = 0;
 				foreach ( $lines as $i => $line ) {
-					if ( str_contains( $line, PrefixRenamer::IGNORE_START ) ) {
+					// FIRST-start-wins, matching PrefixRenamer::ignoredRanges().
+					// Letting a later start overwrite $open (last-start-wins) made
+					// this scanner disagree with the tool: two consecutive starts
+					// closed by one end meant the tool silenced the whole span
+					// while this test recorded only the tail of it, so the lines
+					// in between were exempt AND uninspected -- and the cap could
+					// be evaded by putting the real start earlier and a decoy just
+					// before the end.
+					if ( str_contains( $line, PrefixRenamer::IGNORE_START ) && null === $open ) {
 						$open = $i;
 					}
 					if ( str_contains( $line, PrefixRenamer::IGNORE_END ) && null !== $open ) {
 						$found[] = array(
-							'file'  => $rel,
+							'file'    => $rel,
+							'ordinal' => $ordinal++,
 							'start' => $open + 1,
 							'end'   => $i + 1,
 							'lines' => $i - $open + 1,
@@ -98,7 +124,8 @@ final class PrefixRenameRegionsTest extends TestCase {
 				}
 				if ( null !== $open ) {
 					$found[] = array(
-						'file'  => $rel,
+						'file'    => $rel,
+						'ordinal' => $ordinal++,
 						'start' => $open + 1,
 						'end'   => -1, // unterminated
 						'lines' => count( $lines ) - $open,
@@ -109,6 +136,44 @@ final class PrefixRenameRegionsTest extends TestCase {
 		}
 
 		return $found;
+	}
+
+	/**
+	 * Every mhm-bearing token inside a span, however it is written.
+	 *
+	 * The first version only saw SINGLE-quoted alphanumeric literals, so a
+	 * double-quoted one, or one interpolated into a string as
+	 * "{$wpdb->prefix}mhm_notification_queue", was silenced by the region and
+	 * never checked against the registry. The point of containment is that a
+	 * region cannot cover a name nobody wrote down, and quoting style is not a
+	 * property that should decide it.
+	 *
+	 * @param string $body Region body.
+	 * @return array<int,string> Distinct mhm-bearing tokens.
+	 */
+	private function mhmTokensIn( string $body ): array
+	{
+		$tokens = array();
+
+		// Quoted literals, either quote style.
+		if ( preg_match_all( '/[\'"]([A-Za-z_%{$][A-Za-z0-9_%]*)[\'"]/', $body, $m ) ) {
+			$tokens = array_merge( $tokens, $m[1] );
+		}
+		// Bare mhm-ish tokens anywhere else: interpolations, SQL fragments,
+		// concatenations. Deliberately greedy -- over-reporting costs a registry
+		// line, under-reporting costs a blind spot.
+		if ( preg_match_all( '/\b(_?mhm[A-Za-z0-9_]*%?)/i', $body, $m ) ) {
+			$tokens = array_merge( $tokens, $m[1] );
+		}
+
+		$tokens = array_filter(
+			array_unique( $tokens ),
+			static function ( string $t ): bool {
+				return false !== stripos( $t, 'mhm' );
+			}
+		);
+
+		return array_values( $tokens );
 	}
 
 	/**
@@ -170,7 +235,7 @@ final class PrefixRenameRegionsTest extends TestCase {
 
 		$registered = array();
 		foreach ( PrefixRenamer::IGNORE_REGIONS as $file => $meta ) {
-			$registered[ $file ] = $meta['regions'];
+			$registered[ $file ] = count( $meta['regions'] );
 		}
 
 		ksort( $actual );
@@ -206,16 +271,15 @@ final class PrefixRenameRegionsTest extends TestCase {
 			if ( -1 === $r['end'] ) {
 				continue; // reported by the balance test.
 			}
-			$declared = PrefixRenamer::IGNORE_REGIONS[ $r['file'] ]['literals'] ?? array();
+			// Region-SCOPED, not file-scoped. Declaring a literal once used to
+			// satisfy every region in the file -- Uninstaller.php's 14 regions all
+			// drew on one pool of 30 names, so a region could cover any of them
+			// without that being a decision anyone made.
+			$declared = PrefixRenamer::IGNORE_REGIONS[ $r['file'] ]['regions'][ $r['ordinal'] ] ?? array();
 
-			if ( preg_match_all( "/'([A-Za-z_%][A-Za-z0-9_%]*)'/", $r['body'], $m ) ) {
-				foreach ( array_unique( $m[1] ) as $literal ) {
-					if ( false === stripos( $literal, 'mhm' ) ) {
-						continue;
-					}
-					if ( ! in_array( $literal, $declared, true ) ) {
-						$undeclared[] = $r['file'] . ':' . $r['start'] . " covers '" . $literal . "' but does not declare it";
-					}
+			foreach ( $this->mhmTokensIn( $r['body'] ) as $literal ) {
+				if ( ! in_array( $literal, $declared, true ) ) {
+					$undeclared[] = $r['file'] . ':' . $r['start'] . " covers '" . $literal . "' but does not declare it";
 				}
 			}
 		}
@@ -233,15 +297,21 @@ final class PrefixRenameRegionsTest extends TestCase {
 	 */
 	public function test_no_declared_literal_is_stale(): void
 	{
-		$bodies = array();
+		// Detected with the SAME tokeniser the containment test uses, so the two
+		// directions cannot disagree. A plain "is the quoted string in the body"
+		// check missed every interpolated token -- 'mhm_%' comes out of
+		// "{$wpdb->prefix}mhm_%_backup%" and is never single-quoted anywhere.
+		$present = array();
 		foreach ( $this->regions() as $r ) {
-			$bodies[ $r['file'] ] = ( $bodies[ $r['file'] ] ?? '' ) . $r['body'];
+			foreach ( $this->mhmTokensIn( $r['body'] ) as $t ) {
+				$present[ $r['file'] ][ $t ] = true;
+			}
 		}
 
 		$stale = array();
 		foreach ( PrefixRenamer::IGNORE_REGIONS as $file => $meta ) {
-			foreach ( $meta['literals'] as $literal ) {
-				if ( ! str_contains( $bodies[ $file ] ?? '', "'" . $literal . "'" ) ) {
+			foreach ( array_merge( array(), ...array_values( $meta['regions'] ) ) as $literal ) {
+				if ( ! isset( $present[ $file ][ $literal ] ) ) {
 					$stale[] = "$file declares '$literal' but no region contains it";
 				}
 			}

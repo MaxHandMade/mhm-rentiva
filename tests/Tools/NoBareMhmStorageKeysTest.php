@@ -73,16 +73,21 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		// name reaching a storage or registry API, and the honest inventory is
 		// the empty one.
 		//
-		// NOT EMPTY AFTER ALL. The nine entries below are the residue of the
+		// NOT EMPTY AFTER ALL. The eight entries below are the residue of the
 		// TRANSITION WINDOW, and every one of them is a deliberate decision made
 		// during the rename, not a name that escaped it.
 		//
 		// Uninstall, the cron cleanup and the dead-table drops all have to work on
 		// a site running 6.0.0 code whose ROWS have not been migrated yet, so they
-		// name the pre-6.0.0 spellings on purpose. Two more have no destination at
-		// all: `mhm_verified_review` has no PrefixMigrationMap::COMMENTMETA entry,
-		// and three of the tables have no TABLES entry, so nothing will ever
-		// rename the thing they point at and the old name is the only real one.
+		// name the pre-6.0.0 spellings on purpose. FIVE of the tables additionally
+		// have no PrefixMigrationMap::TABLES entry -- notification_queue,
+		// backup_records, transfers, report_queue and background_jobs -- so
+		// nothing will ever rename the thing they point at and the old name is the
+		// only real one.
+		//
+		// ('mhm_verified_review' used to be a ninth entry here, for having no
+		// COMMENTMETA destination. The owner added one on 2026-08-02, so the code
+		// now uses the new name and the entry is gone.)
 		//
 		// Each is inside a `prefix-rename:ignore-start/end` region in its source
 		// file, so the rename tool leaves it alone rather than "modernising" it

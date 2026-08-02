@@ -68,8 +68,11 @@ if (! defined('ABSPATH')) { exit; }
  * (post_id, meta_key). A merge therefore does not overwrite; it leaves TWO ROWS
  * with the same key, and get_post_meta($id, $key, true) returns whichever the
  * storage engine happens to order first -- a silent, nondeterministic wrong
- * value. The migration needs a pre-flight collision query and a documented
- * winner per pair, not a blind UPDATE.
+ * value. The migration needs a pre-flight collision query, and on a post that
+ * carries both it must keep the WINNER and discard the other.
+ *
+ * The winner is NOT something Görev 13 derives. It is specified, per pair, in
+ * POSTMETA_MERGE_WINNERS below.
  */
 final class PrefixMigrationMap {
 
@@ -338,6 +341,46 @@ final class PrefixMigrationMap {
      *
      * @var array<string,string>
      */
+    /**
+     * For each MERGED pair, which of the two old keys wins on a post that has
+     * both. Owner decision, 2026-08-02.
+     *
+     * Görev 13 must not re-derive this. wp_postmeta has no unique index on
+     * (post_id, meta_key), so a merge leaves two rows and the winner IS the
+     * surviving value -- picking wrong is a silent data change, not a naming
+     * preference.
+     *
+     * 🔴 READ THE vehicle_id ENTRY BEFORE APPLYING A HEURISTIC. The obvious rule
+     * -- "prefer the rentiva-qualified spelling, it is more specific" -- gives
+     * the WRONG answer there, and it is the pair where being wrong is worst.
+     * Measured on a real pre-rename database:
+     *
+     *     '_mhm_vehicle_id'          25 rows   <- every writer (Handler, Hooks,
+     *                                             CancellationHandler)
+     *     '_mhm_rentiva_vehicle_id'   3 rows   <- what Testimonials filters on
+     *
+     * Testimonials could therefore only ever resolve 3 of 28 bookings; the other
+     * 25 silently returned nothing. The merge is fixing that live bug, and it
+     * only fixes it if the 25-row key wins.
+     *
+     * Format: new key => the OLD key whose value survives.
+     *
+     * @var array<string,string>
+     */
+    public const POSTMETA_MERGE_WINNERS = [
+        // Sole writer is VehicleGallery, on the rentiva-qualified key.
+        '_mhmrentiva_gallery_images' => '_mhm_rentiva_gallery_images',
+        // See the note above -- the bare key is the one every writer uses.
+        '_mhmrentiva_vehicle_id'     => '_mhm_vehicle_id',
+        // BookingMeta/BookingColumns write the bare keys; Testimonials only reads.
+        '_mhmrentiva_customer_email' => '_mhm_customer_email',
+        '_mhmrentiva_customer_name'  => '_mhm_customer_name',
+        // Live keys are the rentiva-qualified ones (MetaKeys, Util, BookingMeta);
+        // the bare spellings survive only in the cleanup's protection list.
+        '_mhmrentiva_price_per_day'  => '_mhm_rentiva_price_per_day',
+        '_mhmrentiva_deposit'        => '_mhm_rentiva_deposit',
+    ];
+
     public const POSTMETA_EXACT_OVERRIDES = [
         '_mhm_blocked_dates'          => '_mhmrentiva_blocked_dates',
         '_mhm_blocked_dates_notes'    => '_mhmrentiva_blocked_dates_notes',

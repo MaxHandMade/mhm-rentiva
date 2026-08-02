@@ -1301,11 +1301,16 @@ final class DatabaseMigrator {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
-		// prefix-rename:ignore-start
 		// Both spellings. This table has NO PrefixMigrationMap::TABLES entry, so
-		// Görev 13 never renames the physical table -- on every real install it is
-		// still `{prefix}mhm_notification_queue`, and dropping only the new name
-		// would leave the table this method exists to remove sitting there.
+		// Görev 13 never renames the physical table -- on every real install it
+		// still carries its pre-6.0.0 name, and dropping only the new one would
+		// leave the table this method exists to remove sitting there.
+		//
+		// The explanation is outside the region on purpose: a region is a blind
+		// spot, so it wraps the literals and nothing else. (It used to open here
+		// AND again below -- two starts closed by one end. The tool takes the
+		// first start, the accountability test took the last, so four lines were
+		// silenced by the tool and inspected by nothing.)
 		// prefix-rename:ignore-start
 		foreach (array( 'mhmrentiva_notification_queue', 'mhm_notification_queue' ) as $legacy_queue_table) {
 			// prefix-rename:ignore-end
