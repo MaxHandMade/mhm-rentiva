@@ -52,21 +52,61 @@ class MetaMigrationTest extends WP_UnitTestCase
     }
 
     /**
+     * Write a meta row the way a LEGACY row exists: already in the table.
+     *
+     * update_post_meta() cannot build these fixtures any more, and that is a
+     * correction rather than an inconvenience. Meta registration used to sit
+     * behind `if (is_admin())`, so in this non-admin suite nothing was registered
+     * and nothing sanitised -- 'yes' and 'unknown' went into the table verbatim.
+     * Now that registration happens on every request, update_post_meta() applies
+     * the registered sanitize_callback, which rewrites 'unknown' to 'active' and
+     * 'yes' to 'active' before the migration ever sees them.
+     *
+     * The values this test migrates are by definition older than that callback.
+     * On a real site they are already sitting in postmeta and are never
+     * re-sanitised -- sanitisation happens on write, not on read -- so the
+     * migration still meets them exactly as written here. Writing them directly
+     * is what reproduces that; going through update_post_meta() would be testing
+     * today's writer instead of yesterday's data.
+     */
+    private function store_legacy_meta(int $post_id, string $meta_key, string $value): void
+    {
+        global $wpdb;
+
+        $wpdb->insert(
+            $wpdb->postmeta,
+            array(
+                'post_id'    => $post_id,
+                'meta_key'   => $meta_key,
+                'meta_value' => $value,
+            )
+        );
+
+        wp_cache_delete($post_id, 'post_meta');
+
+        $this->assertSame(
+            $value,
+            get_post_meta($post_id, $meta_key, true),
+            'Premise: the legacy value must reach the table unaltered, or this test is migrating something else.'
+        );
+    }
+
+    /**
      * Test mapping: yes/no/1/0 -> active/inactive
      */
     public function test_enum_mapping_strict()
     {
         $v1 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
-        update_post_meta($v1, '_mhmrentiva_vehicle_availability', 'yes');
+        $this->store_legacy_meta($v1, '_mhmrentiva_vehicle_availability', 'yes');
 
         $v2 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
-        update_post_meta($v2, '_mhmrentiva_availability', 'no');
+        $this->store_legacy_meta($v2, '_mhmrentiva_availability', 'no');
 
         $v3 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
-        update_post_meta($v3, '_mhmrentiva_vehicle_availability', '1');
+        $this->store_legacy_meta($v3, '_mhmrentiva_vehicle_availability', '1');
 
         $v4 = $this->factory->post->create(['post_type' => 'mhmrentiva_vehicle']);
-        update_post_meta($v4, '_mhmrentiva_vehicle_availability', 'unknown'); // Should be skipped
+        $this->store_legacy_meta($v4, '_mhmrentiva_vehicle_availability', 'unknown'); // Should be skipped
 
         $this->run_migration(false);
 

@@ -808,9 +808,12 @@ final class PrefixMigrationMap {
      *      prefixed setcookie/$_COOKIE, and none through
      *      get_query_var/add_query_arg.
      *   8. register_meta() keys with show_in_rest, which REST consumers address
-     *      by name -> two calls, both on UNPREFIXED keys ('category_color',
-     *      'category_icon'), so the sweep never touched them. The shape is real
-     *      and a future prefixed registration would join this family.
+     *      by name -> the two calls this once named ('category_color',
+     *      'category_icon') were DELETED on 2026-08-02: unprefixed, registered
+     *      against 'term' with no taxonomy subtype, and dead since the initial
+     *      release with 0 rows. No register_meta() call outside register_post_meta
+     *      remains. The shape is still real and a future prefixed registration
+     *      would join this family.
      *
      * "No further instances" is a claim about those eight queries as much as
      * about the tree; a ninth shape would need a ninth query.

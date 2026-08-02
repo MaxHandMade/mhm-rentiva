@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Integration\Vehicle;
 
+use MHMRentiva\Admin\Vehicle\Meta\VehicleGallery;
 use MHMRentiva\Admin\Vehicle\Meta\VehicleMeta;
 use WP_UnitTestCase;
 
@@ -39,11 +40,17 @@ final class VehicleMetaEnumRoundTripTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        // VehicleMeta::register() -- and so register_post_meta() -- lives behind
-        // `if (is_admin())` in Plugin.php, and is_admin() is false in this suite.
-        // Calling the same function `init` calls in admin puts the registration
-        // in place; without it nothing sanitises anything here and every case
-        // below would pass while proving only that the meta is unguarded.
+        // 🔴 RE-REGISTERED PER TEST, and this is a fact about the harness, not
+        // about the plugin. WP_UnitTestCase::tearDown() unregisters every
+        // non-core post type between tests and takes its registered meta with
+        // it. Measured: the FIRST test in this class sees all 14 keys, every
+        // test after it sees none.
+        //
+        // So a round trip needs the registration put back. What that hides --
+        // whether registration would have happened on its own -- is asserted
+        // separately and deliberately by
+        // test_meta_registration_is_wired_for_non_admin_requests() below, which
+        // is the actual lock on the is_admin() bug.
         VehicleMeta::register_meta_fields();
 
         $this->vehicle_id = (int) self::factory()->post->create(
@@ -130,6 +137,45 @@ final class VehicleMetaEnumRoundTripTest extends WP_UnitTestCase
                 $option,
                 $meta_key
             )
+        );
+    }
+
+    /**
+     * 🔴 The registration must be attached on a NON-ADMIN request.
+     *
+     * This is the lock on the bug the round trips above cannot see, because
+     * their setUp puts the registration back by hand.
+     *
+     * VehicleMeta::register() and VehicleGallery::register() are called only
+     * from Plugin::initialize_admin_services(), which runs behind
+     * `if (is_admin())`. Each used to hook its own register_meta_fields() onto
+     * `init` from in there, so on any request where is_admin() was false -- every
+     * REST request, every front-end request -- the meta was never registered.
+     * That made `'show_in_rest' => true` a claim the plugin did not honour, and
+     * left sanitize_meta() with nothing to enforce: an earlier version of this
+     * file proved it by storing 'rocket_powered' verbatim.
+     *
+     * This suite runs with is_admin() false, which is exactly the condition
+     * under which the bug existed -- so asking whether the hook is attached HERE
+     * is asking the real question, in the environment that matters. Re-adding
+     * the admin gate makes this test red.
+     */
+    public function test_meta_registration_is_wired_for_non_admin_requests(): void
+    {
+        $this->assertFalse(
+            is_admin(),
+            'Premise: this suite must be a non-admin request, or the assertion below asks nothing.'
+        );
+
+        $this->assertNotFalse(
+            has_action('init', array( VehicleMeta::class, 'register_meta_fields' )),
+            'Vehicle meta is not registered on a non-admin request, so show_in_rest is a false claim '
+            . 'and nothing sanitises a REST or front-end write.'
+        );
+
+        $this->assertNotFalse(
+            has_action('init', array( VehicleGallery::class, 'register_meta_fields' )),
+            'Gallery meta is not registered on a non-admin request.'
         );
     }
 

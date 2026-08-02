@@ -187,6 +187,56 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory')) {
 			\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::register();
 		}
+
+		$this->register_vehicle_meta();
+	}
+
+	/**
+	 * Post meta registration, on `init`, for every request.
+	 *
+	 * 🔴 THIS USED TO LIVE BEHIND `is_admin()`. VehicleMeta::register() and
+	 * VehicleGallery::register() are called from initialize_admin_services(),
+	 * which only runs when is_admin() is true, and each hooked its own
+	 * register_meta_fields() onto `init` from in there. So on a REST request --
+	 * where is_admin() is false -- none of these fields were registered at all.
+	 *
+	 * That made `'show_in_rest' => true` a claim the plugin did not honour: the
+	 * fields were absent from the REST API, and, worse, absent from
+	 * sanitize_meta(), so a REST or front-end write stored whatever it was given.
+	 * A test proved it before this was fixed -- update_post_meta() with
+	 * 'rocket_powered' came back 'rocket_powered'.
+	 *
+	 * register_post_meta() is a DECLARATION. It describes the shape of the data
+	 * and must be identical on every request, exactly like register_post_type().
+	 * Who may read or write is decided by auth_callback and by capability checks
+	 * at the point of use -- never by whether registration happened to run.
+	 *
+	 * WHAT THIS DOES NOT DO, measured rather than assumed: it exposes nothing new
+	 * over REST. The `mhmrentiva_vehicle` post type does not declare
+	 * `show_in_rest` at all, so no REST route exists for it and the eleven
+	 * `'show_in_rest' => true` meta flags remain unreachable through the core
+	 * controller. Every one of those keys is protected (leading underscore) and
+	 * none declares an auth_callback, so WordPress's default for protected meta
+	 * -- `__return_false` -- already denies REST writes.
+	 *
+	 * The whole effect is therefore a hardening: sanitize_meta() now runs on
+	 * front-end and REST writes as well as admin ones. Nothing was relying on the
+	 * gap -- no front-end code writes any of these keys.
+	 *
+	 * Left deliberately unchanged: those eleven `show_in_rest` flags are still
+	 * inert, now for an honest reason rather than an accidental one. Putting the
+	 * post type into REST is a real surface change and belongs to whoever decides
+	 * the API, not to this fix.
+	 */
+	private function register_vehicle_meta(): void
+	{
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\VehicleMeta')) {
+			add_action('init', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::class, 'register_meta_fields' ));
+		}
+
+		if ($this->is_class_available('\MHMRentiva\Admin\Vehicle\Meta\VehicleGallery')) {
+			add_action('init', array( \MHMRentiva\Admin\Vehicle\Meta\VehicleGallery::class, 'register_meta_fields' ));
+		}
 	}
 
 	/**

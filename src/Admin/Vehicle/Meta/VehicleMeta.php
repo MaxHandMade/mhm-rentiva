@@ -135,7 +135,11 @@ final class VehicleMeta extends AbstractMetaBox {
 	{
 		parent::register();
 
-		add_action('init', array( self::class, 'register_meta_fields' ));
+		// register_meta_fields() is NOT hooked here. This method only runs when
+		// is_admin() is true, which made the registration -- and with it every
+		// 'show_in_rest' => true and every sanitize_callback -- absent on REST and
+		// front-end requests. It is hooked unconditionally in
+		// Plugin::register_vehicle_meta() instead.
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 		add_action('add_meta_boxes_mhmrentiva_vehicle', array( self::class, 'add_featured_meta_box' ));
 		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'save_featured_meta_box' ));

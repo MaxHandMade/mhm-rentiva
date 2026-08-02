@@ -78,49 +78,35 @@ final class VehicleCategory {
 	}
 
 
-	/**
-	 * Add custom meta fields support
+	/*
+	 * REMOVED 2026-08-02: add_meta_support(), which registered the term meta
+	 * `category_color` and `category_icon`.
+	 *
+	 * DELETED RATHER THAN RENAMED, because measurement changed the premise. It
+	 * was never wired: no caller anywhere in the plugin, and `git log -S` puts
+	 * its only appearance at the initial public release, so it has been dead for
+	 * the entire life of the repository. Nothing read those keys, nothing wrote
+	 * them, and no UI offered them. On the one database available they hold 0
+	 * rows each.
+	 *
+	 * Renaming them into PrefixMigrationMap would have created a permanent
+	 * contract entry and a term-meta migration step for keys that were never
+	 * registered and have no rows to carry -- maintenance for a phantom, and a
+	 * map claiming a rename with nothing on the "from" side.
+	 *
+	 * The shape mattered even though the code was dead: a reviewer greps for
+	 * register_meta( and sees two entirely generic, unprefixed names. Worse, they
+	 * were registered against the object type 'term' with no taxonomy subtype, so
+	 * had it ever run it would have declared `category_color` on EVERY taxonomy
+	 * on the site -- a collision with any other plugin using the obvious name.
+	 * It also gated registration on current_user_can('manage_categories') inside
+	 * the init callback, making a global declaration depend on who was asking,
+	 * which is the same class of error as the is_admin() gate on the vehicle meta.
+	 *
+	 * If category colour/icon is ever wanted, it should come back prefixed
+	 * (`mhmrentiva_category_color`), scoped to this taxonomy, registered
+	 * unconditionally, with access decided by auth_callback.
 	 */
-	public static function add_meta_support(): void {
-		add_action(
-			'init',
-			function () {
-				// Security: Check if function exists and user has permission
-				if ( ! function_exists( 'register_meta' ) || ! current_user_can( 'manage_categories' ) ) {
-					return;
-				}
-
-				try {
-					register_meta(
-						'term',
-						'category_color',
-						array(
-							'type'              => 'string',
-							'description'       => __( 'Category color for visual identification', 'mhm-rentiva' ),
-							'single'            => true,
-							'show_in_rest'      => true,
-							'sanitize_callback' => 'sanitize_hex_color',
-						)
-					);
-
-					register_meta(
-						'term',
-						'category_icon',
-						array(
-							'type'              => 'string',
-							'description'       => __( 'Category icon class or URL', 'mhm-rentiva' ),
-							'single'            => true,
-							'show_in_rest'      => true,
-							'sanitize_callback' => 'sanitize_text_field',
-						)
-					);
-				} catch ( \Exception $e ) {
-					// Log error but don't break the site
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error( 'Failed to register taxonomy meta fields - ' . $e->getMessage() );
-				}
-			}
-		);
-	}
 
 	/**
 	 * Add admin filters and columns

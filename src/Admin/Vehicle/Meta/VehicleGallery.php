@@ -57,7 +57,8 @@ final class VehicleGallery extends AbstractMetaBox {
 	public static function register(): void {
 		parent::register();
 
-		add_action( 'init', array( self::class, 'register_meta_fields' ) );
+		// register_meta_fields() is NOT hooked here -- see VehicleMeta::register().
+		// This method is admin-only, and a meta DECLARATION must not be.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 		add_action( 'save_post_mhmrentiva_vehicle', array( self::class, 'save_gallery_images' ) );
 
