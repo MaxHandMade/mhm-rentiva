@@ -348,7 +348,7 @@ final class DashboardPage {
 			// literal duplicate here would only have documented the collapse.
 			//
 			// The pre-rename spellings stay listed because a site that has not run
-			// Görev 13's migration still holds transients under them, and a cache
+			// the 6.0.0 migration still holds transients under them, and a cache
 			// this code believes it cleared but did not is a stale number on the
 			// dashboard with no way for the user to flush it.
 			'mhm_rentiva_revenue_report_',

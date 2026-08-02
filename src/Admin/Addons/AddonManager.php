@@ -76,7 +76,7 @@ final class AddonManager {
 	public static function init(): void {
 		// Register addon post type.
 		AddonPostType::register();
-		AddonPostType::register_pricing_type_meta(); // NEW (v4.36.0 Task 4)
+		AddonPostType::register_pricing_type_meta(); // NEW (v4.36.0)
 	}
 
 	/**
@@ -91,7 +91,7 @@ final class AddonManager {
 		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_price_column' ), 10, 2 );
 		add_filter( 'manage_edit-mhmrentiva_addon_sortable_columns', array( self::class, 'make_price_sortable' ) );
 
-		// Add context and pricing type columns (v4.36.0 Task 9).
+		// Add context and pricing type columns (v4.36.0).
 		add_filter( 'manage_mhmrentiva_addon_posts_columns', array( self::class, 'add_context_pricing_columns' ) );
 		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_context_pricing_column' ), 10, 2 );
 
@@ -195,7 +195,7 @@ final class AddonManager {
 	}
 
 	/**
-	 * Add context and pricing type columns (v4.36.0 Task 9).
+	 * Add context and pricing type columns (v4.36.0).
 	 *
 	 * @param array $columns List of columns.
 	 * @return array Modified columns.
@@ -301,7 +301,7 @@ final class AddonManager {
 			);
 		}
 
-		// Enqueue context↔pricing-type constraint script on addon edit screens (v4.36.0 Task 10).
+		// Enqueue context↔pricing-type constraint script on addon edit screens (v4.36.0).
 		if ( in_array( $hook, array( 'post.php', 'post-new.php' ), true )
 			&& 'mhmrentiva_addon' === $post_type
 		) {

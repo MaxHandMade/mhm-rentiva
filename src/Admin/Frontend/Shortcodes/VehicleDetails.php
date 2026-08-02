@@ -306,7 +306,7 @@ final class VehicleDetails extends AbstractShortcode {
 		// rungs onto one name -- '_mhm_rentiva_gallery_images' and
 		// '_mhm_gallery_images' both become '_mhmrentiva_gallery_images', so the
 		// list read as a duplicate and a rung was silently lost. Both pre-rename
-		// spellings are listed explicitly, because a site that has not run Görev
+		// spellings are listed explicitly, because a site that has not run the
 		// 13's migration still stores its gallery under one of them and would
 		// otherwise render no gallery at all.
 		$keys         = array(

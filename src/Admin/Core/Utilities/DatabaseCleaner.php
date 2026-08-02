@@ -109,7 +109,7 @@ final class DatabaseCleaner {
 	 * 🔴 THE TRANSITION WINDOW. The 6.0.0 rename moves this plugin's meta keys
 	 * from the pre-rename prefixes onto the single-token one, but the code and
 	 * the DATABASE do not move at the same instant: the code changes when the
-	 * plugin file updates, the rows change when Görev 13's migration runs, and
+	 * plugin file updates, the rows change when the 6.0.0 migration runs, and
 	 * between those two moments a site holds OLD rows while running NEW code.
 	 * The list above is the list the cleanup PROTECTS -- a `NOT IN (list)`
 	 * against a prefix LIKE, unscoped across the whole postmeta table -- and a
@@ -460,7 +460,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_woocommerce_order_id',
 			'_mhmrentiva_workflow_state',
 
-			// Görev 12 moved four families that the LIKE '_mhm%' pattern could
+			// the rename sweep moved four families that the LIKE '_mhm%' pattern could
 			// never previously reach -- '_booking_*', '_contact_*', '_rentiva_*'
 			// and the visible 'addon_*' keys -- onto the '_mhmrentiva_' prefix.
 			// That is exactly the day the entry below anticipated: they are now
@@ -503,7 +503,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_contact_user_agent',
 			'_mhmrentiva_contact_vehicle_id',
 			'_mhmrentiva_vehicle_service_type',
-			// Pro's vendor identity and payout family, added in 6.0.0 (Görev 14).
+			// Pro's vendor identity and payout family, added in 6.0.0 (the Pro lockstep).
 			// The cleanup's LIKE is unscoped across the WHOLE postmeta table, so a
 			// key missing from here is an admin click away from destroying a
 			// vendor's IBAN, tax number, phone and approval timestamp.
@@ -905,7 +905,7 @@ final class DatabaseCleaner {
 				// esc_like() escapes the leading underscore. Unescaped, '_' is
 				// MySQL's single-character wildcard, so '_mhm%' also matched
 				// 'Xmhm...' for any X -- rows belonging to nobody in particular,
-				// on a statement that DELETEs. Task 11 deferred this here because
+				// on a statement that DELETEs. An earlier round deferred this here because
 				// it is one half of the rename hazard. Escaping only ever NARROWS
 				// what the DELETE can reach, which is the safe direction.
 				array_merge( array( $wpdb->esc_like( '_mhm' ) . '%' ), $valid_keys )
@@ -1621,7 +1621,7 @@ final class DatabaseCleaner {
 		//
 		// Backup tables carry the PRE-rename prefix in their name, and the
 		// physical table keeps that name forever: it is not in
-		// PrefixMigrationMap::TABLES, so Görev 13 never renames it either. A
+		// PrefixMigrationMap::TABLES, so the migration never renames it either. A
 		// new-prefix-only pattern therefore cannot see ANY backup taken before
 		// 6.0.0 -- and because is_managed_backup_table() decides membership by
 		// enumerating this list, and export_backup_to_sql() gates on that, such a
@@ -2268,7 +2268,7 @@ final class DatabaseCleaner {
 			if ( empty( trim( $query ) ) ) {
 				continue;
 			}
-			// DELIBERATELY NOT SUPPRESSED (WP.org T7 Task 9.5).
+			// DELIBERATELY NOT SUPPRESSED (prepared-statement work).
 			//
 			// $query is one statement split out of a .sql dump this plugin wrote
 			// itself, and the file path is contained by is_contained_backup_file()

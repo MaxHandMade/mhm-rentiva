@@ -51,7 +51,7 @@ final class AddonContextTaxonomy {
                 'hierarchical'       => false,
                 'meta_box_cb'        => array( AddonContextMetaBox::class, 'render' ),
                 'rewrite'            => false,
-                'show_admin_column'  => false, // custom badge column rendered by AddonManager (Task 9)
+                'show_admin_column'  => false, // custom badge column rendered by AddonManager
                 'default_term'       => array(
                     'name' => self::TERM_RENTAL,
                     'slug' => self::TERM_RENTAL,

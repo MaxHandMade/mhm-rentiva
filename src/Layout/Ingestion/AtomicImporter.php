@@ -73,7 +73,7 @@ class AtomicImporter {
             throw new Exception(esc_html( (string) $validation_result->get_error_message()));
         }
 
-        // 2. Hash Calculation (Task 1)
+        // 2. Hash Calculation
         $normalized = LayoutNormalization::normalize($manifest);
         $hash       = hash('sha256', (string) wp_json_encode($normalized));
 
@@ -105,7 +105,7 @@ class AtomicImporter {
                 }
 
                 if ($resolution['status'] === 'update') {
-                    // Check if hash matches (Task 2: Skip identical)
+                    // Check if hash matches (skip identical)
                     if (( $resolution['current_hash'] ?? '' ) === $hash) {
                         $resolution['status']  = 'skip';
                         $resolution['message'] = esc_html__('Layout identical, skipping update.', 'mhm-rentiva');

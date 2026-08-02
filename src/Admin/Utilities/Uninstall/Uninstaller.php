@@ -26,7 +26,7 @@ final class Uninstaller {
 	/**
 	 * The pre-rename, vendor-token-only option names this plugin owns.
 	 *
-	 * Uninstall must clear them on a site that never ran Görev 13's migration.
+	 * Uninstall must clear them on a site that never ran the 6.0.0 migration.
 	 * They carry no 'rentiva' token, so a LIKE pattern that reached them would
 	 * also reach sibling MHM products' options -- the exact widening every other
 	 * pattern in this class deliberately avoids. Read by exact name from the
@@ -668,7 +668,7 @@ final class Uninstaller {
 
 			// --- PRE-6.0.0 spellings of every table above ---
 			//
-			// Uninstall must work on a site that never ran Görev 13's migration,
+			// Uninstall must work on a site that never ran the 6.0.0 migration,
 			// where every one of these tables still carries its old name. FOUR of
 			// them additionally have NO entry in PrefixMigrationMap::TABLES --
 			// notification_queue, backup_records, transfers and report_queue --

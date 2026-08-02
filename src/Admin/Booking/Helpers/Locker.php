@@ -30,7 +30,7 @@ final class Locker {
 			//
 			// 🔴 The pattern must cover BOTH the pre- and post-6.0.0 spellings, and
 			// this is the one place where getting it wrong is invisible. On a site
-			// running the new code before Görev 13's migration, every row is still
+			// running the new code before the 6.0.0 migration, every row is still
 			// '_mhm_*': a '_mhmrentiva_%' pattern selects ZERO rows, so FOR UPDATE
 			// locks nothing, and this method proceeds and COMMITs believing it holds
 			// the lock. That is the double-booking guard on the booking path, and it

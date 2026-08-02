@@ -868,7 +868,7 @@ final class DatabaseMigrator {
 	 * Both tables belong to the Transfer add-on module. Lite has no location search
 	 * and no Transfer module (owner decision 2026-07-16), so it must not ship the
 	 * schema: an empty `rentiva_transfer_locations` that nothing can populate or
-	 * read is dead schema, which is WP.org-unclean (cf. faz1-exit-decisions Task 5
+	 * read is dead schema, which is WP.org-unclean (cf. the exit decisions
 	 * REQUIREMENT 2).
 	 *
 	 * Task A9c seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
@@ -960,7 +960,7 @@ final class DatabaseMigrator {
 			// 'mhm_rentiva_rate_limit_' and the bare 'mhm_rate_limit_' both become
 			// 'mhmrentiva_rate_limit_', so the list otherwise reads as two
 			// duplicates and the bare family stops being swept on any site that
-			// has not run Görev 13's migration.
+			// has not run the 6.0.0 migration.
 			"DELETE FROM {$wpdb->options}
              WHERE option_name LIKE '_transient_mhmrentiva_rate_limit_%'
              OR option_name LIKE '_transient_timeout_mhmrentiva_rate_limit_%'
@@ -1391,7 +1391,7 @@ final class DatabaseMigrator {
 	 * The geo-blocking feature is gone: the free core's country check was removed
 	 * in Faz 2a (it sent the visitor's IP to ip-api.com over plain HTTP), and the
 	 * add-on's `CountryRestriction` that inherited that call was deleted in Faz 2b
-	 * Task 9 — zero callers, no UI, absent from the monolith. No code reads this
+	 * Zero callers, no UI, absent from the monolith. No code reads this
 	 * option any more.
 	 *
 	 * A leftover `mhmrentiva_country_restriction_enabled = 1` row therefore states
@@ -1524,7 +1524,7 @@ final class DatabaseMigrator {
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
 		// Both spellings. This table has NO PrefixMigrationMap::TABLES entry, so
-		// Görev 13 never renames the physical table -- on every real install it
+		// the migration never renames the physical table -- on every real install it
 		// still carries its pre-6.0.0 name, and dropping only the new one would
 		// leave the table this method exists to remove sitting there.
 		//
@@ -1585,7 +1585,7 @@ final class DatabaseMigrator {
 	}
 
 	/**
-	 * The 6.0.0 prefix rename (T7 mandate).
+	 * The 6.0.0 prefix rename.
 	 *
 	 * Every identifier in this tree now reads `mhmrentiva_`. No live database
 	 * has ever stored that name, so this step is the only thing that makes the
@@ -1672,7 +1672,7 @@ final class DatabaseMigrator {
 
 			// MEASURE THE DESTINATION. On a real upgrade it usually already
 			// exists: the renamed code reaches add_option() under the new name
-			// before this migration gets a turn, which is what killed Görev 12's
+			// before this migration gets a turn, which is what killed the rename sweep's
 			// dev run with a duplicate key on
 			// mhmrentiva_addon_context_migrated_4_36_0 -- and eight destination
 			// options were sitting in the pre-rename backup for the same reason.
@@ -2195,7 +2195,7 @@ final class DatabaseMigrator {
 	 * Written out in full rather than sharing one parameterised statement with
 	 * the usermeta twin below. The two differ only in a table and a column name,
 	 * and folding them together meant interpolating both into the SQL -- which is
-	 * precisely the shape Görev 9.5 drove to zero.
+	 * precisely the shape the prepared-statement work drove to zero.
 	 *
 	 * 🔴 Returns TRUE only when the rows are safely copied -- including the case
 	 * where there is nothing to copy. FALSE means the caller must NOT delete: the
@@ -2269,7 +2269,7 @@ final class DatabaseMigrator {
 	/**
 	 * The scoped variant, for keys the rename only carries on our own post
 	 * types. Written out in full rather than appending a clause to a shared
-	 * string: building the statement from variables is the shape Görev 9.5 drove
+	 * string: building the statement from variables is the shape the prepared-statement work drove
 	 * to zero, and it came straight back the first time this method tried to be
 	 * clever about it.
 	 */
@@ -2523,7 +2523,7 @@ final class DatabaseMigrator {
 	 * - A prefix carrying only the VENDOR token, or none at all, cannot be
 	 *   trusted as a pattern. The bare vendor prefix is shared with the currency
 	 *   switcher's own `cs_`-tokened keys and mhm-pay's `pay_`-tokened ones --
-	 *   Görev 12's prefix-only draft renamed the currency switcher's
+	 *   an earlier prefix-only draft renamed the currency switcher's
 	 *   fixed-prices row on the dev database --
 	 *   and `_booking_` and `_contact_` carry no vendor token whatsoever
 	 *   (WooCommerce Bookings writes `_booking_*` onto products). Those get the

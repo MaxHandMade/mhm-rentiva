@@ -8,10 +8,10 @@ if (! defined('ABSPATH')) {
 }
 
 /**
- * Single source of truth for the 6.0.0 prefix migration (T7 mandate).
+ * Single source of truth for the 6.0.0 prefix migration.
  *
  * Every family below was produced by reading the actual code (see
- * bin/prefix-inventory-baseline.txt and the Task 3 report), not by copying
+ * bin/prefix-inventory-baseline.txt), not by copying
  * the illustrative stub this file started from. In particular:
  *
  * - OPTIONS lists all 135 distinct option-shaped names this plugin's own
@@ -22,7 +22,7 @@ if (! defined('ABSPATH')) {
  *   and a handful of class constants such as
  *   AddonContextMigration::FLAG_OPTION) that a literal-string-only grep
  *   would miss. The two brief-cited counts (plan's "10 bare-mhm", compliance
- *   audit's "30 mhm_rentiva_*") both undercounted; see the Task 3 report for
+ *   audit's "30 mhm_rentiva_*") both undercounted; see the baseline inventory for
  *   the reconciliation.
  * - TABLES lists only the tables THIS plugin's own dbDelta()/CREATE TABLE
  *   code creates unconditionally. Two tables named in the original brief
@@ -44,7 +44,7 @@ if (! defined('ABSPATH')) {
  * the cut point is always taken from the longest matching prefix. That is a rule
  * about ORDER, not about collisions.
  *
- * 🔴 CORRECTION (Görev 12 review, 2026-08-02). This paragraph used to claim the
+ * 🔴 CORRECTION (2026-08-02). This paragraph used to claim the
  * two families "cannot collide" and cited '_mhm_deposit' as a HYPOTHETICAL.
  * '_mhm_deposit' is real and sits about a hundred lines below, in OPTIONS'
  * neighbouring meta inventory. The claim was simply wrong, and a wrong invariant
@@ -73,7 +73,7 @@ if (! defined('ABSPATH')) {
  * value. The migration needs a pre-flight collision query, and on a post that
  * carries both it must keep the WINNER and discard the other.
  *
- * The winner is NOT something Görev 13 derives. It is specified, per pair, in
+ * The winner is NOT something the migration derives. It is specified, per pair, in
  * POSTMETA_MERGE_WINNERS below.
  */
 final class PrefixMigrationMap {
@@ -90,7 +90,7 @@ final class PrefixMigrationMap {
      * or compares against the literal for cross-plugin compatibility. Its
      * string occurrences are still covered by RUNTIME_STRING_RULES's bare
      * 'mhm_' catch-all so Lite's code stays byte-consistent with a
-     * Pro-side rename (Görev 14, Pro lockstep); no POST_TYPES/migration
+     * Pro-side rename (Pro lockstep); no POST_TYPES/migration
      * entry is owed here since Lite creates no rows of that type.
      */
     public const POST_TYPES = [
@@ -167,7 +167,7 @@ final class PrefixMigrationMap {
      * notification subject+body overrides Lite's own Templates.php reads
      * (getSubjectOverride()/getBodyOverride()) even though Lite's UI never
      * writes most of them: those options live in the SAME wp_options table
-     * on a Lite+Pro site, and the 6.0.0 migration Görev 13 wires from this
+     * on a Lite+Pro site, and the 6.0.0 migration wired from this
      * map runs from Lite's own activation hook. Omitting a name Lite only
      * reads (never writes) would still orphan a Pro-populated value the
      * instant Lite's own code starts looking for it under the new key.
@@ -341,7 +341,7 @@ final class PrefixMigrationMap {
      */
     /**
      * Post-meta keys whose destination is decided EXACTLY, overriding the prefix
-     * rules below. Görev 13 must apply these FIRST and exclude them from the
+     * rules below. The migration must apply these FIRST and exclude them from the
      * prefix pass.
      *
      * Only one pair needs it, and it is the one pair of the seven whose two keys
@@ -354,7 +354,7 @@ final class PrefixMigrationMap {
      *
      * Different writers, different value SHAPES, same object. Letting the prefix
      * rules merge them means each silently overwrites the other on the same
-     * vehicle, which is what happened between Görev 12's sweep and its review;
+     * vehicle, which is what happened between the rename sweep and its review;
      * both are currently held at their pre-rename spellings in the code so the
      * corruption stops while the migration is written.
      *
@@ -366,7 +366,7 @@ final class PrefixMigrationMap {
      * For each MERGED pair, which of the two old keys wins on a post that has
      * both. Owner decision, 2026-08-02.
      *
-     * Görev 13 must not re-derive this. wp_postmeta has no unique index on
+     * The migration must not re-derive this. wp_postmeta has no unique index on
      * (post_id, meta_key), so a merge leaves two rows and the winner IS the
      * surviving value -- picking wrong is a silent data change, not a naming
      * preference.
@@ -390,7 +390,7 @@ final class PrefixMigrationMap {
      * merge is fixing that live bug, and it only fixes it if the writers' key
      * wins -- after which the count is 25 of 29.
      *
-     * 🔴 PROVENANCE CORRECTION (Görev 13, 2026-08-02). This paragraph used to
+     * 🔴 PROVENANCE CORRECTION (2026-08-02). This paragraph used to
      * cite "'_mhm_rentiva_vehicle_id'   3 rows" as a live measurement. It is not:
      * live wp_postmeta holds ZERO rows under that key. The three rows sit in
      * wp_mhm_postmeta_backup_invalid_20260320_092228, a DatabaseCleaner BACKUP
@@ -416,10 +416,10 @@ final class PrefixMigrationMap {
         // the bare spellings survive only in the cleanup's protection list.
         '_mhmrentiva_price_per_day'              => '_mhm_rentiva_price_per_day',
         '_mhmrentiva_deposit'                    => '_mhm_rentiva_deposit',
-        // EIGHTH pair, owner decision 2026-08-02 (Görev 13). This one collides
+        // EIGHTH pair, owner decision 2026-08-02 (the migration). This one collides
         // between the '_mhm_' and '_rentiva_' rules rather than between '_mhm_'
         // and '_mhm_rentiva_', which is why neither the bijection check nor the
-        // original seven-pair analysis saw it; Görev 12 named it in
+        // original seven-pair analysis saw it; the rename sweep named it in
         // DatabaseCleanerAllowlistTest's docblock and deliberately left it for
         // this map rather than absorbing it silently.
         //
@@ -562,13 +562,13 @@ final class PrefixMigrationMap {
      *     misses.
      *   - DashboardService.php:481-482 -- identical fallback pattern.
      * All three literals match RUNTIME_STRING_RULES' generic 'mhm_rentiva_'
-     * rule, so Görev 12's code sweep WILL rename them to
+     * rule, so the rename sweep WILL rename them to
      * 'mhmrentiva_transfer_locations' by default -- silently breaking this
      * fallback for any site that genuinely still has the legacy physical
      * table from history (not a data-loss bug -- the table itself isn't
      * touched -- but a real regression: the probe would stop finding a
      * table that is actually still there). This map does NOT decide which
-     * way to resolve it. Whoever executes Görev 12 must choose explicitly:
+     * way to resolve it. Whoever runs the rename sweep must choose explicitly:
      * (a) let the generic rule rename all three literals (accepting that the
      * legacy-table fallback stops working for old installs -- arguably fine
      * if Transfer's Pro migration already renamed the physical table
@@ -615,7 +615,7 @@ final class PrefixMigrationMap {
      * yalnız '_mhm_' kuralıyla '_mhmrentiva_rentiva_welcome_sent' diye
      * BOZULURDU (SUBSTRING kesme noktası yanlış konumdan başlar).
      *
-     * 🔴 CORRECTION (Görev 13, 2026-08-02, owner-approved). This docblock used to
+     * 🔴 CORRECTION (2026-08-02, owner-approved). This docblock used to
      * claim that the bare 'mhm_' rule "additionally covers" the underscore-less
      * user-meta keys -- CompareService::STORAGE_KEY ('mhm_rentiva_compare'),
      * FavoritesService::META_KEY ('mhm_rentiva_favorites') -- and that they
@@ -640,7 +640,7 @@ final class PrefixMigrationMap {
      *                    '_vendor_phone', '_vendor_tax_*', '_vendor_approved_at',
      *                    '_vendor_reliability_*', '_vendor_score_history',
      *                    '_pending_iban', '_iban_change_status' -- 18 keys, 65 rows
-     *                    on the dev database. Görev 12 renamed these literals in
+     *                    on the dev database. the rename sweep renamed these literals in
      *                    the code (DashboardContext.php:29 now reads
      *                    '_mhmrentiva_vendor_status'), so without this rule every
      *                    vendor loses their active status, IBAN, slug and profile
@@ -648,7 +648,7 @@ final class PrefixMigrationMap {
      *
      *   '_mhm_'         the underscore-prefixed bare-vendor family. NOT
      *                    self-scoping: sibling MHM products write user meta too,
-     *                    so Görev 13 migrates this family by an explicit key
+     *                    so the migration migrates this family by an explicit key
      *                    allowlist read out of the pre-rename tree, never by a
      *                    prefix LIKE. See DatabaseMigrator::owned_user_meta_keys().
      *
@@ -687,12 +687,12 @@ final class PrefixMigrationMap {
      */
     public const COMMENTMETA = [
         'mhm_rating' => 'mhmrentiva_rating',
-        // Added by owner decision, 2026-08-02 (Görev 12 review). The Görev 12
+        // Added by owner decision, 2026-08-02. The rename
         // sweep renamed this literal in VerifiedReviewHelper while COMMENTMETA
         // held only the key above -- so nothing would have migrated the rows, and
         // every review an admin had manually flagged as verified would silently
         // revert to unverified. That is data loss, not cosmetics. The code is
-        // currently held at the old spelling until Görev 13 can carry the rows.
+        // currently held at the old spelling until the migration can carry the rows.
         'mhm_verified_review' => 'mhmrentiva_verified_review',
     ];
 
@@ -738,7 +738,7 @@ final class PrefixMigrationMap {
      * and AssetManager's str_contains($screen->id, 'mhm') admin-screen
      * probe -- are exact 3-character tokens with no distinguishing suffix,
      * so there is nothing to "prefix"; they are not CPT/taxonomy/option/hook
-     * identifiers T7's mandate governs. Görev 12's sweep should update these
+     * identifiers that the prefix policy governs. The rename sweep should update these
      * two call sites by hand (mhm -> mhmrentiva, verbatim) rather than via a
      * generic rule, and bin/check-prefix-inventory.php's mode 3 explicitly
      * excludes the bare 'mhm' token from its scope for this reason (see
@@ -783,7 +783,7 @@ final class PrefixMigrationMap {
      * stops firing, with no error anywhere.
      *
      * That is a KNOWINGLY ACCEPTED major-version break, not an oversight.
-     * Prefixing them is the WordPress.org rejection's mandate; carving them out
+     * Prefixing them is the prefix policy; carving them out
      * would be refusing the thing this round exists to do. What it must not be
      * is silent: it belongs in the 6.0.0 changelog and the upgrade notice,
      * because it is the one change in this round that breaks working
@@ -834,7 +834,7 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * Görev 13 Adım 3b'nin bootstrap-fallback'i bu iki adı SÜREKLİ literal
+     * The migration's bootstrap-fallback'i bu iki adı SÜREKLİ literal
      * olarak taşır (eski kurulumu tanımak için) -- G-C mod 4'ün post-sweep
      * "eski ad kalmasın" kontrolü bunları AÇIKÇA muaf tutar, yoksa kapı asla
      * yeşil olamaz. Mod 5 (OPTIONS coverage) de aynı iki adı muaf tutar --
