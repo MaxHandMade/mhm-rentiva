@@ -385,10 +385,43 @@ class PrefixRenamer {
 	private $phase;
 
 	/**
-	 * @param string $phase 'mechanical' or 'all'.
+	 * Per-repository additions to the two enumerations above.
+	 *
+	 * 🔴 THIS EXISTS SO THERE IS ONE ENGINE, NOT TWO (Görev 14, Pro lockstep).
+	 *
+	 * The transformation itself -- single-pass scanning, rule ordering,
+	 * anchoring, the deny-by-default quoted-literal contexts -- took three
+	 * review rounds to get right. Pro has to apply exactly that logic to its own
+	 * tree, and a copied file is how the two halves drift the first time one of
+	 * them is corrected.
+	 *
+	 * What genuinely differs between the two repositories is DATA, not logic:
+	 *
+	 *   carve_out  Literals this repo must not rewrite. Lite's are its three
+	 *              Elementor widget names, the two legacy Transfer table probes,
+	 *              the two bootstrap version options and mhm-ui-core's API. Pro
+	 *              has SIX Elementor widgets and its own legacy table probes.
+	 *   meta_keys  Concrete meta keys resolved out of the four non-mhm prefix
+	 *              rules. Lite's enumeration is Lite's call sites; Pro writes 17
+	 *              '_rentiva_*' keys Lite's list has never heard of
+	 *              (_rentiva_vendor_iban, _rentiva_vehicle_price_per_km, ...).
+	 *              Without them Pro's code would keep reading the pre-rename key
+	 *              while Lite's migration had already moved the row.
+	 *
+	 * Both default to empty, so Lite's own behaviour is unchanged byte for byte;
+	 * PrefixRenamerTest and the sweep's own fixed point are the proof.
+	 *
+	 * @var array{carve_out?:array<int,string>,meta_keys?:array<int,string>}
 	 */
-	public function __construct( string $phase = 'all' ) {
+	private $extra;
+
+	/**
+	 * @param string                                                          $phase 'mechanical' or 'all'.
+	 * @param array{carve_out?:array<int,string>,meta_keys?:array<int,string>} $extra Per-repository additions.
+	 */
+	public function __construct( string $phase = 'all', array $extra = array() ) {
 		$this->phase = $phase;
+		$this->extra = $extra;
 		$this->rules = array_values(
 			array_filter(
 				$this->buildRules(),
@@ -428,7 +461,8 @@ class PrefixRenamer {
 	private function buildRules(): array {
 		$rules = array();
 
-		foreach ( self::CARVE_OUT_TABLE_LITERALS as $literal ) {
+		$carveOuts = array_unique( array_merge( self::CARVE_OUT_TABLE_LITERALS, $this->extra['carve_out'] ?? array() ) );
+		foreach ( $carveOuts as $literal ) {
 			$rules[] = array(
 				'id'    => 'carve-out:' . $literal,
 				'old'   => $literal,
@@ -581,7 +615,8 @@ class PrefixRenamer {
 		}
 
 		// Concrete meta keys resolved out of the four non-mhm prefix rules.
-		foreach ( self::RESOLVED_META_KEYS as $key ) {
+		$metaKeys = array_unique( array_merge( self::RESOLVED_META_KEYS, $this->extra['meta_keys'] ?? array() ) );
+		foreach ( $metaKeys as $key ) {
 			$rules[] = array(
 				'id'    => 'meta:' . $key,
 				'old'   => $key,
