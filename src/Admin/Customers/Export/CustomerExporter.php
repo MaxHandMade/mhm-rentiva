@@ -58,7 +58,8 @@ final class CustomerExporter {
 		// above. Chrome refuses the download outright ("ERR_INVALID_RESPONSE"), so
 		// the Export CSV button has never produced a file -- verified in the
 		// browser against the pre-fix code. This is the same
-		// `header(...) + echo + exit` shape the SQL download endpoints use.
+		// `header(...) + write to php://output + exit` shape the SQL download
+		// endpoints use (DatabaseCleanupPage::send_download_body()).
 		exit;
 	}
 

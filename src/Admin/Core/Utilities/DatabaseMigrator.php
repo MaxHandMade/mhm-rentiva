@@ -33,7 +33,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.1.0';
+	private const CURRENT_VERSION = '4.2.0';
 
 	/**
 	 * Rows rewritten per statement by the 6.0.0 rename.
@@ -61,10 +61,109 @@ final class DatabaseMigrator {
 	}
 
 	/**
+	 * The oldest add-on this Lite may migrate alongside.
+	 *
+	 * 6.0.0 is the floor for the same reason it is Pro's: that is the release in
+	 * which every shared identifier changed name at once, so there is no partial
+	 * compatibility to express.
+	 */
+	private const REQUIRES_PRO = '6.0.0';
+
+	/**
+	 * Does this add-on version survive the rename?
+	 *
+	 * PURE, and separate from the constant it is normally fed, deliberately --
+	 * copied from Pro's design for the reason Pro's own docblock gives: a
+	 * constant cannot be redefined, so a check written directly against
+	 * MHMRENTIVA_PRO_VERSION could only ever be exercised against whichever Pro
+	 * happens to be installed. The FAILURE path -- the only one that matters --
+	 * would be untestable, which is how Pro's floor constant spent its whole life
+	 * as a declaration nothing enforced.
+	 *
+	 * '' means no add-on present, which is fine: Lite alone migrates happily.
+	 *
+	 * @param string $pro The add-on's reported version, or '' when absent.
+	 */
+	public static function pro_satisfies(string $pro): bool
+	{
+		if ('' === $pro) {
+			return true;
+		}
+
+		return version_compare($pro, self::REQUIRES_PRO, '>=');
+	}
+
+	/**
+	 * Which add-on is present, if any.
+	 *
+	 * MHMRENTIVA_PRO_VERSION is read rather than the underscored spelling because
+	 * the add-on has defined THIS name since well before the rename (5.2.3 spells
+	 * it exactly this way), so it identifies an OLD add-on just as reliably as a
+	 * new one. That is what makes the guard work at all.
+	 */
+	private static function installed_pro_version(): string
+	{
+		return defined('MHMRENTIVA_PRO_VERSION') ? (string) constant('MHMRENTIVA_PRO_VERSION') : '';
+	}
+
+	/**
+	 * Say why nothing is happening, in the one place an administrator will look.
+	 *
+	 * Touches no add-on symbol and no database: the whole premise is that the
+	 * other side speaks a different vocabulary, and a notice that fatals is worse
+	 * than no notice at all.
+	 */
+	public static function render_pro_lockstep_notice(): void
+	{
+		if (! current_user_can('activate_plugins')) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-error"><p>%s</p></div>',
+			esc_html(
+				sprintf(
+					/* translators: 1: installed add-on version, 2: required add-on version. */
+					__(
+						'MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is installed, but %2$s or newer is required. Update MHM Rentiva Pro to continue. Your data has not been changed.',
+						'mhm-rentiva'
+					),
+					self::installed_pro_version(),
+					self::REQUIRES_PRO
+				)
+			)
+		);
+	}
+
+	/**
 	 * Run all pending migrations
+	 *
+	 * 🔴 THE LOCKSTEP IS TWO-SIDED FROM 6.0.0. The add-on refuses to boot or to
+	 * migrate against an old Lite; until now nothing on this side reciprocated,
+	 * which left one cell of the upgrade matrix open and dangerous: new Lite with
+	 * an OLD add-on still installed ran this entire migration -- including the
+	 * vendor-identity rewrite -- underneath an add-on whose every query still
+	 * spells the old names. The add-on's own bootstrap records that this exact
+	 * combination "produced the white screen" during development.
+	 *
+	 * Refusing is strictly better than half-migrating. A site that stops here
+	 * still has all its data under the old names and needs one plugin update; a
+	 * site that migrated underneath an old add-on has data the installed code
+	 * cannot see, and no way back that does not involve this same migration
+	 * running backwards.
+	 *
+	 * The guard sits HERE rather than at the three call sites (Plugin.php's
+	 * admin_init hook and the two paths in the bootstrap file) so that no future
+	 * caller can route around it.
 	 */
 	public static function run_migrations(): void
 	{
+		if (! self::pro_satisfies(self::installed_pro_version())) {
+			add_action('admin_notices', array( self::class, 'render_pro_lockstep_notice' ));
+
+			return;
+		}
+
 		self::adopt_legacy_db_version();
 
 		$current_version = self::stored_db_version();
@@ -1509,6 +1608,11 @@ final class DatabaseMigrator {
 		self::rename_tables();
 		self::rekey_cron_hooks();
 		self::purge_legacy_transients();
+
+		// Saved page content, not schema. Runs inside this step because it is the
+		// same rename: the three Elementor widget names moved in 6.0.0, and
+		// Elementor stores them in every page built with one.
+		self::migrate_elementor_widget_types_600();
 
 		// One flush rather than per-row invalidation. The rewrites above go
 		// through SQL because there is no API for "rename a meta key", so every
@@ -3007,5 +3111,85 @@ final class DatabaseMigrator {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Elementor widget names, in the pages that already store them.
+	 *
+	 * Elementor persists get_name() as "widgetType" inside each page's
+	 * `_elementor_data`, so renaming the three Lite widgets in 6.0.0 turns every
+	 * saved instance into a "missing widget" placeholder unless the stored value
+	 * moves with the code. This step moves it.
+	 *
+	 * WHY A STRING REWRITE IS SAFE HERE, when it usually is not: `_elementor_data`
+	 * is JSON, verified with JSON_VALID() on the dev row, not PHP-serialized. A
+	 * serialized payload carries `s:29:` length prefixes that a substring
+	 * replacement desynchronises, silently making the whole blob unreadable --
+	 * that is the standard reason to refuse this kind of migration. JSON has no
+	 * length prefixes, and both names are plain ASCII needing no escaping, so the
+	 * replacement cannot change the document's structure.
+	 *
+	 * The match is anchored on `"widgetType":"<name>"` rather than the bare name.
+	 * A page can legitimately contain the old string as prose -- in a heading, a
+	 * text editor widget, a CSS class -- and none of that is ours to rewrite.
+	 *
+	 * Revisions are included deliberately. They are the same postmeta key on a
+	 * different post ID, and restoring a revision that still said the old name
+	 * would quietly reintroduce the broken widget long after the migration ran.
+	 *
+	 * @return int Rows actually changed.
+	 */
+	private static function migrate_elementor_widget_types_600(): int
+	{
+		global $wpdb;
+
+		// prefix-rename:ignore-start
+		// The OLD names are the whole point: a migration that went looking for
+		// the new spelling would match nothing. Without this region the sweep
+		// rewrites these keys to new => new and the step becomes a silent no-op.
+		$widget_types = array(
+			'mhm_rentiva_featured_vehicles' => 'mhmrentiva_featured_vehicles',
+			'mhm_rentiva_vehicles_grid'     => 'mhmrentiva_vehicles_grid',
+			'mhm_rentiva_vehicles_list'     => 'mhmrentiva_vehicles_list',
+		);
+		// prefix-rename:ignore-end
+
+		$changed = 0;
+
+		// NOT $old/$new. G-C mode 5's shape (g) detector is single-file and not
+		// scope-aware: this file's rename_options() calls delete_option($old) and
+		// add_option($new), so a foreach here over those variable names makes the
+		// gate harvest this array's keys and values as option names and report six
+		// unmapped options that do not exist. Distinct names, not an exemption --
+		// the gate's question stays exactly as strict as it was.
+		foreach ($widget_types as $stored_type => $renamed_type) {
+			$old_token = '"widgetType":"' . $stored_type . '"';
+			$new_token = '"widgetType":"' . $renamed_type . '"';
+
+			$updated = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} SET meta_value = REPLACE( meta_value, %s, %s )
+					 WHERE meta_key = '_elementor_data' AND meta_value LIKE %s",
+					$old_token,
+					$new_token,
+					'%' . $wpdb->esc_like($old_token) . '%'
+				)
+			);
+
+			if (is_int($updated) && $updated > 0) {
+				$changed += $updated;
+			}
+		}
+
+		if ($changed > 0) {
+			// Elementor caches each page's generated CSS in `_elementor_css` and
+			// keys the rules off widgetType. Leaving the cache in place serves
+			// stale CSS for a widget name that no longer exists; deleting the
+			// meta makes Elementor regenerate on next render. This is a cache,
+			// so dropping it is safe -- unlike _elementor_data above.
+			$wpdb->delete($wpdb->postmeta, array( 'meta_key' => '_elementor_css' ));
+		}
+
+		return $changed;
 	}
 }

@@ -80,7 +80,7 @@
     const registerElementorInit = function () {
         if (window.elementorFrontend && window.elementorFrontend.hooks) {
             window.elementorFrontend.hooks.addAction(
-                'frontend/element_ready/mhm_rentiva_featured_vehicles.default',
+                'frontend/element_ready/mhmrentiva_featured_vehicles.default',
                 initFeaturedVehicles
             );
             return true;

@@ -436,27 +436,37 @@ class PrefixRenamerTest extends TestCase {
 	}
 
 	/**
-	 * Elementor stores get_name() as "widgetType" in _elementor_data, so a widget
-	 * name is saved content -- the same category as a shortcode tag, and protected
-	 * for the same reason. Renaming one breaks every page already built with it.
+	 * The three Elementor widget names ARE renamed, as of the owner's 2026-08-02
+	 * decision -- they were live registered identifiers in the 'mhm_'-tokenized
+	 * shape the fifth rejection named. The stored "widgetType" values they leave
+	 * behind in _elementor_data are carried by the DB migration, not orphaned.
+	 *
+	 * The JS pair is asserted alongside the PHP deliberately. The widget's
+	 * 'frontend/element_ready/<name>.default' hook must equal get_name() exactly,
+	 * and nothing at runtime complains when it stops doing so -- the script just
+	 * never runs. Renaming one without the other is the failure this locks.
 	 *
 	 * @dataProvider elementorWidgetNameProvider
 	 *
-	 * @param string $fragment Fragment that must not change.
+	 * @param string $before Fragment before the sweep.
+	 * @param string $after  What it must become.
 	 */
-	public function test_elementor_widget_names_are_not_renamed( string $fragment ): void {
-		$this->assertSame( $fragment, $this->t( $fragment ), 'an Elementor widget name lives in post_content' );
+	public function test_elementor_widget_names_are_renamed( string $before, string $after ): void {
+		$this->assertSame( $after, $this->t( $before ), 'a registered Elementor widget name kept the old prefix' );
 	}
 
 	/**
-	 * @return array<string, array{0:string}>
+	 * @return array<string, array{0:string,1:string}>
 	 */
 	public function elementorWidgetNameProvider(): array {
 		return array(
-			'featured'      => array( "return 'mhm_rentiva_featured_vehicles';" ),
-			'grid'          => array( "return 'mhm_rentiva_vehicles_grid';" ),
-			'list'          => array( "return 'mhm_rentiva_vehicles_list';" ),
-			'js element_ready' => array( "'frontend/element_ready/mhm_rentiva_featured_vehicles.default'," ),
+			'featured'         => array( "return 'mhm_rentiva_featured_vehicles';", "return 'mhmrentiva_featured_vehicles';" ),
+			'grid'             => array( "return 'mhm_rentiva_vehicles_grid';", "return 'mhmrentiva_vehicles_grid';" ),
+			'list'             => array( "return 'mhm_rentiva_vehicles_list';", "return 'mhmrentiva_vehicles_list';" ),
+			'js element_ready' => array(
+				"'frontend/element_ready/mhm_rentiva_featured_vehicles.default',",
+				"'frontend/element_ready/mhmrentiva_featured_vehicles.default',",
+			),
 		);
 	}
 

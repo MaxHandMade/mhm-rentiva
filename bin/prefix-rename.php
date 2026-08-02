@@ -155,20 +155,33 @@ class PrefixRenamer {
 		// 3-letter prefix is a separate T7 exposure belonging to that repo,
 		// exactly like Pro's lockstep in Görev 14.
 		'mhm_ui_core_',
-		// 🔴 Elementor WIDGET NAMES. Elementor persists get_name() as "widgetType"
-		// inside every page's _elementor_data postmeta, so these live in saved
-		// content exactly as shortcode tags and block namespaces do -- and those
-		// are protected by the constraints for precisely this reason. Renaming
-		// them makes Elementor render "missing widget" on every page and template
-		// already built with one, and _elementor_data belongs to no migration
-		// family, so Görev 13 will never rewrite the stored value either.
+		// 🔴 REMOVED, 2026-08-02, owner decision. The three Elementor widget names
+		// (mhm_rentiva_featured_vehicles / _vehicles_grid / _vehicles_list) used to
+		// be carved out here because Elementor persists get_name() as "widgetType"
+		// inside _elementor_data, making a widget name saved content in the same
+		// way a shortcode tag is.
 		//
-		// The generic 'mhm_rentiva_' rule reached them by accident: the 14 sibling
-		// widgets in the same directory return 'rv-*' names and were untouched, so
-		// these three were never a decision anyone made.
-		'mhm_rentiva_featured_vehicles',
-		'mhm_rentiva_vehicles_grid',
-		'mhm_rentiva_vehicles_list',
+		// That reasoning was sound but rested on a false premise -- that real user
+		// content was at stake. It is not: neither plugin has users, and the only
+		// affected content is on the developer's own sites. Measured on the dev
+		// database, ONE live page (ID 3579) carries ONE instance, plus 39 revisions
+		// of that same page. Against that, these three were live registered
+		// identifiers in exactly the 'mhm_'-tokenized shape the fifth rejection
+		// named, heading into the sixth submission.
+		//
+		// Its other premise is now false too: "Görev 13 will never rewrite the
+		// stored value" -- migrate_elementor_widget_types_600() does exactly that,
+		// so nothing is orphaned. _elementor_data is JSON, not PHP-serialized, so
+		// there are no length prefixes to desynchronise.
+		//
+		// The JS side is why this belongs to the sweep and not to a hand edit:
+		// assets/js/frontend/featured-vehicles.js hooks
+		// 'frontend/element_ready/<name>.default', which must equal get_name()
+		// exactly. The sweep processes .js, so the pair moves together; renaming
+		// only the PHP would leave the widget's JS silently never initialising.
+		//
+		// PRO'S SIX WIDGETS KEEP THEIR CARVE-OUTS -- Pro never ships to
+		// WordPress.org, so the same trade comes out the other way there.
 	);
 
 	/**
@@ -865,6 +878,13 @@ class PrefixRenamer {
 				10 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
 				11 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
 				12 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
+				// The three Elementor widget names as SAVED IN PAGES. The map's
+				// keys are the old spelling by definition -- sweep them and the
+				// migration searches for names no stored page contains, finds
+				// nothing, and reports success.
+				// Both spellings: the region wraps a MAP, so the new names sit
+				// inside it as values and are silenced just as much as the keys.
+				13 => array( 'mhm_rentiva_featured_vehicles', 'mhm_rentiva_vehicles_grid', 'mhm_rentiva_vehicles_list', 'mhmrentiva_featured_vehicles', 'mhmrentiva_vehicles_grid', 'mhmrentiva_vehicles_list' ),
 			),
 		),
 		'src/Admin/Core/Utilities/MetaQueryHelper.php' => array(

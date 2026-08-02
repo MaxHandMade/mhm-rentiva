@@ -224,9 +224,55 @@ def create_zip(version: str) -> Path:
     return zip_path
 
 
+def list_shipped(patterns: list[tuple[bool, str]]) -> list[str]:
+    """Return every plugin-root-relative path that .distignore lets ship.
+
+    Same walk and same is_excluded() verdict stage_files() uses, minus the
+    copying -- so a caller that needs to know the shipped surface (Gate G-D,
+    bin/check-plugin-check-parity.php) reads it from the ZIP builder instead
+    of restating .distignore in its own words. Restating it is what let the
+    old G-D scope ("src/ templates/ mhm-rentiva.php uninstall.php") silently
+    drift away from the ZIP: it omitted vendor/mhm/ui-core/, languages/
+    *.l10n.php, assets/blocks/unified-search/index.php and build/*.asset.php,
+    all four of which ship.
+    """
+    shipped: list[str] = []
+    for root, dirs, files in os.walk(ROOT):
+        root_path = Path(root)
+        try:
+            rel_root = root_path.relative_to(ROOT).as_posix()
+        except ValueError:
+            continue
+        if rel_root == ".":
+            rel_root = ""
+
+        pruned: list[str] = []
+        for d in dirs:
+            rel_d = f"{rel_root}/{d}" if rel_root else d
+            if is_excluded(rel_d, patterns):
+                continue
+            pruned.append(d)
+        dirs[:] = pruned
+
+        for f in files:
+            rel_f = f"{rel_root}/{f}" if rel_root else f
+            if is_excluded(rel_f, patterns):
+                continue
+            shipped.append(rel_f)
+    return sorted(shipped)
+
+
 def main() -> int:
     if not MAIN_PLUGIN_FILE.exists():
         sys.exit(f"ERROR: {MAIN_PLUGIN_FILE} not found")
+
+    # Scope-only mode: print the shipped surface and exit without building
+    # anything. Deliberately produces nothing but the file list on stdout so
+    # a caller can consume it directly.
+    if "--list-shipped" in sys.argv[1:]:
+        for rel in list_shipped(load_distignore()):
+            print(rel)
+        return 0
 
     version = read_version()
     patterns = load_distignore()
