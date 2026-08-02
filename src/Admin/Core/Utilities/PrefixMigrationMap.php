@@ -37,20 +37,15 @@ if (! defined('ABSPATH')) {
  * - CRON_HOOKS has seven entries, not the four in the un-corrected stub or
  *   the six after the architecture audit's fixes. A seventh --
  *   mhm_rentiva_process_queue (QueueManager.php, wp_schedule_single_event())
- *   -- was found independently during this task's own verification pass and
- *   was not named by either prior audit.
+ *   -- was found later, during a verification pass, and named by neither audit.
  *
  * Rule order matters throughout: '_mhm_rentiva_' is matched BEFORE '_mhm_', so
  * the cut point is always taken from the longest matching prefix. That is a rule
  * about ORDER, not about collisions.
  *
- * 🔴 CORRECTION (2026-08-02). This paragraph used to claim the
- * two families "cannot collide" and cited '_mhm_deposit' as a HYPOTHETICAL.
- * '_mhm_deposit' is real and sits about a hundred lines below, in OPTIONS'
- * neighbouring meta inventory. The claim was simply wrong, and a wrong invariant
- * in prose is how the next implementer re-derives the wrong conclusion.
- *
- * WHAT IS ACTUALLY TRUE: '_mhm_' and '_mhm_rentiva_' both target '_mhmrentiva_',
+ * 🔴 THE TWO FAMILIES CAN COLLIDE, and '_mhm_deposit' is a real key --
+ * it sits about a hundred lines below, in OPTIONS' neighbouring meta inventory.
+ * '_mhm_' and '_mhm_rentiva_' both target '_mhmrentiva_',
  * so a bare key whose suffix matches a rentiva-qualified one lands on
  * the same new name. SEVEN pairs in this codebase do exactly that:
  *
@@ -149,17 +144,16 @@ final class PrefixMigrationMap {
      * Five of them -- the WooCommerce-endpoint version/hash flags
      * (WooCommerceIntegration::maybe_flush_rewrite_rules()) and the
      * v4271/v4272/v4641 one-time migration-marker flags -- were found only
-     * by running bin/check-prefix-inventory.php's own mode 5 against this
-     * file, not by the initial manual enumeration. A further TEN (fix round
-     * 1, 2026-08-01, from an independent reviewer's re-trace) were reached
-     * only through a 5th shape mode 5 did not originally detect: option
+     * by running bin/check-prefix-inventory.php's option-coverage check against this
+     * file, not by the initial manual enumeration. A further TEN were reached
+     * only through a 5th shape that check did not originally detect: option
      * names living as keys/values INSIDE an `array(...)` literal, consumed
      * via `foreach` -- DatabaseMigrator::migrate_standalone_settings()'s
      * `$standalone_mapping` (3 bare mhm_transfer_* keys, read via
      * `foreach ($standalone_mapping as $old_key => $new_key) { get_option($old_key, ...); }`)
      * and SettingsService::reset_to_defaults_by_tab()'s `$legacy_keys` (7
      * mhm_rentiva_* entries, read via `foreach ($legacy_keys as $key) {
-     * delete_option($key); }`). See mode 5's
+     * delete_option($key); }`). See that check's
      * detectForeachArrayLiteralOptionCandidates() in
      * bin/check-prefix-inventory.php for the added detection.
      *
@@ -184,12 +178,11 @@ final class PrefixMigrationMap {
         'mhm_rentiva_api_keys'                              => 'mhmrentiva_api_keys',
         'mhm_rentiva_auto_cancel_email_content'             => 'mhmrentiva_auto_cancel_email_content',
         'mhm_rentiva_auto_cancel_email_subject'             => 'mhmrentiva_auto_cancel_email_subject',
-        // Fix round 1 (2026-08-01): these 7 were found by an independent
-        // reviewer's re-trace, not by the original enumeration -- they are
+        // These 7 are
         // read/written via SettingsService::reset_to_defaults_by_tab()'s
         // `$legacy_keys = array(...); foreach ($legacy_keys as $key) {
         // delete_option($key); }` shape (the "foreach over an array literal"
-        // shape mode 5 did not detect until this fix round; see the
+        // shape the option-coverage check did not originally detect; see the
         // detectForeachArrayLiteralOptionCandidates() addition in
         // bin/check-prefix-inventory.php).
         'mhm_rentiva_base_color'                            => 'mhmrentiva_base_color',
@@ -224,8 +217,8 @@ final class PrefixMigrationMap {
         'mhm_rentiva_default_payment'                       => 'mhmrentiva_default_payment',
         'mhm_rentiva_enable_deposit'                        => 'mhmrentiva_enable_deposit',
         'mhm_rentiva_feedback_email'                        => 'mhmrentiva_feedback_email',
-        'mhm_rentiva_footer_text'                           => 'mhmrentiva_footer_text',       // fix round 1
-        'mhm_rentiva_header_image'                          => 'mhmrentiva_header_image',      // fix round 1
+        'mhm_rentiva_footer_text'                           => 'mhmrentiva_footer_text',
+        'mhm_rentiva_header_image'                          => 'mhmrentiva_header_image',
         'mhm_rentiva_iban_change_approved_body'             => 'mhmrentiva_iban_change_approved_body',
         'mhm_rentiva_iban_change_approved_subject'          => 'mhmrentiva_iban_change_approved_subject',
         'mhm_rentiva_iban_change_rejected_body'             => 'mhmrentiva_iban_change_rejected_body',
@@ -254,15 +247,15 @@ final class PrefixMigrationMap {
         'mhm_rentiva_refund_customer_subject'               => 'mhmrentiva_refund_customer_subject',
         'mhm_rentiva_rest_settings'                         => 'mhmrentiva_rest_settings',
         'mhm_rentiva_secondary_color'                       => 'mhmrentiva_secondary_color',
-        'mhm_rentiva_sender_email'                          => 'mhmrentiva_sender_email',       // fix round 1
-        'mhm_rentiva_sender_name'                           => 'mhmrentiva_sender_name',         // fix round 1
+        'mhm_rentiva_sender_email'                          => 'mhmrentiva_sender_email',
+        'mhm_rentiva_sender_name'                           => 'mhmrentiva_sender_name',
         'mhm_rentiva_settings'                              => 'mhmrentiva_settings',
         'mhm_rentiva_setup_completed'                       => 'mhmrentiva_setup_completed',
         'mhm_rentiva_setup_redirect'                        => 'mhmrentiva_setup_redirect',
         'mhm_rentiva_support_email'                         => 'mhmrentiva_support_email',
         'mhm_rentiva_taxonomy_migrated'                     => 'mhmrentiva_taxonomy_migrated',
-        'mhm_rentiva_test_email_address'                    => 'mhmrentiva_test_email_address', // fix round 1
-        'mhm_rentiva_test_mode'                             => 'mhmrentiva_test_mode',           // fix round 1
+        'mhm_rentiva_test_email_address'                    => 'mhmrentiva_test_email_address',
+        'mhm_rentiva_test_mode'                             => 'mhmrentiva_test_mode',
         'mhm_rentiva_vehicle_activated_body'                => 'mhmrentiva_vehicle_activated_body',
         'mhm_rentiva_vehicle_activated_subject'             => 'mhmrentiva_vehicle_activated_subject',
         'mhm_rentiva_vehicle_approved_body'                 => 'mhmrentiva_vehicle_approved_body',
@@ -306,7 +299,7 @@ final class PrefixMigrationMap {
         'mhm_rentiva_woocommerce_endpoints_version'         => 'mhmrentiva_woocommerce_endpoints_version',
         'mhm_rentiva_woocommerce_endpoints_hash'             => 'mhmrentiva_woocommerce_endpoints_hash',
         // One-time migration marker flags (get_option($flag)/update_option($flag, ...)),
-        // found via mode 5's own detection during this task, not by either
+        // found by the option-coverage check itself, not by either
         // prior audit or the brief's stub:
         'mhm_rentiva_v4272_test_pollution_cleaned'          => 'mhmrentiva_v4272_test_pollution_cleaned',
         'mhm_rentiva_v4641_test_pollution_recleaned'        => 'mhmrentiva_v4641_test_pollution_recleaned',
@@ -314,12 +307,12 @@ final class PrefixMigrationMap {
         'mhm_selected_details'                              => 'mhmrentiva_selected_details',
         'mhm_selected_equipment'                            => 'mhmrentiva_selected_equipment',
         'mhm_selected_features'                             => 'mhmrentiva_selected_features',
-        // Fix round 1 (2026-08-01): DatabaseMigrator::migrate_standalone_settings()
+        // DatabaseMigrator::migrate_standalone_settings()
         // (runs UNCONDITIONALLY from run_migrations() on every version bump)
         // reads these 3 bare mhm_ options via `$standalone_mapping = array('mhm_transfer_deposit_type'
         // => 'rentiva_transfer_deposit_type', ...); foreach ($standalone_mapping as $old_key => $new_key)
         // { get_option($old_key, null); ... }` -- the foreach-over-array-literal
-        // shape this fix round added mode 5 detection for. Only the LEFT-hand
+        // shape the option-coverage check was later extended to detect. Only the LEFT-hand
         // (old, bare-mhm_) keys are migration targets here; the right-hand
         // 'rentiva_transfer_*' values are the destination keys that same
         // method writes them INTO inside 'mhm_rentiva_settings' -- a
@@ -358,13 +351,13 @@ final class PrefixMigrationMap {
      * both are currently held at their pre-rename spellings in the code so the
      * corruption stops while the migration is written.
      *
-     * Owner decision, 2026-08-02: keep them distinct.
+     * They are kept distinct.
      *
      * @var array<string,string>
      */
     /**
      * For each MERGED pair, which of the two old keys wins on a post that has
-     * both. Owner decision, 2026-08-02.
+     * both.
      *
      * The migration must not re-derive this. wp_postmeta has no unique index on
      * (post_id, meta_key), so a merge leaves two rows and the winner IS the
@@ -390,15 +383,14 @@ final class PrefixMigrationMap {
      * merge is fixing that live bug, and it only fixes it if the writers' key
      * wins -- after which the count is 25 of 29.
      *
-     * 🔴 PROVENANCE CORRECTION (2026-08-02). This paragraph used to
-     * cite "'_mhm_rentiva_vehicle_id'   3 rows" as a live measurement. It is not:
-     * live wp_postmeta holds ZERO rows under that key. The three rows sit in
+     * 🔴 PROVENANCE: live wp_postmeta holds ZERO rows under
+     * '_mhm_rentiva_vehicle_id'. The only three rows sit in
      * wp_mhm_postmeta_backup_invalid_20260320_092228, a DatabaseCleaner BACKUP
-     * table. The number is left out above rather than restated, so it cannot be
-     * re-cited as live. The decision is unchanged -- it is strengthened, since the
+     * table, so no count for that key is quoted above -- a number sourced from a
+     * backup table must never be re-cited as live. The decision is unchanged -- it is strengthened, since the
      * rentiva-qualified spelling turns out to have no live rows at all -- but a
      * count sourced from a backup table is exactly the kind of provenance error
-     * this round has already been bitten by.
+     * this map has already been bitten by.
      *
      * Format: new key => the OLD key whose value survives.
      *
@@ -474,7 +466,7 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * The usermeta twin of POSTMETA_MERGE_WINNERS. Owner decision, 2026-08-02.
+     * The usermeta twin of POSTMETA_MERGE_WINNERS.
      *
      * The wp_usermeta table has no unique index on (user_id, meta_key) either,
      * so the same hazard applies: a merge leaves TWO rows and
@@ -547,8 +539,7 @@ final class PrefixMigrationMap {
      * gate, and that class does not exist in this repository either
      * (src/Admin/Reports/ contains only Repository/). Same reasoning.
      *
-     * UNRESOLVED PRODUCT DECISION (fix round 1, 2026-08-01, flagged by an
-     * independent reviewer -- deliberately left open here, not decided by
+     * UNRESOLVED PRODUCT DECISION (deliberately left open here, not decided by
      * this map): even though Lite never CREATES
      * `mhm_rentiva_transfer_locations`, three of Lite's OWN read paths still
      * PROBE for it by bare literal string, as a legacy fallback when the
@@ -615,10 +606,10 @@ final class PrefixMigrationMap {
      * '_mhmrentiva_rentiva_welcome_sent', because the bare '_mhm_' rule cuts the
      * substring at the wrong position.
      *
-     * 🔴 CORRECTION. This docblock used to claim that the bare 'mhm_' rule "additionally covers" the underscore-less
-     * user-meta keys -- CompareService::STORAGE_KEY ('mhm_rentiva_compare'),
-     * FavoritesService::META_KEY ('mhm_rentiva_favorites') -- and that they
-     * "both correctly collapse via this bare rule". They do not. The bare rule
+     * 🔴 THE BARE 'mhm_' RULE DOES NOT COVER the underscore-less user-meta
+     * keys -- CompareService::STORAGE_KEY ('mhm_rentiva_compare') and
+     * FavoritesService::META_KEY ('mhm_rentiva_favorites') do NOT collapse
+     * correctly through it. The bare rule
      * cuts after 'mhm_', so 'mhm_rentiva_favorites' becomes
      * 'mhmrentiva_rentiva_favorites' while the swept code reads
      * 'mhmrentiva_favorites': the row is orphaned, not migrated. That is the same
@@ -737,7 +728,7 @@ final class PrefixMigrationMap {
      * so there is nothing to "prefix"; they are not CPT/taxonomy/option/hook
      * identifiers that the prefix policy governs. The rename sweep should update these
      * two call sites by hand (mhm -> mhmrentiva, verbatim) rather than via a
-     * generic rule, and bin/check-prefix-inventory.php's mode 3 explicitly
+     * generic rule, and bin/check-prefix-inventory.php's baseline-coverage check explicitly
      * excludes the bare 'mhm' token from its scope for this reason (see
      * isInScopeForMode3()'s BARE_TOKEN_EXCEPTIONS in that file).
      */
@@ -748,7 +739,7 @@ final class PrefixMigrationMap {
     /**
      * Literals somebody OUTSIDE this repository has to agree with, byte for byte.
      *
-     * 🔴 The third rename-hazard class this round produced, and like the second
+     * 🔴 The third rename-hazard class, and like the second
      * it was found by a defect rather than anticipated here. The test that finds
      * this family is NOT "is this a storage key" -- it is:
      *
@@ -781,9 +772,9 @@ final class PrefixMigrationMap {
      *
      * That is a KNOWINGLY ACCEPTED major-version break, not an oversight.
      * Prefixing them is the prefix policy; carving them out
-     * would be refusing the thing this round exists to do. What it must not be
+     * would be refusing the rename itself. What it must not be
      * is silent: it belongs in the 6.0.0 changelog and the upgrade notice,
-     * because it is the one change in this round that breaks working
+     * because it is the one change in this release that breaks working
      * third-party code without an error message.
      *
      * Lite was swept for the whole class, eight queries:
@@ -831,11 +822,10 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * The migration's bootstrap-fallback'i bu iki adı SÜREKLİ literal
-     * olarak taşır (eski kurulumu tanımak için) -- G-C mod 4'ün post-sweep
-     * "eski ad kalmasın" kontrolü bunları AÇIKÇA muaf tutar, yoksa kapı asla
-     * yeşil olamaz. Mod 5 (OPTIONS coverage) de aynı iki adı muaf tutar --
-     * bu iki isim tasarım gereği hiçbir zaman OPTIONS'ta bir anahtar OLMAYACAK.
+     * The migration's bootstrap fallback carries these two names as permanent
+     * literals, because recognising a pre-6.0.0 install is the whole job of that
+     * code path. They are therefore exempt from the post-sweep "no old names"
+     * check by design, and neither will ever be a key in OPTIONS.
      *
      * @var array<int,string>
      */

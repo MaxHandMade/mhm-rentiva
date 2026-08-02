@@ -30,7 +30,7 @@ final class UserDashboard {
 		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhmrentiva_fetch_vendor_stats)
 		// used to be registered from here, gated by the licensing router's
 		// vendor-marketplace gate. That registration moved to the add-on's own
-		// Bootstrap::register_vendor_marketplace() (seam inversion) --
+		// Bootstrap::register_vendor_marketplace() (extension point) --
 		// this CORE customer dashboard shortcode no longer names
 		// AnalyticsController or the licensing router at all, so it cannot
 		// fatal once that router class is deleted (B2).

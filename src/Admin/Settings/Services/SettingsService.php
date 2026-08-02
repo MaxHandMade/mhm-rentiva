@@ -52,7 +52,7 @@ final class SettingsService {
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
 			'addons'   => \MHMRentiva\Admin\Settings\Groups\AddonSettings::class,
 			'comments' => \MHMRentiva\Admin\Settings\Groups\CommentsSettingsGroup::class,
-			// Extension-owned tabs (seam inversion): Lite no longer names these
+			// Extension-owned tabs: Lite no longer names these
 			// classes. The extension registers its provider class for each via the existing
 			// `mhmrentiva_register_settings_providers` action (Settings::init()),
 			// and this reads that same registry -- returns null with no subscriber,
@@ -67,8 +67,8 @@ final class SettingsService {
 		// admin without the extension active could overwrite extension-owned
 		// settings with defaults. Same tab set as SettingsSanitizer,
 		// plus Messages (which resets through here, unlike its save handler).
-		// Registration state comes from SettingsCore::settings_tabs() (seam
-		// inversion): Lite's own default is an empty array, so a missing key
+		// Registration state comes from SettingsCore::settings_tabs() (extension
+		// point): Lite's own default is an empty array, so a missing key
 		// -- exactly the "no extension registered this tab" state -- is treated
 		// as absent via empty(), not skipped.
 		$extension_only_tabs = array( 'transfer', 'vendor-marketplace', 'messages' );
@@ -195,8 +195,8 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 		);
 
-		// Add-on-owned providers that also write to the master option (seam
-		// inversion): Lite no longer names the Transfer settings-group
+		// Add-on-owned providers that also write to the master option (extension
+		// point): Lite no longer names the Transfer settings-group
 		// class here. The add-on adds its own provider class(es) back via this filter.
 		$provider_classes = (array) apply_filters( 'mhmrentiva_settings_activation_providers', $provider_classes );
 

@@ -320,8 +320,8 @@ final class AccountRenderer {
 		// keeps the caller's existing short-circuit, which is shared with the
 		// booking-detail path and must stay intact. The decision now comes from
 		// the same `mhmrentiva_account_nav_items` mechanism that decides whether
-		// the WC My Account "Messages" tab itself registers (seam
-		// inversion) -- Lite no longer names the deleted mode-routing class's messages gate.
+		// the WC My Account "Messages" tab itself registers (extension
+		// point) -- Lite no longer names the deleted mode-routing class's messages gate.
 		$nav_items = WooCommerceIntegration::get_account_nav_items();
 		if ( ! isset( $nav_items['messages'] ) ) {
 			return array( 'error' => '' );

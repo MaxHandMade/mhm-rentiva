@@ -83,7 +83,7 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		// Hide WordPress default post fields
 		add_action('add_meta_boxes', array( self::class, 'remove_default_meta_boxes' ), 999);
 
-		// Scripts ve styles
+		// Scripts and styles
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 
 		// AJAX handlers

@@ -71,8 +71,8 @@ final class Settings {
 		self::register_provider('general', \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class);
 		self::register_provider('booking', \MHMRentiva\Admin\Settings\Groups\BookingSettings::class);
 		self::register_provider('vehicle', \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class);
-		// 'vendor-marketplace' (add-on) is no longer hardcoded here (seam
-		// inversion) -- the add-on registers it via the do_action() below, the same
+		// 'vendor-marketplace' (add-on) is no longer hardcoded here (extension
+		// point) -- the add-on registers it via the do_action() below, the same
 		// extension point it already had.
 
 		// Allow third-party extensions to register providers
@@ -95,7 +95,7 @@ final class Settings {
 	/**
 	 * Look up a previously-registered provider class for a tab, if any.
 	 *
-	 * Used by SettingsService::match() (seam inversion) to resolve
+	 * Used by SettingsService::match() to resolve
 	 * the provider class for the add-on-owned tabs (transfer/vendor-marketplace/
 	 * messages) Lite no longer hardcodes by name -- the add-on registers its class
 	 * via the existing `mhmrentiva_register_settings_providers` action

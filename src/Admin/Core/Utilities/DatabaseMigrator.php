@@ -871,7 +871,7 @@ final class DatabaseMigrator {
 	 * read is dead schema, which is WP.org-unclean (cf. the exit decisions
 	 * REQUIREMENT 2).
 	 *
-	 * Seam inversion: the actual CREATE TABLE / legacy-rename SQL moved
+	 * Extension point: the actual CREATE TABLE / legacy-rename SQL moved
 	 * verbatim to the add-on's `\MHMRentiva\Core\Database\Migrations\TransferMigration`
 	 * (same "Migrations" cluster as LedgerMigration/VendorReportsMigration below),
 	 * so this file no longer names any class from the Transfer module itself.
@@ -3227,7 +3227,8 @@ final class DatabaseMigrator {
 
 		$changed = 0;
 
-		// NOT $old/$new. G-C mode 5's shape (g) detector is single-file and not
+		// NOT $old/$new. The prefix-inventory check's option-shape detector is
+		// single-file and not
 		// scope-aware: this file's rename_options() calls delete_option($old) and
 		// add_option($new), so a foreach here over those variable names makes the
 		// gate harvest this array's keys and values as option names and report six

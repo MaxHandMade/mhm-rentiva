@@ -346,7 +346,7 @@ if (! $user_display_name) {
 			// template is `include`d by Lite's own CustomerDashboard (a plain Lite
 			// path, not behind any class_exists() guard), so it must never name the
 			// removed mode-routing class directly -- doing so would fatal a Lite-only
-			// site once that class is deleted (seam inversion). The
+			// site once that class is deleted (extension point). The
 			// add-on subscribes to this filter and returns the markup only when the
 			// vendor marketplace is available and $context is 'vendor'; Lite's own
 			// default is the empty string, i.e. no panel at all.

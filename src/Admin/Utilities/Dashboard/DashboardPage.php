@@ -253,7 +253,7 @@ final class DashboardPage {
 			'caps'                        => apply_filters( 'mhmrentiva_dashboard_features', array() ),
 		);
 
-		// Seam inversion: Lite ships no transfer data at all -- a
+		// Extension point: Lite ships no transfer data at all -- a
 		// subscriber (the add-on's DashboardExtensions) adds `transfer_stats` /
 		// `recent_transfers` / `recent_transfers_total_pages` back only when
 		// the add-on is active. The React app already guards its

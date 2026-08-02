@@ -106,8 +106,8 @@ final class WooCommerceIntegration {
 	 * The messages tab and the vendor tab(s) are extension points filled by
 	 * the add-on: its AccountExtensions subscribes to `mhmrentiva_account_nav_items` to add
 	 * them back, including the active-vendor "Vendor Panel" vs.
-	 * "Become a Vendor" branching this method used to do inline (seam
-	 * inversion). Lite no longer names the deleted mode-routing class's
+	 * "Become a Vendor" branching this method used to do inline (extension
+	 * point). Lite no longer names the deleted mode-routing class's
 	 * messages or vendor-marketplace gates anywhere in this file.
 	 *
 	 * Also used as the single source of truth for the access/redirect guards
@@ -265,7 +265,7 @@ final class WooCommerceIntegration {
 		// My Account menu already omits this endpoint's link in that case, so the
 		// only way here is a hand-typed URL. The guard defers to the same
 		// `mhmrentiva_account_nav_items` filter that decides whether the tab is
-		// registered at all (seam inversion) -- Lite no longer names
+		// registered at all (extension point) -- Lite no longer names
 		// the deleted mode-routing class's vendor-marketplace gate.
 		$nav_items = self::get_account_nav_items();
 		if ( ! isset( $nav_items['vendor_apply'] ) ) {

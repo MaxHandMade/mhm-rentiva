@@ -636,7 +636,7 @@ final class Uninstaller {
 			// They were all dropped here historically, so uninstalling Lite
 			// destroyed append-only financial history belonging to a separate
 			// product, on a site that may be removing Lite intending to reinstall.
-			// Owner decision 2026-08-02: each plugin removes its own data, which is
+			// Each plugin removes its own data, which is
 			// also the rule WordPress.org applies. The add-on owns their removal.
 			//
 			// key_registry is why the list is six and not four: dropping the keys

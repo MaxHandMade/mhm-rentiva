@@ -143,7 +143,7 @@ final class DatabaseCleaner {
 	 * The pre-6.0.0 name of an option, or null if the map does not know it.
 	 *
 	 * Unlike the meta-key direction above this is unambiguous: OPTIONS is an
-	 * exact old => new table whose uniqueness G-C mode 1 enforces, so a reverse
+	 * exact old => new table whose uniqueness the prefix-inventory check enforces, so a reverse
 	 * lookup has at most one answer.
 	 *
 	 * @param string $new_name Current option name.

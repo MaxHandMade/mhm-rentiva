@@ -182,7 +182,7 @@ final class EmailTemplates {
 	}
 
 	/**
-	 * Settings sekmesi için sadece içerik render et (form olmadan)
+	 * Render only the body for the Settings tab, without the surrounding form.
 	 */
 	public static function render_content_only(): void
 	{

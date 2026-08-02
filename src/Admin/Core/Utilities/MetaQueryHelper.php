@@ -264,7 +264,7 @@ final class MetaQueryHelper {
 		// Called on $wpdb->prepare() directly rather than through
 		// call_user_func_array(). The indirect call hid this query from the
 		// sniffs completely, which is not the same thing as being safe -- it is
-		// the evasion this round exists to remove. The alias binds through %i
+		// the evasion this guard exists to remove. The alias binds through %i
 		// and the IN list is generated inline from count($values).
 		return (string) $wpdb->prepare(
 			'%i.meta_value IN (' . implode(',', array_fill(0, count($values), '%s')) . ')',

@@ -131,9 +131,9 @@ final class EmailPreview {
 		// Nonce doğrulaması
 		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_email_preview_nonce'] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_email_preview_action' ) ) {
-			// AJAX isteği değilse sessizce dön, ancak burada genellikle AJAX render edilir.
-			// Bu metodun nasıl çağrıldığına bağlı olarak die() veya return kullanabiliriz.
-			// Şimdilik güvenli bir şekilde return ediyoruz.
+			// Return quietly when this is not an AJAX request. In practice this is
+			// almost always rendered over AJAX; returning rather than die()ing keeps
+			// the non-AJAX path harmless.
 			return;
 		}
 

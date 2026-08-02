@@ -50,7 +50,7 @@ final class CronMonitor {
 		);
 
 		/**
-		 * Seam inversion: the subscription-validation, activation-server
+		 * Extension point: the subscription-validation, activation-server
 		 * check-in and GDPR data-retention crons used to be hardcoded here,
 		 * gated on a class_exists() check for the add-on's activation-manager
 		 * class and an add-on GDPR capability gate. Their labels ("Validates
@@ -155,7 +155,7 @@ final class CronMonitor {
 			);
 		}
 
-		// Check if hook is a plugin hook. Seam inversion: the two
+		// Check if hook is a plugin hook. Extension point: the two
 		// add-on-only licensing hooks used to be hardcoded here; the add-on now adds
 		// them back via this filter.
 		$plugin_hooks = (array) apply_filters(
@@ -241,7 +241,7 @@ final class CronMonitor {
 	 */
 	public static function test_all_cron_jobs(): array {
 		$results = array();
-		// Seam inversion: same filterable "known hooks" list as
+		// Extension point: same filterable "known hooks" list as
 		// run_cron_job() above.
 		$plugin_hooks = (array) apply_filters(
 			'mhmrentiva_known_cron_hooks',

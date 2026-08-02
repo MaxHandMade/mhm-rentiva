@@ -92,14 +92,14 @@ class VehiclesListWidget extends ElementorWidgetBase {
 		$this->end_controls_section();
 
 		// --- STYLE SECTION (The Magic Part) ---
-		// Başlık stili için otomatik selector bağlantısı
+		// Automatic selector binding for the title style
 		$this->register_standard_style_controls(
 			'title_style',
 			__( 'Vehicle Title', 'mhm-rentiva' ),
 			'.rv-vehicle-card__title a'
 		);
 
-		// Fiyat stili için otomatik selector bağlantısı
+		// Automatic selector binding for the price style
 		$this->register_standard_style_controls(
 			'price_style',
 			__( 'Price Tag', 'mhm-rentiva' ),

@@ -611,7 +611,7 @@ final class BookingColumns {
 		if ( '' !== $payment_status_filter ) {
 			$val = $payment_status_filter;
 			if ( in_array( $val, array( 'unpaid', 'paid', 'refunded', 'failed' ), true ) ) {
-				// Hem eski hem yeni meta key'leri kontrol et
+				// Check both the old and the new meta keys
 				$meta[] = array(
 					'relation' => 'OR',
 					array(
