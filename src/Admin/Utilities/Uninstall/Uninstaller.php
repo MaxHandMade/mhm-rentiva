@@ -495,7 +495,7 @@ final class Uninstaller {
 		// touches -- is a separate decision and is recorded as open rather than
 		// taken here by a widened pattern.
 		if ( $delete_backups ) {
-			$backups = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%backup%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$backups = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%backup%' ) );
 			foreach ( $backups as $backup_table ) {
 				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $backup_table ) );
 				++$results['tables_dropped'];
