@@ -23,6 +23,32 @@ final class Uninstaller {
 
 
 	/**
+	 * The pre-rename, vendor-token-only option names this plugin owns.
+	 *
+	 * Uninstall must clear them on a site that never ran Görev 13's migration.
+	 * They carry no 'rentiva' token, so a LIKE pattern that reached them would
+	 * also reach sibling MHM products' options -- the exact widening every other
+	 * pattern in this class deliberately avoids. Read by exact name from the
+	 * migration map instead, which is the only list that knows which vendor-token
+	 * options belong to this plugin.
+	 *
+	 * @return array<int,string>
+	 */
+	private static function legacy_bare_option_names(): array {
+		$names = array();
+		foreach ( array_keys( \MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap::OPTIONS ) as $old ) {
+			$old = (string) $old;
+			// prefix-rename:ignore-start
+			if ( ! str_starts_with( $old, 'mhm_rentiva' ) ) {
+				// prefix-rename:ignore-end
+				$names[] = $old;
+			}
+		}
+
+		return $names;
+	}
+
+	/**
 	 * Get uninstall statistics (what will be deleted)
 	 */
 	public static function get_uninstall_stats(): array {
@@ -47,12 +73,23 @@ final class Uninstaller {
 				"SELECT COUNT(*) 
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
+            OR option_name LIKE %s
+            OR option_name LIKE %s
             OR option_name LIKE %s",
+				// prefix-rename:ignore-start
 				'mhmrentiva%',
-				'_mhmrentiva%'
+				'_mhmrentiva%',
+				'mhm_rentiva%',
+				'_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
 		);
 		$stats['options'] = (int) $options;
+		foreach ( self::legacy_bare_option_names() as $legacy_option ) {
+			if ( null !== get_option( $legacy_option, null ) ) {
+				++$stats['options'];
+			}
+		}
 
 		// Count vehicles
 		$vehicles                        = $wpdb->get_var(
@@ -60,9 +97,12 @@ final class Uninstaller {
 				"
             SELECT COUNT(*) 
             FROM {$wpdb->posts}
-            WHERE post_type = %s
+            WHERE post_type IN (%s, %s)
         ",
-				'mhmrentiva_vehicle'
+				// prefix-rename:ignore-start
+				'mhmrentiva_vehicle',
+				'vehicle'
+				// prefix-rename:ignore-end
 			)
 		);
 		$stats['post_types']['vehicles'] = (int) $vehicles;
@@ -73,9 +113,12 @@ final class Uninstaller {
 				"
             SELECT COUNT(*) 
             FROM {$wpdb->posts}
-            WHERE post_type = %s
+            WHERE post_type IN (%s, %s)
         ",
-				'mhmrentiva_booking'
+				// prefix-rename:ignore-start
+				'mhmrentiva_booking',
+				'vehicle_booking'
+				// prefix-rename:ignore-end
 			)
 		);
 		$stats['post_types']['bookings'] = (int) $bookings;
@@ -87,8 +130,12 @@ final class Uninstaller {
 			$wpdb->prepare(
 				"SELECT COUNT(*)
             FROM {$wpdb->postmeta}
-            WHERE meta_key LIKE %s",
-				'_mhmrentiva%'
+            WHERE meta_key LIKE %s
+            OR meta_key LIKE %s",
+				// prefix-rename:ignore-start
+				'_mhmrentiva%',
+				'_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
 		);
 		$stats['postmeta'] = (int) $postmeta;
@@ -109,10 +156,15 @@ final class Uninstaller {
 		$plugin_crons = array(
 			'mhmrentiva_auto_cancel_event',
 			'mhmrentiva_send_scheduled_notifications',
-			// The notification cron's pre-5.2.0 name. An event scheduled under it
-			// survives in wp_cron independently of the code that scheduled it, so
-			// uninstall has to clear both or it leaves an orphan behind.
-			'mhmrentiva_send_scheduled_notifications',
+			// prefix-rename:ignore-start
+			// The two PRE-6.0.0 spellings. A scheduled event survives in wp_cron
+			// independently of the code that scheduled it, so uninstall must clear
+			// every name this hook has ever had or it leaves orphans behind. The
+			// rename collapsed these two onto the name above, which is why they are
+			// spelled out rather than left as a duplicate of it.
+			'mhm_rentiva_send_scheduled_notifications',
+			'mhm_send_scheduled_notifications',
+			// prefix-rename:ignore-end
 			'mhmrentiva_email_log_retention',
 			'mhmrentiva_log_retention',
 		);
@@ -135,9 +187,15 @@ final class Uninstaller {
 				"SELECT COUNT(*) 
             FROM {$wpdb->options}
             WHERE (option_name LIKE %s 
+            OR option_name LIKE %s
+            OR option_name LIKE %s
             OR option_name LIKE %s)",
+				// prefix-rename:ignore-start
 				'_transient_mhmrentiva%',
-				'_transient_timeout_mhmrentiva%'
+				'_transient_timeout_mhmrentiva%',
+				'_transient_mhm_rentiva%',
+				'_transient_timeout_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
 		);
 		$stats['transients'] = (int) $transients;
@@ -208,10 +266,26 @@ final class Uninstaller {
 				"SELECT option_name
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
+            OR option_name LIKE %s
+            OR option_name LIKE %s
             OR option_name LIKE %s",
+				// prefix-rename:ignore-start
 				'mhmrentiva%',
-				'_mhmrentiva%'
+				'_mhmrentiva%',
+				'mhm_rentiva%',
+				'_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
+		);
+
+		// The pre-rename vendor-token-only options carry no product token, so no
+		// LIKE pattern can select them without also selecting a sibling MHM
+		// product's options. They are taken by EXACT name from the migration map
+		// -- the only list that knows which of them are ours -- and
+		// deleted through the options API rather than an IN() clause, which keeps
+		// the query above a fixed set of literal placeholders.
+		$options = array_values(
+			array_unique( array_merge( (array) $options, self::legacy_bare_option_names() ) )
 		);
 
 		foreach ( $options as $option_name ) {
@@ -226,9 +300,12 @@ final class Uninstaller {
 				"
             SELECT ID
             FROM {$wpdb->posts}
-            WHERE post_type = %s
+            WHERE post_type IN (%s, %s)
         ",
-				'mhmrentiva_vehicle'
+				// prefix-rename:ignore-start
+				'mhmrentiva_vehicle',
+				'vehicle'
+				// prefix-rename:ignore-end
 			)
 		);
 
@@ -243,9 +320,12 @@ final class Uninstaller {
 				"
             SELECT ID
             FROM {$wpdb->posts}
-            WHERE post_type = %s
+            WHERE post_type IN (%s, %s)
         ",
-				'mhmrentiva_booking'
+				// prefix-rename:ignore-start
+				'mhmrentiva_booking',
+				'vehicle_booking'
+				// prefix-rename:ignore-end
 			)
 		);
 
@@ -262,8 +342,12 @@ final class Uninstaller {
 		$postmeta_deleted            = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
-            WHERE meta_key LIKE %s",
-				'_mhmrentiva%'
+            WHERE meta_key LIKE %s
+            OR meta_key LIKE %s",
+				// prefix-rename:ignore-start
+				'_mhmrentiva%',
+				'_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
 		);
 		$results['postmeta_deleted'] = (int) $postmeta_deleted;
@@ -299,10 +383,15 @@ final class Uninstaller {
 		$plugin_crons = array(
 			'mhmrentiva_auto_cancel_event',
 			'mhmrentiva_send_scheduled_notifications',
-			// The notification cron's pre-5.2.0 name. An event scheduled under it
-			// survives in wp_cron independently of the code that scheduled it, so
-			// uninstall has to clear both or it leaves an orphan behind.
-			'mhmrentiva_send_scheduled_notifications',
+			// prefix-rename:ignore-start
+			// The two PRE-6.0.0 spellings. A scheduled event survives in wp_cron
+			// independently of the code that scheduled it, so uninstall must clear
+			// every name this hook has ever had or it leaves orphans behind. The
+			// rename collapsed these two onto the name above, which is why they are
+			// spelled out rather than left as a duplicate of it.
+			'mhm_rentiva_send_scheduled_notifications',
+			'mhm_send_scheduled_notifications',
+			// prefix-rename:ignore-end
 			'mhmrentiva_email_log_retention',
 			'mhmrentiva_log_retention',
 		);
@@ -322,9 +411,15 @@ final class Uninstaller {
 				"SELECT option_name
             FROM {$wpdb->options}
             WHERE option_name LIKE %s
+            OR option_name LIKE %s
+            OR option_name LIKE %s
             OR option_name LIKE %s",
+				// prefix-rename:ignore-start
 				'_transient_mhmrentiva%',
-				'_transient_timeout_mhmrentiva%'
+				'_transient_timeout_mhmrentiva%',
+				'_transient_mhm_rentiva%',
+				'_transient_timeout_mhm_rentiva%'
+				// prefix-rename:ignore-end
 			)
 		);
 
@@ -425,6 +520,32 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_rentiva_transfer_locations',
 			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
 			$wpdb->prefix . 'mhmrentiva_report_queue',
+
+			// prefix-rename:ignore-start
+			// --- PRE-6.0.0 spellings of every table above ---
+			//
+			// Uninstall must work on a site that never ran Görev 13's migration,
+			// where every one of these tables still carries its old name. Three of
+			// them additionally have NO entry in PrefixMigrationMap::TABLES --
+			// notification_queue, backup_records and transfers -- so the migration
+			// will never rename the physical table at all and the old name is the
+			// ONLY name they will ever have. Dropping by the new name alone leaves
+			// them behind on every install, permanently.
+			$wpdb->prefix . 'mhm_rentiva_payout_audit',
+			$wpdb->prefix . 'mhm_rentiva_ledger',
+			$wpdb->prefix . 'mhm_rentiva_commission_policy',
+			$wpdb->prefix . 'mhm_rentiva_tenants',
+			$wpdb->prefix . 'mhm_rentiva_usage_metrics',
+			$wpdb->prefix . 'mhm_rentiva_key_registry',
+			$wpdb->prefix . 'mhm_rentiva_queue',
+			$wpdb->prefix . 'mhm_rentiva_ratings',
+			$wpdb->prefix . 'mhm_message_logs',
+			$wpdb->prefix . 'mhm_notification_queue',
+			$wpdb->prefix . 'mhm_payment_log',
+			$wpdb->prefix . 'mhm_sessions',
+			$wpdb->prefix . 'mhm_backup_records',
+			$wpdb->prefix . 'mhm_transfers',
+			// prefix-rename:ignore-end
 
 			// --- Orphan tables from removed subsystems (kept for cleanup on historic installs) ---
 			$wpdb->prefix . 'mhmrentiva_subscriptions',

@@ -1,25 +1,25 @@
 /* Manual Booking Meta Box Styles */
 
 /* Hide default WordPress post fields */
-.post-type-vehicle_booking #titlediv,
-.post-type-vehicle_booking #post-body-content,
-.post-type-vehicle_booking #post-body .metabox-holder,
-.post-type-vehicle_booking #submitdiv,
-.post-type-vehicle_booking #slugdiv,
-.post-type-vehicle_booking #authordiv,
-.post-type-vehicle_booking #postcustom,
-.post-type-vehicle_booking #postexcerpt,
-.post-type-vehicle_booking #trackbacksdiv,
-.post-type-vehicle_booking #commentstatusdiv,
-.post-type-vehicle_booking #commentsdiv,
-.post-type-vehicle_booking #revisionsdiv,
-.post-type-vehicle_booking #pageparentdiv,
-.post-type-vehicle_booking #postimagediv {
+.post-type-mhmrentiva_booking #titlediv,
+.post-type-mhmrentiva_booking #post-body-content,
+.post-type-mhmrentiva_booking #post-body .metabox-holder,
+.post-type-mhmrentiva_booking #submitdiv,
+.post-type-mhmrentiva_booking #slugdiv,
+.post-type-mhmrentiva_booking #authordiv,
+.post-type-mhmrentiva_booking #postcustom,
+.post-type-mhmrentiva_booking #postexcerpt,
+.post-type-mhmrentiva_booking #trackbacksdiv,
+.post-type-mhmrentiva_booking #commentstatusdiv,
+.post-type-mhmrentiva_booking #commentsdiv,
+.post-type-mhmrentiva_booking #revisionsdiv,
+.post-type-mhmrentiva_booking #pageparentdiv,
+.post-type-mhmrentiva_booking #postimagediv {
 	display: none !important;
 }
 
 /* Show only our meta box */
-.post-type-vehicle_booking #mhm_manual_booking_meta_box {
+.post-type-mhmrentiva_booking #mhmrentiva_manual_booking_meta_box {
 	display: block !important;
 }
 
@@ -370,7 +370,7 @@
 }
 
 /* New customer fields */
-#mhm_new_customer_fields {
+#mhmrentiva_new_customer_fields {
 	margin-top: 15px;
 	padding: 15px;
 	background: var(--mhm-bg-card);
@@ -378,29 +378,29 @@
 	border-radius: var(--mhm-radius-sm);
 }
 
-#mhm_new_customer_fields h4 {
+#mhmrentiva_new_customer_fields h4 {
 	margin: 0 0 15px 0;
 	color: var(--mhm-text-primary);
 	font-size: 14px;
 	font-weight: var(--mhm-font-semibold);
 }
 
-#mhm_new_customer_fields .mhm-field-group {
+#mhmrentiva_new_customer_fields .mhm-field-group {
 	margin-bottom: 10px;
 }
 
-#mhm_new_customer_fields .mhm-field-group:last-child {
+#mhmrentiva_new_customer_fields .mhm-field-group:last-child {
 	margin-bottom: 0;
 }
 
 /* Half width for new customer fields */
-#mhm_new_customer_fields .mhm-field-half {
+#mhmrentiva_new_customer_fields .mhm-field-half {
 	display: inline-block;
 	width: 48%;
 	margin-right: 4%;
 }
 
-#mhm_new_customer_fields .mhm-field-half:last-child {
+#mhmrentiva_new_customer_fields .mhm-field-half:last-child {
 	margin-right: 0;
 }
 

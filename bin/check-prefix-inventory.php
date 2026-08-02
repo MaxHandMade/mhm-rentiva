@@ -321,13 +321,17 @@ function allOldNewPairs(): array
  */
 function deliberateSurvivors(): array
 {
+    // Read from the TOOL rather than restated here. Every carve-out is a literal
+    // the sweep deliberately leaves in its old spelling, so every one of them is
+    // also something this mode must not read as an unconverted leftover. Keeping
+    // a second copy meant the two drifted the moment a carve-out was added -- the
+    // Elementor widget names were carved out and mode 4 immediately reported them
+    // as failures.
+    require_once dirname(__DIR__) . '/bin/prefix-rename.php';
+
     return array_merge(
         Map::BOOTSTRAP_FALLBACK_ALLOWLIST,
-        // Görev 12 decision: legacy Transfer table names. Lite never CREATEs
-        // these tables and TABLES does not map them, so Görev 13 never renames
-        // the physical table either -- the probe literal must keep matching what
-        // is actually on disk. See PrefixRenamer::CARVE_OUT_TABLE_LITERALS.
-        ['mhm_rentiva_transfer_locations', 'mhm_rentiva_transfer_routes']
+        \MHMRentiva\Tools\PrefixRenamer::CARVE_OUT_TABLE_LITERALS
     );
 }
 
@@ -436,12 +440,49 @@ function mode4Sources(string $root): array
     if ($cache !== null) {
         return $cache;
     }
-    $files = [];
-    exec('find ' . escapeshellarg($root . '/src') . ' ' . escapeshellarg($root . '/templates') . ' -name "*.php"', $files);
 
+    // 🔴 MUST MATCH bin/prefix-rename.php's target set, file for file.
+    //
+    // This used to be `src/ + templates/ *.php` while the sweep also rewrote
+    // assets/js, src-react, tests, bin and four root files -- so roughly HALF the
+    // swept surface was uncertified, and the gate said PASS about code it had
+    // never opened. It cost three silently dead admin scripts (a booking-list
+    // filter whose screen guard still named the old post type, a bulk-action
+    // handler bound to the old $typenow, and a category filter the user could not
+    // clear) and it is also why the 'mhmrentiva_rentiva%' corruption of
+    // uninstall.php and phpcs.xml had to be found by hand.
+    //
+    // Any future addition to the tool's target set belongs here in the same
+    // commit; the two lists are one decision written twice.
+    $files = [];
+    exec(
+        'find '
+        . escapeshellarg($root . '/src') . ' '
+        . escapeshellarg($root . '/templates') . ' '
+        . escapeshellarg($root . '/assets') . ' '
+        . escapeshellarg($root . '/src-react') . ' '
+        . escapeshellarg($root . '/tests') . ' '
+        . escapeshellarg($root . '/bin')
+        . ' -type f \( -name "*.php" -o -name "*.js" -o -name "*.jsx" -o -name "*.json" -o -name "*.css" -o -name "*.xml" -o -name "*.txt" \)'
+        . ' -not -path "*/node_modules/*" -not -path "*/vendor/*" -not -path "*/build/*"',
+        $files
+    );
+    foreach (['mhm-rentiva.php', 'uninstall.php', 'phpcs.xml', 'phpstan.neon', 'readme.txt'] as $rootFile) {
+        if (is_file($root . '/' . $rootFile)) {
+            $files[] = $root . '/' . $rootFile;
+        }
+    }
+
+    // Must mirror PrefixRenamer::NEVER_SWEEP: these files carry OLD names as
+    // DATA, so finding one in them is not evidence of an unconverted leftover.
     $excluded = [
-        // The single source of truth for the OLD names. It must contain them.
         $root . '/src/Admin/Core/Utilities/PrefixMigrationMap.php',
+        $root . '/bin/prefix-rename.php',
+        $root . '/bin/prefix-inventory-baseline.txt',
+        $root . '/bin/check-prefix-inventory.php',
+        $root . '/tests/Tools/PrefixRenamerTest.php',
+        $root . '/tests/Tools/NoBareMhmStorageKeysTest.php',
+        $root . '/tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php',
     ];
 
     $cache = [];
@@ -451,10 +492,50 @@ function mode4Sources(string $root): array
         }
         $src = file_get_contents($f);
         if ($src !== false) {
-            $cache[$f] = $src;
+            $cache[$f] = stripIgnoredRegions($src);
         }
     }
     return $cache;
+}
+
+/**
+ * Blank out `prefix-rename:ignore-start/end` regions.
+ *
+ * The gate and the rename tool have to read the SAME annotation, or the marker
+ * only half works: the tool would leave a deliberate pre-6.0.0 spelling alone
+ * and mode 4a would then report that very literal as an unconverted leftover,
+ * making the gate permanently red for doing the right thing. Blanking rather
+ * than deleting keeps byte offsets meaningful for anything that reports them.
+ *
+ * A region is a claim that a human decided this literal must stay -- it is not
+ * a way to hide work, because every one of them is ALSO listed with its reason
+ * in NoBareMhmStorageKeysTest::INVENTORY, which fails if an entry stops
+ * matching the source.
+ *
+ * @param string $src Source text.
+ * @return string Source with marked regions blanked.
+ */
+function stripIgnoredRegions(string $src): string
+{
+    $start = 'prefix-rename:ignore-start';
+    $end   = 'prefix-rename:ignore-end';
+
+    $out    = '';
+    $offset = 0;
+    while (true) {
+        $s = strpos($src, $start, $offset);
+        if ($s === false) {
+            $out .= substr($src, $offset);
+            break;
+        }
+        $out .= substr($src, $offset, $s - $offset);
+        $e = strpos($src, $end, $s);
+        if ($e === false) {
+            break; // unterminated: drop the remainder, matching the tool.
+        }
+        $offset = $e + strlen($end);
+    }
+    return $out;
 }
 
 function runMode4(string $root): array

@@ -21,7 +21,7 @@ class VehiclesGridWidget extends ElementorWidgetBase {
 
 
 	public function get_name(): string {
-		return 'mhmrentiva_vehicles_grid';
+		return 'mhm_rentiva_vehicles_grid';
 	}
 
 	public function get_title(): string {

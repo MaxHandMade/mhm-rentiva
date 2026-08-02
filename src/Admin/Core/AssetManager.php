@@ -404,9 +404,22 @@ final class AssetManager {
 		// Plugin's custom post types that don't carry the 'mhm' prefix in their slug.
 		$plugin_post_types = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon', 'mhmrentiva_vendor_app' );
 
+		// The migration map asks for the bare 'mhm' probe to become 'mhmrentiva'
+		// by hand. Done, but NOT as a straight substitution -- that would have
+		// broken this check.
+		//
+		// Screen ids mix both conventions: menu pages carry the HYPHENATED plugin
+		// slug ('toplevel_page_mhm-rentiva', 'mhm-rentiva_page_mhm-rentiva-settings')
+		// while post-type screens carry the UNDERSCORED post type
+		// ('edit-mhmrentiva_vehicle'). 'mhm' matched both only by being short
+		// enough to be meaningless; 'mhmrentiva' alone matches the second family
+		// and none of the first, so every settings screen would silently stop
+		// loading its assets. Both spellings are tested explicitly instead, which
+		// removes the three-letter token without narrowing what the probe sees.
 		return (
-			str_contains( $screen->id, 'mhm' ) ||
-			str_contains( $screen->post_type ?? '', 'mhm' ) ||
+			str_contains( $screen->id, 'mhmrentiva' ) ||
+			str_contains( $screen->id, 'mhm-rentiva' ) ||
+			str_contains( $screen->post_type ?? '', 'mhmrentiva' ) ||
 			in_array( $screen->post_type ?? '', $plugin_post_types, true )
 		);
 	}

@@ -208,6 +208,12 @@ class PrefixRenamerTest extends TestCase {
 			'method name booking'    => array( 'public function show_booking_button() {}', 'method names are not storage' ),
 			'method name addon'      => array( 'private function format_addon_price( $p ) {}', 'method names are not storage' ),
 			'css class'              => array( 'class="mhm-rentiva-card"', 'CSS classes are not registered globals' ),
+			// 'edit-' is an ordinary fragment of hyphenated class names and DOM
+			// ids. Without a stricter left boundary the screen-id rule rewrote
+			// these into 'mhm-edit-mhmrentiva_vehicle-btn'.
+			'hyphenated class'       => array( 'class="mhm-edit-vehicle-btn"', 'a CSS class, not a screen id' ),
+			'hyphenated dom id'      => array( 'id="mhm-edit-vehicle-panel"', 'a DOM id, not a screen id' ),
+			'hyphenated close btn'   => array( 'id="mhm-close-edit-vehicle"', 'a DOM id, not a screen id' ),
 		);
 	}
 
@@ -268,6 +274,13 @@ class PrefixRenamerTest extends TestCase {
 			'save_post hook'             => array( "'save_post_vehicle'", "'save_post_mhmrentiva_vehicle'" ),
 			'save_post booking hook'     => array( "'save_post_vehicle_booking'", "'save_post_mhmrentiva_booking'" ),
 			'add_meta_boxes hook'        => array( "'add_meta_boxes_vehicle'", "'add_meta_boxes_mhmrentiva_vehicle'" ),
+			// Body classes and screen ids -- neither is a quoted literal, and in a
+			// .css file there is no PHP syntax for a quoted_exact allow pattern to
+			// match at all, so these were structurally invisible.
+			'css body class'             => array( '.post-type-vehicle_booking #titlediv {', '.post-type-mhmrentiva_booking #titlediv {' ),
+			'css body class vehicle'     => array( '.post-type-vehicle #slugdiv {', '.post-type-mhmrentiva_vehicle #slugdiv {' ),
+			'js screen guard'            => array( "pagenow !== 'edit-vehicle_booking'", "pagenow !== 'edit-mhmrentiva_booking'" ),
+			'js typenow guard'           => array( "typenow === 'vehicle_booking'", "typenow === 'mhmrentiva_booking'" ),
 			'wp_meta_boxes is post-type keyed' => array( "isset( \$wp_meta_boxes['vehicle']['side'] )", "isset( \$wp_meta_boxes['mhmrentiva_vehicle']['side'] )" ),
 		);
 	}
@@ -344,6 +357,57 @@ class PrefixRenamerTest extends TestCase {
 	}
 
 	/**
+	 * A marked region is copied verbatim, so the deliberate pre-rename spellings
+	 * the transition window needs survive re-running the tool.
+	 */
+	public function test_ignore_region_is_copied_verbatim(): void {
+		$in = "'mhm_rentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'\n// prefix-rename:ignore-end\n'mhm_rentiva_c'";
+		$this->assertSame(
+			"'mhmrentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'\n// prefix-rename:ignore-end\n'mhmrentiva_c'",
+			$this->t( $in ),
+			'the marked region must be untouched and the surrounding code must still convert'
+		);
+	}
+
+	/**
+	 * An unterminated marker protects the rest of the file rather than silently
+	 * resuming, because resuming would convert exactly the literals the marker
+	 * was opened to protect.
+	 */
+	public function test_unterminated_ignore_region_protects_to_end_of_file(): void {
+		$in = "'mhm_rentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'";
+		$this->assertSame(
+			"'mhmrentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'",
+			$this->t( $in )
+		);
+	}
+
+	/**
+	 * Elementor stores get_name() as "widgetType" in _elementor_data, so a widget
+	 * name is saved content -- the same category as a shortcode tag, and protected
+	 * for the same reason. Renaming one breaks every page already built with it.
+	 *
+	 * @dataProvider elementorWidgetNameProvider
+	 *
+	 * @param string $fragment Fragment that must not change.
+	 */
+	public function test_elementor_widget_names_are_not_renamed( string $fragment ): void {
+		$this->assertSame( $fragment, $this->t( $fragment ), 'an Elementor widget name lives in post_content' );
+	}
+
+	/**
+	 * @return array<string, array{0:string}>
+	 */
+	public function elementorWidgetNameProvider(): array {
+		return array(
+			'featured'      => array( "return 'mhm_rentiva_featured_vehicles';" ),
+			'grid'          => array( "return 'mhm_rentiva_vehicles_grid';" ),
+			'list'          => array( "return 'mhm_rentiva_vehicles_list';" ),
+			'js element_ready' => array( "'frontend/element_ready/mhm_rentiva_featured_vehicles.default'," ),
+		);
+	}
+
+	/**
 	 * mhm-ui-core is a separate composer package. Its function is defined in
 	 * vendor/, so renaming our call site produces a fatal.
 	 */
@@ -381,6 +445,69 @@ class PrefixRenamerTest extends TestCase {
 		$this->assertNotSame( "'mhm_rentiva_settings' '_mhm_booking_id' 'MHM_RENTIVA_VERSION'", $out );
 		$this->assertNotEmpty( $stats, 'transform reported no rule hits at all' );
 		$this->assertSame( 3, array_sum( $stats ), 'expected exactly three rule firings' );
+	}
+
+	// -----------------------------------------------------------------
+	// Tree-level invariants. The fixtures above prove the TRANSFORM is
+	// right; these prove the TREE is, which is the claim that actually
+	// matters and the one a fixture cannot make.
+	//
+	// Both of these existed once, were lost to a `git checkout` during the
+	// deny-by-default rework, and were then reported as present. Nothing
+	// noticed, because a test that does not exist cannot fail. That is why
+	// they are asserted here rather than described in a report.
+	// -----------------------------------------------------------------
+
+	/**
+	 * Every protected identifier in this plugin is hyphenated -- the text domain
+	 * 'mhm-rentiva', the block namespace 'mhm-rentiva/*', every script and style
+	 * handle 'mhm-rentiva-*'. The rename rules all key on the UNDERSCORE form, so
+	 * a hyphenated identifier can only change if a rule fired where it must not
+	 * have. One 'mhmrentiva-' anywhere in the shipped tree is proof of that, and
+	 * it is a single cheap search rather than a per-identifier list that could
+	 * silently go stale.
+	 */
+	public function test_no_hyphenated_identifier_was_renamed(): void {
+		$root  = dirname( __DIR__, 2 );
+		$leaks = array();
+
+		foreach ( array( 'src', 'templates', 'assets', 'src-react' ) as $dir ) {
+			$path = $root . '/' . $dir;
+			if ( ! is_dir( $path ) ) {
+				continue;
+			}
+			$it = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $path, \FilesystemIterator::SKIP_DOTS ) );
+			foreach ( $it as $file ) {
+				if ( ! $file->isFile() || ! preg_match( '/\.(php|js|jsx|css|json)$/', $file->getFilename() ) ) {
+					continue;
+				}
+				$rel = str_replace( '\\', '/', $file->getPathname() );
+				if ( str_contains( $rel, '/node_modules/' ) ) {
+					continue;
+				}
+				if ( str_contains( (string) file_get_contents( $file->getPathname() ), 'mhmrentiva-' ) ) {
+					$leaks[] = substr( $rel, strlen( $root ) + 1 );
+				}
+			}
+		}
+
+		$this->assertSame(
+			array(),
+			$leaks,
+			"a hyphenated identifier (text domain / block namespace / asset handle) was renamed in:\n" . implode( "\n", $leaks )
+		);
+	}
+
+	/**
+	 * The text domain must equal the plugin slug, which the sweep does not change.
+	 */
+	public function test_text_domain_is_untouched(): void {
+		$main = (string) file_get_contents( dirname( __DIR__, 2 ) . '/mhm-rentiva.php' );
+		// Whitespace-tolerant: the header is column-aligned, so a fixed
+		// single-space needle fails for a formatting reason and says nothing
+		// about the text domain.
+		$this->assertMatchesRegularExpression( '/^\s*\*\s*Text Domain:\s*mhm-rentiva\s*$/m', $main );
+		$this->assertDoesNotMatchRegularExpression( '/Text Domain:\s*mhmrentiva\b/', $main );
 	}
 
 	/**

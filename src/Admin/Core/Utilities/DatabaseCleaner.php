@@ -107,15 +107,22 @@ final class DatabaseCleaner {
 	 * The pre-6.0.0 spelling of every key in static_meta_keys().
 	 *
 	 * 🔴 THE TRANSITION WINDOW. The 6.0.0 rename moves this plugin's meta keys
-	 * from '_mhmrentiva_*' to '_mhmrentiva_*', but the code and the DATABASE do not move
-	 * at the same instant: the code changes when the plugin file updates, the
-	 * rows change when Görev 13's migration runs, and between those two moments
-	 * a site holds OLD rows while running NEW code. The list above is the list
-	 * the cleanup PROTECTS -- `meta_key LIKE '_mhm%' AND meta_key NOT IN (list)`,
-	 * unscoped across the whole postmeta table -- and '_mhmrentiva_x' and
-	 * '_mhmrentiva_x' both still match that LIKE. So a protection list holding only the
-	 * new spelling makes every un-migrated row unprotected, and the next cleanup
-	 * run deletes the site's entire booking, vehicle and payment meta.
+	 * from the pre-rename prefixes onto the single-token one, but the code and
+	 * the DATABASE do not move at the same instant: the code changes when the
+	 * plugin file updates, the rows change when Görev 13's migration runs, and
+	 * between those two moments a site holds OLD rows while running NEW code.
+	 * The list above is the list the cleanup PROTECTS -- a `NOT IN (list)`
+	 * against a prefix LIKE, unscoped across the whole postmeta table -- and a
+	 * row in EITHER spelling still matches that LIKE. So a protection list
+	 * holding only the post-rename spelling makes every un-migrated row
+	 * unprotected, and the next cleanup run deletes the site's entire booking,
+	 * vehicle and payment meta.
+	 *
+	 * (This paragraph deliberately names no prefix literally. The sweep that
+	 * created this situation also rewrote the first version of it, leaving the
+	 * only prose explaining the most dangerous invariant in the file reading
+	 * "moves the keys from X to X" -- which is worse than no comment, because it
+	 * looks like an explanation.)
 	 *
 	 * Both spellings therefore have to be live simultaneously, for as long as any
 	 * site can still be un-migrated -- which is forever, since nothing forces a
@@ -786,12 +793,13 @@ final class DatabaseCleaner {
 	public static function find_unused_options(): array {
 		global $wpdb;
 
+		// prefix-rename:ignore-start -- both spellings on purpose
 		// MHM Rentiva options
 		$all_options = $wpdb->get_results(
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva%'
+            WHERE ( option_name LIKE 'mhmrentiva%' OR option_name LIKE 'mhm_rentiva%' )
             AND option_name NOT LIKE '_transient%'
         ",
 			ARRAY_A
@@ -802,7 +810,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva%'
+            WHERE ( option_name LIKE 'mhmrentiva%' OR option_name LIKE 'mhm_rentiva%' )
             AND autoload = 'yes'
         ",
 			ARRAY_A
@@ -1211,7 +1219,7 @@ final class DatabaseCleaner {
 			"
             SELECT option_name, LENGTH(option_value) as size
             FROM {$wpdb->options}
-            WHERE option_name LIKE 'mhmrentiva%'
+            WHERE ( option_name LIKE 'mhmrentiva%' OR option_name LIKE 'mhm_rentiva%' )
             AND autoload = 'yes'
             AND LENGTH(option_value) > 1024
             ORDER BY size DESC
@@ -1219,6 +1227,7 @@ final class DatabaseCleaner {
         ",
 			ARRAY_A
 		);
+			// prefix-rename:ignore-end
 
 		if ( $dry_run ) {
 			return array(
@@ -1553,12 +1562,22 @@ final class DatabaseCleaner {
 	public static function list_backups(): array {
 		global $wpdb;
 
-		// Find all backup tables
-		$backup_tables = $wpdb->get_col(
-			"
-            SHOW TABLES LIKE '{$wpdb->prefix}mhmrentiva_%_backup%'
-        "
+		// prefix-rename:ignore-start
+		// Both spellings, and that is not cosmetic.
+		//
+		// Backup tables are named '{prefix}mhm_postmeta_backup_<Ymd_His>' and the
+		// physical table keeps that name forever: it is not in
+		// PrefixMigrationMap::TABLES, so Görev 13 never renames it either. A
+		// new-prefix-only pattern therefore cannot see ANY backup taken before
+		// 6.0.0 -- and because is_managed_backup_table() decides membership by
+		// enumerating this list, and export_backup_to_sql() gates on that, such a
+		// backup becomes unlistable, unexportable and UNRESTORABLE. It is also the
+		// only copy of the postmeta the cleanup deleted.
+		$backup_tables = array_merge(
+			(array) $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}mhmrentiva_%_backup%'" ),
+			(array) $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}mhm_%_backup%'" )
 		);
+		$backup_tables = array_values( array_unique( array_filter( $backup_tables ) ) );
 
 		$backups = array();
 

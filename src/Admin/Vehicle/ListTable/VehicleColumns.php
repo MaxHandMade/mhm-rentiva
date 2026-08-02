@@ -13,7 +13,7 @@ if (! defined('ABSPATH')) {
  * Custom columns for the Vehicle admin list table.
  *
  * Registers, renders, and sorts additional columns (lifecycle status,
- * vendor info, financial metrics) on the edit-vehicle screen.
+ * vendor info, financial metrics) on the edit-mhmrentiva_vehicle screen.
  *
  * @since 4.20.0
  */

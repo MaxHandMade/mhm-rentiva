@@ -28,7 +28,13 @@ abstract class ElementorWidgetBase extends Widget_Base {
 	 *
 	 * @var array
 	 */
-	protected array $widget_keywords = array( 'mhm', 'rentiva' );
+	// The bare three-letter token is gone, per the migration map's hand-edit
+	// note. These are Elementor widget-picker SEARCH HINTS, not registered
+	// globals -- nothing is stored under them -- but 'mhm' alone is exactly the
+	// token WordPress.org rejected, and leaving it in a shipped array invites the
+	// reviewer to find it. 'rentiva' stays so the widgets remain findable by the
+	// word a user actually types.
+	protected array $widget_keywords = array( 'mhmrentiva', 'rentiva' );
 
 	/**
 	 * Get Widget Categories

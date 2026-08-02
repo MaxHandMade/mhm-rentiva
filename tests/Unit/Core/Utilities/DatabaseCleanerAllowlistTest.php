@@ -47,6 +47,10 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 * @var array<string, array{plugin: string, why: string}>
 	 */
 	private const NON_META_LITERALS = array(
+		'_mhm'                             => array(
+			'plugin' => 'lite',
+			'why'    => 'LIKE prefix, not a meta key: Locker::withLock()/withBookingLock() lock every row of this plugin in BOTH spellings, because a new-prefix-only pattern locks nothing on an un-migrated site',
+		),
 		'_mhm_'                            => array(
 			'plugin' => 'lite',
 			'why'    => 'concatenation base: "_mhm_" . $key (TransferBookingHandler, VehicleMeta grid order)',

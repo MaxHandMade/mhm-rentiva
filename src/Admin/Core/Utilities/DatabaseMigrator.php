@@ -337,11 +337,11 @@ final class DatabaseMigrator {
 		global $wpdb;
 
 		$status = array(
-			'total_indexes'     => 0,
-			'mhmrentiva_indexes'       => 0,
-			'performance_score' => 0,
-			'missing_indexes'   => array(),
-			'recommendations'   => array(),
+			'total_indexes'      => 0,
+			'mhmrentiva_indexes' => 0,
+			'performance_score'  => 0,
+			'missing_indexes'    => array(),
+			'recommendations'    => array(),
 		);
 
 		try {
@@ -742,14 +742,24 @@ final class DatabaseMigrator {
         AND pm.meta_key LIKE '_mhmrentiva_%'"
 		);
 
+		// prefix-rename:ignore-start
 		// 2. Transient Data Cleaning
 		$wpdb->query(
-			"DELETE FROM {$wpdb->options} 
+			// Four DISTINCT patterns: the current family, plus the two pre-6.0.0
+			// families the rename collapsed onto it. Written out because
+			// 'mhm_rentiva_rate_limit_' and the bare 'mhm_rate_limit_' both become
+			// 'mhmrentiva_rate_limit_', so the list otherwise reads as two
+			// duplicates and the bare family stops being swept on any site that
+			// has not run Görev 13's migration.
+			"DELETE FROM {$wpdb->options}
              WHERE option_name LIKE '_transient_mhmrentiva_rate_limit_%'
              OR option_name LIKE '_transient_timeout_mhmrentiva_rate_limit_%'
-             OR option_name LIKE '_transient_mhmrentiva_rate_limit_%'
-             OR option_name LIKE '_transient_timeout_mhmrentiva_rate_limit_%'"
+             OR option_name LIKE '_transient_mhm_rentiva_rate_limit_%'
+             OR option_name LIKE '_transient_timeout_mhm_rentiva_rate_limit_%'
+             OR option_name LIKE '_transient_mhm_rate_limit_%'
+             OR option_name LIKE '_transient_timeout_mhm_rate_limit_%'"
 		);
+		// prefix-rename:ignore-end
 	}
 	/**
 	 * Create specific table by key
@@ -1276,7 +1286,13 @@ final class DatabaseMigrator {
 	{
 		global $wpdb;
 
-		foreach (array( 'mhmrentiva_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ) as $hook) {
+		// All three spellings: the current name and the two PRE-6.0.0 ones the
+		// rename collapsed onto it. A scheduled event lives in wp_cron
+		// independently of the code that scheduled it, so clearing only the
+		// current name leaves an orphan that fires into a hook nothing listens to.
+		// prefix-rename:ignore-start
+		foreach (array( 'mhmrentiva_send_scheduled_notifications', 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ) as $hook) {
+			// prefix-rename:ignore-end
 			$timestamp = wp_next_scheduled($hook);
 			while ($timestamp) {
 				wp_unschedule_event($timestamp, $hook);
@@ -1285,7 +1301,16 @@ final class DatabaseMigrator {
 		}
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
-		$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . 'mhmrentiva_notification_queue'));
+		// prefix-rename:ignore-start
+		// Both spellings. This table has NO PrefixMigrationMap::TABLES entry, so
+		// Görev 13 never renames the physical table -- on every real install it is
+		// still `{prefix}mhm_notification_queue`, and dropping only the new name
+		// would leave the table this method exists to remove sitting there.
+		// prefix-rename:ignore-start
+		foreach (array( 'mhmrentiva_notification_queue', 'mhm_notification_queue' ) as $legacy_queue_table) {
+			// prefix-rename:ignore-end
+			$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $wpdb->prefix . $legacy_queue_table));
+		}
 	}
 
 	private static function delete_dead_api_key_option(): void

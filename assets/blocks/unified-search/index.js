@@ -36,7 +36,7 @@
 
         // Helper for Ajax URL replacement
         var globalSettings = window.mhmRentivaSearch ? window.mhmRentivaSearch : {};
-        var settingsUrl = globalSettings.ajax_url ? globalSettings.ajax_url.replace('admin-ajax.php', 'admin.php?page=mhm_rentiva_settings') : '#';
+        var settingsUrl = globalSettings.ajax_url ? globalSettings.ajax_url.replace('admin-ajax.php', 'admin.php?page=mhmrentiva_settings') : '#';
 
         return el('div', blockProps,
             el(InspectorControls, {},

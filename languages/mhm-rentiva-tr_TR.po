@@ -12515,8 +12515,8 @@ msgid "System Log Retention (Classic)"
 msgstr "Sistem Günlüğü Saklama (Klasik)"
 
 #: src/Admin/Utilities/Cron/CronMonitor.php:46
-msgid "Cleans up old system logs (mhm_app_log post type)"
-msgstr "Eski sistem günlüklerini temizler (mhm_app_log yazı türü)"
+msgid "Cleans up old system logs (mhmrentiva_app_log post type)"
+msgstr "Eski sistem günlüklerini temizler (mhmrentiva_app_log yazı türü)"
 
 #: src/Admin/Utilities/Cron/CronMonitor.php:49
 msgid "App Log Maintenance (Modern)"

@@ -4,7 +4,7 @@
 
 	$(
 		function () {
-			if (typeof pagenow === 'undefined' || pagenow !== 'edit-vehicle_booking') {
+			if (typeof pagenow === 'undefined' || pagenow !== 'edit-mhmrentiva_booking') {
 				return;
 			}
 

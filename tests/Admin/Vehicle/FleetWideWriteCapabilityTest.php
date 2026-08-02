@@ -29,7 +29,7 @@ use WP_Ajax_UnitTestCase;
  */
 final class FleetWideWriteCapabilityTest extends WP_Ajax_UnitTestCase
 {
-	private const META_KEY = '_mhmrentiva_blocked_dates';
+	private const META_KEY = '_mhm_blocked_dates';
 
 	private int $author_id;
 	private int $own_vehicle;

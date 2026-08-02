@@ -144,7 +144,7 @@
 }
 
 
-.mhm-booking-list select.postform[name="mhm_booking_status"] {
+.mhm-booking-list select.postform[name="mhmrentiva_booking_status"] {
 	min-width: 130px;
 	padding-right: 30px;
 	/* Extra padding for dropdown arrow */
@@ -163,13 +163,13 @@
 }
 
 /* Custom layout for all payments dropdown */
-.mhm-booking-list select.postform[name="mhm_payment_status"] {
+.mhm-booking-list select.postform[name="mhmrentiva_payment_status"] {
 	min-width: 140px;
 	padding-right: 35px;
 }
 
 /* Custom layout for all payment methods dropdown */
-.mhm-booking-list select.postform[name="mhm_payment_method"] {
+.mhm-booking-list select.postform[name="mhmrentiva_payment_method"] {
 	min-width: 160px;
 	padding-right: 35px;
 }

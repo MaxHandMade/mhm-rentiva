@@ -248,7 +248,7 @@ final class CancellationHandler {
 		}
 
 		// Get blocked dates
-		$blocked_dates = get_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', true );
+		$blocked_dates = get_post_meta( $vehicle_id, '_mhm_rentiva_blocked_dates', true );
 		if ( ! is_array( $blocked_dates ) ) {
 			$blocked_dates = array();
 		}
@@ -269,7 +269,7 @@ final class CancellationHandler {
 		}
 
 		// Update vehicle meta
-		update_post_meta( $vehicle_id, '_mhmrentiva_blocked_dates', array_values( $blocked_dates ) );
+		update_post_meta( $vehicle_id, '_mhm_rentiva_blocked_dates', array_values( $blocked_dates ) );
 
 		return true;
 	}

@@ -340,7 +340,7 @@ jQuery( document ).ready(
 
 				// Mevcut parametreleri temizle
 				url.searchParams.delete( 'addon_status' );
-				url.searchParams.delete( 'addon_category' );
+				url.searchParams.delete( 'mhmrentiva_addon_category' );
 				url.searchParams.delete( 's' );
 
 				// Yeni parametreleri ekle
@@ -358,7 +358,7 @@ jQuery( document ).ready(
 			clearFilters: function () {
 				var url = new URL( window.location );
 				url.searchParams.delete( 'addon_status' );
-				url.searchParams.delete( 'addon_category' );
+				url.searchParams.delete( 'mhmrentiva_addon_category' );
 				url.searchParams.delete( 's' );
 				window.location.href = url.toString();
 			}

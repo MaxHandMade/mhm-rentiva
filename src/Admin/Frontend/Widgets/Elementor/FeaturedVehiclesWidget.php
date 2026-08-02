@@ -21,7 +21,7 @@ class FeaturedVehiclesWidget extends ElementorWidgetBase {
 
 
 	public function get_name(): string {
-		return 'mhmrentiva_featured_vehicles';
+		return 'mhm_rentiva_featured_vehicles';
 	}
 
 	public function get_title(): string {

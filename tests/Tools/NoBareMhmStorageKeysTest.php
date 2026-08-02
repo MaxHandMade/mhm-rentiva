@@ -73,12 +73,30 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		// name reaching a storage or registry API, and the honest inventory is
 		// the empty one.
 		//
-		// The gate below is NOT weaker for being empty -- it is stricter. It now
-		// says "no bare `mhm_` storage name may exist at all", and any new one
-		// fails the build instead of being waved through by an entry someone
-		// added to make the suite green. test_the_scan_reads_the_plugin_source
-		// separately proves the scanner is still reading the tree, so an empty
-		// result here means absence, not blindness.
+		// NOT EMPTY AFTER ALL. The nine entries below are the residue of the
+		// TRANSITION WINDOW, and every one of them is a deliberate decision made
+		// during the rename, not a name that escaped it.
+		//
+		// Uninstall, the cron cleanup and the dead-table drops all have to work on
+		// a site running 6.0.0 code whose ROWS have not been migrated yet, so they
+		// name the pre-6.0.0 spellings on purpose. Two more have no destination at
+		// all: `mhm_verified_review` has no PrefixMigrationMap::COMMENTMETA entry,
+		// and three of the tables have no TABLES entry, so nothing will ever
+		// rename the thing they point at and the old name is the only real one.
+		//
+		// Each is inside a `prefix-rename:ignore-start/end` region in its source
+		// file, so the rename tool leaves it alone rather than "modernising" it
+		// into a name that matches nothing -- which is what happened to four of
+		// them before those markers existed.
+		'mhm_backup_records'               => 'table with no TABLES entry: never renamed, so the old name is the only name',
+		'mhm_message_logs'                 => 'uninstall drops it by its pre-6.0.0 name too, for un-migrated sites',
+		'mhm_notification_queue'           => 'table with no TABLES entry; the drop is the entire point of the method',
+		'mhm_payment_log'                  => 'uninstall drops it by its pre-6.0.0 name too, for un-migrated sites',
+		'mhm_sessions'                     => 'uninstall drops it by its pre-6.0.0 name too, for un-migrated sites',
+		'mhm_transfers'                    => 'table with no TABLES entry: never renamed, so the old name is the only name',
+		'mhm_rate_limit_'                  => 'transient family swept by its pre-6.0.0 prefix as well',
+		'mhm_send_scheduled_notifications' => 'cron hook: a scheduled event outlives the code that scheduled it, so every historical name must be cleared',
+		'mhm_verified_review'              => 'comment meta with no COMMENTMETA entry -- renaming the code alone would unverify every flagged review',
 	);
 
 	/**

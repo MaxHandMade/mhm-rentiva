@@ -30,8 +30,15 @@
 
 	$(
 		function () {
-			const isBookingsList = (typeof pagenow !== 'undefined' && pagenow === 'edit.php')
-			&& (typeof typenow !== 'undefined' && typenow === 'vehicle_booking');
+			// `pagenow` is the SCREEN ID, not the script name: on a CPT list it is
+			// 'edit-mhmrentiva_booking', never 'edit.php'. The old guard ANDed
+			// those two, so it could not pass on any screen and this script has
+			// been dead since before the 6.0.0 rename -- the rename only changed
+			// which post type it was dead for. Verified in the browser by asking
+			// jQuery which delegated handlers were actually registered, rather
+			// than by looking at the rendered list.
+			const isBookingsList = (typeof typenow !== 'undefined' && typenow === 'mhmrentiva_booking')
+			&& (typeof pagenow !== 'undefined' && (pagenow === 'edit.php' || pagenow === 'edit-mhmrentiva_booking'));
 			if ( ! isBookingsList) {
 				return;
 			}

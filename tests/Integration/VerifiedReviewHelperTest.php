@@ -240,7 +240,7 @@ class VerifiedReviewHelperTest extends \WP_UnitTestCase
         $comment_id = $this->create_review($this->vehicle_id, $this->user_id);
 
         // No booking exists, but admin overrides
-        update_comment_meta($comment_id, 'mhmrentiva_verified_review', '1');
+        update_comment_meta($comment_id, 'mhm_verified_review', '1');
 
         $this->assertTrue(
             VerifiedReviewHelper::is_verified($comment_id, $this->vehicle_id, $this->user_id),

@@ -336,11 +336,31 @@ final class DashboardPage {
 			'mhmrentiva_customer_report_',
 			'mhmrentiva_vehicle_report_',
 			'mhmrentiva_vlist_',
+			// prefix-rename:ignore-start
 			// The add-on's reports cache. Kept deliberately: Reports.php writes
-			// `mhmrentiva_revenue_report_` and the dashboard shows figures derived from
-			// the same data, so clearing one without the other shows two different
-			// numbers on one screen.
-			'mhmrentiva_revenue_report_',
+			// this family and the dashboard shows figures derived from the same
+			// data, so clearing one without the other shows two different numbers
+			// on one screen.
+			//
+			// It USED to be a second, distinct key. The 6.0.0 rename sends both
+			// `mhm_rentiva_revenue_report_` and the add-on's `mhm_revenue_report_`
+			// to the same new name, so the entry above already covers it and a
+			// literal duplicate here would only have documented the collapse.
+			//
+			// The pre-rename spellings stay listed because a site that has not run
+			// Görev 13's migration still holds transients under them, and a cache
+			// this code believes it cleared but did not is a stale number on the
+			// dashboard with no way for the user to flush it.
+			'mhm_rentiva_revenue_report_',
+			'mhm_revenue_report_',
+			'mhm_rentiva_dashboard_recent_bookings_v4',
+			'mhm_rentiva_recent_messages_',
+			'mhm_rentiva_dashboard_stats',
+			'mhm_rentiva_booking_report_',
+			'mhm_rentiva_customer_report_',
+			'mhm_rentiva_vehicle_report_',
+			'mhm_rentiva_vlist_',
+			// prefix-rename:ignore-end
 		);
 		foreach ($cache_keys as $key_prefix) {
 			$prefix_like = $wpdb->esc_like('_transient_' . $key_prefix) . '%';

@@ -143,6 +143,45 @@ class PrefixRenamer {
 		// 3-letter prefix is a separate T7 exposure belonging to that repo,
 		// exactly like Pro's lockstep in Görev 14.
 		'mhm_ui_core_',
+		// 🔴 Elementor WIDGET NAMES. Elementor persists get_name() as "widgetType"
+		// inside every page's _elementor_data postmeta, so these live in saved
+		// content exactly as shortcode tags and block namespaces do -- and those
+		// are protected by the constraints for precisely this reason. Renaming
+		// them makes Elementor render "missing widget" on every page and template
+		// already built with one, and _elementor_data belongs to no migration
+		// family, so Görev 13 will never rewrite the stored value either.
+		//
+		// The generic 'mhm_rentiva_' rule reached them by accident: the 14 sibling
+		// widgets in the same directory return 'rv-*' names and were untouched, so
+		// these three were never a decision anyone made.
+		'mhm_rentiva_featured_vehicles',
+		'mhm_rentiva_vehicles_grid',
+		'mhm_rentiva_vehicles_list',
+		// 🔴 A COLLIDING PAIR, held at its old spellings until the owner decides.
+		//
+		// PrefixMigrationMap sends '_mhm_' and '_mhm_rentiva_' both to
+		// '_mhmrentiva_', so these two DISTINCT keys landed on one name --
+		// BlockedDatesMetaBox's admin-entered JSON (dates + notes) and
+		// CancellationHandler's flat array of date strings written when a booking
+		// is cancelled. Different writers, different value shapes, same key: each
+		// silently overwrote the other on the same vehicle.
+		//
+		// The map's own docblock asserts these two families "cannot collide", so
+		// the contract is wrong here and only the owner can change it. Reverting
+		// both to their pre-rename spellings restores the distinction, stops the
+		// corruption, and pre-empts no decision -- the destination names are
+		// proposed in the task report's decision table. Six further pairs collide
+		// the same way but only in the DATABASE; they have a single writer each,
+		// so they are a migration question, not a live bug.
+		'_mhm_blocked_dates',
+		'_mhm_rentiva_blocked_dates',
+		// 🔴 COMMENT META WITH NO MAP ENTRY. PrefixMigrationMap::COMMENTMETA holds
+		// exactly one key ('mhm_rating'), so Görev 13 will not migrate this one --
+		// renaming the code alone makes every review an admin manually flagged as
+		// verified silently revert to unverified, and leaves the old rows as dead
+		// weight nothing reads. Held at its old spelling; proposed as a COMMENTMETA
+		// addition in the decision table.
+		'mhm_verified_review',
 	);
 
 	/**
@@ -152,8 +191,21 @@ class PrefixRenamer {
 	 * for Görev 13's DB migration, where a `meta_key LIKE 'addon_%'` sweep is
 	 * correct because the database contains only real meta keys. The ambiguity
 	 * exists only in SOURCE TEXT, so the source sweep uses this enumeration,
-	 * derived by reading every meta call site. Anything matching a rule but not
-	 * listed here is reported by --list-skips, never silently left behind.
+	 * derived by reading every meta call site.
+	 *
+	 * ⚠️ THIS LIST HAS NO SAFETY NET, and an earlier version of this comment
+	 * claimed it did ("anything matching a rule but not listed here is reported
+	 * by --list-skips"). It is not. buildRules() only promotes map rules that
+	 * contain 'mhm', so '_booking_', '_contact_', '_rentiva_' and 'addon_' never
+	 * become rules at all: an unlisted '_booking_xyz' matches nothing, produces
+	 * no skip entry, and is invisible to modes 3, 4a and 4b alike.
+	 *
+	 * The enumeration IS complete -- two independent reviewers verified it by
+	 * grep -- but that is a fact about today's tree, not a property the tooling
+	 * maintains. A meta key added later under one of those four prefixes will be
+	 * missed silently, and only a fresh manual sweep would find it.
+	 *
+	 * @see PrefixMigrationMap::POSTMETA_PREFIX_RULES
 	 *
 	 * @var array<int,string>
 	 */
@@ -257,7 +309,16 @@ class PrefixRenamer {
 		'/\'taxonomy\'\s*=>\s*\'%s\'/'                             => "'taxonomy' query arg",
 		'/post_type\s*(?:===?|!==?)\s*\'%s\'/'                     => 'post_type comparison',
 		'/\'%s\'\s*(?:===?|!==?)\s*\$[A-Za-z_][A-Za-z0-9_]*(?:->)?(?:post_type)?/' => 'reversed post_type comparison',
-		'/\$typenow\s*(?:===?|!==?)\s*\'%s\'/'                     => '$typenow comparison',
+		// The '$' is OPTIONAL because these same two globals exist in BOTH
+		// languages: PHP's $typenow/$pagenow and the JS globals WordPress prints
+		// into every admin screen. Every other allow pattern here is PHP-shaped
+		// ('self::', '$post->', "'post_type' =>"), which made the whole
+		// quoted_exact family structurally incapable of firing in a .js file --
+		// under deny-by-default that is a silent refusal, and it shipped three
+		// dead admin scripts.
+		'/\$?typenow\s*(?:===?|!==?)\s*\'%s\'/'                    => 'typenow comparison (PHP or JS)',
+		'/\$?pagenow\s*(?:===?|!==?)\s*\'%s\'/'                    => 'pagenow comparison (PHP or JS)',
+		'/searchParams\.(?:delete|get|set|has)\(\s*\'%s\'/'        => 'JS URLSearchParams query-var access',
 		'/get_post_type\([^)]*\)\s*(?:===?|!==?)\s*\'%s\'/'        => 'get_post_type() comparison',
 		'/(?:is_singular|is_post_type_archive|get_post_type_archive_link|wp_count_posts|post_type_exists|taxonomy_exists|get_post_type_object|get_taxonomy)\(\s*\'%s\'/' => 'post-type/taxonomy API call',
 		'/(?:remove_meta_box|add_meta_box)\([^;]*\'%s\'/'          => 'meta-box screen argument',
@@ -478,19 +539,38 @@ class PrefixRenamer {
 		// rests on length-DESC ordering instead -- 'manage_vehicle_booking' (22)
 		// is tried before 'manage_vehicle' (14), so the shorter post type can
 		// never claim the longer one's hook.
-		$hookPrefixes = array( 'manage_', 'manage_edit-', 'save_post_', 'add_meta_boxes_', 'views_edit-', 'bulk_actions-edit-' );
+		// WordPress emits `post-type-{$post_type}` and `edit-{$post_type}` as BODY
+		// CLASSES and screen ids. CSS selectors and JS screen guards key on them,
+		// and neither is a quoted literal a quoted_exact rule could ever see -- in
+		// a .css file there is no PHP syntax for the allow patterns to match at
+		// all. 25 occurrences across the stylesheets alone; every one of them a
+		// rule that silently stops applying the moment the post type moves.
+		$hookPrefixes = array(
+			'manage_',
+			'manage_edit-',
+			'save_post_',
+			'add_meta_boxes_',
+			'views_edit-',
+			'bulk_actions-edit-',
+			'post-type-',
+			'edit-',
+		);
 		foreach ( array_merge( Map::POST_TYPES, Map::TAXONOMIES ) as $old => $new ) {
 			if ( false !== stripos( $old, 'mhm' ) ) {
 				continue;
 			}
 			foreach ( $hookPrefixes as $prefix ) {
 				$rules[] = array(
-					'id'    => 'hook:' . $prefix . $old,
-					'old'   => $prefix . $old,
-					'new'   => $prefix . $new,
-					'kind'  => 'substring',
-					'left'  => false,
-					'right' => false,
+					'id'      => 'hook:' . $prefix . $old,
+					'old'     => $prefix . $old,
+					'new'     => $prefix . $new,
+					'kind'    => 'substring',
+					'left'    => false,
+					'right'   => false,
+					// Body-class/screen-id prefixes only: see the 'lstrict' note
+					// in transform(). The WP hook prefixes above end in '_' or are
+					// long enough to be unambiguous; 'edit-' is not.
+					'lstrict' => in_array( $prefix, array( 'post-type-', 'edit-' ), true ),
 				);
 			}
 		}
@@ -585,13 +665,73 @@ class PrefixRenamer {
 	 * @param string $file Optional path, for skip reporting.
 	 * @return array{0:string,1:array<string,int>}
 	 */
+	/**
+	 * Byte ranges the sweep must leave alone, from in-source region markers.
+	 *
+	 * WHY A REGION MARKER AND NOT MORE CARVE-OUTS
+	 * -------------------------------------------
+	 * The transition window forces a handful of places to spell PRE-rename names
+	 * on purpose: uninstall must delete rows on a site that never migrated, the
+	 * gallery fallback must still find galleries stored under the old key, cron
+	 * cleanup must clear hooks scheduled under every name they ever had. Written
+	 * as plain literals, the next run of this tool converts them and silently
+	 * removes the very compatibility they exist to provide -- which has now
+	 * happened three separate times in this task.
+	 *
+	 * A token carve-out cannot express it, because the SAME literal is legacy in
+	 * one place and live in another: 'mhm_rentiva_queue' is a deliberate old
+	 * spelling inside uninstall's legacy table list, and a name that genuinely
+	 * must be renamed in DatabaseMigrator's CREATE TABLE. Only the position
+	 * distinguishes them, so the annotation belongs at the position.
+	 *
+	 * @param string $text Source.
+	 * @return array<int,array{0:int,1:int}> [start, end) byte ranges.
+	 */
+	private function ignoredRanges( string $text ): array {
+		$ranges = array();
+		$offset = 0;
+		while ( true ) {
+			$start = strpos( $text, self::IGNORE_START, $offset );
+			if ( false === $start ) {
+				break;
+			}
+			$end = strpos( $text, self::IGNORE_END, $start );
+			if ( false === $end ) {
+				// Unterminated marker: protect to end of file rather than guess.
+				$ranges[] = array( $start, strlen( $text ) );
+				break;
+			}
+			$ranges[] = array( $start, $end + strlen( self::IGNORE_END ) );
+			$offset   = $end + strlen( self::IGNORE_END );
+		}
+		return $ranges;
+	}
+
+	public const IGNORE_START = 'prefix-rename:ignore-start';
+	public const IGNORE_END   = 'prefix-rename:ignore-end';
+
 	public function transform( string $text, string $file = '' ): array {
-		$out   = '';
-		$i     = 0;
-		$len   = strlen( $text );
-		$stats = array();
+		$out     = '';
+		$i       = 0;
+		$len     = strlen( $text );
+		$stats   = array();
+		$ignored = $this->ignoredRanges( $text );
 
 		while ( $i < $len ) {
+			// Inside an ignore region: copy verbatim and jump to its end.
+			$inIgnored = null;
+			foreach ( $ignored as $range ) {
+				if ( $i >= $range[0] && $i < $range[1] ) {
+					$inIgnored = $range;
+					break;
+				}
+			}
+			if ( null !== $inIgnored ) {
+				$out .= substr( $text, $i, $inIgnored[1] - $i );
+				$i    = $inIgnored[1];
+				continue;
+			}
+
 			$hit = null;
 			foreach ( $this->rules as $rule ) {
 				$old = $rule['old'];
@@ -603,6 +743,16 @@ class PrefixRenamer {
 					continue;
 				}
 				if ( $rule['left'] && $i > 0 && $this->isIdentChar( $text[ $i - 1 ] ) ) {
+					continue;
+				}
+				// 'lstrict' additionally forbids a preceding HYPHEN. Only the
+				// body-class/screen-id prefixes use it: 'edit-' is far too common a
+				// fragment of ordinary CSS class names and DOM ids, and without
+				// this it rewrote 'mhm-edit-vehicle-btn' into
+				// 'mhm-edit-mhmrentiva_vehicle-btn'. A screen id or body class is
+				// always at the start of a token -- after a quote, a dot or
+				// whitespace -- never in the middle of a hyphenated name.
+				if ( ! empty( $rule['lstrict'] ) && $i > 0 && 1 === preg_match( '/[A-Za-z0-9_-]/', $text[ $i - 1 ] ) ) {
 					continue;
 				}
 				if ( $rule['right'] && $i + $l < $len && $this->isIdentChar( $text[ $i + $l ] ) ) {
@@ -751,7 +901,7 @@ if ( PHP_SAPI === 'cli' && isset( $argv[0] ) && realpath( $argv[0] ) === realpat
 	$phase   = $opts['phase'] ?? 'all';
 	$renamer = new PrefixRenamer( $phase );
 
-	$targets = array( 'src', 'templates', 'assets/js', 'src-react', 'tests', 'bin' );
+	$targets = array( 'src', 'templates', 'assets', 'src-react', 'tests', 'bin' );
 	$files   = array();
 	foreach ( $targets as $dir ) {
 		$path = $root . '/' . $dir;

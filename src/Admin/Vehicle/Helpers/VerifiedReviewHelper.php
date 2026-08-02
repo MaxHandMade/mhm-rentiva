@@ -83,8 +83,8 @@ class VerifiedReviewHelper {
 	 * @return bool
 	 */
 	public static function is_verified( int $comment_id, int $vehicle_id, int $user_id ): bool {
-		// 1. Admin override: comment meta mhmrentiva_verified_review = 1
-		$override = get_comment_meta( $comment_id, 'mhmrentiva_verified_review', true );
+		// 1. Admin override: comment meta mhm_verified_review = 1
+		$override = get_comment_meta( $comment_id, 'mhm_verified_review', true );
 		if ( $override === '1' || $override === 1 ) {
 			return true;
 		}
@@ -156,7 +156,7 @@ class VerifiedReviewHelper {
 		// Step 2: Check for admin overrides first
 		$override_ids = array();
 		foreach ( $comments as $comment_id ) {
-			$override = get_comment_meta( (int) $comment_id, 'mhmrentiva_verified_review', true );
+			$override = get_comment_meta( (int) $comment_id, 'mhm_verified_review', true );
 			if ( $override === '1' || $override === 1 ) {
 				$override_ids[] = (int) $comment_id;
 			}

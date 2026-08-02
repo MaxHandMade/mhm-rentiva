@@ -299,8 +299,24 @@ final class VehicleDetails extends AbstractShortcode {
 	}
 
 	private static function get_gallery( int $vehicle_id ): array {
-		// Try multiple possible meta keys for compatibility
-		$keys         = array( '_mhmrentiva_gallery_images', '_mhmrentiva_gallery_images', '_mhmrentiva_gallery' );
+		// prefix-rename:ignore-start
+		// Try multiple possible meta keys for compatibility.
+		//
+		// This was a three-rung fallback and the 6.0.0 rename collapsed two of the
+		// rungs onto one name -- '_mhm_rentiva_gallery_images' and
+		// '_mhm_gallery_images' both become '_mhmrentiva_gallery_images', so the
+		// list read as a duplicate and a rung was silently lost. Both pre-rename
+		// spellings are listed explicitly, because a site that has not run Görev
+		// 13's migration still stores its gallery under one of them and would
+		// otherwise render no gallery at all.
+		$keys         = array(
+			'_mhmrentiva_gallery_images',
+			'_mhm_rentiva_gallery_images',
+			'_mhm_gallery_images',
+			'_mhmrentiva_gallery',
+			'_mhm_rentiva_gallery',
+		);
+		// prefix-rename:ignore-end
 		$gallery_data = '';
 
 		foreach ( $keys as $key ) {
