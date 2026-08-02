@@ -476,7 +476,7 @@ final class Uninstaller {
 		//      exactly one place, and only for backup FILES.
 		$protected = self::addon_owned_tables();
 
-		$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%' ) );
 		foreach ( $orphans as $orphan_table ) {
 			if ( in_array( $orphan_table, $protected, true ) || self::is_backup_table( $orphan_table ) ) {
 				continue;
