@@ -24,7 +24,7 @@ $total_count      = $total_count ?? 0;
 $has_testimonials = $has_testimonials ?? false;
 
 // Shortcode attributes
-$limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva/testimonials/limit', 5));
+$limit         = intval($atts['limit'] ?? apply_filters('mhmrentiva_testimonials_limit', 5));
 $show_rating   = ( $atts['show_rating'] ?? '1' ) === '1';
 $show_date     = ( $atts['show_date'] ?? '1' ) === '1';
 $show_vehicle  = ( $atts['show_vehicle'] ?? '1' ) === '1';

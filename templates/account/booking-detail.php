@@ -61,7 +61,7 @@ if (! $vehicle_image) {
 
 // Currency
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores
-$currency_symbol = apply_filters('mhmrentiva/currency_symbol', '');
+$currency_symbol = apply_filters('mhmrentiva_currency_symbol', '');
 
 // Date format
 $wp_date_fmt            = get_option('date_format');

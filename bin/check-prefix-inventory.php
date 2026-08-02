@@ -552,6 +552,10 @@ function mode4Sources(string $root): array
         // every assertion reads the new one. Added to PrefixRenamer::NEVER_SWEEP
         // in the same commit -- the two lists are one decision written twice.
         $root . '/tests/Migration/PrefixRenameMigrationTest.php',
+        // Slash-hook shape gate -- see PrefixRenamer::NEVER_SWEEP for why. This
+        // list and that one are the same decision written twice; adding to only
+        // one of them leaves the file swept or the gate red.
+        $root . '/tests/Tools/SlashHookShapeTest.php',
     ];
 
     $cache = [];

@@ -28,7 +28,7 @@ $total_pages       = $data['total_pages'] ?? 1;
 $current_page      = $data['current_page'] ?? 1;
 $vehicles_page_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicles_list');
 // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- Public filter name kept for backward compatibility.
-$vehicles_page_url = (string) apply_filters('mhmrentiva/vehicles_page_url', $vehicles_page_url);
+$vehicles_page_url = (string) apply_filters('mhmrentiva_vehicles_page_url', $vehicles_page_url);
 
 $wrapper_class = 'mhm-rentiva-account-page';
 if (empty($navigation)) {

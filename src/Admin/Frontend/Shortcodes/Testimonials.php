@@ -77,19 +77,19 @@ final class Testimonials extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			'limit'         => apply_filters('mhmrentiva/testimonials/limit', '5'),
-			'rating'        => apply_filters('mhmrentiva/testimonials/rating', ''),
-			'vehicle_id'    => apply_filters('mhmrentiva/testimonials/vehicle_id', ''),
-			'orderby'       => apply_filters('mhmrentiva/testimonials/orderby', 'date'),
-			'order'         => apply_filters('mhmrentiva/testimonials/order', 'DESC'),
-			'show_rating'   => apply_filters('mhmrentiva/testimonials/show_rating', '1'),
-			'show_date'     => apply_filters('mhmrentiva/testimonials/show_date', '1'),
-			'show_vehicle'  => apply_filters('mhmrentiva/testimonials/show_vehicle', '1'),
-			'show_customer' => apply_filters('mhmrentiva/testimonials/show_customer', '1'),
-			'layout'        => apply_filters('mhmrentiva/testimonials/layout', 'grid'),
-			'columns'       => apply_filters('mhmrentiva/testimonials/columns', '3'),
-			'auto_rotate'   => apply_filters('mhmrentiva/testimonials/auto_rotate', '0'),
-			'class'         => apply_filters('mhmrentiva/testimonials/class', ''),
+			'limit'         => apply_filters('mhmrentiva_testimonials_limit', '5'),
+			'rating'        => apply_filters('mhmrentiva_testimonials_rating', ''),
+			'vehicle_id'    => apply_filters('mhmrentiva_testimonials_vehicle_id', ''),
+			'orderby'       => apply_filters('mhmrentiva_testimonials_orderby', 'date'),
+			'order'         => apply_filters('mhmrentiva_testimonials_order', 'DESC'),
+			'show_rating'   => apply_filters('mhmrentiva_testimonials_show_rating', '1'),
+			'show_date'     => apply_filters('mhmrentiva_testimonials_show_date', '1'),
+			'show_vehicle'  => apply_filters('mhmrentiva_testimonials_show_vehicle', '1'),
+			'show_customer' => apply_filters('mhmrentiva_testimonials_show_customer', '1'),
+			'layout'        => apply_filters('mhmrentiva_testimonials_layout', 'grid'),
+			'columns'       => apply_filters('mhmrentiva_testimonials_columns', '3'),
+			'auto_rotate'   => apply_filters('mhmrentiva_testimonials_auto_rotate', '0'),
+			'class'         => apply_filters('mhmrentiva_testimonials_class', ''),
 		);
 	}
 

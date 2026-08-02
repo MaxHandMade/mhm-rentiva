@@ -28,18 +28,18 @@ $current_user      = $current_user ?? null;
 
 
 // Shortcode parameters
-$show_pricing         = $atts['show_pricing'] ?? apply_filters('mhmrentiva/availability_calendar/show_pricing', '1');
-$show_seasonal_prices = $atts['show_seasonal_prices'] ?? apply_filters('mhmrentiva/availability_calendar/show_seasonal_prices', '1');
-$show_discounts       = $atts['show_discounts'] ?? apply_filters('mhmrentiva/availability_calendar/show_discounts', '1');
+$show_pricing         = $atts['show_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_show_pricing', '1');
+$show_seasonal_prices = $atts['show_seasonal_prices'] ?? apply_filters('mhmrentiva_availability_calendar_show_seasonal_prices', '1');
+$show_discounts       = $atts['show_discounts'] ?? apply_filters('mhmrentiva_availability_calendar_show_discounts', '1');
 $show_booking_btn     = $atts['show_booking_button']
 	?? $atts['show_booking_btn']
 	?? apply_filters(
-		'mhmrentiva/availability_calendar/show_booking_button',
-		apply_filters('mhmrentiva/availability_calendar/show_booking_btn', '1')
+		'mhmrentiva_availability_calendar_show_booking_button',
+		apply_filters('mhmrentiva_availability_calendar_show_booking_btn', '1')
 	);
-$theme                = $atts['theme'] ?? apply_filters('mhmrentiva/availability_calendar/theme', 'default');
+$theme                = $atts['theme'] ?? apply_filters('mhmrentiva_availability_calendar_theme', 'default');
 $class                = $atts['class'] ?? '';
-$integrate_pricing    = $atts['integrate_pricing'] ?? apply_filters('mhmrentiva/availability_calendar/integrate_pricing', '1');
+$integrate_pricing    = $atts['integrate_pricing'] ?? apply_filters('mhmrentiva_availability_calendar_integrate_pricing', '1');
 
 // If vehicle_id is provided, get the vehicle object
 if ($vehicle_id > 0 && ! $vehicle) {

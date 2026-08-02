@@ -176,7 +176,13 @@ abstract class AbstractShortcode {
 			static::cache_html($cache_key, $html);
 
 			// Filter hook
-			$html = apply_filters('mhmrentiva/shortcodes/' . $tag . '/html', $html, $atts, $content);
+			// Both halves move together. The sweep could only reach the literal in
+			// hook-call position; this trailing fragment is a separate string and
+			// would have left the name half-converted --
+			// 'mhmrentiva_shortcodes_rentiva_vehicles/html' -- which still carries
+			// the slash the whole change exists to remove, and would have looked
+			// renamed at a glance.
+			$html = apply_filters('mhmrentiva_shortcodes_' . $tag . '_html', $html, $atts, $content);
 
 			// Performance logging - disabled to reduce debug log noise
 			// $render_time = microtime(true) - $start_time;

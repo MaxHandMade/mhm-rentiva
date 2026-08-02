@@ -95,12 +95,12 @@ final class Templates {
 		// Debug logs removed
 
 		// Alternative paths can be added via filter
-		$candidates = apply_filters( 'mhmrentiva/template_candidates', $candidates, $relative );
+		$candidates = apply_filters( 'mhmrentiva_template_candidates', $candidates, $relative );
 
 		foreach ( $candidates as $path ) {
 			if ( is_file( $path ) ) {
 				$located = (string) $path;
-				return apply_filters( 'mhmrentiva/locate_template', $located, $relative );
+				return apply_filters( 'mhmrentiva_locate_template', $located, $relative );
 			}
 		}
 
@@ -109,14 +109,14 @@ final class Templates {
 
 	// Price HTML helper method (usable in templates)
 	public static function price_html( int $post_id ): string {
-		$meta_key = apply_filters( 'mhmrentiva/vehicle/price_meta_key', '_mhmrentiva_price_per_day' );
+		$meta_key = apply_filters( 'mhmrentiva_vehicle_price_meta_key', '_mhmrentiva_price_per_day' );
 		$raw      = get_post_meta( $post_id, $meta_key, true );
 		if ( $raw === '' || ! is_numeric( $raw ) ) {
 			return '';
 		}
 		$price     = (float) $raw;
-		$currency  = apply_filters( 'mhmrentiva/currency_code', 'TRY' );
-		$formatted = apply_filters( 'mhmrentiva/format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
+		$currency  = apply_filters( 'mhmrentiva_currency_code', 'TRY' );
+		$formatted = apply_filters( 'mhmrentiva_format_price', number_format_i18n( $price, 0 ) . ' ' . $currency, $price, $currency, $post_id );
 		return sprintf(
 			'<span class="amount">%s</span> <span class="unit">%s</span>',
 			esc_html( (string) $formatted ),

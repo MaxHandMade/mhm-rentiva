@@ -826,7 +826,7 @@ final class Templates {
 		}
 
 		// Fallback: Use plugin currency settings
-		$currency_symbol = apply_filters( 'mhmrentiva/currency_symbol', '₺' );
+		$currency_symbol = apply_filters( 'mhmrentiva_currency_symbol', '₺' );
 		$decimals        = 2;
 		$dec_sep         = ',';
 		$thousands_sep   = '.';

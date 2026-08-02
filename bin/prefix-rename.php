@@ -110,6 +110,15 @@ class PrefixRenamer {
 		// row ever moved -- the tautological-test trap, on the one step of this
 		// round that cannot be un-run.
 		'tests/Migration/PrefixRenameMigrationTest.php',
+		// The slash-hook shape gate. Its detector alternates over BOTH spellings
+		// ('mhm_?rentiva/') and its negative controls are literal old-shape
+		// samples -- a third-party 'elementor/widgets/register' and the
+		// RUNTIME_STRING_RULES entry 'mhm_rentiva/' => 'mhmrentiva/'. Sweeping it
+		// would rewrite the pattern into one that can no longer recognise the
+		// shape it exists to forbid, and rewrite the map-rule control into
+		// something that is no longer the thing being excluded. Same blinding as
+		// bin/check-prefix-inventory.php above.
+		'tests/Tools/SlashHookShapeTest.php',
 	);
 
 	/**

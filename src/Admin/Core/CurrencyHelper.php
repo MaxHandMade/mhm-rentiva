@@ -242,11 +242,11 @@ final class CurrencyHelper {
 	 */
 	public static function register_hooks(): void {
 		// Register filter for template usage.
-		add_filter( 'mhmrentiva/currency_symbol', array( self::class, 'filter_currency_symbol' ), 10, 1 );
+		add_filter( 'mhmrentiva_currency_symbol', array( self::class, 'filter_currency_symbol' ), 10, 1 );
 	}
 
 	/**
-	 * Filter callback for mhmrentiva/currency_symbol
+	 * Filter callback for mhmrentiva_currency_symbol
 	 *
 	 * @param string $default_symbol Default symbol (ignored, we use settings)
 	 * @return string Currency symbol from settings
