@@ -36,6 +36,33 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
      */
     private array $temp_tables = array();
 
+    /**
+     * Plugin tables that existed before the test ran.
+     *
+     * @var list<string>
+     */
+    private array $tables_at_entry = array();
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->tables_at_entry = $this->plugin_table_names();
+    }
+
+    /**
+     * 🔴 The regression lock for this class's own destructiveness.
+     *
+     * A test cannot notice its own side effects from the inside: when the
+     * capture/create order in the sweep test was wrong, it destroyed the add-on's
+     * real ledger table and still reported OK (4 tests). Green was never the
+     * signal. So the invariant is asserted from OUTSIDE the test body -- whatever
+     * plugin table was here on the way in is here on the way out.
+     *
+     * This is what makes the ordering rule enforced rather than merely written
+     * down; reverting that order turns this red instead of silently dropping a
+     * table into the next run of a shared database.
+     */
     protected function tearDown(): void
     {
         global $wpdb;
@@ -46,6 +73,36 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
             $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
         }
         $this->temp_tables = array();
+
+        $vanished = array_diff($this->tables_at_entry, $this->plugin_table_names());
+
+        $this->assertSame(
+            array(),
+            array_values($vanished),
+            'This test destroyed plugin tables that existed before it ran, in a database shared '
+            . "with every other class and with the add-on's suite."
+        );
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function plugin_table_names(): array
+    {
+        global $wpdb;
+
+        $found = array();
+
+        foreach (array( 'mhmrentiva\_%', 'rentiva\_%', 'mhm\_%' ) as $like) {
+            $found = array_merge(
+                $found,
+                (array) $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->prefix . $like))
+            );
+        }
+
+        sort($found);
+
+        return array_values(array_unique($found));
     }
 
     private function use_real_tables(): void
@@ -162,13 +219,20 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
      * the same run, or "the add-on's table survived" would also be true of a
      * sweep that never executed.
      *
+     * "The list holds the right names" is a SEPARATE question, and is asserted
+     * separately by test_the_orphan_pattern_carve_out_covers_both_spellings()
+     * for all six tables in both spellings. This one asks only whether the sweep
+     * honours the list it is given.
+     *
      * 🔴 uninstall_direct() is DESTRUCTIVE and its DDL commits, so it outlives
      * the suite's per-test rollback AND the run itself -- this database is
      * shared with every other test class and with the add-on's suite. The
      * schema is captured before and replayed after; without that, dropping
      * Lite's transfer tables here surfaces as unrelated failures in a later
      * run, which is exactly the cross-run damage this round has already chased
-     * twice.
+     * twice. Two rules keep the safety net from having a hole in the middle:
+     * capture happens before this test's own DDL, and an already-existing table
+     * is never re-created.
      */
     public function test_the_real_uninstall_spares_addon_tables_and_still_drops_orphans(): void
     {
@@ -180,8 +244,25 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
         $orphan = $wpdb->prefix . 'mhmrentiva_zz_probe_orphan';
         $backup = $wpdb->prefix . 'mhmrentiva_merge_losers_backup_20200101_000000_probe';
 
+        // 🔴 CAPTURE FIRST. $addon is not a probe name -- it is the add-on's real
+        // table, and it has to be, because the protection it is testing is keyed
+        // by exact name. An earlier version of this test captured AFTER its own
+        // DROP/CREATE below, so the real ledger's schema and rows were destroyed
+        // before anything was recorded, $restore held only the stand-in, and
+        // tearDown() then dropped that too. The test written to stop cross-run
+        // schema damage was doing cross-run schema damage.
+        $restore = $this->capture_plugin_schema();
+        $this->assertNotEmpty($restore, 'Premise: there is plugin schema to protect, so the restore is doing something.');
+
+        // ...and never overwrite a table that is already there. If the add-on is
+        // checked out, its ledger exists with real rows; the test only needs the
+        // table to EXIST, so an existing one is left exactly as it is. Only what
+        // this test actually creates goes on the tearDown list.
         foreach (array( $addon, $orphan, $backup ) as $table) {
-            $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
+            if ($this->table_exists($table)) {
+                continue;
+            }
+
             $wpdb->query($wpdb->prepare('CREATE TABLE %i ( id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id) )', $table));
             $this->temp_tables[] = $table;
         }
@@ -193,9 +274,6 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
             // looked at it.
             $this->assertStringStartsWith($wpdb->prefix . 'mhmrentiva_', $table, 'Premise: the orphan pattern would match this table.');
         }
-
-        $restore = $this->capture_plugin_schema();
-        $this->assertNotEmpty($restore, 'Premise: there is plugin schema to protect, so the restore is doing something.');
 
         Uninstaller::uninstall_direct(false);
 
