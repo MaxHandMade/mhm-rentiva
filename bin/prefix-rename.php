@@ -119,6 +119,14 @@ class PrefixRenamer {
 		// something that is no longer the thing being excluded. Same blinding as
 		// bin/check-prefix-inventory.php above.
 		'tests/Tools/SlashHookShapeTest.php',
+		// The user-facing changelog and upgrade notice. 6.0.0's breaking change is
+		// that 131 hook names moved, and the only way to tell somebody how to fix
+		// their own code is to PRINT THE OLD PREFIX next to the new one. Sweeping
+		// this file rewrites the left-hand side of that instruction, so the notice
+		// ends up reading "mhmrentiva_ becomes mhmrentiva_" and the disclosure --
+		// the condition on which the breaking change was accepted -- silently
+		// stops saying anything. Same reason the migration map is here.
+		'readme.txt',
 	);
 
 	/**

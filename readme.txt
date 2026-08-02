@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        5.2.4
+Stable tag:        6.0.0
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -55,7 +55,7 @@ MHM Rentiva stores its booking and customer records (such as names, e-mail addre
 
 Four other things it keeps are worth naming, because in most jurisdictions an IP address counts as personal data in its own right.
 
-If you publish the plugin's **contact form**, each submission is saved as a private record holding the sender's name, e-mail address, telephone number, company, the message itself, a link to any file they attached, and the **IP address** and **browser user-agent** it was sent from. These records have no retention setting and are never removed automatically. The attached file itself is placed in your site's ordinary uploads folder, where it is reachable by anyone who has the URL, and it stays there even if you delete the message.
+If you publish the plugin's **contact form**, each submission is saved as a private record holding the sender's name, e-mail address, telephone number, company, the message itself, a link to any file they attached, and the **IP address** and **browser user-agent** it was sent from. The record also keeps the rest of what the form submitted: which vehicle the enquiry was about, a preferred date, a priority, a rating, and which variant of the form was used. These records have no retention setting and are never removed automatically. The attached file itself is placed in your site's ordinary uploads folder, where it is reachable by anyone who has the URL, and it stays there even if you delete the message.
 
 If you publish the plugin's **rating form**, each review is stored as an ordinary WordPress comment, so WordPress itself records the reviewer's IP address and browser user-agent alongside it, exactly as it does for any comment — and for a review left by someone who is not logged in, the name and e-mail address they typed. Those guest reviews are reachable through Tools → Export/Erase Personal Data, which matches comments by e-mail address. A review left by a logged-in customer is saved against their user ID without an e-mail address on the comment, so those tools will not find it; delete it from the Comments screen instead.
 
@@ -136,6 +136,17 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 
 == Changelog ==
 
+= 6.0.0 =
+**This is a major release. If you have custom code that hooks into this plugin, read the next paragraph before you update.**
+
+* Breaking: every hook this plugin provides has been renamed. 131 names in total. Anything attached to one of them — a snippet in your theme's functions.php, a code-snippets plugin, a custom integration, bespoke work done for you — will simply stop running after the update. There is no error message and nothing in the log; the customisation just quietly stops happening. Two rules convert your code mechanically: the prefix `mhm_rentiva_` becomes `mhmrentiva_`, and in the older slash-style names every `/` becomes `_` (so `mhmrentiva/testimonials/limit` becomes `mhmrentiva_testimonials_limit`). If you are not sure whether this affects you, search your custom code for "mhm_rentiva" and "mhmrentiva/" before updating.
+* Breaking: the three Elementor widgets named "Featured Vehicles", "Vehicles Grid" and "Vehicles List" were renamed internally. Pages you have already built with them are migrated automatically on update and need no attention; this is listed only because a widget name, like a hook name, is something custom code can refer to.
+* Changed: every identifier the plugin registers — settings, custom post types, taxonomies, database tables, scheduled jobs, and the keys it stores against your posts and users — now uses a single consistent prefix. Your existing data is moved to the new names by a migration that runs once, automatically, the first time you load the admin after updating. Nothing is deleted and nothing needs to be re-entered. If you also run the paid add-on, update both at the same time: this version refuses to migrate underneath an older add-on rather than leave your data half-moved.
+* Fixed: choosing "Semi-Automatic" or "CVT" for a vehicle's transmission, or "LPG", "CNG" or "Hydrogen" for its fuel type, silently saved a different value than the one selected. The list the editor offers and the list it accepts had drifted apart; they are now the same list.
+* Fixed: the plugin's custom fields are now registered on every request rather than only inside the admin, so the sanitising rules that protect them apply everywhere instead of only on admin screens.
+* Fixed: uninstalling the free plugin no longer removes the paid add-on's tables, which hold commission ledgers, payout records and the audit trail that signs them.
+* Security: the remaining places where the plugin built SQL by hand have been reshaped to use WordPress's prepared-statement API, and the comments that explain each remaining direct query have been checked line by line against the query they describe.
+
 = 5.2.4 =
 * Changed: the plugin's top-level admin menu now sits between Tools and Settings instead of directly above Appearance. Nothing else about the menu changes — the same screens are in the same order underneath it — but it no longer pushes past WordPress's own items.
 * Docs: the readme's "External services" section now lists every page outside your site that the admin screens link to (the documentation site, the issue tracker, wpalemi.com with its terms and privacy pages, this plugin's WordPress.org support forum, the wp-mail-smtp and fluent-smtp plugin pages, and a YouTube channel). The plugin still makes no request to any of them — these are links a user may click. A build check guards against reintroducing the third-party services earlier versions used (geolocation, CDN fonts and scripts, analytics, Gravatar).
@@ -214,6 +225,9 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 * Full Turkish translation.
 
 == Upgrade Notice ==
+
+= 6.0.0 =
+Major release. Your data migrates automatically. But all 131 hooks were renamed, so custom code hooked to one stops running silently, with no error. Search your code for mhm_rentiva and mhmrentiva/ first: mhm_rentiva_ becomes mhmrentiva_, and / becomes _. Update the paid add-on at the same time.
 
 = 5.1.0 =
 Security hardening and WordPress.org compliance. No action required; your settings and data are unaffected.

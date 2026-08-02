@@ -1,5 +1,22 @@
 [
   {
+    "version": "6.0.0",
+    "date": "2026-08-02",
+    "type": "major",
+    "title": "Tek tutarlı önek: tüm tanımlayıcılar taşındı, verileriniz otomatik göç ediyor",
+    "summary": "Bu bir ANA sürüm. Eklentinin sakladığı her tanımlayıcı tek bir tutarlı öneke taşındı ve mevcut verileriniz güncellemeden sonraki ilk yönetim ziyaretinde otomatik olarak yeni adlara aktarılıyor. Sizin bir şey yapmanız gerekmiyor -- ancak eklentinin hook'larına bağlı ÖZEL KODUNUZ varsa, güncellemeden önce okuyun.",
+    "changes": [
+      "🔴 Kırıcı: eklentinin sağladığı bütün hook adları değişti; toplam 131 ad. Bunlardan birine bağlı olan her şey -- temanızın functions.php'sindeki bir kod parçası, bir snippet eklentisi, size özel yaptırılmış bir entegrasyon -- güncellemeden sonra ÇALIŞMAYI SESSİZCE BIRAKIR. Hata mesajı çıkmaz, günlüğe bir şey düşmez; özelleştirme yalnızca olmaz. Kendi kodunuzu iki kuralla mekanik olarak çevirebilirsiniz: `mhm_rentiva_` öneki `mhmrentiva_` olur, ve eski eğik-çizgili adlarda her `/` bir `_` olur (`mhmrentiva/testimonials/limit` → `mhmrentiva_testimonials_limit`). Etkilenip etkilenmediğinizden emin değilseniz, güncellemeden önce özel kodunuzda \"mhm_rentiva\" ve \"mhmrentiva/\" arayın.",
+      "🔴 Kırıcı: \"Öne Çıkan Araçlar\", \"Araç Izgarası\" ve \"Araç Listesi\" Elementor bileşenlerinin iç adları değişti. Bunlarla kurduğunuz sayfalar güncellemede otomatik olarak taşınıyor ve ilginizi gerektirmiyor; burada anılmasının tek sebebi, bir bileşen adının da tıpkı bir hook adı gibi özel kodun atıfta bulunabileceği bir şey olması.",
+      "Değişti: eklentinin kaydettiği her tanımlayıcı -- ayarlar, özel içerik türleri, taksonomiler, veritabanı tabloları, zamanlanmış görevler ve yazılarınızla kullanıcılarınıza iliştirdiği anahtarlar -- artık tek ve tutarlı bir önek kullanıyor. Mevcut verileriniz, güncellemeden sonra yönetim panelini ilk açtığınızda bir kez çalışan bir göç işlemiyle yeni adlara taşınıyor. Hiçbir şey silinmiyor, hiçbir şeyi yeniden girmeniz gerekmiyor. Ücretli eklentiyi de kullanıyorsanız ikisini aynı anda güncelleyin: bu sürüm, eski bir eklentinin altında göç etmeyi reddeder -- verinizi yarı taşınmış bırakmaktansa durur.",
+      "Düzeltildi: bir aracın vitesi için \"Yarı Otomatik\" veya \"CVT\", yakıt türü için \"LPG\", \"CNG\" veya \"Hidrojen\" seçtiğinizde kayıt sessizce başka bir değere dönüyordu. Düzenleyicinin SUNDUĞU liste ile KABUL ETTİĞİ liste birbirinden ayrı düşmüştü; artık ikisi aynı liste.",
+      "Düzeltildi: eklentinin özel alanları artık yalnızca yönetim tarafında değil her istekte kaydediliyor, böylece onları koruyan temizleme kuralları yalnızca yönetim ekranlarında değil her yerde geçerli.",
+      "Düzeltildi: ücretsiz eklentiyi kaldırmak artık ücretli eklentinin tablolarını silmiyor -- komisyon defteri, hakediş kayıtları ve bunları imzalayan denetim izi bu tablolarda duruyor.",
+      "Güvenlik: eklentinin SQL'i elle kurduğu son yerler WordPress'in hazırlanmış-ifade API'sini kullanacak şekilde yeniden yazıldı ve kalan her doğrudan sorgunun gerekçesini açıklayan yorumlar, anlattıkları sorguya karşı satır satır denetlendi."
+    ],
+    "notice": "Verileriniz otomatik taşınıyor, yeniden girmeniz gereken bir şey yok. ANCAK eklentinin hook'larına bağlı özel kodunuz varsa sessizce çalışmayı bırakır: güncellemeden önce kodunuzda \"mhm_rentiva\" ve \"mhmrentiva/\" arayın. Eşleme: `mhm_rentiva_` → `mhmrentiva_`, ve `/` → `_`. Ücretli eklentiyi aynı anda güncelleyin."
+  },
+  {
     "version": "5.2.4",
     "date": "2026-07-29",
     "type": "patch",

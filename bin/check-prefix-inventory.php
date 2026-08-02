@@ -556,6 +556,9 @@ function mode4Sources(string $root): array
         // list and that one are the same decision written twice; adding to only
         // one of them leaves the file swept or the gate red.
         $root . '/tests/Tools/SlashHookShapeTest.php',
+        // readme.txt -- see PrefixRenamer::NEVER_SWEEP. The upgrade notice has to
+        // print the OLD prefix to be usable at all.
+        $root . '/readme.txt',
     ];
 
     $cache = [];
