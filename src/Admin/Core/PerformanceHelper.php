@@ -287,7 +287,7 @@ final class PerformanceHelper {
 
 		$prepare_params = array_merge( $vehicle_ids, array( $end_date, $start_date ) );
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Batch loader exists precisely to replace per-vehicle queries; caching is done by the caller.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One range query replacing an N+1 loop over vehicles; a joined booking range has no WP_Query form. ⚠️ THE REASON HERE USED TO SAY "caching is done by the caller", WHICH CANNOT BE TRUE: this method has no caller in either tree (grepped 2026-08-02), so there is no caller to do it. Its sibling load_vehicle_data_batch() genuinely is cached by its caller at :184, which is how the wording got copied onto a method that never earned it. Reported for a keep-or-delete decision rather than left asserting something unverifiable.
 		$bookings = $wpdb->get_results(
 			$wpdb->prepare(
 				"

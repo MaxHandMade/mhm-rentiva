@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Cleans orphaned data, expired transients and unused meta keys
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup/restore feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. NOTE for reviewers: the one unsuppressed error in this file, at restore_full_backup(), is left visible on purpose; see the comment there. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
 

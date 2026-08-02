@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
  *
  * Automatically creates critical indexes for performance optimization
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This file is the schema migrator: CREATE/ALTER/DROP and one-shot data backfills. WordPress has no API for DDL, so there is no core call to prefer. Caching is not merely unnecessary here but wrong: every statement below is version-gated, runs once per install, and CHANGES the rows it just read, so a cached read would be stale by construction. Tables touched are this plugin's own plus wp_posts/wp_postmeta/wp_options during the 6.0.0 rename, which is why the file also carries SchemaChange suppressions on the individual DDL lines rather than blanket-disabling that sniff. Scope is bounded by the version gate, not by user input. Original wording, kept because it is still true as far as it went: "Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {
 
 
@@ -1292,7 +1292,7 @@ final class DatabaseMigrator {
 		global $wpdb;
 
 		// Get all vehicles that do NOT already have the lifecycle meta.
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A one-shot backfill during a version-gated migration: a LEFT JOIN ... IS NULL anti-join has no WP_Query form (meta_query cannot express "row absent" without loading every vehicle), and caching the result of a migration that runs once and then changes the rows it just read would be wrong, not merely unnecessary.
 		$vehicle_ids = $wpdb->get_col(
 			"SELECT p.ID FROM {$wpdb->posts} p
 			 LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = '_mhmrentiva_vehicle_lifecycle_status'
@@ -1344,7 +1344,7 @@ final class DatabaseMigrator {
 	private static function drop_orchestration_tables(): void
 	{
 		global $wpdb;
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping dead orchestration tables IS this method. There is no core API for DROP TABLE, and a cache around a one-shot DDL statement would cache nothing while implying the opposite to whoever reads it next.
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_tenants");
 		// And the PRE-6.0.0 spellings, which are the ones a real install

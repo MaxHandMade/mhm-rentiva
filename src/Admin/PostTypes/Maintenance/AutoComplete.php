@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- WP-Cron sweep that finds bookings whose end date has passed and completes them. It runs unattended on a schedule, so a cached answer is a wrong answer: the whole point is to see rows that changed since the last run. Scope is bounded by a date comparison, not by a page of results.
 
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Booking\Core\Status;

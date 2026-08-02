@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralizes all raw SQL queries used in reports.
  * Modernized to use custom `mhmrentiva_bookings` table for high performance.
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Reporting repository intentionally executes aggregate SQL for analytics across bookings/meta dimensions.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Read-only reporting aggregates. IMPORTANT, because the names below invite the opposite conclusion: these queries run against wp_posts and wp_postmeta, NOT against custom tables. `mhmrentiva_booking` is a POST TYPE and `mhmrentiva_customer_phone` a META KEY; nothing here touches a plugin table. The suppression is therefore not "custom table, no core API" -- it is that WP_Query returns hydrated post objects, and these are GROUP BY/SUM/COUNT rollups across several meta dimensions at once, which meta_query cannot express and which would otherwise mean loading every booking into PHP to add up. Admin-only, capability-gated at the page level.
 class ReportRepository {
 
 

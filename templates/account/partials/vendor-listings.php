@@ -91,7 +91,7 @@ $format_currency = static function ( float $amount ): string {
 $resolve_operational_state = static function ( int $vehicle_id ): string {
 	global $wpdb;
 	$today = gmdate( 'Y-m-d' );
-	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- One row for the vehicle a vendor is currently viewing, joining postmeta twice to pick the live booking for today's date; WP_Query cannot return joined meta columns, and per-viewer live availability is exactly the value that must not be served stale.
 	$active = $wpdb->get_row(
 		$wpdb->prepare(
 			"SELECT p.ID,

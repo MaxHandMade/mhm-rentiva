@@ -7,7 +7,13 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
+// NOTE: a file-wide `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals`
+// used to sit here, justified as "Public/legacy hook names kept stable for
+// compatibility". That was not true either. Measured with the directive stripped,
+// this file produced exactly ONE finding -- the `do_action( $hook )` on line 201 --
+// and that is a VARIABLE re-firing a cron hook that WP-Cron has already
+// registered, not a legacy name of ours being preserved. The suppression is now on
+// that one line, with the reason the code actually has.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -199,6 +205,7 @@ final class CronMonitor {
 		// Run the hook
 		try {
 			$start_time = microtime( true );
+			// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- $hook is an EXISTING cron hook read back from the WP-Cron schedule so an administrator can run it on demand; the name is whoever registered it, and a literal here would fire the wrong job.
 			do_action( $hook, ...$args );
 			$execution_time = round( ( microtime( true ) - $start_time ) * 1000, 2 );
 

@@ -7,7 +7,14 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
+// NOTE: a file-wide `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals`
+// used to sit here, justified as "Legacy/public hook and template naming kept for
+// backward compatibility". That was not true. Measured with the directive
+// stripped, this file produced exactly ONE finding -- `plugin_locale` on line 633
+// -- which is a WordPress CORE filter, not a legacy hook of ours. The comment
+// claimed we were preserving our own unprefixed names, which is the position
+// WordPress.org rejected, and it was claiming it about somebody else's hook. The
+// suppression is now on that one line and says what is actually true.
 
 
 
@@ -631,6 +638,7 @@ final class Plugin {
 	{
 		$domain = 'mhm-rentiva';
 		$locale = determine_locale();
+		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- `plugin_locale` is a WordPress CORE filter, not ours to prefix; core's own load_plugin_textdomain() applies it the same way, and renaming it here would simply stop translation filters from being honoured.
 		$locale = apply_filters('plugin_locale', $locale, $domain);
 
 		// Force load from local directory first (to avoid global overrides)

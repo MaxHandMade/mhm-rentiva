@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Handles complete removal of all plugin data from database
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Uninstall routines must execute controlled bulk cleanup SQL across plugin-owned data.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Runs once, from uninstall.php, only after the operator has confirmed deletion. Deletes are set-based over this plugin's own tables, options, postmeta and usermeta, plus a pattern sweep for orphaned {prefix}mhmrentiva_% tables; delete_post_meta_by_key() and friends cannot express "every row whose key matches this pattern" in one statement, and looping post-by-post over an uninstall is what times out on large sites. Nothing is cached because the process is deleting the very rows a cache would describe, and the request ends immediately afterwards. The add-on's six tables are explicitly carved out -- see addon_owned_tables().
 final class Uninstaller {
 
 
@@ -255,7 +255,7 @@ final class Uninstaller {
 		$custom_tables = self::get_all_plugin_tables();
 
 		foreach ( $custom_tables as $table ) {
-			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- SHOW TABLES is the only way to ask whether a table exists; WordPress has no API for it. Caching the answer during an uninstall that drops tables as it runs would hand back a table that is already gone.
 			if ( $exists ) {
 				$rows                             = $wpdb->get_var( $wpdb->prepare( 'SELECT COUNT(*) FROM %i', $table ) );
 				$stats['custom_tables'][ $table ] = (int) $rows;
@@ -463,7 +463,7 @@ final class Uninstaller {
 		$custom_tables = self::get_all_plugin_tables();
 
 		foreach ( $custom_tables as $table ) {
-			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- SHOW TABLES is the only way to ask whether a table exists; WordPress has no API for it. Caching the answer during an uninstall that drops tables as it runs would hand back a table that is already gone.
 			if ( $exists ) {
 				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
 				++$results['tables_dropped'];
