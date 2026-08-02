@@ -473,6 +473,30 @@ class PrefixRenamer {
 			);
 		}
 
+		// 🔴 RIGHT-ANCHORED carve-outs. The list above is deliberately open on the
+		// right, because 'mhm_ui_core_' is a PREFIX and must protect everything
+		// built on it. That openness is wrong for a carve-out that names a
+		// COMPLETE identifier, and it failed silently in Görev 14: Pro's Elementor
+		// widget 'mhm_rentiva_vendor_directory' swallowed
+		// 'mhm_rentiva_vendor_directory_url_base_cached' -- a real stored option --
+		// along with 21 other identifiers that merely began with a widget name.
+		//
+		// The damage was invisible to every gate. The sweep reported a clean fixed
+		// point (a protected literal is not a "change"), the tests passed, and the
+		// only trace was on the live database: Pro's migration moved the option to
+		// its new name and Pro's un-swept code then re-created the old one beside
+		// it. Found by reading wp_options after a real activation, not by a gate.
+		foreach ( array_unique( $this->extra['carve_out_exact'] ?? array() ) as $literal ) {
+			$rules[] = array(
+				'id'    => 'carve-out-exact:' . $literal,
+				'old'   => $literal,
+				'new'   => $literal,
+				'kind'  => 'protect',
+				'left'  => true,
+				'right' => true,
+			);
+		}
+
 		// Substring rules: every map rule whose OLD key contains an 'mhm'/'MHM'
 		// token. These cannot false-positive and must fire mid-identifier.
 		$substring = array(
@@ -628,9 +652,25 @@ class PrefixRenamer {
 		}
 
 		// CPT and taxonomy names.
+		//
+		// 🔴 The `stripos( $old, 'mhm' )` skip below used to be unconditional, on
+		// the reasoning that an mhm-bearing old name is "already covered by a
+		// substring rule". That is true only while the substring rule happens to
+		// produce the SAME answer as the map. It did not for
+		// 'mhm_contact_message': the bare 'mhm_' catch-all turned it into
+		// 'mhmrentiva_contact_message' -- 26 characters into a varchar(20)
+		// post_type column -- while the map says 'mhmrentiva_contact'. Nothing
+		// compared the two, so the tool silently shipped a name the map had
+		// already rejected on length.
+		//
+		// So the skip is now conditional on AGREEMENT: an mhm-bearing name keeps
+		// using the substring rule only where that rule reproduces the mapped
+		// value exactly. Where it does not, the MAP wins and gets an explicit
+		// exact rule. PrefixRenamerTest::test_every_exact_family_key_transforms_to_its_mapped_value
+		// is what makes that disagreement fail the build instead of shipping.
 		foreach ( array_merge( Map::POST_TYPES, Map::TAXONOMIES ) as $old => $new ) {
-			if ( false !== stripos( $old, 'mhm' ) ) {
-				continue; // already covered by a substring rule.
+			if ( false !== stripos( $old, 'mhm' ) && $this->substringRulesAgreeWith( $old, $new ) ) {
+				continue; // the substring rule already produces exactly $new.
 			}
 			$rules[] = array(
 				'id'    => 'cpt:' . $old,
@@ -805,18 +845,22 @@ class PrefixRenamer {
 			'why'      => 'cron hooks and dead tables must be cleared under every name they have ever had; and the 6.0.0 rename step must NAME the old identifiers it goes looking for -- a migration that searched for the new names would find nothing to migrate',
 			'regions'  => array(
 				0 => array( '_transient_mhm_rate_limit_%', '_transient_mhm_rentiva_rate_limit_%', '_transient_mhmrentiva_rate_limit_%', '_transient_timeout_mhm_rate_limit_%', '_transient_timeout_mhm_rentiva_rate_limit_%', '_transient_timeout_mhmrentiva_rate_limit_%', 'mhm_rate_limit_', 'mhm_rentiva_rate_limit_', 'mhmrentiva_rate_limit_' ),
-				1 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ),
-				2 => array( 'mhm_notification_queue', 'mhmrentiva_notification_queue' ),
-				// Görev 13, the 6.0.0 rename step. Regions 3-10 protect the OLD
+				// Dead orchestration schema. Neither table is in TABLES, so no
+				// rename produces the new spelling -- the old one is the only
+				// name a real install has.
+				1 => array( 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics' ),
+				2 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ),
+				3 => array( 'mhm_notification_queue', 'mhmrentiva_notification_queue' ),
+				// Görev 13, the 6.0.0 rename step. Regions 4-11 protect the OLD
 				// names the migration has to go looking for.
-				3 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
-				4 => array( '_mhm_', '_mhm_rentiva_' ),
-				5 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
-				6 => array( 'mhm_contact_message', 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
-				7 => array(),
-				8 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
-				9 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
-				10 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
+				4 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
+				5 => array( '_mhm_', '_mhm_rentiva_' ),
+				6 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
+				7 => array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
+				8 => array(),
+				9 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
+				10 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
+				11 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
 			),
 		),
 		'src/Admin/Frontend/Shortcodes/VehicleDetails.php' => array(
@@ -847,6 +891,9 @@ class PrefixRenamer {
 				10 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
 				11 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
 				12 => array( 'mhm_backup_records', 'mhm_message_logs', 'mhm_notification_queue', 'mhm_payment_log', 'mhm_rentiva_background_jobs', 'mhm_rentiva_commission_policy', 'mhm_rentiva_key_registry', 'mhm_rentiva_ledger', 'mhm_rentiva_payout_audit', 'mhm_rentiva_queue', 'mhm_rentiva_ratings', 'mhm_rentiva_report_queue', 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics', 'mhm_sessions', 'mhm_transfers' ),
+				// The orphan family in its PRE-6.0.0 spelling -- the only name a
+				// real install has for any of these, since none is in TABLES.
+				13 => array( 'mhm_rentiva_alert_dispatch_state', 'mhm_rentiva_alert_state', 'mhm_rentiva_event_queue', 'mhm_rentiva_external_alert_bridge_circuit', 'mhm_rentiva_external_alert_bridge_queue', 'mhm_rentiva_payment_event_aggregate_windows', 'mhm_rentiva_payment_event_aggregates', 'mhm_rentiva_payment_events_raw', 'mhm_rentiva_payment_registry', 'mhm_rentiva_subscriptions', 'mhm_rentiva_usage_billing_feature_flags', 'mhm_rentiva_vendor_reports' ),
 			),
 		),
 	);
@@ -855,6 +902,23 @@ class PrefixRenamer {
 
 	public const IGNORE_START = 'prefix-rename:ignore-start';
 	public const IGNORE_END   = 'prefix-rename:ignore-end';
+
+	/**
+	 * Would RUNTIME_STRING_RULES alone turn $old into exactly $new?
+	 *
+	 * The generic rules are applied longest-prefix-first, the same way the
+	 * sweep applies them, and the result is compared with the map's declared
+	 * value. Only an exact match licenses skipping the explicit rule.
+	 */
+	private function substringRulesAgreeWith( string $old, string $new ): bool {
+		foreach ( Map::RUNTIME_STRING_RULES as $oldPrefix => $newPrefix ) {
+			if ( 0 === strpos( $old, $oldPrefix ) ) {
+				return ( $newPrefix . substr( $old, strlen( $oldPrefix ) ) ) === $new;
+			}
+		}
+
+		return false;
+	}
 
 	public function transform( string $text, string $file = '' ): array {
 		$out     = '';

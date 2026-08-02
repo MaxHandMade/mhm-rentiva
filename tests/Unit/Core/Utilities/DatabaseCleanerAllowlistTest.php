@@ -83,7 +83,12 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 			'plugin' => 'lite',
 			'why'    => 'PrefixMigrationMap docblock: rule-order counter-example',
 		),
-		'_mhm_vr_nonce'                    => array(
+		// Renamed by the 6.0.0 sweep, NOT dropped. The new spelling still begins
+		// with '_mhm', so it is still scanned and would be reported as an
+		// unprotected meta key -- deleting the exception would trade a stale entry
+		// for a false finding. It remains what it always was: a nonce FIELD name,
+		// never a meta key.
+		'_mhmrentiva_vr_nonce'             => array(
 			'plugin' => 'pro',
 			'why'    => 'nonce field name (VendorReportsAdminPage::check_admin_referer)',
 		),
@@ -105,6 +110,16 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 */
 	private const PRO_ONLY_META_KEYS = array(
 		'_mhm_attachments',
+		'_mhmrentiva_iban_change_status',
+		'_mhmrentiva_pending_iban',
+		'_mhmrentiva_vendor_account_holder',
+		'_mhmrentiva_vendor_approved_at',
+		'_mhmrentiva_vendor_bio',
+		'_mhmrentiva_vendor_iban',
+		'_mhmrentiva_vendor_phone',
+		'_mhmrentiva_vendor_service_areas',
+		'_mhmrentiva_vendor_tax_number',
+		'_mhmrentiva_vendor_tax_office',
 		'_mhm_bypass_reason',
 		'_mhm_cooling_policy_version',
 		'_mhm_ip_address',
