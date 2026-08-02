@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Migration;
 
+use MHMRentiva\Admin\Core\Utilities\DatabaseCleaner;
 use MHMRentiva\Admin\Core\Utilities\DatabaseMigrator;
 use MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap;
 use WP_UnitTestCase;
@@ -62,6 +63,14 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
     private array $temp_tables = array();
 
     /**
+     * Users these tests create. Their meta outlives the suite's rollback for the
+     * same reason the options do -- see tearDown().
+     *
+     * @var list<int>
+     */
+    private array $seeded_users = array();
+
+    /**
      * Clean up AFTER the suite's rollback, not before it.
      *
      * run_migrations() issues ANALYZE TABLE, an implicit COMMIT, so everything
@@ -101,6 +110,14 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
         foreach (self::SEEDED_OPTIONS as $option) {
             delete_option($option);
         }
+
+        // Same story for user meta: the migration commits, so these rows survive
+        // the rollback and would otherwise leak into every later test.
+        foreach ($this->seeded_users as $user_id) {
+            $wpdb->delete($wpdb->usermeta, array( 'user_id' => $user_id ), array( '%d' ));
+            $wpdb->delete($wpdb->users, array( 'ID' => $user_id ), array( '%d' ));
+        }
+        $this->seeded_users = array();
 
         foreach (array_keys(PrefixMigrationMap::CRON_HOOKS) as $hook) {
             wp_unschedule_hook($hook);
@@ -154,6 +171,34 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
             )
         );
         $this->temp_tables[] = $name;
+    }
+
+    private function count_user_meta(int $user_id, string $meta_key): int
+    {
+        global $wpdb;
+
+        return (int) $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE user_id = %d AND meta_key = %s",
+                $user_id,
+                $meta_key
+            )
+        );
+    }
+
+    /**
+     * The most recent merge-loser backup table, or null if none was created.
+     */
+    private function merge_loser_backup_table(): ?string
+    {
+        global $wpdb;
+
+        $tables = $wpdb->get_col(
+            $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($wpdb->prefix . 'mhmrentiva_merge_losers_backup_') . '%')
+        );
+        sort($tables);
+
+        return empty($tables) ? null : (string) end($tables);
     }
 
     private function count_meta(int $post_id, string $meta_key): int
@@ -271,6 +316,32 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
     }
 
     /**
+     * The EIGHTH merged pair, added to the map on 2026-08-02.
+     *
+     * It collides between `_mhm_` and `_rentiva_` rather than between `_mhm_` and
+     * `_mhm_rentiva_`, which is why the original seven-pair analysis did not see
+     * it. The winner is the spelling the WRITERS use -- Pro's VehicleSubmit and
+     * VehicleTransferMetaBox both update_post_meta() the `_rentiva_` key, while
+     * the `_mhm_` spelling has no writer at all and survives only as a legacy
+     * read-fallback. Note this is the mirror image of vehicle_id, where the BARE
+     * spelling was the writer: same rule, opposite-looking answer.
+     */
+    public function test_the_service_type_pair_keeps_the_writers_spelling(): void
+    {
+        $vid = self::factory()->post->create(array( 'post_type' => 'vehicle' ));
+        update_post_meta($vid, '_rentiva_vehicle_service_type', 'transfer');
+        update_post_meta($vid, '_mhm_vehicle_service_type', 'stale-fallback');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame(1, $this->count_meta($vid, '_mhmrentiva_vehicle_service_type'), 'The merge left two rows under one key.');
+        $this->assertSame('transfer', get_post_meta($vid, '_mhmrentiva_vehicle_service_type', true));
+        $this->assertSame(0, $this->count_meta($vid, '_rentiva_vehicle_service_type'));
+        $this->assertSame(0, $this->count_meta($vid, '_mhm_vehicle_service_type'));
+    }
+
+    /**
      * A post that carries only the LOSING spelling still keeps its value -- the
      * de-duplication may only fire where both rows are actually present.
      */
@@ -359,6 +430,213 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
         $this->assertSame('50', get_post_meta($addon, 'mhmrentiva_addon_price', true));
         $this->assertSame('someone-elses', get_post_meta($page, 'addon_price', true), 'A foreign plugin lost its addon_price row.');
         $this->assertSame('not-ours', get_post_meta($addon, 'addon_unmapped_key', true), 'An unmapped addon_* key was swept up by a prefix match.');
+    }
+
+    /**
+     * The vendor profile family, which had NO usermeta rule until 2026-08-02.
+     *
+     * Görev 12 renamed these literals in the code -- DashboardContext.php:29 now
+     * reads `_mhmrentiva_vendor_status` -- so without the `_rentiva_` rule every
+     * vendor's active status, IBAN, slug and profile is orphaned and no vendor
+     * can enter the panel. 18 keys / 65 rows on the dev database.
+     */
+    public function test_the_vendor_profile_user_meta_family_moves(): void
+    {
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        update_user_meta($user, '_rentiva_vendor_status', 'active');
+        update_user_meta($user, '_rentiva_vendor_iban', 'TR000000000000000000000000');
+        update_user_meta($user, '_rentiva_vendor_slug', 'acme-rentals');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame('active', get_user_meta($user, '_mhmrentiva_vendor_status', true));
+        $this->assertSame('TR000000000000000000000000', get_user_meta($user, '_mhmrentiva_vendor_iban', true));
+        $this->assertSame('acme-rentals', get_user_meta($user, '_mhmrentiva_vendor_slug', true));
+        $this->assertSame('', get_user_meta($user, '_rentiva_vendor_status', true));
+    }
+
+    /**
+     * wp_usermeta has no unique index on (user_id, meta_key) either.
+     *
+     * `_rentiva_vendor_city` (MetaKeys::VENDOR_CITY, one writer and six readers)
+     * and `_mhm_rentiva_vendor_city` (zero writers, zero readers -- an orphan a
+     * fixed Pro bug used to read) both land on `_mhmrentiva_vendor_city`. On the
+     * dev database four vendors carry both, and three of them hold a DIFFERENT
+     * city on the orphan row.
+     */
+    public function test_the_vendor_city_pair_keeps_the_live_key_and_leaves_one_row(): void
+    {
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        add_user_meta($user, '_rentiva_vendor_city', 'Kocaeli');
+        add_user_meta($user, '_mhm_rentiva_vendor_city', 'Istanbul');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame(1, $this->count_user_meta($user, '_mhmrentiva_vendor_city'), 'The merge left two rows under one key.');
+        $this->assertSame('Kocaeli', get_user_meta($user, '_mhmrentiva_vendor_city', true), 'The orphan spelling won and the vendor directory would show the wrong city.');
+        $this->assertSame(0, $this->count_user_meta($user, '_mhm_rentiva_vendor_city'));
+        $this->assertSame(0, $this->count_user_meta($user, '_rentiva_vendor_city'));
+    }
+
+    /**
+     * A merge DELETES a row that held a real value, and this migration cannot be
+     * un-run. Every discarded row must survive somewhere findable.
+     */
+    public function test_discarded_merge_losers_are_recorded_before_deletion(): void
+    {
+        global $wpdb;
+
+        $this->use_real_tables();
+
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        add_user_meta($user, '_rentiva_vendor_city', 'Kocaeli');
+        add_user_meta($user, '_mhm_rentiva_vendor_city', 'Istanbul');
+
+        $booking = self::factory()->post->create(array( 'post_type' => 'vehicle_booking' ));
+        update_post_meta($booking, '_mhm_customer_email', 'live@example.com');
+        update_post_meta($booking, '_mhm_rentiva_customer_email', 'orphan@example.com');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $table = $this->merge_loser_backup_table();
+        $this->assertNotNull($table, 'Nothing recorded the discarded rows.');
+        $this->temp_tables[] = $table;
+
+        // Scoped to the two objects THIS test created. The backup table is
+        // per-run, and every test in this class runs its own migration, so
+        // earlier tests' discarded rows are legitimately in there too.
+        $rows = $wpdb->get_results(
+            $wpdb->prepare(
+                'SELECT family, object_id, meta_key, meta_value FROM %i
+                  WHERE ( family = %s AND object_id = %d ) OR ( family = %s AND object_id = %d )
+                  ORDER BY family, meta_key',
+                $table,
+                'postmeta',
+                $booking,
+                'usermeta',
+                $user
+            ),
+            ARRAY_A
+        );
+
+        $this->assertSame(
+            array(
+                array( 'family' => 'postmeta', 'object_id' => (string) $booking, 'meta_key' => '_mhm_rentiva_customer_email', 'meta_value' => 'orphan@example.com' ),
+                array( 'family' => 'usermeta', 'object_id' => (string) $user, 'meta_key' => '_mhm_rentiva_vendor_city', 'meta_value' => 'Istanbul' ),
+            ),
+            $rows,
+            'Both families must be recorded, with the value that was thrown away.'
+        );
+    }
+
+    /**
+     * The recovery copy has to be reachable by the screen that lists backups,
+     * or it is not a recovery copy. And it must NOT be restorable in place: its
+     * rows span two target tables and the generic restore path defaults to
+     * wp_postmeta, which would invent postmeta rows keyed by a user id.
+     */
+    public function test_the_merge_loser_backup_is_listed_and_refuses_blind_restore(): void
+    {
+        $this->use_real_tables();
+
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        add_user_meta($user, '_rentiva_vendor_city', 'Kocaeli');
+        add_user_meta($user, '_mhm_rentiva_vendor_city', 'Istanbul');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $table = $this->merge_loser_backup_table();
+        $this->assertNotNull($table);
+        $this->temp_tables[] = $table;
+
+        $listed = array_filter(
+            DatabaseCleaner::list_backups(),
+            static fn (array $b): bool => $b['table_name'] === $table
+        );
+        $this->assertNotEmpty($listed, 'The recovery copy is invisible to the Backups screen.');
+        $this->assertSame('merge_losers', reset($listed)['type']);
+
+        $this->assertTrue(DatabaseCleaner::is_managed_backup_table($table), 'Not managed, so export refuses it.');
+        $this->assertNotSame('', DatabaseCleaner::export_backup_to_sql($table), 'The recovery copy cannot be exported.');
+
+        global $wpdb;
+        $postmeta_before = (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta}");
+
+        $restore = DatabaseCleaner::restore_backup($table);
+
+        // assertFalse($restore['success']) ALONE is vacuous here, and this was
+        // caught by mutation: with the guard removed the generic branch defaults
+        // its target to wp_postmeta and the INSERT fails on a column-count
+        // mismatch, so 'success' is false either way. What must be asserted is
+        // WHY -- a deliberate refusal, not an accident that would have corrupted
+        // wp_postmeta the moment the two schemas happened to line up.
+        $this->assertFalse($restore['success']);
+        $this->assertStringContainsString(
+            'cannot be restored in place',
+            $restore['message'],
+            'The refusal must be deliberate, not a lucky SQL error.'
+        );
+        $this->assertSame(
+            $postmeta_before,
+            (int) $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta}"),
+            'A restore attempt wrote rows into wp_postmeta.'
+        );
+    }
+
+    /**
+     * The underscore-LESS rentiva-qualified user meta. The map's docblock used to
+     * claim the bare `mhm_` rule covered these; it does not -- it cuts after
+     * `mhm_` and produces `mhmrentiva_rentiva_favorites`, which nothing reads.
+     *
+     * `mhmrentiva_customer` is the load-bearing one: AccountController.php:425
+     * gates customer account access on it.
+     */
+    public function test_the_bare_rentiva_user_meta_family_does_not_double_up_the_token(): void
+    {
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        update_user_meta($user, 'mhm_rentiva_favorites', array( 101, 202 ));
+        update_user_meta($user, 'mhm_rentiva_customer', '1');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame(array( 101, 202 ), get_user_meta($user, 'mhmrentiva_favorites', true));
+        $this->assertSame('1', get_user_meta($user, 'mhmrentiva_customer', true), 'Customer account access meta was orphaned.');
+        $this->assertSame('', get_user_meta($user, 'mhmrentiva_rentiva_favorites', true), 'The bare rule cut at the wrong offset and doubled the product token.');
+        $this->assertSame('', get_user_meta($user, 'mhm_rentiva_favorites', true));
+    }
+
+    /**
+     * usermeta has no post to join against, so the two vendor-token-only rules
+     * are driven by an explicit key allowlist read out of the pre-rename tree --
+     * never by a prefix LIKE. Sibling MHM products write user meta too, and two
+     * of their keys are sitting in the dev database right now.
+     */
+    public function test_a_sibling_products_user_meta_is_left_alone(): void
+    {
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        update_user_meta($user, '_mhm_is_demo_user', '1');
+        update_user_meta($user, 'mhm_cs_preferred_currency', 'EUR');
+        // Ours, same bare prefix, in the allowlist -- proves the lock is not just
+        // "leave every mhm_ user meta alone".
+        update_user_meta($user, 'mhm_gdpr_consent_given', 'yes');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame('1', get_user_meta($user, '_mhm_is_demo_user', true), 'A key in no Rentiva source file was renamed.');
+        $this->assertSame('EUR', get_user_meta($user, 'mhm_cs_preferred_currency', true), 'The currency switcher lost its user meta.');
+        $this->assertSame('yes', get_user_meta($user, 'mhmrentiva_gdpr_consent_given', true), 'Our own bare-prefix key did not move.');
     }
 
     /**

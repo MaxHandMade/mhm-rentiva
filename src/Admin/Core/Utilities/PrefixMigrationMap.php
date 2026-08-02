@@ -350,18 +350,33 @@ final class PrefixMigrationMap {
      * surviving value -- picking wrong is a silent data change, not a naming
      * preference.
      *
-     * 🔴 READ THE vehicle_id ENTRY BEFORE APPLYING A HEURISTIC. The obvious rule
+     * 🔴 THE RULE IS "THE SPELLING THE WRITERS USE WINS". Not the more qualified
+     * spelling, and not the one that happens to have more rows in one database.
+     * Applied honestly it gives a DIFFERENT surface answer per pair, which is
+     * exactly why it must not be replaced by a heuristic about how the names look.
+     *
+     * READ THE vehicle_id ENTRY BEFORE APPLYING ANY HEURISTIC. The obvious rule
      * -- "prefer the rentiva-qualified spelling, it is more specific" -- gives
      * the WRONG answer there, and it is the pair where being wrong is worst.
-     * Measured on a real pre-rename database:
      *
-     *     '_mhm_vehicle_id'          25 rows   <- every writer (Handler, Hooks,
-     *                                             CancellationHandler)
-     *     '_mhm_rentiva_vehicle_id'   3 rows   <- what Testimonials filters on
+     *     '_mhm_vehicle_id'          <- every writer (Handler, Hooks,
+     *                                   CancellationHandler); 25 rows in live
+     *                                   wp_postmeta on the pre-rename dev database
+     *     '_mhm_rentiva_vehicle_id'  <- what Testimonials filters on; NO writer
      *
      * Testimonials could therefore only ever resolve 3 of 28 bookings; the other
      * 25 silently returned nothing. The merge is fixing that live bug, and it
-     * only fixes it if the 25-row key wins.
+     * only fixes it if the writers' key wins.
+     *
+     * 🔴 PROVENANCE CORRECTION (Görev 13, 2026-08-02). This paragraph used to
+     * cite "'_mhm_rentiva_vehicle_id'   3 rows" as a live measurement. It is not:
+     * live wp_postmeta holds ZERO rows under that key. The three rows sit in
+     * wp_mhm_postmeta_backup_invalid_20260320_092228, a DatabaseCleaner BACKUP
+     * table. The number is left out above rather than restated, so it cannot be
+     * re-cited as live. The decision is unchanged -- it is strengthened, since the
+     * rentiva-qualified spelling turns out to have no live rows at all -- but a
+     * count sourced from a backup table is exactly the kind of provenance error
+     * this round has already been bitten by.
      *
      * Format: new key => the OLD key whose value survives.
      *
@@ -369,16 +384,79 @@ final class PrefixMigrationMap {
      */
     public const POSTMETA_MERGE_WINNERS = [
         // Sole writer is VehicleGallery, on the rentiva-qualified key.
-        '_mhmrentiva_gallery_images' => '_mhm_rentiva_gallery_images',
+        '_mhmrentiva_gallery_images'       => '_mhm_rentiva_gallery_images',
         // See the note above -- the bare key is the one every writer uses.
-        '_mhmrentiva_vehicle_id'     => '_mhm_vehicle_id',
+        '_mhmrentiva_vehicle_id'           => '_mhm_vehicle_id',
         // BookingMeta/BookingColumns write the bare keys; Testimonials only reads.
-        '_mhmrentiva_customer_email' => '_mhm_customer_email',
-        '_mhmrentiva_customer_name'  => '_mhm_customer_name',
+        '_mhmrentiva_customer_email'       => '_mhm_customer_email',
+        '_mhmrentiva_customer_name'        => '_mhm_customer_name',
         // Live keys are the rentiva-qualified ones (MetaKeys, Util, BookingMeta);
         // the bare spellings survive only in the cleanup's protection list.
-        '_mhmrentiva_price_per_day'  => '_mhm_rentiva_price_per_day',
-        '_mhmrentiva_deposit'        => '_mhm_rentiva_deposit',
+        '_mhmrentiva_price_per_day'        => '_mhm_rentiva_price_per_day',
+        '_mhmrentiva_deposit'              => '_mhm_rentiva_deposit',
+        // EIGHTH pair, owner decision 2026-08-02 (Görev 13). This one collides
+        // between the '_mhm_' and '_rentiva_' rules rather than between '_mhm_'
+        // and '_mhm_rentiva_', which is why neither the bijection check nor the
+        // original seven-pair analysis saw it; Görev 12 named it in
+        // DatabaseCleanerAllowlistTest's docblock and deliberately left it for
+        // this map rather than absorbing it silently.
+        //
+        // Winner decided on WRITERS, then confirmed against the database -- both
+        // pieces of evidence, because one database is a sample:
+        //   '_rentiva_vehicle_service_type'  2 writers  (Pro VehicleSubmit.php:838
+        //                                     update_post_meta, and
+        //                                     VehicleTransferMetaBox.php:198), plus
+        //                                     every reader in Lite's FeaturedVehicles/
+        //                                     SearchResults meta_query and both
+        //                                     vehicle templates.  6 live rows.
+        //   '_mhm_vehicle_service_type'      0 writers  -- it appears only as a
+        //                                     DatabaseCleaner protection entry and as
+        //                                     TWO legacy read-fallbacks in Pro
+        //                                     (TransferSearchEngine.php:100,
+        //                                     VehicleTransferMetaBox.php:63), each
+        //                                     sitting beside the '_rentiva_' read it
+        //                                     falls back FROM.  0 live rows.
+        // Note this is the mirror image of vehicle_id: there the BARE spelling was
+        // the writer, here the qualified one is. Same rule, opposite-looking answer.
+        '_mhmrentiva_vehicle_service_type' => '_rentiva_vehicle_service_type',
+    ];
+
+    /**
+     * The usermeta twin of POSTMETA_MERGE_WINNERS. Owner decision, 2026-08-02.
+     *
+     * The wp_usermeta table has no unique index on (user_id, meta_key) either,
+     * so the same hazard applies: a merge leaves TWO rows and
+     * get_user_meta($id, $key, true) returns whichever the storage engine
+     * happens to order first.
+     *
+     * ONE pair exists, and the surface was established rather than assumed: the
+     * 40 usermeta-shaped keys reachable from *_user_meta() call sites, from class
+     * constants resolved to their values, and from the live dev database were all
+     * projected through USERMETA_PREFIX_RULES and grouped by destination. Exactly
+     * one destination had more than one source. The class is closed, not just
+     * this instance.
+     *
+     *   '_rentiva_vendor_city'       WINNER -- MetaKeys::VENDOR_CITY; written by
+     *                                VendorProfileSettingsSave.php:76 and read by
+     *                                six call sites including the directory SQL
+     *                                and two REST controllers. 5 rows.
+     *   '_mhm_rentiva_vendor_city'   ZERO writers, ZERO readers. Its only
+     *                                appearance in either codebase is a Pro
+     *                                comment (VehicleSubmit.php:55) describing a
+     *                                historical bug that read this orphan key --
+     *                                a bug that was then fixed. 4 rows.
+     *
+     * The values are NOT duplicates: three of the four affected vendors hold a
+     * different city on the orphan row (Istanbul/Kocaeli, Antalya/Ankara,
+     * İzmir Çeşme/Ankara). Letting the orphan win puts a wrong city in the public
+     * vendor directory for three vendors.
+     *
+     * Format: new key => the OLD key whose value survives.
+     *
+     * @var array<string,string>
+     */
+    public const USERMETA_MERGE_WINNERS = [
+        '_mhmrentiva_vendor_city' => '_rentiva_vendor_city',
     ];
 
     public const POSTMETA_EXACT_OVERRIDES = [
@@ -485,17 +563,66 @@ final class PrefixMigrationMap {
      * yalnız '_mhm_' kuralıyla '_mhmrentiva_rentiva_welcome_sent' diye
      * BOZULURDU (SUBSTRING kesme noktası yanlış konumdan başlar).
      *
-     * The trailing bare 'mhm_' rule additionally covers bare (no leading
-     * underscore) user-meta keys this codebase actually uses, e.g.
-     * CompareService::STORAGE_KEY ('mhm_rentiva_compare') and
-     * FavoritesService::META_KEY ('mhm_rentiva_favorites') -- both read/
-     * written via get_user_meta()/update_user_meta(), neither underscore-
-     * prefixed, both correctly collapse via this bare rule since they do
-     * not match either underscore-prefixed rule above.
+     * 🔴 CORRECTION (Görev 13, 2026-08-02, owner-approved). This docblock used to
+     * claim that the bare 'mhm_' rule "additionally covers" the underscore-less
+     * user-meta keys -- CompareService::STORAGE_KEY ('mhm_rentiva_compare'),
+     * FavoritesService::META_KEY ('mhm_rentiva_favorites') -- and that they
+     * "both correctly collapse via this bare rule". They do not. The bare rule
+     * cuts after 'mhm_', so 'mhm_rentiva_favorites' becomes
+     * 'mhmrentiva_rentiva_favorites' while the swept code reads
+     * 'mhmrentiva_favorites': the row is orphaned, not migrated. That is the same
+     * class of false invariant this file had to correct at lines 41-49, and it is
+     * how the next implementer re-derives the wrong conclusion.
+     *
+     * WHICH RULE COVERS WHICH FAMILY, plainly:
+     *
+     *   '_mhm_rentiva_'  the underscore-prefixed rentiva-qualified family --
+     *                    '_mhm_rentiva_welcome_sent' (BookingNotifications.php:100,
+     *                    104), '_mhm_rentiva_vendor_city'. Must precede '_mhm_' or
+     *                    SUBSTRING cuts at the wrong offset and the key becomes
+     *                    '_mhmrentiva_rentiva_welcome_sent'.
+     *
+     *   '_rentiva_'      ADDED 2026-08-02. The VENDOR PROFILE family, which had no
+     *                    rule at all: '_rentiva_vendor_status', '_vendor_slug',
+     *                    '_vendor_iban', '_vendor_bio', '_vendor_city',
+     *                    '_vendor_phone', '_vendor_tax_*', '_vendor_approved_at',
+     *                    '_vendor_reliability_*', '_vendor_score_history',
+     *                    '_pending_iban', '_iban_change_status' -- 18 keys, 65 rows
+     *                    on the dev database. Görev 12 renamed these literals in
+     *                    the code (DashboardContext.php:29 now reads
+     *                    '_mhmrentiva_vendor_status'), so without this rule every
+     *                    vendor loses their active status, IBAN, slug and profile
+     *                    and cannot enter the panel.
+     *
+     *   '_mhm_'         the underscore-prefixed bare-vendor family. NOT
+     *                    self-scoping: sibling MHM products write user meta too,
+     *                    so Görev 13 migrates this family by an explicit key
+     *                    allowlist read out of the pre-rename tree, never by a
+     *                    prefix LIKE. See DatabaseMigrator::owned_user_meta_keys().
+     *
+     *   'mhm_rentiva_'  ADDED 2026-08-02, and it MUST precede the bare rule below.
+     *                    The underscore-less rentiva-qualified family the old
+     *                    docblock wrongly assigned to that bare rule:
+     *                    'mhm_rentiva_compare', '_favorites', '_last_login',
+     *                    '_last_activity', '_address', '_phone', '_customer'.
+     *                    'mhm_rentiva_customer' is load-bearing --
+     *                    AccountController.php:425 gates customer account access
+     *                    on it, so under the bare rule alone customers cannot
+     *                    reach their own account.
+     *
+     *   'mhm_'          the underscore-less bare-vendor family
+     *                    ('mhm_gdpr_consent_*', 'mhm_dashboard_widget_order',
+     *                    'mhm_marketing_emails', ...). Same non-exclusivity as
+     *                    '_mhm_' above, same explicit-allowlist treatment.
+     *
+     * Order is longest-first throughout, and the two 'rentiva'-bearing rules carry
+     * the product token, so they are the only ones a prefix LIKE may safely drive.
      */
     public const USERMETA_PREFIX_RULES = [
         '_mhm_rentiva_' => '_mhmrentiva_',
+        '_rentiva_'     => '_mhmrentiva_',
         '_mhm_'         => '_mhmrentiva_',
+        'mhm_rentiva_'  => 'mhmrentiva_',
         'mhm_'          => 'mhmrentiva_',
     ];
 

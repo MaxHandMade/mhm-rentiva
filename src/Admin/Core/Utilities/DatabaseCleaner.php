@@ -1604,7 +1604,13 @@ final class DatabaseCleaner {
 
 			// Parse backup type from table name
 			$backup_type = 'unknown';
-			if ( strpos( $table_name, 'postmeta_backup_invalid' ) !== false ) {
+			if ( strpos( $table_name, 'merge_losers_backup_' ) !== false ) {
+				// Written by the 6.0.0 prefix migration before it discards the
+				// losing spelling of a merged meta key. Typed explicitly rather
+				// than falling into 'custom', because restore_backup() has to be
+				// able to recognise and refuse it -- see there.
+				$backup_type = 'merge_losers';
+			} elseif ( strpos( $table_name, 'postmeta_backup_invalid' ) !== false ) {
 				$backup_type = 'invalid_meta';
 			} elseif ( strpos( $table_name, 'postmeta_backup_' ) !== false ) {
 				$backup_type = 'orphaned_meta';
@@ -1712,6 +1718,24 @@ final class DatabaseCleaner {
 			return array(
 				'success' => false,
 				'message' => __( 'Backup table not found', 'mhm-rentiva' ),
+			);
+		}
+
+		// The 6.0.0 merge-loser backup has NO single target table and must never
+		// reach the generic branch below.
+		//
+		// Its rows span wp_postmeta AND wp_usermeta, and only its `family` column
+		// says which row belongs where. The fallback below defaults
+		// $target_table to wp_postmeta and then runs
+		// `INSERT INTO <target> SELECT * FROM <backup>`, so restoring this table
+		// blind would write vendor user-meta into wp_postmeta keyed by user id as
+		// though it were a post id -- inventing rows on unrelated posts. The
+		// export path handles this table fine (it is schema-agnostic); recovery is
+		// export, read, and put the values back deliberately.
+		if ( strpos( $backup_table, 'merge_losers_backup_' ) !== false ) {
+			return array(
+				'success' => false,
+				'message' => __( 'This backup holds discarded meta from two different tables and cannot be restored in place. Export it and reapply the rows you need.', 'mhm-rentiva' ),
 			);
 		}
 

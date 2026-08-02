@@ -38,6 +38,13 @@ final class DatabaseMigrator {
 	private const RENAME_BATCH = 5000;
 
 	/**
+	 * The merge-loser backup table for the CURRENT run, or null before one is
+	 * needed. Reset at the top of migrate_prefix_rename_600() so each run gets
+	 * its own table and a run with nothing to discard creates none at all.
+	 */
+	private static ?string $merge_loser_table = null;
+
+	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
 	 */
 	private static function sanitize_table_identifier(string $table): string
@@ -1458,6 +1465,8 @@ final class DatabaseMigrator {
 	 */
 	private static function migrate_prefix_rename_600(): void
 	{
+		self::$merge_loser_table = null;
+
 		self::rename_options();
 		self::rename_post_types();
 		self::rename_taxonomies();
@@ -1697,61 +1706,344 @@ final class DatabaseMigrator {
 		global $wpdb;
 
 		foreach (PrefixMigrationMap::POSTMETA_MERGE_WINNERS as $new_key => $winner) {
-			$loser = self::merge_loser_key($new_key, $winner);
-			if (null === $loser) {
+			foreach (self::merge_loser_keys($new_key, $winner) as $loser) {
+				// Copy before deleting. These rows hold real values -- on a
+				// customer site the losing spelling of customer_email or
+				// price_per_day is somebody's data -- and this step cannot be
+				// un-run. See record_merge_losers().
+				self::record_merge_losers('postmeta', $loser, $winner);
+
+				// Only where the SAME post carries both. A post holding only a
+				// losing spelling keeps its value: the prefix pass renames it and
+				// there is no collision to resolve. The derived table is required
+				// -- MySQL will not let a DELETE read its own target in a bare
+				// subquery.
+				$wpdb->query(
+					$wpdb->prepare(
+						"DELETE FROM {$wpdb->postmeta}
+						  WHERE meta_key = %s
+						    AND post_id IN (
+						        SELECT post_id FROM (
+						            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+						        ) AS winner_rows
+						    )",
+						$loser,
+						$winner
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * Hazard 1 again, on wp_usermeta -- which has no unique index on
+	 * (user_id, meta_key) either.
+	 *
+	 * One declared pair: see PrefixMigrationMap::USERMETA_MERGE_WINNERS. Runs
+	 * BEFORE the usermeta prefix rewrites, while the two spellings are still
+	 * distinguishable.
+	 */
+	private static function resolve_user_meta_merge_collisions(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::USERMETA_MERGE_WINNERS as $new_key => $winner) {
+			foreach (self::user_meta_merge_loser_keys($new_key, $winner) as $loser) {
+				self::record_merge_losers('usermeta', $loser, $winner);
+
+				$wpdb->query(
+					$wpdb->prepare(
+						"DELETE FROM {$wpdb->usermeta}
+						  WHERE meta_key = %s
+						    AND user_id IN (
+						        SELECT user_id FROM (
+						            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
+						        ) AS winner_rows
+						    )",
+						$loser,
+						$winner
+					)
+				);
+			}
+		}
+	}
+
+	/**
+	 * The other spellings that land on a merged USER-meta key.
+	 *
+	 * Same fail-safe as merge_loser_keys(): an empty list unless the declared
+	 * winner is genuinely one of the candidates, so a map entry this code does
+	 * not understand deletes nothing.
+	 *
+	 * @return list<string>
+	 */
+	private static function user_meta_merge_loser_keys(string $new_key, string $winner): array
+	{
+		// prefix-rename:ignore-start
+		// Which old spellings can reach this destination depends on whether the
+		// destination is underscore-prefixed: USERMETA_PREFIX_RULES sends
+		// '_mhm_rentiva_'/'_rentiva_'/'_mhm_' to '_mhmrentiva_', and
+		// 'mhm_rentiva_'/'mhm_' to the underscore-less 'mhmrentiva_'.
+		$families = array(
+			'_mhmrentiva_' => array( '_mhm_', '_mhm_rentiva_', '_rentiva_' ),
+			'mhmrentiva_'  => array( 'mhm_', 'mhm_rentiva_' ),
+		);
+		// prefix-rename:ignore-end
+
+		foreach ($families as $new_prefix => $old_prefixes) {
+			if (0 !== strpos($new_key, $new_prefix)) {
 				continue;
 			}
 
-			// Only where the SAME post carries both. A post holding only the
-			// losing spelling keeps its value: the prefix pass renames it and
-			// there is no collision to resolve. The derived table is required --
-			// MySQL will not let a DELETE read its own target in a bare subquery.
-			$wpdb->query(
-				$wpdb->prepare(
-					"DELETE FROM {$wpdb->postmeta}
-					  WHERE meta_key = %s
-					    AND post_id IN (
-					        SELECT post_id FROM (
-					            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
-					        ) AS winner_rows
-					    )",
-					$loser,
-					$winner
-				)
-			);
+			$suffix = substr($new_key, strlen($new_prefix));
+			if ('' === $suffix) {
+				continue;
+			}
+
+			$candidates = array();
+			foreach ($old_prefixes as $old_prefix) {
+				$candidates[] = $old_prefix . $suffix;
+			}
+
+			if (! in_array($winner, $candidates, true)) {
+				continue;
+			}
+
+			return array_values(array_diff($candidates, array( $winner )));
 		}
+
+		return array();
+	}
+
+	/**
+	 * Copy the rows a merge is about to delete into a recoverable backup table.
+	 *
+	 * A merge discards a row that held a REAL value -- three of the four vendors
+	 * affected by the vendor_city pair hold a different city on the losing row --
+	 * and this migration cannot be un-run. If a winner choice turns out wrong on
+	 * some site, this table is the only way back.
+	 *
+	 * Deliberately reuses DatabaseCleaner's backup naming rather than inventing a
+	 * mechanism: `{prefix}mhmrentiva_%_backup%` is exactly what
+	 * DatabaseCleaner::list_backups() enumerates, and is_managed_backup_table()
+	 * -- which gates export -- decides membership from that same enumeration. So
+	 * this table shows up in the existing Backups screen and exports through the
+	 * existing path with no new UI. Restore-in-place is explicitly refused there:
+	 * the rows span two different target tables and only the `family` column says
+	 * which, so a blind INSERT would put user meta into wp_postmeta.
+	 *
+	 * The table is created LAZILY, on the first row actually written. That keeps
+	 * a second run a true no-op: with nothing left to discard there is no table
+	 * and no row, rather than a fresh empty table per run.
+	 */
+	private static function record_merge_losers(string $family, string $loser, string $winner): void
+	{
+		if ('usermeta' === $family) {
+			self::record_user_meta_losers($loser, $winner);
+			return;
+		}
+
+		self::record_post_meta_losers($loser, $winner);
+	}
+
+	/**
+	 * Copy the postmeta rows a merge is about to discard.
+	 *
+	 * Written out in full rather than sharing one parameterised statement with
+	 * the usermeta twin below. The two differ only in a table and a column name,
+	 * and folding them together meant interpolating both into the SQL -- which is
+	 * precisely the shape Görev 9.5 drove to zero. Duplicating twelve lines is
+	 * the cost of every identifier in this statement being a literal you can read
+	 * at the line that runs it.
+	 */
+	private static function record_post_meta_losers(string $loser, string $winner): void
+	{
+		global $wpdb;
+
+		// Count FIRST. Without this the backup table would be created on every
+		// run even when there is nothing to discard, and the idempotency claim
+		// ("the second run is a no-op") would be false by one empty table a run.
+		$colliding = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->postmeta}
+				  WHERE meta_key = %s
+				    AND post_id IN (
+				        SELECT post_id FROM (
+				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )",
+				$loser,
+				$winner
+			)
+		);
+
+		if (0 === $colliding) {
+			return;
+		}
+
+		$written = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO %i (family, object_id, meta_key, meta_value)
+				 SELECT %s, post_id, meta_key, meta_value FROM {$wpdb->postmeta}
+				  WHERE meta_key = %s
+				    AND post_id IN (
+				        SELECT post_id FROM (
+				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )",
+				self::merge_loser_backup_table(),
+				'postmeta',
+				$loser,
+				$winner
+			)
+		);
+
+		if (false === $written) {
+			// Never delete what could not be copied.
+			self::log_index_error('merge loser backup', 'could not record postmeta losers for ' . $loser . ': ' . (string) $wpdb->last_error);
+		}
+	}
+
+	/**
+	 * Copy the usermeta rows a merge is about to discard. See the note on the
+	 * postmeta twin above for why this is not folded into one statement.
+	 */
+	private static function record_user_meta_losers(string $loser, string $winner): void
+	{
+		global $wpdb;
+
+		$colliding = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->usermeta}
+				  WHERE meta_key = %s
+				    AND user_id IN (
+				        SELECT user_id FROM (
+				            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )",
+				$loser,
+				$winner
+			)
+		);
+
+		if (0 === $colliding) {
+			return;
+		}
+
+		$written = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO %i (family, object_id, meta_key, meta_value)
+				 SELECT %s, user_id, meta_key, meta_value FROM {$wpdb->usermeta}
+				  WHERE meta_key = %s
+				    AND user_id IN (
+				        SELECT user_id FROM (
+				            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )",
+				self::merge_loser_backup_table(),
+				'usermeta',
+				$loser,
+				$winner
+			)
+		);
+
+		if (false === $written) {
+			self::log_index_error('merge loser backup', 'could not record usermeta losers for ' . $loser . ': ' . (string) $wpdb->last_error);
+		}
+	}
+
+	/**
+	 * The per-run backup table, created on first use.
+	 */
+	private static function merge_loser_backup_table(): string
+	{
+		global $wpdb;
+
+		// Per RUN, not per PHP process. A `static` local here would have survived
+		// for the life of the request and, in the test suite, across every test in
+		// the process -- so a later run would keep appending to a table an earlier
+		// one had named, which is both wrong semantically ("one table per
+		// migration") and invisible in tests, where the first caller may have
+		// created it as a TEMPORARY table.
+		if (null !== self::$merge_loser_table) {
+			return self::$merge_loser_table;
+		}
+
+		// Timestamp AND a random suffix. The timestamp alone has one-second
+		// resolution, so two runs in the same second would silently share a
+		// table -- harmless when appending on a live site, but in the test suite
+		// a TEMPORARY table of that name from an earlier test SHADOWS the real
+		// CREATE, so the rows land somewhere SHOW TABLES cannot see and the
+		// recovery copy looks absent. list_backups() still parses the date, which
+		// is the only part of the name it reads.
+		$table = $wpdb->prefix . 'mhmrentiva_merge_losers_backup_'
+			. gmdate('Ymd_His') . '_' . wp_generate_password(6, false, false);
+
+		$wpdb->query(
+			$wpdb->prepare(
+				'CREATE TABLE IF NOT EXISTS %i (
+                    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                    family VARCHAR(20) NOT NULL,
+                    object_id BIGINT UNSIGNED NOT NULL,
+                    meta_key VARCHAR(255) NOT NULL,
+                    meta_value LONGTEXT NULL,
+                    PRIMARY KEY (id),
+                    KEY family_object (family, object_id)
+                ) ' . $wpdb->get_charset_collate(),
+				$table
+			)
+		);
+
+		self::$merge_loser_table = $table;
+
+		return $table;
 	}
 
 	/**
 	 * The other spelling of a merged pair.
 	 *
-	 * The bare vendor prefix and the rentiva-qualified one both target
-	 * `_mhmrentiva_`, so exactly two old keys can produce any merged new key
-	 * (POSTMETA_PREFIX_RULES has the spellings). Returns null unless the
-	 * declared winner is genuinely one of them -- a map entry this code does
-	 * not understand must delete nothing.
+	 * THREE postmeta prefix rules target `_mhmrentiva_`, so a merged new key can
+	 * have been produced by any of three old spellings. Seven of the eight
+	 * declared pairs collide between the first two; the eighth
+	 * (`vehicle_service_type`) collides between the bare vendor prefix and
+	 * `_rentiva_`, which is why the original seven-pair analysis did not see it.
+	 *
+	 * The map declares ONE survivor per merged key, so every other spelling that
+	 * lands on the same new key is a loser by definition and all of them are
+	 * returned. Returns an EMPTY list unless the declared winner is genuinely one
+	 * of the candidates -- a map entry this code does not understand must delete
+	 * nothing. That fail-safe is what lets a future pair be added to the map
+	 * before this method learns its shape: the worst case is an unresolved
+	 * collision, visible as duplicate rows, never a row deleted on a guess.
+	 *
+	 * @return list<string>
 	 */
-	private static function merge_loser_key(string $new_key, string $winner): ?string
+	private static function merge_loser_keys(string $new_key, string $winner): array
 	{
 		$new_prefix = '_mhmrentiva_';
 		if (0 !== strpos($new_key, $new_prefix)) {
-			return null;
+			return array();
 		}
 
 		$suffix = substr($new_key, strlen($new_prefix));
 		if ('' === $suffix) {
-			return null;
+			return array();
 		}
 
 		// prefix-rename:ignore-start
-		$candidates = array( '_mhm_' . $suffix, '_mhm_rentiva_' . $suffix );
+		$old_prefixes = array( '_mhm_', '_mhm_rentiva_', '_rentiva_' );
 		// prefix-rename:ignore-end
 
-		if (! in_array($winner, $candidates, true)) {
-			return null;
+		$candidates = array();
+		foreach ($old_prefixes as $old_prefix) {
+			$candidates[] = $old_prefix . $suffix;
 		}
 
-		return $candidates[0] === $winner ? $candidates[1] : $candidates[0];
+		if (! in_array($winner, $candidates, true)) {
+			return array();
+		}
+
+		return array_values(array_diff($candidates, array( $winner )));
 	}
 
 	/**
@@ -1916,6 +2208,10 @@ final class DatabaseMigrator {
 	 */
 	private static function rename_user_meta(): void
 	{
+		// Collapse the declared merge pair BEFORE the rewrites, while the two
+		// spellings are still distinguishable -- same order as postmeta.
+		self::resolve_user_meta_merge_collisions();
+
 		foreach (PrefixMigrationMap::USERMETA_PREFIX_RULES as $old_prefix => $new_prefix) {
 			if (self::is_self_scoping_prefix($old_prefix)) {
 				self::rename_user_meta_prefix($old_prefix, $new_prefix);
