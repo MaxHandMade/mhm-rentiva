@@ -174,12 +174,12 @@ spl_autoload_register(
 
 // Register this plugin's bundled copy of ui-core. The highest version across
 // all plugins that bundle it wins at plugins_loaded priority 0.
-$mhm_ui_core_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';
+$mhmrentiva_uicore_register_file = __DIR__ . '/vendor/mhm/ui-core/register.php';
 
-if ( file_exists( $mhm_ui_core_register_file ) ) {
-	require_once $mhm_ui_core_register_file;
-	mhm_ui_core_register(
-		'0.1.0',
+if ( file_exists( $mhmrentiva_uicore_register_file ) ) {
+	require_once $mhmrentiva_uicore_register_file;
+	mhmuicore_register(
+		'0.2.0',
 		__DIR__ . '/vendor/mhm/ui-core/bootstrap.php'
 	);
 }

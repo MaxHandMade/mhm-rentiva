@@ -161,16 +161,23 @@ class PrefixRenamer {
 		// reading the map.
 		'mhm_rentiva_db_version',
 		'mhm_rentiva_plugin_version',
-		// mhm-ui-core's public API. Defined in vendor/mhm/ui-core/register.php
-		// (composer dependency "mhm/ui-core": "^0.1"), NOT by this plugin, so
-		// this prefix is not ours to change: renaming our call site leaves the
-		// definition where it was and the call becomes fatal. Caught by the test
-		// bootstrap dying on "Call to undefined function
-		// mhmrentiva_ui_core_register()" after the first mechanical sweep --
-		// a reminder that a bare 'mhm_' catch-all reaches sibling PRODUCTS, not
-		// just this codebase. If ui-core is itself shipped inside vendor/, its
-		// 3-letter prefix is a separate T7 exposure belonging to that repo,
-		// exactly like Pro's lockstep in Görev 14.
+		// mhm-ui-core's public API. Defined in vendor/mhm/ui-core/register.php,
+		// NOT by this plugin, so this prefix is not ours to change: renaming our
+		// call site leaves the definition where it was and the call becomes
+		// fatal. Caught by the test bootstrap dying on "Call to undefined
+		// function mhmrentiva_ui_core_register()" after the first mechanical
+		// sweep -- a reminder that a bare 'mhm_' catch-all reaches sibling
+		// PRODUCTS, not just this codebase.
+		//
+		// STATUS 2026-08-02: that T7 exposure is CLOSED in the other repo.
+		// mhm/ui-core v0.2.0 renamed its whole public API to the single token
+		// 'mhmuicore' and this plugin's constraint is now "^0.2", so the literal
+		// below no longer occurs anywhere in the tree and this rule is a no-op
+		// against HEAD. It is retained deliberately, as a defence: if a stale
+		// 0.1.x copy is ever restored into vendor/, the sweep must still leave
+		// its identifiers alone rather than mangle a dependency it does not own.
+		// The new spelling needs no carve-out of its own -- 'mhmuicore_' does
+		// not begin with 'mhm_', so no sweep rule can match it.
 		'mhm_ui_core_',
 		// 🔴 REMOVED, 2026-08-02, owner decision. The three Elementor widget names
 		// (mhm_rentiva_featured_vehicles / _vehicles_grid / _vehicles_list) used to

@@ -28,7 +28,7 @@ phpstan-baseline.neon
 # tools refuse to re-include a path whose *parent directory* itself is
 # excluded, so excluding "/vendor/" outright would make the "!" line below
 # a no-op. mhm/ui-core is a real runtime dependency as of mhm-rentiva.php's
-# mhm_ui_core_register() call (Faz 0 Task 7) — it must ship in the release
+# mhmuicore_register() call (Faz 0 Task 7) — it must ship in the release
 # ZIP, unlike the rest of vendor/ which is dev-tooling only (PHPUnit,
 # PHPCS, PHPStan, etc.).
 /vendor/*

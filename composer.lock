@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f159d07374bcd3f2402ac23fa65f37b2",
+    "content-hash": "07a66f7daad2fa3e959fea77bc0e2505",
     "packages": [
         {
             "name": "mhm/ui-core",
-            "version": "v0.1.0",
+            "version": "v0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/MaxHandMade/mhm-ui-core.git",
-                "reference": "7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b"
+                "reference": "1e86d953ec0442160e3397407adf785afb57e175"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b",
-                "reference": "7dec9a6b1de6bd5a1504530d598a8fa3fd7b557b",
+                "url": "https://api.github.com/repos/MaxHandMade/mhm-ui-core/zipball/1e86d953ec0442160e3397407adf785afb57e175",
+                "reference": "1e86d953ec0442160e3397407adf785afb57e175",
                 "shasum": ""
             },
             "require": {
@@ -36,12 +36,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "MHM\\UiCore\\": "src/"
+                    "MHMUiCore\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "MHM\\UiCore\\Tests\\": "tests/"
+                    "MHMUiCore\\Tests\\": "tests/"
                 }
             },
             "scripts": {
@@ -65,10 +65,10 @@
             ],
             "description": "Shared WordPress UI infrastructure for MHM plugins: component factory, React admin kit, free-core/Pro tier seam.",
             "support": {
-                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.1.0",
+                "source": "https://github.com/MaxHandMade/mhm-ui-core/tree/v0.2.0",
                 "issues": "https://github.com/MaxHandMade/mhm-ui-core/issues"
             },
-            "time": "2026-07-15T02:57:20+00:00"
+            "time": "2026-08-02T17:12:13+00:00"
         }
     ],
     "packages-dev": [
