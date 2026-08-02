@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 /*
  * Plugin Name:       MHM Rentiva
  * Plugin URI:        https://wpalemi.com/rentiva/
