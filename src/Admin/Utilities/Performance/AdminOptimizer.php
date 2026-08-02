@@ -38,58 +38,27 @@ final class AdminOptimizer {
 		// Light optimization: only disable pointer documents
 		wp_dequeue_script( 'wp-pointer' );
 		wp_dequeue_style( 'wp-pointer' );
-
-		// Additional lightweight optimizations for Rentiva screens
-		self::apply_lightweight_optimizations();
 	}
 
-	/**
-	 * Apply additional lightweight optimizations for Rentiva admin screens.
-	 */
-	private static function apply_lightweight_optimizations(): void {
-		// Remove unnecessary admin notices that might clutter the interface
-		remove_action( 'admin_notices', 'wp_print_media_templates' );
-
-		// 🔴 NOT ON A POST EDITOR. This used to dequeue 'heartbeat' and 'autosave'
-		// unconditionally, and is_vehicle_editor_screen() below deliberately
-		// matches the mhmrentiva_vehicle / _booking / _addon post types -- so the
-		// screens it hit hardest were exactly the long forms where losing work
-		// costs the most.
-		//
-		// Core registers 'autosave' WITH 'heartbeat' as a dependency
-		// (script-loader.php: $scripts->add( 'autosave', ..., array( 'heartbeat' ) ),
-		// and 'wp-auth-check' the same way), so removing heartbeat took autosave
-		// and the post-lock with it and logged _doing_it_wrong notices that are
-		// visible to anyone running WP_DEBUG.
-		//
-		// The trade was never close: one poll every 15-60 seconds against a user's
-		// unsaved work on a vehicle form, plus the "somebody else is editing this"
-		// warning that stops two people overwriting each other.
-		//
-		// The exemption list mirrors WordPressOptimizer::disable_heartbeat() rather
-		// than being a special case here, so the two optimisers now answer the
-		// question the same way.
-		if ( self::is_post_editing_screen() ) {
-			return;
-		}
-
-		// Disable some unnecessary admin scripts on Rentiva screens
-		wp_dequeue_script( 'heartbeat' );
-		wp_dequeue_script( 'autosave' );
-	}
-
-	/**
-	 * Is this one of the core screens where heartbeat carries real work?
+	/*
+	 * apply_lightweight_optimizations() WAS REMOVED, because every line of it was
+	 * a no-op that read like an optimisation.
 	 *
-	 * The post editors run autosave and the post lock, and edit.php uses heartbeat
-	 * for the lock indicator in the list table. These are the same three screens
-	 * WordPressOptimizer::disable_heartbeat() already exempts.
+	 *   - wp_dequeue_script( 'heartbeat' ): wp-auth-check declares heartbeat as a
+	 *     dependency, so dequeueing pulls it straight back. Measured on a plugin
+	 *     settings screen with the dequeue in place: heartbeat.js still emitted.
+	 *   - wp_dequeue_script( 'autosave' ): core only enqueues autosave on the post
+	 *     editors, and those screens were exempted. Measured on a plugin settings
+	 *     screen: autosave.js count 0 before the dequeue could matter.
+	 *   - remove_action( 'admin_notices', 'wp_print_media_templates' ): core does
+	 *     not hook that function to admin_notices at all, so it removed nothing.
+	 *
+	 * The heartbeat and autosave dequeues did do real harm before the post-editor
+	 * exemption was added -- see the sibling note in WordPressOptimizer, where the
+	 * same subsystem broke the session-expiry modal plugin-wide. What is left in
+	 * this class is the one measurable thing it did: dropping wp-pointer, which
+	 * core does enqueue in admin and which this plugin's screens do not use.
 	 */
-	private static function is_post_editing_screen(): bool {
-		global $pagenow;
-
-		return in_array( $pagenow, array( 'post.php', 'post-new.php', 'edit.php' ), true );
-	}
 
 	private static function is_vehicle_editor_screen(): bool {
 		if ( ! is_admin() || ! function_exists( 'get_current_screen' ) ) {

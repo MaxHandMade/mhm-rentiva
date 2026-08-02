@@ -105,9 +105,9 @@ final class ContactForm extends AbstractShortcode {
 		// mhmrentiva_upload_attachment endpoint here -- removed: nothing in
 		// this plugin or Pro ever called it, the attachment field rides
 		// along in this same submit request's multipart $_FILES instead, and
-		// a publicly wp_ajax_nopriv_-reachable, purposeless upload endpoint
-		// is exactly the kind of unprotected input surface a reviewer flags
-		// next round. See ajax_submit_contact_form()'s own $_FILES handling.)
+		// a publicly wp_ajax_nopriv_-reachable upload endpoint with no caller is
+		// an unauthenticated input surface for no benefit. See
+		// ajax_submit_contact_form()'s own $_FILES handling.)
 		add_action('wp_ajax_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 		add_action('wp_ajax_nopriv_mhmrentiva_submit_contact_form', array( self::class, 'ajax_submit_contact_form' ));
 	}

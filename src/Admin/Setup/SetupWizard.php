@@ -753,7 +753,7 @@ final class SetupWizard {
 	 * because WP::parse_request() never runs for an admin.php page; and putting a
 	 * nonce on plain "next step" links would break the wizard for anyone who
 	 * reloads it later. WPCS therefore reports NonceVerification.Recommended on
-	 * the read below -- reported to WordPress.org as-is, not annotated away.
+	 * the read below -- left visible rather than annotated away.
 	 */
 	private static function get_current_step(): string
 	{

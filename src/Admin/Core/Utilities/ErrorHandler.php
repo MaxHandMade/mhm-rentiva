@@ -81,11 +81,11 @@ final class ErrorHandler {
 	 */
 	public static function database_error( string $message, ?\Exception $previous = null ): void {
 		self::log_error( $message, self::TYPE_DATABASE, self::LEVEL_HIGH );
-		// Built first, thrown second: the message is escaped on the line that
-		// assembles it, which is where both PHPCS and a human reviewer look for
-		// it. Inlining the constructor into the `throw` made the sniff examine
-		// every argument -- including the previous-exception object, which holds
-		// no string to escape and cannot be passed any other way.
+		// Built first, thrown second, so the message is escaped on the line that
+		// assembles it -- where anyone auditing what reaches the exception will
+		// look. Inlining the constructor into the `throw` mixes the escaped
+		// string in with the previous-exception object, which holds no string to
+		// escape and cannot be passed any other way.
 		$error = new \Exception( esc_html( $message ), 0, $previous );
 		throw $error;
 	}

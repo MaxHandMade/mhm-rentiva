@@ -311,11 +311,10 @@ class Html {
 	 * and {@see \MHMRentiva\Blocks\BlockRegistry}'s block `render_callback`,
 	 * which call `add_filter( 'safe_style_css', array( self::class,
 	 * 'allow_inline_style_props' ) )` directly around their own `wp_kses()`
-	 * call rather than through {@see self::kses()} -- deliberately, so a
-	 * literal `wp_kses(` sits on the exact lines a human reviewer checking
-	 * this fix will look at (a bare `Html::kses(...)` call reads the same as
-	 * the un-escaped shape those lines used to be, to anyone grepping for
-	 * `wp_kses|esc_`).
+	 * call rather than through {@see self::kses()} -- deliberately, so that a
+	 * literal `wp_kses(` is visible at the point of output. A bare
+	 * `Html::kses(...)` call gives no such signal to anyone grepping for
+	 * `wp_kses|esc_` to audit what is escaped where.
 	 *
 	 * @param string[] $props Currently-allowed CSS property names.
 	 * @return string[] $props with the extra properties appended.

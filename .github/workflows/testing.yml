@@ -196,15 +196,16 @@ jobs:
       # names, option-call coverage, and cron-hook coverage -- verify
       # PrefixMigrationMap.php (the single source of truth Task 12's rename
       # sweep and Task 13's DB migration both read) is complete before either
-      # of those later tasks may rely on it. Deliberately `continue-on-error:
-      # true` for now -- mode 4 (post-sweep) is EXPECTED RED today because no
-      # sweep has run yet; the other five modes are green and stay green as
-      # this gate's own exit code (count of failing modes) is visible in every
-      # CI run from the start of the remediation. Becomes blocking once Task 12
-      # lands and mode 4 goes green too.
+      # of those later tasks may rely on it.
+      #
+      # BLOCKING as of 2026-08-02. It was `continue-on-error: true` while mode 4
+      # (post-sweep-no-old-names) was expected red, on the stated condition that
+      # it would become blocking once the rename sweep landed and mode 4 went
+      # green. That condition is met: all six modes pass. Leaving the escape
+      # hatch in place past its own precondition is how a gate quietly stops
+      # being one.
       - name: "Prefix inventory gate (G-C: bijection + migration-map completeness)"
         run: php bin/check-prefix-inventory.php
-        continue-on-error: true
 
       # Gate G-D (WP.org T7 remediation): runs WP.org's Plugin Check ITSELF.
       #
@@ -227,11 +228,21 @@ jobs:
       # debt visible instead of red-washing the build.
       #
       # Locally: `php bin/check-plugin-check-parity.php`.
-      # Measured baseline there (2026-08-02): 2 errors / 99 warnings over the
-      # 571 files .distignore ships. The two errors are
+      # Measured baseline there (2026-08-02): 1 error / 97 warnings over the
+      # 571 files .distignore ships. The single error is
       # DatabaseCleaner::restore_full_backup() (PreparedSQL.NotPrepared, product
-      # decision pending) and readme.txt's stable-tag mismatch (owned by the
-      # release task).
+      # decision pending); readme.txt's stable-tag mismatch was fixed in the
+      # 6.0.0 release commit, which is why this figure is 1/97 and not the
+      # 2/99 stated here previously.
+      #
+      # KNOWN HOLE, to close after submission: this gate honours phpcs
+      # annotations, so it cannot see the suppressed surface at all -- while the
+      # house rule is that suppressions ARE the WP.org review queue. G-A ignores
+      # annotations but skips PrefixAllGlobals; G-D covers PrefixAllGlobals but
+      # respects annotations. Neither sees the 966 findings behind the 76
+      # directives, which sit on exactly the sniff the fifth rejection named. Do
+      # not change this before submission: the reply letter cites these numbers,
+      # and moving the instrument now would invalidate the verification table.
       - name: "Plugin Check gate (G-D: real tool; exits 2 = cannot measure on CI)"
         run: php bin/check-plugin-check-parity.php
         continue-on-error: true

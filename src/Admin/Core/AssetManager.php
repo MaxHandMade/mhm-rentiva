@@ -169,17 +169,13 @@ final class AssetManager {
 	{
 		// Plus Jakarta Sans -- bundled locally, NOT loaded from Google Fonts.
 		//
-		// This stylesheet used to be a Google Fonts URL, which meant every
-		// front-end page load sent the visitor's IP address to Google: the same
-		// privacy defect as the removed geolocation lookups, and WordPress.org
-		// does not permit loading assets from external CDNs. (The host name
-		// itself is deliberately not spelled out here: a scanner looking for
-		// third-party hosts cannot tell a live URL from a comment about a
-		// deleted one, and G-B's const-external-host probe flagged this line.)
-		// Shipping the woff2 files inside the plugin restores the designed
-		// typography with zero third-party requests, which is what
-		// readme.txt promises ("Every asset it loads, including its webfont,
-		// is served from your own site").
+		// This stylesheet used to be loaded from a font CDN, which meant every
+		// front-end page load sent the visitor's IP address to a third party --
+		// the same privacy defect as the geolocation lookups that were removed
+		// alongside it. Shipping the woff2 files inside the plugin restores the
+		// designed typography with zero third-party requests, which is what
+		// readme.txt promises ("Every asset it loads, including its webfont, is
+		// served from your own site").
 		//
 		// Registered as a dependency of `mhm-css-variables` (see $core_css),
 		// because that stylesheet declares --mhm-font-display as

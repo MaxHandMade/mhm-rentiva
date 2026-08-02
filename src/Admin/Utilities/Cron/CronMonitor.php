@@ -10,10 +10,14 @@ if (!defined('ABSPATH')) {
 // NOTE: a file-wide `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals`
 // used to sit here, justified as "Public/legacy hook names kept stable for
 // compatibility". That was not true either. Measured with the directive stripped,
-// this file produced exactly ONE finding -- the `do_action( $hook )` on line 201 --
-// and that is a VARIABLE re-firing a cron hook that WP-Cron has already
-// registered, not a legacy name of ours being preserved. The suppression is now on
-// that one line, with the reason the code actually has.
+// this file produced exactly ONE finding: the `do_action( $hook, ...$args )` call
+// in run_cron_job(), and that is a VARIABLE re-firing a cron hook WP-Cron has
+// already registered, not a legacy name of ours being preserved. The suppression
+// now sits on that one call, with the reason the code actually has.
+//
+// (The symbol is named rather than a line number -- see the same note in
+// Plugin.php. This one cited "line 201", which had drifted to 209 and left a
+// stray `),` at the address a reader would have checked.)
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

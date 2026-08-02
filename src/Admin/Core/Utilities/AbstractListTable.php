@@ -462,7 +462,7 @@ abstract class AbstractListTable extends \WP_List_Table {
 	 * state, and nonce-gating them would break shareable sorted/filtered links,
 	 * so WPCS reports NonceVerification.Recommended on the reads below. That
 	 * finding is inherent to the shape rather than a missing check; it is
-	 * reported to WordPress.org as-is (Görev 17 letter), never annotated away.
+	 * left visible rather than annotated away.
 	 *
 	 * `get_query_var()` is NOT an option here, unlike in BookingColumns /
 	 * VehicleColumns / AddonListTable's own readers. Those three live on

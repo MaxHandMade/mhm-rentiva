@@ -159,7 +159,7 @@ file is early enough.
 = 6.0.0 =
 **This is a major release. If you have custom code that hooks into this plugin, read the next paragraph before you update.**
 
-* Breaking: 114 of this plugin's hooks were renamed. Anything attached to one of them — a snippet in your theme's functions.php, a code-snippets plugin, a custom integration, bespoke work done for you — will simply stop running after the update. There is no error message and nothing in the log; the customisation just quietly stops happening. (Two further hooks, `mhm_rentiva_enable_governance_log` and `mhm_rentiva_governance_violation`, were removed rather than renamed, along with the feature behind them.)
+* Breaking: 113 of this plugin's hooks were renamed. Anything attached to one of them — a snippet in your theme's functions.php, a code-snippets plugin, a custom integration, bespoke work done for you — will simply stop running after the update. There is no error message and nothing in the log; the customisation just quietly stops happening. (Two further hooks, `mhm_rentiva_enable_governance_log` and `mhm_rentiva_governance_violation`, were removed rather than renamed, along with the feature behind them.)
 
 * How to convert your own code. **Apply these in the order given — the order matters.**
   1. First, in the older slash-style names, replace every `/` with `_`. So `mhm_rentiva/testimonials/limit` becomes `mhm_rentiva_testimonials_limit`.
@@ -259,7 +259,7 @@ file is early enough.
 == Upgrade Notice ==
 
 = 6.0.0 =
-Major release. Data migrates automatically, but 114 hooks and every post type name were renamed: custom code that hooks or queries them stops working silently. See the changelog before updating.
+Major release. Data migrates automatically, but 113 hooks and every post type name were renamed: custom code that hooks or queries them stops working silently. See the changelog before updating.
 
 = 5.1.0 =
 Security hardening and WordPress.org compliance. No action required; your settings and data are unaffected.

@@ -10,11 +10,17 @@ if (! defined('ABSPATH')) {
 // NOTE: a file-wide `phpcs:disable WordPress.NamingConventions.PrefixAllGlobals`
 // used to sit here, justified as "Legacy/public hook and template naming kept for
 // backward compatibility". That was not true. Measured with the directive
-// stripped, this file produced exactly ONE finding -- `plugin_locale` on line 633
-// -- which is a WordPress CORE filter, not a legacy hook of ours. The comment
-// claimed we were preserving our own unprefixed names, which is the position
-// WordPress.org rejected, and it was claiming it about somebody else's hook. The
-// suppression is now on that one line and says what is actually true.
+// stripped, this file produced exactly ONE finding: the `apply_filters(
+// 'plugin_locale', ... )` call in load_textdomain() -- a WordPress CORE filter,
+// not a legacy hook of ours. The comment claimed we were preserving our own
+// unprefixed names, which is the position WordPress.org rejected, and it was
+// claiming it about somebody else's hook. The suppression now sits on that one
+// call and says what is actually true.
+//
+// (The symbol is named rather than a line number. An earlier version of this note
+// cited "line 633"; within days the code moved to 642 and 633 became a blank
+// line, so a reader following the reference found nothing -- candour that reads
+// as carelessness. A symbol name does not rot.)
 
 
 

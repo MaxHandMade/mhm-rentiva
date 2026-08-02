@@ -336,11 +336,9 @@ final class DatabaseCleanupPage {
 	 * The callers below serve file bodies (Content-Type: application/sql,
 	 * Content-Disposition: attachment), not markup, so no escaping function
 	 * applies -- esc_html() on a SQL dump returns a corrupted dump. `echo $var`
-	 * is nevertheless a WordPress.Security.EscapeOutput.OutputNotEscaped ERROR
-	 * under WP.org's own Plugin Check ruleset, and the fifth review rejected
-	 * this plugin partly on that sniff family. Annotating it would have left
-	 * the finding on the reviewer's screen with a note attached; writing the
-	 * bytes to the response stream removes the construct the sniff reads.
+	 * is nevertheless the wrong construct for a binary response body: it invites
+	 * the reader to ask which escaping applies, when the honest answer is none.
+	 * Writing the bytes straight to the response stream says what is happening.
 	 *
 	 * php://output is the HTTP response body, not a file, so WP_Filesystem does
 	 * not apply -- WPCS agrees and exempts this exact stream in
