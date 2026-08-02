@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-02T20:22:51+00:00\n"
+"POT-Creation-Date: 2026-08-02T21:37:31+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -3295,7 +3295,7 @@ msgstr ""
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:728
 #: src/Admin/Customers/CustomersPage.php:163
 #: src/Admin/Customers/CustomersPage.php:301
-#: src/Admin/Customers/REST/CustomersRestController.php:137
+#: src/Admin/Customers/REST/CustomersRestController.php:138
 msgid "Customer not found."
 msgstr ""
 
@@ -5876,15 +5876,15 @@ msgstr ""
 msgid "Unauthorized."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:107
+#: src/Admin/Customers/REST/CustomersRestController.php:108
 msgid "Invalid sort_by value."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:153
+#: src/Admin/Customers/REST/CustomersRestController.php:154
 msgid "You do not have permission to delete customers."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:164
+#: src/Admin/Customers/REST/CustomersRestController.php:165
 msgid "ids must be a non-empty array."
 msgstr ""
 

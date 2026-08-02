@@ -263,7 +263,7 @@ class AtomicImporter {
         update_post_meta($post_id, '_mhmrentiva_layout_hash', $hash);
         update_post_meta($post_id, '_mhmrentiva_layout_version_timestamp', current_time('mysql', true));
 
-        // 4. Audit Log (Task: Observability)
+        // 4. Audit Log
         if (empty($options['suppress_audit'])) {
             LayoutAuditService::log_import($post_id, $this->snapshots[ $post_id ]['hash'] ?? '', $hash, false);
         }

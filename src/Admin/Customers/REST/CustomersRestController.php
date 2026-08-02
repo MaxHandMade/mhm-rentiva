@@ -25,10 +25,11 @@ final class CustomersRestController {
 				'callback'            => array( self::class, 'get_list' ),
 				// Returns private customer PII (name, email, phone, address) plus booking
 				// and total-spend data. Gated on `edit_users`: a capability (not a role),
-				// and strong enough for the data class. History: T4 asked us to move off
-				// the blanket `manage_options`, so this was `list_users`; T6 then flagged
-				// `list_users` as too weak for PII, so it is now `edit_users` — which
-				// satisfies both (capability-based, and scoped to the data returned).
+				// and strong enough for the data class. `manage_options` is too blunt --
+				// it is effectively an administrator check rather than a capability tied to
+				// this data -- and `list_users` is too weak, since it permits listing users
+				// without implying access to their personal data. `edit_users` satisfies
+				// both constraints: capability-based, and scoped to what is returned.
 				'permission_callback' => fn() => current_user_can( 'edit_users' ),
 				'args'                => array(
 					'page'     => array(

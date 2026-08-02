@@ -228,8 +228,8 @@ final class Templates {
 		// This value is interpolated into the <style> block below. A colour that
 		// lands inside a stylesheet cannot be made safe by esc_attr(): that leaves
 		// `;` and `}` intact, so a malformed value would close the declaration and
-		// open a rule of its own -- the same instrument mismatch WP.org's T7 review
-		// named at AssetManager's inline :root block. Validate it to a hex colour,
+		// open a rule of its own -- the same mismatch that applies to AssetManager's
+		// inline :root block. Validate it to a hex colour,
 		// which is the only thing this setting is ever meant to hold, and fall back
 		// to the default rather than emitting an empty declaration.
 		$baseColor   = sanitize_hex_color( (string) \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_base_color() ) ?: '#1e88e5';

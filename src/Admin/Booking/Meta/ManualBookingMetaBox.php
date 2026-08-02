@@ -495,9 +495,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Deliberately edit_posts, not manage_options, and kept that way for
-		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the T4
-		// round's decision that the new-customer path -- not booking creation itself
-		// -- is what needs create_users.
+		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the
+		// decision that the new-customer path -- not booking creation itself --
+		// is what needs create_users.
 		//
 		// Be clear about what this check does NOT do: it does not currently let a
 		// "staff, not admin" role in. The nonce is only ever printed on
@@ -588,9 +588,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		}
 
 		// Deliberately edit_posts, not manage_options, and kept that way for
-		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the T4
-		// round's decision that the new-customer path -- not booking creation itself
-		// -- is what needs create_users.
+		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the
+		// decision that the new-customer path -- not booking creation itself --
+		// is what needs create_users.
 		//
 		// Be clear about what this check does NOT do: it does not currently let a
 		// "staff, not admin" role in. The nonce is only ever printed on

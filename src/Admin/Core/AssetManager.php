@@ -1402,7 +1402,7 @@ final class AssetManager {
 	 *                                 MHMRENTIVA_PLUGIN_URL.
 	 * @param string|null $text_domain Text domain the bundle's __() calls use, for
 	 *                                 wp_set_script_translations(). Defaults to Lite's 'mhm-rentiva'.
-	 *                                 This was hardcoded until 2026-07-28, which meant the add-on's 5
+	 *                                 This was once hardcoded, which meant the add-on's 5
 	 *                                 relocated bundles asked WordPress for 'mhm-rentiva' JSON inside
 	 *                                 the add-on's own languages/ directory -- a lookup that can never
 	 *                                 succeed, because the add-on compiles its catalogues under

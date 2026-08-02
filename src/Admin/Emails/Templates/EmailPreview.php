@@ -128,7 +128,7 @@ final class EmailPreview {
 	}
 
 	private static function show_preview_result(): void {
-		// Nonce doğrulaması
+		// Nonce verification
 		$nonce = sanitize_text_field( wp_unslash( $_POST['mhmrentiva_email_preview_nonce'] ?? '' ) );
 		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_email_preview_action' ) ) {
 			// Return quietly when this is not an AJAX request. In practice this is

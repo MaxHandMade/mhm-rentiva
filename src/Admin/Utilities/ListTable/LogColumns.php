@@ -31,8 +31,8 @@ final class LogColumns {
 	 * `query_vars` whitelist so get_text() can read them with get_query_var()
 	 * instead of reaching into $_GET.
 	 *
-	 * Same mechanism BookingColumns/VehicleColumns use -- the fix WP.org accepted
-	 * here. These are display parameters of a bookmarkable admin URL: they
+	 * Same mechanism BookingColumns/VehicleColumns use. These are display
+	 * parameters of a bookmarkable admin URL: they
 	 * change no state, so nonce-gating them would break shareable filtered links,
 	 * and an annotation over a raw superglobal read is not a resolution.
 	 * `post_type` and `orderby`, also read here, are core public query vars.

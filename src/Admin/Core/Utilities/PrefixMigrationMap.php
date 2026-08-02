@@ -56,7 +56,7 @@ if (! defined('ABSPATH')) {
  * it verifies uniqueness within each EXACT-KEY family, and this collision is
  * between two PREFIX rules, which it never compares.
  *
- * All seven were resolved by the owner on 2026-08-02. Six are genuinely two
+ * All seven are resolved below. Six are genuinely two
  * historical spellings of ONE value and are deliberately ALLOWED to merge, so
  * they get no override entry. The seventh holds two different values and does:
  * see POSTMETA_EXACT_OVERRIDES below.
@@ -94,7 +94,7 @@ final class PrefixMigrationMap {
         'vehicle_addon'       => 'mhmrentiva_addon',     // 16
         'mhm_app_log'         => 'mhmrentiva_app_log',   // 18
         'mhm_email_log'       => 'mhmrentiva_email_log', // 20 -- exact limit
-        // 🔴 ADDED 2026-08-02, and the reason it was missing is the point.
+        // 🔴 The reason this one was easy to miss is the point.
         //
         // Nobody calls register_post_type() for this one -- it is an
         // unregistered storage bucket that ContactForm::save_contact_message()
@@ -590,7 +590,7 @@ final class PrefixMigrationMap {
         'mhm_rentiva_email_log_purge_event' => 'mhmrentiva_email_log_purge_event',
         'mhm_rentiva_log_purge_event'       => 'mhmrentiva_log_purge_event',
         'mhm_rentiva_daily_log_cleanup'     => 'mhmrentiva_daily_log_cleanup',
-        // Found in the architecture audit (2026-07-31) -- both were missing:
+        // Both of these were missing from the original enumeration:
         'mhm_rentiva_send_booking_reminder' => 'mhmrentiva_send_booking_reminder', // per-booking single event (ReminderScheduler.php); NO self-heal -- rows already scheduled under the old name before upgrade silently never fire unless migrated/cleared
         'mhm_rentiva_auto_complete_event'   => 'mhmrentiva_auto_complete_event',   // recurring; AutoComplete::maybe_schedule() re-schedules itself on init (self-heal exists, low priority -- only the old row lingers, harmless)
         // Found independently while verifying the inventory, and named by
@@ -624,7 +624,7 @@ final class PrefixMigrationMap {
      *                    SUBSTRING cuts at the wrong offset and the key becomes
      *                    '_mhmrentiva_rentiva_welcome_sent'.
      *
-     *   '_rentiva_'      ADDED 2026-08-02. The VENDOR PROFILE family, which had no
+     *   '_rentiva_'      The VENDOR PROFILE family, which had no
      *                    rule at all: '_rentiva_vendor_status', '_vendor_slug',
      *                    '_vendor_iban', '_vendor_bio', '_vendor_city',
      *                    '_vendor_phone', '_vendor_tax_*', '_vendor_approved_at',
@@ -642,7 +642,7 @@ final class PrefixMigrationMap {
      *                    allowlist read out of the pre-rename tree, never by a
      *                    prefix LIKE. See DatabaseMigrator::owned_user_meta_keys().
      *
-     *   'mhm_rentiva_'  ADDED 2026-08-02, and it MUST precede the bare rule below.
+     *   'mhm_rentiva_'  MUST precede the bare rule below.
      *                    The underscore-less rentiva-qualified family the old
      *                    docblock wrongly assigned to that bare rule:
      *                    'mhm_rentiva_compare', '_favorites', '_last_login',
@@ -685,8 +685,8 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * Kodda dönüşen ama DB'ye yazılmayan aileler (sweep girdisi, migration
-     * DEĞİL): hook/action/nonce/transient/cache-group/cron-schedule-name
+     * Families the code sweep rewrites but the migration never writes to the
+     * database: hook/action/nonce/transient/cache-group/cron-schedule-name
      * prefixes, CPT/taxonomy string literals this plugin only reads (see
      * POST_TYPES/TAXONOMIES docblocks above), and everything else
      * bin/prefix-inventory-baseline.txt turned up that isn't claimed by a
@@ -799,7 +799,7 @@ final class PrefixMigrationMap {
      *      get_query_var/add_query_arg.
      *   8. register_meta() keys with show_in_rest, which REST consumers address
      *      by name -> the two calls this once named ('category_color',
-     *      'category_icon') were DELETED on 2026-08-02: unprefixed, registered
+     *      'category_icon') were DELETED: unprefixed, registered
      *      against 'term' with no taxonomy subtype, and dead since the initial
      *      release with 0 rows. No register_meta() call outside register_post_meta
      *      remains. The shape is still real and a future prefixed registration

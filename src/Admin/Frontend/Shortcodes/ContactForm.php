@@ -364,7 +364,7 @@ final class ContactForm extends AbstractShortcode {
 
 	/**
 	 * Script object name override
-	 * JS dosyası mhmContactForm objesini bekliyor
+	 * The JS file expects an mhmContactForm object to be present.
 	 */
 	protected static function get_script_object_name(): string
 	{

@@ -3296,7 +3296,7 @@ msgstr "Bu e-posta adresi zaten kayıtlı."
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:728
 #: src/Admin/Customers/CustomersPage.php:163
 #: src/Admin/Customers/CustomersPage.php:301
-#: src/Admin/Customers/REST/CustomersRestController.php:137
+#: src/Admin/Customers/REST/CustomersRestController.php:138
 msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
 
@@ -5867,15 +5867,15 @@ msgstr "Geçersiz güvenlik anahtarı."
 msgid "Unauthorized."
 msgstr "Yetkisiz erişim."
 
-#: src/Admin/Customers/REST/CustomersRestController.php:107
+#: src/Admin/Customers/REST/CustomersRestController.php:108
 msgid "Invalid sort_by value."
 msgstr "Geçersiz sıralama değeri."
 
-#: src/Admin/Customers/REST/CustomersRestController.php:153
+#: src/Admin/Customers/REST/CustomersRestController.php:154
 msgid "You do not have permission to delete customers."
 msgstr "Müşterileri silme izniniz yok."
 
-#: src/Admin/Customers/REST/CustomersRestController.php:164
+#: src/Admin/Customers/REST/CustomersRestController.php:165
 msgid "ids must be a non-empty array."
 msgstr "ids boş olmayan bir dizi olmalıdır."
 

@@ -79,7 +79,7 @@ final class VehicleCategory {
 
 
 	/*
-	 * REMOVED 2026-08-02: add_meta_support(), which registered the term meta
+	 * REMOVED: add_meta_support(), which registered the term meta
 	 * `category_color` and `category_icon`.
 	 *
 	 * DELETED RATHER THAN RENAMED, because measurement changed the premise. It

@@ -265,7 +265,7 @@ final class Handler {
 				);
 
 				if (! $availability_result['ok']) {
-					// ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly error message
+					// User-friendly error message
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_VEHICLE,
 						'vehicle_unavailable',
@@ -329,7 +329,7 @@ final class Handler {
 				$booking_id = wp_insert_post($post_data);
 
 				if (is_wp_error($booking_id) || ! $booking_id) {
-					// ✅ KULLANICI DENEYİMİ İYİLEŞTİRMESİ - User-friendly error message
+					// User-friendly error message
 					$error_message = UXHelper::get_user_friendly_error(
 						UXHelper::ERROR_TYPE_SYSTEM,
 						'database_error',
