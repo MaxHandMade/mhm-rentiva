@@ -3,7 +3,9 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
-if (! defined('ABSPATH')) { exit; }
+if (! defined('ABSPATH')) {
+	exit;
+}
 
 /**
  * Single source of truth for the 6.0.0 prefix migration (T7 mandate).

@@ -458,13 +458,13 @@ final class DatabaseMigrator {
 		try {
 			$wpdb->query("ANALYZE TABLE {$wpdb->posts}");
 		} catch (\Exception $e) {
-			self::log_index_error('ANALYZE TABLE posts', $e->getMessage());
+			self::log_migration_error('Database table analysis failed', 'ANALYZE TABLE posts', $e->getMessage());
 		}
 
 		try {
 			$wpdb->query("ANALYZE TABLE {$wpdb->postmeta}");
 		} catch (\Exception $e) {
-			self::log_index_error('ANALYZE TABLE postmeta', $e->getMessage());
+			self::log_migration_error('Database table analysis failed', 'ANALYZE TABLE postmeta', $e->getMessage());
 		}
 	}
 
@@ -802,11 +802,32 @@ final class DatabaseMigrator {
 	 */
 	private static function log_index_error(string $sql, string $error): void
 	{
+		self::log_migration_error('Database index creation failed', $sql, $error);
+	}
+
+	/**
+	 * Log a migration failure under a title that describes what actually failed.
+	 *
+	 * 🔴 THE TITLE USED TO BE HARDCODED. Every caller of log_index_error() --
+	 * taxonomy renames, the merge-loser backup, RENAME TABLE, and the cron rekey
+	 * -- was written to the log as "Database index creation failed", and only
+	 * four of the ten call sites had anything to do with an index. A site owner
+	 * whose scheduled events failed to carry read four ERROR lines telling them
+	 * their database indexes were broken, and went looking for a problem that
+	 * did not exist. A log that misnames the failure is worse than no log: it
+	 * spends the reader's attention on the wrong thing.
+	 *
+	 * @param string $title   What failed, in the operator's terms.
+	 * @param string $context The statement or operation that produced it.
+	 * @param string $error   The detail.
+	 */
+	private static function log_migration_error(string $title, string $context, string $error): void
+	{
 		if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-				'Database index creation failed',
+				$title,
 				array(
-					'sql'   => $sql,
+					'sql'   => $context,
 					'error' => $error,
 				),
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
@@ -1800,7 +1821,8 @@ final class DatabaseMigrator {
 		);
 
 		if ($populated > 0) {
-			self::log_index_error(
+			self::log_migration_error(
+				'Taxonomy rename left both copies in place',
 				'taxonomy rename ' . $old_taxonomy,
 				$populated . ' term(s) already exist under ' . $new_taxonomy . ' with the same slug and carry objects; both copies left in place for manual review'
 			);
@@ -2315,7 +2337,8 @@ final class DatabaseMigrator {
 
 		$recorded = ( false === $written ) ? 'a failed query' : (string) (int) $written;
 
-		self::log_index_error(
+		self::log_migration_error(
+			'Migration refused to discard rows: the recovery copy is incomplete',
 			'merge loser backup',
 			'refusing to discard ' . $loser . ': recorded ' . $recorded . ' of ' . $colliding . ' ' . $family . ' rows'
 		);
@@ -2425,7 +2448,8 @@ final class DatabaseMigrator {
 		// question that actually matters -- can we read and write this name --
 		// for both kinds of table.
 		if (false === $created || null === $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $table))) {
-			self::log_index_error(
+			self::log_migration_error(
+				'Migration could not create the recovery table; nothing was discarded',
 				'merge loser backup',
 				'could not create ' . $table . ' -- no rows will be discarded: ' . (string) $wpdb->last_error
 			);
@@ -2730,7 +2754,8 @@ final class DatabaseMigrator {
 				$rows = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $to));
 
 				if ($rows > 0) {
-					self::log_index_error(
+					self::log_migration_error(
+						'Table rename skipped: the destination was not empty',
 						'RENAME TABLE ' . $from,
 						'destination already holds ' . $rows . ' rows; both tables left in place for manual review'
 					);
@@ -2762,8 +2787,54 @@ final class DatabaseMigrator {
 	 */
 	private static function rekey_cron_hooks(): void
 	{
+		self::ensure_custom_schedules_registered();
+
 		foreach (PrefixMigrationMap::CRON_HOOKS as $old => $new) {
 			self::rekey_cron_hook($old, $new);
+		}
+	}
+
+	/**
+	 * Attach this plugin's own `cron_schedules` providers before asking whether a
+	 * recurrence exists.
+	 *
+	 * 🔴 THE MIGRATION RUNS BEFORE THE INTERVALS ARE REGISTERED, and that is a
+	 * load-order fact rather than a bug in either half. AutoCancel::register()
+	 * and AutoComplete::register() add the `cron_schedules` filter from
+	 * Plugin::initialize_core_services(), which runs on `init` priority 2. The
+	 * version-drift lane in the bootstrap calls run_migrations() on
+	 * `plugins_loaded`, and the activation hook calls it earlier still -- both
+	 * before `init`. So wp_get_schedules() at rekey time did not contain
+	 * `mhmrentiva_5min` or `mhmrentiva_15min`, the registration check below
+	 * failed, and the carry was abandoned.
+	 *
+	 * The failure was SAFE -- the old event is left scheduled rather than
+	 * deleted, which is the right call -- but it repeated on every subsequent
+	 * upgrade, so the orphans were permanent. Measured on the dev database from a
+	 * true first-upgrade state (legacy events present, new names absent): two
+	 * events survived the upgrade and four ERROR log lines were written.
+	 *
+	 * Attaching the filters here rather than moving the migration keeps the fix
+	 * local: a filter added twice is harmless (has_filter() guards it anyway),
+	 * and nothing else about the boot order has to change.
+	 */
+	private static function ensure_custom_schedules_registered(): void
+	{
+		$providers = array(
+			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::class,
+			\MHMRentiva\Admin\PostTypes\Maintenance\AutoComplete::class,
+		);
+
+		foreach ($providers as $provider) {
+			if (! class_exists($provider)) {
+				continue;
+			}
+
+			$callback = array( $provider, 'schedules' );
+
+			if (false === has_filter('cron_schedules', $callback)) {
+				add_filter('cron_schedules', $callback, 1);
+			}
 		}
 	}
 
@@ -2808,7 +2879,7 @@ final class DatabaseMigrator {
 			// deletes the recurring event outright; leaving them means the worst
 			// case is a lingering old-name row that nothing handles, which is
 			// visible and harmless, rather than a job that silently stops.
-			self::log_index_error('cron rekey', $old_hook . ' left in place: at least one event could not be carried to ' . $new_hook);
+			self::log_migration_error('Scheduled event could not be carried to its new name', 'cron rekey', $old_hook . ' left in place: at least one event could not be carried to ' . $new_hook);
 
 			return;
 		}
@@ -2853,7 +2924,7 @@ final class DatabaseMigrator {
 		$schedule = self::current_schedule_name($schedule);
 
 		if (! array_key_exists($schedule, (array) wp_get_schedules())) {
-			self::log_index_error('cron rekey', 'no registered schedule named ' . $schedule . ' for ' . $new_hook);
+			self::log_migration_error('Scheduled event could not be carried: its repeat interval is not registered', 'cron rekey', 'no registered schedule named ' . $schedule . ' for ' . $new_hook);
 
 			return false;
 		}
