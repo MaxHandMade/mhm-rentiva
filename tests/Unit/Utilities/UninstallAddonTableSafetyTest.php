@@ -29,6 +29,32 @@ use WP_UnitTestCase;
 final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
 {
     /**
+     * Tables this test creates. DDL commits, so the suite's rollback cannot
+     * undo them.
+     *
+     * @var list<string>
+     */
+    private array $temp_tables = array();
+
+    protected function tearDown(): void
+    {
+        global $wpdb;
+
+        parent::tearDown();
+
+        foreach ($this->temp_tables as $table) {
+            $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
+        }
+        $this->temp_tables = array();
+    }
+
+    private function use_real_tables(): void
+    {
+        remove_filter('query', array( $this, '_create_temporary_tables' ));
+        remove_filter('query', array( $this, '_drop_temporary_tables' ));
+    }
+
+    /**
      * Suffixes of the add-on's six tables, current spelling.
      *
      * @var list<string>
@@ -122,41 +148,116 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
     }
 
     /**
-     * ...and the sweep actually CONSULTS the carve-out.
+     * ...and the sweep actually SPARES them, run for real.
      *
-     * Asserting the helper's contents was not enough, and mutation proved it:
-     * emptying `$protected` at the call site left this class entirely green,
-     * because nothing tied the list to the loop that is supposed to honour it.
-     * A list nobody reads protects nothing.
+     * The previous version looked for the strings addon_owned_tables() and
+     * is_backup_table( inside a window of the source. Mutation showed that was
+     * only half a lock: deleting the CALL made it red, but deleting the
+     * in_array() FILTER while leaving the assignment kept it green and dropped
+     * all six add-on tables. A lock a substring satisfies is not a lock on
+     * behaviour.
      *
-     * Deliberately a source-level assertion. The alternative is running
-     * uninstall_direct() for real, which deletes the test database; the
-     * behavioural proof is done once against the dev database instead, and this
-     * keeps the wiring from being removed unnoticed in between.
+     * So this runs the real uninstall against real tables. The positive control
+     * matters as much as the negative one: a genuine orphan must be dropped in
+     * the same run, or "the add-on's table survived" would also be true of a
+     * sweep that never executed.
+     *
+     * 🔴 uninstall_direct() is DESTRUCTIVE and its DDL commits, so it outlives
+     * the suite's per-test rollback AND the run itself -- this database is
+     * shared with every other test class and with the add-on's suite. The
+     * schema is captured before and replayed after; without that, dropping
+     * Lite's transfer tables here surfaces as unrelated failures in a later
+     * run, which is exactly the cross-run damage this round has already chased
+     * twice.
      */
-    public function test_the_orphan_sweep_consults_the_carve_out_and_the_backup_guard(): void
+    public function test_the_real_uninstall_spares_addon_tables_and_still_drops_orphans(): void
     {
-        $source = (string) file_get_contents(
-            dirname(__DIR__, 3) . '/src/Admin/Utilities/Uninstall/Uninstaller.php'
-        );
+        global $wpdb;
 
-        $start = strpos($source, 'public static function uninstall_direct(');
-        $this->assertNotFalse($start, 'uninstall_direct() not found -- this assertion is measuring nothing.');
+        $this->use_real_tables();
 
-        $sweep = strpos($source, '$orphans = $wpdb->get_col(', $start);
-        $this->assertNotFalse($sweep, 'The orphan sweep was not found where this test expects it.');
+        $addon  = $wpdb->prefix . 'mhmrentiva_ledger';
+        $orphan = $wpdb->prefix . 'mhmrentiva_zz_probe_orphan';
+        $backup = $wpdb->prefix . 'mhmrentiva_merge_losers_backup_20200101_000000_probe';
 
-        $body = substr($source, $start, $sweep - $start + 600);
+        foreach (array( $addon, $orphan, $backup ) as $table) {
+            $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $table));
+            $wpdb->query($wpdb->prepare('CREATE TABLE %i ( id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id) )', $table));
+            $this->temp_tables[] = $table;
+        }
 
-        $this->assertStringContainsString(
-            'self::addon_owned_tables()',
-            $body,
-            'The orphan sweep does not consult the add-on carve-out, so the broad pattern reaches the add-on\'s tables.'
-        );
-        $this->assertStringContainsString(
-            'self::is_backup_table(',
-            $body,
-            'The orphan sweep does not consult the backup guard, so recovery copies are dropped whatever $delete_backups says.'
+        foreach (array( $addon, $orphan, $backup ) as $table) {
+            $this->assertTrue($this->table_exists($table), 'Premise: ' . $table . ' must exist before the uninstall.');
+            // And that the broad orphan pattern really would reach it -- without
+            // this, "the add-on table survived" could just mean the sweep never
+            // looked at it.
+            $this->assertStringStartsWith($wpdb->prefix . 'mhmrentiva_', $table, 'Premise: the orphan pattern would match this table.');
+        }
+
+        $restore = $this->capture_plugin_schema();
+        $this->assertNotEmpty($restore, 'Premise: there is plugin schema to protect, so the restore is doing something.');
+
+        Uninstaller::uninstall_direct(false);
+
+        $spared_addon  = $this->table_exists($addon);
+        $spared_backup = $this->table_exists($backup);
+        $dropped       = ! $this->table_exists($orphan);
+
+        $this->replay_plugin_schema($restore);
+
+        $this->assertTrue($spared_addon, "Lite's uninstall dropped an add-on table.");
+        $this->assertTrue($spared_backup, "Lite's uninstall dropped a recovery copy without being asked to.");
+        $this->assertTrue($dropped, 'The orphan sweep did not run at all, so sparing the add-on table proves nothing.');
+    }
+
+    /**
+     * SHOW CREATE TABLE for every plugin table, so the run can put back what
+     * uninstall_direct() destroys in this shared database.
+     *
+     * @return array<string,string> table name => CREATE statement
+     */
+    private function capture_plugin_schema(): array
+    {
+        global $wpdb;
+
+        $captured = array();
+
+        foreach (array( 'mhmrentiva\_%', 'rentiva\_%', 'mhm\_%' ) as $like) {
+            $tables = (array) $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->prefix . $like));
+
+            foreach ($tables as $table) {
+                $row = $wpdb->get_row($wpdb->prepare('SHOW CREATE TABLE %i', $table), ARRAY_N);
+                if (is_array($row) && isset($row[1])) {
+                    $captured[ $table ] = (string) $row[1];
+                }
+            }
+        }
+
+        return $captured;
+    }
+
+    /**
+     * @param array<string,string> $schema
+     */
+    private function replay_plugin_schema(array $schema): void
+    {
+        global $wpdb;
+
+        foreach ($schema as $table => $create) {
+            if ($this->table_exists($table)) {
+                continue;
+            }
+
+            $wpdb->query($create);
+        }
+    }
+
+    private function table_exists(string $table): bool
+    {
+        global $wpdb;
+
+        return null !== $wpdb->get_var(
+            $wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))
         );
     }
 
@@ -183,7 +284,20 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
             $this->assertTrue($reflected->invoke(null, $backup), $backup . ' must be recognised as a recovery copy.');
         }
 
-        foreach (array( 'wp_mhmrentiva_queue', 'wp_mhmrentiva_ratings', 'wp_mhmrentiva_sessions' ) as $ordinary) {
+        foreach (array(
+            'wp_mhmrentiva_queue',
+            'wp_mhmrentiva_ratings',
+            'wp_mhmrentiva_sessions',
+            // 🔴 The case the anchoring exists for, and the one the first
+            // version of this list was missing: a real DATA table whose NAME
+            // contains the word backup. A bare substring test calls it a
+            // recovery copy, the orphan sweep then skips it, and it survives
+            // only because the explicit whitelist happens to run first --
+            // an ordering dependency nothing asserts. Without this fixture the
+            // anchoring was unlocked: reverting it to strpos() left this test
+            // green.
+            'wp_mhmrentiva_backup_records',
+        ) as $ordinary) {
             $this->assertFalse($reflected->invoke(null, $ordinary), $ordinary . ' is not a recovery copy.');
         }
     }

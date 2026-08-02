@@ -747,13 +747,6 @@ final class PrefixMigrationMap {
     ];
 
     /**
-     * Görev 13 Adım 3b'nin bootstrap-fallback'i bu iki adı SÜREKLİ literal
-     * olarak taşır (eski kurulumu tanımak için) -- G-C mod 4'ün post-sweep
-     * "eski ad kalmasın" kontrolü bunları AÇIKÇA muaf tutar, yoksa kapı asla
-     * yeşil olamaz. Mod 5 (OPTIONS coverage) de aynı iki adı muaf tutar --
-     * bu iki isim tasarım gereği hiçbir zaman OPTIONS'ta bir anahtar OLMAYACAK.
-     */
-    /**
      * Literals somebody OUTSIDE this repository has to agree with, byte for byte.
      *
      * 🔴 The third rename-hazard class this round produced, and like the second
@@ -778,7 +771,23 @@ final class PrefixMigrationMap {
      * (changing it derived a different secretbox key, making every sealed audit
      * private key unrecoverable) plus seven operator-defined secrets.
      *
-     * Lite was swept for the whole class afterwards, five queries:
+     * 🔴 THIS LIST HAS ONE ENTRY. THE FAMILY DOES NOT.
+     *
+     * The biggest member of this class is NOT carved out and cannot be: the
+     * plugin's own HOOK NAMES. 102 distinct prefixed do_action/apply_filters
+     * names across 55 files in src/. A customer's functions.php or a
+     * third-party plugin has to agree with each of those byte for byte, and a
+     * renamed hook fails in exactly the manner described above -- the callback
+     * stops firing, with no error anywhere.
+     *
+     * That is a KNOWINGLY ACCEPTED major-version break, not an oversight.
+     * Prefixing them is the WordPress.org rejection's mandate; carving them out
+     * would be refusing the thing this round exists to do. What it must not be
+     * is silent: it belongs in the 6.0.0 changelog and the upgrade notice,
+     * because it is the one change in this round that breaks working
+     * third-party code without an error message.
+     *
+     * Lite was swept for the whole class, eight queries:
      *   1. defined()/constant() lookups our tree never define -> this one, only.
      *   2. literals reaching a crypto or hash primitive (sodium, hash_hmac,
      *      hash, md5, openssl) -> six hits, all cache/transient KEY
@@ -792,9 +801,19 @@ final class PrefixMigrationMap {
      *   5. the REST namespace -> 'mhm-rentiva/v1', a HYPHENATED slug the
      *      underscore rules never match. Verified byte-identical pre and post
      *      sweep. In the class, unaffected by construction.
+     *   6. HOOK NAMES -> 102 distinct, 123 occurrences, 55 files. In the class,
+     *      ACCEPTED AND DOCUMENTED rather than carved out. See above.
+     *   7. cookies and query vars, which survive in a browser and in bookmarked
+     *      or shared URLs where no migration of ours can reach them -> no
+     *      prefixed setcookie/$_COOKIE, and none through
+     *      get_query_var/add_query_arg.
+     *   8. register_meta() keys with show_in_rest, which REST consumers address
+     *      by name -> two calls, both on UNPREFIXED keys ('category_color',
+     *      'category_icon'), so the sweep never touched them. The shape is real
+     *      and a future prefixed registration would join this family.
      *
-     * "No further instances" is a claim about those five queries as much as
-     * about the tree; a sixth shape would need a sixth query.
+     * "No further instances" is a claim about those eight queries as much as
+     * about the tree; a ninth shape would need a ninth query.
      *
      * NOT a substitution table -- these names never change. Listed so the family
      * has a name and the next sweep has somewhere to look first.
@@ -809,6 +828,15 @@ final class PrefixMigrationMap {
         'MHM_RENTIVA_MIGRATION_FALLBACK',
     ];
 
+    /**
+     * Görev 13 Adım 3b'nin bootstrap-fallback'i bu iki adı SÜREKLİ literal
+     * olarak taşır (eski kurulumu tanımak için) -- G-C mod 4'ün post-sweep
+     * "eski ad kalmasın" kontrolü bunları AÇIKÇA muaf tutar, yoksa kapı asla
+     * yeşil olamaz. Mod 5 (OPTIONS coverage) de aynı iki adı muaf tutar --
+     * bu iki isim tasarım gereği hiçbir zaman OPTIONS'ta bir anahtar OLMAYACAK.
+     *
+     * @var array<int,string>
+     */
     public const BOOTSTRAP_FALLBACK_ALLOWLIST = [
         'mhm_rentiva_db_version',
         'mhm_rentiva_plugin_version',

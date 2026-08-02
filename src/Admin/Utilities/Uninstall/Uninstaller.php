@@ -89,11 +89,20 @@ final class Uninstaller {
 	/**
 	 * Is this one of the recovery copies?
 	 *
-	 * Matches the `%_backup%` shape DatabaseCleaner::list_backups() enumerates,
-	 * which covers the postmeta backups and Görev 13's merge-loser copies alike.
+	 * Anchored on the TIMESTAMP, not on the word "backup" appearing anywhere in
+	 * the name. A bare substring test also matches mhmrentiva_backup_records --
+	 * a real data table, not a recovery copy -- which would then be skipped by
+	 * the orphan sweep and survive only because the explicit whitelist happens
+	 * to run first. That is an ordering dependency nothing asserts, and it is
+	 * the kind of accident that outlives whoever knew about it.
+	 *
+	 * Every recovery copy this plugin writes ends in the Ymd_His stamp that
+	 * DatabaseCleaner::list_backups() parses back out for display -- the
+	 * postmeta backups and the merge-loser copies alike -- so that stamp is
+	 * what identifies the family.
 	 */
 	private static function is_backup_table( string $table ): bool {
-		return false !== strpos( $table, '_backup' );
+		return 1 === preg_match( '/_backup[a-z_]*_\d{8}_\d{6}/', $table );
 	}
 
 	/**
