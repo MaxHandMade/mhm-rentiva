@@ -905,8 +905,12 @@ final class VehicleMeta extends AbstractMetaBox {
 				'type'              => 'string',
 				'single'            => true,
 				'show_in_rest'      => true,
+				// Derived, never typed. A hardcoded list here drifted narrower
+				// than the dropdown rendered from get_transmission_types(), so
+				// choosing "Semi-Automatic" or "CVT" saved as "Automatic" with no
+				// error shown -- the field simply came back a different value.
 				'sanitize_callback' => function ($value) {
-					$allowed = array( 'auto', 'manual' );
+					$allowed = array_keys(self::get_transmission_types());
 					return in_array($value, $allowed, true) ? $value : 'auto';
 				},
 			)
@@ -919,8 +923,11 @@ final class VehicleMeta extends AbstractMetaBox {
 				'type'              => 'string',
 				'single'            => true,
 				'show_in_rest'      => true,
+				// Same drift, same fix: the dropdown offers LPG, CNG and Hydrogen
+				// from get_fuel_types(); the hardcoded list did not, so all three
+				// were silently rewritten to "Petrol" on save.
 				'sanitize_callback' => function ($value) {
-					$allowed = array( 'petrol', 'diesel', 'hybrid', 'electric' );
+					$allowed = array_keys(self::get_fuel_types());
 					return in_array($value, $allowed, true) ? $value : 'petrol';
 				},
 			)
