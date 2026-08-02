@@ -138,6 +138,22 @@ Yes, all frontend components and admin settings are fully responsive.
 = Which page builders are supported? =
 Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. All three render identical output.
 
+= Why does wp-login.php send me to the My Account page, and can I turn that off? =
+By default the plugin routes wp-login.php to your WooCommerce My Account page, so customers meet one
+login form styled like the rest of your site rather than the plain WordPress one. It deliberately steps
+aside where the real form is needed: submitting the login form itself, logging out, password reset and
+lost-password links, e-mail confirmation links, anyone who can manage plugins, and any site where
+WooCommerce is inactive.
+
+If you would rather keep the standard WordPress login page, add this to your theme's functions.php or a
+small plugin of your own:
+
+`add_filter( 'mhmrentiva_takeover_login', '__return_false' );`
+
+The default is `true`. The filter is read while the plugin sets up its hooks, on the `init` action at
+priority 2, so add it somewhere that runs before then — a theme's functions.php or an ordinary plugin
+file is early enough.
+
 == Changelog ==
 
 = 6.0.0 =

@@ -50,9 +50,45 @@ final class AdminOptimizer {
 		// Remove unnecessary admin notices that might clutter the interface
 		remove_action( 'admin_notices', 'wp_print_media_templates' );
 
+		// 🔴 NOT ON A POST EDITOR. This used to dequeue 'heartbeat' and 'autosave'
+		// unconditionally, and is_vehicle_editor_screen() below deliberately
+		// matches the mhmrentiva_vehicle / _booking / _addon post types -- so the
+		// screens it hit hardest were exactly the long forms where losing work
+		// costs the most.
+		//
+		// Core registers 'autosave' WITH 'heartbeat' as a dependency
+		// (script-loader.php: $scripts->add( 'autosave', ..., array( 'heartbeat' ) ),
+		// and 'wp-auth-check' the same way), so removing heartbeat took autosave
+		// and the post-lock with it and logged _doing_it_wrong notices that are
+		// visible to anyone running WP_DEBUG.
+		//
+		// The trade was never close: one poll every 15-60 seconds against a user's
+		// unsaved work on a vehicle form, plus the "somebody else is editing this"
+		// warning that stops two people overwriting each other.
+		//
+		// The exemption list mirrors WordPressOptimizer::disable_heartbeat() rather
+		// than being a special case here, so the two optimisers now answer the
+		// question the same way.
+		if ( self::is_post_editing_screen() ) {
+			return;
+		}
+
 		// Disable some unnecessary admin scripts on Rentiva screens
 		wp_dequeue_script( 'heartbeat' );
 		wp_dequeue_script( 'autosave' );
+	}
+
+	/**
+	 * Is this one of the core screens where heartbeat carries real work?
+	 *
+	 * The post editors run autosave and the post lock, and edit.php uses heartbeat
+	 * for the lock indicator in the list table. These are the same three screens
+	 * WordPressOptimizer::disable_heartbeat() already exempts.
+	 */
+	private static function is_post_editing_screen(): bool {
+		global $pagenow;
+
+		return in_array( $pagenow, array( 'post.php', 'post-new.php', 'edit.php' ), true );
 	}
 
 	private static function is_vehicle_editor_screen(): bool {

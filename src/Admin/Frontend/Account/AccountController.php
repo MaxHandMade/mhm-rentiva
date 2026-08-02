@@ -130,9 +130,40 @@ final class AccountController {
 		add_filter('login_redirect', array( self::class, 'login_redirect' ), 10, 3);
 		add_filter('logout_redirect', array( self::class, 'logout_redirect' ), 10, 3);
 
-		// Route wp-login.php to WC My Account for non-admin users
-		add_filter('login_url', array( self::class, 'override_login_url' ), 10, 3);
-		add_action('login_init', array( self::class, 'redirect_wp_login' ));
+		/**
+		 * Route wp-login.php to the WooCommerce My Account page for non-admin
+		 * visitors.
+		 *
+		 * This is deliberate: a rental site wants one login page, themed like the
+		 * rest of the shop, and the takeover already steps aside for the cases
+		 * that need the real form -- POST (WordPress does the authenticating),
+		 * `logout`, `lostpassword`, `rp`, `resetpass` and `confirmaction`, any
+		 * user who can `manage_options`, and any site without WooCommerce.
+		 *
+		 * What it did not have was a way out. Taking over a core URL with no
+		 * opt-out leaves "deactivate the plugin" as the only escape, which is not
+		 * an answer a site owner or a reviewer should have to reach for -- so the
+		 * behaviour is now filterable while staying on by default.
+		 *
+		 * Return false to leave wp-login.php alone:
+		 *
+		 *     add_filter( 'mhmrentiva_takeover_login', '__return_false' );
+		 *
+		 * TIMING MATTERS, because this is read at registration rather than at
+		 * request time: register() runs on `init` priority 2, so the filter has to
+		 * be attached before that. A theme's functions.php or an ordinary plugin
+		 * file is early enough; adding it from `init` at priority 2 or later is
+		 * not, and would fail silently -- which is the one way a documented escape
+		 * hatch can be worse than none.
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param bool $takeover Whether to route wp-login.php to My Account.
+		 */
+		if ( (bool) apply_filters('mhmrentiva_takeover_login', true) ) {
+			add_filter('login_url', array( self::class, 'override_login_url' ), 10, 3);
+			add_action('login_init', array( self::class, 'redirect_wp_login' ));
+		}
 
 		// Communication preferences handler
 		add_action('init', array( self::class, 'handle_communication_preferences' ));
