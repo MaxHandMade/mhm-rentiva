@@ -98,6 +98,11 @@ class PrefixRenamer {
 		'tests/Tools/PrefixRenamerTest.php',
 		'tests/Tools/NoBareMhmStorageKeysTest.php',
 		'tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php',
+		// Seeds rows in their PRE-rename spelling on purpose: it asserts that a
+		// foreign 'vehicle' post survives uninstall while one of OURS in the old
+		// spelling still goes. Sweeping the fixtures would erase the distinction
+		// the test exists to make.
+		'tests/Unit/Utilities/UninstallForeignPostSafetyTest.php',
 	);
 
 	/**
@@ -157,31 +162,6 @@ class PrefixRenamer {
 		'mhm_rentiva_featured_vehicles',
 		'mhm_rentiva_vehicles_grid',
 		'mhm_rentiva_vehicles_list',
-		// 🔴 A COLLIDING PAIR, held at its old spellings until the owner decides.
-		//
-		// PrefixMigrationMap sends '_mhm_' and '_mhm_rentiva_' both to
-		// '_mhmrentiva_', so these two DISTINCT keys landed on one name --
-		// BlockedDatesMetaBox's admin-entered JSON (dates + notes) and
-		// CancellationHandler's flat array of date strings written when a booking
-		// is cancelled. Different writers, different value shapes, same key: each
-		// silently overwrote the other on the same vehicle.
-		//
-		// The map's own docblock asserts these two families "cannot collide", so
-		// the contract is wrong here and only the owner can change it. Reverting
-		// both to their pre-rename spellings restores the distinction, stops the
-		// corruption, and pre-empts no decision -- the destination names are
-		// proposed in the task report's decision table. Six further pairs collide
-		// the same way but only in the DATABASE; they have a single writer each,
-		// so they are a migration question, not a live bug.
-		'_mhm_blocked_dates',
-		'_mhm_rentiva_blocked_dates',
-		// 🔴 COMMENT META WITH NO MAP ENTRY. PrefixMigrationMap::COMMENTMETA holds
-		// exactly one key ('mhm_rating'), so Görev 13 will not migrate this one --
-		// renaming the code alone makes every review an admin manually flagged as
-		// verified silently revert to unverified, and leaves the old rows as dead
-		// weight nothing reads. Held at its old spelling; proposed as a COMMENTMETA
-		// addition in the decision table.
-		'mhm_verified_review',
 	);
 
 	/**
@@ -575,6 +555,24 @@ class PrefixRenamer {
 			}
 		}
 
+		// Exact post-meta destinations that OVERRIDE the prefix rules.
+		//
+		// Owner decision 2026-08-02: '_mhm_blocked_dates' (admin JSON with notes)
+		// and '_mhm_rentiva_blocked_dates' (flat date array from cancellations)
+		// hold different values and must not merge, but the prefix rules send both
+		// to '_mhmrentiva_blocked_dates'. Length-DESC ordering puts these exact
+		// keys ahead of '_mhm_rentiva_'/'_mhm_', so the override wins the offset.
+		foreach ( Map::POSTMETA_EXACT_OVERRIDES as $old => $new ) {
+			$rules[] = array(
+				'id'    => 'override:' . $old,
+				'old'   => $old,
+				'new'   => $new,
+				'kind'  => 'meta_exact',
+				'left'  => true,
+				'right' => true,
+			);
+		}
+
 		// Concrete meta keys resolved out of the four non-mhm prefix rules.
 		foreach ( self::RESOLVED_META_KEYS as $key ) {
 			$rules[] = array(
@@ -706,6 +704,132 @@ class PrefixRenamer {
 		}
 		return $ranges;
 	}
+
+	/**
+	 * Longest permitted ignore region, in lines INCLUDING both markers.
+	 *
+	 * A region silences everything between its markers -- not just the literal it
+	 * was opened for -- so its length is the size of the blind spot it creates.
+	 * The first version of this mechanism had no cap and drifted to a 435-line
+	 * region protecting three literals and an 824-line unterminated one, which
+	 * together put 53% of DatabaseCleaner.php outside both the tool's and the
+	 * gate's field of view. "The sweep is a fixed point" and "mode 4 is green"
+	 * were then true there by construction rather than by measurement.
+	 *
+	 * 30 is chosen against the real shapes a region legitimately wraps: a single
+	 * $wpdb statement (11-14 lines) or a literal list with its explanatory
+	 * comment (the 14-entry legacy table list is the largest, at 25). It is
+	 * comfortably below the smallest METHOD in any of these files, so a region
+	 * can never quietly grow to cover logic.
+	 */
+	public const IGNORE_REGION_MAX_LINES = 30;
+
+	/**
+	 * Every ignore region in the shipped tree, with the literals it protects.
+	 *
+	 * Registration is the accountability half of the mechanism. A region is a
+	 * claim that a pre-rename literal must survive HERE; without a registry that
+	 * claim is invisible, and an earlier version of this file asserted the
+	 * regions were covered by NoBareMhmStorageKeysTest::INVENTORY when they
+	 * structurally could not be -- that test's pattern is
+	 * `mhm_(?!rentiva)`, so a 'mhm_rentiva_*' literal cannot enter it at all,
+	 * and roughly 25 protected literals appeared in no registry anywhere.
+	 *
+	 * PrefixRenameRegionsTest checks this in BOTH directions: every region in the
+	 * source is registered, and every literal a region actually covers is
+	 * declared here -- so widening a region to swallow neighbouring code fails
+	 * the build instead of silently exempting it.
+	 *
+	 * @var array<string, array{regions:int, why:string, literals:array<int,string>}>
+	 */
+	public const IGNORE_REGIONS = array(
+		'src/Admin/Booking/Helpers/Locker.php' => array(
+			'regions'  => 2,
+			'why'      => 'FOR UPDATE must lock rows in BOTH spellings; a new-prefix-only pattern locks nothing on an un-migrated site and the caller COMMITs believing it holds the lock',
+			'literals' => array( '_mhm', '_mhmrentiva_%' ),
+		),
+		'src/Admin/Core/Utilities/DatabaseCleaner.php' => array(
+			'regions'  => 4,
+			'why'      => 'option analysis and the backup-table probe must see pre-6.0.0 rows; backup tables keep their old name forever (no TABLES entry) and are somebody\'s only recovery copy',
+			'literals' => array( 'mhm_rentiva%', 'mhmrentiva%' ),
+		),
+		'src/Admin/Core/Utilities/DatabaseMigrator.php' => array(
+			'regions'  => 3,
+			'why'      => 'cron hooks and dead tables must be cleared under every name they have ever had; a scheduled event outlives the code that scheduled it',
+			'literals' => array(
+				'_transient_mhm_rate_limit_%',
+				'_transient_mhm_rentiva_rate_limit_%',
+				'_transient_mhmrentiva_rate_limit_%',
+				'_transient_timeout_mhm_rate_limit_%',
+				'_transient_timeout_mhm_rentiva_rate_limit_%',
+				'_transient_timeout_mhmrentiva_rate_limit_%',
+				'mhm_notification_queue',
+				'mhm_rate_limit_',
+				'mhm_rentiva_rate_limit_',
+				'mhm_rentiva_send_scheduled_notifications',
+				'mhm_send_scheduled_notifications',
+				'mhmrentiva_notification_queue',
+				'mhmrentiva_rate_limit_',
+				'mhmrentiva_send_scheduled_notifications',
+			),
+		),
+		'src/Admin/Frontend/Shortcodes/VehicleDetails.php' => array(
+			'regions'  => 1,
+			'why'      => 'gallery fallback chain: an un-migrated site stores its gallery under a pre-rename key and would otherwise render no gallery at all',
+			'literals' => array( '_mhm_gallery_images', '_mhm_rentiva_gallery', '_mhm_rentiva_gallery_images', '_mhmrentiva_gallery', '_mhmrentiva_gallery_images' ),
+		),
+		'src/Admin/Utilities/Dashboard/DashboardPage.php' => array(
+			'regions'  => 1,
+			'why'      => 'a cache this code believes it cleared but did not is a stale number on the dashboard with no way for the user to flush it',
+			'literals' => array(
+				'mhm_rentiva_booking_report_',
+				'mhm_rentiva_customer_report_',
+				'mhm_rentiva_dashboard_recent_bookings_v4',
+				'mhm_rentiva_dashboard_stats',
+				'mhm_rentiva_recent_messages_',
+				'mhm_rentiva_revenue_report_',
+				'mhm_rentiva_vehicle_report_',
+				'mhm_rentiva_vlist_',
+				'mhm_revenue_report_',
+			),
+		),
+		'src/Admin/Utilities/Uninstall/Uninstaller.php' => array(
+			'regions'  => 14,
+			'why'      => 'uninstall must delete rows on a site that never ran the migration; otherwise the pre-uninstall screen shows a false count and everything is left behind permanently, with the plugin gone and no UI to clean up with',
+			'literals' => array(
+				'_mhm%',
+				'_mhm_rentiva%',
+				'_mhmrentiva%',
+				'_transient_mhm_rentiva%',
+				'_transient_mhmrentiva%',
+				'_transient_timeout_mhm_rentiva%',
+				'_transient_timeout_mhmrentiva%',
+				'mhm_backup_records',
+				'mhm_message_logs',
+				'mhm_notification_queue',
+				'mhm_payment_log',
+				'mhm_rentiva',
+				'mhm_rentiva%',
+				'mhm_rentiva_commission_policy',
+				'mhm_rentiva_key_registry',
+				'mhm_rentiva_ledger',
+				'mhm_rentiva_payout_audit',
+				'mhm_rentiva_queue',
+				'mhm_rentiva_ratings',
+				'mhm_rentiva_report_queue',
+				'mhm_rentiva_background_jobs',
+				'mhm_rentiva_send_scheduled_notifications',
+				'mhm_rentiva_tenants',
+				'mhm_rentiva_usage_metrics',
+				'mhm_send_scheduled_notifications',
+				'mhm_sessions',
+				'mhm_transfers',
+				'mhmrentiva%',
+				'mhmrentiva_booking',
+				'mhmrentiva_vehicle',
+			),
+		),
+	);
 
 	public const IGNORE_START = 'prefix-rename:ignore-start';
 	public const IGNORE_END   = 'prefix-rename:ignore-end';

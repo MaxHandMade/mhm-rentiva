@@ -483,6 +483,7 @@ function mode4Sources(string $root): array
         $root . '/tests/Tools/PrefixRenamerTest.php',
         $root . '/tests/Tools/NoBareMhmStorageKeysTest.php',
         $root . '/tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php',
+        $root . '/tests/Unit/Utilities/UninstallForeignPostSafetyTest.php',
     ];
 
     $cache = [];

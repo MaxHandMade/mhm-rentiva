@@ -96,7 +96,6 @@ final class NoBareMhmStorageKeysTest extends TestCase
 		'mhm_transfers'                    => 'table with no TABLES entry: never renamed, so the old name is the only name',
 		'mhm_rate_limit_'                  => 'transient family swept by its pre-6.0.0 prefix as well',
 		'mhm_send_scheduled_notifications' => 'cron hook: a scheduled event outlives the code that scheduled it, so every historical name must be cleared',
-		'mhm_verified_review'              => 'comment meta with no COMMENTMETA entry -- renaming the code alone would unverify every flagged review',
 	);
 
 	/**

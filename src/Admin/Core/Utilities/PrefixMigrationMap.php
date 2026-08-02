@@ -38,11 +38,38 @@ if (! defined('ABSPATH')) { exit; }
  *   -- was found independently during this task's own verification pass and
  *   was not named by either prior audit.
  *
- * Rule order matters throughout: '_mhm_rentiva_' collapses BEFORE '_mhm_' so
- * the two families cannot collide ('_mhm_rentiva_deposit' -> '_mhmrentiva_deposit',
- * a hypothetical '_mhm_deposit' -> '_mhmrentiva_deposit' would collide; the
- * bijection check in bin/check-prefix-inventory.php fails the build if any
- * two old keys map to one new key within the same exact-key family).
+ * Rule order matters throughout: '_mhm_rentiva_' is matched BEFORE '_mhm_', so
+ * the cut point is always taken from the longest matching prefix. That is a rule
+ * about ORDER, not about collisions.
+ *
+ * 🔴 CORRECTION (Görev 12 review, 2026-08-02). This paragraph used to claim the
+ * two families "cannot collide" and cited '_mhm_deposit' as a HYPOTHETICAL.
+ * '_mhm_deposit' is real and sits about a hundred lines below, in OPTIONS'
+ * neighbouring meta inventory. The claim was simply wrong, and a wrong invariant
+ * in prose is how the next implementer re-derives the wrong conclusion.
+ *
+ * WHAT IS ACTUALLY TRUE: '_mhm_' and '_mhm_rentiva_' both target '_mhmrentiva_',
+ * so a bare key whose suffix matches a rentiva-qualified one lands on
+ * the same new name. SEVEN pairs in this codebase do exactly that:
+ *
+ *     blocked_dates   gallery_images   vehicle_id
+ *     customer_email  customer_name    price_per_day   deposit
+ *
+ * The bijection check in bin/check-prefix-inventory.php does NOT catch these --
+ * it verifies uniqueness within each EXACT-KEY family, and this collision is
+ * between two PREFIX rules, which it never compares.
+ *
+ * All seven were resolved by the owner on 2026-08-02. Six are genuinely two
+ * historical spellings of ONE value and are deliberately ALLOWED to merge, so
+ * they get no override entry. The seventh holds two different values and does:
+ * see POSTMETA_EXACT_OVERRIDES below.
+ *
+ * 🔴 CONSEQUENCE FOR GÖREV 13: wp_postmeta has NO unique index on
+ * (post_id, meta_key). A merge therefore does not overwrite; it leaves TWO ROWS
+ * with the same key, and get_post_meta($id, $key, true) returns whichever the
+ * storage engine happens to order first -- a silent, nondeterministic wrong
+ * value. The migration needs a pre-flight collision query and a documented
+ * winner per pair, not a blind UPDATE.
  */
 final class PrefixMigrationMap {
 
@@ -288,6 +315,35 @@ final class PrefixMigrationMap {
      * '_rentiva_' covers the vendor_slug family (VehicleSettings et al.);
      * 'addon_' (bare, no leading underscore) covers AddonMeta's visible keys.
      */
+    /**
+     * Post-meta keys whose destination is decided EXACTLY, overriding the prefix
+     * rules below. Görev 13 must apply these FIRST and exclude them from the
+     * prefix pass.
+     *
+     * Only one pair needs it, and it is the one pair of the seven whose two keys
+     * do not hold the same value:
+     *
+     *   '_mhm_blocked_dates'          BlockedDatesMetaBox -- admin-entered JSON,
+     *                                 dates PLUS per-date notes
+     *   '_mhm_rentiva_blocked_dates'  CancellationHandler -- a flat array of date
+     *                                 strings, written when a booking is cancelled
+     *
+     * Different writers, different value SHAPES, same object. Letting the prefix
+     * rules merge them means each silently overwrites the other on the same
+     * vehicle, which is what happened between Görev 12's sweep and its review;
+     * both are currently held at their pre-rename spellings in the code so the
+     * corruption stops while the migration is written.
+     *
+     * Owner decision, 2026-08-02: keep them distinct.
+     *
+     * @var array<string,string>
+     */
+    public const POSTMETA_EXACT_OVERRIDES = [
+        '_mhm_blocked_dates'          => '_mhmrentiva_blocked_dates',
+        '_mhm_blocked_dates_notes'    => '_mhmrentiva_blocked_dates_notes',
+        '_mhm_rentiva_blocked_dates'  => '_mhmrentiva_booking_blocked_dates',
+    ];
+
     public const POSTMETA_PREFIX_RULES = [
         '_mhm_rentiva_' => '_mhmrentiva_',
         '_mhm_'         => '_mhmrentiva_',
@@ -409,6 +465,13 @@ final class PrefixMigrationMap {
      */
     public const COMMENTMETA = [
         'mhm_rating' => 'mhmrentiva_rating',
+        // Added by owner decision, 2026-08-02 (Görev 12 review). The Görev 12
+        // sweep renamed this literal in VerifiedReviewHelper while COMMENTMETA
+        // held only the key above -- so nothing would have migrated the rows, and
+        // every review an admin had manually flagged as verified would silently
+        // revert to unverified. That is data loss, not cosmetics. The code is
+        // currently held at the old spelling until Görev 13 can carry the rows.
+        'mhm_verified_review' => 'mhmrentiva_verified_review',
     ];
 
     /**

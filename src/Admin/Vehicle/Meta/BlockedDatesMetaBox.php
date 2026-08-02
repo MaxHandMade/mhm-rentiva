@@ -12,12 +12,12 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Blocked Dates Meta Box for Vehicles
  *
  * Stores dates when a vehicle is unavailable for reservations.
- * Data is saved as JSON array in postmeta key `_mhm_blocked_dates`.
+ * Data is saved as JSON array in postmeta key `_mhmrentiva_blocked_dates`.
  */
 final class BlockedDatesMetaBox {
 
-	private const META_KEY       = '_mhm_blocked_dates';
-	private const META_KEY_NOTES = '_mhm_blocked_dates_notes';
+	private const META_KEY       = '_mhmrentiva_blocked_dates';
+	private const META_KEY_NOTES = '_mhmrentiva_blocked_dates_notes';
 	private const NONCE_ACTION   = 'mhmrentiva_blocked_dates_save';
 	private const NONCE_NAME     = 'mhmrentiva_blocked_dates_nonce';
 

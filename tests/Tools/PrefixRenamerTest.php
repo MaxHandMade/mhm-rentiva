@@ -370,15 +370,29 @@ class PrefixRenamerTest extends TestCase {
 	}
 
 	/**
-	 * An unterminated marker protects the rest of the file rather than silently
-	 * resuming, because resuming would convert exactly the literals the marker
-	 * was opened to protect.
+	 * An unterminated marker is a RUNTIME fail-safe and a BUILD failure, and this
+	 * test only documents the first half.
+	 *
+	 * The tool protects to end of file rather than resuming, because resuming
+	 * would convert exactly the literals the marker was opened to protect -- a
+	 * typo must not be able to corrupt data. But the previous version of this
+	 * test stopped there, which meant an unbalanced marker could never go red:
+	 * one such marker exempted 824 lines of DatabaseCleaner.php from both the
+	 * sweep and G-C modes 4a/4b, and "the sweep is a fixed point" was true there
+	 * by construction rather than by measurement.
+	 *
+	 * PrefixRenameRegionsTest::test_every_ignore_region_is_balanced now FAILS the
+	 * build on the same input. The two are complementary: the fallback keeps the
+	 * typo from destroying anything, the gate keeps it from being permanent.
+	 *
+	 * @see PrefixRenameRegionsTest::test_every_ignore_region_is_balanced
 	 */
-	public function test_unterminated_ignore_region_protects_to_end_of_file(): void {
+	public function test_unterminated_marker_fails_safe_at_runtime_but_is_gated_as_an_error(): void {
 		$in = "'mhm_rentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'";
 		$this->assertSame(
 			"'mhmrentiva_a'\n// prefix-rename:ignore-start\n'mhm_rentiva_b'",
-			$this->t( $in )
+			$this->t( $in ),
+			'the runtime fallback must not convert what the marker was opened to protect'
 		);
 	}
 

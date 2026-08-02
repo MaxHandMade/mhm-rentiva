@@ -212,6 +212,7 @@ final class DatabaseCleaner {
 			'_mhmrentiva_auto_created',
 			'_mhmrentiva_blocked_dates',
 			'_mhmrentiva_blocked_dates_notes',
+			'_mhmrentiva_booking_blocked_dates',
 			'_mhmrentiva_booking_created',
 			'_mhmrentiva_booking_data',
 			'_mhmrentiva_booking_history',
@@ -793,8 +794,8 @@ final class DatabaseCleaner {
 	public static function find_unused_options(): array {
 		global $wpdb;
 
-		// prefix-rename:ignore-start -- both spellings on purpose
 		// MHM Rentiva options
+		// prefix-rename:ignore-start
 		$all_options = $wpdb->get_results(
 			"
             SELECT option_name, LENGTH(option_value) as size
@@ -804,8 +805,10 @@ final class DatabaseCleaner {
         ",
 			ARRAY_A
 		);
+		// prefix-rename:ignore-end
 
 		// Autoload options (unnecessary memory usage)
+		// prefix-rename:ignore-start
 		$autoload_options = $wpdb->get_results(
 			"
             SELECT option_name, LENGTH(option_value) as size
@@ -815,6 +818,7 @@ final class DatabaseCleaner {
         ",
 			ARRAY_A
 		);
+		// prefix-rename:ignore-end
 
 		return array(
 			'total_options'    => count( $all_options ),
@@ -1215,6 +1219,7 @@ final class DatabaseCleaner {
 		global $wpdb;
 
 		// Find large autoload options
+		// prefix-rename:ignore-start
 		$large_autoload = $wpdb->get_results(
 			"
             SELECT option_name, LENGTH(option_value) as size
@@ -1227,7 +1232,7 @@ final class DatabaseCleaner {
         ",
 			ARRAY_A
 		);
-			// prefix-rename:ignore-end
+		// prefix-rename:ignore-end
 
 		if ( $dry_run ) {
 			return array(
@@ -1562,10 +1567,9 @@ final class DatabaseCleaner {
 	public static function list_backups(): array {
 		global $wpdb;
 
-		// prefix-rename:ignore-start
 		// Both spellings, and that is not cosmetic.
 		//
-		// Backup tables are named '{prefix}mhm_postmeta_backup_<Ymd_His>' and the
+		// Backup tables carry the PRE-rename prefix in their name, and the
 		// physical table keeps that name forever: it is not in
 		// PrefixMigrationMap::TABLES, so Görev 13 never renames it either. A
 		// new-prefix-only pattern therefore cannot see ANY backup taken before
@@ -1573,10 +1577,12 @@ final class DatabaseCleaner {
 		// enumerating this list, and export_backup_to_sql() gates on that, such a
 		// backup becomes unlistable, unexportable and UNRESTORABLE. It is also the
 		// only copy of the postmeta the cleanup deleted.
+		// prefix-rename:ignore-start
 		$backup_tables = array_merge(
 			(array) $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}mhmrentiva_%_backup%'" ),
 			(array) $wpdb->get_col( "SHOW TABLES LIKE '{$wpdb->prefix}mhm_%_backup%'" )
 		);
+		// prefix-rename:ignore-end
 		$backup_tables = array_values( array_unique( array_filter( $backup_tables ) ) );
 
 		$backups = array();

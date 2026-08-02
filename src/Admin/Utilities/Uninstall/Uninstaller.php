@@ -96,12 +96,17 @@ final class Uninstaller {
 			$wpdb->prepare(
 				"
             SELECT COUNT(*) 
-            FROM {$wpdb->posts}
-            WHERE post_type IN (%s, %s)
+            FROM {$wpdb->posts} p
+            WHERE p.post_type = %s
+               OR ( p.post_type = %s AND EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} pm
+                     WHERE pm.post_id = p.ID AND pm.meta_key LIKE %s
+                   ) )
         ",
 				// prefix-rename:ignore-start
 				'mhmrentiva_vehicle',
-				'vehicle'
+				'vehicle',
+				'_mhm%'
 				// prefix-rename:ignore-end
 			)
 		);
@@ -112,12 +117,17 @@ final class Uninstaller {
 			$wpdb->prepare(
 				"
             SELECT COUNT(*) 
-            FROM {$wpdb->posts}
-            WHERE post_type IN (%s, %s)
+            FROM {$wpdb->posts} p
+            WHERE p.post_type = %s
+               OR ( p.post_type = %s AND EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} pm
+                     WHERE pm.post_id = p.ID AND pm.meta_key LIKE %s
+                   ) )
         ",
 				// prefix-rename:ignore-start
 				'mhmrentiva_booking',
-				'vehicle_booking'
+				'vehicle_booking',
+				'_mhm%'
 				// prefix-rename:ignore-end
 			)
 		);
@@ -298,13 +308,18 @@ final class Uninstaller {
 		$vehicles = $wpdb->get_col(
 			$wpdb->prepare(
 				"
-            SELECT ID
-            FROM {$wpdb->posts}
-            WHERE post_type IN (%s, %s)
+            SELECT p.ID
+            FROM {$wpdb->posts} p
+            WHERE p.post_type = %s
+               OR ( p.post_type = %s AND EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} pm
+                     WHERE pm.post_id = p.ID AND pm.meta_key LIKE %s
+                   ) )
         ",
 				// prefix-rename:ignore-start
 				'mhmrentiva_vehicle',
-				'vehicle'
+				'vehicle',
+				'_mhm%'
 				// prefix-rename:ignore-end
 			)
 		);
@@ -318,13 +333,18 @@ final class Uninstaller {
 		$bookings = $wpdb->get_col(
 			$wpdb->prepare(
 				"
-            SELECT ID
-            FROM {$wpdb->posts}
-            WHERE post_type IN (%s, %s)
+            SELECT p.ID
+            FROM {$wpdb->posts} p
+            WHERE p.post_type = %s
+               OR ( p.post_type = %s AND EXISTS (
+                     SELECT 1 FROM {$wpdb->postmeta} pm
+                     WHERE pm.post_id = p.ID AND pm.meta_key LIKE %s
+                   ) )
         ",
 				// prefix-rename:ignore-start
 				'mhmrentiva_booking',
-				'vehicle_booking'
+				'vehicle_booking',
+				'_mhm%'
 				// prefix-rename:ignore-end
 			)
 		);
@@ -521,16 +541,23 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_rentiva_transfer_routes',
 			$wpdb->prefix . 'mhmrentiva_report_queue',
 
-			// prefix-rename:ignore-start
 			// --- PRE-6.0.0 spellings of every table above ---
 			//
 			// Uninstall must work on a site that never ran Görev 13's migration,
-			// where every one of these tables still carries its old name. Three of
+			// where every one of these tables still carries its old name. FIVE of
 			// them additionally have NO entry in PrefixMigrationMap::TABLES --
-			// notification_queue, backup_records and transfers -- so the migration
-			// will never rename the physical table at all and the old name is the
-			// ONLY name they will ever have. Dropping by the new name alone leaves
-			// them behind on every install, permanently.
+			// notification_queue, backup_records, transfers, report_queue and
+			// background_jobs -- so the migration will never rename the physical
+			// table at all and the old name is the ONLY name they will ever have.
+			// Dropping by the new name alone leaves them behind on every install,
+			// permanently. (report_queue previously sat under the "legacy" heading
+			// above, but the sweep converted it to the NEW spelling, so the name it
+			// was there to catch stopped being dropped anywhere.)
+			//
+			// The explanation lives OUTSIDE the region deliberately: a region is a
+			// blind spot and its length is the size of that blind spot, so it
+			// wraps the literals and nothing else.
+			// prefix-rename:ignore-start
 			$wpdb->prefix . 'mhm_rentiva_payout_audit',
 			$wpdb->prefix . 'mhm_rentiva_ledger',
 			$wpdb->prefix . 'mhm_rentiva_commission_policy',
@@ -545,6 +572,8 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_sessions',
 			$wpdb->prefix . 'mhm_backup_records',
 			$wpdb->prefix . 'mhm_transfers',
+			$wpdb->prefix . 'mhm_rentiva_report_queue',
+			$wpdb->prefix . 'mhm_rentiva_background_jobs',
 			// prefix-rename:ignore-end
 
 			// --- Orphan tables from removed subsystems (kept for cleanup on historic installs) ---
