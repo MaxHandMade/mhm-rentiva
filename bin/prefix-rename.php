@@ -411,13 +411,13 @@ class PrefixRenamer {
 	 * Both default to empty, so Lite's own behaviour is unchanged byte for byte;
 	 * PrefixRenamerTest and the sweep's own fixed point are the proof.
 	 *
-	 * @var array{carve_out?:array<int,string>,meta_keys?:array<int,string>}
+	 * @var array{carve_out?:array<int,string>,carve_out_exact?:array<int,string>,meta_keys?:array<int,string>}
 	 */
 	private $extra;
 
 	/**
 	 * @param string                                                          $phase 'mechanical' or 'all'.
-	 * @param array{carve_out?:array<int,string>,meta_keys?:array<int,string>} $extra Per-repository additions.
+	 * @param array{carve_out?:array<int,string>,carve_out_exact?:array<int,string>,meta_keys?:array<int,string>} $extra Per-repository additions.
 	 */
 	public function __construct( string $phase = 'all', array $extra = array() ) {
 		$this->phase = $phase;
