@@ -648,6 +648,32 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 * @param array<string, string> $roots
 	 * @return array<string, string> literal => "first file it was seen in"
 	 */
+	/**
+	 * Blank out `prefix-rename:ignore-start/end` regions before scanning.
+	 *
+	 * Those regions mark literals present as DATA rather than as usage. Applied
+	 * to the migration only -- see the call site for why, and for why it is not
+	 * applied to every file that has regions.
+	 */
+	private static function strip_ignore_regions( string $code ): string
+	{
+		$lines  = explode( "\n", $code );
+		$open   = false;
+		$output = array();
+
+		foreach ( $lines as $line ) {
+			if ( str_contains( $line, 'prefix-rename:ignore-start' ) ) {
+				$open = true;
+			}
+			$output[] = $open ? '' : $line;
+			if ( str_contains( $line, 'prefix-rename:ignore-end' ) ) {
+				$open = false;
+			}
+		}
+
+		return implode( "\n", $output );
+	}
+
 	private function scan_roots( array $roots ): array
 	{
 		$found = array();
@@ -689,6 +715,25 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				}
 
 				$code = (string) file_get_contents( $path );
+
+				// Third instance of the rule the two exclusions above state: a
+				// file that IS the inventory must not BE the evidence. Görev
+				// 13's migration has to NAME the add-on's payout-freeze
+				// user-meta key in order to carry those rows onto their new
+				// name, and that mention is not Lite starting to write a key
+				// the add-on owns. Without this, adding the key to the
+				// migration's scope list silently dropped it out of Pro's
+				// frozen inventory -- the very inventory that stops Lite's
+				// cleanup deleting the add-on's rows.
+				//
+				// Narrower than the two exclusions above on purpose: only the
+				// marked spans of this one file go, so every meta key
+				// DatabaseMigrator genuinely uses is still evidence, and the
+				// marks are themselves capped and registered by
+				// PrefixRenameRegionsTest.
+				if ( str_ends_with( $path, '/Admin/Core/Utilities/DatabaseMigrator.php' ) ) {
+					$code = self::strip_ignore_regions( $code );
+				}
 
 				if ( ! preg_match_all( '/[\'"](_mhm[A-Za-z0-9_]*)[\'"]/', $code, $matches ) ) {
 					continue;

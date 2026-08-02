@@ -120,17 +120,17 @@ final class LiteSchemaSeamTest extends WP_UnitTestCase
             return $query;
         };
 
-        $previous_version = get_option('mhm_rentiva_db_version');
-        update_option('mhm_rentiva_db_version', '1.0.0');
+        $previous_version = get_option('mhmrentiva_db_version');
+        update_option('mhmrentiva_db_version', '1.0.0');
 
         add_filter('query', $collector, 9999);
         DatabaseMigrator::run_migrations();
         remove_filter('query', $collector, 9999);
 
         if (false === $previous_version) {
-            delete_option('mhm_rentiva_db_version');
+            delete_option('mhmrentiva_db_version');
         } else {
-            update_option('mhm_rentiva_db_version', $previous_version);
+            update_option('mhmrentiva_db_version', $previous_version);
         }
 
         return $queries;

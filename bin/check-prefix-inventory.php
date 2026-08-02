@@ -484,6 +484,10 @@ function mode4Sources(string $root): array
         $root . '/tests/Tools/NoBareMhmStorageKeysTest.php',
         $root . '/tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php',
         $root . '/tests/Unit/Utilities/UninstallForeignPostSafetyTest.php',
+        // Görev 13's migration test: every fixture is an OLD name by design and
+        // every assertion reads the new one. Added to PrefixRenamer::NEVER_SWEEP
+        // in the same commit -- the two lists are one decision written twice.
+        $root . '/tests/Migration/PrefixRenameMigrationTest.php',
     ];
 
     $cache = [];
@@ -716,7 +720,24 @@ function extractForeachArrayLiteralOptionCandidates(string $src): array
 function runMode5(string $root): array
 {
     $violations = [];
+    // BOTH spellings of each bootstrap-fallback name. The map exempts these two
+    // options from OPTIONS by design -- they have their own bootstrap path and
+    // are read before a map-driven pass could run -- but Görev 13's fallback
+    // reads the NEW name first and only then falls back to the old one, so the
+    // tree now contains both. Exempting only the old spelling made this mode
+    // flag the very rename it exists to certify. The new spelling is DERIVED
+    // from the map's own rules rather than typed here, so the exemption cannot
+    // drift wider than the two names the map actually names.
     $allowlist = Map::BOOTSTRAP_FALLBACK_ALLOWLIST;
+    foreach (Map::BOOTSTRAP_FALLBACK_ALLOWLIST as $bootstrapName) {
+        foreach (Map::RUNTIME_STRING_RULES as $oldPrefix => $newPrefix) {
+            if (str_starts_with($bootstrapName, $oldPrefix)) {
+                $allowlist[] = $newPrefix . substr($bootstrapName, strlen($oldPrefix));
+                break;
+            }
+        }
+    }
+    $allowlist = array_values(array_unique($allowlist));
     $options = Map::OPTIONS;
 
     $files = [];

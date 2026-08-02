@@ -32,15 +32,15 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->previous_version = get_option('mhm_rentiva_db_version');
+        $this->previous_version = get_option('mhmrentiva_db_version');
     }
 
     protected function tearDown(): void
     {
         if (false === $this->previous_version) {
-            delete_option('mhm_rentiva_db_version');
+            delete_option('mhmrentiva_db_version');
         } else {
-            update_option('mhm_rentiva_db_version', $this->previous_version);
+            update_option('mhmrentiva_db_version', $this->previous_version);
         }
         delete_option(self::DEAD_OPTION);
         delete_option('mhmrentiva_allowed_countries');
@@ -52,7 +52,7 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
      */
     private function run_migrations_from_scratch(): void
     {
-        update_option('mhm_rentiva_db_version', '1.0.0');
+        update_option('mhmrentiva_db_version', '1.0.0');
         DatabaseMigrator::run_migrations();
     }
 
@@ -85,7 +85,7 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
         // At CURRENT_VERSION the gate is shut: run_migrations() is a no-op, so the
         // pollution survives. This is the failure mode of forgetting the bump.
         $current = DatabaseMigrator::get_migration_status()['target_version'];
-        update_option('mhm_rentiva_db_version', $current);
+        update_option('mhmrentiva_db_version', $current);
         update_option(self::DEAD_OPTION, '1');
 
         DatabaseMigrator::run_migrations();

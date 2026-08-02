@@ -52,6 +52,11 @@ final class PrefixRenameRegionsTest extends TestCase {
 		'tests/Tools/PrefixRenamerTest.php',
 		'tests/Tools/PrefixRenameRegionsTest.php',
 		'tests/Tools/NoBareMhmStorageKeysTest.php',
+		// Also NEVER_SWEEP, and it now mentions the marker strings as DATA: its
+		// scanner strips the migration's ignore regions before treating a meta-key
+		// literal as evidence of usage. Left in the region scan, its helper would
+		// read as an unbalanced region in a file that has none.
+		'tests/Unit/Core/Utilities/DatabaseCleanerAllowlistTest.php',
 	);
 
 	/**

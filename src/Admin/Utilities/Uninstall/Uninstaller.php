@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Core\Utilities\DatabaseCleaner;
+use MHMRentiva\Admin\Core\Utilities\PrefixMigrationMap;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -46,6 +47,50 @@ final class Uninstaller {
 		}
 
 		return $names;
+	}
+
+	/**
+	 * Every cron hook this plugin has ever scheduled, in every spelling.
+	 *
+	 * A scheduled event lives in the `cron` option and survives the code that
+	 * scheduled it, so uninstall has to clear each hook under every name it has
+	 * ever had -- and after 6.0.0 there are two populations in the wild at once:
+	 * a site deleted BEFORE the rename migration ran still carries the old
+	 * names, a site deleted after carries the new ones. Both families are taken
+	 * from PrefixMigrationMap rather than re-typed here, so this list cannot
+	 * drift away from what the migration actually renames.
+	 *
+	 * Previously this list named only the auto-cancel and notification hooks,
+	 * which left the five log/reminder/queue hooks scheduled forever on every
+	 * uninstall, under either spelling.
+	 *
+	 * @return array<int,string>
+	 */
+	private static function plugin_cron_hooks(): array {
+		$hooks = array(
+			'mhmrentiva_auto_cancel_event',
+			'mhmrentiva_send_scheduled_notifications',
+			// prefix-rename:ignore-start
+			// The two PRE-6.0.0 spellings of the notification hook. The rename
+			// collapsed them onto the name above, which is why they are spelled
+			// out rather than left as a duplicate of it -- and why they cannot
+			// come from the map: that hook has no map entry, its class is gone.
+			'mhm_rentiva_send_scheduled_notifications',
+			'mhm_send_scheduled_notifications',
+			// prefix-rename:ignore-end
+			'mhmrentiva_email_log_retention',
+			'mhmrentiva_log_retention',
+		);
+
+		return array_values(
+			array_unique(
+				array_merge(
+					$hooks,
+					array_keys( PrefixMigrationMap::CRON_HOOKS ),
+					array_values( PrefixMigrationMap::CRON_HOOKS )
+				)
+			)
+		);
 	}
 
 	/**
@@ -163,21 +208,7 @@ final class Uninstaller {
 
 		// Count cron jobs
 		$crons        = _get_cron_array();
-		$plugin_crons = array(
-			'mhmrentiva_auto_cancel_event',
-			'mhmrentiva_send_scheduled_notifications',
-			// prefix-rename:ignore-start
-			// The two PRE-6.0.0 spellings. A scheduled event survives in wp_cron
-			// independently of the code that scheduled it, so uninstall must clear
-			// every name this hook has ever had or it leaves orphans behind. The
-			// rename collapsed these two onto the name above, which is why they are
-			// spelled out rather than left as a duplicate of it.
-			'mhm_rentiva_send_scheduled_notifications',
-			'mhm_send_scheduled_notifications',
-			// prefix-rename:ignore-end
-			'mhmrentiva_email_log_retention',
-			'mhmrentiva_log_retention',
-		);
+		$plugin_crons = self::plugin_cron_hooks();
 
 		$cron_count = 0;
 		if ( ! empty( $crons ) ) {
@@ -400,28 +431,20 @@ final class Uninstaller {
 		}
 
 		// 6. Clear all cron jobs
-		$plugin_crons = array(
-			'mhmrentiva_auto_cancel_event',
-			'mhmrentiva_send_scheduled_notifications',
-			// prefix-rename:ignore-start
-			// The two PRE-6.0.0 spellings. A scheduled event survives in wp_cron
-			// independently of the code that scheduled it, so uninstall must clear
-			// every name this hook has ever had or it leaves orphans behind. The
-			// rename collapsed these two onto the name above, which is why they are
-			// spelled out rather than left as a duplicate of it.
-			'mhm_rentiva_send_scheduled_notifications',
-			'mhm_send_scheduled_notifications',
-			// prefix-rename:ignore-end
-			'mhmrentiva_email_log_retention',
-			'mhmrentiva_log_retention',
-		);
+		$plugin_crons = self::plugin_cron_hooks();
 
+		// wp_unschedule_hook(), not the wp_next_scheduled()/wp_unschedule_event()
+		// pair this used to run: that pair matches only events whose args are
+		// EMPTY, so the per-booking reminder events -- which carry the booking id
+		// -- were never cleared and survived the plugin being deleted.
 		foreach ( $plugin_crons as $hook ) {
-			$timestamp = wp_next_scheduled( $hook );
-			while ( $timestamp ) {
-				wp_unschedule_event( $timestamp, $hook );
-				$timestamp = wp_next_scheduled( $hook );
-				++$results['cron_jobs_cleared'];
+			$cleared = wp_unschedule_hook( $hook );
+			if ( is_int( $cleared ) ) {
+				// The > 0 guard is not defensive noise: wp_unschedule_hook() is
+				// documented as int|false, so without it the counter's inferred
+				// type widens from int<0, max> to int and PHPStan's ignore
+				// patterns for this array shape stop matching.
+				$results['cron_jobs_cleared'] += $cleared > 0 ? $cleared : 0;
 			}
 		}
 

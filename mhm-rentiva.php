@@ -237,9 +237,10 @@ add_action(
  *  Lane A — schema migrations driven by the stored version stamp.
  *    Runs `DatabaseMigrator::run_migrations()` only when the plugin file
  *    constant (MHMRENTIVA_VERSION) differs from the stored option
- *    (mhm_rentiva_plugin_version). DatabaseMigrator is itself idempotent
- *    (guarded by mhm_rentiva_db_version), so re-running on every drift is
- *    cheap; the outer check just skips the call entirely on steady state.
+ *    (mhmrentiva_plugin_version, falling back once to its pre-6.0.0 name).
+ *    DatabaseMigrator is itself idempotent (guarded by mhmrentiva_db_version),
+ *    so re-running on every drift is cheap; the outer check just skips the
+ *    call entirely on steady state.
  *
  *  Lane B — one-time data cleanups that carry their own per-migration flag
  *    option. These MUST run outside the version-drift guard. Reason:
@@ -262,10 +263,31 @@ add_action(
 		}
 
 		// Lane A — schema drift.
-		$stored_version = get_option( 'mhm_rentiva_plugin_version', '' );
+		//
+		// The stamp option was itself renamed in 6.0.0, so on the upgrade that
+		// carries the rename the new name does not exist yet and the value is
+		// still under the old one. Reading only the new name would return '',
+		// which happens to differ from MHMRENTIVA_VERSION and so would still
+		// fire the migration -- but it would fire it again on the NEXT upgrade
+		// too, because the old row would sit there forever shadowing nothing.
+		// The legacy row is adopted once, here, at the line that reads it; that
+		// is Lane A's own gate, not one of Lane B's flag-guarded cleanups.
+		$stored_version = get_option( 'mhmrentiva_plugin_version', '' );
+		if ('' === $stored_version) {
+			// PrefixMigrationMap::BOOTSTRAP_FALLBACK_ALLOWLIST -- deliberately
+			// exempt from the rename sweep, because recognising a pre-6.0.0
+			// install is the whole job of this literal.
+			$legacy_version = get_option( 'mhm_rentiva_plugin_version', '' );
+			if ('' !== $legacy_version) {
+				add_option('mhmrentiva_plugin_version', $legacy_version, '', true);
+				delete_option('mhm_rentiva_plugin_version');
+				$stored_version = $legacy_version;
+			}
+		}
+
 		if ($stored_version !== MHMRENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
 			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
-			update_option('mhm_rentiva_plugin_version', MHMRENTIVA_VERSION);
+			update_option('mhmrentiva_plugin_version', MHMRENTIVA_VERSION);
 		}
 
 		// Lane B — one-time data cleanups.
@@ -347,7 +369,7 @@ function mhmrentiva_single_site_activation()
 	update_option('mhmrentiva_setup_redirect', '1');
 
 	// Seed plugin version so version drift hook does not fire on fresh install.
-	update_option('mhm_rentiva_plugin_version', MHMRENTIVA_VERSION);
+	update_option('mhmrentiva_plugin_version', MHMRENTIVA_VERSION);
 }
 
 // Activation hook - CPT and taxonomy registration + rewrite flush + Multisite support

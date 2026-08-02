@@ -42,7 +42,7 @@ final class DeadNotificationQueueTest extends WP_UnitTestCase
 
 	public function tearDown(): void
 	{
-		delete_option( 'mhm_rentiva_db_version' );
+		delete_option( 'mhmrentiva_db_version' );
 		wp_clear_scheduled_hook( self::HOOK );
 		wp_clear_scheduled_hook( self::LEGACY_HOOK );
 		parent::tearDown();
@@ -50,7 +50,7 @@ final class DeadNotificationQueueTest extends WP_UnitTestCase
 
 	public function test_the_migration_unschedules_both_cron_names(): void
 	{
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 		wp_schedule_event( time() + 3600, 'hourly', self::HOOK );
 		wp_schedule_event( time() + 3600, 'hourly', self::LEGACY_HOOK );
 
@@ -70,7 +70,7 @@ final class DeadNotificationQueueTest extends WP_UnitTestCase
 	{
 		global $wpdb;
 
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 
 		$table = $this->queue_table();
 		$wpdb->query( "CREATE TABLE IF NOT EXISTS `{$table}` ( id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT, PRIMARY KEY (id) )" );
@@ -91,7 +91,7 @@ final class DeadNotificationQueueTest extends WP_UnitTestCase
 	{
 		global $wpdb;
 
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 
 		DatabaseMigrator::run_migrations();
 

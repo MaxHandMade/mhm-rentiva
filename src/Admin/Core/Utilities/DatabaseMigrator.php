@@ -25,7 +25,17 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 */
-	private const CURRENT_VERSION = '3.15.0';
+	private const CURRENT_VERSION = '4.0.0';
+
+	/**
+	 * Rows rewritten per statement by the 6.0.0 rename.
+	 *
+	 * Every rewrite below is a loop of bounded statements rather than one
+	 * unbounded UPDATE, so a site with millions of meta rows makes progress in
+	 * chunks instead of holding one lock until the request times out. The step
+	 * is idempotent, so a run that dies part-way simply resumes.
+	 */
+	private const RENAME_BATCH = 5000;
 
 	/**
 	 * Sanitize DB table identifiers to a strict whitelist.
@@ -40,9 +50,21 @@ final class DatabaseMigrator {
 	 */
 	public static function run_migrations(): void
 	{
-		$current_version = get_option('mhm_rentiva_db_version', '1.0.0');
+		self::adopt_legacy_db_version();
+
+		$current_version = self::stored_db_version();
 
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
+			// FIRST, and the order is load-bearing rather than tidy. Every other
+			// step in this method now speaks the NEW names:
+			// migrate_vehicle_lifecycle_status() selects
+			// post_type = 'mhmrentiva_vehicle', create_table() builds
+			// `mhmrentiva_payout_audit`. Run any of them ahead of the rename and
+			// they either see an empty world and stamp their own "done" flag over
+			// data they never looked at, or plant an empty destination table the
+			// RENAME below then has to reclaim.
+			self::migrate_prefix_rename_600();
+
 			self::create_transfer_tables(); // VIP Transfer Tables
 
 			// Payout governance schema (the `payout_audit` table + the seven
@@ -114,7 +136,7 @@ final class DatabaseMigrator {
 			self::migrate_vehicle_lifecycle_status();
 
 			// Update version in database
-			update_option('mhm_rentiva_db_version', self::CURRENT_VERSION);
+			update_option('mhmrentiva_db_version', self::CURRENT_VERSION);
 
 			// Log migration
 			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
@@ -129,6 +151,57 @@ final class DatabaseMigrator {
 				);
 			}
 		}
+	}
+
+	/**
+	 * The stored schema version, reading through the 6.0.0 rename.
+	 *
+	 * This single read gates the ENTIRE body of run_migrations() -- all twelve
+	 * pre-existing steps as well as the rename below -- so getting it wrong is
+	 * not a local mistake. The option was itself renamed in 6.0.0, and on an
+	 * upgrading site the new name does not exist yet: the value is still under
+	 * the old one. Falling through to the '1.0.0' default there would make
+	 * version_compare() true and replay every earlier step as though this were
+	 * a fresh install.
+	 *
+	 * Pure on purpose -- get_migration_status() calls it to render a screen.
+	 * The one-time adoption of the legacy row is adopt_legacy_db_version().
+	 */
+	private static function stored_db_version(): string
+	{
+		$version = (string) get_option('mhmrentiva_db_version', '');
+		if ('' !== $version) {
+			return $version;
+		}
+
+		// PrefixMigrationMap::BOOTSTRAP_FALLBACK_ALLOWLIST -- this literal is
+		// deliberately exempt from the rename sweep. It is how a pre-6.0.0
+		// install is recognised at all, so it has to keep naming the old row.
+		$legacy = (string) get_option('mhm_rentiva_db_version', '');
+
+		return '' !== $legacy ? $legacy : '1.0.0';
+	}
+
+	/**
+	 * Move a pre-6.0.0 version stamp onto its new name, once.
+	 *
+	 * Deliberately outside PrefixMigrationMap::OPTIONS: this option has its own
+	 * bootstrap path (it is read before the map-driven pass could possibly run),
+	 * and carrying it a second time through that pass would be a double move.
+	 */
+	private static function adopt_legacy_db_version(): void
+	{
+		if ('' !== (string) get_option('mhmrentiva_db_version', '')) {
+			return;
+		}
+
+		$legacy = (string) get_option('mhm_rentiva_db_version', '');
+		if ('' === $legacy) {
+			return;
+		}
+
+		add_option('mhmrentiva_db_version', $legacy, '', true);
+		delete_option('mhm_rentiva_db_version');
 	}
 
 	/**
@@ -538,7 +611,7 @@ final class DatabaseMigrator {
 	 */
 	public static function get_migration_status(): array
 	{
-		$current_version  = get_option('mhm_rentiva_db_version', '1.0.0');
+		$current_version  = self::stored_db_version();
 		$index_status     = self::check_index_status();
 		$performance_test = self::test_index_performance();
 
@@ -572,8 +645,10 @@ final class DatabaseMigrator {
 			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_price_range', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_price_range ON {$wpdb->postmeta}"));
 			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_booking_combined', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}"));
 
-			// Reset version to original state
-			update_option('mhm_rentiva_db_version', '1.0.0');
+			// Reset version to original state. Written under the new name only:
+			// stored_db_version() prefers it, so leaving a stale legacy row here
+			// would be read by nothing.
+			update_option('mhmrentiva_db_version', '1.0.0');
 
 			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Database migration rolled back', array(), \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
@@ -1158,7 +1233,9 @@ final class DatabaseMigrator {
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_tenants");
-		// phpcs:enable
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.SchemaChange -- the bare
+		// form of this line also cancelled the FILE-level disable at the top, so
+		// every direct query below it was reported despite that declaration.
 	}
 
 	/**
@@ -1360,5 +1437,889 @@ final class DatabaseMigrator {
 		if ($removed) {
 			update_option('mhmrentiva_settings', $settings);
 		}
+	}
+
+	/**
+	 * The 6.0.0 prefix rename (T7 mandate).
+	 *
+	 * Every identifier in this tree now reads `mhmrentiva_`. No live database
+	 * has ever stored that name, so this step is the only thing that makes the
+	 * code and the data agree, and there is no way back: the old names are gone
+	 * from the source.
+	 *
+	 * PrefixMigrationMap owns WHICH name becomes which. This method owns two
+	 * things that map cannot express -- the SCOPE of each rewrite (whose rows
+	 * they are) and what to do when the destination already exists -- plus the
+	 * order the families move in.
+	 *
+	 * Idempotent and resumable throughout. Every rewrite is "find rows still
+	 * carrying the old name and move them", so a run that dies half-way simply
+	 * has less to do next time, and a completed run finds nothing.
+	 */
+	private static function migrate_prefix_rename_600(): void
+	{
+		self::rename_options();
+		self::rename_post_types();
+		self::rename_taxonomies();
+		self::rename_post_meta();
+		self::rename_user_meta();
+		self::rename_comment_meta();
+		self::rename_tables();
+		self::rekey_cron_hooks();
+		self::purge_legacy_transients();
+
+		// One flush rather than per-row invalidation. The rewrites above go
+		// through SQL because there is no API for "rename a meta key", so every
+		// option, post, term and meta cache in this request now describes names
+		// that no longer exist. This runs once in the life of an install.
+		wp_cache_flush();
+	}
+
+	/**
+	 * Options: an exact-name allowlist, 135 entries, straight from the map.
+	 *
+	 * Scope: `option_name = %s`. No pattern, nothing a sibling product's option
+	 * can satisfy.
+	 */
+	private static function rename_options(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::OPTIONS as $old => $new) {
+			// Read the source RAW. get_option($old, '__missing__') cannot tell
+			// "absent" from "stores the string __missing__", and it discards the
+			// autoload flag -- which is part of the value, not metadata about it:
+			// an autoloaded setting that lands as autoload=no stops arriving on
+			// every page load, and a large blob that lands as autoload=yes is a
+			// permanent performance regression.
+			$row = $wpdb->get_row(
+				$wpdb->prepare("SELECT option_value, autoload FROM {$wpdb->options} WHERE option_name = %s", $old),
+				ARRAY_A
+			);
+
+			if (! is_array($row)) {
+				// Nothing left to carry. This is also where a second run lands,
+				// and it is what makes the whole step idempotent.
+				continue;
+			}
+
+			// MEASURE THE DESTINATION. On a real upgrade it usually already
+			// exists: the renamed code reaches add_option() under the new name
+			// before this migration gets a turn, which is what killed Görev 12's
+			// dev run with a duplicate key on
+			// mhmrentiva_addon_context_migrated_4_36_0 -- and eight destination
+			// options were sitting in the pre-rename backup for the same reason.
+			//
+			// The OLD value wins, uniformly. In the collision case it is the
+			// customer's accumulated setting while the new-name row is a default
+			// written seconds ago by code that could not find the real one; in the
+			// resumed-run case the two hold the same value, so preferring the old
+			// one is a no-op. Preferring the new one is silent data loss in the
+			// first case and buys nothing in the second.
+			delete_option($new);
+			$stored_autoload = (string) $row['autoload'];
+			$autoload        = self::autoload_flag($stored_autoload);
+			add_option($new, maybe_unserialize($row['option_value']), '', $autoload);
+			delete_option($old);
+		}
+	}
+
+	/**
+	 * Normalise a raw wp_options.autoload column to what add_option() takes.
+	 *
+	 * WP < 6.6 stored yes/no; 6.6 added on/off/auto/auto-on/auto-off. Returned
+	 * as a bool because add_option() has accepted one in every version -- core
+	 * normalises anything that is not 'no'/false to 'yes'.
+	 */
+	private static function autoload_flag(string $stored): bool
+	{
+		return in_array($stored, array( 'yes', 'on', 'auto', 'auto-on' ), true);
+	}
+
+	/**
+	 * Post types.
+	 *
+	 * Scope: exact equality against a type this plugin registers itself.
+	 * Nothing another plugin's post type can satisfy, and no collision is
+	 * possible -- wp_posts.post_type carries no uniqueness constraint that two
+	 * name families could contend for.
+	 */
+	private static function rename_post_types(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::POST_TYPES as $old => $new) {
+			$wpdb->query(
+				$wpdb->prepare("UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s", $new, $old)
+			);
+		}
+	}
+
+	/**
+	 * Taxonomies.
+	 *
+	 * Scope: exact equality on wp_term_taxonomy.taxonomy.
+	 */
+	private static function rename_taxonomies(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::TAXONOMIES as $old => $new) {
+			self::drop_empty_duplicate_terms($old, $new);
+
+			$wpdb->query(
+				$wpdb->prepare("UPDATE {$wpdb->term_taxonomy} SET taxonomy = %s WHERE taxonomy = %s", $new, $old)
+			);
+		}
+	}
+
+	/**
+	 * Clear the way for a taxonomy rename.
+	 *
+	 * Measured, not hypothetical: the pre-rename dev backup carried three
+	 * `addon_context` terms holding the object relationships AND three EMPTY
+	 * `mhmrentiva_addon_context` terms with the same slugs. AddonContextMigration
+	 * had re-created them under the new name because its own "already migrated"
+	 * flag was still stored under the old OPTION name. Renaming on top of that
+	 * leaves two terms per slug inside one taxonomy, and get_term_by('slug')
+	 * then returns whichever the storage engine orders first.
+	 *
+	 * Only EMPTY duplicates go, and only where the old taxonomy has the same
+	 * slug: a term with no relationships at all can only be the copy the new
+	 * code just made. A populated duplicate is left in place and logged --
+	 * merging two term trees is not a decision a migration may take on its own.
+	 */
+	private static function drop_empty_duplicate_terms(string $old_taxonomy, string $new_taxonomy): void
+	{
+		global $wpdb;
+
+		$term_taxonomy_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT ntt.term_taxonomy_id
+                   FROM {$wpdb->term_taxonomy} ntt
+                   JOIN {$wpdb->terms} nt ON nt.term_id = ntt.term_id
+                   JOIN {$wpdb->term_taxonomy} ott ON ott.taxonomy = %s
+                   JOIN {$wpdb->terms} ot ON ot.term_id = ott.term_id AND ot.slug = nt.slug
+                  WHERE ntt.taxonomy = %s
+                    AND NOT EXISTS (
+                        SELECT 1 FROM {$wpdb->term_relationships} tr
+                         WHERE tr.term_taxonomy_id = ntt.term_taxonomy_id
+                    )",
+				$old_taxonomy,
+				$new_taxonomy
+			)
+		);
+
+		foreach ($term_taxonomy_ids as $term_taxonomy_id) {
+			$id = (int) $term_taxonomy_id;
+			self::delete_term_taxonomy_row($id);
+		}
+	}
+
+	/**
+	 * Remove one term_taxonomy row, and the wp_terms row behind it only when
+	 * nothing else still points at it -- a term is shared across taxonomies.
+	 */
+	private static function delete_term_taxonomy_row(int $term_taxonomy_id): void
+	{
+		global $wpdb;
+
+		$term_id = (int) $wpdb->get_var(
+			$wpdb->prepare("SELECT term_id FROM {$wpdb->term_taxonomy} WHERE term_taxonomy_id = %d", $term_taxonomy_id)
+		);
+
+		$wpdb->delete($wpdb->term_taxonomy, array( 'term_taxonomy_id' => $term_taxonomy_id ), array( '%d' ));
+
+		if ($term_id <= 0) {
+			return;
+		}
+
+		$remaining = (int) $wpdb->get_var(
+			$wpdb->prepare("SELECT COUNT(*) FROM {$wpdb->term_taxonomy} WHERE term_id = %d", $term_id)
+		);
+
+		if (0 === $remaining) {
+			$wpdb->delete($wpdb->termmeta, array( 'term_id' => $term_id ), array( '%d' ));
+			$wpdb->delete($wpdb->terms, array( 'term_id' => $term_id ), array( '%d' ));
+		}
+	}
+
+	/**
+	 * Post meta, in the only order that is correct.
+	 */
+	private static function rename_post_meta(): void
+	{
+		// 1. The exact overrides FIRST. They are excluded from the prefix pass
+		//    by construction rather than by a WHERE clause: once applied, no row
+		//    carries their old key any more.
+		foreach (PrefixMigrationMap::POSTMETA_EXACT_OVERRIDES as $old => $new) {
+			self::rename_meta_key_exact('postmeta', $old, $new);
+		}
+
+		// 2. Collapse the six merged pairs BEFORE the prefix rules run, while the
+		//    two spellings are still distinguishable.
+		self::resolve_post_meta_merge_collisions();
+
+		// 3. The prefix rules, in POSTMETA_PREFIX_RULES order -- longest first,
+		//    so the rentiva-qualified prefix is consumed before the bare vendor
+		//    one can cut at the wrong offset.
+		foreach (PrefixMigrationMap::POSTMETA_PREFIX_RULES as $old_prefix => $new_prefix) {
+			if (! self::is_addon_prefix_rule($old_prefix)) {
+				self::rename_post_meta_prefix($old_prefix, $new_prefix);
+			}
+		}
+
+		// 4. The addon family, by exact key on addon posts. See addon_meta_keys().
+		foreach (self::addon_meta_keys() as $old_key => $new_key) {
+			foreach (self::addon_post_types() as $post_type) {
+				self::rename_post_meta_key_on_post_type($old_key, $new_key, $post_type);
+			}
+		}
+	}
+
+	/**
+	 * Hazard 1: wp_postmeta has NO unique index on (post_id, meta_key).
+	 *
+	 * A colliding rename therefore does not overwrite -- it leaves TWO rows with
+	 * the same key, and get_post_meta( $id, $key, true ) returns whichever the
+	 * storage engine happens to order first. Silent, and different on different
+	 * servers.
+	 *
+	 * The winner is the owner's decision in POSTMETA_MERGE_WINNERS, and it is
+	 * NOT re-derived here. On the real database the BARE spelling of the
+	 * vehicle-id key holds 25 rows (every writer) and the rentiva-qualified one
+	 * 3 (what Testimonials filtered on, which is why it resolved 3 of 28
+	 * bookings). "Prefer the more specific
+	 * spelling" gives the wrong answer exactly where being wrong costs most.
+	 */
+	private static function resolve_post_meta_merge_collisions(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::POSTMETA_MERGE_WINNERS as $new_key => $winner) {
+			$loser = self::merge_loser_key($new_key, $winner);
+			if (null === $loser) {
+				continue;
+			}
+
+			// Only where the SAME post carries both. A post holding only the
+			// losing spelling keeps its value: the prefix pass renames it and
+			// there is no collision to resolve. The derived table is required --
+			// MySQL will not let a DELETE read its own target in a bare subquery.
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->postmeta}
+					  WHERE meta_key = %s
+					    AND post_id IN (
+					        SELECT post_id FROM (
+					            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+					        ) AS winner_rows
+					    )",
+					$loser,
+					$winner
+				)
+			);
+		}
+	}
+
+	/**
+	 * The other spelling of a merged pair.
+	 *
+	 * The bare vendor prefix and the rentiva-qualified one both target
+	 * `_mhmrentiva_`, so exactly two old keys can produce any merged new key
+	 * (POSTMETA_PREFIX_RULES has the spellings). Returns null unless the
+	 * declared winner is genuinely one of them -- a map entry this code does
+	 * not understand must delete nothing.
+	 */
+	private static function merge_loser_key(string $new_key, string $winner): ?string
+	{
+		$new_prefix = '_mhmrentiva_';
+		if (0 !== strpos($new_key, $new_prefix)) {
+			return null;
+		}
+
+		$suffix = substr($new_key, strlen($new_prefix));
+		if ('' === $suffix) {
+			return null;
+		}
+
+		// prefix-rename:ignore-start
+		$candidates = array( '_mhm_' . $suffix, '_mhm_rentiva_' . $suffix );
+		// prefix-rename:ignore-end
+
+		if (! in_array($winner, $candidates, true)) {
+			return null;
+		}
+
+		return $candidates[0] === $winner ? $candidates[1] : $candidates[0];
+	}
+
+	/**
+	 * One postmeta prefix rule, scoped to rows this plugin actually owns.
+	 *
+	 * Two classes of prefix, two scoping mechanisms:
+	 *
+	 * - A prefix carrying the 'rentiva' token is its own scope: no other
+	 *   product's key can satisfy it. This arm is also the only one that can
+	 *   carry dynamically built keys -- VehicleFeatureHelper composes that
+	 *   prefix plus a per-field $custom_key, and no enumeration could list
+	 *   those.
+	 *
+	 * - A prefix carrying only the VENDOR token, or none at all, cannot be
+	 *   trusted as a pattern. The bare vendor prefix is shared with the currency
+	 *   switcher's own `cs_`-tokened keys and mhm-pay's `pay_`-tokened ones --
+	 *   Görev 12's prefix-only draft renamed the currency switcher's
+	 *   fixed-prices row on the dev database --
+	 *   and `_booking_` and `_contact_` carry no vendor token whatsoever
+	 *   (WooCommerce Bookings writes `_booking_*` onto products). Those get the
+	 *   union of two POSITIVE scopes: our own post types, plus an exact
+	 *   allowlist of the keys we write onto posts we do not own.
+	 */
+	private static function rename_post_meta_prefix(string $old_prefix, string $new_prefix): void
+	{
+		if (self::is_self_scoping_prefix($old_prefix)) {
+			self::rename_post_meta_prefix_scoped($old_prefix, $new_prefix, null);
+			return;
+		}
+
+		foreach (self::owned_post_types() as $post_type) {
+			self::rename_post_meta_prefix_scoped($old_prefix, $new_prefix, $post_type);
+		}
+
+		foreach (self::foreign_post_meta_keys() as $old_key => $new_key) {
+			if (0 === strpos($old_key, $old_prefix)) {
+				self::rename_meta_key_exact('postmeta', $old_key, $new_key);
+			}
+		}
+	}
+
+	/**
+	 * Rewrite one prefix in batches, optionally restricted to a post type.
+	 */
+	private static function rename_post_meta_prefix_scoped(string $old_prefix, string $new_prefix, ?string $post_type): void
+	{
+		global $wpdb;
+
+		// esc_like() is load-bearing, not hygiene. In SQL LIKE `_` is a
+		// single-character WILDCARD, so an unescaped bare-vendor pattern matches
+		// '_mhmrentiva_...' -- this statement's OWN output -- and the batch loop
+		// would keep re-prefixing what it had just written.
+		$pattern = $wpdb->esc_like($old_prefix) . '%';
+		$cut     = strlen($old_prefix) + 1;
+
+		do {
+			if (null === $post_type) {
+				$changed = $wpdb->query(
+					$wpdb->prepare(
+						"UPDATE {$wpdb->postmeta} SET meta_key = CONCAT(%s, SUBSTRING(meta_key, %d))
+						  WHERE meta_key LIKE %s
+						  LIMIT %d",
+						$new_prefix,
+						$cut,
+						$pattern,
+						self::RENAME_BATCH
+					)
+				);
+			} else {
+				$changed = $wpdb->query(
+					$wpdb->prepare(
+						"UPDATE {$wpdb->postmeta} SET meta_key = CONCAT(%s, SUBSTRING(meta_key, %d))
+						  WHERE meta_key LIKE %s
+						    AND post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s )
+						  LIMIT %d",
+						$new_prefix,
+						$cut,
+						$pattern,
+						$post_type,
+						self::RENAME_BATCH
+					)
+				);
+			}
+		} while (self::RENAME_BATCH === $changed);
+	}
+
+	/**
+	 * Rewrite one exact meta key on one post type, in batches.
+	 */
+	private static function rename_post_meta_key_on_post_type(string $old_key, string $new_key, string $post_type): void
+	{
+		global $wpdb;
+
+		do {
+			$changed = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->postmeta} SET meta_key = %s
+					  WHERE meta_key = %s
+					    AND post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s )
+					  LIMIT %d",
+					$new_key,
+					$old_key,
+					$post_type,
+					self::RENAME_BATCH
+				)
+			);
+		} while (self::RENAME_BATCH === $changed);
+	}
+
+	/**
+	 * Rewrite one exact meta key across a whole meta table, in batches.
+	 *
+	 * @param string $meta_table One of 'postmeta', 'usermeta', 'commentmeta'.
+	 */
+	private static function rename_meta_key_exact(string $meta_table, string $old_key, string $new_key): void
+	{
+		global $wpdb;
+
+		$table = self::meta_table_name($meta_table);
+		if ('' === $table) {
+			return;
+		}
+
+		do {
+			$changed = $wpdb->query(
+				$wpdb->prepare(
+					'UPDATE %i SET meta_key = %s WHERE meta_key = %s LIMIT %d',
+					$table,
+					$new_key,
+					$old_key,
+					self::RENAME_BATCH
+				)
+			);
+		} while (self::RENAME_BATCH === $changed);
+	}
+
+	/**
+	 * Fixed allowlist of the three meta tables this migration writes to.
+	 */
+	private static function meta_table_name(string $meta_table): string
+	{
+		global $wpdb;
+
+		switch ($meta_table) {
+			case 'postmeta':
+				return $wpdb->postmeta;
+			case 'usermeta':
+				return $wpdb->usermeta;
+			case 'commentmeta':
+				return $wpdb->commentmeta;
+		}
+
+		return '';
+	}
+
+	/**
+	 * User meta.
+	 *
+	 * The product-token prefixes are their own scope, exactly as in postmeta.
+	 * The vendor-only ones have no post to join against, so their scope is an
+	 * exact key allowlist -- see owned_user_meta_keys().
+	 */
+	private static function rename_user_meta(): void
+	{
+		foreach (PrefixMigrationMap::USERMETA_PREFIX_RULES as $old_prefix => $new_prefix) {
+			if (self::is_self_scoping_prefix($old_prefix)) {
+				self::rename_user_meta_prefix($old_prefix, $new_prefix);
+			}
+		}
+
+		foreach (self::owned_user_meta_keys() as $old_key => $new_key) {
+			self::rename_meta_key_exact('usermeta', $old_key, $new_key);
+		}
+	}
+
+	/**
+	 * Rewrite one user-meta prefix in batches. See the esc_like() note in
+	 * rename_post_meta_prefix_scoped() -- the same wildcard trap applies.
+	 */
+	private static function rename_user_meta_prefix(string $old_prefix, string $new_prefix): void
+	{
+		global $wpdb;
+
+		$pattern = $wpdb->esc_like($old_prefix) . '%';
+		$cut     = strlen($old_prefix) + 1;
+
+		do {
+			$changed = $wpdb->query(
+				$wpdb->prepare(
+					"UPDATE {$wpdb->usermeta} SET meta_key = CONCAT(%s, SUBSTRING(meta_key, %d))
+					  WHERE meta_key LIKE %s
+					  LIMIT %d",
+					$new_prefix,
+					$cut,
+					$pattern,
+					self::RENAME_BATCH
+				)
+			);
+		} while (self::RENAME_BATCH === $changed);
+	}
+
+	/**
+	 * Comment meta: two exact keys. Vehicle ratings are stored as WP comments
+	 * and the key never carried a product token, so a prefix rule could not
+	 * have expressed this family at all.
+	 */
+	private static function rename_comment_meta(): void
+	{
+		foreach (PrefixMigrationMap::COMMENTMETA as $old => $new) {
+			self::rename_meta_key_exact('commentmeta', $old, $new);
+		}
+	}
+
+	/**
+	 * Custom tables.
+	 *
+	 * Scope: names composed from $wpdb->prefix and a class constant, bound
+	 * through %i. Nothing here can originate from a request.
+	 *
+	 * The destination is measured first, and it is routinely already there: the
+	 * pre-rename dev database carried an EMPTY `wp_mhmrentiva_key_registry`
+	 * planted by the renamed code next to its pre-6.0.0 counterpart, which held
+	 * 12 rows. "Rename only when the destination is absent" strands all
+	 * 12, permanently and silently. An empty destination can only be that
+	 * planted copy, so it is reclaimed; a populated one is left alone and
+	 * logged, because merging two tables is not a migration's decision.
+	 */
+	private static function rename_tables(): void
+	{
+		global $wpdb;
+
+		foreach (PrefixMigrationMap::TABLES as $old => $new) {
+			$from = $wpdb->prefix . $old;
+			$to   = $wpdb->prefix . $new;
+
+			if (! self::table_exists($from)) {
+				continue;
+			}
+
+			if (self::table_exists($to)) {
+				$rows = (int) $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $to));
+
+				if ($rows > 0) {
+					self::log_index_error(
+						'RENAME TABLE ' . $from,
+						'destination already holds ' . $rows . ' rows; both tables left in place for manual review'
+					);
+					continue;
+				}
+
+				$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $to));
+			}
+
+			$wpdb->query($wpdb->prepare('RENAME TABLE %i TO %i', $from, $to));
+		}
+	}
+
+	/**
+	 * Does a table exist? esc_like() again -- `_` is a LIKE wildcard, and every
+	 * table name here is full of them.
+	 */
+	private static function table_exists(string $table): bool
+	{
+		global $wpdb;
+
+		return null !== $wpdb->get_var(
+			$wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table))
+		);
+	}
+
+	/**
+	 * Cron hooks.
+	 */
+	private static function rekey_cron_hooks(): void
+	{
+		foreach (PrefixMigrationMap::CRON_HOOKS as $old => $new) {
+			self::rekey_cron_hook($old, $new);
+		}
+	}
+
+	/**
+	 * Carry one hook's scheduled events onto its new name.
+	 *
+	 * `wp_clear_scheduled_hook( $old )` -- the obvious call -- is wrong twice
+	 * over for the booking-reminder hook. It only matches events whose
+	 * args are EMPTY, and that hook is a per-booking single event carrying the
+	 * booking id, so it would not find them at all; and clearing is not what
+	 * those rows need. The recurring hooks re-schedule themselves on init, but
+	 * this one has no self-heal: every reminder already scheduled when a site
+	 * upgrades would simply never fire again.
+	 */
+	private static function rekey_cron_hook(string $old_hook, string $new_hook): void
+	{
+		$crons = _get_cron_array();
+
+		if (is_array($crons)) {
+			foreach ($crons as $timestamp => $hooks) {
+				if (! is_array($hooks) || ! isset($hooks[ $old_hook ]) || ! is_array($hooks[ $old_hook ])) {
+					continue;
+				}
+
+				$when = (int) $timestamp;
+				foreach ($hooks[ $old_hook ] as $event) {
+					self::reschedule_cron_event($when, $new_hook, $event);
+				}
+			}
+		}
+
+		// wp_unschedule_hook(), not wp_clear_scheduled_hook(): only the former
+		// removes events that carry args.
+		wp_unschedule_hook($old_hook);
+	}
+
+	/**
+	 * Re-schedule one event under the new hook name, at the same moment and
+	 * with the same args.
+	 *
+	 * @param mixed $event One entry of a wp_cron hook array.
+	 */
+	private static function reschedule_cron_event(int $timestamp, string $new_hook, $event): void
+	{
+		$args = ( is_array($event) && isset($event['args']) && is_array($event['args']) ) ? $event['args'] : array();
+
+		// Measure the destination first: a recurring hook that already
+		// re-scheduled itself under the new name must not end up with two rows
+		// firing the same job.
+		if (false !== wp_next_scheduled($new_hook, $args)) {
+			return;
+		}
+
+		$schedule = ( is_array($event) && ! empty($event['schedule']) ) ? (string) $event['schedule'] : '';
+
+		$scheduled = ( '' !== $schedule )
+			? wp_schedule_event($timestamp, $schedule, $new_hook, $args)
+			: wp_schedule_single_event($timestamp, $new_hook, $args);
+
+		if (false === $scheduled) {
+			self::log_index_error('cron rekey', 'could not re-schedule ' . $new_hook);
+		}
+	}
+
+	/**
+	 * Drop the pre-6.0.0 transients.
+	 *
+	 * Only the 'rentiva'-tokened family. A bare vendor-prefix sweep here would
+	 * delete the currency switcher's exchange-rate rows. Anything this misses
+	 * expires on
+	 * its own TTL; nothing reads it in the meantime, because the code now asks
+	 * for the new names.
+	 */
+	private static function purge_legacy_transients(): void
+	{
+		global $wpdb;
+
+		foreach (self::legacy_transient_prefixes() as $prefix) {
+			do {
+				$deleted = $wpdb->query(
+					$wpdb->prepare(
+						"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s LIMIT %d",
+						$wpdb->esc_like($prefix) . '%',
+						self::RENAME_BATCH
+					)
+				);
+			} while (self::RENAME_BATCH === $deleted);
+		}
+	}
+
+	/**
+	 * @return list<string>
+	 */
+	private static function legacy_transient_prefixes(): array
+	{
+		// prefix-rename:ignore-start
+		return array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' );
+		// prefix-rename:ignore-end
+	}
+
+	/**
+	 * Does this prefix carry the 'rentiva' token, and so scope itself?
+	 *
+	 * The rentiva-qualified meta prefix and `_rentiva_` do; the bare vendor
+	 * prefix (vendor token only), `_booking_` and `_contact_` (no token at all)
+	 * do not. PrefixMigrationMap has the exact spellings.
+	 *
+	 * Deliberately not named after the word this token identifies: the
+	 * check-no-pro-refs gate matches the edition prefix as a plain substring,
+	 * and the obvious name would trip a licence gate that has nothing to do
+	 * with meta keys.
+	 */
+	private static function is_self_scoping_prefix(string $prefix): bool
+	{
+		return false !== strpos($prefix, 'rentiva');
+	}
+
+	/**
+	 * Is this the map's one token-less rule? See addon_meta_keys().
+	 */
+	private static function is_addon_prefix_rule(string $prefix): bool
+	{
+		return 'addon_' === $prefix;
+	}
+
+	/**
+	 * Post types whose meta rows this migration owns.
+	 *
+	 * The first of the two positive scopes the postmeta rewrite unions. Both
+	 * spellings of every renamed type appear, because the post_type rewrite has
+	 * already run and because a resumed run may find either.
+	 *
+	 * The four trailing types are the add-on's CPTs. Lite neither registers nor
+	 * renames them, but Lite's own renamed code reads their meta under the new
+	 * names (MetaQueryHelper, Mailer, TrendService, DatabaseCleaner), so their
+	 * rows have to move with everything else -- the same reasoning that puts
+	 * add-on-populated options in PrefixMigrationMap::OPTIONS.
+	 *
+	 * @return list<string>
+	 */
+	private static function owned_post_types(): array
+	{
+		// prefix-rename:ignore-start
+		$addon_post_types = array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app', 'mhm_contact_message' );
+		// prefix-rename:ignore-end
+
+		return array_values(
+			array_unique(
+				array_merge(
+					array_keys(PrefixMigrationMap::POST_TYPES),
+					array_values(PrefixMigrationMap::POST_TYPES),
+					$addon_post_types
+				)
+			)
+		);
+	}
+
+	/**
+	 * Both spellings of the addon post type.
+	 *
+	 * @return list<string>
+	 */
+	private static function addon_post_types(): array
+	{
+		// prefix-rename:ignore-start
+		$old = 'vehicle_addon';
+		// prefix-rename:ignore-end
+
+		return array( $old, PrefixMigrationMap::POST_TYPES[ $old ] );
+	}
+
+	/**
+	 * The meta keys this plugin writes onto posts it does NOT own.
+	 *
+	 * The second positive scope. Post-type scoping alone strands these:
+	 * the shortcode and auto-created markers land on `page` posts
+	 * (ShortcodePageActions), and the rest land on WooCommerce orders through
+	 * WooCommerceBridge's `$order->update_meta_data()` calls, which write to
+	 * postmeta on every non-HPOS site.
+	 *
+	 * A prefix LIKE would reach those rows -- and would also reach the currency
+	 * switcher's fixed-prices row, which sits on one of the very same foreign
+	 * posts. The bare prefix names the VENDOR, not this plugin, so enumerating
+	 * our own keys is the only way to take ours and leave theirs.
+	 * Derived from the pre-rename tree's own foreign-post write sites.
+	 *
+	 * @return array<string,string> old key => new key
+	 */
+	private static function foreign_post_meta_keys(): array
+	{
+		// prefix-rename:ignore-start
+		return array(
+			'_mhm_shortcode'            => '_mhmrentiva_shortcode',
+			'_mhm_auto_created'         => '_mhmrentiva_auto_created',
+			'_mhm_booking_id'           => '_mhmrentiva_booking_id',
+			'_mhm_booking_payment_type' => '_mhmrentiva_booking_payment_type',
+			'_mhm_booking_pending'      => '_mhmrentiva_booking_pending',
+			'_mhm_is_remaining_payment' => '_mhmrentiva_is_remaining_payment',
+			'_mhm_original_order_id'    => '_mhmrentiva_original_order_id',
+			'_mhm_wc_payment_type'      => '_mhmrentiva_wc_payment_type',
+		);
+		// prefix-rename:ignore-end
+	}
+
+	/**
+	 * The five addon meta keys, by exact name.
+	 *
+	 * `'addon_' => 'mhmrentiva_addon_'` is the one rule in the map carrying no
+	 * vendor token whatsoever, so `meta_key LIKE 'addon_%'` would capture ANY
+	 * plugin's `addon_*` postmeta. It migrates as these five keys, on addon
+	 * posts, and as nothing else.
+	 *
+	 * @return array<string,string> old key => new key
+	 */
+	private static function addon_meta_keys(): array
+	{
+		// prefix-rename:ignore-start
+		return array(
+			'addon_price'       => 'mhmrentiva_addon_price',
+			'addon_enabled'     => 'mhmrentiva_addon_enabled',
+			'addon_required'    => 'mhmrentiva_addon_required',
+			'addon_description' => 'mhmrentiva_addon_description',
+			'addon_type'        => 'mhmrentiva_addon_type',
+		);
+		// prefix-rename:ignore-end
+	}
+
+	/**
+	 * The user-meta keys this plugin owns under the VENDOR-only prefixes.
+	 *
+	 * The wp_usermeta table has no post to join against, so post-type scoping is
+	 * not available and the scope has to be an exact allowlist. Read out of the
+	 * pre-rename tree's own get/update_user_meta() call sites, Lite and add-on
+	 * together.
+	 *
+	 * It deliberately excludes the demo-user and customer-phone keys,
+	 * which are in the dev database but in no Rentiva source file -- exactly the
+	 * rows a bare vendor-prefix sweep would have taken from whoever owns them.
+	 *
+	 * The map still owns the TRANSFORMATION: each key goes through
+	 * USERMETA_PREFIX_RULES in map order. This method only decides which keys
+	 * are ours.
+	 *
+	 * @return array<string,string> old key => new key
+	 */
+	private static function owned_user_meta_keys(): array
+	{
+		// prefix-rename:ignore-start
+		$keys = array(
+			'_mhm_vendor_commission_rate',
+			'_mhm_vendor_payout_freeze',
+			'mhm_anonymization_date',
+			'mhm_booking_notifications',
+			'mhm_dashboard_widget_order',
+			'mhm_data_anonymized',
+			'mhm_data_consent_date',
+			'mhm_data_consent_given',
+			'mhm_favorite_vehicles',
+			'mhm_gdpr_consent_date',
+			'mhm_gdpr_consent_given',
+			'mhm_gdpr_consent_withdrawal_date',
+			'mhm_gdpr_consent_withdrawn',
+			'mhm_marketing_emails',
+			'mhm_welcome_email',
+		);
+		// prefix-rename:ignore-end
+
+		$renamed = array();
+		foreach ($keys as $key) {
+			$new = self::apply_first_prefix_rule($key, PrefixMigrationMap::USERMETA_PREFIX_RULES);
+			if (null !== $new) {
+				$renamed[ $key ] = $new;
+			}
+		}
+
+		return $renamed;
+	}
+
+	/**
+	 * Apply the first matching rule, honouring map order (longest prefix first).
+	 *
+	 * @param array<string,string> $rules Ordered prefix rules.
+	 */
+	private static function apply_first_prefix_rule(string $key, array $rules): ?string
+	{
+		foreach ($rules as $old_prefix => $new_prefix) {
+			if (0 === strpos($key, $old_prefix)) {
+				return $new_prefix . substr($key, strlen($old_prefix));
+			}
+		}
+
+		return null;
 	}
 }

@@ -12,7 +12,7 @@ use WP_UnitTestCase;
  * Regression test for the v4.27.4 migration-lane architectural fix.
  *
  * Through v4.27.3 the `plugins_loaded` migration trigger bailed out of ALL
- * migrations whenever `get_option('mhm_rentiva_plugin_version') ===
+ * migrations whenever `get_option('mhmrentiva_plugin_version') ===
  * MHMRENTIVA_VERSION`. That's exactly the state a site lands in after a
  * ZIP-replace upgrade, because the activation hook stamps the version
  * before the next `plugins_loaded` fires. The result: data cleanup
@@ -31,7 +31,15 @@ class MigrationLaneIndependenceTest extends WP_UnitTestCase
     private const LABELS_FLAG    = 'mhmrentiva_v4271_labels_migrated';
     private const POLLUTION_FLAG = 'mhmrentiva_v4272_test_pollution_cleaned';
     private const SETTINGS_KEY   = 'mhmrentiva_settings';
-    private const VERSION_KEY    = 'mhm_rentiva_plugin_version';
+    private const VERSION_KEY = 'mhmrentiva_plugin_version';
+
+    /**
+     * The pre-6.0.0 spelling. Lane A adopts it once and deletes it, so a test
+     * that writes only the new name still has to clean this one up: leaving it
+     * behind hands the next test a second, stale source of truth for the
+     * version stamp.
+     */
+    private const LEGACY_VERSION_KEY = 'mhm_rentiva_plugin_version';
 
     protected function tearDown(): void
     {
@@ -39,6 +47,7 @@ class MigrationLaneIndependenceTest extends WP_UnitTestCase
         delete_option(self::POLLUTION_FLAG);
         delete_option(self::SETTINGS_KEY);
         delete_option(self::VERSION_KEY);
+        delete_option(self::LEGACY_VERSION_KEY);
         delete_option('mhmrentiva_vehicle_details');
         delete_option('mhmrentiva_vehicle_features');
         delete_option('mhmrentiva_vehicle_equipment');

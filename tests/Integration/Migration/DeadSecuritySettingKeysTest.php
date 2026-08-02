@@ -60,7 +60,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	public function tearDown(): void
 	{
 		delete_option( self::SETTINGS_OPTION );
-		delete_option( 'mhm_rentiva_db_version' );
+		delete_option( 'mhmrentiva_db_version' );
 		delete_option( 'mhmrentiva_api_keys' );
 		parent::tearDown();
 	}
@@ -75,7 +75,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	 */
 	public function test_the_migration_removes_the_dead_api_key_option(): void
 	{
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 		update_option(
 			'mhmrentiva_api_keys',
 			array(
@@ -102,7 +102,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	 */
 	private function seed_polluted_install(): void
 	{
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 
 		$settings = array(
 			// A live setting, to prove the cleanup is surgical.
@@ -157,7 +157,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	public function test_the_cleanup_runs_from_the_version_gate_not_a_fresh_install(): void
 	{
 		$this->seed_polluted_install();
-		update_option( 'mhm_rentiva_db_version', '3.10.0' );
+		update_option( 'mhmrentiva_db_version', '3.10.0' );
 
 		DatabaseMigrator::run_migrations();
 
@@ -178,7 +178,7 @@ final class DeadSecuritySettingKeysTest extends WP_UnitTestCase
 	 */
 	public function test_a_clean_install_gains_no_dead_keys(): void
 	{
-		update_option( 'mhm_rentiva_db_version', '1.0.0' );
+		update_option( 'mhmrentiva_db_version', '1.0.0' );
 		update_option( self::SETTINGS_OPTION, array( 'mhmrentiva_cache_enabled' => '0' ) );
 
 		DatabaseMigrator::run_migrations();
