@@ -323,6 +323,12 @@ bin/*
 !bin/build-release.py
 !bin/build-i18n.py
 !bin/BUILD.md
+# The .pot recipe. Tracked because the project's "makepot scope must match the
+# committed .pot" rule is unenforceable while the --exclude set lives only in
+# somebody's shell history: there is no way to check what the committed catalog
+# was built with. This file makes the scope a committed fact, and carries the
+# probe command that proves a regeneration changed only real strings.
+!bin/make-pot.sh
 # Required by tests/Migration/MetaMigrationTest.php (it include()s this CLI
 # script). Must be tracked or every clean clone fails 4 migration tests —
 # the recurrence the unmerged 362a475 "restore missing scripts" never fixed.

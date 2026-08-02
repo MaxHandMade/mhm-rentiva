@@ -29,7 +29,7 @@ Everything described below works in full. There are no vehicle, booking or listi
 *   **Customer Account Pages:** Bookings, favourites and payment history in the customer's WooCommerce account area.
 *   **16 Shortcodes:** Search, results, vehicle grids and lists, vehicle details, booking form, availability calendar, comparison, testimonials, ratings, contact form, and the customer account views.
 *   **16 Gutenberg Blocks:** One for each frontend shortcode, built on a Render Parity architecture — a block, its Elementor widget and its shortcode all delegate to the same renderer, so they produce identical output.
-*   **17 Elementor Widgets:** The same components as Elementor widgets, with Elementor's own controls and live preview.
+*   **17 Elementor Widgets:** The same components as Elementor widgets, with Elementor's own controls and live preview. (Two of the seventeen — Vehicle Card and Vehicles List — render the same underlying component with different presets, so the seventeen widgets cover sixteen distinct components.)
 *   **REST API:** Endpoints under `mhm-rentiva/v1` for availability checks, customer records and admin dashboard data.
 *   **Translation Ready:** Ships with a full Turkish translation.
 
@@ -99,7 +99,7 @@ The build uses [@wordpress/scripts](https://www.npmjs.com/package/@wordpress/scr
 
 = Bundled third-party libraries =
 
-Three front-end libraries ship with the plugin, all permissively licensed and with public upstream source.
+Three front-end libraries and one webfont ship with the plugin, all permissively licensed and with public upstream source.
 
 Two are pre-built (minified) under `assets/vendor/`:
 
@@ -109,6 +109,10 @@ Two are pre-built (minified) under `assets/vendor/`:
 One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by the build described above, and is declared as a dependency in `package.json`:
 
 *   **Chart.js** v4.5.1 — dashboard charts, MIT License. Source: https://github.com/chartjs/Chart.js
+
+One webfont is bundled under `assets/vendor/fonts/`, served from your own site rather than from a font CDN:
+
+*   **Plus Jakarta Sans** — SIL Open Font License 1.1, with the license text shipped alongside it at `assets/vendor/fonts/LICENSE-Plus-Jakarta-Sans.txt`. Source: https://github.com/tokotype/PlusJakartaSans
 
 None of these libraries is modified from its upstream release; their full source is public on the repositories linked above.
 
@@ -139,7 +143,19 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 = 6.0.0 =
 **This is a major release. If you have custom code that hooks into this plugin, read the next paragraph before you update.**
 
-* Breaking: every hook this plugin provides has been renamed. 131 names in total. Anything attached to one of them — a snippet in your theme's functions.php, a code-snippets plugin, a custom integration, bespoke work done for you — will simply stop running after the update. There is no error message and nothing in the log; the customisation just quietly stops happening. Two rules convert your code mechanically: the prefix `mhm_rentiva_` becomes `mhmrentiva_`, and in the older slash-style names every `/` becomes `_` (so `mhmrentiva/testimonials/limit` becomes `mhmrentiva_testimonials_limit`). If you are not sure whether this affects you, search your custom code for "mhm_rentiva" and "mhmrentiva/" before updating.
+* Breaking: 114 of this plugin's hooks were renamed. Anything attached to one of them — a snippet in your theme's functions.php, a code-snippets plugin, a custom integration, bespoke work done for you — will simply stop running after the update. There is no error message and nothing in the log; the customisation just quietly stops happening. (Two further hooks, `mhm_rentiva_enable_governance_log` and `mhm_rentiva_governance_violation`, were removed rather than renamed, along with the feature behind them.)
+
+* How to convert your own code. **Apply these in the order given — the order matters.**
+  1. First, in the older slash-style names, replace every `/` with `_`. So `mhm_rentiva/testimonials/limit` becomes `mhm_rentiva_testimonials_limit`.
+  2. Then replace the prefix `mhm_rentiva_` with `mhmrentiva_`. So that name finishes as `mhmrentiva_testimonials_limit`.
+  3. Two hooks used a bare `mhm_` prefix and follow the same idea: `mhm_message_created` and `mhm_message_status_changed` become `mhmrentiva_message_created` and `mhmrentiva_message_status_changed`.
+  Doing step 2 before step 1 produces names that do not exist — `mhm_rentiva_` cannot match a name that begins `mhm_rentiva/`, and you would end up with a plausible-looking hook that never fires.
+
+* Breaking, and easy to miss because it is not one of our hook names: **the plugin's post types and taxonomies were renamed too**, which changes the WordPress core hooks built from them. `save_post_vehicle` is now `save_post_mhmrentiva_vehicle`; the same applies to `add_meta_boxes_*` and to the `manage_*_posts_columns` and `manage_*_posts_custom_column` pairs. If you have code that reacts to a vehicle or booking being saved, this is the line most likely to be affected, and neither rule above will find it. The renames are: `vehicle` → `mhmrentiva_vehicle`, `vehicle_booking` → `mhmrentiva_booking`, `vehicle_addon` → `mhmrentiva_addon`, `mhm_app_log` → `mhmrentiva_app_log`, `mhm_email_log` → `mhmrentiva_email_log`, `mhm_contact_message` → `mhmrentiva_contact`; and for taxonomies `vehicle_category` → `mhmrentiva_vehicle_category`, `addon_context` → `mhmrentiva_addon_context`, `addon_category` → `mhmrentiva_addon_category`.
+
+* The same rename affects any query you have written by hand. A `WP_Query` with `'post_type' => 'vehicle'`, a `pre_get_posts` handler that checks for it, a `get_posts` call, a shortcode of your own — all of these now match nothing, silently, because they are asking for a post type that no longer exists under that name. The old names were generic enough (`vehicle`, `vehicle_booking`, `vehicle_category`) that this is worth searching for even if you do not think you wrote any.
+
+* What to search your custom code for, before you update: `mhm_rentiva` (catches both the underscore and slash families), `mhm_message_`, `save_post_vehicle`, and the quoted literals `'vehicle'`, `'vehicle_booking'`, `'vehicle_addon'` and `'vehicle_category'`.
 * Breaking: the three Elementor widgets named "Featured Vehicles", "Vehicles Grid" and "Vehicles List" were renamed internally. Pages you have already built with them are migrated automatically on update and need no attention; this is listed only because a widget name, like a hook name, is something custom code can refer to.
 * Changed: every identifier the plugin registers — settings, custom post types, taxonomies, database tables, scheduled jobs, and the keys it stores against your posts and users — now uses a single consistent prefix. Your existing data is moved to the new names by a migration that runs once, automatically, the first time you load the admin after updating. Nothing is deleted and nothing needs to be re-entered. If you also run the paid add-on, update both at the same time: this version refuses to migrate underneath an older add-on rather than leave your data half-moved.
 * Fixed: choosing "Semi-Automatic" or "CVT" for a vehicle's transmission, or "LPG", "CNG" or "Hydrogen" for its fuel type, silently saved a different value than the one selected. The list the editor offers and the list it accepts had drifted apart; they are now the same list.
@@ -227,7 +243,7 @@ Gutenberg and Elementor, plus plain shortcodes for any other theme or builder. A
 == Upgrade Notice ==
 
 = 6.0.0 =
-Major release. Your data migrates automatically. But all 131 hooks were renamed, so custom code hooked to one stops running silently, with no error. Search your code for mhm_rentiva and mhmrentiva/ first: mhm_rentiva_ becomes mhmrentiva_, and / becomes _. Update the paid add-on at the same time.
+Major release. Data migrates automatically, but 114 hooks and every post type name were renamed: custom code that hooks or queries them stops working silently. See the changelog before updating.
 
 = 5.1.0 =
 Security hardening and WordPress.org compliance. No action required; your settings and data are unaffected.
