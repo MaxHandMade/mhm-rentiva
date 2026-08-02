@@ -206,22 +206,33 @@ jobs:
         run: php bin/check-prefix-inventory.php
         continue-on-error: true
 
-      # Gate G-D (WP.org T7 remediation, Task 7.5): Plugin Check parity -- the
-      # REAL WP.org acceptance bar, not a narrow proxy for it. G-A/G-B/G-C
-      # above only look at three security sniff families plus five WPCS-blind
-      # grep probes plus prefix-map completeness; none of them run WP.org's
-      # own Plugin Check ruleset (bin/plugin-check.ruleset.xml, a vendored
-      # runnable copy -- see that file's header for provenance) or count its
-      # entire WordPress.DB.PreparedSQL* family, which the controller found
-      # fires 101 times at ERROR severity and which none of the other gates
-      # were watching. Baseline when this gate landed: 31 errors / 158 warnings
-      # across 53 files. After Task 10: 1 error / 56 warnings. The single error
-      # is DatabaseCleaner::restore_full_backup() (PreparedSQL.NotPrepared),
-      # left untouched pending a product decision; the 56 warnings are the
-      # NonceVerification.Recommended display-param class described on the G-A
-      # step above. Still `continue-on-error: true` for exactly those two
-      # reasons -- it becomes blocking when both are resolved.
-      - name: "Plugin Check parity gate (G-D: WP.org's own ruleset, 1 error / 56 warnings)"
+      # Gate G-D (WP.org T7 remediation): runs WP.org's Plugin Check ITSELF.
+      #
+      # HONESTY NOTE -- THIS STEP DOES NOT MEASURE ANYTHING ON CI TODAY.
+      # G-D used to run a vendored copy of Plugin Check's ruleset through the
+      # repo's own phpcs, which did work here but measured the wrong thing: the
+      # copy lacked WordPress.Security.EscapeOutput and the four PluginCheck.*
+      # sniffs, so it read "1 error / 56 warnings" where the real tool read
+      # 4 errors -- two of them EscapeOutput, the family the fifth WP.org
+      # review rejected this plugin over. It was also phpcs-only, and 13 of the
+      # plugin_repo category's checks are not phpcs at all (readme/stable tag,
+      # hidden files, trademarks, file types, ...).
+      #
+      # The gate now shells out to `wp plugin check` in the Docker WP stack, so
+      # it needs a WordPress install plus the plugin-check plugin. This runner
+      # has neither, so the step exits 2 ("cannot measure") and says why. That
+      # is deliberate: a gate that cannot run must be loud, not silently green.
+      # Making it real on CI means provisioning WP + plugin-check in this
+      # workflow -- not done yet, and `continue-on-error` is what keeps that
+      # debt visible instead of red-washing the build.
+      #
+      # Locally: `php bin/check-plugin-check-parity.php`.
+      # Measured baseline there (2026-08-02): 2 errors / 99 warnings over the
+      # 571 files .distignore ships. The two errors are
+      # DatabaseCleaner::restore_full_backup() (PreparedSQL.NotPrepared, product
+      # decision pending) and readme.txt's stable-tag mismatch (owned by the
+      # release task).
+      - name: "Plugin Check gate (G-D: real tool; exits 2 = cannot measure on CI)"
         run: php bin/check-plugin-check-parity.php
         continue-on-error: true
 

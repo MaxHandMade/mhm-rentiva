@@ -43,14 +43,18 @@
  *     run OOMs mid-way and prints a fatal, which reads like "0 findings" to
  *     anything that only looks at the exit code or the tail of the output.
  *  D. Runs a supplementary pass over the shipped part of vendor/. Plugin Check
- *     cannot ever see it: a star-slash-vendor-slash-star <exclude-pattern> sits inside WP.org's
- *     own phpcs-rulesets/plugin-review.xml AND "vendor" is in Plugin Check's
- *     hardcoded ignore-directory default, which the CLI can only add to, never
- *     subtract from. vendor/mhm/ui-core IS a runtime dependency that ships (see
- *     .distignore's "!/vendor/mhm/"), so the gate stages those files at a path
- *     with no "vendor" segment and runs plugin-review.xml over them directly,
- *     using the ruleset and the phpcs binary from the INSTALLED plugin-check --
- *     never a vendored copy.
+ *     cannot ever see it: a star-slash-vendor-slash-star <exclude-pattern> sits
+ *     inside WP.org's own phpcs-rulesets/plugin-review.xml AND "vendor" is in
+ *     Plugin Check's hardcoded ignore-directory default, which the CLI can only
+ *     add to, never subtract from. vendor/mhm/ui-core IS a runtime dependency
+ *     that ships (see .distignore's "!/vendor/mhm/"), so the gate restages those
+ *     files as a throwaway plugin at a path with no "vendor" segment and runs
+ *     THE SAME `wp plugin check` over them, discarding everything that is not
+ *     one of the staged files. It does not hand-pick a ruleset: the plugin_repo
+ *     category runs 13 separate phpcs checks under three different standards
+ *     ('plugin-review.xml', 'WordPress', 'PluginCheck'), and EscapeOutput
+ *     belongs to Late_Escaping_Check under 'WordPress' -- not to
+ *     plugin-review.xml, which emits no EscapeOutput error at all.
  *  E. Prints one machine-readable summary line, a per-code breakdown, and every
  *     finding as file:line/code/severity.
  *
@@ -247,20 +251,30 @@ if ($excludeFiles) {
 }
 
 [$rc, $stdout, $stderr] = run_cmd($pcArgs);
+assert_real_result($rc, $stdout, $stderr);
 
-// A fatal (the 128M OOM this gate was born from) leaves partial output and
-// still exits 0 in some WP-CLI paths. Refuse to read such a run as a result.
-$fatalMarkers = ['Allowed memory size', 'Fatal error', 'PHP Fatal', 'Out of memory'];
-foreach ($fatalMarkers as $marker) {
-    if (stripos($stdout, $marker) !== false || stripos($stderr, $marker) !== false) {
-        cannot_measure(
-            "the Plugin Check run hit a PHP fatal ('$marker') -- its output is NOT a result",
-            'raise memory_limit in this script; the run needs well above PHP\'s 128M default.'
-        );
+/**
+ * Refuse to read a crashed run as a result.
+ *
+ * This is the whole reason the gate exists in its current form. The first
+ * measurement of this round was taken from a `wp plugin check` invocation that
+ * silently OOM'd at PHP's default 128M, printed a fatal, and produced short
+ * output that read as "0 findings" to anything glancing at the tail. A gate
+ * whose failure mode looks like a pass is worse than no gate.
+ */
+function assert_real_result(int $rc, string $stdout, string $stderr): void
+{
+    foreach (['Allowed memory size', 'Fatal error', 'PHP Fatal', 'Out of memory'] as $marker) {
+        if (stripos($stdout, $marker) !== false || stripos($stderr, $marker) !== false) {
+            cannot_measure(
+                "the Plugin Check run hit a PHP fatal ('$marker') -- its output is NOT a result",
+                'raise memory_limit in this script; the run needs well above PHP\'s 128M default.'
+            );
+        }
     }
-}
-if (trim($stdout) === '' && $rc !== 0) {
-    cannot_measure("the Plugin Check run failed (rc=$rc): " . trim($stderr));
+    if (trim($stdout) === '' && $rc !== 0) {
+        cannot_measure("the Plugin Check run failed (rc=$rc): " . trim($stderr));
+    }
 }
 
 /**
@@ -311,43 +325,86 @@ $vendorPhp = array_values(array_filter($vendorShipped, static fn($p) => substr($
 $vendorScanned = 0;
 
 if ($vendorPhp) {
-    $stage = '/tmp/mhm-gd-vendor-scope';
-    // Restage from scratch every run so a deleted source file cannot linger.
+    // Stage the shipped vendor PHP as a THROWAWAY PLUGIN, then run the same
+    // `wp plugin check` over it. Running phpcs against plugin-review.xml by
+    // hand -- the obvious shortcut, and this gate's first draft -- covers only
+    // ONE of the 13 phpcs-based checks in the plugin_repo category. The others
+    // use the 'WordPress' and 'PluginCheck' standards with their own sniff
+    // selections, and between them they own EscapeOutput (Late_Escaping_Check),
+    // DirectDatabaseQuery (Direct_DB_Queries_Check), NonceVerification and
+    // Prefixing. Verified: `echo $_GET['x']` under plugin-review.xml alone
+    // produces the three ValidatedSanitizedInput warnings and NO EscapeOutput
+    // error. A supplementary pass blind to the exact family that got this
+    // plugin rejected would have been worse than none.
+    $vendorSlug = $slug . '-gd-vendorscope';
+    $stage      = '/var/www/html/wp-content/plugins/' . $vendorSlug;
+
     $script = 'set -e; rm -rf ' . $stage . '; mkdir -p ' . $stage . ';';
     foreach ($vendorPhp as $p) {
-        $destRel = substr($p, 7); // drop the leading "vendor/" -- the segment
-                                  // is what both ignore layers key on.
+        // Drop the leading "vendor/": that literal path segment is what both
+        // ignore layers key on, and it is the only reason this code is
+        // invisible to the tool in its real location.
+        $destRel = substr($p, 7);
         $script .= ' mkdir -p "' . $stage . '/' . dirname($destRel) . '";';
         $script .= ' cp "' . $pluginDir . '/' . $p . '" "' . $stage . '/' . $destRel . '";';
     }
-    $script .= ' php -d memory_limit=1024M ' . $pcDir . '/vendor/bin/phpcs'
-             . ' --standard=' . $pcDir . '/phpcs-rulesets/plugin-review.xml'
-             . ' --extensions=php --report=json ' . $stage . ' || true;';
+    // Plugin Check needs a plugin header to accept the directory at all. This
+    // synthetic file's own findings are discarded below -- only the staged
+    // vendor paths are kept, so nothing this gate reports comes from it.
+    $script .= " printf '<?php\\n/**\\n * Plugin Name: GD vendor scope\\n */\\n' > "
+             . $stage . '/' . $vendorSlug . '.php;';
 
-    [, $vOut, $vErr] = run_cmd(['docker', 'exec', $container, 'bash', '-c', $script]);
-    $start = strpos($vOut, '{"totals"');
-    $vJson = $start === false ? null : json_decode(substr($vOut, $start), true);
-    if (!is_array($vJson) || !isset($vJson['files'])) {
-        cannot_measure(
-            'the supplementary vendor/ pass produced no parsable phpcs JSON',
-            'stderr: ' . trim($vErr)
-        );
+    [$vRc, $vOut, $vErr] = run_cmd(array_merge(
+        ['docker', 'exec', $container, 'bash', '-c'],
+        [$script]
+    ));
+    if ($vRc !== 0) {
+        cannot_measure('could not stage the vendor scope: ' . trim($vErr . ' ' . $vOut));
     }
-    foreach ($vJson['files'] as $absFile => $data) {
-        $vendorScanned++;
-        foreach ($data['messages'] as $m) {
-            $findings[] = [
-                'file'     => 'vendor/' . ltrim(str_replace($stage, '', str_replace('\\', '/', $absFile)), '/'),
-                'line'     => (int) $m['line'],
-                'code'     => (string) $m['source'],
-                'severity' => strtolower((string) $m['type']),
-            ];
-        }
-    }
+
+    // Plugin Check only emits a FILE: block for files that HAVE findings, so
+    // "nothing came back" and "nothing was scanned" look identical in its
+    // output. Count what actually landed on disk instead of assuming.
+    [, $vCount] = run_cmd([
+        'docker', 'exec', $container,
+        'bash', '-c', 'find ' . $stage . ' -name "*.php" | wc -l',
+    ]);
+    // -1 for the synthetic plugin-header file staged alongside the sources.
+    $vendorScanned = max(0, (int) trim($vCount) - 1);
     if ($vendorScanned !== count($vendorPhp)) {
+        run_cmd(['docker', 'exec', $container, 'rm', '-rf', $stage]);
         cannot_measure(
-            "the supplementary vendor/ pass scanned $vendorScanned of " . count($vendorPhp) . ' shipped PHP files'
+            'vendor scope staged ' . $vendorScanned . ' of ' . count($vendorPhp) . ' shipped PHP files'
         );
+    }
+
+    [$vRc, $vOut, $vErr] = run_cmd([
+        'docker', 'exec', $container,
+        'php', '-d', 'memory_limit=1024M', '/usr/local/bin/wp',
+        'plugin', 'check', $vendorSlug,
+        '--categories=plugin_repo',
+        '--allow-root',
+        '--format=json',
+        '--path=/var/www/html',
+    ]);
+    // Tear down before acting on the result, so a findings-driven exit cannot
+    // leave a stray plugin directory behind.
+    run_cmd(['docker', 'exec', $container, 'rm', '-rf', $stage]);
+    assert_real_result($vRc, $vOut, $vErr);
+
+    $stagedRel = [];
+    foreach ($vendorPhp as $p) {
+        $stagedRel[substr($p, 7)] = true;
+    }
+    foreach (parse_plugin_check_json($vOut) as $f) {
+        if (!isset($stagedRel[$f['file']])) {
+            // Findings on the synthetic header file, or repo-level checks
+            // (readme, stable tag, ...) that belong to the real plugin's run,
+            // not to this scope-recovery pass.
+            continue;
+        }
+        $f['file'] = 'vendor/' . $f['file'];
+        $findings[] = $f;
     }
 }
 

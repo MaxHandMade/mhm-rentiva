@@ -411,20 +411,22 @@ bin/*
 # taught this repo to avoid -- see that entry above.
 !bin/prefix-inventory-baseline.txt
 # Quality-gate script: `php bin/check-plugin-check-parity.php` requires it at
-# runtime; it is Gate G-D (WP.org T7 remediation, Task 7.5) -- runs WP.org's
-# own Plugin Check ruleset via phpcs and counts ERRORS/WARNINGS separately.
-# This is the REAL acceptance bar (0 errors AND 0 warnings); G-A/G-B/G-C above
-# are narrower probes that sit under it. Wired into CI with continue-on-error
-# while red (measured baseline: 31 errors / 158 warnings); must ship in every
+# runtime; it is Gate G-D (WP.org T7 remediation) -- runs WP.org's Plugin Check
+# ITSELF (`wp plugin check --categories=plugin_repo`, in the Docker WP stack)
+# over the surface .distignore actually ships, and counts ERRORS/WARNINGS
+# separately. This is the REAL acceptance bar (0 errors AND 0 warnings);
+# G-A/G-B/G-C above are narrower probes that sit under it. Measured baseline
+# after the EscapeOutput fixes: 2 errors / 99 warnings. Must ship in every
 # clone.
 !bin/check-plugin-check-parity.php
-# INPUT to the gate above: a vendored, runnable copy of WP.org's Plugin Check
-# plugin's own PHPCS ruleset (four PluginCheck.* sniff refs stripped -- they
-# only resolve when the plugin-check plugin itself is installed; see this
-# file's own header comment for exact provenance/version/date). Tracking the
-# gate but not the ruleset it runs would be the same gap
-# bin/prefix-inventory-baseline.txt's entry above already describes.
-!bin/plugin-check.ruleset.xml
+# bin/plugin-check.ruleset.xml (a vendored copy of Plugin Check's ruleset) was
+# deleted on 2026-08-02 and deliberately has no entry here. It was missing
+# WordPress.Security.EscapeOutput and had the four PluginCheck.* sniff refs
+# stripped, so the gate that ran it reported 1 error where the real tool
+# reported 4 -- two of them EscapeOutput, the family the fifth WP.org review
+# rejected this plugin over. The gate now shells out to the installed
+# plugin-check plugin; there is no local ruleset copy to keep in sync, which is
+# the point.
 # Görev 12's rename tool. Not shipped (.distignore excludes bin/), but it is
 # the executable definition of the 6.0.0 rename and G-C mode 4b requires it,
 # so it must be tracked like the other gate scripts.
