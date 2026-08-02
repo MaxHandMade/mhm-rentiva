@@ -296,8 +296,9 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
      * get_post_meta() returns whichever the storage engine orders first.
      *
      * The winner is the owner's decision in POSTMETA_MERGE_WINNERS, not a
-     * heuristic: on the real database the BARE spelling holds 25 rows (every
-     * writer) and the rentiva-qualified one 3 (what Testimonials filtered on).
+     * heuristic: on the real database the BARE spelling holds 25 rows -- every
+     * writer uses it -- while the rentiva-qualified one, which is what
+     * Testimonials filtered on, has no writer and no live rows at all.
      * "Prefer the more specific spelling" gives the wrong answer here.
      */
     public function test_a_merged_pair_keeps_the_named_winner_and_leaves_one_row(): void
@@ -533,6 +534,193 @@ final class PrefixRenameMigrationTest extends WP_UnitTestCase
             $rows,
             'Both families must be recorded, with the value that was thrown away.'
         );
+    }
+
+    /**
+     * If the recovery copy cannot be written, NOTHING may be discarded.
+     *
+     * The failure is routine, not exotic: a DB user without CREATE is normal on
+     * managed and shared hosting. Before this lock the helper logged one line
+     * and the caller deleted anyway -- every losing-spelling row for all nine
+     * declared pairs, permanently, with the old names already gone from the
+     * tree. Leaving the duplicates is the map's stated posture: an unresolved
+     * collision is visible; a row deleted without a copy is gone.
+     *
+     * Note the M-no-backup mutation could NOT catch this. Removing the call
+     * turns a test red; the call FAILING did not.
+     */
+    public function test_nothing_is_discarded_when_the_recovery_copy_cannot_be_written(): void
+    {
+        global $wpdb;
+
+        $this->use_real_tables();
+
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        add_user_meta($user, '_rentiva_vendor_city', 'Kocaeli');
+        add_user_meta($user, '_mhm_rentiva_vendor_city', 'Istanbul');
+
+        $booking = self::factory()->post->create(array( 'post_type' => 'vehicle_booking' ));
+        update_post_meta($booking, '_mhm_customer_email', 'live@example.com');
+        update_post_meta($booking, '_mhm_rentiva_customer_email', 'orphan@example.com');
+
+        // Make every write to the recovery table fail, exactly as a missing
+        // CREATE grant would. The SELECT/DELETE traffic is untouched.
+        $break = static function ($query) {
+            if (preg_match('/(CREATE TABLE IF NOT EXISTS|INSERT INTO)\s+`?[a-z0-9_]*merge_losers_backup/i', (string) $query)) {
+                return 'SELECT 1 FROM DUAL WHERE 1=0';
+            }
+            return $query;
+        };
+        add_filter('query', $break);
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        remove_filter('query', $break);
+
+        // The rename still runs -- only the DISCARD is withheld. So both values
+        // arrive under the new name and the collision is left unresolved and
+        // VISIBLE as two rows, which is exactly the posture the map states.
+        // What must not happen is a value disappearing.
+        $this->assertSame(
+            array( 'Istanbul', 'Kocaeli' ),
+            $this->meta_values($wpdb->usermeta, 'user_id', $user, '_mhmrentiva_vendor_city'),
+            'A discarded user-meta value is gone and there is no recovery copy.'
+        );
+        $this->assertSame(
+            array( 'live@example.com', 'orphan@example.com' ),
+            $this->meta_values($wpdb->postmeta, 'post_id', $booking, '_mhmrentiva_customer_email'),
+            'A discarded post-meta value is gone and there is no recovery copy.'
+        );
+    }
+
+    /**
+     * Every value stored under one key on one object, oldest row first.
+     *
+     * @return list<string>
+     */
+    private function meta_values(string $table, string $id_column, int $object_id, string $meta_key): array
+    {
+        global $wpdb;
+
+        // wp_usermeta's primary key is umeta_id, wp_postmeta's is meta_id, so
+        // there is no shared ORDER BY; sorting the values makes the comparison
+        // order-independent instead.
+        $column = 'user_id' === $id_column ? 'user_id' : 'post_id';
+
+        $rows = $wpdb->get_col(
+            $wpdb->prepare(
+                'SELECT meta_value FROM %i WHERE ' . $column . ' = %d AND meta_key = %s',
+                $table,
+                $object_id,
+                $meta_key
+            )
+        );
+
+        sort($rows);
+
+        return $rows;
+    }
+
+    /**
+     * The de-duplication may only fire where the rename will actually carry the
+     * survivor.
+     *
+     * `_mhm_customer_email` is a vendor-token-only key, so the rename carries it
+     * on OUR post types and nowhere else. On a `product` post -- a shape this
+     * database really has, from a mis-scoped metabox -- deleting the qualified
+     * copy and then declining to rename the bare one leaves the object with ZERO
+     * rows under the name the code reads, having had a readable value before.
+     */
+    public function test_no_row_is_discarded_on_an_object_the_rename_will_not_carry(): void
+    {
+        $product = self::factory()->post->create(array( 'post_type' => 'product' ));
+        update_post_meta($product, '_mhm_customer_email', 'live@example.com');
+        update_post_meta($product, '_mhm_rentiva_customer_email', 'orphan@example.com');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        // The bare key is NOT carried on a foreign post type, so it stays put --
+        // and, crucially, it is still there: the merge did not delete it.
+        $this->assertSame('live@example.com', get_post_meta($product, '_mhm_customer_email', true), 'A row was destroyed on an object the rename does not carry.');
+
+        // The qualified key IS carried everywhere (product token), so it moved.
+        // Its value must have survived the move rather than been discarded in
+        // favour of a winner that was never going to arrive.
+        $this->assertSame('orphan@example.com', get_post_meta($product, '_mhmrentiva_customer_email', true), 'The loser was discarded although the winner is not carried here.');
+        $this->assertSame('', get_post_meta($product, '_mhm_rentiva_customer_email', true));
+    }
+
+    /**
+     * The bare `_mhm_` USER-meta family is deliberately never touched by
+     * pattern, because sibling products write user meta too. The merge path
+     * derives `_mhm_vendor_city` as a candidate loser for the vendor_city pair
+     * and must not touch it by derivation either.
+     */
+    public function test_the_merge_does_not_reach_the_user_meta_family_the_design_excludes(): void
+    {
+        $user = self::factory()->user->create();
+        $this->seeded_users[] = $user;
+        add_user_meta($user, '_rentiva_vendor_city', 'Kocaeli');
+        add_user_meta($user, '_mhm_vendor_city', 'somebody-elses');
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        $this->assertSame('somebody-elses', get_user_meta($user, '_mhm_vendor_city', true), 'The merge deleted a key the rename refuses to touch.');
+        $this->assertSame('Kocaeli', get_user_meta($user, '_mhmrentiva_vendor_city', true));
+    }
+
+    /**
+     * The recurrence NAME was renamed too, and it is not a hook name so it is
+     * easy to miss. A pre-6.0.0 cron option holds AutoCancel's event under
+     * `mhm_rentiva_5min`, which wp_get_schedules() no longer registers; passing
+     * it straight through makes wp_schedule_event() fail, after which clearing
+     * the old hook would delete the recurring job outright.
+     */
+    public function test_a_recurring_event_under_a_legacy_interval_name_is_carried(): void
+    {
+        $when = time() + 3600;
+
+        // Built by hand, NOT via wp_schedule_event(): that function validates the
+        // recurrence against wp_get_schedules() and would refuse the pre-6.0.0
+        // name outright, so the fixture would silently not be the thing under
+        // test. This is exactly the row an upgrading site carries.
+        wp_unschedule_hook('mhm_rentiva_auto_cancel_event');
+        wp_unschedule_hook('mhmrentiva_auto_cancel_event');
+        _set_cron_array(array(
+            $when => array(
+                'mhm_rentiva_auto_cancel_event' => array(
+                    md5(serialize(array())) => array(
+                        'schedule' => 'mhm_rentiva_5min',
+                        'args'     => array(),
+                        'interval' => 300,
+                    ),
+                ),
+            ),
+        ));
+
+        // The premise, asserted rather than assumed.
+        $seeded = _get_cron_array();
+        $this->assertSame(
+            'mhm_rentiva_5min',
+            $seeded[ $when ]['mhm_rentiva_auto_cancel_event'][ md5(serialize(array())) ]['schedule'],
+            'Fixture premise: the stored recurrence must be the PRE-rename name.'
+        );
+
+        $this->seed_pre_rename_version();
+        DatabaseMigrator::run_migrations();
+
+        // Carried, not merely present: the same timestamp proves this row came
+        // from the old one rather than from a class re-scheduling itself.
+        $this->assertSame(
+            $when,
+            wp_next_scheduled('mhmrentiva_auto_cancel_event'),
+            'The recurring event was not carried: its interval name was the pre-rename one.'
+        );
+        $this->assertFalse(wp_next_scheduled('mhm_rentiva_auto_cancel_event'));
     }
 
     /**

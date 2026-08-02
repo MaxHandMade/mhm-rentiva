@@ -1623,6 +1623,29 @@ final class DatabaseMigrator {
 			$id = (int) $term_taxonomy_id;
 			self::delete_term_taxonomy_row($id);
 		}
+
+		// A POPULATED duplicate is left alone -- merging two term trees is not a
+		// migration's decision -- but silence is not an option either: the site
+		// ends with two same-slug terms in one taxonomy and nothing tells anyone.
+		$populated = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(DISTINCT ntt.term_taxonomy_id)
+                   FROM {$wpdb->term_taxonomy} ntt
+                   JOIN {$wpdb->terms} nt ON nt.term_id = ntt.term_id
+                   JOIN {$wpdb->term_taxonomy} ott ON ott.taxonomy = %s
+                   JOIN {$wpdb->terms} ot ON ot.term_id = ott.term_id AND ot.slug = nt.slug
+                  WHERE ntt.taxonomy = %s",
+				$old_taxonomy,
+				$new_taxonomy
+			)
+		);
+
+		if ($populated > 0) {
+			self::log_index_error(
+				'taxonomy rename ' . $old_taxonomy,
+				$populated . ' term(s) already exist under ' . $new_taxonomy . ' with the same slug and carry objects; both copies left in place for manual review'
+			);
+		}
 	}
 
 	/**
@@ -1695,44 +1718,151 @@ final class DatabaseMigrator {
 	 * servers.
 	 *
 	 * The winner is the owner's decision in POSTMETA_MERGE_WINNERS, and it is
-	 * NOT re-derived here. On the real database the BARE spelling of the
-	 * vehicle-id key holds 25 rows (every writer) and the rentiva-qualified one
-	 * 3 (what Testimonials filtered on, which is why it resolved 3 of 28
-	 * bookings). "Prefer the more specific
+	 * NOT re-derived here. Measured on the real pre-rename database: the BARE
+	 * spelling of the vehicle-id key holds 25 rows -- every writer uses it --
+	 * and the rentiva-qualified one, which is what Testimonials filtered on, has
+	 * NO writer and no live rows at all, so Testimonials resolved 0 of 29
+	 * bookings. After the merge it resolves 25 of 29. "Prefer the more specific
 	 * spelling" gives the wrong answer exactly where being wrong costs most.
 	 */
 	private static function resolve_post_meta_merge_collisions(): void
 	{
-		global $wpdb;
-
 		foreach (PrefixMigrationMap::POSTMETA_MERGE_WINNERS as $new_key => $winner) {
 			foreach (self::merge_loser_keys($new_key, $winner) as $loser) {
-				// Copy before deleting. These rows hold real values -- on a
-				// customer site the losing spelling of customer_email or
-				// price_per_day is somebody's data -- and this step cannot be
-				// un-run. See record_merge_losers().
-				self::record_merge_losers('postmeta', $loser, $winner);
-
-				// Only where the SAME post carries both. A post holding only a
-				// losing spelling keeps its value: the prefix pass renames it and
-				// there is no collision to resolve. The derived table is required
-				// -- MySQL will not let a DELETE read its own target in a bare
-				// subquery.
-				$wpdb->query(
-					$wpdb->prepare(
-						"DELETE FROM {$wpdb->postmeta}
-						  WHERE meta_key = %s
-						    AND post_id IN (
-						        SELECT post_id FROM (
-						            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
-						        ) AS winner_rows
-						    )",
-						$loser,
-						$winner
-					)
-				);
+				self::discard_post_meta_loser($loser, $winner);
 			}
 		}
+	}
+
+	/**
+	 * Discard one losing spelling, but ONLY where a collision can actually occur.
+	 *
+	 * A collision needs BOTH keys to be carried onto the same new name on the
+	 * same post. The rename pass does not carry every key everywhere -- the
+	 * vendor-token-only prefixes are restricted to our own post types -- so a
+	 * DELETE that ignored that scope would destroy a row the rename then
+	 * declines to replace. On a `product` or `shop_order_placehold` post
+	 * carrying both spellings (a shape this very database has, from a
+	 * mis-scoped metabox) the object would end with ZERO rows under the name
+	 * the code now reads, having had a readable value before.
+	 *
+	 * Where either key would not be carried there is no collision, so nothing is
+	 * deleted: the two spellings simply stay as they are.
+	 */
+	private static function discard_post_meta_loser(string $loser, string $winner): void
+	{
+		$winner_scope = self::post_meta_carry_scope($winner);
+		$loser_scope  = self::post_meta_carry_scope($loser);
+
+		if (null === $winner_scope || null === $loser_scope) {
+			return;
+		}
+
+		if ('any' === $winner_scope && 'any' === $loser_scope) {
+			self::discard_post_meta_loser_scoped($loser, $winner, null);
+			return;
+		}
+
+		// The intersection of the two carry scopes. 'addon' is the narrower of
+		// the two restricted scopes, so it wins whenever either side asks for it.
+		$post_types = ( 'addon' === $winner_scope || 'addon' === $loser_scope )
+			? self::addon_post_types()
+			: self::owned_post_types();
+
+		foreach ($post_types as $post_type) {
+			self::discard_post_meta_loser_scoped($loser, $winner, $post_type);
+		}
+	}
+
+	/**
+	 * Where the rename pass would carry this post-meta key.
+	 *
+	 * 'any'   -- the key's prefix carries the product token, so it moves on every
+	 *            post regardless of type.
+	 * 'owned' -- vendor-token-only or token-less prefix; moves only on our own
+	 *            post types (plus the enumerated foreign keys, which return
+	 *            'any' because they are carried by exact name).
+	 * 'addon' -- one of the five addon keys, carried only on addon posts.
+	 * null    -- the rename pass does not carry this key at all.
+	 */
+	private static function post_meta_carry_scope(string $key): ?string
+	{
+		if (array_key_exists($key, self::foreign_post_meta_keys())) {
+			return 'any';
+		}
+
+		if (array_key_exists($key, self::addon_meta_keys())) {
+			return 'addon';
+		}
+
+		// Map order matters exactly as it does in the rename pass: the first
+		// matching rule is the one that would fire.
+		foreach (PrefixMigrationMap::POSTMETA_PREFIX_RULES as $old_prefix => $new_prefix) {
+			if (self::is_addon_prefix_rule($old_prefix)) {
+				continue;
+			}
+
+			if (0 === strpos($key, $old_prefix)) {
+				return self::is_self_scoping_prefix($old_prefix) ? 'any' : 'owned';
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Copy, then delete -- and only delete when the copy is known to have
+	 * landed. See record_post_meta_losers().
+	 */
+	private static function discard_post_meta_loser_scoped(string $loser, string $winner, ?string $post_type): void
+	{
+		global $wpdb;
+
+		if (! self::record_post_meta_losers($loser, $winner, $post_type)) {
+			// Never delete what could not be copied. Leaving both spellings in
+			// place is the map's own stated posture: an unresolved collision is
+			// visible as duplicate rows; a row deleted without a recovery copy
+			// is gone, and this step cannot be un-run.
+			return;
+		}
+
+		// Only where the SAME post carries both. A post holding only a losing
+		// spelling keeps its value: the prefix pass renames it and there is no
+		// collision to resolve. The derived table is required -- MySQL will not
+		// let a DELETE read its own target in a bare subquery.
+		if (null === $post_type) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->postmeta}
+					  WHERE meta_key = %s
+					    AND post_id IN (
+					        SELECT post_id FROM (
+					            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+					        ) AS winner_rows
+					    )",
+					$loser,
+					$winner
+				)
+			);
+
+			return;
+		}
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->postmeta}
+				  WHERE meta_key = %s
+				    AND post_id IN (
+				        SELECT post_id FROM (
+				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )
+				    AND post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s )",
+				$loser,
+				$winner,
+				$post_type
+			)
+		);
 	}
 
 	/**
@@ -1745,27 +1875,71 @@ final class DatabaseMigrator {
 	 */
 	private static function resolve_user_meta_merge_collisions(): void
 	{
-		global $wpdb;
-
 		foreach (PrefixMigrationMap::USERMETA_MERGE_WINNERS as $new_key => $winner) {
 			foreach (self::user_meta_merge_loser_keys($new_key, $winner) as $loser) {
-				self::record_merge_losers('usermeta', $loser, $winner);
-
-				$wpdb->query(
-					$wpdb->prepare(
-						"DELETE FROM {$wpdb->usermeta}
-						  WHERE meta_key = %s
-						    AND user_id IN (
-						        SELECT user_id FROM (
-						            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
-						        ) AS winner_rows
-						    )",
-						$loser,
-						$winner
-					)
-				);
+				self::discard_user_meta_loser($loser, $winner);
 			}
 		}
+	}
+
+	/**
+	 * Discard one losing user-meta spelling, subject to the same two conditions
+	 * as the postmeta twin: both keys must actually be carried, and the copy
+	 * must be known to have landed.
+	 *
+	 * The carry check is not academic here. user_meta_merge_loser_keys() derives
+	 * the bare-vendor spelling of vendor_city as a candidate loser, and the
+	 * bare-vendor user-meta family is DELIBERATELY excluded from
+	 * owned_user_meta_keys() because it is not Rentiva-exclusive -- sibling
+	 * products write user meta too. Deleting it here would touch by derivation
+	 * exactly the family the design refuses to touch by pattern.
+	 */
+	private static function discard_user_meta_loser(string $loser, string $winner): void
+	{
+		global $wpdb;
+
+		if (! self::user_meta_is_carried($winner) || ! self::user_meta_is_carried($loser)) {
+			return;
+		}
+
+		if (! self::record_user_meta_losers($loser, $winner)) {
+			return;
+		}
+
+		$wpdb->query(
+			$wpdb->prepare(
+				"DELETE FROM {$wpdb->usermeta}
+				  WHERE meta_key = %s
+				    AND user_id IN (
+				        SELECT user_id FROM (
+				            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )",
+				$loser,
+				$winner
+			)
+		);
+	}
+
+	/**
+	 * Would the rename pass carry this user-meta key at all?
+	 *
+	 * The wp_usermeta table has no post to scope against, so a key is carried
+	 * only when its prefix bears the product token, or when it is named
+	 * explicitly in the allowlist. Map order decides which rule would fire.
+	 */
+	private static function user_meta_is_carried(string $key): bool
+	{
+		foreach (PrefixMigrationMap::USERMETA_PREFIX_RULES as $old_prefix => $new_prefix) {
+			if (0 !== strpos($key, $old_prefix)) {
+				continue;
+			}
+
+			return self::is_self_scoping_prefix($old_prefix)
+				|| array_key_exists($key, self::owned_user_meta_keys());
+		}
+
+		return false;
 	}
 
 	/**
@@ -1816,47 +1990,52 @@ final class DatabaseMigrator {
 	}
 
 	/**
-	 * Copy the rows a merge is about to delete into a recoverable backup table.
+	 * Copy the postmeta rows a merge is about to discard, into a recoverable
+	 * backup table.
 	 *
 	 * A merge discards a row that held a REAL value -- three of the four vendors
 	 * affected by the vendor_city pair hold a different city on the losing row --
 	 * and this migration cannot be un-run. If a winner choice turns out wrong on
-	 * some site, this table is the only way back.
+	 * some site, that table is the only way back.
 	 *
 	 * Deliberately reuses DatabaseCleaner's backup naming rather than inventing a
 	 * mechanism: `{prefix}mhmrentiva_%_backup%` is exactly what
 	 * DatabaseCleaner::list_backups() enumerates, and is_managed_backup_table()
 	 * -- which gates export -- decides membership from that same enumeration. So
-	 * this table shows up in the existing Backups screen and exports through the
+	 * the table shows up in the existing Backups screen and exports through the
 	 * existing path with no new UI. Restore-in-place is explicitly refused there:
 	 * the rows span two different target tables and only the `family` column says
 	 * which, so a blind INSERT would put user meta into wp_postmeta.
 	 *
-	 * The table is created LAZILY, on the first row actually written. That keeps
+	 * The table is created LAZILY, on the first row actually written, which keeps
 	 * a second run a true no-op: with nothing left to discard there is no table
 	 * and no row, rather than a fresh empty table per run.
-	 */
-	private static function record_merge_losers(string $family, string $loser, string $winner): void
-	{
-		if ('usermeta' === $family) {
-			self::record_user_meta_losers($loser, $winner);
-			return;
-		}
-
-		self::record_post_meta_losers($loser, $winner);
-	}
-
-	/**
-	 * Copy the postmeta rows a merge is about to discard.
 	 *
 	 * Written out in full rather than sharing one parameterised statement with
 	 * the usermeta twin below. The two differ only in a table and a column name,
 	 * and folding them together meant interpolating both into the SQL -- which is
-	 * precisely the shape Görev 9.5 drove to zero. Duplicating twelve lines is
-	 * the cost of every identifier in this statement being a literal you can read
-	 * at the line that runs it.
+	 * precisely the shape Görev 9.5 drove to zero.
+	 *
+	 * 🔴 Returns TRUE only when the rows are safely copied -- including the case
+	 * where there is nothing to copy. FALSE means the caller must NOT delete: the
+	 * backup table could not be created (a DB user without CREATE is normal on
+	 * managed and shared hosting), the INSERT failed, or fewer rows landed than
+	 * were counted. Logging the failure and deleting anyway is how a routine
+	 * permissions problem turns into permanent, unrecoverable data loss.
 	 */
-	private static function record_post_meta_losers(string $loser, string $winner): void
+	private static function record_post_meta_losers(string $loser, string $winner, ?string $post_type): bool
+	{
+		if (null === $post_type) {
+			return self::record_post_meta_losers_everywhere($loser, $winner);
+		}
+
+		return self::record_post_meta_losers_on_post_type($loser, $winner, $post_type);
+	}
+
+	/**
+	 * The unscoped variant: both keys are carried on every post type.
+	 */
+	private static function record_post_meta_losers_everywhere(string $loser, string $winner): bool
 	{
 		global $wpdb;
 
@@ -1878,7 +2057,12 @@ final class DatabaseMigrator {
 		);
 
 		if (0 === $colliding) {
-			return;
+			return true;
+		}
+
+		$table = self::merge_loser_backup_table();
+		if (null === $table) {
+			return false;
 		}
 
 		$written = $wpdb->query(
@@ -1891,24 +2075,100 @@ final class DatabaseMigrator {
 				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
 				        ) AS winner_rows
 				    )",
-				self::merge_loser_backup_table(),
+				$table,
 				'postmeta',
 				$loser,
 				$winner
 			)
 		);
 
-		if (false === $written) {
-			// Never delete what could not be copied.
-			self::log_index_error('merge loser backup', 'could not record postmeta losers for ' . $loser . ': ' . (string) $wpdb->last_error);
+		return self::merge_loser_write_landed($written, $colliding, $loser, 'postmeta');
+	}
+
+	/**
+	 * The scoped variant, for keys the rename only carries on our own post
+	 * types. Written out in full rather than appending a clause to a shared
+	 * string: building the statement from variables is the shape Görev 9.5 drove
+	 * to zero, and it came straight back the first time this method tried to be
+	 * clever about it.
+	 */
+	private static function record_post_meta_losers_on_post_type(string $loser, string $winner, string $post_type): bool
+	{
+		global $wpdb;
+
+		$colliding = (int) $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->postmeta}
+				  WHERE meta_key = %s
+				    AND post_id IN (
+				        SELECT post_id FROM (
+				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )
+				    AND post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s )",
+				$loser,
+				$winner,
+				$post_type
+			)
+		);
+
+		if (0 === $colliding) {
+			return true;
 		}
+
+		$table = self::merge_loser_backup_table();
+		if (null === $table) {
+			return false;
+		}
+
+		$written = $wpdb->query(
+			$wpdb->prepare(
+				"INSERT INTO %i (family, object_id, meta_key, meta_value)
+				 SELECT %s, post_id, meta_key, meta_value FROM {$wpdb->postmeta}
+				  WHERE meta_key = %s
+				    AND post_id IN (
+				        SELECT post_id FROM (
+				            SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s
+				        ) AS winner_rows
+				    )
+				    AND post_id IN ( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s )",
+				$table,
+				'postmeta',
+				$loser,
+				$winner,
+				$post_type
+			)
+		);
+
+		return self::merge_loser_write_landed($written, $colliding, $loser, 'postmeta');
+	}
+
+	/**
+	 * Did the copy land, row for row?
+	 *
+	 * @param mixed $written What $wpdb->query() returned.
+	 */
+	private static function merge_loser_write_landed($written, int $colliding, string $loser, string $family): bool
+	{
+		if (false !== $written && (int) $written === $colliding) {
+			return true;
+		}
+
+		$recorded = ( false === $written ) ? 'a failed query' : (string) (int) $written;
+
+		self::log_index_error(
+			'merge loser backup',
+			'refusing to discard ' . $loser . ': recorded ' . $recorded . ' of ' . $colliding . ' ' . $family . ' rows'
+		);
+
+		return false;
 	}
 
 	/**
 	 * Copy the usermeta rows a merge is about to discard. See the note on the
 	 * postmeta twin above for why this is not folded into one statement.
 	 */
-	private static function record_user_meta_losers(string $loser, string $winner): void
+	private static function record_user_meta_losers(string $loser, string $winner): bool
 	{
 		global $wpdb;
 
@@ -1927,7 +2187,12 @@ final class DatabaseMigrator {
 		);
 
 		if (0 === $colliding) {
-			return;
+			return true;
+		}
+
+		$table = self::merge_loser_backup_table();
+		if (null === $table) {
+			return false;
 		}
 
 		$written = $wpdb->query(
@@ -1940,22 +2205,21 @@ final class DatabaseMigrator {
 				            SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = %s
 				        ) AS winner_rows
 				    )",
-				self::merge_loser_backup_table(),
+				$table,
 				'usermeta',
 				$loser,
 				$winner
 			)
 		);
 
-		if (false === $written) {
-			self::log_index_error('merge loser backup', 'could not record usermeta losers for ' . $loser . ': ' . (string) $wpdb->last_error);
-		}
+		return self::merge_loser_write_landed($written, $colliding, $loser, 'usermeta');
 	}
 
 	/**
-	 * The per-run backup table, created on first use.
+	 * The per-run backup table, created on first use -- or NULL when it could
+	 * not be created, which every caller treats as "do not delete anything".
 	 */
-	private static function merge_loser_backup_table(): string
+	private static function merge_loser_backup_table(): ?string
 	{
 		global $wpdb;
 
@@ -1979,7 +2243,7 @@ final class DatabaseMigrator {
 		$table = $wpdb->prefix . 'mhmrentiva_merge_losers_backup_'
 			. gmdate('Ymd_His') . '_' . wp_generate_password(6, false, false);
 
-		$wpdb->query(
+		$created = $wpdb->query(
 			$wpdb->prepare(
 				'CREATE TABLE IF NOT EXISTS %i (
                     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -1993,6 +2257,22 @@ final class DatabaseMigrator {
 				$table
 			)
 		);
+
+		// Prove it is really there before anyone deletes on the strength of it.
+		// $wpdb->query() returning non-false is not enough on its own, and
+		// SHOW TABLES is the wrong probe here: the test suite rewrites CREATE
+		// TABLE to CREATE TEMPORARY TABLE, and temporary tables are invisible to
+		// SHOW TABLES while being perfectly writable. A COUNT(*) answers the
+		// question that actually matters -- can we read and write this name --
+		// for both kinds of table.
+		if (false === $created || null === $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i', $table))) {
+			self::log_index_error(
+				'merge loser backup',
+				'could not create ' . $table . ' -- no rows will be discarded: ' . (string) $wpdb->last_error
+			);
+
+			return null;
+		}
 
 		self::$merge_loser_table = $table;
 
@@ -2338,10 +2618,16 @@ final class DatabaseMigrator {
 	 * those rows need. The recurring hooks re-schedule themselves on init, but
 	 * this one has no self-heal: every reminder already scheduled when a site
 	 * upgrades would simply never fire again.
+	 *
+	 * When ANY event of a hook cannot be carried, the old name is left scheduled
+	 * rather than cleared -- see the failure branch below. Assumed self-heal is
+	 * exactly what hazard 4 exists to distrust.
 	 */
 	private static function rekey_cron_hook(string $old_hook, string $new_hook): void
 	{
 		$crons = _get_cron_array();
+
+		$carried = true;
 
 		if (is_array($crons)) {
 			foreach ($crons as $timestamp => $hooks) {
@@ -2351,9 +2637,21 @@ final class DatabaseMigrator {
 
 				$when = (int) $timestamp;
 				foreach ($hooks[ $old_hook ] as $event) {
-					self::reschedule_cron_event($when, $new_hook, $event);
+					if (! self::reschedule_cron_event($when, $new_hook, $event)) {
+						$carried = false;
+					}
 				}
 			}
+		}
+
+		if (! $carried) {
+			// Leave the old rows alone. Unscheduling them after a failed carry
+			// deletes the recurring event outright; leaving them means the worst
+			// case is a lingering old-name row that nothing handles, which is
+			// visible and harmless, rather than a job that silently stops.
+			self::log_index_error('cron rekey', $old_hook . ' left in place: at least one event could not be carried to ' . $new_hook);
+
+			return;
 		}
 
 		// wp_unschedule_hook(), not wp_clear_scheduled_hook(): only the former
@@ -2366,27 +2664,59 @@ final class DatabaseMigrator {
 	 * with the same args.
 	 *
 	 * @param mixed $event One entry of a wp_cron hook array.
+	 * @return bool True when the event is now scheduled under the new name.
 	 */
-	private static function reschedule_cron_event(int $timestamp, string $new_hook, $event): void
+	private static function reschedule_cron_event(int $timestamp, string $new_hook, $event): bool
 	{
 		$args = ( is_array($event) && isset($event['args']) && is_array($event['args']) ) ? $event['args'] : array();
 
 		// Measure the destination first: a recurring hook that already
 		// re-scheduled itself under the new name must not end up with two rows
-		// firing the same job.
+		// firing the same job. Already there counts as carried.
 		if (false !== wp_next_scheduled($new_hook, $args)) {
-			return;
+			return true;
 		}
 
 		$schedule = ( is_array($event) && ! empty($event['schedule']) ) ? (string) $event['schedule'] : '';
 
-		$scheduled = ( '' !== $schedule )
-			? wp_schedule_event($timestamp, $schedule, $new_hook, $args)
-			: wp_schedule_single_event($timestamp, $new_hook, $args);
-
-		if (false === $scheduled) {
-			self::log_index_error('cron rekey', 'could not re-schedule ' . $new_hook);
+		if ('' === $schedule) {
+			return false !== wp_schedule_single_event($timestamp, $new_hook, $args);
 		}
+
+		// The RECURRENCE NAME was renamed too, and that is easy to miss because
+		// it is not a hook name. AutoCancel::SCHEDULE is 'mhmrentiva_5min' and
+		// AutoComplete::SCHEDULE is 'mhmrentiva_15min' post-rename, so a
+		// pre-6.0.0 `cron` option holds these events under interval names that
+		// wp_get_schedules() no longer registers. Passing one straight through
+		// makes wp_schedule_event() return false (and trips _doing_it_wrong
+		// under WP_DEBUG), after which the old row would have been unscheduled
+		// and the recurring job simply stops.
+		$schedule = self::current_schedule_name($schedule);
+
+		if (! array_key_exists($schedule, (array) wp_get_schedules())) {
+			self::log_index_error('cron rekey', 'no registered schedule named ' . $schedule . ' for ' . $new_hook);
+
+			return false;
+		}
+
+		return false !== wp_schedule_event($timestamp, $schedule, $new_hook, $args);
+	}
+
+	/**
+	 * A cron recurrence name in its current spelling.
+	 *
+	 * Returns the name unchanged when it is already registered; otherwise maps
+	 * it through the same RUNTIME_STRING_RULES that renamed it in the source.
+	 */
+	private static function current_schedule_name(string $schedule): string
+	{
+		if (array_key_exists($schedule, (array) wp_get_schedules())) {
+			return $schedule;
+		}
+
+		$mapped = self::apply_first_prefix_rule($schedule, PrefixMigrationMap::RUNTIME_STRING_RULES);
+
+		return null !== $mapped ? $mapped : $schedule;
 	}
 
 	/**

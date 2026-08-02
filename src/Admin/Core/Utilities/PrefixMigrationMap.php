@@ -364,9 +364,10 @@ final class PrefixMigrationMap {
      *                                   wp_postmeta on the pre-rename dev database
      *     '_mhm_rentiva_vehicle_id'  <- what Testimonials filters on; NO writer
      *
-     * Testimonials could therefore only ever resolve 3 of 28 bookings; the other
-     * 25 silently returned nothing. The merge is fixing that live bug, and it
-     * only fixes it if the writers' key wins.
+     * Testimonials therefore resolved 0 of 29 bookings on the measured database;
+     * every one of the 25 that had a vehicle silently returned nothing. The
+     * merge is fixing that live bug, and it only fixes it if the writers' key
+     * wins -- after which the count is 25 of 29.
      *
      * 🔴 PROVENANCE CORRECTION (Görev 13, 2026-08-02). This paragraph used to
      * cite "'_mhm_rentiva_vehicle_id'   3 rows" as a live measurement. It is not:
