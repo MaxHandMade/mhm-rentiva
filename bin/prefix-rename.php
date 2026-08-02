@@ -833,12 +833,13 @@ class PrefixRenamer {
 			),
 		),
 		'src/Admin/Core/Utilities/DatabaseCleaner.php' => array(
-			'why'      => 'option analysis and the backup-table probe must see pre-6.0.0 rows; backup tables keep their old name forever (no TABLES entry) and are somebody\'s only recovery copy',
+			'why'      => 'the invalid-meta cleanup deletes every _mhm%% row NOT in its allowlist, so the allowlist must keep naming the pre-6.0.0 spellings of Pro\'s vendor identity keys while any site still holds un-migrated rows; and option analysis plus the backup-table probe must see pre-6.0.0 rows, because backup tables keep their old name forever (no TABLES entry) and are somebody\'s only recovery copy',
 			'regions'  => array(
-				0 => array( 'mhm_rentiva%', 'mhmrentiva%' ),
+				0 => array( '_mhm_iban_change_status', '_mhm_pending_iban', '_mhm_vendor_account_holder', '_mhm_vendor_approved_at', '_mhm_vendor_bio', '_mhm_vendor_iban', '_mhm_vendor_phone', '_mhm_vendor_service_areas', '_mhm_vendor_tax_number', '_mhm_vendor_tax_office' ),
 				1 => array( 'mhm_rentiva%', 'mhmrentiva%' ),
 				2 => array( 'mhm_rentiva%', 'mhmrentiva%' ),
-				3 => array( 'mhm_%', 'mhmrentiva_%' ),
+				3 => array( 'mhm_rentiva%', 'mhmrentiva%' ),
+				4 => array( 'mhm_%', 'mhmrentiva_%' ),
 			),
 		),
 		'src/Admin/Core/Utilities/DatabaseMigrator.php' => array(

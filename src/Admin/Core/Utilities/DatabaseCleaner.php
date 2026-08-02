@@ -506,40 +506,53 @@ final class DatabaseCleaner {
 			// Pro's vendor identity and payout family, added in 6.0.0 (Görev 14).
 			// The cleanup's LIKE is unscoped across the WHOLE postmeta table, so a
 			// key missing from here is an admin click away from destroying a
-			// vendor's IBAN, tax number, phone and approval timestamp. BOTH
-			// spellings are carried: during the transition window a site may run
-			// Pro's renamed code before Pro's migration has moved the rows, so the
-			// pre-6.0.0 names are still live data.
+			// vendor's IBAN, tax number, phone and approval timestamp.
+			//
+			// THREE spellings each, and they are grouped rather than interleaved so
+			// the pre-rename ones can sit in ONE tight ignore region: a region
+			// silences everything between its markers, so the smaller it is the
+			// smaller the blind spot. The prose stays outside it for the same reason.
 			'_mhmrentiva_iban_change_status',
-			'_rentiva_iban_change_status',
-			'_mhm_iban_change_status',
 			'_mhmrentiva_pending_iban',
-			'_rentiva_pending_iban',
-			'_mhm_pending_iban',
 			'_mhmrentiva_vendor_account_holder',
-			'_rentiva_vendor_account_holder',
-			'_mhm_vendor_account_holder',
 			'_mhmrentiva_vendor_approved_at',
-			'_rentiva_vendor_approved_at',
-			'_mhm_vendor_approved_at',
 			'_mhmrentiva_vendor_bio',
-			'_rentiva_vendor_bio',
-			'_mhm_vendor_bio',
 			'_mhmrentiva_vendor_iban',
-			'_rentiva_vendor_iban',
-			'_mhm_vendor_iban',
 			'_mhmrentiva_vendor_phone',
-			'_rentiva_vendor_phone',
-			'_mhm_vendor_phone',
 			'_mhmrentiva_vendor_service_areas',
-			'_rentiva_vendor_service_areas',
-			'_mhm_vendor_service_areas',
 			'_mhmrentiva_vendor_tax_number',
-			'_rentiva_vendor_tax_number',
-			'_mhm_vendor_tax_number',
 			'_mhmrentiva_vendor_tax_office',
+			// The vendor-prefixed spelling. No rule renames it (Lite's
+			// RESOLVED_META_KEYS does not enumerate these ten), so it needs no
+			// region -- but it IS live data on a site Pro has not migrated yet.
+			'_rentiva_iban_change_status',
+			'_rentiva_pending_iban',
+			'_rentiva_vendor_account_holder',
+			'_rentiva_vendor_approved_at',
+			'_rentiva_vendor_bio',
+			'_rentiva_vendor_iban',
+			'_rentiva_vendor_phone',
+			'_rentiva_vendor_service_areas',
+			'_rentiva_vendor_tax_number',
 			'_rentiva_vendor_tax_office',
+			// The bare-vendor spelling. These ten ARE matched by the bare
+			// underscore-prefixed substring rule, so without the marker below the
+			// next sweep would
+			// convert them to names that are already in the list above -- silently
+			// deleting the protection for every row Pro's migration has not moved,
+			// which is the exact failure the region mechanism exists to prevent.
+			// prefix-rename:ignore-start
+			'_mhm_iban_change_status',
+			'_mhm_pending_iban',
+			'_mhm_vendor_account_holder',
+			'_mhm_vendor_approved_at',
+			'_mhm_vendor_bio',
+			'_mhm_vendor_iban',
+			'_mhm_vendor_phone',
+			'_mhm_vendor_service_areas',
+			'_mhm_vendor_tax_number',
 			'_mhm_vendor_tax_office',
+			// prefix-rename:ignore-end
 			'_mhmrentiva_vendor_avatar_id',
 			'_mhmrentiva_vendor_city',
 			'_mhmrentiva_vendor_reliability_score',
