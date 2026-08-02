@@ -1480,6 +1480,21 @@ final class DatabaseMigrator {
 	 * Idempotent and resumable throughout. Every rewrite is "find rows still
 	 * carrying the old name and move them", so a run that dies half-way simply
 	 * has less to do next time, and a completed run finds nothing.
+	 *
+	 * 🔴 THIS STEP IS WHAT MAKES THE ADD-ON'S OLD-NAME FALLBACKS DEAD CODE.
+	 *
+	 * Several add-on read sites deliberately keep a genuine fallback to the
+	 * pre-6.0.0 spelling -- VehicleTransferMetaBox's luggage and pricing reads
+	 * are the clearest -- and they are NOT redundant during the transition. The
+	 * migration lane only runs under is_admin() || wp_doing_cron() || WP_CLI, so
+	 * a front-end-first request on an un-migrated site reaches those reads before
+	 * this step has ever executed: without the fallback, transfer search returns
+	 * nothing and cart pricing computes from zero.
+	 *
+	 * So the condition for removing those fallbacks is THIS MIGRATION HAVING RUN
+	 * on the site in question -- not a release number and not elapsed time. A
+	 * site can sit un-migrated indefinitely if nobody opens wp-admin and cron is
+	 * disabled.
 	 */
 	private static function migrate_prefix_rename_600(): void
 	{
@@ -1566,10 +1581,12 @@ final class DatabaseMigrator {
 	/**
 	 * Post types.
 	 *
-	 * Scope: exact equality against a type this plugin registers itself.
-	 * Nothing another plugin's post type can satisfy, and no collision is
-	 * possible -- wp_posts.post_type carries no uniqueness constraint that two
-	 * name families could contend for.
+	 * Scope: exact equality against a type this plugin owns rows of. Not
+	 * "registers" -- the contact-message bucket is the whole reason this family
+	 * needed a map entry and nobody calls register_post_type() for it. Nothing
+	 * another plugin's post type can satisfy, and no collision is possible:
+	 * wp_posts.post_type carries no uniqueness constraint that two name families
+	 * could contend for.
 	 */
 	private static function rename_post_types(): void
 	{
@@ -1580,6 +1597,26 @@ final class DatabaseMigrator {
 				$wpdb->prepare("UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s", $new, $old)
 			);
 		}
+
+		// One statement for rows a non-strict server TRUNCATED before the contact
+		// type got a map entry: 'mhmrentiva_contact_message' is 26 characters and
+		// varchar(20) silently keeps the first 20. Those rows belong to no family
+		// -- the old name is gone and the new one never matched them.
+		//
+		// 6.0.0 has never shipped, so no customer install can hold them (measured:
+		// 0 on the dev database). But dev and CI stacks that ran 4.0.0 and then
+		// took a submission do, and recovering them costs one statement.
+		// prefix-rename:ignore-start
+		$truncated   = 'mhmrentiva_contact_m';
+		$contact_key = 'mhm_contact_message';
+		// prefix-rename:ignore-end
+		$wpdb->query(
+			$wpdb->prepare(
+				"UPDATE {$wpdb->posts} SET post_type = %s WHERE post_type = %s",
+				PrefixMigrationMap::POST_TYPES[ $contact_key ],
+				$truncated
+			)
+		);
 	}
 
 	/**

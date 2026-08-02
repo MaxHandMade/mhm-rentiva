@@ -30,7 +30,20 @@ final class MetaQueryHelper {
 	public static function is_migration_fallback_active(): bool
 	{
 		// Active if WP_DEBUG is on OR explicitly enabled via constant.
-		return ( defined('WP_DEBUG') && WP_DEBUG ) || defined('MHMRENTIVA_MIGRATION_FALLBACK');
+		//
+		// 🔴 EXTERNAL CONTRACT -- NOT a name this plugin owns, and deliberately
+		// NOT swept to the 6.0.0 prefix. Nothing in this repository defines it:
+		// it is a constant the SITE OPERATOR sets in wp-config.php, so the only
+		// spelling that works is the one they already wrote. Renaming the lookup
+		// does not rename their wp-config; it just makes defined() return false
+		// forever, and the fallback silently stops existing with no error.
+		//
+		// The test that identifies this family is not "is it a storage key" but
+		// "does anything OUTSIDE this repository have to agree with this exact
+		// string?" -- see PrefixMigrationMap::EXTERNAL_CONTRACT_LITERALS.
+		// prefix-rename:ignore-start
+		return ( defined('WP_DEBUG') && WP_DEBUG ) || defined('MHM_RENTIVA_MIGRATION_FALLBACK');
+		// prefix-rename:ignore-end
 	}
 
 	/**

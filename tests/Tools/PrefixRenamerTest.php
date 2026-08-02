@@ -175,6 +175,45 @@ class PrefixRenamerTest extends TestCase {
 		$this->assertSame( array(), $mismatches, "rule list disagrees with PrefixMigrationMap:\n" . implode( "\n", $mismatches ) );
 	}
 
+	/**
+	 * No RUNTIME_STRING_RULES entry may shadow a later, more specific one.
+	 *
+	 * The constant's own docblock says "longest/most-specific first", and it is
+	 * NOT sorted by length -- 'mhm_dark_mode_nonce' (19) sits after three 12s.
+	 * That is fine, and asserting a total length order would fail today for no
+	 * reason. What actually matters is weaker and exact: no earlier rule is a
+	 * PREFIX of a later one, so "first match" always means "most specific match".
+	 *
+	 * Why it is worth locking: transform() sorts by strlen descending, but
+	 * PrefixRenamer::substringRulesAgreeWith() walks the rules to answer "would
+	 * the generic rule produce the mapped value?" -- and a wrong `true` there is
+	 * the unsafe direction, because it skips the explicit rule and silently
+	 * re-opens the class that 'mhm_contact_message' (26 chars into a varchar(20))
+	 * was fixed to close. That function now sorts defensively, so correctness no
+	 * longer depends on declaration order; this assertion keeps the constant
+	 * honest for every other reader of it -- notably the bare 'mhm_' catch-all,
+	 * which must stay last.
+	 */
+	public function test_no_runtime_string_rule_shadows_a_later_one(): void {
+		$declared = array_keys( Map::RUNTIME_STRING_RULES );
+		$shadowed = array();
+
+		foreach ( $declared as $i => $earlier ) {
+			foreach ( array_slice( $declared, $i + 1 ) as $later ) {
+				if ( 0 === strpos( $later, $earlier ) ) {
+					$shadowed[] = sprintf( "'%s' (position %d) shadows the later '%s'", $earlier, $i, $later );
+				}
+			}
+		}
+
+		$this->assertSame(
+			array(),
+			$shadowed,
+			"a RUNTIME_STRING_RULES entry fires before a more specific one, so the specific rule can never match:\n"
+			. implode( "\n", $shadowed )
+		);
+	}
+
 	// -----------------------------------------------------------------
 	// Protected identifiers -- must survive byte-identical.
 	// -----------------------------------------------------------------

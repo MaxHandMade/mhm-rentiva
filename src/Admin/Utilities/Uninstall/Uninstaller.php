@@ -50,6 +50,53 @@ final class Uninstaller {
 	}
 
 	/**
+	 * The add-on's tables, in both spellings -- never dropped by Lite.
+	 *
+	 * See the note in get_all_plugin_tables() for why these six are the add-on's
+	 * to remove. Listed here as whole names so the broad orphan pattern can carve
+	 * them out by identity rather than by a LIKE that might drift.
+	 *
+	 * @return array<int,string>
+	 */
+	private static function addon_owned_tables(): array {
+		global $wpdb;
+
+		$names = array(
+			'mhmrentiva_ledger',
+			'mhmrentiva_commission_policy',
+			'mhmrentiva_vendor_reports',
+			'mhmrentiva_background_jobs',
+			'mhmrentiva_payout_audit',
+			'mhmrentiva_key_registry',
+			// prefix-rename:ignore-start
+			'mhm_rentiva_ledger',
+			'mhm_rentiva_commission_policy',
+			'mhm_rentiva_vendor_reports',
+			'mhm_rentiva_background_jobs',
+			'mhm_rentiva_payout_audit',
+			'mhm_rentiva_key_registry',
+			// prefix-rename:ignore-end
+		);
+
+		return array_map(
+			static function ( string $name ) use ( $wpdb ): string {
+				return $wpdb->prefix . $name;
+			},
+			$names
+		);
+	}
+
+	/**
+	 * Is this one of the recovery copies?
+	 *
+	 * Matches the `%_backup%` shape DatabaseCleaner::list_backups() enumerates,
+	 * which covers the postmeta backups and Görev 13's merge-loser copies alike.
+	 */
+	private static function is_backup_table( string $table ): bool {
+		return false !== strpos( $table, '_backup' );
+	}
+
+	/**
 	 * Every cron hook this plugin has ever scheduled, in every spelling.
 	 *
 	 * A scheduled event lives in the `cron` option and survives the code that
@@ -414,18 +461,43 @@ final class Uninstaller {
 			}
 		}
 
-		// 5b. Safety net: drop any remaining orphan tables that match plugin prefixes.
-		// This catches tables from removed subsystems that were never added to the whitelist.
-		// Patterns are plugin-unique (mhmrentiva_*, mhmrentiva_postmeta_backup_invalid_*), so no cross-plugin risk.
-		$orphan_patterns = array(
-			$wpdb->prefix . 'mhmrentiva_%',
-			$wpdb->prefix . 'mhmrentiva_postmeta_backup_invalid_%',
-		);
+		// 5b. Safety net: drop any remaining orphan tables that match our prefix.
+		//
+		// The pattern is plugin-unique, so there is no cross-plugin risk -- but it
+		// is broad enough to reach two things it must NOT take, and both had to be
+		// carved out by name rather than by hoping the explicit list came first:
+		//
+		//   1. The add-on's tables. Taking them out of the whitelist above
+		//      achieves nothing while this pattern still matches them.
+		//   2. Backup tables. This pattern subsumed
+		//      `mhmrentiva_postmeta_backup_invalid_%` -- which used to be listed
+		//      beside it as a second, redundant pattern -- so recovery copies were
+		//      dropped whatever the owner answered. $delete_backups was read in
+		//      exactly one place, and only for backup FILES.
+		$protected = self::addon_owned_tables();
 
-		foreach ( $orphan_patterns as $pattern ) {
-			$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $pattern ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			foreach ( $orphans as $orphan_table ) {
-				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $orphan_table ) );
+		$orphans = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		foreach ( $orphans as $orphan_table ) {
+			if ( in_array( $orphan_table, $protected, true ) || self::is_backup_table( $orphan_table ) ) {
+				continue;
+			}
+
+			$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $orphan_table ) );
+			++$results['tables_dropped'];
+		}
+
+		// Backup tables go only when the owner actually asked for them -- the same
+		// answer they gave about backup FILES, now honoured for the tables too.
+		//
+		// Deliberately limited to the current spelling, which is exactly the reach
+		// this code had before: whether uninstall should also delete PRE-6.0.0
+		// backup tables -- a site's only recovery copy, which no rename ever
+		// touches -- is a separate decision and is recorded as open rather than
+		// taken here by a widened pattern.
+		if ( $delete_backups ) {
+			$backups = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%backup%' ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			foreach ( $backups as $backup_table ) {
+				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $backup_table ) );
 				++$results['tables_dropped'];
 			}
 		}
@@ -541,16 +613,37 @@ final class Uninstaller {
 		global $wpdb;
 
 		return array(
+			// 🔴 THE ADD-ON'S SIX TABLES ARE NOT LISTED HERE, DELIBERATELY.
+			//
+			//   ledger · commission_policy · vendor_reports · background_jobs
+			//   payout_audit · key_registry
+			//
+			// Measured, not assumed: Lite queries NONE of them outside schema and
+			// cleanup plumbing (PenaltyCalculator.php:167 only READS the ledger),
+			// every one is created only behind an add-on `class_exists()` gate,
+			// and their contents are financial -- the commission ledger, payout
+			// statements and audit trail, and the keys that SIGN the ledger.
+			//
+			// They were all dropped here historically, so uninstalling Lite
+			// destroyed append-only financial history belonging to a separate
+			// product, on a site that may be removing Lite intending to reinstall.
+			// Owner decision 2026-08-02: each plugin removes its own data, which is
+			// also the rule WordPress.org applies. The add-on owns their removal.
+			//
+			// key_registry is why the list is six and not four: dropping the keys
+			// while leaving the ledger produces an append-only financial record
+			// that nobody can verify -- worse than either consistent choice.
+			//
+			// NOTE the distinction: PrefixMigrationMap::TABLES still RENAMES
+			// payout_audit and key_registry, because Lite's own DatabaseMigrator
+			// is what creates them. Carrying a table's name is not owning its
+			// removal.
+			//
 			// --- Active tables (created by DatabaseMigrator / QueueManager / etc.) ---
 			$wpdb->prefix . 'mhmrentiva_queue',
 			$wpdb->prefix . 'mhmrentiva_ratings',
-			$wpdb->prefix . 'mhmrentiva_background_jobs',
-			$wpdb->prefix . 'mhmrentiva_payout_audit',
-			$wpdb->prefix . 'mhmrentiva_ledger',
-			$wpdb->prefix . 'mhmrentiva_commission_policy',
 			$wpdb->prefix . 'mhmrentiva_tenants',
 			$wpdb->prefix . 'mhmrentiva_usage_metrics',
-			$wpdb->prefix . 'mhmrentiva_key_registry',
 			$wpdb->prefix . 'mhmrentiva_message_logs',
 			$wpdb->prefix . 'mhmrentiva_notification_queue',
 			$wpdb->prefix . 'mhmrentiva_payment_log',
@@ -567,10 +660,10 @@ final class Uninstaller {
 			// --- PRE-6.0.0 spellings of every table above ---
 			//
 			// Uninstall must work on a site that never ran Görev 13's migration,
-			// where every one of these tables still carries its old name. FIVE of
+			// where every one of these tables still carries its old name. FOUR of
 			// them additionally have NO entry in PrefixMigrationMap::TABLES --
-			// notification_queue, backup_records, transfers, report_queue and
-			// background_jobs -- so the migration will never rename the physical
+			// notification_queue, backup_records, transfers and report_queue --
+			// so the migration will never rename the physical
 			// table at all and the old name is the ONLY name they will ever have.
 			// Dropping by the new name alone leaves them behind on every install,
 			// permanently. (report_queue previously sat under the "legacy" heading
@@ -581,12 +674,8 @@ final class Uninstaller {
 			// blind spot and its length is the size of that blind spot, so it
 			// wraps the literals and nothing else.
 			// prefix-rename:ignore-start
-			$wpdb->prefix . 'mhm_rentiva_payout_audit',
-			$wpdb->prefix . 'mhm_rentiva_ledger',
-			$wpdb->prefix . 'mhm_rentiva_commission_policy',
 			$wpdb->prefix . 'mhm_rentiva_tenants',
 			$wpdb->prefix . 'mhm_rentiva_usage_metrics',
-			$wpdb->prefix . 'mhm_rentiva_key_registry',
 			$wpdb->prefix . 'mhm_rentiva_queue',
 			$wpdb->prefix . 'mhm_rentiva_ratings',
 			$wpdb->prefix . 'mhm_message_logs',
@@ -596,7 +685,6 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_backup_records',
 			$wpdb->prefix . 'mhm_transfers',
 			$wpdb->prefix . 'mhm_rentiva_report_queue',
-			$wpdb->prefix . 'mhm_rentiva_background_jobs',
 			// prefix-rename:ignore-end
 
 			// --- Orphan tables from removed subsystems (kept for cleanup on historic installs) ---
@@ -611,17 +699,22 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_queue',
 			$wpdb->prefix . 'mhmrentiva_external_alert_bridge_circuit',
 			$wpdb->prefix . 'mhmrentiva_event_queue',
-			$wpdb->prefix . 'mhmrentiva_vendor_reports',
 
 			// --- PRE-6.0.0 spellings of the orphan family above ---
 			//
-			// None of these tables is in PrefixMigrationMap::TABLES, so the
-			// migration never renames them: the name a real install carries is
-			// the OLD one, and the new-spelling list above matched nothing.
-			// Measured on the dev database -- eleven of them were sitting there
-			// after a full migration, invisible to both the migration and
-			// uninstall. WP.org reads uninstall closely and orphan tables are
-			// not cosmetic.
+			// These eleven are genuinely dead schema: no code in either plugin
+			// creates, reads or writes them. None is in PrefixMigrationMap::TABLES
+			// and none is in the add-on's map either, so nothing ever renames
+			// them -- the name a real install carries is the OLD one, and the
+			// new-spelling list above matched nothing. Measured on the dev
+			// database: all eleven were still sitting there after a full
+			// migration, invisible to both the migration and uninstall. WP.org
+			// reads uninstall closely and orphan tables are not cosmetic.
+			//
+			// `vendor_reports` was briefly filed here and does NOT belong: the
+			// add-on declares it, creates it in VendorReportsMigration and
+			// reads/writes it from three services, with live rows. It is the
+			// add-on's to remove, like the rest of its schema.
 			// prefix-rename:ignore-start
 			$wpdb->prefix . 'mhm_rentiva_subscriptions',
 			$wpdb->prefix . 'mhm_rentiva_usage_billing_feature_flags',
@@ -634,7 +727,6 @@ final class Uninstaller {
 			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_queue',
 			$wpdb->prefix . 'mhm_rentiva_external_alert_bridge_circuit',
 			$wpdb->prefix . 'mhm_rentiva_event_queue',
-			$wpdb->prefix . 'mhm_rentiva_vendor_reports',
 			// prefix-rename:ignore-end
 		);
 	}

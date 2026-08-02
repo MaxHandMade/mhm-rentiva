@@ -404,16 +404,16 @@ final class PrefixMigrationMap {
      */
     public const POSTMETA_MERGE_WINNERS = [
         // Sole writer is VehicleGallery, on the rentiva-qualified key.
-        '_mhmrentiva_gallery_images'       => '_mhm_rentiva_gallery_images',
+        '_mhmrentiva_gallery_images'             => '_mhm_rentiva_gallery_images',
         // See the note above -- the bare key is the one every writer uses.
-        '_mhmrentiva_vehicle_id'           => '_mhm_vehicle_id',
+        '_mhmrentiva_vehicle_id'                 => '_mhm_vehicle_id',
         // BookingMeta/BookingColumns write the bare keys; Testimonials only reads.
-        '_mhmrentiva_customer_email'       => '_mhm_customer_email',
-        '_mhmrentiva_customer_name'        => '_mhm_customer_name',
+        '_mhmrentiva_customer_email'             => '_mhm_customer_email',
+        '_mhmrentiva_customer_name'              => '_mhm_customer_name',
         // Live keys are the rentiva-qualified ones (MetaKeys, Util, BookingMeta);
         // the bare spellings survive only in the cleanup's protection list.
-        '_mhmrentiva_price_per_day'        => '_mhm_rentiva_price_per_day',
-        '_mhmrentiva_deposit'              => '_mhm_rentiva_deposit',
+        '_mhmrentiva_price_per_day'              => '_mhm_rentiva_price_per_day',
+        '_mhmrentiva_deposit'                    => '_mhm_rentiva_deposit',
         // EIGHTH pair, owner decision 2026-08-02 (Görev 13). This one collides
         // between the '_mhm_' and '_rentiva_' rules rather than between '_mhm_'
         // and '_mhm_rentiva_', which is why neither the bijection check nor the
@@ -438,7 +438,37 @@ final class PrefixMigrationMap {
         //                                     falls back FROM.  0 live rows.
         // Note this is the mirror image of vehicle_id: there the BARE spelling was
         // the writer, here the qualified one is. Same rule, opposite-looking answer.
-        '_mhmrentiva_vehicle_service_type' => '_rentiva_vehicle_service_type',
+        '_mhmrentiva_vehicle_service_type'       => '_rentiva_vehicle_service_type',
+        // SEVEN more, owner decision 2026-08-02, from the add-on's transfer and
+        // pricing families. Derived twice independently -- by the add-on agent
+        // from its pre-sweep source, and by this map's own structural scan --
+        // and the two agreed.
+        //
+        // They look counterintuitive in the SAME direction as
+        // vehicle_service_type: the LESS qualified-looking spelling wins. The
+        // evidence, measured rather than reasoned:
+        //
+        //   '_mhm_*'      NO reader and NO writer anywhere in either tree. Every
+        //                 occurrence is a single entry in DatabaseCleaner's
+        //                 protection allowlist -- it is not read, not written,
+        //                 and holds 0 rows.
+        //   '_rentiva_*'  the real key. VehicleTransferMetaBox reads it (now as
+        //                 the transition fallback behind the new name), and five
+        //                 of the seven hold 6 rows apiece across 6 vehicles on
+        //                 the pre-rename database.
+        //
+        // price_per_km and base_price hold 0 rows under BOTH spellings on that
+        // database -- a genuinely empty family, not a failed match. They are
+        // declared anyway because a customer site may have what a dev site does
+        // not, and an undeclared pair is the one case merge_loser_keys() refuses
+        // to resolve.
+        '_mhmrentiva_transfer_max_pax'           => '_rentiva_transfer_max_pax',
+        '_mhmrentiva_transfer_max_luggage_score' => '_rentiva_transfer_max_luggage_score',
+        '_mhmrentiva_transfer_price_multiplier'  => '_rentiva_transfer_price_multiplier',
+        '_mhmrentiva_vehicle_max_big_luggage'    => '_rentiva_vehicle_max_big_luggage',
+        '_mhmrentiva_vehicle_max_small_luggage'  => '_rentiva_vehicle_max_small_luggage',
+        '_mhmrentiva_vehicle_price_per_km'       => '_rentiva_vehicle_price_per_km',
+        '_mhmrentiva_vehicle_base_price'         => '_rentiva_vehicle_base_price',
     ];
 
     /**
@@ -723,6 +753,62 @@ final class PrefixMigrationMap {
      * yeşil olamaz. Mod 5 (OPTIONS coverage) de aynı iki adı muaf tutar --
      * bu iki isim tasarım gereği hiçbir zaman OPTIONS'ta bir anahtar OLMAYACAK.
      */
+    /**
+     * Literals somebody OUTSIDE this repository has to agree with, byte for byte.
+     *
+     * 🔴 The third rename-hazard class this round produced, and like the second
+     * it was found by a defect rather than anticipated here. The test that finds
+     * this family is NOT "is this a storage key" -- it is:
+     *
+     *     does anything outside this repository have to agree with this exact
+     *     string?
+     *
+     * A storage name we can migrate. An external contract we cannot, because the
+     * other party never runs our migration. Renaming one does not fail loudly;
+     * it returns empty and the feature silently stops existing.
+     *
+     * The instance: MHM_RENTIVA_MIGRATION_FALLBACK, read by
+     * MetaQueryHelper::is_migration_fallback_active() via defined() and never
+     * defined anywhere in this tree -- a constant the SITE OPERATOR sets in
+     * wp-config.php. The sweep renamed the lookup; the operator's wp-config was
+     * not renamed with it, so defined() would have returned false forever.
+     * Reverted to the operator-facing spelling and carved out at the call site.
+     *
+     * The same sweep in the add-on found EIGHT: a libsodium KDF context string
+     * (changing it derived a different secretbox key, making every sealed audit
+     * private key unrecoverable) plus seven operator-defined secrets.
+     *
+     * Lite was swept for the whole class afterwards, five queries:
+     *   1. defined()/constant() lookups our tree never define -> this one, only.
+     *   2. literals reaching a crypto or hash primitive (sodium, hash_hmac,
+     *      hash, md5, openssl) -> six hits, all cache/transient KEY
+     *      CONSTRUCTION (ObjectCache, Mailer stats, shortcode caches). A hashed
+     *      lookup key is not domain separation and no external party matches
+     *      it; a changed key simply misses.
+     *   3. nonce actions -> 126, all created and verified inside this plugin in
+     *      the same release. Internal, not a contract.
+     *   4. literals crossing a network boundary (wp_remote_*, HTTP headers) ->
+     *      none carrying the prefix.
+     *   5. the REST namespace -> 'mhm-rentiva/v1', a HYPHENATED slug the
+     *      underscore rules never match. Verified byte-identical pre and post
+     *      sweep. In the class, unaffected by construction.
+     *
+     * "No further instances" is a claim about those five queries as much as
+     * about the tree; a sixth shape would need a sixth query.
+     *
+     * NOT a substitution table -- these names never change. Listed so the family
+     * has a name and the next sweep has somewhere to look first.
+     *
+     * @var array<int,string>
+     */
+    public const EXTERNAL_CONTRACT_LITERALS = [
+        // No ignore region here on purpose: this whole file is in
+        // PrefixRenamer::NEVER_SWEEP, so a region would protect nothing and be a
+        // pure blind spot. The carve-out that does the work is at the call site
+        // in MetaQueryHelper.
+        'MHM_RENTIVA_MIGRATION_FALLBACK',
+    ];
+
     public const BOOTSTRAP_FALLBACK_ALLOWLIST = [
         'mhm_rentiva_db_version',
         'mhm_rentiva_plugin_version',

@@ -852,16 +852,25 @@ class PrefixRenamer {
 				1 => array( 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics' ),
 				2 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ),
 				3 => array( 'mhm_notification_queue', 'mhmrentiva_notification_queue' ),
-				// Görev 13, the 6.0.0 rename step. Regions 4-11 protect the OLD
+				// Recovery for rows a 4.0.0 stack truncated before the contact
+				// type had a map entry: both the map key and the 20-char stub.
+				4 => array( 'mhm_contact_message', 'mhmrentiva_contact_m' ),
+				// Görev 13, the 6.0.0 rename step. Regions 5-12 protect the OLD
 				// names the migration has to go looking for.
-				4 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
-				5 => array( '_mhm_', '_mhm_rentiva_' ),
-				6 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
-				7 => array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
-				8 => array(),
-				9 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
-				10 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
-				11 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
+				5 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
+				6 => array( '_mhm_', '_mhm_rentiva_' ),
+				7 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
+				8 => array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
+				9 => array(),
+				10 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
+				11 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
+				12 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
+			),
+		),
+		'src/Admin/Core/Utilities/MetaQueryHelper.php' => array(
+			'why'      => 'EXTERNAL CONTRACT: a wp-config.php constant the site operator sets. Renaming the lookup does not rename their wp-config, so defined() returns false forever and the fallback silently stops existing',
+			'regions'  => array(
+				0 => array( 'MHM_RENTIVA_MIGRATION_FALLBACK' ),
 			),
 		),
 		'src/Admin/Frontend/Shortcodes/VehicleDetails.php' => array(
@@ -876,25 +885,31 @@ class PrefixRenamer {
 				0 => array( 'mhm_rentiva_booking_report_', 'mhm_rentiva_customer_report_', 'mhm_rentiva_dashboard_recent_bookings_v4', 'mhm_rentiva_dashboard_stats', 'mhm_rentiva_recent_messages_', 'mhm_rentiva_revenue_report_', 'mhm_rentiva_vehicle_report_', 'mhm_rentiva_vlist_', 'mhm_revenue_report_' ),
 			),
 		),
+		'tests/Unit/Utilities/UninstallAddonTableSafetyTest.php' => array(
+			'why'      => 'asserts that BOTH spellings of the add-on\'s tables are protected, so it has to name the pre-6.0.0 spelling; and the backup fixtures are real table names, one of them pre-rename',
+			'regions'  => array(
+				0 => array( 'mhm_rentiva_', 'mhmrentiva_' ),
+				1 => array( 'wp_mhm_postmeta_backup_invalid_20260320_092228', 'wp_mhmrentiva_merge_losers_backup_20260802_065325_xIgGvQ', 'wp_mhmrentiva_postmeta_backup_invalid_20260320_092228' ),
+			),
+		),
 		'src/Admin/Utilities/Uninstall/Uninstaller.php' => array(
-			'why'      => 'uninstall must delete rows on a site that never ran the migration; otherwise the pre-uninstall screen shows a false count and everything is left behind permanently, with the plugin gone and no UI to clean up with',
+			'why'      => 'uninstall must delete rows on a site that never ran the migration; and it must NOT delete the six add-on tables, which are carved out of the broad orphan pattern by name',
 			'regions'  => array(
 				0 => array( 'mhm_rentiva' ),
-				1 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ),
-				2 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
-				3 => array( '_mhm%', 'mhmrentiva_vehicle' ),
-				4 => array( '_mhm%', 'mhmrentiva_booking' ),
-				5 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
-				6 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
-				7 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
-				8 => array( '_mhm%', 'mhmrentiva_vehicle' ),
-				9 => array( '_mhm%', 'mhmrentiva_booking' ),
-				10 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
-				11 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
-				12 => array( 'mhm_backup_records', 'mhm_message_logs', 'mhm_notification_queue', 'mhm_payment_log', 'mhm_rentiva_background_jobs', 'mhm_rentiva_commission_policy', 'mhm_rentiva_key_registry', 'mhm_rentiva_ledger', 'mhm_rentiva_payout_audit', 'mhm_rentiva_queue', 'mhm_rentiva_ratings', 'mhm_rentiva_report_queue', 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics', 'mhm_sessions', 'mhm_transfers' ),
-				// The orphan family in its PRE-6.0.0 spelling -- the only name a
-				// real install has for any of these, since none is in TABLES.
-				13 => array( 'mhm_rentiva_alert_dispatch_state', 'mhm_rentiva_alert_state', 'mhm_rentiva_event_queue', 'mhm_rentiva_external_alert_bridge_circuit', 'mhm_rentiva_external_alert_bridge_queue', 'mhm_rentiva_payment_event_aggregate_windows', 'mhm_rentiva_payment_event_aggregates', 'mhm_rentiva_payment_events_raw', 'mhm_rentiva_payment_registry', 'mhm_rentiva_subscriptions', 'mhm_rentiva_usage_billing_feature_flags', 'mhm_rentiva_vendor_reports' ),
+				1 => array( 'mhm_rentiva_background_jobs', 'mhm_rentiva_commission_policy', 'mhm_rentiva_key_registry', 'mhm_rentiva_ledger', 'mhm_rentiva_payout_audit', 'mhm_rentiva_vendor_reports' ),
+				2 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications' ),
+				3 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
+				4 => array( '_mhm%', 'mhmrentiva_vehicle' ),
+				5 => array( '_mhm%', 'mhmrentiva_booking' ),
+				6 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
+				7 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
+				8 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
+				9 => array( '_mhm%', 'mhmrentiva_vehicle' ),
+				10 => array( '_mhm%', 'mhmrentiva_booking' ),
+				11 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
+				12 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
+				13 => array( 'mhm_backup_records', 'mhm_message_logs', 'mhm_notification_queue', 'mhm_payment_log', 'mhm_rentiva_queue', 'mhm_rentiva_ratings', 'mhm_rentiva_report_queue', 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics', 'mhm_sessions', 'mhm_transfers' ),
+				14 => array( 'mhm_rentiva_alert_dispatch_state', 'mhm_rentiva_alert_state', 'mhm_rentiva_event_queue', 'mhm_rentiva_external_alert_bridge_circuit', 'mhm_rentiva_external_alert_bridge_queue', 'mhm_rentiva_payment_event_aggregate_windows', 'mhm_rentiva_payment_event_aggregates', 'mhm_rentiva_payment_events_raw', 'mhm_rentiva_payment_registry', 'mhm_rentiva_subscriptions', 'mhm_rentiva_usage_billing_feature_flags' ),
 			),
 		),
 	);
@@ -912,7 +927,24 @@ class PrefixRenamer {
 	 * value. Only an exact match licenses skipping the explicit rule.
 	 */
 	private function substringRulesAgreeWith( string $old, string $new ): bool {
-		foreach ( Map::RUNTIME_STRING_RULES as $oldPrefix => $newPrefix ) {
+		// Longest prefix first, because that is what transform() does: it sorts
+		// its rules by strlen( old ) descending before applying any of them.
+		//
+		// Iterating RUNTIME_STRING_RULES in DECLARATION order coincided with that
+		// only because the constant happens to be written specific-first. A rule
+		// inserted out of order later would make this function answer for a rule
+		// the sweep would never have used -- and a wrong `true` is the unsafe
+		// direction: it skips the explicit rule and silently re-opens the class
+		// that 'mhm_contact_message' was fixed to close.
+		$rules = Map::RUNTIME_STRING_RULES;
+		uksort(
+			$rules,
+			static function ( string $a, string $b ): int {
+				return strlen( $b ) <=> strlen( $a );
+			}
+		);
+
+		foreach ( $rules as $oldPrefix => $newPrefix ) {
 			if ( 0 === strpos( $old, $oldPrefix ) ) {
 				return ( $newPrefix . substr( $old, strlen( $oldPrefix ) ) ) === $new;
 			}
