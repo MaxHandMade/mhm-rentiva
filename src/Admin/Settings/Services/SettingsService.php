@@ -46,7 +46,11 @@ final class SettingsService {
 			'general'  => \MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
 			'vehicle'  => \MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
 			'booking'  => \MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
-			'customer' => \MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
+			// 'customer' => CustomerManagementSettings::class was removed
+			// (WP.org T8 Görev 10b, row F2) -- the class was a hollow stub
+			// with no reachable tab slot; 'customer' now falls through to
+			// the `default => null` arm below, same as every other
+			// unregistered tab.
 			'email'    => \MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			'frontend' => \MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			'integration' => \MHMRentiva\Admin\REST\Settings\RESTSettings::class,
@@ -188,7 +192,9 @@ final class SettingsService {
 			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
-			\MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings::class,
+			// CustomerManagementSettings::class was removed here (WP.org T8
+			// Görev 10b, row F2): get_default_settings() returned array() --
+			// contributing nothing to $defaults below.
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\AddonSettings::class,

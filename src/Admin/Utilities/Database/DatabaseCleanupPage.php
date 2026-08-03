@@ -98,36 +98,12 @@ final class DatabaseCleanupPage {
 		);
 	}
 
-	/**
-	 * Render the admin page
-	 */
-	public static function render_page(): void
-	{
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You do not have permission to access this page.', 'mhm-rentiva'));
-		}
-
-		?>
-		<div class="wrap">
-			<h1><?php esc_html_e('Database Management & Optimization', 'mhm-rentiva'); ?></h1>
-
-			<div class="notice notice-warning">
-				<p>
-					<strong><?php esc_html_e('Warning:', 'mhm-rentiva'); ?></strong>
-					<?php esc_html_e('Database cleanup operations are irreversible. Automatic backup is created before each operation.', 'mhm-rentiva'); ?>
-				</p>
-			</div>
-
-			<?php
-			\MHMRentiva\Helpers\Html::echo_markup( DatabaseCleaner::render_cleanup_buttons() );
-			?>
-
-			<div id="mhm-cleanup-results" style="margin-top: 20px;"></div>
-		</div>
-		<?php
-	}
-
-
+	// render_page() was removed (WP.org T8 Görev 10b, row D6): register()'s
+	// own comment already said menu-page registration moved to the Settings
+	// tab, and this method had zero remaining caller (confirmed: not
+	// add_menu_page/add_submenu_page'd anywhere). The 15 wp_ajax_* handlers
+	// below survive -- database-cleanup.js calls them live from the
+	// reachable Settings > Database Cleanup tab.
 
 	/**
 	 * AJAX - Analyze database
