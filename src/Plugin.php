@@ -143,7 +143,7 @@ final class Plugin {
 			}
 		}
 
-		// â­ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
+		// ⭐ CRITICAL: AutoCancel MUST run in ALL contexts (admin, frontend, cron)
 		// Previously was inside is_admin() block which prevented cron from working!
 		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::register();
@@ -501,7 +501,7 @@ final class Plugin {
 		require_once MHMRENTIVA_PLUGIN_DIR . 'src/Admin/Vehicle/Hooks/ReviewEnforcer.php';
 		\MHMRentiva\Admin\Vehicle\Hooks\ReviewEnforcer::register();
 
-		// â­ New Account System (WordPress Login)
+		// ⭐ New Account System (WordPress Login)
 		if (class_exists(Admin\Frontend\Account\AccountController::class)) {
 			Admin\Frontend\Account\AccountController::register();
 		}
@@ -517,7 +517,7 @@ final class Plugin {
 			Admin\Services\CompareService::register();
 		}
 
-		// â­ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
+		// ⭐ CRITICAL: WooCommerce Bridge - Handles ALL payment transactions (Single Cash Register)
 		if (class_exists(Admin\Payment\WooCommerce\WooCommerceBridge::class)) {
 			Admin\Payment\WooCommerce\WooCommerceBridge::register();
 		} else {
@@ -565,7 +565,7 @@ final class Plugin {
 		// Database migration
 		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ));
 
-		// Taxonomy migration (vehicle_cat â†’ vehicle_category)
+		// Taxonomy migration (vehicle_cat → vehicle_category)
 		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);
 
 		// Database cleanup page (admin only)
@@ -613,7 +613,7 @@ final class Plugin {
 				\WP_CLI::add_command('mhm-rentiva repair-ratings', \MHMRentiva\Admin\CLI\RepairRatingsCommand::class);
 			}
 
-			// v4.14.x â€” Layout Import Pipeline (Phase 1)
+			// v4.14.x — Layout Import Pipeline (Phase 1)
 			if ($this->is_class_available('MHMRentiva\Layout\CLI\LayoutImportCommand')) {
 				\WP_CLI::add_command('mhm-rentiva layout', \MHMRentiva\Layout\CLI\LayoutImportCommand::class);
 			}
@@ -772,15 +772,15 @@ final class Plugin {
 	 */
 	private function initialize_frontend_services(): void
 	{
-		// â­ Load AbstractShortcode first - Required for other shortcodes
+		// ⭐ Load AbstractShortcode first - Required for other shortcodes
 		// Autoloader handles this now
 
-		// â­ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
+		// ⭐ Shortcode Service Provider - Manages all shortcodes centrally (v3.0.1)
 		if ($this->is_class_available('MHMRentiva\Admin\Core\ShortcodeServiceProvider')) {
 			\MHMRentiva\Admin\Core\ShortcodeServiceProvider::register();
 		}
 
-		// â­ Elementor Integration - Register widgets (v3.0.1)
+		// ⭐ Elementor Integration - Register widgets (v3.0.1)
 		$this->initialize_elementor_integration();
 	}
 
@@ -937,7 +937,7 @@ final class Plugin {
 	 * Register Customer role
 	 *
 	 * Safe: If the customer role already exists (for example from WooCommerce),
-	 * âœ… Safe: If customer role already exists (e.g., from WooCommerce),
+	 * ✅ Safe: If customer role already exists (e.g., from WooCommerce),
 	 * WordPress add_role() does nothing and returns null (no error).
 	 * This ensures compatibility with other plugins.
 	 */

@@ -30,7 +30,7 @@ $status_text = ( $status === 'approved' )
 // validated at the output site anyway because it lands inside a <style> block,
 // where esc_attr() is the wrong instrument (it leaves `;` and `}` intact).
 $status_color = ( $status === 'approved' ) ? '#28a745' : '#dc3545';
-$status_icon  = ( $status === 'approved' ) ? 'âœ“' : 'âœ—';
+$status_icon  = ( $status === 'approved' ) ? '✓' : '✗';
 ?>
 
 <!DOCTYPE html>

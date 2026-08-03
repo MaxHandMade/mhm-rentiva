@@ -22,7 +22,7 @@ $time_options     = $time_options ?? array();
 $guest_options    = $guest_options ?? array();
 $addons           = $addons ?? array();
 
-// â­ Logic moved to Controller (BookingForm::prepare_template_data)
+// ⭐ Logic moved to Controller (BookingForm::prepare_template_data)
 // Template now only receives pre-processed data
 
 // Error check (validation error from controller)
@@ -53,7 +53,7 @@ $pickup_location_id   = (int) ( $pickup_location_id ?? 0 );
 $pickup_location_name = (string) ( $pickup_location_name ?? '' );
 $prefill_pickup_time  = (string) ( $prefill_pickup_time ?? '' );
 
-// â­ Get user data from controller (pre-processed)
+// ⭐ Get user data from controller (pre-processed)
 $user_data    = $user_data ?? array();
 $is_logged_in = $user_data['is_logged_in'] ?? false;
 $user_name    = $user_data['user_name'] ?? '';
@@ -446,7 +446,7 @@ $unique_id = uniqid('rv_booking_');
 </div>
 
 <?php
-// â­ Inline JavaScript removed - All JS is now in assets/js/frontend/booking-form.js
+// ⭐ Inline JavaScript removed - All JS is now in assets/js/frontend/booking-form.js
 // Payment status handling is done via JavaScript in the external file
 // Data is passed via wp_localize_script in BookingForm::enqueue_assets()
 ?>

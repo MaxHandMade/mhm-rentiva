@@ -12,7 +12,7 @@
 		</p>
 		<p><?php esc_html_e( 'You can access your account anytime using the button below:', 'mhm-rentiva' ); ?></p>
 		<?php
-		// âœ… Use WooCommerce native approach instead of ShortcodeUrlManager
+		// ✅ Use WooCommerce native approach instead of ShortcodeUrlManager
 		$account_url = function_exists( 'wc_get_page_permalink' )
 			? wc_get_page_permalink( 'myaccount' )
 			: home_url( '/my-account/' );

@@ -20,7 +20,7 @@ use MHMRentiva\Helpers\Icons;
 
 
 
-// â­ Asset management removed - VehicleRatingForm Controller handles asset loading
+// ⭐ Asset management removed - VehicleRatingForm Controller handles asset loading
 // Assets are enqueued via VehicleRatingForm::enqueue_assets() method
 // Localized data is provided via VehicleRatingForm::get_localized_strings() method
 

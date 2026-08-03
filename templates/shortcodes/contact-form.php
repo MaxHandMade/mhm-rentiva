@@ -257,7 +257,7 @@ $unique_id             = uniqid('rv_contact_');
 </div>
 
 <?php
-// â­ JavaScript localization removed - ContactForm Controller handles asset loading
+// ⭐ JavaScript localization removed - ContactForm Controller handles asset loading
 // Assets are enqueued via ContactForm::enqueue_assets() method
 // Localized data is provided via ContactForm::get_localized_strings() method
 ?>

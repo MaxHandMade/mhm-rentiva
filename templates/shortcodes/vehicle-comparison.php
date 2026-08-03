@@ -157,7 +157,7 @@ $custom_class         = trim($atts['class'] ?? '');
 									<?php foreach ($vehicles as $vehicle) : ?>
 										<td class="rv-feature-value" data-vehicle-id="<?php echo esc_attr($vehicle['id']); ?>">
 											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
+											$value = $vehicle['features'][ $feature_key ] ?? '–';
 											// Defense-in-depth: ensure value is always a string
 											if (is_array($value)) {
 												$value = implode(', ', array_filter(array_map('strval', $value)));
@@ -249,7 +249,7 @@ $custom_class         = trim($atts['class'] ?? '');
 											<span class="rv-mobile-label"><?php echo esc_html($feature_label); ?></span>
 											<span class="rv-mobile-value">
 												<?php
-												$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
+												$value = $vehicle['features'][ $feature_key ] ?? '–';
 												if (is_array($value)) {
 													$value = implode(', ', array_filter(array_map('strval', $value)));
 												}
@@ -317,7 +317,7 @@ $custom_class         = trim($atts['class'] ?? '');
 										<span class="rv-feature-label"><?php echo esc_html($feature_label); ?>:</span>
 										<span class="rv-feature-value">
 											<?php
-											$value = $vehicle['features'][ $feature_key ] ?? 'â€“';
+											$value = $vehicle['features'][ $feature_key ] ?? '–';
 											if (is_array($value)) {
 												$value = implode(', ', array_filter(array_map('strval', $value)));
 											}
