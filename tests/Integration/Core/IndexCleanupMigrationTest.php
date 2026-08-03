@@ -192,6 +192,46 @@ final class IndexCleanupMigrationTest extends WP_UnitTestCase
     }
 
     /**
+     * usermeta is a GLOBAL table -- WordPress never re-prefixes it per site,
+     * so drop() must resolve it via $wpdb->usermeta, not $wpdb->prefix .
+     * 'usermeta' (which would name a non-existent table on any subsite other
+     * than the one $wpdb->prefix currently points at).
+     *
+     * Proven here WITHOUT touching the real wp_usermeta table and WITHOUT
+     * real multisite blog-switching: $wpdb->usermeta is a plain public
+     * property, so it is redirected at the fixture for the duration of one
+     * call and restored in `finally`. If drop() ever regresses to
+     * $wpdb->prefix . 'usermeta', it looks at the real (untouched, and here
+     * index-free) usermeta table instead of the fixture, finds nothing
+     * there, and 'dropped' comes back empty -- this assertion goes red.
+     */
+    public function test_usermeta_resolves_via_the_global_wpdb_property_not_a_per_site_prefix(): void
+    {
+        global $wpdb;
+        $wpdb->query("CREATE INDEX idx_t8_usermeta ON {$this->fixture} (meta_key(50))");
+
+        $expected = array(
+            'wp_usermeta' => array(
+                'idx_t8_usermeta' => array($this->sig(1, 'meta_key', 50)),
+            ),
+        );
+
+        $original_usermeta = $wpdb->usermeta;
+        $wpdb->usermeta     = $this->fixture;
+        try {
+            $result = RetiredIndexes::drop($wpdb, $expected);
+        } finally {
+            $wpdb->usermeta = $original_usermeta;
+        }
+
+        $this->assertSame(
+            array('idx_t8_usermeta'),
+            $result['dropped'],
+            'drop() must resolve the "wp_usermeta" suffix via $wpdb->usermeta (redirected here to the fixture), not via $wpdb->prefix . "usermeta".'
+        );
+    }
+
+    /**
      * Canary for tests/phpunit/multisite.xml (Adım 2/12): if that config stops
      * actually enabling multisite -- a typo, a schema drift, WP core changing
      * how WP_TESTS_MULTISITE is consumed -- this is the test that says so,

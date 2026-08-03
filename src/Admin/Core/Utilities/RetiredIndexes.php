@@ -823,14 +823,22 @@ final class RetiredIndexes {
      * caught rather than trusted.
      *
      * @param array<string, array<string, list<array{seq:int, col:string, sub:?int, non_unique:int, type:string}>>>|null $expected Defaults to self::LIST.
-     * @param callable(string):bool|null $runner Runs one DROP INDEX statement; defaults to $wpdb->query(). Tests inject a stub to force the failure path without touching the database.
+     * @param callable(string,string):bool|null $runner Runs one DROP INDEX statement, given (index name, table). Defaults to `$wpdb->query( $wpdb->prepare( 'DROP INDEX %i ON %i', $index, $table ) )`. Tests inject a stub to force the failure path without touching the database.
      * @return array{dropped: list<string>, skipped: list<string>, failed: list<string>}
      */
     public static function drop(\wpdb $wpdb, ?array $expected = null, ?callable $runner = null): array
     {
         $expected ??= self::LIST;
-        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql is always the return value of $wpdb->prepare('DROP INDEX %i ON %i', ...) built two lines below, at this closure's only call site; the sniff cannot see through the $runner indirection to that prepare() call.
-        $runner ??= static fn (string $sql): bool => false !== $wpdb->query($sql);
+        // The prepare() call lives INSIDE the runner (not at the call site
+        // below, one indirection removed) so that both WPCS's PreparedSQL
+        // sniff and WP.org Plugin Check's own DirectDB sniff can see the
+        // statement is prepared -- a $wpdb->query($sql) call fed an
+        // already-prepared string one indirection away reads, to both
+        // tools, as an unescaped parameter. Verified: the alternative shape
+        // (prepare() at the call site, runner takes the built SQL string)
+        // ships a real PluginCheck.Security.DirectDB.UnescapedDBParameter
+        // finding in WP.org's own tool for no behavioural difference.
+        $runner ??= static fn (string $index, string $table): bool => false !== $wpdb->query($wpdb->prepare('DROP INDEX %i ON %i', $index, $table));
 
         $out = array(
             'dropped' => array(),
@@ -839,7 +847,18 @@ final class RetiredIndexes {
         );
 
         foreach ($expected as $table_suffix => $indexes) {
-            $table = $wpdb->prefix . substr($table_suffix, 3); // 'wp_postmeta' -> the real prefix.
+            $bare = substr($table_suffix, 3); // 'wp_postmeta' -> 'postmeta'
+            // usermeta (like users) is a GLOBAL table -- WordPress does not
+            // reprefix it per site, so $wpdb->prefix . 'usermeta' names a
+            // table that does not exist on any subsite other than the one
+            // $wpdb->prefix currently points at. Preferring the matching
+            // $wpdb property when one exists resolves posts/postmeta
+            // per-site and usermeta globally -- exactly what the retired
+            // creator methods used ($wpdb->postmeta / $wpdb->posts /
+            // $wpdb->usermeta) -- and falls back to prefix+bare only for a
+            // suffix with no wpdb property, which is how the test fixture
+            // table resolves.
+            $table = isset($wpdb->$bare) ? $wpdb->$bare : $wpdb->prefix . $bare;
 
             foreach ($indexes as $name => $sig) {
                 $actual = self::signature($wpdb, $table, $name);
@@ -853,7 +872,7 @@ final class RetiredIndexes {
                     continue;
                 }
 
-                if (false === $runner($wpdb->prepare('DROP INDEX %i ON %i', $name, $table))) {
+                if (false === $runner($name, $table)) {
                     $out['failed'][] = $name;
                     continue;
                 }
