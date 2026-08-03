@@ -17,7 +17,9 @@ if (! defined('ABSPATH')) {
  * shared with every other plugin and theme; this plugin has no way to know
  * it is safe to keep piling composite indexes onto them), and the owner
  * approved removal. RetiredIndexes::drop() now retires those 20 plus 15
+ * prefix-rename:ignore-start -- legacy name mentioned as DATA in this sentence, not a live identifier for the sweep to rename.
  * pre-6.0.0-rename `idx_mhm_*` twins the rename itself never cleaned up.
+ * prefix-rename:ignore-end
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This file is the schema migrator: CREATE/ALTER/DROP and one-shot data backfills. WordPress has no API for DDL, so there is no core call to prefer. Caching is not merely unnecessary here but wrong: every statement below is version-gated, runs once per install, and CHANGES the rows it just read, so a cached read would be stale by construction. Tables touched are this plugin's own plus wp_posts/wp_postmeta/wp_options during the 6.0.0 rename, which is why the file also carries SchemaChange suppressions on the individual DDL lines rather than blanket-disabling that sniff. Scope is bounded by the version gate, not by user input. Original wording, kept because it is still true as far as it went: "Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {

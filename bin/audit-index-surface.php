@@ -40,7 +40,9 @@
  *      post_parent, type_status_author, type_status_date, user_id -- none
  *      start with "idx_"), so the heuristic needs no hardcoded name list
  *      and still counts correctly for orphaned legacy names the current
+ *      prefix-rename:ignore-start -- legacy name mentioned as DATA in this sentence, not a live identifier for the sweep to rename.
  *      source no longer creates (the pre-rename idx_mhm_* set living
+ *      prefix-rename:ignore-end
  *      alongside today's idx_mhmrentiva_* set is exactly such a case).
  *
  * THIS IS A REPORT, NOT A GATE

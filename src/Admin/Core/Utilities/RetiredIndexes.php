@@ -18,7 +18,9 @@ if (! defined('ABSPATH')) {
  * Through 4.1.x, DatabaseMigrator::run_migrations() created up to 20 named
  * indexes on wp_posts/wp_postmeta/wp_usermeta on every install
  * (add_performance_indexes() / add_missing_indexes()), and a further 15
+ * prefix-rename:ignore-start -- legacy name mentioned as DATA in this sentence, not a live identifier for the sweep to rename.
  * pre-6.0.0-rename `idx_mhm_*` twins survive on any site that migrated
+ * prefix-rename:ignore-end
  * through that rename without ever being cleaned up (the rename moved
  * options/post types/meta/tables; it never touched these indexes). A
  * same-day independent audit verdicted REMOVE 20/20 -- WordPress core tables
@@ -49,7 +51,9 @@ if (! defined('ABSPATH')) {
  * columns, not `sub => 20`. Encoding the source text literally here would
  * make signature() (which reads what MySQL actually stored) never equal
  * this LIST, and the entry would be misfiled under 'skipped' forever -- a
+ * prefix-rename:ignore-start -- legacy name mentioned as DATA in this sentence, not a live identifier for the sweep to rename.
  * genuinely-ours index silently left behind. The 15 legacy `idx_mhm_*`
+ * prefix-rename:ignore-end
  * entries were read from live `information_schema.STATISTICS` (they are not
  * in source at all) and diffed against their `idx_mhmrentiva_*` twins:
  * zero mismatches found.
@@ -421,16 +425,20 @@ final class RetiredIndexes {
 				),
             ),
 
+            // prefix-rename:ignore-start -- legacy name mentioned as DATA in this sentence, not a live identifier for the sweep to rename.
             // 15 legacy idx_mhm_* twins (pre-6.0.0-rename names; not in source,
+            // prefix-rename:ignore-end
             // read from live information_schema -- see class docblock).
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_status_lookup'           => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -446,14 +454,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_timestamp_range'         => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'post_id',
-					'sub'        => null,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'post_id',
+						'sub'        => null,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_key',
@@ -469,14 +479,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_vehicle_bookings'        => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_value',
-					'sub'        => 20,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_value',
+						'sub'        => 20,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'post_id',
@@ -485,14 +497,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_booking_meta'            => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'post_id',
@@ -508,14 +522,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_customer_email'          => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -524,14 +540,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_price_range'             => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -540,14 +558,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_booking_combined'        => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'post_id',
-					'sub'        => null,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'post_id',
+						'sub'        => null,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_key',
@@ -556,14 +576,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_status'                  => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -579,14 +601,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_vehicle_id'              => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -602,14 +626,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_start_ts'                => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -625,14 +651,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_end_ts'                  => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -648,14 +676,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_total_price'             => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -671,14 +701,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_contact_email'           => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -694,14 +726,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_contact_name'            => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',
@@ -717,14 +751,16 @@ final class RetiredIndexes {
 					'type'       => 'BTREE',
 				),
             ),
+            // prefix-rename:ignore-start -- legacy retired-index name: present as DATA (a signature RetiredIndexes::drop() looks FOR against the live DB), not a live identifier for the sweep to rename.
             'idx_mhm_customer_id'             => array(
-                array(
-					'seq'        => 1,
-					'col'        => 'meta_key',
-					'sub'        => 50,
-					'non_unique' => 1,
-					'type'       => 'BTREE',
-				),
+				// prefix-rename:ignore-end
+					array(
+						'seq'        => 1,
+						'col'        => 'meta_key',
+						'sub'        => 50,
+						'non_unique' => 1,
+						'type'       => 'BTREE',
+					),
                 array(
 					'seq'        => 2,
 					'col'        => 'meta_value',

@@ -880,35 +880,71 @@ class PrefixRenamer {
 			),
 		),
 		'src/Admin/Core/Utilities/DatabaseMigrator.php' => array(
-			'why'      => 'cron hooks and dead tables must be cleared under every name they have ever had; and the 6.0.0 rename step must NAME the old identifiers it goes looking for -- a migration that searched for the new names would find nothing to migrate',
+			'why'      => 'cron hooks and dead tables must be cleared under every name they have ever had; the 6.0.0 rename step must NAME the old identifiers it goes looking for -- a migration that searched for the new names would find nothing to migrate; and the class docblock explaining RetiredIndexes must be able to name the pre-6.0.0 idx_mhm_* index-name pattern it describes',
 			'regions'  => array(
-				0 => array( '_transient_mhm_rate_limit_%', '_transient_mhm_rentiva_rate_limit_%', '_transient_mhmrentiva_rate_limit_%', '_transient_timeout_mhm_rate_limit_%', '_transient_timeout_mhm_rentiva_rate_limit_%', '_transient_timeout_mhmrentiva_rate_limit_%', 'mhm_rate_limit_', 'mhm_rentiva_rate_limit_', 'mhmrentiva_rate_limit_' ),
+				// T8 remediation: the class docblock explains that RetiredIndexes
+				// also retires 15 pre-6.0.0-rename idx_mhm_* index-name twins --
+				// prose about a fact, not a live identifier, but the fact cannot
+				// be stated without naming the pattern.
+				0 => array(),
+				1 => array( '_transient_mhm_rate_limit_%', '_transient_mhm_rentiva_rate_limit_%', '_transient_mhmrentiva_rate_limit_%', '_transient_timeout_mhm_rate_limit_%', '_transient_timeout_mhm_rentiva_rate_limit_%', '_transient_timeout_mhmrentiva_rate_limit_%', 'mhm_rate_limit_', 'mhm_rentiva_rate_limit_', 'mhmrentiva_rate_limit_' ),
 				// Dead orchestration schema. Neither table is in TABLES, so no
 				// rename produces the new spelling -- the old one is the only
 				// name a real install has.
-				1 => array( 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics' ),
-				2 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ),
-				3 => array( 'mhm_notification_queue', 'mhmrentiva_notification_queue' ),
+				2 => array( 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics' ),
+				3 => array( 'mhm_rentiva_send_scheduled_notifications', 'mhm_send_scheduled_notifications', 'mhmrentiva_send_scheduled_notifications' ),
+				4 => array( 'mhm_notification_queue', 'mhmrentiva_notification_queue' ),
 				// Recovery for rows a 4.0.0 stack truncated before the contact
 				// type had a map entry: both the map key and the 20-char stub.
-				4 => array( 'mhm_contact_message', 'mhmrentiva_contact_m' ),
-				// Görev 13, the 6.0.0 rename step. Regions 5-12 protect the OLD
+				5 => array( 'mhm_contact_message', 'mhmrentiva_contact_m' ),
+				// Görev 13, the 6.0.0 rename step. Regions 6-13 protect the OLD
 				// names the migration has to go looking for.
-				5 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
-				6 => array( '_mhm_', '_mhm_rentiva_' ),
-				7 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
-				8 => array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
-				9 => array(),
-				10 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
-				11 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
-				12 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
+				6 => array( '_mhm_', '_mhm_rentiva_', '_mhmrentiva_', 'mhm_', 'mhm_rentiva_', 'mhmrentiva_' ),
+				7 => array( '_mhm_', '_mhm_rentiva_' ),
+				8 => array( '_transient_mhm_rentiva_', '_transient_timeout_mhm_rentiva_' ),
+				9 => array( 'mhm_message', 'mhm_payout', 'mhm_vendor_app' ),
+				10 => array(),
+				11 => array( '_mhm_auto_created', '_mhm_booking_id', '_mhm_booking_payment_type', '_mhm_booking_pending', '_mhm_is_remaining_payment', '_mhm_original_order_id', '_mhm_shortcode', '_mhm_wc_payment_type', '_mhmrentiva_auto_created', '_mhmrentiva_booking_id', '_mhmrentiva_booking_payment_type', '_mhmrentiva_booking_pending', '_mhmrentiva_is_remaining_payment', '_mhmrentiva_original_order_id', '_mhmrentiva_shortcode', '_mhmrentiva_wc_payment_type' ),
+				12 => array( 'mhmrentiva_addon_description', 'mhmrentiva_addon_enabled', 'mhmrentiva_addon_price', 'mhmrentiva_addon_required', 'mhmrentiva_addon_type' ),
+				13 => array( '_mhm_vendor_commission_rate', '_mhm_vendor_payout_freeze', 'mhm_anonymization_date', 'mhm_booking_notifications', 'mhm_dashboard_widget_order', 'mhm_data_anonymized', 'mhm_data_consent_date', 'mhm_data_consent_given', 'mhm_favorite_vehicles', 'mhm_gdpr_consent_date', 'mhm_gdpr_consent_given', 'mhm_gdpr_consent_withdrawal_date', 'mhm_gdpr_consent_withdrawn', 'mhm_marketing_emails', 'mhm_welcome_email' ),
 				// The three Elementor widget names as SAVED IN PAGES. The map's
 				// keys are the old spelling by definition -- sweep them and the
 				// migration searches for names no stored page contains, finds
 				// nothing, and reports success.
 				// Both spellings: the region wraps a MAP, so the new names sit
 				// inside it as values and are silenced just as much as the keys.
-				13 => array( 'mhm_rentiva_featured_vehicles', 'mhm_rentiva_vehicles_grid', 'mhm_rentiva_vehicles_list', 'mhmrentiva_featured_vehicles', 'mhmrentiva_vehicles_grid', 'mhmrentiva_vehicles_list' ),
+				14 => array( 'mhm_rentiva_featured_vehicles', 'mhm_rentiva_vehicles_grid', 'mhm_rentiva_vehicles_list', 'mhmrentiva_featured_vehicles', 'mhmrentiva_vehicles_grid', 'mhmrentiva_vehicles_list' ),
+			),
+		),
+		'src/Admin/Core/Utilities/RetiredIndexes.php' => array(
+			'why'      => 'this class exists to retire the 35 indexes still carrying pre-6.0.0 names, so its docblock and its LIST constant both have to NAME those old index names literally -- a class that could not spell the names it retires could not retire them',
+			'regions'  => array(
+				0 => array(), // class docblock: names the idx_mhm_* pattern in prose.
+				1 => array(), // class docblock: second mention, same reason.
+				2 => array(), // LIST comment introducing the 15 legacy entries.
+				// The 15 legacy idx_mhm_* array keys themselves -- each is one
+				// signature entry LIST looks the live DB up BY, in file order.
+				3  => array( 'idx_mhm_status_lookup' ),
+				4  => array( 'idx_mhm_timestamp_range' ),
+				5  => array( 'idx_mhm_vehicle_bookings' ),
+				6  => array( 'idx_mhm_booking_meta' ),
+				7  => array( 'idx_mhm_customer_email' ),
+				8  => array( 'idx_mhm_price_range' ),
+				9  => array( 'idx_mhm_booking_combined' ),
+				10 => array( 'idx_mhm_status' ),
+				11 => array( 'idx_mhm_vehicle_id' ),
+				12 => array( 'idx_mhm_start_ts' ),
+				13 => array( 'idx_mhm_end_ts' ),
+				14 => array( 'idx_mhm_total_price' ),
+				15 => array( 'idx_mhm_contact_email' ),
+				16 => array( 'idx_mhm_contact_name' ),
+				17 => array( 'idx_mhm_customer_id' ),
+			),
+		),
+		'bin/audit-index-surface.php' => array(
+			'why'      => 'the tool\'s own docblock explains its live-DB heuristic by naming the exact legacy idx_mhm_* pattern it was built to also count, alongside today\'s idx_mhmrentiva_* names -- the explanation cannot be written without the pattern it explains',
+			'regions'  => array(
+				0 => array(), // docblock: names the idx_mhm_* pattern in prose.
 			),
 		),
 		'src/Admin/Core/Utilities/MetaQueryHelper.php' => array(
