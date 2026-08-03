@@ -113,13 +113,14 @@ final class ShortcodePages {
 	 * @return void
 	 */
 	public function enqueue_assets( string $hook_suffix ): void {
-		$is_valid_page = false;
-
-		if ( '' !== $this->page_hook && $hook_suffix === $this->page_hook ) {
-			$is_valid_page = true;
-		} elseif ( isset( $_GET['page'] ) && $_GET['page'] === self::MENU_SLUG ) {
-			$is_valid_page = true;
-		}
+		// Menu.php registers this screen centrally and never calls
+		// add_admin_menu(), so $this->page_hook is empty in production -- the
+		// hook-suffix match below is the branch that actually fires. Gating on
+		// the $hook_suffix WordPress hands to admin_enqueue_scripts is the same
+		// gate DashboardPage and About use; it replaces a $_GET['page'] read
+		// that duplicated information already in the callback's own argument.
+		$is_valid_page = ( '' !== $this->page_hook && $hook_suffix === $this->page_hook )
+			|| str_contains( $hook_suffix, self::MENU_SLUG );
 
 		if ( ! $is_valid_page ) {
 			return;

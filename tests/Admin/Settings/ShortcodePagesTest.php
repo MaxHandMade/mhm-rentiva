@@ -81,9 +81,11 @@ class ShortcodePagesTest extends WP_UnitTestCase
             define( 'MHMRENTIVA_PLUGIN_URL', 'http://example.com/wp-content/plugins/mhm-rentiva/' );
         }
 
-        // phpcs:ignore WordPress.Security.NonceVerification.Recommended
-        $_GET['page'] = 'mhm-rentiva-shortcode-pages';
-        $this->orchestrator->enqueue_assets( 'some-hook-suffix' );
+        // The screen is registered by Menu.php, so enqueue_assets() matches on
+        // the hook suffix admin_enqueue_scripts passes -- not on $_GET['page'].
+        // 'some-hook-suffix' used to pass here only because a $_GET fallback
+        // accepted it; that fallback is gone, so use the real hook suffix.
+        $this->orchestrator->enqueue_assets( 'mhm-rentiva_page_mhm-rentiva-shortcode-pages' );
 
         $this->assertTrue( wp_style_is( 'mhm-rentiva-shortcode-pages', 'enqueued' ) );
         $this->assertTrue( wp_script_is( 'mhm-rentiva-react-shortcode-pages', 'enqueued' ) );
