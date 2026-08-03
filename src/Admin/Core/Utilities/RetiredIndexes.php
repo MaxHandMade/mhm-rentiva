@@ -5,6 +5,10 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Core\Utilities;
 
+if (! defined('ABSPATH')) {
+	exit;
+}
+
 /**
  * The 35 indexes this plugin used to create on WordPress CORE tables
  * (wp_posts / wp_postmeta / wp_usermeta), and the one routine that drops them.
