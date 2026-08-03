@@ -484,7 +484,6 @@
         grid.append(newItem);
         setupCheckboxItemEvents(newItem);
         updateCheckboxItemStyle(newItem, true);
-        makeItemDraggable(newItem);
     }
 
     /**
@@ -504,7 +503,6 @@
         grid.append(newItem);
         setupCheckboxItemEvents(newItem);
         updateCheckboxItemStyle(newItem, true);
-        makeItemDraggable(newItem);
     }
 
     /**
@@ -525,7 +523,6 @@
                                  `);
 
         grid.append(newItem);
-        makeItemDraggable(newItem);
     }
 
     /**

@@ -275,7 +275,10 @@
                             (favoritesConfig.strings?.add_label || this.getMessage('add_to_favorites'))
                         );
 
-                        MHMRentivaToast.show(message, { type: 'success' });
+                        const successMessage = isAdded ?
+                            (favoritesConfig.strings?.added_label || this.getMessage('added_to_favorites')) :
+                            (favoritesConfig.strings?.removed_label || this.getMessage('removed_from_favorites'));
+                        MHMRentivaToast.show(successMessage, { type: 'success' });
                     } else {
                         MHMRentivaToast.show(response.data?.message || favoritesConfig.strings?.error || this.getMessage('error'), { type: 'error' });
                     }
