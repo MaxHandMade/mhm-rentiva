@@ -37,7 +37,6 @@ final class DatabaseCleanupPage {
 		add_action('wp_ajax_mhmrentiva_create_full_backup', array( self::class, 'ajax_create_full_backup' ));
 		add_action('wp_ajax_mhmrentiva_list_full_backups', array( self::class, 'ajax_list_full_backups' ));
 		add_action('wp_ajax_mhmrentiva_download_full_backup', array( self::class, 'ajax_download_full_backup' ));
-		add_action('wp_ajax_mhmrentiva_restore_full_backup', array( self::class, 'ajax_restore_full_backup' ));
 		add_action('wp_ajax_mhmrentiva_delete_full_backup', array( self::class, 'ajax_delete_full_backup' ));
 		add_action('wp_ajax_mhmrentiva_repair_table', array( self::class, 'ajax_repair_table' ));
 		add_action('wp_ajax_mhmrentiva_cleanup_logs', array( self::class, 'ajax_cleanup_logs' ));
@@ -573,48 +572,6 @@ final class DatabaseCleanupPage {
 
 		self::send_download_body($contents);
 		exit;
-	}
-
-	/**
-	 * AJAX - Restore full backup
-	 */
-	public static function ajax_restore_full_backup(): void
-	{
-		if (! check_ajax_referer('mhmrentiva_db_cleanup', 'nonce', false)) {
-			wp_send_json_error(array( 'message' => __('Invalid security nonce.', 'mhm-rentiva') ));
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(array( 'message' => __('Permission denied', 'mhm-rentiva') ));
-		}
-
-		$file_path = isset($_POST['file_path']) ? sanitize_text_field(wp_unslash($_POST['file_path'])) : '';
-
-		if (empty($file_path)) {
-			wp_send_json_error(esc_html__('Backup file path required', 'mhm-rentiva'));
-		}
-
-		// Verify it's in a backup directory. DatabaseCleaner::is_backup_file()
-		// resolves both ends with realpath() before comparing -- which is what
-		// collapses a `..` traversal, and what keeps an unresolvable path from
-		// reaching strpos() as `false` (a PHP 8.1 deprecation; WP.org requires a
-		// notice-free run under WP_DEBUG).
-		if (! \MHMRentiva\Admin\Core\Utilities\DatabaseCleaner::is_backup_file($file_path)) {
-			wp_send_json_error(esc_html__('Invalid backup file path', 'mhm-rentiva'));
-		}
-
-		$result = DatabaseCleaner::restore_full_backup($file_path);
-
-		if ($result['success']) {
-			wp_send_json_success(
-				array(
-					'message'  => $result['message'],
-					'executed' => $result['executed'] ?? 0,
-				)
-			);
-		} else {
-			wp_send_json_error($result['message'] ?? esc_html__('Failed to restore backup', 'mhm-rentiva'));
-		}
 	}
 
 	/**

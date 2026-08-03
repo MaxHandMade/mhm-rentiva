@@ -514,39 +514,6 @@ jQuery( document ).ready(
 			}
 		);
 
-		// Restore Full Backup
-		$( document ).on(
-			'click',
-			'.mhm-restore-full-backup-btn',
-			function () {
-				if ( ! confirm( mhmrentiva_db_cleanup_vars.confirm_restore_full_backup_text || 'WARNING: This will restore the backup and may overwrite existing data. This operation is irreversible. Continue?' )) {
-					return;
-				}
-
-				const btn      = $( this );
-				const filePath = btn.data( 'file' );
-				btn.prop( 'disabled', true ).text( mhmrentiva_db_cleanup_vars.restoring_text || 'Restoring...' );
-
-				$.post(
-					ajaxurl,
-					{
-						action: 'mhmrentiva_restore_full_backup',
-						nonce: mhmrentiva_db_cleanup_vars.nonce,
-						file_path: filePath
-					},
-					function (response) {
-						if (response.success) {
-							alert( mhmrentiva_db_cleanup_vars.success_text + ' ' + response.data.message );
-							$( '#mhm-refresh-full-backups-btn' ).trigger( 'click' );
-						} else {
-							alert( mhmrentiva_db_cleanup_vars.error_text + ' ' + response.data );
-						}
-						btn.prop( 'disabled', false ).html( '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore') );
-					}
-				);
-			}
-		);
-
 		// Delete Full Backup
 		$( document ).on(
 			'click',
@@ -619,9 +586,6 @@ jQuery( document ).ready(
 					if (backup.file_exists) {
 						html += '<button type="button" class="button button-small mhm-download-full-backup-btn" data-file="' + backup.file_path + '" style="margin-right: 5px;">';
 						html += '<span class="dashicons dashicons-download"></span> ' + (mhmrentiva_db_cleanup_vars.download_text || 'Download');
-						html += '</button>';
-						html += '<button type="button" class="button button-small mhm-restore-full-backup-btn" data-file="' + backup.file_path + '" style="margin-right: 5px;">';
-						html += '<span class="dashicons dashicons-undo"></span> ' + (mhmrentiva_db_cleanup_vars.restore_text || 'Restore');
 						html += '</button>';
 					}
 					html += '<button type="button" class="button button-small mhm-delete-full-backup-btn" data-backup="' + backup.backup_name + '">';

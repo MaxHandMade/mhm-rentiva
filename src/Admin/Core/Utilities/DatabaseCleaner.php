@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Cleans orphaned data, expired transients and unused meta keys
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup/restore feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. NOTE for reviewers: the one unsuppressed error in this file, at restore_full_backup(), is left visible on purpose; see the comment there. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
 
@@ -2182,9 +2182,8 @@ final class DatabaseCleaner {
 	 *
 	 * The containment check used to live only in the AJAX callers, re-derived at
 	 * each one. That made the invariant a property of the callers rather than of
-	 * the class that executes the file, so the next entry point to call
-	 * restore_full_backup() without copying the check would get arbitrary SQL
-	 * execution from an arbitrary file. It belongs here.
+	 * the class that reads the file, so any new entry point would have had to copy
+	 * the check to be safe. It belongs here.
 	 *
 	 * Both ends are resolved with realpath() before comparison: that is what
 	 * collapses a `..` traversal, and realpath() returns false for a path that
@@ -2213,90 +2212,6 @@ final class DatabaseCleaner {
 	 */
 	private static function is_contained_backup_file( string $file_path ): bool {
 		return self::is_backup_file( $file_path );
-	}
-
-	/**
-	 * Restore full backup from SQL file
-	 */
-	public static function restore_full_backup( string $file_path ): array {
-		global $wpdb;
-
-		if ( ! self::is_contained_backup_file( $file_path ) ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Invalid backup file path', 'mhm-rentiva' ),
-			);
-		}
-
-		if ( ! self::init_filesystem() ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Failed to initialize filesystem', 'mhm-rentiva' ),
-			);
-		}
-
-		global $wp_filesystem;
-
-		if ( ! $wp_filesystem->exists( $file_path ) ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Backup file not found', 'mhm-rentiva' ),
-			);
-		}
-
-		// Read SQL file
-		$sql_content = $wp_filesystem->get_contents( $file_path );
-		if ( empty( $sql_content ) ) {
-			return array(
-				'success' => false,
-				'message' => __( 'Failed to read backup file', 'mhm-rentiva' ),
-			);
-		}
-
-		// Execute SQL (split by semicolon)
-		$queries = array_filter(
-			array_map( 'trim', explode( ';', $sql_content ) ),
-			function ( $query ) {
-				return ! empty( $query ) && ! preg_match( '/^--/', $query );
-			}
-		);
-
-		$executed = 0;
-		$errors   = array();
-
-		foreach ( $queries as $query ) {
-			if ( empty( trim( $query ) ) ) {
-				continue;
-			}
-			// DELIBERATELY NOT SUPPRESSED (prepared-statement work).
-			//
-			// $query is one statement split out of a .sql dump this plugin wrote
-			// itself, and the file path is contained by is_contained_backup_file()
-			// -> is_backup_file(), which resolves both ends with realpath() before
-			// comparing. There is no placeholder form for "execute this arbitrary
-			// statement", so no amount of prepare() removes the finding -- and a
-			// phpcs:ignore here would only hide it from our own gate while a human
-			// reviewer still sees it. It stays visible until the owner decides
-			// between rewriting the backup format, dropping the feature, or
-			// explaining it to WP.org.
-			$result = $wpdb->query( $query );
-			if ( $result === false ) {
-				$errors[] = $wpdb->last_error;
-			} else {
-				++$executed;
-			}
-		}
-
-		return array(
-			'success'  => empty( $errors ),
-			'executed' => $executed,
-			'errors'   => $errors,
-			'message'  => empty( $errors )
-				/* translators: %d placeholder. */
-				? sprintf( __( 'Restored %d queries successfully', 'mhm-rentiva' ), $executed )
-				/* translators: 1: %d; 2: %d. */
-				: sprintf( __( 'Restored %1$d queries, %2$d errors occurred', 'mhm-rentiva' ), $executed, count( $errors ) ),
-		);
 	}
 
 	/**

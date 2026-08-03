@@ -2367,7 +2367,7 @@ msgstr "Ödeme Yöntemi"
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:174
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:175
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:445
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:160
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
 msgstr "Çevrimiçi"
 
@@ -2676,7 +2676,7 @@ msgstr "E-posta başarıyla gönderildi!"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:192
 #: src/Admin/Core/AssetManager.php:986
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:88
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:87
 msgid "Error:"
 msgstr "Hata:"
 
@@ -5007,7 +5007,7 @@ msgid "Button"
 msgstr "Buton"
 
 #: src/Admin/Core/Traits/AdminHelperTrait.php:43
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:108
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:107
 msgid "You do not have permission to access this page."
 msgstr "Bu sayfaya erişim izniniz yok."
 
@@ -5157,28 +5157,28 @@ msgid "Repair/Create"
 msgstr "Onarım/Oluşturma"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1582
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:90
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:89
 msgid "Analyze Database"
 msgstr "Veritabanını Analiz Et"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1587
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:91
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:90
 msgid "Clean Orphaned Meta"
 msgstr "Temiz Yetim Meta"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1592
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:92
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:91
 msgid "Clean Expired Transients"
 msgstr "Süresi Dolmuş Geçici Dosyaları Temizle"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1597
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:125
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:93
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:92
 msgid "Optimize Autoload"
 msgstr "Otomatik Yüklemeyi Optimize Et"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1602
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:94
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:93
 msgid "Optimize Tables"
 msgstr "Tabloları Optimize Et"
 
@@ -5202,13 +5202,13 @@ msgid "Not a backup table"
 msgstr "Yedek tablo değil"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1861
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2359
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2274
 msgid "Backup deleted successfully"
 msgstr "Yedekleme başarıyla silindi"
 
 #: src/Admin/Core/Utilities/DatabaseCleaner.php:1861
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:459
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:648
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:458
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:605
 msgid "Failed to delete backup"
 msgstr "Yedekleme silinmedi"
 
@@ -5230,59 +5230,36 @@ msgstr "Yedekleme dosyası yazılmadı"
 msgid "Full backup created successfully: %1$d tables, %2$d rows"
 msgstr "Tam yedekleme başarıyla oluşturuldu: %1$d tablo, %2$d satır"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2227
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2329
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:540
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:603
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2244
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:539
 msgid "Invalid backup file path"
 msgstr "Geçersiz yedekleme dosyası yolu"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2234
-msgid "Failed to initialize filesystem"
-msgstr "Dosya sistemini başlatılamadı"
-
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2243
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:533
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:532
 msgid "Backup file not found"
 msgstr "Yedekleme dosyası bulunamadı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2252
-msgid "Failed to read backup file"
-msgstr "Yedekleme dosyası okunamadı"
-
-#. translators: %d placeholder.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2296
-#, php-format
-msgid "Restored %d queries successfully"
-msgstr "Geri yüklenen %d sorgu başarıyla"
-
-#. translators: 1: %d; 2: %d.
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2298
-#, php-format
-msgid "Restored %1$d queries, %2$d errors occurred"
-msgstr "Geri yüklenen %1$d sorgu, %2$d hata oluştu"
-
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2360
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2275
 msgid "Backup deletion completed with some warnings"
 msgstr "Yedekleme silme işlemi bazı uyarılarla tamamlandı"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2414
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2329
 msgid "Filesystem initialization failed"
 msgstr "Dosya sistemi başlatma başarısız"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2424
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2339
 msgid "Backup directory does not exist"
 msgstr "Yedekleme dizini mevcut değil"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2431
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2346
 msgid ".htaccess file missing - directory is not protected from web access"
 msgstr ".htaccess dosyası eksik - dizin web erişiminden korunmuyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2435
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2350
 msgid ".htaccess file exists but does not deny access properly"
 msgstr ".htaccess dosyası mevcut ancak erişimi düzgün bir şekilde engellemiyor"
 
-#: src/Admin/Core/Utilities/DatabaseCleaner.php:2442
+#: src/Admin/Core/Utilities/DatabaseCleaner.php:2357
 msgid "index.php file missing - directory listing is possible"
 msgstr "index.php dosyası eksik - dizin listeleme mümkündür"
 
@@ -7970,23 +7947,22 @@ msgstr "Derecelendirme başarıyla silindi"
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:33
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:56
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:91
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:143
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:167
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:195
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:222
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:250
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:280
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:320
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:373
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:407
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:441
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:473
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:504
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:527
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:588
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:630
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:662
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:694
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:142
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:166
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:194
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:221
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:249
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:279
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:319
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:372
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:406
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:440
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:472
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:503
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:526
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:587
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:619
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:651
 #: src/Admin/Utilities/Uninstall/Uninstaller.php:336
 #: src/Admin/Utilities/Uninstall/UninstallPage.php:32
 #: src/Admin/Utilities/Uninstall/UninstallPage.php:50
@@ -9277,23 +9253,22 @@ msgstr "Tam tutarı şimdi ödeyin"
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:29
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:52
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:87
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:139
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:163
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:191
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:218
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:246
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:276
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:316
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:369
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:403
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:437
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:469
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:500
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:523
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:584
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:626
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:658
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:690
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:138
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:162
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:190
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:217
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:245
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:275
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:315
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:368
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:402
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:436
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:468
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:499
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:522
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:583
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:615
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:647
 #: src/Admin/Utilities/Uninstall/UninstallPage.php:28
 #: src/Admin/Utilities/Uninstall/UninstallPage.php:46
 msgid "Invalid security nonce."
@@ -11365,7 +11340,7 @@ msgid "Purge invalid keys? A snapshot will be created."
 msgstr "Geçersiz anahtarlar temizlensin mi? Bir anlık görüntü oluşturulacak."
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:131
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:97
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:96
 msgid "Are you sure you want to attempt to create/repair this table?"
 msgstr "Bu tabloyu oluşturmayı/onarmayı denemek istediğinizden emin misiniz?"
 
@@ -11455,22 +11430,18 @@ msgid "Streaming Snapshot..."
 msgstr "Akış Anlık Görüntüsü..."
 
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:156
-msgid "WARNING: Full restoration will overwrite current live data. Proceed with matrix rollback?"
-msgstr "UYARI: Tam geri yükleme, mevcut canlı verilerin üzerine yazacaktır. Matris geri alımına devam etmek istiyor musunuz?"
-
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:157
 msgid "Archive Identity"
 msgstr "Arşiv Kimliği"
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:158
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:157
 msgid "Table Manifest"
 msgstr "Tablo Manifestosu"
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:158
 msgid "Verified Status"
 msgstr "Doğrulanmış Durum"
 
-#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:161
+#: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:160
 msgid "Offline/Missing"
 msgstr "Çevrimdışı/Kayıp"
 
@@ -12036,113 +12007,108 @@ msgstr "%s bekleyen mesajlar"
 msgid "Now"
 msgstr "Şimdi"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:85
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:84
 msgid "Analyzing..."
 msgstr "Analiz Ediliyor..."
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:86
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:85
 msgid "Cleaning..."
 msgstr "Temizlik..."
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:87
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:86
 msgid "Optimizing..."
 msgstr "Optimize ediliyor..."
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:89
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:88
 msgid "Success:"
 msgstr "Başarılı:"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:95
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:94
 msgid "This will delete orphaned meta data. A backup will be created. Continue?"
 msgstr "Bu, yetim meta verileri silecektir. Bir yedekleme oluşturulacaktır. Devam etmek istiyor musunuz?"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:96
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:95
 msgid "Table optimization may take several minutes. Continue?"
 msgstr "Tablo optimizasyonu birkaç dakika sürebilir. Devam edilsin mi?"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:113
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:112
 msgid "Database Management & Optimization"
 msgstr "Veritabanı Yönetimi ve Optimizasyonu"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:117
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:116
 msgid "Warning:"
 msgstr "Uyarı:"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:118
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:117
 msgid "Database cleanup operations are irreversible. Automatic backup is created before each operation."
 msgstr "Veritabanı temizleme işlemleri geri alınamaz. Her işlemden önce otomatik yedekleme oluşturulur."
 
 #. translators: 1: %1$d; 2: %2$s.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:176
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:175
 #, php-format
 msgid "%1$d orphaned meta records cleaned. Backup table: %2$s"
 msgstr "%1$d yetim meta kayıtları temizlendi. Yedek tablo: %2$s"
 
 #. translators: %1$d placeholder.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:204
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:203
 #, php-format
 msgid "%1$d expired transients cleaned."
 msgstr "%1$d süresi dolmuş geçici dosyalar temizlendi."
 
 #. translators: 1: %1$d; 2: %2$s.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:231
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:230
 #, php-format
 msgid "%1$d options optimized. Memory saved: %2$s"
 msgstr "%1$d seçenekler optimize edildi. Tasarruf edilen bellek: %2$s"
 
 #. translators: 1: %1$d; 2: %2$.2f.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:261
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:260
 #, php-format
 msgid "%1$d tables optimized in %2$.2f seconds"
 msgstr "%1$d tablo %2$.2f saniye içinde optimize edildi"
 
 #. translators: 1: %1$d; 2: %2$s.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:301
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:300
 #, php-format
 msgid "%1$d invalid meta records cleaned. Backup table: %2$s"
 msgstr "%1$d geçersiz meta kayıtları temizlendi. Yedek tablo: %2$s"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:379
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:413
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:447
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:378
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:412
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:446
 msgid "Backup table name required"
 msgstr "Yedekleme tablosu adı gereklidir"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:385
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:384
 msgid "Failed to generate SQL export"
 msgstr "SQL dışa aktarımı oluşturulamadı"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:427
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:616
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:426
 msgid "Failed to restore backup"
 msgstr "Yedekleme geri yüklenemedi"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:490
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:489
 msgid "Failed to create backup"
 msgstr "Yedekleme oluşturulamadı"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:594
-msgid "Backup file path required"
-msgstr "Yedekleme dosyası yolu gereklidir"
-
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:636
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:593
 msgid "Backup name required"
 msgstr "Yedekleme adı gerekli"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:668
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:625
 msgid "Table name required"
 msgstr "Tablo adı gereklidir"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:677
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:634
 msgid "Table repaired successfully"
 msgstr "Tablo başarıyla onarıldı"
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:681
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:638
 msgid "Failed to repair table or table definition not found"
 msgstr "Tablo onarımı başarısız veya tablo tanımı bulunamadı"
 
 #. translators: %d placeholder.
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:708
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:665
 #, php-format
 msgid "%d old log records cleaned."
 msgstr "%d eski günlük kayıtları temizlendi."
@@ -16635,10 +16601,10 @@ msgstr "Bu yedek iki farklı tabloya ait elenmiş meta kayıtlarını tutuyor ve
 msgid "MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is installed, but %2$s or newer is required. Update MHM Rentiva Pro to continue. Your data has not been changed."
 msgstr "MHM Rentiva veritabanı güncellemesini durdurdu: kurulu olan MHM Rentiva Pro %1$s, ancak %2$s veya daha yenisi gerekiyor. Devam etmek için MHM Rentiva Pro'yu güncelleyin. Verileriniz değiştirilmedi."
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:291
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:290
 msgid "Cleanup cancelled: the vehicle custom field definitions could not be read, so custom field data cannot be told apart from stale meta. Nothing was deleted."
 msgstr "Temizlik iptal edildi: araç özel alan tanımları okunamadı, bu yüzden özel alan verisi ile artık meta kayıtları birbirinden ayırt edilemiyor. Hiçbir şey silinmedi."
 
-#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:563
+#: src/Admin/Utilities/Database/DatabaseCleanupPage.php:562
 msgid "Backup file could not be read."
 msgstr "Yedek dosyası okunamadı."
