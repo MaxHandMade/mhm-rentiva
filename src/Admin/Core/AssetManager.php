@@ -374,12 +374,6 @@ final class AssetManager {
 		// Load core CSS files
 		self::enqueue_core_css();
 
-		// JS Kill-switch: allow disabling plugin admin JS for debugging
-		$disableJs = isset($_GET['mhmrentiva_admin_no_js']) && sanitize_text_field(wp_unslash($_GET['mhmrentiva_admin_no_js'])) === '1';
-		if ($disableJs) {
-			return; // Do not enqueue any JS if kill-switch is enabled
-		}
-
 		// Load core JS files
 		self::enqueue_core_js();
 
@@ -851,73 +845,49 @@ final class AssetManager {
 				)
 			);
 
-			// Enqueue Email Templates JS for Preview Tab
-			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'email_preview') {
-				wp_enqueue_script(
-					'mhm-rentiva-email-templates',
-					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
-					array( 'jquery' ),
-					self::get_file_version('assets/js/admin/email-templates.js'),
-					true
-				);
+			// NOTE: the Email Templates script is NOT enqueued here. A block that
+			// gated it on `?tab=email_preview` used to sit at this spot; no settings
+			// tab has ever had that slug (the real one is `email-templates`), so it
+			// never fired. The live enqueue is EmailTemplates::enqueue_scripts(),
+			// which gates on the $hook admin_enqueue_scripts passes and localizes a
+			// superset of the same handle's data.
 
-				wp_localize_script(
-					'mhm-rentiva-email-templates',
-					'mhmrentiva_email_templates_vars',
-					array(
-						'ajax_url'          => admin_url('admin-ajax.php'),
-						'nonce'             => wp_create_nonce('mhmrentiva_email_templates_nonce'),
-						'preview_email'     => __('Email Preview', 'mhm-rentiva'),
-						'send_test'         => __('Send Test Email', 'mhm-rentiva'),
-						'processing'        => __('Processing...', 'mhm-rentiva'),
-						'test_email_sent'   => __('Test email sent successfully', 'mhm-rentiva'),
-						'test_email_failed' => __('Failed to send test email', 'mhm-rentiva'),
-						'error_occurred'    => __('An error occurred', 'mhm-rentiva'),
-						'strings'           => array(
-							'sendTestEmail' => __('Send Test Email', 'mhm-rentiva'),
-							'emailAddress'  => __('Email Address', 'mhm-rentiva'),
-							'cancel'        => __('Cancel', 'mhm-rentiva'),
-							'enterEmail'    => __('Please enter email address', 'mhm-rentiva'),
-							'editTemplate'  => __('Edit Template', 'mhm-rentiva'),
-							'subject'       => __('Subject', 'mhm-rentiva'),
-							'content'       => __('Content', 'mhm-rentiva'),
-							'save'          => __('Save', 'mhm-rentiva'),
-							'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),
-							'templateReset' => __('Template reset to default!', 'mhm-rentiva'),
-						),
-					)
-				);
-			}
-
-			// Enqueue the Integration tab's script: the endpoint reference list and
-			// the settings reset. It used to drive an API-key manager too; that
+			// The Integration tab's script: the endpoint reference list and the
+			// settings reset. It used to drive an API-key manager too; that
 			// surface was removed because no endpoint ever validated the keys it
 			// issued.
-			if (isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) === 'integration') {
-				wp_enqueue_script(
-					'mhm-rentiva-rest-integration',
-					MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/rest-integration.js',
-					array( 'jquery' ),
-					self::get_file_version('assets/js/admin/rest-integration.js'),
-					true
-				);
+			//
+			// Only REGISTERED here, not enqueued: which tab is active is not
+			// knowable from the $screen this callback receives, and re-deriving
+			// it from $_GET['tab'] duplicates a routing decision Settings.php has
+			// already made. IntegrationRenderer::render() -- which by definition
+			// only runs when its own tab is the active one -- enqueues the handle
+			// by name. Registration happens on admin_enqueue_scripts, the render
+			// happens later in the same request, and the script is in_footer, so
+			// the enqueue is still in time for wp_print_footer_scripts().
+			wp_register_script(
+				'mhm-rentiva-rest-integration',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/rest-integration.js',
+				array( 'jquery' ),
+				self::get_file_version('assets/js/admin/rest-integration.js'),
+				true
+			);
 
-				wp_localize_script(
-					'mhm-rentiva-rest-integration',
-					'mhmRestIntegration',
-					array(
-						'ajax_url' => admin_url('admin-ajax.php'),
-						'nonce'    => wp_create_nonce('mhmrentiva_rest_api_keys_nonce'),
-						'strings'  => array(
-							'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
-							'confirm_reset'  => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
-							'resetting'      => __('Resetting...', 'mhm-rentiva'),
-							'reset_success'  => __('Settings reset to defaults successfully. Page will reload...', 'mhm-rentiva'),
-							'reset_failed'   => __('Failed to reset settings to defaults.', 'mhm-rentiva'),
-						),
-					)
-				);
-			}
+			wp_localize_script(
+				'mhm-rentiva-rest-integration',
+				'mhmRestIntegration',
+				array(
+					'ajax_url' => admin_url('admin-ajax.php'),
+					'nonce'    => wp_create_nonce('mhmrentiva_rest_api_keys_nonce'),
+					'strings'  => array(
+						'error_occurred' => __('An error occurred. Please try again.', 'mhm-rentiva'),
+						'confirm_reset'  => __('Are you sure you want to reset all REST API settings to default values? This action cannot be undone.', 'mhm-rentiva'),
+						'resetting'      => __('Resetting...', 'mhm-rentiva'),
+						'reset_success'  => __('Settings reset to defaults successfully. Page will reload...', 'mhm-rentiva'),
+						'reset_failed'   => __('Failed to reset settings to defaults.', 'mhm-rentiva'),
+					),
+				)
+			);
 		}
 
 		// Vehicle Settings
@@ -969,15 +939,20 @@ final class AssetManager {
 				);
 			}
 
-			$vs_active_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'definitions';
+			// `activeTab` is deliberately NOT passed through here. It only ever
+			// travelled PHP -> localize -> JS -> back to the server as the POST
+			// body of mhmrentiva_reset_vehicle_settings, so the value was always
+			// client-supplied; round-tripping the URL through PHP bought nothing
+			// and cost a superglobal read. vehicle-settings.js now reads the tab
+			// off its own location.search, and ajax_reset_settings() keeps
+			// sanitising it behind check_ajax_referer() + a capability check.
 			wp_localize_script(
 				$vs_is_v2 ? 'mhm-rentiva-vehicle-settings-v2' : 'mhm-rentiva-vehicle-settings',
 				'mhmVehicleSettings',
 				array(
-					'nonce'     => wp_create_nonce('vehicle_settings_nonce'),
-					'activeTab' => $vs_active_tab,
-					'state'     => \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_settings_state(),
-					'i18n'      => array(
+					'nonce' => wp_create_nonce('vehicle_settings_nonce'),
+					'state' => \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::build_settings_state(),
+					'i18n'  => array(
 						'confirmResetAll'        => __('Are you sure you want to reset all vehicle settings to defaults? Custom field definitions will NOT be deleted.', 'mhm-rentiva'),
 						'saved'                  => __('Settings saved successfully!', 'mhm-rentiva'),
 						'errorSaving'            => __('Error saving settings.', 'mhm-rentiva'),

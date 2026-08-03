@@ -12,6 +12,17 @@ jQuery(document).ready(function($) {
 	var i18n    = S.i18n || {};
 	var vsNonce = S.nonce || '';
 
+	// The active tab comes from this page's own URL. It used to arrive in
+	// mhmVehicleSettings.activeTab, i.e. PHP read ?tab= only to hand the value
+	// straight back to the browser that had sent it.
+	function vsActiveTab() {
+		try {
+			return new URLSearchParams(window.location.search).get('tab') || 'definitions';
+		} catch (e) {
+			return 'definitions';
+		}
+	}
+
 	// --- Reset settings (render_settings_page) ---------------------------------
 	$('#reset-vehicle-settings').on('click', function() {
 		if (confirm(i18n.confirmResetAll || '')) {
@@ -20,7 +31,7 @@ jQuery(document).ready(function($) {
 
 			$.post(ajaxurl, {
 				action: 'mhmrentiva_reset_vehicle_settings',
-				tab: S.activeTab || 'definitions',
+				tab: vsActiveTab(),
 				nonce: vsNonce
 			}, function(response) {
 				if (response.success) {

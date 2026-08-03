@@ -44,6 +44,10 @@ final class IntegrationRenderer extends AbstractTabRenderer {
 	 * @inheritDoc
 	 */
 	public function render(): void {
+		// This renderer only runs when Integration is the active tab, so it is
+		// the one place that knows the tab is active without re-reading the URL.
+		// AssetManager registered + localized the handle on admin_enqueue_scripts.
+		wp_enqueue_script( 'mhm-rentiva-rest-integration' );
 		?>
 		<div class="mhm-integration-page-content" style="margin-top: 25px;">
 			<form method="post" action="options.php" class="mhm-settings-form mhm-integration-form" id="mhm-rest-settings-form">

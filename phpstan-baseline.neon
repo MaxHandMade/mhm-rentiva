@@ -297,7 +297,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 24
+			count: 23
 			path: src/Admin/Core/AssetManager.php
 
 		-
