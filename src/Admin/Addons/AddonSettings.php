@@ -39,6 +39,7 @@ final class AddonSettings {
 		// WordPress Settings API registration.
 		add_action( 'admin_init', array( self::class, 'register_settings' ) );
 		add_action( 'wp_ajax_mhmrentiva_create_default_addons', array( self::class, 'ajax_create_default_addons' ) );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -207,8 +208,46 @@ final class AddonSettings {
 			echo '</div>';
 		}
 
-		// Inline JavaScript removed - AJAX script is now in assets/js/admin/addon-settings.js
-		// Data is passed via wp_localize_script in enqueue_scripts method
+		// Inline JavaScript removed - the click handler lives in
+		// assets/js/admin/addon-settings.js, enqueued below.
+	}
+
+	/**
+	 * Enqueue and localize the script that binds #create-default-addons.
+	 *
+	 * Gated on this screen's own hook suffix -- the same pattern
+	 * About::enqueue_scripts() uses -- so the script and its data never load
+	 * on other admin screens.
+	 *
+	 * @param string $hook Admin page hook suffix.
+	 */
+	public static function enqueue_scripts( string $hook ): void {
+		if ( 'mhm-rentiva_page_' . self::PAGE !== $hook ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'mhm-rentiva-addon-settings',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addon-settings.js',
+			array( 'jquery' ),
+			MHMRENTIVA_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'mhm-rentiva-addon-settings',
+			'mhmAddonSettings',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'nonce'    => wp_create_nonce( 'mhmrentiva_create_default_addons' ),
+				'strings'  => array(
+					'confirm_create' => __( 'Are you sure you want to create the default additional services?', 'mhm-rentiva' ),
+					'creating'       => __( 'Creating...', 'mhm-rentiva' ),
+					'error'          => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'create_default' => __( 'Create Default Additional Services', 'mhm-rentiva' ),
+				),
+			)
+		);
 	}
 
 	/**
