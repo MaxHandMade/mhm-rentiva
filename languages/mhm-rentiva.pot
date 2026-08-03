@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-03T05:33:09+00:00\n"
+"POT-Creation-Date: 2026-08-03T13:00:38+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -277,7 +277,7 @@ msgid "Total Vehicles"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:308
-#: src/Admin/Customers/CustomersPage.php:223
+#: src/Admin/Customers/CustomersPage.php:226
 #: src/Core/Dashboard/DashboardConfig.php:26
 #: templates/account/dashboard.php:50
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
@@ -727,7 +727,7 @@ msgstr ""
 #: src/Admin/Addons/AddonListTable.php:270
 #: src/Admin/Core/AssetManager.php:1170
 #: src/Admin/Core/Utilities/AbstractListTable.php:401
-#: src/Admin/Customers/CustomersPage.php:249
+#: src/Admin/Customers/CustomersPage.php:252
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/account/partials/vendor-listings.php:405
 #: templates/shortcodes/vehicle-rating-form.php:292
@@ -2157,8 +2157,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1358
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:309
 #: src/Admin/Customers/AddCustomerPage.php:139
-#: src/Admin/Customers/CustomersPage.php:187
-#: src/Admin/Customers/CustomersPage.php:363
+#: src/Admin/Customers/CustomersPage.php:190
+#: src/Admin/Customers/CustomersPage.php:366
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1224
@@ -2171,8 +2171,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1362
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:314
 #: src/Admin/Customers/AddCustomerPage.php:144
-#: src/Admin/Customers/CustomersPage.php:194
-#: src/Admin/Customers/CustomersPage.php:368
+#: src/Admin/Customers/CustomersPage.php:197
+#: src/Admin/Customers/CustomersPage.php:371
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1228
@@ -3282,8 +3282,8 @@ msgid "This email address is already registered."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:728
-#: src/Admin/Customers/CustomersPage.php:163
-#: src/Admin/Customers/CustomersPage.php:301
+#: src/Admin/Customers/CustomersPage.php:166
+#: src/Admin/Customers/CustomersPage.php:304
 #: src/Admin/Customers/REST/CustomersRestController.php:138
 msgid "Customer not found."
 msgstr ""
@@ -3600,7 +3600,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:1083
 #: src/Admin/Core/AssetManager.php:1166
 #: src/Admin/Customers/AddCustomerPage.php:158
-#: src/Admin/Customers/CustomersPage.php:382
+#: src/Admin/Customers/CustomersPage.php:385
 #: templates/account/account-details.php:189
 #: templates/account/partials/vendor-report-modal.php:81
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -4330,7 +4330,7 @@ msgid "Confirm"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1172
-#: src/Admin/Customers/CustomersPage.php:381
+#: src/Admin/Customers/CustomersPage.php:384
 msgid "Update"
 msgstr ""
 
@@ -5018,7 +5018,7 @@ msgid "No %s created yet."
 msgstr ""
 
 #: src/Admin/Core/Utilities/AbstractListTable.php:386
-#: src/Admin/Customers/CustomersPage.php:342
+#: src/Admin/Customers/CustomersPage.php:345
 #: templates/account/dashboard.php:221
 #: templates/account/partials/vendor-listings.php:399
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
@@ -5238,25 +5238,9 @@ msgid "index.php file missing - directory listing is possible"
 msgstr ""
 
 #. translators: 1: installed add-on version, 2: required add-on version.
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:127
+#: src/Admin/Core/Utilities/DatabaseMigrator.php:140
 #, php-format
 msgid "MHM Rentiva has paused its database update: MHM Rentiva Pro %1$s is installed, but %2$s or newer is required. Update MHM Rentiva Pro to continue. Your data has not been changed."
-msgstr ""
-
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:851
-msgid "MHM Rentiva: Database migration required. Run migration for performance."
-msgstr ""
-
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:853
-msgid "Run Migration"
-msgstr ""
-
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:858
-msgid "MHM Rentiva: Database performance can be optimized."
-msgstr ""
-
-#: src/Admin/Core/Utilities/DatabaseMigrator.php:860
-msgid "Optimize"
 msgstr ""
 
 #: src/Admin/Core/Utilities/ErrorHandler.php:53
@@ -5719,7 +5703,7 @@ msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:59
 #: src/Admin/Customers/AddCustomerPage.php:188
-#: src/Admin/Customers/CustomersPage.php:314
+#: src/Admin/Customers/CustomersPage.php:317
 msgid "Customer name and email fields are required."
 msgstr ""
 
@@ -5737,14 +5721,14 @@ msgid "Add New Customer"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:134
-#: src/Admin/Customers/CustomersPage.php:182
-#: src/Admin/Customers/CustomersPage.php:358
+#: src/Admin/Customers/CustomersPage.php:185
+#: src/Admin/Customers/CustomersPage.php:361
 msgid "Customer Name"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:149
-#: src/Admin/Customers/CustomersPage.php:202
-#: src/Admin/Customers/CustomersPage.php:373
+#: src/Admin/Customers/CustomersPage.php:205
+#: src/Admin/Customers/CustomersPage.php:376
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:66
 msgid "Address"
@@ -5759,64 +5743,64 @@ msgstr ""
 msgid "Customer added successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:156
-#: src/Admin/Customers/CustomersPage.php:294
+#: src/Admin/Customers/CustomersPage.php:159
+#: src/Admin/Customers/CustomersPage.php:297
 msgid "Invalid customer ID."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:168
+#: src/Admin/Customers/CustomersPage.php:171
 msgid "Customers List"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:175
+#: src/Admin/Customers/CustomersPage.php:178
 #: src-react/admin/customers/components/CustomerPanel.jsx:42
 #: src-react/admin/customers/components/CustomerPanel.jsx:44
 msgid "Customer Details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:208
+#: src/Admin/Customers/CustomersPage.php:211
 msgid "Registration Date"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:218
+#: src/Admin/Customers/CustomersPage.php:221
 msgid "Booking Statistics"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:228
+#: src/Admin/Customers/CustomersPage.php:231
 msgid "Total Spending"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:233
+#: src/Admin/Customers/CustomersPage.php:236
 #: src-react/admin/customers/components/CustomerPanel.jsx:88
 #: src-react/admin/customers/components/CustomerTable.jsx:8
 msgid "Last Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:238
+#: src/Admin/Customers/CustomersPage.php:241
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "First Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:250
+#: src/Admin/Customers/CustomersPage.php:253
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 #: src-react/admin/customers/components/CustomerPanel.jsx:104
 msgid "View Bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:251
+#: src/Admin/Customers/CustomersPage.php:254
 msgid "Go Back"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:290
+#: src/Admin/Customers/CustomersPage.php:293
 msgid "You do not have permission to edit customers."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:333
+#: src/Admin/Customers/CustomersPage.php:336
 msgid "Customer information updated successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:349
+#: src/Admin/Customers/CustomersPage.php:352
 msgid "Edit Customer"
 msgstr ""
 
