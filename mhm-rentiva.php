@@ -374,7 +374,18 @@ function mhmrentiva_single_site_activation()
 // Activation hook - CPT and taxonomy registration + rewrite flush + Multisite support
 register_activation_hook(
 	__FILE__,
-	function () {
+	/**
+	 * @param bool $network_wide Whether the plugin is being activated for every
+	 *                           site in the network. WordPress passes this to
+	 *                           every activation callback
+	 *                           (wp-admin/includes/plugin.php:
+	 *                           `do_action( "activate_{$plugin}", $network_wide )`),
+	 *                           and it is authoritative: activate_plugin() also
+	 *                           forces it true for network-only plugins, a case
+	 *                           the `?networkwide=1` URL parameter this used to
+	 *                           read does not cover.
+	 */
+	function ( $network_wide = false ) {
 		// PHP version check
 		if (version_compare(PHP_VERSION, '8.1', '<')) {
 			wp_die(esc_html__('MHM Rentiva plugin requires PHP 8.1 or higher.', 'mhm-rentiva'));
@@ -396,7 +407,7 @@ register_activation_hook(
 
 		if (is_multisite()) {
 			// Network-wide activation
-			if (isset($_GET['networkwide']) && '1' === sanitize_text_field(wp_unslash($_GET['networkwide']))) {
+			if ($network_wide) {
 
 				// Fetch blog IDs using get_sites() instead of direct database query
 				$blog_ids = wp_cache_get('mhmrentiva_network_blogs');

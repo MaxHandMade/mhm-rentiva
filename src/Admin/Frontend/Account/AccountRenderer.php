@@ -277,9 +277,14 @@ final class AccountRenderer {
 	 */
 	public static function get_payment_history_data(array $atts = array()): array
 	{
+		// `paged` is one of WordPress core's own public query vars, so on the
+		// frontend -- the only place this runs (a WooCommerce My Account
+		// endpoint callback and the [rentiva_payment_history] shortcode) --
+		// WP::parse_request() has already populated it. No registration needed,
+		// and no superglobal read.
 		$user     = wp_get_current_user();
 		$per_page = 10;
-		$page     = isset( $_GET['paged'] ) ? max( 1, (int) $_GET['paged'] ) : 1;
+		$page     = max( 1, (int) get_query_var( 'paged' ) );
 
 		$result = self::get_user_payments($user->ID, $per_page, $page);
 
