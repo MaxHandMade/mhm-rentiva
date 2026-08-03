@@ -67,10 +67,17 @@
  * backticks must never be mistaken for the outer literal's own closing
  * backtick, and the inner literal's own markup must still be checked.
  *
- * Returns the pure collector when required from another PHP file (so it can
- * be unit tested against synthetic snippets -- see
- * tests/Tools/TemplateLiteralMarkupCheckerTest.php); scans the shipped JS
- * surface and prints a per-file report when run directly.
+ * Returns `array('collect' => ..., 'shipped_js_files' => ...)` when required
+ * from another PHP file -- ONE shared implementation of both the detector and
+ * the shipped-file walk, reused as-is by
+ * tests/Tools/TemplateLiteralMarkupCheckerTest.php (fixed in response to T8
+ * Görev 5 review Important-1: an earlier version had the walk duplicated,
+ * independently, inside that test file -- two copies of the same hardcoded
+ * glob that could silently drift from each other). Scans the shipped JS
+ * surface and prints a per-file report when run directly; `--verify-scope`
+ * mechanically diffs the walk against the real `.distignore`-derived oracle
+ * (see that mode's own docblock below for why it exists and where it must
+ * run).
  *
  * @package MHMRentiva
  */
@@ -386,53 +393,224 @@ $collect = static function ( string $code ) use ( &$consume_code ): array {
 	return $offenders;
 };
 
-// When required by another PHP file (e.g. a test), hand back the collector and stop.
+/**
+ * Walk the shipped JS surface: every *.js file under assets/, build/admin/,
+ * src-react/, excluding build/zip-staging/ (a regeneratable staging copy of
+ * the ENTIRE plugin tree left over from prior release builds -- not itself
+ * part of the shipped surface) and any node_modules/.
+ *
+ * This is a hardcoded restatement of what `.distignore` actually ships (read,
+ * for the real release ZIP, by `list_shipped()` in
+ * `bin/build-release.py:227-262`) -- empirically verified equivalent at task
+ * time (2026-08-03: 88/88 files, zero set difference against `python
+ * bin/build-release.py --list-shipped | grep '\.js$'`), NOT a structural
+ * derivation from `.distignore` itself. That distinction matters: if
+ * `.distignore` later changes which directories ship, this walk will not
+ * automatically follow it. Re-deriving `.distignore`'s gitignore-style
+ * pattern matching (negation, `**`, directory-only patterns) in PHP would
+ * duplicate genuinely complex logic and risks a second, independently-wrong
+ * implementation -- so instead of that, two narrower things guard against
+ * drift going unnoticed:
+ *
+ *   1. This is the ONLY walk in the codebase -- both the default CLI sweep
+ *      below and the PHPUnit guard
+ *      (tests/Tools/TemplateLiteralMarkupCheckerTest.php) require() this
+ *      file and call this same closure, so there is nothing left to drift
+ *      from EACH OTHER (T8 Görev 5 review Important-1's duplication half).
+ *   2. `--verify-scope` (below) mechanically diffs this walk's output
+ *      against the real oracle, `python bin/build-release.py --list-shipped`
+ *      -- meant to be run after any `.distignore` change (Important-1's
+ *      drift-from-truth half). It cannot run inside the PHPUnit container
+ *      (no python3 there), so it is a separate, host-run mode, not part of
+ *      the automated suite -- see its own comment below.
+ *
+ * This same "restating .distignore drifts silently, so read the real thing
+ * instead" lesson already burned this codebase once:
+ * `bin/check-plugin-check-parity.php`'s Gate G-D used to hardcode its own
+ * scope and silently missed 4 shipped paths as a result (see that file's
+ * header, "WRONG SCOPE"). This checker does not repeat that -- `--verify-scope`
+ * is the same shape as G-D's own fix, cross-checking against
+ * `--list-shipped` rather than trying to become a second `.distignore`
+ * parser.
+ *
+ * Returned paths are absolute and ALWAYS forward-slash-normalized, even on
+ * Windows -- `RecursiveDirectoryIterator::getPathname()` was found (T8
+ * Görev 5 review Important-1 fix round) to mix separators on Windows
+ * (forward slashes up through whatever literal was concatenated into
+ * `$scan_roots`, native backslashes for every segment SPL itself appends
+ * beneath that), which silently broke a root-prefix strip done downstream
+ * by string-prefix comparison. Normalizing once, here, at the source, means
+ * every consumer (the CLI sweep below, `--verify-scope`, and the PHPUnit
+ * test) gets a predictable format instead of each needing its own
+ * separator-mixing workaround.
+ *
+ * @return list<string> Absolute, forward-slash-normalized paths.
+ */
+$find_shipped_js_files = static function (): array {
+	$root = dirname( __DIR__ );
+
+	$scan_roots = array(
+		$root . '/assets',
+		$root . '/build/admin',
+		$root . '/src-react',
+	);
+
+	$js_files = array();
+	foreach ( $scan_roots as $target ) {
+		if ( ! is_dir( $target ) ) {
+			continue;
+		}
+		$iterator = new RecursiveIteratorIterator(
+			new RecursiveDirectoryIterator( $target, RecursiveDirectoryIterator::SKIP_DOTS )
+		);
+		foreach ( $iterator as $file ) {
+			if ( 'js' !== strtolower( $file->getExtension() ) ) {
+				continue;
+			}
+			$path = $file->getPathname();
+			if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'zip-staging' . DIRECTORY_SEPARATOR ) ) {
+				continue;
+			}
+			if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'node_modules' . DIRECTORY_SEPARATOR ) ) {
+				continue;
+			}
+			$js_files[] = str_replace( '\\', '/', $path );
+		}
+	}
+	sort( $js_files );
+
+	return $js_files;
+};
+
+// When required by another PHP file (e.g. a test), hand back BOTH closures
+// and stop -- see $find_shipped_js_files's docblock above for why there is
+// exactly one implementation of the walk, shared, rather than two.
 $script_filename = $_SERVER['SCRIPT_FILENAME'] ?? '';
 $is_main_script  = '' !== $script_filename && @realpath( $script_filename ) === realpath( __FILE__ );
 
 if ( ! $is_main_script ) {
-	return $collect;
-}
-
-// ---- CLI mode: sweep the shipped JS surface -------------------------------
-//
-// Empirically verified equivalent (2026-08-03) to
-// `python bin/build-release.py --list-shipped | grep '\.js$'` (88/88, zero
-// diff): every *.js file under assets/, build/admin/, src-react/, excluding
-// build/zip-staging/ (a regeneratable staging copy, not itself shipped) and
-// any node_modules/. Walked directly in PHP (no python dependency) so this
-// same collector can run inside the PHPUnit container as a standing guard.
-$root = dirname( __DIR__ );
-
-$scan_roots = array(
-	$root . '/assets',
-	$root . '/build/admin',
-	$root . '/src-react',
-);
-
-$js_files = array();
-foreach ( $scan_roots as $target ) {
-	if ( ! is_dir( $target ) ) {
-		continue;
-	}
-	$iterator = new RecursiveIteratorIterator(
-		new RecursiveDirectoryIterator( $target, RecursiveDirectoryIterator::SKIP_DOTS )
+	return array(
+		'collect'          => $collect,
+		'shipped_js_files' => $find_shipped_js_files,
 	);
-	foreach ( $iterator as $file ) {
-		if ( 'js' !== strtolower( $file->getExtension() ) ) {
-			continue;
-		}
-		$path = $file->getPathname();
-		if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'zip-staging' . DIRECTORY_SEPARATOR ) ) {
-			continue;
-		}
-		if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'node_modules' . DIRECTORY_SEPARATOR ) ) {
-			continue;
-		}
-		$js_files[] = $path;
-	}
 }
-sort( $js_files );
+
+// ---- CLI mode ---------------------------------------------------------
+
+const EXIT_CLEAN           = 0;
+const EXIT_FINDINGS        = 1;
+const EXIT_CANNOT_MEASURE  = 2;
+
+/**
+ * Run a command without going through a shell. Mirrors
+ * bin/check-plugin-check-parity.php's own run_cmd(): proc_open() with an
+ * ARRAY command line bypasses the shell on both POSIX and Windows, so
+ * nothing here depends on quoting rules.
+ *
+ * @param list<string> $argv_cmd
+ * @return array{0:int,1:string,2:string} [exit code, stdout, stderr]
+ */
+$run_cmd = static function ( array $argv_cmd ): array {
+	$spec = array(
+		1 => array( 'pipe', 'w' ),
+		2 => array( 'pipe', 'w' ),
+	);
+	$proc = @proc_open( $argv_cmd, $spec, $pipes );
+	if ( ! is_resource( $proc ) ) {
+		return array( -1, '', 'proc_open failed for: ' . implode( ' ', $argv_cmd ) );
+	}
+	$stdout = (string) stream_get_contents( $pipes[1] );
+	$stderr = (string) stream_get_contents( $pipes[2] );
+	fclose( $pipes[1] );
+	fclose( $pipes[2] );
+	$code = proc_close( $proc );
+
+	return array( $code, $stdout, $stderr );
+};
+
+if ( in_array( '--verify-scope', $argv, true ) ) {
+	// ---- --verify-scope: mechanical drift detector (T8 Görev 5 review I1) -
+	//
+	// WHERE THIS RUNS: the host (or any environment with a `python3` /
+	// `python` / `py` on PATH) -- NOT the `rentiva-dev-wpcli-1` Docker
+	// container PHPUnit runs in, which has no python3 (progress.md's
+	// standing note). This mode is therefore never invoked by the PHPUnit
+	// guard itself; it is a separate, manually/CI-run check -- the same
+	// "documented host-only, not pretended-away" shape as
+	// bin/check-plugin-check-parity.php's own "WHERE IT RUNS".
+	//
+	// Diffs $find_shipped_js_files()'s output against the real oracle,
+	// `python bin/build-release.py --list-shipped` filtered to `.js` -- the
+	// same list `list_shipped()` derives from `.distignore` for the actual
+	// release ZIP. Exit 0 only on an exact set match. Exit 1 on any drift:
+	// both directions are reported, since a file the walk would MISS is the
+	// dangerous case (a shipped file silently un-guarded by this checker),
+	// while a file the walk scans that is NOT actually shipped is reported
+	// too (harmless, but means the walk is testing something that never
+	// ships -- also worth knowing). Exit 2 if no python binary is available
+	// at all -- cannot measure, never conflated with a clean 0.
+	$root   = dirname( __DIR__ );
+	$oracle = null;
+	foreach ( array( 'python3', 'python', 'py' ) as $py ) {
+		list( $rc, $out ) = $run_cmd( array( $py, $root . '/bin/build-release.py', '--list-shipped' ) );
+		if ( 0 === $rc && '' !== trim( $out ) ) {
+			$oracle = preg_split( '/\R/', trim( $out ) );
+			break;
+		}
+	}
+
+	if ( null === $oracle ) {
+		fwrite( STDERR, "VERIFY-SCOPE: cannot measure -- no working python3/python/py found to run bin/build-release.py --list-shipped\n" );
+		exit( EXIT_CANNOT_MEASURE );
+	}
+
+	$oracle_js = array();
+	foreach ( $oracle as $rel ) {
+		if ( '.js' === strtolower( substr( $rel, -3 ) ) ) {
+			$oracle_js[] = $rel;
+		}
+	}
+	sort( $oracle_js );
+
+	// $find_shipped_js_files() already returns forward-slash-normalized
+	// absolute paths (see its own docblock); only $root itself -- built here
+	// from dirname(__DIR__), which is native-separator (backslash on
+	// Windows) -- needs normalizing before the prefix strip.
+	$root_fs   = rtrim( str_replace( '\\', '/', $root ), '/' ) . '/';
+	$walked_js = array();
+	foreach ( $find_shipped_js_files() as $abs ) {
+		$walked_js[] = 0 === strpos( $abs, $root_fs ) ? substr( $abs, strlen( $root_fs ) ) : $abs;
+	}
+	sort( $walked_js );
+
+	$missing_from_walker = array_values( array_diff( $oracle_js, $walked_js ) );
+	$extra_in_walker     = array_values( array_diff( $walked_js, $oracle_js ) );
+
+	if ( array() !== $missing_from_walker ) {
+		echo "Shipped by .distignore but NOT scanned by the walk (dangerous -- these ship un-guarded):\n";
+		echo implode( "\n", $missing_from_walker ) . "\n\n";
+	}
+	if ( array() !== $extra_in_walker ) {
+		echo "Scanned by the walk but NOT actually shipped by .distignore (noisy, not dangerous):\n";
+		echo implode( "\n", $extra_in_walker ) . "\n\n";
+	}
+
+	printf(
+		"VERIFY-SCOPE: oracle=%d walker=%d missing_from_walker=%d extra_in_walker=%d\n",
+		count( $oracle_js ),
+		count( $walked_js ),
+		count( $missing_from_walker ),
+		count( $extra_in_walker )
+	);
+
+	exit( ( array() === $missing_from_walker && array() === $extra_in_walker ) ? EXIT_CLEAN : EXIT_FINDINGS );
+}
+
+// ---- default mode: sweep the shipped JS surface ------------------------
+// $find_shipped_js_files() returns forward-slash-normalized absolute paths;
+// only $root (native-separator) needs normalizing before the prefix strip.
+$root     = rtrim( str_replace( '\\', '/', dirname( __DIR__ ) ), '/' ) . '/';
+$js_files = $find_shipped_js_files();
 
 $files_with_hits = 0;
 $total_hits      = 0;
@@ -448,7 +626,7 @@ foreach ( $js_files as $path ) {
 	++$files_with_hits;
 	$total_hits += count( $offenders );
 
-	$relative = str_replace( array( $root . DIRECTORY_SEPARATOR, '\\' ), array( '', '/' ), $path );
+	$relative = 0 === strpos( $path, $root ) ? substr( $path, strlen( $root ) ) : $path;
 	printf( "%s: %d hit(s)\n", $relative, count( $offenders ) );
 	foreach ( $offenders as $o ) {
 		printf( "    :%d [%s] %s\n", $o['line'], $o['pattern'], $o['excerpt'] );
@@ -462,4 +640,4 @@ printf(
 	$total_hits
 );
 
-exit( $total_hits > 0 ? 1 : 0 );
+exit( $total_hits > 0 ? EXIT_FINDINGS : EXIT_CLEAN );

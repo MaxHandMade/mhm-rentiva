@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Tools;
 
 use PHPUnit\Framework\TestCase;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
 
 /**
  * T8 Görev 5 (F21): the checker is a standalone script
@@ -37,10 +35,34 @@ use RecursiveIteratorIterator;
 final class TemplateLiteralMarkupCheckerTest extends TestCase {
 
 	/**
+	 * The bin script's require() contract: `array('collect' => ...,
+	 * 'shipped_js_files' => ...)`. Required exactly once per call site (PHP
+	 * caches nothing between calls, but each require() re-runs the whole
+	 * script; that cost is negligible here and keeps this test hermetic
+	 * rather than caching state on the instance).
+	 *
+	 * Fixed in response to T8 Görev 5 review Important-1: this test used to
+	 * have its OWN private `shipped_js_files()`, independently re-walking
+	 * the same three hardcoded roots the bin script's CLI mode also walks --
+	 * two copies of the same glob that could silently drift from each other.
+	 * Both `collector()` and `shipped_js_files_walker()` below now pull from
+	 * this single require(), so there is exactly one implementation of the
+	 * walk in the codebase (see bin/check-template-literal-markup.php's
+	 * `$find_shipped_js_files` docblock for the remaining, narrower risk this
+	 * does NOT eliminate -- drift from `.distignore` itself -- and how that
+	 * one is guarded instead, via `--verify-scope`).
+	 *
+	 * @return array{collect: callable(string): list<array{line:int,pattern:string,excerpt:string}>, shipped_js_files: callable(): list<string>}
+	 */
+	private function bin_script(): array {
+		return require dirname( __DIR__, 2 ) . '/bin/check-template-literal-markup.php';
+	}
+
+	/**
 	 * @return callable(string): list<array{line:int,pattern:string,excerpt:string}>
 	 */
 	private function collector(): callable {
-		return require dirname( __DIR__, 2 ) . '/bin/check-template-literal-markup.php';
+		return $this->bin_script()['collect'];
 	}
 
 	private function plugin_root(): string {
@@ -263,50 +285,19 @@ JS;
 	// ---- KANUN 0: the whole shipped JS surface, kept clean going forward --
 
 	/**
-	 * Every *.js file this plugin ships. Empirically verified (2026-08-03)
-	 * to exactly reproduce `python bin/build-release.py --list-shipped`
-	 * filtered to `.js` (88/88, zero diff) -- walked directly here (no
-	 * python dependency) so this guard runs inside the same PHPUnit process
-	 * as everything else. build/zip-staging/ is a regeneratable staging copy
-	 * of the ENTIRE plugin tree (not itself part of the shipped list) and is
-	 * deliberately excluded, matching bin/check-template-literal-markup.php's
-	 * own CLI-mode walk.
+	 * Every *.js file this plugin ships -- delegates to the bin script's
+	 * OWN `$find_shipped_js_files` (via `bin_script()` above), not a
+	 * second, independent walk. Empirically verified (2026-08-03) to
+	 * exactly reproduce `python bin/build-release.py --list-shipped`
+	 * filtered to `.js` (88/88, zero diff); see that closure's docblock in
+	 * bin/check-template-literal-markup.php for the full reasoning and the
+	 * `--verify-scope` mechanism that guards against it drifting from
+	 * `.distignore` over time.
 	 *
 	 * @return list<string> Absolute paths.
 	 */
-	private function shipped_js_files(): array {
-		$root = $this->plugin_root();
-		$roots = array(
-			$root . 'assets',
-			$root . 'build/admin',
-			$root . 'src-react',
-		);
-
-		$files = array();
-		foreach ( $roots as $target ) {
-			if ( ! is_dir( $target ) ) {
-				continue;
-			}
-			$iterator = new RecursiveIteratorIterator(
-				new RecursiveDirectoryIterator( $target, RecursiveDirectoryIterator::SKIP_DOTS )
-			);
-			foreach ( $iterator as $file ) {
-				if ( 'js' !== strtolower( $file->getExtension() ) ) {
-					continue;
-				}
-				$path = $file->getPathname();
-				if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'zip-staging' . DIRECTORY_SEPARATOR ) ) {
-					continue;
-				}
-				if ( false !== strpos( $path, DIRECTORY_SEPARATOR . 'node_modules' . DIRECTORY_SEPARATOR ) ) {
-					continue;
-				}
-				$files[] = $path;
-			}
-		}
-		sort( $files );
-
-		return $files;
+	private function shipped_js_files_walker(): array {
+		return ( $this->bin_script()['shipped_js_files'] )();
 	}
 
 	/**
@@ -316,7 +307,7 @@ JS;
 	 * (80) tolerates ordinary future file churn without being fragile.
 	 */
 	public function test_the_scan_actually_reads_a_plausible_number_of_shipped_js_files(): void {
-		$this->assertGreaterThanOrEqual( 80, count( $this->shipped_js_files() ), 'The scan found implausibly few shipped JS files.' );
+		$this->assertGreaterThanOrEqual( 80, count( $this->shipped_js_files_walker() ), 'The scan found implausibly few shipped JS files.' );
 	}
 
 	/**
@@ -329,18 +320,24 @@ JS;
 	 * silently.
 	 */
 	public function test_no_shipped_js_file_has_template_literal_markup_offenders(): void {
-		$root      = $this->plugin_root();
+		// shipped_js_files_walker() returns forward-slash-normalized absolute
+		// paths (bin/check-template-literal-markup.php's
+		// $find_shipped_js_files guarantee); only plugin_root() itself
+		// (native-separator on Windows) needs normalizing before the prefix
+		// strip -- this is purely for readable failure messages below, since
+		// $offenders is asserted empty either way.
+		$root      = str_replace( '\\', '/', $this->plugin_root() );
 		$collect   = $this->collector();
 		$offenders = array();
 
-		foreach ( $this->shipped_js_files() as $path ) {
+		foreach ( $this->shipped_js_files_walker() as $path ) {
 			$code = (string) file_get_contents( $path );
 			$hits = $collect( $code );
 			if ( array() === $hits ) {
 				continue;
 			}
 
-			$relative = str_replace( array( $root, '\\' ), array( '', '/' ), $path );
+			$relative = 0 === strpos( $path, $root ) ? substr( $path, strlen( $root ) ) : $path;
 			foreach ( $hits as $hit ) {
 				$offenders[] = sprintf( '%s:%d [%s] %s', $relative, $hit['line'], $hit['pattern'], $hit['excerpt'] );
 			}
