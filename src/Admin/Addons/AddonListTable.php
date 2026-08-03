@@ -264,20 +264,12 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function column_title( $item ): string {
 		$actions = array(
-			'edit'      => sprintf(
+			'edit'   => sprintf(
 				'<a href="%s">%s</a>',
 				get_edit_post_link( $item->ID ),
 				__( 'Edit', 'mhm-rentiva' )
 			),
-			'duplicate' => sprintf(
-				'<a href="%s">%s</a>',
-				wp_nonce_url(
-					admin_url( 'admin-post.php?action=mhmrentiva_duplicate_addon&post_id=' . $item->ID ),
-					'mhmrentiva_duplicate_addon_' . $item->ID
-				),
-				__( 'Duplicate', 'mhm-rentiva' )
-			),
-			'delete'    => sprintf(
+			'delete' => sprintf(
 				'<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
 				get_delete_post_link( $item->ID ),
 				esc_js( __( 'Are you sure you want to delete this additional service?', 'mhm-rentiva' ) ),
