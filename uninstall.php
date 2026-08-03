@@ -42,6 +42,21 @@ spl_autoload_register(
 	}
 );
 
+/**
+ * Retire the core-table index surface unconditionally.
+ *
+ * These are structural indexes on WordPress's OWN tables
+ * (wp_posts/wp_postmeta/wp_usermeta), not this plugin's data -- so unlike
+ * everything gated behind $clean_on_uninstall below, they are removed
+ * regardless of that opt-in. Required directly rather than left to the
+ * spl_autoload_register() above: RetiredIndexes.php has zero dependency on
+ * the rest of the plugin by design (see its class docblock), so this
+ * cleanup cannot fail here for a reason unrelated to the DROP INDEX itself.
+ */
+require_once __DIR__ . '/src/Admin/Core/Utilities/RetiredIndexes.php';
+global $wpdb;
+\MHMRentiva\Admin\Core\Utilities\RetiredIndexes::drop( $wpdb );
+
 // Check if user wants to clean data on uninstall
 $settings = get_option( 'mhmrentiva_settings', array() );
 if ( ! is_array( $settings ) ) {
