@@ -87,6 +87,40 @@ final class AddonBookingEnqueueTest extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * Review fix round 1, I1: addon-booking.js's total-line prefix (the local
+	 * `currency` const read at :149, rendered in the template literals at
+	 * :179/:198/:207) must come from currencySymbol -- CurrencyHelper's actual
+	 * symbol -- not from `currency`, the raw ISO code
+	 * (SettingsCore::get('mhmrentiva_currency', 'USD'), e.g. "USD"). Every
+	 * other "prefix a total" call site in the plugin agrees: this file's own
+	 * PHP twin AddonBooking::format_addon_price(), the sibling
+	 * availability-calendar.js, and Pro's transfer-addon-modal.js:20 all use
+	 * the symbol. Before this fix, every site rendered e.g. "USD1.234,56"
+	 * regardless of configured currency.
+	 *
+	 * This is a static source check, not a JS runtime test -- PHPUnit cannot
+	 * execute addon-booking.js -- but it is cheap and precise: the negative
+	 * regex requires `.currency` to be immediately closed by `)`, a pattern
+	 * `.currencySymbol)` can never match, so it fails only on a genuine
+	 * regression back to the ISO-code read.
+	 */
+	public function test_js_reader_uses_the_currency_symbol_for_the_display_prefix(): void {
+		$js = file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'assets/js/components/addon-booking.js' );
+		$this->assertIsString( $js, 'Premise: addon-booking.js must be readable.' );
+
+		$this->assertStringContainsString(
+			'window.mhmRentivaAddons.currencySymbol',
+			$js,
+			'The display-prefix const must read currencySymbol -- the actual currency symbol, not the ISO code.'
+		);
+		$this->assertDoesNotMatchRegularExpression(
+			'/mhmRentivaAddons\.currency\)/',
+			$js,
+			'The display-prefix const must not read the bare ISO-code field (`.currency` immediately closed by `)`); `.currencySymbol)` never matches this pattern.'
+		);
+	}
+
 	public function test_register_wires_enqueue_addon_scripts_to_wp_enqueue_scripts(): void {
 		AddonBooking::register();
 

@@ -146,7 +146,7 @@
 		updateTotalDisplay: function (total, breakdown) {
 			const $totalSection = $( '.addon-total' );
 			const $breakdown    = $totalSection.find( '.total-breakdown' );
-			const currency      = (window.mhmRentivaAddons && window.mhmRentivaAddons.currency) || '$';
+			const currency      = (window.mhmRentivaAddons && window.mhmRentivaAddons.currencySymbol) || '$';
 			const locale        = (window.mhmRentivaAddons && window.mhmRentivaAddons.locale) || 'en-US';
 			const strings       = (window.mhmRentivaAddons && window.mhmRentivaAddons.strings) || {};
 
