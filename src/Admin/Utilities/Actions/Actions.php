@@ -13,7 +13,6 @@ if (!defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\PostTypes\Maintenance\LogRetention;
 use MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger;
 use MHMRentiva\Admin\Payment\Refunds\Service as RefundService;
 
@@ -27,7 +26,11 @@ final class Actions {
 
 
 	public static function register(): void {
-		add_action( 'admin_post_mhmrentiva_purge_logs', array( self::class, 'purge_logs' ) );
+		// admin_post_mhmrentiva_purge_logs -> purge_logs() was removed
+		// (WP.org T8 Görev 10b, row A6): zero shipped nonce producer and zero
+		// consumer in either repo. checkGranularPermission()/notice_url()/
+		// notices()/the NOTICE_NONCE_* constants below survive -- refund_booking()
+		// (live, nonce produced by BookingRefundMetaBox) also calls them.
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
 		add_action( 'admin_post_mhmrentiva_refund_booking', array( self::class, 'refund_booking' ) );
 	}
@@ -52,36 +55,8 @@ final class Actions {
 		exit;
 	}
 
-	public static function purge_logs(): void {
-		// ✅ SECURITY: Granular permission control
-		if ( ! self::checkGranularPermission( 'purge_logs' ) ) {
-			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
-		}
-		check_admin_referer( 'mhmrentiva_purge_logs' );
-
-		$days = isset( $_POST['days'] )
-			? absint( wp_unslash( $_POST['days'] ) )
-			: (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_log_retention_days', 30 );
-		if ( $days <= 0 ) {
-			$days = 30;
-		}
-		$limit   = (int) apply_filters( 'mhmrentiva_log_purge_limit_manual', 1000 );
-		$deleted = LogRetention::purge( $days, $limit );
-
-		$ref = wp_get_referer();
-		if ( ! $ref ) {
-			$ref = admin_url( 'options-general.php' );
-		}
-		$url = self::notice_url(
-			array(
-				'mhmrentiva_purged'      => '1',
-				'mhmrentiva_purge_count' => (string) (int) $deleted,
-			),
-			$ref
-		);
-		wp_safe_redirect( $url );
-		exit;
-	}
+	// purge_logs() was removed with its admin_post_mhmrentiva_purge_logs
+	// registration above (row A6).
 
 	/**
 	 * Nonce action for the one-shot result params this class puts on its own

@@ -34,12 +34,14 @@ final class DashboardPage {
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ));
 		add_action( 'rest_api_init', array( self::class, 'register_rest_routes' ) );
 
-		// Reserved: drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhmrentiva_clear_dashboard_cache', array( self::class, 'ajax_clear_dashboard_cache' ));
-		// Reserved: drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhmrentiva_save_dashboard_order', array( self::class, 'ajax_save_dashboard_order' ));
-		// Reserved: drag-and-drop / cache-clear UI.
-		add_action('wp_ajax_mhmrentiva_reset_dashboard_layout', array( self::class, 'ajax_reset_dashboard_layout' ));
+		// The 3 reserved drag-and-drop/cache-clear AJAX wrappers formerly
+		// registered here (wp_ajax_mhmrentiva_clear_dashboard_cache /
+		// _save_dashboard_order / _reset_dashboard_layout) were removed
+		// (WP.org T8 Görev 10b, rows A9/A10/A11): zero shipped nonce producer
+		// and zero consumer in either repo -- the React dashboard payload
+		// hardcodes 'widget_order' => array() and never reads back what those
+		// two would have written. clear_dashboard_cache() below survives: the
+		// 6 hook registrations directly beneath this comment all call it live.
 
 		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_cache_on_booking_change' ));
 		add_action('delete_post', array( self::class, 'clear_cache_on_booking_delete' ));
@@ -161,51 +163,8 @@ final class DashboardPage {
 		echo '<div id="mhm-rentiva-dashboard"></div>';
 	}
 
-	/**
-	 * Save dashboard widget order via AJAX
-	 */
-	public static function ajax_save_dashboard_order(): void
-	{
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_dashboard_nonce')) {
-			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
-			return;
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
-		}
-
-		$order = isset($_POST['order']) ? array_map('sanitize_key', $_POST['order']) : array();
-		if (empty($order)) {
-			wp_send_json_error(__('Invalid order data', 'mhm-rentiva'));
-			return;
-		}
-
-		update_user_meta(get_current_user_id(), 'mhmrentiva_dashboard_widget_order', $order);
-		wp_send_json_success(__('Order saved successfully', 'mhm-rentiva'));
-	}
-
-	/**
-	 * Reset dashboard layout via AJAX
-	 */
-	public static function ajax_reset_dashboard_layout(): void
-	{
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_dashboard_nonce')) {
-			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
-			return;
-		}
-
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
-		}
-
-		delete_user_meta(get_current_user_id(), 'mhmrentiva_dashboard_widget_order');
-		wp_send_json_success(__('Dashboard layout reset successfully', 'mhm-rentiva'));
-	}
+	// ajax_save_dashboard_order() and ajax_reset_dashboard_layout() were
+	// removed with their wp_ajax_* registrations above (rows A10/A11).
 
 	/**
 	 * Load dashboard scripts and styles — React build.
@@ -371,18 +330,7 @@ final class DashboardPage {
 		}
 	}
 
-	public static function ajax_clear_dashboard_cache(): void
-	{
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if (! wp_verify_nonce($nonce, 'mhmrentiva_clear_cache')) {
-			wp_send_json_error(__('Security check failed', 'mhm-rentiva'));
-			return;
-		}
-		if (! current_user_can('manage_options')) {
-			wp_send_json_error(__('Unauthorized access', 'mhm-rentiva'));
-			return;
-		}
-		self::clear_dashboard_cache();
-		wp_send_json_success(__('Cache cleared successfully', 'mhm-rentiva'));
-	}
+	// ajax_clear_dashboard_cache() was removed with its wp_ajax_* registration
+	// above (row A9). clear_dashboard_cache() above survives -- it is called
+	// live by the 6 hook registrations in register().
 }

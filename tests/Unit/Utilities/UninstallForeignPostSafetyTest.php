@@ -98,22 +98,11 @@ final class UninstallForeignPostSafetyTest extends WP_UnitTestCase {
 		$this->assertNull( get_post( $ours ), 'uninstall left one of our own pre-6.0.0 bookings behind' );
 	}
 
-	/**
-	 * The pre-uninstall screen shows these counts to the user before they
-	 * confirm, so the count must not include posts uninstall will not touch.
-	 */
-	public function test_the_reported_count_excludes_foreign_posts(): void
-	{
-		self::factory()->post->create( array( 'post_type' => 'vehicle' ) );
-		$ours = self::factory()->post->create( array( 'post_type' => 'vehicle' ) );
-		update_post_meta( $ours, '_mhm_rentiva_price_per_day', '250' );
-
-		$stats = Uninstaller::get_uninstall_stats();
-
-		$this->assertSame(
-			1,
-			(int) $stats['post_types']['vehicles'],
-			'the count offered to the user includes a post uninstall will not delete'
-		);
-	}
+	// test_the_reported_count_excludes_foreign_posts() was removed (WP.org T8
+	// Görev 10b, row A7): it covered Uninstaller::get_uninstall_stats(), the
+	// stats reader for the now-deleted UninstallPage AJAX front door
+	// (wp_ajax_mhmrentiva_get_uninstall_stats had zero shipped nonce producer
+	// and zero rendering surface). get_uninstall_stats() was deleted with it;
+	// uninstall_direct()'s foreign-post safety, tested by the three methods
+	// above, is untouched.
 }

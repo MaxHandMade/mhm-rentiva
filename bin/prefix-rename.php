@@ -972,6 +972,14 @@ class PrefixRenamer {
 				1 => array( 'wp_mhm_postmeta_backup_invalid_20260320_092228', 'wp_mhmrentiva_merge_losers_backup_20260802_065325_xIgGvQ', 'wp_mhmrentiva_postmeta_backup_invalid_20260320_092228' ),
 			),
 		),
+		// WP.org T8 Görev 10b (row A7): Uninstaller::get_uninstall_stats() was
+		// deleted (dead AJAX-stats reader, UninstallPage's only caller was
+		// itself deleted as A7/A8). That method owned 5 of this file's
+		// regions -- the options/vehicles/bookings/postmeta/transients LIKE-
+		// pattern reads, each a duplicate of the corresponding write-side
+		// region uninstall_direct() still carries. Removing them dropped this
+		// file's count from 15 to 10; the survivors were renumbered 3-9 below
+		// to stay contiguous with regions() 0-based, file-scan-order ordinals.
 		'src/Admin/Utilities/Uninstall/Uninstaller.php' => array(
 			'why'      => 'uninstall must delete rows on a site that never ran the migration; and it must NOT delete the six add-on tables, which are carved out of the broad orphan pattern by name',
 			'regions'  => array(
@@ -983,13 +991,8 @@ class PrefixRenamer {
 				5 => array( '_mhm%', 'mhmrentiva_booking' ),
 				6 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
 				7 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
-				8 => array( '_mhm_rentiva%', '_mhmrentiva%', 'mhm_rentiva%', 'mhmrentiva%' ),
-				9 => array( '_mhm%', 'mhmrentiva_vehicle' ),
-				10 => array( '_mhm%', 'mhmrentiva_booking' ),
-				11 => array( '_mhm_rentiva%', '_mhmrentiva%' ),
-				12 => array( '_transient_mhm_rentiva%', '_transient_mhmrentiva%', '_transient_timeout_mhm_rentiva%', '_transient_timeout_mhmrentiva%' ),
-				13 => array( 'mhm_backup_records', 'mhm_message_logs', 'mhm_notification_queue', 'mhm_payment_log', 'mhm_rentiva_queue', 'mhm_rentiva_ratings', 'mhm_rentiva_report_queue', 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics', 'mhm_sessions', 'mhm_transfers' ),
-				14 => array( 'mhm_rentiva_alert_dispatch_state', 'mhm_rentiva_alert_state', 'mhm_rentiva_event_queue', 'mhm_rentiva_external_alert_bridge_circuit', 'mhm_rentiva_external_alert_bridge_queue', 'mhm_rentiva_payment_event_aggregate_windows', 'mhm_rentiva_payment_event_aggregates', 'mhm_rentiva_payment_events_raw', 'mhm_rentiva_payment_registry', 'mhm_rentiva_subscriptions', 'mhm_rentiva_usage_billing_feature_flags' ),
+				8 => array( 'mhm_backup_records', 'mhm_message_logs', 'mhm_notification_queue', 'mhm_payment_log', 'mhm_rentiva_queue', 'mhm_rentiva_ratings', 'mhm_rentiva_report_queue', 'mhm_rentiva_tenants', 'mhm_rentiva_usage_metrics', 'mhm_sessions', 'mhm_transfers' ),
+				9 => array( 'mhm_rentiva_alert_dispatch_state', 'mhm_rentiva_alert_state', 'mhm_rentiva_event_queue', 'mhm_rentiva_external_alert_bridge_circuit', 'mhm_rentiva_external_alert_bridge_queue', 'mhm_rentiva_payment_event_aggregate_windows', 'mhm_rentiva_payment_event_aggregates', 'mhm_rentiva_payment_events_raw', 'mhm_rentiva_payment_registry', 'mhm_rentiva_subscriptions', 'mhm_rentiva_usage_billing_feature_flags' ),
 			),
 		),
 	);

@@ -29,10 +29,16 @@ final class AddCustomerPage {
 
 	/**
 	 * Register actions and hooks.
+	 *
+	 * No-op: the wp_ajax_mhmrentiva_add_customer -> ajax_add_customer()
+	 * wrapper formerly registered here was removed (WP.org T8 Görev 10b, row
+	 * A12) -- zero consumer in either repo; render()'s own inline POST
+	 * handler below (reachable via CustomersPage::render(), ?action=add-customer)
+	 * is the live create-customer path and carries the same nonce action.
+	 * Kept as an empty method so CustomersPage::register()'s call site needs
+	 * no change.
 	 */
 	public static function register(): void {
-		// Hooks for AJAX operations.
-		add_action( 'wp_ajax_mhmrentiva_add_customer', array( self::class, 'ajax_add_customer' ) );
 	}
 
 	/**
@@ -162,88 +168,7 @@ final class AddCustomerPage {
 		echo '</div>';
 	}
 
-	/**
-	 * Add customer via AJAX
-	 *
-	 * @return void
-	 */
-	public static function ajax_add_customer(): void {
-		// Nonce check
-		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ?? '' ) ), 'mhmrentiva_add_customer' ) ) {
-			wp_die( esc_html__( 'Security check failed.', 'mhm-rentiva' ) );
-		}
-
-		// Permission check — creating a customer creates a real WordPress user
-		// account, so this is gated on create_users, not manage_options.
-		if ( ! current_user_can( 'create_users' ) ) {
-			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
-		}
-
-		$customer_name    = sanitize_text_field( wp_unslash( $_POST['customer_name'] ?? '' ) );
-		$customer_email   = sanitize_email( wp_unslash( $_POST['customer_email'] ?? '' ) );
-		$customer_phone   = sanitize_text_field( wp_unslash( $_POST['customer_phone'] ?? '' ) );
-		$customer_address = sanitize_textarea_field( wp_unslash( $_POST['customer_address'] ?? '' ) );
-
-		if ( empty( $customer_name ) || empty( $customer_email ) ) {
-			wp_send_json_error( array( 'message' => __( 'Customer name and email fields are required.', 'mhm-rentiva' ) ) );
-			return;
-		}
-
-		// Generate username from customer name
-		$base_username = trim( strtolower( $customer_name ) );
-		$base_username = sanitize_user( $base_username, true );
-
-		// If username is empty or invalid, use email prefix as fallback
-		if ( empty( $base_username ) || ! validate_username( $base_username ) ) {
-			$email_parts   = explode( '@', $customer_email );
-			$base_username = sanitize_user( $email_parts[0], true );
-		}
-
-		// Ensure username is unique
-		$username = $base_username;
-		$counter  = 1;
-		while ( username_exists( $username ) ) {
-			$username = $base_username . $counter;
-			++$counter;
-		}
-
-		// Save customer information (as WordPress user)
-		$user_id = wp_create_user( $username, wp_generate_password(), $customer_email );
-
-		if ( is_wp_error( $user_id ) ) {
-			wp_send_json_error( array( 'message' => esc_html__( 'Error occurred while adding customer: ', 'mhm-rentiva' ) . esc_html( $user_id->get_error_message() ) ) );
-			return;
-		}
-
-		// Determine safe default role
-		$default_role = \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_customer_default_role', 'customer' );
-		if ( ! get_role( $default_role ) ) {
-			$default_role = 'customer';
-		}
-
-		// Update user information
-		wp_update_user(
-			array(
-				'ID'           => $user_id,
-				'display_name' => $customer_name,
-				'first_name'   => $customer_name,
-				'role'         => $default_role,
-			)
-		);
-
-		// Ensure role is set even if wp_update_user ignores role
-		$wp_user_obj = new \WP_User( $user_id );
-		if ( ! in_array( $default_role, (array) $wp_user_obj->roles, true ) ) {
-			$wp_user_obj->set_role( $default_role );
-		}
-
-		// Add meta information
-		update_user_meta( $user_id, 'mhmrentiva_phone', $customer_phone );
-		update_user_meta( $user_id, 'mhmrentiva_address', $customer_address );
-
-		// Clear cache
-		\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
-
-		wp_send_json_success( array( 'message' => __( 'Customer added successfully.', 'mhm-rentiva' ) ) );
-	}
+	// ajax_add_customer() was removed with its wp_ajax_mhmrentiva_add_customer
+	// registration (row A12). render()'s own inline POST handler above is the
+	// live create-customer path.
 }

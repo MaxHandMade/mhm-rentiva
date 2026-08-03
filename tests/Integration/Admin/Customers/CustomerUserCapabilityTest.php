@@ -125,29 +125,12 @@ final class CustomerUserCapabilityTest extends WP_UnitTestCase
         $this->assertFalse( wp_check_password( '', $created->user_pass, $created->ID ) );
     }
 
-    // --- Create via AJAX (AddCustomerPage::ajax_add_customer) -------------
-
-    public function test_ajax_add_customer_denied_without_create_users_capability(): void
-    {
-        $capped_id = self::factory()->user->create( array( 'role' => 'mhmrentiva_test_options_only' ) );
-        wp_set_current_user( $capped_id );
-
-        $_POST['nonce']         = wp_create_nonce( 'mhmrentiva_add_customer' );
-        $_POST['customer_name'] = 'Denied Ajax Customer';
-        $_POST['customer_email'] = 'denied-ajax-customer@example.com';
-
-        ob_start();
-        try {
-            AddCustomerPage::ajax_add_customer();
-            $this->fail( 'Expected wp_die() to short-circuit the AJAX handler for an unauthorized user.' );
-        } catch ( \WPDieException $e ) {
-            // Expected: denied before any user was created.
-        } finally {
-            ob_end_clean();
-        }
-
-        $this->assertFalse( get_user_by( 'email', 'denied-ajax-customer@example.com' ) );
-    }
+    // test_ajax_add_customer_denied_without_create_users_capability() was
+    // removed (WP.org T8 Görev 10b, row A12): it covered
+    // AddCustomerPage::ajax_add_customer(), the wp_ajax_mhmrentiva_add_customer
+    // wrapper -- zero consumer in either repo, deleted as dead code.
+    // render()'s own inline POST handler is the live create-customer path;
+    // its capability gate is covered by the two tests above.
 
     // --- Edit (CustomersPage::render -> render_customer_edit) -------------
 

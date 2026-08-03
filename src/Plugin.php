@@ -415,9 +415,11 @@ final class Plugin {
 		}
 
 		// Booking
-		if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Handler')) {
-			\MHMRentiva\Admin\Booking\Core\Handler::register();
-		}
+		// Handler::register() was removed (WP.org T8 Görev 10b, row A1/A2): its
+		// two hooks (admin_post_mhmrentiva_booking / admin_post_nopriv_*) had
+		// zero shipped nonce producer and zero consumer in either repo. Handler
+		// itself survives -- get_cancellation_policy()/get_payment_deadline()
+		// are called live from WooCommerceBridge.
 		if ($this->is_class_available('\\MHMRentiva\\Admin\\Booking\\Core\\Status')) {
 			\MHMRentiva\Admin\Booking\Core\Status::register();
 		}
@@ -583,10 +585,10 @@ final class Plugin {
 			Admin\Settings\APIKeysPage::register();
 		}
 
-		// Uninstall page (admin only)
-		if ($is_admin && class_exists('MHMRentiva\\Admin\\Utilities\\Uninstall\\UninstallPage')) {
-			Admin\Utilities\Uninstall\UninstallPage::register();
-		}
+		// UninstallPage::register() was removed (WP.org T8 Görev 10b, row A7/A8):
+		// its two wp_ajax_* handlers had zero rendering surface and zero
+		// consumer in either repo. The real uninstall path (Uninstaller::
+		// uninstall_direct(), called from uninstall.php) is untouched.
 
 		// Vehicle detail page rewrite rules (SEO-friendly sub-path URLs)
 		add_action('init', array( $this, 'register_vehicle_rewrite_rules' ), 15);
@@ -758,10 +760,9 @@ final class Plugin {
 	 */
 	private function initialize_deposit_services(): void
 	{
-		// Register deposit AJAX handlers
-		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\Deposit\DepositAjax')) {
-			\MHMRentiva\Admin\Vehicle\Deposit\DepositAjax::register();
-		}
+		// DepositAjax::register() was removed (WP.org T8 Görev 10b, row A3/A4):
+		// wp_ajax_mhmrentiva_calculate_deposit had zero shipped nonce producer
+		// and zero consumer in either repo; the whole class was dead.
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\DepositManagementAjax')) {
 			\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::register();
 		}

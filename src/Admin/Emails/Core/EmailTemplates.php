@@ -15,7 +15,6 @@ use MHMRentiva\Admin\Emails\Templates\EmailPreview;
 
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler;
-use MHMRentiva\Admin\Emails\Core\Mailer;
 use MHMRentiva\Admin\Settings\Groups\EmailSettings;
 
 
@@ -30,7 +29,12 @@ final class EmailTemplates {
 	{
 		// Menu registration is now done centrally in Menu.php
 		add_action('admin_post_mhmrentiva_email_preview', array( self::class, 'handle_preview' ));
-		add_action('admin_post_mhmrentiva_email_send_test', array( self::class, 'handle_send' ));
+		// admin_post_mhmrentiva_email_send_test -> handle_send() was removed
+		// (WP.org T8 Görev 10b, row A5): zero shipped nonce producer and zero
+		// consumer in either repo. The live sibling is the differently-named
+		// mhmrentiva_send_test_email (EmailTestAction.php). build_context()
+		// (used by handle_send()) survives -- it is also called live from
+		// EmailAjaxHandler.
 
 		// Admin AJAX for emails
 		\MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler::register();
@@ -46,140 +50,12 @@ final class EmailTemplates {
 
 
 
-	public static function render_page(): void
-	{
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
-		}
-
-		// Email templates page - standalone version
-		self::render_standalone_page();
-	}
-
-	/**
-	 * Render standalone email templates page
-	 */
-	public static function render_standalone_page(): void
-	{
-		// Define email template types
-		$email_types = self::get_email_type_tabs();
-
-		$current_type = self::get_key('type', 'booking_notifications');
-		if (! isset($email_types[ $current_type ])) {
-			$current_type = 'booking_notifications';
-		}
-
-		echo '<div class="wrap mhm-email-templates">';
-		echo '<h1>' . esc_html__('Email Templates', 'mhm-rentiva') . '</h1>';
-
-		// Link to email settings
-		$email_settings_url = admin_url('admin.php?page=mhm-rentiva-settings&tab=email');
-		echo '<div class="notice notice-info inline" style="margin: 10px 0;">';
-		echo '<p><strong>' . esc_html__('Email Sending Settings:', 'mhm-rentiva') . '</strong> ';
-		echo esc_html__('To edit email sending settings (sender name, test mode, etc.):', 'mhm-rentiva') . ' ';
-		echo '<a href="' . esc_url($email_settings_url) . '" class="button button-secondary" style="margin-left: 10px;">';
-		echo esc_html__('Email Settings', 'mhm-rentiva') . '</a>';
-		echo '</p></div>';
-
-		// Quick send (no nested form) for Settings tab variant
-		if (current_user_can('manage_options')) {
-			$registry   = Templates::registry();
-			$nonce      = wp_create_nonce('mhmrentiva_send_template_test');
-			$admin_post = admin_url('admin-post.php');
-			$default_to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode() ? \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address() : get_option('admin_email');
-			echo '<div class="card" style="padding:12px; margin:12px 0;">';
-			echo '<h3>' . esc_html__('Send Template to Email', 'mhm-rentiva') . '</h3>';
-			echo '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">';
-			echo '<div><label>' . esc_html__('Template', 'mhm-rentiva') . '<br/>';
-			echo '<select id="mhm-template-key-settings" style="min-width:260px;">';
-			foreach ($registry as $key => $def) {
-				echo '<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>';
-			}
-			echo '</select></label></div>';
-
-			echo '<div><label>' . esc_html__('Send To (optional)', 'mhm-rentiva') . '<br/>';
-			echo '<input type="email" id="mhm-send-to-settings" class="regular-text" value="' . esc_attr($default_to) . '" /></label></div>';
-			echo '<div><button type="button" id="mhm-send-template-btn-settings" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
-			echo '</div>';
-
-			$st = \MHMRentiva\Admin\Emails\Settings\EmailTemplateTestAction::take_status();
-			if ('' !== $st) {
-				if ($st === 'success') {
-					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__('Template email sent.', 'mhm-rentiva') . '</p></div>';
-				} elseif ($st === 'failed') {
-					echo '<div class="notice notice-error inline" style="margin-top:8px;"><p>' . esc_html__('Failed to send template email.', 'mhm-rentiva') . '</p></div>';
-				}
-			}
-
-			echo '</div>';
-		}
-
-		// Email type selection
-		echo '<div class="nav-tab-wrapper">';
-		foreach ($email_types as $type => $label) {
-			$active = $current_type === $type ? ' nav-tab-active' : '';
-			echo '<a href="' . esc_url(add_query_arg('type', $type)) . '" class="nav-tab' . esc_attr($active) . '">' . esc_html($label) . '</a>';
-		}
-		echo '</div>';
-
-		// Quick send (no nested form) - JS creates and submits a separate form
-		if (current_user_can('manage_options')) {
-			$registry   = Templates::registry();
-			$nonce      = wp_create_nonce('mhmrentiva_send_template_test');
-			$admin_post = admin_url('admin-post.php');
-			$default_to = \MHMRentiva\Admin\Settings\Groups\EmailSettings::is_test_mode() ? \MHMRentiva\Admin\Settings\Groups\EmailSettings::get_test_address() : get_option('admin_email');
-			echo '<div class="card" style="padding:12px; margin-top:12px;">';
-			echo '<h3>' . esc_html__('Send Template to Email', 'mhm-rentiva') . '</h3>';
-			echo '<div style="display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end;">';
-			echo '<div><label>' . esc_html__('Template', 'mhm-rentiva') . '<br/>';
-			echo '<select id="mhm-template-key" style="min-width:260px;">';
-			foreach ($registry as $key => $def) {
-				echo '<option value="' . esc_attr($key) . '">' . esc_html($key) . '</option>';
-			}
-			echo '</select></label></div>';
-
-			echo '<div><label>' . esc_html__('Send To (optional)', 'mhm-rentiva') . '<br/>';
-			echo '<input type="email" id="mhm-send-to" class="regular-text" value="' . esc_attr($default_to) . '" /></label></div>';
-			echo '<div><button type="button" id="mhm-send-template-btn" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
-			echo '</div>';
-
-			$st = \MHMRentiva\Admin\Emails\Settings\EmailTemplateTestAction::take_status();
-			if ('' !== $st) {
-				if ($st === 'success') {
-					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__('Template email sent.', 'mhm-rentiva') . '</p></div>';
-				} elseif ($st === 'failed') {
-					echo '<div class="notice notice-error inline" style="margin-top:8px;"><p>' . esc_html__('Failed to send template email.', 'mhm-rentiva') . '</p></div>';
-				}
-			}
-
-			echo '</div>';
-		}
-
-		echo '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">';
-		echo '<input type="hidden" name="action" value="mhmrentiva_save_email_templates">';
-		echo '<input type="hidden" name="current_tab" value="' . esc_attr($current_type) . '">';
-		wp_nonce_field('mhmrentiva_save_email_templates', 'mhmrentiva_email_templates_nonce');
-
-		if ($current_type === 'booking_notifications') {
-			BookingNotifications::render();
-		} elseif ($current_type === 'refund_emails') {
-			RefundEmails::render();
-		} elseif ($current_type === 'preview') {
-			EmailPreview::render();
-		} else {
-			/**
-			 * Neutral seam for any email-type tab Lite does not own (e.g. the add-on's
-			 * message_emails/vendor_emails). The add-on renders its own tabs here.
-			 *
-			 * @param string $current_type The active email-type tab key.
-			 */
-			do_action('mhmrentiva_render_email_type', $current_type);
-		}
-
-		submit_button(__('Save Changes', 'mhm-rentiva'));
-		echo '</form>';
-		echo '</div>';
-	}
+	// render_page() and render_standalone_page() were removed (WP.org T8
+	// Görev 10b, row D7): render_page()'s only caller was its own class
+	// (render_standalone_page()), and neither was ever wired to a menu/
+	// add_options_page -- zero rendering surface in either repo. The live
+	// renderer is render_content_only() below, called from
+	// TabRendererRegistry inside the Settings > Email Templates tab.
 
 	/**
 	 * Render only the body for the Settings tab, without the surrounding form.
@@ -267,27 +143,9 @@ final class EmailTemplates {
 		wp_die(esc_html__('Not implemented', 'mhm-rentiva'));
 	}
 
-	public static function handle_send(): void
-	{
-		if (! current_user_can('manage_options')) {
-			wp_die(esc_html__('You do not have permission to perform this action.', 'mhm-rentiva'));
-		}
-		check_admin_referer('mhmrentiva_email_send');
-
-		$req = VerifiedRequest::from($_POST);
-		$key = sanitize_key($req->text('key'));
-		$to  = sanitize_email($req->text('to'));
-		$bid = $req->int('booking_id');
-		if ($key === '' || $to === '') {
-			wp_die(esc_html__('Missing parameters.', 'mhm-rentiva'));
-		}
-		$ctx = self::build_context($key, $bid);
-		$ok  = Mailer::send($key, $to, $ctx);
-		$ref = remove_query_arg(array( 'mhmrentiva_sent', 'mhmrentiva_err' ), wp_get_referer() ?: admin_url('options-general.php?page=mhm-rentiva-email-templates'));
-		$url = add_query_arg($ok ? array( 'mhmrentiva_sent' => '1' ) : array( 'mhmrentiva_err' => '1' ), $ref);
-		wp_safe_redirect($url);
-		exit;
-	}
+	// handle_send() was removed with its admin_post_mhmrentiva_email_send_test
+	// registration above (row A5). build_context() below survives -- it is
+	// also called live from EmailAjaxHandler.
 
 	/**
 	 * The submitted templates form, or null when it carries neither of the two

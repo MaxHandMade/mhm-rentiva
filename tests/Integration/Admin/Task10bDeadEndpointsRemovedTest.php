@@ -1,0 +1,207 @@
+<?php
+
+declare(strict_types=1);
+
+namespace MHMRentiva\Tests\Integration\Admin;
+
+use WP_UnitTestCase;
+
+/**
+ * WP.org T8 Görev 10b: the 12 Section-A dead-endpoint hook tags identified by
+ * `.superpowers/sdd/2026-08-03-t8-duzeltme-turu/task-10a-endpoint-table.md`
+ * (rows A1-A12) must no longer be registered in $wp_filter after plugin init.
+ *
+ * Every one of the 12 tags below had, at the table's measurement (Lite HEAD
+ * 7c626e3c): zero shipped nonce producer AND zero consumer (no form, no JS,
+ * no Pro reference) in either repo — confirmed independently for this task
+ * via fresh grep across both `mhm-rentiva` and `mhm-rentiva-pro` before any
+ * deletion (see task-10b-report.md for the per-row evidence).
+ *
+ * RED (pre-fix): every assertion in test_dead_section_a_hook_tag_is_not_registered
+ * fails — all 12 tags are still registered today, even though nothing in
+ * either repo can ever produce a valid nonce for them or POST to them.
+ * GREEN (post-fix): each dead hook registration + its dead callback was
+ * deleted; live siblings that share a class or file with a dead callback
+ * (e.g. Actions::refund_booking(), DashboardPage::clear_dashboard_cache(),
+ * AddCustomerPage::render(), Handler::get_cancellation_policy()/
+ * get_payment_deadline(), Uninstaller::uninstall_direct()) were preserved
+ * and are asserted still-present below as positive controls.
+ *
+ * @covers \MHMRentiva\Admin\Booking\Core\Handler
+ * @covers \MHMRentiva\Admin\Vehicle\Deposit\DepositAjax
+ * @covers \MHMRentiva\Admin\Emails\Core\EmailTemplates
+ * @covers \MHMRentiva\Admin\Utilities\Actions\Actions
+ * @covers \MHMRentiva\Admin\Utilities\Uninstall\UninstallPage
+ * @covers \MHMRentiva\Admin\Utilities\Uninstall\Uninstaller
+ * @covers \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage
+ * @covers \MHMRentiva\Admin\Customers\AddCustomerPage
+ */
+final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
+{
+    /**
+     * Every Section-A registrar lives inside `Plugin::initialize_admin_services()`
+     * (or, for UninstallPage, an equally `is_admin()`-gated block), which only
+     * runs when `is_admin()` is true AT THE MOMENT `Plugin::initialize_services()`
+     * fires -- once, early in the shared PHPUnit bootstrap (`muplugins_loaded`),
+     * before any test gets a chance to raise `is_admin()`. In this suite that
+     * moment always has `is_admin() === false`, so relying on the plugin's own
+     * bootstrap would make every assertion below about an admin-gated hook
+     * vacuously pass whether or not the dead callback still exists.
+     *
+     * Each still-existing registrar is therefore invoked directly here, the
+     * same pattern `CoreAdminPagesTest::test_menu_shows_setup_and_about_submenus_by_default()`
+     * uses for `Menu::add_menu()`. `method_exists()` (not `class_exists()`)
+     * guards each call because two rows (A1/A2, A12) delete `register()` itself
+     * -- or empty it out -- while the surrounding class survives; a class-only
+     * guard would fatal on those once the method is gone. `Handler::class` /
+     * `DepositAjax::class` etc. never trigger autoloading on their own (the
+     * `::class` constant is resolved at compile time), so this is safe to call
+     * even after A3/A4/A7/A8/F2 delete the file entirely.
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        foreach (
+            array(
+                \MHMRentiva\Admin\Booking\Core\Handler::class,
+                \MHMRentiva\Admin\Vehicle\Deposit\DepositAjax::class,
+                \MHMRentiva\Admin\Emails\Core\EmailTemplates::class,
+                \MHMRentiva\Admin\Utilities\Actions\Actions::class,
+                \MHMRentiva\Admin\Utilities\Uninstall\UninstallPage::class,
+                \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::class,
+                // CustomersPage, not AddCustomerPage directly: production fires
+                // AddCustomerPage::register() THROUGH CustomersPage::register()
+                // (CustomersPage.php:59), and this also exercises the sibling
+                // admin_post_mhmrentiva_export_customers hook used as a live
+                // positive control below.
+                \MHMRentiva\Admin\Customers\CustomersPage::class,
+            ) as $registrar
+        ) {
+            if (method_exists($registrar, 'register')) {
+                $registrar::register();
+            }
+        }
+    }
+
+    /**
+     * The 12 Section-A hook tags, per task-10a-endpoint-table.md rows A1-A12
+     * (nopriv rows included as their own row, matching the table's own count).
+     *
+     * @return array<string, array{0: string}>
+     */
+    public static function deadHookTagProvider(): array
+    {
+        return array(
+            'A1  admin_post_mhmrentiva_booking'              => array( 'admin_post_mhmrentiva_booking' ),
+            'A2  admin_post_nopriv_mhmrentiva_booking'        => array( 'admin_post_nopriv_mhmrentiva_booking' ),
+            'A3  wp_ajax_mhmrentiva_calculate_deposit'        => array( 'wp_ajax_mhmrentiva_calculate_deposit' ),
+            'A4  wp_ajax_nopriv_mhmrentiva_calculate_deposit' => array( 'wp_ajax_nopriv_mhmrentiva_calculate_deposit' ),
+            'A5  admin_post_mhmrentiva_email_send_test'       => array( 'admin_post_mhmrentiva_email_send_test' ),
+            'A6  admin_post_mhmrentiva_purge_logs'            => array( 'admin_post_mhmrentiva_purge_logs' ),
+            'A7  wp_ajax_mhmrentiva_get_uninstall_stats'      => array( 'wp_ajax_mhmrentiva_get_uninstall_stats' ),
+            'A8  wp_ajax_mhmrentiva_uninstall_plugin'         => array( 'wp_ajax_mhmrentiva_uninstall_plugin' ),
+            'A9  wp_ajax_mhmrentiva_clear_dashboard_cache'    => array( 'wp_ajax_mhmrentiva_clear_dashboard_cache' ),
+            'A10 wp_ajax_mhmrentiva_save_dashboard_order'     => array( 'wp_ajax_mhmrentiva_save_dashboard_order' ),
+            'A11 wp_ajax_mhmrentiva_reset_dashboard_layout'   => array( 'wp_ajax_mhmrentiva_reset_dashboard_layout' ),
+            'A12 wp_ajax_mhmrentiva_add_customer'             => array( 'wp_ajax_mhmrentiva_add_customer' ),
+        );
+    }
+
+    /**
+     * @dataProvider deadHookTagProvider
+     */
+    public function test_dead_section_a_hook_tag_is_not_registered(string $hook_tag): void
+    {
+        $this->assertFalse(
+            has_action($hook_tag),
+            "Dead Section-A endpoint '{$hook_tag}' must not be registered in \$wp_filter after plugin init -- see task-10a-endpoint-table.md."
+        );
+    }
+
+    // -- Positive controls: live siblings on the same classes/files must survive --
+
+    public function test_live_sibling_hooks_on_the_same_classes_are_still_registered(): void
+    {
+        $this->assertNotFalse(
+            has_action('admin_post_mhmrentiva_refund_booking'),
+            'Actions::refund_booking() is live (nonce produced by BookingRefundMetaBox) -- must survive the A6 purge_logs() deletion.'
+        );
+        $this->assertNotFalse(
+            has_action('admin_post_mhmrentiva_email_preview'),
+            'EmailTemplates::handle_preview() must survive the A5 handle_send() deletion.'
+        );
+        $this->assertNotFalse(
+            has_action('admin_post_mhmrentiva_save_email_templates'),
+            'EmailTemplates::handle_save_templates() must survive the A5 handle_send() deletion.'
+        );
+        $this->assertNotFalse(
+            has_action('save_post_mhmrentiva_booking'),
+            'DashboardPage::clear_cache_on_booking_change() wiring must survive the A9/A10/A11 AJAX-wrapper deletions.'
+        );
+        $this->assertNotFalse(
+            has_action('admin_post_mhmrentiva_export_customers'),
+            'CustomersPage::register() must still wire CustomerExporter::handle() after AddCustomerPage::register() was emptied out by A12.'
+        );
+    }
+
+    public function test_preserved_public_methods_still_exist(): void
+    {
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Booking\Core\Handler::class, 'get_cancellation_policy'),
+            'Handler::get_cancellation_policy() is called live from WooCommerceBridge::get_cancellation_policy() -- must survive A1/A2.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Booking\Core\Handler::class, 'get_payment_deadline'),
+            'Handler::get_payment_deadline() is called live from WooCommerceBridge::get_payment_deadline() -- must survive A1/A2.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::class, 'uninstall_direct'),
+            'Uninstaller::uninstall_direct() is the real uninstall.php:90 path -- must survive A7/A8.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Customers\AddCustomerPage::class, 'render'),
+            'AddCustomerPage::render() is the live inline-POST admin page -- must survive A12.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Utilities\Dashboard\DashboardPage::class, 'clear_dashboard_cache'),
+            'DashboardPage::clear_dashboard_cache() has 6 other live hook callers -- must survive A9.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Emails\Core\EmailTemplates::class, 'build_context'),
+            'EmailTemplates::build_context() is live via EmailAjaxHandler -- must survive A5/D7.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Emails\Core\EmailTemplates::class, 'render_content_only'),
+            'EmailTemplates::render_content_only() is live via TabRendererRegistry -- must survive D7.'
+        );
+    }
+
+    public function test_dead_classes_no_longer_exist(): void
+    {
+        $this->assertFalse(
+            class_exists(\MHMRentiva\Admin\Vehicle\Deposit\DepositAjax::class),
+            'DepositAjax was fully dead (A3/A4, zero consumer/producer) -- the whole class must be gone.'
+        );
+        $this->assertFalse(
+            class_exists(\MHMRentiva\Admin\Utilities\Uninstall\UninstallPage::class),
+            'UninstallPage was fully dead (A7/A8, no rendering surface at all) -- the whole class must be gone.'
+        );
+        $this->assertFalse(
+            class_exists('MHMRentiva\Admin\Settings\Groups\CustomerManagementSettings'),
+            'CustomerManagementSettings was a hollow stub (F2: 0 fields, 0 keys) -- the whole class must be gone.'
+        );
+    }
+
+    public function test_uninstaller_thin_wrapper_and_stats_method_are_gone(): void
+    {
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::class, 'uninstall'),
+            'Uninstaller::uninstall() was only ever called from the now-deleted UninstallPage AJAX handler (A8) -- must be gone.'
+        );
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::class, 'get_uninstall_stats'),
+            'Uninstaller::get_uninstall_stats() was only ever called from the now-deleted UninstallPage AJAX handler (A7) -- must be gone.'
+        );
+    }
+}
