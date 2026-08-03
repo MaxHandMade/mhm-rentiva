@@ -253,6 +253,11 @@ final class AddonBooking {
 				),
 				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
 				'nonce'            => wp_create_nonce( 'mhmrentiva_addon_booking_nonce' ),
+				'locale'           => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
+				'strings'          => array(
+					'totalAddons'      => __( 'Total Add-ons', 'mhm-rentiva' ),
+					'noAddonsSelected' => __( 'No add-ons selected', 'mhm-rentiva' ),
+				),
 			)
 		);
 	}

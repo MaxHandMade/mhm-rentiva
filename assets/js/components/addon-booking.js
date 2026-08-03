@@ -146,9 +146,9 @@
 		updateTotalDisplay: function (total, breakdown) {
 			const $totalSection = $( '.addon-total' );
 			const $breakdown    = $totalSection.find( '.total-breakdown' );
-			const currency      = (window.mhmAddonBooking && window.mhmAddonBooking.currency) || '$';
-			const locale        = (window.mhmAddonBooking && window.mhmAddonBooking.locale) || 'en-US';
-			const strings       = (window.mhmAddonBooking && window.mhmAddonBooking.strings) || {};
+			const currency      = (window.mhmRentivaAddons && window.mhmRentivaAddons.currency) || '$';
+			const locale        = (window.mhmRentivaAddons && window.mhmRentivaAddons.locale) || 'en-US';
+			const strings       = (window.mhmRentivaAddons && window.mhmRentivaAddons.strings) || {};
 
 			// Clear existing breakdown
 			$breakdown.empty();

@@ -478,10 +478,6 @@ final class AssetManager {
 	public static function enqueue_component_js(string $component): void
 	{
 		$components = array(
-			'addon-booking'      => array(
-				'url'  => 'assets/js/components/addon-booking.js',
-				'deps' => array( 'jquery' ),
-			),
 			'vehicle-meta'       => array(
 				'url'  => 'assets/js/components/vehicle-meta.js',
 				'deps' => array( 'jquery', 'jquery-ui-sortable' ),
@@ -513,21 +509,6 @@ final class AssetManager {
 	private static function localize_component_script(string $component): void
 	{
 		switch ($component) {
-			case 'addon-booking':
-				wp_localize_script(
-					'mhm-rentiva-addon-booking',
-					'mhmAddonBooking',
-					array(
-						'currency' => CurrencyHelper::get_currency_symbol(),
-						'locale'   => \MHMRentiva\Admin\Core\LanguageHelper::get_current_js_locale(),
-						'strings'  => array(
-							'totalAddons'      => __('Total Add-ons', 'mhm-rentiva'),
-							'noAddonsSelected' => __('No add-ons selected', 'mhm-rentiva'),
-						),
-					)
-				);
-				break;
-
 			case 'vehicle-meta':
 				wp_localize_script(
 					'mhm-rentiva-vehicle-meta',
