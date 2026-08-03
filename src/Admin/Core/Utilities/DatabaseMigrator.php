@@ -10,7 +10,14 @@ if (! defined('ABSPATH')) {
 /**
  * Database Migration Manager
  *
- * Automatically creates critical indexes for performance optimization
+ * Runs the plugin's version-gated schema and data migrations. Through 4.2.0
+ * this also created and maintained up to 20 named indexes on WordPress CORE
+ * tables (wp_posts/wp_postmeta/wp_usermeta) on every install -- a same-day
+ * independent audit verdicted REMOVE 20/20 on that surface (core tables are
+ * shared with every other plugin and theme; this plugin has no way to know
+ * it is safe to keep piling composite indexes onto them), and the owner
+ * approved removal. RetiredIndexes::drop() now retires those 20 plus 15
+ * pre-6.0.0-rename `idx_mhm_*` twins the rename itself never cleaned up.
  */
 // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This file is the schema migrator: CREATE/ALTER/DROP and one-shot data backfills. WordPress has no API for DDL, so there is no core call to prefer. Caching is not merely unnecessary here but wrong: every statement below is version-gated, runs once per install, and CHANGES the rows it just read, so a cached read would be stale by construction. Tables touched are this plugin's own plus wp_posts/wp_postmeta/wp_options during the 6.0.0 rename, which is why the file also carries SchemaChange suppressions on the individual DDL lines rather than blanket-disabling that sniff. Scope is bounded by the version gate, not by user input. Original wording, kept because it is still true as far as it went: "Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {
@@ -25,6 +32,12 @@ final class DatabaseMigrator {
 	 * Bump this when a new schema-creating migration is added so that
 	 * `version_compare()` triggers `run_migrations()` on existing installs.
 	 *
+	 * 4.3.0 (2026-08-03): Retires the core-table index surface -- see the
+	 * class docblock. RetiredIndexes::drop() replaces
+	 * add_performance_indexes()/add_missing_indexes(); without this bump the
+	 * cleanup never runs on an existing install, exactly the failure mode the
+	 * 4.1.0 note below already warns about.
+	 *
 	 * 4.1.0 (2026-08-02): PrefixMigrationMap::POST_TYPES gained the
 	 * contact-message type, so the 6.0.0 rename step now moves a family it did
 	 * not move at 4.0.0. 4.0.0 has never shipped, so no install can be sitting
@@ -33,7 +46,7 @@ final class DatabaseMigrator {
 	 * ran 4.0.0. Every earlier step is idempotent (re-verified for the 3.15.0
 	 * bump), so the extra replay costs a run, not correctness.
 	 */
-	private const CURRENT_VERSION = '4.2.0';
+	private const CURRENT_VERSION = '4.3.0';
 
 	/**
 	 * Rows rewritten per statement by the 6.0.0 rename.
@@ -242,12 +255,22 @@ final class DatabaseMigrator {
 			if (class_exists(\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::class)) {
 				\MHMRentiva\Core\Database\Migrations\VendorReportsMigration::create_table();
 			}
-			self::add_performance_indexes();
-			self::optimize_existing_indexes();
-			self::add_missing_indexes();
 			self::cleanup_orphan_data();
 			self::migrate_standalone_settings();
 			self::migrate_vehicle_lifecycle_status();
+
+			// Retire the core-table index surface. RetiredIndexes is the single
+			// source of truth: uninstall.php calls the same method, against the
+			// same list. A failed drop is loud, not swallowed -- the version is
+			// deliberately NOT stamped below, so this entire method retries from
+			// scratch on the next request instead of recording a migration that
+			// did not finish. Every step above is idempotent (see their own
+			// docblocks), so replaying them costs a request, not correctness.
+			global $wpdb;
+			$index_cleanup = RetiredIndexes::drop($wpdb);
+			if (array() !== $index_cleanup['failed']) {
+				return;
+			}
 
 			// Update version in database
 			update_option('mhmrentiva_db_version', self::CURRENT_VERSION);
@@ -257,9 +280,8 @@ final class DatabaseMigrator {
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 					'Database migration completed',
 					array(
-						'from_version'  => $current_version,
-						'to_version'    => self::CURRENT_VERSION,
-						'indexes_added' => true,
+						'from_version' => $current_version,
+						'to_version'   => self::CURRENT_VERSION,
 					),
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
@@ -319,503 +341,18 @@ final class DatabaseMigrator {
 	}
 
 	/**
-	 * Add critical performance indexes
-	 */
-	private static function add_performance_indexes(): void
-	{
-		global $wpdb;
-
-		// Every statement is written out in full at its own $wpdb->query() call
-		// rather than looped over a table of SQL strings. The index name and the
-		// column list are fixed text and the only interpolation is $wpdb's own
-		// table properties, so nothing here can originate from a request -- and
-		// that is readable at the line that runs the query.
-
-		// 1. Composite index for status queries
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_status_lookup',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
-		);
-
-		// 2. Timestamp index for date range queries
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_timestamp_range',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_timestamp_range ON {$wpdb->postmeta} (post_id, meta_key(50), meta_value(20))")
-		);
-
-		// 3. Index for vehicle booking lookups
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_vehicle_bookings',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_vehicle_bookings ON {$wpdb->postmeta} (meta_value(20), post_id)")
-		);
-
-		// 4. Index for post date queries
-		self::create_index_if_missing(
-			$wpdb->posts,
-			'idx_posts_date_type',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_posts_date_type ON {$wpdb->posts} (post_date, post_type(20), post_status(20))")
-		);
-
-		// 5. Index for booking meta queries
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_booking_meta',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_meta ON {$wpdb->postmeta} (meta_key(50), post_id, meta_value(50))")
-		);
-
-		// 6. Index for customer email lookups
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_customer_email',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_customer_email ON {$wpdb->postmeta} (meta_key(50), meta_value(100))")
-		);
-
-		// 7. Index for price range queries
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_price_range',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_price_range ON {$wpdb->postmeta} (meta_key(50), meta_value(20))")
-		);
-
-		// 8. Index for combined booking lookup
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_mhmrentiva_booking_combined',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
-		);
-
-		// 9-12. Customers screen indexes. These used to live in
-		// CustomersOptimizer::create_database_indexes(), fired from admin_init and
-		// bookkept with its own `mhmrentiva_customers_indexes_created` option --
-		// schema changes run by a read-model class on a page load. They belong
-		// here, where index creation is already the subject and where
-		// create_index_if_missing() replaces their `CREATE INDEX IF NOT EXISTS`
-		// (unsupported before MySQL 8.0.29) with a portable existence check.
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_postmeta_customer_email',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_postmeta_customer_email ON {$wpdb->postmeta} (meta_key, meta_value(50))")
-		);
-
-		self::create_index_if_missing(
-			$wpdb->postmeta,
-			'idx_postmeta_booking_price',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_postmeta_booking_price ON {$wpdb->postmeta} (post_id, meta_key)")
-		);
-
-		self::create_index_if_missing(
-			$wpdb->usermeta,
-			'idx_usermeta_customer_phone',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_usermeta_customer_phone ON {$wpdb->usermeta} (user_id, meta_key)")
-		);
-
-		self::create_index_if_missing(
-			$wpdb->posts,
-			'idx_posts_booking_date',
-			static fn (): bool => false !== $wpdb->query("CREATE INDEX idx_posts_booking_date ON {$wpdb->posts} (post_type, post_status, post_date)")
-		);
-	}
-
-	/**
-	 * Run one CREATE INDEX statement unless the index is already there.
-	 *
-	 * The statement itself is passed as a closure so it stays a literal at its
-	 * own call site; this helper only owns the "does it exist / did it fail"
-	 * bookkeeping that used to be duplicated per loop iteration.
-	 *
-	 * @param string          $table      Table the index belongs to.
-	 * @param string          $index_name Index name, also used in the error log.
-	 * @param callable():bool $run        Runs the statement, true when it succeeded.
-	 */
-	private static function create_index_if_missing(string $table, string $index_name, callable $run): void
-	{
-		global $wpdb;
-
-		try {
-			if (self::index_exists($table, $index_name)) {
-				return;
-			}
-
-			if (! $run()) {
-				self::log_index_error($index_name, (string) $wpdb->last_error);
-			}
-		} catch (\Exception $e) {
-			self::log_index_error($index_name, $e->getMessage());
-		}
-	}
-
-	/**
-	 * Optimize existing indexes
-	 */
-	private static function optimize_existing_indexes(): void
-	{
-		global $wpdb;
-
-		// Both statements are literals naming $wpdb's own tables.
-		try {
-			$wpdb->query("ANALYZE TABLE {$wpdb->posts}");
-		} catch (\Exception $e) {
-			self::log_migration_error('Database table analysis failed', 'ANALYZE TABLE posts', $e->getMessage());
-		}
-
-		try {
-			$wpdb->query("ANALYZE TABLE {$wpdb->postmeta}");
-		} catch (\Exception $e) {
-			self::log_migration_error('Database table analysis failed', 'ANALYZE TABLE postmeta', $e->getMessage());
-		}
-	}
-
-	/**
-	 * Detect and add missing indexes
-	 */
-	private static function add_missing_indexes(): void
-	{
-		global $wpdb;
-
-		// One statement shape for all of them: only the index name varies, and it
-		// is bound through %i rather than pasted into the SQL.
-		foreach (self::missing_index_names() as $index_name) {
-			self::create_index_if_missing(
-				$wpdb->postmeta,
-				$index_name,
-				static fn (): bool => false !== $wpdb->query(
-					$wpdb->prepare(
-						'CREATE INDEX %i ON %i (meta_key(50), meta_value(50), post_id)',
-						$index_name,
-						$wpdb->postmeta
-					)
-				)
-			);
-		}
-	}
-
-	/**
-	 * Names of the per-meta-key postmeta indexes this plugin maintains.
-	 *
-	 * @return list<string>
-	 */
-	private static function missing_index_names(): array
-	{
-		$mhmrentiva_meta_keys = array(
-			'_mhmrentiva_status',
-			'_mhmrentiva_vehicle_id',
-			'_mhmrentiva_start_ts',
-			'_mhmrentiva_end_ts',
-			'_mhmrentiva_total_price',
-			'_mhmrentiva_contact_email',
-			'_mhmrentiva_contact_name',
-			'_mhmrentiva_customer_id',
-		);
-
-		return array_map(
-			static fn (string $meta_key): string => 'idx_mhmrentiva_' . str_replace('_mhmrentiva_', '', $meta_key),
-			$mhmrentiva_meta_keys
-		);
-	}
-
-	/**
-	 * Check index status
-	 */
-	public static function check_index_status(): array
-	{
-		global $wpdb;
-
-		$status = array(
-			'total_indexes'      => 0,
-			'mhmrentiva_indexes' => 0,
-			'performance_score'  => 0,
-			'missing_indexes'    => array(),
-			'recommendations'    => array(),
-		);
-
-		try {
-			// Posts tablosu indexleri
-			$posts_indexes            = $wpdb->get_results("SHOW INDEX FROM {$wpdb->posts}");
-			$status['total_indexes'] += count($posts_indexes);
-
-			// Postmeta table indexes
-			$postmeta_indexes         = $wpdb->get_results("SHOW INDEX FROM {$wpdb->postmeta}");
-			$status['total_indexes'] += count($postmeta_indexes);
-
-			// Count MHM Rentiva indexes
-			foreach ($postmeta_indexes as $index) {
-				if (strpos($index->Key_name, 'idx_mhmrentiva_') === 0) {
-					++$status['mhmrentiva_indexes'];
-				}
-			}
-
-			// Calculate performance score
-			$status['performance_score'] = min(100, ( $status['mhmrentiva_indexes'] / 8 ) * 100);
-
-			// Recommendations
-			if ($status['mhmrentiva_indexes'] < 5) {
-				$status['recommendations'][] = 'More MHM Rentiva indexes should be added';
-			}
-
-			if ($status['performance_score'] < 70) {
-				$status['recommendations'][] = 'Database performance should be optimized';
-			}
-		} catch (\Exception $e) {
-			$status['error'] = $e->getMessage();
-		}
-
-		return $status;
-	}
-
-	/**
-	 * Index performans testi
-	 */
-	public static function test_index_performance(): array
-	{
-		global $wpdb;
-
-		// Each probe is timed around its own literal statement. Looping over a
-		// table of SQL strings hid the query text from the line that ran it.
-		return array(
-			'status_lookup'    => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_status' AND meta_value = 'confirmed'"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_status' AND meta_value = 'confirmed'"
-			),
-			'date_range'       => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_start_ts' AND meta_value > UNIX_TIMESTAMP(DATE_SUB(NOW(), INTERVAL 30 DAY))"
-			),
-			'vehicle_bookings' => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_vehicle_id' AND meta_value = '123'"),
-				"SELECT COUNT(*) FROM {$wpdb->postmeta} WHERE meta_key = '_mhmrentiva_vehicle_id' AND meta_value = '123'"
-			),
-			'post_date_query'  => self::time_probe(
-				static fn () => $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'mhmrentiva_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"),
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'mhmrentiva_booking' AND post_date >= DATE_SUB(NOW(), INTERVAL 30 DAY)"
-			),
-		);
-	}
-
-	/**
-	 * Time one probe and report it the way test_index_performance() always has.
-	 *
-	 * @param callable $run   Runs the probe.
-	 * @param string   $query The statement text, for the report.
-	 */
-	private static function time_probe(callable $run, string $query): array
-	{
-		$start_time = microtime(true);
-		$result     = $run();
-		$end_time   = microtime(true);
-
-		return array(
-			'execution_time' => round(( $end_time - $start_time ) * 1000, 2), // ms
-			'result'         => $result,
-			'query'          => $query,
-		);
-	}
-
-	/**
-	 * Run database optimization
-	 */
-	public static function optimize_database(): array
-	{
-		global $wpdb;
-
-		$results = array();
-
-		try {
-			// Optimize tables
-			$tables = array( $wpdb->posts, $wpdb->postmeta );
-
-			foreach ($tables as $table) {
-				$start_time = microtime(true);
-				$result     = $wpdb->query($wpdb->prepare('OPTIMIZE TABLE %i', $table));
-				$end_time   = microtime(true);
-
-				$results['optimize'][ $table ] = array(
-					'success'        => $result !== false,
-					'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
-					'error'          => $result === false ? $wpdb->last_error : null,
-				);
-			}
-
-			// Rebuild indexes
-			$results['rebuild_indexes'] = self::rebuild_indexes();
-		} catch (\Exception $e) {
-			$results['error'] = $e->getMessage();
-		}
-
-		return $results;
-	}
-
-	/**
-	 * Rebuild indexes
-	 */
-	private static function rebuild_indexes(): array
-	{
-		global $wpdb;
-
-		// Drop-then-recreate for the two indexes worth rebuilding. Each statement
-		// is a literal at its own call site; only the existence bookkeeping is
-		// shared.
-		return array_values(array_filter(array(
-			self::rebuild_index(
-				'DROP',
-				$wpdb->postmeta,
-				'idx_mhmrentiva_status_lookup',
-				"DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}",
-				static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}")
-			),
-			self::rebuild_index(
-				'CREATE',
-				$wpdb->postmeta,
-				'idx_mhmrentiva_status_lookup',
-				"CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)",
-				static fn () => $wpdb->query("CREATE INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta} (meta_key(50), meta_value(20), post_id)")
-			),
-			self::rebuild_index(
-				'DROP',
-				$wpdb->postmeta,
-				'idx_mhmrentiva_booking_combined',
-				"DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}",
-				static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}")
-			),
-			self::rebuild_index(
-				'CREATE',
-				$wpdb->postmeta,
-				'idx_mhmrentiva_booking_combined',
-				"CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))",
-				static fn () => $wpdb->query("CREATE INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta} (post_id, meta_key(50))")
-			),
-		)));
-	}
-
-	/**
-	 * Run one rebuild step, skipping it when the index is already in the wanted state.
-	 *
-	 * @param string   $action DROP or CREATE.
-	 * @param string   $table  Table the index belongs to.
-	 * @param string   $name   Index name.
-	 * @param string   $sql    Statement text, for the report.
-	 * @param callable $run    Runs the statement.
-	 * @return array|null The report row, or null when the step was skipped.
-	 */
-	private static function rebuild_index(string $action, string $table, string $name, string $sql, callable $run): ?array
-	{
-		global $wpdb;
-
-		$exists = self::index_exists($table, $name);
-		if (( 'DROP' === $action && ! $exists ) || ( 'CREATE' === $action && $exists )) {
-			return null;
-		}
-
-		$start_time = microtime(true);
-		$result     = $run();
-		$end_time   = microtime(true);
-
-		return array(
-			'sql'            => $sql,
-			'success'        => $result !== false,
-			'execution_time' => round(( $end_time - $start_time ) * 1000, 2),
-			'error'          => $result === false ? (string) $wpdb->last_error : null,
-		);
-	}
-
-	/**
-	 * Check migration status
-	 */
-	public static function get_migration_status(): array
-	{
-		$current_version  = self::stored_db_version();
-		$index_status     = self::check_index_status();
-		$performance_test = self::test_index_performance();
-
-		return array(
-			'current_version'  => $current_version,
-			'target_version'   => self::CURRENT_VERSION,
-			'needs_migration'  => version_compare($current_version, self::CURRENT_VERSION, '<'),
-			'index_status'     => $index_status,
-			'performance_test' => $performance_test,
-			'last_migration'   => get_option('mhmrentiva_last_migration', 'Never'),
-		);
-	}
-
-	/**
-	 * Rollback migration
-	 */
-	public static function rollback_migration(): bool
-	{
-		global $wpdb;
-
-		try {
-			// Delete MHM Rentiva indexes. Each DROP is a literal at its own call
-			// site; only the "is it there" check is shared, so an absent index
-			// stays a silent no-op exactly as before.
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_status_lookup', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_status_lookup ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_timestamp_range', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_timestamp_range ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_vehicle_bookings', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_vehicle_bookings ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->posts, 'idx_posts_date_type', static fn () => $wpdb->query("DROP INDEX idx_posts_date_type ON {$wpdb->posts}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_booking_meta', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_meta ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_customer_email', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_customer_email ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_price_range', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_price_range ON {$wpdb->postmeta}"));
-			self::drop_index_if_present($wpdb->postmeta, 'idx_mhmrentiva_booking_combined', static fn () => $wpdb->query("DROP INDEX idx_mhmrentiva_booking_combined ON {$wpdb->postmeta}"));
-
-			// Reset version to original state. Written under the new name only:
-			// stored_db_version() prefers it, so leaving a stale legacy row here
-			// would be read by nothing.
-			update_option('mhmrentiva_db_version', '1.0.0');
-
-			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Database migration rolled back', array(), \MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM);
-			}
-
-			return true;
-		} catch (\Exception $e) {
-			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
-				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-					'Migration rollback failed',
-					array(
-						'error' => $e->getMessage(),
-					),
-					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
-				);
-			}
-			return false;
-		}
-	}
-
-	/**
-	 * Run one DROP INDEX statement, but only when the index is actually there.
-	 *
-	 * @param string   $table Table the index belongs to.
-	 * @param string   $name  Index name.
-	 * @param callable $run   Runs the statement.
-	 */
-	private static function drop_index_if_present(string $table, string $name, callable $run): void
-	{
-		if (self::index_exists($table, $name)) {
-			$run();
-		}
-	}
-
-	/**
-	 * Log database index creation error
-	 */
-	private static function log_index_error(string $sql, string $error): void
-	{
-		self::log_migration_error('Database index creation failed', $sql, $error);
-	}
-
-	/**
 	 * Log a migration failure under a title that describes what actually failed.
 	 *
-	 * 🔴 THE TITLE USED TO BE HARDCODED. Every caller of log_index_error() --
-	 * taxonomy renames, the merge-loser backup, RENAME TABLE, and the cron rekey
-	 * -- was written to the log as "Database index creation failed", and only
-	 * four of the ten call sites had anything to do with an index. A site owner
-	 * whose scheduled events failed to carry read four ERROR lines telling them
-	 * their database indexes were broken, and went looking for a problem that
-	 * did not exist. A log that misnames the failure is worse than no log: it
-	 * spends the reader's attention on the wrong thing.
+	 * 🔴 THE TITLE USED TO BE HARDCODED. A single fixed-title wrapper used to
+	 * funnel every caller -- taxonomy renames, the merge-loser backup, RENAME
+	 * TABLE, the cron rekey, and index maintenance (now retired; see
+	 * RetiredIndexes) -- through one string, "Database index creation
+	 * failed", and only a minority of call sites had anything to do with an
+	 * index. A site owner whose scheduled events failed to carry read ERROR
+	 * lines telling them their database indexes were broken, and went
+	 * looking for a problem that did not exist. A log that misnames the
+	 * failure is worse than no log: it spends the reader's attention on the
+	 * wrong thing.
 	 *
 	 * @param string $title   What failed, in the operator's terms.
 	 * @param string $context The statement or operation that produced it.
@@ -835,33 +372,6 @@ final class DatabaseMigrator {
 		}
 	}
 
-	/**
-	 * Show admin notice
-	 */
-	public static function show_migration_notice(): void
-	{
-		if (! is_admin() || ! current_user_can('manage_options')) {
-			return;
-		}
-
-		$status = self::get_migration_status();
-
-		if ($status['needs_migration']) {
-			echo '<div class="notice notice-warning"><p>';
-			echo esc_html__('MHM Rentiva: Database migration required. Run migration for performance.', 'mhm-rentiva');
-			echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva&action=run_migration')) . '">';
-			echo esc_html__('Run Migration', 'mhm-rentiva');
-			echo '</a>';
-			echo '</p></div>';
-		} elseif ($status['index_status']['performance_score'] < 80) {
-			echo '<div class="notice notice-info"><p>';
-			echo esc_html__('MHM Rentiva: Database performance can be optimized.', 'mhm-rentiva');
-			echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva&action=optimize_db')) . '">';
-			echo esc_html__('Optimize', 'mhm-rentiva');
-			echo '</a>';
-			echo '</p></div>';
-		}
-	}
 	/**
 	 * Creates VIP Transfer tables (locations + routes).
 	 *
