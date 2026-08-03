@@ -269,6 +269,23 @@ final class DatabaseMigrator {
 			global $wpdb;
 			$index_cleanup = RetiredIndexes::drop($wpdb);
 			if (array() !== $index_cleanup['failed']) {
+				// Loud, not swallowed: a silent unbounded retry is not "failing
+				// loudly" if nothing ever says WHY admin_init keeps replaying the
+				// whole migration. 'skipped' is recorded alongside 'failed' here
+				// too -- a name in 'skipped' is not itself a failure, but seeing
+				// it only in this log, next to a genuine failure, is exactly when
+				// an administrator most needs to know some retired names were
+				// left in place because they do not match this plugin's shape.
+				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+						'Core-table index cleanup did not finish; database migration will retry on the next request',
+						array(
+							'failed'  => $index_cleanup['failed'],
+							'skipped' => $index_cleanup['skipped'],
+						),
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+					);
+				}
 				return;
 			}
 
@@ -277,12 +294,21 @@ final class DatabaseMigrator {
 
 			// Log migration
 			if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+				$migration_log_context = array(
+					'from_version' => $current_version,
+					'to_version'   => self::CURRENT_VERSION,
+				);
+				if (array() !== $index_cleanup['skipped']) {
+					// Not a failure on the success path either -- the migration
+					// still completes and the version still stamps -- but worth
+					// recording once: these retired index names were found with a
+					// different shape than this plugin ever created and were left
+					// in place rather than assumed to be ours.
+					$migration_log_context['index_cleanup_skipped'] = $index_cleanup['skipped'];
+				}
 				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::info(
 					'Database migration completed',
-					array(
-						'from_version' => $current_version,
-						'to_version'   => self::CURRENT_VERSION,
-					),
+					$migration_log_context,
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 				);
 			}
