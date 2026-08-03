@@ -69,6 +69,30 @@ final class AddonSettingsEnqueueTest extends WP_UnitTestCase
 		);
 	}
 
+	/**
+	 * Review fix round 1, I1: the case above uses a hook that does not even
+	 * contain AddonSettings::PAGE as a substring, so it cannot tell an
+	 * exact-match gate apart from a `str_contains( $hook, self::PAGE )`
+	 * gate -- the specific fallback pattern this codebase already uses
+	 * elsewhere (ShortcodePages.php:122-123). These two hooks DO contain
+	 * the page slug without being the exact hook suffix, so a regression
+	 * from exact-match to str_contains makes this test catch it.
+	 */
+	public function test_enqueue_scripts_does_nothing_when_hook_merely_contains_the_page_slug(): void
+	{
+		AddonSettings::enqueue_scripts( 'mhm-rentiva_page_' . AddonSettings::PAGE . '-extra' );
+		$this->assertFalse(
+			wp_script_is( self::HANDLE, 'enqueued' ),
+			'A hook that merely contains the page slug as a substring must not enqueue -- only the exact hook suffix may.'
+		);
+
+		AddonSettings::enqueue_scripts( 'admin_page_' . AddonSettings::PAGE );
+		$this->assertFalse(
+			wp_script_is( self::HANDLE, 'enqueued' ),
+			'A hook that merely contains the page slug as a substring must not enqueue -- only the exact hook suffix may.'
+		);
+	}
+
 	public function test_localized_payload_carries_every_field_the_script_reads(): void
 	{
 		AddonSettings::enqueue_scripts( self::HOOK );
