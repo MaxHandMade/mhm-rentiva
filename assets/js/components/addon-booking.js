@@ -174,10 +174,10 @@
 
 					$breakdown.append(
 						`
-						< div class = "total-line" >
-						< span > ${safeName} (${item.quantity}x) < / span >
-						< span > ${currency}${formattedTotal} < / span >
-						< / div >
+						<div class="total-line">
+						<span>${safeName} (${item.quantity}x)</span>
+						<span>${currency}${formattedTotal}</span>
+						</div>
 						`
 					);
 				}
@@ -193,19 +193,19 @@
 				);
 				$breakdown.append(
 					`
-					< div class = "total-line final" >
-						< span > ${strings.totalAddons || 'Total Add-ons'} < / span >
-						< span > ${currency}${formattedTotal} < / span >
-					< / div >
+					<div class="total-line final">
+						<span>${strings.totalAddons || 'Total Add-ons'}</span>
+						<span>${currency}${formattedTotal}</span>
+					</div>
 					`
 				);
 			} else {
 				$breakdown.append(
 					`
-					< div class = "total-line" >
-						< span > ${strings.noAddonsSelected || 'No add-ons selected'} < / span >
-						< span > ${currency}0.00 < / span >
-					< / div >
+					<div class="total-line">
+						<span>${strings.noAddonsSelected || 'No add-ons selected'}</span>
+						<span>${currency}0.00</span>
+					</div>
 					`
 				);
 			}

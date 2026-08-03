@@ -445,6 +445,15 @@ bin/*
 # neighbours above. Tracked so this round's later tasks, and any future round,
 # can re-run it.
 !bin/audit-index-surface.php
+# Görev 5 of the 2026-08-03 T8 remediation round: the tag-context markup
+# checker (F21). Its collector is require()d directly by
+# tests/Tools/TemplateLiteralMarkupCheckerTest.php as the standing PHPUnit
+# guard; its CLI mode also runs the same collector as a per-file sweep over
+# the whole shipped JS surface (no python dependency, unlike
+# bin/build-release.py --list-shipped, which the CLI mode's file walk was
+# verified equivalent to at task time). Tracked so both the test and any
+# future manual/CI sweep can run it.
+!bin/check-template-literal-markup.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
