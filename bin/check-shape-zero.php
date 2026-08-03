@@ -37,12 +37,92 @@ $families = [
     'WordPress.Security.EscapeOutput'                             => 0, // tüm alt-sniff'ler
     'WordPress.Security.ValidatedSanitizedInput'                  => 0,
 ];
-$cmd = 'vendor/bin/phpcs --standard=phpcs.xml --ignore-annotations --report=json '
-     . '--sniffs=WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput,WordPress.Security.ValidatedSanitizedInput '
-     . 'src/ templates/ mhm-rentiva.php uninstall.php 2>/dev/null';
-exec($cmd, $out, $rc);
-$json = json_decode(implode('', $out), true);
-if (!is_array($json)) { fwrite(STDERR, "G-A: phpcs çıktısı ayrıştırılamadı\n"); exit(2); }
+/**
+ * "Cannot measure" is a THIRD outcome, and it must be loud.
+ *
+ * This gate spent the whole remediation round unrunnable from the Windows host
+ * and nobody noticed, because it failed by exiting 2 -- and 2 is neither 0 nor
+ * 1, so anything checking "did it fail?" read it as green. A gate that cannot
+ * run must be impossible to mistake for a gate that passed.
+ */
+const GA_PASS          = 0;
+const GA_FAIL          = 1;
+const GA_CANNOT_MEASURE = 2;
+
+function ga_cannot_measure(string $why, string $how = ''): void
+{
+    fwrite(STDERR, "G-A CANNOT MEASURE: $why\n");
+    if ($how !== '') {
+        fwrite(STDERR, "  $how\n");
+    }
+    fwrite(STDERR, "  This is NOT a pass. Exit code " . GA_CANNOT_MEASURE . " means the gate did not run.\n");
+    exit(GA_CANNOT_MEASURE);
+}
+
+/**
+ * Run phpcs without a shell.
+ *
+ * The previous version built a shell string ending in `2>/dev/null` and handed
+ * it to exec(). cmd.exe cannot parse that redirection, so on Windows the gate
+ * exited 2 with "Sistem belirtilen yolu bulamadi" and phpcs never ran at all.
+ * proc_open() with an ARRAY argv bypasses the shell on both POSIX and Windows,
+ * so no quoting rule applies and stderr is captured on a pipe rather than
+ * redirected by the shell. Same fix bin/check-plugin-check-parity.php already
+ * carries; this file simply never got it.
+ *
+ * @param string[] $argv
+ * @return array{0:int,1:string,2:string} [exit code, stdout, stderr]
+ */
+function ga_run(array $argv): array
+{
+    $spec = [1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
+    $proc = @proc_open($argv, $spec, $pipes);
+    if (!is_resource($proc)) {
+        return [-1, '', 'proc_open failed for: ' . implode(' ', $argv)];
+    }
+    $stdout = stream_get_contents($pipes[1]);
+    $stderr = stream_get_contents($pipes[2]);
+    fclose($pipes[1]);
+    fclose($pipes[2]);
+    return [proc_close($proc), $stdout, $stderr];
+}
+
+// vendor/bin/phpcs is a PHP script, not a native executable. On POSIX its
+// shebang hides that; on Windows there is no shebang and no .bat alongside it,
+// so proc_open() cannot start it directly -- which is why the first version of
+// this fix still could not run. Invoking it through PHP_BINARY is correct on
+// both platforms and depends on no shell.
+$phpcs = 'vendor/bin/phpcs';
+if (!is_file($phpcs)) {
+    ga_cannot_measure('phpcs not found at ' . $phpcs, 'Run composer install first.');
+}
+
+[$rc, $stdout, $stderr] = ga_run([
+    PHP_BINARY,
+    $phpcs,
+    '--standard=phpcs.xml',
+    '--ignore-annotations',
+    '--report=json',
+    '--sniffs=WordPress.Security.NonceVerification,WordPress.Security.EscapeOutput,WordPress.Security.ValidatedSanitizedInput',
+    'src/', 'templates/', 'mhm-rentiva.php', 'uninstall.php',
+]);
+
+// phpcs exits 0 (clean) or 1 (violations found); anything else means it did not
+// complete, and its own stderr is the only useful thing we have to report.
+if ($rc !== 0 && $rc !== 1) {
+    ga_cannot_measure(
+        'phpcs exited ' . $rc . ' (expected 0 or 1)',
+        trim($stderr) !== '' ? trim($stderr) : 'no stderr output'
+    );
+}
+
+$json = json_decode($stdout, true);
+if (!is_array($json)) {
+    ga_cannot_measure(
+        'phpcs output could not be parsed as JSON',
+        trim($stderr) !== '' ? trim($stderr) : 'stdout was ' . strlen($stdout) . ' bytes'
+    );
+}
 $violations = [];
 foreach (($json['files'] ?? []) as $file => $data) {
     foreach ($data['messages'] as $m) { $violations[] = [$file, $m['line'], $m['source']]; }

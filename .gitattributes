@@ -15,6 +15,17 @@
 *.txt text eol=lf
 *.html text eol=lf
 
+# Translation catalogs. The generator writes CRLF on Windows, and without these
+# rules the sources shipped ~1 byte per line larger than they needed to be --
+# 31.5 KB across the .pot and the tr_TR .po, pure bloat in the released ZIP. The
+# compiled .l10n.php is covered by *.php above.
+*.po text eol=lf
+*.pot text eol=lf
+
+# The compiled catalog is BINARY, not text. It contains 0x0A bytes as data, so a
+# CRLF conversion would not merely inflate it -- it would corrupt it.
+*.mo binary
+
 # Test fixtures — preserve LF, never CRLF-convert (PEM byte-exact + cross-repo sha256 sync)
 tests/fixtures/*.pem binary
 
