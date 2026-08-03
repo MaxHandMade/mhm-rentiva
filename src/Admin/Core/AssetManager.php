@@ -534,6 +534,12 @@ final class AssetManager {
 							'depositFormatHelp'      => __('Only percentage values are allowed (e.g. 10)', 'mhm-rentiva'),
 							'depositPlaceholder'     => __('10', 'mhm-rentiva'),
 							'comingSoonCustomAdd'    => __('Coming soon! Use the Custom Add button for now.', 'mhm-rentiva'),
+							// Carried over from the removed 'mhm-rentiva-vehicle-meta-js'
+							// handle's own localize call (VehicleMeta::enqueue_scripts(),
+							// T8 F20 union) -- vehicle-meta.js does not currently read this
+							// key, kept anyway so the surviving handle loses nothing either
+							// side carried before.
+							'comingSoonCustomRemove' => __('Coming soon! For now, use the Custom Add button.', 'mhm-rentiva'),
 							'redirectingToSettings'  => __('Redirecting to Vehicle Settings...', 'mhm-rentiva'),
 						),
 					)

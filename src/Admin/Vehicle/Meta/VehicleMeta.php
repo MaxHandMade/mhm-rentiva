@@ -163,36 +163,21 @@ final class VehicleMeta extends AbstractMetaBox {
 				\MHMRENTIVA_VERSION . '-' . time()
 			);
 
-			wp_enqueue_script(
-				'mhm-rentiva-vehicle-meta-js',
-				\MHMRENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-meta.js',
-				array( 'jquery', 'jquery-ui-sortable' ),
-				\MHMRENTIVA_VERSION,
-				true
-			);
-
-			wp_localize_script(
-				'mhm-rentiva-vehicle-meta-js',
-				'mhmVehicleMeta',
-				array(
-					'ajaxUrl' => admin_url('admin-ajax.php'),
-					'nonce'   => wp_create_nonce('mhmrentiva_vehicle_meta_nonce'),
-					'strings' => array(
-						'orderUpdated'           => __('Order updated!', 'mhm-rentiva'),
-						'orderSaveError'         => __('Failed to save order', 'mhm-rentiva'),
-						'ajaxError'              => __('AJAX error: Failed to save order', 'mhm-rentiva'),
-						'enterNewFeature'        => __('Enter new feature name:', 'mhm-rentiva'),
-						'enterNewEquipment'      => __('Enter new equipment name:', 'mhm-rentiva'),
-						'enterNewDetail'         => __('Enter new detail name:', 'mhm-rentiva'),
-						'confirmRemoveFeature'   => __('Are you sure you want to remove this feature?', 'mhm-rentiva'),
-						'confirmRemoveEquipment' => __('Are you sure you want to remove this equipment?', 'mhm-rentiva'),
-						'enterValue'             => __('Enter value', 'mhm-rentiva'),
-						'comingSoonCustomAdd'    => __('Coming soon! For now, use the Custom Add button.', 'mhm-rentiva'),
-						'comingSoonCustomRemove' => __('Coming soon! For now, use the Custom Add button.', 'mhm-rentiva'),
-						'redirectingToSettings'  => __('Redirecting to Vehicle Settings page...', 'mhm-rentiva'),
-					),
-				)
-			);
+			// vehicle-meta.js itself is enqueued and localized by
+			// AssetManager::enqueue_component_js('vehicle-meta') (handle
+			// 'mhm-rentiva-vehicle-meta'), called from
+			// enqueue_screen_specific_scripts() for this same screen. A second,
+			// direct wp_enqueue_script('mhm-rentiva-vehicle-meta-js', ...) +
+			// wp_localize_script() pair used to live here -- same file, second
+			// <script> tag, so every jQuery handler the file binds ran twice on
+			// this metabox. Removed rather than kept as a second source of
+			// truth; Templates/vehicle-meta.php also attaches inline data to
+			// 'mhm-rentiva-vehicle-meta' by name, so that was always the handle
+			// that had to survive. The one localized string key this block
+			// carried that AssetManager's copy did not ('comingSoonCustomRemove')
+			// was moved into AssetManager::localize_component_script()'s
+			// 'vehicle-meta' case so no data is lost (T8 F20; see
+			// VehicleMetaSingleEnqueueTest).
 		}
 	}
 
