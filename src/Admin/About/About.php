@@ -47,20 +47,20 @@ final class About {
 			MHMRENTIVA_VERSION
 		);
 
-		$raw_tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'general';
-		// Keep in sync with TabNav.jsx's TABS and AboutPage.jsx's getInitialTab().
-		// The removed `features` tab rendered a tier-comparison table from a
-		// REST key that no longer exists, so allowing it here handed the React side
-		// an undefined payload and took the whole About page down.
-		$allowed     = array( 'general', 'system', 'support', 'developer' );
-		$initial_tab = in_array( $raw_tab, $allowed, true ) ? $raw_tab : 'general';
-
+		// `initial_tab` is not passed: AboutPage.jsx's getInitialTab() already
+		// reads ?tab= from window.location and validates it against the same
+		// allow-list (TabNav.jsx's TABS). Whenever the URL carried a valid tab
+		// this PHP value was ignored, and whenever it did not, both sides fell
+		// back to 'general' -- so reading the superglobal here only duplicated a
+		// decision the browser can make about its own URL. The `features` tab
+		// stays out of that allow-list on the JS side: it rendered a
+		// tier-comparison table from a REST key that no longer exists, so a
+		// bookmarked ?tab=features handed React an undefined payload.
 		wp_localize_script(
 			'mhm-rentiva-react-about',
 			'mhmRentivaAbout',
 			array(
-				'nonce'       => wp_create_nonce( 'wp_rest' ),
-				'initial_tab' => $initial_tab,
+				'nonce' => wp_create_nonce( 'wp_rest' ),
 			)
 		);
 	}

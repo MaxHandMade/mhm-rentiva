@@ -13,7 +13,10 @@ function getInitialTab() {
 	// Keep in sync with TabNav's TABS and About.php's $allowed. A stale `features`
 	// entry here would resurrect the removed comparison tab from a bookmarked URL.
 	const allowed = [ 'general', 'system', 'support', 'developer' ];
-	return allowed.includes( tab ) ? tab : ( window.mhmRentivaAbout?.initial_tab ?? 'general' );
+	// 'general' is the sole fallback. About.php used to also ship an
+	// initial_tab computed from the same allow-list, which could only ever
+	// repeat what this function already decided.
+	return allowed.includes( tab ) ? tab : 'general';
 }
 
 export default function AboutPage() {
