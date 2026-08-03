@@ -50,9 +50,12 @@ final class CustomersPage {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		// REST routes are registered in Plugin.php (context-agnostic path) — not here.
 		add_action( 'admin_post_mhmrentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
-		// The four indexes this screen relies on are created by DatabaseMigrator's
-		// add_performance_indexes(), with the rest of the plugin's schema. They used
-		// to be issued from admin_init by a read-model class.
+		// The four core-table indexes this screen used to rely on
+		// (idx_postmeta_customer_email, idx_postmeta_booking_price,
+		// idx_usermeta_customer_phone, idx_posts_booking_date) were retired by
+		// RetiredIndexes -- see DatabaseMigrator's class docblock. This screen
+		// runs unindexed queries against wp_postmeta/wp_usermeta/wp_posts now,
+		// the same as before those indexes ever existed.
 		AddCustomerPage::register();
 	}
 

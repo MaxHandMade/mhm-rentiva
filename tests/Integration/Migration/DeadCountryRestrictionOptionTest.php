@@ -84,7 +84,9 @@ final class DeadCountryRestrictionOptionTest extends WP_UnitTestCase
     {
         // At CURRENT_VERSION the gate is shut: run_migrations() is a no-op, so the
         // pollution survives. This is the failure mode of forgetting the bump.
-        $current = DatabaseMigrator::get_migration_status()['target_version'];
+        // Reflection, not get_migration_status() (retired with the rest of the
+        // index-management surface) -- same pattern PrefixRenameMigrationTest uses.
+        $current = (string) (new \ReflectionClass(DatabaseMigrator::class))->getConstant('CURRENT_VERSION');
         update_option('mhmrentiva_db_version', $current);
         update_option(self::DEAD_OPTION, '1');
 
