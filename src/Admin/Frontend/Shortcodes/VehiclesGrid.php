@@ -334,7 +334,9 @@ class VehiclesGrid extends AbstractShortcode {
 		wp_enqueue_script(
 			'mhm-rentiva-vehicles-grid',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
-			array( 'jquery' ),
+			// vehicles-grid.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is only
+			// ever auto-loaded where a consumer's own deps declares it.
+			array( 'jquery', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
 			true
 		);
@@ -535,10 +537,16 @@ class VehiclesGrid extends AbstractShortcode {
 
 	/**
 	 * Returns JS dependencies
+	 *
+	 * NOTE: currently dead code -- enqueue_assets() above is a full override that
+	 * enqueues vehicles-grid.js directly and never calls enqueue_scripts(), so this
+	 * method has no live caller. Kept in sync with the real deps array above anyway
+	 * (T8 F06-F08) so it does not lie about the class's actual behavior if that
+	 * ever changes.
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'mhm-rentiva-vehicle-interactions' );
+		return array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-toast' );
 	}
 
 	/**

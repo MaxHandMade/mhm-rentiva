@@ -252,7 +252,9 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery' );
+		// availability-calendar.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is
+		// only ever auto-loaded where a consumer's own deps declares it.
+		return array( 'jquery', 'mhm-rentiva-toast' );
 	}
 
 	protected static function get_script_object_name(): string

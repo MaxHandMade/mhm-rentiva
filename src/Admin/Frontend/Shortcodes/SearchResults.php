@@ -296,7 +296,11 @@ final class SearchResults extends AbstractShortcode {
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
-			array( 'jquery', 'mhm-rentiva-vehicle-interactions' ),
+			// search-results.js calls MHMRentivaToast.* directly (T8 F06-F08) -- declared
+			// here even though mhm-rentiva-vehicle-interactions already pulls toast in
+			// transitively, so this handle stays correct even if that transitive chain
+			// ever changes.
+			array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_DIR . 'assets/js/frontend/search-results.js'),
 			true
 		);

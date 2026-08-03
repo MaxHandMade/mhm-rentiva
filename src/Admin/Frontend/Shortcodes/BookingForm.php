@@ -179,7 +179,9 @@ final class BookingForm extends AbstractShortcode {
 
 	protected static function get_js_dependencies(): array
 	{
-		return array( 'jquery', 'jquery-ui-datepicker' ); // jQuery UI DatePicker dependency added
+		// booking-form.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is only ever
+		// auto-loaded where a consumer's own deps declares it.
+		return array( 'jquery', 'jquery-ui-datepicker', 'mhm-rentiva-toast' ); // jQuery UI DatePicker dependency added
 	}
 
 	protected static function get_localized_data(): array
