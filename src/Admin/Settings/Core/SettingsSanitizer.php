@@ -389,7 +389,19 @@ final class SettingsSanitizer {
 
 	private static function sanitize_vehicle_pricing_settings( array $input, array $defaults ): array {
 		$current_settings = (array) \get_option( 'mhmrentiva_settings', array() );
-		$current_pricing  = $current_settings['vehicle_pricing'] ?? ( $defaults['vehicle_pricing'] ?? array() );
+		// `$defaults` (SettingsCore::get_defaults()) never carries a 'vehicle_pricing' key --
+		// VehiclePricingSettings, unlike the other Settings\Groups classes, is not one of the
+		// modules SettingsCore::get_defaults() merges in. Falling back to a plain array() left
+		// a from-scratch save (no 'vehicle_pricing' in the option yet -- e.g. the first time an
+		// admin ever touches the seasonal-multiplier field now reachable on the live Vehicle tab,
+		// Görev 9 / F19) storing ONLY the submitted sub-key (e.g. seasonal_multipliers.summer.multiplier),
+		// silently discarding that season's months/name/description -- get_seasonal_multiplier_for_month()
+		// then TypeErrors on the missing 'months' -- and every other untouched season/discount entry.
+		// Seed from VehiclePricingSettings::get_default_settings(), the exact shape
+		// SettingsCore::get('vehicle_pricing', ...) itself falls back to, so a targeted
+		// overwrite below only ever touches the key it names.
+		$current_pricing = $current_settings['vehicle_pricing']
+			?? ( $defaults['vehicle_pricing'] ?? \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_default_settings() );
 
 		if ( isset( $input['vehicle_pricing'] ) && \is_array( $input['vehicle_pricing'] ) ) {
 			$in = $input['vehicle_pricing'];

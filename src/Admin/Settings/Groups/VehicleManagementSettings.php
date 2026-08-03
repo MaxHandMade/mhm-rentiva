@@ -134,6 +134,20 @@ final class VehicleManagementSettings {
 			self::SECTION_PRICING
 		);
 
+		// Seasonal Multipliers (Görev 9 / F19): moved from the orphaned
+		// VehiclePricingSettings::render_settings_section() -- that method had
+		// zero callers, so an admin could never reach these controls. Field
+		// names are unchanged, so SettingsSanitizer::sanitize_vehicle_pricing_settings()
+		// (already wired to accept vehicle_pricing[seasonal_multipliers][<season>][multiplier])
+		// needed no changes.
+		add_settings_field(
+			'mhmrentiva_vehicle_seasonal_multipliers',
+			__( 'Seasonal Pricing', 'mhm-rentiva' ),
+			array( self::class, 'render_seasonal_multipliers_field' ),
+			$page_slug,
+			self::SECTION_PRICING
+		);
+
 		// 2. Vehicle Availability Section
 		add_settings_section(
 			self::SECTION_AVAILABILITY,
@@ -227,5 +241,36 @@ final class VehicleManagementSettings {
 		$value = SettingsCore::get( 'mhmrentiva_vehicle_tax_rate', 18.0 );
 		echo '<input type="number" name="mhmrentiva_settings[mhmrentiva_vehicle_tax_rate]" value="' . esc_attr( (string) $value ) . '" step="0.01" min="0" max="100" class="regular-text" />';
 		echo '<p class="description">' . esc_html__( 'Tax rate percentage (e.g., 18 for 18%)', 'mhm-rentiva' ) . '</p>';
+	}
+
+	/**
+	 * Seasonal Multipliers Field (Custom)
+	 *
+	 * Moved verbatim from the orphaned VehiclePricingSettings::render_settings_section()
+	 * (Görev 9 / F19) -- same field names, same markup. Data still lives in and is read
+	 * back through VehiclePricingSettings (get_seasonal_multipliers() / get_seasonal_multiplier_for_date(),
+	 * the latter consumed by BookingForm.php's per-day price calculation).
+	 *
+	 * Discount controls (VehiclePricingSettings::discount_options / calculate_discounts())
+	 * deliberately did NOT move here: calculate_discounts() has zero callers anywhere in the
+	 * plugin (grep-verified), so unlike the seasonal multiplier there is no live logic for a
+	 * rendered discount field to feed -- rendering it would only recreate the same
+	 * wired-but-unreachable shape one level down (a config screen with no reader). Currency,
+	 * general and deposit fields from the orphan also stay out: each already has a live
+	 * equivalent elsewhere (mhmrentiva_currency on the General tab; min/max rental days on
+	 * this tab's Availability section; deposit is read from the separate mhmrentiva_enable_deposit
+	 * option, not this array) -- moving them would double-render an already-covered field.
+	 */
+	public static function render_seasonal_multipliers_field(): void {
+		$seasonal_multipliers = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multipliers();
+
+		foreach ( $seasonal_multipliers as $key => $season ) {
+			echo '<div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">';
+			echo '<h4>' . esc_html( $season['name'] ) . '</h4>';
+			echo '<label for="season_' . esc_attr( $key ) . '_multiplier">' . esc_html__( 'Multiplier', 'mhm-rentiva' ) . '</label><br>';
+			echo '<input type="number" id="season_' . esc_attr( $key ) . '_multiplier" name="mhmrentiva_settings[vehicle_pricing][seasonal_multipliers][' . esc_attr( $key ) . '][multiplier]" value="' . esc_attr( $season['multiplier'] ) . '" min="0.1" max="5.0" step="0.1" style="width: 100px;">';
+			echo '<p class="description">' . esc_html( $season['description'] ) . '</p>';
+			echo '</div>';
+		}
 	}
 }
