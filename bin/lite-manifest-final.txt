@@ -165,7 +165,6 @@ src/Admin/Settings/Groups/AddonSettings.php
 src/Admin/Settings/Groups/BookingSettings.php
 src/Admin/Settings/Groups/CommentsSettingsGroup.php
 src/Admin/Settings/Groups/CoreSettings.php
-src/Admin/Settings/Groups/CustomerManagementSettings.php
 src/Admin/Settings/Groups/EmailSettings.php
 src/Admin/Settings/Groups/FrontendSettings.php
 src/Admin/Settings/Groups/GeneralSettings.php
@@ -199,9 +198,7 @@ src/Admin/Utilities/Database/DatabaseCleanupPage.php
 src/Admin/Utilities/ListTable/LogColumns.php
 src/Admin/Utilities/Menu/Menu.php
 src/Admin/Utilities/Performance/AdminOptimizer.php
-src/Admin/Utilities/Uninstall/UninstallPage.php
 src/Admin/Utilities/Uninstall/Uninstaller.php
-src/Admin/Vehicle/Deposit/DepositAjax.php
 src/Admin/Vehicle/Deposit/DepositCalculator.php
 src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php
 src/Admin/Vehicle/Helpers/RatingHelper.php
