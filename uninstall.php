@@ -52,10 +52,20 @@ spl_autoload_register(
  * spl_autoload_register() above: RetiredIndexes.php has zero dependency on
  * the rest of the plugin by design (see its class docblock), so this
  * cleanup cannot fail here for a reason unrelated to the DROP INDEX itself.
+ *
+ * Guarded with file_exists(), same as the autoloader block above and for
+ * the same reason: a missing file must not fatal the entire uninstall
+ * before the settings read, the table drops, the cron clearing, or the
+ * taxonomy cleanup below ever get a turn. Leaving one set of retired
+ * indexes behind is strictly better than leaving all of the user's data
+ * behind.
  */
-require_once __DIR__ . '/src/Admin/Core/Utilities/RetiredIndexes.php';
-global $wpdb;
-\MHMRentiva\Admin\Core\Utilities\RetiredIndexes::drop( $wpdb );
+$retired_indexes_path = __DIR__ . '/src/Admin/Core/Utilities/RetiredIndexes.php';
+if ( file_exists( $retired_indexes_path ) ) {
+	require_once $retired_indexes_path;
+	global $wpdb;
+	\MHMRentiva\Admin\Core\Utilities\RetiredIndexes::drop( $wpdb );
+}
 
 // Check if user wants to clean data on uninstall
 $settings = get_option( 'mhmrentiva_settings', array() );
