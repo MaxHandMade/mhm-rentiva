@@ -437,6 +437,14 @@ bin/*
 # the executable definition of the 6.0.0 rename and G-C mode 4b requires it,
 # so it must be tracked like the other gate scripts.
 !bin/prefix-rename.php
+# Görev 0 of the 2026-08-03 T8 remediation round: the before/after instrument
+# for Görev 1's deletion of the core-table index subsystem. Counts CREATE/DROP
+# INDEX call sites in source plus live-owned indexes in the database.
+# Deliberately reports (declares its own blind spots on every run) rather than
+# gates -- same "audit helper" shape as audit-object-capabilities.php and its
+# neighbours above. Tracked so this round's later tasks, and any future round,
+# can re-run it.
+!bin/audit-index-surface.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
