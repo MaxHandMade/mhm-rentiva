@@ -229,16 +229,11 @@ final class BookingColumns {
 				true
 			);
 
-			// Localization
-			wp_localize_script(
-				'mhm-rentiva-booking-calendar',
-				'mhmBookingCalendar',
-				array(
-					'strings' => array(
-						'selectedDate' => __( 'Selected date', 'mhm-rentiva' ),
-					),
-				)
-			);
+			// The mhmBookingCalendar localize call formerly here was removed
+			// (WP.org T8 Görev 10b, row E1): booking-calendar.js navigates via
+			// mhmrentiva_month/mhmrentiva_year URL params only and never read
+			// this object -- a "Selected date" string minted on every load for
+			// zero consumers.
 
 			// Note: rely on WordPress core bulk-action behavior to avoid interference.
 

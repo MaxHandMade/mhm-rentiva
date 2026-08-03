@@ -135,13 +135,10 @@ final class ShortcodePages {
 			filemtime( MHMRENTIVA_PLUGIN_DIR . 'build/admin/shortcode-pages.css' ) ?: MHMRENTIVA_VERSION
 		);
 
-		wp_localize_script(
-			'mhm-rentiva-react-shortcode-pages',
-			'mhmRentivaShortcodePages',
-			array(
-				'nonce' => wp_create_nonce( 'wp_rest' ),
-			)
-		);
+		// The mhmRentivaShortcodePages localize call formerly here was
+		// removed (WP.org T8 Görev 10b, row E4): neither src-react/admin/
+		// shortcode-pages/ nor its build ever read this object -- the React
+		// app authenticates its REST calls via apiFetch instead.
 	}
 
 	/**

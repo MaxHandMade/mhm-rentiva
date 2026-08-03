@@ -153,20 +153,10 @@ class ElementorIntegration {
 				true
 			);
 
-			// Localize script
-			wp_localize_script(
-				'mhm-rentiva-elementor',
-				'mhmRentivaElementor',
-				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhmrentiva_elementor' ),
-					'i18n'    => array(
-						'loading' => __( 'Loading...', 'mhm-rentiva' ),
-						'error'   => __( 'An error occurred', 'mhm-rentiva' ),
-						'success' => __( 'Success', 'mhm-rentiva' ),
-					),
-				)
-			);
+			// The mhmRentivaElementor localize call (and the nonce it minted)
+			// formerly here were removed (WP.org T8 Görev 10b, row E2):
+			// elementor-widgets.js contains only empty handler stubs and never
+			// referenced this object.
 		}
 	}
 
@@ -209,20 +199,9 @@ class ElementorIntegration {
 				true
 			);
 
-			// Localize script
-			wp_localize_script(
-				'mhm-rentiva-elementor-editor',
-				'mhmRentivaElementorEditor',
-				array(
-					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
-					'nonce'   => wp_create_nonce( 'mhmrentiva_elementor_editor' ),
-					'i18n'    => array(
-						'select_vehicle' => __( 'Select Vehicle', 'mhm-rentiva' ),
-						'no_vehicles'    => __( 'No vehicles found', 'mhm-rentiva' ),
-						'loading'        => __( 'Loading...', 'mhm-rentiva' ),
-					),
-				)
-			);
+			// The mhmRentivaElementorEditor localize call (and the nonce it
+			// minted) formerly here were removed (WP.org T8 Görev 10b, row
+			// E3): elementor-editor.js never referenced this object.
 		}
 	}
 
