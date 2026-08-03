@@ -66,6 +66,7 @@ src/Admin/Core/Utilities/ObjectCache.php
 src/Admin/Core/Utilities/PrefixMigrationMap.php
 src/Admin/Core/Utilities/QueueManager.php
 src/Admin/Core/Utilities/RateLimiter.php
+src/Admin/Core/Utilities/RetiredIndexes.php
 src/Admin/Core/Utilities/Styles.php
 src/Admin/Core/Utilities/TaxonomyMigrator.php
 src/Admin/Core/Utilities/Templates.php
