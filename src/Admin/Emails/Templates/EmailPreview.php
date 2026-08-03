@@ -103,8 +103,8 @@ final class EmailPreview {
 		echo '</div>';
 		echo '</div>';
 
-		if ( isset( $_GET['mhmrentiva_template_test'] ) ) {
-			$st = sanitize_text_field( wp_unslash( $_GET['mhmrentiva_template_test'] ) );
+		$st = \MHMRentiva\Admin\Emails\Settings\EmailTemplateTestAction::take_status();
+		if ( '' !== $st ) {
 			if ( $st === 'success' ) {
 				echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__( 'Template email sent.', 'mhm-rentiva' ) . '</p></div>';
 			} elseif ( $st === 'failed' ) {

@@ -101,23 +101,6 @@ final class AddonSettings {
 	}
 
 	/**
-	 * Render admin notices.
-	 */
-	public static function admin_notices(): void {
-		$settings_updated = isset( $_GET['settings-updated'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['settings-updated'] ) ) : '';
-
-		// Show success message after settings are saved.
-		if ( 'true' === $settings_updated ) {
-			add_settings_error(
-				'mhmrentiva_addon_settings',
-				'settings_updated',
-				__( 'Settings saved successfully.', 'mhm-rentiva' ),
-				'updated'
-			);
-		}
-	}
-
-	/**
 	 * Render settings page content.
 	 *
 	 * @param bool $in_tab Whether rendered inside a tab.

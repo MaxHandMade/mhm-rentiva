@@ -102,7 +102,7 @@ final class EmailTemplates {
 			echo '<div><button type="button" id="mhm-send-template-btn-settings" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
 			echo '</div>';
 
-			$st = self::get_text('mhmrentiva_template_test');
+			$st = \MHMRentiva\Admin\Emails\Settings\EmailTemplateTestAction::take_status();
 			if ('' !== $st) {
 				if ($st === 'success') {
 					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__('Template email sent.', 'mhm-rentiva') . '</p></div>';
@@ -143,7 +143,7 @@ final class EmailTemplates {
 			echo '<div><button type="button" id="mhm-send-template-btn" class="button button-secondary" data-post="' . esc_url($admin_post) . '" data-nonce="' . esc_attr($nonce) . '">' . esc_html__('Send Test Email', 'mhm-rentiva') . '</button></div>';
 			echo '</div>';
 
-			$st = self::get_text('mhmrentiva_template_test');
+			$st = \MHMRentiva\Admin\Emails\Settings\EmailTemplateTestAction::take_status();
 			if ('' !== $st) {
 				if ($st === 'success') {
 					echo '<div class="notice notice-success inline" style="margin-top:8px;"><p>' . esc_html__('Template email sent.', 'mhm-rentiva') . '</p></div>';

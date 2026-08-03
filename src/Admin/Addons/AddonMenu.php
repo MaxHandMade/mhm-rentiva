@@ -31,7 +31,10 @@ final class AddonMenu {
 	 */
 	public static function register(): void
 	{
-		add_action('admin_notices', array( self::class, 'admin_notices' ));
+		// The former `admin_notices` callback printed one success notice gated on
+		// `?addon_created=1`. Nothing in this plugin has ever redirected with
+		// that parameter, so the notice could not fire; callback and read are
+		// both gone rather than kept behind a guard.
 		add_action('admin_notices', array( self::class, 'add_addon_page_title' ));
 		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_page_title_style' ));
 	}
@@ -105,22 +108,6 @@ final class AddonMenu {
 
 		echo '</div>';
 	}
-
-	/**
-	 * Render admin notices.
-	 */
-	public static function admin_notices(): void
-	{
-		$addon_created = isset( $_GET['addon_created'] ) ? sanitize_text_field( wp_unslash( (string) $_GET['addon_created'] ) ) : '';
-
-		// Show success message for addon creation.
-		if ( '1' === $addon_created ) {
-			echo '<div class="notice notice-success is-dismissible">';
-			echo '<p>' . esc_html__('Additional service created successfully.', 'mhm-rentiva') . '</p>';
-			echo '</div>';
-		}
-	}
-
 
 	/**
 	 * Enqueue the CSS that hides the default WP Title & Add New button on

@@ -117,13 +117,57 @@ final class EmailTemplateTestAction {
 		);
 	}
 
+	/**
+	 * Transient key holding this user's pending send-test result.
+	 */
+	private static function status_key(): string {
+		return 'mhmrentiva_template_test_' . get_current_user_id();
+	}
+
+	/**
+	 * Request-level cache, so the three screens that render this notice all see
+	 * the same value even though the transient is consumed on first read.
+	 *
+	 * @var string|null
+	 */
+	private static $status_cache = null;
+
+	/**
+	 * Read and consume this user's pending send-test result.
+	 *
+	 * Returns '' when there is nothing pending. Replaces a
+	 * `?mhmrentiva_template_test=` round trip through the URL, which survived
+	 * refreshes and re-showed a stale notice.
+	 */
+	public static function take_status(): string {
+		if ( null !== self::$status_cache ) {
+			return self::$status_cache;
+		}
+
+		$status = get_transient( self::status_key() );
+		if ( false === $status ) {
+			self::$status_cache = '';
+			return '';
+		}
+
+		delete_transient( self::status_key() );
+		self::$status_cache = (string) $status;
+
+		return self::$status_cache;
+	}
+
 	private static function redirect( string $status ): void {
+		set_transient( self::status_key(), $status, MINUTE_IN_SECONDS );
+
+		// `type` is fixed rather than carried over: this handler is reached by a
+		// POST to a bare admin-post.php URL (see the detached form built in
+		// assets/js/admin/email-templates.js), so the $_GET['type'] this used to
+		// read was never populated and always fell through to this same default.
 		$url = add_query_arg(
 			array(
-				'page'              => 'mhm-rentiva-settings',
-				'tab'               => 'email-templates',
-				'type'              => sanitize_key( isset( $_GET['type'] ) ? wp_unslash( $_GET['type'] ) : 'booking_notifications' ),
-				'mhmrentiva_template_test' => $status,
+				'page' => 'mhm-rentiva-settings',
+				'tab'  => 'email-templates',
+				'type' => 'booking_notifications',
 			),
 			admin_url( 'admin.php' )
 		);

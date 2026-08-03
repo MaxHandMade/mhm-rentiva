@@ -739,11 +739,11 @@ final class BookingMeta extends AbstractMetaBox {
 		);
 
 		if ($sent) {
+			self::queue_admin_notice('email_sent');
 			$redirect_url = add_query_arg(
 				array(
-					'post'    => $booking_id,
-					'action'  => 'edit',
-					'message' => 'email_sent',
+					'post'   => $booking_id,
+					'action' => 'edit',
 				),
 				admin_url('post.php')
 			);
@@ -988,11 +988,11 @@ final class BookingMeta extends AbstractMetaBox {
 		// Save history
 		update_post_meta($booking_id, '_mhmrentiva_booking_history', $history);
 
+		self::queue_admin_notice('note_added');
 		$redirect_url = add_query_arg(
 			array(
-				'post'    => $booking_id,
-				'action'  => 'edit',
-				'message' => 'note_added',
+				'post'   => $booking_id,
+				'action' => 'edit',
 			),
 			admin_url('post.php')
 		);
@@ -1184,6 +1184,39 @@ final class BookingMeta extends AbstractMetaBox {
 	}
 
 	/**
+	 * Transient key holding the pending one-shot admin notice for one user.
+	 */
+	private static function admin_notice_key(): string
+	{
+		return 'mhmrentiva_booking_notice_' . get_current_user_id();
+	}
+
+	/**
+	 * Queue a one-shot admin notice to survive the redirect that follows.
+	 *
+	 * @param string $notice One of the keys handled by show_admin_notices().
+	 */
+	private static function queue_admin_notice(string $notice): void
+	{
+		set_transient(self::admin_notice_key(), $notice, MINUTE_IN_SECONDS);
+	}
+
+	/**
+	 * Read and consume the pending one-shot admin notice.
+	 */
+	private static function take_admin_notice(): string
+	{
+		$notice = get_transient(self::admin_notice_key());
+		if (false === $notice) {
+			return '';
+		}
+
+		delete_transient(self::admin_notice_key());
+
+		return (string) $notice;
+	}
+
+	/**
 	 * Shows admin notices
 	 */
 	public static function show_admin_notices(): void
@@ -1195,10 +1228,12 @@ final class BookingMeta extends AbstractMetaBox {
 			return;
 		}
 
-		// Read-only: selects which canned admin notice to print after our own
-		// post-save redirect. No state changes here, so no nonce is involved;
-		// the value is only ever compared against the literal cases below.
-		$message = isset($_GET['message']) ? sanitize_text_field(wp_unslash( (string) $_GET['message'])) : '';
+		// The notice travels in a short-lived per-user transient set just before
+		// our own redirect, not in the URL. `?message=` is WordPress core's own
+		// post.php parameter -- core indexes $messages[$post_type][ $message ]
+		// with it -- so putting our string keys there both collided with core's
+		// numeric indices and left the notice replayable on refresh.
+		$message = self::take_admin_notice();
 
 		switch ($message) {
 			case 'email_sent':
