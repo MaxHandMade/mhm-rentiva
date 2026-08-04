@@ -216,14 +216,23 @@ class VehiclesGrid extends AbstractShortcode {
 			);
 		}
 
-		// Featured filter
+		// Featured filter. Appends to the meta_query already seeded above
+		// (the active-vehicle-status filter) instead of replacing it
+		// wholesale -- the old `$args['meta_query'] = array(...)`
+		// assignment clobbered that filter entirely, letting
+		// inactive/suspended vehicles leak into "featured" grids (T8 Görev
+		// 10c-B, K5-BUG; pre-existing, untouched by Görev 14's SlowDBQuery
+		// sweep below). `[] =` degrades safely to today's single-clause
+		// shape if meta_query were ever unset by the time this runs. The
+		// relation between top-level meta_query clauses defaults to 'AND'
+		// when unset (WP_Meta_Query) -- the exact implicit semantics the
+		// Görev-14 named orderby-clause appends further down already rely
+		// on, so this append composes with them the same way.
 		if (( $atts['featured'] ?? '0' ) === '1') {
-			$args['meta_query'] = array(
-				array(
-					'key'     => '_mhmrentiva_featured',
-					'value'   => '1',
-					'compare' => '=',
-				),
+			$args['meta_query'][] = array(
+				'key'     => '_mhmrentiva_featured',
+				'value'   => '1',
+				'compare' => '=',
 			);
 		}
 
