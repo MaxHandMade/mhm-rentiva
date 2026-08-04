@@ -9,8 +9,8 @@ use MHMRentiva\Blocks\BlockRegistry;
 use WP_UnitTestCase;
 
 /**
- * T8 Görev 17 (browser-verified, surface 3): AssetManager::should_load_assets()
- * decided purely by sniffing post_content for the literal '[rentiva_' substring
+ * Regression coverage: AssetManager::should_load_assets() decided purely by
+ * sniffing post_content for the literal '[rentiva_' substring
  * (AssetManager.php:1300-1320, pre-fix). Gutenberg block markup
  * (`<!-- wp:mhm-rentiva/vehicles-grid /-->`) never contains that substring, so a
  * page built with the plugin's own block and NO shortcode never enqueued

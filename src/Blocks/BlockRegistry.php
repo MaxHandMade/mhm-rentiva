@@ -313,7 +313,7 @@ class BlockRegistry {
 	 * (no shortcode anywhere on the page) never enqueued
 	 * 'mhm-rentiva-vehicle-interactions': favourite/compare buttons rendered
 	 * with correct server-side state and a clean console, but did nothing on
-	 * click (browser-verified, T8 Görev 17 tour).
+	 * click.
 	 *
 	 * Goes a step further than core's own has_block(), which explicitly does
 	 * NOT check synced patterns/reusable blocks (see its docblock) -- this
