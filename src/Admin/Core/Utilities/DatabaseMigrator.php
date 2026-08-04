@@ -51,6 +51,52 @@ final class DatabaseMigrator {
 	private const CURRENT_VERSION = '4.3.0';
 
 	/**
+	 * How many admin_init requests in a row the core-table index cleanup may
+	 * fail before run_migrations() stops retrying and stamps anyway.
+	 *
+	 * WP.org T8 fix wave, group A: the retry that keeps this version-gated
+	 * migration from stranding a half-cleaned install has always run on
+	 * every `admin_init` (Plugin.php), a hook that fires for an
+	 * unauthenticated admin-post.php/admin-ajax.php request just as it does
+	 * for a logged-in one. Unbounded, that turns a DB user without
+	 * INDEX/ALTER grants -- ordinary on managed hosting, not a contrived
+	 * edge case -- into an unauthenticated, unthrottled trigger for a full
+	 * migration replay (dbDelta across ~10 tables, up to 35 SHOW/DROP
+	 * statements, one log write) on every such request, forever.
+	 *
+	 * 3 is enough to self-heal a TRANSIENT failure (a lock, a permissions
+	 * grant that lands moments after upgrade, a replica briefly behind) --
+	 * each attempt is a separate request, so three tries already span
+	 * whatever the site's next few admin/cron hits happen to be, not three
+	 * retries in the same second. A DB user that will never have
+	 * INDEX/ALTER cannot succeed on attempt 4 any more than attempt 1, so
+	 * raising this further only spends more of an unauthenticated caller's
+	 * requests on work that cannot finish. Once the budget is exhausted the
+	 * version stamps anyway (see run_migrations()) so the retry ends; the
+	 * still-undropped names are recorded in
+	 * self::INDEX_CLEANUP_UNFINISHED_OPTION for whoever investigates.
+	 */
+	public const INDEX_CLEANUP_MAX_ATTEMPTS = 3;
+
+	/**
+	 * Counts consecutive failed attempts within the CURRENT version gate.
+	 * Reset to zero (by deletion) the moment that gate closes, whether by a
+	 * clean success or by INDEX_CLEANUP_MAX_ATTEMPTS being exhausted -- so a
+	 * future CURRENT_VERSION bump that touches the index surface again
+	 * starts its own budget at zero rather than inheriting this one's count.
+	 */
+	private const INDEX_CLEANUP_ATTEMPTS_OPTION = 'mhmrentiva_index_cleanup_attempts';
+
+	/**
+	 * Diagnostic record of the index names still undropped when the retry
+	 * budget was exhausted. Written only on that path; not read by any
+	 * screen today -- this is a breadcrumb for whoever investigates next,
+	 * the same role RetiredIndexes::drop()'s own 'skipped' log entry plays
+	 * for the success path.
+	 */
+	private const INDEX_CLEANUP_UNFINISHED_OPTION = 'mhmrentiva_index_cleanup_unfinished';
+
+	/**
 	 * Rows rewritten per statement by the 6.0.0 rename.
 	 *
 	 * Every rewrite below is a loop of bounded statements rather than one
@@ -170,8 +216,19 @@ final class DatabaseMigrator {
 	 * The guard sits HERE rather than at the three call sites (Plugin.php's
 	 * admin_init hook and the two paths in the bootstrap file) so that no future
 	 * caller can route around it.
+	 *
+	 * $index_cleanup_expected / $index_cleanup_runner are TEST-ONLY seams,
+	 * threaded straight into RetiredIndexes::drop() ($expected / $runner
+	 * there). Every real caller passes neither: production always cleans
+	 * self::CURRENT_VERSION's real index list with the real DROP INDEX
+	 * runner. A test uses them to force a controlled failure against a
+	 * disposable fixture table without ever touching a real WordPress core
+	 * table -- see IndexCleanupRetryBoundTest.
+	 *
+	 * @param array<string, array<string, list<array{seq:int, col:string, sub:?int, non_unique:int, type:string}>>>|null $index_cleanup_expected
+	 * @param callable(string,string):bool|null $index_cleanup_runner
 	 */
-	public static function run_migrations(): void
+	public static function run_migrations(?array $index_cleanup_expected = null, ?callable $index_cleanup_runner = null): void
 	{
 		if (! self::pro_satisfies(self::installed_pro_version())) {
 			add_action('admin_notices', array( self::class, 'render_pro_lockstep_notice' ));
@@ -263,32 +320,82 @@ final class DatabaseMigrator {
 
 			// Retire the core-table index surface. RetiredIndexes is the single
 			// source of truth: uninstall.php calls the same method, against the
-			// same list. A failed drop is loud, not swallowed -- the version is
-			// deliberately NOT stamped below, so this entire method retries from
-			// scratch on the next request instead of recording a migration that
-			// did not finish. Every step above is idempotent (see their own
-			// docblocks), so replaying them costs a request, not correctness.
+			// same list. A failed drop is loud, not swallowed -- but it is also
+			// BOUNDED (self::INDEX_CLEANUP_MAX_ATTEMPTS): a transient failure
+			// still self-heals by retrying from scratch on a later request, but
+			// a permanent one (see the constant's own docblock) must not loop
+			// forever, because admin_init -- this method's other caller,
+			// Plugin.php -- is reachable by an unauthenticated request. Every
+			// step above is idempotent (see their own docblocks), so replaying
+			// them costs a request, not correctness.
 			global $wpdb;
-			$index_cleanup = RetiredIndexes::drop($wpdb);
+			$index_cleanup = RetiredIndexes::drop($wpdb, $index_cleanup_expected, $index_cleanup_runner);
 			if (array() !== $index_cleanup['failed']) {
-				// Loud, not swallowed: a silent unbounded retry is not "failing
-				// loudly" if nothing ever says WHY admin_init keeps replaying the
-				// whole migration. 'skipped' is recorded alongside 'failed' here
-				// too -- a name in 'skipped' is not itself a failure, but seeing
-				// it only in this log, next to a genuine failure, is exactly when
-				// an administrator most needs to know some retired names were
-				// left in place because they do not match this plugin's shape.
+				$attempts = ((int) get_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION, 0)) + 1;
+				update_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION, $attempts, false);
+
+				if ($attempts < self::INDEX_CLEANUP_MAX_ATTEMPTS) {
+					// Still within budget: loud once for THIS attempt -- a
+					// silent unbounded retry is not "failing loudly" if
+					// nothing ever says WHY admin_init keeps replaying the
+					// whole migration -- then return without stamping, so the
+					// next request tries again from scratch. 'skipped' is
+					// recorded alongside 'failed' here too -- a name in
+					// 'skipped' is not itself a failure, but seeing it next to
+					// a genuine failure is exactly when an administrator most
+					// needs to know some retired names were left in place
+					// because they do not match this plugin's shape.
+					if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+							'Core-table index cleanup did not finish; database migration will retry on the next request',
+							array(
+								'attempt'      => $attempts,
+								'max_attempts' => self::INDEX_CLEANUP_MAX_ATTEMPTS,
+								'failed'       => $index_cleanup['failed'],
+								'skipped'      => $index_cleanup['skipped'],
+							),
+							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+						);
+					}
+					return;
+				}
+
+				// Budget exhausted: self::INDEX_CLEANUP_MAX_ATTEMPTS consecutive
+				// requests have all failed to drop the same names, which is the
+				// permanent-failure case -- a transient one would have cleared by
+				// now. Looping further only spends another caller's request (an
+				// unauthenticated one, if it arrives via admin-post.php/
+				// admin-ajax.php) on 35 more SHOW/DROP statements for no new
+				// outcome. Stamp below so the retry ends -- same as a clean
+				// success -- but record exactly what is still undropped for
+				// whoever investigates, and log once more at the moment the
+				// budget closes rather than on every future request. The
+				// attempt counter itself is cleared (not left at
+				// INDEX_CLEANUP_MAX_ATTEMPTS): its job was bounding retries
+				// within THIS version gate, which is about to close either way.
+				delete_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION);
+				update_option(self::INDEX_CLEANUP_UNFINISHED_OPTION, $index_cleanup['failed'], false);
 				if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
 					\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
-						'Core-table index cleanup did not finish; database migration will retry on the next request',
+						'Core-table index cleanup did not finish after the retry budget; stamping the migration so it stops retrying',
 						array(
-							'failed'  => $index_cleanup['failed'],
-							'skipped' => $index_cleanup['skipped'],
+							'attempts' => $attempts,
+							'failed'   => $index_cleanup['failed'],
+							'skipped'  => $index_cleanup['skipped'],
 						),
 						\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 					);
 				}
-				return;
+				// Falls through to the stamp below on purpose.
+			} else {
+				// A clean run (nothing failed, whether or not anything needed
+				// dropping) closes this version gate for good -- reset the
+				// budget so a FUTURE CURRENT_VERSION bump that touches the
+				// index surface again starts its own count at zero rather than
+				// inheriting a stale one, and clear any earlier diagnostic
+				// record now that there is nothing outstanding.
+				delete_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION);
+				delete_option(self::INDEX_CLEANUP_UNFINISHED_OPTION);
 			}
 
 			// Update version in database

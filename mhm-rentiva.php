@@ -286,6 +286,15 @@ add_action(
 
 		if ($stored_version !== MHMRENTIVA_VERSION && class_exists('MHMRentiva\\Admin\\Core\\Utilities\\DatabaseMigrator')) {
 			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+			// This stamp tracks the PLUGIN CODE version, not migration
+			// completion -- it is written whether run_migrations() finished
+			// or returned early to retry a still-failing step later.
+			// mhmrentiva_db_version (written by run_migrations() itself,
+			// bounded by DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS) is the
+			// only source of truth for "did the schema migration finish",
+			// and Plugin.php's unconditional admin_init hook -- not this
+			// lane -- is what retries it. The two stamps are deliberately
+			// independent so that neither can shadow the other's retry.
 			update_option('mhmrentiva_plugin_version', MHMRENTIVA_VERSION);
 		}
 

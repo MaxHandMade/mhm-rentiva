@@ -415,7 +415,7 @@ final class Plugin {
 		}
 
 		// Booking
-		// Handler::register() was removed (WP.org T8 Görev 10b, row A1/A2): its
+		// Handler::register() was removed: its
 		// two hooks (admin_post_mhmrentiva_booking / admin_post_nopriv_*) had
 		// zero shipped nonce producer and zero consumer in either repo. Handler
 		// itself survives -- get_cancellation_policy()/get_payment_deadline()
@@ -564,7 +564,18 @@ final class Plugin {
 	{
 		$is_admin = is_admin();
 
-		// Database migration
+		// Database migration. LOAD-BEARING: this is the only unconditional
+		// retry path for a version-gated migration that failed to finish --
+		// mhm-rentiva.php's own plugins_loaded lane stamps
+		// mhmrentiva_plugin_version after calling run_migrations() exactly
+		// once per code-version change, regardless of whether the migration
+		// itself finished, so it never calls run_migrations() again on its
+		// own. As long as `mhmrentiva_db_version` has not reached
+		// DatabaseMigrator::CURRENT_VERSION, THIS hook is what gives the
+		// migration another attempt on the next request. Do not gate it or
+		// remove it without keeping some other unconditional retry path --
+		// see DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS for why that retry
+		// is itself bounded rather than infinite.
 		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ));
 
 		// Taxonomy migration (vehicle_cat → vehicle_category)
@@ -585,7 +596,7 @@ final class Plugin {
 			Admin\Settings\APIKeysPage::register();
 		}
 
-		// UninstallPage::register() was removed (WP.org T8 Görev 10b, row A7/A8):
+		// UninstallPage::register() was removed:
 		// its two wp_ajax_* handlers had zero rendering surface and zero
 		// consumer in either repo. The real uninstall path (Uninstaller::
 		// uninstall_direct(), called from uninstall.php) is untouched.
@@ -760,7 +771,7 @@ final class Plugin {
 	 */
 	private function initialize_deposit_services(): void
 	{
-		// DepositAjax::register() was removed (WP.org T8 Görev 10b, row A3/A4):
+		// DepositAjax::register() was removed:
 		// wp_ajax_mhmrentiva_calculate_deposit had zero shipped nonce producer
 		// and zero consumer in either repo; the whole class was dead.
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\DepositManagementAjax')) {
