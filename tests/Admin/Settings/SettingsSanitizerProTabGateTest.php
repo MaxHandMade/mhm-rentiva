@@ -70,12 +70,18 @@ final class SettingsSanitizerProTabGateTest extends WP_UnitTestCase
      */
     public function test_core_tab_save_still_persists(): void
     {
+        // mhmrentiva_cache_enabled, not mhmrentiva_log_level: T8 Görev 10c-A
+        // (K5-F3) deleted the log_level sanitizer arm (its only input path,
+        // LogsSettings::register()'s field wiring, was itself a dead orphan --
+        // see task-10c-A-report.md). Any surviving system-tab key proves the
+        // same thing this test asserts; cache_enabled has a live field
+        // (CoreSettings, nested under the 'system' tab's Maintenance section).
         $result = SettingsSanitizer::sanitize(array(
-            'current_active_tab'     => 'system',
-            'mhmrentiva_log_level'  => 'debug',
+            'current_active_tab'        => 'system',
+            'mhmrentiva_cache_enabled'  => '0',
         ));
 
-        $this->assertSame('debug', $result['mhmrentiva_log_level'], 'A core settings tab must still save.');
+        $this->assertSame('0', $result['mhmrentiva_cache_enabled'], 'A core settings tab must still save.');
     }
 
     // -- Y3: reset is a WRITE too, and it bypasses the sanitizer -----------------

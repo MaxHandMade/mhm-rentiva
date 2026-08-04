@@ -252,10 +252,14 @@ final class VehicleManagementSettings {
 	 * the latter consumed by BookingForm.php's per-day price calculation).
 	 *
 	 * Discount controls (VehiclePricingSettings::discount_options / calculate_discounts())
-	 * deliberately did NOT move here: calculate_discounts() has zero callers anywhere in the
-	 * plugin (grep-verified), so unlike the seasonal multiplier there is no live logic for a
-	 * rendered discount field to feed -- rendering it would only recreate the same
-	 * wired-but-unreachable shape one level down (a config screen with no reader). Currency,
+	 * deliberately did NOT move here: calculate_discounts() had zero callers anywhere in the
+	 * plugin (grep-verified), so unlike the seasonal multiplier there was no live logic for a
+	 * rendered discount field to feed -- rendering it would only have recreated the same
+	 * wired-but-unreachable shape one level down (a config screen with no reader). The whole
+	 * discount trio (calculate_discounts()/get_enabled_discounts()/get_discount_options()) and
+	 * its solely-owned remnants (get_default_settings()'s discount_options entry, the matching
+	 * SettingsSanitizer arm) were deleted outright in T8 Görev 10c-A (K5-F1) rather than ever
+	 * given a doorway -- same zero-caller evidence, re-confirmed at that HEAD. Currency,
 	 * general and deposit fields from the orphan also stay out: each already has a live
 	 * equivalent elsewhere (mhmrentiva_currency on the General tab; min/max rental days on
 	 * this tab's Availability section; deposit is read from the separate mhmrentiva_enable_deposit

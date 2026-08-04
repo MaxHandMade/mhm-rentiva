@@ -341,11 +341,21 @@ final class SettingsSanitizer {
 			'mhmrentiva_cache_lists_ttl'         => self::get_int( $input, 'mhmrentiva_cache_lists_ttl', 5, 1, 60 ),
 			'mhmrentiva_cache_reports_ttl'       => self::get_int( $input, 'mhmrentiva_cache_reports_ttl', 15, 1, 1440 ),
 
-			// Maintenance.
-			'mhmrentiva_log_level'               => self::validate_enum( $input['mhmrentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
-			'mhmrentiva_log_cleanup_enabled'     => self::get_bool( $input, 'mhmrentiva_log_cleanup_enabled' ),
-			'mhmrentiva_log_retention_days'      => self::get_int( $input, 'mhmrentiva_log_retention_days', 30, 1, 365 ),
-			'mhmrentiva_debug_mode'              => self::get_bool( $input, 'mhmrentiva_debug_mode' ),
+			// T8 Görev 10c-A (K5-F3): the 4 mhmrentiva_log_*/mhmrentiva_debug_mode
+			// arms that used to live here were deleted -- their sole input path
+			// was LogsSettings::register()'s now-deleted field wiring (grep-
+			// verified: no other add_settings_field()/raw HTML input/nested
+			// do_settings_fields() call ever submitted these 4 keys, in either
+			// repo). The 4 option READS these fed stay live and keep their safe
+			// defaults (AdvancedLogger/LogRetention/LogMaintenanceScheduler read
+			// them via SettingsCore::get() directly, not through this arm).
+
+			// Maintenance. mhmrentiva_clean_data_on_uninstall stays: its checkbox
+			// (MaintenanceSettings::render_group_db_cleanup()) is live -- rendered
+			// via the 'system' tab's $sections list including
+			// MaintenanceSettings::SECTION_ID, independently of the dead
+			// MaintenanceSettings::render_settings_section() wrapper method
+			// (K5-F4 evidence-conflict, see task-10c-A-report.md).
 			'mhmrentiva_clean_data_on_uninstall' => self::get_bool( $input, 'mhmrentiva_clean_data_on_uninstall' ),
 		);
 	}
@@ -396,7 +406,7 @@ final class SettingsSanitizer {
 		// admin ever touches the seasonal-multiplier field now reachable on the live Vehicle tab,
 		// Görev 9 / F19) storing ONLY the submitted sub-key (e.g. seasonal_multipliers.summer.multiplier),
 		// silently discarding that season's months/name/description -- get_seasonal_multiplier_for_month()
-		// then TypeErrors on the missing 'months' -- and every other untouched season/discount entry.
+		// then TypeErrors on the missing 'months' -- and every other untouched season entry.
 		// Seed from VehiclePricingSettings::get_default_settings(), the exact shape
 		// SettingsCore::get('vehicle_pricing', ...) itself falls back to, so a targeted
 		// overwrite below only ever touches the key it names.
@@ -440,24 +450,6 @@ final class SettingsSanitizer {
 						// straight into the rental price.
 						$current_pricing['seasonal_multipliers'][ $safe_key ]['multiplier'] = self::clamp_value( floatval( $season['multiplier'] ), 0.1, 5.0 );
 					}
-				}
-			}
-
-			if ( isset( $in['discount_options'] ) && \is_array( $in['discount_options'] ) ) {
-				// Keys are internal discount slugs (weekly/monthly/early_booking/
-				// loyalty, see VehiclePricingSettings::get_default_settings()) --
-				// same key-sanitization rationale as seasonal_multipliers above.
-				foreach ( $in['discount_options'] as $key => $discount ) {
-					$safe_key = \sanitize_key( (string) $key );
-					if ( '' === $safe_key ) {
-						continue;
-					}
-					$current_pricing['discount_options'][ $safe_key ] = array(
-						'enabled'          => (bool) ( $discount['enabled'] ?? false ),
-						'min_days'         => \absint( $discount['min_days'] ?? 0 ),
-						'advance_days'     => \absint( $discount['advance_days'] ?? 0 ),
-						'discount_percent' => self::clamp_value( \absint( $discount['discount_percent'] ?? 0 ), 0, 100 ),
-					);
 				}
 			}
 		}

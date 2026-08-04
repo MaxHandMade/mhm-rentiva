@@ -11,13 +11,11 @@ use WP_UnitTestCase;
  * WP.org T4 #6 follow-up: the same key-unsanitized `foreach` pattern found in
  * VehicleSettings.php (see VehicleSettingsArrayKeySanitizationTest) also
  * existed in SettingsSanitizer::sanitize_vehicle_pricing_settings() --
- * `seasonal_multipliers` and `discount_options` iterated
- * `foreach ( $in[...] as $key => $value )` and sanitized the VALUE
- * (floatval()/absint()/(bool)) but wrote `$current_pricing[...][ $key ]`
- * with the raw, unsanitized array KEY.
+ * `seasonal_multipliers` iterated `foreach ( $in[...] as $key => $value )`
+ * and sanitized the VALUE (floatval()/absint()/(bool)) but wrote
+ * `$current_pricing[...][ $key ]` with the raw, unsanitized array KEY.
  *
- * The keys are internal slugs (spring/summer/autumn/winter and
- * weekly/monthly/early_booking/loyalty -- see
+ * The keys are internal slugs (spring/summer/autumn/winter -- see
  * VehiclePricingSettings::get_default_settings()) used purely as array
  * lookups, so `sanitize_key()` is the correct, lossless treatment -- same
  * decision as VehicleSettings.php's custom_* options.
@@ -28,6 +26,13 @@ use WP_UnitTestCase;
  * can no longer persist a dirty key if/when that path is ever driven by
  * real input (Settings API form, or any future direct `update_option()`
  * call on `mhmrentiva_settings`).
+ *
+ * T8 Görev 10c-A (K5-F1): the equivalent `discount_options` arm (and the
+ * VehiclePricingSettings discount trio it solely served) was deleted
+ * outright rather than fixed -- zero callers anywhere in either repo
+ * (task-10a-endpoint-table.md §F1). Its two dirty-key/round-trip cases
+ * below were removed with it; `weekly` no longer round-trips through this
+ * sanitizer because nothing ever reads it back.
  *
  * @covers \MHMRentiva\Admin\Settings\Core\SettingsSanitizer
  */
@@ -62,39 +67,11 @@ final class SettingsSanitizerVehiclePricingArrayKeySanitizationTest extends WP_U
         }
     }
 
-    public function test_dirty_discount_option_key_is_neutralized(): void
-    {
-        $result = SettingsSanitizer::sanitize( array(
-            'current_active_tab' => 'vehicle',
-            'vehicle_pricing'    => array(
-                'discount_options' => array(
-                    '<img src=x onerror=alert(1)>' => array(
-                        'enabled'          => true,
-                        'min_days'         => 7,
-                        'advance_days'     => 0,
-                        'discount_percent' => 10,
-                    ),
-                ),
-            ),
-        ) );
-
-        $discounts = $result['vehicle_pricing']['discount_options'] ?? array();
-
-        $this->assertNotEmpty( $discounts, 'A sanitized (non-empty) key must still be written -- the record must not be dropped entirely.' );
-
-        foreach ( array_keys( $discounts ) as $key ) {
-            $this->assertIsString( $key );
-            $this->assertStringNotContainsString( '<', $key, 'discount_options key must not carry "<".' );
-            $this->assertStringNotContainsString( '>', $key, 'discount_options key must not carry ">".' );
-            $this->assertMatchesRegularExpression( '/^[a-z0-9_-]*$/', $key, 'discount_options key must be sanitize_key()-clean.' );
-        }
-    }
-
     /**
-     * Legitimate slug keys (the real defaults: spring/weekly) must round-trip
+     * Legitimate slug keys (the real default: spring) must round-trip
      * unmangled -- proves the fix does not over-sanitize real data.
      */
-    public function test_legitimate_seasonal_and_discount_keys_round_trip_unmangled(): void
+    public function test_legitimate_seasonal_key_rounds_trip_unmangled(): void
     {
         $result = SettingsSanitizer::sanitize( array(
             'current_active_tab' => 'vehicle',
@@ -102,28 +79,33 @@ final class SettingsSanitizerVehiclePricingArrayKeySanitizationTest extends WP_U
                 'seasonal_multipliers' => array(
                     'spring' => array( 'multiplier' => '1.25' ),
                 ),
-                'discount_options'     => array(
-                    'weekly' => array(
-                        'enabled'          => true,
-                        'min_days'         => 7,
-                        'advance_days'     => 0,
-                        'discount_percent' => 10,
-                    ),
-                ),
             ),
         ) );
 
         $this->assertArrayHasKey( 'spring', $result['vehicle_pricing']['seasonal_multipliers'] ?? array() );
         $this->assertSame( 1.25, $result['vehicle_pricing']['seasonal_multipliers']['spring']['multiplier'] );
+    }
 
-        $this->assertSame(
-            array(
-                'enabled'          => true,
-                'min_days'         => 7,
-                'advance_days'     => 0,
-                'discount_percent' => 10,
+    /**
+     * T8 Görev 10c-A (K5-F1): the discount_options arm is gone -- submitting
+     * it must be a silent no-op (dropped, not persisted, not fataled), not a
+     * dirty-key injection vector reborn one field over.
+     */
+    public function test_submitting_discount_options_is_now_a_silent_no_op(): void
+    {
+        $result = SettingsSanitizer::sanitize( array(
+            'current_active_tab' => 'vehicle',
+            'vehicle_pricing'    => array(
+                'discount_options' => array(
+                    '<img src=x onerror=alert(1)>' => array( 'enabled' => true ),
+                ),
             ),
-            $result['vehicle_pricing']['discount_options']['weekly'] ?? null
+        ) );
+
+        $this->assertArrayNotHasKey(
+            'discount_options',
+            $result['vehicle_pricing'] ?? array(),
+            'discount_options must not be written back at all -- the arm that used to write it is deleted (K5-F1).'
         );
     }
 }

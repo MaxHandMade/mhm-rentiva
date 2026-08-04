@@ -14,6 +14,16 @@ use WP_UnitTestCase;
  * along with the Settings -> Security screen that wrote them: none was ever read
  * by anything, so the sanitizer was clamping values into rows no code consulted.
  * `DeadSecuritySettingKeysTest` covers removing them from existing installs.
+ *
+ * T8 Görev 10c-A (K5-F3): the log_level/log_cleanup_enabled/log_retention_days/
+ * debug_mode arms are gone the same way -- LogsSettings::register()'s field
+ * wiring (their only input path) was deleted as an orphan (task-10a-endpoint-
+ * table.md D4/F3). Their own dedicated validation tests below are replaced
+ * with a "not sanitized back in" test mirroring
+ * test_the_removed_security_keys_are_not_sanitized_back_in()'s own shape.
+ * The 4 option READS these fed stay live at their safe defaults -- unaffected,
+ * since AdvancedLogger/LogRetention/LogMaintenanceScheduler read them via
+ * SettingsCore::get() directly, never through this sanitizer.
  */
 class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
 {
@@ -23,20 +33,32 @@ class SettingsSanitizerSystemTabTest extends WP_UnitTestCase
         return SettingsSanitizer::sanitize($input);
     }
 
-    // log_level — enum: error|warning|info|debug, default=error
-
-    public function test_log_level_accepts_valid_enum_values()
+    /**
+     * The deleted field wiring must not come back through the sanitizer: a
+     * key it still accepted would recreate the wired-but-unreachable shape
+     * K5-F3 removed.
+     */
+    public function test_the_removed_log_keys_are_not_sanitized_back_in()
     {
-        foreach (['error', 'warning', 'info', 'debug'] as $level) {
-            $result = $this->sanitize_system(['mhmrentiva_log_level' => $level]);
-            $this->assertSame($level, $result['mhmrentiva_log_level'], "Failed for level: $level");
+        $result = $this->sanitize_system([
+            'mhmrentiva_log_level'           => 'debug',
+            'mhmrentiva_log_cleanup_enabled' => '1',
+            'mhmrentiva_log_retention_days'  => '90',
+            'mhmrentiva_debug_mode'          => '1',
+        ]);
+
+        foreach ([
+            'mhmrentiva_log_level',
+            'mhmrentiva_log_cleanup_enabled',
+            'mhmrentiva_log_retention_days',
+            'mhmrentiva_debug_mode',
+        ] as $key) {
+            $this->assertArrayNotHasKey(
+                $key,
+                $result,
+                $key . ' is still accepted; LogsSettings\' deleted field wiring would be reachable again.'
+            );
         }
-    }
-
-    public function test_log_level_invalid_value_falls_back_to_error()
-    {
-        $result = $this->sanitize_system(['mhmrentiva_log_level' => 'verbose']);
-        $this->assertSame('error', $result['mhmrentiva_log_level']);
     }
 
     /**

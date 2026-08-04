@@ -73,16 +73,21 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 	/**
 	 * A recognised tab still saves normally — the fallback change must not
 	 * narrow the real ones.
+	 *
+	 * mhmrentiva_cache_enabled, not mhmrentiva_log_level: T8 Görev 10c-A
+	 * (K5-F3) deleted the log_level sanitizer arm along with its only input
+	 * path (LogsSettings::register()'s dead field wiring). Any surviving
+	 * system-tab key proves the same routing behaviour this test asserts.
 	 */
 	public function test_a_known_tab_still_saves(): void
 	{
 		$result = SettingsSanitizer::sanitize(
 			array(
-				'current_active_tab'     => 'system',
-				'mhmrentiva_log_level'  => 'debug',
+				'current_active_tab'        => 'system',
+				'mhmrentiva_cache_enabled'  => '0',
 			)
 		);
 
-		$this->assertSame( 'debug', $result['mhmrentiva_log_level'] );
+		$this->assertSame( '0', $result['mhmrentiva_cache_enabled'] );
 	}
 }

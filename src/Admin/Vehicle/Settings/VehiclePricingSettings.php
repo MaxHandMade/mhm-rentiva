@@ -55,40 +55,6 @@ final class VehiclePricingSettings {
 				),
 			),
 
-			'discount_options'     => array(
-				'weekly'        => array(
-					'name'             => __( 'Weekly Discount', 'mhm-rentiva' ),
-					'description'      => __( '7 days or more rental', 'mhm-rentiva' ),
-					'min_days'         => 7,
-					'discount_percent' => 10,
-					'type'             => 'percentage',
-					'enabled'          => true,
-				),
-				'monthly'       => array(
-					'name'             => __( 'Monthly Discount', 'mhm-rentiva' ),
-					'description'      => __( 'Rental of 30 days or more', 'mhm-rentiva' ),
-					'min_days'         => 30,
-					'discount_percent' => 20,
-					'type'             => 'percentage',
-					'enabled'          => true,
-				),
-				'early_booking' => array(
-					'name'             => __( 'Early Booking', 'mhm-rentiva' ),
-					'description'      => __( 'Booking 30 days in advance', 'mhm-rentiva' ),
-					'advance_days'     => 30,
-					'discount_percent' => 5,
-					'type'             => 'percentage',
-					'enabled'          => true,
-				),
-				'loyalty'       => array(
-					'name'             => __( 'Loyalty Discount', 'mhm-rentiva' ),
-					'description'      => __( 'Regular customer discount', 'mhm-rentiva' ),
-					'discount_percent' => 15,
-					'type'             => 'percentage',
-					'enabled'          => false,
-				),
-			),
-
 			'currency_settings'    => array(
 				'default_currency' => 'USD',
 			),
@@ -161,83 +127,11 @@ final class VehiclePricingSettings {
 	}
 
 	/**
-	 * Discount calculation
-	 */
-	public static function calculate_discounts( int $days, string $start_date, float $price ): array {
-		$discounts        = array();
-		$total_discount   = 0;
-		$discount_options = self::get_enabled_discounts();
-
-		foreach ( $discount_options as $key => $discount ) {
-			$apply_discount  = false;
-			$discount_amount = 0;
-
-			switch ( $key ) {
-				case 'weekly':
-					if ( $days >= $discount['min_days'] ) {
-						$apply_discount  = true;
-						$discount_amount = $price * ( $discount['discount_percent'] / 100 );
-					}
-					break;
-
-				case 'monthly':
-					if ( $days >= $discount['min_days'] ) {
-						$apply_discount  = true;
-						$discount_amount = $price * ( $discount['discount_percent'] / 100 );
-					}
-					break;
-
-				case 'early_booking':
-					$advance_days = ( new \DateTime( $start_date ) )->diff( new \DateTime() )->days;
-					if ( $advance_days >= $discount['advance_days'] ) {
-						$apply_discount  = true;
-						$discount_amount = $price * ( $discount['discount_percent'] / 100 );
-					}
-					break;
-
-				case 'loyalty':
-					$apply_discount  = true;
-					$discount_amount = $price * ( $discount['discount_percent'] / 100 );
-					break;
-			}
-
-			if ( $apply_discount && $discount_amount > 0 ) {
-				$discounts[ $key ] = array(
-					'name'    => $discount['name'],
-					'amount'  => $discount_amount,
-					'percent' => $discount['discount_percent'],
-				);
-				$total_discount   += $discount_amount;
-			}
-		}
-
-		return array(
-			'discounts'      => $discounts,
-			'total_discount' => $total_discount,
-		);
-	}
-
-	/**
 	 * Additional service price calculation (no longer used - AddonManager is used)
 	 */
 	public static function calculate_addon_prices( array $addons, int $days ): float {
 		return 0;
 	}
-
-
-	/**
-	 * Sadece etkin indirimleri getir
-	 */
-	public static function get_enabled_discounts(): array {
-		$discount_options = self::get_discount_options();
-		return array_filter(
-			$discount_options,
-			function ( $discount ) {
-				return $discount['enabled'] ?? false;
-			}
-		);
-	}
-
 
 	/**
 	 * Get seasonal multipliers
@@ -246,17 +140,6 @@ final class VehiclePricingSettings {
 		$settings = self::get_settings();
 		return $settings['seasonal_multipliers'] ?? self::get_default_settings()['seasonal_multipliers'];
 	}
-
-	/**
-	 * Get discount options
-	 */
-	public static function get_discount_options(): array {
-		$settings = self::get_settings();
-		return $settings['discount_options'] ?? self::get_default_settings()['discount_options'];
-	}
-
-
-
 
 	/**
 	 * Get currency settings
