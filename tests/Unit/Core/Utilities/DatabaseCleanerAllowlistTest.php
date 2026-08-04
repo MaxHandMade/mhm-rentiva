@@ -575,6 +575,45 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		$this->assertContains( '_mhm_status', $valid, 'a filter must not be able to remove built-in protection' );
 	}
 
+	/**
+	 * Fix round 1 review finding: a backslash-escaped slash immediately
+	 * followed by another slash -- exactly the tail of a real, shipped regex
+	 * literal, assets/js/core/core.js:163's '/(.*\/mhm-rentiva)\//' -- must
+	 * not be misread by strip_comments_js() as a line-comment opener. Regex
+	 * literals are not tracked as a string type, so without a guard the
+	 * escaped slash's own `/` plus the literal's closing `/` read as a plain
+	 * `//`, and everything after it on the line -- including a real meta-key
+	 * literal sharing that line -- silently vanishes from the scan. That is
+	 * the DANGEROUS direction (a false negative), not the safe one the old
+	 * docblock claimed was the only kind of mistake possible here.
+	 *
+	 * A companion positive case on the next line proves the fix is the
+	 * narrow backslash-count guard it claims to be, not a blunt "stop
+	 * detecting `//` at all": an ordinary, unescaped line comment on a
+	 * structurally similar line must still be stripped.
+	 */
+	public function test_strip_comments_js_does_not_misread_an_escaped_slash_as_a_comment_opener(): void
+	{
+		$code = 'const m = str.match(/(.*\/mhm-rentiva)\//); const probe = "_mhm_probe";' . "\n"
+			. 'const n = 1; // "_mhm_should_be_stripped" is commented out' . "\n";
+
+		// strip_comments_js() is private, but this test lives in the same
+		// class, so PHP visibility permits calling it directly -- no
+		// reflection needed.
+		$stripped = self::strip_comments_js( $code );
+
+		$this->assertStringContainsString(
+			'_mhm_probe',
+			$stripped,
+			'a backslash-escaped slash was misread as a // comment opener, silently dropping the rest of the line'
+		);
+		$this->assertStringNotContainsString(
+			'_mhm_should_be_stripped',
+			$stripped,
+			'the guard for escaped slashes must not also disable detection of a genuine, unescaped // comment'
+		);
+	}
+
 	// ---------------------------------------------------------------- scanning
 
 	private function lite_dir(): string
@@ -737,17 +776,37 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 * is the one failure mode that would silently truncate everything after
 	 * it on the line.
 	 *
-	 * Honest limits, stated rather than discovered later: it does not parse
-	 * regex literals (`/foo\/\/bar/` can confuse the string tracker), and it
-	 * treats a template literal's `${...}` interpolation as opaque string
-	 * content, so a comment written INSIDE an interpolated expression is not
-	 * stripped. Both are the safe-direction failure for this gate: text that
-	 * should have been discarded survives and gets matched, which can only ADD
-	 * a false-positive candidate literal for a human to excuse via
-	 * NON_META_LITERALS -- the same failure mode the pre-fix regex already had
-	 * for every file, not a new or larger one. It is a drift gate, not a
-	 * linter: good enough to stop reading comment text as usage, not a
-	 * substitute for a real JS parser.
+	 * It also guards the mirror case OUTSIDE a string: a slash that is itself
+	 * backslash-escaped (an odd run of backslashes immediately before it) is
+	 * never treated as opening a comment, even when the next character would
+	 * otherwise open one. Regex literals are not tracked as a string type, so
+	 * without this guard the tail of a real, shipped regex literal --
+	 * assets/js/core/core.js:163's '/(.*\/mhm-rentiva)\//' -- is misread: the
+	 * escaped slash's own `/` immediately followed by the literal's closing
+	 * `/` produces two slashes in a row, which used to be read as a line
+	 * comment and silently dropped everything after it on the line. That is a
+	 * FALSE NEGATIVE -- a real meta-key literal sharing that line vanishes
+	 * from the scan -- the DANGEROUS direction, not the only kind of mistake
+	 * this docblock used to claim was possible here. preceding_backslashes()
+	 * counts that run; an odd count means escaped, not a comment opener.
+	 *
+	 * Honest limits, stated rather than discovered later: this is a
+	 * backslash-precedence guard, not a regex-literal parser, so it only
+	 * catches the ESCAPED case. An unescaped slash that is syntactically safe
+	 * only because of regex grammar this scan has no concept of -- a
+	 * character class, where a bare slash never needs escaping, is one such
+	 * shape (the `//` inside a pattern like `/a[//]/ ` is untouched by the
+	 * guard) -- can still misread as a comment opener and silently drop the
+	 * rest of the line: the same dangerous, false-negative direction as the
+	 * bug above, just a narrower trigger this scan cannot close without a
+	 * real regex-literal parser. Separately, and genuinely in the safe
+	 * direction, this scan treats a template literal's interpolated `${...}`
+	 * content as opaque string text, so a comment written inside an
+	 * interpolated expression is not stripped -- the comment text merely
+	 * survives and gets matched, addable via NON_META_LITERALS, never
+	 * silently dropping anything. It is a drift gate, not a linter: good
+	 * enough to stop reading comment text, or an escaped-slash regex tail, as
+	 * something it is not -- not a substitute for a real JS parser.
 	 *
 	 * @param string $code Full JS/JSX source, one file.
 	 * @return string The same source with comment text blanked out (newlines
@@ -789,6 +848,18 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 
 			$two = substr( $code, $i, 2 );
 
+			if ( ( '//' === $two || '/*' === $two ) && 1 === self::preceding_backslashes( $code, $i ) % 2 ) {
+				// The slash at $i is itself escaped -- an odd run of
+				// backslashes immediately precedes it, e.g. the '\/' half of
+				// a regex literal like '/\//'. It is ordinary text, not a
+				// comment opener, so only this ONE character is consumed;
+				// the NEXT position (here, the regex's own closing slash) is
+				// then judged independently, on its own merits.
+				$out .= $ch;
+				++$i;
+				continue;
+			}
+
 			if ( '//' === $two ) {
 				while ( $i < $length && "\n" !== $code[ $i ] ) {
 					++$i;
@@ -809,6 +880,23 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		}
 
 		return $out;
+	}
+
+	/**
+	 * How many consecutive backslashes immediately precede position $i in
+	 * $code. An odd count means whatever character sits AT $i is escaped by
+	 * the last of them; an even count (including zero) means it is not --
+	 * each adjacent PAIR of backslashes is itself one escaped backslash and
+	 * cancels out, leaving the character at $i unescaped.
+	 */
+	private static function preceding_backslashes( string $code, int $i ): int
+	{
+		$count = 0;
+		while ( $i - $count - 1 >= 0 && '\\' === $code[ $i - $count - 1 ] ) {
+			++$count;
+		}
+
+		return $count;
 	}
 
 	private function scan_roots( array $roots ): array
