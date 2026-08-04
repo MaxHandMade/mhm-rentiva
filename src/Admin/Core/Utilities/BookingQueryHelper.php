@@ -160,23 +160,34 @@ final class BookingQueryHelper {
 			return array();
 		}
 
+		// Görev 14 (T8 SlowDBQuery sweep), row 4: this used to ALSO carry a flat
+		// top-level 'meta_key' + 'orderby' => 'meta_value' pair on the same key,
+		// purely to sort. WP_Query's own WP_Meta_Query::parse_query_vars() turns
+		// a flat meta_key into a second, unnamed clause -- array('key' => ...)
+		// with no value/compare -- ANDed against the BETWEEN clause below. Every
+		// row that satisfies BETWEEN already has that meta key, so the second
+		// clause never excluded anything the first didn't already exclude: a
+		// redundant INNER JOIN, not a second filter. Naming the BETWEEN clause
+		// and sorting by that name removes the redundant join and the
+		// SlowDBQuery-flagged 'meta_key' literal in one move, with identical
+		// filtering (same clause, untouched) and identical ordering (see
+		// tests/Unit/Core/Utilities/BookingQueryHelperDateRangeSortTest.php,
+		// which passed against the pre-rewrite code and still passes here).
 		$query_args = array(
 			'post_type'      => 'mhmrentiva_booking',
 			'post_status'    => $statuses,
 			'posts_per_page' => $limit,
 			'fields'         => 'ids',
 			'meta_query'     => array(
-				'relation' => 'AND',
-				array(
+				'relation'          => 'AND',
+				'pickup_date_range' => array(
 					'key'     => '_mhmrentiva_booking_pickup_date',
 					'value'   => array( $start_date, $end_date ),
 					'compare' => 'BETWEEN',
 					'type'    => 'DATE',
 				),
 			),
-			'orderby'        => 'meta_value',
-			'meta_key'       => '_mhmrentiva_booking_pickup_date',
-			'order'          => 'ASC',
+			'orderby'        => array( 'pickup_date_range' => 'ASC' ),
 		);
 
 		$query = new WP_Query( $query_args );
