@@ -12352,7 +12352,7 @@ msgstr "Depozito iade edilmez ve toplam kira bedelinden düşülür."
 msgid "Seasonal Pricing"
 msgstr "Sezonluk Fiyat"
 
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php:302
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php:326
 msgid "Multiplier"
 msgstr "Çarpan"
 
