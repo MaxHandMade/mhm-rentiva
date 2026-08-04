@@ -169,65 +169,6 @@ final class MetaQueryHelper {
 	}
 
 	/**
-	 * Standard JOINs for booking meta fields
-	 */
-	public static function get_booking_meta_joins(): array
-	{
-		$meta_fields = array(
-			'email_meta' => array(
-				'meta_key'      => 'mhmrentiva_customer_email',
-				'select_alias'  => 'customer_email',
-				'default_value' => '',
-			),
-			'name_meta'  => array(
-				'meta_key'      => 'mhmrentiva_customer_name',
-				'select_alias'  => 'customer_name',
-				'default_value' => '',
-			),
-			'phone_meta' => array(
-				'meta_key'      => 'mhmrentiva_customer_phone',
-				'select_alias'  => 'customer_phone',
-				'default_value' => '',
-			),
-			'price_meta' => array(
-				'meta_key'      => 'mhmrentiva_total_price',
-				'select_alias'  => 'total_price',
-				'default_value' => '0',
-			),
-		);
-
-		return self::build_meta_joins($meta_fields);
-	}
-
-	/**
-	 * Standard JOINs for vehicle meta fields
-	 */
-	public static function get_vehicle_meta_joins(): array
-	{
-		$meta_fields = array(
-			'price_meta'    => array(
-				'meta_key'      => MetaKeys::VEHICLE_PRICE_PER_DAY,
-				'select_alias'  => 'price_per_day',
-				'default_value' => '0',
-			),
-			'featured_meta' => array(
-				'meta_key'      => MetaKeys::VEHICLE_FEATURED,
-				'select_alias'  => 'featured',
-				'default_value' => '0',
-			),
-		);
-
-		// FEATURE: Phase 1 Transition - Add legacy fallback in DEV MODE ONLY.
-		// Note: We keep the target as primary, but developers can see if data is missing.
-		// In Phase 2, this block will be removed and legacy keys marked @deprecated.
-		// is_migration_fallback_active() is intentionally called here (and its return
-		// value discarded) to surface dev-mode warnings via the helper's internal logging.
-		self::is_migration_fallback_active();
-
-		return self::build_meta_joins($meta_fields);
-	}
-
-	/**
 	 * Create WHERE clause for meta query
 	 */
 	public static function build_meta_where(string $alias, string $value, string $operator = '='): string
