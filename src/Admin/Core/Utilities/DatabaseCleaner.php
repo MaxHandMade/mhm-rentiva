@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Cleans orphaned data, expired transients and unused meta keys
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Admin-only database maintenance: orphan-row sweeps, table analysis, and the backup feature. Every entry point is capability-gated and nonce-checked in DatabaseCleanupPage. These are set-based DELETE/OPTIMIZE/SHOW statements over whole tables; WP_Query returns posts, not row counts or table metadata, so there is no core API that expresses them. Results are deliberately uncached because the entire purpose is to report and act on the database's CURRENT state -- a cached orphan count would have the operator deleting rows that no longer exist. Original wording: "This utility performs intentional maintenance/migration operations directly on custom tables and wp_* metadata for cleanup and recovery workflows.
 final class DatabaseCleaner {
 
 
@@ -2379,5 +2379,5 @@ final class DatabaseCleaner {
 		return ! empty( $wp_filesystem );
 	}
 }
-// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange
+// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching
 // phpcs:enable

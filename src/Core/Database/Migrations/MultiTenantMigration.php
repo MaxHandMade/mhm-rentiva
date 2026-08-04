@@ -16,7 +16,7 @@ if (! defined('ABSPATH')) {
  *
  * @since 4.23.0
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Controlled migration file intentionally performs schema changes.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Controlled migration file intentionally performs schema changes.
 final class MultiTenantMigration {
 
     /**
@@ -39,7 +39,6 @@ final class MultiTenantMigration {
 
         foreach ($tables as $table) {
             if (! self::column_exists($wpdb, $table, 'tenant_id')) {
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
                 $result = $wpdb->query(
                     $wpdb->prepare(
                         'ALTER TABLE %i ADD COLUMN `tenant_id` BIGINT UNSIGNED NOT NULL DEFAULT 1 AFTER `id`',
@@ -53,7 +52,6 @@ final class MultiTenantMigration {
                 }
 
                 // Add index for performance
-                // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
                 $wpdb->query(
                     $wpdb->prepare(
                         'ALTER TABLE %i ADD INDEX `tenant_id_idx` (`tenant_id`)',
@@ -74,7 +72,6 @@ final class MultiTenantMigration {
                 );
 
                 if ($index_exists === 0) {
-                    // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
                     $wpdb->query(
                         $wpdb->prepare(
                             'ALTER TABLE %i ADD INDEX `tenant_created_idx` (`tenant_id`, `created_at`)',
@@ -132,7 +129,6 @@ final class MultiTenantMigration {
         );
 
         if ( (int) $old_index_exists > 0) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
             $wpdb->query(
                 $wpdb->prepare(
                     'ALTER TABLE %i DROP INDEX `active_key_unique`',
@@ -151,7 +147,6 @@ final class MultiTenantMigration {
         );
 
         if ( (int) $new_index_exists === 0) {
-            // phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally alters schema during controlled upgrade.
             $wpdb->query(
                 $wpdb->prepare(
                     'ALTER TABLE %i ADD UNIQUE INDEX `tenant_active_key_unique` (`tenant_id`, `active_key`)',

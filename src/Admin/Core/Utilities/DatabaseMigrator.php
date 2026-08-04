@@ -21,7 +21,7 @@ if (! defined('ABSPATH')) {
  * pre-6.0.0-rename `idx_mhm_*` twins the rename itself never cleaned up.
  * prefix-rename:ignore-end
  */
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This file is the schema migrator: CREATE/ALTER/DROP and one-shot data backfills. WordPress has no API for DDL, so there is no core call to prefer. Caching is not merely unnecessary here but wrong: every statement below is version-gated, runs once per install, and CHANGES the rows it just read, so a cached read would be stale by construction. Tables touched are this plugin's own plus wp_posts/wp_postmeta/wp_options during the 6.0.0 rename, which is why the file also carries SchemaChange suppressions on the individual DDL lines rather than blanket-disabling that sniff. Scope is bounded by the version gate, not by user input. Original wording, kept because it is still true as far as it went: "Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- This file is the schema migrator: CREATE/ALTER/DROP and one-shot data backfills. WordPress has no API for DDL, so there is no core call to prefer. Caching is not merely unnecessary here but wrong: every statement below is version-gated, runs once per install, and CHANGES the rows it just read, so a cached read would be stale by construction. Tables touched are this plugin's own plus wp_posts/wp_postmeta/wp_options during the 6.0.0 rename. SchemaChange itself is not suppressed anywhere in this file (WP.org T8 Görev 16, K6, 2026-08-04): every DDL statement below reports it. Scope is bounded by the version gate, not by user input. Original wording, kept because it is still true as far as it went: "Migration/DDL routines intentionally execute controlled schema and maintenance SQL against known WordPress tables.
 final class DatabaseMigrator {
 
 
@@ -608,7 +608,6 @@ final class DatabaseMigrator {
 
 		// Add unique payout-action idempotency key once; dbDelta re-add attempts can emit duplicate-key warnings on reruns.
 		if (! self::index_exists($table_name, 'payout_action_tx')) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.SchemaChange -- Adding the idempotency key IS this migration.
 			$wpdb->query(
 				$wpdb->prepare(
 					'ALTER TABLE %i ADD UNIQUE KEY `payout_action_tx` (`tenant_id`, `payout_id`, `action`, `tx_uuid`)',
@@ -754,14 +753,12 @@ final class DatabaseMigrator {
 
 		// Drop old non-tenant-aware UNIQUE key if exists (dbDelta won't drop it automatically)
 		if (self::index_exists($table_name, 'key_uuid')) {
-			// phpcs:disable WordPress.DB.DirectDatabaseQuery.SchemaChange -- Migration intentionally removes a legacy index during upgrade.
 			$wpdb->query(
 				$wpdb->prepare(
 					'ALTER TABLE %i DROP INDEX `key_uuid`',
 					$table_escaped
 				)
 			);
-			// phpcs:enable WordPress.DB.DirectDatabaseQuery.SchemaChange
 		}
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
@@ -903,7 +900,7 @@ final class DatabaseMigrator {
 	private static function drop_orchestration_tables(): void
 	{
 		global $wpdb;
-		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.DirectDatabaseQuery.SchemaChange -- Dropping dead orchestration tables IS this method. There is no core API for DROP TABLE, and a cache around a one-shot DDL statement would cache nothing while implying the opposite to whoever reads it next.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Dropping dead orchestration tables IS this method. There is no core API for DROP TABLE, and a cache around a one-shot DDL statement would cache nothing while implying the opposite to whoever reads it next.
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhmrentiva_tenants");
 		// And the PRE-6.0.0 spellings, which are the ones a real install
@@ -916,9 +913,6 @@ final class DatabaseMigrator {
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_usage_metrics");
 		$wpdb->query("DROP TABLE IF EXISTS {$wpdb->prefix}mhm_rentiva_tenants");
 		// prefix-rename:ignore-end
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.SchemaChange -- the bare
-		// form of this line also cancelled the FILE-level disable at the top, so
-		// every direct query below it was reported despite that declaration.
 	}
 
 	/**
@@ -1060,7 +1054,7 @@ final class DatabaseMigrator {
 			}
 		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- A schema change is the entire point of the method: this is the migration that removes the queue table whose feature was deleted. There is nothing to cache.
 		// Both spellings. This table has NO PrefixMigrationMap::TABLES entry, so
 		// the migration never renames the physical table -- on every real install it
 		// still carries its pre-6.0.0 name, and dropping only the new one would
