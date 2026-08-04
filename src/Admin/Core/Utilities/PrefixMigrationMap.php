@@ -444,8 +444,8 @@ final class PrefixMigrationMap {
         //                 occurrence is a single entry in DatabaseCleaner's
         //                 protection allowlist -- it is not read, not written,
         //                 and holds 0 rows.
-        //   '_rentiva_*'  the real key. VehicleTransferMetaBox reads it (now as
-        //                 the transition fallback behind the new name), and five
+        //   '_rentiva_*'  the real key. The add-on's transfer meta box reads it
+        //                 (now as the transition fallback behind the new name), and five
         //                 of the seven hold 6 rows apiece across 6 vehicles on
         //                 the pre-rename database.
         //
@@ -844,8 +844,8 @@ final class PrefixMigrationMap {
      * this list too, alongside OPTIONS, so a name landing here is still
      * certified as accounted for.
      *
-     * First entries: DatabaseMigrator's index-cleanup retry bound (WP.org T8
-     * fix wave, group A) -- mhmrentiva_index_cleanup_attempts/_unfinished.
+     * First entries: DatabaseMigrator's index-cleanup retry-attempt bound --
+     * mhmrentiva_index_cleanup_attempts/_unfinished.
      *
      * @var array<int,string>
      */

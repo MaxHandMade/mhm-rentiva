@@ -125,9 +125,9 @@ class MyFavorites extends AbstractShortcode {
 
 	protected static function get_js_dependencies(): array
 	{
-		// Reuses vehicles-grid.js, which calls MHMRentivaToast.* directly (T8
-		// F06-F08) -- declared here even though mhm-rentiva-vehicle-interactions
-		// already pulls toast in transitively, so this handle stays correct even if
+		// Reuses vehicles-grid.js, which calls MHMRentivaToast.* directly --
+		// declared here even though mhm-rentiva-vehicle-interactions already
+		// pulls toast in transitively, so this handle stays correct even if
 		// that transitive chain ever changes.
 		return array( 'jquery', 'mhm-rentiva-vehicle-interactions', 'mhm-rentiva-toast' );
 	}

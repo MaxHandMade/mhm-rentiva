@@ -160,7 +160,7 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
 		}
-		// LogMaintenanceScheduler retired (WP.org T8 fix wave, group C): its
+		// LogMaintenanceScheduler retired: its
 		// `mhmrentiva_daily_log_cleanup` cron purged the exact same
 		// mhmrentiva_app_log posts as LogRetention's own
 		// `mhmrentiva_log_purge_event` cron above, gated by the same two

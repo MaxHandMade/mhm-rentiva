@@ -164,7 +164,7 @@ final class DashboardPage {
 	}
 
 	// ajax_save_dashboard_order() and ajax_reset_dashboard_layout() were
-	// removed with their wp_ajax_* registrations above (rows A10/A11).
+	// removed with their wp_ajax_* registrations above.
 
 	/**
 	 * Load dashboard scripts and styles — React build.

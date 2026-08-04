@@ -331,9 +331,8 @@ if (! $user_display_name) {
 					<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
 				</div>
 				<?php // The vendor 'ledger', 'settings' and 'profil' tabs belong to the add-on: ?>
-				<?php // their partials call Ledger/PayoutService/PayoutHistoryProvider, ?>
-				<?php // VendorApplicationManager and VendorProfileSettingsSave, none of which Lite ?>
-				<?php // ships, so the partials were removed from this build rather than left one ?>
+				<?php // their partials call several add-on-only classes that this build does not ?>
+				<?php // ship, so the partials were removed from this build rather than left one ?>
 				<?php // wiring change away from a fatal. The add-on restores tabs and partials together. ?>
 			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">

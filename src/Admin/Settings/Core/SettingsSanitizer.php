@@ -356,8 +356,7 @@ final class SettingsSanitizer {
 			// (MaintenanceSettings::render_group_db_cleanup()) is live -- rendered
 			// via the 'system' tab's $sections list including
 			// MaintenanceSettings::SECTION_ID, independently of the dead
-			// MaintenanceSettings::render_settings_section() wrapper method
-			// (K5-F4 evidence-conflict, see task-10c-A-report.md).
+			// MaintenanceSettings::render_settings_section() wrapper method.
 			'mhmrentiva_clean_data_on_uninstall' => self::get_bool( $input, 'mhmrentiva_clean_data_on_uninstall' ),
 		);
 	}

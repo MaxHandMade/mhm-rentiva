@@ -586,11 +586,12 @@ final class DatabaseCleaner {
 	/**
 	 * Meta keys that only exist at runtime, so no literal scan can find them.
 	 *
-	 * Vehicle detail/feature/equipment fields are admin-defined: VehicleMeta and
-	 * VehicleSubmit store each one as '_mhmrentiva_' . $field_key, where
-	 * $field_key comes from these options or from a feature/equipment taxonomy
-	 * term. Without this derivation, every custom field an admin has ever added
-	 * is "invalid" to the cleanup and gets deleted.
+	 * Vehicle detail/feature/equipment fields are admin-defined: VehicleMeta (and
+	 * the add-on's own vehicle-submission path) store each one as
+	 * '_mhmrentiva_' . $field_key, where $field_key comes from these options or
+	 * from a feature/equipment taxonomy term. Without this derivation, every
+	 * custom field an admin has ever added is "invalid" to the cleanup and gets
+	 * deleted.
 	 *
 	 * @return array<string> Array of valid meta key strings
 	 */

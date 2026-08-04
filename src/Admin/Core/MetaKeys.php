@@ -48,9 +48,10 @@ final class MetaKeys {
 	public const VENDOR_SLUG_HISTORY = '_mhmrentiva_vendor_slug_history';
 	public const VENDOR_AVATAR_ID    = '_mhmrentiva_vendor_avatar_id';
 
-	// Canonical vendor base-city user meta. Written by VendorOnboardingController on
-	// approval and by VendorProfileSettingsSave on self-edit; read by the vendor vehicle
-	// form and the admin transfer meta box. Single source of truth to avoid key drift.
+	// Canonical vendor base-city user meta. Written on vendor approval and on the
+	// vendor's own profile self-edit (both in the add-on); read by the vendor
+	// vehicle form and the admin transfer meta box. Single source of truth to
+	// avoid key drift.
 	public const VENDOR_CITY = '_mhmrentiva_vendor_city';
 
 	// Vehicle Lifecycle Meta Keys

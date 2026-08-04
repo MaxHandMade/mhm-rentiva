@@ -1,5 +1,5 @@
 <?php
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- This is a procedural script, not a class or a template: WordPress loads it directly (see the WP_UNINSTALL_PLUGIN guard below), so its local variables ($retired_indexes_path, $settings, $clean_on_uninstall) are file-scope by construction, not global state meant for another file to read. There is no hook or template naming in this file for the sniff's "legacy naming kept" rationale to describe.
 /**
  * Fired when the plugin is uninstalled.
  *

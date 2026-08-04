@@ -158,10 +158,9 @@ final class Menu {
 	/**
 	 * Vendor (Bayi) menus — registered at priority 15 so they always appear at the
 	 * bottom. Lite itself has no vendor submenus to add here — all three moved to
-	 * the add-on's MenuExtensions::add_pro_bayi_menu_items() —
-	 * the hook stays registered so the priority slot is reserved and the add-on's own
-	 * later-priority admin_menu callback appends after whatever Lite would have
-	 * rendered here.
+	 * the add-on's own menu-registration code — but the hook stays registered so
+	 * the priority slot is reserved and the add-on's own later-priority
+	 * admin_menu callback appends after whatever Lite would have rendered here.
 	 */
 	public static function add_bayi_menus(): void
 	{
