@@ -1042,43 +1042,18 @@ final class AssetManager {
 			);
 		}
 
-		// Email Templates
-		if ($screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates') {
-			wp_enqueue_script(
-				'mhm-rentiva-email-templates',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/email-templates.js',
-				array( 'jquery' ),
-				self::get_file_version('assets/js/admin/email-templates.js'),
-				true
-			);
-
-			wp_localize_script(
-				'mhm-rentiva-email-templates',
-				'mhmrentiva_email_templates_vars',
-				array(
-					'ajax_url'          => admin_url('admin-ajax.php'),
-					'nonce'             => wp_create_nonce('mhmrentiva_email_templates_nonce'),
-					'preview_email'     => __('Email Preview', 'mhm-rentiva'),
-					'send_test'         => __('Send Test Email', 'mhm-rentiva'),
-					'processing'        => __('Processing...', 'mhm-rentiva'),
-					'test_email_sent'   => __('Test email sent successfully', 'mhm-rentiva'),
-					'test_email_failed' => __('Failed to send test email', 'mhm-rentiva'),
-					'error_occurred'    => __('An error occurred', 'mhm-rentiva'),
-					'strings'           => array(
-						'sendTestEmail' => __('Send Test Email', 'mhm-rentiva'),
-						'emailAddress'  => __('Email Address', 'mhm-rentiva'),
-						'cancel'        => __('Cancel', 'mhm-rentiva'),
-						'enterEmail'    => __('Please enter email address', 'mhm-rentiva'),
-						'editTemplate'  => __('Edit Template', 'mhm-rentiva'),
-						'subject'       => __('Subject', 'mhm-rentiva'),
-						'content'       => __('Content', 'mhm-rentiva'),
-						'save'          => __('Save', 'mhm-rentiva'),
-						'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),
-						'templateReset' => __('Template reset to default!', 'mhm-rentiva'),
-					),
-				)
-			);
-		}
+		// Email Templates: the block that used to sit here, gated on
+		// `$screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates'`, was
+		// deleted (T8 Görev 10c-A, Ek). No add_submenu_page()/add_menu_page()
+		// call in either repo (Lite Menu.php's 12, Pro's MenuExtensions.php +
+		// 3 standalone pages -- grep-verified) ever registers a slug that
+		// produces this screen id, so the block never fired in production.
+		// The live enqueue is EmailTemplates::enqueue_scripts(), gated on the
+		// real $hook admin_enqueue_scripts passes; its payload is now a true
+		// superset of what this block localized (T8 Görev 11 added the
+		// `strings` sub-array this block was the last surviving copy of --
+		// see EmailTemplates.php:505-520's own docblock and
+		// EmailTemplatesPayloadContractTest for the full field inventory).
 
 		// Message List enqueue used to live here, guarded on
 		// `$screen->post_type === 'message'` -- but the `message` CPT the add-on

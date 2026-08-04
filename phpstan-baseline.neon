@@ -61,18 +61,6 @@ parameters:
 			path: src/Admin/Addons/AddonMenu.php
 
 		-
-			message: '#^Call to function method_exists\(\) with ''\\\\MHMRentiva\\\\Admin…'' and ''create_default…'' will always evaluate to true\.$#'
-			identifier: function.alreadyNarrowedType
-			count: 1
-			path: src/Admin/Addons/AddonSettings.php
-
-		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 1
-			path: src/Admin/Addons/AddonSettings.php
-
-		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
 			count: 12
@@ -297,7 +285,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 23
+			count: 22
 			path: src/Admin/Core/AssetManager.php
 
 		-
