@@ -39,56 +39,42 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 	 *
 	 * Each entry names the plugin it lives in, because staleness can only be
 	 * asserted for a plugin that was actually scanned -- Pro is absent in CI.
-	 * Every entry is a positive identification, not a "did not fit" bucket:
-	 * two are concatenation bases that only ever appear glued to a suffix, five
-	 * belong to the 6.0.0 prefix-rename map (target-side names that nothing
-	 * writes yet -- see PrefixMigrationMap) and one is a nonce field name.
+	 * Every entry is a positive identification, not a "did not fit" bucket.
+	 *
+	 * Formerly nine entries. Five were excused only because the scanner used
+	 * to read PrefixMigrationMap.php's own prefix-rule DATA and docblock PROSE
+	 * as if either were usage -- "PrefixMigrationMap target prefix, not
+	 * written by any code yet" / "PrefixMigrationMap docblock: ...". Once that
+	 * file joined the file-level exclusions below (the same "a file that IS
+	 * the inventory must not BE the evidence" rule as DatabaseCleaner.php and
+	 * bin/prefix-rename.php) and comments stopped being scanned at all, those
+	 * five literals stopped appearing anywhere in the source this test can
+	 * see -- confirmed by grepping every remaining, non-comment call site
+	 * before removal, not assumed. A dropped exception with nothing left to
+	 * except is correct, not a gap: test_the_non_meta_exception_list_has_no_stale_entries()
+	 * would fail on any of the five today.
 	 *
 	 * @var array<string, array{plugin: string, why: string}>
 	 */
 	private const NON_META_LITERALS = array(
-		'_mhm'                             => array(
+		'_mhm'                 => array(
 			'plugin' => 'lite',
 			'why'    => 'LIKE prefix, not a meta key: Locker::withLock()/withBookingLock() lock every row of this plugin in BOTH spellings, because a new-prefix-only pattern locks nothing on an un-migrated site',
 		),
-		'_mhm_'                            => array(
+		'_mhmrentiva_'         => array(
 			'plugin' => 'lite',
-			'why'    => 'concatenation base: "_mhm_" . $key (TransferBookingHandler, VehicleMeta grid order)',
+			'why'    => 'LIKE prefix and concatenation base, not a meta key by itself: Util::has_overlap_locked() locks every postmeta row on the vehicle post via meta_key LIKE \'_mhmrentiva_%\' (FOR UPDATE); VehicleMeta/VehicleFeatureHelper/VehicleSettings/Plugin.php build the real keys as \'_mhmrentiva_\' . $key',
 		),
-		'_mhm_rentiva_'                    => array(
+		'_mhmrentiva_deposit'  => array(
 			'plugin' => 'lite',
-			'why'    => 'concatenation base: "_mhm_rentiva_" . $key (vehicle custom fields)',
-		),
-		'_mhmrentiva_'                     => array(
-			'plugin' => 'lite',
-			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
-		),
-		'_mhmrentiva_booking_'             => array(
-			'plugin' => 'lite',
-			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
-		),
-		'_mhmrentiva_contact_'             => array(
-			'plugin' => 'lite',
-			'why'    => 'PrefixMigrationMap target prefix, not written by any code yet',
-		),
-		'_mhmrentiva_deposit'              => array(
-			'plugin' => 'lite',
-			'why'    => 'PrefixMigrationMap docblock: collision example for the rename',
-		),
-		// Deliberately the DOUBLED spelling. PrefixMigrationMap's docblock cites
-		// '_mhmrentiva_rentiva_welcome_sent' as what a wrong rule ORDER produces,
-		// so that exact string is present in the source and must be excused here.
-		// It is a counter-example in prose, not a meta key anything writes.
-		'_mhmrentiva_rentiva_welcome_sent' => array(
-			'plugin' => 'lite',
-			'why'    => 'PrefixMigrationMap docblock: rule-order counter-example',
+			'why'    => 'a real, already-protected meta key (MetaKeys::VEHICLE_DEPOSIT, guarded directly in DatabaseCleaner\'s own list); excused here too so this drift gate does not hinge on which of two independent sightings scan_roots() happens to record first',
 		),
 		// Renamed by the 6.0.0 sweep, NOT dropped. The new spelling still begins
 		// with '_mhm', so it is still scanned and would be reported as an
 		// unprotected meta key -- deleting the exception would trade a stale entry
 		// for a false finding. It remains what it always was: a nonce FIELD name,
 		// never a meta key.
-		'_mhmrentiva_vr_nonce'             => array(
+		'_mhmrentiva_vr_nonce' => array(
 			'plugin' => 'pro',
 			'why'    => 'nonce field name (VendorReportsAdminPage::check_admin_referer)',
 		),
@@ -690,6 +676,141 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		return implode( "\n", $output );
 	}
 
+	/**
+	 * Discard PHP comments before scanning, using PHP's own tokenizer rather
+	 * than a second regex.
+	 *
+	 * The literal regex below already cannot be fooled by a `//` inside a
+	 * string, because it only matches an exact QUOTED run -- but it has no
+	 * concept of a comment at all, and prose reads identically to code to a
+	 * pattern that just looks for quotes. That is exactly how '_mhmrentiva_x'
+	 * -- a docblock's illustration of a string that matches NO rename rule --
+	 * was reported as a meta key Pro had newly added: ProDatabaseMigrator.php's
+	 * docblock writes it quoted, in prose, as a counter-example.
+	 *
+	 * token_get_all() is PHP's own lexer: it already knows the difference
+	 * between a comment and a string, so T_COMMENT (a `//`, `#`, or block
+	 * comment) and T_DOC_COMMENT (a docblock) token can be dropped outright
+	 * while every other token's text -- including string literals verbatim,
+	 * quotes and all -- passes through unchanged for the existing regex to
+	 * match against exactly as before.
+	 *
+	 * @param string $code Full PHP source, one file.
+	 * @return string The same source with every comment token's text replaced
+	 *                by as many newlines as it spanned, so line numbers stay
+	 *                meaningful to a future caller even though nothing here
+	 *                currently reads them.
+	 */
+	private static function strip_comments_php( string $code ): string
+	{
+		$out = '';
+
+		foreach ( token_get_all( $code ) as $token ) {
+			if ( ! is_array( $token ) ) {
+				// Single-character tokens (braces, operators, ...) carry no
+				// comment risk and are never a string literal by themselves.
+				$out .= $token;
+				continue;
+			}
+
+			list( $id, $text ) = $token;
+
+			if ( T_COMMENT === $id || T_DOC_COMMENT === $id ) {
+				$out .= str_repeat( "\n", substr_count( $text, "\n" ) );
+				continue;
+			}
+
+			$out .= $text;
+		}
+
+		return $out;
+	}
+
+	/**
+	 * Discard JS/JSX comments before scanning.
+	 *
+	 * PHP has no JS lexer available, so unlike strip_comments_php() this is a
+	 * hand-written character scan, not a real tokenizer -- it tracks whichever
+	 * of `'`, `"` or a backtick currently opens a string (honouring a
+	 * backslash-escaped quote) so a line- or block-comment opener that lives
+	 * INSIDE a string literal is not mistaken for a real comment start, which
+	 * is the one failure mode that would silently truncate everything after
+	 * it on the line.
+	 *
+	 * Honest limits, stated rather than discovered later: it does not parse
+	 * regex literals (`/foo\/\/bar/` can confuse the string tracker), and it
+	 * treats a template literal's `${...}` interpolation as opaque string
+	 * content, so a comment written INSIDE an interpolated expression is not
+	 * stripped. Both are the safe-direction failure for this gate: text that
+	 * should have been discarded survives and gets matched, which can only ADD
+	 * a false-positive candidate literal for a human to excuse via
+	 * NON_META_LITERALS -- the same failure mode the pre-fix regex already had
+	 * for every file, not a new or larger one. It is a drift gate, not a
+	 * linter: good enough to stop reading comment text as usage, not a
+	 * substitute for a real JS parser.
+	 *
+	 * @param string $code Full JS/JSX source, one file.
+	 * @return string The same source with comment text blanked out (newlines
+	 *                preserved) wherever this scan is confident it found one.
+	 */
+	private static function strip_comments_js( string $code ): string
+	{
+		$length    = strlen( $code );
+		$out       = '';
+		$i         = 0;
+		$in_string = null;
+
+		while ( $i < $length ) {
+			$ch = $code[ $i ];
+
+			if ( null !== $in_string ) {
+				$out .= $ch;
+				if ( '\\' === $ch && $i + 1 < $length ) {
+					// An escaped character (including an escaped quote) is
+					// copied verbatim and skipped whole, so it can never be
+					// misread as the string's closing delimiter.
+					$out .= $code[ $i + 1 ];
+					$i   += 2;
+					continue;
+				}
+				if ( $ch === $in_string ) {
+					$in_string = null;
+				}
+				++$i;
+				continue;
+			}
+
+			if ( '\'' === $ch || '"' === $ch || '`' === $ch ) {
+				$in_string = $ch;
+				$out      .= $ch;
+				++$i;
+				continue;
+			}
+
+			$two = substr( $code, $i, 2 );
+
+			if ( '//' === $two ) {
+				while ( $i < $length && "\n" !== $code[ $i ] ) {
+					++$i;
+				}
+				continue;
+			}
+
+			if ( '/*' === $two ) {
+				$end     = strpos( $code, '*/', $i + 2 );
+				$comment = false === $end ? substr( $code, $i ) : substr( $code, $i, $end + 2 - $i );
+				$out    .= str_repeat( "\n", substr_count( $comment, "\n" ) );
+				$i       = false === $end ? $length : $end + 2;
+				continue;
+			}
+
+			$out .= $ch;
+			++$i;
+		}
+
+		return $out;
+	}
+
 	private function scan_roots( array $roots ): array
 	{
 		$found = array();
@@ -705,7 +826,8 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				if ( str_contains( $path, '/vendor/' ) || str_contains( $path, '/node_modules/' ) ) {
 					continue;
 				}
-				if ( ! in_array( $file->getExtension(), array( 'php', 'js', 'jsx' ), true ) ) {
+				$extension = $file->getExtension();
+				if ( ! in_array( $extension, array( 'php', 'js', 'jsx' ), true ) ) {
 					continue;
 				}
 				// The protection list itself is not evidence that a key is used.
@@ -729,6 +851,30 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				if ( str_ends_with( $path, '/bin/prefix-rename.php' ) ) {
 					continue;
 				}
+				// Fourth instance of the same rule. PrefixMigrationMap.php IS
+				// the 6.0.0 rename's single source of truth: every entry in
+				// POSTMETA_PREFIX_RULES/USERMETA_PREFIX_RULES,
+				// POSTMETA_MERGE_WINNERS/USERMETA_MERGE_WINNERS and
+				// POSTMETA_EXACT_OVERRIDES is old-or-new-spelling meta-key DATA
+				// by definition, not evidence that Lite reads or writes that
+				// key. Its docblocks additionally illustrate, in prose, strings
+				// that match no rename rule at all ('_mhmrentiva_x') or that
+				// exist only as a rule-order counter-example
+				// ('_mhmrentiva_rentiva_welcome_sent'). Scanning it fed the
+				// map's own contents back in as "evidence that a key is used"
+				// two different ways at once: the prose example was reported as
+				// a meta key Pro had newly added, and seven of Pro's genuinely
+				// Pro-only keys were wrongly read as no longer Pro-only merely
+				// for being named as POSTMETA_MERGE_WINNERS DATA here.
+				//
+				// Deliberately narrow: every OTHER file that references or
+				// consumes this map (DatabaseMigrator.php, DatabaseCleaner.php's
+				// own legacy-key handling, ...) is still scanned, so a genuine
+				// new meta-key literal introduced anywhere else still turns
+				// this gate red -- mutation-proven below.
+				if ( str_ends_with( $path, '/Admin/Core/Utilities/PrefixMigrationMap.php' ) ) {
+					continue;
+				}
 
 				$code = (string) file_get_contents( $path );
 
@@ -750,6 +896,12 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 				if ( str_ends_with( $path, '/Admin/Core/Utilities/DatabaseMigrator.php' ) ) {
 					$code = self::strip_ignore_regions( $code );
 				}
+
+				// Comments are not evidence either, and a plain-text regex
+				// cannot tell prose inside a comment from a live string
+				// literal -- see strip_comments_php()'s docblock for the
+				// concrete failure ('_mhmrentiva_x') this fixes.
+				$code = 'php' === $extension ? self::strip_comments_php( $code ) : self::strip_comments_js( $code );
 
 				if ( ! preg_match_all( '/[\'"](_mhm[A-Za-z0-9_]*)[\'"]/', $code, $matches ) ) {
 					continue;
