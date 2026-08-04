@@ -408,8 +408,8 @@ final class VehiclesList extends AbstractShortcode {
 	 * Delegates to VehicleDataHelper, which now owns the one copy of this
 	 * mechanism (see VehiclesGrid::get_placeholder_image_url() for the same
 	 * note). This class's DEFAULT_PLACEHOLDER_IMAGE constant went with the
-	 * body -- both of its call sites went through this method, so it had zero
-	 * remaining readers (K5: zero caller -> delete).
+	 * body -- both of its call sites went through this method, so nothing read
+	 * it any more.
 	 */
 	private static function get_placeholder_image_url(): string
 	{

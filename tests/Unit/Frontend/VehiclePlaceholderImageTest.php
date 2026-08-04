@@ -88,9 +88,9 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 	}
 
 	/**
-	 * THE CLASS GATE, not the three cited lines. Every shipped source file is
-	 * scanned for a direct `assets/images/<name>` URL construction, and each
-	 * named file must exist.
+	 * THE CLASS GATE, not the three cited lines. Shipped source is scanned for
+	 * a direct `assets/images/<name>` URL construction, and each named file
+	 * must exist.
 	 *
 	 * The two shapes it looks for are the two that ship a URL to the browser
 	 * with nothing checking it first:
@@ -102,6 +102,22 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 	 * variable, behind file_exists(), so it can name files that are not there.
 	 * The regex only matches a literal filename, so it skips that by
 	 * construction.
+	 *
+	 * NOT CHECKED BY THIS GATE -- declared, in the house style, because a probe
+	 * that does not state its blind spots gets read as covering everything.
+	 * All of these were MEASURED to hold zero `assets/images` references at the
+	 * time this gate was written, so none is a live miss; they are prospective:
+	 *   - roots outside src/, templates/, assets/js and assets/blocks -- so
+	 *     build/admin/*.js (the compiled React bundles), src-react/**, and
+	 *     assets/vendor/*.js are unscanned, as are the two root PHP files
+	 *     (mhm-rentiva.php, uninstall.php)
+	 *   - file types other than .php and .js -- notably a CSS `url()` pointing
+	 *     into assets/images/
+	 *   - URL shapes other than the two above: plugins_url(),
+	 *     plugin_dir_url(), or any construction that assembles the filename
+	 *     from a variable
+	 *   - whether a file that DOES exist is the right image; only existence is
+	 *     asserted
 	 */
 	public function test_no_shipped_file_links_an_image_that_is_not_shipped(): void {
 		$scanned    = 0;
@@ -125,6 +141,17 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 		}
 
 		$this->assertGreaterThan( 100, $scanned, 'The scanner must actually have read the shipped tree.' );
+
+		// The declared blind spots above are only honest while they stay empty.
+		// Measure them here rather than asserting they are irrelevant: if a
+		// future change puts an assets/images reference into build/admin,
+		// src-react, assets/vendor or either root PHP file, this fails and
+		// says so, instead of the gate silently not covering it.
+		$this->assertSame(
+			array(),
+			$this->references_in_unscanned_roots(),
+			'A declared blind spot stopped being empty -- either extend the gate or move the reference.'
+		);
 
 		// Non-vacuous: this gate is worthless if it finds nothing to check.
 		// AboutController links assets/images/mhm-logo.png, a file that DOES
@@ -171,6 +198,63 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'placeholder_image', $data );
 		$this->assertSame( VehicleDataHelper::get_placeholder_image_url(), $data['placeholder_image'] );
+	}
+
+	/**
+	 * Any `assets/images` mention living in a root or a file type the main
+	 * gate does not walk. Keeps the declared blind spots measured rather than
+	 * assumed. Matches the bare path substring on purpose -- this is a tripwire,
+	 * not a URL parser, so it is allowed to be broader than the gate itself.
+	 *
+	 * @return list<string>
+	 */
+	private function references_in_unscanned_roots(): array {
+		$hits = array();
+
+		// `build/admin` and NOT `build`: `bin/build-release.py --list-shipped`
+		// reports build/admin as the only shipped path under build/, because
+		// .distignore excludes build/zip-staging -- which holds a full COPY of
+		// the plugin from whenever the ZIP was last staged. Scanning all of
+		// build/ makes this tripwire fire on a stale staging directory, which
+		// is a real thing to fix but not a defect in the shipped tree, and not
+		// something a test should depend on the state of.
+		$roots = array(
+			self::PLUGIN_ROOT . 'build/admin',
+			self::PLUGIN_ROOT . 'src-react',
+			self::PLUGIN_ROOT . 'assets/vendor',
+			self::PLUGIN_ROOT . 'assets/css',
+		);
+
+		foreach ( $roots as $root ) {
+			if ( ! is_dir( $root ) ) {
+				continue;
+			}
+
+			$iterator = new \RecursiveIteratorIterator( new \RecursiveDirectoryIterator( $root, \FilesystemIterator::SKIP_DOTS ) );
+
+			foreach ( $iterator as $entry ) {
+				if ( ! $entry->isFile() ) {
+					continue;
+				}
+				if ( ! in_array( strtolower( $entry->getExtension() ), array( 'php', 'js', 'jsx', 'css' ), true ) ) {
+					continue;
+				}
+				if ( false !== strpos( (string) file_get_contents( $entry->getPathname() ), 'assets/images' ) ) {
+					$hits[] = str_replace( self::PLUGIN_ROOT, '', $entry->getPathname() );
+				}
+			}
+		}
+
+		foreach ( array( 'mhm-rentiva.php', 'uninstall.php' ) as $rootFile ) {
+			$path = self::PLUGIN_ROOT . $rootFile;
+			if ( is_file( $path ) && false !== strpos( (string) file_get_contents( $path ), 'assets/images' ) ) {
+				$hits[] = $rootFile;
+			}
+		}
+
+		sort( $hits );
+
+		return $hits;
 	}
 
 	/**
