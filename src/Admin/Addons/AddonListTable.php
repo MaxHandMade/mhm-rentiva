@@ -266,12 +266,12 @@ final class AddonListTable extends AbstractListTable {
 		$actions = array(
 			'edit'   => sprintf(
 				'<a href="%s">%s</a>',
-				get_edit_post_link( $item->ID ),
+				esc_url( get_edit_post_link( $item->ID ) ),
 				__( 'Edit', 'mhm-rentiva' )
 			),
 			'delete' => sprintf(
 				'<a href="%s" onclick="return confirm(\'%s\')">%s</a>',
-				get_delete_post_link( $item->ID ),
+				esc_url( get_delete_post_link( $item->ID ) ),
 				esc_js( __( 'Are you sure you want to delete this additional service?', 'mhm-rentiva' ) ),
 				__( 'Delete', 'mhm-rentiva' )
 			),
@@ -279,7 +279,7 @@ final class AddonListTable extends AbstractListTable {
 
 		return sprintf(
 			'<strong><a class="row-title" href="%s">%s</a></strong>%s',
-			get_edit_post_link( $item->ID ),
+			esc_url( get_edit_post_link( $item->ID ) ),
 			esc_html( $item->post_title ),
 			$this->row_actions( $actions )
 		);

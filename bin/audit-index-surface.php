@@ -22,7 +22,7 @@
  *      literal substring "CREATE INDEX" (case-insensitive) counts as a
  *      creator; one containing "DROP INDEX" counts as a dropper.
  *      token_get_all() is used instead of a line-oriented regex because at
- *      least one current call site (DatabaseMigrator::add_missing_indexes())
+ *      least one current call site (DatabaseMigrator::create_key_registry_table())
  *      wraps its statement in a multi-line $wpdb->prepare(...) call, and
  *      because the tokenizer already knows that parentheses and keywords
  *      *inside* a quoted SQL string are not PHP syntax -- a hand-rolled

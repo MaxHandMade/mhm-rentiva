@@ -41,7 +41,7 @@ final class DatabaseCleanupPage {
 		add_action('wp_ajax_mhmrentiva_cleanup_logs', array( self::class, 'ajax_cleanup_logs' ));
 	}
 
-	// enqueue_assets() was removed (WP.org T8 Görev 13, row 26-27): its own
+	// enqueue_assets() was removed: its own
 	// docblock already said "kept for backward compatibility but may not be
 	// called" -- confirmed dead. DatabaseCleanupRenderer::enqueue_cleanup_assets()
 	// (called from render(), only when the database-cleanup tab actually
@@ -61,7 +61,7 @@ final class DatabaseCleanupPage {
 	// coverage referenced this method (confirmed before deletion); the
 	// $_GET['tab'] read it carried is gone.
 
-	// render_page() was removed (WP.org T8 Görev 10b, row D6): register()'s
+	// render_page() was removed: register()'s
 	// own comment already said menu-page registration moved to the Settings
 	// tab, and this method had zero remaining caller (confirmed: not
 	// add_menu_page/add_submenu_page'd anywhere). The 15 wp_ajax_* handlers
@@ -323,9 +323,14 @@ final class DatabaseCleanupPage {
 			wp_die(esc_html__('Failed to generate SQL export', 'mhm-rentiva'));
 		}
 
-		// Send file
+		// Send file. The filename goes into an HTTP header, not HTML, so it is
+		// sanitized for that context (strips path separators and control
+		// characters) rather than esc_attr()'d -- esc_attr() targets markup
+		// attributes and neither strips CR/LF (the control a header value
+		// actually needs) nor is appropriate for a bare filename (it would
+		// entity-encode a literal quote instead of removing it).
 		header('Content-Type: application/sql');
-		header('Content-Disposition: attachment; filename="' . esc_attr($table_name) . '.sql"');
+		header('Content-Disposition: attachment; filename="' . sanitize_file_name($table_name) . '.sql"');
 		header('Content-Length: ' . strlen($sql));
 
 		self::send_download_body($sql);

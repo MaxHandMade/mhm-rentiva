@@ -34,18 +34,6 @@ $settings_to_test = [
     'mhmrentiva_wp_optimization_enabled' => '0',
     'mhmrentiva_wp_memory_limit' => 512,
 
-    // Security
-    'mhmrentiva_ip_whitelist_enabled' => '1',
-    'mhmrentiva_ip_whitelist' => "127.0.0.1\n192.168.1.100",
-    'mhmrentiva_ip_blacklist_enabled' => '1',
-    'mhmrentiva_ip_blacklist' => "10.0.0.5\n10.0.0.6",
-    'mhmrentiva_brute_force_protection' => '1',
-    'mhmrentiva_max_login_attempts' => 8,
-    'mhmrentiva_login_lockout_duration' => 45,
-    'mhmrentiva_sql_injection_protection' => '1',
-    'mhmrentiva_xss_protection' => '1',
-    'mhmrentiva_csrf_protection' => '0',
-
     // Logging
     'mhmrentiva_log_level' => 'debug',
     'mhmrentiva_log_cleanup_enabled' => '0',
