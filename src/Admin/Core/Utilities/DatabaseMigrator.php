@@ -258,7 +258,7 @@ final class DatabaseMigrator {
 			// belongs to the add-on's GovernanceService -- the class that actually
 			// reads/writes the audit trail and enforces those capabilities.
 			// Gated on its presence rather than a registration check for the same
-			// reason as the Ledger cluster below: this is a question of which
+			// reason as the ledger-audit cluster below: this is a question of which
 			// FILES this build ships, not which features are registered as
 			// active. A registration gate would also skip the schema on an add-on
 			// install whose extension is not yet activated, and since
@@ -271,10 +271,9 @@ final class DatabaseMigrator {
 
 			// Financial / ledger-audit schema. Every table in this cluster --
 			// `ledger`, `commission_policy`, and the `key_registry` that holds the
-			// ledger-signing keys -- belongs to the add-on; Lite ships no class that reads
-			// or writes any of them (Ledger, CommissionResolver, KeyPairManager and
-			// KeyRegistryRepository all moved to the add-on). Creating them anyway left
-			// dead schema in every Lite install.
+			// ledger-signing keys -- belongs to the add-on; Lite ships no class that
+			// reads or writes any of them, only the add-on does. Creating them anyway
+			// left dead schema in every Lite install.
 			//
 			// Gated on LedgerMigration (the seam that owns the cluster's primary
 			// table) rather than on a registration check: this is a question about

@@ -13,7 +13,7 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
  * Vehicle-level commission rate override.
  *
  * Writes `_mhmrentiva_vendor_commission_rate` post meta — the same key
- * CommissionResolver::calculate() reads for its highest-priority
+ * the add-on's commission-resolution logic reads for its highest-priority
  * override layer. An empty field means "no override", falling back to
  * the vendor/tier/global rate. Entirely generic: AbstractMetaBox handles
  * rendering, nonce, and saving from the get_fields() config below.
@@ -65,10 +65,11 @@ final class VehicleCommissionRateMetaBox extends AbstractMetaBox {
      * The HTML `min`/`max` attributes only constrain the browser's number
      * input — a direct POST can still submit any string. This is the
      * server-side backstop so an out-of-range or garbage value can never
-     * reach CommissionResolver::calculate() as a usable override.
+     * reach the add-on's commission resolver as a usable override.
      *
-     * - Empty stays empty ("no override" — CommissionResolver's
-     *   is_numeric('') check already treats this as "fall through").
+     * - Empty stays empty ("no override" — the add-on's resolver already
+     *   treats an empty string as "fall through" via its own is_numeric('')
+     *   check).
      * - Non-numeric input becomes '' rather than '0', since 0 is itself a
      *   meaningful commission rate and must not be silently assumed.
      * - Numeric input is clamped into [0, 100].
