@@ -538,16 +538,38 @@ final class SearchResults extends AbstractShortcode {
 		}
 
 		// Sorting
+		//
+		// Görev 14 (T8 SlowDBQuery sweep), rows 21-23: price_asc/price_desc/
+		// year_desc used to set a flat top-level 'meta_key' + 'orderby' =>
+		// 'meta_value_num'. WP_Query's own WP_Meta_Query::parse_query_vars()
+		// auto-synthesizes an unnamed clause from that flat 'meta_key' --
+		// array('key' => $meta_key), no compare/value -- which already
+		// requires the key to exist (INNER JOIN + WHERE meta_key = 'x', the
+		// same fragment a 'compare' => 'EXISTS' clause produces). Naming that
+		// same clause and referencing it from a compound 'orderby' array
+		// removes the SlowDBQuery-flagged 'meta_key' literal without changing
+		// which rows match. Matches the convention this codebase's own
+		// RatingSortHelper::apply_sort_args() already uses for meta-based
+		// sorting. 'DECIMAL(10,2)' (not 'NUMERIC'/SIGNED) on the price clause
+		// preserves cents precision -- see
+		// tests/Unit/Frontend/Shortcodes/SearchResultsMetaSortTest.php's
+		// fractional-price case, which would fail under a truncating cast.
 		switch ($params['sort']) {
 			case 'price_asc':
-				$args['meta_key'] = '_mhmrentiva_price_per_day';
-				$args['orderby']  = 'meta_value_num';
-				$args['order']    = 'ASC';
+				$args['meta_query']['price_sort'] = array(
+					'key'     => '_mhmrentiva_price_per_day',
+					'type'    => 'DECIMAL(10,2)',
+					'compare' => 'EXISTS',
+				);
+				$args['orderby']                  = array( 'price_sort' => 'ASC' );
 				break;
 			case 'price_desc':
-				$args['meta_key'] = '_mhmrentiva_price_per_day';
-				$args['orderby']  = 'meta_value_num';
-				$args['order']    = 'DESC';
+				$args['meta_query']['price_sort'] = array(
+					'key'     => '_mhmrentiva_price_per_day',
+					'type'    => 'DECIMAL(10,2)',
+					'compare' => 'EXISTS',
+				);
+				$args['orderby']                  = array( 'price_sort' => 'DESC' );
 				break;
 			case 'name_asc':
 				$args['orderby'] = 'title';
@@ -558,9 +580,12 @@ final class SearchResults extends AbstractShortcode {
 				$args['order']   = 'DESC';
 				break;
 			case 'year_desc':
-				$args['meta_key'] = '_mhmrentiva_year';
-				$args['orderby']  = 'meta_value_num';
-				$args['order']    = 'DESC';
+				$args['meta_query']['year_sort'] = array(
+					'key'     => '_mhmrentiva_year',
+					'type'    => 'NUMERIC',
+					'compare' => 'EXISTS',
+				);
+				$args['orderby']                 = array( 'year_sort' => 'DESC' );
 				break;
 			default: // relevance
 				$args['orderby'] = 'title';
