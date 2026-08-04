@@ -68,33 +68,4 @@ final class AddonSettings {
 			'display_order'  => 'price_asc',
 		);
 	}
-
-	/**
-	 * Get setting value.
-	 *
-	 * @param string $key Setting key.
-	 * @param mixed  $default_value Default value.
-	 * @return string Setting value.
-	 */
-	public static function get( string $key, $default_value = null ) {
-		$settings = get_option( 'mhmrentiva_addon_settings', array() );
-		if ( ! is_array( $settings ) ) {
-			$settings = array();
-		}
-		$settings = array_merge( self::defaults(), $settings );
-		$value    = array_key_exists( $key, $settings ) ? $settings[ $key ] : $default_value;
-
-		// Convert null values to string.
-		return null !== $value ? (string) $value : '';
-	}
-
-	/**
-	 * Sanitize input data.
-	 *
-	 * @param array $input Input data.
-	 * @return array Sanitized data.
-	 */
-	public static function sanitize( array $input ): array {
-		return SettingsSanitizer::sanitize_addon_settings_option( $input );
-	}
 }

@@ -202,14 +202,6 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'defaults'),
             'AddonSettings::defaults() is live via SettingsCore.php + SettingsSanitizer.php -- must survive C1.'
         );
-        $this->assertTrue(
-            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'get'),
-            'AddonSettings::get() is the settings-read API for the surviving mhmrentiva_addon_settings option -- must survive C1.'
-        );
-        $this->assertTrue(
-            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'sanitize'),
-            'AddonSettings::sanitize() wraps the live SettingsSanitizer::sanitize_addon_settings_option() -- must survive C1.'
-        );
     }
 
     public function test_dead_classes_no_longer_exist(): void
@@ -253,6 +245,23 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
         $this->assertFalse(
             method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'ajax_create_default_addons'),
             'AddonSettings::ajax_create_default_addons() is row C1 -- must be gone (K5-C1).'
+        );
+        // Fix round 1 (review task-10cA-review.md, Important finding): get() and
+        // sanitize() were framed as "kept, live survivors" in the original report,
+        // but neither has a caller anywhere in either repo -- sanitize() predates
+        // this task (register_settings() always wired
+        // SettingsSanitizer::sanitize_addon_settings_option directly, never
+        // self::sanitize()); get()'s only callers were the 4 self::get(...) calls
+        // inside the now-deleted render_page(), so this task's own K5-C1 deletion
+        // orphaned it. Both deleted; asserted gone here rather than left as
+        // (incorrectly) "preserved" above.
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'get'),
+            'AddonSettings::get() had zero callers anywhere once render_page() (K5-C1) removed its only 4 call sites -- must be gone.'
+        );
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'sanitize'),
+            'AddonSettings::sanitize() had zero callers even before this task -- register_settings() always wired SettingsSanitizer::sanitize_addon_settings_option directly -- must be gone.'
         );
     }
 }
