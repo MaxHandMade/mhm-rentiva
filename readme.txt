@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.0
+Stable tag:        6.0.1
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -156,6 +156,18 @@ file is early enough.
 
 == Changelog ==
 
+= 6.0.1 =
+* Removed: this plugin used to create up to 20 custom indexes on WordPress's own core tables (wp_posts, wp_postmeta, wp_usermeta) to speed up its own queries. Those tables are shared with every other plugin and theme, and there was no reliable way to know it stayed safe to keep adding to them, so that subsystem has been removed. A one-time cleanup migration drops the old indexes automatically the first time you open the admin after updating; the plugin's own tables are unaffected and no data changes.
+* Fixed: filtering the vehicle list by "Featured" silently cancelled the separate "active vehicles only" filter, so an inactive vehicle could appear in a featured-only view. Both filters now combine correctly.
+* Added: seasonal pricing multipliers (already configurable per season) now have a master on/off switch in Pricing settings. It defaults to off, so pricing is unchanged unless you turn it on.
+* Fixed: on the vehicle edit screen, one script was being registered twice under two different handles carrying two different sets of data; depending on load order, one registration could silently overwrite data the other needed. It is now registered once.
+* Fixed: the notification ("toast") script could load without declaring it depends on its support library, risking a rare race condition where a confirmation message failed to appear. It is now declared as a dependency everywhere it is used.
+* Fixed: the vehicle add-on price breakdown printed its own HTML as visible text instead of rendering it, because its markup had stray spaces inside the tags.
+* Fixed: the confirmation message shown after adding or removing a vehicle from your favourites now always matches which action just happened.
+* Fixed: the "Duplicate" action shown in the add-ons list did nothing when clicked; it has been removed.
+* Removed: a dozen admin-ajax endpoints and several settings screens that had no menu entry, button or working caller anywhere in the admin. All were unreachable dead code; nothing you could previously do in the admin is affected.
+* Improved: several database queries flagged by static analysis for a missing-index pattern were rewritten to faster, equivalent queries. The full automated test suite (1,500+ tests) passes with zero failures.
+
 = 6.0.0 =
 **This is a major release. If you have custom code that hooks into this plugin, read the next paragraph before you update.**
 
@@ -257,6 +269,9 @@ file is early enough.
 * Full Turkish translation.
 
 == Upgrade Notice ==
+
+= 6.0.1 =
+Cleanup release. No action required; an automatic one-time migration removes some internal database indexes.
 
 = 6.0.0 =
 Major release. Data migrates automatically, but 113 hooks and every post type name were renamed: custom code that hooks or queries them stops working silently. See the changelog before updating.
