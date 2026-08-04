@@ -230,19 +230,48 @@ class VehiclesGrid extends AbstractShortcode {
 		// All vehicle service types (rental, transfer, both) are shown.
 		// The vehicle card displays a service type badge so users can distinguish transfer-only vehicles.
 
-		// Meta-based sorting via meta_key + meta_value_num (standard WP pattern).
-		// WP_Query merges meta_key into meta_query internally — no JOIN conflict with the
-		// active vehicle meta_query above.
+		// Meta-based sorting via a NAMED meta_query clause + compound orderby.
+		//
+		// Görev 14 (T8 SlowDBQuery sweep), rows 25-26: this used to set a flat
+		// top-level 'meta_key' + 'orderby' => 'meta_value_num'/'meta_value'.
+		// WP_Query's own WP_Meta_Query::parse_query_vars() auto-synthesizes an
+		// unnamed clause from that -- array('key' => $meta_key), no
+		// compare/value -- which already requires the key to exist (INNER
+		// JOIN + WHERE meta_key = 'x'), the same fragment a 'compare' =>
+		// 'EXISTS' clause produces. Naming that same clause and referencing it
+		// from a compound 'orderby' array removes the SlowDBQuery-flagged
+		// 'meta_key' literal without changing which rows match or their
+		// order -- see tests/Unit/Frontend/Shortcodes/VehiclesGridMetaSortTest.php,
+		// run green against the pre-rewrite code first, then again unchanged
+		// after. No JOIN conflict with the active-vehicle meta_query above
+		// (still true -- both live in the same $args['meta_query'] array).
+		//
+		// 'featured' deliberately has NO 'type': the ORIGINAL orderby was
+		// 'meta_value' (plain string compare), not 'meta_value_num'. Leaving
+		// 'type' unset makes WP_Meta_Query::get_cast_for_type('') return
+		// 'CHAR', and CAST(meta_value AS CHAR) against an already-text
+		// postmeta column sorts identically to the raw column reference the
+		// old unnamed clause used.
+		//
+		// 'price' uses 'DECIMAL(10,2)' rather than 'NUMERIC'/SIGNED to
+		// preserve cents precision -- a SIGNED cast would truncate '99.50'/
+		// '99.99' to the same integer and risk mis-ordering fractional
+		// prices (proven by a dedicated test case, not assumed).
 		$orderby_key = strtolower( (string) ( $atts['orderby'] ?? 'title' ) );
 		$sort_order  = strtoupper( (string) ( $atts['order'] ?? 'ASC' ) );
 		if ( $orderby_key === 'price' ) {
-			$args['meta_key'] = \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY;
-			$args['orderby']  = 'meta_value_num';
-			$args['order']    = $sort_order;
+			$args['meta_query']['price_sort'] = array(
+				'key'     => \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_PRICE_PER_DAY,
+				'type'    => 'DECIMAL(10,2)',
+				'compare' => 'EXISTS',
+			);
+			$args['orderby']                  = array( 'price_sort' => $sort_order );
 		} elseif ( $orderby_key === 'featured' ) {
-			$args['meta_key'] = '_mhmrentiva_featured';
-			$args['orderby']  = 'meta_value';
-			$args['order']    = $sort_order;
+			$args['meta_query']['featured_sort'] = array(
+				'key'     => '_mhmrentiva_featured',
+				'compare' => 'EXISTS',
+			);
+			$args['orderby']                     = array( 'featured_sort' => $sort_order );
 		}
 
 		// Rating-based sorting & filtering (opt-in via shortcode attributes)
