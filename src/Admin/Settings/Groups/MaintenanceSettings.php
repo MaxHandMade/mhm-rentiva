@@ -27,12 +27,18 @@ final class MaintenanceSettings {
 	/**
 	 * Get default settings for maintenance
 	 *
+	 * T8 Görev 10c-A (K5-F4): mhmrentiva_log_max_size was deleted -- fully
+	 * dead both ways (not read anywhere, and unlike this array's surviving
+	 * key it was never even present in SettingsSanitizer.php's field list,
+	 * grep-verified across both repos). Its only other reference,
+	 * tests/standalone/system_settings_audit.php's diagnostic list, was
+	 * edited alongside this.
+	 *
 	 * @return array
 	 */
 	public static function get_default_settings(): array {
 		return array(
 			'mhmrentiva_clean_data_on_uninstall' => '0',
-			'mhmrentiva_log_max_size'            => 10,
 		);
 	}
 
@@ -78,13 +84,23 @@ final class MaintenanceSettings {
 	}
 
 	/**
-	 * Render the settings section
+	 * T8 Görev 10c-A (K5-F4): render_settings_section() was deleted here --
+	 * it had zero direct callers in either repo (task-10a-endpoint-table.md
+	 * D5), the same evidence as LogsSettings' identically-shaped wrapper
+	 * (K5-F3). UNLIKE LogsSettings, deleting register()'s wiring itself was
+	 * NOT safe: self::SECTION_ID ('mhmrentiva_maintenance_section') IS named
+	 * in TabRendererRegistry's 'system' tab $sections list, so
+	 * BaseSettingsTabRenderer::render() -> render_section_clean() ->
+	 * SettingsViewHelper::render_section_cleanly() already renders every
+	 * field register() adds under this section -- including
+	 * render_group_db_cleanup()'s "WIPE ALL DATA ON UNINSTALL" checkbox --
+	 * on the live Settings -> System & Performance tab today, with no call
+	 * to this method at all. Proven with a runtime probe (render the real
+	 * TabRendererRegistry's 'system' entry, assert the checkbox HTML is
+	 * present); see MaintenanceSettingsLiveViaSystemTabTest and
+	 * task-10c-A-report.md's K5-F4 section for the full evidence-conflict
+	 * writeup. register()'s wiring therefore stays untouched.
 	 */
-	public static function render_settings_section(): void {
-		if ( class_exists( '\MHMRentiva\Admin\Settings\View\SettingsViewHelper' ) ) {
-			\MHMRentiva\Admin\Settings\View\SettingsViewHelper::render_section_cleanly( self::SECTION_ID );
-		}
-	}
 
 	public static function render_section_description(): void {
 		echo '<p class="description">' . esc_html__( 'Overview of system status and maintenance tools.', 'mhm-rentiva' ) . '</p>';

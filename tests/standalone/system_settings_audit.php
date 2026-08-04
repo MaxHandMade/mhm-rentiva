@@ -50,7 +50,11 @@ $settings_to_test = [
     'mhmrentiva_log_level' => 'debug',
     'mhmrentiva_log_cleanup_enabled' => '0',
     'mhmrentiva_log_retention_days' => 60,
-    'mhmrentiva_log_max_size' => 25,
+    // mhmrentiva_log_max_size removed (T8 Görev 10c-A, K5-F4): fully dead,
+    // deleted from MaintenanceSettings::get_default_settings() -- no code
+    // reads or writes it any more, testing it here would only prove
+    // SettingsCore::get() returns whatever was last update_option()'d,
+    // which every other row already demonstrates.
 
     // Debugging
     'mhmrentiva_debug_mode' => '1',
