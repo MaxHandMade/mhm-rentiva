@@ -108,6 +108,26 @@ final class SearchResultsMetaSortTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * Review fix round 1 (Important finding): every other fixture in this file
+	 * creates vehicles in an order where ascending post ID already coincides
+	 * with ascending price, so a regression that silently dropped 'orderby'
+	 * and fell back to WP_Query's default order could still pass those tests
+	 * by accident. This test deliberately inserts in an order that DIFFERS
+	 * from the asserted price order -- mirrors
+	 * BookingQueryHelperDateRangeSortTest::test_sort_order_is_by_pickup_date_not_by_post_id().
+	 */
+	public function test_sort_order_is_by_price_not_by_post_id(): void {
+		$first_inserted_priciest  = $this->make_vehicle( '500' );
+		$second_inserted_cheapest = $this->make_vehicle( '50' );
+		$third_inserted_mid_price = $this->make_vehicle( '150' );
+
+		$this->assertSame(
+			array( $second_inserted_cheapest, $third_inserted_mid_price, $first_inserted_priciest ),
+			$this->search( 'price_asc' )
+		);
+	}
+
+	/**
 	 * Fractional (cents) prices must keep their decimal precision when
 	 * sorted -- guards against a numeric CAST that truncates to an integer
 	 * (e.g. CAST(... AS SIGNED) would make 99.50 and 99.99 tie at 99, and
