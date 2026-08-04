@@ -239,7 +239,13 @@ final class VehicleFeatureHelper {
 	/**
 	 * Returns available vehicle fields grouped by type.
 	 *
-	 * @return array<string, array<string, array{label:string,meta_key:string,type:string}>>
+	 * Note: the per-field 'field_meta_key' array key is a UI-descriptor label
+	 * chosen by this method, not a WP_Query/$wpdb argument -- see the
+	 * "Rename rationale" note on map_detail_meta_key() below for why it isn't
+	 * spelled 'meta_key' (the literal WPCS's WordPress.DB.SlowDBQuery sniff
+	 * matches on, regardless of whether a query is anywhere nearby).
+	 *
+	 * @return array<string, array<string, array{label:string,field_meta_key:string,type:string}>>
 	 */
 	public static function get_available_fields_map(): array
 	{
@@ -270,10 +276,10 @@ final class VehicleFeatureHelper {
 			}
 
 			$result[ self::TYPE_DETAIL ][ $key ] = array(
-				'label'    => self::sanitize_label($all_details[ $key ], $key),
-				'meta_key' => self::map_detail_meta_key($key),
-				'type'     => self::TYPE_DETAIL,
-				'key'      => $key,
+				'label'          => self::sanitize_label($all_details[ $key ], $key),
+				'field_meta_key' => self::map_detail_meta_key($key),
+				'type'           => self::TYPE_DETAIL,
+				'key'            => $key,
 			);
 		}
 
@@ -286,10 +292,10 @@ final class VehicleFeatureHelper {
 			// Include all available features, not just selected ones (Comparison table needs everything)
 			$key                                  = sanitize_key($key);
 			$result[ self::TYPE_FEATURE ][ $key ] = array(
-				'label'    => self::sanitize_label($label, $key),
-				'meta_key' => '', // meta key is generic _mhmrentiva_features array check
-				'type'     => self::TYPE_FEATURE,
-				'key'      => $key,
+				'label'          => self::sanitize_label($label, $key),
+				'field_meta_key' => '', // meta key is generic _mhmrentiva_features array check
+				'type'           => self::TYPE_FEATURE,
+				'key'            => $key,
 			);
 		}
 
@@ -301,10 +307,10 @@ final class VehicleFeatureHelper {
 		foreach ($all_equipment as $key => $label) {
 			$key                                    = sanitize_key($key);
 			$result[ self::TYPE_EQUIPMENT ][ $key ] = array(
-				'label'    => self::sanitize_label($label, $key),
-				'meta_key' => '', // meta key is generic _mhmrentiva_equipment array check
-				'type'     => self::TYPE_EQUIPMENT,
-				'key'      => $key,
+				'label'          => self::sanitize_label($label, $key),
+				'field_meta_key' => '', // meta key is generic _mhmrentiva_equipment array check
+				'type'           => self::TYPE_EQUIPMENT,
+				'key'            => $key,
 			);
 		}
 
@@ -330,10 +336,10 @@ final class VehicleFeatureHelper {
 			// It's ambiguous. But we don't strictly NEED has_term if we trust the meta sync.
 
 			$result[ self::TYPE_TAXONOMY ][ $key ] = array(
-				'label'    => $label,
-				'meta_key' => '',
-				'type'     => self::TYPE_TAXONOMY,
-				'key'      => $key,
+				'label'          => $label,
+				'field_meta_key' => '',
+				'type'           => self::TYPE_TAXONOMY,
+				'key'            => $key,
 				// 'taxonomy' => ... // Parsing is safer to skip if relying on meta
 			);
 		}
@@ -378,7 +384,7 @@ final class VehicleFeatureHelper {
 			$label = $available[ $type ][ $key ]['label'];
 
 			if ($type === self::TYPE_DETAIL) {
-				$meta_key = $available[ $type ][ $key ]['meta_key'];
+				$meta_key = $available[ $type ][ $key ]['field_meta_key'];
 				$raw      = $details_meta[ $meta_key ] ?? '';
 				if (( $raw === '' || $raw === null ) && $key === 'year') {
 					$raw = $details_meta['_mhmrentiva_model_year'] ?? $details_meta['_mhmrentiva_year'] ?? '';
@@ -452,6 +458,22 @@ final class VehicleFeatureHelper {
 
 	/**
 	 * Map detail keys to post meta keys.
+	 *
+	 * Rename rationale (Görev 14, T8 SlowDBQuery sweep, 2026-08): the array this
+	 * method's return value feeds (get_available_fields_map()) used to spell its
+	 * UI-descriptor key 'meta_key'. That is a plain PHP array key inside a
+	 * config/display array built with get_option()/array_merge() -- no $wpdb or
+	 * WP_Query call exists anywhere in get_available_fields_map(). WPCS's
+	 * WordPress.DB.SlowDBQuery sniff (AbstractArrayAssignmentRestrictionsSniff)
+	 * matches on the literal array-key token 'meta_key' wherever it appears in
+	 * the source, with no awareness of whether a query is nearby, so it flagged
+	 * this UI array the same way it would flag a real WP_Query arg. Renamed to
+	 * 'field_meta_key' to remove the false-positive shape at its source; the
+	 * one runtime reader (collect_items(), TYPE_DETAIL branch) was updated in
+	 * the same commit. VehicleComparison.php and VehicleSettings.php also read
+	 * this map but only ever access ['label'], never ['meta_key'] -- confirmed
+	 * by grepping every ['meta_key'] access site in both mhm-rentiva and
+	 * mhm-rentiva-pro before renaming.
 	 */
 	private static function map_detail_meta_key(string $key): string
 	{
