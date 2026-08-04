@@ -202,10 +202,9 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
             . 'LicenseManager::deactivatePluginHook().'
         );
 
-        // Positive control: the rest of the deactivation hook (rewrite flush +
-        // log-maintenance cron cleanup) must survive -- both are Lite-native.
+        // Positive control: the rest of the deactivation hook (rewrite flush)
+        // must survive -- it is Lite-native.
         $this->assertStringContainsString('flush_rewrite_rules()', $src);
-        $this->assertStringContainsString('LogMaintenanceScheduler', $src);
     }
 
     // -- Behavioural contract (documents the runtime outcome) ----------------

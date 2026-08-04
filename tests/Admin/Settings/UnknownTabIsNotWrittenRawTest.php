@@ -73,11 +73,6 @@ final class UnknownTabIsNotWrittenRawTest extends WP_UnitTestCase
 	/**
 	 * A recognised tab still saves normally — the fallback change must not
 	 * narrow the real ones.
-	 *
-	 * mhmrentiva_cache_enabled, not mhmrentiva_log_level: T8 Görev 10c-A
-	 * (K5-F3) deleted the log_level sanitizer arm along with its only input
-	 * path (LogsSettings::register()'s dead field wiring). Any surviving
-	 * system-tab key proves the same routing behaviour this test asserts.
 	 */
 	public function test_a_known_tab_still_saves(): void
 	{

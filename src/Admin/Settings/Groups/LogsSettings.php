@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Settings\Core\SettingsCore;
+use MHMRentiva\Admin\Settings\Core\SettingsHelper;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,21 +41,65 @@ final class LogsSettings {
 	/**
 	 * Register settings.
 	 *
-	 * T8 Görev 10c-A (K5-F3): this used to call add_settings_section() +
-	 * 4 SettingsHelper::*_field() calls for self::SECTION_LOGS, plus a
-	 * render_settings_section()/render_section_description() pair to display
-	 * them. That whole surface was deleted -- zero caller anywhere reached
-	 * self::SECTION_LOGS: not a group_class on any TabRendererRegistry tab,
-	 * not named in any tab's $sections list (unlike MaintenanceSettings'
-	 * SECTION_ID, which the 'system' tab's $sections list DOES include --
-	 * grep-verified, see task-10c-A-report.md), and no other class ever
-	 * calls do_settings_fields() against this section id. No admin could
-	 * ever reach these 4 fields by any path. Left as a no-op (not removed
-	 * outright) because SettingsCore::register_sub_groups() calls
-	 * LogsSettings::register() unconditionally whenever class_exists() +
-	 * method_exists() hold -- same shape as AddCustomerPage::register()
-	 * after Görev 10b's A12.
+	 * self::SECTION_LOGS is named in the 'system' tab's $sections list
+	 * (TabRendererRegistry), the same reachability path
+	 * MaintenanceSettings::SECTION_ID uses -- see that class's own
+	 * docblock for the render mechanism (BaseSettingsTabRenderer::render()
+	 * -> SettingsViewHelper::render_section_cleanly() -> do_settings_fields(),
+	 * independent of any render_settings_section()-style wrapper method).
 	 */
 	public static function register(): void {
+		$page_slug = SettingsCore::PAGE;
+
+		add_settings_section(
+			self::SECTION_LOGS,
+			__( 'Logs & Debugging', 'mhm-rentiva' ),
+			array( self::class, 'render_section_description' ),
+			$page_slug
+		);
+
+		SettingsHelper::select_field(
+			$page_slug,
+			'mhmrentiva_log_level',
+			__( 'Log Level', 'mhm-rentiva' ),
+			array(
+				'error'   => __( 'Error (Recommended)', 'mhm-rentiva' ),
+				'warning' => __( 'Warning', 'mhm-rentiva' ),
+				'info'    => __( 'Info', 'mhm-rentiva' ),
+				'debug'   => __( 'Debug (All Details)', 'mhm-rentiva' ),
+			),
+			__( 'Set the minimum severity level for logs to be recorded.', 'mhm-rentiva' ),
+			self::SECTION_LOGS
+		);
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhmrentiva_debug_mode',
+			__( 'Debug Mode', 'mhm-rentiva' ),
+			__( 'Displays additional technical details in error messages. Not recommended for live sites.', 'mhm-rentiva' ),
+			self::SECTION_LOGS
+		);
+
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhmrentiva_log_cleanup_enabled',
+			__( 'Auto Cleanup Logs', 'mhm-rentiva' ),
+			__( 'Automatically delete old logs based on retention period.', 'mhm-rentiva' ),
+			self::SECTION_LOGS
+		);
+
+		SettingsHelper::number_field(
+			$page_slug,
+			'mhmrentiva_log_retention_days',
+			__( 'Log Retention (Days)', 'mhm-rentiva' ),
+			1,
+			365,
+			__( 'How many days to keep logs before deleting them.', 'mhm-rentiva' ),
+			self::SECTION_LOGS
+		);
+	}
+
+	public static function render_section_description(): void {
+		echo '<p>' . esc_html__( 'Configure system logging levels and maintenance policies.', 'mhm-rentiva' ) . '</p>';
 	}
 }

@@ -160,8 +160,20 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention')) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\EmailLogRetention::register();
 		}
-		if ($this->is_class_available('\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler')) {
-			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::init();
+		// LogMaintenanceScheduler retired (WP.org T8 fix wave, group C): its
+		// `mhmrentiva_daily_log_cleanup` cron purged the exact same
+		// mhmrentiva_app_log posts as LogRetention's own
+		// `mhmrentiva_log_purge_event` cron above, gated by the same two
+		// settings -- duplicated work, not a distinct feature. LogRetention is
+		// kept: it deletes through wp_delete_post() (correct hook/cache
+		// lifecycle, bounded per run via the mhmrentiva_log_purge_limit
+		// filter), where the retired path ran one unbounded raw multi-table
+		// DELETE. Self-heals any install that already has the retired cron
+		// scheduled -- most WordPress updates never fire a deactivation hook,
+		// so an active-clear here (not just on deactivate) is what actually
+		// reaches them.
+		if (wp_next_scheduled('mhmrentiva_daily_log_cleanup')) {
+			wp_clear_scheduled_hook('mhmrentiva_daily_log_cleanup');
 		}
 	}
 

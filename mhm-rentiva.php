@@ -550,15 +550,10 @@ add_action(
 	}
 );
 
-// Deactivation hook - rewrite flush + scheduled-log cleanup
+// Deactivation hook - rewrite flush
 register_deactivation_hook(
 	__FILE__,
 	function () {
 		flush_rewrite_rules();
-
-		// Clean log maintenance cron job
-		if (class_exists('MHMRentiva\\Admin\\Core\\Utilities\\LogMaintenanceScheduler')) {
-			\MHMRentiva\Admin\Core\Utilities\LogMaintenanceScheduler::deactivate();
-		}
 	}
 );

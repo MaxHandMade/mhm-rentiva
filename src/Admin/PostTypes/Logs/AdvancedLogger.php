@@ -441,47 +441,6 @@ final class AdvancedLogger {
 	}
 
 	/**
-	 * Cleans up old logs based on retention days.
-	 *
-	 * @param int $days Retention period in days.
-	 * @return int Number of deleted logs.
-	 */
-	public static function cleanup_old_logs( int $days = 30 ): int {
-		if ( $days <= 0 ) {
-			return 0;
-		}
-
-		global $wpdb;
-
-		$date_limit = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
-		$post_type  = PostType::TYPE;
-
-		// Using direct SQL for performance on potentially large datasets
-		$deleted = $wpdb->query(
-			$wpdb->prepare(
-				"DELETE a, b, c FROM {$wpdb->posts} a LEFT JOIN {$wpdb->term_relationships} b ON (a.ID = b.object_id) LEFT JOIN {$wpdb->postmeta} c ON (a.ID = c.post_id) WHERE a.post_type = %s AND a.post_date < %s",
-				$post_type,
-				$date_limit
-			)
-		);
-
-		if ( $deleted > 0 ) {
-			self::info(
-				/* translators: %d: number of deleted log entries */
-				sprintf( __( 'Cleaned up %d old log entries.', 'mhm-rentiva' ), (int) $deleted ),
-				array(
-					'days'       => $days,
-					'date_limit' => $date_limit,
-				),
-				self::CATEGORY_SYSTEM
-			);
-		}
-
-		return (int) $deleted;
-	}
-
-
-	/**
 	 * Checks if a log entry should be skipped based on its level.
 	 */
 	private static function should_skip_log( string $level ): bool {

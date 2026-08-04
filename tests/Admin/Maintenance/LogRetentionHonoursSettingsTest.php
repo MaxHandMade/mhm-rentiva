@@ -22,9 +22,8 @@ use WP_UnitTestCase;
  * audit trail, or set retention to 365 days, still lost every log entry older
  * than thirty days, daily, with the settings screen showing their choice intact.
  *
- * The sibling cron (`LogMaintenanceScheduler`) reads both settings correctly
- * through `SettingsCore::get`, and so does `EmailLogRetention`. The pattern was
- * known; this one path missed it.
+ * `EmailLogRetention` reads both settings correctly through `SettingsCore::get`.
+ * The pattern was known; this one path missed it.
  *
  * @covers \MHMRentiva\Admin\PostTypes\Maintenance\LogRetention::run
  */

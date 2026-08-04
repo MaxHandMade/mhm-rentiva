@@ -340,14 +340,17 @@ final class SettingsSanitizer {
 			'mhmrentiva_cache_lists_ttl'         => self::get_int( $input, 'mhmrentiva_cache_lists_ttl', 5, 1, 60 ),
 			'mhmrentiva_cache_reports_ttl'       => self::get_int( $input, 'mhmrentiva_cache_reports_ttl', 15, 1, 1440 ),
 
-			// T8 Görev 10c-A (K5-F3): the 4 mhmrentiva_log_*/mhmrentiva_debug_mode
-			// arms that used to live here were deleted -- their sole input path
-			// was LogsSettings::register()'s now-deleted field wiring (grep-
-			// verified: no other add_settings_field()/raw HTML input/nested
-			// do_settings_fields() call ever submitted these 4 keys, in either
-			// repo). The 4 option READS these fed stay live and keep their safe
-			// defaults (AdvancedLogger/LogRetention/LogMaintenanceScheduler read
-			// them via SettingsCore::get() directly, not through this arm).
+			// Logs & Debugging. Rendered by LogsSettings::register() under
+			// self::SECTION_LOGS, reached via the 'system' tab's $sections
+			// list (same path MaintenanceSettings::SECTION_ID uses -- see
+			// that class's own docblock). 'critical' is deliberately not a
+			// selectable value here: it is the highest AdvancedLogger
+			// severity, used internally, not one of the four levels this
+			// screen has ever offered an admin.
+			'mhmrentiva_log_level'               => self::validate_enum( $input['mhmrentiva_log_level'] ?? '', array( 'error', 'warning', 'info', 'debug' ), 'error' ),
+			'mhmrentiva_log_cleanup_enabled'     => self::get_bool( $input, 'mhmrentiva_log_cleanup_enabled' ),
+			'mhmrentiva_log_retention_days'      => self::get_int( $input, 'mhmrentiva_log_retention_days', 30, 1, 365 ),
+			'mhmrentiva_debug_mode'              => self::get_bool( $input, 'mhmrentiva_debug_mode' ),
 
 			// Maintenance. mhmrentiva_clean_data_on_uninstall stays: its checkbox
 			// (MaintenanceSettings::render_group_db_cleanup()) is live -- rendered
@@ -370,7 +373,7 @@ final class SettingsSanitizer {
 			'mhmrentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhmrentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhmrentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
 			'mhmrentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhmrentiva_vehicle_tax_inclusive' ),
 			'mhmrentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhmrentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
-			// T8 Görev 10c-B (K5-F5): master switch gating whether
+			// Master switch gating whether
 			// BookingForm.php's price calculation ever consults the
 			// seasonal multipliers (rendered here, sanitized separately
 			// below by sanitize_vehicle_pricing_settings()). Absent/
@@ -410,8 +413,9 @@ final class SettingsSanitizer {
 		// VehiclePricingSettings, unlike the other Settings\Groups classes, is not one of the
 		// modules SettingsCore::get_defaults() merges in. Falling back to a plain array() left
 		// a from-scratch save (no 'vehicle_pricing' in the option yet -- e.g. the first time an
-		// admin ever touches the seasonal-multiplier field now reachable on the live Vehicle tab,
-		// Görev 9 / F19) storing ONLY the submitted sub-key (e.g. seasonal_multipliers.summer.multiplier),
+		// admin ever touches the seasonal-multiplier field now reachable on
+		// the live Vehicle tab) storing ONLY the submitted sub-key (e.g.
+		// seasonal_multipliers.summer.multiplier),
 		// silently discarding that season's months/name/description -- get_seasonal_multiplier_for_month()
 		// then TypeErrors on the missing 'months' -- and every other untouched season entry.
 		// Seed from VehiclePricingSettings::get_default_settings(), the exact shape

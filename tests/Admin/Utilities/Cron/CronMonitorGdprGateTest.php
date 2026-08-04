@@ -15,7 +15,7 @@ use WP_UnitTestCase;
  * check for Pro's license-manager class. It now filters
  * `mhmrentiva_cron_descriptions`, and only Pro's CronExtensions subscriber
  * (absent from this tree) would add them back. This tree has no Pro classes,
- * so the filter's default (Lite's own five-cron map) applies unchanged.
+ * so the filter's default (Lite's own cron map) applies unchanged.
  *
  * @covers \MHMRentiva\Admin\Utilities\Cron\CronMonitor::get_all_cron_jobs
  */

@@ -40,12 +40,8 @@ final class CronMonitor {
 				'description' => __( 'Cleans up old email logs', 'mhm-rentiva' ),
 			),
 			'mhmrentiva_log_purge_event'       => array(
-				'name'        => __( 'System Log Retention (Classic)', 'mhm-rentiva' ),
+				'name'        => __( 'System Log Retention', 'mhm-rentiva' ),
 				'description' => __( 'Cleans up old system logs (mhmrentiva_app_log post type)', 'mhm-rentiva' ),
-			),
-			'mhmrentiva_daily_log_cleanup'     => array(
-				'name'        => __( 'App Log Maintenance (Modern)', 'mhm-rentiva' ),
-				'description' => __( 'Advanced log management and rotation for system logs', 'mhm-rentiva' ),
 			),
 		);
 
@@ -164,7 +160,6 @@ final class CronMonitor {
 				'mhmrentiva_auto_cancel_event',
 				'mhmrentiva_email_log_purge_event',
 				'mhmrentiva_log_purge_event',
-				'mhmrentiva_daily_log_cleanup',
 			)
 		);
 
@@ -249,7 +244,6 @@ final class CronMonitor {
 				'mhmrentiva_auto_cancel_event',
 				'mhmrentiva_email_log_purge_event',
 				'mhmrentiva_log_purge_event',
-				'mhmrentiva_daily_log_cleanup',
 			)
 		);
 
