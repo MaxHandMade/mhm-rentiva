@@ -1,0 +1,13 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Vehicle placeholder">
+  <rect width="300" height="200" fill="#e5e7eb"/>
+  <g fill="#9ca3af">
+    <path d="M110 72h80l28 32H82z"/>
+    <rect x="58" y="104" width="184" height="30" rx="10"/>
+    <circle cx="102" cy="138" r="15"/>
+    <circle cx="198" cy="138" r="15"/>
+  </g>
+  <g fill="#e5e7eb">
+    <circle cx="102" cy="138" r="6"/>
+    <circle cx="198" cy="138" r="6"/>
+  </g>
+</svg>

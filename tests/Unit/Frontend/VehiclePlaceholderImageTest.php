@@ -38,22 +38,11 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 
 	/**
 	 * The whole point of the finding: whatever this returns must actually
-	 * RESOLVE. Either it is a self-contained data URI, or it names a file that
-	 * is on disk -- never a URL to something that is not shipped.
+	 * RESOLVE -- it must name a file that is on disk, never a URL to something
+	 * that is not shipped.
 	 */
-	public function test_placeholder_url_resolves_to_something_that_exists(): void {
+	public function test_placeholder_url_resolves_to_a_file_that_exists(): void {
 		$url = VehicleDataHelper::get_placeholder_image_url();
-
-		if ( 0 === strpos( $url, 'data:image/' ) ) {
-			$this->assertStringContainsString( ';base64,', $url, 'The inline fallback must be a base64 data URI.' );
-
-			$payload = substr( $url, strpos( $url, ',' ) + 1 );
-			$decoded = base64_decode( $payload, true );
-
-			$this->assertIsString( $decoded, 'The data URI payload must be valid base64.' );
-			$this->assertStringContainsString( '<svg', (string) $decoded, 'The inline fallback must decode to real SVG markup.' );
-			return;
-		}
 
 		$relative = ltrim( (string) wp_parse_url( $url, PHP_URL_PATH ), '/' );
 		$filename = basename( $relative );
@@ -62,6 +51,94 @@ final class VehiclePlaceholderImageTest extends WP_UnitTestCase {
 			self::PLUGIN_ROOT . 'assets/images/' . $filename,
 			'A placeholder URL pointing at a file means that file must ship.'
 		);
+	}
+
+	/**
+	 * THE REGRESSION LOCK for the defect the browser tour caught.
+	 *
+	 * Every PHP exit point prints this through esc_url(), and esc_url() drops
+	 * any scheme that is not in wp_allowed_protocols() -- `data` is not, and
+	 * never has been. So the inline SVG data URI the helper used to fall back
+	 * to was ERASED on the way to the page: measured in the container, 318
+	 * bytes in, 0 bytes out, i.e. `<img src="">`. The 404 was gone and the
+	 * image was still broken.
+	 *
+	 * The fix is a real file, not weaker escaping: esc_url() stays exactly as
+	 * strict as it is, and the helper's candidate list -- which already probed
+	 * for `placeholder-vehicle.svg` -- is finally given something to find.
+	 *
+	 * This test is what makes deleting that file loud: with no candidate on
+	 * disk the helper returns the data URI again, esc_url() returns '', and
+	 * this goes red.
+	 */
+	public function test_the_placeholder_url_survives_esc_url_intact(): void {
+		$raw     = VehicleDataHelper::get_placeholder_image_url();
+		$escaped = esc_url( $raw );
+
+		$this->assertNotSame( '', $escaped, 'esc_url() emptied the placeholder -- the exit points would render <img src="">.' );
+		$this->assertSame( $raw, $escaped, 'esc_url() must pass the placeholder through unchanged, not merely non-empty.' );
+		$this->assertNotContains( 'data', array( (string) wp_parse_url( $raw, PHP_URL_SCHEME ) ), 'A data: URI cannot reach the page through esc_url().' );
+		$this->assertContains(
+			(string) wp_parse_url( $raw, PHP_URL_SCHEME ),
+			wp_allowed_protocols(),
+			'The placeholder scheme must be one WordPress allows through esc_url().'
+		);
+	}
+
+	/**
+	 * The shipped candidate itself: present, small, self-contained, and real
+	 * SVG. "Self-contained" is the load-bearing one -- an external reference in
+	 * a placeholder would be a third-party request on a page that is only
+	 * showing a grey card.
+	 */
+	public function test_the_shipped_placeholder_file_is_a_self_contained_svg(): void {
+		$path = self::PLUGIN_ROOT . 'assets/images/placeholder-vehicle.svg';
+
+		$this->assertFileExists( $path );
+
+		$svg = (string) file_get_contents( $path );
+
+		$this->assertLessThan( 8192, strlen( $svg ), 'The placeholder must stay small; it ships on every install.' );
+		$this->assertStringContainsString( '<svg', $svg );
+		$this->assertStringContainsString( 'xmlns="http://www.w3.org/2000/svg"', $svg );
+
+		foreach ( array( '<script', '<image', 'xlink:href', '@font-face', '<foreignObject', '<use ' ) as $forbidden ) {
+			$this->assertStringNotContainsStringIgnoringCase( $forbidden, $svg, 'The placeholder must not reference or execute anything external.' );
+		}
+
+		// The only URL allowed inside it is the SVG namespace itself.
+		preg_match_all( '#https?://[^"\'\s]+#', $svg, $urls );
+		$this->assertSame(
+			array( 'http://www.w3.org/2000/svg' ),
+			array_values( array_unique( $urls[0] ) ),
+			'The only URL in the placeholder must be the SVG XML namespace.'
+		);
+
+		$previous = libxml_use_internal_errors( true );
+		$doc      = new \DOMDocument();
+		$parsed   = $doc->loadXML( $svg );
+		libxml_clear_errors();
+		libxml_use_internal_errors( $previous );
+
+		$this->assertTrue( $parsed, 'The placeholder must be valid standalone XML.' );
+		$this->assertSame( 'svg', $doc->documentElement->tagName );
+	}
+
+	/**
+	 * The inline data URI stays in the code as a last-resort fallback, so it
+	 * must remain valid -- but it is no longer what any PHP exit point prints
+	 * (see the esc_url lock above).
+	 */
+	public function test_the_inline_fallback_is_still_valid_svg(): void {
+		$reflection = new \ReflectionClass( VehicleDataHelper::class );
+		$uri        = (string) $reflection->getConstant( 'PLACEHOLDER_IMAGE_DATA_URI' );
+
+		$this->assertStringStartsWith( 'data:image/svg+xml;base64,', $uri );
+
+		$decoded = base64_decode( substr( $uri, strpos( $uri, ',' ) + 1 ), true );
+
+		$this->assertIsString( $decoded );
+		$this->assertStringContainsString( '<svg', (string) $decoded );
 	}
 
 	/**
