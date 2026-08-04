@@ -124,16 +124,15 @@ final class ShortcodePages {
 		// whenever $this->page_hook was empty -- i.e. always, in production --
 		// so str_contains() alone decided every request, and any foreign hook
 		// that merely EMBEDS "mhm-rentiva-shortcode-pages" as a substring (not
-		// just this exact screen) would also pull the bundle in (T8 Görev 11,
-		// independent nonce-behavior audit, Fable#2; see
+		// just this exact screen) would also pull the bundle in -- see
 		// ShortcodePagesEnqueueGateTest for the runtime proof of the exact
-		// suffix and the foreign-hook cases this closes).
+		// suffix and the foreign-hook cases this closes.
 		//
 		// Menu.php registers this screen as a submenu of the fixed top-level
 		// 'mhm-rentiva' parent (Menu.php's add_menu(), 'mhm-rentiva-shortcode-
 		// pages' slug), so WordPress's own hookname formula
 		// (get_plugin_page_hookname()) is fully determined at compile time --
-		// the same reasoning About::enqueue_scripts() and Görev 3's
+		// the same reasoning About::enqueue_scripts() and
 		// Addons\AddonSettings::enqueue_scripts() already use for their own
 		// screens. $this->page_hook is kept as an exact-match alternative (not
 		// a substring one) for the add_admin_menu() path, which no production
@@ -155,7 +154,7 @@ final class ShortcodePages {
 		);
 
 		// The mhmRentivaShortcodePages localize call formerly here was
-		// removed (WP.org T8 Görev 10b, row E4): neither src-react/admin/
+		// removed: neither src-react/admin/
 		// shortcode-pages/ nor its build ever read this object -- the React
 		// app authenticates its REST calls via apiFetch instead.
 	}

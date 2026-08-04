@@ -154,8 +154,8 @@ class ElementorIntegration {
 			);
 
 			// The mhmRentivaElementor localize call (and the nonce it minted)
-			// formerly here were removed (WP.org T8 Görev 10b, row E2):
-			// elementor-widgets.js contains only empty handler stubs and never
+			// formerly here were removed: elementor-widgets.js contains only
+			// empty handler stubs and never
 			// referenced this object.
 		}
 	}
@@ -200,8 +200,8 @@ class ElementorIntegration {
 			);
 
 			// The mhmRentivaElementorEditor localize call (and the nonce it
-			// minted) formerly here were removed (WP.org T8 Görev 10b, row
-			// E3): elementor-editor.js never referenced this object.
+			// minted) formerly here were removed: elementor-editor.js never
+			// referenced this object.
 		}
 	}
 

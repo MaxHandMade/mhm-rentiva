@@ -14,10 +14,9 @@ use MHMRentiva\Admin\Core\MetaBoxes\AbstractMetaBox;
  *
  * Writes `_mhmrentiva_vendor_commission_rate` post meta — the same key
  * CommissionResolver::calculate() reads for its highest-priority
- * override layer (see CommissionResolver.php, Layer 1). An empty
- * field means "no override", falling back to the vendor/tier/global
- * rate. Entirely generic: AbstractMetaBox handles rendering, nonce,
- * and saving from the get_fields() config below.
+ * override layer. An empty field means "no override", falling back to
+ * the vendor/tier/global rate. Entirely generic: AbstractMetaBox handles
+ * rendering, nonce, and saving from the get_fields() config below.
  *
  * @since 4.64.0
  */

@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 
 
@@ -535,10 +534,10 @@ final class AssetManager {
 							'depositPlaceholder'     => __('10', 'mhm-rentiva'),
 							'comingSoonCustomAdd'    => __('Coming soon! Use the Custom Add button for now.', 'mhm-rentiva'),
 							// Carried over from the removed 'mhm-rentiva-vehicle-meta-js'
-							// handle's own localize call (VehicleMeta::enqueue_scripts(),
-							// T8 F20 union) -- vehicle-meta.js does not currently read this
-							// key, kept anyway so the surviving handle loses nothing either
-							// side carried before.
+							// handle's own localize call (VehicleMeta::enqueue_scripts()) --
+							// vehicle-meta.js does not currently read this key, kept anyway
+							// so the surviving handle loses nothing either side carried
+							// before.
 							'comingSoonCustomRemove' => __('Coming soon! For now, use the Custom Add button.', 'mhm-rentiva'),
 							'redirectingToSettings'  => __('Redirecting to Vehicle Settings...', 'mhm-rentiva'),
 						),
@@ -1044,16 +1043,13 @@ final class AssetManager {
 
 		// Email Templates: the block that used to sit here, gated on
 		// `$screen->id === 'mhm-rentiva_page_mhm-rentiva-email-templates'`, was
-		// deleted (T8 Görev 10c-A, Ek). No add_submenu_page()/add_menu_page()
-		// call in either repo (Lite Menu.php's 12, Pro's MenuExtensions.php +
-		// 3 standalone pages -- grep-verified) ever registers a slug that
-		// produces this screen id, so the block never fired in production.
-		// The live enqueue is EmailTemplates::enqueue_scripts(), gated on the
-		// real $hook admin_enqueue_scripts passes; its payload is now a true
-		// superset of what this block localized (T8 Görev 11 added the
-		// `strings` sub-array this block was the last surviving copy of --
-		// see EmailTemplates.php:505-520's own docblock and
-		// EmailTemplatesPayloadContractTest for the full field inventory).
+		// deleted: no add_submenu_page()/add_menu_page() call anywhere
+		// registers a slug that produces this screen id, so the block never
+		// fired in production. The live enqueue is
+		// EmailTemplates::enqueue_scripts(), gated on the real $hook
+		// admin_enqueue_scripts passes; its payload is now a true superset of
+		// what this block localized -- see EmailTemplates.php:505-520's own
+		// docblock for the full field inventory.
 
 		// Message List enqueue used to live here, guarded on
 		// `$screen->post_type === 'message'` -- but the `message` CPT the add-on

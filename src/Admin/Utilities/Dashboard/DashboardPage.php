@@ -36,9 +36,9 @@ final class DashboardPage {
 
 		// The 3 reserved drag-and-drop/cache-clear AJAX wrappers formerly
 		// registered here (wp_ajax_mhmrentiva_clear_dashboard_cache /
-		// _save_dashboard_order / _reset_dashboard_layout) were removed
-		// (WP.org T8 Görev 10b, rows A9/A10/A11): zero shipped nonce producer
-		// and zero consumer in either repo -- the React dashboard payload
+		// _save_dashboard_order / _reset_dashboard_layout) were removed:
+		// zero shipped nonce producer and zero consumer anywhere -- the
+		// React dashboard payload
 		// hardcodes 'widget_order' => array() and never reads back what those
 		// two would have written. clear_dashboard_cache() below survives: the
 		// 6 hook registrations directly beneath this comment all call it live.
@@ -296,7 +296,7 @@ final class DashboardPage {
 			'mhmrentiva_vehicle_report_',
 			'mhmrentiva_vlist_',
 			// prefix-rename:ignore-start
-			// The add-on's reports cache. Kept deliberately: Reports.php writes
+			// The add-on's reports cache. Kept deliberately: the add-on writes
 			// this family and the dashboard shows figures derived from the same
 			// data, so clearing one without the other shows two different numbers
 			// on one screen.
@@ -331,6 +331,6 @@ final class DashboardPage {
 	}
 
 	// ajax_clear_dashboard_cache() was removed with its wp_ajax_* registration
-	// above (row A9). clear_dashboard_cache() above survives -- it is called
+	// above. clear_dashboard_cache() above survives -- it is called
 	// live by the 6 hook registrations in register().
 }

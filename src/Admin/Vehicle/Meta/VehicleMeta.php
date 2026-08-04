@@ -176,8 +176,7 @@ final class VehicleMeta extends AbstractMetaBox {
 			// that had to survive. The one localized string key this block
 			// carried that AssetManager's copy did not ('comingSoonCustomRemove')
 			// was moved into AssetManager::localize_component_script()'s
-			// 'vehicle-meta' case so no data is lost (T8 F20; see
-			// VehicleMetaSingleEnqueueTest).
+			// 'vehicle-meta' case so no data is lost.
 		}
 	}
 

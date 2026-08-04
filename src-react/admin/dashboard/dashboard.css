@@ -38,8 +38,8 @@
 	align-items: start;
 }
 
-/* Row 3 without TransferWidget (Lite, no add-on subscriber -- Task A5b): let
-   RecentBookings take the full row instead of leaving an empty second column. */
+/* Row 3 without TransferWidget (no add-on subscriber): let RecentBookings
+   take the full row instead of leaving an empty second column. */
 .mhm-dashboard__row--3-solo {
 	grid-template-columns: 1fr;
 }

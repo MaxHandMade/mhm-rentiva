@@ -44,7 +44,7 @@ final class VehicleManagementSettings {
 			'mhmrentiva_vehicle_weekend_multiplier'   => 1.2,
 			'mhmrentiva_vehicle_tax_inclusive'        => '0',
 			'mhmrentiva_vehicle_tax_rate'             => 18.0,
-			// T8 Görev 10c-B (K5-F5): master switch for the seasonal
+			// Master switch for the seasonal
 			// multipliers rendered below. MUST stay '0' -- zero behaviour
 			// change for every existing install until an admin opts in.
 			// BookingForm.php:~1112 already passes '0' as its own explicit
@@ -141,15 +141,14 @@ final class VehicleManagementSettings {
 			self::SECTION_PRICING
 		);
 
-		// Seasonal Pricing Master Switch (T8 Görev 10c-B / K5-F5):
+		// Seasonal Pricing Master Switch:
 		// BookingForm.php's per-day price loop has ALWAYS gated the whole
 		// seasonal-multiplier branch behind this flat option
 		// (SettingsCore::get('mhmrentiva_vehicle_seasonal_pricing', '0')
 		// === '1', BookingForm.php:~1112), but no admin UI anywhere ever
-		// wrote it -- Görev 9 (F19, see the block below) moved the
-		// multiplier VALUE fields onto this section and explicitly left the
-		// switch itself out of scope (task-9-report.md §2, "Also out of
-		// scope, noted only"). Without a writer the fields below are
+		// wrote it -- a later change moved the multiplier VALUE fields onto
+		// this section and explicitly left the switch itself out of scope.
+		// Without a writer the fields below are
 		// decorative: they save and read back correctly but never touch a
 		// real quote. Default stays '0' (get_bool()'s own fallback when the
 		// checkbox is unchecked/absent, matching BookingForm.php's own
@@ -163,7 +162,7 @@ final class VehicleManagementSettings {
 			self::SECTION_PRICING
 		);
 
-		// Seasonal Multipliers (Görev 9 / F19): moved from the orphaned
+		// Seasonal Multipliers: moved from the orphaned
 		// VehiclePricingSettings::render_settings_section() -- that method had
 		// zero callers, so an admin could never reach these controls. Field
 		// names are unchanged, so SettingsSanitizer::sanitize_vehicle_pricing_settings()
@@ -276,7 +275,7 @@ final class VehicleManagementSettings {
 	 * Seasonal Multipliers Field (Custom)
 	 *
 	 * Moved verbatim from the orphaned VehiclePricingSettings::render_settings_section()
-	 * (Görev 9 / F19) -- same field names, same markup. Data still lives in and is read
+	 * -- same field names, same markup. Data still lives in and is read
 	 * back through VehiclePricingSettings (get_seasonal_multipliers() / get_seasonal_multiplier_for_date(),
 	 * the latter consumed by BookingForm.php's per-day price calculation).
 	 *
@@ -287,7 +286,7 @@ final class VehicleManagementSettings {
 	 * wired-but-unreachable shape one level down (a config screen with no reader). The whole
 	 * discount trio (calculate_discounts()/get_enabled_discounts()/get_discount_options()) and
 	 * its solely-owned remnants (get_default_settings()'s discount_options entry, the matching
-	 * SettingsSanitizer arm) were deleted outright in T8 Görev 10c-A (K5-F1) rather than ever
+	 * SettingsSanitizer arm) were deleted outright rather than ever
 	 * given a doorway -- same zero-caller evidence, re-confirmed at that HEAD. Currency,
 	 * general and deposit fields from the orphan also stay out: each already has a live
 	 * equivalent elsewhere (mhmrentiva_currency on the General tab; min/max rental days on

@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 
 final class UnifiedSearchAssetsTest extends \WP_UnitTestCase
 {
-    public function test_unified_search_enqueues_base_and_premium_styles(): void
+    public function test_unified_search_enqueues_base_and_enhanced_styles(): void
     {
         UnifiedSearch::render([
             'default_tab' => 'rental',
@@ -20,8 +20,8 @@ final class UnifiedSearchAssetsTest extends \WP_UnitTestCase
         );
 
         $this->assertTrue(
-            wp_style_is('mhm-rentiva-search-premium', 'enqueued'),
-            'Expected search-premium CSS to be enqueued.'
+            wp_style_is('mhm-rentiva-search-enhanced', 'enqueued'),
+            'Expected search-enhanced CSS to be enqueued.'
         );
     }
 }

@@ -7,7 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 use MHMRentiva\Admin\PostTypes\Logs\PostType;
 use WP_Query;

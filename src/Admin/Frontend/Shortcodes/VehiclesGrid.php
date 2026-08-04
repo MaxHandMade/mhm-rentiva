@@ -220,14 +220,14 @@ class VehiclesGrid extends AbstractShortcode {
 		// (the active-vehicle-status filter) instead of replacing it
 		// wholesale -- the old `$args['meta_query'] = array(...)`
 		// assignment clobbered that filter entirely, letting
-		// inactive/suspended vehicles leak into "featured" grids (T8 Görev
-		// 10c-B, K5-BUG; pre-existing, untouched by Görev 14's SlowDBQuery
-		// sweep below). `[] =` degrades safely to today's single-clause
+		// inactive/suspended vehicles leak into the "featured" grid results
+		// (pre-existing, unrelated to the named-orderby-clause change below).
+		// `[] =` degrades safely to today's single-clause
 		// shape if meta_query were ever unset by the time this runs. The
 		// relation between top-level meta_query clauses defaults to 'AND'
 		// when unset (WP_Meta_Query) -- the exact implicit semantics the
-		// Görev-14 named orderby-clause appends further down already rely
-		// on, so this append composes with them the same way.
+		// named orderby-clause appends further down already rely on, so
+		// this append composes with them the same way.
 		if (( $atts['featured'] ?? '0' ) === '1') {
 			$args['meta_query'][] = array(
 				'key'     => '_mhmrentiva_featured',
@@ -241,7 +241,7 @@ class VehiclesGrid extends AbstractShortcode {
 
 		// Meta-based sorting via a NAMED meta_query clause + compound orderby.
 		//
-		// Görev 14 (T8 SlowDBQuery sweep), rows 25-26: this used to set a flat
+		// This used to set a flat
 		// top-level 'meta_key' + 'orderby' => 'meta_value_num'/'meta_value'.
 		// WP_Query's own WP_Meta_Query::parse_query_vars() auto-synthesizes an
 		// unnamed clause from that -- array('key' => $meta_key), no
@@ -372,7 +372,7 @@ class VehiclesGrid extends AbstractShortcode {
 		wp_enqueue_script(
 			'mhm-rentiva-vehicles-grid',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/vehicles-grid.js',
-			// vehicles-grid.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is only
+			// vehicles-grid.js calls MHMRentivaToast.* -- toast.js is only
 			// ever auto-loaded where a consumer's own deps declares it.
 			array( 'jquery', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION . '-' . filemtime(MHMRENTIVA_PLUGIN_PATH . 'assets/js/frontend/vehicles-grid.js'),
@@ -579,7 +579,7 @@ class VehiclesGrid extends AbstractShortcode {
 	 * NOTE: currently dead code -- enqueue_assets() above is a full override that
 	 * enqueues vehicles-grid.js directly and never calls enqueue_scripts(), so this
 	 * method has no live caller. Kept in sync with the real deps array above anyway
-	 * (T8 F06-F08) so it does not lie about the class's actual behavior if that
+	 * so it does not lie about the class's actual behavior if that
 	 * ever changes.
 	 */
 	protected static function get_js_dependencies(): array

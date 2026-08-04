@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 
 
@@ -239,7 +238,7 @@ final class AccountController {
 			wp_enqueue_script(
 				'mhm-rentiva-account-privacy',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/account-privacy.js',
-				// account-privacy.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is
+				// account-privacy.js calls MHMRentivaToast.* -- toast.js is
 				// only ever auto-loaded where a consumer's own deps declares it.
 				array( 'jquery', 'mhm-rentiva-toast' ),
 				MHMRENTIVA_VERSION,
@@ -364,7 +363,7 @@ final class AccountController {
 		wp_enqueue_script(
 			'mhm-rentiva-my-account',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/my-account.js',
-			// my-account.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is only
+			// my-account.js calls MHMRentivaToast.* -- toast.js is only
 			// ever auto-loaded where a consumer's own deps declares it. (Same handle is
 			// also enqueued from AbstractAccountShortcode::enqueue_assets(); both sites
 			// need this dependency since either can register the handle first.)

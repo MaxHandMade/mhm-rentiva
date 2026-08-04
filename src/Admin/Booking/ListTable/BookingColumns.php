@@ -7,7 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 
 
@@ -229,11 +228,10 @@ final class BookingColumns {
 				true
 			);
 
-			// The mhmBookingCalendar localize call formerly here was removed
-			// (WP.org T8 Görev 10b, row E1): booking-calendar.js navigates via
-			// mhmrentiva_month/mhmrentiva_year URL params only and never read
-			// this object -- a "Selected date" string minted on every load for
-			// zero consumers.
+			// The mhmBookingCalendar localize call formerly here was removed:
+			// booking-calendar.js navigates via mhmrentiva_month/mhmrentiva_year
+			// URL params only and never read this object -- a "Selected date"
+			// string minted on every load for zero consumers.
 
 			// Note: rely on WordPress core bulk-action behavior to avoid interference.
 

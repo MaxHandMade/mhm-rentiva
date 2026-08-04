@@ -296,7 +296,7 @@ final class SearchResults extends AbstractShortcode {
 		wp_enqueue_script(
 			'mhm-rentiva-search-results-js',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/search-results.js',
-			// search-results.js calls MHMRentivaToast.* directly (T8 F06-F08) -- declared
+			// search-results.js calls MHMRentivaToast.* directly -- declared
 			// here even though mhm-rentiva-vehicle-interactions already pulls toast in
 			// transitively, so this handle stays correct even if that transitive chain
 			// ever changes.
@@ -539,8 +539,8 @@ final class SearchResults extends AbstractShortcode {
 
 		// Sorting
 		//
-		// Görev 14 (T8 SlowDBQuery sweep), rows 21-23: price_asc/price_desc/
-		// year_desc used to set a flat top-level 'meta_key' + 'orderby' =>
+		// price_asc/price_desc/year_desc used to set a flat top-level
+		// 'meta_key' + 'orderby' =>
 		// 'meta_value_num'. WP_Query's own WP_Meta_Query::parse_query_vars()
 		// auto-synthesizes an unnamed clause from that flat 'meta_key' --
 		// array('key' => $meta_key), no compare/value -- which already

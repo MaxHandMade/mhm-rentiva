@@ -141,7 +141,6 @@ final class AutoComplete {
 					);
 				}
 
-				// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- prefix `mhmrentiva_` matches Text Domain; Plugin Check false positive.
 				do_action('mhmrentiva_booking_auto_completed', $bid);
 			} catch (\Throwable $e) {
 				// Per-booking failure must not abort the cron sweep; log and continue.

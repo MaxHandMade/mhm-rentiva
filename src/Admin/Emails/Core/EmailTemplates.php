@@ -29,12 +29,11 @@ final class EmailTemplates {
 	{
 		// Menu registration is now done centrally in Menu.php
 		add_action('admin_post_mhmrentiva_email_preview', array( self::class, 'handle_preview' ));
-		// admin_post_mhmrentiva_email_send_test -> handle_send() was removed
-		// (WP.org T8 Görev 10b, row A5): zero shipped nonce producer and zero
-		// consumer in either repo. The live sibling is the differently-named
-		// mhmrentiva_send_test_email (EmailTestAction.php). build_context()
-		// (used by handle_send()) survives -- it is also called live from
-		// EmailAjaxHandler.
+		// admin_post_mhmrentiva_email_send_test -> handle_send() was removed:
+		// zero shipped nonce producer and zero consumer anywhere. The live
+		// sibling is the differently-named mhmrentiva_send_test_email
+		// (EmailTestAction.php). build_context() (used by handle_send())
+		// survives -- it is also called live from EmailAjaxHandler.
 
 		// Admin AJAX for emails
 		\MHMRentiva\Admin\Emails\Ajax\EmailAjaxHandler::register();
@@ -50,12 +49,12 @@ final class EmailTemplates {
 
 
 
-	// render_page() and render_standalone_page() were removed (WP.org T8
-	// Görev 10b, row D7): render_page()'s only caller was its own class
+	// render_page() and render_standalone_page() were removed:
+	// render_page()'s only caller was its own class
 	// (render_standalone_page()), and neither was ever wired to a menu/
-	// add_options_page -- zero rendering surface in either repo. The live
-	// renderer is render_content_only() below, called from
-	// TabRendererRegistry inside the Settings > Email Templates tab.
+	// add_options_page -- zero rendering surface anywhere. The live renderer
+	// is render_content_only() below, called from TabRendererRegistry inside
+	// the Settings > Email Templates tab.
 
 	/**
 	 * Render only the body for the Settings tab, without the surrounding form.
@@ -144,8 +143,8 @@ final class EmailTemplates {
 	}
 
 	// handle_send() was removed with its admin_post_mhmrentiva_email_send_test
-	// registration above (row A5). build_context() below survives -- it is
-	// also called live from EmailAjaxHandler.
+	// registration above. build_context() below survives -- it is also
+	// called live from EmailAjaxHandler.
 
 	/**
 	 * The submitted templates form, or null when it carries neither of the two
@@ -504,20 +503,15 @@ final class EmailTemplates {
 
 			// ⭐ Localize JavaScript variables (includes data for send test email functionality)
 			//
-			// `strings` was missing here (T8 Görev 11, independent nonce-behavior
-			// audit, Fable#2 Minor-1): email-templates.js reads ten
+			// `strings` is populated here because email-templates.js reads ten
 			// `mhmrentiva_email_templates_vars.strings.*` leaves behind an
-			// `(vars.strings && vars.strings.x) || 'English literal'` guard, so the
-			// gap never threw -- every dialog just silently rendered the English
-			// fallback regardless of site locale. A prior commit (c7a508a6) had
-			// called this payload a "superset" of a dead AssetManager.php duplicate
-			// it was deleting; true for admin_post_url/send_test_nonce, but the
-			// duplicate carried this exact `strings` sub-array and this payload did
-			// not, so it was never a strict superset. Keys/values restored from
-			// that duplicate (still readable in AssetManager.php's now-dead
-			// mhm-rentiva_page_mhm-rentiva-email-templates branch, which never
-			// fires live -- see EmailTemplatesPayloadContractTest for the full
-			// field inventory this closes).
+			// `(vars.strings && vars.strings.x) || 'English literal'` guard, so a
+			// missing key never throws -- every dialog would just silently render
+			// the English fallback regardless of site locale. This payload is a
+			// full superset of the equivalent one AssetManager.php's now-dead
+			// mhm-rentiva_page_mhm-rentiva-email-templates branch used to localize
+			// (that branch never fires live -- see AssetManager.php:1044),
+			// including the `strings` sub-array that duplicate carried.
 			wp_localize_script(
 				'mhm-rentiva-email-templates',
 				'mhmrentiva_email_templates_vars',

@@ -11,7 +11,6 @@ if (! defined('ABSPATH')) {
 
 
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public shortcode filter names are intentionally stable.
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\CurrencyHelper;
@@ -252,7 +251,7 @@ final class AvailabilityCalendar extends AbstractShortcode {
 	 */
 	protected static function get_js_dependencies(): array
 	{
-		// availability-calendar.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is
+		// availability-calendar.js calls MHMRentivaToast.* -- toast.js is
 		// only ever auto-loaded where a consumer's own deps declares it.
 		return array( 'jquery', 'mhm-rentiva-toast' );
 	}

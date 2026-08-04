@@ -7,7 +7,6 @@ if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 use MHMRentiva\Admin\Core\Utilities\Templates;
 use MHMRentiva\Admin\Core\ShortcodeUrlManager;
@@ -179,7 +178,7 @@ final class BookingForm extends AbstractShortcode {
 
 	protected static function get_js_dependencies(): array
 	{
-		// booking-form.js calls MHMRentivaToast.* (T8 F06-F08) -- toast.js is only ever
+		// booking-form.js calls MHMRentivaToast.* -- toast.js is only ever
 		// auto-loaded where a consumer's own deps declares it.
 		return array( 'jquery', 'jquery-ui-datepicker', 'mhm-rentiva-toast' ); // jQuery UI DatePicker dependency added
 	}

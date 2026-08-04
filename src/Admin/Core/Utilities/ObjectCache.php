@@ -11,7 +11,6 @@ if (!defined('ABSPATH')) {
 
 
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public/legacy hook names kept stable for compatibility.
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

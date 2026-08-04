@@ -31,10 +31,9 @@ $pattern = '/isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|Mode::|Lice
 
 // Domain false positives that are NOT edition/license references.
 // - license_plate / driver's licen(se|ce): vehicle-rental domain, not edition gating.
-// - search-premium: unrelated CSS/JS identifier.
 // - isPrototypeOf: native JS Object method (bundled Chart.js in build/); the
 //   "isPro" pattern matches inside it as a plain substring, not the token "isPro".
-$whitelist = '/license_plate|_mhmrentiva_license_plate|driver.?s licen|search-premium|isPrototypeOf/i';
+$whitelist = '/license_plate|_mhmrentiva_license_plate|driver.?s licen|isPrototypeOf/i';
 
 $exts = array(
 	'php' => 1,

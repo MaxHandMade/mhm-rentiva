@@ -118,9 +118,9 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\GeneralSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
-			// CustomerManagementSettings::class was removed here (WP.org T8
-			// Görev 10b, row F2): the class was a hollow stub (0 fields, 0
-			// keys, register() empty) with no reachable tab slot (D3).
+			// CustomerManagementSettings::class was removed here: the class
+			// was a hollow stub (0 fields, 0 keys, register() empty) with no
+			// reachable tab slot.
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
@@ -401,8 +401,8 @@ final class SettingsCore {
 			\MHMRentiva\Admin\Settings\Groups\BookingSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\FrontendSettings::class,
-			// CustomerManagementSettings::class was removed here (WP.org T8
-			// Görev 10b, row F2): see the identical note above.
+			// CustomerManagementSettings::class was removed here: see the
+			// identical note above.
 			\MHMRentiva\Admin\Settings\Groups\EmailSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\MaintenanceSettings::class,
 			\MHMRentiva\Admin\Settings\Groups\CoreSettings::class,

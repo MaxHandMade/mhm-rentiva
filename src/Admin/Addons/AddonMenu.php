@@ -67,10 +67,9 @@ final class AddonMenu {
 				// Standardized Header — skip the trailing wp-header-end marker
 				// because WordPress core already emits one for the built-in
 				// post-type list H1 above us. Two markers make WP's notice
-				// relocator clone each admin notice (jQuery `.before()` on
-				// multiple targets) and that's what produced the duplicated
-				// "Rentiva Lite Limit" banner on this screen. See the
-				// `$skip_wp_header_end` docblock in AdminHelperTrait.
+				// relocator clone each admin_notices callback registered on
+				// this screen (jQuery `.before()` on multiple targets). See
+				// the `$skip_wp_header_end` docblock in AdminHelperTrait.
 				$this->render_admin_header(
 					esc_html__('Additional Services', 'mhm-rentiva'),
 					array(
@@ -97,15 +96,6 @@ final class AddonMenu {
 
 		echo '<div class="wrap">';
 		$renderer->render();
-
-		// NOTE (v4.27.2): the Lite limit notice used to be emitted here, but
-		// that caused it to render twice — WordPress's core notice-relocator
-		// JS inserts a copy right after the first `wp-header-end` marker while
-		// the DOM still contains the original inside this nested `.wrap`.
-		// The notice is now emitted by `render_addon_limit_notice()`, hooked
-		// to `admin_notices` as its own callback. WordPress places it once and
-		// cleans up the duplicate.
-
 		echo '</div>';
 	}
 

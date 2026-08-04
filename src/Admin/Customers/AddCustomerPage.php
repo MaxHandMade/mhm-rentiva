@@ -31,10 +31,10 @@ final class AddCustomerPage {
 	 * Register actions and hooks.
 	 *
 	 * No-op: the wp_ajax_mhmrentiva_add_customer -> ajax_add_customer()
-	 * wrapper formerly registered here was removed (WP.org T8 Görev 10b, row
-	 * A12) -- zero consumer in either repo; render()'s own inline POST
-	 * handler below (reachable via CustomersPage::render(), ?action=add-customer)
-	 * is the live create-customer path and carries the same nonce action.
+	 * wrapper formerly registered here was removed -- zero consumer anywhere;
+	 * render()'s own inline POST handler below (reachable via
+	 * CustomersPage::render(), ?action=add-customer) is the live
+	 * create-customer path and carries the same nonce action.
 	 * Kept as an empty method so CustomersPage::register()'s call site needs
 	 * no change.
 	 */
@@ -169,6 +169,6 @@ final class AddCustomerPage {
 	}
 
 	// ajax_add_customer() was removed with its wp_ajax_mhmrentiva_add_customer
-	// registration (row A12). render()'s own inline POST handler above is the
-	// live create-customer path.
+	// registration. render()'s own inline POST handler above is the live
+	// create-customer path.
 }

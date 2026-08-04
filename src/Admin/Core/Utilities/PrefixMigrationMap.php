@@ -61,7 +61,7 @@ if (! defined('ABSPATH')) {
  * they get no override entry. The seventh holds two different values and does:
  * see POSTMETA_EXACT_OVERRIDES below.
  *
- * 🔴 CONSEQUENCE FOR GÖREV 13: wp_postmeta has NO unique index on
+ * 🔴 CONSEQUENCE: wp_postmeta has NO unique index on
  * (post_id, meta_key). A merge therefore does not overwrite; it leaves TWO ROWS
  * with the same key, and get_post_meta($id, $key, true) returns whichever the
  * storage engine happens to order first -- a silent, nondeterministic wrong
@@ -417,19 +417,17 @@ final class PrefixMigrationMap {
         //
         // Winner decided on WRITERS, then confirmed against the database -- both
         // pieces of evidence, because one database is a sample:
-        //   '_rentiva_vehicle_service_type'  2 writers  (Pro VehicleSubmit.php:838
-        //                                     update_post_meta, and
-        //                                     VehicleTransferMetaBox.php:198), plus
-        //                                     every reader in Lite's FeaturedVehicles/
-        //                                     SearchResults meta_query and both
-        //                                     vehicle templates.  6 live rows.
-        //   '_mhm_vehicle_service_type'      0 writers  -- it appears only as a
+        //   '_rentiva_vehicle_service_type'  2 writers (both in the add-on's own
+        //                                     transfer code), plus every reader in
+        //                                     Lite's FeaturedVehicles/SearchResults
+        //                                     meta_query and both vehicle
+        //                                     templates.  6 live rows.
+        //   '_mhm_vehicle_service_type'      0 writers -- it appears only as a
         //                                     DatabaseCleaner protection entry and as
-        //                                     TWO legacy read-fallbacks in Pro
-        //                                     (TransferSearchEngine.php:100,
-        //                                     VehicleTransferMetaBox.php:63), each
-        //                                     sitting beside the '_rentiva_' read it
-        //                                     falls back FROM.  0 live rows.
+        //                                     TWO legacy read-fallbacks in the
+        //                                     add-on's transfer code, each sitting
+        //                                     beside the '_rentiva_' read it falls
+        //                                     back FROM.  0 live rows.
         // Note this is the mirror image of vehicle_id: there the BARE spelling was
         // the writer, here the qualified one is. Same rule, opposite-looking answer.
         '_mhmrentiva_vehicle_service_type'       => '_rentiva_vehicle_service_type',
@@ -481,14 +479,14 @@ final class PrefixMigrationMap {
      * this instance.
      *
      *   '_rentiva_vendor_city'       WINNER -- MetaKeys::VENDOR_CITY; written by
-     *                                VendorProfileSettingsSave.php:76 and read by
-     *                                six call sites including the directory SQL
-     *                                and two REST controllers. 5 rows.
+     *                                the add-on's vendor-profile save handler and
+     *                                read by six call sites including the
+     *                                directory SQL and two REST controllers. 5 rows.
      *   '_mhm_rentiva_vendor_city'   ZERO writers, ZERO readers. Its only
-     *                                appearance in either codebase is a Pro
-     *                                comment (VehicleSubmit.php:55) describing a
-     *                                historical bug that read this orphan key --
-     *                                a bug that was then fixed. 4 rows.
+     *                                appearance in either codebase is a comment in
+     *                                the add-on describing a historical bug that
+     *                                read this orphan key -- a bug that was then
+     *                                fixed. 4 rows.
      *
      * The values are NOT duplicates: three of the four affected vendors hold a
      * different city on the orphan row (Istanbul/Kocaeli, Antalya/Ankara,

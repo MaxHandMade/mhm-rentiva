@@ -27,7 +27,7 @@ final class MaintenanceSettings {
 	/**
 	 * Get default settings for maintenance
 	 *
-	 * T8 Görev 10c-A (K5-F4): mhmrentiva_log_max_size was deleted -- fully
+	 * mhmrentiva_log_max_size was deleted -- fully
 	 * dead both ways (not read anywhere, and unlike this array's surviving
 	 * key it was never even present in SettingsSanitizer.php's field list,
 	 * grep-verified across both repos). Its only other reference,
@@ -84,10 +84,9 @@ final class MaintenanceSettings {
 	}
 
 	/**
-	 * T8 Görev 10c-A (K5-F4): render_settings_section() was deleted here --
-	 * it had zero direct callers in either repo (task-10a-endpoint-table.md
-	 * D5), the same evidence as LogsSettings' identically-shaped wrapper
-	 * (K5-F3). UNLIKE LogsSettings, deleting register()'s wiring itself was
+	 * render_settings_section() was deleted here -- it had zero direct
+	 * callers anywhere, the same evidence as LogsSettings' identically-shaped
+	 * wrapper. UNLIKE LogsSettings, deleting register()'s wiring itself was
 	 * NOT safe: self::SECTION_ID ('mhmrentiva_maintenance_section') IS named
 	 * in TabRendererRegistry's 'system' tab $sections list, so
 	 * BaseSettingsTabRenderer::render() -> render_section_clean() ->
@@ -97,9 +96,8 @@ final class MaintenanceSettings {
 	 * on the live Settings -> System & Performance tab today, with no call
 	 * to this method at all. Proven with a runtime probe (render the real
 	 * TabRendererRegistry's 'system' entry, assert the checkbox HTML is
-	 * present); see MaintenanceSettingsLiveViaSystemTabTest and
-	 * task-10c-A-report.md's K5-F4 section for the full evidence-conflict
-	 * writeup. register()'s wiring therefore stays untouched.
+	 * present); see MaintenanceSettingsLiveViaSystemTabTest. register()'s
+	 * wiring therefore stays untouched.
 	 */
 
 	public static function render_section_description(): void {

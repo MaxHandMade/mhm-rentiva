@@ -459,7 +459,7 @@ final class VehicleFeatureHelper {
 	/**
 	 * Map detail keys to post meta keys.
 	 *
-	 * Rename rationale (Görev 14, T8 SlowDBQuery sweep, 2026-08): the array this
+	 * Rename rationale: the array this
 	 * method's return value feeds (get_available_fields_map()) used to spell its
 	 * UI-descriptor key 'meta_key'. That is a plain PHP array key inside a
 	 * config/display array built with get_option()/array_merge() -- no $wpdb or

@@ -24,10 +24,10 @@ export default function RevenueChart( { revenueData, currency } ) {
 			data: {
 				labels,
 				datasets: [ {
-					// "Revenue" DEĞİL: DashboardService::get_revenue_data() günleri DATE(p.post_date)
-					// ile, yani rezervasyonun OLUŞTURULMA tarihiyle kovalıyor -- kiralama tarihiyle
-					// değil. Etiket ölçtüğü şeyi söylüyor; tabanı 5 kardeş metot paylaştığı için
-					// taban değiştirilmedi (bkz. docs/plans/2026-07-28-pro-admin-i18n-plan.md T7).
+					// NOT "Revenue": DashboardService::get_revenue_data() buckets days by
+					// DATE(p.post_date) -- the booking's CREATION date, not the rental
+					// date. The label says what it actually measures; the underlying
+					// bucketing was not changed because five sibling methods share it.
 					label:           __( 'Daily Bookings Value', 'mhm-rentiva' ),
 					data:            amounts,
 					backgroundColor: 'rgba(54, 162, 235, 0.5)',

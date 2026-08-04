@@ -20,7 +20,6 @@ if (!defined('ABSPATH')) {
 
 
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Public shortcode filter names are intentionally stable.
 
 if (! defined('ABSPATH')) {
 	exit; // Exit if accessed directly
