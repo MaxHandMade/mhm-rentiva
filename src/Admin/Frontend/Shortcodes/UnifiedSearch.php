@@ -135,16 +135,26 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHMRENTIVA_VERSION
 		);
 
-		// Enhanced search overlay styles (the card/tab UI on top of the base
-		// layout). Versioned by file modification time, like the base
-		// stylesheet above: keyed to the plugin version instead, an edited
-		// stylesheet stayed cached in browsers until the next release, so the
-		// file on disk and the file being rendered could differ.
+		// Premium search overlay styles. Versioned by file modification time,
+		// like the base stylesheet above: keyed to the plugin version instead,
+		// an edited stylesheet stayed cached in browsers until the next release,
+		// so the file on disk and the file being rendered could differ.
+		//
+		// FILENAME IS A FROZEN LITE->PRO CONTRACT -- do not rename without a
+		// coordinated Lite+Pro release: mhm-rentiva-pro's
+		// TransferShortcodes.php enqueues this exact path
+		// (MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css')
+		// directly, by Lite's own URL constant, for the Transfer search UI.
+		// A prior fix-round renamed this file for cosmetic reasons (a reviewer
+		// grepping "premium" in the shipped file list) and broke that enqueue
+		// on every Pro install (404 stylesheet); reverted. See
+		// mhm-rentiva-pro/bin/check-lite-asset-refs.sh, which exists to catch
+		// exactly this and must read OK before this path ever changes again.
 		wp_enqueue_style(
-			'mhm-rentiva-search-enhanced',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-enhanced.css',
+			'mhm-rentiva-search-premium',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
 			array( 'mhm-rentiva-unified-search-base' ),
-			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-enhanced.css' )
+			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-premium.css' )
 		);
 
 		// Lite is rental-only: the search-enqueue action and
