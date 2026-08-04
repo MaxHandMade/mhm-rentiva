@@ -119,8 +119,27 @@ final class ShortcodePages {
 		// the $hook_suffix WordPress hands to admin_enqueue_scripts is the same
 		// gate DashboardPage and About use; it replaces a $_GET['page'] read
 		// that duplicated information already in the callback's own argument.
+		//
+		// This used to fall back to str_contains($hook_suffix, self::MENU_SLUG)
+		// whenever $this->page_hook was empty -- i.e. always, in production --
+		// so str_contains() alone decided every request, and any foreign hook
+		// that merely EMBEDS "mhm-rentiva-shortcode-pages" as a substring (not
+		// just this exact screen) would also pull the bundle in (T8 Görev 11,
+		// independent nonce-behavior audit, Fable#2; see
+		// ShortcodePagesEnqueueGateTest for the runtime proof of the exact
+		// suffix and the foreign-hook cases this closes).
+		//
+		// Menu.php registers this screen as a submenu of the fixed top-level
+		// 'mhm-rentiva' parent (Menu.php's add_menu(), 'mhm-rentiva-shortcode-
+		// pages' slug), so WordPress's own hookname formula
+		// (get_plugin_page_hookname()) is fully determined at compile time --
+		// the same reasoning About::enqueue_scripts() and Görev 3's
+		// Addons\AddonSettings::enqueue_scripts() already use for their own
+		// screens. $this->page_hook is kept as an exact-match alternative (not
+		// a substring one) for the add_admin_menu() path, which no production
+		// code calls today but which a test may still exercise directly.
 		$is_valid_page = ( '' !== $this->page_hook && $hook_suffix === $this->page_hook )
-			|| str_contains( $hook_suffix, self::MENU_SLUG );
+			|| 'mhm-rentiva_page_' . self::MENU_SLUG === $hook_suffix;
 
 		if ( ! $is_valid_page ) {
 			return;

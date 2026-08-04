@@ -503,6 +503,21 @@ final class EmailTemplates {
 			);
 
 			// ⭐ Localize JavaScript variables (includes data for send test email functionality)
+			//
+			// `strings` was missing here (T8 Görev 11, independent nonce-behavior
+			// audit, Fable#2 Minor-1): email-templates.js reads ten
+			// `mhmrentiva_email_templates_vars.strings.*` leaves behind an
+			// `(vars.strings && vars.strings.x) || 'English literal'` guard, so the
+			// gap never threw -- every dialog just silently rendered the English
+			// fallback regardless of site locale. A prior commit (c7a508a6) had
+			// called this payload a "superset" of a dead AssetManager.php duplicate
+			// it was deleting; true for admin_post_url/send_test_nonce, but the
+			// duplicate carried this exact `strings` sub-array and this payload did
+			// not, so it was never a strict superset. Keys/values restored from
+			// that duplicate (still readable in AssetManager.php's now-dead
+			// mhm-rentiva_page_mhm-rentiva-email-templates branch, which never
+			// fires live -- see EmailTemplatesPayloadContractTest for the full
+			// field inventory this closes).
 			wp_localize_script(
 				'mhm-rentiva-email-templates',
 				'mhmrentiva_email_templates_vars',
@@ -517,6 +532,18 @@ final class EmailTemplates {
 					'test_email_failed' => __('Test email could not be sent.', 'mhm-rentiva'),
 					'processing'        => __('Processing...', 'mhm-rentiva'),
 					'error_occurred'    => __('An error occurred. Please try again.', 'mhm-rentiva'),
+					'strings'           => array(
+						'sendTestEmail' => __('Send Test Email', 'mhm-rentiva'),
+						'emailAddress'  => __('Email Address', 'mhm-rentiva'),
+						'cancel'        => __('Cancel', 'mhm-rentiva'),
+						'enterEmail'    => __('Please enter email address', 'mhm-rentiva'),
+						'editTemplate'  => __('Edit Template', 'mhm-rentiva'),
+						'subject'       => __('Subject', 'mhm-rentiva'),
+						'content'       => __('Content', 'mhm-rentiva'),
+						'save'          => __('Save', 'mhm-rentiva'),
+						'templateSaved' => __('Template saved successfully!', 'mhm-rentiva'),
+						'templateReset' => __('Template reset to default!', 'mhm-rentiva'),
+					),
 				)
 			);
 		}
