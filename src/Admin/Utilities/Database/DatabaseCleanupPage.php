@@ -49,12 +49,17 @@ final class DatabaseCleanupPage {
 	// handle with a materially larger wp_localize_script payload that
 	// database-cleanup.js's live code depends on (e.g. clean_invalid_meta_text,
 	// restoring_text, type_invalid_meta_text -- all absent from this method's
-	// smaller 14-key payload). admin_enqueue_scripts (this method's hook)
-	// always fires before the page body renders, so wp_localize_script()'s
-	// last-call-wins overwrite meant the renderer's payload always won
-	// whenever both fired, and this method did nothing on every other tab --
-	// dead weight either way. Zero test coverage referenced this method
-	// (confirmed before deletion); the $_GET['tab'] read it carried is gone.
+	// smaller 14-key payload). WP_Scripts::localize() concatenates each call's
+	// `var mhmrentiva_db_cleanup_vars = ...;` declaration onto the handle rather
+	// than replacing it, so both this method's and the renderer's declarations
+	// would have shipped to the browser back to back. admin_enqueue_scripts
+	// (this method's hook) always completes before the page body renders, so
+	// the renderer's declaration was always the later one -- the second `var`
+	// assignment shadows the first at the JS level, which is why the renderer's
+	// values were always what the page actually used, and this method did
+	// nothing on every other tab besides. Dead weight either way. Zero test
+	// coverage referenced this method (confirmed before deletion); the
+	// $_GET['tab'] read it carried is gone.
 
 	// render_page() was removed (WP.org T8 Görev 10b, row D6): register()'s
 	// own comment already said menu-page registration moved to the Settings

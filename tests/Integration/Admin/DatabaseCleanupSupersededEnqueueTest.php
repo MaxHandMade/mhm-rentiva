@@ -24,10 +24,13 @@ use WP_UnitTestCase;
  *   `assets/js/admin/database-cleanup.js` reads keys (`restoring_text`,
  *   `clean_invalid_meta_text`, `type_invalid_meta_text`, ...) that exist ONLY
  *   in the renderer's payload -- proving the renderer's payload is what
- *   actually drove the UI even before this deletion, since
- *   `admin_enqueue_scripts` (the old method's hook) always fires before the
- *   page body renders, and `wp_localize_script()` overwrites (not merges) a
- *   handle's data on a second call.
+ *   actually drove the UI even before this deletion. `WP_Scripts::localize()`
+ *   concatenates each call's `var ... = ...;` declaration onto the handle
+ *   rather than replacing it (both declarations ship to the browser), and
+ *   `admin_enqueue_scripts` (the old method's hook) always completes before
+ *   the page body renders -- so the renderer's declaration was always
+ *   emitted second, shadowing the old method's at the JS level exactly like
+ *   a later `var` reassignment.
  * - Pro (`mhm-rentiva-pro`) does not reference `DatabaseCleanupPage` at all.
  *
  * @covers \MHMRentiva\Admin\Utilities\Database\DatabaseCleanupPage::register
