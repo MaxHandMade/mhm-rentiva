@@ -23,7 +23,7 @@
       "Kaldırıldı: yönetim panelinde hiçbir menü öğesi, buton veya çalışan çağıranı olmayan bir düzine admin-ajax uç noktası ve birkaç ayarlar ekranı kaldırıldı. Hepsi erişilemeyen ölü koddu; yönetim panelinde daha önce yapabildiğiniz hiçbir şey etkilenmiyor.",
       "İç değişiklik: araç listesi, arama ve tarih aralığına göre rezervasyon sorgularının birkaçı, WordPress'e ikinci ve gereksiz bir tablo birleştirmesi kurduran kısayol yerine sıralama koşullarını artık açıkça adlandırıyor. Tarih aralığı rezervasyon sorgusu o fazladan birleştirmeden kurtuluyor; diğerleri öncekiyle tam olarak aynı satırları aynı sırada döndürüyor ve her yeniden yazım, önce eski koda karşı yazılıp çalıştırılan bir testle kilitlendi.",
       "İç değişiklik: bozuk biçimde saklanan bir sezonluk çarpan, herkese açık rezervasyon formunu çökertebiliyordu. Rezervasyon formu artık kullanılamaz bir sezonu atlıyor ve ayarlar ekranı böyle bir sezonu artık hiç saklamıyor.",
-      "İç değişiklik: otomatik test takımı artık 1.553 test ve sıfır hatayla geçiyor."
+      "İç değişiklik: otomatik test takımı artık 1.563 test ve sıfır hatayla geçiyor."
     ],
     "notice": "Herhangi bir işlem gerekmiyor. Güncellemeden sonra yönetim panelini ilk açtığınızda otomatik, tek seferlik bir göç bazı iç veritabanı indekslerini kaldırır; yeni sezonluk fiyatlandırma ana anahtarını açmadıkça başka hiçbir şey değişmez. Sayfalarınızı bu eklentinin bloklarıyla kuruyorsanız, bu sürüm o sayfalardaki favori ve karşılaştırma butonlarını onarıyor."
   },
