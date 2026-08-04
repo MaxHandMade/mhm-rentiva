@@ -331,7 +331,7 @@ final class DatabaseMigrator {
 			global $wpdb;
 			$index_cleanup = RetiredIndexes::drop($wpdb, $index_cleanup_expected, $index_cleanup_runner);
 			if (array() !== $index_cleanup['failed']) {
-				$attempts = ((int) get_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION, 0)) + 1;
+				$attempts = ( (int) get_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION, 0) ) + 1;
 				update_option(self::INDEX_CLEANUP_ATTEMPTS_OPTION, $attempts, false);
 
 				if ($attempts < self::INDEX_CLEANUP_MAX_ATTEMPTS) {

@@ -715,5 +715,4 @@ final class AddonManager {
 			wp_send_json_error( array( 'message' => esc_html__( 'Error occurred while updating price.', 'mhm-rentiva' ) ) );
 		}
 	}
-
 }

@@ -116,5 +116,4 @@ final class VehiclePricingSettings {
 		$settings = self::get_settings();
 		return $settings['seasonal_multipliers'] ?? self::get_default_settings()['seasonal_multipliers'];
 	}
-
 }

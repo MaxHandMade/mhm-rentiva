@@ -27,9 +27,9 @@ final class MaintenanceSettings {
 	/**
 	 * Get default settings for maintenance
 	 *
-	 * mhmrentiva_log_max_size was deleted -- fully
-	 * dead both ways (not read anywhere, and unlike this array's surviving
-	 * key it was never even present in SettingsSanitizer.php's field list,
+	 * The mhmrentiva_log_max_size key was deleted -- fully dead both ways
+	 * (not read anywhere, and unlike this array's surviving key it was
+	 * never even present in SettingsSanitizer.php's field list,
 	 * grep-verified across both repos). Its only other reference,
 	 * tests/standalone/system_settings_audit.php's diagnostic list, was
 	 * edited alongside this.
@@ -84,8 +84,8 @@ final class MaintenanceSettings {
 	}
 
 	/**
-	 * render_settings_section() was deleted here -- it had zero direct
-	 * callers anywhere, the same evidence as LogsSettings' identically-shaped
+	 * The render_settings_section() wrapper was deleted here -- it had zero
+	 * direct callers anywhere, the same evidence as LogsSettings' identically-shaped
 	 * wrapper. UNLIKE LogsSettings, deleting register()'s wiring itself was
 	 * NOT safe: self::SECTION_ID ('mhmrentiva_maintenance_section') IS named
 	 * in TabRendererRegistry's 'system' tab $sections list, so

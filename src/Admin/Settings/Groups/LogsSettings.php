@@ -41,8 +41,8 @@ final class LogsSettings {
 	/**
 	 * Register settings.
 	 *
-	 * self::SECTION_LOGS is named in the 'system' tab's $sections list
-	 * (TabRendererRegistry), the same reachability path
+	 * The self::SECTION_LOGS section is named in the 'system' tab's
+	 * $sections list (TabRendererRegistry), the same reachability path
 	 * MaintenanceSettings::SECTION_ID uses -- see that class's own
 	 * docblock for the render mechanism (BaseSettingsTabRenderer::render()
 	 * -> SettingsViewHelper::render_section_cleanly() -> do_settings_fields(),
