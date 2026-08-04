@@ -1316,7 +1316,23 @@ final class AssetManager {
 		}
 
 		$content = (string) $post->post_content;
-		return strpos($content, '[rentiva_') !== false;
+
+		if (strpos($content, '[rentiva_') !== false) {
+			return true;
+		}
+
+		// A page built with the plugin's own Gutenberg block(s) and NO
+		// shortcode never matches the strpos() check above -- block markup is
+		// an HTML comment (`<!-- wp:mhm-rentiva/vehicles-grid /-->`), not
+		// '[rentiva_' text -- so this is not redundant with it. Recognises any
+		// block this plugin has registered (Lite's own plus anything the
+		// `mhmrentiva_blocks` filter contributes, e.g. Pro), sourced from
+		// BlockRegistry so this never becomes a second, driftable copy of the
+		// block-slug list. See BlockRegistry::content_has_registered_block()
+		// for exactly what it covers (nested/inner blocks, one level of
+		// reusable-block/synced-pattern resolution) and what it does not
+		// (template parts).
+		return \MHMRentiva\Blocks\BlockRegistry::content_has_registered_block($content);
 	}
 
 	/**

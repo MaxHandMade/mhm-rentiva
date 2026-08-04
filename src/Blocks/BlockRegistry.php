@@ -280,6 +280,114 @@ class BlockRegistry {
 	}
 
 	/**
+	 * Fully-qualified names of every block this plugin registers -- including
+	 * any contributed via the `mhmrentiva_blocks` filter (e.g. the Pro add-on).
+	 *
+	 * Single source of truth for "is this block one of ours": callers outside
+	 * this class (AssetManager::should_load_assets(), via
+	 * content_has_registered_block() below) MUST read this instead of keeping
+	 * a second copy of the slug list, which would silently drift as blocks
+	 * are added to or removed from $blocks/the filter.
+	 *
+	 * @return string[] e.g. array('mhm-rentiva/vehicles-grid', ...).
+	 */
+	public static function get_block_names(): array
+	{
+		$names = array();
+		foreach (array_keys(self::get_block_config()) as $slug) {
+			$names[] = 'mhm-rentiva/' . $slug;
+		}
+		return $names;
+	}
+
+	/**
+	 * Whether raw block content references at least one of this plugin's own
+	 * registered blocks, anywhere in the block tree: top level, nested inside
+	 * a wrapper block (e.g. Group/Columns), or one level inside a reusable
+	 * block / synced pattern (`core/block` ref).
+	 *
+	 * Written for AssetManager::should_load_assets(), which used to grep
+	 * post_content for the literal '[rentiva_' shortcode tag only -- block
+	 * markup (`<!-- wp:mhm-rentiva/vehicles-grid /-->`) never contains that
+	 * substring, so a page built purely with this plugin's Gutenberg blocks
+	 * (no shortcode anywhere on the page) never enqueued
+	 * 'mhm-rentiva-vehicle-interactions': favourite/compare buttons rendered
+	 * with correct server-side state and a clean console, but did nothing on
+	 * click (browser-verified, T8 Görev 17 tour).
+	 *
+	 * Goes a step further than core's own has_block(), which explicitly does
+	 * NOT check synced patterns/reusable blocks (see its docblock) -- this
+	 * resolves one level of `core/block` ref by fetching the referenced
+	 * wp_block post's own content, bounded by $depth so a pattern that (validly
+	 * or via a cyclical reference) nests deeper simply stops being detected
+	 * rather than recursing unboundedly.
+	 *
+	 * What this does NOT resolve: `core/template-part`. Template parts are a
+	 * block-theme (FSE) concept; walking them needs the block-template
+	 * machinery (get_block_templates()), a materially bigger surface for a
+	 * theme mode this plugin's documented/supported theme (Astra, classic)
+	 * does not use today. A site that needs it can still force loading via
+	 * the existing `mhmrentiva_force_load_assets` filter.
+	 *
+	 * @param string $content Raw post_content (or a referenced reusable-block
+	 *                        post's own content, when called recursively).
+	 * @param int    $depth   Recursion guard for core/block refs -- external
+	 *                        callers always omit this and get 0.
+	 * @return bool
+	 */
+	public static function content_has_registered_block(string $content, int $depth = 0): bool
+	{
+		// has_blocks() also accepts a raw content string directly (not just a
+		// post/ID) and is a cheap substring probe ('<!-- wp:') before paying
+		// for a full parse_blocks() -- the overwhelming majority of requests
+		// (any page without ANY block on it at all) bail out right here.
+		if ($depth > 3 || ! has_blocks($content)) {
+			return false;
+		}
+
+		$names = array_flip(self::get_block_names());
+
+		return self::block_list_has_registered_block(parse_blocks($content), $names, $depth);
+	}
+
+	/**
+	 * Recursive walk of a parse_blocks() tree (or an innerBlocks subtree).
+	 *
+	 * @param array<int,array<string,mixed>> $blocks parse_blocks() output.
+	 * @param array<string,int>              $names  Flipped get_block_names(), for O(1) lookup.
+	 * @param int                             $depth  Current core/block recursion depth.
+	 */
+	private static function block_list_has_registered_block(array $blocks, array $names, int $depth): bool
+	{
+		foreach ($blocks as $block) {
+			$name = (string) ( $block['blockName'] ?? '' );
+
+			if ('' !== $name && isset($names[ $name ])) {
+				return true;
+			}
+
+			// Reusable block / synced pattern: the markup lives in the
+			// referenced wp_block post's OWN content, not in innerBlocks here.
+			if ('core/block' === $name && ! empty($block['attrs']['ref'])) {
+				$referenced = get_post( (int) $block['attrs']['ref']);
+				if ($referenced instanceof \WP_Post
+					&& self::content_has_registered_block( (string) $referenced->post_content, $depth + 1)
+				) {
+					return true;
+				}
+			}
+
+			if (! empty($block['innerBlocks'])
+				&& self::block_list_has_registered_block($block['innerBlocks'], $names, $depth)
+			) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Register all defined blocks with their dependencies
 	 *
 	 * @return void
