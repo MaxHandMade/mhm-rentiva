@@ -297,11 +297,35 @@ final class VehicleManagementSettings {
 		$seasonal_multipliers = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multipliers();
 
 		foreach ( $seasonal_multipliers as $key => $season ) {
+			// A stored season entry is not guaranteed to be an array. The
+			// programmatic settings path passes array values through untouched
+			// (SettingsSanitizer::sanitize_programmatic_update()), so an
+			// out-of-band writer can leave a scalar here -- and
+			// `$season['name']` on a string is a TypeError that takes this
+			// whole tab down on RENDER, before the admin can reach any control
+			// to repair it. Skip what cannot be rendered instead: the read path
+			// (VehiclePricingSettings::get_seasonal_multiplier_for_month())
+			// skips the same entry, so the screen and the quoted price agree
+			// about what they ignore.
+			if ( ! is_array( $season ) ) {
+				continue;
+			}
+
+			// The optional keys get their own fallbacks rather than a second
+			// `continue`: an array entry carrying only 'multiplier' is exactly
+			// what the pre-6.0.1 sanitizer manufactured, so some install has
+			// one, and it is still perfectly editable -- it just has no name or
+			// description to print. `is_numeric()` on the multiplier mirrors
+			// the read path's own check, so a non-scalar cannot reach esc_attr().
+			$name        = isset( $season['name'] ) && is_scalar( $season['name'] ) ? (string) $season['name'] : (string) $key;
+			$description = isset( $season['description'] ) && is_scalar( $season['description'] ) ? (string) $season['description'] : '';
+			$multiplier  = isset( $season['multiplier'] ) && is_numeric( $season['multiplier'] ) ? (string) $season['multiplier'] : '1';
+
 			echo '<div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">';
-			echo '<h4>' . esc_html( $season['name'] ) . '</h4>';
+			echo '<h4>' . esc_html( $name ) . '</h4>';
 			echo '<label for="season_' . esc_attr( $key ) . '_multiplier">' . esc_html__( 'Multiplier', 'mhm-rentiva' ) . '</label><br>';
-			echo '<input type="number" id="season_' . esc_attr( $key ) . '_multiplier" name="mhmrentiva_settings[vehicle_pricing][seasonal_multipliers][' . esc_attr( $key ) . '][multiplier]" value="' . esc_attr( $season['multiplier'] ) . '" min="0.1" max="5.0" step="0.1" style="width: 100px;">';
-			echo '<p class="description">' . esc_html( $season['description'] ) . '</p>';
+			echo '<input type="number" id="season_' . esc_attr( $key ) . '_multiplier" name="mhmrentiva_settings[vehicle_pricing][seasonal_multipliers][' . esc_attr( $key ) . '][multiplier]" value="' . esc_attr( $multiplier ) . '" min="0.1" max="5.0" step="0.1" style="width: 100px;">';
+			echo '<p class="description">' . esc_html( $description ) . '</p>';
 			echo '</div>';
 		}
 	}

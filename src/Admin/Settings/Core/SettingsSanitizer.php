@@ -432,6 +432,29 @@ final class SettingsSanitizer {
 			$current_pricing = VehiclePricingSettings::get_default_settings();
 		}
 
+		// The seasonal block is its OWN level and needs its own check. The two
+		// guards this one sits between -- `vehicle_pricing` above, the read
+		// path below -- both miss it: `vehicle_pricing` can be a perfectly good
+		// array whose 'seasonal_multipliers' is a scalar or simply absent.
+		//
+		// Absent, and the write below invents `['spring']['multiplier']` inside
+		// a block with no spring entry -- manufacturing the months-less season
+		// this whole arm exists to prevent, through the REAL form.
+		// A scalar, and the same write is a hard fatal on a NORMAL Save of
+		// Settings > Vehicle Management: `Cannot access offset of type string
+		// on string` for a string, `Cannot use a scalar value as an array` for
+		// an int or bool. No crafted POST is needed for either, because
+		// render_seasonal_multipliers_field() MASKS the corruption -- it falls
+		// back to the defaults and draws its four fields, so the admin sees a
+		// normal screen and presses Save.
+		//
+		// Heal to the same defaults VehiclePricingSettings::get_seasonal_multipliers()
+		// falls back to, so the save path and the read path agree on what an
+		// unusable block means instead of holding two definitions of it.
+		if ( ! isset( $current_pricing['seasonal_multipliers'] ) || ! \is_array( $current_pricing['seasonal_multipliers'] ) ) {
+			$current_pricing['seasonal_multipliers'] = VehiclePricingSettings::get_default_settings()['seasonal_multipliers'];
+		}
+
 		if ( isset( $input['vehicle_pricing'] ) && \is_array( $input['vehicle_pricing'] ) ) {
 			$in = $input['vehicle_pricing'];
 
@@ -460,10 +483,15 @@ final class SettingsSanitizer {
 				// can post is precisely the set of stored keys. Deriving it
 				// therefore cannot reject legitimate input, and an install that
 				// somehow carries a fifth season keeps being able to save it.
-				$stored_seasons = $current_pricing['seasonal_multipliers'] ?? null;
-				$known_seasons  = ( \is_array( $stored_seasons ) && array() !== $stored_seasons )
-					? \array_map( 'strval', \array_keys( $stored_seasons ) )
-					: \array_map( 'strval', \array_keys( VehiclePricingSettings::get_default_settings()['seasonal_multipliers'] ) );
+				//
+				// It derives from the stored set with NO fallback of its own:
+				// the heal above already guarantees an array here, so the two
+				// are now provably the same set in every case -- including the
+				// empty one, where the renderer draws nothing and this
+				// therefore accepts nothing. A default fallback here would
+				// diverge from the screen in exactly that case and let a
+				// nonce'd POST re-create a months-less season.
+				$known_seasons = \array_map( 'strval', \array_keys( $current_pricing['seasonal_multipliers'] ) );
 
 				foreach ( $in['seasonal_multipliers'] as $key => $season ) {
 					$safe_key = \sanitize_key( (string) $key );

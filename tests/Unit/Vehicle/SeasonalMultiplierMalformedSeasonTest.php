@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace MHMRentiva\Tests\Unit\Vehicle;
 
 use MHMRentiva\Admin\Settings\Core\SettingsSanitizer;
+use MHMRentiva\Admin\Settings\Groups\VehicleManagementSettings;
 use MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings;
 use WP_UnitTestCase;
 
@@ -259,6 +260,154 @@ final class SeasonalMultiplierMalformedSeasonTest extends WP_UnitTestCase {
 		$this->assertSame( 1.6, $seasonal['summer']['multiplier'] ?? null );
 		$this->assertSame( 1.05, $seasonal['autumn']['multiplier'] ?? null );
 		$this->assertSame( 0.7, $seasonal['winter']['multiplier'] ?? null );
+	}
+
+	/**
+	 * FIX ROUND 2 / F-1(a) — THE MIDDLE LEVEL.
+	 *
+	 * The first pass guarded the level ABOVE (`vehicle_pricing` not an array)
+	 * and the level BELOW (the read path), and left the one between them:
+	 * `vehicle_pricing` can be a perfectly good array whose
+	 * `seasonal_multipliers` is a scalar. The write
+	 * `$current_pricing['seasonal_multipliers'][$key]['multiplier'] = …` then
+	 * fataled on a NORMAL Save of Settings > Vehicle Management -- no crafted
+	 * POST needed, because the RENDERER masks the corruption (it falls back to
+	 * the four defaults and draws its four fields), so the admin sees a normal
+	 * screen, presses Save, and the tab dies.
+	 *
+	 * @dataProvider unusable_block_provider
+	 *
+	 * @param mixed $block Unusable seasonal_multipliers block.
+	 */
+	public function test_saving_the_vehicle_tab_does_not_fatal_on_an_unusable_stored_block( $block ): void {
+		$this->store_seasonal( $block );
+
+		$result = SettingsSanitizer::sanitize(
+			array(
+				'current_active_tab' => 'vehicle',
+				'vehicle_pricing'    => array(
+					'seasonal_multipliers' => array(
+						'spring' => array( 'multiplier' => '1.50' ),
+					),
+				),
+			)
+		);
+
+		$seasonal = $result['vehicle_pricing']['seasonal_multipliers'] ?? null;
+
+		$this->assertIsArray( $seasonal, 'An unusable block must be healed to an array, not written through.' );
+		$this->assertSame( 1.5, $seasonal['spring']['multiplier'] ?? null, 'The posted value must still land.' );
+		$this->assertSame(
+			array( 3, 4, 5 ),
+			$seasonal['spring']['months'] ?? null,
+			'Healing must restore the DEFAULTS -- the same fallback get_seasonal_multipliers() uses -- so spring keeps its months and the read path cannot meet a months-less season.'
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: mixed}>
+	 */
+	public function unusable_block_provider(): array {
+		return array(
+			'block is a string' => array( 'not-an-array' ),
+			'block is an int'   => array( 7 ),
+			'block is true'     => array( true ),
+			'block is null'     => array( null ),
+		);
+	}
+
+	/**
+	 * FIX ROUND 2 / F-1(a), second half. A stored `vehicle_pricing` with NO
+	 * seasonal block at all is the same hole pointing the other way: the
+	 * renderer still draws four fields (it falls back to the defaults), the
+	 * admin saves, and the writer used to create `['spring']['multiplier']`
+	 * inside a block that had no spring entry -- manufacturing exactly the
+	 * months-less season I-1 exists to prevent, through the REAL UI this time.
+	 */
+	public function test_saving_cannot_create_a_months_less_season_when_the_block_is_absent(): void {
+		update_option(
+			'mhmrentiva_settings',
+			array( 'vehicle_pricing' => array( 'currency_settings' => array( 'default_currency' => 'USD' ) ) )
+		);
+
+		$result = SettingsSanitizer::sanitize(
+			array(
+				'current_active_tab' => 'vehicle',
+				'vehicle_pricing'    => array(
+					'seasonal_multipliers' => array(
+						'summer' => array( 'multiplier' => '1.90' ),
+					),
+				),
+			)
+		);
+
+		$summer = $result['vehicle_pricing']['seasonal_multipliers']['summer'] ?? null;
+
+		$this->assertIsArray( $summer );
+		$this->assertSame( 1.9, $summer['multiplier'] ?? null );
+		$this->assertArrayHasKey( 'months', $summer, 'A season written by the real form must never lack its months.' );
+		$this->assertSame( array( 6, 7, 8 ), $summer['months'] );
+	}
+
+	/**
+	 * FIX ROUND 2 / F-1(b) — THE RENDERER, the third consumer the first pass
+	 * did not enumerate. A season ENTRY stored as a string fataled
+	 * `esc_html( $season['name'] )` and took the whole Vehicle Management tab
+	 * down on render.
+	 *
+	 * @dataProvider unrenderable_entry_provider
+	 *
+	 * @param mixed $entry Unrenderable season entry.
+	 */
+	public function test_rendering_the_seasonal_field_does_not_fatal_on_an_unrenderable_entry( $entry ): void {
+		$this->store_seasonal(
+			array(
+				'foo'    => $entry,
+				'summer' => array(
+					'name'        => 'Summer',
+					'months'      => array( 6, 7, 8 ),
+					'multiplier'  => 1.3,
+					'description' => 'High season',
+				),
+			)
+		);
+
+		ob_start();
+		VehicleManagementSettings::render_seasonal_multipliers_field();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'Summer', $html, 'The good season must still render -- the guard skips one entry, it does not abandon the loop.' );
+		$this->assertStringContainsString( 'seasonal_multipliers][summer][multiplier]', $html, 'Its field must keep the name the sanitizer expects.' );
+		$this->assertStringNotContainsString( 'seasonal_multipliers][foo][multiplier]', $html, 'An unrenderable entry must not produce a field.' );
+	}
+
+	/**
+	 * @return array<string, array{0: mixed}>
+	 */
+	public function unrenderable_entry_provider(): array {
+		return array(
+			'entry is a string' => array( 'summer' ),
+			'entry is an int'   => array( 7 ),
+			'entry is null'     => array( null ),
+			'entry is true'     => array( true ),
+		);
+	}
+
+	/**
+	 * An ARRAY entry missing its optional keys is renderable -- it must render
+	 * without a notice and without inventing a field name, because that is the
+	 * shape the old sanitizer actually manufactured and some install may carry
+	 * it.
+	 */
+	public function test_rendering_survives_an_array_entry_missing_its_keys(): void {
+		$this->store_seasonal( array( 'spring' => array( 'multiplier' => 1.2 ) ) );
+
+		ob_start();
+		VehicleManagementSettings::render_seasonal_multipliers_field();
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'seasonal_multipliers][spring][multiplier]', $html );
+		$this->assertStringContainsString( 'value="1.2"', $html );
 	}
 
 	/**
