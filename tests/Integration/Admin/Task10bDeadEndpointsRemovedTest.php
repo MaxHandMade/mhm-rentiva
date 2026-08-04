@@ -27,6 +27,21 @@ use WP_UnitTestCase;
  * get_payment_deadline(), Uninstaller::uninstall_direct()) were preserved
  * and are asserted still-present below as positive controls.
  *
+ * Görev 10c-A addition: a 13th tag, `wp_ajax_mhmrentiva_create_default_addons`
+ * (task-10a-endpoint-table.md row C1). Unlike A1-A12, this one had a real
+ * nonce producer AND a real button that posted to it — it was DECISION-NEEDED,
+ * not an auto-delete, because the surrounding `AddonSettings::render_page()`
+ * page was simply unreachable (no `add_submenu_page()` anywhere), not because
+ * the AJAX handler itself lacked wiring. The controller's K5-C1 ruling
+ * (task-10c-A-brief.md) chose deletion of the whole render_page()/
+ * enqueue_scripts()/ajax_create_default_addons() cluster over building the
+ * missing doorway. `AddonSettings::class` (still surviving — its
+ * `register_settings()`/`defaults()`/`get()`/`sanitize()` remain live via
+ * `SettingsCore`'s central settings lifecycle) is added to the setUp()
+ * registrar loop below so this tag's pre-deletion RED state is real, not
+ * vacuous, for the same `is_admin()`-gated-bootstrap reason documented on
+ * the loop itself.
+ *
  * @covers \MHMRentiva\Admin\Booking\Core\Handler
  * @covers \MHMRentiva\Admin\Vehicle\Deposit\DepositAjax
  * @covers \MHMRentiva\Admin\Emails\Core\EmailTemplates
@@ -35,6 +50,7 @@ use WP_UnitTestCase;
  * @covers \MHMRentiva\Admin\Utilities\Uninstall\Uninstaller
  * @covers \MHMRentiva\Admin\Utilities\Dashboard\DashboardPage
  * @covers \MHMRentiva\Admin\Customers\AddCustomerPage
+ * @covers \MHMRentiva\Admin\Addons\AddonSettings
  */
 final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
 {
@@ -76,6 +92,8 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
                 // admin_post_mhmrentiva_export_customers hook used as a live
                 // positive control below.
                 \MHMRentiva\Admin\Customers\CustomersPage::class,
+                // Görev 10c-A / row C1: same is_admin()-gated-bootstrap reason.
+                \MHMRentiva\Admin\Addons\AddonSettings::class,
             ) as $registrar
         ) {
             if (method_exists($registrar, 'register')) {
@@ -105,6 +123,7 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             'A10 wp_ajax_mhmrentiva_save_dashboard_order'     => array( 'wp_ajax_mhmrentiva_save_dashboard_order' ),
             'A11 wp_ajax_mhmrentiva_reset_dashboard_layout'   => array( 'wp_ajax_mhmrentiva_reset_dashboard_layout' ),
             'A12 wp_ajax_mhmrentiva_add_customer'             => array( 'wp_ajax_mhmrentiva_add_customer' ),
+            'C1  wp_ajax_mhmrentiva_create_default_addons'    => array( 'wp_ajax_mhmrentiva_create_default_addons' ),
         );
     }
 
@@ -175,6 +194,22 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             method_exists(\MHMRentiva\Admin\Emails\Core\EmailTemplates::class, 'render_content_only'),
             'EmailTemplates::render_content_only() is live via TabRendererRegistry -- must survive D7.'
         );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'register_settings'),
+            'AddonSettings::register_settings() (admin_init) must survive C1 -- it is the whole class\'s only remaining register() line.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'defaults'),
+            'AddonSettings::defaults() is live via SettingsCore.php + SettingsSanitizer.php -- must survive C1.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'get'),
+            'AddonSettings::get() is the settings-read API for the surviving mhmrentiva_addon_settings option -- must survive C1.'
+        );
+        $this->assertTrue(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'sanitize'),
+            'AddonSettings::sanitize() wraps the live SettingsSanitizer::sanitize_addon_settings_option() -- must survive C1.'
+        );
     }
 
     public function test_dead_classes_no_longer_exist(): void
@@ -202,6 +237,22 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
         $this->assertFalse(
             method_exists(\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::class, 'get_uninstall_stats'),
             'Uninstaller::get_uninstall_stats() was only ever called from the now-deleted UninstallPage AJAX handler (A7) -- must be gone.'
+        );
+    }
+
+    public function test_addonsettings_dead_render_and_ajax_surface_is_gone(): void
+    {
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'render_page'),
+            'AddonSettings::render_page() had zero callers in either repo (task-10a-endpoint-table.md Section C) -- must be gone (K5-C1).'
+        );
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'enqueue_scripts'),
+            'AddonSettings::enqueue_scripts() gated on a screen id no registration ever produces -- must be gone (K5-C1).'
+        );
+        $this->assertFalse(
+            method_exists(\MHMRentiva\Admin\Addons\AddonSettings::class, 'ajax_create_default_addons'),
+            'AddonSettings::ajax_create_default_addons() is row C1 -- must be gone (K5-C1).'
         );
     }
 }
