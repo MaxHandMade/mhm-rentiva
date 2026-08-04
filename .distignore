@@ -112,6 +112,11 @@ phpcs.xml.dist
 .gitignore
 .editorconfig
 .distignore
+# ESLint config is dev-only (wp-scripts lint-js reads it locally/in CI; nothing
+# at runtime loads it). Shipping it trips WP.org Plugin Check's hidden_files
+# check (a dotfile in the release ZIP) -- see task-15-report.md's "Concerns"
+# section, where adding .eslintrc.json (Görev 15) first put it in the ZIP.
+.eslintrc.json
 
 # Website static exports
 website/
