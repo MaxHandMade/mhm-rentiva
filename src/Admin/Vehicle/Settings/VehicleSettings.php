@@ -1158,7 +1158,7 @@ final class VehicleSettings {
 			// so an unavailable (disabled) detail is dropped here, while features/equipment pass.
 			if ( is_array( $decoded ) ) {
 				$settings['mhmrentiva_vehicle_card_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
-				$settings_updated                            = true;
+				$settings_updated                           = true;
 			}
 		}
 		// If the field is not present in $_POST we leave the existing setting in place.
@@ -1171,7 +1171,7 @@ final class VehicleSettings {
 
 			if ( is_array( $decoded ) ) {
 				$settings['mhmrentiva_vehicle_detail_fields'] = \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::sanitize_card_field_selection( $decoded );
-				$settings_updated                              = true;
+				$settings_updated                             = true;
 			}
 		}
 
@@ -1555,10 +1555,10 @@ final class VehicleSettings {
 
 		if ( $tab === 'display' ) {
 			// Reset Display Options to empty arrays
-			$settings                                      = get_option( 'mhmrentiva_settings', array() );
+			$settings                                     = get_option( 'mhmrentiva_settings', array() );
 			$settings['mhmrentiva_vehicle_card_fields']   = array();
 			$settings['mhmrentiva_vehicle_detail_fields'] = array();
-			$settings['comparison_fields']                 = array();
+			$settings['comparison_fields']                = array();
 			update_option( 'mhmrentiva_settings', $settings );
 		} else {
 			// Reset Selection Options (Checkboxes) to default values (Definitions Tab)

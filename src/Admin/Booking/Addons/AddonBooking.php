@@ -296,8 +296,8 @@ final class AddonBooking {
 
 			if ( is_array( $addon_details ) ) {
 				foreach ( $addon_details as $addon ) {
-					$addon_id    = $addon['id'] ?? 0;
-					$addon_title = $addon['title'] ?? 'Unknown';
+					$addon_id               = $addon['id'] ?? 0;
+					$addon_title            = $addon['title'] ?? 'Unknown';
 					$mhmrentiva_addon_price = (float) ( $addon['price'] ?? 0 );
 
 					if ( ! isset( $addon_stats[ $addon_id ] ) ) {

@@ -70,7 +70,7 @@ final class AddonMeta extends AbstractMetaBox {
 				'context'  => 'normal',
 				'priority' => 'high',
 				'fields'   => array(
-					'mhmrentiva_addon_price'             => array(
+					'mhmrentiva_addon_price'         => array(
 						'type'              => 'number',
 						'label'             => __( 'Price', 'mhm-rentiva' ),
 						/* translators: %s placeholder. */

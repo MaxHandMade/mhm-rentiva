@@ -117,8 +117,8 @@ final class RatingSortHelper {
 		// Compound orderby with tie-breakers
 		$args['orderby'] = array(
 			'mhmrentiva_rating_sort' => $order,
-			'date'            => 'DESC',
-			'ID'              => 'DESC',
+			'date'                   => 'DESC',
+			'ID'                     => 'DESC',
 		);
 
 		// Remove the simple 'order' key — compound orderby defines direction per-field

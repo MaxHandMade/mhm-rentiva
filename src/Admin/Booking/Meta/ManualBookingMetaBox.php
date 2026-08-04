@@ -762,12 +762,12 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 		if (! empty($selected_addons)) {
 			foreach ($selected_addons as $addon_id) {
 				// v4.36.0: honour pricing type via AddonPricingCalculator (single source of truth).
-				$line_total   = \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
+				$line_total             = \MHMRentiva\Admin\Addons\AddonPricingCalculator::calculate(
 					(int) $addon_id,
 					array( 'rental_days' => (int) $days )
 				);
-				$addon_total += $line_total;
-				$mhmrentiva_addon_price  = floatval(get_post_meta($addon_id, 'mhmrentiva_addon_price', true) ?: 0);
+				$addon_total           += $line_total;
+				$mhmrentiva_addon_price = floatval(get_post_meta($addon_id, 'mhmrentiva_addon_price', true) ?: 0);
 
 				$addon_details[] = array(
 					'id'    => $addon_id,

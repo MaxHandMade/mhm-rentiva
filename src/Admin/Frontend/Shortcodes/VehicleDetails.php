@@ -309,7 +309,7 @@ final class VehicleDetails extends AbstractShortcode {
 		// spellings are listed explicitly, because a site that has not run the
 		// 13's migration still stores its gallery under one of them and would
 		// otherwise render no gallery at all.
-		$keys         = array(
+		$keys = array(
 			'_mhmrentiva_gallery_images',
 			'_mhm_rentiva_gallery_images',
 			'_mhm_gallery_images',

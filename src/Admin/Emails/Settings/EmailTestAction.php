@@ -50,8 +50,8 @@ final class EmailTestAction {
 
 		$redirect = add_query_arg(
 			array(
-				'page'           => 'mhm-rentiva-settings',
-				'tab'            => 'email-settings',
+				'page'                  => 'mhm-rentiva-settings',
+				'tab'                   => 'email-settings',
 				'mhmrentiva_email_test' => $ok ? 'success' : 'failed',
 			),
 			admin_url( 'admin.php' )

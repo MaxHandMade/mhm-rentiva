@@ -153,7 +153,7 @@ final class SystemInfo {
 		global $wpdb;
 
 		$plugin_tables = array(
-			'mhmrentiva_booking' => $wpdb->prefix . 'posts', // In posts table as CPT
+			'mhmrentiva_booking'     => $wpdb->prefix . 'posts', // In posts table as CPT
 			'mhmrentiva_payment_log' => $wpdb->prefix . 'mhmrentiva_payment_log',
 			'mhmrentiva_message'     => $wpdb->prefix . 'posts', // For messages
 		);

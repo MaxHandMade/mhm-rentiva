@@ -554,7 +554,7 @@ final class SetupWizard {
 		}
 		check_admin_referer('mhmrentiva_setup_email');
 
-		$settings                                   = get_option('mhmrentiva_settings', array());
+		$settings                                  = get_option('mhmrentiva_settings', array());
 		$settings['mhmrentiva_email_from_name']    = sanitize_text_field(wp_unslash($_POST['sender_name'] ?? ''));
 		$settings['mhmrentiva_email_from_address'] = sanitize_email(wp_unslash($_POST['sender_email'] ?? ''));
 		$settings['mhmrentiva_email_reply_to']     = sanitize_email(wp_unslash($_POST['reply_address'] ?? ''));
@@ -576,14 +576,14 @@ final class SetupWizard {
 		}
 		check_admin_referer('mhmrentiva_setup_frontend');
 
-		$settings                         = get_option('mhmrentiva_settings', array());
+		$settings                        = get_option('mhmrentiva_settings', array());
 		$settings['mhmrentiva_currency'] = sanitize_text_field(wp_unslash($_POST['currency'] ?? 'USD'));
 
 		if (class_exists('WooCommerce')) {
 			$settings['mhmrentiva_currency_position'] = get_option('woocommerce_currency_pos', 'right_space');
 		} else {
-			$currency_position                         = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
-			$allowed_positions                         = array( 'left', 'left_space', 'right', 'right_space' );
+			$currency_position                        = sanitize_text_field(wp_unslash($_POST['currency_position'] ?? 'right_space'));
+			$allowed_positions                        = array( 'left', 'left_space', 'right', 'right_space' );
 			$settings['mhmrentiva_currency_position'] = in_array($currency_position, $allowed_positions, true) ? $currency_position : 'right_space';
 		}
 

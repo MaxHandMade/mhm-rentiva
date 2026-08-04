@@ -255,7 +255,7 @@ final class Uninstaller {
 		// method already scopes to 'mhmrentiva%'/'_mhmrentiva%'; the
 		// broader '_mhm%' would also delete a sibling MHM plugin's postmeta
 		// on a shared post, e.g. a WooCommerce order).
-		$postmeta_deleted            = $wpdb->query(
+		$postmeta_deleted = $wpdb->query(
 			$wpdb->prepare(
 				"DELETE FROM {$wpdb->postmeta}
             WHERE meta_key LIKE %s

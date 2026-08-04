@@ -195,12 +195,12 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function get_columns(): array {
 		return array(
-			'cb'             => '<input type="checkbox" />',
-			'title'          => __( 'Title', 'mhm-rentiva' ),
+			'cb'                        => '<input type="checkbox" />',
+			'title'                     => __( 'Title', 'mhm-rentiva' ),
 			'mhmrentiva_addon_price'    => __( 'Price', 'mhm-rentiva' ),
 			'mhmrentiva_addon_enabled'  => __( 'Status', 'mhm-rentiva' ),
 			'mhmrentiva_addon_required' => __( 'Required', 'mhm-rentiva' ),
-			'date'           => __( 'Date', 'mhm-rentiva' ),
+			'date'                      => __( 'Date', 'mhm-rentiva' ),
 		);
 	}
 
@@ -211,10 +211,10 @@ final class AddonListTable extends AbstractListTable {
 	 */
 	public function get_sortable_columns(): array {
 		return array(
-			'title'         => array( 'title', false ),
+			'title'                    => array( 'title', false ),
 			'mhmrentiva_addon_price'   => array( 'mhmrentiva_addon_price', false ),
 			'mhmrentiva_addon_enabled' => array( 'mhmrentiva_addon_enabled', false ),
-			'date'          => array( 'date', false ),
+			'date'                     => array( 'date', false ),
 		);
 	}
 

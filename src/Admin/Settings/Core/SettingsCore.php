@@ -474,7 +474,7 @@ final class SettingsCore {
 		// sanitizer, which silently blanked contact_phone/contact_hours/
 		// support_email and reset brand_name to get_bloginfo('name') on every
 		// dark mode toggle.
-		$settings                          = self::get_all();
+		$settings                         = self::get_all();
 		$settings['mhmrentiva_dark_mode'] = $mode;
 		update_option(self::OPTION_NAME, $settings);
 
