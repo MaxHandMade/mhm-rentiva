@@ -76,6 +76,30 @@ final class VehicleTabSeasonalPricingFieldsTest extends WP_UnitTestCase
     }
 
     /**
+     * T8 Görev 10c-B (K5-F5): the master switch gating whether the fields
+     * above ever reach a real price (see BookingFormSeasonalMasterSwitchTest.php
+     * for the full save->price coherence proof). Same duplicate-render guard
+     * shape as the multiplier fields above, adapted for a checkbox:
+     * SettingsHelper::checkbox_field() renders BOTH a hidden fallback input
+     * (value="0") and the checkbox itself (value="1") under the SAME
+     * name= -- asserting the bare `name="..."` substring would always read
+     * 2 by design, even with zero duplicate registration. Anchoring on the
+     * value="1" checkbox tag specifically is the precise "registered
+     * exactly once" guard.
+     */
+    public function test_seasonal_pricing_master_switch_renders_exactly_once_on_the_live_vehicle_tab(): void
+    {
+        $checkbox_tag = 'name="mhmrentiva_settings[mhmrentiva_vehicle_seasonal_pricing]" value="1"';
+
+        $html = $this->render_live_vehicle_tab();
+        $this->assertSame(
+            1,
+            substr_count($html, $checkbox_tag),
+            'Seasonal-pricing master switch checkbox must render exactly once on the live Vehicle tab.'
+        );
+    }
+
+    /**
      * Save+read end to end through the EXACT field name the live tab renders:
      * a rendered field whose POST the sanitizer drops is wired-but-unreachable
      * all over again — the defect class this whole round exists to kill.

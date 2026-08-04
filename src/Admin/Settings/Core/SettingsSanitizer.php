@@ -371,6 +371,14 @@ final class SettingsSanitizer {
 			'mhmrentiva_vehicle_weekend_multiplier'   => self::clamp_value( floatval( $input['mhmrentiva_vehicle_weekend_multiplier'] ?? ( $defaults['mhmrentiva_vehicle_weekend_multiplier'] ?? 1.0 ) ), 0.1, 100.0 ),
 			'mhmrentiva_vehicle_tax_inclusive'        => self::get_bool( $input, 'mhmrentiva_vehicle_tax_inclusive' ),
 			'mhmrentiva_vehicle_tax_rate'             => self::clamp_value( floatval( $input['mhmrentiva_vehicle_tax_rate'] ?? 0 ), 0, 100 ),
+			// T8 Görev 10c-B (K5-F5): master switch gating whether
+			// BookingForm.php's price calculation ever consults the
+			// seasonal multipliers (rendered here, sanitized separately
+			// below by sanitize_vehicle_pricing_settings()). Absent/
+			// unchecked -> '0', matching get_bool()'s own fallback and
+			// BookingForm.php:~1112's own explicit '0' default -- a
+			// never-submitted form (fresh install) changes nothing.
+			'mhmrentiva_vehicle_seasonal_pricing'     => self::get_bool( $input, 'mhmrentiva_vehicle_seasonal_pricing' ),
 			// `..._cards_per_page` and `..._default_sort` are NOT listed here even
 			// though their names begin `vehicle_`: they render on the Frontend tab,
 			// not this one. Naming a key in a tab's branch writes it with its

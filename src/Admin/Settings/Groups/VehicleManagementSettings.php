@@ -44,6 +44,13 @@ final class VehicleManagementSettings {
 			'mhmrentiva_vehicle_weekend_multiplier'   => 1.2,
 			'mhmrentiva_vehicle_tax_inclusive'        => '0',
 			'mhmrentiva_vehicle_tax_rate'             => 18.0,
+			// T8 Görev 10c-B (K5-F5): master switch for the seasonal
+			// multipliers rendered below. MUST stay '0' -- zero behaviour
+			// change for every existing install until an admin opts in.
+			// BookingForm.php:~1112 already passes '0' as its own explicit
+			// fallback, so this entry is documentation/symmetry with its
+			// sibling flat bool keys above, not a behaviour change by itself.
+			'mhmrentiva_vehicle_seasonal_pricing'     => '0',
 
 			// Availability
 			'mhmrentiva_vehicle_min_rental_days'      => 1,
@@ -131,6 +138,28 @@ final class VehicleManagementSettings {
 			__( 'Tax Rate (%)', 'mhm-rentiva' ),
 			array( self::class, 'render_tax_rate_field' ),
 			$page_slug,
+			self::SECTION_PRICING
+		);
+
+		// Seasonal Pricing Master Switch (T8 Görev 10c-B / K5-F5):
+		// BookingForm.php's per-day price loop has ALWAYS gated the whole
+		// seasonal-multiplier branch behind this flat option
+		// (SettingsCore::get('mhmrentiva_vehicle_seasonal_pricing', '0')
+		// === '1', BookingForm.php:~1112), but no admin UI anywhere ever
+		// wrote it -- Görev 9 (F19, see the block below) moved the
+		// multiplier VALUE fields onto this section and explicitly left the
+		// switch itself out of scope (task-9-report.md §2, "Also out of
+		// scope, noted only"). Without a writer the fields below are
+		// decorative: they save and read back correctly but never touch a
+		// real quote. Default stays '0' (get_bool()'s own fallback when the
+		// checkbox is unchecked/absent, matching BookingForm.php's own
+		// explicit '0' default) -- zero behaviour change for every existing
+		// install unless an admin explicitly opts in.
+		SettingsHelper::checkbox_field(
+			$page_slug,
+			'mhmrentiva_vehicle_seasonal_pricing',
+			__( 'Enable Seasonal Pricing Multipliers', 'mhm-rentiva' ),
+			__( 'Apply the seasonal multipliers below to booking prices. Leave unchecked to keep prices unaffected by season.', 'mhm-rentiva' ),
 			self::SECTION_PRICING
 		);
 
