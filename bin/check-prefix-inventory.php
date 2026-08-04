@@ -808,6 +808,11 @@ function runMode5(string $root): array
             }
         }
     }
+    // Options born after the 6.0.0 rename with no old spelling to certify --
+    // see NO_LEGACY_SPELLING_OPTIONS's own docblock for why these cannot be
+    // OPTIONS entries (an identity pair would break mode 4's "old name is
+    // absent" check, since the old name IS the live one).
+    $allowlist = array_merge($allowlist, Map::NO_LEGACY_SPELLING_OPTIONS);
     $allowlist = array_values(array_unique($allowlist));
     $options = Map::OPTIONS;
 

@@ -831,4 +831,26 @@ final class PrefixMigrationMap {
         'mhm_rentiva_db_version',
         'mhm_rentiva_plugin_version',
     ];
+
+    /**
+     * Options born AFTER the 6.0.0 rename that never carried an older
+     * mhm_/mhm_rentiva_ spelling -- there is no prior version of these under
+     * ANY name, so they are not a rename pair and do not belong in OPTIONS
+     * (whose entries this map's own consumers, e.g.
+     * bin/check-prefix-inventory.php's mode 4, read as "an old key that must
+     * now be absent from source"; an identity pair old===new would make that
+     * check impossible to satisfy, since the "old" name IS the live one).
+     * bin/check-prefix-inventory.php's mode 5 (option-call-coverage) reads
+     * this list too, alongside OPTIONS, so a name landing here is still
+     * certified as accounted for.
+     *
+     * First entries: DatabaseMigrator's index-cleanup retry bound (WP.org T8
+     * fix wave, group A) -- mhmrentiva_index_cleanup_attempts/_unfinished.
+     *
+     * @var array<int,string>
+     */
+    public const NO_LEGACY_SPELLING_OPTIONS = [
+        'mhmrentiva_index_cleanup_attempts',
+        'mhmrentiva_index_cleanup_unfinished',
+    ];
 }

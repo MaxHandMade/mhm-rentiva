@@ -60,7 +60,6 @@ src/Admin/Core/Utilities/CityHelper.php
 src/Admin/Core/Utilities/DatabaseCleaner.php
 src/Admin/Core/Utilities/DatabaseMigrator.php
 src/Admin/Core/Utilities/ErrorHandler.php
-src/Admin/Core/Utilities/LogMaintenanceScheduler.php
 src/Admin/Core/Utilities/MetaQueryHelper.php
 src/Admin/Core/Utilities/ObjectCache.php
 src/Admin/Core/Utilities/PrefixMigrationMap.php
