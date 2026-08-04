@@ -22,8 +22,7 @@ final class DatabaseCleanupPage {
 	{
 		// ✅ REMOVED: Menu page registration - now moved to Settings tab
 		// Database cleanup is now available in Settings > Database Cleanup tab
-		// Keep only AJAX handlers and assets enqueue
-		add_action('admin_enqueue_scripts', array( self::class, 'enqueue_assets' ));
+		// Keep only AJAX handlers (enqueue_assets() was removed -- see below)
 		add_action('wp_ajax_mhmrentiva_analyze_database', array( self::class, 'ajax_analyze' ));
 		add_action('wp_ajax_mhmrentiva_cleanup_orphaned', array( self::class, 'ajax_cleanup_orphaned' ));
 		add_action('wp_ajax_mhmrentiva_cleanup_transients', array( self::class, 'ajax_cleanup_transients' ));
@@ -42,61 +41,20 @@ final class DatabaseCleanupPage {
 		add_action('wp_ajax_mhmrentiva_cleanup_logs', array( self::class, 'ajax_cleanup_logs' ));
 	}
 
-	/**
-	 * Enqueue assets for the admin page
-	 * Note: Assets are now enqueued in Settings::render_database_cleanup_page()
-	 * This method is kept for backward compatibility but may not be called
-	 */
-	public static function enqueue_assets(string $hook): void
-	{
-		// Check if we're on the settings page with database-cleanup tab
-		$screen = get_current_screen();
-		if (! $screen || strpos($screen->id, 'mhm-rentiva-settings') === false) {
-			return;
-		}
-
-		// Only enqueue if database-cleanup tab is active
-		$current_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : '';
-		if ($current_tab !== 'database-cleanup') {
-			return;
-		}
-
-		wp_enqueue_style(
-			'mhm-rentiva-database-cleanup',
-			esc_url(plugin_dir_url(dirname(__DIR__, 3)) . 'assets/css/admin/database-cleanup.css'),
-			array(),
-			'1.0.0'
-		);
-
-		wp_enqueue_script(
-			'mhm-rentiva-database-cleanup',
-			esc_url(plugin_dir_url(dirname(__DIR__, 3)) . 'assets/js/admin/database-cleanup.js'),
-			array( 'jquery' ),
-			'1.0.0',
-			true
-		);
-
-		wp_localize_script(
-			'mhm-rentiva-database-cleanup',
-			'mhmrentiva_db_cleanup_vars',
-			array(
-				'nonce'                  => wp_create_nonce('mhmrentiva_db_cleanup'),
-				'analyzing_text'         => esc_html__('Analyzing...', 'mhm-rentiva'),
-				'cleaning_text'          => esc_html__('Cleaning...', 'mhm-rentiva'),
-				'optimizing_text'        => esc_html__('Optimizing...', 'mhm-rentiva'),
-				'error_text'             => esc_html__('Error:', 'mhm-rentiva'),
-				'success_text'           => esc_html__('Success:', 'mhm-rentiva'),
-				'analyze_text'           => esc_html__('Analyze Database', 'mhm-rentiva'),
-				'clean_orphaned_text'    => esc_html__('Clean Orphaned Meta', 'mhm-rentiva'),
-				'clean_transients_text'  => esc_html__('Clean Expired Transients', 'mhm-rentiva'),
-				'optimize_autoload_text' => esc_html__('Optimize Autoload', 'mhm-rentiva'),
-				'optimize_tables_text'   => esc_html__('Optimize Tables', 'mhm-rentiva'),
-				'confirm_orphaned_text'  => esc_html__('This will delete orphaned meta data. A backup will be created. Continue?', 'mhm-rentiva'),
-				'confirm_tables_text'    => esc_html__('Table optimization may take several minutes. Continue?', 'mhm-rentiva'),
-				'confirm_repair_text'    => esc_html__('Are you sure you want to attempt to create/repair this table?', 'mhm-rentiva'),
-			)
-		);
-	}
+	// enqueue_assets() was removed (WP.org T8 Görev 13, row 26-27): its own
+	// docblock already said "kept for backward compatibility but may not be
+	// called" -- confirmed dead. DatabaseCleanupRenderer::enqueue_cleanup_assets()
+	// (called from render(), only when the database-cleanup tab actually
+	// renders via TabRendererRegistry) enqueues the same 'mhm-rentiva-database-cleanup'
+	// handle with a materially larger wp_localize_script payload that
+	// database-cleanup.js's live code depends on (e.g. clean_invalid_meta_text,
+	// restoring_text, type_invalid_meta_text -- all absent from this method's
+	// smaller 14-key payload). admin_enqueue_scripts (this method's hook)
+	// always fires before the page body renders, so wp_localize_script()'s
+	// last-call-wins overwrite meant the renderer's payload always won
+	// whenever both fired, and this method did nothing on every other tab --
+	// dead weight either way. Zero test coverage referenced this method
+	// (confirmed before deletion); the $_GET['tab'] read it carried is gone.
 
 	// render_page() was removed (WP.org T8 Görev 10b, row D6): register()'s
 	// own comment already said menu-page registration moved to the Settings
