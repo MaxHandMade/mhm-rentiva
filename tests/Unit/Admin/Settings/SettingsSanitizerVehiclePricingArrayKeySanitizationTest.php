@@ -57,7 +57,15 @@ final class SettingsSanitizerVehiclePricingArrayKeySanitizationTest extends WP_U
 
         $seasonal = $result['vehicle_pricing']['seasonal_multipliers'] ?? array();
 
-        $this->assertNotEmpty( $seasonal, 'A sanitized (non-empty) key must still be written -- the record must not be dropped entirely.' );
+        $this->assertNotEmpty( $seasonal, 'The seeded seasons must survive -- a rejected key must not wipe the block.' );
+
+        // T8 final review I-1: a sanitize_key()-clean but UNKNOWN slug is now
+        // dropped outright rather than written, because writing it created a
+        // season with no 'months' and the public booking form's read path then
+        // TypeError'd on it. This assertion is the tighter successor to the
+        // original "must still be written" expectation, which was true only
+        // while any slug could create a season.
+        $this->assertArrayNotHasKey( 'scriptalert1script', $seasonal, 'A sanitized-but-unknown slug must not create a season.' );
 
         foreach ( array_keys( $seasonal ) as $key ) {
             $this->assertIsString( $key );

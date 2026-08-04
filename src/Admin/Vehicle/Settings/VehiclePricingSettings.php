@@ -81,9 +81,17 @@ final class VehiclePricingSettings {
 
 	/**
 	 * Get settings
+	 *
+	 * The stored value is whatever is in `mhmrentiva_settings['vehicle_pricing']`,
+	 * and that is not guaranteed to be an array: SettingsSanitizer's
+	 * programmatic-update path deliberately passes array values through
+	 * untouched, and nothing stops an older install or a third-party
+	 * `update_option()` from leaving a scalar there. Without the shape check
+	 * this method's own `: array` return type is the fatal.
 	 */
 	public static function get_settings(): array {
-		return SettingsCore::get( 'vehicle_pricing', self::get_default_settings() );
+		$settings = SettingsCore::get( 'vehicle_pricing', self::get_default_settings() );
+		return is_array( $settings ) ? $settings : self::get_default_settings();
 	}
 
 	/**
@@ -96,13 +104,38 @@ final class VehiclePricingSettings {
 
 	/**
 	 * Get seasonal multiplier for specific month
+	 *
+	 * READ PATH OF THE PUBLIC BOOKING FORM. BookingForm.php calls
+	 * get_seasonal_multiplier_for_date() once per rental day whenever the
+	 * `mhmrentiva_vehicle_seasonal_pricing` master switch is on, so anything
+	 * this method throws is a fatal on a page a visitor loads.
+	 *
+	 * It therefore trusts nothing about the stored shape. A season entry that
+	 * is not an array, or that carries no usable `months` list, is skipped
+	 * rather than evaluated -- previously `in_array( $month, $season['months'] )`
+	 * received null/int/string as its haystack and raised
+	 * `TypeError: in_array(): Argument #2 ($haystack) must be of type array`.
+	 * A matching season with a missing or non-numeric `multiplier` falls back
+	 * to the same neutral 1.0 this method already returns when nothing matches,
+	 * because returning it raw would break the `: float` return type under
+	 * this file's declare(strict_types=1).
+	 *
+	 * The comparison stays loose on purpose: months arrive from a form as
+	 * numeric strings, and `in_array( 7, array( '6', '7', '8' ) )` must keep
+	 * matching exactly as it did before.
 	 */
 	public static function get_seasonal_multiplier_for_month( int $month ): float {
 		$seasonal_multipliers = self::get_seasonal_multipliers();
 
 		foreach ( $seasonal_multipliers as $season ) {
+			if ( ! is_array( $season ) || ! isset( $season['months'] ) || ! is_array( $season['months'] ) ) {
+				continue;
+			}
+
 			if ( in_array( $month, $season['months'] ) ) {
-				return $season['multiplier'];
+				return isset( $season['multiplier'] ) && is_numeric( $season['multiplier'] )
+					? (float) $season['multiplier']
+					: 1.0;
 			}
 		}
 
@@ -111,9 +144,15 @@ final class VehiclePricingSettings {
 
 	/**
 	 * Get seasonal multipliers
+	 *
+	 * Falls back to the defaults when the stored block is missing OR is not an
+	 * array -- the `?? ` alone only covered the missing case, and this method's
+	 * `: array` return type made the other one a fatal.
 	 */
 	public static function get_seasonal_multipliers(): array {
 		$settings = self::get_settings();
-		return $settings['seasonal_multipliers'] ?? self::get_default_settings()['seasonal_multipliers'];
+		$seasonal = $settings['seasonal_multipliers'] ?? null;
+
+		return is_array( $seasonal ) ? $seasonal : self::get_default_settings()['seasonal_multipliers'];
 	}
 }

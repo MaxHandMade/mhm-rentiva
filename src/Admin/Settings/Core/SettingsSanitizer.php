@@ -8,6 +8,7 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper;
+use MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -420,8 +421,16 @@ final class SettingsSanitizer {
 		// Seed from VehiclePricingSettings::get_default_settings(), the exact shape
 		// SettingsCore::get('vehicle_pricing', ...) itself falls back to, so a targeted
 		// overwrite below only ever touches the key it names.
+		//
+		// The `is_array()` is not decoration: the stored value is only ever an
+		// array by convention, and reading an offset off a scalar is itself a
+		// TypeError in PHP 8 -- same shape-trust defect this arm is closing one
+		// level down.
 		$current_pricing = $current_settings['vehicle_pricing']
-			?? ( $defaults['vehicle_pricing'] ?? \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_default_settings() );
+			?? ( $defaults['vehicle_pricing'] ?? VehiclePricingSettings::get_default_settings() );
+		if ( ! \is_array( $current_pricing ) ) {
+			$current_pricing = VehiclePricingSettings::get_default_settings();
+		}
 
 		if ( isset( $input['vehicle_pricing'] ) && \is_array( $input['vehicle_pricing'] ) ) {
 			$in = $input['vehicle_pricing'];
@@ -433,9 +442,32 @@ final class SettingsSanitizer {
 				// sanitize_key() to prevent an attacker-controlled dirty key
 				// (e.g. '<script>x') from persisting markup into the option
 				// (same defect class as VehicleSettings.php).
+				//
+				// sanitize_key() alone was not enough. It made a crafted key
+				// HARMLESS AS TEXT but still let it CREATE a season, and this
+				// arm writes only ['multiplier'] -- so the new entry had no
+				// 'months'. VehiclePricingSettings::get_seasonal_multiplier_for_month()
+				// then handed that missing list to in_array() as its haystack:
+				// a TypeError on the PUBLIC BOOKING FORM whenever the seasonal
+				// master switch is on. The read path now guards its own shape,
+				// and this writer stops manufacturing the shape in the first
+				// place.
+				//
+				// The allowlist is DERIVED, not hardcoded to the four defaults:
+				// VehicleManagementSettings::render_seasonal_multipliers_field()
+				// renders exactly one <input> per season ALREADY present in
+				// get_seasonal_multipliers(), so the set of slugs a real form
+				// can post is precisely the set of stored keys. Deriving it
+				// therefore cannot reject legitimate input, and an install that
+				// somehow carries a fifth season keeps being able to save it.
+				$stored_seasons = $current_pricing['seasonal_multipliers'] ?? null;
+				$known_seasons  = ( \is_array( $stored_seasons ) && array() !== $stored_seasons )
+					? \array_map( 'strval', \array_keys( $stored_seasons ) )
+					: \array_map( 'strval', \array_keys( VehiclePricingSettings::get_default_settings()['seasonal_multipliers'] ) );
+
 				foreach ( $in['seasonal_multipliers'] as $key => $season ) {
 					$safe_key = \sanitize_key( (string) $key );
-					if ( '' === $safe_key ) {
+					if ( '' === $safe_key || ! \in_array( $safe_key, $known_seasons, true ) ) {
 						continue;
 					}
 					if ( isset( $season['multiplier'] ) ) {
