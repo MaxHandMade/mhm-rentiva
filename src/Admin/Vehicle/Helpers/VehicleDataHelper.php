@@ -228,4 +228,58 @@ class VehicleDataHelper {
 
 		return $types[ $key ] ?? $key;
 	}
+
+	/**
+	 * Vehicle placeholder image URL, for a vehicle with no featured image.
+	 *
+	 * THE SINGLE SOURCE. This is the mechanism VehiclesGrid and VehiclesList
+	 * already used (as two byte-identical private copies); it now lives here so
+	 * the account templates and the booking form's alternative-vehicle cards
+	 * can reach it too. Those three templates used to hardcode
+	 * `assets/images/no-image.png`, a file this plugin has never shipped --
+	 * every vehicle without a featured image rendered a broken <img> on the
+	 * customer's bookings list and booking detail screens.
+	 *
+	 * It resolves in two steps:
+	 *   1. a real image, if a site or a future release drops one of the
+	 *      recognised filenames into assets/images/ (the list is unchanged
+	 *      from the two originals, `no-image.png` included -- so shipping such
+	 *      a file later needs no code change);
+	 *   2. otherwise an inline SVG data URI -- a flat grey card reading
+	 *      "Vehicle Image". No file, no HTTP request, no third-party asset,
+	 *      and nothing that can 404.
+	 *
+	 * @return string Image URL or data URI. Never empty.
+	 */
+	public static function get_placeholder_image_url(): string
+	{
+		$possible_files = array(
+			'placeholder-vehicle.jpg',
+			'placeholder-vehicle.png',
+			'placeholder-vehicle.svg',
+			'no-image.jpg',
+			'no-image.png',
+		);
+
+		foreach ($possible_files as $filename) {
+			$file_path = MHMRENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
+			if (file_exists($file_path)) {
+				return MHMRENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
+			}
+		}
+
+		return self::PLACEHOLDER_IMAGE_DATA_URI;
+	}
+
+	/**
+	 * Inline fallback used by get_placeholder_image_url().
+	 *
+	 * A 300x200 SVG: `<rect fill="#ddd"/>` plus centred `Vehicle Image` text in
+	 * #999. Base64 rather than raw so it can sit in an `src` attribute without
+	 * any escaping question. Deliberately NOT run through __() -- it is baked
+	 * into the encoded payload, and making it translatable would mean building
+	 * and encoding the SVG on every call for a string no screen reader reads
+	 * (every consumer supplies its own alt text).
+	 */
+	private const PLACEHOLDER_IMAGE_DATA_URI = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
 }

@@ -51,11 +51,6 @@ final class VehiclesList extends AbstractShortcode {
 
 
 	/**
-	 * Default placeholder image (Base64 SVG)
-	 */
-	private const DEFAULT_PLACEHOLDER_IMAGE = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
-
-	/**
 	 * Safe sanitize text field that handles null values
 	 *
 	 * @param mixed $value Input value
@@ -409,28 +404,16 @@ final class VehiclesList extends AbstractShortcode {
 
 	/**
 	 * Get placeholder image URL with fallback
-	 * Checks for placeholder files and falls back to WordPress default or data URI
+	 *
+	 * Delegates to VehicleDataHelper, which now owns the one copy of this
+	 * mechanism (see VehiclesGrid::get_placeholder_image_url() for the same
+	 * note). This class's DEFAULT_PLACEHOLDER_IMAGE constant went with the
+	 * body -- both of its call sites went through this method, so it had zero
+	 * remaining readers (K5: zero caller -> delete).
 	 */
 	private static function get_placeholder_image_url(): string
 	{
-		// Try different placeholder file extensions
-		$possible_files = array(
-			'placeholder-vehicle.jpg',
-			'placeholder-vehicle.png',
-			'placeholder-vehicle.svg',
-			'no-image.jpg',
-			'no-image.png',
-		);
-
-		foreach ($possible_files as $filename) {
-			$file_path = MHMRENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
-			if (file_exists($file_path)) {
-				return MHMRENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
-			}
-		}
-
-		// Fallback: Use data URI (1x1 transparent pixel with text)
-		return self::DEFAULT_PLACEHOLDER_IMAGE;
+		return \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 	}
 
 	/**

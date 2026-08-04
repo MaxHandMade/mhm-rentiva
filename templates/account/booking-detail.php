@@ -53,10 +53,13 @@ if ($wc_order_id && function_exists('wc_get_order')) {
 	}
 }
 
-// Vehicle image
+// Vehicle image. The fallback used to hardcode assets/images/no-image.png --
+// a file this plugin has never shipped, so every vehicle without a featured
+// image rendered a broken <img> here. VehicleDataHelper owns the same
+// placeholder mechanism the vehicle grid and list already used.
 $vehicle_image = $vehicle_id ? get_the_post_thumbnail_url($vehicle_id, 'medium') : false;
 if (! $vehicle_image) {
-	$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+	$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 }
 
 // Currency

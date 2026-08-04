@@ -447,28 +447,16 @@ class VehiclesGrid extends AbstractShortcode {
 
 	/**
 	 * Get placeholder image URL with fallback
-	 * Checks for placeholder files and falls back to data URI
+	 *
+	 * Delegates to VehicleDataHelper, which now owns the one copy of this
+	 * mechanism. This class and VehiclesList carried byte-identical private
+	 * copies while three account templates hardcoded a filename neither copy
+	 * guarantees exists -- one owner, reachable from templates too, is what
+	 * lets those templates stop guessing.
 	 */
 	private static function get_placeholder_image_url(): string
 	{
-		// Try different placeholder file extensions
-		$possible_files = array(
-			'placeholder-vehicle.jpg',
-			'placeholder-vehicle.png',
-			'placeholder-vehicle.svg',
-			'no-image.jpg',
-			'no-image.png',
-		);
-
-		foreach ($possible_files as $filename) {
-			$file_path = MHMRENTIVA_PLUGIN_DIR . 'assets/images/' . $filename;
-			if (file_exists($file_path)) {
-				return MHMRENTIVA_PLUGIN_URL . 'assets/images/' . $filename;
-			}
-		}
-
-		// Fallback: Use data URI (SVG with text)
-		return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIiBmaWxsPSIjOTk5Ij5WZWhpY2xlIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+		return \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 	}
 
 	/**

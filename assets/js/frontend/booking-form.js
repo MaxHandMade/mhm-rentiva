@@ -1218,7 +1218,7 @@
                                 alternativesHtml += `
                                             <div class="rv-alternative-vehicle-card" data-vehicle-id="${this.escapeHtml(vehicle.id)}">
                                                 <div class="rv-alternative-vehicle-image">
-                                                    <img src="${this.escapeHtml(vehicle.image || window.location.origin + '/wp-content/plugins/mhm-rentiva/assets/images/no-image.png')}" alt="${this.escapeHtml(vehicle.title)}">
+                                                    <img src="${this.escapeHtml(vehicle.image || window.mhmRentivaBookingForm?.placeholder_image || '')}" alt="${this.escapeHtml(vehicle.title)}">
                                                 </div>
                                                 <div class="rv-alternative-vehicle-content">
                                                     <h5 class="rv-alternative-vehicle-title">${this.escapeHtml(vehicle.title)}</h5>

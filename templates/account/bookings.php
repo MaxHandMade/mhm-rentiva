@@ -188,10 +188,14 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									}
 									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
-									// Vehicle image
+									// Vehicle image. The fallback used to hardcode
+									// assets/images/no-image.png, a file this plugin has never
+									// shipped -- a broken <img> for every vehicle with no
+									// featured image. VehicleDataHelper owns the same
+									// placeholder the vehicle grid and list already used.
 									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
 									if (! $vehicle_image) {
-										$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+										$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 									}
 
 									// Status badge
@@ -296,10 +300,14 @@ if ($is_integrated) { // Use the already determined $is_integrated
 									}
 									$total_price = get_post_meta($booking->ID, '_mhmrentiva_total_price', true);
 
-									// Vehicle image
+									// Vehicle image. The fallback used to hardcode
+									// assets/images/no-image.png, a file this plugin has never
+									// shipped -- a broken <img> for every vehicle with no
+									// featured image. VehicleDataHelper owns the same
+									// placeholder the vehicle grid and list already used.
 									$vehicle_image = get_the_post_thumbnail_url($vehicle_id, 'thumbnail');
 									if (! $vehicle_image) {
-										$vehicle_image = MHMRENTIVA_PLUGIN_URL . 'assets/images/no-image.png';
+										$vehicle_image = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url();
 									}
 
 									// Status badge

@@ -193,6 +193,15 @@ final class BookingForm extends AbstractShortcode {
 			'strings'            => self::get_localized_strings(),
 			'config'             => self::get_js_config(),
 			'datepicker_options' => self::get_datepicker_options(),
+			// Alternative-vehicle cards fall back to this when a suggested
+			// vehicle has no featured image (Util::check_availability_with_alternatives()
+			// sets 'image' from get_the_post_thumbnail_url(), which returns
+			// false in that case). booking-form.js used to build the URL itself
+			// from window.location.origin + '/wp-content/plugins/mhm-rentiva/...'
+			// -- wrong on any install with a moved wp-content, a renamed plugin
+			// folder or WordPress in a subdirectory, and pointing at a file
+			// this plugin has never shipped either way.
+			'placeholder_image'  => \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_placeholder_image_url(),
 			'icons'              => array(
 				'success' => \MHMRentiva\Helpers\Icons::get('success'),
 				'warning' => \MHMRentiva\Helpers\Icons::get('warning'),
