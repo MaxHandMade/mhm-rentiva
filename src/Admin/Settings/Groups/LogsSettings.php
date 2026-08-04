@@ -57,18 +57,4 @@ final class LogsSettings {
 	 */
 	public static function register(): void {
 	}
-
-	// Static Accessors
-	public static function get_log_level(): string {
-		return (string) SettingsCore::get( 'mhmrentiva_log_level', 'error' );
-	}
-	public static function is_log_cleanup_enabled(): bool {
-		return SettingsCore::get( 'mhmrentiva_log_cleanup_enabled', '1' ) === '1';
-	}
-	public static function get_log_retention_days(): int {
-		return (int) SettingsCore::get( 'mhmrentiva_log_retention_days', 30 );
-	}
-	public static function is_debug_mode_enabled(): bool {
-		return SettingsCore::get( 'mhmrentiva_debug_mode', '0' ) === '1';
-	}
 }

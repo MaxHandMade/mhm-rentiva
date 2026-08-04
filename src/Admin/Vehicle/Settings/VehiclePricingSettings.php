@@ -21,8 +21,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class VehiclePricingSettings {
 
 
-	const OPTION_NAME = 'mhmrentiva_vehicle_pricing_settings';
-
 	/**
 	 * Default settings
 	 */
@@ -112,28 +110,6 @@ final class VehiclePricingSettings {
 	}
 
 	/**
-	 * Get season name for specific month
-	 */
-	public static function get_season_name_for_month( int $month ): string {
-		$seasonal_multipliers = self::get_seasonal_multipliers();
-
-		foreach ( $seasonal_multipliers as $key => $season ) {
-			if ( in_array( $month, $season['months'] ) ) {
-				return $key;
-			}
-		}
-
-		return 'spring';
-	}
-
-	/**
-	 * Additional service price calculation (no longer used - AddonManager is used)
-	 */
-	public static function calculate_addon_prices( array $addons, int $days ): float {
-		return 0;
-	}
-
-	/**
 	 * Get seasonal multipliers
 	 */
 	public static function get_seasonal_multipliers(): array {
@@ -141,49 +117,4 @@ final class VehiclePricingSettings {
 		return $settings['seasonal_multipliers'] ?? self::get_default_settings()['seasonal_multipliers'];
 	}
 
-	/**
-	 * Get currency settings
-	 */
-	public static function get_currency_settings(): array {
-		$settings = self::get_settings();
-		return $settings['currency_settings'] ?? self::get_default_settings()['currency_settings'];
-	}
-
-	/**
-	 * Get general settings
-	 */
-	public static function get_general_settings(): array {
-		$settings = self::get_settings();
-		return $settings['general_settings'] ?? self::get_default_settings()['general_settings'];
-	}
-
-	/**
-	 * Get deposit settings
-	 */
-	public static function get_deposit_settings(): array {
-		$settings = self::get_settings();
-		return $settings['deposit_settings'] ?? self::get_default_settings()['deposit_settings'];
-	}
-
-
-	/**
-	 * Save settings
-	 */
-	public static function save_settings( array $settings ): bool {
-		return SettingsCore::set( 'vehicle_pricing', $settings );
-	}
-
-	/**
-	 * Clear settings
-	 */
-	public static function clear_settings(): bool {
-		return SettingsCore::delete( 'vehicle_pricing' );
-	}
-
-	/**
-	 * Reset settings
-	 */
-	public static function reset_settings(): bool {
-		return self::save_settings( self::get_default_settings() );
-	}
 }

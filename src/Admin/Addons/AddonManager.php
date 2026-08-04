@@ -716,48 +716,4 @@ final class AddonManager {
 		}
 	}
 
-	/**
-	 * Create default additional services.
-	 */
-	public static function create_default_addons(): void {
-		$default_addons = array(
-			array(
-				'title'       => __( 'Child Seat', 'mhm-rentiva' ),
-				'description' => __( 'Safety first. ISOFIX compatible child seat.', 'mhm-rentiva' ),
-				'price'       => 15.00,
-			),
-			array(
-				'title'       => __( 'GPS Navigation', 'mhm-rentiva' ),
-				'description' => __( 'Don\'t get lost. Pre-installed current maps.', 'mhm-rentiva' ),
-				'price'       => 10.00,
-			),
-			array(
-				'title'       => __( 'Full Insurance', 'mhm-rentiva' ),
-				'description' => __( 'Zero deductible. Peace of mind during your trip.', 'mhm-rentiva' ),
-				'price'       => 25.00,
-			),
-			array(
-				'title'       => __( 'Extra Driver', 'mhm-rentiva' ),
-				'description' => __( 'Share the wheel. Add one more authorized driver.', 'mhm-rentiva' ),
-				'price'       => 10.00,
-			),
-		);
-
-		foreach ( $default_addons as $addon_data ) {
-			$post_id = wp_insert_post(
-				array(
-					'post_title'   => $addon_data['title'],
-					'post_content' => $addon_data['description'],
-					'post_status'  => 'publish',
-					'post_type'    => AddonPostType::POST_TYPE,
-				)
-			);
-
-			if ( $post_id ) {
-				update_post_meta( $post_id, 'mhmrentiva_addon_price', $addon_data['price'] );
-				update_post_meta( $post_id, 'mhmrentiva_addon_enabled', '1' );
-				update_post_meta( $post_id, 'mhmrentiva_addon_required', '0' );
-			}
-		}
-	}
 }

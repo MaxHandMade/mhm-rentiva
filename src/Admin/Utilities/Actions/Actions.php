@@ -7,7 +7,6 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Legacy/public hook and template naming kept for backward compatibility.
 
 
 
@@ -26,9 +25,9 @@ final class Actions {
 
 
 	public static function register(): void {
-		// admin_post_mhmrentiva_purge_logs -> purge_logs() was removed
-		// (WP.org T8 Görev 10b, row A6): zero shipped nonce producer and zero
-		// consumer in either repo. checkGranularPermission()/notice_url()/
+		// admin_post_mhmrentiva_purge_logs -> purge_logs() was removed:
+		// zero shipped nonce producer and zero consumer anywhere.
+		// checkGranularPermission()/notice_url()/
 		// notices()/the NOTICE_NONCE_* constants below survive -- refund_booking()
 		// (live, nonce produced by BookingRefundMetaBox) also calls them.
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
@@ -56,7 +55,7 @@ final class Actions {
 	}
 
 	// purge_logs() was removed with its admin_post_mhmrentiva_purge_logs
-	// registration above (row A6).
+	// registration above.
 
 	/**
 	 * Nonce action for the one-shot result params this class puts on its own
@@ -149,10 +148,6 @@ final class Actions {
 				}
 
 				return false;
-
-			case 'purge_logs':
-				// Only super admin
-				return current_user_can( 'manage_options' );
 
 			case 'view_booking':
 				// Admin, booking owner or authorized staff
@@ -256,7 +251,7 @@ final class Actions {
 
 		// Editor - most access except sensitive operations
 		if ( current_user_can( 'edit_posts' ) ) {
-			$restricted_caps = array( 'delete_booking', 'manage_settings', 'purge_logs' );
+			$restricted_caps = array( 'delete_booking', 'manage_settings' );
 			return ! in_array( $capability, $restricted_caps, true );
 		}
 

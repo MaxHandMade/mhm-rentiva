@@ -73,7 +73,6 @@ final class SettingsSanitizer {
 				self::sanitize_comparison_settings( $input, $current_values )
 			),
 			'booking'     => self::sanitize_booking_settings( $input, $defaults ),
-			'customer'    => self::sanitize_customer_management_settings( $input, $defaults ),
 			'email'       => array_merge(
 				self::sanitize_email_brand_settings( $input, $defaults ),
 				self::sanitize_email_sending_settings( $input, $defaults )
@@ -424,22 +423,6 @@ final class SettingsSanitizer {
 		if ( isset( $input['vehicle_pricing'] ) && \is_array( $input['vehicle_pricing'] ) ) {
 			$in = $input['vehicle_pricing'];
 
-			if ( isset( $in['deposit_settings'] ) && \is_array( $in['deposit_settings'] ) ) {
-				$dep                                 = $in['deposit_settings'];
-				$current_pricing['deposit_settings'] = array(
-					'enable_deposit'          => (bool) ( $dep['enable_deposit'] ?? false ),
-					'deposit_type'            => self::safe_text( $dep['deposit_type'] ?? 'both' ),
-					'allow_no_deposit'        => (bool) ( $dep['allow_no_deposit'] ?? true ),
-					'required_for_booking'    => (bool) ( $dep['required_for_booking'] ?? false ),
-					'show_deposit_in_listing' => (bool) ( $dep['show_deposit_in_listing'] ?? true ),
-					'show_deposit_in_detail'  => (bool) ( $dep['show_deposit_in_detail'] ?? true ),
-					'deposit_refund_policy'   => SettingsHelper::sanitize_field( $dep['deposit_refund_policy'] ?? '', 'textarea' ),
-					'deposit_payment_methods' => \is_array( $dep['deposit_payment_methods'] ?? null )
-						? array_map( array( self::class, 'safe_text' ), $dep['deposit_payment_methods'] )
-						: array( 'credit_card', 'cash', 'bank_transfer' ),
-				);
-			}
-
 			if ( isset( $in['seasonal_multipliers'] ) && \is_array( $in['seasonal_multipliers'] ) ) {
 				// Keys are internal season slugs (spring/summer/autumn/winter,
 				// see VehiclePricingSettings::get_default_settings()) used to
@@ -477,10 +460,6 @@ final class SettingsSanitizer {
 			'mhmrentiva_send_auto_cancel_email'           => self::get_bool( $input, 'mhmrentiva_send_auto_cancel_email' ),
 			'mhmrentiva_default_rental_days'              => self::get_int( $input, 'mhmrentiva_default_rental_days', 1, 1, 365 ),
 		);
-	}
-
-	private static function sanitize_customer_management_settings( array $input, array $defaults ): array {
-		return array();
 	}
 
 	private static function sanitize_email_brand_settings( array $input, array $defaults ): array {
