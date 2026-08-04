@@ -421,12 +421,6 @@ parameters:
 			path: src/Admin/Core/Utilities/WordPressOptimizer.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 2
-			path: src/Admin/Customers/AddCustomerPage.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -1123,12 +1117,6 @@ parameters:
 			path: src/Admin/Utilities/Dashboard/DashboardPage.php
 
 		-
-			message: '#^Unreachable statement \- code above always terminates\.$#'
-			identifier: deadCode.unreachable
-			count: 7
-			path: src/Admin/Utilities/Dashboard/DashboardPage.php
-
-		-
 			message: '#^Property WP_Screen\:\:\$post_type \(string\) on left side of \?\? is not nullable\.$#'
 			identifier: nullCoalesce.property
 			count: 1
@@ -1221,7 +1209,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 3
+			count: 2
 			path: src/Admin/Vehicle/Meta/VehicleMeta.php
 
 		-
