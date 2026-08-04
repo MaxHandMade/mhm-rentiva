@@ -745,12 +745,6 @@ parameters:
 			path: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php
 
 		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
-
-		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_PATH not found\.$#'
 			identifier: constant.notFound
 			count: 1
@@ -759,7 +753,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 3
+			count: 2
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
 
 		-
@@ -767,18 +761,6 @@ parameters:
 			identifier: method.unused
 			count: 1
 			path: src/Admin/Frontend/Shortcodes/VehiclesGrid.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
-
-		-
-			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
-			identifier: constant.notFound
-			count: 1
-			path: src/Admin/Frontend/Shortcodes/VehiclesList.php
 
 		-
 			message: '#^Right side of && is always false\.$#'
@@ -1133,6 +1115,18 @@ parameters:
 			identifier: argument.type
 			count: 2
 			path: src/Admin/Vehicle/Helpers/RatingHelper.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_DIR not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Admin/Vehicle/Helpers/VehicleDataHelper.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: src/Admin/Vehicle/Helpers/VehicleDataHelper.php
 
 		-
 			message: '#^Strict comparison using \=\=\= between mixed and null will always evaluate to false\.$#'
