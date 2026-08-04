@@ -576,7 +576,15 @@ final class Plugin {
 		// remove it without keeping some other unconditional retry path --
 		// see DatabaseMigrator::INDEX_CLEANUP_MAX_ATTEMPTS for why that retry
 		// is itself bounded rather than infinite.
-		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ));
+		// $accepted_args=0 is required, not cosmetic: do_action('admin_init')
+		// carries no real argument, but WordPress's own do_action() substitutes
+		// a single '' when none is given (back-compat for very old hooks), and
+		// the default accepted_args=1 would hand that '' to run_migrations()'s
+		// now-typed first parameter -- a TypeError under this file's
+		// declare(strict_types=1). Those two parameters are a test-only seam
+		// (see run_migrations()'s own docblock) and must never be fed by a
+		// live hook.
+		add_action('admin_init', array( Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' ), 10, 0);
 
 		// Taxonomy migration (vehicle_cat → vehicle_category)
 		add_action('admin_init', array( Admin\Core\Utilities\TaxonomyMigrator::class, 'migrate_vehicle_cat_to_vehicle_category' ), 5);
