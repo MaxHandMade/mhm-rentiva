@@ -163,16 +163,24 @@ jobs:
       # script's own docblock). STILL `continue-on-error: true` after Task 10,
       # and this is a deliberate, escalated state rather than an oversight:
       # Task 10 drove EscapeOutput 7 -> 2 and NonceVerification.Missing /
-      # ValidatedSanitizedInput to 0, but 56 NonceVerification.Recommended hits
-      # remain on read-only, bookmarkable admin display params (?tab=, ?paged=,
+      # ValidatedSanitizedInput to 0, leaving 56 NonceVerification.Recommended
+      # hits on read-only, bookmarkable admin display params (?tab=, ?paged=,
       # ?page=, ?message=). No canonical shape silences that sniff for such a
       # param -- a nonce cannot gate a bookmarkable URL and get_query_var() is
-      # unavailable on `admin.php?page=` screens -- so they are left
-      # UNSUPPRESSED and named in the Görev 17 response letter instead. The
-      # gate stays wired and honest; flipping it to blocking would require
-      # either a new residual ceiling (the exemption the user revoked) or a
-      # suppression (what T7 punished). See task-10-report.md.
-      - name: "Security shape gate (G-A: nonce/escape/sanitize, 56 display-param nonce warnings remain)"
+      # unavailable on `admin.php?page=` screens.
+      #
+      # UPDATE (T8 Görev 13, K2, 2026-08-04): all 56 were worked one by one,
+      # not declared away. 2 closed for real (a superseded-duplicate enqueue
+      # and a localize-overwrite fix -- task-13-report.md); the other 28
+      # cannot close for the reason above and are left UNSUPPRESSED and named
+      # in the Görev 17 response letter instead, each with its own file:line
+      # justification in task-13-report.md's table. Gate's own output today:
+      #   G-A: hard=28, residual-display=0 (tavan 0)
+      # The gate stays wired and honest; flipping it to blocking would
+      # require either a new residual ceiling (the exemption the user
+      # revoked) or a suppression (what T7 punished). See task-10-report.md
+      # and task-13-report.md.
+      - name: "Security shape gate (G-A: nonce/escape/sanitize, 28 display-param nonce warnings remain)"
         run: php bin/check-shape-zero.php
         continue-on-error: true
 
@@ -228,12 +236,29 @@ jobs:
       # debt visible instead of red-washing the build.
       #
       # Locally: `php bin/check-plugin-check-parity.php`.
-      # Measured baseline there (2026-08-02): 1 error / 97 warnings over the
-      # 571 files .distignore ships. The single error is
-      # DatabaseCleaner::restore_full_backup() (PreparedSQL.NotPrepared, product
-      # decision pending); readme.txt's stable-tag mismatch was fixed in the
-      # 6.0.0 release commit, which is why this figure is 1/97 and not the
-      # 2/99 stated here previously.
+      # UPDATE (T8 Görev 16, 2026-08-04): the 2026-08-02 baseline below is
+      # superseded. restore_full_backup() no longer exists under that name
+      # (its PreparedSQL.NotPrepared error went with it), a hidden_files
+      # error from a newly-shipped .eslintrc.json came and went (Görev 15
+      # added the file, Görev 16 excluded it in .distignore), and the owner's
+      # K6 verdict (2026-08-04) stripped 11 suppressed
+      # DirectDatabaseQuery.SchemaChange annotations, so the sniff now
+      # reports everywhere it used to be silenced, not just the 10 the K1
+      # shape left visible on purpose. Current gate output, quoted verbatim:
+      #   G-D SUMMARY: errors=0 warnings=55 files_with_findings=16
+      #   shipped_files=568 vendor_files_scanned=4
+      #     28   W WordPress.Security.NonceVerification.Recommended
+      #     27   W WordPress.DB.DirectDatabaseQuery.SchemaChange
+      # 55 = 28 nonce (gate G-A above) + 27 SchemaChange (K1/K6, both families
+      # already accounted for elsewhere in this file) -- zero new, unexplained
+      # warnings. errors=0 was this task's own exit criterion.
+      #
+      # Superseded baseline (2026-08-02), kept for the historical record: 1
+      # error / 97 warnings over the 571 files .distignore shipped then. The
+      # single error was DatabaseCleaner::restore_full_backup()
+      # (PreparedSQL.NotPrepared, product decision pending); readme.txt's
+      # stable-tag mismatch was fixed in the 6.0.0 release commit, which is
+      # why that figure was 1/97 and not the 2/99 stated before it.
       #
       # KNOWN HOLE, to close after submission: this gate honours phpcs
       # annotations, so it cannot see the suppressed surface at all -- while the

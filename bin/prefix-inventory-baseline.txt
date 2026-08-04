@@ -626,7 +626,6 @@
 'mhmrentiva_deposit_management_nonce'
 'mhmrentiva_dismiss_permalink_notice'
 'mhmrentiva_doors'
-'mhmrentiva_duplicate_addon_'
 'mhmrentiva_edit_customer'
 'mhmrentiva_edit_customer_email'
 'mhmrentiva_edit_customer_first_name'
@@ -1257,7 +1256,6 @@ wp_ajax_mhmrentiva_repair_table
 wp_ajax_mhmrentiva_reset_dashboard_layout
 wp_ajax_mhmrentiva_reset_vehicle_settings
 wp_ajax_mhmrentiva_restore_backup
-wp_ajax_mhmrentiva_restore_full_backup
 wp_ajax_mhmrentiva_run_cron_job
 wp_ajax_mhmrentiva_save_dark_mode
 wp_ajax_mhmrentiva_save_dashboard_order
