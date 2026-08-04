@@ -29,7 +29,14 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 		$id = self::factory()->post->create( array(
 			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
-			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
+			// Relative to "now", never a fixed day-of-month: get_payments_summary()
+			// applies no date filter at all, so any past moment satisfies the
+			// query -- but day 15 of the CURRENT month is in the future for the
+			// first half of every month, and wp_insert_post() silently downgrades
+			// an explicit post_status 'publish' to 'future' whenever post_date_gmt
+			// lands more than a minute ahead of the real clock. A 'future' row is
+			// invisible to every post_status IN ('publish',...) query below.
+			'post_date'   => $date ?? gmdate( 'Y-m-d H:i:s' ),
 		) );
 		update_post_meta( $id, '_mhmrentiva_status', $status );
 		update_post_meta( $id, '_mhmrentiva_payment_type', 'full' );
@@ -47,7 +54,8 @@ final class DashboardPaymentsSummaryTest extends WP_UnitTestCase {
 		$id = self::factory()->post->create( array(
 			'post_type'   => 'mhmrentiva_booking',
 			'post_status' => 'publish',
-			'post_date'   => $date ?? gmdate( 'Y-m-15 10:00:00' ),
+			// Relative to "now" -- see the rationale in full_payment_booking() above.
+			'post_date'   => $date ?? gmdate( 'Y-m-d H:i:s' ),
 		) );
 		update_post_meta( $id, '_mhmrentiva_status', $status );
 		update_post_meta( $id, '_mhmrentiva_payment_type', 'deposit' );
