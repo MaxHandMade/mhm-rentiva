@@ -58,11 +58,11 @@ final class UserDashboard {
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
 		// VendorDashboard is an extension point filled by the add-on. A fresh Lite
-		// install can never resolve to 'vendor' (only the add-on's
-		// VendorOnboardingController::approve() grants the rentiva_vendor role),
-		// so this is defence-in-depth for the add-on-to-Lite downgrade case: a
-		// site whose DB already holds vendor-role users would
-		// otherwise fatal here on login rather than degrade.
+		// install can never resolve to 'vendor' (only the add-on's own vendor
+		// approval flow grants the rentiva_vendor role), so this is
+		// defence-in-depth for the add-on-to-Lite downgrade case: a site whose
+		// DB already holds vendor-role users would otherwise fatal here on
+		// login rather than degrade.
 		if ('vendor' === $type) {
 			if (! class_exists('\MHMRentiva\Core\Dashboard\VendorDashboard')) {
 				return '';
