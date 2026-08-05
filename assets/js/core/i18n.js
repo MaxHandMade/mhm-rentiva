@@ -311,7 +311,6 @@
 			'Processing...': 'Processing...',
 			'An error occurred': 'An error occurred',
 			'Please try again': 'Please try again',
-			'Operation completed successfully': 'Operation completed successfully',
 			'Operation failed': 'Operation failed',
 			'Are you sure?': 'Are you sure?',
 			'This action cannot be undone': 'This action cannot be undone',
