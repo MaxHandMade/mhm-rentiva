@@ -654,14 +654,24 @@ final class Plugin {
 	}
 
 	/**
-	 * Load plugin text domain
+	 * Load plugin text domain.
+	 *
+	 * The locale comes straight from determine_locale(), which is the mechanism
+	 * WordPress still ships: it applies core's own `pre_determine_locale` and
+	 * `determine_locale` filters internally, so a translation plugin overriding
+	 * the locale is honoured here without this plugin firing any hook of its own.
+	 *
+	 * A `plugin_locale` filter used to be applied on top of that, mirroring what
+	 * core's load_plugin_textdomain() did at the time. WordPress 7.0 removed the
+	 * filter -- core neither owns nor fires the name any more, and its
+	 * load_plugin_textdomain() resolves no locale at all -- which left this plugin
+	 * as the only party firing an unprefixed global hook name. Do not reintroduce
+	 * it: PluginTextdomainLocaleTest fails if it comes back.
 	 */
 	public function load_textdomain(): void
 	{
 		$domain = 'mhm-rentiva';
 		$locale = determine_locale();
-		// phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- `plugin_locale` is a WordPress CORE filter, not ours to prefix; core's own load_plugin_textdomain() applies it the same way, and renaming it here would simply stop translation filters from being honoured.
-		$locale = apply_filters('plugin_locale', $locale, $domain);
 
 		// Force load from local directory first (to avoid global overrides)
 		$mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
