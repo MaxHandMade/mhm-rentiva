@@ -245,14 +245,22 @@
                         MHMRentivaToast.show(response.data?.message || 'An error occurred', { type: 'error' });
                     }
                 },
-                error: (xhr, status, error) => {
-                    MHMRentivaToast.show('An error occurred while submitting the rating.', { type: 'error' });
+                // jQuery reports a timeout through `error` with textStatus
+                // 'timeout' -- there is no `timeout` callback. A second
+                // `timeout` key here used to overwrite the 10000 above with a
+                // function, and `s.timeout > 0` is false for a function, so
+                // the request had no time limit at all AND this message never
+                // reached anyone.
+                error: (xhr, textStatus) => {
+                    MHMRentivaToast.show(
+                        'timeout' === textStatus
+                            ? 'Request timed out. Please try again.'
+                            : 'An error occurred while submitting the rating.',
+                        { type: 'error' }
+                    );
                 },
                 complete: () => {
                     $form.find('button[type="submit"]').prop('disabled', false).text('Submit Rating');
-                },
-                timeout: () => {
-                    MHMRentivaToast.show('Request timed out. Please try again.', { type: 'error' });
                 }
             });
         }
@@ -369,11 +377,13 @@
                         // Keep existing reviews if AJAX fails
                     }
                 },
-                error: (xhr, status, error) => {
-                    // Keep existing reviews if AJAX errors
-                },
-                timeout: () => {
-                    // Keep existing reviews if AJAX times out
+                // Deliberately silent: whatever is already on the page stays
+                // there. jQuery routes a timeout here too, with textStatus
+                // 'timeout' -- the `timeout` key that used to sit below was
+                // not a callback jQuery ever calls, it just overwrote the
+                // 10000 above with a function and removed the time limit.
+                error: () => {
+                    // Keep the reviews already rendered, on error or timeout.
                 }
             });
         }
