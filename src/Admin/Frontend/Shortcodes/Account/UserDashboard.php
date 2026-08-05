@@ -252,7 +252,11 @@ final class UserDashboard {
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			array( 'flatpickr', 'jquery' ),
+			// 'mhm-rentiva-toast' provides window.MHMRentivaToast, which this
+			// script calls after a lifecycle action succeeds. It used to call
+			// a `mhmShowToast` that exists nowhere, behind a typeof guard, so
+			// the missing dependency was invisible.
+			array( 'flatpickr', 'jquery', 'mhm-rentiva-toast' ),
 			MHMRENTIVA_VERSION,
 			true
 		);

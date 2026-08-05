@@ -205,7 +205,10 @@
             if (typeof obj === 'object') {
                 const clonedObj = {};
                 for (const key in obj) {
-                    if (obj.hasOwnProperty(key)) {
+                    // Not obj.hasOwnProperty(key): an object created with
+                    // Object.create(null), or one carrying its own
+                    // 'hasOwnProperty' key, makes that call a TypeError.
+                    if (Object.prototype.hasOwnProperty.call(obj, key)) {
                         clonedObj[key] = this.deepClone(obj[key]);
                     }
                 }

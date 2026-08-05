@@ -128,8 +128,15 @@ function initVendorLifecycleActions() {
                         return;
                     }
                     var msg = (res.data && res.data.message) ? res.data.message : 'Done.';
-                    if (typeof mhmShowToast === 'function') {
-                        mhmShowToast(msg, 'success');
+                    // Was `typeof mhmShowToast === 'function'` -- a function
+                    // that exists nowhere in this plugin, so the guard was
+                    // always false and the toast never showed. The toast this
+                    // codebase actually ships is window.MHMRentivaToast
+                    // (assets/js/frontend/toast.js, handle
+                    // 'mhm-rentiva-toast', now declared as a dependency of
+                    // this script). The alert() stays as the fallback.
+                    if (window.MHMRentivaToast) {
+                        window.MHMRentivaToast.show(msg, { type: 'success' });
                     } else {
                         alert(msg);
                     }

@@ -1447,13 +1447,13 @@
             return window.mhmRentivaBookingForm?.ajax_url || '';
         }
 
-        calculateDays(start, end) {
-            const startDate = new Date(start);
-            const endDate = new Date(end);
-            const diffTime = Math.abs(endDate - startDate);
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
-        }
+        // calculateDays() was declared a second time here. A class body keeps
+        // the LAST definition, so this naive `new Date(start)` one is what
+        // actually ran, and the format-aware original above (which parses with
+        // the configured datepicker format) was dead code. `new Date()` cannot
+        // read the plugin's non-ISO date formats -- with dateFormat 'dd/mm/yy'
+        // it returns Invalid Date and the day count came out NaN. Removed so
+        // both call sites reach the implementation that handles the format.
 
         escapeHtml(text) {
             if (typeof text !== 'string') {

@@ -13,6 +13,7 @@
 
 		"elementorFrontend": "readonly",
 		"flatpickr": "readonly",
+		"Swiper": "readonly",
 		"wc_checkout_params": "readonly",
 
 		"MHMRentiva": "readonly",
