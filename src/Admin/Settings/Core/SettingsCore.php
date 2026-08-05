@@ -32,6 +32,28 @@ final class SettingsCore {
 	public const OPTION_NAME = 'mhmrentiva_settings';
 
 	/**
+	 * Memoized merged defaults map. Values may be deferred (see get_defaults()).
+	 *
+	 * Held in a property rather than a function-static so it can be dropped
+	 * between tests; a function-static survives for the whole PHPUnit process
+	 * and would make any measurement of "what does building the defaults do"
+	 * depend on which test ran first.
+	 *
+	 * @var array<string, mixed>|null
+	 */
+	private static ?array $defaults_cache = null;
+
+	/**
+	 * Drops the memoized defaults map. Test seam.
+	 *
+	 * @internal
+	 */
+	public static function reset_defaults_cache_for_tests(): void
+	{
+		self::$defaults_cache = null;
+	}
+
+	/**
 	 * Register all core settings hooks
 	 */
 	public static function register(): void
@@ -288,21 +310,28 @@ final class SettingsCore {
 		if (! is_array($settings)) {
 			$settings = array();
 		}
-		$defaults = self::get_defaults();
+		// defaults_map(), not get_defaults(): this reads ONE key, so only that
+		// one key's default may be materialised. get_defaults() resolves every
+		// deferred default in the map, and this method is on the plugins_loaded
+		// migration path -- see defaults_map()'s docblock.
+		$defaults = self::defaults_map();
 
 		if (array_key_exists($key, $settings)) {
 			$value = $settings[ $key ];
 
 			// Handle empty strings or specific numeric fallbacks
 			if ('' === $value || ( null === $value )) {
-				return $defaults[ $key ] ?? $default;
+				return self::resolve_default($defaults[ $key ] ?? $default);
 			}
 
+			// A stored value is never deferred -- deferral exists only in the
+			// defaults map, and nothing deferred is ever written to the option
+			// (get_defaults() resolves before any caller can persist it).
 			return $value;
 		}
 
 		// Final safety fallback: If not in DB and not in defaults
-		$val = $defaults[ $key ] ?? $default;
+		$val = self::resolve_default($defaults[ $key ] ?? $default);
 
 		// If still null/empty and looks like a boolean/checkbox field, force '0'
 		if (null === $val || '' === $val) {
@@ -375,14 +404,83 @@ final class SettingsCore {
 	}
 
 	/**
-	 * Optimized defaults merging
+	 * Every default, fully materialised.
+	 *
+	 * Public contract, unchanged: every value is a plain scalar/array, never a
+	 * deferred one. That is load-bearing rather than tidy -- three callers put
+	 * this array (or a group's own get_default_settings()) straight into
+	 * `update_option()` / `register_setting( 'default' => ... )`, and PHP
+	 * cannot serialize a Closure; letting one escape here would be a fatal,
+	 * not a warning. Call this only when the whole map is genuinely needed;
+	 * to read a single key use get(), which materialises only that key.
 	 */
 	public static function get_defaults(): array
 	{
-		static $merged_defaults = null;
+		return self::resolve_defaults(self::defaults_map());
+	}
 
-		if (null !== $merged_defaults) {
-			return $merged_defaults;
+	/**
+	 * Resolve one possibly-deferred default.
+	 *
+	 * A default whose value is a Closure is DEFERRED: the Closure is the
+	 * recipe, not the value. No setting legitimately holds a Closure, so the
+	 * instanceof test is unambiguous.
+	 */
+	public static function resolve_default(mixed $value): mixed
+	{
+		if ($value instanceof \Closure) {
+			return $value();
+		}
+
+		if (is_array($value)) {
+			return self::resolve_defaults($value);
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Resolve a whole defaults map, nested arrays included.
+	 *
+	 * @param array<mixed> $defaults
+	 * @return array<mixed>
+	 */
+	public static function resolve_defaults(array $defaults): array
+	{
+		return array_map(array( self::class, 'resolve_default' ), $defaults);
+	}
+
+	/**
+	 * The merged defaults map, with translatable defaults still DEFERRED.
+	 *
+	 * Reading one plain setting used to materialise every default in the
+	 * plugin, and the email group's defaults are ~54 translated strings. On
+	 * the real upgrade path that happens inside `plugins_loaded`
+	 * (mhm-rentiva.php:288 -> DatabaseMigrator::run_migrations() ->
+	 * AdvancedLogger::info() -> should_skip_log() -> get('mhmrentiva_log_level')),
+	 * which is before `init` -- so WordPress 6.7+ fired
+	 * `_doing_it_wrong( '_load_textdomain_just_in_time' )`, the notice a
+	 * WP.org reviewer sees with WP_DEBUG on.
+	 *
+	 * The fix is not to move the `__()` calls somewhere else early, it is that
+	 * a translated default is not built until something actually asks for that
+	 * key: a group may expose `deferred_default_settings()` whose translatable
+	 * entries are Closures, and resolution happens at the read
+	 * (get() / get_defaults()), never at merge time. Groups with no
+	 * translatable defaults keep the plain `get_default_settings()` shape.
+	 *
+	 * Memoizing the DEFERRED map (rather than the resolved one, as before)
+	 * also drops a latent bug: the old memo froze whatever translations were
+	 * available at the first call, so a request that touched settings before
+	 * the text domain loaded served untranslated defaults for the rest of
+	 * that request.
+	 *
+	 * @return array<string, mixed> Values may be Closure; resolve before use.
+	 */
+	private static function defaults_map(): array
+	{
+		if (null !== self::$defaults_cache) {
+			return self::$defaults_cache;
 		}
 
 		$merged_defaults = array(
@@ -420,10 +518,23 @@ final class SettingsCore {
 		$sub_modules = (array) apply_filters( 'mhmrentiva_settings_groups', $sub_modules );
 
 		foreach ($sub_modules as $module) {
-			if (class_exists($module) && method_exists($module, 'get_default_settings')) {
+			if (! class_exists($module)) {
+				continue;
+			}
+
+			// A group that has translatable defaults offers them deferred;
+			// preferring that method is what keeps `__()` out of the merge.
+			if (method_exists($module, 'deferred_default_settings')) {
+				$merged_defaults = array_merge($merged_defaults, $module::deferred_default_settings());
+				continue;
+			}
+
+			if (method_exists($module, 'get_default_settings')) {
 				$merged_defaults = array_merge($merged_defaults, $module::get_default_settings());
 			}
 		}
+
+		self::$defaults_cache = $merged_defaults;
 
 		return $merged_defaults;
 	}

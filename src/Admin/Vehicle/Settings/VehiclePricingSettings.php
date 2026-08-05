@@ -88,9 +88,24 @@ final class VehiclePricingSettings {
 	 * untouched, and nothing stops an older install or a third-party
 	 * `update_option()` from leaving a scalar there. Without the shape check
 	 * this method's own `: array` return type is the fatal.
+	 *
+	 * The defaults are NOT passed to SettingsCore::get() as its `$default`
+	 * argument: PHP evaluates arguments eagerly, so that built the nine
+	 * translated season/deposit strings on every call even when a stored value
+	 * existed. This is the public booking form's read path -- BookingForm calls
+	 * get_seasonal_multiplier_for_date() once per rental day -- and it is the
+	 * second site of the same defect class as
+	 * SettingsCore::defaults_map()'s. `get()` returns null for a key that is
+	 * neither stored nor in the merged defaults map (`vehicle_pricing` is in
+	 * neither), and null is not an array, so the fallback below produces the
+	 * identical result the eager argument used to.
+	 *
+	 * Deferral here is by call order rather than by Closure, because unlike
+	 * the email defaults this array IS written back to the option by
+	 * SettingsSanitizer's pricing branch, and a Closure cannot be serialized.
 	 */
 	public static function get_settings(): array {
-		$settings = SettingsCore::get( 'vehicle_pricing', self::get_default_settings() );
+		$settings = SettingsCore::get( 'vehicle_pricing' );
 		return is_array( $settings ) ? $settings : self::get_default_settings();
 	}
 

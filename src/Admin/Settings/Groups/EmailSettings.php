@@ -28,9 +28,37 @@ final class EmailSettings {
 	public const SECTION_NOTIFICATIONS = 'mhmrentiva_email_notifications_section';
 
 	/**
-	 * Get default settings for email
+	 * Get default settings for email, fully materialised.
+	 *
+	 * Kept as the public contract because three callers hand this array
+	 * straight to `update_option()` / `register_setting( 'default' => ... )`
+	 * (SettingsService::reset_defaults(), Settings::render(), RESTSettings) and
+	 * a Closure cannot be serialized. Anything on an early code path must go
+	 * through {@see self::deferred_default_settings()} instead.
 	 */
 	public static function get_default_settings(): array {
+		return SettingsCore::resolve_defaults( self::deferred_default_settings() );
+	}
+
+	/**
+	 * The same defaults, with every translated one still DEFERRED.
+	 *
+	 * This group owns all ~54 translated strings in the settings defaults, and
+	 * SettingsCore merges every group's defaults to answer a read of ANY single
+	 * key -- including `mhmrentiva_log_level`, read from
+	 * AdvancedLogger::should_skip_log() while the upgrade migration runs on
+	 * `plugins_loaded`. Building a translated string there is before `init`,
+	 * which is exactly what WordPress 6.7+ reports as
+	 * "Translation loading for the mhm-rentiva domain was triggered too early".
+	 *
+	 * Each Closure is the recipe for one default; SettingsCore calls it only
+	 * when that key is actually read, by which time `init` has long passed.
+	 * The `__()` call sites themselves are untouched, so `makepot` still
+	 * extracts every msgid from this file exactly as before.
+	 *
+	 * @return array<string, mixed> Translatable values are Closures.
+	 */
+	public static function deferred_default_settings(): array {
 		return array(
 			'mhmrentiva_email_from_name'                  => get_bloginfo( 'name' ),
 			'mhmrentiva_email_from_address'               => get_option( 'admin_email' ),
@@ -46,49 +74,49 @@ final class EmailSettings {
 			// Branding
 			'mhmrentiva_email_base_color'                 => '#1e88e5',
 			'mhmrentiva_email_header_image'               => '',
-			'mhmrentiva_email_footer_text'                => sprintf(
+			'mhmrentiva_email_footer_text'                => static fn(): string => sprintf(
 				/* translators: %s: site name */
 				__( '%s - Powered by MHM Rentiva', 'mhm-rentiva' ),
 				get_bloginfo( 'name' )
 			),
 
 			// Customer Booking Confirmation
-			'mhmrentiva_booking_created_subject'          => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_booking_created_body'             => self::get_default_customer_confirmation_body(),
+			'mhmrentiva_booking_created_subject'          => static fn(): string => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_created_body'             => static fn(): string => self::get_default_customer_confirmation_body(),
 
 			// Booking Status Change (Customer)
-			'mhmrentiva_booking_status_subject'           => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
-			'mhmrentiva_booking_status_body'              => self::get_default_booking_status_body(),
+			'mhmrentiva_booking_status_subject'           => static fn(): string => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
+			'mhmrentiva_booking_status_body'              => static fn(): string => self::get_default_booking_status_body(),
 
 			// Admin Booking Alert
-			'mhmrentiva_booking_admin_subject'            => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
-			'mhmrentiva_booking_admin_body'               => self::get_default_admin_notification_body(),
+			'mhmrentiva_booking_admin_subject'            => static fn(): string => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_admin_body'               => static fn(): string => self::get_default_admin_notification_body(),
 
 			// Auto Cancel Email
-			'mhmrentiva_auto_cancel_email_subject'        => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_auto_cancel_email_content'        => self::get_default_auto_cancel_body(),
+			'mhmrentiva_auto_cancel_email_subject'        => static fn(): string => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_auto_cancel_email_content'        => static fn(): string => self::get_default_auto_cancel_body(),
 
 			// Booking Reminder
-			'mhmrentiva_booking_reminder_subject'         => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
-			'mhmrentiva_booking_reminder_body'            => self::get_default_booking_reminder_body(),
+			'mhmrentiva_booking_reminder_subject'         => static fn(): string => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
+			'mhmrentiva_booking_reminder_body'            => static fn(): string => self::get_default_booking_reminder_body(),
 
 			// Refund Emails
-			'mhmrentiva_refund_customer_subject'          => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_refund_customer_body'             => self::get_default_refund_customer_body(),
-			'mhmrentiva_refund_admin_subject'             => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_refund_admin_body'                => self::get_default_refund_admin_body(),
+			'mhmrentiva_refund_customer_subject'          => static fn(): string => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_customer_body'             => static fn(): string => self::get_default_refund_customer_body(),
+			'mhmrentiva_refund_admin_subject'             => static fn(): string => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_admin_body'                => static fn(): string => self::get_default_refund_admin_body(),
 
 			// Customer Notification Toggles
 			'mhmrentiva_customer_welcome_email'           => '1',
 			'mhmrentiva_customer_booking_notifications'   => '1',
 
 			// Message Emails
-			'mhmrentiva_message_received_admin_subject'   => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
-			'mhmrentiva_message_received_admin_body'      => self::get_default_message_admin_body(),
-			'mhmrentiva_message_replied_customer_subject' => __( 'New Reply for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_message_replied_customer_body'    => self::get_default_message_customer_body(),
-			'mhmrentiva_message_auto_reply_subject'       => __( 'We received your message - {site_name}', 'mhm-rentiva' ),
-			'mhmrentiva_message_auto_reply_body'          => self::get_default_message_auto_reply_body(),
+			'mhmrentiva_message_received_admin_subject'   => static fn(): string => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
+			'mhmrentiva_message_received_admin_body'      => static fn(): string => self::get_default_message_admin_body(),
+			'mhmrentiva_message_replied_customer_subject' => static fn(): string => __( 'New Reply for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_message_replied_customer_body'    => static fn(): string => self::get_default_message_customer_body(),
+			'mhmrentiva_message_auto_reply_subject'       => static fn(): string => __( 'We received your message - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_message_auto_reply_body'          => static fn(): string => self::get_default_message_auto_reply_body(),
 		);
 	}
 
