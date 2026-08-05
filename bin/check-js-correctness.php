@@ -47,8 +47,12 @@
  *
  * SCOPE. Derived from the ZIP builder -- `bin/build-release.py
  * --list-shipped`, the same `.distignore`-driven list Gate G-D uses -- so it
- * cannot drift from what actually ships, filtered to `.js`. Two families are
- * then excluded, BY NAME, with the file list printed every run:
+ * cannot drift from what actually ships, filtered to LINTED_EXTENSIONS
+ * (`.js` + `.jsx`; see that constant for why `.jsx` was this gate's own first
+ * blind spot). Any shipped file carrying a script extension OUTSIDE that set
+ * is counted and printed on every run and FAILS the gate, rather than being
+ * silently skipped -- see UNLINTED_SCRIPT_EXTENSIONS. Two families are then
+ * excluded, BY NAME, with the file list printed every run:
  *   - `assets/vendor/**` -- third-party minified bundles (flatpickr, swiper).
  *   - `build/**` -- webpack output. Its sources under `src-react/` ARE
  *     linted, so nothing goes unmeasured; the bundle additionally contains
@@ -110,7 +114,7 @@ const REPORTED_MINIMUM = array(
 );
 
 /**
- * Path prefixes excluded from the shipped-JS scope, with their reason.
+ * Path prefixes excluded from the shipped scope, with their reason.
  *
  * @var array<string, string>
  */
@@ -118,6 +122,33 @@ const EXCLUDED_PREFIXES = array(
 	'assets/vendor/' => 'third-party minified bundles (flatpickr, swiper)',
 	'build/'         => 'webpack output; its sources under src-react/ are linted instead',
 );
+
+/**
+ * File extensions this gate lints.
+ *
+ * `.jsx` is here because leaving it out was this gate's own first blind spot:
+ * the scope filter matched `.js` only, so 35 shipped `src-react` component
+ * sources -- the real sources behind the `build/` bundles this gate excludes
+ * BY NAME, on the stated grounds that "its sources under src-react/ are
+ * linted instead" -- were neither linted nor printed as excluded. They were
+ * clean at the time, which is the dangerous kind of gap: the gate printed a
+ * confident zero over a surface it had never read.
+ *
+ * @var list<string>
+ */
+const LINTED_EXTENSIONS = array( 'js', 'jsx' );
+
+/**
+ * Script extensions that do NOT ship today and that this gate therefore does
+ * not lint. Counted on every run rather than assumed: if one ever appears in
+ * the shipped list, the gate says so and fails, instead of silently reporting
+ * zero over a surface it never read. That is the same failure this gate's own
+ * `.jsx` gap was, and the only defence against repeating it is to measure the
+ * question rather than answer it in a comment.
+ *
+ * @var list<string>
+ */
+const UNLINTED_SCRIPT_EXTENSIONS = array( 'ts', 'tsx', 'mjs', 'cjs' );
 
 /**
  * Run a command without a shell. proc_open() with an ARRAY command line
@@ -157,7 +188,7 @@ function mhmrentiva_run_cmd( array $argv_cmd, ?string $stdin_data = null ): arra
 $root    = rtrim( str_replace( '\\', '/', dirname( __DIR__ ) ), '/' );
 $verbose = in_array( '--list-files', $argv, true );
 
-// ---- scope: the real shipped list, filtered to .js ---------------------
+// ---- scope: the real shipped list, filtered to LINTED_EXTENSIONS -------
 
 $shipped = null;
 foreach ( array( 'python3', 'python', 'py' ) as $py ) {
@@ -173,17 +204,39 @@ if ( null === $shipped ) {
 	exit( EXIT_CANNOT_MEASURE );
 }
 
-$shipped_js = array();
+/**
+ * Extension of one shipped path, lowercased, '' when it has none.
+ */
+$extension_of = static function ( string $rel ): string {
+	$base = basename( $rel );
+	$dot  = strrpos( $base, '.' );
+
+	return false === $dot ? '' : strtolower( substr( $base, $dot + 1 ) );
+};
+
+$shipped_scripts = array();
+$per_extension   = array();
+$unlinted        = array();
 foreach ( $shipped as $rel ) {
-	if ( '.js' === strtolower( substr( $rel, -3 ) ) ) {
-		$shipped_js[] = $rel;
+	$ext = $extension_of( $rel );
+
+	if ( in_array( $ext, LINTED_EXTENSIONS, true ) ) {
+		$shipped_scripts[]     = $rel;
+		$per_extension[ $ext ] = ( $per_extension[ $ext ] ?? 0 ) + 1;
+		continue;
+	}
+
+	// Measured, not assumed -- see UNLINTED_SCRIPT_EXTENSIONS.
+	if ( in_array( $ext, UNLINTED_SCRIPT_EXTENSIONS, true ) ) {
+		$unlinted[] = $rel;
 	}
 }
-sort( $shipped_js );
+sort( $shipped_scripts );
+sort( $unlinted );
 
 $in_scope = array();
 $excluded = array();
-foreach ( $shipped_js as $rel ) {
+foreach ( $shipped_scripts as $rel ) {
 	$skipped = false;
 	foreach ( array_keys( EXCLUDED_PREFIXES ) as $prefix ) {
 		if ( 0 === strpos( $rel, $prefix ) ) {
@@ -198,7 +251,7 @@ foreach ( $shipped_js as $rel ) {
 }
 
 if ( array() === $in_scope ) {
-	fwrite( STDERR, "G-E: cannot measure -- the shipped list contains no in-scope .js files\n" );
+	fwrite( STDERR, "G-E: cannot measure -- the shipped list contains no in-scope script files\n" );
 	exit( EXIT_CANNOT_MEASURE );
 }
 
@@ -334,9 +387,14 @@ echo "  NOT enforced -- recommended rules turned off, by name:\n";
 foreach ( EXCLUDED_RULES as $rule => $reason ) {
 	printf( "             %-20s %s\n", $rule, $reason );
 }
+$extension_breakdown = array();
+foreach ( LINTED_EXTENSIONS as $ext ) {
+	$extension_breakdown[] = $ext . '=' . ( $per_extension[ $ext ] ?? 0 );
+}
 printf(
-	"  scope    : %d shipped .js from `bin/build-release.py --list-shipped`; %d linted, %d excluded\n",
-	count( $shipped_js ),
+	"  scope    : %d shipped script files (%s) from `bin/build-release.py --list-shipped`; %d linted, %d excluded\n",
+	count( $shipped_scripts ),
+	implode( ' ', $extension_breakdown ),
 	count( $in_scope ),
 	count( $excluded )
 );
@@ -345,6 +403,14 @@ foreach ( EXCLUDED_PREFIXES as $prefix => $reason ) {
 }
 foreach ( $excluded as $rel ) {
 	printf( "             excluded: %s\n", $rel );
+}
+printf(
+	"  unlinted : %d shipped file(s) with a script extension this gate does not lint (%s) -- counted, not assumed\n",
+	count( $unlinted ),
+	implode( '/', UNLINTED_SCRIPT_EXTENSIONS )
+);
+foreach ( $unlinted as $rel ) {
+	printf( "             UNLINTED SHIPPED SCRIPT: %s\n", $rel );
 }
 if ( $verbose ) {
 	foreach ( $in_scope as $rel ) {
@@ -380,13 +446,23 @@ if ( array() !== $findings ) {
 
 $total = array_sum( $per_rule );
 printf(
-	"\nG-E SUMMARY: findings=%d rules_with_findings=%d files_linted=%d files_excluded=%d shipped_js=%d\n",
+	"\nG-E SUMMARY: findings=%d rules_with_findings=%d files_linted=%d files_excluded=%d shipped_scripts=%d (%s) unlinted_script_files=%d\n",
 	$total,
 	count( $per_rule ),
 	count( $in_scope ),
 	count( $excluded ),
-	count( $shipped_js )
+	count( $shipped_scripts ),
+	implode( ' ', $extension_breakdown ),
+	count( $unlinted )
 );
+
+// A shipped script this gate cannot read is a failure, not a footnote: the
+// alternative is printing findings=0 over a surface never opened, which is
+// precisely the gap the `.jsx` filter left.
+if ( array() !== $unlinted ) {
+	fwrite( STDERR, "G-E: FAIL -- " . count( $unlinted ) . " shipped script file(s) fall outside LINTED_EXTENSIONS; extend the gate before shipping them\n" );
+	exit( EXIT_FINDINGS );
+}
 
 exit( 0 === $total ? EXIT_CLEAN : EXIT_FINDINGS );
 
