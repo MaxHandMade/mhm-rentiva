@@ -174,7 +174,7 @@ file is early enough.
 * Removed: a dozen admin-ajax endpoints and several settings screens that had no menu entry, button or working caller anywhere in the admin. All were unreachable dead code; nothing you could previously do in the admin is affected.
 * Internal: several vehicle-list, search and bookings-by-date queries now name their sort clauses explicitly instead of using a shorthand that made WordPress build a second, redundant table join. The bookings-by-date query loses that extra join; the others return exactly the same rows in the same order as before, and every rewrite was locked by a test written and run against the old code first.
 * Internal: a seasonal multiplier stored in a malformed shape could crash the public booking form. The booking form now skips an unusable season instead, and the settings screen will no longer store one.
-* Internal: the automated test suite is now 1,563 tests and passes with zero failures.
+* Internal: the plugin's full automated test suite — unit tests plus WordPress integration tests — passes with zero failures on this release.
 
 = 6.0.0 =
 **This is a major release. If you have custom code that hooks into this plugin, read the next paragraph before you update.**
