@@ -254,11 +254,28 @@ final class VehicleRatingForm extends AbstractShortcode {
 		}
 
 		// === NEW rating ===
+		// wp_new_comment() reads comment_author, comment_author_email and
+		// comment_author_url straight out of this array before it applies any
+		// default of its own -- wp_allow_comment()'s duplicate and flood checks
+		// read them, and so do wp_filter_comment()'s pre_comment_* filters. Every
+		// branch therefore has to supply all three keys or a site running
+		// WP_DEBUG logs an "Undefined array key" warning for each one.
 		if ($uid) {
-			$comment_data['user_id'] = $uid;
+			// Mirrors wp_handle_comment_submission(): display name (falling back
+			// to the login, exactly as core does), account email, account URL.
+			$user = wp_get_current_user();
+
+			$comment_data['user_id']              = $uid;
+			$comment_data['comment_author']       = empty($user->display_name) ? (string) $user->user_login : (string) $user->display_name;
+			$comment_data['comment_author_email'] = (string) $user->user_email;
+			$comment_data['comment_author_url']   = (string) $user->user_url;
 		} else {
+			// The form collects no guest website field, so comment_author_url
+			// gets the empty string core itself falls back to when a submission
+			// carries no `url` value.
 			$comment_data['comment_author']       = sanitize_text_field(isset($_POST['guest_name']) ? wp_unslash($_POST['guest_name']) : '');
 			$comment_data['comment_author_email'] = sanitize_email(isset($_POST['guest_email']) ? wp_unslash($_POST['guest_email']) : '');
+			$comment_data['comment_author_url']   = '';
 
 			if (empty($comment_data['comment_author']) || empty($comment_data['comment_author_email'])) {
 				wp_send_json_error(array( 'message' => __('Name and email are required for guests', 'mhm-rentiva') ));
