@@ -454,6 +454,14 @@ bin/*
 # verified equivalent to at task time). Tracked so both the test and any
 # future manual/CI sweep can run it.
 !bin/check-template-literal-markup.php
+# Gate G-E of the 2026-08-05 T9 round: ESLint's probable-bug rule set over the
+# shipped JS surface, scope derived from bin/build-release.py --list-shipped
+# (same oracle as Gate G-D). Exists because the previous round scoped its
+# ESLint work to no-undef alone and three real defects survived into the
+# submission candidate. Host-run: ESLint needs node, which the PHPUnit
+# container does not have -- the same documented host-only shape as
+# check-plugin-check-parity.php. Tracked so any future round can re-run it.
+!bin/check-js-correctness.php
 tools/
 # `tools/` (above) matches any directory literally named "tools" at any depth
 # under core.ignorecase — that unintentionally swallows tests/Tools/, which
