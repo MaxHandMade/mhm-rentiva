@@ -11,7 +11,6 @@ use MHMRentiva\Core\Dashboard\CustomerDashboard;
 use MHMRentiva\Core\Dashboard\DashboardContext;
 use MHMRentiva\Core\Dashboard\DashboardDataProvider;
 use MHMRentiva\Core\Dashboard\DashboardNavigation;
-use MHMRentiva\Core\Dashboard\VendorDashboard;
 use MHMRentiva\Core\Services\Metrics\MetricCacheManager;
 
 
@@ -27,13 +26,6 @@ final class UserDashboard {
 	public static function register(): void
 	{
 		MetricCacheManager::boot();
-		// AnalyticsController (vendor ledger analytics AJAX, wp_ajax_mhmrentiva_fetch_vendor_stats)
-		// used to be registered from here, gated by the licensing router's
-		// vendor-marketplace gate. That registration moved to the add-on's own
-		// Bootstrap::register_vendor_marketplace() (extension point) --
-		// this CORE customer dashboard shortcode no longer names
-		// AnalyticsController or the licensing router at all, so it cannot
-		// fatal once that router class is deleted (B2).
 		add_action('template_redirect', array( self::class, 'guard_panel_access' ));
 		add_action('wp_enqueue_scripts', array( self::class, 'enqueue_assets' ));
 		add_filter('body_class', array( self::class, 'add_body_class' ));
@@ -57,20 +49,6 @@ final class UserDashboard {
 		$current_user = wp_get_current_user();
 		$data         = self::build_template_data($type, (int) $current_user->ID, (string) $current_user->user_email);
 
-		// VendorDashboard is an extension point filled by the add-on. A fresh Lite
-		// install can never resolve to 'vendor' (only the add-on's own vendor
-		// approval flow grants the rentiva_vendor role), so this is
-		// defence-in-depth for the add-on-to-Lite downgrade case: a site whose
-		// DB already holds vendor-role users would otherwise fatal here on
-		// login rather than degrade.
-		if ('vendor' === $type) {
-			if (! class_exists('\MHMRentiva\Core\Dashboard\VendorDashboard')) {
-				return '';
-			}
-
-			return VendorDashboard::render($data);
-		}
-
 		if ('customer' === $type) {
 			return CustomerDashboard::render($data);
 		}
@@ -88,24 +66,19 @@ final class UserDashboard {
 		}
 
 		if (is_user_logged_in()) {
-			// Admins can always access the panel (to test/verify vendor features).
+			// Administrators may preview the customer dashboard page.
 			if (current_user_can('manage_options')) {
 				return;
 			}
 
-			// /panel/ is vendor-only. Redirect non-vendor customers to WC My Account.
-			$context = \MHMRentiva\Core\Dashboard\DashboardContext::resolve();
-			if ($context === 'customer') {
-				$account_url = function_exists('wc_get_page_permalink')
-					? (string) call_user_func('wc_get_page_permalink', 'myaccount')
-					: '';
-				if ($account_url === '') {
-					$account_url = home_url('/hesabim/');
-				}
-				wp_safe_redirect($account_url);
-				exit;
+			$account_url = function_exists('wc_get_page_permalink')
+				? (string) call_user_func('wc_get_page_permalink', 'myaccount')
+				: '';
+			if ($account_url === '') {
+				$account_url = home_url('/hesabim/');
 			}
-			return;
+			wp_safe_redirect($account_url);
+			exit;
 		}
 
 		$login_url = function_exists('wc_get_page_permalink') ? call_user_func('wc_get_page_permalink', 'myaccount') : wp_login_url();
@@ -206,86 +179,18 @@ final class UserDashboard {
 		}
 
 		wp_enqueue_style(
-			'flatpickr',
-			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.css',
-			array(),
-			'4.6.13'
-		);
-
-		wp_enqueue_style(
 			'mhm-rentiva-user-dashboard',
 			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/user-dashboard.css',
-			array( 'flatpickr' ),
+			array(),
 			MHMRENTIVA_VERSION
 		);
-
-		// The vendor-forms stylesheet enqueue used to live here directly. It styles the
-		// vendor-application/vendor-panel markup the add-on renders into this page
-		// (the vendor marketplace is a feature of the add-on) -- Lite no longer
-		// ships the file or knows its handle. The add-on enqueues it itself on this
-		// same page.
-
-		// phpcs:ignore WordPress.WP.EnqueuedResourceParameters.MissingVersion -- WooCommerce registers and versions the select2 handle.
-		wp_enqueue_style('select2', null); // WC registers this
-		wp_enqueue_script('selectWoo');     // WC registers this
-
-		wp_enqueue_script(
-			'flatpickr',
-			MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/flatpickr.min.js',
-			array(),
-			'4.6.13',
-			true
-		);
-
-		// Localize flatpickr (currently TR; other languages fall back to default English).
-		$flatpickr_locale = self::resolve_flatpickr_locale();
-		if ( $flatpickr_locale !== null ) {
-			wp_enqueue_script(
-				'flatpickr-l10n-' . $flatpickr_locale,
-				MHMRENTIVA_PLUGIN_URL . 'assets/vendor/flatpickr/l10n/' . $flatpickr_locale . '.min.js',
-				array( 'flatpickr' ),
-				'4.6.13',
-				true
-			);
-		}
 
 		wp_enqueue_script(
 			'mhm-rentiva-dashboard',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/frontend/user-dashboard.js',
-			// 'mhm-rentiva-toast' provides window.MHMRentivaToast, which this
-			// script calls after a lifecycle action succeeds. It used to call
-			// a `mhmShowToast` that exists nowhere, behind a typeof guard, so
-			// the missing dependency was invisible.
-			array( 'flatpickr', 'jquery', 'mhm-rentiva-toast' ),
+			array(),
 			MHMRENTIVA_VERSION,
 			true
 		);
-
-		wp_localize_script('mhm-rentiva-dashboard', 'mhmRentivaAnalytics', array(
-			'ajaxUrl'         => admin_url('admin-ajax.php'),
-			'nonce'           => wp_create_nonce('mhmrentiva_vendor_nonce'),
-			'lifecycleNonce'  => wp_create_nonce('mhmrentiva_vehicle_lifecycle'),
-			'flatpickrLocale' => $flatpickr_locale,
-			'i18n'            => array(
-				'loading'         => __('Loading...', 'mhm-rentiva'),
-				'error'           => __('Error fetching analytics data.', 'mhm-rentiva'),
-				'confirmWithdraw' => __('Are you sure you want to withdraw this vehicle? A penalty may apply.', 'mhm-rentiva'),
-				'confirmRelist'   => __('Relist this vehicle for operator review?', 'mhm-rentiva'),
-			),
-		));
-	}
-
-	/**
-	 * Resolve the flatpickr locale code to load for the current WordPress locale.
-	 *
-	 * @return string|null
-	 */
-	private static function resolve_flatpickr_locale(): ?string
-	{
-		$wp_locale = (string) get_locale();
-		$short     = strtolower( substr( $wp_locale, 0, 2 ) );
-		$supported = array( 'tr' );
-
-		return in_array( $short, $supported, true ) ? $short : null;
 	}
 }

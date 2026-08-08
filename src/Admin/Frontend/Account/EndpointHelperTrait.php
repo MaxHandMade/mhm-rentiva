@@ -43,20 +43,10 @@ trait EndpointHelperTrait {
 				'default'   => 'rentiva-payment-history',
 				'label'     => __( 'Vehicle Payments', 'mhm-rentiva' ),
 			),
-			'messages'        => array(
-				'shortcode' => 'rentiva_messages',
-				'default'   => 'rentiva-messages',
-				'label'     => __( 'Messages', 'mhm-rentiva' ),
-			),
 			'view_booking'    => array(
 				'shortcode' => null, // No direct page for view detail
 				'default'   => 'view-rentiva-booking',
 				'label'     => __( 'View Booking', 'mhm-rentiva' ),
-			),
-			'vendor_apply'    => array(
-				'shortcode' => 'rentiva_vendor_apply',
-				'default'   => 'vendor-apply',
-				'label'     => __( 'Become a Vendor', 'mhm-rentiva' ),
 			),
 		);
 	}
@@ -114,9 +104,7 @@ trait EndpointHelperTrait {
 			'bookings'        => _x( 'rentiva-bookings', 'endpoint slug', 'mhm-rentiva' ),
 			'favorites'       => _x( 'rentiva-favorites', 'endpoint slug', 'mhm-rentiva' ),
 			'payment_history' => _x( 'rentiva-payment-history', 'endpoint slug', 'mhm-rentiva' ),
-			'messages'        => _x( 'rentiva-messages', 'endpoint slug', 'mhm-rentiva' ),
 			'view_booking'    => _x( 'view-rentiva-booking', 'endpoint slug', 'mhm-rentiva' ),
-			'vendor_apply'    => _x( 'vendor-apply', 'endpoint slug', 'mhm-rentiva' ),
 			default           => $default,
 		};
 

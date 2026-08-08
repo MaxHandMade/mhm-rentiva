@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals -- Template-scope variables are local render context.
 
-use MHMRentiva\Admin\Core\MetaKeys;
 use MHMRentiva\Core\Dashboard\DashboardContext;
 use MHMRentiva\Core\Dashboard\DashboardConfig;
 use MHMRentiva\Core\Dashboard\DashboardNavigation;
@@ -12,19 +11,16 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-$dashboard       = is_array($dashboard_data ?? null) ? $dashboard_data : array();
-$active_tab      = $dashboard['active_tab'] ?? 'overview';
-$dashboard_url   = $dashboard['dashboard_url'] ?? home_url('/panel/');
-$recent_bookings = is_array($dashboard['recent_bookings'] ?? null) ? $dashboard['recent_bookings'] : array();
-$user            = $dashboard['user'] ?? wp_get_current_user();
-$context         = sanitize_key( (string) ( $dashboard['context'] ?? DashboardContext::resolve() ));
-if (! in_array($context, array( 'customer', 'vendor' ), true)) {
-	$context = DashboardContext::resolve();
-}
+$dashboard         = is_array($dashboard_data ?? null) ? $dashboard_data : array();
+$active_tab        = $dashboard['active_tab'] ?? 'overview';
+$dashboard_url     = $dashboard['dashboard_url'] ?? home_url('/panel/');
+$recent_bookings   = is_array($dashboard['recent_bookings'] ?? null) ? $dashboard['recent_bookings'] : array();
+$user              = $dashboard['user'] ?? wp_get_current_user();
+$context           = sanitize_key( (string) ( $dashboard['context'] ?? DashboardContext::resolve() ));
 $nav_items         = DashboardNavigation::get_items($context);
 $kpi_items         = is_array($dashboard['kpis'] ?? null) ? $dashboard['kpis'] : DashboardConfig::get_kpis($context);
 $kpi_data          = is_array($dashboard['kpi_data'] ?? null) ? $dashboard['kpi_data'] : array();
-$analytics         = is_array($dashboard['analytics'] ?? null) ? $dashboard['analytics'] : array();
+$extension_panels  = is_array($dashboard['panels'] ?? null) ? $dashboard['panels'] : array();
 $user_display_name = $user->display_name;
 if (! $user_display_name) {
 	$user_display_name = $user->user_login;
@@ -53,22 +49,10 @@ if (! $user_display_name) {
 			<div class="mhm-rentiva-dashboard__user-card">
 				<div class="mhm-rentiva-dashboard__user-avatar" aria-hidden="true">
 					<?php
-					$_sidebar_avatar_id  = (int) get_user_meta($user->ID, MetaKeys::VENDOR_AVATAR_ID, true);
-					$_sidebar_avatar_url = $_sidebar_avatar_id > 0
-						? (string) wp_get_attachment_image_url($_sidebar_avatar_id, array( 40, 40 ))
-						: '';
-					if ($_sidebar_avatar_url !== '') {
-						printf(
-							'<img src="%s" alt="%s" width="40" height="40" style="border-radius:50%%;object-fit:cover" />',
-							esc_url($_sidebar_avatar_url),
-							esc_attr($user_display_name)
-						);
-					} else {
-						printf(
-							'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
-							esc_html(mhmrentiva_initial_avatar_letter( (string) $user_display_name))
-						);
-					}
+					printf(
+						'<span class="mhm-rentiva-dashboard__user-avatar-initials">%s</span>',
+						esc_html(mhmrentiva_initial_avatar_letter( (string) $user_display_name))
+					);
 					?>
 				</div>
 				<div class="mhm-rentiva-dashboard__user-info">
@@ -116,11 +100,6 @@ if (! $user_display_name) {
 				<div class="mhm-rentiva-dashboard__kpis">
 					<?php foreach ($kpi_items as $kpi_key => $kpi_config) : ?>
 						<?php
-						// Skip financial + analytics metrics — overview shows only 3 core KPIs
-						if (in_array($kpi_key, array( 'available_balance', 'pending_balance', 'total_paid_out', 'occupancy_rate', 'cancellation_rate', 'revenue_7d' ), true)) {
-							continue;
-						}
-
 						$kpi_label           = (string) ( $kpi_config['label'] ?? '' );
 						$kpi_meta            = (string) ( $kpi_config['meta'] ?? '' );
 						$kpi_icon            = sanitize_key( (string) ( $kpi_config['icon'] ?? 'chart' ));
@@ -232,19 +211,11 @@ if (! $user_display_name) {
 									<?php if (! empty($recent_bookings)) : ?>
 										<?php foreach ($recent_bookings as $booking) : ?>
 											<?php
-											$booking_id    = (int) ( $booking->ID ?? 0 );
-											$vehicle_id    = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
-											$vehicle_title = $vehicle_id > 0 ? get_the_title($vehicle_id) : __('N/A', 'mhm-rentiva');
-											$pickup_date   = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
-											$pickup_time   = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true);
-											$service_type  = (string) get_post_meta($booking_id, '_mhmrentiva_service_type', true);
-											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhmrentiva_transfer_origin_id', true) > 0) {
-												$service_type = 'transfer';
-											}
-											if ($service_type === '' && (int) get_post_meta($booking_id, '_mhmrentiva_is_transfer', true) === 1) {
-												$service_type = 'transfer';
-											}
-											$is_transfer    = ( $service_type === 'transfer' );
+											$booking_id     = (int) ( $booking->ID ?? 0 );
+											$vehicle_id     = (int) get_post_meta($booking_id, '_mhmrentiva_vehicle_id', true);
+											$vehicle_title  = $vehicle_id > 0 ? get_the_title($vehicle_id) : __('N/A', 'mhm-rentiva');
+											$pickup_date    = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_date', true);
+											$pickup_time    = (string) get_post_meta($booking_id, '_mhmrentiva_pickup_time', true);
 											$pickup_display = $pickup_date !== '' ? date_i18n(get_option('date_format'), strtotime($pickup_date)) : '-';
 											if ($pickup_date !== '' && $pickup_time !== '') {
 												$pickup_display .= ' · ' . date_i18n(get_option('time_format'), strtotime($pickup_date . ' ' . $pickup_time));
@@ -276,13 +247,6 @@ if (! $user_display_name) {
 											<tr>
 												<td data-label="<?php esc_attr_e('Booking', 'mhm-rentiva'); ?>">
 													<a class="mhm-rentiva-dashboard__booking-cell" href="<?php echo esc_url(\MHMRentiva\Admin\Frontend\Account\AccountController::get_booking_view_url($booking_id)); ?>">
-														<span class="mhm-rentiva-dashboard__service-icon is-<?php echo $is_transfer ? 'transfer' : 'rental'; ?>" title="<?php echo $is_transfer ? esc_attr__('Transfer', 'mhm-rentiva') : esc_attr__('Rental', 'mhm-rentiva'); ?>" aria-label="<?php echo $is_transfer ? esc_attr__('Transfer', 'mhm-rentiva') : esc_attr__('Rental', 'mhm-rentiva'); ?>">
-															<?php if ($is_transfer) : ?>
-																<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M22 16v-2l-8.5-5V3.5A1.5 1.5 0 0 0 12 2a1.5 1.5 0 0 0-1.5 1.5V9L2 14v2l8.5-2.5V19L8 20.5V22l4-1 4 1v-1.5L13.5 19v-5.5L22 16z"/></svg>
-															<?php else : ?>
-																<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
-															<?php endif; ?>
-														</span>
 														<span>#<?php echo esc_html( (string) mhmrentiva_get_display_id( (int) $booking_id)); ?></span>
 													</a>
 												</td>
@@ -308,11 +272,7 @@ if (! $user_display_name) {
 				</div>
 			<?php elseif ($active_tab === 'bookings') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php if ($context === 'vendor') : ?>
-						<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-bookings.php'; ?>
-					<?php else : ?>
-						<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]' ) ); ?>
-					<?php endif; ?>
+					<?php \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['bookings_tab_shortcode'] ?? '[rentiva_my_bookings hide_nav="1"]' )); ?>
 				</div>
 			<?php elseif ($active_tab === 'favorites') : ?>
 				<div class="mhm-rentiva-dashboard__tab-content">
@@ -320,43 +280,13 @@ if (! $user_display_name) {
                     \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['favorites_tab_shortcode'] ?? '[rentiva_my_favorites]' ) );
 					?>
 				</div>
-			<?php elseif ($active_tab === 'messages') : ?>
-				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php
-                    \MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( (string) ( $dashboard['messages_tab_shortcode'] ?? '[rentiva_messages hide_nav="1"]' ) );
-					?>
-				</div>
-			<?php elseif ($active_tab === 'listings') : ?>
-				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-listings.php'; ?>
-				</div>
-				<?php // The vendor 'ledger', 'settings' and 'profil' tabs belong to the add-on: ?>
-				<?php // their partials call several add-on-only classes that this build does not ?>
-				<?php // ship, so the partials were removed from this build rather than left one ?>
-				<?php // wiring change away from a fatal. The add-on restores tabs and partials together. ?>
-			<?php elseif ($active_tab === 'reliability' && $context === 'vendor') : ?>
-				<div class="mhm-rentiva-dashboard__tab-content">
-					<?php include MHMRENTIVA_PLUGIN_PATH . 'templates/account/partials/vendor-reliability.php'; ?>
-				</div>
 			<?php endif; ?>
 
-			<?php
-			// The vendor "Contact Administrator" panel is an extension seam. This
-			// template is `include`d by Lite's own CustomerDashboard (a plain Lite
-			// path, not behind any class_exists() guard), so it must never name the
-			// removed mode-routing class directly -- doing so would fatal a Lite-only
-			// site once that class is deleted (extension point). The
-			// add-on subscribes to this filter and returns the markup only when the
-			// vendor marketplace is available and $context is 'vendor'; Lite's own
-			// default is the empty string, i.e. no panel at all.
-			$vendor_panel_html = (string) apply_filters('mhmrentiva_account_vendor_panel', '', $context);
-			if ('' !== $vendor_panel_html) {
-				// Escape at the point of output, even though the markup comes from a trusted
-				// add-on: the allowlist keeps post-level HTML plus the form controls a vendor
-				// panel needs, and drops <script>/on* handlers.
-				echo wp_kses($vendor_panel_html, \MHMRentiva\Helpers\Icons::allowed_panel_html());
-			}
-			?>
+			<?php if (isset($extension_panels[ $active_tab ]) && is_string($extension_panels[ $active_tab ])) : ?>
+				<div class="mhm-rentiva-dashboard__tab-content">
+					<?php echo wp_kses_post($extension_panels[ $active_tab ]); ?>
+				</div>
+			<?php endif; ?>
 		</div>
 	</main>
 </div>

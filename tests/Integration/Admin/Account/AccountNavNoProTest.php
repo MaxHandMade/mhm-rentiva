@@ -119,15 +119,6 @@ final class AccountNavNoProTest extends WP_UnitTestCase
         $this->assertArrayNotHasKey('broken-slug', $items);
     }
 
-    public function test_render_vendor_apply_outputs_nothing_without_a_subscriber(): void
-    {
-        ob_start();
-        WooCommerceIntegration::render_vendor_apply();
-        $output = (string) ob_get_clean();
-
-        $this->assertSame('', $output, 'render_vendor_apply() must render nothing when no subscriber registers the vendor tab.');
-    }
-
     /**
      * Grep-clean proof, pinned at the source level too (mirrors
      * MenuNoProSubmenusTest::test_menu_source_names_no_pro_admin_page_class()

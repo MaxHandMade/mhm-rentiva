@@ -14,6 +14,13 @@ use PHPUnit\Framework\TestCase;
  */
 class DashboardDataProviderTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        remove_all_filters('mhmrentiva_dashboard_kpis');
+        remove_all_filters('mhmrentiva_dashboard_metric_data');
+        parent::tearDown();
+    }
+
     /**
      * Verify data structure returned by the provider pipeline
      */
@@ -48,14 +55,17 @@ class DashboardDataProviderTest extends TestCase
 
         // We can hook to `mhmrentiva_dashboard_kpis` if filter exists, or we use reflection/direct injection
         // Let's rely on standard WordPress filter injection to inject our metric to the provider
-        add_filter('mhmrentiva_dashboard_kpi_customer', static function ($kpis) {
+        add_filter('mhmrentiva_dashboard_kpis', static function ($kpis, string $context) {
+            if ('customer' !== $context) {
+                return $kpis;
+            }
             $kpis['fake_provider_metric'] = array(
                 'label'  => 'Fake Test Label',
                 'metric' => 'fake_provider_metric',
                 'trend'  => true,
             );
             return $kpis;
-        });
+        }, 10, 2);
 
         // We'll call the build, and specifically inspect our fake_provider_metric within the resulting array.
         $data = DashboardDataProvider::build('customer', 123, 'test@example.com');
@@ -83,42 +93,51 @@ class DashboardDataProviderTest extends TestCase
     }
 
     /**
-     * Task A5a seam inversion: the ledger-backed operational metrics
-     * (occupancy_rate, cancellation_rate) come from
-     * `apply_filters('mhmrentiva_dashboard_vendor_metrics', [], ...)`. Lite's
-     * own default is an empty array, which the `?? 0` fallback in
-     * DashboardDataProvider::resolve_vendor_operational_metric() turns into
-     * '0%' -- identical to the pre-inversion "AnalyticsService class absent" case.
+     * An extension-defined KPI resolves to zero when no metric-data subscriber
+     * provides a value.
      */
-    public function test_vendor_operational_metrics_default_to_zero_percent_without_a_subscriber(): void
+    public function test_extension_metric_defaults_to_zero_without_a_subscriber(): void
     {
-        remove_all_filters('mhmrentiva_dashboard_vendor_metrics');
+        add_filter('mhmrentiva_dashboard_kpis', static function (array $kpis, string $context): array {
+            if ('external' === $context) {
+                $kpis['external_ratio'] = array(
+                    'label'  => 'External ratio',
+                    'metric' => 'external_ratio',
+                    'trend'  => false,
+                );
+            }
+            return $kpis;
+        }, 10, 2);
 
-        $data = DashboardDataProvider::build('vendor', 999999, 'nobody@example.com');
+        $data = DashboardDataProvider::build('external', 999999, 'nobody@example.com');
 
-        $this->assertSame('0%', $data['kpi_data']['occupancy_rate']['total'] ?? null);
-        $this->assertSame('0%', $data['kpi_data']['cancellation_rate']['total'] ?? null);
+        $this->assertSame(0, $data['kpi_data']['external_ratio']['total'] ?? null);
     }
 
     /**
-     * A subscriber (Pro) can supply the metrics map; the filter's return value
-     * flows straight through to the KPI's 'total'.
+     * A subscriber can supply a complete payload for an extension-owned metric.
      */
-    public function test_a_subscriber_can_supply_vendor_operational_metrics(): void
+    public function test_a_subscriber_can_supply_extension_metric_data(): void
     {
-        remove_all_filters('mhmrentiva_dashboard_vendor_metrics');
-        add_filter('mhmrentiva_dashboard_vendor_metrics', static function () {
-            return array(
-                'occupancy_rate'    => 77,
-                'cancellation_rate' => 3,
-            );
-        });
+        add_filter('mhmrentiva_dashboard_kpis', static function (array $kpis, string $context): array {
+            if ('external' === $context) {
+                $kpis['external_ratio'] = array(
+                    'label'  => 'External ratio',
+                    'metric' => 'external_ratio',
+                    'trend'  => false,
+                );
+            }
+            return $kpis;
+        }, 10, 2);
+        add_filter('mhmrentiva_dashboard_metric_data', static function ($payload, string $metric, string $context) {
+            if ('external_ratio' === $metric && 'external' === $context) {
+                return array( 'total' => '77%' );
+            }
+            return $payload;
+        }, 10, 3);
 
-        $data = DashboardDataProvider::build('vendor', 999999, 'nobody@example.com');
+        $data = DashboardDataProvider::build('external', 999999, 'nobody@example.com');
 
-        $this->assertSame('77%', $data['kpi_data']['occupancy_rate']['total'] ?? null);
-        $this->assertSame('3%', $data['kpi_data']['cancellation_rate']['total'] ?? null);
-
-        remove_all_filters('mhmrentiva_dashboard_vendor_metrics');
+        $this->assertSame('77%', $data['kpi_data']['external_ratio']['total'] ?? null);
     }
 }

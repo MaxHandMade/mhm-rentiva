@@ -425,7 +425,6 @@ final class AccountController {
 		// Standalone shortcode pages
 		return has_shortcode($post->post_content, 'rentiva_my_bookings') ||
 			has_shortcode($post->post_content, 'rentiva_my_favorites') ||
-			has_shortcode($post->post_content, 'rentiva_messages') ||
 			has_shortcode($post->post_content, 'rentiva_payment_history');
 	}
 
@@ -433,7 +432,6 @@ final class AccountController {
 	 * Login redirect — route users by role after authentication.
 	 *
 	 * Admin    → default (wp-admin)
-	 * Vendor   → /panel/
 	 * Customer → WC My Account (/hesabim/)
 	 */
 	public static function login_redirect(string $redirect_to, string $request, $user): string
@@ -445,15 +443,6 @@ final class AccountController {
 		// Admins go to wp-admin (default behaviour)
 		if ($user->has_cap('manage_options')) {
 			return $redirect_to;
-		}
-
-		// Vendors go to /panel/
-		if (in_array('rentiva_vendor', (array) $user->roles, true)) {
-			$panel_page = get_page_by_path('panel');
-			if ($panel_page instanceof \WP_Post) {
-				return (string) get_permalink($panel_page);
-			}
-			return home_url('/panel/');
 		}
 
 		// Customers go to My Account

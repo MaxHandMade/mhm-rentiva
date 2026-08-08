@@ -34,9 +34,6 @@ final class WooCommerceIntegration {
 		// Add tabs to WooCommerce My Account
 		add_filter( 'woocommerce_account_menu_items', array( self::class, 'add_menu_items' ), 20 );
 
-		// Vendor Panel: external link for vendor users in WC My Account menu
-		add_filter( 'woocommerce_get_endpoint_url', array( self::class, 'vendor_panel_endpoint_url' ), 5, 4 );
-
 		// Add endpoints (priority 5 to run before WooCommerce's default endpoints)
 		add_action( 'init', array( self::class, 'add_endpoints' ), 5 );
 
@@ -103,25 +100,16 @@ final class WooCommerceIntegration {
 	 * Build the WooCommerce My Account nav items Rentiva contributes.
 	 *
 	 * Lite supplies only its own tabs (bookings, favorites, payment_history).
-	 * The messages tab and the vendor tab(s) are extension points filled by
-	 * the add-on: its AccountExtensions subscribes to `mhmrentiva_account_nav_items` to add
-	 * them back, including the active-vendor "Vendor Panel" vs.
-	 * "Become a Vendor" branching this method used to do inline (extension
-	 * point). Lite no longer names the deleted mode-routing class's
-	 * messages or vendor-marketplace gates anywhere in this file.
+	 * Extensions can append their own tabs through the neutral navigation filter.
 	 *
-	 * Also used as the single source of truth for the access/redirect guards
-	 * below (render_vendor_apply()) and by AccountRenderer's messages guard --
-	 * "is this tab registered" is the same question either way.
-	 *
-	 * @return array<string, array{slug: string, label: string}> Keyed by semantic item key (e.g. 'bookings', 'messages', 'vendor_apply').
+	 * @return array<string, array{slug: string, label: string}> Keyed by semantic item key.
 	 */
 	public static function get_account_nav_items(): array {
 		$rentiva_map = self::get_rentiva_endpoints_map();
 		$items       = array();
 
 		foreach ( $rentiva_map as $e_key => $config ) {
-			if ( in_array( $e_key, array( 'view_booking', 'messages', 'vendor_apply' ), true ) ) {
+			if ( 'view_booking' === $e_key ) {
 				continue;
 			}
 			$items[ $e_key ] = array(
@@ -219,18 +207,18 @@ final class WooCommerceIntegration {
 
 		$id = (int) $id;
 
-		// Security: Early Ownership Check (customer | vendor | admin)
+		// Security: Early ownership check (customer | vehicle owner | admin).
 		if ( $id > 0 ) {
 			$booking_owner_id = (int) get_post_meta( $id, '_mhmrentiva_customer_user_id', true );
 			$current_user_id  = (int) get_current_user_id();
 			$vehicle_id       = (int) get_post_meta( $id, '_mhmrentiva_vehicle_id', true );
-			$vendor_id        = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
+			$vehicle_owner_id = $vehicle_id > 0 ? (int) get_post_field( 'post_author', $vehicle_id ) : 0;
 
 			$is_customer = ( $booking_owner_id > 0 && $booking_owner_id === $current_user_id );
-			$is_vendor   = ( $vendor_id > 0 && $vendor_id === $current_user_id );
+			$is_owner    = ( $vehicle_owner_id > 0 && $vehicle_owner_id === $current_user_id );
 			$is_admin    = current_user_can( 'manage_options' );
 
-			if ( ! $is_customer && ! $is_vendor && ! $is_admin ) {
+			if ( ! $is_customer && ! $is_owner && ! $is_admin ) {
 				echo '<div class="notice notice-error"><p>' . esc_html__( 'You do not have permission to view this booking.', 'mhm-rentiva' ) . '</p></div>';
 				return;
 			}
@@ -253,46 +241,6 @@ final class WooCommerceIntegration {
 	 */
 	public static function render_payment_history(): void {
 		AccountRenderer::output_payment_history( array( 'hide_nav' => true ) );
-	}
-
-	/**
-	 * Vendor Apply endpoint content.
-	 * Shows the vendor application form, or a status message depending on user state.
-	 */
-	public static function render_vendor_apply(): void {
-		// Vendor marketplace is provided by the add-on. When it is absent this renders NOTHING
-		// at all -- no notice, no mention of the add-on. The
-		// My Account menu already omits this endpoint's link in that case, so the
-		// only way here is a hand-typed URL. The guard defers to the same
-		// `mhmrentiva_account_nav_items` filter that decides whether the tab is
-		// registered at all (extension point) -- Lite no longer names
-		// the deleted mode-routing class's vendor-marketplace gate.
-		$nav_items = self::get_account_nav_items();
-		if ( ! isset( $nav_items['vendor_apply'] ) ) {
-			return;
-		}
-
-		$user_id = get_current_user_id();
-
-		// Success notice after form submission (redirect with ?applied=1)
-		if ( isset( $_GET['applied'] ) && '1' === sanitize_key( wp_unslash( $_GET['applied'] ?? '' ) ) ) {
-			echo '<div class="woocommerce-message">'
-				. esc_html__( 'Your application has been submitted! Our team will review it and notify you by email. This process typically takes 1–3 business days.', 'mhm-rentiva' )
-				. '</div>';
-		}
-
-		// Render the shortcode — it handles all states internally:
-		// already_applied → pending notice, already vendor → dashboard link, else → form
-		\MHMRentiva\Admin\Core\Utilities\Templates::output_shortcode( '[rentiva_vendor_apply]' );
-	}
-
-	/**
-	 * Messages endpoint content
-	 */
-	public static function render_messages(): void {
-		// ⭐ Directly call AccountRenderer instead of shortcode
-		// Shortcode would redirect to WooCommerce page, causing infinite loop
-		AccountRenderer::output_messages( array( 'hide_nav' => true ) );
 	}
 
 	/**
@@ -353,7 +301,7 @@ final class WooCommerceIntegration {
 		$version_key = 'mhmrentiva_woocommerce_endpoints_version';
 		$hash_key    = 'mhmrentiva_woocommerce_endpoints_hash';
 
-		$current_version = '4.21.3'; // Forced flush — vendor_apply endpoint added
+		$current_version = '4.21.3';
 
 		$rentiva_map   = self::get_rentiva_endpoints_map();
 		$current_slugs = array();
@@ -394,28 +342,6 @@ final class WooCommerceIntegration {
 	}
 
 	// Logic moved to EndpointHelperTrait
-
-	/**
-	 * Redirect vendor-panel menu item to the /panel/ page URL.
-	 *
-	 * @param string $url      Original URL.
-	 * @param string $endpoint Endpoint slug.
-	 * @param string $value    Endpoint value.
-	 * @param string $permalink Permalink.
-	 * @return string Modified URL.
-	 */
-	public static function vendor_panel_endpoint_url( string $url, string $endpoint, string $value, string $permalink ): string {
-		if ( $endpoint !== 'vendor-panel' ) {
-			return $url;
-		}
-
-		$panel_page = get_page_by_path( 'panel' );
-		if ( $panel_page instanceof \WP_Post ) {
-			return (string) get_permalink( $panel_page );
-		}
-
-		return home_url( '/panel/' );
-	}
 
 	/**
 	 * Filter WooCommerce endpoint URLs to support translated slugs within My Account.
