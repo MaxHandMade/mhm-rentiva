@@ -407,20 +407,6 @@ final class SearchResults extends AbstractShortcode {
 		// Only show active vehicles (excludes maintenance/inactive).
 		$args['meta_query'][] = \MHMRentiva\Admin\Core\Utilities\MetaQueryHelper::get_active_vehicle_meta_query();
 
-		// Exclude transfer-only vehicles from rental search results.
-		$args['meta_query'][] = array(
-			'relation' => 'OR',
-			array(
-				'key'     => '_mhmrentiva_vehicle_service_type',
-				'value'   => 'transfer',
-				'compare' => '!=',
-			),
-			array(
-				'key'     => '_mhmrentiva_vehicle_service_type',
-				'compare' => 'NOT EXISTS',
-			),
-		);
-
 		// ⭐ Submission Integrity: Enforce minimum rental days
 		$pickup_date = ! empty($params['pickup_date']) ? $params['pickup_date'] : ( ! empty($params['start_date']) ? $params['start_date'] : '' );
 		$return_date = ! empty($params['return_date']) ? $params['return_date'] : ( ! empty($params['end_date']) ? $params['end_date'] : '' );
@@ -597,6 +583,12 @@ final class SearchResults extends AbstractShortcode {
 		if (count($args['meta_query']) > 1) {
 			$args['meta_query']['relation'] = 'AND';
 		}
+
+		/**
+		 * Filters rental vehicle query arguments without coupling Lite to an
+		 * optional service implementation.
+		 */
+		$args = apply_filters('mhmrentiva_vehicle_query_args', $args, 'search_results', $params, $atts);
 
 		// Optimization: Inject Availability Filter
 		$args[ self::SEARCH_CONTEXT_KEY ] = true;

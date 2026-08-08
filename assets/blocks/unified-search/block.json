@@ -5,7 +5,7 @@
     "title": "MHM Unified Search",
     "category": "widgets",
     "icon": "search",
-    "description": "Unified vehicle and transfer search widget with date picker and location selection.",
+    "description": "Vehicle rental search widget with date picker and location selection.",
     "textdomain": "mhm-rentiva",
     "supports": {
         "html": true,
@@ -69,15 +69,6 @@
                 "compact"
             ]
         },
-        "default_tab": {
-            "type": "string",
-            "default": "default",
-            "enum": [
-                "default",
-                "rental",
-                "transfer"
-            ]
-        },
         "show_rental_tab": {
             "type": "string",
             "default": "default",
@@ -139,33 +130,6 @@
                 "default",
                 "true",
                 "false"
-            ]
-        },
-        "show_pax": {
-            "type": "string",
-            "default": "default",
-            "enum": [
-                "default",
-                "true",
-                "false"
-            ]
-        },
-        "show_luggage": {
-            "type": "string",
-            "default": "default",
-            "enum": [
-                "default",
-                "true",
-                "false"
-            ]
-        },
-        "service_type": {
-            "type": "string",
-            "default": "both",
-            "enum": [
-                "rental",
-                "transfer",
-                "both"
             ]
         },
         "filter_categories": {

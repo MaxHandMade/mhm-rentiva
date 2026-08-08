@@ -86,15 +86,6 @@
             "type": "boolean",
             "default": true
         },
-        "serviceType": {
-            "type": "string",
-            "default": "rental",
-            "enum": [
-                "rental",
-                "transfer",
-                "both"
-            ]
-        },
         "filterCategories": {
             "type": "string",
             "default": ""

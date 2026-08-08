@@ -22,9 +22,7 @@
 }
 
 /* Shared readability baseline for shortcode and block outputs */
-.rv-search-results,
-.mhm-transfer-results-page,
-.mhm-premium-search {
+.rv-search-results {
 	font-family: var(--mhm-font-display, var(--mhm-font-primary));
 	color: var(--mhm-text-primary);
 }
@@ -38,10 +36,6 @@
 	.rv-unified-search,
 	.rv-vehicles-grid-container,
 	.rv-vehicles-list-container,
-	.mhm-transfer-results-page,
-	.mhm-premium-search,
-	.mhm-premium-transfer-search,
-	.mhm-transfer-search-wrapper,
 	.mhm-rentiva-featured-wrapper,
 	.mhm-rentiva-account-page,
 	.rv-unified-ratings-section,
@@ -58,21 +52,18 @@
 }
 
 /* Shared result card contract */
-.mhm-transfer-card,
 .mhm-vehicle-card {
 	border-radius: var(--mhm-radius-card);
 	box-shadow: var(--mhm-shadow-card);
 }
 
 /* Shared card content rhythm */
-.mhm-transfer-card__info,
 .mhm-vehicle-card__content {
 	padding: var(--mhm-space-phi-3);
 	gap: var(--mhm-space-phi-2);
 }
 
 /* Shared CTA rhythm */
-.mhm-transfer-card__btn,
 .mhm-btn-booking,
 .rv-btn--primary {
 	min-height: 2.625rem; /* 42px */
@@ -81,13 +72,11 @@
 }
 
 /* Shared grid/list gap contract */
-.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper,
-.rv-transfer-results--grid .mhm-transfer-results__grid {
+.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper {
 	gap: var(--mhm-space-phi-3);
 }
 
-.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper,
-.rv-transfer-results--list .mhm-transfer-results__grid {
+.rv-results-content-wrapper.rv-layout-list .rv-vehicle-grid-wrapper {
 	gap: var(--mhm-space-phi-2);
 }
 
@@ -98,10 +87,6 @@
 		.rv-unified-search,
 		.rv-vehicles-grid-container,
 		.rv-vehicles-list-container,
-		.mhm-transfer-results-page,
-		.mhm-premium-search,
-		.mhm-premium-transfer-search,
-		.mhm-transfer-search-wrapper,
 		.mhm-rentiva-featured-wrapper,
 		.mhm-rentiva-account-page,
 		.rv-unified-ratings-section,
@@ -116,12 +101,10 @@
 		padding-inline: max(var(--mhm-surface-gutter-mobile), env(safe-area-inset-left));
 	}
 
-	.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper,
-	.rv-transfer-results--grid .mhm-transfer-results__grid {
+	.rv-results-content-wrapper.rv-layout-grid .rv-vehicle-grid-wrapper {
 		grid-template-columns: 1fr !important;
 	}
 
-	.mhm-transfer-card,
 	.mhm-vehicle-card {
 		max-width: 100%;
 	}

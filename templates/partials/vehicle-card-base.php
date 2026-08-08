@@ -99,21 +99,6 @@ if (is_array($brand_raw)) {
 }
 $location_name = (string) ( $vehicle['location_name'] ?? '' );
 
-// Service type badge — rental / transfer / both.
-$service_type = $vehicle_id > 0 ? (string) get_post_meta($vehicle_id, '_mhmrentiva_vehicle_service_type', true) : '';
-
-// Vendor badge — check if vehicle author has rentiva_vendor role.
-$is_vendor_vehicle = false;
-if ($vehicle_id > 0) {
-	$vehicle_author_id = (int) get_post_field('post_author', $vehicle_id);
-	if ($vehicle_author_id > 0) {
-		$author_user = get_userdata($vehicle_author_id);
-		if ($author_user && in_array('rentiva_vendor', (array) $author_user->roles, true)) {
-			$is_vendor_vehicle = true;
-		}
-	}
-}
-
 // Check Favorites Service
 if (class_exists('\MHMRentiva\Admin\Services\FavoritesService')) {
 	$current_user_id = get_current_user_id();

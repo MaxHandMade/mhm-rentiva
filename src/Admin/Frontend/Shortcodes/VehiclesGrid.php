@@ -236,9 +236,6 @@ class VehiclesGrid extends AbstractShortcode {
 			);
 		}
 
-		// All vehicle service types (rental, transfer, both) are shown.
-		// The vehicle card displays a service type badge so users can distinguish transfer-only vehicles.
-
 		// Meta-based sorting via a NAMED meta_query clause + compound orderby.
 		//
 		// This used to set a flat
@@ -291,6 +288,7 @@ class VehiclesGrid extends AbstractShortcode {
 		);
 		RatingSortHelper::apply_filter_args($args, $atts);
 
+		$args     = apply_filters('mhmrentiva_vehicle_query_args', $args, 'vehicles_grid', array(), $atts);
 		$posts    = get_posts($args);
 		$vehicles = array();
 

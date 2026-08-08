@@ -7,7 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Unified search intentionally composes bounded vehicle/transfer filters and lookup queries.
+// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Unified search intentionally composes bounded vehicle filters and lookup queries.
 
 
 
@@ -19,8 +19,7 @@ use MHMRentiva\Admin\Core\Assets\DatepickerAssets;
 /**
  * Unified Search Shortcode
  *
- * Rental vehicle search widget. Lite ships rental-only -- transfer
- * search is the separate `rentiva_transfer_search` shortcode/block (add-on).
+ * Rental vehicle search widget.
  *
  * @since 4.0.0
  */
@@ -49,9 +48,6 @@ final class UnifiedSearch extends AbstractShortcode {
 	protected static function get_default_attributes(): array
 	{
 		return array(
-			// Tab controls
-			'default_tab'           => 'default', // Rental-only; kept for BC, has no other effect.
-
 			// Visibility controls (boolean as string for shortcode compatibility)
 			'show_rental_tab'       => 'default',
 			'show_location_select'  => 'default',
@@ -62,7 +58,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			'fields_required'       => 'default', // Whether date fields are required (false = browse all vehicles)
 
 			// Query filters
-			'service_type'          => 'rental', // Lite ships rental-only; transfer is a separate add-on shortcode/block.
 			'filter_categories'     => '',
 			'redirect_page'         => 'default',
 
@@ -81,12 +76,7 @@ final class UnifiedSearch extends AbstractShortcode {
 	 */
 	protected static function prepare_template_data(array $atts): array
 	{
-		// Lite is rental-only: the unified-search widget no longer
-		// offers a transfer tab -- transfer search is the separate
-		// `rentiva_transfer_search` shortcode/block (add-on). Locations are still
-		// requested for 'rental': the same filter also feeds an add-on's
-		// pickup/dropoff branch selects on the rental form itself, so it must
-		// stay live even though the transfer tab is gone.
+		// Locations are requested for the rental search form.
 		$locations = apply_filters('mhmrentiva_search_locations', array(), 'rental');
 
 		// Resolve initial visibility
@@ -97,7 +87,6 @@ final class UnifiedSearch extends AbstractShortcode {
 
 		return array(
 			'locations'             => $locations,
-			'default_tab'           => 'rental',
 			'wrapper_id'            => uniqid('rv_unified_'),
 			'nonce'                 => wp_create_nonce('mhmrentiva_unified_search'),
 
@@ -115,7 +104,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			'fields_required'       => self::resolve_bool($atts['fields_required'], 'mhmrentiva_fields_required', true),
 
 			// Query filters
-			'service_type'          => $atts['service_type'],
 			'filter_categories'     => $atts['filter_categories'],
 			'redirect_page'         => self::resolve_default($atts['redirect_page'], 'mhmrentiva_search_results_page'),
 			'layout'                => $layout,
@@ -135,33 +123,6 @@ final class UnifiedSearch extends AbstractShortcode {
 			MHMRENTIVA_VERSION
 		);
 
-		// Premium search overlay styles. Versioned by file modification time,
-		// like the base stylesheet above: keyed to the plugin version instead,
-		// an edited stylesheet stayed cached in browsers until the next release,
-		// so the file on disk and the file being rendered could differ.
-		//
-		// FILENAME IS A FROZEN LITE->PRO CONTRACT -- do not rename without a
-		// coordinated Lite+Pro release: mhm-rentiva-pro's
-		// TransferShortcodes.php enqueues this exact path
-		// (MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css')
-		// directly, by Lite's own URL constant, for the Transfer search UI.
-		// A prior fix-round renamed this file for cosmetic reasons (a reviewer
-		// grepping "premium" in the shipped file list) and broke that enqueue
-		// on every Pro install (404 stylesheet); reverted. See
-		// mhm-rentiva-pro/bin/check-lite-asset-refs.sh, which exists to catch
-		// exactly this and must read OK before this path ever changes again.
-		wp_enqueue_style(
-			'mhm-rentiva-search-premium',
-			MHMRENTIVA_PLUGIN_URL . 'assets/css/frontend/search-premium.css',
-			array( 'mhm-rentiva-unified-search-base' ),
-			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/frontend/search-premium.css' )
-		);
-
-		// Lite is rental-only: the search-enqueue action and
-		// script-deps filter this method used to fire/apply existed solely to let
-		// an add-on's extra (transfer) search tab enqueue its own assets and
-		// script dependency for that tab's now-removed panel. Neither has any
-		// rental-side consumer, so both are gone with the tab.
 		$search_deps = array( 'jquery', 'jquery-ui-datepicker' );
 
 		wp_enqueue_script(
@@ -176,19 +137,13 @@ final class UnifiedSearch extends AbstractShortcode {
 		DatepickerAssets::enqueue();
 
 		// Consolidate Localize script with combined data.
-		// ajaxUrl/nonce('rentiva_transfer_nonce')/routes/i18n (same_location_error,
-		// no_route_error, searching_text, error_text, server_error) were dropped:
-		// they fed the TransferShortcodes AJAX handler and route-validation table,
-		// neither of which Lite ships (transfer is a separate add-on
-		// shortcode/block). Nothing in unified-search.js reads them.
 		wp_localize_script(
 			'mhm-rentiva-unified-search',
 			'mhmUnifiedSearch',
 			array(
-				'restUrl'         => get_rest_url(null, 'mhm-rentiva/v1/locations'),
-				'restNonce'       => wp_create_nonce('wp_rest'),
-				'initial_service' => $atts['default_tab'] === 'transfer' ? 'transfer' : 'rental',
-				'settings'        => array(
+				'restUrl'   => get_rest_url(null, 'mhm-rentiva/v1/locations'),
+				'restNonce' => wp_create_nonce('wp_rest'),
+				'settings'  => array(
 					'minRentalDays'     => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_min_rental_days', 1),
 					'defaultRentalDays' => (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_default_rental_days', 1),
 				),

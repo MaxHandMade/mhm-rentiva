@@ -21,16 +21,6 @@
                     /* PANEL 1: GENERAL */
                     el(PanelBody, { title: __('General Settings', 'mhm-rentiva'), initialOpen: true },
                         el(SelectControl, {
-                            label: __('Service Type', 'mhm-rentiva'),
-                            value: attributes.serviceType,
-                            options: [
-                                { label: __('Rental', 'mhm-rentiva'), value: 'rental' },
-                                { label: __('Transfer', 'mhm-rentiva'), value: 'transfer' },
-                                { label: __('Both', 'mhm-rentiva'), value: 'both' }
-                            ],
-                            onChange: function (val) { setAttributes({ serviceType: val }); }
-                        }),
-                        el(SelectControl, {
                             label: __('Sort By', 'mhm-rentiva'),
                             value: attributes.sortBy,
                             options: [

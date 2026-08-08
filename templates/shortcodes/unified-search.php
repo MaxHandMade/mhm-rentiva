@@ -4,18 +4,13 @@
 /**
  * Template: Unified Search Widget
  *
- * Rental-only in Lite. Transfer search is a separate add-on surface (the
- * `rentiva_transfer_search` shortcode/block), not a tab here -- see the transfer add-on.
- *
- * @var array  $locations            Location options for select dropdowns
- * @var string $default_tab          Default active tab (always 'rental')
+	 * @var array  $locations            Location options for select dropdowns
  * @var string $wrapper_id           Unique ID for the wrapper element
  * @var bool   $show_rental_tab      Whether to show the rental tab
  * @var bool   $show_location_select Whether to show location dropdowns
  * @var bool   $show_time_select     Whether to show time selection
  * @var bool   $show_date_picker     Whether to show date picker
  * @var bool   $show_dropoff_location Whether to show drop-off location field
- * @var string $service_type         Filter: 'rental' (only supported value)
  * @var string $filter_categories    Comma-separated category IDs to filter
  * @var string $layout               Layout: 'horizontal', 'vertical'
  */
@@ -25,9 +20,8 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Helpers\Icons;
 
-$uid         = $wrapper_id;
-$locations   = $locations ?? array();
-$default_tab = 'rental';
+$uid       = $wrapper_id;
+$locations = $locations ?? array();
 
 // Visibility flags (default to true if not set)
 $show_rental_tab       = $show_rental_tab ?? true;
@@ -40,7 +34,7 @@ $fields_required       = $fields_required ?? true;
 $location_required = $fields_required ? ( $location_required ?? true ) : false;
 ?>
 
-<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search mhm-premium-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?>" data-testid="unified-search">
+<div id="<?php echo esc_attr($uid); ?>" class="rv-unified-search rv-unified-search--<?php echo esc_attr($layout ?? 'horizontal'); ?>" data-testid="unified-search">
 
     <!-- 1. Tabs Header (Show if the rental tab is enabled) -->
     <?php if ($show_rental_tab) : ?>
@@ -63,7 +57,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
     <div class="rv-unified-search__body">
 
         <!-- PANEL: CAR RENTAL -->
-        <div class="rv-unified-search__panel <?php echo $default_tab === 'rental' ? 'is-active' : ''; ?>"
+        <div class="rv-unified-search__panel is-active"
             id="<?php echo esc_attr($uid); ?>_panel_rental"
             role="tabpanel">
 
@@ -185,10 +179,6 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
 
             </form>
         </div>
-
-        <!-- Rental-only: the transfer panel was removed from Lite. Transfer -->
-        <!-- search is served by the standalone `rentiva_transfer_search` -->
-        <!-- shortcode/block (add-on), not a tab here. -->
 
     </div>
 </div>

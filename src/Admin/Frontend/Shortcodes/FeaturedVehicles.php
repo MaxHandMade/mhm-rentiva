@@ -161,22 +161,7 @@ final class FeaturedVehicles extends AbstractShortcode {
 			);
 		}
 
-		// Exclude transfer-only vehicles from rental-oriented listings.
-		if (! isset($args['meta_query'])) {
-			$args['meta_query'] = array();
-		}
-		$args['meta_query'][] = array(
-			'relation' => 'OR',
-			array(
-				'key'     => '_mhmrentiva_vehicle_service_type',
-				'value'   => 'transfer',
-				'compare' => '!=',
-			),
-			array(
-				'key'     => '_mhmrentiva_vehicle_service_type',
-				'compare' => 'NOT EXISTS',
-			),
-		);
+		$args = apply_filters('mhmrentiva_vehicle_query_args', $args, 'featured_vehicles', array(), $atts);
 
 		$cache_key   = 'featured_' . md5(wp_json_encode($args));
 		$vehicle_ids = \MHMRentiva\Admin\Core\Utilities\CacheManager::get_cache('vehicle_list', $cache_key);

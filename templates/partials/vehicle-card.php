@@ -70,16 +70,6 @@ if (! $is_available) {
                     <?php endif; ?>
             </a>
 
-            <?php if ($service_type === 'transfer' || $service_type === 'both') : ?>
-                <div class="mhm-card-service-badge mhm-card-service-badge--<?php echo esc_attr($service_type); ?>">
-                    <?php if ($service_type === 'both') : ?>
-                        <?php esc_html_e('Transfer + Rental', 'mhm-rentiva'); ?>
-                    <?php else : ?>
-                        <?php esc_html_e('Transfer Only', 'mhm-rentiva'); ?>
-                    <?php endif; ?>
-                </div>
-            <?php endif; ?>
-
             <div class="mhm-card-actions-overlay">
                 <?php if ($show_fav) : ?>
                     <button class="mhm-card-favorite mhm-vehicle-favorite-btn <?php echo esc_attr($is_favorite ? 'is-active' : ''); ?>"
@@ -106,12 +96,6 @@ if (! $is_available) {
                     </button>
                 <?php endif; ?>
 
-                <?php if ($is_vendor_vehicle) : ?>
-                    <div class="mhm-card-vendor-badge" data-testid="mhm-vendor-badge" title="<?php esc_attr_e('This vehicle is provided by an authorized dealer.', 'mhm-rentiva'); ?>">
-                        <svg viewBox="0 0 24 24" fill="none" width="12" height="12"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        <?php esc_html_e('Dealer', 'mhm-rentiva'); ?>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
     <?php endif; ?>

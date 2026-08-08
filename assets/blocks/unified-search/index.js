@@ -16,23 +16,15 @@
         var setAttributes = props.setAttributes;
         var blockProps = useBlockProps();
 
-        var service_type = attributes.service_type;
-        var default_tab = attributes.default_tab;
         var show_rental_tab = attributes.show_rental_tab;
         var show_location_select = attributes.show_location_select;
         var show_time_select = attributes.show_time_select;
         var show_date_picker = attributes.show_date_picker;
         var show_dropoff_location = attributes.show_dropoff_location;
-        var show_pax = attributes.show_pax;
-        var show_luggage = attributes.show_luggage;
         var fieldsRequired = attributes.fieldsRequired;
         var redirect_page = attributes.redirect_page;
         var search_layout = attributes.search_layout;
         var className = attributes.className;
-
-        // Helper: Logic to show/hide panels based on service type
-        var isTransferOnly = service_type === 'transfer';
-        var isRentalOnly = service_type === 'rental';
 
         // Helper for Ajax URL replacement
         var globalSettings = window.mhmRentivaSearch ? window.mhmRentivaSearch : {};
@@ -42,27 +34,9 @@
             el(InspectorControls, {},
                 /* PANEL 1: GENERAL */
                 el(PanelBody, { title: __('General Settings', 'mhm-rentiva'), initialOpen: true },
-                    el(SelectControl, {
-                        label: __('Service Mode', 'mhm-rentiva'),
-                        value: service_type,
-                        options: [
-                            { label: __('Both (Rental + Transfer)', 'mhm-rentiva'), value: 'both' },
-                            { label: __('Rental Only', 'mhm-rentiva'), value: 'rental' },
-                            { label: __('Transfer Only', 'mhm-rentiva'), value: 'transfer' },
-                        ],
-                        onChange: function (val) { setAttributes({ service_type: val }); },
-                        help: __('Controls which search tabs are available.', 'mhm-rentiva')
-                    }),
-                    el(SelectControl, {
-                        label: __('Default Active Tab', 'mhm-rentiva'),
-                        value: default_tab,
-                        options: [
-                            { label: __('Use Global Default', 'mhm-rentiva'), value: 'default' },
-                            { label: __('Rental', 'mhm-rentiva'), value: 'rental' },
-                            { label: __('Transfer', 'mhm-rentiva'), value: 'transfer' },
-                        ],
-                        onChange: function (val) { setAttributes({ default_tab: val }); }
-                    })
+                    el('p', { className: 'description' },
+                        __('Configure the rental search form.', 'mhm-rentiva')
+                    )
                 ),
 
                 /* PANEL 2: BUSINESS LOGIC */
@@ -102,7 +76,7 @@
 
                 /* PANEL 5: FORM UX & VISIBILITY */
                 el(PanelBody, { title: __('Form Visibility', 'mhm-rentiva'), initialOpen: false },
-                    !isTransferOnly && el(SelectControl, {
+                    el(SelectControl, {
                         label: __('Show Rental Tab', 'mhm-rentiva'),
                         value: show_rental_tab,
                         options: [
@@ -162,26 +136,6 @@
                         ],
                         onChange: function (val) { setAttributes({ fieldsRequired: val }); },
                         help: __('When optional, users can search without filling any fields to browse all vehicles.', 'mhm-rentiva')
-                    }),
-                    !isRentalOnly && el(SelectControl, {
-                        label: __('Pax Select (Adults/Children)', 'mhm-rentiva'),
-                        value: show_pax,
-                        options: [
-                            { label: __('Global Default', 'mhm-rentiva'), value: 'default' },
-                            { label: __('Enabled', 'mhm-rentiva'), value: 'true' },
-                            { label: __('Disabled', 'mhm-rentiva'), value: 'false' },
-                        ],
-                        onChange: function (val) { setAttributes({ show_pax: val }); }
-                    }),
-                    !isRentalOnly && el(SelectControl, {
-                        label: __('Luggage Select', 'mhm-rentiva'),
-                        value: show_luggage,
-                        options: [
-                            { label: __('Global Default', 'mhm-rentiva'), value: 'default' },
-                            { label: __('Enabled', 'mhm-rentiva'), value: 'true' },
-                            { label: __('Disabled', 'mhm-rentiva'), value: 'false' },
-                        ],
-                        onChange: function (val) { setAttributes({ show_luggage: val }); }
                     })
                 ),
 

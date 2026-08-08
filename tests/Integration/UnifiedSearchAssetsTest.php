@@ -8,7 +8,7 @@ use MHMRentiva\Admin\Frontend\Shortcodes\UnifiedSearch;
 
 final class UnifiedSearchAssetsTest extends \WP_UnitTestCase
 {
-    public function test_unified_search_enqueues_base_and_premium_styles(): void
+    public function test_unified_search_enqueues_only_the_rental_base_style(): void
     {
         UnifiedSearch::render([
             'default_tab' => 'rental',
@@ -19,12 +19,9 @@ final class UnifiedSearchAssetsTest extends \WP_UnitTestCase
             'Expected unified-search base CSS to be enqueued.'
         );
 
-        $this->assertTrue(
+        $this->assertFalse(
             wp_style_is('mhm-rentiva-search-premium', 'enqueued'),
-            'Expected search-premium CSS to be enqueued -- the filename is a frozen Lite->Pro '
-            . 'contract (mhm-rentiva-pro/.../TransferShortcodes.php enqueues it by path), not '
-            . 'renameable without a coordinated Lite+Pro release.'
+            'Lite must not enqueue the removed paid-search stylesheet.'
         );
     }
 }
-

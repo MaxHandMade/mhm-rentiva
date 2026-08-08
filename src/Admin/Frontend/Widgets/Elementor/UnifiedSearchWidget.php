@@ -8,8 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Frontend\Widgets\Base\ElementorWidgetBase;
-use Elementor\Controls_Manager;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -17,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Unified Search Elementor Widget
  *
- * Displays the unified rental and transfer search form within Elementor.
+ * Displays the rental search form within Elementor.
  *
  * @since 3.0.1
  */
@@ -36,14 +34,14 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	 * Widget title.
 	 */
 	public function get_title(): string {
-		return __( 'Unified Search & Transfer', 'mhm-rentiva' );
+		return __( 'Vehicle Search', 'mhm-rentiva' );
 	}
 
 	/**
 	 * Widget description.
 	 */
 	public function get_description(): string {
-		return __( 'Advanced search form for vehicle rentals and VIP transfers.', 'mhm-rentiva' );
+		return __( 'Search form for vehicle rentals.', 'mhm-rentiva' );
 	}
 
 	/**
@@ -62,7 +60,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 			array(
 				'search',
 				'find',
-				'transfer',
 				'rental',
 				'unified',
 			)
@@ -78,20 +75,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 			array(
 				'label' => __( 'General Settings', 'mhm-rentiva' ),
 				'tab'   => 'content',
-			)
-		);
-
-		$this->add_control(
-			'service_type',
-			array(
-				'label'   => __( 'Service Type', 'mhm-rentiva' ),
-				'type'    => 'select',
-				'default' => 'both',
-				'options' => array(
-					'both'     => __( 'Both (Rental & Transfer)', 'mhm-rentiva' ),
-					'rental'   => __( 'Rental Only', 'mhm-rentiva' ),
-					'transfer' => __( 'Transfer Only', 'mhm-rentiva' ),
-				),
 			)
 		);
 
@@ -113,22 +96,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 		// choice rendered identically -- controls that promised a change and
 		// delivered none. Both are gone rather than left in the panel.
 
-		$this->add_control(
-			'default_tab',
-			array(
-				'label'     => __( 'Default Active Tab', 'mhm-rentiva' ),
-				'type'      => Controls_Manager::SELECT,
-				'default'   => 'rental',
-				'options'   => array(
-					'rental'   => __( 'Rental', 'mhm-rentiva' ),
-					'transfer' => __( 'Transfer', 'mhm-rentiva' ),
-				),
-				'condition' => array(
-					'service_type' => 'both',
-				),
-			)
-		);
-
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -146,9 +113,6 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 				'type'         => 'switcher',
 				'default'      => 'yes',
 				'return_value' => 'yes',
-				'condition'    => array(
-					'service_type' => 'both',
-				),
 			)
 		);
 
@@ -188,15 +152,8 @@ class UnifiedSearchWidget extends ElementorWidgetBase {
 	protected function prepare_shortcode_attributes( array $settings ): array {
 		$atts = array();
 
-		// Mapping service types
-		if ( $settings['service_type'] !== 'both' ) {
-			$atts['show_rental_tab'] = ( $settings['service_type'] === 'rental' ) ? '1' : '0';
-		} else {
-			$atts['show_rental_tab'] = ( $settings['show_rental_tab'] === 'yes' ) ? '1' : '0';
-		}
-
-		$atts['layout']      = $settings['layout'];
-		$atts['default_tab'] = $settings['default_tab'];
+		$atts['show_rental_tab'] = ( $settings['show_rental_tab'] === 'yes' ) ? '1' : '0';
+		$atts['layout']          = $settings['layout'];
 
 		$atts['show_location_select'] = ( $settings['show_location_select'] === 'yes' ) ? '1' : '0';
 		$atts['show_date_picker']     = ( $settings['show_date_picker'] === 'yes' ) ? '1' : '0';
