@@ -330,9 +330,15 @@ add_action(
 );
 
 /**
- * Single site activation operations
+ * Single site activation operations.
+ *
+ * The optional callables are narrow test seams. Production callers pass
+ * nothing and therefore use the real migrator and table creator.
+ *
+ * @param callable():bool|null       $migration_runner Database migration runner.
+ * @param callable(string):bool|null $table_creator    Required-table creator.
  */
-function mhmrentiva_single_site_activation()
+function mhmrentiva_single_site_activation(?callable $migration_runner = null, ?callable $table_creator = null)
 {
 	// Register CPT and taxonomy
 	if (class_exists('MHMRentiva\\Admin\\Vehicle\\PostType\\Vehicle')) {
@@ -352,24 +358,38 @@ function mhmrentiva_single_site_activation()
 
 	// Create all database tables
 	if (class_exists('MHMRentiva\Admin\Core\Utilities\DatabaseMigrator')) {
-		// Run migrations to ensure all indexes and tables are up to date
-		\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::run_migrations();
+		$migration_runner ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'run_migrations' );
+		$table_creator    ??= array( \MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::class, 'create_table' );
 
-		// Force create specific tables that might not be in migrations yet
+		// Run migrations to ensure all indexes and tables are up to date
+		$database_ready = (bool) $migration_runner();
+
+		// Force-create only the tables required by the Lite runtime. Add-on
+		// tables remain owned by their class-gated migrations.
 		$critical_tables = array(
 			'payment_log',
 			'sessions',
-			'transfer_locations',
-			'transfer_routes',
 			'ratings',
 			'queue',
-			'report_queue',
 			'message_logs',
-			'notification_queue',
 		);
 
 		foreach ($critical_tables as $table) {
-			\MHMRentiva\Admin\Core\Utilities\DatabaseMigrator::create_table($table);
+			if (! $table_creator($table)) {
+				$database_ready = false;
+				break;
+			}
+		}
+
+		if (! $database_ready) {
+			wp_die(
+				esc_html__('MHM Rentiva could not create its required database tables. The plugin was not activated. Check database permissions and try again.', 'mhm-rentiva'),
+				esc_html__('Database Setup Failed', 'mhm-rentiva'),
+				array(
+					'back_link' => true,
+					'response'  => 500,
+				)
+			);
 		}
 	}
 

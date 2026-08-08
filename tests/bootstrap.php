@@ -236,14 +236,9 @@ tests_add_filter('muplugins_loaded', function () {
 	$critical_tables = array(
 		'payment_log',
 		'sessions',
-		'transfer_locations',
-		'transfer_routes',
 		'ratings',
 		'queue',
-		'report_queue',
 		'message_logs',
-		'notification_queue',
-		'background_jobs',
 	);
 
 	foreach ($critical_tables as $table) {
