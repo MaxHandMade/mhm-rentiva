@@ -64,7 +64,7 @@ final class EarlyTranslationDefaultsTest extends WP_UnitTestCase
     {
         parent::setUp();
 
-        SettingsCore::reset_defaults_cache_for_tests();
+        $this->reset_defaults_cache();
 
         $this->translated      = array();
         $this->incorrect_usage = array();
@@ -80,10 +80,17 @@ final class EarlyTranslationDefaultsTest extends WP_UnitTestCase
         remove_filter('gettext_with_context', array( $this, 'record_translation_with_context' ), 10);
         remove_action('doing_it_wrong_run', array( $this, 'record_incorrect_usage' ), 1);
 
-        SettingsCore::reset_defaults_cache_for_tests();
+        $this->reset_defaults_cache();
         delete_option('mhmrentiva_settings');
 
         parent::tearDown();
+    }
+
+    private function reset_defaults_cache(): void
+    {
+        $property = ( new \ReflectionClass(SettingsCore::class) )->getProperty('defaults_cache');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
     }
 
     public function record_translation(string $translation, string $text, string $domain): string

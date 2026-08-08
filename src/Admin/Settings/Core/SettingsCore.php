@@ -44,16 +44,6 @@ final class SettingsCore {
 	private static ?array $defaults_cache = null;
 
 	/**
-	 * Drops the memoized defaults map. Test seam.
-	 *
-	 * @internal
-	 */
-	public static function reset_defaults_cache_for_tests(): void
-	{
-		self::$defaults_cache = null;
-	}
-
-	/**
 	 * Register all core settings hooks
 	 */
 	public static function register(): void
