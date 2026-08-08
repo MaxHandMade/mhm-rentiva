@@ -104,7 +104,7 @@ Three front-end libraries and one webfont ship with the plugin, all permissively
 Two are pre-built (minified) under `assets/vendor/`:
 
 *   **flatpickr** v4.6.13 — date picker, MIT License. Source: https://github.com/flatpickr/flatpickr
-*   **Swiper** 11.2.10 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
+*   **Swiper** 14.1.0 — touch slider, MIT License. Source: https://github.com/nolimits4web/swiper
 
 One is compiled into the admin dashboard bundle (`build/admin/dashboard.js`) by the build described above, and is declared as a dependency in `package.json`:
 
