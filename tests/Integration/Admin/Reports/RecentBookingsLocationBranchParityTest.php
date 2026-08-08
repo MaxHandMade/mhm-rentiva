@@ -54,11 +54,27 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
     }
 
     /**
+     * The suite rewrites CREATE TABLE / DROP TABLE to their TEMPORARY forms,
+     * and `SHOW TABLES LIKE` — the exact probe the method under test uses —
+     * does not list temporary tables. The fixture therefore has to be a REAL
+     * table, or the locations branch never runs and both tests compare a
+     * branch against itself (which is how this passed locally against a
+     * leftover table while failing on a fresh CI database).
+     */
+    private function use_real_tables(): void
+    {
+        remove_filter('query', array( $this, '_create_temporary_tables' ));
+        remove_filter('query', array( $this, '_drop_temporary_tables' ));
+    }
+
+    /**
      * Only the columns the query reads: `id` for the JOIN, `name` for the SELECT.
      */
     private function create_locations_table(): void
     {
         global $wpdb;
+
+        $this->use_real_tables();
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test fixture: the add-on table this test exists to switch on and off.
         $wpdb->query(
@@ -79,6 +95,8 @@ class RecentBookingsLocationBranchParityTest extends \WP_UnitTestCase
     private function drop_locations_table(): void
     {
         global $wpdb;
+
+        $this->use_real_tables();
 
         // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- Test fixture teardown.
         $wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $this->locations_table()));

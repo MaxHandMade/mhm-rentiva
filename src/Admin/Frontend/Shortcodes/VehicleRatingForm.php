@@ -282,6 +282,19 @@ final class VehicleRatingForm extends AbstractShortcode {
 			}
 		}
 
+		// wp_new_comment() likewise reads comment_author_IP and comment_agent
+		// before applying any default (preg_replace/substr on the raw values),
+		// which on PHP 8.1+ surfaces as a core deprecation when the keys are
+		// absent — under WP-CLI or test requests REMOTE_ADDR is unset and the
+		// notice pollutes the JSON output buffer. Sourced from $_SERVER exactly
+		// as core's wp_handle_comment_submission() does.
+		$comment_data['comment_author_IP'] = isset($_SERVER['REMOTE_ADDR'])
+			? sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']))
+			: '';
+		$comment_data['comment_agent']     = isset($_SERVER['HTTP_USER_AGENT'])
+			? substr(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])), 0, 254)
+			: '';
+
 		$cid = wp_new_comment($comment_data, true);
 		if ($cid && ! is_wp_error($cid)) {
 			update_comment_meta($cid, 'mhmrentiva_rating', $rating);
