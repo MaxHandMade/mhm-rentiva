@@ -12,7 +12,7 @@ if (! defined('ABSPATH')) {
 /**
  * Custom columns for the Vehicle admin list table.
  *
-	 * Registers, renders, and sorts additional vehicle columns.
+ * Registers, renders, and sorts additional vehicle columns.
  *
  * @since 4.20.0
  */
