@@ -24,6 +24,18 @@ namespace MHMRentiva\Tests\Integration;
  */
 final class PluginTextdomainLocaleTest extends \WP_UnitTestCase
 {
+	public function test_loader_avoids_the_discouraged_plugin_textdomain_registration_call(): void
+	{
+		$source = file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'src/Plugin.php');
+
+		$this->assertIsString($source);
+		$this->assertStringNotContainsString(
+			'load_plugin_textdomain(',
+			$source,
+			'Plugin Check flags load_plugin_textdomain() as discouraged since WordPress 4.6; the explicit locale-specific load below must remain the only loader.'
+		);
+	}
+
 	/**
 	 * Callbacks registered by a test, removed again in tearDown.
 	 *

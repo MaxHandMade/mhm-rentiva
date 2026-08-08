@@ -656,18 +656,21 @@ final class Plugin {
 	 * the locale is honoured here without this plugin firing any hook of its own.
 	 *
 	 * A `plugin_locale` filter used to be applied on top of that, mirroring what
-	 * core's load_plugin_textdomain() did at the time. WordPress 7.0 removed the
-	 * filter -- core neither owns nor fires the name any more, and its
-	 * load_plugin_textdomain() resolves no locale at all -- which left this plugin
-	 * as the only party firing an unprefixed global hook name. Do not reintroduce
-	 * it: PluginTextdomainLocaleTest fails if it comes back.
+	 * core's former plugin textdomain loader did at the time. WordPress 7.0
+	 * removed the filter -- core neither owns nor fires the name any more --
+	 * which left this plugin as the only party firing an unprefixed global hook
+	 * name. Do not reintroduce it: PluginTextdomainLocaleTest fails if it comes
+	 * back.
 	 */
 	public function load_textdomain(): void
 	{
 		$domain = 'mhm-rentiva';
 		$locale = determine_locale();
 
-		// Force load from local directory first (to avoid global overrides)
+		// Force load from the shipped local directory first. Plugin Check
+		// discourages the automatic plugin textdomain loader for
+		// WordPress.org-hosted plugins; this explicit load remains necessary
+		// because it honours determine_locale() immediately on WordPress 7.0+.
 		$mofile = dirname(__DIR__) . '/languages/' . $domain . '-' . $locale . '.mo';
 
 		if (file_exists($mofile)) {
