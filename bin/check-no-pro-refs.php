@@ -22,6 +22,7 @@ $patterns = array(
 	'paid Lite class'      => '/\b(?:AddonContextMetaBox|AddonContextMigration|AddonContextTaxonomy|AddonContextValidator|VehicleCommissionRateMetaBox|PenaltyCalculator|ReliabilityScoreCalculator)\b/',
 	'paid role'            => '/[\'\"]rentiva_vendor[\'\"]/',
 	'paid vehicle meta'    => '/\bvehicle_service_type\b/',
+	'paid email type'      => '/\b(?:booking_created_vendor|booking_status_changed_vendor|booking[-_]created[-_]vendor|booking[-_]status[-_]changed[-_]vendor|message_received_admin|message_replied_customer|message_auto_reply|vendor_approved|vendor_rejected|vendor_suspended|vendor_application_received|vendor_application_new_admin|payout_approved|payout_rejected|iban_change_approved|iban_change_rejected|vehicle_expiry_warning|booking_vendor_notifications)\b/',
 );
 
 /**
@@ -65,8 +66,11 @@ if (
 	array() === mhmrentiva_paid_surface_matches( 'shortcode: rentiva_vendor_apply', $patterns )
 	|| array() === mhmrentiva_paid_surface_matches( '.mhm-card-vendor-badge svg {', $patterns )
 	|| array() === mhmrentiva_paid_surface_matches( '.mhm-card-service-badge--transfer {', $patterns )
+	|| array() === mhmrentiva_paid_surface_matches( "Mailer::sendBookingEmail( 'booking_created_vendor', \$booking_id, 'vendor' );", $patterns )
+	|| array() === mhmrentiva_paid_surface_matches( "case 'message_auto_reply':", $patterns )
 	|| array() !== mhmrentiva_paid_surface_matches( 'Bank transfer payments are handled by WooCommerce.', $patterns )
 	|| array() !== mhmrentiva_paid_surface_matches( '.mhm-booking-list .booking-type.transfer {', $patterns )
+	|| array() !== mhmrentiva_paid_surface_matches( "Mailer::sendBookingEmail( 'booking_created_admin', \$booking_id, 'admin' );", $patterns )
 ) {
 	fwrite( STDERR, "check-no-pro-refs FAILED -- oracle negative control is invalid.\n" );
 	exit( 2 );
