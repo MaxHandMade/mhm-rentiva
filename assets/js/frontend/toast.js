@@ -84,9 +84,12 @@
             const now = Date.now();
             const existingDedupe = this.dedupeMap.get(idempotencyKey);
 
-            if (existingDedupe && (now - existingDedupe.lastSeen < DEDUPE_WINDOW)) {
+            if (existingDedupe) {
                 const existingToast = this.toasts.get(existingDedupe.id);
-                if (existingToast) {
+                const isWithinDedupeWindow = now - existingDedupe.lastSeen < DEDUPE_WINDOW;
+                const isStickyProgressToast = existingToast?.options.duration === 0;
+
+                if (existingToast && (isWithinDedupeWindow || isStickyProgressToast)) {
                     this._refreshToast(existingToast, message, mergedOptions);
                     return existingDedupe.id;
                 }
@@ -201,6 +204,7 @@
          */
         _refreshToast(toastObj, message, options) {
             this._stopTimer(toastObj);
+            toastObj.options = options;
 
             // Update content
             const msgEl = toastObj.element.querySelector('.mhm-toast__message');
