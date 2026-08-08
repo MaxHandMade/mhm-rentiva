@@ -18,8 +18,6 @@ if (!defined('ABSPATH')) {
 
 
 
-use MHMRentiva\Admin\Addons\AddonContextMetaBox;
-use MHMRentiva\Admin\Addons\AddonContextTaxonomy;
 use MHMRentiva\Admin\Addons\AddonPricingType;
 use MHMRentiva\Admin\Addons\AddonPricingCalculator;
 
@@ -91,25 +89,16 @@ final class AddonManager {
 		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_price_column' ), 10, 2 );
 		add_filter( 'manage_edit-mhmrentiva_addon_sortable_columns', array( self::class, 'make_price_sortable' ) );
 
-		// Add context and pricing type columns (v4.36.0).
-		add_filter( 'manage_mhmrentiva_addon_posts_columns', array( self::class, 'add_context_pricing_columns' ) );
-		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_context_pricing_column' ), 10, 2 );
+		add_filter( 'manage_mhmrentiva_addon_posts_columns', array( self::class, 'add_pricing_type_column' ) );
+		add_action( 'manage_mhmrentiva_addon_posts_custom_column', array( self::class, 'render_pricing_type_column' ), 10, 2 );
 
 		// Enqueue script and style.
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
 
-		// Register list table for enhanced functionality.
+		// Register the live enhancements for WordPress's native CPT list table.
 		if ( class_exists( AddonListTable::class ) ) {
-			// Admin-only: the filter params are read through get_query_var(), which
-			// needs them on the query_vars whitelist before WP::parse_request()
-			// runs for the list screen (edit.php calls it from prepare_items(),
-			// after admin_init).
-			AddonListTable::register_query_var_filter();
-			new AddonListTable();
+			AddonListTable::register();
 		}
-
-		// Register addon context metabox and save handler.
-		AddonContextMetaBox::register();
 	}
 
 	/**
@@ -195,17 +184,16 @@ final class AddonManager {
 	}
 
 	/**
-	 * Add context and pricing type columns (v4.36.0).
+	 * Add the pricing type column.
 	 *
 	 * @param array $columns List of columns.
 	 * @return array Modified columns.
 	 */
-	public static function add_context_pricing_columns( array $columns ): array {
+	public static function add_pricing_type_column( array $columns ): array {
 		$new = array();
 		foreach ( $columns as $key => $label ) {
 			$new[ $key ] = $label;
 			if ( 'mhmrentiva_addon_price' === $key ) {
-				$new['mhmrentiva_addon_context']      = __( 'Context', 'mhm-rentiva' );
 				$new['mhmrentiva_addon_pricing_type'] = __( 'Pricing Type', 'mhm-rentiva' );
 			}
 		}
@@ -213,33 +201,12 @@ final class AddonManager {
 	}
 
 	/**
-	 * Render context and pricing type columns.
+	 * Render the pricing type column.
 	 *
 	 * @param string $column Column name.
 	 * @param int    $post_id Post ID.
 	 */
-	public static function render_context_pricing_column( string $column, int $post_id ): void {
-		if ( 'mhmrentiva_addon_context' === $column ) {
-			$terms = wp_get_object_terms( $post_id, AddonContextTaxonomy::TAXONOMY, array( 'fields' => 'slugs' ) );
-			$slug  = ( ! is_wp_error( $terms ) && ! empty( $terms ) ) ? (string) $terms[0] : '';
-
-			$labels = array(
-				AddonContextTaxonomy::TERM_RENTAL   => __( 'Rental', 'mhm-rentiva' ),
-				AddonContextTaxonomy::TERM_TRANSFER => __( 'Transfer', 'mhm-rentiva' ),
-				AddonContextTaxonomy::TERM_BOTH     => __( 'Both', 'mhm-rentiva' ),
-			);
-
-			$label = $labels[ $slug ] ?? __( 'Unassigned', 'mhm-rentiva' );
-
-			$badge_class = $slug ? 'mhm-addon-context-badge--' . $slug : 'mhm-addon-context-badge--unset';
-			printf(
-				'<span class="mhm-addon-context-badge %s">%s</span>',
-				esc_attr( $badge_class ),
-				esc_html( $label )
-			);
-			return;
-		}
-
+	public static function render_pricing_type_column( string $column, int $post_id ): void {
 		if ( 'mhmrentiva_addon_pricing_type' === $column ) {
 			$type = AddonPricingType::sanitize( get_post_meta( $post_id, '_mhmrentiva_addon_pricing_type', true ) );
 			echo esc_html( AddonPricingType::label( $type ) );
@@ -300,36 +267,15 @@ final class AddonManager {
 				)
 			);
 		}
-
-		// Enqueue context↔pricing-type constraint script on addon edit screens (v4.36.0).
-		if ( in_array( $hook, array( 'post.php', 'post-new.php' ), true )
-			&& 'mhmrentiva_addon' === $post_type
-		) {
-			wp_enqueue_script(
-				'mhm-rentiva-addon-context',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addon-context.js',
-				array(),
-				MHMRENTIVA_VERSION . '.' . filemtime( MHMRENTIVA_PLUGIN_PATH . 'assets/js/admin/addon-context.js' ),
-				true
-			);
-			wp_localize_script(
-				'mhm-rentiva-addon-context',
-				'mhmRentivaAddonContextI18n',
-				array(
-					'incompatible' => __( ' (incompatible with context)', 'mhm-rentiva' ),
-				)
-			);
-		}
 	}
 
 
 	/**
 	 * Get all published and enabled additional services.
 	 *
-	 * @param string $context Addon context ('rental', 'transfer', or 'both'). Defaults to 'rental' for backwards compatibility.
 	 * @return array List of addons.
 	 */
-	public static function get_available_addons( string $context = 'rental' ): array {
+	public static function get_available_addons(): array {
 		$args = array(
 			'post_type'      => 'mhmrentiva_addon',
 			'post_status'    => 'publish',
@@ -338,13 +284,6 @@ final class AddonManager {
 					'key'     => 'mhmrentiva_addon_enabled',
 					'value'   => '1',
 					'compare' => '=',
-				),
-			),
-			'tax_query'      => array(
-				array(
-					'taxonomy' => AddonContextTaxonomy::TAXONOMY,
-					'field'    => 'slug',
-					'terms'    => array( $context, AddonContextTaxonomy::TERM_BOTH ),
 				),
 			),
 			'orderby'        => 'menu_order',
@@ -442,8 +381,8 @@ final class AddonManager {
 
 		$context = array(
 			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
-			'adults'      => (int) ( $booking_data['transfer_adults'] ?? $booking_data['guests'] ?? 0 ),
-			'children'    => (int) ( $booking_data['transfer_children'] ?? 0 ),
+			'adults'      => (int) ( $booking_data['guests'] ?? 0 ),
+			'children'    => 0,
 		);
 
 		foreach ( $selected_addons as $addon_id ) {
@@ -467,8 +406,8 @@ final class AddonManager {
 
 		$context = array(
 			'rental_days' => (int) ( $booking_data['rental_days'] ?? 1 ),
-			'adults'      => (int) ( $booking_data['transfer_adults'] ?? $booking_data['guests'] ?? 0 ),
-			'children'    => (int) ( $booking_data['transfer_children'] ?? 0 ),
+			'adults'      => (int) ( $booking_data['guests'] ?? 0 ),
+			'children'    => 0,
 		);
 
 		$addon_total   = 0.0;

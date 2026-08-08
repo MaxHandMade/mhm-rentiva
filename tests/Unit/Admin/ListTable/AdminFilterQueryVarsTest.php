@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Unit\Admin\ListTable;
 
-use MHMRentiva\Admin\Addons\AddonListTable;
 use MHMRentiva\Admin\Booking\ListTable\BookingColumns;
 use MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns;
 use WP_UnitTestCase;
@@ -32,7 +31,6 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
         parent::setUp();
         BookingColumns::register();
         VehicleColumns::register();
-        AddonListTable::register_query_var_filter();
     }
 
     /**
@@ -57,11 +55,6 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
             'availability'     => array( 'mhmrentiva_available', 'available' ),
             'location'         => array( 'mhmrentiva_location_filter', '7' ),
             'lifecycle'        => array( 'mhmrentiva_lifecycle_filter', 'archive' ),
-            'owner'            => array( 'mhmrentiva_owner_filter', 'vendor' ),
-            'addon status'     => array( 'addon_status', 'active' ),
-            'addon category'   => array( 'mhmrentiva_addon_category', 'insurance' ),
-            'addon price min'  => array( 'price_min', '10' ),
-            'addon price max'  => array( 'price_max', '99' ),
             // Calendar navigation on both list screens. Prefixed on purpose: an
             // unprefixed `month` on a global whitelist would collide with any
             // other plugin registering it, and `year` is already core's own.
@@ -85,18 +78,13 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
     }
 
     /**
-     * @return array<string, array{0: class-string, 1: string, 2: string, 3: bool}>
+     * @return array<string, array{0: class-string, 1: string, 2: string}>
      */
     public function arrayValuedParamProvider(): array
     {
         return array(
-            'bookings list' => array( BookingColumns::class, 'get_query_text', 'mhmrentiva_booking_status', false ),
-            'vehicles list' => array( VehicleColumns::class, 'get_query_text', 'mhmrentiva_available', false ),
-            // The add-ons reader drops filter values that arrive without a valid
-            // filter nonce, and that early return sits AFTER the array guard. Send
-            // a real nonce, or the reader never reaches the cast and the test
-            // passes with the guard deleted (measured: it did).
-            'add-ons list'  => array( AddonListTable::class, 'request_text', 'addon_status', true ),
+            'bookings list' => array( BookingColumns::class, 'get_query_text', 'mhmrentiva_booking_status' ),
+            'vehicles list' => array( VehicleColumns::class, 'get_query_text', 'mhmrentiva_available' ),
         );
     }
 
@@ -113,13 +101,9 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
      * @dataProvider arrayValuedParamProvider
      * @param class-string $class
      */
-    public function test_an_array_valued_filter_param_falls_back_instead_of_casting( string $class, string $method, string $key, bool $needs_addon_filter_nonce ): void
+    public function test_an_array_valued_filter_param_falls_back_instead_of_casting( string $class, string $method, string $key ): void
     {
         $params = array( $key => array( 'x', 'y' ) );
-        if ( $needs_addon_filter_nonce ) {
-            $params['mhmrentiva_addon_filter_nonce'] = wp_create_nonce( 'mhmrentiva_addon_filter' );
-        }
-
         $this->requestAdminUrl( $params );
         $this->assertIsArray( get_query_var( $key ), 'Fixture must actually deliver an array, or this proves nothing.' );
 
@@ -151,5 +135,12 @@ final class AdminFilterQueryVarsTest extends WP_UnitTestCase
         $this->requestAdminUrl( array( 'mhmrentiva_not_registered_param' => 'value' ) );
 
         $this->assertSame( '', (string) get_query_var( 'mhmrentiva_not_registered_param' ) );
+    }
+
+    public function test_paid_owner_filter_param_does_not_survive_the_round_trip(): void
+    {
+        $this->requestAdminUrl( array( 'mhmrentiva_owner_filter' => 'vendor' ) );
+
+        $this->assertSame( '', (string) get_query_var( 'mhmrentiva_owner_filter' ) );
     }
 }

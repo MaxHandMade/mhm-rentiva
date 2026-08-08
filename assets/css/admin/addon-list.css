@@ -242,33 +242,3 @@
 }
 
 /* v4.36.0 — addon context badges */
-.mhm-addon-context-badge {
-	display: inline-block;
-	padding: 2px 10px;
-	border-radius: 12px;
-	font-size: 11px;
-	font-weight: 600;
-	line-height: 1.6;
-	text-transform: uppercase;
-	letter-spacing: 0.3px;
-}
-
-.mhm-addon-context-badge--rental {
-	background: #e8f5e9;
-	color: #2e7d32;
-}
-
-.mhm-addon-context-badge--transfer {
-	background: #e3f2fd;
-	color: #1565c0;
-}
-
-.mhm-addon-context-badge--both {
-	background: #f3e5f5;
-	color: #6a1b9a;
-}
-
-.mhm-addon-context-badge--unset {
-	background: #f5f5f5;
-	color: #616161;
-}
