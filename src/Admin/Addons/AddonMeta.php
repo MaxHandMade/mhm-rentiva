@@ -84,7 +84,7 @@ final class AddonMeta extends AbstractMetaBox {
 					'_mhmrentiva_addon_pricing_type' => array(
 						'type'              => 'select',
 						'label'             => __( 'Pricing Type', 'mhm-rentiva' ),
-						'description'       => __( 'How should the price apply? Context-compatible options are enabled.', 'mhm-rentiva' ),
+						'description'       => __( 'Choose how this additional service is priced.', 'mhm-rentiva' ),
 						'options'           => array(
 							AddonPricingType::PER_BOOKING => AddonPricingType::label( AddonPricingType::PER_BOOKING ),
 							AddonPricingType::PER_DAY     => AddonPricingType::label( AddonPricingType::PER_DAY ),

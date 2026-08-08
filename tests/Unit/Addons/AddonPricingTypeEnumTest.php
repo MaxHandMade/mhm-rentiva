@@ -28,25 +28,6 @@ final class AddonPricingTypeEnumTest extends TestCase {
         $this->assertSame( 'per_passenger', AddonPricingType::sanitize( 'per_passenger' ) );
     }
 
-    public function test_allowed_for_context_matrix(): void {
-        $this->assertSame(
-            array( 'per_booking', 'per_day' ),
-            AddonPricingType::allowed_for_context( 'rental' )
-        );
-        $this->assertSame(
-            array( 'per_booking', 'per_passenger' ),
-            AddonPricingType::allowed_for_context( 'transfer' )
-        );
-        $this->assertSame(
-            array( 'per_booking', 'per_day', 'per_passenger' ),
-            AddonPricingType::allowed_for_context( 'both' )
-        );
-        $this->assertSame(
-            array( 'per_booking' ),
-            AddonPricingType::allowed_for_context( 'unknown' )
-        );
-    }
-
     public function test_label_returns_non_empty_string_for_all_types(): void {
         foreach ( AddonPricingType::all() as $type ) {
             $label = AddonPricingType::label( $type );

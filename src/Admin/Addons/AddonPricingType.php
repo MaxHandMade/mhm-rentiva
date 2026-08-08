@@ -26,10 +26,6 @@ final class AddonPricingType {
     /**
      * Returns every valid pricing-type value.
      *
-     * Prefer {@see allowed_for_context()} when the addon's context is known —
-     * `all()` is intentionally context-agnostic and should only be used by code
-     * that legitimately needs every value (e.g. enum sanitization).
-     *
      * @return array<int,string>
      */
     public static function all(): array {
@@ -46,25 +42,6 @@ final class AddonPricingType {
             return self::PER_BOOKING;
         }
         return in_array( $value, self::all(), true ) ? $value : self::PER_BOOKING;
-    }
-
-    /**
-     * Pricing types valid for a given context slug (`rental` / `transfer` / `both`).
-     * Unknown context returns the safe minimum (per_booking only).
-     *
-     * @return array<int,string>
-     */
-    public static function allowed_for_context( string $context ): array {
-        switch ( $context ) {
-            case 'rental':
-                return array( self::PER_BOOKING, self::PER_DAY );
-            case 'transfer':
-                return array( self::PER_BOOKING, self::PER_PASSENGER );
-            case 'both':
-                return array( self::PER_BOOKING, self::PER_DAY, self::PER_PASSENGER );
-            default:
-                return array( self::PER_BOOKING );
-        }
     }
 
     /** Localised label for admin UI. */

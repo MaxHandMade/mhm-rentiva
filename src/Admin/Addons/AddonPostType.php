@@ -18,7 +18,6 @@ if (!defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Core\PostTypes\AbstractPostType;
-use MHMRentiva\Admin\Addons\AddonContextTaxonomy;
 use MHMRentiva\Admin\Addons\AddonPricingType;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -95,9 +94,6 @@ final class AddonPostType extends AbstractPostType {
 		);
 
 		register_taxonomy( 'mhmrentiva_addon_category', array( self::POST_TYPE ), $args );
-
-		AddonContextTaxonomy::register();
-		AddonContextTaxonomy::seed_default_terms();
 	}
 
 	/**
