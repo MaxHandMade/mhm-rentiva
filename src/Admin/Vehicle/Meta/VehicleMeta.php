@@ -533,9 +533,11 @@ final class VehicleMeta extends AbstractMetaBox {
 
 		$req = VerifiedRequest::from($_POST);
 
-		$available_details   = get_option('mhmrentiva_vehicle_details', self::get_default_details());
-		$available_features  = get_option('mhmrentiva_vehicle_features', self::get_default_features());
-		$available_equipment = get_option('mhmrentiva_vehicle_equipment', self::get_default_equipment());
+		// Composed at read time: the option holds ONLY user renames (canonical
+		// rule on ensure_default_options()), so a raw read would skip saving
+		// the meta of every standard field that was never renamed. The two
+		// former feature/equipment reads were dead assignments and are gone.
+		$available_details = \MHMRentiva\Admin\Vehicle\Settings\VehicleSettings::get_all_available_details();
 
 		$details_order = json_decode($req->text('details-grid_order'), true);
 

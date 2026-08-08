@@ -1291,61 +1291,60 @@ final class VehicleSettings {
 			$sanitized_labels[ $key ] = mb_convert_encoding( $label, 'UTF-8', 'auto' );
 		}
 
-		// Get existing fields (updated ones)
-		if ( $type === 'details' ) {
-			$current_details = get_option( 'mhmrentiva_vehicle_details', self::get_default_details() );
-			$custom_details  = get_option( 'mhmrentiva_custom_details', array() );
-
-			foreach ( $sanitized_labels as $key => $new_label ) {
-				// Update standard fields
-				if ( isset( $current_details[ $key ] ) ) {
-					$current_details[ $key ] = $new_label;
-				}
-				// Update custom fields
-				elseif ( isset( $custom_details[ $key ] ) ) {
-					$custom_details[ $key ] = $new_label;
-				}
-			}
-
-			update_option( 'mhmrentiva_vehicle_details', $current_details );
-			update_option( 'mhmrentiva_custom_details', $custom_details );
-		} elseif ( $type === 'features' ) {
-			$current_features = get_option( 'mhmrentiva_vehicle_features', self::get_default_features() );
-			$custom_features  = get_option( 'mhmrentiva_custom_features', array() );
-
-			foreach ( $sanitized_labels as $key => $new_label ) {
-				// Update standard fields
-				if ( isset( $current_features[ $key ] ) ) {
-					$current_features[ $key ] = $new_label;
-				}
-				// Update custom fields
-				elseif ( isset( $custom_features[ $key ] ) ) {
-					$custom_features[ $key ] = $new_label;
-				}
-			}
-
-			update_option( 'mhmrentiva_vehicle_features', $current_features );
-			update_option( 'mhmrentiva_custom_features', $custom_features );
-		} elseif ( $type === 'equipment' ) {
-			$current_equipment = get_option( 'mhmrentiva_vehicle_equipment', self::get_default_equipment() );
-			$custom_equipment  = get_option( 'mhmrentiva_custom_equipment', array() );
-
-			foreach ( $sanitized_labels as $key => $new_label ) {
-				// Update standard fields
-				if ( isset( $current_equipment[ $key ] ) ) {
-					$current_equipment[ $key ] = $new_label;
-				}
-				// Update custom fields
-				elseif ( isset( $custom_equipment[ $key ] ) ) {
-					$custom_equipment[ $key ] = $new_label;
-				}
-			}
-
-			update_option( 'mhmrentiva_vehicle_equipment', $current_equipment );
-			update_option( 'mhmrentiva_custom_equipment', $custom_equipment );
-		}
+		self::apply_label_updates( $type, $sanitized_labels );
 
 		wp_send_json_success( __( 'Field names updated successfully!', 'mhm-rentiva' ) );
+	}
+
+	/**
+	 * Persist edited field labels under the canonical storage rule: the
+	 * `mhmrentiva_vehicle_*` options hold ONLY user-renamed overrides.
+	 *
+	 * The Edit Names modal posts every rendered label, and the rendered
+	 * defaults are `__()` output in the admin's session locale. The previous
+	 * implementation seeded the whole translated map into the option on first
+	 * save, freezing that locale into the database (the v4.27.1 locale-leakage
+	 * bug, reopened through this path). A submitted label equal to its
+	 * translatable default therefore stores nothing — and removes a stale
+	 * override, so typing the default back in un-freezes the field.
+	 *
+	 * @param string                $type             'details' | 'features' | 'equipment'.
+	 * @param array<string, string> $sanitized_labels Field key => submitted label.
+	 */
+	public static function apply_label_updates( string $type, array $sanitized_labels ): void {
+		$defaults_by_type = array(
+			'details'   => array( self::class, 'get_default_details' ),
+			'features'  => array( self::class, 'get_default_features' ),
+			'equipment' => array( self::class, 'get_default_equipment' ),
+		);
+		if ( ! isset( $defaults_by_type[ $type ] ) ) {
+			return;
+		}
+
+		$defaults           = call_user_func( $defaults_by_type[ $type ] );
+		$original_overrides = (array) get_option( 'mhmrentiva_vehicle_' . $type, array() );
+		$original_customs   = (array) get_option( 'mhmrentiva_custom_' . $type, array() );
+		$overrides          = $original_overrides;
+		$customs            = $original_customs;
+
+		foreach ( $sanitized_labels as $key => $new_label ) {
+			if ( isset( $defaults[ $key ] ) ) {
+				if ( $new_label === $defaults[ $key ] || '' === $new_label ) {
+					unset( $overrides[ $key ] );
+				} else {
+					$overrides[ $key ] = $new_label;
+				}
+			} elseif ( isset( $customs[ $key ] ) ) {
+				$customs[ $key ] = $new_label;
+			}
+		}
+
+		if ( $overrides !== $original_overrides ) {
+			update_option( 'mhmrentiva_vehicle_' . $type, $overrides );
+		}
+		if ( $customs !== $original_customs ) {
+			update_option( 'mhmrentiva_custom_' . $type, $customs );
+		}
 	}
 
 	/**
@@ -1377,7 +1376,9 @@ final class VehicleSettings {
 			}
 
 			// 2. Try removing from Standard Details
-			$current_details = get_option( 'mhmrentiva_vehicle_details', self::get_default_details() );
+			// Overrides-only map (canonical rule): seeding the translated
+			// defaults here froze the session locale into the option.
+			$current_details = get_option( 'mhmrentiva_vehicle_details', array() );
 			if ( isset( $current_details[ $field_key ] ) ) {
 				unset( $current_details[ $field_key ] );
 				update_option( 'mhmrentiva_vehicle_details', $current_details );
@@ -1413,7 +1414,7 @@ final class VehicleSettings {
 			}
 		} elseif ( $field_type === 'features' ) {
 			// 1. Try removing from Standard Features
-			$current_features = get_option( 'mhmrentiva_vehicle_features', self::get_default_features() );
+			$current_features = get_option( 'mhmrentiva_vehicle_features', array() );
 			if ( isset( $current_features[ $field_key ] ) ) {
 				unset( $current_features[ $field_key ] );
 				update_option( 'mhmrentiva_vehicle_features', $current_features );
@@ -1442,7 +1443,7 @@ final class VehicleSettings {
 			}
 		} elseif ( $field_type === 'equipment' ) {
 			// 1. Try removing from Standard Equipment
-			$current_equipment = get_option( 'mhmrentiva_vehicle_equipment', self::get_default_equipment() );
+			$current_equipment = get_option( 'mhmrentiva_vehicle_equipment', array() );
 			if ( isset( $current_equipment[ $field_key ] ) ) {
 				unset( $current_equipment[ $field_key ] );
 				update_option( 'mhmrentiva_vehicle_equipment', $current_equipment );

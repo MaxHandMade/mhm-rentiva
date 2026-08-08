@@ -258,11 +258,11 @@ final class VehicleFeatureHelper {
 			self::TYPE_TAXONOMY => array(),
 		);
 
-		// Details
+		// Details. Composed at read time (defaults overlaid with stored
+		// overrides + customs): the option holds ONLY user renames, so a raw
+		// read would drop every standard field that was never renamed.
 		$selected_details = (array) get_option('mhmrentiva_selected_details', VehicleSettings::get_default_selected_details());
-		$default_details  = (array) get_option('mhmrentiva_vehicle_details', VehicleSettings::get_default_details());
-		$custom_details   = (array) get_option('mhmrentiva_custom_details', array());
-		$all_details      = array_merge($default_details, $custom_details);
+		$all_details      = VehicleSettings::get_all_available_details();
 
 		// If no details are selected, we must at least allow core fields as available
 		if (empty($selected_details)) {
@@ -283,10 +283,13 @@ final class VehicleFeatureHelper {
 			);
 		}
 
-		// Features (Standard + Custom)
-		$default_features = (array) get_option('mhmrentiva_vehicle_features', VehicleSettings::get_default_features());
-		$custom_features  = (array) get_option('mhmrentiva_custom_features', array());
-		$all_features     = array_merge($default_features, $custom_features);
+		// Features (Standard + Custom) — composed, see the details note above.
+		// Taxonomy-derived entries are subtracted here: they get their own
+		// TYPE_TAXONOMY bucket below and must not appear twice in the map.
+		$all_features = array_diff_key(
+			VehicleSettings::get_all_available_features(),
+			VehicleSettings::get_taxonomy_features()
+		);
 
 		foreach ($all_features as $key => $label) {
 			// Include all available features, not just selected ones (Comparison table needs everything)
@@ -299,10 +302,12 @@ final class VehicleFeatureHelper {
 			);
 		}
 
-		// Equipment (Standard + Custom)
-		$default_equipment = (array) get_option('mhmrentiva_vehicle_equipment', VehicleSettings::get_default_equipment());
-		$custom_equipment  = (array) get_option('mhmrentiva_custom_equipment', array());
-		$all_equipment     = array_merge($default_equipment, $custom_equipment);
+		// Equipment (Standard + Custom) — composed, see the details note above.
+		// Taxonomy-derived entries are subtracted for the same reason as features.
+		$all_equipment = array_diff_key(
+			VehicleSettings::get_all_available_equipment(),
+			VehicleSettings::get_taxonomy_equipment()
+		);
 
 		foreach ($all_equipment as $key => $label) {
 			$key                                    = sanitize_key($key);
