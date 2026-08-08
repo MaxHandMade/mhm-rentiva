@@ -27,9 +27,8 @@ final class Actions {
 	public static function register(): void {
 		// admin_post_mhmrentiva_purge_logs -> purge_logs() was removed:
 		// zero shipped nonce producer and zero consumer anywhere.
-		// checkGranularPermission()/notice_url()/
-		// notices()/the NOTICE_NONCE_* constants below survive -- refund_booking()
-		// (live, nonce produced by BookingRefundMetaBox) also calls them.
+		// notice_url()/notices()/the NOTICE_NONCE_* constants below survive --
+		// refund_booking() (live, nonce produced by BookingRefundMetaBox) calls them.
 		add_action( 'admin_notices', array( self::class, 'notices' ) );
 		add_action( 'admin_post_mhmrentiva_refund_booking', array( self::class, 'refund_booking' ) );
 	}
@@ -41,7 +40,12 @@ final class Actions {
 		$bid = isset( $_POST['booking_id'] ) ? absint( wp_unslash( $_POST['booking_id'] ) ) : 0;
 
 		// ✅ SECURITY: Granular permission control
-		if ( ! self::checkGranularPermission( 'refund_booking', $bid ) ) {
+		$booking = get_post( $bid );
+		if ( ! $booking || 'mhmrentiva_booking' !== $booking->post_type ) {
+			wp_die( esc_html__( 'Invalid booking.', 'mhm-rentiva' ) );
+		}
+
+		if ( ! current_user_can( 'edit_post', $bid ) ) {
 			wp_die( esc_html__( 'You do not have permission for this action.', 'mhm-rentiva' ) );
 		}
 
@@ -124,90 +128,6 @@ final class Actions {
 	}
 
 
-
-	/**
-	 * ✅ SECURITY: Granular permission control
-	 *
-	 * @param string   $action Action type
-	 * @param int|null $resource_id Resource ID (optional)
-	 * @return bool Permission granted?
-	 */
-	private static function checkGranularPermission( string $action, ?int $resource_id = null ): bool {
-		$user = wp_get_current_user();
-
-		switch ( $action ) {
-			case 'refund_booking':
-				// Only admin or booking owner
-				if ( current_user_can( 'manage_options' ) ) {
-					return true;
-				}
-
-				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
-					return $booking_user_id === $user->ID;
-				}
-
-				return false;
-
-			case 'view_booking':
-				// Admin, booking owner or authorized staff
-				if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
-					return true;
-				}
-
-				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
-					return $booking_user_id === $user->ID;
-				}
-
-				return false;
-
-			case 'edit_booking':
-				// Only admin and authorized staff
-				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
-
-			case 'delete_booking':
-				// Only super admin
-				return current_user_can( 'manage_options' );
-
-			case 'export_data':
-				// Admin and authorized staff
-				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
-
-			case 'manage_settings':
-				// Only super admin
-				return current_user_can( 'manage_options' );
-
-			case 'view_reports':
-				// Admin and authorized staff
-				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
-
-			case 'manage_payments':
-				// Only admin and authorized staff
-				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
-
-			case 'view_customers':
-				// Admin, authorized staff and booking owner
-				if ( current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' ) ) {
-					return true;
-				}
-
-				if ( $resource_id ) {
-					$booking_user_id = (int) get_post_meta( $resource_id, '_mhmrentiva_user_id', true );
-					return $booking_user_id === $user->ID;
-				}
-
-				return false;
-
-			case 'create_my_account':
-				// Admin and authorized staff
-				return current_user_can( 'manage_options' ) || current_user_can( 'edit_posts' );
-
-			default:
-				// Default: manage_options permission required
-				return current_user_can( 'manage_options' );
-		}
-	}
 
 	/**
 	 * ✅ SECURITY: Audit log for permission checks

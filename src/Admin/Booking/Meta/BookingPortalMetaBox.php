@@ -142,6 +142,10 @@ final class BookingPortalMetaBox {
 			return;
 		}
 
+		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permission denied.', 'mhm-rentiva' ) ) );
+		}
+
 		// Check if user already exists with this email
 		$existing_user = get_user_by( 'email', $email );
 		if ( $existing_user ) {

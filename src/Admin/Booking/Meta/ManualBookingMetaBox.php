@@ -493,19 +493,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
-		// Deliberately edit_posts, not manage_options, and kept that way for
-		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the
-		// decision that the new-customer path -- not booking creation itself --
-		// is what needs create_users.
-		//
-		// Be clear about what this check does NOT do: it does not currently let a
-		// "staff, not admin" role in. The nonce is only ever printed on
-		// post-new.php?post_type=mhmrentiva_booking, and vehicle_booking declares
-		// create_posts => manage_options, so WordPress blocks that screen one layer
-		// above this handler. Anyone who reaches here already has manage_options.
-		// A real booking-clerk role would mean loosening the post type's own
-		// capabilities, which is a product decision, not a change to make here.
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		// Match the booking creation screen, menu, and CPT create_posts capability.
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
 		}
@@ -586,19 +575,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			wp_send_json_error(array( 'message' => esc_html__('Security check failed.', 'mhm-rentiva') ));
 		}
 
-		// Deliberately edit_posts, not manage_options, and kept that way for
-		// consistency with ManualBookingMetaBoxCapabilityTest, which encodes the
-		// decision that the new-customer path -- not booking creation itself --
-		// is what needs create_users.
-		//
-		// Be clear about what this check does NOT do: it does not currently let a
-		// "staff, not admin" role in. The nonce is only ever printed on
-		// post-new.php?post_type=mhmrentiva_booking, and vehicle_booking declares
-		// create_posts => manage_options, so WordPress blocks that screen one layer
-		// above this handler. Anyone who reaches here already has manage_options.
-		// A real booking-clerk role would mean loosening the post type's own
-		// capabilities, which is a product decision, not a change to make here.
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		// Match the booking creation screen, menu, and CPT create_posts capability.
+		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied.', 'mhm-rentiva' ) ) );
 			wp_die();
 		}
@@ -634,8 +612,8 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			// the later wp_insert_post() meta_input reads $customer->ID. Deny
 			// the whole operation up front if the caller lacks the specific WP
 			// user-management capability (least-privilege for user
-			// creation). The general edit_posts check above stays as-is for the
-			// existing-customer branch, which does not create any WP user.
+			// creation). The general manage_options check above protects booking
+			// creation; this branch additionally requires user-creation permission.
 			if (! current_user_can('create_users')) {
 				wp_send_json_error(array( 'message' => esc_html__('You do not have permission to create new customer accounts. Please select an existing customer instead.', 'mhm-rentiva') ));
 			}

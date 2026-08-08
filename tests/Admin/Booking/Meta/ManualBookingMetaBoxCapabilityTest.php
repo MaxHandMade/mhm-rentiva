@@ -12,8 +12,12 @@ use WP_Ajax_UnitTestCase;
  * wp_create_user() whenever customer_id === 'new_customer'. Creating that
  * account is mandatory to the booking on this path (there is no fallback:
  * $customer stays null and the later wp_insert_post() reads $customer->ID),
- * so the whole operation must be denied for a caller lacking create_users —
- * while the booking-creation path itself stays gated on edit_posts as before.
+ * so the whole operation must be denied for a caller lacking create_users.
+ *
+ * Both AJAX actions are reachable only from the booking creation screen. That
+ * screen, its menu entry, and the booking CPT's create_posts capability all
+ * require manage_options, so each AJAX boundary must enforce the same action
+ * capability instead of trusting the screen to protect an edit_posts handler.
  */
 final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 {
@@ -30,12 +34,22 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         update_post_meta($this->vehicle_id, '_mhmrentiva_price_per_day', '100');
 
         remove_role('mhmrentiva_test_editposts_only');
+        remove_role('mhmrentiva_test_booking_manager');
         add_role(
             'mhmrentiva_test_editposts_only',
             'MHM Test EditPosts Only',
             array(
                 'read'       => true,
                 'edit_posts' => true,
+            )
+        );
+        add_role(
+            'mhmrentiva_test_booking_manager',
+            'MHM Test Booking Manager',
+            array(
+                'read'           => true,
+                'edit_posts'     => true,
+                'manage_options' => true,
             )
         );
 
@@ -49,13 +63,14 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
     public function tearDown(): void
     {
         remove_role('mhmrentiva_test_editposts_only');
+        remove_role('mhmrentiva_test_booking_manager');
         parent::tearDown();
     }
 
-    private function dispatch_ajax(): void
+    private function dispatch_ajax(string $action = 'mhmrentiva_create_manual_booking'): void
     {
         try {
-            $this->_handleAjax('mhmrentiva_create_manual_booking');
+            $this->_handleAjax($action);
         } catch (\WPAjaxDieContinueException $e) {
             // Expected path for WP_Ajax_UnitTestCase.
         }
@@ -69,7 +84,7 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
 
     public function test_ajax_create_booking_denied_new_customer_without_create_users_capability(): void
     {
-        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_booking_manager' ));
         wp_set_current_user($capped_id);
 
         $_POST['nonce']                   = wp_create_nonce('mhmrentiva_manual_booking_nonce');
@@ -115,10 +130,8 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         $this->assertTrue($response['success'] ?? false, 'Booking creation with a valid vehicle/dates/full payment should succeed end to end. Response: ' . (string) $this->_last_response);
     }
 
-    public function test_ajax_create_booking_existing_customer_path_unaffected_by_create_users_gate(): void
+    public function test_ajax_create_booking_denies_edit_posts_only_caller(): void
     {
-        // The targeted guard only applies to the new_customer branch; an
-        // existing-customer booking must not be denied by the create_users gate.
         $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
         wp_set_current_user($capped_id);
 
@@ -136,9 +149,68 @@ final class ManualBookingMetaBoxCapabilityTest extends WP_Ajax_UnitTestCase
         $this->dispatch_ajax();
         $response = $this->decode_response();
 
-        if (isset($response['data']['message'])) {
-            $this->assertStringNotContainsString('create new customer accounts', (string) $response['data']['message']);
-        }
-        $this->assertTrue($response['success'] ?? false, 'Existing-customer booking should succeed without requiring create_users. Response: ' . (string) $this->_last_response);
+        $this->assertFalse($response['success'] ?? true, 'An edit_posts-only caller must not create bookings through the admin AJAX boundary. Response: ' . (string) $this->_last_response);
+        $this->assertSame('Permission denied.', $response['data']['message'] ?? '');
+    }
+
+    public function test_ajax_create_booking_existing_customer_path_unaffected_by_create_users_gate(): void
+    {
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_booking_manager' ));
+        wp_set_current_user($capped_id);
+
+        $existing_customer_id = self::factory()->user->create(array( 'role' => 'customer' ));
+
+        $_POST['nonce']        = wp_create_nonce('mhmrentiva_manual_booking_nonce');
+        $_POST['vehicle_id']   = (string) $this->vehicle_id;
+        $_POST['customer_id']  = (string) $existing_customer_id;
+        $_POST['pickup_date']  = '2099-03-01';
+        $_POST['pickup_time']  = '10:00';
+        $_POST['dropoff_date'] = '2099-03-03';
+        $_POST['dropoff_time'] = '10:00';
+        $_POST['payment_type'] = 'full';
+
+        $this->dispatch_ajax();
+        $response = $this->decode_response();
+
+        $this->assertTrue($response['success'] ?? false, 'A manage_options caller must still create a booking for an existing customer without create_users. Response: ' . (string) $this->_last_response);
+    }
+
+    public function test_ajax_calculate_price_denies_edit_posts_only_caller(): void
+    {
+        $capped_id = self::factory()->user->create(array( 'role' => 'mhmrentiva_test_editposts_only' ));
+        wp_set_current_user($capped_id);
+
+        $_POST['nonce']        = wp_create_nonce('mhmrentiva_manual_booking_nonce');
+        $_POST['vehicle_id']   = (string) $this->vehicle_id;
+        $_POST['pickup_date']  = '2099-04-01';
+        $_POST['pickup_time']  = '10:00';
+        $_POST['dropoff_date'] = '2099-04-03';
+        $_POST['dropoff_time'] = '10:00';
+        $_POST['payment_type'] = 'full';
+
+        $this->dispatch_ajax('mhmrentiva_calculate_manual_booking');
+        $response = $this->decode_response();
+
+        $this->assertFalse($response['success'] ?? true, 'An edit_posts-only caller must not calculate private booking prices through the admin AJAX boundary. Response: ' . (string) $this->_last_response);
+        $this->assertSame('Permission denied.', $response['data']['message'] ?? '');
+    }
+
+    public function test_ajax_calculate_price_allows_administrator(): void
+    {
+        $manager_id = self::factory()->user->create(array( 'role' => 'administrator' ));
+        wp_set_current_user($manager_id);
+
+        $_POST['nonce']        = wp_create_nonce('mhmrentiva_manual_booking_nonce');
+        $_POST['vehicle_id']   = (string) $this->vehicle_id;
+        $_POST['pickup_date']  = '2099-05-01';
+        $_POST['pickup_time']  = '10:00';
+        $_POST['dropoff_date'] = '2099-05-03';
+        $_POST['dropoff_time'] = '10:00';
+        $_POST['payment_type'] = 'full';
+
+        $this->dispatch_ajax('mhmrentiva_calculate_manual_booking');
+        $response = $this->decode_response();
+
+        $this->assertTrue($response['success'] ?? false, 'An administrator must retain the manual price calculation flow. Response: ' . (string) $this->_last_response);
     }
 }
