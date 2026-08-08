@@ -58,7 +58,15 @@
  *  E. Prints one machine-readable summary line, a per-code breakdown, and every
  *     finding as file:line/code/severity.
  *
- * ACCEPTANCE BAR: 0 errors AND 0 warnings. Exit 0 only then.
+ * ACCEPTANCE BAR: 0 errors AND every warning accounted for -- one to one -- by
+ * the documented acceptance file bin/gd-accepted-warnings.json (owner decision
+ * 2026-08-08: the residual 25 SchemaChange DDL + 22 read-only NonceVerification
+ * GET reads were each worked and justified; zero suppressions). The file maps
+ * "file|code" to an accepted count. A warning above its accepted count fails
+ * the gate (new finding); an accepted count above the actual count also fails
+ * (stale baseline -- the file may only shrink, regenerate it in the same
+ * change). Errors are NEVER acceptable. Regenerate after a justified change
+ * with: php bin/check-plugin-check-parity.php --write-accepted-warnings
  *
  * EXIT CODES
  *   0  clean
@@ -414,6 +422,64 @@ if ($vendorPhp) {
 $errors   = array_values(array_filter($findings, static fn($f) => $f['severity'] === 'error'));
 $warnings = array_values(array_filter($findings, static fn($f) => $f['severity'] === 'warning'));
 
+// ---------------------------------------------------------------------------
+// E0. Documented warning acceptance (owner decision 2026-08-08).
+//     Keyed by "file|code" with a count -- line numbers drift, counts do not.
+//     The comparison is exact in both directions: an actual count above the
+//     accepted one is a NEW finding, an accepted count above the actual one is
+//     a STALE baseline entry. Both fail, so the file can only ever shrink in
+//     step with the code. Errors never consult this file.
+// ---------------------------------------------------------------------------
+$acceptedFile = __DIR__ . '/gd-accepted-warnings.json';
+
+$actualCounts = [];
+foreach ($warnings as $w) {
+    $key = $w['file'] . '|' . $w['code'];
+    $actualCounts[$key] = ($actualCounts[$key] ?? 0) + 1;
+}
+
+if (in_array('--write-accepted-warnings', $argv ?? [], true)) {
+    $existing = is_file($acceptedFile) ? json_decode((string) file_get_contents($acceptedFile), true) : null;
+    ksort($actualCounts);
+    $doc = [
+        '_purpose' => 'Gate G-D documented warning acceptance. Every entry was individually audited; see reasons. Regenerate ONLY alongside the code change that justifies it: php bin/check-plugin-check-parity.php --write-accepted-warnings',
+        'reasons'  => is_array($existing['reasons'] ?? null) ? $existing['reasons'] : [
+            'WordPress.DB.DirectDatabaseQuery.SchemaChange'    => 'Mandatory DDL: activation, migration, uninstall and index-retirement code must CREATE/ALTER/DROP the plugin\'s own tables; WordPress ships no API for that.',
+            'WordPress.Security.NonceVerification.Recommended' => 'Read-only $_GET reads (list filters, pagination, tab state) that mutate nothing; each occurrence audited in the 2026-08 T8/T9 rounds, zero suppressions added.',
+        ],
+        'accepted' => $actualCounts,
+    ];
+    file_put_contents(
+        $acceptedFile,
+        json_encode($doc, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n"
+    );
+    echo 'G-D: wrote ' . count($actualCounts) . " accepted-warning entries to bin/gd-accepted-warnings.json\n";
+}
+
+$acceptedCounts = [];
+if (is_file($acceptedFile)) {
+    $decoded = json_decode((string) file_get_contents($acceptedFile), true);
+    if (!is_array($decoded) || !is_array($decoded['accepted'] ?? null)) {
+        cannot_measure('bin/gd-accepted-warnings.json exists but is not valid JSON with an "accepted" map');
+    }
+    foreach ($decoded['accepted'] as $key => $count) {
+        $acceptedCounts[(string) $key] = (int) $count;
+    }
+}
+
+$newWarnings   = [];
+$staleAccepted = [];
+foreach ($actualCounts as $key => $count) {
+    if ($count > ($acceptedCounts[$key] ?? 0)) {
+        $newWarnings[$key] = $count - ($acceptedCounts[$key] ?? 0);
+    }
+}
+foreach ($acceptedCounts as $key => $count) {
+    if ($count > ($actualCounts[$key] ?? 0)) {
+        $staleAccepted[$key] = $count - ($actualCounts[$key] ?? 0);
+    }
+}
+
 $byCode = [];
 foreach ($findings as $f) {
     $key = $f['severity'] === 'error' ? 'E ' . $f['code'] : 'W ' . $f['code'];
@@ -424,9 +490,12 @@ arsort($byCode);
 $filesWith = count(array_unique(array_column($findings, 'file')));
 
 printf(
-    "G-D SUMMARY: errors=%d warnings=%d files_with_findings=%d shipped_files=%d vendor_files_scanned=%d\n",
+    "G-D SUMMARY: errors=%d warnings=%d accepted=%d new_warnings=%d stale_accepted=%d files_with_findings=%d shipped_files=%d vendor_files_scanned=%d\n",
     count($errors),
     count($warnings),
+    array_sum($acceptedCounts),
+    array_sum($newWarnings),
+    array_sum($staleAccepted),
     $filesWith,
     count($shipped),
     $vendorScanned
@@ -455,4 +524,20 @@ if ($findings) {
     }
 }
 
-exit((count($errors) === 0 && count($warnings) === 0) ? EXIT_CLEAN : EXIT_FINDINGS);
+if ($newWarnings) {
+    echo "  NEW warnings above the documented acceptance (fix them or justify + regenerate the acceptance file):\n";
+    foreach ($newWarnings as $key => $over) {
+        printf("    +%d  %s\n", $over, $key);
+    }
+}
+if ($staleAccepted) {
+    echo "  STALE acceptance entries (the warning is gone -- shrink the file in this same change):\n";
+    foreach ($staleAccepted as $key => $short) {
+        printf("    -%d  %s\n", $short, $key);
+    }
+}
+if (count($errors) === 0 && $newWarnings === [] && $staleAccepted === [] && count($warnings) > 0) {
+    printf("  all %d warnings are accounted for by bin/gd-accepted-warnings.json (documented acceptance)\n", count($warnings));
+}
+
+exit((count($errors) === 0 && $newWarnings === [] && $staleAccepted === []) ? EXIT_CLEAN : EXIT_FINDINGS);

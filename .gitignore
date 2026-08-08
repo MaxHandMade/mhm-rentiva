@@ -420,11 +420,19 @@ bin/*
 # runtime; it is Gate G-D (WP.org T7 remediation) -- runs WP.org's Plugin Check
 # ITSELF (`wp plugin check --categories=plugin_repo`, in the Docker WP stack)
 # over the surface .distignore actually ships, and counts ERRORS/WARNINGS
-# separately. This is the REAL acceptance bar (0 errors AND 0 warnings);
+# separately. The acceptance bar is 0 errors AND every warning matched one to
+# one by bin/gd-accepted-warnings.json (see that entry below);
 # G-A/G-B/G-C above are narrower probes that sit under it. Measured baseline
 # after the EscapeOutput fixes: 2 errors / 99 warnings. Must ship in every
 # clone.
 !bin/check-plugin-check-parity.php
+# G-D's documented warning acceptance (owner decision 2026-08-08): the residual
+# Plugin Check warnings (mandatory DDL + read-only GET reads), each worked and
+# justified, keyed file|code with counts. The gate fails on any warning above
+# an accepted count AND on any stale entry, so this file can only shrink.
+# Tracking the gate but not the data it checks against would repeat the
+# check-manifest gap documented above.
+!bin/gd-accepted-warnings.json
 # bin/plugin-check.ruleset.xml (a vendored copy of Plugin Check's ruleset) was
 # deleted on 2026-08-02 and deliberately has no entry here. It was missing
 # WordPress.Security.EscapeOutput and had the four PluginCheck.* sniff refs

@@ -1,0 +1,22 @@
+{
+    "_purpose": "Gate G-D documented warning acceptance. Every entry was individually audited; see reasons. Regenerate ONLY alongside the code change that justifies it: php bin/check-plugin-check-parity.php --write-accepted-warnings",
+    "reasons": {
+        "WordPress.DB.DirectDatabaseQuery.SchemaChange": "Mandatory DDL: activation, migration, uninstall and index-retirement code must CREATE/ALTER/DROP the plugin's own tables; WordPress ships no API for that.",
+        "WordPress.Security.NonceVerification.Recommended": "Read-only $_GET reads (list filters, pagination, tab state) that mutate nothing; each occurrence audited in the 2026-08 T8/T9 rounds, zero suppressions added."
+    },
+    "accepted": {
+        "src/Admin/Core/PostTypes/AbstractPostType.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Admin/Core/Utilities/DatabaseCleaner.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 7,
+        "src/Admin/Core/Utilities/DatabaseMigrator.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 11,
+        "src/Admin/Core/Utilities/RetiredIndexes.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 1,
+        "src/Admin/Customers/CustomersPage.php|WordPress.Security.NonceVerification.Recommended": 4,
+        "src/Admin/Emails/Core/EmailTemplates.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Admin/Frontend/Account/AccountController.php|WordPress.Security.NonceVerification.Recommended": 6,
+        "src/Admin/Frontend/Shortcodes/Account/UserDashboard.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Admin/Settings/Settings.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Admin/Setup/SetupWizard.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Admin/Utilities/Uninstall/Uninstaller.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 1,
+        "src/Admin/Vehicle/Settings/VehicleSettings.php|WordPress.Security.NonceVerification.Recommended": 2,
+        "src/Core/Database/Migrations/MultiTenantMigration.php|WordPress.DB.DirectDatabaseQuery.SchemaChange": 5
+    }
+}
