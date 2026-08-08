@@ -1,84 +1,129 @@
 <?php
 /**
- * WP.org compliance oracle: Lite must ship zero edition/license/gating tokens.
- *
- * WHY THIS EXISTS
- * ----------------
- * The T4 seam-inversion work (A0-A13) deleted `Mode.php` and inverted every
- * seam so Lite no longer contains any "is this Pro?" branching, license
- * checks, or gating vocabulary. This script is the machine-checkable proof
- * of that claim -- a simple, greedy, line-based grep for the *vocabulary* of
- * edition/license gating (`isPro`, `Mode::`, `LicenseManager`, ...), not a
- * structural analyser like check-guarded-refs.php or
- * check-unguarded-pro-refs.php (which reason about specific allowlisted Pro
- * *classes*). This one asks a blunter, final question: does Lite's source
- * contain the WORDS that spell "this is a crippled/licensed edition" at all?
- *
- * Scans src/, templates/, src-react/, build/, assets/ plus the plugin
- * bootstrap and uninstall.php -- i.e. everything that ships in the WP.org
- * ZIP.
+ * WP.org compliance oracle for the files that actually enter the Lite ZIP.
  *
  * @package MHMRentiva
  */
 
 declare( strict_types=1 );
 
-$base  = dirname( __DIR__ );
-$roots = array( $base . '/src', $base . '/templates', $base . '/src-react', $base . '/build', $base . '/assets' );
-$files = array( $base . '/mhm-rentiva.php', $base . '/uninstall.php' );
+$base = dirname( __DIR__ );
 
-$pattern = '/isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|Mode::|Licensing\\\\Mode|canUse[A-Z]|LicenseManager|LicenseAdmin|VerifyEndpoint|\bLicensing\b|MHMRentiva\\\\Pro/';
-
-// Domain false positives that are NOT edition/license references.
-// - license_plate / driver's licen(se|ce): vehicle-rental domain, not edition gating.
-// - search-premium: unrelated CSS/JS identifier (also a frozen Lite->Pro asset
-//   filename contract -- see UnifiedSearch.php's enqueue comment -- so it is
-//   not renameable to dodge this whitelist entry either).
-// - isPrototypeOf: native JS Object method (bundled Chart.js in build/); the
-//   "isPro" pattern matches inside it as a plain substring, not the token "isPro".
-$whitelist = '/license_plate|_mhmrentiva_license_plate|driver.?s licen|search-premium|isPrototypeOf/i';
-
-$exts = array(
-	'php' => 1,
-	'js'  => 1,
-	'jsx' => 1,
+/**
+ * Concrete paid-surface tokens. Deliberately avoid broad domain words such as
+ * "transfer", "vendor", "premium", "license", or "messages" by themselves.
+ *
+ * @var array<string, string>
+ */
+$patterns = array(
+	'edition gating'       => '/\b(?:isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|LicenseManager|LicenseAdmin|VerifyEndpoint)\b|\bMode::|Licensing\\\\Mode|\bcanUse[A-Z]|MHMRentiva\\\\Pro/',
+	'paid shortcode tag'   => '/\b(?:rentiva_transfer_search|rentiva_transfer_results|rentiva_vendor_apply|rentiva_vendor_profile|rentiva_vendor_directory|rentiva_vendor_bookings|rentiva_vendor_ledger|rentiva_messages)\b/',
+	'paid CSS/asset token' => '/(?:search-premium|mhm-premium-search|mhm-transfer-|mhm-vendor-)/i',
+	'paid Lite class'      => '/\b(?:AddonContextMetaBox|AddonContextMigration|AddonContextTaxonomy|AddonContextValidator|VehicleCommissionRateMetaBox|PenaltyCalculator|ReliabilityScoreCalculator)\b/',
+	'paid role'            => '/[\'\"]rentiva_vendor[\'\"]/',
+	'paid vehicle meta'    => '/\bvehicle_service_type\b/',
 );
 
-$hits = array();
+/**
+ * Legacy identifiers must remain readable by migration/uninstall cleanup.
+ * These files cannot expose a live UI or register a paid feature.
+ *
+ * @var array<string, true>
+ */
+$compatibility_files = array_fill_keys(
+	array(
+		'src/Admin/Core/Utilities/DatabaseCleaner.php',
+		'src/Admin/Core/Utilities/DatabaseMigrator.php',
+		'src/Admin/Core/Utilities/PrefixMigrationMap.php',
+		'src/Admin/Utilities/Uninstall/Uninstaller.php',
+		'uninstall.php',
+	),
+	true
+);
 
-$scan = static function ( string $path ) use ( &$hits, $pattern, $whitelist ): void {
-	$lines = file( $path );
-	if ( false === $lines ) {
-		return;
-	}
-	foreach ( $lines as $n => $line ) {
-		if ( preg_match( $pattern, $line ) && ! preg_match( $whitelist, $line ) ) {
-			$hits[] = $path . ':' . ( $n + 1 ) . '  ' . trim( $line );
+/**
+ * Return matching rule labels for one line.
+ *
+ * @param string                $line     Source line.
+ * @param array<string, string> $rules    Named regex rules.
+ * @return array<int, string>
+ */
+function mhmrentiva_paid_surface_matches( string $line, array $rules ): array {
+	$matches = array();
+	foreach ( $rules as $label => $pattern ) {
+		if ( 1 === preg_match( $pattern, $line ) ) {
+			$matches[] = $label;
 		}
 	}
-};
 
-foreach ( $roots as $root ) {
-	if ( ! is_dir( $root ) ) {
+	return $matches;
+}
+
+// Built-in negative control: the oracle must catch a concrete paid token while
+// leaving legitimate rental-domain prose alone.
+if (
+	array() === mhmrentiva_paid_surface_matches( 'shortcode: rentiva_vendor_apply', $patterns )
+	|| array() !== mhmrentiva_paid_surface_matches( 'Bank transfer payments are handled by WooCommerce.', $patterns )
+) {
+	fwrite( STDERR, "check-no-pro-refs FAILED -- oracle negative control is invalid.\n" );
+	exit( 2 );
+}
+
+$extensions = array_fill_keys( array( 'php', 'js', 'jsx', 'css', 'json', 'txt' ), true );
+$output     = array();
+$status     = 2;
+$interpreters = 'Windows' === PHP_OS_FAMILY
+	? array( 'python', 'py -3' )
+	: array( 'python3', 'python' );
+
+foreach ( $interpreters as $interpreter ) {
+	$output  = array();
+	$command = $interpreter . ' ' . escapeshellarg( $base . '/bin/build-release.py' ) . ' --list-shipped';
+	exec( $command, $output, $status );
+	if ( 0 === $status && array() !== $output ) {
+		break;
+	}
+}
+
+if ( 0 !== $status || array() === $output ) {
+	fwrite( STDERR, "check-no-pro-refs FAILED -- could not resolve the release builder's shipped-file list.\n" );
+	exit( 2 );
+}
+
+$hits = array();
+foreach ( $output as $relative_path ) {
+	$relative_path = str_replace( '\\', '/', trim( $relative_path ) );
+	if ( '' === $relative_path || isset( $compatibility_files[ $relative_path ] ) ) {
 		continue;
 	}
-	$it = new RecursiveIteratorIterator( new RecursiveDirectoryIterator( $root, FilesystemIterator::SKIP_DOTS ) );
-	foreach ( $it as $f ) {
-		if ( isset( $exts[ $f->getExtension() ] ) ) {
-			$scan( $f->getPathname() );
+
+	$extension = strtolower( pathinfo( $relative_path, PATHINFO_EXTENSION ) );
+	if ( ! isset( $extensions[ $extension ] ) ) {
+		continue;
+	}
+
+	$path  = $base . '/' . $relative_path;
+	$lines = is_file( $path ) ? file( $path ) : false;
+	if ( false === $lines ) {
+		continue;
+	}
+
+	foreach ( $lines as $line_number => $line ) {
+		foreach ( mhmrentiva_paid_surface_matches( $line, $patterns ) as $label ) {
+			$hits[] = sprintf(
+				'%s:%d [%s] %s',
+				$relative_path,
+				$line_number + 1,
+				$label,
+				trim( $line )
+			);
 		}
 	}
 }
 
-foreach ( $files as $f ) {
-	if ( is_file( $f ) ) {
-		$scan( $f );
-	}
-}
-
-if ( $hits ) {
-	fwrite( STDERR, "check-no-pro-refs FAILED -- Lite contains edition/license tokens:\n" . implode( "\n", $hits ) . "\n" );
+if ( array() !== $hits ) {
+	fwrite( STDERR, "check-no-pro-refs FAILED -- shipped Lite surface contains paid-feature tokens:\n" . implode( "\n", $hits ) . "\n" );
 	exit( 1 );
 }
 
-echo "check-no-pro-refs: clean\n";
+echo 'check-no-pro-refs: clean (' . count( $output ) . " shipped files scanned)\n";

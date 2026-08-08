@@ -181,21 +181,14 @@ jobs:
       # param -- a nonce cannot gate a bookmarkable URL and get_query_var() is
       # unavailable on `admin.php?page=` screens.
       #
-      # UPDATE (T8 Görev 13, K2, 2026-08-04): all 30 rows (56 hits) were
-      # worked one by one, not declared away. 2/30 closed for real (a
-      # superseded-duplicate enqueue and a localize-overwrite fix --
-      # task-13-report.md); the other 28/30 cannot close for the reason
-      # above and are left UNSUPPRESSED and named
-      # in the Görev 17 response letter instead, each with its own file:line
-      # justification in task-13-report.md's table. Gate's own output today:
-      #   G-A: hard=28, residual-display=0 (tavan 0)
-      # The gate stays wired and honest; flipping it to blocking would
-      # require either a new residual ceiling (the exemption the user
-      # revoked) or a suppression (what T7 punished). See task-10-report.md
-      # and task-13-report.md.
-      - name: "Security shape gate (G-A: nonce/escape/sanitize, 28 display-param nonce warnings remain)"
+      # UPDATE (final audit, 2026-08-08): the unreachable AbstractListTable
+      # surface and two now-unreachable files were deleted, closing 6 rows. The remaining 22 rows were traced
+      # individually to sanitized, read-only routing/display GET parameters.
+      # They remain visible (no PHPCS suppression); check-shape-zero.php keeps
+      # per-file and global ceilings so any new row is blocking. Current output:
+      #   G-A: hard=0, residual-display=22 (tavan 22)
+      - name: "Security shape gate (G-A: nonce/escape/sanitize; 22 audited read-only GET rows)"
         run: php bin/check-shape-zero.php
-        continue-on-error: true
 
       # Gate G-B (WP.org T7 remediation, Task 2): five grep-based probes for
       # classes WPCS is structurally blind to but WP.org's reviewer flagged
@@ -258,11 +251,11 @@ jobs:
       # DirectDatabaseQuery.SchemaChange annotations, so the sniff now
       # reports everywhere it used to be silenced, not just the 10 the K1
       # shape left visible on purpose. Current gate output, quoted verbatim:
-      #   G-D SUMMARY: errors=0 warnings=55 files_with_findings=16
-      #   shipped_files=568 vendor_files_scanned=4
-      #     28   W WordPress.Security.NonceVerification.Recommended
-      #     27   W WordPress.DB.DirectDatabaseQuery.SchemaChange
-      # 55 = 28 nonce (gate G-A above) + 27 SchemaChange (K1/K6, both families
+      #   G-D SUMMARY: errors=0 warnings=47 files_with_findings=13
+      #   shipped_files=553 vendor_files_scanned=4
+      #     25   W WordPress.DB.DirectDatabaseQuery.SchemaChange
+      #     22   W WordPress.Security.NonceVerification.Recommended
+      # 47 = 22 nonce (gate G-A above) + 25 SchemaChange (K1/K6, both families
       # already accounted for elsewhere in this file) -- zero new, unexplained
       # warnings. errors=0 was this task's own exit criterion.
       #
