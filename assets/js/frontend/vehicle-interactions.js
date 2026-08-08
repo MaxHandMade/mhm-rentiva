@@ -52,9 +52,9 @@
                     $btn.removeClass('loading');
                     if (response.success) {
                         const isFavorited = response.data.is_favorite;
-						const favoriteLabel = isFavorited ?
-							(mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites') :
-							(mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
+                        const favoriteLabel = isFavorited ?
+                            (mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites') :
+                            (mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
 
                         // Sync state
                         if (isFavorited) {
@@ -75,9 +75,9 @@
                                 });
                             }
                         }
-						$btn.attr('aria-label', favoriteLabel);
-						$btn.attr('title', favoriteLabel);
-						$btn.find('.text-label').text(favoriteLabel);
+                        $btn.attr('aria-label', favoriteLabel);
+                        $btn.attr('title', favoriteLabel);
+                        $btn.find('.text-label').text(favoriteLabel);
 
                         // Final toast with action (Two-Stage Update)
                         const options = {
@@ -141,6 +141,9 @@
                     $btn.removeClass('loading');
                     if (response.success) {
                         const isInCompare = response.data.is_in_compare;
+                        const compareLabel = isInCompare ?
+                            (mhmrentiva_vars.i18n.remove_compare || 'Remove Compare') :
+                            (mhmrentiva_vars.i18n.add_compare || 'Compare');
                         // Final Sync
                         if (isInCompare) {
                             $btn.addClass('is-active active');
@@ -149,6 +152,9 @@
                             $btn.removeClass('is-active active');
                             $btn.attr('aria-pressed', 'false');
                         }
+                        $btn.attr('aria-label', compareLabel);
+                        $btn.attr('title', compareLabel);
+                        $btn.find('.text-label').text(compareLabel);
 
                         const options = {
                             type: 'success',

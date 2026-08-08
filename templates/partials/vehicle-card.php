@@ -89,10 +89,11 @@ if (! $is_available) {
                         data-vehicle-id="<?php echo esc_attr($vehicle_id); ?>"
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_compare')); ?>"
                         data-testid="vehicle-compare-btn"
-                        title="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>"
-                        aria-label="<?php esc_attr_e('Compare', 'mhm-rentiva'); ?>">
+                        title="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
+                        aria-label="<?php echo $is_in_compare ? esc_attr__('Remove Compare', 'mhm-rentiva') : esc_attr__('Compare', 'mhm-rentiva'); ?>"
+                        aria-pressed="<?php echo $is_in_compare ? 'true' : 'false'; ?>">
                         <?php Icons::render('compare', [ 'class' => 'mhm-compare-icon' ]); ?>
-                        <span class="text-label sr-only"><?php esc_html_e('Compare', 'mhm-rentiva'); ?></span>
+                        <span class="text-label sr-only"><?php echo $is_in_compare ? esc_html__('Remove Compare', 'mhm-rentiva') : esc_html__('Compare', 'mhm-rentiva'); ?></span>
                     </button>
                 <?php endif; ?>
 
