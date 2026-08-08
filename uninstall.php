@@ -60,11 +60,16 @@ spl_autoload_register(
  * indexes behind is strictly better than leaving all of the user's data
  * behind.
  */
-$retired_indexes_path = __DIR__ . '/src/Admin/Core/Utilities/RetiredIndexes.php';
+$retired_indexes_path  = __DIR__ . '/src/Admin/Core/Utilities/RetiredIndexes.php';
+$retired_index_cleanup = array(
+	'dropped' => array(),
+	'skipped' => array(),
+	'failed'  => array(),
+);
 if ( file_exists( $retired_indexes_path ) ) {
 	require_once $retired_indexes_path;
 	global $wpdb;
-	\MHMRentiva\Admin\Core\Utilities\RetiredIndexes::drop( $wpdb );
+	$retired_index_cleanup = \MHMRentiva\Admin\Core\Utilities\RetiredIndexes::drop( $wpdb );
 }
 
 // Check if user wants to clean data on uninstall
@@ -87,6 +92,6 @@ if ( file_exists( __DIR__ . '/src/Admin/Utilities/Uninstall/Uninstaller.php' ) )
 	if ( class_exists( 'MHMRentiva\Admin\Utilities\Uninstall\Uninstaller' ) ) {
 		// Skip permission check in uninstall context
 		// Directly call uninstall logic
-		\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::uninstall_direct( true );
+		\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::uninstall_direct( true, $retired_index_cleanup );
 	}
 }

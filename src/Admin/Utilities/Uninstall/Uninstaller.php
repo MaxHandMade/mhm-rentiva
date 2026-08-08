@@ -151,9 +151,18 @@ final class Uninstaller {
 
 	/**
 	 * Direct uninstall (bypasses permission check - for use in uninstall.php)
+	 *
+	 * @param bool                                                                    $delete_backups        Whether recovery copies should also be removed.
+	 * @param array{dropped:list<string>,skipped:list<string>,failed:list<string>}|null $retired_index_cleanup Retired core-index cleanup outcome.
 	 */
-	public static function uninstall_direct( bool $delete_backups = false ): array {
+	public static function uninstall_direct( bool $delete_backups = false, ?array $retired_index_cleanup = null ): array {
 		global $wpdb;
+
+		$retired_index_cleanup ??= array(
+			'dropped' => array(),
+			'skipped' => array(),
+			'failed'  => array(),
+		);
 
 		$results = array(
 			'options_deleted'      => 0,
@@ -163,8 +172,19 @@ final class Uninstaller {
 			'cron_jobs_cleared'    => 0,
 			'transients_deleted'   => 0,
 			'backup_files_deleted' => 0,
+			'indexes_dropped'      => array_values( array_map( 'strval', $retired_index_cleanup['dropped'] ?? array() ) ),
+			'indexes_skipped'      => array_values( array_map( 'strval', $retired_index_cleanup['skipped'] ?? array() ) ),
+			'indexes_failed'       => array_values( array_map( 'strval', $retired_index_cleanup['failed'] ?? array() ) ),
 			'errors'               => array(),
 		);
+
+		foreach ( $results['indexes_failed'] as $index_name ) {
+			$results['errors'][] = sprintf(
+				/* translators: %s: Database index name. */
+				__( 'Failed to remove retired database index %s.', 'mhm-rentiva' ),
+				$index_name
+			);
+		}
 
 		// 1. Delete all options - using prepare for LIKE patterns
 		$options = $wpdb->get_col(
@@ -272,10 +292,8 @@ final class Uninstaller {
 		$custom_tables = self::get_all_plugin_tables();
 
 		foreach ( $custom_tables as $table ) {
-			$exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- SHOW TABLES is the only way to ask whether a table exists; WordPress has no API for it. Caching the answer during an uninstall that drops tables as it runs would hand back a table that is already gone.
-			if ( $exists ) {
-				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
-				++$results['tables_dropped'];
+			if ( self::table_exists( $table ) ) {
+				self::drop_table_and_record( $table, $results );
 			}
 		}
 
@@ -300,8 +318,7 @@ final class Uninstaller {
 				continue;
 			}
 
-			$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $orphan_table ) );
-			++$results['tables_dropped'];
+			self::drop_table_and_record( $orphan_table, $results );
 		}
 
 		// Backup tables go only when the owner actually asked for them -- the same
@@ -315,8 +332,7 @@ final class Uninstaller {
 		if ( $delete_backups ) {
 			$backups = $wpdb->get_col( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->prefix . 'mhmrentiva_%backup%' ) );
 			foreach ( $backups as $backup_table ) {
-				$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $backup_table ) );
-				++$results['tables_dropped'];
+				self::drop_table_and_record( $backup_table, $results );
 			}
 		}
 
@@ -413,6 +429,40 @@ final class Uninstaller {
 			'message' => empty( $results['errors'] )
 				? __( 'All plugin data has been removed successfully', 'mhm-rentiva' )
 				: __( 'Uninstall completed with some errors', 'mhm-rentiva' ),
+		);
+	}
+
+	/**
+	 * Ask the database for physical table state without treating `_` as LIKE.
+	 */
+	private static function table_exists( string $table ): bool {
+		global $wpdb;
+
+		return null !== $wpdb->get_var(
+			$wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) )
+		);
+	}
+
+	/**
+	 * Drop one table and count it only after physical absence is confirmed.
+	 *
+	 * @param string               $table   Exact plugin-owned table name.
+	 * @param array<string,mixed> $results Mutable uninstall result ledger.
+	 */
+	private static function drop_table_and_record( string $table, array &$results ): void {
+		global $wpdb;
+
+		$wpdb->query( $wpdb->prepare( 'DROP TABLE IF EXISTS %i', $table ) );
+
+		if ( ! self::table_exists( $table ) ) {
+			++$results['tables_dropped'];
+			return;
+		}
+
+		$results['errors'][] = sprintf(
+			/* translators: %s: Database table name. */
+			__( 'Failed to remove database table %s.', 'mhm-rentiva' ),
+			$table
 		);
 	}
 

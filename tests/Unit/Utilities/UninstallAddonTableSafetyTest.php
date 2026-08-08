@@ -289,6 +289,63 @@ final class UninstallAddonTableSafetyTest extends WP_UnitTestCase
     }
 
     /**
+     * A DROP query returning a non-false value is not proof that the table is
+     * gone. Verify physical absence before counting success, and carry the
+     * independently-run retired-index cleanup into the same final outcome.
+     */
+    public function test_uninstall_reports_verified_table_and_retired_index_failures(): void
+    {
+        global $wpdb;
+
+        $this->use_real_tables();
+
+        $probe   = $wpdb->prefix . 'mhmrentiva_zz_probe_drop_failure';
+        $restore = $this->capture_plugin_schema();
+
+        if (! $this->table_exists($probe)) {
+            $wpdb->query($wpdb->prepare('CREATE TABLE %i ( id BIGINT UNSIGNED NOT NULL, PRIMARY KEY (id) )', $probe));
+            $this->temp_tables[] = $probe;
+        }
+
+        $before       = $this->plugin_table_names();
+        $block_drop   = static function (string $query) use ($probe): string {
+            if (str_contains($query, 'DROP TABLE') && str_contains($query, $probe)) {
+                return 'SELECT 1';
+            }
+
+            return $query;
+        };
+        $index_result = array(
+            'dropped' => array( 'idx_mhmrentiva_posts_probe' ),
+            'skipped' => array( 'idx_mhmrentiva_foreign_shape' ),
+            'failed'  => array( 'idx_mhmrentiva_postmeta_locked' ),
+        );
+
+        add_filter('query', $block_drop, 9999);
+        try {
+            $outcome = Uninstaller::uninstall_direct(false, $index_result);
+        } finally {
+            remove_filter('query', $block_drop, 9999);
+        }
+
+        $after          = $this->plugin_table_names();
+        $probe_survived = $this->table_exists($probe);
+        $actually_gone  = count(array_diff($before, $after));
+        $errors         = implode("\n", (array) ($outcome['results']['errors'] ?? array()));
+
+        $this->replay_plugin_schema($restore);
+
+        $this->assertTrue($probe_survived, 'Premise: the intercepted DROP must leave the probe table behind.');
+        $this->assertSame($actually_gone, $outcome['results']['tables_dropped'] ?? null);
+        $this->assertFalse($outcome['success'] ?? true);
+        $this->assertStringContainsString($probe, $errors);
+        $this->assertStringContainsString('idx_mhmrentiva_postmeta_locked', $errors);
+        $this->assertSame($index_result['dropped'], $outcome['results']['indexes_dropped'] ?? null);
+        $this->assertSame($index_result['skipped'], $outcome['results']['indexes_skipped'] ?? null);
+        $this->assertSame($index_result['failed'], $outcome['results']['indexes_failed'] ?? null);
+    }
+
+    /**
      * SHOW CREATE TABLE for every plugin table, so the run can put back what
      * uninstall_direct() destroys in this shared database.
      *
