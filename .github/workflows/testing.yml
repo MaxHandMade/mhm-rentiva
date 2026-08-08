@@ -67,6 +67,12 @@ jobs:
           tools: composer:v2
           coverage: none
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
       - name: Cache Composer dependencies
         uses: actions/cache@v5
         with:
@@ -86,6 +92,12 @@ jobs:
       # different, unrelated cache and is safe to keep.
       - name: Install Composer dependencies
         run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Install Node dependencies
+        run: npm ci
+
+      - name: JavaScript correctness gate (all shipped JS and JSX)
+        run: composer check-js-correctness
 
       - name: PHPStan level 0 (no baseline — dead-reference gate)
         run: composer phpstan:0
