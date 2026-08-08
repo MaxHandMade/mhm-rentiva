@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-08T11:43:09+00:00\n"
-"PO-Revision-Date: 2026-08-08 11:51+0000\n"
+"POT-Creation-Date: 2026-08-08T12:29:49+00:00\n"
+"PO-Revision-Date: 2026-08-08 12:31+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -143,7 +143,7 @@ msgstr "Bilinmeyen"
 msgid "Could not calculate"
 msgstr "Hesaplanamadı"
 
-#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1118
+#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1113
 #: src/Admin/Frontend/Account/AccountController.php:269
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:352
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
@@ -569,7 +569,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:77 src/Admin/Addons/AddonManager.php:264
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:112
-#: src/Admin/Core/AssetManager.php:653 src/Admin/Core/AssetManager.php:1145
+#: src/Admin/Core/AssetManager.php:653 src/Admin/Core/AssetManager.php:1140
 #: src/Admin/Emails/Core/EmailTemplates.php:521
 #: src/Admin/Frontend/Account/AccountController.php:261
 #: src/Admin/Frontend/Account/AccountController.php:316
@@ -578,7 +578,7 @@ msgid "Processing..."
 msgstr "İşleniyor..."
 
 #: src/Admin/Addons/AddonListTable.php:78 src/Admin/Addons/AddonManager.php:265
-#: src/Admin/Core/AssetManager.php:819 src/Admin/Core/AssetManager.php:869
+#: src/Admin/Core/AssetManager.php:818 src/Admin/Core/AssetManager.php:864
 #: src/Admin/Emails/Core/EmailTemplates.php:522
 #: src/Admin/Frontend/Account/AccountController.php:295
 msgid "An error occurred. Please try again."
@@ -597,7 +597,7 @@ msgstr "Tüm Servisler"
 msgid "Active Services"
 msgstr "Aktif Hizmetler"
 
-#: src/Admin/Addons/AddonListTable.php:111 src/Admin/Core/AssetManager.php:976
+#: src/Admin/Addons/AddonListTable.php:111 src/Admin/Core/AssetManager.php:971
 #: src/Admin/Emails/Core/EmailTemplates.php:580
 msgid "active"
 msgstr "aktif"
@@ -751,7 +751,7 @@ msgstr "Ek Hizmet Ayarları"
 
 #: src/Admin/Addons/AddonMeta.php:106
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
-#: src/Admin/Core/AssetManager.php:974
+#: src/Admin/Core/AssetManager.php:969
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:880 src/Admin/Setup/SetupWizard.php:939
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1187
@@ -828,7 +828,7 @@ msgstr "Geçersiz rezervasyon kimliği."
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:49
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:141
 #: src/Admin/Emails/Ajax/EmailAjaxHandler.php:49
-#: src/Admin/Emails/Templates/EmailPreview.php:152
+#: src/Admin/Emails/Templates/EmailPreview.php:123
 #: src/Admin/Frontend/Account/AccountRenderer.php:387
 msgid "Booking not found."
 msgstr "Rezervasyon bulunamadı."
@@ -943,7 +943,7 @@ msgid "Draft"
 msgstr "Taslak"
 
 #: src/Admin/Booking/Core/Status.php:109
-#: src/Admin/Emails/Notifications/BookingNotifications.php:169
+#: src/Admin/Emails/Notifications/BookingNotifications.php:158
 msgid "Pending Payment"
 msgstr "Bekleyen Ödeme"
 
@@ -956,7 +956,7 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Booking/Meta/BookingMeta.php:1139
 #: src/Admin/Core/AssetManager.php:670
 #: src/Admin/Emails/Core/EmailTemplates.php:463
-#: src/Admin/Emails/Notifications/BookingNotifications.php:164
+#: src/Admin/Emails/Notifications/BookingNotifications.php:153
 #: src/Admin/Frontend/Account/AccountRenderer.php:630
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
 #: src/Admin/Utilities/Dashboard/DashboardService.php:997
@@ -979,7 +979,7 @@ msgstr "Beklemede"
 #: src/Admin/Booking/Meta/BookingMeta.php:1140
 #: src/Admin/Core/AssetManager.php:671
 #: src/Admin/Emails/Core/EmailTemplates.php:464
-#: src/Admin/Emails/Notifications/BookingNotifications.php:165
+#: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1186
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1102
@@ -994,7 +994,7 @@ msgstr "Onaylandı"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
 #: src/Admin/Booking/Meta/BookingMeta.php:1141
 #: src/Admin/Core/AssetManager.php:672
-#: src/Admin/Emails/Notifications/BookingNotifications.php:166
+#: src/Admin/Emails/Notifications/BookingNotifications.php:155
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
 #: templates/account/booking-detail.php:78 templates/account/bookings.php:120
 #: templates/account/bookings.php:205 templates/account/bookings.php:317
@@ -1009,7 +1009,7 @@ msgstr "Devam Ediyor"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:253
 #: src/Admin/Booking/Meta/BookingMeta.php:1142
 #: src/Admin/Core/AssetManager.php:673
-#: src/Admin/Emails/Notifications/BookingNotifications.php:167
+#: src/Admin/Emails/Notifications/BookingNotifications.php:156
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1106
@@ -1030,11 +1030,11 @@ msgstr "Tamamlandı"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
 #: src/Admin/Booking/Meta/BookingMeta.php:1143
 #: src/Admin/Core/AssetManager.php:674
-#: src/Admin/Emails/Notifications/BookingNotifications.php:168
-#: src/Admin/Emails/Templates/EmailPreview.php:297
+#: src/Admin/Emails/Notifications/BookingNotifications.php:157
+#: src/Admin/Emails/Templates/EmailPreview.php:258
 #: src/Admin/Frontend/Account/AccountRenderer.php:632
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:73
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:229
 #: templates/account/booking-detail.php:80 templates/account/bookings.php:122
 #: templates/account/bookings.php:207 templates/account/bookings.php:319
 #: templates/account/dashboard.php:132 templates/account/user-dashboard.php:239
@@ -1148,8 +1148,8 @@ msgid "Booking Details:"
 msgstr "Rezervasyon Detayları:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:379
-#: src/Admin/Settings/Groups/EmailSettings.php:176
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:168
+#: src/Admin/Settings/Groups/EmailSettings.php:229
 #: templates/emails/booking-cancelled.html.php:59
 msgid "Booking ID:"
 msgstr "Rezervasyon ID:"
@@ -1158,10 +1158,10 @@ msgstr "Rezervasyon ID:"
 #: src/Admin/Booking/Meta/BookingMeta.php:372
 #: src/Admin/Booking/Meta/BookingMeta.php:448
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:682
-#: src/Admin/Settings/Groups/EmailSettings.php:134
-#: src/Admin/Settings/Groups/EmailSettings.php:178
-#: src/Admin/Settings/Groups/EmailSettings.php:226
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:126
+#: src/Admin/Settings/Groups/EmailSettings.php:170
+#: src/Admin/Settings/Groups/EmailSettings.php:218
+#: src/Admin/Settings/Groups/EmailSettings.php:229
 #: templates/emails/booking-cancelled.html.php:67
 #: templates/emails/booking-created-admin.html.php:37
 #: templates/emails/booking-created-customer.html.php:24
@@ -1172,7 +1172,7 @@ msgid "Vehicle:"
 msgstr "Araç:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:381
-#: src/Admin/Settings/Groups/EmailSettings.php:135
+#: src/Admin/Settings/Groups/EmailSettings.php:127
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
 #: templates/emails/booking-created-customer.html.php:28
@@ -1756,7 +1756,7 @@ msgid "Booking Details"
 msgstr "Rezervasyon detayları"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1331
-#: src/Admin/Core/AssetManager.php:1134
+#: src/Admin/Core/AssetManager.php:1129
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1465
@@ -1905,7 +1905,7 @@ msgid "Operation successful!"
 msgstr "İşlem başarıyla tamamlandı!"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:114
-#: src/Admin/Core/AssetManager.php:948
+#: src/Admin/Core/AssetManager.php:943
 msgid "An error occurred!"
 msgstr "Bir hata oluştu!"
 
@@ -2129,13 +2129,13 @@ msgid "Edit Booking Details"
 msgstr "Rezervasyon Detaylarını Düzenle"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:122
-#: src/Admin/Core/AssetManager.php:810
+#: src/Admin/Core/AssetManager.php:809
 msgid "Saving..."
 msgstr "Kaydediliyor..."
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:123
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:191
-#: src/Admin/Core/AssetManager.php:647 src/Admin/Core/AssetManager.php:1146
+#: src/Admin/Core/AssetManager.php:647 src/Admin/Core/AssetManager.php:1141
 #: src/Admin/Frontend/Account/AccountRenderer.php:247
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:267
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:324
@@ -2278,7 +2278,7 @@ msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:191
-#: src/Admin/Core/AssetManager.php:947
+#: src/Admin/Core/AssetManager.php:942
 msgid "Error:"
 msgstr "Hata:"
 
@@ -2312,7 +2312,7 @@ msgid "No receipt uploaded."
 msgstr "Makbuz yüklenmedi."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:234
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:229
 #: templates/account/payment-history.php:103
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:249
@@ -2351,7 +2351,7 @@ msgid "Your payment receipt has been rejected"
 msgstr "Ödeme makbuzunuz reddedildi"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:327
-#: src/Admin/Core/AssetManager.php:1011
+#: src/Admin/Core/AssetManager.php:1006
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:440
 msgid "Details"
 msgstr "Detaylar"
@@ -2371,7 +2371,7 @@ msgstr "Müşteri e-postası bulunamadı."
 
 #: src/Admin/Booking/Meta/BookingMeta.php:634
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
-#: src/Admin/Settings/Groups/EmailSettings.php:177
+#: src/Admin/Settings/Groups/EmailSettings.php:169
 #: templates/emails/booking-status-changed-admin.html.php:17
 #: templates/emails/offline-receipt-uploaded-admin.html.php:34
 #: templates/emails/refund-admin.html.php:17
@@ -2407,7 +2407,7 @@ msgid "Custom Message"
 msgstr "Özel Mesaj"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:657
-#: src/Admin/Emails/Templates/EmailPreview.php:162
+#: src/Admin/Emails/Templates/EmailPreview.php:133
 msgid "Subject:"
 msgstr "Konu:"
 
@@ -3075,7 +3075,7 @@ msgstr "Bu ekipmanı kaldırmak istediğinizden emin misiniz?"
 msgid "Enter value"
 msgstr "Değer Gir"
 
-#: src/Admin/Core/AssetManager.php:528 src/Admin/Core/AssetManager.php:949
+#: src/Admin/Core/AssetManager.php:528 src/Admin/Core/AssetManager.php:944
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:111
 #: src/Admin/Settings/Core/SettingsHelper.php:236
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:624
@@ -3139,7 +3139,7 @@ msgstr "Hibrit"
 msgid "Electric"
 msgstr "Elektrik"
 
-#: src/Admin/Core/AssetManager.php:558 src/Admin/Core/AssetManager.php:975
+#: src/Admin/Core/AssetManager.php:558 src/Admin/Core/AssetManager.php:970
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1703
 msgid "Passive"
 msgstr "Pasif"
@@ -3153,7 +3153,7 @@ msgstr "Pasif"
 msgid "Maintenance"
 msgstr "Bakım"
 
-#: src/Admin/Core/AssetManager.php:560 src/Admin/Core/AssetManager.php:1122
+#: src/Admin/Core/AssetManager.php:560 src/Admin/Core/AssetManager.php:1117
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:125
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:137
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:149
@@ -3180,7 +3180,7 @@ msgstr "Bakım"
 msgid "Yes"
 msgstr "Evet"
 
-#: src/Admin/Core/AssetManager.php:646 src/Admin/Core/AssetManager.php:1117
+#: src/Admin/Core/AssetManager.php:646 src/Admin/Core/AssetManager.php:1112
 #: src/Admin/Frontend/Account/AccountController.php:385
 #: src/Admin/Frontend/Account/AccountRenderer.php:245
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:65
@@ -3204,15 +3204,15 @@ msgstr "Yükleniyor..."
 msgid "Operation successful"
 msgstr "Operasyon Başarılı"
 
-#: src/Admin/Core/AssetManager.php:649 src/Admin/Core/AssetManager.php:1150
+#: src/Admin/Core/AssetManager.php:649 src/Admin/Core/AssetManager.php:1145
 #: src/Admin/Frontend/Account/AccountController.php:388
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:650 src/Admin/Core/AssetManager.php:960
-#: src/Admin/Core/AssetManager.php:1124
+#: src/Admin/Core/AssetManager.php:650 src/Admin/Core/AssetManager.php:955
+#: src/Admin/Core/AssetManager.php:1119
 #: src/Admin/Customers/AddCustomerPage.php:164
 #: src/Admin/Customers/CustomersPage.php:385
 #: src/Admin/Emails/Core/EmailTemplates.php:526
@@ -3221,15 +3221,15 @@ msgstr "Emin misiniz?"
 msgid "Cancel"
 msgstr "İptal"
 
-#: src/Admin/Core/AssetManager.php:651 src/Admin/Core/AssetManager.php:961
-#: src/Admin/Core/AssetManager.php:1126
+#: src/Admin/Core/AssetManager.php:651 src/Admin/Core/AssetManager.php:956
+#: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Emails/Core/EmailTemplates.php:531
 msgid "Save"
 msgstr "Kaydet"
 
 #. translators: %d = number of customers
-#: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:811
-#: src/Admin/Core/AssetManager.php:1127
+#: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:810
+#: src/Admin/Core/AssetManager.php:1122
 #: templates/shortcodes/vehicle-rating-form.php:298
 #: src-react/admin/customers/CustomersPage.jsx:66
 msgid "Delete"
@@ -3396,34 +3396,30 @@ msgid "Enter a valid email address"
 msgstr "Geçerli bir e-posta adresi giriniz"
 
 #: src/Admin/Core/AssetManager.php:806
-msgid "Widget max messages must be between 1-20"
-msgstr "Widget maksimum mesaj sayısı 1-20 arasında olmalıdır"
-
-#: src/Admin/Core/AssetManager.php:807
 msgid "Duplicate category names are not allowed"
 msgstr "Yinelenen kategori adlarına izin verilmez"
 
-#: src/Admin/Core/AssetManager.php:808
+#: src/Admin/Core/AssetManager.php:807
 msgid "Duplicate status names are not allowed"
 msgstr "Yinelenen durum adlarına izin verilmez"
 
-#: src/Admin/Core/AssetManager.php:809
+#: src/Admin/Core/AssetManager.php:808
 msgid "Form errors"
 msgstr "Form hataları"
 
-#: src/Admin/Core/AssetManager.php:812
+#: src/Admin/Core/AssetManager.php:811
 msgid "Template Preview"
 msgstr "Şablon Önizleme"
 
-#: src/Admin/Core/AssetManager.php:813
+#: src/Admin/Core/AssetManager.php:812
 msgid "Template content is empty"
 msgstr "Şablon içeriği boş"
 
-#: src/Admin/Core/AssetManager.php:814
+#: src/Admin/Core/AssetManager.php:813
 msgid "Template reset to default"
 msgstr "Şablon varsayılan ayarlara sıfırlandı"
 
-#: src/Admin/Core/AssetManager.php:815
+#: src/Admin/Core/AssetManager.php:814
 msgid ""
 "Are you sure you want to reset this tab's settings to default values? This "
 "action cannot be undone."
@@ -3431,60 +3427,44 @@ msgstr ""
 "Bu sekmenin ayarlarını varsayılan değerlere sıfırlamak istediğinizden emin "
 "misiniz? Bu işlem geri alınamaz."
 
-#: src/Admin/Core/AssetManager.php:816 src/Admin/Core/AssetManager.php:871
+#: src/Admin/Core/AssetManager.php:815 src/Admin/Core/AssetManager.php:866
 msgid "Resetting..."
 msgstr "Sıfırlanıyor..."
 
-#: src/Admin/Core/AssetManager.php:817 src/Admin/Core/AssetManager.php:872
+#: src/Admin/Core/AssetManager.php:816 src/Admin/Core/AssetManager.php:867
 msgid "Settings reset to defaults successfully. Page will reload..."
 msgstr ""
 "Ayarlar başarıyla varsayılanlara sıfırlandı. Sayfa yeniden yüklenecek..."
 
-#: src/Admin/Core/AssetManager.php:818 src/Admin/Core/AssetManager.php:873
+#: src/Admin/Core/AssetManager.php:817 src/Admin/Core/AssetManager.php:868
 msgid "Failed to reset settings to defaults."
 msgstr "Ayarları varsayılanlara sıfırlayamadı."
 
-#: src/Admin/Core/AssetManager.php:820
+#: src/Admin/Core/AssetManager.php:819
 msgid "Admin email address is required"
 msgstr "Yönetici e-posta adresi gereklidir"
 
-#: src/Admin/Core/AssetManager.php:821
+#: src/Admin/Core/AssetManager.php:820
 msgid "Sender name is required"
 msgstr "Gönderen adı gereklidir"
 
-#: src/Admin/Core/AssetManager.php:822
+#: src/Admin/Core/AssetManager.php:821
 msgid "Sender email address is required"
 msgstr "Gönderen e-posta adresi gereklidir"
 
-#: src/Admin/Core/AssetManager.php:823
+#: src/Admin/Core/AssetManager.php:822
 msgid "At least one category must be defined"
 msgstr "En az bir kategori tanımlanmalıdır"
 
-#: src/Admin/Core/AssetManager.php:824
+#: src/Admin/Core/AssetManager.php:823
 msgid "At least one status must be defined"
 msgstr "En az bir durum tanımlanmalıdır"
 
-#: src/Admin/Core/AssetManager.php:825
+#: src/Admin/Core/AssetManager.php:824
 msgid "Are you sure you want to reset this template to default?"
 msgstr "Bu şablonu varsayılana sıfırlamak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:826
-msgid "New message received: {{subject}}"
-msgstr "Yeni mesaj alındı: {{subject}}"
-
-#: src/Admin/Core/AssetManager.php:827
-msgid "Reply to your message: {{subject}}"
-msgstr "Mesajınıza yanıt: {{subject}}"
-
-#: src/Admin/Core/AssetManager.php:828
-msgid "Message status changed: {{subject}}"
-msgstr "Mesaj durumu değişti: {{subject}}"
-
-#: src/Admin/Core/AssetManager.php:829
-msgid "Your message received: {{subject}}"
-msgstr "Mesajınız alındı: {{subject}}"
-
-#: src/Admin/Core/AssetManager.php:870
+#: src/Admin/Core/AssetManager.php:865
 msgid ""
 "Are you sure you want to reset all REST API settings to default values? This "
 "action cannot be undone."
@@ -3492,7 +3472,7 @@ msgstr ""
 "Tüm REST API ayarlarını varsayılan değerlere sıfırlamak istediğinizden emin "
 "misiniz? Bu işlem geri alınamaz."
 
-#: src/Admin/Core/AssetManager.php:942
+#: src/Admin/Core/AssetManager.php:937
 msgid ""
 "Are you sure you want to reset all vehicle settings to defaults? Custom "
 "field definitions will NOT be deleted."
@@ -3500,90 +3480,90 @@ msgstr ""
 "Tüm araç ayarlarını varsayılanlara sıfırlamak istediğinizden emin misiniz? "
 "Özel alan tanımları SİLİNMEYECEKTİR."
 
-#: src/Admin/Core/AssetManager.php:943
+#: src/Admin/Core/AssetManager.php:938
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1133
 msgid "Settings saved successfully!"
 msgstr "Ayarlar başarıyla kaydedildi!"
 
-#: src/Admin/Core/AssetManager.php:944
+#: src/Admin/Core/AssetManager.php:939
 msgid "Error saving settings."
 msgstr "Ayarları kaydederken hata oluştu."
 
-#: src/Admin/Core/AssetManager.php:945 src/Admin/Core/AssetManager.php:994
+#: src/Admin/Core/AssetManager.php:940 src/Admin/Core/AssetManager.php:989
 msgid "Select"
 msgstr "Seçim"
 
-#: src/Admin/Core/AssetManager.php:946 src/Admin/Core/AssetManager.php:993
+#: src/Admin/Core/AssetManager.php:941 src/Admin/Core/AssetManager.php:988
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:573
 msgid "Number"
 msgstr "Sayı"
 
-#: src/Admin/Core/AssetManager.php:950
+#: src/Admin/Core/AssetManager.php:945
 msgid "Custom detail added successfully!"
 msgstr "Özel ayrıntı başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:951
+#: src/Admin/Core/AssetManager.php:946
 msgid "Custom feature added successfully!"
 msgstr "Özel özellik başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:952
+#: src/Admin/Core/AssetManager.php:947
 msgid "Custom equipment added successfully!"
 msgstr "Özel ekipman başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:953
+#: src/Admin/Core/AssetManager.php:948
 msgid "Are you sure you want to remove this custom detail?"
 msgstr "Bu özel ayrıntıyı silmek istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:954
+#: src/Admin/Core/AssetManager.php:949
 msgid "Custom detail removed successfully!"
 msgstr "Özel ayrıntı başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:955
+#: src/Admin/Core/AssetManager.php:950
 msgid "Are you sure you want to remove this custom feature?"
 msgstr "Bu özel özelliği kaldırmak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:956
+#: src/Admin/Core/AssetManager.php:951
 msgid "Custom feature removed successfully!"
 msgstr "Özel özellik başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:957
+#: src/Admin/Core/AssetManager.php:952
 msgid "Are you sure you want to remove this custom equipment?"
 msgstr "Bu özel ekipmanı kaldırmak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:958
+#: src/Admin/Core/AssetManager.php:953
 msgid "Custom equipment removed successfully!"
 msgstr "Özel ekipman başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:959
+#: src/Admin/Core/AssetManager.php:954
 msgid "Edit Field Names"
 msgstr "Alan Adlarını Düzenle"
 
-#: src/Admin/Core/AssetManager.php:962
+#: src/Admin/Core/AssetManager.php:957
 msgid "Field names updated and saved!"
 msgstr "Alan adları güncellendi ve kaydedildi!"
 
-#: src/Admin/Core/AssetManager.php:963
+#: src/Admin/Core/AssetManager.php:958
 msgid "Error: Field names could not be saved!"
 msgstr "Hata: Alan adları kaydedilemedi!"
 
-#: src/Admin/Core/AssetManager.php:966 src/Admin/Utilities/Menu/Menu.php:70
+#: src/Admin/Core/AssetManager.php:961 src/Admin/Utilities/Menu/Menu.php:70
 #: src/Admin/Utilities/Menu/Menu.php:71
 msgid "Vehicle Settings"
 msgstr "Araç Ayarları"
 
-#: src/Admin/Core/AssetManager.php:967
+#: src/Admin/Core/AssetManager.php:962
 msgid "Define fields and manage where they appear"
 msgstr "Alanları tanımla, nerede görüneceğini yönet"
 
-#: src/Admin/Core/AssetManager.php:968
+#: src/Admin/Core/AssetManager.php:963
 msgid "1 · Field Definitions"
 msgstr "1 · Alan Tanımları"
 
-#: src/Admin/Core/AssetManager.php:969
+#: src/Admin/Core/AssetManager.php:964
 msgid "2 · Display & Preview"
 msgstr "2 · Görünüm & Önizleme"
 
-#: src/Admin/Core/AssetManager.php:970
+#: src/Admin/Core/AssetManager.php:965
 msgid ""
 "Choose which fields are collected. Passive fields do not appear on vehicle "
 "forms or in the preview. You can also add your own custom field."
@@ -3591,7 +3571,7 @@ msgstr ""
 "Hangi alanların toplanacağını belirle. Pasif alanlar araç formlarında ve "
 "önizlemede görünmez. Kendi özel alanını da ekleyebilirsin."
 
-#: src/Admin/Core/AssetManager.php:971
+#: src/Admin/Core/AssetManager.php:966
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:77
 #: src/Admin/Setup/SetupWizard.php:813
@@ -3601,44 +3581,44 @@ msgstr ""
 msgid "Vehicle Details"
 msgstr "Araç Detayları"
 
-#: src/Admin/Core/AssetManager.php:972
+#: src/Admin/Core/AssetManager.php:967
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:588
 msgid "Vehicle Features"
 msgstr "Araç Özellikleri"
 
-#: src/Admin/Core/AssetManager.php:973
+#: src/Admin/Core/AssetManager.php:968
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:640
 msgid "Vehicle Equipment"
 msgstr "Araç Ekipmanları"
 
-#: src/Admin/Core/AssetManager.php:977
+#: src/Admin/Core/AssetManager.php:972
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:532
 msgid "Core fields cannot be disabled"
 msgstr "Temel alanlar devre dışı bırakılamaz"
 
-#: src/Admin/Core/AssetManager.php:978
+#: src/Admin/Core/AssetManager.php:973
 msgid "REQUIRED"
 msgstr "ZORUNLU"
 
-#: src/Admin/Core/AssetManager.php:979
+#: src/Admin/Core/AssetManager.php:974
 msgid "CUSTOM"
 msgstr "ÖZEL"
 
 #. translators: %s: field name
-#: src/Admin/Core/AssetManager.php:981
+#: src/Admin/Core/AssetManager.php:976
 #, php-format
 msgid "The field \"%s\" will be permanently deleted. Are you sure?"
 msgstr "\"%s\" alanı kalıcı olarak silinecek. Emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:982
+#: src/Admin/Core/AssetManager.php:977
 msgid "Field deleted."
 msgstr "Alan silindi."
 
-#: src/Admin/Core/AssetManager.php:983
+#: src/Admin/Core/AssetManager.php:978
 msgid "Could not delete the field."
 msgstr "Alan silinemedi."
 
-#: src/Admin/Core/AssetManager.php:984 src/Admin/Core/AssetManager.php:1140
+#: src/Admin/Core/AssetManager.php:979 src/Admin/Core/AssetManager.php:1135
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:449
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:543
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:595
@@ -3647,7 +3627,7 @@ msgstr "Alan silinemedi."
 msgid "Select All"
 msgstr "Tümünü Seç"
 
-#: src/Admin/Core/AssetManager.php:985
+#: src/Admin/Core/AssetManager.php:980
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:452
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:544
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:596
@@ -3655,78 +3635,78 @@ msgstr "Tümünü Seç"
 msgid "Deselect All"
 msgstr "Tümünü Kaldır"
 
-#: src/Admin/Core/AssetManager.php:986
+#: src/Admin/Core/AssetManager.php:981
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:545
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:597
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:649
 msgid "Edit Names"
 msgstr "İsimleri Düzenle"
 
-#: src/Admin/Core/AssetManager.php:987
+#: src/Admin/Core/AssetManager.php:982
 msgid "Add custom field:"
 msgstr "Özel alan ekle:"
 
-#: src/Admin/Core/AssetManager.php:988
+#: src/Admin/Core/AssetManager.php:983
 msgid "Field name (e.g. Boot Size)"
 msgstr "Alan adı (örn. Bagaj Hacmi)"
 
-#: src/Admin/Core/AssetManager.php:989 src/Admin/Core/AssetManager.php:1016
-#: src/Admin/Core/AssetManager.php:1032
+#: src/Admin/Core/AssetManager.php:984 src/Admin/Core/AssetManager.php:1011
+#: src/Admin/Core/AssetManager.php:1027
 msgid "Detail"
 msgstr "Detay"
 
-#: src/Admin/Core/AssetManager.php:990
+#: src/Admin/Core/AssetManager.php:985
 #: templates/shortcodes/vehicle-comparison.php:77
 msgid "Feature"
 msgstr "Özellik"
 
-#: src/Admin/Core/AssetManager.php:991 src/Admin/Core/AssetManager.php:1013
+#: src/Admin/Core/AssetManager.php:986 src/Admin/Core/AssetManager.php:1008
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:442
 msgid "Equipment"
 msgstr "Ekipman"
 
-#: src/Admin/Core/AssetManager.php:992
+#: src/Admin/Core/AssetManager.php:987
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:572
 msgid "Text"
 msgstr "Metin"
 
-#: src/Admin/Core/AssetManager.php:995
+#: src/Admin/Core/AssetManager.php:990
 msgid "Options (comma separated: S, M, L)"
 msgstr "Seçenekler (virgülle ayır: S, M, L)"
 
-#: src/Admin/Core/AssetManager.php:996 src/Admin/Core/AssetManager.php:1129
+#: src/Admin/Core/AssetManager.php:991 src/Admin/Core/AssetManager.php:1124
 msgid "Add"
 msgstr "Ekle"
 
-#: src/Admin/Core/AssetManager.php:997
+#: src/Admin/Core/AssetManager.php:992
 msgid "Please enter a field name."
 msgstr "Lütfen bir alan adı girin."
 
-#: src/Admin/Core/AssetManager.php:998
+#: src/Admin/Core/AssetManager.php:993
 msgid "Could not add the field."
 msgstr "Alan eklenemedi."
 
-#: src/Admin/Core/AssetManager.php:999
+#: src/Admin/Core/AssetManager.php:994
 msgid "Field added. Press Save to persist the selection state."
 msgstr "Alan eklendi. Seçim durumunu kaydetmek için Kaydet'e basın."
 
-#: src/Admin/Core/AssetManager.php:1000
+#: src/Admin/Core/AssetManager.php:995
 msgid "Operation failed. Your session may have expired — reload the page."
 msgstr "İşlem başarısız. Oturumunuz sona ermiş olabilir — sayfayı yenileyin."
 
-#: src/Admin/Core/AssetManager.php:1001
+#: src/Admin/Core/AssetManager.php:996
 msgid "Saving…"
 msgstr "Kaydediliyor…"
 
-#: src/Admin/Core/AssetManager.php:1002
+#: src/Admin/Core/AssetManager.php:997
 msgid "You have unsaved changes"
 msgstr "Kaydedilmemiş değişiklikler var"
 
-#: src/Admin/Core/AssetManager.php:1003
+#: src/Admin/Core/AssetManager.php:998
 msgid "Settings saved."
 msgstr "Ayarlar kaydedildi."
 
-#: src/Admin/Core/AssetManager.php:1004
+#: src/Admin/Core/AssetManager.php:999
 msgid ""
 "Could not save. Your session may have expired — reload the page and try "
 "again."
@@ -3734,28 +3714,28 @@ msgstr ""
 "Kaydedilemedi. Oturumunuz sona ermiş olabilir — sayfayı yenileyip tekrar "
 "deneyin."
 
-#: src/Admin/Core/AssetManager.php:1005
+#: src/Admin/Core/AssetManager.php:1000
 msgid "Could not save. Check your connection and try again."
 msgstr "Kaydedilemedi. Bağlantıyı kontrol edip tekrar deneyin."
 
-#: src/Admin/Core/AssetManager.php:1006
+#: src/Admin/Core/AssetManager.php:1001
 msgid "Template:"
 msgstr "Şablon:"
 
-#: src/Admin/Core/AssetManager.php:1007
+#: src/Admin/Core/AssetManager.php:1002
 msgid "Minimal"
 msgstr "Minimal"
 
-#: src/Admin/Core/AssetManager.php:1008
+#: src/Admin/Core/AssetManager.php:1003
 msgid "Standard"
 msgstr "Standart"
 
-#: src/Admin/Core/AssetManager.php:1009
+#: src/Admin/Core/AssetManager.php:1004
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:87
 msgid "Detailed"
 msgstr "Detaylı"
 
-#: src/Admin/Core/AssetManager.php:1010
+#: src/Admin/Core/AssetManager.php:1005
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:68
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:85
 #: assets/blocks/my-bookings/index.js:41
@@ -3764,117 +3744,117 @@ msgstr "Detaylı"
 msgid "All"
 msgstr "Tümü"
 
-#: src/Admin/Core/AssetManager.php:1012
+#: src/Admin/Core/AssetManager.php:1007
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:441
 msgid "Features"
 msgstr "Özellikler"
 
-#: src/Admin/Core/AssetManager.php:1014
+#: src/Admin/Core/AssetManager.php:1009
 msgid "Field"
 msgstr "Alan"
 
-#: src/Admin/Core/AssetManager.php:1015 src/Admin/Core/AssetManager.php:1031
+#: src/Admin/Core/AssetManager.php:1010 src/Admin/Core/AssetManager.php:1026
 msgid "Card"
 msgstr "Kart"
 
-#: src/Admin/Core/AssetManager.php:1017
+#: src/Admin/Core/AssetManager.php:1012
 msgid "Comp."
 msgstr "Karş."
 
-#: src/Admin/Core/AssetManager.php:1018
+#: src/Admin/Core/AssetManager.php:1013
 msgid "On"
 msgstr "Açık"
 
-#: src/Admin/Core/AssetManager.php:1019
+#: src/Admin/Core/AssetManager.php:1014
 msgid "Off"
 msgstr "Kapalı"
 
-#: src/Admin/Core/AssetManager.php:1020
+#: src/Admin/Core/AssetManager.php:1015
 msgid "No active fields in this category."
 msgstr "Bu kategoride aktif alan yok."
 
-#: src/Admin/Core/AssetManager.php:1021
+#: src/Admin/Core/AssetManager.php:1016
 msgid "Switch to \"All\" to reorder"
 msgstr "Sıralama için \"Tümü\" görünümüne geçin"
 
-#: src/Admin/Core/AssetManager.php:1022
+#: src/Admin/Core/AssetManager.php:1017
 msgid "Drag to reorder"
 msgstr "Sürükleyerek sırala"
 
-#: src/Admin/Core/AssetManager.php:1023
+#: src/Admin/Core/AssetManager.php:1018
 msgid "Live preview"
 msgstr "Canlı önizleme"
 
-#: src/Admin/Core/AssetManager.php:1024
+#: src/Admin/Core/AssetManager.php:1019
 msgid "vehicle image"
 msgstr "araç görseli"
 
-#: src/Admin/Core/AssetManager.php:1025
+#: src/Admin/Core/AssetManager.php:1020
 msgid "Toyota Corolla Hybrid"
 msgstr "Toyota Corolla Hybrid"
 
-#: src/Admin/Core/AssetManager.php:1026
+#: src/Admin/Core/AssetManager.php:1021
 msgid "$1,850 / day"
 msgstr "₺1.850 / gün"
 
-#: src/Admin/Core/AssetManager.php:1027
+#: src/Admin/Core/AssetManager.php:1022
 msgid "View →"
 msgstr "İncele →"
 
-#: src/Admin/Core/AssetManager.php:1028
+#: src/Admin/Core/AssetManager.php:1023
 msgid "Detail — Highlights"
 msgstr "Detay — Öne çıkanlar"
 
-#: src/Admin/Core/AssetManager.php:1029
+#: src/Admin/Core/AssetManager.php:1024
 msgid "No fields selected for the card"
 msgstr "Kartta gösterilecek alan seçilmedi"
 
-#: src/Admin/Core/AssetManager.php:1030
+#: src/Admin/Core/AssetManager.php:1025
 msgid "No fields highlighted in the detail view"
 msgstr "Detayda öne çıkacak alan seçilmedi"
 
-#: src/Admin/Core/AssetManager.php:1033
+#: src/Admin/Core/AssetManager.php:1028
 msgid "Comparison"
 msgstr "Karşılaştırma"
 
-#: src/Admin/Core/AssetManager.php:1034
+#: src/Admin/Core/AssetManager.php:1029
 msgid " — Edit Names"
 msgstr " — İsimleri Düzenle"
 
-#: src/Admin/Core/AssetManager.php:1035
+#: src/Admin/Core/AssetManager.php:1030
 msgid "Names updated."
 msgstr "İsimler güncellendi."
 
-#: src/Admin/Core/AssetManager.php:1036
+#: src/Admin/Core/AssetManager.php:1031
 msgid "Could not update names."
 msgstr "İsimler güncellenemedi."
 
-#: src/Admin/Core/AssetManager.php:1037
+#: src/Admin/Core/AssetManager.php:1032
 msgid "Reset this tab to defaults?"
 msgstr "Bu sekmeyi varsayılana sıfırla?"
 
-#: src/Admin/Core/AssetManager.php:1038
+#: src/Admin/Core/AssetManager.php:1033
 msgid "Could not reset."
 msgstr "Sıfırlanamadı."
 
-#: src/Admin/Core/AssetManager.php:1119
+#: src/Admin/Core/AssetManager.php:1114
 #: src/Admin/Emails/PostTypes/EmailLog.php:63
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:484
 msgid "Success"
 msgstr "Başarılı"
 
-#: src/Admin/Core/AssetManager.php:1120
+#: src/Admin/Core/AssetManager.php:1115
 #: src/Admin/Settings/Groups/LogsSettings.php:67
 #: src/Admin/Setup/SetupWizard.php:961
 msgid "Warning"
 msgstr "Uyarı"
 
-#: src/Admin/Core/AssetManager.php:1121
+#: src/Admin/Core/AssetManager.php:1116
 #: src/Admin/Settings/Groups/LogsSettings.php:68
 msgid "Info"
 msgstr "Bilgi"
 
-#: src/Admin/Core/AssetManager.php:1123
+#: src/Admin/Core/AssetManager.php:1118
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:126
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:138
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:150
@@ -3901,11 +3881,11 @@ msgstr "Bilgi"
 msgid "No"
 msgstr "Hayır"
 
-#: src/Admin/Core/AssetManager.php:1125
+#: src/Admin/Core/AssetManager.php:1120
 msgid "Confirm"
 msgstr "Onayla"
 
-#: src/Admin/Core/AssetManager.php:1128
+#: src/Admin/Core/AssetManager.php:1123
 #: src/Admin/Customers/CustomersPage.php:252
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
@@ -3914,33 +3894,33 @@ msgstr "Onayla"
 msgid "Edit"
 msgstr "Düzenle"
 
-#: src/Admin/Core/AssetManager.php:1130
+#: src/Admin/Core/AssetManager.php:1125
 #: src/Admin/Customers/CustomersPage.php:384
 msgid "Update"
 msgstr "Güncelle"
 
-#: src/Admin/Core/AssetManager.php:1131
+#: src/Admin/Core/AssetManager.php:1126
 #: templates/shortcodes/unified-search.php:176
 msgid "Search"
 msgstr "Arama"
 
-#: src/Admin/Core/AssetManager.php:1132 templates/account/bookings.php:110
+#: src/Admin/Core/AssetManager.php:1127 templates/account/bookings.php:110
 #: templates/account/bookings.php:147
 msgid "Filter"
 msgstr "Filtre"
 
-#: src/Admin/Core/AssetManager.php:1133
+#: src/Admin/Core/AssetManager.php:1128
 #: templates/shortcodes/contact-form.php:203
 msgid "Reset"
 msgstr "Sıfırla"
 
-#: src/Admin/Core/AssetManager.php:1135 src/Admin/Setup/SetupWizard.php:246
+#: src/Admin/Core/AssetManager.php:1130 src/Admin/Setup/SetupWizard.php:246
 #: src/Admin/Setup/SetupWizard.php:320 src/Admin/Setup/SetupWizard.php:447
 #: src/Admin/Setup/SetupWizard.php:520
 msgid "Back"
 msgstr "Geri"
 
-#: src/Admin/Core/AssetManager.php:1136
+#: src/Admin/Core/AssetManager.php:1131
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:351
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1038
 #: templates/account/payment-history.php:191
@@ -3951,7 +3931,7 @@ msgstr "Geri"
 msgid "Next"
 msgstr "Sonraki"
 
-#: src/Admin/Core/AssetManager.php:1137
+#: src/Admin/Core/AssetManager.php:1132
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:350
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1037
 #: templates/account/payment-history.php:176
@@ -3962,59 +3942,59 @@ msgstr "Sonraki"
 msgid "Previous"
 msgstr "Önceki"
 
-#: src/Admin/Core/AssetManager.php:1138
+#: src/Admin/Core/AssetManager.php:1133
 msgid "Submit"
 msgstr "Gönder"
 
-#: src/Admin/Core/AssetManager.php:1139
+#: src/Admin/Core/AssetManager.php:1134
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1467
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Clear"
 msgstr "Temizle"
 
-#: src/Admin/Core/AssetManager.php:1141
+#: src/Admin/Core/AssetManager.php:1136
 msgid "Select None"
 msgstr "Hiçbirini Seçme"
 
-#: src/Admin/Core/AssetManager.php:1142
+#: src/Admin/Core/AssetManager.php:1137
 msgid "No data found"
 msgstr "Veri bulunamadı"
 
-#: src/Admin/Core/AssetManager.php:1143
+#: src/Admin/Core/AssetManager.php:1138
 msgid "No results found"
 msgstr "Sonuç bulunamadı"
 
-#: src/Admin/Core/AssetManager.php:1144
+#: src/Admin/Core/AssetManager.php:1139
 msgid "Please wait..."
 msgstr "Lütfen Bekleyin..."
 
-#: src/Admin/Core/AssetManager.php:1147
+#: src/Admin/Core/AssetManager.php:1142
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:281
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:83
 msgid "Please try again"
 msgstr "Lütfen tekrar deneyin"
 
-#: src/Admin/Core/AssetManager.php:1148
+#: src/Admin/Core/AssetManager.php:1143
 msgid "Operation completed successfully"
 msgstr "İşlem başarıyla tamamlandı"
 
-#: src/Admin/Core/AssetManager.php:1149
+#: src/Admin/Core/AssetManager.php:1144
 msgid "Operation failed"
 msgstr "Işlem başarısız oldu"
 
-#: src/Admin/Core/AssetManager.php:1151
+#: src/Admin/Core/AssetManager.php:1146
 msgid "This action cannot be undone"
 msgstr "Bu işlem geri alınamaz"
 
-#: src/Admin/Core/AssetManager.php:1152
+#: src/Admin/Core/AssetManager.php:1147
 msgid "Invalid input"
 msgstr "Giriş Geçersiz"
 
-#: src/Admin/Core/AssetManager.php:1153
+#: src/Admin/Core/AssetManager.php:1148
 msgid "Required field"
 msgstr "Zorunlu alan"
 
-#: src/Admin/Core/AssetManager.php:1154
+#: src/Admin/Core/AssetManager.php:1149
 msgid "Please fill all required fields"
 msgstr "Lütfen Gerekli tüm alanları doldurunuz"
 
@@ -4548,10 +4528,6 @@ msgstr "Hesap Yönetimi"
 #: src/Admin/Core/ShortcodeServiceProvider.php:428
 msgid "Support and Contact"
 msgstr "Destek ve İletişim"
-
-#: src/Admin/Core/ShortcodeServiceProvider.php:429
-msgid "Transfer Services"
-msgstr "Transfer Hizmetleri"
 
 #: src/Admin/Core/ShortcodeUrlManager.php:273
 msgid "MHM Rentiva:"
@@ -5521,7 +5497,7 @@ msgid "Test email could not be sent."
 msgstr "Test e-postası gönderilemedi."
 
 #: src/Admin/Emails/Core/EmailTemplates.php:524
-#: src/Admin/Emails/Templates/EmailPreview.php:100
+#: src/Admin/Emails/Templates/EmailPreview.php:71
 #: src/Admin/Setup/SetupWizard.php:485
 msgid "Send Test Email"
 msgstr "Test Maili yolla"
@@ -5613,7 +5589,7 @@ msgstr "Yönetici Geri Ödeme E-postası"
 msgid "Email templates saved successfully!"
 msgstr "E-posta şablonları başarıyla kaydedildi!"
 
-#: src/Admin/Emails/Core/Mailer.php:386
+#: src/Admin/Emails/Core/Mailer.php:354
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1007
 #: templates/shortcodes/vehicle-rating-form.php:226
 msgid "Anonymous"
@@ -5628,64 +5604,42 @@ msgid "New Booking Request #{{booking.order_id}} - {{site.name}}"
 msgstr "Yeni Rezervasyon İsteği #{{booking.id}} - {{site.name}}"
 
 #: src/Admin/Emails/Core/Templates.php:47
-msgid ""
-"New Reservation: {{vehicle.title}} (#{{booking.order_id}}) - {{site.name}}"
-msgstr ""
-"Yeni Rezervasyon: {{vehicle.title}} (#{{booking.order_id}}) - {{site.name}}"
-
 #: src/Admin/Emails/Core/Templates.php:51
-#: src/Admin/Emails/Core/Templates.php:55
 msgid "Booking #{{booking.order_id}} Status Updated - {{site.name}}"
 msgstr "Rezervasyon #{{booking.id}} Durumu Güncellendi - {{site.name}}"
 
-#: src/Admin/Emails/Core/Templates.php:59
-msgid "Reservation #{{booking.order_id}} Status Updated - {{site.name}}"
-msgstr "Rezervasyon #{{booking.order_id}} Durumu Güncellendi - {{site.name}}"
-
-#: src/Admin/Emails/Core/Templates.php:63
+#: src/Admin/Emails/Core/Templates.php:55
 msgid ""
 "Reminder: Your Booking #{{booking.order_id}} Starts Soon - {{site.name}}"
 msgstr ""
 "Hatırlatma: {{booking.id}} Rezervasyonunuz Yakında Başlıyor - {{site.name}}"
 
-#: src/Admin/Emails/Core/Templates.php:67
+#: src/Admin/Emails/Core/Templates.php:59
 msgid "Complete Your Payment - {{site.name}}"
 msgstr "Ödemenizi Tamamlayın - {{site.name}}"
 
-#: src/Admin/Emails/Core/Templates.php:72
+#: src/Admin/Emails/Core/Templates.php:64
 msgid "Welcome to {{site.name}}"
 msgstr "{{site.name}}'ye hoş geldiniz"
 
-#: src/Admin/Emails/Core/Templates.php:78
-#: src/Admin/Emails/Core/Templates.php:84
+#: src/Admin/Emails/Core/Templates.php:70
+#: src/Admin/Emails/Core/Templates.php:76
 msgid "Booking #{{booking.order_id}} Cancelled - {{site.name}}"
 msgstr "Rezervasyon #{{booking.id}} İptal Edildi - {{site.name}}"
 
-#: src/Admin/Emails/Core/Templates.php:90
+#: src/Admin/Emails/Core/Templates.php:82
 msgid "Refund Processed for Booking #{{booking.order_id}}"
 msgstr "Rezervasyon #{{booking.id}} için Geri Ödeme İşleme Alındı"
 
-#: src/Admin/Emails/Core/Templates.php:94
+#: src/Admin/Emails/Core/Templates.php:86
 msgid "Refund Alert: Booking #{{booking.order_id}}"
 msgstr "Geri Ödeme Uyarısı: Rezervasyon #{{booking.id}}"
 
-#: src/Admin/Emails/Core/Templates.php:100
-msgid "New Message - {{message.subject}} - {{site.name}}"
-msgstr "Yeni Mesaj - {{message.subject}} - {{site.name}}"
-
-#: src/Admin/Emails/Core/Templates.php:104
-msgid "Reply to Your Message - {{message.subject}} - {{site.name}}"
-msgstr "Mesajınızı Yanıtlayın - {{message.subject}} - {{site.name}}"
-
-#: src/Admin/Emails/Core/Templates.php:108
-msgid "We received your message - {{site.name}}"
-msgstr "Mesajınızı aldık - {{site.name}}"
-
-#: src/Admin/Emails/Core/Templates.php:199
+#: src/Admin/Emails/Core/Templates.php:177
 msgid "No content available for this email."
 msgstr "Bu e-posta için içerik mevcut değil."
 
-#: src/Admin/Emails/Core/Templates.php:433
+#: src/Admin/Emails/Core/Templates.php:411
 msgid "All rights reserved."
 msgstr "Her hakkı saklıdır."
 
@@ -5943,142 +5897,34 @@ msgstr "İade Bildirimi (Müşteri)"
 msgid "Refund Alert (Admin)"
 msgstr "Geri Ödeme Uyarısı (Yönetici)"
 
-#: src/Admin/Emails/Templates/EmailPreview.php:60
-msgid "New Message (Admin)"
-msgstr "Yeni Mesaj (Yönetici)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:61
-msgid "Message Reply (Customer)"
-msgstr "Mesaj Yanıtı (Müşteri)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:62
-msgid "Auto Reply (Customer)"
-msgstr "Otomatik Yanıt (Müşteri)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:64
-msgid "Vendor Approved"
-msgstr "Bayi Onaylandı"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:65
-msgid "Vendor Rejected"
-msgstr "Bayi Reddedildi"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:66
-msgid "Vendor Suspended"
-msgstr "Bayi Askıya Alındı"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:67
-msgid "Application Received (Vendor)"
-msgstr "Başvuru Alındı (Bayi)"
+#: src/Admin/Emails/Templates/EmailPreview.php:59
+msgid "Remaining Payment Link (Customer)"
+msgstr "Kalan Ödeme Linki (Müşteri)"
 
 #: src/Admin/Emails/Templates/EmailPreview.php:68
-msgid "New Application (Admin)"
-msgstr "Yeni Başvuru (Yönetici)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:70
-msgid "Vehicle Approved (Vendor)"
-msgstr "Araç Onaylandı (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:71
-msgid "Vehicle Rejected (Vendor)"
-msgstr "Araç Reddedildi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:72
-msgid "Vehicle Submitted (Admin)"
-msgstr "Araç Gönderildi (Yönetici)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:73
-msgid "Vehicle Re-review (Admin)"
-msgstr "Araç Yeniden İnceleme (Yönetici)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:75
-msgid "Vehicle Activated (Vendor)"
-msgstr "Araç Aktifleşti (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:76
-msgid "Vehicle Paused (Vendor)"
-msgstr "Araç Duraklatıldı (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:77
-msgid "Vehicle Resumed (Vendor)"
-msgstr "Araç Yeniden Başlatıldı (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:78
-msgid "Listing Expired (Vendor)"
-msgstr "İlan Süresi Doldu (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:79
-msgid "Vehicle Withdrawn (Vendor)"
-msgstr "Araç Geri Çekildi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:80
-msgid "Listing Renewed (Vendor)"
-msgstr "İlan Yenilendi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:81
-msgid "Vehicle Relisted (Vendor)"
-msgstr "Araç Yeniden Listelendi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:82
-msgid "Expiry Warning — 10 Days (Vendor)"
-msgstr "Süre Uyarısı — 10 Gün (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:83
-msgid "Expiry Warning — 3 Days (Vendor)"
-msgstr "Süre Uyarısı — 3 Gün (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:85
-msgid "Payout Approved (Vendor)"
-msgstr "Hakediş Onaylandı (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:86
-msgid "Payout Rejected (Vendor)"
-msgstr "Hakediş Reddedildi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:87
-msgid "IBAN Change Approved (Vendor)"
-msgstr "IBAN Değişikliği Onaylandı (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:88
-msgid "IBAN Change Rejected (Vendor)"
-msgstr "IBAN Değişikliği Reddedildi (Bayi)"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:97
 msgid "Send To (optional)"
 msgstr "Gönder (isteğe bağlı)"
 
-#: src/Admin/Emails/Templates/EmailPreview.php:101
+#: src/Admin/Emails/Templates/EmailPreview.php:72
 msgid "Preview"
 msgstr "Önizleme"
 
-#: src/Admin/Emails/Templates/EmailPreview.php:109
+#: src/Admin/Emails/Templates/EmailPreview.php:80
 msgid "Template email sent."
 msgstr "Şablon e-posta gönderildi."
 
-#: src/Admin/Emails/Templates/EmailPreview.php:111
+#: src/Admin/Emails/Templates/EmailPreview.php:82
 msgid "Failed to send template email."
 msgstr "Şablon e-postası gönderilemedi."
 
-#: src/Admin/Emails/Templates/EmailPreview.php:121
+#: src/Admin/Emails/Templates/EmailPreview.php:92
 msgid "Enter a Booking ID and click Preview to see the email."
 msgstr ""
 "Bir Rezervasyon Kimliği girin ve e-postayı önizlemek için Önizle'ye tıklayın."
 
-#: src/Admin/Emails/Templates/EmailPreview.php:145
+#: src/Admin/Emails/Templates/EmailPreview.php:116
 msgid "Please enter a valid booking ID."
 msgstr "Lütfen geçerli bir rezervasyon numarası girin."
-
-#: src/Admin/Emails/Templates/EmailPreview.php:283
-msgid "Sample Subject"
-msgstr "Örnek Konu"
-
-#: src/Admin/Emails/Templates/EmailPreview.php:286
-msgid "This is a sample message body for preview."
-msgstr "Bu, önizleme için örnek bir mesaj gövdesidir."
-
-#: src/Admin/Emails/Templates/EmailPreview.php:287
-msgid "This is a sample reply for preview."
-msgstr "Bu, önizleme için örnek bir yanıttır."
 
 #: src/Admin/Emails/Templates/RefundEmails.php:25
 msgid "Manage email templates for refund operations."
@@ -9601,28 +9447,16 @@ msgstr "Sistem optimizasyonlarını ve performans eşiklerini yapılandırın."
 msgid "%s - Powered by MHM Rentiva"
 msgstr "%s - MHM Rentiva tarafından desteklenmektedir"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:114
-msgid "New Message from {contact_name}"
-msgstr "{contact_name} adlı kişiden yeni mesaj"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:116
-msgid "New Reply for Booking #{booking_id}"
-msgstr "Rezervasyon #{booking_id} için Yeni Yanıt"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:118
-msgid "We received your message - {site_name}"
-msgstr "Mesajınızı aldık - {site_name}"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:128
-#: src/Admin/Settings/Groups/EmailSettings.php:151
-#: src/Admin/Settings/Groups/EmailSettings.php:189
-#: src/Admin/Settings/Groups/EmailSettings.php:221
-#: src/Admin/Settings/Groups/EmailSettings.php:237
-#: src/Admin/Settings/Groups/EmailSettings.php:244
+#: src/Admin/Settings/Groups/EmailSettings.php:120
+#: src/Admin/Settings/Groups/EmailSettings.php:143
+#: src/Admin/Settings/Groups/EmailSettings.php:181
+#: src/Admin/Settings/Groups/EmailSettings.php:213
+#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:236
 msgid "Dear {contact_name},"
 msgstr "Sayın {contact_name},"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:129
+#: src/Admin/Settings/Groups/EmailSettings.php:121
 msgid ""
 "Your booking #{booking_id} has been successfully created. Below are your "
 "reservation details:"
@@ -9630,14 +9464,14 @@ msgstr ""
 "Rezervasyon numaranız {booking_id} başarıyla oluşturulmuştur. Rezervasyon "
 "ayrıntılarınız aşağıda yer almaktadır:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:132
+#: src/Admin/Settings/Groups/EmailSettings.php:124
 #: templates/account/booking-detail.php:118
 #: templates/emails/booking-created-admin.html.php:29
 #: templates/emails/booking-created-customer.html.php:16
 msgid "Reservation Details"
 msgstr "Rezervasyon Detayları"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:133
+#: src/Admin/Settings/Groups/EmailSettings.php:125
 #: templates/emails/booking-created-admin.html.php:33
 #: templates/emails/booking-created-customer.html.php:20
 #: templates/emails/offline-verified-approved-customer.html.php:147
@@ -9645,7 +9479,7 @@ msgstr "Rezervasyon Detayları"
 msgid "Reservation No:"
 msgstr "Rezervasyon No:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:136
+#: src/Admin/Settings/Groups/EmailSettings.php:128
 #: templates/emails/booking-created-admin.html.php:45
 #: templates/emails/booking-created-customer.html.php:32
 #: templates/emails/booking-reminder-customer.html.php:17
@@ -9654,7 +9488,7 @@ msgstr "Rezervasyon No:"
 msgid "Return Date:"
 msgstr "İade Tarihi:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:137
+#: src/Admin/Settings/Groups/EmailSettings.php:129
 #: templates/account/payment-history.php:120
 #: templates/emails/booking-cancelled.html.php:92
 #: templates/emails/booking-created-admin.html.php:53
@@ -9663,11 +9497,11 @@ msgstr "İade Tarihi:"
 msgid "Total Amount:"
 msgstr "Toplam Tutar:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:141
+#: src/Admin/Settings/Groups/EmailSettings.php:133
 msgid "Thank you for choosing us!"
 msgstr "Bizi tercih ettiğiniz için teşekkür ederiz!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:142
+#: src/Admin/Settings/Groups/EmailSettings.php:134
 msgid ""
 "Our team will review your application and contact you shortly if any further "
 "action is required."
@@ -9675,15 +9509,15 @@ msgstr ""
 "Ekibimiz başvurunuzu inceleyecek ve herhangi bir ek işlem gerekmesi "
 "durumunda kısa süre içinde sizinle iletişime geçecektir."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:152
+#: src/Admin/Settings/Groups/EmailSettings.php:144
 msgid "The status of your booking #{booking_id} has been updated:"
 msgstr "Rezervasyonunuzun durumu #{booking_id} güncellendi:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:155
+#: src/Admin/Settings/Groups/EmailSettings.php:147
 msgid "New Status"
 msgstr "Yeni Durum"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:159
+#: src/Admin/Settings/Groups/EmailSettings.php:151
 msgid ""
 "You can track your reservation and view all details in your customer "
 "dashboard."
@@ -9691,17 +9525,17 @@ msgstr ""
 "Rezervasyonunuzu takip edebilir ve müşteri panonuzda tüm ayrıntıları "
 "görüntüleyebilirsiniz."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:161
+#: src/Admin/Settings/Groups/EmailSettings.php:153
 #: templates/emails/booking-created-customer.html.php:175
 #: templates/emails/welcome-customer.html.php:22
 msgid "My Account"
 msgstr "Hesabım"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:171
+#: src/Admin/Settings/Groups/EmailSettings.php:163
 msgid "New Booking Received!"
 msgstr "Yeni Rezervasyon Alındı!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:172
+#: src/Admin/Settings/Groups/EmailSettings.php:164
 msgid ""
 "A new reservation request has been submitted on your website. Please log in "
 "to the admin panel to process the request."
@@ -9709,19 +9543,19 @@ msgstr ""
 "Web sitenize yeni bir rezervasyon talebi gönderildi. Talebi işlemek için "
 "lütfen yönetici paneline giriş yapın."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:179
+#: src/Admin/Settings/Groups/EmailSettings.php:171
 msgid "Dates:"
 msgstr "Tarihliler:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:180
+#: src/Admin/Settings/Groups/EmailSettings.php:172
 msgid "Revenue:"
 msgstr "Gelir:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:190
+#: src/Admin/Settings/Groups/EmailSettings.php:182
 msgid "Your booking #{booking_id} has been automatically cancelled."
 msgstr "Rezervasyon numaranız {booking_id} otomatik olarak iptal edilmiştir."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:191
+#: src/Admin/Settings/Groups/EmailSettings.php:183
 msgid ""
 "We did not receive the required payment within the allotted time frame, so "
 "the reservation has been released."
@@ -9729,7 +9563,7 @@ msgstr ""
 "Belirtilen süre içinde gerekli ödemeyi almadık, bu nedenle rezervasyon iptal "
 "edilmiştir."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:194
+#: src/Admin/Settings/Groups/EmailSettings.php:186
 msgid ""
 "If you believe this is an error or wish to make a new reservation, please "
 "visit our website."
@@ -9737,47 +9571,47 @@ msgstr ""
 "Bunun bir hata olduğunu düşünüyorsanız veya yeni bir rezervasyon yapmak "
 "istiyorsanız, lütfen web sitemizi ziyaret edin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:204
+#: src/Admin/Settings/Groups/EmailSettings.php:196
 msgid "Welcome to {site_name}!"
 msgstr "{site_name}'a hoş geldiniz!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:205
+#: src/Admin/Settings/Groups/EmailSettings.php:197
 msgid "We are happy to have you as part of our rental community."
 msgstr "Kiralama topluluğumuzun bir parçası olduğunuz için mutluyuz."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:207
+#: src/Admin/Settings/Groups/EmailSettings.php:199
 msgid "Through your customer dashboard, you can:"
 msgstr "Müşteri kontrol panelinizden şunları yapabilirsiniz:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:209
+#: src/Admin/Settings/Groups/EmailSettings.php:201
 msgid "Manage and track your reservations"
 msgstr "Rezervasyonlarınızı yönetin ve takip edin"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:210
+#: src/Admin/Settings/Groups/EmailSettings.php:202
 msgid "Download payment invoices"
 msgstr "Ödeme faturalarını indirin"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:211
+#: src/Admin/Settings/Groups/EmailSettings.php:203
 msgid "Communicate directly with our support team"
 msgstr "Destek ekibimizle doğrudan iletişim kurun"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:212
+#: src/Admin/Settings/Groups/EmailSettings.php:204
 msgid "Save your profile for faster future bookings"
 msgstr "Daha hızlı rezervasyonlar için profilinizi kaydedin"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:222
+#: src/Admin/Settings/Groups/EmailSettings.php:214
 msgid "This is a friendly reminder that your upcoming rental starts very soon!"
 msgstr "Yaklaşan kiranızın çok yakında başladığını hatırlatmak istedik!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:225
+#: src/Admin/Settings/Groups/EmailSettings.php:217
 msgid "Pickup Details"
 msgstr "Teslim Alma Detayları"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:227
+#: src/Admin/Settings/Groups/EmailSettings.php:219
 msgid "Pickup Time:"
 msgstr "Alış Saati:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:230
+#: src/Admin/Settings/Groups/EmailSettings.php:222
 msgid ""
 "Please make sure to have your identity documents and driver's license ready. "
 "We look forward to seeing you!"
@@ -9785,163 +9619,142 @@ msgstr ""
 "Kimlik belgeleriniz ve ehliyetinizi hazır bulundurunuz. Sizi görmekten "
 "mutluluk duyarız!"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:229
 msgid "Your booking #{booking_id} has been cancelled."
 msgstr "#{booking_id} numaralı rezervasyonunuz iptal edildi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:244
+#: src/Admin/Settings/Groups/EmailSettings.php:236
 msgid "A refund of {amount} has been processed for your booking #{booking_id}."
 msgstr ""
 "#{booking_id} numaralı rezervasyonunuz için {amount} tutarında iade işlendi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:244
+#: src/Admin/Settings/Groups/EmailSettings.php:236
 #: templates/emails/refund-admin.html.php:25
 #: templates/emails/refund-customer.html.php:23
 msgid "Refund Amount:"
 msgstr "İade Tutarı:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:248
+#: src/Admin/Settings/Groups/EmailSettings.php:240
 msgid "Refund Notification"
 msgstr "Geri Ödeme Bildirimi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:248
+#: src/Admin/Settings/Groups/EmailSettings.php:240
 msgid "A refund of {amount} has been processed for booking #{booking_id}."
 msgstr ""
 "#{booking_id} numaralı rezervasyon için {amount} tutarında iade işlendi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:252
+#: src/Admin/Settings/Groups/EmailSettings.php:244
 msgid "Booking Status Update"
 msgstr "Rezervasyon Durumu Güncellemesi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:252
+#: src/Admin/Settings/Groups/EmailSettings.php:244
 msgid "The status of booking #{booking_id} has been changed to {new_status}."
 msgstr ""
 "#{booking_id} numaralı rezervasyonun durumu {new_status} olarak değiştirildi."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:256
-msgid "New Message Received"
-msgstr "Yeni Mesaj Alındı"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:256
-msgid "You have received a new message regarding booking #{booking_id}."
-msgstr "{booking_id} numaralı rezervasyonla ilgili yeni bir mesaj aldınız."
-
-#: src/Admin/Settings/Groups/EmailSettings.php:260
-#: src/Admin/Settings/Groups/EmailSettings.php:264
-msgid "Dear {customer_name},"
-msgstr "Sayın {customer_name},"
-
-#: src/Admin/Settings/Groups/EmailSettings.php:260
-msgid "You have received a new reply regarding your booking #{booking_id}."
-msgstr "Rezervasyon numaranız #{booking_id} ile ilgili yeni bir yanıt aldınız."
-
-#: src/Admin/Settings/Groups/EmailSettings.php:264
-msgid "We have received your message and will get back to you shortly."
-msgstr "Mesajınızı aldık ve kısa süre içinde size geri dönüş yapacağız."
-
-#: src/Admin/Settings/Groups/EmailSettings.php:275
+#: src/Admin/Settings/Groups/EmailSettings.php:255
 #: src/Admin/Settings/View/TabRendererRegistry.php:151
 msgid "Email Configuration"
 msgstr "E-posta Yapılandırması"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:280
+#: src/Admin/Settings/Groups/EmailSettings.php:260
 #: src/Admin/Setup/SetupWizard.php:286
 msgid "Sender Name"
 msgstr "Gönderen adı"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:281
+#: src/Admin/Settings/Groups/EmailSettings.php:261
 #: src/Admin/Setup/SetupWizard.php:290
 msgid "Sender Email"
 msgstr "Gönderen E-postası"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:282
+#: src/Admin/Settings/Groups/EmailSettings.php:262
 #: src/Admin/Setup/SetupWizard.php:294
 msgid "Reply-To Address"
 msgstr "Cevap Adresi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:286
+#: src/Admin/Settings/Groups/EmailSettings.php:266
 msgid "Base Color"
 msgstr "Temel Renk"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:292
+#: src/Admin/Settings/Groups/EmailSettings.php:272
 msgid "Header Image (Logo URL)"
 msgstr "Başlık Resmi (Logo URL'si)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:293
+#: src/Admin/Settings/Groups/EmailSettings.php:273
 msgid "Footer Text"
 msgstr "Alt Bilgi Metni"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:295
+#: src/Admin/Settings/Groups/EmailSettings.php:275
 msgid "Enable Outgoing Emails"
 msgstr "Giden E-postaları Etkinleştir"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:295
+#: src/Admin/Settings/Groups/EmailSettings.php:275
 msgid "Allow system to send automated transaction emails."
 msgstr "Sistemin otomatik işlem e-postaları göndermesine izin verin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:296
+#: src/Admin/Settings/Groups/EmailSettings.php:276
 msgid "Production Sandbox (Test Mode)"
 msgstr "Üretim Sandbox (Test Modu)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:296
+#: src/Admin/Settings/Groups/EmailSettings.php:276
 msgid "Redirect all outgoing mails to the test address below."
 msgstr "Tüm giden postaları aşağıdaki test adresine yönlendirin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:297
+#: src/Admin/Settings/Groups/EmailSettings.php:277
 #: src/Admin/Setup/SetupWizard.php:307
 msgid "Test Email Address"
 msgstr "Test E-posta Adresi"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:299
+#: src/Admin/Settings/Groups/EmailSettings.php:279
 msgid "Template Override Path"
 msgstr "Şablon Geçersiz Kılma Yolu"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:300
+#: src/Admin/Settings/Groups/EmailSettings.php:280
 msgid "Automatic Background Sending"
 msgstr "Otomatik Arka Plan Gönderme"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:301
+#: src/Admin/Settings/Groups/EmailSettings.php:281
 msgid "Enable Communication Logs"
 msgstr "İletişim Günlüklerini Etkinleştir"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:302
+#: src/Admin/Settings/Groups/EmailSettings.php:282
 #: src/Admin/Settings/Groups/LogsSettings.php:94
 msgid "Log Retention (Days)"
 msgstr "Günlük Saklama Süresi (Gün)"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:307
+#: src/Admin/Settings/Groups/EmailSettings.php:287
 msgid "Customer Notification Toggles"
 msgstr "Müşteri Bildirim Ayarları"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:308
+#: src/Admin/Settings/Groups/EmailSettings.php:288
 msgid "Control which automated emails are sent to customers."
 msgstr "Müşterilere gönderilen otomatik e-postaları kontrol edin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:312
+#: src/Admin/Settings/Groups/EmailSettings.php:292
 msgid "Send Welcome Email"
 msgstr "Hoşgeldiniz E-postası Gönder"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:312
+#: src/Admin/Settings/Groups/EmailSettings.php:292
 msgid "Send a one-time welcome email to customers on their first booking."
 msgstr ""
 "Müşterilere ilk rezervasyonlarında tek seferlik hoş geldiniz e-postası "
 "gönder."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:313
+#: src/Admin/Settings/Groups/EmailSettings.php:293
 msgid "Send Booking Notifications"
 msgstr "Rezervasyon Bildirimlerini Gönder"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:313
+#: src/Admin/Settings/Groups/EmailSettings.php:293
 msgid ""
 "Send booking confirmation, reminder, and cancellation emails to customers."
 msgstr ""
 "Müşterilere rezervasyon onayı, hatırlatma ve iptal e-postaları gönderin."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:318
+#: src/Admin/Settings/Groups/EmailSettings.php:298
 msgid "WooCommerce Detected:"
 msgstr "WooCommerce Algılandı:"
 
-#: src/Admin/Settings/Groups/EmailSettings.php:318
+#: src/Admin/Settings/Groups/EmailSettings.php:298
 msgid ""
 "Transactional emails are managed by WooCommerce. These settings apply to "
 "plugin-specific internal alerts."
@@ -9949,7 +9762,7 @@ msgstr ""
 "İşlem e-postaları WooCommerce tarafından yönetilir. Bu ayarlar, eklentiye "
 "özgü dahili uyarılar için geçerlidir."
 
-#: src/Admin/Settings/Groups/EmailSettings.php:323
+#: src/Admin/Settings/Groups/EmailSettings.php:303
 msgid "Send Test Connection Email"
 msgstr "Test Bağlantısı E-postası Gönder"
 
