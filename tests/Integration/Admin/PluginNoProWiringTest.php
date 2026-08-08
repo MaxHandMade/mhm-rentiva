@@ -90,6 +90,22 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         }
     }
 
+    public function test_plugin_php_has_no_legacy_limit_enforcement_hook_or_method(): void
+    {
+        $src = $this->plugin_php_source();
+
+        $this->assertStringNotContainsString(
+            'enforce_limits',
+            $src,
+            'Lite must not retain a no-op hook named for the removed paid-tier limit system.'
+        );
+        $this->assertStringNotContainsString(
+            "add_filter('wp_insert_post_data'",
+            $src,
+            'The removed limit filter must not remain wired as a no-op.'
+        );
+    }
+
     public function test_plugin_php_no_longer_wires_the_pro_cli_commands(): void
     {
         $src = $this->plugin_php_source();
@@ -186,7 +202,7 @@ final class PluginNoProWiringTest extends WP_UnitTestCase
         // vendor FEATURE classes above) must survive, or the whole
         // initialize_post_types()/initialize_admin_services() block could have
         // been deleted wholesale rather than surgically edited.
-        $this->assertStringContainsString('register_vendor_role', $src);
+        $this->assertStringNotContainsString('register_vendor_role', $src);
     }
 
     public function test_main_file_no_longer_calls_license_manager_deactivation(): void

@@ -10,13 +10,13 @@ use WP_UnitTestCase;
 /**
  * WP.org T7 round, Görev 10 review follow-up.
  *
- * VehicleColumns::availability_filter() renders four list-screen dropdowns on
- * edit.php?post_type=mhmrentiva_vehicle. Three of them -- location, lifecycle and owner --
+ * VehicleColumns::availability_filter() renders the retained rental list-screen dropdowns on
+ * edit.php?post_type=mhmrentiva_vehicle. Location and lifecycle
  * read their current value from a `$request` array that is never assigned
  * anywhere in the class. `isset()` on an undefined variable raises nothing in
  * PHP 8, so the bug is silent: the dropdowns render, submit and filter, but the
  * active filter never appears selected. Reloading a filtered URL shows
- * "All locations" / "All lifecycle states" / "All owners" every time.
+ * "All locations" / "All lifecycle states" every time.
  *
  * It survived because PHPStan -- the only tool that catches an undefined
  * variable -- had been aborting on a stale ignoreErrors path since the task
@@ -66,21 +66,11 @@ final class VehicleFilterSelectedValueTest extends WP_UnitTestCase {
 		);
 	}
 
-	public function test_owner_filter_marks_the_active_value_selected(): void {
-		$html = $this->render_with( array( 'mhmrentiva_owner_filter' => 'vendor' ) );
-
-		$this->assertStringContainsString(
-			'<option value="vendor" selected=\'selected\'>',
-			$html,
-			'The active owner filter must render as the selected option.'
-		);
-	}
-
 	public function test_no_option_is_selected_when_no_filter_is_active(): void {
 		$html = $this->render_with( array() );
 
-		$this->assertStringContainsString( '<option value="vendor">', $html );
 		$this->assertStringContainsString( '<option value="paused">', $html );
+		$this->assertStringNotContainsString( 'mhmrentiva_owner_filter', $html );
 	}
 
 	/**

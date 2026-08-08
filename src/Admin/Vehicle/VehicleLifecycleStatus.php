@@ -186,30 +186,4 @@ final class VehicleLifecycleStatus {
 
         return $colors[ $status ] ?? '#6c757d';
     }
-
-    /**
-     * Whether a vehicle is a vendor marketplace listing.
-     *
-     * The listing lifecycle (90-day expiry, renewal, penalties, reliability score) is a
-     * vendor-marketplace feature. Vehicles owned by the operator's own staff
-     * (administrator/editor — i.e. not a vendor) belong to the operator's own fleet and
-     * must never expire, so the entire lifecycle is skipped for them.
-     *
-     * Discriminator: the vehicle author holds the `rentiva_vendor` role.
-     *
-     * @param int $vehicle_id Vehicle post ID.
-     * @return bool True when the vehicle is owned by a vendor.
-     */
-    public static function is_vendor_listing(int $vehicle_id): bool
-    {
-        $author_id = (int) get_post_field('post_author', $vehicle_id);
-        if ($author_id <= 0) {
-            return false;
-        }
-
-        $author = get_userdata($author_id);
-
-        return $author instanceof \WP_User
-            && in_array('rentiva_vendor', (array) $author->roles, true);
-    }
 }

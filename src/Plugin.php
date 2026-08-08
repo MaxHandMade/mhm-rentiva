@@ -69,12 +69,6 @@ final class Plugin {
 		// Priority 20: Run after WooCommerce and other plugins that might register customer role
 		add_action('init', array( self::class, 'register_customer_role' ), 20);
 
-		// Register Vendor role alongside Customer role
-		add_action('init', array( self::class, 'register_vendor_role' ), 20);
-
-		// Legacy post-data filter hook (no-op, kept for wiring compatibility)
-		add_filter('wp_insert_post_data', array( $this, 'enforce_limits' ), 10, 2);
-
 		// Cache invalidation hooks
 		add_action('save_post', array( $this, 'invalidate_cache_on_save' ));
 		add_action('delete_post', array( $this, 'invalidate_cache_on_delete' ));
@@ -294,10 +288,6 @@ final class Plugin {
 
 		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox')) {
 			\MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::register();
-		}
-
-		if (class_exists('\MHMRentiva\Admin\Vehicle\Meta\VehicleCommissionRateMetaBox')) {
-			\MHMRentiva\Admin\Vehicle\Meta\VehicleCommissionRateMetaBox::register();
 		}
 
 		// BookingMeta registration - directly
@@ -683,27 +673,6 @@ final class Plugin {
 	}
 
 	/**
-	 * Legacy post-data filter (no-op).
-	 *
-	 * No-op in Lite (the vehicle/booking creation cap this used to enforce has
-	 * been removed — "Lite'ta yapay limit YOK"). Kept as a registered
-	 * `wp_insert_post_data` filter returning $data unchanged so the hook
-	 * wiring doesn't need to be touched elsewhere.
-	 */
-	public function enforce_limits(array $data, array $postarr): array
-	{
-		unset($postarr);
-
-		return $data;
-	}
-
-
-
-
-
-
-
-	/**
 	 * Register SEO-friendly rewrite rules for vehicle detail sub-paths.
 	 *
 	 * Maps {shortcode-page-slug}/{vehicle-slug}/ to the vehicle-details shortcode page
@@ -999,26 +968,6 @@ final class Plugin {
 		if ($result === null && ! get_role('customer')) {
 			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::warning('Failed to create customer role (may already exist from another plugin)');
 		}
-	}
-
-	/**
-	 * Register the rentiva_vendor WordPress role.
-	 * Idempotent — safe to call multiple times.
-	 */
-	public static function register_vendor_role(): void
-	{
-		if (get_role('rentiva_vendor')) {
-			return;
-		}
-
-		add_role(
-			'rentiva_vendor',
-			__('Rentiva Vendor', 'mhm-rentiva'),
-			array(
-				'read'         => true,
-				'upload_files' => true,
-			)
-		);
 	}
 
 	/**

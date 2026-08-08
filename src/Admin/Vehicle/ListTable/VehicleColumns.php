@@ -12,8 +12,7 @@ if (! defined('ABSPATH')) {
 /**
  * Custom columns for the Vehicle admin list table.
  *
- * Registers, renders, and sorts additional columns (lifecycle status,
- * vendor info, financial metrics) on the edit-mhmrentiva_vehicle screen.
+	 * Registers, renders, and sorts additional vehicle columns.
  *
  * @since 4.20.0
  */
@@ -60,7 +59,6 @@ final class VehicleColumns {
 		'mhmrentiva_available',
 		'mhmrentiva_location_filter',
 		'mhmrentiva_lifecycle_filter',
-		'mhmrentiva_owner_filter',
 		'mhmrentiva_month',
 		'mhmrentiva_year',
 	);
@@ -157,7 +155,6 @@ final class VehicleColumns {
 		$date = $cols['date'] ?? null;
 		unset($cols['date']);
 
-		$cols['mhmrentiva_owner']         = __('Added by', 'mhm-rentiva');
 		$cols['mhmrentiva_license_plate'] = __('License Plate', 'mhm-rentiva');
 		if (self::has_locations()) {
 			$cols['mhmrentiva_location'] = __('Location', 'mhm-rentiva');
@@ -185,19 +182,6 @@ final class VehicleColumns {
 	public static function render(string $column, int $post_id): void
 	{
 		switch ($column) {
-			case 'mhmrentiva_owner':
-				if (\MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($post_id)) {
-					$author_id = (int) get_post_field('post_author', $post_id);
-					$author    = get_userdata($author_id);
-					$name      = $author instanceof \WP_User ? $author->display_name : ( '#' . $author_id );
-					echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:#e7f0fd;color:#1d4ed8;font-weight:600;font-size:12px;">'
-						. esc_html__('Vendor', 'mhm-rentiva') . '</span> '
-						. '<span style="color:#1d2327;">' . esc_html($name) . '</span>';
-				} else {
-					echo '<span style="color:#6c757d;">' . esc_html__('Operator', 'mhm-rentiva') . '</span>';
-				}
-				break;
-
 			case 'mhmrentiva_license_plate':
 				$v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
 				echo ! empty($v) ? esc_html($v) : '—';
@@ -292,15 +276,6 @@ final class VehicleColumns {
 				echo esc_html($label);
 				echo '</span>';
 
-				$expires = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LISTING_EXPIRES_AT, true);
-				// Countdown only for vendor listings — operator-owned vehicles never expire.
-				if ($lifecycle === 'active' && $expires && \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::is_vendor_listing($post_id)) {
-					$days_left = max(0, (int) ceil(( strtotime($expires) - time() ) / DAY_IN_SECONDS));
-					echo '<br><small style="color:#666;">' . esc_html(
-						/* translators: %d: days remaining */
-						sprintf(__('%d days left', 'mhm-rentiva'), $days_left)
-					) . '</small>';
-				}
 				break;
 
 			case 'mhmrentiva_featured':
@@ -405,19 +380,6 @@ final class VehicleColumns {
 			echo '<option value="' . esc_attr($value) . '"' . selected($current_lc, $value, false) . '>' . esc_html($label) . '</option>';
 		}
 		echo '</select>';
-
-		// Owner filter dropdown (vendor-added vs operator-added).
-		$current_owner = self::get_query_text('mhmrentiva_owner_filter');
-		$owner_options = array(
-			''         => __('All owners', 'mhm-rentiva'),
-			'vendor'   => __('Vendor', 'mhm-rentiva'),
-			'operator' => __('Operator', 'mhm-rentiva'),
-		);
-		echo '<select name="mhmrentiva_owner_filter" class="postform">';
-		foreach ($owner_options as $value => $label) {
-			echo '<option value="' . esc_attr($value) . '"' . selected($current_owner, $value, false) . '>' . esc_html($label) . '</option>';
-		}
-		echo '</select>';
 	}
 
 	public static function apply_availability_filter(\WP_Query $q): void
@@ -471,13 +433,6 @@ final class VehicleColumns {
 		if (! empty($meta_query)) {
 			$q->set('meta_query', $meta_query);
 		}
-
-		// Owner filter (vendor-added vs operator-added) — translated to author query vars.
-		$owner      = self::get_query_text('mhmrentiva_owner_filter');
-		$owner_args = self::owner_filter_args($owner);
-		foreach ($owner_args as $key => $value) {
-			$q->set($key, $value);
-		}
 	}
 
 	/**
@@ -521,36 +476,6 @@ final class VehicleColumns {
 		}
 
 		return array();
-	}
-
-	/**
-	 * Pure query-args mapper for the admin vehicle-list "Added by" (owner) filter.
-	 *
-	 * A vehicle is a vendor listing when its post_author has the rentiva_vendor role.
-	 * - 'vendor'   → author__in = vendor user IDs (empty set → [0] so nothing matches)
-	 * - 'operator' → author__not_in = vendor user IDs (no vendors → no restriction)
-	 * - other      → no filter
-	 *
-	 * @param string $owner One of 'vendor', 'operator'. Empty/unknown → no filter.
-	 * @return array{author__in?: int[], author__not_in?: int[]}
-	 */
-	public static function owner_filter_args(string $owner): array
-	{
-		if ($owner !== 'vendor' && $owner !== 'operator') {
-			return array();
-		}
-
-		$vendor_ids = array_map('intval', get_users(array(
-			'role'   => 'rentiva_vendor',
-			'fields' => 'ID',
-		)));
-
-		if ($owner === 'vendor') {
-			return array( 'author__in' => ! empty($vendor_ids) ? array_values($vendor_ids) : array( 0 ) );
-		}
-
-		// operator: every vehicle NOT authored by a vendor.
-		return ! empty($vendor_ids) ? array( 'author__not_in' => array_values($vendor_ids) ) : array();
 	}
 
 	/**
