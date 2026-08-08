@@ -24,15 +24,46 @@ namespace MHMRentiva\Tests\Integration;
  */
 final class PluginTextdomainLocaleTest extends \WP_UnitTestCase
 {
-	public function test_loader_avoids_the_discouraged_plugin_textdomain_registration_call(): void
+	/**
+	 * Token-level scan of every shipped PHP file: a docblock or string literal
+	 * mentioning the function stays legal, but any code-level reference (call,
+	 * callable, alias) anywhere in the shipped tree fails. Editing a comment
+	 * cannot satisfy this assertion.
+	 */
+	public function test_no_shipped_php_file_references_the_discouraged_plugin_textdomain_registration(): void
 	{
-		$source = file_get_contents(MHMRENTIVA_PLUGIN_DIR . 'src/Plugin.php');
+		$targets = array(
+			MHMRENTIVA_PLUGIN_DIR . 'src',
+			MHMRENTIVA_PLUGIN_DIR . 'templates',
+			MHMRENTIVA_PLUGIN_DIR . 'blocks',
+		);
+		foreach (glob(MHMRENTIVA_PLUGIN_DIR . '*.php') ?: array() as $root_file) {
+			$targets[] = $root_file;
+		}
 
-		$this->assertIsString($source);
-		$this->assertStringNotContainsString(
-			'load_plugin_textdomain(',
-			$source,
-			'Plugin Check flags load_plugin_textdomain() as discouraged since WordPress 4.6; the explicit locale-specific load below must remain the only loader.'
+		$references = array();
+		foreach ($targets as $target) {
+			$files = is_dir($target)
+				? new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($target, \FilesystemIterator::SKIP_DOTS))
+				: array( new \SplFileInfo($target) );
+
+			foreach ($files as $file) {
+				if (strtolower($file->getExtension()) !== 'php') {
+					continue;
+				}
+
+				foreach (token_get_all((string) file_get_contents($file->getPathname())) as $token) {
+					if (is_array($token) && T_STRING === $token[0] && 'load_plugin_textdomain' === $token[1]) {
+						$references[] = substr($file->getPathname(), strlen(MHMRENTIVA_PLUGIN_DIR)) . ':' . $token[2];
+					}
+				}
+			}
+		}
+
+		$this->assertSame(
+			array(),
+			$references,
+			'Plugin Check flags load_plugin_textdomain() as unnecessary since WordPress 4.6; the explicit determine_locale() loader in Plugin::load_textdomain() must remain the only loader.'
 		);
 	}
 
