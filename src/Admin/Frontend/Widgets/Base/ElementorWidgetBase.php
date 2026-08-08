@@ -472,12 +472,9 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'FeaturedVehiclesWidget'     => 'rentiva_featured_vehicles',
 			'MyBookingsWidget'           => 'rentiva_my_bookings',
 			'MyFavoritesWidget'          => 'rentiva_my_favorites',
-			'MyMessagesWidget'           => 'rentiva_messages',
 			'PaymentHistoryWidget'       => 'rentiva_payment_history',
 			'SearchResultsWidget'        => 'rentiva_search_results',
 			'TestimonialsWidget'         => 'rentiva_testimonials',
-			'TransferResultsWidget'      => 'rentiva_transfer_results',
-			'TransferSearchWidget'       => 'rentiva_transfer_search',
 			'UnifiedSearchWidget'        => 'rentiva_unified_search',
 			'VehicleComparisonWidget'    => 'rentiva_vehicle_comparison',
 			'VehicleDetailsWidget'       => 'rentiva_vehicle_details',
@@ -486,9 +483,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'VehiclesListWidget'         => 'rentiva_vehicles_list',
 			'VehicleCardWidget'          => 'rentiva_vehicles_list',
 			'UserDashboardWidget'        => 'rentiva_user_dashboard',
-			'VendorProfileWidget'        => 'rentiva_vendor_profile',
-			'VendorDirectoryWidget'      => 'rentiva_vendor_directory',
 		);
+		$map = apply_filters( 'mhmrentiva_elementor_shortcode_map', $map );
 
 		return $map[ $class ] ?? '';
 	}
@@ -502,14 +498,11 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'rentiva_booking_form'          => 'booking-form',
 			'rentiva_contact'               => 'contact',
 			'rentiva_featured_vehicles'     => 'featured-vehicles',
-			'rentiva_messages'              => 'messages',
 			'rentiva_my_bookings'           => 'my-bookings',
 			'rentiva_my_favorites'          => 'my-favorites',
 			'rentiva_payment_history'       => 'payment-history',
 			'rentiva_search_results'        => 'search-results',
 			'rentiva_testimonials'          => 'testimonials',
-			'rentiva_transfer_results'      => 'transfer-results',
-			'rentiva_transfer_search'       => 'transfer-search',
 			'rentiva_unified_search'        => 'unified-search',
 			'rentiva_vehicle_comparison'    => 'vehicle-comparison',
 			'rentiva_vehicle_details'       => 'vehicle-details',
@@ -517,9 +510,8 @@ abstract class ElementorWidgetBase extends Widget_Base {
 			'rentiva_vehicles_grid'         => 'vehicles-grid',
 			'rentiva_vehicles_list'         => 'vehicles-list',
 			'rentiva_user_dashboard'        => 'user-dashboard',
-			'rentiva_vendor_profile'        => 'vendor-profile',
-			'rentiva_vendor_directory'      => 'vendor-directory',
 		);
+		$map = apply_filters( 'mhmrentiva_shortcode_block_map', $map );
 
 		return $map[ $shortcode_tag ] ?? '';
 	}

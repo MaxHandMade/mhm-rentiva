@@ -202,21 +202,9 @@ final class DashboardPage {
 			'widget_order'                => array(),
 			'currency'                    => CurrencyHelper::get_currency_symbol(),
 			'admin_url'                   => admin_url(),
-			// Registration gates for add-on quick actions, so the dashboard does
-			// not link to pages an inactive add-on would expose. Keys match the
-			// `cap` tags in QuickActions.jsx; same gates as the admin menus (Menu.php).
-			// Lite ships no keys at all -- a subscriber (the add-on) supplies transfer/
-			// reports/vendors/messages/export; QuickActions.jsx already reads
-			// `caps[a.cap]`, and a missing JS object key is falsy, so an absent
-			// key behaves identically to an explicit `false`.
-			'caps'                        => apply_filters( 'mhmrentiva_dashboard_features', array() ),
 		);
 
-		// Extension point: Lite ships no transfer data at all -- a
-		// subscriber (the add-on's DashboardExtensions) adds `transfer_stats` /
-		// `recent_transfers` / `recent_transfers_total_pages` back only when
-		// the add-on is active. The React app already guards its
-		// TransferWidget render on `transfer_stats` being truthy.
+		// Generic extension point for add-ons that augment dashboard data.
 		$data = apply_filters( 'mhmrentiva_dashboard_localize', $data );
 
 		wp_localize_script(

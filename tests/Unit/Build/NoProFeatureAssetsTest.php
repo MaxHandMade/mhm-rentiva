@@ -176,6 +176,101 @@ final class NoProFeatureAssetsTest extends TestCase
     }
 
     /**
+     * Hidden links are still a paid-feature shell even when a false capability
+     * keeps them out of the rendered DOM. Lite's own component must not know
+     * the carved add-on slugs or carry a `cap` gate for them.
+     */
+    public function test_dashboard_quick_actions_has_no_hidden_addon_actions(): void
+    {
+        $relative = 'src-react/admin/dashboard/components/QuickActions.jsx';
+        $source   = (string) file_get_contents($this->plugin_root() . $relative);
+
+        $this->assertStringContainsString('Add New Booking', $source, 'Positive control: the Lite quick-actions component was not read.');
+
+        foreach (
+            array(
+                'mhm-rentiva-transfer-locations',
+                'mhm-rentiva-reports',
+                'mhm-rentiva-vendors',
+                'mhm-rentiva-messages',
+                'mhm-rentiva-export',
+                'cap:',
+                'caps[',
+            ) as $forbidden
+        ) {
+            $this->assertStringNotContainsString(
+                $forbidden,
+                $source,
+                "{$relative} must not ship the hidden add-on surface '{$forbidden}'."
+            );
+        }
+    }
+
+    /**
+     * The shared Lite API client is bundled into Lite admin builds. Endpoints
+     * with no Lite consumer and no Lite route must not remain as paid-feature
+     * implementation residue.
+     */
+    public function test_shared_api_has_no_unconsumed_addon_clients(): void
+    {
+        $relative = 'src-react/shared/api/rentiva.js';
+        $source   = (string) file_get_contents($this->plugin_root() . $relative);
+
+        $this->assertStringContainsString('customers:', $source, 'Positive control: the shared API module was not read.');
+
+        foreach (array( 'reports', 'messages', 'vendorReports', 'export', 'vendorManagement' ) as $client) {
+            $this->assertDoesNotMatchRegularExpression(
+                '/^\s*' . preg_quote($client, '/') . '\s*:/m',
+                $source,
+                "{$relative} must not expose the unconsumed {$client} add-on client."
+            );
+        }
+
+        $this->assertStringNotContainsString(
+            'getRecentTransfers',
+            $source,
+            "{$relative} must not ship the transfer dashboard client owned by the Pro add-on."
+        );
+    }
+
+    /**
+     * The transfer dashboard card is a paid-feature implementation. Supplying
+     * data through an extension filter must not make Lite physically ship the
+     * React component, its import, or its Pro-only localized-data contract.
+     */
+    public function test_lite_dashboard_has_no_transfer_widget_implementation(): void
+    {
+        $root      = $this->plugin_root();
+        $relative  = 'src-react/admin/dashboard/DashboardPage.jsx';
+        $source    = (string) file_get_contents($root . $relative);
+        $component = 'src-react/admin/dashboard/components/TransferWidget.jsx';
+
+        $this->assertStringContainsString('RecentBookings', $source, 'Positive control: the Lite dashboard component was not read.');
+        $this->assertFileDoesNotExist($root . $component, 'The paid transfer widget implementation must not ship in Lite.');
+
+        foreach (array( 'TransferWidget', 'transfer_stats', 'recent_transfers', 'recent_transfers_total_pages' ) as $forbidden) {
+            $this->assertStringNotContainsString(
+                $forbidden,
+                $source,
+                "{$relative} must not ship the transfer dashboard contract '{$forbidden}'."
+            );
+        }
+    }
+
+    public function test_dashboard_styles_have_no_removed_reports_action_selector(): void
+    {
+        $relative = 'src-react/admin/dashboard/dashboard.css';
+        $source   = (string) file_get_contents($this->plugin_root() . $relative);
+
+        $this->assertStringContainsString('.rv-dash-header', $source, 'Positive control: the dashboard stylesheet was not read.');
+        $this->assertStringNotContainsString(
+            '.rv-dash-header__report',
+            $source,
+            'The removed reports link must not leave a paid-feature selector in Lite CSS.'
+        );
+    }
+
+    /**
      * @return iterable<int, string>
      */
     private function shipped_php_files(string $root): iterable

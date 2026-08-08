@@ -233,8 +233,7 @@ final class SupportTab extends AbstractTab {
 				'changes' => array(
 					__('Current version', 'mhm-rentiva'),
 					__('About page added', 'mhm-rentiva'),
-					__('Messaging system added', 'mhm-rentiva'),
-					__('Advanced reports system', 'mhm-rentiva'),
+					__('Maintenance and compatibility improvements', 'mhm-rentiva'),
 				),
 			),
 		);

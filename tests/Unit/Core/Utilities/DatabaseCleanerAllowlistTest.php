@@ -98,13 +98,20 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_attachments',
 		'_mhmrentiva_iban_change_status',
 		'_mhmrentiva_pending_iban',
+		// T4 removed Lite's paid vehicle/vendor behaviour, not ownership of the
+		// historical rows. These remain Pro-written data that Lite's unscoped
+		// invalid-meta cleanup must continue protecting.
+		'_mhmrentiva_vehicle_pause_count_month',
+		'_mhmrentiva_vehicle_service_type',
 		'_mhmrentiva_user_agent', // moved home: WP.org T8 Görev 10b deleted Lite's only scanned occurrence (Handler.php's create_booking_atomic()); Pro's Message.php:127 still writes it
 		'_mhmrentiva_vendor_account_holder',
 		'_mhmrentiva_vendor_approved_at',
 		'_mhmrentiva_vendor_bio',
+		'_mhmrentiva_vendor_commission_rate',
 		'_mhmrentiva_vendor_iban',
 		'_mhmrentiva_vendor_phone',
 		'_mhmrentiva_vendor_service_areas',
+		'_mhmrentiva_vendor_status',
 		'_mhmrentiva_vendor_tax_number',
 		'_mhmrentiva_vendor_tax_office',
 		'_mhm_bypass_reason',
@@ -156,20 +163,6 @@ final class DatabaseCleanerAllowlistTest extends WP_UnitTestCase
 		'_mhm_vehicle_max_small_luggage',
 		'_mhm_vehicle_penalty_blocked_dates',
 		'_mhm_vehicle_price_per_km',
-		// '_mhm_vehicle_service_type' was here and is deliberately NOT any more.
-		//
-		// 🔴 It is the one place the 6.0.0 map MERGES two distinct legacy keys.
-		// Pro writes '_mhm_vehicle_service_type' in one place and
-		// '_rentiva_vehicle_service_type' in another (VehicleSubmit.php), and
-		// Lite reads the second one too. The map's prefix rules send '_mhm_' and
-		// '_rentiva_' both to '_mhmrentiva_', so BOTH canonicalise to
-		// '_mhmrentiva_vehicle_service_type' -- the key stops being Pro-exclusive,
-		// which is why it no longer belongs in this freeze.
-		//
-		// Görev 13 needs to know: on a post carrying both rows, a prefix-based
-		// migration writes one over the other. G-C mode 1 does not catch this --
-		// it checks uniqueness within the exact-key families only, and this
-		// collision is between two PREFIX rules. Reported, not silently absorbed.
 		'_mhm_vehicle_suspended_by_vendor_ban',
 		'_mhm_vendor_payout_freeze',
 		'_mhm_workflow_state',

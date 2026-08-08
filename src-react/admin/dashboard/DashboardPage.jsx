@@ -5,7 +5,6 @@ import RevenueChart     from './components/RevenueChart';
 import RecentBookings   from './components/RecentBookings';
 import StatusBreakdown  from './components/StatusBreakdown';
 import PaymentsSummary  from './components/PaymentsSummary';
-import TransferWidget   from './components/TransferWidget';
 
 export default function DashboardPage() {
 	const data = window.mhmRentivaDashboard ?? {};
@@ -18,23 +17,16 @@ export default function DashboardPage() {
 		recent_bookings_total_pages:  recentBookingsTotalPages = 1,
 		status_breakdown:             statusBreakdown      = [],
 		payments_summary:             paymentsSummary,
-		transfer_stats:               transferStats,
-		recent_transfers:             recentTransfers      = [],
-		recent_transfers_total_pages: recentTransfersTotalPages = 1,
 		currency  = '',
 		admin_url: adminUrl = '',
-		caps                = {},
 	} = data;
 
-	const bookingsInitial  = { items: recentBookings,  total_pages: recentBookingsTotalPages,  page: 1 };
-	const transfersInitial = { items: recentTransfers, total_pages: recentTransfersTotalPages, page: 1 };
-
-	const reportsUrl = `${ adminUrl }admin.php?page=mhm-rentiva-reports`;
+	const bookingsInitial = { items: recentBookings, total_pages: recentBookingsTotalPages, page: 1 };
 
 	return (
 		<div className="mhm-dashboard rv-dashboard">
 
-			{ /* Header strip: title + static range selector (visual only) + report link */ }
+			{ /* Header strip: title + static range selector (visual only) */ }
 			<div className="rv-dash-header">
 				<div className="rv-dash-header__titles">
 					<h1 className="rv-dash-header__h1">{ __( 'Dashboard', 'mhm-rentiva' ) }</h1>
@@ -45,9 +37,6 @@ export default function DashboardPage() {
 					<select className="rv-dash-header__range" defaultValue="30" disabled aria-label={ __( 'Date range', 'mhm-rentiva' ) }>
 						<option value="30">{ __( 'Last 30 days', 'mhm-rentiva' ) }</option>
 					</select>
-					{ caps.reports && (
-						<a className="rv-dash-header__report" href={ reportsUrl }>{ __( 'View reports', 'mhm-rentiva' ) }</a>
-					) }
 				</div>
 			</div>
 
@@ -69,15 +58,7 @@ export default function DashboardPage() {
 				</div>
 
 				<div className="rv-dash-cols__right">
-					<QuickActions adminUrl={ adminUrl } caps={ caps } />
-					{ transferStats && (
-						<TransferWidget
-							initial={ transfersInitial }
-							stats={ transferStats }
-							currency={ currency }
-							adminUrl={ adminUrl }
-						/>
-					) }
+					<QuickActions adminUrl={ adminUrl } />
 					<StatusBreakdown items={ statusBreakdown } />
 					<PaymentsSummary summary={ paymentsSummary } currency={ currency } />
 				</div>

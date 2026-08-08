@@ -20,24 +20,7 @@ final class ShortcodePageActions {
 
 
 	/**
-	 * Get shortcode configurations, minus any this build cannot render.
-	 *
-	 * This is the second registry that has to respect the Lite/add-on extension boundary --
-	 * BlockRegistry was the first. An unregistered shortcode does not vanish, it
-	 * degrades to its own literal source text, so offering a page for one is not a
-	 * cosmetic fault: create_page() publishes the raw shortcode as page content
-	 * and the visitor reads "[rentiva_vendor_apply]" on a live page.
-	 *
-	 * Availability is probed with shortcode_exists() rather than a second
-	 * hardcoded list of add-on tags, deliberately. ShortcodeServiceProvider already
-	 * drops absent add-on extension points from the one real registry, so asking that registry
-	 * what exists keeps this list honest automatically -- a duplicated tag list
-	 * here would be free to rot out of sync, which is precisely how this defect
-	 * survived the carve.
-	 *
-	 * Timing is safe: ShortcodeServiceProvider::register() registers immediately
-	 * at plugin load, while every consumer of this method (the REST controller and
-	 * the admin page) runs later, in an admin or REST request.
+	 * Get shortcode page configurations that this build can render.
 	 */
 	public function get_config(): array {
 		$config = array(
@@ -110,97 +93,26 @@ final class ShortcodePageActions {
 				'slug'        => 'contact-form',
 				'description' => __( 'Contact form page - customers can send messages to admin', 'mhm-rentiva' ),
 			),
-			'rentiva_messages'              => array(
-				'title'       => __( 'Messages', 'mhm-rentiva' ),
-				'slug'        => 'my-messages',
-				'description' => __( 'User messages and notifications', 'mhm-rentiva' ),
-			),
 			'rentiva_vehicle_rating_form'   => array(
 				'title'       => __( 'Vehicle Rating Form', 'mhm-rentiva' ),
 				'slug'        => 'vehicle-rating-form',
 				'description' => __( 'Vehicle rating and review form - customers can rate and review vehicles', 'mhm-rentiva' ),
 			),
-			'rentiva_transfer_search'       => array(
-				'title'       => __( 'Transfer Search', 'mhm-rentiva' ),
-				'slug'        => 'transfer-search',
-				'description' => __( 'VIP transfer booking search form - airport and point-to-point transfers', 'mhm-rentiva' ),
-			),
-			'rentiva_transfer_results'      => array(
-				'title'       => __( 'Transfer Results', 'mhm-rentiva' ),
-				'slug'        => 'transfer-results',
-				'description' => __( 'Transfer search results page - displays available transfer options', 'mhm-rentiva' ),
-			),
 			'rentiva_featured_vehicles'     => array(
 				'title'       => __( 'Featured Vehicles', 'mhm-rentiva' ),
 				'slug'        => 'featured-vehicles',
-				'description' => __( 'Featured vehicles showcase - highlights premium or recommended vehicles', 'mhm-rentiva' ),
-			),
-			'rentiva_vendor_apply'          => array(
-				'title'       => __( 'Vendor Application', 'mhm-rentiva' ),
-				'slug'        => 'vendor-apply',
-				'description' => __( 'Vendor application form - apply to become a vehicle rental vendor', 'mhm-rentiva' ),
-			),
-			'rentiva_vehicle_submit'        => array(
-				'title'       => __( 'Vehicle Submission', 'mhm-rentiva' ),
-				'slug'        => 'vehicle-submit',
-				'description' => __( 'Vendor vehicle submission form - vendors can add their vehicles', 'mhm-rentiva' ),
-			),
-			'rentiva_vendor_directory'      => array(
-				'title'       => __( 'Vendor Directory', 'mhm-rentiva' ),
-				'slug'        => 'demo-vendor-directory',
-				'description' => __( 'Public directory of all active vendors - searchable and filterable list', 'mhm-rentiva' ),
-			),
-			'rentiva_vendor_profile'        => array(
-				'title'       => __( 'Vendor Profile', 'mhm-rentiva' ),
-				'slug'        => 'demo-vendor-profile',
-				'description' => __( 'Public vendor profile page - shows vendor vehicles, reviews and contact info', 'mhm-rentiva' ),
-			),
-			'rentiva_vendor_bookings'       => array(
-				'title'       => __( 'Vendor Bookings', 'mhm-rentiva' ),
-				'slug'        => 'demo-vendor-bookings',
-				'description' => __( 'Vendor booking management - incoming and completed reservations', 'mhm-rentiva' ),
-			),
-			'rentiva_vendor_ledger'         => array(
-				'title'       => __( 'Vendor Ledger', 'mhm-rentiva' ),
-				'slug'        => 'demo-vendor-ledger',
-				'description' => __( 'Vendor earnings ledger - commission history and net payout balance', 'mhm-rentiva' ),
+				'description' => __( 'Featured vehicles showcase - highlights recommended vehicles', 'mhm-rentiva' ),
 			),
 			'rentiva_user_dashboard'        => array(
 				'title'       => __( 'User Dashboard', 'mhm-rentiva' ),
 				'slug'        => 'demo-user-dashboard',
-				// The dashboard's vendor branch is unreachable in this build -- only
-				// the add-on's onboarding flow grants the rentiva_vendor role -- so the
-				// customer summary is the only thing this description can promise.
 				'description' => __( 'Customer dashboard - booking, favorite and account summary', 'mhm-rentiva' ),
-			),
-			'rentiva_popular_routes'        => array(
-				'title'       => __( 'Popular Routes', 'mhm-rentiva' ),
-				'slug'        => 'demo-popular-routes',
-				'description' => __( 'Most popular transfer routes - widget for home or transfer landing pages', 'mhm-rentiva' ),
 			),
 		);
 
-		/*
-		 * Ask the registry what it REGISTERED -- not WordPress what EXISTS.
-		 *
-		 * shortcode_exists() was the wrong question and shipped that way. When an
-		 * extension is not active and its seam closes, ShortcodeServiceProvider drops the entry and then
-		 * deliberately re-registers the tag as `__return_empty_string`, so that
-		 * pages already carrying [rentiva_transfer_search] render nothing instead of
-		 * printing their own raw source text at visitors. That silencing shim is a
-		 * real registration, so shortcode_exists() answers YES for precisely the
-		 * tags this build must NOT offer -- and the Shortcode Pages tool listed
-		 * every closed add-on extension point as "Aktif", offering to create pages that could only
-		 * ever render blank.
-		 *
-		 * get_registered_shortcodes() is populated only by process_registration(),
-		 * i.e. only for seams that passed both the class check and the
-		 * extension/registration check. The silencer bypasses it by design, which makes it the one list
-		 * that means "this build can really render this".
-		 *
-		 * Still no duplicated tag list here: this defers to the same single registry
-		 * as before, just via a question the silencer cannot answer falsely.
-		 */
+		$config = apply_filters( 'mhmrentiva_shortcode_page_config', $config );
+
+		// Keep only entries currently registered by Lite or an extension.
 		$registered = \MHMRentiva\Admin\Core\ShortcodeServiceProvider::instance()
 			->get_registered_shortcodes();
 
@@ -373,7 +285,6 @@ final class ShortcodePageActions {
 			'rentiva_my_bookings'           => 'mhmrentiva_my_bookings_url',
 			'rentiva_my_favorites'          => 'mhmrentiva_my_favorites_url',
 			'rentiva_payment_history'       => 'mhmrentiva_payment_history_url',
-			'rentiva_messages'              => 'mhmrentiva_messages_url',
 			'rentiva_vehicles_list'         => 'mhmrentiva_vehicles_list_url',
 			'rentiva_vehicles_grid'         => 'mhmrentiva_vehicles_grid_url',
 			'rentiva_unified_search'        => 'mhmrentiva_unified_search_url',

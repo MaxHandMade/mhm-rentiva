@@ -38,8 +38,7 @@
 	align-items: start;
 }
 
-/* Row 3 without TransferWidget (no add-on subscriber): let RecentBookings
-   take the full row instead of leaving an empty second column. */
+/* Single-column row variant. */
 .mhm-dashboard__row--3-solo {
 	grid-template-columns: 1fr;
 }
@@ -84,7 +83,7 @@
 .mhm-upcoming-ops__customer { font-size: 11px; color: #9ca3af; margin-top: 2px; }
 
 /* -----------------------------------------------------------------------------
-   Card list — RecentBookings, TransferWidget, UpcomingOperations
+   Card list — RecentBookings, UpcomingOperations
    ----------------------------------------------------------------------------- */
 .mhm-card-list {
 	flex: 1;
@@ -216,8 +215,6 @@
 .rv-dash-header__sub { font-size: 13px; color: var( --rv-muted ); }
 .rv-dash-header__controls { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .rv-dash-header__range { font-size: 13px; padding: 4px 8px; border: 1px solid #8c8f94; border-radius: var( --rv-radius ); background: #fff; color: #2c3338; }
-.rv-dash-header__report { font-size: 13px; padding: 5px 12px; background: var( --rv-accent ); color: #fff; border-radius: var( --rv-radius ); text-decoration: none; }
-.rv-dash-header__report:hover { background: #135e96; color: #fff; }
 
 /* Stat cards: gradient -> white (override shared/admin.css via #id specificity) */
 #mhm-rentiva-dashboard .mhm-stat-card,

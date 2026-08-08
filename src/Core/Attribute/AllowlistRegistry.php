@@ -1186,65 +1186,6 @@ final class AllowlistRegistry {
             'show_pickup'          => [ 'default' => '1' ],
             'show_dropoff'         => [ 'default' => '1' ],
         ],
-        'rentiva_transfer_results'      => [
-            'layout'               => [ 'default' => 'list' ],
-            'columns'              => [ 'default' => 2 ],
-            'orderby'              => [ 'default' => 'price' ],
-            'order'                => [ 'default' => 'asc' ],
-            'limit'                => [ 'default' => '10' ],
-            'show_passenger_count' => [ 'default' => '1' ],
-            'show_luggage_info'    => [ 'default' => '1' ],
-            'show_price'           => [ 'default' => '1' ],
-            'show_booking_button'  => [ 'default' => '1' ],
-            'show_vehicle_details' => [ 'default' => '1' ],
-            'show_route_info'      => [ 'default' => '1' ],
-            'class'                => [ 'default' => '' ],
-            'show_favorite_button' => [ 'default' => '1' ],
-            'show_compare_button'  => [ 'default' => '1' ],
-        ],
-        'rentiva_popular_routes'        => [
-            'limit'              => [ 'default' => '6' ],
-            'columns'            => [ 'default' => '3' ],
-            'order'              => [ 'default' => 'featured' ],
-            'heading'            => [ 'default' => '' ],
-            'subheading'         => [ 'default' => '' ],
-            'show_view_all'      => [ 'default' => '1' ],
-            'view_all_url'       => [ 'default' => '' ],
-            'show_duration'      => [ 'default' => '1' ],
-            'show_distance'      => [ 'default' => '1' ],
-            'show_traffic_note'  => [ 'default' => '1' ],
-            'show_price'         => [ 'default' => '1' ],
-            'filter_origin_city' => [ 'default' => '' ],
-            'filter_origin_type' => [ 'default' => '' ],
-            'featured_only'      => [ 'default' => '0' ],
-            'theme'              => [ 'default' => 'light' ],
-            'class'              => [ 'default' => '' ],
-        ],
-        'rentiva_vendor_profile'        => [
-            'slug'                   => [ 'default' => '' ],
-            'show_badge'             => [ 'default' => 'yes' ],
-            'show_rating'            => [ 'default' => 'yes' ],
-            'show_about'             => [ 'default' => 'yes' ],
-            'show_vehicles'          => [ 'default' => 'yes' ],
-            'max_vehicles'           => [ 'default' => '6' ],
-            'vehicle_sort'           => [ 'default' => 'rating-newest' ],
-            'show_reviews'           => [ 'default' => 'yes' ],
-            'max_reviews'            => [ 'default' => '10' ],
-            'show_location'          => [ 'default' => 'yes' ],
-            'empty_vehicles_message' => [ 'default' => '' ],
-            'empty_reviews_message'  => [ 'default' => '' ],
-            'class'                  => [ 'default' => '' ],
-        ],
-        'rentiva_vendor_directory'      => [
-            'per_page'        => [ 'default' => '12' ],
-            'default_sort'    => [ 'default' => 'rating' ],
-            'show_filter_bar' => [ 'default' => 'yes' ],
-            'show_breadcrumb' => [ 'default' => 'yes' ],
-            'show_pagination' => [ 'default' => 'yes' ],
-            'empty_message'   => [ 'default' => '' ],
-            'class'           => [ 'default' => '' ],
-            'id'              => [ 'default' => '' ],
-        ],
         'rentiva_availability_calendar' => [
             'vehicle_id'            => [ 'default' => '' ],
             'show_pricing'          => [ 'default' => '1' ],
@@ -1461,26 +1402,6 @@ final class AllowlistRegistry {
             'order',
             'hide_nav',
         ],
-        'rentiva_vendor_bookings'       => [
-            'limit',
-            'hide_nav',
-        ],
-        'rentiva_messages'              => [
-            'limit',
-            'class',
-            'show_date',
-            'show_unread_badge',
-            'show_thread_preview',
-            'show_booking_link',
-            'show_reply_btn',
-            'status',
-            'orderby',
-            'order',
-            'limit_items',
-            'show_pagination',
-            'hide_nav',
-            'show_author_avatar',
-        ],
         'rentiva_featured_vehicles'     => [
             'title',
             'ids',
@@ -1507,24 +1428,18 @@ final class AllowlistRegistry {
             'image_size',
             'price_format',
             'class',
-            'service_type',
             'filter_categories',
             'view_all_url',
             'view_all_text',
         ],
         'rentiva_unified_search'        => [
-            'default_tab',
             'show_rental_tab',
-            'show_transfer_tab',
             'show_location_select',
             'show_time_select',
             'show_date_picker',
             'show_dropoff_location',
             'location_required',
             'fields_required',
-            'show_pax',
-            'show_luggage',
-            'service_type',
             'filter_categories',
             'redirect_page',
             'layout',
@@ -1532,13 +1447,6 @@ final class AllowlistRegistry {
             'class',
             'minwidth',
             'maxwidth',
-        ],
-        'rentiva_transfer_search'       => [
-            'layout',
-            'class',
-            'button_text',
-            'show_pickup',
-            'show_dropoff',
         ],
         'rentiva_user_dashboard'        => [
             'class',
@@ -1553,21 +1461,17 @@ final class AllowlistRegistry {
     public static function get_registry(): array
     {
         $registry = [];
-        foreach (self::TAG_MAPPING as $tag => $allowed_attrs_config) {
-            $tag_schema = [];
-            foreach ($allowed_attrs_config as $key => $config_or_key) {
-                // Handle both simple ['attr1', 'attr2'] and complex ['attr1' => ['default' => 'x']]
-                $attr_key       = is_int($key) ? $config_or_key : $key;
-                $per_tag_config = is_array($config_or_key) ? $config_or_key : [];
+		foreach (self::TAG_MAPPING as $tag => $allowed_attrs_config) {
+			$tag_schema = [];
+			foreach ($allowed_attrs_config as $key => $config_or_key) {
+				// Handle both simple ['attr1', 'attr2'] and complex ['attr1' => ['default' => 'x']]
+				$attr_key       = is_int($key) ? (string) $config_or_key : $key;
+				$per_tag_config = is_array($config_or_key) ? $config_or_key : [];
 
-                if (isset(self::ALLOWLIST[ $attr_key ])) {
-                    // Global Allowlist is the foundation, per-tag config is the override (SSOT)
-                    $tag_schema[ $attr_key ] = array_merge(self::ALLOWLIST[ $attr_key ], $per_tag_config);
-                } else {
-                    // Allow attributes defined ONLY in TAG_MAPPING
-                    $tag_schema[ $attr_key ] = $per_tag_config;
-                }
-            }
+				// Global Allowlist is the foundation, per-tag config is the override (SSOT).
+				// SchemaParityTest guarantees every TAG_MAPPING key is declared there.
+				$tag_schema[ $attr_key ] = array_merge(self::ALLOWLIST[ $attr_key ], $per_tag_config);
+			}
             $registry[ $tag ] = $tag_schema;
         }
 

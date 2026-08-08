@@ -14,7 +14,6 @@ final class TagMappingDefaultTypeTest extends WP_UnitTestCase
 		$registry = AllowlistRegistry::get_registry();
 		$tags     = array(
 			'rentiva_search_results',
-			'rentiva_transfer_results',
 			'rentiva_availability_calendar',
 		);
 
@@ -26,6 +25,12 @@ final class TagMappingDefaultTypeTest extends WP_UnitTestCase
 			$this->assertIsString($default, sprintf('%s show_booking_button default must be string', $tag));
 			$this->assertContains($default, array('0', '1'), sprintf('%s show_booking_button default must be "0" or "1"', $tag));
 		}
+
+		$this->assertArrayNotHasKey(
+			'rentiva_transfer_results',
+			$registry,
+			'Lite must not restore the paid transfer-results shortcode schema.'
+		);
 	}
 
 	public function test_legacy_btn_keys_are_not_mapped_when_canonical_button_keys_exist(): void
