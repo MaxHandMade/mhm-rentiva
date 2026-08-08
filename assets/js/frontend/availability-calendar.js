@@ -609,8 +609,6 @@
                         if (response.data.pricing_data) {
                             this.updatePricingDisplay(response.data.pricing_data);
                         }
-                        // OPTIMIZATION: Check for license limits before substantial work
-                        this.limitReached = response.data.limit_reached || false;
                     } else {
                         MHMRentivaToast.show(response.data?.message || window.mhmRentivaAvailability.strings.error, { type: 'error' });
                     }

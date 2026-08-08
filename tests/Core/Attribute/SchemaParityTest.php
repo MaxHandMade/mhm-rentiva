@@ -193,20 +193,19 @@ class SchemaParityTest extends WP_UnitTestCase
     }
 
     /**
-     * Verify default_tab attribute is type enum (not string).
-     * C1 duplicate key caused type drift: enum → string.
+     * default_tab was removed with the paid-surface carve (no consumer in the
+     * shipped tree). The C1 duplicate-key/type-drift regression this test used
+     * to guard is moot for a key that must not exist at all.
      *
      * @covers \MHMRentiva\Core\Attribute\AllowlistRegistry
      */
-    public function test_default_tab_type_is_enum(): void
+    public function test_default_tab_stays_removed(): void
     {
         $allowlist = ( new \ReflectionClass( \MHMRentiva\Core\Attribute\AllowlistRegistry::class ) )
             ->getReflectionConstant( 'ALLOWLIST' )
             ->getValue();
 
-        $this->assertArrayHasKey( 'default_tab', $allowlist );
-        $this->assertSame( 'enum', $allowlist['default_tab']['type'], 'default_tab type should be enum, not string' );
-        // values constraint is verified in test_enum_attributes_have_values (Task 3/4)
+        $this->assertArrayNotHasKey( 'default_tab', $allowlist );
     }
 
     /**

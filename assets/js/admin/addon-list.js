@@ -432,38 +432,12 @@ jQuery( document ).ready(
 			}
 		};
 
-		// Lisans uyarısı
-		var licenseWarning = {
-			init: function () {
-				this.checkLicenseLimits();
-			},
-
-			checkLicenseLimits: function () {
-				// Lisans limitlerini kontrol et
-				if (typeof mhmrentiva_addon_list_vars !== 'undefined' && mhmrentiva_addon_list_vars.license_limit_reached) {
-					this.showLicenseWarning();
-				}
-			},
-
-			showLicenseWarning: function () {
-				var warning = $(
-					'<div class="notice notice-warning is-dismissible">' +
-					'<p><strong>' + mhmrentiva_addon_list_vars.license_warning_title + '</strong> ' +
-					mhmrentiva_addon_list_vars.license_warning_message + '</p>' +
-					'</div>'
-				);
-
-				$( '.mhm-addon-stats-cards' ).before( warning );
-			}
-		};
-
 		// Başlatma
 		inlineEdit.init();
 		bulkActions.init();
 		filtering.init();
 		quickEdit.init();
 		statsAnimation.init();
-		licenseWarning.init();
 
 		// Sayfa yüklendiğinde istatistikleri güncelle
 		/**

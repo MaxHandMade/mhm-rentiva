@@ -10,7 +10,7 @@ use WP_UnitTestCase;
 
 final class EnumAttributeValuesTest extends WP_UnitTestCase
 {
-	public function test_status_default_payment_and_service_type_have_required_values(): void
+	public function test_status_and_default_payment_have_required_values(): void
 	{
 		$allowlist = (new ReflectionClass(AllowlistRegistry::class))
 			->getReflectionConstant('ALLOWLIST')
@@ -18,7 +18,6 @@ final class EnumAttributeValuesTest extends WP_UnitTestCase
 
 		$this->assertArrayHasKey('status', $allowlist);
 		$this->assertArrayHasKey('default_payment', $allowlist);
-		$this->assertArrayHasKey('service_type', $allowlist);
 
 		$statusValues = $allowlist['status']['values'] ?? array();
 		$this->assertContains('active', $statusValues);
@@ -31,12 +30,22 @@ final class EnumAttributeValuesTest extends WP_UnitTestCase
 		$this->assertContains('credit_card', $paymentValues);
 		$this->assertContains('bank_transfer', $paymentValues);
 		$this->assertContains('none', $paymentValues);
+	}
 
-		$serviceTypeValues = $allowlist['service_type']['values'] ?? array();
-		$this->assertContains('rental', $serviceTypeValues);
-		$this->assertContains('transfer', $serviceTypeValues);
-		$this->assertContains('booking', $serviceTypeValues);
-		$this->assertContains('maintenance', $serviceTypeValues);
+	/**
+	 * The paid-surface carve removed these attributes; nothing in the shipped
+	 * tree consumes them any more, so their return would mean paid surface
+	 * leaking back into the allowlist.
+	 */
+	public function test_carved_paid_attributes_stay_removed(): void
+	{
+		$allowlist = (new ReflectionClass(AllowlistRegistry::class))
+			->getReflectionConstant('ALLOWLIST')
+			->getValue();
+
+		$this->assertArrayNotHasKey('service_type', $allowlist);
+		$this->assertArrayNotHasKey('default_tab', $allowlist);
+		$this->assertArrayNotHasKey('show_transfer_tab', $allowlist);
 	}
 }
 

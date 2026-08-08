@@ -426,7 +426,6 @@ final class ShortcodeServiceProvider {
 			'vehicle'     => __('Vehicle Display', 'mhm-rentiva'),
 			'account'     => __('Account Management', 'mhm-rentiva'),
 			'support'     => __('Support and Contact', 'mhm-rentiva'),
-			'transfer'    => __('Transfer Services', 'mhm-rentiva'),
 		);
 
 		return $names[ $group ] ?? ucfirst($group);

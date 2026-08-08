@@ -13,7 +13,6 @@
             this.initTabs();
             this.initRentalConstraints();
             this.initDropoffMirror();
-            // initTransferSearch removed (delegated to rentiva-transfer.js for parity)
         }
 
         initRentalConstraints() {
@@ -91,7 +90,7 @@
             $(document).on('click', '.rv-unified-search__tab', function (e) {
                 e.preventDefault();
                 const $btn = $(this);
-                const target = $btn.data('target'); // 'rental' or 'transfer'
+                const target = $btn.data('target');
                 const $wrapper = $btn.closest('.rv-unified-search');
 
                 if (!$wrapper.length) return;

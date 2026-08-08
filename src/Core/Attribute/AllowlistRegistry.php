@@ -184,13 +184,6 @@ final class AllowlistRegistry {
             'group'   => 'workflow',
             'aliases' => [ 'redirect_url', 'redirectPage', 'redirectUrl' ],
         ],
-        'default_tab'              => [
-            'type'    => 'enum',
-            'group'   => 'workflow',
-            'aliases' => [ 'defaultTab' ],
-            'values'  => [ 'rental', 'transfer', 'default' ],
-        ],
-
         // Visibility Toggles (UI)
         'show_image'               => [
             'type'    => 'bool',
@@ -861,11 +854,6 @@ final class AllowlistRegistry {
             'group'   => 'visibility',
             'aliases' => [ 'showRentalTab' ],
         ],
-        'show_transfer_tab'        => [
-            'type'    => 'bool',
-            'group'   => 'visibility',
-            'aliases' => [ 'showTransferTab' ],
-        ],
         'show_location_select'     => [
             'type'    => 'bool',
             'group'   => 'visibility',
@@ -900,12 +888,6 @@ final class AllowlistRegistry {
             'type'    => 'bool',
             'group'   => 'visibility',
             'aliases' => [ 'showLuggage' ],
-        ],
-        'service_type'             => [
-            'type'    => 'enum',
-            'group'   => 'feature',
-            'aliases' => [ 'serviceType' ],
-            'values'  => [ 'rental', 'transfer', 'both', 'booking', 'maintenance' ],
         ],
         'filter_categories'        => [
             'type'    => 'string',
