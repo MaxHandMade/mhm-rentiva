@@ -50,14 +50,22 @@ final class MultiTenantMigration {
                     $success = false;
                     continue;
                 }
+            }
 
-                // Add index for performance
-                $wpdb->query(
+            // Retry this independently from the column ADD. A successful
+            // column ALTER followed by a failed index ALTER must not strand
+            // the table without a usable tenant-leading index forever.
+            if ( ! self::leading_column_index_exists( $wpdb, $table, 'tenant_id' ) ) {
+                $result = $wpdb->query(
                     $wpdb->prepare(
                         'ALTER TABLE %i ADD INDEX `tenant_id_idx` (`tenant_id`)',
                         $table
                     )
                 );
+
+                if ( false === $result ) {
+					$success = false;
+				}
             }
 
             // ADD COMPOSITE INDEXES (V1.8 HARDENING)
@@ -72,20 +80,24 @@ final class MultiTenantMigration {
                 );
 
                 if ($index_exists === 0) {
-                    $wpdb->query(
+					$result = $wpdb->query(
                         $wpdb->prepare(
                             'ALTER TABLE %i ADD INDEX `tenant_created_idx` (`tenant_id`, `created_at`)',
                             $table
                         )
                     );
+
+					if ( false === $result ) {
+						$success = false;
+					}
                 }
             }
         }
 
         // For KeyRegistry, enforce "One active key per tenant" UNIQUE constraint.
-        self::enforce_key_registry_tenant_constraint($wpdb);
+		$constraint_success = self::enforce_key_registry_tenant_constraint($wpdb);
 
-        return $success;
+		return $success && $constraint_success;
     }
 
     /**
@@ -109,13 +121,32 @@ final class MultiTenantMigration {
         return (int) $result > 0;
     }
 
+	/**
+	 * Check for any index whose left-most column can serve tenant lookups.
+	 *
+	 * Fresh key-registry and payout-audit schemas call this index `tenant_id`,
+	 * while older migrated tables used `tenant_id_idx`. Comparing the index
+	 * signature instead of its name avoids adding a redundant twin.
+	 */
+	private static function leading_column_index_exists(\wpdb $wpdb, string $table, string $column_name): bool {
+		$result = $wpdb->get_var(
+			$wpdb->prepare(
+				'SELECT COUNT(*) FROM INFORMATION_SCHEMA.STATISTICS WHERE TABLE_NAME = %s AND COLUMN_NAME = %s AND SEQ_IN_INDEX = 1 AND TABLE_SCHEMA = DATABASE()',
+				$table,
+				$column_name
+			)
+		);
+
+		return (int) $result > 0;
+	}
+
     /**
      * Enforces "One Active Key Per Tenant" unique constraint on the key_registry table.
      * Drops legacy global unique index (if it exists) and creates a tenant-scoped one.
      *
      * @param \wpdb $wpdb
      */
-    private static function enforce_key_registry_tenant_constraint(\wpdb $wpdb): void
+	private static function enforce_key_registry_tenant_constraint(\wpdb $wpdb): bool
     {
         $table = $wpdb->prefix . 'mhmrentiva_key_registry';
 
@@ -129,12 +160,16 @@ final class MultiTenantMigration {
         );
 
         if ( (int) $old_index_exists > 0) {
-            $wpdb->query(
+			$result = $wpdb->query(
                 $wpdb->prepare(
                     'ALTER TABLE %i DROP INDEX `active_key_unique`',
                     $table
                 )
             );
+
+			if ( false === $result ) {
+				return false;
+			}
         }
 
         // Create the new per-tenant unique index if it doesn't already exist.
@@ -147,12 +182,18 @@ final class MultiTenantMigration {
         );
 
         if ( (int) $new_index_exists === 0) {
-            $wpdb->query(
+			$result = $wpdb->query(
                 $wpdb->prepare(
                     'ALTER TABLE %i ADD UNIQUE INDEX `tenant_active_key_unique` (`tenant_id`, `active_key`)',
                     $table
                 )
             );
+
+			if ( false === $result ) {
+				return false;
+			}
         }
+
+		return true;
     }
 }

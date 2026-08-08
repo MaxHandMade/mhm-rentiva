@@ -844,13 +844,15 @@ final class PrefixMigrationMap {
      * this list too, alongside OPTIONS, so a name landing here is still
      * certified as accounted for.
      *
-     * First entries: DatabaseMigrator's index-cleanup retry-attempt bound --
-     * mhmrentiva_index_cleanup_attempts/_unfinished.
+     * DatabaseMigrator's index-cleanup and multi-tenant circuit-breaker state
+     * was introduced after the 6.0.0 rename and therefore has no legacy key.
      *
      * @var array<int,string>
      */
     public const NO_LEGACY_SPELLING_OPTIONS = [
         'mhmrentiva_index_cleanup_attempts',
         'mhmrentiva_index_cleanup_unfinished',
+        'mhmrentiva_multi_tenant_migration_attempts',
+        'mhmrentiva_multi_tenant_migration_blocked',
     ];
 }

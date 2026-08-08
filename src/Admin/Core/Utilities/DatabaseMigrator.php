@@ -97,6 +97,15 @@ final class DatabaseMigrator {
 	private const INDEX_CLEANUP_UNFINISHED_OPTION = 'mhmrentiva_index_cleanup_unfinished';
 
 	/**
+	 * Failed tenant-isolation migrations are retried on separate requests, then
+	 * rate-limited without ever stamping an incomplete schema as current.
+	 */
+	private const MULTI_TENANT_MAX_ATTEMPTS    = 3;
+	private const MULTI_TENANT_RETRY_DELAY     = 3600;
+	private const MULTI_TENANT_ATTEMPTS_OPTION = 'mhmrentiva_multi_tenant_migration_attempts';
+	private const MULTI_TENANT_BLOCKED_OPTION  = 'mhmrentiva_multi_tenant_migration_blocked';
+
+	/**
 	 * Rows rewritten per statement by the 6.0.0 rename.
 	 *
 	 * Every rewrite below is a loop of bounded statements rather than one
@@ -227,13 +236,15 @@ final class DatabaseMigrator {
 	 *
 	 * @param array<string, array<string, list<array{seq:int, col:string, sub:?int, non_unique:int, type:string}>>>|null $index_cleanup_expected
 	 * @param callable(string,string):bool|null $index_cleanup_runner
+	 * @param callable():bool|null $multi_tenant_runner Test seam for the Pro-owned tenant schema step.
+	 * @return bool True only when the migration is complete or already current.
 	 */
-	public static function run_migrations(?array $index_cleanup_expected = null, ?callable $index_cleanup_runner = null): void
+	public static function run_migrations(?array $index_cleanup_expected = null, ?callable $index_cleanup_runner = null, ?callable $multi_tenant_runner = null): bool
 	{
 		if (! self::pro_satisfies(self::installed_pro_version())) {
 			add_action('admin_notices', array( self::class, 'render_pro_lockstep_notice' ));
 
-			return;
+			return false;
 		}
 
 		self::adopt_legacy_db_version();
@@ -241,6 +252,11 @@ final class DatabaseMigrator {
 		$current_version = self::stored_db_version();
 
 		if (version_compare($current_version, self::CURRENT_VERSION, '<')) {
+			$has_ledger_cluster = class_exists(\MHMRentiva\Core\Database\Migrations\LedgerMigration::class);
+			if ( ( $has_ledger_cluster || null !== $multi_tenant_runner ) && self::multi_tenant_circuit_is_open() ) {
+				return false;
+			}
+
 			// FIRST, and the order is load-bearing rather than tidy. Every other
 			// step in this method now speaks the NEW names:
 			// migrate_vehicle_lifecycle_status() selects
@@ -294,9 +310,19 @@ final class DatabaseMigrator {
 				// Adds tenant_id to ledger / key_registry / payout_audit, so it can
 				// only run once those exist. In Lite it ALTERed three absent tables,
 				// failing three times per upgrade.
-				if (class_exists(\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::class)) {
-					\MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+			}
+
+			if ( $has_ledger_cluster || null !== $multi_tenant_runner ) {
+				$multi_tenant_success = null !== $multi_tenant_runner
+					? (bool) $multi_tenant_runner()
+					: \MHMRentiva\Core\Database\Migrations\MultiTenantMigration::run();
+
+				if ( ! $multi_tenant_success ) {
+					self::record_multi_tenant_failure();
+					return false;
 				}
+
+				self::clear_multi_tenant_failure_state();
 			}
 			// SaaS Control Plane scaffolding removed (#4 cleanup) — drop its dead tables.
 			self::drop_orchestration_tables();
@@ -356,7 +382,7 @@ final class DatabaseMigrator {
 							\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
 						);
 					}
-					return;
+					return false;
 				}
 
 				// Budget exhausted: self::INDEX_CLEANUP_MAX_ATTEMPTS consecutive
@@ -421,6 +447,91 @@ final class DatabaseMigrator {
 				);
 			}
 		}
+
+		return true;
+	}
+
+	/**
+	 * WordPress action adapter for the retry lane.
+	 *
+	 * The migration result remains available to activation and tests, while the
+	 * action contract intentionally discards it.
+	 */
+	public static function run_migrations_from_hook(): void {
+		self::run_migrations();
+	}
+
+	/**
+	 * Check whether repeated tenant-schema failures are temporarily rate-limited.
+	 *
+	 * The circuit only delays another attempt. It never advances the stored
+	 * schema version, so an incomplete tenant schema cannot be reported current.
+	 */
+	private static function multi_tenant_circuit_is_open(): bool {
+		$blocked = get_option(self::MULTI_TENANT_BLOCKED_OPTION, array());
+		if (! is_array($blocked) || array() === $blocked) {
+			return false;
+		}
+
+		$blocked_version = isset($blocked['version']) ? (string) $blocked['version'] : '';
+		if (self::CURRENT_VERSION !== $blocked_version) {
+			delete_option(self::MULTI_TENANT_ATTEMPTS_OPTION);
+			delete_option(self::MULTI_TENANT_BLOCKED_OPTION);
+			return false;
+		}
+
+		$retry_after = isset($blocked['retry_after']) ? (int) $blocked['retry_after'] : 0;
+		if ($retry_after > time()) {
+			return true;
+		}
+
+		delete_option(self::MULTI_TENANT_BLOCKED_OPTION);
+		return false;
+	}
+
+	/**
+	 * Record a failed tenant-schema attempt and open the temporary circuit.
+	 */
+	private static function record_multi_tenant_failure(): void {
+		$attempts = ( (int) get_option(self::MULTI_TENANT_ATTEMPTS_OPTION, 0) ) + 1;
+		update_option(self::MULTI_TENANT_ATTEMPTS_OPTION, $attempts, false);
+
+		$context = array(
+			'attempt'      => $attempts,
+			'max_attempts' => self::MULTI_TENANT_MAX_ATTEMPTS,
+		);
+
+		if ($attempts >= self::MULTI_TENANT_MAX_ATTEMPTS) {
+			$retry_after = time() + self::MULTI_TENANT_RETRY_DELAY;
+			update_option(
+				self::MULTI_TENANT_BLOCKED_OPTION,
+				array(
+					'version'     => self::CURRENT_VERSION,
+					'attempts'    => $attempts,
+					'retry_after' => $retry_after,
+				),
+				false
+			);
+			$context['retry_after'] = $retry_after;
+		}
+
+		if (class_exists(\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::class)) {
+			\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::error(
+				$attempts >= self::MULTI_TENANT_MAX_ATTEMPTS
+					? 'Tenant schema migration failed repeatedly; retries are temporarily rate-limited'
+					: 'Tenant schema migration failed; database migration will retry on the next request',
+				$context,
+				\MHMRentiva\Admin\PostTypes\Logs\AdvancedLogger::CATEGORY_SYSTEM
+			);
+		}
+	}
+
+	/**
+	 * Clear tenant-schema failure state after a complete successful run.
+	 */
+	private static function clear_multi_tenant_failure_state(): void {
+		delete_option(self::MULTI_TENANT_ATTEMPTS_OPTION);
+		delete_option(self::MULTI_TENANT_BLOCKED_OPTION);
 	}
 
 	/**
@@ -537,7 +648,7 @@ final class DatabaseMigrator {
 	/**
 	 * Creates rating database table
 	 */
-	public static function create_rating_table(): void
+	public static function create_rating_table(): bool
 	{
 		global $wpdb;
 
@@ -565,6 +676,8 @@ final class DatabaseMigrator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
+
+		return self::table_exists($table_name);
 	}
 
 	/**
@@ -623,12 +736,10 @@ final class DatabaseMigrator {
 		switch ($table_key) {
 			case 'payment_log':
 			case 'mhmrentiva_payment_log':
-				self::create_payment_log_table();
-				return true;
+				return self::create_payment_log_table();
 			case 'sessions':
 			case 'mhmrentiva_sessions':
-				self::create_sessions_table();
-				return true;
+				return self::create_sessions_table();
 			// Report the real outcome: without the Transfer module these tables are
 			// deliberately not created, so claiming success would be a lie.
 			case 'transfer_locations':
@@ -641,25 +752,20 @@ final class DatabaseMigrator {
 				return self::create_transfer_tables();
 			case 'ratings':
 			case 'mhmrentiva_ratings':
-				self::create_rating_table();
-				return true;
+				return self::create_rating_table();
 			case 'queue':
 			case 'mhmrentiva_queue':
-				self::create_queue_table();
-				return true;
+				return self::create_queue_table();
 			case 'report_queue':
 			case 'background_jobs':
 			case 'mhmrentiva_background_jobs':
-				self::create_background_jobs_table();
-				return true;
+				return self::create_background_jobs_table();
 			case 'message_logs':
 			case 'mhmrentiva_message_logs':
-				self::create_message_logs_table();
-				return true;
+				return self::create_message_logs_table();
 			case 'payout_audit':
 			case 'mhmrentiva_payout_audit':
-				self::create_payout_audit_table();
-				return true;
+				return self::create_payout_audit_table();
 		}
 		return false;
 	}
@@ -686,7 +792,7 @@ final class DatabaseMigrator {
 	/**
 	 * Create payout audit table (append-only)
 	 */
-	public static function create_payout_audit_table(): void
+	public static function create_payout_audit_table(): bool
 	{
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhmrentiva_payout_audit';
@@ -721,12 +827,14 @@ final class DatabaseMigrator {
 				)
 			);
 		}
+
+		return self::table_exists($table_name);
 	}
 
 	/**
 	 * Create payment log table
 	 */
-	public static function create_payment_log_table(): void
+	public static function create_payment_log_table(): bool
 	{
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhmrentiva_payment_log';
@@ -753,12 +861,14 @@ final class DatabaseMigrator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
+
+		return self::table_exists($table_name);
 	}
 
 	/**
 	 * Create sessions table
 	 */
-	public static function create_sessions_table(): void
+	public static function create_sessions_table(): bool
 	{
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhmrentiva_sessions';
@@ -776,32 +886,46 @@ final class DatabaseMigrator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
+
+		return self::table_exists($table_name);
 	}
 
 	/**
 	 * Create queue table
 	 */
-	public static function create_queue_table(): void
+	public static function create_queue_table(): bool
 	{
-		if (class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class)) {
-			\MHMRentiva\Admin\Core\Utilities\QueueManager::create_table();
+		global $wpdb;
+
+		if (! class_exists(\MHMRentiva\Admin\Core\Utilities\QueueManager::class)) {
+			return false;
 		}
+
+		\MHMRentiva\Admin\Core\Utilities\QueueManager::create_table();
+
+		return self::table_exists($wpdb->prefix . 'mhmrentiva_queue');
 	}
 
 	/**
 	 * Create background jobs table
 	 */
-	public static function create_background_jobs_table(): void
+	public static function create_background_jobs_table(): bool
 	{
-		if (class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class)) {
-			\MHMRentiva\Admin\Reports\BackgroundProcessor::create_background_jobs_table();
+		global $wpdb;
+
+		if (! class_exists(\MHMRentiva\Admin\Reports\BackgroundProcessor::class)) {
+			return false;
 		}
+
+		\MHMRentiva\Admin\Reports\BackgroundProcessor::create_background_jobs_table();
+
+		return self::table_exists($wpdb->prefix . 'mhmrentiva_background_jobs');
 	}
 
 	/**
 	 * Create message logs table
 	 */
-	public static function create_message_logs_table(): void
+	public static function create_message_logs_table(): bool
 	{
 		global $wpdb;
 		$table_name      = $wpdb->prefix . 'mhmrentiva_message_logs';
@@ -825,6 +949,8 @@ final class DatabaseMigrator {
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 		dbDelta($sql);
+
+		return self::table_exists($table_name);
 	}
 
 	/**

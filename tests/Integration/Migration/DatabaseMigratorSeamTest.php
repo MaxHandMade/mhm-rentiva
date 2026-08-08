@@ -24,6 +24,56 @@ use WP_UnitTestCase;
  */
 final class DatabaseMigratorSeamTest extends WP_UnitTestCase
 {
+	public function test_create_table_reports_success_only_when_the_table_exists(): void
+	{
+		global $wpdb;
+
+		$this->assertTrue(DatabaseMigrator::create_table('payment_log'));
+		$this->assertSame(
+			$wpdb->prefix . 'mhmrentiva_payment_log',
+			$wpdb->get_var(
+				$wpdb->prepare(
+					'SHOW TABLES LIKE %s',
+					$wpdb->esc_like($wpdb->prefix . 'mhmrentiva_payment_log')
+				)
+			)
+		);
+	}
+
+	public function test_create_table_reports_failure_when_dbdelta_cannot_create_the_table(): void
+	{
+		global $wpdb;
+
+		$original_prefix = $wpdb->prefix;
+		$original_errors = $wpdb->suppress_errors(true);
+		$test_prefix     = 'rvt8_' . wp_rand(100000, 999999) . '_';
+		$target_table    = $test_prefix . 'mhmrentiva_payment_log';
+		$block_create    = static function (string $query) use ($target_table): string {
+			if (str_contains($query, 'CREATE TABLE') && str_contains($query, $target_table)) {
+				return 'SELECT * FROM mhmrentiva_deliberately_missing_table';
+			}
+
+			return $query;
+		};
+
+		try {
+			// Use a disposable, valid prefix and replace only this table's CREATE
+			// query. An overlong prefix makes WordPress's own DB health check die
+			// before PHPUnit can observe the intended assertion.
+			$wpdb->prefix = $test_prefix;
+			add_filter('query', $block_create, 9999);
+
+			$this->assertFalse(
+				DatabaseMigrator::create_table('payment_log'),
+				'create_table() claimed success although the physical table does not exist.'
+			);
+		} finally {
+			remove_filter('query', $block_create, 9999);
+			$wpdb->prefix = $original_prefix;
+			$wpdb->suppress_errors($original_errors);
+		}
+	}
+
     public function test_premise_pro_migration_marker_classes_are_absent_from_lite(): void
     {
         $this->assertFalse(class_exists('MHMRentiva\Core\Financial\GovernanceService'));
