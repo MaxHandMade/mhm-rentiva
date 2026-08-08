@@ -28,7 +28,6 @@ final class EmailTemplates {
 	public static function register(): void
 	{
 		// Menu registration is now done centrally in Menu.php
-		add_action('admin_post_mhmrentiva_email_preview', array( self::class, 'handle_preview' ));
 		// admin_post_mhmrentiva_email_send_test -> handle_send() was removed:
 		// zero shipped nonce producer and zero consumer anywhere. The live
 		// sibling is the differently-named mhmrentiva_send_test_email
@@ -135,11 +134,6 @@ final class EmailTemplates {
 			?>
 		</div>
 		<?php
-	}
-
-	public static function handle_preview(): void
-	{
-		wp_die(esc_html__('Not implemented', 'mhm-rentiva'));
 	}
 
 	// handle_send() was removed with its admin_post_mhmrentiva_email_send_test

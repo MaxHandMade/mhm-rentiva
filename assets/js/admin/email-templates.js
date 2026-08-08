@@ -7,70 +7,6 @@ jQuery( document ).ready(
 	function ($) {
 		'use strict';
 
-		// Email preview
-		var emailPreview = {
-			init: function () {
-				this.bindEvents();
-			},
-
-			bindEvents: function () {
-				// Preview buttons
-				$( '.preview-email-btn' ).on(
-					'click',
-					function (e) {
-						e.preventDefault();
-						var templateKey = $( this ).data( 'template-key' );
-						emailPreview.showPreview( templateKey );
-					}
-				);
-
-				// Modal close
-				$( '.email-preview-close, .email-preview-modal' ).on(
-					'click',
-					function (e) {
-						if (e.target === this) {
-							emailPreview.hidePreview();
-						}
-					}
-				);
-
-				// ESC key close
-				$( document ).on(
-					'keydown',
-					function (e) {
-						if (e.keyCode === 27) { // ESC
-							emailPreview.hidePreview();
-						}
-					}
-				);
-			},
-
-			showPreview: function (templateKey) {
-				var modal = $(
-					'<div class="email-preview-modal active">' +
-					'<div class="email-preview-content">' +
-					'<div class="email-preview-header">' +
-					'<h3 class="email-preview-title">' + mhmrentiva_email_templates_vars.preview_email + '</h3>' +
-					'<button class="email-preview-close">&times;</button>' +
-					'</div>' +
-					'<div class="email-preview-body">' +
-					'<iframe class="email-preview-iframe" src="' +
-					ajaxurl + '?action=mhmrentiva_email_preview&template=' + templateKey + '"></iframe>' +
-					'</div>' +
-					'</div>' +
-					'</div>'
-				);
-
-				$( 'body' ).append( modal );
-				$( 'body' ).addClass( 'modal-open' );
-			},
-
-			hidePreview: function () {
-				$( '.email-preview-modal' ).remove();
-				$( 'body' ).removeClass( 'modal-open' );
-			}
-		};
-
 		// Test email sending
 		var testEmail = {
 			init: function () {
@@ -602,7 +538,6 @@ jQuery( document ).ready(
 		};
 
 		// Initialize
-		emailPreview.init();
 		testEmail.init();
 		templateSettings.init();
 		emailVariables.init();

@@ -7,7 +7,7 @@ namespace MHMRentiva\Tests\Integration\Admin;
 use WP_UnitTestCase;
 
 /**
- * WP.org T8 Görev 10b: the 12 Section-A dead-endpoint hook tags identified by
+ * WP.org T8 Görev 10b: the Section-A dead-endpoint hook tags identified by
  * `.superpowers/sdd/2026-08-03-t8-duzeltme-turu/task-10a-endpoint-table.md`
  * (rows A1-A12) must no longer be registered in $wp_filter after plugin init.
  *
@@ -17,8 +17,8 @@ use WP_UnitTestCase;
  * via fresh grep across both `mhm-rentiva` and `mhm-rentiva-pro` before any
  * deletion (see task-10b-report.md for the per-row evidence).
  *
- * RED (pre-fix): every assertion in test_dead_section_a_hook_tag_is_not_registered
- * fails — all 12 tags are still registered today, even though nothing in
+ * RED (pre-fix): every assertion in test_dead_endpoint_hook_tag_is_not_registered
+ * fails — the original tags were still registered, even though nothing in
  * either repo can ever produce a valid nonce for them or POST to them.
  * GREEN (post-fix): each dead hook registration + its dead callback was
  * deleted; live siblings that share a class or file with a dead callback
@@ -27,7 +27,7 @@ use WP_UnitTestCase;
  * get_payment_deadline(), Uninstaller::uninstall_direct()) were preserved
  * and are asserted still-present below as positive controls.
  *
- * Görev 10c-A addition: a 13th tag, `wp_ajax_mhmrentiva_create_default_addons`
+ * Görev 10c-A addition: `wp_ajax_mhmrentiva_create_default_addons`
  * (task-10a-endpoint-table.md row C1). Unlike A1-A12, this one had a real
  * nonce producer AND a real button that posted to it — it was DECISION-NEEDED,
  * not an auto-delete, because the surrounding `AddonSettings::render_page()`
@@ -116,6 +116,7 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             'A3  wp_ajax_mhmrentiva_calculate_deposit'        => array( 'wp_ajax_mhmrentiva_calculate_deposit' ),
             'A4  wp_ajax_nopriv_mhmrentiva_calculate_deposit' => array( 'wp_ajax_nopriv_mhmrentiva_calculate_deposit' ),
             'A5  admin_post_mhmrentiva_email_send_test'       => array( 'admin_post_mhmrentiva_email_send_test' ),
+            'A5b admin_post_mhmrentiva_email_preview'         => array( 'admin_post_mhmrentiva_email_preview' ),
             'A6  admin_post_mhmrentiva_purge_logs'            => array( 'admin_post_mhmrentiva_purge_logs' ),
             'A7  wp_ajax_mhmrentiva_get_uninstall_stats'      => array( 'wp_ajax_mhmrentiva_get_uninstall_stats' ),
             'A8  wp_ajax_mhmrentiva_uninstall_plugin'         => array( 'wp_ajax_mhmrentiva_uninstall_plugin' ),
@@ -130,11 +131,11 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
     /**
      * @dataProvider deadHookTagProvider
      */
-    public function test_dead_section_a_hook_tag_is_not_registered(string $hook_tag): void
+    public function test_dead_endpoint_hook_tag_is_not_registered(string $hook_tag): void
     {
         $this->assertFalse(
             has_action($hook_tag),
-            "Dead Section-A endpoint '{$hook_tag}' must not be registered in \$wp_filter after plugin init -- see task-10a-endpoint-table.md."
+            "Dead endpoint '{$hook_tag}' must not be registered in \$wp_filter after plugin init."
         );
     }
 
@@ -147,8 +148,8 @@ final class Task10bDeadEndpointsRemovedTest extends WP_UnitTestCase
             'Actions::refund_booking() is live (nonce produced by BookingRefundMetaBox) -- must survive the A6 purge_logs() deletion.'
         );
         $this->assertNotFalse(
-            has_action('admin_post_mhmrentiva_email_preview'),
-            'EmailTemplates::handle_preview() must survive the A5 handle_send() deletion.'
+            has_action('wp_ajax_mhmrentiva_preview_email_ajax'),
+            'The live nonce/capability-protected AJAX email preview must survive removal of the dead admin-post stub.'
         );
         $this->assertNotFalse(
             has_action('admin_post_mhmrentiva_save_email_templates'),
