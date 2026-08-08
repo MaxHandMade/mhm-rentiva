@@ -289,56 +289,6 @@
     color: var(--mhm-text-secondary, #6b7280);
 }
 
-.mhm-card-vendor-badge {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    z-index: 10;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #fff;
-    background: linear-gradient(135deg, #059669, #10b981);
-    padding: 2px 7px;
-    border-radius: 4px;
-    line-height: 1.4;
-}
-
-.mhm-card-vendor-badge svg {
-    flex-shrink: 0;
-}
-
-/* Service Type Badge (top-left on image) */
-.mhm-card-service-badge {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 10;
-    display: inline-flex;
-    align-items: center;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #fff;
-    padding: 3px 8px;
-    border-radius: 4px;
-    line-height: 1.4;
-    pointer-events: none;
-}
-
-.mhm-card-service-badge--transfer {
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
-}
-
-.mhm-card-service-badge--both {
-    background: linear-gradient(135deg, #0891b2, #06b6d4);
-}
-
 .mhm-card-title {
     margin: 0;
     font-size: 1.125rem;

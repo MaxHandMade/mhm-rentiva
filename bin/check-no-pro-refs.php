@@ -18,7 +18,7 @@ $base = dirname( __DIR__ );
 $patterns = array(
 	'edition gating'       => '/\b(?:isPro|is_pro|allowsSeam|pro_seam|pro_feature|pro_widget|LicenseManager|LicenseAdmin|VerifyEndpoint)\b|\bMode::|Licensing\\\\Mode|\bcanUse[A-Z]|MHMRentiva\\\\Pro/',
 	'paid shortcode tag'   => '/\b(?:rentiva_transfer_search|rentiva_transfer_results|rentiva_vendor_apply|rentiva_vendor_profile|rentiva_vendor_directory|rentiva_vendor_bookings|rentiva_vendor_ledger|rentiva_messages)\b/',
-	'paid CSS/asset token' => '/(?:search-premium|mhm-premium-search|mhm-transfer-|mhm-vendor-)/i',
+	'paid CSS/asset token' => '/(?:search-premium|mhm-premium-search|mhm-transfer-|mhm-vendor-|vendor-badge|card-service-badge|--transfer\b)/i',
 	'paid Lite class'      => '/\b(?:AddonContextMetaBox|AddonContextMigration|AddonContextTaxonomy|AddonContextValidator|VehicleCommissionRateMetaBox|PenaltyCalculator|ReliabilityScoreCalculator)\b/',
 	'paid role'            => '/[\'\"]rentiva_vendor[\'\"]/',
 	'paid vehicle meta'    => '/\bvehicle_service_type\b/',
@@ -63,7 +63,10 @@ function mhmrentiva_paid_surface_matches( string $line, array $rules ): array {
 // leaving legitimate rental-domain prose alone.
 if (
 	array() === mhmrentiva_paid_surface_matches( 'shortcode: rentiva_vendor_apply', $patterns )
+	|| array() === mhmrentiva_paid_surface_matches( '.mhm-card-vendor-badge svg {', $patterns )
+	|| array() === mhmrentiva_paid_surface_matches( '.mhm-card-service-badge--transfer {', $patterns )
 	|| array() !== mhmrentiva_paid_surface_matches( 'Bank transfer payments are handled by WooCommerce.', $patterns )
+	|| array() !== mhmrentiva_paid_surface_matches( '.mhm-booking-list .booking-type.transfer {', $patterns )
 ) {
 	fwrite( STDERR, "check-no-pro-refs FAILED -- oracle negative control is invalid.\n" );
 	exit( 2 );
