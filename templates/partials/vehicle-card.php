@@ -87,7 +87,8 @@ if (! $is_available) {
                         data-nonce="<?php echo esc_attr(wp_create_nonce('mhmrentiva_toggle_favorite')); ?>"
                         data-testid="vehicle-favorite-btn"
                         title="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
-                        aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>">
+                        aria-label="<?php echo $is_favorite ? esc_attr__('Remove from Favorites', 'mhm-rentiva') : esc_attr__('Add to Favorites', 'mhm-rentiva'); ?>"
+                        aria-pressed="<?php echo $is_favorite ? 'true' : 'false'; ?>">
                         <?php Icons::render('heart', [ 'class' => 'mhm-heart-icon' ]); ?>
                         <span class="text-label sr-only"><?php echo $is_favorite ? esc_html__('Remove from Favorites', 'mhm-rentiva') : esc_html__('Add to Favorites', 'mhm-rentiva'); ?></span>
                     </button>

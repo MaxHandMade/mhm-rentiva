@@ -52,16 +52,17 @@
                     $btn.removeClass('loading');
                     if (response.success) {
                         const isFavorited = response.data.is_favorite;
+						const favoriteLabel = isFavorited ?
+							(mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites') :
+							(mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
 
                         // Sync state
                         if (isFavorited) {
                             $btn.addClass('is-active');
                             $btn.attr('aria-pressed', 'true');
-                            $btn.find('.text-label').text(mhmrentiva_vars.i18n.remove_favorite || 'Remove from Favorites');
                         } else {
                             $btn.removeClass('is-active');
                             $btn.attr('aria-pressed', 'false');
-                            $btn.find('.text-label').text(mhmrentiva_vars.i18n.add_favorite || 'Add to Favorites');
 
                             // Handling "My Favorites" page: Remove card from DOM
                             const $wrapper = $btn.closest('.mhm-my-favorites-container, .rv-my-favorites-wrapper');
@@ -74,6 +75,9 @@
                                 });
                             }
                         }
+						$btn.attr('aria-label', favoriteLabel);
+						$btn.attr('title', favoriteLabel);
+						$btn.find('.text-label').text(favoriteLabel);
 
                         // Final toast with action (Two-Stage Update)
                         const options = {
