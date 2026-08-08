@@ -545,7 +545,16 @@ class BlockRegistry {
 			}
 		}
 
-		$tag = $config['tag'];
+		$tag       = $config['tag'];
+		$min_width = ! empty($attributes['minWidth'])
+			? self::sanitize_css_dimension($attributes['minWidth'])
+			: '';
+		$max_width = ! empty($attributes['maxWidth'])
+			? self::sanitize_css_dimension($attributes['maxWidth'])
+			: '';
+		$height    = ! empty($attributes['height'])
+			? self::sanitize_css_dimension($attributes['height'])
+			: '';
 
 		// Guard against double mapping (especially when called recursively or via blocks-in-shortcodes)
 		if (! empty($attributes['_canonical'])) {
@@ -553,26 +562,14 @@ class BlockRegistry {
 		} else {
 			// 1. Extract Wrapper Logic (Dimensions) before CAM drops unknown attributes
 			$style_parts = array();
-			if (! empty($attributes['minWidth'])) {
-				$val = $attributes['minWidth'];
-				if (is_numeric($val)) {
-					$val .= 'px';
-				}
-				$style_parts[] = "min-width:$val";
+			if ('' !== $min_width) {
+				$style_parts[] = "min-width:$min_width";
 			}
-			if (! empty($attributes['maxWidth'])) {
-				$val = $attributes['maxWidth'];
-				if (is_numeric($val)) {
-					$val .= 'px';
-				}
-				$style_parts[] = "max-width:$val";
+			if ('' !== $max_width) {
+				$style_parts[] = "max-width:$max_width";
 			}
-			if (! empty($attributes['height'])) {
-				$val = $attributes['height'];
-				if (is_numeric($val)) {
-					$val .= 'px';
-				}
-				$style_parts[] = "height:$val";
+			if ('' !== $height) {
+				$style_parts[] = "height:$height";
 			}
 
 			if (! empty($style_parts)) {
@@ -599,31 +596,19 @@ class BlockRegistry {
 		$wrapper_args   = array();
 		$wrapper_styles = array();
 
-		if (! empty($attributes['maxWidth'])) {
-			$val = $attributes['maxWidth'];
-			if (is_numeric($val)) {
-				$val .= 'px';
-			}
-			$wrapper_styles[] = "max-width:$val";
+		if ('' !== $max_width) {
+			$wrapper_styles[] = "max-width:$max_width";
 			$wrapper_styles[] = 'width:100%';
 			$wrapper_styles[] = 'margin-left:auto';
 			$wrapper_styles[] = 'margin-right:auto';
 		}
 
-		if (! empty($attributes['minWidth'])) {
-			$val = $attributes['minWidth'];
-			if (is_numeric($val)) {
-				$val .= 'px';
-			}
-			$wrapper_styles[] = "min-width:$val";
+		if ('' !== $min_width) {
+			$wrapper_styles[] = "min-width:$min_width";
 		}
 
-		if (! empty($attributes['height'])) {
-			$val = $attributes['height'];
-			if (is_numeric($val)) {
-				$val .= 'px';
-			}
-			$wrapper_styles[] = "height:$val";
+		if ('' !== $height) {
+			$wrapper_styles[] = "height:$height";
 		}
 
 		if (! empty($wrapper_styles)) {
@@ -670,6 +655,36 @@ class BlockRegistry {
 			}
 		}
 		return trim($out);
+	}
+
+	/**
+	 * Normalize an untrusted block dimension to a single safe CSS value.
+	 *
+	 * Unitless numbers keep the historical pixels behavior. Common CSS length
+	 * units and intrinsic sizing keywords pass through; functions, declaration
+	 * separators, and other CSS syntax are rejected rather than escaped.
+	 *
+	 * @param mixed $value Raw block attribute value.
+	 * @return string Safe CSS dimension, or an empty string when invalid.
+	 */
+	private static function sanitize_css_dimension($value): string
+	{
+		if (! is_scalar($value)) {
+			return '';
+		}
+
+		$value = strtolower(trim( (string) $value));
+		if (preg_match('/\A(?:\d+(?:\.\d+)?|\.\d+)\z/', $value)) {
+			return $value . 'px';
+		}
+
+		$number = '(?:\d+(?:\.\d+)?|\.\d+)';
+		$unit   = '(?:%|px|em|rem|vw|vh|vmin|vmax|svw|svh|lvw|lvh|dvw|dvh|ch|ex|cm|mm|q|in|pt|pc)';
+		if (preg_match('/\A(?:' . $number . $unit . '|auto|min-content|max-content|fit-content|none)\z/', $value)) {
+			return $value;
+		}
+
+		return '';
 	}
 
 	/**
