@@ -391,7 +391,7 @@ final class AssetManager {
 		}
 
 		// Plugin's custom post types that don't carry the 'mhm' prefix in their slug.
-		$plugin_post_types = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon', 'mhmrentiva_vendor_app' );
+		$plugin_post_types = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon' );
 
 		// The migration map asks for the bare 'mhm' probe to become 'mhmrentiva'
 		// by hand. Done, but NOT as a straight substitution -- that would have
@@ -803,7 +803,6 @@ final class AssetManager {
 						'validAdminEmail'       => __('Enter a valid admin email address', 'mhm-rentiva'),
 						'validFromEmail'        => __('Enter a valid sender email address', 'mhm-rentiva'),
 						'validEmail'            => __('Enter a valid email address', 'mhm-rentiva'),
-						'maxMessagesRange'      => __('Widget max messages must be between 1-20', 'mhm-rentiva'),
 						'duplicateCategory'     => __('Duplicate category names are not allowed', 'mhm-rentiva'),
 						'duplicateStatus'       => __('Duplicate status names are not allowed', 'mhm-rentiva'),
 						'formErrors'            => __('Form errors', 'mhm-rentiva'),
@@ -823,10 +822,6 @@ final class AssetManager {
 						'minOneCategory'        => __('At least one category must be defined', 'mhm-rentiva'),
 						'minOneStatus'          => __('At least one status must be defined', 'mhm-rentiva'),
 						'confirmResetTemplate'  => __('Are you sure you want to reset this template to default?', 'mhm-rentiva'),
-						'defaultNewMessage'     => __('New message received: {{subject}}', 'mhm-rentiva'),
-						'defaultReply'          => __('Reply to your message: {{subject}}', 'mhm-rentiva'),
-						'defaultStatusChange'   => __('Message status changed: {{subject}}', 'mhm-rentiva'),
-						'defaultAutoReply'      => __('Your message received: {{subject}}', 'mhm-rentiva'),
 					),
 				)
 			);

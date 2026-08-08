@@ -226,7 +226,7 @@ final class EarlyTranslationDefaultsTest extends WP_UnitTestCase
             'mhmrentiva_booking_created_subject',
             'mhmrentiva_email_footer_text',
             'mhmrentiva_booking_created_body',
-            'mhmrentiva_message_auto_reply_subject',
+            'mhmrentiva_auto_cancel_email_subject',
             'mhmrentiva_refund_admin_body',
         ) as $key) {
             $this->assertSame($declared[ $key ], SettingsCore::get($key), $key);

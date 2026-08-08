@@ -60,63 +60,55 @@ final class EmailSettings {
 	 */
 	public static function deferred_default_settings(): array {
 		return array(
-			'mhmrentiva_email_from_name'                  => get_bloginfo( 'name' ),
-			'mhmrentiva_email_from_address'               => get_option( 'admin_email' ),
-			'mhmrentiva_email_reply_to'                   => get_option( 'admin_email' ),
-			'mhmrentiva_email_send_enabled'               => '1',
-			'mhmrentiva_email_test_mode'                  => '0',
-			'mhmrentiva_email_test_address'               => get_option( 'admin_email' ),
-			'mhmrentiva_email_template_path'              => 'mhm-rentiva/emails/',
-			'mhmrentiva_email_auto_send'                  => '1',
-			'mhmrentiva_email_log_enabled'                => '1',
-			'mhmrentiva_email_log_retention_days'         => 30,
+			'mhmrentiva_email_from_name'                => get_bloginfo( 'name' ),
+			'mhmrentiva_email_from_address'             => get_option( 'admin_email' ),
+			'mhmrentiva_email_reply_to'                 => get_option( 'admin_email' ),
+			'mhmrentiva_email_send_enabled'             => '1',
+			'mhmrentiva_email_test_mode'                => '0',
+			'mhmrentiva_email_test_address'             => get_option( 'admin_email' ),
+			'mhmrentiva_email_template_path'            => 'mhm-rentiva/emails/',
+			'mhmrentiva_email_auto_send'                => '1',
+			'mhmrentiva_email_log_enabled'              => '1',
+			'mhmrentiva_email_log_retention_days'       => 30,
 
 			// Branding
-			'mhmrentiva_email_base_color'                 => '#1e88e5',
-			'mhmrentiva_email_header_image'               => '',
-			'mhmrentiva_email_footer_text'                => static fn(): string => sprintf(
+			'mhmrentiva_email_base_color'               => '#1e88e5',
+			'mhmrentiva_email_header_image'             => '',
+			'mhmrentiva_email_footer_text'              => static fn(): string => sprintf(
 				/* translators: %s: site name */
 				__( '%s - Powered by MHM Rentiva', 'mhm-rentiva' ),
 				get_bloginfo( 'name' )
 			),
 
 			// Customer Booking Confirmation
-			'mhmrentiva_booking_created_subject'          => static fn(): string => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_booking_created_body'             => static fn(): string => self::get_default_customer_confirmation_body(),
+			'mhmrentiva_booking_created_subject'        => static fn(): string => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_created_body'           => static fn(): string => self::get_default_customer_confirmation_body(),
 
 			// Booking Status Change (Customer)
-			'mhmrentiva_booking_status_subject'           => static fn(): string => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
-			'mhmrentiva_booking_status_body'              => static fn(): string => self::get_default_booking_status_body(),
+			'mhmrentiva_booking_status_subject'         => static fn(): string => __( 'Booking #{booking_id} status updated', 'mhm-rentiva' ),
+			'mhmrentiva_booking_status_body'            => static fn(): string => self::get_default_booking_status_body(),
 
 			// Admin Booking Alert
-			'mhmrentiva_booking_admin_subject'            => static fn(): string => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
-			'mhmrentiva_booking_admin_body'               => static fn(): string => self::get_default_admin_notification_body(),
+			'mhmrentiva_booking_admin_subject'          => static fn(): string => __( 'New Booking Alert: #{booking_id} - {site_name}', 'mhm-rentiva' ),
+			'mhmrentiva_booking_admin_body'             => static fn(): string => self::get_default_admin_notification_body(),
 
 			// Auto Cancel Email
-			'mhmrentiva_auto_cancel_email_subject'        => static fn(): string => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_auto_cancel_email_content'        => static fn(): string => self::get_default_auto_cancel_body(),
+			'mhmrentiva_auto_cancel_email_subject'      => static fn(): string => __( 'Booking Cancelled (Payment Timeout): #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_auto_cancel_email_content'      => static fn(): string => self::get_default_auto_cancel_body(),
 
 			// Booking Reminder
-			'mhmrentiva_booking_reminder_subject'         => static fn(): string => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
-			'mhmrentiva_booking_reminder_body'            => static fn(): string => self::get_default_booking_reminder_body(),
+			'mhmrentiva_booking_reminder_subject'       => static fn(): string => __( 'Reminder: Your Booking #{booking_id} Starts Soon', 'mhm-rentiva' ),
+			'mhmrentiva_booking_reminder_body'          => static fn(): string => self::get_default_booking_reminder_body(),
 
 			// Refund Emails
-			'mhmrentiva_refund_customer_subject'          => static fn(): string => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_refund_customer_body'             => static fn(): string => self::get_default_refund_customer_body(),
-			'mhmrentiva_refund_admin_subject'             => static fn(): string => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_refund_admin_body'                => static fn(): string => self::get_default_refund_admin_body(),
+			'mhmrentiva_refund_customer_subject'        => static fn(): string => __( 'Refund Processed for Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_customer_body'           => static fn(): string => self::get_default_refund_customer_body(),
+			'mhmrentiva_refund_admin_subject'           => static fn(): string => __( 'Refund Alert: Booking #{booking_id}', 'mhm-rentiva' ),
+			'mhmrentiva_refund_admin_body'              => static fn(): string => self::get_default_refund_admin_body(),
 
 			// Customer Notification Toggles
-			'mhmrentiva_customer_welcome_email'           => '1',
-			'mhmrentiva_customer_booking_notifications'   => '1',
-
-			// Message Emails
-			'mhmrentiva_message_received_admin_subject'   => static fn(): string => __( 'New Message from {contact_name}', 'mhm-rentiva' ),
-			'mhmrentiva_message_received_admin_body'      => static fn(): string => self::get_default_message_admin_body(),
-			'mhmrentiva_message_replied_customer_subject' => static fn(): string => __( 'New Reply for Booking #{booking_id}', 'mhm-rentiva' ),
-			'mhmrentiva_message_replied_customer_body'    => static fn(): string => self::get_default_message_customer_body(),
-			'mhmrentiva_message_auto_reply_subject'       => static fn(): string => __( 'We received your message - {site_name}', 'mhm-rentiva' ),
-			'mhmrentiva_message_auto_reply_body'          => static fn(): string => self::get_default_message_auto_reply_body(),
+			'mhmrentiva_customer_welcome_email'         => '1',
+			'mhmrentiva_customer_booking_notifications' => '1',
 		);
 	}
 
@@ -250,18 +242,6 @@ final class EmailSettings {
 
 	public static function get_default_admin_status_change_body(): string {
 		return '<p><strong>' . __( 'Booking Status Update', 'mhm-rentiva' ) . '</strong></p><p>' . __( 'The status of booking #{booking_id} has been changed to {new_status}.', 'mhm-rentiva' ) . '</p>';
-	}
-
-	public static function get_default_message_admin_body(): string {
-		return '<p><strong>' . __( 'New Message Received', 'mhm-rentiva' ) . '</strong></p><p>' . __( 'You have received a new message regarding booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0;">{message_body}</div>';
-	}
-
-	public static function get_default_message_customer_body(): string {
-		return '<p>' . __( 'Dear {customer_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'You have received a new reply regarding your booking #{booking_id}.', 'mhm-rentiva' ) . '</p><div style="background: #e3f2fd; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #1e88e5;">{reply_body}</div>';
-	}
-
-	public static function get_default_message_auto_reply_body(): string {
-		return '<p>' . __( 'Dear {customer_name},', 'mhm-rentiva' ) . '</p><p>' . __( 'We have received your message and will get back to you shortly.', 'mhm-rentiva' ) . '</p>';
 	}
 
 	/**
