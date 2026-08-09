@@ -225,7 +225,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 13
+			count: 10
 			path: src/Admin/Booking/Meta/BookingMeta.php
 
 		-
