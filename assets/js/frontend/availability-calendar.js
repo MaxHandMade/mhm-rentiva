@@ -463,10 +463,14 @@
                     this.updateDateRangeSelection();
 
                     // Redirect to booking form
+                    // Param names carry the mhmrentiva_ prefix: they are public
+                    // query vars on WordPress's global whitelist, and the booking
+                    // page reads them back under exactly these names
+                    // (BookingForm::PUBLIC_QUERY_VARS / SearchResults::PUBLIC_QUERY_VARS).
                     const baseUrl = window.mhmRentivaAvailability.bookingPageUrl;
-                    const redirectUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}vehicle_id=${this.currentVehicleId}&start_date=${startDate}&end_date=${date}`;
+                    const redirectUrl = `${baseUrl}${baseUrl.includes('?') ? '&' : '?'}mhmrentiva_vehicle_id=${this.currentVehicleId}&mhmrentiva_start_date=${startDate}&mhmrentiva_end_date=${date}`;
                     if (this.currentLocationId > 0) {
-                        window.location.href = redirectUrl + '&pickup_location=' + this.currentLocationId;
+                        window.location.href = redirectUrl + '&mhmrentiva_pickup_location=' + this.currentLocationId;
                     } else {
                         window.location.href = redirectUrl;
                     }

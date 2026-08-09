@@ -23,6 +23,14 @@ use MHMRentiva\Helpers\Icons;
 $uid       = $wrapper_id;
 $locations = $locations ?? array();
 
+// On-the-wire names for the params this GET form puts on the search-results
+// URL. Built through SearchResults::query_var() rather than typed as prefixed
+// literals, so the submitted names cannot drift from the `query_vars`
+// whitelist SearchResults/BookingForm read them back through.
+$mhmrentiva_qv = static function (string $logical): string {
+    return \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var($logical);
+};
+
 // Visibility flags (default to true if not set)
 $show_rental_tab       = $show_rental_tab ?? true;
 $show_location_select  = $show_location_select ?? true;
@@ -70,7 +78,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
                             <label class="rv-label"><?php esc_html_e('Pick-up', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('location', [ 'class' => 'rv-icon-marker' ]); ?>
-                                <select name="pickup_location" class="rv-select" <?php echo $location_required ? 'required' : ''; ?> title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-pickup-location">
+                                <select name="<?php echo esc_attr($mhmrentiva_qv('pickup_location')); ?>" class="rv-select" <?php echo $location_required ? 'required' : ''; ?> title="<?php esc_attr_e('Select Location', 'mhm-rentiva'); ?>" data-testid="search-pickup-location">
                                     <option value=""><?php esc_html_e('City, Airport, or Hotel', 'mhm-rentiva'); ?></option>
                                     <?php foreach ($locations as $loc) : ?>
                                         <option value="<?php echo esc_attr( (string) $loc->id); ?>" title="<?php echo esc_attr($loc->name); ?>"><?php echo esc_html($loc->name); ?></option>
@@ -105,7 +113,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
                             <label class="rv-label"><?php esc_html_e('Pick-up Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', [ 'class' => 'rv-icon-calendar' ]); ?>
-                                <input type="text" name="pickup_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-pickup-date">
+                                <input type="text" name="<?php echo esc_attr($mhmrentiva_qv('pickup_date')); ?>" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-pickup-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -116,7 +124,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
                             <label class="rv-label"><?php esc_html_e('Time', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('clock', [ 'class' => 'rv-icon-clock' ]); ?>
-                                <select name="pickup_time" class="rv-select">
+                                <select name="<?php echo esc_attr($mhmrentiva_qv('pickup_time')); ?>" class="rv-select">
                                     <?php for ($i = 0; $i < 24; $i++) : ?>
                                         <?php $pickup_hour = sprintf('%02d:00', $i); ?>
                                         <option value="<?php echo esc_attr($pickup_hour); ?>" <?php selected($i, 10); ?>>
@@ -140,7 +148,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
                             <label class="rv-label"><?php esc_html_e('Return Date', 'mhm-rentiva'); ?></label>
                             <div class="rv-input-wrapper">
                                 <?php Icons::render('calendar', [ 'class' => 'rv-icon-calendar' ]); ?>
-                                <input type="text" name="return_date" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-return-date">
+                                <input type="text" name="<?php echo esc_attr($mhmrentiva_qv('return_date')); ?>" class="rv-input js-datepicker" placeholder="<?php esc_attr_e('Select Date', 'mhm-rentiva'); ?>" <?php echo $fields_required ? 'required' : ''; ?> autocomplete="off" data-testid="search-return-date">
                             </div>
                         </div>
                     <?php endif; ?>
@@ -163,7 +171,7 @@ $location_required = $fields_required ? ( $location_required ?? true ) : false;
                                         </option>
                                     <?php endfor; ?>
                                 </select>
-                                <input type="hidden" name="return_time" value="10:00">
+                                <input type="hidden" name="<?php echo esc_attr($mhmrentiva_qv('return_time')); ?>" value="10:00">
                             </div>
                         </div>
                     <?php endif; ?>

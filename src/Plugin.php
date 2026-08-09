@@ -18,6 +18,21 @@ final class Plugin {
 
 	public const VERSION = MHMRENTIVA_VERSION;
 
+	/**
+	 * Stamp of the rewrite-rule shape this build generates.
+	 *
+	 * Bump on any change to a registered rewrite rule, rewrite tag or CPT
+	 * query var; maybe_flush_rewrite_rules() then flushes once per site.
+	 * Deliberately NOT the plugin version -- a flush on every release would be
+	 * a pointless write on sites whose rules did not change.
+	 */
+	public const REWRITE_RULES_VERSION = 'query-var-prefix-1';
+
+	/**
+	 * Option holding the last flushed REWRITE_RULES_VERSION.
+	 */
+	public const REWRITE_RULES_VERSION_OPTION = 'mhmrentiva_rewrite_rules_version';
+
 	private static ?self $instance = null;
 
 	/**
@@ -444,7 +459,7 @@ final class Plugin {
 		}
 
 		// Email Logs
-		if ($this->is_class_available('MHMRentiva\\\\Admin\\\\Emails\\\\PostTypes\\\\EmailLog')) {
+		if ($this->is_class_available('\MHMRentiva\Admin\Emails\PostTypes\EmailLog')) {
 			\MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
 		}
 	}
@@ -602,6 +617,11 @@ final class Plugin {
 		// Vehicle detail page rewrite rules (SEO-friendly sub-path URLs)
 		add_action('init', array( $this, 'register_vehicle_rewrite_rules' ), 15);
 
+		// One-time flush after a change to the rules THEMSELVES (see
+		// REWRITE_RULES_VERSION). Priority 999: every post type, taxonomy and
+		// custom rule is registered by then, so the regenerated set is complete.
+		add_action('init', array( $this, 'maybe_flush_rewrite_rules' ), 999);
+
 		// Template loading
 		add_action('template_redirect', array( $this, 'load_vehicle_templates' ));
 
@@ -676,22 +696,26 @@ final class Plugin {
 	 * Register SEO-friendly rewrite rules for vehicle detail sub-paths.
 	 *
 	 * Maps {shortcode-page-slug}/{vehicle-slug}/ to the vehicle-details shortcode page
-	 * with the vehicle_slug query var set, so the shortcode can look up the vehicle.
-	 * Example: /vehicles/bmw-3-series-320i/ → page_id=X &vehicle_slug=bmw-3-series-320i
+	 * with the mhmrentiva_vehicle_slug query var set, so the shortcode can look up
+	 * the vehicle.
+	 * Example: /vehicles/bmw-3-series-320i/ → page_id=X &mhmrentiva_vehicle_slug=bmw-3-series-320i
 	 *
 	 * Flush trigger: settings save (mhmrentiva_vehicle_url_base change) or
 	 * manually via Settings → Permalinks when the shortcode page slug changes.
 	 */
 	public function register_vehicle_rewrite_rules(): void
 	{
-		// Register vehicle_slug as a public query var so get_query_var() can read it.
+		// Register mhmrentiva_vehicle_slug as a public query var so get_query_var()
+		// can read it. Prefixed because `query_vars` is a site-wide namespace: a
+		// bare `vehicle_slug` there is a generic global name this plugin should
+		// not claim. The rewrite REGEX (the pretty URL itself) is unchanged.
 		add_filter('query_vars', static function (array $vars): array {
-			$vars[] = 'vehicle_slug';
+			$vars[] = 'mhmrentiva_vehicle_slug';
 			return $vars;
 		});
 
 		// add_rewrite_tag also registers the var, but explicit filter ensures it regardless of timing.
-		add_rewrite_tag('%vehicle_slug%', '([^/]+)');
+		add_rewrite_tag('%mhmrentiva_vehicle_slug%', '([^/]+)');
 
 		$page_id = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_id('rentiva_vehicle_details');
 		if (! $page_id) {
@@ -705,16 +729,45 @@ final class Plugin {
 		}
 
 		$rule_regex = '^' . preg_quote($page_path, '#') . '/([^/]+)/?$';
-		$rule_query = 'index.php?page_id=' . $page_id . '&vehicle_slug=$matches[1]';
+		$rule_query = 'index.php?page_id=' . $page_id . '&mhmrentiva_vehicle_slug=$matches[1]';
 
 		add_rewrite_rule($rule_regex, $rule_query, 'top');
 
-		// Auto-flush if our rule is missing from the cached rewrite rules in the DB.
-		// This handles the case where flush was triggered before the page was configured.
+		// Auto-flush if our rule is missing from the cached rewrite rules in the DB,
+		// or if it is present but STALE. This handles the case where flush was
+		// triggered before the page was configured -- and the case where the rule's
+		// regex is unchanged (it is derived from the page slug) while its query
+		// string moved, which is exactly what renaming vehicle_slug ->
+		// mhmrentiva_vehicle_slug does. Comparing only the key would miss that and
+		// leave every existing site serving the old, no-longer-registered var.
 		$cached_rules = (array) get_option('rewrite_rules', array());
-		if (! isset($cached_rules[ $rule_regex ])) {
+		if (( $cached_rules[ $rule_regex ] ?? null ) !== $rule_query) {
 			flush_rewrite_rules(false);
 		}
+	}
+
+	/**
+	 * Flushes rewrite rules once after the plugin changes the rules it generates.
+	 *
+	 * Activation flushes, but a plugin UPDATE does not re-run activation, so a
+	 * changed rule would otherwise stay stale in the `rewrite_rules` option until
+	 * someone visited Settings -> Permalinks. That matters here because the
+	 * vehicle CPT's `query_var` moved from `vehicle` to `mhmrentiva_vehicle`, and
+	 * WordPress bakes the CPT's query var into the permalink rules it generates:
+	 * cached rules would keep resolving to a var that is no longer registered,
+	 * 404-ing every vehicle permalink.
+	 *
+	 * Bump REWRITE_RULES_VERSION whenever a registered rule, rewrite tag or CPT
+	 * query var changes.
+	 */
+	public function maybe_flush_rewrite_rules(): void
+	{
+		if (get_option(self::REWRITE_RULES_VERSION_OPTION) === self::REWRITE_RULES_VERSION) {
+			return;
+		}
+
+		flush_rewrite_rules(false);
+		update_option(self::REWRITE_RULES_VERSION_OPTION, self::REWRITE_RULES_VERSION, false);
 	}
 
 	/**

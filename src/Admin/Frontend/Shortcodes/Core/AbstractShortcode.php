@@ -25,7 +25,37 @@ use Exception;
  */
 abstract class AbstractShortcode {
 
+	/**
+	 * Prefix every public query var this plugin puts on WordPress's global
+	 * `query_vars` whitelist must carry.
+	 *
+	 * `query_vars` is a site-wide namespace shared with core and every other
+	 * plugin, so a bare `sort`/`brand`/`seats` registered there is a collision
+	 * waiting to happen (and a WP.org submission finding). The prefix keeps the
+	 * plugin's names in its own corner of that namespace.
+	 */
+	public const QUERY_VAR_PREFIX = 'mhmrentiva_';
 
+	/**
+	 * Maps a logical filter key to the name it carries on the wire.
+	 *
+	 * This is the single mapping point between the readable keys used inside the
+	 * code (`min_price`, `pickup_date`, ...) and the prefixed names that appear
+	 * in URLs, in `name=` attributes and on the `query_vars` whitelist. Both the
+	 * emission side (templates) and the read side (get_text()/get_int()/...) go
+	 * through it, so the two cannot drift apart.
+	 *
+	 * WordPress core's own public query vars -- `page` above all -- are NOT
+	 * passed through here: they belong to core, are already registered, and must
+	 * stay unprefixed.
+	 *
+	 * @param string $logical Logical filter key, e.g. 'min_price'.
+	 * @return string On-the-wire query-var name, e.g. 'mhmrentiva_min_price'.
+	 */
+	public static function query_var(string $logical): string
+	{
+		return self::QUERY_VAR_PREFIX . $logical;
+	}
 
 	// Shortcode cache
 	private static array $shortcode_cache = array();

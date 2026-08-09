@@ -46,29 +46,59 @@ final class SearchResults extends AbstractShortcode {
 
 	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
-	 * search-results URL (e.g. `?min_price=100&fuel_type=diesel&sort=price_asc`).
+	 * search-results URL (e.g.
+	 * `?mhmrentiva_min_price=100&mhmrentiva_fuel_type=diesel&mhmrentiva_sort=price_asc`).
 	 *
 	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
 	 * so they are read via get_query_var() instead of raw $_GET.
 	 *
-	 * Names are the EXISTING (unprefixed) param names, kept deliberately: renaming
-	 * to a `mhmrentiva_`-prefixed form would break already-shared search URLs and
-	 * would also require renaming the `.rv-filters-form` field names, which feed
-	 * the (out-of-scope) AJAX POST path (`ajax_filter_results`) via the same
-	 * `name` attributes. None of these collide with WordPress core's own default
-	 * public query vars (checked against WP\WP::$public_query_vars).
+	 * Every name carries the `mhmrentiva_` prefix (see query_var()). `query_vars`
+	 * is a site-wide namespace shared with WordPress core and every other active
+	 * plugin, so registering a bare `sort`, `brand` or `seats` there claims a
+	 * generic global name this plugin has no business owning. The logical keys
+	 * stay unprefixed everywhere inside the code -- get_text()/get_int()/
+	 * get_int_array() and the templates map them through query_var(), which is
+	 * the one place the prefix is applied.
 	 *
 	 * `page` is intentionally NOT listed here: it is already one of WordPress
 	 * core's default public query vars, so it is readable via get_query_var()
-	 * without any registration.
+	 * without any registration -- and must stay unprefixed for that reason.
 	 *
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
 		// No template or JS URL-builder emits this, but SearchResults::build_query()
 		// does read it (it becomes the WP_Query `s` parameter) and the results
-		// template prints "Results for: ...", so an externally-built ?keyword= URL
-		// works today. Registered deliberately -- do not remove.
+		// template prints "Results for: ...", so an externally-built
+		// ?mhmrentiva_keyword= URL works today. Registered deliberately -- do not remove.
+		'mhmrentiva_keyword',
+		'mhmrentiva_pickup_date',
+		'mhmrentiva_return_date',
+		'mhmrentiva_start_date',
+		'mhmrentiva_end_date',
+		'mhmrentiva_min_price',
+		'mhmrentiva_max_price',
+		'mhmrentiva_fuel_type',
+		'mhmrentiva_transmission',
+		'mhmrentiva_seats',
+		'mhmrentiva_brand',
+		'mhmrentiva_year_min',
+		'mhmrentiva_year_max',
+		'mhmrentiva_mileage_max',
+		'mhmrentiva_sort',
+		'mhmrentiva_pickup_location',
+	);
+
+	/**
+	 * Logical filter keys behind PUBLIC_QUERY_VARS, in the same order.
+	 *
+	 * Exposed so the emission side and the tests can prove that every declared
+	 * whitelist entry really is query_var() of a key the read path uses -- the
+	 * lock that keeps the two lists from drifting apart.
+	 *
+	 * @var array<int, string>
+	 */
+	public const FILTER_PARAMS = array(
 		'keyword',
 		'pickup_date',
 		'return_date',
@@ -109,10 +139,13 @@ final class SearchResults extends AbstractShortcode {
 	 * not raw $_GET. A `null` sentinel default distinguishes "param absent from
 	 * the request" from "param present but empty", matching the previous
 	 * `isset($_GET[$key])` semantics exactly.
+	 *
+	 * Takes the LOGICAL key ('min_price'); query_var() applies the wire prefix,
+	 * so the ~20 call sites below stay readable and cannot forget it.
 	 */
 	private static function get_text(string $key, string $default = ''): string
 	{
-		$value = get_query_var($key, null);
+		$value = get_query_var(self::query_var($key), null);
 		if (null === $value) {
 			return $default;
 		}
@@ -122,7 +155,18 @@ final class SearchResults extends AbstractShortcode {
 
 	private static function get_int(string $key, int $default = 0): int
 	{
-		$value = get_query_var($key, null);
+		return self::get_int_by_var(self::query_var($key), $default);
+	}
+
+	/**
+	 * Reads an integer query var by its EXACT on-the-wire name, no prefixing.
+	 *
+	 * Only for WordPress core's own public query vars (`page`), which this plugin
+	 * neither registers nor renames. Plugin params go through get_int().
+	 */
+	private static function get_int_by_var(string $var, int $default = 0): int
+	{
+		$value = get_query_var($var, null);
 		if (null === $value) {
 			return $default;
 		}
@@ -135,7 +179,7 @@ final class SearchResults extends AbstractShortcode {
 	 */
 	private static function get_int_array(string $key): array
 	{
-		$value = get_query_var($key, null);
+		$value = get_query_var(self::query_var($key), null);
 		if (null === $value) {
 			return array();
 		}
@@ -386,7 +430,10 @@ final class SearchResults extends AbstractShortcode {
 			'year_max'        => self::get_int('year_max'),
 			'mileage_max'     => self::get_int('mileage_max'),
 			'sort'            => self::get_text('sort', 'relevance'),
-			'page'            => self::get_int('page', 1),
+			// `page` is one of WordPress core's own public query vars: read by its
+			// exact name, never prefixed, so paginate_links()' `?page=%#%` hrefs
+			// keep resolving.
+			'page'            => self::get_int_by_var('page', 1),
 			'pickup_location' => self::get_int_array('pickup_location'),
 		);
 	}
@@ -869,23 +916,30 @@ final class SearchResults extends AbstractShortcode {
 		$req = VerifiedRequest::from($_POST);
 
 		try {
-			// Get filters from POST parameters
+			// Get filters from POST parameters.
+			//
+			// The refine-filters form posts the SAME field names the bookmarkable
+			// search URL carries -- `.rv-filters-form` is serialized straight into
+			// this payload -- so these keys go through query_var() too. Field name,
+			// URL param and whitelist entry stay one string, defined in one place.
+			// `page` stays bare: it is core's query var on the URL side and this
+			// payload mirrors it.
 			$search_params = array(
-				'keyword'         => $req->text('keyword'),
-				'pickup_date'     => $req->text('pickup_date'),
-				'return_date'     => $req->text('return_date'),
-				'min_price'       => $req->int('min_price'),
-				'max_price'       => $req->int('max_price'),
-				'fuel_type'       => $req->textOrList('fuel_type'),
-				'transmission'    => $req->textOrList('transmission'),
-				'seats'           => $req->textOrList('seats'),
-				'brand'           => $req->textOrList('brand'),
-				'year_min'        => $req->int('year_min'),
-				'year_max'        => $req->int('year_max'),
-				'mileage_max'     => $req->int('mileage_max'),
-				'sort'            => $req->text('sort', 'relevance'),
+				'keyword'         => $req->text(self::query_var('keyword')),
+				'pickup_date'     => $req->text(self::query_var('pickup_date')),
+				'return_date'     => $req->text(self::query_var('return_date')),
+				'min_price'       => $req->int(self::query_var('min_price')),
+				'max_price'       => $req->int(self::query_var('max_price')),
+				'fuel_type'       => $req->textOrList(self::query_var('fuel_type')),
+				'transmission'    => $req->textOrList(self::query_var('transmission')),
+				'seats'           => $req->textOrList(self::query_var('seats')),
+				'brand'           => $req->textOrList(self::query_var('brand')),
+				'year_min'        => $req->int(self::query_var('year_min')),
+				'year_max'        => $req->int(self::query_var('year_max')),
+				'mileage_max'     => $req->int(self::query_var('mileage_max')),
+				'sort'            => $req->text(self::query_var('sort'), 'relevance'),
 				'page'            => $req->int('page', 1),
-				'pickup_location' => $req->intList('pickup_location'),
+				'pickup_location' => $req->intList(self::query_var('pickup_location')),
 			);
 
 			$atts = array(

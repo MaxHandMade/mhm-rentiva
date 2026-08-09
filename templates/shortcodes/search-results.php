@@ -27,6 +27,16 @@ $total_results = $results['total'] ?? 0;
 $current_page  = $results['current_page'] ?? 1;
 $max_pages     = $results['max_pages'] ?? 1;
 $active_layout = in_array(( $atts['layout'] ?? 'grid' ), array( 'grid', 'list' ), true) ? (string) $atts['layout'] : 'grid';
+
+// On-the-wire names for the public search-filter params. The field names below
+// are built through SearchResults::query_var() rather than typed as prefixed
+// literals, so the emitted `name=` can never drift from the `query_vars`
+// whitelist the reader side (SearchResults::get_text()/get_int()) uses.
+// $search_params keys stay LOGICAL -- they are an internal PHP array, not wire
+// names.
+$mhmrentiva_qv = static function (string $logical): string {
+	return \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var($logical);
+};
 ?>
 
 <?php
@@ -82,7 +92,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 				<!-- Sorting -->
 				<div class="rv-sorting">
 					<label for="rv-sort-select"><?php esc_html_e('Sort by:', 'mhm-rentiva'); ?></label>
-					<select name="sort" class="rv-sort-select">
+					<select name="<?php echo esc_attr($mhmrentiva_qv('sort')); ?>" class="rv-sort-select">
 						<?php foreach ($sorting_options as $value => $label) : ?>
 							<option value="<?php echo esc_attr($value); ?>" <?php selected($search_params['sort'] ?? '', $value); ?>>
 								<?php echo esc_html($label); ?>
@@ -163,7 +173,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 									<div class="rv-location-group__options" <?php echo $city_open ? '' : 'hidden'; ?>>
 										<?php foreach ($city_locs as $loc) : ?>
 											<label class="rv-filter-option rv-filter-option--sub">
-												<input type="checkbox" name="pickup_location[]"
+												<input type="checkbox" name="<?php echo esc_attr($mhmrentiva_qv('pickup_location')); ?>[]"
 													value="<?php echo esc_attr( (string) $loc->id); ?>"
 													<?php checked(in_array( (int) $loc->id, $active_loc_ids, true )); ?>>
 												<span class="rv-checkbox-custom"></span>
@@ -181,12 +191,12 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 						<h4 class="rv-filter-title"><?php esc_html_e('Price Range', 'mhm-rentiva'); ?></h4>
 						<div class="rv-price-range">
 							<div class="rv-price-inputs">
-								<input type="number" name="min_price" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
+								<input type="number" name="<?php echo esc_attr($mhmrentiva_qv('min_price')); ?>" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
 									value="<?php echo ! empty( $search_params['min_price'] ) ? esc_attr( (string) $search_params['min_price'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['price_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['price_range']['max']); ?>">
 								<span class="rv-price-separator">-</span>
-								<input type="number" name="max_price" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
+								<input type="number" name="<?php echo esc_attr($mhmrentiva_qv('max_price')); ?>" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
 									value="<?php echo ! empty( $search_params['max_price'] ) ? esc_attr( (string) $search_params['max_price'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['price_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['price_range']['max']); ?>">
@@ -202,7 +212,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<div class="rv-filter-options">
 								<?php foreach ($filter_options['brands'] as $brand) : ?>
 									<label class="rv-filter-option">
-										<input type="checkbox" name="brand[]" value="<?php echo esc_attr($brand); ?>"
+										<input type="checkbox" name="<?php echo esc_attr($mhmrentiva_qv('brand')); ?>[]" value="<?php echo esc_attr($brand); ?>"
 											<?php checked(in_array($brand, (array) ( $search_params['brand'] ?? array() ))); ?>>
 										<span class="rv-checkbox-custom"></span>
 										<span class="rv-option-label"><?php echo esc_html($brand); ?></span>
@@ -219,7 +229,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<div class="rv-filter-options">
 								<?php foreach ($filter_options['fuel_types'] as $fuel_key => $fuel_label) : ?>
 									<label class="rv-filter-option">
-										<input type="checkbox" name="fuel_type[]" value="<?php echo esc_attr($fuel_key); ?>"
+										<input type="checkbox" name="<?php echo esc_attr($mhmrentiva_qv('fuel_type')); ?>[]" value="<?php echo esc_attr($fuel_key); ?>"
 											<?php checked(in_array($fuel_key, (array) ( $search_params['fuel_type'] ?? array() ))); ?>>
 										<span class="rv-checkbox-custom"></span>
 										<span class="rv-option-label"><?php echo esc_html($fuel_label); ?></span>
@@ -236,7 +246,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<div class="rv-filter-options">
 								<?php foreach ($filter_options['transmissions'] as $transmission_key => $transmission_label) : ?>
 									<label class="rv-filter-option">
-										<input type="checkbox" name="transmission[]" value="<?php echo esc_attr($transmission_key); ?>"
+										<input type="checkbox" name="<?php echo esc_attr($mhmrentiva_qv('transmission')); ?>[]" value="<?php echo esc_attr($transmission_key); ?>"
 											<?php checked(in_array($transmission_key, (array) ( $search_params['transmission'] ?? array() ))); ?>>
 										<span class="rv-checkbox-custom"></span>
 										<span class="rv-option-label"><?php echo esc_html($transmission_label); ?></span>
@@ -253,7 +263,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 							<div class="rv-filter-options">
 								<?php foreach ($filter_options['seats'] as $seats) : ?>
 									<label class="rv-filter-option">
-										<input type="checkbox" name="seats[]" value="<?php echo esc_attr($seats); ?>"
+										<input type="checkbox" name="<?php echo esc_attr($mhmrentiva_qv('seats')); ?>[]" value="<?php echo esc_attr($seats); ?>"
 											<?php checked(in_array($seats, (array) ( $search_params['seats'] ?? array() ))); ?>>
 										<span class="rv-checkbox-custom"></span>
 										<span class="rv-option-label"><?php echo esc_html($seats); ?> <?php esc_html_e('seats', 'mhm-rentiva'); ?></span>
@@ -268,12 +278,12 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 						<h4 class="rv-filter-title"><?php esc_html_e('Year Range', 'mhm-rentiva'); ?></h4>
 						<div class="rv-year-range">
 							<div class="rv-year-inputs">
-								<input type="number" name="year_min" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
+								<input type="number" name="<?php echo esc_attr($mhmrentiva_qv('year_min')); ?>" placeholder="<?php esc_html_e('Min', 'mhm-rentiva'); ?>"
 									value="<?php echo ! empty( $search_params['year_min'] ) ? esc_attr( (string) $search_params['year_min'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['year_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['year_range']['max']); ?>">
 								<span class="rv-year-separator">-</span>
-								<input type="number" name="year_max" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
+								<input type="number" name="<?php echo esc_attr($mhmrentiva_qv('year_max')); ?>" placeholder="<?php esc_html_e('Max', 'mhm-rentiva'); ?>"
 									value="<?php echo ! empty( $search_params['year_max'] ) ? esc_attr( (string) $search_params['year_max'] ) : ''; ?>"
 									min="<?php echo esc_attr($filter_options['year_range']['min']); ?>"
 									max="<?php echo esc_attr($filter_options['year_range']['max']); ?>">
@@ -286,7 +296,7 @@ $rv_instance = function_exists('wp_unique_id') ? wp_unique_id('rvsr-') : uniqid(
 					<div class="rv-filter-group">
 						<h4 class="rv-filter-title"><?php esc_html_e('Maximum Mileage', 'mhm-rentiva'); ?></h4>
 						<div class="rv-mileage-range">
-							<input type="number" name="mileage_max" placeholder="<?php esc_html_e('Max mileage', 'mhm-rentiva'); ?>"
+							<input type="number" name="<?php echo esc_attr($mhmrentiva_qv('mileage_max')); ?>" placeholder="<?php esc_html_e('Max mileage', 'mhm-rentiva'); ?>"
 								value="<?php echo ! empty( $search_params['mileage_max'] ) ? esc_attr( (string) $search_params['mileage_max'] ) : ''; ?>"
 								min="0" step="1000">
 							<span class="rv-mileage-unit"><?php esc_html_e('km', 'mhm-rentiva'); ?></span>

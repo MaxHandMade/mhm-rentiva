@@ -41,7 +41,11 @@ final class Vehicle extends AbstractPostType {
 			'publicly_queryable'  => true,
 			'show_in_menu'        => false,
 			'exclude_from_search' => false,
-			'query_var'           => 'vehicle',
+			// Prefixed, not the bare `vehicle`: query_var lands on WordPress's
+			// site-wide public whitelist, where a generic name collides with core
+			// and other plugins. `rewrite.slug` below is untouched, so pretty
+			// permalinks (/{url_base}/{slug}/) are unaffected.
+			'query_var'           => 'mhmrentiva_vehicle',
 			'has_archive'         => false,
 			'supports'            => self::get_supports_array( array( 'editor', 'thumbnail', 'excerpt', 'comments' ) ),
 			'rewrite'             => array(

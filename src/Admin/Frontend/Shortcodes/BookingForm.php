@@ -48,7 +48,8 @@ final class BookingForm extends AbstractShortcode {
 
 	/**
 	 * Public GET filter params for this shortcode's shareable/bookmarkable
-	 * "Book Now" URL (e.g. `?vehicle_id=123&pickup_date=2026-08-01&pickup_time=10:00`).
+	 * "Book Now" URL (e.g.
+	 * `?mhmrentiva_vehicle_id=123&mhmrentiva_pickup_date=2026-08-01&mhmrentiva_pickup_time=10:00`).
 	 *
 	 * Registered on WordPress's `query_vars` whitelist (see register_query_vars())
 	 * so they are read via get_query_var() instead of raw $_GET.
@@ -60,14 +61,34 @@ final class BookingForm extends AbstractShortcode {
 	 * which pages, so that registration is always active). Re-registering the
 	 * same name twice here would be harmless but redundant.
 	 *
-	 * Existing (unprefixed) names are kept for the same reason as SearchResults:
-	 * this same `.rv-booking-form` field-name convention is what the (out of
-	 * scope) POST/AJAX submit path also relies on, and vehicle-card-base.php's
-	 * "Book Now" link builder already emits these exact names via add_query_arg().
+	 * Every name carries the `mhmrentiva_` prefix (see query_var()), for the same
+	 * reason as SearchResults: `query_vars` is a global namespace and a bare
+	 * `vehicle_id`/`start_date` there is a name this plugin should not own.
+	 *
+	 * This is the URL namespace ONLY. The `.rv-booking-form` POST fields keep
+	 * their existing unprefixed names (`vehicle_id`, `pickup_date`,
+	 * `pickup_time`, ...): a POST body is not the `query_vars` whitelist, the
+	 * booking submit/price/availability AJAX handlers read those names out of
+	 * $_POST, and renaming them would break booking submission for no
+	 * namespacing gain.
 	 *
 	 * @var array<int, string>
 	 */
 	private const PUBLIC_QUERY_VARS = array(
+		'mhmrentiva_vehicle_id',
+		'mhmrentiva_start_date',
+		'mhmrentiva_end_date',
+		'mhmrentiva_pickup_time',
+		'mhmrentiva_return_time',
+	);
+
+	/**
+	 * Logical keys behind PUBLIC_QUERY_VARS, in the same order. See
+	 * SearchResults::FILTER_PARAMS.
+	 *
+	 * @var array<int, string>
+	 */
+	public const FILTER_PARAMS = array(
 		'vehicle_id',
 		'start_date',
 		'end_date',
@@ -75,9 +96,13 @@ final class BookingForm extends AbstractShortcode {
 		'return_time',
 	);
 
+	/**
+	 * Reads a public "Book Now" URL param by its LOGICAL key; query_var()
+	 * applies the wire prefix.
+	 */
 	private static function get_text(string $key, string $fallback = ''): string
 	{
-		$value = get_query_var($key, null);
+		$value = get_query_var(self::query_var($key), null);
 		return ( null !== $value ) ? sanitize_text_field(wp_unslash( (string) $value)) : $fallback;
 	}
 

@@ -20,10 +20,10 @@
             const minDays = (typeof mhmUnifiedSearch !== 'undefined' && mhmUnifiedSearch.settings) ? mhmUnifiedSearch.settings.minRentalDays || 1 : 1;
 
             // 1. Pickup Date -> Return Date minDate constraint
-            $(document).on('change', '.rv-unified-search [name="pickup_date"]', function () {
+            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_date"]', function () {
                 const $picker = $(this);
                 const $form = $picker.closest('form');
-                const $returnPicker = $form.find('[name="return_date"]');
+                const $returnPicker = $form.find('[name="mhmrentiva_return_date"]');
 
                 if (typeof $.fn.datepicker === 'undefined') return;
 
@@ -43,7 +43,7 @@
             });
 
             // 2. Pickup Time -> Return Time synchronization
-            $(document).on('change', '.rv-unified-search [name="pickup_time"]', function () {
+            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_time"]', function () {
                 const $timeSelect = $(this);
                 const $form = $timeSelect.closest('form');
                 const val = $timeSelect.val();
@@ -51,7 +51,7 @@
                 // Update the visible (disabled) select
                 $form.find('[name="return_time_display"]').val(val);
                 // Update the hidden input for submission
-                $form.find('[name="return_time"]').val(val);
+                $form.find('[name="mhmrentiva_return_time"]').val(val);
             });
         }
 
@@ -62,7 +62,7 @@
 
             // Helper: lock and sync dropoff to current pickup value in a wrapper.
             function applyMirror($wrapper) {
-                const $pickup        = $wrapper.find('[name="pickup_location"]');
+                const $pickup        = $wrapper.find('[name="mhmrentiva_pickup_location"]');
                 const $dropoff       = $wrapper.find('select[name="dropoff_location"]');
                 const $dropoffHidden = $wrapper.find('input[type="hidden"][name="dropoff_location"]');
                 if (!$dropoff.length) return;
@@ -77,7 +77,7 @@
             });
 
             // On pickup change: sync dropoff.
-            $(document).on('change', '.rv-unified-search [name="pickup_location"]', function () {
+            $(document).on('change', '.rv-unified-search [name="mhmrentiva_pickup_location"]', function () {
                 applyMirror($(this).closest('.rv-unified-search'));
             });
 
@@ -116,7 +116,7 @@
 
         syncLocations($wrapper, serviceType) {
             if (typeof mhmUnifiedSearch === 'undefined' || !mhmUnifiedSearch.restUrl) return;
-            const $dropdowns = $wrapper.find('select[name="pickup_location"], select[name="dropoff_location"], select[name="origin_id"], select[name="destination_id"]');
+            const $dropdowns = $wrapper.find('select[name="mhmrentiva_pickup_location"], select[name="dropoff_location"], select[name="origin_id"], select[name="destination_id"]');
 
             if (!$dropdowns.length) return;
 

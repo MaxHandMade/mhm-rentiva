@@ -121,19 +121,27 @@ $booking_base_url = $vehicle['booking_url'] ?? ( $atts['booking_url'] ?? '' );
 // all registered public GET params: pickup_location/pickup_date/return_date by
 // SearchResults::PUBLIC_QUERY_VARS, pickup_time/return_time by
 // BookingForm::PUBLIC_QUERY_VARS.
-$search_params = array( 'vehicle_id' => $vehicle_id );
+//
+// Both the read and the emitted link use SearchResults::query_var(), so the
+// name this reads is by construction the name the whitelist registered and the
+// name BookingForm reads back on the target page.
+$mhmrentiva_qv = static function ( string $logical ): string {
+	return \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::query_var( $logical );
+};
+
+$search_params = array( $mhmrentiva_qv( 'vehicle_id' ) => $vehicle_id );
 $forward_keys  = array( 'pickup_location', 'pickup_date', 'pickup_time', 'return_date', 'return_time' );
 foreach ( $forward_keys as $key ) {
-	$forwarded_value = get_query_var( $key, null );
+	$forwarded_value = get_query_var( $mhmrentiva_qv( $key ), null );
 	if ( null !== $forwarded_value && $forwarded_value !== '' ) {
-		$search_params[ $key ] = sanitize_text_field( wp_unslash( (string) $forwarded_value ) );
+		$search_params[ $mhmrentiva_qv( $key ) ] = sanitize_text_field( wp_unslash( (string) $forwarded_value ) );
 	}
 }
 // If no pickup_location was forwarded from search, fall back to the vehicle's own location.
-if ( empty( $search_params['pickup_location'] ) ) {
+if ( empty( $search_params[ $mhmrentiva_qv( 'pickup_location' ) ] ) ) {
 	$vehicle_loc_id = (int) ( $vehicle['location_id'] ?? 0 );
 	if ( $vehicle_loc_id > 0 ) {
-		$search_params['pickup_location'] = $vehicle_loc_id;
+		$search_params[ $mhmrentiva_qv( 'pickup_location' ) ] = $vehicle_loc_id;
 	}
 }
 $booking_btn_url = add_query_arg( $search_params, $booking_base_url );

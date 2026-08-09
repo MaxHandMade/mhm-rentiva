@@ -11,8 +11,10 @@ use WP_UnitTestCase;
  * registered on WordPress's `query_vars` whitelist and read via
  * get_query_var(), not raw $_GET.
  *
- * These params build/populate a real shareable URL, e.g.:
- *   /search/?min_price=250&fuel_type=diesel&sort=price_asc&pickup_location[]=7
+ * These params build/populate a real shareable URL. Every name carries the
+ * `mhmrentiva_` prefix (SearchResults::query_var()) because `query_vars` is a
+ * site-wide namespace shared with core and every other plugin, e.g.:
+ *   /search/?mhmrentiva_min_price=250&mhmrentiva_fuel_type=diesel&mhmrentiva_sort=price_asc
  *
  * The AJAX refine-filters path (`ajax_filter_results`, POST + nonce) is
  * intentionally untouched and out of scope -- it is covered separately by
@@ -35,23 +37,9 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
             'Callback must not drop vars already registered by core/other plugins.'
         );
 
-        $expected = array(
-            'keyword',
-            'pickup_date',
-            'return_date',
-            'start_date',
-            'end_date',
-            'min_price',
-            'max_price',
-            'fuel_type',
-            'transmission',
-            'seats',
-            'brand',
-            'year_min',
-            'year_max',
-            'mileage_max',
-            'sort',
-            'pickup_location',
+        $expected = array_map(
+            array(SearchResults::class, 'query_var'),
+            SearchResults::FILTER_PARAMS
         );
 
         foreach ($expected as $var) {
@@ -64,7 +52,7 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
         // rule exists to prevent. Registering a public var the plugin does not
         // consume only widens the surface WordPress parses on every request.
         $this->assertNotContains(
-            'category',
+            'mhmrentiva_category',
             $result,
             'A public query var nothing reads must not be registered.'
         );
@@ -79,9 +67,15 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
     {
         $vars = apply_filters('query_vars', array());
 
-        $this->assertContains('min_price', $vars);
-        $this->assertContains('fuel_type', $vars);
-        $this->assertContains('pickup_location', $vars);
+        $this->assertContains('mhmrentiva_min_price', $vars);
+        $this->assertContains('mhmrentiva_fuel_type', $vars);
+        $this->assertContains('mhmrentiva_pickup_location', $vars);
+
+        // The bare names must be GONE, not merely joined by prefixed twins --
+        // an additive rename would leave the generic names in the global list.
+        $this->assertNotContains('min_price', $vars);
+        $this->assertNotContains('fuel_type', $vars);
+        $this->assertNotContains('pickup_location', $vars);
     }
 
     /**
@@ -91,12 +85,15 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_registered_param_is_readable_via_get_query_var_after_request(): void
     {
-        $this->go_to('/?keyword=SUV&min_price=250&sort=price_asc&pickup_location%5B%5D=7&pickup_location%5B%5D=9');
+        $this->go_to(
+            '/?mhmrentiva_keyword=SUV&mhmrentiva_min_price=250&mhmrentiva_sort=price_asc'
+            . '&mhmrentiva_pickup_location%5B%5D=7&mhmrentiva_pickup_location%5B%5D=9'
+        );
 
-        $this->assertSame('SUV', get_query_var('keyword'));
-        $this->assertSame('250', get_query_var('min_price'));
-        $this->assertSame('price_asc', get_query_var('sort'));
-        $this->assertSame(array('7', '9'), get_query_var('pickup_location'));
+        $this->assertSame('SUV', get_query_var('mhmrentiva_keyword'));
+        $this->assertSame('250', get_query_var('mhmrentiva_min_price'));
+        $this->assertSame('price_asc', get_query_var('mhmrentiva_sort'));
+        $this->assertSame(array('7', '9'), get_query_var('mhmrentiva_pickup_location'));
     }
 
     /**
@@ -107,13 +104,13 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_get_text_does_not_fall_back_to_raw_get_for_a_registered_param(): void
     {
-        $_GET['keyword'] = 'LeakedRawGetValue';
+        $_GET['mhmrentiva_keyword'] = 'LeakedRawGetValue';
 
         $method = new \ReflectionMethod(SearchResults::class, 'get_text');
         $method->setAccessible(true);
         $value = $method->invoke(null, 'keyword');
 
-        unset($_GET['keyword']);
+        unset($_GET['mhmrentiva_keyword']);
 
         $this->assertSame(
             '',
@@ -129,7 +126,10 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_search_params_from_url_reflect_the_registered_query_vars(): void
     {
-        $this->go_to('/?min_price=300&max_price=900&fuel_type=diesel&year_min=2018&pickup_location%5B%5D=4');
+        $this->go_to(
+            '/?mhmrentiva_min_price=300&mhmrentiva_max_price=900&mhmrentiva_fuel_type=diesel'
+            . '&mhmrentiva_year_min=2018&mhmrentiva_pickup_location%5B%5D=4'
+        );
 
         $method = new \ReflectionMethod(SearchResults::class, 'get_search_params_from_url');
         $method->setAccessible(true);
@@ -150,7 +150,8 @@ class SearchResultsQueryVarsTest extends WP_UnitTestCase
      */
     public function test_get_data_search_params_reflect_the_registered_query_vars(): void
     {
-        $this->go_to('/?keyword=Van&sort=price_desc&page=2');
+        // `page` stays bare: it is core's own public query var, not ours.
+        $this->go_to('/?mhmrentiva_keyword=Van&mhmrentiva_sort=price_desc&page=2');
 
         $defaultsMethod = new \ReflectionMethod(SearchResults::class, 'get_default_attributes');
         $defaultsMethod->setAccessible(true);

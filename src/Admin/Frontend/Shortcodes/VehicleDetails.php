@@ -166,9 +166,11 @@ final class VehicleDetails extends AbstractShortcode {
 		if ( ! empty( $atts['vehicle_id'] ) ) {
 			return absint( $atts['vehicle_id'] );
 		}
-		// Support SEO-friendly sub-path routing: /vehicle-details/car-slug/ → vehicle_slug query var
-		// registered via Plugin::register_vehicle_rewrite_rules() + add_rewrite_tag('%vehicle_slug%', ...).
-		$get_slug = sanitize_title( get_query_var( 'vehicle_slug', '' ) );
+		// Support SEO-friendly sub-path routing: /vehicle-details/car-slug/ → mhmrentiva_vehicle_slug
+		// query var, registered via Plugin::register_vehicle_rewrite_rules() +
+		// add_rewrite_tag('%mhmrentiva_vehicle_slug%', ...). The URL itself is unchanged;
+		// only the internal query-var name carries the plugin prefix.
+		$get_slug = sanitize_title( get_query_var( 'mhmrentiva_vehicle_slug', '' ) );
 		if ( '' !== $get_slug ) {
 			// Use get_posts() instead of get_page_by_path() — the latter is designed for
 			// hierarchical post types and can return unexpected results for CPTs.

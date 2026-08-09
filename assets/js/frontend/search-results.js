@@ -208,7 +208,7 @@
             const maxPrice = parseFloat($(this).data('max-price') || 10000);
             const price = Math.round(percent * maxPrice);
 
-            $scope.find('input[name="max_price"]').val(price);
+            $scope.find('input[name="mhmrentiva_max_price"]').val(price);
             handleFilterChange($scope);
         });
     }
@@ -224,7 +224,7 @@
             const maxYear = parseInt($(this).data('max-year') || new Date().getFullYear(), 10);
             const year = Math.round(minYear + (percent * (maxYear - minYear)));
 
-            $scope.find('input[name="year_max"]').val(year);
+            $scope.find('input[name="mhmrentiva_year_max"]').val(year);
             handleFilterChange($scope);
         });
     }
@@ -266,7 +266,7 @@
             nonce: mhmRentivaSearchResults.nonce,
             layout: currentLayout,
             per_page: settings.per_page,
-            sort: sortValue,
+            mhmrentiva_sort: sortValue,
             ...settings,
             ...getCurrentFilters($scope)
         };
