@@ -462,6 +462,12 @@ final class Plugin {
 		if ($this->is_class_available('\MHMRentiva\Admin\Emails\PostTypes\EmailLog')) {
 			\MHMRentiva\Admin\Emails\PostTypes\EmailLog::register();
 		}
+
+		// Contact messages. The shortcode has always written rows of this type;
+		// registering it is what lets the site owner read and erase them.
+		if ($this->is_class_available('\MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType')) {
+			\MHMRentiva\Admin\Frontend\Shortcodes\ContactMessagePostType::register();
+		}
 	}
 
 	/**

@@ -100,6 +100,7 @@ src/Admin/Frontend/Shortcodes/Account/UserDashboard.php
 src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php
 src/Admin/Frontend/Shortcodes/BookingForm.php
 src/Admin/Frontend/Shortcodes/ContactForm.php
+src/Admin/Frontend/Shortcodes/ContactMessagePostType.php
 src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php
 src/Admin/Frontend/Shortcodes/FeaturedVehicles.php
 src/Admin/Frontend/Shortcodes/SearchResults.php

@@ -92,6 +92,19 @@ final class Menu {
 			'edit.php?post_type=mhmrentiva_addon'
 		);
 
+		// 5b. Contact Messages. Gated on `edit_others_posts` -- the same
+		// capability the post type's own `post` mapping enforces on the screen
+		// itself, so the menu entry cannot promise a page the user is then
+		// refused. Each row holds submitter PII, which is why it is not on the
+		// generic manage_options bar with the operational screens.
+		add_submenu_page(
+			'mhm-rentiva',
+			__('Contact Messages', 'mhm-rentiva'),
+			__('Contact Messages', 'mhm-rentiva'),
+			'edit_others_posts',
+			'edit.php?post_type=mhmrentiva_contact'
+		);
+
 		// 6. Customers — gated on `edit_users`, the capability that matches the data
 		// this screen shows (customer PII plus booking/spend history), rather than the
 		// generic manage_options. Same capability as the /customers REST routes that
