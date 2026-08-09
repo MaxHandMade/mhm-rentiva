@@ -685,6 +685,12 @@ final class AccountController {
 			wp_send_json_error(array( 'message' => $attach_id->get_error_message() ), 400);
 		}
 
+		// media_handle_upload() leaves the attachment parentless and 'inherit',
+		// which core treats as public -- a receipt would then be enumerable
+		// through the unauthenticated /wp/v2/media collection. Restrict it before
+		// it is recorded on the booking.
+		self::harden_receipt_attachment($attach_id, $booking_id);
+
 		// Save to booking meta
 		update_post_meta($booking_id, '_mhmrentiva_receipt_attachment_id', $attach_id);
 		update_post_meta($booking_id, '_mhmrentiva_receipt_status', 'submitted');
@@ -696,6 +702,29 @@ final class AccountController {
 				'message'       => __('Receipt uploaded successfully.', 'mhm-rentiva'),
 				'attachment_id' => $attach_id,
 				'url'           => wp_get_attachment_url($attach_id),
+			)
+		);
+	}
+
+	/**
+	 * Restrict a freshly uploaded receipt so it cannot be enumerated anonymously.
+	 *
+	 * WordPress' media_handle_upload() creates the attachment with post_parent 0
+	 * and the default 'inherit' status, and core treats a parentless attachment
+	 * as public: it is returned by the unauthenticated /wp/v2/media collection.
+	 * A payment receipt is customer financial data, so it is marked private and
+	 * re-parented to its booking. Anonymous callers no longer see it in the REST
+	 * media listing; administrators (who hold read_private_posts) still do, and
+	 * the customer's own view uses wp_get_attachment_url() server-side rather than
+	 * the public collection.
+	 */
+	public static function harden_receipt_attachment(int $attachment_id, int $booking_id): void
+	{
+		wp_update_post(
+			array(
+				'ID'          => $attachment_id,
+				'post_status' => 'private',
+				'post_parent' => $booking_id,
 			)
 		);
 	}
