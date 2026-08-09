@@ -51,12 +51,30 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 	 */
 	public function test_no_internal_record_type_is_exportable(): void
 	{
-		foreach (array( 'mhmrentiva_contact', 'mhmrentiva_app_log', 'mhmrentiva_email_log' ) as $type) {
-			$object = get_post_type_object($type);
+		// Derived from the registry, not from a list. The hard-coded version of
+		// this test passed while `mhmrentiva_booking` -- the largest personal
+		// data store in the plugin -- stayed exportable, because it simply was
+		// not one of the three names written down.
+		// Scoped to this plugin's NON-PUBLIC types. A public type -- the vehicle
+		// catalogue -- is ordinary content a site owner may legitimately move
+		// between installs; a non-public one is internal data whose whole point
+		// is that it is administrator-only, which Tools -> Export contradicts.
+		$exportable = array();
 
-			$this->assertNotNull($object, sprintf('%s must be registered.', $type));
-			$this->assertFalse($object->can_export, sprintf('%s must not be reachable through Tools -> Export.', $type));
+		foreach (get_post_types(array( 'can_export' => true ), 'objects') as $type => $object) {
+			if (strpos($type, 'mhmrentiva') !== 0 || $object->public) {
+				continue;
+			}
+
+			$exportable[] = $type;
 		}
+
+		$this->assertSame(
+			array(),
+			$exportable,
+			'Every post type this plugin registers holds operational or personal data that Tools -> Export '
+			. 'would hand to anyone with the `export` capability, bypassing the capabilities the type declares.'
+		);
 	}
 
 	/**

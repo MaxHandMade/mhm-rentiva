@@ -272,6 +272,15 @@ abstract class AbstractPostType {
 			'query_var'          => false,
 			'rewrite'            => false,
 			'has_archive'        => false,
+			// Tools -> Export gates on the `export` capability alone and
+			// export_wp() performs no per-type check, so without this a shop
+			// manager -- who holds `export` and is denied every capability
+			// these types actually declare -- could download a WXR file of
+			// every booking, customer e-mail address, name and phone included.
+			// It belongs on the shared helper rather than on each type: this
+			// method is the plugin's definition of "admin-only internal data",
+			// and being exportable contradicts that by construction.
+			'can_export'         => false,
 		);
 	}
 
