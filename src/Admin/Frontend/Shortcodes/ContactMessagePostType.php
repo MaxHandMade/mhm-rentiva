@@ -25,13 +25,17 @@ if (! defined('ABSPATH')) {
  * Trash. It stays out of the front end (`public => false`, no rewrite, no
  * REST) because a contact message is never a URL; it is admin-only data.
  *
- * Capabilities map onto `post`, which by inheritance would let an editor --
- * and, since WooCommerce is a hard dependency, a shop manager -- read these
- * records. The screen is therefore reached through a `manage_options`
- * submenu (see Menu.php), the same bar as every other screen here, so this
- * release does not quietly widen who can read submitter PII. Creating one by
- * hand makes no sense (the form is the only author), so `create_posts` is
- * mapped to a capability no role holds.
+ * The type carries its own capability names, every one mapped to
+ * `manage_options`. Inheriting `post` would have handed editors -- and,
+ * because WooCommerce is a hard dependency, shop managers -- the list and
+ * this panel by inheritance, and a submenu capability would not have stopped
+ * them: `add_submenu_page()` does not register an entry for a user who lacks
+ * its capability, so `user_can_access_admin_page()` resolves no parent, lets
+ * the request through, and `edit.php` then gates on the POST TYPE's
+ * `edit_posts`. Putting the gate on the type closes the list screen,
+ * `post.php`'s `edit_post`, the private-status read and deletion together.
+ * Creating one by hand makes no sense (the form is the only author), so
+ * `create_posts` is mapped to a capability no role holds.
  */
 final class ContactMessagePostType {
 
@@ -98,7 +102,11 @@ final class ContactMessagePostType {
 
         foreach (self::fields() as $meta_key => $label) {
             $value = get_post_meta($post->ID, $meta_key, true);
-            if (! is_scalar($value) || '' === (string) $value) {
+            // '0' counts as absent here: the form stores an integer 0 for
+            // vehicle_id and rating when the enquiry names neither, and a
+            // "Vehicle: 0" row is noise -- worse, get_the_title( 0 ) falls back
+            // to the global post and would print this message's own title.
+            if (! is_scalar($value) || '' === (string) $value || '0' === (string) $value) {
                 continue;
             }
 
@@ -181,12 +189,34 @@ final class ContactMessagePostType {
                 // other screens, so this must not also place one of its own.
                 'show_in_menu'    => false,
                 'supports'        => array( 'title', 'editor' ),
-                'capability_type' => 'post',
+                // The gate lives HERE, not on the menu. A submenu capability
+                // does not protect a screen: `add_submenu_page()` simply does
+                // not register the entry for a user who lacks it, and
+                // `user_can_access_admin_page()` then resolves no parent and
+                // lets the request through to `edit.php`, which gates on the
+                // POST TYPE's `edit_posts`. Inheriting `post` therefore handed
+                // every editor -- and, since WooCommerce is a hard dependency,
+                // every shop manager -- the list and the detail panel, with
+                // the sender's e-mail address and IP in them. Its own
+                // capability names, all mapped to `manage_options`, close
+                // every door at once: the list screen, `post.php`'s
+                // `edit_post`, the private-status read and deletion.
+                'capability_type' => array( 'mhmrentiva_contact', 'mhmrentiva_contacts' ),
                 'capabilities'    => array(
+                    'edit_posts'             => 'manage_options',
+                    'edit_others_posts'      => 'manage_options',
+                    'edit_private_posts'     => 'manage_options',
+                    'edit_published_posts'   => 'manage_options',
+                    'read_private_posts'     => 'manage_options',
+                    'delete_posts'           => 'manage_options',
+                    'delete_others_posts'    => 'manage_options',
+                    'delete_private_posts'   => 'manage_options',
+                    'delete_published_posts' => 'manage_options',
+                    'publish_posts'          => 'manage_options',
                     // Submissions come from the form only; nothing should offer
                     // an "Add New" screen. `do_not_allow` is the capability
                     // WordPress itself uses to close a door for every role.
-                    'create_posts' => 'do_not_allow',
+                    'create_posts'           => 'do_not_allow',
                 ),
                 'map_meta_cap'    => true,
                 'has_archive'     => false,

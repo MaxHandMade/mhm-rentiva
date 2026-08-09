@@ -72,12 +72,30 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 		$this->assertTrue(current_user_can('edit_post', $message_id));
 		$this->assertTrue(current_user_can('delete_post', $message_id));
 
-		$subscriber = self::factory()->user->create(array( 'role' => 'subscriber' ));
-		wp_set_current_user($subscriber);
-		$this->assertFalse(
-			current_user_can('edit_post', $message_id),
-			'A subscriber must not reach records holding another person\'s contact details.'
-		);
+		// Every role below administrator, not just the obviously powerless one.
+		// The type used to inherit `post`, which handed editors -- and, because
+		// WooCommerce is a hard dependency, shop managers -- read and delete
+		// rights over other people's contact details by inheritance.
+		foreach (array( 'editor', 'shop_manager', 'author', 'contributor', 'subscriber' ) as $role) {
+			if (null === get_role($role)) {
+				continue;
+			}
+
+			wp_set_current_user(self::factory()->user->create(array( 'role' => $role )));
+
+			$this->assertFalse(
+				current_user_can('edit_post', $message_id),
+				sprintf('Role "%s" must not reach records holding another person\'s contact details.', $role)
+			);
+			$this->assertFalse(
+				current_user_can('delete_post', $message_id),
+				sprintf('Role "%s" must not be able to delete a contact message.', $role)
+			);
+			$this->assertFalse(
+				current_user_can(get_post_type_object(ContactMessagePostType::TYPE)->cap->edit_posts),
+				sprintf('Role "%s" must not reach the list screen, which edit.php gates on this capability.', $role)
+			);
+		}
 
 		wp_set_current_user($admin);
 		$this->assertNotFalse(wp_delete_post($message_id, true));
@@ -129,6 +147,30 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 		$html = (string) ob_get_clean();
 
 		$this->assertSame(1, substr_count($html, '<tr>'), 'Only the one field that has a value may render a row.');
+	}
+
+	/**
+	 * The form stores integer 0 for vehicle_id and rating when the enquiry
+	 * names neither. A "Vehicle: 0" row is noise, and get_the_title( 0 ) falls
+	 * back to the global post, which printed the message's own title.
+	 */
+	public function test_a_stored_zero_is_treated_as_absent(): void
+	{
+		$message_id = self::factory()->post->create(array(
+			'post_type'   => ContactMessagePostType::TYPE,
+			'post_status' => 'private',
+			'post_title'  => 'Contact Message - Dave',
+		));
+		update_post_meta($message_id, '_mhmrentiva_contact_vehicle_id', '0');
+		update_post_meta($message_id, '_mhmrentiva_contact_rating', '0');
+		update_post_meta($message_id, '_mhmrentiva_contact_email', 'dave@example.com');
+
+		ob_start();
+		ContactMessagePostType::render_details_box(get_post($message_id));
+		$html = (string) ob_get_clean();
+
+		$this->assertSame(1, substr_count($html, '<tr>'), 'Only the e-mail row may render.');
+		$this->assertStringNotContainsString('Contact Message - Dave', $html, 'get_the_title(0) must not leak the post\'s own title into the Vehicle row.');
 	}
 
 	/**
