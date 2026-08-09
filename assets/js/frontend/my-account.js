@@ -372,7 +372,7 @@
                 const confirm = $confirm.val();
 
                 if (pass !== '' && confirm !== '' && pass !== confirm) {
-                    $confirm[0].setCustomValidity(window.mhmRentivaMyAccount?.strings?.passwords_do_not_match || 'Passwords do not match');
+                    $confirm[0].setCustomValidity(window.mhmRentivaAccount?.i18n?.passwords_do_not_match || 'Passwords do not match');
                 } else {
                     $confirm[0].setCustomValidity('');
                 }

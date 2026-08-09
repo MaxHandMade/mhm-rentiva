@@ -551,7 +551,9 @@ final class AssetManager {
 					'mhmVehicleQuickEdit',
 					array(
 						'labels' => array(
+							'auto'        => __('Automatic', 'mhm-rentiva'),
 							'manual'      => __('Manual', 'mhm-rentiva'),
+							'petrol'      => __('Petrol', 'mhm-rentiva'),
 							'diesel'      => __('Diesel', 'mhm-rentiva'),
 							'hybrid'      => __('Hybrid', 'mhm-rentiva'),
 							'electric'    => __('Electric', 'mhm-rentiva'),

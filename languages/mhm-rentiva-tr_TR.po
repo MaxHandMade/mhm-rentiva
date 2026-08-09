@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-09T13:48:02+00:00\n"
+"POT-Creation-Date: 2026-08-09T19:31:43+00:00\n"
 "PO-Revision-Date: 2026-08-09 13:53+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -143,7 +143,7 @@ msgstr "Bilinmeyen"
 msgid "Could not calculate"
 msgstr "Hesaplanamadı"
 
-#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1113
+#: src/Admin/About/SystemInfo.php:223 src/Admin/Core/AssetManager.php:1115
 #: src/Admin/Frontend/Account/AccountController.php:269
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:396
 #: src/Admin/Settings/Groups/FrontendSettings.php:314
@@ -248,7 +248,7 @@ msgstr "Toplam Müşteri:"
 
 #: src/Admin/About/Tabs/GeneralTab.php:267
 #: src/Admin/Booking/ListTable/BookingColumns.php:1347
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:48
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:52
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1145
 #: assets/blocks/my-favorites/index.js:51
 #: src-react/admin/customers/components/CustomerPanel.jsx:54
@@ -356,7 +356,7 @@ msgid "Contact Form"
 msgstr "İletişim Formu"
 
 #: src/Admin/About/Tabs/SupportTab.php:121
-#: src/Admin/Booking/Meta/BookingMeta.php:635
+#: src/Admin/Booking/Meta/BookingMeta.php:634
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:55
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:93
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:675
@@ -570,7 +570,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:77 src/Admin/Addons/AddonManager.php:264
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:112
-#: src/Admin/Core/AssetManager.php:653 src/Admin/Core/AssetManager.php:1140
+#: src/Admin/Core/AssetManager.php:655 src/Admin/Core/AssetManager.php:1142
 #: src/Admin/Emails/Core/EmailTemplates.php:521
 #: src/Admin/Frontend/Account/AccountController.php:261
 #: src/Admin/Frontend/Account/AccountController.php:316
@@ -579,7 +579,7 @@ msgid "Processing..."
 msgstr "İşleniyor..."
 
 #: src/Admin/Addons/AddonListTable.php:78 src/Admin/Addons/AddonManager.php:265
-#: src/Admin/Core/AssetManager.php:818 src/Admin/Core/AssetManager.php:864
+#: src/Admin/Core/AssetManager.php:820 src/Admin/Core/AssetManager.php:866
 #: src/Admin/Emails/Core/EmailTemplates.php:522
 #: src/Admin/Frontend/Account/AccountController.php:295
 msgid "An error occurred. Please try again."
@@ -598,7 +598,7 @@ msgstr "Tüm Servisler"
 msgid "Active Services"
 msgstr "Aktif Hizmetler"
 
-#: src/Admin/Addons/AddonListTable.php:111 src/Admin/Core/AssetManager.php:971
+#: src/Admin/Addons/AddonListTable.php:111 src/Admin/Core/AssetManager.php:973
 #: src/Admin/Emails/Core/EmailTemplates.php:580
 msgid "active"
 msgstr "aktif"
@@ -634,12 +634,11 @@ msgstr "Fiyatlandırma Tipi"
 
 #: src/Admin/Addons/AddonManager.php:459 src/Admin/Addons/AddonManager.php:610
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:37
-#: src/Admin/Booking/Meta/BookingMeta.php:682
-#: src/Admin/Booking/Meta/BookingMeta.php:951
-#: src/Admin/Booking/Meta/BookingMeta.php:1276
-#: src/Admin/Booking/Meta/BookingMeta.php:1478
-#: src/Admin/Booking/Meta/BookingMeta.php:1517
-#: src/Admin/Booking/Meta/BookingMeta.php:1598
+#: src/Admin/Booking/Meta/BookingMeta.php:681
+#: src/Admin/Booking/Meta/BookingMeta.php:950
+#: src/Admin/Booking/Meta/BookingMeta.php:1273
+#: src/Admin/Booking/Meta/BookingMeta.php:1312
+#: src/Admin/Booking/Meta/BookingMeta.php:1393
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:124
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:493
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:575
@@ -649,10 +648,10 @@ msgstr "Fiyatlandırma Tipi"
 #: src/Admin/Emails/Core/EmailTemplates.php:180
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:32
 #: src/Admin/Emails/Settings/EmailTestAction.php:31
-#: src/Admin/Frontend/Account/AccountController.php:621
-#: src/Admin/Frontend/Account/AccountController.php:714
-#: src/Admin/Frontend/Account/AccountController.php:763
-#: src/Admin/Frontend/Account/AccountController.php:871
+#: src/Admin/Frontend/Account/AccountController.php:622
+#: src/Admin/Frontend/Account/AccountController.php:744
+#: src/Admin/Frontend/Account/AccountController.php:793
+#: src/Admin/Frontend/Account/AccountController.php:901
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:906
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:678
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1050
@@ -714,7 +713,7 @@ msgstr "Fiyatı güncellerken hata oluştu."
 #: src/Admin/Addons/AddonMenu.php:74 src/Admin/Addons/AddonPostType.php:59
 #: src/Admin/Booking/Addons/AddonBooking.php:39
 #: src/Admin/Booking/Addons/AddonBooking.php:162
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:261
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:392
 #: src/Admin/Utilities/Menu/Menu.php:89 src/Admin/Utilities/Menu/Menu.php:90
 #: templates/account/booking-detail.php:214
@@ -752,7 +751,7 @@ msgstr "Ek Hizmet Ayarları"
 
 #: src/Admin/Addons/AddonMeta.php:106
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
-#: src/Admin/Core/AssetManager.php:969
+#: src/Admin/Core/AssetManager.php:971
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:880 src/Admin/Setup/SetupWizard.php:939
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1187
@@ -817,10 +816,9 @@ msgstr "Rezervasyon başına (sabit)"
 
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:43
 #: src/Admin/Booking/Helpers/CancellationHandler.php:52
-#: src/Admin/Booking/Meta/BookingMeta.php:1291
-#: src/Admin/Frontend/Account/AccountController.php:627
-#: src/Admin/Frontend/Account/AccountController.php:721
-#: src/Admin/Frontend/Account/AccountController.php:923
+#: src/Admin/Frontend/Account/AccountController.php:628
+#: src/Admin/Frontend/Account/AccountController.php:751
+#: src/Admin/Frontend/Account/AccountController.php:953
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2261
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:2320
 msgid "Invalid booking ID."
@@ -888,7 +886,7 @@ msgstr "İhtiyacınız olan ek hizmetleri seçin."
 
 #: src/Admin/Booking/Addons/AddonBooking.php:71
 #: src/Admin/Booking/Addons/AddonBooking.php:143
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:318
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:319
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:416
 msgid "Additional Services Total:"
 msgstr "Ek Hizmetler Toplamı:"
@@ -909,7 +907,7 @@ msgstr "Seçilmiş Ek Hizmetler"
 
 #: src/Admin/Booking/Addons/AddonBooking.php:175
 #: src/Admin/Booking/Addons/AddonBooking.php:195
-#: src/Admin/Booking/Meta/BookingMeta.php:464
+#: src/Admin/Booking/Meta/BookingMeta.php:463
 msgid "Total:"
 msgstr "Toplam:"
 
@@ -953,9 +951,9 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Booking/ListTable/BookingColumns.php:763
 #: src/Admin/Booking/ListTable/BookingColumns.php:1299
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:413
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:250
-#: src/Admin/Booking/Meta/BookingMeta.php:1139
-#: src/Admin/Core/AssetManager.php:670
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
+#: src/Admin/Booking/Meta/BookingMeta.php:1138
+#: src/Admin/Core/AssetManager.php:672
 #: src/Admin/Emails/Core/EmailTemplates.php:463
 #: src/Admin/Emails/Notifications/BookingNotifications.php:153
 #: src/Admin/Frontend/Account/AccountRenderer.php:630
@@ -976,9 +974,9 @@ msgstr "Beklemede"
 #: src/Admin/Booking/Core/Status.php:111
 #: src/Admin/Booking/ListTable/BookingColumns.php:772
 #: src/Admin/Booking/ListTable/BookingColumns.php:1303
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
-#: src/Admin/Booking/Meta/BookingMeta.php:1140
-#: src/Admin/Core/AssetManager.php:671
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
+#: src/Admin/Booking/Meta/BookingMeta.php:1139
+#: src/Admin/Core/AssetManager.php:673
 #: src/Admin/Emails/Core/EmailTemplates.php:464
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
@@ -992,9 +990,9 @@ msgid "Confirmed"
 msgstr "Onaylandı"
 
 #: src/Admin/Booking/Core/Status.php:112
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
-#: src/Admin/Booking/Meta/BookingMeta.php:1141
-#: src/Admin/Core/AssetManager.php:672
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:253
+#: src/Admin/Booking/Meta/BookingMeta.php:1140
+#: src/Admin/Core/AssetManager.php:674
 #: src/Admin/Emails/Notifications/BookingNotifications.php:155
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:71
 #: templates/account/booking-detail.php:78 templates/account/bookings.php:120
@@ -1007,9 +1005,9 @@ msgstr "Devam Ediyor"
 #: src/Admin/Booking/Core/Status.php:113
 #: src/Admin/Booking/ListTable/BookingColumns.php:781
 #: src/Admin/Booking/ListTable/BookingColumns.php:1307
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:253
-#: src/Admin/Booking/Meta/BookingMeta.php:1142
-#: src/Admin/Core/AssetManager.php:673
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
+#: src/Admin/Booking/Meta/BookingMeta.php:1141
+#: src/Admin/Core/AssetManager.php:675
 #: src/Admin/Emails/Notifications/BookingNotifications.php:156
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
@@ -1028,9 +1026,9 @@ msgstr "Tamamlandı"
 #: src/Admin/Booking/Core/Status.php:114
 #: src/Admin/Booking/ListTable/BookingColumns.php:654
 #: src/Admin/Booking/ListTable/BookingColumns.php:1311
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
-#: src/Admin/Booking/Meta/BookingMeta.php:1143
-#: src/Admin/Core/AssetManager.php:674
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:255
+#: src/Admin/Booking/Meta/BookingMeta.php:1142
+#: src/Admin/Core/AssetManager.php:676
 #: src/Admin/Emails/Notifications/BookingNotifications.php:157
 #: src/Admin/Emails/Templates/EmailPreview.php:258
 #: src/Admin/Frontend/Account/AccountRenderer.php:632
@@ -1048,7 +1046,7 @@ msgstr "İptal Edildi"
 #: src/Admin/Booking/Core/Status.php:115
 #: src/Admin/Booking/ListTable/BookingColumns.php:650
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:415
-#: src/Admin/Booking/Meta/BookingMeta.php:1169
+#: src/Admin/Booking/Meta/BookingMeta.php:1168
 #: templates/account/user-dashboard.php:240
 #: templates/emails/booking-created-admin.html.php:68
 #: assets/blocks/payment-history/index.js:42
@@ -1125,7 +1123,7 @@ msgid "[ADMIN] Booking Cancelled - #%d"
 msgstr "[ADMIN] Rezervasyon İptal Edildi - #%d"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:372
-#: src/Admin/Booking/Meta/BookingMeta.php:651
+#: src/Admin/Booking/Meta/BookingMeta.php:650
 msgid "Booking Cancelled"
 msgstr "Rezervasyon İptal Edildi"
 
@@ -1156,8 +1154,8 @@ msgid "Booking ID:"
 msgstr "Rezervasyon ID:"
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:380
-#: src/Admin/Booking/Meta/BookingMeta.php:372
-#: src/Admin/Booking/Meta/BookingMeta.php:448
+#: src/Admin/Booking/Meta/BookingMeta.php:371
+#: src/Admin/Booking/Meta/BookingMeta.php:447
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:687
 #: src/Admin/Settings/Groups/EmailSettings.php:126
 #: src/Admin/Settings/Groups/EmailSettings.php:170
@@ -1318,10 +1316,10 @@ msgstr "Rezervasyon ID"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:163
 #: src/Admin/Booking/ListTable/BookingColumns.php:1368
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:184
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:202
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:495
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:116
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:458
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:512
@@ -1378,8 +1376,8 @@ msgid "Remaining Amount"
 msgstr "Kalan miktar"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:170
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:248
-#: src/Admin/Booking/Meta/BookingMeta.php:325
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
+#: src/Admin/Booking/Meta/BookingMeta.php:324
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:450
 #: src/Admin/Setup/SetupWizard.php:164 src/Admin/Setup/SetupWizard.php:205
 #: src/Admin/Setup/SetupWizard.php:465
@@ -1400,7 +1398,7 @@ msgid "Payment"
 msgstr "Ödeme"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:172
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:172
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:173
 msgid "Booking Type"
 msgstr "Rezervasyon Türü"
 
@@ -1440,7 +1438,7 @@ msgstr "Rezervasyonu Düzenle"
 #: src/Admin/Booking/ListTable/BookingColumns.php:649
 #: src/Admin/Booking/ListTable/BookingColumns.php:657
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:414
-#: src/Admin/Booking/Meta/BookingMeta.php:1167
+#: src/Admin/Booking/Meta/BookingMeta.php:1166
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:54
 #: assets/blocks/payment-history/index.js:40
 msgid "Paid"
@@ -1449,7 +1447,7 @@ msgstr "Ödendi"
 #: src/Admin/Booking/ListTable/BookingColumns.php:428
 #: src/Admin/Booking/ListTable/BookingColumns.php:648
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:412
-#: src/Admin/Booking/Meta/BookingMeta.php:1165
+#: src/Admin/Booking/Meta/BookingMeta.php:1164
 msgid "Unpaid"
 msgstr "Ödenmemiş"
 
@@ -1481,7 +1479,7 @@ msgstr "Tüm ödeme yöntemleri"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:651
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:416
-#: src/Admin/Emails/PostTypes/EmailLog.php:63
+#: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: templates/emails/booking-created-admin.html.php:66
 #: templates/emails/booking-created-customer.html.php:91
 #: assets/blocks/payment-history/index.js:43
@@ -1490,7 +1488,7 @@ msgstr "Başarısız"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:652
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:419
-#: src/Admin/Booking/Meta/BookingMeta.php:1166
+#: src/Admin/Booking/Meta/BookingMeta.php:1165
 msgid "Pending Verification"
 msgstr "Doğrulama Bekliyor"
 
@@ -1747,9 +1745,9 @@ msgid "Status Legend"
 msgstr "Durum Açıklaması"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1325
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:215
-#: src/Admin/Booking/Meta/BookingMeta.php:361
-#: src/Admin/Booking/Meta/BookingMeta.php:408
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:216
+#: src/Admin/Booking/Meta/BookingMeta.php:360
+#: src/Admin/Booking/Meta/BookingMeta.php:407
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1124
 #: templates/account/booking-detail.php:107
 #: templates/emails/booking-status-changed-customer.html.php:28
@@ -1758,7 +1756,7 @@ msgid "Booking Details"
 msgstr "Rezervasyon detayları"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1331
-#: src/Admin/Core/AssetManager.php:1129
+#: src/Admin/Core/AssetManager.php:1131
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1490
@@ -1774,8 +1772,8 @@ msgstr "Kapat"
 #: src/Admin/Customers/CustomersPage.php:190
 #: src/Admin/Customers/CustomersPage.php:366
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:49
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:135
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1149
 #: templates/shortcodes/contact-form.php:62
@@ -1790,7 +1788,7 @@ msgstr "E-posta"
 #: src/Admin/Customers/CustomersPage.php:197
 #: src/Admin/Customers/CustomersPage.php:371
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:50
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1153
 #: templates/shortcodes/contact-form.php:74
@@ -1859,7 +1857,7 @@ msgid "Cancelled Booking"
 msgstr "İptal Edilen Rezervasyon"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1738
-#: src/Admin/Booking/Meta/BookingMeta.php:323
+#: src/Admin/Booking/Meta/BookingMeta.php:322
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
 #: src/Admin/PostTypes/Logs/MetaBox.php:66
@@ -1901,7 +1899,7 @@ msgid "Are you sure you want to cancel this booking?"
 msgstr "Bu rezervasyonu iptal etmek istediğinizden emin misiniz?"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:111
-#: src/Admin/Core/AssetManager.php:664
+#: src/Admin/Core/AssetManager.php:666
 msgid "Dismiss this notice"
 msgstr "Bu uyarıyı kapat"
 
@@ -1910,7 +1908,7 @@ msgid "Operation successful!"
 msgstr "İşlem başarıyla tamamlandı!"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:114
-#: src/Admin/Core/AssetManager.php:943
+#: src/Admin/Core/AssetManager.php:945
 msgid "An error occurred!"
 msgstr "Bir hata oluştu!"
 
@@ -1975,7 +1973,7 @@ msgid "Payment Method"
 msgstr "Ödeme Yöntemi"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:174
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:175
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:176
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:444
 #: src/Admin/Settings/View/Tabs/DatabaseCleanupRenderer.php:159
 msgid "Online"
@@ -2094,7 +2092,7 @@ msgid "Send Payment Link"
 msgstr "Ödeme Linki Gönder"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:356
-#: src/Admin/Frontend/Account/AccountController.php:400
+#: src/Admin/Frontend/Account/AccountController.php:401
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:80
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: templates/account/booking-detail.php:254
@@ -2107,7 +2105,7 @@ msgid "Process Refund"
 msgstr "Geri Ödeme İşlemi"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:418
-#: src/Admin/Booking/Meta/BookingMeta.php:1168
+#: src/Admin/Booking/Meta/BookingMeta.php:1167
 msgid "Partially Paid"
 msgstr "Kısmen Ödenen"
 
@@ -2134,13 +2132,13 @@ msgid "Edit Booking Details"
 msgstr "Rezervasyon Detaylarını Düzenle"
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:122
-#: src/Admin/Core/AssetManager.php:809
+#: src/Admin/Core/AssetManager.php:811
 msgid "Saving..."
 msgstr "Kaydediliyor..."
 
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:123
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:191
-#: src/Admin/Core/AssetManager.php:647 src/Admin/Core/AssetManager.php:1141
+#: src/Admin/Core/AssetManager.php:649 src/Admin/Core/AssetManager.php:1143
 #: src/Admin/Frontend/Account/AccountRenderer.php:247
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:267
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:324
@@ -2158,24 +2156,28 @@ msgstr "Bir hata oluştu"
 msgid "Booking updated"
 msgstr "Rezervasyon güncellendi"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:146
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:125
+msgid "Current License Plate:"
+msgstr "Mevcut Plaka:"
+
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:147
 msgid "BK-"
 msgstr "RZ-"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:165
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:166
 #: templates/account/booking-detail.php:123
 msgid "Booking Reference"
 msgstr "Rezervasyon Referansı"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:175
-#: src/Admin/Core/AssetManager.php:554
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:176
+#: src/Admin/Core/AssetManager.php:555
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:224
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:89
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:191
 msgid "Manual"
 msgstr "Manuel"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:198
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:199
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:261
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:276
 #: src/Admin/Frontend/Widgets/Base/ElementorWidgetBase.php:255
@@ -2184,64 +2186,63 @@ msgstr "Manuel"
 msgid "Select Vehicle"
 msgstr "Araç Seç"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:219
-#: src/Admin/Booking/Meta/BookingMeta.php:412
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:220
+#: src/Admin/Booking/Meta/BookingMeta.php:411
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:334
 #: templates/account/user-dashboard.php:206
 #: templates/account/user-dashboard.php:254
 msgid "Pickup Date"
 msgstr "Araç Teslim Alma Tarihi"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:224
-#: src/Admin/Booking/Meta/BookingMeta.php:417
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:225
+#: src/Admin/Booking/Meta/BookingMeta.php:416
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:339
 msgid "Pickup Time"
 msgstr "Teslim Alma Saati"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:231
-#: src/Admin/Booking/Meta/BookingMeta.php:424
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:232
+#: src/Admin/Booking/Meta/BookingMeta.php:423
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:345
 #: templates/shortcodes/unified-search.php:148
 msgid "Return Date"
 msgstr "Araç Dönüş Tarihi"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:236
-#: src/Admin/Booking/Meta/BookingMeta.php:429
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:237
+#: src/Admin/Booking/Meta/BookingMeta.php:428
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:350
 msgid "Return Time"
 msgstr "Araç Dönüş Saati"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:243
-#: src/Admin/Booking/Meta/BookingMeta.php:435
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:244
+#: src/Admin/Booking/Meta/BookingMeta.php:434
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:358
 msgid "Number of Guests"
 msgstr "Misafir Sayısı"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:292
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:293
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:397
 msgid "Select the additional services needed for this booking."
 msgstr "Bu rezervasyon için gerekli olan ek hizmetleri seçin."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:323
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:324
 msgid "No additional services available."
 msgstr "Ek hizmetler mevcut değildir."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:329
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:330
 msgid "Special Notes / Requests"
 msgstr "Özel Notlar / Talepler"
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:330
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:331
 msgid "Enter any special notes or customer requests..."
 msgstr "Özel notları veya müşteri taleplerini girin..."
 
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:331
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:332
 msgid "Add any special notes or customer requests for this booking."
 msgstr "Bu rezervasyon için özel notlar veya müşteri talepleri ekleyin."
 
 #. translators: %s: vehicle title.
 #. translators: %s: vehicle title
-#: src/Admin/Booking/Meta/BookingEditMetaBox.php:422
-#: src/Admin/Booking/Meta/BookingMeta.php:1347
+#: src/Admin/Booking/Meta/BookingEditMetaBox.php:423
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:1126
 #, php-format
 msgid "Booking - %s"
@@ -2252,23 +2253,23 @@ msgstr "Rezervasyon - %s"
 msgid "Booking Status"
 msgstr "Rezervasyon Durumu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:142
+#: src/Admin/Booking/Meta/BookingMeta.php:141
 msgid "Send Email to Customer"
 msgstr "Müşteriye E-posta Gönder"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:152
+#: src/Admin/Booking/Meta/BookingMeta.php:151
 msgid "Payment Receipt"
 msgstr "Ödeme Makbuzu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:186
+#: src/Admin/Booking/Meta/BookingMeta.php:185
 msgid "Create a WordPress account for this customer?"
 msgstr "Bu müşteri için bir WordPress hesabı oluşturmak ister misiniz?"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:187
+#: src/Admin/Booking/Meta/BookingMeta.php:186
 msgid "Proceed with refund?"
 msgstr "İade işlemine devam etmek ister misiniz?"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:189
+#: src/Admin/Booking/Meta/BookingMeta.php:188
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:385
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:405
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:406
@@ -2276,47 +2277,47 @@ msgstr "İade işlemine devam etmek ister misiniz?"
 msgid "Sending..."
 msgstr "Gönderiliyor..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:190
-#: src/Admin/Booking/Meta/BookingMeta.php:1239
-#: src/Admin/Booking/Meta/BookingMeta.php:1584
+#: src/Admin/Booking/Meta/BookingMeta.php:189
+#: src/Admin/Booking/Meta/BookingMeta.php:1238
+#: src/Admin/Booking/Meta/BookingMeta.php:1379
 msgid "Email sent successfully!"
 msgstr "E-posta başarıyla gönderildi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:191
-#: src/Admin/Core/AssetManager.php:942
+#: src/Admin/Booking/Meta/BookingMeta.php:190
+#: src/Admin/Core/AssetManager.php:944
 msgid "Error:"
 msgstr "Hata:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:192
+#: src/Admin/Booking/Meta/BookingMeta.php:191
 #: src/Admin/Frontend/Account/AccountController.php:270
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:274
 msgid "Unknown error"
 msgstr "Bilinmeyen hata"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:193
+#: src/Admin/Booking/Meta/BookingMeta.php:192
 msgid "An error occurred:"
 msgstr "Hata oluştu:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:194
+#: src/Admin/Booking/Meta/BookingMeta.php:193
 msgid "Loading template..."
 msgstr "Şablon yükleniyor..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:228
+#: src/Admin/Booking/Meta/BookingMeta.php:227
 #: templates/admin/booking-meta/receipt-box.php:24
 msgid "Receipt file:"
 msgstr "Makbuz dosyası:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:229
+#: src/Admin/Booking/Meta/BookingMeta.php:228
 #: templates/admin/booking-meta/receipt-box.php:26
 msgid "View / Download"
 msgstr "Görüntüle / İndir"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:231
+#: src/Admin/Booking/Meta/BookingMeta.php:230
 #: templates/admin/booking-meta/receipt-box.php:30
 msgid "No receipt uploaded."
 msgstr "Makbuz yüklenmedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:234
+#: src/Admin/Booking/Meta/BookingMeta.php:233
 #: src/Admin/Settings/Groups/EmailSettings.php:229
 #: templates/account/payment-history.php:103
 #: templates/admin/booking-meta/receipt-box.php:34
@@ -2326,55 +2327,55 @@ msgstr "Makbuz yüklenmedi."
 msgid "Status:"
 msgstr "Durum:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:235
-#: src/Admin/Booking/Meta/BookingMeta.php:332
+#: src/Admin/Booking/Meta/BookingMeta.php:234
+#: src/Admin/Booking/Meta/BookingMeta.php:331
 #: templates/admin/booking-meta/receipt-box.php:40
 #: templates/emails/receipt-status-email.html.php:259
 msgid "Admin Note"
 msgstr "Yönetici Notu"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:238
+#: src/Admin/Booking/Meta/BookingMeta.php:237
 #: templates/admin/booking-meta/receipt-box.php:49
 msgid "Approve Receipt"
 msgstr "Makbuzu Onayla"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:239
+#: src/Admin/Booking/Meta/BookingMeta.php:238
 #: templates/admin/booking-meta/receipt-box.php:52
 msgid "Reject Receipt"
 msgstr "Reddet"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:272
-#: src/Admin/Booking/Meta/BookingMeta.php:317
+#: src/Admin/Booking/Meta/BookingMeta.php:271
+#: src/Admin/Booking/Meta/BookingMeta.php:316
 #: templates/emails/receipt-status-email.html.php:26
 msgid "Your payment receipt has been approved"
 msgstr "Ödeme makbuzunuz onaylandı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:273
-#: src/Admin/Booking/Meta/BookingMeta.php:318
+#: src/Admin/Booking/Meta/BookingMeta.php:272
+#: src/Admin/Booking/Meta/BookingMeta.php:317
 #: templates/emails/receipt-status-email.html.php:27
 msgid "Your payment receipt has been rejected"
 msgstr "Ödeme makbuzunuz reddedildi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:327
-#: src/Admin/Core/AssetManager.php:1006
+#: src/Admin/Booking/Meta/BookingMeta.php:326
+#: src/Admin/Core/AssetManager.php:1008
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:440
 msgid "Details"
 msgstr "Detaylar"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:366
-#: src/Admin/Booking/Meta/BookingMeta.php:442
+#: src/Admin/Booking/Meta/BookingMeta.php:365
+#: src/Admin/Booking/Meta/BookingMeta.php:441
 msgid "Booking Summary"
 msgstr "Rezervasyon Özeti"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:459
+#: src/Admin/Booking/Meta/BookingMeta.php:458
 msgid "Days:"
 msgstr "Günler:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:626
+#: src/Admin/Booking/Meta/BookingMeta.php:625
 msgid "No customer email found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:634
+#: src/Admin/Booking/Meta/BookingMeta.php:633
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
 #: src/Admin/Settings/Groups/EmailSettings.php:169
 #: templates/emails/booking-status-changed-admin.html.php:17
@@ -2383,96 +2384,96 @@ msgstr "Müşteri e-postası bulunamadı."
 msgid "Customer:"
 msgstr "Müşteri:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:640
-#: src/Admin/Booking/Meta/BookingMeta.php:667
+#: src/Admin/Booking/Meta/BookingMeta.php:639
+#: src/Admin/Booking/Meta/BookingMeta.php:666
 msgid "Send Email"
 msgstr "Eposta gönder"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:646
+#: src/Admin/Booking/Meta/BookingMeta.php:645
 msgid "Email Type:"
 msgstr "E-posta Türü:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:648
+#: src/Admin/Booking/Meta/BookingMeta.php:647
 #: src/Admin/Emails/Core/EmailTemplates.php:627
 #: templates/account/booking-detail.php:112
 msgid "Booking Confirmation"
 msgstr "Rezervasyon Onayı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:649
+#: src/Admin/Booking/Meta/BookingMeta.php:648
 msgid "Payment Reminder"
 msgstr "Ödeme hatırlatıcısı"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:650
+#: src/Admin/Booking/Meta/BookingMeta.php:649
 #: src/Admin/Emails/Core/EmailTemplates.php:628
 msgid "Booking Reminder"
 msgstr "Rezervasyon hatırlatma"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:652
+#: src/Admin/Booking/Meta/BookingMeta.php:651
 msgid "Custom Message"
 msgstr "Özel Mesaj"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:657
+#: src/Admin/Booking/Meta/BookingMeta.php:656
 #: src/Admin/Emails/Templates/EmailPreview.php:133
 msgid "Subject:"
 msgstr "Konu:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:658
+#: src/Admin/Booking/Meta/BookingMeta.php:657
 msgid "Email subject..."
 msgstr "E-posta konusu..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:662
+#: src/Admin/Booking/Meta/BookingMeta.php:661
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:704
 msgid "Message:"
 msgstr "Mesaj:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:663
+#: src/Admin/Booking/Meta/BookingMeta.php:662
 msgid "Your message..."
 msgstr "Mesajınız..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:693
+#: src/Admin/Booking/Meta/BookingMeta.php:692
 msgid "You do not have permission to send emails."
 msgstr "E-posta gönderme izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:706
-#: src/Admin/Booking/Meta/BookingMeta.php:1551
+#: src/Admin/Booking/Meta/BookingMeta.php:705
+#: src/Admin/Booking/Meta/BookingMeta.php:1346
 msgid "Customer email not found."
 msgstr "Müşteri e-postası bulunamadı."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:753
+#: src/Admin/Booking/Meta/BookingMeta.php:752
 msgid "Failed to send email."
 msgstr "E-posta gönderilemedi."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:764
+#: src/Admin/Booking/Meta/BookingMeta.php:763
 #: templates/account/booking-detail.php:33
 msgid "Unknown Vehicle"
 msgstr "Bilinmeyen Araç"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:773
+#: src/Admin/Booking/Meta/BookingMeta.php:772
 #, php-format
 msgid "Booking Confirmation - %s"
 msgstr "Rezervasyon Onayı - %s"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:775
+#: src/Admin/Booking/Meta/BookingMeta.php:774
 #, php-format
 msgid "Payment Reminder - %s"
 msgstr "Ödeme Hatırlatması - %s"
 
 #. translators: %s: vehicle name
-#: src/Admin/Booking/Meta/BookingMeta.php:777
+#: src/Admin/Booking/Meta/BookingMeta.php:776
 #, php-format
 msgid "Booking Reminder - %s"
 msgstr "Rezervasyon Hatırlatma - %s"
 
 #. translators: %s: blog name.
-#: src/Admin/Booking/Meta/BookingMeta.php:779
+#: src/Admin/Booking/Meta/BookingMeta.php:778
 #, php-format
 msgid "Message from %s"
 msgstr "%s'den gelen mesaj"
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date; 5: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:786
+#: src/Admin/Booking/Meta/BookingMeta.php:785
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>Your booking for %2$s has been confirmed.<br><br>Pickup "
@@ -2484,7 +2485,7 @@ msgstr ""
 "%5$s<br><br>Bizi tercih ettiğiniz için teşekkür ederiz!"
 
 #. translators: 1: customer name; 2: vehicle name; 3: total amount.
-#: src/Admin/Booking/Meta/BookingMeta.php:795
+#: src/Admin/Booking/Meta/BookingMeta.php:794
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your payment for %2$s."
@@ -2496,7 +2497,7 @@ msgstr ""
 "olan en kısa sürede tamamlayın."
 
 #. translators: 1: customer name; 2: vehicle name; 3: pickup date; 4: return date.
-#: src/Admin/Booking/Meta/BookingMeta.php:802
+#: src/Admin/Booking/Meta/BookingMeta.php:801
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>This is a reminder about your upcoming booking for %2$s."
@@ -2508,7 +2509,7 @@ msgstr ""
 "ağırlamaktan mutluluk duyarız!"
 
 #. translators: 1: customer name; 2: vehicle name.
-#: src/Admin/Booking/Meta/BookingMeta.php:810
+#: src/Admin/Booking/Meta/BookingMeta.php:809
 #, php-format
 msgid ""
 "Hello %1$s,<br><br>We regret to inform you that your booking for %2$s has "
@@ -2519,109 +2520,108 @@ msgstr ""
 "iletişime geçin."
 
 #. translators: %s: blog name
-#: src/Admin/Booking/Meta/BookingMeta.php:815
+#: src/Admin/Booking/Meta/BookingMeta.php:814
 #, php-format
 msgid "You have received a message from %s"
 msgstr "%s tarafından bir mesaj aldınız"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:841
-#: src/Admin/Booking/Meta/BookingMeta.php:864
+#: src/Admin/Booking/Meta/BookingMeta.php:840
+#: src/Admin/Booking/Meta/BookingMeta.php:863
 msgid "Add Note"
 msgstr "Not Ekle"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:848
+#: src/Admin/Booking/Meta/BookingMeta.php:847
 #: src/Admin/Settings/Groups/AddonSettings.php:98
 msgid "Note:"
 msgstr "Not:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:849
+#: src/Admin/Booking/Meta/BookingMeta.php:848
 msgid "Add a note about this booking..."
 msgstr "Bu rezervasyonla ilgili bir not ekleyin..."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:853
+#: src/Admin/Booking/Meta/BookingMeta.php:852
 msgid "Type:"
 msgstr "Tür:"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:855
-#: src/Admin/Booking/Meta/BookingMeta.php:933
-#: src/Admin/Booking/Meta/BookingMeta.php:940
+#: src/Admin/Booking/Meta/BookingMeta.php:854
+#: src/Admin/Booking/Meta/BookingMeta.php:932
+#: src/Admin/Booking/Meta/BookingMeta.php:939
 msgid "Note"
 msgstr "Not"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:856
-#: src/Admin/Booking/Meta/BookingMeta.php:934
+#: src/Admin/Booking/Meta/BookingMeta.php:855
+#: src/Admin/Booking/Meta/BookingMeta.php:933
 msgid "Status Change"
 msgstr "Durum Değişikliği"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:857
-#: src/Admin/Booking/Meta/BookingMeta.php:935
+#: src/Admin/Booking/Meta/BookingMeta.php:856
+#: src/Admin/Booking/Meta/BookingMeta.php:934
 msgid "Payment Update"
 msgstr "Ödeme Güncellemesi"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:858
-#: src/Admin/Booking/Meta/BookingMeta.php:936
+#: src/Admin/Booking/Meta/BookingMeta.php:857
+#: src/Admin/Booking/Meta/BookingMeta.php:935
 msgid "Customer Contact"
 msgstr "Müşteri iletişim"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:859
-#: src/Admin/Booking/Meta/BookingMeta.php:892
-#: src/Admin/Booking/Meta/BookingMeta.php:937
+#: src/Admin/Booking/Meta/BookingMeta.php:858
+#: src/Admin/Booking/Meta/BookingMeta.php:891
+#: src/Admin/Booking/Meta/BookingMeta.php:936
 msgid "System"
 msgstr "Sistem"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:876
+#: src/Admin/Booking/Meta/BookingMeta.php:875
 msgid "History"
 msgstr "Geçmiş"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:879
+#: src/Admin/Booking/Meta/BookingMeta.php:878
 msgid "No history found."
 msgstr "Hiçbir tarih bulunamadı."
 
 #. translators: %s: user display name
-#: src/Admin/Booking/Meta/BookingMeta.php:907
+#: src/Admin/Booking/Meta/BookingMeta.php:906
 #, php-format
 msgid "By %s"
 msgstr "%s tarafından"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:918
+#: src/Admin/Booking/Meta/BookingMeta.php:917
 msgid "more entries"
 msgstr "daha fazla kayıt"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:962
+#: src/Admin/Booking/Meta/BookingMeta.php:961
 msgid "You do not have permission to add notes."
 msgstr "Not ekleme izniniz yok."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:969
+#: src/Admin/Booking/Meta/BookingMeta.php:968
 msgid "Invalid booking ID or empty note."
 msgstr "Geçersiz rezervasyon kimliği veya boş not."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1126
+#: src/Admin/Booking/Meta/BookingMeta.php:1125
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:192
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:829
 msgid "Booking created"
 msgstr "Rezervasyon oluşturuldu"
 
 #. translators: 1: old status, 2: new status
-#: src/Admin/Booking/Meta/BookingMeta.php:1151
+#: src/Admin/Booking/Meta/BookingMeta.php:1150
 #, php-format
 msgid "Status changed from %1$s to %2$s"
 msgstr "Durum %1$s'dan %2$s'e değişti"
 
 #. translators: 1: old payment status, 2: new payment status
-#: src/Admin/Booking/Meta/BookingMeta.php:1177
+#: src/Admin/Booking/Meta/BookingMeta.php:1176
 #, php-format
 msgid "Payment status changed from %1$s to %2$s"
 msgstr "Ödeme durumu %1$s'dan %2$s'e değişti"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1242
-#: src/Admin/Booking/Meta/BookingMeta.php:1626
+#: src/Admin/Booking/Meta/BookingMeta.php:1241
+#: src/Admin/Booking/Meta/BookingMeta.php:1421
 msgid "Note added successfully!"
 msgstr "Not başarıyla eklendi!"
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1282
-#: src/Admin/Booking/Meta/BookingMeta.php:1490
-#: src/Admin/Booking/Meta/BookingMeta.php:1529
-#: src/Admin/Booking/Meta/BookingMeta.php:1610
+#: src/Admin/Booking/Meta/BookingMeta.php:1285
+#: src/Admin/Booking/Meta/BookingMeta.php:1324
+#: src/Admin/Booking/Meta/BookingMeta.php:1405
 #: src/Admin/Core/Utilities/UXHelper.php:138
 #: src/Admin/Emails/Core/EmailTemplates.php:174
 #: src/Admin/Emails/Settings/EmailTemplateTestAction.php:27
@@ -2629,51 +2629,19 @@ msgstr "Not başarıyla eklendi!"
 msgid "You do not have permission to perform this action."
 msgstr "Bu eylemi gerçekleştirmek için izniniz yok."
 
-#. translators: 1: old pickup date, 2: old pickup time, 3: new pickup date, 4: new pickup time
-#: src/Admin/Booking/Meta/BookingMeta.php:1392
-#, php-format
-msgid "Pickup date/time changed from %1$s %2$s to %3$s %4$s"
-msgstr "Teslim alma tarihi/saati %1$s %2$s'den %3$s %4$s'e değiştirildi"
-
-#. translators: 1: old dropoff date, 2: old dropoff time, 3: new dropoff date, 4: new dropoff time
-#: src/Admin/Booking/Meta/BookingMeta.php:1403
-#, php-format
-msgid "Dropoff date/time changed from %1$s %2$s to %3$s %4$s"
-msgstr "Teslim tarihi/saati %1$s %2$s'den %3$s %4$s'e değiştirildi"
-
-#. translators: 1: old guest count, 2: new guest count
-#: src/Admin/Booking/Meta/BookingMeta.php:1415
-#, php-format
-msgid "Number of guests changed from %1$d to %2$d"
-msgstr "Misafir sayısı %1$d değerinden %2$d değerine değiştirildi"
-
-#. translators: 1: old payment method, 2: new payment method
-#: src/Admin/Booking/Meta/BookingMeta.php:1425
-#, php-format
-msgid "Payment method changed from %1$s to %2$s"
-msgstr "Ödeme yöntemi %1$s değerinden %2$s değerine değiştirildi"
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1438
-msgid "Booking updated: "
-msgstr "Rezervasyon güncellendi: "
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1456
-msgid "Booking updated successfully!"
-msgstr "Rezervasyon başarıyla güncellendi!"
-
-#: src/Admin/Booking/Meta/BookingMeta.php:1497
-#: src/Admin/Booking/Meta/BookingMeta.php:1540
-#: src/Admin/Booking/Meta/BookingMeta.php:1618
+#: src/Admin/Booking/Meta/BookingMeta.php:1292
+#: src/Admin/Booking/Meta/BookingMeta.php:1335
+#: src/Admin/Booking/Meta/BookingMeta.php:1413
 msgid "Missing required fields."
 msgstr "Gerekli alanlar eksik."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1586
+#: src/Admin/Booking/Meta/BookingMeta.php:1381
 msgid "Failed to send email. Please check your WordPress email configuration."
 msgstr ""
 "E-posta gönderilemedi. Lütfen WordPress e-posta yapılandırmanızı kontrol "
 "edin."
 
-#: src/Admin/Booking/Meta/BookingMeta.php:1628
+#: src/Admin/Booking/Meta/BookingMeta.php:1423
 msgid "Failed to add note."
 msgstr "Not eklenemedi."
 
@@ -3080,7 +3048,7 @@ msgstr "Bu ekipmanı kaldırmak istediğinizden emin misiniz?"
 msgid "Enter value"
 msgstr "Değer Gir"
 
-#: src/Admin/Core/AssetManager.php:528 src/Admin/Core/AssetManager.php:944
+#: src/Admin/Core/AssetManager.php:528 src/Admin/Core/AssetManager.php:946
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:111
 #: src/Admin/Settings/Core/SettingsHelper.php:236
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:624
@@ -3123,33 +3091,46 @@ msgstr "Yakında! Şimdilik, Özel Ekle düğmesini kullanın."
 msgid "Redirecting to Vehicle Settings..."
 msgstr "Araç Ayarlarına Yönlendiriliyor..."
 
-#: src/Admin/Core/AssetManager.php:555
+#: src/Admin/Core/AssetManager.php:554
+#: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:225
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:88
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:190
+msgid "Automatic"
+msgstr "Otomatik"
+
+#: src/Admin/Core/AssetManager.php:556
+#: src/Admin/Vehicle/Meta/VehicleMeta.php:72
+#: src/Admin/Vehicle/Templates/vehicle-meta.php:195
+msgid "Petrol"
+msgstr "Benzin"
+
+#: src/Admin/Core/AssetManager.php:557
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:206
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:73
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:196
 msgid "Diesel"
 msgstr "Dizel"
 
-#: src/Admin/Core/AssetManager.php:556
+#: src/Admin/Core/AssetManager.php:558
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:209
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:74
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:197
 msgid "Hybrid"
 msgstr "Hibrit"
 
-#: src/Admin/Core/AssetManager.php:557
+#: src/Admin/Core/AssetManager.php:559
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:208
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:75
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:198
 msgid "Electric"
 msgstr "Elektrik"
 
-#: src/Admin/Core/AssetManager.php:558 src/Admin/Core/AssetManager.php:970
+#: src/Admin/Core/AssetManager.php:560 src/Admin/Core/AssetManager.php:972
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1703
 msgid "Passive"
 msgstr "Pasif"
 
-#: src/Admin/Core/AssetManager.php:559
+#: src/Admin/Core/AssetManager.php:561
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:191
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:696
@@ -3158,7 +3139,7 @@ msgstr "Pasif"
 msgid "Maintenance"
 msgstr "Bakım"
 
-#: src/Admin/Core/AssetManager.php:560 src/Admin/Core/AssetManager.php:1117
+#: src/Admin/Core/AssetManager.php:562 src/Admin/Core/AssetManager.php:1119
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:125
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:137
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:149
@@ -3185,7 +3166,7 @@ msgstr "Bakım"
 msgid "Yes"
 msgstr "Evet"
 
-#: src/Admin/Core/AssetManager.php:646 src/Admin/Core/AssetManager.php:1112
+#: src/Admin/Core/AssetManager.php:648 src/Admin/Core/AssetManager.php:1114
 #: src/Admin/Frontend/Account/AccountController.php:385
 #: src/Admin/Frontend/Account/AccountRenderer.php:245
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:65
@@ -3204,20 +3185,20 @@ msgstr "Evet"
 msgid "Loading..."
 msgstr "Yükleniyor..."
 
-#: src/Admin/Core/AssetManager.php:648
+#: src/Admin/Core/AssetManager.php:650
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:325
 msgid "Operation successful"
 msgstr "Operasyon Başarılı"
 
-#: src/Admin/Core/AssetManager.php:649 src/Admin/Core/AssetManager.php:1145
+#: src/Admin/Core/AssetManager.php:651 src/Admin/Core/AssetManager.php:1147
 #: src/Admin/Frontend/Account/AccountController.php:388
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
 #: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:650 src/Admin/Core/AssetManager.php:955
-#: src/Admin/Core/AssetManager.php:1119
+#: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:957
+#: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Customers/AddCustomerPage.php:164
 #: src/Admin/Customers/CustomersPage.php:385
 #: src/Admin/Emails/Core/EmailTemplates.php:526
@@ -3226,205 +3207,205 @@ msgstr "Emin misiniz?"
 msgid "Cancel"
 msgstr "İptal"
 
-#: src/Admin/Core/AssetManager.php:651 src/Admin/Core/AssetManager.php:956
-#: src/Admin/Core/AssetManager.php:1121
+#: src/Admin/Core/AssetManager.php:653 src/Admin/Core/AssetManager.php:958
+#: src/Admin/Core/AssetManager.php:1123
 #: src/Admin/Emails/Core/EmailTemplates.php:531
 msgid "Save"
 msgstr "Kaydet"
 
 #. translators: %d = number of customers
-#: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:810
-#: src/Admin/Core/AssetManager.php:1122
+#: src/Admin/Core/AssetManager.php:654 src/Admin/Core/AssetManager.php:812
+#: src/Admin/Core/AssetManager.php:1124
 #: templates/shortcodes/vehicle-rating-form.php:298
 #: src-react/admin/customers/CustomersPage.jsx:66
 msgid "Delete"
 msgstr "Sil"
 
-#: src/Admin/Core/AssetManager.php:654
+#: src/Admin/Core/AssetManager.php:656
 msgid "Are you sure you want to refund this payment?"
 msgstr "Bu ödemeyi iade etmek istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:655
+#: src/Admin/Core/AssetManager.php:657
 msgid "Processing refund..."
 msgstr "Geri ödeme işleniyor..."
 
-#: src/Admin/Core/AssetManager.php:656
+#: src/Admin/Core/AssetManager.php:658
 msgid "Refund error"
 msgstr "Geri ödeme hatası"
 
-#: src/Admin/Core/AssetManager.php:657
+#: src/Admin/Core/AssetManager.php:659
 msgid "Refund completed (or queued). Please refresh the page."
 msgstr "Geri ödeme tamamlandı (veya sıraya alındı). Lütfen sayfayı yenileyin."
 
-#: src/Admin/Core/AssetManager.php:658
+#: src/Admin/Core/AssetManager.php:660
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:515
 msgid "This field is required"
 msgstr "Bu alan gereklidir"
 
-#: src/Admin/Core/AssetManager.php:659
+#: src/Admin/Core/AssetManager.php:661
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:284
 msgid "Please enter a valid email address"
 msgstr "Lütfen geçerli bir e-posta adresi girin"
 
-#: src/Admin/Core/AssetManager.php:660
+#: src/Admin/Core/AssetManager.php:662
 msgid "Please enter a valid phone number"
 msgstr "Geçerli bir telefon numarası giriniz"
 
-#: src/Admin/Core/AssetManager.php:661
+#: src/Admin/Core/AssetManager.php:663
 msgid "Value must be between %min and %max"
 msgstr "Değer %min ile %max arasında olmalıdır"
 
-#: src/Admin/Core/AssetManager.php:662
+#: src/Admin/Core/AssetManager.php:664
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:282
 msgid "Dropoff date must be after pickup date"
 msgstr "Teslim tarihi, teslim alma tarihinden sonra olmalıdır"
 
-#: src/Admin/Core/AssetManager.php:663
+#: src/Admin/Core/AssetManager.php:665
 msgid "Pickup date cannot be in the past"
 msgstr "Teslim alma tarihi geçmişte olamaz"
 
 #. translators: %s: status label.
-#: src/Admin/Core/AssetManager.php:666
+#: src/Admin/Core/AssetManager.php:668
 #, php-format
 msgid "Are you sure you want to change the booking status to \"%s\"?"
 msgstr ""
 "Rezervasyon durumunu \"%s\" olarak değiştirmek istediğinize emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:667
+#: src/Admin/Core/AssetManager.php:669
 msgid "Changing status..."
 msgstr "Durum değişiyor..."
 
 #. translators: %d: maximum number of images allowed.
-#: src/Admin/Core/AssetManager.php:714
+#: src/Admin/Core/AssetManager.php:716
 #, php-format
 msgid "Maximum %d images allowed"
 msgstr "Maksimum %d resme izin verilir"
 
-#: src/Admin/Core/AssetManager.php:715
+#: src/Admin/Core/AssetManager.php:717
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:127
 msgid "Select Images"
 msgstr "Resimleri Seç"
 
-#: src/Admin/Core/AssetManager.php:716
+#: src/Admin/Core/AssetManager.php:718
 msgid "Add to Gallery"
 msgstr "Galeriye Ekle"
 
-#: src/Admin/Core/AssetManager.php:717
+#: src/Admin/Core/AssetManager.php:719
 msgid "Error uploading image"
 msgstr "Görüntü yüklenirken hata oluştu"
 
-#: src/Admin/Core/AssetManager.php:718
+#: src/Admin/Core/AssetManager.php:720
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:134
 msgid "Are you sure you want to remove this image?"
 msgstr "Bu resmi kaldırmak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:719
+#: src/Admin/Core/AssetManager.php:721
 #: src/Admin/Vehicle/Meta/VehicleGallery.php:129
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:64
 msgid "Remove Image"
 msgstr "Resmi Kaldır"
 
-#: src/Admin/Core/AssetManager.php:720
+#: src/Admin/Core/AssetManager.php:722
 msgid "Error adding image"
 msgstr "Görüntü ekleme hatası"
 
-#: src/Admin/Core/AssetManager.php:721
+#: src/Admin/Core/AssetManager.php:723
 msgid "Error removing image"
 msgstr "Görüntü kaldırma hatası"
 
-#: src/Admin/Core/AssetManager.php:722
+#: src/Admin/Core/AssetManager.php:724
 msgid "Error reordering images"
 msgstr "Görüntüleri yeniden sıralama hatası"
 
-#: src/Admin/Core/AssetManager.php:759
+#: src/Admin/Core/AssetManager.php:761
 msgid "Please select at least one item to perform this action on."
 msgstr "Bu işlemi gerçekleştirmek için lütfen en az bir öğe seçin."
 
 #. translators: %d: number of selected bookings.
-#: src/Admin/Core/AssetManager.php:761
+#: src/Admin/Core/AssetManager.php:763
 #, php-format
 msgid "Move %d selected bookings to Trash?"
 msgstr "Seçilen %d rezervasyonu Çöp Kutusu'na taşımak ister misiniz?"
 
 #. translators: %d: number of selected bookings.
-#: src/Admin/Core/AssetManager.php:763
+#: src/Admin/Core/AssetManager.php:765
 #, php-format
 msgid "Permanently delete %d selected bookings?"
 msgstr "Seçilen %d rezervasyonu kalıcı olarak silmek ister misiniz?"
 
-#: src/Admin/Core/AssetManager.php:764
+#: src/Admin/Core/AssetManager.php:766
 msgid "Move this booking to Trash?"
 msgstr "Bu rezervasyonu Çöp Kutusu'na taşımak ister misiniz?"
 
-#: src/Admin/Core/AssetManager.php:765
+#: src/Admin/Core/AssetManager.php:767
 msgid "Permanently delete this booking?"
 msgstr "Bu rezervasyonu kalıcı olarak silmek istiyor musunuz?"
 
-#: src/Admin/Core/AssetManager.php:766
+#: src/Admin/Core/AssetManager.php:768
 msgid "Empty Trash for all bookings?"
 msgstr "Tüm rezervasyonlar için çöp kutusunu boşaltmak mı?"
 
-#: src/Admin/Core/AssetManager.php:797
+#: src/Admin/Core/AssetManager.php:799
 msgid "Category name cannot be empty"
 msgstr "Kategori adı boş bırakılamaz"
 
-#: src/Admin/Core/AssetManager.php:798
+#: src/Admin/Core/AssetManager.php:800
 msgid "This category already exists"
 msgstr "Bu kategori zaten mevcut"
 
-#: src/Admin/Core/AssetManager.php:799
+#: src/Admin/Core/AssetManager.php:801
 msgid "Are you sure you want to delete this category?"
 msgstr "Bu kategoriyi silmek istediğinize emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:800
+#: src/Admin/Core/AssetManager.php:802
 msgid "Status name cannot be empty"
 msgstr "Durum adı boş bırakılamaz"
 
-#: src/Admin/Core/AssetManager.php:801
+#: src/Admin/Core/AssetManager.php:803
 msgid "This status already exists"
 msgstr "Bu durum zaten mevcuttur"
 
-#: src/Admin/Core/AssetManager.php:802
+#: src/Admin/Core/AssetManager.php:804
 msgid "Are you sure you want to delete this status?"
 msgstr "Bu durumu silmek istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:803
+#: src/Admin/Core/AssetManager.php:805
 msgid "Enter a valid admin email address"
 msgstr "Geçerli bir yönetici e-posta adresi girin"
 
-#: src/Admin/Core/AssetManager.php:804
+#: src/Admin/Core/AssetManager.php:806
 msgid "Enter a valid sender email address"
 msgstr "Geçerli bir gönderen e-posta adresi girin"
 
-#: src/Admin/Core/AssetManager.php:805
+#: src/Admin/Core/AssetManager.php:807
 msgid "Enter a valid email address"
 msgstr "Geçerli bir e-posta adresi giriniz"
 
-#: src/Admin/Core/AssetManager.php:806
+#: src/Admin/Core/AssetManager.php:808
 msgid "Duplicate category names are not allowed"
 msgstr "Yinelenen kategori adlarına izin verilmez"
 
-#: src/Admin/Core/AssetManager.php:807
+#: src/Admin/Core/AssetManager.php:809
 msgid "Duplicate status names are not allowed"
 msgstr "Yinelenen durum adlarına izin verilmez"
 
-#: src/Admin/Core/AssetManager.php:808
+#: src/Admin/Core/AssetManager.php:810
 msgid "Form errors"
 msgstr "Form hataları"
 
-#: src/Admin/Core/AssetManager.php:811
+#: src/Admin/Core/AssetManager.php:813
 msgid "Template Preview"
 msgstr "Şablon Önizleme"
 
-#: src/Admin/Core/AssetManager.php:812
+#: src/Admin/Core/AssetManager.php:814
 msgid "Template content is empty"
 msgstr "Şablon içeriği boş"
 
-#: src/Admin/Core/AssetManager.php:813
+#: src/Admin/Core/AssetManager.php:815
 msgid "Template reset to default"
 msgstr "Şablon varsayılan ayarlara sıfırlandı"
 
-#: src/Admin/Core/AssetManager.php:814
+#: src/Admin/Core/AssetManager.php:816
 msgid ""
 "Are you sure you want to reset this tab's settings to default values? This "
 "action cannot be undone."
@@ -3432,44 +3413,44 @@ msgstr ""
 "Bu sekmenin ayarlarını varsayılan değerlere sıfırlamak istediğinizden emin "
 "misiniz? Bu işlem geri alınamaz."
 
-#: src/Admin/Core/AssetManager.php:815 src/Admin/Core/AssetManager.php:866
+#: src/Admin/Core/AssetManager.php:817 src/Admin/Core/AssetManager.php:868
 msgid "Resetting..."
 msgstr "Sıfırlanıyor..."
 
-#: src/Admin/Core/AssetManager.php:816 src/Admin/Core/AssetManager.php:867
+#: src/Admin/Core/AssetManager.php:818 src/Admin/Core/AssetManager.php:869
 msgid "Settings reset to defaults successfully. Page will reload..."
 msgstr ""
 "Ayarlar başarıyla varsayılanlara sıfırlandı. Sayfa yeniden yüklenecek..."
 
-#: src/Admin/Core/AssetManager.php:817 src/Admin/Core/AssetManager.php:868
+#: src/Admin/Core/AssetManager.php:819 src/Admin/Core/AssetManager.php:870
 msgid "Failed to reset settings to defaults."
 msgstr "Ayarları varsayılanlara sıfırlayamadı."
 
-#: src/Admin/Core/AssetManager.php:819
+#: src/Admin/Core/AssetManager.php:821
 msgid "Admin email address is required"
 msgstr "Yönetici e-posta adresi gereklidir"
 
-#: src/Admin/Core/AssetManager.php:820
+#: src/Admin/Core/AssetManager.php:822
 msgid "Sender name is required"
 msgstr "Gönderen adı gereklidir"
 
-#: src/Admin/Core/AssetManager.php:821
+#: src/Admin/Core/AssetManager.php:823
 msgid "Sender email address is required"
 msgstr "Gönderen e-posta adresi gereklidir"
 
-#: src/Admin/Core/AssetManager.php:822
+#: src/Admin/Core/AssetManager.php:824
 msgid "At least one category must be defined"
 msgstr "En az bir kategori tanımlanmalıdır"
 
-#: src/Admin/Core/AssetManager.php:823
+#: src/Admin/Core/AssetManager.php:825
 msgid "At least one status must be defined"
 msgstr "En az bir durum tanımlanmalıdır"
 
-#: src/Admin/Core/AssetManager.php:824
+#: src/Admin/Core/AssetManager.php:826
 msgid "Are you sure you want to reset this template to default?"
 msgstr "Bu şablonu varsayılana sıfırlamak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:865
+#: src/Admin/Core/AssetManager.php:867
 msgid ""
 "Are you sure you want to reset all REST API settings to default values? This "
 "action cannot be undone."
@@ -3477,7 +3458,7 @@ msgstr ""
 "Tüm REST API ayarlarını varsayılan değerlere sıfırlamak istediğinizden emin "
 "misiniz? Bu işlem geri alınamaz."
 
-#: src/Admin/Core/AssetManager.php:937
+#: src/Admin/Core/AssetManager.php:939
 msgid ""
 "Are you sure you want to reset all vehicle settings to defaults? Custom "
 "field definitions will NOT be deleted."
@@ -3485,90 +3466,90 @@ msgstr ""
 "Tüm araç ayarlarını varsayılanlara sıfırlamak istediğinizden emin misiniz? "
 "Özel alan tanımları SİLİNMEYECEKTİR."
 
-#: src/Admin/Core/AssetManager.php:938
+#: src/Admin/Core/AssetManager.php:940
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1133
 msgid "Settings saved successfully!"
 msgstr "Ayarlar başarıyla kaydedildi!"
 
-#: src/Admin/Core/AssetManager.php:939
+#: src/Admin/Core/AssetManager.php:941
 msgid "Error saving settings."
 msgstr "Ayarları kaydederken hata oluştu."
 
-#: src/Admin/Core/AssetManager.php:940 src/Admin/Core/AssetManager.php:989
+#: src/Admin/Core/AssetManager.php:942 src/Admin/Core/AssetManager.php:991
 msgid "Select"
 msgstr "Seçim"
 
-#: src/Admin/Core/AssetManager.php:941 src/Admin/Core/AssetManager.php:988
+#: src/Admin/Core/AssetManager.php:943 src/Admin/Core/AssetManager.php:990
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:573
 msgid "Number"
 msgstr "Sayı"
 
-#: src/Admin/Core/AssetManager.php:945
+#: src/Admin/Core/AssetManager.php:947
 msgid "Custom detail added successfully!"
 msgstr "Özel ayrıntı başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:946
+#: src/Admin/Core/AssetManager.php:948
 msgid "Custom feature added successfully!"
 msgstr "Özel özellik başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:947
+#: src/Admin/Core/AssetManager.php:949
 msgid "Custom equipment added successfully!"
 msgstr "Özel ekipman başarıyla eklendi!"
 
-#: src/Admin/Core/AssetManager.php:948
+#: src/Admin/Core/AssetManager.php:950
 msgid "Are you sure you want to remove this custom detail?"
 msgstr "Bu özel ayrıntıyı silmek istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:949
+#: src/Admin/Core/AssetManager.php:951
 msgid "Custom detail removed successfully!"
 msgstr "Özel ayrıntı başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:950
+#: src/Admin/Core/AssetManager.php:952
 msgid "Are you sure you want to remove this custom feature?"
 msgstr "Bu özel özelliği kaldırmak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:951
+#: src/Admin/Core/AssetManager.php:953
 msgid "Custom feature removed successfully!"
 msgstr "Özel özellik başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:952
+#: src/Admin/Core/AssetManager.php:954
 msgid "Are you sure you want to remove this custom equipment?"
 msgstr "Bu özel ekipmanı kaldırmak istediğinizden emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:953
+#: src/Admin/Core/AssetManager.php:955
 msgid "Custom equipment removed successfully!"
 msgstr "Özel ekipman başarıyla kaldırıldı!"
 
-#: src/Admin/Core/AssetManager.php:954
+#: src/Admin/Core/AssetManager.php:956
 msgid "Edit Field Names"
 msgstr "Alan Adlarını Düzenle"
 
-#: src/Admin/Core/AssetManager.php:957
+#: src/Admin/Core/AssetManager.php:959
 msgid "Field names updated and saved!"
 msgstr "Alan adları güncellendi ve kaydedildi!"
 
-#: src/Admin/Core/AssetManager.php:958
+#: src/Admin/Core/AssetManager.php:960
 msgid "Error: Field names could not be saved!"
 msgstr "Hata: Alan adları kaydedilemedi!"
 
-#: src/Admin/Core/AssetManager.php:961 src/Admin/Utilities/Menu/Menu.php:70
+#: src/Admin/Core/AssetManager.php:963 src/Admin/Utilities/Menu/Menu.php:70
 #: src/Admin/Utilities/Menu/Menu.php:71
 msgid "Vehicle Settings"
 msgstr "Araç Ayarları"
 
-#: src/Admin/Core/AssetManager.php:962
+#: src/Admin/Core/AssetManager.php:964
 msgid "Define fields and manage where they appear"
 msgstr "Alanları tanımla, nerede görüneceğini yönet"
 
-#: src/Admin/Core/AssetManager.php:963
+#: src/Admin/Core/AssetManager.php:965
 msgid "1 · Field Definitions"
 msgstr "1 · Alan Tanımları"
 
-#: src/Admin/Core/AssetManager.php:964
+#: src/Admin/Core/AssetManager.php:966
 msgid "2 · Display & Preview"
 msgstr "2 · Görünüm & Önizleme"
 
-#: src/Admin/Core/AssetManager.php:965
+#: src/Admin/Core/AssetManager.php:967
 msgid ""
 "Choose which fields are collected. Passive fields do not appear on vehicle "
 "forms or in the preview. You can also add your own custom field."
@@ -3576,7 +3557,7 @@ msgstr ""
 "Hangi alanların toplanacağını belirle. Pasif alanlar araç formlarında ve "
 "önizlemede görünmez. Kendi özel alanını da ekleyebilirsin."
 
-#: src/Admin/Core/AssetManager.php:966
+#: src/Admin/Core/AssetManager.php:968
 #: src/Admin/Frontend/Widgets/Elementor/VehicleDetailsWidget.php:26
 #: src/Admin/Settings/ShortcodePages/ShortcodePageActions.php:77
 #: src/Admin/Setup/SetupWizard.php:813
@@ -3586,44 +3567,44 @@ msgstr ""
 msgid "Vehicle Details"
 msgstr "Araç Detayları"
 
-#: src/Admin/Core/AssetManager.php:967
+#: src/Admin/Core/AssetManager.php:969
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:588
 msgid "Vehicle Features"
 msgstr "Araç Özellikleri"
 
-#: src/Admin/Core/AssetManager.php:968
+#: src/Admin/Core/AssetManager.php:970
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:640
 msgid "Vehicle Equipment"
 msgstr "Araç Ekipmanları"
 
-#: src/Admin/Core/AssetManager.php:972
+#: src/Admin/Core/AssetManager.php:974
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:532
 msgid "Core fields cannot be disabled"
 msgstr "Temel alanlar devre dışı bırakılamaz"
 
-#: src/Admin/Core/AssetManager.php:973
+#: src/Admin/Core/AssetManager.php:975
 msgid "REQUIRED"
 msgstr "ZORUNLU"
 
-#: src/Admin/Core/AssetManager.php:974
+#: src/Admin/Core/AssetManager.php:976
 msgid "CUSTOM"
 msgstr "ÖZEL"
 
 #. translators: %s: field name
-#: src/Admin/Core/AssetManager.php:976
+#: src/Admin/Core/AssetManager.php:978
 #, php-format
 msgid "The field \"%s\" will be permanently deleted. Are you sure?"
 msgstr "\"%s\" alanı kalıcı olarak silinecek. Emin misiniz?"
 
-#: src/Admin/Core/AssetManager.php:977
+#: src/Admin/Core/AssetManager.php:979
 msgid "Field deleted."
 msgstr "Alan silindi."
 
-#: src/Admin/Core/AssetManager.php:978
+#: src/Admin/Core/AssetManager.php:980
 msgid "Could not delete the field."
 msgstr "Alan silinemedi."
 
-#: src/Admin/Core/AssetManager.php:979 src/Admin/Core/AssetManager.php:1135
+#: src/Admin/Core/AssetManager.php:981 src/Admin/Core/AssetManager.php:1137
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:449
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:543
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:595
@@ -3632,7 +3613,7 @@ msgstr "Alan silinemedi."
 msgid "Select All"
 msgstr "Tümünü Seç"
 
-#: src/Admin/Core/AssetManager.php:980
+#: src/Admin/Core/AssetManager.php:982
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:452
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:544
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:596
@@ -3640,78 +3621,78 @@ msgstr "Tümünü Seç"
 msgid "Deselect All"
 msgstr "Tümünü Kaldır"
 
-#: src/Admin/Core/AssetManager.php:981
+#: src/Admin/Core/AssetManager.php:983
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:545
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:597
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:649
 msgid "Edit Names"
 msgstr "İsimleri Düzenle"
 
-#: src/Admin/Core/AssetManager.php:982
+#: src/Admin/Core/AssetManager.php:984
 msgid "Add custom field:"
 msgstr "Özel alan ekle:"
 
-#: src/Admin/Core/AssetManager.php:983
+#: src/Admin/Core/AssetManager.php:985
 msgid "Field name (e.g. Boot Size)"
 msgstr "Alan adı (örn. Bagaj Hacmi)"
 
-#: src/Admin/Core/AssetManager.php:984 src/Admin/Core/AssetManager.php:1011
-#: src/Admin/Core/AssetManager.php:1027
+#: src/Admin/Core/AssetManager.php:986 src/Admin/Core/AssetManager.php:1013
+#: src/Admin/Core/AssetManager.php:1029
 msgid "Detail"
 msgstr "Detay"
 
-#: src/Admin/Core/AssetManager.php:985
+#: src/Admin/Core/AssetManager.php:987
 #: templates/shortcodes/vehicle-comparison.php:77
 msgid "Feature"
 msgstr "Özellik"
 
-#: src/Admin/Core/AssetManager.php:986 src/Admin/Core/AssetManager.php:1008
+#: src/Admin/Core/AssetManager.php:988 src/Admin/Core/AssetManager.php:1010
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:442
 msgid "Equipment"
 msgstr "Ekipman"
 
-#: src/Admin/Core/AssetManager.php:987
+#: src/Admin/Core/AssetManager.php:989
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:572
 msgid "Text"
 msgstr "Metin"
 
-#: src/Admin/Core/AssetManager.php:990
+#: src/Admin/Core/AssetManager.php:992
 msgid "Options (comma separated: S, M, L)"
 msgstr "Seçenekler (virgülle ayır: S, M, L)"
 
-#: src/Admin/Core/AssetManager.php:991 src/Admin/Core/AssetManager.php:1124
+#: src/Admin/Core/AssetManager.php:993 src/Admin/Core/AssetManager.php:1126
 msgid "Add"
 msgstr "Ekle"
 
-#: src/Admin/Core/AssetManager.php:992
+#: src/Admin/Core/AssetManager.php:994
 msgid "Please enter a field name."
 msgstr "Lütfen bir alan adı girin."
 
-#: src/Admin/Core/AssetManager.php:993
+#: src/Admin/Core/AssetManager.php:995
 msgid "Could not add the field."
 msgstr "Alan eklenemedi."
 
-#: src/Admin/Core/AssetManager.php:994
+#: src/Admin/Core/AssetManager.php:996
 msgid "Field added. Press Save to persist the selection state."
 msgstr "Alan eklendi. Seçim durumunu kaydetmek için Kaydet'e basın."
 
-#: src/Admin/Core/AssetManager.php:995
+#: src/Admin/Core/AssetManager.php:997
 msgid "Operation failed. Your session may have expired — reload the page."
 msgstr "İşlem başarısız. Oturumunuz sona ermiş olabilir — sayfayı yenileyin."
 
-#: src/Admin/Core/AssetManager.php:996
+#: src/Admin/Core/AssetManager.php:998
 msgid "Saving…"
 msgstr "Kaydediliyor…"
 
-#: src/Admin/Core/AssetManager.php:997
+#: src/Admin/Core/AssetManager.php:999
 msgid "You have unsaved changes"
 msgstr "Kaydedilmemiş değişiklikler var"
 
-#: src/Admin/Core/AssetManager.php:998
+#: src/Admin/Core/AssetManager.php:1000
 msgid "Settings saved."
 msgstr "Ayarlar kaydedildi."
 
-#: src/Admin/Core/AssetManager.php:999
+#: src/Admin/Core/AssetManager.php:1001
 msgid ""
 "Could not save. Your session may have expired — reload the page and try "
 "again."
@@ -3719,28 +3700,28 @@ msgstr ""
 "Kaydedilemedi. Oturumunuz sona ermiş olabilir — sayfayı yenileyip tekrar "
 "deneyin."
 
-#: src/Admin/Core/AssetManager.php:1000
+#: src/Admin/Core/AssetManager.php:1002
 msgid "Could not save. Check your connection and try again."
 msgstr "Kaydedilemedi. Bağlantıyı kontrol edip tekrar deneyin."
 
-#: src/Admin/Core/AssetManager.php:1001
+#: src/Admin/Core/AssetManager.php:1003
 msgid "Template:"
 msgstr "Şablon:"
 
-#: src/Admin/Core/AssetManager.php:1002
+#: src/Admin/Core/AssetManager.php:1004
 msgid "Minimal"
 msgstr "Minimal"
 
-#: src/Admin/Core/AssetManager.php:1003
+#: src/Admin/Core/AssetManager.php:1005
 msgid "Standard"
 msgstr "Standart"
 
-#: src/Admin/Core/AssetManager.php:1004
+#: src/Admin/Core/AssetManager.php:1006
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:87
 msgid "Detailed"
 msgstr "Detaylı"
 
-#: src/Admin/Core/AssetManager.php:1005
+#: src/Admin/Core/AssetManager.php:1007
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:68
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:85
 #: assets/blocks/my-bookings/index.js:41
@@ -3749,117 +3730,117 @@ msgstr "Detaylı"
 msgid "All"
 msgstr "Tümü"
 
-#: src/Admin/Core/AssetManager.php:1007
+#: src/Admin/Core/AssetManager.php:1009
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:441
 msgid "Features"
 msgstr "Özellikler"
 
-#: src/Admin/Core/AssetManager.php:1009
+#: src/Admin/Core/AssetManager.php:1011
 msgid "Field"
 msgstr "Alan"
 
-#: src/Admin/Core/AssetManager.php:1010 src/Admin/Core/AssetManager.php:1026
+#: src/Admin/Core/AssetManager.php:1012 src/Admin/Core/AssetManager.php:1028
 msgid "Card"
 msgstr "Kart"
 
-#: src/Admin/Core/AssetManager.php:1012
+#: src/Admin/Core/AssetManager.php:1014
 msgid "Comp."
 msgstr "Karş."
 
-#: src/Admin/Core/AssetManager.php:1013
+#: src/Admin/Core/AssetManager.php:1015
 msgid "On"
 msgstr "Açık"
 
-#: src/Admin/Core/AssetManager.php:1014
+#: src/Admin/Core/AssetManager.php:1016
 msgid "Off"
 msgstr "Kapalı"
 
-#: src/Admin/Core/AssetManager.php:1015
+#: src/Admin/Core/AssetManager.php:1017
 msgid "No active fields in this category."
 msgstr "Bu kategoride aktif alan yok."
 
-#: src/Admin/Core/AssetManager.php:1016
+#: src/Admin/Core/AssetManager.php:1018
 msgid "Switch to \"All\" to reorder"
 msgstr "Sıralama için \"Tümü\" görünümüne geçin"
 
-#: src/Admin/Core/AssetManager.php:1017
+#: src/Admin/Core/AssetManager.php:1019
 msgid "Drag to reorder"
 msgstr "Sürükleyerek sırala"
 
-#: src/Admin/Core/AssetManager.php:1018
+#: src/Admin/Core/AssetManager.php:1020
 msgid "Live preview"
 msgstr "Canlı önizleme"
 
-#: src/Admin/Core/AssetManager.php:1019
+#: src/Admin/Core/AssetManager.php:1021
 msgid "vehicle image"
 msgstr "araç görseli"
 
-#: src/Admin/Core/AssetManager.php:1020
+#: src/Admin/Core/AssetManager.php:1022
 msgid "Toyota Corolla Hybrid"
 msgstr "Toyota Corolla Hybrid"
 
-#: src/Admin/Core/AssetManager.php:1021
+#: src/Admin/Core/AssetManager.php:1023
 msgid "$1,850 / day"
 msgstr "₺1.850 / gün"
 
-#: src/Admin/Core/AssetManager.php:1022
+#: src/Admin/Core/AssetManager.php:1024
 msgid "View →"
 msgstr "İncele →"
 
-#: src/Admin/Core/AssetManager.php:1023
+#: src/Admin/Core/AssetManager.php:1025
 msgid "Detail — Highlights"
 msgstr "Detay — Öne çıkanlar"
 
-#: src/Admin/Core/AssetManager.php:1024
+#: src/Admin/Core/AssetManager.php:1026
 msgid "No fields selected for the card"
 msgstr "Kartta gösterilecek alan seçilmedi"
 
-#: src/Admin/Core/AssetManager.php:1025
+#: src/Admin/Core/AssetManager.php:1027
 msgid "No fields highlighted in the detail view"
 msgstr "Detayda öne çıkacak alan seçilmedi"
 
-#: src/Admin/Core/AssetManager.php:1028
+#: src/Admin/Core/AssetManager.php:1030
 msgid "Comparison"
 msgstr "Karşılaştırma"
 
-#: src/Admin/Core/AssetManager.php:1029
+#: src/Admin/Core/AssetManager.php:1031
 msgid " — Edit Names"
 msgstr " — İsimleri Düzenle"
 
-#: src/Admin/Core/AssetManager.php:1030
+#: src/Admin/Core/AssetManager.php:1032
 msgid "Names updated."
 msgstr "İsimler güncellendi."
 
-#: src/Admin/Core/AssetManager.php:1031
+#: src/Admin/Core/AssetManager.php:1033
 msgid "Could not update names."
 msgstr "İsimler güncellenemedi."
 
-#: src/Admin/Core/AssetManager.php:1032
+#: src/Admin/Core/AssetManager.php:1034
 msgid "Reset this tab to defaults?"
 msgstr "Bu sekmeyi varsayılana sıfırla?"
 
-#: src/Admin/Core/AssetManager.php:1033
+#: src/Admin/Core/AssetManager.php:1035
 msgid "Could not reset."
 msgstr "Sıfırlanamadı."
 
-#: src/Admin/Core/AssetManager.php:1114
-#: src/Admin/Emails/PostTypes/EmailLog.php:63
+#: src/Admin/Core/AssetManager.php:1116
+#: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: src/Admin/Frontend/Shortcodes/Core/AbstractShortcode.php:514
 msgid "Success"
 msgstr "Başarılı"
 
-#: src/Admin/Core/AssetManager.php:1115
+#: src/Admin/Core/AssetManager.php:1117
 #: src/Admin/Settings/Groups/LogsSettings.php:67
 #: src/Admin/Setup/SetupWizard.php:961
 msgid "Warning"
 msgstr "Uyarı"
 
-#: src/Admin/Core/AssetManager.php:1116
+#: src/Admin/Core/AssetManager.php:1118
 #: src/Admin/Settings/Groups/LogsSettings.php:68
 msgid "Info"
 msgstr "Bilgi"
 
-#: src/Admin/Core/AssetManager.php:1118
+#: src/Admin/Core/AssetManager.php:1120
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:126
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:138
 #: src/Admin/Frontend/Widgets/Elementor/BookingFormWidget.php:150
@@ -3886,11 +3867,11 @@ msgstr "Bilgi"
 msgid "No"
 msgstr "Hayır"
 
-#: src/Admin/Core/AssetManager.php:1120
+#: src/Admin/Core/AssetManager.php:1122
 msgid "Confirm"
 msgstr "Onayla"
 
-#: src/Admin/Core/AssetManager.php:1123
+#: src/Admin/Core/AssetManager.php:1125
 #: src/Admin/Customers/CustomersPage.php:252
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
@@ -3899,33 +3880,33 @@ msgstr "Onayla"
 msgid "Edit"
 msgstr "Düzenle"
 
-#: src/Admin/Core/AssetManager.php:1125
+#: src/Admin/Core/AssetManager.php:1127
 #: src/Admin/Customers/CustomersPage.php:384
 msgid "Update"
 msgstr "Güncelle"
 
-#: src/Admin/Core/AssetManager.php:1126
+#: src/Admin/Core/AssetManager.php:1128
 #: templates/shortcodes/unified-search.php:184
 msgid "Search"
 msgstr "Arama"
 
-#: src/Admin/Core/AssetManager.php:1127 templates/account/bookings.php:110
+#: src/Admin/Core/AssetManager.php:1129 templates/account/bookings.php:110
 #: templates/account/bookings.php:147
 msgid "Filter"
 msgstr "Filtre"
 
-#: src/Admin/Core/AssetManager.php:1128
+#: src/Admin/Core/AssetManager.php:1130
 #: templates/shortcodes/contact-form.php:203
 msgid "Reset"
 msgstr "Sıfırla"
 
-#: src/Admin/Core/AssetManager.php:1130 src/Admin/Setup/SetupWizard.php:246
+#: src/Admin/Core/AssetManager.php:1132 src/Admin/Setup/SetupWizard.php:246
 #: src/Admin/Setup/SetupWizard.php:320 src/Admin/Setup/SetupWizard.php:447
 #: src/Admin/Setup/SetupWizard.php:520
 msgid "Back"
 msgstr "Geri"
 
-#: src/Admin/Core/AssetManager.php:1131
+#: src/Admin/Core/AssetManager.php:1133
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:395
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1092
 #: templates/account/payment-history.php:191
@@ -3936,7 +3917,7 @@ msgstr "Geri"
 msgid "Next"
 msgstr "Sonraki"
 
-#: src/Admin/Core/AssetManager.php:1132
+#: src/Admin/Core/AssetManager.php:1134
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:394
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1091
 #: templates/account/payment-history.php:176
@@ -3947,59 +3928,59 @@ msgstr "Sonraki"
 msgid "Previous"
 msgstr "Önceki"
 
-#: src/Admin/Core/AssetManager.php:1133
+#: src/Admin/Core/AssetManager.php:1135
 msgid "Submit"
 msgstr "Gönder"
 
-#: src/Admin/Core/AssetManager.php:1134
+#: src/Admin/Core/AssetManager.php:1136
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1492
 #: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Clear"
 msgstr "Temizle"
 
-#: src/Admin/Core/AssetManager.php:1136
+#: src/Admin/Core/AssetManager.php:1138
 msgid "Select None"
 msgstr "Hiçbirini Seçme"
 
-#: src/Admin/Core/AssetManager.php:1137
+#: src/Admin/Core/AssetManager.php:1139
 msgid "No data found"
 msgstr "Veri bulunamadı"
 
-#: src/Admin/Core/AssetManager.php:1138
+#: src/Admin/Core/AssetManager.php:1140
 msgid "No results found"
 msgstr "Sonuç bulunamadı"
 
-#: src/Admin/Core/AssetManager.php:1139
+#: src/Admin/Core/AssetManager.php:1141
 msgid "Please wait..."
 msgstr "Lütfen Bekleyin..."
 
-#: src/Admin/Core/AssetManager.php:1142
+#: src/Admin/Core/AssetManager.php:1144
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:306
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:83
 msgid "Please try again"
 msgstr "Lütfen tekrar deneyin"
 
-#: src/Admin/Core/AssetManager.php:1143
+#: src/Admin/Core/AssetManager.php:1145
 msgid "Operation completed successfully"
 msgstr "İşlem başarıyla tamamlandı"
 
-#: src/Admin/Core/AssetManager.php:1144
+#: src/Admin/Core/AssetManager.php:1146
 msgid "Operation failed"
 msgstr "Işlem başarısız oldu"
 
-#: src/Admin/Core/AssetManager.php:1146
+#: src/Admin/Core/AssetManager.php:1148
 msgid "This action cannot be undone"
 msgstr "Bu işlem geri alınamaz"
 
-#: src/Admin/Core/AssetManager.php:1147
+#: src/Admin/Core/AssetManager.php:1149
 msgid "Invalid input"
 msgstr "Giriş Geçersiz"
 
-#: src/Admin/Core/AssetManager.php:1148
+#: src/Admin/Core/AssetManager.php:1150
 msgid "Required field"
 msgstr "Zorunlu alan"
 
-#: src/Admin/Core/AssetManager.php:1149
+#: src/Admin/Core/AssetManager.php:1151
 msgid "Please fill all required fields"
 msgstr "Lütfen Gerekli tüm alanları doldurunuz"
 
@@ -5044,7 +5025,7 @@ msgid "Password must be at least %length% characters."
 msgstr "Şifre en az %length% karakter olmalıdır."
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
-#: src/Admin/Frontend/Account/AccountController.php:396
+#: src/Admin/Frontend/Account/AccountController.php:397
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 msgid "Passwords do not match."
 msgstr "Parolalar uyuşmuyor."
@@ -6042,7 +6023,7 @@ msgid "Uploading..."
 msgstr "Yükleniyor..."
 
 #: src/Admin/Frontend/Account/AccountController.php:390
-#: src/Admin/Frontend/Account/AccountController.php:696
+#: src/Admin/Frontend/Account/AccountController.php:703
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:70
 msgid "Receipt uploaded successfully."
 msgstr "Makbuz başarıyla yüklendi."
@@ -6053,134 +6034,138 @@ msgid "Receipt upload failed."
 msgstr "Makbuz yükleme başarısız."
 
 #: src/Admin/Frontend/Account/AccountController.php:392
+msgid "Are you sure you want to remove this receipt?"
+msgstr "Bu dekontu kaldırmak istediğinizden emin misiniz?"
+
+#: src/Admin/Frontend/Account/AccountController.php:393
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 msgid "Account details saved successfully."
 msgstr "Hesap bilgileri başarıyla kaydedildi."
 
-#: src/Admin/Frontend/Account/AccountController.php:393
+#: src/Admin/Frontend/Account/AccountController.php:394
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 msgid "Vehicle removed from favorites."
 msgstr "Araç favorilerden kaldırıldı."
 
-#: src/Admin/Frontend/Account/AccountController.php:394
+#: src/Admin/Frontend/Account/AccountController.php:395
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 msgid "Vehicle added to favorites."
 msgstr "Araç favorilere eklendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:395
+#: src/Admin/Frontend/Account/AccountController.php:396
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "All favorites cleared."
 msgstr "Tüm favoriler silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:397
+#: src/Admin/Frontend/Account/AccountController.php:398
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 msgid "Are you sure you want to cancel changes?"
 msgstr "Değişiklikleri iptal etmek istediğinizden emin misiniz?"
 
-#: src/Admin/Frontend/Account/AccountController.php:398
+#: src/Admin/Frontend/Account/AccountController.php:399
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 msgid "No favorite vehicles yet."
 msgstr "Henüz favori araç yok."
 
-#: src/Admin/Frontend/Account/AccountController.php:399
+#: src/Admin/Frontend/Account/AccountController.php:400
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:401
+#: src/Admin/Frontend/Account/AccountController.php:402
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:81
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr "Değişiklikleri Kaydet"
 
-#: src/Admin/Frontend/Account/AccountController.php:402
+#: src/Admin/Frontend/Account/AccountController.php:403
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 msgid "vehicle in your favorites"
 msgstr "favorilerinizdeki araç"
 
-#: src/Admin/Frontend/Account/AccountController.php:403
+#: src/Admin/Frontend/Account/AccountController.php:404
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:83
 msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
-#: src/Admin/Frontend/Account/AccountController.php:591
+#: src/Admin/Frontend/Account/AccountController.php:592
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:228
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:267
 #: src/Admin/Vehicle/Meta/BlockedDatesMetaBox.php:330
 msgid "Security error."
 msgstr "Güvenlik hatası."
 
-#: src/Admin/Frontend/Account/AccountController.php:595
+#: src/Admin/Frontend/Account/AccountController.php:596
 msgid "You must be logged in"
 msgstr "Lütfen Giriş Yapınız"
 
-#: src/Admin/Frontend/Account/AccountController.php:603
+#: src/Admin/Frontend/Account/AccountController.php:604
 msgid "All favorites cleared"
 msgstr "Tüm favoriler silindi"
 
-#: src/Admin/Frontend/Account/AccountController.php:616
-#: src/Admin/Frontend/Account/AccountController.php:709
+#: src/Admin/Frontend/Account/AccountController.php:617
+#: src/Admin/Frontend/Account/AccountController.php:739
 #: src/Admin/Payment/WooCommerce/RemainingPaymentHandler.php:50
 msgid "You must be logged in."
 msgstr "Giriş yapmalısınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:636
+#: src/Admin/Frontend/Account/AccountController.php:637
 msgid "You are not allowed to upload for this booking."
 msgstr "Bu rezervasyon için yükleme yapamazsınız."
 
-#: src/Admin/Frontend/Account/AccountController.php:640
+#: src/Admin/Frontend/Account/AccountController.php:641
 msgid "No file uploaded."
 msgstr "Dosya yüklenmedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:730
+#: src/Admin/Frontend/Account/AccountController.php:760
 msgid "You are not allowed to remove receipt for this booking."
 msgstr "Bu rezervasyonun makbuzunu silemezsiniz."
 
-#: src/Admin/Frontend/Account/AccountController.php:735
+#: src/Admin/Frontend/Account/AccountController.php:765
 msgid "No receipt found to remove."
 msgstr "Kaldırılacak makbuz bulunamadı."
 
-#: src/Admin/Frontend/Account/AccountController.php:748
+#: src/Admin/Frontend/Account/AccountController.php:778
 msgid "Receipt removed successfully."
 msgstr "Makbuz başarıyla silindi."
 
-#: src/Admin/Frontend/Account/AccountController.php:750
+#: src/Admin/Frontend/Account/AccountController.php:780
 msgid "Failed to remove receipt file."
 msgstr "Makbuz dosyası silinemedi."
 
-#: src/Admin/Frontend/Account/AccountController.php:768
+#: src/Admin/Frontend/Account/AccountController.php:798
 msgid "Please login."
 msgstr "Lütfen giriş yapın."
 
-#: src/Admin/Frontend/Account/AccountController.php:774
+#: src/Admin/Frontend/Account/AccountController.php:804
 #: templates/account/account-details.php:37
 msgid "Profile editing is currently disabled."
 msgstr "Profil düzenleme şu anda devre dışıdır."
 
-#: src/Admin/Frontend/Account/AccountController.php:817
+#: src/Admin/Frontend/Account/AccountController.php:847
 msgid "Account updated successfully."
 msgstr "Hesap başarıyla güncellendi."
 
-#: src/Admin/Frontend/Account/AccountController.php:821
+#: src/Admin/Frontend/Account/AccountController.php:851
 msgid "An error occurred while updating your account."
 msgstr "Hesabınızı güncellerken bir hata oluştu."
 
-#: src/Admin/Frontend/Account/AccountController.php:838
-#: src/Admin/Frontend/Account/AccountController.php:851
+#: src/Admin/Frontend/Account/AccountController.php:868
+#: src/Admin/Frontend/Account/AccountController.php:881
 msgid "This endpoint is deprecated. Please refresh your page."
 msgstr "Bu uç nokta kullanımdan kaldırılmıştır. Lütfen sayfanızı yenileyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:901
+#: src/Admin/Frontend/Account/AccountController.php:931
 msgid "You must be logged in to cancel a booking."
 msgstr "Rezervasyonu iptal etmek için oturum açmanız gerekir."
 
-#: src/Admin/Frontend/Account/AccountController.php:912
+#: src/Admin/Frontend/Account/AccountController.php:942
 msgid "Security verification failed. Please refresh and try again."
 msgstr ""
 "Güvenlik doğrulaması başarısız. Lütfen sayfayı yenileyin ve tekrar deneyin."
 
-#: src/Admin/Frontend/Account/AccountController.php:950
+#: src/Admin/Frontend/Account/AccountController.php:980
 msgid "Booking cancelled successfully. A confirmation email has been sent."
 msgstr "Rezervasyon başarıyla iptal edildi. Onay e-postası gönderildi."
 
@@ -6836,7 +6821,7 @@ msgid "Full Name"
 msgstr "Ad Soyad"
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:494
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:51
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
 #: templates/shortcodes/contact-form.php:88
 msgid "Company"
 msgstr "Şirket"
@@ -6847,13 +6832,13 @@ msgid "Preferred Date"
 msgstr "Tercih Edilen Tarih"
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:497
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:55
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:59
 #: templates/shortcodes/contact-form.php:128
 msgid "Priority"
 msgstr "Öncelik"
 
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:498
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:56
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:60
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:132
 #: templates/shortcodes/contact-form.php:146
 #: assets/blocks/featured-vehicles/index.js:30
@@ -6947,61 +6932,61 @@ msgstr "Mesajınız başarıyla alındı. En kısa sürede size geri dönüş ya
 msgid "Thank you,"
 msgstr "Teşekkür ederiz,"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:52
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:136
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:56
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:144
 msgid "Enquiry type"
 msgstr "Talep türü"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:58
 msgid "Preferred date"
 msgstr "Tercih edilen tarih"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:57
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:61
 #: templates/shortcodes/contact-form.php:173
 msgid "Attachment"
 msgstr "Ek dosya"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:58
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:62
 msgid "IP address"
 msgstr "IP adresi"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:59
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:63
 msgid "Browser user-agent"
 msgstr "Tarayıcı kullanıcı aracısı"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:60
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:64
 msgid "Submitted"
 msgstr "Gönderildi"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:87
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:91
 msgid "Submitted details"
 msgstr "Gönderilen bilgiler"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:163
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:165
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:171
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:173
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:179
 #: src/Admin/Utilities/Menu/Menu.php:111 src/Admin/Utilities/Menu/Menu.php:112
 msgid "Contact Messages"
 msgstr "İletişim Mesajları"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:164
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:166
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:172
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:174
 msgid "Contact Message"
 msgstr "İletişim Mesajı"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:167
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:175
 msgid "View Contact Message"
 msgstr "İletişim Mesajını Görüntüle"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:168
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:176
 msgid "Search Contact Messages"
 msgstr "İletişim Mesajlarını Ara"
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:169
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:177
 msgid "No contact messages found."
 msgstr "İletişim mesajı bulunamadı."
 
-#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:170
+#: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:178
 msgid "No contact messages found in Trash."
 msgstr "Çöp Kutusu'nda iletişim mesajı bulunamadı."
 
@@ -10511,7 +10496,7 @@ msgstr "Vergi oranları WooCommerce ayarları tarafından yönetilir."
 msgid "Tax rate percentage (e.g., 18 for 18%)"
 msgstr "Vergi oranı yüzdesi (örneğin, %18 için 18)"
 
-#: src/Admin/Settings/Groups/VehicleManagementSettings.php:326
+#: src/Admin/Settings/Groups/VehicleManagementSettings.php:346
 msgid "Multiplier"
 msgstr "Çarpan"
 
@@ -11809,12 +11794,6 @@ msgstr "Benzin"
 msgid "LPG"
 msgstr "LPG"
 
-#: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:225
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:88
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:190
-msgid "Automatic"
-msgstr "Otomatik"
-
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:226
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:90
 msgid "Semi-Automatic"
@@ -12097,44 +12076,47 @@ msgstr "En fazla %d resim ekleyebilirsiniz"
 msgid "Error occurred while uploading image"
 msgstr "Görüntü yüklenirken hata oluştu"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:209
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:267
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:310
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:137
+msgid "Error occurred while adding image"
+msgstr "Görsel eklenirken hata oluştu"
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:138
+msgid "Error occurred while removing image"
+msgstr "Görsel kaldırılırken hata oluştu"
+
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:211
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:269
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:312
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1247
 msgid "Security error"
 msgstr "Güvenlik Hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:219
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:275
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:318
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:221
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:277
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:320
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1261
 msgid "Permission error"
 msgstr "İzin hatası"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:225
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:281
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:324
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:227
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:283
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:326
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1268
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:1275
 msgid "Invalid data"
 msgstr "Geçersiz veri"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:255
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:257
 msgid "Images successfully added"
 msgstr "Görüntüler başarıyla eklendi"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:298
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:300
 msgid "Image successfully removed"
 msgstr "Görüntü başarıyla kaldırıldı"
 
-#: src/Admin/Vehicle/Meta/VehicleGallery.php:344
+#: src/Admin/Vehicle/Meta/VehicleGallery.php:346
 msgid "Images successfully reordered"
 msgstr "Görüntüler başarıyla yeniden sıralandı"
-
-#: src/Admin/Vehicle/Meta/VehicleMeta.php:72
-#: src/Admin/Vehicle/Templates/vehicle-meta.php:195
-msgid "Petrol"
-msgstr "Benzin"
 
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:77
 msgid "CNG"
@@ -15479,3 +15461,25 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#, php-format
+#~ msgid "Pickup date/time changed from %1$s %2$s to %3$s %4$s"
+#~ msgstr "Teslim alma tarihi/saati %1$s %2$s'den %3$s %4$s'e değiştirildi"
+
+#, php-format
+#~ msgid "Dropoff date/time changed from %1$s %2$s to %3$s %4$s"
+#~ msgstr "Teslim tarihi/saati %1$s %2$s'den %3$s %4$s'e değiştirildi"
+
+#, php-format
+#~ msgid "Number of guests changed from %1$d to %2$d"
+#~ msgstr "Misafir sayısı %1$d değerinden %2$d değerine değiştirildi"
+
+#, php-format
+#~ msgid "Payment method changed from %1$s to %2$s"
+#~ msgstr "Ödeme yöntemi %1$s değerinden %2$s değerine değiştirildi"
+
+#~ msgid "Booking updated: "
+#~ msgstr "Rezervasyon güncellendi: "
+
+#~ msgid "Booking updated successfully!"
+#~ msgstr "Rezervasyon başarıyla güncellendi!"

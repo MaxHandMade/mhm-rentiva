@@ -119,9 +119,10 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 					'nonce'   => wp_create_nonce( 'mhmrentiva_booking_edit_nonce' ),
 					'text'    => array(
-						'saving'  => __( 'Saving...', 'mhm-rentiva' ),
-						'error'   => __( 'An error occurred', 'mhm-rentiva' ),
-						'success' => __( 'Booking updated', 'mhm-rentiva' ),
+						'saving'              => __( 'Saving...', 'mhm-rentiva' ),
+						'error'               => __( 'An error occurred', 'mhm-rentiva' ),
+						'success'             => __( 'Booking updated', 'mhm-rentiva' ),
+						'currentLicensePlate' => __( 'Current License Plate:', 'mhm-rentiva' ),
 					),
 				)
 			);

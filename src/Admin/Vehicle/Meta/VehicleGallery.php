@@ -124,16 +124,18 @@ final class VehicleGallery extends AbstractMetaBox {
 				'nonce'     => wp_create_nonce( 'mhmrentiva_vehicle_gallery_nonce' ),
 				'maxImages' => $max_gallery_images,
 				'strings'   => array(
-					'selectImages'  => __( 'Select Images', 'mhm-rentiva' ),
-					'addImages'     => __( 'Add Image', 'mhm-rentiva' ),
-					'removeImage'   => __( 'Remove Image', 'mhm-rentiva' ),
-					'setAsFeatured' => __( 'Set as Featured Image', 'mhm-rentiva' ),
-					'noImages'      => __( 'No images added yet', 'mhm-rentiva' ),
+					'selectImages'     => __( 'Select Images', 'mhm-rentiva' ),
+					'addImages'        => __( 'Add Image', 'mhm-rentiva' ),
+					'removeImage'      => __( 'Remove Image', 'mhm-rentiva' ),
+					'setAsFeatured'    => __( 'Set as Featured Image', 'mhm-rentiva' ),
+					'noImages'         => __( 'No images added yet', 'mhm-rentiva' ),
 					/* translators: %d: maximum number of images */
-					'maxImages'     => sprintf( __( 'You can add maximum %d images', 'mhm-rentiva' ), $max_gallery_images ),
-					'confirmRemove' => __( 'Are you sure you want to remove this image?', 'mhm-rentiva' ),
-					'uploading'     => __( 'Uploading...', 'mhm-rentiva' ),
-					'uploadError'   => __( 'Error occurred while uploading image', 'mhm-rentiva' ),
+					'maxImages'        => sprintf( __( 'You can add maximum %d images', 'mhm-rentiva' ), $max_gallery_images ),
+					'confirmRemove'    => __( 'Are you sure you want to remove this image?', 'mhm-rentiva' ),
+					'uploading'        => __( 'Uploading...', 'mhm-rentiva' ),
+					'uploadError'      => __( 'Error occurred while uploading image', 'mhm-rentiva' ),
+					'addImageError'    => __( 'Error occurred while adding image', 'mhm-rentiva' ),
+					'removeImageError' => __( 'Error occurred while removing image', 'mhm-rentiva' ),
 				),
 			)
 		);

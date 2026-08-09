@@ -389,6 +389,7 @@ final class AccountController {
 					'uploading'              => __('Uploading...', 'mhm-rentiva'),
 					'upload_success'         => __('Receipt uploaded successfully.', 'mhm-rentiva'),
 					'upload_error'           => __('Receipt upload failed.', 'mhm-rentiva'),
+					'confirm_remove_receipt' => __('Are you sure you want to remove this receipt?', 'mhm-rentiva'),
 					'savedSuccessfully'      => __('Account details saved successfully.', 'mhm-rentiva'),
 					'removedFromFavorites'   => __('Vehicle removed from favorites.', 'mhm-rentiva'),
 					'addedToFavorites'       => __('Vehicle added to favorites.', 'mhm-rentiva'),
