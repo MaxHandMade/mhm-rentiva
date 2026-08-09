@@ -846,6 +846,10 @@ final class PrefixMigrationMap {
      *
      * DatabaseMigrator's index-cleanup and multi-tenant circuit-breaker state
      * was introduced after the 6.0.0 rename and therefore has no legacy key.
+     * The rewrite-rules stamp is newer still: it records which generation of
+     * this plugin's rewrite rules the site last flushed, so renaming a
+     * registered query var cannot leave stale rules resolving a var that no
+     * longer exists. It is swept by the uninstaller's `mhmrentiva_%` LIKE.
      *
      * @var array<int,string>
      */
@@ -854,5 +858,6 @@ final class PrefixMigrationMap {
         'mhmrentiva_index_cleanup_unfinished',
         'mhmrentiva_multi_tenant_migration_attempts',
         'mhmrentiva_multi_tenant_migration_blocked',
+        'mhmrentiva_rewrite_rules_version',
     ];
 }
