@@ -296,6 +296,15 @@ final class VehicleManagementSettings {
 	public static function render_seasonal_multipliers_field(): void {
 		$seasonal_multipliers = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_seasonal_multipliers();
 
+		// Season name/description are translatable labels, not data. The sanitizer
+		// seeds the whole seasonal block from get_default_settings() -- resolving
+		// __() in the locale active at save time -- and persists it, so reading the
+		// stored 'name'/'description' back would freeze that locale forever (a
+		// Turkish site kept showing "Spring"/"Standard pricing"). Re-derive the
+		// label from the canonical defaults, keyed by season slug, on every render;
+		// only the multiplier below is user data and still comes from the store.
+		$canonical_seasons = \MHMRentiva\Admin\Vehicle\Settings\VehiclePricingSettings::get_default_settings()['seasonal_multipliers'] ?? array();
+
 		foreach ( $seasonal_multipliers as $key => $season ) {
 			// A stored season entry is not guaranteed to be an array. The
 			// programmatic settings path passes array values through untouched
@@ -317,9 +326,20 @@ final class VehicleManagementSettings {
 			// one, and it is still perfectly editable -- it just has no name or
 			// description to print. `is_numeric()` on the multiplier mirrors
 			// the read path's own check, so a non-scalar cannot reach esc_attr().
-			$name        = isset( $season['name'] ) && is_scalar( $season['name'] ) ? (string) $season['name'] : (string) $key;
-			$description = isset( $season['description'] ) && is_scalar( $season['description'] ) ? (string) $season['description'] : '';
-			$multiplier  = isset( $season['multiplier'] ) && is_numeric( $season['multiplier'] ) ? (string) $season['multiplier'] : '1';
+			// Prefer the canonical (freshly translated) label for a known season
+			// slug; fall back to the stored value, then the slug, for any custom
+			// season an install may carry that the defaults do not describe.
+			$canonical = ( isset( $canonical_seasons[ $key ] ) && is_array( $canonical_seasons[ $key ] ) ) ? $canonical_seasons[ $key ] : array();
+
+			$name = isset( $canonical['name'] ) && is_scalar( $canonical['name'] )
+				? (string) $canonical['name']
+				: ( isset( $season['name'] ) && is_scalar( $season['name'] ) ? (string) $season['name'] : (string) $key );
+
+			$description = isset( $canonical['description'] ) && is_scalar( $canonical['description'] )
+				? (string) $canonical['description']
+				: ( isset( $season['description'] ) && is_scalar( $season['description'] ) ? (string) $season['description'] : '' );
+
+			$multiplier = isset( $season['multiplier'] ) && is_numeric( $season['multiplier'] ) ? (string) $season['multiplier'] : '1';
 
 			echo '<div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">';
 			echo '<h4>' . esc_html( $name ) . '</h4>';
