@@ -122,7 +122,7 @@ final class Uninstaller {
 	 *
 	 * @return array<int,string>
 	 */
-	private static function plugin_cron_hooks(): array {
+	public static function plugin_cron_hooks(): array {
 		$hooks = array(
 			'mhmrentiva_auto_cancel_event',
 			'mhmrentiva_send_scheduled_notifications',

@@ -570,10 +570,23 @@ add_action(
 	}
 );
 
-// Deactivation hook - rewrite flush
+// Deactivation hook - clear this plugin's scheduled events, then flush rewrites.
+//
+// A deactivated plugin's cron events keep their rows in the cron array and keep
+// coming due forever with no callback listening, so WordPress re-queues them on
+// every request for the life of the site. Reactivation reschedules them: every
+// scheduler here is guarded by wp_next_scheduled(), so this is symmetric, not
+// destructive. The hook list is the uninstaller's, so the two paths cannot
+// drift apart.
 register_deactivation_hook(
 	__FILE__,
 	function () {
+		if ( class_exists( '\MHMRentiva\Admin\Utilities\Uninstall\Uninstaller' ) ) {
+			foreach ( \MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::plugin_cron_hooks() as $mhmrentiva_hook ) {
+				wp_unschedule_hook( $mhmrentiva_hook );
+			}
+		}
+
 		flush_rewrite_rules();
 	}
 );

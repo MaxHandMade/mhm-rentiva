@@ -79,6 +79,17 @@ if ( ! is_array( $settings ) ) {
 }
 $clean_on_uninstall = isset( $settings['mhmrentiva_clean_data_on_uninstall'] ) && $settings['mhmrentiva_clean_data_on_uninstall'] === '1';
 
+// Scheduled events are cleared REGARDLESS of that setting. The setting exists so
+// a site owner can keep their bookings, vehicles and settings after deleting the
+// plugin; a cron row whose callback no longer exists is not data anyone chose to
+// keep, and WordPress would re-queue it on every request forever. This runs
+// before the opt-out below so opting out cannot leave the schedule behind.
+if ( class_exists( 'MHMRentiva\Admin\Utilities\Uninstall\Uninstaller' ) ) {
+	foreach ( MHMRentiva\Admin\Utilities\Uninstall\Uninstaller::plugin_cron_hooks() as $mhmrentiva_hook ) {
+		wp_unschedule_hook( $mhmrentiva_hook );
+	}
+}
+
 // If user hasn't enabled this option, exit without cleaning
 if ( ! $clean_on_uninstall ) {
 	return;

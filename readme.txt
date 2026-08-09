@@ -63,7 +63,7 @@ The **activity log** records, for each entry, the IP address and browser user-ag
 
 The **e-mail log** records, for each message sent through the plugin's notification system, the recipient address, the subject, whether delivery succeeded, and the booking details the message was built from — which for a booking e-mail means the customer's name, contact details and rental dates. The assembled message body itself is not stored. This log has its own retention setting on the same terms (also 30 days by default).
 
-Booking records themselves do not store an IP address on the current booking flow: bookings placed through WooCommerce checkout, and those an administrator enters by hand, record none. A direct booking endpoint that no part of the current interface posts to does write one, so records created by older versions or by custom integrations may carry an IP address and user-agent; where they exist they have no expiry and go only when the booking is permanently deleted.
+Booking records themselves do not store an IP address: no code path in this version writes one, whether the booking comes through WooCommerce checkout or an administrator enters it by hand. Records created by older versions may still carry an IP address and user-agent; where they exist they have no expiry and go only when the booking is permanently deleted.
 
 If you keep a privacy policy, these are the parts of the plugin it should describe.
 
