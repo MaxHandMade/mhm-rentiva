@@ -513,7 +513,12 @@ final class ContactForm extends AbstractShortcode {
 			'post_title'   => sprintf(__('Contact Message - %s', 'mhm-rentiva'), $data['name']),
 			'post_content' => $data['message'],
 			'post_status'  => 'private',
-			'post_author'  => 1,
+			// No author. Hardcoding 1 made whoever holds that ID the owner of
+			// every contact message, and `wp_delete_user( 1, $reassign )` hands
+			// ownership -- and with `post` capability mapping, read and delete
+			// rights -- to the reassignment target, which can be a role far
+			// below administrator.
+			'post_author'  => 0,
 			'meta_input'   => array(
 				'_mhmrentiva_contact_type'           => $data['type'],
 				'_mhmrentiva_contact_name'           => $data['name'],

@@ -270,6 +270,29 @@ final class Uninstaller {
 			++$results['posts_deleted'];
 		}
 
+		// 3b. Delete the plugin's own log and contact records.
+		//
+		// Step 4's `_mhmrentiva%` postmeta sweep strips the meta but leaves the
+		// wp_posts row, and for a contact message that row still holds the
+		// sender's name in post_title and their whole message in post_content
+		// -- personal data surviving under a post type that is unregistered
+		// again the moment the plugin is gone, which is precisely the
+		// unreachable state this release exists to end. Deleted by exact type,
+		// each of which is this plugin's alone.
+		$owned_records = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type IN ( %s, %s, %s )",
+				'mhmrentiva_contact',
+				'mhmrentiva_app_log',
+				'mhmrentiva_email_log'
+			)
+		);
+
+		foreach ( $owned_records as $post_id ) {
+			wp_delete_post( $post_id, true );
+			++$results['posts_deleted'];
+		}
+
 		// 4. Delete all postmeta - using prepare for LIKE pattern. Scoped to
 		// this plugin's own '_mhmrentiva%' prefix (every other step in this
 		// method already scopes to 'mhmrentiva%'/'_mhmrentiva%'; the

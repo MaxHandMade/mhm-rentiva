@@ -92,16 +92,25 @@ final class Menu {
 			'edit.php?post_type=mhmrentiva_addon'
 		);
 
-		// 5b. Contact Messages. Gated on `edit_others_posts` -- the same
-		// capability the post type's own `post` mapping enforces on the screen
-		// itself, so the menu entry cannot promise a page the user is then
-		// refused. Each row holds submitter PII, which is why it is not on the
-		// generic manage_options bar with the operational screens.
+		// 5b. Contact Messages -- rows holding submitter PII (name, e-mail,
+		// phone, IP, user-agent).
+		//
+		// `manage_options`, matching the parent menu and every other screen
+		// here, and NOT the post type's inherited `edit_others_posts`. A
+		// submenu whose capability is weaker than its parent's does not widen
+		// access, it breaks: WordPress strips the manage_options siblings for
+		// such a user, re-parents this entry into the empty top-level slot but
+		// leaves the parent's own capability in place, so the menu renders and
+		// then answers "you are not allowed" (measured on WP 7.0.3 with an
+		// editor and a shop_manager). Raising it also keeps a promise the
+		// plugin has always kept in practice: no role below administrator has
+		// ever been able to read these messages, and this screen is not the
+		// place to start.
 		add_submenu_page(
 			'mhm-rentiva',
 			__('Contact Messages', 'mhm-rentiva'),
 			__('Contact Messages', 'mhm-rentiva'),
-			'edit_others_posts',
+			'manage_options',
 			'edit.php?post_type=mhmrentiva_contact'
 		);
 
