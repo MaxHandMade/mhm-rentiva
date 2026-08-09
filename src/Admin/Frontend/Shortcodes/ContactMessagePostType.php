@@ -223,6 +223,13 @@ final class ContactMessagePostType {
                 'rewrite'         => false,
                 'query_var'       => false,
                 'show_in_rest'    => false,
+                // Tools -> Export would walk straight past every capability
+                // above: wp-admin/export.php gates on the `export` capability
+                // alone, export_wp() contains no capability check of its own,
+                // and a shop manager holds `export`. Without this, one click
+                // hands them a WXR file with each sender's e-mail address,
+                // phone number, IP and user-agent in it.
+                'can_export'      => false,
                 'menu_icon'       => 'dashicons-email-alt',
             )
         );

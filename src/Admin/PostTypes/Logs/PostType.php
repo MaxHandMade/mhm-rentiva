@@ -48,6 +48,10 @@ final class PostType {
 				'has_archive'     => false,
 				'rewrite'         => false,
 				'show_in_rest'    => false,
+				// See the note on the contact type: Tools -> Export gates on the
+				// `export` capability alone, and these rows carry the IP address and
+				// user-agent of every logged request.
+				'can_export'      => false,
 			)
 		);
 	}

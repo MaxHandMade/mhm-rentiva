@@ -48,6 +48,12 @@ final class EmailLog {
 				'has_archive'     => false,
 				'rewrite'         => false,
 				'show_in_rest'    => false,
+				// Tools -> Export gates on the `export` capability alone and calls no
+				// per-type check, so a shop manager -- who holds it -- could dump
+				// every row of this type, recipient addresses and all, straight past
+				// the capability gate above. Nothing here is content anyone should
+				// be moving between sites.
+				'can_export'      => false,
 			)
 		);
 	}

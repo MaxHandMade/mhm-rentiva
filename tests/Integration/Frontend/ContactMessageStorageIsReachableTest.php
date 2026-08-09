@@ -38,6 +38,25 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 		$this->assertFalse($object->query_var, 'The type claims no public query var.');
 		$this->assertFalse($object->show_in_rest, 'These rows are not REST-exposed.');
 		$this->assertFalse($object->has_archive);
+		$this->assertFalse(
+			$object->can_export,
+			'Tools -> Export gates on the `export` capability alone and export_wp() checks nothing per type, '
+			. 'so leaving this true would hand a shop manager a WXR file of every sender\'s e-mail, phone and IP.'
+		);
+	}
+
+	/**
+	 * Same class, swept: none of this plugin's internal record types may be
+	 * exportable, because that path bypasses their capability gates entirely.
+	 */
+	public function test_no_internal_record_type_is_exportable(): void
+	{
+		foreach (array( 'mhmrentiva_contact', 'mhmrentiva_app_log', 'mhmrentiva_email_log' ) as $type) {
+			$object = get_post_type_object($type);
+
+			$this->assertNotNull($object, sprintf('%s must be registered.', $type));
+			$this->assertFalse($object->can_export, sprintf('%s must not be reachable through Tools -> Export.', $type));
+		}
 	}
 
 	/**
