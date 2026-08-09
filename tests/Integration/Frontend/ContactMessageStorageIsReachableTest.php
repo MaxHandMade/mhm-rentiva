@@ -60,6 +60,33 @@ final class ContactMessageStorageIsReachableTest extends \WP_UnitTestCase
 	}
 
 	/**
+	 * `edit.php` gates a list screen on the post type's own `edit_posts`, so a
+	 * type with an admin UI that inherits `post` is reachable by URL by anyone
+	 * who can write a post. Both record types with a UI hold personal data --
+	 * the contact rows and the activity log's per-request IP and user-agent --
+	 * so both must gate on manage_options.
+	 */
+	public function test_record_screens_with_a_ui_are_administrator_only(): void
+	{
+		foreach (array( 'mhmrentiva_contact', 'mhmrentiva_app_log' ) as $type) {
+			$object = get_post_type_object($type);
+
+			$this->assertNotNull($object);
+			$this->assertSame(
+				'manage_options',
+				$object->cap->edit_posts,
+				sprintf('%s: edit.php gates on this capability, so an author would otherwise reach the list.', $type)
+			);
+			$this->assertSame('manage_options', $object->cap->read_private_posts, $type);
+			$this->assertSame('manage_options', $object->cap->delete_posts, $type);
+		}
+
+		$author = self::factory()->user->create(array( 'role' => 'author' ));
+		wp_set_current_user($author);
+		$this->assertFalse(current_user_can(get_post_type_object('mhmrentiva_app_log')->cap->edit_posts));
+	}
+
+	/**
 	 * Submissions come from the form only. An "Add New" screen would be a
 	 * blank record with none of the meta the list screen reads.
 	 */

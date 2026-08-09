@@ -42,7 +42,24 @@ final class PostType {
 				'show_ui'         => true,
 				'show_in_menu'    => false, // Manually added in Menu.php
 				'supports'        => array( 'title', 'editor' ),
-				'capability_type' => 'post',
+				// Same reasoning as the contact type: `edit.php` gates on the POST
+				// TYPE's `edit_posts`, and inheriting `post` let an author or
+				// contributor reach this screen by URL. Every row here carries the
+				// IP address and browser user-agent of a logged request.
+				'capability_type' => array( 'mhmrentiva_log', 'mhmrentiva_logs' ),
+				'capabilities'    => array(
+					'create_posts'           => 'do_not_allow',
+					'edit_posts'             => 'manage_options',
+					'edit_others_posts'      => 'manage_options',
+					'edit_private_posts'     => 'manage_options',
+					'edit_published_posts'   => 'manage_options',
+					'read_private_posts'     => 'manage_options',
+					'delete_posts'           => 'manage_options',
+					'delete_others_posts'    => 'manage_options',
+					'delete_private_posts'   => 'manage_options',
+					'delete_published_posts' => 'manage_options',
+					'publish_posts'          => 'manage_options',
+				),
 				'map_meta_cap'    => true,
 				'menu_position'   => null,
 				'has_archive'     => false,
