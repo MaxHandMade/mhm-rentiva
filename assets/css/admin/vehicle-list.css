@@ -1,0 +1,262 @@
+/*
+ * Vehicle list screen — refined WP-admin skin (Faz 1b, admin redesign
+ * recipe). Same token language as booking-list.css; everything scoped
+ * under the .mhm-vehicle-list body class. Light-committed: text colors
+ * are pinned explicitly so the dark-scheme token flip in
+ * css-variables.css cannot wash them out (measured on the bookings
+ * round).
+ */
+
+/* ── Table as a white rounded card ── */
+.mhm-vehicle-list .wp-list-table {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+	border-spacing: 0;
+}
+
+.mhm-vehicle-list .wp-list-table thead th,
+.mhm-vehicle-list .wp-list-table thead td {
+	background: #fafbfc;
+	color: #646970;
+	font-weight: 600;
+	border-bottom: 1px solid #eceef1;
+	padding-top: 12px;
+	padding-bottom: 12px;
+}
+
+.mhm-vehicle-list .wp-list-table tbody th,
+.mhm-vehicle-list .wp-list-table tbody td {
+	border-bottom: 1px solid #f2f3f5;
+	padding-top: 11px;
+	padding-bottom: 11px;
+	vertical-align: middle;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .wp-list-table tbody tr:hover td,
+.mhm-vehicle-list .wp-list-table tbody tr:hover th {
+	background-color: #fafbfc;
+}
+
+.mhm-vehicle-list .wp-list-table tfoot th,
+.mhm-vehicle-list .wp-list-table tfoot td {
+	background: #fafbfc;
+	border-top: none;
+}
+
+.mhm-vehicle-list .wp-list-table.striped > tbody > :nth-child(odd) {
+	background-color: transparent;
+}
+
+/* ── Category chip strip ── */
+.mhm-vehicle-list .rv-vhl-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 14px 0 4px;
+}
+
+.mhm-vehicle-list .rv-vhl-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 6px 13px;
+	border: 1px solid #dcdde1;
+	border-radius: 999px;
+	background: #fff;
+	color: #50575e;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-vehicle-list .rv-vhl-chip:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-vhl-chip.is-active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .rv-vhl-chip__count {
+	opacity: 0.7;
+}
+
+/* ── Feature chips in the consolidated column ── */
+.mhm-vehicle-list .rv-vhl-features {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.mhm-vehicle-list .rv-vhl-feature {
+	font-size: 12px;
+	padding: 2px 9px;
+	border-radius: 6px;
+	background: #f0f2f5;
+	color: #50575e;
+	white-space: nowrap;
+}
+
+/* ── Status pills (Available column) ── */
+.mhm-vehicle-list .badge {
+	display: inline-block;
+	padding: 3px 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .badge.status-active {
+	background-color: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-vehicle-list .badge.status-inactive {
+	background-color: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-vehicle-list .badge.status-maintenance {
+	background-color: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-vehicle-list .badge.status-default {
+	background-color: #f0f2f5;
+	color: #50575e;
+}
+
+/* ── Featured star ── */
+.mhm-vehicle-list .rv-vhl-star {
+	font-size: 18px;
+	color: #c3c4c7;
+	line-height: 1;
+}
+
+.mhm-vehicle-list .rv-vhl-star.is-featured {
+	color: #dba617;
+}
+
+/* ── License plate ── */
+.mhm-vehicle-list .column-mhmrentiva_license_plate {
+	font-family: ui-monospace, Consolas, monospace;
+	font-size: 12px;
+	color: #50575e;
+}
+
+/* ── KPI band (body+2class specificity beats the shared gradients) ── */
+body.mhm-vehicle-list .mhm-stats-grid {
+	gap: 14px;
+	margin: 14px 0 4px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card,
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(1),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(2),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(3),
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card:nth-child(4) {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 16px 18px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card .dashicons {
+	color: #8a8f98;
+	background: #f4f5f7;
+	border-radius: 8px;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #646970;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__value {
+	font-size: 26px;
+	font-weight: 700;
+	line-height: 1.1;
+	color: #1d2327;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card__sub {
+	color: #8a8f98;
+	opacity: 1;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-active-today .mhm-stat-card__value {
+	color: #0a6b1e;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-occupancy .mhm-stat-card__value {
+	color: #135e96;
+}
+
+body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__value {
+	color: #135e96;
+}
+
+/* ── Toolbar refinements ── */
+.mhm-vehicle-list .page-title-action {
+	background: #2271b1;
+	border: 1px solid #2271b1;
+	border-radius: 8px;
+	color: #fff;
+	font-weight: 600;
+	padding: 5px 14px;
+}
+
+.mhm-vehicle-list .page-title-action:hover,
+.mhm-vehicle-list .page-title-action:focus {
+	background: #135e96;
+	border-color: #135e96;
+	color: #fff;
+}
+
+.mhm-vehicle-list #post-search-input,
+.mhm-vehicle-list select.postform,
+.mhm-vehicle-list .tablenav select,
+.mhm-vehicle-list .tablenav input[type="text"] {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background-color: #fff;
+	padding: 6px 12px;
+	font-size: 13px;
+	box-shadow: none;
+}
+
+.mhm-vehicle-list .tablenav .button,
+.mhm-vehicle-list #search-submit {
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+}
+
+.mhm-vehicle-list .tablenav .button:hover,
+.mhm-vehicle-list #search-submit:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+/* ── Calendar card harmonization (function untouched) ── */
+.mhm-vehicle-list .mhm-calendars {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+}

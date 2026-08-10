@@ -511,11 +511,23 @@ final class VehicleColumns {
 		global $post_type;
 
 		if ($post_type === 'mhmrentiva_vehicle' && $hook === 'edit.php') {
+			// Skin scope for the refined list screen.
+			add_filter('admin_body_class', array( self::class, 'add_body_class' ));
+
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-quick-edit',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/components/vehicle-quick-edit.js',
 				array( 'jquery' ),
-				MHMRENTIVA_VERSION,
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/components/vehicle-quick-edit.js'),
+				true
+			);
+
+			// Layout relocation (title → KPI → chips → table → calendar).
+			wp_enqueue_script(
+				'mhm-rentiva-vehicle-list-ui',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-list-ui.js',
+				array( 'jquery' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/vehicle-list-ui.js'),
 				true
 			);
 
@@ -524,14 +536,14 @@ final class VehicleColumns {
 				'mhm-rentiva-stats-cards',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/components/stats-cards.css')
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
 				MHMRENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('src-react/shared/admin.css')
 			);
 
 			// Load calendar CSS
@@ -539,7 +551,7 @@ final class VehicleColumns {
 				'mhm-rentiva-calendars',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/components/calendars.css')
 			);
 
 			// Load booking calendar CSS (popup + legend styles)
@@ -547,7 +559,15 @@ final class VehicleColumns {
 				'mhm-rentiva-booking-calendar',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/booking-calendar.css')
+			);
+
+			// Refined skin — loads AFTER the shared stylesheets it overrides.
+			wp_enqueue_style(
+				'mhm-rentiva-vehicle-list',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-list.css',
+				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/vehicle-list.css')
 			);
 
 			// Inline critical popup styles — guarantees correct rendering regardless of cache
@@ -570,7 +590,7 @@ final class VehicleColumns {
 				'mhm-rentiva-vehicle-calendar-popup',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
 				array( 'jquery' ),
-				MHMRENTIVA_VERSION,
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/vehicle-calendar-popup.js'),
 				true
 			);
 
@@ -589,6 +609,14 @@ final class VehicleColumns {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Body class for the refined vehicle-list skin scope.
+	 */
+	public static function add_body_class(string $classes): string
+	{
+		return $classes . ' mhm-vehicle-list';
 	}
 
 	/**
