@@ -126,8 +126,11 @@ final class VehicleColumns {
 		// Add statistics cards
 		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
 
+		// Category chip strip between the KPI band and the calendar.
+		add_action('admin_notices', array( self::class, 'category_chips' ), 15);
+
 		// Add monthly reservation calendar
-		add_action('admin_notices', array( self::class, 'add_monthly_calendar' ));
+		add_action('admin_notices', array( self::class, 'add_monthly_calendar' ), 20);
 	}
 
 	/**
@@ -564,6 +567,56 @@ final class VehicleColumns {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Category chip strip — links carrying the taxonomy's own registered
+	 * query var (`mhmrentiva_vehicle_category`), the same URL contract the
+	 * native admin column's term links use, so filtering stays native.
+	 * Terms with zero vehicles stay out of the strip.
+	 */
+	public static function category_chips(): void
+	{
+		global $pagenow, $post_type;
+
+		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
+			return;
+		}
+
+		$terms = get_terms(
+			array(
+				'taxonomy'   => \MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::TAXONOMY,
+				'hide_empty' => true,
+			)
+		);
+
+		if (is_wp_error($terms) || empty($terms)) {
+			return;
+		}
+
+		$current = (string) get_query_var(\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::TAXONOMY);
+		$base    = admin_url('edit.php?post_type=mhmrentiva_vehicle');
+
+		echo '<div class="rv-vhl-chips">';
+
+		printf(
+			'<a class="rv-vhl-chip%s" href="%s">%s</a>',
+			'' === $current ? ' is-active' : '',
+			esc_url($base),
+			esc_html__('All', 'mhm-rentiva')
+		);
+
+		foreach ($terms as $term) {
+			printf(
+				'<a class="rv-vhl-chip%s" href="%s">%s <span class="rv-vhl-chip__count">%d</span></a>',
+				$current === $term->slug ? ' is-active' : '',
+				esc_url(add_query_arg(\MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::TAXONOMY, $term->slug, $base)),
+				esc_html($term->name),
+				absint($term->count)
+			);
+		}
+
+		echo '</div>';
 	}
 
 	/**
