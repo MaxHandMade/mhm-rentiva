@@ -163,12 +163,12 @@ final class VehicleColumns {
 			$cols['mhmrentiva_location'] = __('Location', 'mhm-rentiva');
 		}
 		$cols['mhmrentiva_price_per_day'] = __('Price/Day', 'mhm-rentiva');
-		$cols['mhmrentiva_seats']         = __('Seats', 'mhm-rentiva');
-		$cols['mhmrentiva_transmission']  = __('Transmission', 'mhm-rentiva');
-		$cols['mhmrentiva_fuel_type']     = __('Fuel', 'mhm-rentiva');
-		$cols['mhmrentiva_available']     = __('Available', 'mhm-rentiva');
-		$cols['mhmrentiva_lifecycle']     = __('Lifecycle', 'mhm-rentiva');
-		$cols['mhmrentiva_featured']      = __('Featured', 'mhm-rentiva');
+		// Seats + Transmission + Fuel consolidated into one chip cell
+		// (mockup); their quick-edit fields re-anchor to this column.
+		$cols['mhmrentiva_features']  = __('Features', 'mhm-rentiva');
+		$cols['mhmrentiva_available'] = __('Available', 'mhm-rentiva');
+		$cols['mhmrentiva_lifecycle'] = __('Lifecycle', 'mhm-rentiva');
+		$cols['mhmrentiva_featured']  = __('Featured', 'mhm-rentiva');
 
 		if ($date !== null) {
 			$cols['date'] = $date;
@@ -217,21 +217,37 @@ final class VehicleColumns {
 				}
 				break;
 
-			case 'mhmrentiva_seats':
-				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
-				echo $v > 0 ? esc_html( (string) $v) : '—';
-				break;
+			case 'mhmrentiva_features':
+				$chips = array();
 
-			case 'mhmrentiva_transmission':
-				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
-				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
-				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
-				break;
+				$seats = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
+				if ($seats > 0) {
+					/* translators: %d: seat count */
+					$chips[] = sprintf(_n('%d seat', '%d seats', $seats, 'mhm-rentiva'), $seats);
+				}
 
-			case 'mhmrentiva_fuel_type':
-				$map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
-				$v   = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FUEL_TYPE, true);
-				echo isset($map[ $v ]) ? esc_html($map[ $v ]) : '—';
+				$trans_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+				$trans     = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
+				if (isset($trans_map[ $trans ])) {
+					$chips[] = $trans_map[ $trans ];
+				}
+
+				$fuel_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
+				$fuel     = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_FUEL_TYPE, true);
+				if (isset($fuel_map[ $fuel ])) {
+					$chips[] = $fuel_map[ $fuel ];
+				}
+
+				if (empty($chips)) {
+					echo '—';
+					break;
+				}
+
+				echo '<span class="rv-vhl-features">';
+				foreach ($chips as $chip) {
+					echo '<span class="rv-vhl-feature">' . esc_html($chip) . '</span>';
+				}
+				echo '</span>';
 				break;
 
 			case 'mhmrentiva_available':
@@ -263,10 +279,10 @@ final class VehicleColumns {
 				);
 				$label  = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($v);
 
-				echo '<span class="vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '" style="color: ' . esc_attr($config['color']) . '; font-weight: bold;">';
-				echo $config['icon'] ? esc_html($config['icon']) . ' ' : '';
+				// Soft pill — the skin styles the status-* class; the emoji and
+				// inline color gave way to the badge family.
+				echo '<span class="badge vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '">';
 				echo esc_html($label);
-
 				echo '</span>';
 				break;
 
@@ -283,7 +299,11 @@ final class VehicleColumns {
 
 			case 'mhmrentiva_featured':
 				$is_featured = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_featured($post_id);
-				echo $is_featured ? esc_html__('Yes', 'mhm-rentiva') : esc_html__('No', 'mhm-rentiva');
+				if ($is_featured) {
+					echo '<span class="rv-vhl-star is-featured" title="' . esc_attr__('Featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('Yes', 'mhm-rentiva') . '">&#9733;</span>';
+				} else {
+					echo '<span class="rv-vhl-star" title="' . esc_attr__('Not featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('No', 'mhm-rentiva') . '">&#9734;</span>';
+				}
 				break;
 		}
 	}
@@ -297,7 +317,9 @@ final class VehicleColumns {
 	public static function sortable(array $cols): array
 	{
 		$cols['mhmrentiva_price_per_day'] = 'mhmrentiva_price_per_day';
-		$cols['mhmrentiva_seats']         = 'mhmrentiva_seats';
+		// The consolidated Features column sorts by seat count — keeps the
+		// old Seats column's sorting capability alive.
+		$cols['mhmrentiva_features'] = 'mhmrentiva_seats';
 		// Only sortable when the Location column is actually registered.
 		if (self::has_locations()) {
 			$cols['mhmrentiva_location'] = 'mhmrentiva_location';
@@ -1467,7 +1489,10 @@ final class VehicleColumns {
 				echo '</fieldset>';
 				break;
 
-			case 'mhmrentiva_seats':
+			case 'mhmrentiva_features':
+				// The consolidated Features column carries all three quick-edit
+				// fields its source columns used to render — same field names,
+				// save_quick_edit() unchanged.
 				$max_seats = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_vehicle_max_seats', 100);
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
@@ -1477,9 +1502,7 @@ final class VehicleColumns {
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
-				break;
 
-			case 'mhmrentiva_transmission':
 				$transmission_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
@@ -1493,9 +1516,7 @@ final class VehicleColumns {
 				echo '</label>';
 				echo '</div>';
 				echo '</fieldset>';
-				break;
 
-			case 'mhmrentiva_fuel_type':
 				$fuel_types = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_fuel_types();
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
