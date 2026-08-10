@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T11:31:39+00:00\n"
+"POT-Creation-Date: 2026-08-10T11:45:54+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -804,12 +804,12 @@ msgid "Only active additional services are visible in booking form."
 msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:112
-#: src/Admin/Customers/AddCustomerPage.php:141
-#: src/Admin/Customers/AddCustomerPage.php:146
-#: src/Admin/Customers/AddCustomerPage.php:151
-#: src/Admin/Customers/CustomersPage.php:448
-#: src/Admin/Customers/CustomersPage.php:453
-#: src/Admin/Customers/CustomersPage.php:458
+#: src/Admin/Customers/AddCustomerPage.php:145
+#: src/Admin/Customers/AddCustomerPage.php:150
+#: src/Admin/Customers/AddCustomerPage.php:155
+#: src/Admin/Customers/CustomersPage.php:452
+#: src/Admin/Customers/CustomersPage.php:457
+#: src/Admin/Customers/CustomersPage.php:462
 #: src/Admin/Setup/SetupWizard.php:962
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
@@ -1805,9 +1805,9 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1351
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
-#: src/Admin/Customers/AddCustomerPage.php:146
+#: src/Admin/Customers/AddCustomerPage.php:150
 #: src/Admin/Customers/CustomersPage.php:307
-#: src/Admin/Customers/CustomersPage.php:453
+#: src/Admin/Customers/CustomersPage.php:457
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -1820,9 +1820,9 @@ msgstr ""
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1355
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
-#: src/Admin/Customers/AddCustomerPage.php:151
+#: src/Admin/Customers/AddCustomerPage.php:155
 #: src/Admin/Customers/CustomersPage.php:308
-#: src/Admin/Customers/CustomersPage.php:458
+#: src/Admin/Customers/CustomersPage.php:462
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -3209,8 +3209,8 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:652
 #: src/Admin/Core/AssetManager.php:957
 #: src/Admin/Core/AssetManager.php:1121
-#: src/Admin/Customers/AddCustomerPage.php:162
-#: src/Admin/Customers/CustomersPage.php:469
+#: src/Admin/Customers/AddCustomerPage.php:166
+#: src/Admin/Customers/CustomersPage.php:473
 #: src/Admin/Emails/Core/EmailTemplates.php:526
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -3883,7 +3883,7 @@ msgid "Edit"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Customers/CustomersPage.php:468
+#: src/Admin/Customers/CustomersPage.php:472
 msgid "Update"
 msgstr ""
 
@@ -5233,32 +5233,41 @@ msgstr ""
 msgid "Customer name, email and phone fields are required."
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:121
+#: src/Admin/Customers/AddCustomerPage.php:123
 msgid "Customer added successfully!"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:123
+#: src/Admin/Customers/AddCustomerPage.php:124
+#: src-react/admin/customers/components/CustomerPanel.jsx:134
+msgid "Open Profile"
+msgstr ""
+
+#: src/Admin/Customers/AddCustomerPage.php:125
+msgid "← Back to customers list"
+msgstr ""
+
+#: src/Admin/Customers/AddCustomerPage.php:127
 msgid "Error occurred while adding customer: "
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:129
+#: src/Admin/Customers/AddCustomerPage.php:133
 msgid "Add New Customer"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:141
-#: src/Admin/Customers/CustomersPage.php:448
+#: src/Admin/Customers/AddCustomerPage.php:145
+#: src/Admin/Customers/CustomersPage.php:452
 msgid "Customer Name"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:156
+#: src/Admin/Customers/AddCustomerPage.php:160
 #: src/Admin/Customers/CustomersPage.php:309
-#: src/Admin/Customers/CustomersPage.php:463
+#: src/Admin/Customers/CustomersPage.php:467
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "Address"
 msgstr ""
 
-#: src/Admin/Customers/AddCustomerPage.php:161
+#: src/Admin/Customers/AddCustomerPage.php:165
 #: src-react/admin/customers/components/FilterBar.jsx:14
 msgid "Add Customer"
 msgstr ""
@@ -5354,17 +5363,21 @@ msgstr ""
 msgid "You do not have permission to edit customers."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:425
+#: src/Admin/Customers/CustomersPage.php:429
 msgid "Customer information updated successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:434
+#: src/Admin/Customers/CustomersPage.php:429
+msgid "← Back to customer details"
+msgstr ""
+
+#: src/Admin/Customers/CustomersPage.php:438
 #: templates/account/dashboard.php:221
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 msgid "View"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:441
+#: src/Admin/Customers/CustomersPage.php:445
 msgid "Edit Customer"
 msgstr ""
 
@@ -14677,10 +14690,6 @@ msgstr ""
 #: src-react/admin/customers/components/CustomerPanel.jsx:107
 #: src-react/admin/customers/CustomersPage.jsx:132
 msgid "Loading…"
-msgstr ""
-
-#: src-react/admin/customers/components/CustomerPanel.jsx:134
-msgid "Open Profile"
 msgstr ""
 
 #: src-react/admin/customers/components/CustomerTable.jsx:6

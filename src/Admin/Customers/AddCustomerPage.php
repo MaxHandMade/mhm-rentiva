@@ -118,7 +118,11 @@ final class AddCustomerPage {
 					// Clear cache
 					\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
 
-					echo '<div class="notice notice-success mhm-auto-hide-notice"><p>' . esc_html__( 'Customer added successfully!', 'mhm-rentiva' ) . '</p></div>';
+					$profile_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . (int) $user_id );
+					$list_url    = admin_url( 'admin.php?page=mhm-rentiva-customers' );
+					echo '<div class="notice notice-success"><p>' . esc_html__( 'Customer added successfully!', 'mhm-rentiva' )
+						. ' <a href="' . esc_url( $profile_url ) . '">' . esc_html__( 'Open Profile', 'mhm-rentiva' ) . '</a>'
+						. ' · <a href="' . esc_url( $list_url ) . '">' . esc_html__( '← Back to customers list', 'mhm-rentiva' ) . '</a></p></div>';
 				} else {
 					echo '<div class="notice notice-error"><p>' . esc_html__( 'Error occurred while adding customer: ', 'mhm-rentiva' ) . esc_html( $user_id->get_error_message() ) . '</p></div>';
 				}

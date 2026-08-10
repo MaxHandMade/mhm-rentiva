@@ -419,10 +419,14 @@ final class CustomersPage {
 				update_user_meta($customer_id, 'mhmrentiva_phone', $customer_phone);
 				update_user_meta($customer_id, 'mhmrentiva_address', $customer_address);
 
-				// Clear cache
-				\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache($customer_id);
+				// Clear the WHOLE customers cache, not just this customer's
+				// details: the list payload carries phone/name per row, and a
+				// per-customer clear left the list serving the old values for
+				// the rest of the TTL.
+				\MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
 
-				echo '<div class="notice notice-success"><p>' . esc_html__('Customer information updated successfully.', 'mhm-rentiva') . '</p></div>';
+				$view_url = admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id);
+				echo '<div class="notice notice-success"><p>' . esc_html__('Customer information updated successfully.', 'mhm-rentiva') . ' <a href="' . esc_url($view_url) . '">' . esc_html__('← Back to customer details', 'mhm-rentiva') . '</a></p></div>';
 
 				// Get updated information
 				$customer = get_user_by('id', $customer_id);
