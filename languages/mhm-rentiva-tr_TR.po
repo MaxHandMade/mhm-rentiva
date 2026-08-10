@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-09T19:31:43+00:00\n"
-"PO-Revision-Date: 2026-08-09 13:53+0000\n"
+"POT-Creation-Date: 2026-08-10T07:25:43+00:00\n"
+"PO-Revision-Date: 2026-08-10 08:05+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -585,33 +585,49 @@ msgstr "İşleniyor..."
 msgid "An error occurred. Please try again."
 msgstr "Bir hata oluştu. Lütfen tekrar deneyin."
 
-#: src/Admin/Addons/AddonListTable.php:100
+#: src/Admin/Addons/AddonListTable.php:81 src/Admin/Addons/AddonManager.php:268
+msgid "Invalid price value!"
+msgstr "Geçersiz fiyat değeri!"
+
+#: src/Admin/Addons/AddonListTable.php:82 src/Admin/Addons/AddonManager.php:269
+msgid "Error updating price"
+msgstr "Fiyat güncellenirken hata oluştu"
+
+#: src/Admin/Addons/AddonListTable.php:83 src/Admin/Addons/AddonManager.php:270
+#: src/Admin/Booking/Meta/BookingMeta.php:191
+#: src/Admin/Frontend/Account/AccountController.php:270
+#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:274
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:111
+msgid "Unknown error"
+msgstr "Bilinmeyen hata"
+
+#: src/Admin/Addons/AddonListTable.php:105
 msgid "Total Additional Services"
 msgstr "Toplam Ek Hizmetler"
 
-#: src/Admin/Addons/AddonListTable.php:102
-#: src/Admin/Addons/AddonListTable.php:120
+#: src/Admin/Addons/AddonListTable.php:107
+#: src/Admin/Addons/AddonListTable.php:125
 msgid "All services"
 msgstr "Tüm Servisler"
 
-#: src/Admin/Addons/AddonListTable.php:109
+#: src/Admin/Addons/AddonListTable.php:114
 msgid "Active Services"
 msgstr "Aktif Hizmetler"
 
-#: src/Admin/Addons/AddonListTable.php:111 src/Admin/Core/AssetManager.php:973
+#: src/Admin/Addons/AddonListTable.php:116 src/Admin/Core/AssetManager.php:973
 #: src/Admin/Emails/Core/EmailTemplates.php:580
 msgid "active"
 msgstr "aktif"
 
-#: src/Admin/Addons/AddonListTable.php:118
+#: src/Admin/Addons/AddonListTable.php:123
 msgid "Average Price"
 msgstr "Ortalama Fiyat"
 
-#: src/Admin/Addons/AddonListTable.php:127
+#: src/Admin/Addons/AddonListTable.php:132
 msgid "Total Value"
 msgstr "Toplam değer"
 
-#: src/Admin/Addons/AddonListTable.php:129
+#: src/Admin/Addons/AddonListTable.php:134
 msgid "All prices"
 msgstr "Tüm fiyatlar"
 
@@ -632,7 +648,7 @@ msgstr "Fiyat"
 msgid "Pricing Type"
 msgstr "Fiyatlandırma Tipi"
 
-#: src/Admin/Addons/AddonManager.php:459 src/Admin/Addons/AddonManager.php:610
+#: src/Admin/Addons/AddonManager.php:464 src/Admin/Addons/AddonManager.php:615
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:37
 #: src/Admin/Booking/Meta/BookingMeta.php:681
 #: src/Admin/Booking/Meta/BookingMeta.php:950
@@ -663,50 +679,50 @@ msgstr "Fiyatlandırma Tipi"
 msgid "Security check failed."
 msgstr "Güvenlik kontrolü başarısız oldu."
 
-#: src/Admin/Addons/AddonManager.php:465 src/Admin/Addons/AddonManager.php:616
+#: src/Admin/Addons/AddonManager.php:470 src/Admin/Addons/AddonManager.php:621
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:54
 #: src/Admin/Utilities/Actions/Actions.php:49
 msgid "You do not have permission for this action."
 msgstr "Bu işlem için izininiz yok."
 
-#: src/Admin/Addons/AddonManager.php:472
+#: src/Admin/Addons/AddonManager.php:477
 #: src/Admin/Booking/Addons/AddonBooking.php:157
 msgid "No additional services selected."
 msgstr "Ek hizmet seçilmedi."
 
-#: src/Admin/Addons/AddonManager.php:495
+#: src/Admin/Addons/AddonManager.php:500
 msgid "Invalid action."
 msgstr "Geçersiz İşlem."
 
 #. translators: 1: successful process count, 2: failed process count.
-#: src/Admin/Addons/AddonManager.php:510
+#: src/Admin/Addons/AddonManager.php:515
 #, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr "%1$d ek hizmet işlendi, %2$d ek hizmet başarısız oldu."
 
 #. translators: %d: successful process count.
-#: src/Admin/Addons/AddonManager.php:519
+#: src/Admin/Addons/AddonManager.php:524
 #, php-format
 msgid "%d additional services successfully processed."
 msgstr "%d ek hizmet başarıyla işlendi."
 
-#: src/Admin/Addons/AddonManager.php:624
+#: src/Admin/Addons/AddonManager.php:629
 msgid "Invalid additional service ID."
 msgstr "Geçersiz ek hizmet kimliği."
 
-#: src/Admin/Addons/AddonManager.php:629
+#: src/Admin/Addons/AddonManager.php:634
 msgid "Price cannot be negative."
 msgstr "Fiyat negatif olamaz."
 
-#: src/Admin/Addons/AddonManager.php:636
+#: src/Admin/Addons/AddonManager.php:641
 msgid "Additional service not found."
 msgstr "Ek hizmet bulunamadı."
 
-#: src/Admin/Addons/AddonManager.php:648
+#: src/Admin/Addons/AddonManager.php:653
 msgid "Price successfully updated."
 msgstr "Fiyat başarıyla güncellendi."
 
-#: src/Admin/Addons/AddonManager.php:654
+#: src/Admin/Addons/AddonManager.php:659
 msgid "Error occurred while updating price."
 msgstr "Fiyatı güncellerken hata oluştu."
 
@@ -2093,7 +2109,7 @@ msgstr "Ödeme Linki Gönder"
 
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:356
 #: src/Admin/Frontend/Account/AccountController.php:401
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:80
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:81
 #: src/Admin/Settings/Groups/FrontendSettings.php:292
 #: templates/account/booking-detail.php:254
 #: templates/account/booking-detail.php:285
@@ -2147,7 +2163,7 @@ msgstr "Kaydediliyor..."
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:151
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:105
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:82
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:100
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:104
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:393
 msgid "An error occurred"
 msgstr "Bir hata oluştu"
@@ -2287,12 +2303,6 @@ msgstr "E-posta başarıyla gönderildi!"
 #: src/Admin/Core/AssetManager.php:944
 msgid "Error:"
 msgstr "Hata:"
-
-#: src/Admin/Booking/Meta/BookingMeta.php:191
-#: src/Admin/Frontend/Account/AccountController.php:270
-#: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:274
-msgid "Unknown error"
-msgstr "Bilinmeyen hata"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:192
 msgid "An error occurred:"
@@ -3177,7 +3187,7 @@ msgstr "Evet"
 #: src/Admin/Frontend/Shortcodes/Testimonials.php:150
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:104
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:81
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:99
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:103
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:391
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:98
 #: src/Admin/Vehicle/Templates/vehicle-gallery.php:88
@@ -3193,7 +3203,7 @@ msgstr "Operasyon Başarılı"
 #: src/Admin/Core/AssetManager.php:651 src/Admin/Core/AssetManager.php:1147
 #: src/Admin/Frontend/Account/AccountController.php:388
 #: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:68
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:102
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:106
 msgid "Are you sure?"
 msgstr "Emin misiniz?"
 
@@ -3216,6 +3226,7 @@ msgstr "Kaydet"
 #. translators: %d = number of customers
 #: src/Admin/Core/AssetManager.php:654 src/Admin/Core/AssetManager.php:812
 #: src/Admin/Core/AssetManager.php:1124
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:113
 #: templates/shortcodes/vehicle-rating-form.php:298
 #: src-react/admin/customers/CustomersPage.jsx:66
 msgid "Delete"
@@ -5026,7 +5037,7 @@ msgstr "Şifre en az %length% karakter olmalıdır."
 
 #: src/Admin/Core/Utilities/UXHelper.php:131
 #: src/Admin/Frontend/Account/AccountController.php:397
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
 msgid "Passwords do not match."
 msgstr "Parolalar uyuşmuyor."
 
@@ -5983,6 +5994,7 @@ msgstr ""
 "silecektir."
 
 #: src/Admin/Frontend/Account/AccountController.php:266
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:108
 msgid "Deleting..."
 msgstr "Siliniyor..."
 
@@ -6034,58 +6046,59 @@ msgid "Receipt upload failed."
 msgstr "Makbuz yükleme başarısız."
 
 #: src/Admin/Frontend/Account/AccountController.php:392
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
 msgid "Are you sure you want to remove this receipt?"
 msgstr "Bu dekontu kaldırmak istediğinizden emin misiniz?"
 
 #: src/Admin/Frontend/Account/AccountController.php:393
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:72
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
 msgid "Account details saved successfully."
 msgstr "Hesap bilgileri başarıyla kaydedildi."
 
 #: src/Admin/Frontend/Account/AccountController.php:394
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:73
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
 msgid "Vehicle removed from favorites."
 msgstr "Araç favorilerden kaldırıldı."
 
 #: src/Admin/Frontend/Account/AccountController.php:395
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:74
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
 msgid "Vehicle added to favorites."
 msgstr "Araç favorilere eklendi."
 
 #: src/Admin/Frontend/Account/AccountController.php:396
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:75
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:76
 msgid "All favorites cleared."
 msgstr "Tüm favoriler silindi."
 
 #: src/Admin/Frontend/Account/AccountController.php:398
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:77
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
 msgid "Are you sure you want to cancel changes?"
 msgstr "Değişiklikleri iptal etmek istediğinizden emin misiniz?"
 
 #: src/Admin/Frontend/Account/AccountController.php:399
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:78
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
 msgid "No favorite vehicles yet."
 msgstr "Henüz favori araç yok."
 
 #: src/Admin/Frontend/Account/AccountController.php:400
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:79
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:80
 msgid "You can add vehicles to favorites using the heart icon."
 msgstr "Kalp simgesini kullanarak araçları favorilere ekleyebilirsiniz."
 
 #: src/Admin/Frontend/Account/AccountController.php:402
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:81
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
 #: templates/account/account-details.php:186
 #: templates/admin/settings-page.php:76
 msgid "Save Changes"
 msgstr "Değişiklikleri Kaydet"
 
 #: src/Admin/Frontend/Account/AccountController.php:403
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:82
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:83
 msgid "vehicle in your favorites"
 msgstr "favorilerinizdeki araç"
 
 #: src/Admin/Frontend/Account/AccountController.php:404
-#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:83
+#: src/Admin/Frontend/Shortcodes/Account/AbstractAccountShortcode.php:84
 msgid "vehicles in your favorites"
 msgstr "favorilerinizdeki araçlar"
 
@@ -6390,9 +6403,9 @@ msgid "An error occurred while retrieving data."
 msgstr "Verileri alırken bir hata oluştu."
 
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:948
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:164
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:320
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:373
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:176
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:332
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:385
 #: src/Admin/Services/CompareService.php:222
 #: src/Admin/Services/FavoritesService.php:149
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:1356
@@ -7398,67 +7411,97 @@ msgstr "Şerit Yardımı"
 msgid "Electronic Stability"
 msgstr "Elektronik Stabilite"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:101
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:304
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:82
+#: templates/shortcodes/vehicle-rating-form.php:313
+msgid "No reviews yet."
+msgstr "Henüz değerlendirme yok."
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:83
+#: templates/shortcodes/vehicle-rating-form.php:204
+msgid "Reviews"
+msgstr "İncelemeler"
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:105
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:316
 msgid "Rating submitted successfully"
 msgstr "Değerlendirme başarıyla gönderildi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:173
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:107
+msgid "Your comment has been loaded for editing."
+msgstr "Yorumunuz düzenleme için yüklendi."
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:109
+msgid "Your comment has been deleted successfully!"
+msgstr "Yorumunuz başarıyla silindi!"
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:110
+msgid "Error deleting comment: "
+msgstr "Yorum silinirken hata oluştu: "
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:112
+msgid "Error deleting comment. Please try again."
+msgstr "Yorum silinirken hata oluştu. Lütfen tekrar deneyin."
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:114
+msgid "Comment deletion is disabled."
+msgstr "Yorum silme devre dışı."
+
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:185
 msgid "Invalid vehicle or rating value"
 msgstr "Geçersiz araç veya derecelendirme değeri"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:181
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:193
 msgid "Login required to post a review"
 msgstr "Yorum yazmak için giriş yapmanız gerekiyor"
 
 #. translators: %d: minimum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:195
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:207
 #, php-format
 msgid "Comment is too short. Please write at least %d characters."
 msgstr "Yorum çok kısa. Lütfen en az %d karakter yazın."
 
 #. translators: %d: maximum character count
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:207
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:219
 #, php-format
 msgid "Comment is too long. Maximum %d characters allowed."
 msgstr "Yorum çok uzun. Maksimum %d karakter izin verilir."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:231
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:243
 msgid ""
 "Your comment could not be submitted. Please wait a moment before trying "
 "again."
 msgstr "Yorumunuz gönderilemedi. Lütfen bir süre bekleyip tekrar deneyin."
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:253
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:265
 msgid "Rating updated successfully"
 msgstr "Oran başarıyla güncellendi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:281
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:293
 msgid "Name and email are required for guests"
 msgstr "Misafirler için isim ve e-posta adresi gereklidir"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:305
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:317
 msgid "Rating submitted and awaiting approval"
 msgstr "Derecelendirme gönderildi ve onay bekleniyor"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:313
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:325
 msgid "Failed to submit rating"
 msgstr "Derecelendirme gönderilemedi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:325
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:337
 msgid "Login required"
 msgstr "Giriş Yapılması Gerekli"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:347
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:352
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:359
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:364
 msgid "Comment not found"
 msgstr "Yorum bulunamadı"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:363
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:375
 msgid "Rating deleted successfully"
 msgstr "Derecelendirme başarıyla silindi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:366
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:378
 #: src/Admin/Settings/Core/SettingsCore.php:562
 #: src/Admin/Utilities/Cron/CronMonitor.php:150
 #: src/Admin/Utilities/Cron/CronMonitorPage.php:33
@@ -7483,7 +7526,7 @@ msgstr "Derecelendirme başarıyla silindi"
 msgid "Permission denied"
 msgstr "İzin reddedildi"
 
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:378
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:390
 msgid "Invalid vehicle"
 msgstr "Geçersiz araç"
 
@@ -14207,10 +14250,6 @@ msgid_plural "%d reviews"
 msgstr[0] "%d yorum"
 msgstr[1] "%d yorumlar"
 
-#: templates/shortcodes/vehicle-rating-form.php:204
-msgid "Reviews"
-msgstr "İncelemeler"
-
 #: templates/shortcodes/vehicle-rating-form.php:259
 msgid "Verified Rental"
 msgstr "Doğrulanmış Kiralama"
@@ -14218,10 +14257,6 @@ msgstr "Doğrulanmış Kiralama"
 #: templates/shortcodes/vehicle-rating-form.php:262
 msgid "ago"
 msgstr "önce"
-
-#: templates/shortcodes/vehicle-rating-form.php:313
-msgid "No reviews yet."
-msgstr "Henüz değerlendirme yok."
 
 #: templates/shortcodes/vehicle-rating-form.php:322
 msgid "Rate This Vehicle"
