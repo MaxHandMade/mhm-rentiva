@@ -1610,11 +1610,13 @@ final class BookingColumns {
 			// Get vehicle info
 			$vehicle_id    = (int) $booking->vehicle_id;
 			$vehicle_title = $vehicle_id ? get_the_title( $vehicle_id ) : '';
-			// Check both plate meta keys
+			// Populated key first (same order as the Vehicle column sub-line:
+			// `_mhmrentiva_license_plate` is what the vehicle editor writes,
+			// the old `_mhmrentiva_vehicle_plate` read had zero rows).
 			$vehicle_plate = '';
 			if ( $vehicle_id ) {
-				$vehicle_plate = get_post_meta( $vehicle_id, '_mhmrentiva_vehicle_plate', true ) ?:
-					get_post_meta( $vehicle_id, '_mhmrentiva_license_plate', true ) ?: '';
+				$vehicle_plate = get_post_meta( $vehicle_id, '_mhmrentiva_license_plate', true ) ?:
+					get_post_meta( $vehicle_id, '_mhmrentiva_vehicle_plate', true ) ?: '';
 			}
 
 			// Format dates

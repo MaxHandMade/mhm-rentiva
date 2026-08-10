@@ -33,7 +33,11 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
         parent::setUp();
 
         // 2 pending (one priced, to prove pending revenue is EXCLUDED),
-        // 1 confirmed (priced), 3 completed (two priced), 1 in_progress, 1 cancelled.
+        // 1 confirmed (priced), 3 completed (two priced), 1 in_progress,
+        // 1 cancelled, and 1 with NO status meta at all — the Fix-D case:
+        // an INNER JOIN would drop it from every bucket while the total
+        // query still counts it, so All and the per-status sum disagree.
+        // COALESCE folds it into pending, same as get_status_breakdown().
         $this->create_booking('pending', '999.00');
         $this->create_booking('pending');
         $this->create_booking('confirmed', '250.00');
@@ -42,6 +46,7 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
         $this->create_booking('completed');
         $this->create_booking('in_progress');
         $this->create_booking('cancelled');
+        self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
 
         wp_cache_delete('mhmrentiva_booking_stats');
     }
@@ -50,8 +55,8 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
     {
         $stats = DashboardService::get_booking_stats();
 
-        $this->assertSame(8, $stats['total']);
-        $this->assertSame(2, $stats['pending']);
+        $this->assertSame(9, $stats['total']);
+        $this->assertSame(3, $stats['pending'], 'A status-less booking must count as pending, not vanish');
         $this->assertSame(1, $stats['confirmed']);
         $this->assertSame(3, $stats['completed']);
         $this->assertSame(1, $stats['in_progress']);
@@ -77,7 +82,9 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
     {
         $band = BookingColumns::get_booking_stats();
 
-        // Fixtures were all created "now", so the windows include them.
+        // Fixtures were all created "now", so the windows include them. The
+        // windowed sub-metric still reads the explicit meta (local query),
+        // so the status-less booking is not in this 2.
         $this->assertSame(2, $band['pending_this_week']);
         $this->assertSame(3, $band['completed_this_month']);
         $this->assertArrayHasKey('revenue_trend', $band);

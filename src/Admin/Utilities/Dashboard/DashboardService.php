@@ -631,15 +631,19 @@ final class DashboardService {
 
 		// Full per-status enumeration in one GROUP BY, seeded with every
 		// allowed status so absent ones report 0 instead of a missing key.
+		// LEFT JOIN + COALESCE(...,'pending') — same Fix-D pattern as
+		// get_status_breakdown(): an INNER JOIN silently drops status-less
+		// bookings from every bucket while the total query still counts them,
+		// so "All" and the per-status sum would disagree.
 		$by_status = array_fill_keys( \MHMRentiva\Admin\Booking\Core\Status::allowed(), 0 );
 
 		$status_rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT pm_status.meta_value AS status, COUNT(DISTINCT p.ID) AS n
+				"SELECT COALESCE(NULLIF(pm_status.meta_value, ''), 'pending') AS status, COUNT(DISTINCT p.ID) AS n
                 FROM {$wpdb->posts} p
-                INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
                 WHERE p.post_type = %s AND p.post_status != %s
-                GROUP BY pm_status.meta_value",
+                GROUP BY COALESCE(NULLIF(pm_status.meta_value, ''), 'pending')",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'mhmrentiva_booking',
 				'trash'

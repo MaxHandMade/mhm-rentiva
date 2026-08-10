@@ -32,7 +32,7 @@
 			// On select change → submit (dates, status, payment, gateway)
 			$form.on(
 				'change',
-				'select[name="m"], select[name="mhmrentiva_booking_status"], select[name="mhmrentiva_payment_status"], select[name="mhmrentiva_payment_gateway"]',
+				'select[name="m"], select[name="mhmrentiva_payment_status"], select[name="mhmrentiva_payment_gateway"]',
 				function () {
 					$form.trigger( 'submit' );
 				}
