@@ -605,7 +605,10 @@ final class DashboardService {
 	}
 
 	/**
-	 * Get booking summary stats: monthly, confirmed, pending counts.
+	 * Get booking summary stats: monthly count plus the full per-status
+	 * enumeration. This is the CANONICAL source for booking status counts —
+	 * the booking-list stats band and status chips delegate here so the two
+	 * screens can never disagree.
 	 */
 	public static function get_booking_stats(): array {
 		global $wpdb;
@@ -618,7 +621,10 @@ final class DashboardService {
                     COUNT(DISTINCT p.ID) as total,
                     SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly,
                     SUM(CASE WHEN pm_status.meta_value = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-                    SUM(CASE WHEN pm_status.meta_value = 'pending' THEN 1 ELSE 0 END) as pending
+                    SUM(CASE WHEN pm_status.meta_value = 'pending' THEN 1 ELSE 0 END) as pending,
+                    SUM(CASE WHEN pm_status.meta_value = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
+                    SUM(CASE WHEN pm_status.meta_value = 'completed' THEN 1 ELSE 0 END) as completed,
+                    SUM(CASE WHEN pm_status.meta_value = 'cancelled' THEN 1 ELSE 0 END) as cancelled
                 FROM {$wpdb->posts} p
                 LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
                 WHERE p.post_type = %s AND p.post_status != %s",
@@ -631,10 +637,13 @@ final class DashboardService {
 		);
 
 		return array(
-			'total'     => (int) ( $row->total     ?? 0 ),
-			'monthly'   => (int) ( $row->monthly   ?? 0 ),
-			'confirmed' => (int) ( $row->confirmed ?? 0 ),
-			'pending'   => (int) ( $row->pending   ?? 0 ),
+			'total'       => (int) ( $row->total       ?? 0 ),
+			'monthly'     => (int) ( $row->monthly     ?? 0 ),
+			'confirmed'   => (int) ( $row->confirmed   ?? 0 ),
+			'pending'     => (int) ( $row->pending     ?? 0 ),
+			'in_progress' => (int) ( $row->in_progress ?? 0 ),
+			'completed'   => (int) ( $row->completed   ?? 0 ),
+			'cancelled'   => (int) ( $row->cancelled   ?? 0 ),
 		);
 	}
 

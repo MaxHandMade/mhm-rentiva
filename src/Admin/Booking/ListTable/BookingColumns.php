@@ -801,8 +801,15 @@ final class BookingColumns {
 
 	/**
 	 * Collect booking statistics data.
+	 *
+	 * Status counts and monthly revenue come from DashboardService — the
+	 * canonical source — so this band can never disagree with the dashboard
+	 * (it used to carry its own copy of the SQL, publish-only and dual
+	 * meta-key; the canonical definition won). Only the windowed sub-metrics
+	 * (this-week/this-month breakdowns, revenue trend) live here, because
+	 * this screen is their only consumer.
 	 */
-	private static function get_booking_stats(): array {
+	public static function get_booking_stats(): array {
 		// Try to get stats from cache
 		$cache_key = 'mhmrentiva_booking_stats';
 		$stats     = wp_cache_get( $cache_key );
@@ -810,53 +817,8 @@ final class BookingColumns {
 		if ( false === $stats ) {
 			global $wpdb;
 
-			// Pending bookings (check both old and new meta keys)
-			$pending = (int) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-                 WHERE p.post_type = %s AND p.post_status = %s 
-                 AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'mhmrentiva_booking',
-					'publish',
-					'_mhmrentiva_booking_status',
-					'pending',
-					'_mhmrentiva_status',
-					'pending'
-				)
-			);
-
-			// Confirmed bookings (check both old and new meta keys)
-			$confirmed = (int) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-                 WHERE p.post_type = %s AND p.post_status = %s 
-                 AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'mhmrentiva_booking',
-					'publish',
-					'_mhmrentiva_booking_status',
-					'confirmed',
-					'_mhmrentiva_status',
-					'confirmed'
-				)
-			);
-
-			// Completed bookings (check both old and new meta keys)
-			$completed = (int) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->postmeta} pm 
-                 INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID 
-                 WHERE p.post_type = %s AND p.post_status = %s 
-                 AND ((pm.meta_key = %s AND pm.meta_value = %s) OR (pm.meta_key = %s AND pm.meta_value = %s))",
-					'mhmrentiva_booking',
-					'publish',
-					'_mhmrentiva_booking_status',
-					'completed',
-					'_mhmrentiva_status',
-					'completed'
-				)
-			);
+			$dashboard = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::get_booking_stats();
+			$metrics   = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::get_dashboard_metrics();
 
 			// Pending bookings this week (check both old and new meta keys)
 			$pending_this_week = (int) $wpdb->get_var(
@@ -912,35 +874,21 @@ final class BookingColumns {
 				)
 			);
 
-			// This month revenue - ONLY COMPLETED AND CONFIRMED BOOKINGS
-			$monthly_revenue = (float) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-                 FROM {$wpdb->posts} p
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-                 AND pm.meta_key = %s
-                 AND pm_status.meta_key = '_mhmrentiva_status'
-                 AND pm_status.meta_value IN ('completed', 'confirmed')
-                 AND p.post_date >= %s",
-					'mhmrentiva_booking',
-					'_mhmrentiva_total_price',
-					gmdate( 'Y-m-01' )
-				)
-			);
-
 			$trend_range   = (int) \MHMRentiva\Admin\Settings\Core\SettingsCore::get( 'mhmrentiva_booking_stats_trend_range', 30 );
 			$revenue_trend = self::calculate_revenue_trend( $trend_range );
 
 			$stats = array(
-				'pending'              => $pending,
-				'confirmed'            => $confirmed,
-				'completed'            => $completed,
+				'total'                => $dashboard['total'],
+				'monthly'              => $dashboard['monthly'],
+				'pending'              => $dashboard['pending'],
+				'confirmed'            => $dashboard['confirmed'],
+				'in_progress'          => $dashboard['in_progress'],
+				'completed'            => $dashboard['completed'],
+				'cancelled'            => $dashboard['cancelled'],
 				'pending_this_week'    => $pending_this_week,
 				'confirmed_this_month' => $confirmed_this_month,
 				'completed_this_month' => $completed_this_month,
-				'monthly_revenue'      => $monthly_revenue,
+				'monthly_revenue'      => (float) $metrics['monthly_revenue'],
 				'revenue_trend'        => $revenue_trend,
 			);
 
