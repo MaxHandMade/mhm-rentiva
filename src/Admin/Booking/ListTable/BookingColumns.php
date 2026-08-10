@@ -139,6 +139,9 @@ final class BookingColumns {
 		// Chips are the status filter UI itself (not an "extra"): they replace
 		// the old dropdown and must survive the extras filter being disabled.
 		add_action( 'admin_notices', array( self::class, 'status_chips' ), 15 );
+		// Neutral toolbar seam: renders NOTHING (no container) unless a
+		// subscriber adds actions. Lite ships no subscriber.
+		add_action( 'admin_notices', array( self::class, 'toolbar_actions' ), 5 );
 	}
 
 	/**
@@ -548,6 +551,47 @@ final class BookingColumns {
 			);
 			$q->set( 'orderby', 'meta_value_num' );
 		}
+	}
+
+	/**
+	 * Toolbar action links above the booking list — a neutral extension seam.
+	 *
+	 * With no subscriber the filter returns an empty array and NOTHING is
+	 * rendered, container included. Each subscriber-provided item is
+	 * array{label: string, url: string, class?: string}.
+	 */
+	public static function toolbar_actions(): void {
+		global $pagenow, $post_type;
+
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		/**
+		 * Filters the action links rendered above the booking list table.
+		 *
+		 * @param array<int, array{label: string, url: string, class?: string}> $actions Toolbar actions.
+		 */
+		$actions = apply_filters( 'mhmrentiva_booking_list_toolbar_actions', array() );
+
+		if ( empty( $actions ) || ! is_array( $actions ) ) {
+			return;
+		}
+
+		echo '<div class="rv-bkl-toolbar">';
+		foreach ( $actions as $action ) {
+			if ( empty( $action['label'] ) || empty( $action['url'] ) ) {
+				continue;
+			}
+			$class = 'rv-bkl-toolbar__btn' . ( empty( $action['class'] ) ? '' : ' ' . $action['class'] );
+			printf(
+				'<a class="%s" href="%s">%s</a>',
+				esc_attr( $class ),
+				esc_url( $action['url'] ),
+				esc_html( $action['label'] )
+			);
+		}
+		echo '</div>';
 	}
 
 	/**

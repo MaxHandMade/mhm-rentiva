@@ -642,6 +642,32 @@
 	color: #1d2327;
 }
 
+/* ── Toolbar seam (renders only when a subscriber adds actions) ── */
+.mhm-booking-list .rv-bkl-toolbar {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin: 10px 0 0;
+}
+
+.mhm-booking-list .rv-bkl-toolbar__btn {
+	display: inline-block;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 7px 14px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-booking-list .rv-bkl-toolbar__btn:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
 /* ── Calendar card harmonization (function untouched) ── */
 .mhm-booking-list .calendar-container {
 	background: #fff;
