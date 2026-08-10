@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-10T11:59:24+00:00\n"
-"PO-Revision-Date: 2026-08-10 11:13+0000\n"
+"POT-Creation-Date: 2026-08-10T13:49:23+00:00\n"
+"PO-Revision-Date: 2026-08-10 12:55+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -247,7 +247,7 @@ msgid "Total Customers:"
 msgstr "Toplam Müşteri:"
 
 #: src/Admin/About/Tabs/GeneralTab.php:267
-#: src/Admin/Booking/ListTable/BookingColumns.php:1347
+#: src/Admin/Booking/ListTable/BookingColumns.php:1349
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:52
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1145
 #: assets/blocks/my-favorites/index.js:51
@@ -794,9 +794,9 @@ msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 #: src/Admin/Customers/AddCustomerPage.php:145
 #: src/Admin/Customers/AddCustomerPage.php:150
 #: src/Admin/Customers/AddCustomerPage.php:155
-#: src/Admin/Customers/CustomersPage.php:452
-#: src/Admin/Customers/CustomersPage.php:457
-#: src/Admin/Customers/CustomersPage.php:462
+#: src/Admin/Customers/CustomersPage.php:465
+#: src/Admin/Customers/CustomersPage.php:470
+#: src/Admin/Customers/CustomersPage.php:475
 #: src/Admin/Setup/SetupWizard.php:962
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
@@ -969,9 +969,9 @@ msgid "Pending Payment"
 msgstr "Bekleyen Ödeme"
 
 #: src/Admin/Booking/Core/Status.php:110
-#: src/Admin/Booking/ListTable/BookingColumns.php:653
-#: src/Admin/Booking/ListTable/BookingColumns.php:763
-#: src/Admin/Booking/ListTable/BookingColumns.php:1299
+#: src/Admin/Booking/ListTable/BookingColumns.php:655
+#: src/Admin/Booking/ListTable/BookingColumns.php:765
+#: src/Admin/Booking/ListTable/BookingColumns.php:1301
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:413
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:251
 #: src/Admin/Booking/Meta/BookingMeta.php:1138
@@ -994,8 +994,8 @@ msgid "Pending"
 msgstr "Beklemede"
 
 #: src/Admin/Booking/Core/Status.php:111
-#: src/Admin/Booking/ListTable/BookingColumns.php:772
-#: src/Admin/Booking/ListTable/BookingColumns.php:1303
+#: src/Admin/Booking/ListTable/BookingColumns.php:774
+#: src/Admin/Booking/ListTable/BookingColumns.php:1305
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:252
 #: src/Admin/Booking/Meta/BookingMeta.php:1139
 #: src/Admin/Core/AssetManager.php:673
@@ -1025,8 +1025,8 @@ msgid "In Progress"
 msgstr "Devam Ediyor"
 
 #: src/Admin/Booking/Core/Status.php:113
-#: src/Admin/Booking/ListTable/BookingColumns.php:781
-#: src/Admin/Booking/ListTable/BookingColumns.php:1307
+#: src/Admin/Booking/ListTable/BookingColumns.php:783
+#: src/Admin/Booking/ListTable/BookingColumns.php:1309
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:254
 #: src/Admin/Booking/Meta/BookingMeta.php:1141
 #: src/Admin/Core/AssetManager.php:675
@@ -1046,8 +1046,8 @@ msgid "Completed"
 msgstr "Tamamlandı"
 
 #: src/Admin/Booking/Core/Status.php:114
-#: src/Admin/Booking/ListTable/BookingColumns.php:654
-#: src/Admin/Booking/ListTable/BookingColumns.php:1311
+#: src/Admin/Booking/ListTable/BookingColumns.php:656
+#: src/Admin/Booking/ListTable/BookingColumns.php:1313
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:255
 #: src/Admin/Booking/Meta/BookingMeta.php:1142
 #: src/Admin/Core/AssetManager.php:676
@@ -1066,7 +1066,7 @@ msgid "Cancelled"
 msgstr "İptal Edildi"
 
 #: src/Admin/Booking/Core/Status.php:115
-#: src/Admin/Booking/ListTable/BookingColumns.php:650
+#: src/Admin/Booking/ListTable/BookingColumns.php:652
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:415
 #: src/Admin/Booking/Meta/BookingMeta.php:1168
 #: templates/account/user-dashboard.php:240
@@ -1330,14 +1330,14 @@ msgstr "Araç, seçilen tarih aralığında mevcut değildir."
 msgid "Vehicle is available on selected dates."
 msgstr "Araç belirli tarihlerde kullanılabilir."
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:162
-#: src/Admin/Booking/ListTable/BookingColumns.php:1752
+#: src/Admin/Booking/ListTable/BookingColumns.php:164
+#: src/Admin/Booking/ListTable/BookingColumns.php:1754
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:485
 msgid "Booking ID"
 msgstr "Rezervasyon ID"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:163
-#: src/Admin/Booking/ListTable/BookingColumns.php:1368
+#: src/Admin/Booking/ListTable/BookingColumns.php:165
+#: src/Admin/Booking/ListTable/BookingColumns.php:1370
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:185
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:202
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:495
@@ -1354,8 +1354,8 @@ msgstr "Rezervasyon ID"
 msgid "Vehicle"
 msgstr "Araç"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:164
-#: src/Admin/Booking/ListTable/BookingColumns.php:1765
+#: src/Admin/Booking/ListTable/BookingColumns.php:166
+#: src/Admin/Booking/ListTable/BookingColumns.php:1767
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:285
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:158
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1434
@@ -1364,30 +1364,30 @@ msgstr "Araç"
 msgid "License Plate"
 msgstr "Plaka"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:165
+#: src/Admin/Booking/ListTable/BookingColumns.php:167
 msgid "Dates"
 msgstr "Tarih"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:166
+#: src/Admin/Booking/ListTable/BookingColumns.php:168
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:292
 msgid "Days"
 msgstr "Gün"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:167
-#: src/Admin/Booking/ListTable/BookingColumns.php:268
+#: src/Admin/Booking/ListTable/BookingColumns.php:169
+#: src/Admin/Booking/ListTable/BookingColumns.php:270
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:256
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
 #: src-react/admin/shortcode-pages/components/StatsBar.jsx:6
 msgid "Total"
 msgstr "Toplam"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:168
+#: src/Admin/Booking/ListTable/BookingColumns.php:170
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:190
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:296
 msgid "Deposit Amount"
 msgstr "Depozit Miktarı"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:169
+#: src/Admin/Booking/ListTable/BookingColumns.php:171
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:196
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:297
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:503
@@ -1397,7 +1397,7 @@ msgstr "Depozit Miktarı"
 msgid "Remaining Amount"
 msgstr "Kalan miktar"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:170
+#: src/Admin/Booking/ListTable/BookingColumns.php:172
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:249
 #: src/Admin/Booking/Meta/BookingMeta.php:324
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:450
@@ -1416,21 +1416,21 @@ msgstr "Kalan miktar"
 msgid "Status"
 msgstr "Durum"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:171
+#: src/Admin/Booking/ListTable/BookingColumns.php:173
 msgid "Payment"
 msgstr "Ödeme"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:172
+#: src/Admin/Booking/ListTable/BookingColumns.php:174
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:173
 msgid "Booking Type"
 msgstr "Rezervasyon Türü"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:264
+#: src/Admin/Booking/ListTable/BookingColumns.php:266
 msgid "bookings on this day"
 msgstr "bu gündeki rezervasyonlar"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:265
-#: src/Admin/Booking/ListTable/BookingColumns.php:1343
+#: src/Admin/Booking/ListTable/BookingColumns.php:267
+#: src/Admin/Booking/ListTable/BookingColumns.php:1345
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:276
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1141 src/Plugin.php:1022
 #: src-react/admin/customers/components/CustomerTable.jsx:4
@@ -1438,29 +1438,29 @@ msgstr "bu gündeki rezervasyonlar"
 msgid "Customer"
 msgstr "Müşteri"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:266
-#: src/Admin/Booking/ListTable/BookingColumns.php:1376
+#: src/Admin/Booking/ListTable/BookingColumns.php:268
+#: src/Admin/Booking/ListTable/BookingColumns.php:1378
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1167
 msgid "Pickup"
 msgstr "Teslim Alma"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:267
-#: src/Admin/Booking/ListTable/BookingColumns.php:1380
+#: src/Admin/Booking/ListTable/BookingColumns.php:269
+#: src/Admin/Booking/ListTable/BookingColumns.php:1382
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1172
 msgid "Return"
 msgstr "İade"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:269
-#: src/Admin/Booking/ListTable/BookingColumns.php:1417
+#: src/Admin/Booking/ListTable/BookingColumns.php:271
+#: src/Admin/Booking/ListTable/BookingColumns.php:1419
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1201
 msgid "Edit Booking"
 msgstr "Rezervasyonu Düzenle"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:401
-#: src/Admin/Booking/ListTable/BookingColumns.php:405
-#: src/Admin/Booking/ListTable/BookingColumns.php:649
-#: src/Admin/Booking/ListTable/BookingColumns.php:657
+#: src/Admin/Booking/ListTable/BookingColumns.php:403
+#: src/Admin/Booking/ListTable/BookingColumns.php:407
+#: src/Admin/Booking/ListTable/BookingColumns.php:651
+#: src/Admin/Booking/ListTable/BookingColumns.php:659
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:414
 #: src/Admin/Booking/Meta/BookingMeta.php:1166
 #: src/Admin/Booking/Meta/BookingRefundMetaBox.php:54
@@ -1468,40 +1468,40 @@ msgstr "Rezervasyonu Düzenle"
 msgid "Paid"
 msgstr "Ödendi"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:428
-#: src/Admin/Booking/ListTable/BookingColumns.php:648
+#: src/Admin/Booking/ListTable/BookingColumns.php:430
+#: src/Admin/Booking/ListTable/BookingColumns.php:650
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:412
 #: src/Admin/Booking/Meta/BookingMeta.php:1164
 msgid "Unpaid"
 msgstr "Ödenmemiş"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:450
+#: src/Admin/Booking/ListTable/BookingColumns.php:452
 msgid "Transfer"
 msgstr "Transfer"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:452
+#: src/Admin/Booking/ListTable/BookingColumns.php:454
 msgid "Rental"
 msgstr "Kiralık"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:456
+#: src/Admin/Booking/ListTable/BookingColumns.php:458
 msgid "Manual entry"
 msgstr "Manuel giriş"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:540
+#: src/Admin/Booking/ListTable/BookingColumns.php:542
 #: src/Admin/Utilities/ListTable/LogColumns.php:146
 msgid "All statuses"
 msgstr "Tüm durumlar"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:554
+#: src/Admin/Booking/ListTable/BookingColumns.php:556
 msgid "All payments"
 msgstr "Tüm ödemeleri görün"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:564
+#: src/Admin/Booking/ListTable/BookingColumns.php:566
 #: src/Admin/Utilities/ListTable/LogColumns.php:137
 msgid "All payment methods"
 msgstr "Tüm ödeme yöntemleri"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:651
+#: src/Admin/Booking/ListTable/BookingColumns.php:653
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:416
 #: src/Admin/Emails/PostTypes/EmailLog.php:69
 #: templates/emails/booking-created-admin.html.php:66
@@ -1510,62 +1510,62 @@ msgstr "Tüm ödeme yöntemleri"
 msgid "Failed"
 msgstr "Başarısız"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:652
+#: src/Admin/Booking/ListTable/BookingColumns.php:654
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:419
 #: src/Admin/Booking/Meta/BookingMeta.php:1165
 msgid "Pending Verification"
 msgstr "Doğrulama Bekliyor"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:655
+#: src/Admin/Booking/ListTable/BookingColumns.php:657
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:417
 #: src/Admin/Settings/Groups/FrontendSettings.php:312
 #: templates/emails/refund-customer.html.php:34
 msgid "Processing"
 msgstr "İşleniyor"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:656
+#: src/Admin/Booking/ListTable/BookingColumns.php:658
 msgid "On Hold"
 msgstr "Beklemede (Hold)"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:668
+#: src/Admin/Booking/ListTable/BookingColumns.php:670
 #: src/Admin/Booking/Meta/BookingDepositMetaBox.php:176
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:443
 msgid "Offline"
 msgstr "Çevrimdışı"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:669
+#: src/Admin/Booking/ListTable/BookingColumns.php:671
 msgid "Online Payment"
 msgstr "Online Ödeme"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:670
+#: src/Admin/Booking/ListTable/BookingColumns.php:672
 #: templates/emails/booking-created-customer.html.php:70
 msgid "Bank Transfer"
 msgstr "Banka transferi"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:671
+#: src/Admin/Booking/ListTable/BookingColumns.php:673
 #: templates/emails/booking-created-customer.html.php:71
 msgid "Cash"
 msgstr "Nakit"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:765
+#: src/Admin/Booking/ListTable/BookingColumns.php:767
 msgid "This week"
 msgstr "Bu hafta"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:774
-#: src/Admin/Booking/ListTable/BookingColumns.php:783
+#: src/Admin/Booking/ListTable/BookingColumns.php:776
+#: src/Admin/Booking/ListTable/BookingColumns.php:785
 msgid "This month"
 msgstr "Bu ay"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:790
+#: src/Admin/Booking/ListTable/BookingColumns.php:792
 msgid "Monthly Revenue"
 msgstr "Aylık Gelir"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:792
+#: src/Admin/Booking/ListTable/BookingColumns.php:794
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:617
 msgid "vs last month"
 msgstr "geçen aya göre"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1040
+#: src/Admin/Booking/ListTable/BookingColumns.php:1042
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1078
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1494
@@ -1574,7 +1574,7 @@ msgstr "geçen aya göre"
 msgid "January"
 msgstr "Ocak"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1041
+#: src/Admin/Booking/ListTable/BookingColumns.php:1043
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1495
@@ -1583,7 +1583,7 @@ msgstr "Ocak"
 msgid "February"
 msgstr "Şubat"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1042
+#: src/Admin/Booking/ListTable/BookingColumns.php:1044
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1496
@@ -1592,7 +1592,7 @@ msgstr "Şubat"
 msgid "March"
 msgstr "Mart"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1043
+#: src/Admin/Booking/ListTable/BookingColumns.php:1045
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1497
@@ -1601,7 +1601,7 @@ msgstr "Mart"
 msgid "April"
 msgstr "Nisan"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1044
+#: src/Admin/Booking/ListTable/BookingColumns.php:1046
 #: src/Admin/Core/Assets/DatepickerAssets.php:68
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1498
@@ -1611,7 +1611,7 @@ msgstr "Nisan"
 msgid "May"
 msgstr "Mayıs"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1045
+#: src/Admin/Booking/ListTable/BookingColumns.php:1047
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1499
@@ -1620,7 +1620,7 @@ msgstr "Mayıs"
 msgid "June"
 msgstr "Haziran"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1046
+#: src/Admin/Booking/ListTable/BookingColumns.php:1048
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1500
@@ -1629,7 +1629,7 @@ msgstr "Haziran"
 msgid "July"
 msgstr "Temmuz"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1047
+#: src/Admin/Booking/ListTable/BookingColumns.php:1049
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1501
@@ -1638,7 +1638,7 @@ msgstr "Temmuz"
 msgid "August"
 msgstr "Ağustos"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1048
+#: src/Admin/Booking/ListTable/BookingColumns.php:1050
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1502
@@ -1647,7 +1647,7 @@ msgstr "Ağustos"
 msgid "September"
 msgstr "Eylül"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1049
+#: src/Admin/Booking/ListTable/BookingColumns.php:1051
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1503
@@ -1656,7 +1656,7 @@ msgstr "Eylül"
 msgid "October"
 msgstr "Ekim"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1050
+#: src/Admin/Booking/ListTable/BookingColumns.php:1052
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1504
@@ -1665,7 +1665,7 @@ msgstr "Ekim"
 msgid "November"
 msgstr "Kasım"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1051
+#: src/Admin/Booking/ListTable/BookingColumns.php:1053
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1505
@@ -1674,11 +1674,11 @@ msgstr "Kasım"
 msgid "December"
 msgstr "Aralık"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1071
+#: src/Admin/Booking/ListTable/BookingColumns.php:1073
 msgid "Monthly Reservation Calendar"
 msgstr "Aylık Rezervasyon Takvimi"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1131
+#: src/Admin/Booking/ListTable/BookingColumns.php:1133
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:285
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1531
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1686,7 +1686,7 @@ msgstr "Aylık Rezervasyon Takvimi"
 msgid "Sun"
 msgstr "Paz"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1132
+#: src/Admin/Booking/ListTable/BookingColumns.php:1134
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:279
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1532
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1694,7 +1694,7 @@ msgstr "Paz"
 msgid "Mon"
 msgstr "Pzt"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1133
+#: src/Admin/Booking/ListTable/BookingColumns.php:1135
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:280
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1533
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1702,7 +1702,7 @@ msgstr "Pzt"
 msgid "Tue"
 msgstr "Sal"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1134
+#: src/Admin/Booking/ListTable/BookingColumns.php:1136
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:281
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1534
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1710,7 +1710,7 @@ msgstr "Sal"
 msgid "Wed"
 msgstr "Çar"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1135
+#: src/Admin/Booking/ListTable/BookingColumns.php:1137
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:282
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1535
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1718,7 +1718,7 @@ msgstr "Çar"
 msgid "Thu"
 msgstr "Per"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1136
+#: src/Admin/Booking/ListTable/BookingColumns.php:1138
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:283
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1536
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1726,7 +1726,7 @@ msgstr "Per"
 msgid "Fri"
 msgstr "Cum"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1137
+#: src/Admin/Booking/ListTable/BookingColumns.php:1139
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:284
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1537
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:215
@@ -1735,16 +1735,16 @@ msgid "Sat"
 msgstr "Cmt"
 
 #. translators: 1: status label, 2: reservation count.
-#: src/Admin/Booking/ListTable/BookingColumns.php:1182
+#: src/Admin/Booking/ListTable/BookingColumns.php:1184
 #, php-format
 msgid "Reservations: %1$s (%2$d)"
 msgstr "Rezervasyonlar: %1$s (%2$d)"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1232
+#: src/Admin/Booking/ListTable/BookingColumns.php:1234
 msgid "Reservations: "
 msgstr "Rezervasyonlar: "
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1283
+#: src/Admin/Booking/ListTable/BookingColumns.php:1285
 #: src/Admin/Core/AssetManager.php:529
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:268
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:476
@@ -1763,12 +1763,12 @@ msgstr "Rezervasyonlar: "
 msgid "Available"
 msgstr "Mevcut"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1295
+#: src/Admin/Booking/ListTable/BookingColumns.php:1297
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1094
 msgid "Status Legend"
 msgstr "Durum Açıklaması"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1325
+#: src/Admin/Booking/ListTable/BookingColumns.php:1327
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:216
 #: src/Admin/Booking/Meta/BookingMeta.php:360
 #: src/Admin/Booking/Meta/BookingMeta.php:407
@@ -1779,7 +1779,7 @@ msgstr "Durum Açıklaması"
 msgid "Booking Details"
 msgstr "Rezervasyon detayları"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1331
+#: src/Admin/Booking/ListTable/BookingColumns.php:1333
 #: src/Admin/Core/AssetManager.php:1131
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
@@ -1787,15 +1787,15 @@ msgstr "Rezervasyon detayları"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1130
 #: src/Blocks/BlockRegistry.php:239
 #: src-react/admin/customers/components/CustomerPanel.jsx:68
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:10
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:16
 msgid "Close"
 msgstr "Kapat"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1351
+#: src/Admin/Booking/ListTable/BookingColumns.php:1353
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
 #: src/Admin/Customers/AddCustomerPage.php:150
 #: src/Admin/Customers/CustomersPage.php:307
-#: src/Admin/Customers/CustomersPage.php:457
+#: src/Admin/Customers/CustomersPage.php:470
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -1806,11 +1806,11 @@ msgstr "Kapat"
 msgid "Email"
 msgstr "E-posta"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1355
+#: src/Admin/Booking/ListTable/BookingColumns.php:1357
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
 #: src/Admin/Customers/AddCustomerPage.php:155
 #: src/Admin/Customers/CustomersPage.php:308
-#: src/Admin/Customers/CustomersPage.php:462
+#: src/Admin/Customers/CustomersPage.php:475
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -1821,66 +1821,66 @@ msgstr "E-posta"
 msgid "Phone"
 msgstr "Telefon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1364
+#: src/Admin/Booking/ListTable/BookingColumns.php:1366
 msgid "Vehicle & Dates"
 msgstr "Araç ve Tarihler"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1372
+#: src/Admin/Booking/ListTable/BookingColumns.php:1374
 msgid "Plate"
 msgstr "Plaka:"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1389
+#: src/Admin/Booking/ListTable/BookingColumns.php:1391
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1183
 msgid "Booking Info"
 msgstr "Rezervasyon Bilgisi"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1393
+#: src/Admin/Booking/ListTable/BookingColumns.php:1395
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1187
 msgid "Total Price"
 msgstr "Toplam Fiyat"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1397
+#: src/Admin/Booking/ListTable/BookingColumns.php:1399
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:1191
 msgid "Created"
 msgstr "Oluşturuldu"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1457
+#: src/Admin/Booking/ListTable/BookingColumns.php:1459
 msgid "Booking #"
 msgstr "Rezervasyon #"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1458
+#: src/Admin/Booking/ListTable/BookingColumns.php:1460
 msgid "Unknown Customer"
 msgstr "Bilinmeyen Müşteri"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1467
+#: src/Admin/Booking/ListTable/BookingColumns.php:1469
 msgid "Sample Booking 1"
 msgstr "Örnek Rezervasyon 1"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1468
+#: src/Admin/Booking/ListTable/BookingColumns.php:1470
 msgid "Sample Customer 1"
 msgstr "Örnek Müşteri 1"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1472
+#: src/Admin/Booking/ListTable/BookingColumns.php:1474
 msgid "Sample Booking 2"
 msgstr "Örnek Rezervasyon 2"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1473
+#: src/Admin/Booking/ListTable/BookingColumns.php:1475
 msgid "Sample Customer 2"
 msgstr "Örnek Müşteri 2"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1732
+#: src/Admin/Booking/ListTable/BookingColumns.php:1734
 msgid "Confirmed Booking"
 msgstr "Onaylanmış Rezervasyon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1734
+#: src/Admin/Booking/ListTable/BookingColumns.php:1736
 msgid "Pending Booking"
 msgstr "Bekleyen Rezervasyon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1736
+#: src/Admin/Booking/ListTable/BookingColumns.php:1738
 msgid "Cancelled Booking"
 msgstr "İptal Edilen Rezervasyon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1738
+#: src/Admin/Booking/ListTable/BookingColumns.php:1740
 #: src/Admin/Booking/Meta/BookingMeta.php:322
 #: src/Admin/Booking/PostType/Booking.php:23
 #: src/Admin/Core/ShortcodeServiceProvider.php:425
@@ -1891,12 +1891,12 @@ msgstr "İptal Edilen Rezervasyon"
 msgid "Booking"
 msgstr "Rezervasyon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1943
+#: src/Admin/Booking/ListTable/BookingColumns.php:1946
 msgid "Auto Draft"
 msgstr "Otomatik Taslak"
 
 #. translators: %d: booking ID
-#: src/Admin/Booking/ListTable/BookingColumns.php:1945
+#: src/Admin/Booking/ListTable/BookingColumns.php:1948
 #, php-format
 msgid "Booking #%d"
 msgstr "Rezervasyon #%d"
@@ -2916,7 +2916,7 @@ msgstr "Bu e-posta adresi zaten kayıtlı."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
 #: src/Admin/Customers/CustomersPage.php:273
-#: src/Admin/Customers/CustomersPage.php:390
+#: src/Admin/Customers/CustomersPage.php:403
 #: src/Admin/Customers/REST/CustomersRestController.php:156
 msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
@@ -3220,7 +3220,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:957
 #: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Customers/AddCustomerPage.php:166
-#: src/Admin/Customers/CustomersPage.php:473
+#: src/Admin/Customers/CustomersPage.php:486
 #: src/Admin/Emails/Core/EmailTemplates.php:526
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -3894,7 +3894,7 @@ msgid "Confirm"
 msgstr "Onayla"
 
 #: src/Admin/Core/AssetManager.php:1125
-#: src/Admin/Customers/CustomersPage.php:359
+#: src/Admin/Customers/CustomersPage.php:372
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:38
@@ -3902,7 +3902,7 @@ msgid "Edit"
 msgstr "Düzenle"
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Customers/CustomersPage.php:472
+#: src/Admin/Customers/CustomersPage.php:485
 msgid "Update"
 msgstr "Güncelle"
 
@@ -3928,7 +3928,7 @@ msgid "Back"
 msgstr "Geri"
 
 #: src/Admin/Core/AssetManager.php:1133
-#: src/Admin/Customers/CustomersPage.php:354
+#: src/Admin/Customers/CustomersPage.php:367
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:395
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1092
 #: templates/account/payment-history.php:191
@@ -3940,7 +3940,7 @@ msgid "Next"
 msgstr "Sonraki"
 
 #: src/Admin/Core/AssetManager.php:1134
-#: src/Admin/Customers/CustomersPage.php:349
+#: src/Admin/Customers/CustomersPage.php:362
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:394
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1091
 #: templates/account/payment-history.php:176
@@ -5291,7 +5291,7 @@ msgid "Retry Payment"
 msgstr "Ödemeyi Tekrar Dene"
 
 #: src/Admin/Customers/AddCustomerPage.php:68
-#: src/Admin/Customers/CustomersPage.php:406
+#: src/Admin/Customers/CustomersPage.php:419
 msgid "Customer name, email and phone fields are required."
 msgstr "Müşteri adı, e-posta ve telefon alanları zorunludur."
 
@@ -5317,13 +5317,13 @@ msgid "Add New Customer"
 msgstr "Yeni Müşteri Ekleyin"
 
 #: src/Admin/Customers/AddCustomerPage.php:145
-#: src/Admin/Customers/CustomersPage.php:452
+#: src/Admin/Customers/CustomersPage.php:465
 msgid "Customer Name"
 msgstr "Müşteri Adı"
 
 #: src/Admin/Customers/AddCustomerPage.php:160
 #: src/Admin/Customers/CustomersPage.php:309
-#: src/Admin/Customers/CustomersPage.php:467
+#: src/Admin/Customers/CustomersPage.php:480
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "Address"
@@ -5358,7 +5358,7 @@ msgid "New"
 msgstr "Yeni"
 
 #: src/Admin/Customers/CustomersPage.php:266
-#: src/Admin/Customers/CustomersPage.php:383
+#: src/Admin/Customers/CustomersPage.php:396
 msgid "Invalid customer ID."
 msgstr "Geçersiz müşteri kimliği."
 
@@ -5397,12 +5397,12 @@ msgstr "toplam"
 msgid "favorites"
 msgstr "favori"
 
-#: src/Admin/Customers/CustomersPage.php:331
+#: src/Admin/Customers/CustomersPage.php:344
 #: src-react/admin/customers/components/CustomerPanel.jsx:105
 msgid "Recent bookings"
 msgstr "Son rezervasyonlar"
 
-#: src/Admin/Customers/CustomersPage.php:333
+#: src/Admin/Customers/CustomersPage.php:346
 #: src-react/admin/customers/components/CustomerPanel.jsx:129
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
@@ -5410,40 +5410,40 @@ msgid "No bookings yet."
 msgstr "Henüz rezervasyon yok."
 
 #. translators: 1: current page, 2: total pages
-#: src/Admin/Customers/CustomersPage.php:352
+#: src/Admin/Customers/CustomersPage.php:365
 #, php-format
 msgid "%1$d / %2$d"
 msgstr "%1$d / %2$d"
 
-#: src/Admin/Customers/CustomersPage.php:360
+#: src/Admin/Customers/CustomersPage.php:373
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 msgid "View Bookings"
 msgstr "Rezervasyonları Görüntüle"
 
-#: src/Admin/Customers/CustomersPage.php:361
+#: src/Admin/Customers/CustomersPage.php:374
 msgid "Go Back"
 msgstr "Geri Dön"
 
-#: src/Admin/Customers/CustomersPage.php:379
+#: src/Admin/Customers/CustomersPage.php:392
 msgid "You do not have permission to edit customers."
 msgstr "Müşterileri düzenleme izniniz yok."
 
-#: src/Admin/Customers/CustomersPage.php:429
+#: src/Admin/Customers/CustomersPage.php:442
 msgid "Customer information updated successfully."
 msgstr "Müşteri bilgileri başarıyla güncellendi."
 
-#: src/Admin/Customers/CustomersPage.php:429
+#: src/Admin/Customers/CustomersPage.php:442
 msgid "← Back to customer details"
 msgstr "← Müşteri detaylarına dön"
 
-#: src/Admin/Customers/CustomersPage.php:438
+#: src/Admin/Customers/CustomersPage.php:451
 #: templates/account/dashboard.php:221
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:41
 msgid "View"
 msgstr "Görünüm"
 
-#: src/Admin/Customers/CustomersPage.php:445
+#: src/Admin/Customers/CustomersPage.php:458
 msgid "Edit Customer"
 msgstr "Müşteri Düzenle"
 
@@ -11222,7 +11222,7 @@ msgid "Page"
 msgstr "Sayfa"
 
 #: src/Admin/Setup/SetupWizard.php:204
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:26
 #: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr "Kısa kod"
@@ -15335,20 +15335,32 @@ msgstr "Son 30 gün"
 msgid "Built with WordPress."
 msgstr "WordPress ile geliştirildi."
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:8
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:4
+msgid "shortcode"
+msgstr "kısa kod"
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:5
+msgid "block"
+msgstr "blok"
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:6
+msgid "widget"
+msgstr "widget"
+
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:14
 msgid "Debug Search Results"
 msgstr "Debug Arama Sonuçları"
 
 #. translators: %d: number of pages scanned
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:15
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:21
 msgid "Scanned %d pages."
 msgstr "%d sayfa tarandı."
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:21
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:27
 msgid "Found In"
 msgstr "Bulunduğu Yer"
 
-#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:33
+#: src-react/admin/shortcode-pages/components/DebugPanel.jsx:39
 msgid "Not found"
 msgstr "Bulunamadı"
 
