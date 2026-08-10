@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T13:49:23+00:00\n"
+"POT-Creation-Date: 2026-08-10T14:28:37+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -171,7 +171,7 @@ msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:140
 #: src/Admin/About/Tabs/GeneralTab.php:276
-#: src-react/admin/about/components/DeveloperTab.jsx:43
+#: src-react/admin/about/components/DeveloperTab.jsx:98
 msgid "MHM (MaxHandMade)"
 msgstr ""
 
@@ -298,7 +298,7 @@ msgid "Support channels, documentation and version history"
 msgstr ""
 
 #: src/Admin/About/Tabs/SupportTab.php:60
-#: src-react/admin/about/components/SupportTab.jsx:61
+#: src-react/admin/about/components/SupportTab.jsx:56
 msgid "Version History"
 msgstr ""
 
@@ -356,7 +356,7 @@ msgstr ""
 #: templates/emails/booking-created-admin.html.php:20
 #: templates/emails/booking-status-changed-admin.html.php:21
 #: templates/emails/refund-admin.html.php:21
-#: src-react/admin/about/components/DeveloperTab.jsx:75
+#: src-react/admin/about/components/DeveloperTab.jsx:130
 #: src-react/admin/about/components/SupportTab.jsx:26
 msgid "Email:"
 msgstr ""
@@ -368,7 +368,7 @@ msgstr ""
 #: src/Admin/About/Tabs/SupportTab.php:123
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:678
 #: templates/emails/booking-created-admin.html.php:24
-#: src-react/admin/about/components/DeveloperTab.jsx:79
+#: src-react/admin/about/components/DeveloperTab.jsx:134
 #: src-react/admin/about/components/SupportTab.jsx:27
 msgid "Phone:"
 msgstr ""
@@ -13389,7 +13389,7 @@ msgid "Website"
 msgstr ""
 
 #: templates/emails/receipt-status-email.html.php:298
-#: src-react/admin/about/components/DeveloperTab.jsx:68
+#: src-react/admin/about/components/DeveloperTab.jsx:123
 msgid "Contact"
 msgstr ""
 
@@ -14543,7 +14543,7 @@ msgstr ""
 msgid "Default: \"View All Vehicles\""
 msgstr ""
 
-#: src-react/admin/about/AboutPage.jsx:31
+#: src-react/admin/about/AboutPage.jsx:32
 msgid "Failed to load page data. Please refresh."
 msgstr ""
 
@@ -14556,90 +14556,107 @@ msgid "Click to copy"
 msgstr ""
 
 #: src-react/admin/about/components/CopyValue.jsx:39
+#: src-react/admin/about/components/DeveloperTab.jsx:74
 msgid "Copied!"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:5
+#: src-react/admin/about/components/DeveloperTab.jsx:6
 msgid "WordPress Development"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:6
+#: src-react/admin/about/components/DeveloperTab.jsx:7
 msgid "Custom plugins, theme development, performance optimization"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:9
+#: src-react/admin/about/components/DeveloperTab.jsx:10
 msgid "E-commerce Solutions"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:10
+#: src-react/admin/about/components/DeveloperTab.jsx:11
 msgid "WooCommerce customizations, payment integrations"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:13
+#: src-react/admin/about/components/DeveloperTab.jsx:14
 msgid "Reservation Systems"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:14
+#: src-react/admin/about/components/DeveloperTab.jsx:15
 msgid "Hotel, restaurant, car rental and event reservations"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:20
+#: src-react/admin/about/components/DeveloperTab.jsx:21
 msgid "MHM E-commerce Package"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:21
+#: src-react/admin/about/components/DeveloperTab.jsx:22
 msgid "Comprehensive WooCommerce-based e-commerce solution"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:24
+#: src-react/admin/about/components/DeveloperTab.jsx:25
 msgid "MHM Vehicle Reservation"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:25
+#: src-react/admin/about/components/DeveloperTab.jsx:26
 msgid "Professional vehicle rental and reservation management system."
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:37
+#: src-react/admin/about/components/DeveloperTab.jsx:67
+msgid "System Report"
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:69
+msgid "Copy the report below into your support request."
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:74
+msgid "Copy Report"
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:77
+msgid "Download"
+msgstr ""
+
+#: src-react/admin/about/components/DeveloperTab.jsx:92
 msgid "MHM Logo"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:45
+#: src-react/admin/about/components/DeveloperTab.jsx:100
 msgid "WordPress Expertise and Custom Software Solutions"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:48
+#: src-react/admin/about/components/DeveloperTab.jsx:103
 msgid "10+ Years Experience"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:49
+#: src-react/admin/about/components/DeveloperTab.jsx:104
 msgid "500+ Projects"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:50
+#: src-react/admin/about/components/DeveloperTab.jsx:105
 msgid "100% Customer Satisfaction"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:56
+#: src-react/admin/about/components/DeveloperTab.jsx:111
 msgid "Our Expertise"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:71
+#: src-react/admin/about/components/DeveloperTab.jsx:126
 msgid "Website:"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:83
+#: src-react/admin/about/components/DeveloperTab.jsx:138
 msgid "Address:"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:84
+#: src-react/admin/about/components/DeveloperTab.jsx:139
 msgid "Kocaeli - Turkey 41400"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:90
+#: src-react/admin/about/components/DeveloperTab.jsx:147
 msgid "Our Other Projects"
 msgstr ""
 
-#: src-react/admin/about/components/DeveloperTab.jsx:97
+#: src-react/admin/about/components/DeveloperTab.jsx:154
 msgid "Learn More"
 msgstr ""
 
@@ -14660,22 +14677,10 @@ msgid "Tests & Verification"
 msgstr ""
 
 #: src-react/admin/about/components/SupportTab.jsx:49
-msgid "Automated test coverage in this release:"
+msgid "Every release ships with automated PHPUnit coverage and static analysis gates."
 msgstr ""
 
-#: src-react/admin/about/components/SupportTab.jsx:51
-msgid "PHPUnit tests"
-msgstr ""
-
-#: src-react/admin/about/components/SupportTab.jsx:52
-msgid "assertions"
-msgstr ""
-
-#: src-react/admin/about/components/SupportTab.jsx:53
-msgid "passing"
-msgstr ""
-
-#: src-react/admin/about/components/SupportTab.jsx:55
+#: src-react/admin/about/components/SupportTab.jsx:50
 msgid "Tested with: WP 7.0, PHP 8.2"
 msgstr ""
 

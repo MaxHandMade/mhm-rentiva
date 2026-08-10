@@ -9,12 +9,12 @@ const TABS = [
 
 export default function TabNav( { activeTab, onSwitch } ) {
 	return (
-		<nav className="nav-tab-wrapper">
+		<nav className="rv-abt-tabs">
 			{ TABS.map( ( [ id, label ] ) => (
 				<a
 					key={ id }
 					href={ `?page=mhm-rentiva-about&tab=${ id }` }
-					className={ `nav-tab${ activeTab === id ? ' nav-tab-active' : '' }` }
+					className={ `rv-abt-tab${ activeTab === id ? ' is-active' : '' }` }
 					onClick={ ( e ) => { e.preventDefault(); onSwitch( id ); } }
 				>
 					{ label }

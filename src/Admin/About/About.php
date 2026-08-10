@@ -44,7 +44,7 @@ final class About {
 			'mhm-rentiva-about',
 			MHMRENTIVA_PLUGIN_URL . 'build/admin/about.css',
 			array(),
-			MHMRENTIVA_VERSION
+			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'build/admin/about.css' )
 		);
 
 		// `initial_tab` is not passed: AboutPage.jsx's getInitialTab() already

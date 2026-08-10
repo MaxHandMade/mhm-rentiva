@@ -12,7 +12,7 @@ export default function SystemTab( { data } ) {
 	return (
 		<div className="mhm-about-system mhm-about-cards-grid">
 			{ sections.map( ( [ title, rows ] ) => (
-				<div key={ title } className="mhm-widget mhm-about-info-card">
+				<div key={ title } className="mhm-widget rv-abt-card mhm-about-info-card">
 					<h3>{ title }</h3>
 					<dl>
 						{ rows.map( ( row, i ) => (

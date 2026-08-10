@@ -1,3 +1,4 @@
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
 const EXPERTISE = [
@@ -26,11 +27,71 @@ const PROJECTS = [
 	},
 ];
 
-export default function DeveloperTab( { data } ) {
+function SystemReportCard( { report } ) {
+	const [ copied, setCopied ] = useState( false );
+
+	const handleCopy = () => {
+		const onCopied = () => {
+			setCopied( true );
+			setTimeout( () => setCopied( false ), 2000 );
+		};
+
+		if ( navigator.clipboard && window.isSecureContext ) {
+			navigator.clipboard.writeText( report ).then( onCopied );
+		} else {
+			const el = document.createElement( 'textarea' );
+			el.value = report;
+			el.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
+			document.body.appendChild( el );
+			el.select();
+			document.execCommand( 'copy' );
+			document.body.removeChild( el );
+			onCopied();
+		}
+	};
+
+	const handleDownload = () => {
+		const blob = new Blob( [ report ], { type: 'text/plain' } );
+		const url  = URL.createObjectURL( blob );
+		const a    = document.createElement( 'a' );
+		a.href     = url;
+		a.download = 'mhm-rentiva-system-report.txt';
+		document.body.appendChild( a );
+		a.click();
+		document.body.removeChild( a );
+		URL.revokeObjectURL( url );
+	};
+
+	return (
+		<div className="mhm-widget rv-abt-card rv-abt-report">
+			<h3>{ __( 'System Report', 'mhm-rentiva' ) }</h3>
+			<p className="rv-abt-report__hint">
+				{ __( 'Copy the report below into your support request.', 'mhm-rentiva' ) }
+			</p>
+			<textarea
+				id="rv-abt-report-text"
+				className="rv-abt-report__text"
+				readOnly
+				value={ report }
+				aria-label={ __( 'System Report', 'mhm-rentiva' ) }
+			/>
+			<div className="rv-abt-report__actions">
+				<button type="button" className="rv-abt-btn" onClick={ handleCopy }>
+					{ copied ? __( 'Copied!', 'mhm-rentiva' ) : __( 'Copy Report', 'mhm-rentiva' ) }
+				</button>
+				<button type="button" className="rv-abt-btn" onClick={ handleDownload }>
+					{ __( 'Download', 'mhm-rentiva' ) }
+				</button>
+			</div>
+		</div>
+	);
+}
+
+export default function DeveloperTab( { data, report } ) {
 	return (
 		<div className="mhm-about-developer">
 
-			<div className="mhm-widget mhm-developer-header">
+			<div className="mhm-widget rv-abt-card mhm-developer-header">
 				{ data.logo_url && (
 					<img
 						src={ data.logo_url }
@@ -52,7 +113,7 @@ export default function DeveloperTab( { data } ) {
 				</div>
 			</div>
 
-			<div className="mhm-widget">
+			<div className="mhm-widget rv-abt-card">
 				<h3>{ __( 'Our Expertise', 'mhm-rentiva' ) }</h3>
 				<div className="mhm-about-grid-3">
 					{ EXPERTISE.map( ( item ) => (
@@ -64,7 +125,7 @@ export default function DeveloperTab( { data } ) {
 				</div>
 			</div>
 
-			<div className="mhm-widget">
+			<div className="mhm-widget rv-abt-card">
 				<h3>{ __( 'Contact', 'mhm-rentiva' ) }</h3>
 				<dl className="mhm-contact-grid">
 					<div className="mhm-info-row">
@@ -86,14 +147,16 @@ export default function DeveloperTab( { data } ) {
 				</dl>
 			</div>
 
-			<div className="mhm-widget">
+			<SystemReportCard report={ report } />
+
+			<div className="mhm-widget rv-abt-card">
 				<h3>{ __( 'Our Other Projects', 'mhm-rentiva' ) }</h3>
 				<div className="mhm-about-grid-2">
 					{ PROJECTS.map( ( item ) => (
 						<div key={ item.title } className="mhm-project-item">
 							<h4>{ item.title }</h4>
 							<p>{ item.desc }</p>
-							<a href={ data.company_website } target="_blank" rel="noreferrer" className="button button-small">
+							<a href={ data.company_website } target="_blank" rel="noreferrer" className="rv-abt-btn rv-abt-btn--small">
 								{ __( 'Learn More', 'mhm-rentiva' ) }
 							</a>
 						</div>
