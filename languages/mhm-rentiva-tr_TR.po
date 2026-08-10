@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-10T10:02:45+00:00\n"
+"POT-Creation-Date: 2026-08-10T10:37:25+00:00\n"
 "PO-Revision-Date: 2026-08-10 10:04+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -287,7 +287,6 @@ msgid "Total Vehicles"
 msgstr "Toplam Araç Sayısı"
 
 #: src/Admin/About/Tabs/GeneralTab.php:308
-#: src/Admin/Customers/CustomersPage.php:230
 #: src/Core/Dashboard/DashboardConfig.php:24 templates/account/dashboard.php:50
 #: src-react/admin/dashboard/components/StatsCards.jsx:21
 msgid "Total Bookings"
@@ -765,6 +764,7 @@ msgstr "Ek Hizmet Ayarları"
 #: src/Admin/Addons/AddonMeta.php:106
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:971
+#: src/Admin/Customers/CustomersPage.php:208
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:880 src/Admin/Setup/SetupWizard.php:939
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1187
@@ -790,7 +790,12 @@ msgstr "Bu ek hizmeti etkinleştirin"
 msgid "Only active additional services are visible in booking form."
 msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 
-#: src/Admin/Addons/AddonMeta.php:112 src/Admin/Setup/SetupWizard.php:962
+#: src/Admin/Addons/AddonMeta.php:112
+#: src/Admin/Customers/AddCustomerPage.php:138
+#: src/Admin/Customers/AddCustomerPage.php:143
+#: src/Admin/Customers/CustomersPage.php:378
+#: src/Admin/Customers/CustomersPage.php:383
+#: src/Admin/Setup/SetupWizard.php:962
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
 msgstr "Gerekli"
@@ -1786,9 +1791,9 @@ msgstr "Kapat"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1351
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
-#: src/Admin/Customers/AddCustomerPage.php:145
-#: src/Admin/Customers/CustomersPage.php:194
-#: src/Admin/Customers/CustomersPage.php:370
+#: src/Admin/Customers/AddCustomerPage.php:143
+#: src/Admin/Customers/CustomersPage.php:262
+#: src/Admin/Customers/CustomersPage.php:383
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -1801,9 +1806,9 @@ msgstr "E-posta"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1355
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
-#: src/Admin/Customers/AddCustomerPage.php:150
-#: src/Admin/Customers/CustomersPage.php:201
-#: src/Admin/Customers/CustomersPage.php:375
+#: src/Admin/Customers/AddCustomerPage.php:148
+#: src/Admin/Customers/CustomersPage.php:263
+#: src/Admin/Customers/CustomersPage.php:388
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -2907,8 +2912,8 @@ msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
-#: src/Admin/Customers/CustomersPage.php:170
-#: src/Admin/Customers/CustomersPage.php:308
+#: src/Admin/Customers/CustomersPage.php:228
+#: src/Admin/Customers/CustomersPage.php:323
 #: src/Admin/Customers/REST/CustomersRestController.php:156
 msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
@@ -3211,8 +3216,8 @@ msgstr "Emin misiniz?"
 
 #: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:957
 #: src/Admin/Core/AssetManager.php:1121
-#: src/Admin/Customers/AddCustomerPage.php:164
-#: src/Admin/Customers/CustomersPage.php:389
+#: src/Admin/Customers/AddCustomerPage.php:159
+#: src/Admin/Customers/CustomersPage.php:399
 #: src/Admin/Emails/Core/EmailTemplates.php:526
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -3886,7 +3891,7 @@ msgid "Confirm"
 msgstr "Onayla"
 
 #: src/Admin/Core/AssetManager.php:1125
-#: src/Admin/Customers/CustomersPage.php:256
+#: src/Admin/Customers/CustomersPage.php:292
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
@@ -3894,7 +3899,7 @@ msgid "Edit"
 msgstr "Düzenle"
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Customers/CustomersPage.php:388
+#: src/Admin/Customers/CustomersPage.php:398
 msgid "Update"
 msgstr "Güncelle"
 
@@ -5281,7 +5286,7 @@ msgid "Retry Payment"
 msgstr "Ödemeyi Tekrar Dene"
 
 #: src/Admin/Customers/AddCustomerPage.php:65
-#: src/Admin/Customers/CustomersPage.php:321
+#: src/Admin/Customers/CustomersPage.php:336
 msgid "Customer name and email fields are required."
 msgstr "Müşteri adı ve e-posta alanları zorunludur."
 
@@ -5297,85 +5302,114 @@ msgstr "Müşteri eklenirken hata oluştu: "
 msgid "Add New Customer"
 msgstr "Yeni Müşteri Ekleyin"
 
-#: src/Admin/Customers/AddCustomerPage.php:140
-#: src/Admin/Customers/CustomersPage.php:189
-#: src/Admin/Customers/CustomersPage.php:365
+#: src/Admin/Customers/AddCustomerPage.php:138
+#: src/Admin/Customers/CustomersPage.php:378
 msgid "Customer Name"
 msgstr "Müşteri Adı"
 
-#: src/Admin/Customers/AddCustomerPage.php:155
-#: src/Admin/Customers/CustomersPage.php:209
-#: src/Admin/Customers/CustomersPage.php:380
+#: src/Admin/Customers/AddCustomerPage.php:153
+#: src/Admin/Customers/CustomersPage.php:264
+#: src/Admin/Customers/CustomersPage.php:393
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "Address"
 msgstr "Adres"
 
-#: src/Admin/Customers/AddCustomerPage.php:163
+#: src/Admin/Customers/AddCustomerPage.php:158
 #: src-react/admin/customers/components/FilterBar.jsx:14
 msgid "Add Customer"
 msgstr "Müşteri Ekle"
 
-#: src/Admin/Customers/CustomersPage.php:163
-#: src/Admin/Customers/CustomersPage.php:301
+#: src/Admin/Customers/CustomersPage.php:204
+#: src-react/admin/customers/components/CustomerTable.jsx:22
+#: src-react/admin/customers/CustomersPage.jsx:15
+msgid "VIP"
+msgstr "VIP"
+
+#: src/Admin/Customers/CustomersPage.php:206
+#: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
+#: src-react/admin/customers/components/CustomerTable.jsx:23
+#: src-react/admin/customers/CustomersPage.jsx:14
+msgid "New"
+msgstr "Yeni"
+
+#: src/Admin/Customers/CustomersPage.php:221
+#: src/Admin/Customers/CustomersPage.php:316
 msgid "Invalid customer ID."
 msgstr "Geçersiz müşteri kimliği."
 
-#: src/Admin/Customers/CustomersPage.php:175
+#: src/Admin/Customers/CustomersPage.php:233
 msgid "Customers List"
 msgstr "Müşteri Listesi"
 
-#: src/Admin/Customers/CustomersPage.php:182
+#: src/Admin/Customers/CustomersPage.php:243
 #: src-react/admin/customers/components/CustomerPanel.jsx:37
 #: src-react/admin/customers/components/CustomerPanel.jsx:51
 msgid "Customer Details"
 msgstr "Müşteri Detayları"
 
-#: src/Admin/Customers/CustomersPage.php:215
-msgid "Registration Date"
-msgstr "Kayıt Tarihi"
-
-#: src/Admin/Customers/CustomersPage.php:225
-msgid "Booking Statistics"
-msgstr "Rezervasyon İstatistikleri"
-
-#: src/Admin/Customers/CustomersPage.php:235
-msgid "Total Spending"
-msgstr "Toplam Harcama"
-
-#: src/Admin/Customers/CustomersPage.php:240
-msgid "Last Booking"
-msgstr "Son Rezervasyon"
-
-#: src/Admin/Customers/CustomersPage.php:245
+#: src/Admin/Customers/CustomersPage.php:265
 msgid "First Booking"
 msgstr "İlk Rezervasyon"
 
-#: src/Admin/Customers/CustomersPage.php:257
+#: src/Admin/Customers/CustomersPage.php:266
+msgid "Last Booking"
+msgstr "Son Rezervasyon"
+
+#: src/Admin/Customers/CustomersPage.php:271
+#: src-react/admin/customers/components/CustomerPanel.jsx:92
+msgid "bookings"
+msgstr "rezervasyon"
+
+#: src/Admin/Customers/CustomersPage.php:272
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:590
+#: src-react/admin/customers/components/CustomerPanel.jsx:96
+#: src-react/admin/dashboard/components/StatsCards.jsx:38
+msgid "total"
+msgstr "toplam"
+
+#: src/Admin/Customers/CustomersPage.php:273
+#: src-react/admin/customers/components/CustomerPanel.jsx:100
+msgid "favorites"
+msgstr "favori"
+
+#: src/Admin/Customers/CustomersPage.php:278
+#: src-react/admin/customers/components/CustomerPanel.jsx:105
+msgid "Recent bookings"
+msgstr "Son rezervasyonlar"
+
+#: src/Admin/Customers/CustomersPage.php:281
+#: src-react/admin/customers/components/CustomerPanel.jsx:121
+#: src-react/admin/dashboard/components/RecentBookings.jsx:57
+#: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
+msgid "No bookings yet."
+msgstr "Henüz rezervasyon yok."
+
+#: src/Admin/Customers/CustomersPage.php:293
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 msgid "View Bookings"
 msgstr "Rezervasyonları Görüntüle"
 
-#: src/Admin/Customers/CustomersPage.php:258
+#: src/Admin/Customers/CustomersPage.php:294
 msgid "Go Back"
 msgstr "Geri Dön"
 
-#: src/Admin/Customers/CustomersPage.php:297
+#: src/Admin/Customers/CustomersPage.php:312
 msgid "You do not have permission to edit customers."
 msgstr "Müşterileri düzenleme izniniz yok."
 
-#: src/Admin/Customers/CustomersPage.php:340
+#: src/Admin/Customers/CustomersPage.php:355
 msgid "Customer information updated successfully."
 msgstr "Müşteri bilgileri başarıyla güncellendi."
 
-#: src/Admin/Customers/CustomersPage.php:349
+#: src/Admin/Customers/CustomersPage.php:364
 #: templates/account/dashboard.php:221
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 msgid "View"
 msgstr "Görünüm"
 
-#: src/Admin/Customers/CustomersPage.php:356
+#: src/Admin/Customers/CustomersPage.php:371
 msgid "Edit Customer"
 msgstr "Müşteri Düzenle"
 
@@ -11799,12 +11833,6 @@ msgstr "Depozito: %1$s %2$s"
 msgid "Pay via WooCommerce"
 msgstr "WooCommerce ile ödeme yapın"
 
-#: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
-#: src-react/admin/customers/components/CustomerTable.jsx:23
-#: src-react/admin/customers/CustomersPage.jsx:14
-msgid "New"
-msgstr "Yeni"
-
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:85
 msgid "This vehicle has just started receiving reviews."
 msgstr "Bu araç henüz yorum almaya başladı."
@@ -11969,12 +11997,6 @@ msgstr "Bu günü tekrar rezervasyona açmak istiyor musunuz?"
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:588
 msgid "Monthly Reserved Vehicles"
 msgstr "Aylık Rezervasyonlu Araçlar"
-
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:590
-#: src-react/admin/customers/components/CustomerPanel.jsx:96
-#: src-react/admin/dashboard/components/StatsCards.jsx:38
-msgid "total"
-msgstr "toplam"
 
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:597
 msgid "This Month Occupancy"
@@ -15090,28 +15112,10 @@ msgstr "Müşteri detayları yüklenemedi."
 msgid "Select a customer to see the details"
 msgstr "Detayları görmek için bir müşteri seçin"
 
-#: src-react/admin/customers/components/CustomerPanel.jsx:92
-msgid "bookings"
-msgstr "rezervasyon"
-
-#: src-react/admin/customers/components/CustomerPanel.jsx:100
-msgid "favorites"
-msgstr "favori"
-
-#: src-react/admin/customers/components/CustomerPanel.jsx:105
-msgid "Recent bookings"
-msgstr "Son rezervasyonlar"
-
 #: src-react/admin/customers/components/CustomerPanel.jsx:107
 #: src-react/admin/customers/CustomersPage.jsx:132
 msgid "Loading…"
 msgstr "Yükleniyor…"
-
-#: src-react/admin/customers/components/CustomerPanel.jsx:121
-#: src-react/admin/dashboard/components/RecentBookings.jsx:57
-#: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
-msgid "No bookings yet."
-msgstr "Henüz rezervasyon yok."
 
 #: src-react/admin/customers/components/CustomerPanel.jsx:126
 msgid "Open Profile"
@@ -15120,11 +15124,6 @@ msgstr "Profili Aç"
 #: src-react/admin/customers/components/CustomerTable.jsx:6
 msgid "Total Spent"
 msgstr "Toplam Harcama"
-
-#: src-react/admin/customers/components/CustomerTable.jsx:22
-#: src-react/admin/customers/CustomersPage.jsx:15
-msgid "VIP"
-msgstr "VIP"
 
 #: src-react/admin/customers/components/CustomerTable.jsx:60
 msgid "No customers found."
@@ -15537,6 +15536,15 @@ msgstr "MHM Araçlar Listesi"
 msgctxt "block description"
 msgid "Display vehicles in a list layout."
 msgstr "Araçları liste düzeninde görüntüleyin."
+
+#~ msgid "Registration Date"
+#~ msgstr "Kayıt Tarihi"
+
+#~ msgid "Booking Statistics"
+#~ msgstr "Rezervasyon İstatistikleri"
+
+#~ msgid "Total Spending"
+#~ msgstr "Toplam Harcama"
 
 #~ msgid "Registered"
 #~ msgstr "Kayıt Tarihi"

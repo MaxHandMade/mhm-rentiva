@@ -153,6 +153,64 @@ final class CustomersPage {
 
 
 	/**
+	 * Avatar colour pairs; mirrors AVATAR_PALETTE in
+	 * src-react/admin/customers/components/CustomerTable.jsx so the detail
+	 * page shows the same avatar the list rendered for this customer.
+	 *
+	 * @param int $customer_id Customer user ID.
+	 * @return array{0: string, 1: string} Background and foreground colours.
+	 */
+	private static function avatar_colors( int $customer_id ): array
+	{
+		$palette = array(
+			array( '#e5f0fb', '#135e96' ),
+			array( '#e4f6e9', '#0a6b1e' ),
+			array( '#fdf0e4', '#a15b1e' ),
+			array( '#f3e8fb', '#6b2fa0' ),
+			array( '#fbe9f1', '#9e2b63' ),
+			array( '#e9f6f6', '#0f6b6b' ),
+			array( '#eef2f7', '#41505f' ),
+			array( '#fcf3d6', '#8a6d1b' ),
+		);
+		return $palette[ abs( $customer_id ) % count( $palette ) ];
+	}
+
+	/**
+	 * First letters of up to two words, the same shape the React table shows.
+	 *
+	 * @param string $name Display name.
+	 * @return string
+	 */
+	private static function avatar_initials( string $name ): string
+	{
+		$words    = preg_split( '/\s+/', trim( $name ) ) ?: array();
+		$initials = '';
+		foreach ( array_slice( $words, 0, 2 ) as $word ) {
+			$initials .= mb_substr( $word, 0, 1 );
+		}
+		return mb_strtoupper( $initials );
+	}
+
+	/**
+	 * Translated label for a derived customer status tag.
+	 *
+	 * @param string $status vip|new|active|none.
+	 * @return string Empty for none.
+	 */
+	private static function status_label( string $status ): string
+	{
+		switch ( $status ) {
+			case 'vip':
+				return __( 'VIP', 'mhm-rentiva' );
+			case 'new':
+				return __( 'New', 'mhm-rentiva' );
+			case 'active':
+				return __( 'Active', 'mhm-rentiva' );
+		}
+		return '';
+	}
+
+	/**
 	 * Render customer view page
 	 *
 	 * @return void
@@ -164,9 +222,9 @@ final class CustomersPage {
 		}
 
 		$customer_id = intval(wp_unslash($_GET['customer_id'] ?? 0));
-		$customer    = get_user_by('id', $customer_id);
+		$detail      = CustomersOptimizer::get_customer_details_optimized($customer_id);
 
-		if (! $customer) {
+		if (! $detail) {
 			wp_die(esc_html__('Customer not found.', 'mhm-rentiva'));
 		}
 
@@ -178,110 +236,67 @@ final class CustomersPage {
 			),
 		);
 
+		list( $av_bg, $av_color ) = self::avatar_colors( $customer_id );
+		$status_label             = self::status_label( (string) ( $detail['status'] ?? '' ) );
+
 		echo '<div class="wrap mhm-customer-view-wrap">';
 		$this->render_admin_header(esc_html__('Customer Details', 'mhm-rentiva'), $buttons);
 
-		echo '<div class="customer-details">';
-		echo '<table class="form-table">';
-		echo '<tbody>';
+		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<div class="rv-cust-panel__card">';
 
-		echo '<tr>';
-		echo '<th scope="row">' . esc_html__('Customer Name', 'mhm-rentiva') . '</th>';
-		echo '<td><strong>' . esc_html($customer->display_name) . '</strong></td>';
-		echo '</tr>';
-
-		echo '<tr>';
-		echo '<th scope="row">' . esc_html__('Email', 'mhm-rentiva') . '</th>';
-		echo '<td><a href="mailto:' . esc_attr($customer->user_email) . '">' . esc_html($customer->user_email) . '</a></td>';
-		echo '</tr>';
-
-		$phone = get_user_meta($customer_id, 'mhmrentiva_phone', true);
-		if ($phone) {
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('Phone', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($phone) . '</td>';
-			echo '</tr>';
+		// Header: avatar + name + registered/status.
+		echo '<div class="rv-cust-panel__head">';
+		echo '<span class="rv-cust-avatar is-lg" style="background:' . esc_attr( $av_bg ) . ';color:' . esc_attr( $av_color ) . '">' . esc_html( self::avatar_initials( (string) $detail['name'] ) ) . '</span>';
+		echo '<div class="rv-cust-panel__title">';
+		echo '<div class="rv-cust-panel__name">' . esc_html( $detail['name'] ) . '</div>';
+		echo '<div class="rv-cust-panel__meta">' . esc_html( $detail['registered'] . ( '' !== $status_label ? ' · ' . $status_label : '' ) ) . '</div>';
+		echo '</div>';
+		if ( '' !== $status_label ) {
+			echo '<span class="rv-cust-tag is-' . esc_attr( (string) $detail['status'] ) . '">' . esc_html( $status_label ) . '</span>';
 		}
-
-		$address = get_user_meta($customer_id, 'mhmrentiva_address', true);
-		if ($address) {
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('Address', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($address) . '</td>';
-			echo '</tr>';
-		}
-
-		echo '<tr>';
-		echo '<th scope="row">' . esc_html__('Registration Date', 'mhm-rentiva') . '</th>';
-		echo '<td>' . esc_html(date_i18n(get_option('date_format'), strtotime($customer->user_registered))) . '</td>';
-		echo '</tr>';
-
-		echo '</tbody>';
-		echo '</table>';
-
-		// Booking statistics
-		$booking_stats = self::get_customer_booking_stats($customer_id);
-		if ($booking_stats) {
-			echo '<h2>' . esc_html__('Booking Statistics', 'mhm-rentiva') . '</h2>';
-			echo '<table class="form-table">';
-			echo '<tbody>';
-
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('Total Bookings', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($booking_stats['booking_count']) . '</td>';
-			echo '</tr>';
-
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('Total Spending', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($booking_stats['total_spent']) . ' ' . esc_html($booking_stats['currency']) . '</td>';
-			echo '</tr>';
-
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('Last Booking', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($booking_stats['last_booking']) . '</td>';
-			echo '</tr>';
-
-			echo '<tr>';
-			echo '<th scope="row">' . esc_html__('First Booking', 'mhm-rentiva') . '</th>';
-			echo '<td>' . esc_html($booking_stats['first_booking']) . '</td>';
-			echo '</tr>';
-
-			echo '</tbody>';
-			echo '</table>';
-		}
-
 		echo '</div>';
 
-		echo '<p class="submit">';
-		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="button button-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
-		echo ' <a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $customer->user_email)) . '" class="button">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
-		echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="button">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
-		echo '</p>';
-
+		// Contact lines.
+		echo '<div class="rv-cust-panel__contact">';
+		echo '<div class="rv-cust-panel__line"><span>' . esc_html__( 'Email', 'mhm-rentiva' ) . '</span><span><a href="mailto:' . esc_attr( $detail['email'] ) . '">' . esc_html( $detail['email'] ) . '</a></span></div>';
+		echo '<div class="rv-cust-panel__line"><span>' . esc_html__( 'Phone', 'mhm-rentiva' ) . '</span><span>' . esc_html( $detail['phone'] ) . '</span></div>';
+		echo '<div class="rv-cust-panel__line"><span>' . esc_html__( 'Address', 'mhm-rentiva' ) . '</span><span>' . esc_html( $detail['address'] ) . '</span></div>';
+		echo '<div class="rv-cust-panel__line"><span>' . esc_html__( 'First Booking', 'mhm-rentiva' ) . '</span><span>' . esc_html( $detail['first_booking'] ) . '</span></div>';
+		echo '<div class="rv-cust-panel__line"><span>' . esc_html__( 'Last Booking', 'mhm-rentiva' ) . '</span><span>' . esc_html( $detail['last_booking'] ) . '</span></div>';
 		echo '</div>';
-	}
 
-	/**
-	 * Get customer booking statistics (optimized)
-	 *
-	 * @param int $customer_id
-	 * @return array|null
-	 */
-	private static function get_customer_booking_stats(int $customer_id): ?array
-	{
-		$customer_data = CustomersOptimizer::get_customer_details_optimized($customer_id);
+		// Stat grid.
+		echo '<div class="rv-cust-panel__stats">';
+		echo '<div><strong>' . esc_html( (string) $detail['booking_count'] ) . '</strong><span>' . esc_html__( 'bookings', 'mhm-rentiva' ) . '</span></div>';
+		echo '<div><strong>' . esc_html( $detail['currency'] . $detail['total_spent'] ) . '</strong><span>' . esc_html__( 'total', 'mhm-rentiva' ) . '</span></div>';
+		echo '<div><strong>' . esc_html( (string) ( $detail['favorites_count'] ?? 0 ) ) . '</strong><span>' . esc_html__( 'favorites', 'mhm-rentiva' ) . '</span></div>';
+		echo '</div>';
 
-		if (! $customer_data) {
-			return null;
+		// Recent bookings + actions.
+		echo '<div class="rv-cust-panel__body">';
+		echo '<div class="rv-cust-panel__section-title">' . esc_html__( 'Recent bookings', 'mhm-rentiva' ) . '</div>';
+		$recent = (array) ( $detail['recent_bookings'] ?? array() );
+		if ( empty( $recent ) ) {
+			echo '<p class="rv-cust-panel__none">' . esc_html__( 'No bookings yet.', 'mhm-rentiva' ) . '</p>';
+		} else {
+			foreach ( $recent as $booking ) {
+				echo '<div class="rv-cust-panel__booking">';
+				echo '<div><div class="rv-cust-panel__booking-vehicle">' . esc_html( $booking['vehicle'] ) . '</div>';
+				echo '<div class="rv-cust-panel__booking-date">' . esc_html( $booking['date'] ) . '</div></div>';
+				echo '<span class="rv-cust-panel__booking-amount">' . esc_html( $detail['currency'] . $booking['amount'] ) . '</span>';
+				echo '</div>';
+			}
 		}
+		echo '<div class="rv-cust-panel__actions">';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="rv-cust-btn is-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $detail['email'])) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="rv-cust-btn">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
+		echo '</div>';
+		echo '</div>';
 
-		return array(
-			'booking_count' => $customer_data['booking_count'],
-			'total_spent'   => $customer_data['total_spent'],
-			'last_booking'  => $customer_data['last_booking'],
-			'first_booking' => $customer_data['first_booking'],
-			'currency'      => $customer_data['currency'],
-		);
+		echo '</div></div></div>';
+		echo '</div>';
 	}
 
 	/**
@@ -355,41 +370,37 @@ final class CustomersPage {
 		echo '<div class="wrap mhm-customer-edit-wrap">';
 		$this->render_admin_header(esc_html__('Edit Customer', 'mhm-rentiva'), $buttons);
 
-		echo '<form method="post" action="">';
+		echo '<div class="rv-cust-scope"><div class="rv-cust rv-cust-detail-page">';
+		echo '<form method="post" action="" class="rv-cust-panel__card rv-cust-form">';
 		wp_nonce_field('mhmrentiva_edit_customer', 'mhmrentiva_edit_customer_nonce');
 
-		echo '<table class="form-table">';
-		echo '<tbody>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_name">' . esc_html__('Customer Name', 'mhm-rentiva') . ' <span class="rv-cust-req">' . esc_html__('Required', 'mhm-rentiva') . '</span></label>';
+		echo '<input name="customer_name" type="text" id="customer_name" value="' . esc_attr($customer->display_name) . '" required />';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_name">' . esc_html__('Customer Name', 'mhm-rentiva') . '</label></th>';
-		echo '<td><input name="customer_name" type="text" id="customer_name" value="' . esc_attr($customer->display_name) . '" class="regular-text" required /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_email">' . esc_html__('Email', 'mhm-rentiva') . ' <span class="rv-cust-req">' . esc_html__('Required', 'mhm-rentiva') . '</span></label>';
+		echo '<input name="customer_email" type="email" id="customer_email" value="' . esc_attr($customer->user_email) . '" required />';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_email">' . esc_html__('Email', 'mhm-rentiva') . '</label></th>';
-		echo '<td><input name="customer_email" type="email" id="customer_email" value="' . esc_attr($customer->user_email) . '" class="regular-text" required /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . '</label>';
+		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" />';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . '</label></th>';
-		echo '<td><input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" class="regular-text" /></td>';
-		echo '</tr>';
+		echo '<div class="rv-cust-form__field">';
+		echo '<label for="customer_address">' . esc_html__('Address', 'mhm-rentiva') . '</label>';
+		echo '<textarea name="customer_address" id="customer_address" rows="3">' . esc_textarea(get_user_meta($customer_id, 'mhmrentiva_address', true)) . '</textarea>';
+		echo '</div>';
 
-		echo '<tr>';
-		echo '<th scope="row"><label for="customer_address">' . esc_html__('Address', 'mhm-rentiva') . '</label></th>';
-		echo '<td><textarea name="customer_address" id="customer_address" rows="3" cols="50" class="large-text">' . esc_textarea(get_user_meta($customer_id, 'mhmrentiva_address', true)) . '</textarea></td>';
-		echo '</tr>';
-
-		echo '</tbody>';
-		echo '</table>';
-
-		echo '<p class="submit">';
-		echo '<input type="submit" name="submit" id="submit" class="button button-primary" value="' . esc_attr__('Update', 'mhm-rentiva') . '">';
-		echo ' <a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id)) . '" class="button">' . esc_html__('Cancel', 'mhm-rentiva') . '</a>';
-		echo '</p>';
+		echo '<div class="rv-cust-form__actions">';
+		echo '<button type="submit" name="submit" id="submit" class="rv-cust-btn is-primary">' . esc_html__('Update', 'mhm-rentiva') . '</button>';
+		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('Cancel', 'mhm-rentiva') . '</a>';
+		echo '</div>';
 
 		echo '</form>';
+		echo '</div></div>';
 		echo '</div>';
 	}
 }

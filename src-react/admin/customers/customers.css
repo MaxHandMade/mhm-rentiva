@@ -1,10 +1,10 @@
 /*
  * Customers page — refined WP-admin skin (Broadsheet-era admin recipe).
- * Every rule is scoped under #mhm-customers-root so nothing leaks into
+ * Every rule is scoped under :is(#mhm-customers-root, .rv-cust-scope) so nothing leaks into
  * shared/admin.css or other screens; rv- prefixed classes only.
  */
 
-#mhm-customers-root .rv-cust {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust {
 	max-width: 1400px;
 	margin-top: 16px;
 	padding: 0 4px;
@@ -14,7 +14,7 @@
 
 /* ── Top bar: KPI cards + page actions ─────────────────────────────── */
 
-#mhm-customers-root .rv-cust-topbar {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-topbar {
 	display: flex;
 	align-items: flex-start;
 	gap: 14px;
@@ -22,7 +22,7 @@
 	margin-bottom: 18px;
 }
 
-#mhm-customers-root .rv-cust-kpis {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpis {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 	gap: 14px;
@@ -30,7 +30,7 @@
 	min-width: 0;
 }
 
-#mhm-customers-root .rv-cust-kpi {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi {
 	background: #fff;
 	border: 1px solid #e6e7eb;
 	border-radius: 12px;
@@ -38,42 +38,42 @@
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 }
 
-#mhm-customers-root .rv-cust-kpi__label {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__label {
 	font-size: 12px;
 	color: #646970;
 }
 
-#mhm-customers-root .rv-cust-kpi__row {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__row {
 	display: flex;
 	align-items: baseline;
 	gap: 8px;
 	margin-top: 6px;
 }
 
-#mhm-customers-root .rv-cust-kpi__value {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__value {
 	font-size: 26px;
 	font-weight: 700;
 	line-height: 1;
 }
 
-#mhm-customers-root .rv-cust-kpi__sub {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__sub {
 	font-size: 12px;
 	color: #646970;
 }
 
-#mhm-customers-root .rv-cust-kpi__sub.is-up {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__sub.is-up {
 	color: #0a6b1e;
 }
 
-#mhm-customers-root .rv-cust-kpi__sub.is-down {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__sub.is-down {
 	color: #b32d2e;
 }
 
-#mhm-customers-root .rv-cust-kpi__sub.is-info {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-kpi__sub.is-info {
 	color: #135e96;
 }
 
-#mhm-customers-root .rv-cust-actions {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-actions {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -82,7 +82,7 @@
 
 /* ── Buttons ───────────────────────────────────────────────────────── */
 
-#mhm-customers-root .rv-cust-btn {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn {
 	display: inline-block;
 	font-size: 13px;
 	font-weight: 500;
@@ -97,38 +97,38 @@
 	line-height: 1.4;
 }
 
-#mhm-customers-root .rv-cust-btn:hover {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn:hover {
 	border-color: #b6bcc3;
 	color: #1d2327;
 }
 
-#mhm-customers-root .rv-cust-btn.is-primary {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn.is-primary {
 	background: #2271b1;
 	border-color: #2271b1;
 	color: #fff;
 	font-weight: 600;
 }
 
-#mhm-customers-root .rv-cust-btn.is-primary:hover {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-btn.is-primary:hover {
 	background: #135e96;
 	border-color: #135e96;
 }
 
 /* ── Two-column layout ─────────────────────────────────────────────── */
 
-#mhm-customers-root .rv-cust-layout {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-layout {
 	display: flex;
 	align-items: flex-start;
 	gap: 20px;
 	flex-wrap: wrap;
 }
 
-#mhm-customers-root .rv-cust-main {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-main {
 	flex: 2 1 520px;
 	min-width: 0;
 }
 
-#mhm-customers-root .rv-cust-card {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
 	border-radius: 14px;
@@ -138,7 +138,7 @@
 
 /* ── Toolbar (search + status filter) ──────────────────────────────── */
 
-#mhm-customers-root .rv-cust-toolbar {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-toolbar {
 	display: flex;
 	align-items: center;
 	gap: 10px;
@@ -147,12 +147,12 @@
 	flex-wrap: wrap;
 }
 
-#mhm-customers-root .rv-cust-search {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-search {
 	flex: 1;
 	min-width: 180px;
 }
 
-#mhm-customers-root .rv-cust-search input {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-search input {
 	width: 100%;
 	font-size: 13px;
 	padding: 8px 12px;
@@ -164,7 +164,7 @@
 	min-height: 0;
 }
 
-#mhm-customers-root .rv-cust-status-filter {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-status-filter {
 	font-size: 13px;
 	padding: 8px 10px;
 	border: 1px solid #dcdde1;
@@ -176,7 +176,7 @@
 
 /* ── Bulk bar / notices ────────────────────────────────────────────── */
 
-#mhm-customers-root .rv-cust-bulk-bar {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-bulk-bar {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -186,17 +186,17 @@
 	font-weight: 600;
 }
 
-#mhm-customers-root .rv-cust-error {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-error {
 	padding: 12px 18px;
 	color: #b32d2e;
 }
 
-#mhm-customers-root .rv-cust-loading {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-loading {
 	padding: 24px 18px;
 	color: #646970;
 }
 
-#mhm-customers-root .rv-cust-empty {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-empty {
 	padding: 40px 18px;
 	text-align: center;
 	color: #8a8f98;
@@ -204,18 +204,18 @@
 
 /* ── Table ─────────────────────────────────────────────────────────── */
 
-#mhm-customers-root .rv-cust-table-wrap {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table-wrap {
 	overflow-x: auto;
 }
 
-#mhm-customers-root .rv-cust-table {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table {
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 13px;
 	min-width: 640px;
 }
 
-#mhm-customers-root .rv-cust-th {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th {
 	text-align: left;
 	padding: 11px 14px;
 	border-bottom: 1px solid #eceef1;
@@ -225,79 +225,79 @@
 	white-space: nowrap;
 }
 
-#mhm-customers-root .rv-cust-th.is-right,
-#mhm-customers-root .rv-cust-table td.is-right {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.is-right,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td.is-right {
 	text-align: right;
 }
 
-#mhm-customers-root .rv-cust-th.is-check,
-#mhm-customers-root .rv-cust-table td.is-check {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.is-check,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td.is-check {
 	width: 34px;
 	padding: 11px 8px 11px 16px;
 }
 
-#mhm-customers-root .rv-cust-th.sortable {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sortable {
 	cursor: pointer;
 	user-select: none;
 }
 
-#mhm-customers-root .rv-cust-th.sortable:hover {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sortable:hover {
 	color: #2271b1;
 }
 
-#mhm-customers-root .rv-cust-th .sort-icon {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th .sort-icon {
 	font-size: 11px;
 	color: #b6bcc3;
 }
 
-#mhm-customers-root .rv-cust-th.sort-active,
-#mhm-customers-root .rv-cust-th.sort-active .sort-icon {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sort-active,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-th.sort-active .sort-icon {
 	color: #2271b1;
 }
 
-#mhm-customers-root .rv-cust-table td {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table td {
 	padding: 12px 14px;
 	border-bottom: 1px solid #f2f3f5;
 	vertical-align: middle;
 }
 
-#mhm-customers-root .rv-cust-table tbody tr {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr {
 	cursor: pointer;
 	background: #fff;
 }
 
-#mhm-customers-root .rv-cust-table tbody tr:hover {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr:hover {
 	background: #f7f9fc;
 }
 
-#mhm-customers-root .rv-cust-table tbody tr.is-open {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr.is-open {
 	background: #eff5fc;
 }
 
-#mhm-customers-root .rv-cust-table tbody tr.is-checked {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-table tbody tr.is-checked {
 	background: #f5f9ff;
 }
 
-#mhm-customers-root .rv-cust-phone {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-phone {
 	color: #50575e;
 	white-space: nowrap;
 }
 
-#mhm-customers-root .rv-cust-total {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-total {
 	font-weight: 600;
 	white-space: nowrap;
 }
 
 /* Customer cell: avatar + name + email */
 
-#mhm-customers-root .rv-cust-who {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-who {
 	display: flex;
 	align-items: center;
 	gap: 11px;
 	min-width: 0;
 }
 
-#mhm-customers-root .rv-cust-avatar {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-avatar {
 	width: 34px;
 	height: 34px;
 	flex: none;
@@ -308,23 +308,23 @@
 	font-size: 13px;
 }
 
-#mhm-customers-root .rv-cust-avatar.is-lg {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-avatar.is-lg {
 	width: 48px;
 	height: 48px;
 	font-size: 16px;
 }
 
-#mhm-customers-root .rv-cust-who__text {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-who__text {
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
 }
 
-#mhm-customers-root .rv-cust-who__name {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-who__name {
 	font-weight: 600;
 }
 
-#mhm-customers-root .rv-cust-who__email {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-who__email {
 	font-size: 12px;
 	color: #8a8f98;
 	overflow: hidden;
@@ -334,7 +334,7 @@
 
 /* Status tags */
 
-#mhm-customers-root .rv-cust-tag {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag {
 	font-size: 12px;
 	padding: 3px 10px;
 	border-radius: 999px;
@@ -342,22 +342,22 @@
 	white-space: nowrap;
 }
 
-#mhm-customers-root .rv-cust-tag.is-active {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag.is-active {
 	background: #e4f6e9;
 	color: #0a6b1e;
 }
 
-#mhm-customers-root .rv-cust-tag.is-new {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag.is-new {
 	background: #e5eefb;
 	color: #135e96;
 }
 
-#mhm-customers-root .rv-cust-tag.is-vip {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag.is-vip {
 	background: #f3e8fb;
 	color: #6b2fa0;
 }
 
-#mhm-customers-root .rv-cust-tag.is-none {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-tag.is-none {
 	background: transparent;
 	color: #b6bcc3;
 	font-weight: 400;
@@ -365,14 +365,14 @@
 
 /* ── Detail panel ──────────────────────────────────────────────────── */
 
-#mhm-customers-root .rv-cust-panel {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel {
 	flex: 1 1 300px;
 	min-width: 0;
 	position: sticky;
 	top: 48px;
 }
 
-#mhm-customers-root .rv-cust-panel__card {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__card {
 	background: #fff;
 	border: 1px solid #e6e7eb;
 	border-radius: 14px;
@@ -380,7 +380,7 @@
 	overflow: hidden;
 }
 
-#mhm-customers-root .rv-cust-panel.is-empty .rv-cust-panel__placeholder {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel.is-empty .rv-cust-panel__placeholder {
 	background: #fff;
 	border: 1px dashed #cfd3da;
 	border-radius: 14px;
@@ -389,7 +389,7 @@
 	color: #8a8f98;
 }
 
-#mhm-customers-root .rv-cust-panel__placeholder-icon {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__placeholder-icon {
 	display: block;
 	width: 44px;
 	height: 44px;
@@ -401,7 +401,7 @@
 	color: #aeb4bd;
 }
 
-#mhm-customers-root .rv-cust-panel__head {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__head {
 	padding: 18px 20px;
 	border-bottom: 1px solid #eceef1;
 	display: flex;
@@ -409,22 +409,22 @@
 	gap: 12px;
 }
 
-#mhm-customers-root .rv-cust-panel__title {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__title {
 	min-width: 0;
 	flex: 1;
 }
 
-#mhm-customers-root .rv-cust-panel__name {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__name {
 	font-weight: 700;
 	font-size: 16px;
 }
 
-#mhm-customers-root .rv-cust-panel__meta {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__meta {
 	font-size: 12px;
 	color: #8a8f98;
 }
 
-#mhm-customers-root .rv-cust-panel__close {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__close {
 	background: none;
 	border: none;
 	color: #b6bcc3;
@@ -434,34 +434,34 @@
 	line-height: 1;
 }
 
-#mhm-customers-root .rv-cust-panel__close:hover {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__close:hover {
 	color: #50575e;
 }
 
-#mhm-customers-root .rv-cust-panel__contact {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__contact {
 	padding: 16px 20px;
 	display: flex;
 	flex-direction: column;
 	gap: 10px;
 }
 
-#mhm-customers-root .rv-cust-panel__line {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__line {
 	display: flex;
 	justify-content: space-between;
 	gap: 12px;
 }
 
-#mhm-customers-root .rv-cust-panel__line span:first-child {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__line span:first-child {
 	color: #8a8f98;
 	flex: none;
 }
 
-#mhm-customers-root .rv-cust-panel__line span:last-child {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__line span:last-child {
 	text-align: right;
 	overflow-wrap: anywhere;
 }
 
-#mhm-customers-root .rv-cust-panel__stats {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__stats {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
 	gap: 1px;
@@ -470,13 +470,13 @@
 	border-bottom: 1px solid #eceef1;
 }
 
-#mhm-customers-root .rv-cust-panel__stats > div {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__stats > div {
 	background: #fff;
 	padding: 12px 8px;
 	text-align: center;
 }
 
-#mhm-customers-root .rv-cust-panel__stats strong {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__stats strong {
 	display: block;
 	font-weight: 700;
 	font-size: 16px;
@@ -485,16 +485,16 @@
 	white-space: nowrap;
 }
 
-#mhm-customers-root .rv-cust-panel__stats span {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__stats span {
 	font-size: 11px;
 	color: #8a8f98;
 }
 
-#mhm-customers-root .rv-cust-panel__body {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__body {
 	padding: 16px 20px;
 }
 
-#mhm-customers-root .rv-cust-panel__section-title {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__section-title {
 	font-size: 12px;
 	font-weight: 700;
 	text-transform: uppercase;
@@ -503,7 +503,7 @@
 	margin-bottom: 10px;
 }
 
-#mhm-customers-root .rv-cust-panel__booking {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -512,50 +512,126 @@
 	border-bottom: 1px solid #f4f5f7;
 }
 
-#mhm-customers-root .rv-cust-panel__booking-vehicle {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking-vehicle {
 	font-weight: 600;
 }
 
-#mhm-customers-root .rv-cust-panel__booking-date {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking-date {
 	font-size: 12px;
 	color: #8a8f98;
 }
 
-#mhm-customers-root .rv-cust-panel__booking-amount {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__booking-amount {
 	font-weight: 600;
 	white-space: nowrap;
 }
 
-#mhm-customers-root .rv-cust-panel__none {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__none {
 	color: #8a8f98;
 	font-style: italic;
 	margin: 0 0 4px;
 }
 
-#mhm-customers-root .rv-cust-panel__actions {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__actions {
 	display: flex;
 	gap: 8px;
 	margin-top: 14px;
 }
 
-#mhm-customers-root .rv-cust-panel__actions .rv-cust-btn {
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__actions .rv-cust-btn {
 	flex: 1;
+}
+
+/* ── Detail / edit / add subpages (server-rendered, same skin) ─────── */
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page {
+	max-width: 560px;
+	margin-top: 16px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page .rv-cust-panel__head {
+	position: relative;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page .rv-cust-panel__head .rv-cust-tag {
+	margin-left: auto;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-detail-page .rv-cust-panel__actions {
+	flex-wrap: wrap;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form {
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field label {
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field input,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field textarea {
+	width: 100%;
+	font-size: 13px;
+	padding: 9px 11px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	box-shadow: none;
+	line-height: 1.4;
+	min-height: 0;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field input:focus,
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__field textarea:focus {
+	border-color: #2271b1;
+	outline: 1px solid #2271b1;
+	outline-offset: 0;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-req {
+	font-size: 10px;
+	font-weight: 700;
+	color: #b7791f;
+	background: #fdf3d7;
+	padding: 1px 6px;
+	border-radius: 5px;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-form__actions {
+	display: flex;
+	gap: 8px;
+	margin-top: 4px;
 }
 
 /* ── Pagination ────────────────────────────────────────────────────── */
 
-#mhm-customers-root .mhm-pagination {
+:is(#mhm-customers-root, .rv-cust-scope) .mhm-pagination {
 	margin-top: 12px;
 }
 
 /* ── Narrow screens: panel stacks under the table ──────────────────── */
 
 @media (max-width: 1100px) {
-	#mhm-customers-root .rv-cust-layout {
+	:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-layout {
 		flex-direction: column;
 	}
 
-	#mhm-customers-root .rv-cust-panel {
+	:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel {
 		position: static;
 		width: 100%;
 	}
