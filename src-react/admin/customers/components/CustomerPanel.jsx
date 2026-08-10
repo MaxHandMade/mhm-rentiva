@@ -111,7 +111,15 @@ export default function CustomerPanel( { panelId, row, currency, adminUrl, onClo
 						detail.recent_bookings.map( ( b, i ) => (
 							<div key={ i } className="rv-cust-panel__booking">
 								<div>
-									<div className="rv-cust-panel__booking-vehicle">{ b.vehicle }</div>
+									<div className="rv-cust-panel__booking-vehicle">
+										{ b.id ? (
+											<>
+												<a href={ `${ adminUrl }post.php?post=${ b.id }&action=edit` }>{ b.reference ?? `#${ b.id }` }</a>
+												{ ' · ' }
+											</>
+										) : null }
+										{ b.vehicle }
+									</div>
 									<div className="rv-cust-panel__booking-date">{ b.date }</div>
 								</div>
 								<span className="rv-cust-panel__booking-amount">{ `${ currency ?? '' }${ b.amount }` }</span>

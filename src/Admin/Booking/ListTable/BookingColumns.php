@@ -1778,6 +1778,19 @@ final class BookingColumns {
 
 		$meta_query = $q->get( 'meta_query' ) ?: array();
 
+		// Customer e-mail filter — the Customers screen links here with
+		// ?customer_email=… ("View Bookings"); without this clause the
+		// parameter was silently ignored and the full list rendered.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter on an already capability-gated admin screen.
+		$customer_email = sanitize_email( wp_unslash( $_GET['customer_email'] ?? '' ) );
+		if ( '' !== $customer_email ) {
+			$meta_query[] = array(
+				'key'   => '_mhmrentiva_customer_email',
+				'value' => $customer_email,
+			);
+			$q->set( 'meta_query', $meta_query );
+		}
+
 		// Booking ID filter
 		$booking_id_filter = self::get_query_int( 'mhmrentiva_booking_id' );
 		if ( $booking_id_filter > 0 ) {

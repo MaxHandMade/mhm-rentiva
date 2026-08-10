@@ -532,6 +532,23 @@
 	margin: 0 0 4px;
 }
 
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__paging {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-top: 12px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__paging .rv-cust-btn {
+	padding: 5px 12px;
+	font-size: 12px;
+}
+
+:is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__paging-info {
+	font-size: 12px;
+	color: #8a8f98;
+}
+
 :is(#mhm-customers-root, .rv-cust-scope) .rv-cust-panel__actions {
 	display: flex;
 	gap: 8px;

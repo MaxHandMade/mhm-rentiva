@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-10T10:37:25+00:00\n"
-"PO-Revision-Date: 2026-08-10 10:04+0000\n"
+"POT-Creation-Date: 2026-08-10T11:13:35+00:00\n"
+"PO-Revision-Date: 2026-08-10 11:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
 "Language: tr_TR\n"
@@ -764,7 +764,7 @@ msgstr "Ek Hizmet Ayarları"
 #: src/Admin/Addons/AddonMeta.php:106
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:971
-#: src/Admin/Customers/CustomersPage.php:208
+#: src/Admin/Customers/CustomersPage.php:252
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:113
 #: src/Admin/Setup/SetupWizard.php:880 src/Admin/Setup/SetupWizard.php:939
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1187
@@ -793,8 +793,8 @@ msgstr "Sadece aktif ek hizmetler rezervasyon formunda görünür."
 #: src/Admin/Addons/AddonMeta.php:112
 #: src/Admin/Customers/AddCustomerPage.php:138
 #: src/Admin/Customers/AddCustomerPage.php:143
-#: src/Admin/Customers/CustomersPage.php:378
-#: src/Admin/Customers/CustomersPage.php:383
+#: src/Admin/Customers/CustomersPage.php:443
+#: src/Admin/Customers/CustomersPage.php:448
 #: src/Admin/Setup/SetupWizard.php:962
 #: assets/blocks/unified-search/index.js:134
 msgid "Required"
@@ -1792,8 +1792,8 @@ msgstr "Kapat"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1351
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
 #: src/Admin/Customers/AddCustomerPage.php:143
-#: src/Admin/Customers/CustomersPage.php:262
-#: src/Admin/Customers/CustomersPage.php:383
+#: src/Admin/Customers/CustomersPage.php:306
+#: src/Admin/Customers/CustomersPage.php:448
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -1807,8 +1807,8 @@ msgstr "E-posta"
 #: src/Admin/Booking/ListTable/BookingColumns.php:1355
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
 #: src/Admin/Customers/AddCustomerPage.php:148
-#: src/Admin/Customers/CustomersPage.php:263
-#: src/Admin/Customers/CustomersPage.php:388
+#: src/Admin/Customers/CustomersPage.php:307
+#: src/Admin/Customers/CustomersPage.php:453
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -1889,12 +1889,12 @@ msgstr "İptal Edilen Rezervasyon"
 msgid "Booking"
 msgstr "Rezervasyon"
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1930
+#: src/Admin/Booking/ListTable/BookingColumns.php:1943
 msgid "Auto Draft"
 msgstr "Otomatik Taslak"
 
 #. translators: %d: booking ID
-#: src/Admin/Booking/ListTable/BookingColumns.php:1932
+#: src/Admin/Booking/ListTable/BookingColumns.php:1945
 #, php-format
 msgid "Booking #%d"
 msgstr "Rezervasyon #%d"
@@ -2402,7 +2402,7 @@ msgstr "Müşteri:"
 
 #: src/Admin/Booking/Meta/BookingMeta.php:639
 #: src/Admin/Booking/Meta/BookingMeta.php:666
-#: src-react/admin/customers/components/CustomerPanel.jsx:129
+#: src-react/admin/customers/components/CustomerPanel.jsx:137
 msgid "Send Email"
 msgstr "Eposta gönder"
 
@@ -2912,8 +2912,8 @@ msgid "This email address is already registered."
 msgstr "Bu e-posta adresi zaten kayıtlı."
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
-#: src/Admin/Customers/CustomersPage.php:228
-#: src/Admin/Customers/CustomersPage.php:323
+#: src/Admin/Customers/CustomersPage.php:272
+#: src/Admin/Customers/CustomersPage.php:388
 #: src/Admin/Customers/REST/CustomersRestController.php:156
 msgid "Customer not found."
 msgstr "Müşteri bulunamadı."
@@ -3217,7 +3217,7 @@ msgstr "Emin misiniz?"
 #: src/Admin/Core/AssetManager.php:652 src/Admin/Core/AssetManager.php:957
 #: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Customers/AddCustomerPage.php:159
-#: src/Admin/Customers/CustomersPage.php:399
+#: src/Admin/Customers/CustomersPage.php:464
 #: src/Admin/Emails/Core/EmailTemplates.php:526
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -3891,7 +3891,7 @@ msgid "Confirm"
 msgstr "Onayla"
 
 #: src/Admin/Core/AssetManager.php:1125
-#: src/Admin/Customers/CustomersPage.php:292
+#: src/Admin/Customers/CustomersPage.php:357
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
@@ -3899,7 +3899,7 @@ msgid "Edit"
 msgstr "Düzenle"
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Customers/CustomersPage.php:398
+#: src/Admin/Customers/CustomersPage.php:463
 msgid "Update"
 msgstr "Güncelle"
 
@@ -3925,6 +3925,7 @@ msgid "Back"
 msgstr "Geri"
 
 #: src/Admin/Core/AssetManager.php:1133
+#: src/Admin/Customers/CustomersPage.php:352
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:395
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1092
 #: templates/account/payment-history.php:191
@@ -3936,6 +3937,7 @@ msgid "Next"
 msgstr "Sonraki"
 
 #: src/Admin/Core/AssetManager.php:1134
+#: src/Admin/Customers/CustomersPage.php:347
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:394
 #: src/Admin/Frontend/Shortcodes/SearchResults.php:1091
 #: templates/account/payment-history.php:176
@@ -5286,7 +5288,7 @@ msgid "Retry Payment"
 msgstr "Ödemeyi Tekrar Dene"
 
 #: src/Admin/Customers/AddCustomerPage.php:65
-#: src/Admin/Customers/CustomersPage.php:336
+#: src/Admin/Customers/CustomersPage.php:401
 msgid "Customer name and email fields are required."
 msgstr "Müşteri adı ve e-posta alanları zorunludur."
 
@@ -5303,13 +5305,13 @@ msgid "Add New Customer"
 msgstr "Yeni Müşteri Ekleyin"
 
 #: src/Admin/Customers/AddCustomerPage.php:138
-#: src/Admin/Customers/CustomersPage.php:378
+#: src/Admin/Customers/CustomersPage.php:443
 msgid "Customer Name"
 msgstr "Müşteri Adı"
 
 #: src/Admin/Customers/AddCustomerPage.php:153
-#: src/Admin/Customers/CustomersPage.php:264
-#: src/Admin/Customers/CustomersPage.php:393
+#: src/Admin/Customers/CustomersPage.php:308
+#: src/Admin/Customers/CustomersPage.php:458
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "Address"
@@ -5320,96 +5322,111 @@ msgstr "Adres"
 msgid "Add Customer"
 msgstr "Müşteri Ekle"
 
-#: src/Admin/Customers/CustomersPage.php:204
+#: src/Admin/Customers/CustomersPage.php:187
+#, php-format
+msgid ""
+"Showing bookings for <strong>%1$s</strong> only. <a href=\"%2$s\">← Back to "
+"customer profile</a>"
+msgstr ""
+"Yalnızca <strong>%1$s</strong> müşterisinin rezervasyonları gösteriliyor. "
+"<a href=\"%2$s\">← Müşteri profiline dön</a>"
+
+#: src/Admin/Customers/CustomersPage.php:248
 #: src-react/admin/customers/components/CustomerTable.jsx:22
 #: src-react/admin/customers/CustomersPage.jsx:15
 msgid "VIP"
 msgstr "VIP"
 
-#: src/Admin/Customers/CustomersPage.php:206
+#: src/Admin/Customers/CustomersPage.php:250
 #: src/Admin/Vehicle/Helpers/RatingConfidenceHelper.php:84
 #: src-react/admin/customers/components/CustomerTable.jsx:23
 #: src-react/admin/customers/CustomersPage.jsx:14
 msgid "New"
 msgstr "Yeni"
 
-#: src/Admin/Customers/CustomersPage.php:221
-#: src/Admin/Customers/CustomersPage.php:316
+#: src/Admin/Customers/CustomersPage.php:265
+#: src/Admin/Customers/CustomersPage.php:381
 msgid "Invalid customer ID."
 msgstr "Geçersiz müşteri kimliği."
 
-#: src/Admin/Customers/CustomersPage.php:233
+#: src/Admin/Customers/CustomersPage.php:277
 msgid "Customers List"
 msgstr "Müşteri Listesi"
 
-#: src/Admin/Customers/CustomersPage.php:243
+#: src/Admin/Customers/CustomersPage.php:287
 #: src-react/admin/customers/components/CustomerPanel.jsx:37
 #: src-react/admin/customers/components/CustomerPanel.jsx:51
 msgid "Customer Details"
 msgstr "Müşteri Detayları"
 
-#: src/Admin/Customers/CustomersPage.php:265
+#: src/Admin/Customers/CustomersPage.php:309
 msgid "First Booking"
 msgstr "İlk Rezervasyon"
 
-#: src/Admin/Customers/CustomersPage.php:266
+#: src/Admin/Customers/CustomersPage.php:310
 msgid "Last Booking"
 msgstr "Son Rezervasyon"
 
-#: src/Admin/Customers/CustomersPage.php:271
+#: src/Admin/Customers/CustomersPage.php:315
 #: src-react/admin/customers/components/CustomerPanel.jsx:92
 msgid "bookings"
 msgstr "rezervasyon"
 
-#: src/Admin/Customers/CustomersPage.php:272
+#: src/Admin/Customers/CustomersPage.php:316
 #: src/Admin/Vehicle/ListTable/VehicleColumns.php:590
 #: src-react/admin/customers/components/CustomerPanel.jsx:96
 #: src-react/admin/dashboard/components/StatsCards.jsx:38
 msgid "total"
 msgstr "toplam"
 
-#: src/Admin/Customers/CustomersPage.php:273
+#: src/Admin/Customers/CustomersPage.php:317
 #: src-react/admin/customers/components/CustomerPanel.jsx:100
 msgid "favorites"
 msgstr "favori"
 
-#: src/Admin/Customers/CustomersPage.php:278
+#: src/Admin/Customers/CustomersPage.php:330
 #: src-react/admin/customers/components/CustomerPanel.jsx:105
 msgid "Recent bookings"
 msgstr "Son rezervasyonlar"
 
-#: src/Admin/Customers/CustomersPage.php:281
-#: src-react/admin/customers/components/CustomerPanel.jsx:121
+#: src/Admin/Customers/CustomersPage.php:332
+#: src-react/admin/customers/components/CustomerPanel.jsx:129
 #: src-react/admin/dashboard/components/RecentBookings.jsx:57
 #: src-react/admin/dashboard/components/StatusBreakdown.jsx:8
 msgid "No bookings yet."
 msgstr "Henüz rezervasyon yok."
 
-#: src/Admin/Customers/CustomersPage.php:293
+#. translators: 1: current page, 2: total pages
+#: src/Admin/Customers/CustomersPage.php:350
+#, php-format
+msgid "%1$d / %2$d"
+msgstr "%1$d / %2$d"
+
+#: src/Admin/Customers/CustomersPage.php:358
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 msgid "View Bookings"
 msgstr "Rezervasyonları Görüntüle"
 
-#: src/Admin/Customers/CustomersPage.php:294
+#: src/Admin/Customers/CustomersPage.php:359
 msgid "Go Back"
 msgstr "Geri Dön"
 
-#: src/Admin/Customers/CustomersPage.php:312
+#: src/Admin/Customers/CustomersPage.php:377
 msgid "You do not have permission to edit customers."
 msgstr "Müşterileri düzenleme izniniz yok."
 
-#: src/Admin/Customers/CustomersPage.php:355
+#: src/Admin/Customers/CustomersPage.php:420
 msgid "Customer information updated successfully."
 msgstr "Müşteri bilgileri başarıyla güncellendi."
 
-#: src/Admin/Customers/CustomersPage.php:364
+#: src/Admin/Customers/CustomersPage.php:429
 #: templates/account/dashboard.php:221
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 msgid "View"
 msgstr "Görünüm"
 
-#: src/Admin/Customers/CustomersPage.php:371
+#: src/Admin/Customers/CustomersPage.php:436
 msgid "Edit Customer"
 msgstr "Müşteri Düzenle"
 
@@ -15117,7 +15134,7 @@ msgstr "Detayları görmek için bir müşteri seçin"
 msgid "Loading…"
 msgstr "Yükleniyor…"
 
-#: src-react/admin/customers/components/CustomerPanel.jsx:126
+#: src-react/admin/customers/components/CustomerPanel.jsx:134
 msgid "Open Profile"
 msgstr "Profili Aç"
 

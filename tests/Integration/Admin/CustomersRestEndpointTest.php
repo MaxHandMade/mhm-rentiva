@@ -259,9 +259,12 @@ final class CustomersRestEndpointTest extends WP_UnitTestCase
         $this->assertSame( 1, $data['favorites_count'] );
         $this->assertCount( 2, $data['recent_bookings'] );
         foreach ( $data['recent_bookings'] as $booking ) {
+            $this->assertArrayHasKey( 'id', $booking );
+            $this->assertArrayHasKey( 'reference', $booking );
             $this->assertArrayHasKey( 'vehicle', $booking );
             $this->assertArrayHasKey( 'date', $booking );
             $this->assertArrayHasKey( 'amount', $booking );
+            $this->assertMatchesRegularExpression( '/\d{6}$/', $booking['reference'] );
         }
         $vehicles = array_column( $data['recent_bookings'], 'vehicle' );
         $this->assertContains( 'Panel Test Car', $vehicles );

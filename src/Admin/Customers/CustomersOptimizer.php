@@ -448,7 +448,7 @@ final class CustomersOptimizer {
 			'last_booking'    => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
 			'first_booking'   => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
 			'favorites_count' => count( \MHMRentiva\Admin\Services\FavoritesService::get_user_favorites( $customer_id ) ),
-			'recent_bookings' => self::get_recent_bookings( $result->user_email, 3 ),
+			'recent_bookings' => self::get_recent_bookings( $result->user_email, 5 ),
 			'status'          => self::derive_status(
 				(int) $result->booking_count,
 				(int) strtotime( $result->user_registered ),
@@ -469,17 +469,19 @@ final class CustomersOptimizer {
 	 * back to the booking title when the vehicle link is missing), booking date
 	 * and the formatted amount.
 	 *
-	 * @param string $email Customer e-mail the bookings are keyed on.
-	 * @param int    $limit Maximum rows to return.
-	 * @return array<int, array{vehicle: string, date: string, amount: string}>
+	 * @param string $email  Customer e-mail the bookings are keyed on.
+	 * @param int    $limit  Maximum rows to return.
+	 * @param int    $offset Rows to skip (detail-page pagination).
+	 * @return array<int, array{id: int, vehicle: string, date: string, amount: string}>
 	 */
-	public static function get_recent_bookings( string $email, int $limit = 3 ): array {
+	public static function get_recent_bookings( string $email, int $limit = 5, int $offset = 0 ): array {
 		global $wpdb;
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Small bounded lookup; cached by the caller inside the customer-details payload.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT p.post_title as booking_title,
+				"SELECT p.ID as booking_id,
+                    p.post_title as booking_title,
                     p.post_date,
                     v.post_title as vehicle_title,
                     CAST(COALESCE(price_meta.meta_value, 0) AS DECIMAL(10,2)) as amount
@@ -495,18 +497,24 @@ final class CustomersOptimizer {
                 WHERE p.post_type = 'mhmrentiva_booking'
                     AND p.post_status IN ('publish', 'private', 'pending')
                 ORDER BY p.post_date DESC
-                LIMIT %d",
+                LIMIT %d OFFSET %d",
 				$email,
-				$limit
+				$limit,
+				$offset
 			)
 		);
 
 		$bookings = array();
 		foreach ( (array) $rows as $row ) {
+			$booking_id = (int) $row->booking_id;
 			$bookings[] = array(
-				'vehicle' => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
-				'date'    => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
-				'amount'  => number_format( (float) $row->amount, 2, ',', '.' ),
+				'id'        => $booking_id,
+				// Same reference format the booking edit meta box shows
+				// (BookingEditMetaBox: translated prefix + 6-digit display id).
+				'reference' => __( 'BK-', 'mhm-rentiva' ) . str_pad( (string) mhmrentiva_get_display_id( $booking_id ), 6, '0', STR_PAD_LEFT ),
+				'vehicle'   => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
+				'date'      => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
+				'amount'    => number_format( (float) $row->amount, 2, ',', '.' ),
 			);
 		}
 

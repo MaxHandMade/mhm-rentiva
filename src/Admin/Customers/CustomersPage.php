@@ -50,6 +50,9 @@ final class CustomersPage {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
 		// REST routes are registered in Plugin.php (context-agnostic path) — not here.
 		add_action( 'admin_post_mhmrentiva_export_customers', array( \MHMRentiva\Admin\Customers\Export\CustomerExporter::class, 'handle' ) );
+		// "View Bookings" lands on the bookings list filtered by customer; this
+		// notice is the way back to the customer profile the visitor came from.
+		add_action( 'admin_notices', array( self::class, 'render_bookings_backlink' ) );
 		// The four core-table indexes this screen used to rely on
 		// (idx_postmeta_customer_email, idx_postmeta_booking_price,
 		// idx_usermeta_customer_phone, idx_posts_booking_date) were retired by
@@ -151,6 +154,48 @@ final class CustomersPage {
 	}
 
 
+
+	/**
+	 * On the bookings list filtered by a customer ("View Bookings"), show a
+	 * link back to the profile the visitor came from.
+	 */
+	public static function render_bookings_backlink(): void
+	{
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'edit-mhmrentiva_booking' !== $screen->id ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation aid on a capability-gated admin screen.
+		$customer_email = sanitize_email( wp_unslash( $_GET['customer_email'] ?? '' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation aid on a capability-gated admin screen.
+		$customer_id = absint( wp_unslash( $_GET['customer_id'] ?? 0 ) );
+		if ( '' === $customer_email ) {
+			return;
+		}
+
+		$user = $customer_id > 0 ? get_user_by( 'id', $customer_id ) : get_user_by( 'email', $customer_email );
+		if ( ! $user ) {
+			return;
+		}
+
+		$profile_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . (int) $user->ID );
+		/* translators: 1: customer display name, 2: profile URL */
+		$message = __( 'Showing bookings for <strong>%1$s</strong> only. <a href="%2$s">← Back to customer profile</a>', 'mhm-rentiva' );
+		echo '<div class="notice notice-info"><p>';
+		printf(
+			wp_kses(
+				$message,
+				array(
+					'strong' => array(),
+					'a'      => array( 'href' => array() ),
+				)
+			),
+			esc_html( $user->display_name ),
+			esc_url( $profile_url )
+		);
+		echo '</p></div>';
+	}
 
 	/**
 	 * Avatar colour pairs; mirrors AVATAR_PALETTE in
@@ -273,24 +318,46 @@ final class CustomersPage {
 		echo '<div><strong>' . esc_html( (string) ( $detail['favorites_count'] ?? 0 ) ) . '</strong><span>' . esc_html__( 'favorites', 'mhm-rentiva' ) . '</span></div>';
 		echo '</div>';
 
-		// Recent bookings + actions.
+		// Recent bookings, 5 per page. Page 1 comes from the cached detail
+		// payload; deeper pages query the same bounded lookup with an offset.
+		$per_page      = 5;
+		$total_pages   = max( 1, (int) ceil( ( (int) $detail['booking_count'] ) / $per_page ) );
+		$bookings_page = min( $total_pages, max( 1, absint( wp_unslash( $_GET['bookings_page'] ?? 1 ) ) ) );
+		$recent        = 1 === $bookings_page
+			? (array) ( $detail['recent_bookings'] ?? array() )
+			: CustomersOptimizer::get_recent_bookings( (string) $detail['email'], $per_page, ( $bookings_page - 1 ) * $per_page );
+
 		echo '<div class="rv-cust-panel__body">';
 		echo '<div class="rv-cust-panel__section-title">' . esc_html__( 'Recent bookings', 'mhm-rentiva' ) . '</div>';
-		$recent = (array) ( $detail['recent_bookings'] ?? array() );
 		if ( empty( $recent ) ) {
 			echo '<p class="rv-cust-panel__none">' . esc_html__( 'No bookings yet.', 'mhm-rentiva' ) . '</p>';
 		} else {
 			foreach ( $recent as $booking ) {
+				$booking_url = admin_url( 'post.php?post=' . (int) $booking['id'] . '&action=edit' );
+				$reference   = (string) ( $booking['reference'] ?? ( '#' . $booking['id'] ) );
 				echo '<div class="rv-cust-panel__booking">';
-				echo '<div><div class="rv-cust-panel__booking-vehicle">' . esc_html( $booking['vehicle'] ) . '</div>';
+				echo '<div><div class="rv-cust-panel__booking-vehicle"><a href="' . esc_url( $booking_url ) . '">' . esc_html( $reference ) . '</a> · ' . esc_html( $booking['vehicle'] ) . '</div>';
 				echo '<div class="rv-cust-panel__booking-date">' . esc_html( $booking['date'] ) . '</div></div>';
 				echo '<span class="rv-cust-panel__booking-amount">' . esc_html( $detail['currency'] . $booking['amount'] ) . '</span>';
 				echo '</div>';
 			}
 		}
+		if ( $total_pages > 1 ) {
+			$base_url = admin_url( 'admin.php?page=mhm-rentiva-customers&action=view&customer_id=' . $customer_id );
+			echo '<div class="rv-cust-panel__paging">';
+			if ( $bookings_page > 1 ) {
+				echo '<a class="rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page - 1 ) ) . '">‹ ' . esc_html__( 'Previous', 'mhm-rentiva' ) . '</a>';
+			}
+			/* translators: 1: current page, 2: total pages */
+			echo '<span class="rv-cust-panel__paging-info">' . esc_html( sprintf( __( '%1$d / %2$d', 'mhm-rentiva' ), $bookings_page, $total_pages ) ) . '</span>';
+			if ( $bookings_page < $total_pages ) {
+				echo '<a class="rv-cust-btn" href="' . esc_url( $base_url . '&bookings_page=' . ( $bookings_page + 1 ) ) . '">' . esc_html__( 'Next', 'mhm-rentiva' ) . ' ›</a>';
+			}
+			echo '</div>';
+		}
 		echo '<div class="rv-cust-panel__actions">';
 		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="rv-cust-btn is-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
-		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $detail['email'])) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $detail['email'] . '&customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
 		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="rv-cust-btn">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
 		echo '</div>';
 		echo '</div>';
