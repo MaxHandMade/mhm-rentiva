@@ -216,14 +216,14 @@ final class BookingColumns {
 				'mhm-rentiva-booking-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-list.css' )
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-booking-calendar',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-calendar.css' )
 			);
 
 			// Load statistics cards CSS
@@ -231,14 +231,14 @@ final class BookingColumns {
 				'mhm-rentiva-stats-cards',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/stats-cards.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/components/stats-cards.css' )
 			);
 
 			wp_enqueue_style(
 				'mhm-rentiva-shared-admin',
 				MHMRENTIVA_PLUGIN_URL . 'src-react/shared/admin.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'src-react/shared/admin.css' )
 			);
 
 			// Load simple calendar CSS
@@ -246,7 +246,7 @@ final class BookingColumns {
 				'mhm-rentiva-simple-calendars',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
-				MHMRENTIVA_VERSION
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/components/calendars.css' )
 			);
 
 			// Calendar JavaScript file
@@ -254,7 +254,7 @@ final class BookingColumns {
 				'mhm-rentiva-booking-calendar',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-calendar.js',
 				array(),
-				MHMRENTIVA_VERSION,
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/js/admin/booking-calendar.js' ),
 				true
 			);
 
@@ -273,7 +273,7 @@ final class BookingColumns {
 				'mhm-rentiva-booking-list-filters',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-list-filters.js',
 				array( 'jquery' ),
-				MHMRENTIVA_VERSION,
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/js/admin/booking-list-filters.js' ),
 				true
 			);
 
@@ -282,7 +282,7 @@ final class BookingColumns {
 				'mhm-rentiva-booking-popup',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-popup.js',
 				array( 'jquery' ),
-				MHMRENTIVA_VERSION,
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/js/admin/booking-popup.js' ),
 				true
 			);
 
