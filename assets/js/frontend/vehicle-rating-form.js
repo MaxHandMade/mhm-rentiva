@@ -497,7 +497,7 @@
 
             // Settings check
             if (!(window.mhmVehicleRating?.settings?.allow_deletion ?? true)) {
-                MHMRentivaToast.show(window.mhmRentivaVars?.i18n?.error || 'Comment deletion is disabled.', { type: 'error' });
+                MHMRentivaToast.show(window.mhmVehicleRating?.strings?.deletion_disabled || 'Comment deletion is disabled.', { type: 'error' });
                 return;
             }
 

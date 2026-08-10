@@ -264,6 +264,11 @@ final class AddonManager {
 					'processing'        => __( 'Processing...', 'mhm-rentiva' ),
 					'error_occurred'    => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
 					'auto_refresh'      => false,
+					'strings'           => array(
+						'invalidPrice'     => __( 'Invalid price value!', 'mhm-rentiva' ),
+						'priceUpdateError' => __( 'Error updating price', 'mhm-rentiva' ),
+						'unknownError'     => __( 'Unknown error', 'mhm-rentiva' ),
+					),
 				)
 			);
 		}

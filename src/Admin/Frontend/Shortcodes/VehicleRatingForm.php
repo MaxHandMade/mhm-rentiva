@@ -77,6 +77,10 @@ final class VehicleRatingForm extends AbstractShortcode {
 			array(
 				'nonce'        => wp_create_nonce('mhmrentiva_rating_nonce'),
 				'is_logged_in' => is_user_logged_in(),
+				// The list renderer reads these two from the object root, not
+				// from the strings sub-object the other keys live in.
+				'no_ratings'    => __('No reviews yet.', 'mhm-rentiva'),
+				'reviews_title' => __('Reviews', 'mhm-rentiva'),
 				'settings'     => array(
 					'allow_editing'  => $display_settings['allow_editing'] ?? true,
 					'allow_deletion' => $display_settings['allow_deletion'] ?? true,
@@ -96,10 +100,18 @@ final class VehicleRatingForm extends AbstractShortcode {
 	protected static function get_localized_strings(): array
 	{
 		return array(
-			'loading'        => __('Loading...', 'mhm-rentiva'),
-			'error'          => __('An error occurred', 'mhm-rentiva'),
-			'success'        => __('Rating submitted successfully', 'mhm-rentiva'),
-			'delete_confirm' => __('Are you sure?', 'mhm-rentiva'),
+			'loading'            => __('Loading...', 'mhm-rentiva'),
+			'error'              => __('An error occurred', 'mhm-rentiva'),
+			'success'            => __('Rating submitted successfully', 'mhm-rentiva'),
+			'delete_confirm'     => __('Are you sure?', 'mhm-rentiva'),
+			'edit_loaded'        => __('Your comment has been loaded for editing.', 'mhm-rentiva'),
+			'deleting'           => __('Deleting...', 'mhm-rentiva'),
+			'delete_success'     => __('Your comment has been deleted successfully!', 'mhm-rentiva'),
+			'delete_error'       => __('Error deleting comment: ', 'mhm-rentiva'),
+			'unknown_error'      => __('Unknown error', 'mhm-rentiva'),
+			'delete_error_retry' => __('Error deleting comment. Please try again.', 'mhm-rentiva'),
+			'delete'             => __('Delete', 'mhm-rentiva'),
+			'deletion_disabled'  => __('Comment deletion is disabled.', 'mhm-rentiva'),
 		);
 	}
 
