@@ -119,7 +119,6 @@ final class BookingColumns {
 	public static function register(): void {
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'manage_mhmrentiva_booking_posts_columns', array( self::class, 'columns' ) );
-		add_filter( 'default_hidden_columns', array( self::class, 'default_hidden_columns' ), 10, 2 );
 		add_action( 'manage_mhmrentiva_booking_posts_custom_column', array( self::class, 'render' ), 10, 2 );
 		add_filter( 'manage_edit-mhmrentiva_booking_sortable_columns', array( self::class, 'sortable' ) );
 		add_action( 'pre_get_posts', array( self::class, 'apply_sorting' ) );
@@ -171,9 +170,9 @@ final class BookingColumns {
 		// The title cell already shows "Name - phone" (modify_booking_title)
 		// and carries the row actions — it IS the customer column, the header
 		// now says so. License Plate lives as the sub-line of Vehicle; Days as
-		// the sub-line of Dates (their standalone columns are gone). Deposit /
-		// Remaining / Booking Type stay available via Screen Options but are
-		// hidden by default (default_hidden_columns).
+		// the sub-line of Dates (their standalone columns are gone). Every
+		// remaining column is visible by default — user decision 2026-08-10:
+		// first-time users see everything and trim via Screen Options themselves.
 		$cols['title'] = __( 'Customer', 'mhm-rentiva' );
 
 		$cols['mhmrentiva_booking_id']        = __( 'Booking ID', 'mhm-rentiva' );
@@ -192,23 +191,6 @@ final class BookingColumns {
 		return $cols;
 	}
 
-	/**
-	 * Hide the secondary money/type columns by default; Screen Options can
-	 * bring them back per user (the capability is reduced from the default
-	 * VIEW, not from the product).
-	 *
-	 * @param array<int, string> $hidden Column keys hidden by default.
-	 * @param \WP_Screen         $screen Current screen.
-	 * @return array<int, string>
-	 */
-	public static function default_hidden_columns( array $hidden, \WP_Screen $screen ): array {
-		if ( 'edit-mhmrentiva_booking' === $screen->id ) {
-			$hidden[] = 'mhmrentiva_booking_deposit';
-			$hidden[] = 'mhmrentiva_booking_remaining';
-			$hidden[] = 'mhmrentiva_booking_type';
-		}
-		return $hidden;
-	}
 
 	public static function enqueue_scripts( string $hook ): void {
 		global $post_type;

@@ -37,17 +37,12 @@ final class BookingColumnsLayoutTest extends WP_UnitTestCase
         $this->assertSame('date', end($keys));
     }
 
-    public function test_secondary_columns_hidden_by_default_only_on_booking_screen(): void
+    public function test_no_columns_are_hidden_by_default(): void
     {
-        $booking_screen = \WP_Screen::get('edit-mhmrentiva_booking');
-        $hidden         = BookingColumns::default_hidden_columns(array(), $booking_screen);
-
-        $this->assertContains('mhmrentiva_booking_deposit', $hidden);
-        $this->assertContains('mhmrentiva_booking_remaining', $hidden);
-        $this->assertContains('mhmrentiva_booking_type', $hidden);
-
-        $other_screen = \WP_Screen::get('edit-post');
-        $this->assertSame(array(), BookingColumns::default_hidden_columns(array(), $other_screen));
+        // User decision 2026-08-10: every column visible by default, trimming
+        // is the user's own Screen Options choice. The class must not hook
+        // default_hidden_columns at all.
+        $this->assertFalse(method_exists(BookingColumns::class, 'default_hidden_columns'));
     }
 
     public function test_vehicle_cell_plate_subline_reads_the_populated_meta_key(): void
