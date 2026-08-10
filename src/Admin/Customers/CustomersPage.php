@@ -122,7 +122,7 @@ final class CustomersPage {
 			'mhm-rentiva-customers',
 			MHMRENTIVA_PLUGIN_URL . 'build/admin/customers.css',
 			array(),
-			MHMRENTIVA_VERSION
+			\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'build/admin/customers.css' )
 		);
 
 		$stats    = CustomersOptimizer::get_customer_stats_optimized();
@@ -133,10 +133,14 @@ final class CustomersPage {
 			'mhmRentivaCustomers',
 			array(
 				'stats'            => array(
-					'total'          => $stats['total']   ?? 0,
-					'active'         => $stats['active']  ?? 0,
-					'new_this_month' => $stats['new']     ?? 0,
-					'monthly_avg'    => $stats['average'] ?? 0,
+					'total'          => $stats['total']         ?? 0,
+					'active'         => $stats['active']        ?? 0,
+					'new_this_month' => $stats['new']           ?? 0,
+					'monthly_avg'    => $stats['average']       ?? 0,
+					'new_trend'      => $stats['average_trend'] ?? '',
+					// Redesign KPIs: activity inside 90 days + lifetime spend per customer.
+					'active_90d'     => $stats['active_90d']    ?? 0,
+					'avg_spend'      => $stats['avg_spend']     ?? 0,
 				),
 				'currency'         => $currency,
 				'admin_url'        => admin_url(),

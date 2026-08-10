@@ -17,10 +17,10 @@ export default function SearchBar( { value, onChange } ) {
 	};
 
 	return (
-		<div className="mhm-customers__search">
+		<div className="rv-cust-search">
 			<input
 				type="search"
-				placeholder={ __( 'Search customers…', 'mhm-rentiva' ) }
+				placeholder={ __( 'Search name, email, phone…', 'mhm-rentiva' ) }
 				value={ local }
 				onChange={ handleChange }
 			/>

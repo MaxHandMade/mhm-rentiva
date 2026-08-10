@@ -8,11 +8,19 @@ import CustomerTable from './components/CustomerTable';
 import Pagination from './components/Pagination';
 import CustomerPanel from './components/CustomerPanel';
 
+const STATUS_FILTERS = [
+	{ key: 'all',    label: __( 'All', 'mhm-rentiva' ) },
+	{ key: 'active', label: __( 'Active', 'mhm-rentiva' ) },
+	{ key: 'new',    label: __( 'New', 'mhm-rentiva' ) },
+	{ key: 'vip',    label: __( 'VIP', 'mhm-rentiva' ) },
+];
+
 export default function CustomersPage() {
 	const cfg = window.mhmRentivaCustomers ?? {};
 
 	const [page, setPage] = useState( 1 );
 	const [search, setSearch] = useState( '' );
+	const [status, setStatus] = useState( 'all' );
 	const [sortBy, setSortBy] = useState( 'last_booking' );
 	const [sortDir, setSortDir] = useState( 'desc' );
 	const [selected, setSelected] = useState( [] );
@@ -24,11 +32,11 @@ export default function CustomersPage() {
 	const fetchList = useCallback( () => {
 		setLoading( true );
 		setError( null );
-		rentivaApi.customers.getList( { page, search, sort_by: sortBy, sort_dir: sortDir } )
+		rentivaApi.customers.getList( { page, search, sort_by: sortBy, sort_dir: sortDir, status } )
 			.then( setData )
 			.catch( () => setError( __( 'Failed to load customers.', 'mhm-rentiva' ) ) )
 			.finally( () => setLoading( false ) );
-	}, [page, search, sortBy, sortDir] );
+	}, [page, search, sortBy, sortDir, status] );
 
 	useEffect( () => {
 		setSelected( [] );
@@ -38,6 +46,11 @@ export default function CustomersPage() {
 	const handleSearchChange = ( v ) => {
 		setPage( 1 );
 		setSearch( v );
+	};
+
+	const handleStatusChange = ( v ) => {
+		setPage( 1 );
+		setStatus( v );
 	};
 
 	const handleSort = ( col ) => {
@@ -67,19 +80,19 @@ export default function CustomersPage() {
 		rentivaApi.customers.bulkDelete( selected )
 			.then( () => {
 				setSelected( [] );
+				setPanelId( null );
 				fetchList();
 			} )
 			.catch( () => setError( __( 'Bulk delete failed.', 'mhm-rentiva' ) ) );
 	};
 
 	const items = data?.items ?? [];
+	const panelRow = items.find( ( c ) => c.id === panelId ) ?? null;
 
 	return (
-		<div className="mhm-customers">
-			<StatsCards stats={ cfg.stats } />
-
-			<div className="mhm-customers__toolbar">
-				<SearchBar value={ search } onChange={ handleSearchChange } />
+		<div className="mhm-customers rv-cust">
+			<div className="rv-cust-topbar">
+				<StatsCards stats={ cfg.stats } currency={ cfg.currency } />
 				<FilterBar
 					search={ search }
 					selectedIds={ selected }
@@ -89,40 +102,67 @@ export default function CustomersPage() {
 				/>
 			</div>
 
-			{ selected.length > 0 && (
-				<div className="mhm-customers__bulk-bar">
-					<span>{ selected.length } { __( 'selected', 'mhm-rentiva' ) }</span>
-					<button type="button" className="button button-link-delete" onClick={ handleBulkDelete }>
-						{ __( 'Delete Selected', 'mhm-rentiva' ) }
-					</button>
+			<div className="rv-cust-layout">
+				<div className="rv-cust-main">
+					<div className="rv-cust-card">
+						<div className="rv-cust-toolbar">
+							<SearchBar value={ search } onChange={ handleSearchChange } />
+							<select
+								className="rv-cust-status-filter"
+								value={ status }
+								onChange={ ( e ) => handleStatusChange( e.target.value ) }
+								aria-label={ __( 'Filter by status', 'mhm-rentiva' ) }
+							>
+								{ STATUS_FILTERS.map( ( f ) => (
+									<option key={ f.key } value={ f.key }>{ f.label }</option>
+								) ) }
+							</select>
+						</div>
+
+						{ selected.length > 0 && (
+							<div className="rv-cust-bulk-bar">
+								<span>{ selected.length } { __( 'selected', 'mhm-rentiva' ) }</span>
+								<button type="button" className="button button-link-delete" onClick={ handleBulkDelete }>
+									{ __( 'Delete Selected', 'mhm-rentiva' ) }
+								</button>
+							</div>
+						) }
+
+						{ error && <div className="rv-cust-error">{ error }</div> }
+						{ loading && <div className="rv-cust-loading">{ __( 'Loading…', 'mhm-rentiva' ) }</div> }
+
+						{ ! loading && (
+							<CustomerTable
+								items={ items }
+								sortBy={ sortBy }
+								sortDir={ sortDir }
+								selected={ selected }
+								panelId={ panelId }
+								onSort={ handleSort }
+								onSelect={ handleSelect }
+								onSelectAll={ handleSelectAll }
+								onRowClick={ setPanelId }
+							/>
+						) }
+					</div>
+
+					{ ! loading && (
+						<Pagination
+							page={ page }
+							totalPages={ data?.total_pages ?? 1 }
+							onPageChange={ setPage }
+						/>
+					) }
 				</div>
-			) }
 
-			{ error && <div className="mhm-customers__error">{ error }</div> }
-
-			{ loading && <div className="mhm-customers__loading">{ __( 'Loading…', 'mhm-rentiva' ) }</div> }
-
-			{ ! loading && (
-				<>
-					<CustomerTable
-						items={ items }
-						sortBy={ sortBy }
-						sortDir={ sortDir }
-						selected={ selected }
-						onSort={ handleSort }
-						onSelect={ handleSelect }
-						onSelectAll={ handleSelectAll }
-						onRowClick={ setPanelId }
-					/>
-					<Pagination
-						page={ page }
-						totalPages={ data?.total_pages ?? 1 }
-						onPageChange={ setPage }
-					/>
-				</>
-			) }
-
-			<CustomerPanel panelId={ panelId } onClose={ () => setPanelId( null ) } />
+				<CustomerPanel
+					panelId={ panelId }
+					row={ panelRow }
+					currency={ cfg.currency }
+					adminUrl={ cfg.admin_url }
+					onClose={ () => setPanelId( null ) }
+				/>
+			</div>
 		</div>
 	);
 }

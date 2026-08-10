@@ -18,6 +18,10 @@ final class CustomersRestEndpointTest extends WP_UnitTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // The optimizer caches list/stats payloads by parameter hash; a warm
+        // object cache from an earlier test in the same run would leak stale
+        // rows into the assertions below.
+        \MHMRentiva\Admin\Customers\CustomersOptimizer::clear_cache();
         // Register routes without requiring CustomersPage::register() side effects.
         add_action( 'rest_api_init', array( CustomersRestController::class, 'register_routes' ) );
         global $wp_rest_server;
@@ -148,5 +152,118 @@ final class CustomersRestEndpointTest extends WP_UnitTestCase
         $request->set_body( json_encode( array( 'ids' => array() ) ) );
         $response = self::$server->dispatch( $request );
         $this->assertSame( 400, $response->get_status() );
+    }
+
+    /**
+     * Create a booking post keyed to a customer e-mail, the way the optimizer
+     * queries expect them (email + total price meta, optional vehicle link).
+     */
+    private function create_booking( string $email, string $price, int $vehicle_id = 0 ): int
+    {
+        $booking_id = (int) $this->factory->post->create(
+            array(
+                'post_type'   => 'mhmrentiva_booking',
+                'post_status' => 'publish',
+                'post_title'  => 'Booking for ' . $email,
+            )
+        );
+        update_post_meta( $booking_id, '_mhmrentiva_customer_email', $email );
+        update_post_meta( $booking_id, '_mhmrentiva_total_price', $price );
+        if ( $vehicle_id > 0 ) {
+            update_post_meta( $booking_id, '_mhmrentiva_vehicle_id', $vehicle_id );
+        }
+        return $booking_id;
+    }
+
+    // Test 11 — the status arg is schema-validated against its enum.
+    public function test_invalid_status_returns_400(): void
+    {
+        wp_set_current_user( $this->admin_id );
+        $request = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
+        $request->set_query_params( array( 'status' => 'bogus' ) );
+        $response = self::$server->dispatch( $request );
+        $this->assertSame( 400, $response->get_status() );
+    }
+
+    // Test 12 — list rows carry the derived status tag.
+    public function test_list_rows_include_status_key(): void
+    {
+        wp_set_current_user( $this->admin_id );
+        $this->create_booking( get_userdata( $this->customer_id )->user_email, '100.00' );
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
+        $response = self::$server->dispatch( $request );
+        $this->assertSame( 200, $response->get_status() );
+        $items = $response->get_data()['items'];
+        $this->assertNotEmpty( $items );
+        foreach ( $items as $item ) {
+            $this->assertArrayHasKey( 'status', $item );
+            $this->assertContains( $item['status'], array( 'vip', 'new', 'active', 'none' ) );
+        }
+    }
+
+    // Test 13 — status=vip returns only customers at or above the booking floor.
+    public function test_status_vip_filters_to_vip_customers(): void
+    {
+        wp_set_current_user( $this->admin_id );
+
+        $vip_email    = get_userdata( $this->customer_id )->user_email;
+        $casual_id    = (int) $this->factory->user->create( array( 'role' => 'customer' ) );
+        $casual_email = get_userdata( $casual_id )->user_email;
+
+        for ( $i = 0; $i < 5; $i++ ) {
+            $this->create_booking( $vip_email, '100.00' );
+        }
+        $this->create_booking( $casual_email, '50.00' );
+
+        $request = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers' );
+        $request->set_query_params( array( 'status' => 'vip' ) );
+        $response = self::$server->dispatch( $request );
+        $this->assertSame( 200, $response->get_status() );
+
+        $items = $response->get_data()['items'];
+        $ids   = array_column( $items, 'id' );
+        $this->assertContains( $this->customer_id, $ids );
+        $this->assertNotContains( $casual_id, $ids );
+        foreach ( $items as $item ) {
+            if ( $item['id'] === $this->customer_id ) {
+                $this->assertSame( 'vip', $item['status'] );
+            }
+        }
+    }
+
+    // Test 14 — detail payload carries the panel's new fields.
+    public function test_detail_includes_recent_bookings_and_favorites(): void
+    {
+        wp_set_current_user( $this->admin_id );
+
+        $email      = get_userdata( $this->customer_id )->user_email;
+        $vehicle_id = (int) $this->factory->post->create(
+            array(
+                'post_type'   => 'mhmrentiva_vehicle',
+                'post_status' => 'publish',
+                'post_title'  => 'Panel Test Car',
+            )
+        );
+        $this->create_booking( $email, '250.00', $vehicle_id );
+        $this->create_booking( $email, '400.00' );
+        update_user_meta( $this->customer_id, 'mhmrentiva_favorites', array( $vehicle_id ) );
+
+        $request  = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/customers/' . $this->customer_id );
+        $response = self::$server->dispatch( $request );
+        $this->assertSame( 200, $response->get_status() );
+
+        $data = $response->get_data();
+        $this->assertArrayHasKey( 'recent_bookings', $data );
+        $this->assertArrayHasKey( 'favorites_count', $data );
+        $this->assertArrayHasKey( 'status', $data );
+        $this->assertSame( 1, $data['favorites_count'] );
+        $this->assertCount( 2, $data['recent_bookings'] );
+        foreach ( $data['recent_bookings'] as $booking ) {
+            $this->assertArrayHasKey( 'vehicle', $booking );
+            $this->assertArrayHasKey( 'date', $booking );
+            $this->assertArrayHasKey( 'amount', $booking );
+        }
+        $vehicles = array_column( $data['recent_bookings'], 'vehicle' );
+        $this->assertContains( 'Panel Test Car', $vehicles );
     }
 }

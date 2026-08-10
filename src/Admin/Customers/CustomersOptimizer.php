@@ -59,7 +59,7 @@ final class CustomersOptimizer {
 	 * @param string $search Search term
 	 * @return array
 	 */
-	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '', string $sort_by = 'last_booking', string $sort_dir = 'desc' ): array {
+	public static function get_customers_optimized( int $page = 1, int $per_page = 20, string $search = '', string $sort_by = 'last_booking', string $sort_dir = 'desc', string $status = 'all' ): array {
 		// The sort key is mapped to a SELECT alias, never to a raw expression, so
 		// the value bound to the %i below is always one of these six identifiers.
 		$column_map = array(
@@ -72,7 +72,17 @@ final class CustomersOptimizer {
 		);
 		$order_col  = $column_map[ $sort_by ] ?? 'last_booking';
 		$order_asc  = 'asc' === strtolower( $sort_dir );
-		$cache_key  = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir );
+
+		// Status filters are independent predicates (they may overlap): `new` means
+		// registered in the last 30 days, `active` means a booking in the last 90
+		// days (same window as the active_90d stat), `vip` means at least the
+		// filterable minimum number of bookings. Anything unknown collapses to
+		// 'all' so the bound toggles below never see a stray value.
+		if ( ! in_array( $status, array( 'all', 'new', 'active', 'vip' ), true ) ) {
+			$status = 'all';
+		}
+		$vip_min   = self::get_vip_min_bookings();
+		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min );
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -121,11 +131,15 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
+                AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
+            HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
             ORDER BY %i ASC
             LIMIT %d OFFSET %d
-            ", $search_like, $search_like, $order_col, (int) $per_page, (int) $offset ) )
+            ", $search_like, $search_like, $status, $status, $status, $vip_min, $order_col, (int) $per_page, (int) $offset ) )
 			: $wpdb->get_results( $wpdb->prepare( "
             SELECT
                 u.ID as user_id,
@@ -151,11 +165,15 @@ final class CustomersOptimizer {
                 AND um_address.meta_key = 'mhmrentiva_address'
             WHERE u.ID > 1
                 AND u.user_login != 'admin'
+                AND u.user_email != ''
                 AND (u.display_name LIKE %s OR u.user_email LIKE %s)
+                AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
             GROUP BY u.ID, u.display_name, u.user_email, u.user_registered, um_phone.meta_value, um_address.meta_value
+            HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
             ORDER BY %i DESC
             LIMIT %d OFFSET %d
-            ", $search_like, $search_like, $order_col, (int) $per_page, (int) $offset ) );
+            ", $search_like, $search_like, $status, $status, $status, $vip_min, $order_col, (int) $per_page, (int) $offset ) );
 
 		if ( empty( $results ) ) {
 			$data = array(
@@ -169,13 +187,29 @@ final class CustomersOptimizer {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Counterpart of the SELECT above; cached with it.
 		$total = (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(DISTINCT u.ID)
-            FROM {$wpdb->users} u
-            WHERE u.ID > 1
-                AND u.user_login != 'admin'
-                AND (u.display_name LIKE %s OR u.user_email LIKE %s)",
+				"SELECT COUNT(*) FROM (
+                SELECT u.ID
+                FROM {$wpdb->users} u
+                LEFT JOIN {$wpdb->postmeta} email_meta ON u.user_email = email_meta.meta_value
+                    AND email_meta.meta_key = '_mhmrentiva_customer_email'
+                LEFT JOIN {$wpdb->posts} p ON p.ID = email_meta.post_id
+                    AND p.post_type = 'mhmrentiva_booking'
+                    AND p.post_status IN ('publish', 'private', 'pending')
+                WHERE u.ID > 1
+                    AND u.user_login != 'admin'
+                    AND u.user_email != ''
+                AND (u.display_name LIKE %s OR u.user_email LIKE %s)
+                    AND ( %s != 'new' OR u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) )
+                GROUP BY u.ID
+                HAVING ( %s != 'active' OR MAX(p.post_date) >= DATE_SUB(NOW(), INTERVAL 90 DAY) )
+                    AND ( %s != 'vip' OR COUNT(DISTINCT p.ID) >= %d )
+            ) filtered",
 				$search_like,
-				$search_like
+				$search_like,
+				$status,
+				$status,
+				$status,
+				$vip_min
 			)
 		);
 
@@ -195,6 +229,11 @@ final class CustomersOptimizer {
 				'last_booking'  => $result->last_booking ? gmdate( 'd.m.Y', strtotime( $result->last_booking ) ) : '-',
 				'created_date'  => $result->created_date ? gmdate( 'd.m.Y', strtotime( $result->created_date ) ) : '-',
 				'currency'      => $currency,
+				'status'        => self::derive_status(
+					(int) $result->booking_count,
+					$result->created_date ? (int) strtotime( $result->created_date ) : 0,
+					$result->last_booking ? (int) strtotime( $result->last_booking ) : 0
+				),
 			);
 		}
 
@@ -213,12 +252,50 @@ final class CustomersOptimizer {
 	}
 
 	/**
+	 * Minimum booking count for the VIP tag (filterable, floor of 1).
+	 *
+	 * @return int
+	 */
+	public static function get_vip_min_bookings(): int {
+		return max( 1, (int) apply_filters( 'mhmrentiva_customers_vip_min_bookings', 5 ) );
+	}
+
+	/**
+	 * Derive the display status tag for a customer row.
+	 *
+	 * Display priority is VIP > new > active > none; the list *filters* use the
+	 * underlying predicates independently, so a VIP row still matches the
+	 * `active` filter when its last booking is inside the 90-day window.
+	 *
+	 * @param int $booking_count   Lifetime booking count.
+	 * @param int $registered_ts   Registration timestamp (0 = unknown).
+	 * @param int $last_booking_ts Latest booking timestamp (0 = none).
+	 * @return string One of vip|new|active|none.
+	 */
+	public static function derive_status( int $booking_count, int $registered_ts, int $last_booking_ts ): string {
+		if ( $booking_count >= self::get_vip_min_bookings() ) {
+			return 'vip';
+		}
+		// The thresholds are positive epoch values, so the 0 sentinels for
+		// "unknown" / "none" can never pass these comparisons.
+		if ( $registered_ts >= strtotime( '-30 days' ) ) {
+			return 'new';
+		}
+		if ( $last_booking_ts >= strtotime( '-90 days' ) ) {
+			return 'active';
+		}
+		return 'none';
+	}
+
+	/**
 	 * Get customer statistics in optimized way
 	 *
 	 * @return array
 	 */
 	public static function get_customer_stats_optimized(): array {
-		$cache_key = self::CACHE_PREFIX . 'stats';
+		// v2: the key changed when active_90d / avg_spend joined the payload, so a
+		// stale pre-redesign cache entry can never serve the old shape.
+		$cache_key = self::CACHE_PREFIX . 'stats_v2';
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -233,16 +310,21 @@ final class CustomersOptimizer {
 		$result = $wpdb->get_row(
 			$wpdb->prepare(
 				"
-            SELECT 
+            SELECT
                 COUNT(DISTINCT u.ID) as total_customers,
-                COUNT(DISTINCT CASE 
+                COUNT(DISTINCT CASE
                     WHEN u.user_registered >= %s
-                    THEN u.ID 
+                    THEN u.ID
                 END) as new_customers,
-                COUNT(DISTINCT CASE 
-                    WHEN u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY) 
-                    THEN u.ID 
-                END) as active_customers
+                COUNT(DISTINCT CASE
+                    WHEN u.user_registered >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+                    THEN u.ID
+                END) as active_customers,
+                COUNT(DISTINCT CASE
+                    WHEN p.post_date >= DATE_SUB(NOW(), INTERVAL 90 DAY)
+                    THEN u.ID
+                END) as active_90d,
+                COALESCE(SUM(CAST(price_meta.meta_value AS DECIMAL(10,2))), 0) as total_revenue
             FROM {$wpdb->users} u
             INNER JOIN {$wpdb->postmeta} pm_email ON u.user_email = pm_email.meta_value
                 AND pm_email.meta_key = '_mhmrentiva_customer_email'
@@ -250,9 +332,11 @@ final class CustomersOptimizer {
                 AND p.post_type = 'mhmrentiva_booking'
                 AND p.post_status IN ('publish', 'private', 'pending')
                 AND p.post_status != 'trash'
-            WHERE u.ID > 1 
+            LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
+                AND price_meta.meta_key = '_mhmrentiva_total_price'
+            WHERE u.ID > 1
                 AND u.user_login != 'admin'
-                AND u.user_email != '' 
+                AND u.user_email != ''
                 AND u.user_email IS NOT NULL
         ",
 				gmdate( 'Y-m-01 00:00:00' )
@@ -262,12 +346,21 @@ final class CustomersOptimizer {
 		// Calculate monthly average (last 3 months)
 		$monthly_avg = self::calculate_monthly_average();
 
+		$total     = (int) ( $result->total_customers ?? 0 );
+		$revenue   = (float) ( $result->total_revenue ?? 0 );
+		$avg_spend = $total > 0 ? round( $revenue / $total, 2 ) : 0.0;
+
 		$stats = array(
-			'total'         => (int) ( $result->total_customers ?? 0 ),
+			'total'         => $total,
 			'active'        => (int) ( $result->active_customers ?? 0 ),
 			'new'           => (int) ( $result->new_customers ?? 0 ),
 			'average'       => $monthly_avg,
 			'average_trend' => self::calculate_trend(),
+			// Customers whose latest booking activity falls in the last 90 days —
+			// the same window the per-row "active" tag uses.
+			'active_90d'    => (int) ( $result->active_90d ?? 0 ),
+			// Lifetime spend divided by the customers counted above.
+			'avg_spend'     => $avg_spend,
 		);
 
 		// Cache save
@@ -283,7 +376,10 @@ final class CustomersOptimizer {
 	 * @return array|null
 	 */
 	public static function get_customer_details_optimized( int $customer_id ): ?array {
-		$cache_key = self::CACHE_PREFIX . 'details_' . $customer_id;
+		// v2 suffix: recent_bookings / favorites_count / status joined the payload,
+		// so a stale pre-redesign cache entry can never serve the old shape.
+		// clear_cache() below uses the same key.
+		$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id;
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -340,23 +436,81 @@ final class CustomersOptimizer {
 		$currency = CurrencyHelper::get_currency_symbol();
 
 		$customer_data = array(
-			'id'            => (int) $result->ID,
-			'name'          => $result->display_name,
-			'email'         => $result->user_email,
-			'phone'         => $result->phone ? $result->phone : '-',
-			'address'       => $result->address ? $result->address : '-',
-			'registered'    => gmdate( 'd.m.Y', strtotime( $result->user_registered ) ),
-			'booking_count' => (int) $result->booking_count,
-			'total_spent'   => number_format( (float) $result->total_spent, 2, ',', '.' ),
-			'currency'      => $currency,
-			'last_booking'  => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
-			'first_booking' => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
+			'id'              => (int) $result->ID,
+			'name'            => $result->display_name,
+			'email'           => $result->user_email,
+			'phone'           => $result->phone ? $result->phone : '-',
+			'address'         => $result->address ? $result->address : '-',
+			'registered'      => gmdate( 'd.m.Y', strtotime( $result->user_registered ) ),
+			'booking_count'   => (int) $result->booking_count,
+			'total_spent'     => number_format( (float) $result->total_spent, 2, ',', '.' ),
+			'currency'        => $currency,
+			'last_booking'    => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
+			'first_booking'   => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
+			'favorites_count' => count( \MHMRentiva\Admin\Services\FavoritesService::get_user_favorites( $customer_id ) ),
+			'recent_bookings' => self::get_recent_bookings( $result->user_email, 3 ),
+			'status'          => self::derive_status(
+				(int) $result->booking_count,
+				(int) strtotime( $result->user_registered ),
+				$result->last_booking ? (int) strtotime( $result->last_booking ) : 0
+			),
 		);
 
 		// Cache save
 		CacheManager::set_cache( 'customers', $cache_key, $customer_data, self::CACHE_TTL );
 
 		return $customer_data;
+	}
+
+	/**
+	 * Latest bookings for a customer, newest first.
+	 *
+	 * Feeds the detail panel's "recent bookings" list: vehicle title (falling
+	 * back to the booking title when the vehicle link is missing), booking date
+	 * and the formatted amount.
+	 *
+	 * @param string $email Customer e-mail the bookings are keyed on.
+	 * @param int    $limit Maximum rows to return.
+	 * @return array<int, array{vehicle: string, date: string, amount: string}>
+	 */
+	public static function get_recent_bookings( string $email, int $limit = 3 ): array {
+		global $wpdb;
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- Small bounded lookup; cached by the caller inside the customer-details payload.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT p.post_title as booking_title,
+                    p.post_date,
+                    v.post_title as vehicle_title,
+                    CAST(COALESCE(price_meta.meta_value, 0) AS DECIMAL(10,2)) as amount
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} email_meta ON p.ID = email_meta.post_id
+                    AND email_meta.meta_key = '_mhmrentiva_customer_email'
+                    AND email_meta.meta_value = %s
+                LEFT JOIN {$wpdb->postmeta} price_meta ON p.ID = price_meta.post_id
+                    AND price_meta.meta_key = '_mhmrentiva_total_price'
+                LEFT JOIN {$wpdb->postmeta} vehicle_meta ON p.ID = vehicle_meta.post_id
+                    AND vehicle_meta.meta_key = '_mhmrentiva_vehicle_id'
+                LEFT JOIN {$wpdb->posts} v ON v.ID = CAST(vehicle_meta.meta_value AS UNSIGNED)
+                WHERE p.post_type = 'mhmrentiva_booking'
+                    AND p.post_status IN ('publish', 'private', 'pending')
+                ORDER BY p.post_date DESC
+                LIMIT %d",
+				$email,
+				$limit
+			)
+		);
+
+		$bookings = array();
+		foreach ( (array) $rows as $row ) {
+			$bookings[] = array(
+				'vehicle' => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
+				'date'    => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
+				'amount'  => number_format( (float) $row->amount, 2, ',', '.' ),
+			);
+		}
+
+		return $bookings;
 	}
 
 	/**
@@ -412,7 +566,7 @@ final class CustomersOptimizer {
 	 */
 	public static function clear_cache( ?int $customer_id = null ): bool {
 		if ( $customer_id ) {
-			$cache_key = self::CACHE_PREFIX . 'details_' . $customer_id;
+			$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id;
 			return CacheManager::delete_cache( 'customers', $cache_key );
 		}
 
