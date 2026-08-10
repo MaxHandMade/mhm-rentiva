@@ -619,31 +619,48 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT
                     COUNT(DISTINCT p.ID) as total,
-                    SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly,
-                    SUM(CASE WHEN pm_status.meta_value = 'confirmed' THEN 1 ELSE 0 END) as confirmed,
-                    SUM(CASE WHEN pm_status.meta_value = 'pending' THEN 1 ELSE 0 END) as pending,
-                    SUM(CASE WHEN pm_status.meta_value = 'in_progress' THEN 1 ELSE 0 END) as in_progress,
-                    SUM(CASE WHEN pm_status.meta_value = 'completed' THEN 1 ELSE 0 END) as completed,
-                    SUM(CASE WHEN pm_status.meta_value = 'cancelled' THEN 1 ELSE 0 END) as cancelled
+                    SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly
                 FROM {$wpdb->posts} p
-                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
                 WHERE p.post_type = %s AND p.post_status != %s",
 				$month_start,
 				$month_end,
+				'mhmrentiva_booking',
+				'trash'
+			)
+		);
+
+		// Full per-status enumeration in one GROUP BY, seeded with every
+		// allowed status so absent ones report 0 instead of a missing key.
+		$by_status = array_fill_keys( \MHMRentiva\Admin\Booking\Core\Status::allowed(), 0 );
+
+		$status_rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT pm_status.meta_value AS status, COUNT(DISTINCT p.ID) AS n
+                FROM {$wpdb->posts} p
+                INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+                WHERE p.post_type = %s AND p.post_status != %s
+                GROUP BY pm_status.meta_value",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'mhmrentiva_booking',
 				'trash'
 			)
 		);
 
+		foreach ( $status_rows as $status_row ) {
+			if ( isset( $by_status[ $status_row->status ] ) ) {
+				$by_status[ $status_row->status ] = (int) $status_row->n;
+			}
+		}
+
 		return array(
-			'total'       => (int) ( $row->total       ?? 0 ),
-			'monthly'     => (int) ( $row->monthly     ?? 0 ),
-			'confirmed'   => (int) ( $row->confirmed   ?? 0 ),
-			'pending'     => (int) ( $row->pending     ?? 0 ),
-			'in_progress' => (int) ( $row->in_progress ?? 0 ),
-			'completed'   => (int) ( $row->completed   ?? 0 ),
-			'cancelled'   => (int) ( $row->cancelled   ?? 0 ),
+			'total'       => (int) ( $row->total   ?? 0 ),
+			'monthly'     => (int) ( $row->monthly ?? 0 ),
+			'confirmed'   => $by_status['confirmed'] ?? 0,
+			'pending'     => $by_status['pending'] ?? 0,
+			'in_progress' => $by_status['in_progress'] ?? 0,
+			'completed'   => $by_status['completed'] ?? 0,
+			'cancelled'   => $by_status['cancelled'] ?? 0,
+			'by_status'   => $by_status,
 		);
 	}
 

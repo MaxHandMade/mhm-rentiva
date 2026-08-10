@@ -133,8 +133,11 @@ final class BookingColumns {
 		// Optional UI extras; now enabled by default (safe after export form fix)
 		if ( apply_filters( 'mhmrentiva_enable_booking_admin_extras', true ) ) {
 			add_action( 'admin_notices', array( self::class, 'add_booking_stats_cards' ) );
-			add_action( 'admin_notices', array( self::class, 'add_booking_calendar' ) );
+			add_action( 'admin_notices', array( self::class, 'add_booking_calendar' ), 20 );
 		}
+		// Chips are the status filter UI itself (not an "extra"): they replace
+		// the old dropdown and must survive the extras filter being disabled.
+		add_action( 'admin_notices', array( self::class, 'status_chips' ), 15 );
 	}
 
 	/**
@@ -531,24 +534,72 @@ final class BookingColumns {
 		}
 	}
 
+	/**
+	 * Status chip strip — replaces the old status dropdown.
+	 *
+	 * Same URL contract: each chip is a plain link carrying the registered
+	 * `mhmrentiva_booking_status` public query var, consumed by
+	 * apply_status_filter() unchanged, so old bookmarks keep working. Counts
+	 * come from the canonical stats (DashboardService enumeration). Every
+	 * status with a non-zero count gets a chip; the five core statuses are
+	 * always shown so the strip does not jump around as data changes, while
+	 * rare empty states (draft, no_show, ...) stay out of the way.
+	 */
+	public static function status_chips(): void {
+		global $pagenow, $post_type;
+
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		$stats     = self::get_booking_stats();
+		$by_status = is_array( $stats['by_status'] ?? null ) ? $stats['by_status'] : array();
+		$current   = self::get_query_text( 'mhmrentiva_booking_status' );
+		$base      = admin_url( 'edit.php?post_type=mhmrentiva_booking' );
+
+		$always_shown = array(
+			Status::PENDING,
+			Status::CONFIRMED,
+			Status::IN_PROGRESS,
+			Status::COMPLETED,
+			Status::CANCELLED,
+		);
+
+		echo '<div class="rv-bkl-chips">';
+
+		printf(
+			'<a class="rv-bkl-chip%s" href="%s">%s <span class="rv-bkl-chip__count">%d</span></a>',
+			'' === $current ? ' is-active' : '',
+			esc_url( $base ),
+			esc_html__( 'All', 'mhm-rentiva' ),
+			(int) $stats['total']
+		);
+
+		foreach ( Status::allowed() as $status ) {
+			$count = (int) ( $by_status[ $status ] ?? 0 );
+			if ( 0 === $count && ! in_array( $status, $always_shown, true ) ) {
+				continue;
+			}
+
+			printf(
+				'<a class="rv-bkl-chip%s" href="%s">%s <span class="rv-bkl-chip__count">%d</span></a>',
+				$current === $status ? ' is-active' : '',
+				esc_url( add_query_arg( 'mhmrentiva_booking_status', $status, $base ) ),
+				esc_html( Status::get_label( $status ) ),
+				absint( $count )
+			);
+		}
+
+		echo '</div>';
+	}
+
 	public static function status_filter( string $post_type ): void {
 		if ( $post_type !== 'mhmrentiva_booking' ) {
 			return;
 		}
 
-		$current = self::get_query_text( 'mhmrentiva_booking_status' );
-
-		echo '<select name="mhmrentiva_booking_status" class="postform">';
-		echo '  <option value="">' . esc_html__( 'All statuses', 'mhm-rentiva' ) . '</option>';
-
-		foreach ( Status::allowed() as $status ) {
-			$label = Status::get_label( $status );
-			echo '  <option value="' . esc_attr( $status ) . '"';
-			selected( $current, $status );
-			echo '>' . esc_html( $label ) . '</option>';
-		}
-
-		echo '</select>';
+		// The status dropdown that used to render here became the chip strip
+		// (status_chips()) — same registered query var, one filter UI.
 
 		// Payment status filter
 		$pcur = self::get_query_text( 'mhmrentiva_payment_status' );
@@ -873,6 +924,7 @@ final class BookingColumns {
 				'in_progress'          => $dashboard['in_progress'],
 				'completed'            => $dashboard['completed'],
 				'cancelled'            => $dashboard['cancelled'],
+				'by_status'            => $dashboard['by_status'],
 				'pending_this_week'    => $pending_this_week,
 				'confirmed_this_month' => $confirmed_this_month,
 				'completed_this_month' => $completed_this_month,
