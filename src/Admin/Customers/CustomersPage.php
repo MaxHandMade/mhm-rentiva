@@ -399,8 +399,11 @@ final class CustomersPage {
 			$customer_phone   = isset($_POST['customer_phone']) ? sanitize_text_field(wp_unslash( (string) $_POST['customer_phone'])) : '';
 			$customer_address = sanitize_textarea_field(wp_unslash($_POST['customer_address'] ?? ''));
 
-			if (empty($customer_name) || empty($customer_email)) {
-				echo '<div class="notice notice-error"><p>' . esc_html__('Customer name and email fields are required.', 'mhm-rentiva') . '</p></div>';
+			// Phone is required alongside name and e-mail: bookings need a way to
+			// reach the customer, and the HTML `required` attribute alone is not
+			// enforcement.
+			if (empty($customer_name) || empty($customer_email) || empty($customer_phone)) {
+				echo '<div class="notice notice-error"><p>' . esc_html__('Customer name, email and phone fields are required.', 'mhm-rentiva') . '</p></div>';
 			} else {
 				// Update user information
 				wp_update_user(
@@ -452,8 +455,8 @@ final class CustomersPage {
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__field">';
-		echo '<label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . '</label>';
-		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" />';
+		echo '<label for="customer_phone">' . esc_html__('Phone', 'mhm-rentiva') . ' <span class="rv-cust-req">' . esc_html__('Required', 'mhm-rentiva') . '</span></label>';
+		echo '<input name="customer_phone" type="tel" id="customer_phone" value="' . esc_attr(get_user_meta($customer_id, 'mhmrentiva_phone', true)) . '" required />';
 		echo '</div>';
 
 		echo '<div class="rv-cust-form__field">';
