@@ -653,16 +653,53 @@ final class BookingColumns {
 		}
 		echo '</select>';
 
-		// Payment gateway filter
-		$gcur = self::get_query_text( 'mhmrentiva_payment_gateway' );
-		echo '<select name="mhmrentiva_payment_gateway" class="postform">';
-		echo '  <option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
-		$allowedGateways = function_exists( 'WC' ) ? array_keys( WC()->payment_gateways()->payment_gateways() ) : array();
-		foreach ( $allowedGateways as $gw ) {
-			$label = self::get_payment_gateway_label( $gw );
-			echo '  <option value="' . esc_attr( $gw ) . '"' . selected( $gcur, $gw, false ) . '>' . esc_html( $label ) . '</option>';
+		// Payment gateway filter — enumerates the DISTINCT gateway values
+		// bookings actually carry, not WC's full registered-gateway list
+		// (bacs/cheque/cod/sandbox noise whose selection the apply logic
+		// never even filtered by). Hidden entirely when no booking has a
+		// gateway yet.
+		$in_use = self::get_gateways_in_use();
+		if ( ! empty( $in_use ) ) {
+			$gcur = self::get_query_text( 'mhmrentiva_payment_gateway' );
+			echo '<select name="mhmrentiva_payment_gateway" class="postform">';
+			echo '  <option value="">' . esc_html__( 'All payment methods', 'mhm-rentiva' ) . '</option>';
+			foreach ( $in_use as $gw ) {
+				$label = self::get_payment_gateway_label( $gw );
+				echo '  <option value="' . esc_attr( $gw ) . '"' . selected( $gcur, $gw, false ) . '>' . esc_html( $label ) . '</option>';
+			}
+			echo '</select>';
 		}
-		echo '</select>';
+	}
+
+	/**
+	 * DISTINCT payment gateway values present on non-trash bookings.
+	 *
+	 * @return array<int, string>
+	 */
+	private static function get_gateways_in_use(): array {
+		$cached = wp_cache_get( 'mhmrentiva_booking_gateways_in_use' );
+		if ( is_array( $cached ) ) {
+			return $cached;
+		}
+
+		global $wpdb;
+		$values = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
+                INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                WHERE pm.meta_key = %s AND pm.meta_value != ''
+                AND p.post_type = %s AND p.post_status != %s
+                ORDER BY pm.meta_value",
+				'_mhmrentiva_payment_gateway',
+				'mhmrentiva_booking',
+				'trash'
+			)
+		);
+
+		$values = array_values( array_filter( array_map( 'strval', (array) $values ) ) );
+		wp_cache_set( 'mhmrentiva_booking_gateways_in_use', $values, '', 3600 );
+
+		return $values;
 	}
 
 	public static function apply_status_filter( \WP_Query $q ): void {
@@ -680,7 +717,7 @@ final class BookingColumns {
 			$val = $booking_status_filter;
 			if ( in_array( $val, Status::allowed(), true ) ) {
 				// Check both old and new meta keys
-				$meta[] = array(
+				$clauses = array(
 					'relation' => 'OR',
 					array(
 						'key'     => '_mhmrentiva_booking_status',
@@ -693,6 +730,22 @@ final class BookingColumns {
 						'compare' => '=',
 					),
 				);
+				// Count semantics parity: the canonical enumeration folds
+				// status-less bookings into pending (COALESCE), so the
+				// pending filter must match them too — otherwise the chip
+				// says N and the list shows fewer.
+				if ( Status::PENDING === $val ) {
+					$clauses[] = array(
+						'key'     => '_mhmrentiva_status',
+						'compare' => 'NOT EXISTS',
+					);
+					$clauses[] = array(
+						'key'     => '_mhmrentiva_status',
+						'value'   => '',
+						'compare' => '=',
+					);
+				}
+				$meta[] = $clauses;
 			}
 		}
 		$payment_status_filter = self::get_query_text( 'mhmrentiva_payment_status' );
@@ -718,12 +771,14 @@ final class BookingColumns {
 		$payment_gateway_filter = self::get_query_text( 'mhmrentiva_payment_gateway' );
 		if ( '' !== $payment_gateway_filter ) {
 			$val = $payment_gateway_filter;
-			if ( $val === 'woocommerce' ) {
-				// ⭐ WooCommerce only - All payments go through WooCommerce
+			// Whitelist = the same in-use set the dropdown offers; the old
+			// code special-cased 'woocommerce' and silently ignored every
+			// other selection.
+			if ( in_array( $val, self::get_gateways_in_use(), true ) ) {
 				$meta[] = array(
 					array(
 						'key'     => '_mhmrentiva_payment_gateway',
-						'value'   => 'woocommerce',
+						'value'   => $val,
 						'compare' => '=',
 					),
 				);

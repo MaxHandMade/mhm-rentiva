@@ -21,6 +21,8 @@ final class BookingStatusChipsTest extends WP_UnitTestCase
     {
         $id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
         update_post_meta($id, '_mhmrentiva_status', $status);
+        // The gateway dropdown only renders for gateways in actual use.
+        update_post_meta($id, '_mhmrentiva_payment_gateway', 'woocommerce');
     }
 
     public function setUp(): void
@@ -30,6 +32,7 @@ final class BookingStatusChipsTest extends WP_UnitTestCase
         $this->create_booking('pending');
         $this->create_booking('completed');
         wp_cache_delete('mhmrentiva_booking_stats');
+        wp_cache_delete('mhmrentiva_booking_gateways_in_use');
 
         global $pagenow, $post_type;
         $pagenow   = 'edit.php';
@@ -70,6 +73,56 @@ final class BookingStatusChipsTest extends WP_UnitTestCase
         $this->assertMatchesRegularExpression('/rv-bkl-chip[^"]*is-active/', $html);
         // Raw superglobals are never read: links are plain hrefs, output escaped.
         $this->assertStringNotContainsString('<script', $html);
+    }
+
+    public function test_pending_filter_matches_the_pending_count_semantics(): void
+    {
+        // The canonical count folds status-less bookings into pending
+        // (COALESCE). The chip's filter must agree, or "Beklemede 2" clicks
+        // through to an empty list (measured live: IDs with no status meta).
+        $statusless = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+
+        set_current_screen('edit-mhmrentiva_booking');
+
+        $q = new \WP_Query();
+        $q->parse_query(array('post_type' => 'mhmrentiva_booking'));
+        $q->set('mhmrentiva_booking_status', 'pending');
+        $GLOBALS['wp_the_query'] = $q;
+        $GLOBALS['wp_query']     = $q;
+
+        BookingColumns::apply_status_filter($q);
+
+        $found = get_posts(array(
+            'post_type'      => 'mhmrentiva_booking',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            'meta_query'     => $q->get('meta_query'),
+        ));
+
+        $this->assertContains($statusless, $found, 'Status-less booking must match the pending filter');
+        $this->assertCount(3, $found, '2 explicit pending + 1 status-less');
+
+        set_current_screen('front');
+    }
+
+    public function test_gateway_dropdown_offers_only_gateways_bookings_actually_use(): void
+    {
+        // WC registers many gateways (bacs/cheque/cod/sandbox...); offering
+        // them all is noise AND the old apply logic silently ignored every
+        // value except 'woocommerce'. The dropdown must enumerate the
+        // DISTINCT gateway values present on bookings.
+        $paid = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($paid, '_mhmrentiva_payment_gateway', 'woocommerce');
+        wp_cache_delete('mhmrentiva_booking_gateways_in_use');
+
+        ob_start();
+        BookingColumns::status_filter('mhmrentiva_booking');
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('value="woocommerce"', $html);
+        $this->assertStringNotContainsString('value="bacs"', $html);
+        $this->assertStringNotContainsString('value="cheque"', $html);
+        $this->assertStringNotContainsString('value="cod"', $html);
     }
 
     public function test_chips_render_nothing_off_the_booking_list_screen(): void
