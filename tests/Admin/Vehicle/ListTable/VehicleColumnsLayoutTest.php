@@ -34,7 +34,11 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
     {
         $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle'));
         update_post_meta($vehicle, '_mhmrentiva_seats', 5);
-        update_post_meta($vehicle, '_mhmrentiva_transmission', 'automatic');
+        // 'auto' is the canonical stored key (the registered sanitizer
+        // normalizes variants to it) — the same value the quick-edit
+        // <select> options carry, which is exactly why the data attribute
+        // must expose the RAW key, not the localized label.
+        update_post_meta($vehicle, '_mhmrentiva_transmission', 'auto');
         update_post_meta($vehicle, '_mhmrentiva_fuel_type', 'diesel');
 
         ob_start();
@@ -43,6 +47,11 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
 
         $this->assertStringContainsString('rv-vhl-feature', $html);
         $this->assertStringContainsString('5 seats', $html);
+        // Quick-edit prefill contract (Fable finding — scraping translated
+        // chip text broke silently when the columns merged).
+        $this->assertStringContainsString('data-seats="5"', $html);
+        $this->assertStringContainsString('data-transmission="auto"', $html);
+        $this->assertStringContainsString('data-fuel="diesel"', $html);
     }
 
     public function test_features_header_sorts_by_seats(): void
@@ -74,5 +83,8 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
         $html = ob_get_clean();
 
         $this->assertStringContainsString('rv-vhl-star is-featured', $html);
+        // Same prefill contract as Features: the checkbox reads data-featured,
+        // not the (translated) cell text.
+        $this->assertStringContainsString('data-featured="1"', $html);
     }
 }

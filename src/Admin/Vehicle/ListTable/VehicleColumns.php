@@ -238,12 +238,13 @@ final class VehicleColumns {
 					$chips[] = $fuel_map[ $fuel ];
 				}
 
+				// Raw values ride as data attributes — the quick-edit prefill
+				// script reads THESE, not the localized chip text (scraping
+				// translated labels broke silently when the columns merged).
+				echo '<span class="rv-vhl-features" data-seats="' . esc_attr($seats > 0 ? (string) $seats : '') . '" data-transmission="' . esc_attr($trans) . '" data-fuel="' . esc_attr($fuel) . '">';
 				if (empty($chips)) {
 					echo '—';
-					break;
 				}
-
-				echo '<span class="rv-vhl-features">';
 				foreach ($chips as $chip) {
 					echo '<span class="rv-vhl-feature">' . esc_html($chip) . '</span>';
 				}
@@ -253,35 +254,17 @@ final class VehicleColumns {
 			case 'mhmrentiva_available':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post_id);
 
-				// UI Consistency: Use CSS variables
-				$status_config = array(
-					'active'      => array(
-						'color' => 'var(--mhm-success-color, #28a745)',
-						'icon'  => '✅',
-						'class' => 'status-active',
-					),
-					'inactive'    => array(
-						'color' => 'var(--mhm-danger-color, #dc3545)',
-						'icon'  => '❌',
-						'class' => 'status-inactive',
-					),
-					'maintenance' => array(
-						'color' => 'var(--mhm-warning-color, #ffc107)',
-						'icon'  => '🔧',
-						'class' => 'status-maintenance',
-					),
+				// Soft pill — the skin styles the status-* class; the old
+				// per-status emoji + inline-color config is gone with them.
+				$status_classes = array(
+					'active'      => 'status-active',
+					'inactive'    => 'status-inactive',
+					'maintenance' => 'status-maintenance',
 				);
+				$status_class   = $status_classes[ $v ] ?? 'status-default';
+				$label          = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($v);
 
-				$config = $status_config[ $v ] ?? array(
-					'color' => 'var(--mhm-muted-color, #6c757d)',
-					'icon'  => '',
-					'class' => 'status-default',
-				);
-				$label  = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($v);
-
-				// Soft pill — the skin styles the status-* class; the emoji and
-				// inline color gave way to the badge family.
-				echo '<span class="badge vehicle-status ' . esc_attr($config['class']) . '" data-status="' . esc_attr($v) . '">';
+				echo '<span class="badge vehicle-status ' . esc_attr($status_class) . '" data-status="' . esc_attr($v) . '">';
 				echo esc_html($label);
 				echo '</span>';
 				break;
@@ -291,7 +274,10 @@ final class VehicleColumns {
 				$label     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_label($lifecycle);
 				$color     = \MHMRentiva\Admin\Vehicle\VehicleLifecycleStatus::get_color($lifecycle);
 
-				echo '<span style="display:inline-block;padding:2px 8px;border-radius:4px;background:' . esc_attr($color) . '20;color:' . esc_attr($color) . ';font-weight:600;font-size:12px;">';
+				// Badge family for shape; the colors stay dynamic (they come
+				// from VehicleLifecycleStatus per state, already soft via the
+				// 20-alpha background).
+				echo '<span class="badge lifecycle-badge" style="background:' . esc_attr($color) . '20;color:' . esc_attr($color) . ';">';
 				echo esc_html($label);
 				echo '</span>';
 
@@ -299,10 +285,12 @@ final class VehicleColumns {
 
 			case 'mhmrentiva_featured':
 				$is_featured = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_featured($post_id);
+				// data-featured feeds the quick-edit prefill (the old code
+				// compared the cell TEXT against a translated "Yes").
 				if ($is_featured) {
-					echo '<span class="rv-vhl-star is-featured" title="' . esc_attr__('Featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('Yes', 'mhm-rentiva') . '">&#9733;</span>';
+					echo '<span class="rv-vhl-star is-featured" data-featured="1" title="' . esc_attr__('Featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('Yes', 'mhm-rentiva') . '">&#9733;</span>';
 				} else {
-					echo '<span class="rv-vhl-star" title="' . esc_attr__('Not featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('No', 'mhm-rentiva') . '">&#9734;</span>';
+					echo '<span class="rv-vhl-star" data-featured="0" title="' . esc_attr__('Not featured', 'mhm-rentiva') . '" aria-label="' . esc_attr__('No', 'mhm-rentiva') . '">&#9734;</span>';
 				}
 				break;
 		}
@@ -562,11 +550,13 @@ final class VehicleColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/booking-calendar.css')
 			);
 
-			// Refined skin — loads AFTER the shared stylesheets it overrides.
+			// Refined skin — declares EVERY stylesheet it overrides as a
+			// dependency (calendar files included: .mhm-calendars lives there),
+			// so load order is guaranteed rather than inherited from call order.
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-list.css',
-				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin' ),
+				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/vehicle-list.css')
 			);
 
@@ -1824,11 +1814,11 @@ final class VehicleColumns {
 	/**
 	 * Clear all vehicle statistics caches.
 	 *
-	 * The writer this pairs with is currently commented out at get_vehicle_stats(),
-	 * so today this deletes nothing. The patterns are still kept aligned with the
-	 * key that writer would produce: a cleaner that silently stops matching is
-	 * invisible at runtime, and leaving the pre-rename spelling here would hand
-	 * that failure to whoever re-enables the cache.
+	 * Pairs with the transient writer in get_vehicle_stats() (re-enabled in
+	 * the Faz 1b round). Known limit shared with the rest of the codebase:
+	 * raw option-table DELETEs do not reach an external object cache backing
+	 * transients — the 5-minute TTL bounds the staleness there; a dedicated
+	 * class sweep is tracked separately.
 	 */
 	public static function clear_vehicle_stats_cache(): void
 	{
