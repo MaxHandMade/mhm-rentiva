@@ -509,7 +509,8 @@
 }
 
 .mhm-booking-list .badge.payment-status-refunded,
-.mhm-booking-list .badge.payment-status-failed {
+.mhm-booking-list .badge.payment-status-failed,
+.mhm-booking-list .badge.payment-status-cancelled {
 	background-color: #fbeaea;
 	color: #a02222;
 }
@@ -563,13 +564,20 @@
 	opacity: 0.7;
 }
 
-/* ── KPI band refinements (overrides shared stats-cards.css here only) ── */
-.mhm-booking-list .mhm-stats-grid {
+/* ── KPI band refinements ──
+   shared/admin.css paints .mhm-stat-card:nth-child(N) gradients and loads
+   AFTER this file, so these overrides carry body+2-class specificity to
+   win against the (0,2,0) gradient rules on every card slot. */
+body.mhm-booking-list .mhm-stats-grid {
 	gap: 14px;
 	margin: 14px 0 4px;
 }
 
-.mhm-booking-list .mhm-stat-card {
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card,
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(1),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(2),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(3),
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card:nth-child(4) {
 	background: #fff;
 	border: 1px solid #e6e7eb;
 	border-radius: 12px;
@@ -577,26 +585,41 @@
 	padding: 16px 18px;
 }
 
-.mhm-booking-list .mhm-stat-card__label {
-	font-size: 12px;
-	color: #646970;
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card .dashicons {
+	color: #8a8f98;
+	background: #f4f5f7;
+	border-radius: 8px;
 }
 
-.mhm-booking-list .mhm-stat-card__value {
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__label {
+	font-size: 12px;
+	font-weight: 500;
+	color: #646970;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__value {
 	font-size: 26px;
 	font-weight: 700;
 	line-height: 1.1;
+	color: #1d2327;
 }
 
-.mhm-booking-list .mhm-stat-card.is-pending .mhm-stat-card__value {
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card__sub {
+	color: #8a8f98;
+	opacity: 1;
+}
+
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-pending .mhm-stat-card__value {
 	color: #8a6d1b;
 }
 
-.mhm-booking-list .mhm-stat-card.is-completed .mhm-stat-card__value {
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-completed .mhm-stat-card__value {
 	color: #0a6b1e;
 }
 
-.mhm-booking-list .mhm-stat-card.is-revenue .mhm-stat-card__value {
+body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__value {
 	color: #135e96;
 }
 
@@ -639,6 +662,38 @@
 .mhm-booking-list .tablenav .button:hover,
 .mhm-booking-list #search-submit:hover {
 	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+/* ── Light-committed text colors ──
+   css-variables.css flips --mhm-text-* to light values under
+   prefers-color-scheme: dark while this skin pins light surfaces, which
+   washed the cell text out (measured). The refined screen commits to the
+   light look in both schemes, so text colors are pinned explicitly. */
+.mhm-booking-list .date-info .date-range,
+.mhm-booking-list .total-amount,
+.mhm-booking-list .vehicle-info .vehicle-name,
+.mhm-booking-list .vehicle-info .vehicle-name a,
+.mhm-booking-list .deposit-amount,
+.mhm-booking-list .remaining-amount.paid {
+	color: #1d2327;
+}
+
+.mhm-booking-list .booking-id,
+.mhm-booking-list .date-days,
+.mhm-booking-list .date-info .time-info,
+.mhm-booking-list .vehicle-info .vehicle-plate,
+.mhm-booking-list .mhm-gateway-pill {
+	color: #8a8f98;
+}
+
+.mhm-booking-list .mhm-gateway-pill {
+	background: #f4f5f7;
+	border-color: #e6e7eb;
+}
+
+.mhm-booking-list .wp-list-table tbody td,
+.mhm-booking-list .wp-list-table tbody th {
 	color: #1d2327;
 }
 

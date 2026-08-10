@@ -13,6 +13,22 @@
 				return;
 			}
 
+			// Layout relocation (Faz 1a): admin_notices output prints ABOVE the
+			// page <h1>; the approved mockup order is title → toolbar → KPI band
+			// → chips → table → calendar. Core relocates only `.notice` elements,
+			// so move our blocks below the header marker ourselves, and push the
+			// heavy monthly calendar BELOW the list table.
+			var $marker = $( '.wp-header-end' );
+			if ($marker.length) {
+				$( '.rv-bkl-chips' ).first().insertAfter( $marker );
+				$( '.mhm-stats-grid' ).first().insertAfter( $marker );
+				$( '.rv-bkl-toolbar' ).first().insertAfter( $marker );
+			}
+			var $calendar = $( '.mhm-calendars.booking-calendar-page' ).first();
+			if ($calendar.length) {
+				$calendar.insertAfter( $form );
+			}
+
 			// On select change → submit (dates, status, payment, gateway)
 			$form.on(
 				'change',
