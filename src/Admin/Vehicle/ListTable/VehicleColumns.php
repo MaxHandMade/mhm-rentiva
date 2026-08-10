@@ -583,24 +583,15 @@ final class VehicleColumns {
 		?>
 		<div class="mhm-stats-grid">
 			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-calendar-alt"></span>
+				<span class="dashicons dashicons-car"></span>
 				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('Monthly Reserved Vehicles', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['reserved']); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['reserved_all_time'] ?? 0); ?> <?php esc_html_e('total', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__label"><?php esc_html_e('Total Vehicles', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($stats['total_vehicles']); ?></p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['reserved']); ?> <?php esc_html_e('reserved this month', 'mhm-rentiva'); ?></p>
 				</div>
 			</div>
 
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-chart-bar"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Occupancy', 'mhm-rentiva'); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html($stats['occupancy_rate']); ?>%</p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['total_vehicles']); ?> <?php esc_html_e('total vehicles', 'mhm-rentiva'); ?></p>
-				</div>
-			</div>
-
-			<div class="mhm-stat-card">
+			<div class="mhm-stat-card is-active-today">
 				<span class="dashicons dashicons-admin-users"></span>
 				<div class="mhm-stat-card__body">
 					<p class="mhm-stat-card__label"><?php esc_html_e('Active Today', 'mhm-rentiva'); ?></p>
@@ -609,7 +600,16 @@ final class VehicleColumns {
 				</div>
 			</div>
 
-			<div class="mhm-stat-card">
+			<div class="mhm-stat-card is-occupancy">
+				<span class="dashicons dashicons-chart-bar"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Occupancy', 'mhm-rentiva'); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html($stats['occupancy_rate']); ?>%</p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html($stats['total_vehicles']); ?> <?php esc_html_e('total vehicles', 'mhm-rentiva'); ?></p>
+				</div>
+			</div>
+
+			<div class="mhm-stat-card is-revenue">
 				<span class="dashicons dashicons-money-alt"></span>
 				<div class="mhm-stat-card__body">
 					<p class="mhm-stat-card__label"><?php esc_html_e('This Month Revenue', 'mhm-rentiva'); ?></p>
@@ -629,32 +629,17 @@ final class VehicleColumns {
 	{
 		global $wpdb;
 
-		// Remove cache completely - get real data
-		// $cache_key = 'mhmrentiva_vehicle_stats_' . get_current_user_id();
-		// $stats = get_transient($cache_key);
+		// Stats are user-independent; the shared key still matches
+		// clear_vehicle_stats_cache()'s `mhmrentiva_vehicle_stats_%` pattern,
+		// so the save/delete hooks that survived the cache's removal work
+		// again. (A dead debug query that fetched every vehicle on every
+		// list load and used nothing lived here — gone.)
+		$cache_key = 'mhmrentiva_vehicle_stats_shared';
+		$stats     = get_transient($cache_key);
 
-		// if ($stats !== false && is_array($stats)) {
-		// return $stats;
-		// }
-
-		// Debug: Check all vehicles and their statuses
-		// Note: This is a static query with no user input, but using prepare() for best practice
-		$all_vehicles = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-            SELECT v.ID, v.post_title, pm_status.meta_value as status
-            FROM {$wpdb->posts} v
-            LEFT JOIN {$wpdb->postmeta} pm_status ON v.ID = pm_status.post_id AND pm_status.meta_key = %s
-            WHERE v.post_type = %s AND v.post_status = %s
-            ORDER BY v.ID
-        ",
-				\MHMRentiva\Admin\Core\MetaKeys::VEHICLE_STATUS,
-				'mhmrentiva_vehicle',
-				'publish'
-			)
-		);
-
-		// Debug log removed
+		if ($stats !== false && is_array($stats)) {
+			return $stats;
+		}
 
 		// Optimized pivot query - all statistics in single query
 		$vehicle_stats = $wpdb->get_row(
@@ -757,29 +742,17 @@ final class VehicleColumns {
 		// Debug: Log vehicle stats in detail
 		// Debug log removed
 
-		// Monthly revenue average - use real reservation data
+		// Monthly revenue: CANONICAL value from DashboardService (same number
+		// the dashboard and the bookings-list band show — this used to be a
+		// third, publish-only copy of the SQL). The trend needs last month's
+		// revenue, which has no canonical method, so that one query stays
+		// local but uses the canonical post_status scope.
 		$monthly_avg_revenue = 0;
 		$revenue_trend       = 0;
 
 		if ($total_vehicles > 0) {
-			// This month's revenue - ONLY COMPLETED AND CONFIRMED RESERVATIONS
-			$current_month_revenue = (float) $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-                 FROM {$wpdb->posts} p 
-                 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-                 INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = %s AND p.post_status = %s 
-                 AND pm.meta_key = %s
-                 AND pm_status.meta_key = '_mhmrentiva_status'
-                 AND pm_status.meta_value IN ('completed', 'confirmed')
-                 AND p.post_date >= %s",
-					'mhmrentiva_booking',
-					'publish',
-					'_mhmrentiva_total_price',
-					gmdate('Y-m-01')
-				)
-			);
+			$metrics               = \MHMRentiva\Admin\Utilities\Dashboard\DashboardService::get_dashboard_metrics();
+			$current_month_revenue = (float) ( $metrics['monthly_revenue'] ?? 0 );
 
 			// Last month's revenue (for trend calculation)
 			$last_month_start = gmdate('Y-m-01', strtotime('-1 month'));
@@ -787,26 +760,22 @@ final class VehicleColumns {
 
 			$last_month_revenue = (float) $wpdb->get_var(
 				$wpdb->prepare(
-					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2))) 
-                 FROM {$wpdb->posts} p 
+					"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
+                 FROM {$wpdb->posts} p
                  INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
                  INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                 WHERE p.post_type = %s AND p.post_status = %s 
+                 WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending')
                  AND pm.meta_key = %s
                  AND pm_status.meta_key = '_mhmrentiva_status'
                  AND pm_status.meta_value IN ('completed', 'confirmed')
                  AND p.post_date >= %s AND p.post_date <= %s",
 					'mhmrentiva_booking',
-					'publish',
 					'_mhmrentiva_total_price',
 					$last_month_start,
 					$last_month_end . ' 23:59:59'
 				)
 			);
 
-			// Debug log removed
-
-			// Monthly revenue average = this month's revenue / number of vehicles
 			$monthly_avg_revenue = $current_month_revenue;
 
 			// Trend calculation
@@ -867,11 +836,7 @@ final class VehicleColumns {
 			'revenue_trend'       => (float) ( $revenue_trend ?? 0 ),
 		);
 
-		// Debug: Log final stats
-		// Debug log removed
-
-		// Remove cache completely - get real data
-		// set_transient($cache_key, $stats, 5 * MINUTE_IN_SECONDS);
+		set_transient($cache_key, $stats, 5 * MINUTE_IN_SECONDS);
 
 		return $stats;
 	}
@@ -1678,9 +1643,8 @@ final class VehicleColumns {
 	 */
 	private static function format_currency(float $amount): string
 	{
-		// Same format as dashboard: 2 decimal, dot separator
-		$formatted = number_format($amount, 2, '.', ',');
-		return $formatted . ' ' . \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price($amount, 2);
 	}
 
 	/**
