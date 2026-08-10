@@ -37,16 +37,19 @@ function SystemReportCard( { report } ) {
 		};
 
 		if ( navigator.clipboard && window.isSecureContext ) {
-			navigator.clipboard.writeText( report ).then( onCopied );
+			// Only confirm on success; a silent failure must not show "Copied!".
+			navigator.clipboard.writeText( report ).then( onCopied ).catch( () => {} );
 		} else {
 			const el = document.createElement( 'textarea' );
 			el.value = report;
 			el.style.cssText = 'position:fixed;left:-9999px;top:-9999px';
 			document.body.appendChild( el );
 			el.select();
-			document.execCommand( 'copy' );
+			const ok = document.execCommand( 'copy' );
 			document.body.removeChild( el );
-			onCopied();
+			if ( ok ) {
+				onCopied();
+			}
 		}
 	};
 

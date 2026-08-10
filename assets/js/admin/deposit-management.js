@@ -116,8 +116,19 @@
             `);
 
             $box.find('.mhm-copy-payment-link').on('click', () => {
-                navigator.clipboard.writeText(url);
-                this.showMessage('success', copiedLabel);
+                // navigator.clipboard is undefined outside secure contexts (plain
+                // http admin) - guard and fall back, and only confirm on success.
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(url).then(
+                        () => this.showMessage('success', copiedLabel),
+                        () => {}
+                    );
+                } else {
+                    $box.find('input').trigger('focus').trigger('select');
+                    if (document.execCommand('copy')) {
+                        this.showMessage('success', copiedLabel);
+                    }
+                }
             });
 
             $('.deposit-management-metabox').prepend($box);
