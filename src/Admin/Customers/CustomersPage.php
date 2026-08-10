@@ -166,10 +166,10 @@ final class CustomersPage {
 			return;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation aid on a capability-gated admin screen.
-		$customer_email = sanitize_email( wp_unslash( $_GET['customer_email'] ?? '' ) );
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only navigation aid on a capability-gated admin screen.
-		$customer_id = absint( wp_unslash( $_GET['customer_id'] ?? 0 ) );
+		// Registered public query vars (BookingColumns::PUBLIC_QUERY_VARS), so
+		// they arrive through get_query_var — no superglobal read.
+		$customer_email = sanitize_email( (string) get_query_var( 'mhmrentiva_customer_email' ) );
+		$customer_id    = absint( (string) get_query_var( 'mhmrentiva_customer_id' ) );
 		if ( '' === $customer_email ) {
 			return;
 		}
@@ -320,9 +320,22 @@ final class CustomersPage {
 
 		// Recent bookings, 5 per page. Page 1 comes from the cached detail
 		// payload; deeper pages query the same bounded lookup with an offset.
-		$per_page      = 5;
-		$total_pages   = max( 1, (int) ceil( ( (int) $detail['booking_count'] ) / $per_page ) );
-		$bookings_page = min( $total_pages, max( 1, absint( wp_unslash( $_GET['bookings_page'] ?? 1 ) ) ) );
+		$per_page    = 5;
+		$total_pages = max( 1, (int) ceil( ( (int) $detail['booking_count'] ) / $per_page ) );
+		// filter_input validates inline (no superglobal read): non-numeric or
+		// missing values collapse to page 1, and the clamp bounds the rest.
+		$bookings_page = (int) filter_input(
+			INPUT_GET,
+			'bookings_page',
+			FILTER_VALIDATE_INT,
+			array(
+				'options' => array(
+					'default'   => 1,
+					'min_range' => 1,
+				),
+			)
+		);
+		$bookings_page = min( $total_pages, max( 1, $bookings_page ) );
 		$recent        = 1 === $bookings_page
 			? (array) ( $detail['recent_bookings'] ?? array() )
 			: CustomersOptimizer::get_recent_bookings( (string) $detail['email'], $per_page, ( $bookings_page - 1 ) * $per_page );
@@ -357,7 +370,7 @@ final class CustomersPage {
 		}
 		echo '<div class="rv-cust-panel__actions">';
 		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers&action=edit&customer_id=' . $customer_id)) . '" class="rv-cust-btn is-primary">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
-		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&customer_email=' . $detail['email'] . '&customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
+		echo '<a href="' . esc_url(admin_url('edit.php?post_type=mhmrentiva_booking&mhmrentiva_customer_email=' . rawurlencode( (string) $detail['email'] ) . '&mhmrentiva_customer_id=' . $customer_id)) . '" class="rv-cust-btn">' . esc_html__('View Bookings', 'mhm-rentiva') . '</a>';
 		echo '<a href="' . esc_url(admin_url('admin.php?page=mhm-rentiva-customers')) . '" class="rv-cust-btn">' . esc_html__('Go Back', 'mhm-rentiva') . '</a>';
 		echo '</div>';
 		echo '</div>';

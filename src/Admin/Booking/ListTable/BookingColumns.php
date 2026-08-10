@@ -67,6 +67,8 @@ final class BookingColumns {
 		'mhmrentiva_license_plate',
 		'mhmrentiva_month',
 		'mhmrentiva_year',
+		'mhmrentiva_customer_email',
+		'mhmrentiva_customer_id',
 	);
 
 	/**
@@ -1779,10 +1781,11 @@ final class BookingColumns {
 		$meta_query = $q->get( 'meta_query' ) ?: array();
 
 		// Customer e-mail filter — the Customers screen links here with
-		// ?customer_email=… ("View Bookings"); without this clause the
-		// parameter was silently ignored and the full list rendered.
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only list filter on an already capability-gated admin screen.
-		$customer_email = sanitize_email( wp_unslash( $_GET['customer_email'] ?? '' ) );
+		// ?mhmrentiva_customer_email=… ("View Bookings"); without this clause
+		// the parameter was silently ignored and the full list rendered.
+		// Registered query var, read through the same helper the sibling
+		// filters use.
+		$customer_email = sanitize_email( self::get_query_text( 'mhmrentiva_customer_email' ) );
 		if ( '' !== $customer_email ) {
 			$meta_query[] = array(
 				'key'   => '_mhmrentiva_customer_email',
