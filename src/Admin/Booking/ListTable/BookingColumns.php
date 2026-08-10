@@ -677,21 +677,9 @@ final class BookingColumns {
 	}
 
 	private static function format_price( float $price ): string {
-		// ✅ Same format as Dashboard/Vehicle
-		$amount = number_format( $price, 2, '.', ',' );
-		return $amount . ' ' . self::get_currency_symbol();
-	}
-
-	/**
-	 * Retrieve currency symbol (shared with Dashboard).
-	 */
-	/**
-	 * Get currency symbol
-	 *
-	 * @deprecated Use CurrencyHelper::get_currency_symbol() instead
-	 */
-	private static function get_currency_symbol(): string {
-		return \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+		// Canonical currency formatting (WC-aware symbol/position/separators);
+		// this screen must not hand-format money differently from the rest.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 
 	/**
@@ -760,6 +748,15 @@ final class BookingColumns {
 		?>
 		<div class="mhm-stats-grid">
 			<div class="mhm-stat-card">
+				<span class="dashicons dashicons-calendar-alt"></span>
+				<div class="mhm-stat-card__body">
+					<p class="mhm-stat-card__label"><?php esc_html_e( 'Total Bookings', 'mhm-rentiva' ); ?></p>
+					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['total'] ); ?></p>
+					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['monthly'] ); ?> <?php esc_html_e( 'This month', 'mhm-rentiva' ); ?></p>
+				</div>
+			</div>
+
+			<div class="mhm-stat-card is-pending">
 				<span class="dashicons dashicons-clock"></span>
 				<div class="mhm-stat-card__body">
 					<p class="mhm-stat-card__label"><?php esc_html_e( 'Pending', 'mhm-rentiva' ); ?></p>
@@ -768,16 +765,7 @@ final class BookingColumns {
 				</div>
 			</div>
 
-			<div class="mhm-stat-card">
-				<span class="dashicons dashicons-yes-alt"></span>
-				<div class="mhm-stat-card__body">
-					<p class="mhm-stat-card__label"><?php esc_html_e( 'Confirmed', 'mhm-rentiva' ); ?></p>
-					<p class="mhm-stat-card__value"><?php echo esc_html( $stats['confirmed'] ); ?></p>
-					<p class="mhm-stat-card__sub"><?php echo esc_html( $stats['confirmed_this_month'] ); ?> <?php esc_html_e( 'This month', 'mhm-rentiva' ); ?></p>
-				</div>
-			</div>
-
-			<div class="mhm-stat-card">
+			<div class="mhm-stat-card is-completed">
 				<span class="dashicons dashicons-yes"></span>
 				<div class="mhm-stat-card__body">
 					<p class="mhm-stat-card__label"><?php esc_html_e( 'Completed', 'mhm-rentiva' ); ?></p>
@@ -786,7 +774,7 @@ final class BookingColumns {
 				</div>
 			</div>
 
-			<div class="mhm-stat-card">
+			<div class="mhm-stat-card is-revenue">
 				<span class="dashicons dashicons-money-alt"></span>
 				<div class="mhm-stat-card__body">
 					<p class="mhm-stat-card__label"><?php esc_html_e( 'Monthly Revenue', 'mhm-rentiva' ); ?></p>
