@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: MHM Rentiva 6.0.1\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/mhm-rentiva\n"
-"POT-Creation-Date: 2026-08-10T11:45:54+00:00\n"
+"POT-Creation-Date: 2026-08-10T11:59:24+00:00\n"
 "PO-Revision-Date: 2026-08-10 11:13+0000\n"
 "Last-Translator: \n"
 "Language-Team: Türkçe\n"
@@ -777,7 +777,7 @@ msgstr "Ek Hizmet Ayarları"
 #: assets/blocks/my-bookings/index.js:42
 #: src-react/admin/customers/components/CustomerTable.jsx:24
 #: src-react/admin/customers/CustomersPage.jsx:13
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:7
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 msgid "Active"
 msgstr "Aktif"
@@ -1377,7 +1377,7 @@ msgstr "Gün"
 #: src/Admin/Booking/ListTable/BookingColumns.php:268
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:256
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:9
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:6
 msgid "Total"
 msgstr "Toplam"
 
@@ -1412,7 +1412,7 @@ msgstr "Kalan miktar"
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/customers/components/CustomerTable.jsx:82
 #: src-react/admin/dashboard/components/RecentBookings.jsx:68
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:15
 msgid "Status"
 msgstr "Durum"
 
@@ -3074,8 +3074,8 @@ msgstr "Değer Gir"
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:624
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:676
 #: templates/account/payment-history.php:150
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:46
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:56
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
 msgstr "Kaldır"
 
@@ -3897,7 +3897,7 @@ msgstr "Onayla"
 #: src/Admin/Customers/CustomersPage.php:359
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:38
 msgid "Edit"
 msgstr "Düzenle"
 
@@ -3957,7 +3957,7 @@ msgstr "Gönder"
 
 #: src/Admin/Core/AssetManager.php:1136
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1492
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr "Temizle"
 
@@ -5439,7 +5439,7 @@ msgstr "← Müşteri detaylarına dön"
 
 #: src/Admin/Customers/CustomersPage.php:438
 #: templates/account/dashboard.php:221
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:41
 msgid "View"
 msgstr "Görünüm"
 
@@ -10857,7 +10857,7 @@ msgid "Next Execution"
 msgstr "Sonraki Yürütme"
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:16
 msgid "Actions"
 msgstr "Eylemler"
 
@@ -11217,13 +11217,13 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:203
 #: src-react/admin/customers/components/Pagination.jsx:15
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
 msgstr "Sayfa"
 
 #: src/Admin/Setup/SetupWizard.php:204
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:10
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr "Kısa kod"
 
@@ -11236,7 +11236,7 @@ msgid "Present"
 msgstr "Mevcut"
 
 #: src/Admin/Setup/SetupWizard.php:213 src/Admin/Setup/SetupWizard.php:879
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:17
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:8
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr "Eksik"
@@ -15352,12 +15352,16 @@ msgstr "Bulunduğu Yer"
 msgid "Not found"
 msgstr "Bulunamadı"
 
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:31
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:32
 msgid "Create Page"
 msgstr "Sayfa oluştur"
 
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:8
+msgid "No matches found."
+msgstr "Eşleşen kayıt bulunamadı."
+
 #: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:79
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
 msgid "Clear Cache"
 msgstr "Önbelleği Temizle"
 
@@ -15373,33 +15377,37 @@ msgstr "Hata Ayıklama Arama"
 msgid "Reset All"
 msgstr "Tümünü Sıfırla"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:30
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:20
+msgid "Search shortcode or page…"
+msgstr "Kısa kod veya sayfa ara…"
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:31
 msgid "Failed to load shortcode pages."
 msgstr "Kısa kod sayfaları yüklenemedi."
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:54
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
 msgid "Remove Page"
 msgstr "Sayfayı Kaldır"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:56
 msgid "Move this page to trash?"
 msgstr "Bu sayfayı çöp kutusuna taşımak ister misiniz?"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Cache will be cleared. Do you want to continue?"
 msgstr "Önbellek silinecek. Devam etmek istiyor musunuz?"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:102
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
 msgid "Reset All Pages"
 msgstr "Tüm Sayfaları Sıfırla"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
 msgid "This will permanently delete all created shortcode pages. Are you sure?"
 msgstr ""
 "Bu işlem, oluşturulan tüm kısa kod sayfalarını kalıcı olarak silecektir. "
 "Emin misiniz?"
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:105
 msgid "Delete All"
 msgstr "Tümünü Sil"
 

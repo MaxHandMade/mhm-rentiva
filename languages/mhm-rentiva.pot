@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T11:45:54+00:00\n"
+"POT-Creation-Date: 2026-08-10T11:59:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -790,7 +790,7 @@ msgstr ""
 #: assets/blocks/my-bookings/index.js:42
 #: src-react/admin/customers/components/CustomerTable.jsx:24
 #: src-react/admin/customers/CustomersPage.jsx:13
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:13
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:7
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:7
 msgid "Active"
 msgstr ""
@@ -1385,7 +1385,7 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:268
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:256
 #: src-react/admin/dashboard/components/RecentBookings.jsx:41
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:9
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:6
 msgid "Total"
 msgstr ""
 
@@ -1423,7 +1423,7 @@ msgstr ""
 #: assets/blocks/payment-history/index.js:53
 #: src-react/admin/customers/components/CustomerTable.jsx:82
 #: src-react/admin/dashboard/components/RecentBookings.jsx:68
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:12
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:15
 msgid "Status"
 msgstr ""
 
@@ -3059,8 +3059,8 @@ msgstr ""
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:624
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:676
 #: templates/account/payment-history.php:150
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:46
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:56
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:48
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:57
 msgid "Remove"
 msgstr ""
 
@@ -3878,7 +3878,7 @@ msgstr ""
 #: src/Admin/Customers/CustomersPage.php:359
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:37
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:38
 msgid "Edit"
 msgstr ""
 
@@ -3941,7 +3941,7 @@ msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1136
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1492
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:82
 msgid "Clear"
 msgstr ""
 
@@ -5373,7 +5373,7 @@ msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:438
 #: templates/account/dashboard.php:221
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:41
 msgid "View"
 msgstr ""
 
@@ -10591,7 +10591,7 @@ msgid "Next Execution"
 msgstr ""
 
 #: src/Admin/Settings/View/Tabs/CronMonitorRenderer.php:108
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:16
 msgid "Actions"
 msgstr ""
 
@@ -10913,13 +10913,13 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:203
 #: src-react/admin/customers/components/Pagination.jsx:15
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:11
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:14
 msgid "Page"
 msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:204
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:20
-#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:10
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:13
 msgid "Shortcode"
 msgstr ""
 
@@ -10933,7 +10933,7 @@ msgstr ""
 
 #: src/Admin/Setup/SetupWizard.php:213
 #: src/Admin/Setup/SetupWizard.php:879
-#: src-react/admin/shortcode-pages/components/StatsBar.jsx:17
+#: src-react/admin/shortcode-pages/components/StatsBar.jsx:8
 #: src-react/admin/shortcode-pages/components/StatusBadge.jsx:8
 msgid "Missing"
 msgstr ""
@@ -14894,12 +14894,16 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:31
+#: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:32
 msgid "Create Page"
 msgstr ""
 
+#: src-react/admin/shortcode-pages/components/ShortcodeTable.jsx:8
+msgid "No matches found."
+msgstr ""
+
 #: src-react/admin/shortcode-pages/components/SystemActions.jsx:7
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:79
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
 msgid "Clear Cache"
 msgstr ""
 
@@ -14915,31 +14919,35 @@ msgstr ""
 msgid "Reset All"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:30
+#: src-react/admin/shortcode-pages/components/SystemActions.jsx:20
+msgid "Search shortcode or page…"
+msgstr ""
+
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:31
 msgid "Failed to load shortcode pages."
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:54
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
 msgid "Remove Page"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:55
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:56
 msgid "Move this page to trash?"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:80
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:81
 msgid "Cache will be cleared. Do you want to continue?"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:102
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
 msgid "Reset All Pages"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:103
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
 msgid "This will permanently delete all created shortcode pages. Are you sure?"
 msgstr ""
 
-#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:104
+#: src-react/admin/shortcode-pages/ShortcodePagesPage.jsx:105
 msgid "Delete All"
 msgstr ""
 

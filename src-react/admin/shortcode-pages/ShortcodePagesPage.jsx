@@ -10,6 +10,7 @@ import ConfirmModal from './components/ConfirmModal';
 export default function ShortcodePagesPage() {
 	const [ shortcodes,   setShortcodes   ] = useState( [] );
 	const [ stats,        setStats        ] = useState( null );
+	const [ query,        setQuery        ] = useState( '' );
 	const [ loading,      setLoading      ] = useState( true );
 	const [ error,        setError        ] = useState( null );
 	const [ pendingSlugs, setPendingSlugs ] = useState( new Set() );
@@ -119,17 +120,26 @@ export default function ShortcodePagesPage() {
 		return <p className="mhm-error">{ error }</p>;
 	}
 
+	const needle   = query.trim().toLowerCase();
+	const filtered = needle
+		? shortcodes.filter( ( s ) =>
+			[ s.slug, s.label, s.description, s.page_title ]
+				.some( ( v ) => ( v || '' ).toLowerCase().includes( needle ) ) )
+		: shortcodes;
+
 	return (
-		<div className="mhm-shortcode-pages-app">
+		<div className="rv-scp">
 			<StatsBar stats={ stats } />
 			<SystemActions
 				onClearCache={ handleClearCache }
 				onDebug={ handleDebug }
 				onReset={ handleReset }
 				debugLoading={ debugLoading }
+				query={ query }
+				onQueryChange={ setQuery }
 			/>
 			<ShortcodeTable
-				shortcodes={ shortcodes }
+				shortcodes={ filtered }
 				pendingSlugs={ pendingSlugs }
 				onCreate={ handleCreate }
 				onDelete={ handleDelete }
