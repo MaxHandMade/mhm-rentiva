@@ -220,7 +220,7 @@ final class VehicleColumns {
 			case 'mhmrentiva_features':
 				$chips = array();
 
-				$seats = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
+				$seats = (int) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
 				if ($seats > 0) {
 					/* translators: %d: seat count */
 					$chips[] = sprintf(_n('%d seat', '%d seats', $seats, 'mhm-rentiva'), $seats);
