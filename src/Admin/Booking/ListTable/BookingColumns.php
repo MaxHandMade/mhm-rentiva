@@ -119,6 +119,7 @@ final class BookingColumns {
 	public static function register(): void {
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'manage_mhmrentiva_booking_posts_columns', array( self::class, 'columns' ) );
+		add_filter( 'default_hidden_columns', array( self::class, 'default_hidden_columns' ), 10, 2 );
 		add_action( 'manage_mhmrentiva_booking_posts_custom_column', array( self::class, 'render' ), 10, 2 );
 		add_filter( 'manage_edit-mhmrentiva_booking_sortable_columns', array( self::class, 'sortable' ) );
 		add_action( 'pre_get_posts', array( self::class, 'apply_sorting' ) );
@@ -164,22 +165,46 @@ final class BookingColumns {
 		$date = $cols['date'] ?? null;
 		unset( $cols['date'] );
 
-		$cols['mhmrentiva_booking_id']            = __( 'Booking ID', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_vehicle']       = __( 'Vehicle', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_license_plate'] = __( 'License Plate', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_dates']         = __( 'Dates', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_days']          = __( 'Days', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_total']         = __( 'Total', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_deposit']       = __( 'Deposit Amount', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_remaining']     = __( 'Remaining Amount', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_status']        = __( 'Status', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_payment']       = __( 'Payment', 'mhm-rentiva' );
-		$cols['mhmrentiva_booking_type']          = __( 'Booking Type', 'mhm-rentiva' );
+		// The title cell already shows "Name - phone" (modify_booking_title)
+		// and carries the row actions — it IS the customer column, the header
+		// now says so. License Plate lives as the sub-line of Vehicle; Days as
+		// the sub-line of Dates (their standalone columns are gone). Deposit /
+		// Remaining / Booking Type stay available via Screen Options but are
+		// hidden by default (default_hidden_columns).
+		$cols['title'] = __( 'Customer', 'mhm-rentiva' );
+
+		$cols['mhmrentiva_booking_id']        = __( 'Booking ID', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_vehicle']   = __( 'Vehicle', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_dates']     = __( 'Dates', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_total']     = __( 'Total', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_deposit']   = __( 'Deposit Amount', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_remaining'] = __( 'Remaining Amount', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_payment']   = __( 'Payment', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_status']    = __( 'Status', 'mhm-rentiva' );
+		$cols['mhmrentiva_booking_type']      = __( 'Booking Type', 'mhm-rentiva' );
 
 		if ( $date !== null ) {
 			$cols['date'] = $date;
 		}
 		return $cols;
+	}
+
+	/**
+	 * Hide the secondary money/type columns by default; Screen Options can
+	 * bring them back per user (the capability is reduced from the default
+	 * VIEW, not from the product).
+	 *
+	 * @param array<int, string> $hidden Column keys hidden by default.
+	 * @param \WP_Screen         $screen Current screen.
+	 * @return array<int, string>
+	 */
+	public static function default_hidden_columns( array $hidden, \WP_Screen $screen ): array {
+		if ( 'edit-mhmrentiva_booking' === $screen->id ) {
+			$hidden[] = 'mhmrentiva_booking_deposit';
+			$hidden[] = 'mhmrentiva_booking_remaining';
+			$hidden[] = 'mhmrentiva_booking_type';
+		}
+		return $hidden;
 	}
 
 	public static function enqueue_scripts( string $hook ): void {
@@ -300,27 +325,17 @@ final class BookingColumns {
 					} else {
 						echo '<span class="vehicle-name">' . esc_html( $vehicle_title ) . '</span>';
 					}
-					// Show vehicle plate if available
-					$vehicle_plate = get_post_meta( $vehicle_id, '_mhmrentiva_vehicle_plate', true );
+					// Plate sub-line. `_mhmrentiva_license_plate` is the key the
+					// vehicle editor actually writes (measured: the old
+					// `_mhmrentiva_vehicle_plate` read here had zero rows, so
+					// this sub-line rendered empty while a standalone License
+					// Plate column carried the data — that column is gone now).
+					$vehicle_plate = get_post_meta( $vehicle_id, '_mhmrentiva_license_plate', true )
+						?: get_post_meta( $vehicle_id, '_mhmrentiva_vehicle_plate', true );
 					if ( $vehicle_plate ) {
 						echo '<span class="vehicle-plate">' . esc_html( $vehicle_plate ) . '</span>';
 					}
 					echo '</div>';
-				} else {
-					echo '—';
-				}
-				break;
-
-			case 'mhmrentiva_booking_license_plate':
-				// Check both old and new meta keys
-				$vehicle_id = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_vehicle_id', true ) ?: get_post_meta( $post_id, '_mhmrentiva_vehicle_id', true ) );
-				if ( $vehicle_id ) {
-					$license_plate = get_post_meta( $vehicle_id, '_mhmrentiva_license_plate', true );
-					if ( $license_plate ) {
-						echo '<span class="license-plate">' . esc_html( $license_plate ) . '</span>';
-					} else {
-						echo '—';
-					}
 				} else {
 					echo '—';
 				}
@@ -351,16 +366,17 @@ final class BookingColumns {
 					}
 
 					echo '<div class="date-range">' . esc_html( $pickup_datetime . ' - ' . $dropoff_datetime ) . '</div>';
+
+					// Day count sub-line (its standalone column is gone).
+					$days = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhmrentiva_rental_days', true ) );
+					if ( $days > 0 ) {
+						/* translators: %d: number of rental days */
+						echo '<div class="date-days">' . esc_html( sprintf( _n( '%d day', '%d days', $days, 'mhm-rentiva' ), $days ) ) . '</div>';
+					}
 					echo '</div>';
 				} else {
 					echo '—';
 				}
-				break;
-
-			case 'mhmrentiva_booking_days':
-				// Check both old and new meta keys
-				$days = (int) ( get_post_meta( $post_id, '_mhmrentiva_booking_rental_days', true ) ?: get_post_meta( $post_id, '_mhmrentiva_rental_days', true ) );
-				echo $days > 0 ? esc_html( (string) $days ) : '—';
 				break;
 
 			case 'mhmrentiva_booking_total':
