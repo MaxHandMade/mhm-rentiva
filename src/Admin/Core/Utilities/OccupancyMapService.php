@@ -47,6 +47,30 @@ final class OccupancyMapService {
 	private static array $memo = array();
 
 	/**
+	 * The occupied-status set, defined ONCE for every consumer: this
+	 * service's own scan, BookingColumns::get_calendar_row_source()'s
+	 * mirror of it, and the "can this status ever paint?" test the Bookings
+	 * Calendar face runs before explaining an empty result. It used to exist
+	 * as three textual copies (two SQL `IN (...)` lists and one PHP array),
+	 * which is exactly the drift the docblock above promises does not exist.
+	 *
+	 * @var array<int, string>
+	 */
+	public const PAINTED_STATUSES = array( 'pending', 'confirmed', 'in_progress', 'completed' );
+
+	/**
+	 * PAINTED_STATUSES in the comma-separated form MySQL's FIND_IN_SET()
+	 * takes, so both queries can express "status is one of the occupied
+	 * statuses" with a SINGLE, fixed `%s` placeholder — the set can grow or
+	 * shrink without either SQL string being rebuilt by concatenation.
+	 * (Status slugs never contain a comma; they are `[a-z_]` keys minted by
+	 * Status::allowed().)
+	 */
+	public static function painted_statuses_csv(): string {
+		return implode( ',', self::PAINTED_STATUSES );
+	}
+
+	/**
 	 * Precedence for reduce(): strongest status wins when a cell carries
 	 * more than one raw entry. Same map the old week-map used inline.
 	 */
@@ -110,7 +134,7 @@ final class OccupancyMapService {
                 AND b.post_status IN ('publish', 'private', 'pending')
                 HAVING vehicle_id IS NOT NULL AND pickup_date IS NOT NULL AND dropoff_date IS NOT NULL
                 AND pickup_date <= %s AND dropoff_date >= %s
-                AND status IN ('pending', 'confirmed', 'in_progress', 'completed')
+                AND FIND_IN_SET(status, %s) > 0
                 AND (
                     status != 'pending' OR
                     deadline IS NULL OR
@@ -130,6 +154,7 @@ final class OccupancyMapService {
 				'mhmrentiva_booking',
 				$end,
 				$start,
+				self::painted_statuses_csv(),
 				current_time( 'mysql', true )
 			)
 		);
@@ -194,9 +219,17 @@ final class OccupancyMapService {
 	 * Known limit shared with the rest of the codebase: raw option-table
 	 * DELETEs do not reach an external object cache backing transients —
 	 * the 5-minute TTL bounds the staleness there.
+	 *
+	 * Drops the per-request memo too: without that, a change-then-render
+	 * path inside ONE request (a booking save, AutoCancel's sweep, a
+	 * blocked-date toggle — each of which calls this) would invalidate the
+	 * transient and then serve the pre-change map straight back out of
+	 * static memory.
 	 */
 	public static function invalidate(): void {
 		global $wpdb;
+
+		self::$memo = array();
 
 		$wpdb->query(
 			$wpdb->prepare(

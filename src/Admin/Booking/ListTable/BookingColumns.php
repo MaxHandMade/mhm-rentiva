@@ -14,6 +14,7 @@ if (!defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Booking\Core\Status;
+use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -1285,19 +1286,6 @@ final class BookingColumns {
 	}
 
 	/**
-	 * The occupied-status set OccupancyMapService::get_map()'s HAVING clause
-	 * (and this class's own get_calendar_row_source() mirror of it)
-	 * restrict to — the only statuses that ever paint on ANY occupancy
-	 * matrix/strip. Named here so render_calendar_view() can tell "the
-	 * active status chip is one of these" apart from "it's cancelled/
-	 * refunded/no_show/draft/pending_payment, which the calendar can never
-	 * show regardless of what's booked" (Fix round 1, Finding 2).
-	 *
-	 * @var array<int, string>
-	 */
-	private const PAINTED_STATUSES = array( 'pending', 'confirmed', 'in_progress', 'completed' );
-
-	/**
 	 * Calendar face (Faz 2 view engine). Replaces the retired
 	 * add_booking_calendar()/get_booking_calendar_days() below-table
 	 * aggregate grid: rows are the vehicles with an "occupied" booking (see
@@ -1406,7 +1394,9 @@ final class BookingColumns {
 		// would see without this branch. No silent empties: explain instead
 		// of rendering the matrix.
 		if ( empty( $vehicle_posts ) ) {
-			if ( '' !== $status_filter && ! in_array( $status_filter, self::PAINTED_STATUSES, true ) ) {
+			// "Can this chip ever paint?" — asked of the ONE occupied-status
+			// set OccupancyMapService owns, not of a local copy of it.
+			if ( '' !== $status_filter && ! in_array( $status_filter, OccupancyMapService::PAINTED_STATUSES, true ) ) {
 				printf(
 					'<div class="notice notice-info mhm-occupancy-matrix-empty"><p>%s</p></div>',
 					esc_html(
@@ -1482,77 +1472,42 @@ final class BookingColumns {
 		$start = sprintf( '%04d-%02d-01', $year, $month );
 		$end   = sprintf( '%04d-%02d-%02d', $year, $month, (int) gmdate( 't', mktime( 0, 0, 0, $month, 1, $year ) ) );
 
-		$args = array(
-			'_mhmrentiva_status',
-			'_mhmrentiva_booking_status',
-			'_mhmrentiva_vehicle_id',
-			'_mhmrentiva_booking_vehicle_id',
-			'_mhmrentiva_pickup_date',
-			'_mhmrentiva_booking_pickup_date',
-			'_mhmrentiva_dropoff_date',
-			'_mhmrentiva_return_date',
-			'_mhmrentiva_end_date',
-			'_mhmrentiva_payment_deadline',
-			'_mhmrentiva_payment_gateway',
-			'mhmrentiva_booking',
-		);
-
 		// Search 's': the same 3-field LIKE WP_Query's own parse_search()
 		// runs for the list face's native admin search box -- no custom
 		// search filter is registered for bookings anywhere in this plugin.
-		$where_extra = '';
 		$search      = self::get_query_text( 's' );
-		if ( '' !== $search ) {
-			$like         = '%' . $wpdb->esc_like( $search ) . '%';
-			$where_extra .= ' AND (b.post_title LIKE %s OR b.post_excerpt LIKE %s OR b.post_content LIKE %s)';
-			$args[]       = $like;
-			$args[]       = $like;
-			$args[]       = $like;
-		}
+		$search_like = '' !== $search ? '%' . $wpdb->esc_like( $search ) . '%' : '';
 
 		// Gateway filter: same whitelist apply_status_filter() enforces
 		// (the DISTINCT in-use set, not WC's full registered-gateway list).
+		// A value outside the whitelist is folded to '' -- i.e. no filter --
+		// exactly as the old fragment-appending shape did by not appending.
 		$gateway_filter = self::get_query_text( 'mhmrentiva_payment_gateway' );
-		if ( '' !== $gateway_filter && in_array( $gateway_filter, self::get_gateways_in_use(), true ) ) {
-			$where_extra .= ' AND pm_gw.meta_value = %s';
-			$args[]       = $gateway_filter;
+		if ( '' !== $gateway_filter && ! in_array( $gateway_filter, self::get_gateways_in_use(), true ) ) {
+			$gateway_filter = '';
 		}
-
-		$having = " HAVING pickup_date IS NOT NULL AND dropoff_date IS NOT NULL
-                AND pickup_date <= %s AND dropoff_date >= %s
-                AND status IN ('pending', 'confirmed', 'in_progress', 'completed')
-                AND (
-                    status != 'pending' OR
-                    deadline IS NULL OR
-                    deadline = '' OR
-                    deadline > %s
-                )";
-		$args[] = $end;
-		$args[] = $start;
-		$args[] = current_time( 'mysql', true );
 
 		// Status chip: mirrors apply_status_filter()'s allowed-value check;
-		// the base HAVING above already restricts to the occupied-status
+		// the base HAVING below already restricts to the occupied-status
 		// set, so a chip value outside it (e.g. 'cancelled') simply yields
 		// zero rows -- the same degenerate result FleetOccupancyMatrix's own
-		// filter_statuses produces for a status get_map() never painted.
+		// filter_statuses produces for a status get_map() never painted. A
+		// value outside Status::allowed() is folded to '' (no filter), again
+		// matching the old shape.
 		$status_filter = self::get_query_text( 'mhmrentiva_booking_status' );
-		if ( '' !== $status_filter && in_array( $status_filter, Status::allowed(), true ) ) {
-			$having .= ' AND status = %s';
-			$args[]  = $status_filter;
+		if ( '' !== $status_filter && ! in_array( $status_filter, Status::allowed(), true ) ) {
+			$status_filter = '';
 		}
 
-		// $where_extra/$having are SQL fragments assembled entirely from
-		// literal strings above (their OWN %s placeholders are filled by
-		// $wpdb->prepare() below via $args, in the same order they were
-		// appended) -- no raw request/user data is interpolated into the
-		// query text itself. Disabled rather than per-line phpcs:ignore: the
-		// sniffs attribute their findings to the interpolated variable's
-		// OWN line inside this multi-line prepare() call, not the statement
-		// that opens it, and (being unable to trace the dynamic %s count
-		// $where_extra/$having contribute) also miscounts the placeholder
-		// total against $args.
-		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		// ONE literal SQL string with a FIXED placeholder set: every
+		// optional filter is expressed as a neutralizing `%s = '' OR ...`
+		// pair rather than a concatenated fragment, so nothing is appended
+		// to the query text at runtime and prepare() sees a constant
+		// statement. The previous shape was safe (literal-only fragments)
+		// but it was still a shape -- Plugin Check's
+		// PluginCheck.Security.DirectDB.UnescapedDBParameter fires on the
+		// concatenation itself, and a documented suppression is input to a
+		// human WP.org reviewer. Eliminate the shape, not the finding.
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT b.ID AS booking_id,
@@ -1575,12 +1530,44 @@ final class BookingColumns {
             LEFT JOIN {$wpdb->postmeta} pm_gw ON b.ID = pm_gw.post_id AND pm_gw.meta_key = %s
             WHERE b.post_type = %s
             AND b.post_status IN ('publish', 'private', 'pending')
-            " . $where_extra . '
-            ' . $having,
-				...$args
+            AND ( %s = '' OR ( b.post_title LIKE %s OR b.post_excerpt LIKE %s OR b.post_content LIKE %s ) )
+            AND ( %s = '' OR pm_gw.meta_value = %s )
+            HAVING pickup_date IS NOT NULL AND dropoff_date IS NOT NULL
+            AND pickup_date <= %s AND dropoff_date >= %s
+            AND FIND_IN_SET(status, %s) > 0
+            AND (
+                status != 'pending' OR
+                deadline IS NULL OR
+                deadline = '' OR
+                deadline > %s
+            )
+            AND ( %s = '' OR status = %s )",
+				'_mhmrentiva_status',
+				'_mhmrentiva_booking_status',
+				'_mhmrentiva_vehicle_id',
+				'_mhmrentiva_booking_vehicle_id',
+				'_mhmrentiva_pickup_date',
+				'_mhmrentiva_booking_pickup_date',
+				'_mhmrentiva_dropoff_date',
+				'_mhmrentiva_return_date',
+				'_mhmrentiva_end_date',
+				'_mhmrentiva_payment_deadline',
+				'_mhmrentiva_payment_gateway',
+				'mhmrentiva_booking',
+				$search,
+				$search_like,
+				$search_like,
+				$search_like,
+				$gateway_filter,
+				$gateway_filter,
+				$end,
+				$start,
+				OccupancyMapService::painted_statuses_csv(),
+				current_time( 'mysql', true ),
+				$status_filter,
+				$status_filter
 			)
 		);
-		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		$vehicle_ids       = array();
 		$vehicleless_count = 0;
