@@ -774,6 +774,36 @@ final class BookingColumns {
 	 * always shown so the strip does not jump around as data changes, while
 	 * rare empty states (draft, no_show, ...) stay out of the way.
 	 */
+	/**
+	 * Base URL for the chip strip: this screen's edit.php PLUS the active
+	 * view context.
+	 *
+	 * The view toggle preserves context (it calls add_query_arg() on the
+	 * CURRENT URL); the chips are built from a bare base, so without this a
+	 * chip click on the Calendar face dropped `mhmrentiva_view` and silently
+	 * returned the user to the List face. The calendar's month/year travel
+	 * with it for the same reason — filtering must not also navigate you
+	 * back to the current month.
+	 */
+	private static function chip_base(): string {
+		$base = admin_url( 'edit.php?post_type=mhmrentiva_booking' );
+
+		$view = self::get_current_view();
+		if ( 'list' === $view ) {
+			return $base;
+		}
+
+		$base = add_query_arg( 'mhmrentiva_view', $view, $base );
+		foreach ( array( 'mhmrentiva_month', 'mhmrentiva_year' ) as $key ) {
+			$value = self::get_query_int( $key );
+			if ( $value > 0 ) {
+				$base = add_query_arg( $key, $value, $base );
+			}
+		}
+
+		return $base;
+	}
+
 	public static function status_chips(): void {
 		global $pagenow, $post_type;
 
@@ -784,7 +814,7 @@ final class BookingColumns {
 		$stats     = self::get_booking_stats();
 		$by_status = is_array( $stats['by_status'] ?? null ) ? $stats['by_status'] : array();
 		$current   = self::get_query_text( 'mhmrentiva_booking_status' );
-		$base      = admin_url( 'edit.php?post_type=mhmrentiva_booking' );
+		$base      = self::chip_base();
 
 		$always_shown = array(
 			Status::PENDING,

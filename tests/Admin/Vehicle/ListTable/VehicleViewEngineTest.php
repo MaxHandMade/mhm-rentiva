@@ -222,4 +222,64 @@ final class VehicleViewEngineTest extends WP_UnitTestCase
         $this->assertMatchesRegularExpression( '/href="[^"]*"[^>]*>List</', $html );
         $this->assertStringNotContainsString( 'mhmrentiva_view=list', $html );
     }
+
+    // --- Chips carry the view context (final review, finding I1) ----------
+
+    private function seedCategory(): void
+    {
+        $term    = self::factory()->term->create(
+            array(
+                'taxonomy' => 'mhmrentiva_vehicle_category',
+                'name'     => 'Ekonomi',
+                'slug'     => 'ekonomi',
+            )
+        );
+        $vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+        wp_set_object_terms( $vehicle, array( $term ), 'mhmrentiva_vehicle_category' );
+    }
+
+    public function test_category_chips_keep_the_calendar_face_and_its_month(): void
+    {
+        $this->seedCategory();
+        $this->goToVehicleScreen( 'mhmrentiva_view=calendar&mhmrentiva_month=3&mhmrentiva_year=2031' );
+
+        ob_start();
+        VehicleColumns::category_chips();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString( 'rv-vhl-chip', $html );
+        preg_match_all( '/href="([^"]*)"/', $html, $matches );
+        $this->assertNotEmpty( $matches[1] );
+        foreach ( $matches[1] as $href ) {
+            $href = html_entity_decode( $href );
+            $this->assertStringContainsString( 'mhmrentiva_view=calendar', $href );
+            $this->assertStringContainsString( 'mhmrentiva_month=3', $href );
+            $this->assertStringContainsString( 'mhmrentiva_year=2031', $href );
+        }
+    }
+
+    public function test_category_chips_keep_the_cards_face(): void
+    {
+        $this->seedCategory();
+        $this->goToVehicleScreen( 'mhmrentiva_view=cards' );
+
+        ob_start();
+        VehicleColumns::category_chips();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString( 'mhmrentiva_view=cards', html_entity_decode( $html ) );
+    }
+
+    public function test_category_chips_stay_bare_on_the_list_face(): void
+    {
+        $this->seedCategory();
+        $this->goToVehicleScreen();
+
+        ob_start();
+        VehicleColumns::category_chips();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString( 'rv-vhl-chip', $html );
+        $this->assertStringNotContainsString( 'mhmrentiva_view', $html );
+    }
 }

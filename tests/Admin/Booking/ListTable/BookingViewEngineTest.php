@@ -140,4 +140,38 @@ final class BookingViewEngineTest extends WP_UnitTestCase
         $this->assertMatchesRegularExpression( '/href="[^"]*"[^>]*>List</', $html );
         $this->assertStringNotContainsString( 'mhmrentiva_view=list', $html );
     }
+
+    // --- Chips carry the view context (final review, finding I1) ----------
+
+    public function test_status_chips_keep_the_calendar_face_and_its_month(): void
+    {
+        $this->goToBookingScreen( 'mhmrentiva_view=calendar&mhmrentiva_month=3&mhmrentiva_year=2031' );
+
+        ob_start();
+        BookingColumns::status_chips();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString( 'rv-bkl-chip', $html );
+        // Every chip href — the "All" chip included — must carry the face.
+        preg_match_all( '/href="([^"]*)"/', $html, $matches );
+        $this->assertNotEmpty( $matches[1] );
+        foreach ( $matches[1] as $href ) {
+            $href = html_entity_decode( $href );
+            $this->assertStringContainsString( 'mhmrentiva_view=calendar', $href );
+            $this->assertStringContainsString( 'mhmrentiva_month=3', $href );
+            $this->assertStringContainsString( 'mhmrentiva_year=2031', $href );
+        }
+    }
+
+    public function test_status_chips_stay_bare_on_the_list_face(): void
+    {
+        $this->goToBookingScreen();
+
+        ob_start();
+        BookingColumns::status_chips();
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString( 'rv-bkl-chip', $html );
+        $this->assertStringNotContainsString( 'mhmrentiva_view', $html );
+    }
 }
