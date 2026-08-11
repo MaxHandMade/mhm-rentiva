@@ -122,7 +122,7 @@ final class VehicleColumns {
 		// Cache clearing hooks
 		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_vehicle_cache' ));
 		add_action('delete_post', array( self::class, 'clear_vehicle_cache_on_delete' ));
-		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_vehicle_cache' ));
+		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_booking_occupancy_cache' ));
 
 		// Add statistics cards
 		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
@@ -1954,6 +1954,23 @@ final class VehicleColumns {
 		if (get_post_type($post_id) === 'mhmrentiva_vehicle') {
 			self::clear_vehicle_stats_cache();
 		}
+	}
+
+	/**
+	 * Clear the occupancy/stats cache when a BOOKING is saved.
+	 *
+	 * Separate from clear_vehicle_cache(): that method's
+	 * `get_post_type() === 'mhmrentiva_vehicle'` guard is correct for the
+	 * vehicle-save/delete hooks it also serves, but always false for a
+	 * booking post — wiring `save_post_mhmrentiva_booking` to it silently
+	 * skipped the invalidation. This callback needs no post-type guard: the
+	 * dynamic `save_post_mhmrentiva_booking` action only ever fires for
+	 * booking saves.
+	 */
+	public static function clear_booking_occupancy_cache(int $post_id): void
+	{
+		unset($post_id);
+		self::clear_vehicle_stats_cache();
 	}
 
 	/**

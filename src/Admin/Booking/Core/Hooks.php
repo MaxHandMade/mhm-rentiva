@@ -9,6 +9,7 @@ if (! defined('ABSPATH')) {
 
 
 use MHMRentiva\Admin\Booking\Helpers\Cache;
+use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 
 
 
@@ -23,6 +24,12 @@ final class Hooks {
 
 		// Status automation hooks
 		add_action('mhmrentiva_booking_status_changed', array( self::class, 'handle_status_automation' ), 10, 3);
+
+		// Occupancy map invalidation: Status::update_status() writes
+		// _mhmrentiva_status via update_post_meta() directly, no save_post
+		// involved, so the occupancy map's own transient prefix needs its
+		// own subscription here alongside the other status-change listeners.
+		add_action('mhmrentiva_booking_status_changed', array( self::class, 'invalidate_occupancy_map' ), 10, 3);
 	}
 
 	/**
@@ -34,6 +41,16 @@ final class Hooks {
 		if ($vehicle_id) {
 			Cache::invalidateVehicle($vehicle_id);
 		}
+	}
+
+	/**
+	 * Adapter for OccupancyMapService::invalidate() (no params) onto the
+	 * 3-arg mhmrentiva_booking_status_changed action.
+	 */
+	public static function invalidate_occupancy_map(int $booking_id, string $old_status, string $new_status): void
+	{
+		unset($booking_id, $old_status, $new_status);
+		OccupancyMapService::invalidate();
 	}
 
 	/**
