@@ -161,6 +161,12 @@ final class VehicleColumns {
 		// Calendar face (Faz 2 view engine) — replaces the old
 		// add_monthly_calendar() in the same admin_notices slot.
 		add_action('admin_notices', array( self::class, 'render_calendar_view' ), 20);
+
+		// Cards face (Faz 2 view engine, Task 6) — same slot as the calendar
+		// face; the two are mutually exclusive via get_current_view(), and
+		// render_calendar_view() already runs the AutoCancel fallback on
+		// every face load, so this method doesn't need to repeat it.
+		add_action('admin_notices', array( self::class, 'render_cards_view' ), 20);
 	}
 
 	/**
@@ -284,16 +290,7 @@ final class VehicleColumns {
 				break;
 
 			case 'mhmrentiva_week':
-				$strip = self::get_week_strip($post_id);
-
-				echo '<div class="rv-vhl-week">';
-				foreach ($strip as $day) {
-					echo '<span class="rv-vhl-week__day">';
-					echo '<span class="rv-vhl-day ' . esc_attr($day['class']) . '" title="' . esc_attr($day['title']) . '"></span>';
-					echo '<span class="rv-vhl-day__label">' . esc_html($day['label']) . '</span>';
-					echo '</span>';
-				}
-				echo '</div>';
+				self::render_week_strip_markup(self::get_week_strip($post_id));
 				break;
 
 			case 'mhmrentiva_location':
@@ -362,13 +359,8 @@ final class VehicleColumns {
 
 				// Soft pill — the skin styles the status-* class; the old
 				// per-status emoji + inline-color config is gone with them.
-				$status_classes = array(
-					'active'      => 'status-active',
-					'inactive'    => 'status-inactive',
-					'maintenance' => 'status-maintenance',
-				);
-				$status_class   = $status_classes[ $v ] ?? 'status-default';
-				$label          = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($v);
+				$status_class = self::get_status_badge_class($v);
+				$label        = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($v);
 
 				echo '<span class="badge vehicle-status ' . esc_attr($status_class) . '" data-status="' . esc_attr($v) . '">';
 				echo esc_html($label);
@@ -772,6 +764,174 @@ final class VehicleColumns {
 		}
 
 		return $strip;
+	}
+
+	/**
+	 * Render the 7-day strip markup for a strip produced by get_week_strip().
+	 *
+	 * Shared by the list face's `mhmrentiva_week` column and the cards face
+	 * (Task 6) — same `rv-vhl-week`/`rv-vhl-day` classes either way, so
+	 * Task 8's CSS only has to style one shape.
+	 *
+	 * @param array<int, array{class: string, label: string, title: string}> $strip
+	 */
+	private static function render_week_strip_markup(array $strip): void
+	{
+		echo '<div class="rv-vhl-week">';
+		foreach ($strip as $day) {
+			echo '<span class="rv-vhl-week__day">';
+			echo '<span class="rv-vhl-day ' . esc_attr($day['class']) . '" title="' . esc_attr($day['title']) . '"></span>';
+			echo '<span class="rv-vhl-day__label">' . esc_html($day['label']) . '</span>';
+			echo '</span>';
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * Status-pill CSS class for a vehicle status value. Shared by the list
+	 * face's `mhmrentiva_available` column and the cards face's badge
+	 * (Task 6) so both faces paint the identical class for the identical
+	 * status — the mapping VehicleDataHelper::get_status() feeds is the
+	 * single source of truth, this is only the display-class lookup.
+	 */
+	private static function get_status_badge_class(string $status): string
+	{
+		$status_classes = array(
+			'active'      => 'status-active',
+			'inactive'    => 'status-inactive',
+			'maintenance' => 'status-maintenance',
+		);
+
+		return $status_classes[ $status ] ?? 'status-default';
+	}
+
+	/**
+	 * Cards face (Faz 2 view engine, Task 6). Renders a card grid from the
+	 * MAIN query's current page — `$wp_query->posts` already reflects
+	 * category chip / search / pagination, so this adds no query of its
+	 * own beyond the ONE `update_post_thumbnail_cache()` priming call
+	 * below (attachment posts/meta are NOT primed by the main query the
+	 * way postmeta/term data are).
+	 *
+	 * Registered in the SAME admin_notices slot (priority 20)
+	 * render_calendar_view() holds; that method already runs the
+	 * AutoCancel fallback unconditionally on every face load, so this
+	 * method doesn't repeat it.
+	 */
+	public static function render_cards_view(): void
+	{
+		global $pagenow, $post_type;
+
+		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
+			return;
+		}
+
+		if ('cards' !== self::get_current_view()) {
+			return;
+		}
+
+		global $wp_query;
+		$vehicles = ( $wp_query instanceof \WP_Query ) ? $wp_query->posts : array();
+
+		if ($wp_query instanceof \WP_Query) {
+			update_post_thumbnail_cache($wp_query);
+		}
+
+		echo '<div class="rv-vhl-cards">';
+		foreach ($vehicles as $vehicle) {
+			self::render_vehicle_card($vehicle);
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * Render one vehicle card. Every data source here is one the list face
+	 * (or its helpers) already reads — no new meta, no new query.
+	 *
+	 * @param \WP_Post|int $vehicle Post object or ID from $wp_query->posts.
+	 */
+	private static function render_vehicle_card($vehicle): void
+	{
+		$post = $vehicle instanceof \WP_Post ? $vehicle : get_post( (int) $vehicle );
+		if (! $post instanceof \WP_Post) {
+			return;
+		}
+		$post_id = $post->ID;
+
+		echo '<div class="rv-vhl-card">';
+
+		// Media: real thumbnail, or a placeholder carrying the vehicle
+		// title (the list face's rich Vehicle cell falls back to a bare
+		// dashicon instead — the card's larger media block reads better
+		// with the title as text than an icon alone).
+		echo '<div class="rv-vhl-card__media">';
+		if (has_post_thumbnail($post_id)) {
+			echo get_the_post_thumbnail($post, 'medium');
+		} else {
+			echo '<div class="rv-vhl-card__placeholder">' . esc_html(get_the_title($post_id)) . '</div>';
+		}
+
+		$status       = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($post_id);
+		$status_class = self::get_status_badge_class($status);
+		$status_label = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status_label($status);
+		echo '<span class="rv-vhl-card__badge ' . esc_attr($status_class) . '" data-status="' . esc_attr($status) . '">' . esc_html($status_label) . '</span>';
+
+		if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_featured($post_id)) {
+			echo '<span class="rv-vhl-card__star" title="' . esc_attr__('Featured', 'mhm-rentiva') . '">&#9733;</span>';
+		}
+		echo '</div>'; // .rv-vhl-card__media
+
+		echo '<div class="rv-vhl-card__body">';
+		echo '<div class="rv-vhl-card__title">' . esc_html(get_the_title($post_id)) . '</div>';
+
+		// Subline: plate + dealer/author display name — the same two parts
+		// of the list face's Vehicle-cell sub-line, minus the category
+		// names (those move into the chips row below). The list face has
+		// no separate "dealer" field; it's the post author's display name.
+		$plate     = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
+		$author_id = (int) get_post_field('post_author', $post_id);
+		$author    = $author_id ? get_the_author_meta('display_name', $author_id) : '';
+		$subline   = implode(' · ', array_filter( array( $plate, $author ) ));
+		echo '<div class="rv-vhl-card__subline">' . esc_html($subline) . '</div>';
+
+		echo '<div class="rv-vhl-card__chips">';
+		$terms = wp_get_post_terms($post_id, \MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::TAXONOMY, array( 'fields' => 'names' ));
+		if (! is_wp_error($terms)) {
+			foreach ($terms as $term_name) {
+				echo '<span class="rv-vhl-card__chip">' . esc_html($term_name) . '</span>';
+			}
+		}
+
+		$seats = (int) \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_seats($post_id);
+		if ($seats > 0) {
+			/* translators: %d: seat count */
+			echo '<span class="rv-vhl-card__chip">' . esc_html(sprintf(_n('%d seat', '%d seats', $seats, 'mhm-rentiva'), $seats)) . '</span>';
+		}
+
+		$trans_map = \MHMRentiva\Admin\Vehicle\Meta\VehicleMeta::get_transmission_types();
+		$trans     = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_TRANSMISSION, true);
+		if (isset($trans_map[ $trans ])) {
+			echo '<span class="rv-vhl-card__chip">' . esc_html($trans_map[ $trans ]) . '</span>';
+		}
+		echo '</div>'; // .rv-vhl-card__chips
+
+		echo '<div class="rv-vhl-card__strip">';
+		self::render_week_strip_markup(self::get_week_strip($post_id));
+		echo '</div>';
+
+		echo '</div>'; // .rv-vhl-card__body
+
+		echo '<div class="rv-vhl-card__footer">';
+		$daily_price = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($post_id);
+		echo '<span class="rv-vhl-card__price">' . esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($daily_price)) . ' <span class="rv-vhl-card__price-unit">' . esc_html__('/ day', 'mhm-rentiva') . '</span></span>';
+
+		$edit_link = get_edit_post_link($post);
+		if ($edit_link) {
+			echo '<a class="rv-vhl-card__edit" href="' . esc_url($edit_link) . '">' . esc_html__('Edit', 'mhm-rentiva') . '</a>';
+		}
+		echo '</div>'; // .rv-vhl-card__footer
+
+		echo '</div>'; // .rv-vhl-card
 	}
 
 	/**

@@ -29,6 +29,14 @@
 			if ($form.length && $calendar.length) {
 				$calendar.insertAfter( $form );
 			}
+
+			// Cards face (Faz 2 Task 6) — same relocation as the calendar
+			// face above; mutually exclusive with it, so only one ever
+			// exists in the DOM at a time.
+			var $cards = $( '.rv-vhl-cards' ).first();
+			if ($form.length && $cards.length) {
+				$cards.insertAfter( $form );
+			}
 		}
 	);
 })( jQuery );
