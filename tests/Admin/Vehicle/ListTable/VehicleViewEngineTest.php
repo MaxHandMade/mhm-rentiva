@@ -133,13 +133,15 @@ final class VehicleViewEngineTest extends WP_UnitTestCase
     }
 
     /**
-     * Task 5 still owns Bookings' own retirement — its calendar renderer
-     * and day-map builder must survive this task untouched.
+     * Task 4 left Bookings' own old calendar renderer and day-map builder
+     * untouched (Task 5 owned their retirement). Task 5 has since landed —
+     * both are gone now; the negative control lives with the rest of
+     * Task 5's retirement pins in BookingViewEngineTest.
      */
-    public function test_the_bookings_calendar_renderer_was_not_touched_by_this_retirement(): void
+    public function test_the_bookings_calendar_renderer_was_retired_by_task_5(): void
     {
-        $this->assertTrue( method_exists( \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'add_booking_calendar' ) );
-        $this->assertTrue( method_exists( \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'get_booking_calendar_days' ) );
+        $this->assertFalse( method_exists( \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'add_booking_calendar' ) );
+        $this->assertFalse( method_exists( \MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'get_booking_calendar_days' ) );
     }
 
     /**

@@ -9,10 +9,14 @@ use WP_UnitTestCase;
 
 /**
  * Task 3 of the Faz 2 view-engine plan — the mhmrentiva_view query var, its
- * whitelisted getter, the mhm-view-* body class, the segmented toggle
- * markup, and the guard that stops the old below-table calendar rendering
- * on non-list faces. Bookings only ever offers list|calendar (no cards
- * face — that is Vehicles-only).
+ * whitelisted getter, the mhm-view-* body class, and the segmented toggle
+ * markup. Bookings only ever offers list|calendar (no cards face — that is
+ * Vehicles-only).
+ *
+ * The old below-table calendar's list/calendar guard tests originally lived
+ * here too; Faz 2 Task 5 retired that renderer entirely (negative controls
+ * below) and replaced it with a full Calendar face, exercised in
+ * BookingCalendarFaceTest.
  */
 final class BookingViewEngineTest extends WP_UnitTestCase
 {
@@ -84,24 +88,29 @@ final class BookingViewEngineTest extends WP_UnitTestCase
         $this->assertStringNotContainsString( 'mhm-view-cards', $classes );
     }
 
-    public function test_old_calendar_renderer_is_silent_off_the_list_face(): void
+    /**
+     * Faz 2 Task 5: the old below-table aggregate calendar
+     * (`add_booking_calendar()`/`get_booking_calendar_days()`) is retired
+     * entirely — this flips the guard direction Task 3 pinned above
+     * (`test_old_calendar_renderer_still_renders_on_the_list_face` used to
+     * assert the OPPOSITE of this). Sanctioned behavior change: the list
+     * face no longer carries a below-table calendar at all; the Calendar
+     * face (`render_calendar_view()`) is a full screen face now, exercised
+     * in BookingCalendarFaceTest.
+     */
+    public function test_the_old_calendar_renderer_is_gone(): void
     {
-        $this->goToBookingScreen( 'mhmrentiva_view=calendar' );
-
-        ob_start();
-        BookingColumns::add_booking_calendar();
-        $this->assertSame( '', ob_get_clean() );
+        $this->assertFalse( method_exists( BookingColumns::class, 'add_booking_calendar' ) );
+        $this->assertFalse( method_exists( BookingColumns::class, 'get_booking_calendar_days' ) );
     }
 
-    public function test_old_calendar_renderer_still_renders_on_the_list_face(): void
+    public function test_list_face_carries_no_calendar_output_at_all(): void
     {
         $this->goToBookingScreen();
 
         ob_start();
-        BookingColumns::add_booking_calendar();
-        $html = ob_get_clean();
-
-        $this->assertStringContainsString( 'mhm-calendars', $html );
+        BookingColumns::render_calendar_view();
+        $this->assertSame( '', ob_get_clean() );
     }
 
     public function test_toggle_renders_list_and_calendar_only_with_the_active_face_marked(): void
