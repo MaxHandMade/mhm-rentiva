@@ -764,17 +764,6 @@ final class BookingColumns {
 	}
 
 	/**
-	 * Status chip strip — replaces the old status dropdown.
-	 *
-	 * Same URL contract: each chip is a plain link carrying the registered
-	 * `mhmrentiva_booking_status` public query var, consumed by
-	 * apply_status_filter() unchanged, so old bookmarks keep working. Counts
-	 * come from the canonical stats (DashboardService enumeration). Every
-	 * status with a non-zero count gets a chip; the five core statuses are
-	 * always shown so the strip does not jump around as data changes, while
-	 * rare empty states (draft, no_show, ...) stay out of the way.
-	 */
-	/**
 	 * Base URL for the chip strip: this screen's edit.php PLUS the active
 	 * view context.
 	 *
@@ -804,6 +793,17 @@ final class BookingColumns {
 		return $base;
 	}
 
+	/**
+	 * Status chip strip — replaces the old status dropdown.
+	 *
+	 * Same URL contract: each chip is a plain link carrying the registered
+	 * `mhmrentiva_booking_status` public query var, consumed by
+	 * apply_status_filter() unchanged, so old bookmarks keep working. Counts
+	 * come from the canonical stats (DashboardService enumeration). Every
+	 * status with a non-zero count gets a chip; the five core statuses are
+	 * always shown so the strip does not jump around as data changes, while
+	 * rare empty states (draft, no_show, ...) stay out of the way.
+	 */
 	public static function status_chips(): void {
 		global $pagenow, $post_type;
 

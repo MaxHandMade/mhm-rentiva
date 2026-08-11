@@ -1026,12 +1026,6 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Category chip strip — links carrying the taxonomy's own registered
-	 * query var (`mhmrentiva_vehicle_category`), the same URL contract the
-	 * native admin column's term links use, so filtering stays native.
-	 * Terms with zero vehicles stay out of the strip.
-	 */
-	/**
 	 * Base URL for the chip strip: this screen's edit.php PLUS the active
 	 * view context.
 	 *
@@ -1062,6 +1056,12 @@ final class VehicleColumns {
 		return $base;
 	}
 
+	/**
+	 * Category chip strip — links carrying the taxonomy's own registered
+	 * query var (`mhmrentiva_vehicle_category`), the same URL contract the
+	 * native admin column's term links use, so filtering stays native.
+	 * Terms with zero vehicles stay out of the strip.
+	 */
 	public static function category_chips(): void
 	{
 		global $pagenow, $post_type;
