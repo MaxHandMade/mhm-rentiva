@@ -679,19 +679,51 @@ final class VehicleColumns {
 			// .mhm-vehicle-list only (the Vehicles face is the only one with
 			// enable_block_toggle => true).
 
-			// Monthly calendar popup + quick block/unblock toggle (rendered by
-			// render_calendar_view() via FleetOccupancyMatrix). Replaces the
-			// former inline script block.
+			// Day popup for the matrix this screen renders — the SAME script
+			// the Bookings Calendar face loads. It used to be a second,
+			// weaker copy (vehicle-calendar-popup.js) that read only the
+			// winning cell's flat data-* attributes: on a day with several
+			// bookings it showed one of them, while FleetOccupancyMatrix
+			// emits every booking as `data-bookings` JSON on BOTH screens.
+			// One popup script, one behaviour — and the hardcoded ' €' the
+			// old copy appended to every total goes with it.
 			wp_enqueue_script(
-				'mhm-rentiva-vehicle-calendar-popup',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
+				'mhm-rentiva-booking-popup',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-popup.js',
 				array( 'jquery' ),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/vehicle-calendar-popup.js'),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/booking-popup.js'),
 				true
 			);
 
 			wp_localize_script(
-				'mhm-rentiva-vehicle-calendar-popup',
+				'mhm-rentiva-booking-popup',
+				'mhmBookingPopup',
+				array(
+					'i18n' => array(
+						'bookingsOnThisDay' => __( 'bookings on this day', 'mhm-rentiva' ),
+						'customer'          => __( 'Customer', 'mhm-rentiva' ),
+						'pickup'            => __( 'Pickup', 'mhm-rentiva' ),
+						'returnLabel'       => __( 'Return', 'mhm-rentiva' ),
+						'total'             => __( 'Total', 'mhm-rentiva' ),
+						'editBooking'       => __( 'Edit Booking', 'mhm-rentiva' ),
+					),
+				)
+			);
+
+			// Click-to-block/unblock a day: Vehicles-only (this is the only
+			// face rendered with `enable_block_toggle => true`), so it keeps
+			// its own small script. Endpoint, action name and nonce are
+			// unchanged from the popup script it was split out of.
+			wp_enqueue_script(
+				'mhm-rentiva-vehicle-blocked-date-toggle',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-blocked-date-toggle.js',
+				array( 'jquery' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/vehicle-blocked-date-toggle.js'),
+				true
+			);
+
+			wp_localize_script(
+				'mhm-rentiva-vehicle-blocked-date-toggle',
 				'mhmVehicleCalendar',
 				array(
 					'nonce' => wp_create_nonce( 'mhmrentiva_toggle_blocked_date' ),

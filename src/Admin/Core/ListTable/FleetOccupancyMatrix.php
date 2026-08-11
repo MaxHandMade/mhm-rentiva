@@ -400,7 +400,8 @@ final class FleetOccupancyMatrix {
 		}
 
 		// The winner-only flat attrs above are a single-booking fallback
-		// (and what vehicle-calendar-popup.js reads today); the FULL list —
+		// (booking-popup.js reads them only when the JSON is absent or
+		// empty); the FULL list —
 		// every booking this cell holds after filter_statuses — rides as
 		// 'bookings' JSON, the exact shape booking-popup.js's
 		// showSingleBooking()/showMultiBooking() already expect (matches the

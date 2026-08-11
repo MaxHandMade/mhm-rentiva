@@ -223,6 +223,56 @@ final class VehicleViewEngineTest extends WP_UnitTestCase
         $this->assertStringNotContainsString( 'mhmrentiva_view=list', $html );
     }
 
+    // --- One popup script on both screens (final review, finding I2) ------
+
+    /**
+     * The Vehicles screen used to load its OWN popup copy
+     * (vehicle-calendar-popup.js), which never read the `data-bookings`
+     * payload FleetOccupancyMatrix emits and therefore could not open
+     * #popup-multi-view: a day with two bookings showed one of them here
+     * and both on Bookings. The multi-view-capable script must be the one
+     * enqueued, and the retired copy must be gone from disk.
+     */
+    public function test_vehicles_screen_loads_the_multi_view_capable_popup_script(): void
+    {
+        global $post_type;
+        $post_type = 'mhmrentiva_vehicle';
+
+        VehicleColumns::enqueue_scripts( 'edit.php' );
+
+        $this->assertTrue(
+            wp_script_is( 'mhm-rentiva-booking-popup', 'enqueued' ),
+            'Vehicles must load the shared booking-popup.js, the only popup script that reads data-bookings.'
+        );
+        $this->assertFalse( wp_script_is( 'mhm-rentiva-vehicle-calendar-popup', 'enqueued' ) );
+        $this->assertFileDoesNotExist( MHMRENTIVA_PLUGIN_DIR . 'assets/js/admin/vehicle-calendar-popup.js' );
+
+        // The Vehicles-only click-to-block behaviour survives on its own,
+        // with its endpoint's nonce localized exactly as before.
+        $this->assertTrue( wp_script_is( 'mhm-rentiva-vehicle-blocked-date-toggle', 'enqueued' ) );
+        $this->assertStringContainsString(
+            'mhmVehicleCalendar',
+            (string) wp_scripts()->get_data( 'mhm-rentiva-vehicle-blocked-date-toggle', 'data' )
+        );
+        $this->assertStringContainsString(
+            'mhmBookingPopup',
+            (string) wp_scripts()->get_data( 'mhm-rentiva-booking-popup', 'data' )
+        );
+    }
+
+    /**
+     * The hardcoded ' €' suffix the retired copy appended to every total
+     * (wrong on any non-EUR site) must not have travelled anywhere.
+     */
+    public function test_no_popup_script_hardcodes_a_currency_suffix(): void
+    {
+        foreach ( array( 'booking-popup.js', 'vehicle-blocked-date-toggle.js' ) as $file ) {
+            $path = MHMRENTIVA_PLUGIN_DIR . 'assets/js/admin/' . $file;
+            $this->assertFileExists( $path );
+            $this->assertStringNotContainsString( "' €'", (string) file_get_contents( $path ) );
+        }
+    }
+
     // --- Chips carry the view context (final review, finding I1) ----------
 
     private function seedCategory(): void

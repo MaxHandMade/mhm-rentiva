@@ -15,11 +15,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  * this file verbatim rather than keeping its own copy — both the Vehicles
  * and Bookings Calendar faces paint through that one renderer now.
  *
- * DOM ids are the real contract: assets/js/admin/vehicle-calendar-popup.js
- * and assets/js/admin/booking-popup.js each bind to a subset of the ids
- * below. Whichever script is enqueued for the current screen fills in the
- * fields it knows about; anything it does not populate is left at its
- * static "—" placeholder — harmless on either screen.
+ * DOM ids are the real contract, and ONE script binds to them on both
+ * screens: assets/js/admin/booking-popup.js. (Vehicles used to load its own
+ * vehicle-calendar-popup.js, which never read the `data-bookings` payload
+ * and so could not show #popup-multi-view at all — a day with several
+ * bookings listed one of them there and all of them on Bookings. That copy
+ * is gone; only the Vehicles-only click-to-block behaviour survived it, in
+ * assets/js/admin/vehicle-blocked-date-toggle.js.)
  */
 ?>
 <div id="mhm-booking-popup" class="mhm-popup-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="mhm-popup-title">
@@ -42,7 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</div>
 
 		<div class="mhm-popup-body">
-			<!-- Single booking view (default; the only view vehicle-calendar-popup.js uses) -->
+			<!-- Single booking view (default; shown when the cell holds exactly one booking) -->
 			<div id="popup-single-view">
 				<div class="mhm-popup-section">
 					<div class="mhm-popup-section-title">
@@ -110,7 +112,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 			</div>
 
-			<!-- Multiple bookings view (booking-popup.js only; vehicle-calendar-popup.js never shows it) -->
+			<!-- Multiple bookings view (shown on any day whose cell holds more than one) -->
 			<div id="popup-multi-view" style="display: none;">
 				<div class="mhm-popup-multi-header">
 					<span class="dashicons dashicons-calendar-alt"></span>
