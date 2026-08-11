@@ -15,19 +15,82 @@ use WP_UnitTestCase;
  */
 final class VehicleColumnsLayoutTest extends WP_UnitTestCase
 {
-    public function test_column_set_replaces_the_three_spec_columns_with_features(): void
+    public function test_column_set_matches_the_mockup_row(): void
     {
         $cols = VehicleColumns::columns(array(
-            'cb'    => '<input type="checkbox" />',
-            'title' => 'Title',
-            'date'  => 'Date',
+            'cb'       => '<input type="checkbox" />',
+            'title'    => 'Title',
+            'comments' => 'Comments',
+            'taxonomy-mhmrentiva_vehicle_category' => 'Categories',
+            'date'     => 'Date',
         ));
 
+        // Rich Vehicle cell replaces title/comments/taxonomy/License Plate.
+        $this->assertArrayHasKey('mhmrentiva_vehicle', $cols);
+        $this->assertArrayHasKey('mhmrentiva_week', $cols);
         $this->assertArrayHasKey('mhmrentiva_features', $cols);
+        $this->assertArrayNotHasKey('title', $cols);
+        $this->assertArrayNotHasKey('comments', $cols);
+        $this->assertArrayNotHasKey('taxonomy-mhmrentiva_vehicle_category', $cols);
+        $this->assertArrayNotHasKey('mhmrentiva_license_plate', $cols);
         $this->assertArrayNotHasKey('mhmrentiva_seats', $cols);
         $this->assertArrayNotHasKey('mhmrentiva_transmission', $cols);
         $this->assertArrayNotHasKey('mhmrentiva_fuel_type', $cols);
         $this->assertSame('date', array_key_last($cols));
+    }
+
+    public function test_vehicle_cell_is_the_primary_column_only_on_this_screen(): void
+    {
+        $this->assertSame('mhmrentiva_vehicle', VehicleColumns::primary_column('title', 'edit-mhmrentiva_vehicle'));
+        $this->assertSame('title', VehicleColumns::primary_column('title', 'edit-post'));
+    }
+
+    public function test_vehicle_cell_renders_title_meta_line_and_plate_contract(): void
+    {
+        $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Corolla X'));
+        update_post_meta($vehicle, '_mhmrentiva_license_plate', '34 ZZ 999');
+
+        ob_start();
+        VehicleColumns::render('mhmrentiva_vehicle', $vehicle);
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('Corolla X', $html);
+        $this->assertStringContainsString('rv-vhl-vehicle__meta', $html);
+        $this->assertStringContainsString('data-plate="34 ZZ 999"', $html);
+        $this->assertStringContainsString('34 ZZ 999', $html);
+    }
+
+    public function test_week_strip_marks_booked_and_blocked_days(): void
+    {
+        $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle'));
+
+        $today    = current_time('Y-m-d');
+        $tomorrow = gmdate('Y-m-d', strtotime('+1 day', strtotime($today)));
+
+        $booking = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($booking, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($booking, '_mhmrentiva_vehicle_id', $vehicle);
+        update_post_meta($booking, '_mhmrentiva_pickup_date', $today);
+        update_post_meta($booking, '_mhmrentiva_dropoff_date', $tomorrow);
+
+        $blocked_day = gmdate('Y-m-d', strtotime('+3 days', strtotime($today)));
+        // BlockedDatesMetaBox's own key — NOT MetaKeys::VEHICLE_BLOCKED_DATES,
+        // which names a different (legacy) key the accessor never reads.
+        update_post_meta($vehicle, '_mhmrentiva_blocked_dates', wp_json_encode(array($blocked_day)));
+
+        // The per-request booking map is a static cache; reset it so this
+        // test sees its own fixtures regardless of run order.
+        $prop = new \ReflectionProperty(VehicleColumns::class, 'week_bookings_map');
+        $prop->setAccessible(true);
+        $prop->setValue(null, null);
+
+        $strip = VehicleColumns::get_week_strip($vehicle);
+
+        $this->assertCount(7, $strip);
+        $this->assertSame('is-confirmed', $strip[0]['class'], 'Today is booked (confirmed)');
+        $this->assertSame('is-confirmed', $strip[1]['class'], 'Tomorrow is booked (confirmed)');
+        $this->assertSame('is-blocked', $strip[3]['class'], 'Blocked day wins');
+        $this->assertSame('is-free', $strip[6]['class'], 'Untouched day is free');
     }
 
     public function test_features_cell_renders_all_three_values_as_chips(): void

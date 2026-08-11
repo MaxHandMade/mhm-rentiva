@@ -19,10 +19,11 @@
 					// Get existing values and load into form fields
 					setTimeout(
 						function () {
-							// License plate
-							var license_plate = $row.find( '.column-mhmrentiva_license_plate' ).text().trim();
-							if (license_plate !== '—') {
-								$( '.mhmrentiva_license_plate' ).val( license_plate );
+							// License plate — rides as data-plate on the Vehicle
+							// cell's meta line (the standalone column is gone).
+							var plate = $row.find( '.rv-vhl-vehicle__meta' ).data( 'plate' );
+							if (plate) {
+								$( '.mhmrentiva_license_plate' ).val( String( plate ) );
 							}
 
 							// Price/Day

@@ -107,6 +107,7 @@ final class VehicleColumns {
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
 		add_filter('manage_mhmrentiva_vehicle_posts_columns', array( self::class, 'columns' ));
+		add_filter('list_table_primary_column', array( self::class, 'primary_column' ), 10, 2);
 		add_action('manage_mhmrentiva_vehicle_posts_custom_column', array( self::class, 'render' ), 10, 2);
 		add_filter('manage_edit-mhmrentiva_vehicle_sortable_columns', array( self::class, 'sortable' ));
 		add_action('pre_get_posts', array( self::class, 'apply_sorting' ));
@@ -154,18 +155,25 @@ final class VehicleColumns {
 
 	public static function columns(array $cols): array
 	{
-		// Keep title; move date column to end
 		$date = $cols['date'] ?? null;
-		unset($cols['date']);
 
-		$cols['mhmrentiva_license_plate'] = __('License Plate', 'mhm-rentiva');
+		// The mockup's rich row identity: a custom Vehicle cell (thumbnail +
+		// title + plate·category·dealer sub-line) REPLACES the native title,
+		// taxonomy and comments columns and the standalone License Plate
+		// column (the plate lives in the sub-line and rides as data-plate for
+		// quick edit). list_table_primary_column moves the row actions here.
+		unset($cols['date'], $cols['title'], $cols['comments'], $cols['taxonomy-mhmrentiva_vehicle_category']);
+
+		$cols['mhmrentiva_vehicle'] = __('Vehicle', 'mhm-rentiva');
 		if (self::has_locations()) {
 			$cols['mhmrentiva_location'] = __('Location', 'mhm-rentiva');
 		}
-		$cols['mhmrentiva_price_per_day'] = __('Price/Day', 'mhm-rentiva');
 		// Seats + Transmission + Fuel consolidated into one chip cell
 		// (mockup); their quick-edit fields re-anchor to this column.
-		$cols['mhmrentiva_features']  = __('Features', 'mhm-rentiva');
+		$cols['mhmrentiva_features']      = __('Features', 'mhm-rentiva');
+		$cols['mhmrentiva_price_per_day'] = __('Price/Day', 'mhm-rentiva');
+		// 7-day availability strip (mockup's "Bu hafta" cell).
+		$cols['mhmrentiva_week']      = __('This Week', 'mhm-rentiva');
 		$cols['mhmrentiva_available'] = __('Available', 'mhm-rentiva');
 		$cols['mhmrentiva_lifecycle'] = __('Lifecycle', 'mhm-rentiva');
 		$cols['mhmrentiva_featured']  = __('Featured', 'mhm-rentiva');
@@ -177,6 +185,20 @@ final class VehicleColumns {
 	}
 
 	/**
+	 * The custom Vehicle cell is the primary column: WordPress renders the
+	 * row actions (Edit / Quick Edit / Trash / View) and the inline-edit
+	 * data holder inside the primary column, so the native title column can
+	 * go without losing them.
+	 *
+	 * @param string $default Default primary column.
+	 * @param string $screen  Current screen ID.
+	 */
+	public static function primary_column(string $default, string $screen): string
+	{
+		return 'edit-mhmrentiva_vehicle' === $screen ? 'mhmrentiva_vehicle' : $default;
+	}
+
+	/**
 	 * Render a custom column value for a vehicle row.
 	 *
 	 * @param string $column  Column identifier.
@@ -185,9 +207,53 @@ final class VehicleColumns {
 	public static function render(string $column, int $post_id): void
 	{
 		switch ($column) {
-			case 'mhmrentiva_license_plate':
-				$v = get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
-				echo ! empty($v) ? esc_html($v) : '—';
+			case 'mhmrentiva_vehicle':
+				$edit_link = get_edit_post_link($post_id);
+				$plate     = (string) get_post_meta($post_id, \MHMRentiva\Admin\Core\MetaKeys::VEHICLE_LICENSE_PLATE, true);
+				$terms     = wp_get_post_terms($post_id, \MHMRentiva\Admin\Vehicle\Taxonomies\VehicleCategory::TAXONOMY, array( 'fields' => 'names' ));
+				$author_id = (int) get_post_field('post_author', $post_id);
+				$author    = $author_id ? get_the_author_meta('display_name', $author_id) : '';
+
+				$meta_parts = array_filter(
+					array_merge(
+						'' !== $plate ? array( $plate ) : array(),
+						is_wp_error($terms) ? array() : $terms,
+						'' !== $author ? array( $author ) : array()
+					)
+				);
+
+				echo '<div class="rv-vhl-vehicle">';
+				echo '<span class="rv-vhl-thumb">';
+				if (has_post_thumbnail($post_id)) {
+					echo get_the_post_thumbnail($post_id, array( 116, 80 ), array( 'class' => 'rv-vhl-thumb__img' ));
+				} else {
+					echo '<span class="dashicons dashicons-car"></span>';
+				}
+				echo '</span>';
+				echo '<span class="rv-vhl-vehicle__body">';
+				if ($edit_link) {
+					echo '<a class="rv-vhl-vehicle__title" href="' . esc_url($edit_link) . '">' . esc_html(get_the_title($post_id)) . '</a>';
+				} else {
+					echo '<span class="rv-vhl-vehicle__title">' . esc_html(get_the_title($post_id)) . '</span>';
+				}
+				// data-plate feeds the quick-edit prefill (the standalone
+				// License Plate column this sub-line replaces used to).
+				echo '<span class="rv-vhl-vehicle__meta" data-plate="' . esc_attr($plate) . '">' . esc_html(implode(' · ', $meta_parts)) . '</span>';
+				echo '</span>';
+				echo '</div>';
+				break;
+
+			case 'mhmrentiva_week':
+				$strip = self::get_week_strip($post_id);
+
+				echo '<div class="rv-vhl-week">';
+				foreach ($strip as $day) {
+					echo '<span class="rv-vhl-week__day">';
+					echo '<span class="rv-vhl-day ' . esc_attr($day['class']) . '" title="' . esc_attr($day['title']) . '"></span>';
+					echo '<span class="rv-vhl-day__label">' . esc_html($day['label']) . '</span>';
+					echo '</span>';
+				}
+				echo '</div>';
 				break;
 
 			case 'mhmrentiva_location':
@@ -304,6 +370,9 @@ final class VehicleColumns {
 	 */
 	public static function sortable(array $cols): array
 	{
+		// The Vehicle cell replaces the native title column; sorting by it
+		// still means sorting by title.
+		$cols['mhmrentiva_vehicle']       = 'title';
 		$cols['mhmrentiva_price_per_day'] = 'mhmrentiva_price_per_day';
 		// The consolidated Features column sorts by seat count — keeps the
 		// old Seats column's sorting capability alive.
@@ -599,6 +668,160 @@ final class VehicleColumns {
 				)
 			);
 		}
+	}
+
+	/**
+	 * Per-request cache for the 7-day strip booking map.
+	 *
+	 * @var array<int, array<string, string>>|null vehicle_id => [Y-m-d => status]
+	 */
+	private static ?array $week_bookings_map = null;
+
+	/**
+	 * Build the 7-day availability strip for one vehicle row.
+	 *
+	 * Booking data comes from ONE query for the whole screen (see
+	 * get_week_bookings_map()) — no per-row SQL; blocked days come from the
+	 * vehicle's own meta via the existing accessor.
+	 *
+	 * @return array<int, array{class: string, label: string, title: string}>
+	 */
+	public static function get_week_strip(int $post_id): array
+	{
+		$map     = self::get_week_bookings_map();
+		$blocked = \MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::get_blocked_dates($post_id);
+		$base_ts = strtotime(current_time('Y-m-d'));
+
+		$strip = array();
+		for ($i = 0; $i < 7; $i++) {
+			$ts     = strtotime('+' . $i . ' days', $base_ts);
+			$date   = gmdate('Y-m-d', $ts);
+			$status = $map[ $post_id ][ $date ] ?? '';
+			if (in_array($date, $blocked, true)) {
+				$status = 'blocked';
+			}
+
+			switch ($status) {
+				case 'blocked':
+					$class = 'is-blocked';
+					$text  = __('Blocked', 'mhm-rentiva');
+					break;
+				case 'in_progress':
+					$class = 'is-active';
+					$text  = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+					break;
+				case 'confirmed':
+					$class = 'is-confirmed';
+					$text  = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+					break;
+				case 'pending':
+					$class = 'is-pending';
+					$text  = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+					break;
+				case 'completed':
+					$class = 'is-completed';
+					$text  = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
+					break;
+				default:
+					$class = 'is-free';
+					$text  = __('Available', 'mhm-rentiva');
+			}
+
+			$strip[] = array(
+				'class' => $class,
+				'label' => date_i18n('D', $ts),
+				'title' => date_i18n(get_option('date_format'), $ts) . ' · ' . $text,
+			);
+		}
+
+		return $strip;
+	}
+
+	/**
+	 * One query for every strip on the screen: bookings overlapping the next
+	 * 7 days, mapped vehicle_id => day => strongest status. The window is a
+	 * week, so the unfiltered result set is small; filtering per vehicle
+	 * happens in PHP — keeps the SQL free of dynamic IN() lists.
+	 *
+	 * @return array<int, array<string, string>>
+	 */
+	private static function get_week_bookings_map(): array
+	{
+		if (null !== self::$week_bookings_map) {
+			return self::$week_bookings_map;
+		}
+
+		global $wpdb;
+
+		$start = current_time('Y-m-d');
+		$end   = gmdate('Y-m-d', strtotime('+6 days', strtotime($start)));
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT COALESCE(NULLIF(pm_v1.meta_value, ''), pm_v2.meta_value) AS vehicle_id,
+                        COALESCE(NULLIF(pm_p1.meta_value, ''), pm_p2.meta_value) AS pickup_date,
+                        COALESCE(NULLIF(pm_d1.meta_value, ''), pm_d2.meta_value, pm_d3.meta_value) AS dropoff_date,
+                        pm_s.meta_value AS status
+                FROM {$wpdb->posts} b
+                INNER JOIN {$wpdb->postmeta} pm_s ON b.ID = pm_s.post_id AND pm_s.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_v1 ON b.ID = pm_v1.post_id AND pm_v1.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_v2 ON b.ID = pm_v2.post_id AND pm_v2.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_p1 ON b.ID = pm_p1.post_id AND pm_p1.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_p2 ON b.ID = pm_p2.post_id AND pm_p2.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_d1 ON b.ID = pm_d1.post_id AND pm_d1.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_d2 ON b.ID = pm_d2.post_id AND pm_d2.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_d3 ON b.ID = pm_d3.post_id AND pm_d3.meta_key = %s
+                WHERE b.post_type = %s
+                AND b.post_status IN ('publish', 'private', 'pending')
+                AND pm_s.meta_value IN ('pending', 'confirmed', 'in_progress', 'completed')
+                HAVING vehicle_id IS NOT NULL AND pickup_date IS NOT NULL AND dropoff_date IS NOT NULL
+                AND pickup_date <= %s AND dropoff_date >= %s",
+				'_mhmrentiva_status',
+				'_mhmrentiva_vehicle_id',
+				'_mhmrentiva_booking_vehicle_id',
+				'_mhmrentiva_pickup_date',
+				'_mhmrentiva_booking_pickup_date',
+				'_mhmrentiva_dropoff_date',
+				'_mhmrentiva_return_date',
+				'_mhmrentiva_end_date',
+				'mhmrentiva_booking',
+				$end,
+				$start
+			)
+		);
+
+		$precedence = array(
+			'completed'   => 1,
+			'pending'     => 2,
+			'confirmed'   => 3,
+			'in_progress' => 4,
+		);
+
+		$map      = array();
+		$start_ts = strtotime($start);
+		$end_ts   = strtotime($end);
+
+		foreach ( (array) $rows as $row) {
+			$vehicle_id = (int) $row->vehicle_id;
+			$pickup_ts  = strtotime( (string) $row->pickup_date);
+			$dropoff_ts = strtotime( (string) $row->dropoff_date);
+			if ($vehicle_id <= 0 || false === $pickup_ts || false === $dropoff_ts) {
+				continue;
+			}
+
+			$from = max($pickup_ts, $start_ts);
+			$to   = min($dropoff_ts, $end_ts);
+			for ($ts = $from; $ts <= $to; $ts += DAY_IN_SECONDS) {
+				$day      = gmdate('Y-m-d', $ts);
+				$existing = $map[ $vehicle_id ][ $day ] ?? '';
+				if ('' === $existing || ( $precedence[ $row->status ] ?? 0 ) > ( $precedence[ $existing ] ?? 0 )) {
+					$map[ $vehicle_id ][ $day ] = (string) $row->status;
+				}
+			}
+		}
+
+		self::$week_bookings_map = $map;
+		return $map;
 	}
 
 	/**

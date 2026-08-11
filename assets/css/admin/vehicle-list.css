@@ -90,6 +90,116 @@
 	opacity: 0.7;
 }
 
+/* ── Rich Vehicle cell (thumbnail + title + meta line) ── */
+.mhm-vehicle-list .rv-vhl-vehicle {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+}
+
+.mhm-vehicle-list .rv-vhl-thumb {
+	width: 58px;
+	height: 40px;
+	flex: none;
+	background: #e9eaee;
+	border-radius: 8px;
+	overflow: hidden;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: #a7aaad;
+}
+
+.mhm-vehicle-list .rv-vhl-thumb .rv-vhl-thumb__img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__body {
+	min-width: 0;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__title {
+	display: block;
+	font-weight: 600;
+	font-size: 14px;
+	color: #1d2327;
+	text-decoration: none;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__title:hover {
+	color: #2271b1;
+}
+
+.mhm-vehicle-list .rv-vhl-vehicle__meta {
+	display: block;
+	font-size: 12px;
+	color: #8a8f98;
+	margin-top: 2px;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_vehicle {
+	min-width: 240px;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_vehicle .row-actions {
+	padding-left: 70px;
+}
+
+/* ── 7-day availability strip ── */
+.mhm-vehicle-list .rv-vhl-week {
+	display: flex;
+	gap: 4px;
+}
+
+.mhm-vehicle-list .rv-vhl-week__day {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+}
+
+.mhm-vehicle-list .rv-vhl-day {
+	width: 16px;
+	height: 20px;
+	border-radius: 3px;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-free {
+	background: #e6f4e6;
+	border: 1px solid #d0e8d0;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-confirmed {
+	background: #2f80c4;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-active {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-completed {
+	background: #9fd6ab;
+}
+
+.mhm-vehicle-list .rv-vhl-day.is-blocked {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 3px, #fbeaea 3px, #fbeaea 6px);
+}
+
+.mhm-vehicle-list .rv-vhl-day__label {
+	font-size: 9px;
+	color: #8a8f98;
+	line-height: 1;
+}
+
 /* ── Feature chips in the consolidated column ── */
 .mhm-vehicle-list .rv-vhl-features {
 	display: inline-flex;
