@@ -16,6 +16,19 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+/**
+ * Deposit-management write endpoints (payment approval, remaining-payment
+ * processing/link, cancellation, refund).
+ *
+ * Every handler opens with a line-local `check_ajax_referer( ..., false )`
+ * that is REDUNDANT with authorize_booking_action() immediately below it.
+ * That is deliberate: this file used to contain its own nonce and capability
+ * checks inline, and the Faz 2 Task 7 guard extraction moved both one file
+ * away -- leaving five registered `wp_ajax_*` money endpoints in which
+ * grepping for a nonce check finds nothing. The authoritative check (and the
+ * failure response) still belongs to BookingActionGuard; these lines only
+ * make the protection visible where the endpoint is.
+ */
 final class DepositManagementAjax {
 
 	/**
@@ -45,6 +58,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function process_remaining_payment(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -93,6 +110,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function send_remaining_payment_link(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -147,6 +168,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function approve_payment(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -181,6 +206,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function cancel_booking(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;
@@ -212,6 +241,10 @@ final class DepositManagementAjax {
 	}
 
 	public static function process_refund(): void {
+		// Line-local nonce check, redundant by design -- see the class
+		// docblock. authorize_booking_action() below is authoritative.
+		check_ajax_referer( 'mhmrentiva_deposit_management_action', 'nonce', false );
+
 		$booking_id = self::authorize_booking_action();
 		if ( ! $booking_id ) {
 			return;

@@ -26,6 +26,11 @@ use MHMRentiva\Admin\Booking\Core\Status;
  * Authorization is BookingActionGuard::authorize() under this endpoint's own
  * nonce action -- see that class for the four checks (nonce, id, post_type,
  * edit_post capability) it runs before this method ever sees the request.
+ * approve() ALSO carries a line-local `check_ajax_referer()` and
+ * `current_user_can( 'edit_post', $booking_id )`: redundant with the guard by
+ * construction, kept so that reading (or grepping) this file alone answers
+ * "what protects this write endpoint?" -- the question the extraction made
+ * un-answerable from here.
  */
 final class BookingApproveAjax {
 
@@ -34,9 +39,26 @@ final class BookingApproveAjax {
 	}
 
 	public static function approve(): void {
+		// Line-local nonce check, REDUNDANT BY DESIGN. The authoritative
+		// verification is BookingActionGuard::authorize() one line below
+		// (it rejects and responds); this restores what a reviewer -- or a
+		// static tool -- sees when grepping THIS file for a nonce check,
+		// which the guard extraction moved out of it. $die = false so the
+		// guard, not this line, still owns the failure response.
+		check_ajax_referer( 'mhmrentiva_approve_booking', 'nonce', false );
+
 		// Authorizes: nonce mhmrentiva_approve_booking + current_user_can( 'edit_post', $id ) + post_type check -- see BookingActionGuard::authorize().
 		$booking_id = BookingActionGuard::authorize( 'mhmrentiva_approve_booking' );
 		if ( ! $booking_id ) {
+			return;
+		}
+
+		// Same idea for the capability: the guard already ran exactly this
+		// check on exactly this id, so this branch is unreachable in
+		// practice. It stays because the capability that protects a write
+		// endpoint should be readable IN the endpoint.
+		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
 			return;
 		}
 
