@@ -59,6 +59,29 @@ final class BookingApproveRowActionTest extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'mhmrentiva_approve', $actions );
 	}
 
+	/**
+	 * Fix round 1 (reviewer Finding 1, Important): core applies
+	 * post_row_actions unconditionally in the Trash view too (it only hides
+	 * Edit there), and trashing a booking does not touch its
+	 * _mhmrentiva_status meta -- a trashed booking that was pending still
+	 * reads PENDING from Status::get(). Without a post_status check the
+	 * Approve link would render in the Trash view, and clicking it would
+	 * fire the confirmation email for a booking sitting in the trash.
+	 */
+	public function test_trashed_pending_row_has_no_approve_action(): void {
+		$booking_id = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking_id, '_mhmrentiva_status', Status::PENDING );
+
+		wp_trash_post( $booking_id );
+
+		$actions = BookingColumns::add_approve_row_action(
+			array( 'edit' => '<a href="#">Edit</a>' ),
+			get_post( $booking_id )
+		);
+
+		$this->assertArrayNotHasKey( 'mhmrentiva_approve', $actions );
+	}
+
 	public function test_non_booking_post_type_is_untouched(): void {
 		$post_id = self::factory()->post->create( array( 'post_type' => 'post' ) );
 

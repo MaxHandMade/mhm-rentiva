@@ -51,6 +51,10 @@ jQuery( document ).ready( function ( $ ) {
 
 	function clearRowError( $row ) {
 		$row.find( '.rv-bkl-approve-error' ).remove();
+		// Undo the forced-visible below once there's nothing left to show --
+		// core owns hover/focus visibility of .row-actions the rest of the
+		// time.
+		$row.find( '.row-actions' ).removeClass( 'visible' );
 	}
 
 	function showRowError( $actionSpan, $row, message ) {
@@ -59,11 +63,19 @@ jQuery( document ).ready( function ( $ ) {
 			return;
 		}
 
+		// .row-actions is off-screen (core's CSS) unless the row is
+		// hovered/focused. The pointer may well have left the row before
+		// this response arrives, so force it visible for as long as the
+		// error is shown -- otherwise the message renders but nobody sees
+		// it.
+		var $rowActions = $actionSpan.closest( '.row-actions' ).addClass( 'visible' );
+
 		var $error = $( '<span class="rv-bkl-approve-error" role="alert"></span>' ).text( message );
 		$actionSpan.after( $error );
 		window.setTimeout(
 			function () {
 				$error.remove();
+				$rowActions.removeClass( 'visible' );
 			},
 			6000
 		);
@@ -97,8 +109,15 @@ jQuery( document ).ready( function ( $ ) {
 				var status = ( response.data && response.data.status ) || 'confirmed';
 				var label  = ( response.data && response.data.label ) || i18n.approve || '';
 
+				// Targeted swap, not attr('class', ...): this row action only
+				// ever appears on a `pending` booking (BookingColumns::
+				// add_approve_row_action()), so the pill's status class is
+				// always exactly `status-pending` going in -- but wiping the
+				// whole class list would silently drop any class Task 8's
+				// styling pass adds to the badge later.
 				$row.find( '.column-mhmrentiva_booking_status .badge' )
-					.attr( 'class', 'badge status-' + status )
+					.removeClass( 'status-pending' )
+					.addClass( 'status-' + status )
 					.text( label );
 
 				$actionSpan.remove();

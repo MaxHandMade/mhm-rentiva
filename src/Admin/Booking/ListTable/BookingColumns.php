@@ -219,6 +219,22 @@ final class BookingColumns {
 			return $actions;
 		}
 
+		// Core applies post_row_actions unconditionally in the Trash view too
+		// (it only hides Edit there) -- without this check the link would
+		// render for a trashed booking, whose _mhmrentiva_status meta is
+		// untouched by trashing and still reads PENDING below. Bookings are
+		// only ever created with post_status 'publish' (every
+		// wp_insert_post()/wp_update_post() call across
+		// ManualBookingMetaBox/BookingEditMetaBox/Util.php uses it) --
+		// 'private'/'pending' appear only as defensive inclusions in a few
+		// READ-side aggregate queries elsewhere in this file, never as a
+		// state a booking actually reaches. Restricting to the one real
+		// state a live booking has rejects every non-publish state (trash,
+		// draft, auto-draft, future) in a single check.
+		if ( 'publish' !== $post->post_status ) {
+			return $actions;
+		}
+
 		// Status::get() folds a missing/unrecognized meta value to PENDING --
 		// the same canonical fold the chip counts and the occupancy map use
 		// (OccupancyMapService's docblock). Reading the raw meta value here

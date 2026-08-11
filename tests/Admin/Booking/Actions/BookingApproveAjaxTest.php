@@ -155,6 +155,37 @@ final class BookingApproveAjaxTest extends WP_Ajax_UnitTestCase {
 		$this->assertSame( '0', (string) $remaining, 'The seeded occupancy transient must be gone after approval.' );
 	}
 
+	/**
+	 * Fix round 1 (reviewer Finding 1, Important, defense in depth): the row
+	 * link is already hidden for a trashed booking (BookingApproveRowActionTest),
+	 * but the endpoint is the actual door -- a crafted/stale request naming
+	 * a trashed booking's id must still be rejected, and MUST NOT reach
+	 * Status::update_status() at all (which would fire
+	 * mhmrentiva_booking_status_changed -> the confirmation-email
+	 * automation for a booking sitting in the trash).
+	 */
+	public function test_rejects_trashed_booking_and_never_fires_the_status_changed_hook(): void {
+		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $admin_id );
+
+		wp_trash_post( $this->booking_id );
+
+		$fired = false;
+		add_action(
+			'mhmrentiva_booking_status_changed',
+			function () use ( &$fired ) {
+				$fired = true;
+			}
+		);
+
+		$this->post_approve( $this->booking_id, wp_create_nonce( 'mhmrentiva_approve_booking' ) );
+
+		$response = $this->response();
+		$this->assertFalse( $response['success'] );
+		$this->assertFalse( $fired, 'A trashed booking must never reach Status::update_status().' );
+		$this->assertSame( Status::PENDING, Status::get( $this->booking_id ) );
+	}
+
 	public function test_rejects_already_confirmed_booking_and_leaves_status_unchanged(): void {
 		$admin_id = self::factory()->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $admin_id );

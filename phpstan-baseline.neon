@@ -63,7 +63,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 1
+			count: 2
 			path: src/Admin/Booking/Actions/BookingApproveAjax.php
 
 		-
