@@ -91,12 +91,19 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
 
     public function test_calendar_face_renders_the_shared_matrix_not_the_old_grid(): void
     {
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $vehicle = $this->makeVehicle( 'Has Row' );
+        $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
         $this->goToCalendarFace();
 
         $html = $this->render();
 
         $this->assertStringContainsString( 'mhm-occupancy-matrix', $html );
         $this->assertStringNotContainsString( 'booking-calendar-page', $html );
+        $this->assertStringNotContainsString( 'mhm-occupancy-matrix-empty', $html );
     }
 
     public function test_calendar_face_is_silent_on_the_list_face(): void
@@ -160,6 +167,82 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
 
         $this->assertStringContainsString( 'Pending Car', $html );
         $this->assertStringNotContainsString( 'Confirmed Car', $html );
+    }
+
+    /**
+     * Fix round 1, Finding 1: a status-less booking (no `_mhmrentiva_status`
+     * meta at all) resolves to 'pending' at the canonical source
+     * (OccupancyMapService), and get_calendar_row_source() mirrors the same
+     * fold -- so it gets a row, AND the `pending` chip includes it, exactly
+     * like an explicit `pending` booking would.
+     */
+    public function test_status_less_booking_gets_a_row_and_is_included_by_the_pending_chip(): void
+    {
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $vehicle = $this->makeVehicle( 'Status Less Car' );
+
+        $booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle->ID );
+        update_post_meta( $booking, '_mhmrentiva_pickup_date', $day );
+        update_post_meta( $booking, '_mhmrentiva_dropoff_date', $day );
+        // Deliberately no status meta at all.
+
+        $this->goToCalendarFace( 'mhmrentiva_booking_status=pending' );
+        $html = $this->render();
+
+        $this->assertStringContainsString( 'Status Less Car', $html );
+        $this->assertStringContainsString( 'status-pending', $html );
+    }
+
+    // --- Fix round 1, Finding 2: explicit empty state, no silent empties ---
+
+    public function test_a_status_chip_outside_the_painted_set_shows_the_switch_to_list_message(): void
+    {
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $vehicle = $this->makeVehicle( 'Cancelled Car' );
+        // A cancelled booking never occupies a vehicle -- it never reaches
+        // get_calendar_row_source()'s occupied-status HAVING at all -- but
+        // the chip itself is still selectable (status_chips() always shows
+        // Cancelled), so the face must explain the empty result rather than
+        // print a bare header.
+        $this->makeBooking( $vehicle->ID, 'cancelled', $day, $day );
+
+        $this->goToCalendarFace( 'mhmrentiva_booking_status=cancelled' );
+        $html = $this->render();
+
+        $this->assertStringContainsString( 'The Cancelled filter has no calendar view', $html );
+        $this->assertStringContainsString( 'Switch to the List view', $html );
+        $this->assertStringNotContainsString( 'mhm-occupancy-matrix"', $html );
+        $this->assertStringNotContainsString( '<table', $html );
+    }
+
+    public function test_no_matches_shows_the_generic_empty_message(): void
+    {
+        $this->goToCalendarFace();
+        $html = $this->render();
+
+        $this->assertStringContainsString( 'No bookings match the current filters in this month.', $html );
+        $this->assertStringNotContainsString( '<table', $html );
+    }
+
+    public function test_normal_case_renders_the_matrix_with_neither_empty_message(): void
+    {
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $vehicle = $this->makeVehicle( 'Normal Car' );
+        $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
+        $this->goToCalendarFace();
+        $html = $this->render();
+
+        $this->assertStringContainsString( '<table', $html );
+        $this->assertStringNotContainsString( 'has no calendar view', $html );
+        $this->assertStringNotContainsString( 'No bookings match the current filters', $html );
     }
 
     // --- Test 3: cap, via the filterable knob -------------------------------

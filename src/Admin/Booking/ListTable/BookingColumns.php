@@ -1182,6 +1182,19 @@ final class BookingColumns {
 	}
 
 	/**
+	 * The occupied-status set OccupancyMapService::get_map()'s HAVING clause
+	 * (and this class's own get_calendar_row_source() mirror of it)
+	 * restrict to — the only statuses that ever paint on ANY occupancy
+	 * matrix/strip. Named here so render_calendar_view() can tell "the
+	 * active status chip is one of these" apart from "it's cancelled/
+	 * refunded/no_show/draft/pending_payment, which the calendar can never
+	 * show regardless of what's booked" (Fix round 1, Finding 2).
+	 *
+	 * @var array<int, string>
+	 */
+	private const PAINTED_STATUSES = array( 'pending', 'confirmed', 'in_progress', 'completed' );
+
+	/**
 	 * Calendar face (Faz 2 view engine). Replaces the retired
 	 * add_booking_calendar()/get_booking_calendar_days() below-table
 	 * aggregate grid: rows are the vehicles with an "occupied" booking (see
@@ -1278,27 +1291,58 @@ final class BookingColumns {
 
 		$status_filter = self::get_query_text( 'mhmrentiva_booking_status' );
 
-		\MHMRentiva\Admin\Core\ListTable\FleetOccupancyMatrix::render(
-			$vehicle_posts,
-			$current_month,
-			$current_year,
-			array(
-				'show_plate'          => false,
-				'enable_block_toggle' => false,
-				'filter_statuses'     => '' !== $status_filter ? array( $status_filter ) : array(),
-				'screen'              => 'bookings',
-			)
-		);
+		// Fix round 1, Finding 2: an active status chip outside the
+		// occupied-status set (cancelled/refunded/no_show/draft/
+		// pending_payment) makes get_calendar_row_source()'s own HAVING
+		// unsatisfiable -- ANY status = that chip on top of the base
+		// occupied-status restriction is always false, so $vehicle_posts is
+		// unconditionally empty. FleetOccupancyMatrix::render() prints
+		// nothing for an empty $vehicles array (correctly, for its OTHER
+		// caller -- Vehicles legitimately renders zero-booking vehicle
+		// rows), so a bare header with no explanation is what the user
+		// would see without this branch. No silent empties: explain instead
+		// of rendering the matrix.
+		if ( empty( $vehicle_posts ) ) {
+			if ( '' !== $status_filter && ! in_array( $status_filter, self::PAINTED_STATUSES, true ) ) {
+				printf(
+					'<div class="notice notice-info mhm-occupancy-matrix-empty"><p>%s</p></div>',
+					esc_html(
+						sprintf(
+							/* translators: %s: the active status chip's label (e.g. "Cancelled"). */
+							__( 'The %s filter has no calendar view — cancelled and similar bookings do not occupy vehicles. Switch to the List view to see them.', 'mhm-rentiva' ),
+							Status::get_label( $status_filter )
+						)
+					)
+				);
+			} else {
+				printf(
+					'<div class="notice notice-info mhm-occupancy-matrix-empty"><p>%s</p></div>',
+					esc_html__( 'No bookings match the current filters in this month.', 'mhm-rentiva' )
+				);
+			}
+		} else {
+			\MHMRentiva\Admin\Core\ListTable\FleetOccupancyMatrix::render(
+				$vehicle_posts,
+				$current_month,
+				$current_year,
+				array(
+					'show_plate'          => false,
+					'enable_block_toggle' => false,
+					'filter_statuses'     => '' !== $status_filter ? array( $status_filter ) : array(),
+					'screen'              => 'bookings',
+				)
+			);
+		}
 
 		if ( $vehicleless_count > 0 ) {
 			printf(
 				'<p class="mhm-occupancy-matrix-vehicleless-note">%s</p>',
 				esc_html(
 					sprintf(
-						/* translators: %d: number of bookings with no vehicle assigned (transfers etc.), formatted for display. */
+						/* translators: %s: number of bookings with no vehicle assigned (transfers etc.), formatted for display. */
 						_n(
-							'%d booking has no vehicle assigned and is not shown in this view — see the List view.',
-							'%d bookings have no vehicle assigned and are not shown in this view — see the List view.',
+							'%s booking has no vehicle assigned and is not shown in this view — see the List view.',
+							'%s bookings have no vehicle assigned and are not shown in this view — see the List view.',
 							$vehicleless_count,
 							'mhm-rentiva'
 						),
@@ -1412,7 +1456,7 @@ final class BookingColumns {
                     COALESCE(NULLIF(pm_v1.meta_value, ''), pm_v2.meta_value) AS vehicle_id,
                     COALESCE(NULLIF(pm_p1.meta_value, ''), pm_p2.meta_value) AS pickup_date,
                     COALESCE(NULLIF(pm_d1.meta_value, ''), pm_d2.meta_value, pm_d3.meta_value) AS dropoff_date,
-                    COALESCE(NULLIF(pm_s1.meta_value, ''), pm_s2.meta_value) AS status,
+                    COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') AS status,
                     pm_deadline.meta_value AS deadline
             FROM {$wpdb->posts} b
             LEFT JOIN {$wpdb->postmeta} pm_s1 ON b.ID = pm_s1.post_id AND pm_s1.meta_key = %s
