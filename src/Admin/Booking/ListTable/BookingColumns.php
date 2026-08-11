@@ -290,20 +290,6 @@ final class BookingColumns {
 
 		// Load only on booking list page
 		if ( $hook === 'edit.php' && $post_type === 'mhmrentiva_booking' ) {
-			wp_enqueue_style(
-				'mhm-rentiva-booking-list',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
-				array(),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-list.css' )
-			);
-
-			wp_enqueue_style(
-				'mhm-rentiva-booking-calendar',
-				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
-				array(),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-calendar.css' )
-			);
-
 			// Load statistics cards CSS
 			wp_enqueue_style(
 				'mhm-rentiva-stats-cards',
@@ -325,6 +311,33 @@ final class BookingColumns {
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/components/calendars.css',
 				array(),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/components/calendars.css' )
+			);
+
+			wp_enqueue_style(
+				'mhm-rentiva-booking-calendar',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-calendar.css',
+				array( 'mhm-rentiva-simple-calendars' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-calendar.css' )
+			);
+
+			// Faz 2 Task 8 skin: toggle + occupancy matrix + approve action.
+			// Declared as a dependency of booking-list.css below so it loads
+			// after the base calendar files but before the screen skin.
+			wp_enqueue_style(
+				'mhm-rentiva-occupancy-matrix',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/occupancy-matrix.css',
+				array( 'mhm-rentiva-simple-calendars', 'mhm-rentiva-booking-calendar' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/occupancy-matrix.css' )
+			);
+
+			// Refined skin — now declares its dependency chain explicitly
+			// (Faz 2 Task 8; it used to declare none, unlike vehicle-list.css's
+			// equivalent, so load order relied on call order alone).
+			wp_enqueue_style(
+				'mhm-rentiva-booking-list',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/booking-list.css',
+				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-simple-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/css/admin/booking-list.css' )
 			);
 
 			// assets/js/admin/booking-calendar.js is NOT enqueued here (Faz 2

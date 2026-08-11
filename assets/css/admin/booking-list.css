@@ -724,41 +724,11 @@ body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
 }
 
 /* ── View-switch toggle (Faz 2 view engine) ──
-   Minimal, inline-free markup styling only — the refined skin lands in
-   Task 8. `.rv-bkl-toolbar-row` only exists when a Pro toolbar subscriber
-   is present (JS wraps toggle + toolbar together in that case); with no
-   subscriber the toggle renders standalone. */
-.mhm-booking-list .rv-view-toggle {
-	display: inline-flex;
-	gap: 4px;
-	margin: 10px 0 0;
-}
-
-.mhm-booking-list .rv-view-toggle__btn {
-	display: inline-block;
-	font-size: 13px;
-	font-weight: 500;
-	padding: 7px 14px;
-	border: 1px solid #dcdde1;
-	border-radius: 8px;
-	background: #fff;
-	color: #2c3338;
-	text-decoration: none;
-	line-height: 1.4;
-}
-
-.mhm-booking-list .rv-view-toggle__btn:hover {
-	border-color: #b6bcc3;
-	color: #1d2327;
-}
-
-.mhm-booking-list .rv-view-toggle__btn.is-active {
-	background: #2271b1;
-	border-color: #2271b1;
-	color: #fff;
-	font-weight: 600;
-}
-
+   Refined skin now lives in occupancy-matrix.css (Faz 2 Task 8), shared
+   with the Vehicles screen's identical toggle — the minimal placeholder
+   that used to be here is gone. `.rv-bkl-toolbar-row` only exists when a
+   Pro toolbar subscriber is present (JS wraps toggle + toolbar together
+   in that case); with no subscriber the toggle renders standalone. */
 .mhm-booking-list .rv-bkl-toolbar-row {
 	display: flex;
 	align-items: center;

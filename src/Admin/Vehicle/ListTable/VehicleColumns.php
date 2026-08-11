@@ -651,29 +651,33 @@ final class VehicleColumns {
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/booking-calendar.css')
 			);
 
+			// Faz 2 Task 8 skin: toggle + occupancy matrix + cards face.
+			// Declared as a dependency of vehicle-list.css below so it loads
+			// after the base calendar files but before the screen skin.
+			wp_enqueue_style(
+				'mhm-rentiva-occupancy-matrix',
+				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/occupancy-matrix.css',
+				array( 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/occupancy-matrix.css')
+			);
+
 			// Refined skin — declares EVERY stylesheet it overrides as a
 			// dependency (calendar files included: .mhm-calendars lives there),
 			// so load order is guaranteed rather than inherited from call order.
 			wp_enqueue_style(
 				'mhm-rentiva-vehicle-list',
 				MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/vehicle-list.css',
-				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar' ),
+				array( 'mhm-rentiva-stats-cards', 'mhm-rentiva-shared-admin', 'mhm-rentiva-calendars', 'mhm-rentiva-booking-calendar', 'mhm-rentiva-occupancy-matrix' ),
 				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/css/admin/vehicle-list.css')
 			);
 
-			// Inline critical popup styles — guarantees correct rendering regardless of cache
-			wp_add_inline_style( 'mhm-rentiva-booking-calendar', '
-				#mhm-booking-popup { position:fixed; top:0; left:0; width:100%; height:100%; z-index:99999; display:none; }
-				#mhm-booking-popup .mhm-popup-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,.6); cursor:pointer; }
-				#mhm-booking-popup .mhm-popup-content { position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; width:560px; max-width:calc(100vw - 40px); max-height:90vh; border-radius:12px; box-shadow:0 20px 60px rgba(0,0,0,.25); overflow:hidden; display:flex; flex-direction:column; z-index:100000; box-sizing:border-box; }
-				#mhm-booking-popup .mhm-popup-footer { padding:16px 24px; border-top:1px solid #e2e8f0; background:#f8fafc; display:flex; justify-content:flex-end; gap:10px; flex-shrink:0; box-sizing:border-box; }
-				#mhm-booking-popup .mhm-popup-footer .button { box-sizing:border-box; }
-				.calendar-table .day-cell.available, .calendar-table .day-cell.blocked-day { cursor: pointer; }
-				/* Blocked days are now clickable (quick unblock); the component CSS sets
-				   pointer-events:none + cursor:not-allowed for the informational red stripe,
-				   so re-enable interaction on this admin calendar. */
-				.calendar-table td.day-cell.blocked-day { pointer-events: auto !important; cursor: pointer !important; }
-			' );
+			// The wp_add_inline_style() popup/blocked-day patch that used to
+			// sit here is gone (Faz 2 Task 8): booking-calendar.css already
+			// carries the full popup redesign (.mhm-popup-modal etc.), making
+			// the inline copy redundant, and the blocked-day/available cursor
+			// override now lives in occupancy-matrix.css, scoped to
+			// .mhm-vehicle-list only (the Vehicles face is the only one with
+			// enable_block_toggle => true).
 
 			// Monthly calendar popup + quick block/unblock toggle (rendered by
 			// render_calendar_view() via FleetOccupancyMatrix). Replaces the

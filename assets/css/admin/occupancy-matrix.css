@@ -1,0 +1,588 @@
+/*
+ * Faz 2 Task 8 — skin for the three new admin-list surfaces: the
+ * segmented view toggle, the shared fleet occupancy matrix (Vehicles +
+ * Bookings Calendar faces), the Vehicles Cards face, and the Bookings
+ * "Approve" row action. Refined WP-admin language (accent #2271b1,
+ * system font) — NOT Broadsheet.
+ *
+ * Light-pinned: every colour below is a literal hex value, never a
+ * `var(--mhm-*)` design token, so this skin renders identically whether
+ * or not the plugin's dark-mode stylesheet (css-variables.css) is active
+ * — same decision Faz 1a/1b made for vehicle-list.css/booking-list.css.
+ *
+ * Every rule is scoped under the screen body classes
+ * (.mhm-vehicle-list / .mhm-booking-list) so nothing here leaks onto
+ * other admin screens.
+ */
+
+/* ════════════════════════════════════════════════════════════
+   1. Segmented view toggle (rv-view-toggle / rv-view-toggle__btn)
+   Supersedes the minimal placeholder that used to live inline in
+   vehicle-list.css/booking-list.css ("the refined skin lands in
+   Task 8") — that placeholder is removed as part of this task.
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .rv-view-toggle,
+.mhm-booking-list .rv-view-toggle {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0;
+	background: #eceef1;
+	border-radius: 8px;
+	padding: 3px;
+	margin-left: auto;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn,
+.mhm-booking-list .rv-view-toggle__btn {
+	display: inline-block;
+	padding: 6px 14px;
+	border-radius: 6px;
+	border: 0;
+	background: transparent;
+	color: #646970;
+	font-size: 13px;
+	font-weight: 600;
+	line-height: 1.4;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn:hover,
+.mhm-booking-list .rv-view-toggle__btn:hover {
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn.is-active,
+.mhm-booking-list .rv-view-toggle__btn.is-active {
+	background: #fff;
+	color: #2271b1;
+}
+
+.mhm-vehicle-list .rv-view-toggle__btn.is-active:hover,
+.mhm-booking-list .rv-view-toggle__btn.is-active:hover {
+	color: #2271b1;
+}
+
+/* ════════════════════════════════════════════════════════════
+   2. Fleet occupancy matrix (FleetOccupancyMatrix::render_markup())
+   Shared by the Vehicles Calendar face and the Bookings Calendar face
+   — one legend, one set of cell colours, on both screens.
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap,
+.mhm-booking-list .mhm-occupancy-matrix-wrap {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 12px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 20px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-header,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-header {
+	background: #fff;
+	border-bottom: 1px solid #f2f3f5;
+	padding: 0 0 16px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-header h2,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-header h2 {
+	color: #1d2327;
+	font-size: 18px;
+}
+
+/* ── Month navigation: ghost prev/next, filled current-month label ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-nav-btn,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-nav-btn {
+	background: transparent;
+	border: 1px solid #dcdde1;
+	color: #50575e;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-nav-btn:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-nav-btn:hover {
+	background: #f7f9fc;
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-current,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-current {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+}
+
+/* ── Table wrapper: horizontal scroll, table never squeezes ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper {
+	background: #fff;
+	overflow-x: auto;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix {
+	background: #fff;
+	min-width: calc(220px + 31 * 32px);
+	table-layout: fixed;
+}
+
+/* ── Vehicle name column (row header) ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap th.vehicle-column,
+.mhm-booking-list .mhm-occupancy-matrix-wrap th.vehicle-column {
+	background: #f7f9fc;
+	color: #646970;
+	width: 210px;
+	min-width: 200px;
+	max-width: 220px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-right: 1px solid #f4f6f8;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap td.vehicle-info,
+.mhm-booking-list .mhm-occupancy-matrix-wrap td.vehicle-info {
+	background: #f7f9fc;
+	width: 210px;
+	min-width: 200px;
+	max-width: 220px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-right: 1px solid #f4f6f8;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .vehicle-name,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .vehicle-name {
+	color: #1d2327;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .vehicle-plate,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .vehicle-plate {
+	color: #8a8f98;
+	font-size: 11px;
+	font-weight: 500;
+}
+
+/* ── Day headers: numerals only, muted, ~30px wide, centered ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap th.day-header,
+.mhm-booking-list .mhm-occupancy-matrix-wrap th.day-header {
+	background: #fff;
+	color: #8a8f98;
+	font-weight: 500;
+	font-size: 12px;
+	width: 32px;
+	min-width: 30px;
+	max-width: 32px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-left: 1px solid #f4f6f8;
+}
+
+/* ── Rows: ~41px tall, hairline borders ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td {
+	height: 41px;
+	border: none;
+	border-bottom: 1px solid #f2f3f5;
+	border-left: 1px solid #f4f6f8;
+}
+
+/* ── Cell status colours — the single canonical legend, identical on
+   both screens. Specificity (screen scope + 5 classes) beats the older
+   un-scoped rules in calendars.css/booking-calendar.css without needing
+   !important, except blocked-day (below), which overrides an !important
+   rule in calendars.css and so must match it. ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available {
+	background: #e6f4e6;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available:hover {
+	background: #d7ecd7;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked {
+	cursor: pointer;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending .booking-icon,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending .booking-icon {
+	color: #7a5500;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed {
+	background: #2f80c4;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed .booking-icon,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed .booking-icon {
+	color: #fff;
+}
+
+/* status-in_progress (underscore — matches FleetOccupancyMatrix::STATUS_CLASSES)
+   had NO styling before this task; this is its first colour. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress .booking-icon,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress .booking-icon {
+	color: #fff;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed {
+	background: #e8e9eb;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed .booking-icon,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed .booking-icon {
+	color: #50575e;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover {
+	filter: brightness(0.96);
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .booking-icon,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .booking-icon {
+	font-size: 15px;
+	width: 15px;
+	height: 15px;
+}
+
+/* Blocked day: repeating red stripes — beats calendars.css's own
+   !important background rule (which paints an older, more saturated
+   red); cursor/pointer-events stay screen-specific below. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 5px, #fbeaea 5px, #fbeaea 10px) !important;
+}
+
+/* Click-to-block affordance — Vehicles face only (enable_block_toggle
+   is true there, false on Bookings); folds in the cursor/pointer-events
+   override that used to live in VehicleColumns' wp_add_inline_style()
+   patch, dropped as redundant with this rule. */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.blocked-day,
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.available {
+	cursor: pointer !important;
+	pointer-events: auto !important;
+}
+
+/* ── Legend row: 15px rounded swatches + 13px labels, same colours ── */
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-legend,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-legend {
+	background: #fff;
+	border: none;
+	border-top: 1px solid #f2f3f5;
+	margin-top: 16px;
+	padding: 16px 0 0;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-legend h4,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-legend h4 {
+	color: #646970;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-items,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-items {
+	gap: 18px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color {
+	width: 15px;
+	height: 15px;
+	border-radius: 4px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-label,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-label {
+	color: #50575e;
+	font-size: 13px;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.is-free,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.is-free {
+	background: #e6f4e6;
+	border: 1px solid #d0e8d0;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-pending,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-pending {
+	background: #f0c33c;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-confirmed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-confirmed {
+	background: #2f80c4;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-in_progress,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-in_progress {
+	background: #37a24a;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.status-completed,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.status-completed {
+	background: #e8e9eb;
+}
+
+.mhm-vehicle-list .mhm-occupancy-matrix-wrap .legend-color.legend-blocked-day,
+.mhm-booking-list .mhm-occupancy-matrix-wrap .legend-color.legend-blocked-day {
+	background: repeating-linear-gradient(45deg, #e9a8a8, #e9a8a8 5px, #fbeaea 5px, #fbeaea 10px);
+}
+
+/* ── Empty-state notices (Task 5): readable card-ish block ── */
+.mhm-booking-list .mhm-occupancy-matrix-empty,
+.mhm-booking-list .mhm-occupancy-matrix-cap-notice {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-left: 4px solid #2271b1;
+	border-radius: 8px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	padding: 4px 4px;
+	margin: 16px 0;
+}
+
+.mhm-booking-list .mhm-occupancy-matrix-empty p,
+.mhm-booking-list .mhm-occupancy-matrix-cap-notice p {
+	color: #1d2327;
+	font-size: 14px;
+	padding: 12px 16px;
+	margin: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   3. Vehicles Cards face (Faz 2 Task 6)
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-vehicle-list .rv-vhl-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	gap: 16px;
+	margin: 16px 0;
+}
+
+.mhm-vehicle-list .rv-vhl-card {
+	background: #fff;
+	border: 1px solid #e6e7eb;
+	border-radius: 14px;
+	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+}
+
+.mhm-vehicle-list .rv-vhl-card__media {
+	position: relative;
+	aspect-ratio: 16 / 10;
+	background: #e9eaee;
+	overflow: hidden;
+}
+
+.mhm-vehicle-list .rv-vhl-card__media img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+
+.mhm-vehicle-list .rv-vhl-card__placeholder {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px;
+	text-align: center;
+	color: #8a8f98;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	border-radius: 999px;
+	font-size: 12px;
+	font-weight: 600;
+	padding: 3px 10px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-active {
+	background: #e4f6e9;
+	color: #0a6b1e;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-inactive {
+	background: #fbeaea;
+	color: #a02222;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-maintenance {
+	background: #fcf3d6;
+	color: #8a6d1b;
+}
+
+.mhm-vehicle-list .rv-vhl-card__badge.status-default {
+	background: #f0f2f5;
+	color: #50575e;
+}
+
+.mhm-vehicle-list .rv-vhl-card__star {
+	position: absolute;
+	top: 10px;
+	right: 10px;
+	width: 26px;
+	height: 26px;
+	border-radius: 50%;
+	background: #fff;
+	color: #dba617;
+	font-size: 15px;
+	line-height: 26px;
+	text-align: center;
+	box-shadow: 0 1px 3px rgba(16, 24, 40, 0.15);
+}
+
+.mhm-vehicle-list .rv-vhl-card__body {
+	padding: 14px 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	flex: 1;
+}
+
+.mhm-vehicle-list .rv-vhl-card__title {
+	font-size: 15px;
+	font-weight: 700;
+	color: #1d2327;
+	line-height: 1.3;
+}
+
+.mhm-vehicle-list .rv-vhl-card__subline {
+	font-size: 12px;
+	color: #8a8f98;
+	margin-top: -4px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__chip {
+	background: #f0f2f5;
+	color: #50575e;
+	border-radius: 6px;
+	font-size: 12px;
+	padding: 2px 9px;
+	white-space: nowrap;
+}
+
+/* 7-day strip, card scope: reuses .rv-vhl-week/.rv-vhl-day from
+   vehicle-list.css (same colours), only the size changes here —
+   7 equal 8px-tall bars instead of the list column's 16x20 badges. */
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-week {
+	gap: 3px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-week__day {
+	flex: 1;
+	min-width: 0;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-day {
+	width: 100%;
+	height: 8px;
+	border-radius: 2px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__strip .rv-vhl-day__label {
+	font-size: 9px;
+}
+
+.mhm-vehicle-list .rv-vhl-card__footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 12px 16px;
+	border-top: 1px solid #f2f3f5;
+}
+
+.mhm-vehicle-list .rv-vhl-card__price {
+	font-size: 20px;
+	font-weight: 700;
+	color: #1d2327;
+}
+
+.mhm-vehicle-list .rv-vhl-card__price-unit {
+	font-size: 12px;
+	font-weight: 500;
+	color: #8a8f98;
+}
+
+.mhm-vehicle-list .rv-vhl-card__edit {
+	display: inline-block;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	padding: 6px 14px;
+	font-size: 13px;
+	font-weight: 600;
+	color: #2271b1;
+	text-decoration: none;
+	white-space: nowrap;
+}
+
+.mhm-vehicle-list .rv-vhl-card__edit:hover {
+	border-color: #2271b1;
+	background: #f7f9fc;
+}
+
+/* ════════════════════════════════════════════════════════════
+   4. Bookings "Approve" row action (Faz 2 Task 7)
+   ════════════════════════════════════════════════════════════ */
+
+.mhm-booking-list .rv-bkl-approve {
+	color: #0a6b1e;
+	font-weight: 600;
+}
+
+.mhm-booking-list .rv-bkl-approve:hover,
+.mhm-booking-list .rv-bkl-approve:focus {
+	color: #07500f;
+}
+
+.mhm-booking-list .rv-bkl-approve.is-busy {
+	color: #8a8f98;
+	cursor: default;
+	pointer-events: none;
+}
+
+.mhm-booking-list .rv-bkl-approve-error {
+	display: inline-block;
+	margin-left: 6px;
+	color: #a02222;
+	font-size: 12px;
+}
