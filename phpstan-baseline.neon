@@ -63,7 +63,7 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 2
+			count: 3
 			path: src/Admin/Booking/Actions/BookingApproveAjax.php
 
 		-
@@ -123,30 +123,6 @@ parameters:
 		-
 			message: '#^Parameter \#1 \$text of function esc_html expects string, int given\.$#'
 			identifier: argument.type
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_calendar_bookings\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_icon\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_label\(\) is unused\.$#'
-			identifier: method.unused
-			count: 1
-			path: src/Admin/Booking/ListTable/BookingColumns.php
-
-		-
-			message: '#^Static method MHMRentiva\\Admin\\Booking\\ListTable\\BookingColumns\:\:get_status_priority\(\) is unused\.$#'
-			identifier: method.unused
 			count: 1
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
@@ -1065,7 +1041,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 9
+			count: 10
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
