@@ -23,6 +23,20 @@
 				$( '.rv-bkl-chips' ).first().insertAfter( $marker );
 				$( '.mhm-stats-grid' ).first().insertAfter( $marker );
 				$( '.rv-bkl-toolbar' ).first().insertAfter( $marker );
+				// Faz 2 view-switch toggle — inserted last so it lands
+				// topmost (title → toolbar/toggle → KPI band → chips → content).
+				$( '.rv-view-toggle' ).first().insertAfter( $marker );
+
+				// The toggle shares the Pro toolbar's flex row when a
+				// subscriber actually rendered one. Lite ships no subscriber,
+				// so `.rv-bkl-toolbar` is absent from the DOM entirely in
+				// that case (BookingColumns::toolbar_actions() prints
+				// nothing without one) and the toggle stands alone.
+				var $toggle  = $( '.rv-view-toggle' ).first();
+				var $toolbar = $( '.rv-bkl-toolbar' ).first();
+				if ($toggle.length && $toolbar.length) {
+					$toggle.add( $toolbar ).wrapAll( '<div class="rv-bkl-toolbar-row"></div>' );
+				}
 			}
 			var $calendar = $( '.mhm-calendars.booking-calendar-page' ).first();
 			if ($calendar.length) {

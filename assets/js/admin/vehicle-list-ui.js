@@ -19,6 +19,9 @@
 			if ($marker.length) {
 				$( '.rv-vhl-chips' ).first().insertAfter( $marker );
 				$( '.mhm-stats-grid' ).first().insertAfter( $marker );
+				// Faz 2 view-switch toggle — inserted last so it lands
+				// topmost (title → toggle → KPI → chips → table → calendar).
+				$( '.rv-view-toggle' ).first().insertAfter( $marker );
 			}
 
 			var $form     = $( '#posts-filter' );

@@ -723,6 +723,66 @@ body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
 	color: #1d2327;
 }
 
+/* ── View-switch toggle (Faz 2 view engine) ──
+   Minimal, inline-free markup styling only — the refined skin lands in
+   Task 8. `.rv-bkl-toolbar-row` only exists when a Pro toolbar subscriber
+   is present (JS wraps toggle + toolbar together in that case); with no
+   subscriber the toggle renders standalone. */
+.mhm-booking-list .rv-view-toggle {
+	display: inline-flex;
+	gap: 4px;
+	margin: 10px 0 0;
+}
+
+.mhm-booking-list .rv-view-toggle__btn {
+	display: inline-block;
+	font-size: 13px;
+	font-weight: 500;
+	padding: 7px 14px;
+	border: 1px solid #dcdde1;
+	border-radius: 8px;
+	background: #fff;
+	color: #2c3338;
+	text-decoration: none;
+	line-height: 1.4;
+}
+
+.mhm-booking-list .rv-view-toggle__btn:hover {
+	border-color: #b6bcc3;
+	color: #1d2327;
+}
+
+.mhm-booking-list .rv-view-toggle__btn.is-active {
+	background: #2271b1;
+	border-color: #2271b1;
+	color: #fff;
+	font-weight: 600;
+}
+
+.mhm-booking-list .rv-bkl-toolbar-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.mhm-booking-list .rv-bkl-toolbar-row .rv-view-toggle,
+.mhm-booking-list .rv-bkl-toolbar-row .rv-bkl-toolbar {
+	margin: 0;
+}
+
+/* ── Face visibility (Faz 2 view engine) ──
+   The calendar FACE itself lands in Task 5; today `view=calendar` only
+   hides the list chrome so the (currently empty) content area below the
+   toolbar doesn't show a stray list table alongside it. Bookings has no
+   cards face. */
+body.mhm-booking-list.mhm-view-calendar .wp-list-table,
+body.mhm-booking-list.mhm-view-calendar .tablenav .bulkactions,
+body.mhm-booking-list.mhm-view-calendar .tablenav-pages {
+	display: none;
+}
+
 /* ── Calendar card harmonization (function untouched) ── */
 .mhm-booking-list .calendar-container {
 	background: #fff;
