@@ -133,8 +133,10 @@ final class FleetOccupancyMatrix {
 				}
 
 				// The entry whose status matches the winning reduced status
-				// carries the popup payload; if several entries share it,
-				// the first is used (matches map insertion order).
+				// decides the cell's PAINT color and the single-booking
+				// fallback attrs; the popup itself must list EVERY booking
+				// on this cell (post-filter), not just the winner — that is
+				// what the shared partial's #popup-multi-view exists for.
 				$winner = null;
 				foreach ( $entries as $entry ) {
 					if ( ( $entry['status'] ?? '' ) === $status ) {
@@ -146,16 +148,26 @@ final class FleetOccupancyMatrix {
 				$painted[ $vehicle_id ][ $date ] = array(
 					'status'     => $status,
 					'booking_id' => $winner ? (int) $winner['booking_id'] : 0,
+					'entries'    => $entries,
 				);
-				if ( $winner ) {
-					$all_booking_ids[] = (int) $winner['booking_id'];
+				foreach ( $entries as $entry ) {
+					$all_booking_ids[] = (int) $entry['booking_id'];
 				}
 			}
 		}
 
 		$all_booking_ids = array_values( array_unique( $all_booking_ids ) );
 		if ( ! empty( $all_booking_ids ) ) {
+			// Meta cache for build_booking_fields()'s get_post_meta() reads,
+			// PLUS the post object cache — get_post_field('post_date', ...)
+			// below hits wp_cache_get('posts', ...) internally, which the
+			// meta-cache prime does NOT populate. Without this, every
+			// distinct booking triggers its own SELECT (caught by the
+			// query-budget test after it was strengthened to clean the post
+			// cache before measuring, instead of relying on the fixture
+			// factory's incidental cache warm).
 			update_meta_cache( 'post', $all_booking_ids );
+			_prime_post_caches( $all_booking_ids, false, false );
 		}
 
 		$can_see_pii    = current_user_can( 'edit_others_posts' );
@@ -223,7 +235,7 @@ final class FleetOccupancyMatrix {
 	/**
 	 * @param \WP_Post[]                          $vehicles
 	 * @param array<int, string[]>                $blocked_map
-	 * @param array<int, array<string, array{status:string,booking_id:int}>> $painted
+	 * @param array<int, array<string, array{status:string,booking_id:int,entries:list<array{booking_id:int,status:string}>}>> $painted
 	 * @param array<int, array<string, string>>   $booking_fields
 	 * @param array{show_plate: bool, enable_block_toggle: bool, filter_statuses: string[], screen: string} $opts
 	 */
@@ -296,19 +308,20 @@ final class FleetOccupancyMatrix {
 
 	/**
 	 * @param string[]                               $blocked_dates
-	 * @param array<string, array{status:string,booking_id:int}> $painted_days
+	 * @param array<string, array{status:string,booking_id:int,entries:list<array{booking_id:int,status:string}>}> $painted_days
 	 * @param array<int, array<string, string>>      $booking_fields
 	 * @param array{show_plate: bool, enable_block_toggle: bool, filter_statuses: string[], screen: string} $opts
 	 */
 	private static function render_row( \WP_Post $vehicle, int $month, int $year, int $days_in_month, array $blocked_dates, array $painted_days, array $booking_fields, bool $can_see_pii, array $opts ): void {
-		$vehicle_id = (int) $vehicle->ID;
+		$vehicle_id    = (int) $vehicle->ID;
+		$vehicle_title = get_the_title( $vehicle );
+		$vehicle_plate = (string) get_post_meta( $vehicle_id, MetaKeys::VEHICLE_LICENSE_PLATE, true );
 		?>
 		<tr>
 			<td class="vehicle-info">
-				<div class="vehicle-name"><?php echo esc_html( get_the_title( $vehicle ) ); ?></div>
+				<div class="vehicle-name"><?php echo esc_html( $vehicle_title ); ?></div>
 				<?php if ( $opts['show_plate'] ) : ?>
-					<?php $plate = (string) get_post_meta( $vehicle_id, MetaKeys::VEHICLE_LICENSE_PLATE, true ); ?>
-					<div class="vehicle-plate"><?php echo esc_html( '' !== $plate ? $plate : '—' ); ?></div>
+					<div class="vehicle-plate"><?php echo esc_html( '' !== $vehicle_plate ? $vehicle_plate : '—' ); ?></div>
 				<?php endif; ?>
 			</td>
 			<?php for ( $day = 1; $day <= $days_in_month; $day++ ) : ?>
@@ -322,7 +335,7 @@ final class FleetOccupancyMatrix {
 				<?php elseif ( null === $cell ) : ?>
 					<?php self::render_free_cell( $vehicle_id, $date, $day, $opts ); ?>
 				<?php else : ?>
-					<?php self::render_booked_cell( $day, $cell, $booking_fields[ $cell['booking_id'] ] ?? array(), $can_see_pii ); ?>
+					<?php self::render_booked_cell( $day, $cell, $booking_fields, $can_see_pii, $vehicle_title, $vehicle_plate ); ?>
 				<?php endif; ?>
 			<?php endfor; ?>
 		</tr>
@@ -354,14 +367,15 @@ final class FleetOccupancyMatrix {
 	}
 
 	/**
-	 * @param array{status:string,booking_id:int} $cell
-	 * @param array<string, string>               $fields
+	 * @param array{status:string,booking_id:int,entries:list<array{booking_id:int,status:string}>} $cell
+	 * @param array<int, array<string, string>> $booking_fields Keyed by booking id.
 	 */
-	private static function render_booked_cell( int $day, array $cell, array $fields, bool $can_see_pii ): void {
-		$status       = $cell['status'];
-		$status_class = self::STATUS_CLASSES[ $status ] ?? 'status-pending';
-		$status_label = Status::get_label( $status );
-		$title        = sprintf( '%s · %d', $status_label, $day );
+	private static function render_booked_cell( int $day, array $cell, array $booking_fields, bool $can_see_pii, string $vehicle_title, string $vehicle_plate ): void {
+		$status        = $cell['status'];
+		$status_class  = self::STATUS_CLASSES[ $status ] ?? 'status-pending';
+		$status_label  = Status::get_label( $status );
+		$title         = sprintf( '%s · %d', $status_label, $day );
+		$winner_fields = $booking_fields[ $cell['booking_id'] ] ?? array();
 
 		// PII condition: customer name/email/phone (and the other booking
 		// fields that only make sense alongside them) are embedded ONLY for
@@ -372,18 +386,57 @@ final class FleetOccupancyMatrix {
 			'booking-id'   => $cell['booking_id'],
 			'status'       => $status,
 			'status-label' => $status_label,
-			'start-date'   => $fields['start_date'] ?? '',
-			'end-date'     => $fields['end_date'] ?? '',
+			'start-date'   => $winner_fields['start_date'] ?? '',
+			'end-date'     => $winner_fields['end_date'] ?? '',
 		);
 		if ( $can_see_pii ) {
-			$data_attrs['customer-name']  = $fields['customer_name'] ?? '';
-			$data_attrs['customer-email'] = $fields['customer_email'] ?? '';
-			$data_attrs['customer-phone'] = $fields['customer_phone'] ?? '';
-			$data_attrs['total-price']    = $fields['total_price'] ?? '';
-			$data_attrs['start-time']     = $fields['start_time'] ?? '';
-			$data_attrs['end-time']       = $fields['end_time'] ?? '';
-			$data_attrs['created-date']   = $fields['created_date'] ?? '';
+			$data_attrs['customer-name']  = $winner_fields['customer_name'] ?? '';
+			$data_attrs['customer-email'] = $winner_fields['customer_email'] ?? '';
+			$data_attrs['customer-phone'] = $winner_fields['customer_phone'] ?? '';
+			$data_attrs['total-price']    = $winner_fields['total_price'] ?? '';
+			$data_attrs['start-time']     = $winner_fields['start_time'] ?? '';
+			$data_attrs['end-time']       = $winner_fields['end_time'] ?? '';
+			$data_attrs['created-date']   = $winner_fields['created_date'] ?? '';
 		}
+
+		// The winner-only flat attrs above are a single-booking fallback
+		// (and what vehicle-calendar-popup.js reads today); the FULL list —
+		// every booking this cell holds after filter_statuses — rides as
+		// 'bookings' JSON, the exact shape booking-popup.js's
+		// showSingleBooking()/showMultiBooking() already expect (matches
+		// the old BookingColumns::get_booking_calendar_days() contract).
+		// On a day with several bookings the popup must list ALL of them,
+		// not just the one whose status won the cell's paint color.
+		$all_bookings = array();
+		$seen         = array();
+		foreach ( $cell['entries'] as $entry ) {
+			$booking_id = (int) ( $entry['booking_id'] ?? 0 );
+			if ( $booking_id <= 0 || isset( $seen[ $booking_id ] ) ) {
+				continue;
+			}
+			$seen[ $booking_id ] = true;
+
+			$fields       = $booking_fields[ $booking_id ] ?? array();
+			$entry_status = (string) ( $entry['status'] ?? $status );
+			$booking      = array(
+				'booking_id'    => $booking_id,
+				'vehicle_title' => $vehicle_title,
+				'vehicle_plate' => $vehicle_plate,
+				'status'        => $entry_status,
+				'status_label'  => Status::get_label( $entry_status ),
+				'start_date'    => $fields['start_date'] ?? '',
+				'end_date'      => $fields['end_date'] ?? '',
+			);
+			if ( $can_see_pii ) {
+				$booking['customer_name']  = $fields['customer_name'] ?? '';
+				$booking['customer_email'] = $fields['customer_email'] ?? '';
+				$booking['customer_phone'] = $fields['customer_phone'] ?? '';
+				$booking['total_price']    = $fields['total_price'] ?? '';
+				$booking['created_date']   = $fields['created_date'] ?? '';
+			}
+			$all_bookings[] = $booking;
+		}
+		$data_attrs['bookings'] = wp_json_encode( $all_bookings );
 
 		echo '<td class="day-cell booked ' . esc_attr( $status_class ) . '" title="' . esc_attr( $title ) . '"';
 		Html::echo_data_attributes( $data_attrs );

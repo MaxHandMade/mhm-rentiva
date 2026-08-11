@@ -98,6 +98,45 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $this->assertDoesNotMatchRegularExpression( '/class="day-cell booked status-confirmed"/', $html );
     }
 
+    // --- Fix round 1, Critical #1: multi-booking popup payload --------------
+    // Binding acceptance criterion: "on a day with multiple bookings, the
+    // popup lists ALL of them." The cell still PAINTS the reduce() winner's
+    // color, but the popup payload (the 'bookings' JSON attribute
+    // booking-popup.js's showSingleBooking()/showMultiBooking() read) must
+    // carry every booking touching that cell, post-filter.
+
+    public function test_multi_booking_cell_payload_contains_every_booking_id(): void
+    {
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+
+        $pending_id   = $this->makeBooking( $vehicle->ID, 'pending', $day, $day );
+        $confirmed_id = $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
+        $html = $this->render( array( $vehicle ), $month, $year );
+
+        $this->assertStringContainsString( '&quot;booking_id&quot;:' . $pending_id, $html );
+        $this->assertStringContainsString( '&quot;booking_id&quot;:' . $confirmed_id, $html );
+    }
+
+    public function test_multi_booking_cell_payload_is_filtered_by_filter_statuses(): void
+    {
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+
+        $pending_id   = $this->makeBooking( $vehicle->ID, 'pending', $day, $day );
+        $confirmed_id = $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
+        $html = $this->render( array( $vehicle ), $month, $year, array( 'filter_statuses' => array( 'pending' ) ) );
+
+        $this->assertStringContainsString( '&quot;booking_id&quot;:' . $pending_id, $html );
+        $this->assertStringNotContainsString( '&quot;booking_id&quot;:' . $confirmed_id, $html );
+    }
+
     // --- Test 2: PII gate ---------------------------------------------------
 
     public function test_customer_fields_are_absent_for_a_user_without_edit_others_posts(): void
@@ -212,6 +251,14 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
     }
 
     // --- Test 5: query budget is constant, not O(n) -------------------------
+    //
+    // Fix round 1, Critical #2: the fixture factory's wp_insert_post() calls
+    // incidentally warm the post OBJECT cache (as opposed to the meta cache
+    // this class explicitly primes), which used to make this test pass even
+    // though get_post_field('post_date', ...) in production hits a cold
+    // cache -- one query per distinct booking. clean_post_cache() on every
+    // booking id before measuring removes that false-green: the assertion
+    // now actually exercises the cold-cache path _prime_post_caches() fixes.
 
     public function test_query_budget_does_not_scale_with_vehicle_count(): void
     {
@@ -221,26 +268,43 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $year  = (int) gmdate( 'Y' );
         $day   = sprintf( '%04d-%02d-15', $year, $month );
 
-        $small = array( $this->makeVehicle(), $this->makeVehicle() );
+        $small           = array( $this->makeVehicle(), $this->makeVehicle() );
+        $small_bookings  = array();
         foreach ( $small as $v ) {
-            $this->makeBooking( $v->ID, 'confirmed', $day, $day );
+            $small_bookings[] = $this->makeBooking( $v->ID, 'confirmed', $day, $day );
+        }
+        foreach ( $small_bookings as $bid ) {
+            clean_post_cache( $bid );
         }
 
         OccupancyMapService::reset_memo();
         OccupancyMapService::invalidate();
+        // invalidate() is a raw SQL DELETE on wp_options (documented limit
+        // in its own docblock) -- it does not evict the in-memory
+        // 'options' object-cache group get_transient()/get_option() read
+        // from. Without a full flush, a second get_map() call for this
+        // SAME date window (both scenarios share one calendar month) would
+        // read the first scenario's now-stale cached transient instead of
+        // re-querying, making the two measurements incomparable.
+        wp_cache_flush();
         $before_small = $wpdb->num_queries;
         $this->render( $small, $month, $year );
         $queries_small = $wpdb->num_queries - $before_small;
 
-        $large = array();
+        $large          = array();
+        $large_bookings = array();
         for ( $i = 0; $i < 5; $i++ ) {
-            $v      = $this->makeVehicle();
-            $large[] = $v;
-            $this->makeBooking( $v->ID, 'confirmed', $day, $day );
+            $v                = $this->makeVehicle();
+            $large[]          = $v;
+            $large_bookings[] = $this->makeBooking( $v->ID, 'confirmed', $day, $day );
+        }
+        foreach ( $large_bookings as $bid ) {
+            clean_post_cache( $bid );
         }
 
         OccupancyMapService::reset_memo();
         OccupancyMapService::invalidate();
+        wp_cache_flush();
         $before_large = $wpdb->num_queries;
         $this->render( $large, $month, $year );
         $queries_large = $wpdb->num_queries - $before_large;
