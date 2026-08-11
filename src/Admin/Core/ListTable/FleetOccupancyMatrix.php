@@ -403,8 +403,9 @@ final class FleetOccupancyMatrix {
 		// (and what vehicle-calendar-popup.js reads today); the FULL list —
 		// every booking this cell holds after filter_statuses — rides as
 		// 'bookings' JSON, the exact shape booking-popup.js's
-		// showSingleBooking()/showMultiBooking() already expect (matches
-		// the old BookingColumns::get_booking_calendar_days() contract).
+		// showSingleBooking()/showMultiBooking() already expect (matches the
+		// contract the now-retired BookingColumns::get_booking_calendar_days()
+		// used to build for the same JS to read).
 		// On a day with several bookings the popup must list ALL of them,
 		// not just the one whose status won the cell's paint color.
 		$all_bookings = array();

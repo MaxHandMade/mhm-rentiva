@@ -1185,9 +1185,10 @@ final class VehicleColumns {
 			return;
 		}
 
-		// Month/year bounds: current year ± 10, the same rule
-		// BookingColumns::add_booking_calendar() already used — the
-		// vehicles-only hardcoded 2020-2030 rule dies with the old renderer.
+		// Month/year bounds: current year ± 10, the same rule the old
+		// BookingColumns::add_booking_calendar() used (both Calendar faces
+		// converged on it) — the vehicles-only hardcoded 2020-2030 rule dies
+		// with the old renderer.
 		$current_month = self::get_query_int('mhmrentiva_month', (int) gmdate('n'));
 		$current_year  = self::get_query_int('mhmrentiva_year', (int) gmdate('Y'));
 

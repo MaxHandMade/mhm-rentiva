@@ -10,10 +10,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Faz 2 Task 4: extracted from the near-duplicate copies previously echoed
  * inline by VehicleColumns::add_monthly_calendar() (retired) and
- * BookingColumns::add_booking_calendar() (still list-face only, until its
- * own retirement lands in a later task). Both remaining consumers —
- * FleetOccupancyMatrix::render() and BookingColumns::add_booking_calendar()
- * — `include` this file verbatim rather than keeping their own copy.
+ * BookingColumns::add_booking_calendar() (retired in Task 5). The one
+ * remaining consumer, FleetOccupancyMatrix::render_markup(), `include`s
+ * this file verbatim rather than keeping its own copy — both the Vehicles
+ * and Bookings Calendar faces paint through that one renderer now.
  *
  * DOM ids are the real contract: assets/js/admin/vehicle-calendar-popup.js
  * and assets/js/admin/booking-popup.js each bind to a subset of the ids
