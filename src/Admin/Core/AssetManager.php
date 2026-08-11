@@ -576,14 +576,6 @@ final class AssetManager {
 	}
 
 	/**
-	 * Load calendars CSS
-	 */
-	public static function enqueue_calendars(): void
-	{
-		self::enqueue_component_css('mhm-calendars');
-	}
-
-	/**
 	 * Load frontend-specific assets
 	 */
 	private static function enqueue_frontend_specific_assets(): void
