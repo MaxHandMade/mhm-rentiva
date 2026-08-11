@@ -1458,8 +1458,16 @@ final class BookingColumns {
 		}
 
 		if ( $vehicleless_count > 0 ) {
+			// A `div.notice`, exactly like the cap and empty notices above.
+			// It used to be a bare `<p>`: core's common.js only relocates
+			// `div.updated/.error/.notice`, and this face's own relocation
+			// JS moves the `.mhm-calendars` wrapper alone — so the note was
+			// left stranded above the page <h1>, detached from the matrix it
+			// annotates, and unstyled (only the `-empty` and `-cap-notice`
+			// classes had CSS). Same element, same class family, same
+			// relocation, same skin as its two siblings now.
 			printf(
-				'<p class="mhm-occupancy-matrix-vehicleless-note">%s</p>',
+				'<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note"><p>%s</p></div>',
 				esc_html(
 					sprintf(
 						/* translators: %s: number of bookings with no vehicle assigned (transfers etc.), formatted for display. */

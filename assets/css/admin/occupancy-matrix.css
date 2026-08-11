@@ -353,6 +353,7 @@
 
 /* ── Empty-state notices (Task 5): readable card-ish block ── */
 .mhm-booking-list .mhm-occupancy-matrix-empty,
+.mhm-booking-list .mhm-occupancy-matrix-vehicleless-note,
 .mhm-booking-list .mhm-occupancy-matrix-cap-notice {
 	background: #fff;
 	border: 1px solid #e6e7eb;
@@ -364,6 +365,7 @@
 }
 
 .mhm-booking-list .mhm-occupancy-matrix-empty p,
+.mhm-booking-list .mhm-occupancy-matrix-vehicleless-note p,
 .mhm-booking-list .mhm-occupancy-matrix-cap-notice p {
 	color: #1d2327;
 	font-size: 14px;

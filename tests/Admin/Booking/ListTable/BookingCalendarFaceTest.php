@@ -328,6 +328,38 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
         $this->assertStringContainsString( '1 booking has no vehicle assigned', $html );
     }
 
+    /**
+     * Final review, finding I3: the note used to be a bare `<p>`, which
+     * core's common.js does not relocate (it only moves
+     * div.updated/.error/.notice) and which no rule in
+     * occupancy-matrix.css styled — it landed above the page <h1>, naked.
+     * It must be a notice like its two siblings, and carry a class the
+     * stylesheet actually knows.
+     */
+    public function test_vehicleless_note_is_a_relocatable_styled_notice(): void
+    {
+        $month = (int) gmdate( 'n' );
+        $year  = (int) gmdate( 'Y' );
+        $day   = sprintf( '%04d-%02d-15', $year, $month );
+
+        $booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+        update_post_meta( $booking, '_mhmrentiva_status', 'confirmed' );
+        update_post_meta( $booking, '_mhmrentiva_pickup_date', $day );
+        update_post_meta( $booking, '_mhmrentiva_dropoff_date', $day );
+
+        $this->goToCalendarFace();
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            '<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note">',
+            $html
+        );
+        $this->assertStringNotContainsString( '<p class="mhm-occupancy-matrix-vehicleless-note"', $html );
+
+        $css = (string) file_get_contents( MHMRENTIVA_PLUGIN_DIR . 'assets/css/admin/occupancy-matrix.css' );
+        $this->assertStringContainsString( '.mhm-occupancy-matrix-vehicleless-note', $css );
+    }
+
     public function test_vehicleless_note_plural_for_two_unassigned_bookings(): void
     {
         $month = (int) gmdate( 'n' );
