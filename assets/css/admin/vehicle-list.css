@@ -142,11 +142,25 @@
 }
 
 .mhm-vehicle-list .column-mhmrentiva_vehicle {
-	min-width: 240px;
+	width: 26%;
+	min-width: 260px;
 }
 
-.mhm-vehicle-list .column-mhmrentiva_vehicle .row-actions {
-	padding-left: 70px;
+.mhm-vehicle-list .rv-vhl-vehicle__title {
+	line-height: 1.3;
+}
+
+/* Keep the narrow columns from stealing width the Vehicle cell needs. */
+.mhm-vehicle-list .column-mhmrentiva_price_per_day,
+.mhm-vehicle-list .column-mhmrentiva_available,
+.mhm-vehicle-list .column-mhmrentiva_lifecycle,
+.mhm-vehicle-list .column-mhmrentiva_featured {
+	white-space: nowrap;
+}
+
+/* Room for the three feature chips to flow horizontally like the mockup. */
+.mhm-vehicle-list .column-mhmrentiva_features {
+	min-width: 200px;
 }
 
 /* ── 7-day availability strip ── */
