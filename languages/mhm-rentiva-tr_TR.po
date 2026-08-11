@@ -245,7 +245,7 @@ msgstr "Toplam Müşteri:"
 #: src/Admin/About/Tabs/GeneralTab.php:267
 #: src/Admin/Booking/ListTable/BookingColumns.php:1434
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:52
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1213
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1426
 #: assets/blocks/my-favorites/index.js:51
 msgid "Name"
 msgstr "Ad"
@@ -279,7 +279,7 @@ msgid "Tested"
 msgstr "Test edildi:"
 
 #: src/Admin/About/Tabs/GeneralTab.php:304
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:691
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:904
 msgid "Total Vehicles"
 msgstr "Toplam Araç Sayısı"
 
@@ -786,8 +786,8 @@ msgstr "Ek Hizmet Ayarları"
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1217
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:189
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:694
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:397
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1758
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:454
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1971
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:39
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:165
 #: assets/blocks/my-bookings/index.js:42
@@ -996,7 +996,7 @@ msgstr "Bekleyen Ödeme"
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:69
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1027
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1215
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1166
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1379
 #: templates/account/booking-detail.php:76
 #: templates/account/bookings.php:118
 #: templates/account/bookings.php:203
@@ -1019,7 +1019,7 @@ msgstr "Beklemede"
 #: src/Admin/Emails/Notifications/BookingNotifications.php:154
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:70
 #: src/Admin/Utilities/Dashboard/DashboardService.php:1216
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1170
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1383
 #: templates/account/booking-detail.php:77
 #: templates/account/bookings.php:119
 #: templates/account/bookings.php:204
@@ -1054,7 +1054,7 @@ msgstr "Devam Ediyor"
 #: src/Admin/Emails/Notifications/BookingNotifications.php:156
 #: src/Admin/Frontend/Account/AccountRenderer.php:631
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:72
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1174
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1387
 #: templates/account/booking-detail.php:79
 #: templates/account/bookings.php:121
 #: templates/account/bookings.php:206
@@ -1356,6 +1356,7 @@ msgstr "Rezervasyon ID"
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:458
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:512
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:926
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:167
 #: src/Admin/Vehicle/PostType/Vehicle.php:26
 #: templates/account/booking-detail.php:129
 #: templates/account/partials/top-vehicles.php:29
@@ -1366,8 +1367,7 @@ msgstr "Araç"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1854
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:285
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:161
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1502
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1715
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:451
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:813
 msgid "License Plate"
@@ -1444,7 +1444,7 @@ msgstr "bu gündeki rezervasyonlar"
 #: src/Admin/Booking/ListTable/BookingColumns.php:280
 #: src/Admin/Booking/ListTable/BookingColumns.php:1430
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:276
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1209
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1422
 #: src/Plugin.php:1022
 #: src-react/admin/customers/components/CustomerTable.jsx:4
 #: src-react/admin/dashboard/components/RecentBookings.jsx:65
@@ -1454,19 +1454,19 @@ msgstr "Müşteri"
 #: src/Admin/Booking/ListTable/BookingColumns.php:281
 #: src/Admin/Booking/ListTable/BookingColumns.php:1463
 #: src/Admin/Payment/WooCommerce/WooCommerceBridge.php:934
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1235
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1448
 msgid "Pickup"
 msgstr "Teslim Alma"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:282
 #: src/Admin/Booking/ListTable/BookingColumns.php:1467
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1240
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1453
 msgid "Return"
 msgstr "İade"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:284
 #: src/Admin/Booking/ListTable/BookingColumns.php:1504
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1269
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1482
 msgid "Edit Booking"
 msgstr "Rezervasyonu Düzenle"
 
@@ -1573,7 +1573,7 @@ msgid "Monthly Revenue"
 msgstr "Aylık Gelir"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:930
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:720
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:933
 msgid "vs last month"
 msgstr "geçen aya göre"
 
@@ -1581,7 +1581,7 @@ msgstr "geçen aya göre"
 #: src/Admin/Core/Assets/DatepickerAssets.php:64
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1078
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1494
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:974
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1187
 #: src/Blocks/BlockRegistry.php:241
 msgid "January"
 msgstr "Ocak"
@@ -1590,7 +1590,7 @@ msgstr "Ocak"
 #: src/Admin/Core/Assets/DatepickerAssets.php:65
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1079
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1495
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:975
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1188
 #: src/Blocks/BlockRegistry.php:241
 msgid "February"
 msgstr "Şubat"
@@ -1599,7 +1599,7 @@ msgstr "Şubat"
 #: src/Admin/Core/Assets/DatepickerAssets.php:66
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1080
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1496
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:976
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1189
 #: src/Blocks/BlockRegistry.php:241
 msgid "March"
 msgstr "Mart"
@@ -1608,7 +1608,7 @@ msgstr "Mart"
 #: src/Admin/Core/Assets/DatepickerAssets.php:67
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1081
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1497
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:977
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1190
 #: src/Blocks/BlockRegistry.php:241
 msgid "April"
 msgstr "Nisan"
@@ -1618,7 +1618,7 @@ msgstr "Nisan"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1082
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1498
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1512
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:978
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1191
 #: src/Blocks/BlockRegistry.php:241
 msgid "May"
 msgstr "Mayıs"
@@ -1627,7 +1627,7 @@ msgstr "Mayıs"
 #: src/Admin/Core/Assets/DatepickerAssets.php:69
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1083
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1499
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:979
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1192
 #: src/Blocks/BlockRegistry.php:241
 msgid "June"
 msgstr "Haziran"
@@ -1636,7 +1636,7 @@ msgstr "Haziran"
 #: src/Admin/Core/Assets/DatepickerAssets.php:70
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1084
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1500
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:980
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1193
 #: src/Blocks/BlockRegistry.php:241
 msgid "July"
 msgstr "Temmuz"
@@ -1645,7 +1645,7 @@ msgstr "Temmuz"
 #: src/Admin/Core/Assets/DatepickerAssets.php:71
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1085
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1501
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:981
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1194
 #: src/Blocks/BlockRegistry.php:241
 msgid "August"
 msgstr "Ağustos"
@@ -1654,7 +1654,7 @@ msgstr "Ağustos"
 #: src/Admin/Core/Assets/DatepickerAssets.php:72
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1086
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1502
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:982
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1195
 #: src/Blocks/BlockRegistry.php:241
 msgid "September"
 msgstr "Eylül"
@@ -1663,7 +1663,7 @@ msgstr "Eylül"
 #: src/Admin/Core/Assets/DatepickerAssets.php:73
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1087
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1503
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:983
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1196
 #: src/Blocks/BlockRegistry.php:241
 msgid "October"
 msgstr "Ekim"
@@ -1672,7 +1672,7 @@ msgstr "Ekim"
 #: src/Admin/Core/Assets/DatepickerAssets.php:74
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1088
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1504
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:984
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1197
 #: src/Blocks/BlockRegistry.php:241
 msgid "November"
 msgstr "Kasım"
@@ -1681,7 +1681,7 @@ msgstr "Kasım"
 #: src/Admin/Core/Assets/DatepickerAssets.php:75
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:1089
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1505
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:985
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1198
 #: src/Blocks/BlockRegistry.php:241
 msgid "December"
 msgstr "Aralık"
@@ -1768,15 +1768,16 @@ msgstr "Rezervasyonlar: "
 #: src/Admin/Frontend/Shortcodes/VehicleDetails.php:291
 #: src/Admin/Frontend/Shortcodes/VehiclesGrid.php:415
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:577
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:169
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1567
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:177
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:727
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1780
 #: templates/shortcodes/availability-calendar.php:92
 #: templates/shortcodes/availability-calendar.php:233
 msgid "Available"
 msgstr "Mevcut"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1382
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1162
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1375
 msgid "Status Legend"
 msgstr "Durum Açıklaması"
 
@@ -1784,7 +1785,7 @@ msgstr "Durum Açıklaması"
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:216
 #: src/Admin/Booking/Meta/BookingMeta.php:360
 #: src/Admin/Booking/Meta/BookingMeta.php:407
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1192
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1405
 #: templates/account/booking-detail.php:107
 #: templates/emails/booking-status-changed-customer.html.php:28
 #: templates/emails/receipt-status-email.html.php:243
@@ -1796,7 +1797,7 @@ msgstr "Rezervasyon detayları"
 #: src/Admin/Core/Assets/DatepickerAssets.php:61
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:277
 #: src/Admin/Frontend/Shortcodes/BookingForm.php:1490
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1198
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1411
 #: src/Blocks/BlockRegistry.php:239
 #: src-react/admin/customers/components/CustomerPanel.jsx:68
 #: src-react/admin/shortcode-pages/components/DebugPanel.jsx:16
@@ -1812,7 +1813,7 @@ msgstr "Kapat"
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
 #: src/Admin/Settings/Groups/FrontendSettings.php:333
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1217
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1430
 #: templates/shortcodes/contact-form.php:62
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
 msgid "Email"
@@ -1826,7 +1827,7 @@ msgstr "E-posta"
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1221
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1434
 #: templates/shortcodes/contact-form.php:74
 #: src-react/admin/customers/components/CustomerPanel.jsx:80
 #: src-react/admin/customers/components/CustomerTable.jsx:79
@@ -1842,17 +1843,17 @@ msgid "Plate"
 msgstr "Plaka:"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1476
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1251
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1464
 msgid "Booking Info"
 msgstr "Rezervasyon Bilgisi"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1480
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1255
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1468
 msgid "Total Price"
 msgstr "Toplam Fiyat"
 
 #: src/Admin/Booking/ListTable/BookingColumns.php:1484
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1259
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1472
 msgid "Created"
 msgstr "Oluşturuldu"
 
@@ -3132,7 +3133,7 @@ msgstr "Elektrik"
 
 #: src/Admin/Core/AssetManager.php:560
 #: src/Admin/Core/AssetManager.php:972
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1769
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1982
 msgid "Passive"
 msgstr "Pasif"
 
@@ -3140,7 +3141,7 @@ msgstr "Pasif"
 #: src/Admin/Frontend/Shortcodes/AvailabilityCalendar.php:273
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:191
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:696
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1759
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1972
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:40
 msgid "Maintenance"
 msgstr "Bakım"
@@ -3167,7 +3168,7 @@ msgstr "Bakım"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:737
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:749
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:761
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:303
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:357
 #: src-react/admin/about/components/InfoCard.jsx:14
 #: src-react/admin/about/components/SystemTab.jsx:24
 msgid "Yes"
@@ -3726,7 +3727,7 @@ msgstr "Detaylı"
 #: src/Admin/Core/AssetManager.php:1007
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:68
 #: src/Admin/Frontend/Widgets/Elementor/VehicleComparisonWidget.php:85
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:656
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:869
 #: assets/blocks/my-bookings/index.js:41
 #: assets/blocks/payment-history/index.js:39
 #: assets/blocks/testimonials/index.js:52
@@ -3735,7 +3736,7 @@ msgid "All"
 msgstr "Tümü"
 
 #: src/Admin/Core/AssetManager.php:1009
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:168
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:173
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:441
 msgid "Features"
 msgstr "Özellikler"
@@ -3867,7 +3868,7 @@ msgstr "Bilgi"
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:738
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:750
 #: src/Admin/Frontend/Widgets/Elementor/VehicleCardWidget.php:762
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:305
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:359
 #: src-react/admin/about/components/InfoCard.jsx:15
 #: src-react/admin/about/components/SystemTab.jsx:25
 msgid "No"
@@ -7134,14 +7135,14 @@ msgid "Fuel Type"
 msgstr "Yakıt tipi"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:277
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1538
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1751
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:819
 #: templates/shortcodes/search-results.php:245
 msgid "Transmission"
 msgstr "Vites"
 
 #: src/Admin/Frontend/Shortcodes/VehicleComparison.php:278
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1528
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1741
 #: src/Admin/Vehicle/Settings/VehicleSettings.php:817
 #: templates/shortcodes/search-results.php:262
 #: templates/shortcodes/vehicle-details.php:295
@@ -7479,9 +7480,9 @@ msgstr "Fiyat Belirtilmedi"
 
 #: src/Admin/Frontend/Shortcodes/VehiclesList.php:589
 #: src/Admin/Frontend/Widgets/Elementor/VehiclesGridWidget.php:76
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:171
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:303
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1588
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:179
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:357
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1801
 #: src/Admin/Vehicle/Meta/VehicleMeta.php:198
 msgid "Featured"
 msgstr "Öne Çıkan"
@@ -11449,7 +11450,7 @@ msgstr "%d eski günlük kayıtları temizlendi."
 
 #: src/Admin/Utilities/Menu/Menu.php:54
 #: src/Admin/Utilities/Menu/Menu.php:55
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1065
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1278
 #: src/Admin/Vehicle/PostType/Vehicle.php:30
 #: templates/single-vehicle.php:26
 msgid "Vehicles"
@@ -11607,122 +11608,122 @@ msgstr "Hata: Bu aracı zaten incelemişsiniz. Lütfen mevcut incelemenizi düze
 msgid "Duplicate Review"
 msgstr "Yinelenen İnceleme"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:163
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1604
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:169
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1817
 #: src/Admin/Vehicle/Templates/vehicle-meta.php:50
 msgid "Location"
 msgstr "Konum"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:165
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1513
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:174
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1726
 msgid "Price/Day"
 msgstr "Fiyat/Gün"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1552
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1765
 msgid "Fuel"
 msgstr "Yakıt"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:170
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:178
 msgid "Lifecycle"
 msgstr "Yaşam Döngüsü"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:364
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:421
 msgid "All availability statuses"
 msgstr "Tüm durumlar"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:384
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:441
 msgid "All locations"
 msgstr "Tüm konumlar"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:396
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:453
 msgid "All lifecycle states"
 msgstr "Tüm yaşam döngüsü durumları"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:398
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:455
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:166
 msgid "Paused"
 msgstr "Duraklatıldı"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:399
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:456
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:167
 msgid "Expired"
 msgstr "Süresi Doldu"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:400
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:457
 #: src/Admin/Vehicle/VehicleLifecycleStatus.php:168
 msgid "Withdrawn"
 msgstr "Geri Çekildi"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:401
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:458
 msgid "Archive (expired + withdrawn)"
 msgstr "Arşiv (süresi dolmuş + geri çekilmiş)"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:603
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1096
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:662
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1309
 msgid "Blocked — click to open"
 msgstr "Kapalı — açmak için tıkla"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:604
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1145
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:663
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1358
 msgid "Available — click to close"
 msgstr "Müsait — kapatmak için tıkla"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:605
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:664
 msgid "Could not update the day."
 msgstr "Gün güncellenemedi."
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:606
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:665
 msgid "Close this day for reservations?"
 msgstr "Bu günü rezervasyona kapatmak istiyor musunuz?"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:607
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:666
 msgid "Re-open this day for reservations?"
 msgstr "Bu günü tekrar rezervasyona açmak istiyor musunuz?"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:709
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:922
 msgid "This Month Occupancy"
 msgstr "Bu Ay Doluluk"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:711
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:924
 msgid "total vehicles"
 msgstr "toplam araç"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:700
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:913
 msgid "Active Today"
 msgstr "Bugün Aktif"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:702
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:915
 msgid "vehicles with customers"
 msgstr "müşterili araçlar"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:718
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:931
 msgid "This Month Revenue"
 msgstr "Bu Ayın Geliri"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1008
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1221
 msgid "Monthly Booking Calendar"
 msgstr "Aylık Rezervasyon Takvimi"
 
 #. translators: %s: customer name.
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1107
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1320
 #, php-format
 msgid "Reserved: %s"
 msgstr "Rezerve edildi: %s"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1178
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1391
 msgid "Blocked Day"
 msgstr "Kapalı Gün"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1231
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1444
 msgid "Date & Time"
 msgstr "Tarih & Saat"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1433
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1646
 #: templates/shortcodes/availability-calendar.php:241
 msgid "Reserved"
 msgstr "Rezerve"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1606
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:1819
 msgid "— No Location —"
 msgstr "— Konum Yok —"
 
@@ -15138,17 +15139,25 @@ msgstr[0] "%d gün"
 msgstr[1] "%d gün"
 
 #. translators: %d: seat count
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:226
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:292
 #, php-format
 msgid "%d seat"
 msgid_plural "%d seats"
 msgstr[0] "%d koltuk"
 msgstr[1] "%d koltuk"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:305
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:359
 msgid "Not featured"
 msgstr "Öne çıkarılmamış"
 
-#: src/Admin/Vehicle/ListTable/VehicleColumns.php:693
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:906
 msgid "reserved this month"
 msgstr "bu ay rezerve"
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:176
+msgid "This Week"
+msgstr "Bu Hafta"
+
+#: src/Admin/Vehicle/ListTable/VehicleColumns.php:707
+msgid "Blocked"
+msgstr "Kapalı"
