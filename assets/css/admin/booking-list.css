@@ -746,10 +746,19 @@ body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
    The calendar FACE itself lands in Task 5; today `view=calendar` only
    hides the list chrome so the (currently empty) content area below the
    toolbar doesn't show a stray list table alongside it. Bookings has no
-   cards face. */
+   cards face. Unlike Vehicles, pagination is not meaningful on this face,
+   so `.tablenav-pages` stays hidden on the TOP row too — but the BOTTOM
+   tablenav is hidden outright rather than targeted piece by piece: with
+   the list table gone the top and bottom rows collapse together, and a
+   selector that only hides bottom's `.bulkactions`/`.tablenav-pages`
+   individually still leaves an empty (but box-generating) bottom row
+   sitting directly under the top one. Hiding `.tablenav.bottom` wholesale
+   also makes it the sole source of truth for that row, so it isn't
+   fighting the top-scoped rules below over the same elements. */
 body.mhm-booking-list.mhm-view-calendar .wp-list-table,
-body.mhm-booking-list.mhm-view-calendar .tablenav .bulkactions,
-body.mhm-booking-list.mhm-view-calendar .tablenav-pages {
+body.mhm-booking-list.mhm-view-calendar .tablenav.top .bulkactions,
+body.mhm-booking-list.mhm-view-calendar .tablenav.top .tablenav-pages,
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom {
 	display: none;
 }
 
