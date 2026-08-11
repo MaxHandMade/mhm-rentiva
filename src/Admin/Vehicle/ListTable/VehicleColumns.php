@@ -1733,7 +1733,9 @@ final class VehicleColumns {
 		}
 
 		switch ($column_name) {
-			case 'mhmrentiva_license_plate':
+			case 'mhmrentiva_vehicle':
+				// The plate field re-anchors here: quick_edit_custom_box fires
+				// per COLUMN, and the standalone License Plate column is gone.
 				echo '<fieldset class="inline-edit-col-left">';
 				echo '<div class="inline-edit-col">';
 				echo '<label>';

@@ -157,6 +157,18 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
         $this->assertStringContainsString('name="mhmrentiva_fuel_type"', $html);
     }
 
+    public function test_quick_edit_plate_field_reanchored_to_the_vehicle_column(): void
+    {
+        // quick_edit_custom_box fires per COLUMN; when the standalone
+        // License Plate column went away, its field silently went with it
+        // (caught live: the input was missing from the quick-edit form).
+        ob_start();
+        VehicleColumns::quick_edit_fields('mhmrentiva_vehicle', 'mhmrentiva_vehicle');
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('name="mhmrentiva_license_plate"', $html);
+    }
+
     public function test_featured_cell_renders_a_star_not_text(): void
     {
         $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle'));
