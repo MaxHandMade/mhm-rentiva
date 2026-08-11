@@ -168,11 +168,12 @@
    width the auto table layout squeezes the column and the strip bleeds
    under the neighbouring Available pill (user-reported overlap). */
 .mhm-vehicle-list .column-mhmrentiva_week {
-	min-width: 156px;
+	min-width: 176px;
+	padding-right: 20px;
 }
 
 .mhm-vehicle-list .column-mhmrentiva_available {
-	padding-left: 16px;
+	padding-left: 28px;
 }
 
 .mhm-vehicle-list .rv-vhl-week {
