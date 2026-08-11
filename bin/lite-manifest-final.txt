@@ -14,6 +14,8 @@ src/Admin/Addons/AddonPricingCalculator.php
 src/Admin/Addons/AddonPricingType.php
 src/Admin/Addons/AddonSettings.php
 src/Admin/Auth/SessionManager.php
+src/Admin/Booking/Actions/BookingActionGuard.php
+src/Admin/Booking/Actions/BookingApproveAjax.php
 src/Admin/Booking/Actions/DepositManagementAjax.php
 src/Admin/Booking/Addons/AddonBooking.php
 src/Admin/Booking/Core/Handler.php
@@ -38,6 +40,7 @@ src/Admin/Core/CurrencyHelper.php
 src/Admin/Core/Exceptions/MHMException.php
 src/Admin/Core/Helpers/Sanitizer.php
 src/Admin/Core/LanguageHelper.php
+src/Admin/Core/ListTable/FleetOccupancyMatrix.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
 src/Admin/Core/MetaKeys.php
 src/Admin/Core/PerformanceHelper.php
@@ -57,6 +60,7 @@ src/Admin/Core/Utilities/DatabaseMigrator.php
 src/Admin/Core/Utilities/ErrorHandler.php
 src/Admin/Core/Utilities/MetaQueryHelper.php
 src/Admin/Core/Utilities/ObjectCache.php
+src/Admin/Core/Utilities/OccupancyMapService.php
 src/Admin/Core/Utilities/PrefixMigrationMap.php
 src/Admin/Core/Utilities/QueueManager.php
 src/Admin/Core/Utilities/RateLimiter.php
