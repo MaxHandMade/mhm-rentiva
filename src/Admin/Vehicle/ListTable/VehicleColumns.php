@@ -682,32 +682,28 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Per-request cache for the 7-day strip booking map.
-	 *
-	 * @var array<int, array<string, string>>|null vehicle_id => [Y-m-d => status]
-	 */
-	private static ?array $week_bookings_map = null;
-
-	/**
 	 * Build the 7-day availability strip for one vehicle row.
 	 *
-	 * Booking data comes from ONE query for the whole screen (see
-	 * get_week_bookings_map()) — no per-row SQL; blocked days come from the
-	 * vehicle's own meta via the existing accessor.
+	 * Booking data comes from ONE query for the whole screen
+	 * (OccupancyMapService::get_map()) — no per-row SQL; blocked days come
+	 * from the vehicle's own meta via the existing accessor.
 	 *
 	 * @return array<int, array{class: string, label: string, title: string}>
 	 */
 	public static function get_week_strip(int $post_id): array
 	{
-		$map     = self::get_week_bookings_map();
-		$blocked = \MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::get_blocked_dates($post_id);
-		$base_ts = strtotime(current_time('Y-m-d'));
+		$today    = current_time('Y-m-d');
+		$week_end = gmdate('Y-m-d', strtotime('+6 days', strtotime($today)));
+		$map      = \MHMRentiva\Admin\Core\Utilities\OccupancyMapService::get_map($today, $week_end);
+		$blocked  = \MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::get_blocked_dates($post_id);
+		$base_ts  = strtotime($today);
 
 		$strip = array();
 		for ($i = 0; $i < 7; $i++) {
-			$ts     = strtotime('+' . $i . ' days', $base_ts);
-			$date   = gmdate('Y-m-d', $ts);
-			$status = $map[ $post_id ][ $date ] ?? '';
+			$ts      = strtotime('+' . $i . ' days', $base_ts);
+			$date    = gmdate('Y-m-d', $ts);
+			$entries = $map[ $post_id ][ $date ] ?? array();
+			$status  = \MHMRentiva\Admin\Core\Utilities\OccupancyMapService::reduce($entries);
 			if (in_array($date, $blocked, true)) {
 				$status = 'blocked';
 			}
@@ -746,107 +742,6 @@ final class VehicleColumns {
 		}
 
 		return $strip;
-	}
-
-	/**
-	 * One query for every strip on the screen: bookings overlapping the next
-	 * 7 days, mapped vehicle_id => day => strongest status. The window is a
-	 * week, so the unfiltered result set is small; filtering per vehicle
-	 * happens in PHP — keeps the SQL free of dynamic IN() lists.
-	 *
-	 * @return array<int, array<string, string>>
-	 */
-	private static function get_week_bookings_map(): array
-	{
-		if (null !== self::$week_bookings_map) {
-			return self::$week_bookings_map;
-		}
-
-		global $wpdb;
-
-		$start = current_time('Y-m-d');
-		$end   = gmdate('Y-m-d', strtotime('+6 days', strtotime($start)));
-
-		// Short-lived transient: the scan below walks the FULL booking
-		// history (postmeta values are unindexed), so it must not run on
-		// every list load. The key sits under the same
-		// `mhmrentiva_vehicle_stats_%` pattern clear_vehicle_stats_cache()
-		// deletes, so booking/vehicle saves invalidate it immediately.
-		$cache_key = 'mhmrentiva_vehicle_stats_weekmap_' . $start;
-		$cached    = get_transient($cache_key);
-		if (is_array($cached)) {
-			self::$week_bookings_map = $cached;
-			return $cached;
-		}
-
-		$rows = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT COALESCE(NULLIF(pm_v1.meta_value, ''), pm_v2.meta_value) AS vehicle_id,
-                        COALESCE(NULLIF(pm_p1.meta_value, ''), pm_p2.meta_value) AS pickup_date,
-                        COALESCE(NULLIF(pm_d1.meta_value, ''), pm_d2.meta_value, pm_d3.meta_value) AS dropoff_date,
-                        pm_s.meta_value AS status
-                FROM {$wpdb->posts} b
-                INNER JOIN {$wpdb->postmeta} pm_s ON b.ID = pm_s.post_id AND pm_s.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_v1 ON b.ID = pm_v1.post_id AND pm_v1.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_v2 ON b.ID = pm_v2.post_id AND pm_v2.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_p1 ON b.ID = pm_p1.post_id AND pm_p1.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_p2 ON b.ID = pm_p2.post_id AND pm_p2.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_d1 ON b.ID = pm_d1.post_id AND pm_d1.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_d2 ON b.ID = pm_d2.post_id AND pm_d2.meta_key = %s
-                LEFT JOIN {$wpdb->postmeta} pm_d3 ON b.ID = pm_d3.post_id AND pm_d3.meta_key = %s
-                WHERE b.post_type = %s
-                AND b.post_status IN ('publish', 'private', 'pending')
-                AND pm_s.meta_value IN ('pending', 'confirmed', 'in_progress', 'completed')
-                HAVING vehicle_id IS NOT NULL AND pickup_date IS NOT NULL AND dropoff_date IS NOT NULL
-                AND pickup_date <= %s AND dropoff_date >= %s",
-				'_mhmrentiva_status',
-				'_mhmrentiva_vehicle_id',
-				'_mhmrentiva_booking_vehicle_id',
-				'_mhmrentiva_pickup_date',
-				'_mhmrentiva_booking_pickup_date',
-				'_mhmrentiva_dropoff_date',
-				'_mhmrentiva_return_date',
-				'_mhmrentiva_end_date',
-				'mhmrentiva_booking',
-				$end,
-				$start
-			)
-		);
-
-		$precedence = array(
-			'completed'   => 1,
-			'pending'     => 2,
-			'confirmed'   => 3,
-			'in_progress' => 4,
-		);
-
-		$map      = array();
-		$start_ts = strtotime($start);
-		$end_ts   = strtotime($end);
-
-		foreach ( (array) $rows as $row) {
-			$vehicle_id = (int) $row->vehicle_id;
-			$pickup_ts  = strtotime( (string) $row->pickup_date);
-			$dropoff_ts = strtotime( (string) $row->dropoff_date);
-			if ($vehicle_id <= 0 || false === $pickup_ts || false === $dropoff_ts) {
-				continue;
-			}
-
-			$from = max($pickup_ts, $start_ts);
-			$to   = min($dropoff_ts, $end_ts);
-			for ($ts = $from; $ts <= $to; $ts += DAY_IN_SECONDS) {
-				$day      = gmdate('Y-m-d', $ts);
-				$existing = $map[ $vehicle_id ][ $day ] ?? '';
-				if ('' === $existing || ( $precedence[ $row->status ] ?? 0 ) > ( $precedence[ $existing ] ?? 0 )) {
-					$map[ $vehicle_id ][ $day ] = (string) $row->status;
-				}
-			}
-		}
-
-		set_transient($cache_key, $map, 5 * MINUTE_IN_SECONDS);
-
-		self::$week_bookings_map = $map;
-		return $map;
 	}
 
 	/**
@@ -2065,27 +1960,13 @@ final class VehicleColumns {
 	 * Clear all vehicle statistics caches.
 	 *
 	 * Pairs with the transient writer in get_vehicle_stats() (re-enabled in
-	 * the Faz 1b round). Known limit shared with the rest of the codebase:
-	 * raw option-table DELETEs do not reach an external object cache backing
-	 * transients — the 5-minute TTL bounds the staleness there; a dedicated
-	 * class sweep is tracked separately.
+	 * the Faz 1b round). Delegates to OccupancyMapService::invalidate() —
+	 * the body moved there so the occupancy map service can invalidate
+	 * itself without depending on this class; kept here because other code
+	 * still calls this method directly.
 	 */
 	public static function clear_vehicle_stats_cache(): void
 	{
-		global $wpdb;
-
-		// Clear vehicle stats caches for all users
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_mhmrentiva_vehicle_stats_%'
-			)
-		);
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s",
-				'_transient_timeout_mhmrentiva_vehicle_stats_%'
-			)
-		);
+		\MHMRentiva\Admin\Core\Utilities\OccupancyMapService::invalidate();
 	}
 }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Vehicle\ListTable;
 
+use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
 use MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns;
 use WP_UnitTestCase;
 
@@ -99,11 +100,9 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
         // which names a different (legacy) key the accessor never reads.
         update_post_meta($vehicle, '_mhmrentiva_blocked_dates', wp_json_encode(array($blocked_day)));
 
-        // The per-request booking map is a static cache; reset it so this
+        // The per-request occupancy map is a static memo; reset it so this
         // test sees its own fixtures regardless of run order.
-        $prop = new \ReflectionProperty(VehicleColumns::class, 'week_bookings_map');
-        $prop->setAccessible(true);
-        $prop->setValue(null, null);
+        OccupancyMapService::reset_memo();
 
         $strip = VehicleColumns::get_week_strip($vehicle);
 
