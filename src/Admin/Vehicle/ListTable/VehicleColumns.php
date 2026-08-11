@@ -158,8 +158,9 @@ final class VehicleColumns {
 		// Category chip strip between the KPI band and the calendar.
 		add_action('admin_notices', array( self::class, 'category_chips' ), 15);
 
-		// Add monthly reservation calendar
-		add_action('admin_notices', array( self::class, 'add_monthly_calendar' ), 20);
+		// Calendar face (Faz 2 view engine) — replaces the old
+		// add_monthly_calendar() in the same admin_notices slot.
+		add_action('admin_notices', array( self::class, 'render_calendar_view' ), 20);
 	}
 
 	/**
@@ -683,7 +684,8 @@ final class VehicleColumns {
 			' );
 
 			// Monthly calendar popup + quick block/unblock toggle (rendered by
-			// add_monthly_calendar()). Replaces the former inline script block.
+			// render_calendar_view() via FleetOccupancyMatrix). Replaces the
+			// former inline script block.
 			wp_enqueue_script(
 				'mhm-rentiva-vehicle-calendar-popup',
 				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-calendar-popup.js',
@@ -1153,546 +1155,80 @@ final class VehicleColumns {
 	}
 
 	/**
-	 * Add monthly reservation calendar
+	 * Calendar face (Faz 2 view engine). Replaces the old
+	 * add_monthly_calendar()/get_monthly_bookings()/get_calendar_vehicles()
+	 * trio: rows come straight from the main query's current page (category
+	 * chip + search + native pagination already applied by WordPress), and
+	 * painting is delegated to the shared FleetOccupancyMatrix renderer
+	 * both this screen and the Bookings Calendar face (Task 5) use.
+	 *
+	 * Registered in the SAME admin_notices slot (priority 20) the old
+	 * renderer held, so vehicle-list-ui.js's `.mhm-calendars` relocation
+	 * still finds its target here without any JS change.
 	 */
-	public static function add_monthly_calendar(): void
+	public static function render_calendar_view(): void
 	{
 		global $pagenow, $post_type;
 
-		// Show only on vehicle list page
 		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
 			return;
 		}
 
-		// Faz 2 view engine: this renderer is the LIST face's calendar band.
-		// Its retirement (a real calendar FACE replacing it) is Tasks 4-6 —
-		// here it only needs to stop rendering on non-list faces so the two
-		// don't stack.
-		if ('list' !== self::get_current_view()) {
+		// AutoCancel fallback, relocated from the old add_monthly_calendar():
+		// must run on EVERY face of this screen (list included), not just
+		// calendar, so it fires here — before the face branch below — since
+		// this is the admin_notices-registered method that decides whether
+		// the calendar face renders at all.
+		self::maybe_run_autocancel();
+
+		if ('calendar' !== self::get_current_view()) {
 			return;
 		}
 
-		$current_month = (int) gmdate('n');
-		$current_year  = (int) gmdate('Y');
+		// Month/year bounds: current year ± 10, the same rule
+		// BookingColumns::add_booking_calendar() already used — the
+		// vehicles-only hardcoded 2020-2030 rule dies with the old renderer.
+		$current_month = self::get_query_int('mhmrentiva_month', (int) gmdate('n'));
+		$current_year  = self::get_query_int('mhmrentiva_year', (int) gmdate('Y'));
 
-		$month = self::get_query_int('mhmrentiva_month');
-		if ($month >= 1 && $month <= 12) {
-			$current_month = $month;
+		if ($current_month < 1 || $current_month > 12) {
+			$current_month = (int) gmdate('n');
+		}
+		$this_year = (int) gmdate('Y');
+		if ($current_year < ( $this_year - 10 ) || $current_year > ( $this_year + 10 )) {
+			$current_year = $this_year;
 		}
 
-		$year = self::get_query_int('mhmrentiva_year');
-		if ($year >= 2020 && $year <= 2030) {
-			$current_year = $year;
-		}
+		global $wp_query;
+		$vehicles = ( $wp_query instanceof \WP_Query ) ? $wp_query->posts : array();
 
-		// Dynamic month names (i18n supported)
-		$month_names = array(
-			1  => __('January', 'mhm-rentiva'),
-			2  => __('February', 'mhm-rentiva'),
-			3  => __('March', 'mhm-rentiva'),
-			4  => __('April', 'mhm-rentiva'),
-			5  => __('May', 'mhm-rentiva'),
-			6  => __('June', 'mhm-rentiva'),
-			7  => __('July', 'mhm-rentiva'),
-			8  => __('August', 'mhm-rentiva'),
-			9  => __('September', 'mhm-rentiva'),
-			10 => __('October', 'mhm-rentiva'),
-			11 => __('November', 'mhm-rentiva'),
-			12 => __('December', 'mhm-rentiva'),
+		\MHMRentiva\Admin\Core\ListTable\FleetOccupancyMatrix::render(
+			$vehicles,
+			$current_month,
+			$current_year,
+			array(
+				'show_plate'          => true,
+				'enable_block_toggle' => true,
+				'screen'              => 'vehicles',
+			)
 		);
+	}
 
-		// Trigger auto-cancel on calendar load so expired pending bookings are cleaned
-		// even when WP-Cron is unreliable (localhost / Docker environments).
-		// Rate-limited to once per 60 seconds to avoid overhead on rapid refreshes.
+	/**
+	 * AutoCancel fallback: expired pending bookings get cancelled here even
+	 * when WP-Cron is unreliable (localhost/Docker). Throttled to once per
+	 * 60 seconds via transient, exactly as the old add_monthly_calendar()
+	 * did — only the trigger site moved, so it now runs on every face
+	 * (list/cards/calendar) instead of accidentally only the list face.
+	 */
+	private static function maybe_run_autocancel(): void
+	{
 		if (class_exists(\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::class)
 			&& ! get_transient('mhmrentiva_autocancel_ran')
 		) {
 			\MHMRentiva\Admin\PostTypes\Maintenance\AutoCancel::run();
 			set_transient('mhmrentiva_autocancel_ran', 1, 60);
 		}
-
-		// Get vehicles
-		$vehicles = self::get_calendar_vehicles();
-
-		// Get reservation data
-		$bookings = self::get_monthly_bookings($current_month, $current_year);
-
-		?>
-		<div class="mhm-calendars">
-			<!-- Calendar Header -->
-			<div class="calendar-header">
-				<h2><?php esc_html_e('Monthly Booking Calendar', 'mhm-rentiva'); ?></h2>
-
-				<!-- Month Navigation -->
-				<div class="calendar-navigation">
-					<?php
-					$prev_month = $current_month == 1 ? 12 : $current_month - 1;
-					$prev_year  = $current_month == 1 ? $current_year - 1 : $current_year;
-					$next_month = $current_month == 12 ? 1 : $current_month + 1;
-					$next_year  = $current_month == 12 ? $current_year + 1 : $current_year;
-					?>
-
-					<a href="
-					<?php
-					echo esc_url(
-						add_query_arg(
-							array(
-								'mhmrentiva_month' => $prev_month,
-								'mhmrentiva_year'  => $prev_year,
-							)
-						)
-					);
-					?>
-								"
-						class="calendar-nav-btn prev-btn" data-action="prev">
-						<span class="dashicons dashicons-arrow-left-alt2"></span>
-						<?php echo esc_html($month_names[ $prev_month ]); ?>
-					</a>
-
-					<div class="calendar-current">
-						<strong><?php echo esc_html($month_names[ $current_month ] . ' ' . $current_year); ?></strong>
-					</div>
-
-					<a href="
-					<?php
-					echo esc_url(
-						add_query_arg(
-							array(
-								'mhmrentiva_month' => $next_month,
-								'mhmrentiva_year'  => $next_year,
-							)
-						)
-					);
-					?>
-								"
-						class="calendar-nav-btn next-btn" data-action="next">
-						<?php echo esc_html($month_names[ $next_month ]); ?>
-						<span class="dashicons dashicons-arrow-right-alt2"></span>
-					</a>
-				</div>
-			</div>
-
-			<!-- Calendar Table -->
-			<div class="calendar-container">
-				<div class="calendar-table-wrapper">
-					<table class="calendar-table">
-						<thead>
-							<tr>
-								<th class="vehicle-column"><?php esc_html_e('Vehicles', 'mhm-rentiva'); ?></th>
-								<?php
-								// Create days of the month
-								$calendar_date = new \DateTimeImmutable(
-									sprintf('%04d-%02d-01', (int) $current_year, (int) $current_month),
-									new \DateTimeZone('UTC')
-								);
-								$days_in_month = (int) $calendar_date->format('t');
-								for ($day = 1; $day <= $days_in_month; $day++) {
-									echo '<th class="day-header">' . esc_html($day) . '</th>';
-								}
-								?>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ($vehicles as $vehicle) : ?>
-								<tr>
-									<td class="vehicle-info">
-										<div class="vehicle-name"><?php echo esc_html($vehicle['title']); ?></div>
-										<div class="vehicle-plate"><?php echo esc_html($vehicle['plate']); ?></div>
-									</td>
-									<?php
-									// Check reservation status for each day
-									for ($day = 1; $day <= $days_in_month; $day++) {
-										$date = sprintf('%04d-%02d-%02d', $current_year, $current_month, $day);
-
-										// Blocked day check — takes priority over booking logic
-										$date_str   = gmdate( 'Y-m-d', mktime( 0, 0, 0, $current_month, $day, $current_year ) );
-										$is_blocked = in_array( $date_str, $vehicle['blocked_dates'] ?? array(), true );
-
-										if ( $is_blocked ) {
-											echo '<td class="day-cell blocked-day" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr__( 'Blocked — click to open', 'mhm-rentiva' ) . '"></td>';
-											continue;
-										}
-
-										$is_booked = isset($bookings[ $vehicle['id'] ][ $date ]);
-
-										$class = $is_booked ? 'day-cell booked' : 'day-cell available';
-
-										if ($is_booked) {
-											$booking_data = $bookings[ $vehicle['id'] ][ $date ];
-											/* translators: %s: customer name. */
-											$title = sprintf(esc_attr__('Reserved: %s', 'mhm-rentiva'), $booking_data['customer_name']);
-
-											// Status-based color system
-											$status        = $booking_data['status'] ?? 'pending';
-											$status_colors = array(
-												'pending' => 'status-pending',      // 🟡 Yellow
-												'confirmed' => 'status-confirmed',  // 🟢 Green
-												'completed' => 'status-completed',  // 🔵 Blue
-												'cancelled' => 'status-cancelled',   // 🔴 Red
-											);
-
-											$status_class = $status_colors[ $status ] ?? 'status-pending';
-											$class        = 'day-cell booked ' . $status_class;
-
-											// Get translated status label
-											$status_label = \MHMRentiva\Admin\Booking\Core\Status::get_label($status);
-
-											// Data attributes for popup. Values are passed raw and escaped by
-											// Html::echo_data_attributes() as each one is written out.
-											$data_attrs = array(
-												'booking-id' => $booking_data['booking_id'],
-												'customer-name' => $booking_data['customer_name'],
-												'customer-email' => $booking_data['customer_email'],
-												'customer-phone' => $booking_data['customer_phone'],
-												'total-price' => $booking_data['total_price'],
-												'status'   => $booking_data['status'],
-												'status-label' => $status_label,
-												'start-date' => $booking_data['start_date'],
-												'end-date' => $booking_data['end_date'],
-												'start-time' => $booking_data['start_time'] ?? '',
-												'end-time' => $booking_data['end_time'] ?? '',
-												'created-date' => $booking_data['created_date'],
-											);
-
-											echo '<td class="' . esc_attr($class) . '" title="' . esc_attr($title) . '"';
-											\MHMRentiva\Helpers\Html::echo_data_attributes($data_attrs);
-											echo ' data-booking-popup>';
-										} else {
-											$title = __('Available — click to close', 'mhm-rentiva');
-											echo '<td class="' . esc_attr($class) . '" data-vehicle-id="' . esc_attr( (string) $vehicle['id'] ) . '" data-date="' . esc_attr( $date_str ) . '" title="' . esc_attr($title) . '">';
-										}
-
-										echo $is_booked ? '<span class="dashicons dashicons-calendar-alt booking-icon"></span>' : '';
-										echo '</td>';
-									}
-									?>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
-				</div>
-			</div>
-
-			<!-- Status Color Information -->
-			<div class="calendar-legend">
-				<h4><?php esc_html_e('Status Legend', 'mhm-rentiva'); ?></h4>
-				<div class="legend-items">
-					<div class="legend-item">
-						<span class="legend-color status-pending"></span>
-						<span class="legend-label"><?php esc_html_e('Pending', 'mhm-rentiva'); ?></span>
-					</div>
-					<div class="legend-item">
-						<span class="legend-color status-confirmed"></span>
-						<span class="legend-label"><?php esc_html_e('Confirmed', 'mhm-rentiva'); ?></span>
-					</div>
-					<div class="legend-item">
-						<span class="legend-color status-completed"></span>
-						<span class="legend-label"><?php esc_html_e('Completed', 'mhm-rentiva'); ?></span>
-					</div>
-					<div class="legend-item">
-						<span class="legend-color legend-blocked-day"></span>
-						<span class="legend-label"><?php esc_html_e( 'Blocked Day', 'mhm-rentiva' ); ?></span>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- Booking Popup Modal -->
-		<div id="mhm-booking-popup" class="mhm-popup-modal" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="mhm-popup-title">
-			<div class="mhm-popup-overlay"></div>
-			<div class="mhm-popup-content">
-				<div class="mhm-popup-header">
-					<div class="mhm-popup-header-left">
-						<span class="dashicons dashicons-calendar-alt mhm-popup-header-icon"></span>
-						<div>
-							<h3 id="mhm-popup-title"><?php esc_html_e('Booking Details', 'mhm-rentiva'); ?></h3>
-							<span class="mhm-popup-booking-id"></span>
-						</div>
-					</div>
-					<div class="mhm-popup-header-right">
-						<span id="popup-status-badge" class="mhm-popup-status-badge"></span>
-						<button class="mhm-popup-close" type="button" aria-label="<?php esc_attr_e('Close', 'mhm-rentiva'); ?>">
-							<span class="dashicons dashicons-no-alt"></span>
-						</button>
-					</div>
-				</div>
-
-				<div class="mhm-popup-body">
-					<!-- Customer Section -->
-					<div class="mhm-popup-section">
-						<div class="mhm-popup-section-title">
-							<span class="dashicons dashicons-admin-users"></span>
-							<?php esc_html_e('Customer', 'mhm-rentiva'); ?>
-						</div>
-						<div class="booking-info-grid">
-							<div class="info-item">
-								<label><?php esc_html_e('Name', 'mhm-rentiva'); ?></label>
-								<span id="popup-customer-name">—</span>
-							</div>
-							<div class="info-item">
-								<label><?php esc_html_e('Email', 'mhm-rentiva'); ?></label>
-								<span id="popup-customer-email">—</span>
-							</div>
-							<div class="info-item">
-								<label><?php esc_html_e('Phone', 'mhm-rentiva'); ?></label>
-								<span id="popup-customer-phone">—</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- Date & Time Section -->
-					<div class="mhm-popup-section">
-						<div class="mhm-popup-section-title">
-							<span class="dashicons dashicons-clock"></span>
-							<?php esc_html_e('Date & Time', 'mhm-rentiva'); ?>
-						</div>
-						<div class="booking-info-grid booking-info-grid--dates">
-							<div class="info-item">
-								<label><?php esc_html_e('Pickup', 'mhm-rentiva'); ?></label>
-								<span id="popup-start-date" class="info-date">—</span>
-								<span id="popup-start-time" class="info-time">—</span>
-							</div>
-							<div class="info-item">
-								<label><?php esc_html_e('Return', 'mhm-rentiva'); ?></label>
-								<span id="popup-end-date" class="info-date">—</span>
-								<span id="popup-end-time" class="info-time">—</span>
-							</div>
-						</div>
-					</div>
-
-					<!-- Booking Info Section -->
-					<div class="mhm-popup-section mhm-popup-section--last">
-						<div class="mhm-popup-section-title">
-							<span class="dashicons dashicons-tickets-alt"></span>
-							<?php esc_html_e('Booking Info', 'mhm-rentiva'); ?>
-						</div>
-						<div class="booking-info-grid">
-							<div class="info-item">
-								<label><?php esc_html_e('Total Price', 'mhm-rentiva'); ?></label>
-								<span id="popup-total-price" class="info-price">—</span>
-							</div>
-							<div class="info-item">
-								<label><?php esc_html_e('Created', 'mhm-rentiva'); ?></label>
-								<span id="popup-created-date">—</span>
-							</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="mhm-popup-footer">
-					<button class="button button-primary mhm-popup-edit-btn" id="popup-edit-booking" type="button">
-						<span class="dashicons dashicons-edit"></span>
-						<?php esc_html_e('Edit Booking', 'mhm-rentiva'); ?>
-					</button>
-				</div>
-			</div>
-		</div>
-
-		<?php
-		// Popup + day-toggle behavior is enqueued as assets/js/admin/vehicle-calendar-popup.js.
-	}
-
-	/**
-	 * Get vehicles for calendar
-	 */
-	private static function get_calendar_vehicles(): array
-	{
-		global $wpdb;
-
-		$vehicles = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT p.ID, p.post_title, pm.meta_value as plate
-             FROM {$wpdb->posts} p 
-             LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id AND pm.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status = %s
-             ORDER BY p.post_title ASC",
-				'_mhmrentiva_license_plate',
-				'mhmrentiva_vehicle',
-				'publish'
-			)
-		);
-
-		$result = array();
-		foreach ($vehicles as $vehicle) {
-			$result[] = array(
-				'id'            => $vehicle->ID,
-				'title'         => $vehicle->post_title,
-				'plate'         => $vehicle->plate ?: '—',
-				'blocked_dates' => \MHMRentiva\Admin\Vehicle\Meta\BlockedDatesMetaBox::get_blocked_dates( (int) $vehicle->ID ),
-			);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Get monthly reservation data
-	 */
-	private static function get_monthly_bookings(int $month, int $year): array
-	{
-		global $wpdb;
-
-		$month_date    = new \DateTimeImmutable(
-			sprintf('%04d-%02d-01', (int) $year, (int) $month),
-			new \DateTimeZone('UTC')
-		);
-		$days_in_month = (int) $month_date->format('t');
-		$start_date    = sprintf('%04d-%02d-01', (int) $year, (int) $month);
-		$end_date      = sprintf('%04d-%02d-%02d', (int) $year, (int) $month, $days_in_month);
-
-		// Use same meta keys as dashboard - detailed data for popup
-		$bookings = $wpdb->get_results(
-			$wpdb->prepare(
-				"
-            SELECT
-                p.ID as booking_id,
-                p.post_title as booking_title,
-                pm_vehicle.meta_value as vehicle_id,
-                pm_start.meta_value as start_date,
-                pm_end.meta_value as end_date,
-                pm_start_time.meta_value as start_time,
-                pm_end_time.meta_value as end_time,
-                pm_customer.meta_value as customer_name,
-                pm_customer_email.meta_value as customer_email,
-                pm_customer_phone.meta_value as customer_phone,
-                pm_total_price.meta_value as total_price,
-                pm_status.meta_value as status,
-                p.post_date as created_date
-            FROM {$wpdb->posts} p
-            LEFT JOIN {$wpdb->postmeta} pm_vehicle ON p.ID = pm_vehicle.post_id
-                AND pm_vehicle.meta_key = '_mhmrentiva_vehicle_id'
-            LEFT JOIN {$wpdb->postmeta} pm_start ON p.ID = pm_start.post_id
-                AND pm_start.meta_key = '_mhmrentiva_pickup_date'
-            LEFT JOIN {$wpdb->postmeta} pm_end ON p.ID = pm_end.post_id
-                AND pm_end.meta_key = '_mhmrentiva_dropoff_date'
-            LEFT JOIN {$wpdb->postmeta} pm_start_time ON p.ID = pm_start_time.post_id
-                AND pm_start_time.meta_key = '_mhmrentiva_start_time'
-            LEFT JOIN {$wpdb->postmeta} pm_end_time ON p.ID = pm_end_time.post_id
-                AND pm_end_time.meta_key = '_mhmrentiva_end_time'
-            LEFT JOIN {$wpdb->postmeta} pm_customer ON p.ID = pm_customer.post_id
-                AND pm_customer.meta_key = '_mhmrentiva_customer_name'
-            LEFT JOIN {$wpdb->postmeta} pm_customer_email ON p.ID = pm_customer_email.post_id
-                AND pm_customer_email.meta_key = '_mhmrentiva_customer_email'
-            LEFT JOIN {$wpdb->postmeta} pm_customer_phone ON p.ID = pm_customer_phone.post_id
-                AND pm_customer_phone.meta_key = '_mhmrentiva_customer_phone'
-            LEFT JOIN {$wpdb->postmeta} pm_total_price ON p.ID = pm_total_price.post_id
-                AND pm_total_price.meta_key = '_mhmrentiva_total_price'
-            LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id
-                AND pm_status.meta_key = '_mhmrentiva_status'
-            LEFT JOIN {$wpdb->postmeta} pm_deadline ON p.ID = pm_deadline.post_id
-                AND pm_deadline.meta_key = '_mhmrentiva_payment_deadline'
-            WHERE p.post_type = 'mhmrentiva_booking'
-                AND p.post_status = 'publish'
-                AND pm_start.meta_value <= %s
-                AND pm_end.meta_value >= %s
-                AND pm_vehicle.meta_value IS NOT NULL
-                AND pm_status.meta_value IN ('pending_payment', 'pending', 'confirmed', 'in_progress', 'completed')
-                AND (
-                    pm_status.meta_value NOT IN ('pending_payment', 'pending') OR
-                    pm_deadline.meta_value IS NULL OR
-                    pm_deadline.meta_value = '' OR
-                    pm_deadline.meta_value > %s
-                )
-        ",
-				$end_date,
-				$start_date,
-				current_time('mysql', 1)
-			)
-		);
-
-		$result = array();
-		foreach ($bookings as $booking) {
-			if (! $booking->vehicle_id || ! $booking->start_date || ! $booking->end_date) {
-				continue;
-			}
-
-			// Get customer info using BookingQueryHelper (handles WooCommerce & WordPress integration)
-			$customer_info = array();
-			if (class_exists('\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper')) {
-				$customer_info = \MHMRentiva\Admin\Core\Utilities\BookingQueryHelper::getBookingCustomerInfo( (int) $booking->booking_id);
-			}
-
-			// Build customer name from first_name and last_name
-			$customer_name = '';
-			if (! empty($customer_info['first_name']) && ! empty($customer_info['last_name'])) {
-				$customer_name = trim($customer_info['first_name'] . ' ' . $customer_info['last_name']);
-			} elseif (! empty($customer_info['first_name'])) {
-				$customer_name = $customer_info['first_name'];
-			} elseif (! empty($customer_info['last_name'])) {
-				$customer_name = $customer_info['last_name'];
-			}
-
-			// Fallback to SQL result if BookingQueryHelper didn't find anything
-			if (empty($customer_name)) {
-				$customer_name = $booking->customer_name ?: '';
-			}
-
-			// Use customer info from BookingQueryHelper (prioritizes WooCommerce/WordPress data)
-			$customer_email = ! empty($customer_info['email']) ? $customer_info['email'] : ( $booking->customer_email ?: '' );
-			$customer_phone = ! empty($customer_info['phone']) ? $customer_info['phone'] : ( $booking->customer_phone ?: '' );
-
-			// Normalize date format
-			$start_date = self::normalize_date($booking->start_date);
-			$end_date   = self::normalize_date($booking->end_date);
-
-			if (! $start_date || ! $end_date) {
-				continue;
-			}
-
-			// Mark each day in the date range
-			$current = new \DateTime($start_date);
-			$end     = new \DateTime($end_date);
-
-			while ($current <= $end) {
-				$date                                    = $current->format('Y-m-d');
-				$result[ $booking->vehicle_id ][ $date ] = array(
-					'customer_name'  => $customer_name ?: __('Reserved', 'mhm-rentiva'),
-					'booking_id'     => $booking->booking_id,
-					'booking_title'  => $booking->booking_title,
-					'customer_email' => $customer_email,
-					'customer_phone' => $customer_phone,
-					'total_price'    => $booking->total_price,
-					'status'         => $booking->status,
-					'start_date'     => $start_date,
-					'end_date'       => $end_date,
-					'start_time'     => $booking->start_time ?: '',
-					'end_time'       => $booking->end_time ?: '',
-					'created_date'   => $booking->created_date,
-				);
-				$current->add(new \DateInterval('P1D'));
-			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Normalize date to YYYY-MM-DD format
-	 */
-	private static function normalize_date(string $date): ?string
-	{
-		if (empty($date)) {
-			return null;
-		}
-
-		// If already in YYYY-MM-DD format
-		if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
-			return $date;
-		}
-
-		// If in DD.MM.YYYY format
-		if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $date)) {
-			$parts = explode('.', $date);
-			return $parts[2] . '-' . $parts[1] . '-' . $parts[0];
-		}
-
-		// Try other formats
-		$timestamp = strtotime($date);
-		if ($timestamp !== false) {
-			return gmdate('Y-m-d', $timestamp);
-		}
-
-		return null;
 	}
 
 	/**
