@@ -69,7 +69,17 @@ final class BookingColumns {
 		'mhmrentiva_year',
 		'mhmrentiva_customer_email',
 		'mhmrentiva_customer_id',
+		// View engine (Faz 2): which face of the screen is active. Same
+		// bookmarkable-display-parameter reasoning as the params above.
+		'mhmrentiva_view',
 	);
+
+	/**
+	 * Faces this screen offers, in display order. Bookings has no cards face.
+	 *
+	 * @var array<int, string>
+	 */
+	private const VIEWS = array( 'list', 'calendar' );
 
 	/**
 	 * `query_vars` filter callback.
@@ -116,6 +126,17 @@ final class BookingColumns {
 		return absint( wp_unslash( (string) $value ) );
 	}
 
+	/**
+	 * Whitelisted view-face getter — the ONLY way this screen's code reads
+	 * `mhmrentiva_view`. Anything outside VIEWS (including an absent param)
+	 * resolves to 'list', so the list-face guards below have a single safe
+	 * default to reason about.
+	 */
+	public static function get_current_view(): string {
+		$view = self::get_query_text( 'mhmrentiva_view' );
+		return in_array( $view, self::VIEWS, true ) ? $view : 'list';
+	}
+
 	public static function register(): void {
 		add_filter( 'query_vars', array( self::class, 'register_query_vars' ) );
 		add_filter( 'manage_mhmrentiva_booking_posts_columns', array( self::class, 'columns' ) );
@@ -141,6 +162,10 @@ final class BookingColumns {
 		// Neutral toolbar seam: renders NOTHING (no container) unless a
 		// subscriber adds actions. Lite ships no subscriber.
 		add_action( 'admin_notices', array( self::class, 'toolbar_actions' ), 5 );
+		// View-switch toggle (Faz 2): always renders, Pro or not — it is core
+		// list-screen machinery, not a Pro teaser, so it is unconditional like
+		// the toolbar/chips above rather than gated behind the extras filter.
+		add_action( 'admin_notices', array( self::class, 'render_view_toggle' ), 6 );
 	}
 
 	/**
@@ -289,7 +314,16 @@ final class BookingColumns {
 	}
 
 	public static function add_body_class( string $classes ): string {
-		return $classes . ' mhm-booking-list';
+		$classes .= ' mhm-booking-list';
+
+		// Faz 2 view engine: face-scoped visibility CSS keys off this class
+		// (booking-list.css); 'list' carries no face class at all.
+		$view = self::get_current_view();
+		if ( 'calendar' === $view ) {
+			$classes .= ' mhm-view-calendar';
+		}
+
+		return $classes;
 	}
 
 	public static function render( string $column, int $post_id ): void {
@@ -571,6 +605,50 @@ final class BookingColumns {
 				esc_attr( $class ),
 				esc_url( $action['url'] ),
 				esc_html( $action['label'] )
+			);
+		}
+		echo '</div>';
+	}
+
+	/**
+	 * Segmented view-switch control (List | Calendar) — Faz 2 view engine.
+	 *
+	 * Rendered as its OWN admin_notices block rather than folded into
+	 * toolbar_actions() above: that method's neutral-seam contract is a
+	 * house rule pinned by BookingToolbarSeamTest (renders NOTHING, container
+	 * included, when no Pro subscriber adds actions — no empty box teasing
+	 * an absent feature). The toggle is not that: it is genuine, always-on
+	 * Lite functionality, so it gets its own block. The relocation JS
+	 * (booking-list-filters.js) wraps this block together with
+	 * `.rv-bkl-toolbar` into one flex row WHEN a Pro subscriber actually
+	 * renders the toolbar; when nothing subscribes, `.rv-bkl-toolbar` is
+	 * absent from the DOM entirely and the toggle simply stands alone.
+	 *
+	 * Markup only (`rv-view-toggle` / `rv-view-toggle__btn` / `is-active`);
+	 * styling lands in Task 8.
+	 */
+	public static function render_view_toggle(): void {
+		global $pagenow, $post_type;
+
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		$current = self::get_current_view();
+		$faces   = array(
+			'list'     => __( 'List', 'mhm-rentiva' ),
+			'calendar' => __( 'Calendar', 'mhm-rentiva' ),
+		);
+
+		echo '<div class="rv-view-toggle">';
+		foreach ( $faces as $face => $label ) {
+			$url   = 'list' === $face ? remove_query_arg( 'mhmrentiva_view' ) : add_query_arg( 'mhmrentiva_view', $face );
+			$class = 'rv-view-toggle__btn' . ( $current === $face ? ' is-active' : '' );
+			printf(
+				'<a class="%s" href="%s">%s</a>',
+				esc_attr( $class ),
+				esc_url( $url ),
+				esc_html( $label )
 			);
 		}
 		echo '</div>';
@@ -1106,6 +1184,14 @@ final class BookingColumns {
 
 		// Show only on booking list page
 		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		// Faz 2 view engine: this renderer is the LIST face's calendar band.
+		// Its retirement (a real calendar FACE replacing it) is Tasks 4-5 —
+		// here it only needs to stop rendering on non-list faces so the two
+		// don't stack.
+		if ( 'list' !== self::get_current_view() ) {
 			return;
 		}
 

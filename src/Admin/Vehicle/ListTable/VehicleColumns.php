@@ -61,7 +61,17 @@ final class VehicleColumns {
 		'mhmrentiva_lifecycle_filter',
 		'mhmrentiva_month',
 		'mhmrentiva_year',
+		// View engine (Faz 2): which face of the screen is active. Same
+		// bookmarkable-display-parameter reasoning as the params above.
+		'mhmrentiva_view',
 	);
+
+	/**
+	 * Faces this screen offers, in display order.
+	 *
+	 * @var array<int, string>
+	 */
+	private const VIEWS = array( 'list', 'cards', 'calendar' );
 
 	/**
 	 * `query_vars` filter callback.
@@ -103,6 +113,18 @@ final class VehicleColumns {
 		return absint(wp_unslash( (string) $value));
 	}
 
+	/**
+	 * Whitelisted view-face getter — the ONLY way this screen's code reads
+	 * `mhmrentiva_view`. Anything outside VIEWS (including an absent param)
+	 * resolves to 'list', so the list-face guards below have a single safe
+	 * default to reason about.
+	 */
+	public static function get_current_view(): string
+	{
+		$view = self::get_query_text('mhmrentiva_view');
+		return in_array($view, self::VIEWS, true) ? $view : 'list';
+	}
+
 	public static function register(): void
 	{
 		add_filter('query_vars', array( self::class, 'register_query_vars' ));
@@ -123,6 +145,12 @@ final class VehicleColumns {
 		add_action('save_post_mhmrentiva_vehicle', array( self::class, 'clear_vehicle_cache' ));
 		add_action('delete_post', array( self::class, 'clear_vehicle_cache_on_delete' ));
 		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_booking_occupancy_cache' ));
+
+		// View-switch toggle (Faz 2): new block, no existing toolbar on this
+		// screen to share with. Priority puts it ahead of the KPI band in the
+		// raw admin_notices stream; actual visual order is decided by the
+		// relocation JS (vehicle-list-ui.js).
+		add_action('admin_notices', array( self::class, 'render_view_toggle' ), 8);
 
 		// Add statistics cards
 		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
@@ -749,7 +777,54 @@ final class VehicleColumns {
 	 */
 	public static function add_body_class(string $classes): string
 	{
-		return $classes . ' mhm-vehicle-list';
+		$classes .= ' mhm-vehicle-list';
+
+		// Faz 2 view engine: face-scoped visibility CSS keys off this class
+		// (vehicle-list.css); 'list' carries no face class at all.
+		$view = self::get_current_view();
+		if ('cards' === $view) {
+			$classes .= ' mhm-view-cards';
+		} elseif ('calendar' === $view) {
+			$classes .= ' mhm-view-calendar';
+		}
+
+		return $classes;
+	}
+
+	/**
+	 * Segmented view-switch control (List | Cards | Calendar) — Faz 2 view
+	 * engine. Markup only (`rv-view-toggle` / `rv-view-toggle__btn` /
+	 * `is-active`); styling lands in Task 8. No existing toolbar block on
+	 * this screen (unlike Bookings), so this is a plain standalone block —
+	 * see vehicle-list-ui.js for its position in the relocated layout.
+	 */
+	public static function render_view_toggle(): void
+	{
+		global $pagenow, $post_type;
+
+		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
+			return;
+		}
+
+		$current = self::get_current_view();
+		$faces   = array(
+			'list'     => __('List', 'mhm-rentiva'),
+			'cards'    => __('Cards', 'mhm-rentiva'),
+			'calendar' => __('Calendar', 'mhm-rentiva'),
+		);
+
+		echo '<div class="rv-view-toggle">';
+		foreach ($faces as $face => $label) {
+			$url   = 'list' === $face ? remove_query_arg('mhmrentiva_view') : add_query_arg('mhmrentiva_view', $face);
+			$class = 'rv-view-toggle__btn' . ( $current === $face ? ' is-active' : '' );
+			printf(
+				'<a class="%s" href="%s">%s</a>',
+				esc_attr($class),
+				esc_url($url),
+				esc_html($label)
+			);
+		}
+		echo '</div>';
 	}
 
 	/**
@@ -1086,6 +1161,14 @@ final class VehicleColumns {
 
 		// Show only on vehicle list page
 		if ($pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_vehicle') {
+			return;
+		}
+
+		// Faz 2 view engine: this renderer is the LIST face's calendar band.
+		// Its retirement (a real calendar FACE replacing it) is Tasks 4-6 —
+		// here it only needs to stop rendering on non-list faces so the two
+		// don't stack.
+		if ('list' !== self::get_current_view()) {
 			return;
 		}
 
