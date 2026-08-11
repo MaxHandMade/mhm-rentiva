@@ -826,6 +826,13 @@ final class Plugin {
 		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\DepositManagementAjax')) {
 			\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::register();
 		}
+
+		// Bookings list "Approve" row action (Faz 2 Task 7) -- not a deposit
+		// flow, but registered alongside it: same domain (Booking\Actions),
+		// same guard, same lifecycle point.
+		if ($this->is_class_available('MHMRentiva\Admin\Booking\Actions\BookingApproveAjax')) {
+			\MHMRentiva\Admin\Booking\Actions\BookingApproveAjax::register();
+		}
 	}
 
 	/**

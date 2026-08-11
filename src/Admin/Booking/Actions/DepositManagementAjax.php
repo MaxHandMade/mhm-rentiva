@@ -11,7 +11,6 @@ use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
-use MHMRentiva\Admin\Core\Security\VerifiedRequest;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,40 +21,19 @@ final class DepositManagementAjax {
 	/**
 	 * Single entry guard for every deposit action.
 	 *
-	 * Verifies the nonce, resolves the booking the request names, and checks the
-	 * caller against THAT booking. The handlers used to check the blanket
-	 * edit_posts and then act on whichever booking_id arrived, so any role with
-	 * edit_posts (a contributor, for instance) could approve payments, cancel
-	 * bookings or issue refunds on bookings belonging to anyone. edit_post on the
-	 * resolved booking is the capability that matches the object being acted on.
-	 *
-	 * Terminates the request via wp_send_json_error() when any check fails.
+	 * Delegates to BookingActionGuard::authorize() (Faz 2 Task 7 extraction)
+	 * under this class's own nonce action -- byte-for-byte the same four
+	 * checks (nonce, id, post_type, edit_post on the resolved booking) this
+	 * method used to run inline. See BookingActionGuard's docblock for why
+	 * edit_post on the resolved booking, not a blanket edit_posts check, is
+	 * the capability that belongs here: the handlers used to check the
+	 * blanket capability and then act on whichever booking_id arrived, so
+	 * any role with edit_posts (a contributor, for instance) could approve
+	 * payments, cancel bookings or issue refunds on bookings belonging to
+	 * anyone.
 	 */
 	private static function authorize_booking_action(): int {
-		$nonce = isset( $_POST['nonce'] ) ? sanitize_text_field( wp_unslash( (string) $_POST['nonce'] ) ) : '';
-		if ( ! wp_verify_nonce( $nonce, 'mhmrentiva_deposit_management_action' ) ) {
-			wp_send_json_error( array( 'message' => __( 'Security check failed.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
-		$booking_id = VerifiedRequest::from( $_POST )->int( 'booking_id' );
-		if ( ! $booking_id ) {
-			wp_send_json_error( array( 'message' => __( 'Invalid booking ID.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
-		$booking = get_post( $booking_id );
-		if ( ! $booking || $booking->post_type !== 'mhmrentiva_booking' ) {
-			wp_send_json_error( array( 'message' => __( 'Booking not found.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
-		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
-			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
-			return 0;
-		}
-
-		return $booking_id;
+		return BookingActionGuard::authorize( 'mhmrentiva_deposit_management_action' );
 	}
 
 	public static function register(): void {

@@ -57,7 +57,19 @@ parameters:
 		-
 			message: '#^Unreachable statement \- code above always terminates\.$#'
 			identifier: deadCode.unreachable
-			count: 12
+			count: 4
+			path: src/Admin/Booking/Actions/BookingActionGuard.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: src/Admin/Booking/Actions/BookingApproveAjax.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 8
 			path: src/Admin/Booking/Actions/DepositManagementAjax.php
 
 		-
@@ -105,7 +117,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 7
+			count: 8
 			path: src/Admin/Booking/ListTable/BookingColumns.php
 
 		-

@@ -150,6 +150,12 @@ final class BookingColumns {
 		add_action( 'pre_get_posts', array( self::class, 'apply_custom_filters' ) );
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_scripts' ) );
 		add_filter( 'the_title', array( self::class, 'modify_booking_title' ), 10, 2 );
+		// "Approve" row action (Faz 2 Task 7) -- the only per-row link
+		// surface this screen has (Faz 1a's in-place transform added no
+		// row-level links of its own), so it goes into the same native
+		// post_row_actions slot core's Edit/Quick Edit/Trash/View already
+		// use, rather than a second link location.
+		add_filter( 'post_row_actions', array( self::class, 'add_approve_row_action' ), 10, 2 );
 		add_filter( 'post_class', array( self::class, 'add_completed_row_class' ), 10, 3 );
 		// Optional UI extras; now enabled by default (safe after export form fix)
 		if ( apply_filters( 'mhmrentiva_enable_booking_admin_extras', true ) ) {
@@ -192,6 +198,45 @@ final class BookingColumns {
 			$classes[] = 'status-completed';
 		}
 		return $classes;
+	}
+
+	/**
+	 * `post_row_actions` filter callback -- adds the "Approve" link
+	 * (Faz 2 Task 7) for `pending` bookings only. Styling (green pill/button
+	 * look) lands in Task 8; this emits plain markup: `rv-bkl-approve` class
+	 * + `data-booking-id`, consumed by assets/js/admin/booking-approve.js.
+	 *
+	 * Placed FIRST in the returned array (rather than appended) so it reads
+	 * as the primary action for a booking awaiting approval, ahead of
+	 * Edit/Quick Edit/Trash/View.
+	 *
+	 * @param array<string, string> $actions Existing row actions.
+	 * @param \WP_Post              $post    The row's post.
+	 * @return array<string, string>
+	 */
+	public static function add_approve_row_action( array $actions, \WP_Post $post ): array {
+		if ( 'mhmrentiva_booking' !== $post->post_type ) {
+			return $actions;
+		}
+
+		// Status::get() folds a missing/unrecognized meta value to PENDING --
+		// the same canonical fold the chip counts and the occupancy map use
+		// (OccupancyMapService's docblock). Reading the raw meta value here
+		// instead would disagree with what the status column right next to
+		// this link already displays.
+		if ( Status::PENDING !== Status::get( $post->ID ) ) {
+			return $actions;
+		}
+
+		$approve = array(
+			'mhmrentiva_approve' => sprintf(
+				'<a href="#" class="rv-bkl-approve" data-booking-id="%d">%s</a>',
+				absint( $post->ID ),
+				esc_html__( 'Approve', 'mhm-rentiva' )
+			),
+		);
+
+		return $approve + $actions;
 	}
 
 	public static function columns( array $cols ): array {
@@ -312,6 +357,35 @@ final class BookingColumns {
 						'returnLabel'       => __( 'Return', 'mhm-rentiva' ),
 						'total'             => __( 'Total', 'mhm-rentiva' ),
 						'editBooking'       => __( 'Edit Booking', 'mhm-rentiva' ),
+					),
+				)
+			);
+
+			// "Approve" row action (Faz 2 Task 7). Own small script rather
+			// than folded into booking-list-filters.js: that file is layout/
+			// filter-submit plumbing with no AJAX writes in it anywhere, and
+			// this is the one new write endpoint in this round -- keeping it
+			// in its own file keeps the guard-carrying network call isolated
+			// and easy to find/remove independently of the layout script.
+			wp_enqueue_script(
+				'mhm-rentiva-booking-approve',
+				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/booking-approve.js',
+				array( 'jquery' ),
+				\MHMRentiva\Admin\Core\AssetManager::get_file_version( 'assets/js/admin/booking-approve.js' ),
+				true
+			);
+
+			wp_localize_script(
+				'mhm-rentiva-booking-approve',
+				'mhmBookingApprove',
+				array(
+					'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+					'nonce'   => wp_create_nonce( 'mhmrentiva_approve_booking' ),
+					'i18n'    => array(
+						'approve'   => __( 'Approve', 'mhm-rentiva' ),
+						'approving' => __( 'Approving…', 'mhm-rentiva' ),
+						'approved'  => __( 'Booking approved.', 'mhm-rentiva' ),
+						'failed'    => __( 'This booking could not be approved. It may have changed — reload the list.', 'mhm-rentiva' ),
 					),
 				)
 			);
