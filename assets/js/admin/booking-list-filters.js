@@ -38,7 +38,15 @@
 					$toggle.add( $toolbar ).wrapAll( '<div class="rv-bkl-toolbar-row"></div>' );
 				}
 			}
-			var $calendar = $( '.mhm-calendars.booking-calendar-page' ).first();
+			// Faz 2 Task 5: the below-table calendar band this used to move is
+			// gone (view=calendar is a full screen face now, not a below-table
+			// band on the list face) -- but the Calendar face itself still
+			// renders through admin_notices above the <h1>, same as before, so
+			// it still needs relocating below the header marker into its own
+			// slot. `.booking-calendar-page` was the old aggregate grid's own
+			// class and no longer exists; FleetOccupancyMatrix's wrapper marks
+			// itself `.mhm-calendars.mhm-occupancy-matrix-wrap` instead.
+			var $calendar = $( '.mhm-calendars.mhm-occupancy-matrix-wrap' ).first();
 			if ($calendar.length) {
 				$calendar.insertAfter( $form );
 			}
