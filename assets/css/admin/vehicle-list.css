@@ -271,11 +271,9 @@
 	color: #dba617;
 }
 
-/* ── License plate ── */
-.mhm-vehicle-list .column-mhmrentiva_license_plate {
-	font-family: ui-monospace, Consolas, monospace;
-	font-size: 12px;
-	color: #50575e;
+/* Row actions align under the text body, not the thumbnail. */
+.mhm-vehicle-list .column-mhmrentiva_vehicle .row-actions {
+	margin-left: 70px;
 }
 
 /* ── KPI band (body+2class specificity beats the shared gradients) ── */

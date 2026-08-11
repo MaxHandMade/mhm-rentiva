@@ -241,6 +241,17 @@ final class VehicleColumns {
 				echo '<span class="rv-vhl-vehicle__meta" data-plate="' . esc_attr($plate) . '">' . esc_html(implode(' · ', $meta_parts)) . '</span>';
 				echo '</span>';
 				echo '</div>';
+
+				// Core prints the hidden #inline_{ID} data holder ONLY inside
+				// column_title() — which never runs once 'title' leaves the
+				// column set. Without it, native Quick Edit opens with EMPTY
+				// title/date/status fields (saving would blank the title) and
+				// Bulk Edit lists "(no title)". Print it here; the function
+				// does its own capability check. (Fable review finding.)
+				$vehicle_post = get_post($post_id);
+				if ($vehicle_post instanceof \WP_Post && function_exists('get_inline_data')) {
+					get_inline_data($vehicle_post);
+				}
 				break;
 
 			case 'mhmrentiva_week':
@@ -756,6 +767,18 @@ final class VehicleColumns {
 		$start = current_time('Y-m-d');
 		$end   = gmdate('Y-m-d', strtotime('+6 days', strtotime($start)));
 
+		// Short-lived transient: the scan below walks the FULL booking
+		// history (postmeta values are unindexed), so it must not run on
+		// every list load. The key sits under the same
+		// `mhmrentiva_vehicle_stats_%` pattern clear_vehicle_stats_cache()
+		// deletes, so booking/vehicle saves invalidate it immediately.
+		$cache_key = 'mhmrentiva_vehicle_stats_weekmap_' . $start;
+		$cached    = get_transient($cache_key);
+		if (is_array($cached)) {
+			self::$week_bookings_map = $cached;
+			return $cached;
+		}
+
 		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT COALESCE(NULLIF(pm_v1.meta_value, ''), pm_v2.meta_value) AS vehicle_id,
@@ -819,6 +842,8 @@ final class VehicleColumns {
 				}
 			}
 		}
+
+		set_transient($cache_key, $map, 5 * MINUTE_IN_SECONDS);
 
 		self::$week_bookings_map = $map;
 		return $map;

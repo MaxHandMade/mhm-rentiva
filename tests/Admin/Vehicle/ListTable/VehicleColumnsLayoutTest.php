@@ -60,6 +60,27 @@ final class VehicleColumnsLayoutTest extends WP_UnitTestCase
         $this->assertStringContainsString('34 ZZ 999', $html);
     }
 
+    public function test_vehicle_cell_prints_the_core_inline_data_holder(): void
+    {
+        // Fable CRITICAL: core prints the hidden #inline_{ID} div only in
+        // column_title(), which never runs once 'title' leaves the column
+        // set. Without it native Quick Edit opens with an EMPTY title field
+        // and saving blanks the post title. The Vehicle cell must print it.
+        require_once ABSPATH . 'wp-admin/includes/template.php';
+        wp_set_current_user(self::factory()->user->create(array('role' => 'administrator')));
+
+        $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle', 'post_title' => 'Inline Golf'));
+
+        ob_start();
+        VehicleColumns::render('mhmrentiva_vehicle', $vehicle);
+        $html = ob_get_clean();
+
+        $this->assertStringContainsString('id="inline_' . $vehicle . '"', $html);
+        $this->assertStringContainsString('Inline Golf', $html);
+
+        wp_set_current_user(0);
+    }
+
     public function test_week_strip_marks_booked_and_blocked_days(): void
     {
         $vehicle = self::factory()->post->create(array('post_type' => 'mhmrentiva_vehicle'));
