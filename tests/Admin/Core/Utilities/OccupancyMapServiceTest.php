@@ -142,6 +142,115 @@ final class OccupancyMapServiceTest extends WP_UnitTestCase
 		$this->assertSame( $booking, $map[ $vehicle ][ $day ][0]['booking_id'] );
 	}
 
+	/**
+	 * Fix round 1, Finding 1: a booking with NEITHER `_mhmrentiva_status`
+	 * NOR the legacy `_mhmrentiva_booking_status` set to a non-empty value
+	 * must resolve to 'pending' -- the same fold
+	 * BookingColumns::apply_status_filter() and the canonical KPI
+	 * enumeration already apply -- rather than being silently excluded from
+	 * the map entirely (NULL status previously failed the `status IN (...)`
+	 * restriction).
+	 */
+	public function test_status_less_booking_resolves_to_pending_and_is_present(): void
+	{
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+		$day     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
+
+		$booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle );
+		update_post_meta( $booking, '_mhmrentiva_pickup_date', $day );
+		update_post_meta( $booking, '_mhmrentiva_dropoff_date', $day );
+		// Deliberately no _mhmrentiva_status / _mhmrentiva_booking_status meta at all.
+
+		$map = OccupancyMapService::get_map( gmdate( 'Y-m-d' ), gmdate( 'Y-m-d', strtotime( '+6 days' ) ) );
+
+		$this->assertArrayHasKey( $day, $map[ $vehicle ] ?? array() );
+		$this->assertSame( $booking, $map[ $vehicle ][ $day ][0]['booking_id'] );
+		$this->assertSame( 'pending', $map[ $vehicle ][ $day ][0]['status'] );
+	}
+
+	/**
+	 * Same fold, but with the status meta present and explicitly empty
+	 * string rather than absent -- the other branch of the COALESCE chain.
+	 */
+	public function test_empty_string_status_resolves_to_pending_and_is_present(): void
+	{
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+		$day     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
+
+		$booking = $this->make_booking( $vehicle, '', $day, $day );
+
+		$map = OccupancyMapService::get_map( gmdate( 'Y-m-d' ), gmdate( 'Y-m-d', strtotime( '+6 days' ) ) );
+
+		$this->assertArrayHasKey( $day, $map[ $vehicle ] ?? array() );
+		$this->assertSame( 'pending', $map[ $vehicle ][ $day ][0]['status'] );
+	}
+
+	/**
+	 * The deadline exemption applies to the RESOLVED status (which defaults
+	 * to 'pending'), not the raw (absent) column -- a status-less booking
+	 * with an expired deadline must still be dropped, exactly like an
+	 * explicit 'pending' with an expired deadline already was.
+	 */
+	public function test_status_less_booking_with_expired_deadline_is_dropped(): void
+	{
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+		$day     = gmdate( 'Y-m-d', strtotime( '+1 day' ) );
+
+		$booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle );
+		update_post_meta( $booking, '_mhmrentiva_pickup_date', $day );
+		update_post_meta( $booking, '_mhmrentiva_dropoff_date', $day );
+		update_post_meta( $booking, '_mhmrentiva_payment_deadline', gmdate( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
+
+		$map = OccupancyMapService::get_map( gmdate( 'Y-m-d' ), gmdate( 'Y-m-d', strtotime( '+6 days' ) ) );
+
+		$this->assertArrayNotHasKey( $day, $map[ $vehicle ] ?? array() );
+	}
+
+	/**
+	 * Canonical-change pin on the Vehicles side (the week strip):
+	 * a status-less booking must paint as 'is-pending', matching the fold
+	 * this test file's get_map()-level tests establish above.
+	 */
+	public function test_week_strip_marks_a_status_less_booking_as_pending(): void
+	{
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+
+		$today = current_time( 'Y-m-d' );
+
+		$booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle );
+		update_post_meta( $booking, '_mhmrentiva_pickup_date', $today );
+		update_post_meta( $booking, '_mhmrentiva_dropoff_date', $today );
+
+		$strip = VehicleColumns::get_week_strip( $vehicle );
+
+		$this->assertSame( 'is-pending', $strip[0]['class'] );
+	}
+
+	/**
+	 * Same canonical-change pin, negative case: a status-less booking whose
+	 * deadline has already passed must NOT paint (the strip shows the day
+	 * free), exactly like an explicit expired 'pending' already didn't.
+	 */
+	public function test_week_strip_does_not_mark_a_status_less_expired_deadline_booking(): void
+	{
+		$vehicle = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_vehicle' ) );
+
+		$today = current_time( 'Y-m-d' );
+
+		$booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+		update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle );
+		update_post_meta( $booking, '_mhmrentiva_pickup_date', $today );
+		update_post_meta( $booking, '_mhmrentiva_dropoff_date', $today );
+		update_post_meta( $booking, '_mhmrentiva_payment_deadline', gmdate( 'Y-m-d H:i:s', strtotime( '-1 hour' ) ) );
+
+		$strip = VehicleColumns::get_week_strip( $vehicle );
+
+		$this->assertSame( 'is-free', $strip[0]['class'] );
+	}
+
 	public function test_transient_key_matches_the_invalidation_pattern(): void
 	{
 		global $wpdb;

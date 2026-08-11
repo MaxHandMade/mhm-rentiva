@@ -21,7 +21,13 @@ if (! defined('ABSPATH')) {
  * "Counts as occupied" is defined HERE, once, for every consumer:
  *  - painted statuses: pending, confirmed, in_progress, completed
  *    (meta `_mhmrentiva_status`, legacy OR `_mhmrentiva_booking_status`);
- *  - a `pending` booking whose `_mhmrentiva_payment_deadline` has passed is
+ *  - a booking with NEITHER meta key set to a non-empty value resolves to
+ *    `pending` — the same fold `BookingColumns::apply_status_filter()` and
+ *    the canonical KPI enumeration already apply, so a status-less booking
+ *    is never silently invisible to the `pending` chip on one screen while
+ *    painting/counting on another;
+ *  - a `pending` booking (status-less included, since it resolves to
+ *    `pending` above) whose `_mhmrentiva_payment_deadline` has passed is
  *    NOT occupied — the exemption is part of the definition, not a filter
  *    layered on top afterwards. This deliberately CHANGES the old
  *    week-map's behavior, which carried no exemption at all.
@@ -87,7 +93,7 @@ final class OccupancyMapService {
                         COALESCE(NULLIF(pm_v1.meta_value, ''), pm_v2.meta_value) AS vehicle_id,
                         COALESCE(NULLIF(pm_p1.meta_value, ''), pm_p2.meta_value) AS pickup_date,
                         COALESCE(NULLIF(pm_d1.meta_value, ''), pm_d2.meta_value, pm_d3.meta_value) AS dropoff_date,
-                        COALESCE(NULLIF(pm_s1.meta_value, ''), pm_s2.meta_value) AS status,
+                        COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') AS status,
                         pm_deadline.meta_value AS deadline
                 FROM {$wpdb->posts} b
                 LEFT JOIN {$wpdb->postmeta} pm_s1 ON b.ID = pm_s1.post_id AND pm_s1.meta_key = %s
