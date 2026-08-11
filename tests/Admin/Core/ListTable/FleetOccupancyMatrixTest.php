@@ -138,8 +138,16 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
     }
 
     // --- Test 2: PII gate ---------------------------------------------------
+    //
+    // The gate is the BOOKING post type's own edit_others_posts capability,
+    // which this plugin maps to `manage_options` — not core's
+    // edit_others_posts, which a stock Editor holds. That distinction is not
+    // academic: the Vehicles CPT uses the default `post` caps, so an Editor
+    // can open edit.php?post_type=mhmrentiva_vehicle, switch to the Calendar
+    // face and would otherwise read every customer's name/e-mail/phone out
+    // of the HTML source (final review, finding I5).
 
-    public function test_customer_fields_are_absent_for_a_user_without_edit_others_posts(): void
+    public function test_customer_fields_are_absent_for_an_editor(): void
     {
         $vehicle = $this->makeVehicle();
         $month   = (int) gmdate( 'n' );
@@ -147,7 +155,15 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $day     = sprintf( '%04d-%02d-15', $year, $month );
         $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
 
-        wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+        $editor = self::factory()->user->create( array( 'role' => 'editor' ) );
+        wp_set_current_user( $editor );
+
+        // Premise: this role DOES hold core's edit_others_posts — the
+        // capability the gate used to ask for — and does NOT hold the
+        // booking type's mapping of it.
+        $this->assertTrue( current_user_can( 'edit_others_posts' ) );
+        $this->assertFalse( current_user_can( 'manage_options' ) );
+
         $html = $this->render( array( $vehicle ), $month, $year );
 
         $this->assertStringNotContainsString( 'data-customer-name', $html );
@@ -162,7 +178,22 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
         $this->assertStringContainsString( 'data-end-date', $html );
     }
 
-    public function test_customer_fields_are_present_for_a_user_with_edit_others_posts(): void
+    public function test_customer_fields_are_absent_for_an_author(): void
+    {
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'author' ) ) );
+        $html = $this->render( array( $vehicle ), $month, $year );
+
+        $this->assertStringNotContainsString( 'data-customer-name', $html );
+        $this->assertStringNotContainsString( 'ada@example.test', $html );
+    }
+
+    public function test_customer_fields_are_present_for_an_administrator(): void
     {
         $vehicle = $this->makeVehicle();
         $month   = (int) gmdate( 'n' );
@@ -175,6 +206,59 @@ final class FleetOccupancyMatrixTest extends WP_UnitTestCase
 
         $this->assertStringContainsString( 'data-customer-name="Ada Lovelace"', $html );
         $this->assertStringContainsString( 'data-customer-email="ada@example.test"', $html );
+    }
+
+    /**
+     * I4: the boundary is "never read", not "read then drop". With the gate
+     * closed the customer lookup must not run at all — so a booking whose
+     * customer meta is absent (the shape that sends
+     * BookingQueryHelper::getBookingCustomerInfo() into its wc_get_order()
+     * / get_userdata() fallbacks) must cost no extra query per booking.
+     */
+    public function test_no_customer_lookup_queries_when_the_gate_is_closed(): void
+    {
+        global $wpdb;
+
+        $vehicle = $this->makeVehicle();
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+
+        // Bookings with NO customer meta at all: the fallback-triggering shape.
+        for ( $i = 0; $i < 4; $i++ ) {
+            $booking = self::factory()->post->create( array( 'post_type' => 'mhmrentiva_booking' ) );
+            update_post_meta( $booking, '_mhmrentiva_status', 'confirmed' );
+            update_post_meta( $booking, '_mhmrentiva_vehicle_id', $vehicle->ID );
+            update_post_meta( $booking, '_mhmrentiva_pickup_date', $day );
+            update_post_meta( $booking, '_mhmrentiva_dropoff_date', $day );
+            update_post_meta( $booking, '_mhmrentiva_customer_user_id', self::factory()->user->create() );
+            clean_post_cache( $booking );
+        }
+
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+
+        OccupancyMapService::reset_memo();
+        OccupancyMapService::invalidate();
+        wp_cache_flush();
+        $before = $wpdb->num_queries;
+        $html   = $this->render( array( $vehicle ), $month, $year );
+        $closed = $wpdb->num_queries - $before;
+
+        $this->assertStringNotContainsString( 'data-customer-name', $html );
+
+        wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+        OccupancyMapService::reset_memo();
+        OccupancyMapService::invalidate();
+        wp_cache_flush();
+        $before = $wpdb->num_queries;
+        $this->render( array( $vehicle ), $month, $year );
+        $open = $wpdb->num_queries - $before;
+
+        $this->assertLessThan(
+            $open,
+            $closed,
+            "A closed PII gate must skip the customer lookup entirely (closed={$closed}, open={$open})."
+        );
     }
 
     // --- Test 3: blocked beats booking --------------------------------------

@@ -170,13 +170,44 @@ final class FleetOccupancyMatrix {
 			_prime_post_caches( $all_booking_ids, false, false );
 		}
 
-		$can_see_pii    = current_user_can( 'edit_others_posts' );
+		$can_see_pii    = self::can_see_customer_pii();
 		$booking_fields = array();
 		foreach ( $all_booking_ids as $booking_id ) {
-			$booking_fields[ $booking_id ] = self::build_booking_fields( $booking_id );
+			// $can_see_pii travels INTO the field builder, not just around
+			// its result: without it the customer lookup ran for every
+			// booking on the screen and its answer was then thrown away —
+			// PII read (and, through BookingQueryHelper's wc_get_order() /
+			// get_userdata() fallbacks, queried per booking) for a user who
+			// is not allowed to see it. "Never read" is the boundary; "read
+			// then drop" is not.
+			$booking_fields[ $booking_id ] = self::build_booking_fields( $booking_id, $can_see_pii );
 		}
 
 		self::render_markup( $vehicles, $month, $year, $days_in_month, $blocked_map, $painted, $booking_fields, $can_see_pii, $opts );
+	}
+
+	/**
+	 * Whether the current user may see other people's booking customers.
+	 *
+	 * Derived from the BOOKING post type's own capability mapping rather
+	 * than asked of core's `edit_others_posts`: bookings map every
+	 * capability to `manage_options`, but the Vehicles CPT uses the default
+	 * `post` caps — so a stock Editor, who holds core `edit_others_posts`,
+	 * can open the Vehicles screen, switch to the Calendar face and read
+	 * every customer's name/e-mail/phone out of the HTML source. The gate
+	 * must be the ceiling of the DATA (bookings), not of the screen.
+	 *
+	 * Falls back to `manage_options` if the type is not registered yet —
+	 * the same value the mapping resolves to, so an early call cannot be
+	 * looser than a late one.
+	 */
+	private static function can_see_customer_pii(): bool {
+		$booking_type = get_post_type_object( 'mhmrentiva_booking' );
+		$capability   = ( $booking_type instanceof \WP_Post_Type && isset( $booking_type->cap->edit_others_posts ) )
+			? (string) $booking_type->cap->edit_others_posts
+			: 'manage_options';
+
+		return current_user_can( $capability );
 	}
 
 	/**
@@ -184,11 +215,14 @@ final class FleetOccupancyMatrix {
 	 * primed by the caller (no query per booking, WC fallback exception
 	 * inside BookingQueryHelper aside).
 	 *
+	 * @param bool $can_see_pii When false the customer lookup is skipped
+	 *                          ENTIRELY — the customer fields come back
+	 *                          empty and no WC/user query is ever issued.
 	 * @return array{customer_name:string,customer_email:string,customer_phone:string,total_price:string,start_date:string,end_date:string,start_time:string,end_time:string,created_date:string}
 	 */
-	private static function build_booking_fields( int $booking_id ): array {
+	private static function build_booking_fields( int $booking_id, bool $can_see_pii ): array {
 		$customer_info = array();
-		if ( class_exists( BookingQueryHelper::class ) ) {
+		if ( $can_see_pii && class_exists( BookingQueryHelper::class ) ) {
 			$customer_info = BookingQueryHelper::getBookingCustomerInfo( $booking_id );
 		}
 
