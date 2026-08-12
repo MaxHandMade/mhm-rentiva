@@ -158,6 +158,17 @@
 	white-space: nowrap;
 }
 
+/* WP core's .wp-list-table is table-layout:fixed, which auto-splits
+   unconstrained columns to equal width (~100px here). The Turkish
+   "Yaşam Döngüsü" header needs ~131px at nowrap and was overflowing that
+   ~100px box by 11px with no clipping -- the overflow bled into "Öne
+   Çıkan" next door with zero visible gap, reading as one run-on word
+   (user-reported). Diagnosed in-browser: `min-width` is a no-op under
+   fixed table layout, only `width` is honoured, so this must set width. */
+.mhm-vehicle-list .column-mhmrentiva_lifecycle {
+	width: 136px;
+}
+
 /* Room for the three feature chips to flow horizontally like the mockup. */
 .mhm-vehicle-list .column-mhmrentiva_features {
 	min-width: 200px;
