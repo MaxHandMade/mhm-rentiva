@@ -216,19 +216,9 @@
 	background: #f0c33c;
 }
 
-.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending .booking-icon,
-.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-pending .booking-icon {
-	color: #7a5500;
-}
-
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed {
 	background: #2f80c4;
-}
-
-.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed .booking-icon,
-.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-confirmed .booking-icon {
-	color: #fff;
 }
 
 /* status-in_progress (underscore — matches FleetOccupancyMatrix::STATUS_CLASSES)
@@ -238,31 +228,14 @@
 	background: #37a24a;
 }
 
-.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress .booking-icon,
-.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-in_progress .booking-icon {
-	color: #fff;
-}
-
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed {
 	background: #e8e9eb;
 }
 
-.mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed .booking-icon,
-.mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked.status-completed .booking-icon {
-	color: #50575e;
-}
-
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table td.day-cell.booked:hover {
 	filter: brightness(0.96);
-}
-
-.mhm-vehicle-list .mhm-occupancy-matrix-wrap .booking-icon,
-.mhm-booking-list .mhm-occupancy-matrix-wrap .booking-icon {
-	font-size: 15px;
-	width: 15px;
-	height: 15px;
 }
 
 /* Blocked day: repeating red stripes — beats calendars.css's own

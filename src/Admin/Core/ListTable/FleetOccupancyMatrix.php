@@ -477,7 +477,6 @@ final class FleetOccupancyMatrix {
 		echo '<td class="day-cell booked ' . esc_attr( $status_class ) . '" title="' . esc_attr( $title ) . '"';
 		Html::echo_data_attributes( $data_attrs );
 		echo ' data-booking-popup>';
-		echo '<span class="dashicons dashicons-calendar-alt booking-icon"></span>';
 		echo '</td>';
 	}
 
