@@ -120,4 +120,33 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
         $this->assertSame(9, $stats['total'], 'auto-draft booking must not inflate the total');
         $this->assertSame(3, $stats['pending'], 'auto-draft booking must not inflate the pending bucket');
     }
+
+    /**
+     * Regression lock for the Faz-2 dual-key mismatch: get_booking_stats()'s
+     * per-status GROUP BY used to read ONLY `_mhmrentiva_status`, while
+     * BookingColumns::apply_status_filter() (and OccupancyMapService::get_map())
+     * match on BOTH that key and the legacy `_mhmrentiva_booking_status`. A
+     * booking carrying only the legacy key would fall through the old
+     * COALESCE(..., 'pending') fold and be miscounted as pending even though
+     * the list-table filter correctly resolves and shows it under its real
+     * status -- the chip count and the chip's filtered list would disagree
+     * by construction. The fix mirrors the same dual-key COALESCE the filter
+     * already uses.
+     */
+    public function test_legacy_status_key_only_booking_counted_under_real_status(): void
+    {
+        // setUp() already seeded 1 confirmed (priced) booking and 3 pending
+        // (2 explicit + 1 status-less). Add one MORE booking that carries
+        // ONLY the legacy key, set to 'confirmed' -- if the old single-key
+        // read were still in place this would wrongly land in 'pending'.
+        $id = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($id, '_mhmrentiva_booking_status', 'confirmed');
+
+        wp_cache_delete('mhmrentiva_booking_stats');
+        $stats = DashboardService::get_booking_stats();
+
+        $this->assertSame(10, $stats['total']);
+        $this->assertSame(2, $stats['confirmed'], 'legacy-key booking must be counted under its real status');
+        $this->assertSame(3, $stats['pending'], 'legacy-key booking with a real status must not be folded into pending');
+    }
 }

@@ -634,16 +634,26 @@ final class DashboardService {
 		// get_status_breakdown(): an INNER JOIN silently drops status-less
 		// bookings from every bucket while the total query still counts them,
 		// so "All" and the per-status sum would disagree.
+		//
+		// Dual-key COALESCE (new `_mhmrentiva_status` preferred, legacy
+		// `_mhmrentiva_booking_status` fallback, then 'pending') — the SAME
+		// resolution BookingColumns::apply_status_filter() and
+		// OccupancyMapService::get_map() already use. Reading only the new
+		// key here while the filter also honors the legacy one meant the
+		// chip count and the chip's filtered list could disagree by
+		// construction the moment a row carried only the legacy meta.
 		$by_status = array_fill_keys( \MHMRentiva\Admin\Booking\Core\Status::allowed(), 0 );
 
 		$status_rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT COALESCE(NULLIF(pm_status.meta_value, ''), 'pending') AS status, COUNT(DISTINCT p.ID) AS n
+				"SELECT COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending') AS status, COUNT(DISTINCT p.ID) AS n
                 FROM {$wpdb->posts} p
-                LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_s1 ON p.ID = pm_s1.post_id AND pm_s1.meta_key = %s
+                LEFT JOIN {$wpdb->postmeta} pm_s2 ON p.ID = pm_s2.post_id AND pm_s2.meta_key = %s
                 WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
-                GROUP BY COALESCE(NULLIF(pm_status.meta_value, ''), 'pending')",
+                GROUP BY COALESCE(NULLIF(pm_s1.meta_value, ''), NULLIF(pm_s2.meta_value, ''), 'pending')",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
+				'_mhmrentiva_booking_status',
 				'mhmrentiva_booking'
 			)
 		);
