@@ -149,4 +149,99 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
         $this->assertSame(2, $stats['confirmed'], 'legacy-key booking must be counted under its real status');
         $this->assertSame(3, $stats['pending'], 'legacy-key booking with a real status must not be folded into pending');
     }
+
+    /**
+     * The parity claim this file's NAME makes, closed for real: it is not
+     * enough for get_booking_stats()'s COUNT to resolve a booking's status
+     * by priority (new key, then legacy, then pending) -- the chip's own
+     * filtered WP_Query (BookingColumns::apply_status_filter()) must land
+     * that SAME booking in the SAME single bucket, or the chip shows one
+     * number and its click-through shows a different set of rows.
+     *
+     * Before this fix apply_status_filter() ORed a match on either meta key
+     * instead of resolving by priority, and its pending branch matched on
+     * "_mhmrentiva_status absent/empty" alone -- ignoring the legacy key
+     * entirely. So: a legacy-only or empty-new-key booking counted under
+     * its real status but ALSO matched the pending filter (count 3 / list
+     * 4), and a both-keys-conflicting booking could list under BOTH
+     * statuses at once even though the count only ever picks one.
+     */
+    public function test_chip_filter_agrees_with_canonical_count_for_every_dual_key_combination(): void
+    {
+        // One fixture per meta-key combination the dual-key COALESCE
+        // resolves.
+        $new_only = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($new_only, '_mhmrentiva_status', 'confirmed');
+
+        $legacy_only = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($legacy_only, '_mhmrentiva_booking_status', 'in_progress');
+
+        $empty_new_plus_legacy = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($empty_new_plus_legacy, '_mhmrentiva_status', '');
+        update_post_meta($empty_new_plus_legacy, '_mhmrentiva_booking_status', 'cancelled');
+
+        $neither_key = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+
+        $conflicting = self::factory()->post->create(array('post_type' => 'mhmrentiva_booking'));
+        update_post_meta($conflicting, '_mhmrentiva_status', 'confirmed');
+        update_post_meta($conflicting, '_mhmrentiva_booking_status', 'completed');
+
+        wp_cache_delete('mhmrentiva_booking_stats');
+        $stats = DashboardService::get_booking_stats();
+
+        set_current_screen('edit-mhmrentiva_booking');
+
+        $seen_status_by_id = array();
+        foreach (\MHMRentiva\Admin\Booking\Core\Status::allowed() as $status) {
+            $q = new \WP_Query();
+            $q->parse_query(array('post_type' => 'mhmrentiva_booking'));
+            $q->set('mhmrentiva_booking_status', $status);
+            $GLOBALS['wp_the_query'] = $q;
+            $GLOBALS['wp_query']     = $q;
+
+            BookingColumns::apply_status_filter($q);
+
+            $found = get_posts(array(
+                'post_type'      => 'mhmrentiva_booking',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_query'     => $q->get('meta_query'),
+            ));
+
+            $this->assertCount(
+                $stats['by_status'][$status],
+                $found,
+                "Chip filter for '$status' must return exactly the count DashboardService reports"
+            );
+
+            foreach ($found as $id) {
+                $this->assertArrayNotHasKey(
+                    $id,
+                    $seen_status_by_id,
+                    "Booking #$id matched more than one status filter (already '"
+                        . ($seen_status_by_id[$id] ?? '') . "', now '$status') "
+                        . '-- count and list can no longer agree on a single bucket'
+                );
+                $seen_status_by_id[$id] = $status;
+            }
+        }
+
+        set_current_screen('front');
+
+        // Every fixture landed in exactly the bucket the COALESCE priority
+        // predicts.
+        $this->assertSame('confirmed', $seen_status_by_id[$new_only] ?? null);
+        $this->assertSame(
+            'in_progress',
+            $seen_status_by_id[$legacy_only] ?? null,
+            'Legacy-only booking must list under its real status, not fall into pending'
+        );
+        $this->assertSame('cancelled', $seen_status_by_id[$empty_new_plus_legacy] ?? null);
+        $this->assertSame('pending', $seen_status_by_id[$neither_key] ?? null);
+        $this->assertSame(
+            'confirmed',
+            $seen_status_by_id[$conflicting] ?? null,
+            'New key wins over legacy when both are set'
+        );
+    }
 }

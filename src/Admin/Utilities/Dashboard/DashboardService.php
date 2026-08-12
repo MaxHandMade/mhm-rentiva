@@ -636,12 +636,20 @@ final class DashboardService {
 		// so "All" and the per-status sum would disagree.
 		//
 		// Dual-key COALESCE (new `_mhmrentiva_status` preferred, legacy
-		// `_mhmrentiva_booking_status` fallback, then 'pending') — the SAME
-		// resolution BookingColumns::apply_status_filter() and
-		// OccupancyMapService::get_map() already use. Reading only the new
-		// key here while the filter also honors the legacy one meant the
-		// chip count and the chip's filtered list could disagree by
-		// construction the moment a row carried only the legacy meta.
+		// `_mhmrentiva_booking_status` fallback, then 'pending') — the
+		// CANONICAL priority. This query only produces the COUNT; it does
+		// not by itself guarantee the chip's filtered list agrees. That
+		// guarantee lives in BookingColumns::apply_status_filter(), which
+		// must resolve every row to the SAME single bucket via nested
+		// meta_query groups expressing this exact priority (new key wins
+		// when set; legacy key only decides when the new key is
+		// absent/empty; pending only when both are absent/empty) — an
+		// OR-on-either-key match is NOT equivalent and lets a row count
+		// under one status while also matching another status's filter, or
+		// the pending filter, at the same time. OccupancyMapService::get_map()
+		// mirrors the same priority for its own SQL COALESCE.
+		// See BookingStatsConsistencyTest::
+		// test_chip_filter_agrees_with_canonical_count_for_every_dual_key_combination.
 		$by_status = array_fill_keys( \MHMRentiva\Admin\Booking\Core\Status::allowed(), 0 );
 
 		$status_rows = $wpdb->get_results(

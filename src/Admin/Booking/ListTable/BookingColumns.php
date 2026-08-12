@@ -932,33 +932,79 @@ final class BookingColumns {
 		if ( '' !== $booking_status_filter ) {
 			$val = $booking_status_filter;
 			if ( in_array( $val, Status::allowed(), true ) ) {
-				// Check both old and new meta keys
-				$clauses = array(
+				// Resolve status by the SAME priority
+				// DashboardService::get_booking_stats() uses:
+				// COALESCE(NULLIF(_mhmrentiva_status,''), NULLIF(_mhmrentiva_booking_status,''), 'pending').
+				// An OR-on-either-key match (the old shape here) is NOT
+				// equivalent to that priority: a row could match more than
+				// one status filter at once (both keys set to different
+				// values), or match a real-status filter AND the pending
+				// filter at once (legacy-only / empty-new-key rows) — so the
+				// chip's own count and its own filtered list could disagree.
+				// See BookingStatsConsistencyTest::
+				// test_chip_filter_agrees_with_canonical_count_for_every_dual_key_combination
+				// for the fixtures this closes.
+				//
+				// "New key present and non-empty" wins outright; the legacy
+				// key only gets a say when the new key is absent/empty.
+				$new_key_absent_or_empty = array(
 					'relation' => 'OR',
 					array(
-						'key'     => '_mhmrentiva_booking_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-					array(
-						'key'     => '_mhmrentiva_status',
-						'value'   => $val,
-						'compare' => '=',
-					),
-				);
-				// Count semantics parity: the canonical enumeration folds
-				// status-less bookings into pending (COALESCE), so the
-				// pending filter must match them too — otherwise the chip
-				// says N and the list shows fewer.
-				if ( Status::PENDING === $val ) {
-					$clauses[] = array(
 						'key'     => '_mhmrentiva_status',
 						'compare' => 'NOT EXISTS',
-					);
-					$clauses[] = array(
+					),
+					array(
 						'key'     => '_mhmrentiva_status',
 						'value'   => '',
 						'compare' => '=',
+					),
+				);
+
+				// Priority match for the literal value $val (this covers
+				// PENDING too — 'pending' is also a real, explicitly
+				// stored value, not only the COALESCE fallback): the new
+				// key wins outright when it equals $val, OR the legacy key
+				// wins when the new key is absent/empty and the legacy key
+				// equals $val.
+				$clauses = array(
+					'relation' => 'OR',
+					array(
+						'key'     => '_mhmrentiva_status',
+						'value'   => $val,
+						'compare' => '=',
+					),
+					array(
+						'relation' => 'AND',
+						$new_key_absent_or_empty,
+						array(
+							'key'     => '_mhmrentiva_booking_status',
+							'value'   => $val,
+							'compare' => '=',
+						),
+					),
+				);
+
+				if ( Status::PENDING === $val ) {
+					// Additionally fold in the COALESCE's final 'pending'
+					// fallback: a row where BOTH keys are absent/empty
+					// resolves to 'pending' even though neither key ever
+					// literally holds that string.
+					$legacy_key_absent_or_empty = array(
+						'relation' => 'OR',
+						array(
+							'key'     => '_mhmrentiva_booking_status',
+							'compare' => 'NOT EXISTS',
+						),
+						array(
+							'key'     => '_mhmrentiva_booking_status',
+							'value'   => '',
+							'compare' => '=',
+						),
+					);
+					$clauses[]                  = array(
+						'relation' => 'AND',
+						$new_key_absent_or_empty,
+						$legacy_key_absent_or_empty,
 					);
 				}
 				$meta[] = $clauses;
