@@ -25,9 +25,8 @@ class ReportRepository {
 		global $wpdb;
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status != %s",
-				'mhmrentiva_booking',
-				'trash'
+				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status IN ('publish', 'private', 'pending') AND post_status != 'trash'",
+				'mhmrentiva_booking'
 			)
 		);
 	}
@@ -47,7 +46,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s
              AND p.post_date < %s",
@@ -72,7 +71,7 @@ class ReportRepository {
 				"SELECT COUNT(*) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('confirmed', 'in_progress')",
 				$meta_status,
 				'mhmrentiva_booking'
@@ -109,7 +108,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE(p.post_date)
@@ -138,7 +137,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value = 'cancelled'
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE(p.post_date)
@@ -171,7 +170,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_gw ON p.ID = pm_gw.post_id AND pm_gw.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY pm_gw.meta_value
              ORDER BY revenue DESC",
@@ -201,7 +200,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY DATE_FORMAT(p.post_date, '%%Y-%%m')
@@ -239,7 +238,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY period
@@ -273,7 +272,7 @@ class ReportRepository {
              INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != 'trash'
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')
              AND p.post_date >= %s AND p.post_date <= %s
              GROUP BY pm_vid.meta_value
@@ -310,9 +309,9 @@ class ReportRepository {
                 AND v.post_type = 'mhmrentiva_vehicle' 
                 AND v.post_status = 'publish'
             LEFT JOIN {$wpdb->postmeta} pm_vid ON v.ID = pm_vid.meta_value AND pm_vid.meta_key = %s
-            LEFT JOIN {$wpdb->posts} p_booking ON pm_vid.post_id = p_booking.ID 
+            LEFT JOIN {$wpdb->posts} p_booking ON pm_vid.post_id = p_booking.ID
                 AND p_booking.post_type = 'mhmrentiva_booking'
-                AND p_booking.post_status != 'trash'
+                AND p_booking.post_status IN ('publish', 'private', 'pending') AND p_booking.post_status != 'trash'
                 AND p_booking.post_date >= %s AND p_booking.post_date <= %s
             LEFT JOIN {$wpdb->postmeta} pm_status ON p_booking.ID = pm_status.post_id AND pm_status.meta_key = %s
             WHERE tt.taxonomy = 'mhmrentiva_vehicle_category'
@@ -351,7 +350,7 @@ class ReportRepository {
             INNER JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = %s
             INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
             WHERE p.post_type = %s
-            AND p.post_status != 'trash'
+            AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
             AND pm_status.meta_value IN ('completed', 'confirmed')
             AND pm_email.meta_value IS NOT NULL AND pm_email.meta_value != ''
             AND p.post_date >= %s AND p.post_date <= %s

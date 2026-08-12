@@ -905,11 +905,10 @@ final class BookingColumns {
 				"SELECT DISTINCT pm.meta_value FROM {$wpdb->postmeta} pm
                 INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id
                 WHERE pm.meta_key = %s AND pm.meta_value != ''
-                AND p.post_type = %s AND p.post_status != %s
+                AND p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
                 ORDER BY pm.meta_value",
 				'_mhmrentiva_payment_gateway',
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
