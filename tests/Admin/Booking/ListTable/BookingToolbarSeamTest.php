@@ -71,4 +71,56 @@ final class BookingToolbarSeamTest extends WP_UnitTestCase
         $this->assertStringNotContainsString('No URL', $html);
         $this->assertStringNotContainsString('example.com', $html);
     }
+
+    /**
+     * render_toolbar_row() used to ask the seam for its items twice — once
+     * to decide whether to open the `.rv-bkl-toolbar-row` wrapper, once more
+     * inside toolbar_actions() to render them — firing
+     * `mhmrentiva_booking_list_toolbar_actions` twice per request. Harmless
+     * for Pro's pure-array callback, but a seam-contract change for any
+     * subscriber that does work (a query, a remote call) inside the filter.
+     * This pins the seam at exactly one invocation per render.
+     */
+    public function test_the_toolbar_filter_fires_exactly_once_per_render(): void
+    {
+        $calls = 0;
+        add_filter(
+            'mhmrentiva_booking_list_toolbar_actions',
+            static function (array $actions) use (&$calls): array {
+                ++$calls;
+                $actions[] = array(
+                    'label' => 'Export',
+                    'url'   => admin_url('admin.php?page=mhm-rentiva-export'),
+                );
+                return $actions;
+            }
+        );
+
+        ob_start();
+        BookingColumns::render_toolbar_row();
+        ob_get_clean();
+
+        $this->assertSame(1, $calls, 'render_toolbar_row() must ask the toolbar seam for its items only once.');
+    }
+
+    /**
+     * Same guarantee for the standalone entry point tests use directly.
+     */
+    public function test_toolbar_actions_called_directly_also_fires_the_filter_once(): void
+    {
+        $calls = 0;
+        add_filter(
+            'mhmrentiva_booking_list_toolbar_actions',
+            static function (array $actions) use (&$calls): array {
+                ++$calls;
+                return $actions;
+            }
+        );
+
+        ob_start();
+        BookingColumns::toolbar_actions();
+        ob_get_clean();
+
+        $this->assertSame(1, $calls);
+    }
 }

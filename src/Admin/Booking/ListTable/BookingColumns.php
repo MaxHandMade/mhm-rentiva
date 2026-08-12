@@ -695,8 +695,22 @@ final class BookingColumns {
 			return;
 		}
 
-		$actions = self::toolbar_action_items();
+		self::render_toolbar_actions( self::toolbar_action_items() );
+	}
 
+	/**
+	 * Renders a fetched set of toolbar action items.
+	 *
+	 * Split out of toolbar_actions() so render_toolbar_row() can fetch the
+	 * seam's items once via toolbar_action_items() and hand the same array
+	 * both to the "do we need a wrapper" check and to this renderer, instead
+	 * of asking the accessor — and firing
+	 * `mhmrentiva_booking_list_toolbar_actions` — a second time in the same
+	 * request.
+	 *
+	 * @param array<int, array{label: string, url: string, class?: string}> $actions Toolbar actions.
+	 */
+	private static function render_toolbar_actions( array $actions ): void {
 		if ( empty( $actions ) ) {
 			return;
 		}
@@ -718,16 +732,18 @@ final class BookingColumns {
 	}
 
 	/**
-	 * The toolbar seam's items, asked once and answered the same way for both
-	 * callers.
+	 * The toolbar seam's items.
 	 *
-	 * The row renderer has to know whether the seam produced anything BEFORE it
-	 * opens the flex wrapper (an empty row would leave a stray box on a Lite
-	 * install, which is exactly what the neutral-seam contract forbids), and
-	 * toolbar_actions() has to render those items. Buffering the renderer's
-	 * output to answer the first question would mean echoing pre-built markup
-	 * back out, a shape gate G-A holds at zero — so both go through this one
-	 * accessor instead.
+	 * Fetches — and fires `mhmrentiva_booking_list_toolbar_actions` — exactly
+	 * once per call. render_toolbar_row() is the seam's only production
+	 * caller: it needs the items to decide whether to open the
+	 * `.rv-bkl-toolbar-row` flex wrapper BEFORE it renders anything (an empty
+	 * row would leave a stray box on a Lite install, which the neutral-seam
+	 * contract forbids), so it fetches once here and hands that same array to
+	 * render_toolbar_actions() rather than asking this accessor again.
+	 * toolbar_actions() is the standalone public entry point tests use to
+	 * exercise the seam in isolation; calling it directly still goes through
+	 * this same accessor once.
 	 *
 	 * @return array<int, array{label: string, url: string, class?: string}>
 	 */
@@ -760,14 +776,15 @@ final class BookingColumns {
 			return;
 		}
 
-		$has_toolbar = ! empty( self::toolbar_action_items() );
+		$actions     = self::toolbar_action_items();
+		$has_toolbar = ! empty( $actions );
 
 		if ( $has_toolbar ) {
 			echo '<div class="rv-bkl-toolbar-row">';
 		}
 
 		self::render_view_toggle();
-		self::toolbar_actions();
+		self::render_toolbar_actions( $actions );
 
 		if ( $has_toolbar ) {
 			echo '</div>';
