@@ -46,7 +46,24 @@ final class DepositManagementAjax {
 	 * anyone.
 	 */
 	private static function authorize_booking_action(): int {
-		return BookingActionGuard::authorize( 'mhmrentiva_deposit_management_action' );
+		$booking_id = BookingActionGuard::authorize( 'mhmrentiva_deposit_management_action' );
+		if ( ! $booking_id ) {
+			return 0;
+		}
+
+		// Redundant by design: keeps the capability check greppable in this
+		// file (WP.org review lens). BookingActionGuard::authorize() already
+		// ran this exact current_user_can('edit_post', ...) check against
+		// this exact booking id one line above -- nothing runs in between
+		// that could change the outcome, so this branch can never reject a
+		// caller the guard just approved. Message matches the guard's own
+		// rejection payload so behaviour is identical either way.
+		if ( ! current_user_can( 'edit_post', $booking_id ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission for this action.', 'mhm-rentiva' ) ) );
+			return 0;
+		}
+
+		return $booking_id;
 	}
 
 	public static function register(): void {
