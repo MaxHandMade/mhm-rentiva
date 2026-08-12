@@ -192,7 +192,97 @@ final class ListScreenLayoutTest extends WP_UnitTestCase
         ListScreenLayout::render_face('bottom');
         $html = (string) ob_get_clean();
 
-        $this->assertStringContainsString('mhmRentivaPlaceAdminNotices', $html);
+        $this->assertStringNotContainsString('mhmRentivaPlaceAdminNotices', $html);
+        $this->assertSame('', $html, 'The face slot must not print anything on its own -- only FACE_ACTION subscribers should.');
+    }
+
+    /**
+     * The wiring the review found missing: every other test in this file
+     * calls `render_header()` / `render_face()` directly, which passes
+     * whether ListScreenLayout::register() hooks them onto the `edit.php`
+     * seams or hooks nothing at all. If the wiring were quietly moved back
+     * onto `admin_notices` — reintroducing the first-paint jump this class
+     * exists to remove — the whole suite would still stay green. This pins
+     * the actual hook attachment.
+     */
+    public function test_register_wires_the_header_and_face_slots(): void
+    {
+        $this->assertNotFalse(
+            has_filter('views_edit-mhmrentiva_vehicle', array( ListScreenLayout::class, 'render_header' )),
+            'ListScreenLayout::register() must hook the Vehicles header slot onto views_edit-mhmrentiva_vehicle.'
+        );
+        $this->assertNotFalse(
+            has_filter('views_edit-mhmrentiva_booking', array( ListScreenLayout::class, 'render_header' )),
+            'ListScreenLayout::register() must hook the Bookings header slot onto views_edit-mhmrentiva_booking.'
+        );
+        $this->assertNotFalse(
+            has_filter('views_edit-mhmrentiva_addon', array( ListScreenLayout::class, 'render_header' )),
+            'ListScreenLayout::register() must hook the Add-ons header slot onto views_edit-mhmrentiva_addon.'
+        );
+        $this->assertNotFalse(
+            has_action('manage_posts_extra_tablenav', array( ListScreenLayout::class, 'render_face' )),
+            'ListScreenLayout::register() must hook the face slot onto manage_posts_extra_tablenav.'
+        );
+    }
+
+    /**
+     * Priority alone decides the visual stacking order inside each slot now
+     * that there is no relocation script left (see ListScreenLayout's class
+     * docblock). Every other assertion in this file would still pass after a
+     * silent priority swap; this pins the exact numbers that decide order.
+     */
+    public function test_vehicle_header_and_face_priorities_are_pinned(): void
+    {
+        VehicleColumns::register();
+
+        $header_priorities = array(
+            'render_view_toggle'      => 8,
+            'add_vehicle_stats_cards' => 10,
+            'category_chips'          => 15,
+        );
+        foreach ($header_priorities as $method => $priority) {
+            $this->assertSame(
+                $priority,
+                has_action(ListScreenLayout::HEADER_ACTION, array( VehicleColumns::class, $method )),
+                "VehicleColumns::{$method}() must be registered on the header slot at priority {$priority}."
+            );
+        }
+
+        $face_priorities = array(
+            'render_calendar_view' => 20,
+            'render_cards_view'    => 20,
+        );
+        foreach ($face_priorities as $method => $priority) {
+            $this->assertSame(
+                $priority,
+                has_action(ListScreenLayout::FACE_ACTION, array( VehicleColumns::class, $method )),
+                "VehicleColumns::{$method}() must be registered on the face slot at priority {$priority}."
+            );
+        }
+    }
+
+    public function test_booking_header_and_face_priorities_are_pinned(): void
+    {
+        BookingColumns::register();
+
+        $header_priorities = array(
+            'render_toolbar_row'      => 5,
+            'add_booking_stats_cards' => 10,
+            'status_chips'            => 15,
+        );
+        foreach ($header_priorities as $method => $priority) {
+            $this->assertSame(
+                $priority,
+                has_action(ListScreenLayout::HEADER_ACTION, array( BookingColumns::class, $method )),
+                "BookingColumns::{$method}() must be registered on the header slot at priority {$priority}."
+            );
+        }
+
+        $this->assertSame(
+            20,
+            has_action(ListScreenLayout::FACE_ACTION, array( BookingColumns::class, 'render_calendar_view' )),
+            'BookingColumns::render_calendar_view() must be registered on the face slot at priority 20.'
+        );
     }
 
     /**
