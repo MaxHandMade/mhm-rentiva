@@ -83,6 +83,46 @@ final class ListScreenLayoutTest extends WP_UnitTestCase
         $this->assertSame($views, $returned);
     }
 
+    /**
+     * `views_edit-{$post_type}` is filterable by any plugin hooked ahead of
+     * ours; nothing obliges an earlier subscriber to hand back an array. A
+     * typed `array $views` parameter would let a misbehaving plugin throw a
+     * TypeError here and white-screen the whole list screen. This pins the
+     * defensive contract: a non-array input is returned unchanged, without a
+     * fatal, and without our blocks rendering.
+     */
+    public function test_non_array_views_input_passes_through_without_a_fatal(): void
+    {
+        $this->on_screen('mhmrentiva_vehicle');
+
+        $fired = 0;
+        add_action(ListScreenLayout::HEADER_ACTION, static function () use (&$fired): void {
+            ++$fired;
+        });
+
+        ob_start();
+        $returned = ListScreenLayout::render_header('not-an-array');
+        $html     = (string) ob_get_clean();
+
+        $this->assertSame('not-an-array', $returned);
+        $this->assertSame(0, $fired, 'A malformed upstream filter must not trigger our header blocks.');
+        $this->assertSame('', $html);
+    }
+
+    /**
+     * Same contract for `null` and an object, the two other shapes a badly
+     * behaved subscriber is likely to hand back.
+     */
+    public function test_null_and_object_views_input_also_pass_through_unchanged(): void
+    {
+        $this->on_screen('mhmrentiva_vehicle');
+
+        $this->assertNull(ListScreenLayout::render_header(null));
+
+        $object = (object) array( 'not' => 'an array' );
+        $this->assertSame($object, ListScreenLayout::render_header($object));
+    }
+
     public function test_header_slot_stays_silent_off_the_transformed_screens(): void
     {
         global $pagenow, $post_type;

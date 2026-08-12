@@ -117,17 +117,28 @@ final class ListScreenLayout {
 	 * echoes as a side effect and hands `$views` back untouched. The status
 	 * link list core builds from `$views` still renders directly below.
 	 *
-	 * @param  array<string, string> $views Status links core is about to print.
-	 * @return array<string, string> The same links, unmodified.
+	 * `$views` is deliberately left untyped even though the file declares
+	 * `strict_types=1`. `views_edit-{$post_type}` is a third-party-extensible
+	 * filter: any plugin hooked at a lower priority than ours is free to
+	 * return anything, and core itself only ever reads `$views` as an array
+	 * without asserting it. An `array` type hint here would turn a
+	 * misbehaving earlier subscriber into a TypeError that takes down the
+	 * whole list screen. Non-array input is passed through unchanged instead
+	 * of being coerced — coercing it would fabricate a shape core never
+	 * produced and this callback never guaranteed.
+	 *
+	 * @param  mixed $views Status links core is about to print. Expected to
+	 *                      be an array<string, string>, but not guaranteed.
+	 * @return mixed The same value handed in, unmodified.
 	 */
-	public static function render_header(array $views): array
+	public static function render_header($views)
 	{
-		if (! self::is_list_screen()) {
+		if (! is_array($views) || ! self::is_list_screen()) {
 			return $views;
 		}
 
 		do_action('mhmrentiva_list_screen_header');
-		self::print_notice_placement('define');
+		self::print_notice_placement();
 
 		return $views;
 	}
