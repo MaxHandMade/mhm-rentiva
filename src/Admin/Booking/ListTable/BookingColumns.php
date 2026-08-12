@@ -1503,8 +1503,14 @@ final class BookingColumns {
 		$vehicle_posts = $vehicle_query->posts;
 
 		if ( $vehicle_query->found_posts > count( $vehicle_posts ) ) {
+			// `inline` is core's own documented opt-out from the DOMContentLoaded
+			// notice relocation (`wp-admin/js/common.js`, `.not('.inline,
+			// .below-h2')`) and from ListScreenLayout's own early sweep, which
+			// honours the same class. This is OUR face explaining ITSELF, not a
+			// third-party notice -- it must render exactly where it is echoed,
+			// beside the matrix it explains, not get swept up to the header band.
 			printf(
-				'<div class="notice notice-info mhm-occupancy-matrix-cap-notice"><p>%s</p></div>',
+				'<div class="notice notice-info mhm-occupancy-matrix-cap-notice inline"><p>%s</p></div>',
 				esc_html(
 					sprintf(
 						/* translators: %d: number of vehicle rows shown before the fleet is trimmed. */
@@ -1544,7 +1550,7 @@ final class BookingColumns {
 			// set OccupancyMapService owns, not of a local copy of it.
 			if ( '' !== $status_filter && ! in_array( $status_filter, OccupancyMapService::PAINTED_STATUSES, true ) ) {
 				printf(
-					'<div class="notice notice-info mhm-occupancy-matrix-empty"><p>%s</p></div>',
+					'<div class="notice notice-info mhm-occupancy-matrix-empty inline"><p>%s</p></div>',
 					esc_html(
 						sprintf(
 							/* translators: %s: the active status chip's label (e.g. "Cancelled"). */
@@ -1555,7 +1561,7 @@ final class BookingColumns {
 				);
 			} else {
 				printf(
-					'<div class="notice notice-info mhm-occupancy-matrix-empty"><p>%s</p></div>',
+					'<div class="notice notice-info mhm-occupancy-matrix-empty inline"><p>%s</p></div>',
 					esc_html__( 'No bookings match the current filters in this month.', 'mhm-rentiva' )
 				);
 			}
@@ -1580,9 +1586,12 @@ final class BookingColumns {
 			// note stayed stranded wherever it printed while its two siblings
 			// travelled into the notice slot — and it was unstyled besides
 			// (only the `-empty` and `-cap-notice` classes had CSS). Same
-			// element, same class family, same skin as its siblings now.
+			// element, same class family, same skin as its siblings now --
+			// including `inline`, core's opt-out from relocation, so all
+			// three stay put beside the matrix instead of being swept away
+			// from the emptiness they explain.
 			printf(
-				'<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note"><p>%s</p></div>',
+				'<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note inline"><p>%s</p></div>',
 				esc_html(
 					sprintf(
 						/* translators: %s: number of bookings with no vehicle assigned (transfers etc.), formatted for display. */

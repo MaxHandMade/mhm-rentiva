@@ -47,15 +47,13 @@ if (! defined('ABSPATH')) {
  * jump: measured here, the whole header block slid up 54px when the Pro license
  * warning left the top of the page.
  *
- * Two parse-time inline scripts close that. The first is printed at the end of
- * the header slot and does core's relocation early, with core's own selector,
- * placing each notice directly below this block — where the relocation script
- * used to leave them, under the chip strip. The second, at the end of the face
- * slot, repeats the call for notices a face renders (the Calendar face's
- * empty / cap / vehicleless notes). Both run while the parser is still
- * working, so nothing has painted and neither costs a visible reflow.
+ * A parse-time inline script closes that. It prints at the end of the header
+ * slot and does core's relocation early, with core's own selector, placing
+ * each notice directly below this block — where the relocation script used
+ * to leave them, under the chip strip. It runs while the parser is still
+ * working, so nothing has painted and it costs no visible reflow.
  *
- * Each notice they place is stamped `below-h2` — the class core's `common.js`
+ * Each notice it places is stamped `below-h2` — the class core's `common.js`
  * documents as "here just for backward compatibility with plugins" and excludes
  * from its own pass. It carries no styling anywhere in core, so it is a pure
  * behavioural opt-out: the DOMContentLoaded relocation then finds nothing left
@@ -71,6 +69,30 @@ if (! defined('ABSPATH')) {
  * honest option. With JavaScript disabled nothing moves at all: our blocks are
  * already in their final server-rendered order and the notices simply stay
  * where WordPress printed them, exactly as on any other admin screen.
+ *
+ * OUR OWN FACE NOTICES STAY WITH THE FACE
+ * ----------------------------------------
+ * A second copy of the script above used to run again at the end of the face
+ * slot, so the Bookings Calendar face's own explanation notices (empty /
+ * row-cap / vehicleless — printed by `BookingColumns::render_calendar_view()`)
+ * joined the same sweep. That was wrong for THIS specific case: those notices
+ * are not a third party's, they are the face's own explanation of itself, and
+ * hoisting them to just under the chip strip separated the explanation from
+ * the empty area it explains — on an empty month the calendar band sat
+ * ~180px below a notice about that same emptiness, and the screen read as
+ * "something failed to load" rather than "this month is empty". Those three
+ * notices now carry core's own `inline` class instead — the documented
+ * relocation opt-out (`.not('.inline, .below-h2')` in
+ * `wp-admin/js/common.js`) this class's own sweep script already honours, so
+ * they render exactly where they are echoed, beside the matrix. With that
+ * fixed, the second pass had nothing left to do: no other FACE_ACTION
+ * subscriber in this codebase prints a `div.notice`, and FACE_ACTION is not a
+ * documented public seam a Pro subscriber is invited to hang a notice off of
+ * (unlike, for instance, the booking toolbar's neutral filter seam). The
+ * second pass was removed rather than kept for a hypothetical future
+ * consumer. Third-party notices are unaffected either way: they print from
+ * `admin_notices`, above `.wrap`, so the header slot's single pass already
+ * sweeps them before the face slot ever runs.
  */
 final class ListScreenLayout {
 
@@ -153,6 +175,11 @@ final class ListScreenLayout {
 	/**
 	 * Face slot renderer.
 	 *
+	 * No notice-placement pass here — see "OUR OWN FACE NOTICES STAY WITH
+	 * THE FACE" in the class docblock. The Calendar face's own notices opt
+	 * out of relocation with the `inline` class instead, and nothing else
+	 * hanging off FACE_ACTION prints a notice.
+	 *
 	 * @param string $which Which tablenav is rendering ('top' or 'bottom').
 	 */
 	public static function render_face(string $which): void
@@ -162,7 +189,6 @@ final class ListScreenLayout {
 		}
 
 		do_action('mhmrentiva_list_screen_face');
-		self::print_notice_placement('call');
 	}
 
 	/**
@@ -183,46 +209,33 @@ final class ListScreenLayout {
 	/**
 	 * Print the parse-time notice placement script.
 	 *
-	 * See the class docblock for why this exists. Two modes:
-	 *
-	 *   - 'define' (header slot) defines `window.mhmRentivaPlaceAdminNotices()`
-	 *     and calls it. The script tag itself is the insertion cursor, which is
-	 *     why the notices land directly below the header block.
-	 *   - 'call' (face slot) calls it again, so notices a face rendered join
-	 *     the run instead of being left for core's later pass.
-	 *
-	 * The cursor advances to each placed notice, so a second call appends after
-	 * the first call's run instead of pushing in front of it, and the run keeps
-	 * document order. Already-placed notices carry `below-h2` and are skipped,
-	 * which makes repeat calls cheap and core's own pass a no-op.
-	 *
-	 * @param string $mode Either 'define' (header slot) or 'call' (face slot).
+	 * See the class docblock for why this exists. Defines
+	 * `window.mhmRentivaPlaceAdminNotices()` and calls it immediately; the
+	 * script tag itself is the insertion cursor, which is why the notices
+	 * land directly below the header block, in document order. Kept as a
+	 * named global rather than an anonymous IIFE even though nothing in this
+	 * codebase calls it a second time any more (see the class docblock for
+	 * why the face slot's repeat call was removed): it costs nothing to
+	 * leave callable, and it is what ListScreenLayoutTest's coverage of this
+	 * script inspects for.
 	 */
-	private static function print_notice_placement(string $mode): void
+	private static function print_notice_placement(): void
 	{
-		if ('define' === $mode) {
-			wp_print_inline_script_tag(
-				'(function(){'
-				. 'var at=document.currentScript;'
-				. 'if(!at||!at.parentNode){return;}'
-				. 'window.mhmRentivaPlaceAdminNotices=function(){'
-				. 'var a=document.querySelectorAll("div.updated, div.error, div.notice");'
-				. 'for(var i=0;i<a.length;i++){'
-				. 'var el=a[i],c=" "+el.className+" ";'
-				. 'if(c.indexOf(" inline ")>-1||c.indexOf(" below-h2 ")>-1){continue;}'
-				. 'el.className=el.className+" below-h2";'
-				. 'at.parentNode.insertBefore(el,at.nextSibling);'
-				. 'at=el;'
-				. '}};'
-				. 'window.mhmRentivaPlaceAdminNotices();'
-				. '})();'
-			);
-
-			return;
-		}
-
 		wp_print_inline_script_tag(
-			'if(window.mhmRentivaPlaceAdminNotices){window.mhmRentivaPlaceAdminNotices();}'
+			'(function(){'
+			. 'var at=document.currentScript;'
+			. 'if(!at||!at.parentNode){return;}'
+			. 'window.mhmRentivaPlaceAdminNotices=function(){'
+			. 'var a=document.querySelectorAll("div.updated, div.error, div.notice");'
+			. 'for(var i=0;i<a.length;i++){'
+			. 'var el=a[i],c=" "+el.className+" ";'
+			. 'if(c.indexOf(" inline ")>-1||c.indexOf(" below-h2 ")>-1){continue;}'
+			. 'el.className=el.className+" below-h2";'
+			. 'at.parentNode.insertBefore(el,at.nextSibling);'
+			. 'at=el;'
+			. '}};'
+			. 'window.mhmRentivaPlaceAdminNotices();'
+			. '})();'
 		);
 	}
 }

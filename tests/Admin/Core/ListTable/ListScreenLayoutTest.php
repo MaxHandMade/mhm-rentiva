@@ -184,7 +184,17 @@ final class ListScreenLayoutTest extends WP_UnitTestCase
         $this->assertStringContainsString('div.updated, div.error, div.notice', $html);
     }
 
-    public function test_face_slot_replays_the_notice_placement(): void
+    /**
+     * The face slot used to replay the notice-placement script, so that
+     * notices a face itself printed (the Bookings Calendar's empty / cap /
+     * vehicleless notes) joined the sweep. Those notices now opt out with
+     * core's `inline` class instead and render in place beside the matrix
+     * (see BookingCalendarFaceTest), which removed the second pass's only
+     * consumer — no other FACE_ACTION subscriber in this codebase prints a
+     * notice, and the seam is not a documented third-party extension point.
+     * This pins the removal: the face slot must stay silent on notices.
+     */
+    public function test_face_slot_does_not_replay_the_notice_placement(): void
     {
         $this->on_screen('mhmrentiva_booking');
 

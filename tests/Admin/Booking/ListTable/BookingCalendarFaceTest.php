@@ -293,6 +293,74 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
         $this->assertStringNotContainsString( 'Showing first', $html );
     }
 
+    /**
+     * Fix jump 2, finding 5: on an empty month, the empty-explanation notice
+     * and the row-cap notice used to be swept up to just under the chip strip
+     * by ListScreenLayout's notice-placement pass, while the calendar band
+     * they explain sat ~180px lower — the explanation separated from the
+     * emptiness it explains, reading as a load failure rather than an empty
+     * result. `inline` is core's documented relocation opt-out
+     * (`wp-admin/js/common.js`, `.not('.inline, .below-h2')`), which
+     * ListScreenLayout's own sweep script already honours too, so the notice
+     * now renders exactly where it is echoed, beside the matrix.
+     */
+    public function test_cap_notice_carries_the_inline_opt_out_class(): void
+    {
+        add_filter(
+            'mhmrentiva_occupancy_matrix_row_cap',
+            static function () {
+                return 2;
+            }
+        );
+
+        $month = (int) gmdate( 'n' );
+        $year  = (int) gmdate( 'Y' );
+        $day   = sprintf( '%04d-%02d-15', $year, $month );
+
+        foreach ( array( 'V1', 'V2', 'V3' ) as $title ) {
+            $vehicle = $this->makeVehicle( $title );
+            $this->makeBooking( $vehicle->ID, 'confirmed', $day, $day );
+        }
+
+        $this->goToCalendarFace();
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            '<div class="notice notice-info mhm-occupancy-matrix-cap-notice inline">',
+            $html
+        );
+    }
+
+    /** Same fix, the generic-empty branch of the same notice family. */
+    public function test_generic_empty_notice_carries_the_inline_opt_out_class(): void
+    {
+        $this->goToCalendarFace();
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            '<div class="notice notice-info mhm-occupancy-matrix-empty inline">',
+            $html
+        );
+    }
+
+    /** Same fix, the "switch to List view" branch of the same notice family. */
+    public function test_switch_to_list_notice_carries_the_inline_opt_out_class(): void
+    {
+        $month   = (int) gmdate( 'n' );
+        $year    = (int) gmdate( 'Y' );
+        $day     = sprintf( '%04d-%02d-15', $year, $month );
+        $vehicle = $this->makeVehicle( 'Cancelled Car' );
+        $this->makeBooking( $vehicle->ID, 'cancelled', $day, $day );
+
+        $this->goToCalendarFace( 'mhmrentiva_booking_status=cancelled' );
+        $html = $this->render();
+
+        $this->assertStringContainsString(
+            '<div class="notice notice-info mhm-occupancy-matrix-empty inline">',
+            $html
+        );
+    }
+
     // --- Test 4: vehicle-less note ------------------------------------------
 
     public function test_vehicleless_note_is_absent_when_every_booking_has_a_vehicle(): void
@@ -335,8 +403,15 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
      * occupancy-matrix.css styled — it landed above the page <h1>, naked.
      * It must be a notice like its two siblings, and carry a class the
      * stylesheet actually knows.
+     *
+     * Fix jump 2, finding 5: being a relocatable notice was later found to be
+     * the wrong shape for THIS notice — it is the face's own explanation of
+     * itself, and sweeping it (and its cap/empty siblings) up to the header
+     * band separated the explanation from the empty area it explains. It now
+     * additionally carries `inline`, core's documented relocation opt-out, so
+     * it renders exactly where it is echoed instead of being swept away.
      */
-    public function test_vehicleless_note_is_a_relocatable_styled_notice(): void
+    public function test_vehicleless_note_is_a_styled_inline_notice_beside_the_matrix(): void
     {
         $month = (int) gmdate( 'n' );
         $year  = (int) gmdate( 'Y' );
@@ -351,7 +426,7 @@ final class BookingCalendarFaceTest extends WP_UnitTestCase
         $html = $this->render();
 
         $this->assertStringContainsString(
-            '<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note">',
+            '<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note inline">',
             $html
         );
         $this->assertStringNotContainsString( '<p class="mhm-occupancy-matrix-vehicleless-note"', $html );
