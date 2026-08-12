@@ -621,11 +621,10 @@ final class DashboardService {
                     COUNT(DISTINCT p.ID) as total,
                     SUM(CASE WHEN p.post_date >= %s AND p.post_date <= %s THEN 1 ELSE 0 END) as monthly
                 FROM {$wpdb->posts} p
-                WHERE p.post_type = %s AND p.post_status != %s",
+                WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'",
 				$month_start,
 				$month_end,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -642,11 +641,10 @@ final class DashboardService {
 				"SELECT COALESCE(NULLIF(pm_status.meta_value, ''), 'pending') AS status, COUNT(DISTINCT p.ID) AS n
                 FROM {$wpdb->posts} p
                 LEFT JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-                WHERE p.post_type = %s AND p.post_status != %s
+                WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
                 GROUP BY COALESCE(NULLIF(pm_status.meta_value, ''), 'pending')",
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -1089,11 +1087,10 @@ final class DashboardService {
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p
              INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm.meta_key = %s AND pm.meta_value = %s
              AND p.post_date >= %s AND p.post_date <= %s",
 				'mhmrentiva_booking',
-				'trash',
 				'_mhmrentiva_payment_type',
 				'deposit',
 				$current_month_start,
@@ -1110,15 +1107,14 @@ final class DashboardService {
              INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = %s AND pm_type.meta_value = %s
              INNER JOIN {$wpdb->postmeta} pm_remaining ON p.ID = pm_remaining.post_id AND pm_remaining.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND CAST(pm_remaining.meta_value AS DECIMAL(10,2)) > 0
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')",
 				'_mhmrentiva_payment_type',
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_REMAINING_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -1131,14 +1127,13 @@ final class DashboardService {
              INNER JOIN {$wpdb->postmeta} pm_type ON p.ID = pm_type.post_id AND pm_type.meta_key = %s AND pm_type.meta_value = %s
              INNER JOIN {$wpdb->postmeta} pm_deposit ON p.ID = pm_deposit.post_id AND pm_deposit.meta_key = %s
              INNER JOIN {$wpdb->postmeta} pm_status ON p.ID = pm_status.post_id AND pm_status.meta_key = %s
-             WHERE p.post_type = %s AND p.post_status != %s
+             WHERE p.post_type = %s AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value IN ('completed', 'confirmed')",
 				'_mhmrentiva_payment_type',
 				'deposit',
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_DEPOSIT_AMOUNT,
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			)
 		);
 
@@ -1194,7 +1189,7 @@ final class DashboardService {
              LEFT JOIN {$wpdb->postmeta} pm_deposit_order ON p.ID = pm_deposit_order.post_id AND pm_deposit_order.meta_key = %s
              LEFT JOIN {$wpdb->postmeta} pm_remaining_order ON p.ID = pm_remaining_order.post_id AND pm_remaining_order.meta_key = %s
              WHERE p.post_type = %s
-             AND p.post_status != %s
+             AND p.post_status IN ('publish', 'private', 'pending') AND p.post_status != 'trash'
              AND pm_status.meta_value NOT IN ('cancelled', 'refunded', 'completed')
              AND ( pm_deposit_order.meta_value IS NOT NULL OR pm_remaining_order.meta_value IS NOT NULL )
              ORDER BY pm_deadline.meta_value ASC LIMIT 50",
@@ -1205,8 +1200,7 @@ final class DashboardService {
 				\MHMRentiva\Admin\Core\MetaKeys::BOOKING_STATUS,
 				'_mhmrentiva_woocommerce_order_id',
 				'_mhmrentiva_remaining_order_id',
-				'mhmrentiva_booking',
-				'trash'
+				'mhmrentiva_booking'
 			),
 			ARRAY_A
 		) ?: array();

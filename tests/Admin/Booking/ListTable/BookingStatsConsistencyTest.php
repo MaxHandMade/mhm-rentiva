@@ -89,4 +89,35 @@ final class BookingStatsConsistencyTest extends WP_UnitTestCase
         $this->assertSame(3, $band['completed_this_month']);
         $this->assertArrayHasKey('revenue_trend', $band);
     }
+
+    /**
+     * Regression lock for the Faz-2 count defect (Faz-1a commit 64b6a061):
+     * get_booking_stats() filtered only `post_status != 'trash'` in both its
+     * total and per-status queries, so the auto-draft WordPress creates the
+     * instant an admin opens "Add New" (no `_mhmrentiva_status` meta at all)
+     * leaked into the "Toplam Rezervasyon" KPI and, via the COALESCE fold,
+     * into the pending chip too. The fix brings both queries to the same
+     * `post_status IN ('publish', 'private', 'pending')` convention already
+     * used everywhere else in this file.
+     */
+    public function test_auto_draft_booking_excluded_from_total_and_pending(): void
+    {
+        // setUp() already seeded 9 bookings (total=9, pending=3). An
+        // auto-draft carries no status meta at all -- exactly like a real
+        // one left behind by an abandoned "Add New" click -- so if it were
+        // still counted it would silently become a 10th row and a 4th
+        // pending, the same way it inflated 28 published bookings to 29.
+        self::factory()->post->create(
+            array(
+                'post_type'   => 'mhmrentiva_booking',
+                'post_status' => 'auto-draft',
+            )
+        );
+
+        wp_cache_delete('mhmrentiva_booking_stats');
+        $stats = DashboardService::get_booking_stats();
+
+        $this->assertSame(9, $stats['total'], 'auto-draft booking must not inflate the total');
+        $this->assertSame(3, $stats['pending'], 'auto-draft booking must not inflate the pending bucket');
+    }
 }
