@@ -320,6 +320,14 @@ final class Plugin {
 			\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::register();
 		}
 
+		// Server-side layout seam for the transformed list screens. Must be
+		// registered before the column classes so their blocks have a slot to
+		// hang on; see ListScreenLayout for why `admin_notices` no longer
+		// carries them.
+		if ($this->is_class_available('MHMRentiva\Admin\Core\ListTable\ListScreenLayout')) {
+			\MHMRentiva\Admin\Core\ListTable\ListScreenLayout::register();
+		}
+
 		// List table columns
 		if ($this->is_class_available('MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns')) {
 			\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::register();

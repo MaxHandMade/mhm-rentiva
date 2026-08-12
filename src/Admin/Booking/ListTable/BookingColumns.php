@@ -15,6 +15,7 @@ if (!defined('ABSPATH')) {
 use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Booking\Core\Status;
 use MHMRentiva\Admin\Core\Utilities\OccupancyMapService;
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -158,28 +159,30 @@ final class BookingColumns {
 		// use, rather than a second link location.
 		add_filter( 'post_row_actions', array( self::class, 'add_approve_row_action' ), 10, 2 );
 		add_filter( 'post_class', array( self::class, 'add_completed_row_class' ), 10, 3 );
+		// Layout blocks print from ListScreenLayout's server-side seams, which
+		// fire INSIDE `.wrap` — the header slot after the page <h1>, the face
+		// slot after the list table. They used to print from `admin_notices`
+		// (above `.wrap`) and get dragged into place by jQuery afterwards,
+		// which is exactly the layout jump this seam removes. Priority alone
+		// decides the visual order now; there is no relocation script left.
+
 		// Optional UI extras; now enabled by default (safe after export form fix)
 		if ( apply_filters( 'mhmrentiva_enable_booking_admin_extras', true ) ) {
-			add_action( 'admin_notices', array( self::class, 'add_booking_stats_cards' ) );
+			add_action( ListScreenLayout::HEADER_ACTION, array( self::class, 'add_booking_stats_cards' ) );
 		}
 		// Chips are the status filter UI itself (not an "extra"): they replace
 		// the old dropdown and must survive the extras filter being disabled.
-		add_action( 'admin_notices', array( self::class, 'status_chips' ), 15 );
-		// Neutral toolbar seam: renders NOTHING (no container) unless a
-		// subscriber adds actions. Lite ships no subscriber.
-		add_action( 'admin_notices', array( self::class, 'toolbar_actions' ), 5 );
-		// View-switch toggle (Faz 2): always renders, Pro or not — it is core
-		// list-screen machinery, not a Pro teaser, so it is unconditional like
-		// the toolbar/chips above rather than gated behind the extras filter.
-		add_action( 'admin_notices', array( self::class, 'render_view_toggle' ), 6 );
+		add_action( ListScreenLayout::HEADER_ACTION, array( self::class, 'status_chips' ), 15 );
+		// One toolbar row carrying the view toggle and, when a Pro subscriber
+		// answers the neutral seam, its actions — the flex row jQuery used to
+		// build with wrapAll() is server markup now.
+		add_action( ListScreenLayout::HEADER_ACTION, array( self::class, 'render_toolbar_row' ), 5 );
 		// Calendar face (Faz 2 view engine) — replaces the retired
-		// add_booking_calendar() in the SAME admin_notices slot (priority
-		// 20), so booking-list-filters.js's `.mhm-calendars` relocation
-		// still finds its target here without a JS registration change.
-		// Genuine always-on Lite functionality (a screen FACE, not a Pro
-		// teaser), so — like the toggle above — it is unconditional rather
-		// than gated behind the extras filter the old renderer sat inside.
-		add_action( 'admin_notices', array( self::class, 'render_calendar_view' ), 20 );
+		// add_booking_calendar(). Genuine always-on Lite functionality (a
+		// screen FACE, not a Pro teaser), so — like the toolbar row above —
+		// it is unconditional rather than gated behind the extras filter the
+		// old renderer sat inside.
+		add_action( ListScreenLayout::FACE_ACTION, array( self::class, 'render_calendar_view' ), 20 );
 	}
 
 	/**
@@ -692,14 +695,9 @@ final class BookingColumns {
 			return;
 		}
 
-		/**
-		 * Filters the action links rendered above the booking list table.
-		 *
-		 * @param array<int, array{label: string, url: string, class?: string}> $actions Toolbar actions.
-		 */
-		$actions = apply_filters( 'mhmrentiva_booking_list_toolbar_actions', array() );
+		$actions = self::toolbar_action_items();
 
-		if ( empty( $actions ) || ! is_array( $actions ) ) {
+		if ( empty( $actions ) ) {
 			return;
 		}
 
@@ -720,18 +718,74 @@ final class BookingColumns {
 	}
 
 	/**
+	 * The toolbar seam's items, asked once and answered the same way for both
+	 * callers.
+	 *
+	 * The row renderer has to know whether the seam produced anything BEFORE it
+	 * opens the flex wrapper (an empty row would leave a stray box on a Lite
+	 * install, which is exactly what the neutral-seam contract forbids), and
+	 * toolbar_actions() has to render those items. Buffering the renderer's
+	 * output to answer the first question would mean echoing pre-built markup
+	 * back out, a shape gate G-A holds at zero — so both go through this one
+	 * accessor instead.
+	 *
+	 * @return array<int, array{label: string, url: string, class?: string}>
+	 */
+	private static function toolbar_action_items(): array {
+		/**
+		 * Filters the action links rendered above the booking list table.
+		 *
+		 * @param array<int, array{label: string, url: string, class?: string}> $actions Toolbar actions.
+		 */
+		$actions = apply_filters( 'mhmrentiva_booking_list_toolbar_actions', array() );
+
+		return is_array( $actions ) ? $actions : array();
+	}
+
+	/**
+	 * The screen's top row: the view toggle, plus the Pro toolbar seam's
+	 * actions when a subscriber answered it.
+	 *
+	 * Both blocks used to print separately into the `admin_notices` stream and
+	 * booking-list-filters.js wrapped them into `.rv-bkl-toolbar-row` with
+	 * jQuery `wrapAll()` after relocating them. Printing the wrapper here keeps
+	 * that exact row markup (toggle first, seam actions second) without any
+	 * script, and keeps the seam's contract intact: with no subscriber there is
+	 * no row wrapper and no toolbar container at all, only the toggle.
+	 */
+	public static function render_toolbar_row(): void {
+		global $pagenow, $post_type;
+
+		if ( $pagenow !== 'edit.php' || $post_type !== 'mhmrentiva_booking' ) {
+			return;
+		}
+
+		$has_toolbar = ! empty( self::toolbar_action_items() );
+
+		if ( $has_toolbar ) {
+			echo '<div class="rv-bkl-toolbar-row">';
+		}
+
+		self::render_view_toggle();
+		self::toolbar_actions();
+
+		if ( $has_toolbar ) {
+			echo '</div>';
+		}
+	}
+
+	/**
 	 * Segmented view-switch control (List | Calendar) — Faz 2 view engine.
 	 *
-	 * Rendered as its OWN admin_notices block rather than folded into
-	 * toolbar_actions() above: that method's neutral-seam contract is a
-	 * house rule pinned by BookingToolbarSeamTest (renders NOTHING, container
-	 * included, when no Pro subscriber adds actions — no empty box teasing
-	 * an absent feature). The toggle is not that: it is genuine, always-on
-	 * Lite functionality, so it gets its own block. The relocation JS
-	 * (booking-list-filters.js) wraps this block together with
-	 * `.rv-bkl-toolbar` into one flex row WHEN a Pro subscriber actually
-	 * renders the toolbar; when nothing subscribes, `.rv-bkl-toolbar` is
-	 * absent from the DOM entirely and the toggle simply stands alone.
+	 * Its own block rather than folded into toolbar_actions(): that method's
+	 * neutral-seam contract is a house rule pinned by BookingToolbarSeamTest
+	 * (renders NOTHING, container included, when no Pro subscriber adds
+	 * actions — no empty box teasing an absent feature). The toggle is not
+	 * that: it is genuine, always-on Lite functionality. render_toolbar_row()
+	 * prints the two together inside one `.rv-bkl-toolbar-row` flex wrapper
+	 * WHEN a Pro subscriber actually answers the seam; when nothing
+	 * subscribes there is no wrapper and no `.rv-bkl-toolbar` in the DOM at
+	 * all, and the toggle simply stands alone.
 	 *
 	 * Markup only (`rv-view-toggle` / `rv-view-toggle__btn` / `is-active`);
 	 * styling lands in Task 8.
@@ -1370,11 +1424,11 @@ final class BookingColumns {
 	 * FleetOccupancyMatrix renderer the Vehicles Calendar face (Task 4)
 	 * uses.
 	 *
-	 * Registered in the SAME admin_notices slot (priority 20) the old
-	 * renderer held, so booking-list-filters.js's `.mhm-calendars`
-	 * relocation still finds its target here (its selector was widened from
-	 * the old renderer's `.booking-calendar-page` class to match the
-	 * matrix's own marker class as part of this change).
+	 * Prints from ListScreenLayout's face slot
+	 * (`manage_posts_extra_tablenav`, bottom), the one core extension point
+	 * that sits after the list table and still inside `.wrap` — so the face
+	 * lands below the filter row on the server, where the relocation script
+	 * used to drag it after the fact.
 	 */
 	public static function render_calendar_view(): void {
 		global $pagenow, $post_type;
@@ -1504,13 +1558,12 @@ final class BookingColumns {
 
 		if ( $vehicleless_count > 0 ) {
 			// A `div.notice`, exactly like the cap and empty notices above.
-			// It used to be a bare `<p>`: core's common.js only relocates
-			// `div.updated/.error/.notice`, and this face's own relocation
-			// JS moves the `.mhm-calendars` wrapper alone — so the note was
-			// left stranded above the page <h1>, detached from the matrix it
-			// annotates, and unstyled (only the `-empty` and `-cap-notice`
-			// classes had CSS). Same element, same class family, same
-			// relocation, same skin as its two siblings now.
+			// It used to be a bare `<p>`, which core's common.js does not
+			// relocate (it only moves `div.updated/.error/.notice`), so the
+			// note stayed stranded wherever it printed while its two siblings
+			// travelled into the notice slot — and it was unstyled besides
+			// (only the `-empty` and `-cap-notice` classes had CSS). Same
+			// element, same class family, same skin as its siblings now.
 			printf(
 				'<div class="notice notice-info mhm-occupancy-matrix-vehicleless-note"><p>%s</p></div>',
 				esc_html(

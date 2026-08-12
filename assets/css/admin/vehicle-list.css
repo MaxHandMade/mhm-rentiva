@@ -411,18 +411,38 @@ body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
    (unlike Bookings' calendar face, which also hides pagination) — the TOP
    tablenav's pagination is still meaningful here (cards/calendar rows come
    from the same main query) and its filter controls still drive that
-   query, so only the BOTTOM tablenav is hidden. Without this, WordPress
-   renders both the top and bottom tablenav rows either side of the
-   (display:none) list table; with the table gone the two rows collapse
-   together and the "X öge" counter appears twice, stacked, right under
-   the filter row (user-reported). */
+   query, so only the BOTTOM row is emptied (see the next rule). Without
+   that, WordPress renders both the top and bottom tablenav rows either side
+   of the (display:none) list table; with the table gone the two rows
+   collapse together and the "X öge" counter appears twice, stacked, right
+   under the filter row (user-reported). */
 body.mhm-vehicle-list.mhm-view-cards .wp-list-table,
 body.mhm-vehicle-list.mhm-view-calendar .wp-list-table,
 body.mhm-vehicle-list.mhm-view-cards .tablenav .bulkactions,
-body.mhm-vehicle-list.mhm-view-calendar .tablenav .bulkactions,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav .bulkactions {
+	display: none;
+}
+
+/* The bottom tablenav can no longer be hidden wholesale: it is the host of
+   the face content now. `manage_posts_extra_tablenav` (bottom) is the only
+   core hook that fires after the list table and still inside `.wrap`, so the
+   Cards and Calendar faces print into that band server-side instead of being
+   moved there by a script afterwards. Its own native children are hidden
+   piece by piece, and core's fixed `.tablenav { height: 30px }` is released
+   so the face can set its own height. */
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > .actions,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > .actions,
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > .tablenav-pages,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > .tablenav-pages,
+body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom > br.clear,
+body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom > br.clear {
+	display: none;
+}
+
 body.mhm-vehicle-list.mhm-view-cards .tablenav.bottom,
 body.mhm-vehicle-list.mhm-view-calendar .tablenav.bottom {
-	display: none;
+	height: auto;
+	margin: 0;
 }
 
 /* ── Calendar card harmonization (function untouched) ── */

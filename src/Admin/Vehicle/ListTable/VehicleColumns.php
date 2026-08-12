@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Vehicle\ListTable;
 
+use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -146,27 +148,34 @@ final class VehicleColumns {
 		add_action('delete_post', array( self::class, 'clear_vehicle_cache_on_delete' ));
 		add_action('save_post_mhmrentiva_booking', array( self::class, 'clear_booking_occupancy_cache' ));
 
+		// Layout blocks print from ListScreenLayout's server-side seams, which
+		// fire INSIDE `.wrap` — the header slot after the page <h1>, the face
+		// slot after the list table. They used to print from `admin_notices`
+		// (above `.wrap`) and get dragged into place by jQuery afterwards,
+		// which is exactly the layout jump this seam removes. Priority alone
+		// decides the visual order now; there is no relocation script left.
+
 		// View-switch toggle (Faz 2): new block, no existing toolbar on this
-		// screen to share with. Priority puts it ahead of the KPI band in the
-		// raw admin_notices stream; actual visual order is decided by the
-		// relocation JS (vehicle-list-ui.js).
-		add_action('admin_notices', array( self::class, 'render_view_toggle' ), 8);
+		// screen to share with. Priority puts it ahead of the KPI band.
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'render_view_toggle' ), 8);
 
 		// Add statistics cards
-		add_action('admin_notices', array( self::class, 'add_vehicle_stats_cards' ));
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'add_vehicle_stats_cards' ));
 
-		// Category chip strip between the KPI band and the calendar.
-		add_action('admin_notices', array( self::class, 'category_chips' ), 15);
+		// Category chip strip below the KPI band.
+		add_action(ListScreenLayout::HEADER_ACTION, array( self::class, 'category_chips' ), 15);
 
 		// Calendar face (Faz 2 view engine) — replaces the old
-		// add_monthly_calendar() in the same admin_notices slot.
-		add_action('admin_notices', array( self::class, 'render_calendar_view' ), 20);
+		// add_monthly_calendar(). Still runs after the KPI band, exactly as it
+		// did when both sat in the `admin_notices` stream, so the AutoCancel
+		// fallback it carries keeps its old position relative to the stats.
+		add_action(ListScreenLayout::FACE_ACTION, array( self::class, 'render_calendar_view' ), 20);
 
 		// Cards face (Faz 2 view engine, Task 6) — same slot as the calendar
 		// face; the two are mutually exclusive via get_current_view(), and
 		// render_calendar_view() already runs the AutoCancel fallback on
 		// every face load, so this method doesn't need to repeat it.
-		add_action('admin_notices', array( self::class, 'render_cards_view' ), 20);
+		add_action(ListScreenLayout::FACE_ACTION, array( self::class, 'render_cards_view' ), 20);
 	}
 
 	/**
@@ -611,14 +620,9 @@ final class VehicleColumns {
 				true
 			);
 
-			// Layout relocation (title → KPI → chips → table → calendar).
-			wp_enqueue_script(
-				'mhm-rentiva-vehicle-list-ui',
-				MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/vehicle-list-ui.js',
-				array( 'jquery' ),
-				\MHMRentiva\Admin\Core\AssetManager::get_file_version('assets/js/admin/vehicle-list-ui.js'),
-				true
-			);
+			// No layout script on this screen: every block prints in its final
+			// position from ListScreenLayout's server-side seams. The old
+			// vehicle-list-ui.js did nothing but re-parent them and is gone.
 
 			// Load statistics cards CSS
 			wp_enqueue_style(
@@ -849,7 +853,7 @@ final class VehicleColumns {
 	 * below (attachment posts/meta are NOT primed by the main query the
 	 * way postmeta/term data are).
 	 *
-	 * Registered in the SAME admin_notices slot (priority 20)
+	 * Registered in the SAME face slot (priority 20)
 	 * render_calendar_view() holds; that method already runs the
 	 * AutoCancel fallback unconditionally on every face load, so this
 	 * method doesn't repeat it.
@@ -994,7 +998,7 @@ final class VehicleColumns {
 	 * engine. Markup only (`rv-view-toggle` / `rv-view-toggle__btn` /
 	 * `is-active`); styling lands in Task 8. No existing toolbar block on
 	 * this screen (unlike Bookings), so this is a plain standalone block —
-	 * see vehicle-list-ui.js for its position in the relocated layout.
+	 * ListScreenLayout's header slot prints it directly under the page title.
 	 */
 	public static function render_view_toggle(): void
 	{
@@ -1389,9 +1393,11 @@ final class VehicleColumns {
 	 * painting is delegated to the shared FleetOccupancyMatrix renderer
 	 * both this screen and the Bookings Calendar face (Task 5) use.
 	 *
-	 * Registered in the SAME admin_notices slot (priority 20) the old
-	 * renderer held, so vehicle-list-ui.js's `.mhm-calendars` relocation
-	 * still finds its target here without any JS change.
+	 * Prints from ListScreenLayout's face slot
+	 * (`manage_posts_extra_tablenav`, bottom), the one core extension point
+	 * that sits after the list table and still inside `.wrap` — so the face
+	 * lands below the filter row on the server, where the relocation script
+	 * used to drag it after the fact.
 	 */
 	public static function render_calendar_view(): void
 	{
@@ -1404,8 +1410,8 @@ final class VehicleColumns {
 		// AutoCancel fallback, relocated from the old add_monthly_calendar():
 		// must run on EVERY face of this screen (list included), not just
 		// calendar, so it fires here — before the face branch below — since
-		// this is the admin_notices-registered method that decides whether
-		// the calendar face renders at all.
+		// this is the face-slot method that decides whether the calendar
+		// face renders at all.
 		self::maybe_run_autocancel();
 
 		if ('calendar' !== self::get_current_view()) {

@@ -13,43 +13,11 @@
 				return;
 			}
 
-			// Layout relocation (Faz 1a): admin_notices output prints ABOVE the
-			// page <h1>; the approved mockup order is title → toolbar → KPI band
-			// → chips → table → calendar. Core relocates only `.notice` elements,
-			// so move our blocks below the header marker ourselves, and push the
-			// heavy monthly calendar BELOW the list table.
-			var $marker = $( '.wp-header-end' );
-			if ($marker.length) {
-				$( '.rv-bkl-chips' ).first().insertAfter( $marker );
-				$( '.mhm-stats-grid' ).first().insertAfter( $marker );
-				$( '.rv-bkl-toolbar' ).first().insertAfter( $marker );
-				// Faz 2 view-switch toggle — inserted last so it lands
-				// topmost (title → toolbar/toggle → KPI band → chips → content).
-				$( '.rv-view-toggle' ).first().insertAfter( $marker );
-
-				// The toggle shares the Pro toolbar's flex row when a
-				// subscriber actually rendered one. Lite ships no subscriber,
-				// so `.rv-bkl-toolbar` is absent from the DOM entirely in
-				// that case (BookingColumns::toolbar_actions() prints
-				// nothing without one) and the toggle stands alone.
-				var $toggle  = $( '.rv-view-toggle' ).first();
-				var $toolbar = $( '.rv-bkl-toolbar' ).first();
-				if ($toggle.length && $toolbar.length) {
-					$toggle.add( $toolbar ).wrapAll( '<div class="rv-bkl-toolbar-row"></div>' );
-				}
-			}
-			// Faz 2 Task 5: the below-table calendar band this used to move is
-			// gone (view=calendar is a full screen face now, not a below-table
-			// band on the list face) -- but the Calendar face itself still
-			// renders through admin_notices above the <h1>, same as before, so
-			// it still needs relocating below the header marker into its own
-			// slot. `.booking-calendar-page` was the old aggregate grid's own
-			// class and no longer exists; FleetOccupancyMatrix's wrapper marks
-			// itself `.mhm-calendars.mhm-occupancy-matrix-wrap` instead.
-			var $calendar = $( '.mhm-calendars.mhm-occupancy-matrix-wrap' ).first();
-			if ($calendar.length) {
-				$calendar.insertAfter( $form );
-			}
+			// No layout work here any more. Every block on this screen — the
+			// toolbar row, the KPI band, the chip strip and the Calendar face —
+			// prints in its final position from ListScreenLayout's server-side
+			// seams. This file used to re-parent all of them at DOMContentLoaded,
+			// which is what made the screen visibly jump on every load.
 
 			// On select change → submit (dates, status, payment, gateway)
 			$form.on(

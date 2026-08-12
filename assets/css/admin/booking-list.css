@@ -747,19 +747,35 @@ body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
    hides the list chrome so the (currently empty) content area below the
    toolbar doesn't show a stray list table alongside it. Bookings has no
    cards face. Unlike Vehicles, pagination is not meaningful on this face,
-   so `.tablenav-pages` stays hidden on the TOP row too — but the BOTTOM
-   tablenav is hidden outright rather than targeted piece by piece: with
-   the list table gone the top and bottom rows collapse together, and a
-   selector that only hides bottom's `.bulkactions`/`.tablenav-pages`
-   individually still leaves an empty (but box-generating) bottom row
-   sitting directly under the top one. Hiding `.tablenav.bottom` wholesale
-   also makes it the sole source of truth for that row, so it isn't
-   fighting the top-scoped rules below over the same elements. */
+   so `.tablenav-pages` stays hidden on the TOP row too. The BOTTOM row is
+   emptied instead of hidden (see the next rule): with the list table gone
+   the top and bottom rows collapse together, so every box-generating child
+   of the bottom row has to go — otherwise an empty row sits directly under
+   the top one — but the row element itself has to stay, because it is where
+   the Calendar face now prints. */
 body.mhm-booking-list.mhm-view-calendar .wp-list-table,
 body.mhm-booking-list.mhm-view-calendar .tablenav.top .bulkactions,
-body.mhm-booking-list.mhm-view-calendar .tablenav.top .tablenav-pages,
-body.mhm-booking-list.mhm-view-calendar .tablenav.bottom {
+body.mhm-booking-list.mhm-view-calendar .tablenav.top .tablenav-pages {
 	display: none;
+}
+
+/* The bottom tablenav can no longer be hidden wholesale: it is the host of
+   the Calendar face now. `manage_posts_extra_tablenav` (bottom) is the only
+   core hook that fires after the list table and still inside `.wrap`, so the
+   face prints into that band server-side instead of being moved there by a
+   script afterwards. Its own native children are hidden piece by piece — the
+   same empty-row problem the wholesale rule solved, solved without hiding
+   the face with them — and core's fixed `.tablenav { height: 30px }` is
+   released so the matrix can set its own height. */
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > .actions,
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > .tablenav-pages,
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom > br.clear {
+	display: none;
+}
+
+body.mhm-booking-list.mhm-view-calendar .tablenav.bottom {
+	height: auto;
+	margin: 0;
 }
 
 /* ── Calendar card harmonization (function untouched) ── */

@@ -41,6 +41,7 @@ src/Admin/Core/Exceptions/MHMException.php
 src/Admin/Core/Helpers/Sanitizer.php
 src/Admin/Core/LanguageHelper.php
 src/Admin/Core/ListTable/FleetOccupancyMatrix.php
+src/Admin/Core/ListTable/ListScreenLayout.php
 src/Admin/Core/MetaBoxes/AbstractMetaBox.php
 src/Admin/Core/MetaKeys.php
 src/Admin/Core/PerformanceHelper.php

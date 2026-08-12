@@ -1041,7 +1041,7 @@ parameters:
 		-
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
-			count: 10
+			count: 9
 			path: src/Admin/Vehicle/ListTable/VehicleColumns.php
 
 		-
