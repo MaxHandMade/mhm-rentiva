@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Tests\Admin\Core\ListTable;
 
+use MHMRentiva\Admin\Addons\AddonListTable;
+use MHMRentiva\Admin\Addons\AddonMenu;
 use MHMRentiva\Admin\Booking\ListTable\BookingColumns;
 use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
 use MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns;
@@ -242,6 +244,35 @@ final class ListScreenLayoutTest extends WP_UnitTestCase
         $calendar = array( BookingColumns::class, 'render_calendar_view' );
         $this->assertNotFalse(has_action(ListScreenLayout::FACE_ACTION, $calendar));
         $this->assertFalse(has_action('admin_notices', $calendar));
+    }
+
+    /**
+     * KANUN 0 sweep target: the add-ons screen had the same defect shape as
+     * Vehicles/Bookings before this fix (page title + KPI band printing from
+     * `admin_notices`, jumping into place at DOMContentLoaded). It has no
+     * face block, only the header slot, and priorities decide the same
+     * title-then-KPI-band order the two had on `admin_notices`.
+     */
+    public function test_addon_blocks_hang_off_the_header_slot_and_not_admin_notices(): void
+    {
+        AddonMenu::register();
+        AddonListTable::register();
+
+        $title = array( AddonMenu::class, 'add_addon_page_title' );
+        $this->assertSame(
+            5,
+            has_action(ListScreenLayout::HEADER_ACTION, $title),
+            'AddonMenu::add_addon_page_title() must render from the header slot at priority 5.'
+        );
+        $this->assertFalse(has_action('admin_notices', $title), 'AddonMenu::add_addon_page_title() must not render from admin_notices.');
+
+        $kpi = array( AddonListTable::class, 'add_addon_stats_cards' );
+        $this->assertSame(
+            10,
+            has_action(ListScreenLayout::HEADER_ACTION, $kpi),
+            'AddonListTable::add_addon_stats_cards() must render from the header slot at priority 10.'
+        );
+        $this->assertFalse(has_action('admin_notices', $kpi), 'AddonListTable::add_addon_stats_cards() must not render from admin_notices.');
     }
 
     /**

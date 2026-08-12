@@ -97,8 +97,15 @@ final class ListScreenLayout {
 
 	/**
 	 * Post types whose list screen carries the transformed layout.
+	 *
+	 * `mhmrentiva_addon` has no face block (no cards/calendar view to
+	 * replace the list table with) — it only uses the header slot, for its
+	 * page-title block and its KPI band. It is still listed here rather than
+	 * given a parallel mechanism: `is_list_screen()` gates both slots
+	 * identically for all three screens, and a face-less screen simply gets
+	 * a `do_action()` with no subscribers on FACE_ACTION, which is a no-op.
 	 */
-	private const SCREENS = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking' );
+	private const SCREENS = array( 'mhmrentiva_vehicle', 'mhmrentiva_booking', 'mhmrentiva_addon' );
 
 	public static function register(): void
 	{
