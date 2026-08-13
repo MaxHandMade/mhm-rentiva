@@ -844,7 +844,11 @@ final class SearchResults extends AbstractShortcode {
 	{
 		// Caching Strategy: Search filters are global and expensive to compute.
 		// We cache them for 24 hours, invalidated on vehicle save/update.
-		$cache_key = 'mhmrentiva_search_filters_v1';
+		// _v2: the sweep that restricted this facet query to the published
+		// catalogue (see the publish-only get_posts() a few lines below) did
+		// not bump the key, so a transient cached before deploy could keep
+		// serving unpublished-vehicle facet values for up to 24h after it.
+		$cache_key = 'mhmrentiva_search_filters_v2';
 		$cached    = get_transient($cache_key);
 
 		if (false !== $cached && is_array($cached)) {

@@ -524,8 +524,12 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 	private static function get_vehicles_list(): array
 	{
-		// Cache key
-		$cache_key = 'availability_calendar_vehicles_list';
+		// _v2: this sweep narrowed the query below from
+		// array('publish','draft','private') to publish-only. The old key
+		// let a transient cached before deploy keep serving unpublished
+		// vehicles' title/excerpt/price to anonymous visitors until its
+		// tag-based invalidation fired or its 30-minute TTL expired.
+		$cache_key = 'availability_calendar_vehicles_list_v2';
 
 		// Check from cache
 		$cached_data = \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key);
@@ -610,8 +614,13 @@ final class AvailabilityCalendar extends AbstractShortcode {
 
 	private static function get_availability_data(int $vehicle_id, string $start_month, int $months_to_show): array
 	{
-		// Cache key
-		$cache_key = "availability_data_{$vehicle_id}_{$start_month}_{$months_to_show}";
+		// _v2: this sweep dropped the raw `bookings` (id/post_title/status --
+		// another customer's identity) from what this method returns and
+		// caches; see the PUBLIC PAYLOAD BOUNDARY note below. The 60s TTL
+		// already makes the exposure window from the old key negligible, but
+		// bumping it removes even that -- a transient cached under the old
+		// key one second before deploy cannot be read back after it.
+		$cache_key = "availability_data_v2_{$vehicle_id}_{$start_month}_{$months_to_show}";
 
 		// Cache'den kontrol et
 		$cached_data = \MHMRentiva\Admin\Core\PerformanceHelper::cache_get($cache_key);
