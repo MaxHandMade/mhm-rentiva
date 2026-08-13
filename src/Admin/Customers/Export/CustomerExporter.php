@@ -7,6 +7,7 @@ if (! defined('ABSPATH')) {
 	exit;
 }
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Customers\CustomersOptimizer;
 
 final class CustomerExporter {
@@ -83,6 +84,29 @@ final class CustomerExporter {
 	}
 
 	/**
+	 * Recover a raw, spreadsheet-parseable number from a formatted money string.
+	 *
+	 * `CustomersOptimizer` hands back `total_spent` through
+	 * `CurrencyHelper::format_price()` -- the canonical, ON-SCREEN shape: a
+	 * currency symbol, WooCommerce's locale grouping/decimal separators, and (for
+	 * the `*_space` positions) a U+00A0 between number and symbol. A spreadsheet's
+	 * SUM() can't read that. `CurrencyHelper::to_amount()` is the plugin's
+	 * existing "formatted money back to a float" utility -- built for exactly
+	 * this class of problem -- so it is reused here instead of re-deriving a
+	 * parser. The recovered float is re-emitted with a fixed `.` decimal and no
+	 * thousands grouping: the same bare-digits shape the `Bookings` column
+	 * already uses, portable across any spreadsheet's CSV import regardless of
+	 * the site's or the opening machine's locale.
+	 *
+	 * @param mixed $formatted Formatted money value (or a raw one; `to_amount()` accepts both).
+	 * @return string
+	 */
+	private static function raw_amount( $formatted ): string
+	{
+		return number_format( CurrencyHelper::to_amount( $formatted ), 2, '.', '' );
+	}
+
+	/**
 	 * Build export rows. Public for testability.
 	 *
 	 * @param string $search  Optional search term.
@@ -91,8 +115,13 @@ final class CustomerExporter {
 	 */
 	public static function get_csv_rows( string $search, array $ids ): array
 	{
+		// One site-wide currency for the whole file (WooCommerce, or the plugin
+		// fallback) -- a separate column instead of folding it into the header or
+		// the number, so `Total Spent` stays a pure, summable value.
+		$currency_code = CurrencyHelper::get_currency_code();
+
 		$rows   = array();
-		$rows[] = array( 'Name', 'Email', 'Phone', 'Bookings', 'Total Spent', 'Last Booking', 'Registered' );
+		$rows[] = array( 'Name', 'Email', 'Phone', 'Bookings', 'Total Spent', 'Currency', 'Last Booking', 'Registered' );
 
 		if ( ! empty( $ids ) ) {
 			// Fetch individual details for selected IDs.
@@ -106,7 +135,8 @@ final class CustomerExporter {
 					$detail['email']         ?? '',
 					$detail['phone']         ?? '',
 					(string) ( $detail['booking_count'] ?? 0 ),
-					$detail['total_spent']   ?? '0',
+					self::raw_amount( $detail['total_spent'] ?? '0' ),
+					$currency_code,
 					$detail['last_booking']  ?? '',
 					$detail['registered']    ?? '',
 				);
@@ -126,7 +156,8 @@ final class CustomerExporter {
 					$c['email']         ?? '',
 					$c['phone']         ?? '',
 					(string) ( $c['booking_count'] ?? 0 ),
-					$c['total_spent']   ?? '0',
+					self::raw_amount( $c['total_spent'] ?? '0' ),
+					$currency_code,
 					$c['last_booking']  ?? '',
 					$c['created_date']  ?? '',
 				);
