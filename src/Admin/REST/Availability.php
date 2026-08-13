@@ -40,13 +40,35 @@ final class Availability {
 	 * scraping without turning it into an authorization gate.
 	 *
 	 * Caller note (re-measured 2026-08-13): an earlier version of this note
-	 * claimed no in-repo front-end supplies a `wp_rest` nonce for this route,
-	 * and treated the gate as "forward-looking". That was wrong, and the
-	 * mistake mattered: `UnifiedSearch::…` prints
-	 * `'restNonce' => wp_create_nonce( 'wp_rest' )` into the fully public
-	 * `rentiva_unified_search` shortcode, so any anonymous visitor to a page
-	 * carrying it harvests a valid nonce for this route. Confirmed by fetching
-	 * the shortcode page logged-out and replaying the nonce here.
+	 * named `UnifiedSearch` as the only in-repo source of a `wp_rest` nonce
+	 * for this route. That was too narrow — the real surface is wider, and
+	 * UnifiedSearch is the smallest of the three:
+	 *
+	 *   - `AbstractAccountShortcode::enqueue_assets()`
+	 *     (Frontend/Shortcodes/Account/AbstractAccountShortcode.php:63)
+	 *     localizes `restNonce` with NO page-type check at all — it fires
+	 *     whenever `MyBookings` or `PaymentHistory` renders anywhere.
+	 *   - `AccountController::enqueue_assets()`
+	 *     (Frontend/Account/AccountController.php:383) is hooked to
+	 *     `wp_enqueue_scripts` unconditionally at line 123 and localizes
+	 *     `restNonce` on WooCommerce's My Account page, any of this
+	 *     plugin's own account endpoints, or a page carrying
+	 *     `rentiva_my_bookings` / `rentiva_my_favorites` /
+	 *     `rentiva_payment_history`.
+	 *   - `UnifiedSearch::…` (Frontend/Shortcodes/UnifiedSearch.php:145),
+	 *     scoped to pages carrying `rentiva_unified_search`.
+	 *
+	 * Live-verified 2026-08-13 against the Docker dev site: an anonymous GET
+	 * of `/hakkimizda/` — a page with none of this plugin's shortcodes in
+	 * its own content, so none of the three conditions above should fire —
+	 * still returned a working `restNonce` in the page source, and replaying
+	 * it as `X-WP-Nonce` against this route logged-out passed
+	 * `permission_check()` (the request only failed later, on missing query
+	 * parameters). Whatever the exact trigger on that page, the practical
+	 * conclusion is the same and stronger than "one shortcode leaks it": a
+	 * harvestable `wp_rest` nonce reaches ordinary content pages that carry
+	 * no Rentiva shortcode at all, so treat it as present on every front-end
+	 * page, not just the three call sites above.
 	 *
 	 * Treat this route as anonymously callable in practice. That is why the
 	 * callbacks below gate the vehicle id on
