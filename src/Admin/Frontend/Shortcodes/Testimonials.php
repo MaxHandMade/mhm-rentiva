@@ -263,8 +263,17 @@ final class Testimonials extends AbstractShortcode {
 				'id'             => $booking->ID,
 				'review'         => get_post_meta($booking->ID, '_mhmrentiva_customer_review', true),
 				'rating'         => (int) get_post_meta($booking->ID, '_mhmrentiva_customer_rating', true),
+				// `customer_email` was carried here and at the comments branch
+				// below. Nothing rendered it -- neither the template nor the
+				// testimonials JS reads the field -- but it travelled in the
+				// `mhmrentiva_load_testimonials` payload, a nopriv handler, so
+				// the row shape was one reachable request away from bulk
+				// customer-email disclosure. (Today that request 403s on a
+				// nonce-action mismatch; a future "fix the nonce string" commit
+				// would have silently switched the disclosure on.) The field is
+				// removed rather than filtered, so the shape cannot come back by
+				// accident.
 				'customer_name'  => get_post_meta($booking->ID, '_mhmrentiva_customer_name', true),
-				'customer_email' => get_post_meta($booking->ID, '_mhmrentiva_customer_email', true),
 				'date'           => $booking->post_date,
 				'vehicle_id'     => $vid,
 				'vehicle_name'   => self::get_vehicle_name($vid),
@@ -323,8 +332,9 @@ final class Testimonials extends AbstractShortcode {
 				'id'             => (int) $comment->comment_ID,
 				'review'         => $comment->comment_content,
 				'rating'         => $rating,
+				// See the note on the bookings branch above: the commenter's
+				// e-mail address is not public testimonial data.
 				'customer_name'  => $customer_name ?: '',
-				'customer_email' => $comment->comment_author_email ?: '',
 				'date'           => $comment->comment_date,
 				'vehicle_id'     => $vehicle_id,
 				'vehicle_name'   => self::get_vehicle_name($vehicle_id),
