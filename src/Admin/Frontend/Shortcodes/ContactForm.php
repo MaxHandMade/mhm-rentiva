@@ -263,11 +263,16 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		try {
-			// Rate limiting check
+			// Rate limiting check. This is an unauthenticated endpoint that
+			// also accepts file uploads, so the production limit is
+			// deliberately tight -- 5 submissions per 5 minutes per bucket
+			// (matches RateLimiter's own 'file_upload' minute budget). The
+			// bucket itself is keyed off REMOTE_ADDR only, hashed -- see
+			// SecurityHelper::get_client_ip()/check_rate_limit().
 			$limit_time = 300; // 5 minutes
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'contact_form_submission',
-				50, // 50 requests (Increased for testing)
+				5,
 				$limit_time,
 				/* translators: %d: number of minutes. */
 				sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), (int) ceil($limit_time / 60))
@@ -567,6 +572,12 @@ final class ContactForm extends AbstractShortcode {
 			'Reply-To: ' . $data['name'] . ' <' . $data['email'] . '>',
 		);
 
+		// Defined unconditionally: it used to exist only inside the `if`
+		// below, which raised a PHP 8 "Undefined variable" warning and
+		// passed null (instead of an empty array) to wp_mail() on every
+		// submission with no attachment.
+		$attachments = array();
+
 		if (! empty($data['attachment'])) {
 			$attachment_path = self::resolve_attachment_path($data['attachment']);
 			if ($attachment_path) {
@@ -765,8 +776,24 @@ final class ContactForm extends AbstractShortcode {
 
 		$file['name'] = $sanitized_name;
 
-		// WordPress upload fonksiyonunu kullan
-		$upload = wp_handle_upload($file, array( 'test_form' => false ));
+		// This is an unauthenticated, wp_ajax_nopriv_ upload endpoint. Keeping
+		// the caller's (sanitized) filename made every uploaded attachment's
+		// name -- and therefore its public URL under uploads/ -- predictable
+		// from the submitted form alone, with no auth required to guess it.
+		// wp_handle_upload()'s unique_filename_callback replaces the name
+		// with a random one before the file ever touches disk; the extension
+		// (already validated above) is preserved so MIME/type sniffing on
+		// download is unaffected.
+		$upload = wp_handle_upload(
+			$file,
+			array(
+				'test_form'                => false,
+				'unique_filename_callback' => static function ($dir, $name, $ext) {
+					unset($dir, $name);
+					return wp_generate_password(20, false, false) . $ext;
+				},
+			)
+		);
 
 		if (isset($upload['error'])) {
 			return array(
