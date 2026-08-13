@@ -384,6 +384,26 @@ body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
 	box-shadow: none;
 }
 
+/* The shorthand `padding: 6px 12px` above collapses WP core's asymmetric
+   `.wp-core-ui .tablenav select { padding: 0 24px 0 8px; }` down to a
+   symmetric 12px, which is too narrow for core's own appearance:none
+   chevron (16px icon, offset 8px from the right edge) — the label text
+   then renders under the arrow. Selects need their right padding restored;
+   text inputs don't carry a chevron and are unaffected. */
+.mhm-vehicle-list select.postform,
+.mhm-vehicle-list .tablenav select {
+	padding-right: 30px;
+}
+
+/* The lifecycle filter's default label ("Tüm yaşam döngüsü durumları") and
+   longest option ("Arşiv (süresi dolmuş + geri çekilmiş)") don't fit inside
+   WP core's `.wp-core-ui .tablenav select { max-width: 12.5rem; }` (200px)
+   cap even with correct padding — widen this one select so its label isn't
+   clipped. The other three filters stay within the core cap already. */
+.mhm-vehicle-list select[name="mhmrentiva_lifecycle_filter"] {
+	max-width: 260px;
+}
+
 .mhm-vehicle-list .tablenav .button,
 .mhm-vehicle-list #search-submit {
 	border: 1px solid #dcdde1;
