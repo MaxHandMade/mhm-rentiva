@@ -39,19 +39,20 @@ final class Availability {
 	 * same-origin-scoped and rate-limited against blind scripted/bulk
 	 * scraping without turning it into an authorization gate.
 	 *
-	 * Caller note (verified against the current codebase, not assumed): no
-	 * in-repo front-end flow currently calls this REST route or supplies a
-	 * `wp_rest` nonce for it. The plugin's actual availability UI
-	 * (`assets/js/frontend/booking-form.js`,
-	 * `assets/js/frontend/availability-calendar.js`) goes through
-	 * `admin-ajax.php` instead, using its own separate nonce actions
-	 * (`mhmrentiva_booking_form_nonce`, `mhmrentiva_availability_nonce`) —
-	 * not this route. This REST endpoint is reachable only by a caller that
-	 * independently obtains a `wp_rest` nonce (e.g. any other logged-in-or-
-	 * not page context that WordPress issues one for) or by a future
-	 * integration; keeping the nonce + rate-limit gate here is a forward-
-	 * looking safeguard for this public route, not a description of an
-	 * existing consumer.
+	 * Caller note (re-measured 2026-08-13): an earlier version of this note
+	 * claimed no in-repo front-end supplies a `wp_rest` nonce for this route,
+	 * and treated the gate as "forward-looking". That was wrong, and the
+	 * mistake mattered: `UnifiedSearch::…` prints
+	 * `'restNonce' => wp_create_nonce( 'wp_rest' )` into the fully public
+	 * `rentiva_unified_search` shortcode, so any anonymous visitor to a page
+	 * carrying it harvests a valid nonce for this route. Confirmed by fetching
+	 * the shortcode page logged-out and replaying the nonce here.
+	 *
+	 * Treat this route as anonymously callable in practice. That is why the
+	 * callbacks below gate the vehicle id on
+	 * `VehicleDataHelper::is_publicly_readable()` rather than relying on the
+	 * nonce to imply an authorized caller — a nonce proves same-origin, never
+	 * authorization.
 	 */
 	public static function permission_check( \WP_REST_Request $request ): bool {
 		// 1. Nonce check (CSRF / same-origin, not an authorization check —
@@ -151,6 +152,33 @@ final class Availability {
 		);
 	}
 
+	/**
+	 * Public-surface gate for the vehicle id, shaped as a normal "not found".
+	 *
+	 * `Util::check_availability()` deliberately does NOT carry this check: it is
+	 * shared with the admin manual-booking flow, where staff legitimately price
+	 * and schedule a vehicle that is still a draft. The restriction belongs to
+	 * the PUBLIC entry points, which is here.
+	 *
+	 * Returning the helper's own `vehicle_not_found` payload (rather than a 403)
+	 * is deliberate: an unpublished vehicle must be indistinguishable from an id
+	 * that does not exist, otherwise the difference in responses is itself an
+	 * enumeration oracle for unpublished inventory.
+	 *
+	 * @return array{ok:bool,code:string,message:string}|null Null when allowed.
+	 */
+	private static function reject_non_public_vehicle( int $vehicle_id ): ?array {
+		if ( \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( $vehicle_id ) ) {
+			return null;
+		}
+
+		return array(
+			'ok'      => false,
+			'code'    => 'vehicle_not_found',
+			'message' => __( 'Selected vehicle not found. Please select a valid vehicle.', 'mhm-rentiva' ),
+		);
+	}
+
 	public static function check( \WP_REST_Request $request ): \WP_REST_Response {
 		$vehicle_id   = $request->get_param( 'vehicle_id' );
 		$pickup_date  = $request->get_param( 'pickup_date' );
@@ -159,7 +187,8 @@ final class Availability {
 		$dropoff_time = $request->get_param( 'dropoff_time' );
 
 		// Availability check
-		$result = Util::check_availability( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
+		$result = self::reject_non_public_vehicle( (int) $vehicle_id )
+			?? Util::check_availability( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 
 		// Add currency information
 		$currency          = Settings::get( 'mhmrentiva_currency', 'USD' );
@@ -201,7 +230,8 @@ final class Availability {
 		$limit        = $request->get_param( 'limit' ) ?: 5;
 
 		// Advanced availability check (with alternative suggestions)
-		$result = Util::check_availability_with_alternatives( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
+		$result = self::reject_non_public_vehicle( (int) $vehicle_id )
+			?? Util::check_availability_with_alternatives( $vehicle_id, $pickup_date, $pickup_time, $dropoff_date, $dropoff_time );
 
 		// Add currency information
 		$currency          = Settings::get( 'mhmrentiva_currency', 'USD' );
