@@ -68,10 +68,147 @@ final class CurrencyHelper {
 	 * @return string
 	 */
 	public static function format_amount( float $amount, int $decimals = 0 ): string {
-		$decimal_separator  = function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',';
-		$thousand_separator = function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.';
+		return number_format(
+			$amount,
+			max( 0, $decimals ),
+			self::get_decimal_separator(),
+			self::get_thousand_separator()
+		);
+	}
 
-		return number_format( $amount, max( 0, $decimals ), $decimal_separator, $thousand_separator );
+	/**
+	 * Active decimal separator, from WooCommerce when it has an opinion.
+	 *
+	 * @return string
+	 */
+	public static function get_decimal_separator(): string {
+		if ( function_exists( 'wc_get_price_decimal_separator' ) ) {
+			return (string) wc_get_price_decimal_separator();
+		}
+
+		return ',';
+	}
+
+	/**
+	 * Active thousand separator, from WooCommerce when it has an opinion.
+	 *
+	 * @return string
+	 */
+	public static function get_thousand_separator(): string {
+		if ( function_exists( 'wc_get_price_thousand_separator' ) ) {
+			return (string) wc_get_price_thousand_separator();
+		}
+
+		return '.';
+	}
+
+	/**
+	 * Active decimal precision for money, from WooCommerce when it has an opinion.
+	 *
+	 * Surfaces that used to be bare `wc_price()` calls deferred to this; passing a
+	 * literal `2` instead would diverge from the store on a 0-decimal currency
+	 * (JPY, HUF). Pass this where the store's own precision is what is wanted.
+	 *
+	 * @return int
+	 */
+	public static function get_price_decimals(): int {
+		if ( function_exists( 'wc_get_price_decimals' ) ) {
+			return max( 0, (int) wc_get_price_decimals() );
+		}
+
+		return 2;
+	}
+
+	/**
+	 * Coerce a possibly already-formatted money value back to a plain float.
+	 *
+	 * A bare `(float)` cast is NOT safe on money in this plugin. An amount reaches
+	 * a display surface as an int (kuruş), a float, a raw meta string
+	 * (`"1500.00"`) or — when a producer formatted it too early — a locale string
+	 * such as `"1.500,00"`. PHP casts that last one to `1.5`: a 1000x error in a
+	 * customer-facing figure, and a silent one, because no error is raised.
+	 *
+	 * The right fix is always to keep the number numeric at the data end; this is
+	 * the net under the display layer so that no consumer can be handed a
+	 * formatted string and quietly print a wrong amount.
+	 *
+	 * Deliberately locale-INDEPENDENT: the producer may have formatted with the
+	 * WordPress locale (`number_format_i18n()`) while this helper's separators
+	 * come from WooCommerce, so reading the string through one fixed separator
+	 * pair would trade one wrong number for another. The shape of the string
+	 * decides instead — the rightmost of `.`/`,` is the decimal separator when
+	 * both appear, and a lone separator followed by exactly three digits is
+	 * grouping.
+	 *
+	 * Known and accepted ambiguity: `"1.500"` is read as one thousand five
+	 * hundred, not as one and a half. Money in this plugin is stored with 0 or 2
+	 * decimals, so a three-digit tail is always grouping in practice.
+	 *
+	 * @param mixed $value Raw amount from meta, an email context, or a request.
+	 * @return float
+	 */
+	public static function to_amount( $value ): float {
+		if ( is_int( $value ) || is_float( $value ) ) {
+			return (float) $value;
+		}
+
+		if ( ! is_string( $value ) ) {
+			return 0.0;
+		}
+
+		$raw = trim( $value );
+		if ( '' === $raw ) {
+			return 0.0;
+		}
+
+		// A fully grouped integer ("1.500", "1,500", "1.500.000"). This is
+		// `is_numeric()` in the `.` flavour and would cast to 1.5.
+		if ( 1 === preg_match( '/^-?\d{1,3}(?:([.,])\d{3})(?:\1\d{3})*$/', $raw ) ) {
+			return (float) str_replace( array( '.', ',' ), '', $raw );
+		}
+
+		// Machine format, straight from meta or a REST payload.
+		if ( is_numeric( $raw ) ) {
+			return (float) $raw;
+		}
+
+		$negative = str_contains( $raw, '-' );
+		$digits   = (string) preg_replace( '/[^0-9.,]/', '', $raw );
+		if ( '' === $digits ) {
+			return 0.0;
+		}
+
+		$last_dot   = strrpos( $digits, '.' );
+		$last_comma = strrpos( $digits, ',' );
+
+		if ( false !== $last_dot && false !== $last_comma ) {
+			// Both present: the rightmost one is the decimal separator.
+			$decimal_at = max( $last_dot, $last_comma );
+		} elseif ( false !== $last_dot || false !== $last_comma ) {
+			$separator  = ( false !== $last_dot ) ? '.' : ',';
+			$position   = ( false !== $last_dot ) ? $last_dot : $last_comma;
+			$tail       = strlen( $digits ) - $position - 1;
+			$is_group   = substr_count( $digits, $separator ) > 1 || 3 === $tail;
+			$decimal_at = $is_group ? -1 : $position;
+		} else {
+			$decimal_at = -1;
+		}
+
+		if ( $decimal_at >= 0 ) {
+			$integer  = (string) preg_replace( '/[^0-9]/', '', substr( $digits, 0, $decimal_at ) );
+			$fraction = (string) preg_replace( '/[^0-9]/', '', substr( $digits, $decimal_at + 1 ) );
+			$number   = ( '' === $integer ? '0' : $integer ) . '.' . ( '' === $fraction ? '0' : $fraction );
+		} else {
+			$number = (string) preg_replace( '/[^0-9]/', '', $digits );
+		}
+
+		if ( ! is_numeric( $number ) ) {
+			return 0.0;
+		}
+
+		$amount = (float) $number;
+
+		return $negative ? -$amount : $amount;
 	}
 
 	/**
@@ -148,9 +285,9 @@ final class CurrencyHelper {
 			'currency'          => self::get_currency_code(),
 			'symbol'            => self::get_currency_symbol(),
 			'position'          => self::get_currency_position(),
-			'decimals'          => function_exists( 'wc_get_price_decimals' ) ? (int) wc_get_price_decimals() : 2,
-			'decimalSeparator'  => function_exists( 'wc_get_price_decimal_separator' ) ? (string) wc_get_price_decimal_separator() : ',',
-			'thousandSeparator' => function_exists( 'wc_get_price_thousand_separator' ) ? (string) wc_get_price_thousand_separator() : '.',
+			'decimals'          => self::get_price_decimals(),
+			'decimalSeparator'  => self::get_decimal_separator(),
+			'thousandSeparator' => self::get_thousand_separator(),
 		);
 	}
 

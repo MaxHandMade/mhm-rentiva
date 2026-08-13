@@ -92,7 +92,7 @@ $payment_status = get_post_meta( $booking_id, '_mhmrentiva_payment_status', true
 								<strong><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></strong>
 							</td>
 							<td style="padding: 8px 0; color: #333;">
-								<?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_amount, 2 ) ); ?>
+								<?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $total_amount ), 2 ) ); ?>
 							</td>
 						</tr>
 					<?php endif; ?>

@@ -562,6 +562,9 @@ final class Templates {
 			function ( $m ) use ( $context ) {
 				$path = (string) $m[1];
 				$val  = self::get_context_value( $context, $path );
+				if ( self::is_money_path( $path ) && self::is_renderable_amount( $val ) ) {
+					return self::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $val ) );
+				}
 				if ( is_scalar( $val ) ) {
 					return (string) $val;
 				}
@@ -604,9 +607,13 @@ final class Templates {
 
 				$val = self::get_context_value( $context, $path );
 
-				// Special formatting for total_price - add currency
-				if ( $token === 'total_price' && is_numeric( $val ) ) {
-					return self::format_price( (float) $val );
+				// Special formatting for total_price - add currency.
+				// `is_numeric()` alone used to be the whole gate here, so a
+				// producer that handed over a already-formatted string ("1.500,00")
+				// fell straight through and the email printed the amount with NO
+				// currency symbol at all. Coerce instead of skipping.
+				if ( $token === 'total_price' && self::is_renderable_amount( $val ) ) {
+					return self::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $val ) );
 				}
 
 				if ( is_scalar( $val ) ) {
@@ -621,6 +628,40 @@ final class Templates {
 		);
 
 		return $out;
+	}
+
+	/**
+	 * Context paths whose value is money and must be rendered with a currency.
+	 *
+	 * @param string $path Dot path from the template token.
+	 * @return bool
+	 */
+	private static function is_money_path( string $path ): bool {
+		return in_array(
+			$path,
+			array( 'booking.total_price', 'booking.deposit_amount', 'booking.remaining_amount' ),
+			true
+		);
+	}
+
+	/**
+	 * Is this context value an amount worth rendering as money?
+	 *
+	 * Accepts numbers AND strings a producer already formatted, so a formatted
+	 * value is repaired rather than silently printed without a symbol. An absent
+	 * or empty value stays empty — an email must not invent a `0,00`.
+	 *
+	 * @param mixed $val Raw context value.
+	 * @return bool
+	 */
+	private static function is_renderable_amount( $val ): bool {
+		if ( is_int( $val ) || is_float( $val ) ) {
+			return true;
+		}
+
+		// A string only counts when it actually carries digits, so a non-amount
+		// placeholder value ("N/A", "") is never turned into a bogus `0,00`.
+		return is_string( $val ) && 1 === preg_match( '/\d/', $val );
 	}
 
 	/**

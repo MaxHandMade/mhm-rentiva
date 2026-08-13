@@ -38,14 +38,16 @@
 			</div>
 			<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 				<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Total Amount:', 'mhm-rentiva' ); ?></span>
-				<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $data['booking']['total_price'] ?? 0 ), 2 ) ); ?></span>
+				<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( ( $data['booking']['total_price'] ?? 0 ) ), 2 ) ); ?></span>
 			</div>
 
 			<?php
 			// Payment information
-			$payment_type     = $data['booking']['payment_type'] ?? '';
-			$deposit_amount   = $data['booking']['deposit_amount'] ?? 0;
-			$remaining_amount = $data['booking']['remaining_amount'] ?? 0;
+			$payment_type = $data['booking']['payment_type'] ?? '';
+			// Coerced here, not at the print site, so the `> 0` branch below is a
+			// numeric decision too — a formatted string compares as a string.
+			$deposit_amount   = \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $data['booking']['deposit_amount'] ?? 0 );
+			$remaining_amount = \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $data['booking']['remaining_amount'] ?? 0 );
 			$payment_method   = $data['booking']['payment_method'] ?? '';
 			$payment_status   = $data['booking']['payment_status'] ?? '';
 
@@ -53,11 +55,11 @@
 				?>
 				<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 					<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Deposit Amount:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $deposit_amount, 2 ) ); ?></span>
+					<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $deposit_amount ), 2 ) ); ?></span>
 				</div>
 				<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 					<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Remaining Amount:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $remaining_amount, 2 ) ); ?></span>
+					<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( \MHMRentiva\Admin\Core\CurrencyHelper::to_amount( $remaining_amount ), 2 ) ); ?></span>
 				</div>
 			<?php endif; ?>
 
