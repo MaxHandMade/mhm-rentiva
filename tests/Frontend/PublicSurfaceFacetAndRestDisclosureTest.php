@@ -25,8 +25,10 @@ use WP_REST_Server;
  *
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\SearchResults::get_filter_options
  * @covers \MHMRentiva\Admin\REST\Availability::check
+ * @covers \MHMRentiva\Admin\REST\Availability::check_with_alternatives
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\VehicleRatingForm::ajax_get_vehicle_rating_list
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::get_testimonials_data
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::get_vehicle_comments
  */
 final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 {
@@ -145,6 +147,38 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		$this->assertSame( 'vehicle_not_found', $data['code'] );
 	}
 
+	// ------------------------------------- surface: REST route's alternatives twin
+
+	/**
+	 * `check_with_alternatives()` shares `check()`'s exact gate --
+	 * `reject_non_public_vehicle()` -- but had no test of its own pinning that.
+	 * A regression that only broke the alternatives route (e.g. a copy/paste of
+	 * the gate that dropped the call) would have shipped invisibly.
+	 */
+	public function test_rest_availability_with_alternatives_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_availability_with_alternatives( $this->draft_id );
+		$data     = $response->get_data();
+
+		$this->assertFalse( $data['ok'] );
+		$this->assertSame(
+			'vehicle_not_found',
+			$data['code'],
+			'An unpublished vehicle must be indistinguishable from a nonexistent one, or the difference is an enumeration oracle.'
+		);
+		$this->assertArrayNotHasKey( 'price_per_day', $data );
+		$this->assertArrayNotHasKey( 'alternatives', $data );
+	}
+
+	public function test_rest_availability_with_alternatives_still_prices_a_published_vehicle(): void
+	{
+		$response = $this->dispatch_availability_with_alternatives( $this->published_id );
+		$data     = $response->get_data();
+
+		$this->assertTrue( $data['ok'], 'The route must still answer for published inventory.' );
+		$this->assertSame( 1000.0, (float) $data['price_per_day'] );
+	}
+
 	// -------------------------------------------- surface: rating list AJAX
 
 	public function test_rating_list_refuses_an_unpublished_vehicle(): void
@@ -233,6 +267,53 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		$this->assertSame( 'Lovely trip', $rows[0]['review'] );
 	}
 
+	// --------------------------------- surface: testimonials' COMMENT branch
+
+	/**
+	 * `get_booking_reviews()` (above) and `get_vehicle_comments()` are siblings
+	 * feeding the same `mhmrentiva_load_testimonials` payload -- the comment
+	 * branch strips `customer_email` for the identical reason (see the note in
+	 * Testimonials.php), but only the bookings branch had a test pinning it.
+	 * A regression that only hit the comment branch (e.g. re-adding
+	 * comment_author_email to the returned row) would have shipped invisibly.
+	 */
+	public function test_testimonials_comment_branch_carries_no_author_email_field(): void
+	{
+		$comment_id = $this->seed_approved_comment( $this->published_id, 'Reviewer Rachel', 'Great car' );
+		wp_update_comment(
+			array(
+				'comment_ID'           => $comment_id,
+				'comment_author_email' => 'rachel@example.com',
+			)
+		);
+
+		$rows = $this->invoke_testimonials_comment_rows();
+
+		$this->assertNotEmpty( $rows, 'Without a row, the absence assertion below proves nothing.' );
+		foreach ( $rows as $row ) {
+			$this->assertArrayNotHasKey( 'customer_email', $row );
+			$this->assertArrayNotHasKey( 'comment_author_email', $row );
+		}
+		$this->assertStringNotContainsString( 'rachel@example.com', wp_json_encode( $rows ) );
+	}
+
+	public function test_testimonials_comment_branch_still_carries_the_public_fields(): void
+	{
+		$comment_id = $this->seed_approved_comment( $this->published_id, 'Reviewer Rachel', 'Great car' );
+		wp_update_comment(
+			array(
+				'comment_ID'           => $comment_id,
+				'comment_author_email' => 'rachel@example.com',
+			)
+		);
+
+		$rows = $this->invoke_testimonials_comment_rows();
+
+		$this->assertNotEmpty( $rows );
+		$this->assertSame( 'Reviewer Rachel', $rows[0]['customer_name'] );
+		$this->assertSame( 'Great car', $rows[0]['review'] );
+	}
+
 	// ------------------------------------------------------------- fixtures
 
 	/**
@@ -260,7 +341,21 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		return array_values( (array) $method->invoke( null, array( 'limit' => 10 ) ) );
 	}
 
-	private function seed_approved_comment( int $post_id, string $author, string $body ): void
+	/**
+	 * @return array<int, array<string, mixed>>
+	 */
+	private function invoke_testimonials_comment_rows(): array
+	{
+		$method = new \ReflectionMethod(
+			\MHMRentiva\Admin\Frontend\Shortcodes\Testimonials::class,
+			'get_vehicle_comments'
+		);
+		$method->setAccessible( true );
+
+		return array_values( (array) $method->invoke( null, array( 'limit' => 10 ) ) );
+	}
+
+	private function seed_approved_comment( int $post_id, string $author, string $body ): int
 	{
 		$comment_id = self::factory()->comment->create(
 			array(
@@ -271,6 +366,8 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 			)
 		);
 		update_comment_meta( $comment_id, 'mhmrentiva_rating', 5 );
+
+		return $comment_id;
 	}
 
 	private function dispatch_availability( int $vehicle_id ): \WP_REST_Response
@@ -295,6 +392,24 @@ final class PublicSurfaceFacetAndRestDisclosureTest extends WP_Ajax_UnitTestCase
 		// which is an authorization check; call the callback directly so the
 		// test pins the callback's gate rather than the harness's nonce setup.
 		return Availability::check( $request );
+	}
+
+	private function dispatch_availability_with_alternatives( int $vehicle_id ): \WP_REST_Response
+	{
+		global $wp_rest_server;
+		add_action( 'rest_api_init', array( Availability::class, 'register_routes' ) );
+		$wp_rest_server = new WP_REST_Server();
+		do_action( 'rest_api_init', $wp_rest_server );
+		remove_action( 'rest_api_init', array( Availability::class, 'register_routes' ) );
+
+		$request = new WP_REST_Request( 'GET', '/mhm-rentiva/v1/availability/with-alternatives' );
+		$request->set_param( 'vehicle_id', $vehicle_id );
+		$request->set_param( 'pickup_date', gmdate( 'Y-m-20' ) );
+		$request->set_param( 'pickup_time', '10:00' );
+		$request->set_param( 'dropoff_date', gmdate( 'Y-m-22' ) );
+		$request->set_param( 'dropoff_time', '10:00' );
+
+		return Availability::check_with_alternatives( $request );
 	}
 
 	/**

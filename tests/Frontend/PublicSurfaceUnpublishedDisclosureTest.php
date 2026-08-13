@@ -6,6 +6,8 @@ namespace MHMRentiva\Tests\Frontend;
 
 use MHMRentiva\Admin\Core\SecurityHelper;
 use MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar;
+use MHMRentiva\Admin\Frontend\Shortcodes\BookingForm;
+use MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails;
 use MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper;
 use WP_Ajax_UnitTestCase;
 
@@ -37,6 +39,10 @@ use WP_Ajax_UnitTestCase;
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::prepare_template_data
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_get_vehicle_info
  * @covers \MHMRentiva\Admin\Frontend\Shortcodes\AvailabilityCalendar::ajax_unified_availability
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_booking_form
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_calculate_price
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\BookingForm::ajax_check_availability
+ * @covers \MHMRentiva\Admin\Frontend\Shortcodes\VehicleDetails::ajax_get_calendar
  */
 final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 {
@@ -59,6 +65,8 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		// nothing to run, and every "refuses" assertion below would pass for the
 		// wrong reason -- the endpoint being absent, not gated.
 		AvailabilityCalendar::register();
+		BookingForm::register();
+		VehicleDetails::register();
 
 		$this->published_id = self::factory()->post->create(
 			array(
@@ -261,6 +269,94 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 		$this->assertSame( $this->draft_id, SecurityHelper::validate_vehicle_id( $this->draft_id ) );
 	}
 
+	// ------------------------------------- surface 5: VehicleDetails calendar
+
+	public function test_vehicle_details_calendar_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_calendar( $this->draft_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertStringNotContainsString( self::DRAFT_TITLE, wp_json_encode( $response ) );
+	}
+
+	public function test_vehicle_details_calendar_still_serves_a_published_vehicle(): void
+	{
+		$response = $this->dispatch_calendar( $this->published_id );
+
+		$this->assertTrue( $response['success'] );
+		$this->assertNotEmpty( $response['data']['calendar_html'] );
+	}
+
+	// ------------------------------------- surface 6: booking form submission
+
+	public function test_booking_form_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_booking_form( $this->draft_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'Invalid vehicle ID.', $response['data']['message'] );
+	}
+
+	public function test_booking_form_still_processes_a_published_vehicle(): void
+	{
+		$response = $this->dispatch_booking_form( $this->published_id );
+
+		/*
+		 * WooCommerce is not bootstrapped in this test process (see
+		 * tests/bootstrap.php), so `get_active_payment_gateway()` finds none
+		 * and the handler's own terminal branch is
+		 * "No payment gateway is available..." -- that is expected here and
+		 * is NOT what this test is about. What matters is that the response
+		 * is that specific downstream failure and not the id gate: the
+		 * request must have passed validate_public_vehicle_id(), the
+		 * availability check, the duration check, the overlap check and the
+		 * deposit calculation to reach it. A regression that rejected
+		 * published vehicles at the gate would fail this with
+		 * "Invalid vehicle ID." instead.
+		 */
+		$this->assertFalse( $response['success'] );
+		$this->assertSame(
+			'No payment gateway is available. Please contact the site administrator.',
+			$response['data']['message']
+		);
+	}
+
+	// -------------------------------------------- surface 7: price calculation
+
+	public function test_calculate_price_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_calculate_price( $this->draft_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'Invalid vehicle ID.', $response['data']['message'] );
+	}
+
+	public function test_calculate_price_still_prices_a_published_vehicle(): void
+	{
+		$response = $this->dispatch_calculate_price( $this->published_id );
+
+		$this->assertTrue( $response['success'], wp_json_encode( $response ) );
+		$this->assertGreaterThan( 0, (float) ( $response['data']['total_price'] ?? $response['data']['total'] ?? 0 ) );
+	}
+
+	// ----------------------------------------- surface 8: availability check
+
+	public function test_check_availability_refuses_an_unpublished_vehicle(): void
+	{
+		$response = $this->dispatch_check_availability( $this->draft_id );
+
+		$this->assertFalse( $response['success'] );
+		$this->assertSame( 'Invalid vehicle ID.', $response['data']['message'] );
+	}
+
+	public function test_check_availability_still_reports_a_published_vehicle_as_available(): void
+	{
+		$response = $this->dispatch_check_availability( $this->published_id );
+
+		$this->assertTrue( $response['success'], wp_json_encode( $response ) );
+		$this->assertTrue( $response['data']['ok'] );
+	}
+
 	// ------------------------------------------------------------- fixtures
 
 	private function seed_booking( int $vehicle_id, string $title ): int
@@ -319,13 +415,91 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 	 */
 	private function dispatch_ajax( string $action, string $nonce_action, int $vehicle_id ): array
 	{
-		$_POST = array(
-			'action'         => $action,
-			'nonce'          => wp_create_nonce( $nonce_action ),
-			'vehicle_id'     => (string) $vehicle_id,
-			'start_month'    => gmdate( 'Y-m' ),
-			'months_to_show' => '1',
+		return $this->dispatch_raw_ajax(
+			$action,
+			array(
+				'action'         => $action,
+				'nonce'          => wp_create_nonce( $nonce_action ),
+				'vehicle_id'     => (string) $vehicle_id,
+				'start_month'    => gmdate( 'Y-m' ),
+				'months_to_show' => '1',
+			)
 		);
+	}
+
+	private function dispatch_calendar( int $vehicle_id ): array
+	{
+		return $this->dispatch_raw_ajax(
+			'mhmrentiva_get_calendar',
+			array(
+				'action'     => 'mhmrentiva_get_calendar',
+				'nonce'      => wp_create_nonce( 'mhmrentiva_calendar_nonce' ),
+				'vehicle_id' => (string) $vehicle_id,
+				'month'      => gmdate( 'n' ),
+				'year'       => gmdate( 'Y' ),
+			)
+		);
+	}
+
+	private function dispatch_booking_form( int $vehicle_id ): array
+	{
+		return $this->dispatch_raw_ajax(
+			'mhmrentiva_booking_form',
+			array(
+				'action'              => 'mhmrentiva_booking_form',
+				'nonce'               => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
+				'vehicle_id'          => (string) $vehicle_id,
+				'pickup_date'         => gmdate( 'Y-m-20' ),
+				'pickup_time'         => '10:00',
+				'dropoff_date'        => gmdate( 'Y-m-22' ),
+				'dropoff_time'        => '10:00',
+				'customer_first_name' => 'Jane',
+				'customer_last_name'  => 'Doe',
+				'customer_email'      => 'jane@example.com',
+				'customer_phone'      => '5551112233',
+			)
+		);
+	}
+
+	private function dispatch_calculate_price( int $vehicle_id ): array
+	{
+		return $this->dispatch_raw_ajax(
+			'mhmrentiva_calculate_price',
+			array(
+				'action'       => 'mhmrentiva_calculate_price',
+				'nonce'        => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
+				'vehicle_id'   => (string) $vehicle_id,
+				'pickup_date'  => gmdate( 'Y-m-20' ),
+				'pickup_time'  => '10:00',
+				'dropoff_date' => gmdate( 'Y-m-22' ),
+				'dropoff_time' => '10:00',
+			)
+		);
+	}
+
+	private function dispatch_check_availability( int $vehicle_id ): array
+	{
+		return $this->dispatch_raw_ajax(
+			'mhmrentiva_check_availability',
+			array(
+				'action'       => 'mhmrentiva_check_availability',
+				'nonce'        => wp_create_nonce( 'mhmrentiva_booking_form_nonce' ),
+				'vehicle_id'   => (string) $vehicle_id,
+				'pickup_date'  => gmdate( 'Y-m-20' ),
+				'pickup_time'  => '10:00',
+				'dropoff_date' => gmdate( 'Y-m-22' ),
+				'dropoff_time' => '10:00',
+			)
+		);
+	}
+
+	/**
+	 * @param array<string, mixed> $post
+	 * @return array<string, mixed>
+	 */
+	private function dispatch_raw_ajax( string $action, array $post ): array
+	{
+		$_POST    = $post;
 		$_REQUEST = $_POST;
 
 		/*
