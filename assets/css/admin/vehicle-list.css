@@ -175,21 +175,41 @@
 }
 
 /* ── 7-day availability strip ── */
-/* 7 cells x 16px + 6 gaps x 4px = 136px content: without a reserved
-   width the auto table layout squeezes the column and the strip bleeds
-   under the neighbouring Available pill (user-reported overlap). */
+/* Fixed table layout only ever honours `width`, never `min-width` — the
+   Lifecycle column above already documents this. The min-width:176px
+   this column carried was therefore a silent no-op from day one, and the
+   padding-right/padding-left "clearance" added around it (twice, in two
+   follow-up commits) was hand-measured compensation for that same no-op.
+   Both held only at the ~1866px+ window they were eyeballed at: this
+   column's actual computed width is whatever table-layout:fixed's equal
+   auto-split gives it, which shrinks with the viewport, while the strip's
+   old fixed-size content (16px days + 4px gaps = 150px) did not — so
+   below ~1866px the strip still outgrew the column and bled under the
+   Available pill (confirmed 1280–1600px; the min-width and both padding
+   bumps never touched the actual cause). Reserving yet another fixed
+   width would only move the breakpoint again, so instead the strip is
+   made to shrink to whatever width the column is actually given, at any
+   width — see the .column-mhmrentiva_week-scoped rules below. */
 .mhm-vehicle-list .column-mhmrentiva_week {
-	min-width: 176px;
-	padding-right: 20px;
+	padding-right: 8px;
 }
 
 .mhm-vehicle-list .column-mhmrentiva_available {
-	padding-left: 28px;
+	padding-left: 8px;
 }
 
 .mhm-vehicle-list .rv-vhl-week {
 	display: flex;
 	gap: 4px;
+}
+
+/* List column only (not the Kartlar face's .rv-vhl-card__strip reuse,
+   which already sets its own sizing at higher specificity in
+   occupancy-matrix.css): let the row of days shrink as one instead of
+   overflowing past the column's real, table-layout-fixed width. */
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week {
+	gap: 3px;
+	min-width: 0;
 }
 
 .mhm-vehicle-list .rv-vhl-week__day {
@@ -199,11 +219,21 @@
 	gap: 3px;
 }
 
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week__day {
+	flex: 0 1 16px;
+	min-width: 0;
+}
+
 .mhm-vehicle-list .rv-vhl-day {
 	width: 16px;
 	height: 20px;
 	border-radius: 3px;
 	display: block;
+}
+
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day {
+	width: 100%;
+	max-width: 16px;
 }
 
 .mhm-vehicle-list .rv-vhl-day.is-free {
@@ -235,6 +265,15 @@
 	font-size: 9px;
 	color: #8a8f98;
 	line-height: 1;
+}
+
+/* At the narrowest tested widths the shrunk day box no longer has room
+   for the full 3-letter label (e.g. "Sal"); clip to a single glyph
+   instead of letting it wrap onto multiple stacked lines. */
+.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day__label {
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
 }
 
 /* ── Feature chips in the consolidated column ── */
