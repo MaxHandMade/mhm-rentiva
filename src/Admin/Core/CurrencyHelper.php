@@ -20,6 +20,23 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Centralized currency symbol management for the entire plugin.
  * All currency symbols must match the settings page currency list.
  *
+ * PRECEDENCE — the one rule for the whole plugin
+ * ----------------------------------------------
+ * 1. WooCommerce is authoritative whenever it has an opinion. `woocommerce_currency_pos`
+ *    decides placement, `woocommerce_currency` / `get_woocommerce_currency_symbol()`
+ *    decide the symbol, and `wc_get_price_*_separator()` decide the separators.
+ * 2. The plugin's own `mhmrentiva_currency_position` / `mhmrentiva_currency` options are
+ *    a FALLBACK, consulted only when WooCommerce is silent (option absent/empty). The
+ *    Setup Wizard mirrors WooCommerce into them when WC is active, but that mirror is a
+ *    convenience, never the source of truth — an UNSET plugin option must never produce a
+ *    placement that contradicts WooCommerce.
+ * 3. Last resort, with neither source available: `right_space`.
+ *
+ * Every surface that shows money to a human must route through `format_price()`; every
+ * surface that hands raw parts to a client (REST payload, `wp_localize_script`) must take
+ * them from `get_js_currency_payload()` or the accessors below. Do not re-implement
+ * placement or separators anywhere else — see CurrencyPlacementParityTest.
+ *
  * @since 3.0.1
  */
 final class CurrencyHelper {
@@ -27,7 +44,8 @@ final class CurrencyHelper {
 	/**
 	 * Get active currency position.
 	 *
-	 * WooCommerce setting is authoritative when available.
+	 * WooCommerce setting is authoritative when available; the plugin option is the
+	 * fallback. See the class docblock for the full precedence rule.
 	 *
 	 * @return string
 	 */
@@ -93,6 +111,41 @@ final class CurrencyHelper {
 			default:
 				return $number . ' ' . $symbol;
 		}
+	}
+
+	/**
+	 * Get the active currency CODE under the same precedence as the symbol.
+	 *
+	 * WooCommerce owns the code when active; the plugin option is the fallback.
+	 *
+	 * @return string ISO-ish currency code, e.g. 'USD'.
+	 */
+	public static function get_currency_code(): string {
+		if ( function_exists( 'get_woocommerce_currency' ) ) {
+			return (string) get_woocommerce_currency();
+		}
+
+		return (string) SettingsCore::get( 'mhmrentiva_currency', 'USD' );
+	}
+
+	/**
+	 * Canonical currency parts for clients that format on their own.
+	 *
+	 * REST payloads and `wp_localize_script()` calls must take their currency data from
+	 * here rather than reading `mhmrentiva_currency_position` directly, so a client-side
+	 * formatter lands on exactly the placement `format_price()` would have produced.
+	 *
+	 * @return array{currency: string, symbol: string, position: string, decimals: int, decimalSeparator: string, thousandSeparator: string}
+	 */
+	public static function get_js_currency_payload(): array {
+		return array(
+			'currency'          => self::get_currency_code(),
+			'symbol'            => self::get_currency_symbol(),
+			'position'          => self::get_currency_position(),
+			'decimals'          => function_exists( 'wc_get_price_decimals' ) ? (int) wc_get_price_decimals() : 2,
+			'decimalSeparator'  => function_exists( 'wc_get_price_decimal_separator' ) ? (string) wc_get_price_decimal_separator() : ',',
+			'thousandSeparator' => function_exists( 'wc_get_price_thousand_separator' ) ? (string) wc_get_price_thousand_separator() : '.',
+		);
 	}
 
 	/**

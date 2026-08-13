@@ -720,23 +720,14 @@ final class VehicleFeatureHelper {
 	}
 
 	/**
-	 * Format price with plugin currency configuration.
+	 * Format price with the canonical currency configuration.
+	 *
+	 * Delegates so placement/separators follow WooCommerce. Reading
+	 * `mhmrentiva_currency_position` here pinned the output to `right_space`
+	 * whenever that option was unset, which is its normal state.
 	 */
 	private static function format_price(float $price): string
 	{
-		$symbol    = CurrencyHelper::get_currency_symbol();
-		$position  = SettingsCore::get('mhmrentiva_currency_position', 'right_space');
-		$formatted = number_format($price, 0, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted;
-			case 'left_space':
-				return $symbol . ' ' . $formatted;
-			case 'right':
-				return $formatted . $symbol;
-			default:
-				return $formatted . ' ' . $symbol;
-		}
+		return CurrencyHelper::format_price($price, 0);
 	}
 }

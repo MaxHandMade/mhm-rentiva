@@ -322,8 +322,10 @@ final class VehicleColumns {
 			case 'mhmrentiva_price_per_day':
 				$v = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_price_per_day($post_id);
 				if ($v > 0) {
-					$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-					echo esc_html(number_format_i18n($v, 0) . ' ' . $currency_symbol);
+					// Canonical formatting: symbol, placement and separators all follow
+					// WooCommerce. This cell used to hand-append the symbol on the right,
+					// which contradicted a `left` woocommerce_currency_pos.
+					echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price($v, 0));
 				} else {
 					echo '—';
 				}
