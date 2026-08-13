@@ -154,11 +154,17 @@ final class SecurityHelper {
 		}
 
 		// IP-based rate limiting for anonymous users
+		$identifier = (string) $user_id;
 		if ($user_id === 0) {
-			$user_id = self::get_client_ip();
+			$identifier = self::get_client_ip();
 		}
 
-		$key      = "mhmrentiva_rate_limit_{$action}_{$user_id}";
+		// Hashed like RateLimiter::getCacheKey() -- an unhashed IP in the
+		// transient name is both an unnecessary PII exposure (visible to
+		// anyone who can read wp_options) and needlessly inconsistent with
+		// the house pattern for the same kind of key.
+		$hash     = hash('sha256', $identifier);
+		$key      = "mhmrentiva_rate_limit_{$action}_{$hash}";
 		$attempts = get_transient($key);
 		if (false === $attempts) {
 			$attempts = 0;
@@ -200,28 +206,50 @@ final class SecurityHelper {
 	 */
 	public static function get_client_ip(): string
 	{
-		$ip_keys = array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR' );
 		// Direct read rather than via $GLOBALS: the indirection resolved to the same
 		// array but hid the access from static analysis. Every value taken from it is
 		// unslashed, sanitized and then validated with filter_var( FILTER_VALIDATE_IP ).
 		$server = $_SERVER;
 
-		foreach ($ip_keys as $key) {
-			if (isset($server[ $key ])) {
-				$ip = self::sanitize_text_field_safe( (string) wp_unslash($server[ $key ]));
-				if (strpos($ip, ',') !== false) {
-					$ip = explode(',', $ip)[0];
-				}
-				$ip = trim($ip);
+		$remote_addr = isset($server['REMOTE_ADDR']) ? (string) wp_unslash($server['REMOTE_ADDR']) : '0.0.0.0';
+		$remote_addr = self::sanitize_text_field_safe($remote_addr);
 
-				if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-					return $ip;
-				}
+		/**
+		 * Client-supplied headers such as `X-Forwarded-For`/`Client-IP` are
+		 * ordinary request headers: any caller that reaches this site
+		 * directly can set them to whatever it likes, so trusting them by
+		 * default let an attacker rotate the header value and bypass every
+		 * IP-based rate limit built on get_client_ip() entirely. They are
+		 * only meaningful behind a reverse proxy/load balancer that
+		 * OVERWRITES them itself before the request reaches PHP -- something
+		 * this plugin cannot know on its own.
+		 *
+		 * REMOTE_ADDR (the actual TCP peer) is the only value trusted by
+		 * default. A site that knows it sits behind such a trusted proxy can
+		 * opt specific headers back in, in priority order, via this filter --
+		 * e.g. `array( 'HTTP_CF_CONNECTING_IP' )` behind Cloudflare.
+		 *
+		 * @param string[] $headers $_SERVER keys to trust ahead of REMOTE_ADDR. Empty by default.
+		 */
+		$trusted_headers = (array) apply_filters('mhmrentiva_trusted_proxy_ip_headers', array());
+
+		foreach ($trusted_headers as $key) {
+			if (! isset($server[ $key ])) {
+				continue;
+			}
+
+			$ip = self::sanitize_text_field_safe( (string) wp_unslash($server[ $key ]));
+			if (strpos($ip, ',') !== false) {
+				$ip = explode(',', $ip)[0];
+			}
+			$ip = trim($ip);
+
+			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+				return $ip;
 			}
 		}
 
-		$remote_addr = isset($server['REMOTE_ADDR']) ? (string) wp_unslash($server['REMOTE_ADDR']) : '0.0.0.0';
-		return self::sanitize_text_field_safe($remote_addr);
+		return $remote_addr;
 	}
 
 	/**

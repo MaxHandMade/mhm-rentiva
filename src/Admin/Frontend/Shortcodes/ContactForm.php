@@ -263,11 +263,16 @@ final class ContactForm extends AbstractShortcode {
 		}
 
 		try {
-			// Rate limiting check
+			// Rate limiting check. This is an unauthenticated endpoint that
+			// also accepts file uploads, so the production limit is
+			// deliberately tight -- 5 submissions per 5 minutes per bucket
+			// (matches RateLimiter's own 'file_upload' minute budget). The
+			// bucket itself is keyed off REMOTE_ADDR only, hashed -- see
+			// SecurityHelper::get_client_ip()/check_rate_limit().
 			$limit_time = 300; // 5 minutes
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'contact_form_submission',
-				50, // 50 requests (Increased for testing)
+				5,
 				$limit_time,
 				/* translators: %d: number of minutes. */
 				sprintf(__('You have sent too many contact forms. Please wait %d minutes.', 'mhm-rentiva'), (int) ceil($limit_time / 60))
@@ -782,7 +787,24 @@ final class ContactForm extends AbstractShortcode {
 		// is exactly how /customers/bulk shipped broken for three months.
 		require_once ABSPATH . 'wp-admin/includes/file.php';
 
-		$upload = wp_handle_upload($file, array( 'test_form' => false ));
+		// This is an unauthenticated, wp_ajax_nopriv_ upload endpoint. Keeping
+		// the caller's (sanitized) filename made every uploaded attachment's
+		// name -- and therefore its public URL under uploads/ -- predictable
+		// from the submitted form alone, with no auth required to guess it.
+		// wp_handle_upload()'s unique_filename_callback replaces the name
+		// with a random one before the file ever touches disk; the extension
+		// (already validated above) is preserved so MIME/type sniffing on
+		// download is unaffected.
+		$upload = wp_handle_upload(
+			$file,
+			array(
+				'test_form'                => false,
+				'unique_filename_callback' => static function ($dir, $name, $ext) {
+					unset($dir, $name);
+					return wp_generate_password(20, false, false) . $ext;
+				},
+			)
+		);
 
 		if (isset($upload['error'])) {
 			return array(

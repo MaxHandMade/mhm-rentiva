@@ -22,7 +22,7 @@ class SecurityHelperTest extends WP_UnitTestCase
         parent::setUp();
         
         // Clear any existing transients
-        delete_transient('mhmrentiva_rate_limit_test_action_1');
+        delete_transient('mhmrentiva_rate_limit_test_action_' . hash('sha256', '1'));
         
         // Reset superglobals
         $_POST = [];
@@ -39,7 +39,7 @@ class SecurityHelperTest extends WP_UnitTestCase
     public function tearDown(): void
     {
         // Clean up transients
-        delete_transient('mhmrentiva_rate_limit_test_action_1');
+        delete_transient('mhmrentiva_rate_limit_test_action_' . hash('sha256', '1'));
         
         // Reset superglobals
         $_POST = [];
@@ -328,21 +328,34 @@ class SecurityHelperTest extends WP_UnitTestCase
         $this->assertEquals('192.168.1.100', $result);
     }
 
-    /** @test */
-    public function it_prioritizes_http_client_ip_over_remote_addr()
+    /**
+     * @test
+     *
+     * Client-supplied proxy headers are NOT trusted by default -- anything
+     * reaching this site directly can set HTTP_CLIENT_IP itself, so trusting
+     * it would let an attacker rotate the header and bypass every IP-based
+     * rate limit built on this method. REMOTE_ADDR (the real TCP peer) must
+     * win regardless of what the header claims.
+     */
+    public function it_ignores_http_client_ip_by_default_and_uses_remote_addr()
     {
         $_SERVER['HTTP_CLIENT_IP'] = '203.0.113.1';
         $_SERVER['REMOTE_ADDR'] = '192.168.1.100';
         $result = SecurityHelper::get_client_ip();
-        $this->assertEquals('203.0.113.1', $result);
+        $this->assertEquals('192.168.1.100', $result);
     }
 
-    /** @test */
-    public function it_handles_comma_separated_ip_list()
+    /**
+     * @test
+     *
+     * Same spoof, X-Forwarded-For this time: still ignored by default.
+     */
+    public function it_ignores_x_forwarded_for_by_default_and_uses_remote_addr()
     {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.1, 192.168.1.1';
+        $_SERVER['REMOTE_ADDR'] = '192.168.1.100';
         $result = SecurityHelper::get_client_ip();
-        $this->assertEquals('203.0.113.1', $result);
+        $this->assertEquals('192.168.1.100', $result);
     }
 
     /** @test */
@@ -354,13 +367,44 @@ class SecurityHelperTest extends WP_UnitTestCase
     }
 
     /** @test */
-    public function it_filters_private_ip_ranges()
+    public function it_returns_remote_addr_even_when_private()
     {
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = '192.168.1.1';
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '198.51.100.1';
         $_SERVER['REMOTE_ADDR'] = '10.0.0.1';
         $result = SecurityHelper::get_client_ip();
-        // Should return REMOTE_ADDR as fallback even if private
+        // Header untrusted by default, so it never even reaches the private-range
+        // check; REMOTE_ADDR is returned as-is, private or not.
         $this->assertEquals('10.0.0.1', $result);
+    }
+
+    /**
+     * @test
+     *
+     * Opt-in path for a site that genuinely sits behind a trusted proxy: the
+     * filter, when explicitly wired, restores the old comma-list + private-range
+     * handling for just the header(s) named.
+     */
+    public function it_trusts_a_header_only_when_opted_in_via_filter_and_still_filters_private_ranges()
+    {
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = '203.0.113.1, 192.168.1.1';
+        $_SERVER['REMOTE_ADDR'] = '192.168.1.100';
+
+        $filter = static function () {
+            return array( 'HTTP_X_FORWARDED_FOR' );
+        };
+        add_filter('mhmrentiva_trusted_proxy_ip_headers', $filter);
+
+        try {
+            $result = SecurityHelper::get_client_ip();
+            $this->assertEquals('203.0.113.1', $result);
+
+            // Private-only header value still falls back to REMOTE_ADDR.
+            $_SERVER['HTTP_X_FORWARDED_FOR'] = '192.168.1.1';
+            $result = SecurityHelper::get_client_ip();
+            $this->assertEquals('192.168.1.100', $result);
+        } finally {
+            remove_filter('mhmrentiva_trusted_proxy_ip_headers', $filter);
+        }
     }
 
     // ============================================
@@ -489,9 +533,41 @@ class SecurityHelperTest extends WP_UnitTestCase
     {
         wp_set_current_user(0);
         $_SERVER['REMOTE_ADDR'] = '192.168.1.100';
-        
+
         $result = SecurityHelper::check_rate_limit('test_action', 5, 300);
         $this->assertTrue($result);
+    }
+
+    /**
+     * @test
+     *
+     * The bucket for an anonymous caller must be keyed off REMOTE_ADDR alone.
+     * Before this fix, get_client_ip() trusted HTTP_CLIENT_IP/X-Forwarded-For
+     * ahead of REMOTE_ADDR, so an attacker exhausting the limit could simply
+     * change the spoofed header on the next request and land in a brand new
+     * bucket -- the throttle never actually engaged. With the same
+     * REMOTE_ADDR and a DIFFERENT spoofed header on every call, all requests
+     * must land in the same bucket and the limit must still trip.
+     */
+    public function it_derives_the_bucket_from_remote_addr_not_a_spoofable_header()
+    {
+        wp_set_current_user(0);
+        $action = 'spoof_test_action';
+        $_SERVER['REMOTE_ADDR'] = '192.168.1.100';
+        delete_transient('mhmrentiva_rate_limit_' . $action . '_' . hash('sha256', '192.168.1.100'));
+
+        $spoofed_ips = ['203.0.113.1', '203.0.113.2', '203.0.113.3'];
+        foreach ($spoofed_ips as $spoofed_ip) {
+            $_SERVER['HTTP_CLIENT_IP'] = $spoofed_ip;
+            $result = SecurityHelper::check_rate_limit($action, 3, 300);
+            $this->assertTrue($result, "Request with spoofed IP {$spoofed_ip} should still be within the limit.");
+        }
+
+        // The 4th request -- yet another spoofed header value -- must still
+        // land in the SAME bucket as the previous three and trip the limit.
+        $_SERVER['HTTP_CLIENT_IP'] = '198.51.100.99';
+        $result = SecurityHelper::check_rate_limit($action, 3, 300);
+        $this->assertFalse($result, 'A new spoofed header value must not reset the rate limit.');
     }
 
     // ============================================
