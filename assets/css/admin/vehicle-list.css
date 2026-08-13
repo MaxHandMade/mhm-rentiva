@@ -150,29 +150,11 @@
 	line-height: 1.3;
 }
 
-/* Keep the narrow columns' DATA values from wrapping (a value like
-   "3.500 $" or a status pill breaking onto two lines reads as broken, not
-   just tight). price_per_day/available/lifecycle keep the unscoped (header
-   + data) rule -- their header labels are each a single, un-hyphenatable
-   word ("Fiyat/Gün", "Mevcut", "Yaşam Döngüsü"; the latter is two words but
-   has its own explicit width below), so allowing them to wrap at this
-   screen's narrow widths does not produce a clean line break, it produces
-   a mid-word split ("Mevcu" / "t") via the theme's global
-   `overflow-wrap: break-word` -- confirmed live, worse than the nowrap
-   overflow it would otherwise be. featured's header ("Öne Çıkan") is the
-   one exception: two words with a real space to break at, so it alone is
-   scoped to tbody-only, letting the header wrap cleanly there instead of
-   spilling into the Tarih header's gutter (confirmed pre-existing at the
-   old 74.47px auto-share too -- Öne Çıkan already overflowed by ~11px
-   there -- and worse at the tighter widths this task's budget re-split
-   needs). */
+/* Keep the narrow columns from stealing width the Vehicle cell needs. */
 .mhm-vehicle-list .column-mhmrentiva_price_per_day,
 .mhm-vehicle-list .column-mhmrentiva_available,
-.mhm-vehicle-list .column-mhmrentiva_lifecycle {
-	white-space: nowrap;
-}
-
-.mhm-vehicle-list tbody .column-mhmrentiva_featured {
+.mhm-vehicle-list .column-mhmrentiva_lifecycle,
+.mhm-vehicle-list .column-mhmrentiva_featured {
 	white-space: nowrap;
 }
 
@@ -187,71 +169,10 @@
 	width: 136px;
 }
 
-/* Budget the five narrow columns explicitly instead of leaving them to
-   table-layout:fixed's auto-share, which grows/shrinks them in lockstep
-   with whatever the Bu Hafta/Tarih columns claim below -- confirmed live
-   at 1280px: an equal auto-share narrow enough to give Bu Hafta full-label
-   room (144.42px content, see that column's own comment) pushed
-   price_per_day and features down to where their nowrap sort-header text
-   ends less than 1px before the next header's text starts (measured via
-   each header's own text-node rect, not just cell-vs-cell overflow, which
-   understated it) -- a real collision risk, not just tight.
-
-   `width` on a table-cell under table-layout:fixed normally sets the
-   CONTENT box (confirmed: `.column-mhmrentiva_lifecycle{width:136px}`
-   renders at a measured 156px = 136 + its own 10+10px padding, and the
-   same holds for available/featured below). But the three SORTABLE
-   columns here (location/features/price_per_day, each carrying a header
-   `<a>`) behave differently under this table's layout pressure: their
-   specified `width` is used AS the rendered/clientWidth directly, with no
-   padding added on top (confirmed live -- e.g. a 44px spec on location
-   rendered at a measured 44px, not 64px). Tarih (below) shows the same
-   "spec == render" behaviour and is the one other column with its own
-   link-free-but-position-driven quirk documented there. So the three
-   sortable columns' values below ARE their rendered target directly;
-   available/featured's are (rendered target − own padding), same pattern
-   as Lifecycle:
-   - price_per_day / features: rendered target 76px (used as-is). Their
-     sortable header text ("Fiyat/Gün", "Özellikler") plus WP core's
-     sort-icon markup needs a 78px render for zero raw overflow (bisected
-     live); 76px leaves an ~8-16px gap to the neighbouring header's text
-     -- clear, not touching.
-   - location: rendered target 64px (used as-is). Its data values wrap
-     (long airport/location names already did at any width) and its
-     header overflows by just 1px at a 61px render -- 64px clears that
-     with margin.
-   - available: rendered target 64px, padding 8+10px ⇒ width:46px.
-     "Aktif"/pill data measured at 45.89px content, well inside; "Mevcut"
-     header fits on one line down to a 61px render already.
-   - featured: rendered target 64px, padding 10+10px ⇒ width:44px. "★"
-     data is trivial; "Öne Çıkan" header wraps onto two lines below the
-     tbody-only nowrap rule above, so it no longer has a raw-overflow
-     floor to protect. */
-.mhm-vehicle-list .column-mhmrentiva_location {
-	width: 64px;
-}
-
+/* Room for the three feature chips to flow horizontally like the mockup. */
 .mhm-vehicle-list .column-mhmrentiva_features {
-	width: 76px;
+	min-width: 200px;
 }
-
-.mhm-vehicle-list .column-mhmrentiva_price_per_day {
-	width: 76px;
-}
-
-.mhm-vehicle-list .column-mhmrentiva_available {
-	width: 46px;
-}
-
-.mhm-vehicle-list .column-mhmrentiva_featured {
-	width: 44px;
-}
-
-/* The three feature chips' own room comes from the explicit width above
-   now, not this -- min-width was always a no-op under table-layout:fixed
-   (see the Lifecycle comment above); left in place before this task as
-   inert, now removed rather than leaving a contradicting hint next to a
-   real `width` declaration. */
 
 /* ── 7-day availability strip ── */
 /* Fixed table layout only ever honours `width`, never `min-width` — the
@@ -259,21 +180,15 @@
    this column carried was therefore a silent no-op from day one, and the
    padding-right/padding-left "clearance" added around it (twice, in two
    follow-up commits) was hand-measured compensation for that same no-op.
-   Both held only at the ~1866px+ window they were eyeballed at.
-
-   This column deliberately carries NO explicit `width` of its own. Every
-   other non-fixed column on this row (location/features/price_per_day/
-   available/featured above, date below) now has one, sized to that
-   column's own measured floor -- so this is the one column left as
-   table-layout:fixed's natural auto-share, and it receives 100% of
-   whatever width is left over after all the explicit/fixed columns are
-   subtracted from the table's own (viewport-driven) width. That leftover
-   grows with the viewport (the Vehicle column's 26%-of-table share pulls
-   more absolute px at wider windows while every fixed/explicit column
-   here stays constant), so this column's width -- and therefore whether
-   the day labels clear their own 144.42px content threshold -- is a
-   direct, increasing function of viewport width, not a fixed guess. The
-   strip still shrinks to fit whatever width that turns out to be, at any
+   Both held only at the ~1866px+ window they were eyeballed at: this
+   column's actual computed width is whatever table-layout:fixed's equal
+   auto-split gives it, which shrinks with the viewport, while the strip's
+   old fixed-size content (16px days + 4px gaps = 150px) did not — so
+   below ~1866px the strip still outgrew the column and bled under the
+   Available pill (confirmed 1280–1600px; the min-width and both padding
+   bumps never touched the actual cause). Reserving yet another fixed
+   width would only move the breakpoint again, so instead the strip is
+   made to shrink to whatever width the column is actually given, at any
    width — see the .column-mhmrentiva_week-scoped rules below. */
 .mhm-vehicle-list .column-mhmrentiva_week {
 	padding-right: 8px;
@@ -418,39 +333,6 @@
 	background: #f0f2f5;
 	color: #50575e;
 	white-space: nowrap;
-}
-
-/* Tarih (WP core's own "date" column, no mhmrentiva_ prefix) is the
-   widest low-value column on this screen -- it renders a status word
-   ("Yayınlanmış") over a fixed-format date/time ("10.02.2026, 00:29") on
-   two lines, and at 1280px was taking 148.53px while Bu Hafta above was
-   starved down to a 44.47px-wide strip. Shrunk to what it actually needs:
-   the date/time line is set in tabular-figure digits (confirmed live --
-   "31.12.2026, 23:59" and "00.00.0000, 00:00" both measure the identical
-   98.93px), so it is the true, content-driven, digit-independent floor;
-   the widest realistic status word ("Son değiştirilme", draft/pending/
-   private state) measures narrower at 92.58px. 124px leaves 104px of
-   content after this column's 10+10px padding, a 5.07px margin over the
-   98.93px need -- confirmed live at all 5 required widths: exactly two
-   text lines, `scrollWidth == clientWidth`, no third wrapped line.
-
-   This column is the last in the row, and (like the sortable columns
-   above) its specified `width` is used as the rendered/clientWidth
-   directly rather than as a content-box value with padding added on top
-   -- confirmed live: a 108px spec rendered at a measured 108px, and a
-   200px spec at 200px, in both cases exactly matching the spec with no
-   padding added. 124px here IS the rendered target already.
-
-   Not sized for WP core's own "Missed schedule" error state (cron failed
-   to fire a scheduled post in time) -- that renders in bold and needs
-   123.33px on the status line alone, wider than the whole content budget
-   here. That state is a rare, self-resolving WP-core condition, already
-   styled distinctly (bold, red) to read as an anomaly rather than normal
-   content, and this budget favours the column's everyday content over an
-   edge case that every other narrow sortable-column list in WP admin
-   shares the same exposure to. */
-.mhm-vehicle-list .column-date {
-	width: 124px;
 }
 
 /* ── Status pills (Available column) ── */
