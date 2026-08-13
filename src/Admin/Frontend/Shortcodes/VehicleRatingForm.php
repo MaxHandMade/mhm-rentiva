@@ -390,6 +390,18 @@ final class VehicleRatingForm extends AbstractShortcode {
 			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
 		}
 
+		/*
+		 * The parameter is named `vehicle_id`, but nothing used to make it one:
+		 * the id went straight into get_comments() as `post_id`. A `nopriv`
+		 * caller with the public rating nonce could therefore read the approved
+		 * comments -- author display names and comment text -- of an unpublished
+		 * vehicle, or of any unrelated post type entirely. Constrain it to what
+		 * the parameter claims to be, and to what a visitor could already read.
+		 */
+		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vid)) {
+			wp_send_json_error(array( 'message' => __('Invalid vehicle', 'mhm-rentiva') ));
+		}
+
 		$comments = get_comments(
 			array(
 				'post_id' => $vid,
