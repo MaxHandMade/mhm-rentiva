@@ -61,9 +61,15 @@ final class PublicSurfaceUnpublishedDisclosureTest extends WP_Ajax_UnitTestCase
 	{
 		parent::setUp();
 
-		// Without this the nopriv actions are not hooked, `_handleAjax()` finds
-		// nothing to run, and every "refuses" assertion below would pass for the
-		// wrong reason -- the endpoint being absent, not gated.
+		// `ShortcodeServiceProvider::process_registration()` already calls
+		// each of these classes' `register()` once, unconditionally, at
+		// plugin bootstrap (`Plugin.php` -> `ShortcodeServiceProvider::
+		// register()`), so the nopriv actions are already hooked before this
+		// test runs -- these calls are redundant with that, not required to
+		// make it happen. They stay as a defensive, explicit pin: each
+		// `register()` is idempotent (`add_action` on an already-hooked
+		// callback is a no-op) and keeps this test readable and independent
+		// of the bootstrap's registry contents if that ever changes.
 		AvailabilityCalendar::register();
 		BookingForm::register();
 		VehicleDetails::register();
