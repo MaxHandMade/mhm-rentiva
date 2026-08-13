@@ -225,7 +225,10 @@ final class CustomersOptimizer {
 				'phone'         => $result->phone ? $result->phone : '-',
 				'address'       => $result->address ? $result->address : '-',
 				'booking_count' => (int) $result->booking_count,
-				'total_spent'   => number_format( (float) $result->total_spent, 2, ',', '.' ),
+				// Canonical, symbol included. Clients must render this as-is; the
+				// old shape was a bare number that every client concatenated the
+				// symbol onto from the LEFT, contradicting a `right` position.
+				'total_spent'   => CurrencyHelper::format_price( (float) $result->total_spent, 2 ),
 				'last_booking'  => $result->last_booking ? gmdate( 'd.m.Y', strtotime( $result->last_booking ) ) : '-',
 				'created_date'  => $result->created_date ? gmdate( 'd.m.Y', strtotime( $result->created_date ) ) : '-',
 				'currency'      => $currency,
@@ -443,7 +446,8 @@ final class CustomersOptimizer {
 			'address'         => $result->address ? $result->address : '-',
 			'registered'      => gmdate( 'd.m.Y', strtotime( $result->user_registered ) ),
 			'booking_count'   => (int) $result->booking_count,
-			'total_spent'     => number_format( (float) $result->total_spent, 2, ',', '.' ),
+			// Canonical, symbol included — see get_customers_optimized().
+			'total_spent'     => CurrencyHelper::format_price( (float) $result->total_spent, 2 ),
 			'currency'        => $currency,
 			'last_booking'    => $result->last_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->last_booking ) ) : '-',
 			'first_booking'   => $result->first_booking ? gmdate( 'd.m.Y H:i', strtotime( $result->first_booking ) ) : '-',
@@ -514,7 +518,8 @@ final class CustomersOptimizer {
 				'reference' => __( 'BK-', 'mhm-rentiva' ) . str_pad( (string) mhmrentiva_get_display_id( $booking_id ), 6, '0', STR_PAD_LEFT ),
 				'vehicle'   => $row->vehicle_title ? $row->vehicle_title : $row->booking_title,
 				'date'      => gmdate( 'd.m.Y', strtotime( $row->post_date ) ),
-				'amount'    => number_format( (float) $row->amount, 2, ',', '.' ),
+				// Canonical, symbol included — see get_customers_optimized().
+				'amount'    => CurrencyHelper::format_price( (float) $row->amount, 2 ),
 			);
 		}
 

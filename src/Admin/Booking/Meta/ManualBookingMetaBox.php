@@ -848,20 +848,9 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 	 */
 	private static function format_addon_price(float $price): string
 	{
-		$symbol           = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-		$position         = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency_position', 'right_space');
-		$formatted_amount = number_format($price, 2, ',', '.');
-
-		switch ($position) {
-			case 'left':
-				return $symbol . $formatted_amount;
-			case 'left_space':
-				return $symbol . ' ' . $formatted_amount;
-			case 'right':
-				return $formatted_amount . $symbol;
-			case 'right_space':
-			default:
-				return $formatted_amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price($price, 2);
 	}
 }

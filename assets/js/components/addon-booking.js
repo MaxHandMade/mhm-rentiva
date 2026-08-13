@@ -141,13 +141,41 @@
 		},
 
 		/**
+		 * Format an amount with the canonical currency symbol, placement and
+		 * separators — all of which PHP sources from WooCommerce. This used to be
+		 * `${symbol}${amount.toLocaleString(locale)}`, which hardcoded the symbol
+		 * to the left and took separators from the browser locale rather than from
+		 * the WooCommerce configuration.
+		 */
+		formatMoney: function (amount) {
+			const cfg       = (window.mhmRentivaAddons) || {};
+			const symbol    = cfg.currencySymbol || '$';
+			const position  = cfg.currencyPosition || 'right_space';
+			const fmt       = cfg.currencyFormat || {};
+			const decimals  = ( fmt.decimals === undefined ) ? 2 : Number( fmt.decimals );
+			const decSep    = fmt.decimalSeparator || ',';
+			const thouSep   = fmt.thousandSeparator || '.';
+
+			const fixed = Number( amount || 0 ).toFixed( decimals );
+			const parts = fixed.split( '.' );
+			const int   = parts[0].replace( /\B(?=(\d{3})+(?!\d))/g, thouSep );
+			const value = decimals > 0 ? int + decSep + parts[1] : int;
+
+			switch ( position ) {
+				case 'left':        return symbol + value;
+				case 'left_space':  return symbol + ' ' + value;
+				case 'right':       return value + symbol;
+				case 'right_space':
+				default:            return value + ' ' + symbol;
+			}
+		},
+
+		/**
 		 * Update total display
 		 */
 		updateTotalDisplay: function (total, breakdown) {
 			const $totalSection = $( '.addon-total' );
 			const $breakdown    = $totalSection.find( '.total-breakdown' );
-			const currency      = (window.mhmRentivaAddons && window.mhmRentivaAddons.currencySymbol) || '$';
-			const locale        = (window.mhmRentivaAddons && window.mhmRentivaAddons.locale) || 'en-US';
 			const strings       = (window.mhmRentivaAddons && window.mhmRentivaAddons.strings) || {};
 
 			// Clear existing breakdown
@@ -156,13 +184,7 @@
 			// Add breakdown items
 			breakdown.forEach(
 				function (item) {
-					const formattedTotal = item.total.toLocaleString(
-						locale,
-						{
-							minimumFractionDigits: 2,
-							maximumFractionDigits: 2
-						}
-					);
+					const formattedTotal = AddonBooking.formatMoney( item.total );
 
 					// Simple escape for name
 					const safeName = item.name.replace(
@@ -176,7 +198,7 @@
 						`
 						<div class="total-line">
 						<span>${safeName} (${item.quantity}x)</span>
-						<span>${currency}${formattedTotal}</span>
+						<span>${formattedTotal}</span>
 						</div>
 						`
 					);
@@ -184,18 +206,12 @@
 			);
 			// Add final total
 			if (breakdown.length > 0) {
-				const formattedTotal = total.toLocaleString(
-					locale,
-					{
-						minimumFractionDigits: 2,
-						maximumFractionDigits: 2
-					}
-				);
+				const formattedTotal = AddonBooking.formatMoney( total );
 				$breakdown.append(
 					`
 					<div class="total-line final">
 						<span>${strings.totalAddons || 'Total Add-ons'}</span>
-						<span>${currency}${formattedTotal}</span>
+						<span>${formattedTotal}</span>
 					</div>
 					`
 				);

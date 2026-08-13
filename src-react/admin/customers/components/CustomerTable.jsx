@@ -112,7 +112,8 @@ export default function CustomerTable( { items, sortBy, sortDir, selected, panel
 								</td>
 								<td className="rv-cust-phone">{ c.phone }</td>
 								<td className="is-right">{ c.booking_count }</td>
-								<td className="is-right rv-cust-total">{ `${ c.currency ?? '' }${ c.total_spent }` }</td>
+								{ /* Already canonical (symbol + WooCommerce placement) from PHP. */ }
+								<td className="is-right rv-cust-total">{ c.total_spent }</td>
 								<td>
 									{ STATUS_LABELS[ c.status ] ? (
 										<span className={ `rv-cust-tag is-${ c.status }` }>{ STATUS_LABELS[ c.status ] }</span>

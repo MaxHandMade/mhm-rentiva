@@ -304,7 +304,8 @@ final class BookingEditMetaBox extends AbstractMetaBox {
 				echo '<div class="mhm-addon-content">';
 				echo '<div class="mhm-addon-header">';
 				echo '<span class="mhm-addon-title">' . esc_html( $addon['title'] ) . wp_kses_post( $required_text ) . '</span>';
-				echo '<span class="mhm-addon-price">+ ' . esc_html( number_format( (float) $addon['price'], 2, ',', '.' ) ) . ' ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol() ) . '</span>';
+				// Canonical formatting; this used to pin the symbol to the right.
+				echo '<span class="mhm-addon-price">+ ' . esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $addon['price'], 2 ) ) . '</span>';
 				echo '</div>';
 				if ( ! empty( $addon['description'] ) ) {
 					echo '<div class="mhm-addon-description">' . esc_html( $addon['description'] ) . '</div>';

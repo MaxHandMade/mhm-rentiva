@@ -3,7 +3,7 @@ import { __ } from '@wordpress/i18n';
 import { rentivaApi } from '../../../shared/api/rentiva';
 import { STATUS_LABELS, initials, avatarColors } from './CustomerTable';
 
-export default function CustomerPanel( { panelId, row, currency, adminUrl, onClose } ) {
+export default function CustomerPanel( { panelId, row, adminUrl, onClose } ) {
 	const [detail,  setDetail]  = useState( null );
 	const [loading, setLoading] = useState( false );
 	const [error,   setError]   = useState( null );
@@ -92,7 +92,9 @@ export default function CustomerPanel( { panelId, row, currency, adminUrl, onClo
 						<span>{ __( 'bookings', 'mhm-rentiva' ) }</span>
 					</div>
 					<div>
-						<strong>{ `${ currency ?? '' }${ row.total_spent }` }</strong>
+						{ /* Already canonical (symbol + WooCommerce placement) from PHP;
+						     prepending `currency` here hardcoded the symbol to the left. */ }
+						<strong>{ row.total_spent }</strong>
 						<span>{ __( 'total', 'mhm-rentiva' ) }</span>
 					</div>
 					<div>
@@ -122,7 +124,7 @@ export default function CustomerPanel( { panelId, row, currency, adminUrl, onClo
 									</div>
 									<div className="rv-cust-panel__booking-date">{ b.date }</div>
 								</div>
-								<span className="rv-cust-panel__booking-amount">{ `${ currency ?? '' }${ b.amount }` }</span>
+								<span className="rv-cust-panel__booking-amount">{ b.amount }</span>
 							</div>
 						) )
 					) : (

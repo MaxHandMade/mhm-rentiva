@@ -621,6 +621,8 @@ final class AssetManager {
 				'currentMode' => \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_dark_mode', 'auto'),
 			)
 		);
+		$currency_parts = CurrencyHelper::get_js_currency_payload();
+
 		wp_localize_script(
 			'mhm-rentiva-core-js',
 			'mhmRentivaAdmin',
@@ -628,12 +630,15 @@ final class AssetManager {
 				'ajaxUrl'          => admin_url('admin-ajax.php'),
 				'nonce'            => wp_create_nonce('mhmrentiva_admin_nonce'),
 				'locale'           => get_locale(),
-				'currency'         => get_option('mhmrentiva_currency', 'USD'),
-				'currencySymbol'   => CurrencyHelper::get_currency_symbol(),
-				'currencyPosition' => CurrencyHelper::get_currency_position(),
-				'decimalSep'       => function_exists( 'wc_get_price_decimal_separator' ) ? wc_get_price_decimal_separator() : ',',
-				'thousandSep'      => function_exists( 'wc_get_price_thousand_separator' ) ? wc_get_price_thousand_separator() : '.',
-				'numDecimals'      => function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2,
+				// One canonical source for every currency part. `currency` used to be
+				// read straight off the plugin option, so it could name a different
+				// currency than the symbol beside it once WooCommerce was active.
+				'currency'         => $currency_parts['currency'],
+				'currencySymbol'   => $currency_parts['symbol'],
+				'currencyPosition' => $currency_parts['position'],
+				'decimalSep'       => $currency_parts['decimalSeparator'],
+				'thousandSep'      => $currency_parts['thousandSeparator'],
+				'numDecimals'      => $currency_parts['decimals'],
 				'dateFormat'       => get_option('date_format', 'Y-m-d'),
 				'timeFormat'       => get_option('time_format', 'H:i'),
 				'strings'          => array(

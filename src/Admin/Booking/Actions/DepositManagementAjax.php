@@ -8,7 +8,6 @@ if (!defined('ABSPATH')) {
 }
 
 use MHMRentiva\Admin\Booking\Core\Status;
-use MHMRentiva\Admin\Settings\Settings;
 use MHMRentiva\Admin\Payment\WooCommerce\RemainingPaymentHandler;
 use MHMRentiva\Admin\Emails\Core\Mailer;
 
@@ -349,20 +348,9 @@ final class DepositManagementAjax {
 	}
 
 	private static function format_price( float $price ): string {
-		$symbol   = get_woocommerce_currency_symbol();
-		$position = Settings::get( 'mhmrentiva_currency_position', 'right_space' );
-		$amount   = number_format_i18n( $price, 2 );
-
-		switch ( $position ) {
-			case 'left':
-				return $symbol . $amount;
-			case 'right':
-				return $amount . $symbol;
-			case 'left_space':
-				return $symbol . ' ' . $amount;
-			case 'right_space':
-			default:
-				return $amount . ' ' . $symbol;
-		}
+		// Canonical currency formatting (WC-aware symbol/position/separators).
+		// Reading mhmrentiva_currency_position here pinned this to `right_space`
+		// whenever that option was unset, which is its normal state.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $price, 2 );
 	}
 }

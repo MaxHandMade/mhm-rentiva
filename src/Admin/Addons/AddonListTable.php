@@ -199,16 +199,15 @@ final class AddonListTable {
 			)
 		);
 
-		$currency_code     = AddonManager::get_default_currency();
-		$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol($currency_code);
 		$active_percentage = $total_addons > 0 ? round(( $active_addons / $total_addons ) * 100) : 0;
 
 		return array(
 			'total_addons'      => $total_addons,
 			'active_addons'     => $active_addons,
 			'active_percentage' => $active_percentage,
-			'avg_price'         => number_format($avg_price, 2, ',', '.') . ' ' . $currency_symbol,
-			'total_value'       => number_format($total_value, 2, ',', '.') . ' ' . $currency_symbol,
+			// Canonical currency formatting; these used to pin the symbol right.
+			'avg_price'         => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($avg_price, 2),
+			'total_value'       => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($total_value, 2),
 		);
 	}
 }

@@ -64,16 +64,91 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
             'VehicleColumns price column'  => function (float $a): string {
                 return $this->renderPriceColumn($a);
             },
-            'VehicleFeatureHelper::format_price' => static function (float $a): string {
-                $method = new \ReflectionMethod(
-                    \MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::class,
-                    'format_price'
-                );
-                $method->setAccessible(true);
-
-                return (string) $method->invoke(null, $a);
-            },
+            'VehicleFeatureHelper::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Vehicle\Helpers\VehicleFeatureHelper::class, 'format_price', $a),
+            // Booking admin surfaces. These carried their own copy of the
+            // placement switch, each reading the plugin option directly.
+            'DepositManagementAjax::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\Actions\DepositManagementAjax::class, 'format_price', $a),
+            'BookingDepositMetaBox::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\Meta\BookingDepositMetaBox::class, 'format_price', $a),
+            'BookingMeta::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\Meta\BookingMeta::class, 'format_price', $a),
+            'BookingColumns::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\ListTable\BookingColumns::class, 'format_price', $a),
+            'AddonBooking::format_addon_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\Addons\AddonBooking::class, 'format_addon_price', $a),
+            'ManualBookingMetaBox::format_addon_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Booking\Meta\ManualBookingMetaBox::class, 'format_addon_price', $a),
+            'VehicleColumns::format_currency' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::class, 'format_currency', $a),
+            'AddonManager::format_addon_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Addons\AddonManager::class, 'format_addon_price', $a),
         );
+    }
+
+    /**
+     * Surfaces that differ only in decimal precision are compared through the
+     * canonical helper at the SAME precision, so a 2-decimal surface is never
+     * failed for not looking like a 0-decimal one.
+     *
+     * @return array<string, int>
+     */
+    private function surfaceDecimals(): array
+    {
+        return array(
+            'CurrencyHelper::format_price'            => 0,
+            'VehicleColumns price column'             => 0,
+            'VehicleFeatureHelper::format_price'      => 0,
+            'DepositManagementAjax::format_price'     => 2,
+            'BookingDepositMetaBox::format_price'     => 2,
+            'BookingMeta::format_price'               => 2,
+            'BookingColumns::format_price'            => 2,
+            'AddonBooking::format_addon_price'        => 2,
+            'ManualBookingMetaBox::format_addon_price' => 2,
+            'VehicleColumns::format_currency'         => 2,
+            'AddonManager::format_addon_price'        => 2,
+        );
+    }
+
+    /**
+     * The Customers screen hands its clients (the PHP panel, the React table and
+     * side panel) a pre-formatted `total_spent`. Those clients used to prepend
+     * the symbol themselves, which hardcoded it to the left; the payload now
+     * carries the canonical placement so nothing has to prepend anything.
+     *
+     * @dataProvider providePositions
+     */
+    public function test_the_customers_payload_carries_the_canonical_placement(string $wc_position): void
+    {
+        update_option('woocommerce_currency_pos', $wc_position);
+
+        $customer_id = self::factory()->user->create(
+            array(
+                'role'       => 'subscriber',
+                'user_email' => 'currency-parity@example.test',
+            )
+        );
+
+        $detail = \MHMRentiva\Admin\Customers\CustomersOptimizer::get_customer_details_optimized($customer_id);
+
+        if (null === $detail || ! isset($detail['total_spent'])) {
+            $this->markTestSkipped('CustomersOptimizer returned no detail row for the fixture user.');
+        }
+
+        $this->assertSame(
+            $this->normalize(CurrencyHelper::format_price(0.0, 2)),
+            $this->normalize((string) $detail['total_spent']),
+            'total_spent must already carry the canonical symbol and placement.'
+        );
+    }
+
+    private static function callPrivate(string $class, string $method, float $amount): string
+    {
+        $reflection = new \ReflectionMethod($class, $method);
+        $reflection->setAccessible(true);
+
+        return (string) $reflection->invoke(null, $amount);
     }
 
     private function renderPriceColumn(float $price): string
@@ -163,9 +238,10 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
     {
         update_option('woocommerce_currency_pos', $wc_position);
 
-        $canonical = $this->normalize(CurrencyHelper::format_price(3500.0, 0));
+        $decimals = $this->surfaceDecimals();
 
         foreach ($this->humanPriceSurfaces() as $label => $render) {
+            $canonical = $this->normalize(CurrencyHelper::format_price(3500.0, $decimals[ $label ]));
             $this->assertSame(
                 $canonical,
                 $this->normalize($render(3500.0)),

@@ -1,4 +1,5 @@
 import { __ } from '@wordpress/i18n';
+import { fmtMoney } from '../../../shared/format';
 
 export default function StatsCards( { stats, currency } ) {
 	if ( ! stats ) return null;
@@ -25,7 +26,10 @@ export default function StatsCards( { stats, currency } ) {
 			tone:  'info',
 		},
 		{
-			value: `${ currency ?? '' }${ avgSpend.toLocaleString() }`,
+			// fmtMoney places the symbol per woocommerce_currency_pos and uses the
+			// WooCommerce separators; the old template literal hardcoded the symbol
+			// to the left and took separators from the browser locale.
+			value: fmtMoney( avgSpend, currency ?? '' ),
 			label: __( 'Avg. Spend', 'mhm-rentiva' ),
 			sub:   __( 'per customer', 'mhm-rentiva' ),
 		},

@@ -158,7 +158,6 @@ export default function CustomersPage() {
 				<CustomerPanel
 					panelId={ panelId }
 					row={ panelRow }
-					currency={ cfg.currency }
 					adminUrl={ cfg.admin_url }
 					onClose={ () => setPanelId( null ) }
 				/>

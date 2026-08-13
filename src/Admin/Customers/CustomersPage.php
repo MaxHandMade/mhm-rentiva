@@ -314,7 +314,9 @@ final class CustomersPage {
 		// Stat grid.
 		echo '<div class="rv-cust-panel__stats">';
 		echo '<div><strong>' . esc_html( (string) $detail['booking_count'] ) . '</strong><span>' . esc_html__( 'bookings', 'mhm-rentiva' ) . '</span></div>';
-		echo '<div><strong>' . esc_html( $detail['currency'] . $detail['total_spent'] ) . '</strong><span>' . esc_html__( 'total', 'mhm-rentiva' ) . '</span></div>';
+		// `total_spent` already carries the canonical symbol and placement; do not
+		// prepend `currency` here, that hardcoded the symbol to the left.
+		echo '<div><strong>' . esc_html( $detail['total_spent'] ) . '</strong><span>' . esc_html__( 'total', 'mhm-rentiva' ) . '</span></div>';
 		echo '<div><strong>' . esc_html( (string) ( $detail['favorites_count'] ?? 0 ) ) . '</strong><span>' . esc_html__( 'favorites', 'mhm-rentiva' ) . '</span></div>';
 		echo '</div>';
 
