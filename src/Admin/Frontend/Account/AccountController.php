@@ -226,7 +226,10 @@ final class AccountController {
 		// Enqueue Vehicle Interactions on Favorites endpoint (v1.3.3)
 		$favorites_slug = self::get_endpoint_slug('favorites', 'rentiva-favorites');
 		if ($endpoint === 'favorites' || get_query_var($favorites_slug) !== '') {
-			wp_enqueue_script('mhm-rentiva-vehicle-interactions');
+			// Through AssetManager, not a bare wp_enqueue_script(): the script is
+			// useless without its mhmrentiva_vars payload, and that payload has
+			// exactly one definition now.
+			\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 		}
 
 		// Enqueue Account Privacy JS on Dashboard.

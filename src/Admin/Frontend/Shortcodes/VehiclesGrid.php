@@ -358,6 +358,17 @@ class VehiclesGrid extends AbstractShortcode {
 	 */
 	protected static function enqueue_assets(array $atts = array()): void
 	{
+		// The cards this shortcode renders come from templates/partials/vehicle-card.php,
+		// whose favourite/compare buttons are driven by vehicle-interactions.js --
+		// vehicles-grid.js binds neither (see its own note at line 29: the
+		// `.rv-vehicle-card__favorite` selector it was written against does not
+		// exist in that partial). Ask for the script and its mhmrentiva_vars
+		// payload explicitly: this method is a full override that never reaches
+		// enqueue_scripts(), so get_js_dependencies() below never runs, and
+		// AssetManager::enqueue_frontend_assets() skips the payload entirely on
+		// pages Elementor built.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
+
 		// CSS
 		wp_enqueue_style(
 			'mhm-rentiva-vehicles-grid',

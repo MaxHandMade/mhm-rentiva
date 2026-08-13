@@ -349,21 +349,19 @@ final class SearchResults extends AbstractShortcode {
 			true
 		);
 
-		// Ensure vehicle interaction globals are available on block-only pages.
-		if (wp_script_is('mhm-rentiva-vehicle-interactions', 'enqueued')) {
-			wp_localize_script(
-				'mhm-rentiva-vehicle-interactions',
-				'mhmrentiva_vars',
-				array(
-					'ajax_url'           => admin_url('admin-ajax.php'),
-					'nonce'              => wp_create_nonce('mhmrentiva_toggle_favorite'),
-					'fav_nonce'          => wp_create_nonce('mhmrentiva_toggle_favorite'),
-					'compare_nonce'      => wp_create_nonce('mhmrentiva_toggle_compare'),
-					'compare_page_url'   => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_vehicle_comparison'),
-					'favorites_page_url' => \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_my_favorites'),
-				)
-			);
-		}
+		// Ensure vehicle interaction globals are available wherever this widget
+		// renders -- block-only pages, and Elementor-built ones, where
+		// AssetManager::should_load_assets() cannot see the shortcode because
+		// Elementor keeps the content in postmeta rather than post_content.
+		//
+		// This used to be a SECOND, shorter wp_localize_script() of
+		// mhmrentiva_vars written out right here, without the 'i18n' sub-array.
+		// wp_localize_script does not merge -- last writer wins -- so on those
+		// pages vehicle-interactions.js got a payload with no strings and threw
+		// `Cannot read properties of undefined (reading 'adding_compare')` on the
+		// first compare click. One definition, in AssetManager, is the fix; a
+		// second copy of the same 14 strings is how the bug reproduces.
+		\MHMRentiva\Admin\Core\AssetManager::enqueue_vehicle_interactions();
 
 		// Localize script
 		wp_localize_script(
