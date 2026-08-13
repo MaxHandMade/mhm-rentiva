@@ -236,6 +236,40 @@ final class SecurityHelper {
 		return $id;
 	}
 
+	/**
+	 * Validate a vehicle id arriving from an UNAUTHENTICATED caller.
+	 *
+	 * `validate_vehicle_id()` above only ever checked the SHAPE of the value --
+	 * "is it a positive integer" -- which is all its name promises. Every one of
+	 * its call sites, however, is a `wp_ajax_nopriv_` handler, so a bare shape
+	 * check let an anonymous caller walk post ids and read back the price,
+	 * day-count and availability of draft, pending and private vehicles. A nonce
+	 * does not close that: the booking form's nonce is minted into the public
+	 * page, so every visitor holds a valid one.
+	 *
+	 * The two checks are kept as separate methods on purpose. Shape validation
+	 * has honest non-public callers (admin flows, tests), and folding an
+	 * authorization rule into a method called "validate_vehicle_id" would hide
+	 * the rule exactly where the next reader would not look for it. Public
+	 * surfaces ask for the public validator by name.
+	 *
+	 * @param mixed $id Raw id from the request.
+	 * @return int Validated, publicly readable vehicle ID.
+	 * @throws \InvalidArgumentException When malformed, or not publicly readable.
+	 */
+	public static function validate_public_vehicle_id($id): int
+	{
+		$vehicle_id = self::validate_vehicle_id($id);
+
+		// Same message and exception type as a malformed id: an unpublished
+		// vehicle must not be distinguishable from one that does not exist.
+		if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vehicle_id)) {
+			throw new \InvalidArgumentException(esc_html__('Invalid vehicle ID.', 'mhm-rentiva'));
+		}
+
+		return $vehicle_id;
+	}
+
 	public static function validate_date($date): string
 	{
 		$date = self::sanitize_text_field_safe($date);

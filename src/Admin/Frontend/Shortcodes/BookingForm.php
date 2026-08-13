@@ -689,8 +689,9 @@ final class BookingForm extends AbstractShortcode {
 				__('Too many booking requests. Please wait 5 minutes.', 'mhm-rentiva')
 			);
 
-			// Input validation
-			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read.
+			$vehicle_id = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 
 			// Check vehicle status
 			$vehicle_status = \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::get_status($vehicle_id);
@@ -1061,8 +1062,10 @@ final class BookingForm extends AbstractShortcode {
 				__('Too many price calculation requests. Please wait.', 'mhm-rentiva')
 			);
 
-			// Input validation
-			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read --
+			// otherwise the price breakdown below prices unpublished stock.
+			$vehicle_id   = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date  = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$dropoff_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('dropoff_date'));
 			$addons       = \MHMRentiva\Admin\Core\SecurityHelper::validate_numeric_array($req->arr('addons'));
@@ -1398,8 +1401,9 @@ final class BookingForm extends AbstractShortcode {
 				__('Too many availability checks. Please wait.', 'mhm-rentiva')
 			);
 
-			// Input validation
-			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_vehicle_id($req->int('vehicle_id'));
+			// Input validation. Public validator: this is a nopriv handler, so
+			// the id must be one an anonymous visitor could already read.
+			$vehicle_id  = \MHMRentiva\Admin\Core\SecurityHelper::validate_public_vehicle_id($req->int('vehicle_id'));
 			$pickup_date = \MHMRentiva\Admin\Core\SecurityHelper::validate_date($req->text('pickup_date'));
 			$pickup_time = $req->text('pickup_time');
 			// Check field names from JavaScript (dropoff_date or return_date)
