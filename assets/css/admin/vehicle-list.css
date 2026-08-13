@@ -206,8 +206,15 @@
 /* List column only (not the Kartlar face's .rv-vhl-card__strip reuse,
    which already sets its own sizing at higher specificity in
    occupancy-matrix.css): let the row of days shrink as one instead of
-   overflowing past the column's real, table-layout-fixed width. */
+   overflowing past the column's real, table-layout-fixed width. Also the
+   size-query container for the label toggle below — a <td> cannot host
+   one (table-cell display forces `contain: none`, confirmed live: setting
+   container-type on the cell itself never matched an @container rule),
+   so the container lives on this flex row instead; its children remain
+   valid query targets. */
 .mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week {
+	container-type: inline-size;
+	container-name: rv-week-strip;
 	gap: 3px;
 	min-width: 0;
 }
@@ -267,13 +274,49 @@
 	line-height: 1;
 }
 
-/* At the narrowest tested widths the shrunk day box no longer has room
-   for the full 3-letter label (e.g. "Sal"); clip to a single glyph
-   instead of letting it wrap onto multiple stacked lines. */
+/* A single glyph of a Turkish weekday abbreviation is not information —
+   Pazartesi/Perşembe/Pazar all start with "P", Cuma/Cumartesi both with
+   "C" — and a mid-glyph clip (e.g. "Sal" losing its "l") reads as a
+   rendering fault, not a design choice. So the label is never partially
+   shown: below the row's own measured full-content width it is hidden
+   outright (each day already carries its full date in a native `title`
+   tooltip, so nothing is lost), and only revealed once there is room for
+   every label at its natural, unclipped size. `visibility` (not
+   `display`) so the label's box keeps reserving its height in both
+   states — the row never changes height when the label toggles. */
 .mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day__label {
 	max-width: 100%;
 	overflow: hidden;
 	white-space: nowrap;
+	visibility: hidden;
+}
+
+/* Measured live (inline-flex, unconstrained, this gap/day-size): the
+   strip's own true content need is 144.422px — one day ("Cum", whose
+   Turkish label is wider than its 16px swatch) is the binding slot; the
+   other six fit inside their swatch. 145px gives that a hair of
+   sub-pixel margin. Below this, table-layout:fixed's auto-shared column
+   share never reaches it at any of 1280–1920px (it tops out around
+   122px content at 1920px) — full labels only appear north of roughly
+   2140px viewport width, confirmed by bisecting live. That is the honest
+   answer for this column budget: within the tested range the strip is
+   always bars-only, deliberately, not almost-full-labels-clipped. */
+@container rv-week-strip (min-width: 145px) {
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-week__day {
+		flex: 0 0 auto;
+		min-width: auto;
+	}
+
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day {
+		width: 16px;
+		max-width: none;
+	}
+
+	.mhm-vehicle-list .column-mhmrentiva_week .rv-vhl-day__label {
+		max-width: none;
+		overflow: visible;
+		visibility: visible;
+	}
 }
 
 /* ── Feature chips in the consolidated column ── */
