@@ -41,6 +41,10 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         unset($this->savedSettings['mhmrentiva_currency_position']);
         update_option('mhmrentiva_settings', $this->savedSettings);
         update_option('woocommerce_currency', 'USD');
+        // WooCommerce is not loaded in the test process, so every test that means
+        // "WooCommerce is authoritative here" has to say so explicitly. The one
+        // test that means the opposite drops this filter itself.
+        add_filter('mhmrentiva_woocommerce_is_active', '__return_true');
     }
 
     public function tearDown(): void
@@ -319,5 +323,76 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         update_option('mhmrentiva_settings', $settings);
 
         $this->assertSame('right', CurrencyHelper::get_currency_position());
+    }
+
+    /**
+     * The state an ex-WooCommerce site is actually in, which the test above can
+     * never reach because it starts by DELETING the option.
+     *
+     * `woocommerce_currency_pos` is autoloaded and survives WooCommerce's
+     * deactivation and uninstall. The helper used to read that option directly,
+     * so on such a site the settings screen offered the position dropdown, saved
+     * a choice — and the plugin ignored it forever, because a dead plugin's
+     * leftover option kept winning.
+     */
+    public function test_the_plugin_option_wins_when_woocommerce_is_gone_but_its_option_lingers(): void
+    {
+        remove_filter('mhmrentiva_woocommerce_is_active', '__return_true');
+        add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
+
+        // The leftover, exactly as an uninstalled WooCommerce leaves it.
+        update_option('woocommerce_currency_pos', 'left');
+
+        $settings                                 = (array) get_option('mhmrentiva_settings', array());
+        $settings['mhmrentiva_currency_position'] = 'right_space';
+        update_option('mhmrentiva_settings', $settings);
+
+        $this->assertSame(
+            'right_space',
+            CurrencyHelper::get_currency_position(),
+            'A stale woocommerce_currency_pos must not outrank the plugin setting once WooCommerce is gone.'
+        );
+
+        // And the rendered surface must move with it, not just the accessor.
+        $this->assertStringEndsWith(
+            '$',
+            $this->normalize(CurrencyHelper::format_price(3500.0, 0)),
+            'The rendered price must follow the plugin setting too.'
+        );
+    }
+
+    /**
+     * The settings screen must ask the same question the helper answers. It used
+     * to ask `class_exists('WooCommerce')`, so on an ex-WooCommerce site it
+     * offered a dropdown whose value `get_currency_position()` then ignored.
+     */
+    public function test_the_settings_screen_offers_the_dropdown_exactly_when_the_plugin_option_applies(): void
+    {
+        remove_filter('mhmrentiva_woocommerce_is_active', '__return_true');
+        add_filter('mhmrentiva_woocommerce_is_active', '__return_false');
+        update_option('woocommerce_currency_pos', 'left');
+
+        ob_start();
+        \MHMRentiva\Admin\Settings\Groups\GeneralSettings::render_currency_position_field();
+        $offered = (string) ob_get_clean();
+
+        $this->assertStringContainsString(
+            'mhmrentiva_settings[mhmrentiva_currency_position]',
+            $offered,
+            'With WooCommerce gone the screen must offer the plugin setting.'
+        );
+
+        remove_filter('mhmrentiva_woocommerce_is_active', '__return_false');
+        add_filter('mhmrentiva_woocommerce_is_active', '__return_true');
+
+        ob_start();
+        \MHMRentiva\Admin\Settings\Groups\GeneralSettings::render_currency_position_field();
+        $withheld = (string) ob_get_clean();
+
+        $this->assertStringNotContainsString(
+            '<select',
+            $withheld,
+            'With WooCommerce authoritative the screen must not offer a setting it would ignore.'
+        );
     }
 }

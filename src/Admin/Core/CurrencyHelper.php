@@ -22,11 +22,15 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * PRECEDENCE — the one rule for the whole plugin
  * ----------------------------------------------
- * 1. WooCommerce is authoritative whenever it has an opinion. `woocommerce_currency_pos`
+ * 1. WooCommerce is authoritative whenever it is ACTIVE and has an opinion — active is
+ *    decided by `woocommerce_is_active()`, the one predicate. `woocommerce_currency_pos`
  *    decides placement, `woocommerce_currency` / `get_woocommerce_currency_symbol()`
- *    decide the symbol, and `wc_get_price_*_separator()` decide the separators.
+ *    decide the symbol, and `wc_get_price_*_separator()` decide the separators. Note
+ *    `woocommerce_currency_pos` is autoloaded and OUTLIVES WooCommerce, so its presence
+ *    alone never means WooCommerce has an opinion.
  * 2. The plugin's own `mhmrentiva_currency_position` / `mhmrentiva_currency` options are
- *    a FALLBACK, consulted only when WooCommerce is silent (option absent/empty). The
+ *    a FALLBACK, consulted whenever WooCommerce is silent — inactive, or active with the
+ *    option absent/empty. The
  *    Setup Wizard mirrors WooCommerce into them when WC is active, but that mirror is a
  *    convenience, never the source of truth — an UNSET plugin option must never produce a
  *    placement that contradicts WooCommerce.
@@ -42,15 +46,55 @@ if ( ! defined( 'ABSPATH' ) ) {
 final class CurrencyHelper {
 
 	/**
+	 * The ONE "does WooCommerce have an opinion?" predicate.
+	 *
+	 * Every WooCommerce question in this plugin — placement, symbol, code,
+	 * separators, precision, and the settings screen that offers the position
+	 * dropdown — must be asked through here, and nowhere else.
+	 *
+	 * It used to be asked four different ways, and one of them misfired:
+	 * `get_currency_position()` tested the OPTION (`woocommerce_currency_pos`)
+	 * while everything else tested `function_exists()`. That option is autoloaded
+	 * and survives WooCommerce's deactivation and uninstall, so on any site that
+	 * once had WooCommerce and removed it, the settings screen offered the
+	 * position dropdown and accepted a choice while this helper kept returning the
+	 * stale WooCommerce value forever — the documented "plugin option applies when
+	 * WooCommerce is silent" rule was unreachable.
+	 *
+	 * A `function_exists()` guard may still sit next to a specific WooCommerce
+	 * call: that guards CALLABILITY, not policy. Policy is only ever this.
+	 *
+	 * @return bool
+	 */
+	public static function woocommerce_is_active(): bool {
+		$is_active = function_exists( 'wc_price' )
+			|| function_exists( 'get_woocommerce_currency' )
+			|| class_exists( 'WooCommerce' );
+
+		/**
+		 * Filters whether WooCommerce owns currency presentation on this site.
+		 *
+		 * Answering `false` makes the plugin's own currency options authoritative
+		 * even while WooCommerce is loaded; answering `true` is only meaningful
+		 * for a shim that provides WooCommerce's formatting API under another name.
+		 *
+		 * @since 6.0.2
+		 *
+		 * @param bool $is_active Whether WooCommerce currency settings apply.
+		 */
+		return (bool) apply_filters( 'mhmrentiva_woocommerce_is_active', $is_active );
+	}
+
+	/**
 	 * Get active currency position.
 	 *
-	 * WooCommerce setting is authoritative when available; the plugin option is the
+	 * WooCommerce setting is authoritative when active; the plugin option is the
 	 * fallback. See the class docblock for the full precedence rule.
 	 *
 	 * @return string
 	 */
 	public static function get_currency_position(): string {
-		if ( function_exists( 'get_option' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'get_option' ) ) {
 			$wc_position = (string) get_option( 'woocommerce_currency_pos', '' );
 			if ( $wc_position !== '' ) {
 				return $wc_position;
@@ -82,7 +126,7 @@ final class CurrencyHelper {
 	 * @return string
 	 */
 	public static function get_decimal_separator(): string {
-		if ( function_exists( 'wc_get_price_decimal_separator' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_decimal_separator' ) ) {
 			return (string) wc_get_price_decimal_separator();
 		}
 
@@ -95,7 +139,7 @@ final class CurrencyHelper {
 	 * @return string
 	 */
 	public static function get_thousand_separator(): string {
-		if ( function_exists( 'wc_get_price_thousand_separator' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_thousand_separator' ) ) {
 			return (string) wc_get_price_thousand_separator();
 		}
 
@@ -112,7 +156,7 @@ final class CurrencyHelper {
 	 * @return int
 	 */
 	public static function get_price_decimals(): int {
-		if ( function_exists( 'wc_get_price_decimals' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_get_price_decimals' ) ) {
 			return max( 0, (int) wc_get_price_decimals() );
 		}
 
@@ -228,7 +272,7 @@ final class CurrencyHelper {
 	 * @return string
 	 */
 	public static function format_price( float $amount, int $decimals = 0, ?string $currency = null ): string {
-		if ( function_exists( 'wc_price' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'wc_price' ) ) {
 			$args = array( 'decimals' => max( 0, $decimals ) );
 			if ( $currency !== null && $currency !== '' ) {
 				$args['currency'] = $currency;
@@ -264,7 +308,7 @@ final class CurrencyHelper {
 	 * @return string ISO-ish currency code, e.g. 'USD'.
 	 */
 	public static function get_currency_code(): string {
-		if ( function_exists( 'get_woocommerce_currency' ) ) {
+		if ( self::woocommerce_is_active() && function_exists( 'get_woocommerce_currency' ) ) {
 			return (string) get_woocommerce_currency();
 		}
 
@@ -378,7 +422,7 @@ final class CurrencyHelper {
 	public static function get_currency_symbol( ?string $currency_code = null ): string {
 		if ( $currency_code === null ) {
 			// When WooCommerce is active, use its symbol directly — WC owns the symbol map.
-			if ( function_exists( 'get_woocommerce_currency_symbol' ) ) {
+			if ( self::woocommerce_is_active() && function_exists( 'get_woocommerce_currency_symbol' ) ) {
 				return html_entity_decode( get_woocommerce_currency_symbol(), ENT_HTML5, 'UTF-8' );
 			}
 			$currency_code = SettingsCore::get( 'mhmrentiva_currency', 'USD' );
