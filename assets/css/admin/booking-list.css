@@ -410,6 +410,7 @@
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 	border-spacing: 0;
+	margin-top: 0;
 }
 
 .mhm-booking-list .wp-list-table thead th,
@@ -721,6 +722,24 @@ body.mhm-booking-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
 .mhm-booking-list .rv-bkl-toolbar__btn:hover {
 	border-color: #b6bcc3;
 	color: #1d2327;
+}
+
+/* ── Filter-row-to-content gap, standardised across both faces ──
+   Same defect and same fix as vehicle-list.css's identical rule — see
+   that comment for the full mechanism (WP core's fixed `.tablenav {
+   height: 30px }` clips the box short of its own wrapped content, so the
+   next element's position is built from the wrong edge). This screen's
+   filter row is WIDER than Vehicles' (payment status/method selects,
+   booking ID and plate text inputs on top of the bulk-action + date
+   controls) and wraps onto a second internal line at every desktop width
+   tested — so here the bug produced an oversized gap (measured 68.69px
+   at 1440px) rather than Vehicles' flush 0px, both from the same root
+   cause. `.wp-list-table`/`.mhm-occupancy-matrix-wrap` zero their own
+   margin-top so 20px (`--mhm-space-5`, matching vehicle-list.css's
+   choice) is the only source of the gap on either face. */
+.mhm-booking-list .tablenav.top {
+	height: auto;
+	margin-bottom: 20px;
 }
 
 /* ── View-switch toggle (Faz 2 view engine) ──

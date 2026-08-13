@@ -15,6 +15,7 @@
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	overflow: hidden;
 	border-spacing: 0;
+	margin-top: 0;
 }
 
 .mhm-vehicle-list .wp-list-table thead th,
@@ -586,6 +587,31 @@ body.mhm-vehicle-list .mhm-stats-grid .mhm-stat-card.is-revenue .mhm-stat-card__
 .mhm-vehicle-list #search-submit:hover {
 	border-color: #b6bcc3;
 	color: #1d2327;
+}
+
+/* ── Filter-row-to-content gap, standardised across all three faces ──
+   WP core fixes `.tablenav { height: 30px; }`. That is harmless when the
+   row's floated `.actions`/`.tablenav-pages` children fit on one line, but
+   on any row that wraps (this screen's own filter set at narrow widths,
+   and the Bookings screen's wider filter set even at 1440px) the wrapped
+   children paint past the fixed-height box without growing it — so the
+   box's own bottom edge, which is what the NEXT element's position is
+   built from, lands well short of (or, once `height:auto` fixes that,
+   flush with) where the filter row actually stops rendering. Measured
+   live: at 1440px this quietly produced a 0px (flush) gap on this face's
+   Liste table (user-reported "too tight") — `height: auto` lets the box
+   contain its real content so the margin below it means what it says.
+   20px is `--mhm-space-5`, the same value `.mhm-calendars` (Kartlar/
+   Takvim's own content card) already uses elsewhere in this codebase for
+   "gap after a filters/KPI band, before the next content card" — this
+   screen's own `.subsubsub`-to-filter-row gap lands at that same 20px
+   natively, so 20px is this screen's established rhythm, not a new
+   number. `.wp-list-table`/`.rv-vhl-cards`/`.mhm-occupancy-matrix-wrap`
+   all zero their own margin-top (see their rules) so this is the ONLY
+   source of the gap on every face — no stacking, no drift. */
+.mhm-vehicle-list .tablenav.top {
+	height: auto;
+	margin-bottom: 20px;
 }
 
 /* ── View-switch toggle (Faz 2 view engine) ──

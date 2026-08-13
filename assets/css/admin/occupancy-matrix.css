@@ -78,6 +78,13 @@
 	border-radius: 12px;
 	box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
 	padding: 20px;
+	/* Beats calendars.css's base `.mhm-calendars { margin-top: 20px }` on
+	   specificity (screen scope + 2 classes vs. 1) — that value is tuned
+	   for a DIFFERENT context (KPI band → calendar widget elsewhere) and
+	   would stack with the filter row's own 20px margin-bottom here
+	   (vehicle-list.css / booking-list.css), doubling the gap on this
+	   face alone. Zeroed so the filter row's margin is the single source. */
+	margin-top: 0;
 }
 
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-header,
@@ -354,7 +361,12 @@
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
 	gap: 16px;
-	margin: 16px 0;
+	/* Top margin removed: it used to be this face's only source of the
+	   filter-row gap and collapsed to whatever the empty `.tablenav.bottom`
+	   wrapper contributed (16px, measured) — vehicle-list.css's
+	   `.tablenav.top` margin-bottom is now the single deliberate source
+	   (20px, matching the other two faces) so this must not add its own. */
+	margin: 0 0 16px;
 }
 
 .mhm-vehicle-list .rv-vhl-card {
