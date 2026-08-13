@@ -266,16 +266,34 @@ final class CurrencyHelper {
 	 * from the one rule in the class docblock — a stored currency code never gets
 	 * to imply a different layout.
 	 *
+	 * The code is normalised BEFORE either branch sees it. Legacy and alias values
+	 * live in the data (`TL`, `LIRA`, a bare `₺`) — that is what
+	 * `normalize_currency_code()` exists for — and WooCommerce returns an EMPTY
+	 * symbol for a code it does not know, so handing it a raw alias printed a bare
+	 * number with no currency at all on the log surfaces that pass one.
+	 *
 	 * @param float       $amount   Numeric amount.
 	 * @param int         $decimals Decimal precision.
 	 * @param string|null $currency Optional currency code for this amount.
 	 * @return string
 	 */
 	public static function format_price( float $amount, int $decimals = 0, ?string $currency = null ): string {
-		if ( self::woocommerce_is_active() && function_exists( 'wc_price' ) ) {
+		$code = ( $currency !== null && $currency !== '' )
+			? self::normalize_currency_code( strtoupper( trim( $currency ) ) )
+			: null;
+
+		// WooCommerce answers with an empty symbol for any code outside its own map,
+		// including codes this plugin adds through `mhmrentiva_currency_symbols`.
+		// Only hand it a per-record currency it can actually render; otherwise the
+		// house map formats, so an amount never loses its symbol.
+		$wc_can_render_code = null === $code
+			|| ( function_exists( 'get_woocommerce_currency_symbol' )
+				&& '' !== (string) get_woocommerce_currency_symbol( $code ) );
+
+		if ( self::woocommerce_is_active() && function_exists( 'wc_price' ) && $wc_can_render_code ) {
 			$args = array( 'decimals' => max( 0, $decimals ) );
-			if ( $currency !== null && $currency !== '' ) {
-				$args['currency'] = $currency;
+			if ( $code !== null ) {
+				$args['currency'] = $code;
 			}
 
 			$formatted = (string) wc_price( $amount, $args );
@@ -283,7 +301,7 @@ final class CurrencyHelper {
 			return trim( html_entity_decode( wp_strip_all_tags( $formatted ), ENT_QUOTES, 'UTF-8' ) );
 		}
 
-		$symbol   = self::get_currency_symbol( ( $currency !== null && $currency !== '' ) ? $currency : null );
+		$symbol   = self::get_currency_symbol( $code );
 		$position = self::get_currency_position();
 		$number   = self::format_amount( $amount, $decimals );
 

@@ -150,6 +150,47 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
     }
 
     /**
+     * Legacy and alias currency values live in the data (`TL`, `LIRA`, a bare
+     * `₺` — which is exactly why `normalize_currency_code()` exists). Handing one
+     * of those straight to WooCommerce makes it answer with an EMPTY symbol, so
+     * the payment-log surfaces that pass a per-record currency printed a bare
+     * number. The code must be normalised before either branch sees it.
+     *
+     * @dataProvider provideLegacyCurrencyCodes
+     */
+    public function test_a_legacy_currency_code_still_renders_a_symbol(string $stored): void
+    {
+        update_option('woocommerce_currency_pos', 'left');
+
+        $rendered = $this->normalize(CurrencyHelper::format_price(1250.0, 2, $stored));
+
+        $this->assertStringContainsString(
+            "\u{20BA}",
+            $rendered,
+            sprintf('A row storing "%s" must still show a currency; got "%s".', $stored, $rendered)
+        );
+        $this->assertStringContainsString(
+            CurrencyHelper::format_amount(1250.0, 2),
+            $rendered,
+            'The amount itself must survive the normalisation.'
+        );
+    }
+
+    /**
+     * @return array<string, array{0: string}>
+     */
+    public static function provideLegacyCurrencyCodes(): array
+    {
+        return array(
+            'TL'          => array('TL'),
+            'LIRA'        => array('LIRA'),
+            'bare symbol' => array("\u{20BA}"),
+            'lowercase'   => array('tl'),
+            'padded'      => array(' TRY '),
+        );
+    }
+
+    /**
      * The Customers screen hands its clients (the PHP panel, the React table and
      * side panel) a pre-formatted `total_spent`. Those clients used to prepend
      * the symbol themselves, which hardcoded it to the left; the payload now
