@@ -237,7 +237,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												// Canonical formatting: uses wc_price() when WooCommerce is
 												// active and falls back to the same placement rule when it is
 												// not. The old fallback pinned the symbol to the right.
-												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
+												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()));
 												?>
 											</span>
 										</td>
@@ -348,7 +348,7 @@ if ($is_integrated) { // Use the already determined $is_integrated
 												// Canonical formatting: uses wc_price() when WooCommerce is
 												// active and falls back to the same placement rule when it is
 												// not. The old fallback pinned the symbol to the right.
-												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
+												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()));
 												?>
 											</span>
 										</td>

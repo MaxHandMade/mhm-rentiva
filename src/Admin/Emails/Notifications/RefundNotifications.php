@@ -33,7 +33,7 @@ final class RefundNotifications {
 		// `right_space`.
 		$amountHuman = \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
 			$amount_kurus / 100,
-			2,
+			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals(),
 			$currency ?: 'TRY'
 		);
 		$statusText = $newPayStatus === 'refunded' ? __( 'full refund', 'mhm-rentiva' ) : __( 'partial refund', 'mhm-rentiva' );

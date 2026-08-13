@@ -192,7 +192,7 @@ if ($is_integrated) {
 										// and falls back to the same placement rule when it is not. The old
 										// fallback read mhmrentiva_currency_position, which is normally
 										// unset, so it always produced `right_space`.
-										echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
+										echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, \MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()));
 										?>
 									</span>
 								</div>

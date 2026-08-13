@@ -671,7 +671,12 @@ final class Templates {
 		// Canonical currency formatting. The old WooCommerce-inactive fallback
 		// hardcoded both the symbol (`₺`) and a left placement, so an email could
 		// contradict every other surface — and the plugin's own currency setting.
-		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $amount, 2 );
+		// Precision comes from the store, not a literal 2, so a 0-decimal currency
+		// (JPY, HUF) is not given cents it does not have.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price(
+			$amount,
+			\MHMRentiva\Admin\Core\CurrencyHelper::get_price_decimals()
+		);
 	}
 
 	/**
