@@ -287,7 +287,16 @@ final class FleetOccupancyMatrix {
 
 			<div class="calendar-container">
 				<div class="calendar-table-wrapper">
-					<table class="calendar-table mhm-occupancy-matrix">
+					<?php
+					// `--rv-days` feeds occupancy-matrix.css's min-width calc (day
+					// columns share the available width via table-layout:fixed's
+					// auto-share; this custom property is only what decides WHEN
+					// the wrapper's horizontal scroll fallback should kick in — a
+					// 28-day February and a 31-day month need different floors,
+					// and this is the one render-time value CSS cannot know
+					// otherwise).
+					?>
+					<table class="calendar-table mhm-occupancy-matrix" style="--rv-days: <?php echo esc_attr( (string) $days_in_month ); ?>;">
 						<thead>
 							<tr>
 								<th class="vehicle-column"><?php esc_html_e( 'Vehicles', 'mhm-rentiva' ); ?></th>

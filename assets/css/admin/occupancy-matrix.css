@@ -122,28 +122,66 @@
 	color: #fff;
 }
 
-/* ── Table wrapper: horizontal scroll, table never squeezes ── */
+/* ── Table wrapper: horizontal scroll is the NARROW-VIEWPORT FALLBACK
+   only, not the default. The table's own min-width (below) is a floor,
+   not a fixed size — table-layout:fixed lets day columns share whatever
+   width the wrapper actually has above that floor, so on any desktop
+   width wide enough for the floor, the whole month renders with zero
+   scroll (user requirement: "ay kaç günse tümü gösterilmeli, masaüstünde
+   scroll olmasın"). ── */
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table-wrapper {
 	background: #fff;
 	overflow-x: auto;
 }
 
+/* `--rv-days` is set inline per render (FleetOccupancyMatrix::render_markup,
+   `style="--rv-days: <n>"` on this element) to the real day count for the
+   month being shown (28-31) — the one thing CSS cannot know on its own.
+   The floor below is two measured content minimums, not round numbers:
+   242px is the vehicle column's own floor (see th.vehicle-column) and
+   30px/day is this matrix's day-header numeral floor (see th.day-header).
+   Below that combined width the wrapper scrolls; at or above it,
+   table-layout:fixed's auto-share (no explicit width on th.day-header)
+   divides 100% of the actual available width equally across however many
+   day columns this month has — wider on a wide screen, always the exact
+   day count, never the fixed 31-column guess the old `min-width: calc(220px
+   + 31 * 32px)` rule used regardless of month length or viewport. The
+   `31` fallback in the calc is only for the (non-existent in practice)
+   case of this custom property being absent, e.g. a cached fragment. */
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix,
 .mhm-booking-list .mhm-occupancy-matrix-wrap .calendar-table.mhm-occupancy-matrix {
 	background: #fff;
-	min-width: calc(220px + 31 * 32px);
+	width: 100%;
+	min-width: calc(242px + var(--rv-days, 31) * 30px);
 	table-layout: fixed;
 }
 
-/* ── Vehicle name column (row header) ── */
+/* ── Vehicle name column (row header) ──
+   242px is a measured content floor, not a guess: the longest REAL
+   vehicle title in this install's data ("Volkswagen Golf 1.6 TDI
+   Comfortline") canvas-measures 215.71px at this cell's actual font (600
+   13px, the -apple-system/Segoe UI stack WP admin resolves to) — wider
+   than every plate ever gets (widest plate measured 57.92px, moot since
+   name and plate stack on separate lines rather than competing for the
+   same line). With box-sizing:border-box and this column's existing
+   12px/side padding (24px), the content area is 242 − 24 = 218px, a
+   2.3px margin over the 215.71px need — tight but real, and this is the
+   floor used only where the shared layout can't spare more (the day
+   columns get the rest of the width once this column is satisfied).
+   Deliberately NOT sized from the "Vehicles" header label (4 characters)
+   — that was the exact mistake an earlier round on this screen made on a
+   different column and had to walk back after it clipped real data; this
+   floor comes from actually querying every vehicle title in the table,
+   not the shortest string that happens to be visible in a screenshot. */
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap th.vehicle-column,
 .mhm-booking-list .mhm-occupancy-matrix-wrap th.vehicle-column {
 	background: #f7f9fc;
 	color: #646970;
-	width: 210px;
-	min-width: 200px;
-	max-width: 220px;
+	width: 242px;
+	min-width: 242px;
+	max-width: 242px;
+	box-sizing: border-box;
 	border: none;
 	border-bottom: 1px solid #f2f3f5;
 	border-right: 1px solid #f4f6f8;
@@ -152,9 +190,10 @@
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap td.vehicle-info,
 .mhm-booking-list .mhm-occupancy-matrix-wrap td.vehicle-info {
 	background: #f7f9fc;
-	width: 210px;
-	min-width: 200px;
-	max-width: 220px;
+	width: 242px;
+	min-width: 242px;
+	max-width: 242px;
+	box-sizing: border-box;
 	border: none;
 	border-bottom: 1px solid #f2f3f5;
 	border-right: 1px solid #f4f6f8;
@@ -174,16 +213,28 @@
 	font-weight: 500;
 }
 
-/* ── Day headers: numerals only, muted, ~30px wide, centered ── */
+/* ── Day headers: numerals only, muted, share the row's width ──
+   No `width` here on purpose: table-layout:fixed hands 100% of whatever
+   is left after the vehicle column's fixed 242px to whichever columns
+   carry no explicit width of their own — this thead row is where the
+   fixed layout algorithm reads column widths from, so leaving these
+   auto is what makes every day column share the actual available width
+   equally, regardless of how many days the month has. The table's own
+   `min-width` (above) is what keeps this column's numeral legible: it
+   never lets the shared width fall below 30px/day, a floor measured from
+   this cell's real font (500 12px) — the widest 2-digit day number
+   canvas-measures 13.58px ("24"), the cell keeps its existing 8px/side
+   padding (16px, content-box), leaving a real but tight ~0.4px margin at
+   the floor itself — live-verified with no clipped numeral at that exact
+   width (scrollWidth <= clientWidth on every day-header, all months
+   tested). Below the table's min-width the wrapper's own overflow-x:auto
+   takes over instead of letting columns compress past that floor. */
 .mhm-vehicle-list .mhm-occupancy-matrix-wrap th.day-header,
 .mhm-booking-list .mhm-occupancy-matrix-wrap th.day-header {
 	background: #fff;
 	color: #8a8f98;
 	font-weight: 500;
 	font-size: 12px;
-	width: 32px;
-	min-width: 30px;
-	max-width: 32px;
 	border: none;
 	border-bottom: 1px solid #f2f3f5;
 	border-left: 1px solid #f4f6f8;
