@@ -18,23 +18,35 @@ final class ClientUtilities {
 	/**
 	 * Get client IP address securely
 	 *
-	 * With proxy and load balancer support
+	 * This is consumed by AdvancedLogger for the 'security' log category
+	 * (and general logging), i.e. it is a forensic/audit field, not a
+	 * decision -- nothing in this plugin bans, throttles, or blocks on the
+	 * value it returns. It used to walk X-Forwarded-For/Client-IP/etc.
+	 * ahead of REMOTE_ADDR regardless, which meant every visitor could set
+	 * the IP this plugin's own security log recorded for them -- worthless,
+	 * or actively misleading (framing another address), as a forensic
+	 * record. REMOTE_ADDR (the real TCP peer) is now the only value trusted
+	 * by default, matching the house pattern in
+	 * SecurityHelper::get_client_ip(); a site that knows it sits behind a
+	 * proxy that overwrites these headers itself can opt specific ones back
+	 * in via the same `mhmrentiva_trusted_proxy_ip_headers` filter, so the
+	 * rate limiter, the security helper and this log field all agree on the
+	 * real client once configured.
+	 *
+	 * Deliberate behavior change: previously-logged `_mhmrentiva_log_ip_address`
+	 * values could be a spoofed header; new log entries record REMOTE_ADDR
+	 * unless the filter above is wired up.
 	 */
 	public static function get_client_ip(): string
 	{
-		// Check proxy headers
-		$ip_headers = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_CLIENT_IP',           // Proxy
-			'HTTP_X_FORWARDED_FOR',     // Load balancer
-			'HTTP_X_FORWARDED',         // Proxy
-			'HTTP_X_CLUSTER_CLIENT_IP', // Cluster
-			'HTTP_FORWARDED_FOR',       // Proxy
-			'HTTP_FORWARDED',           // Proxy
-			'REMOTE_ADDR',               // Direct connection
-		);
+		$remote_addr = isset($_SERVER['REMOTE_ADDR'])
+			? sanitize_text_field(wp_unslash( (string) $_SERVER['REMOTE_ADDR']))
+			: '';
 
-		foreach ($ip_headers as $header) {
+		/** @param string[] $headers $_SERVER keys to trust ahead of REMOTE_ADDR. Empty by default. */
+		$trusted_headers = (array) apply_filters('mhmrentiva_trusted_proxy_ip_headers', array());
+
+		foreach ($trusted_headers as $header) {
 			if (! empty($_SERVER[ $header ])) {
 				$ip = sanitize_text_field(wp_unslash($_SERVER[ $header ]));
 
@@ -51,7 +63,7 @@ final class ClientUtilities {
 			}
 		}
 
-		return 'unknown';
+		return '' !== $remote_addr ? $remote_addr : 'unknown';
 	}
 
 	/**
