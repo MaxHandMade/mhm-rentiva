@@ -627,18 +627,10 @@ final class Templates {
 	 * Format price with currency symbol
 	 */
 	private static function format_price( float $amount ): string {
-		// Use WooCommerce price formatting if available
-		if ( function_exists( 'wc_price' ) ) {
-			return wp_strip_all_tags( \wc_price( $amount ) );
-		}
-
-		// Fallback: Use plugin currency settings
-		$currency_symbol = apply_filters( 'mhmrentiva_currency_symbol', '₺' );
-		$decimals        = 2;
-		$dec_sep         = ',';
-		$thousands_sep   = '.';
-
-		return $currency_symbol . number_format( $amount, $decimals, $dec_sep, $thousands_sep );
+		// Canonical currency formatting. The old WooCommerce-inactive fallback
+		// hardcoded both the symbol (`₺`) and a left placement, so an email could
+		// contradict every other surface — and the plugin's own currency setting.
+		return \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $amount, 2 );
 	}
 
 	/**

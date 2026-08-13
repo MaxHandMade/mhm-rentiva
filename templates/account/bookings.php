@@ -71,10 +71,8 @@ foreach ($filtered_bookings as $booking) {
 }
 
 // Dynamic currency symbol (plugin settings)
-use MHMRentiva\Admin\Settings\Core\SettingsCore;
-
-$currency_code   = SettingsCore::get('mhmrentiva_currency', 'USD');
-$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
+// Currency: prices below are rendered with CurrencyHelper::format_price(), which
+// carries the symbol and the WooCommerce placement itself.
 
 // Booking form page URL
 $booking_form_url = \MHMRentiva\Admin\Core\ShortcodeUrlManager::get_page_url('rentiva_booking_form');
@@ -236,11 +234,10 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										<td class="rv-booking-price">
 											<span class="rv-price-badge">
 												<?php
-												if (function_exists('wc_price')) {
-													echo wp_kses_post(wc_price($total_price));
-												} else {
-													echo esc_html(number_format( (float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
-												}
+												// Canonical formatting: uses wc_price() when WooCommerce is
+												// active and falls back to the same placement rule when it is
+												// not. The old fallback pinned the symbol to the right.
+												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
 												?>
 											</span>
 										</td>
@@ -348,11 +345,10 @@ if ($is_integrated) { // Use the already determined $is_integrated
 										<td class="rv-booking-price">
 											<span class="rv-price-badge">
 												<?php
-												if (function_exists('wc_price')) {
-													echo wp_kses_post(wc_price($total_price));
-												} else {
-													echo esc_html(number_format( (float) $total_price, 2)) . ' ' . esc_html($currency_symbol);
-												}
+												// Canonical formatting: uses wc_price() when WooCommerce is
+												// active and falls back to the same placement rule when it is
+												// not. The old fallback pinned the symbol to the right.
+												echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
 												?>
 											</span>
 										</td>

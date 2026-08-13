@@ -107,8 +107,9 @@ final class LogColumns {
 				$ak  = (int) get_post_meta( $post_id, '_mhmrentiva_log_amount_kurus', true );
 				$cur = (string) get_post_meta( $post_id, '_mhmrentiva_log_currency', true );
 				if ( $ak > 0 ) {
-					$currency_symbol = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol( $cur ?: null );
-					echo esc_html( number_format_i18n( $ak / 100, 2 ) . ' ' . $currency_symbol );
+					// The row's own currency, but the house placement — this used to
+					// pin the symbol to the right regardless of the WC setting.
+					echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( $ak / 100, 2, $cur ?: null ) );
 				} else {
 					echo '—';
 				}

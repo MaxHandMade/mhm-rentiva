@@ -84,6 +84,11 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
                 => self::callPrivate(\MHMRentiva\Admin\Vehicle\ListTable\VehicleColumns::class, 'format_currency', $a),
             'AddonManager::format_addon_price' => static fn (float $a): string
                 => self::callPrivate(\MHMRentiva\Admin\Addons\AddonManager::class, 'format_addon_price', $a),
+            // Email bodies and previews. Both used to hardcode a left placement —
+            // the preview additionally read a top-level option the plugin never
+            // writes, so it was pinned to `right_space`.
+            'Emails\Core\Templates::format_price' => static fn (float $a): string
+                => self::callPrivate(\MHMRentiva\Admin\Emails\Core\Templates::class, 'format_price', $a),
         );
     }
 
@@ -108,7 +113,36 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
             'ManualBookingMetaBox::format_addon_price' => 2,
             'VehicleColumns::format_currency'         => 2,
             'AddonManager::format_addon_price'        => 2,
+            'Emails\Core\Templates::format_price'     => 2,
         );
+    }
+
+    /**
+     * A record may carry a currency of its own (a refund, a payment log row).
+     * That overrides the SYMBOL only — placement still comes from the one house
+     * rule, so a stored currency code can never imply a different layout.
+     *
+     * @dataProvider providePositions
+     */
+    public function test_a_per_record_currency_overrides_the_symbol_but_not_the_placement(
+        string $wc_position,
+        bool $symbol_leads
+    ): void {
+        update_option('woocommerce_currency_pos', $wc_position);
+
+        $rendered = $this->normalize(CurrencyHelper::format_price(3500.0, 2, 'EUR'));
+
+        $this->assertStringContainsString(
+            "\u{20AC}",
+            $rendered,
+            sprintf('The per-record currency must decide the symbol; got "%s".', $rendered)
+        );
+
+        if ($symbol_leads) {
+            $this->assertStringStartsWith("\u{20AC}", $rendered);
+        } else {
+            $this->assertStringEndsWith("\u{20AC}", $rendered);
+        }
     }
 
     /**

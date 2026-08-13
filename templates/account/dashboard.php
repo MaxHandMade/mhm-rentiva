@@ -188,30 +188,11 @@ if ($is_integrated) {
 								<div class="booking-price">
 									<span class="price-amount">
 										<?php
-										if (function_exists('wc_price')) {
-											echo wp_kses_post(wc_price($total_price));
-										} else {
-											$currency_code     = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency', 'USD');
-											$currency_symbol   = \MHMRentiva\Admin\Core\CurrencyHelper::get_currency_symbol();
-											$currency_position = \MHMRentiva\Admin\Settings\Core\SettingsCore::get('mhmrentiva_currency_position', 'right_space');
-											$formatted_amount  = number_format( (float) $total_price, 2, ',', '.');
-
-											switch ($currency_position) {
-												case 'left':
-													echo esc_html($currency_symbol . $formatted_amount);
-													break;
-												case 'left_space':
-													echo esc_html($currency_symbol . ' ' . $formatted_amount);
-													break;
-												case 'right':
-													echo esc_html($formatted_amount . $currency_symbol);
-													break;
-												case 'right_space':
-												default:
-													echo esc_html($formatted_amount . ' ' . $currency_symbol);
-													break;
-											}
-										}
+										// Canonical formatting: uses wc_price() when WooCommerce is active
+										// and falls back to the same placement rule when it is not. The old
+										// fallback read mhmrentiva_currency_position, which is normally
+										// unset, so it always produced `right_space`.
+										echo esc_html(\MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) $total_price, 2));
 										?>
 									</span>
 								</div>

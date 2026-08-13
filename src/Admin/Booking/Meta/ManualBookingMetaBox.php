@@ -178,14 +178,25 @@ final class ManualBookingMetaBox extends AbstractMetaBox {
 			);
 
 			// Localize for AJAX
+			$currency_parts = \MHMRentiva\Admin\Core\CurrencyHelper::get_js_currency_payload();
+
 			wp_localize_script(
 				'mhm-rentiva-manual-booking-meta',
 				'mhmManualBooking',
 				array(
-					'ajaxUrl'  => admin_url('admin-ajax.php'),
-					'nonce'    => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
-					'currency' => get_woocommerce_currency_symbol(),
-					'locale'   => str_replace( '_', '-', get_locale() ),
+					'ajaxUrl'        => admin_url('admin-ajax.php'),
+					'nonce'          => wp_create_nonce('mhmrentiva_manual_booking_nonce'),
+					// Canonical currency parts: this script formats prices itself, so
+					// it needs the placement and separators, not just the symbol. It
+					// used to receive the symbol alone and pin it to the right.
+					'currency'       => $currency_parts['symbol'],
+					'currencyFormat' => array(
+						'position'          => $currency_parts['position'],
+						'decimals'          => $currency_parts['decimals'],
+						'decimalSeparator'  => $currency_parts['decimalSeparator'],
+						'thousandSeparator' => $currency_parts['thousandSeparator'],
+					),
+					'locale'         => str_replace( '_', '-', get_locale() ),
 					'text'     => array(
 						'calculating'        => __('Calculating...', 'mhm-rentiva'),
 						'error'              => __('An error occurred', 'mhm-rentiva'),

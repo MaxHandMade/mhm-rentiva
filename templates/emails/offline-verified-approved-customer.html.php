@@ -161,7 +161,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				</div>
 				<div class="detail-row">
 					<span class="detail-label"><?php esc_html_e( 'Amount Paid:', 'mhm-rentiva' ); ?></span>
-					<span class="detail-value"><?php echo esc_html( apply_filters( 'mhmrentiva_currency_symbol', '' ) ); ?><?php echo esc_html( number_format( $data['booking']['total_price'] ?? 0, 2 ) ); ?></span>
+					<span class="detail-value"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $data['booking']['total_price'] ?? 0 ), 2 ) ); ?></span>
 				</div>
 			</div>
 

@@ -28,7 +28,7 @@
 		</div>
 		<div class="detail-row" style="display: flex; justify-content: space-between; margin: 10px 0; padding: 8px 0; border-bottom: 1px solid #eee;">
 			<span class="detail-label" style="font-weight: bold; color: #555;"><?php esc_html_e( 'Remaining Amount:', 'mhm-rentiva' ); ?></span>
-			<span class="detail-value" style="color: #333;"><?php echo esc_html( apply_filters( 'mhmrentiva_currency_symbol', '' ) ); ?><?php echo esc_html( number_format( (float) ( $data['booking']['remaining_amount'] ?? 0 ), 2 ) ); ?></span>
+			<span class="detail-value" style="color: #333;"><?php echo esc_html( \MHMRentiva\Admin\Core\CurrencyHelper::format_price( (float) ( $data['booking']['remaining_amount'] ?? 0 ), 2 ) ); ?></span>
 		</div>
 	</div>
 

@@ -220,7 +220,7 @@
 					`
 					<div class="total-line">
 						<span>${strings.noAddonsSelected || 'No add-ons selected'}</span>
-						<span>${currency}0.00</span>
+						<span>${AddonBooking.formatMoney( 0 )}</span>
 					</div>
 					`
 				);

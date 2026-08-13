@@ -80,23 +80,29 @@ final class CurrencyHelper {
 	 * WooCommerce settings are used when available. HTML tags are stripped so this
 	 * can be used safely in plain-text contexts and templates.
 	 *
-	 * @param float $amount   Numeric amount.
-	 * @param int   $decimals Decimal precision.
+	 * `$currency` overrides only the SYMBOL, for records that carry a currency of
+	 * their own (a refund, a payment log row). Placement and separators still come
+	 * from the one rule in the class docblock — a stored currency code never gets
+	 * to imply a different layout.
+	 *
+	 * @param float       $amount   Numeric amount.
+	 * @param int         $decimals Decimal precision.
+	 * @param string|null $currency Optional currency code for this amount.
 	 * @return string
 	 */
-	public static function format_price( float $amount, int $decimals = 0 ): string {
+	public static function format_price( float $amount, int $decimals = 0, ?string $currency = null ): string {
 		if ( function_exists( 'wc_price' ) ) {
-			$formatted = (string) wc_price(
-				$amount,
-				array(
-					'decimals' => max( 0, $decimals ),
-				)
-			);
+			$args = array( 'decimals' => max( 0, $decimals ) );
+			if ( $currency !== null && $currency !== '' ) {
+				$args['currency'] = $currency;
+			}
+
+			$formatted = (string) wc_price( $amount, $args );
 
 			return trim( html_entity_decode( wp_strip_all_tags( $formatted ), ENT_QUOTES, 'UTF-8' ) );
 		}
 
-		$symbol   = self::get_currency_symbol();
+		$symbol   = self::get_currency_symbol( ( $currency !== null && $currency !== '' ) ? $currency : null );
 		$position = self::get_currency_position();
 		$number   = self::format_amount( $amount, $decimals );
 
