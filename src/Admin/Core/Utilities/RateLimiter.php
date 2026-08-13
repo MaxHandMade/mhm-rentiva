@@ -13,6 +13,7 @@ if (! defined('ABSPATH')) {
 
 
 
+use MHMRentiva\Admin\Core\SecurityHelper;
 use MHMRentiva\Admin\REST\Settings\RESTSettings;
 
 /**
@@ -77,9 +78,20 @@ final class RateLimiter {
 	 */
 	public static function check(string $identifier, string $action = 'general'): bool
 	{
-		// Return true always if rate limiter is not enabled
-		$settings = RESTSettings::get_rate_limit_settings();
-		if (empty($settings['enabled'])) {
+		$settings         = RESTSettings::get_rate_limit_settings();
+		$rate_limiting_on = ! empty($settings['enabled']);
+
+		// Global kill-switch: Settings > REST API > "Enable API Rate Limiting"
+		// (default ON -- see RESTSettings::get_default_settings()). When an
+		// admin turns it off, every action -- including the strict
+		// `booking_creation`/`payment_processing` buckets -- is deliberately
+		// left unenforced, site-wide. That is intended admin behavior, not a
+		// fail-open-on-error path: RESTSettings::get_setting() falls back to
+		// the (enabled=true) defaults on a missing/malformed option, so this
+		// branch is only reachable via an explicit, deliberate opt-out. Named
+		// and commented so a future reader does not mistake the early return
+		// for a stub and "fix" it into silently overriding the admin's choice.
+		if (! $rate_limiting_on) {
 			return true;
 		}
 
@@ -238,35 +250,21 @@ final class RateLimiter {
 	/**
 	 * Get Client IP address
 	 *
+	 * This used to walk HTTP_CF_CONNECTING_IP/HTTP_CLIENT_IP/X-Forwarded-For/...
+	 * ahead of REMOTE_ADDR. Every one of those is an ordinary request header
+	 * that a direct caller can set to whatever it likes, so the bucket key
+	 * built from this method's return value (see check(), middleware()) could
+	 * be reset simply by sending a new header value on every request -- the
+	 * abuse/scrape throttle in Availability::permission_check() never
+	 * actually engaged. Delegates to the house pattern instead: REMOTE_ADDR
+	 * only by default, with the same opt-in trusted-proxy filter used by
+	 * SecurityHelper::get_client_ip().
+	 *
 	 * @return string Client IP
 	 */
 	public static function getClientIP(): string
 	{
-		$ip_headers = array(
-			'HTTP_CF_CONNECTING_IP',     // Cloudflare
-			'HTTP_CLIENT_IP',
-			'HTTP_X_FORWARDED_FOR',
-			'HTTP_X_FORWARDED',
-			'HTTP_X_CLUSTER_CLIENT_IP',
-			'HTTP_FORWARDED_FOR',
-			'HTTP_FORWARDED',
-			'REMOTE_ADDR',
-		);
-
-		foreach ($ip_headers as $header) {
-			if (! empty($_SERVER[ $header ])) {
-				$header_value = sanitize_text_field(wp_unslash( (string) $_SERVER[ $header ]));
-				$ips          = explode(',', $header_value);
-				$ip           = trim($ips[0]);
-
-				if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
-					return $ip;
-				}
-			}
-		}
-
-		$remote_addr = sanitize_text_field(wp_unslash( (string) ( $_SERVER['REMOTE_ADDR'] ?? '' )));
-		return '' !== $remote_addr ? $remote_addr : '0.0.0.0';
+		return SecurityHelper::get_client_ip();
 	}
 
 	/**
