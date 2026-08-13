@@ -222,6 +222,43 @@ final class CurrencyPlacementParityTest extends WP_UnitTestCase
         );
     }
 
+    /**
+     * The Customers payloads cache PRE-FORMATTED money for 15 minutes. With no
+     * currency or placement in the key, flipping the WooCommerce setting showed
+     * yesterday's symbol for the rest of the TTL.
+     */
+    public function test_flipping_the_position_does_not_serve_stale_formatted_money(): void
+    {
+        $customer_id = self::factory()->user->create(
+            array(
+                'role'       => 'subscriber',
+                'user_email' => 'currency-cache@example.test',
+            )
+        );
+
+        update_option('woocommerce_currency_pos', 'left');
+        $first = \MHMRentiva\Admin\Customers\CustomersOptimizer::get_customer_details_optimized($customer_id);
+
+        if (null === $first || ! isset($first['total_spent'])) {
+            $this->markTestSkipped('CustomersOptimizer returned no detail row for the fixture user.');
+        }
+
+        // Warm the cache, then move the setting under it.
+        update_option('woocommerce_currency_pos', 'right');
+        $second = \MHMRentiva\Admin\Customers\CustomersOptimizer::get_customer_details_optimized($customer_id);
+
+        $this->assertSame(
+            $this->normalize(CurrencyHelper::format_price(0.0, 2)),
+            $this->normalize((string) $second['total_spent']),
+            'A cached payload must not outlive the currency setting it was formatted under.'
+        );
+        $this->assertNotSame(
+            $this->normalize((string) $first['total_spent']),
+            $this->normalize((string) $second['total_spent']),
+            'The placement really did change, so the two renderings must differ.'
+        );
+    }
+
     private static function callPrivate(string $class, string $method, float $amount): string
     {
         $reflection = new \ReflectionMethod($class, $method);

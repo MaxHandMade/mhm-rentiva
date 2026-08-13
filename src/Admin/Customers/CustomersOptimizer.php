@@ -44,6 +44,29 @@ final class CustomersOptimizer {
 	 * @param mixed $value Input value.
 	 * @return string Sanitized string.
 	 */
+	/**
+	 * Fingerprint of everything that changes how money RENDERS.
+	 *
+	 * These payloads carry pre-formatted amounts (`total_spent`, `amount`), so a
+	 * key that ignored the currency and its placement served yesterday's symbol
+	 * for up to the full TTL after the WooCommerce setting was flipped. Part of
+	 * the key, not part of the value.
+	 *
+	 * @return string
+	 */
+	private static function currency_fingerprint(): string {
+		return substr(
+			md5(
+				CurrencyHelper::get_currency_code() . '|'
+				. CurrencyHelper::get_currency_symbol() . '|'
+				. CurrencyHelper::get_currency_position() . '|'
+				. (string) CurrencyHelper::get_price_decimals()
+			),
+			0,
+			8
+		);
+	}
+
 	public static function sanitize_text_field_safe( $value ): string {
 		if ( null === $value || '' === $value ) {
 			return '';
@@ -82,7 +105,7 @@ final class CustomersOptimizer {
 			$status = 'all';
 		}
 		$vip_min   = self::get_vip_min_bookings();
-		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min );
+		$cache_key = self::CACHE_PREFIX . 'list_' . md5( $page . '_' . $per_page . '_' . $search . '_' . $sort_by . '_' . $sort_dir . '_' . $status . '_' . $vip_min . '_' . self::currency_fingerprint() );
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -382,7 +405,7 @@ final class CustomersOptimizer {
 		// v2 suffix: recent_bookings / favorites_count / status joined the payload,
 		// so a stale pre-redesign cache entry can never serve the old shape.
 		// clear_cache() below uses the same key.
-		$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id;
+		$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id . '_' . self::currency_fingerprint();
 
 		// Check cache
 		$cached_data = CacheManager::get_cache( 'customers', $cache_key );
@@ -579,7 +602,7 @@ final class CustomersOptimizer {
 	 */
 	public static function clear_cache( ?int $customer_id = null ): bool {
 		if ( $customer_id ) {
-			$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id;
+			$cache_key = self::CACHE_PREFIX . 'details_v2_' . $customer_id . '_' . self::currency_fingerprint();
 			return CacheManager::delete_cache( 'customers', $cache_key );
 		}
 
