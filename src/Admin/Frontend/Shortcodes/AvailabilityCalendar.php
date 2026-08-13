@@ -353,19 +353,37 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		$vehicle_id = 0;
 
 		if (! empty($atts['vehicle_id'])) {
-			$vehicle = get_post($atts['vehicle_id']);
-			if ($vehicle && $vehicle->post_type === 'mhmrentiva_vehicle') {
+			/*
+			 * The pinned-vehicle attribute goes through the same public gate as
+			 * everything else on this surface. The attribute is author-written
+			 * rather than visitor-supplied, but the OUTPUT is still a public
+			 * page: pinning a draft vehicle published its title, excerpt, price
+			 * and availability just as effectively as the default-pick did.
+			 */
+			if (\MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable( (int) $atts['vehicle_id'])) {
 				$vehicle_id = intval($atts['vehicle_id']);
 			}
 		} else {
-			// If vehicle ID not provided, get first available vehicle
+			/*
+			 * If vehicle ID not provided, get first publicly readable vehicle.
+			 *
+			 * This used to ask for `array('publish','draft','private')`.
+			 * `get_posts()` runs no capability check of its own, so on a public
+			 * page that made the newest UNPUBLISHED vehicle the calendar's
+			 * default -- an anonymous visitor was served its title, excerpt,
+			 * price and whole month of availability. `perm => 'readable'` would
+			 * not have fixed it either: that only constrains `private`, and
+			 * leaves `draft` (a protected, not private, status) untouched.
+			 * Publish-only is the rule the surface actually needs.
+			 */
 			$vehicles = get_posts(
 				array(
-					'post_type'   => 'mhmrentiva_vehicle',
-					'post_status' => array( 'publish', 'draft', 'private' ),
-					'numberposts' => 1,
-					'orderby'     => 'date',
-					'order'       => 'DESC',
+					'post_type'    => 'mhmrentiva_vehicle',
+					'post_status'  => 'publish',
+					'has_password' => false,
+					'numberposts'  => 1,
+					'orderby'      => 'date',
+					'order'        => 'DESC',
 				)
 			);
 
@@ -518,13 +536,23 @@ final class AvailabilityCalendar extends AbstractShortcode {
 		// Performance monitoring
 		$performance_data = \MHMRentiva\Admin\Core\PerformanceHelper::time_execution(
 			function () {
+				/*
+				 * Publish-only, for the same reason as the default-vehicle
+				 * query above: this list is JSON-encoded into the public
+				 * `data-vehicles` attribute of the vehicle switcher, so every
+				 * row here -- title, slug, excerpt and price -- is served to
+				 * anonymous visitors verbatim. It is also cached in a
+				 * role-agnostic transient, so it must not depend on who
+				 * happened to warm it.
+				 */
 				$vehicles = get_posts(
 					array(
-						'post_type'   => 'mhmrentiva_vehicle',
-						'post_status' => array( 'publish', 'draft', 'private' ),
-						'numberposts' => -1,
-						'orderby'     => 'title',
-						'order'       => 'ASC',
+						'post_type'    => 'mhmrentiva_vehicle',
+						'post_status'  => 'publish',
+						'has_password' => false,
+						'numberposts'  => -1,
+						'orderby'      => 'title',
+						'order'        => 'ASC',
 					)
 				);
 
@@ -658,7 +686,15 @@ final class AvailabilityCalendar extends AbstractShortcode {
 							$b_end   = substr( (string) $booking->end_date, 0, 10);
 
 							if ($current_date >= $b_start && $current_date <= $b_end) {
-								$day_status     = $booking->status ?: 'booked';
+								$day_status = $booking->status ?: 'booked';
+								/*
+								 * Local-only working rows. These four fields
+								 * decide the day's colour a few lines below and
+								 * are then DISCARDED -- see the note on
+								 * $public_days. `id` and `post_title` in
+								 * particular identify another customer's
+								 * booking and must never leave this closure.
+								 */
 								$day_bookings[] = array(
 									'id'             => $booking->ID,
 									'title'          => $booking->post_title,
@@ -710,9 +746,33 @@ final class AvailabilityCalendar extends AbstractShortcode {
 							$day_status = 'unavailable';
 						}
 
+						/*
+						 * PUBLIC PAYLOAD BOUNDARY.
+						 *
+						 * Everything in $days is served to anonymous visitors
+						 * twice over: rendered into the shortcode's HTML, and
+						 * returned verbatim as JSON by the
+						 * `wp_ajax_nopriv_mhmrentiva_availability_unified`
+						 * handler. It used to carry $day_bookings unmodified,
+						 * so a logged-out caller received each overlapping
+						 * booking's post ID, post_title and raw status --
+						 * post_title being an admin-editable free-text field
+						 * that routinely holds a customer's name.
+						 *
+						 * What a public availability calendar is entitled to
+						 * say is "this day is taken, and in what way", not "by
+						 * whom". $day_status and $day_occupancy carry exactly
+						 * that and nothing more, so the identifying fields stop
+						 * here.
+						 *
+						 * The strip is unconditional rather than gated on a
+						 * capability because these rows land in a shared,
+						 * role-agnostic transient: a privileged view would
+						 * otherwise warm the cache with identities that the
+						 * next anonymous visitor would be served.
+						 */
 						$days[ $current_date ] = array(
 							'status'     => $day_status,
-							'bookings'   => $day_bookings,
 							'occupancy'  => $day_occupancy,
 							'day_number' => gmdate('j', strtotime($current_date)),
 							'is_weekend' => in_array(gmdate('N', strtotime($current_date)), array( 6, 7 )),
@@ -916,6 +976,18 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				wp_send_json_error(array( 'message' => esc_html__('Vehicle ID is required.', 'mhm-rentiva') ));
 			}
 
+			/*
+			 * `wp_ajax_nopriv_` handler, and the nonce it checks is minted into
+			 * every public page carrying the shortcode -- so the nonce proves
+			 * "came from our page", never "may see this vehicle". Without this
+			 * gate an anonymous caller could walk post ids and read the
+			 * availability AND the full day-by-day pricing of draft, pending
+			 * and private vehicles.
+			 */
+			if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vehicle_id)) {
+				wp_send_json_error(array( 'message' => esc_html__('Vehicle not found.', 'mhm-rentiva') ));
+			}
+
 			// Get Both Availability and Pricing
 			$availability_data = self::get_availability_data($vehicle_id, $start_month, $months_to_show);
 			$pricing_data      = self::get_pricing_data($vehicle_id, $start_month, $months_to_show);
@@ -956,8 +1028,14 @@ final class AvailabilityCalendar extends AbstractShortcode {
 				return;
 			}
 
+			/*
+			 * Same public gate as ajax_unified_availability(). The post-type
+			 * check alone let an anonymous caller read an unpublished vehicle's
+			 * title, excerpt, image, features, price and rental status -- the
+			 * whole card, for inventory that was never published.
+			 */
 			$vehicle = get_post($vehicle_id);
-			if (! $vehicle || $vehicle->post_type !== 'mhmrentiva_vehicle') {
+			if (! \MHMRentiva\Admin\Vehicle\Helpers\VehicleDataHelper::is_publicly_readable($vehicle_id) || ! $vehicle) {
 				wp_send_json_error(__('Vehicle not found', 'mhm-rentiva'));
 				return;
 			}

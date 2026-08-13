@@ -336,10 +336,22 @@ if ($vehicle_id > 0) {
 						$day_class   = implode(' ', $day_classes);
 
 						// Tooltip content
+						//
+						// This used to join the overlapping bookings' post_title
+						// values into the tooltip, which published another
+						// customer's booking title to every anonymous visitor.
+						// A public calendar's tooltip should answer "how taken
+						// is this day", so it now reports the occupancy count.
+						$day_occupancy   = (int) ( $day_data['occupancy'] ?? 0 );
 						$tooltip_content = '';
-						if (! empty($day_data['bookings'])) {
-							$booking_titles  = array_column($day_data['bookings'], 'title');
-							$tooltip_content = 'data-tooltip="' . esc_attr(implode(', ', $booking_titles)) . '"';
+						if ($day_occupancy > 0) {
+							$tooltip_content = 'data-tooltip="' . esc_attr(
+								sprintf(
+									/* translators: %d: number of bookings that overlap this day. */
+									_n('%d booking', '%d bookings', $day_occupancy, 'mhm-rentiva'),
+									$day_occupancy
+								)
+							) . '"';
 						}
 
 						// Price information
@@ -374,10 +386,18 @@ if ($vehicle_id > 0) {
 						}
 
 						// Booking status indicator
-						if (! empty($day_data['bookings'])) {
+						//
+						// One dot per overlapping booking, as before -- the
+						// visual density of a busy day is legitimate public
+						// availability information. What is gone is each dot's
+						// `title` attribute (another customer's booking title)
+						// and its per-booking raw status class, which disclosed
+						// paid-vs-pending per reservation. The dots now carry
+						// the day's own already-public status.
+						if ($day_occupancy > 0) {
 							echo '<div class="rv-day-indicators">';
-							foreach ($day_data['bookings'] as $booking) {
-								echo '<span class="rv-booking-indicator rv-day-' . esc_attr($booking['status']) . '" title="' . esc_attr($booking['title']) . '"></span>';
+							for ($indicator = 0; $indicator < $day_occupancy; $indicator++) {
+								echo '<span class="rv-booking-indicator rv-day-' . esc_attr($day_data['status']) . '"></span>';
 							}
 							echo '</div>';
 						}
