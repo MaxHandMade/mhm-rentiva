@@ -1054,11 +1054,17 @@ final class BookingForm extends AbstractShortcode {
 
 			$req = VerifiedRequest::from($_POST);
 
-			// Rate limiting check (increased limits)
+			// Rate limiting check. Unauthenticated, high-frequency endpoint --
+			// the frontend debounces every date/time/addon change into a
+			// call (100ms debounce, see booking-form.js autoCalculatePrice()),
+			// so a single honest visitor comparing a few date ranges and
+			// toggling several add-ons can legitimately fire ~15-20 requests
+			// within a minute. 30/60s covers that with headroom while
+			// cutting the previous 100/60s scripted-abuse allowance by 70%.
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'price_calculation',
-				100, // 100 requests (increased)
-				60, // 1 minute (reduced)
+				30, // 30 requests
+				60, // 1 minute
 				__('Too many price calculation requests. Please wait.', 'mhm-rentiva')
 			);
 
@@ -1393,10 +1399,17 @@ final class BookingForm extends AbstractShortcode {
 
 			$req = VerifiedRequest::from($_POST);
 
-			// Rate limiting check
+			// Rate limiting check. Unauthenticated endpoint; fires less often
+			// than price_calculation -- only once a vehicle, both dates AND
+			// both times are set (300ms debounce, see booking-form.js
+			// autoCheckAvailability()). A visitor comparing a handful of
+			// date/vehicle combinations legitimately needs single digits of
+			// calls per session. 20/300s keeps generous headroom over that
+			// while cutting the previous 100/300s scripted-abuse allowance
+			// by 80%.
 			\MHMRentiva\Admin\Core\SecurityHelper::check_rate_limit_or_die(
 				'availability_check',
-				100, // 100 requests (increased for testing)
+				20, // 20 requests
 				300, // 5 minutes
 				__('Too many availability checks. Please wait.', 'mhm-rentiva')
 			);
