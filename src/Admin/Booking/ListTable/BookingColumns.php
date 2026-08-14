@@ -1846,7 +1846,21 @@ final class BookingColumns {
 	/**
 	 * Get booking title display text for list table
 	 */
-	public static function get_booking_title_display( int $post_id ): string {
+	/**
+	 * Build the admin Title column's text for a booking, unescaped.
+	 *
+	 * This used to escape its own return and was called get_booking_title_display().
+	 * WordPress.org's T8 review flagged the caller, modify_booking_title(), for
+	 * returning unescaped data into the `the_title` filter -- the escaping was
+	 * real, but it happened one call deep, where neither their scanner nor a
+	 * reader of the filter callback can see it. Escaping a callback's return has
+	 * to be provable on the line that returns, so the escape moved to the caller
+	 * and this returns raw. Do not re-add esc_html() here: it would double-encode.
+	 *
+	 * @param int $post_id Booking post ID.
+	 * @return string Raw, unescaped title text.
+	 */
+	public static function get_booking_title_raw( int $post_id ): string {
 		// Use BookingQueryHelper to get customer info (handles multiple meta keys)
 		$customer_info = array();
 		if ( class_exists( '\\MHMRentiva\\Admin\\Core\\Utilities\\BookingQueryHelper' ) ) {
@@ -1931,9 +1945,7 @@ final class BookingColumns {
 				/* translators: %d: booking ID */
 				return sprintf( __( 'Booking #%d', 'mhm-rentiva' ), $post_id );
 			}
-			// $default_title is raw $post->post_title (untrusted DB data) — escape
-			// it here too, at this early return point.
-			return esc_html( $default_title );
+			return $default_title;
 		}
 
 		// Return plain text summary prioritizing phone over email
@@ -1945,11 +1957,10 @@ final class BookingColumns {
 			$new_title .= ' - ' . $customer_email;
 		}
 
-		// $new_title is assembled from DB-read data (post meta / user profile /
-		// WooCommerce order fields), which is untrusted per the rubric. Escape
-		// here (the single point where this helper hands the value back to its
-		// only caller, the `the_title` filter) so it is escaped exactly once.
-		return esc_html( $new_title );
+		// Raw on purpose -- see the docblock. The single caller escapes on its
+		// own return line, which is where the `the_title` filter hands the value
+		// to WordPress and where the escaping has to be visible.
+		return $new_title;
 	}
 
 	/**
@@ -1979,13 +1990,22 @@ final class BookingColumns {
 		// Set flag to prevent recursion
 		self::$in_title_filter = true;
 
-		// Use the shared function to get booking title display
-		$new_title = self::get_booking_title_display( $post_id );
+		// Raw, so the escaping below is on this method's own return line.
+		$new_title = self::get_booking_title_raw( $post_id );
 
 		// Reset flag
 		self::$in_title_filter = false;
 
-		// If we got a valid title, return it; otherwise keep original
-		return ! empty( $new_title ) ? $new_title : $title;
+		// The value this filter introduces is assembled from DB-read data (post
+		// meta, user profile, WooCommerce order fields) and is escaped here, on
+		// the line that hands it back to WordPress.
+		//
+		// $title on the empty branch is core's own value for this call, passed
+		// through untouched. It is deliberately NOT escaped: `the_title` fires
+		// for every title on the screen, and re-escaping a value core already
+		// ran through wptexturize()/convert_chars() double-encodes titles this
+		// plugin never authored. Same reasoning as
+		// WooCommerceIntegration::endpoint_title(), which had it first.
+		return '' !== $new_title ? esc_html( $new_title ) : $title;
 	}
 }
