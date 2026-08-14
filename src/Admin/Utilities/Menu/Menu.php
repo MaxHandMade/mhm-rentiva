@@ -84,12 +84,18 @@ final class Menu {
 		);
 
 		// 5. Additional Services (Addons)
+		//
+		// Points at this plugin's own screen rather than `edit.php`. The native
+		// list is not removed -- it stays reachable by URL as the way back, and
+		// `post-new.php` / `post.php` still serve the full editor. Only the
+		// menu link moves, so there is one door rather than two.
 		add_submenu_page(
 			'mhm-rentiva',
 			__('Additional Services', 'mhm-rentiva'),
 			__('Additional Services', 'mhm-rentiva'),
 			'manage_options',
-			'edit.php?post_type=mhmrentiva_addon'
+			\MHMRentiva\Admin\Addons\AddonScreen::SLUG,
+			array( \MHMRentiva\Admin\Addons\AddonScreen::class, 'render_page' )
 		);
 
 		// 5b. Contact Messages -- rows holding submitter PII (name, e-mail,
