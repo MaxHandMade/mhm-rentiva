@@ -68,6 +68,7 @@ src/Admin/Core/Utilities/TypeValidator.php
 src/Admin/Core/Utilities/UXHelper.php
 src/Admin/Core/Utilities/WordPressOptimizer.php
 src/Admin/Customers/AddCustomerPage.php
+src/Admin/Customers/CustomerIdentity.php
 src/Admin/Customers/CustomersOptimizer.php
 src/Admin/Customers/CustomersPage.php
 src/Admin/Customers/Export/CustomerExporter.php
