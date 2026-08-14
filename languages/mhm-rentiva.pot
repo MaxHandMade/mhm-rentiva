@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-10T07:25:43+00:00\n"
+"POT-Creation-Date: 2026-08-14T08:44:43+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -284,7 +284,7 @@ msgid "Total Vehicles"
 msgstr ""
 
 #: src/Admin/About/Tabs/GeneralTab.php:308
-#: src/Admin/Customers/CustomersPage.php:226
+#: src/Admin/Customers/CustomersPage.php:237
 #: src/Core/Dashboard/DashboardConfig.php:24
 #: templates/account/dashboard.php:50
 #: src-react/admin/customers/components/CustomerPanel.jsx:76
@@ -658,7 +658,7 @@ msgid "Pricing Type"
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:464
-#: src/Admin/Addons/AddonManager.php:615
+#: src/Admin/Addons/AddonManager.php:638
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:37
 #: src/Admin/Booking/Meta/BookingMeta.php:681
 #: src/Admin/Booking/Meta/BookingMeta.php:950
@@ -690,7 +690,7 @@ msgid "Security check failed."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:470
-#: src/Admin/Addons/AddonManager.php:621
+#: src/Admin/Addons/AddonManager.php:644
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:54
 #: src/Admin/Utilities/Actions/Actions.php:49
 msgid "You do not have permission for this action."
@@ -701,39 +701,39 @@ msgstr ""
 msgid "No additional services selected."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:500
+#: src/Admin/Addons/AddonManager.php:523
 msgid "Invalid action."
 msgstr ""
 
 #. translators: 1: successful process count, 2: failed process count.
-#: src/Admin/Addons/AddonManager.php:515
+#: src/Admin/Addons/AddonManager.php:538
 #, php-format
 msgid "%1$d additional services processed, %2$d additional services failed."
 msgstr ""
 
 #. translators: %d: successful process count.
-#: src/Admin/Addons/AddonManager.php:524
+#: src/Admin/Addons/AddonManager.php:547
 #, php-format
 msgid "%d additional services successfully processed."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:629
+#: src/Admin/Addons/AddonManager.php:652
 msgid "Invalid additional service ID."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:634
+#: src/Admin/Addons/AddonManager.php:657
 msgid "Price cannot be negative."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:641
+#: src/Admin/Addons/AddonManager.php:664
 msgid "Additional service not found."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:653
+#: src/Admin/Addons/AddonManager.php:676
 msgid "Price successfully updated."
 msgstr ""
 
-#: src/Admin/Addons/AddonManager.php:659
+#: src/Admin/Addons/AddonManager.php:682
 msgid "Error occurred while updating price."
 msgstr ""
 
@@ -1072,7 +1072,7 @@ msgstr ""
 #: src/Admin/Emails/Templates/EmailPreview.php:258
 #: src/Admin/Frontend/Account/AccountRenderer.php:632
 #: src/Admin/Frontend/Widgets/Elementor/MyBookingsWidget.php:73
-#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/account/booking-detail.php:80
 #: templates/account/bookings.php:122
 #: templates/account/bookings.php:207
@@ -1185,8 +1185,8 @@ msgid "Booking Details:"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:379
-#: src/Admin/Settings/Groups/EmailSettings.php:168
-#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:176
+#: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:59
 msgid "Booking ID:"
 msgstr ""
@@ -1195,10 +1195,10 @@ msgstr ""
 #: src/Admin/Booking/Meta/BookingMeta.php:371
 #: src/Admin/Booking/Meta/BookingMeta.php:447
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:687
-#: src/Admin/Settings/Groups/EmailSettings.php:126
-#: src/Admin/Settings/Groups/EmailSettings.php:170
-#: src/Admin/Settings/Groups/EmailSettings.php:218
-#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:134
+#: src/Admin/Settings/Groups/EmailSettings.php:178
+#: src/Admin/Settings/Groups/EmailSettings.php:226
+#: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/emails/booking-cancelled.html.php:67
 #: templates/emails/booking-created-admin.html.php:37
 #: templates/emails/booking-created-customer.html.php:24
@@ -1209,7 +1209,7 @@ msgid "Vehicle:"
 msgstr ""
 
 #: src/Admin/Booking/Helpers/CancellationHandler.php:381
-#: src/Admin/Settings/Groups/EmailSettings.php:127
+#: src/Admin/Settings/Groups/EmailSettings.php:135
 #: templates/emails/booking-cancelled.html.php:75
 #: templates/emails/booking-created-admin.html.php:41
 #: templates/emails/booking-created-customer.html.php:28
@@ -1798,8 +1798,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1351
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:308
 #: src/Admin/Customers/AddCustomerPage.php:145
-#: src/Admin/Customers/CustomersPage.php:190
-#: src/Admin/Customers/CustomersPage.php:366
+#: src/Admin/Customers/CustomersPage.php:201
+#: src/Admin/Customers/CustomersPage.php:388
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:492
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:53
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:143
@@ -1814,8 +1814,8 @@ msgstr ""
 #: src/Admin/Booking/ListTable/BookingColumns.php:1355
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:313
 #: src/Admin/Customers/AddCustomerPage.php:150
-#: src/Admin/Customers/CustomersPage.php:197
-#: src/Admin/Customers/CustomersPage.php:371
+#: src/Admin/Customers/CustomersPage.php:208
+#: src/Admin/Customers/CustomersPage.php:393
 #: src/Admin/Frontend/Shortcodes/ContactForm.php:493
 #: src/Admin/Frontend/Shortcodes/ContactMessagePostType.php:54
 #: src/Admin/Settings/Groups/FrontendSettings.php:334
@@ -1896,12 +1896,12 @@ msgstr ""
 msgid "Booking"
 msgstr ""
 
-#: src/Admin/Booking/ListTable/BookingColumns.php:1930
+#: src/Admin/Booking/ListTable/BookingColumns.php:1944
 msgid "Auto Draft"
 msgstr ""
 
 #. translators: %d: booking ID
-#: src/Admin/Booking/ListTable/BookingColumns.php:1932
+#: src/Admin/Booking/ListTable/BookingColumns.php:1946
 #, php-format
 msgid "Booking #%d"
 msgstr ""
@@ -2338,7 +2338,7 @@ msgid "No receipt uploaded."
 msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:233
-#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:237
 #: templates/account/payment-history.php:103
 #: templates/admin/booking-meta/receipt-box.php:34
 #: templates/emails/receipt-status-email.html.php:249
@@ -2397,7 +2397,7 @@ msgstr ""
 
 #: src/Admin/Booking/Meta/BookingMeta.php:633
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:52
-#: src/Admin/Settings/Groups/EmailSettings.php:169
+#: src/Admin/Settings/Groups/EmailSettings.php:177
 #: templates/emails/booking-status-changed-admin.html.php:17
 #: templates/emails/offline-receipt-uploaded-admin.html.php:34
 #: templates/emails/refund-admin.html.php:17
@@ -2885,9 +2885,10 @@ msgid "This email address is already registered."
 msgstr ""
 
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:705
-#: src/Admin/Customers/CustomersPage.php:166
-#: src/Admin/Customers/CustomersPage.php:304
-#: src/Admin/Customers/REST/CustomersRestController.php:138
+#: src/Admin/Customers/CustomersPage.php:177
+#: src/Admin/Customers/CustomersPage.php:326
+#: src/Admin/Customers/REST/CustomersRestController.php:143
+#: src/Admin/Customers/REST/CustomersRestController.php:153
 msgid "Customer not found."
 msgstr ""
 
@@ -3201,7 +3202,7 @@ msgstr ""
 #: src/Admin/Core/AssetManager.php:957
 #: src/Admin/Core/AssetManager.php:1121
 #: src/Admin/Customers/AddCustomerPage.php:164
-#: src/Admin/Customers/CustomersPage.php:385
+#: src/Admin/Customers/CustomersPage.php:407
 #: src/Admin/Emails/Core/EmailTemplates.php:526
 #: templates/account/account-details.php:189
 #: src-react/admin/shortcode-pages/components/ConfirmModal.jsx:12
@@ -3865,7 +3866,7 @@ msgid "Confirm"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1125
-#: src/Admin/Customers/CustomersPage.php:252
+#: src/Admin/Customers/CustomersPage.php:263
 #: src/Admin/Setup/SetupWizard.php:225
 #: templates/shortcodes/vehicle-rating-form.php:292
 #: src-react/admin/customers/components/CustomerPanel.jsx:98
@@ -3874,7 +3875,7 @@ msgid "Edit"
 msgstr ""
 
 #: src/Admin/Core/AssetManager.php:1127
-#: src/Admin/Customers/CustomersPage.php:384
+#: src/Admin/Customers/CustomersPage.php:406
 msgid "Update"
 msgstr ""
 
@@ -5218,7 +5219,7 @@ msgid "Retry Payment"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:65
-#: src/Admin/Customers/CustomersPage.php:317
+#: src/Admin/Customers/CustomersPage.php:339
 msgid "Customer name and email fields are required."
 msgstr ""
 
@@ -5235,14 +5236,14 @@ msgid "Add New Customer"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:140
-#: src/Admin/Customers/CustomersPage.php:185
-#: src/Admin/Customers/CustomersPage.php:361
+#: src/Admin/Customers/CustomersPage.php:196
+#: src/Admin/Customers/CustomersPage.php:383
 msgid "Customer Name"
 msgstr ""
 
 #: src/Admin/Customers/AddCustomerPage.php:155
-#: src/Admin/Customers/CustomersPage.php:205
-#: src/Admin/Customers/CustomersPage.php:376
+#: src/Admin/Customers/CustomersPage.php:216
+#: src/Admin/Customers/CustomersPage.php:398
 #: templates/account/account-details.php:123
 #: src-react/admin/customers/components/CustomerPanel.jsx:66
 msgid "Address"
@@ -5254,69 +5255,69 @@ msgid "Add Customer"
 msgstr ""
 
 #: src/Admin/Customers/CustomersPage.php:159
-#: src/Admin/Customers/CustomersPage.php:297
+#: src/Admin/Customers/CustomersPage.php:308
 msgid "Invalid customer ID."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:171
+#: src/Admin/Customers/CustomersPage.php:182
 msgid "Customers List"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:178
+#: src/Admin/Customers/CustomersPage.php:189
 #: src-react/admin/customers/components/CustomerPanel.jsx:42
 #: src-react/admin/customers/components/CustomerPanel.jsx:44
 msgid "Customer Details"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:211
+#: src/Admin/Customers/CustomersPage.php:222
 msgid "Registration Date"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:221
+#: src/Admin/Customers/CustomersPage.php:232
 msgid "Booking Statistics"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:231
+#: src/Admin/Customers/CustomersPage.php:242
 msgid "Total Spending"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:236
+#: src/Admin/Customers/CustomersPage.php:247
 #: src-react/admin/customers/components/CustomerPanel.jsx:88
 #: src-react/admin/customers/components/CustomerTable.jsx:8
 msgid "Last Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:241
+#: src/Admin/Customers/CustomersPage.php:252
 #: src-react/admin/customers/components/CustomerPanel.jsx:84
 msgid "First Booking"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:253
+#: src/Admin/Customers/CustomersPage.php:264
 #: templates/emails/booking-status-changed-admin.html.php:44
 #: templates/emails/refund-admin.html.php:41
 #: src-react/admin/customers/components/CustomerPanel.jsx:104
 msgid "View Bookings"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:254
+#: src/Admin/Customers/CustomersPage.php:265
 msgid "Go Back"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:293
+#: src/Admin/Customers/CustomersPage.php:304
 msgid "You do not have permission to edit customers."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:336
+#: src/Admin/Customers/CustomersPage.php:358
 msgid "Customer information updated successfully."
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:345
+#: src/Admin/Customers/CustomersPage.php:367
 #: templates/account/dashboard.php:221
 #: src-react/admin/shortcode-pages/components/ShortcodeRow.jsx:40
 msgid "View"
 msgstr ""
 
-#: src/Admin/Customers/CustomersPage.php:352
+#: src/Admin/Customers/CustomersPage.php:374
 msgid "Edit Customer"
 msgstr ""
 
@@ -5328,15 +5329,15 @@ msgstr ""
 msgid "Unauthorized."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:108
+#: src/Admin/Customers/REST/CustomersRestController.php:109
 msgid "Invalid sort_by value."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:154
+#: src/Admin/Customers/REST/CustomersRestController.php:169
 msgid "You do not have permission to delete customers."
 msgstr ""
 
-#: src/Admin/Customers/REST/CustomersRestController.php:165
+#: src/Admin/Customers/REST/CustomersRestController.php:180
 msgid "ids must be a non-empty array."
 msgstr ""
 
@@ -5649,7 +5650,7 @@ msgid "Enabled"
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:55
-#: src/Admin/Settings/Groups/EmailSettings.php:84
+#: src/Admin/Settings/Groups/EmailSettings.php:92
 msgid "Booking Confirmed: #{booking_id}"
 msgstr ""
 
@@ -5674,7 +5675,7 @@ msgid "Email sent to customer when a new booking is created."
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:84
-#: src/Admin/Settings/Groups/EmailSettings.php:88
+#: src/Admin/Settings/Groups/EmailSettings.php:96
 msgid "Booking #{booking_id} status updated"
 msgstr ""
 
@@ -5696,7 +5697,7 @@ msgid "Recipient for administrative alerts."
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:120
-#: src/Admin/Settings/Groups/EmailSettings.php:92
+#: src/Admin/Settings/Groups/EmailSettings.php:100
 msgid "New Booking Alert: #{booking_id} - {site_name}"
 msgstr ""
 
@@ -5709,7 +5710,7 @@ msgid "Alert sent to administrator for every new reservation."
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:143
-#: src/Admin/Settings/Groups/EmailSettings.php:96
+#: src/Admin/Settings/Groups/EmailSettings.php:104
 msgid "Booking Cancelled (Payment Timeout): #{booking_id}"
 msgstr ""
 
@@ -5734,7 +5735,7 @@ msgid "Sent when a booking is manually cancelled by staff."
 msgstr ""
 
 #: src/Admin/Emails/Templates/BookingNotifications.php:201
-#: src/Admin/Settings/Groups/EmailSettings.php:100
+#: src/Admin/Settings/Groups/EmailSettings.php:108
 msgid "Reminder: Your Booking #{booking_id} Starts Soon"
 msgstr ""
 
@@ -5847,12 +5848,12 @@ msgid "Available placeholders: {booking_id}, {vehicle_title}, {amount}, {currenc
 msgstr ""
 
 #: src/Admin/Emails/Templates/RefundEmails.php:52
-#: src/Admin/Settings/Groups/EmailSettings.php:104
+#: src/Admin/Settings/Groups/EmailSettings.php:112
 msgid "Refund Processed for Booking #{booking_id}"
 msgstr ""
 
 #: src/Admin/Emails/Templates/RefundEmails.php:80
-#: src/Admin/Settings/Groups/EmailSettings.php:106
+#: src/Admin/Settings/Groups/EmailSettings.php:114
 msgid "Refund Alert: Booking #{booking_id}"
 msgstr ""
 
@@ -9371,33 +9372,27 @@ msgstr ""
 msgid "Configure system optimizations and performance thresholds."
 msgstr ""
 
-#. translators: %s: site name
-#: src/Admin/Settings/Groups/EmailSettings.php:79
-#, php-format
-msgid "%s - Powered by MHM Rentiva"
-msgstr ""
-
-#: src/Admin/Settings/Groups/EmailSettings.php:120
-#: src/Admin/Settings/Groups/EmailSettings.php:143
-#: src/Admin/Settings/Groups/EmailSettings.php:181
-#: src/Admin/Settings/Groups/EmailSettings.php:213
-#: src/Admin/Settings/Groups/EmailSettings.php:229
-#: src/Admin/Settings/Groups/EmailSettings.php:236
+#: src/Admin/Settings/Groups/EmailSettings.php:128
+#: src/Admin/Settings/Groups/EmailSettings.php:151
+#: src/Admin/Settings/Groups/EmailSettings.php:189
+#: src/Admin/Settings/Groups/EmailSettings.php:221
+#: src/Admin/Settings/Groups/EmailSettings.php:237
+#: src/Admin/Settings/Groups/EmailSettings.php:244
 msgid "Dear {contact_name},"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:121
+#: src/Admin/Settings/Groups/EmailSettings.php:129
 msgid "Your booking #{booking_id} has been successfully created. Below are your reservation details:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:124
+#: src/Admin/Settings/Groups/EmailSettings.php:132
 #: templates/account/booking-detail.php:118
 #: templates/emails/booking-created-admin.html.php:29
 #: templates/emails/booking-created-customer.html.php:16
 msgid "Reservation Details"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:125
+#: src/Admin/Settings/Groups/EmailSettings.php:133
 #: templates/emails/booking-created-admin.html.php:33
 #: templates/emails/booking-created-customer.html.php:20
 #: templates/emails/offline-verified-approved-customer.html.php:147
@@ -9405,7 +9400,7 @@ msgstr ""
 msgid "Reservation No:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:128
+#: src/Admin/Settings/Groups/EmailSettings.php:136
 #: templates/emails/booking-created-admin.html.php:45
 #: templates/emails/booking-created-customer.html.php:32
 #: templates/emails/booking-reminder-customer.html.php:17
@@ -9414,7 +9409,7 @@ msgstr ""
 msgid "Return Date:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:129
+#: src/Admin/Settings/Groups/EmailSettings.php:137
 #: templates/account/payment-history.php:120
 #: templates/emails/booking-cancelled.html.php:92
 #: templates/emails/booking-created-admin.html.php:53
@@ -9423,237 +9418,237 @@ msgstr ""
 msgid "Total Amount:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:133
+#: src/Admin/Settings/Groups/EmailSettings.php:141
 msgid "Thank you for choosing us!"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:134
+#: src/Admin/Settings/Groups/EmailSettings.php:142
 msgid "Our team will review your application and contact you shortly if any further action is required."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:144
+#: src/Admin/Settings/Groups/EmailSettings.php:152
 msgid "The status of your booking #{booking_id} has been updated:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:147
+#: src/Admin/Settings/Groups/EmailSettings.php:155
 msgid "New Status"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:151
+#: src/Admin/Settings/Groups/EmailSettings.php:159
 msgid "You can track your reservation and view all details in your customer dashboard."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:153
+#: src/Admin/Settings/Groups/EmailSettings.php:161
 #: templates/emails/booking-created-customer.html.php:175
 #: templates/emails/welcome-customer.html.php:22
 msgid "My Account"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:163
+#: src/Admin/Settings/Groups/EmailSettings.php:171
 msgid "New Booking Received!"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:164
+#: src/Admin/Settings/Groups/EmailSettings.php:172
 msgid "A new reservation request has been submitted on your website. Please log in to the admin panel to process the request."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:171
+#: src/Admin/Settings/Groups/EmailSettings.php:179
 msgid "Dates:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:172
+#: src/Admin/Settings/Groups/EmailSettings.php:180
 msgid "Revenue:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:182
+#: src/Admin/Settings/Groups/EmailSettings.php:190
 msgid "Your booking #{booking_id} has been automatically cancelled."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:183
+#: src/Admin/Settings/Groups/EmailSettings.php:191
 msgid "We did not receive the required payment within the allotted time frame, so the reservation has been released."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:186
+#: src/Admin/Settings/Groups/EmailSettings.php:194
 msgid "If you believe this is an error or wish to make a new reservation, please visit our website."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:196
+#: src/Admin/Settings/Groups/EmailSettings.php:204
 msgid "Welcome to {site_name}!"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:197
+#: src/Admin/Settings/Groups/EmailSettings.php:205
 msgid "We are happy to have you as part of our rental community."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:199
+#: src/Admin/Settings/Groups/EmailSettings.php:207
 msgid "Through your customer dashboard, you can:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:201
+#: src/Admin/Settings/Groups/EmailSettings.php:209
 msgid "Manage and track your reservations"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:202
+#: src/Admin/Settings/Groups/EmailSettings.php:210
 msgid "Download payment invoices"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:203
+#: src/Admin/Settings/Groups/EmailSettings.php:211
 msgid "Communicate directly with our support team"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:204
+#: src/Admin/Settings/Groups/EmailSettings.php:212
 msgid "Save your profile for faster future bookings"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:214
+#: src/Admin/Settings/Groups/EmailSettings.php:222
 msgid "This is a friendly reminder that your upcoming rental starts very soon!"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:217
+#: src/Admin/Settings/Groups/EmailSettings.php:225
 msgid "Pickup Details"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:219
+#: src/Admin/Settings/Groups/EmailSettings.php:227
 msgid "Pickup Time:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:222
+#: src/Admin/Settings/Groups/EmailSettings.php:230
 msgid "Please make sure to have your identity documents and driver's license ready. We look forward to seeing you!"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:229
+#: src/Admin/Settings/Groups/EmailSettings.php:237
 msgid "Your booking #{booking_id} has been cancelled."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:236
+#: src/Admin/Settings/Groups/EmailSettings.php:244
 msgid "A refund of {amount} has been processed for your booking #{booking_id}."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:236
+#: src/Admin/Settings/Groups/EmailSettings.php:244
 #: templates/emails/refund-admin.html.php:25
 #: templates/emails/refund-customer.html.php:23
 msgid "Refund Amount:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:240
+#: src/Admin/Settings/Groups/EmailSettings.php:248
 msgid "Refund Notification"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:240
+#: src/Admin/Settings/Groups/EmailSettings.php:248
 msgid "A refund of {amount} has been processed for booking #{booking_id}."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:244
+#: src/Admin/Settings/Groups/EmailSettings.php:252
 msgid "Booking Status Update"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:244
+#: src/Admin/Settings/Groups/EmailSettings.php:252
 msgid "The status of booking #{booking_id} has been changed to {new_status}."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:255
+#: src/Admin/Settings/Groups/EmailSettings.php:263
 #: src/Admin/Settings/View/TabRendererRegistry.php:151
 msgid "Email Configuration"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:260
+#: src/Admin/Settings/Groups/EmailSettings.php:268
 #: src/Admin/Setup/SetupWizard.php:286
 msgid "Sender Name"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:261
+#: src/Admin/Settings/Groups/EmailSettings.php:269
 #: src/Admin/Setup/SetupWizard.php:290
 msgid "Sender Email"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:262
+#: src/Admin/Settings/Groups/EmailSettings.php:270
 #: src/Admin/Setup/SetupWizard.php:294
 msgid "Reply-To Address"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:266
+#: src/Admin/Settings/Groups/EmailSettings.php:274
 msgid "Base Color"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:272
+#: src/Admin/Settings/Groups/EmailSettings.php:280
 msgid "Header Image (Logo URL)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:273
+#: src/Admin/Settings/Groups/EmailSettings.php:281
 msgid "Footer Text"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:275
+#: src/Admin/Settings/Groups/EmailSettings.php:283
 msgid "Enable Outgoing Emails"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:275
+#: src/Admin/Settings/Groups/EmailSettings.php:283
 msgid "Allow system to send automated transaction emails."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:276
+#: src/Admin/Settings/Groups/EmailSettings.php:284
 msgid "Production Sandbox (Test Mode)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:276
+#: src/Admin/Settings/Groups/EmailSettings.php:284
 msgid "Redirect all outgoing mails to the test address below."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:277
+#: src/Admin/Settings/Groups/EmailSettings.php:285
 #: src/Admin/Setup/SetupWizard.php:307
 msgid "Test Email Address"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:279
+#: src/Admin/Settings/Groups/EmailSettings.php:287
 msgid "Template Override Path"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:280
+#: src/Admin/Settings/Groups/EmailSettings.php:288
 msgid "Automatic Background Sending"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:281
+#: src/Admin/Settings/Groups/EmailSettings.php:289
 msgid "Enable Communication Logs"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:282
+#: src/Admin/Settings/Groups/EmailSettings.php:290
 #: src/Admin/Settings/Groups/LogsSettings.php:94
 msgid "Log Retention (Days)"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:287
+#: src/Admin/Settings/Groups/EmailSettings.php:295
 msgid "Customer Notification Toggles"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:288
+#: src/Admin/Settings/Groups/EmailSettings.php:296
 msgid "Control which automated emails are sent to customers."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:292
+#: src/Admin/Settings/Groups/EmailSettings.php:300
 msgid "Send Welcome Email"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:292
+#: src/Admin/Settings/Groups/EmailSettings.php:300
 msgid "Send a one-time welcome email to customers on their first booking."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:293
+#: src/Admin/Settings/Groups/EmailSettings.php:301
 msgid "Send Booking Notifications"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:293
+#: src/Admin/Settings/Groups/EmailSettings.php:301
 msgid "Send booking confirmation, reminder, and cancellation emails to customers."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:298
+#: src/Admin/Settings/Groups/EmailSettings.php:306
 msgid "WooCommerce Detected:"
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:298
+#: src/Admin/Settings/Groups/EmailSettings.php:306
 msgid "Transactional emails are managed by WooCommerce. These settings apply to plugin-specific internal alerts."
 msgstr ""
 
-#: src/Admin/Settings/Groups/EmailSettings.php:303
+#: src/Admin/Settings/Groups/EmailSettings.php:311
 msgid "Send Test Connection Email"
 msgstr ""
 

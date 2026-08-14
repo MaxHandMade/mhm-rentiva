@@ -74,11 +74,19 @@ final class EmailSettings {
 			// Branding
 			'mhmrentiva_email_base_color'               => '#1e88e5',
 			'mhmrentiva_email_header_image'             => '',
-			'mhmrentiva_email_footer_text'              => static fn(): string => sprintf(
-				/* translators: %s: site name */
-				__( '%s - Powered by MHM Rentiva', 'mhm-rentiva' ),
-				get_bloginfo( 'name' )
-			),
+			// The site's own name, and nothing else. This is the footer of mail
+			// this plugin sends to customers -- a user-facing surface -- and the
+			// default used to read "%s - Powered by MHM Rentiva". WordPress.org
+			// guideline 10 allows a credit on a user-facing surface only where
+			// the site administrator has opted in by a deliberate action, and a
+			// shipped default is the opposite of that: it appears in every
+			// customer's inbox on a fresh install without anyone choosing it.
+			// Found by the T8 review at this line.
+			//
+			// The field itself is untouched and still free text, so an
+			// administrator who wants to credit the plugin can write whatever
+			// they like there. The plugin just stops writing it for them.
+			'mhmrentiva_email_footer_text'              => static fn(): string => (string) get_bloginfo( 'name' ),
 
 			// Customer Booking Confirmation
 			'mhmrentiva_booking_created_subject'        => static fn(): string => __( 'Booking Confirmed: #{booking_id}', 'mhm-rentiva' ),
