@@ -182,6 +182,34 @@ final class AddonScreenRenderTest extends WP_UnitTestCase {
 		$this->assertMatchesRegularExpression( '/1\D+2/u', $html );
 	}
 
+	/**
+	 * The native screen let an operator click a price and type a new one. A
+	 * replacement without that is a capability quietly withdrawn, so the row
+	 * carries the same contract its markup did: the current value in a data
+	 * attribute the editor reads back, and the id the endpoint needs.
+	 */
+	public function test_the_price_is_editable_in_place(): void {
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'rv-addon-price-value', $html );
+		$this->assertStringContainsString( 'data-price="150"', $html );
+	}
+
+	/**
+	 * Bulk selection, also carried over from the native screen.
+	 */
+	public function test_each_row_offers_a_selection_checkbox(): void {
+		$html = $this->render();
+
+		$this->assertSame( 2, substr_count( $html, 'rv-addon-select' ) - substr_count( $html, 'rv-addon-select-all' ) );
+	}
+
+	public function test_the_bulk_bar_is_present(): void {
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'rv-addon-bulk', $html );
+	}
+
 	public function test_it_refuses_a_user_without_manage_options(): void {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 

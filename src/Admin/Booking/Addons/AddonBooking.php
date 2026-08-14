@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Booking\Addons;
 
+use MHMRentiva\Admin\Booking\Core\Status;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -274,7 +276,20 @@ final class AddonBooking {
 		$start = $start_date->format( 'Y-m-d H:i:s' );
 		$end   = $end_date->format( 'Y-m-d H:i:s' );
 
-		// Get addon revenue from booking meta
+		// Booking status is META, not post status.
+		//
+		// This query used to filter `p.post_status IN ('confirmed','completed')`
+		// and therefore matched nothing, ever: every booking row is `publish`
+		// (measured on dev: 29 publish, 2 auto-draft, neither of those two
+		// values present at all), and the real status lives in
+		// `_mhmrentiva_status`, which is what Status::get()/set() read and write.
+		// The method returned an empty breakdown and 0.0 revenue on every call
+		// and was harmless only because nothing called it -- the danger was the
+		// name, which promised a revenue report to whoever wired it up next.
+		//
+		// AddonUsageCountTest pins both halves: that no booking carries its
+		// status in post_status, and that the counts are right now that the
+		// status join is against the meta table.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"
@@ -283,11 +298,16 @@ final class AddonBooking {
                 p.post_date as booking_date
             FROM {$wpdb->postmeta} pm
             INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+            INNER JOIN {$wpdb->postmeta} sm
+                ON sm.post_id = p.ID AND sm.meta_key = '_mhmrentiva_status'
             WHERE pm.meta_key = '_mhmrentiva_addon_details'
             AND p.post_type = 'mhmrentiva_booking'
-            AND p.post_status IN ('confirmed', 'completed')
+            AND p.post_status = 'publish'
+            AND sm.meta_value IN ( %s, %s )
             AND p.post_date BETWEEN %s AND %s
         ",
+				Status::CONFIRMED,
+				Status::COMPLETED,
 				$start,
 				$end
 			),

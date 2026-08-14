@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-14T18:41:23+00:00\n"
+"POT-Creation-Date: 2026-08-14T19:05:50+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: mhm-rentiva\n"
@@ -605,19 +605,19 @@ msgid "Unknown error"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:114
-#: src/Admin/Addons/AddonScreen.php:708
+#: src/Admin/Addons/AddonScreen.php:757
 msgid "Total Additional Services"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:116
 #: src/Admin/Addons/AddonListTable.php:134
-#: src/Admin/Addons/AddonScreen.php:710
-#: src/Admin/Addons/AddonScreen.php:726
+#: src/Admin/Addons/AddonScreen.php:759
+#: src/Admin/Addons/AddonScreen.php:775
 msgid "All services"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:123
-#: src/Admin/Addons/AddonScreen.php:714
+#: src/Admin/Addons/AddonScreen.php:763
 msgid "Active Services"
 msgstr ""
 
@@ -628,23 +628,23 @@ msgid "active"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:132
-#: src/Admin/Addons/AddonScreen.php:724
+#: src/Admin/Addons/AddonScreen.php:773
 msgid "Average Price"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:141
-#: src/Admin/Addons/AddonScreen.php:730
+#: src/Admin/Addons/AddonScreen.php:779
 msgid "Total Value"
 msgstr ""
 
 #: src/Admin/Addons/AddonListTable.php:143
-#: src/Admin/Addons/AddonScreen.php:732
+#: src/Admin/Addons/AddonScreen.php:781
 msgid "All prices"
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:154
 #: src/Admin/Addons/AddonMeta.php:75
-#: src/Admin/Addons/AddonScreen.php:648
+#: src/Admin/Addons/AddonScreen.php:656
 #: src/Admin/Frontend/Widgets/Elementor/FeaturedVehiclesWidget.php:91
 #: src/Admin/Frontend/Widgets/Elementor/MyFavoritesWidget.php:84
 #: src/Admin/Frontend/Widgets/Elementor/SearchResultsWidget.php:96
@@ -665,14 +665,14 @@ msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:480
 #: src/Admin/Addons/AddonManager.php:631
-#: src/Admin/Addons/AddonScreen.php:145
-#: src/Admin/Addons/AddonScreen.php:177
-#: src/Admin/Addons/AddonScreen.php:221
-#: src/Admin/Addons/AddonScreen.php:258
-#: src/Admin/Addons/AddonScreen.php:318
-#: src/Admin/Addons/AddonScreen.php:358
-#: src/Admin/Addons/AddonScreen.php:453
-#: src/Admin/Addons/AddonScreen.php:491
+#: src/Admin/Addons/AddonScreen.php:149
+#: src/Admin/Addons/AddonScreen.php:181
+#: src/Admin/Addons/AddonScreen.php:225
+#: src/Admin/Addons/AddonScreen.php:262
+#: src/Admin/Addons/AddonScreen.php:322
+#: src/Admin/Addons/AddonScreen.php:362
+#: src/Admin/Addons/AddonScreen.php:457
+#: src/Admin/Addons/AddonScreen.php:495
 #: src/Admin/Booking/Actions/BookingActionGuard.php:45
 #: src/Admin/Booking/Meta/BookingMeta.php:681
 #: src/Admin/Booking/Meta/BookingMeta.php:950
@@ -705,10 +705,10 @@ msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:486
 #: src/Admin/Addons/AddonManager.php:637
-#: src/Admin/Addons/AddonScreen.php:181
-#: src/Admin/Addons/AddonScreen.php:262
-#: src/Admin/Addons/AddonScreen.php:362
-#: src/Admin/Addons/AddonScreen.php:495
+#: src/Admin/Addons/AddonScreen.php:185
+#: src/Admin/Addons/AddonScreen.php:266
+#: src/Admin/Addons/AddonScreen.php:366
+#: src/Admin/Addons/AddonScreen.php:499
 #: src/Admin/Booking/Actions/BookingActionGuard.php:62
 #: src/Admin/Booking/Actions/BookingApproveAjax.php:61
 #: src/Admin/Booking/Actions/DepositManagementAjax.php:61
@@ -717,7 +717,7 @@ msgid "You do not have permission for this action."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:493
-#: src/Admin/Booking/Addons/AddonBooking.php:157
+#: src/Admin/Booking/Addons/AddonBooking.php:159
 msgid "No additional services selected."
 msgstr ""
 
@@ -742,13 +742,13 @@ msgid "Invalid additional service ID."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:650
-#: src/Admin/Addons/AddonScreen.php:375
+#: src/Admin/Addons/AddonScreen.php:379
 msgid "Price cannot be negative."
 msgstr ""
 
 #: src/Admin/Addons/AddonManager.php:657
-#: src/Admin/Addons/AddonScreen.php:188
-#: src/Admin/Addons/AddonScreen.php:502
+#: src/Admin/Addons/AddonScreen.php:192
+#: src/Admin/Addons/AddonScreen.php:506
 msgid "Additional service not found."
 msgstr ""
 
@@ -762,9 +762,9 @@ msgstr ""
 
 #: src/Admin/Addons/AddonMenu.php:87
 #: src/Admin/Addons/AddonPostType.php:59
-#: src/Admin/Addons/AddonScreen.php:569
-#: src/Admin/Booking/Addons/AddonBooking.php:39
-#: src/Admin/Booking/Addons/AddonBooking.php:162
+#: src/Admin/Addons/AddonScreen.php:573
+#: src/Admin/Booking/Addons/AddonBooking.php:41
+#: src/Admin/Booking/Addons/AddonBooking.php:164
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:262
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:403
 #: src/Admin/Utilities/Menu/Menu.php:94
@@ -803,7 +803,7 @@ msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:115
 #: src/Admin/Addons/AddonScreen.php:106
-#: src/Admin/Addons/AddonScreen.php:852
+#: src/Admin/Addons/AddonScreen.php:959
 #: src/Admin/Booking/Meta/BookingPortalMetaBox.php:61
 #: src/Admin/Core/AssetManager.php:1011
 #: src/Admin/Customers/CustomersPage.php:253
@@ -826,7 +826,7 @@ msgid "Active"
 msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:116
-#: src/Admin/Addons/AddonScreen.php:672
+#: src/Admin/Addons/AddonScreen.php:680
 msgid "Enable this additional service"
 msgstr ""
 
@@ -847,7 +847,7 @@ msgid "Required"
 msgstr ""
 
 #: src/Admin/Addons/AddonMeta.php:122
-#: src/Admin/Addons/AddonScreen.php:677
+#: src/Admin/Addons/AddonScreen.php:685
 msgid "This additional service is required"
 msgstr ""
 
@@ -880,7 +880,7 @@ msgid "Per booking (fixed)"
 msgstr ""
 
 #: src/Admin/Addons/AddonScreen.php:107
-#: src/Admin/Addons/AddonScreen.php:852
+#: src/Admin/Addons/AddonScreen.php:959
 #: src/Admin/Vehicle/Helpers/VehicleDataHelper.php:236
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:695
 #: src/Admin/Vehicle/Helpers/VehicleFeatureHelper.php:697
@@ -893,7 +893,7 @@ msgid "Saving…"
 msgstr ""
 
 #: src/Admin/Addons/AddonScreen.php:109
-#: src/Admin/Addons/AddonScreen.php:369
+#: src/Admin/Addons/AddonScreen.php:373
 msgid "Please enter a service name."
 msgstr ""
 
@@ -903,104 +903,157 @@ msgstr ""
 msgid "Move “%s” to the trash?"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:192
+#. translators: %d: number of selected services.
+#: src/Admin/Addons/AddonScreen.php:114
+#, php-format
+msgid "%d selected"
+msgstr ""
+
+#. translators: %d: number of selected services.
+#: src/Admin/Addons/AddonScreen.php:116
+#, php-format
+msgid "Move %d selected services to the trash?"
+msgstr ""
+
+#: src/Admin/Addons/AddonScreen.php:196
 msgid "The additional service could not be deleted."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:200
+#: src/Admin/Addons/AddonScreen.php:204
 msgid "Additional service moved to the trash."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:268
+#: src/Admin/Addons/AddonScreen.php:272
 msgid "No order was supplied."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:279
+#: src/Admin/Addons/AddonScreen.php:283
 msgid "The order contains an item that is not an additional service."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:297
+#: src/Admin/Addons/AddonScreen.php:301
 msgid "Order saved."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:397
+#: src/Admin/Addons/AddonScreen.php:401
 msgid "The additional service could not be created."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:418
+#: src/Admin/Addons/AddonScreen.php:422
 msgid "Additional service created."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:519
+#: src/Admin/Addons/AddonScreen.php:523
 msgid "Service activated."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:520
+#: src/Admin/Addons/AddonScreen.php:524
 msgid "Service deactivated."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:557
+#: src/Admin/Addons/AddonScreen.php:561
 msgid "You do not have permission to view this page."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:580
+#: src/Admin/Addons/AddonScreen.php:584
 msgid "Defined services"
 msgstr ""
 
 #. translators: 1: number of active services, 2: total number of services.
-#: src/Admin/Addons/AddonScreen.php:586
+#: src/Admin/Addons/AddonScreen.php:590
 #, php-format
 msgid "%1$d active · %2$d total"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:595
+#: src/Admin/Addons/AddonScreen.php:599
 msgid "No additional services yet."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:626
+#: src/Admin/Addons/AddonScreen.php:634
 msgid "New Additional Service"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:627
+#: src/Admin/Addons/AddonScreen.php:635
 msgid "Add a service the customer can choose during booking."
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:632
+#: src/Admin/Addons/AddonScreen.php:640
 msgid "Service name"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:633
+#: src/Admin/Addons/AddonScreen.php:641
 msgid "e.g. Roadside Assistance"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:639
+#: src/Admin/Addons/AddonScreen.php:647
 msgid "Description"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:640
+#: src/Admin/Addons/AddonScreen.php:648
 msgid "Short description"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:651
+#: src/Admin/Addons/AddonScreen.php:659
 msgid "Type"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:682
+#: src/Admin/Addons/AddonScreen.php:690
 msgid "Add Service"
 msgstr ""
 
+#: src/Admin/Addons/AddonScreen.php:713
+msgid "Select all"
+msgstr ""
+
+#: src/Admin/Addons/AddonScreen.php:720
+msgid "Activate"
+msgstr ""
+
+#: src/Admin/Addons/AddonScreen.php:725
+msgid "Deactivate"
+msgstr ""
+
+#. translators: %d = number of customers
+#: src/Admin/Addons/AddonScreen.php:730
+#: src/Admin/Addons/AddonScreen.php:978
+#: src/Admin/Core/AssetManager.php:694
+#: src/Admin/Core/AssetManager.php:852
+#: src/Admin/Core/AssetManager.php:1164
+#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:113
+#: templates/shortcodes/vehicle-rating-form.php:298
+#: src-react/admin/customers/CustomersPage.jsx:79
+msgid "Delete"
+msgstr ""
+
 #. translators: %s: share of services that are active, as a percentage.
-#: src/Admin/Addons/AddonScreen.php:718
+#: src/Admin/Addons/AddonScreen.php:767
 #, php-format
 msgid "%s%% active"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:825
+#: src/Admin/Addons/AddonScreen.php:909
 #: src/Admin/Core/AssetManager.php:1059
 msgid "Drag to reorder"
 msgstr ""
 
-#: src/Admin/Addons/AddonScreen.php:861
+#. translators: %s: name of the additional service.
+#: src/Admin/Addons/AddonScreen.php:916
+#, php-format
+msgid "Select %s"
+msgstr ""
+
+#: src/Admin/Addons/AddonScreen.php:941
+msgid "Click to edit the price"
+msgstr ""
+
+#. translators: label under the number of bookings an add-on appears on.
+#: src/Admin/Addons/AddonScreen.php:951
+msgid "booking"
+msgid_plural "bookings"
+msgstr[0] ""
+msgstr[1] ""
+
+#: src/Admin/Addons/AddonScreen.php:968
 #: src/Admin/Core/AssetManager.php:1165
 #: src/Admin/Customers/CustomersPage.php:374
 #: src/Admin/Setup/SetupWizard.php:225
@@ -1011,20 +1064,9 @@ msgid "Edit"
 msgstr ""
 
 #. translators: %s: name of the additional service.
-#: src/Admin/Addons/AddonScreen.php:870
+#: src/Admin/Addons/AddonScreen.php:977
 #, php-format
 msgid "Delete %s"
-msgstr ""
-
-#. translators: %d = number of customers
-#: src/Admin/Addons/AddonScreen.php:871
-#: src/Admin/Core/AssetManager.php:694
-#: src/Admin/Core/AssetManager.php:852
-#: src/Admin/Core/AssetManager.php:1164
-#: src/Admin/Frontend/Shortcodes/VehicleRatingForm.php:113
-#: templates/shortcodes/vehicle-rating-form.php:298
-#: src-react/admin/customers/CustomersPage.jsx:79
-msgid "Delete"
 msgstr ""
 
 #: src/Admin/Booking/Actions/BookingActionGuard.php:51
@@ -1099,59 +1141,59 @@ msgstr ""
 msgid "Refund not processed due to cancellation policy."
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:40
+#: src/Admin/Booking/Addons/AddonBooking.php:42
 msgid "Select the additional services you need."
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:71
-#: src/Admin/Booking/Addons/AddonBooking.php:143
+#: src/Admin/Booking/Addons/AddonBooking.php:73
+#: src/Admin/Booking/Addons/AddonBooking.php:145
 #: src/Admin/Booking/Meta/BookingEditMetaBox.php:320
 #: src/Admin/Booking/Meta/ManualBookingMetaBox.php:427
 msgid "Additional Services Total:"
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:93
+#: src/Admin/Booking/Addons/AddonBooking.php:95
 msgid "Invalid additional service selection."
 msgstr ""
 
 #. translators: %s: additional service title
-#: src/Admin/Booking/Addons/AddonBooking.php:102
+#: src/Admin/Booking/Addons/AddonBooking.php:104
 #, php-format
 msgid "\"%s\" additional service is required."
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:126
+#: src/Admin/Booking/Addons/AddonBooking.php:128
 msgid "Selected Additional Services"
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:175
-#: src/Admin/Booking/Addons/AddonBooking.php:195
+#: src/Admin/Booking/Addons/AddonBooking.php:177
+#: src/Admin/Booking/Addons/AddonBooking.php:197
 #: src/Admin/Booking/Meta/BookingMeta.php:463
 msgid "Total:"
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:264
+#: src/Admin/Booking/Addons/AddonBooking.php:266
 msgid "Total Add-ons"
 msgstr ""
 
-#: src/Admin/Booking/Addons/AddonBooking.php:265
+#: src/Admin/Booking/Addons/AddonBooking.php:267
 msgid "No add-ons selected"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Addons/AddonBooking.php:352
+#: src/Admin/Booking/Addons/AddonBooking.php:372
 #, php-format
 msgid "+ %s / day"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Addons/AddonBooking.php:355
+#: src/Admin/Booking/Addons/AddonBooking.php:375
 #, php-format
 msgid "+ %s / passenger"
 msgstr ""
 
 #. translators: %s: formatted price
-#: src/Admin/Booking/Addons/AddonBooking.php:359
+#: src/Admin/Booking/Addons/AddonBooking.php:379
 #, php-format
 msgid "+ %s"
 msgstr ""

@@ -194,6 +194,169 @@
 		} );
 	}
 
+	/* ----------------------------------------------------------- inline price */
+
+	root.addEventListener( 'click', function ( event ) {
+		var trigger = event.target.closest( '.rv-addon-price-value' );
+		if ( ! trigger || trigger.dataset.editing === '1' ) {
+			return;
+		}
+
+		var row = trigger.closest( '.rv-addon-row' );
+		var original = trigger.textContent;
+		var input = document.createElement( 'input' );
+
+		input.type = 'number';
+		input.step = '0.01';
+		input.min = '0';
+		// The raw number, not the rendered string: that one carries a currency
+		// symbol and locale separators and would parse back as NaN.
+		input.value = trigger.dataset.price;
+		input.className = 'rv-addon-price-input';
+
+		trigger.dataset.editing = '1';
+		trigger.replaceWith( input );
+		input.focus();
+		input.select();
+
+		var settled = false;
+
+		function finish( save ) {
+			if ( settled ) {
+				return;
+			}
+			settled = true;
+
+			if ( ! save || input.value === trigger.dataset.price || input.value === '' ) {
+				input.replaceWith( trigger );
+				trigger.dataset.editing = '0';
+				return;
+			}
+
+			var next = input.value;
+			input.disabled = true;
+
+			post( 'mhmrentiva_update_addon_price', {
+				addon_id: row.dataset.addonId,
+				price: next
+			} ).then( function ( result ) {
+				if ( result && result.success && result.data && result.data.formatted_price ) {
+					trigger.textContent = result.data.formatted_price;
+					trigger.dataset.price = next;
+				} else {
+					report( ( result && result.data && result.data.message ) || cfg.i18n.genericError );
+				}
+				input.replaceWith( trigger );
+				trigger.dataset.editing = '0';
+			} ).catch( function () {
+				report( cfg.i18n.genericError );
+				input.replaceWith( trigger );
+				trigger.dataset.editing = '0';
+			} );
+		}
+
+		input.addEventListener( 'blur', function () {
+			finish( true );
+		} );
+
+		input.addEventListener( 'keydown', function ( keyEvent ) {
+			if ( keyEvent.key === 'Enter' ) {
+				keyEvent.preventDefault();
+				finish( true );
+			}
+			if ( keyEvent.key === 'Escape' ) {
+				keyEvent.preventDefault();
+				finish( false );
+			}
+		} );
+	} );
+
+	/* ------------------------------------------------------------------ bulk */
+
+	var bulkBar = root.querySelector( '.rv-addon-bulk' );
+
+	if ( bulkBar ) {
+		root.addEventListener( 'change', function ( event ) {
+			if ( event.target.matches( '.rv-addon-select-all' ) ) {
+				root.querySelectorAll( '.rv-addon-select' ).forEach( function ( box ) {
+					box.checked = event.target.checked;
+				} );
+			}
+
+			if ( event.target.matches( '.rv-addon-select, .rv-addon-select-all' ) ) {
+				refreshBulkState();
+			}
+		} );
+
+		bulkBar.addEventListener( 'click', function ( event ) {
+			var button = event.target.closest( '.rv-addon-bulk-action' );
+			if ( ! button || button.disabled ) {
+				return;
+			}
+			runBulk( button.dataset.bulk );
+		} );
+	}
+
+	function selectedIds() {
+		return Array.prototype.filter.call(
+			root.querySelectorAll( '.rv-addon-select' ),
+			function ( box ) {
+				return box.checked;
+			}
+		).map( function ( box ) {
+			return box.closest( '.rv-addon-row' ).dataset.addonId;
+		} );
+	}
+
+	function refreshBulkState() {
+		var count = selectedIds().length;
+
+		root.querySelectorAll( '.rv-addon-bulk-action' ).forEach( function ( button ) {
+			button.disabled = count === 0;
+		} );
+
+		var label = root.querySelector( '.rv-addon-bulk-count' );
+		if ( label ) {
+			label.textContent = count ? cfg.i18n.selectedCount.replace( '%d', count ) : '';
+		}
+	}
+
+	function runBulk( action ) {
+		var ids = selectedIds();
+		if ( ! ids.length ) {
+			return;
+		}
+
+		if ( action === 'delete' && ! window.confirm( cfg.i18n.confirmBulkDelete.replace( '%d', ids.length ) ) ) {
+			return;
+		}
+
+		root.querySelectorAll( '.rv-addon-bulk-action' ).forEach( function ( button ) {
+			button.disabled = true;
+		} );
+
+		// One request per row rather than a new batch endpoint. Each reuses an
+		// endpoint that is already guarded and already tested, and a partial
+		// failure leaves the rows it did reach correctly changed instead of
+		// rolling back work the operator asked for. The reload afterwards is
+		// what puts the screen back in step either way.
+		var work = ids.map( function ( id ) {
+			if ( action === 'delete' ) {
+				return post( 'mhmrentiva_addon_delete', { addon_id: id } );
+			}
+			return post( 'mhmrentiva_addon_toggle_enabled', {
+				addon_id: id,
+				enabled: action === 'enable' ? '1' : '0'
+			} );
+		} );
+
+		Promise.all( work ).then( function () {
+			window.location.reload();
+		} ).catch( function () {
+			window.location.reload();
+		} );
+	}
+
 	/* --------------------------------------------------------------- reorder */
 
 	var listCard = root.querySelector( '.rv-addon-list-card' );

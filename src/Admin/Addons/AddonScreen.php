@@ -103,13 +103,17 @@ final class AddonScreen {
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( self::NONCE_ACTION ),
 				'i18n'    => array(
-					'active'        => __( 'Active', 'mhm-rentiva' ),
-					'inactive'      => __( 'Inactive', 'mhm-rentiva' ),
-					'saving'        => __( 'Saving…', 'mhm-rentiva' ),
-					'nameRequired'  => __( 'Please enter a service name.', 'mhm-rentiva' ),
-					'genericError'  => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+					'active'            => __( 'Active', 'mhm-rentiva' ),
+					'inactive'          => __( 'Inactive', 'mhm-rentiva' ),
+					'saving'            => __( 'Saving…', 'mhm-rentiva' ),
+					'nameRequired'      => __( 'Please enter a service name.', 'mhm-rentiva' ),
+					'genericError'      => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
 					/* translators: %s: name of the additional service. */
-					'confirmDelete' => __( 'Move “%s” to the trash?', 'mhm-rentiva' ),
+					'confirmDelete'     => __( 'Move “%s” to the trash?', 'mhm-rentiva' ),
+					/* translators: %d: number of selected services. */
+					'selectedCount'     => __( '%d selected', 'mhm-rentiva' ),
+					/* translators: %d: number of selected services. */
+					'confirmBulkDelete' => __( 'Move %d selected services to the trash?', 'mhm-rentiva' ),
 				),
 			)
 		);
@@ -593,10 +597,14 @@ final class AddonScreen {
 
 		if ( array() === $addons ) {
 			echo '<p class="rv-addon-empty">' . esc_html__( 'No additional services yet.', 'mhm-rentiva' ) . '</p>';
+		} else {
+			self::render_bulk_bar();
 		}
 
+		$usage = self::get_usage_counts();
+
 		foreach ( $addons as $index => $addon ) {
-			self::render_row( $addon, $index );
+			self::render_row( $addon, $index, (int) ( $usage[ $addon->ID ] ?? 0 ) );
 		}
 
 		echo '</div>';
@@ -683,6 +691,47 @@ final class AddonScreen {
 		);
 
 		echo '<p class="rv-addon-create-feedback" role="status" aria-live="polite"></p>';
+		echo '</div>';
+	}
+
+	/**
+	 * Bulk actions.
+	 *
+	 * The native screen offered enable, disable and delete across a selection,
+	 * and a replacement without them takes that away for anyone maintaining a
+	 * longer list -- switching a season's worth of services off one row at a
+	 * time is the case this exists for.
+	 *
+	 * The bar is inert until something is selected, so it never invites a click
+	 * that would do nothing.
+	 */
+	private static function render_bulk_bar(): void {
+		echo '<div class="rv-addon-bulk">';
+
+		printf(
+			'<label class="rv-addon-bulk-all"><input type="checkbox" class="rv-addon-select-all"> %s</label>',
+			esc_html__( 'Select all', 'mhm-rentiva' )
+		);
+
+		echo '<span class="rv-addon-bulk-actions">';
+
+		printf(
+			'<button type="button" class="button rv-addon-bulk-action" data-bulk="enable" disabled>%s</button>',
+			esc_html__( 'Activate', 'mhm-rentiva' )
+		);
+
+		printf(
+			'<button type="button" class="button rv-addon-bulk-action" data-bulk="disable" disabled>%s</button>',
+			esc_html__( 'Deactivate', 'mhm-rentiva' )
+		);
+
+		printf(
+			'<button type="button" class="button rv-addon-bulk-action rv-addon-bulk-delete" data-bulk="delete" disabled>%s</button>',
+			esc_html__( 'Delete', 'mhm-rentiva' )
+		);
+
+		echo '</span>';
+		echo '<span class="rv-addon-bulk-count" role="status" aria-live="polite"></span>';
 		echo '</div>';
 	}
 
@@ -804,7 +853,42 @@ final class AddonScreen {
 	/**
 	 * One row.
 	 */
-	private static function render_row( \WP_Post $addon, int $index ): void {
+	/**
+	 * How many countable bookings each add-on appears on.
+	 *
+	 * One query for the whole screen, not one per row -- the report returns the
+	 * full breakdown keyed by add-on id, so a per-row call would be the same
+	 * work repeated once per service.
+	 *
+	 * Cached alongside the KPI figures and invalidated with them. The window is
+	 * deliberately wide rather than "this month": the number answers "is this
+	 * service worth keeping", which is a question about its whole life.
+	 *
+	 * @return array<int,int> Addon ID => booking count.
+	 */
+	private static function get_usage_counts(): array {
+		$cached = wp_cache_get( 'mhmrentiva_addon_usage', 'mhmrentiva' );
+		if ( is_array( $cached ) ) {
+			/** @var array<int,int> $cached */
+			return $cached;
+		}
+
+		$report = \MHMRentiva\Admin\Booking\Addons\AddonBooking::get_addon_revenue_report(
+			new \DateTime( '@0' ),
+			new \DateTime( '+1 day' )
+		);
+
+		$counts = array();
+		foreach ( (array) ( $report['addon_stats'] ?? array() ) as $addon_id => $stats ) {
+			$counts[ (int) $addon_id ] = (int) ( $stats['count'] ?? 0 );
+		}
+
+		wp_cache_set( 'mhmrentiva_addon_usage', $counts, 'mhmrentiva' );
+
+		return $counts;
+	}
+
+	private static function render_row( \WP_Post $addon, int $index, int $usage = 0 ): void {
 		$enabled  = '1' === (string) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true );
 		$price    = (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true );
 		$type     = AddonPricingType::sanitize( get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true ) );
@@ -827,6 +911,12 @@ final class AddonScreen {
 		}
 
 		printf(
+			'<input type="checkbox" class="rv-addon-select" aria-label="%s">',
+			/* translators: %s: name of the additional service. */
+			esc_attr( sprintf( __( 'Select %s', 'mhm-rentiva' ), $addon->post_title ) )
+		);
+
+		printf(
 			'<span class="rv-addon-avatar" style="background:%1$s;color:%2$s" aria-hidden="true">%3$s</span>',
 			esc_attr( $palette[0] ),
 			esc_attr( $palette[1] ),
@@ -841,8 +931,25 @@ final class AddonScreen {
 		echo '</span>';
 
 		echo '<span class="rv-addon-price">';
-		echo '<span class="rv-addon-amount">' . esc_html( CurrencyHelper::format_price( $price, 2 ) ) . '</span>';
+		// Editable in place, the way the native screen's price column was. The
+		// raw value rides in a data attribute so the editor reads the number
+		// rather than scraping the formatted string, which carries a currency
+		// symbol and locale separators.
+		printf(
+			'<button type="button" class="rv-addon-amount rv-addon-price-value" data-price="%1$s" title="%2$s">%3$s</button>',
+			esc_attr( (string) $price ),
+			esc_attr__( 'Click to edit the price', 'mhm-rentiva' ),
+			esc_html( CurrencyHelper::format_price( $price, 2 ) )
+		);
 		echo '<span class="rv-addon-type">' . esc_html( AddonPricingType::label( $type ) ) . '</span>';
+		echo '</span>';
+
+		echo '<span class="rv-addon-usage">';
+		echo '<span class="rv-addon-usage-count">' . esc_html( number_format_i18n( $usage ) ) . '</span>';
+		echo '<span class="rv-addon-usage-label">' . esc_html(
+			/* translators: label under the number of bookings an add-on appears on. */
+			_n( 'booking', 'bookings', $usage, 'mhm-rentiva' )
+		) . '</span>';
 		echo '</span>';
 
 		printf(

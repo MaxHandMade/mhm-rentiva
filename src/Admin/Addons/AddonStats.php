@@ -41,6 +41,10 @@ final class AddonStats {
 	 */
 	public static function flush(): void {
 		wp_cache_delete( self::CACHE_KEY, self::CACHE_GROUP );
+		// The usage counts hang off the same screen and go stale on the same
+		// events, so they are dropped together rather than given a second set
+		// of hooks that could drift out of step with these.
+		wp_cache_delete( 'mhmrentiva_addon_usage', self::CACHE_GROUP );
 	}
 
 	/**
