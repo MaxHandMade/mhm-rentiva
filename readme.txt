@@ -5,7 +5,7 @@ Requires at least: 6.7
 Tested up to:      7.0
 Requires PHP:      8.1
 Requires Plugins:  woocommerce
-Stable tag:        6.0.1
+Stable tag:        6.0.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 Plugin URI:        https://wpalemi.com/rentiva/
@@ -155,6 +155,12 @@ priority 2, so add it somewhere that runs before then — a theme's functions.ph
 file is early enough.
 
 == Changelog ==
+
+= 6.0.2 =
+* Fixed: the customer screens and the endpoints behind them acted on whichever account they were given, checking only that you were allowed to manage users in general — never that the particular account was one of your customers. In practice that meant the "delete selected" action on the Customers screen would delete any account on the site handed to it, including another administrator's, and the customer detail view would open any account's profile, spend history and contact details by address alone. Both now check two separate things before acting: that WordPress permits you to act on that specific account, and that the account is actually a customer of this plugin — one the site has a booking for, one this plugin created, or one carrying the customer role. Accounts that are none of those are left alone. Note that the Customers list itself still shows every account on the site; narrowing it is a separate change and is not in this release, so a listed account that is not a customer will now decline to open.
+* Fixed: the bulk actions on the Additional Services screen ran on any post ID they were sent, without checking it was an additional service. The delete action there is a permanent delete, so a request naming a page, a vehicle or another plugin's content would have destroyed it, and the enable/disable actions would have written this plugin's settings onto it. Every target is now verified before anything touches it.
+* Changed: the default footer of the e-mails this plugin sends to your customers no longer reads "Powered by MHM Rentiva". It is now just your site's name. The field is still yours to edit on Settings → E-mail, so if you want the credit you can type it; the plugin no longer adds it on your behalf. Sites that already saved a footer keep whatever they saved.
+* Internal: the booking list's Title column escapes its output at the point it hands the value back to WordPress rather than inside the helper that builds it. The escaping was already correct and the rendered output is byte-for-byte unchanged; the rewrite makes it verifiable where an automated review reads it.
 
 = 6.0.1 =
 * Removed: this plugin used to create named indexes of its own on WordPress's own core tables -- 20 under the current naming, and 35 counting the pre-6.0.0 spellings the cleanup also drops (wp_posts, wp_postmeta, wp_usermeta) to speed up its own queries. Those tables are shared with every other plugin and theme, and there was no reliable way to know it stayed safe to keep adding to them, so that subsystem has been removed. A one-time cleanup migration drops the old indexes automatically the first time you open the admin after updating; the plugin's own tables are unaffected and no data changes. If your database user is not permitted to drop indexes, the cleanup now stops after three attempts and records which ones it could not remove, instead of retrying on every admin request indefinitely.
