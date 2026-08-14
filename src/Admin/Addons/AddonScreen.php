@@ -46,6 +46,120 @@ final class AddonScreen {
 	 */
 	public static function register(): void {
 		add_action( 'wp_ajax_mhmrentiva_addon_toggle_enabled', array( self::class, 'ajax_toggle_enabled' ) );
+		add_action( 'wp_ajax_mhmrentiva_addon_quick_create', array( self::class, 'ajax_quick_create' ) );
+	}
+
+	/**
+	 * AJAX boundary for the quick-create form. See ajax_toggle_enabled() for
+	 * why the nonce is checked here as well as inside the pure method.
+	 */
+	public static function ajax_quick_create(): void {
+		if ( ! check_ajax_referer( self::NONCE_ACTION, 'nonce', false ) ) {
+			wp_send_json_error( self::create_failure( __( 'Security check failed.', 'mhm-rentiva' ) ) );
+		}
+
+		$result = self::quick_create( wp_unslash( $_POST ) );
+
+		if ( $result['success'] ) {
+			wp_send_json_success( $result );
+		}
+
+		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Create an add-on from the four fields the sidebar form collects.
+	 *
+	 * WHY `enabled` IS WRITTEN AND NOT LEFT TO DEFAULTS
+	 * -------------------------------------------------
+	 * Readers resolve the flag with `(bool) get_post_meta(...)`
+	 * (AddonManager.php:356, AddonMeta.php:181), so an absent row reads as
+	 * false. A service created here would be born switched off, and the screen
+	 * would give the operator no hint why — it would simply show a service they
+	 * had just created, inactive. The dev database already contains one add-on
+	 * in that state, with no enabled meta at all.
+	 *
+	 * `required` is written for the opposite reason: false is the right default
+	 * there, and writing it says so explicitly instead of relying on an absence
+	 * that means the same thing today and might not tomorrow.
+	 *
+	 * The remaining fields — tax rate, tax inclusivity, confirmation
+	 * requirement, calendar price display, category, context — stay with the
+	 * full editor, which this screen links to per row. Two of those are not
+	 * post meta at all but site-wide settings (AddonSettings), and writing them
+	 * per post would silently override the operator's global choice.
+	 *
+	 * @param array<string,mixed> $request Unslashed request data.
+	 * @return array{success:bool,addon_id:int,message:string}
+	 */
+	public static function quick_create( array $request ): array {
+		$nonce = isset( $request['nonce'] ) ? sanitize_text_field( (string) $request['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+			return self::create_failure( __( 'Security check failed.', 'mhm-rentiva' ) );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return self::create_failure( __( 'You do not have permission for this action.', 'mhm-rentiva' ) );
+		}
+
+		$title = isset( $request['title'] ) ? sanitize_text_field( (string) $request['title'] ) : '';
+		$title = trim( $title );
+
+		if ( '' === $title ) {
+			return self::create_failure( __( 'Please enter a service name.', 'mhm-rentiva' ) );
+		}
+
+		$price = isset( $request['price'] ) ? (float) $request['price'] : 0.0;
+
+		if ( $price < 0 ) {
+			return self::create_failure( __( 'Price cannot be negative.', 'mhm-rentiva' ) );
+		}
+
+		$description = isset( $request['description'] )
+			? sanitize_textarea_field( (string) $request['description'] )
+			: '';
+
+		$pricing_type = AddonPricingType::sanitize(
+			isset( $request['pricing_type'] ) ? (string) $request['pricing_type'] : ''
+		);
+
+		$addon_id = wp_insert_post(
+			array(
+				'post_type'    => AddonPostType::POST_TYPE,
+				'post_status'  => 'publish',
+				'post_title'   => $title,
+				'post_excerpt' => $description,
+			),
+			true
+		);
+
+		if ( is_wp_error( $addon_id ) || 0 === $addon_id ) {
+			return self::create_failure( __( 'The additional service could not be created.', 'mhm-rentiva' ) );
+		}
+
+		$addon_id = (int) $addon_id;
+
+		update_post_meta( $addon_id, 'mhmrentiva_addon_price', (string) $price );
+		update_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', $pricing_type );
+		update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '1' );
+		update_post_meta( $addon_id, 'mhmrentiva_addon_required', '0' );
+
+		return array(
+			'success'  => true,
+			'addon_id' => $addon_id,
+			'message'  => __( 'Additional service created.', 'mhm-rentiva' ),
+		);
+	}
+
+	/**
+	 * @return array{success:bool,addon_id:int,message:string}
+	 */
+	private static function create_failure( string $message ): array {
+		return array(
+			'success'  => false,
+			'addon_id' => 0,
+			'message'  => $message,
+		);
 	}
 
 	/**
