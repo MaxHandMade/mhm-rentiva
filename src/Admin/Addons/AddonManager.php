@@ -96,9 +96,14 @@ final class AddonManager {
 		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_addon_scripts' ) );
 
 		// Register the live enhancements for WordPress's native CPT list table.
+		// That screen is no longer in the menu, but it stays reachable by URL
+		// as the way back, so its enhancements stay registered too.
 		if ( class_exists( AddonListTable::class ) ) {
 			AddonListTable::register();
 		}
+
+		// The screen the menu now opens, and its endpoints.
+		AddonScreen::register();
 	}
 
 	/**
