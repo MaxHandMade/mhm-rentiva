@@ -47,6 +47,104 @@ final class AddonScreen {
 	public static function register(): void {
 		add_action( 'wp_ajax_mhmrentiva_addon_toggle_enabled', array( self::class, 'ajax_toggle_enabled' ) );
 		add_action( 'wp_ajax_mhmrentiva_addon_quick_create', array( self::class, 'ajax_quick_create' ) );
+		add_action( 'wp_ajax_mhmrentiva_addon_reorder', array( self::class, 'ajax_reorder' ) );
+	}
+
+	/**
+	 * AJAX boundary for drag-to-reorder. See ajax_toggle_enabled() for why the
+	 * nonce is checked here as well as inside the pure method.
+	 */
+	public static function ajax_reorder(): void {
+		if ( ! check_ajax_referer( self::NONCE_ACTION, 'nonce', false ) ) {
+			wp_send_json_error( self::reorder_failure( __( 'Security check failed.', 'mhm-rentiva' ) ) );
+		}
+
+		$result = self::reorder( wp_unslash( $_POST ) );
+
+		if ( $result['success'] ) {
+			wp_send_json_success( $result );
+		}
+
+		wp_send_json_error( $result );
+	}
+
+	/**
+	 * Persist a new display order.
+	 *
+	 * ALL OR NOTHING, AND WHY
+	 * -----------------------
+	 * Every ID is validated before anything is written. One that is missing or
+	 * is not an add-on refuses the whole batch rather than being skipped.
+	 *
+	 * Skipping would leave the order half-applied against a list the operator
+	 * is looking at, so the screen and the database would disagree and the only
+	 * repair would be to drag everything again. It is also the shape that hides
+	 * a foreign write: one stray ID inside an otherwise valid batch would be
+	 * written to while the response still read as success. Refusing is loud and
+	 * leaves the previous order intact.
+	 *
+	 * Position is WordPress's own `menu_order` — supported by this post type
+	 * through `page-attributes`. It is NOT `mhmrentiva_addon_display_order`,
+	 * which despite the name is a site-wide setting naming the sort criterion.
+	 *
+	 * @param array<string,mixed> $request Unslashed request data.
+	 * @return array{success:bool,ordered:int,message:string}
+	 */
+	public static function reorder( array $request ): array {
+		$nonce = isset( $request['nonce'] ) ? sanitize_text_field( (string) $request['nonce'] ) : '';
+		if ( ! wp_verify_nonce( $nonce, self::NONCE_ACTION ) ) {
+			return self::reorder_failure( __( 'Security check failed.', 'mhm-rentiva' ) );
+		}
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return self::reorder_failure( __( 'You do not have permission for this action.', 'mhm-rentiva' ) );
+		}
+
+		$raw_order = isset( $request['order'] ) && is_array( $request['order'] ) ? $request['order'] : array();
+
+		if ( array() === $raw_order ) {
+			return self::reorder_failure( __( 'No order was supplied.', 'mhm-rentiva' ) );
+		}
+
+		// Validate the whole list first. Nothing is written until every ID has
+		// been proven to be an add-on that exists.
+		$ids = array();
+		foreach ( $raw_order as $raw_id ) {
+			$addon_id = absint( $raw_id );
+			$addon    = $addon_id > 0 ? get_post( $addon_id ) : null;
+
+			if ( ! $addon || AddonPostType::POST_TYPE !== $addon->post_type ) {
+				return self::reorder_failure( __( 'The order contains an item that is not an additional service.', 'mhm-rentiva' ) );
+			}
+
+			$ids[] = $addon_id;
+		}
+
+		foreach ( $ids as $position => $addon_id ) {
+			wp_update_post(
+				array(
+					'ID'         => $addon_id,
+					'menu_order' => $position,
+				)
+			);
+		}
+
+		return array(
+			'success' => true,
+			'ordered' => count( $ids ),
+			'message' => __( 'Order saved.', 'mhm-rentiva' ),
+		);
+	}
+
+	/**
+	 * @return array{success:bool,ordered:int,message:string}
+	 */
+	private static function reorder_failure( string $message ): array {
+		return array(
+			'success' => false,
+			'ordered' => 0,
+			'message' => $message,
+		);
 	}
 
 	/**
