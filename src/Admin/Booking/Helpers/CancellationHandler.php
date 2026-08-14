@@ -86,9 +86,15 @@ final class CancellationHandler {
 			}
 		}
 
-		// Check user permission (user can only cancel their own bookings)
+		// Check user permission (user can only cancel their own bookings).
+		//
+		// The key is `_mhmrentiva_customer_user_id`. It used to read
+		// `_mhmrentiva_customer_id`, which no code in either repo has ever
+		// written -- so this resolved to 0, every comparison against a real user
+		// ID failed, and only the manage_options branch below could ever pass.
+		// Customer self-cancellation had never run in any version.
 		if ( $user_id > 0 ) {
-			$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+			$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 			if ( $user_id !== $booking_customer_id && ! current_user_can( 'manage_options' ) ) {
 				return new \WP_Error(
 					'permission_denied',
@@ -445,8 +451,9 @@ final class CancellationHandler {
 			return true;
 		}
 
-		// Check if user owns the booking
-		$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_id', true );
+		// Check if user owns the booking. Same key, and the same history, as the
+		// check in cancel_booking() -- see the note there.
+		$booking_customer_id = (int) get_post_meta( $booking_id, '_mhmrentiva_customer_user_id', true );
 		if ( $booking_customer_id !== $user_id ) {
 			return false;
 		}
