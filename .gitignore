@@ -175,17 +175,25 @@ flush_rules.php
 shortcode_analiz.php
 
 # AI Utility & Cleanup Scripts
-fix_*.php
-scan_*.php
-update_*.php
-check_*.php
-list_*.php
-*fixer*.php
-*mute*.php
-*parse*.php
-*reorder*.php
-*rescue*.php
-*analiz*.php
+#
+# Anchored to the repository root with a leading slash. Unanchored, these match
+# at every depth: `*reorder*.php` swallowed
+# tests/Admin/Addons/AddonReorderEndpointTest.php, and would have swallowed a
+# src/ class named for the same verb just as quietly -- an ignored test does not
+# fail, it simply never runs. Measured before narrowing: across the whole tree
+# these eleven patterns were hiding no real file except that test, so the rules
+# had outlived the throwaway scripts they were written for.
+/fix_*.php
+/scan_*.php
+/update_*.php
+/check_*.php
+/list_*.php
+/*fixer*.php
+/*mute*.php
+/*parse*.php
+/*reorder*.php
+/*rescue*.php
+/*analiz*.php
 *report*.txt
 *results*.txt
 *warnings*.txt
