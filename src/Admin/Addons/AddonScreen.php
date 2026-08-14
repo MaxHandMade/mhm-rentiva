@@ -80,6 +80,13 @@ final class AddonScreen {
 			return;
 		}
 
+		wp_enqueue_style(
+			'mhm-rentiva-addons-screen',
+			MHMRENTIVA_PLUGIN_URL . 'assets/css/admin/addons-screen.css',
+			array(),
+			AssetManager::get_file_version( 'assets/css/admin/addons-screen.css' )
+		);
+
 		wp_enqueue_script(
 			'mhm-rentiva-addons-screen',
 			MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addons-screen.js',
