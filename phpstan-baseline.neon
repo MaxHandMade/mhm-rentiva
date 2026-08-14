@@ -10,6 +10,12 @@ parameters:
 			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
 			identifier: constant.notFound
 			count: 1
+			path: src/Admin/Addons/AddonScreen.php
+
+		-
+			message: '#^Constant MHMRENTIVA_PLUGIN_URL not found\.$#'
+			identifier: constant.notFound
+			count: 1
 			path: src/Admin/About/REST/AboutController.php
 
 		-

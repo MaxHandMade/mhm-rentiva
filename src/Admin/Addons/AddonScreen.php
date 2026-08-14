@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Addons;
 
+use MHMRentiva\Admin\Core\AssetManager;
 use MHMRentiva\Admin\Core\CurrencyHelper;
 use MHMRentiva\Admin\Settings\Groups\AddonSettings;
 
@@ -61,6 +62,47 @@ final class AddonScreen {
 		add_action( 'deleted_post', array( AddonStats::class, 'flush' ) );
 		add_action( 'updated_post_meta', array( self::class, 'flush_stats_on_addon_meta' ), 10, 3 );
 		add_action( 'added_post_meta', array( self::class, 'flush_stats_on_addon_meta' ), 10, 3 );
+		add_action( 'admin_enqueue_scripts', array( self::class, 'enqueue_assets' ) );
+	}
+
+	/**
+	 * Load this screen's script, and only on this screen.
+	 *
+	 * Versioned with get_file_version() (filemtime) rather than the plugin
+	 * version: during development the plugin version does not move between
+	 * edits, so a browser holds the previous file and the change appears not to
+	 * have happened.
+	 *
+	 * @param string $hook Current admin page hook.
+	 */
+	public static function enqueue_assets( string $hook ): void {
+		if ( false === strpos( $hook, self::SLUG ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'mhm-rentiva-addons-screen',
+			MHMRENTIVA_PLUGIN_URL . 'assets/js/admin/addons-screen.js',
+			array(),
+			AssetManager::get_file_version( 'assets/js/admin/addons-screen.js' ),
+			true
+		);
+
+		wp_localize_script(
+			'mhm-rentiva-addons-screen',
+			'mhmRentivaAddonsScreen',
+			array(
+				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
+				'nonce'   => wp_create_nonce( self::NONCE_ACTION ),
+				'i18n'    => array(
+					'active'       => __( 'Active', 'mhm-rentiva' ),
+					'inactive'     => __( 'Inactive', 'mhm-rentiva' ),
+					'saving'       => __( 'Saving…', 'mhm-rentiva' ),
+					'nameRequired' => __( 'Please enter a service name.', 'mhm-rentiva' ),
+					'genericError' => __( 'An error occurred. Please try again.', 'mhm-rentiva' ),
+				),
+			)
+		);
 	}
 
 	/**
@@ -436,6 +478,9 @@ final class AddonScreen {
 		self::render_stats_band();
 
 		echo '<div class="rv-addon-layout">';
+
+		self::render_create_form();
+
 		echo '<div class="rv-addon-list-card">';
 
 		echo '<div class="rv-addon-list-head">';
@@ -463,6 +508,73 @@ final class AddonScreen {
 
 		echo '</div>';
 		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * The create form beside the list.
+	 *
+	 * Four fields, matching the design. The other seven an add-on carries stay
+	 * with the full editor each row links to — this is a quick-create, not a
+	 * second editor, and duplicating the editor here would give the same field
+	 * two homes free to disagree.
+	 *
+	 * The pricing select offers all three types the plugin actually supports.
+	 * The design draws two ("Günlük" and "Tek seferlik"); per-passenger exists
+	 * in AddonPricingType and is used by transfers, and leaving it out of the
+	 * form would make it uncreatable from the screen that replaced the list.
+	 *
+	 * Not a `<form>`: the submit is an ajax call, and a real form here would sit
+	 * inside no action and offer the browser a default submit that reloads the
+	 * page with nothing saved.
+	 */
+	private static function render_create_form(): void {
+		echo '<div class="rv-addon-create-card">';
+		echo '<h2 class="rv-addon-create-title">' . esc_html__( 'New Additional Service', 'mhm-rentiva' ) . '</h2>';
+		echo '<p class="rv-addon-create-intro">' . esc_html__( 'Add a service the customer can choose during booking.', 'mhm-rentiva' ) . '</p>';
+
+		printf(
+			'<p class="rv-addon-field"><label for="rv-addon-name">%1$s</label>' .
+			'<input type="text" id="rv-addon-name" class="rv-addon-input" placeholder="%2$s"></p>',
+			esc_html__( 'Service name', 'mhm-rentiva' ),
+			esc_attr__( 'e.g. Roadside Assistance', 'mhm-rentiva' )
+		);
+
+		printf(
+			'<p class="rv-addon-field"><label for="rv-addon-desc">%1$s</label>' .
+			'<textarea id="rv-addon-desc" class="rv-addon-input" rows="3" placeholder="%2$s"></textarea></p>',
+			esc_html__( 'Description', 'mhm-rentiva' ),
+			esc_attr__( 'Short description', 'mhm-rentiva' )
+		);
+
+		echo '<div class="rv-addon-field-row">';
+
+		printf(
+			'<p class="rv-addon-field"><label for="rv-addon-price">%1$s</label>' .
+			'<input type="number" id="rv-addon-price" class="rv-addon-input" min="0" step="0.01" inputmode="decimal"></p>',
+			esc_html__( 'Price', 'mhm-rentiva' )
+		);
+
+		echo '<p class="rv-addon-field"><label for="rv-addon-type">' . esc_html__( 'Type', 'mhm-rentiva' ) . '</label>';
+		echo '<select id="rv-addon-type" class="rv-addon-input">';
+		foreach ( AddonPricingType::all() as $type ) {
+			printf(
+				'<option value="%1$s"%2$s>%3$s</option>',
+				esc_attr( $type ),
+				selected( $type, AddonPricingType::PER_DAY, false ),
+				esc_html( AddonPricingType::label( $type ) )
+			);
+		}
+		echo '</select></p>';
+
+		echo '</div>';
+
+		printf(
+			'<button type="button" class="button button-primary rv-addon-create">%s</button>',
+			esc_html__( 'Add Service', 'mhm-rentiva' )
+		);
+
+		echo '<p class="rv-addon-create-feedback" role="status" aria-live="polite"></p>';
 		echo '</div>';
 	}
 
