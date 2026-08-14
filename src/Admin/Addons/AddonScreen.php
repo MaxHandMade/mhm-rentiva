@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace MHMRentiva\Admin\Addons;
 
+use MHMRentiva\Admin\Core\CurrencyHelper;
+use MHMRentiva\Admin\Settings\Groups\AddonSettings;
+
 if (! defined('ABSPATH')) {
 	exit;
 }
@@ -362,6 +365,23 @@ final class AddonScreen {
 	}
 
 	/**
+	 * The eight-colour row palette from the design. Indexed by position so a
+	 * given row keeps its colour across renders.
+	 *
+	 * @var array<int, array{0:string,1:string}>
+	 */
+	private const AVATAR_PALETTE = array(
+		array( '#e5f0fb', '#135e96' ),
+		array( '#e4f6e9', '#0a6b1e' ),
+		array( '#fdf0e4', '#a15b1e' ),
+		array( '#f0e9fb', '#5b3a9e' ),
+		array( '#fbe9f1', '#9e2b63' ),
+		array( '#e9f6f6', '#0f6b6b' ),
+		array( '#eef2f7', '#41505f' ),
+		array( '#fcf3d6', '#8a6d1b' ),
+	);
+
+	/**
 	 * Render the screen.
 	 */
 	public static function render_page(): void {
@@ -369,8 +389,160 @@ final class AddonScreen {
 			wp_die( esc_html__( 'You do not have permission to view this page.', 'mhm-rentiva' ) );
 		}
 
+		$addons = self::get_addons();
+		$active = 0;
+		foreach ( $addons as $addon ) {
+			if ( '1' === (string) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true ) ) {
+				++$active;
+			}
+		}
+
 		echo '<div class="wrap" id="mhm-addons-root">';
-		echo '<h1>' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</h1>';
+		echo '<h1 class="rv-addon-title">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</h1>';
+
+		echo '<div class="rv-addon-layout">';
+		echo '<div class="rv-addon-list-card">';
+
+		echo '<div class="rv-addon-list-head">';
+		echo '<span class="rv-addon-list-title">' . esc_html__( 'Defined services', 'mhm-rentiva' ) . '</span>';
+		printf(
+			'<span class="rv-addon-count">%s</span>',
+			esc_html(
+				sprintf(
+					/* translators: 1: number of active services, 2: total number of services. */
+					__( '%1$d active · %2$d total', 'mhm-rentiva' ),
+					$active,
+					count( $addons )
+				)
+			)
+		);
+		echo '</div>';
+
+		if ( array() === $addons ) {
+			echo '<p class="rv-addon-empty">' . esc_html__( 'No additional services yet.', 'mhm-rentiva' ) . '</p>';
+		}
+
+		foreach ( $addons as $index => $addon ) {
+			self::render_row( $addon, $index );
+		}
+
+		echo '</div>';
+		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * The add-ons, in the order the site is configured to show them.
+	 *
+	 * Safe to use WP_Query here, unlike in the ajax endpoints: the paid add-on
+	 * scopes add-on queries from `pre_get_posts` but returns early when
+	 * `is_admin() && ! wp_doing_ajax()`, which is exactly this request.
+	 *
+	 * @return \WP_Post[]
+	 */
+	private static function get_addons(): array {
+		$args = array(
+			'post_type'      => AddonPostType::POST_TYPE,
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'no_found_rows'  => true,
+		);
+
+		switch ( AddonSettings::get_display_order() ) {
+			case 'title':
+				$args['orderby'] = 'title';
+				$args['order']   = 'ASC';
+				break;
+			case 'price_asc':
+			case 'price_desc':
+				$args['meta_key'] = 'mhmrentiva_addon_price'; // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key -- ordering by the price the operator chose to sort on.
+				$args['orderby']  = 'meta_value_num';
+				$args['order']    = 'price_asc' === AddonSettings::get_display_order() ? 'ASC' : 'DESC';
+				break;
+			case 'date_created':
+				$args['orderby'] = 'date';
+				$args['order']   = 'DESC';
+				break;
+			default:
+				$args['orderby'] = 'menu_order';
+				$args['order']   = 'ASC';
+				break;
+		}
+
+		return get_posts( $args );
+	}
+
+	/**
+	 * Is the list currently sorted by the position the drag handle writes?
+	 *
+	 * When it is not, the handle is not rendered. Offering it anyway would let
+	 * the operator drag a row, have menu_order written exactly as asked, and
+	 * watch the list come back in title order — work accepted and discarded,
+	 * with nothing reporting an error.
+	 */
+	private static function is_manually_sorted(): bool {
+		return 'menu_order' === AddonSettings::get_display_order();
+	}
+
+	/**
+	 * One row.
+	 */
+	private static function render_row( \WP_Post $addon, int $index ): void {
+		$enabled  = '1' === (string) get_post_meta( $addon->ID, 'mhmrentiva_addon_enabled', true );
+		$price    = (float) get_post_meta( $addon->ID, 'mhmrentiva_addon_price', true );
+		$type     = AddonPricingType::sanitize( get_post_meta( $addon->ID, '_mhmrentiva_addon_pricing_type', true ) );
+		$palette  = self::AVATAR_PALETTE[ $index % count( self::AVATAR_PALETTE ) ];
+		$initial  = mb_strtoupper( mb_substr( $addon->post_title, 0, 1 ) );
+		$excerpt  = $addon->post_excerpt;
+		$edit_url = get_edit_post_link( $addon->ID, 'url' );
+
+		printf(
+			'<div class="rv-addon-row%1$s" data-addon-id="%2$d">',
+			$enabled ? '' : ' rv-addon-row--off',
+			(int) $addon->ID
+		);
+
+		if ( self::is_manually_sorted() ) {
+			printf(
+				'<span class="rv-addon-drag" aria-label="%s">&#8942;&#8942;</span>',
+				esc_attr__( 'Drag to reorder', 'mhm-rentiva' )
+			);
+		}
+
+		printf(
+			'<span class="rv-addon-avatar" style="background:%1$s;color:%2$s" aria-hidden="true">%3$s</span>',
+			esc_attr( $palette[0] ),
+			esc_attr( $palette[1] ),
+			esc_html( $initial )
+		);
+
+		echo '<span class="rv-addon-identity">';
+		echo '<span class="rv-addon-name">' . esc_html( $addon->post_title ) . '</span>';
+		if ( '' !== $excerpt ) {
+			echo '<span class="rv-addon-desc">' . esc_html( $excerpt ) . '</span>';
+		}
+		echo '</span>';
+
+		echo '<span class="rv-addon-price">';
+		echo '<span class="rv-addon-amount">' . esc_html( CurrencyHelper::format_price( $price, 2 ) ) . '</span>';
+		echo '<span class="rv-addon-type">' . esc_html( AddonPricingType::label( $type ) ) . '</span>';
+		echo '</span>';
+
+		printf(
+			'<button type="button" class="rv-addon-status%1$s" data-enabled="%2$s">%3$s</button>',
+			$enabled ? ' is-on' : '',
+			$enabled ? '1' : '0',
+			esc_html( $enabled ? __( 'Active', 'mhm-rentiva' ) : __( 'Inactive', 'mhm-rentiva' ) )
+		);
+
+		if ( is_string( $edit_url ) && '' !== $edit_url ) {
+			printf(
+				'<a class="rv-addon-edit" href="%1$s">%2$s</a>',
+				esc_url( $edit_url ),
+				esc_html__( 'Edit', 'mhm-rentiva' )
+			);
+		}
+
 		echo '</div>';
 	}
 }
