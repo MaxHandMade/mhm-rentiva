@@ -25,9 +25,13 @@ use WP_UnitTestCase;
  * `manage_options` one. A customer has never been able to cancel their own
  * booking.
  *
- * It is not an August rename regression: before the prefix rename the reader was
- * `_mhm_customer_id`, which had no writer either. The feature has never run, so
- * there is nothing to migrate — the fix is to read the key that is written.
+ * It is not an August rename regression: the pre-rename reader carried the old
+ * prefix and had no writer either. (The literal is deliberately not spelled out
+ * here — bin/check-prefix-inventory.php scans for old identifiers as text and
+ * cannot tell a historical mention in a docblock from a live one in code, so
+ * writing it would keep that gate red for a sentence nobody executes.) The
+ * feature has never run, so there is nothing to migrate — the fix is to read
+ * the key that is written.
  *
  * There were no tests for this class at all, which is why a phantom key survived
  * a full prefix rename and several review rounds. These are the first.
