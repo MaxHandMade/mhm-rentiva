@@ -51,6 +51,37 @@ final class AddonScreen {
 		add_action( 'wp_ajax_mhmrentiva_addon_toggle_enabled', array( self::class, 'ajax_toggle_enabled' ) );
 		add_action( 'wp_ajax_mhmrentiva_addon_quick_create', array( self::class, 'ajax_quick_create' ) );
 		add_action( 'wp_ajax_mhmrentiva_addon_reorder', array( self::class, 'ajax_reorder' ) );
+
+		// The endpoints above flush directly. These cover every other way the
+		// figures can change: the full editor, the native screen's bulk actions
+		// and inline price editor, deletion, and anything else that saves an
+		// add-on. Meta written straight through update_post_meta() does not
+		// fire save_post, which is why the endpoints do not rely on this.
+		add_action( 'save_post_' . AddonPostType::POST_TYPE, array( AddonStats::class, 'flush' ) );
+		add_action( 'deleted_post', array( AddonStats::class, 'flush' ) );
+		add_action( 'updated_post_meta', array( self::class, 'flush_stats_on_addon_meta' ), 10, 3 );
+		add_action( 'added_post_meta', array( self::class, 'flush_stats_on_addon_meta' ), 10, 3 );
+	}
+
+	/**
+	 * Flush the KPI cache when an add-on's price or enabled flag is written by
+	 * any path, including the native screen's inline price editor and its bulk
+	 * enable/disable actions.
+	 *
+	 * @param int    $meta_id  Unused.
+	 * @param int    $post_id  Post the meta belongs to.
+	 * @param string $meta_key Meta key written.
+	 */
+	public static function flush_stats_on_addon_meta( $meta_id, $post_id, $meta_key ): void {
+		if ( 'mhmrentiva_addon_price' !== $meta_key && 'mhmrentiva_addon_enabled' !== $meta_key ) {
+			return;
+		}
+
+		if ( AddonPostType::POST_TYPE !== get_post_type( (int) $post_id ) ) {
+			return;
+		}
+
+		AddonStats::flush();
 	}
 
 	/**
@@ -244,6 +275,7 @@ final class AddonScreen {
 		update_post_meta( $addon_id, '_mhmrentiva_addon_pricing_type', $pricing_type );
 		update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', '1' );
 		update_post_meta( $addon_id, 'mhmrentiva_addon_required', '0' );
+		AddonStats::flush();
 
 		return array(
 			'success'  => true,
@@ -343,6 +375,7 @@ final class AddonScreen {
 		$enabled = '1' === (string) ( $request['enabled'] ?? '' );
 
 		update_post_meta( $addon_id, 'mhmrentiva_addon_enabled', $enabled ? '1' : '0' );
+		AddonStats::flush();
 
 		return array(
 			'success' => true,
@@ -400,6 +433,8 @@ final class AddonScreen {
 		echo '<div class="wrap" id="mhm-addons-root">';
 		echo '<h1 class="rv-addon-title">' . esc_html__( 'Additional Services', 'mhm-rentiva' ) . '</h1>';
 
+		self::render_stats_band();
+
 		echo '<div class="rv-addon-layout">';
 		echo '<div class="rv-addon-list-card">';
 
@@ -428,6 +463,68 @@ final class AddonScreen {
 
 		echo '</div>';
 		echo '</div>';
+		echo '</div>';
+	}
+
+	/**
+	 * The KPI band.
+	 *
+	 * The design does not draw one — it opens straight into the two columns —
+	 * but the band stays, by decision: it is the only place four of these
+	 * numbers are shown at all, and average price and total value appear on no
+	 * other screen. Dropping them to match a mockup would be removing working
+	 * information to gain a resemblance.
+	 *
+	 * It reuses the shared `mhm-stat-card` markup rather than inventing a second
+	 * card system for this screen; Task 10 restyles it inside
+	 * `#mhm-addons-root`, which is what keeps the change local.
+	 */
+	private static function render_stats_band(): void {
+		$stats = AddonStats::get();
+
+		$cards = array(
+			array(
+				'icon'  => 'dashicons-plus-alt',
+				'label' => __( 'Total Additional Services', 'mhm-rentiva' ),
+				'value' => (string) $stats['total_addons'],
+				'sub'   => __( 'All services', 'mhm-rentiva' ),
+			),
+			array(
+				'icon'  => 'dashicons-yes-alt',
+				'label' => __( 'Active Services', 'mhm-rentiva' ),
+				'value' => (string) $stats['active_addons'],
+				'sub'   => sprintf(
+					/* translators: %s: share of services that are active, as a percentage. */
+					__( '%s%% active', 'mhm-rentiva' ),
+					(string) $stats['active_percentage']
+				),
+			),
+			array(
+				'icon'  => 'dashicons-money-alt',
+				'label' => __( 'Average Price', 'mhm-rentiva' ),
+				'value' => $stats['avg_price'],
+				'sub'   => __( 'All services', 'mhm-rentiva' ),
+			),
+			array(
+				'icon'  => 'dashicons-chart-line',
+				'label' => __( 'Total Value', 'mhm-rentiva' ),
+				'value' => $stats['total_value'],
+				'sub'   => __( 'All prices', 'mhm-rentiva' ),
+			),
+		);
+
+		echo '<div class="mhm-stats-grid">';
+		foreach ( $cards as $card ) {
+			printf(
+				'<div class="mhm-stat-card"><span class="dashicons %1$s"></span><div class="mhm-stat-card__body">' .
+				'<p class="mhm-stat-card__label">%2$s</p><p class="mhm-stat-card__value">%3$s</p>' .
+				'<p class="mhm-stat-card__sub">%4$s</p></div></div>',
+				esc_attr( $card['icon'] ),
+				esc_html( $card['label'] ),
+				esc_html( $card['value'] ),
+				esc_html( $card['sub'] )
+			);
+		}
 		echo '</div>';
 	}
 

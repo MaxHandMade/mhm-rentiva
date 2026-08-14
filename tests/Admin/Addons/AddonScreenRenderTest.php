@@ -162,6 +162,26 @@ final class AddonScreenRenderTest extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * The KPI band is a decision, not an oversight: the design opens straight
+	 * into the two columns, but average price and total value are shown on no
+	 * other screen, so removing them would trade working information for a
+	 * resemblance. It reuses the shared card markup instead of a second system.
+	 */
+	public function test_it_renders_the_kpi_band(): void {
+		$html = $this->render();
+
+		$this->assertStringContainsString( 'mhm-stats-grid', $html );
+		$this->assertSame( 4, substr_count( $html, 'mhm-stat-card__label' ), 'Four cards.' );
+	}
+
+	public function test_the_band_and_the_list_counter_agree_on_the_active_count(): void {
+		$html = wp_strip_all_tags( $this->render() );
+
+		// One of two add-ons is enabled in this fixture; both surfaces say 1.
+		$this->assertMatchesRegularExpression( '/1\D+2/u', $html );
+	}
+
 	public function test_it_refuses_a_user_without_manage_options(): void {
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
 

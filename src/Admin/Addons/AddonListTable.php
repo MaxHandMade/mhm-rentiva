@@ -9,7 +9,6 @@ if (! defined('ABSPATH')) {
 
 use MHMRentiva\Admin\Core\ListTable\ListScreenLayout;
 
-// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate admin statistics are read directly and never mutate data.
 
 /**
  * Registers the live enhancements for WordPress's native add-on CPT list.
@@ -151,63 +150,14 @@ final class AddonListTable {
 	/**
 	 * Get add-on statistics.
 	 *
+	 * Delegates to AddonStats, which owns these four figures. They are also
+	 * painted by the plugin's own add-ons screen; keeping the arithmetic here as
+	 * well would be two definitions of the same numbers, one per screen, free to
+	 * drift apart.
+	 *
 	 * @return array{total_addons:int,active_addons:int,active_percentage:float|int,avg_price:string,total_value:string}
 	 */
 	private static function get_addon_stats(): array {
-		global $wpdb;
-
-		$total_addons = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status = %s",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$active_addons = (int) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT COUNT(*) FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_enabled' AND pm.meta_value = '1'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$avg_price = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT AVG(CAST(pm.meta_value AS DECIMAL(10,2)))
-				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$total_value = (float) $wpdb->get_var(
-			$wpdb->prepare(
-				"SELECT SUM(CAST(pm.meta_value AS DECIMAL(10,2)))
-				 FROM {$wpdb->posts} p
-				 INNER JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
-				 WHERE p.post_type = %s AND p.post_status = %s
-				 AND pm.meta_key = 'mhmrentiva_addon_price'",
-				'mhmrentiva_addon',
-				'publish'
-			)
-		);
-
-		$active_percentage = $total_addons > 0 ? round(( $active_addons / $total_addons ) * 100) : 0;
-
-		return array(
-			'total_addons'      => $total_addons,
-			'active_addons'     => $active_addons,
-			'active_percentage' => $active_percentage,
-			// Canonical currency formatting; these used to pin the symbol right.
-			'avg_price'         => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($avg_price, 2),
-			'total_value'       => \MHMRentiva\Admin\Core\CurrencyHelper::format_price($total_value, 2),
-		);
+		return AddonStats::get();
 	}
 }
